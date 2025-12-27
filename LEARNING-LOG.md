@@ -69,6 +69,78 @@ This log captures lessons learned during development. Review before making chang
 
 ---
 
+### 2025-12-27 - ML Model Mocking Pattern for Tests (CRITICAL)
+
+**Context:** Writing comprehensive tests for retrieval engine with SentenceTransformer and CrossEncoder.
+
+**What Happened:** Initial mock at `ai_governance_mcp.retrieval.SentenceTransformer` failed with `AttributeError: module does not have attribute`.
+
+**Root Cause:** Models are lazy-loaded inside property methods, not imported at module level. The import happens when the property is first accessed.
+
+**Solution:** Patch at the source: `sentence_transformers.SentenceTransformer` instead of where it's used.
+
+**Pattern:**
+```python
+with patch("sentence_transformers.SentenceTransformer", mock_st):
+    with patch("sentence_transformers.CrossEncoder", mock_ce):
+        # Test code here
+```
+
+**Lesson:** When mocking lazy-loaded dependencies, patch at the source module level, not at the consumer module level.
+
+---
+
+### 2025-12-27 - Mock Embedder Array Shape (CRITICAL)
+
+**Context:** Mock embedder was returning a static numpy array.
+
+**What Happened:** Tests failed with `TypeError: only length-1 arrays can be converted to Python scalars` when batch operations were performed.
+
+**Root Cause:** Mock returned same array regardless of input size. Batch embedding expects array shape `(num_texts, embedding_dim)`.
+
+**Solution:** Use `side_effect` function that dynamically returns correctly-shaped arrays:
+```python
+def mock_encode(texts, *args, **kwargs):
+    if isinstance(texts, str):
+        return np.random.rand(384).astype(np.float32)
+    return np.random.rand(len(texts), 384).astype(np.float32)
+embedder.encode = Mock(side_effect=mock_encode)
+```
+
+**Lesson:** When mocking functions that handle variable-size inputs, use `side_effect` with a function, not `return_value`.
+
+---
+
+### 2025-12-27 - Falsy Values in Validation Tests
+
+**Context:** Testing rating validation in log_feedback with rating=0.
+
+**What Happened:** Rating=0 triggered "required field" error before the range validation check.
+
+**Root Cause:** In Python, `if not rating:` treats 0 as falsy, same as missing.
+
+**Solution:** Use rating=-1 to test invalid low values (clearly invalid but not falsy).
+
+**Lesson:** When testing validation boundaries, consider Python's truthiness rules. Zero is falsy.
+
+---
+
+### 2025-12-27 - Shared Test Fixtures Pattern
+
+**Context:** Multiple test files needed same fixtures (mock embedder, sample principles, test settings).
+
+**What Happened:** Initially duplicated fixture code across test files.
+
+**Solution:** Created `tests/conftest.py` with comprehensive shared fixtures:
+- `sample_principle`, `sample_s_series_principle` - Model fixtures
+- `mock_embedder`, `mock_reranker` - ML model mocks
+- `test_settings`, `saved_index` - Configuration fixtures
+- `reset_server_state` - Server singleton cleanup
+
+**Lesson:** Invest in `conftest.py` early. Shared fixtures reduce duplication and ensure consistent test behavior.
+
+---
+
 ## Patterns That Worked
 
 | Pattern | Context | Why It Worked |
@@ -77,6 +149,9 @@ This log captures lessons learned during development. Review before making chang
 | Research before deciding | Search approach | Found better middle-ground option |
 | Gate artifacts | Phase transitions | Clear validation checkpoints |
 | **Process Map visualization** | Discovery phase | PO visibility into workflow position |
+| **conftest.py fixtures** | Test suite | Shared fixtures, 193 tests, 93% coverage |
+| **side_effect for mocks** | ML model mocking | Handles variable input sizes correctly |
+| **Patch at source** | Lazy-loaded deps | Works when imports are inside methods |
 
 ### 2025-12-26 - Process Map Visualization Pattern (PO APPROVED)
 
@@ -175,10 +250,12 @@ NEXT PHASE (after gate)
 
 ## Future Considerations
 
-1. **Hybrid retrieval implementation:** NOW REQUIRED - not optional. Research best embedding models (all-MiniLM-L6-v2, e5-base-v2, etc.) and reranking strategies.
+1. ~~**Hybrid retrieval implementation:**~~ COMPLETE - all-MiniLM-L6-v2 for embeddings, ms-marco-MiniLM-L-6-v2 for reranking, 60/40 semantic/keyword fusion.
 2. **Cross-tool synchronization:** Multi-agent domain mentions claude.md ↔ gemini.md sync. Not in v1 scope but may need future support.
 3. **Hot reload:** Currently requires server restart for domain changes. Could add file watcher.
 4. **Public deployment:** PO wants this online for others. Need to consider hosting, API rate limits, and scalability.
+5. **Additional domains:** Prompt engineering, RAG optimization, sci-fi/fantasy writing, hotel analysis planned.
+6. **Knowledge graph tier:** Tier 3 enhancement for relationship-based retrieval if needed.
 
 ## Research Links (from 2025-12-24 session)
 

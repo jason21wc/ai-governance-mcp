@@ -1,8 +1,8 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.0
-**Date:** 2025-12-26
-**Phase:** PLAN
+**Version:** 1.1
+**Date:** 2025-12-27
+**Phase:** COMPLETE (193 tests, 93% coverage)
 
 ---
 
@@ -89,9 +89,9 @@ ai-governance-mcp/
 │       └── config.py          # Settings
 │
 ├── index/                     # Generated
-│   ├── principles.json
-│   ├── embeddings.npy
-│   └── domains.json
+│   ├── global_index.json      # Serialized GlobalIndex
+│   ├── content_embeddings.npy # Principle/method embeddings (65, 384)
+│   └── domain_embeddings.npy  # Domain embeddings for routing (3, 384)
 │
 ├── documents/                 # Source markdown docs
 │
@@ -99,9 +99,16 @@ ai-governance-mcp/
 │   └── feedback.jsonl         # Retrieval feedback
 │
 ├── tests/
-│   ├── test_retrieval.py
-│   ├── test_extractor.py
-│   └── test_server.py
+│   ├── conftest.py                  # Shared fixtures
+│   ├── fixtures/                    # Test data files
+│   ├── test_models.py               # Model tests (24)
+│   ├── test_config.py               # Config tests (17)
+│   ├── test_server.py               # Server unit tests (44)
+│   ├── test_server_integration.py   # Server integration (12)
+│   ├── test_extractor.py            # Extractor tests (35)
+│   ├── test_extractor_integration.py # Extractor pipeline (11)
+│   ├── test_retrieval.py            # Retrieval unit (44)
+│   └── test_retrieval_integration.py # Retrieval pipeline (18)
 │
 ├── pyproject.toml
 └── README.md
@@ -143,3 +150,39 @@ ai-governance-mcp/
 | Source Documents | File system read | Markdown files in documents/ |
 | Index | File system read | JSON + NumPy at startup |
 | Feedback Log | File system append | JSONL format |
+
+---
+
+## Test Architecture
+
+| Category | Files | Purpose |
+|----------|-------|---------|
+| **Unit** | test_models, test_config | Isolated component validation |
+| **Server** | test_server, test_server_integration | All 6 MCP tools, dispatcher routing |
+| **Extractor** | test_extractor, test_extractor_integration | Parsing, embeddings, index build |
+| **Retrieval** | test_retrieval, test_retrieval_integration | Hybrid search, reranking, pipeline |
+
+### Test Markers (pyproject.toml)
+
+| Marker | Purpose |
+|--------|---------|
+| `@pytest.mark.slow` | Tests requiring actual ML models (~30s each) |
+| `@pytest.mark.integration` | End-to-end pipeline tests |
+| `@pytest.mark.real_index` | Tests using production index data |
+
+### Mocking Strategy
+
+ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtures:
+- Patch at `sentence_transformers.*` level (lazy-loaded imports)
+- Mock returns numpy arrays with correct shapes via `side_effect`
+- Fixed random seed for reproducible tests
+
+### Coverage by Module
+
+| Module | Coverage | Notes |
+|--------|----------|-------|
+| models.py | 100% | Full validation coverage |
+| config.py | 98% | Env edge case uncovered |
+| server.py | 97% | async run_server uncovered |
+| extractor.py | 93% | CLI main uncovered |
+| retrieval.py | 86% | Rare filesystem errors uncovered |

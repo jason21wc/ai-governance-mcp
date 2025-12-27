@@ -108,6 +108,15 @@
 | `index/global_index.json` | Serialized index |
 | `index/content_embeddings.npy` | Principle embeddings |
 | `index/domain_embeddings.npy` | Domain embeddings for routing |
+| `tests/conftest.py` | Shared test fixtures |
+| `tests/test_server.py` | Server unit tests (44) |
+| `tests/test_server_integration.py` | Server integration tests (12) |
+| `tests/test_extractor.py` | Extractor unit tests (35) |
+| `tests/test_extractor_integration.py` | Extractor integration tests (11) |
+| `tests/test_retrieval.py` | Retrieval unit tests (44) |
+| `tests/test_retrieval_integration.py` | Retrieval integration tests (18) |
+| `tests/test_models.py` | Model validation tests (24) |
+| `tests/test_config.py` | Config tests (17) |
 
 ---
 
@@ -127,6 +136,21 @@ python -m ai_governance_mcp.server --test "your query here"
 ### Rebuild Index
 ```bash
 python -m ai_governance_mcp.extractor
+```
+
+### Run Tests
+```bash
+# All tests
+pytest tests/ -v
+
+# With coverage
+pytest --cov=ai_governance_mcp --cov-report=html tests/
+
+# Skip slow tests
+pytest -m "not slow" tests/
+
+# Real index tests only
+pytest -m real_index tests/
 ```
 
 ---

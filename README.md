@@ -109,6 +109,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
+| Test Coverage | 80% | **93%** (193 tests) |
 
 ## Getting Started
 
@@ -152,15 +153,25 @@ export AI_GOVERNANCE_SEMANTIC_WEIGHT=0.6
 ```
 ai-governance-mcp/
 ├── src/ai_governance_mcp/
-│   ├── models.py      # Pydantic data structures
-│   ├── config.py      # Settings management
-│   ├── extractor.py   # Document parsing + embeddings
-│   ├── retrieval.py   # Hybrid search engine
-│   └── server.py      # MCP server + tools
-├── documents/         # Governance documents
-├── index/             # Generated index + embeddings
-├── logs/              # Query + feedback logs
-└── tests/             # Test suite
+│   ├── models.py        # Pydantic data structures
+│   ├── config.py        # Settings management
+│   ├── extractor.py     # Document parsing + embeddings
+│   ├── retrieval.py     # Hybrid search engine
+│   └── server.py        # MCP server + tools
+├── documents/           # Governance documents
+│   └── domains.json     # Domain configurations
+├── index/               # Generated index + embeddings
+├── logs/                # Query + feedback logs
+└── tests/
+    ├── conftest.py      # Shared fixtures
+    ├── test_models.py   # Model validation (24 tests)
+    ├── test_config.py   # Config tests (17 tests)
+    ├── test_server.py   # Server unit tests (44 tests)
+    ├── test_server_integration.py   # Dispatcher + flows (12 tests)
+    ├── test_extractor.py            # Extractor tests (35 tests)
+    ├── test_extractor_integration.py # Pipeline tests (11 tests)
+    ├── test_retrieval.py            # Retrieval unit (44 tests)
+    └── test_retrieval_integration.py # Retrieval pipeline (18 tests)
 ```
 
 ## The Methodology
@@ -179,12 +190,32 @@ Each phase has explicit gate criteria before proceeding. This ensures:
 
 ## Development
 
+### Test Suite
+
+193 tests across 9 test files with 93% coverage:
+
+| Category | Tests | Purpose |
+|----------|-------|---------|
+| Unit | 164 | Isolated component testing |
+| Integration | 23 | Full pipeline flows |
+| Real Index | 3 | Production data validation |
+| Slow (ML) | 3 | Actual embedding models |
+
 ```bash
-# Run tests
+# Run all tests
 pytest tests/ -v
 
-# Tests without heavy dependencies (models + config)
-pytest tests/test_models.py tests/test_config.py -v
+# With coverage report
+pytest --cov=ai_governance_mcp --cov-report=html tests/
+
+# Fast tests only (skip ML models)
+pytest -m "not slow" tests/
+
+# Real production index tests
+pytest -m real_index tests/
+
+# Integration tests only
+pytest -m integration tests/
 ```
 
 ## Roadmap
