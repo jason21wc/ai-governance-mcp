@@ -8,9 +8,32 @@
 
 ## Current Position
 
-**Status:** Project complete and deployed
-**Next Action:** Use the MCP tools in Claude Code sessions
+**Status:** Project complete and deployed (bug fix applied)
+**Next Action:** Restart Claude Code to reload MCP server with fix
 **Context:** v4 hybrid retrieval fully implemented, tested, and deployed
+
+---
+
+## Recent Changes
+
+### Bug Fix: Forced Domain Parameter (2025-12-27)
+
+**Issue:** When `domain` parameter was explicitly set in `query_governance`, the specified domain's principles were not included in search results.
+
+**Root Cause:** In `retrieval.py:390-401`, when a domain was forced, `search_domains` was set to only `["constitution"]` instead of including the forced domain.
+
+**Fix:** Updated domain routing logic to include the forced domain in `search_domains`:
+```python
+if domain:
+    search_domains = [domain] if domain in self.index.domains else []
+    if include_constitution:
+        search_domains.append("constitution")
+```
+
+**Tests Added:** 3 new real_index tests for forced domain behavior
+- `test_real_index_forced_domain_returns_domain_principles`
+- `test_real_index_forced_domain_includes_constitution`
+- `test_real_index_forced_domain_excludes_constitution`
 
 ---
 
@@ -21,7 +44,7 @@
 | SPECIFY | Complete | GATE-SPECIFY.md |
 | PLAN | Complete | GATE-PLAN.md |
 | TASKS | Complete | GATE-TASKS.md |
-| IMPLEMENT | **Complete** | 193 tests, 93% coverage |
+| IMPLEMENT | **Complete** | 196 tests, 93% coverage |
 | DEPLOY | **Complete** | GitHub + global MCP config |
 
 ---
@@ -35,7 +58,7 @@
 | T3-T5 | Extractor (parser, embeddings, GlobalIndex) | Complete |
 | T6-T11 | Retrieval (domain routing, BM25, semantic, fusion, rerank, hierarchy) | Complete |
 | T12-T18 | Server + 6 MCP tools | Complete |
-| T19-T22 | Tests (193 passing, 93% coverage) | Complete |
+| T19-T22 | Tests (196 passing, 93% coverage) | Complete |
 | T23 | Portfolio README | Complete |
 
 ---
@@ -102,7 +125,7 @@ The server is configured globally (user scope) in `~/.claude.json`:
 | server.py | 59 | 97% |
 | extractor.py | 38 | 93% |
 | retrieval.py | 55 | 86% |
-| **Total** | **193** | **93%** |
+| **Total** | **196** | **93%** |
 
 **Test Categories:**
 - Unit tests with mocked dependencies

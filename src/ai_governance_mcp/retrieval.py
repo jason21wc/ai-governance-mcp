@@ -388,14 +388,17 @@ class RetrievalEngine:
 
         # Step 1: Route to domains
         if domain:
+            # Forced domain - include it in search
             domain_scores = {domain: 1.0} if domain in self.index.domains else {}
             detected_domains = []
+            search_domains = [domain] if domain in self.index.domains else []
+            if include_constitution and "constitution" not in search_domains:
+                search_domains.append("constitution")
         else:
             domain_scores = self.route_domains(query)
             detected_domains = list(domain_scores.keys())
-
-        # Always include constitution for search (but not necessarily in output)
-        search_domains = list(set(detected_domains + ["constitution"]))
+            # Always include constitution for search (but not necessarily in output)
+            search_domains = list(set(detected_domains + ["constitution"]))
 
         # Step 2-3: Hybrid search
         bm25_results = self.bm25_search(query, search_domains)

@@ -109,7 +109,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **93%** (193 tests) |
+| Test Coverage | 80% | **93%** (196 tests) |
 
 ## Getting Started
 
@@ -192,13 +192,13 @@ Each phase has explicit gate criteria before proceeding. This ensures:
 
 ### Test Suite
 
-193 tests across 9 test files with 93% coverage:
+196 tests across 9 test files with 93% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
 | Unit | 164 | Isolated component testing |
-| Integration | 23 | Full pipeline flows |
-| Real Index | 3 | Production data validation |
+| Integration | 26 | Full pipeline flows |
+| Real Index | 6 | Production data validation |
 | Slow (ML) | 3 | Actual embedding models |
 
 ```bash

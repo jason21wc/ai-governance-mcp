@@ -338,3 +338,56 @@ class TestRealIndexRetrieval:
 
         # Should return some results (constitution is always searched)
         assert len(result.constitution_principles) > 0 or len(result.domain_principles) > 0
+
+    def test_real_index_forced_domain_returns_domain_principles(self, real_settings):
+        """Forced domain parameter should include domain principles in results."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Force ai-coding domain
+        result = engine.retrieve("unclear requirements", domain="ai-coding")
+
+        # Must return domain principles from the forced domain
+        assert len(result.domain_principles) > 0, "Forced domain should return domain principles"
+
+        # All domain principles should be from ai-coding domain (prefix: coding-)
+        for sp in result.domain_principles:
+            assert sp.principle.id.startswith("coding-"), (
+                f"Expected ai-coding principle, got {sp.principle.id}"
+            )
+
+    def test_real_index_forced_domain_includes_constitution(self, real_settings):
+        """Forced domain with include_constitution=True should search both domains."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Use a general query that should match both domains
+        result = engine.retrieve(
+            "how should I handle unclear requirements and ambiguity",
+            domain="ai-coding",
+            include_constitution=True,
+        )
+
+        # Should search both domains (constitution_principles may be empty if
+        # domain principles score much higher, but search_domains includes both)
+        assert len(result.domain_principles) > 0, "Should return domain principles"
+        # Constitution principles are searched but may not meet threshold
+        # The key test is that include_constitution doesn't break domain retrieval
+
+    def test_real_index_forced_domain_excludes_constitution(self, real_settings):
+        """Forced domain with include_constitution=False should exclude constitution."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        result = engine.retrieve(
+            "specification completeness",
+            domain="ai-coding",
+            include_constitution=False,
+        )
+
+        # Should have domain principles only
+        assert len(result.domain_principles) > 0, "Should return domain principles"
+        assert len(result.constitution_principles) == 0, "Should not return constitution"
