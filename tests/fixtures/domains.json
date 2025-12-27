@@ -1,0 +1,18 @@
+[
+  {
+    "name": "constitution",
+    "display_name": "Constitution",
+    "principles_file": "sample_principles.md",
+    "methods_file": null,
+    "description": "Universal behavioral rules for AI interaction. Safety principles, core behavioral guidelines, quality standards, and operational rules.",
+    "priority": 0
+  },
+  {
+    "name": "ai-coding",
+    "display_name": "AI Coding",
+    "principles_file": "ai-coding-domain-principles.md",
+    "methods_file": "sample_methods.md",
+    "description": "Software development with AI assistance. Code generation, testing, debugging, and software architecture.",
+    "priority": 10
+  }
+]

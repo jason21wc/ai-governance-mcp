@@ -1,0 +1,810 @@
+"""Unit tests for the MCP server module.
+
+Per specification v4: Tests for all 6 MCP tools and server infrastructure.
+Per governance Q3 (Testing Integration): Comprehensive coverage for server.py.
+"""
+
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from unittest.mock import AsyncMock, Mock, patch, MagicMock
+
+import pytest
+import numpy as np
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+
+# =============================================================================
+# Global State Tests
+# =============================================================================
+
+
+class TestGetEngine:
+    """Tests for get_engine() singleton."""
+
+    def test_get_engine_creates_singleton(self, reset_server_state, test_settings, saved_index):
+        """get_engine() should create engine on first call."""
+        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+            with patch("sentence_transformers.SentenceTransformer"):
+                with patch("sentence_transformers.CrossEncoder"):
+                    from ai_governance_mcp.server import get_engine
+
+                    engine = get_engine()
+                    assert engine is not None
+
+    def test_get_engine_returns_same_instance(self, reset_server_state, test_settings, saved_index):
+        """Subsequent calls should return the same engine instance."""
+        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+            with patch("sentence_transformers.SentenceTransformer"):
+                with patch("sentence_transformers.CrossEncoder"):
+                    from ai_governance_mcp.server import get_engine
+
+                    engine1 = get_engine()
+                    engine2 = get_engine()
+                    assert engine1 is engine2
+
+
+class TestGetMetrics:
+    """Tests for get_metrics() singleton."""
+
+    def test_get_metrics_creates_singleton(self, reset_server_state):
+        """get_metrics() should create Metrics on first call."""
+        from ai_governance_mcp.server import get_metrics
+        from ai_governance_mcp.models import Metrics
+
+        metrics = get_metrics()
+        assert isinstance(metrics, Metrics)
+
+    def test_get_metrics_returns_same_instance(self, reset_server_state):
+        """Subsequent calls should return the same Metrics instance."""
+        from ai_governance_mcp.server import get_metrics
+
+        metrics1 = get_metrics()
+        metrics2 = get_metrics()
+        assert metrics1 is metrics2
+
+    def test_get_metrics_initial_values(self, reset_server_state):
+        """New Metrics should have default initial values."""
+        from ai_governance_mcp.server import get_metrics
+
+        metrics = get_metrics()
+        assert metrics.total_queries == 0
+        assert metrics.avg_retrieval_time_ms == 0.0
+        assert metrics.s_series_trigger_count == 0
+        assert metrics.feedback_count == 0
+
+
+# =============================================================================
+# Logging Function Tests
+# =============================================================================
+
+
+class TestLogQuery:
+    """Tests for log_query() function."""
+
+    def test_log_query_writes_jsonl(self, reset_server_state, test_settings, sample_query_log):
+        """log_query() should append QueryLog as JSONL."""
+        import ai_governance_mcp.server as server_module
+
+        server_module._settings = test_settings
+
+        from ai_governance_mcp.server import log_query
+
+        log_query(sample_query_log)
+
+        log_file = test_settings.logs_path / "queries.jsonl"
+        assert log_file.exists()
+
+        content = log_file.read_text()
+        assert "test query" in content
+
+        # Verify it's valid JSON
+        parsed = json.loads(content.strip())
+        assert parsed["query"] == "test query"
+
+    def test_log_query_appends_multiple(self, reset_server_state, test_settings, sample_query_log):
+        """log_query() should append multiple entries."""
+        import ai_governance_mcp.server as server_module
+
+        server_module._settings = test_settings
+
+        from ai_governance_mcp.server import log_query
+
+        log_query(sample_query_log)
+        log_query(sample_query_log)
+
+        log_file = test_settings.logs_path / "queries.jsonl"
+        lines = log_file.read_text().strip().split("\n")
+        assert len(lines) == 2
+
+    def test_log_query_without_settings(self, reset_server_state):
+        """log_query() should handle None settings gracefully."""
+        import ai_governance_mcp.server as server_module
+        from ai_governance_mcp.server import log_query
+        from ai_governance_mcp.models import QueryLog
+
+        server_module._settings = None
+
+        query_log = QueryLog(
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            query="test",
+            domains_detected=[],
+        )
+
+        # Should not raise
+        log_query(query_log)
+
+
+class TestLogFeedbackEntry:
+    """Tests for log_feedback_entry() function."""
+
+    def test_log_feedback_entry_writes_jsonl(self, reset_server_state, test_settings, sample_feedback):
+        """log_feedback_entry() should append Feedback as JSONL."""
+        import ai_governance_mcp.server as server_module
+
+        server_module._settings = test_settings
+
+        from ai_governance_mcp.server import log_feedback_entry
+
+        log_feedback_entry(sample_feedback)
+
+        log_file = test_settings.logs_path / "feedback.jsonl"
+        assert log_file.exists()
+
+        content = log_file.read_text()
+        assert "test query" in content
+        assert "meta-C1" in content
+
+    def test_log_feedback_entry_without_settings(self, reset_server_state, sample_feedback):
+        """log_feedback_entry() should handle None settings gracefully."""
+        import ai_governance_mcp.server as server_module
+        from ai_governance_mcp.server import log_feedback_entry
+
+        server_module._settings = None
+
+        # Should not raise
+        log_feedback_entry(sample_feedback)
+
+
+# =============================================================================
+# Tool Handler Tests - query_governance
+# =============================================================================
+
+
+class TestHandleQueryGovernance:
+    """Tests for _handle_query_governance tool handler."""
+
+    @pytest.mark.asyncio
+    async def test_handle_query_governance_success(self, reset_server_state, sample_retrieval_result):
+        """query_governance should return formatted results."""
+        from ai_governance_mcp.server import _handle_query_governance
+
+        mock_engine = Mock()
+        mock_engine.retrieve.return_value = sample_retrieval_result
+
+        result = await _handle_query_governance(mock_engine, {"query": "test query"})
+
+        assert len(result) == 1
+        assert result[0].type == "text"
+        assert "test query" in result[0].text
+        mock_engine.retrieve.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_handle_query_governance_empty_query(self, reset_server_state):
+        """query_governance should return error for empty query."""
+        from ai_governance_mcp.server import _handle_query_governance
+
+        mock_engine = Mock()
+        result = await _handle_query_governance(mock_engine, {"query": ""})
+
+        assert len(result) == 1
+        assert "Error: query is required" in result[0].text
+        mock_engine.retrieve.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_handle_query_governance_updates_metrics(
+        self, reset_server_state, sample_retrieval_result, test_settings
+    ):
+        """query_governance should update metrics after query."""
+        import ai_governance_mcp.server as server_module
+
+        server_module._settings = test_settings
+        server_module._metrics = None
+
+        from ai_governance_mcp.server import _handle_query_governance, get_metrics
+
+        mock_engine = Mock()
+        mock_engine.retrieve.return_value = sample_retrieval_result
+
+        await _handle_query_governance(mock_engine, {"query": "test"})
+
+        metrics = get_metrics()
+        assert metrics.total_queries == 1
+        assert metrics.avg_retrieval_time_ms > 0
+
+    @pytest.mark.asyncio
+    async def test_handle_query_governance_s_series_triggered(
+        self, reset_server_state, sample_retrieval_result, test_settings
+    ):
+        """query_governance should increment s_series_trigger_count when triggered."""
+        import ai_governance_mcp.server as server_module
+
+        server_module._settings = test_settings
+        server_module._metrics = None
+
+        from ai_governance_mcp.server import _handle_query_governance, get_metrics
+
+        sample_retrieval_result.s_series_triggered = True
+
+        mock_engine = Mock()
+        mock_engine.retrieve.return_value = sample_retrieval_result
+
+        await _handle_query_governance(mock_engine, {"query": "safety concern"})
+
+        metrics = get_metrics()
+        assert metrics.s_series_trigger_count == 1
+
+    @pytest.mark.asyncio
+    async def test_handle_query_governance_logs_query(
+        self, reset_server_state, sample_retrieval_result, test_settings
+    ):
+        """query_governance should log query to file."""
+        import ai_governance_mcp.server as server_module
+
+        server_module._settings = test_settings
+        server_module._metrics = None
+
+        from ai_governance_mcp.server import _handle_query_governance
+
+        mock_engine = Mock()
+        mock_engine.retrieve.return_value = sample_retrieval_result
+
+        await _handle_query_governance(mock_engine, {"query": "logged query"})
+
+        log_file = test_settings.logs_path / "queries.jsonl"
+        assert log_file.exists()
+        content = log_file.read_text()
+        assert "logged query" in content
+
+    @pytest.mark.asyncio
+    async def test_handle_query_governance_with_domain_filter(
+        self, reset_server_state, sample_retrieval_result
+    ):
+        """query_governance should pass domain parameter to retrieve."""
+        from ai_governance_mcp.server import _handle_query_governance
+
+        mock_engine = Mock()
+        mock_engine.retrieve.return_value = sample_retrieval_result
+
+        await _handle_query_governance(
+            mock_engine,
+            {"query": "test", "domain": "ai-coding", "include_methods": True},
+        )
+
+        mock_engine.retrieve.assert_called_once_with(
+            query="test",
+            domain="ai-coding",
+            include_constitution=True,
+            include_methods=True,
+            max_results=None,
+        )
+
+
+# =============================================================================
+# Tool Handler Tests - get_principle
+# =============================================================================
+
+
+class TestHandleGetPrinciple:
+    """Tests for _handle_get_principle tool handler."""
+
+    @pytest.mark.asyncio
+    async def test_handle_get_principle_found(self, reset_server_state, sample_principle):
+        """get_principle should return principle JSON when found."""
+        from ai_governance_mcp.server import _handle_get_principle
+
+        mock_engine = Mock()
+        mock_engine.get_principle_by_id.return_value = sample_principle
+
+        result = await _handle_get_principle(mock_engine, {"principle_id": "meta-C1"})
+
+        assert len(result) == 1
+        parsed = json.loads(result[0].text)
+        assert parsed["id"] == "meta-C1"
+        assert parsed["title"] == "Test Principle"
+        assert "keywords" in parsed
+
+    @pytest.mark.asyncio
+    async def test_handle_get_principle_not_found(self, reset_server_state):
+        """get_principle should return ErrorResponse when not found."""
+        from ai_governance_mcp.server import _handle_get_principle
+
+        mock_engine = Mock()
+        mock_engine.get_principle_by_id.return_value = None
+
+        result = await _handle_get_principle(mock_engine, {"principle_id": "meta-X99"})
+
+        assert len(result) == 1
+        parsed = json.loads(result[0].text)
+        assert parsed["error_code"] == "PRINCIPLE_NOT_FOUND"
+        assert "meta-X99" in parsed["message"]
+
+    @pytest.mark.asyncio
+    async def test_handle_get_principle_empty_id(self, reset_server_state):
+        """get_principle should return error for empty ID."""
+        from ai_governance_mcp.server import _handle_get_principle
+
+        mock_engine = Mock()
+        result = await _handle_get_principle(mock_engine, {"principle_id": ""})
+
+        assert len(result) == 1
+        assert "Error: principle_id is required" in result[0].text
+
+
+# =============================================================================
+# Tool Handler Tests - list_domains
+# =============================================================================
+
+
+class TestHandleListDomains:
+    """Tests for _handle_list_domains tool handler."""
+
+    @pytest.mark.asyncio
+    async def test_handle_list_domains_success(self, reset_server_state):
+        """list_domains should return domain list."""
+        from ai_governance_mcp.server import _handle_list_domains
+
+        mock_domains = [
+            {"name": "constitution", "display_name": "Constitution", "principles_count": 42},
+            {"name": "ai-coding", "display_name": "AI Coding", "principles_count": 12},
+        ]
+
+        mock_engine = Mock()
+        mock_engine.list_domains.return_value = mock_domains
+
+        result = await _handle_list_domains(mock_engine, {})
+
+        assert len(result) == 1
+        parsed = json.loads(result[0].text)
+        assert parsed["total_domains"] == 2
+        assert len(parsed["domains"]) == 2
+        assert parsed["domains"][0]["name"] == "constitution"
+
+    @pytest.mark.asyncio
+    async def test_handle_list_domains_empty(self, reset_server_state):
+        """list_domains should handle empty domain list."""
+        from ai_governance_mcp.server import _handle_list_domains
+
+        mock_engine = Mock()
+        mock_engine.list_domains.return_value = []
+
+        result = await _handle_list_domains(mock_engine, {})
+
+        parsed = json.loads(result[0].text)
+        assert parsed["total_domains"] == 0
+        assert parsed["domains"] == []
+
+
+# =============================================================================
+# Tool Handler Tests - get_domain_summary
+# =============================================================================
+
+
+class TestHandleGetDomainSummary:
+    """Tests for _handle_get_domain_summary tool handler."""
+
+    @pytest.mark.asyncio
+    async def test_handle_get_domain_summary_found(self, reset_server_state):
+        """get_domain_summary should return domain details."""
+        from ai_governance_mcp.server import _handle_get_domain_summary
+
+        mock_summary = {
+            "name": "ai-coding",
+            "display_name": "AI Coding",
+            "description": "Software development",
+            "principles": [{"id": "coding-C1", "title": "Code Quality"}],
+            "methods": [{"id": "coding-M1", "title": "Cold Start"}],
+        }
+
+        mock_engine = Mock()
+        mock_engine.get_domain_summary.return_value = mock_summary
+
+        result = await _handle_get_domain_summary(mock_engine, {"domain": "ai-coding"})
+
+        parsed = json.loads(result[0].text)
+        assert parsed["name"] == "ai-coding"
+        assert len(parsed["principles"]) == 1
+
+    @pytest.mark.asyncio
+    async def test_handle_get_domain_summary_not_found(self, reset_server_state):
+        """get_domain_summary should return ErrorResponse when not found."""
+        from ai_governance_mcp.server import _handle_get_domain_summary
+
+        mock_engine = Mock()
+        mock_engine.get_domain_summary.return_value = None
+
+        result = await _handle_get_domain_summary(mock_engine, {"domain": "invalid"})
+
+        parsed = json.loads(result[0].text)
+        assert parsed["error_code"] == "DOMAIN_NOT_FOUND"
+
+    @pytest.mark.asyncio
+    async def test_handle_get_domain_summary_empty_domain(self, reset_server_state):
+        """get_domain_summary should return error for empty domain."""
+        from ai_governance_mcp.server import _handle_get_domain_summary
+
+        mock_engine = Mock()
+        result = await _handle_get_domain_summary(mock_engine, {"domain": ""})
+
+        assert "Error: domain is required" in result[0].text
+
+
+# =============================================================================
+# Tool Handler Tests - log_feedback
+# =============================================================================
+
+
+class TestHandleLogFeedback:
+    """Tests for _handle_log_feedback tool handler."""
+
+    @pytest.mark.asyncio
+    async def test_handle_log_feedback_success(self, reset_server_state, test_settings):
+        """log_feedback should log and update metrics."""
+        import ai_governance_mcp.server as server_module
+
+        server_module._settings = test_settings
+        server_module._metrics = None
+
+        from ai_governance_mcp.server import _handle_log_feedback, get_metrics
+
+        result = await _handle_log_feedback({
+            "query": "test",
+            "principle_id": "meta-C1",
+            "rating": 5,
+            "comment": "Very helpful",
+        })
+
+        parsed = json.loads(result[0].text)
+        assert parsed["status"] == "logged"
+        assert "Thank you" in parsed["message"]
+
+        metrics = get_metrics()
+        assert metrics.feedback_count == 1
+        assert metrics.avg_feedback_rating == 5.0
+
+    @pytest.mark.asyncio
+    async def test_handle_log_feedback_missing_fields(self, reset_server_state):
+        """log_feedback should return error for missing required fields."""
+        from ai_governance_mcp.server import _handle_log_feedback
+
+        result = await _handle_log_feedback({"query": "test"})
+
+        assert "Error:" in result[0].text
+        assert "required" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_handle_log_feedback_invalid_rating_low(self, reset_server_state):
+        """log_feedback should reject rating below 1."""
+        from ai_governance_mcp.server import _handle_log_feedback
+
+        # Note: rating=0 is falsy in Python, so it triggers "required" check first
+        # Testing with -1 instead to test the range check
+        result = await _handle_log_feedback({
+            "query": "test",
+            "principle_id": "meta-C1",
+            "rating": -1,
+        })
+
+        assert "Error: rating must be 1-5" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_handle_log_feedback_invalid_rating_high(self, reset_server_state):
+        """log_feedback should reject rating above 5."""
+        from ai_governance_mcp.server import _handle_log_feedback
+
+        result = await _handle_log_feedback({
+            "query": "test",
+            "principle_id": "meta-C1",
+            "rating": 6,
+        })
+
+        assert "Error: rating must be 1-5" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_handle_log_feedback_updates_avg_rating(self, reset_server_state, test_settings):
+        """log_feedback should calculate rolling average rating."""
+        import ai_governance_mcp.server as server_module
+
+        server_module._settings = test_settings
+        server_module._metrics = None
+
+        from ai_governance_mcp.server import _handle_log_feedback, get_metrics
+
+        await _handle_log_feedback({"query": "q1", "principle_id": "meta-C1", "rating": 4})
+        await _handle_log_feedback({"query": "q2", "principle_id": "meta-C1", "rating": 2})
+
+        metrics = get_metrics()
+        assert metrics.feedback_count == 2
+        assert metrics.avg_feedback_rating == 3.0  # (4 + 2) / 2
+
+
+# =============================================================================
+# Tool Handler Tests - get_metrics
+# =============================================================================
+
+
+class TestHandleGetMetrics:
+    """Tests for _handle_get_metrics tool handler."""
+
+    @pytest.mark.asyncio
+    async def test_handle_get_metrics_initial(self, reset_server_state):
+        """get_metrics should return initial metrics."""
+        from ai_governance_mcp.server import _handle_get_metrics
+
+        result = await _handle_get_metrics({})
+
+        parsed = json.loads(result[0].text)
+        assert parsed["total_queries"] == 0
+        assert parsed["avg_retrieval_time_ms"] == 0
+        assert parsed["s_series_trigger_count"] == 0
+        assert parsed["feedback_count"] == 0
+
+    @pytest.mark.asyncio
+    async def test_handle_get_metrics_after_queries(self, reset_server_state, test_settings):
+        """get_metrics should return updated metrics after queries."""
+        import ai_governance_mcp.server as server_module
+        from ai_governance_mcp.models import Metrics
+
+        # Pre-populate metrics
+        metrics = Metrics(
+            total_queries=50,
+            avg_retrieval_time_ms=42.5,
+            s_series_trigger_count=5,
+            domain_query_counts={"constitution": 50, "ai-coding": 30},
+            confidence_distribution={"high": 20, "medium": 25, "low": 5},
+            feedback_count=10,
+            avg_feedback_rating=4.2,
+        )
+        server_module._metrics = metrics
+
+        from ai_governance_mcp.server import _handle_get_metrics
+
+        result = await _handle_get_metrics({})
+
+        parsed = json.loads(result[0].text)
+        assert parsed["total_queries"] == 50
+        assert parsed["avg_retrieval_time_ms"] == 42.5
+        assert parsed["s_series_trigger_count"] == 5
+        assert parsed["domain_query_counts"]["ai-coding"] == 30
+        assert parsed["avg_feedback_rating"] == 4.2
+
+
+# =============================================================================
+# Formatting Tests
+# =============================================================================
+
+
+class TestFormatRetrievalResult:
+    """Tests for _format_retrieval_result() function."""
+
+    def test_format_retrieval_result_basic(self, sample_retrieval_result):
+        """Should format standard result as markdown."""
+        from ai_governance_mcp.server import _format_retrieval_result
+
+        output = _format_retrieval_result(sample_retrieval_result)
+
+        assert "**Query:**" in output
+        assert "test query" in output
+        assert "**Domains Detected:**" in output
+        assert "**Retrieval Time:**" in output
+        assert "45.5ms" in output
+
+    def test_format_retrieval_result_s_series_warning(self, sample_retrieval_result):
+        """Should show S-Series warning when triggered."""
+        from ai_governance_mcp.server import _format_retrieval_result
+
+        sample_retrieval_result.s_series_triggered = True
+        output = _format_retrieval_result(sample_retrieval_result)
+
+        assert "S-SERIES TRIGGERED" in output
+        assert "Safety/Ethics" in output
+
+    def test_format_retrieval_result_no_results(self):
+        """Should show no matching message for empty results."""
+        from ai_governance_mcp.server import _format_retrieval_result
+        from ai_governance_mcp.models import RetrievalResult
+
+        empty_result = RetrievalResult(
+            query="obscure query",
+            domains_detected=[],
+            constitution_principles=[],
+            domain_principles=[],
+            methods=[],
+            s_series_triggered=False,
+            retrieval_time_ms=10.0,
+        )
+
+        output = _format_retrieval_result(empty_result)
+
+        assert "No matching principles found" in output
+
+    def test_format_retrieval_result_truncates_content(self, scored_principle):
+        """Should truncate content longer than 600 chars."""
+        from ai_governance_mcp.server import _format_retrieval_result
+        from ai_governance_mcp.models import RetrievalResult
+
+        # Create principle with long content
+        scored_principle.principle.content = "A" * 800
+
+        result = RetrievalResult(
+            query="test",
+            domains_detected=["constitution"],
+            constitution_principles=[scored_principle],
+            domain_principles=[],
+            methods=[],
+            s_series_triggered=False,
+            retrieval_time_ms=10.0,
+        )
+
+        output = _format_retrieval_result(result)
+
+        # Should contain truncated content with ellipsis
+        assert "..." in output
+        # Should not contain full 800 chars
+        assert "A" * 700 not in output
+
+    def test_format_retrieval_result_shows_domain_scores(self, sample_retrieval_result):
+        """Should display domain routing scores."""
+        from ai_governance_mcp.server import _format_retrieval_result
+
+        output = _format_retrieval_result(sample_retrieval_result)
+
+        assert "**Domain Scores:**" in output
+        assert "constitution: 0.85" in output
+        assert "ai-coding: 0.72" in output
+
+    def test_format_retrieval_result_shows_methods(self, sample_retrieval_result):
+        """Should show methods section when present."""
+        from ai_governance_mcp.server import _format_retrieval_result
+
+        output = _format_retrieval_result(sample_retrieval_result)
+
+        assert "## Applicable Methods" in output
+        assert "coding-M1" in output
+
+
+# =============================================================================
+# Call Tool Dispatcher Tests
+# =============================================================================
+
+
+class TestCallTool:
+    """Tests for call_tool() dispatcher."""
+
+    @pytest.mark.asyncio
+    async def test_call_tool_unknown_tool(self, reset_server_state, test_settings, saved_index):
+        """call_tool should return message for unknown tool."""
+        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+            with patch("sentence_transformers.SentenceTransformer"):
+                with patch("sentence_transformers.CrossEncoder"):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool("nonexistent_tool", {})
+
+                    assert len(result) == 1
+                    assert "Unknown tool: nonexistent_tool" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_call_tool_exception_handling(self, reset_server_state, test_settings, saved_index):
+        """call_tool should return ErrorResponse on exception."""
+        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+            with patch("sentence_transformers.SentenceTransformer"):
+                with patch("sentence_transformers.CrossEncoder"):
+                    from ai_governance_mcp.server import call_tool
+
+                    # Force an exception by passing invalid arguments
+                    with patch(
+                        "ai_governance_mcp.server._handle_query_governance",
+                        side_effect=Exception("Test error"),
+                    ):
+                        result = await call_tool("query_governance", {"query": "test"})
+
+                        parsed = json.loads(result[0].text)
+                        assert parsed["error_code"] == "TOOL_ERROR"
+                        assert "Test error" in parsed["message"]
+
+
+# =============================================================================
+# Entry Point Tests
+# =============================================================================
+
+
+class TestMain:
+    """Tests for main() entry point."""
+
+    def test_main_test_mode(
+        self, reset_server_state, test_settings, saved_index, capsys, mock_embedder, mock_reranker
+    ):
+        """main() with --test should run retrieve and print result."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    with patch("sys.argv", ["server", "--test"]):
+                        from ai_governance_mcp.server import main
+
+                        main()
+
+                        captured = capsys.readouterr()
+                        assert "Query:" in captured.out or "**Query:**" in captured.out
+
+    def test_main_test_mode_custom_query(
+        self, reset_server_state, test_settings, saved_index, capsys, mock_embedder, mock_reranker
+    ):
+        """main() with --test and custom query should use that query."""
+        # Need to mock the actual model classes that get instantiated
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    with patch("sys.argv", ["server", "--test", "custom", "test", "query"]):
+                        from ai_governance_mcp.server import main
+
+                        main()
+
+                        captured = capsys.readouterr()
+                        # Output should contain some result (query info or "no matching")
+                        assert len(captured.out) > 0
+
+
+# =============================================================================
+# List Tools Tests
+# =============================================================================
+
+
+class TestListTools:
+    """Tests for list_tools() async function."""
+
+    @pytest.mark.asyncio
+    async def test_list_tools_returns_all_six(self):
+        """list_tools should return all 6 tools."""
+        from ai_governance_mcp.server import list_tools
+
+        tools = await list_tools()
+
+        assert len(tools) == 6
+        tool_names = [t.name for t in tools]
+        assert "query_governance" in tool_names
+        assert "get_principle" in tool_names
+        assert "list_domains" in tool_names
+        assert "get_domain_summary" in tool_names
+        assert "log_feedback" in tool_names
+        assert "get_metrics" in tool_names
+
+    @pytest.mark.asyncio
+    async def test_list_tools_have_input_schemas(self):
+        """All tools should have valid input schemas."""
+        from ai_governance_mcp.server import list_tools
+
+        tools = await list_tools()
+
+        for tool in tools:
+            assert tool.inputSchema is not None
+            assert tool.inputSchema["type"] == "object"
+
+    @pytest.mark.asyncio
+    async def test_query_governance_schema_requires_query(self):
+        """query_governance should require 'query' parameter."""
+        from ai_governance_mcp.server import list_tools
+
+        tools = await list_tools()
+        query_tool = next(t for t in tools if t.name == "query_governance")
+
+        assert "query" in query_tool.inputSchema.get("required", [])
+        assert "query" in query_tool.inputSchema["properties"]

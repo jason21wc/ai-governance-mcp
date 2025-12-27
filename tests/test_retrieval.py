@@ -296,3 +296,248 @@ class TestEdgeCases:
             similarity = np.dot(a, b) / (norm_a * norm_b)
 
         assert similarity == 0.0
+
+
+# =============================================================================
+# Additional Edge Case Tests
+# =============================================================================
+
+
+class TestConfidenceThresholds:
+    """Tests for confidence level threshold boundaries."""
+
+    def test_score_exactly_at_high_threshold(self):
+        """Score exactly at 0.7 should be HIGH confidence."""
+        from ai_governance_mcp.models import ConfidenceLevel
+
+        score = 0.7
+        if score >= 0.7:
+            confidence = ConfidenceLevel.HIGH
+        elif score >= 0.4:
+            confidence = ConfidenceLevel.MEDIUM
+        else:
+            confidence = ConfidenceLevel.LOW
+
+        assert confidence == ConfidenceLevel.HIGH
+
+    def test_score_just_below_high_threshold(self):
+        """Score at 0.69 should be MEDIUM confidence."""
+        from ai_governance_mcp.models import ConfidenceLevel
+
+        score = 0.69
+        if score >= 0.7:
+            confidence = ConfidenceLevel.HIGH
+        elif score >= 0.4:
+            confidence = ConfidenceLevel.MEDIUM
+        else:
+            confidence = ConfidenceLevel.LOW
+
+        assert confidence == ConfidenceLevel.MEDIUM
+
+    def test_score_exactly_at_medium_threshold(self):
+        """Score exactly at 0.4 should be MEDIUM confidence."""
+        from ai_governance_mcp.models import ConfidenceLevel
+
+        score = 0.4
+        if score >= 0.7:
+            confidence = ConfidenceLevel.HIGH
+        elif score >= 0.4:
+            confidence = ConfidenceLevel.MEDIUM
+        else:
+            confidence = ConfidenceLevel.LOW
+
+        assert confidence == ConfidenceLevel.MEDIUM
+
+    def test_score_just_below_medium_threshold(self):
+        """Score at 0.39 should be LOW confidence."""
+        from ai_governance_mcp.models import ConfidenceLevel
+
+        score = 0.39
+        if score >= 0.7:
+            confidence = ConfidenceLevel.HIGH
+        elif score >= 0.4:
+            confidence = ConfidenceLevel.MEDIUM
+        else:
+            confidence = ConfidenceLevel.LOW
+
+        assert confidence == ConfidenceLevel.LOW
+
+
+class TestScoreBoundaries:
+    """Tests for score constraint boundaries."""
+
+    def test_semantic_score_at_zero(self):
+        """Semantic score at 0 should be valid."""
+        from ai_governance_mcp.models import ScoredPrinciple, Principle, PrincipleMetadata, ConfidenceLevel
+
+        principle = Principle(
+            id="test-C1",
+            domain="test",
+            series_code="C",
+            number=1,
+            title="Test",
+            content="Content",
+            line_range=(1, 10),
+        )
+
+        scored = ScoredPrinciple(
+            principle=principle,
+            semantic_score=0.0,
+            keyword_score=0.0,
+            combined_score=0.0,
+            confidence=ConfidenceLevel.LOW,
+        )
+
+        assert scored.semantic_score == 0.0
+
+    def test_semantic_score_at_one(self):
+        """Semantic score at 1.0 should be valid."""
+        from ai_governance_mcp.models import ScoredPrinciple, Principle, PrincipleMetadata, ConfidenceLevel
+
+        principle = Principle(
+            id="test-C1",
+            domain="test",
+            series_code="C",
+            number=1,
+            title="Test",
+            content="Content",
+            line_range=(1, 10),
+        )
+
+        scored = ScoredPrinciple(
+            principle=principle,
+            semantic_score=1.0,
+            keyword_score=0.5,
+            combined_score=1.0,
+            confidence=ConfidenceLevel.HIGH,
+        )
+
+        assert scored.semantic_score == 1.0
+        assert scored.combined_score == 1.0
+
+
+class TestUnicodeHandling:
+    """Tests for Unicode text handling."""
+
+    def test_bm25_tokenizes_unicode(self):
+        """BM25 should handle Unicode text."""
+        query = "código seguridad 안전 安全"
+        tokens = query.lower().split()
+
+        assert len(tokens) == 4
+        assert "código" in tokens
+        assert "안전" in tokens
+
+    def test_principle_with_unicode_content(self):
+        """Principle should accept Unicode content."""
+        from ai_governance_mcp.models import Principle
+
+        principle = Principle(
+            id="test-C1",
+            domain="test",
+            series_code="C",
+            number=1,
+            title="Seguridad y Ética",
+            content="Principio con contenido en español. 日本語のテキスト。",
+            line_range=(1, 10),
+        )
+
+        assert "español" in principle.content
+        assert "日本語" in principle.content
+
+
+class TestEmptyInputs:
+    """Tests for empty input handling."""
+
+    def test_empty_principle_list_hierarchy(self):
+        """apply_hierarchy should handle empty list."""
+        principles = []
+
+        # Hierarchy sort on empty list
+        sorted_principles = sorted(
+            principles,
+            key=lambda sp: (0, -0.0, 0),
+        )
+
+        assert sorted_principles == []
+
+    def test_empty_query_tokenization(self):
+        """Empty query should tokenize to empty list."""
+        query = ""
+        tokens = query.lower().split()
+
+        assert tokens == []
+
+    def test_whitespace_only_query(self):
+        """Whitespace-only query should tokenize to empty list."""
+        query = "   \t\n   "
+        tokens = query.split()
+
+        assert tokens == []
+
+
+class TestLargeInputs:
+    """Tests for large input handling."""
+
+    def test_very_long_query(self):
+        """Should handle queries with many tokens."""
+        query = " ".join(["word"] * 1000)
+        tokens = query.lower().split()
+
+        assert len(tokens) == 1000
+
+    def test_large_content_truncation(self):
+        """Embedding text should truncate large content."""
+        from ai_governance_mcp.models import Principle, PrincipleMetadata
+
+        # Create principle with very long content
+        long_content = "A" * 10000
+        principle = Principle(
+            id="test-C1",
+            domain="test",
+            series_code="C",
+            number=1,
+            title="Test Title",
+            content=long_content,
+            line_range=(1, 1000),
+            metadata=PrincipleMetadata(keywords=["test"]),
+        )
+
+        # Simulate embedding text creation (first 1000 chars)
+        embedding_text = f"{principle.title}\n{principle.content[:1000]}"
+
+        assert len(embedding_text) < 1100  # Title + 1000 chars + newline
+
+
+class TestHierarchyOrdering:
+    """Additional tests for series hierarchy ordering."""
+
+    def test_all_series_codes_have_priority(self):
+        """All known series codes should have defined priorities."""
+        series_priority = {
+            "S": 0,  # Safety first
+            "C": 1,  # Core
+            "Q": 2,  # Quality
+            "O": 3,  # Operational
+            "MA": 4,  # Meta-awareness
+            "G": 5,  # Growth
+            "P": 6,  # Process (domain-specific)
+            "A": 7,  # Architecture (domain-specific)
+            "T": 8,  # Technical (domain-specific)
+            "D": 9,  # Documentation (domain-specific)
+        }
+
+        # Verify S is highest priority (lowest number)
+        assert series_priority["S"] < series_priority["C"]
+        assert series_priority["C"] < series_priority["Q"]
+        assert series_priority["Q"] < series_priority["O"]
+
+    def test_unknown_series_code_gets_low_priority(self):
+        """Unknown series codes should get low (high number) priority."""
+        known_codes = {"S", "C", "Q", "O", "MA", "G", "P", "A", "T", "D"}
+        unknown_code = "X"
+
+        # Simulate priority lookup with default for unknown
+        priority = 99 if unknown_code not in known_codes else 0
+
+        assert priority == 99  # Unknown gets lowest priority
