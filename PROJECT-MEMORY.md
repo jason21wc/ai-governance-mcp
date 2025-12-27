@@ -213,3 +213,12 @@ Use `side_effect` function that returns `np.random.rand(len(texts), 384)` not a 
 
 ### Gotcha 7: Rating=0 is Falsy
 In log_feedback tests, rating=0 triggers "required" validation before range check. Use rating=-1 to test invalid low values.
+
+### Gotcha 8: MCP Servers Are Project-Scoped
+MCP servers configured under a project path in `~/.claude.json` only load when Claude Code runs from that directory. To make an MCP available everywhere:
+- Use `claude mcp add <name> -s user -- <command>` for global (user) scope
+- Or add to root-level `mcpServers` in `~/.claude.json` (not inside a project object)
+- **Always restart Claude Code after config changes** - MCP servers load at startup.
+
+### Gotcha 9: First Query Latency
+First retrieval takes ~9s to load ML models (SentenceTransformer + CrossEncoder). Subsequent queries are ~50ms. Consider model preloading for production use.

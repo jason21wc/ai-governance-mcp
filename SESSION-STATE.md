@@ -45,9 +45,26 @@
 | Component | Status | Location |
 |-----------|--------|----------|
 | GitHub Repository | Pushed | github.com/jason21wc/ai-governance-mcp |
-| Global MCP Config | Configured | ~/.claude.json |
+| Global MCP Config | Configured | ~/.claude.json (root mcpServers) |
 | Index Built | Ready | index/global_index.json + embeddings |
 | Dependencies | Installed | pip install -e . |
+
+### MCP Configuration
+
+The server is configured globally (user scope) in `~/.claude.json`:
+```json
+"ai-governance": {
+  "type": "stdio",
+  "command": "python",
+  "args": ["-m", "ai_governance_mcp.server"],
+  "env": {
+    "AI_GOVERNANCE_DOCUMENTS_PATH": "/Users/jasoncollier/Developer/ai-governance-mcp/documents",
+    "AI_GOVERNANCE_INDEX_PATH": "/Users/jasoncollier/Developer/ai-governance-mcp/index"
+  }
+}
+```
+
+**Important:** MCP servers are project-scoped. Use `claude mcp add -s user` for global access across all projects. Restart Claude Code after config changes.
 
 ---
 
