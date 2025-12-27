@@ -1,0 +1,42 @@
+{
+  "constitution": {
+    "name": "constitution",
+    "display_name": "Constitution",
+    "principles_file": "ai-interaction-principles-v1.4.md",
+    "methods_file": null,
+    "trigger_keywords": [],
+    "trigger_phrases": [],
+    "priority": 0
+  },
+  "ai-coding": {
+    "name": "ai-coding",
+    "display_name": "AI Coding",
+    "principles_file": "ai-coding-domain-principles-v2.1.md",
+    "methods_file": "ai-coding-methods-v1.0.3.md",
+    "trigger_keywords": [
+      "code", "coding", "programming", "software", "development",
+      "implementation", "debug", "debugging", "testing", "refactor",
+      "refactoring", "api", "function", "class", "module", "bug",
+      "error", "exception", "compile", "build", "deploy"
+    ],
+    "trigger_phrases": [
+      "write code", "fix bug", "code review", "pull request",
+      "unit test", "integration test"
+    ],
+    "priority": 10
+  },
+  "multi-agent": {
+    "name": "multi-agent",
+    "display_name": "Multi-Agent",
+    "principles_file": "multi-agent-domain-principles-v1.0.1.md",
+    "methods_file": "multi-agent-methods-v1.0.0.md",
+    "trigger_keywords": [
+      "agent", "agents", "multi-agent", "orchestration", "coordinator",
+      "delegation", "handoff", "collaboration", "swarm", "ensemble", "pipeline"
+    ],
+    "trigger_phrases": [
+      "multiple agents", "agent communication", "agent coordination", "agent handoff"
+    ],
+    "priority": 20
+  }
+}
