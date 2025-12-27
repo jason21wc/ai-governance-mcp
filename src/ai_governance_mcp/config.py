@@ -1,6 +1,6 @@
 """Configuration management for AI Governance MCP Server.
 
-Per specification v3: Configuration from environment and domains.json registry.
+Per specification v4: Configuration for hybrid retrieval (BM25 + semantic + reranking).
 Logging must use stderr (stdout reserved for MCP JSON-RPC).
 """
 
@@ -11,57 +11,114 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings
 
 from .models import DomainConfig
 
 
 def _find_project_root() -> Path:
     """Find project root by looking for pyproject.toml or documents folder."""
-    # Start from current working directory
     cwd = Path.cwd()
 
-    # Check current directory and parents for project markers
     for path in [cwd] + list(cwd.parents):
         if (path / "pyproject.toml").exists() or (path / "documents").exists():
             return path
 
-    # Fall back to home directory location
     return Path.home() / ".ai-governance"
 
 
-class ServerConfig(BaseModel):
-    """Server-wide configuration."""
+class Settings(BaseSettings):
+    """Server configuration via environment variables.
 
+    Uses pydantic-settings for automatic env var loading.
+    Prefix: AI_GOVERNANCE_
+    """
+
+    # Paths
     documents_path: Path = Field(
         default_factory=lambda: _find_project_root() / "documents",
         description="Path to governance documents directory",
     )
     index_path: Path = Field(
         default_factory=lambda: _find_project_root() / "index",
-        description="Path to extracted index files",
+        description="Path to index files (JSON + embeddings)",
     )
-    cache_path: Path = Field(
-        default_factory=lambda: _find_project_root() / "cache",
-        description="Path to cached principle content",
-    )
-    log_level: str = Field(default="INFO", description="Logging level")
-    audit_log_enabled: bool = Field(default=True, description="Enable audit logging")
-    audit_log_path: Optional[Path] = Field(
-        default_factory=lambda: _find_project_root() / "audit.log",
-        description="Path to audit log file",
+    logs_path: Path = Field(
+        default_factory=lambda: _find_project_root() / "logs",
+        description="Path to feedback and query logs",
     )
 
-    # Scoring weights per specification v3 §3.2.3
-    keyword_weight: float = Field(default=1.0)
-    synonym_weight: float = Field(default=0.8)
-    phrase_weight: float = Field(default=2.0)
-    failure_indicator_weight: float = Field(default=1.5)
-    s_series_multiplier: float = Field(default=10.0)
+    # Logging
+    log_level: str = Field(default="INFO", description="Logging level")
+
+    # Embedding model
+    embedding_model: str = Field(
+        default="all-MiniLM-L6-v2",
+        description="Sentence-transformers model for embeddings",
+    )
+    embedding_dimensions: int = Field(
+        default=384,
+        description="Embedding vector dimensions (must match model)",
+    )
+
+    # Reranking model
+    rerank_model: str = Field(
+        default="cross-encoder/ms-marco-MiniLM-L-6-v2",
+        description="Cross-encoder model for reranking",
+    )
+    rerank_top_k: int = Field(
+        default=20,
+        description="Number of candidates to rerank",
+    )
+
+    # Hybrid retrieval weights
+    semantic_weight: float = Field(
+        default=0.6,
+        ge=0.0,
+        le=1.0,
+        description="Weight for semantic similarity (1 - this = BM25 weight)",
+    )
 
     # Thresholds
-    min_score_threshold: float = Field(default=0.5, description="Minimum score for inclusion")
-    max_principles_per_domain: int = Field(default=10, description="Max principles returned per domain")
+    min_score_threshold: float = Field(
+        default=0.3,
+        description="Minimum combined score for inclusion",
+    )
+    max_results: int = Field(
+        default=10,
+        description="Maximum principles returned per query",
+    )
+    confidence_high_threshold: float = Field(
+        default=0.7,
+        description="Score threshold for HIGH confidence",
+    )
+    confidence_medium_threshold: float = Field(
+        default=0.4,
+        description="Score threshold for MEDIUM confidence",
+    )
+
+    # Domain routing
+    domain_similarity_threshold: float = Field(
+        default=0.5,
+        description="Minimum similarity for domain to be included",
+    )
+    max_domains: int = Field(
+        default=3,
+        description="Maximum domains to search per query",
+    )
+
+    # Performance
+    latency_target_ms: float = Field(
+        default=100.0,
+        description="Target retrieval latency in milliseconds",
+    )
+
+    model_config = {
+        "env_prefix": "AI_GOVERNANCE_",
+        "env_file": ".env",
+        "extra": "ignore",
+    }
 
 
 def setup_logging(level: str = "INFO") -> logging.Logger:
@@ -82,126 +139,87 @@ def setup_logging(level: str = "INFO") -> logging.Logger:
     return logger
 
 
-def load_config() -> ServerConfig:
-    """Load server configuration from environment variables."""
-    config = ServerConfig()
-
-    # Override from environment
-    if docs_path := os.environ.get("AI_GOVERNANCE_DOCUMENTS_PATH"):
-        config.documents_path = Path(docs_path)
-    if index_path := os.environ.get("AI_GOVERNANCE_INDEX_PATH"):
-        config.index_path = Path(index_path)
-    if cache_path := os.environ.get("AI_GOVERNANCE_CACHE_PATH"):
-        config.cache_path = Path(cache_path)
-    if log_level := os.environ.get("AI_GOVERNANCE_LOG_LEVEL"):
-        config.log_level = log_level
-    if audit_enabled := os.environ.get("AI_GOVERNANCE_AUDIT_ENABLED"):
-        config.audit_log_enabled = audit_enabled.lower() in ("true", "1", "yes")
-
-    return config
+def load_settings() -> Settings:
+    """Load settings from environment and .env file."""
+    return Settings()
 
 
-def load_domains_registry(config: ServerConfig) -> dict[str, DomainConfig]:
+def load_domains_registry(settings: Settings) -> list[DomainConfig]:
     """Load domain configurations from domains.json.
 
-    Per specification v3 §2.1: Domain registry enables adding new domains
-    without code changes.
+    Per specification v4: Domain registry enables adding new domains
+    without code changes. Descriptions enable semantic routing.
     """
-    registry_path = config.documents_path / "domains.json"
+    registry_path = settings.documents_path / "domains.json"
 
     if not registry_path.exists():
-        # Return default domains if registry doesn't exist
         return _default_domains()
 
     with open(registry_path) as f:
         data = json.load(f)
 
-    return {name: DomainConfig(**domain_data) for name, domain_data in data.items()}
+    # Handle both list and dict formats
+    if isinstance(data, list):
+        return [DomainConfig(**domain_data) for domain_data in data]
+    else:
+        return [DomainConfig(**domain_data) for domain_data in data.values()]
 
 
-def _default_domains() -> dict[str, DomainConfig]:
-    """Default domain configurations per specification v3."""
-    return {
-        "constitution": DomainConfig(
+def _default_domains() -> list[DomainConfig]:
+    """Default domain configurations per specification v4.
+
+    Descriptions are used for semantic domain routing.
+    """
+    return [
+        DomainConfig(
             name="constitution",
             display_name="Constitution",
             principles_file="ai-interaction-principles.md",
             methods_file=None,
-            trigger_keywords=[],  # Always searched
-            trigger_phrases=[],
-            priority=0,  # Highest priority
+            description=(
+                "Universal behavioral rules for AI interaction. Safety principles, "
+                "core behavioral guidelines, quality standards, operational rules, "
+                "growth mindset, and meta-awareness. Applies to all AI interactions."
+            ),
+            priority=0,  # Highest priority - always included
         ),
-        "ai-coding": DomainConfig(
+        DomainConfig(
             name="ai-coding",
             display_name="AI Coding",
             principles_file="ai-coding-domain-principles.md",
             methods_file="ai-coding-methods.md",
-            trigger_keywords=[
-                "code",
-                "coding",
-                "programming",
-                "software",
-                "development",
-                "implementation",
-                "debug",
-                "debugging",
-                "testing",
-                "refactor",
-                "refactoring",
-                "api",
-                "function",
-                "class",
-                "module",
-                "bug",
-                "error",
-                "exception",
-                "compile",
-                "build",
-                "deploy",
-            ],
-            trigger_phrases=[
-                "write code",
-                "fix bug",
-                "code review",
-                "pull request",
-                "unit test",
-                "integration test",
-            ],
+            description=(
+                "Software development with AI assistance. Code generation, debugging, "
+                "testing, refactoring, code review, pull requests, git workflows, "
+                "CI/CD, API design, and software architecture."
+            ),
             priority=10,
         ),
-        "multi-agent": DomainConfig(
+        DomainConfig(
             name="multi-agent",
             display_name="Multi-Agent",
             principles_file="multi-agent-domain-principles.md",
             methods_file="multi-agent-methods.md",
-            trigger_keywords=[
-                "agent",
-                "agents",
-                "multi-agent",
-                "orchestration",
-                "coordinator",
-                "delegation",
-                "handoff",
-                "collaboration",
-                "swarm",
-                "ensemble",
-                "pipeline",
-            ],
-            trigger_phrases=[
-                "multiple agents",
-                "agent communication",
-                "agent coordination",
-                "agent handoff",
-            ],
+            description=(
+                "Multi-agent AI systems and orchestration. Agent coordination, "
+                "task delegation, handoffs, swarm intelligence, ensemble methods, "
+                "pipeline design, and agent communication protocols."
+            ),
             priority=20,
         ),
-    }
+    ]
 
 
-def ensure_directories(config: ServerConfig) -> None:
+def ensure_directories(settings: Settings) -> None:
     """Ensure all required directories exist."""
-    config.documents_path.mkdir(parents=True, exist_ok=True)
-    config.index_path.mkdir(parents=True, exist_ok=True)
-    config.cache_path.mkdir(parents=True, exist_ok=True)
-    if config.audit_log_path:
-        config.audit_log_path.parent.mkdir(parents=True, exist_ok=True)
+    settings.documents_path.mkdir(parents=True, exist_ok=True)
+    settings.index_path.mkdir(parents=True, exist_ok=True)
+    settings.logs_path.mkdir(parents=True, exist_ok=True)
+
+
+# Convenience function for quick access
+def get_settings() -> Settings:
+    """Get cached settings instance."""
+    if not hasattr(get_settings, "_instance"):
+        get_settings._instance = load_settings()
+    return get_settings._instance

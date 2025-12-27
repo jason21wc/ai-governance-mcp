@@ -25,6 +25,10 @@ classifiers = [
 dependencies = [
     "mcp>=1.0.0",
     "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "sentence-transformers>=2.2.0",
+    "rank-bm25>=0.2.0",
+    "numpy>=1.24.0",
 ]
 
 [project.optional-dependencies]
@@ -35,6 +39,7 @@ dev = [
 
 [project.scripts]
 ai-governance-mcp = "ai_governance_mcp.server:main"
+ai-governance-extract = "ai_governance_mcp.extractor:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ai_governance_mcp"]

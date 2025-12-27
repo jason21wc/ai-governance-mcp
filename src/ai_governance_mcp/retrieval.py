@@ -1,19 +1,26 @@
 """Retrieval engine for AI Governance documents.
 
-Implements scoring, domain detection, and principle retrieval per specification v3 §3.2.
+Per specification v4: Hybrid retrieval with BM25 + semantic search + reranking.
 """
 
 import json
-import re
+import time
 from pathlib import Path
+from typing import Optional
 
-from .config import ServerConfig, load_config, load_domains_registry, setup_logging
+import numpy as np
+from rank_bm25 import BM25Okapi
+
+from .config import Settings, load_settings, load_domains_registry, setup_logging
 from .models import (
+    ConfidenceLevel,
     DomainConfig,
     DomainIndex,
+    GlobalIndex,
     Method,
     Principle,
     RetrievalResult,
+    ScoredMethod,
     ScoredPrinciple,
 )
 
@@ -21,68 +28,331 @@ logger = setup_logging()
 
 
 class RetrievalEngine:
-    """Core retrieval engine for governance documents."""
+    """Hybrid retrieval engine with BM25 + semantic search + reranking."""
 
-    def __init__(self, config: ServerConfig):
-        self.config = config
-        self.domains = load_domains_registry(config)
-        self.indexes: dict[str, DomainIndex] = {}
-        self._load_indexes()
+    def __init__(self, settings: Settings):
+        self.settings = settings
+        self.index: Optional[GlobalIndex] = None
+        self.content_embeddings: Optional[np.ndarray] = None
+        self.domain_embeddings: Optional[np.ndarray] = None
+        self.bm25_index: Optional[BM25Okapi] = None
+        self.bm25_docs: list[tuple[str, str, int]] = []  # (domain, type, local_idx)
+        self._embedder = None
+        self._reranker = None
+        self._load_index()
 
-    def _load_indexes(self) -> None:
-        """Load all domain indexes from disk."""
-        for domain_name in self.domains:
-            index_path = self.config.index_path / f"{domain_name}-index.json"
-            if index_path.exists():
-                with open(index_path) as f:
-                    data = json.load(f)
-                    self.indexes[domain_name] = DomainIndex(**data)
-                logger.debug(f"Loaded index for {domain_name}")
-            else:
-                logger.warning(f"Index not found for {domain_name}: {index_path}")
+    @property
+    def embedder(self):
+        """Lazy-load embedding model for query encoding."""
+        if self._embedder is None:
+            from sentence_transformers import SentenceTransformer
+            logger.info(f"Loading embedding model: {self.settings.embedding_model}")
+            self._embedder = SentenceTransformer(self.settings.embedding_model)
+        return self._embedder
 
-    def detect_domains(self, query: str) -> list[str]:
-        """Detect which domains are relevant to a query.
+    @property
+    def reranker(self):
+        """Lazy-load cross-encoder reranking model."""
+        if self._reranker is None:
+            from sentence_transformers import CrossEncoder
+            logger.info(f"Loading reranking model: {self.settings.rerank_model}")
+            self._reranker = CrossEncoder(self.settings.rerank_model)
+        return self._reranker
 
-        Per specification v3 §3.1: Returns list of matching domains.
-        Multi-domain queries return multiple domains.
+    def _load_index(self) -> None:
+        """Load global index and embeddings from disk."""
+        index_path = self.settings.index_path / "global_index.json"
+        content_emb_path = self.settings.index_path / "content_embeddings.npy"
+        domain_emb_path = self.settings.index_path / "domain_embeddings.npy"
+
+        if not index_path.exists():
+            logger.warning(f"Index not found: {index_path}. Run extractor first.")
+            return
+
+        # Load index
+        with open(index_path) as f:
+            data = json.load(f)
+            self.index = GlobalIndex(**data)
+        logger.info(f"Loaded index with {len(self.index.domains)} domains")
+
+        # Load embeddings
+        if content_emb_path.exists():
+            self.content_embeddings = np.load(content_emb_path)
+            logger.info(f"Loaded content embeddings: {self.content_embeddings.shape}")
+
+        if domain_emb_path.exists():
+            self.domain_embeddings = np.load(domain_emb_path)
+            logger.info(f"Loaded domain embeddings: {self.domain_embeddings.shape}")
+
+        # Build BM25 index
+        self._build_bm25_index()
+
+    def _build_bm25_index(self) -> None:
+        """Build BM25 index from loaded documents."""
+        if not self.index:
+            return
+
+        corpus = []
+        self.bm25_docs = []
+
+        for domain_name, domain_index in self.index.domains.items():
+            for i, principle in enumerate(domain_index.principles):
+                # Tokenize for BM25
+                text = self._get_bm25_text(principle)
+                tokens = text.lower().split()
+                corpus.append(tokens)
+                self.bm25_docs.append((domain_name, "principle", i))
+
+            for i, method in enumerate(domain_index.methods):
+                text = f"{method.title} {method.content[:500]}"
+                tokens = text.lower().split()
+                corpus.append(tokens)
+                self.bm25_docs.append((domain_name, "method", i))
+
+        if corpus:
+            self.bm25_index = BM25Okapi(corpus)
+            logger.info(f"Built BM25 index with {len(corpus)} documents")
+
+    def _get_bm25_text(self, principle: Principle) -> str:
+        """Create text for BM25 indexing."""
+        parts = [
+            principle.title,
+            principle.content[:1000],
+            " ".join(principle.metadata.keywords),
+            " ".join(principle.metadata.synonyms),
+            " ".join(principle.metadata.trigger_phrases),
+            " ".join(principle.metadata.failure_indicators),
+        ]
+        return " ".join(parts)
+
+    # =========================================================================
+    # T6: Domain Router
+    # =========================================================================
+
+    def route_domains(self, query: str) -> dict[str, float]:
+        """Route query to relevant domains using semantic similarity.
+
+        Returns dict of domain_name -> similarity_score.
         """
-        query_lower = query.lower()
-        query_words = set(query_lower.split())
+        if self.domain_embeddings is None or not self.index:
+            return {}
 
-        domain_scores: dict[str, float] = {}
+        # Encode query
+        query_embedding = self.embedder.encode([query])[0]
 
-        for domain_name, domain_config in self.domains.items():
-            if domain_name == "constitution":
-                # Constitution is always included, not detected
-                continue
+        # Calculate similarity with each domain
+        scores = {}
+        for i, domain_config in enumerate(self.index.domain_configs):
+            if i < len(self.domain_embeddings):
+                similarity = self._cosine_similarity(
+                    query_embedding, self.domain_embeddings[i]
+                )
+                if similarity >= self.settings.domain_similarity_threshold:
+                    scores[domain_config.name] = float(similarity)
 
-            score = 0.0
-
-            # Phrase matching (priority - weight 2.0)
-            for phrase in domain_config.trigger_phrases:
-                if phrase.lower() in query_lower:
-                    score += 2.0
-
-            # Keyword matching (weight 1.0)
-            for keyword in domain_config.trigger_keywords:
-                if self._word_match(keyword.lower(), query_words):
-                    score += 1.0
-
-            if score > 0:
-                domain_scores[domain_name] = score
-
-        # Return all domains with score > 0, sorted by score (then priority)
-        if not domain_scores:
-            return []
-
-        # Sort by score descending, then by priority ascending
-        sorted_domains = sorted(
-            domain_scores.keys(),
-            key=lambda d: (-domain_scores[d], self.domains[d].priority),
+        # Sort by score and limit
+        sorted_scores = dict(
+            sorted(scores.items(), key=lambda x: -x[1])[: self.settings.max_domains]
         )
 
-        return sorted_domains
+        return sorted_scores
+
+    # =========================================================================
+    # T7: BM25 Search
+    # =========================================================================
+
+    def bm25_search(
+        self, query: str, domains: list[str] | None = None, top_k: int = 50
+    ) -> list[tuple[str, str, int, float]]:
+        """BM25 keyword search.
+
+        Returns list of (domain, type, local_idx, score).
+        """
+        if not self.bm25_index:
+            return []
+
+        tokens = query.lower().split()
+        scores = self.bm25_index.get_scores(tokens)
+
+        # Filter by domains if specified
+        results = []
+        for idx, score in enumerate(scores):
+            if score > 0:
+                domain, item_type, local_idx = self.bm25_docs[idx]
+                if domains is None or domain in domains:
+                    results.append((domain, item_type, local_idx, float(score)))
+
+        # Sort and limit
+        results.sort(key=lambda x: -x[3])
+        return results[:top_k]
+
+    # =========================================================================
+    # T8: Semantic Search
+    # =========================================================================
+
+    def semantic_search(
+        self, query: str, domains: list[str] | None = None, top_k: int = 50
+    ) -> list[tuple[str, str, int, float]]:
+        """Semantic search using embeddings.
+
+        Returns list of (domain, type, local_idx, score).
+        """
+        if self.content_embeddings is None or not self.index:
+            return []
+
+        # Encode query
+        query_embedding = self.embedder.encode([query])[0]
+
+        # Calculate similarities
+        results = []
+        for idx in range(len(self.content_embeddings)):
+            if idx >= len(self.bm25_docs):
+                break
+
+            domain, item_type, local_idx = self.bm25_docs[idx]
+            if domains is None or domain in domains:
+                similarity = self._cosine_similarity(
+                    query_embedding, self.content_embeddings[idx]
+                )
+                if similarity > 0:
+                    results.append((domain, item_type, local_idx, float(similarity)))
+
+        # Sort and limit
+        results.sort(key=lambda x: -x[3])
+        return results[:top_k]
+
+    # =========================================================================
+    # T9: Score Fusion
+    # =========================================================================
+
+    def fuse_scores(
+        self,
+        bm25_results: list[tuple[str, str, int, float]],
+        semantic_results: list[tuple[str, str, int, float]],
+    ) -> dict[tuple[str, str, int], tuple[float, float, float]]:
+        """Fuse BM25 and semantic scores.
+
+        Returns dict of (domain, type, local_idx) -> (bm25_norm, semantic_score, combined).
+        """
+        # Normalize BM25 scores to 0-1
+        max_bm25 = max((r[3] for r in bm25_results), default=1.0)
+        bm25_norm = {
+            (r[0], r[1], r[2]): r[3] / max_bm25 if max_bm25 > 0 else 0
+            for r in bm25_results
+        }
+
+        # Semantic scores are already 0-1
+        semantic_scores = {(r[0], r[1], r[2]): r[3] for r in semantic_results}
+
+        # Get all keys
+        all_keys = set(bm25_norm.keys()) | set(semantic_scores.keys())
+
+        # Fuse with configurable weights
+        fused = {}
+        for key in all_keys:
+            bm25_score = bm25_norm.get(key, 0.0)
+            sem_score = semantic_scores.get(key, 0.0)
+
+            combined = (
+                self.settings.semantic_weight * sem_score
+                + (1 - self.settings.semantic_weight) * bm25_score
+            )
+
+            fused[key] = (bm25_score, sem_score, combined)
+
+        return fused
+
+    # =========================================================================
+    # T10: Cross-Encoder Reranking
+    # =========================================================================
+
+    def rerank(
+        self, query: str, candidates: list[tuple[str, str, int, float]]
+    ) -> list[tuple[str, str, int, float]]:
+        """Rerank candidates using cross-encoder.
+
+        Takes top candidates by combined score and reranks with cross-encoder.
+        """
+        if not candidates or not self.index:
+            return candidates
+
+        # Limit to top-k for reranking
+        top_candidates = candidates[: self.settings.rerank_top_k]
+
+        # Prepare pairs for cross-encoder
+        pairs = []
+        for domain, item_type, local_idx, _ in top_candidates:
+            text = self._get_candidate_text(domain, item_type, local_idx)
+            pairs.append((query, text))
+
+        # Score with cross-encoder
+        if pairs:
+            rerank_scores = self.reranker.predict(pairs)
+
+            # Combine with new scores
+            reranked = []
+            for i, (domain, item_type, local_idx, _) in enumerate(top_candidates):
+                # Normalize cross-encoder score to 0-1 (sigmoid-like)
+                score = float(1 / (1 + np.exp(-rerank_scores[i])))
+                reranked.append((domain, item_type, local_idx, score))
+
+            # Sort by rerank score
+            reranked.sort(key=lambda x: -x[3])
+            return reranked
+
+        return top_candidates
+
+    def _get_candidate_text(self, domain: str, item_type: str, local_idx: int) -> str:
+        """Get text for a candidate for reranking."""
+        if not self.index or domain not in self.index.domains:
+            return ""
+
+        domain_index = self.index.domains[domain]
+
+        if item_type == "principle" and local_idx < len(domain_index.principles):
+            p = domain_index.principles[local_idx]
+            return f"{p.title}\n{p.content[:500]}"
+        elif item_type == "method" and local_idx < len(domain_index.methods):
+            m = domain_index.methods[local_idx]
+            return f"{m.title}\n{m.content[:500]}"
+
+        return ""
+
+    # =========================================================================
+    # T11: Hierarchy Filter
+    # =========================================================================
+
+    def apply_hierarchy(
+        self, principles: list[ScoredPrinciple]
+    ) -> list[ScoredPrinciple]:
+        """Apply governance hierarchy ordering.
+
+        S-Series > Constitution > Domain principles.
+        Within same level, sort by score.
+        """
+        hierarchy_order = {
+            "S": 0,  # Safety - highest priority
+            "C": 1,  # Core
+            "Q": 2,  # Quality
+            "O": 3,  # Operational
+            "MA": 4,  # Meta-awareness
+            "G": 5,  # Growth
+            "P": 6,  # Process (domain)
+            "A": 7,  # Architecture (multi-agent)
+            "T": 8,  # Trust
+            "D": 9,  # Delegation
+        }
+
+        def sort_key(sp: ScoredPrinciple) -> tuple:
+            series = sp.principle.series_code
+            hierarchy = hierarchy_order.get(series, 99)
+            return (hierarchy, -sp.combined_score, sp.principle.number)
+
+        return sorted(principles, key=sort_key)
+
+    # =========================================================================
+    # Main Retrieval Pipeline
+    # =========================================================================
 
     def retrieve(
         self,
@@ -92,191 +362,170 @@ class RetrievalEngine:
         include_methods: bool = False,
         max_results: int | None = None,
     ) -> RetrievalResult:
-        """Retrieve relevant principles for a query.
+        """Full hybrid retrieval pipeline.
 
-        Per specification v3 §3.2: Main retrieval algorithm.
-
-        Args:
-            query: The user's query
-            domain: Specific domain to search (auto-detected if None)
-            include_constitution: Include constitution principles in output
-            include_methods: Include methods in response
-            max_results: Maximum principles per domain
-
-        Returns:
-            RetrievalResult with scored principles
+        1. Route to domains (or use explicit domain)
+        2. BM25 keyword search
+        3. Semantic search
+        4. Score fusion
+        5. Reranking
+        6. Hierarchy filtering
         """
-        max_results = max_results or self.config.max_principles_per_domain
+        start_time = time.time()
+        max_results = max_results or self.settings.max_results
 
-        # Step 1: Detect domains (or use explicit domain)
+        if not self.index:
+            return RetrievalResult(
+                query=query,
+                domains_detected=[],
+                domain_scores={},
+                constitution_principles=[],
+                domain_principles=[],
+                methods=[],
+                s_series_triggered=False,
+                retrieval_time_ms=0,
+            )
+
+        # Step 1: Route to domains
         if domain:
-            # Explicit domain - use it but don't set as "detected"
-            search_domains = [domain] if domain in self.domains else []
-            detected_domains = []  # Empty because domain was explicit, not detected
+            domain_scores = {domain: 1.0} if domain in self.index.domains else {}
+            detected_domains = []
         else:
-            detected_domains = self.detect_domains(query)
-            search_domains = detected_domains
+            domain_scores = self.route_domains(query)
+            detected_domains = list(domain_scores.keys())
 
-        # Step 2: ALWAYS search constitution internally (S-Series check)
-        constitution_results = []
+        # Always include constitution for search (but not necessarily in output)
+        search_domains = list(set(detected_domains + ["constitution"]))
+
+        # Step 2-3: Hybrid search
+        bm25_results = self.bm25_search(query, search_domains)
+        semantic_results = self.semantic_search(query, search_domains)
+
+        # Step 4: Fuse scores
+        fused = self.fuse_scores(bm25_results, semantic_results)
+
+        # Step 5: Prepare candidates for reranking
+        candidates = [
+            (key[0], key[1], key[2], scores[2])  # domain, type, idx, combined
+            for key, scores in fused.items()
+            if scores[2] >= self.settings.min_score_threshold
+        ]
+        candidates.sort(key=lambda x: -x[3])
+
+        # Step 6: Rerank top candidates
+        reranked = self.rerank(query, candidates)
+
+        # Step 7: Build scored principles/methods
+        constitution_principles: list[ScoredPrinciple] = []
+        domain_principles: list[ScoredPrinciple] = []
+        methods: list[ScoredMethod] = []
         s_series_triggered = False
 
-        if "constitution" in self.indexes:
-            constitution_scored = self._score_principles(
-                query, self.indexes["constitution"].principles
-            )
-            constitution_results = constitution_scored[:max_results]
-
-            # Check for S-Series triggers
-            s_series_triggered = any(
-                sp.principle.series_code == "S" and sp.score > 0
-                for sp in constitution_scored
-            )
-
-        # Step 3: Search domains (detected or explicit)
-        domain_results: list[ScoredPrinciple] = []
-        for domain_name in search_domains:
-            if domain_name not in self.indexes:
+        for domain_name, item_type, local_idx, rerank_score in reranked:
+            domain_index = self.index.domains.get(domain_name)
+            if not domain_index:
                 continue
 
-            domain_scored = self._score_principles(
-                query, self.indexes[domain_name].principles
-            )
-            domain_results.extend(domain_scored[:max_results])
+            # Get original scores
+            key = (domain_name, item_type, local_idx)
+            bm25_norm, sem_score, combined = fused.get(key, (0, 0, rerank_score))
 
-        # Step 4: Get methods if requested
-        methods: list[Method] = []
-        if include_methods:
-            for domain_name in search_domains:
-                if domain_name in self.indexes:
-                    methods.extend(self.indexes[domain_name].methods)
+            if item_type == "principle" and local_idx < len(domain_index.principles):
+                principle = domain_index.principles[local_idx]
 
-        # Step 5: Sort all results by score and hierarchy
-        domain_results = self._sort_by_hierarchy(domain_results)
+                # Check S-Series
+                if principle.series_code == "S":
+                    s_series_triggered = True
 
-        # Step 6: Build result
+                scored = ScoredPrinciple(
+                    principle=principle,
+                    semantic_score=sem_score,
+                    keyword_score=bm25_norm,
+                    combined_score=combined,
+                    rerank_score=rerank_score,
+                    confidence=self._get_confidence(rerank_score),
+                    match_reasons=self._get_match_reasons(bm25_norm, sem_score),
+                )
+
+                if domain_name == "constitution":
+                    if include_constitution:
+                        constitution_principles.append(scored)
+                else:
+                    domain_principles.append(scored)
+
+            elif item_type == "method" and include_methods:
+                if local_idx < len(domain_index.methods):
+                    method = domain_index.methods[local_idx]
+                    scored_method = ScoredMethod(
+                        method=method,
+                        semantic_score=sem_score,
+                        keyword_score=bm25_norm,
+                        combined_score=combined,
+                        confidence=self._get_confidence(combined),
+                    )
+                    methods.append(scored_method)
+
+        # Step 8: Apply hierarchy and limit
+        constitution_principles = self.apply_hierarchy(constitution_principles)[
+            :max_results
+        ]
+        domain_principles = self.apply_hierarchy(domain_principles)[:max_results]
+
+        retrieval_time = (time.time() - start_time) * 1000
+
         return RetrievalResult(
             query=query,
             domains_detected=detected_domains,
-            constitution_principles=constitution_results if include_constitution else [],
-            domain_principles=domain_results,
-            methods=methods,
+            domain_scores=domain_scores,
+            constitution_principles=constitution_principles,
+            domain_principles=domain_principles,
+            methods=methods[:max_results] if include_methods else [],
             s_series_triggered=s_series_triggered,
+            retrieval_time_ms=retrieval_time,
         )
 
-    def _score_principles(
-        self, query: str, principles: list[Principle]
-    ) -> list[ScoredPrinciple]:
-        """Score principles against a query.
+    # =========================================================================
+    # Helper Methods
+    # =========================================================================
 
-        Per specification v3 §3.2.3: Scoring algorithm.
-        """
-        scored: list[ScoredPrinciple] = []
-        query_lower = query.lower()
-        query_words = set(query_lower.split())
+    def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
+        """Calculate cosine similarity between two vectors."""
+        norm_a = np.linalg.norm(a)
+        norm_b = np.linalg.norm(b)
+        if norm_a == 0 or norm_b == 0:
+            return 0.0
+        return float(np.dot(a, b) / (norm_a * norm_b))
 
-        for principle in principles:
-            score = 0.0
-            match_reasons: list[str] = []
+    def _get_confidence(self, score: float) -> ConfidenceLevel:
+        """Determine confidence level from score."""
+        if score >= self.settings.confidence_high_threshold:
+            return ConfidenceLevel.HIGH
+        elif score >= self.settings.confidence_medium_threshold:
+            return ConfidenceLevel.MEDIUM
+        return ConfidenceLevel.LOW
 
-            # 1. Keyword matching (weight: 1.0)
-            for keyword in principle.metadata.keywords:
-                if self._word_match(keyword.lower(), query_words):
-                    score += self.config.keyword_weight
-                    match_reasons.append(f"keyword:{keyword}")
+    def _get_match_reasons(self, bm25_score: float, semantic_score: float) -> list[str]:
+        """Generate human-readable match reasons."""
+        reasons = []
+        if bm25_score > 0.5:
+            reasons.append("strong keyword match")
+        elif bm25_score > 0.2:
+            reasons.append("keyword match")
+        if semantic_score > 0.7:
+            reasons.append("strong semantic similarity")
+        elif semantic_score > 0.4:
+            reasons.append("semantic similarity")
+        return reasons
 
-            # 2. Synonym matching (weight: 0.8)
-            for synonym in principle.metadata.synonyms:
-                if self._word_match(synonym.lower(), query_words):
-                    score += self.config.synonym_weight
-                    match_reasons.append(f"synonym:{synonym}")
-
-            # 3. Phrase matching (weight: 2.0)
-            for phrase in principle.metadata.trigger_phrases:
-                if phrase.lower() in query_lower:
-                    score += self.config.phrase_weight
-                    match_reasons.append(f"phrase:{phrase}")
-
-            # 4. Failure indicator matching (weight: 1.5)
-            for indicator in principle.metadata.failure_indicators:
-                if self._word_match(indicator.lower(), query_words):
-                    score += self.config.failure_indicator_weight
-                    match_reasons.append(f"failure:{indicator}")
-
-            # 5. S-Series priority boost
-            if principle.series_code == "S":
-                # Check for S-Series specific triggers
-                s_triggers = [
-                    "security",
-                    "privacy",
-                    "harm",
-                    "safety",
-                    "ethical",
-                    "vulnerability",
-                    "breach",
-                    "leak",
-                    "malicious",
-                    "injection",
-                ]
-                for trigger in s_triggers:
-                    if trigger in query_lower:
-                        score *= self.config.s_series_multiplier
-                        match_reasons.append(f"s-series-trigger:{trigger}")
-                        break
-
-            if score >= self.config.min_score_threshold:
-                scored.append(
-                    ScoredPrinciple(
-                        principle=principle,
-                        score=score,
-                        match_reasons=match_reasons,
-                    )
-                )
-
-        # Sort by score descending
-        scored.sort(key=lambda sp: -sp.score)
-        return scored
-
-    def _sort_by_hierarchy(
-        self, principles: list[ScoredPrinciple]
-    ) -> list[ScoredPrinciple]:
-        """Sort principles by governance hierarchy.
-
-        Per specification v3 §3.2.4: S-Series > Constitution > Domain.
-        Within same level, sort by score.
-        """
-        # Define hierarchy order
-        hierarchy_order = {
-            "S": 0,  # Safety - highest priority
-            "C": 1,  # Core
-            "Q": 2,  # Quality
-            "O": 3,  # Operational
-            "MA": 4,  # Multi-Agent
-            "G": 5,  # Governance
-            "P": 6,  # Process (domain)
-            "A": 7,  # Architecture (multi-agent domain)
-            "T": 8,  # Trust (multi-agent domain)
-            "D": 9,  # Delegation (multi-agent domain)
-        }
-
-        def sort_key(sp: ScoredPrinciple) -> tuple:
-            series = sp.principle.series_code
-            hierarchy = hierarchy_order.get(series, 99)
-            # Negative score for descending order
-            return (hierarchy, -sp.score, sp.principle.number)
-
-        return sorted(principles, key=sort_key)
-
-    def _word_match(self, word: str, query_words: set[str]) -> bool:
-        """Check if word matches any query word (whole-word, case-insensitive).
-
-        Per specification v3 §3.2.2: Whole-word matching to prevent false positives.
-        """
-        return word in query_words
+    # =========================================================================
+    # Utility Methods
+    # =========================================================================
 
     def get_principle_by_id(self, principle_id: str) -> Principle | None:
         """Get a specific principle by its ID."""
-        # Parse the ID to find the domain
+        if not self.index:
+            return None
+
         parts = principle_id.split("-")
         if len(parts) < 2:
             return None
@@ -289,10 +538,10 @@ class RetrievalEngine:
         }
 
         domain_name = prefix_to_domain.get(prefix)
-        if not domain_name or domain_name not in self.indexes:
+        if not domain_name or domain_name not in self.index.domains:
             return None
 
-        for principle in self.indexes[domain_name].principles:
+        for principle in self.index.domains[domain_name].principles:
             if principle.id == principle_id:
                 return principle
 
@@ -300,74 +549,84 @@ class RetrievalEngine:
 
     def list_domains(self) -> list[dict]:
         """List all available domains with stats."""
+        if not self.index:
+            return []
+
         result = []
-        for domain_name, domain_config in self.domains.items():
-            index = self.indexes.get(domain_name)
-            result.append(
-                {
-                    "name": domain_name,
-                    "display_name": domain_config.display_name,
-                    "principles_count": len(index.principles) if index else 0,
-                    "methods_count": len(index.methods) if index else 0,
-                    "trigger_keywords": domain_config.trigger_keywords[:5],  # Sample
-                }
-            )
+        for domain_config in self.index.domain_configs:
+            domain_index = self.index.domains.get(domain_config.name)
+            result.append({
+                "name": domain_config.name,
+                "display_name": domain_config.display_name,
+                "description": domain_config.description[:100] + "...",
+                "principles_count": len(domain_index.principles) if domain_index else 0,
+                "methods_count": len(domain_index.methods) if domain_index else 0,
+                "priority": domain_config.priority,
+            })
         return result
 
-    def list_principles(self, domain: str | None = None) -> list[dict]:
-        """List all principles, optionally filtered by domain."""
-        result = []
-        domains_to_check = [domain] if domain else list(self.indexes.keys())
+    def get_domain_summary(self, domain_name: str) -> dict | None:
+        """Get detailed summary of a domain."""
+        if not self.index or domain_name not in self.index.domains:
+            return None
 
-        for domain_name in domains_to_check:
-            if domain_name not in self.indexes:
-                continue
+        domain_index = self.index.domains[domain_name]
+        config = next(
+            (c for c in self.index.domain_configs if c.name == domain_name), None
+        )
 
-            for principle in self.indexes[domain_name].principles:
-                result.append(
-                    {
-                        "id": principle.id,
-                        "domain": principle.domain,
-                        "series": principle.series_code,
-                        "number": principle.number,
-                        "title": principle.title,
-                    }
-                )
+        if not config:
+            return None
 
-        return result
-
-    def get_principle_content(self, principle_id: str) -> str | None:
-        """Get the full content of a principle from cache."""
-        cache_path = self.config.cache_path / f"{principle_id}.md"
-        if cache_path.exists():
-            return cache_path.read_text()
-        return None
+        return {
+            "name": domain_name,
+            "display_name": config.display_name,
+            "description": config.description,
+            "principles": [
+                {"id": p.id, "title": p.title, "series": p.series_code}
+                for p in domain_index.principles
+            ],
+            "methods": [
+                {"id": m.id, "title": m.title} for m in domain_index.methods
+            ],
+            "last_extracted": domain_index.last_extracted,
+        }
 
 
 def main():
     """Test retrieval engine."""
     import sys
 
-    config = load_config()
-    engine = RetrievalEngine(config)
+    settings = load_settings()
+    engine = RetrievalEngine(settings)
 
-    # Test query
-    query = sys.argv[1] if len(sys.argv) > 1 else "specification seems incomplete"
+    query = sys.argv[1] if len(sys.argv) > 1 else "how do I handle incomplete specifications"
 
     print(f"Query: {query}", file=sys.stderr)
-    print(f"Detected domains: {engine.detect_domains(query)}", file=sys.stderr)
+    print(f"\nDomain routing:", file=sys.stderr)
+    for domain, score in engine.route_domains(query).items():
+        print(f"  {domain}: {score:.3f}", file=sys.stderr)
 
     result = engine.retrieve(query)
 
-    print(f"\nS-Series triggered: {result.s_series_triggered}", file=sys.stderr)
-    print(f"\nConstitution principles ({len(result.constitution_principles)}):", file=sys.stderr)
-    for sp in result.constitution_principles[:3]:
-        print(f"  [{sp.score:.1f}] {sp.principle.id}: {sp.principle.title}", file=sys.stderr)
-        print(f"       Reasons: {sp.match_reasons[:3]}", file=sys.stderr)
+    print(f"\nRetrieval time: {result.retrieval_time_ms:.1f}ms", file=sys.stderr)
+    print(f"S-Series triggered: {result.s_series_triggered}", file=sys.stderr)
 
-    print(f"\nDomain principles ({len(result.domain_principles)}):", file=sys.stderr)
+    print(f"\nConstitution ({len(result.constitution_principles)}):", file=sys.stderr)
+    for sp in result.constitution_principles[:3]:
+        print(
+            f"  [{sp.confidence.value}] {sp.principle.id}: {sp.principle.title}",
+            file=sys.stderr,
+        )
+        print(f"    Scores: BM25={sp.keyword_score:.2f}, Semantic={sp.semantic_score:.2f}, "
+              f"Combined={sp.combined_score:.2f}", file=sys.stderr)
+
+    print(f"\nDomain ({len(result.domain_principles)}):", file=sys.stderr)
     for sp in result.domain_principles[:5]:
-        print(f"  [{sp.score:.1f}] {sp.principle.id}: {sp.principle.title}", file=sys.stderr)
+        print(
+            f"  [{sp.confidence.value}] {sp.principle.id}: {sp.principle.title}",
+            file=sys.stderr,
+        )
 
 
 if __name__ == "__main__":

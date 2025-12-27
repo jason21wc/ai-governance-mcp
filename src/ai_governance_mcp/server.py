@@ -1,53 +1,64 @@
 """MCP Server for AI Governance document retrieval.
 
-Per specification v3: FastMCP 2.0 with 9 tools for governance retrieval.
-Tools 1-5 are core tools implemented in this file.
+Per specification v4: FastMCP server with 6 tools for hybrid retrieval.
 """
 
 import json
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
-from .config import ServerConfig, ensure_directories, load_config, setup_logging
-from .extractor import DocumentExtractor
-from .models import AuditLogEntry, ErrorResponse
+from .config import Settings, ensure_directories, load_settings, setup_logging
+from .models import ErrorResponse, Feedback, QueryLog, Metrics
 from .retrieval import RetrievalEngine
 
 logger = setup_logging()
 
 # Global state
-_config: ServerConfig | None = None
+_settings: Settings | None = None
 _engine: RetrievalEngine | None = None
+_metrics: Metrics | None = None
 
 
 def get_engine() -> RetrievalEngine:
     """Get or create the retrieval engine."""
-    global _config, _engine
+    global _settings, _engine, _metrics
     if _engine is None:
-        _config = load_config()
-        ensure_directories(_config)
-        _engine = RetrievalEngine(_config)
+        _settings = load_settings()
+        ensure_directories(_settings)
+        _engine = RetrievalEngine(_settings)
+        _metrics = Metrics()
     return _engine
 
 
-def log_audit(tool_name: str, query: str, domains: list[str], principles: list[str], s_series: bool):
-    """Log tool invocation for audit purposes."""
-    global _config
-    if _config and _config.audit_log_enabled and _config.audit_log_path:
-        entry = AuditLogEntry(
-            timestamp=datetime.now(timezone.utc).isoformat(),
-            tool_name=tool_name,
-            query=query,
-            domains_detected=domains,
-            principles_returned=principles,
-            s_series_triggered=s_series,
-        )
-        with open(_config.audit_log_path, "a") as f:
-            f.write(entry.model_dump_json() + "\n")
+def get_metrics() -> Metrics:
+    """Get metrics instance."""
+    global _metrics
+    if _metrics is None:
+        _metrics = Metrics()
+    return _metrics
+
+
+def log_query(query_log: QueryLog) -> None:
+    """Log query for analytics."""
+    global _settings
+    if _settings:
+        log_file = _settings.logs_path / "queries.jsonl"
+        with open(log_file, "a") as f:
+            f.write(query_log.model_dump_json() + "\n")
+
+
+def log_feedback_entry(feedback: Feedback) -> None:
+    """Log feedback for future improvement."""
+    global _settings
+    if _settings:
+        log_file = _settings.logs_path / "feedback.jsonl"
+        with open(log_file, "a") as f:
+            f.write(feedback.model_dump_json() + "\n")
 
 
 # Create MCP server
@@ -56,16 +67,16 @@ server = Server("ai-governance-mcp")
 
 @server.list_tools()
 async def list_tools() -> list[Tool]:
-    """List available tools."""
+    """List available tools per spec v4."""
     return [
-        # Tool 1: Main retrieval
+        # Tool 1: Main retrieval (T13)
         Tool(
-            name="retrieve_governance",
+            name="query_governance",
             description=(
-                "Retrieve relevant AI governance principles for a query. "
-                "Auto-detects domain from query keywords. Returns scored principles "
-                "from Constitution (always) and detected domains. Use this as the "
-                "primary tool for getting governance guidance."
+                "Retrieve relevant AI governance principles for a query using hybrid search. "
+                "Auto-detects domain from query semantics. Returns scored principles from "
+                "Constitution (always) and detected domains with confidence levels. "
+                "Use this as the primary tool for getting governance guidance."
             ),
             inputSchema={
                 "type": "object",
@@ -97,31 +108,12 @@ async def list_tools() -> list[Tool]:
                 "required": ["query"],
             },
         ),
-        # Tool 2: Domain detection
-        Tool(
-            name="detect_domain",
-            description=(
-                "Detect which governance domains apply to a query. "
-                "Returns list of matching domains based on keywords and phrases. "
-                "Use this to understand domain coverage before retrieval."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The query to analyze for domain detection",
-                    },
-                },
-                "required": ["query"],
-            },
-        ),
-        # Tool 3: Get specific principle
+        # Tool 2: Get specific principle (T14)
         Tool(
             name="get_principle",
             description=(
                 "Get the full content of a specific governance principle by ID. "
-                "Use after retrieve_governance to get complete principle text. "
+                "Use after query_governance to get complete principle text. "
                 "IDs follow pattern: meta-C1, coding-C1, multi-A1, etc."
             ),
             inputSchema={
@@ -135,99 +127,78 @@ async def list_tools() -> list[Tool]:
                 "required": ["principle_id"],
             },
         ),
-        # Tool 4: List principles
-        Tool(
-            name="list_principles",
-            description=(
-                "List all available governance principles. "
-                "Optionally filter by domain. Returns principle IDs, titles, and series."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "domain": {
-                        "type": "string",
-                        "description": "Optional: Filter by domain (constitution, ai-coding, multi-agent)",
-                    },
-                },
-            },
-        ),
-        # Tool 5: List domains
+        # Tool 3: List domains (T15)
         Tool(
             name="list_domains",
             description=(
                 "List all available governance domains with statistics. "
-                "Shows principle counts, trigger keywords, and domain info."
+                "Shows principle counts, descriptions, and domain priorities."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {},
             },
         ),
-        # Tool 6: Refresh index
+        # Tool 4: Get domain summary (T16)
         Tool(
-            name="refresh_index",
+            name="get_domain_summary",
             description=(
-                "Re-extract governance documents and rebuild indexes. "
-                "Use after modifying source documents. Returns extraction summary."
+                "Get detailed information about a specific domain including "
+                "all principles and methods. Use for domain exploration."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "domain": {
+                        "type": "string",
+                        "description": "Domain name (constitution, ai-coding, multi-agent)",
+                    },
+                },
+                "required": ["domain"],
+            },
+        ),
+        # Tool 5: Log feedback (T17)
+        Tool(
+            name="log_feedback",
+            description=(
+                "Log user feedback on retrieval quality. Use this to help improve "
+                "future retrieval by recording which principles were helpful or not."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The original query",
+                    },
+                    "principle_id": {
+                        "type": "string",
+                        "description": "The principle being rated",
+                    },
+                    "rating": {
+                        "type": "integer",
+                        "description": "Rating from 1 (not helpful) to 5 (very helpful)",
+                        "minimum": 1,
+                        "maximum": 5,
+                    },
+                    "comment": {
+                        "type": "string",
+                        "description": "Optional feedback comment",
+                    },
+                },
+                "required": ["query", "principle_id", "rating"],
+            },
+        ),
+        # Tool 6: Get metrics (T18)
+        Tool(
+            name="get_metrics",
+            description=(
+                "Get retrieval performance metrics including query counts, "
+                "average latency, confidence distribution, and feedback stats."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {},
-            },
-        ),
-        # Tool 7: Validate hierarchy
-        Tool(
-            name="validate_hierarchy",
-            description=(
-                "Check for conflicts between governance documents. "
-                "Verifies domain principles comply with constitution. "
-                "Returns any detected conflicts or violations."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "domain": {
-                        "type": "string",
-                        "description": "Optional: Check specific domain only",
-                    },
-                },
-            },
-        ),
-        # Tool 8: Get escalation triggers
-        Tool(
-            name="get_escalation_triggers",
-            description=(
-                "Get list of situations that require human escalation. "
-                "Returns escalation triggers from all domains with severity levels."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "domain": {
-                        "type": "string",
-                        "description": "Optional: Filter by domain",
-                    },
-                },
-            },
-        ),
-        # Tool 9: Search by failure mode
-        Tool(
-            name="search_by_failure",
-            description=(
-                "Find principles that address a specific failure mode or symptom. "
-                "Use when you observe something going wrong and need guidance. "
-                "Searches failure_indicators metadata."
-            ),
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "failure": {
-                        "type": "string",
-                        "description": "The failure symptom or problem observed",
-                    },
-                },
-                "required": ["failure"],
             },
         ),
     ]
@@ -239,24 +210,18 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     try:
         engine = get_engine()
 
-        if name == "retrieve_governance":
-            return await _handle_retrieve(engine, arguments)
-        elif name == "detect_domain":
-            return await _handle_detect_domain(engine, arguments)
+        if name == "query_governance":
+            return await _handle_query_governance(engine, arguments)
         elif name == "get_principle":
             return await _handle_get_principle(engine, arguments)
-        elif name == "list_principles":
-            return await _handle_list_principles(engine, arguments)
         elif name == "list_domains":
             return await _handle_list_domains(engine, arguments)
-        elif name == "refresh_index":
-            return await _handle_refresh_index(arguments)
-        elif name == "validate_hierarchy":
-            return await _handle_validate_hierarchy(engine, arguments)
-        elif name == "get_escalation_triggers":
-            return await _handle_get_escalation_triggers(engine, arguments)
-        elif name == "search_by_failure":
-            return await _handle_search_by_failure(engine, arguments)
+        elif name == "get_domain_summary":
+            return await _handle_get_domain_summary(engine, arguments)
+        elif name == "log_feedback":
+            return await _handle_log_feedback(arguments)
+        elif name == "get_metrics":
+            return await _handle_get_metrics(arguments)
         else:
             return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
@@ -265,13 +230,13 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         error = ErrorResponse(
             error_code="TOOL_ERROR",
             message=str(e),
-            suggestions=["Check query syntax", "Verify domain name", "Run extraction first"],
+            suggestions=["Check query syntax", "Verify domain name", "Run extractor first"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
 
-async def _handle_retrieve(engine: RetrievalEngine, args: dict) -> list[TextContent]:
-    """Handle retrieve_governance tool."""
+async def _handle_query_governance(engine: RetrievalEngine, args: dict) -> list[TextContent]:
+    """Handle query_governance tool (T13)."""
     query = args.get("query", "")
     if not query:
         return [TextContent(type="text", text="Error: query is required")]
@@ -284,15 +249,36 @@ async def _handle_retrieve(engine: RetrievalEngine, args: dict) -> list[TextCont
         max_results=args.get("max_results"),
     )
 
-    # Log audit
-    principle_ids = [sp.principle.id for sp in result.constitution_principles + result.domain_principles]
-    log_audit(
-        "retrieve_governance",
-        query,
-        result.domains_detected,
-        principle_ids,
-        result.s_series_triggered,
+    # Update metrics
+    metrics = get_metrics()
+    metrics.total_queries += 1
+    metrics.avg_retrieval_time_ms = (
+        (metrics.avg_retrieval_time_ms * (metrics.total_queries - 1) + result.retrieval_time_ms)
+        / metrics.total_queries
     )
+    if result.s_series_triggered:
+        metrics.s_series_trigger_count += 1
+
+    for domain in result.domains_detected:
+        metrics.domain_query_counts[domain] = metrics.domain_query_counts.get(domain, 0) + 1
+
+    # Log query
+    query_log = QueryLog(
+        timestamp=datetime.now(timezone.utc).isoformat(),
+        query=query,
+        domains_detected=result.domains_detected,
+        principles_returned=[sp.principle.id for sp in result.constitution_principles + result.domain_principles],
+        methods_returned=[sm.method.id for sm in result.methods],
+        s_series_triggered=result.s_series_triggered,
+        retrieval_time_ms=result.retrieval_time_ms,
+        top_confidence=result.constitution_principles[0].confidence if result.constitution_principles else None,
+    )
+    log_query(query_log)
+
+    # Update confidence distribution
+    for sp in result.constitution_principles + result.domain_principles:
+        level = sp.confidence.value
+        metrics.confidence_distribution[level] = metrics.confidence_distribution.get(level, 0) + 1
 
     # Format response
     output = _format_retrieval_result(result)
@@ -300,16 +286,20 @@ async def _handle_retrieve(engine: RetrievalEngine, args: dict) -> list[TextCont
 
 
 def _format_retrieval_result(result) -> str:
-    """Format retrieval result as readable text."""
+    """Format retrieval result as readable markdown."""
     lines = []
 
-    # Header
+    # Header with S-Series warning
     if result.s_series_triggered:
-        lines.append("⚠️ **S-SERIES TRIGGERED** - Safety/Ethics principles apply")
+        lines.append("## S-SERIES TRIGGERED - Safety/Ethics Principles Apply")
         lines.append("")
 
     lines.append(f"**Query:** {result.query}")
-    lines.append(f"**Domains Detected:** {', '.join(result.domains_detected) or 'None (using Constitution only)'}")
+    lines.append(f"**Domains Detected:** {', '.join(result.domains_detected) or 'None (Constitution only)'}")
+    if result.domain_scores:
+        scores = ", ".join(f"{d}: {s:.2f}" for d, s in result.domain_scores.items())
+        lines.append(f"**Domain Scores:** {scores}")
+    lines.append(f"**Retrieval Time:** {result.retrieval_time_ms:.1f}ms")
     lines.append("")
 
     # Constitution principles
@@ -317,11 +307,12 @@ def _format_retrieval_result(result) -> str:
         lines.append("## Constitution Principles")
         for sp in result.constitution_principles:
             p = sp.principle
-            lines.append(f"### {p.id}: {p.title}")
-            lines.append(f"*Score: {sp.score:.1f} | Series: {p.series_code}*")
+            lines.append(f"### [{sp.confidence.value.upper()}] {p.id}: {p.title}")
+            lines.append(f"*Series: {p.series_code} | Scores: BM25={sp.keyword_score:.2f}, Semantic={sp.semantic_score:.2f}, Combined={sp.combined_score:.2f}*")
+            if sp.match_reasons:
+                lines.append(f"*Match: {', '.join(sp.match_reasons)}*")
             lines.append("")
-            # Include first ~500 chars of content
-            content_preview = p.content[:500] + "..." if len(p.content) > 500 else p.content
+            content_preview = p.content[:600] + "..." if len(p.content) > 600 else p.content
             lines.append(content_preview)
             lines.append("")
 
@@ -330,18 +321,19 @@ def _format_retrieval_result(result) -> str:
         lines.append("## Domain Principles")
         for sp in result.domain_principles:
             p = sp.principle
-            lines.append(f"### {p.id}: {p.title}")
-            lines.append(f"*Score: {sp.score:.1f} | Domain: {p.domain} | Series: {p.series_code}*")
+            lines.append(f"### [{sp.confidence.value.upper()}] {p.id}: {p.title}")
+            lines.append(f"*Domain: {p.domain} | Series: {p.series_code} | Combined: {sp.combined_score:.2f}*")
             lines.append("")
-            content_preview = p.content[:500] + "..." if len(p.content) > 500 else p.content
+            content_preview = p.content[:600] + "..." if len(p.content) > 600 else p.content
             lines.append(content_preview)
             lines.append("")
 
     # Methods
     if result.methods:
         lines.append("## Applicable Methods")
-        for m in result.methods:
-            lines.append(f"- **{m.id}:** {m.title}")
+        for sm in result.methods:
+            m = sm.method
+            lines.append(f"- **{m.id}:** {m.title} (confidence: {sm.confidence.value})")
         lines.append("")
 
     if not result.constitution_principles and not result.domain_principles:
@@ -350,67 +342,39 @@ def _format_retrieval_result(result) -> str:
     return "\n".join(lines)
 
 
-async def _handle_detect_domain(engine: RetrievalEngine, args: dict) -> list[TextContent]:
-    """Handle detect_domain tool."""
-    query = args.get("query", "")
-    if not query:
-        return [TextContent(type="text", text="Error: query is required")]
-
-    domains = engine.detect_domains(query)
-
-    output = {
-        "query": query,
-        "detected_domains": domains,
-        "domain_count": len(domains),
-        "note": "Constitution always applies regardless of domain detection",
-    }
-
-    return [TextContent(type="text", text=json.dumps(output, indent=2))]
-
-
 async def _handle_get_principle(engine: RetrievalEngine, args: dict) -> list[TextContent]:
-    """Handle get_principle tool."""
+    """Handle get_principle tool (T14)."""
     principle_id = args.get("principle_id", "")
     if not principle_id:
         return [TextContent(type="text", text="Error: principle_id is required")]
 
-    # Get full content from cache
-    content = engine.get_principle_content(principle_id)
-    if content:
-        return [TextContent(type="text", text=content)]
-
-    # Fall back to principle object
     principle = engine.get_principle_by_id(principle_id)
     if principle:
-        return [TextContent(type="text", text=principle.content)]
+        output = {
+            "id": principle.id,
+            "domain": principle.domain,
+            "series": principle.series_code,
+            "number": principle.number,
+            "title": principle.title,
+            "content": principle.content,
+            "line_range": principle.line_range,
+            "keywords": principle.metadata.keywords,
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     error = ErrorResponse(
         error_code="PRINCIPLE_NOT_FOUND",
         message=f"Principle '{principle_id}' not found",
         suggestions=[
-            "Use list_principles to see available IDs",
+            "Use list_domains to see available domains",
             "Check ID format: meta-C1, coding-C1, multi-A1",
         ],
     )
     return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
 
-async def _handle_list_principles(engine: RetrievalEngine, args: dict) -> list[TextContent]:
-    """Handle list_principles tool."""
-    domain = args.get("domain")
-    principles = engine.list_principles(domain)
-
-    output = {
-        "domain_filter": domain or "all",
-        "total_count": len(principles),
-        "principles": principles,
-    }
-
-    return [TextContent(type="text", text=json.dumps(output, indent=2))]
-
-
 async def _handle_list_domains(engine: RetrievalEngine, args: dict) -> list[TextContent]:
-    """Handle list_domains tool."""
+    """Handle list_domains tool (T15)."""
     domains = engine.list_domains()
 
     output = {
@@ -421,168 +385,79 @@ async def _handle_list_domains(engine: RetrievalEngine, args: dict) -> list[Text
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 
-async def _handle_refresh_index(args: dict) -> list[TextContent]:
-    """Handle refresh_index tool - re-extract all documents."""
-    global _config, _engine
+async def _handle_get_domain_summary(engine: RetrievalEngine, args: dict) -> list[TextContent]:
+    """Handle get_domain_summary tool (T16)."""
+    domain = args.get("domain", "")
+    if not domain:
+        return [TextContent(type="text", text="Error: domain is required")]
 
-    config = load_config()
-    extractor = DocumentExtractor(config)
-    indexes = extractor.extract_all()
+    summary = engine.get_domain_summary(domain)
+    if summary:
+        return [TextContent(type="text", text=json.dumps(summary, indent=2))]
 
-    # Reload the engine with fresh indexes
-    _engine = RetrievalEngine(config)
-
-    summary = {
-        "status": "success",
-        "domains_extracted": len(indexes),
-        "details": {},
-    }
-
-    for domain_name, index in indexes.items():
-        summary["details"][domain_name] = {
-            "principles": len(index.principles),
-            "methods": len(index.methods),
-        }
-
-    return [TextContent(type="text", text=json.dumps(summary, indent=2))]
+    error = ErrorResponse(
+        error_code="DOMAIN_NOT_FOUND",
+        message=f"Domain '{domain}' not found",
+        suggestions=["Use list_domains to see available domains"],
+    )
+    return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
 
-async def _handle_validate_hierarchy(engine: RetrievalEngine, args: dict) -> list[TextContent]:
-    """Handle validate_hierarchy tool - check for conflicts."""
-    domain = args.get("domain")
-    conflicts: list[dict] = []
+async def _handle_log_feedback(args: dict) -> list[TextContent]:
+    """Handle log_feedback tool (T17)."""
+    query = args.get("query", "")
+    principle_id = args.get("principle_id", "")
+    rating = args.get("rating", 0)
 
-    # Get all domains to check
-    domains_to_check = [domain] if domain else [d for d in engine.indexes if d != "constitution"]
+    if not query or not principle_id or not rating:
+        return [TextContent(type="text", text="Error: query, principle_id, and rating are required")]
 
-    # Get constitution principles for reference
-    constitution_series = set()
-    if "constitution" in engine.indexes:
-        for p in engine.indexes["constitution"].principles:
-            constitution_series.add(p.series_code)
+    if not 1 <= rating <= 5:
+        return [TextContent(type="text", text="Error: rating must be 1-5")]
 
-    for domain_name in domains_to_check:
-        if domain_name not in engine.indexes:
-            continue
+    feedback = Feedback(
+        query=query,
+        principle_id=principle_id,
+        rating=rating,
+        comment=args.get("comment"),
+        timestamp=datetime.now(timezone.utc).isoformat(),
+        session_id=args.get("session_id"),
+    )
 
-        for principle in engine.indexes[domain_name].principles:
-            # Check 1: Domain principles should not use constitution-only series
-            if principle.series_code in ["S", "MA", "G", "O"] and domain_name != "constitution":
-                conflicts.append({
-                    "type": "series_violation",
-                    "principle": principle.id,
-                    "message": f"Domain principle uses constitution series '{principle.series_code}'",
-                    "severity": "warning",
-                })
+    log_feedback_entry(feedback)
 
-            # Check 2: S-Series references in domain should cite constitution
-            if "S-Series" in principle.content or "S1" in principle.content or "S2" in principle.content:
-                if "derives from" not in principle.content.lower() and "constitutional" not in principle.content.lower():
-                    conflicts.append({
-                        "type": "missing_derivation",
-                        "principle": principle.id,
-                        "message": "References S-Series without explicit constitutional derivation",
-                        "severity": "info",
-                    })
+    # Update metrics
+    metrics = get_metrics()
+    metrics.feedback_count += 1
+    if metrics.avg_feedback_rating is None:
+        metrics.avg_feedback_rating = float(rating)
+    else:
+        metrics.avg_feedback_rating = (
+            (metrics.avg_feedback_rating * (metrics.feedback_count - 1) + rating)
+            / metrics.feedback_count
+        )
 
     output = {
-        "domains_checked": domains_to_check,
-        "conflicts_found": len(conflicts),
-        "conflicts": conflicts,
-        "status": "valid" if not conflicts else "issues_found",
+        "status": "logged",
+        "feedback_id": feedback.timestamp,
+        "message": "Thank you for your feedback!",
     }
 
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 
-async def _handle_get_escalation_triggers(engine: RetrievalEngine, args: dict) -> list[TextContent]:
-    """Handle get_escalation_triggers tool - find escalation situations."""
-    domain = args.get("domain")
-    triggers: list[dict] = []
-
-    # Search for escalation patterns in principle content
-    escalation_patterns = [
-        ("⚠️", "immediate"),
-        ("Escalate to", "required"),
-        ("IMMEDIATELY", "immediate"),
-        ("Human Interaction Is Needed", "conditional"),
-        ("Product Owner", "required"),
-        ("Supreme Court", "immediate"),  # Legal analogy for human review
-    ]
-
-    domains_to_check = [domain] if domain else list(engine.indexes.keys())
-
-    for domain_name in domains_to_check:
-        if domain_name not in engine.indexes:
-            continue
-
-        for principle in engine.indexes[domain_name].principles:
-            for pattern, severity in escalation_patterns:
-                if pattern in principle.content:
-                    # Extract context around the pattern
-                    idx = principle.content.find(pattern)
-                    start = max(0, idx - 50)
-                    end = min(len(principle.content), idx + 150)
-                    context = principle.content[start:end].strip()
-
-                    triggers.append({
-                        "principle_id": principle.id,
-                        "principle_title": principle.title,
-                        "domain": domain_name,
-                        "severity": severity,
-                        "context": context,
-                    })
-                    break  # One trigger per principle
-
-    # Deduplicate and sort by severity
-    severity_order = {"immediate": 0, "required": 1, "conditional": 2}
-    triggers.sort(key=lambda t: severity_order.get(t["severity"], 99))
+async def _handle_get_metrics(args: dict) -> list[TextContent]:
+    """Handle get_metrics tool (T18)."""
+    metrics = get_metrics()
 
     output = {
-        "domains_searched": domains_to_check,
-        "triggers_found": len(triggers),
-        "triggers": triggers,
-    }
-
-    return [TextContent(type="text", text=json.dumps(output, indent=2))]
-
-
-async def _handle_search_by_failure(engine: RetrievalEngine, args: dict) -> list[TextContent]:
-    """Handle search_by_failure tool - find principles by failure indicators."""
-    failure = args.get("failure", "").lower()
-    if not failure:
-        return [TextContent(type="text", text="Error: failure description is required")]
-
-    failure_words = set(failure.split())
-    matches: list[dict] = []
-
-    for domain_name, index in engine.indexes.items():
-        for principle in index.principles:
-            matched_indicators = []
-
-            for indicator in principle.metadata.failure_indicators:
-                if indicator.lower() in failure or any(
-                    word in indicator.lower() for word in failure_words
-                ):
-                    matched_indicators.append(indicator)
-
-            if matched_indicators:
-                matches.append({
-                    "principle_id": principle.id,
-                    "principle_title": principle.title,
-                    "domain": domain_name,
-                    "series": principle.series_code,
-                    "matched_indicators": matched_indicators,
-                    "all_indicators": principle.metadata.failure_indicators,
-                })
-
-    # Sort by number of matched indicators
-    matches.sort(key=lambda m: -len(m["matched_indicators"]))
-
-    output = {
-        "failure_query": failure,
-        "matches_found": len(matches),
-        "matches": matches[:10],  # Limit to top 10
+        "total_queries": metrics.total_queries,
+        "avg_retrieval_time_ms": round(metrics.avg_retrieval_time_ms, 2),
+        "s_series_trigger_count": metrics.s_series_trigger_count,
+        "domain_query_counts": metrics.domain_query_counts,
+        "confidence_distribution": metrics.confidence_distribution,
+        "feedback_count": metrics.feedback_count,
+        "avg_feedback_rating": round(metrics.avg_feedback_rating, 2) if metrics.avg_feedback_rating else None,
     }
 
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
@@ -590,7 +465,7 @@ async def _handle_search_by_failure(engine: RetrievalEngine, args: dict) -> list
 
 async def run_server():
     """Run the MCP server."""
-    logger.info("Starting AI Governance MCP Server")
+    logger.info("Starting AI Governance MCP Server v4")
 
     # Initialize engine on startup
     get_engine()
@@ -605,7 +480,7 @@ def main():
 
     # Handle --test mode for quick testing
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
-        query = " ".join(sys.argv[2:]) if len(sys.argv) > 2 else "specification incomplete"
+        query = " ".join(sys.argv[2:]) if len(sys.argv) > 2 else "how do I handle incomplete specs"
         engine = get_engine()
         result = engine.retrieve(query)
         print(_format_retrieval_result(result))

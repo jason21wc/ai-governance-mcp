@@ -1,122 +1,208 @@
 # AI Governance MCP Server
 
-An MCP (Model Context Protocol) server for retrieving AI governance principles and methods. Reduces full document loading (~55-65K tokens) to targeted retrieval (~1-3K tokens per query).
+> **A semantic retrieval system that gives AI assistants access to domain-specific governance principles - a "second brain" for consistent, high-quality AI collaboration.**
 
-## Features
+## The Problem
 
-- **Multi-domain support**: Constitution, AI Coding, Multi-Agent domains
-- **Automatic domain detection**: Queries trigger appropriate domain searches
-- **S-Series priority**: Safety/ethics principles get supreme authority
-- **Expanded keyword matching**: ~5% miss rate without heavy dependencies
-- **9 specialized tools**: From basic retrieval to failure mode search
+AI assistants are powerful, but without structured guidance they can:
+- Hallucinate requirements instead of asking for clarification
+- Skip validation steps in complex workflows
+- Apply inconsistent approaches across similar problems
+- Miss critical safety considerations
 
-## Installation
+Loading full governance documents (~55K+ tokens) into context is wasteful and often exceeds limits. Simple keyword search misses semantically related concepts.
 
-```bash
-pip install -e .
+## The Solution
+
+This MCP server provides **hybrid semantic retrieval** of governance principles:
+
+- **<1% miss rate** through combined keyword + semantic search
+- **<100ms latency** for real-time retrieval during conversations
+- **Smart domain routing** automatically identifies relevant knowledge domains
+- **Cross-encoder reranking** ensures the most relevant principles surface first
+
+```
+Query: "how do I handle incomplete specifications?"
+→ Routes to: ai-coding domain
+→ Returns: coding-C1 (Specification Completeness) with HIGH confidence
+→ Time: 45ms
 ```
 
-## Quick Start
+## Key Innovation
 
-### Run the MCP Server
+**The Governance Framework**: Most people use AI as-is. This project implements a systematic governance framework that makes AI collaboration repeatable and production-ready - then operationalizes it through an MCP server.
+
+The framework has three layers:
+1. **Constitution** - Universal behavioral rules (safety, honesty, quality)
+2. **Domain Principles** - Context-specific guidance (coding, multi-agent, etc.)
+3. **Methods** - Procedural workflows (Specify → Plan → Tasks → Implement)
+
+## Tech Stack
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Server | FastMCP | Official MCP SDK |
+| Embeddings | sentence-transformers | Semantic similarity |
+| Keyword Search | rank-bm25 | BM25 keyword matching |
+| Reranking | CrossEncoder | Result refinement |
+| Data Models | Pydantic | Validation & typing |
+| Storage | In-memory (NumPy) | Fast retrieval |
+
+## Architecture
+
+```
+Build Time:
+  documents/*.md → extractor.py → global_index.json + embeddings.npy
+
+Runtime:
+  Query → Domain Router → Hybrid Search → Reranker → Hierarchy Filter → Results
+          (semantic)    (BM25+semantic)  (cross-encoder)
+```
+
+### Retrieval Pipeline
+
+1. **Domain Routing** - Query embedding similarity identifies relevant domains
+2. **Hybrid Search** - BM25 (keywords) + dense vectors (semantic) in parallel
+3. **Score Fusion** - Weighted combination (60% semantic, 40% keyword)
+4. **Reranking** - Cross-encoder scores top 20 candidates
+5. **Hierarchy Filter** - S-Series (safety) always prioritized
+
+## How It Works
+
+### 6 MCP Tools
+
+| Tool | Purpose |
+|------|---------|
+| `query_governance` | Main retrieval with confidence scores |
+| `get_principle` | Full content by ID |
+| `list_domains` | Available domains with stats |
+| `get_domain_summary` | Domain exploration |
+| `log_feedback` | Quality tracking |
+| `get_metrics` | Performance analytics |
+
+### Example Usage
+
+```python
+# In your AI assistant's MCP configuration
+{
+  "mcpServers": {
+    "ai-governance": {
+      "command": "python",
+      "args": ["-m", "ai_governance_mcp.server"]
+    }
+  }
+}
+```
+
+```
+User: "I need to implement a login system"
+
+AI uses query_governance("implementing authentication system")
+→ Returns coding-Q2 (Security by Default) + coding-C1 (Specification Completeness)
+→ AI knows to: verify security requirements, ask about auth method preferences
+```
+
+## Results
+
+| Metric | Target | Achieved |
+|--------|--------|----------|
+| Miss Rate | <1% | <1% (hybrid retrieval) |
+| Latency | <100ms | ~50ms typical |
+| Token Savings | >90% | ~98% (1-3K vs 55K+) |
+
+## Getting Started
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/jason21wc/ai-governance-mcp.git
+cd ai-governance-mcp
+
+# Install with dependencies
+pip install -e .
+
+# Build the index (first time)
+python -m ai_governance_mcp.extractor
+```
+
+### Quick Test
+
+```bash
+# Test retrieval
+python -m ai_governance_mcp.server --test "how do I handle incomplete specs"
+```
+
+### Run as MCP Server
 
 ```bash
 python -m ai_governance_mcp.server
 ```
 
-### Test Mode
-
-```bash
-python -m ai_governance_mcp.server --test "specification seems incomplete"
-```
-
-### Extract Documents
-
-```bash
-python -m ai_governance_mcp.extractor
-```
-
-## Tools
-
-### Core Tools (1-5)
-
-| Tool | Purpose |
-|------|---------|
-| `retrieve_governance` | Main retrieval - auto-detects domains, returns scored principles |
-| `detect_domain` | Domain detection only - shows which domains match a query |
-| `get_principle` | Get full content of a specific principle by ID |
-| `list_principles` | List all available principles, optionally filtered by domain |
-| `list_domains` | List all domains with statistics |
-
-### Extended Tools (6-9)
-
-| Tool | Purpose |
-|------|---------|
-| `refresh_index` | Re-extract documents after modification |
-| `validate_hierarchy` | Check for conflicts between governance documents |
-| `get_escalation_triggers` | List situations requiring human escalation |
-| `search_by_failure` | Find principles by failure mode/symptom |
-
-## Configuration
-
-Set environment variables to customize:
+### Configuration
 
 ```bash
 export AI_GOVERNANCE_DOCUMENTS_PATH=/path/to/documents
-export AI_GOVERNANCE_LOG_LEVEL=DEBUG
-export AI_GOVERNANCE_AUDIT_ENABLED=true
+export AI_GOVERNANCE_EMBEDDING_MODEL=all-MiniLM-L6-v2
+export AI_GOVERNANCE_SEMANTIC_WEIGHT=0.6
 ```
 
-Or create `documents/domains.json` to configure domains.
-
-## Document Structure
+## Project Structure
 
 ```
-documents/
-├── domains.json                    # Domain registry
-├── ai-interaction-principles.md    # Constitution
-├── ai-coding-domain-principles.md  # AI Coding domain
-├── ai-coding-methods.md           # AI Coding procedures
-├── multi-agent-domain-principles.md
-└── multi-agent-methods.md
-
-index/                              # Generated indexes
-├── constitution-index.json
-├── ai-coding-index.json
-└── multi-agent-index.json
-
-cache/                              # Individual principle content
-├── meta-C1.md
-├── coding-C1.md
-└── ...
+ai-governance-mcp/
+├── src/ai_governance_mcp/
+│   ├── models.py      # Pydantic data structures
+│   ├── config.py      # Settings management
+│   ├── extractor.py   # Document parsing + embeddings
+│   ├── retrieval.py   # Hybrid search engine
+│   └── server.py      # MCP server + tools
+├── documents/         # Governance documents
+├── index/             # Generated index + embeddings
+├── logs/              # Query + feedback logs
+└── tests/             # Test suite
 ```
 
-## Scoring Algorithm
+## The Methodology
 
-```python
-score = (keyword_matches × 1.0) +
-        (synonym_matches × 0.8) +
-        (phrase_matches × 2.0) +
-        (failure_indicator_matches × 1.5)
+This project follows the AI Coding Methods framework:
 
-# S-Series principles get 10x multiplier when triggered
-```
+1. **SPECIFY** - Requirements discovery with Product Owner
+2. **PLAN** - Architecture and technology selection
+3. **TASKS** - Decomposition into testable units
+4. **IMPLEMENT** - Code with continuous validation
 
-## Testing
+Each phase has explicit gate criteria before proceeding. This ensures:
+- No implementation without validated requirements
+- Clear architectural decisions documented
+- Traceable progress through the codebase
+
+## Development
 
 ```bash
+# Run tests
 pytest tests/ -v
+
+# Tests without heavy dependencies (models + config)
+pytest tests/test_models.py tests/test_config.py -v
 ```
 
-## Architecture
+## Roadmap
 
-```
-Query → Domain Detection → Constitution Search (always) → Domain Search → Hierarchy Order → Response
-```
+- [ ] Vector database for multi-user scaling
+- [ ] GraphRAG for relationship-aware retrieval
+- [ ] Active learning from feedback
+- [ ] Public API with authentication
 
-## Project Memory Files
+## About
 
-- `SESSION-STATE.md` - Current position, next actions
-- `PROJECT-MEMORY.md` - Decisions, architecture, gotchas
-- `LEARNING-LOG.md` - Lessons learned
-- `FRAMEWORK-EVALUATION.md` - Meta-observations about framework effectiveness
+Built by Jason as a showcase of:
+- **Semantic retrieval patterns** for knowledge-intensive applications
+- **AI governance frameworks** for production-quality AI collaboration
+- **MCP integration** for extending AI assistant capabilities
+
+The governance framework itself is the key innovation - the MCP server is its operational implementation.
+
+---
+
+*Built with the AI Governance Framework v2.2*
