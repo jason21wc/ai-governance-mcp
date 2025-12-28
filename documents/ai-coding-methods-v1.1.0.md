@@ -1943,6 +1943,182 @@ Before deploying CI/CD:
 
 ---
 
+## Part 6.5: Project Hygiene
+
+**Importance: 🟡 IMPORTANT — Maintains codebase health over time**
+
+**Implements:** Q3 (Testing Standards), G1 (Sustainable Practices)
+**Applies to:** All project phases, especially before releases and after major milestones
+
+### 6.5.1 Purpose
+
+Project hygiene prevents accumulation of obsolete files, maintains clear organization, and ensures the repository remains navigable. Clean projects:
+- Reduce cognitive load when onboarding or resuming
+- Prevent confusion about which files are current
+- Keep repository size manageable
+- Pass security audits (no exposed secrets or debug artifacts)
+
+### 6.5.2 Standard Directory Structure
+
+**Python Projects:**
+```
+project-root/
+├── src/                    # Source code (package directory)
+│   └── package_name/       # Main package
+├── tests/                  # Test files mirror src/ structure
+├── documents/              # Specifications, governance docs
+│   └── archive/            # Historical versions, completed gates
+├── index/                  # Generated indexes, embeddings (if applicable)
+├── .github/                # CI/CD workflows, issue templates
+├── README.md               # External-facing documentation
+├── CLAUDE.md               # AI governance loader
+├── SESSION-STATE.md        # Current session state
+├── PROJECT-MEMORY.md       # Architectural decisions
+├── LEARNING-LOG.md         # Lessons learned
+├── pyproject.toml          # Project configuration
+└── .gitignore              # Exclusion rules
+```
+
+**Key Principles:**
+- Source code in `src/` (not root)
+- Tests mirror source structure
+- Generated files in dedicated directories
+- Documentation versioned with `archive/` for historical versions
+
+### 6.5.3 File Classification
+
+| Category | Action | Examples |
+|----------|--------|----------|
+| **Generated** | Delete + gitignore | `htmlcov/`, `.coverage`, `*.pyc`, `__pycache__/` |
+| **Cache** | Delete + gitignore | `.pytest_cache/`, `.ruff_cache/`, `.cache/` |
+| **IDE** | Delete + gitignore | `.idea/`, `.vscode/`, `*.swp` |
+| **Platform** | Delete + gitignore | `.DS_Store`, `Thumbs.db`, `.Rhistory` |
+| **Historical** | Archive | Completed gate artifacts, superseded specs |
+| **Obsolete** | Delete | Abandoned experiments, deprecated code |
+| **Duplicate** | Delete lower priority | `claude.md` when `CLAUDE.md` exists |
+
+### 6.5.4 Essential .gitignore Entries
+
+```gitignore
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Linting
+.ruff_cache/
+.mypy_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Platform
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
+
+# Environment
+.env
+.env.local
+
+# Project-specific logs
+logs/*.jsonl
+```
+
+### 6.5.5 Archive vs Delete Decision Matrix
+
+| Condition | Decision | Rationale |
+|-----------|----------|-----------|
+| Contains historical decisions | Archive | Preserves decision context |
+| Gate artifact (completed) | Archive | Audit trail for methodology |
+| Superseded specification | Archive | Reference for what changed |
+| Generated/reproducible | Delete | Can be regenerated |
+| Duplicate of canonical file | Delete | Single source of truth |
+| Abandoned experiment | Delete | No ongoing value |
+| Debug/temp files | Delete | Not project artifacts |
+
+### 6.5.6 Cleanup Triggers
+
+**When to perform cleanup:**
+
+| Trigger | Scope | Focus |
+|---------|-------|-------|
+| Before release | Full | Remove all debug artifacts, verify .gitignore |
+| After phase completion | Phase | Archive gate artifacts, clean generated files |
+| Before major commit | Changed areas | Ensure no temp files staged |
+| Repository size growing | Full | Identify large unnecessary files |
+| Onboarding new contributor | Full | Verify project is navigable |
+
+### 6.5.7 Cleanup Procedure
+
+1. **Inventory current state:**
+   ```bash
+   # List all files not in .gitignore
+   git ls-files
+
+   # Find large files
+   find . -type f -size +1M | head -20
+
+   # Check for common cleanup targets
+   find . -name "*.pyc" -o -name "__pycache__" -o -name ".DS_Store"
+   ```
+
+2. **Classify files** using the table in §6.5.3
+
+3. **Delete generated/cache/obsolete files:**
+   ```bash
+   # Remove Python caches
+   find . -type d -name "__pycache__" -exec rm -rf {} +
+   find . -type f -name "*.pyc" -delete
+
+   # Remove coverage artifacts
+   rm -rf htmlcov/ .coverage coverage.xml
+   ```
+
+4. **Archive historical files:**
+   ```bash
+   mkdir -p documents/archive
+   mv GATE-*.md documents/archive/
+   ```
+
+5. **Update .gitignore** for any new patterns discovered
+
+6. **Verify cleanup:**
+   ```bash
+   git status  # Should show deletions, no untracked junk
+   ```
+
+### 6.5.8 Project Hygiene Checklist
+
+Before release or major milestone:
+- [ ] No generated files committed (htmlcov, .coverage, __pycache__)
+- [ ] No IDE/platform files committed (.DS_Store, .idea)
+- [ ] Completed gate artifacts archived
+- [ ] Superseded specs archived with version suffix
+- [ ] .gitignore covers all reproducible artifacts
+- [ ] No duplicate files (lowercase/uppercase variants)
+- [ ] No abandoned experiments in repository
+- [ ] Large files justified or removed
+
+---
+
 # TITLE 7: MEMORY ARCHITECTURE
 
 **Importance: 🔴 CRITICAL — Enables context continuity across sessions**
