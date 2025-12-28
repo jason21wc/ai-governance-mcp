@@ -6,10 +6,8 @@ Logging must use stderr (stdout reserved for MCP JSON-RPC).
 
 import json
 import logging
-import os
 import sys
 from pathlib import Path
-from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings

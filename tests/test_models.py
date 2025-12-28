@@ -18,13 +18,9 @@ from ai_governance_mcp.models import (
     Principle,
     Method,
     DomainConfig,
-    DomainIndex,
-    GlobalIndex,
     ScoredPrinciple,
-    ScoredMethod,
     RetrievalResult,
     Feedback,
-    QueryLog,
     Metrics,
     ErrorResponse,
 )
@@ -38,7 +34,7 @@ class TestEnums:
         assert SeriesCode.S == "S"
         assert SeriesCode.C == "C"
         assert SeriesCode.Q == "Q"
-        assert SeriesCode.O == "O"
+        assert SeriesCode.OPER == "O"
         assert SeriesCode.G == "G"
         assert SeriesCode.MA == "MA"
 

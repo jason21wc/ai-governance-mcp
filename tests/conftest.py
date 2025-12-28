@@ -8,7 +8,7 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import numpy as np
 import pytest
@@ -214,11 +214,17 @@ def sample_coding_domain_config():
 
 
 @pytest.fixture
-def sample_domain_index(sample_principle, sample_s_series_principle, sample_quality_principle):
+def sample_domain_index(
+    sample_principle, sample_s_series_principle, sample_quality_principle
+):
     """DomainIndex for constitution domain with multiple principles."""
     return DomainIndex(
         domain="constitution",
-        principles=[sample_principle, sample_s_series_principle, sample_quality_principle],
+        principles=[
+            sample_principle,
+            sample_s_series_principle,
+            sample_quality_principle,
+        ],
         methods=[],
         last_extracted="2025-01-01T00:00:00Z",
         version="1.0",
@@ -387,7 +393,7 @@ def mock_reranker():
 @pytest.fixture
 def sample_principles_md(temp_dir):
     """Create a minimal principles markdown file for extraction testing."""
-    content = '''# Test Principles Document
+    content = """# Test Principles Document
 
 ## Series S: Safety
 
@@ -421,7 +427,7 @@ Writing tests that exercise code but don't validate behavior.
 ### Q1. Quality Standards
 **Definition**
 Maintain quality in all outputs.
-'''
+"""
     path = temp_dir / "documents" / "test-principles.md"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content)
@@ -431,7 +437,7 @@ Maintain quality in all outputs.
 @pytest.fixture
 def sample_methods_md(temp_dir):
     """Create a minimal methods markdown file for extraction testing."""
-    content = '''# Test Methods Document
+    content = """# Test Methods Document
 
 ## 1 Cold Start Kit
 Procedure for initializing new projects.
@@ -448,7 +454,7 @@ Procedure for validating phase gates.
 ### Checklist
 - [ ] All tests passing
 - [ ] Coverage meets threshold
-'''
+"""
     path = temp_dir / "documents" / "test-methods.md"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content)
@@ -488,7 +494,9 @@ def sample_domains_json(temp_dir):
 
 
 @pytest.fixture
-def saved_index(test_settings, sample_global_index, mock_embeddings, mock_domain_embeddings):
+def saved_index(
+    test_settings, sample_global_index, mock_embeddings, mock_domain_embeddings
+):
     """Save a complete index to disk for integration tests.
 
     Returns the settings pointing to the saved index.

@@ -5,19 +5,15 @@ Per specification v4: Hybrid retrieval with BM25 + semantic search + reranking.
 
 import json
 import time
-from pathlib import Path
 from typing import Optional
 
 import numpy as np
 from rank_bm25 import BM25Okapi
 
-from .config import Settings, load_settings, load_domains_registry, setup_logging
+from .config import Settings, load_settings, setup_logging
 from .models import (
     ConfidenceLevel,
-    DomainConfig,
-    DomainIndex,
     GlobalIndex,
-    Method,
     Principle,
     RetrievalResult,
     ScoredMethod,
@@ -46,6 +42,7 @@ class RetrievalEngine:
         """Lazy-load embedding model for query encoding."""
         if self._embedder is None:
             from sentence_transformers import SentenceTransformer
+
             logger.info(f"Loading embedding model: {self.settings.embedding_model}")
             self._embedder = SentenceTransformer(self.settings.embedding_model)
         return self._embedder
@@ -55,6 +52,7 @@ class RetrievalEngine:
         """Lazy-load cross-encoder reranking model."""
         if self._reranker is None:
             from sentence_transformers import CrossEncoder
+
             logger.info(f"Loading reranking model: {self.settings.rerank_model}")
             self._reranker = CrossEncoder(self.settings.rerank_model)
         return self._reranker
@@ -558,14 +556,18 @@ class RetrievalEngine:
         result = []
         for domain_config in self.index.domain_configs:
             domain_index = self.index.domains.get(domain_config.name)
-            result.append({
-                "name": domain_config.name,
-                "display_name": domain_config.display_name,
-                "description": domain_config.description[:100] + "...",
-                "principles_count": len(domain_index.principles) if domain_index else 0,
-                "methods_count": len(domain_index.methods) if domain_index else 0,
-                "priority": domain_config.priority,
-            })
+            result.append(
+                {
+                    "name": domain_config.name,
+                    "display_name": domain_config.display_name,
+                    "description": domain_config.description[:100] + "...",
+                    "principles_count": len(domain_index.principles)
+                    if domain_index
+                    else 0,
+                    "methods_count": len(domain_index.methods) if domain_index else 0,
+                    "priority": domain_config.priority,
+                }
+            )
         return result
 
     def get_domain_summary(self, domain_name: str) -> dict | None:
@@ -589,9 +591,7 @@ class RetrievalEngine:
                 {"id": p.id, "title": p.title, "series": p.series_code}
                 for p in domain_index.principles
             ],
-            "methods": [
-                {"id": m.id, "title": m.title} for m in domain_index.methods
-            ],
+            "methods": [{"id": m.id, "title": m.title} for m in domain_index.methods],
             "last_extracted": domain_index.last_extracted,
         }
 
@@ -603,10 +603,14 @@ def main():
     settings = load_settings()
     engine = RetrievalEngine(settings)
 
-    query = sys.argv[1] if len(sys.argv) > 1 else "how do I handle incomplete specifications"
+    query = (
+        sys.argv[1]
+        if len(sys.argv) > 1
+        else "how do I handle incomplete specifications"
+    )
 
     print(f"Query: {query}", file=sys.stderr)
-    print(f"\nDomain routing:", file=sys.stderr)
+    print("\nDomain routing:", file=sys.stderr)
     for domain, score in engine.route_domains(query).items():
         print(f"  {domain}: {score:.3f}", file=sys.stderr)
 
@@ -621,8 +625,11 @@ def main():
             f"  [{sp.confidence.value}] {sp.principle.id}: {sp.principle.title}",
             file=sys.stderr,
         )
-        print(f"    Scores: BM25={sp.keyword_score:.2f}, Semantic={sp.semantic_score:.2f}, "
-              f"Combined={sp.combined_score:.2f}", file=sys.stderr)
+        print(
+            f"    Scores: BM25={sp.keyword_score:.2f}, Semantic={sp.semantic_score:.2f}, "
+            f"Combined={sp.combined_score:.2f}",
+            file=sys.stderr,
+        )
 
     print(f"\nDomain ({len(result.domain_principles)}):", file=sys.stderr)
     for sp in result.domain_principles[:5]:

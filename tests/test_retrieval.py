@@ -7,7 +7,7 @@ score fusion, reranking, and hierarchy filtering.
 import pytest
 import sys
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -16,8 +16,6 @@ from ai_governance_mcp.config import Settings
 from ai_governance_mcp.models import (
     Principle,
     PrincipleMetadata,
-    DomainIndex,
-    GlobalIndex,
     DomainConfig,
     ScoredPrinciple,
     ConfidenceLevel,
@@ -34,7 +32,7 @@ class TestRetrievalEngineInit:
 
         # Import here to avoid dependency issues
         with patch("ai_governance_mcp.retrieval.np"):
-            from ai_governance_mcp.retrieval import RetrievalEngine
+            pass
             # Would log warning about missing index
 
 
@@ -60,10 +58,12 @@ class TestDomainRouting:
                 description="Software development",
             ),
         ]
-        engine.domain_embeddings = np.array([
-            [0.1, 0.2, 0.3],  # constitution
-            [0.4, 0.5, 0.6],  # ai-coding
-        ])
+        engine.domain_embeddings = np.array(
+            [
+                [0.1, 0.2, 0.3],  # constitution
+                [0.4, 0.5, 0.6],  # ai-coding
+            ]
+        )
         engine.settings = Settings()
         return engine
 
@@ -368,7 +368,10 @@ class TestScoreBoundaries:
 
     def test_semantic_score_at_zero(self):
         """Semantic score at 0 should be valid."""
-        from ai_governance_mcp.models import ScoredPrinciple, Principle, PrincipleMetadata, ConfidenceLevel
+        from ai_governance_mcp.models import (
+            Principle,
+            ConfidenceLevel,
+        )
 
         principle = Principle(
             id="test-C1",
@@ -392,7 +395,10 @@ class TestScoreBoundaries:
 
     def test_semantic_score_at_one(self):
         """Semantic score at 1.0 should be valid."""
-        from ai_governance_mcp.models import ScoredPrinciple, Principle, PrincipleMetadata, ConfidenceLevel
+        from ai_governance_mcp.models import (
+            Principle,
+            ConfidenceLevel,
+        )
 
         principle = Principle(
             id="test-C1",
@@ -488,7 +494,7 @@ class TestLargeInputs:
 
     def test_large_content_truncation(self):
         """Embedding text should truncate large content."""
-        from ai_governance_mcp.models import Principle, PrincipleMetadata
+        from ai_governance_mcp.models import Principle
 
         # Create principle with very long content
         long_content = "A" * 10000

@@ -21,7 +21,7 @@ class SeriesCode(str, Enum):
     S = "S"  # Safety - supreme priority
     C = "C"  # Core behavioral
     Q = "Q"  # Quality standards
-    O = "O"  # Operational
+    OPER = "O"  # Operational (named OPER to avoid E741 ambiguity with zero)
     G = "G"  # Growth
     MA = "MA"  # Meta-awareness
 
@@ -45,10 +45,16 @@ class PrincipleMetadata(BaseModel):
     Used for BM25 keyword search component of hybrid retrieval.
     """
 
-    keywords: list[str] = Field(default_factory=list, description="Primary trigger keywords")
+    keywords: list[str] = Field(
+        default_factory=list, description="Primary trigger keywords"
+    )
     synonyms: list[str] = Field(default_factory=list, description="Alternative terms")
-    trigger_phrases: list[str] = Field(default_factory=list, description="Multi-word phrases")
-    failure_indicators: list[str] = Field(default_factory=list, description="Problem symptoms")
+    trigger_phrases: list[str] = Field(
+        default_factory=list, description="Multi-word phrases"
+    )
+    failure_indicators: list[str] = Field(
+        default_factory=list, description="Problem symptoms"
+    )
     aliases: list[str] = Field(default_factory=list, description="Common abbreviations")
 
 
@@ -59,12 +65,18 @@ class Principle(BaseModel):
     """
 
     id: str = Field(..., description="Unique identifier, e.g., 'meta-C1', 'coding-C1'")
-    domain: str = Field(..., description="Domain name: 'constitution', 'ai-coding', 'multi-agent'")
-    series_code: str = Field(..., description="Series identifier: S, C, Q, O, G, MA, A, P, D, T")
+    domain: str = Field(
+        ..., description="Domain name: 'constitution', 'ai-coding', 'multi-agent'"
+    )
+    series_code: str = Field(
+        ..., description="Series identifier: S, C, Q, O, G, MA, A, P, D, T"
+    )
     number: int = Field(..., description="Principle number within series")
     title: str = Field(..., description="Full principle title")
     content: str = Field(..., description="Complete principle text")
-    line_range: tuple[int, int] = Field(..., description="Source document line numbers (start, end)")
+    line_range: tuple[int, int] = Field(
+        ..., description="Source document line numbers (start, end)"
+    )
     metadata: PrincipleMetadata = Field(
         default_factory=PrincipleMetadata, description="Matching metadata"
     )
@@ -94,8 +106,12 @@ class DomainConfig(BaseModel):
     principles_file: str = Field(..., description="Principles document filename")
     methods_file: Optional[str] = Field(None, description="Methods document filename")
     description: str = Field("", description="Domain description for semantic matching")
-    priority: int = Field(default=100, description="Conflict resolution priority (lower = higher)")
-    embedding_id: Optional[int] = Field(None, description="Index into domain embeddings array")
+    priority: int = Field(
+        default=100, description="Conflict resolution priority (lower = higher)"
+    )
+    embedding_id: Optional[int] = Field(
+        None, description="Index into domain embeddings array"
+    )
 
 
 # =============================================================================
@@ -139,12 +155,22 @@ class ScoredPrinciple(BaseModel):
     """A principle with hybrid retrieval scores."""
 
     principle: Principle
-    semantic_score: float = Field(0.0, ge=0.0, le=1.0, description="Semantic similarity score")
-    keyword_score: float = Field(0.0, ge=0.0, description="BM25 keyword score (normalized)")
+    semantic_score: float = Field(
+        0.0, ge=0.0, le=1.0, description="Semantic similarity score"
+    )
+    keyword_score: float = Field(
+        0.0, ge=0.0, description="BM25 keyword score (normalized)"
+    )
     combined_score: float = Field(0.0, ge=0.0, le=1.0, description="Fused score")
-    rerank_score: Optional[float] = Field(None, description="Cross-encoder rerank score")
-    confidence: ConfidenceLevel = Field(ConfidenceLevel.LOW, description="Confidence level")
-    match_reasons: list[str] = Field(default_factory=list, description="Explanation of match")
+    rerank_score: Optional[float] = Field(
+        None, description="Cross-encoder rerank score"
+    )
+    confidence: ConfidenceLevel = Field(
+        ConfidenceLevel.LOW, description="Confidence level"
+    )
+    match_reasons: list[str] = Field(
+        default_factory=list, description="Explanation of match"
+    )
 
 
 class ScoredMethod(BaseModel):
@@ -168,7 +194,9 @@ class RetrievalResult(BaseModel):
     constitution_principles: list[ScoredPrinciple] = Field(default_factory=list)
     domain_principles: list[ScoredPrinciple] = Field(default_factory=list)
     methods: list[ScoredMethod] = Field(default_factory=list)
-    s_series_triggered: bool = Field(default=False, description="Whether S-Series applies")
+    s_series_triggered: bool = Field(
+        default=False, description="Whether S-Series applies"
+    )
     retrieval_time_ms: Optional[float] = Field(None, description="Total retrieval time")
 
 
@@ -200,7 +228,9 @@ class QueryLog(BaseModel):
     timestamp: str = Field(..., description="ISO timestamp")
     query: str
     domains_detected: list[str]
-    principles_returned: list[str] = Field(default_factory=list, description="Principle IDs")
+    principles_returned: list[str] = Field(
+        default_factory=list, description="Principle IDs"
+    )
     methods_returned: list[str] = Field(default_factory=list, description="Method IDs")
     s_series_triggered: bool = False
     retrieval_time_ms: Optional[float] = None

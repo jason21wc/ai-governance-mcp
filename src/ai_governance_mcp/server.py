@@ -6,7 +6,6 @@ Per specification v4: FastMCP server with 6 tools for hybrid retrieval.
 import json
 import sys
 from datetime import datetime, timezone
-from pathlib import Path
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
@@ -230,12 +229,18 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         error = ErrorResponse(
             error_code="TOOL_ERROR",
             message=str(e),
-            suggestions=["Check query syntax", "Verify domain name", "Run extractor first"],
+            suggestions=[
+                "Check query syntax",
+                "Verify domain name",
+                "Run extractor first",
+            ],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
 
-async def _handle_query_governance(engine: RetrievalEngine, args: dict) -> list[TextContent]:
+async def _handle_query_governance(
+    engine: RetrievalEngine, args: dict
+) -> list[TextContent]:
     """Handle query_governance tool (T13)."""
     query = args.get("query", "")
     if not query:
@@ -253,32 +258,41 @@ async def _handle_query_governance(engine: RetrievalEngine, args: dict) -> list[
     metrics = get_metrics()
     metrics.total_queries += 1
     metrics.avg_retrieval_time_ms = (
-        (metrics.avg_retrieval_time_ms * (metrics.total_queries - 1) + result.retrieval_time_ms)
-        / metrics.total_queries
-    )
+        metrics.avg_retrieval_time_ms * (metrics.total_queries - 1)
+        + result.retrieval_time_ms
+    ) / metrics.total_queries
     if result.s_series_triggered:
         metrics.s_series_trigger_count += 1
 
     for domain in result.domains_detected:
-        metrics.domain_query_counts[domain] = metrics.domain_query_counts.get(domain, 0) + 1
+        metrics.domain_query_counts[domain] = (
+            metrics.domain_query_counts.get(domain, 0) + 1
+        )
 
     # Log query
     query_log = QueryLog(
         timestamp=datetime.now(timezone.utc).isoformat(),
         query=query,
         domains_detected=result.domains_detected,
-        principles_returned=[sp.principle.id for sp in result.constitution_principles + result.domain_principles],
+        principles_returned=[
+            sp.principle.id
+            for sp in result.constitution_principles + result.domain_principles
+        ],
         methods_returned=[sm.method.id for sm in result.methods],
         s_series_triggered=result.s_series_triggered,
         retrieval_time_ms=result.retrieval_time_ms,
-        top_confidence=result.constitution_principles[0].confidence if result.constitution_principles else None,
+        top_confidence=result.constitution_principles[0].confidence
+        if result.constitution_principles
+        else None,
     )
     log_query(query_log)
 
     # Update confidence distribution
     for sp in result.constitution_principles + result.domain_principles:
         level = sp.confidence.value
-        metrics.confidence_distribution[level] = metrics.confidence_distribution.get(level, 0) + 1
+        metrics.confidence_distribution[level] = (
+            metrics.confidence_distribution.get(level, 0) + 1
+        )
 
     # Format response
     output = _format_retrieval_result(result)
@@ -295,7 +309,9 @@ def _format_retrieval_result(result) -> str:
         lines.append("")
 
     lines.append(f"**Query:** {result.query}")
-    lines.append(f"**Domains Detected:** {', '.join(result.domains_detected) or 'None (Constitution only)'}")
+    lines.append(
+        f"**Domains Detected:** {', '.join(result.domains_detected) or 'None (Constitution only)'}"
+    )
     if result.domain_scores:
         scores = ", ".join(f"{d}: {s:.2f}" for d, s in result.domain_scores.items())
         lines.append(f"**Domain Scores:** {scores}")
@@ -308,11 +324,15 @@ def _format_retrieval_result(result) -> str:
         for sp in result.constitution_principles:
             p = sp.principle
             lines.append(f"### [{sp.confidence.value.upper()}] {p.id}: {p.title}")
-            lines.append(f"*Series: {p.series_code} | Scores: BM25={sp.keyword_score:.2f}, Semantic={sp.semantic_score:.2f}, Combined={sp.combined_score:.2f}*")
+            lines.append(
+                f"*Series: {p.series_code} | Scores: BM25={sp.keyword_score:.2f}, Semantic={sp.semantic_score:.2f}, Combined={sp.combined_score:.2f}*"
+            )
             if sp.match_reasons:
                 lines.append(f"*Match: {', '.join(sp.match_reasons)}*")
             lines.append("")
-            content_preview = p.content[:600] + "..." if len(p.content) > 600 else p.content
+            content_preview = (
+                p.content[:600] + "..." if len(p.content) > 600 else p.content
+            )
             lines.append(content_preview)
             lines.append("")
 
@@ -322,9 +342,13 @@ def _format_retrieval_result(result) -> str:
         for sp in result.domain_principles:
             p = sp.principle
             lines.append(f"### [{sp.confidence.value.upper()}] {p.id}: {p.title}")
-            lines.append(f"*Domain: {p.domain} | Series: {p.series_code} | Combined: {sp.combined_score:.2f}*")
+            lines.append(
+                f"*Domain: {p.domain} | Series: {p.series_code} | Combined: {sp.combined_score:.2f}*"
+            )
             lines.append("")
-            content_preview = p.content[:600] + "..." if len(p.content) > 600 else p.content
+            content_preview = (
+                p.content[:600] + "..." if len(p.content) > 600 else p.content
+            )
             lines.append(content_preview)
             lines.append("")
 
@@ -337,12 +361,16 @@ def _format_retrieval_result(result) -> str:
         lines.append("")
 
     if not result.constitution_principles and not result.domain_principles:
-        lines.append("*No matching principles found. Try rephrasing your query or specifying a domain.*")
+        lines.append(
+            "*No matching principles found. Try rephrasing your query or specifying a domain.*"
+        )
 
     return "\n".join(lines)
 
 
-async def _handle_get_principle(engine: RetrievalEngine, args: dict) -> list[TextContent]:
+async def _handle_get_principle(
+    engine: RetrievalEngine, args: dict
+) -> list[TextContent]:
     """Handle get_principle tool (T14)."""
     principle_id = args.get("principle_id", "")
     if not principle_id:
@@ -373,7 +401,9 @@ async def _handle_get_principle(engine: RetrievalEngine, args: dict) -> list[Tex
     return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
 
-async def _handle_list_domains(engine: RetrievalEngine, args: dict) -> list[TextContent]:
+async def _handle_list_domains(
+    engine: RetrievalEngine, args: dict
+) -> list[TextContent]:
     """Handle list_domains tool (T15)."""
     domains = engine.list_domains()
 
@@ -385,7 +415,9 @@ async def _handle_list_domains(engine: RetrievalEngine, args: dict) -> list[Text
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 
-async def _handle_get_domain_summary(engine: RetrievalEngine, args: dict) -> list[TextContent]:
+async def _handle_get_domain_summary(
+    engine: RetrievalEngine, args: dict
+) -> list[TextContent]:
     """Handle get_domain_summary tool (T16)."""
     domain = args.get("domain", "")
     if not domain:
@@ -410,7 +442,11 @@ async def _handle_log_feedback(args: dict) -> list[TextContent]:
     rating = args.get("rating", 0)
 
     if not query or not principle_id or not rating:
-        return [TextContent(type="text", text="Error: query, principle_id, and rating are required")]
+        return [
+            TextContent(
+                type="text", text="Error: query, principle_id, and rating are required"
+            )
+        ]
 
     if not 1 <= rating <= 5:
         return [TextContent(type="text", text="Error: rating must be 1-5")]
@@ -433,9 +469,8 @@ async def _handle_log_feedback(args: dict) -> list[TextContent]:
         metrics.avg_feedback_rating = float(rating)
     else:
         metrics.avg_feedback_rating = (
-            (metrics.avg_feedback_rating * (metrics.feedback_count - 1) + rating)
-            / metrics.feedback_count
-        )
+            metrics.avg_feedback_rating * (metrics.feedback_count - 1) + rating
+        ) / metrics.feedback_count
 
     output = {
         "status": "logged",
@@ -457,7 +492,9 @@ async def _handle_get_metrics(args: dict) -> list[TextContent]:
         "domain_query_counts": metrics.domain_query_counts,
         "confidence_distribution": metrics.confidence_distribution,
         "feedback_count": metrics.feedback_count,
-        "avg_feedback_rating": round(metrics.avg_feedback_rating, 2) if metrics.avg_feedback_rating else None,
+        "avg_feedback_rating": round(metrics.avg_feedback_rating, 2)
+        if metrics.avg_feedback_rating
+        else None,
     }
 
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
@@ -471,7 +508,9 @@ async def run_server():
     get_engine()
 
     async with stdio_server() as (read_stream, write_stream):
-        await server.run(read_stream, write_stream, server.create_initialization_options())
+        await server.run(
+            read_stream, write_stream, server.create_initialization_options()
+        )
 
 
 def main():
@@ -480,7 +519,11 @@ def main():
 
     # Handle --test mode for quick testing
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
-        query = " ".join(sys.argv[2:]) if len(sys.argv) > 2 else "how do I handle incomplete specs"
+        query = (
+            " ".join(sys.argv[2:])
+            if len(sys.argv) > 2
+            else "how do I handle incomplete specs"
+        )
         engine = get_engine()
         result = engine.retrieve(query)
         print(_format_retrieval_result(result))

@@ -9,12 +9,24 @@ import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 
-from .config import Settings, load_settings, load_domains_registry, setup_logging, ensure_directories
-from .models import DomainConfig, DomainIndex, GlobalIndex, Method, Principle, PrincipleMetadata
+from .config import (
+    Settings,
+    load_settings,
+    load_domains_registry,
+    setup_logging,
+    ensure_directories,
+)
+from .models import (
+    DomainConfig,
+    DomainIndex,
+    GlobalIndex,
+    Method,
+    Principle,
+    PrincipleMetadata,
+)
 
 logger = setup_logging()
 
@@ -34,6 +46,7 @@ class EmbeddingGenerator:
         """Lazy load the embedding model."""
         if self._model is None:
             from sentence_transformers import SentenceTransformer
+
             logger.info(f"Loading embedding model: {self.model_name}")
             self._model = SentenceTransformer(self.model_name)
         return self._model
@@ -191,7 +204,9 @@ class DocumentExtractor:
                     current_principle["content"] = "\n".join(
                         lines[current_principle["start_line"] - 1 : i - 1]
                     )
-                    principles.append(self._build_principle(current_principle, domain_prefix))
+                    principles.append(
+                        self._build_principle(current_principle, domain_prefix)
+                    )
 
                 # Start new principle
                 series_code = match.group(1)
@@ -289,7 +304,8 @@ class DocumentExtractor:
             words = [
                 w.lower()
                 for w in re.findall(r"\b[a-z]{4,}\b", failure_text.lower())
-                if w not in ("this", "that", "with", "from", "have", "been", "will", "when")
+                if w
+                not in ("this", "that", "with", "from", "have", "been", "will", "when")
             ]
             indicators.extend(words[:5])
 
@@ -322,7 +338,9 @@ class DocumentExtractor:
                     current_method["content"] = "\n".join(
                         lines[current_method["start_line"] - 1 : i - 1]
                     )
-                    methods.append(self._build_method(current_method, domain_prefix, method_count))
+                    methods.append(
+                        self._build_method(current_method, domain_prefix, method_count)
+                    )
                     method_count += 1
 
                 section_num = match.group(1)
@@ -342,7 +360,9 @@ class DocumentExtractor:
             current_method["content"] = "\n".join(
                 lines[current_method["start_line"] - 1 :]
             )
-            methods.append(self._build_method(current_method, domain_prefix, method_count))
+            methods.append(
+                self._build_method(current_method, domain_prefix, method_count)
+            )
 
         logger.info(f"Extracted {len(methods)} methods from {domain_config.name}")
         return methods
@@ -384,7 +404,9 @@ class DocumentExtractor:
         """Save embeddings to NumPy file."""
         embeddings_file = self.settings.index_path / filename
         np.save(embeddings_file, embeddings)
-        logger.info(f"Saved embeddings to {embeddings_file} (shape: {embeddings.shape})")
+        logger.info(
+            f"Saved embeddings to {embeddings_file} (shape: {embeddings.shape})"
+        )
 
 
 def main():
@@ -402,7 +424,7 @@ def main():
     index = extractor.extract_all()
 
     # Print summary
-    print(f"\nExtraction complete:", file=sys.stderr)
+    print("\nExtraction complete:", file=sys.stderr)
     for domain_name, domain_index in index.domains.items():
         print(
             f"  {domain_name}: {len(domain_index.principles)} principles, "

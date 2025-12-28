@@ -24,12 +24,18 @@ class TestExtractAll:
     """Tests for the complete extract_all() pipeline."""
 
     def test_extract_all_creates_global_index(
-        self, test_settings, sample_principles_md, sample_methods_md, sample_domains_json
+        self,
+        test_settings,
+        sample_principles_md,
+        sample_methods_md,
+        sample_domains_json,
     ):
         """extract_all() should create a complete GlobalIndex."""
         # Mock the embedding model to return consistent embeddings
         mock_embedder = Mock()
-        mock_embedder.encode = Mock(side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384))
+        mock_embedder.encode = Mock(
+            side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384)
+        )
         mock_embedder.get_sentence_embedding_dimension = Mock(return_value=384)
         mock_st = Mock(return_value=mock_embedder)
 
@@ -46,11 +52,17 @@ class TestExtractAll:
             assert index.embedding_dimensions == 384
 
     def test_extract_all_saves_index_file(
-        self, test_settings, sample_principles_md, sample_methods_md, sample_domains_json
+        self,
+        test_settings,
+        sample_principles_md,
+        sample_methods_md,
+        sample_domains_json,
     ):
         """extract_all() should save global_index.json to disk."""
         mock_embedder = Mock()
-        mock_embedder.encode = Mock(side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384))
+        mock_embedder.encode = Mock(
+            side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384)
+        )
         mock_embedder.get_sentence_embedding_dimension = Mock(return_value=384)
         mock_st = Mock(return_value=mock_embedder)
 
@@ -70,11 +82,17 @@ class TestExtractAll:
             assert "created_at" in data
 
     def test_extract_all_saves_content_embeddings(
-        self, test_settings, sample_principles_md, sample_methods_md, sample_domains_json
+        self,
+        test_settings,
+        sample_principles_md,
+        sample_methods_md,
+        sample_domains_json,
     ):
         """extract_all() should save content_embeddings.npy to disk."""
         mock_embedder = Mock()
-        mock_embedder.encode = Mock(side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384))
+        mock_embedder.encode = Mock(
+            side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384)
+        )
         mock_embedder.get_sentence_embedding_dimension = Mock(return_value=384)
         mock_st = Mock(return_value=mock_embedder)
 
@@ -93,11 +111,17 @@ class TestExtractAll:
             assert embeddings.shape[1] == 384
 
     def test_extract_all_saves_domain_embeddings(
-        self, test_settings, sample_principles_md, sample_methods_md, sample_domains_json
+        self,
+        test_settings,
+        sample_principles_md,
+        sample_methods_md,
+        sample_domains_json,
     ):
         """extract_all() should save domain_embeddings.npy to disk."""
         mock_embedder = Mock()
-        mock_embedder.encode = Mock(side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384))
+        mock_embedder.encode = Mock(
+            side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384)
+        )
         mock_embedder.get_sentence_embedding_dimension = Mock(return_value=384)
         mock_st = Mock(return_value=mock_embedder)
 
@@ -111,11 +135,17 @@ class TestExtractAll:
             assert domain_embeddings_file.exists()
 
     def test_extract_all_assigns_embedding_ids(
-        self, test_settings, sample_principles_md, sample_methods_md, sample_domains_json
+        self,
+        test_settings,
+        sample_principles_md,
+        sample_methods_md,
+        sample_domains_json,
     ):
         """extract_all() should assign embedding_id to all principles and methods."""
         mock_embedder = Mock()
-        mock_embedder.encode = Mock(side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384))
+        mock_embedder.encode = Mock(
+            side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384)
+        )
         mock_embedder.get_sentence_embedding_dimension = Mock(return_value=384)
         mock_st = Mock(return_value=mock_embedder)
 
@@ -136,11 +166,17 @@ class TestExtractAll:
                     assert method.embedding_id >= 0
 
     def test_extract_all_assigns_domain_embedding_ids(
-        self, test_settings, sample_principles_md, sample_methods_md, sample_domains_json
+        self,
+        test_settings,
+        sample_principles_md,
+        sample_methods_md,
+        sample_domains_json,
     ):
         """extract_all() should assign embedding_id to domain configs."""
         mock_embedder = Mock()
-        mock_embedder.encode = Mock(side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384))
+        mock_embedder.encode = Mock(
+            side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384)
+        )
         mock_embedder.get_sentence_embedding_dimension = Mock(return_value=384)
         mock_st = Mock(return_value=mock_embedder)
 
@@ -163,7 +199,11 @@ class TestExtractDomain:
     """Tests for single domain extraction."""
 
     def test_extract_domain_creates_domain_index(
-        self, test_settings, sample_principles_md, sample_methods_md, sample_domains_json
+        self,
+        test_settings,
+        sample_principles_md,
+        sample_methods_md,
+        sample_domains_json,
     ):
         """_extract_domain() should create a complete DomainIndex."""
         with patch("sentence_transformers.SentenceTransformer"):
@@ -187,7 +227,11 @@ class TestExtractDomain:
             assert len(index.principles) > 0
 
     def test_extract_domain_with_methods(
-        self, test_settings, sample_principles_md, sample_methods_md, sample_domains_json
+        self,
+        test_settings,
+        sample_principles_md,
+        sample_methods_md,
+        sample_domains_json,
     ):
         """_extract_domain() should include methods when methods_file is specified."""
         with patch("sentence_transformers.SentenceTransformer"):
@@ -219,19 +263,27 @@ class TestFullPipeline:
     """Tests for the complete extraction-to-retrieval pipeline."""
 
     def test_extracted_index_is_retrievable(
-        self, test_settings, sample_principles_md, sample_methods_md, sample_domains_json
+        self,
+        test_settings,
+        sample_principles_md,
+        sample_methods_md,
+        sample_domains_json,
     ):
         """Index created by extractor should be usable by retrieval engine."""
         mock_embedder = Mock()
-        mock_embedder.encode = Mock(side_effect=lambda texts, **kwargs: np.random.rand(
-            len(texts) if isinstance(texts, list) else 1, 384
-        ))
+        mock_embedder.encode = Mock(
+            side_effect=lambda texts, **kwargs: np.random.rand(
+                len(texts) if isinstance(texts, list) else 1, 384
+            )
+        )
         mock_embedder.get_sentence_embedding_dimension = Mock(return_value=384)
 
         mock_reranker = Mock()
-        mock_reranker.predict = Mock(side_effect=lambda pairs, **kwargs: np.array(
-            [0.5 - i * 0.1 for i in range(len(pairs))]
-        ))
+        mock_reranker.predict = Mock(
+            side_effect=lambda pairs, **kwargs: np.array(
+                [0.5 - i * 0.1 for i in range(len(pairs))]
+            )
+        )
 
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)

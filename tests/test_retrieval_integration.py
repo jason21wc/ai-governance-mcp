@@ -4,13 +4,11 @@ Per specification v4: Tests for the complete hybrid retrieval pipeline.
 Per governance Q3 (Testing Integration): End-to-end retrieval validation.
 """
 
-import json
 import sys
 import time
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -55,7 +53,9 @@ class TestRetrieveFullPipeline:
                 assert result.retrieval_time_ms is not None
                 assert result.retrieval_time_ms >= 0
 
-    def test_retrieve_includes_constitution(self, saved_index, mock_embedder, mock_reranker):
+    def test_retrieve_includes_constitution(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
         """retrieve() should always include constitution domain."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
@@ -68,9 +68,14 @@ class TestRetrieveFullPipeline:
                 result = engine.retrieve("test query")
 
                 # Constitution should always be searched
-                assert "constitution" in result.domains_detected or len(result.constitution_principles) >= 0
+                assert (
+                    "constitution" in result.domains_detected
+                    or len(result.constitution_principles) >= 0
+                )
 
-    def test_retrieve_respects_max_results(self, saved_index, mock_embedder, mock_reranker):
+    def test_retrieve_respects_max_results(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
         """retrieve() should limit results to max_results."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
@@ -82,10 +87,14 @@ class TestRetrieveFullPipeline:
                 engine = RetrievalEngine(saved_index)
                 result = engine.retrieve("test query", max_results=2)
 
-                total_principles = len(result.constitution_principles) + len(result.domain_principles)
+                total_principles = len(result.constitution_principles) + len(
+                    result.domain_principles
+                )
                 assert total_principles <= 2 * 2  # max_results per domain type
 
-    def test_retrieve_filters_by_domain(self, saved_index, mock_embedder, mock_reranker):
+    def test_retrieve_filters_by_domain(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
         """retrieve() should filter by specified domain."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
@@ -98,13 +107,18 @@ class TestRetrieveFullPipeline:
                 result = engine.retrieve("test query", domain="ai-coding")
 
                 # Should include the specified domain
-                assert "ai-coding" in result.domains_detected or len(result.domain_principles) >= 0
+                assert (
+                    "ai-coding" in result.domains_detected
+                    or len(result.domain_principles) >= 0
+                )
 
 
 class TestRetrieveSSeries:
     """Tests for S-Series handling in retrieve()."""
 
-    def test_retrieve_s_series_triggered(self, saved_index, mock_embedder, mock_reranker):
+    def test_retrieve_s_series_triggered(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
         """retrieve() should set s_series_triggered when S-Series matched."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
@@ -123,7 +137,9 @@ class TestRetrieveSSeries:
 class TestRetrieveNoIndex:
     """Tests for retrieve() without index."""
 
-    def test_retrieve_no_index_returns_empty(self, test_settings, mock_embedder, mock_reranker):
+    def test_retrieve_no_index_returns_empty(
+        self, test_settings, mock_embedder, mock_reranker
+    ):
         """retrieve() should return empty result when no index loaded."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
@@ -163,7 +179,9 @@ class TestGetPrincipleById:
                 if principle:  # May be None if not in test index
                     assert principle.id == "meta-C1"
 
-    def test_get_principle_by_id_not_found(self, saved_index, mock_embedder, mock_reranker):
+    def test_get_principle_by_id_not_found(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
         """get_principle_by_id() should return None when not found."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
@@ -177,7 +195,9 @@ class TestGetPrincipleById:
 
                 assert principle is None
 
-    def test_get_principle_by_id_no_index(self, test_settings, mock_embedder, mock_reranker):
+    def test_get_principle_by_id_no_index(
+        self, test_settings, mock_embedder, mock_reranker
+    ):
         """get_principle_by_id() should return None without index."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
@@ -246,7 +266,9 @@ class TestGetDomainSummary:
                     assert summary["name"] == "constitution"
                     assert "principles" in summary
 
-    def test_get_domain_summary_not_found(self, saved_index, mock_embedder, mock_reranker):
+    def test_get_domain_summary_not_found(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
         """get_domain_summary() should return None when not found."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
@@ -270,7 +292,9 @@ class TestGetDomainSummary:
 class TestRetrievalPerformance:
     """Performance tests for retrieval."""
 
-    def test_retrieve_latency_under_target(self, saved_index, mock_embedder, mock_reranker):
+    def test_retrieve_latency_under_target(
+        self, saved_index, mock_embedder, mock_reranker
+    ):
         """retrieve() should complete under latency target."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
@@ -291,7 +315,9 @@ class TestRetrievalPerformance:
                 avg_time = sum(times) / len(times)
 
                 # Should be under 100ms (with mocked models, should be very fast)
-                assert avg_time < 100, f"Average retrieval time {avg_time}ms exceeds 100ms target"
+                assert avg_time < 100, (
+                    f"Average retrieval time {avg_time}ms exceeds 100ms target"
+                )
 
 
 # =============================================================================
@@ -313,7 +339,9 @@ class TestRealIndexRetrieval:
         result = engine.retrieve("how to handle incomplete specifications")
 
         assert result.query == "how to handle incomplete specifications"
-        assert len(result.constitution_principles) > 0 or len(result.domain_principles) > 0
+        assert (
+            len(result.constitution_principles) > 0 or len(result.domain_principles) > 0
+        )
 
     def test_real_index_s_series_detection(self, real_settings):
         """S-Series should be detected in real index."""
@@ -337,7 +365,9 @@ class TestRealIndexRetrieval:
         result = engine.retrieve("software development testing code quality")
 
         # Should return some results (constitution is always searched)
-        assert len(result.constitution_principles) > 0 or len(result.domain_principles) > 0
+        assert (
+            len(result.constitution_principles) > 0 or len(result.domain_principles) > 0
+        )
 
     def test_real_index_forced_domain_returns_domain_principles(self, real_settings):
         """Forced domain parameter should include domain principles in results."""
@@ -349,7 +379,9 @@ class TestRealIndexRetrieval:
         result = engine.retrieve("unclear requirements", domain="ai-coding")
 
         # Must return domain principles from the forced domain
-        assert len(result.domain_principles) > 0, "Forced domain should return domain principles"
+        assert len(result.domain_principles) > 0, (
+            "Forced domain should return domain principles"
+        )
 
         # All domain principles should be from ai-coding domain (prefix: coding-)
         for sp in result.domain_principles:
@@ -390,4 +422,6 @@ class TestRealIndexRetrieval:
 
         # Should have domain principles only
         assert len(result.domain_principles) > 0, "Should return domain principles"
-        assert len(result.constitution_principles) == 0, "Should not return constitution"
+        assert len(result.constitution_principles) == 0, (
+            "Should not return constitution"
+        )

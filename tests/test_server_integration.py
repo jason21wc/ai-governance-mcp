@@ -9,7 +9,6 @@ import sys
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -25,50 +24,78 @@ class TestCallToolDispatcher:
 
     @pytest.mark.asyncio
     async def test_call_tool_routes_to_query_governance(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """call_tool should route 'query_governance' to correct handler."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool
 
-                    result = await call_tool("query_governance", {"query": "test query"})
+                    result = await call_tool(
+                        "query_governance", {"query": "test query"}
+                    )
 
                     assert len(result) == 1
                     assert "Query:" in result[0].text or "test query" in result[0].text
 
     @pytest.mark.asyncio
     async def test_call_tool_routes_to_get_principle(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """call_tool should route 'get_principle' to correct handler."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool
 
-                    result = await call_tool("get_principle", {"principle_id": "meta-C1"})
+                    result = await call_tool(
+                        "get_principle", {"principle_id": "meta-C1"}
+                    )
 
                     assert len(result) == 1
                     # Either found or not found response
-                    assert "meta-C1" in result[0].text or "PRINCIPLE_NOT_FOUND" in result[0].text
+                    assert (
+                        "meta-C1" in result[0].text
+                        or "PRINCIPLE_NOT_FOUND" in result[0].text
+                    )
 
     @pytest.mark.asyncio
     async def test_call_tool_routes_to_list_domains(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """call_tool should route 'list_domains' to correct handler."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool
@@ -82,18 +109,27 @@ class TestCallToolDispatcher:
 
     @pytest.mark.asyncio
     async def test_call_tool_routes_to_get_domain_summary(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """call_tool should route 'get_domain_summary' to correct handler."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool
 
-                    result = await call_tool("get_domain_summary", {"domain": "constitution"})
+                    result = await call_tool(
+                        "get_domain_summary", {"domain": "constitution"}
+                    )
 
                     assert len(result) == 1
                     # Either found or not found
@@ -102,13 +138,20 @@ class TestCallToolDispatcher:
 
     @pytest.mark.asyncio
     async def test_call_tool_routes_to_log_feedback(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """call_tool should route 'log_feedback' to correct handler."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool
@@ -124,13 +167,20 @@ class TestCallToolDispatcher:
 
     @pytest.mark.asyncio
     async def test_call_tool_routes_to_get_metrics(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """call_tool should route 'get_metrics' to correct handler."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool
@@ -153,13 +203,20 @@ class TestEndToEndFlow:
 
     @pytest.mark.asyncio
     async def test_query_then_get_principle_flow(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """User flow: query for guidance, then get full principle."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool
@@ -178,13 +235,20 @@ class TestEndToEndFlow:
 
     @pytest.mark.asyncio
     async def test_query_then_feedback_flow(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """User flow: query, then provide feedback."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool, get_metrics
@@ -207,13 +271,20 @@ class TestEndToEndFlow:
 
     @pytest.mark.asyncio
     async def test_explore_domains_flow(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """User flow: list domains, then get domain summary."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool
@@ -241,33 +312,49 @@ class TestMetricsAccumulation:
 
     @pytest.mark.asyncio
     async def test_metrics_accumulate_across_queries(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """Metrics should accumulate correctly across multiple queries."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool, get_metrics
 
                     # Run 5 queries
                     for i in range(5):
-                        await call_tool("query_governance", {"query": f"test query {i}"})
+                        await call_tool(
+                            "query_governance", {"query": f"test query {i}"}
+                        )
 
                     metrics = get_metrics()
                     assert metrics.total_queries == 5
 
     @pytest.mark.asyncio
     async def test_feedback_rating_average(
-        self, reset_server_state, test_settings, saved_index, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
     ):
         """Average feedback rating should be calculated correctly."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     from ai_governance_mcp.server import call_tool, get_metrics
@@ -277,7 +364,11 @@ class TestMetricsAccumulation:
                     for rating in ratings:
                         await call_tool(
                             "log_feedback",
-                            {"query": "test", "principle_id": "meta-C1", "rating": rating},
+                            {
+                                "query": "test",
+                                "principle_id": "meta-C1",
+                                "rating": rating,
+                            },
                         )
 
                     metrics = get_metrics()

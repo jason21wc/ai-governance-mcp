@@ -218,7 +218,9 @@ class TestDocumentExtractorInit:
 class TestExtractPrinciples:
     """Tests for _extract_principles() method."""
 
-    def test_extract_principles_parses_headers(self, test_settings, sample_principles_md):
+    def test_extract_principles_parses_headers(
+        self, test_settings, sample_principles_md
+    ):
         """Should parse principle headers from markdown."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
@@ -241,7 +243,9 @@ class TestExtractPrinciples:
             assert "S" in series_codes
             assert "C" in series_codes
 
-    def test_extract_principles_captures_content(self, test_settings, sample_principles_md):
+    def test_extract_principles_captures_content(
+        self, test_settings, sample_principles_md
+    ):
         """Should capture content until next header."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
@@ -263,7 +267,9 @@ class TestExtractPrinciples:
                 assert len(p.content) > 0
                 assert p.title in p.content or "Definition" in p.content
 
-    def test_extract_principles_sets_line_range(self, test_settings, sample_principles_md):
+    def test_extract_principles_sets_line_range(
+        self, test_settings, sample_principles_md
+    ):
         """Should set correct line range for each principle."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
@@ -408,7 +414,9 @@ class TestExtractMethods:
 class TestGenerateMetadata:
     """Tests for _generate_metadata() method."""
 
-    def test_generate_metadata_extracts_keywords(self, test_settings, sample_domains_json):
+    def test_generate_metadata_extracts_keywords(
+        self, test_settings, sample_domains_json
+    ):
         """Should extract keywords from title."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
@@ -426,7 +434,9 @@ class TestGenerateMetadata:
             assert "engineering" in metadata.keywords
             assert "principle" in metadata.keywords
 
-    def test_generate_metadata_creates_aliases(self, test_settings, sample_domains_json):
+    def test_generate_metadata_creates_aliases(
+        self, test_settings, sample_domains_json
+    ):
         """Should create alias from principle ID."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
@@ -484,7 +494,9 @@ class TestExtractPhrases:
 class TestExtractFailureIndicators:
     """Tests for _extract_failure_indicators() method."""
 
-    def test_extract_failure_indicators_finds_section(self, test_settings, sample_domains_json):
+    def test_extract_failure_indicators_finds_section(
+        self, test_settings, sample_domains_json
+    ):
         """Should extract from Failure Mode sections."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
@@ -501,7 +513,10 @@ High coverage numbers with low value tests.
 
             assert len(indicators) > 0
             # Should find relevant words
-            assert any("writing" in ind or "tests" in ind or "coverage" in ind for ind in indicators)
+            assert any(
+                "writing" in ind or "tests" in ind or "coverage" in ind
+                for ind in indicators
+            )
 
 
 # =============================================================================
@@ -561,7 +576,9 @@ class TestGetDomainPrefix:
 class TestGetEmbeddingText:
     """Tests for _get_embedding_text() method."""
 
-    def test_get_embedding_text_structure(self, test_settings, sample_domains_json, sample_principle):
+    def test_get_embedding_text_structure(
+        self, test_settings, sample_domains_json, sample_principle
+    ):
         """Should combine title, content, and metadata."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
@@ -572,7 +589,9 @@ class TestGetEmbeddingText:
             assert sample_principle.title in text
             assert sample_principle.content[:100] in text
 
-    def test_get_embedding_text_truncates_content(self, test_settings, sample_domains_json):
+    def test_get_embedding_text_truncates_content(
+        self, test_settings, sample_domains_json
+    ):
         """Should truncate content to 1000 chars."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
@@ -608,7 +627,9 @@ class TestGetEmbeddingText:
 class TestSaveIndex:
     """Tests for _save_index() method."""
 
-    def test_save_index_writes_json(self, test_settings, sample_domains_json, sample_global_index):
+    def test_save_index_writes_json(
+        self, test_settings, sample_domains_json, sample_global_index
+    ):
         """Should write global_index.json file."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor

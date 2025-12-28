@@ -3,8 +3,6 @@
 Per specification v4: Validates settings and configuration loading.
 """
 
-import os
-import pytest
 from pathlib import Path
 import sys
 
@@ -124,6 +122,7 @@ class TestLogging:
     def test_setup_logging_level(self):
         """Should set log level correctly."""
         import logging
+
         logger = setup_logging("DEBUG")
         assert logger.level == logging.DEBUG
 

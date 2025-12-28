@@ -8,10 +8,9 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import AsyncMock, Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 import pytest
-import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -24,9 +23,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 class TestGetEngine:
     """Tests for get_engine() singleton."""
 
-    def test_get_engine_creates_singleton(self, reset_server_state, test_settings, saved_index):
+    def test_get_engine_creates_singleton(
+        self, reset_server_state, test_settings, saved_index
+    ):
         """get_engine() should create engine on first call."""
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer"):
                 with patch("sentence_transformers.CrossEncoder"):
                     from ai_governance_mcp.server import get_engine
@@ -34,9 +37,13 @@ class TestGetEngine:
                     engine = get_engine()
                     assert engine is not None
 
-    def test_get_engine_returns_same_instance(self, reset_server_state, test_settings, saved_index):
+    def test_get_engine_returns_same_instance(
+        self, reset_server_state, test_settings, saved_index
+    ):
         """Subsequent calls should return the same engine instance."""
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer"):
                 with patch("sentence_transformers.CrossEncoder"):
                     from ai_governance_mcp.server import get_engine
@@ -84,7 +91,9 @@ class TestGetMetrics:
 class TestLogQuery:
     """Tests for log_query() function."""
 
-    def test_log_query_writes_jsonl(self, reset_server_state, test_settings, sample_query_log):
+    def test_log_query_writes_jsonl(
+        self, reset_server_state, test_settings, sample_query_log
+    ):
         """log_query() should append QueryLog as JSONL."""
         import ai_governance_mcp.server as server_module
 
@@ -104,7 +113,9 @@ class TestLogQuery:
         parsed = json.loads(content.strip())
         assert parsed["query"] == "test query"
 
-    def test_log_query_appends_multiple(self, reset_server_state, test_settings, sample_query_log):
+    def test_log_query_appends_multiple(
+        self, reset_server_state, test_settings, sample_query_log
+    ):
         """log_query() should append multiple entries."""
         import ai_governance_mcp.server as server_module
 
@@ -140,7 +151,9 @@ class TestLogQuery:
 class TestLogFeedbackEntry:
     """Tests for log_feedback_entry() function."""
 
-    def test_log_feedback_entry_writes_jsonl(self, reset_server_state, test_settings, sample_feedback):
+    def test_log_feedback_entry_writes_jsonl(
+        self, reset_server_state, test_settings, sample_feedback
+    ):
         """log_feedback_entry() should append Feedback as JSONL."""
         import ai_governance_mcp.server as server_module
 
@@ -157,7 +170,9 @@ class TestLogFeedbackEntry:
         assert "test query" in content
         assert "meta-C1" in content
 
-    def test_log_feedback_entry_without_settings(self, reset_server_state, sample_feedback):
+    def test_log_feedback_entry_without_settings(
+        self, reset_server_state, sample_feedback
+    ):
         """log_feedback_entry() should handle None settings gracefully."""
         import ai_governance_mcp.server as server_module
         from ai_governance_mcp.server import log_feedback_entry
@@ -177,7 +192,9 @@ class TestHandleQueryGovernance:
     """Tests for _handle_query_governance tool handler."""
 
     @pytest.mark.asyncio
-    async def test_handle_query_governance_success(self, reset_server_state, sample_retrieval_result):
+    async def test_handle_query_governance_success(
+        self, reset_server_state, sample_retrieval_result
+    ):
         """query_governance should return formatted results."""
         from ai_governance_mcp.server import _handle_query_governance
 
@@ -301,7 +318,9 @@ class TestHandleGetPrinciple:
     """Tests for _handle_get_principle tool handler."""
 
     @pytest.mark.asyncio
-    async def test_handle_get_principle_found(self, reset_server_state, sample_principle):
+    async def test_handle_get_principle_found(
+        self, reset_server_state, sample_principle
+    ):
         """get_principle should return principle JSON when found."""
         from ai_governance_mcp.server import _handle_get_principle
 
@@ -357,7 +376,11 @@ class TestHandleListDomains:
         from ai_governance_mcp.server import _handle_list_domains
 
         mock_domains = [
-            {"name": "constitution", "display_name": "Constitution", "principles_count": 42},
+            {
+                "name": "constitution",
+                "display_name": "Constitution",
+                "principles_count": 42,
+            },
             {"name": "ai-coding", "display_name": "AI Coding", "principles_count": 12},
         ]
 
@@ -459,12 +482,14 @@ class TestHandleLogFeedback:
 
         from ai_governance_mcp.server import _handle_log_feedback, get_metrics
 
-        result = await _handle_log_feedback({
-            "query": "test",
-            "principle_id": "meta-C1",
-            "rating": 5,
-            "comment": "Very helpful",
-        })
+        result = await _handle_log_feedback(
+            {
+                "query": "test",
+                "principle_id": "meta-C1",
+                "rating": 5,
+                "comment": "Very helpful",
+            }
+        )
 
         parsed = json.loads(result[0].text)
         assert parsed["status"] == "logged"
@@ -491,11 +516,13 @@ class TestHandleLogFeedback:
 
         # Note: rating=0 is falsy in Python, so it triggers "required" check first
         # Testing with -1 instead to test the range check
-        result = await _handle_log_feedback({
-            "query": "test",
-            "principle_id": "meta-C1",
-            "rating": -1,
-        })
+        result = await _handle_log_feedback(
+            {
+                "query": "test",
+                "principle_id": "meta-C1",
+                "rating": -1,
+            }
+        )
 
         assert "Error: rating must be 1-5" in result[0].text
 
@@ -504,16 +531,20 @@ class TestHandleLogFeedback:
         """log_feedback should reject rating above 5."""
         from ai_governance_mcp.server import _handle_log_feedback
 
-        result = await _handle_log_feedback({
-            "query": "test",
-            "principle_id": "meta-C1",
-            "rating": 6,
-        })
+        result = await _handle_log_feedback(
+            {
+                "query": "test",
+                "principle_id": "meta-C1",
+                "rating": 6,
+            }
+        )
 
         assert "Error: rating must be 1-5" in result[0].text
 
     @pytest.mark.asyncio
-    async def test_handle_log_feedback_updates_avg_rating(self, reset_server_state, test_settings):
+    async def test_handle_log_feedback_updates_avg_rating(
+        self, reset_server_state, test_settings
+    ):
         """log_feedback should calculate rolling average rating."""
         import ai_governance_mcp.server as server_module
 
@@ -522,8 +553,12 @@ class TestHandleLogFeedback:
 
         from ai_governance_mcp.server import _handle_log_feedback, get_metrics
 
-        await _handle_log_feedback({"query": "q1", "principle_id": "meta-C1", "rating": 4})
-        await _handle_log_feedback({"query": "q2", "principle_id": "meta-C1", "rating": 2})
+        await _handle_log_feedback(
+            {"query": "q1", "principle_id": "meta-C1", "rating": 4}
+        )
+        await _handle_log_feedback(
+            {"query": "q2", "principle_id": "meta-C1", "rating": 2}
+        )
 
         metrics = get_metrics()
         assert metrics.feedback_count == 2
@@ -552,7 +587,9 @@ class TestHandleGetMetrics:
         assert parsed["feedback_count"] == 0
 
     @pytest.mark.asyncio
-    async def test_handle_get_metrics_after_queries(self, reset_server_state, test_settings):
+    async def test_handle_get_metrics_after_queries(
+        self, reset_server_state, test_settings
+    ):
         """get_metrics should return updated metrics after queries."""
         import ai_governance_mcp.server as server_module
         from ai_governance_mcp.models import Metrics
@@ -684,9 +721,13 @@ class TestCallTool:
     """Tests for call_tool() dispatcher."""
 
     @pytest.mark.asyncio
-    async def test_call_tool_unknown_tool(self, reset_server_state, test_settings, saved_index):
+    async def test_call_tool_unknown_tool(
+        self, reset_server_state, test_settings, saved_index
+    ):
         """call_tool should return message for unknown tool."""
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer"):
                 with patch("sentence_transformers.CrossEncoder"):
                     from ai_governance_mcp.server import call_tool
@@ -697,9 +738,13 @@ class TestCallTool:
                     assert "Unknown tool: nonexistent_tool" in result[0].text
 
     @pytest.mark.asyncio
-    async def test_call_tool_exception_handling(self, reset_server_state, test_settings, saved_index):
+    async def test_call_tool_exception_handling(
+        self, reset_server_state, test_settings, saved_index
+    ):
         """call_tool should return ErrorResponse on exception."""
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer"):
                 with patch("sentence_transformers.CrossEncoder"):
                     from ai_governance_mcp.server import call_tool
@@ -725,13 +770,21 @@ class TestMain:
     """Tests for main() entry point."""
 
     def test_main_test_mode(
-        self, reset_server_state, test_settings, saved_index, capsys, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        capsys,
+        mock_embedder,
+        mock_reranker,
     ):
         """main() with --test should run retrieve and print result."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
                     with patch("sys.argv", ["server", "--test"]):
@@ -743,17 +796,27 @@ class TestMain:
                         assert "Query:" in captured.out or "**Query:**" in captured.out
 
     def test_main_test_mode_custom_query(
-        self, reset_server_state, test_settings, saved_index, capsys, mock_embedder, mock_reranker
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        capsys,
+        mock_embedder,
+        mock_reranker,
     ):
         """main() with --test and custom query should use that query."""
         # Need to mock the actual model classes that get instantiated
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
-        with patch("ai_governance_mcp.server.load_settings", return_value=test_settings):
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
             with patch("sentence_transformers.SentenceTransformer", mock_st):
                 with patch("sentence_transformers.CrossEncoder", mock_ce):
-                    with patch("sys.argv", ["server", "--test", "custom", "test", "query"]):
+                    with patch(
+                        "sys.argv", ["server", "--test", "custom", "test", "query"]
+                    ):
                         from ai_governance_mcp.server import main
 
                         main()
