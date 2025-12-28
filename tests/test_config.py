@@ -45,7 +45,7 @@ class TestSettings:
         assert settings.min_score_threshold == 0.3
         assert settings.confidence_high_threshold == 0.7
         assert settings.confidence_medium_threshold == 0.4
-        assert settings.domain_similarity_threshold == 0.5
+        assert settings.domain_similarity_threshold == 0.25
 
     def test_performance_target(self):
         """Should have latency target."""

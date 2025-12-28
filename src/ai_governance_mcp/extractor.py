@@ -324,8 +324,8 @@ class DocumentExtractor:
         methods = []
         domain_prefix = self._get_domain_prefix(domain_config.name)
 
-        # Pattern for method headers (## or ### with numbered sections)
-        header_pattern = re.compile(r"^#{2,3}\s+(\d+(?:\.\d+)?)\s+(.+)$")
+        # Pattern for method headers (## or ### with numbered sections like 1.2.3)
+        header_pattern = re.compile(r"^#{2,3}\s+(\d+(?:\.\d+)*)\s+(.+)$")
 
         current_method = None
         method_count = 0

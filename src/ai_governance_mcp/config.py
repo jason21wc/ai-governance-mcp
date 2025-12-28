@@ -98,7 +98,7 @@ class Settings(BaseSettings):
 
     # Domain routing
     domain_similarity_threshold: float = Field(
-        default=0.5,
+        default=0.25,
         description="Minimum similarity for domain to be included",
     )
     max_domains: int = Field(

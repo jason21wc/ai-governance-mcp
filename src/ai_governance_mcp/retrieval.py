@@ -357,7 +357,7 @@ class RetrievalEngine:
         query: str,
         domain: str | None = None,
         include_constitution: bool = True,
-        include_methods: bool = False,
+        include_methods: bool = True,
         max_results: int | None = None,
     ) -> RetrievalResult:
         """Full hybrid retrieval pipeline.
@@ -395,8 +395,12 @@ class RetrievalEngine:
         else:
             domain_scores = self.route_domains(query)
             detected_domains = list(domain_scores.keys())
-            # Always include constitution for search (but not necessarily in output)
-            search_domains = list(set(detected_domains + ["constitution"]))
+            if detected_domains:
+                # Search detected domains plus constitution
+                search_domains = list(set(detected_domains + ["constitution"]))
+            else:
+                # No confident domain match - search ALL domains
+                search_domains = list(self.index.domains.keys())
 
         # Step 2-3: Hybrid search
         bm25_results = self.bm25_search(query, search_domains)

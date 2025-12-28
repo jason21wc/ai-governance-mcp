@@ -95,8 +95,8 @@ async def list_tools() -> list[Tool]:
                     },
                     "include_methods": {
                         "type": "boolean",
-                        "description": "Include procedural methods in response (default: false)",
-                        "default": False,
+                        "description": "Include procedural methods in response (default: true)",
+                        "default": True,
                     },
                     "max_results": {
                         "type": "integer",
@@ -250,7 +250,7 @@ async def _handle_query_governance(
         query=query,
         domain=args.get("domain"),
         include_constitution=args.get("include_constitution", True),
-        include_methods=args.get("include_methods", False),
+        include_methods=args.get("include_methods", True),
         max_results=args.get("max_results"),
     )
 
