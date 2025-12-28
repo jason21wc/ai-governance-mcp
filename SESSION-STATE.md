@@ -16,6 +16,44 @@
 
 ## Recent Changes
 
+### Methods Extraction and Domain Routing Fixes (2025-12-28)
+
+**Issues Identified:**
+1. Methods not being extracted - regex only matched `1.2` format, not `1.2.3`
+2. Methods not returned by default - `include_methods` defaulted to `False`
+3. Domain routing failing - threshold too high (0.5), no fallback to all domains
+
+**Fixes Applied:**
+| Issue | Fix |
+|-------|-----|
+| Method regex | `\d+(?:\.\d+)?` → `\d+(?:\.\d+)*` to match multi-level sections |
+| Default include_methods | Changed from `False` to `True` |
+| Domain threshold | Lowered from 0.5 to 0.25 |
+| Domain fallback | Search ALL domains when no specific match |
+| Domain descriptions | Added project hygiene, testing, Python terms |
+
+**Result:**
+- Now extracting 138 ai-coding methods + 35 constitution methods
+- Queries like "project cleanup" return Project Hygiene methods automatically
+- Queries like "unit tests" return testing methods even without domain detection
+
+---
+
+### Project Cleanup (2025-12-28)
+
+**Added:** Part 6.5: Project Hygiene to ai-coding-methods-v1.1.0.md
+- Standard directory structure
+- File classification guide
+- Archive vs delete decision matrix
+- Cleanup triggers and procedures
+
+**Deleted:** 80 files (-7,380 lines)
+- cache/ directory, per-domain indexes, duplicates, generated files
+
+**Archived:** Gate artifacts, specification v4, framework evaluation
+
+---
+
 ### CI/CD Pipeline Fixes (2025-12-28)
 
 **Issues Resolved:**
