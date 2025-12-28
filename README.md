@@ -268,11 +268,26 @@ pytest --cov=ai_governance_mcp --cov-report=html tests/
 # Fast tests only (skip ML models)
 pytest -m "not slow" tests/
 
-# Real production index tests
+# Real index tests only
 pytest -m real_index tests/
+```
 
-# Integration tests only
-pytest -m integration tests/
+### Security Scanning
+
+Security tools are included in dev dependencies:
+
+```bash
+# Install dev dependencies
+pip install -e ".[dev]"
+
+# Scan dependencies for vulnerabilities
+pip-audit
+
+# Scan source code for security issues
+bandit -r src/
+
+# Check for known vulnerabilities
+safety check
 ```
 
 ## Roadmap
