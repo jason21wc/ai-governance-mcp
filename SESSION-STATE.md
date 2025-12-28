@@ -8,13 +8,33 @@
 
 ## Current Position
 
-**Status:** Project complete - CI/CD pipeline added
+**Status:** Project complete - Documentation update complete
 **Next Action:** Phase 2 planning when ready for public hosting
-**Context:** v4 hybrid retrieval fully implemented, tested, deployed. Security review completed, CI pipeline with automated security scanning.
+**Context:** v4 hybrid retrieval fully implemented, tested, deployed. Security review completed, CI pipeline with automated security scanning. Methods documentation updated with CI/CD best practices.
 
 ---
 
 ## Recent Changes
+
+### Methods Documentation Update (2025-12-27)
+
+**Created:** `governance-framework-methods-v1.0.0.md` - New meta-level methods document for framework maintenance:
+- Document versioning procedures
+- Index management (rebuild, validation)
+- Domain configuration procedures
+- CI/CD integration for framework
+
+**Created:** `ai-coding-methods-v1.1.0.md` - Updated methods with new CI/CD section:
+- Part 6.4: Automated Validation (CI/CD)
+- GitHub Actions templates
+- Security scanning integration
+- Best practices for CI pipelines
+
+**Updated:** `domains.json` to reference new document versions
+
+**Archived:** `ai-coding-methods-v1.0.3.md` moved to `documents/archive/`
+
+---
 
 ### GitHub Actions CI Pipeline (2025-12-27)
 

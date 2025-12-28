@@ -3,7 +3,7 @@
     "name": "constitution",
     "display_name": "Constitution",
     "principles_file": "ai-interaction-principles-v1.4.md",
-    "methods_file": null,
+    "methods_file": "governance-framework-methods-v1.0.0.md",
     "description": "Universal behavioral rules for AI interaction. Safety principles, core behavioral guidelines, quality standards, operational rules, growth mindset, and meta-awareness. Applies to all AI interactions.",
     "priority": 0
   },
@@ -11,7 +11,7 @@
     "name": "ai-coding",
     "display_name": "AI Coding",
     "principles_file": "ai-coding-domain-principles-v2.1.md",
-    "methods_file": "ai-coding-methods-v1.0.3.md",
+    "methods_file": "ai-coding-methods-v1.1.0.md",
     "description": "Software development with AI assistance. Code generation, debugging, testing, refactoring, code review, pull requests, git workflows, CI/CD, API design, and software architecture.",
     "priority": 10
   },
