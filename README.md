@@ -140,10 +140,67 @@ python -m ai_governance_mcp.server --test "how do I handle incomplete specs"
 python -m ai_governance_mcp.server
 ```
 
-### Configuration
+### Platform Configuration
+
+#### Claude Code CLI (Recommended)
+
+```bash
+# Global installation (available in all projects)
+claude mcp add ai-governance -s user -- python -m ai_governance_mcp.server
+
+# Set environment variables
+claude mcp add ai-governance -s user \
+  --env AI_GOVERNANCE_DOCUMENTS_PATH=/path/to/documents \
+  --env AI_GOVERNANCE_INDEX_PATH=/path/to/index \
+  -- python -m ai_governance_mcp.server
+```
+
+#### Claude Desktop App
+
+Edit the config file:
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "ai-governance": {
+      "command": "python",
+      "args": ["-m", "ai_governance_mcp.server"],
+      "env": {
+        "AI_GOVERNANCE_DOCUMENTS_PATH": "/path/to/ai-governance-mcp/documents",
+        "AI_GOVERNANCE_INDEX_PATH": "/path/to/ai-governance-mcp/index"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop after saving. Look for the MCP server indicator in the bottom-right of the input box.
+
+#### Perplexity Comet Browser
+
+Comet supports MCP servers via Custom Connectors. Local MCP support is currently in development builds.
+
+When available, configure via Comet Settings → Custom Connectors:
+```json
+{
+  "ai-governance": {
+    "command": "python",
+    "args": ["-m", "ai_governance_mcp.server"],
+    "env": {
+      "AI_GOVERNANCE_DOCUMENTS_PATH": "/path/to/documents",
+      "AI_GOVERNANCE_INDEX_PATH": "/path/to/index"
+    }
+  }
+}
+```
+
+### Environment Variables
 
 ```bash
 export AI_GOVERNANCE_DOCUMENTS_PATH=/path/to/documents
+export AI_GOVERNANCE_INDEX_PATH=/path/to/index
 export AI_GOVERNANCE_EMBEDDING_MODEL=all-MiniLM-L6-v2
 export AI_GOVERNANCE_SEMANTIC_WEIGHT=0.6
 ```

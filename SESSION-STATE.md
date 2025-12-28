@@ -8,9 +8,9 @@
 
 ## Current Position
 
-**Status:** Project complete and deployed (bug fix applied)
-**Next Action:** Restart Claude Code to reload MCP server with fix
-**Context:** v4 hybrid retrieval fully implemented, tested, and deployed
+**Status:** Project complete - multi-platform documentation added
+**Next Action:** Configure Claude Desktop app, verify Comet availability
+**Context:** v4 hybrid retrieval fully implemented, tested, deployed. Documentation updated for Claude CLI, Claude Desktop, and Perplexity Comet.
 
 ---
 
