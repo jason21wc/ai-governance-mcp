@@ -152,6 +152,8 @@ embedder.encode = Mock(side_effect=mock_encode)
 | **conftest.py fixtures** | Test suite | Shared fixtures, 193 tests, 93% coverage |
 | **side_effect for mocks** | ML model mocking | Handles variable input sizes correctly |
 | **Patch at source** | Lazy-loaded deps | Works when imports are inside methods |
+| **CPU-only PyTorch in CI** | ML project CI/CD | Avoids 4GB CUDA deps that fill disk |
+| **fail-fast: false** | Matrix debugging | See all failures, not just first |
 
 ### 2025-12-26 - Process Map Visualization Pattern (PO APPROVED)
 
@@ -237,6 +239,46 @@ NEXT PHASE (after gate)
 4. General — clear explanations, reproducible patterns
 
 **Application Rule:** For portfolio-worthy projects, create README.md as derived artifact from spec, formatted for external audience.
+
+### 2025-12-27 - GitHub Actions CI/CD Lessons (CRITICAL)
+
+**Context:** Setting up CI pipeline for automated testing, linting, and security scanning.
+
+**Issues Encountered:**
+
+1. **Lint Failures - Unused Imports (F401)**
+   - Ruff flagged unused imports we hadn't noticed locally
+   - Fix: Run `ruff check --fix src/ tests/` before committing
+   - Lesson: Add pre-commit hooks or run linter locally before push
+
+2. **Lint Failures - Ambiguous Variable Name (E741)**
+   - `O = "O"` in enum flagged as confusable with zero
+   - Fix: Renamed to `OPER = "O"`
+   - Lesson: Linters catch issues humans miss; embrace them
+
+3. **Disk Space Exhaustion (Errno 28)**
+   - `sentence-transformers` pulls PyTorch with CUDA (~900MB torch + ~3GB nvidia-*)
+   - GitHub Actions runners have ~14GB disk; CUDA dependencies filled it
+   - Fix: Pre-install CPU-only PyTorch before other deps:
+     ```yaml
+     pip install torch --index-url https://download.pytorch.org/whl/cpu
+     pip install -e ".[dev]"
+     ```
+   - Lesson: ML libraries default to GPU builds; explicitly use CPU for CI
+
+4. **Matrix Job Cancellation (fail-fast)**
+   - Default `fail-fast: true` cancels sibling matrix jobs on first failure
+   - Made debugging harder (couldn't see if 3.11/3.12 would pass)
+   - Fix: Add `fail-fast: false` to matrix strategy
+   - Lesson: Disable fail-fast during debugging; re-enable for faster CI later
+
+**Best Practices Established:**
+- Run `ruff check src/ tests/ && ruff format --check src/ tests/` locally before push
+- Use CPU-only PyTorch in CI for ML projects
+- Set `continue-on-error: true` for informational checks (pip-audit)
+- Use `fail-fast: false` initially, optimize later
+
+---
 
 ## Patterns That Failed
 

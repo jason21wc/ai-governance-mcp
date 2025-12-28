@@ -1920,6 +1920,16 @@ jobs:
 - Scan for secrets in commits
 - Pin dependencies to exact versions
 
+**ML/AI Projects:**
+- Use CPU-only PyTorch in CI to avoid disk space issues:
+  ```yaml
+  pip install torch --index-url https://download.pytorch.org/whl/cpu
+  pip install -e ".[dev]"
+  ```
+- GPU dependencies (CUDA, cuDNN) add 3-4GB; runners have ~14GB total
+- Set `fail-fast: false` during debugging to see all matrix results
+- Mark slow embedding tests with `@pytest.mark.slow` and skip in CI
+
 ### 6.4.7 CI/CD Checklist
 
 Before deploying CI/CD:
