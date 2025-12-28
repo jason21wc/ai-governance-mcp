@@ -8,13 +8,27 @@
 
 ## Current Position
 
-**Status:** Project complete - security hardening applied
+**Status:** Project complete - CI/CD pipeline added
 **Next Action:** Phase 2 planning when ready for public hosting
-**Context:** v4 hybrid retrieval fully implemented, tested, deployed. Security review completed with fixes applied.
+**Context:** v4 hybrid retrieval fully implemented, tested, deployed. Security review completed, CI pipeline with automated security scanning.
 
 ---
 
 ## Recent Changes
+
+### GitHub Actions CI Pipeline (2025-12-27)
+
+**Added:** `.github/workflows/ci.yml` with three parallel jobs:
+
+| Job | Purpose | Tools |
+|-----|---------|-------|
+| **test** | Run test suite | pytest (Python 3.10, 3.11, 3.12) |
+| **security** | Vulnerability scanning | pip-audit, bandit, safety |
+| **lint** | Code quality | ruff |
+
+**Triggers:** Push to main, Pull requests to main
+
+---
 
 ### Security Hardening (2025-12-27)
 

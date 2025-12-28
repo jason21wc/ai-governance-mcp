@@ -1,5 +1,7 @@
 # AI Governance MCP Server
 
+[![CI](https://github.com/jason21wc/ai-governance-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/jason21wc/ai-governance-mcp/actions/workflows/ci.yml)
+
 > **A semantic retrieval system that gives AI assistants access to domain-specific governance principles - a "second brain" for consistent, high-quality AI collaboration.**
 
 ## The Problem
