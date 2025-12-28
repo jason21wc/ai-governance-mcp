@@ -2176,7 +2176,7 @@
           "embedding_id": 76
         }
       ],
-      "last_extracted": "2025-12-28T07:42:54.814229+00:00",
+      "last_extracted": "2025-12-28T07:56:38.268520+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -4703,7 +4703,7 @@
           "embedding_id": 226
         }
       ],
-      "last_extracted": "2025-12-28T07:42:54.824066+00:00",
+      "last_extracted": "2025-12-28T07:56:38.270335+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -5115,7 +5115,7 @@
         }
       ],
       "methods": [],
-      "last_extracted": "2025-12-28T07:42:54.825827+00:00",
+      "last_extracted": "2025-12-28T07:56:38.271042+00:00",
       "version": "1.0"
     }
   },
@@ -5124,7 +5124,7 @@
       "name": "constitution",
       "display_name": "Constitution",
       "principles_file": "ai-interaction-principles-v1.4.md",
-      "methods_file": "governance-framework-methods-v1.0.0.md",
+      "methods_file": "ai-governance-methods-v1.0.0.md",
       "description": "Universal behavioral rules for AI interaction. Safety principles, core behavioral guidelines, quality standards, operational rules, growth mindset, and meta-awareness. Applies to all AI interactions.",
       "priority": 0,
       "embedding_id": 0
@@ -5148,7 +5148,7 @@
       "embedding_id": 2
     }
   ],
-  "created_at": "2025-12-28T07:43:00.318501+00:00",
+  "created_at": "2025-12-28T07:56:44.769467+00:00",
   "version": "1.0",
   "embedding_model": "all-MiniLM-L6-v2",
   "embedding_dimensions": 384
