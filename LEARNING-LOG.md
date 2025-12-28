@@ -278,6 +278,33 @@ NEXT PHASE (after gate)
 - Set `continue-on-error: true` for informational checks (pip-audit)
 - Use `fail-fast: false` initially, optimize later
 
+### 2025-12-28 - Regex Quantifier Bug in Method Extraction
+
+**Context:** Methods from ai-coding-methods-v1.1.0.md weren't being extracted despite extractor code existing.
+
+**What Happened:** Extractor reported "0 methods" for ai-coding. Investigation revealed regex `\d+(?:\.\d+)?` only matched 1-2 level section numbers (like `1.2`) but not 3-level (like `1.2.3`).
+
+**Root Cause:** Regex quantifier `?` means "0 or 1", not "0 or more". The pattern needed `*` instead.
+
+**Fix:** Changed `\d+(?:\.\d+)?` to `\d+(?:\.\d+)*`
+
+**Lesson:** When matching repeating patterns like version numbers or section numbers, use `*` (zero or more) not `?` (zero or one). Test regex patterns with actual document samples before assuming they work.
+
+---
+
+### 2025-12-28 - Domain Routing Threshold and Fallback
+
+**Context:** Queries like "unit tests in Python" weren't being routed to ai-coding domain, so ai-coding methods weren't returned.
+
+**What Happened:** Domain similarity threshold was 0.5, but typical query-to-domain similarities were 0.25-0.40. Also, when no domain passed threshold, system only searched constitution.
+
+**Fixes Applied:**
+1. Lowered threshold from 0.5 to 0.25
+2. Added fallback: search ALL domains when no specific match
+3. Enriched domain descriptions with common query terms
+
+**Lesson:** Semantic similarity thresholds need empirical tuning. Default fallback behavior (searching all vs searching none) matters more than threshold precision. Domain descriptions should include the vocabulary users actually query with, not just formal category terms.
+
 ---
 
 ## Patterns That Failed
