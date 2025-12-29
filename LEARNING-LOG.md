@@ -361,6 +361,74 @@ Then use Edit tool for small, targeted changes (version headers, amendment entri
 
 ---
 
+### 2025-12-29 - Framework Bootstrap/Activation Problem (CRITICAL)
+
+**Context:** Comprehensive review of governance framework for completeness and proper AI integration.
+
+**What Happened:** Despite having a complete governance framework (Constitution, 2 domains, methods for each), a fresh Claude Code session had no automatic way to:
+1. Know the governance framework exists
+2. Know to query the MCP server
+3. Follow the activation protocol
+
+**Root Cause:** The framework had all the rules (principles) and procedures (methods), but no **entry point**. It's like having laws but no way to tell citizens the laws exist.
+
+**Solution - Three-Layer Activation:**
+
+1. **CLAUDE.md** (auto-loaded by Claude Code)
+   - Tool-specific entry point
+   - Points to ai-instructions and MCP
+   - Created in project root
+
+2. **ai-instructions-v2.3.md** (loader document)
+   - Full activation protocol
+   - Domain detection rules
+   - First response protocol
+   - Now includes multi-agent domain and MCP integration
+
+3. **ai-governance-methods "Framework Activation" section**
+   - Documents the bootstrap sequence
+   - References ai-instructions as the canonical loader
+   - Closes the documentation loop
+
+**Bootstrap Sequence:**
+```
+Tool Config (CLAUDE.md) → ai-instructions → Constitution → Domain → Methods
+```
+
+**Lesson:** A governance framework needs THREE things:
+1. **Rules** (principles) - WHAT to do
+2. **Procedures** (methods) - HOW to do it
+3. **Activation** (loader) - HOW TO GET STARTED
+
+The third is often forgotten. Without explicit activation, the framework exists but isn't used.
+
+**Pattern:** For any governance/ruleset system:
+- Always create an entry point document
+- Document how AI/users discover and activate the rules
+- Reference the loader from the methods so the documentation is complete
+
+---
+
+### 2025-12-29 - Anchor Bias in Document Review
+
+**Context:** Reviewing governance documents that I had been working on in the same session.
+
+**What Happened:** User explicitly requested "fresh eyes" and "avoiding anchor bias" when reviewing documents. This was a reminder that working on documents creates familiarity that can blind you to issues.
+
+**Mitigation Strategies Used:**
+1. Query external best practices (web search) for comparison
+2. Test MCP retrieval to see how it performs
+3. Check version references systematically (found several outdated)
+4. Look for missing pieces, not just errors in existing pieces
+
+**Lesson:** When reviewing your own work:
+- Explicitly search for gaps (what's missing) not just errors (what's wrong)
+- Compare against external standards
+- Check cross-references systematically
+- The user asking to "avoid anchor bias" is a signal to use external validation
+
+---
+
 ## Patterns That Failed
 
 | Pattern | Context | Why It Failed |

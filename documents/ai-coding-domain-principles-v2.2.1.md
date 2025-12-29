@@ -1,4 +1,4 @@
-# AI Coding Domain Principles Framework v2.2
+# AI Coding Domain Principles Framework v2.2.1
 ## Federal Statutes for AI-Assisted Software Development
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -329,12 +329,12 @@ This document is a living artifact. It should be evolved cautiously—adding, mo
 
 ## The Twelve Domain Principles
 
-[PHASE 4 CONTENT - Each principle will use the 10-field template:]
-
 ### Template Structure for Each Principle:
 
+*Note: Series codes (C, P, Q) are used for document organization only. Reference principles by title, not code.*
+
 ```
-### [Series][#]. [Principle Name] (The [Nickname] Act)
+### [Principle Name] (The [Nickname] Act)
 
 **Failure Mode(s) Addressed:**
 [List of specific failure modes from Phase 2 analysis]
@@ -1533,6 +1533,7 @@ At EVERY phase boundary or significant checkpoint:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.2.1 | 2025-12-29 | PATCH: Cleaned up template section (removed outdated series code format, added clarifying note that series codes are for organization only). |
 | v2.2.0 | 2025-12-28 | ID System Refactoring: Removed series codes from principle headers (C1, P1, Q1 → titles only). Series codes retained for document organization but not principle identification. Cross-references converted to principle titles. Aligns with Constitution v1.5 changes. |
 | v2.1.0 | 2025-12-18 | Added Q4 (Supply Chain Integrity) and Q5 (Workflow Integrity) from external review; added Scope/Non-goals section; added Meta ↔ Domain Crosswalk; clarified threshold policy as configurable defaults; expanded P4 to include automation bias controls and Solo Developer Mode; clarified P2/Q3 boundary; wrote full 10-field content for all 12 principles; transformed "Why This Principle Matters" to meta-principles style (2-3 sentences, legal-analogy focused, decision-framework oriented) |
 | v2.0.0 | 2025-12-17 | Complete rebuild from failure modes analysis; 10 principles in 3 functional series (C/P/Q); replaced VCP/VCE/VCQ timing-based series |

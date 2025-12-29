@@ -1,7 +1,7 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.0.0
+**Version:** 3.1.0
 **Status:** Active
 **Effective Date:** 2025-12-29
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -115,6 +115,34 @@ Load this document when:
 
 ---
 
+### CRITICAL: Framework Activation (Bootstrap)
+
+**Importance: CRITICAL — Entry point for all AI sessions**
+
+This document assumes the AI has been directed here by a **loader document**. The canonical loader is:
+
+**`ai-instructions-v2.3.md`** — Framework Activation Protocol
+
+The loader is implemented through tool-specific configurations:
+- `CLAUDE.md` for Claude Code CLI
+- `GEMINI.md` for Gemini CLI
+- Project Instructions for Claude.ai Projects
+- `agents.md` for Codex CLI
+
+**Bootstrap sequence:**
+```
+Tool Config (CLAUDE.md) → ai-instructions → Constitution → Domain → Methods
+```
+
+**If you arrived here without activation:** Execute the first response protocol from ai-instructions before proceeding:
+1. Identify jurisdiction (AI Coding, Multi-Agent, or General)
+2. Check for SESSION-STATE.md in project root
+3. State framework status in your first response
+
+**MCP-enabled environments:** When `ai-governance` MCP is available, use semantic retrieval instead of full document loading for ~98% token savings.
+
+---
+
 # TITLE 1: VERSIONING STANDARDS
 
 **Importance: CRITICAL - Foundation for change management**
@@ -144,9 +172,9 @@ v2.1.3
 ### 1.1.3 Version in Filename
 
 Documents include version in filename for clarity:
-- `ai-coding-methods-v1.0.3.md`
-- `ai-interaction-principles-v1.4.md`
-- `governance-framework-methods-v1.0.0.md`
+- `ai-coding-methods-v1.1.1.md`
+- `ai-interaction-principles-v2.1.md`
+- `ai-governance-methods-v3.1.0.md`
 
 ### 1.1.4 Cross-Reference Compatibility
 
@@ -158,6 +186,8 @@ When updating documents, verify cross-references remain valid:
 ---
 
 ## Part 1.2: Change Classification
+
+**Importance: IMPORTANT - Supports versioning decisions**
 
 ### 1.2.1 Constitutional Changes (Principles)
 
@@ -213,6 +243,8 @@ Before updating, determine change type per TITLE 1:
 
 ## Part 2.2: Domain Configuration
 
+**Importance: IMPORTANT - Reference configuration**
+
 ### 2.2.1 domains.json Structure
 
 ```json
@@ -266,6 +298,8 @@ Rebuild index when:
 
 ## Part 3.2: Rebuild Procedure
 
+**Importance: IMPORTANT - Core index operation**
+
 ### 3.2.1 Standard Rebuild
 
 ```bash
@@ -280,6 +314,8 @@ python -m ai_governance_mcp.server --test "test query"
 ---
 
 ## Part 3.3: Troubleshooting
+
+**Importance: OPTIONAL - Reference when problems occur**
 
 | Symptom | Cause | Resolution |
 |---------|-------|------------|
@@ -663,6 +699,8 @@ After any framework update, validate:
 
 ## Part 4.2: Periodic Health Check
 
+**Importance: OPTIONAL - Periodic maintenance**
+
 **When:** Monthly or after significant changes.
 
 | Check | Pass Criteria |
@@ -724,6 +762,8 @@ To add a new domain:
 ---
 
 ## Part 5.2: Domain Deprecation
+
+**Importance: OPTIONAL - Rarely used procedure**
 
 ### 5.2.1 Deprecation Procedure
 
@@ -1246,6 +1286,8 @@ When domain documentation conflicts:
 
 Use this template when authoring domain principles. All fields are required unless marked optional.
 
+*Note: This is a minimal authoring guide. For comprehensive formatting including optional fields (Truth Sources, Configurable Defaults), see Part 3.5.1 (10-Field Template).*
+
 ### 9.4.1 Template Structure
 
 ```markdown
@@ -1401,6 +1443,7 @@ For restructuring, philosophy shifts, principle removal:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.0.1 | 2025-12-29 | PATCH: Added missing importance tags to Parts 1.2, 2.2, 3.2, 3.3, 4.2, 5.2 for consistency. Added clarifying note to Part 9.4 referencing Part 3.5.1 (10-Field Template) relationship. |
 | 3.0.0 | 2025-12-29 | MAJOR 80/20 cleanup: Simplified TITLE 2 (Update Workflow) to table format. Consolidated Parts 3.2-3.3 (Index) removing redundant checklists. Streamlined TITLE 4 (Validation) to essential tables. Replaced TITLE 6 (CI/CD) detailed procedures with brief reference to README. Added Quick Reference entry to Situation Index. ~35% reduction in document size while preserving all essential governance procedures. |
 | 2.1.0 | 2025-12-29 | Added Part 3.5: Formatting Standards. Defines 10-field principle template, method section template, header hierarchy, text formatting conventions, list conventions, emoji/badge standards, code block conventions, table conventions, and cross-reference format. Reconciles existing ai-coding and multi-agent formatting patterns into unified standard. Updated Situation Index with formatting entries. |
 | 2.0.0 | 2025-12-28 | MAJOR restructure: Added TITLE 7 (Principle Application Protocol), TITLE 8 (Constitutional Governance), TITLE 9 (Domain Authoring). Migrated procedural content from Constitution (ai-interaction-principles.md) to this document, creating clear separation between WHAT (principles) and HOW (methods). Updated Situation Index with new entries. Added legal analogy naming convention to Part 3.4.4. |

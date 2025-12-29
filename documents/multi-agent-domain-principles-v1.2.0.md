@@ -1,4 +1,4 @@
-# Multi-Agent Domain Principles Framework v1.1.0
+# Multi-Agent Domain Principles Framework v1.2.0
 ## Federal Statutes for Multi-Agent AI System Orchestration
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -136,6 +136,9 @@ This framework organizes domain principles into three series addressing differen
 
 ### Cognitive Function Specialization
 
+**Failure Mode(s) Addressed:**
+- **A1: Mixed Cognitive Functions → Output Degradation** — Agents assigned multiple cognitive functions experience internal conflicts, reducing output quality and coherence.
+
 **Why This Principle Matters**
 
 In the constitutional framework, Role Specialization & Topology establishes that distinct functions require specialized roles. For multi-agent systems, this translates to a fundamental architectural decision: agent boundaries should align with cognitive functions, not workflow phases. An agent optimized for strategic thinking operates differently than one optimized for critical analysis or creative generation. Mixing cognitive functions in one agent creates internal conflicts and reduces output quality.
@@ -191,6 +194,9 @@ Each agent must be assigned a single cognitive function with clear domain bounda
 ---
 
 ### Context Isolation Architecture
+
+**Failure Mode(s) Addressed:**
+- **A2: Context Pollution → Structural Inconsistencies** — Information from one domain inappropriately influences decisions in unrelated domains, causing compounding errors across the agent network.
 
 **Why This Principle Matters**
 
@@ -248,6 +254,9 @@ Each specialized agent must operate in a completely independent context window w
 
 ### Orchestrator Separation Pattern
 
+**Failure Mode(s) Addressed:**
+- **A3: Orchestrator Overreach → Monolith Anti-Pattern** — Orchestrator performing execution tasks becomes a "do everything" monolith, violating specialization and creating single points of failure.
+
 **Why This Principle Matters**
 
 The constitutional principle Standardized Collaboration Protocols requires established protocols for agent interaction. In practice, this means a dedicated orchestrator must manage workflow, validation, and human interface WITHOUT executing domain-specific work. When an orchestrator also performs execution tasks, it becomes a "do everything" monolith that violates specialization and creates single points of failure. Separation of coordination from execution enables clear responsibility boundaries.
@@ -303,6 +312,9 @@ A dedicated orchestrator agent manages workflow coordination, validation gates, 
 ---
 
 ### Intent Propagation
+
+**Failure Mode(s) Addressed:**
+- **A4: Intent Degradation → Goal Misalignment** — Original user goal degrades through agent chains ("telephone game" effect), causing downstream agents to optimize for local tasks at expense of global objectives.
 
 **Why This Principle Matters**
 
@@ -361,6 +373,10 @@ The original user intent must propagate through the entire agent chain as an imm
 ## Coordination Principles (R-Series)
 
 ### Explicit Handoff Protocol
+
+**Failure Mode(s) Addressed:**
+- **R1: Implicit Handoffs → Information Loss** — Informal or conversational handoffs lose critical information, forcing downstream agents to guess or hallucinate context.
+- **R2: Missing Deadlock Prevention → Agent Gridlock** — Handoffs without timeouts or retry limits cause agents to wait indefinitely for each other.
 
 **Why This Principle Matters**
 
@@ -427,6 +443,10 @@ Every inter-agent transfer must follow an explicit handoff protocol that include
 ---
 
 ### Orchestration Pattern Selection
+
+**Failure Mode(s) Addressed:**
+- **R3: Pattern Mismatch → Coordination Failure** — Wrong orchestration pattern causes bottlenecks (over-serialization) or errors (inappropriate parallelization of dependent tasks).
+- **R4: Gate Bypass → Rework Cascades** — Skipping validation gates causes downstream work based on unvalidated upstream outputs.
 
 **Why This Principle Matters**
 
@@ -495,6 +515,9 @@ Select orchestration pattern based on task characteristics: use sequential for d
 
 ### State Persistence Protocol
 
+**Failure Mode(s) Addressed:**
+- **R5: Session Discontinuity → Context Loss** — Multi-agent coordination state, delegation history, and cross-agent decisions lost at session boundaries, causing incoherence on resume.
+
 **Why This Principle Matters**
 
 Multi-agent systems amplify the stateless session problem. Individual agent context, orchestration state, delegation history, and cross-agent decisions all require persistence to maintain coherence across sessions. The constitutional principle Documentation requires capturing decisions for future reference; for multi-agent systems, this means comprehensive state management that enables any future session to reconstruct context and continue work.
@@ -551,6 +574,9 @@ Multi-agent workflow state must be persisted to structured files that survive se
 ---
 
 ### Observability Protocol
+
+**Failure Mode(s) Addressed:**
+- **R6: Invisible Agent Status → Late Blocker Detection** — Without visibility into agent progress, blockers are discovered late, causing cascading delays and debugging difficulties.
 
 **Why This Principle Matters**
 
@@ -614,6 +640,9 @@ Long-running agents must proactively broadcast status (current task, progress, b
 ## Quality Principles (Q-Series)
 
 ### Validation Independence
+
+**Failure Mode(s) Addressed:**
+- **Q1: Self-Validation Bias → False Quality Assurance** — Agents validating their own work experience confirmation bias, consistently "passing" outputs regardless of actual quality.
 
 **Why This Principle Matters**
 
@@ -682,6 +711,10 @@ Validation must be performed by a dedicated agent separate from the agent that p
 ---
 
 ### Fault Tolerance and Graceful Degradation
+
+**Failure Mode(s) Addressed:**
+- **Q2: Cascading Failures → System-Wide Corruption** — Failures in one agent propagate through the network, corrupting outputs across the entire multi-agent workflow.
+- **Q3: Silent Failures → Undetected Error Propagation** — Agent errors ignored or hidden, causing corrupted outputs to flow downstream without detection.
 
 **Why This Principle Matters**
 
@@ -753,6 +786,9 @@ Multi-agent workflows must implement fault isolation and graceful degradation. A
 ---
 
 ### Human-in-the-Loop Protocol
+
+**Failure Mode(s) Addressed:**
+- **Q4: Autonomous Consequential Decisions → Unchecked AI Authority** — Multi-agent systems make high-stakes or irreversible decisions without appropriate human oversight, propagating errors at scale.
 
 **Why This Principle Matters**
 
@@ -884,6 +920,7 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v1.2.0 | 2025-12-29 | Template Consistency: Added "Failure Mode(s) Addressed" field to all 11 principles per Constitution 10-Field Template standard (Part 3.5.1). Aligns with Structured Output Enforcement principle. |
 | v1.1.0 | 2025-12-28 | ID System Refactoring: Removed series codes from principle headers (A1, R1, Q1 → titles only). Series codes retained for document organization but not principle identification. Cross-references converted to principle titles. Aligns with Constitution v1.5 and AI Coding Domain v2.2 changes. |
 | v1.0.1 | 2025-12-21 | Minor version bump for index compatibility. |
 | v1.0.0 | 2025-12-21 | Initial release. 11 principles in 3 series. Derived from Constitution MA-Series (MA1-MA6 fully mapped), industry research 2024-2025, and practical multi-agent implementation patterns. Full coverage of all Constitutional multi-agent principles. |

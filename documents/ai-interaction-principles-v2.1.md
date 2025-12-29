@@ -1,8 +1,8 @@
-# Principles Framework for AI-Guided Code Development
+# Principles Framework for AI Interaction
 
-**Version:** 2.0
+**Version:** 2.1
 **Status:** Active
-**Effective Date:** 2025-12-28
+**Effective Date:** 2025-12-29
 **Governance Level:** Constitution (Meta-Principles)
 
 ---
@@ -464,7 +464,7 @@ Embed validation hooks, checkpoints, and tests directly into all workflows, prom
 
 ---
 
-### Visible Reasoning (Chain of Thought)
+### Visible Reasoning
 **Definition**
 For complex logic, creative synthesis, or multi-step decision-making, the AI must explicitly articulate its reasoning steps, assumptions, and alternatives before producing the final output. It effectively separates the "Drafting/Thinking" phase from the "Presentation" phase.
 
@@ -684,7 +684,7 @@ Establish habits and review routines to surface implicit logic during code revie
 
 ---
 
-### Continuous Learning and Adaptation
+### Continuous Learning (Workflow)
 **Definition**
 Continuously learn from feedback, results, errors, and environment changes; adapt workflows, strategies, and outputs to improve performance and relevance over time. Treat every result, failure, and new information as an opportunity to iterate, optimize, and grow.
 
@@ -1402,6 +1402,21 @@ A "confident wrong answer" is the most dangerous output an AI can provide. *This
 ## Historical Amendments (Constitutional History)
 
 **Usage Instruction for AI:** This section is a historical record ("Legislative History"). **It does not carry the force of law.** If any statement in this history log contradicts the active text of the Principles above, **ignore the history and follow the active text.**
+
+#### **v2.1 (December 2025) - Consistency Update**
+*   **Title Correction**
+    *   **Change:** Document title changed from "Principles Framework for AI-Guided Code Development" to "Principles Framework for AI Interaction".
+    *   **Reasoning:** Title now matches filename and reflects universal (not coding-specific) scope stated in document.
+
+*   **Principle Header Cleanup**
+    *   **Change:** Removed "(Chain of Thought)" parenthetical from "Visible Reasoning" principle header.
+    *   **Reasoning:** Consistency with other principle headers which do not include parenthetical subtitles.
+
+*   **Principle Naming Disambiguation**
+    *   **Change:** Renamed "Continuous Learning and Adaptation" (Operational) to "Continuous Learning (Workflow)".
+    *   **Reasoning:** Creates symmetry with "Continuous Learning (Governance)" and makes the distinction between workflow-level learning and system-level learning immediately clear per Explicit Over Implicit principle.
+
+---
 
 #### **v2.0 (December 2025) - The "Separation of Powers" Update**
 *   **MAJOR: Constitution/Methods Restructuring**

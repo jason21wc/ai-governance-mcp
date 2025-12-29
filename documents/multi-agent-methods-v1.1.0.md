@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for Multi-Agent AI System Orchestration
 
-**Version:** 1.0.0  
-**Status:** Draft  
-**Effective Date:** [TBD]  
+**Version:** 1.1.0
+**Status:** Active
+**Effective Date:** 2025-12-29  
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -136,17 +136,17 @@ INITIALIZE ──→ DELEGATE ──→ EXECUTE ──→ VALIDATE ──→ HAN
 
 | Domain Principle | Primary Title |
 |------------------|---------------|
-| A1 Cognitive Function Specialization | Title 2 (Agent Architecture) |
-| A2 Context Isolation Architecture | Title 2 (Agent Architecture) |
-| A3 Orchestrator Separation Pattern | Title 2 (Agent Architecture) |
-| A4 Intent Propagation | Title 3 (Coordination) |
-| R1 Explicit Handoff Protocol | Title 3 (Coordination) |
-| R2 Orchestration Pattern Selection | Title 3 (Coordination) |
-| R3 State Persistence Protocol | Title 3 (Coordination) |
-| R4 Observability Protocol | Title 3 (Coordination) |
-| Q1 Validation Independence | Title 4 (Quality Assurance) |
-| Q2 Fault Tolerance | Title 4 (Quality Assurance) |
-| Q3 Human-in-the-Loop Protocol | Title 4 (Quality Assurance) |
+| Cognitive Function Specialization | Title 2 (Agent Architecture) |
+| Context Isolation Architecture | Title 2 (Agent Architecture) |
+| Orchestrator Separation Pattern | Title 2 (Agent Architecture) |
+| Intent Propagation | Title 3 (Coordination) |
+| Explicit Handoff Protocol | Title 3 (Coordination) |
+| Orchestration Pattern Selection | Title 3 (Coordination) |
+| State Persistence Protocol | Title 3 (Coordination) |
+| Observability Protocol | Title 3 (Coordination) |
+| Validation Independence | Title 4 (Quality Assurance) |
+| Fault Tolerance and Graceful Degradation | Title 4 (Quality Assurance) |
+| Human-in-the-Loop Protocol | Title 4 (Quality Assurance) |
 
 ---
 
@@ -243,11 +243,11 @@ Create this file as `claude.md`, `gemini.md`, AND `agents.md` in project root:
 
 ---
 
-## Title 1: Workflow Initialization
+# TITLE 1: Workflow Initialization
 
 **Implements:** A4 (Intent Propagation), R3 (State Persistence)
 
-### §1.1 Workflow Initialization Protocol
+### 1.1 Workflow Initialization Protocol
 
 🔴 **CRITICAL**
 
@@ -294,7 +294,7 @@ Create this file as `claude.md`, `gemini.md`, AND `agents.md` in project root:
 **This object must be passed to every agent in the chain.**
 ```
 
-### §1.2 Multi-Tool Setup
+### 1.2 Multi-Tool Setup
 
 🟡 **IMPORTANT**
 
@@ -326,11 +326,11 @@ Create this file as `claude.md`, `gemini.md`, AND `agents.md` in project root:
 
 ---
 
-## Title 2: Agent Architecture
+# TITLE 2: Agent Architecture
 
 **Implements:** A1 (Cognitive Function Specialization), A2 (Context Isolation), A3 (Orchestrator Separation)
 
-### §2.1 Agent Definition Template
+### 2.1 Agent Definition Template
 
 🔴 **CRITICAL**
 
@@ -368,7 +368,7 @@ You are a [cognitive function] specialist. Your role is to [specific mental mode
 - [Include confidence indication: HIGH/MEDIUM/LOW with rationale]
 ```
 
-### §2.2 Core Agent Patterns
+### 2.2 Core Agent Patterns
 
 🔴 **CRITICAL**
 
@@ -532,7 +532,7 @@ You are responsible for preserving workflow state across session boundaries.
 [Include STATE.md template here]
 ```
 
-### §2.3 Context Isolation Verification
+### 2.3 Context Isolation Verification
 
 🟡 **IMPORTANT**
 
@@ -556,11 +556,11 @@ You are responsible for preserving workflow state across session boundaries.
 
 ---
 
-## Title 3: Workflow Coordination
+# TITLE 3: Workflow Coordination
 
 **Implements:** R1 (Handoff Protocol), R2 (Orchestration Patterns), R3 (State Persistence), R4 (Observability), A4 (Intent Propagation)
 
-### §3.1 Handoff Protocol
+### 3.1 Handoff Protocol
 
 🔴 **CRITICAL**
 
@@ -614,7 +614,7 @@ handoff:
 | Complex task | 30 minutes | 1 |
 | Research task | 60 minutes | 1 |
 
-### §3.2 Orchestration Pattern Selection
+### 3.2 Orchestration Pattern Selection
 
 🔴 **CRITICAL**
 
@@ -672,7 +672,7 @@ handoff:
 - Each sub-orchestrator follows full orchestrator protocol
 - Intent context propagates through ALL levels
 
-### §3.3 State Persistence Protocol
+### 3.3 State Persistence Protocol
 
 🔴 **CRITICAL**
 
@@ -738,7 +738,7 @@ handoff:
 - Before risky operation
 - Every 30 minutes during long sessions
 
-### §3.4 Session Closer Protocol
+### 3.4 Session Closer Protocol
 
 🟡 **IMPORTANT**
 
@@ -780,7 +780,7 @@ handoff:
    **Sync Status:** [Verified/Issue]
    ```
 
-### §3.5 Observability Protocol
+### 3.5 Observability Protocol
 
 🟡 **IMPORTANT**
 
@@ -812,11 +812,11 @@ handoff:
 
 ---
 
-## Title 4: Quality Assurance
+# TITLE 4: Quality Assurance
 
 **Implements:** Q1 (Validation Independence), Q2 (Fault Tolerance), Q3 (Human-in-the-Loop)
 
-### §4.1 Validation Agent Deployment
+### 4.1 Validation Agent Deployment
 
 🔴 **CRITICAL**
 
@@ -877,7 +877,7 @@ Include confidence: HIGH / MEDIUM / LOW with rationale.
 | MEDIUM | Human spot-check recommended |
 | LOW | Human review required |
 
-### §4.2 Fault Tolerance Procedures
+### 4.2 Fault Tolerance Procedures
 
 🔴 **CRITICAL**
 
@@ -958,7 +958,7 @@ Near-miss triggers:
 - Ambiguity detected and resolved before causing error
 - Context approaching limits before pruning
 
-### §4.3 Human-in-the-Loop Gates
+### 4.3 Human-in-the-Loop Gates
 
 🔴 **CRITICAL**
 
@@ -1016,11 +1016,11 @@ All human decisions must be logged:
 
 ---
 
-## Title 5: Cross-Tool Synchronization
+# TITLE 5: Cross-Tool Synchronization
 
 **Implements:** R3 (State Persistence), supports multi-CLI workflow
 
-### §5.1 Context File Synchronization
+### 5.1 Context File Synchronization
 
 🔴 **CRITICAL**
 
@@ -1069,7 +1069,7 @@ Please verify:
 Then load context and confirm ready state.
 ```
 
-### §5.2 Multi-Tool Workflow Patterns
+### 5.2 Multi-Tool Workflow Patterns
 
 🟡 **IMPORTANT**
 
@@ -1225,6 +1225,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v1.1.0 | 2025-12-29 | Structural Fixes: Changed Title headers from `## Title` to `# TITLE` for extractor compatibility. Changed section headers from `### §X.Y` to `### X.Y` for method extraction. Removed series codes from Principle → Title mapping. Updated status from Draft to Active. |
 | v1.0.0 | 2025-12-21 | Initial release. Implements 11 multi-agent domain principles. Core patterns derived from 2025 industry best practices and NetworkChuck workflow patterns. |
 
 ---

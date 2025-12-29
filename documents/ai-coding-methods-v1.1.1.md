@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 1.1.0
+**Version:** 1.1.1
 **Status:** Active
-**Effective Date:** 2025-12-27
+**Effective Date:** 2025-12-29
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -2971,6 +2971,7 @@ Files to upload to Project Knowledge:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.1 | 2025-12-29 | PATCH: Updated Document Governance version reference from v2.1 to v2.2. |
 | 1.1.0 | 2025-12-27 | Added Part 6.4: Automated Validation (CI/CD) covering CI pipeline setup, GitHub Actions templates, security scanning integration, and best practices. Updated situation index with CI/CD reference. |
 | 1.0.3 | 2025-12-20 | Added Cold Start Kit (copy-paste prompts, minimal templates, mode decision tree). Added Gate Artifacts (structured documents for phase transitions). Added Measurement Guidance for tool-neutral metrics. Fixed mode decision tree inconsistency (one canonical format). Added gate failure pathway. Addresses Perplexity review feedback. |
 | 1.0.2 | 2025-12-20 | Added Appendix D (Gemini CLI), Appendix E (Claude App/Chrome Extension), Appendix F (Tool Comparison). Multi-tool support for framework. |
@@ -2981,7 +2982,7 @@ Files to upload to Project Knowledge:
 
 ## Document Governance
 
-**Authority:** This document implements ai-coding-domain-principles.md (v2.1). Methods cannot contradict principles.
+**Authority:** This document implements ai-coding-domain-principles.md (v2.2). Methods cannot contradict principles.
 
 **Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.
 
