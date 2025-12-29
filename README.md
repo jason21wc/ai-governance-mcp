@@ -249,6 +249,16 @@ Each phase has explicit gate criteria before proceeding. This ensures:
 
 ## Development
 
+### Setup
+
+```bash
+# Install dev dependencies
+pip install -e ".[dev]"
+
+# Enable pre-commit hooks (auto-formats code on commit)
+pre-commit install
+```
+
 ### Test Suite
 
 196 tests across 9 test files with 93% coverage:
@@ -279,9 +289,6 @@ pytest -m real_index tests/
 Security tools are included in dev dependencies:
 
 ```bash
-# Install dev dependencies
-pip install -e ".[dev]"
-
 # Scan dependencies for vulnerabilities
 pip-audit
 
