@@ -26,7 +26,7 @@ This MCP server provides **hybrid semantic retrieval** of governance principles:
 ```
 Query: "how do I handle incomplete specifications?"
 → Routes to: ai-coding domain
-→ Returns: coding-C1 (Specification Completeness) with HIGH confidence
+→ Returns: coding-context-specification-completeness with HIGH confidence
 → Time: 45ms
 ```
 
@@ -100,7 +100,7 @@ Runtime:
 User: "I need to implement a login system"
 
 AI uses query_governance("implementing authentication system")
-→ Returns coding-Q2 (Security by Default) + coding-C1 (Specification Completeness)
+→ Returns coding-quality-security-by-default + coding-context-specification-completeness
 → AI knows to: verify security requirements, ask about auth method preferences
 ```
 
@@ -310,4 +310,4 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework v2.2*
+*Built with the AI Governance Framework - Constitution v2.0, Methods v2.0.0*

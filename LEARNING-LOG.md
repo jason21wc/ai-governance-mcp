@@ -307,6 +307,60 @@ NEXT PHASE (after gate)
 
 ---
 
+### 2025-12-28 - Large File Operations Can Cause Session Hangs
+
+**Context:** Restructuring Constitution (2,578 lines) to separate principles from methods.
+
+**What Happened:** Previous session got stuck while attempting to create a new Constitution v2.0 file. The approach was: read file in chunks, construct content in memory, write entire file with Write tool.
+
+**Root Cause:** Large file Write operations (potentially 1,600+ lines) may timeout or cause issues in Claude Code.
+
+**Solution:** Use shell tools for large file manipulation:
+```bash
+# Extract only lines to keep (safer than large Write)
+sed -n '1,67p; 393,1721p; 2523,$p' old.md > new.md
+```
+
+Then use Edit tool for small, targeted changes (version headers, amendment entries).
+
+**Lesson:** For large file restructuring:
+1. Copy original file first (`cp old.md new.md`)
+2. Use `sed -n` to extract sections, OR use `sed -d` to delete sections
+3. Use Edit tool for small targeted changes
+4. Avoid constructing large files in-memory and writing all at once
+
+**Principles Applied:**
+- Break complex operations into atomic steps
+- Use the right tool for the job (shell for bulk, Edit for precision)
+- Document approach in SESSION-STATE so recovery is possible if session fails
+
+---
+
+### 2025-12-28 - Constitution/Methods Separation Pattern
+
+**Context:** AI interaction principles document was 2,578 lines mixing WHAT (principles) with HOW (procedures).
+
+**What Happened:** Document was hard to navigate, hard to maintain, and violated Single Source of Truth principle (procedural content was duplicated or inconsistent with methods docs).
+
+**Pattern Applied:** Legal system analogy - separate Constitution (principles, immutable law) from Procedures (methods, operational implementation).
+
+**Result:**
+- Constitution: 2,578 → 1,476 lines (42 principles only)
+- Methods: 835 → 1,489 lines (added TITLEs 7/8/9)
+- Clear separation of concerns
+- Each document has single purpose
+
+**Lesson:** For governance frameworks:
+1. Principles define WHAT (rules, constraints, requirements)
+2. Methods define HOW (procedures, workflows, checklists)
+3. Keep them in separate documents
+4. Reference via clear cross-links
+5. Version independently (principles change rarely, methods evolve)
+
+**Framework Impact:** Domain principles should follow same pattern - domain-principles.md for rules, domain-methods.md for procedures.
+
+---
+
 ## Patterns That Failed
 
 | Pattern | Context | Why It Failed |

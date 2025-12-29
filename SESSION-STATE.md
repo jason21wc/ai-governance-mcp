@@ -8,9 +8,9 @@
 
 ## Current Position
 
-**Status:** Constitution/Methods Restructuring - COMPLETE
-**Next Action:** Commit changes, restart Claude Code to pick up new MCP index
-**Context:** Separated WHAT (principles) from HOW (procedures). Constitution now 1476 lines (from 2578). Methods now 1489 lines (from 835). All 196 tests pass.
+**Status:** Ready for next task
+**Next Action:** Restart Claude Code to pick up new MCP index
+**Context:** Constitution/Methods restructuring complete. Committed and pushed to GitHub (071fd62).
 
 ---
 
@@ -85,11 +85,11 @@
 - Updated Section 5.1.2 to reference new ID system
 - Updated domains.json to reference v1.1.0
 
-**Current Index Stats (after improvements):**
-- Constitution: 43 principles, 39 methods
+**Current Index Stats (after restructuring):**
+- Constitution: 42 principles, 68 methods
 - AI-Coding: 12 principles, 104 methods
 - Multi-Agent: 11 principles, 0 methods
-- **Total: 66 principles, 143 methods**
+- **Total: 65 principles, 172 methods**
 
 ---
 

@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 193 tests, 93% coverage
+- **Status:** COMPLETE - All phases done, 196 tests, 93% coverage
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -102,7 +102,7 @@ Show updated process map:
 - At phase transitions
 
 ### Naming
-- Principle IDs: `meta-C1`, `coding-C1`, `multi-A1`
+- Principle IDs: `{domain}-{category}-{title-slug}` (e.g., `meta-core-context-engineering`, `coding-context-specification-completeness`)
 - Domain names: lowercase, hyphenated (`ai-coding`, `multi-agent`)
 
 ### Code Style
@@ -119,7 +119,7 @@ Show updated process map:
 - [x] PLAN — Architecture defined, GATE-PLAN.md approved
 - [x] TASKS — 23 tasks defined, GATE-TASKS.md approved
 - [x] IMPLEMENT — All tasks complete, deployed to GitHub
-- [x] TEST — 193 tests passing, 93% coverage
+- [x] TEST — 196 tests passing, 93% coverage
 
 ### Implementation Progress
 | Task | Description | Status |
@@ -129,7 +129,7 @@ Show updated process map:
 | T3-T5 | Extractor (parser, embeddings, GlobalIndex) | Complete |
 | T6-T11 | Retrieval (domain routing, BM25, semantic, fusion, rerank, hierarchy) | Complete |
 | T12-T18 | Server + 6 MCP tools | Complete |
-| T19-T22 | Tests (193 passing, 93% coverage) | Complete |
+| T19-T22 | Tests (196 passing, 93% coverage) | Complete |
 | T23 | Portfolio README | Complete |
 
 ### Test Coverage
@@ -140,7 +140,7 @@ Show updated process map:
 | server.py | 59 | 97% |
 | extractor.py | 38 | 93% |
 | retrieval.py | 55 | 86% |
-| **Total** | **193** | **93%** |
+| **Total** | **196** | **93%** |
 
 ## Dependencies
 
