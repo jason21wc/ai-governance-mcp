@@ -1,6 +1,6 @@
 # AI Governance MCP - Session State
 
-**Last Updated:** 2025-12-28
+**Last Updated:** 2025-12-29
 **Current Phase:** COMPLETE
 **Procedural Mode:** STANDARD
 
@@ -9,12 +9,40 @@
 ## Current Position
 
 **Status:** Ready for next task
-**Next Action:** Restart Claude Code to pick up new MCP index
-**Context:** Constitution/Methods restructuring complete. Committed and pushed to GitHub (071fd62).
+**Next Action:** None - all systems operational
+**Context:** Pre-commit hooks configured, CI passing, MCP server functional.
 
 ---
 
 ## Recent Changes
+
+### Pre-commit Hooks & CI Fix (2025-12-29) — COMPLETE
+
+**Issue:** CI lint failing due to ruff version mismatch
+- Pre-commit: v0.8.6
+- CI: latest (~0.12.x)
+- Different versions = different formatting rules
+
+**Solution:** Pin ruff to 0.12.0 everywhere:
+
+| Location | Before | After |
+|----------|--------|-------|
+| `.pre-commit-config.yaml` | v0.8.6 | v0.12.0 |
+| `.github/workflows/ci.yml` | `pip install ruff` | `pip install ruff==0.12.0` |
+| `pyproject.toml` | `ruff>=0.8.0` | `ruff==0.12.0` |
+
+**Pre-commit Setup Added:**
+- `.pre-commit-config.yaml` with ruff-format and ruff-check hooks
+- Added `pre-commit>=4.0.0` to dev dependencies
+- Updated README with development setup instructions
+
+**Developer Setup:**
+```bash
+pip install -e ".[dev]"
+pre-commit install
+```
+
+---
 
 ### Constitution/Methods Restructuring (2025-12-28) — COMPLETE
 
