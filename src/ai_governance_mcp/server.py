@@ -324,8 +324,10 @@ def _format_retrieval_result(result) -> str:
         for sp in result.constitution_principles:
             p = sp.principle
             lines.append(f"### [{sp.confidence.value.upper()}] {p.id}: {p.title}")
+            # Only show series if it exists (legacy format)
+            series_info = f"Series: {p.series_code} | " if p.series_code else ""
             lines.append(
-                f"*Series: {p.series_code} | Scores: BM25={sp.keyword_score:.2f}, Semantic={sp.semantic_score:.2f}, Combined={sp.combined_score:.2f}*"
+                f"*{series_info}Scores: BM25={sp.keyword_score:.2f}, Semantic={sp.semantic_score:.2f}, Combined={sp.combined_score:.2f}*"
             )
             if sp.match_reasons:
                 lines.append(f"*Match: {', '.join(sp.match_reasons)}*")
@@ -342,8 +344,10 @@ def _format_retrieval_result(result) -> str:
         for sp in result.domain_principles:
             p = sp.principle
             lines.append(f"### [{sp.confidence.value.upper()}] {p.id}: {p.title}")
+            # Only show series if it exists (legacy format)
+            series_info = f" | Series: {p.series_code}" if p.series_code else ""
             lines.append(
-                f"*Domain: {p.domain} | Series: {p.series_code} | Combined: {sp.combined_score:.2f}*"
+                f"*Domain: {p.domain}{series_info} | Combined: {sp.combined_score:.2f}*"
             )
             lines.append("")
             content_preview = (
@@ -381,7 +385,7 @@ async def _handle_get_principle(
         output = {
             "id": principle.id,
             "domain": principle.domain,
-            "series": principle.series_code,
+            "series": principle.series_code,  # May be None for new format
             "number": principle.number,
             "title": principle.title,
             "content": principle.content,

@@ -381,9 +381,10 @@ class TestExtractMethods:
 
             methods = extractor._extract_methods(domain_config)
 
-            # IDs should follow pattern domain-M1, domain-M2, etc.
-            for i, method in enumerate(methods):
-                assert method.id == f"coding-M{i + 1}"
+            # IDs should follow pattern domain-method-{title-slug}
+            assert len(methods) == 2
+            assert methods[0].id == "coding-method-cold-start-kit"
+            assert methods[1].id == "coding-method-gate-validation"
 
     def test_extract_methods_missing_file(self, test_settings):
         """Should return empty list for missing methods file."""
@@ -437,19 +438,21 @@ class TestGenerateMetadata:
     def test_generate_metadata_creates_aliases(
         self, test_settings, sample_domains_json
     ):
-        """Should create alias from principle ID."""
+        """Should create aliases from title slug."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
 
             extractor = DocumentExtractor(test_settings)
             metadata = extractor._generate_metadata(
-                "coding-C5",
-                "C",
-                "Test Title",
+                "coding-core-context-engineering",
+                "core",
+                "Context Engineering Principle",
                 "Content",
             )
 
-            assert "C5" in metadata.aliases
+            # Aliases are derived from title slug parts (> 3 chars)
+            assert "context" in metadata.aliases
+            assert "engineering" in metadata.aliases
 
 
 class TestExtractPhrases:

@@ -173,6 +173,57 @@ class DocumentExtractor:
             version="1.0",
         )
 
+    def _slugify(self, text: str) -> str:
+        """Convert text to a URL-friendly slug."""
+        # Convert to lowercase and replace spaces/special chars with hyphens
+        slug = text.lower()
+        slug = re.sub(r"[^a-z0-9]+", "-", slug)
+        slug = slug.strip("-")
+        # Limit length to prevent overly long slugs
+        if len(slug) > 50:
+            slug = slug[:50].rsplit("-", 1)[0]
+        return slug
+
+    def _get_category_from_section(self, section_title: str) -> str:
+        """Extract category from section header.
+
+        Maps section headers to semantic categories for ID generation.
+        Supports both descriptive headers ("Core Architecture") and
+        series headers ("C-Series: Context Principles").
+        """
+        category_mapping = {
+            # Series-based mapping (ai-coding domain)
+            "c-series": "context",
+            "context principle": "context",
+            "p-series": "process",
+            "process principle": "process",
+            "q-series": "quality",
+            "quality principle": "quality",
+            # Architecture-series mapping (multi-agent domain)
+            "a-series": "architecture",
+            "architecture principle": "architecture",
+            "r-series": "reliability",
+            "reliability principle": "reliability",
+            # Descriptive mapping (constitution and general)
+            "core": "core",
+            "architecture": "core",
+            "quality": "quality",
+            "reliability": "quality",
+            "operational": "operational",
+            "efficiency": "operational",
+            "collaborative": "multi",
+            "multi-agent": "multi",
+            "governance": "governance",
+            "evolution": "governance",
+            "safety": "safety",
+            "ethics": "safety",
+        }
+        section_lower = section_title.lower()
+        for keyword, category in category_mapping.items():
+            if keyword in section_lower:
+                return category
+        return "general"
+
     def _extract_principles(self, domain_config: DomainConfig) -> list[Principle]:
         """Extract principles from a domain's principles file."""
         file_path = self.settings.documents_path / domain_config.principles_file
@@ -186,18 +237,42 @@ class DocumentExtractor:
         principles = []
         domain_prefix = self._get_domain_prefix(domain_config.name)
 
-        # Pattern for principle headers
-        # Constitution: ### C1. Context Engineering
-        # Domain: #### C1. Specification Completeness (The Requirements Act)
-        header_pattern = re.compile(
+        # Pattern for section headers (## or ### Section Name)
+        # Matches both "## Core Architecture Principles" and "### C-Series: Context Principles"
+        section_pattern = re.compile(r"^#{2,3}\s+(.+?)\s*(?:Principles?)?\s*$")
+
+        # Pattern for principle headers - supports both old and new formats:
+        # Old format: ### C1. Context Engineering
+        # New format: ### Context Engineering
+        # Also supports: ### Title (Legal Analogy) or #### Title (Legal Analogy)
+        old_header_pattern = re.compile(
             r"^#{2,4}\s+([A-Z]+)(\d+)\.\s+(.+?)(?:\s+\(The .+?\))?$"
+        )
+        new_header_pattern = re.compile(
+            r"^#{3,4}\s+([A-Z][^#\n]+?)(?:\s+\([^)]+\))?\s*$"
         )
 
         current_principle = None
+        current_section = "general"
+        principle_count = 0
 
         for i, line in enumerate(lines, 1):
-            match = header_pattern.match(line)
-            if match:
+            # Check for section headers
+            # Allow ## headers always, and ### headers if they're series markers
+            section_match = section_pattern.match(line)
+            if section_match:
+                section_text = section_match.group(1).lower()
+                is_series_header = any(s in section_text for s in [
+                    "c-series", "p-series", "q-series", "a-series", "r-series"
+                ])
+                if "###" not in line or is_series_header:
+                    current_section = self._get_category_from_section(section_match.group(1))
+                    if is_series_header:
+                        continue  # Skip series headers from principle extraction
+
+            # Check for old-format principle headers first
+            old_match = old_header_pattern.match(line)
+            if old_match:
                 # Save previous principle
                 if current_principle:
                     current_principle["end_line"] = i - 1
@@ -207,20 +282,81 @@ class DocumentExtractor:
                     principles.append(
                         self._build_principle(current_principle, domain_prefix)
                     )
+                    principle_count += 1
 
-                # Start new principle
-                series_code = match.group(1)
-                number = int(match.group(2))
-                title = match.group(3).strip()
+                # Start new principle (old format)
+                series_code = old_match.group(1)
+                title = old_match.group(3).strip()
 
                 current_principle = {
-                    "series_code": series_code,
-                    "number": number,
+                    "category": current_section,
                     "title": title,
                     "domain": domain_config.name,
                     "start_line": i,
                     "end_line": None,
                     "content": "",
+                    "series_code": series_code,  # Keep for backwards compat
+                }
+                continue
+
+            # Check for new-format principle headers
+            new_match = new_header_pattern.match(line)
+            if new_match:
+                title = new_match.group(1).strip()
+
+                # Skip non-principle headers (like "When to Apply" etc.)
+                skip_keywords = [
+                    # Navigation and reference sections
+                    "when to", "how to", "quick reference", "decision tree",
+                    "pre-action", "operational", "framework", "immediate",
+                    # Document structure sections
+                    "domain implementation", "extending", "universal",
+                    "template structure", "the twelve", "the three series",
+                    "version history", "evidence base", "glossary",
+                    "scope and non-goals", "design philosophy",
+                    "peer domain", "meta ↔ domain", "appendix",
+                    # Series headers (these are section intros, not principles)
+                    "c-series:", "p-series:", "q-series:",
+                    "a-series:", "r-series:",
+                    "context principles", "process principles", "quality principles",
+                    "architecture principles", "reliability principles",
+                ]
+                if any(kw in title.lower() for kw in skip_keywords):
+                    continue
+
+                # Must have a principle-defining section following
+                # Constitution uses **Definition**, Domain docs use **Failure Mode** or **Why This Principle Matters**
+                next_lines = "\n".join(lines[i:i+10])
+                principle_indicators = [
+                    "**Definition**",
+                    "**Failure Mode",
+                    "**Why This Principle Matters**",
+                    "**Domain Application",
+                    "**Constitutional Basis**"
+                ]
+                if not any(ind in next_lines for ind in principle_indicators):
+                    continue
+
+                # Save previous principle
+                if current_principle:
+                    current_principle["end_line"] = i - 1
+                    current_principle["content"] = "\n".join(
+                        lines[current_principle["start_line"] - 1 : i - 1]
+                    )
+                    principles.append(
+                        self._build_principle(current_principle, domain_prefix)
+                    )
+                    principle_count += 1
+
+                # Start new principle (new format)
+                current_principle = {
+                    "category": current_section,
+                    "title": title,
+                    "domain": domain_config.name,
+                    "start_line": i,
+                    "end_line": None,
+                    "content": "",
+                    "series_code": None,
                 }
 
         # Save last principle
@@ -236,17 +372,27 @@ class DocumentExtractor:
 
     def _build_principle(self, data: dict, domain_prefix: str) -> Principle:
         """Build a Principle object with metadata."""
-        principle_id = f"{domain_prefix}-{data['series_code']}{data['number']}"
+        # Generate slug-based ID: {domain}-{category}-{title-slug}
+        category = data.get("category", "general")
+        title_slug = self._slugify(data["title"])
+        principle_id = f"{domain_prefix}-{category}-{title_slug}"
+
+        # For backwards compatibility, extract series_code and number if present
+        series_code = data.get("series_code")
+        number = None
+        if series_code:
+            # Old format had series_code, try to get number from old-style matching
+            number = data.get("number", 0)
 
         metadata = self._generate_metadata(
-            principle_id, data["series_code"], data["title"], data["content"]
+            principle_id, category, data["title"], data["content"]
         )
 
         return Principle(
             id=principle_id,
             domain=data["domain"],
-            series_code=data["series_code"],
-            number=data["number"],
+            series_code=series_code,
+            number=number,
             title=data["title"],
             content=data["content"],
             line_range=(data["start_line"], data["end_line"]),
@@ -255,11 +401,15 @@ class DocumentExtractor:
         )
 
     def _generate_metadata(
-        self, principle_id: str, series_code: str, title: str, content: str
+        self, principle_id: str, category: str, title: str, content: str
     ) -> PrincipleMetadata:
         """Generate metadata for BM25 keyword search."""
         # Extract keywords from title
         title_words = [w.lower() for w in title.split() if len(w) > 3]
+
+        # Add category as keyword for better search
+        if category and category not in title_words:
+            title_words.append(category)
 
         # Extract key phrases from content
         trigger_phrases = self._extract_phrases(content)
@@ -267,12 +417,16 @@ class DocumentExtractor:
         # Extract failure indicators
         failure_indicators = self._extract_failure_indicators(content)
 
+        # Create aliases from the title slug parts
+        slug_parts = self._slugify(title).split("-")
+        aliases = [p for p in slug_parts if len(p) > 3][:3]
+
         return PrincipleMetadata(
             keywords=title_words,
             synonyms=[],  # Could be expanded with synonym database
             trigger_phrases=trigger_phrases,
             failure_indicators=failure_indicators,
-            aliases=[principle_id.split("-")[-1]],  # e.g., "C1"
+            aliases=aliases,
         )
 
     def _extract_phrases(self, content: str) -> list[str]:
@@ -312,7 +466,11 @@ class DocumentExtractor:
         return indicators
 
     def _extract_methods(self, domain_config: DomainConfig) -> list[Method]:
-        """Extract methods from a domain's methods file."""
+        """Extract methods from a domain's methods file.
+
+        Filters out document structure sections (glossary, scope, etc.)
+        to only include actual procedural methods.
+        """
         file_path = self.settings.documents_path / domain_config.methods_file
         if not file_path.exists():
             logger.warning(f"Methods file not found: {file_path}")
@@ -327,12 +485,32 @@ class DocumentExtractor:
         # Pattern for method headers (## or ### with numbered sections like 1.2.3)
         header_pattern = re.compile(r"^#{2,3}\s+(\d+(?:\.\d+)*)\s+(.+)$")
 
+        # Document structure sections to skip (not actual methods)
+        skip_method_titles = [
+            # Document metadata sections
+            "scope", "applicability", "relationship to other",
+            # Glossary/terminology sections
+            "terms", "glossary", "definitions",
+            # Overview sections that aren't procedures
+            "purpose", "overview", "introduction", "background",
+            # Reference sections
+            "legend", "index", "references", "appendix",
+        ]
+
         current_method = None
         method_count = 0
 
         for i, line in enumerate(lines, 1):
             match = header_pattern.match(line)
             if match:
+                section_num = match.group(1)
+                title = match.group(2).strip()
+
+                # Skip document structure sections
+                title_lower = title.lower()
+                if any(skip in title_lower for skip in skip_method_titles):
+                    continue
+
                 if current_method:
                     current_method["end_line"] = i - 1
                     current_method["content"] = "\n".join(
@@ -342,9 +520,6 @@ class DocumentExtractor:
                         self._build_method(current_method, domain_prefix, method_count)
                     )
                     method_count += 1
-
-                section_num = match.group(1)
-                title = match.group(2).strip()
 
                 current_method = {
                     "section": section_num,
@@ -368,8 +543,11 @@ class DocumentExtractor:
         return methods
 
     def _build_method(self, data: dict, domain_prefix: str, index: int) -> Method:
-        """Build a Method object."""
-        method_id = f"{domain_prefix}-M{index + 1}"
+        """Build a Method object with slug-based ID."""
+        # Generate slug-based ID: {domain}-method-{title-slug}
+        title_slug = self._slugify(data["title"])
+        method_id = f"{domain_prefix}-method-{title_slug}"
+
         keywords = [w.lower() for w in data["title"].split() if len(w) > 3]
 
         return Method(

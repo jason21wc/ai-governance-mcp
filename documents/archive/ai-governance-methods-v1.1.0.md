@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Status:** Active
-**Effective Date:** 2025-12-27
+**Effective Date:** 2025-12-28
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -92,6 +92,9 @@ Load this document when:
 | Creating new domain | Title 5 | Domain Creation Workflow |
 | Framework health check | Title 4 | Validation Checklist |
 | Version number question | Title 1 | Semantic Versioning Rules |
+| Writing new principles | Part 3.4 | ID System & Authoring Rules |
+| Cross-referencing principles | Part 3.4.5 | Cross-Reference Format |
+| Verifying generated IDs | Part 3.4.7 | ID System Verification |
 
 ---
 
@@ -382,6 +385,188 @@ python -m ai_governance_mcp.server --test "safety principles"
 
 ---
 
+## Part 3.4: Principle Identification System
+
+**Importance: CRITICAL - Prevents AI retrieval errors**
+
+### 3.4.1 Problem Statement
+
+Numeric series IDs (S1, C1, Q1, MA1) caused systematic AI failures:
+
+| Problem | Example | Consequence |
+|---------|---------|-------------|
+| **Ambiguity** | Constitution C1 vs AI-Coding C1 | Wrong principle retrieved |
+| **Hallucination** | AI sees C1, C2, C3 → invents C15 | References non-existent principles |
+| **Collision** | Multiple domains with same code | Retrieval errors, inconsistent results |
+
+### 3.4.2 ID Format
+
+All principles use slugified title-based IDs with namespace prefixes:
+
+```
+{domain-prefix}-{category}-{title-slug}
+```
+
+**Slugification Rules:**
+- Converted to lowercase
+- Spaces and special characters → hyphens
+- Maximum 50 characters (truncated at word boundary if longer)
+- Leading/trailing hyphens stripped
+
+**Examples:**
+| Domain | Category | Title | Generated ID |
+|--------|----------|-------|--------------|
+| Constitution | safety | Non-Maleficence | `meta-safety-non-maleficence` |
+| Constitution | core | Context Engineering | `meta-core-context-engineering` |
+| AI-Coding | context | Specification Completeness | `coding-context-specification-completeness` |
+| AI-Coding | process | Validation Gates | `coding-process-validation-gates` |
+| Multi-Agent | core | Cognitive Function Specialization | `multi-core-cognitive-function-specialization` |
+
+**Domain Prefixes:**
+| Domain | Prefix | Convention |
+|--------|--------|------------|
+| constitution | `meta` | Meta-level, applies to all |
+| ai-coding | `coding` | Short form of domain name |
+| multi-agent | `multi` | Short form of domain name |
+
+*New domains: Use 4-6 character abbreviation of domain name.*
+
+### 3.4.3 Category Mapping
+
+Categories are derived from section headers in source documents:
+
+**Constitution (section-based):**
+- `safety` - Safety and Ethics Principles
+- `core` - Core Architecture Principles
+- `quality` - Quality and Reliability Principles
+- `operational` - Operational Efficiency Principles
+- `multi` - Collaborative Intelligence Principles
+- `governance` - Governance and Evolution Principles
+
+**AI-Coding (series-based):**
+- `context` - C-Series: Context Principles
+- `process` - P-Series: Process Principles
+- `quality` - Q-Series: Quality Principles
+
+**Multi-Agent (series-based):**
+- `architecture` - A-Series: Architecture Principles
+- `reliability` - R-Series: Reliability Principles
+- `quality` - Q-Series: Quality Principles
+
+**Fallback:** If a section header doesn't match any known category, principles default to `general` category. Avoid this by using recognized section names.
+
+### 3.4.4 Document Authoring Rules
+
+When writing governance documents, follow these rules to ensure proper ID generation:
+
+**DO:**
+- Use descriptive principle titles (extractor auto-slugifies)
+- Use `##` or `###` for section headers that define categories
+- Use `###` or `####` for principle headers
+- Include at least one principle indicator (see below)
+- Cross-reference other principles by title, not ID
+
+**Principle Indicators** (at least one required for extraction):
+- `**Definition**` - Constitution format
+- `**Failure Mode**` - Domain format (what goes wrong)
+- `**Why This Principle Matters**` - Domain format (rationale)
+- `**Domain Application**` - Domain format (how to apply)
+- `**Constitutional Basis**` - Domain format (derivation)
+
+**DON'T:**
+- Add series codes to principle headers (~~`### C1. Context Engineering`~~)
+- Use numeric IDs in cross-references (~~`See C1`~~)
+- Create principles without indicator sections (they won't be extracted)
+- Use duplicate titles within a domain (creates ID collision, second overwrites first)
+
+**Correct header format:**
+```markdown
+### Context Engineering
+**Definition**
+[principle content...]
+```
+
+**Incorrect header format:**
+```markdown
+### C1. Context Engineering  ← Series code will be stripped
+```
+
+### 3.4.5 Cross-Reference Format
+
+Reference other principles by title, not ID:
+
+**Same-domain references:**
+```markdown
+- See also: Verification Mechanisms, Fail-Fast Detection
+```
+
+**Cross-domain references (domain docs → Constitution):**
+```markdown
+- Derives from **Context Engineering** (Constitution)
+- Constitutional Basis: Verification Mechanisms, Fail-Fast Detection
+```
+
+**Incorrect formats:**
+```markdown
+- Derives from **C1 (Context Engineering)**  ← Uses code
+- See also: meta-Q1, coding-C3  ← Uses IDs
+- Based on meta-core-context-engineering  ← Uses full ID
+```
+
+*Note: Cross-references are for human readers. The retrieval system uses semantic search, not link resolution.*
+
+### 3.4.6 Method Identification
+
+Methods use a simplified format:
+
+```
+{domain-prefix}-method-{title-slug}
+```
+
+**Examples:**
+- `coding-method-validation-gates`
+- `coding-method-expedited-mode`
+- `meta-method-document-versioning`
+
+**Filtered sections:** The extractor skips document structure sections (Scope, Applicability, Glossary, Terms) to only index actual procedural methods.
+
+### 3.4.7 ID System Verification
+
+After document updates, verify IDs are generated correctly:
+
+```bash
+# Rebuild index
+python -m ai_governance_mcp.extractor
+
+# Check generated IDs
+python3 -c "
+import json
+with open('index/global_index.json') as f:
+    idx = json.load(f)
+for domain, data in idx['domains'].items():
+    print(f'{domain}:')
+    for p in data['principles'][:3]:
+        print(f'  {p[\"id\"]}')
+"
+```
+
+**Expected output:**
+```
+constitution:
+  meta-governance-ratification-process
+  meta-core-context-engineering
+  meta-core-single-source-of-truth
+ai-coding:
+  coding-context-specification-completeness
+  coding-context-context-window-management
+  coding-process-sequential-phase-dependencies
+multi-agent:
+  multi-core-cognitive-function-specialization
+  multi-core-context-isolation-architecture
+```
+
+---
+
 # TITLE 4: VALIDATION PROCEDURES
 
 **Importance: IMPORTANT - Ensures framework integrity**
@@ -509,9 +694,10 @@ To add a new domain:
 ### 5.1.2 Domain Document Requirements
 
 **Principles Document (Required):**
-- Follow established principle structure (Series codes, ID format)
+- Follow ID system rules (Part 3.4) - use titles, not series codes
+- Include principle indicators (`**Definition**` or `**Failure Mode**`)
 - Include domain-specific guidance
-- Reference constitution where appropriate
+- Reference constitution principles by title
 
 **Methods Document (Optional):**
 - Follow methods document structure
@@ -633,6 +819,7 @@ When vulnerabilities found:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1.0 | 2025-12-28 | Added Part 3.4: Principle Identification System. Documents slugified title-based ID format, category mapping, authoring rules, cross-reference format, and verification procedures. Updated Section 5.1.2 to reference new ID system. |
 | 1.0.0 | 2025-12-27 | Initial release. Document versioning, index management, validation procedures, domain management, CI/CD integration. |
 
 ---

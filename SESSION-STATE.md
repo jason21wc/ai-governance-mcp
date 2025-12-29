@@ -8,13 +8,154 @@
 
 ## Current Position
 
-**Status:** Project complete - all systems operational
-**Next Action:** Phase 2 planning when ready for public hosting
-**Context:** v4 hybrid retrieval fully implemented with methods support. Bug fixes applied for method extraction (regex) and domain routing (threshold + fallback). Now indexing 65 principles + 173 methods. CI pipeline passing. Project hygiene section added to methods documentation.
+**Status:** Constitution/Methods Restructuring - COMPLETE
+**Next Action:** Commit changes, restart Claude Code to pick up new MCP index
+**Context:** Separated WHAT (principles) from HOW (procedures). Constitution now 1476 lines (from 2578). Methods now 1489 lines (from 835). All 196 tests pass.
 
 ---
 
 ## Recent Changes
+
+### Constitution/Methods Restructuring (2025-12-28) — COMPLETE
+
+**Objective:** Separate WHAT (principles) from HOW (procedures) by moving ~900 lines of procedural content from Constitution to Methods document.
+
+**Version Changes:**
+- ai-interaction-principles: v1.5 → v2.0 (MAJOR - restructure)
+- ai-governance-methods: v1.1.0 → v2.0.0 (MAJOR - expansion)
+
+**Results:**
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Constitution lines | 2,578 | 1,476 |
+| Methods lines | 835 | 1,489 |
+| Constitution principles | 42 | 42 (unchanged) |
+| Constitution methods | 39 | 68 (new TITLEs 7/8/9) |
+| Tests passing | 196 | 196 |
+
+**Methods v2.0.0 Content Added:**
+- TITLE 7: Principle Application Protocol (Parts 7.1-7.8)
+- TITLE 8: Constitutional Governance (Parts 8.1-8.6)
+- TITLE 9: Domain Authoring (Parts 9.1-9.6)
+
+**Content Removed from Constitution:**
+- Quick Reference Card → Methods Part 7.1
+- Operational Application Protocol → Methods Parts 7.2-7.8
+- Framework Governance → Methods TITLE 8
+- Domain Implementation Guide → Methods TITLE 9
+- Universal Numbering Protocol → Obsolete (removed)
+
+**Files Updated:**
+- documents/ai-interaction-principles-v2.0.md (new)
+- documents/ai-governance-methods-v2.0.0.md (new)
+- documents/domains.json (updated references)
+- documents/archive/ (old versions archived)
+
+**Implementation Note:** Used `sed -n` to extract kept sections instead of large Write operations (previous session got stuck on large file write).
+
+---
+
+### Extractor Improvements & Documentation (2025-12-28) — COMPLETE
+
+**Extractor Improvements (3 fixes):**
+
+| Issue | Before | After |
+|-------|--------|-------|
+| AI-Coding categories | All "general" | context/process/quality mapped from C/P/Q-Series |
+| Series headers as principles | 15 principles (3 were headers) | 12 actual principles |
+| Structure sections as methods | 138 methods (34 were structure) | 104 actual methods |
+
+**Changes to extractor.py:**
+1. Updated `_get_category_from_section()` - maps C/P/Q-Series headers to categories
+2. Added series header detection in section matching (allows `###` for series)
+3. Added `skip_method_titles` list to filter document structure sections
+4. Extended `skip_keywords` to exclude series headers from principles
+
+**Documentation Added (ai-governance-methods v1.0.0 → v1.1.0):**
+- Part 3.4: Principle Identification System (new section)
+  - 3.4.1 Problem Statement (why numeric IDs failed)
+  - 3.4.2 ID Format (pattern, slugification rules, prefixes)
+  - 3.4.3 Category Mapping (per domain + fallback)
+  - 3.4.4 Document Authoring Rules (DO/DON'T + indicators)
+  - 3.4.5 Cross-Reference Format (same-domain + cross-domain)
+  - 3.4.6 Method Identification (format + filtering)
+  - 3.4.7 ID System Verification (commands + expected output)
+- Updated Situation Index with 3 new entries
+- Updated Section 5.1.2 to reference new ID system
+- Updated domains.json to reference v1.1.0
+
+**Current Index Stats (after improvements):**
+- Constitution: 43 principles, 39 methods
+- AI-Coding: 12 principles, 104 methods
+- Multi-Agent: 11 principles, 0 methods
+- **Total: 66 principles, 143 methods**
+
+---
+
+### ID System Refactoring (2025-12-28) — COMPLETE
+
+**Problem Solved:** Numeric series IDs (S1, C1, Q1) caused AI errors:
+- Ambiguity: Same ID in multiple documents (constitution C1 vs coding C1)
+- Hallucination: Pattern completion (C1, C2, C3 → AI invents C15)
+- Collision: Retrieval errors when IDs aren't globally unique
+
+**Solution Implemented:** Slugified title-based IDs with namespace prefixes
+
+**Format:** `{domain}-{category}-{title-slug}`
+
+**Examples:**
+| Before | After |
+|--------|-------|
+| `meta-S1` | `meta-safety-nonmaleficence` |
+| `meta-C1` | `meta-core-context-engineering` |
+| `coding-M1` | `coding-method-cold-start-kit` |
+
+**Phase 1 Completed:**
+1. ✅ Document plan in SESSION-STATE.md
+2. ✅ Update ai-interaction-principles.md (v1.4 → v1.5)
+   - Removed series IDs from all 42 principle headers
+   - Converted all cross-references to titles
+   - Updated Quick Reference Card and Pre-Action Checklist
+   - Added v1.5 amendment to historical record
+3. ✅ Update extractor to generate slug-based IDs
+   - Added `_slugify()` and `_get_category_from_section()` methods
+   - Modified principle/method ID generation
+   - Made series_code and number fields optional in Principle model
+   - Updated server output formatting for new format
+4. ✅ Rebuild index and verify (196 tests pass)
+
+**Phase 2 Completed:**
+5. ✅ Update ai-coding-domain-principles-v2.1.md → v2.2.md
+   - Removed series codes from all 12 principle headers (C1, P1, Q1 → titles)
+   - Updated Quick Reference Card, Workflow Application, Checklists
+   - Converted all cross-references to principle titles
+   - Added version history entry for v2.2.0
+6. ✅ Update multi-agent-domain-principles-v1.0.1.md → v1.1.0.md
+   - Removed series codes from all 11 principle headers (A1, R1, Q1 → titles)
+   - Updated Meta ↔ Domain Crosswalk table
+   - Updated Peer Domain Interaction section
+   - Added version history entry for v1.1.0
+7. ✅ Update extractor to detect multi-format principles
+   - Added detection for `**Failure Mode**`, `**Why This Principle Matters**`
+   - Extended skip_keywords for non-principle sections
+   - Now supports `###` and `####` headers for domain docs
+8. ✅ Update domains.json with new version references
+9. ✅ Rebuild index and verify (196 tests pass)
+   - 43 constitution principles (+ 1 extra detection)
+   - 15 ai-coding principles (12 core + 3 section intros)
+   - 11 multi-agent principles
+   - 173 methods total
+
+**Decisions Made:**
+- Domain prefix: `meta-` (not `constitution-`)
+- Type categories: Preserve series groupings (safety, core, quality, etc.)
+- Cross-references: Convert to titles (not full slugs)
+- ID visibility: Clean titles in docs, extractor generates IDs
+
+**Note:** Restart Claude Code to pick up new index format
+
+---
 
 ### Methods Extraction and Domain Routing Fixes (2025-12-28)
 
@@ -230,7 +371,8 @@ The server is configured globally (user scope) in `~/.claude.json`:
 
 ### Index Statistics
 - **65 principles** (42 constitution + 12 ai-coding + 11 multi-agent)
-- **Content embeddings**: (65, 384)
+- **172 methods** (68 constitution + 104 ai-coding)
+- **Content embeddings**: (237, 384)
 - **Domain embeddings**: (3, 384)
 - **Embedding model**: all-MiniLM-L6-v2
 
@@ -282,7 +424,7 @@ The server is configured globally (user scope) in `~/.claude.json`:
 ### In Claude Code
 The AI Governance MCP server is configured globally. Tools are available in all sessions:
 - `query_governance("how do I handle incomplete specs")`
-- `get_principle("coding-C1")`
+- `get_principle("coding-context-specification-completeness")`
 - `list_domains()`
 
 ### Manual Testing
