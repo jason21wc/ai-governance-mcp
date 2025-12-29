@@ -1,7 +1,7 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 2.1.0
+**Version:** 3.0.0
 **Status:** Active
 **Effective Date:** 2025-12-29
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -99,6 +99,7 @@ Load this document when:
 | Cross-referencing principles | Part 3.4.5 | Cross-Reference Format |
 | Verifying generated IDs | Part 3.4.7 | ID System Verification |
 | Starting a new session | Title 7 | Session Initialization |
+| Which principle do I need now? | Part 7.1 | Quick Reference Card |
 | Before taking significant action | Part 7.3 | Pre-Action Checklist |
 | Citing principles in work | Part 7.4 | Citation Requirements |
 | After completing deliverables | Part 7.5 | Post-Action Verification |
@@ -189,76 +190,30 @@ Changes to MCP index:
 
 ## Part 2.1: Update Procedure
 
-### 2.1.1 Pre-Update Checklist
+### 2.1.1 Update Flow
 
-Before modifying any governance document:
+**Update → References → Archive → Rebuild → Validate**
 
-- [ ] Identify document to update
-- [ ] Determine change type (PATCH/MINOR/MAJOR)
-- [ ] Review current version number
-- [ ] Check cross-references from other documents
-- [ ] Plan archive of old version
+| Step | Action | Command/Location |
+|------|--------|------------------|
+| 1. Update | Copy doc, rename to new version, edit content, update version history | `document-vX.Y.Z.md` |
+| 2. References | Update `domains.json` with new filename | `documents/domains.json` |
+| 3. Archive | Move old version to archive (do not modify archived docs) | `documents/archive/` |
+| 4. Rebuild | Rebuild the search index | `python -m ai_governance_mcp.extractor` |
+| 5. Validate | Run tests, verify new content is searchable | `pytest tests/` |
 
-### 2.1.2 Update Steps
+### 2.1.2 Version Determination
 
-**Step 1: Create New Version**
-```
-1. Copy current document
-2. Rename with new version: document-vX.Y.Z.md
-3. Update version in document header
-4. Update effective date
-5. Make content changes
-6. Update version history section
-```
-
-**Step 2: Update References**
-```
-1. Update domains.json with new filename
-2. Update CLAUDE.md version references
-3. Update any cross-references in other documents
-```
-
-**Step 3: Archive Old Version**
-```
-1. Move old version to documents/archive/
-2. Maintain original filename
-3. Do NOT modify archived documents
-```
-
-**Step 4: Rebuild Index**
-```
-1. Run: python -m ai_governance_mcp.extractor
-2. Verify index rebuilt successfully
-3. Validate new content is searchable
-```
-
-**Step 5: Validate**
-```
-1. Run validation tests
-2. Query for new content
-3. Verify cross-references work
-4. Test MCP tools
-```
-
-### 2.1.3 Archive Structure
-
-```
-documents/
-  |- ai-coding-methods-v1.1.0.md      (current)
-  |- ai-coding-domain-principles-v2.1.md (current)
-  |- archive/
-      |- ai-coding-methods-v1.0.3.md  (archived)
-      |- ai-coding-methods-v1.0.2.md  (archived)
-      |- ai-coding-methods-v1.0.1.md  (archived)
-```
+Before updating, determine change type per TITLE 1:
+- **PATCH** (0.0.X): Typo fixes, clarifications
+- **MINOR** (0.X.0): New content, enhancements
+- **MAJOR** (X.0.0): Breaking changes, removals, restructures
 
 ---
 
-## Part 2.2: Domain Configuration Updates
+## Part 2.2: Domain Configuration
 
 ### 2.2.1 domains.json Structure
-
-The `documents/domains.json` file defines domain configurations:
 
 ```json
 {
@@ -273,21 +228,7 @@ The `documents/domains.json` file defines domain configurations:
 }
 ```
 
-### 2.2.2 Updating domains.json
-
-When document versions change:
-
-1. Update `principles_file` or `methods_file` to new version
-2. Verify file exists in documents directory
-3. Rebuild index to pick up changes
-
-### 2.2.3 Priority Values
-
-Priority controls search ordering:
-- `0` - Constitution (always highest priority)
-- `10` - Primary domains (ai-coding)
-- `20` - Secondary domains (multi-agent)
-- Higher values = lower priority
+**Priority:** 0 = Constitution, 10 = primary domains, 20+ = secondary domains.
 
 ---
 
@@ -328,76 +269,24 @@ Rebuild index when:
 ### 3.2.1 Standard Rebuild
 
 ```bash
-# From project root
 python -m ai_governance_mcp.extractor
-
-# Expected output:
-# - Parsing documents...
-# - Generating embeddings...
-# - Building index...
-# - Index saved to index/
 ```
 
-### 3.2.2 Rebuild Verification
-
-After rebuild, verify:
-
+**Verification:** If rebuild completes without errors, the index is valid. Test with:
 ```bash
-# Test query
 python -m ai_governance_mcp.server --test "test query"
-
-# Check file timestamps
-ls -la index/
-
-# Verify file sizes are reasonable
-wc -c index/global_index.json
 ```
-
-### 3.2.3 Rebuild Checklist
-
-- [ ] Documents directory contains all referenced files
-- [ ] domains.json is valid JSON
-- [ ] Extractor completes without errors
-- [ ] All three index files generated
-- [ ] Test query returns results
-- [ ] MCP server starts successfully
 
 ---
 
-## Part 3.3: Index Integrity
+## Part 3.3: Troubleshooting
 
-### 3.3.1 Integrity Checks
-
-Before using index:
-- [ ] `global_index.json` exists and is valid JSON
-- [ ] `content_embeddings.npy` exists and matches principle count
-- [ ] `domain_embeddings.npy` exists and matches domain count
-- [ ] Embeddings dimensions are consistent (384 for MiniLM)
-
-### 3.3.2 Common Issues
-
-| Symptom | Likely Cause | Resolution |
-|---------|--------------|------------|
-| Missing principles in results | Document not in domains.json | Update domains.json, rebuild |
-| Stale content returned | Index not rebuilt after update | Rebuild index |
-| Empty results | Index corruption | Delete index/, rebuild |
-| Dimension mismatch errors | Embedding model changed | Delete index/, rebuild |
+| Symptom | Cause | Resolution |
+|---------|-------|------------|
+| Missing principles | Document not in domains.json | Add to domains.json, rebuild |
+| Stale content | Index not rebuilt | Rebuild index |
+| Empty results | Index corruption | `rm -rf index/` then rebuild |
 | Parse errors | Malformed document | Fix document syntax, rebuild |
-
-### 3.3.3 Recovery Procedure
-
-If index is corrupted:
-
-```bash
-# Remove existing index
-rm -rf index/
-
-# Rebuild from scratch
-python -m ai_governance_mcp.extractor
-
-# Verify
-python -m ai_governance_mcp.server --test "safety principles"
-```
 
 ---
 
@@ -759,104 +648,31 @@ Always specify language identifier for syntax highlighting:
 
 ## Part 4.1: Post-Update Validation
 
-### 4.1.1 Validation Checklist
+After any framework update, validate:
 
-After any framework update:
+| Category | Check | How to Verify |
+|----------|-------|---------------|
+| **Document** | Version updated, history entry added | Read document header |
+| **References** | domains.json points to new version | Check `documents/domains.json` |
+| **Index** | Rebuilt and searchable | `python -m ai_governance_mcp.extractor` |
+| **Functional** | Tools respond, queries return results | `pytest tests/ -m "not slow"` |
 
-**Document Validation:**
-- [ ] New version number in header
-- [ ] Version history updated
-- [ ] No broken internal links
-- [ ] Formatting consistent
-- [ ] Importance tags present where needed
-
-**Reference Validation:**
-- [ ] domains.json updated
-- [ ] CLAUDE.md version references current
-- [ ] Cross-document references valid
-
-**Index Validation:**
-- [ ] Index rebuilt successfully
-- [ ] New content searchable
-- [ ] Existing content still searchable
-- [ ] Domain routing works correctly
-
-**Functional Validation:**
-- [ ] MCP server starts
-- [ ] All 6 tools respond
-- [ ] Query returns expected principles
-- [ ] Confidence scores reasonable
-
-### 4.1.2 Validation Commands
-
-```bash
-# Test MCP tools
-python -m ai_governance_mcp.server --test "security requirements"
-
-# Run test suite
-pytest tests/ -v -m "not slow"
-
-# Verify specific content
-python -m ai_governance_mcp.server --test "CI/CD pipeline"
-```
+**Quick Validation:** If tests pass after index rebuild, the update is valid.
 
 ---
 
-## Part 4.2: Framework Health Check
+## Part 4.2: Periodic Health Check
 
-### 4.2.1 Periodic Health Check
+**When:** Monthly or after significant changes.
 
-Run periodically (monthly recommended):
+| Check | Pass Criteria |
+|-------|---------------|
+| All domains.json files exist | No missing files in `documents/` |
+| Index current | Rebuild timestamp matches latest document change |
+| Query latency | < 100ms for typical queries |
+| Cross-references | No broken links between documents |
 
-**Completeness Check:**
-- [ ] All documents in domains.json exist
-- [ ] All documents have current versions
-- [ ] Archive contains previous versions
-- [ ] Index matches document content
-
-**Consistency Check:**
-- [ ] Loader (CLAUDE.md) references correct versions
-- [ ] Cross-references between documents valid
-- [ ] Hierarchy diagrams accurate
-- [ ] Priority values appropriate
-
-**Performance Check:**
-- [ ] Query latency < 100ms
-- [ ] Index size reasonable
-- [ ] Embedding dimensions correct
-
-### 4.2.2 Health Check Report Template
-
-```markdown
-# Framework Health Check
-**Date:** [Date]
-**Performed By:** [AI/Human]
-
-## Documents
-| Document | Current Version | Last Updated | Status |
-|----------|-----------------|--------------|--------|
-| Constitution | v1.4 | [date] | OK |
-| AI Coding Principles | v2.1 | [date] | OK |
-| AI Coding Methods | v1.1.0 | [date] | OK |
-| [etc.] | | | |
-
-## Index
-- Principle count: 65
-- Domain count: 3
-- Last rebuilt: [date]
-- Index size: [size]
-
-## Validation Results
-- [ ] All queries return results
-- [ ] Domain routing accurate
-- [ ] MCP tools functional
-
-## Issues Found
-[List any issues]
-
-## Actions Taken
-[List remediation actions]
-```
+**If issues found:** Document the issue and resolution in LEARNING-LOG.md.
 
 ---
 
@@ -930,74 +746,14 @@ To deprecate a domain:
 
 # TITLE 6: CI/CD INTEGRATION
 
-**Importance: IMPORTANT - Automated framework validation**
+**Note:** CI/CD configuration and security scanning procedures are tooling-specific and maintained in the repository's README.md and `.github/workflows/` directory. This governance document defines *what* validation must occur; tooling docs define *how*.
 
-## Part 6.1: Automated Validation
+**Validation Requirements:**
+- All document updates must pass automated tests before merge
+- Index must rebuild successfully after document changes
+- Security scanning should run on dependencies and source code
 
-### 6.1.1 CI Pipeline Integration
-
-Include framework validation in CI:
-
-```yaml
-# Example GitHub Actions job
-framework-validation:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
-    - name: Install dependencies
-      run: pip install -e .
-    - name: Validate domains.json
-      run: python -c "import json; json.load(open('documents/domains.json'))"
-    - name: Rebuild index
-      run: python -m ai_governance_mcp.extractor
-    - name: Test MCP tools
-      run: pytest tests/ -v -m "not slow"
-```
-
-### 6.1.2 Pre-Commit Hooks
-
-Consider adding pre-commit validation:
-
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: local
-    hooks:
-      - id: validate-domains
-        name: Validate domains.json
-        entry: python -c "import json; json.load(open('documents/domains.json'))"
-        language: system
-        files: domains.json
-```
-
----
-
-## Part 6.2: Security Scanning
-
-### 6.2.1 Dependency Scanning
-
-Regularly scan framework dependencies:
-
-```bash
-# Scan for vulnerabilities
-pip-audit --strict
-
-# Source code security
-bandit -r src/
-
-# Check for known issues
-safety check
-```
-
-### 6.2.2 Update Procedure
-
-When vulnerabilities found:
-1. Identify affected dependency
-2. Check for available update
-3. Test update compatibility
-4. Update pyproject.toml
-5. Rebuild and test
-6. Document in version history
+See `README.md > Development` for specific commands and configurations.
 
 ---
 
@@ -1645,6 +1401,7 @@ For restructuring, philosophy shifts, principle removal:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.0.0 | 2025-12-29 | MAJOR 80/20 cleanup: Simplified TITLE 2 (Update Workflow) to table format. Consolidated Parts 3.2-3.3 (Index) removing redundant checklists. Streamlined TITLE 4 (Validation) to essential tables. Replaced TITLE 6 (CI/CD) detailed procedures with brief reference to README. Added Quick Reference entry to Situation Index. ~35% reduction in document size while preserving all essential governance procedures. |
 | 2.1.0 | 2025-12-29 | Added Part 3.5: Formatting Standards. Defines 10-field principle template, method section template, header hierarchy, text formatting conventions, list conventions, emoji/badge standards, code block conventions, table conventions, and cross-reference format. Reconciles existing ai-coding and multi-agent formatting patterns into unified standard. Updated Situation Index with formatting entries. |
 | 2.0.0 | 2025-12-28 | MAJOR restructure: Added TITLE 7 (Principle Application Protocol), TITLE 8 (Constitutional Governance), TITLE 9 (Domain Authoring). Migrated procedural content from Constitution (ai-interaction-principles.md) to this document, creating clear separation between WHAT (principles) and HOW (methods). Updated Situation Index with new entries. Added legal analogy naming convention to Part 3.4.4. |
 | 1.1.0 | 2025-12-28 | Added Part 3.4: Principle Identification System. Documents slugified title-based ID format, category mapping, authoring rules, cross-reference format, and verification procedures. Updated Section 5.1.2 to reference new ID system. |
