@@ -566,7 +566,9 @@ async def run_server():
     except Exception as e:
         logger.error(f"Server error: {e}")
     finally:
-        logger.info("Server shutdown complete")
+        # Force exit to prevent sentence-transformers threads from keeping process alive
+        logger.info("Server shutdown complete, forcing exit...")
+        os._exit(0)
 
 
 def main():
