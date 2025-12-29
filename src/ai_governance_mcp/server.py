@@ -3,7 +3,9 @@
 Per specification v4: FastMCP server with 6 tools for hybrid retrieval.
 """
 
+import asyncio
 import json
+import signal
 import sys
 from datetime import datetime, timezone
 
@@ -60,8 +62,39 @@ def log_feedback_entry(feedback: Feedback) -> None:
             f.write(feedback.model_dump_json() + "\n")
 
 
+# Server instructions injected into AI context
+SERVER_INSTRUCTIONS = """
+## AI Governance MCP Server
+
+This server provides semantic retrieval of AI governance principles and methods.
+
+### When to Use
+- Query `query_governance` for guidance on any task, decision, or ethical concern
+- The server auto-detects relevant domains (constitution, ai-coding, multi-agent)
+- Constitution principles always apply; domain principles add context-specific guidance
+
+### Governance Hierarchy
+1. **Constitution** (ai-interaction-principles) — Universal behavioral rules, always apply
+2. **Domain Law** (ai-coding, multi-agent) — Context-specific principles
+3. **Methods** — Procedural guidance (workflows, gates, patterns)
+
+### Key Behaviors
+- S-Series (Safety) principles have supreme veto authority
+- Cite principles when they influence significant decisions
+- Pause and clarify when specification gaps are detected
+- Escalate product/business decisions; proceed autonomously on technical details
+
+### Quick Start
+```
+query_governance("your situation or concern")
+→ Returns relevant principles + methods with confidence scores
+```
+
+Use `get_principle` for full content, `list_domains` to explore, `log_feedback` to improve retrieval.
+""".strip()
+
 # Create MCP server
-server = Server("ai-governance-mcp")
+server = Server("ai-governance-mcp", instructions=SERVER_INSTRUCTIONS)
 
 
 @server.list_tools()
@@ -505,22 +538,57 @@ async def _handle_get_metrics(args: dict) -> list[TextContent]:
 
 
 async def run_server():
-    """Run the MCP server."""
+    """Run the MCP server with graceful shutdown handling."""
     logger.info("Starting AI Governance MCP Server v4")
 
     # Initialize engine on startup
     get_engine()
 
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream, write_stream, server.create_initialization_options()
-        )
+    # Track if we're shutting down
+    shutdown_event = asyncio.Event()
+
+    def handle_shutdown(sig, frame):
+        """Handle shutdown signals gracefully."""
+        logger.info(f"Received signal {sig}, initiating graceful shutdown...")
+        shutdown_event.set()
+
+    # Register signal handlers (Unix-style)
+    if sys.platform != "win32":
+        signal.signal(signal.SIGTERM, handle_shutdown)
+        signal.signal(signal.SIGINT, handle_shutdown)
+
+    try:
+        async with stdio_server() as (read_stream, write_stream):
+            # Run server until shutdown or stream closes
+            server_task = asyncio.create_task(
+                server.run(
+                    read_stream, write_stream, server.create_initialization_options()
+                )
+            )
+
+            # Wait for either server completion or shutdown signal
+            shutdown_task = asyncio.create_task(shutdown_event.wait())
+            done, pending = await asyncio.wait(
+                [server_task, shutdown_task],
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+
+            # Cancel pending tasks
+            for task in pending:
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+
+    except Exception as e:
+        logger.error(f"Server error: {e}")
+    finally:
+        logger.info("Server shutdown complete")
 
 
 def main():
     """Entry point."""
-    import asyncio
-
     # Handle --test mode for quick testing
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
         query = (

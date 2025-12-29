@@ -1,45 +1,68 @@
 # AI Governance MCP - Session State
 
-**Last Updated:** 2025-12-29 14:30
-**Current Phase:** VERIFICATION
+**Last Updated:** 2025-12-29 17:00
+**Current Phase:** READY
 **Procedural Mode:** STANDARD
 
 ---
 
 ## Current Position
 
-**Status:** Pending MCP verification after Claude Code restart
-**Next Action:** Restart Claude Code, then verify multi-agent methods are accessible
-**Context:** MCP testing revealed stale server cache. Index is correct (verified), but running MCP server has old data.
-
----
-
-## Pending Verification (After Restart)
-
-Run these checks after restarting Claude Code:
-
-```bash
-# 1. Verify index file is correct
-python scripts/verify_mcp.py
-
-# 2. Test MCP domain access (should show 15 multi-agent methods)
-# Use: list_domains via MCP
-
-# 3. Test multi-agent methods retrieval
-# Use: query_governance("handoff protocol", domain="multi-agent")
-# Should return methods in "Applicable Methods" section
-```
-
-**Expected Results:**
-- `list_domains` shows: multi-agent: 11 principles, **15 methods**
-- `query_governance` for multi-agent returns methods section
-- All 246 items accessible (65 principles, 181 methods)
+**Status:** Framework updated with server instructions and graceful shutdown
+**Next Action:** Restart Claude Code and Claude App to test changes
+**Context:** Added MCP server instructions + fixed shutdown hang issue.
 
 ---
 
 ## Recent Changes
 
-### MCP Verification Testing (2025-12-29) — IN PROGRESS
+### Graceful Shutdown Fix (2025-12-29) — COMPLETE
+
+**Objective:** Fix MCP server preventing Claude App from quitting.
+
+**Problem:** Server had no signal handling; heavy sentence-transformers model kept process alive.
+
+**Solution:** Added proper signal handling to `server.py`:
+- SIGTERM/SIGINT handlers
+- Async shutdown coordination via `asyncio.Event()`
+- Graceful task cancellation
+- Shutdown logging for debugging
+
+**File Changed:** `src/ai_governance_mcp/server.py`
+
+**Verification:** Restart Claude App, use governance tools, then quit — should exit cleanly.
+
+---
+
+### MCP Server Instructions (2025-12-29) — COMPLETE
+
+**Objective:** Enable Claude App and other MCP clients to receive governance guidance during initialization.
+
+**Problem:** Claude App could see governance tools but received no behavioral instructions or context about when/how to use them.
+
+**Solution:** Added `instructions` parameter to MCP Server initialization.
+
+**Changes Made:**
+
+| File | Change |
+|------|--------|
+| `src/ai_governance_mcp/server.py` | Added `SERVER_INSTRUCTIONS` constant and passed to `Server()` |
+| `ai-governance-methods` | v3.1.0 → v3.2.0: Added Part 3.6 Server Configuration |
+| `ai-instructions` | v2.3 → v2.4: Updated MCP integration section |
+| `domains.json` | Updated to reference v3.2.0 |
+
+**Server Instructions Include:**
+- Governance overview and purpose
+- When to use tools (trigger conditions)
+- Governance hierarchy (Constitution → Domain → Methods)
+- Key behaviors (S-Series authority, escalation)
+- Quick start example
+
+**Verification:** Restart Claude App to test. Server instructions should appear in AI context.
+
+---
+
+### MCP Verification Testing (2025-12-29) — COMPLETE
 
 **Objective:** Verify all principles and domains are accessible via MCP.
 
@@ -52,11 +75,9 @@ python scripts/verify_mcp.py
 | Constitution access | ✅ PASS | 42 principles, 62 methods |
 | AI-Coding access | ✅ PASS | 12 principles, 104 methods |
 | Multi-Agent principles | ✅ PASS | 11 principles accessible |
-| Multi-Agent methods | ⚠️ STALE | MCP shows 0, index has 15 |
+| Multi-Agent methods | ✅ PASS | 15 methods accessible |
 
-**Issue Found:** MCP server has stale in-memory index from session start. Multi-agent methods were added after server loaded.
-
-**Resolution:** Restart Claude Code to reload MCP with current index.
+**Resolution:** Claude Code restart reloaded MCP with current index. All items now accessible.
 
 **Files Created:**
 - `scripts/verify_mcp.py` — Index verification script
@@ -116,12 +137,12 @@ python scripts/verify_mcp.py
 | Document | Version | Status |
 |----------|---------|--------|
 | ai-interaction-principles | v2.1 | Active |
-| ai-governance-methods | v3.1.0 | Active |
+| ai-governance-methods | v3.2.0 | Active |
 | ai-coding-domain-principles | v2.2.1 | Active |
 | ai-coding-methods | v1.1.1 | Active |
 | multi-agent-domain-principles | v1.2.0 | Active |
 | multi-agent-methods | v1.1.0 | Active |
-| ai-instructions | v2.3 | Active |
+| ai-instructions | v2.4 | Active |
 
 ---
 
@@ -130,13 +151,16 @@ python scripts/verify_mcp.py
 ```
 CLAUDE.md (auto-loaded by Claude Code)
     │
-    ├── References → ai-instructions-v2.3.md (activation protocol)
+    ├── References → ai-instructions-v2.4.md (activation protocol)
     │
     └── Directs to → ai-governance MCP (semantic retrieval)
                           │
+                          ├── Server Instructions (injected at init)
+                          │   └── Behavioral guidance for all MCP clients
+                          │
                           ├── Constitution (priority 0)
                           │   ├── ai-interaction-principles-v2.1.md
-                          │   └── ai-governance-methods-v3.1.0.md
+                          │   └── ai-governance-methods-v3.2.0.md
                           │
                           ├── AI-Coding (priority 10)
                           │   ├── ai-coding-domain-principles-v2.2.1.md
@@ -200,6 +224,8 @@ Located in `documents/archive/`:
 - ai-coding-domain-principles-v2.1.md
 - ai-coding-methods-v1.0.3.md
 - ai-governance-methods-v1.1.0.md
+- ai-governance-methods-v3.1.0.md
+- ai-instructions-v2.3.md
 - multi-agent-domain-principles-v1.0.1.md
 
 ---
