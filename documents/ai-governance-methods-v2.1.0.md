@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Status:** Active
-**Effective Date:** 2025-12-28
+**Effective Date:** 2025-12-29
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -107,6 +107,10 @@ Load this document when:
 | Checking if idea is principle vs method | Part 8.2 | Classification of Ideas |
 | Creating a new domain | Title 9 | Domain Authoring |
 | Using 9-Field template | Part 9.4 | 9-Field Template |
+| Formatting a new principle | Part 3.5.1 | 10-Field Principle Template |
+| Formatting a new method | Part 3.5.3 | Method Section Template |
+| Header level questions | Part 3.5.4 | Header Hierarchy |
+| Emoji/badge usage | Part 3.5.7 | Emoji Conventions |
 
 ---
 
@@ -577,6 +581,175 @@ multi-agent:
   multi-core-cognitive-function-specialization
   multi-core-context-isolation-architecture
 ```
+
+---
+
+## Part 3.5: Formatting Standards
+
+**Importance: IMPORTANT — Ensures consistency across all domain documents**
+
+This section defines formatting conventions for domain principles and methods documents. Consistent formatting improves AI comprehension and human readability.
+
+### 3.5.1 Principle Template (10 Fields)
+
+Use this template when authoring domain principles. Fields are ordered for optimal AI consumption—motivation first, actionable guidance in middle, verification at end.
+
+```markdown
+### [Principle Title] ([Legal Analogy])
+
+**Why This Principle Matters**
+[Rationale - AI needs to understand purpose first. 2-3 sentences explaining the problem this principle solves.]
+
+**Constitutional Basis**
+- Derives from **[Meta-Principle Name]:** [Brief explanation of derivation]
+- Derives from **[Meta-Principle Name]:** [Brief explanation of derivation]
+
+**Failure Mode(s)**
+- **[Code]: [Failure Name]** — [Description of what goes wrong when violated]
+
+**Domain Application**
+[The binding rule - THE core definition. What this principle requires in this specific domain context.]
+
+**How AI Applies This Principle**
+1. [Specific actionable step]
+2. [Specific actionable step]
+3. [Specific actionable step]
+
+**Success Criteria**
+- ✅ [Verifiable outcome]
+- ✅ [Verifiable outcome]
+- ✅ [Measurable threshold] (configurable per project)
+
+**Human Interaction Points**
+- ⚠️ [Escalation trigger]
+- ⚠️ [Escalation trigger]
+
+**Common Pitfalls**
+- **[Trap Name]:** [Description of anti-pattern]. *Prevention: [How to avoid]*
+
+**Truth Sources** (optional)
+- [Authoritative reference]
+- [Research citation with year]
+
+**Configurable Defaults** (optional)
+- [Parameter]: [Default value] ([rationale])
+```
+
+### 3.5.2 Field Descriptions
+
+| Field | Purpose | Required |
+|-------|---------|----------|
+| **Principle Title** | Descriptive name (auto-slugified for ID) | Yes |
+| **Legal Analogy** | Clarifying metaphor in parentheses | Recommended |
+| **Why This Principle Matters** | Rationale and motivation | Yes |
+| **Constitutional Basis** | Parent principle(s) enabling derivation | Yes |
+| **Failure Mode(s)** | Observable violations and consequences | Yes |
+| **Domain Application** | The binding rule statement | Yes |
+| **How AI Applies** | Specific, actionable implementation steps | Yes |
+| **Success Criteria** | Verifiable outcomes with ✅ prefix | Yes |
+| **Human Interaction Points** | Escalation triggers with ⚠️ prefix | Recommended |
+| **Common Pitfalls** | Anti-patterns with prevention guidance | Recommended |
+| **Truth Sources** | Grounding references and citations | Optional |
+| **Configurable Defaults** | Domain-specific tunable parameters | Optional |
+
+### 3.5.3 Method Section Template
+
+Methods are procedures (HOW), not principles (WHAT). Use this structure:
+
+```markdown
+### [Section Number]: [Method Name]
+
+**Importance: 🔴 CRITICAL | 🟡 IMPORTANT | 🟢 OPTIONAL — Brief description**
+
+[Purpose paragraph - when to use this method and what it accomplishes]
+
+**Procedure**
+1. [Sequential step]
+2. [Sequential step]
+3. [Sequential step]
+
+**Template** (if applicable)
+` ` `[language]
+[Code or template block]
+` ` `
+
+**Validation**
+- [ ] [Checklist item to verify correct application]
+- [ ] [Checklist item to verify correct application]
+```
+
+### 3.5.4 Header Hierarchy
+
+| Level | Usage | Example |
+|-------|-------|---------|
+| `#` | Document title, TITLE sections | `# TITLE 3: INDEX MANAGEMENT` |
+| `##` | Parts within a TITLE | `## Part 3.5: Formatting Standards` |
+| `###` | Principles, major method sections | `### Specification Completeness` |
+| `####` | Sub-procedures, templates | `#### Gate Artifact: Specify → Plan` |
+
+### 3.5.5 Text Formatting Conventions
+
+| Element | Convention | Example |
+|---------|------------|---------|
+| **Field labels** | Bold with colon | `**Constitutional Basis:**` |
+| **Principle references** | Bold in prose | `**Context Engineering**` |
+| **Legal analogies** | Italics | *The Evidentiary Standard* |
+| **Inline explanations** | Italics | *implies isolation prevents bloat* |
+| **Code/commands** | Backticks | `ruff format --check` |
+| **File paths** | Backticks | `documents/domains.json` |
+
+### 3.5.6 List Conventions
+
+| Type | When to Use | Format |
+|------|-------------|--------|
+| **Numbered** | Sequential steps, procedures | `1.` `2.` `3.` |
+| **Bulleted** | Non-sequential items, options | `-` or `*` |
+| **Checkbox** | Verification checklists | `- [ ]` unchecked, `- [x]` checked |
+| **Definition** | Field-value pairs in prose | `**Label:** value` |
+
+### 3.5.7 Emoji and Badge Conventions
+
+| Symbol | Meaning | Usage Context |
+|--------|---------|---------------|
+| `🔴` | CRITICAL | Importance tags for essential procedures |
+| `🟡` | IMPORTANT | Importance tags for recommended procedures |
+| `🟢` | OPTIONAL | Importance tags for optional procedures |
+| `⚠️` | Warning/Escalation | Human interaction points, cautions |
+| `✅` | Success/Verified | Success criteria, completed items |
+| `❌` | Failure/Prohibited | Anti-patterns, DO NOT examples |
+
+### 3.5.8 Code Block Conventions
+
+Always specify language identifier for syntax highlighting:
+
+| Content Type | Language Tag |
+|--------------|--------------|
+| Shell commands | `bash` |
+| Python code | `python` |
+| Configuration | `yaml` or `json` |
+| Templates | `markdown` |
+| Generic/pseudo | `text` or omit |
+
+### 3.5.9 Table Conventions
+
+- Use pipe-separated format with header row
+- Align columns for readability (optional but recommended)
+- Use tables for: comparisons, decision matrices, field descriptions, mappings
+
+```markdown
+| Column A | Column B | Column C |
+|----------|----------|----------|
+| Value 1  | Value 2  | Value 3  |
+```
+
+### 3.5.10 Cross-Reference Format
+
+| Reference Type | Format | Example |
+|----------------|--------|---------|
+| Same document | Section name | "See Part 3.4" |
+| Same domain | Principle title | "per **Specification Completeness**" |
+| Cross-domain | Domain + title | "Constitution's **Context Engineering**" |
+| Document | Full name | `ai-coding-domain-principles-v2.2.md` |
 
 ---
 
@@ -1472,6 +1645,7 @@ For restructuring, philosophy shifts, principle removal:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1.0 | 2025-12-29 | Added Part 3.5: Formatting Standards. Defines 10-field principle template, method section template, header hierarchy, text formatting conventions, list conventions, emoji/badge standards, code block conventions, table conventions, and cross-reference format. Reconciles existing ai-coding and multi-agent formatting patterns into unified standard. Updated Situation Index with formatting entries. |
 | 2.0.0 | 2025-12-28 | MAJOR restructure: Added TITLE 7 (Principle Application Protocol), TITLE 8 (Constitutional Governance), TITLE 9 (Domain Authoring). Migrated procedural content from Constitution (ai-interaction-principles.md) to this document, creating clear separation between WHAT (principles) and HOW (methods). Updated Situation Index with new entries. Added legal analogy naming convention to Part 3.4.4. |
 | 1.1.0 | 2025-12-28 | Added Part 3.4: Principle Identification System. Documents slugified title-based ID format, category mapping, authoring rules, cross-reference format, and verification procedures. Updated Section 5.1.2 to reference new ID system. |
 | 1.0.0 | 2025-12-27 | Initial release. Document versioning, index management, validation procedures, domain management, CI/CD integration. |
