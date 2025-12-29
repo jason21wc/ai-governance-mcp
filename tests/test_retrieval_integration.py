@@ -315,9 +315,9 @@ class TestRetrievalPerformance:
                 avg_time = sum(times) / len(times)
 
                 # Should be under 100ms (with mocked models, should be very fast)
-                assert (
-                    avg_time < 100
-                ), f"Average retrieval time {avg_time}ms exceeds 100ms target"
+                assert avg_time < 100, (
+                    f"Average retrieval time {avg_time}ms exceeds 100ms target"
+                )
 
 
 # =============================================================================
@@ -379,15 +379,15 @@ class TestRealIndexRetrieval:
         result = engine.retrieve("unclear requirements", domain="ai-coding")
 
         # Must return domain principles from the forced domain
-        assert (
-            len(result.domain_principles) > 0
-        ), "Forced domain should return domain principles"
+        assert len(result.domain_principles) > 0, (
+            "Forced domain should return domain principles"
+        )
 
         # All domain principles should be from ai-coding domain (prefix: coding-)
         for sp in result.domain_principles:
-            assert sp.principle.id.startswith(
-                "coding-"
-            ), f"Expected ai-coding principle, got {sp.principle.id}"
+            assert sp.principle.id.startswith("coding-"), (
+                f"Expected ai-coding principle, got {sp.principle.id}"
+            )
 
     def test_real_index_forced_domain_includes_constitution(self, real_settings):
         """Forced domain with include_constitution=True should search both domains."""
@@ -422,6 +422,6 @@ class TestRealIndexRetrieval:
 
         # Should have domain principles only
         assert len(result.domain_principles) > 0, "Should return domain principles"
-        assert (
-            len(result.constitution_principles) == 0
-        ), "Should not return constitution"
+        assert len(result.constitution_principles) == 0, (
+            "Should not return constitution"
+        )
