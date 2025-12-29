@@ -64,14 +64,18 @@ class Principle(BaseModel):
     Embeddings are stored separately in NumPy arrays, indexed by embedding_id.
     """
 
-    id: str = Field(..., description="Unique identifier, e.g., 'meta-core-context-engineering'")
+    id: str = Field(
+        ..., description="Unique identifier, e.g., 'meta-core-context-engineering'"
+    )
     domain: str = Field(
         ..., description="Domain name: 'constitution', 'ai-coding', 'multi-agent'"
     )
     series_code: Optional[str] = Field(
         None, description="Legacy series identifier (S, C, Q, O, G, MA) - deprecated"
     )
-    number: Optional[int] = Field(None, description="Legacy principle number - deprecated")
+    number: Optional[int] = Field(
+        None, description="Legacy principle number - deprecated"
+    )
     title: str = Field(..., description="Full principle title")
     content: str = Field(..., description="Complete principle text")
     line_range: tuple[int, int] = Field(
@@ -86,7 +90,9 @@ class Principle(BaseModel):
 class Method(BaseModel):
     """A procedural method from domain methods document."""
 
-    id: str = Field(..., description="Unique identifier, e.g., 'coding-method-project-calibration'")
+    id: str = Field(
+        ..., description="Unique identifier, e.g., 'coding-method-project-calibration'"
+    )
     domain: str = Field(..., description="Domain name")
     title: str = Field(..., description="Method title")
     content: str = Field(..., description="Complete method text")

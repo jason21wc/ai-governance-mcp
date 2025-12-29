@@ -262,11 +262,20 @@ class DocumentExtractor:
             section_match = section_pattern.match(line)
             if section_match:
                 section_text = section_match.group(1).lower()
-                is_series_header = any(s in section_text for s in [
-                    "c-series", "p-series", "q-series", "a-series", "r-series"
-                ])
+                is_series_header = any(
+                    s in section_text
+                    for s in [
+                        "c-series",
+                        "p-series",
+                        "q-series",
+                        "a-series",
+                        "r-series",
+                    ]
+                )
                 if "###" not in line or is_series_header:
-                    current_section = self._get_category_from_section(section_match.group(1))
+                    current_section = self._get_category_from_section(
+                        section_match.group(1)
+                    )
                     if is_series_header:
                         continue  # Skip series headers from principle extraction
 
@@ -307,32 +316,53 @@ class DocumentExtractor:
                 # Skip non-principle headers (like "When to Apply" etc.)
                 skip_keywords = [
                     # Navigation and reference sections
-                    "when to", "how to", "quick reference", "decision tree",
-                    "pre-action", "operational", "framework", "immediate",
+                    "when to",
+                    "how to",
+                    "quick reference",
+                    "decision tree",
+                    "pre-action",
+                    "operational",
+                    "framework",
+                    "immediate",
                     # Document structure sections
-                    "domain implementation", "extending", "universal",
-                    "template structure", "the twelve", "the three series",
-                    "version history", "evidence base", "glossary",
-                    "scope and non-goals", "design philosophy",
-                    "peer domain", "meta ↔ domain", "appendix",
+                    "domain implementation",
+                    "extending",
+                    "universal",
+                    "template structure",
+                    "the twelve",
+                    "the three series",
+                    "version history",
+                    "evidence base",
+                    "glossary",
+                    "scope and non-goals",
+                    "design philosophy",
+                    "peer domain",
+                    "meta ↔ domain",
+                    "appendix",
                     # Series headers (these are section intros, not principles)
-                    "c-series:", "p-series:", "q-series:",
-                    "a-series:", "r-series:",
-                    "context principles", "process principles", "quality principles",
-                    "architecture principles", "reliability principles",
+                    "c-series:",
+                    "p-series:",
+                    "q-series:",
+                    "a-series:",
+                    "r-series:",
+                    "context principles",
+                    "process principles",
+                    "quality principles",
+                    "architecture principles",
+                    "reliability principles",
                 ]
                 if any(kw in title.lower() for kw in skip_keywords):
                     continue
 
                 # Must have a principle-defining section following
                 # Constitution uses **Definition**, Domain docs use **Failure Mode** or **Why This Principle Matters**
-                next_lines = "\n".join(lines[i:i+10])
+                next_lines = "\n".join(lines[i : i + 10])
                 principle_indicators = [
                     "**Definition**",
                     "**Failure Mode",
                     "**Why This Principle Matters**",
                     "**Domain Application",
-                    "**Constitutional Basis**"
+                    "**Constitutional Basis**",
                 ]
                 if not any(ind in next_lines for ind in principle_indicators):
                     continue
@@ -488,13 +518,23 @@ class DocumentExtractor:
         # Document structure sections to skip (not actual methods)
         skip_method_titles = [
             # Document metadata sections
-            "scope", "applicability", "relationship to other",
+            "scope",
+            "applicability",
+            "relationship to other",
             # Glossary/terminology sections
-            "terms", "glossary", "definitions",
+            "terms",
+            "glossary",
+            "definitions",
             # Overview sections that aren't procedures
-            "purpose", "overview", "introduction", "background",
+            "purpose",
+            "overview",
+            "introduction",
+            "background",
             # Reference sections
-            "legend", "index", "references", "appendix",
+            "legend",
+            "index",
+            "references",
+            "appendix",
         ]
 
         current_method = None
