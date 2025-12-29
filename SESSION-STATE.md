@@ -1,6 +1,6 @@
 # AI Governance MCP - Session State
 
-**Last Updated:** 2025-12-29 18:30
+**Last Updated:** 2025-12-29 15:20
 **Current Phase:** READY
 **Procedural Mode:** STANDARD
 
@@ -8,29 +8,58 @@
 
 ## Current Position
 
-**Status:** All changes committed and pushed (82a75e2)
+**Status:** All changes committed and pushed (34850f7)
 **Next Action:** Available for new tasks
-**Context:** MCP server instructions + graceful shutdown verified working.
+**Context:** MCP shutdown fix verified working. Claude App quit issue is unrelated Electron bug.
 
 ---
 
 ## Recent Changes
 
+### Claude App Quit Investigation (2025-12-29) — RESOLVED
+
+**Objective:** Investigate why Claude App hangs on quit.
+
+**Investigation Process:**
+1. Initially suspected ai-governance MCP server
+2. Added signal handling with `os._exit(0)` (matching Postgres MCP pattern)
+3. Verified MCP logs show clean exit on SIGTERM
+4. Tested with MCP config removed — same hang behavior
+5. Confirmed Claude App bug in Electron quit handler
+
+**Findings:**
+
+| Evidence | Result |
+|----------|--------|
+| MCP server logs | Clean exit: "Received signal 15, forcing exit..." |
+| Process list after quit | No orphaned ai-governance processes |
+| Claude App main.log | Stuck after "marking readyForQuit" — no final quit |
+| Test without MCPs | Same hang behavior |
+
+**Conclusion:** Claude App has an Electron bug where it marks `readyForQuit` but never fires the final quit handler. This is NOT caused by our MCP server.
+
+**Recommendation:** Report bug to Anthropic at https://github.com/anthropics/claude-code/issues
+
+---
+
 ### Graceful Shutdown Fix (2025-12-29) — COMPLETE
 
-**Objective:** Fix MCP server preventing Claude App from quitting.
+**Objective:** Ensure MCP server exits cleanly on shutdown signals.
 
-**Problem:** Server had no signal handling; heavy sentence-transformers model kept process alive.
+**Problem:** Server had no signal handling; sentence-transformers threads kept process alive.
 
-**Solution:** Added proper signal handling to `server.py`:
-- SIGTERM/SIGINT handlers
-- Async shutdown coordination via `asyncio.Event()`
-- Graceful task cancellation
-- Shutdown logging for debugging
+**Solution:** Added signal handling to `server.py` following [Postgres MCP pattern](https://github.com/crystaldba/postgres-mcp/pull/78/files):
+- SIGTERM/SIGINT handlers call `os._exit(0)` immediately
+- Finally block also calls `os._exit(0)` for pipe closure
+- Stdio transport can't be gracefully interrupted — immediate exit is correct
+
+**Commits:**
+- `d943d2b` — Initial signal handler fix
+- `34850f7` — Added finally block exit for pipe closure
 
 **File Changed:** `src/ai_governance_mcp/server.py`
 
-**Verification:** Restart Claude App, use governance tools, then quit — should exit cleanly.
+**Verification:** Logs confirm clean exit on SIGTERM ✅
 
 ---
 
