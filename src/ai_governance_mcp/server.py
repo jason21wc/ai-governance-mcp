@@ -539,48 +539,30 @@ async def _handle_get_metrics(args: dict) -> list[TextContent]:
 
 async def run_server():
     """Run the MCP server with graceful shutdown handling."""
+    import os
+
     logger.info("Starting AI Governance MCP Server v4")
 
     # Initialize engine on startup
     get_engine()
 
-    # Track if we're shutting down
-    shutdown_event = asyncio.Event()
+    def force_exit(signum, frame):
+        """Force exit on signal - stdio streams can't be gracefully interrupted."""
+        logger.info(f"Received signal {signum}, forcing exit...")
+        os._exit(0)
 
-    def handle_shutdown(sig, frame):
-        """Handle shutdown signals gracefully."""
-        logger.info(f"Received signal {sig}, initiating graceful shutdown...")
-        shutdown_event.set()
-
-    # Register signal handlers (Unix-style)
+    # Register signal handlers for immediate exit
+    # Note: MCP stdio servers can't gracefully interrupt blocking I/O,
+    # so we force exit when the parent process signals shutdown
     if sys.platform != "win32":
-        signal.signal(signal.SIGTERM, handle_shutdown)
-        signal.signal(signal.SIGINT, handle_shutdown)
+        signal.signal(signal.SIGTERM, force_exit)
+        signal.signal(signal.SIGINT, force_exit)
 
     try:
         async with stdio_server() as (read_stream, write_stream):
-            # Run server until shutdown or stream closes
-            server_task = asyncio.create_task(
-                server.run(
-                    read_stream, write_stream, server.create_initialization_options()
-                )
+            await server.run(
+                read_stream, write_stream, server.create_initialization_options()
             )
-
-            # Wait for either server completion or shutdown signal
-            shutdown_task = asyncio.create_task(shutdown_event.wait())
-            done, pending = await asyncio.wait(
-                [server_task, shutdown_task],
-                return_when=asyncio.FIRST_COMPLETED,
-            )
-
-            # Cancel pending tasks
-            for task in pending:
-                task.cancel()
-                try:
-                    await task
-                except asyncio.CancelledError:
-                    pass
-
     except Exception as e:
         logger.error(f"Server error: {e}")
     finally:
