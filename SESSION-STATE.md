@@ -10,37 +10,68 @@
 
 **Status:** Ready for next task
 **Next Action:** None - all systems operational
-**Context:** Pre-commit hooks configured, CI passing, MCP server functional.
+**Context:** Methods doc v3.0.0 after 80/20 cleanup. CI passing. MCP server functional with 231 indexed items.
 
 ---
 
 ## Recent Changes
 
+### 80/20 Methods Cleanup (2025-12-29) — COMPLETE
+
+**Objective:** Apply 80/20 principle to ai-governance-methods, removing redundant procedures while preserving governance value.
+
+**Version Change:** ai-governance-methods v2.1.0 → v3.0.0 (MAJOR - content removal)
+
+**Changes Applied:**
+
+| Section | Before | After |
+|---------|--------|-------|
+| TITLE 2 (Update Workflow) | 5-step detailed procedures | Single table |
+| Parts 3.2-3.3 (Index) | Redundant checklists | 4-row troubleshooting table |
+| TITLE 4 (Validation) | Verbose validation lists | 2 essential tables |
+| TITLE 6 (CI/CD) | 70 lines of detail | 10-line README reference |
+
+**Results:**
+
+| Metric | Before | After | Change |
+|--------|--------|-------|--------|
+| Document lines | ~1,650 | ~1,420 | -14% |
+| Constitution methods | 78 | 62 | -21% |
+| Total index items | 247 | 231 | -6% |
+| Tests passing | 196 | 196 | ✅ |
+
+**Added:** "Which principle do I need now?" entry to Situation Index pointing to Part 7.1.
+
+---
+
+### Formatting Standards (2025-12-29) — COMPLETE
+
+**Added:** Part 3.5 to ai-governance-methods (v2.0.0 → v2.1.0)
+
+**Content:**
+- 3.5.1: 10-field principle template (reconciled from ai-coding/multi-agent)
+- 3.5.2: Field descriptions with required/optional status
+- 3.5.3: Method section template
+- 3.5.4: Header hierarchy specification
+- 3.5.5: Text formatting conventions
+- 3.5.6: List conventions
+- 3.5.7: Emoji/badge conventions
+- 3.5.8: Code block conventions
+- 3.5.9: Table conventions
+- 3.5.10: Cross-reference format
+
+---
+
 ### Pre-commit Hooks & CI Fix (2025-12-29) — COMPLETE
 
-**Issue:** CI lint failing due to ruff version mismatch
-- Pre-commit: v0.8.6
-- CI: latest (~0.12.x)
-- Different versions = different formatting rules
+**Issue:** CI lint failing due to ruff version mismatch (v0.8.6 vs ~0.12.x)
 
-**Solution:** Pin ruff to 0.12.0 everywhere:
+**Solution:** Pin ruff to 0.12.0 in `.pre-commit-config.yaml`, `.github/workflows/ci.yml`, and `pyproject.toml`
 
-| Location | Before | After |
-|----------|--------|-------|
-| `.pre-commit-config.yaml` | v0.8.6 | v0.12.0 |
-| `.github/workflows/ci.yml` | `pip install ruff` | `pip install ruff==0.12.0` |
-| `pyproject.toml` | `ruff>=0.8.0` | `ruff==0.12.0` |
-
-**Pre-commit Setup Added:**
+**Added:**
 - `.pre-commit-config.yaml` with ruff-format and ruff-check hooks
-- Added `pre-commit>=4.0.0` to dev dependencies
-- Updated README with development setup instructions
-
-**Developer Setup:**
-```bash
-pip install -e ".[dev]"
-pre-commit install
-```
+- `pre-commit>=4.0.0` to dev dependencies
+- Development setup instructions in README
 
 ---
 
@@ -399,8 +430,8 @@ The server is configured globally (user scope) in `~/.claude.json`:
 
 ### Index Statistics
 - **65 principles** (42 constitution + 12 ai-coding + 11 multi-agent)
-- **172 methods** (68 constitution + 104 ai-coding)
-- **Content embeddings**: (237, 384)
+- **166 methods** (62 constitution + 104 ai-coding)
+- **Content embeddings**: (231, 384)
 - **Domain embeddings**: (3, 384)
 - **Embedding model**: all-MiniLM-L6-v2
 
