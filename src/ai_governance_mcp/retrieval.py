@@ -14,6 +14,7 @@ from .config import Settings, load_settings, setup_logging
 from .models import (
     ConfidenceLevel,
     GlobalIndex,
+    Method,
     Principle,
     RetrievalResult,
     ScoredMethod,
@@ -549,6 +550,32 @@ class RetrievalEngine:
         for principle in self.index.domains[domain_name].principles:
             if principle.id == principle_id:
                 return principle
+
+        return None
+
+    def get_method_by_id(self, method_id: str) -> Method | None:
+        """Get a specific method by its ID."""
+        if not self.index:
+            return None
+
+        parts = method_id.split("-")
+        if len(parts) < 2:
+            return None
+
+        prefix = parts[0]
+        prefix_to_domain = {
+            "meta": "constitution",
+            "coding": "ai-coding",
+            "multi": "multi-agent",
+        }
+
+        domain_name = prefix_to_domain.get(prefix)
+        if not domain_name or domain_name not in self.index.domains:
+            return None
+
+        for method in self.index.domains[domain_name].methods:
+            if method.id == method_id:
+                return method
 
         return None
 

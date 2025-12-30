@@ -336,12 +336,43 @@ class TestHandleGetPrinciple:
         assert "keywords" in parsed
 
     @pytest.mark.asyncio
+    async def test_handle_get_principle_finds_method(self, reset_server_state):
+        """get_principle should return method JSON when method ID is provided."""
+        from ai_governance_mcp.models import Method
+        from ai_governance_mcp.server import _handle_get_principle
+
+        mock_method = Method(
+            id="meta-method-test-method",
+            domain="constitution",
+            title="Test Method",
+            content="This is test method content.",
+            line_range=(1, 10),
+            keywords=["test", "method"],
+        )
+
+        mock_engine = Mock()
+        mock_engine.get_principle_by_id.return_value = None
+        mock_engine.get_method_by_id.return_value = mock_method
+
+        result = await _handle_get_principle(
+            mock_engine, {"principle_id": "meta-method-test-method"}
+        )
+
+        assert len(result) == 1
+        parsed = json.loads(result[0].text)
+        assert parsed["id"] == "meta-method-test-method"
+        assert parsed["type"] == "method"
+        assert parsed["title"] == "Test Method"
+        assert "test" in parsed["keywords"]
+
+    @pytest.mark.asyncio
     async def test_handle_get_principle_not_found(self, reset_server_state):
         """get_principle should return ErrorResponse when not found."""
         from ai_governance_mcp.server import _handle_get_principle
 
         mock_engine = Mock()
         mock_engine.get_principle_by_id.return_value = None
+        mock_engine.get_method_by_id.return_value = None
 
         result = await _handle_get_principle(mock_engine, {"principle_id": "meta-X99"})
 

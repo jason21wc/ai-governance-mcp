@@ -408,15 +408,21 @@ def _format_retrieval_result(result) -> str:
 async def _handle_get_principle(
     engine: RetrievalEngine, args: dict
 ) -> list[TextContent]:
-    """Handle get_principle tool (T14)."""
+    """Handle get_principle tool (T14).
+
+    Retrieves both principles and methods by ID.
+    Method IDs contain '-method-' (e.g., meta-method-header-hierarchy).
+    """
     principle_id = args.get("principle_id", "")
     if not principle_id:
         return [TextContent(type="text", text="Error: principle_id is required")]
 
+    # Try principle lookup first
     principle = engine.get_principle_by_id(principle_id)
     if principle:
         output = {
             "id": principle.id,
+            "type": "principle",
             "domain": principle.domain,
             "series": principle.series_code,  # May be None for new format
             "number": principle.number,
@@ -424,6 +430,20 @@ async def _handle_get_principle(
             "content": principle.content,
             "line_range": principle.line_range,
             "keywords": principle.metadata.keywords,
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    # Try method lookup (IDs contain '-method-')
+    method = engine.get_method_by_id(principle_id)
+    if method:
+        output = {
+            "id": method.id,
+            "type": "method",
+            "domain": method.domain,
+            "title": method.title,
+            "content": method.content,
+            "line_range": method.line_range,
+            "keywords": method.keywords,
         }
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
