@@ -1,6 +1,6 @@
 # AI Governance MCP - Session State
 
-**Last Updated:** 2025-12-29 15:20
+**Last Updated:** 2025-12-30 08:30
 **Current Phase:** READY
 **Procedural Mode:** STANDARD
 
@@ -8,13 +8,54 @@
 
 ## Current Position
 
-**Status:** All changes committed and pushed (34850f7)
-**Next Action:** Available for new tasks
-**Context:** MCP shutdown fix verified working. Claude App quit issue is unrelated Electron bug.
+**Status:** All changes committed and pushed (c69826a)
+**Next Action:** Restart Claude Code/Claude App to test method retrieval fix
+**Context:** Fixed `get_principle` to retrieve methods by ID. MCP server must be restarted to pick up changes.
 
 ---
 
 ## Recent Changes
+
+### Method Retrieval Fix (2025-12-30) — COMPLETE
+
+**Objective:** Enable `get_principle` tool to retrieve methods by ID.
+
+**Problem Discovered:** Methods appeared in `query_governance` results but couldn't be retrieved via `get_principle`. The tool only searched `principles`, never `methods`.
+
+**Root Cause Analysis:**
+
+| Hypothesis | Finding |
+|------------|---------|
+| Re-indexing issue? | ❌ No — methods are properly extracted and stored in index |
+| Deprecated code? | ❌ No — ID formats are consistent throughout |
+| Missing feature | ✅ Yes — `get_principle_by_id()` only searched principles |
+
+**Solution:**
+1. Added `get_method_by_id()` to `retrieval.py`
+2. Updated `_handle_get_principle()` in `server.py` to try both lookups
+3. Response now includes `type` field ("principle" or "method")
+4. Added test coverage
+
+**Files Changed:**
+- `src/ai_governance_mcp/retrieval.py` — Added `get_method_by_id()`
+- `src/ai_governance_mcp/server.py` — Updated handler logic
+- `tests/test_server.py` — Added `test_handle_get_principle_finds_method`
+
+**Commit:** `c69826a` — fix: Enable get_principle to retrieve methods by ID
+
+**Verification:**
+```bash
+# Python direct test ✅
+python3 -c "from ai_governance_mcp.retrieval import *; ..."
+# MCP test - requires server restart
+get_principle("meta-method-version-format")
+```
+
+**Documentation Updated:**
+- PROJECT-MEMORY.md — Added Gotcha 10 about method retrieval pattern
+- SESSION-STATE.md — This section
+
+---
 
 ### Claude App Quit Investigation (2025-12-29) — RESOLVED
 
@@ -222,7 +263,7 @@ CLAUDE.md (auto-loaded by Claude Code)
 - **Embedding model**: all-MiniLM-L6-v2
 
 ### Test Coverage
-- **196 tests** passing
+- **197 tests** passing
 - **93% coverage**
 
 ---

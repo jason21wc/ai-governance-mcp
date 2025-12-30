@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 196 tests, 93% coverage
+- **Status:** COMPLETE - All phases done, 197 tests, 93% coverage
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -140,7 +140,7 @@ Show updated process map:
 | server.py | 59 | 97% |
 | extractor.py | 38 | 93% |
 | retrieval.py | 55 | 86% |
-| **Total** | **196** | **93%** |
+| **Total** | **197** | **93%** |
 
 ## Dependencies
 
@@ -184,7 +184,7 @@ Show updated process map:
 | tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
 | tests/test_models.py | 24 | Model validation, constraints, enums |
 | tests/test_config.py | 17 | Settings, env vars, path handling |
-| tests/test_server.py | 44 | All 6 tools, formatting, metrics |
+| tests/test_server.py | 45 | All 6 tools, formatting, metrics |
 | tests/test_server_integration.py | 12 | Dispatcher routing, end-to-end flows |
 | tests/test_extractor.py | 35 | Parsing, embeddings, metadata |
 | tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |
@@ -222,3 +222,27 @@ MCP servers configured under a project path in `~/.claude.json` only load when C
 
 ### Gotcha 9: First Query Latency
 First retrieval takes ~9s to load ML models (SentenceTransformer + CrossEncoder). Subsequent queries are ~50ms. Consider model preloading for production use.
+
+### Gotcha 10: get_principle Must Retrieve Both Principles AND Methods
+The `get_principle` tool must search both `principles` and `methods` collections. Method IDs returned by `query_governance` (e.g., `meta-method-version-format`) need to be retrievable.
+
+**Architecture Pattern:**
+```python
+# In retrieval.py - need BOTH lookup functions:
+def get_principle_by_id(self, id: str) -> Principle | None
+def get_method_by_id(self, id: str) -> Method | None
+
+# In server.py - handler tries both:
+principle = engine.get_principle_by_id(id)
+if principle:
+    return principle_response
+method = engine.get_method_by_id(id)
+if method:
+    return method_response
+```
+
+**ID Format:**
+- Principles: `{prefix}-{category}-{slug}` (e.g., `meta-core-context-engineering`)
+- Methods: `{prefix}-method-{slug}` (e.g., `coding-method-phase-1-specify`)
+
+**Why This Matters:** If only `get_principle_by_id` is implemented, methods appear in query results but can't be retrieved individually - a confusing UX gap.
