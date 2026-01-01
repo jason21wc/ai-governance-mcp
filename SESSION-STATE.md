@@ -11,14 +11,14 @@
 
 ## Immediate Context
 
-Pre-flight validation for domain configuration files was implemented and committed. The extractor now fails fast with actionable error messages when domains.json references missing files. All 205 tests passing.
+Completed full validation per Verification Mechanisms principle. Found and fixed test count/coverage discrepancies across 5 documentation files. All 205 tests passing, 90% coverage. All files now consistent.
 
 ## Next Actions
 
 1. Ready for next user request
-2. Consider additional domains if user wants to expand governance coverage
-3. Review for any remaining documentation gaps
+2. Consider additional domains if expanding governance coverage
+3. Consider improving coverage back toward 93% if desired
 
 ## Session Notes
 
-The pre-flight validation pattern (§7.1.4 of LEARNING-LOG) addresses silent failures when versioned filenames in domains.json become stale. This is documented in PROJECT-MEMORY.md as Decision and Gotcha 11.
+Validation applied: Coverage Verification (§5.2.4), Verification Mechanisms principle, Fail-Fast Validation principle. Note: `gemini-ai-governance-mcp-review.md` was in working directory and got committed with the documentation fixes.
