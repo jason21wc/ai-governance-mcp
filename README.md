@@ -111,7 +111,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **93%** (196 tests) |
+| Test Coverage | 80% | **93%** (198 tests) |
 
 ## Getting Started
 
@@ -225,7 +225,7 @@ ai-governance-mcp/
     ├── conftest.py      # Shared fixtures
     ├── test_models.py   # Model validation (24 tests)
     ├── test_config.py   # Config tests (17 tests)
-    ├── test_server.py   # Server unit tests (44 tests)
+    ├── test_server.py   # Server unit tests (46 tests)
     ├── test_server_integration.py   # Dispatcher + flows (12 tests)
     ├── test_extractor.py            # Extractor tests (35 tests)
     ├── test_extractor_integration.py # Pipeline tests (11 tests)
@@ -261,11 +261,11 @@ pre-commit install
 
 ### Test Suite
 
-196 tests across 9 test files with 93% coverage:
+198 tests across 9 test files with 93% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
-| Unit | 164 | Isolated component testing |
+| Unit | 166 | Isolated component testing |
 | Integration | 26 | Full pipeline flows |
 | Real Index | 6 | Production data validation |
 | Slow (ML) | 3 | Actual embedding models |
@@ -317,4 +317,4 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework - Constitution v2.1, Methods v3.1.0*
+*Built with the AI Governance Framework - Constitution v2.1, Methods v3.2.0*

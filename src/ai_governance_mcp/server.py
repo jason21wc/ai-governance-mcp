@@ -93,6 +93,14 @@ query_governance("your situation or concern")
 Use `get_principle` for full content, `list_domains` to explore, `log_feedback` to improve retrieval.
 """.strip()
 
+# Compact reminder appended to every tool response for consistent governance reinforcement.
+# Design: Action-oriented, ~30 tokens, covers essential behaviors.
+GOVERNANCE_REMINDER = """
+
+---
+📋 **Governance:** Query on decisions/concerns. Apply Constitution→Domain→Methods.
+Cite influencing principles. S-Series=veto. Pause on spec gaps. Escalate product decisions."""
+
 # Create MCP server
 server = Server("ai-governance-mcp", instructions=SERVER_INSTRUCTIONS)
 
@@ -236,6 +244,13 @@ async def list_tools() -> list[Tool]:
     ]
 
 
+def _append_governance_reminder(result: list[TextContent]) -> list[TextContent]:
+    """Append governance reminder to tool response for consistent reinforcement."""
+    if result and result[0].text:
+        result[0] = TextContent(type="text", text=result[0].text + GOVERNANCE_REMINDER)
+    return result
+
+
 @server.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     """Handle tool calls."""
@@ -243,19 +258,21 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         engine = get_engine()
 
         if name == "query_governance":
-            return await _handle_query_governance(engine, arguments)
+            result = await _handle_query_governance(engine, arguments)
         elif name == "get_principle":
-            return await _handle_get_principle(engine, arguments)
+            result = await _handle_get_principle(engine, arguments)
         elif name == "list_domains":
-            return await _handle_list_domains(engine, arguments)
+            result = await _handle_list_domains(engine, arguments)
         elif name == "get_domain_summary":
-            return await _handle_get_domain_summary(engine, arguments)
+            result = await _handle_get_domain_summary(engine, arguments)
         elif name == "log_feedback":
-            return await _handle_log_feedback(arguments)
+            result = await _handle_log_feedback(arguments)
         elif name == "get_metrics":
-            return await _handle_get_metrics(arguments)
+            result = await _handle_get_metrics(arguments)
         else:
-            return [TextContent(type="text", text=f"Unknown tool: {name}")]
+            result = [TextContent(type="text", text=f"Unknown tool: {name}")]
+
+        return _append_governance_reminder(result)
 
     except Exception as e:
         logger.error(f"Tool error: {e}")
@@ -268,7 +285,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
                 "Run extractor first",
             ],
         )
-        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+        result = [TextContent(type="text", text=error.model_dump_json(indent=2))]
+        return _append_governance_reminder(result)
 
 
 async def _handle_query_governance(

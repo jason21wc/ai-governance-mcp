@@ -1,7 +1,7 @@
 # AI Governance MCP Server
 
 **Project:** Semantic retrieval system for AI governance principles
-**Framework:** AI Governance Framework v2.3
+**Framework:** AI Governance Framework v2.4
 
 ## On Session Start
 
@@ -25,7 +25,7 @@ This project IS the AI Governance MCP. Use the `ai-governance` MCP tools:
 - **Source:** `src/ai_governance_mcp/`
 - **Documents:** `documents/` (governance content)
 - **Index:** `index/` (generated embeddings)
-- **Tests:** `tests/` (196 tests, 93% coverage)
+- **Tests:** `tests/` (198 tests, 93% coverage)
 
 ## Key Commands
 
@@ -64,4 +64,4 @@ query_governance("framework recovery session continuity")
 
 ---
 
-*See documents/ai-instructions-v2.3.md for full framework activation protocol.*
+*See documents/ai-instructions-v2.4.md for full framework activation protocol.*

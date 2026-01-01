@@ -15,6 +15,19 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 
+def extract_json_from_response(text: str) -> str:
+    """Extract JSON portion from response, stripping governance reminder.
+
+    Tool responses include a governance reminder footer after the JSON/markdown content.
+    This helper extracts just the primary content for JSON parsing in tests.
+    """
+    # The reminder starts with "\n\n---\n📋"
+    separator = "\n\n---\n📋"
+    if separator in text:
+        return text.split(separator)[0]
+    return text
+
+
 # =============================================================================
 # Global State Tests
 # =============================================================================
@@ -330,7 +343,7 @@ class TestHandleGetPrinciple:
         result = await _handle_get_principle(mock_engine, {"principle_id": "meta-C1"})
 
         assert len(result) == 1
-        parsed = json.loads(result[0].text)
+        parsed = json.loads(extract_json_from_response(result[0].text))
         assert parsed["id"] == "meta-C1"
         assert parsed["title"] == "Test Principle"
         assert "keywords" in parsed
@@ -359,7 +372,7 @@ class TestHandleGetPrinciple:
         )
 
         assert len(result) == 1
-        parsed = json.loads(result[0].text)
+        parsed = json.loads(extract_json_from_response(result[0].text))
         assert parsed["id"] == "meta-method-test-method"
         assert parsed["type"] == "method"
         assert parsed["title"] == "Test Method"
@@ -377,7 +390,7 @@ class TestHandleGetPrinciple:
         result = await _handle_get_principle(mock_engine, {"principle_id": "meta-X99"})
 
         assert len(result) == 1
-        parsed = json.loads(result[0].text)
+        parsed = json.loads(extract_json_from_response(result[0].text))
         assert parsed["error_code"] == "PRINCIPLE_NOT_FOUND"
         assert "meta-X99" in parsed["message"]
 
@@ -421,7 +434,7 @@ class TestHandleListDomains:
         result = await _handle_list_domains(mock_engine, {})
 
         assert len(result) == 1
-        parsed = json.loads(result[0].text)
+        parsed = json.loads(extract_json_from_response(result[0].text))
         assert parsed["total_domains"] == 2
         assert len(parsed["domains"]) == 2
         assert parsed["domains"][0]["name"] == "constitution"
@@ -436,7 +449,7 @@ class TestHandleListDomains:
 
         result = await _handle_list_domains(mock_engine, {})
 
-        parsed = json.loads(result[0].text)
+        parsed = json.loads(extract_json_from_response(result[0].text))
         assert parsed["total_domains"] == 0
         assert parsed["domains"] == []
 
@@ -467,7 +480,7 @@ class TestHandleGetDomainSummary:
 
         result = await _handle_get_domain_summary(mock_engine, {"domain": "ai-coding"})
 
-        parsed = json.loads(result[0].text)
+        parsed = json.loads(extract_json_from_response(result[0].text))
         assert parsed["name"] == "ai-coding"
         assert len(parsed["principles"]) == 1
 
@@ -481,7 +494,7 @@ class TestHandleGetDomainSummary:
 
         result = await _handle_get_domain_summary(mock_engine, {"domain": "invalid"})
 
-        parsed = json.loads(result[0].text)
+        parsed = json.loads(extract_json_from_response(result[0].text))
         assert parsed["error_code"] == "DOMAIN_NOT_FOUND"
 
     @pytest.mark.asyncio
@@ -522,7 +535,7 @@ class TestHandleLogFeedback:
             }
         )
 
-        parsed = json.loads(result[0].text)
+        parsed = json.loads(extract_json_from_response(result[0].text))
         assert parsed["status"] == "logged"
         assert "Thank you" in parsed["message"]
 
@@ -611,7 +624,7 @@ class TestHandleGetMetrics:
 
         result = await _handle_get_metrics({})
 
-        parsed = json.loads(result[0].text)
+        parsed = json.loads(extract_json_from_response(result[0].text))
         assert parsed["total_queries"] == 0
         assert parsed["avg_retrieval_time_ms"] == 0
         assert parsed["s_series_trigger_count"] == 0
@@ -641,7 +654,7 @@ class TestHandleGetMetrics:
 
         result = await _handle_get_metrics({})
 
-        parsed = json.loads(result[0].text)
+        parsed = json.loads(extract_json_from_response(result[0].text))
         assert parsed["total_queries"] == 50
         assert parsed["avg_retrieval_time_ms"] == 42.5
         assert parsed["s_series_trigger_count"] == 5
@@ -787,9 +800,42 @@ class TestCallTool:
                     ):
                         result = await call_tool("query_governance", {"query": "test"})
 
-                        parsed = json.loads(result[0].text)
+                        parsed = json.loads(extract_json_from_response(result[0].text))
                         assert parsed["error_code"] == "TOOL_ERROR"
                         assert "Test error" in parsed["message"]
+
+    @pytest.mark.asyncio
+    async def test_call_tool_includes_governance_reminder(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """All tool responses should include governance reminder footer."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool, GOVERNANCE_REMINDER
+
+                    # Test multiple tools to verify reminder is appended consistently
+                    tools_to_test = [
+                        ("list_domains", {}),
+                        ("get_metrics", {}),
+                        ("query_governance", {"query": "test"}),
+                    ]
+
+                    for tool_name, args in tools_to_test:
+                        result = await call_tool(tool_name, args)
+                        assert GOVERNANCE_REMINDER in result[0].text, (
+                            f"Governance reminder missing from {tool_name} response"
+                        )
 
 
 # =============================================================================

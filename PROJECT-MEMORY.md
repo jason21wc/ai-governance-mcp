@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 197 tests, 93% coverage
+- **Status:** COMPLETE - All phases done, 198 tests, 93% coverage
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -88,6 +88,43 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Rationale:** Models are imported inside properties, not at module level
 - **Fixture:** `mock_embedder` returns proper numpy arrays via `side_effect` function
 
+### Decision: Per-Response Governance Reminder
+- **Date:** 2025-12-31
+- **Status:** CONFIRMED
+- **Problem:** SERVER_INSTRUCTIONS injected once at MCP init; AI clients may drift over long conversations
+- **Research:** MCP spec has no built-in per-response mechanism; Claude Code uses repeated `<system-reminder>` tags (validates pattern)
+- **Choice:** Append compact reminder (~30 tokens) to every tool response
+- **Reminder Content:**
+  ```
+  📋 **Governance:** Query on decisions/concerns. Apply Constitution→Domain→Methods.
+  Cite influencing principles. S-Series=veto. Pause on spec gaps. Escalate product decisions.
+  ```
+- **Implementation:** `GOVERNANCE_REMINDER` constant + `_append_governance_reminder()` helper in server.py
+- **Rationale:** User requirements (repeatable, reliable, consistent, dependable) point to uniformity; token cost trivial in 100K+ context
+- **Requirements Met:**
+  | Requirement | How Addressed |
+  |-------------|---------------|
+  | Repeatable | Every tool response includes reminder |
+  | Reliable | Single injection point in `call_tool()` |
+  | Consistent | Same reminder across all 6 tools |
+  | Dependable | Tested with dedicated unit test |
+
+### Decision: MCP Server Instructions
+- **Date:** 2025-12-29
+- **Status:** CONFIRMED
+- **Problem:** Claude App could see tools but received no behavioral guidance
+- **Solution:** Added `instructions` parameter to MCP Server initialization
+- **Content:** Governance overview, trigger conditions, hierarchy, key behaviors, quick start
+- **Impact:** Documents updated (ai-governance-methods v3.1.0 → v3.2.0, ai-instructions v2.3 → v2.4)
+
+### Decision: Graceful Shutdown with os._exit()
+- **Date:** 2025-12-29
+- **Status:** CONFIRMED
+- **Problem:** Server didn't exit cleanly; sentence-transformers threads kept process alive
+- **Research:** Postgres MCP server uses same pattern; stdio transport can't be gracefully interrupted
+- **Solution:** SIGTERM/SIGINT handlers + finally block call `os._exit(0)` immediately
+- **Rationale:** Synchronous I/O can't be cancelled; immediate exit is correct for stdio transport
+
 ## Patterns and Conventions
 
 ### Communication Level (PO Approved)
@@ -140,7 +177,7 @@ Show updated process map:
 | server.py | 59 | 97% |
 | extractor.py | 38 | 93% |
 | retrieval.py | 55 | 86% |
-| **Total** | **197** | **93%** |
+| **Total** | **198** | **93%** |
 
 ## Dependencies
 
@@ -184,7 +221,7 @@ Show updated process map:
 | tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
 | tests/test_models.py | 24 | Model validation, constraints, enums |
 | tests/test_config.py | 17 | Settings, env vars, path handling |
-| tests/test_server.py | 45 | All 6 tools, formatting, metrics |
+| tests/test_server.py | 46 | All 6 tools, formatting, metrics, governance reminder |
 | tests/test_server_integration.py | 12 | Dispatcher routing, end-to-end flows |
 | tests/test_extractor.py | 35 | Parsing, embeddings, metadata |
 | tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |

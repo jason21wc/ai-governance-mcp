@@ -149,11 +149,13 @@ embedder.encode = Mock(side_effect=mock_encode)
 | Research before deciding | Search approach | Found better middle-ground option |
 | Gate artifacts | Phase transitions | Clear validation checkpoints |
 | **Process Map visualization** | Discovery phase | PO visibility into workflow position |
-| **conftest.py fixtures** | Test suite | Shared fixtures, 193 tests, 93% coverage |
+| **conftest.py fixtures** | Test suite | Shared fixtures, 198 tests, 93% coverage |
 | **side_effect for mocks** | ML model mocking | Handles variable input sizes correctly |
 | **Patch at source** | Lazy-loaded deps | Works when imports are inside methods |
 | **CPU-only PyTorch in CI** | ML project CI/CD | Avoids 4GB CUDA deps that fill disk |
 | **fail-fast: false** | Matrix debugging | See all failures, not just first |
+| **Per-response reminder** | MCP governance | Uniform reinforcement prevents drift |
+| **os._exit(0) for stdio** | MCP shutdown | Stdio transport can't be gracefully cancelled |
 
 ### 2025-12-26 - Process Map Visualization Pattern (PO APPROVED)
 
@@ -426,6 +428,104 @@ The third is often forgotten. Without explicit activation, the framework exists 
 - Compare against external standards
 - Check cross-references systematically
 - The user asking to "avoid anchor bias" is a signal to use external validation
+
+---
+
+### 2025-12-31 - Per-Response Governance Reminder Pattern (PO APPROVED)
+
+**Context:** AI clients may drift from governance principles over long conversations since SERVER_INSTRUCTIONS are only injected once at MCP initialization.
+
+**Research Conducted:**
+- MCP specification has no built-in per-response reminder mechanism
+- Claude Code uses `<system-reminder>` tags repeatedly — validates the pattern
+- Token cost (~30 tokens) is trivial in 100K+ context windows
+
+**Solution:** Append compact, action-oriented reminder to every tool response.
+
+**Implementation Pattern:**
+```python
+GOVERNANCE_REMINDER = """
+
+---
+📋 **Governance:** Query on decisions/concerns. Apply Constitution→Domain→Methods.
+Cite influencing principles. S-Series=veto. Pause on spec gaps. Escalate product decisions."""
+
+def _append_governance_reminder(result: list[TextContent]) -> list[TextContent]:
+    """Append governance reminder to tool response."""
+    if result and result[0].text:
+        result[0] = TextContent(type="text", text=result[0].text + GOVERNANCE_REMINDER)
+    return result
+
+# In call_tool(): always call _append_governance_reminder(result) before return
+```
+
+**Test Pattern:** When testing responses with appended reminders, use helper to extract primary content:
+```python
+def extract_json_from_response(text: str) -> str:
+    """Extract JSON portion from response, stripping governance reminder."""
+    separator = "\n\n---\n📋"
+    if separator in text:
+        return text.split(separator)[0]
+    return text
+```
+
+**Design Principles:**
+- Action-oriented, not explanatory
+- ~30 tokens (minimal overhead)
+- Covers: query triggers, hierarchy, citation, S-Series authority, escalation
+
+**Why It Works:** Uniform reinforcement at every interaction ensures AI clients don't drift, even in long conversations.
+
+---
+
+### 2025-12-29 - MCP Server Shutdown: Stdio Transport Requires Immediate Exit
+
+**Context:** AI governance MCP server wouldn't exit cleanly when Claude App quit.
+
+**Investigation Process:**
+1. Initially suspected sentence-transformers threads keeping process alive
+2. Added SIGTERM/SIGINT handlers with asyncio coordination
+3. Found that asyncio coordination doesn't work for stdio transport (synchronous I/O)
+4. Research found Postgres MCP server uses `os._exit(0)` pattern
+
+**Root Cause:** MCP stdio transport uses synchronous I/O that can't be gracefully interrupted or cancelled. Async event coordination doesn't help when the underlying I/O is blocking.
+
+**Solution:** Use `os._exit(0)` for immediate termination:
+```python
+import os
+import signal
+
+def handle_shutdown(signum, frame):
+    logger.info(f"Received signal {signum}, forcing exit...")
+    os._exit(0)
+
+signal.signal(signal.SIGTERM, handle_shutdown)
+signal.signal(signal.SIGINT, handle_shutdown)
+
+# Also in finally block for pipe closure:
+try:
+    await server.run()
+finally:
+    os._exit(0)
+```
+
+**Lesson:** For MCP servers using stdio transport, don't try to gracefully shutdown — use immediate exit. This is the standard pattern used by production MCP servers (e.g., Postgres MCP).
+
+---
+
+### 2025-12-29 - Claude App Quit Bug is NOT MCP Server Issue
+
+**Context:** After implementing graceful shutdown, Claude App still hung on quit.
+
+**Investigation:**
+1. MCP server logs showed clean exit: "Received signal 15, forcing exit..."
+2. Process list showed no orphaned ai-governance processes
+3. Tested with MCP config removed — same hang behavior
+4. Claude App main.log showed: stuck after "marking readyForQuit" — never fires final quit
+
+**Conclusion:** Claude App has an Electron bug where it marks `readyForQuit` but never fires the final quit handler. This is NOT caused by MCP servers.
+
+**Lesson:** When debugging multi-component systems, isolate each component. Remove suspected causes one at a time. The obvious suspect isn't always the culprit.
 
 ---
 

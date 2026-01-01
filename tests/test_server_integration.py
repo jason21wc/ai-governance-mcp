@@ -14,6 +14,19 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 
+def extract_json_from_response(text: str) -> str:
+    """Extract JSON portion from response, stripping governance reminder.
+
+    Tool responses include a governance reminder footer after the JSON/markdown content.
+    This helper extracts just the primary content for JSON parsing in tests.
+    """
+    # The reminder starts with "\n\n---\n📋"
+    separator = "\n\n---\n📋"
+    if separator in text:
+        return text.split(separator)[0]
+    return text
+
+
 # =============================================================================
 # call_tool() Dispatcher Integration Tests
 # =============================================================================
@@ -103,7 +116,7 @@ class TestCallToolDispatcher:
                     result = await call_tool("list_domains", {})
 
                     assert len(result) == 1
-                    parsed = json.loads(result[0].text)
+                    parsed = json.loads(extract_json_from_response(result[0].text))
                     assert "total_domains" in parsed
                     assert "domains" in parsed
 
@@ -162,7 +175,7 @@ class TestCallToolDispatcher:
                     )
 
                     assert len(result) == 1
-                    parsed = json.loads(result[0].text)
+                    parsed = json.loads(extract_json_from_response(result[0].text))
                     assert parsed["status"] == "logged"
 
     @pytest.mark.asyncio
@@ -188,7 +201,7 @@ class TestCallToolDispatcher:
                     result = await call_tool("get_metrics", {})
 
                     assert len(result) == 1
-                    parsed = json.loads(result[0].text)
+                    parsed = json.loads(extract_json_from_response(result[0].text))
                     assert "total_queries" in parsed
                     assert "avg_retrieval_time_ms" in parsed
 
@@ -262,7 +275,9 @@ class TestEndToEndFlow:
                         {"query": "test query", "principle_id": "meta-C1", "rating": 4},
                     )
 
-                    parsed = json.loads(feedback_result[0].text)
+                    parsed = json.loads(
+                        extract_json_from_response(feedback_result[0].text)
+                    )
                     assert parsed["status"] == "logged"
 
                     # Step 3: Check metrics updated
@@ -291,7 +306,9 @@ class TestEndToEndFlow:
 
                     # Step 1: List available domains
                     list_result = await call_tool("list_domains", {})
-                    domains_data = json.loads(list_result[0].text)
+                    domains_data = json.loads(
+                        extract_json_from_response(list_result[0].text)
+                    )
 
                     # Step 2: Get summary for first domain (if any)
                     if domains_data["domains"]:
