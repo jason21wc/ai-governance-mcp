@@ -28,11 +28,21 @@ This project IS the AI Governance MCP. Use these tools:
 | `get_principle` | Get full content by ID |
 | `list_domains` | See available domains |
 
+### Mandatory Governance Checkpoints
+
+Query `query_governance()` BEFORE:
+- [ ] Starting any implementation task
+- [ ] Making architectural or configuration decisions
+- [ ] Modifying governance documents or templates
+- [ ] Phase transitions (Specify → Plan → Tasks → Implement)
+
+**After querying:** Cite the principle ID when it influences your approach.
+
 ## Key Commands
 
 ```bash
 python -m ai_governance_mcp.extractor  # Rebuild index
-pytest tests/ -v                        # Run tests (205, 90% coverage)
+pytest tests/ -v                        # Run tests (220, 90% coverage)
 python -m ai_governance_mcp.server      # Run server
 ```
 

@@ -170,6 +170,7 @@ embedder.encode = Mock(side_effect=mock_encode)
 | **fail-fast: false** | Matrix debugging | See all failures, not just first |
 | **Per-response reminder** | MCP governance | Uniform reinforcement prevents drift |
 | **os._exit(0) for stdio** | MCP shutdown | Stdio transport can't be gracefully cancelled |
+| **Explicit checkpoints** | Governance enforcement | Tell AI WHEN to query, not just WHAT |
 
 ### 2025-12-26 - Process Map Visualization Pattern (PO APPROVED)
 
@@ -705,6 +706,59 @@ def extract_all(self) -> GlobalIndex:
 2. Report ALL problems in one error, not one at a time
 3. Include remediation hints in error messages
 4. Have CI tests that verify validation catches bad configs
+
+---
+
+### 2025-12-31 - Governance Reminder Present ≠ Governance Applied (CRITICAL)
+
+**Context:** After implementing per-response governance reminders ("📋 **Governance:** Query on decisions/concerns..."), tested whether the reminder actually changed behavior.
+
+**What Happened:** User asked me to review whether I followed the governance principles during the session. Self-audit revealed:
+
+1. **Did not query MCP at session start** — CLAUDE.md says "Query ai-governance MCP for relevant principles" but I skipped this
+2. **Did not cite influencing principles** — Made decision on confidence thresholds without citing the governance principle that guided it
+3. **Did not query before implementation** — Added detection heuristics without querying for relevant principles/methods
+4. **Did not pause on format gaps** — Made formatting decisions (e.g., "*Detect via:*" style) without checking template standards
+
+**Root Cause:** The reminder tells me WHAT to do, but doesn't force me to do it. I received the instructions but proceeded with implementation without actively querying the MCP.
+
+**Analogy:** Having a speed limit sign doesn't make you slow down. Having a governance reminder doesn't make you query governance.
+
+**Lesson:** Passive reminders are necessary but not sufficient. Active mechanisms may be needed:
+1. The reminder exists (✓)
+2. The AI reads the reminder (✓)
+3. The AI acts on the reminder (✗ — this failed)
+
+**Solution Implemented (Phase 1):**
+
+1. **Enhanced Governance Reminder** — Changed from passive statement to explicit action triggers:
+   ```
+   📋 **Governance Checkpoints:**
+   - **Before implementing** → `query_governance("your task")`
+   - **Before decisions** → query, then cite influencing principle
+   - **On uncertainty** → pause and clarify with user
+   ```
+
+2. **Explicit Checkpoints in CLAUDE.md** — Added mandatory query points:
+   - Starting any implementation task
+   - Making architectural or configuration decisions
+   - Modifying governance documents or templates
+   - Phase transitions
+
+**Phase 2 Planned (With Multi-Agent):**
+- Governance Agent as specialized agent in multi-agent architecture
+- Pre-action check, principle injection, post-action audit
+- Based on GaaS and Superagent Safety Agent patterns
+
+**Key Insight:** Industry research (2025) shows passive reminders are necessary but insufficient. The progression is:
+1. Passive reminders (tell AI what to do) — necessary baseline
+2. Explicit checkpoints (tell AI WHEN to do it) — Phase 1
+3. Interceptive enforcement (force compliance) — Phase 2
+
+**Sources:**
+- [Governance-as-a-Service](https://arxiv.org/html/2508.18765v2)
+- [Superagent Safety Agent](https://www.helpnetsecurity.com/2025/12/29/superagent-framework-guardrails-agentic-ai/)
+- [Agentic AI Safety Playbook 2025](https://dextralabs.com/blog/agentic-ai-safety-playbook-guardrails-permissions-auditability/)
 
 ---
 

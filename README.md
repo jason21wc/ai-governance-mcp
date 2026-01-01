@@ -307,6 +307,7 @@ safety check
 
 **Architecture Enhancements**
 - [ ] Multi-agent orchestration (specialized agents using this MCP)
+  - **Governance Agent** — Specialized agent that queries governance before execution, injects relevant principles, audits outputs for compliance (Phase 2 enforcement)
   - Add [VALIDATED] vs [THEORETICAL] maturity markers to multi-agent principles
   - Map multi-agent patterns to distributed systems literature (proven patterns)
   - Add failure mode specificity based on actual multi-agent usage

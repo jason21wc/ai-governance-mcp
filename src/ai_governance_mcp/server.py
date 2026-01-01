@@ -94,12 +94,17 @@ Use `get_principle` for full content, `list_domains` to explore, `log_feedback` 
 """.strip()
 
 # Compact reminder appended to every tool response for consistent governance reinforcement.
-# Design: Action-oriented, ~30 tokens, covers essential behaviors.
+# Design: Action-oriented with specific triggers, ~40 tokens.
+# Per Learning Log 2025-12-31: Passive reminders need explicit action triggers.
 GOVERNANCE_REMINDER = """
 
 ---
-📋 **Governance:** Query on decisions/concerns. Apply Constitution→Domain→Methods.
-Cite influencing principles. S-Series=veto. Pause on spec gaps. Escalate product decisions."""
+📋 **Governance Checkpoints:**
+- **Before implementing** → `query_governance("your task")`
+- **Before decisions** → query, then cite influencing principle
+- **On uncertainty** → pause and clarify with user
+
+Hierarchy: Constitution → Domain → Methods. S-Series = veto authority."""
 
 # Create MCP server
 server = Server("ai-governance-mcp", instructions=SERVER_INSTRUCTIONS)

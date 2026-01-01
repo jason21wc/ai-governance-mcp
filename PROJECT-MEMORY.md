@@ -118,6 +118,29 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
   | Consistent | Same reminder across all 6 tools |
   | Dependable | Tested with dedicated unit test |
 
+### Decision: Governance Enforcement Paradigm (Phased Approach)
+- **Date:** 2025-12-31
+- **Status:** CONFIRMED
+- **Problem:** Per-response governance reminder was present but AI didn't actively query governance before tasks. Passive reminders necessary but insufficient.
+- **Research:** 2025 industry patterns show three enforcement paradigms:
+  1. **Passive** — Reminder in response, AI chooses to act (current, insufficient alone)
+  2. **Interceptive** — Separate layer evaluates actions before execution (GaaS, Safety Agent)
+  3. **Proactive** — System injects relevant principles automatically
+- **Choice:** Phased implementation:
+  | Phase | Approach | When |
+  |-------|----------|------|
+  | 1 | Enhanced passive + explicit checkpoints | Now |
+  | 2 | Governance Agent (interceptive) | With multi-agent build |
+- **Phase 1 Implementation:**
+  - Enhanced GOVERNANCE_REMINDER with specific action triggers
+  - Explicit checkpoints in CLAUDE.md for mandatory query points
+- **Phase 2 Design:** Governance Agent as specialized agent in multi-agent architecture
+  - Pre-action check: Query principles before execution agents act
+  - Inject context: Pass applicable principles to execution agents
+  - Post-action audit: Verify outputs align with governance
+- **Sources:** [GaaS Framework](https://arxiv.org/html/2508.18765v2), [Superagent Safety Agent](https://www.helpnetsecurity.com/2025/12/29/superagent-framework-guardrails-agentic-ai/)
+- **Principles Applied:** meta-quality-structured-output-enforcement, meta-quality-verification-mechanisms-before-action
+
 ### Decision: MCP Server Instructions
 - **Date:** 2025-12-29
 - **Status:** CONFIRMED
