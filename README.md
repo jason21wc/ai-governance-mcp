@@ -301,10 +301,15 @@ safety check
 
 ## Roadmap
 
+**Distribution & Deployment**
+- [ ] Docker containerization with security hardening (safe sharing, auto-updates from GitHub)
+- [ ] Public API with authentication
+
+**Architecture Enhancements**
+- [ ] Multi-agent orchestration (specialized agents using this MCP)
 - [ ] Vector database for multi-user scaling
 - [ ] GraphRAG for relationship-aware retrieval
 - [ ] Active learning from feedback
-- [ ] Public API with authentication
 
 ## About
 
