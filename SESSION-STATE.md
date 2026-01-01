@@ -11,7 +11,7 @@
 
 ## Immediate Context
 
-Addressed gap in SESSION-STATE template: task IDs were referenced without definitions. Researched 2025 AI agent memory architecture best practices, confirmed task definitions belong in working memory (inline). Updated ai-coding-methods v2.0.0 → v2.1.0 with integrated Active Tasks table in main template.
+Audited all memory templates for gaps. Found and fixed 5 issues: (1) Added Phase Gates table to our PROJECT-MEMORY.md, (2) Added Gotchas section to template, (3) Simplified Phase Gates for solo projects, (4) Fixed loader version reference, (5) Clarified Handoff Summary fields.
 
 ## Next Actions
 
@@ -21,4 +21,4 @@ Addressed gap in SESSION-STATE template: task IDs were referenced without defini
 
 ## Session Notes
 
-Research sources: AIS Memory Patterns, Zep AI Agents, MongoDB Agent Memory. Key insight: project-specific tasks are ephemeral (unlike reusable procedures), so working memory is correct location.
+Template gaps addressed. All templates now internally consistent and match actual usage patterns.

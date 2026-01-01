@@ -284,12 +284,14 @@ Create this file after Specify phase completes:
 
 ## Phase Gates
 
-| Gate | Status | Date | Approver | Notes |
-|------|--------|------|----------|-------|
-| Specify → Plan | ⏳ Pending | — | — | — |
-| Plan → Tasks | ⏳ Pending | — | — | — |
-| Tasks → Implement | ⏳ Pending | — | — | — |
-| Implement → Complete | ⏳ Pending | — | — | — |
+| Gate | Status | Date | Notes |
+|------|--------|------|-------|
+| Specify → Plan | ⏳ Pending | — | — |
+| Plan → Tasks | ⏳ Pending | — | — |
+| Tasks → Implement | ⏳ Pending | — | — |
+| Implement → Complete | ⏳ Pending | — | — |
+
+> Status: ⏳ Pending | ✓ Passed | ❌ Failed. Add "Approver" column for team projects.
 
 ## Architecture Decisions
 [Add decisions as they're made using ADR format]
@@ -399,15 +401,16 @@ Update the Phase Gates table in `PROJECT-MEMORY.md`:
 ```markdown
 ## Phase Gates
 
-| Gate | Status | Date | Approver | Notes |
-|------|--------|------|----------|-------|
-| Specify → Plan | ✓ Passed | 2025-01-15 | @user | Spec complete, 7 features |
-| Plan → Tasks | ✓ Passed | 2025-01-17 | @user | Architecture approved |
-| Tasks → Implement | ⏳ Pending | — | — | Awaiting task review |
-| Implement → Complete | ⏳ Pending | — | — | — |
+| Gate | Status | Date | Notes |
+|------|--------|------|-------|
+| Specify → Plan | ✓ Passed | 2025-01-15 | Spec complete, 7 features |
+| Plan → Tasks | ✓ Passed | 2025-01-17 | Architecture approved |
+| Tasks → Implement | ⏳ Pending | — | Awaiting task review |
+| Implement → Complete | ⏳ Pending | — | — |
 ```
 
-**Status values:** ✓ Passed | ⏳ Pending | ✗ Failed (with remediation notes)
+**Status values:** ✓ Passed | ⏳ Pending | ❌ Failed (with remediation notes)
+**Team projects:** Add "Approver" column for accountability.
 
 #### Gate Checklists (Reference)
 
@@ -2234,12 +2237,14 @@ File: `PROJECT-MEMORY.md` (project root)
 
 ## Phase Gates
 
-| Gate | Status | Date | Approver | Notes |
-|------|--------|------|----------|-------|
-| Specify → Plan | ⏳ Pending | — | — | — |
-| Plan → Tasks | ⏳ Pending | — | — | — |
-| Tasks → Implement | ⏳ Pending | — | — | — |
-| Implement → Complete | ⏳ Pending | — | — | — |
+| Gate | Status | Date | Notes |
+|------|--------|------|-------|
+| Specify → Plan | ⏳ Pending | — | — |
+| Plan → Tasks | ⏳ Pending | — | — |
+| Tasks → Implement | ⏳ Pending | — | — |
+| Implement → Complete | ⏳ Pending | — | — |
+
+> Status: ⏳ Pending | ✓ Passed | ❌ Failed. Add "Approver" column for team projects.
 
 ## Architecture Decisions
 
@@ -2268,6 +2273,15 @@ File: `PROJECT-MEMORY.md` (project root)
 | Specification | [path] | [status] |
 | Architecture | [path] | [status] |
 | [etc.] | | |
+
+## Known Gotchas
+> Project-specific pitfalls discovered during development. Review before making changes.
+
+### [Gotcha Title]
+**Issue:** [What goes wrong]
+**Solution:** [How to avoid or fix it]
+
+[Repeat for each gotcha discovered]
 ```
 
 ### 7.2.3 Update Triggers
@@ -2395,7 +2409,7 @@ The Project Instructions File is the entry point that tells AI how to find conte
 # Project: [Name]
 
 ## Governance
-- Framework: AI Coding Methods v2.0
+- Framework: AI Coding Methods (current version)
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Memory
@@ -2461,8 +2475,8 @@ When transitioning to different AI/tool/collaborator:
 HANDOFF SUMMARY
 ───────────────
 Date: [Timestamp]
-From: [Current context]
-To: [Next context]
+From: [Tool/AI/Session ending, e.g., "Claude Code session #3"]
+To: [Tool/AI/Session starting, e.g., "New collaborator" or "Claude App"]
 
 Current State:
 [Copy of SESSION-STATE.md current position]
@@ -3049,7 +3063,7 @@ Files to upload to Project Knowledge:
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 2.1.0 | 2025-12-31 | Integrated Active Tasks table into main SESSION-STATE template (§7.1.2). Previously in separate §7.1.3 "solo mode" section, now part of core template with conditional guidance. Added research rationale explaining why task definitions belong in working memory. Based on 2025 AI agent memory architecture research (AIS, Zep, MongoDB patterns). |
+| 2.1.0 | 2025-12-31 | (1) Integrated Active Tasks table into main SESSION-STATE template (§7.1.2) with research rationale (§7.1.3). (2) Added Known Gotchas section to PROJECT-MEMORY template (§7.2.2). (3) Simplified Phase Gates table (removed Approver column, now optional for team projects). (4) Fixed loader template version reference. (5) Clarified Handoff Summary From/To fields. Based on 2025 AI agent memory architecture research (AIS, Zep, MongoDB patterns). |
 | 2.0.0 | 2025-12-31 | **BREAKING:** Major memory architecture revision. (1) Aligned memory files to cognitive types (Working, Semantic, Episodic, Procedural). (2) Eliminated separate gate artifact files (GATE-*.md) — gates now recorded inline in PROJECT-MEMORY.md. (3) Added Project Instructions File concept (loader document) formalizing CLAUDE.md as progressive disclosure pointer. (4) Added task tracking for solo mode in SESSION-STATE.md. (5) Added principles-based pruning guidance. (6) Added LEARNING-LOG creation timing and graduation to procedural memory. Based on industry research: CoALA framework, ADR patterns, Anthropic best practices, Mem0 memory architecture. |
 | 1.1.1 | 2025-12-29 | PATCH: Updated Document Governance version reference from v2.1 to v2.2. |
 | 1.1.0 | 2025-12-27 | Added Part 6.4: Automated Validation (CI/CD) covering CI pipeline setup, GitHub Actions templates, security scanning integration, and best practices. Updated situation index with CI/CD reference. |
