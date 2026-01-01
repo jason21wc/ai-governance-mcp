@@ -31,7 +31,7 @@ This project IS the AI Governance MCP. Use these tools:
 
 ```bash
 python -m ai_governance_mcp.extractor  # Rebuild index
-pytest tests/ -v                        # Run tests (198, 93% coverage)
+pytest tests/ -v                        # Run tests (205, 90% coverage)
 python -m ai_governance_mcp.server      # Run server
 ```
 

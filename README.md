@@ -111,7 +111,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **93%** (198 tests) |
+| Test Coverage | 80% | **90%** (205 tests) |
 
 ## Getting Started
 
@@ -261,7 +261,7 @@ pre-commit install
 
 ### Test Suite
 
-198 tests across 9 test files with 93% coverage:
+205 tests across 9 test files with 90% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|

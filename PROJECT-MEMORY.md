@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 205 tests, 93% coverage
+- **Status:** COMPLETE - All phases done, 205 tests, 90% coverage
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -79,7 +79,7 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
   - Edge case tests for boundary conditions
   - Real production index tests (`@pytest.mark.real_index`)
   - Slow embedding tests (`@pytest.mark.slow`)
-- **Coverage Achieved:** 93% (exceeds 80% Q3 target)
+- **Coverage Achieved:** 90% (exceeds 80% Q3 target)
 
 ### Decision: Mock Strategy for ML Models
 - **Date:** 2025-12-27
@@ -254,7 +254,7 @@ Show updated process map:
 - [x] PLAN — Architecture defined, GATE-PLAN.md approved
 - [x] TASKS — 23 tasks defined, GATE-TASKS.md approved
 - [x] IMPLEMENT — All tasks complete, deployed to GitHub
-- [x] TEST — 196 tests passing, 93% coverage
+- [x] TEST — 205 tests passing, 90% coverage
 
 ### Implementation Progress
 | Task | Description | Status |
@@ -264,7 +264,7 @@ Show updated process map:
 | T3-T5 | Extractor (parser, embeddings, GlobalIndex) | Complete |
 | T6-T11 | Retrieval (domain routing, BM25, semantic, fusion, rerank, hierarchy) | Complete |
 | T12-T18 | Server + 6 MCP tools | Complete |
-| T19-T22 | Tests (196 passing, 93% coverage) | Complete |
+| T19-T22 | Tests (205 passing, 90% coverage) | Complete |
 | T23 | Portfolio README | Complete |
 
 ### Test Coverage
@@ -272,10 +272,10 @@ Show updated process map:
 |--------|-------|----------|
 | models.py | 24 | 100% |
 | config.py | 17 | 98% |
-| server.py | 59 | 97% |
-| extractor.py | 45 | 93% |
-| retrieval.py | 55 | 86% |
-| **Total** | **205** | **93%** |
+| server.py | 59 | 91% |
+| extractor.py | 45 | 89% |
+| retrieval.py | 55 | 84% |
+| **Total** | **205** | **90%** |
 
 ## Dependencies
 

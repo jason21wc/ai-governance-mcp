@@ -149,7 +149,7 @@ embedder.encode = Mock(side_effect=mock_encode)
 | Research before deciding | Search approach | Found better middle-ground option |
 | Gate artifacts | Phase transitions | Clear validation checkpoints |
 | **Process Map visualization** | Discovery phase | PO visibility into workflow position |
-| **conftest.py fixtures** | Test suite | Shared fixtures, 198 tests, 93% coverage |
+| **conftest.py fixtures** | Test suite | Shared fixtures, 205 tests, 90% coverage |
 | **side_effect for mocks** | ML model mocking | Handles variable input sizes correctly |
 | **Patch at source** | Lazy-loaded deps | Works when imports are inside methods |
 | **CPU-only PyTorch in CI** | ML project CI/CD | Avoids 4GB CUDA deps that fill disk |

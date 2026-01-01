@@ -2,7 +2,7 @@
 
 **Version:** 1.3
 **Date:** 2025-12-31
-**Phase:** COMPLETE (198 tests, 93% coverage)
+**Phase:** COMPLETE (205 tests, 90% coverage)
 
 ---
 
@@ -183,6 +183,6 @@ ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtu
 |--------|----------|-------|
 | models.py | 100% | Full validation coverage |
 | config.py | 98% | Env edge case uncovered |
-| server.py | 97% | async run_server uncovered |
-| extractor.py | 93% | CLI main uncovered |
-| retrieval.py | 86% | Rare filesystem errors uncovered |
+| server.py | 91% | async run_server uncovered |
+| extractor.py | 89% | CLI main uncovered |
+| retrieval.py | 84% | Rare filesystem errors uncovered |
