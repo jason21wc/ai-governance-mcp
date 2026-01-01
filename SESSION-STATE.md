@@ -11,7 +11,7 @@
 
 ## Immediate Context
 
-Reviewed Gemini 2.5 Pro's constructive review of ai-governance-mcp. Applied 80/20 analysis to 7 recommendations: 2 already implemented, 1 tested and disproven, 3 rejected for low ROI, 1 acknowledged (on roadmap). No changes needed. Review archived.
+Addressed gap in SESSION-STATE template: task IDs were referenced without definitions. Researched 2025 AI agent memory architecture best practices, confirmed task definitions belong in working memory (inline). Updated ai-coding-methods v2.0.0 → v2.1.0 with integrated Active Tasks table in main template.
 
 ## Next Actions
 
@@ -21,4 +21,4 @@ Reviewed Gemini 2.5 Pro's constructive review of ai-governance-mcp. Applied 80/2
 
 ## Session Notes
 
-Key validation: Tested domain routing with off-topic queries ("legal contract review", "cooking pasta", "fantasy novel"). All correctly returned Constitution-only, proving negative keywords unnecessary. System well-designed per external review.
+Research sources: AIS Memory Patterns, Zep AI Agents, MongoDB Agent Memory. Key insight: project-specific tasks are ephemeral (unlike reusable procedures), so working memory is correct location.

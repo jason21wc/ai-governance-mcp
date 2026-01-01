@@ -2771,7 +2771,7 @@
           "embedding_id": 107
         }
       ],
-      "last_extracted": "2026-01-01T04:42:11.732394+00:00",
+      "last_extracted": "2026-01-01T05:46:48.493878+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -4493,10 +4493,10 @@
           "id": "coding-method-session-state-file-structure",
           "domain": "ai-coding",
           "title": "Session State File Structure",
-          "content": "### 7.1.2 Session State File Structure\n\nFile: `SESSION-STATE.md` (project root)\n\n```markdown\n# Session State\n**Last Updated:** [ISO timestamp]\n\n## Current Position\n- **Phase:** [Specify/Plan/Tasks/Implement]\n- **Mode:** [Expedited/Standard/Enhanced]\n- **Active Task:** [Task ID or \"between tasks\"]\n- **Blocker:** [None or description]\n\n## Immediate Context\n[2-3 sentences: What was happening when session ended]\n\n## Next Actions\n1. [First priority - specific and actionable]\n2. [Second priority]\n3. [Third priority if applicable]\n\n## Session Notes\n[Any context the next session needs that doesn't fit elsewhere]\n```\n",
+          "content": "### 7.1.2 Session State File Structure\n\nFile: `SESSION-STATE.md` (project root)\n\n```markdown\n# Session State\n**Last Updated:** [ISO timestamp]\n\n## Current Position\n- **Phase:** [Specify/Plan/Tasks/Implement]\n- **Mode:** [Expedited/Standard/Enhanced]\n- **Active Task:** [Task ID or \"between tasks\"]\n- **Blocker:** [None or description]\n\n## Active Tasks\n> Include during Implement phase. For team projects, reference GitHub Issues instead.\n\n| ID | Task | Status |\n|----|------|--------|\n| T1 | Implement user auth | \u2713 Complete |\n| T2 | Add validation | \ud83d\udd04 In Progress |\n| T3 | Write tests | \u23f3 Pending |\n\n## Immediate Context\n[2-3 sentences: What was happening when session ended]\n\n## Next Actions\n1. [First priority - specific and actionable]\n2. [Second priority]\n3. [Third priority if applicable]\n\n## Session Notes\n[Any context the next session needs that doesn't fit elsewhere]\n```\n",
           "line_range": [
             2146,
-            2171
+            2180
           ],
           "keywords": [
             "session",
@@ -4507,19 +4507,18 @@
           "embedding_id": 201
         },
         {
-          "id": "coding-method-task-tracking-solo-mode",
+          "id": "coding-method-task-tracking-rationale",
           "domain": "ai-coding",
-          "title": "Task Tracking (Solo Mode)",
-          "content": "### 7.1.3 Task Tracking (Solo Mode)\n\nFor solo projects not using GitHub Issues, track active tasks in SESSION-STATE.md:\n\n```markdown\n## Active Tasks\n\n| ID | Task | Status | Files |\n|----|------|--------|-------|\n| T1 | Implement user auth | \ud83d\udd04 In Progress | 3/8 |\n| T2 | Add validation | \u23f3 Pending | \u2014 |\n| T3 | Write tests | \u23f3 Pending | \u2014 |\n\n**Current Focus:** T1 - Completing login endpoint\n```\n\n**Task status values:** \ud83d\udd04 In Progress | \u23f3 Pending | \u2713 Complete\n\n**When to use GitHub Issues instead:**\n- Team/collaborative projects\n- Open source projects (external contributors)\n- Need for automation (auto-close, cross-references)\n- Long-term backlog management\n",
+          "title": "Task Tracking Rationale",
+          "content": "### 7.1.3 Task Tracking Rationale\n\n**Why tasks are inline:** Research on AI agent memory architecture shows that task decomposition \"becomes part of the agent's state\" during active work. Project-specific tasks (unlike reusable procedures) are ephemeral\u2014created in Tasks phase, consumed in Implement phase, then cleared. Keeping them in SESSION-STATE (working memory) provides immediate access without cross-reference friction.\n\n**Task status values:** \ud83d\udd04 In Progress | \u23f3 Pending | \u2713 Complete\n\n**When to use GitHub Issues instead:**\n- Team/collaborative projects (shared visibility)\n- Open source projects (external contributor coordination)\n- Need for automation (auto-close, cross-references)\n- Long-term backlog management (persists beyond project)\n\nWhen using GitHub Issues, reference them in Active Task field: `Active Task: #42 - Implement auth`\n",
           "line_range": [
-            2172,
-            2195
+            2181,
+            2194
           ],
           "keywords": [
             "task",
             "tracking",
-            "(solo",
-            "mode)"
+            "rationale"
           ],
           "embedding_id": 202
         },
@@ -4529,8 +4528,8 @@
           "title": "Update Triggers",
           "content": "### 7.1.4 Update Triggers\n\nUpdate `SESSION-STATE.md` when:\n- Completing a task\n- Hitting a blocker\n- Making a decision\n- Changing focus\n- Before ending session (ALWAYS)\n",
           "line_range": [
-            2196,
-            2204
+            2195,
+            2203
           ],
           "keywords": [
             "update",
@@ -4544,8 +4543,8 @@
           "title": "Session State is Transient",
           "content": "### 7.1.5 Session State is Transient\n\nSession state captures the CURRENT moment. Historical information belongs in Project Memory or Learning Log. Keep session state minimal and actionable.\n\n---\n\n## Part 7.2: Project Memory (Semantic Memory)\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Preserves decisions, rationale, and gate status**\n\n### 7.2.1 Purpose\n\nPreserve significant decisions, specifications, architecture, and phase gate status so they don't need to be re-discovered or re-debated. This is the project's semantic memory \u2014 facts that remain true until superseded.\n",
           "line_range": [
-            2205,
-            2218
+            2204,
+            2217
           ],
           "keywords": [
             "session",
@@ -4560,8 +4559,8 @@
           "title": "Project Memory File Structure",
           "content": "### 7.2.2 Project Memory File Structure\n\nFile: `PROJECT-MEMORY.md` (project root)\n\n```markdown\n# Project Memory\n**Project:** [Name]\n**Started:** [Date]\n**Mode:** [Expedited/Standard/Enhanced]\n\n## Specification Summary\n[Condensed version of key requirements - not full spec]\n- **Problem:** [One sentence]\n- **Users:** [Target audience]\n- **Core Features:** [Bulleted list]\n- **Out of Scope:** [What we're NOT building]\n\n## Phase Gates\n\n| Gate | Status | Date | Approver | Notes |\n|------|--------|------|----------|-------|\n| Specify \u2192 Plan | \u23f3 Pending | \u2014 | \u2014 | \u2014 |\n| Plan \u2192 Tasks | \u23f3 Pending | \u2014 | \u2014 | \u2014 |\n| Tasks \u2192 Implement | \u23f3 Pending | \u2014 | \u2014 | \u2014 |\n| Implement \u2192 Complete | \u23f3 Pending | \u2014 | \u2014 | \u2014 |\n\n## Architecture Decisions\n\n### [Decision Title]\n- **Decision:** [What we decided]\n- **Rationale:** [Why we decided it]\n- **Alternatives Considered:** [What we rejected]\n- **Date:** [When decided]\n- **Status:** [Active / Superseded by X]\n\n[Repeat for each significant decision]\n\n## Technical Stack\n- **Frontend:** [Technologies]\n- **Backend:** [Technologies]\n- **Database:** [Technologies]\n- **Infrastructure:** [Technologies]\n\n## Constraints & Standards\n- [Constraint 1 with rationale]\n- [Constraint 2 with rationale]\n\n## Key Artifacts\n| Artifact | Location | Status |\n|----------|----------|--------|\n| Specification | [path] | [status] |\n| Architecture | [path] | [status] |\n| [etc.] | | |\n```\n",
           "line_range": [
-            2219,
-            2273
+            2218,
+            2272
           ],
           "keywords": [
             "project",
@@ -4577,8 +4576,8 @@
           "title": "Update Triggers",
           "content": "### 7.2.3 Update Triggers\n\nUpdate `PROJECT-MEMORY.md` when:\n- Completing a phase (specification, architecture, etc.)\n- Making architecture decisions\n- Changing technology choices\n- Adding/removing constraints\n- NOT for routine task completion (that's session state)\n",
           "line_range": [
-            2274,
-            2282
+            2273,
+            2281
           ],
           "keywords": [
             "update",
@@ -4592,8 +4591,8 @@
           "title": "Memory vs. Source Documents",
           "content": "### 7.2.4 Memory vs. Source Documents\n\nProject Memory is a SUMMARY, not a replacement for source documents:\n- Full specification lives in its own file\n- Full architecture lives in its own file\n- Project Memory provides quick reference and decision rationale\n- When details needed, reference source documents\n\n---\n\n## Part 7.3: Learning Log (Episodic Memory)\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Captures experiences for continuous improvement**\n\n### 7.3.1 Purpose\n\nCapture lessons learned, patterns discovered, and insights that improve future work on this project (and potentially others). This is the project's episodic memory \u2014 specific events and experiences.\n",
           "line_range": [
-            2283,
-            2300
+            2282,
+            2299
           ],
           "keywords": [
             "memory",
@@ -4608,8 +4607,8 @@
           "title": "Creation Timing",
           "content": "### 7.3.2 Creation Timing\n\nCreate `LEARNING-LOG.md` when the first lesson emerges \u2014 typically during implementation when something unexpected happens (good or bad). Don't create it empty at project start.\n",
           "line_range": [
-            2301,
-            2304
+            2300,
+            2303
           ],
           "keywords": [
             "creation",
@@ -4623,8 +4622,8 @@
           "title": "Learning Log File Structure",
           "content": "### 7.3.3 Learning Log File Structure\n\nFile: `LEARNING-LOG.md` (project root)\n\n```markdown\n# Learning Log\n**Project:** [Name]\n\n## Lessons Learned\n\n### [Date]: [Lesson Title]\n**Context:** [What situation prompted this learning]\n**Lesson:** [What we learned]\n**Application:** [How to apply this going forward]\n\n[Repeat for each lesson]\n\n## Patterns That Worked\n\n### [Pattern Name]\n**Situation:** [When to use this pattern]\n**Approach:** [What to do]\n**Why It Works:** [Rationale]\n\n[Repeat for each pattern]\n\n## Patterns That Failed\n\n### [Pattern Name]\n**Situation:** [When we tried this]\n**What Happened:** [How it failed]\n**Instead Do:** [Better alternative]\n\n[Repeat for each anti-pattern]\n\n## Technical Discoveries\n\n### [Discovery Title]\n**Discovery:** [What we found]\n**Implication:** [How it affects our work]\n\n[Repeat for each discovery]\n```\n",
           "line_range": [
-            2305,
-            2348
+            2304,
+            2347
           ],
           "keywords": [
             "learning",
@@ -4639,8 +4638,8 @@
           "title": "Update Triggers",
           "content": "### 7.3.4 Update Triggers\n\nUpdate `LEARNING-LOG.md` when:\n- Something unexpected happens (good or bad)\n- A pattern proves effective (or ineffective)\n- Technical assumption proves wrong\n- A better approach is discovered\n- At milestone retrospectives (ENHANCED mode)\n",
           "line_range": [
-            2349,
-            2357
+            2348,
+            2356
           ],
           "keywords": [
             "update",
@@ -4654,8 +4653,8 @@
           "title": "Learning Log Review",
           "content": "### 7.3.5 Learning Log Review\n\nBefore starting similar work:\n- Review relevant Learning Log entries\n- Apply lessons to current context\n- Reference specific entries when they inform decisions\n",
           "line_range": [
-            2358,
-            2364
+            2357,
+            2363
           ],
           "keywords": [
             "learning",
@@ -4669,8 +4668,8 @@
           "title": "Graduation to Procedural Memory",
           "content": "### 7.3.6 Graduation to Procedural Memory\n\nWhen a lesson becomes a general pattern (applies beyond this specific project):\n1. Document the pattern in the appropriate methods document\n2. Add a note to the LEARNING-LOG entry: \"Graduated to [methods doc] \u00a7X.Y\"\n3. The original episode can then be pruned (the pattern persists in procedural memory)\n\n---\n\n## Part 7.4: Project Instructions File (Loader)\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 Enables AI to discover and activate memory**\n\n### 7.4.1 Purpose\n\nThe Project Instructions File is the entry point that tells AI how to find context. It's a \"loader\" that points to memory files \u2014 not a container for all context.\n\n**Key Principle:** Progressive disclosure \u2014 tell AI how to find info, don't front-load all info.\n",
           "line_range": [
-            2365,
-            2383
+            2364,
+            2382
           ],
           "keywords": [
             "graduation",
@@ -4685,8 +4684,8 @@
           "title": "Tool Implementations",
           "content": "### 7.4.2 Tool Implementations\n\n| Tool | File | Auto-loaded |\n|------|------|-------------|\n| Claude Code | `CLAUDE.md` | Yes, at session start |\n| Gemini CLI | `GEMINI.md` | Yes, via @file.md imports |\n| Cursor | `.cursor/rules/` | Yes, based on file patterns |\n| Cross-tool | `AGENTS.md` | Emerging standard |\n",
           "line_range": [
-            2384,
-            2392
+            2383,
+            2391
           ],
           "keywords": [
             "tool",
@@ -4700,8 +4699,8 @@
           "title": "Minimal Loader Template",
           "content": "### 7.4.3 Minimal Loader Template\n\n```markdown\n# Project: [Name]\n\n## Governance\n- Framework: AI Coding Methods v2.0\n- Mode: [Expedited/Standard/Enhanced]\n\n## Memory\nLoad these files for context:\n- SESSION-STATE.md \u2014 Current position, next actions\n- PROJECT-MEMORY.md \u2014 Decisions, architecture, gates\n- LEARNING-LOG.md \u2014 Lessons learned (reference when relevant)\n\n## On Session Start\n1. Load SESSION-STATE.md\n2. Follow Next Actions\n3. Reference PROJECT-MEMORY for constraints\n\n## Key Commands\n[Project-specific build/test/lint commands]\n```\n",
           "line_range": [
-            2393,
-            2416
+            2392,
+            2415
           ],
           "keywords": [
             "minimal",
@@ -4716,8 +4715,8 @@
           "title": "Loader Best Practices",
           "content": "### 7.4.4 Loader Best Practices\n\nFrom [Anthropic Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices):\n\n1. **Less is more** \u2014 Include as few instructions as reasonably possible\n2. **Progressive disclosure** \u2014 Tell AI how to find info, not all info\n3. **Universally applicable** \u2014 Keep content relevant to all sessions\n4. **Hierarchical** \u2014 Use subdirectory files for scoped context (e.g., `src/backend/CLAUDE.md`)\n\n**Anti-patterns:**\n- Duplicating memory file content in the loader\n- Including session-specific context (that's for SESSION-STATE)\n- Long lists of rules (that's for methods documents)\n\n---\n\n## Part 7.5: Handoff Protocol\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 Enables smooth session transitions**\n",
           "line_range": [
-            2417,
-            2436
+            2416,
+            2435
           ],
           "keywords": [
             "loader",
@@ -4732,8 +4731,8 @@
           "title": "Session End Procedure",
           "content": "### 7.5.1 Session End Procedure\n\nBefore ending any session:\n\n1. **Complete atomic unit** (if close to done)\n2. **Update SESSION-STATE.md** with current position\n3. **Update PROJECT-MEMORY.md** if decisions were made\n4. **Update LEARNING-LOG.md** if insights emerged\n5. **Commit changes** if using version control\n",
           "line_range": [
-            2437,
-            2446
+            2436,
+            2445
           ],
           "keywords": [
             "session",
@@ -4747,8 +4746,8 @@
           "title": "Session Start Procedure",
           "content": "### 7.5.2 Session Start Procedure\n\nWhen starting a new session:\n\n1. **Load SESSION-STATE.md** \u2014 Where are we?\n2. **Review Next Actions** \u2014 What should we do?\n3. **Load relevant PROJECT-MEMORY.md sections** \u2014 What constraints apply?\n4. **Check LEARNING-LOG.md** \u2014 Any relevant lessons?\n5. **Confirm understanding** \u2014 Ask PO if unclear\n",
           "line_range": [
-            2447,
-            2456
+            2446,
+            2455
           ],
           "keywords": [
             "session",
@@ -4763,8 +4762,8 @@
           "title": "Handoff Summary (for complex transitions)",
           "content": "### 7.5.3 Handoff Summary (for complex transitions)\n\nWhen transitioning to different AI/tool/collaborator:\n\n```\nHANDOFF SUMMARY\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nDate: [Timestamp]\nFrom: [Current context]\nTo: [Next context]\n\nCurrent State:\n[Copy of SESSION-STATE.md current position]\n\nKey Context:\n[Critical decisions from PROJECT-MEMORY.md]\n\nWatch Out For:\n[Relevant lessons from LEARNING-LOG.md]\n\nImmediate Priority:\n[First thing next session should do]\n```\n\n---\n\n## Part 7.6: Recovery Procedures\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Handles unexpected interruptions**\n",
           "line_range": [
-            2457,
-            2486
+            2456,
+            2485
           ],
           "keywords": [
             "handoff",
@@ -4781,8 +4780,8 @@
           "title": "Recovery Triggers",
           "content": "### 7.6.1 Recovery Triggers\n\nExecute recovery when:\n- Session ended unexpectedly\n- Memory files seem stale or inconsistent\n- Context seems wrong\n- \"framework check\" command received\n",
           "line_range": [
-            2487,
-            2494
+            2486,
+            2493
           ],
           "keywords": [
             "recovery",
@@ -4796,8 +4795,8 @@
           "title": "Recovery Procedure",
           "content": "### 7.6.2 Recovery Procedure\n\n1. **Assess memory files:**\n   - Check SESSION-STATE.md timestamp\n   - Verify consistency with actual file states\n   - Check for partial/corrupted updates\n\n2. **Verify code state:**\n   - Review recent commits/changes\n   - Check for uncommitted work\n   - Identify any conflicts\n\n3. **Reconcile discrepancies:**\n   - Update memory files to match reality\n   - Document any lost work\n   - Identify recovery actions\n\n4. **Re-establish working state:**\n   - Update SESSION-STATE.md\n   - Reload governance documents\n   - Confirm next actions\n",
           "line_range": [
-            2495,
-            2516
+            2494,
+            2515
           ],
           "keywords": [
             "recovery",
@@ -4811,8 +4810,8 @@
           "title": "Recovery Documentation",
           "content": "### 7.6.3 Recovery Documentation\n\nAdd to LEARNING-LOG.md:\n\n```markdown\n### [Date]: Recovery Event\n**Trigger:** [What caused the recovery need]\n**Lost Work:** [If any]\n**Recovery Actions:** [What we did]\n**Prevention:** [How to avoid in future]\n```\n\n---\n\n# TITLE 8: COLLABORATION PROTOCOLS\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Maintains human authority**\n\n**Implements:** Human-AI Collaboration (Domain), Workflow Integrity (Domain)  \n**Applies to:** All human-AI interactions\n\n## Part 8.1: Escalation Triggers\n\n### 8.1.1 Purpose\n\nDefine conditions that require human decision-making. Prevents both automation bias (over-trusting AI) and decision paralysis (over-escalating).\n",
           "line_range": [
-            2517,
-            2543
+            2516,
+            2542
           ],
           "keywords": [
             "recovery",
@@ -4826,8 +4825,8 @@
           "title": "Mandatory Escalation",
           "content": "### 8.1.2 Mandatory Escalation\n\n**Always escalate when:**\n\n| Trigger | Rationale |\n|---------|-----------|\n| Scope change | Human owns scope decisions |\n| Architecture change | Significant downstream impact |\n| Security concern | Risk requires human judgment |\n| Principle conflict | Framework governance issue |\n| Resource constraint | Business decision |\n| External dependency issue | May require business action |\n| Ambiguous requirement | Specification authority is human |\n",
           "line_range": [
-            2544,
-            2557
+            2543,
+            2556
           ],
           "keywords": [
             "mandatory",
@@ -4841,8 +4840,8 @@
           "title": "Judgment Escalation",
           "content": "### 8.1.3 Judgment Escalation\n\n**Consider escalating when:**\n\n| Trigger | Guidance |\n|---------|----------|\n| Multiple valid approaches | Present options if significant |\n| Trade-off decision | Human may have preferences |\n| Edge case interpretation | Specification may not cover |\n| Risk/speed trade-off | Business judgment |\n",
           "line_range": [
-            2558,
-            2568
+            2557,
+            2567
           ],
           "keywords": [
             "judgment",
@@ -4856,8 +4855,8 @@
           "title": "Non-Escalation",
           "content": "### 8.1.4 Non-Escalation\n\n**Do NOT escalate for:**\n- Routine implementation decisions\n- Standard pattern selection\n- Minor code style choices\n- Obvious best practices\n\nAI should make reasonable decisions within established patterns without constant escalation.\n\n---\n\n## Part 8.2: Decision Presentation\n\n### 8.2.1 Purpose\n\nWhen escalating, present decisions in format that enables informed human choice.\n",
           "line_range": [
-            2569,
-            2586
+            2568,
+            2585
           ],
           "keywords": [
             "non-escalation"
@@ -4870,8 +4869,8 @@
           "title": "Decision Presentation Format",
           "content": "### 8.2.2 Decision Presentation Format\n\n```\nDECISION REQUIRED\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nContext: [What situation requires decision]\nOptions:\n  A. [Option description]\n     - Pros: [Benefits]\n     - Cons: [Drawbacks]\n     - Implications: [Downstream effects]\n  \n  B. [Option description]\n     - Pros: [Benefits]\n     - Cons: [Drawbacks]\n     - Implications: [Downstream effects]\n\nRecommendation: [If AI has one, with rationale]\nInformation Needed: [What would help decide]\nUrgency: [How time-sensitive]\n```\n",
           "line_range": [
-            2587,
-            2608
+            2586,
+            2607
           ],
           "keywords": [
             "decision",
@@ -4886,8 +4885,8 @@
           "title": "Presenting Uncertainty",
           "content": "### 8.2.3 Presenting Uncertainty\n\nBe explicit about confidence:\n\n- \"I am confident that...\" (high certainty)\n- \"I believe...\" (moderate certainty)\n- \"I'm uncertain, but...\" (low certainty)\n- \"I don't know...\" (no basis for judgment)\n",
           "line_range": [
-            2609,
-            2617
+            2608,
+            2616
           ],
           "keywords": [
             "presenting",
@@ -4901,8 +4900,8 @@
           "title": "After Decision",
           "content": "### 8.2.4 After Decision\n\nDocument decisions in state file:\n- What was decided\n- Why (rationale)\n- Who decided (PO or AI)\n- When\n\n---\n\n## Part 8.3: Solo Developer Mode\n\n### 8.3.1 Purpose\n\nOptimize collaboration for single-person projects where one human serves all roles.\n",
           "line_range": [
-            2618,
-            2633
+            2617,
+            2632
           ],
           "keywords": [
             "after",
@@ -4916,8 +4915,8 @@
           "title": "Solo Mode Adjustments",
           "content": "### 8.3.2 Solo Mode Adjustments\n\n**Reduced ceremony:**\n- Abbreviated decision presentations\n- Combined approval gates\n- Informal state updates\n\n**Maintained rigor:**\n- All validation gates still apply\n- All quality thresholds unchanged\n- All escalation triggers still active\n",
           "line_range": [
-            2634,
-            2645
+            2633,
+            2644
           ],
           "keywords": [
             "solo",
@@ -4932,8 +4931,8 @@
           "title": "Solo Mode Triggers",
           "content": "### 8.3.3 Solo Mode Triggers\n\nEnter Solo Developer Mode when:\n- Explicitly configured in project\n- Single human is Product Owner AND implementer\n- Project scale is appropriate (small to medium)\n",
           "line_range": [
-            2646,
-            2652
+            2645,
+            2651
           ],
           "keywords": [
             "solo",
@@ -4946,9 +4945,9 @@
           "id": "coding-method-solo-mode-workflow",
           "domain": "ai-coding",
           "title": "Solo Mode Workflow",
-          "content": "### 8.3.4 Solo Mode Workflow\n\n```\nStandard: Specify \u2192 [PO Approval] \u2192 Plan \u2192 [PO Approval] \u2192 Tasks \u2192 [PO Approval] \u2192 Implement \u2192 [PO Approval]\n\nSolo:     Specify \u2192 Plan \u2192 [Combined Approval] \u2192 Tasks \u2192 Implement \u2192 [Final Approval]\n```\n\nGates are combined but not eliminated.\n\n---\n\n# APPENDICES\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Reference material, load on demand**\n\n## Appendix A: Claude Code CLI Configuration\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Only when using Claude Code CLI**\n\n### A.1 CLAUDE.md Template\n\n```markdown\n# Project: [Name]\n\n## Governance\n- Framework: AI Coding Domain Principles v2.1\n- Mode: [Expedited/Standard/Enhanced]\n\n## Current State\n- Phase: [Current phase]\n- Task: [Current task]\n- Updated: [Timestamp]\n\n## Project Context\n[Brief project description]\n\n## Active Decisions\n[Key decisions affecting current work]\n\n## Constraints\n[Technical, business, or other constraints]\n\n## Next Actions\n[What to do next]\n```\n\n### A.2 Session Start Commands\n\n```bash\n# Load session state\ncat SESSION-STATE.md\n\n# Review project memory if needed\ncat PROJECT-MEMORY.md\n\n# Check learning log if relevant\ncat LEARNING-LOG.md\n\n# Check recent changes\ngit log --oneline -10\n```\n\n### A.3 Session End Commands\n\n```bash\n# Update memory files before ending\n# [Update SESSION-STATE.md with current position]\n# [Update PROJECT-MEMORY.md if decisions were made]\n# [Update LEARNING-LOG.md if insights emerged]\n\n# Commit state\ngit add SESSION-STATE.md PROJECT-MEMORY.md LEARNING-LOG.md\ngit commit -m \"Session state update: [summary]\"\n```\n\n---\n\n## Appendix B: Memory File Templates\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Reference when creating memory files**\n\n### B.1 Minimal State (EXPEDITED Mode)\n\n```markdown\n# State\n\nPhase: [Phase]\nTask: [Task]\nNext: [Next action]\nUpdated: [Timestamp]\n```\n\n### B.2 Standard State\n\n```markdown\n# Project State\n\n## Status\n- Phase: [Phase]\n- Mode: Standard\n- Updated: [Timestamp]\n\n## Progress\n[Checklist of completed items]\n\n## Current Focus\n[Active work]\n\n## Decisions\n[Key decisions]\n\n## Next Session\n[Continuation guidance]\n```\n\n### B.3 Enhanced State\n\n```markdown\n# Project State\n\n## Status\n- Phase: [Phase]\n- Mode: Enhanced\n- Milestone: [Current milestone]\n- Updated: [Timestamp]\n\n## Progress\n[Detailed checklist]\n\n## Learning Log\n[What we've learned]\n\n## Decisions\n[Detailed decision record]\n\n## Risks & Issues\n[Active risks and issues]\n\n## Iteration Status\n[Current iteration and adjustments]\n\n## Next Session\n[Detailed continuation guidance]\n```\n\n---\n\n## Appendix C: Checklist Quick Reference\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 May be the most frequently used section**\n\n### C.1 Specification Completeness (\u00a72.3)\n\n- [ ] Problem statement clear\n- [ ] Target users identified\n- [ ] Core features listed (\u22647)\n- [ ] Acceptance criteria defined\n- [ ] Out of scope documented\n- [ ] Product Owner approved\n\n### C.2 Architecture Validation (\u00a73.2.4)\n\n- [ ] Technology stack selected\n- [ ] System structure defined\n- [ ] Security addressed\n- [ ] Risks identified\n- [ ] Product Owner approved\n\n### C.3 Task Validation (\u00a74.2)\n\n- [ ] All tasks \u226415 files\n- [ ] All tasks testable\n- [ ] Dependencies explicit\n- [ ] Full coverage verified\n- [ ] Product Owner approved\n\n### C.4 Implementation Quality (\u00a75.1.3)\n\n- [ ] Tests written with code\n- [ ] Coverage \u226580%\n- [ ] Security scan clean\n- [ ] Dependencies verified\n- [ ] Acceptance criteria met\n\n---\n\n## Appendix D: Gemini CLI Configuration\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Only when using Gemini CLI**\n\n### D.1 Overview\n\nGemini CLI uses `GEMINI.md` files for project context (analogous to Claude's `CLAUDE.md`). Key differences:\n- Hierarchical context loading (global \u2192 project \u2192 subdirectory)\n- Built-in `/memory` commands for context management\n- MCP server support for extensions\n- Checkpointing for rollback capability\n\n### D.2 GEMINI.md Template (Framework-Aligned)\n\nCreate `GEMINI.md` in project root:\n\n```markdown\n# Project: [Name]\n\n## Governance\nFollow AI Coding Methods framework:\n- Load SESSION-STATE.md for current position\n- Load PROJECT-MEMORY.md for decisions and architecture\n- Reference LEARNING-LOG.md when similar situations arise\n\n## Framework Principles\nWhen coding, apply these Domain Principles:\n- Specification Completeness: Ensure requirements are complete before implementation\n- Atomic Task Decomposition: Keep changes to \u226415 files per task\n- Testing Integration: Write tests alongside code\n- Security-First: Zero HIGH/CRITICAL vulnerabilities\n- Supply Chain Integrity: Verify all dependencies before use\n\n## Project Context\n[Brief project description]\n\n## Technical Stack\n[Technologies in use]\n\n## Coding Standards\n[Project-specific standards]\n\n## Key Commands\n- Build: [command]\n- Test: [command]\n- Lint: [command]\n```\n\n### D.3 Memory File Integration\n\nGemini CLI can import other markdown files using `@path/to/file.md` syntax:\n\n```markdown\n# GEMINI.md\n\n## Current State\n@./SESSION-STATE.md\n\n## Project Decisions\n@./PROJECT-MEMORY.md\n\n## Lessons Learned\n@./LEARNING-LOG.md\n```\n\n### D.4 Session Commands\n\n```bash\n# Check loaded context\n/memory show\n\n# Reload context files after changes\n/memory refresh\n\n# List available checkpoints (for rollback)\n/restore list\n\n# Restore to checkpoint if needed\n/restore <checkpoint_id>\n```\n\n### D.5 Framework Compliance Notes\n\n- Gemini CLI's `/memory` system provides similar functionality to our Memory Architecture\n- Use same memory file structure (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md)\n- Gemini's checkpointing provides additional safety for implementation phase\n- MCP server support enables similar extensibility to Claude Code\n\n---\n\n## Appendix E: Claude App & Chrome Extension\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 For web-based and browser-assisted workflows**\n\n### E.1 Overview\n\nClaude is available through multiple interfaces:\n- **Claude.ai (Web/App)**: Chat interface with Projects feature\n- **Claude in Chrome**: Browser extension for web automation\n- **Claude Code (Web)**: Browser-based coding at claude.com/code\n\nEach interface has different context management approaches.\n\n### E.2 Claude.ai Projects Configuration\n\nClaude Projects provide persistent context through:\n- Project Instructions (system-level guidance)\n- Project Knowledge (uploaded documents)\n- Project Files (reference materials)\n\n**Framework Integration:**\n\nIn Project Instructions, add:\n```\nFollow the AI Coding Methods framework:\n1. At session start, review uploaded memory files\n2. Apply the 4-phase workflow: Specify \u2192 Plan \u2192 Tasks \u2192 Implement\n3. Use validation gates between phases\n4. Maintain memory files as specified in framework\n\nWhen user says \"framework check\", confirm:\n- Current phase\n- Active task\n- Memory file status\n```\n\nUpload to Project Knowledge:\n- ai-coding-methods.md (this document)\n- ai-coding-domain-principles.md\n- Current PROJECT-MEMORY.md\n- Current LEARNING-LOG.md\n\n### E.3 Claude in Chrome Integration\n\nClaude in Chrome works alongside Claude Code for build-test-verify workflow:\n\n```\nBuild (Claude Code CLI) \u2192 Test (Chrome Extension) \u2192 Debug (Both)\n```\n\n**Key Capabilities:**\n- Read console errors and DOM state\n- Navigate and interact with web apps\n- Verify UI against specifications\n- Record workflows for repetition\n\n**Framework Application:**\n- Use during Implementation phase for testing\n- Verify visual design specs (ENHANCED mode)\n- Validate user flows against specification\n- Debug issues with live browser context\n\n### E.4 Claude Code Web (claude.com/code)\n\nBrowser-based Claude Code for:\n- GitHub repository integration\n- Parallel task execution\n- Session transfer to local CLI\n\n**Framework Considerations:**\n- Memory files stored in repository (GitHub-synced)\n- Same workflow applies as CLI\n- Can transfer session context to local CLI for continuation\n\n### E.5 Cross-Interface Workflow\n\nWhen switching between interfaces:\n\n1. **Always update SESSION-STATE.md** before switching\n2. **Sync memory files** to accessible location (repository, project knowledge)\n3. **Brief new interface** on current state and next actions\n4. **Verify understanding** before continuing work\n\n**Example Handoff (CLI \u2192 Web):**\n```markdown\n## Handoff: CLI \u2192 Claude.ai\nMoving to web interface for [reason]\n\nCurrent State:\n- Phase: Implement\n- Task: User authentication\n- Next: Complete login form validation\n\nFiles to upload to Project Knowledge:\n- SESSION-STATE.md (current)\n- PROJECT-MEMORY.md\n- Relevant source files\n```\n\n---\n\n## Appendix F: Tool Comparison Quick Reference\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Reference when choosing tools**\n\n| Feature | Claude Code CLI | Gemini CLI | Claude.ai | Claude Chrome |\n|---------|-----------------|------------|-----------|---------------|\n| **Context File** | CLAUDE.md | GEMINI.md | Project Instructions | N/A |\n| **Memory Import** | Manual | @file.md syntax | Upload to Knowledge | N/A |\n| **Session State** | SESSION-STATE.md | Same + /memory | Conversation history | Task-based |\n| **Checkpointing** | Git-based | Built-in /restore | N/A | N/A |\n| **MCP Support** | Yes | Yes | Limited | N/A |\n| **Browser Integration** | /chrome command | /ide (VS Code) | Connector | Native |\n| **Best For** | Complex backend, multi-file | Large context (1M tokens), Google ecosystem | Planning, documentation | Testing, verification |\n\n**Framework Compatibility:** All tools can implement the AI Coding Methods framework using their respective context management features. The memory file structure (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md) works across all tools.\n\n---\n\n## Version History\n\n| Version | Date | Changes |\n|---------|------|---------|\n| 2.0.0 | 2025-12-31 | **BREAKING:** Major memory architecture revision. (1) Aligned memory files to cognitive types (Working, Semantic, Episodic, Procedural). (2) Eliminated separate gate artifact files (GATE-*.md) \u2014 gates now recorded inline in PROJECT-MEMORY.md. (3) Added Project Instructions File concept (loader document) formalizing CLAUDE.md as progressive disclosure pointer. (4) Added task tracking for solo mode in SESSION-STATE.md. (5) Added principles-based pruning guidance. (6) Added LEARNING-LOG creation timing and graduation to procedural memory. Based on industry research: CoALA framework, ADR patterns, Anthropic best practices, Mem0 memory architecture. |\n| 1.1.1 | 2025-12-29 | PATCH: Updated Document Governance version reference from v2.1 to v2.2. |\n| 1.1.0 | 2025-12-27 | Added Part 6.4: Automated Validation (CI/CD) covering CI pipeline setup, GitHub Actions templates, security scanning integration, and best practices. Updated situation index with CI/CD reference. |\n| 1.0.3 | 2025-12-20 | Added Cold Start Kit (copy-paste prompts, minimal templates, mode decision tree). Added Gate Artifacts (structured documents for phase transitions). Added Measurement Guidance for tool-neutral metrics. Fixed mode decision tree inconsistency (one canonical format). Added gate failure pathway. Addresses Perplexity review feedback. |\n| 1.0.2 | 2025-12-20 | Added Appendix D (Gemini CLI), Appendix E (Claude App/Chrome Extension), Appendix F (Tool Comparison). Multi-tool support for framework. |\n| 1.0.1 | 2025-12-20 | Added Memory Architecture (Title 7 expansion), Situation Index, importance tags, partial loading strategy. Fixed principle references to use names instead of codes. |\n| 1.0.0 | 2025-12-20 | Initial release. 4-phase workflow with adaptive depth. Derived from 7-phase framework and 2025 industry best practices. |\n\n---\n\n## Document Governance\n\n**Authority:** This document implements ai-coding-domain-principles.md (v2.2). Methods cannot contradict principles.\n\n**Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.\n\n**Feedback:** Document gaps, conflicts, or improvement suggestions to be captured and addressed in next version.\n\n**Relationship to Tools:** Tool-specific appendices may be added without changing core methods. Each appendix must comply with methods defined herein.\n",
+          "content": "### 8.3.4 Solo Mode Workflow\n\n```\nStandard: Specify \u2192 [PO Approval] \u2192 Plan \u2192 [PO Approval] \u2192 Tasks \u2192 [PO Approval] \u2192 Implement \u2192 [PO Approval]\n\nSolo:     Specify \u2192 Plan \u2192 [Combined Approval] \u2192 Tasks \u2192 Implement \u2192 [Final Approval]\n```\n\nGates are combined but not eliminated.\n\n---\n\n# APPENDICES\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Reference material, load on demand**\n\n## Appendix A: Claude Code CLI Configuration\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Only when using Claude Code CLI**\n\n### A.1 CLAUDE.md Template\n\n```markdown\n# Project: [Name]\n\n## Governance\n- Framework: AI Coding Domain Principles v2.1\n- Mode: [Expedited/Standard/Enhanced]\n\n## Current State\n- Phase: [Current phase]\n- Task: [Current task]\n- Updated: [Timestamp]\n\n## Project Context\n[Brief project description]\n\n## Active Decisions\n[Key decisions affecting current work]\n\n## Constraints\n[Technical, business, or other constraints]\n\n## Next Actions\n[What to do next]\n```\n\n### A.2 Session Start Commands\n\n```bash\n# Load session state\ncat SESSION-STATE.md\n\n# Review project memory if needed\ncat PROJECT-MEMORY.md\n\n# Check learning log if relevant\ncat LEARNING-LOG.md\n\n# Check recent changes\ngit log --oneline -10\n```\n\n### A.3 Session End Commands\n\n```bash\n# Update memory files before ending\n# [Update SESSION-STATE.md with current position]\n# [Update PROJECT-MEMORY.md if decisions were made]\n# [Update LEARNING-LOG.md if insights emerged]\n\n# Commit state\ngit add SESSION-STATE.md PROJECT-MEMORY.md LEARNING-LOG.md\ngit commit -m \"Session state update: [summary]\"\n```\n\n---\n\n## Appendix B: Memory File Templates\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Reference when creating memory files**\n\n### B.1 Minimal State (EXPEDITED Mode)\n\n```markdown\n# State\n\nPhase: [Phase]\nTask: [Task]\nNext: [Next action]\nUpdated: [Timestamp]\n```\n\n### B.2 Standard State\n\n```markdown\n# Project State\n\n## Status\n- Phase: [Phase]\n- Mode: Standard\n- Updated: [Timestamp]\n\n## Progress\n[Checklist of completed items]\n\n## Current Focus\n[Active work]\n\n## Decisions\n[Key decisions]\n\n## Next Session\n[Continuation guidance]\n```\n\n### B.3 Enhanced State\n\n```markdown\n# Project State\n\n## Status\n- Phase: [Phase]\n- Mode: Enhanced\n- Milestone: [Current milestone]\n- Updated: [Timestamp]\n\n## Progress\n[Detailed checklist]\n\n## Learning Log\n[What we've learned]\n\n## Decisions\n[Detailed decision record]\n\n## Risks & Issues\n[Active risks and issues]\n\n## Iteration Status\n[Current iteration and adjustments]\n\n## Next Session\n[Detailed continuation guidance]\n```\n\n---\n\n## Appendix C: Checklist Quick Reference\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 May be the most frequently used section**\n\n### C.1 Specification Completeness (\u00a72.3)\n\n- [ ] Problem statement clear\n- [ ] Target users identified\n- [ ] Core features listed (\u22647)\n- [ ] Acceptance criteria defined\n- [ ] Out of scope documented\n- [ ] Product Owner approved\n\n### C.2 Architecture Validation (\u00a73.2.4)\n\n- [ ] Technology stack selected\n- [ ] System structure defined\n- [ ] Security addressed\n- [ ] Risks identified\n- [ ] Product Owner approved\n\n### C.3 Task Validation (\u00a74.2)\n\n- [ ] All tasks \u226415 files\n- [ ] All tasks testable\n- [ ] Dependencies explicit\n- [ ] Full coverage verified\n- [ ] Product Owner approved\n\n### C.4 Implementation Quality (\u00a75.1.3)\n\n- [ ] Tests written with code\n- [ ] Coverage \u226580%\n- [ ] Security scan clean\n- [ ] Dependencies verified\n- [ ] Acceptance criteria met\n\n---\n\n## Appendix D: Gemini CLI Configuration\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Only when using Gemini CLI**\n\n### D.1 Overview\n\nGemini CLI uses `GEMINI.md` files for project context (analogous to Claude's `CLAUDE.md`). Key differences:\n- Hierarchical context loading (global \u2192 project \u2192 subdirectory)\n- Built-in `/memory` commands for context management\n- MCP server support for extensions\n- Checkpointing for rollback capability\n\n### D.2 GEMINI.md Template (Framework-Aligned)\n\nCreate `GEMINI.md` in project root:\n\n```markdown\n# Project: [Name]\n\n## Governance\nFollow AI Coding Methods framework:\n- Load SESSION-STATE.md for current position\n- Load PROJECT-MEMORY.md for decisions and architecture\n- Reference LEARNING-LOG.md when similar situations arise\n\n## Framework Principles\nWhen coding, apply these Domain Principles:\n- Specification Completeness: Ensure requirements are complete before implementation\n- Atomic Task Decomposition: Keep changes to \u226415 files per task\n- Testing Integration: Write tests alongside code\n- Security-First: Zero HIGH/CRITICAL vulnerabilities\n- Supply Chain Integrity: Verify all dependencies before use\n\n## Project Context\n[Brief project description]\n\n## Technical Stack\n[Technologies in use]\n\n## Coding Standards\n[Project-specific standards]\n\n## Key Commands\n- Build: [command]\n- Test: [command]\n- Lint: [command]\n```\n\n### D.3 Memory File Integration\n\nGemini CLI can import other markdown files using `@path/to/file.md` syntax:\n\n```markdown\n# GEMINI.md\n\n## Current State\n@./SESSION-STATE.md\n\n## Project Decisions\n@./PROJECT-MEMORY.md\n\n## Lessons Learned\n@./LEARNING-LOG.md\n```\n\n### D.4 Session Commands\n\n```bash\n# Check loaded context\n/memory show\n\n# Reload context files after changes\n/memory refresh\n\n# List available checkpoints (for rollback)\n/restore list\n\n# Restore to checkpoint if needed\n/restore <checkpoint_id>\n```\n\n### D.5 Framework Compliance Notes\n\n- Gemini CLI's `/memory` system provides similar functionality to our Memory Architecture\n- Use same memory file structure (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md)\n- Gemini's checkpointing provides additional safety for implementation phase\n- MCP server support enables similar extensibility to Claude Code\n\n---\n\n## Appendix E: Claude App & Chrome Extension\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 For web-based and browser-assisted workflows**\n\n### E.1 Overview\n\nClaude is available through multiple interfaces:\n- **Claude.ai (Web/App)**: Chat interface with Projects feature\n- **Claude in Chrome**: Browser extension for web automation\n- **Claude Code (Web)**: Browser-based coding at claude.com/code\n\nEach interface has different context management approaches.\n\n### E.2 Claude.ai Projects Configuration\n\nClaude Projects provide persistent context through:\n- Project Instructions (system-level guidance)\n- Project Knowledge (uploaded documents)\n- Project Files (reference materials)\n\n**Framework Integration:**\n\nIn Project Instructions, add:\n```\nFollow the AI Coding Methods framework:\n1. At session start, review uploaded memory files\n2. Apply the 4-phase workflow: Specify \u2192 Plan \u2192 Tasks \u2192 Implement\n3. Use validation gates between phases\n4. Maintain memory files as specified in framework\n\nWhen user says \"framework check\", confirm:\n- Current phase\n- Active task\n- Memory file status\n```\n\nUpload to Project Knowledge:\n- ai-coding-methods.md (this document)\n- ai-coding-domain-principles.md\n- Current PROJECT-MEMORY.md\n- Current LEARNING-LOG.md\n\n### E.3 Claude in Chrome Integration\n\nClaude in Chrome works alongside Claude Code for build-test-verify workflow:\n\n```\nBuild (Claude Code CLI) \u2192 Test (Chrome Extension) \u2192 Debug (Both)\n```\n\n**Key Capabilities:**\n- Read console errors and DOM state\n- Navigate and interact with web apps\n- Verify UI against specifications\n- Record workflows for repetition\n\n**Framework Application:**\n- Use during Implementation phase for testing\n- Verify visual design specs (ENHANCED mode)\n- Validate user flows against specification\n- Debug issues with live browser context\n\n### E.4 Claude Code Web (claude.com/code)\n\nBrowser-based Claude Code for:\n- GitHub repository integration\n- Parallel task execution\n- Session transfer to local CLI\n\n**Framework Considerations:**\n- Memory files stored in repository (GitHub-synced)\n- Same workflow applies as CLI\n- Can transfer session context to local CLI for continuation\n\n### E.5 Cross-Interface Workflow\n\nWhen switching between interfaces:\n\n1. **Always update SESSION-STATE.md** before switching\n2. **Sync memory files** to accessible location (repository, project knowledge)\n3. **Brief new interface** on current state and next actions\n4. **Verify understanding** before continuing work\n\n**Example Handoff (CLI \u2192 Web):**\n```markdown\n## Handoff: CLI \u2192 Claude.ai\nMoving to web interface for [reason]\n\nCurrent State:\n- Phase: Implement\n- Task: User authentication\n- Next: Complete login form validation\n\nFiles to upload to Project Knowledge:\n- SESSION-STATE.md (current)\n- PROJECT-MEMORY.md\n- Relevant source files\n```\n\n---\n\n## Appendix F: Tool Comparison Quick Reference\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Reference when choosing tools**\n\n| Feature | Claude Code CLI | Gemini CLI | Claude.ai | Claude Chrome |\n|---------|-----------------|------------|-----------|---------------|\n| **Context File** | CLAUDE.md | GEMINI.md | Project Instructions | N/A |\n| **Memory Import** | Manual | @file.md syntax | Upload to Knowledge | N/A |\n| **Session State** | SESSION-STATE.md | Same + /memory | Conversation history | Task-based |\n| **Checkpointing** | Git-based | Built-in /restore | N/A | N/A |\n| **MCP Support** | Yes | Yes | Limited | N/A |\n| **Browser Integration** | /chrome command | /ide (VS Code) | Connector | Native |\n| **Best For** | Complex backend, multi-file | Large context (1M tokens), Google ecosystem | Planning, documentation | Testing, verification |\n\n**Framework Compatibility:** All tools can implement the AI Coding Methods framework using their respective context management features. The memory file structure (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md) works across all tools.\n\n---\n\n## Version History\n\n| Version | Date | Changes |\n|---------|------|---------|\n| 2.1.0 | 2025-12-31 | Integrated Active Tasks table into main SESSION-STATE template (\u00a77.1.2). Previously in separate \u00a77.1.3 \"solo mode\" section, now part of core template with conditional guidance. Added research rationale explaining why task definitions belong in working memory. Based on 2025 AI agent memory architecture research (AIS, Zep, MongoDB patterns). |\n| 2.0.0 | 2025-12-31 | **BREAKING:** Major memory architecture revision. (1) Aligned memory files to cognitive types (Working, Semantic, Episodic, Procedural). (2) Eliminated separate gate artifact files (GATE-*.md) \u2014 gates now recorded inline in PROJECT-MEMORY.md. (3) Added Project Instructions File concept (loader document) formalizing CLAUDE.md as progressive disclosure pointer. (4) Added task tracking for solo mode in SESSION-STATE.md. (5) Added principles-based pruning guidance. (6) Added LEARNING-LOG creation timing and graduation to procedural memory. Based on industry research: CoALA framework, ADR patterns, Anthropic best practices, Mem0 memory architecture. |\n| 1.1.1 | 2025-12-29 | PATCH: Updated Document Governance version reference from v2.1 to v2.2. |\n| 1.1.0 | 2025-12-27 | Added Part 6.4: Automated Validation (CI/CD) covering CI pipeline setup, GitHub Actions templates, security scanning integration, and best practices. Updated situation index with CI/CD reference. |\n| 1.0.3 | 2025-12-20 | Added Cold Start Kit (copy-paste prompts, minimal templates, mode decision tree). Added Gate Artifacts (structured documents for phase transitions). Added Measurement Guidance for tool-neutral metrics. Fixed mode decision tree inconsistency (one canonical format). Added gate failure pathway. Addresses Perplexity review feedback. |\n| 1.0.2 | 2025-12-20 | Added Appendix D (Gemini CLI), Appendix E (Claude App/Chrome Extension), Appendix F (Tool Comparison). Multi-tool support for framework. |\n| 1.0.1 | 2025-12-20 | Added Memory Architecture (Title 7 expansion), Situation Index, importance tags, partial loading strategy. Fixed principle references to use names instead of codes. |\n| 1.0.0 | 2025-12-20 | Initial release. 4-phase workflow with adaptive depth. Derived from 7-phase framework and 2025 industry best practices. |\n\n---\n\n## Document Governance\n\n**Authority:** This document implements ai-coding-domain-principles.md (v2.2). Methods cannot contradict principles.\n\n**Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.\n\n**Feedback:** Document gaps, conflicts, or improvement suggestions to be captured and addressed in next version.\n\n**Relationship to Tools:** Tool-specific appendices may be added without changing core methods. Each appendix must comply with methods defined herein.\n",
           "line_range": [
-            2653,
+            2652,
             3072
           ],
           "keywords": [
@@ -4959,7 +4958,7 @@
           "embedding_id": 230
         }
       ],
-      "last_extracted": "2026-01-01T04:42:11.734937+00:00",
+      "last_extracted": "2026-01-01T05:46:48.509637+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -5637,7 +5636,7 @@
           "embedding_id": 256
         }
       ],
-      "last_extracted": "2026-01-01T04:42:11.736060+00:00",
+      "last_extracted": "2026-01-01T05:46:48.513397+00:00",
       "version": "1.0"
     }
   },
@@ -5655,7 +5654,7 @@
       "name": "ai-coding",
       "display_name": "AI Coding",
       "principles_file": "ai-coding-domain-principles-v2.2.1.md",
-      "methods_file": "ai-coding-methods-v2.0.0.md",
+      "methods_file": "ai-coding-methods-v2.1.0.md",
       "description": "Software development with AI assistance. Code generation, debugging, unit testing, pytest, integration tests, refactoring, code review, pull requests, git workflows, CI/CD pipelines, API design, software architecture, Python programming, project structure, file organization, project cleanup, repository hygiene, gitignore, build configuration, linting, and code quality.",
       "priority": 10,
       "embedding_id": 1
@@ -5670,7 +5669,7 @@
       "embedding_id": 2
     }
   ],
-  "created_at": "2026-01-01T04:42:15.770672+00:00",
+  "created_at": "2026-01-01T05:46:55.978505+00:00",
   "version": "1.0",
   "embedding_model": "all-MiniLM-L6-v2",
   "embedding_dimensions": 384

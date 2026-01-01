@@ -7,6 +7,20 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2025-12-31 - Task Tracking Belongs in Working Memory (Research-Backed)
+**Context:** User identified gap where SESSION-STATE referenced task IDs (T1, T2) without defining what those tasks are. Needed to decide where task definitions should live.
+**Research:** Reviewed 2025 AI agent memory architecture best practices from AIS, Zep, MongoDB, IBM. Key finding: "Task decomposition creates a structure that memory can track. The list of subtasks becomes part of the agent's state."
+**Analysis:** Considered four alternatives:
+1. Inline in SESSION-STATE (working memory)
+2. Separate TASK-LIST.md file
+3. In PROJECT-MEMORY.md (semantic memory)
+4. GitHub Issues (external system)
+**Decision:** Project-specific tasks are ephemeral (created in Tasks phase, consumed in Implement phase, then cleared). Unlike reusable procedures, they belong in working memory for immediate access. Integrated Active Tasks table into main SESSION-STATE template (§7.1.2).
+**Lesson:** Research before assuming first solution is correct. Working vs. semantic vs. procedural memory serve different purposes—match content to memory type.
+**Sources:** [AIS Memory Patterns](https://www.ais.com/practical-memory-patterns-for-reliable-longer-horizon-agent-workflows/), [Zep AI Agents](https://www.getzep.com/ai-agents/introduction-to-ai-agents/), [MongoDB Agent Memory](https://www.mongodb.com/resources/basics/artificial-intelligence/agent-memory)
+
+---
+
 ### 2025-12-24 - Specification Documents Are Not Validated Requirements (CRITICAL)
 **Context:** Implemented full MCP server based on specification-v3.md which said "~5% miss rate with keyword matching"
 **What Happened:** After implementation was complete, Product Owner review revealed:

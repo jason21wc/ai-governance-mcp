@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Status:** Active
 **Effective Date:** 2025-12-31
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -2157,6 +2157,15 @@ File: `SESSION-STATE.md` (project root)
 - **Active Task:** [Task ID or "between tasks"]
 - **Blocker:** [None or description]
 
+## Active Tasks
+> Include during Implement phase. For team projects, reference GitHub Issues instead.
+
+| ID | Task | Status |
+|----|------|--------|
+| T1 | Implement user auth | ✓ Complete |
+| T2 | Add validation | 🔄 In Progress |
+| T3 | Write tests | ⏳ Pending |
+
 ## Immediate Context
 [2-3 sentences: What was happening when session ended]
 
@@ -2169,29 +2178,19 @@ File: `SESSION-STATE.md` (project root)
 [Any context the next session needs that doesn't fit elsewhere]
 ```
 
-### 7.1.3 Task Tracking (Solo Mode)
+### 7.1.3 Task Tracking Rationale
 
-For solo projects not using GitHub Issues, track active tasks in SESSION-STATE.md:
-
-```markdown
-## Active Tasks
-
-| ID | Task | Status | Files |
-|----|------|--------|-------|
-| T1 | Implement user auth | 🔄 In Progress | 3/8 |
-| T2 | Add validation | ⏳ Pending | — |
-| T3 | Write tests | ⏳ Pending | — |
-
-**Current Focus:** T1 - Completing login endpoint
-```
+**Why tasks are inline:** Research on AI agent memory architecture shows that task decomposition "becomes part of the agent's state" during active work. Project-specific tasks (unlike reusable procedures) are ephemeral—created in Tasks phase, consumed in Implement phase, then cleared. Keeping them in SESSION-STATE (working memory) provides immediate access without cross-reference friction.
 
 **Task status values:** 🔄 In Progress | ⏳ Pending | ✓ Complete
 
 **When to use GitHub Issues instead:**
-- Team/collaborative projects
-- Open source projects (external contributors)
+- Team/collaborative projects (shared visibility)
+- Open source projects (external contributor coordination)
 - Need for automation (auto-close, cross-references)
-- Long-term backlog management
+- Long-term backlog management (persists beyond project)
+
+When using GitHub Issues, reference them in Active Task field: `Active Task: #42 - Implement auth`
 
 ### 7.1.4 Update Triggers
 
@@ -3050,6 +3049,7 @@ Files to upload to Project Knowledge:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.1.0 | 2025-12-31 | Integrated Active Tasks table into main SESSION-STATE template (§7.1.2). Previously in separate §7.1.3 "solo mode" section, now part of core template with conditional guidance. Added research rationale explaining why task definitions belong in working memory. Based on 2025 AI agent memory architecture research (AIS, Zep, MongoDB patterns). |
 | 2.0.0 | 2025-12-31 | **BREAKING:** Major memory architecture revision. (1) Aligned memory files to cognitive types (Working, Semantic, Episodic, Procedural). (2) Eliminated separate gate artifact files (GATE-*.md) — gates now recorded inline in PROJECT-MEMORY.md. (3) Added Project Instructions File concept (loader document) formalizing CLAUDE.md as progressive disclosure pointer. (4) Added task tracking for solo mode in SESSION-STATE.md. (5) Added principles-based pruning guidance. (6) Added LEARNING-LOG creation timing and graduation to procedural memory. Based on industry research: CoALA framework, ADR patterns, Anthropic best practices, Mem0 memory architecture. |
 | 1.1.1 | 2025-12-29 | PATCH: Updated Document Governance version reference from v2.1 to v2.2. |
 | 1.1.0 | 2025-12-27 | Added Part 6.4: Automated Validation (CI/CD) covering CI pipeline setup, GitHub Actions templates, security scanning integration, and best practices. Updated situation index with CI/CD reference. |
