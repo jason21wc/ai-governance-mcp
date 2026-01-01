@@ -307,6 +307,9 @@ safety check
 
 **Architecture Enhancements**
 - [ ] Multi-agent orchestration (specialized agents using this MCP)
+  - Add [VALIDATED] vs [THEORETICAL] maturity markers to multi-agent principles
+  - Map multi-agent patterns to distributed systems literature (proven patterns)
+  - Add failure mode specificity based on actual multi-agent usage
 - [ ] Vector database for multi-user scaling
 - [ ] GraphRAG for relationship-aware retrieval
 - [ ] Active learning from feedback

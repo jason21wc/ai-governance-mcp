@@ -1,4 +1,4 @@
-# Multi-Agent Domain Principles Framework v1.2.0
+# Multi-Agent Domain Principles Framework v1.3.0
 ## Federal Statutes for Multi-Agent AI System Orchestration
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -138,6 +138,7 @@ This framework organizes domain principles into three series addressing differen
 
 **Failure Mode(s) Addressed:**
 - **A1: Mixed Cognitive Functions → Output Degradation** — Agents assigned multiple cognitive functions experience internal conflicts, reducing output quality and coherence.
+  - *Detect via:* Agent system prompt contains multiple distinct reasoning patterns (e.g., "analyze AND create AND evaluate"); agent outputs show contradictory recommendations; agent hesitates between approaches within single response.
 
 **Why This Principle Matters**
 
@@ -197,6 +198,7 @@ Each agent must be assigned a single cognitive function with clear domain bounda
 
 **Failure Mode(s) Addressed:**
 - **A2: Context Pollution → Structural Inconsistencies** — Information from one domain inappropriately influences decisions in unrelated domains, causing compounding errors across the agent network.
+  - *Detect via:* Agent references information it shouldn't have access to; outputs from independent agents show unexpected correlations; agent cites sources from another agent's domain; error patterns repeat across isolated agents.
 
 **Why This Principle Matters**
 
@@ -256,6 +258,7 @@ Each specialized agent must operate in a completely independent context window w
 
 **Failure Mode(s) Addressed:**
 - **A3: Orchestrator Overreach → Monolith Anti-Pattern** — Orchestrator performing execution tasks becomes a "do everything" monolith, violating specialization and creating single points of failure.
+  - *Detect via:* Orchestrator produces domain-specific outputs (code, analysis, content) instead of delegation instructions; orchestrator context grows faster than execution agents; orchestrator has >50% of total workflow tokens.
 
 **Why This Principle Matters**
 
@@ -315,6 +318,7 @@ A dedicated orchestrator agent manages workflow coordination, validation gates, 
 
 **Failure Mode(s) Addressed:**
 - **A4: Intent Degradation → Goal Misalignment** — Original user goal degrades through agent chains ("telephone game" effect), causing downstream agents to optimize for local tasks at expense of global objectives.
+  - *Detect via:* Agent outputs technically correct but misaligned with user goal; downstream agents reinterpret task in ways that diverge from original intent; final output solves a different problem than requested; agents can't articulate the root user goal.
 
 **Why This Principle Matters**
 
@@ -376,7 +380,9 @@ The original user intent must propagate through the entire agent chain as an imm
 
 **Failure Mode(s) Addressed:**
 - **R1: Implicit Handoffs → Information Loss** — Informal or conversational handoffs lose critical information, forcing downstream agents to guess or hallucinate context.
+  - *Detect via:* Receiving agent asks clarifying questions that sending agent already answered; downstream output missing constraints from upstream; agents make assumptions not supported by handoff data; natural language handoffs without structured fields.
 - **R2: Missing Deadlock Prevention → Agent Gridlock** — Handoffs without timeouts or retry limits cause agents to wait indefinitely for each other.
+  - *Detect via:* Agent response time exceeds 2x normal; circular dependency in agent wait chains; no timeout or retry configuration in handoff protocol; workflow stalls with no error or progress.
 
 **Why This Principle Matters**
 
@@ -446,7 +452,9 @@ Every inter-agent transfer must follow an explicit handoff protocol that include
 
 **Failure Mode(s) Addressed:**
 - **R3: Pattern Mismatch → Coordination Failure** — Wrong orchestration pattern causes bottlenecks (over-serialization) or errors (inappropriate parallelization of dependent tasks).
+  - *Detect via:* Parallel agents wait for same resource; sequential tasks that could run in parallel; agent starts before its dependency completes; orchestration pattern not documented in workflow design.
 - **R4: Gate Bypass → Rework Cascades** — Skipping validation gates causes downstream work based on unvalidated upstream outputs.
+  - *Detect via:* Phase N+1 starts before Phase N validation completes; downstream agent receives input without validation status; failed upstream outputs consumed by downstream agents; no validation checkpoint between phases.
 
 **Why This Principle Matters**
 
@@ -517,6 +525,7 @@ Select orchestration pattern based on task characteristics: use sequential for d
 
 **Failure Mode(s) Addressed:**
 - **R5: Session Discontinuity → Context Loss** — Multi-agent coordination state, delegation history, and cross-agent decisions lost at session boundaries, causing incoherence on resume.
+  - *Detect via:* New session repeats questions answered in previous session; agents lack awareness of prior decisions; workflow restarts from beginning after interruption; no state file updated at session end; agent asks "where were we?".
 
 **Why This Principle Matters**
 
@@ -577,6 +586,7 @@ Multi-agent workflow state must be persisted to structured files that survive se
 
 **Failure Mode(s) Addressed:**
 - **R6: Invisible Agent Status → Late Blocker Detection** — Without visibility into agent progress, blockers are discovered late, causing cascading delays and debugging difficulties.
+  - *Detect via:* Orchestrator cannot answer "what is agent X doing right now?"; agent runs for extended period with no status update; blockers discovered only at task completion; no heartbeat or progress mechanism in agent protocol.
 
 **Why This Principle Matters**
 
@@ -643,6 +653,7 @@ Long-running agents must proactively broadcast status (current task, progress, b
 
 **Failure Mode(s) Addressed:**
 - **Q1: Self-Validation Bias → False Quality Assurance** — Agents validating their own work experience confirmation bias, consistently "passing" outputs regardless of actual quality.
+  - *Detect via:* Validation pass rate >95% with no rework cycles; validator and generator are same agent; validation reasoning echoes generator's justifications; defects discovered downstream that should have been caught at validation.
 
 **Why This Principle Matters**
 
@@ -714,7 +725,9 @@ Validation must be performed by a dedicated agent separate from the agent that p
 
 **Failure Mode(s) Addressed:**
 - **Q2: Cascading Failures → System-Wide Corruption** — Failures in one agent propagate through the network, corrupting outputs across the entire multi-agent workflow.
+  - *Detect via:* Error in agent A appears in outputs of agents B, C, D; single failure causes multiple downstream rework; no circuit breaker triggers despite clear failure; failure impact expands rather than isolates.
 - **Q3: Silent Failures → Undetected Error Propagation** — Agent errors ignored or hidden, causing corrupted outputs to flow downstream without detection.
+  - *Detect via:* Agent returns output despite encountering error condition; error logs empty despite observable failures; downstream agents receive corrupted input without warning; exception caught and suppressed without escalation.
 
 **Why This Principle Matters**
 
@@ -789,6 +802,7 @@ Multi-agent workflows must implement fault isolation and graceful degradation. A
 
 **Failure Mode(s) Addressed:**
 - **Q4: Autonomous Consequential Decisions → Unchecked AI Authority** — Multi-agent systems make high-stakes or irreversible decisions without appropriate human oversight, propagating errors at scale.
+  - *Detect via:* Workflow produces production deployments, financial transactions, or external communications without human approval gate; orchestrator lacks defined escalation triggers; irreversible actions executed in automated flow; no human checkpoint between phases.
 
 **Why This Principle Matters**
 
@@ -920,6 +934,7 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v1.3.0 | 2025-12-31 | Detection Heuristics: Added "Detect via" line to all 12 failure modes (A1-A4, R1-R6, Q1-Q4). Provides specific, observable conditions for early failure mode detection. Based on external review recommendation. |
 | v1.2.0 | 2025-12-29 | Template Consistency: Added "Failure Mode(s) Addressed" field to all 11 principles per Constitution 10-Field Template standard (Part 3.5.1). Aligns with Structured Output Enforcement principle. |
 | v1.1.0 | 2025-12-28 | ID System Refactoring: Removed series codes from principle headers (A1, R1, Q1 → titles only). Series codes retained for document organization but not principle identification. Cross-references converted to principle titles. Aligns with Constitution v1.5 and AI Coding Domain v2.2 changes. |
 | v1.0.1 | 2025-12-21 | Minor version bump for index compatibility. |

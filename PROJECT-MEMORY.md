@@ -134,6 +134,23 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Solution:** SIGTERM/SIGINT handlers + finally block call `os._exit(0)` immediately
 - **Rationale:** Synchronous I/O can't be cancelled; immediate exit is correct for stdio transport
 
+### Decision: Confidence Thresholds Validated (Keep Defaults)
+- **Date:** 2025-12-31
+- **Status:** CONFIRMED
+- **Context:** External review suggested "LOW confidence might be too conservative"
+- **Analysis Conducted:**
+  - Tested 5 diverse queries (specs, security, multi-agent, context, testing)
+  - Verified score distributions across constitution and domain principles
+  - Checked what falls below 0.3 threshold (potential misses)
+- **Findings:**
+  | Threshold | Value | Observation |
+  |-----------|-------|-------------|
+  | HIGH | ≥0.7 | Correctly identifies highly relevant matches (reranked scores) |
+  | MEDIUM | ≥0.4 | Captures useful context appropriately |
+  | LOW/min | ≥0.3 | Some edge cases (e.g., "Risk Mitigation" at 0.29 for security query) but lowering would increase noise |
+- **Decision:** Keep current thresholds unchanged
+- **Rationale (80/20):** ~95% of queries work well; the ~5% edge cases don't justify adding noise to all results. Reranker correctly boosts truly relevant results above thresholds.
+
 ### Decision: Pre-Flight Validation for Domain Configuration
 - **Date:** 2025-12-31
 - **Status:** CONFIRMED

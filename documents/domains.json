@@ -18,7 +18,7 @@
   "multi-agent": {
     "name": "multi-agent",
     "display_name": "Multi-Agent",
-    "principles_file": "multi-agent-domain-principles-v1.2.0.md",
+    "principles_file": "multi-agent-domain-principles-v1.3.0.md",
     "methods_file": "multi-agent-methods-v1.1.0.md",
     "description": "Multi-agent AI systems and orchestration. Agent coordination, task delegation, handoffs, swarm intelligence, ensemble methods, pipeline design, and agent communication protocols.",
     "priority": 20

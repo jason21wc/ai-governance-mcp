@@ -110,7 +110,7 @@ Load this document when:
 | Checking if idea is principle vs method | Part 8.2 | Classification of Ideas |
 | Creating a new domain | Title 9 | Domain Authoring |
 | Using 9-Field template | Part 9.4 | 9-Field Template |
-| Formatting a new principle | Part 3.5.1 | 10-Field Principle Template |
+| Formatting a new principle | Part 9.4.0-9.4.1 | Constitution vs Domain Templates |
 | Formatting a new method | Part 3.5.3 | Method Section Template |
 | Header level questions | Part 3.5.4 | Header Hierarchy |
 | Emoji/badge usage | Part 3.5.7 | Emoji Conventions |
@@ -1333,15 +1333,60 @@ When domain documentation conflicts:
 
 ---
 
-## Part 9.4: 9-Field Template
+## Part 9.4: Principle Templates
 
-**Importance: CRITICAL - Standard format for domain principles**
+**Importance: CRITICAL - Standard formats for principles**
+
+### 9.4.0 Constitution vs Domain Templates
+
+Constitution (meta) principles and domain principles use **intentionally different templates** because they serve different purposes:
+
+| Aspect | Constitution Principles | Domain Principles |
+|--------|------------------------|-------------------|
+| **Purpose** | Universal behavioral rules | Domain-specific implementations |
+| **Stability** | Rarely change | Evolve with domain practice |
+| **Derivation** | Self-standing | Derive from Constitution |
+| **Audience** | All AI behaviors | Specific task contexts |
+
+#### Constitution Principle Fields
+```
+### [Principle Name]
+**Definition** — The binding rule
+**How the AI Applies This Principle** — Operational guidance
+**Why This Principle Matters** — Rationale
+**When Human Interaction Is Needed** — Escalation triggers
+**Operational Considerations** — Implementation notes
+**Common Pitfalls or Failure Modes** — What goes wrong
+**Net Impact** — Expected outcomes
+```
+
+#### Domain Principle Fields
+```
+### [Principle Title] ([Legal Analogy])
+**Failure Mode(s) Addressed** — What failure this prevents
+**Constitutional Basis** — Parent principles (Derives from)
+**Why Meta-Principles Alone Are Insufficient** — Why domain-specific rule needed
+**Domain Application** — How to apply in this domain
+**Truth Sources** — Authoritative references
+**How the AI Applies** — Operational guidance
+**Why It Matters** — Rationale
+**PO/Human Interaction** — Escalation points
+**Pitfalls** — Common mistakes
+**Success Criteria** — Verification
+```
+
+#### Why Different Templates?
+
+1. **Constitution = foundational law**: Focuses on universal behaviors, self-evident value
+2. **Domain = derived statute**: Must justify derivation, address specific failure modes
+3. **"Constitutional Basis" field**: Only domain principles need this—they derive authority from Constitution
+4. **"Failure Mode(s) Addressed" field**: Domain principles are created to prevent specific failures; Constitution principles define positive behaviors
+
+### 9.4.1 Domain Principle Template (9-Field)
 
 Use this template when authoring domain principles. All fields are required unless marked optional.
 
-*Note: This is a minimal authoring guide. For comprehensive formatting including optional fields (Truth Sources, Configurable Defaults), see Part 3.5.1 (10-Field Template).*
-
-### 9.4.1 Template Structure
+#### Template Structure
 
 ```markdown
 ### [Principle Title] ([Legal Analogy])
