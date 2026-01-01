@@ -314,8 +314,12 @@ class TestFullPipeline:
 class TestExtractorErrorHandling:
     """Tests for extractor error handling."""
 
-    def test_extract_all_handles_missing_documents_dir(self, test_settings):
-        """extract_all() should handle missing documents directory gracefully."""
+    def test_extract_all_fails_fast_for_missing_documents(self, test_settings):
+        """extract_all() should fail fast with clear error for missing documents.
+
+        Pre-flight validation catches configuration errors before extraction starts,
+        providing actionable guidance (check domains.json, ensure versions match).
+        """
         # Remove documents directory
         import shutil
 
@@ -328,13 +332,19 @@ class TestExtractorErrorHandling:
         mock_st = Mock(return_value=mock_embedder)
 
         with patch("sentence_transformers.SentenceTransformer", mock_st):
-            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.extractor import (
+                DocumentExtractor,
+                ExtractorConfigError,
+            )
 
             extractor = DocumentExtractor(test_settings)
-            # Should not raise, but return empty or minimal index
-            index = extractor.extract_all()
 
-            assert index is not None
+            # Should raise ExtractorConfigError with actionable message
+            with pytest.raises(ExtractorConfigError) as exc_info:
+                extractor.extract_all()
+
+            # Error should reference domains.json for debugging
+            assert "domains.json" in str(exc_info.value)
 
     def test_extract_all_handles_empty_domain(self, test_settings, temp_dir):
         """extract_all() should handle domains with no principles."""

@@ -462,7 +462,32 @@ Procedure for validating phase gates.
 
 
 @pytest.fixture
-def sample_domains_json(temp_dir):
+def sample_coding_principles_md(temp_dir):
+    """Create a minimal AI coding principles markdown file for extraction testing."""
+    content = """# AI Coding Domain Principles
+
+## C1: Code Quality First
+
+**Definition:** Prioritize maintainable, readable code.
+
+All code must be well-tested and documented.
+
+## C2: Test Coverage
+
+**Definition:** Maintain adequate test coverage.
+
+Tests should validate behavior, not just exercise code.
+"""
+    path = temp_dir / "documents" / "test-coding-principles.md"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content)
+    return path
+
+
+@pytest.fixture
+def sample_domains_json(
+    temp_dir, sample_principles_md, sample_coding_principles_md, sample_methods_md
+):
     """Create a domains.json configuration file for testing."""
     domains = [
         {

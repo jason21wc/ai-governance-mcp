@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 198 tests, 93% coverage
+- **Status:** COMPLETE - All phases done, 205 tests, 93% coverage
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -124,6 +124,21 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Research:** Postgres MCP server uses same pattern; stdio transport can't be gracefully interrupted
 - **Solution:** SIGTERM/SIGINT handlers + finally block call `os._exit(0)` immediately
 - **Rationale:** Synchronous I/O can't be cancelled; immediate exit is correct for stdio transport
+
+### Decision: Pre-Flight Validation for Domain Configuration
+- **Date:** 2025-12-31
+- **Status:** CONFIRMED
+- **Problem:** Extractor silently produced "0 methods" when domains.json referenced missing files (stale version references after updates)
+- **Solution:** Added `validate_domain_files()` method called at start of `extract_all()`:
+  1. Checks all configured principles/methods files exist
+  2. Reports ALL missing files in one error (not just first)
+  3. Provides actionable guidance ("Check documents/domains.json and ensure file versions match")
+- **Implementation:**
+  - New `ExtractorConfigError` exception class
+  - `validate_domain_files()` method in DocumentExtractor
+  - 7 new tests in test_extractor.py
+- **Rationale:** Fail-fast with clear errors > fail-silent with hidden problems
+- **Pattern Applied:** Any config-driven system should validate external references at startup
 
 ---
 
@@ -258,9 +273,9 @@ Show updated process map:
 | models.py | 24 | 100% |
 | config.py | 17 | 98% |
 | server.py | 59 | 97% |
-| extractor.py | 38 | 93% |
+| extractor.py | 45 | 93% |
 | retrieval.py | 55 | 86% |
-| **Total** | **198** | **93%** |
+| **Total** | **205** | **93%** |
 
 ## Dependencies
 
@@ -306,7 +321,7 @@ Show updated process map:
 | tests/test_config.py | 17 | Settings, env vars, path handling |
 | tests/test_server.py | 46 | All 6 tools, formatting, metrics, governance reminder |
 | tests/test_server_integration.py | 12 | Dispatcher routing, end-to-end flows |
-| tests/test_extractor.py | 35 | Parsing, embeddings, metadata |
+| tests/test_extractor.py | 42 | Parsing, embeddings, metadata, validation |
 | tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |
 | tests/test_retrieval.py | 44 | Unit tests + edge cases |
 | tests/test_retrieval_integration.py | 18 | Pipeline, utilities, performance |
@@ -366,3 +381,12 @@ if method:
 - Methods: `{prefix}-method-{slug}` (e.g., `coding-method-phase-1-specify`)
 
 **Why This Matters:** If only `get_principle_by_id` is implemented, methods appear in query results but can't be retrieved individually - a confusing UX gap.
+
+### Gotcha 11: domains.json File References Must Match Actual Filenames
+When updating governance document versions (e.g., `ai-coding-methods-v1.1.1.md` → `ai-coding-methods-v2.0.0.md`), you MUST update `documents/domains.json` to reference the new filename.
+
+**Symptom:** Extractor shows "0 methods" for a domain that should have methods.
+
+**Fix:** Update `domains.json` to reference correct filename, then rebuild index.
+
+**Prevention:** Extractor now validates all file references at startup and fails fast with actionable error message listing ALL missing files.

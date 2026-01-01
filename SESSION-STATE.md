@@ -8,27 +8,34 @@
 
 ## Current Position
 
-**Status:** AI Coding Methods v2.0.0 complete
-**Next Action:** Review changes and commit
-**Context:** Major methods revision based on industry research
+**Status:** Pre-flight validation implemented and documented
+**Next Action:** Commit and push changes
+**Context:** Added fail-fast validation to extractor to catch domains.json configuration errors
 
 ---
 
 ## Immediate Context
 
-- ai-coding-methods upgraded v1.1.1 → v2.0.0 (breaking change)
-- Cognitive memory types formalized (Working, Semantic, Episodic, Procedural)
-- Gate artifacts eliminated — now inline in PROJECT-MEMORY
-- Project Instructions File (loader) concept documented
-- All memory files updated with v2.0.0 decisions and research
+Session completed:
+1. Added `ExtractorConfigError` exception class
+2. Added `validate_domain_files()` method for pre-flight validation
+3. Added 7 new tests for validation (205 total tests)
+4. Updated `test_extract_all_handles_missing_documents_dir` to expect fail-fast behavior
+5. Added `sample_coding_principles_md` fixture to conftest.py
+6. Documented pattern in LEARNING-LOG.md
+7. Added decision to PROJECT-MEMORY.md
+8. Added Gotcha 11 for domains.json file reference issues
 
 ---
 
 ## Session Notes
 
-Key changes in this session:
-1. Researched AI agent memory best practices (CoALA, Mem0, ADR patterns)
-2. Documented research in LEARNING-LOG.md
-3. Added 5 major decisions to PROJECT-MEMORY.md
-4. Updated ai-coding-methods to v2.0.0 with breaking changes
-5. Updated CLAUDE.md to follow loader pattern
+This session addressed the silent failure issue where domains.json referencing stale filenames (e.g., after version updates) caused "0 methods" extraction without any error message.
+
+The solution follows the "fail-fast" pattern:
+- Check all configured files exist BEFORE starting extraction
+- Report ALL missing files in one error (not just first)
+- Provide actionable guidance (check domains.json)
+- CI tests verify the validation works
+
+All 205 tests passing.

@@ -717,3 +717,190 @@ class TestRealEmbeddings:
 
         # First embedding from batch should match single
         assert np.allclose(single[0], batch[0], atol=1e-5)
+
+
+# =============================================================================
+# Domain File Validation Tests
+# =============================================================================
+
+
+class TestValidateDomainFiles:
+    """Tests for validate_domain_files() pre-flight validation."""
+
+    def test_validate_domain_files_passes_for_valid_config(
+        self, test_settings, sample_principles_md, sample_methods_md
+    ):
+        """Should not raise when all configured files exist."""
+        # Create a minimal domains.json that only references existing fixtures
+        domains_path = test_settings.documents_path / "domains.json"
+        domains_data = [
+            {
+                "name": "constitution",
+                "display_name": "Constitution",
+                "principles_file": "test-principles.md",
+                "methods_file": "test-methods.md",
+                "description": "Test domain",
+                "priority": 0,
+            }
+        ]
+        import json
+
+        domains_path.write_text(json.dumps(domains_data))
+
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor(test_settings)
+
+            # Should not raise - all files exist
+            extractor.validate_domain_files()
+
+    def test_validate_domain_files_raises_for_missing_principles(
+        self, test_settings, sample_domains_json
+    ):
+        """Should raise ExtractorConfigError for missing principles file."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import (
+                DocumentExtractor,
+                ExtractorConfigError,
+            )
+            from ai_governance_mcp.models import DomainConfig
+
+            extractor = DocumentExtractor(test_settings)
+
+            # Inject domain with missing file
+            extractor.domains.append(
+                DomainConfig(
+                    name="test-missing",
+                    display_name="Missing Domain",
+                    principles_file="nonexistent-principles.md",
+                    description="Test domain",
+                    priority=99,
+                )
+            )
+
+            with pytest.raises(ExtractorConfigError) as exc_info:
+                extractor.validate_domain_files()
+
+            assert "nonexistent-principles.md" in str(exc_info.value)
+            assert "test-missing" in str(exc_info.value)
+
+    def test_validate_domain_files_raises_for_missing_methods(
+        self, test_settings, sample_domains_json, sample_principles_md
+    ):
+        """Should raise ExtractorConfigError for missing methods file."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import (
+                DocumentExtractor,
+                ExtractorConfigError,
+            )
+            from ai_governance_mcp.models import DomainConfig
+
+            extractor = DocumentExtractor(test_settings)
+
+            # Inject domain with valid principles but missing methods
+            extractor.domains.append(
+                DomainConfig(
+                    name="test-missing-methods",
+                    display_name="Missing Methods Domain",
+                    principles_file="test-principles.md",  # This exists
+                    methods_file="nonexistent-methods.md",
+                    description="Test domain",
+                    priority=99,
+                )
+            )
+
+            with pytest.raises(ExtractorConfigError) as exc_info:
+                extractor.validate_domain_files()
+
+            assert "nonexistent-methods.md" in str(exc_info.value)
+            assert "test-missing-methods" in str(exc_info.value)
+
+    def test_validate_domain_files_reports_all_missing(
+        self, test_settings, sample_domains_json
+    ):
+        """Should report ALL missing files, not just the first."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import (
+                DocumentExtractor,
+                ExtractorConfigError,
+            )
+            from ai_governance_mcp.models import DomainConfig
+
+            extractor = DocumentExtractor(test_settings)
+
+            # Inject multiple domains with missing files
+            extractor.domains.append(
+                DomainConfig(
+                    name="bad-domain-1",
+                    display_name="Bad 1",
+                    principles_file="missing-1.md",
+                    methods_file="missing-2.md",
+                    description="Test",
+                    priority=98,
+                )
+            )
+            extractor.domains.append(
+                DomainConfig(
+                    name="bad-domain-2",
+                    display_name="Bad 2",
+                    principles_file="missing-3.md",
+                    description="Test",
+                    priority=99,
+                )
+            )
+
+            with pytest.raises(ExtractorConfigError) as exc_info:
+                extractor.validate_domain_files()
+
+            error_msg = str(exc_info.value)
+            # Should contain all missing files
+            assert "missing-1.md" in error_msg
+            assert "missing-2.md" in error_msg
+            assert "missing-3.md" in error_msg
+            assert "bad-domain-1" in error_msg
+            assert "bad-domain-2" in error_msg
+
+    def test_validate_domain_files_suggests_checking_domains_json(
+        self, test_settings, sample_domains_json
+    ):
+        """Should provide actionable guidance in error message."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import (
+                DocumentExtractor,
+                ExtractorConfigError,
+            )
+            from ai_governance_mcp.models import DomainConfig
+
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains.append(
+                DomainConfig(
+                    name="test",
+                    display_name="Test",
+                    principles_file="missing.md",
+                    description="Test",
+                    priority=99,
+                )
+            )
+
+            with pytest.raises(ExtractorConfigError) as exc_info:
+                extractor.validate_domain_files()
+
+            assert "domains.json" in str(exc_info.value)
+
+
+class TestExtractorConfigError:
+    """Tests for ExtractorConfigError exception class."""
+
+    def test_extractor_config_error_is_exception(self):
+        """Should be a proper exception class."""
+        from ai_governance_mcp.extractor import ExtractorConfigError
+
+        assert issubclass(ExtractorConfigError, Exception)
+
+    def test_extractor_config_error_message(self):
+        """Should preserve error message."""
+        from ai_governance_mcp.extractor import ExtractorConfigError
+
+        error = ExtractorConfigError("Test error message")
+        assert str(error) == "Test error message"

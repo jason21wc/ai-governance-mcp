@@ -631,6 +631,69 @@ Source: Mem0; Medium/Nayeem Islam
 
 ---
 
+### 2025-12-31 - Pre-Flight Validation Pattern for Configuration Errors
+
+**Context:** After updating ai-coding-methods.md from v1.1.1 to v2.0.0, the extractor silently produced "0 methods" because domains.json still referenced the old filename.
+
+**What Happened:** The extractor would gracefully handle missing files (return empty list), which meant configuration errors were silently ignored. User discovered the issue only by checking extraction output.
+
+**Root Cause:** Fail-silent vs fail-fast design. The original design prioritized "graceful handling" but this hid configuration errors that should be immediately visible.
+
+**Solution - Pre-Flight Validation Pattern:**
+```python
+class ExtractorConfigError(Exception):
+    """Raised when extractor configuration is invalid (e.g., missing files)."""
+    pass
+
+def validate_domain_files(self) -> None:
+    """Pre-flight validation: ensure all configured files exist.
+
+    Lists ALL missing files, not just the first one found.
+    Provides actionable guidance (check domains.json).
+    """
+    missing_files: list[str] = []
+
+    for domain_config in self.domains:
+        principles_path = self.settings.documents_path / domain_config.principles_file
+        if not principles_path.exists():
+            missing_files.append(f"  - {domain_config.name}: principles file '{domain_config.principles_file}'")
+        # ... check methods file too
+
+    if missing_files:
+        raise ExtractorConfigError(
+            f"Domain configuration references missing files:\n{...}\n\n"
+            f"Check documents/domains.json and ensure file versions match."
+        )
+
+def extract_all(self) -> GlobalIndex:
+    # Pre-flight validation: fail fast if files are missing
+    self.validate_domain_files()  # <-- First thing!
+    # ... rest of extraction
+```
+
+**Key Pattern Elements:**
+1. **Fail fast** — Check configuration BEFORE expensive operations
+2. **Report ALL errors** — Collect all missing files, not just first
+3. **Actionable message** — Tell user WHERE to look (domains.json)
+4. **CI test coverage** — Add tests that verify validation works
+
+**Tests Added:**
+- `test_validate_domain_files_passes_for_valid_config`
+- `test_validate_domain_files_raises_for_missing_principles`
+- `test_validate_domain_files_raises_for_missing_methods`
+- `test_validate_domain_files_reports_all_missing`
+- `test_validate_domain_files_suggests_checking_domains_json`
+
+**Lesson:** For configuration-driven systems (like domain registries), validate configuration at startup, not during operation. Silent failures hide problems; clear errors fix them.
+
+**Pattern Application:** Any system that loads external configuration should:
+1. Validate all config references exist before starting work
+2. Report ALL problems in one error, not one at a time
+3. Include remediation hints in error messages
+4. Have CI tests that verify validation catches bad configs
+
+---
+
 ## Research Links (from 2025-12-24 session)
 
 Hybrid retrieval best practices:

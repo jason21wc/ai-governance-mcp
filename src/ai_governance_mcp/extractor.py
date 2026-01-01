@@ -67,6 +67,12 @@ class EmbeddingGenerator:
         return self.model.get_sentence_embedding_dimension()
 
 
+class ExtractorConfigError(Exception):
+    """Raised when extractor configuration is invalid (e.g., missing files)."""
+
+    pass
+
+
 class DocumentExtractor:
     """Extracts principles and methods from governance markdown documents.
 
@@ -78,8 +84,45 @@ class DocumentExtractor:
         self.domains = load_domains_registry(settings)
         self.embedder = EmbeddingGenerator(settings.embedding_model)
 
+    def validate_domain_files(self) -> None:
+        """Pre-flight validation: ensure all configured files exist.
+
+        Raises:
+            ExtractorConfigError: If any configured files are missing.
+                Lists ALL missing files, not just the first one found.
+        """
+        missing_files: list[str] = []
+
+        for domain_config in self.domains:
+            # Check principles file (required)
+            principles_path = (
+                self.settings.documents_path / domain_config.principles_file
+            )
+            if not principles_path.exists():
+                missing_files.append(
+                    f"  - {domain_config.name}: principles file '{domain_config.principles_file}'"
+                )
+
+            # Check methods file (optional, but if configured must exist)
+            if domain_config.methods_file:
+                methods_path = self.settings.documents_path / domain_config.methods_file
+                if not methods_path.exists():
+                    missing_files.append(
+                        f"  - {domain_config.name}: methods file '{domain_config.methods_file}'"
+                    )
+
+        if missing_files:
+            files_list = "\n".join(missing_files)
+            raise ExtractorConfigError(
+                f"Domain configuration references missing files:\n{files_list}\n\n"
+                f"Check documents/domains.json and ensure file versions match."
+            )
+
     def extract_all(self) -> GlobalIndex:
         """Extract all domains and build global index with embeddings."""
+        # Pre-flight validation: fail fast if files are missing
+        self.validate_domain_files()
+
         ensure_directories(self.settings)
 
         domain_indexes: dict[str, DomainIndex] = {}
