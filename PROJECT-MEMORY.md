@@ -125,6 +125,89 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Solution:** SIGTERM/SIGINT handlers + finally block call `os._exit(0)` immediately
 - **Rationale:** Synchronous I/O can't be cancelled; immediate exit is correct for stdio transport
 
+---
+
+## AI Coding Methods v2.0.0 Decisions
+
+*The following decisions apply to the AI Coding Methods framework itself (ai-coding-methods.md), not just the MCP server.*
+
+### Decision: Memory Architecture Aligned to Cognitive Types
+- **Date:** 2025-12-31
+- **Status:** CONFIRMED
+- **Research:** CoALA framework (Princeton), IBM, Mem0, industry patterns
+- **Choice:** Explicitly map memory files to cognitive memory types:
+  | Cognitive Type | File | Purpose |
+  |----------------|------|---------|
+  | Working Memory | SESSION-STATE.md | What's active now (transient) |
+  | Semantic Memory | PROJECT-MEMORY.md | Facts, decisions, knowledge (accumulates) |
+  | Episodic Memory | LEARNING-LOG.md | Events, experiences (prunable) |
+  | Procedural Memory | Methods documents | How to do things (evolves) |
+- **Rationale:** Cognitive framing clarifies purpose of each file; aligns with AI agent memory best practices
+- **Sources:** [Mem0](https://mem0.ai), [IBM AI Agent Memory](https://www.ibm.com/think/topics/ai-agent-memory), [CoALA Framework](https://arxiv.org/abs/2309.02427)
+
+### Decision: Eliminate Separate Gate Artifact Files
+- **Date:** 2025-12-31
+- **Status:** CONFIRMED
+- **Breaking Change:** Yes — projects using GATE-SPECIFY.md, GATE-PLAN.md, etc. must migrate
+- **Previous:** Create separate GATE-*.md files for each phase transition, then archive
+- **New:** Record gate status inline in PROJECT-MEMORY.md under "Phase Gates" section
+- **Rationale:**
+  1. Gates are checkpoints (facts about project state), not decisions (ADRs)
+  2. Separate files create coordination overhead and sync issues
+  3. Gate criteria live in procedural memory (methods doc) — no need to duplicate
+  4. Industry pattern: quality gates integrate inline, not as separate documents
+- **Migration:** Move gate status to PROJECT-MEMORY table; archive old GATE-*.md files
+- **Sources:** [Sonar Quality Gates](https://www.sonarsource.com/learn/quality-gate/), ADR vs checkpoint distinction
+
+### Decision: Task Tracking Tiered Approach
+- **Date:** 2025-12-31
+- **Status:** CONFIRMED
+- **Problem:** Methods doc didn't specify where task list lives during Implement phase
+- **Choice:** Tiered approach based on project context:
+  | Context | Approach |
+  |---------|----------|
+  | Team/Open Source | GitHub Issues + Projects |
+  | Solo/Private | Active Tasks section in SESSION-STATE.md |
+  | Hybrid | GitHub Issues for backlog, SESSION-STATE for current sprint |
+- **Rationale:**
+  1. Tasks are working memory — belong with session state
+  2. GitHub Issues provide automation (auto-close, cross-references)
+  3. Separate TASKS.md file creates unnecessary sync overhead
+- **Sources:** [GitHub Planning and Tracking](https://docs.github.com/en/issues/planning-and-tracking-with-projects)
+
+### Decision: Project Instructions File (Loader Document)
+- **Date:** 2025-12-31
+- **Status:** CONFIRMED
+- **Problem:** Methods doc didn't formally define how AI discovers memory files
+- **Choice:** Define tool-agnostic "Project Instructions File" concept with implementations:
+  | Tool | File |
+  |------|------|
+  | Claude Code | CLAUDE.md |
+  | Gemini CLI | GEMINI.md |
+  | Cursor | .cursor/rules/ |
+  | Cross-tool | AGENTS.md (emerging) |
+- **Key Principle:** Progressive disclosure — loader points to memory, doesn't contain all info
+- **Rationale:**
+  1. CLAUDE.md is the "constitution" for AI working on a codebase
+  2. Less is more — minimal loader, full context in memory files
+  3. Enables tool-agnostic framework definition
+- **Sources:** [Anthropic Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices), [HumanLayer](https://www.humanlayer.dev/blog/writing-a-good-claude-md)
+
+### Decision: Principles-Based Memory Pruning
+- **Date:** 2025-12-31
+- **Status:** CONFIRMED
+- **Problem:** No guidance on when/how to prune memory files
+- **Choice:** Principles-based guidance, not size limits
+- **Core Principle:** "Memory serves reasoning, not archival. Retain what informs future decisions; prune what only describes the past."
+- **Pruning Triggers:**
+  | Memory Type | Prune When |
+  |-------------|------------|
+  | Working (SESSION-STATE) | Every session start (overwrite) |
+  | Semantic (PROJECT-MEMORY) | Decision is superseded or obsolete |
+  | Episodic (LEARNING-LOG) | Lesson is internalized into procedures |
+- **Anti-Principle:** Never prune for size alone — large memory indicates detail or scope issues
+- **Sources:** [Mem0 priority scoring](https://mem0.ai), industry eviction policies
+
 ## Patterns and Conventions
 
 ### Communication Level (PO Approved)

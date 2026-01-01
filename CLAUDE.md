@@ -1,67 +1,58 @@
 # AI Governance MCP Server
 
 **Project:** Semantic retrieval system for AI governance principles
-**Framework:** AI Governance Framework v2.4
+**Framework:** AI Coding Methods v2.0.0
 
 ## On Session Start
 
 1. Load SESSION-STATE.md for current position
-2. Query `ai-governance` MCP for relevant principles as needed
-3. Follow governance principles from this project's own documents
+2. Follow Next Actions listed there
+3. Reference PROJECT-MEMORY.md for constraints and decisions
+
+## Memory (Cognitive Types)
+
+| Type | File | Purpose |
+|------|------|---------|
+| Working | SESSION-STATE.md | Current position, next actions |
+| Semantic | PROJECT-MEMORY.md | Decisions, architecture, gates |
+| Episodic | LEARNING-LOG.md | Lessons learned |
 
 ## Governance Integration
 
-This project IS the AI Governance MCP. Use the `ai-governance` MCP tools:
+This project IS the AI Governance MCP. Use these tools:
 
 | Tool | Purpose |
 |------|---------|
-| `query_governance` | Retrieve relevant principles for current task |
-| `get_principle` | Get full content of a specific principle |
-| `list_domains` | See available domains (constitution, ai-coding, multi-agent) |
-| `get_domain_summary` | Explore a domain's principles and methods |
-
-## Project Context
-
-- **Source:** `src/ai_governance_mcp/`
-- **Documents:** `documents/` (governance content)
-- **Index:** `index/` (generated embeddings)
-- **Tests:** `tests/` (198 tests, 93% coverage)
+| `query_governance` | Get principles for current task |
+| `get_principle` | Get full content by ID |
+| `list_domains` | See available domains |
 
 ## Key Commands
 
 ```bash
-# Rebuild index after document changes
-python -m ai_governance_mcp.extractor
-
-# Run tests
-pytest tests/ -v
-
-# Run server
-python -m ai_governance_mcp.server
+python -m ai_governance_mcp.extractor  # Rebuild index
+pytest tests/ -v                        # Run tests (198, 93% coverage)
+python -m ai_governance_mcp.server      # Run server
 ```
+
+## Project Structure
+
+- `src/ai_governance_mcp/` — Source code
+- `documents/` — Governance content (indexed)
+- `index/` — Generated embeddings
+- `tests/` — Test suite
 
 ## Jurisdiction
 
-**AI Coding** applies (this is a software project):
-- Follow 4-phase workflow: Specify → Plan → Tasks → Implement
-- Validate with gates between phases
+**AI Coding** applies:
+- 4-phase workflow: Specify → Plan → Tasks → Implement
+- Record gates in PROJECT-MEMORY.md (not separate files)
 - Keep changes atomic (≤15 files per task)
 
-## Memory Files
+## Recovery
 
-| File | Purpose |
-|------|---------|
-| SESSION-STATE.md | Current position, next actions |
-| PROJECT-MEMORY.md | Architecture decisions |
-| LEARNING-LOG.md | Lessons learned |
-
-## Framework Check
-
-If context seems lost, query:
-```
-query_governance("framework recovery session continuity")
-```
+If context seems lost: `query_governance("framework recovery")`
 
 ---
 
-*See documents/ai-instructions-v2.4.md for full framework activation protocol.*
+*See documents/ai-instructions-v2.4.md for full activation protocol.*

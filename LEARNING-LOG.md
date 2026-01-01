@@ -548,6 +548,89 @@ finally:
 5. **Additional domains:** Prompt engineering, RAG optimization, sci-fi/fantasy writing, hotel analysis planned.
 6. **Knowledge graph tier:** Tier 3 enhancement for relationship-based retrieval if needed.
 
+---
+
+### 2025-12-31 - Memory Architecture Research: Cognitive Types and Industry Patterns (CRITICAL)
+
+**Context:** Reviewing gaps in ai-coding-methods memory architecture to determine best practices.
+
+**Research Conducted:**
+- AI agent memory systems (Mem0, IBM, Medium/Navyasree Potluri)
+- Architecture Decision Records (AWS, adr.github.io, Microsoft, MADR)
+- Phase gate patterns (Sonar, Teamwork, ZetCode)
+- Context file patterns (Anthropic, HumanLayer, Softcery)
+- Task tracking (GitHub Docs, TrackDown)
+
+**Key Findings:**
+
+**1. Cognitive Memory Types (CoALA Framework)**
+AI agents benefit from three distinct memory types, mirroring human cognition:
+- **Semantic Memory** — facts and knowledge (decisions, architecture, constraints)
+- **Episodic Memory** — events and experiences (lessons learned, what happened)
+- **Procedural Memory** — how to do things (workflows, methods, checklists)
+- Plus: **Working Memory** — what's active right now (session state)
+
+Source: Princeton's "Cognitive Architectures for Language Agents" paper; IBM; Medium
+
+**2. ADR Best Practices**
+- ADRs are **immutable** once accepted — new decisions supersede, don't modify
+- Store as numbered files: `decisions/NNNN-title.md`
+- Answer: What, Why, When, Who, Alternatives, Consequences
+- ADRs are for *decisions*, not checkpoints
+
+Source: AWS Prescriptive Guidance; adr.github.io; Microsoft Azure Well-Architected
+
+**3. Context File Patterns (CLAUDE.md)**
+- CLAUDE.md is the "constitution" — AI's primary source of truth for a repo
+- **Progressive disclosure**: tell AI how to find info, not all info upfront
+- **Less is more**: fewer instructions are better
+- Hierarchical: root + subdirectory files for scoped context
+
+Source: Anthropic Claude Code Best Practices; HumanLayer
+
+**4. Gate Artifacts vs Inline Tracking**
+- Gates are checkpoints, not decisions — different from ADRs
+- Quality gates integrate with CI/CD for automated enforcement
+- Hybrid agile + gate approach is industry standard
+- Excessive separate files create coordination overhead
+
+Source: Sonar Quality Gates; Teamwork Phase-Gate
+
+**5. Task Tracking**
+- GitHub task lists auto-update when referenced issues close
+- TrackDown: markdown-based issue tracking versioned with code
+- Tasks are working memory — should live close to session state
+
+Source: GitHub Docs; TrackDown project
+
+**6. Memory Pruning**
+- Need explicit eviction/pruning policies to avoid bloat
+- "Never rely on LLM's implicit weights alone for anything you need to recall with fidelity"
+- Priority scoring and contextual tagging to decide what gets stored
+
+Source: Mem0; Medium/Nayeem Islam
+
+**Implications for ai-coding-methods:**
+1. Map memory files to cognitive types explicitly
+2. Eliminate separate gate artifact files — integrate into semantic memory (PROJECT-MEMORY)
+3. Formalize CLAUDE.md as "loader" using progressive disclosure
+4. Tasks belong in working memory (SESSION-STATE) or external system (GitHub Issues)
+5. Add principles-based pruning guidance, not line-count rules
+
+**Sources:**
+- [Mem0: Memory in AI Agents](https://mem0.ai/blog/memory-in-agents-what-why-and-how)
+- [IBM: What Is AI Agent Memory](https://www.ibm.com/think/topics/ai-agent-memory)
+- [Medium: Semantic vs Episodic vs Procedural Memory](https://medium.com/womenintechnology/semantic-vs-episodic-vs-procedural-memory-in-ai-agents-and-why-you-need-all-three-8479cd1c7ba6)
+- [AWS: Architecture Decision Records](https://docs.aws.amazon.com/prescriptive-guidance/latest/architectural-decision-records/welcome.html)
+- [adr.github.io](https://adr.github.io/)
+- [Microsoft: ADR Well-Architected](https://learn.microsoft.com/en-us/azure/well-architected/architect-role/architecture-decision-record)
+- [Anthropic: Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices)
+- [HumanLayer: Writing a good CLAUDE.md](https://www.humanlayer.dev/blog/writing-a-good-claude-md)
+- [Sonar: Quality Gates](https://www.sonarsource.com/learn/quality-gate/)
+- [GitHub: Planning and Tracking](https://docs.github.com/en/issues/planning-and-tracking-with-projects)
+
+---
+
 ## Research Links (from 2025-12-24 session)
 
 Hybrid retrieval best practices:
