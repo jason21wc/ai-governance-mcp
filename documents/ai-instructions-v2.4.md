@@ -161,7 +161,7 @@ This loader is designed for use with:
 - ai-interaction-principles.md v2.1+
 - ai-governance-methods.md v3.2.0+
 - ai-coding-domain-principles.md v2.2.1+
-- ai-coding-methods.md v1.1.1+
+- ai-coding-methods.md v2.0.0+
 - multi-agent-domain-principles.md v1.2.0+
 - multi-agent-methods.md v1.1.0+
 </document_versions>

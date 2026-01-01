@@ -174,9 +174,9 @@ v2.1.3
 ### 1.1.3 Version in Filename
 
 Documents include version in filename for clarity:
-- `ai-coding-methods-v1.1.1.md`
+- `ai-coding-methods-v2.0.0.md`
 - `ai-interaction-principles-v2.1.md`
-- `ai-governance-methods-v3.1.0.md`
+- `ai-governance-methods-v3.2.0.md`
 
 ### 1.1.4 Cross-Reference Compatibility
 
