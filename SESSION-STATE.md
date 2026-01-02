@@ -4,27 +4,41 @@
 
 ## Current Position
 
-- **Phase:** Ready for next task
+- **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None
+- **Active Task:** Governance Agent planning (next)
 - **Blocker:** None
 
 ## Last Completed
 
-**Cleanup and Governance Review** (this session)
+**MCP Instruction Optimization v2** (this session)
 
-- Archived `multi-agent-domain-improvement-brief.md`
-- Removed duplicate `multi-agent-methods-v1.1.0.md` from documents/
-- Documented planned domains (Prompt Engineering, RAG Optimization) in PROJECT-MEMORY.md
-- Confirmed multi-agent-methods-v2.0.0.md is current and indexed
-- Self-assessed governance compliance (identified gaps in proactive querying and principle citation)
+Optimized SERVER_INSTRUCTIONS and GOVERNANCE_REMINDER:
+- Changed from passive "When to Use" to mandatory "Required Actions"
+- Added "Forbidden Actions" section (explicit constraints)
+- Added model-specific guidance for 5 frontier model families
+- Changed reminder to self-check question format ("Did you...?")
+- Updated test separator (`📋` → `⚖️`)
+- All 220 tests passing
+
+Also completed:
+- Archived multi-agent-domain-improvement-brief.md
+- Documented planned domains (Prompt Engineering, RAG Optimization)
+- Self-assessed governance compliance (identified gaps)
+
+## Active Tasks
+
+| ID | Task | Status |
+|----|------|--------|
+| T1 | Governance Agent implementation | Next |
 
 ## Next Actions
 
-1. **Roadmap items:**
+1. **Plan Governance Agent** — Design per multi-agent-methods-v2.0.0 Agent Catalog
+2. **Implement Governance Agent** — `evaluate_governance()` tool
+3. **Roadmap items:**
    - Docker containerization
-   - Multi-agent orchestration Phase 2 (Governance Agent implementation)
-2. **New domains:** Convert prompt engineering and RAG docs to principles/methods
+   - New domains (Prompt Engineering, RAG Optimization)
 
 ## Quick Reference
 
@@ -33,7 +47,7 @@
 | Tests | 220 passing |
 | Coverage | 90% |
 | Index | 68 principles + 198 methods |
-| Multi-agent | 14 principles, 20 methods |
+| Instructions version | v2 (constraint-based + model-specific) |
 
 ## Session Notes
 

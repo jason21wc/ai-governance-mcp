@@ -288,6 +288,30 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
   - Output: compliant (bool), findings, required_modifications, confidence
   - S-Series (safety) veto authority
 
+### Decision: MCP Instruction Optimization v2 (Constraint-Based + Model-Specific)
+- **Date:** 2026-01-01
+- **Status:** CONFIRMED
+- **Problem:** Previous SERVER_INSTRUCTIONS were passive ("When to Use") — AI received instructions but didn't follow them. Self-assessment confirmed AI ignored reminders in practice.
+- **Governance Applied:**
+  - `meta-operational-constraint-based-prompting` — explicit constraints reduce ambiguity
+  - `meta-method-instructions-content` — required sections for MCP instructions
+- **Changes:**
+  | Aspect | Before | After |
+  |--------|--------|-------|
+  | Action framing | "When to Use" (suggestive) | "Required Actions" (mandatory) |
+  | Constraints | Implicit | "Forbidden Actions" section |
+  | Model coverage | None | 5 frontier model families |
+  | Reminder style | Statement | Self-check question ("Did you...?") |
+  | Instructions tokens | ~200 | ~380 |
+  | Reminder tokens | ~40 | ~35 |
+- **Model-Specific Guidance Added:**
+  - Claude: Extended thinking for governance analysis
+  - GPT-4/o1: Sandwich method — verify before finalizing
+  - Gemini: Hierarchical headers for citations
+  - Llama/Mistral: Repeat S-Series at decision points
+- **Test Updates:** Separator changed `📋` → `⚖️` in `extract_json_from_response()` helper
+- **Rationale:** System instructions are behavioral contracts, not just documentation. Questions trigger reflection better than statements.
+
 ---
 
 ## AI Coding Methods v2.0.0 Decisions

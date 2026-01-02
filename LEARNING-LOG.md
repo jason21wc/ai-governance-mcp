@@ -840,6 +840,110 @@ This reframing explains why:
 
 ---
 
+### 2026-01-01 - MCP Instruction Optimization: Constraint-Based + Model-Specific Patterns (CRITICAL)
+
+**Context:** Reviewing SERVER_INSTRUCTIONS and GOVERNANCE_REMINDER for optimization. Previous version was "passive" — described what to do but didn't enforce it. Self-assessment earlier in session confirmed AI ignored reminders in practice.
+
+**Governance Queried Before Implementation:**
+- `meta-operational-constraint-based-prompting` — explicit constraints reduce ambiguity
+- `meta-method-instructions-content` — required sections (Overview, When to Use, Hierarchy, Behaviors, Quick Start)
+- `meta-method-server-instructions` — server provides behavioral instructions to AI clients
+
+**Key Optimizations Applied:**
+
+**1. Action Framing: Suggestive → Mandatory**
+| Before | After |
+|--------|-------|
+| "When to Use" (optional) | "Required Actions" (mandatory) |
+| "Key Behaviors" (passive) | "Forbidden Actions" (explicit constraints) |
+| "Cite principles..." (suggestion) | "Do NOT proceed without querying..." (constraint) |
+
+**2. Forbidden Actions Section Added**
+Explicit constraints per `meta-operational-constraint-based-prompting`:
+```
+### Forbidden Actions
+- Do NOT proceed with implementation without querying applicable principles
+- Do NOT make product/business/timeline decisions — escalate to user
+- Do NOT ignore S-Series principles under any circumstances
+```
+
+**3. Model-Specific Guidance Added**
+Different frontier models have different instruction-following patterns:
+
+| Model | Optimization |
+|-------|-------------|
+| Claude | Extended thinking for governance analysis |
+| GPT-4/o1 | Sandwich method — query at start, verify before finalizing |
+| Gemini | Hierarchical headers for citations |
+| Llama/Mistral | Repeat S-Series at decision points |
+| All | "When unsure whether to query — query. False positives are cheap." |
+
+**4. Self-Check Prompt Pattern**
+Changed reminder from statement to question:
+```
+Before: 📋 **Governance Checkpoints:** ...
+After:  ⚖️ **Governance Check:** Did you `query_governance()` before this action?
+```
+Questions trigger reflection; statements can be ignored.
+
+**5. Token Efficiency**
+- Removed duplicate hierarchy (was in both instructions and reminder)
+- Instructions: ~200 → ~380 tokens (more content, but only injected once)
+- Reminder: ~40 → ~35 tokens (tighter, per-response)
+- Net effect: Better guidance with minimal token overhead
+
+**Implementation Notes:**
+
+1. Test separator changed: `📋` → `⚖️` in `extract_json_from_response()` helper
+2. All 220 tests pass after update
+3. Comments in code cite applicable principles:
+   ```python
+   # Per meta-operational-constraint-based-prompting: explicit constraints reduce ambiguity.
+   # Per meta-method-instructions-content: includes Overview, When to Use, Hierarchy, Behaviors, Quick Start.
+   ```
+
+**Lesson:** System instructions are not just documentation — they're behavioral contracts. Apply prompt engineering principles:
+1. **Constraint-based**: Explicit forbidden actions, not just suggestions
+2. **Model-specific**: Different models need different optimization patterns
+3. **Self-check**: Questions ("Did you...?") trigger reflection better than statements
+4. **Action-oriented**: "Required Actions" not "When to Use"
+
+**Pattern for Future MCP Servers:**
+```python
+SERVER_INSTRUCTIONS = """
+### Required Actions
+1. Action 1 — Call tool_name("param") before X
+2. Action 2 — Reference IDs when Y
+
+### Hierarchy (Binding Order)
+| Priority | Source | Scope |
+|----------|--------|-------|
+| 1 | Critical | Veto authority |
+| 2 | Standard | Apply always |
+
+### Forbidden Actions
+- Do NOT X without Y
+- Do NOT make Z decisions — escalate
+
+### Model-Specific Guidance
+**Claude**: ...
+**GPT-4**: ...
+"""
+
+GOVERNANCE_REMINDER = """
+---
+⚖️ **Check:** Did you do X? Cite IDs. Critical = veto.
+"""
+```
+
+**Sources Applied:**
+- `meta-operational-constraint-based-prompting` (governance principle)
+- `meta-method-instructions-content` (governance method)
+- Prompt engineering sandwich method (GPT-4 optimization)
+- Self-check questioning pattern (behavioral psychology)
+
+---
+
 ## Research Links (from 2025-12-24 session)
 
 Hybrid retrieval best practices:

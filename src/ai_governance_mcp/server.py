@@ -62,49 +62,63 @@ def log_feedback_entry(feedback: Feedback) -> None:
             f.write(feedback.model_dump_json() + "\n")
 
 
-# Server instructions injected into AI context
+# Server instructions injected into AI context at MCP initialization.
+# Optimized 2026-01-01: Added Required/Forbidden actions, model-specific guidance.
+# Per meta-operational-constraint-based-prompting: explicit constraints reduce ambiguity.
+# Per meta-method-instructions-content: includes Overview, When to Use, Hierarchy, Behaviors, Quick Start.
 SERVER_INSTRUCTIONS = """
 ## AI Governance MCP Server
 
-This server provides semantic retrieval of AI governance principles and methods.
+Semantic retrieval of AI governance principles and methods. Query before acting.
 
-### When to Use
-- Query `query_governance` for guidance on any task, decision, or ethical concern
-- The server auto-detects relevant domains (constitution, ai-coding, multi-agent)
-- Constitution principles always apply; domain principles add context-specific guidance
+### Required Actions
+1. **Query before implementation** — Call `query_governance("your task")` before writing code or making changes
+2. **Query before decisions** — Call before architectural, configuration, or significant choices
+3. **Cite influencing principles** — Reference principle IDs (e.g., `meta-core-context-engineering`) when they guide your approach
+4. **Pause on uncertainty** — If requirements are unclear, ask the user before proceeding
 
-### Governance Hierarchy
-1. **Constitution** (ai-interaction-principles) — Universal behavioral rules, always apply
-2. **Domain Law** (ai-coding, multi-agent) — Context-specific principles
-3. **Methods** — Procedural guidance (workflows, gates, patterns)
+### Hierarchy (Binding Order)
+| Priority | Source | Scope |
+|----------|--------|-------|
+| 1 | S-Series (Safety) | Veto authority — overrides all other guidance |
+| 2 | Constitution | Universal rules — always apply |
+| 3 | Domain (ai-coding, multi-agent) | Context-specific — apply when detected |
+| 4 | Methods | Procedural — workflows, patterns, templates |
 
-### Key Behaviors
-- S-Series (Safety) principles have supreme veto authority
-- Cite principles when they influence significant decisions
-- Pause and clarify when specification gaps are detected
-- Escalate product/business decisions; proceed autonomously on technical details
+### Forbidden Actions
+- Do NOT proceed with implementation without querying applicable principles
+- Do NOT make product/business/timeline decisions — escalate to user
+- Do NOT ignore S-Series principles under any circumstances
 
-### Quick Start
-```
-query_governance("your situation or concern")
-→ Returns relevant principles + methods with confidence scores
-```
+### Tools
+| Tool | Purpose |
+|------|---------|
+| `query_governance(query)` | Get relevant principles + methods |
+| `get_principle(id)` | Full content of principle or method |
+| `list_domains()` | Explore available domains |
+| `log_feedback(query, id, rating)` | Improve retrieval quality |
 
-Use `get_principle` for full content, `list_domains` to explore, `log_feedback` to improve retrieval.
+### Model-Specific Guidance
+
+**Claude (Opus, Sonnet)**: Use extended thinking for governance analysis. Structure outputs with tags.
+
+**GPT-4.1 / o1 / o3**: Sandwich method — query at start, verify compliance before finalizing. Literal instruction following.
+
+**Gemini 2.5**: Use hierarchical headers for principle citations. Activate Deep Think for complex ethical analysis.
+
+**Llama / Mistral**: Keep governance context in system position. Repeat S-Series constraints at decision points.
+
+**All Models**: Query BEFORE acting, not after. Cite principle IDs explicitly. When unsure whether to query — query. False positives are cheap; governance violations are expensive.
 """.strip()
 
 # Compact reminder appended to every tool response for consistent governance reinforcement.
-# Design: Action-oriented with specific triggers, ~40 tokens.
+# Optimized 2026-01-01: Self-check question format, reduced tokens, removed duplicate hierarchy.
+# Design: Self-check prompt triggers reflection; ~35 tokens.
 # Per Learning Log 2025-12-31: Passive reminders need explicit action triggers.
 GOVERNANCE_REMINDER = """
 
 ---
-📋 **Governance Checkpoints:**
-- **Before implementing** → `query_governance("your task")`
-- **Before decisions** → query, then cite influencing principle
-- **On uncertainty** → pause and clarify with user
-
-Hierarchy: Constitution → Domain → Methods. S-Series = veto authority."""
+⚖️ **Governance Check:** Did you `query_governance()` before this action? Cite influencing principle IDs. S-Series = veto authority."""
 
 # Create MCP server
 server = Server("ai-governance-mcp", instructions=SERVER_INSTRUCTIONS)
