@@ -43,7 +43,7 @@ Query `query_governance()` BEFORE:
 
 ```bash
 python -m ai_governance_mcp.extractor  # Rebuild index
-pytest tests/ -v                        # Run tests (225, 90% coverage)
+pytest tests/ -v                        # Run tests (242, 90% coverage)
 python -m ai_governance_mcp.server      # Run server
 ```
 

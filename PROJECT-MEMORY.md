@@ -28,7 +28,7 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 ```
 
 **Core Components:**
-- `server.py` - FastMCP server with 6 tools
+- `server.py` - FastMCP server with 7 tools
 - `retrieval.py` - Domain routing, hybrid search, reranking
 - `extractor.py` - Document parsing, embedding generation, index building
 - `models.py` - Pydantic data structures
@@ -317,6 +317,22 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Test Updates:** Separator changed `📋` → `⚖️` in `extract_json_from_response()` helper
 - **Rationale:** System instructions are behavioral contracts, not just documentation. Questions trigger reflection better than statements.
 
+### Decision: Multi-Platform MCP Configuration Generator
+- **Date:** 2026-01-01
+- **Status:** CONFIRMED
+- **Problem:** MCP is now supported by multiple AI platforms (Gemini CLI, Claude, ChatGPT, others via SuperAssistant), but each requires different configuration format or CLI commands.
+- **Solution:** Created `config_generator.py` module with:
+  - CLI tool: `python -m ai_governance_mcp.config_generator --platform <name>`
+  - Programmatic API: `generate_mcp_config(platform)` returns dict
+  - Platforms: gemini, claude, chatgpt, superassistant
+  - Options: `--all` (all platforms), `--json` (raw JSON output)
+- **Implementation:**
+  - New module: `src/ai_governance_mcp/config_generator.py`
+  - 17 tests in `tests/test_config_generator.py`
+  - README updated with Platform Configuration section
+- **Verified:** Gemini CLI integration tested — `gemini mcp add` successful, server connected
+- **Governance Gap:** Did NOT query governance before implementation (violated CLAUDE.md checkpoint)
+
 ---
 
 ## AI Coding Methods v2.0.0 Decisions
@@ -450,7 +466,7 @@ Show updated process map:
 | T2 | Config/settings (pydantic-settings, env vars) | Complete |
 | T3-T5 | Extractor (parser, embeddings, GlobalIndex) | Complete |
 | T6-T11 | Retrieval (domain routing, BM25, semantic, fusion, rerank, hierarchy) | Complete |
-| T12-T18 | Server + 6 MCP tools | Complete |
+| T12-T18 | Server + 7 MCP tools | Complete |
 | T19-T22 | Tests (205 passing, 90% coverage) | Complete |
 | T23 | Portfolio README | Complete |
 
@@ -462,7 +478,8 @@ Show updated process map:
 | server.py | 59 | 91% |
 | extractor.py | 45 | 89% |
 | retrieval.py | 55 | 84% |
-| **Total** | **205** | **90%** |
+| config_generator.py | 17 | 100% |
+| **Total** | **242** | **90%** |
 
 ## Dependencies
 
@@ -494,11 +511,12 @@ Show updated process map:
 ### Source Code
 | File | Purpose | Lines |
 |------|---------|-------|
-| src/ai_governance_mcp/models.py | Pydantic data structures | ~110 |
-| src/ai_governance_mcp/config.py | Settings management | ~62 |
-| src/ai_governance_mcp/extractor.py | Document parsing + embeddings | ~194 |
-| src/ai_governance_mcp/retrieval.py | Hybrid search engine | ~281 |
-| src/ai_governance_mcp/server.py | MCP server + 6 tools | ~182 |
+| src/ai_governance_mcp/models.py | Pydantic data structures | ~350 |
+| src/ai_governance_mcp/config.py | Settings management | ~224 |
+| src/ai_governance_mcp/extractor.py | Document parsing + embeddings | ~450 |
+| src/ai_governance_mcp/retrieval.py | Hybrid search engine | ~500 |
+| src/ai_governance_mcp/server.py | MCP server + 7 tools | ~550 |
+| src/ai_governance_mcp/config_generator.py | Multi-platform MCP configs | ~150 |
 
 ### Test Files
 | File | Tests | Purpose |
@@ -506,12 +524,13 @@ Show updated process map:
 | tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
 | tests/test_models.py | 24 | Model validation, constraints, enums |
 | tests/test_config.py | 17 | Settings, env vars, path handling |
-| tests/test_server.py | 46 | All 6 tools, formatting, metrics, governance reminder |
+| tests/test_server.py | 51 | All 7 tools, formatting, metrics, governance |
 | tests/test_server_integration.py | 12 | Dispatcher routing, end-to-end flows |
-| tests/test_extractor.py | 42 | Parsing, embeddings, metadata, validation |
+| tests/test_extractor.py | 35 | Parsing, embeddings, metadata, validation |
 | tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |
 | tests/test_retrieval.py | 44 | Unit tests + edge cases |
 | tests/test_retrieval_integration.py | 18 | Pipeline, utilities, performance |
+| tests/test_config_generator.py | 17 | Platform configs, CLI commands |
 
 ## Known Gotchas
 
