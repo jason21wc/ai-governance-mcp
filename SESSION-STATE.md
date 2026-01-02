@@ -4,35 +4,56 @@
 
 ## Current Position
 
-- **Phase:** Implement (Phase 2: Governance Enforcement)
+- **Phase:** Implement (Phase 2B: Agent Installation Architecture)
 - **Mode:** Standard
-- **Active Task:** Phase 2A complete, agent research documented
-- **Blocker:** None
+- **Active Task:** Design complete, awaiting user answers to clarifying questions
+- **Blocker:** Pending user decisions
 
-## Last Completed
+## Pending Questions (Answer Tomorrow)
 
-**This Session:**
+1. **Agent scope**: Which agents to include?
+   - `orchestrator` (governance-first coordinator)
+   - `governance-agent` (compliance specialist)
+   - Others?
 
-1. **Phase 2A: Audit Infrastructure** — Committed (b6f4264)
-2. **README Update** — 8 tools, 259 tests
-3. **Agent Research** — Documented in LEARNING-LOG.md
+2. **Uninstall capability**: Include `uninstall_agent("orchestrator")`?
+
+3. **Non-Claude platforms**: When user tries to install on Gemini/ChatGPT/Grok, should tool:
+   - Auto-detect and say "No installation needed — Orchestrator protocol is already active via SERVER_INSTRUCTIONS"
+   - Or just attempt and fail gracefully?
 
 ## Phase 2 Progress
 
 - [x] Phase 2-Pre: Documentation (PROJECT-MEMORY, methods v2.1.0)
-- [x] Phase 2A: Audit infrastructure (models, server, 8 tools)
-- [ ] Phase 2B: Agent definitions — Research complete, implementation deferred
+- [x] Phase 2A: Audit infrastructure (models, server, 8 tools) — Committed b6f4264
+- [~] Phase 2B: Agent definitions — **Design complete, implementation pending**
 - [x] Phase 2C: Testing (integrated with 2A)
-- [x] Phase 2D: README updated
+- [x] Phase 2D: README updated — Committed d77b2bd
 
-## Agent Research Summary (See LEARNING-LOG.md)
+## Phase 2B Design Summary
 
-Claude Code agents are `.claude/agents/*.md` files with YAML frontmatter:
-- `name`, `description` (required)
-- `tools`, `model`, `permissionMode` (optional)
-- System prompt in markdown body
+**LLM-Agnostic Agent Architecture:**
 
-For LLM-agnostic design, agent definitions should be exposed via MCP (tools or resources).
+```
+┌─────────────────────────────────────────────────────────────┐
+│  MCP Server (all platforms)                                 │
+├─────────────────────────────────────────────────────────────┤
+│  SERVER_INSTRUCTIONS — Orchestrator protocol inline         │
+│  MCP Resources — agent://orchestrator template              │
+│  install_agent tool — Claude Code only (with user confirm)  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Platform Reality:**
+| Platform | Agent Files? | What They Get |
+|----------|--------------|---------------|
+| Claude Code | ✅ | install_agent writes `.claude/agents/` |
+| Gemini/ChatGPT/Grok | ❌ | SERVER_INSTRUCTIONS only |
+
+**install_agent Flow:**
+1. First call → Preview what will be created
+2. User chooses: Install / Manual / Cancel
+3. Second call with `confirmed=true` or `manual=true`
 
 ## Quick Reference
 
@@ -43,8 +64,19 @@ For LLM-agnostic design, agent definitions should be exposed via MCP (tools or r
 | Index | 68 principles + 199 methods |
 | Tools | 8 |
 
-## Commit Ready
+## Documentation Updated This Session
 
-README update ready to commit:
-- README.md: 8 tools, 259 tests, governance enforcement section
-- LEARNING-LOG.md: Agent research documentation
+| File | Changes |
+|------|---------|
+| PROJECT-MEMORY.md | Phase 2B architecture decision |
+| LEARNING-LOG.md | Cross-platform agent research |
+| SESSION-STATE.md | This file |
+
+## Tomorrow: Implementation
+
+Once questions are answered:
+1. Create agent definition templates (`documents/agents/orchestrator.md`)
+2. Add `install_agent` tool to server.py
+3. Update SERVER_INSTRUCTIONS with Orchestrator protocol
+4. Add tests
+5. Update README with agent setup instructions

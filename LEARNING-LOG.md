@@ -1175,3 +1175,102 @@ Claude Code agents (`.claude/agents/`) are platform-specific. For LLM-agnostic a
 - [Claude Code CLI Reference](https://code.claude.com/docs/en/cli-reference.md)
 - [Building agents with Claude Agent SDK](https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk)
 - [Agent Skills Documentation](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
+
+---
+
+## 2026-01-01 - Cross-Platform Agent Installation: Only Claude Code Has Local Agents (CRITICAL)
+
+### Context
+Designing how to install Orchestrator and Governance agents across multiple AI platforms (Claude Code, Gemini CLI, ChatGPT, Grok, Perplexity).
+
+### Research Findings
+
+**Platform Agent Support Matrix:**
+
+| Platform | Local Agent Files? | Agent Mechanism | Notes |
+|----------|-------------------|-----------------|-------|
+| **Claude Code** | ✅ `.claude/agents/*.md` | YAML frontmatter + system prompt | Project or user scope |
+| **Gemini CLI** | ❌ None | SERVER_INSTRUCTIONS only | No equivalent discovered |
+| **ChatGPT Desktop** | ❌ None | Custom GPTs (cloud-based) | Not local file-based |
+| **Grok** | ❌ None | Cloud-only | No local config |
+| **Perplexity** | ❌ None | Cloud-only | No local config |
+
+### Key Insight: MCP Is the LLM-Agnostic Layer
+
+Claude Code's `.claude/agents/` is platform-specific. For true LLM-agnostic support:
+
+1. **SERVER_INSTRUCTIONS** — Injected at MCP connection, all platforms receive this
+2. **MCP Resources** — Expose `agent://orchestrator` as downloadable template
+3. **MCP Tools** — `install_agent()` for Claude Code users; graceful message for others
+
+### Architectural Decision
+
+**Hybrid Approach with User Confirmation:**
+
+```
+User: "Set up the orchestrator agent"
+              ↓
+AI calls: install_agent("orchestrator")
+              ↓
+┌─────────────────────────────────────────────────────────┐
+│  Tool returns preview (does NOT install yet):           │
+│                                                         │
+│  "I will create: .claude/agents/orchestrator.md        │
+│   This enables governance-first workflow enforcement.   │
+│                                                         │
+│   Options:                                              │
+│   1. Install automatically                              │
+│   2. Show manual instructions                           │
+│   3. Cancel"                                            │
+└─────────────────────────────────────────────────────────┘
+              ↓
+User chooses option
+              ↓
+┌──────────────┬───────────────────────┬──────────────────┐
+│  Option 1    │  Option 2             │  Option 3        │
+│  confirmed   │  manual               │  cancel          │
+├──────────────┼───────────────────────┼──────────────────┤
+│  Write file  │  Return content +     │  Done            │
+│  Return ✓    │  path + instructions  │                  │
+└──────────────┴───────────────────────┴──────────────────┘
+```
+
+**For Non-Claude Platforms:**
+
+```
+User: "Set up the orchestrator agent"
+              ↓
+AI calls: install_agent("orchestrator")
+              ↓
+Tool returns:
+  "For Gemini/ChatGPT/Grok: The Orchestrator protocol is already
+   active via SERVER_INSTRUCTIONS. No file installation needed.
+
+   The server automatically provides governance guidance on every
+   interaction through the Required Actions and Forbidden Actions
+   in its instructions."
+```
+
+### Why This Matters
+
+1. **Security**: User confirms before file write (MCP servers writing files is unusual)
+2. **Transparency**: User sees exactly what will be created
+3. **Fallback**: Manual option works even if permissions fail
+4. **Platform-aware**: Doesn't confuse users on platforms without agent files
+
+### Implementation Notes
+
+- `install_agent(agent_name, confirmed?, manual?)` parameters
+- First call: `confirmed` and `manual` both None → return preview
+- Second call: `confirmed=true` → write file; `manual=true` → show instructions
+- Detect platform? Or just check if `.claude/` path pattern is usable?
+
+### Lesson
+
+Cross-platform support requires understanding platform capabilities. Don't assume Claude Code patterns work everywhere — MCP protocol is universal, but client implementations vary significantly.
+
+### Open Questions (For User)
+
+1. **Agent scope**: Just `orchestrator` and `governance-agent`, or more?
+2. **Uninstall**: Include `uninstall_agent()` capability?
+3. **Platform detection**: Auto-detect and skip file install for non-Claude platforms?

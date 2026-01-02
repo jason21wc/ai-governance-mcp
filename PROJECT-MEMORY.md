@@ -333,9 +333,41 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Verified:** Gemini CLI integration tested — `gemini mcp add` successful, server connected
 - **Governance Gap:** Did NOT query governance before implementation (violated CLAUDE.md checkpoint)
 
+### Decision: Phase 2B LLM-Agnostic Agent Installation Architecture
+- **Date:** 2026-01-01
+- **Status:** DESIGNED (pending user answers to clarifying questions)
+- **Problem:** How to install Orchestrator/Governance agents across platforms (Claude, Gemini, ChatGPT, etc.)
+- **Research Finding:** Only Claude Code has local agent files (`.claude/agents/`). Other platforms (Gemini CLI, ChatGPT Desktop, Grok, Perplexity) have no equivalent — they only receive SERVER_INSTRUCTIONS.
+- **Solution — Hybrid with User Confirmation:**
+  ```
+  User calls: install_agent("orchestrator")
+                     ↓
+  Tool returns preview: "I will create .claude/agents/orchestrator.md..."
+                     ↓
+  AI asks user: "1. Install automatically, 2. Show manual instructions, 3. Cancel"
+                     ↓
+  confirmed=true  →  Write file + confirm
+  manual=true     →  Show content + path + steps
+  ```
+- **Platform Matrix:**
+  | Platform | Agent Files? | What We Provide |
+  |----------|--------------|-----------------|
+  | Claude Code | ✅ `.claude/agents/` | install_agent tool writes files |
+  | Gemini CLI | ❌ No equivalent | SERVER_INSTRUCTIONS only |
+  | ChatGPT Desktop | ❌ No local agents | SERVER_INSTRUCTIONS only |
+  | Grok/Perplexity | ❌ Cloud-based | SERVER_INSTRUCTIONS only |
+- **Key Insight:** MCP is the LLM-agnostic layer. Agent definitions exposed via:
+  1. SERVER_INSTRUCTIONS (inline Orchestrator protocol) — all platforms
+  2. MCP Resources (`agent://orchestrator`) — reference templates
+  3. `install_agent` tool — Claude Code users only
+- **Pending Questions:**
+  1. Scope of agents to install (orchestrator, governance-agent, others?)
+  2. Include uninstall capability?
+  3. For non-Claude platforms, detect and say "no installation needed"?
+
 ### Decision: Phase 2 Governance Agent Architecture (Orchestrator-First)
 - **Date:** 2026-01-01
-- **Status:** PLANNED (implementation in progress)
+- **Status:** PLANNED (Phase 2A complete, Phase 2B designed)
 - **Problem:** Phase 1 `evaluate_governance` tool is voluntary — AI can ignore it. Evidence: implemented config_generator without governance check despite CLAUDE.md checkpoints.
 - **Solution:** Orchestrator-First Architecture — make governance structural, not optional
 - **Key Design:**
