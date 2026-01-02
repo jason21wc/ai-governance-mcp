@@ -22,10 +22,13 @@ from .models import (
     ErrorResponse,
     Feedback,
     GovernanceAssessment,
+    GovernanceAuditLog,
     Metrics,
     QueryLog,
     RelevantPrinciple,
     SSeriesCheck,
+    VerificationResult,
+    VerificationStatus,
 )
 from .retrieval import RetrievalEngine
 
@@ -72,6 +75,34 @@ def log_feedback_entry(feedback: Feedback) -> None:
         log_file = _settings.logs_path / "feedback.jsonl"
         with open(log_file, "a") as f:
             f.write(feedback.model_dump_json() + "\n")
+
+
+# Governance audit log storage (in-memory for verification lookups)
+# Per §4.6 Governance Enforcement Architecture: enables post-action verification
+_audit_log: list[GovernanceAuditLog] = []
+
+
+def log_governance_audit(audit_entry: GovernanceAuditLog) -> None:
+    """Log governance assessment for audit trail.
+
+    Per §4.6 Audit Trail Requirements: Every evaluate_governance() call
+    generates an audit record for pattern analysis and bypass detection.
+    """
+    global _settings, _audit_log
+
+    # Keep in-memory for verification lookups
+    _audit_log.append(audit_entry)
+
+    # Persist to file
+    if _settings:
+        log_file = _settings.logs_path / "governance_audit.jsonl"
+        with open(log_file, "a") as f:
+            f.write(audit_entry.model_dump_json() + "\n")
+
+
+def get_audit_log() -> list[GovernanceAuditLog]:
+    """Get the in-memory audit log for verification."""
+    return _audit_log
 
 
 # Server instructions injected into AI context at MCP initialization.
@@ -301,6 +332,32 @@ async def list_tools() -> list[Tool]:
                 "required": ["planned_action"],
             },
         ),
+        # Tool 8: Verify governance compliance (Post-Action Audit)
+        # Per §4.6 Governance Enforcement Architecture, Layer 3
+        Tool(
+            name="verify_governance_compliance",
+            description=(
+                "Verify that governance was consulted for a completed action. "
+                "Checks audit log to confirm evaluate_governance was called. "
+                "Returns COMPLIANT, NON_COMPLIANT, or PARTIAL. "
+                "Use this to catch bypassed governance checks after the fact."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "action_description": {
+                        "type": "string",
+                        "description": "Description of the action that was completed",
+                    },
+                    "expected_principles": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Optional: Principle IDs that should have been consulted",
+                    },
+                },
+                "required": ["action_description"],
+            },
+        ),
     ]
 
 
@@ -331,6 +388,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             result = await _handle_get_metrics(arguments)
         elif name == "evaluate_governance":
             result = await _handle_evaluate_governance(engine, arguments)
+        elif name == "verify_governance_compliance":
+            result = await _handle_verify_governance(arguments)
         else:
             result = [TextContent(type="text", text=f"Unknown tool: {name}")]
 
@@ -844,6 +903,22 @@ async def _handle_evaluate_governance(
         rationale=rationale,
     )
 
+    # Log audit record (per §4.6 Audit Trail Requirements)
+    audit_entry = GovernanceAuditLog(
+        audit_id=governance_assessment.audit_id,
+        timestamp=governance_assessment.timestamp,
+        action=planned_action,
+        assessment=assessment,
+        principles_consulted=[rp.id for rp in relevant_principles],
+        s_series_triggered=s_series_triggered,
+        modifications=required_modifications if required_modifications else None,
+        escalation_reason=rationale
+        if assessment == AssessmentStatus.ESCALATE
+        else None,
+        confidence=confidence,
+    )
+    log_governance_audit(audit_entry)
+
     # Format output
     output = governance_assessment.model_dump()
     # Convert enums to strings for JSON serialization
@@ -852,6 +927,111 @@ async def _handle_evaluate_governance(
     for ce in output["compliance_evaluation"]:
         ce["status"] = ce["status"].value
 
+    return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+
+async def _handle_verify_governance(args: dict) -> list[TextContent]:
+    """Handle verify_governance_compliance tool (Post-Action Audit).
+
+    Per §4.6 Governance Enforcement Architecture, Layer 3:
+    - Checks whether governance was consulted for a completed action
+    - Returns COMPLIANT, NON_COMPLIANT, or PARTIAL
+    - Enables detection of bypassed governance checks after the fact
+    """
+    action_description = args.get("action_description", "")
+    expected_principles = args.get("expected_principles", [])
+
+    if not action_description:
+        error = ErrorResponse(
+            error_code="MISSING_REQUIRED_FIELD",
+            message="action_description is required",
+            suggestions=["Describe the action that was completed"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Get the audit log
+    audit_log = get_audit_log()
+
+    if not audit_log:
+        # No governance checks have been performed in this session
+        verification = VerificationResult(
+            action_description=action_description,
+            status=VerificationStatus.NON_COMPLIANT,
+            matching_audit_id=None,
+            finding=(
+                "No governance checks have been performed in this session. "
+                "All significant actions should be preceded by evaluate_governance()."
+            ),
+        )
+        output = verification.model_dump()
+        output["status"] = output["status"].value
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    # Search for matching audit entries
+    # Simple keyword matching - could be enhanced with semantic similarity
+    action_words = set(action_description.lower().split())
+    best_match: GovernanceAuditLog | None = None
+    best_overlap = 0
+
+    for entry in reversed(audit_log):  # Check most recent first
+        entry_words = set(entry.action.lower().split())
+        overlap = len(action_words & entry_words)
+        if overlap > best_overlap:
+            best_overlap = overlap
+            best_match = entry
+
+    if not best_match or best_overlap < 2:
+        # No matching governance check found
+        verification = VerificationResult(
+            action_description=action_description,
+            status=VerificationStatus.NON_COMPLIANT,
+            matching_audit_id=None,
+            finding=(
+                f"No governance check found matching this action. "
+                f"Found {len(audit_log)} audit entries, but none matched. "
+                "Action may have bypassed governance. Consider retroactive review."
+            ),
+        )
+        output = verification.model_dump()
+        output["status"] = output["status"].value
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    # Found a matching entry - check if expected principles were consulted
+    if expected_principles:
+        consulted = set(best_match.principles_consulted)
+        expected = set(expected_principles)
+        missing = expected - consulted
+
+        if missing:
+            verification = VerificationResult(
+                action_description=action_description,
+                status=VerificationStatus.PARTIAL,
+                matching_audit_id=best_match.audit_id,
+                finding=(
+                    f"Governance was consulted (audit_id: {best_match.audit_id}), "
+                    f"but expected principles were not all checked. "
+                    f"Missing: {', '.join(missing)}. "
+                    f"Assessment was: {best_match.assessment.value}."
+                ),
+            )
+            output = verification.model_dump()
+            output["status"] = output["status"].value
+            return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    # Full compliance
+    verification = VerificationResult(
+        action_description=action_description,
+        status=VerificationStatus.COMPLIANT,
+        matching_audit_id=best_match.audit_id,
+        finding=(
+            f"Governance was consulted before this action. "
+            f"Audit ID: {best_match.audit_id}. "
+            f"Assessment: {best_match.assessment.value}. "
+            f"Principles consulted: {len(best_match.principles_consulted)}."
+        ),
+    )
+    output = verification.model_dump()
+    output["status"] = output["status"].value
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 

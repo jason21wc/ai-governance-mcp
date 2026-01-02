@@ -333,6 +333,45 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Verified:** Gemini CLI integration tested — `gemini mcp add` successful, server connected
 - **Governance Gap:** Did NOT query governance before implementation (violated CLAUDE.md checkpoint)
 
+### Decision: Phase 2 Governance Agent Architecture (Orchestrator-First)
+- **Date:** 2026-01-01
+- **Status:** PLANNED (implementation in progress)
+- **Problem:** Phase 1 `evaluate_governance` tool is voluntary — AI can ignore it. Evidence: implemented config_generator without governance check despite CLAUDE.md checkpoints.
+- **Solution:** Orchestrator-First Architecture — make governance structural, not optional
+- **Key Design:**
+  ```
+  User Request → Orchestrator Agent (default persona) → evaluate_governance()
+                     ↓
+     PROCEED → Delegate    |    MODS → Apply, delegate    |    ESCALATE → HALT
+  ```
+- **Enforcement Layers:**
+  1. **Default Persona** — Orchestrator loads automatically, only has delegation tools
+  2. **Governance Tool** — evaluate_governance returns binding assessment with audit_id
+  3. **Post-Action Audit** — verify_governance_compliance catches bypasses
+  4. **Per-Response Reminder** — Existing GOVERNANCE_REMINDER for self-correction
+- **Bypass Authorization (Narrow):**
+  - Pure read operations only
+  - User explicitly authorizes with documented reason
+  - Trivial formatting-only changes
+- **Implementation Phases:**
+  | Phase | Scope |
+  |-------|-------|
+  | 2-Pre | Documentation (PROJECT-MEMORY, methods v2.1.0) |
+  | 2A | Audit infrastructure (audit_id, logging, verify tool) |
+  | 2B | Agent definitions (.claude/agents/, CLAUDE.md update) |
+  | 2C | Testing (PROCEED/MODS/ESCALATE paths) |
+  | 2D | Final documentation |
+- **Governance Applied:**
+  - `multi-architecture-orchestrator-separation-pattern` — Orchestrator delegates, doesn't execute
+  - `multi-architecture-cognitive-function-specialization` — One function per agent
+  - `multi-reliability-explicit-handoff-protocol` — Structured handoffs with governance context
+  - `multi-method-governance-agent-pattern` — Pre-action compliance check
+- **Success Criteria:**
+  - [ ] All significant actions pass through governance check
+  - [ ] ESCALATE actually blocks execution
+  - [ ] Audit trail captures all assessments
+  - [ ] Bypasses are logged and detectable
+
 ---
 
 ## AI Coding Methods v2.0.0 Decisions

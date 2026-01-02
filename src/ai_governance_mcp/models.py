@@ -4,10 +4,22 @@ Per specification v4: All data structures use Pydantic for validation.
 Supports hybrid retrieval (BM25 + semantic embeddings + reranking).
 """
 
+import uuid
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field
+
+
+def generate_audit_id() -> str:
+    """Generate a unique audit ID for governance assessments."""
+    return f"gov-{uuid.uuid4().hex[:12]}"
+
+
+def generate_timestamp() -> str:
+    """Generate an ISO timestamp for audit records."""
+    return datetime.now(timezone.utc).isoformat()
 
 
 # =============================================================================
@@ -326,12 +338,27 @@ class SSeriesCheck(BaseModel):
 class GovernanceAssessment(BaseModel):
     """Complete governance assessment for a planned action.
 
-    Per multi-method-governance-agent-pattern (§4.3):
+    Per multi-method-governance-agent-pattern (§4.3) and §4.6 Governance Enforcement:
     - PROCEED: Action complies with governance
     - PROCEED_WITH_MODIFICATIONS: Apply modifications, then execute
     - ESCALATE: Human review required (automatic if S-Series triggered)
+
+    Audit fields (§4.6 Audit Trail Requirements):
+    - audit_id: Unique identifier for tracking and compliance verification
+    - timestamp: When the assessment was made
     """
 
+    # Audit fields for enforcement tracking
+    audit_id: str = Field(
+        default_factory=generate_audit_id,
+        description="Unique audit identifier for tracking",
+    )
+    timestamp: str = Field(
+        default_factory=generate_timestamp,
+        description="ISO timestamp of assessment",
+    )
+
+    # Assessment fields
     action_reviewed: str = Field(
         ..., description="The planned action that was assessed"
     )
@@ -350,3 +377,58 @@ class GovernanceAssessment(BaseModel):
         default_factory=SSeriesCheck, description="S-Series safety check result"
     )
     rationale: str = Field(..., description="Explanation of the assessment")
+
+
+class VerificationStatus(str, Enum):
+    """Status of governance compliance verification.
+
+    Per §4.6 Layer 3: Post-Action Verification.
+    """
+
+    COMPLIANT = "COMPLIANT"  # Governance was consulted with matching assessment
+    NON_COMPLIANT = "NON_COMPLIANT"  # Action proceeded without governance check
+    PARTIAL = "PARTIAL"  # Check performed but for different scope
+
+
+class VerificationResult(BaseModel):
+    """Result of governance compliance verification.
+
+    Per §4.6 Governance Enforcement Architecture, Layer 3.
+    Checks whether governance was consulted for a completed action.
+    """
+
+    action_description: str = Field(..., description="The action that was verified")
+    status: VerificationStatus = Field(..., description="Compliance status")
+    matching_audit_id: Optional[str] = Field(
+        None, description="Audit ID of matching governance check if found"
+    )
+    finding: str = Field(..., description="Explanation of verification result")
+    timestamp: str = Field(
+        default_factory=generate_timestamp, description="Verification timestamp"
+    )
+
+
+class GovernanceAuditLog(BaseModel):
+    """Audit log entry for governance assessments.
+
+    Per §4.6 Audit Trail Requirements: Every evaluate_governance() call
+    generates an audit record. Enables pattern analysis and bypass detection.
+    """
+
+    audit_id: str = Field(..., description="Unique audit identifier")
+    timestamp: str = Field(..., description="ISO timestamp of assessment")
+    action: str = Field(..., description="The planned action that was assessed")
+    assessment: AssessmentStatus = Field(..., description="Assessment outcome")
+    principles_consulted: list[str] = Field(
+        default_factory=list, description="Principle IDs that were consulted"
+    )
+    s_series_triggered: bool = Field(
+        default=False, description="Whether S-Series safety principles were triggered"
+    )
+    modifications: Optional[list[str]] = Field(
+        None, description="Required modifications if PROCEED_WITH_MODIFICATIONS"
+    )
+    escalation_reason: Optional[str] = Field(
+        None, description="Reason for escalation if ESCALATE"
+    )
+    confidence: ConfidenceLevel = Field(..., description="Assessment confidence level")

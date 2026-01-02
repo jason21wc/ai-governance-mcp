@@ -1027,6 +1027,197 @@ class TestEvaluateGovernance:
 
 
 # =============================================================================
+# Audit Log Tests (Phase 2: Governance Enforcement)
+# =============================================================================
+
+
+class TestGovernanceAuditLog:
+    """Tests for governance audit logging functionality."""
+
+    @pytest.fixture(autouse=True)
+    def reset_audit_log(self):
+        """Reset audit log before each test."""
+        from ai_governance_mcp import server
+
+        server._audit_log = []
+        yield
+        server._audit_log = []
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_logs_audit(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should log audit entry."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool, get_audit_log
+
+                    await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Implement new feature"},
+                    )
+
+                    audit_log = get_audit_log()
+                    assert len(audit_log) == 1
+                    assert audit_log[0].action == "Implement new feature"
+                    assert audit_log[0].audit_id.startswith("gov-")
+
+    @pytest.mark.asyncio
+    async def test_audit_log_captures_assessment_status(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Audit log should capture assessment status."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool, get_audit_log
+                    from ai_governance_mcp.models import AssessmentStatus
+
+                    # Normal action - should be PROCEED
+                    await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Format code with prettier"},
+                    )
+
+                    audit_log = get_audit_log()
+                    assert len(audit_log) == 1
+                    # Assessment should be captured
+                    assert audit_log[0].assessment in [
+                        AssessmentStatus.PROCEED,
+                        AssessmentStatus.PROCEED_WITH_MODIFICATIONS,
+                        AssessmentStatus.ESCALATE,
+                    ]
+
+
+class TestVerifyGovernanceCompliance:
+    """Tests for verify_governance_compliance tool."""
+
+    @pytest.fixture(autouse=True)
+    def reset_audit_log(self):
+        """Reset audit log before each test."""
+        from ai_governance_mcp import server
+
+        server._audit_log = []
+        yield
+        server._audit_log = []
+
+    @pytest.mark.asyncio
+    async def test_verify_returns_non_compliant_when_no_audit(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """verify_governance_compliance should return NON_COMPLIANT when no audit log."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "verify_governance_compliance",
+                        {"action_description": "Made some changes"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+                    assert parsed["status"] == "NON_COMPLIANT"
+                    assert "No governance checks" in parsed["finding"]
+
+    @pytest.mark.asyncio
+    async def test_verify_returns_compliant_after_evaluate(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """verify_governance_compliance should return COMPLIANT after evaluate_governance."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    # First, call evaluate_governance
+                    await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Implement config generator feature"},
+                    )
+
+                    # Then verify compliance
+                    result = await call_tool(
+                        "verify_governance_compliance",
+                        {"action_description": "Implemented config generator feature"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+                    assert parsed["status"] == "COMPLIANT"
+                    assert parsed["matching_audit_id"] is not None
+
+    @pytest.mark.asyncio
+    async def test_verify_requires_action_description(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """verify_governance_compliance should require action_description."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "verify_governance_compliance",
+                        {},  # Missing action_description
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+                    assert "error_code" in parsed
+                    assert parsed["error_code"] == "MISSING_REQUIRED_FIELD"
+
+
+# =============================================================================
 # Entry Point Tests
 # =============================================================================
 
@@ -1100,13 +1291,13 @@ class TestListTools:
     """Tests for list_tools() async function."""
 
     @pytest.mark.asyncio
-    async def test_list_tools_returns_all_seven(self):
-        """list_tools should return all 7 tools."""
+    async def test_list_tools_returns_all_eight(self):
+        """list_tools should return all 8 tools."""
         from ai_governance_mcp.server import list_tools
 
         tools = await list_tools()
 
-        assert len(tools) == 7
+        assert len(tools) == 8
         tool_names = [t.name for t in tools]
         assert "query_governance" in tool_names
         assert "get_principle" in tool_names
@@ -1115,6 +1306,7 @@ class TestListTools:
         assert "log_feedback" in tool_names
         assert "get_metrics" in tool_names
         assert "evaluate_governance" in tool_names
+        assert "verify_governance_compliance" in tool_names
 
     @pytest.mark.asyncio
     async def test_list_tools_have_input_schemas(self):

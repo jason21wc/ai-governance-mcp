@@ -1,7 +1,7 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Status:** Active
 **Effective Date:** 2026-01-01
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -111,6 +111,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Need governance compliance check | §4.3 | Governance Agent Pattern |
 | Agent failure occurred | §4.4 | Fault Tolerance Procedures |
 | Need human approval | §4.5 | Human-in-the-Loop Gates |
+| Making governance structural | §4.6 | Governance Enforcement Architecture |
 | Ending session | §3.6 | Session Closer Protocol |
 | Syncing context across tools | §5.1 | Cross-Tool Synchronization |
 | "framework check" received | §1.2 | Re-initialization |
@@ -1640,6 +1641,216 @@ All human decisions must be logged:
 | [time] | [type] | [decision] | [reason] | [name] |
 ```
 
+### 4.6 Governance Enforcement Architecture
+
+CRITICAL
+
+**Purpose:** Make governance checks structural rather than optional through an Orchestrator-First pattern.
+
+**The Problem:**
+
+Voluntary governance tools (like `evaluate_governance`) can be ignored. Even with reminders in system prompts, server instructions, and per-response nudges, AI can bypass governance checks. This creates compliance gaps where:
+- Implementation proceeds without consulting principles
+- Decisions lack governance context
+- S-Series violations may not be caught
+
+**Solution: Orchestrator-First Architecture**
+
+Make governance structural by implementing an Orchestrator Agent as the default persona. The Orchestrator MUST call `evaluate_governance()` before delegating any significant action.
+
+```
+User Request
+    ↓
+Orchestrator Agent (default persona)
+    ↓
+evaluate_governance(planned_action)
+    ↓
+┌─────────────┬──────────────────────┬─────────────┐
+│   PROCEED   │ PROCEED_WITH_MODS    │  ESCALATE   │
+│     ↓       │         ↓            │      ↓      │
+│  Delegate   │  Apply mods, then    │   HALT      │
+│  to Agent   │  delegate to Agent   │ Human req'd │
+└─────────────┴──────────────────────┴─────────────┘
+```
+
+**Enforcement Layers (Defense in Depth):**
+
+| Layer | Mechanism | What It Catches |
+|-------|-----------|-----------------|
+| 1. Default Persona | Orchestrator loads automatically | Direct action without delegation |
+| 2. Governance Tool | `evaluate_governance()` returns binding assessment | Delegation without compliance check |
+| 3. Post-Action Audit | `verify_governance_compliance()` checks if consulted | Bypassed governance after the fact |
+| 4. Per-Response Reminder | Appended to tool responses | Self-correction opportunity |
+
+**Layer 1: Default Persona Activation**
+
+The Orchestrator is loaded as the default persona when a session starts:
+
+```markdown
+# Project Instructions (CLAUDE.md / gemini.md / agents.md)
+
+## Default Persona
+
+Load the Orchestrator Agent as the default persona. All user requests
+flow through the Orchestrator, which:
+1. Analyzes the request
+2. Calls evaluate_governance(planned_action)
+3. Delegates to specialist agents based on assessment
+```
+
+The Orchestrator's tool access is limited to delegation tools (Task, Read, Glob, Grep, governance tools). It cannot directly Edit, Write, or execute Bash. This forces delegation through the governance-checked path.
+
+**Layer 2: Binding Assessment**
+
+The `evaluate_governance()` tool returns one of three statuses:
+
+| Status | Meaning | Required Action |
+|--------|---------|-----------------|
+| PROCEED | No governance concerns | Delegate to specialist |
+| PROCEED_WITH_MODIFICATIONS | Concerns addressable | Apply modifications, then delegate |
+| ESCALATE | Blocking concerns | HALT execution, request human review |
+
+ESCALATE is blocking — work stops until human approves.
+
+**Layer 3: Post-Action Verification**
+
+The `verify_governance_compliance()` tool checks whether governance was consulted for a completed action:
+
+```markdown
+@verify_governance_compliance
+
+## Action Completed
+[Description of what was done]
+
+## Expected Governance Check
+[What should have been consulted]
+```
+
+Returns:
+- COMPLIANT: Governance was consulted with matching assessment
+- NON-COMPLIANT: Action proceeded without governance check
+- PARTIAL: Check performed but for different scope
+
+Non-compliant results are logged for pattern analysis.
+
+**Layer 4: Per-Response Reminder**
+
+Every tool response includes a governance reminder:
+
+```
+---
+📋 Governance: Use query_governance() for principles, evaluate_governance() before significant actions.
+```
+
+This enables self-correction when earlier layers are bypassed.
+
+**Bypass Authorization (Narrow Scope):**
+
+Skip governance check ONLY for:
+
+| Bypass Condition | Rationale | Logging Required |
+|-----------------|-----------|------------------|
+| Pure read operations | No risk of harm from viewing | No |
+| User explicitly authorizes | Human override with documented reason | Yes |
+| Trivial formatting-only | No semantic change | No |
+
+All authorized bypasses must be logged with rationale when logging is required:
+
+```markdown
+## Governance Bypass Log
+| Timestamp | Action | Bypass Type | Rationale |
+|-----------|--------|-------------|-----------|
+| [time] | [action] | [type] | [reason] |
+```
+
+**Audit Trail Requirements:**
+
+Every `evaluate_governance()` call generates an audit record:
+
+```json
+{
+  "audit_id": "gov-123abc",
+  "timestamp": "2026-01-01T10:30:00Z",
+  "action": "Implementing config generator module",
+  "assessment": "PROCEED",
+  "principles_consulted": ["coding-context-specification-completeness", "coding-quality-security-by-default"],
+  "s_series_triggered": false,
+  "modifications": null,
+  "escalation_reason": null
+}
+```
+
+Audit records enable:
+- Pattern analysis for governance effectiveness
+- Bypass detection after the fact
+- Continuous improvement of retrieval
+
+**Orchestrator Agent Definition:**
+
+```markdown
+# Orchestrator Agent
+
+name: orchestrator
+description: Strategic coordinator that ensures governance compliance before delegation
+cognitive_function: Strategic
+
+## Tools
+- Task (for delegation to specialists)
+- Read, Glob, Grep (for context gathering)
+- evaluate_governance (MANDATORY before delegation)
+- query_governance (for principle lookup)
+
+## System Prompt Structure
+You are the Orchestrator, the default entry point for all user requests.
+
+Your responsibilities:
+1. Analyze incoming requests
+2. Call evaluate_governance(planned_action) BEFORE any significant action
+3. Delegate to specialist agents based on assessment
+4. Track governance compliance across the workflow
+
+You do NOT directly execute work. You delegate to specialists who have
+the appropriate tools (Edit, Write, Bash).
+
+### Mandatory Governance Check
+Before delegating ANY significant action:
+1. Call evaluate_governance() with the planned action
+2. If PROCEED: Delegate with governance context
+3. If PROCEED_WITH_MODIFICATIONS: Apply modifications to delegation prompt
+4. If ESCALATE: HALT and request human review
+
+### What Counts as Significant
+- Creating or modifying files
+- Executing commands
+- Making architectural decisions
+- Changing configuration
+
+### Bypass Authorization
+Skip governance ONLY for:
+- Pure read operations (viewing files, checking status)
+- User explicitly authorizes with documented reason
+- Trivial formatting-only changes
+
+## Handoff Format
+When delegating to specialists, include governance context:
+
+Task: [specific task]
+Governance Assessment: [PROCEED/MODS]
+Relevant Principles: [list IDs]
+Constraints: [any modifications required]
+```
+
+**Integration with Existing Patterns:**
+
+This architecture extends existing patterns:
+
+| Existing Pattern | Enhancement |
+|-----------------|-------------|
+| Governance Agent (§4.3) | Now invoked by Orchestrator, not optional |
+| Human-in-the-Loop (§4.5) | ESCALATE integrates with approval workflow |
+| Fault Tolerance (§4.4) | Governance failures trigger retry/escalate |
+| Stop-the-Line (§4.4) | S-Series triggers automatic stop-the-line |
+
 ---
 
 # TITLE 5: Cross-Tool Synchronization
@@ -1851,6 +2062,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.1.0 | 2026-01-01 | **Governance Enforcement Architecture.** Added: §4.6 Governance Enforcement Architecture — Orchestrator-First pattern making governance structural (not optional), four-layer defense in depth (Default Persona → Governance Tool → Post-Action Audit → Per-Response Reminder), bypass authorization with narrow scope, audit trail requirements, Orchestrator Agent definition. Problem addressed: voluntary governance tools can be ignored even with reminders. Solution: Orchestrator as default persona with mandatory `evaluate_governance()` before delegation. ESCALATE is now blocking (halts execution until human approves). |
 | v2.0.0 | 2026-01-01 | **Major revision aligned with Principles v2.0.0.** Added: Agent Definition Standard (§2.1), Agent Catalog with 6 patterns (§2.2), Contrarian Reviewer pattern (§4.2), Governance Agent pattern (§4.3), Handoff Pattern Taxonomy (§3.1), Compression Procedures (§3.4), Shared Assumptions Document. Enhanced: Pattern Selection with Linear-First default and Read-Write Analysis. Updated: Preamble scope for individual/sequential/parallel coverage. Renamed: Title numbering for new sections. Research: Anthropic, Google ADK, Cognition, LangChain, Microsoft, Vellum multi-agent patterns (2025). |
 | v1.1.0 | 2025-12-29 | Structural Fixes: Changed Title headers from `## Title` to `# TITLE` for extractor compatibility. Changed section headers from `### X.Y` to `### X.Y` for method extraction. Removed series codes from Principle to Title mapping. Updated status from Draft to Active. |
 | v1.0.0 | 2025-12-21 | Initial release. Implements 11 multi-agent domain principles. Core patterns derived from 2025 industry best practices and NetworkChuck workflow patterns. |

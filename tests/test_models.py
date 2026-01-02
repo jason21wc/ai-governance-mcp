@@ -12,6 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from ai_governance_mcp.models import (
+    AssessmentStatus,
     SeriesCode,
     ConfidenceLevel,
     PrincipleMetadata,
@@ -23,6 +24,12 @@ from ai_governance_mcp.models import (
     Feedback,
     Metrics,
     ErrorResponse,
+    GovernanceAssessment,
+    GovernanceAuditLog,
+    VerificationResult,
+    VerificationStatus,
+    generate_audit_id,
+    generate_timestamp,
 )
 
 
@@ -254,3 +261,140 @@ class TestErrorResponse:
         )
         assert e.error_code == "NOT_FOUND"
         assert len(e.suggestions) == 1
+
+
+class TestAuditFunctions:
+    """Test audit helper functions."""
+
+    def test_generate_audit_id_format(self):
+        """Audit ID should have gov- prefix and 12 hex chars."""
+        audit_id = generate_audit_id()
+        assert audit_id.startswith("gov-")
+        assert len(audit_id) == 16  # "gov-" + 12 hex chars
+
+    def test_generate_audit_id_unique(self):
+        """Each audit ID should be unique."""
+        ids = {generate_audit_id() for _ in range(100)}
+        assert len(ids) == 100  # All unique
+
+    def test_generate_timestamp_iso_format(self):
+        """Timestamp should be valid ISO format."""
+        ts = generate_timestamp()
+        # Should contain date separator and time separator
+        assert "T" in ts
+        assert "-" in ts
+        assert ":" in ts
+
+
+class TestGovernanceAssessment:
+    """Test GovernanceAssessment model with audit fields."""
+
+    def test_auto_generates_audit_id(self):
+        """Should auto-generate audit_id if not provided."""
+        assessment = GovernanceAssessment(
+            action_reviewed="Test action",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+            rationale="Test rationale",
+        )
+        assert assessment.audit_id.startswith("gov-")
+
+    def test_auto_generates_timestamp(self):
+        """Should auto-generate timestamp if not provided."""
+        assessment = GovernanceAssessment(
+            action_reviewed="Test action",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+            rationale="Test rationale",
+        )
+        assert "T" in assessment.timestamp  # ISO format indicator
+
+    def test_accepts_all_assessment_statuses(self):
+        """Should accept all three assessment statuses."""
+        for status in AssessmentStatus:
+            assessment = GovernanceAssessment(
+                action_reviewed="Test",
+                assessment=status,
+                confidence=ConfidenceLevel.MEDIUM,
+                rationale="Test",
+            )
+            assert assessment.assessment == status
+
+
+class TestGovernanceAuditLog:
+    """Test GovernanceAuditLog model."""
+
+    def test_valid_audit_log(self):
+        """Should accept valid audit log entry."""
+        log = GovernanceAuditLog(
+            audit_id="gov-abc123def456",
+            timestamp="2026-01-01T10:00:00Z",
+            action="Implementing new feature",
+            assessment=AssessmentStatus.PROCEED,
+            principles_consulted=["coding-C1", "coding-Q1"],
+            s_series_triggered=False,
+            confidence=ConfidenceLevel.HIGH,
+        )
+        assert log.audit_id == "gov-abc123def456"
+        assert len(log.principles_consulted) == 2
+        assert log.modifications is None
+        assert log.escalation_reason is None
+
+    def test_audit_log_with_escalation(self):
+        """Should capture escalation reason."""
+        log = GovernanceAuditLog(
+            audit_id="gov-abc123def456",
+            timestamp="2026-01-01T10:00:00Z",
+            action="Dangerous action",
+            assessment=AssessmentStatus.ESCALATE,
+            principles_consulted=["meta-S1"],
+            s_series_triggered=True,
+            escalation_reason="S-Series violation detected",
+            confidence=ConfidenceLevel.HIGH,
+        )
+        assert log.s_series_triggered is True
+        assert log.escalation_reason == "S-Series violation detected"
+
+
+class TestVerificationResult:
+    """Test VerificationResult model."""
+
+    def test_compliant_result(self):
+        """Should create compliant verification result."""
+        result = VerificationResult(
+            action_description="Created new file",
+            status=VerificationStatus.COMPLIANT,
+            matching_audit_id="gov-abc123",
+            finding="Governance was consulted",
+        )
+        assert result.status == VerificationStatus.COMPLIANT
+        assert result.matching_audit_id is not None
+
+    def test_non_compliant_result(self):
+        """Should create non-compliant verification result."""
+        result = VerificationResult(
+            action_description="Modified code without check",
+            status=VerificationStatus.NON_COMPLIANT,
+            finding="No matching governance check found",
+        )
+        assert result.status == VerificationStatus.NON_COMPLIANT
+        assert result.matching_audit_id is None
+
+    def test_partial_result(self):
+        """Should create partial verification result."""
+        result = VerificationResult(
+            action_description="Implemented feature",
+            status=VerificationStatus.PARTIAL,
+            matching_audit_id="gov-abc123",
+            finding="Check found but scope mismatch",
+        )
+        assert result.status == VerificationStatus.PARTIAL
+
+    def test_auto_generates_timestamp(self):
+        """Should auto-generate timestamp."""
+        result = VerificationResult(
+            action_description="Test",
+            status=VerificationStatus.COMPLIANT,
+            finding="Test",
+        )
+        assert "T" in result.timestamp
