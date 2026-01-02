@@ -151,13 +151,46 @@ python -m ai_governance_mcp.server
 
 ### Platform Configuration
 
-#### Claude Code CLI (Recommended)
+MCP is now supported across major AI platforms. Use the config generator for platform-specific setup:
+
+```bash
+# Generate config for any platform
+python -m ai_governance_mcp.config_generator --platform gemini
+python -m ai_governance_mcp.config_generator --platform claude
+python -m ai_governance_mcp.config_generator --platform chatgpt
+python -m ai_governance_mcp.config_generator --all  # Show all platforms
+```
+
+#### Gemini CLI
+
+```bash
+# Add to user config (available in all projects)
+gemini mcp add -s user ai-governance python -m ai_governance_mcp.server
+
+# Or manually add to ~/.gemini/settings.json
+```
+
+```json
+{
+  "mcpServers": {
+    "ai-governance": {
+      "command": "python",
+      "args": ["-m", "ai_governance_mcp.server"],
+      "timeout": 30000
+    }
+  }
+}
+```
+
+Restart Gemini CLI after configuration.
+
+#### Claude Code CLI
 
 ```bash
 # Global installation (available in all projects)
 claude mcp add ai-governance -s user -- python -m ai_governance_mcp.server
 
-# Set environment variables
+# With environment variables
 claude mcp add ai-governance -s user \
   --env AI_GOVERNANCE_DOCUMENTS_PATH=/path/to/documents \
   --env AI_GOVERNANCE_INDEX_PATH=/path/to/index \
@@ -175,35 +208,42 @@ Edit the config file:
   "mcpServers": {
     "ai-governance": {
       "command": "python",
-      "args": ["-m", "ai_governance_mcp.server"],
-      "env": {
-        "AI_GOVERNANCE_DOCUMENTS_PATH": "/path/to/ai-governance-mcp/documents",
-        "AI_GOVERNANCE_INDEX_PATH": "/path/to/ai-governance-mcp/index"
-      }
+      "args": ["-m", "ai_governance_mcp.server"]
     }
   }
 }
 ```
 
-Restart Claude Desktop after saving. Look for the MCP server indicator in the bottom-right of the input box.
+Restart Claude Desktop after saving.
 
-#### Perplexity Comet Browser
+#### ChatGPT Desktop (Developer Mode)
 
-Comet supports MCP servers via Custom Connectors. Local MCP support is currently in development builds.
+1. Open ChatGPT Desktop → Settings → Developer Mode (enable)
+2. Add MCP server configuration:
 
-When available, configure via Comet Settings → Custom Connectors:
 ```json
 {
-  "ai-governance": {
-    "command": "python",
-    "args": ["-m", "ai_governance_mcp.server"],
-    "env": {
-      "AI_GOVERNANCE_DOCUMENTS_PATH": "/path/to/documents",
-      "AI_GOVERNANCE_INDEX_PATH": "/path/to/index"
+  "mcpServers": {
+    "ai-governance": {
+      "command": "python",
+      "args": ["-m", "ai_governance_mcp.server"]
     }
   }
 }
 ```
+
+#### Other Platforms (Grok, Perplexity, Google AI Studio)
+
+Use the [MCP SuperAssistant Chrome Extension](https://github.com/srbhptl39/MCP-SuperAssistant) to bridge MCP to web-based AI platforms.
+
+Supported platforms via SuperAssistant:
+- Grok
+- Perplexity
+- Google AI Studio
+- OpenRouter
+- DeepSeek
+- Mistral AI
+- And more...
 
 ### Environment Variables
 
