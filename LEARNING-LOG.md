@@ -762,6 +762,84 @@ def extract_all(self) -> GlobalIndex:
 
 ---
 
+### 2026-01-01 - Multi-Agent Domain v2.0.0 Research Synthesis (CRITICAL)
+
+**Context:** Comprehensive update to multi-agent domain principles and methods, moving from v1.3.0 (parallel coordination only) to v2.0.0 (individual/sequential/parallel coverage).
+
+**Research Conducted:**
+- Anthropic Multi-Agent Research System (engineering blog)
+- Google ADK "Architecting Efficient Context-Aware Multi-Agent Framework" (developer blog)
+- Cognition "Don't Build Multi-Agents" (practitioner blog)
+- LangChain "How and When to Build Multi-Agent Systems" (vendor blog)
+- Microsoft Multi-Agent Reference Architecture (documentation)
+- Vellum "Multi-Agent Context Engineering" (vendor blog)
+
+**Key Findings:**
+
+**1. Anthropic Multi-Agent Research System**
+- Achieved 90.2% improvement over single-agent baseline
+- BUT: 15x token usage (cost/latency tradeoff)
+- Orchestrator-worker pattern with specialization
+- Key insight: improvement comes from specialization, not just parallelization
+
+**2. Cognition "Don't Build Multi-Agents"**
+- "Actions carry implicit decisions. Conflicting decisions carried by conflicting actions carry bad results."
+- Problem: Parallel agents make independent implicit decisions that conflict
+- Solution: Read-Write Division — parallelize reads, serialize writes
+- Solution: Shared Assumptions Protocol before parallel execution
+- Key insight: Sequential (linear) is safer default; parallel requires validation
+
+**3. Google ADK Context Engineering**
+- "A focused 300-token context often outperforms an unfocused 113,000-token context."
+- Two handoff patterns: Agents-as-Tools (stateless) vs Agent-Transfer (stateful)
+- Four context strategies: Write, Select, Compress, Isolate
+- `include_contents` configuration determines what transfers between agents
+
+**4. LangChain "When to Build Multi-Agent"**
+- Multi-agent justified ONLY when task exceeds single-agent capability
+- Justifications: context window limits, parallelization opportunity, cognitive mismatch, quality improvement
+- "Specialization" applies even to sequential single-agent workflows
+- Multi-agent overhead must be justified by proportional value
+
+**5. Vellum Context Engineering**
+- Context compression at boundaries is critical
+- Preserve: decisions, constraints, artifacts
+- Compress: reasoning chains, exploratory dead ends
+
+**Synthesis — Resolution of Apparent Contradictions:**
+
+Anthropic shows 90% improvement; Cognition warns against multi-agent. Both are correct:
+- **Read-heavy tasks** (research, analysis): Parallelize with shared assumptions → major gains
+- **Write-heavy tasks** (synthesis, decisions): Serialize to single agent → avoid conflicts
+- **Sequential specialization**: Use specialized agent configs sequentially without parallel overhead
+
+**Principles Derived:**
+| Principle | Source | Constitutional Basis |
+|-----------|--------|----------------------|
+| Justified Complexity | Cognition, LangChain | Resource Efficiency |
+| Context Engineering Discipline | Google ADK, Vellum | Context Engineering |
+| Read-Write Division | Cognition, LangChain | Role Specialization |
+| Shared Assumptions Protocol | Cognition | Standardized Collaboration |
+| Linear-First Orchestration | Industry consensus | Discovery Before Commitment |
+
+**Key Concept — Modular Personalities:**
+An agent is not a separate program — it's a specialized *configuration* of the same underlying model. Think of it as a "hat" the AI wears: different system prompt, different tools, different cognitive focus. The same base model becomes a coder, validator, or orchestrator based on its agent definition.
+
+This reframing explains why:
+- Specialization helps even for single-agent sequential workflows
+- Agents don't need separate infrastructure — just configuration
+- The "multi-agent" domain covers individual specialized agents too
+
+**Sources:**
+- [Anthropic Multi-Agent Research System](https://www.anthropic.com/engineering/multi-agent-research-system)
+- [Google ADK Context Engineering](https://developers.googleblog.com/architecting-efficient-context-aware-multi-agent-framework-for-production/)
+- [Cognition: Don't Build Multi-Agents](https://cognition.ai/blog/dont-build-multi-agents)
+- [LangChain: How and When to Build Multi-Agent](https://blog.langchain.com/how-and-when-to-build-multi-agent-systems/)
+- [Microsoft Multi-Agent Reference Architecture](https://microsoft.github.io/multi-agent-reference-architecture/docs/context-engineering/Context-Engineering.html)
+- [Vellum: Multi-Agent Context Engineering](https://www.vellum.ai/blog/multi-agent-systems-building-with-context-engineering)
+
+---
+
 ## Research Links (from 2025-12-24 session)
 
 Hybrid retrieval best practices:

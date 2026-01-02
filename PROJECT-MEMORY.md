@@ -189,6 +189,105 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Rationale:** Fail-fast with clear errors > fail-silent with hidden problems
 - **Pattern Applied:** Any config-driven system should validate external references at startup
 
+### Decision: Multi-Agent Domain v2.0.0 Scope Expansion
+- **Date:** 2026-01-01
+- **Status:** CONFIRMED
+- **Problem:** v1.x assumed "multi-agent" = parallel coordination only; missed individual specialized agents and sequential composition
+- **Research:** Anthropic, Google ADK, Cognition, LangChain, Microsoft, Vellum (2025 patterns)
+- **Key Insight:** Many benefits of "multi-agent" can be achieved with sequential single-agent workflows. The critical factor is *specialization*, not *parallelization*.
+- **Scope Now Covers:**
+  1. Individual specialized agents (single agent, focused cognitive function)
+  2. Sequential agent composition (agents in sequence, output feeds next)
+  3. Parallel multi-agent coordination (multiple agents simultaneously)
+  4. Hybrid patterns
+- **Version:** v1.3.0 → v2.0.0 (BREAKING — scope, new principles, agent definition standard)
+- **Sources:** [Anthropic Multi-Agent Research](https://www.anthropic.com/engineering/multi-agent-research-system), [Cognition "Don't Build Multi-Agents"](https://cognition.ai/blog/dont-build-multi-agents)
+
+### Decision: Agent Definition Standard Adopted
+- **Date:** 2026-01-01
+- **Status:** CONFIRMED
+- **Problem:** Agents were defined ad-hoc without consistent structure
+- **Choice:** Standardize agent definitions with required components:
+  | Component | Required | Purpose |
+  |-----------|----------|---------|
+  | name | Yes | Unique identifier |
+  | description | Yes | Auto-selection trigger |
+  | cognitive_function | Yes | Mental model type |
+  | tools | Yes | Permissions |
+  | System Prompt | Yes | Structured: Who I Am, Who I Am NOT, Output Format |
+- **Key Concept — Modular Personalities:** An agent is a specialized *configuration* of the same underlying model, not a separate program. Think of it as a "hat" the AI wears.
+- **Sources:** [Anthropic Claude Agent SDK](https://docs.anthropic.com/en/docs/claude-code/agents-sdk), [NetworkChuck AI-in-Terminal](https://github.com/theNetworkChuck/ai-in-the-terminal)
+
+### Decision: Justified Complexity Principle Added
+- **Date:** 2026-01-01
+- **Status:** CONFIRMED
+- **Problem:** No guidance on when to use agents vs generalist
+- **The 15x Rule:** Multi-agent workflows typically consume 15x the tokens. Must justify.
+- **Justification Required:** Context window limits, parallelization opportunity, cognitive function mismatch, quality improvement, or isolation requirement
+- **Constitutional Basis:** meta-operational-resource-efficiency-waste-reduction, meta-core-discovery-before-commitment
+- **Sources:** [Cognition 15x Finding](https://cognition.ai/blog/dont-build-multi-agents), [LangChain When to Build Multi-Agent](https://blog.langchain.com/how-and-when-to-build-multi-agent-systems/)
+
+### Decision: Context Engineering Discipline Principle Added
+- **Date:** 2026-01-01
+- **Status:** CONFIRMED
+- **Problem:** No explicit guidance on context management across agent boundaries
+- **Key Insight:** "A focused 300-token context often outperforms an unfocused 113,000-token context."
+- **Four Strategies:** Write (store externally), Select (retrieve relevant), Compress (summarize at boundaries), Isolate (scope per agent)
+- **Constitutional Basis:** meta-core-context-engineering, meta-operational-minimal-relevant-context
+- **Sources:** [Vellum Multi-Agent Context Engineering](https://www.vellum.ai/blog/multi-agent-systems-building-with-context-engineering), [Google ADK](https://developers.googleblog.com/architecting-efficient-context-aware-multi-agent-framework-for-production/)
+
+### Decision: Read-Write Division Principle Added
+- **Date:** 2026-01-01
+- **Status:** CONFIRMED
+- **Problem:** No guidance on what operations can safely parallelize
+- **Key Insight:** "Actions carry implicit decisions. Conflicting decisions carried by conflicting actions carry bad results."
+- **Rule:** Parallelize read-heavy operations (research, analysis). Serialize write-heavy operations (synthesis, decisions) to single agent.
+- **Constitutional Basis:** meta-multi-role-specialization-topology, meta-multi-standardized-collaboration-protocols
+- **Sources:** [Cognition](https://cognition.ai/blog/dont-build-multi-agents), [LangChain](https://blog.langchain.com/how-and-when-to-build-multi-agent-systems/)
+
+### Decision: Shared Assumptions Protocol Added
+- **Date:** 2026-01-01
+- **Status:** CONFIRMED
+- **Problem:** Parallel agents could make conflicting implicit decisions
+- **Solution:** Before parallel execution, establish Shared Assumptions Document covering: Intent, Decisions Already Made, Conventions, Boundaries Between Agents, Conflict Resolution
+- **Extends:** Intent Propagation (A4) → full assumptions protocol
+- **Sources:** [Cognition "conflicting assumptions" research](https://cognition.ai/blog/dont-build-multi-agents)
+
+### Decision: Linear-First Orchestration Default
+- **Date:** 2026-01-01
+- **Status:** CONFIRMED
+- **Problem:** No clear default when orchestration pattern is unclear
+- **Rule:** Sequential is the safe default. Parallel requires explicit validation: confirmed independence + shared assumptions + read-write analysis
+- **Rationale:** Parallel introduces coordination complexity; only justified when validated
+- **Sources:** [Cognition](https://cognition.ai/blog/dont-build-multi-agents), Industry consensus on "start simple"
+
+### Decision: Agent Catalog with 6 Core Patterns
+- **Date:** 2026-01-01
+- **Status:** CONFIRMED
+- **Problem:** Agents created ad-hoc without reusable templates
+- **Catalog:**
+  | Agent | Cognitive Function | Purpose |
+  |-------|-------------------|---------|
+  | Orchestrator | Strategic | Coordinate, delegate, never execute domain work |
+  | Specialist | Domain-specific | Execute domain tasks (parameterized) |
+  | Validator | Analytical | Review outputs against explicit criteria |
+  | Contrarian Reviewer | Critical | Challenge assumptions, surface blind spots |
+  | Session Closer | Operational | State persistence, context sync |
+  | Governance Agent | Evaluative | Assess compliance with principles |
+- **Each includes:** Full agent definition template with system prompt structure
+
+### Decision: Governance Agent Generic Pattern (Phase 2 Deferred)
+- **Date:** 2026-01-01
+- **Status:** CAPTURED FOR PHASE 2
+- **Problem:** Need active governance enforcement, not just passive reminders
+- **Generic Pattern Captured:** Governance Agent evaluates planned actions against principles, provides compliance feedback
+- **MCP-Specific Implementation:** Deferred to Phase 2 (multi-agent orchestration roadmap item)
+- **Design Notes:**
+  - `evaluate_governance()` tool specification
+  - Input: planned_action, context
+  - Output: compliant (bool), findings, required_modifications, confidence
+  - S-Series (safety) veto authority
+
 ---
 
 ## AI Coding Methods v2.0.0 Decisions
