@@ -2789,7 +2789,7 @@
           "embedding_id": 108
         }
       ],
-      "last_extracted": "2026-01-02T21:16:36.540294+00:00",
+      "last_extracted": "2026-01-02T21:32:55.450571+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -3985,10 +3985,10 @@
           "id": "coding-method-coverage-verification",
           "domain": "ai-coding",
           "title": "Coverage Verification",
-          "content": "### 5.2.4 Coverage Verification\n\nBefore task completion:\n- [ ] Unit tests written for new functions\n- [ ] Integration tests for new components\n- [ ] Coverage meets \u226580% threshold\n- [ ] All tests passing\n\n---\n\n## Part 5.3: Security Validation\n\n### 5.3.1 Purpose\n\nImplement Q2 (Security-First) by integrating security throughout implementation.\n",
+          "content": "### 5.2.4 Coverage Verification\n\nBefore task completion:\n- [ ] Unit tests written for new functions\n- [ ] Integration tests for new components\n- [ ] Coverage meets \u226580% threshold\n- [ ] All tests passing\n",
           "line_range": [
             1468,
-            1483
+            1475
           ],
           "keywords": [
             "coverage",
@@ -3997,19 +3997,35 @@
           "embedding_id": 168
         },
         {
+          "id": "coding-method-test-organization-patterns",
+          "domain": "ai-coding",
+          "title": "Test Organization Patterns",
+          "content": "### 5.2.5 Test Organization Patterns\n\n\ud83d\udfe1 **IMPORTANT** \u2014 Patterns for organizing test suites at scale.\n\n#### Test File Structure\n\nSeparate unit tests from integration tests using file naming conventions:\n\n```\ntests/\n\u251c\u2500\u2500 conftest.py                    # Shared fixtures (always load first)\n\u251c\u2500\u2500 test_{module}.py               # Unit tests (mock dependencies)\n\u251c\u2500\u2500 test_{module}_integration.py   # Integration tests (real components)\n\u2514\u2500\u2500 __init__.py\n```\n\n**Rationale:** Unit tests run fast with mocks; integration tests verify real component interaction. Separation enables running fast tests during development (`pytest tests/test_*.py -m \"not integration\"`) and full suite in CI.\n\n#### Fixture Categories (conftest.py)\n\nOrganize fixtures by purpose:\n\n| Category | Purpose | Example |\n|----------|---------|---------|\n| **Path Fixtures** | Isolated temp directories | `test_settings(tmp_path)` |\n| **Model Fixtures** | Sample valid objects | `sample_principle()` |\n| **State Reset** | Clear global state between tests | `reset_server_state()` |\n| **Mock Fixtures** | Pre-configured mocks for external dependencies | `mock_embedder()` |\n\n**State Reset Pattern:**\n```python\n@pytest.fixture(autouse=True)\ndef reset_global_state():\n    \"\"\"Reset module-level state before each test.\"\"\"\n    import my_module\n    my_module._global_cache = None\n    my_module._singleton = None\n    yield\n    # Cleanup after test if needed\n```\n\n#### Test Markers\n\nUse markers to categorize tests for selective execution:\n\n```python\n@pytest.mark.slow           # ML models, network calls\n@pytest.mark.integration    # Full pipeline tests\n@pytest.mark.real_data      # Tests against production data\n@pytest.mark.asyncio        # Async tests (pytest-asyncio)\n```\n\n**pytest.ini configuration:**\n```ini\n[pytest]\nmarkers =\n    slow: marks tests as slow (deselect with '-m \"not slow\"')\n    integration: marks integration tests\n    real_data: marks tests using production data\n```\n\n**CI optimization:** Run `-m \"not slow\"` for fast feedback, full suite nightly.\n\n#### Standard Edge Cases Checklist\n\nEvery function accepting input should test:\n\n- [ ] Empty string `\"\"`\n- [ ] Missing required field / `None`\n- [ ] Boundary values (exactly at threshold, just below/above)\n- [ ] Invalid type (string where int expected)\n- [ ] Unicode/special characters\n- [ ] Very long input (truncation behavior)\n- [ ] Whitespace-only input `\"   \"`\n\n#### Response Parsing Helper\n\nWhen testing tools that wrap responses (footers, metadata), create a helper:\n\n```python\ndef extract_json_from_response(text: str) -> str:\n    \"\"\"Strip wrappers/footers from tool responses for JSON parsing.\"\"\"\n    separator = \"\\n\\n---\\n\"  # Common footer pattern\n    if separator in text:\n        return text.split(separator)[0]\n    return text\n\n# Usage in test\nresponse = await call_tool(\"my_tool\", {\"arg\": \"value\"})\nparsed = json.loads(extract_json_from_response(response[0].text))\nassert parsed[\"status\"] == \"success\"\n```\n\n#### When to Parameterize\n\n| Parameterize When | Keep Separate When |\n|-------------------|-------------------|\n| Same logic, different inputs | Different assertions per case |\n| >4 similar tests | Complex setup differs per case |\n| Boundary value testing | Need clear failure identification |\n| Enum/status code coverage | Debugging specific edge cases |\n\n**Parameterization example:**\n```python\n@pytest.mark.parametrize(\"score,expected_level\", [\n    (0.8, \"high\"),\n    (0.5, \"medium\"),\n    (0.2, \"low\"),\n])\ndef test_confidence_level(score, expected_level):\n    assert get_confidence(score) == expected_level\n```\n\n#### Mocking Strategy\n\n| Layer | Mock? | Rationale |\n|-------|-------|-----------|\n| External APIs | Always | Deterministic, fast, no network |\n| Database | Usually | Use in-memory or fixtures |\n| File system | Usually | Use `tmp_path` fixture |\n| Internal modules | Unit only | Integration uses real |\n| ML models | Unit only | Slow to load; mock embeddings |\n\n**Mock at boundaries, not internals.** Unit tests mock dependencies; integration tests use real components with controlled inputs.\n\n---\n\n## Part 5.3: Security Validation\n\n### 5.3.1 Purpose\n\nImplement Q2 (Security-First) by integrating security throughout implementation.\n",
+          "line_range": [
+            1476,
+            1608
+          ],
+          "keywords": [
+            "test",
+            "organization",
+            "patterns"
+          ],
+          "embedding_id": 169
+        },
+        {
           "id": "coding-method-security-checklist",
           "domain": "ai-coding",
           "title": "Security Checklist",
           "content": "### 5.3.2 Security Checklist\n\nApply per task:\n\n**Input Handling:**\n- [ ] All user input validated\n- [ ] No direct SQL construction (use parameterized)\n- [ ] No direct HTML rendering of user content (use sanitization)\n- [ ] File uploads validated and constrained\n\n**Authentication/Authorization:**\n- [ ] Auth checks on all protected endpoints\n- [ ] Proper session management\n- [ ] No hardcoded credentials\n- [ ] Secrets in environment variables\n\n**Data Protection:**\n- [ ] Sensitive data encrypted at rest\n- [ ] Secure transmission (HTTPS)\n- [ ] No sensitive data in logs\n- [ ] Proper data retention/deletion\n",
           "line_range": [
-            1484,
-            1505
+            1609,
+            1630
           ],
           "keywords": [
             "security",
             "checklist"
           ],
-          "embedding_id": 169
+          "embedding_id": 170
         },
         {
           "id": "coding-method-security-scanning",
@@ -4017,14 +4033,14 @@
           "title": "Security Scanning",
           "content": "### 5.3.3 Security Scanning\n\nWhen available, run automated security scanning:\n- Static analysis (SAST)\n- Dependency vulnerability scan\n- Secret detection\n\n**Threshold:** Zero HIGH/CRITICAL vulnerabilities before task completion.\n",
           "line_range": [
-            1506,
-            1514
+            1631,
+            1639
           ],
           "keywords": [
             "security",
             "scanning"
           ],
-          "embedding_id": 170
+          "embedding_id": 171
         },
         {
           "id": "coding-method-security-escalation",
@@ -4032,14 +4048,14 @@
           "title": "Security Escalation",
           "content": "### 5.3.4 Security Escalation\n\nEscalate immediately when:\n- Vulnerability cannot be fixed within task scope\n- Security requirement conflicts with functionality\n- Third-party dependency has known vulnerability\n- Architecture change required for security\n\n---\n\n## Part 5.4: Dependency Verification\n\n### 5.4.1 Purpose\n\nImplement Q4 (Supply Chain Integrity) by verifying all dependencies.\n",
           "line_range": [
-            1515,
-            1530
+            1640,
+            1655
           ],
           "keywords": [
             "security",
             "escalation"
           ],
-          "embedding_id": 171
+          "embedding_id": 172
         },
         {
           "id": "coding-method-verification-procedure",
@@ -4047,14 +4063,14 @@
           "title": "Verification Procedure",
           "content": "### 5.4.2 Verification Procedure\n\nFor each new dependency:\n\n1. **Existence Check:** Verify package exists in registry\n2. **Popularity Check:** Reasonable download counts, stars, activity\n3. **Maintenance Check:** Recent updates, responsive maintainers\n4. **Security Check:** No known vulnerabilities\n5. **License Check:** Compatible with project requirements\n",
           "line_range": [
-            1531,
-            1540
+            1656,
+            1665
           ],
           "keywords": [
             "verification",
             "procedure"
           ],
-          "embedding_id": 172
+          "embedding_id": 173
         },
         {
           "id": "coding-method-hallucination-prevention",
@@ -4062,14 +4078,14 @@
           "title": "Hallucination Prevention",
           "content": "### 5.4.3 Hallucination Prevention\n\nAI-recommended packages require verification:\n\n- [ ] Package name exactly matches registry\n- [ ] Package provides claimed functionality\n- [ ] Import statements match actual package API\n- [ ] Version specified is published version\n\n**If package cannot be verified:** Do not use. Find alternative or escalate.\n",
           "line_range": [
-            1541,
-            1551
+            1666,
+            1676
           ],
           "keywords": [
             "hallucination",
             "prevention"
           ],
-          "embedding_id": 173
+          "embedding_id": 174
         },
         {
           "id": "coding-method-lock-file-maintenance",
@@ -4077,15 +4093,15 @@
           "title": "Lock File Maintenance",
           "content": "### 5.4.4 Lock File Maintenance\n\n- Commit lock files (package-lock.json, yarn.lock, etc.)\n- Verify lock file updated with changes\n- Review lock file changes in version control\n\n---\n\n## Part 5.5: Iteration Protocol [ENHANCED Mode]\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Only for MVP/uncertain projects**\n",
           "line_range": [
-            1552,
-            1563
+            1677,
+            1688
           ],
           "keywords": [
             "lock",
             "file",
             "maintenance"
           ],
-          "embedding_id": 174
+          "embedding_id": 175
         },
         {
           "id": "coding-method-when-to-apply",
@@ -4093,14 +4109,14 @@
           "title": "When to Apply",
           "content": "### 5.5.1 When to Apply\n\nApply iteration protocol when:\n- Requirements are uncertain\n- Learning is a primary goal\n- MVP validation approach\n- Experimental features\n",
           "line_range": [
-            1564,
-            1571
+            1689,
+            1696
           ],
           "keywords": [
             "when",
             "apply"
           ],
-          "embedding_id": 175
+          "embedding_id": 176
         },
         {
           "id": "coding-method-iteration-structure",
@@ -4108,14 +4124,14 @@
           "title": "Iteration Structure",
           "content": "### 5.5.2 Iteration Structure\n\n```\nMILESTONE 1\n\u251c\u2500\u2500 Tasks 1-N\n\u251c\u2500\u2500 Validation\n\u2514\u2500\u2500 Learning Checkpoint\n    \u251c\u2500\u2500 What worked?\n    \u251c\u2500\u2500 What didn't?\n    \u2514\u2500\u2500 What changes for next milestone?\n\nMILESTONE 2\n\u251c\u2500\u2500 Tasks (adjusted based on M1 learning)\n\u251c\u2500\u2500 Validation\n\u2514\u2500\u2500 Learning Checkpoint\n\n[Continue until complete or pivot]\n```\n",
           "line_range": [
-            1572,
-            1590
+            1697,
+            1715
           ],
           "keywords": [
             "iteration",
             "structure"
           ],
-          "embedding_id": 176
+          "embedding_id": 177
         },
         {
           "id": "coding-method-pivot-triggers",
@@ -4123,14 +4139,14 @@
           "title": "Pivot Triggers",
           "content": "### 5.5.3 Pivot Triggers\n\nConsider pivoting when:\n- Learning invalidates core assumptions\n- User feedback contradicts specification\n- Technical approach proves infeasible\n- Business requirements change\n\nDocument pivot decision and rationale in State File.\n",
           "line_range": [
-            1591,
-            1600
+            1716,
+            1725
           ],
           "keywords": [
             "pivot",
             "triggers"
           ],
-          "embedding_id": 177
+          "embedding_id": 178
         },
         {
           "id": "coding-method-iteration-documentation",
@@ -4138,14 +4154,14 @@
           "title": "Iteration Documentation",
           "content": "### 5.5.4 Iteration Documentation\n\nAfter each milestone:\n- [ ] Learning captured\n- [ ] Adjustments documented\n- [ ] Next milestone refined\n- [ ] Product Owner informed\n\n---\n\n# TITLE 6: VALIDATION PROCEDURES\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 Prevents downstream failures**\n\n**Implements:** Validation Gates (Domain)  \n**Applies to:** All phase transitions and significant outputs\n\n## Part 6.1: Technical Validation Gates\n\n### 6.1.1 Purpose\n\nVerify outputs meet technical requirements before proceeding. Technical validation is automated or AI-performed.\n",
           "line_range": [
-            1601,
-            1623
+            1726,
+            1748
           ],
           "keywords": [
             "iteration",
             "documentation"
           ],
-          "embedding_id": 178
+          "embedding_id": 179
         },
         {
           "id": "coding-method-validation-by-phase",
@@ -4153,14 +4169,14 @@
           "title": "Validation by Phase",
           "content": "### 6.1.2 Validation by Phase\n\n**Specify \u2192 Plan Gate:**\n- [ ] Specification complete (\u00a72.3 checklist)\n- [ ] No contradictions detected\n- [ ] Scope appropriate for resources\n- [ ] Product Owner approved\n\n**Plan \u2192 Tasks Gate:**\n- [ ] Architecture validated (\u00a73.2.4 checklist)\n- [ ] Technology choices justified\n- [ ] Risks identified and mitigated\n- [ ] Product Owner approved\n\n**Tasks \u2192 Implement Gate:**\n- [ ] All tasks meet size requirements\n- [ ] Dependencies valid (no cycles)\n- [ ] Full coverage of requirements\n- [ ] Product Owner approved\n\n**Implement \u2192 Complete Gate:**\n- [ ] All tasks completed\n- [ ] All tests passing\n- [ ] Security scan clean\n- [ ] Coverage meets threshold\n- [ ] Product Owner approved\n",
           "line_range": [
-            1624,
-            1650
+            1749,
+            1775
           ],
           "keywords": [
             "validation",
             "phase"
           ],
-          "embedding_id": 179
+          "embedding_id": 180
         },
         {
           "id": "coding-method-gate-failure-procedure",
@@ -4168,15 +4184,15 @@
           "title": "Gate Failure Procedure",
           "content": "### 6.1.3 Gate Failure Procedure\n\nWhen validation fails:\n\n1. **Identify failure:** Which checks failed?\n2. **Diagnose cause:** Why did they fail?\n3. **Remediate:** Fix the underlying issue\n4. **Re-validate:** Run checks again\n5. **Document:** Record failure and resolution\n\nDo NOT bypass gates. Gates exist to prevent downstream problems.\n\n---\n\n## Part 6.2: Vision Validation (PO Review)\n\n### 6.2.1 Purpose\n\nVerify outputs align with Product Owner's intent. Vision validation is human-performed.\n",
           "line_range": [
-            1651,
-            1670
+            1776,
+            1795
           ],
           "keywords": [
             "gate",
             "failure",
             "procedure"
           ],
-          "embedding_id": 180
+          "embedding_id": 181
         },
         {
           "id": "coding-method-vision-validation-points",
@@ -4184,15 +4200,15 @@
           "title": "Vision Validation Points",
           "content": "### 6.2.2 Vision Validation Points\n\nRequest Product Owner review at:\n- End of Specify phase (specification approval)\n- End of Plan phase (architecture approval)\n- End of Tasks phase (task list approval)\n- End of significant implementation milestones\n- Project completion (final acceptance)\n",
           "line_range": [
-            1671,
-            1679
+            1796,
+            1804
           ],
           "keywords": [
             "vision",
             "validation",
             "points"
           ],
-          "embedding_id": 181
+          "embedding_id": 182
         },
         {
           "id": "coding-method-vision-validation-format",
@@ -4200,15 +4216,15 @@
           "title": "Vision Validation Format",
           "content": "### 6.2.3 Vision Validation Format\n\nPresent to Product Owner:\n\n```\nPHASE COMPLETE: [Phase Name]\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nSummary: [What was accomplished]\nKey Decisions: [Decisions made and rationale]\nOutputs: [Artifacts produced]\nNext Phase: [What comes next]\nQuestions: [Any items requiring PO input]\n\nREQUEST: Approval to proceed / Feedback required\n```\n",
           "line_range": [
-            1680,
-            1695
+            1805,
+            1820
           ],
           "keywords": [
             "vision",
             "validation",
             "format"
           ],
-          "embedding_id": 182
+          "embedding_id": 183
         },
         {
           "id": "coding-method-vision-validation-outcomes",
@@ -4216,15 +4232,15 @@
           "title": "Vision Validation Outcomes",
           "content": "### 6.2.4 Vision Validation Outcomes\n\n| Outcome | Action |\n|---------|--------|\n| **Approved** | Proceed to next phase |\n| **Approved with comments** | Note comments, proceed |\n| **Revision requested** | Return to appropriate step, revise |\n| **Rejected** | Major rework or project reassessment |\n\nDocument outcome in State File.\n\n---\n\n## Part 6.3: Phase Transition Protocol\n\n### 6.3.1 Purpose\n\nFormalize the transition between phases to ensure nothing is missed.\n",
           "line_range": [
-            1696,
-            1714
+            1821,
+            1839
           ],
           "keywords": [
             "vision",
             "validation",
             "outcomes"
           ],
-          "embedding_id": 183
+          "embedding_id": 184
         },
         {
           "id": "coding-method-transition-checklist",
@@ -4232,14 +4248,14 @@
           "title": "Transition Checklist",
           "content": "### 6.3.2 Transition Checklist\n\nBefore any phase transition:\n\n- [ ] Phase work complete\n- [ ] Technical validation passed\n- [ ] Vision validation passed\n- [ ] State file updated\n- [ ] Context prepared for next phase\n- [ ] Next phase entry criteria met\n",
           "line_range": [
-            1715,
-            1725
+            1840,
+            1850
           ],
           "keywords": [
             "transition",
             "checklist"
           ],
-          "embedding_id": 184
+          "embedding_id": 185
         },
         {
           "id": "coding-method-transition-documentation",
@@ -4247,14 +4263,14 @@
           "title": "Transition Documentation",
           "content": "### 6.3.3 Transition Documentation\n\nAt each transition, document:\n\n```\nTRANSITION: [From Phase] \u2192 [To Phase]\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nDate: [Date]\nMode: [Expedited/Standard/Enhanced]\nOutputs: [List of artifacts]\nCarryforward: [Items for next phase attention]\nState File: [Updated location]\n```\n\n---\n\n## Part 6.4: Automated Validation (CI/CD)\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Enables continuous quality assurance**\n\n### 6.4.1 Purpose\n\nContinuous Integration/Continuous Deployment (CI/CD) automates validation gates, ensuring code quality is verified on every change. This implements Q-series principles (Production-Ready Standards, Security-First Development, Testing Integration) through automated enforcement.\n",
           "line_range": [
-            1726,
-            1749
+            1851,
+            1874
           ],
           "keywords": [
             "transition",
             "documentation"
           ],
-          "embedding_id": 185
+          "embedding_id": 186
         },
         {
           "id": "coding-method-ci-cd-benefits",
@@ -4262,14 +4278,14 @@
           "title": "CI/CD Benefits",
           "content": "### 6.4.2 CI/CD Benefits\n\n| Benefit | Implementation |\n|---------|----------------|\n| **Automated Testing** | Tests run on every push/PR |\n| **Security Scanning** | Vulnerabilities caught before merge |\n| **Code Quality** | Linting enforces standards |\n| **Reproducibility** | Same checks run for everyone |\n| **Documentation** | Pipeline defines quality gates |\n",
           "line_range": [
-            1750,
-            1759
+            1875,
+            1884
           ],
           "keywords": [
             "ci/cd",
             "benefits"
           ],
-          "embedding_id": 186
+          "embedding_id": 187
         },
         {
           "id": "coding-method-minimum-ci-pipeline",
@@ -4277,14 +4293,14 @@
           "title": "Minimum CI Pipeline",
           "content": "### 6.4.3 Minimum CI Pipeline\n\nEvery production project should have automated validation:\n\n**Required Jobs:**\n\n| Job | Purpose | Tools (Examples) |\n|-----|---------|------------------|\n| **test** | Run test suite | pytest, jest, go test |\n| **lint** | Check code quality | ruff, eslint, golangci-lint |\n| **security** | Scan for vulnerabilities | pip-audit, npm audit, bandit |\n\n**Recommended Additions:**\n\n| Job | Purpose | When to Add |\n|-----|---------|-------------|\n| **build** | Verify compilation | Compiled languages |\n| **coverage** | Enforce test coverage | \u226580% threshold |\n| **type-check** | Static type analysis | TypeScript, Python with mypy |\n",
           "line_range": [
-            1760,
-            1779
+            1885,
+            1904
           ],
           "keywords": [
             "minimum",
             "pipeline"
           ],
-          "embedding_id": 187
+          "embedding_id": 188
         },
         {
           "id": "coding-method-github-actions-template",
@@ -4292,15 +4308,15 @@
           "title": "GitHub Actions Template",
           "content": "### 6.4.4 GitHub Actions Template\n\n```yaml\nname: CI\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        python-version: [\"3.10\", \"3.11\", \"3.12\"]\n    steps:\n      - uses: actions/checkout@v4\n      - name: Set up Python ${{ matrix.python-version }}\n        uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python-version }}\n      - name: Install dependencies\n        run: pip install -e \".[dev]\"\n      - name: Run tests\n        run: pytest tests/ -v\n\n  security:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - name: Set up Python\n        uses: actions/setup-python@v5\n        with:\n          python-version: \"3.11\"\n      - name: Install dependencies\n        run: pip install -e \".[dev]\"\n      - name: Scan dependencies\n        run: pip-audit --strict\n      - name: Scan source code\n        run: bandit -r src/\n\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - name: Set up Python\n        uses: actions/setup-python@v5\n        with:\n          python-version: \"3.11\"\n      - name: Install linter\n        run: pip install ruff\n      - name: Check code style\n        run: ruff check src/ tests/\n      - name: Check formatting\n        run: ruff format --check src/ tests/\n```\n",
           "line_range": [
-            1780,
-            1838
+            1905,
+            1963
           ],
           "keywords": [
             "github",
             "actions",
             "template"
           ],
-          "embedding_id": 188
+          "embedding_id": 189
         },
         {
           "id": "coding-method-ci-cd-integration-points",
@@ -4308,15 +4324,15 @@
           "title": "CI/CD Integration Points",
           "content": "### 6.4.5 CI/CD Integration Points\n\n**With Validation Gates (\u00a76.1):**\n- CI results become part of gate checklist\n- Failed CI blocks phase transition\n- CI logs provide gate failure diagnostics\n\n**With Security Validation (\u00a75.3):**\n- Automated security scans supplement manual review\n- Zero HIGH/CRITICAL threshold enforced automatically\n- Dependency vulnerabilities caught at PR stage\n\n**With Testing Integration (\u00a75.2):**\n- Coverage reports generated in CI\n- Test failures block merge\n- Cross-platform testing via matrix strategy\n",
           "line_range": [
-            1839,
-            1855
+            1964,
+            1980
           ],
           "keywords": [
             "ci/cd",
             "integration",
             "points"
           ],
-          "embedding_id": 189
+          "embedding_id": 190
         },
         {
           "id": "coding-method-ci-cd-best-practices",
@@ -4324,15 +4340,15 @@
           "title": "CI/CD Best Practices",
           "content": "### 6.4.6 CI/CD Best Practices\n\n**Speed Optimization:**\n- Cache dependencies between runs\n- Run independent jobs in parallel\n- Skip slow tests with markers (`-m \"not slow\"`)\n- Use matrix strategy for multi-version testing\n\n**Reliability:**\n- Pin action versions (`@v4` not `@latest`)\n- Use `continue-on-error` for non-blocking checks\n- Set reasonable timeouts\n- Handle rate limits gracefully\n\n**Security:**\n- Never expose secrets in logs\n- Use GitHub secrets for credentials\n- Scan for secrets in commits\n- Pin dependencies to exact versions\n\n**ML/AI Projects:**\n- Use CPU-only PyTorch in CI to avoid disk space issues:\n  ```yaml\n  pip install torch --index-url https://download.pytorch.org/whl/cpu\n  pip install -e \".[dev]\"\n  ```\n- GPU dependencies (CUDA, cuDNN) add 3-4GB; runners have ~14GB total\n- Set `fail-fast: false` during debugging to see all matrix results\n- Mark slow embedding tests with `@pytest.mark.slow` and skip in CI\n",
           "line_range": [
-            1856,
-            1885
+            1981,
+            2010
           ],
           "keywords": [
             "ci/cd",
             "best",
             "practices"
           ],
-          "embedding_id": 190
+          "embedding_id": 191
         },
         {
           "id": "coding-method-ci-cd-checklist",
@@ -4340,14 +4356,14 @@
           "title": "CI/CD Checklist",
           "content": "### 6.4.7 CI/CD Checklist\n\nBefore deploying CI/CD:\n- [ ] Test job runs full test suite\n- [ ] Security job scans dependencies and source\n- [ ] Lint job checks code style\n- [ ] Jobs run in parallel where possible\n- [ ] Caching configured for dependencies\n- [ ] Matrix covers supported versions\n- [ ] Failure notifications configured\n\n---\n\n## Part 6.5: Project Hygiene\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Maintains codebase health over time**\n\n**Implements:** Q3 (Testing Standards), G1 (Sustainable Practices)\n**Applies to:** All project phases, especially before releases and after major milestones\n\n### 6.5.1 Purpose\n\nProject hygiene prevents accumulation of obsolete files, maintains clear organization, and ensures the repository remains navigable. Clean projects:\n- Reduce cognitive load when onboarding or resuming\n- Prevent confusion about which files are current\n- Keep repository size manageable\n- Pass security audits (no exposed secrets or debug artifacts)\n",
           "line_range": [
-            1886,
-            1913
+            2011,
+            2038
           ],
           "keywords": [
             "ci/cd",
             "checklist"
           ],
-          "embedding_id": 191
+          "embedding_id": 192
         },
         {
           "id": "coding-method-standard-directory-structure",
@@ -4355,15 +4371,15 @@
           "title": "Standard Directory Structure",
           "content": "### 6.5.2 Standard Directory Structure\n\n**Python Projects:**\n```\nproject-root/\n\u251c\u2500\u2500 src/                    # Source code (package directory)\n\u2502   \u2514\u2500\u2500 package_name/       # Main package\n\u251c\u2500\u2500 tests/                  # Test files mirror src/ structure\n\u251c\u2500\u2500 documents/              # Specifications, governance docs\n\u2502   \u2514\u2500\u2500 archive/            # Historical versions, completed gates\n\u251c\u2500\u2500 index/                  # Generated indexes, embeddings (if applicable)\n\u251c\u2500\u2500 .github/                # CI/CD workflows, issue templates\n\u251c\u2500\u2500 README.md               # External-facing documentation\n\u251c\u2500\u2500 CLAUDE.md               # AI governance loader\n\u251c\u2500\u2500 SESSION-STATE.md        # Current session state\n\u251c\u2500\u2500 PROJECT-MEMORY.md       # Architectural decisions\n\u251c\u2500\u2500 LEARNING-LOG.md         # Lessons learned\n\u251c\u2500\u2500 pyproject.toml          # Project configuration\n\u2514\u2500\u2500 .gitignore              # Exclusion rules\n```\n\n**Key Principles:**\n- Source code in `src/` (not root)\n- Tests mirror source structure\n- Generated files in dedicated directories\n- Documentation versioned with `archive/` for historical versions\n",
           "line_range": [
-            1914,
-            1940
+            2039,
+            2065
           ],
           "keywords": [
             "standard",
             "directory",
             "structure"
           ],
-          "embedding_id": 192
+          "embedding_id": 193
         },
         {
           "id": "coding-method-file-classification",
@@ -4371,14 +4387,14 @@
           "title": "File Classification",
           "content": "### 6.5.3 File Classification\n\n| Category | Action | Examples |\n|----------|--------|----------|\n| **Generated** | Delete + gitignore | `htmlcov/`, `.coverage`, `*.pyc`, `__pycache__/` |\n| **Cache** | Delete + gitignore | `.pytest_cache/`, `.ruff_cache/`, `.cache/` |\n| **IDE** | Delete + gitignore | `.idea/`, `.vscode/`, `*.swp` |\n| **Platform** | Delete + gitignore | `.DS_Store`, `Thumbs.db`, `.Rhistory` |\n| **Historical** | Archive | Completed gate artifacts, superseded specs |\n| **Obsolete** | Delete | Abandoned experiments, deprecated code |\n| **Duplicate** | Delete lower priority | `claude.md` when `CLAUDE.md` exists |\n",
           "line_range": [
-            1941,
-            1952
+            2066,
+            2077
           ],
           "keywords": [
             "file",
             "classification"
           ],
-          "embedding_id": 193
+          "embedding_id": 194
         },
         {
           "id": "coding-method-essential-gitignore-entries",
@@ -4386,15 +4402,15 @@
           "title": "Essential .gitignore Entries",
           "content": "### 6.5.4 Essential .gitignore Entries\n\n```gitignore\n# Python\n__pycache__/\n*.py[cod]\n*.egg-info/\ndist/\nbuild/\n\n# Virtual environments\nvenv/\n.venv/\nenv/\n\n# Testing\n.pytest_cache/\n.coverage\nhtmlcov/\ncoverage.xml\n\n# Linting\n.ruff_cache/\n.mypy_cache/\n\n# IDE\n.idea/\n.vscode/\n*.swp\n\n# Platform\n.DS_Store\nThumbs.db\n\n# Cache\n.cache/\n\n# Environment\n.env\n.env.local\n\n# Project-specific logs\nlogs/*.jsonl\n```\n",
           "line_range": [
-            1953,
-            1997
+            2078,
+            2122
           ],
           "keywords": [
             "essential",
             ".gitignore",
             "entries"
           ],
-          "embedding_id": 194
+          "embedding_id": 195
         },
         {
           "id": "coding-method-archive-vs-delete-decision-matrix",
@@ -4402,8 +4418,8 @@
           "title": "Archive vs Delete Decision Matrix",
           "content": "### 6.5.5 Archive vs Delete Decision Matrix\n\n| Condition | Decision | Rationale |\n|-----------|----------|-----------|\n| Contains historical decisions | Archive | Preserves decision context |\n| Gate artifact (completed) | Archive | Audit trail for methodology |\n| Superseded specification | Archive | Reference for what changed |\n| Generated/reproducible | Delete | Can be regenerated |\n| Duplicate of canonical file | Delete | Single source of truth |\n| Abandoned experiment | Delete | No ongoing value |\n| Debug/temp files | Delete | Not project artifacts |\n",
           "line_range": [
-            1998,
-            2009
+            2123,
+            2134
           ],
           "keywords": [
             "archive",
@@ -4411,7 +4427,7 @@
             "decision",
             "matrix"
           ],
-          "embedding_id": 195
+          "embedding_id": 196
         },
         {
           "id": "coding-method-cleanup-triggers",
@@ -4419,14 +4435,14 @@
           "title": "Cleanup Triggers",
           "content": "### 6.5.6 Cleanup Triggers\n\n**When to perform cleanup:**\n\n| Trigger | Scope | Focus |\n|---------|-------|-------|\n| Before release | Full | Remove all debug artifacts, verify .gitignore |\n| After phase completion | Phase | Archive gate artifacts, clean generated files |\n| Before major commit | Changed areas | Ensure no temp files staged |\n| Repository size growing | Full | Identify large unnecessary files |\n| Onboarding new contributor | Full | Verify project is navigable |\n",
           "line_range": [
-            2010,
-            2021
+            2135,
+            2146
           ],
           "keywords": [
             "cleanup",
             "triggers"
           ],
-          "embedding_id": 196
+          "embedding_id": 197
         },
         {
           "id": "coding-method-cleanup-procedure",
@@ -4434,14 +4450,14 @@
           "title": "Cleanup Procedure",
           "content": "### 6.5.7 Cleanup Procedure\n\n1. **Inventory current state:**\n   ```bash\n   # List all files not in .gitignore\n   git ls-files\n\n   # Find large files\n   find . -type f -size +1M | head -20\n\n   # Check for common cleanup targets\n   find . -name \"*.pyc\" -o -name \"__pycache__\" -o -name \".DS_Store\"\n   ```\n\n2. **Classify files** using the table in \u00a76.5.3\n\n3. **Delete generated/cache/obsolete files:**\n   ```bash\n   # Remove Python caches\n   find . -type d -name \"__pycache__\" -exec rm -rf {} +\n   find . -type f -name \"*.pyc\" -delete\n\n   # Remove coverage artifacts\n   rm -rf htmlcov/ .coverage coverage.xml\n   ```\n\n4. **Archive historical files:**\n   ```bash\n   mkdir -p documents/archive\n   mv GATE-*.md documents/archive/\n   ```\n\n5. **Update .gitignore** for any new patterns discovered\n\n6. **Verify cleanup:**\n   ```bash\n   git status  # Should show deletions, no untracked junk\n   ```\n",
           "line_range": [
-            2022,
-            2060
+            2147,
+            2185
           ],
           "keywords": [
             "cleanup",
             "procedure"
           ],
-          "embedding_id": 197
+          "embedding_id": 198
         },
         {
           "id": "coding-method-project-hygiene-checklist",
@@ -4449,15 +4465,15 @@
           "title": "Project Hygiene Checklist",
           "content": "### 6.5.8 Project Hygiene Checklist\n\nBefore release or major milestone:\n- [ ] No generated files committed (htmlcov, .coverage, __pycache__)\n- [ ] No IDE/platform files committed (.DS_Store, .idea)\n- [ ] Completed gate artifacts archived\n- [ ] Superseded specs archived with version suffix\n- [ ] .gitignore covers all reproducible artifacts\n- [ ] No duplicate files (lowercase/uppercase variants)\n- [ ] No abandoned experiments in repository\n- [ ] Large files justified or removed\n\n---\n\n# TITLE 7: MEMORY ARCHITECTURE\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 Enables context continuity across sessions**\n\n**Implements:** Session State Continuity (Domain), Context Window Management (Domain)\n**Applies to:** All sessions and project lifecycle\n\n## Part 7.0: Memory System Overview\n\n### 7.0.1 Purpose\n\nAI has no persistent memory between sessions. The Memory Architecture creates external memory through structured files that enable:\n- Session continuity (pick up where we left off)\n- Decision preservation (don't re-debate settled questions)\n- Learning accumulation (improve over project lifetime)\n- Context efficiency (load relevant memory, not everything)\n",
           "line_range": [
-            2061,
-            2091
+            2186,
+            2216
           ],
           "keywords": [
             "project",
             "hygiene",
             "checklist"
           ],
-          "embedding_id": 198
+          "embedding_id": 199
         },
         {
           "id": "coding-method-cognitive-memory-types",
@@ -4465,15 +4481,15 @@
           "title": "Cognitive Memory Types",
           "content": "### 7.0.2 Cognitive Memory Types\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 Core memory taxonomy aligned with AI agent research**\n\nMemory files map to cognitive memory types from the CoALA framework (Cognitive Architectures for Language Agents):\n\n| Cognitive Type | File | Purpose | Lifecycle |\n|----------------|------|---------|-----------|\n| **Working Memory** | `SESSION-STATE.md` | What's active right now | Overwritten each session |\n| **Semantic Memory** | `PROJECT-MEMORY.md` | Facts, decisions, gates, knowledge | Accumulates, periodically summarized |\n| **Episodic Memory** | `LEARNING-LOG.md` | Events, experiences, lessons | Pruned when internalized |\n| **Procedural Memory** | Methods documents | How to do things | Evolves with practice |\n\n**Why cognitive framing matters:**\n- **Working memory** is transient \u2014 don't try to preserve it across sessions\n- **Semantic memory** is facts \u2014 decisions don't expire, they get superseded\n- **Episodic memory** is experiences \u2014 valuable until the lesson becomes a pattern\n- **Procedural memory** is skills \u2014 when a lesson becomes a general practice, move it from LEARNING-LOG to methods\n",
           "line_range": [
-            2092,
-            2110
+            2217,
+            2235
           ],
           "keywords": [
             "cognitive",
             "memory",
             "types"
           ],
-          "embedding_id": 199
+          "embedding_id": 200
         },
         {
           "id": "coding-method-memory-loading-strategy",
@@ -4481,15 +4497,15 @@
           "title": "Memory Loading Strategy",
           "content": "### 7.0.3 Memory Loading Strategy\n\n**On session start:**\n1. Always load: `SESSION-STATE.md` (know where we are)\n2. Load if relevant: `PROJECT-MEMORY.md` sections (decisions affecting current work)\n3. Reference on demand: `LEARNING-LOG.md` (when similar situation arises)\n\n**Context efficiency:**\n- Don't load entire memory files if not needed\n- Reference specific sections when relevant\n- Summarize historical context rather than loading verbatim\n",
           "line_range": [
-            2111,
-            2122
+            2236,
+            2247
           ],
           "keywords": [
             "memory",
             "loading",
             "strategy"
           ],
-          "embedding_id": 200
+          "embedding_id": 201
         },
         {
           "id": "coding-method-memory-lifecycle-principles",
@@ -4497,15 +4513,15 @@
           "title": "Memory Lifecycle Principles",
           "content": "### 7.0.4 Memory Lifecycle Principles\n\n**Core Principle:** *\"Memory serves reasoning, not archival. Retain what informs future decisions; prune what only describes the past.\"*\n\n| Memory Type | Retain | Prune When |\n|-------------|--------|------------|\n| **Working** (SESSION-STATE) | Current session only | Every session start (overwrite) |\n| **Semantic** (PROJECT-MEMORY) | Active decisions, constraints | Decision is superseded or obsolete |\n| **Episodic** (LEARNING-LOG) | Lessons not yet patterns | Lesson internalized into procedures |\n\n**Anti-principle:** Never prune for size alone. If memory is too large, this indicates either:\n1. Too much detail (summarize instead of delete)\n2. Scope creep (split the project)\n\n**Superseded decisions:** Don't delete \u2014 mark as superseded with date and link to new decision. Context of why we changed matters.\n\n---\n\n## Part 7.1: Session State\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 Required for session continuity**\n\n### 7.1.1 Purpose\n\nTrack current work state so any session (same AI, new AI, different tool) can resume seamlessly.\n",
           "line_range": [
-            2123,
-            2148
+            2248,
+            2273
           ],
           "keywords": [
             "memory",
             "lifecycle",
             "principles"
           ],
-          "embedding_id": 201
+          "embedding_id": 202
         },
         {
           "id": "coding-method-session-state-file-structure",
@@ -4513,8 +4529,8 @@
           "title": "Session State File Structure",
           "content": "### 7.1.2 Session State File Structure\n\nFile: `SESSION-STATE.md` (project root)\n\n```markdown\n# Session State\n**Last Updated:** [ISO timestamp]\n\n## Current Position\n- **Phase:** [Specify/Plan/Tasks/Implement]\n- **Mode:** [Expedited/Standard/Enhanced]\n- **Active Task:** [Task ID or \"between tasks\"]\n- **Blocker:** [None or description]\n\n## Active Tasks\n> Include during Implement phase. For team projects, reference GitHub Issues instead.\n\n| ID | Task | Status |\n|----|------|--------|\n| T1 | Implement user auth | \u2713 Complete |\n| T2 | Add validation | \ud83d\udd04 In Progress |\n| T3 | Write tests | \u23f3 Pending |\n\n## Immediate Context\n[2-3 sentences: What was happening when session ended]\n\n## Next Actions\n1. [First priority - specific and actionable]\n2. [Second priority]\n3. [Third priority if applicable]\n\n## Session Notes\n[Any context the next session needs that doesn't fit elsewhere]\n```\n",
           "line_range": [
-            2149,
-            2183
+            2274,
+            2308
           ],
           "keywords": [
             "session",
@@ -4522,7 +4538,7 @@
             "file",
             "structure"
           ],
-          "embedding_id": 202
+          "embedding_id": 203
         },
         {
           "id": "coding-method-task-tracking-rationale",
@@ -4530,15 +4546,15 @@
           "title": "Task Tracking Rationale",
           "content": "### 7.1.3 Task Tracking Rationale\n\n**Why tasks are inline:** Research on AI agent memory architecture shows that task decomposition \"becomes part of the agent's state\" during active work. Project-specific tasks (unlike reusable procedures) are ephemeral\u2014created in Tasks phase, consumed in Implement phase, then cleared. Keeping them in SESSION-STATE (working memory) provides immediate access without cross-reference friction.\n\n**Task status values:** \ud83d\udd04 In Progress | \u23f3 Pending | \u2713 Complete\n\n**When to use GitHub Issues instead:**\n- Team/collaborative projects (shared visibility)\n- Open source projects (external contributor coordination)\n- Need for automation (auto-close, cross-references)\n- Long-term backlog management (persists beyond project)\n\nWhen using GitHub Issues, reference them in Active Task field: `Active Task: #42 - Implement auth`\n",
           "line_range": [
-            2184,
-            2197
+            2309,
+            2322
           ],
           "keywords": [
             "task",
             "tracking",
             "rationale"
           ],
-          "embedding_id": 203
+          "embedding_id": 204
         },
         {
           "id": "coding-method-update-triggers",
@@ -4546,14 +4562,14 @@
           "title": "Update Triggers",
           "content": "### 7.1.4 Update Triggers\n\nUpdate `SESSION-STATE.md` when:\n- Completing a task\n- Hitting a blocker\n- Making a decision\n- Changing focus\n- Before ending session (ALWAYS)\n",
           "line_range": [
-            2198,
-            2206
+            2323,
+            2331
           ],
           "keywords": [
             "update",
             "triggers"
           ],
-          "embedding_id": 204
+          "embedding_id": 205
         },
         {
           "id": "coding-method-session-state-is-transient",
@@ -4561,15 +4577,15 @@
           "title": "Session State is Transient",
           "content": "### 7.1.5 Session State is Transient\n\nSession state captures the CURRENT moment. Historical information belongs in Project Memory or Learning Log. Keep session state minimal and actionable.\n\n---\n\n## Part 7.2: Project Memory (Semantic Memory)\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Preserves decisions, rationale, and gate status**\n\n### 7.2.1 Purpose\n\nPreserve significant decisions, specifications, architecture, and phase gate status so they don't need to be re-discovered or re-debated. This is the project's semantic memory \u2014 facts that remain true until superseded.\n",
           "line_range": [
-            2207,
-            2220
+            2332,
+            2345
           ],
           "keywords": [
             "session",
             "state",
             "transient"
           ],
-          "embedding_id": 205
+          "embedding_id": 206
         },
         {
           "id": "coding-method-project-memory-file-structure",
@@ -4577,8 +4593,8 @@
           "title": "Project Memory File Structure",
           "content": "### 7.2.2 Project Memory File Structure\n\nFile: `PROJECT-MEMORY.md` (project root)\n\n```markdown\n# Project Memory\n**Project:** [Name]\n**Started:** [Date]\n**Mode:** [Expedited/Standard/Enhanced]\n\n## Specification Summary\n[Condensed version of key requirements - not full spec]\n- **Problem:** [One sentence]\n- **Users:** [Target audience]\n- **Core Features:** [Bulleted list]\n- **Out of Scope:** [What we're NOT building]\n\n## Phase Gates\n\n| Gate | Status | Date | Notes |\n|------|--------|------|-------|\n| Specify \u2192 Plan | \u23f3 Pending | \u2014 | \u2014 |\n| Plan \u2192 Tasks | \u23f3 Pending | \u2014 | \u2014 |\n| Tasks \u2192 Implement | \u23f3 Pending | \u2014 | \u2014 |\n| Implement \u2192 Complete | \u23f3 Pending | \u2014 | \u2014 |\n\n> Status: \u23f3 Pending | \u2713 Passed | \u274c Failed. Add \"Approver\" column for team projects.\n\n## Architecture Decisions\n\n### [Decision Title]\n- **Decision:** [What we decided]\n- **Rationale:** [Why we decided it]\n- **Alternatives Considered:** [What we rejected]\n- **Date:** [When decided]\n- **Status:** [Active / Superseded by X]\n\n[Repeat for each significant decision]\n\n## Technical Stack\n- **Frontend:** [Technologies]\n- **Backend:** [Technologies]\n- **Database:** [Technologies]\n- **Infrastructure:** [Technologies]\n\n## Constraints & Standards\n- [Constraint 1 with rationale]\n- [Constraint 2 with rationale]\n\n## Key Artifacts\n| Artifact | Location | Status |\n|----------|----------|--------|\n| Specification | [path] | [status] |\n| Architecture | [path] | [status] |\n| [etc.] | | |\n\n## Known Gotchas\n> Project-specific pitfalls discovered during development. Review before making changes.\n\n### [Gotcha Title]\n**Issue:** [What goes wrong]\n**Solution:** [How to avoid or fix it]\n\n[Repeat for each gotcha discovered]\n```\n",
           "line_range": [
-            2221,
-            2286
+            2346,
+            2411
           ],
           "keywords": [
             "project",
@@ -4586,7 +4602,7 @@
             "file",
             "structure"
           ],
-          "embedding_id": 206
+          "embedding_id": 207
         },
         {
           "id": "coding-method-update-triggers",
@@ -4594,14 +4610,14 @@
           "title": "Update Triggers",
           "content": "### 7.2.3 Update Triggers\n\nUpdate `PROJECT-MEMORY.md` when:\n- Completing a phase (specification, architecture, etc.)\n- Making architecture decisions\n- Changing technology choices\n- Adding/removing constraints\n- NOT for routine task completion (that's session state)\n",
           "line_range": [
-            2287,
-            2295
+            2412,
+            2420
           ],
           "keywords": [
             "update",
             "triggers"
           ],
-          "embedding_id": 207
+          "embedding_id": 208
         },
         {
           "id": "coding-method-memory-vs-source-documents",
@@ -4609,15 +4625,15 @@
           "title": "Memory vs. Source Documents",
           "content": "### 7.2.4 Memory vs. Source Documents\n\nProject Memory is a SUMMARY, not a replacement for source documents:\n- Full specification lives in its own file\n- Full architecture lives in its own file\n- Project Memory provides quick reference and decision rationale\n- When details needed, reference source documents\n\n---\n\n## Part 7.3: Learning Log (Episodic Memory)\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Captures experiences for continuous improvement**\n\n### 7.3.1 Purpose\n\nCapture lessons learned, patterns discovered, and insights that improve future work on this project (and potentially others). This is the project's episodic memory \u2014 specific events and experiences.\n",
           "line_range": [
-            2296,
-            2313
+            2421,
+            2438
           ],
           "keywords": [
             "memory",
             "source",
             "documents"
           ],
-          "embedding_id": 208
+          "embedding_id": 209
         },
         {
           "id": "coding-method-creation-timing",
@@ -4625,14 +4641,14 @@
           "title": "Creation Timing",
           "content": "### 7.3.2 Creation Timing\n\nCreate `LEARNING-LOG.md` when the first lesson emerges \u2014 typically during implementation when something unexpected happens (good or bad). Don't create it empty at project start.\n",
           "line_range": [
-            2314,
-            2317
+            2439,
+            2442
           ],
           "keywords": [
             "creation",
             "timing"
           ],
-          "embedding_id": 209
+          "embedding_id": 210
         },
         {
           "id": "coding-method-learning-log-file-structure",
@@ -4640,15 +4656,15 @@
           "title": "Learning Log File Structure",
           "content": "### 7.3.3 Learning Log File Structure\n\nFile: `LEARNING-LOG.md` (project root)\n\n```markdown\n# Learning Log\n**Project:** [Name]\n\n## Lessons Learned\n\n### [Date]: [Lesson Title]\n**Context:** [What situation prompted this learning]\n**Lesson:** [What we learned]\n**Application:** [How to apply this going forward]\n\n[Repeat for each lesson]\n\n## Patterns That Worked\n\n### [Pattern Name]\n**Situation:** [When to use this pattern]\n**Approach:** [What to do]\n**Why It Works:** [Rationale]\n\n[Repeat for each pattern]\n\n## Patterns That Failed\n\n### [Pattern Name]\n**Situation:** [When we tried this]\n**What Happened:** [How it failed]\n**Instead Do:** [Better alternative]\n\n[Repeat for each anti-pattern]\n\n## Technical Discoveries\n\n### [Discovery Title]\n**Discovery:** [What we found]\n**Implication:** [How it affects our work]\n\n[Repeat for each discovery]\n```\n",
           "line_range": [
-            2318,
-            2361
+            2443,
+            2486
           ],
           "keywords": [
             "learning",
             "file",
             "structure"
           ],
-          "embedding_id": 210
+          "embedding_id": 211
         },
         {
           "id": "coding-method-update-triggers",
@@ -4656,14 +4672,14 @@
           "title": "Update Triggers",
           "content": "### 7.3.4 Update Triggers\n\nUpdate `LEARNING-LOG.md` when:\n- Something unexpected happens (good or bad)\n- A pattern proves effective (or ineffective)\n- Technical assumption proves wrong\n- A better approach is discovered\n- At milestone retrospectives (ENHANCED mode)\n",
           "line_range": [
-            2362,
-            2370
+            2487,
+            2495
           ],
           "keywords": [
             "update",
             "triggers"
           ],
-          "embedding_id": 211
+          "embedding_id": 212
         },
         {
           "id": "coding-method-learning-log-review",
@@ -4671,14 +4687,14 @@
           "title": "Learning Log Review",
           "content": "### 7.3.5 Learning Log Review\n\nBefore starting similar work:\n- Review relevant Learning Log entries\n- Apply lessons to current context\n- Reference specific entries when they inform decisions\n",
           "line_range": [
-            2371,
-            2377
+            2496,
+            2502
           ],
           "keywords": [
             "learning",
             "review"
           ],
-          "embedding_id": 212
+          "embedding_id": 213
         },
         {
           "id": "coding-method-graduation-to-procedural-memory",
@@ -4686,15 +4702,15 @@
           "title": "Graduation to Procedural Memory",
           "content": "### 7.3.6 Graduation to Procedural Memory\n\nWhen a lesson becomes a general pattern (applies beyond this specific project):\n1. Document the pattern in the appropriate methods document\n2. Add a note to the LEARNING-LOG entry: \"Graduated to [methods doc] \u00a7X.Y\"\n3. The original episode can then be pruned (the pattern persists in procedural memory)\n\n---\n\n## Part 7.4: Project Instructions File (Loader)\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 Enables AI to discover and activate memory**\n\n### 7.4.1 Purpose\n\nThe Project Instructions File is the entry point that tells AI how to find context. It's a \"loader\" that points to memory files \u2014 not a container for all context.\n\n**Key Principle:** Progressive disclosure \u2014 tell AI how to find info, don't front-load all info.\n",
           "line_range": [
-            2378,
-            2396
+            2503,
+            2521
           ],
           "keywords": [
             "graduation",
             "procedural",
             "memory"
           ],
-          "embedding_id": 213
+          "embedding_id": 214
         },
         {
           "id": "coding-method-tool-implementations",
@@ -4702,14 +4718,14 @@
           "title": "Tool Implementations",
           "content": "### 7.4.2 Tool Implementations\n\n| Tool | File | Auto-loaded |\n|------|------|-------------|\n| Claude Code | `CLAUDE.md` | Yes, at session start |\n| Gemini CLI | `GEMINI.md` | Yes, via @file.md imports |\n| Cursor | `.cursor/rules/` | Yes, based on file patterns |\n| Cross-tool | `AGENTS.md` | Emerging standard |\n",
           "line_range": [
-            2397,
-            2405
+            2522,
+            2530
           ],
           "keywords": [
             "tool",
             "implementations"
           ],
-          "embedding_id": 214
+          "embedding_id": 215
         },
         {
           "id": "coding-method-minimal-loader-template",
@@ -4717,15 +4733,15 @@
           "title": "Minimal Loader Template",
           "content": "### 7.4.3 Minimal Loader Template\n\n```markdown\n# Project: [Name]\n\n## Governance\n- Framework: AI Coding Methods (current version)\n- Mode: [Expedited/Standard/Enhanced]\n\n## Memory\nLoad these files for context:\n- SESSION-STATE.md \u2014 Current position, next actions\n- PROJECT-MEMORY.md \u2014 Decisions, architecture, gates\n- LEARNING-LOG.md \u2014 Lessons learned (reference when relevant)\n\n## On Session Start\n1. Load SESSION-STATE.md\n2. Follow Next Actions\n3. Reference PROJECT-MEMORY for constraints\n\n## Key Commands\n[Project-specific build/test/lint commands]\n```\n",
           "line_range": [
-            2406,
-            2429
+            2531,
+            2554
           ],
           "keywords": [
             "minimal",
             "loader",
             "template"
           ],
-          "embedding_id": 215
+          "embedding_id": 216
         },
         {
           "id": "coding-method-loader-best-practices",
@@ -4733,15 +4749,15 @@
           "title": "Loader Best Practices",
           "content": "### 7.4.4 Loader Best Practices\n\nFrom [Anthropic Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices):\n\n1. **Less is more** \u2014 Include as few instructions as reasonably possible\n2. **Progressive disclosure** \u2014 Tell AI how to find info, not all info\n3. **Universally applicable** \u2014 Keep content relevant to all sessions\n4. **Hierarchical** \u2014 Use subdirectory files for scoped context (e.g., `src/backend/CLAUDE.md`)\n\n**Anti-patterns:**\n- Duplicating memory file content in the loader\n- Including session-specific context (that's for SESSION-STATE)\n- Long lists of rules (that's for methods documents)\n\n---\n\n## Part 7.5: Handoff Protocol\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 Enables smooth session transitions**\n",
           "line_range": [
-            2430,
-            2449
+            2555,
+            2574
           ],
           "keywords": [
             "loader",
             "best",
             "practices"
           ],
-          "embedding_id": 216
+          "embedding_id": 217
         },
         {
           "id": "coding-method-session-end-procedure",
@@ -4749,14 +4765,14 @@
           "title": "Session End Procedure",
           "content": "### 7.5.1 Session End Procedure\n\nBefore ending any session:\n\n1. **Complete atomic unit** (if close to done)\n2. **Update SESSION-STATE.md** with current position\n3. **Update PROJECT-MEMORY.md** if decisions were made\n4. **Update LEARNING-LOG.md** if insights emerged\n5. **Commit changes** if using version control\n",
           "line_range": [
-            2450,
-            2459
+            2575,
+            2584
           ],
           "keywords": [
             "session",
             "procedure"
           ],
-          "embedding_id": 217
+          "embedding_id": 218
         },
         {
           "id": "coding-method-session-start-procedure",
@@ -4764,15 +4780,15 @@
           "title": "Session Start Procedure",
           "content": "### 7.5.2 Session Start Procedure\n\nWhen starting a new session:\n\n1. **Load SESSION-STATE.md** \u2014 Where are we?\n2. **Review Next Actions** \u2014 What should we do?\n3. **Load relevant PROJECT-MEMORY.md sections** \u2014 What constraints apply?\n4. **Check LEARNING-LOG.md** \u2014 Any relevant lessons?\n5. **Confirm understanding** \u2014 Ask PO if unclear\n",
           "line_range": [
-            2460,
-            2469
+            2585,
+            2594
           ],
           "keywords": [
             "session",
             "start",
             "procedure"
           ],
-          "embedding_id": 218
+          "embedding_id": 219
         },
         {
           "id": "coding-method-handoff-summary-for-complex-transitions",
@@ -4780,8 +4796,8 @@
           "title": "Handoff Summary (for complex transitions)",
           "content": "### 7.5.3 Handoff Summary (for complex transitions)\n\nWhen transitioning to different AI/tool/collaborator:\n\n```\nHANDOFF SUMMARY\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nDate: [Timestamp]\nFrom: [Tool/AI/Session ending, e.g., \"Claude Code session #3\"]\nTo: [Tool/AI/Session starting, e.g., \"New collaborator\" or \"Claude App\"]\n\nCurrent State:\n[Copy of SESSION-STATE.md current position]\n\nKey Context:\n[Critical decisions from PROJECT-MEMORY.md]\n\nWatch Out For:\n[Relevant lessons from LEARNING-LOG.md]\n\nImmediate Priority:\n[First thing next session should do]\n```\n\n---\n\n## Part 7.6: Recovery Procedures\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Handles unexpected interruptions**\n",
           "line_range": [
-            2470,
-            2499
+            2595,
+            2624
           ],
           "keywords": [
             "handoff",
@@ -4790,7 +4806,7 @@
             "complex",
             "transitions)"
           ],
-          "embedding_id": 219
+          "embedding_id": 220
         },
         {
           "id": "coding-method-recovery-triggers",
@@ -4798,14 +4814,14 @@
           "title": "Recovery Triggers",
           "content": "### 7.6.1 Recovery Triggers\n\nExecute recovery when:\n- Session ended unexpectedly\n- Memory files seem stale or inconsistent\n- Context seems wrong\n- \"framework check\" command received\n",
           "line_range": [
-            2500,
-            2507
+            2625,
+            2632
           ],
           "keywords": [
             "recovery",
             "triggers"
           ],
-          "embedding_id": 220
+          "embedding_id": 221
         },
         {
           "id": "coding-method-recovery-procedure",
@@ -4813,14 +4829,14 @@
           "title": "Recovery Procedure",
           "content": "### 7.6.2 Recovery Procedure\n\n1. **Assess memory files:**\n   - Check SESSION-STATE.md timestamp\n   - Verify consistency with actual file states\n   - Check for partial/corrupted updates\n\n2. **Verify code state:**\n   - Review recent commits/changes\n   - Check for uncommitted work\n   - Identify any conflicts\n\n3. **Reconcile discrepancies:**\n   - Update memory files to match reality\n   - Document any lost work\n   - Identify recovery actions\n\n4. **Re-establish working state:**\n   - Update SESSION-STATE.md\n   - Reload governance documents\n   - Confirm next actions\n",
           "line_range": [
-            2508,
-            2529
+            2633,
+            2654
           ],
           "keywords": [
             "recovery",
             "procedure"
           ],
-          "embedding_id": 221
+          "embedding_id": 222
         },
         {
           "id": "coding-method-recovery-documentation",
@@ -4828,14 +4844,14 @@
           "title": "Recovery Documentation",
           "content": "### 7.6.3 Recovery Documentation\n\nAdd to LEARNING-LOG.md:\n\n```markdown\n### [Date]: Recovery Event\n**Trigger:** [What caused the recovery need]\n**Lost Work:** [If any]\n**Recovery Actions:** [What we did]\n**Prevention:** [How to avoid in future]\n```\n\n---\n\n# TITLE 8: COLLABORATION PROTOCOLS\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Maintains human authority**\n\n**Implements:** Human-AI Collaboration (Domain), Workflow Integrity (Domain)  \n**Applies to:** All human-AI interactions\n\n## Part 8.1: Escalation Triggers\n\n### 8.1.1 Purpose\n\nDefine conditions that require human decision-making. Prevents both automation bias (over-trusting AI) and decision paralysis (over-escalating).\n",
           "line_range": [
-            2530,
-            2556
+            2655,
+            2681
           ],
           "keywords": [
             "recovery",
             "documentation"
           ],
-          "embedding_id": 222
+          "embedding_id": 223
         },
         {
           "id": "coding-method-mandatory-escalation",
@@ -4843,14 +4859,14 @@
           "title": "Mandatory Escalation",
           "content": "### 8.1.2 Mandatory Escalation\n\n**Always escalate when:**\n\n| Trigger | Rationale |\n|---------|-----------|\n| Scope change | Human owns scope decisions |\n| Architecture change | Significant downstream impact |\n| Security concern | Risk requires human judgment |\n| Principle conflict | Framework governance issue |\n| Resource constraint | Business decision |\n| External dependency issue | May require business action |\n| Ambiguous requirement | Specification authority is human |\n",
           "line_range": [
-            2557,
-            2570
+            2682,
+            2695
           ],
           "keywords": [
             "mandatory",
             "escalation"
           ],
-          "embedding_id": 223
+          "embedding_id": 224
         },
         {
           "id": "coding-method-judgment-escalation",
@@ -4858,14 +4874,14 @@
           "title": "Judgment Escalation",
           "content": "### 8.1.3 Judgment Escalation\n\n**Consider escalating when:**\n\n| Trigger | Guidance |\n|---------|----------|\n| Multiple valid approaches | Present options if significant |\n| Trade-off decision | Human may have preferences |\n| Edge case interpretation | Specification may not cover |\n| Risk/speed trade-off | Business judgment |\n",
           "line_range": [
-            2571,
-            2581
+            2696,
+            2706
           ],
           "keywords": [
             "judgment",
             "escalation"
           ],
-          "embedding_id": 224
+          "embedding_id": 225
         },
         {
           "id": "coding-method-non-escalation",
@@ -4873,13 +4889,13 @@
           "title": "Non-Escalation",
           "content": "### 8.1.4 Non-Escalation\n\n**Do NOT escalate for:**\n- Routine implementation decisions\n- Standard pattern selection\n- Minor code style choices\n- Obvious best practices\n\nAI should make reasonable decisions within established patterns without constant escalation.\n\n---\n\n## Part 8.2: Decision Presentation\n\n### 8.2.1 Purpose\n\nWhen escalating, present decisions in format that enables informed human choice.\n",
           "line_range": [
-            2582,
-            2599
+            2707,
+            2724
           ],
           "keywords": [
             "non-escalation"
           ],
-          "embedding_id": 225
+          "embedding_id": 226
         },
         {
           "id": "coding-method-decision-presentation-format",
@@ -4887,15 +4903,15 @@
           "title": "Decision Presentation Format",
           "content": "### 8.2.2 Decision Presentation Format\n\n```\nDECISION REQUIRED\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nContext: [What situation requires decision]\nOptions:\n  A. [Option description]\n     - Pros: [Benefits]\n     - Cons: [Drawbacks]\n     - Implications: [Downstream effects]\n  \n  B. [Option description]\n     - Pros: [Benefits]\n     - Cons: [Drawbacks]\n     - Implications: [Downstream effects]\n\nRecommendation: [If AI has one, with rationale]\nInformation Needed: [What would help decide]\nUrgency: [How time-sensitive]\n```\n",
           "line_range": [
-            2600,
-            2621
+            2725,
+            2746
           ],
           "keywords": [
             "decision",
             "presentation",
             "format"
           ],
-          "embedding_id": 226
+          "embedding_id": 227
         },
         {
           "id": "coding-method-presenting-uncertainty",
@@ -4903,14 +4919,14 @@
           "title": "Presenting Uncertainty",
           "content": "### 8.2.3 Presenting Uncertainty\n\nBe explicit about confidence:\n\n- \"I am confident that...\" (high certainty)\n- \"I believe...\" (moderate certainty)\n- \"I'm uncertain, but...\" (low certainty)\n- \"I don't know...\" (no basis for judgment)\n",
           "line_range": [
-            2622,
-            2630
+            2747,
+            2755
           ],
           "keywords": [
             "presenting",
             "uncertainty"
           ],
-          "embedding_id": 227
+          "embedding_id": 228
         },
         {
           "id": "coding-method-after-decision",
@@ -4918,14 +4934,14 @@
           "title": "After Decision",
           "content": "### 8.2.4 After Decision\n\nDocument decisions in state file:\n- What was decided\n- Why (rationale)\n- Who decided (PO or AI)\n- When\n\n---\n\n## Part 8.3: Solo Developer Mode\n\n### 8.3.1 Purpose\n\nOptimize collaboration for single-person projects where one human serves all roles.\n",
           "line_range": [
-            2631,
-            2646
+            2756,
+            2771
           ],
           "keywords": [
             "after",
             "decision"
           ],
-          "embedding_id": 228
+          "embedding_id": 229
         },
         {
           "id": "coding-method-solo-mode-adjustments",
@@ -4933,15 +4949,15 @@
           "title": "Solo Mode Adjustments",
           "content": "### 8.3.2 Solo Mode Adjustments\n\n**Reduced ceremony:**\n- Abbreviated decision presentations\n- Combined approval gates\n- Informal state updates\n\n**Maintained rigor:**\n- All validation gates still apply\n- All quality thresholds unchanged\n- All escalation triggers still active\n",
           "line_range": [
-            2647,
-            2658
+            2772,
+            2783
           ],
           "keywords": [
             "solo",
             "mode",
             "adjustments"
           ],
-          "embedding_id": 229
+          "embedding_id": 230
         },
         {
           "id": "coding-method-solo-mode-triggers",
@@ -4949,34 +4965,34 @@
           "title": "Solo Mode Triggers",
           "content": "### 8.3.3 Solo Mode Triggers\n\nEnter Solo Developer Mode when:\n- Explicitly configured in project\n- Single human is Product Owner AND implementer\n- Project scale is appropriate (small to medium)\n",
           "line_range": [
-            2659,
-            2665
+            2784,
+            2790
           ],
           "keywords": [
             "solo",
             "mode",
             "triggers"
           ],
-          "embedding_id": 230
+          "embedding_id": 231
         },
         {
           "id": "coding-method-solo-mode-workflow",
           "domain": "ai-coding",
           "title": "Solo Mode Workflow",
-          "content": "### 8.3.4 Solo Mode Workflow\n\n```\nStandard: Specify \u2192 [PO Approval] \u2192 Plan \u2192 [PO Approval] \u2192 Tasks \u2192 [PO Approval] \u2192 Implement \u2192 [PO Approval]\n\nSolo:     Specify \u2192 Plan \u2192 [Combined Approval] \u2192 Tasks \u2192 Implement \u2192 [Final Approval]\n```\n\nGates are combined but not eliminated.\n\n---\n\n# APPENDICES\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Reference material, load on demand**\n\n## Appendix A: Claude Code CLI Configuration\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Only when using Claude Code CLI**\n\n### A.1 CLAUDE.md Template\n\n```markdown\n# Project: [Name]\n\n## Governance\n- Framework: AI Coding Domain Principles v2.1\n- Mode: [Expedited/Standard/Enhanced]\n\n## Current State\n- Phase: [Current phase]\n- Task: [Current task]\n- Updated: [Timestamp]\n\n## Project Context\n[Brief project description]\n\n## Active Decisions\n[Key decisions affecting current work]\n\n## Constraints\n[Technical, business, or other constraints]\n\n## Next Actions\n[What to do next]\n```\n\n### A.2 Session Start Commands\n\n```bash\n# Load session state\ncat SESSION-STATE.md\n\n# Review project memory if needed\ncat PROJECT-MEMORY.md\n\n# Check learning log if relevant\ncat LEARNING-LOG.md\n\n# Check recent changes\ngit log --oneline -10\n```\n\n### A.3 Session End Commands\n\n```bash\n# Update memory files before ending\n# [Update SESSION-STATE.md with current position]\n# [Update PROJECT-MEMORY.md if decisions were made]\n# [Update LEARNING-LOG.md if insights emerged]\n\n# Commit state\ngit add SESSION-STATE.md PROJECT-MEMORY.md LEARNING-LOG.md\ngit commit -m \"Session state update: [summary]\"\n```\n\n---\n\n## Appendix B: Memory File Templates\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Reference when creating memory files**\n\n### B.1 Minimal State (EXPEDITED Mode)\n\n```markdown\n# State\n\nPhase: [Phase]\nTask: [Task]\nNext: [Next action]\nUpdated: [Timestamp]\n```\n\n### B.2 Standard State\n\n```markdown\n# Project State\n\n## Status\n- Phase: [Phase]\n- Mode: Standard\n- Updated: [Timestamp]\n\n## Progress\n[Checklist of completed items]\n\n## Current Focus\n[Active work]\n\n## Decisions\n[Key decisions]\n\n## Next Session\n[Continuation guidance]\n```\n\n### B.3 Enhanced State\n\n```markdown\n# Project State\n\n## Status\n- Phase: [Phase]\n- Mode: Enhanced\n- Milestone: [Current milestone]\n- Updated: [Timestamp]\n\n## Progress\n[Detailed checklist]\n\n## Learning Log\n[What we've learned]\n\n## Decisions\n[Detailed decision record]\n\n## Risks & Issues\n[Active risks and issues]\n\n## Iteration Status\n[Current iteration and adjustments]\n\n## Next Session\n[Detailed continuation guidance]\n```\n\n---\n\n## Appendix C: Checklist Quick Reference\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 May be the most frequently used section**\n\n### C.1 Specification Completeness (\u00a72.3)\n\n- [ ] Problem statement clear\n- [ ] Target users identified\n- [ ] Core features listed (\u22647)\n- [ ] Acceptance criteria defined\n- [ ] Out of scope documented\n- [ ] Product Owner approved\n\n### C.2 Architecture Validation (\u00a73.2.4)\n\n- [ ] Technology stack selected\n- [ ] System structure defined\n- [ ] Security addressed\n- [ ] Risks identified\n- [ ] Product Owner approved\n\n### C.3 Task Validation (\u00a74.2)\n\n- [ ] All tasks \u226415 files\n- [ ] All tasks testable\n- [ ] Dependencies explicit\n- [ ] Full coverage verified\n- [ ] Product Owner approved\n\n### C.4 Implementation Quality (\u00a75.1.3)\n\n- [ ] Tests written with code\n- [ ] Coverage \u226580%\n- [ ] Security scan clean\n- [ ] Dependencies verified\n- [ ] Acceptance criteria met\n\n---\n\n## Appendix D: Gemini CLI Configuration\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Only when using Gemini CLI**\n\n### D.1 Overview\n\nGemini CLI uses `GEMINI.md` files for project context (analogous to Claude's `CLAUDE.md`). Key differences:\n- Hierarchical context loading (global \u2192 project \u2192 subdirectory)\n- Built-in `/memory` commands for context management\n- MCP server support for extensions\n- Checkpointing for rollback capability\n\n### D.2 GEMINI.md Template (Framework-Aligned)\n\nCreate `GEMINI.md` in project root:\n\n```markdown\n# Project: [Name]\n\n## Governance\nFollow AI Coding Methods framework:\n- Load SESSION-STATE.md for current position\n- Load PROJECT-MEMORY.md for decisions and architecture\n- Reference LEARNING-LOG.md when similar situations arise\n\n## Framework Principles\nWhen coding, apply these Domain Principles:\n- Specification Completeness: Ensure requirements are complete before implementation\n- Atomic Task Decomposition: Keep changes to \u226415 files per task\n- Testing Integration: Write tests alongside code\n- Security-First: Zero HIGH/CRITICAL vulnerabilities\n- Supply Chain Integrity: Verify all dependencies before use\n\n## Project Context\n[Brief project description]\n\n## Technical Stack\n[Technologies in use]\n\n## Coding Standards\n[Project-specific standards]\n\n## Key Commands\n- Build: [command]\n- Test: [command]\n- Lint: [command]\n```\n\n### D.3 Memory File Integration\n\nGemini CLI can import other markdown files using `@path/to/file.md` syntax:\n\n```markdown\n# GEMINI.md\n\n## Current State\n@./SESSION-STATE.md\n\n## Project Decisions\n@./PROJECT-MEMORY.md\n\n## Lessons Learned\n@./LEARNING-LOG.md\n```\n\n### D.4 Session Commands\n\n```bash\n# Check loaded context\n/memory show\n\n# Reload context files after changes\n/memory refresh\n\n# List available checkpoints (for rollback)\n/restore list\n\n# Restore to checkpoint if needed\n/restore <checkpoint_id>\n```\n\n### D.5 Framework Compliance Notes\n\n- Gemini CLI's `/memory` system provides similar functionality to our Memory Architecture\n- Use same memory file structure (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md)\n- Gemini's checkpointing provides additional safety for implementation phase\n- MCP server support enables similar extensibility to Claude Code\n\n---\n\n## Appendix E: Claude App & Chrome Extension\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 For web-based and browser-assisted workflows**\n\n### E.1 Overview\n\nClaude is available through multiple interfaces:\n- **Claude.ai (Web/App)**: Chat interface with Projects feature\n- **Claude in Chrome**: Browser extension for web automation\n- **Claude Code (Web)**: Browser-based coding at claude.com/code\n\nEach interface has different context management approaches.\n\n### E.2 Claude.ai Projects Configuration\n\nClaude Projects provide persistent context through:\n- Project Instructions (system-level guidance)\n- Project Knowledge (uploaded documents)\n- Project Files (reference materials)\n\n**Framework Integration:**\n\nIn Project Instructions, add:\n```\nFollow the AI Coding Methods framework:\n1. At session start, review uploaded memory files\n2. Apply the 4-phase workflow: Specify \u2192 Plan \u2192 Tasks \u2192 Implement\n3. Use validation gates between phases\n4. Maintain memory files as specified in framework\n\nWhen user says \"framework check\", confirm:\n- Current phase\n- Active task\n- Memory file status\n```\n\nUpload to Project Knowledge:\n- ai-coding-methods.md (this document)\n- ai-coding-domain-principles.md\n- Current PROJECT-MEMORY.md\n- Current LEARNING-LOG.md\n\n### E.3 Claude in Chrome Integration\n\nClaude in Chrome works alongside Claude Code for build-test-verify workflow:\n\n```\nBuild (Claude Code CLI) \u2192 Test (Chrome Extension) \u2192 Debug (Both)\n```\n\n**Key Capabilities:**\n- Read console errors and DOM state\n- Navigate and interact with web apps\n- Verify UI against specifications\n- Record workflows for repetition\n\n**Framework Application:**\n- Use during Implementation phase for testing\n- Verify visual design specs (ENHANCED mode)\n- Validate user flows against specification\n- Debug issues with live browser context\n\n### E.4 Claude Code Web (claude.com/code)\n\nBrowser-based Claude Code for:\n- GitHub repository integration\n- Parallel task execution\n- Session transfer to local CLI\n\n**Framework Considerations:**\n- Memory files stored in repository (GitHub-synced)\n- Same workflow applies as CLI\n- Can transfer session context to local CLI for continuation\n\n### E.5 Cross-Interface Workflow\n\nWhen switching between interfaces:\n\n1. **Always update SESSION-STATE.md** before switching\n2. **Sync memory files** to accessible location (repository, project knowledge)\n3. **Brief new interface** on current state and next actions\n4. **Verify understanding** before continuing work\n\n**Example Handoff (CLI \u2192 Web):**\n```markdown\n## Handoff: CLI \u2192 Claude.ai\nMoving to web interface for [reason]\n\nCurrent State:\n- Phase: Implement\n- Task: User authentication\n- Next: Complete login form validation\n\nFiles to upload to Project Knowledge:\n- SESSION-STATE.md (current)\n- PROJECT-MEMORY.md\n- Relevant source files\n```\n\n---\n\n## Appendix F: Tool Comparison Quick Reference\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Reference when choosing tools**\n\n| Feature | Claude Code CLI | Gemini CLI | Claude.ai | Claude Chrome |\n|---------|-----------------|------------|-----------|---------------|\n| **Context File** | CLAUDE.md | GEMINI.md | Project Instructions | N/A |\n| **Memory Import** | Manual | @file.md syntax | Upload to Knowledge | N/A |\n| **Session State** | SESSION-STATE.md | Same + /memory | Conversation history | Task-based |\n| **Checkpointing** | Git-based | Built-in /restore | N/A | N/A |\n| **MCP Support** | Yes | Yes | Limited | N/A |\n| **Browser Integration** | /chrome command | /ide (VS Code) | Connector | Native |\n| **Best For** | Complex backend, multi-file | Large context (1M tokens), Google ecosystem | Planning, documentation | Testing, verification |\n\n**Framework Compatibility:** All tools can implement the AI Coding Methods framework using their respective context management features. The memory file structure (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md) works across all tools.\n\n---\n\n## Version History\n\n| Version | Date | Changes |\n|---------|------|---------|\n| 2.1.0 | 2025-12-31 | (1) Integrated Active Tasks table into main SESSION-STATE template (\u00a77.1.2) with research rationale (\u00a77.1.3). (2) Added Known Gotchas section to PROJECT-MEMORY template (\u00a77.2.2). (3) Simplified Phase Gates table (removed Approver column, now optional for team projects). (4) Fixed loader template version reference. (5) Clarified Handoff Summary From/To fields. Based on 2025 AI agent memory architecture research (AIS, Zep, MongoDB patterns). |\n| 2.0.0 | 2025-12-31 | **BREAKING:** Major memory architecture revision. (1) Aligned memory files to cognitive types (Working, Semantic, Episodic, Procedural). (2) Eliminated separate gate artifact files (GATE-*.md) \u2014 gates now recorded inline in PROJECT-MEMORY.md. (3) Added Project Instructions File concept (loader document) formalizing CLAUDE.md as progressive disclosure pointer. (4) Added task tracking for solo mode in SESSION-STATE.md. (5) Added principles-based pruning guidance. (6) Added LEARNING-LOG creation timing and graduation to procedural memory. Based on industry research: CoALA framework, ADR patterns, Anthropic best practices, Mem0 memory architecture. |\n| 1.1.1 | 2025-12-29 | PATCH: Updated Document Governance version reference from v2.1 to v2.2. |\n| 1.1.0 | 2025-12-27 | Added Part 6.4: Automated Validation (CI/CD) covering CI pipeline setup, GitHub Actions templates, security scanning integration, and best practices. Updated situation index with CI/CD reference. |\n| 1.0.3 | 2025-12-20 | Added Cold Start Kit (copy-paste prompts, minimal templates, mode decision tree). Added Gate Artifacts (structured documents for phase transitions). Added Measurement Guidance for tool-neutral metrics. Fixed mode decision tree inconsistency (one canonical format). Added gate failure pathway. Addresses Perplexity review feedback. |\n| 1.0.2 | 2025-12-20 | Added Appendix D (Gemini CLI), Appendix E (Claude App/Chrome Extension), Appendix F (Tool Comparison). Multi-tool support for framework. |\n| 1.0.1 | 2025-12-20 | Added Memory Architecture (Title 7 expansion), Situation Index, importance tags, partial loading strategy. Fixed principle references to use names instead of codes. |\n| 1.0.0 | 2025-12-20 | Initial release. 4-phase workflow with adaptive depth. Derived from 7-phase framework and 2025 industry best practices. |\n\n---\n\n## Document Governance\n\n**Authority:** This document implements ai-coding-domain-principles.md (v2.2). Methods cannot contradict principles.\n\n**Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.\n\n**Feedback:** Document gaps, conflicts, or improvement suggestions to be captured and addressed in next version.\n\n**Relationship to Tools:** Tool-specific appendices may be added without changing core methods. Each appendix must comply with methods defined herein.\n",
+          "content": "### 8.3.4 Solo Mode Workflow\n\n```\nStandard: Specify \u2192 [PO Approval] \u2192 Plan \u2192 [PO Approval] \u2192 Tasks \u2192 [PO Approval] \u2192 Implement \u2192 [PO Approval]\n\nSolo:     Specify \u2192 Plan \u2192 [Combined Approval] \u2192 Tasks \u2192 Implement \u2192 [Final Approval]\n```\n\nGates are combined but not eliminated.\n\n---\n\n# APPENDICES\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Reference material, load on demand**\n\n## Appendix A: Claude Code CLI Configuration\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Only when using Claude Code CLI**\n\n### A.1 CLAUDE.md Template\n\n```markdown\n# Project: [Name]\n\n## Governance\n- Framework: AI Coding Domain Principles v2.1\n- Mode: [Expedited/Standard/Enhanced]\n\n## Current State\n- Phase: [Current phase]\n- Task: [Current task]\n- Updated: [Timestamp]\n\n## Project Context\n[Brief project description]\n\n## Active Decisions\n[Key decisions affecting current work]\n\n## Constraints\n[Technical, business, or other constraints]\n\n## Next Actions\n[What to do next]\n```\n\n### A.2 Session Start Commands\n\n```bash\n# Load session state\ncat SESSION-STATE.md\n\n# Review project memory if needed\ncat PROJECT-MEMORY.md\n\n# Check learning log if relevant\ncat LEARNING-LOG.md\n\n# Check recent changes\ngit log --oneline -10\n```\n\n### A.3 Session End Commands\n\n```bash\n# Update memory files before ending\n# [Update SESSION-STATE.md with current position]\n# [Update PROJECT-MEMORY.md if decisions were made]\n# [Update LEARNING-LOG.md if insights emerged]\n\n# Commit state\ngit add SESSION-STATE.md PROJECT-MEMORY.md LEARNING-LOG.md\ngit commit -m \"Session state update: [summary]\"\n```\n\n---\n\n## Appendix B: Memory File Templates\n\n**Importance: \ud83d\udfe1 IMPORTANT \u2014 Reference when creating memory files**\n\n### B.1 Minimal State (EXPEDITED Mode)\n\n```markdown\n# State\n\nPhase: [Phase]\nTask: [Task]\nNext: [Next action]\nUpdated: [Timestamp]\n```\n\n### B.2 Standard State\n\n```markdown\n# Project State\n\n## Status\n- Phase: [Phase]\n- Mode: Standard\n- Updated: [Timestamp]\n\n## Progress\n[Checklist of completed items]\n\n## Current Focus\n[Active work]\n\n## Decisions\n[Key decisions]\n\n## Next Session\n[Continuation guidance]\n```\n\n### B.3 Enhanced State\n\n```markdown\n# Project State\n\n## Status\n- Phase: [Phase]\n- Mode: Enhanced\n- Milestone: [Current milestone]\n- Updated: [Timestamp]\n\n## Progress\n[Detailed checklist]\n\n## Learning Log\n[What we've learned]\n\n## Decisions\n[Detailed decision record]\n\n## Risks & Issues\n[Active risks and issues]\n\n## Iteration Status\n[Current iteration and adjustments]\n\n## Next Session\n[Detailed continuation guidance]\n```\n\n---\n\n## Appendix C: Checklist Quick Reference\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 May be the most frequently used section**\n\n### C.1 Specification Completeness (\u00a72.3)\n\n- [ ] Problem statement clear\n- [ ] Target users identified\n- [ ] Core features listed (\u22647)\n- [ ] Acceptance criteria defined\n- [ ] Out of scope documented\n- [ ] Product Owner approved\n\n### C.2 Architecture Validation (\u00a73.2.4)\n\n- [ ] Technology stack selected\n- [ ] System structure defined\n- [ ] Security addressed\n- [ ] Risks identified\n- [ ] Product Owner approved\n\n### C.3 Task Validation (\u00a74.2)\n\n- [ ] All tasks \u226415 files\n- [ ] All tasks testable\n- [ ] Dependencies explicit\n- [ ] Full coverage verified\n- [ ] Product Owner approved\n\n### C.4 Implementation Quality (\u00a75.1.3)\n\n- [ ] Tests written with code\n- [ ] Coverage \u226580%\n- [ ] Security scan clean\n- [ ] Dependencies verified\n- [ ] Acceptance criteria met\n\n---\n\n## Appendix D: Gemini CLI Configuration\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Only when using Gemini CLI**\n\n### D.1 Overview\n\nGemini CLI uses `GEMINI.md` files for project context (analogous to Claude's `CLAUDE.md`). Key differences:\n- Hierarchical context loading (global \u2192 project \u2192 subdirectory)\n- Built-in `/memory` commands for context management\n- MCP server support for extensions\n- Checkpointing for rollback capability\n\n### D.2 GEMINI.md Template (Framework-Aligned)\n\nCreate `GEMINI.md` in project root:\n\n```markdown\n# Project: [Name]\n\n## Governance\nFollow AI Coding Methods framework:\n- Load SESSION-STATE.md for current position\n- Load PROJECT-MEMORY.md for decisions and architecture\n- Reference LEARNING-LOG.md when similar situations arise\n\n## Framework Principles\nWhen coding, apply these Domain Principles:\n- Specification Completeness: Ensure requirements are complete before implementation\n- Atomic Task Decomposition: Keep changes to \u226415 files per task\n- Testing Integration: Write tests alongside code\n- Security-First: Zero HIGH/CRITICAL vulnerabilities\n- Supply Chain Integrity: Verify all dependencies before use\n\n## Project Context\n[Brief project description]\n\n## Technical Stack\n[Technologies in use]\n\n## Coding Standards\n[Project-specific standards]\n\n## Key Commands\n- Build: [command]\n- Test: [command]\n- Lint: [command]\n```\n\n### D.3 Memory File Integration\n\nGemini CLI can import other markdown files using `@path/to/file.md` syntax:\n\n```markdown\n# GEMINI.md\n\n## Current State\n@./SESSION-STATE.md\n\n## Project Decisions\n@./PROJECT-MEMORY.md\n\n## Lessons Learned\n@./LEARNING-LOG.md\n```\n\n### D.4 Session Commands\n\n```bash\n# Check loaded context\n/memory show\n\n# Reload context files after changes\n/memory refresh\n\n# List available checkpoints (for rollback)\n/restore list\n\n# Restore to checkpoint if needed\n/restore <checkpoint_id>\n```\n\n### D.5 Framework Compliance Notes\n\n- Gemini CLI's `/memory` system provides similar functionality to our Memory Architecture\n- Use same memory file structure (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md)\n- Gemini's checkpointing provides additional safety for implementation phase\n- MCP server support enables similar extensibility to Claude Code\n\n---\n\n## Appendix E: Claude App & Chrome Extension\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 For web-based and browser-assisted workflows**\n\n### E.1 Overview\n\nClaude is available through multiple interfaces:\n- **Claude.ai (Web/App)**: Chat interface with Projects feature\n- **Claude in Chrome**: Browser extension for web automation\n- **Claude Code (Web)**: Browser-based coding at claude.com/code\n\nEach interface has different context management approaches.\n\n### E.2 Claude.ai Projects Configuration\n\nClaude Projects provide persistent context through:\n- Project Instructions (system-level guidance)\n- Project Knowledge (uploaded documents)\n- Project Files (reference materials)\n\n**Framework Integration:**\n\nIn Project Instructions, add:\n```\nFollow the AI Coding Methods framework:\n1. At session start, review uploaded memory files\n2. Apply the 4-phase workflow: Specify \u2192 Plan \u2192 Tasks \u2192 Implement\n3. Use validation gates between phases\n4. Maintain memory files as specified in framework\n\nWhen user says \"framework check\", confirm:\n- Current phase\n- Active task\n- Memory file status\n```\n\nUpload to Project Knowledge:\n- ai-coding-methods.md (this document)\n- ai-coding-domain-principles.md\n- Current PROJECT-MEMORY.md\n- Current LEARNING-LOG.md\n\n### E.3 Claude in Chrome Integration\n\nClaude in Chrome works alongside Claude Code for build-test-verify workflow:\n\n```\nBuild (Claude Code CLI) \u2192 Test (Chrome Extension) \u2192 Debug (Both)\n```\n\n**Key Capabilities:**\n- Read console errors and DOM state\n- Navigate and interact with web apps\n- Verify UI against specifications\n- Record workflows for repetition\n\n**Framework Application:**\n- Use during Implementation phase for testing\n- Verify visual design specs (ENHANCED mode)\n- Validate user flows against specification\n- Debug issues with live browser context\n\n### E.4 Claude Code Web (claude.com/code)\n\nBrowser-based Claude Code for:\n- GitHub repository integration\n- Parallel task execution\n- Session transfer to local CLI\n\n**Framework Considerations:**\n- Memory files stored in repository (GitHub-synced)\n- Same workflow applies as CLI\n- Can transfer session context to local CLI for continuation\n\n### E.5 Cross-Interface Workflow\n\nWhen switching between interfaces:\n\n1. **Always update SESSION-STATE.md** before switching\n2. **Sync memory files** to accessible location (repository, project knowledge)\n3. **Brief new interface** on current state and next actions\n4. **Verify understanding** before continuing work\n\n**Example Handoff (CLI \u2192 Web):**\n```markdown\n## Handoff: CLI \u2192 Claude.ai\nMoving to web interface for [reason]\n\nCurrent State:\n- Phase: Implement\n- Task: User authentication\n- Next: Complete login form validation\n\nFiles to upload to Project Knowledge:\n- SESSION-STATE.md (current)\n- PROJECT-MEMORY.md\n- Relevant source files\n```\n\n---\n\n## Appendix F: Tool Comparison Quick Reference\n\n**Importance: \ud83d\udfe2 OPTIONAL \u2014 Reference when choosing tools**\n\n| Feature | Claude Code CLI | Gemini CLI | Claude.ai | Claude Chrome |\n|---------|-----------------|------------|-----------|---------------|\n| **Context File** | CLAUDE.md | GEMINI.md | Project Instructions | N/A |\n| **Memory Import** | Manual | @file.md syntax | Upload to Knowledge | N/A |\n| **Session State** | SESSION-STATE.md | Same + /memory | Conversation history | Task-based |\n| **Checkpointing** | Git-based | Built-in /restore | N/A | N/A |\n| **MCP Support** | Yes | Yes | Limited | N/A |\n| **Browser Integration** | /chrome command | /ide (VS Code) | Connector | Native |\n| **Best For** | Complex backend, multi-file | Large context (1M tokens), Google ecosystem | Planning, documentation | Testing, verification |\n\n**Framework Compatibility:** All tools can implement the AI Coding Methods framework using their respective context management features. The memory file structure (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md) works across all tools.\n\n---\n\n## Version History\n\n| Version | Date | Changes |\n|---------|------|---------|\n| 2.2.0 | 2026-01-02 | Added \u00a75.2.5 Test Organization Patterns: test file structure (unit vs integration separation), fixture categories (path, model, state reset, mock), test markers for selective execution, standard edge cases checklist, response parsing helper pattern, parameterization guidance, mocking strategy by layer. Derived from production test suite patterns (ai-governance-mcp: 271 tests, 90% coverage). |\n| 2.1.0 | 2025-12-31 | (1) Integrated Active Tasks table into main SESSION-STATE template (\u00a77.1.2) with research rationale (\u00a77.1.3). (2) Added Known Gotchas section to PROJECT-MEMORY template (\u00a77.2.2). (3) Simplified Phase Gates table (removed Approver column, now optional for team projects). (4) Fixed loader template version reference. (5) Clarified Handoff Summary From/To fields. Based on 2025 AI agent memory architecture research (AIS, Zep, MongoDB patterns). |\n| 2.0.0 | 2025-12-31 | **BREAKING:** Major memory architecture revision. (1) Aligned memory files to cognitive types (Working, Semantic, Episodic, Procedural). (2) Eliminated separate gate artifact files (GATE-*.md) \u2014 gates now recorded inline in PROJECT-MEMORY.md. (3) Added Project Instructions File concept (loader document) formalizing CLAUDE.md as progressive disclosure pointer. (4) Added task tracking for solo mode in SESSION-STATE.md. (5) Added principles-based pruning guidance. (6) Added LEARNING-LOG creation timing and graduation to procedural memory. Based on industry research: CoALA framework, ADR patterns, Anthropic best practices, Mem0 memory architecture. |\n| 1.1.1 | 2025-12-29 | PATCH: Updated Document Governance version reference from v2.1 to v2.2. |\n| 1.1.0 | 2025-12-27 | Added Part 6.4: Automated Validation (CI/CD) covering CI pipeline setup, GitHub Actions templates, security scanning integration, and best practices. Updated situation index with CI/CD reference. |\n| 1.0.3 | 2025-12-20 | Added Cold Start Kit (copy-paste prompts, minimal templates, mode decision tree). Added Gate Artifacts (structured documents for phase transitions). Added Measurement Guidance for tool-neutral metrics. Fixed mode decision tree inconsistency (one canonical format). Added gate failure pathway. Addresses Perplexity review feedback. |\n| 1.0.2 | 2025-12-20 | Added Appendix D (Gemini CLI), Appendix E (Claude App/Chrome Extension), Appendix F (Tool Comparison). Multi-tool support for framework. |\n| 1.0.1 | 2025-12-20 | Added Memory Architecture (Title 7 expansion), Situation Index, importance tags, partial loading strategy. Fixed principle references to use names instead of codes. |\n| 1.0.0 | 2025-12-20 | Initial release. 4-phase workflow with adaptive depth. Derived from 7-phase framework and 2025 industry best practices. |\n\n---\n\n## Document Governance\n\n**Authority:** This document implements ai-coding-domain-principles.md (v2.2). Methods cannot contradict principles.\n\n**Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.\n\n**Feedback:** Document gaps, conflicts, or improvement suggestions to be captured and addressed in next version.\n\n**Relationship to Tools:** Tool-specific appendices may be added without changing core methods. Each appendix must comply with methods defined herein.\n",
           "line_range": [
-            2666,
-            3086
+            2791,
+            3212
           ],
           "keywords": [
             "solo",
             "mode",
             "workflow"
           ],
-          "embedding_id": 231
+          "embedding_id": 232
         }
       ],
-      "last_extracted": "2026-01-02T21:16:36.543277+00:00",
+      "last_extracted": "2026-01-02T21:32:55.453878+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -5018,7 +5034,7 @@
               "complexity"
             ]
           },
-          "embedding_id": 232
+          "embedding_id": 233
         },
         {
           "id": "multi-architecture-cognitive-function-specialization",
@@ -5058,7 +5074,7 @@
               "specialization"
             ]
           },
-          "embedding_id": 233
+          "embedding_id": 234
         },
         {
           "id": "multi-architecture-context-engineering-discipline",
@@ -5098,7 +5114,7 @@
               "discipline"
             ]
           },
-          "embedding_id": 234
+          "embedding_id": 235
         },
         {
           "id": "multi-architecture-context-isolation-architecture",
@@ -5137,7 +5153,7 @@
               "architecture"
             ]
           },
-          "embedding_id": 235
+          "embedding_id": 236
         },
         {
           "id": "multi-architecture-orchestrator-separation-pattern",
@@ -5177,7 +5193,7 @@
               "pattern"
             ]
           },
-          "embedding_id": 236
+          "embedding_id": 237
         },
         {
           "id": "multi-architecture-intent-propagation-with-shared-assumptions",
@@ -5219,7 +5235,7 @@
               "with"
             ]
           },
-          "embedding_id": 237
+          "embedding_id": 238
         },
         {
           "id": "multi-reliability-read-write-division",
@@ -5258,7 +5274,7 @@
               "division"
             ]
           },
-          "embedding_id": 238
+          "embedding_id": 239
         },
         {
           "id": "multi-reliability-explicit-handoff-protocol",
@@ -5298,7 +5314,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 239
+          "embedding_id": 240
         },
         {
           "id": "multi-reliability-orchestration-pattern-selection",
@@ -5338,7 +5354,7 @@
               "selection"
             ]
           },
-          "embedding_id": 240
+          "embedding_id": 241
         },
         {
           "id": "multi-reliability-state-persistence-protocol",
@@ -5378,7 +5394,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 241
+          "embedding_id": 242
         },
         {
           "id": "multi-reliability-observability-protocol",
@@ -5416,7 +5432,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 242
+          "embedding_id": 243
         },
         {
           "id": "multi-quality-validation-independence",
@@ -5454,7 +5470,7 @@
               "independence"
             ]
           },
-          "embedding_id": 243
+          "embedding_id": 244
         },
         {
           "id": "multi-quality-fault-tolerance-and-graceful-degradation",
@@ -5495,7 +5511,7 @@
               "graceful"
             ]
           },
-          "embedding_id": 244
+          "embedding_id": 245
         },
         {
           "id": "multi-quality-human-in-the-loop-protocol",
@@ -5534,7 +5550,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 245
+          "embedding_id": 246
         }
       ],
       "methods": [
@@ -5552,7 +5568,7 @@
             "complexity",
             "check"
           ],
-          "embedding_id": 246
+          "embedding_id": 247
         },
         {
           "id": "multi-method-workflow-initialization-protocol",
@@ -5568,7 +5584,7 @@
             "initialization",
             "protocol"
           ],
-          "embedding_id": 247
+          "embedding_id": 248
         },
         {
           "id": "multi-method-multi-tool-setup",
@@ -5583,7 +5599,7 @@
             "multi-tool",
             "setup"
           ],
-          "embedding_id": 248
+          "embedding_id": 249
         },
         {
           "id": "multi-method-agent-definition-standard",
@@ -5599,7 +5615,7 @@
             "definition",
             "standard"
           ],
-          "embedding_id": 249
+          "embedding_id": 250
         },
         {
           "id": "multi-method-agent-catalog",
@@ -5614,7 +5630,7 @@
             "agent",
             "catalog"
           ],
-          "embedding_id": 250
+          "embedding_id": 251
         },
         {
           "id": "multi-method-context-isolation-verification",
@@ -5630,7 +5646,7 @@
             "isolation",
             "verification"
           ],
-          "embedding_id": 251
+          "embedding_id": 252
         },
         {
           "id": "multi-method-handoff-pattern-taxonomy",
@@ -5646,7 +5662,7 @@
             "pattern",
             "taxonomy"
           ],
-          "embedding_id": 252
+          "embedding_id": 253
         },
         {
           "id": "multi-method-handoff-protocol",
@@ -5661,7 +5677,7 @@
             "handoff",
             "protocol"
           ],
-          "embedding_id": 253
+          "embedding_id": 254
         },
         {
           "id": "multi-method-orchestration-pattern-selection",
@@ -5677,7 +5693,7 @@
             "pattern",
             "selection"
           ],
-          "embedding_id": 254
+          "embedding_id": 255
         },
         {
           "id": "multi-method-compression-procedures",
@@ -5692,7 +5708,7 @@
             "compression",
             "procedures"
           ],
-          "embedding_id": 255
+          "embedding_id": 256
         },
         {
           "id": "multi-method-state-persistence-protocol",
@@ -5708,7 +5724,7 @@
             "persistence",
             "protocol"
           ],
-          "embedding_id": 256
+          "embedding_id": 257
         },
         {
           "id": "multi-method-session-closer-protocol",
@@ -5724,7 +5740,7 @@
             "closer",
             "protocol"
           ],
-          "embedding_id": 257
+          "embedding_id": 258
         },
         {
           "id": "multi-method-observability-protocol",
@@ -5739,7 +5755,7 @@
             "observability",
             "protocol"
           ],
-          "embedding_id": 258
+          "embedding_id": 259
         },
         {
           "id": "multi-method-validation-agent-deployment",
@@ -5755,7 +5771,7 @@
             "agent",
             "deployment"
           ],
-          "embedding_id": 259
+          "embedding_id": 260
         },
         {
           "id": "multi-method-contrarian-reviewer-pattern",
@@ -5771,7 +5787,7 @@
             "reviewer",
             "pattern"
           ],
-          "embedding_id": 260
+          "embedding_id": 261
         },
         {
           "id": "multi-method-governance-agent-pattern",
@@ -5787,7 +5803,7 @@
             "agent",
             "pattern"
           ],
-          "embedding_id": 261
+          "embedding_id": 262
         },
         {
           "id": "multi-method-fault-tolerance-procedures",
@@ -5803,7 +5819,7 @@
             "tolerance",
             "procedures"
           ],
-          "embedding_id": 262
+          "embedding_id": 263
         },
         {
           "id": "multi-method-human-in-the-loop-gates",
@@ -5818,7 +5834,7 @@
             "human-in-the-loop",
             "gates"
           ],
-          "embedding_id": 263
+          "embedding_id": 264
         },
         {
           "id": "multi-method-governance-enforcement-architecture",
@@ -5834,7 +5850,7 @@
             "enforcement",
             "architecture"
           ],
-          "embedding_id": 264
+          "embedding_id": 265
         },
         {
           "id": "multi-method-context-file-synchronization",
@@ -5850,7 +5866,7 @@
             "file",
             "synchronization"
           ],
-          "embedding_id": 265
+          "embedding_id": 266
         },
         {
           "id": "multi-method-multi-tool-workflow-patterns",
@@ -5866,10 +5882,10 @@
             "workflow",
             "patterns"
           ],
-          "embedding_id": 266
+          "embedding_id": 267
         }
       ],
-      "last_extracted": "2026-01-02T21:16:36.545215+00:00",
+      "last_extracted": "2026-01-02T21:32:55.455921+00:00",
       "version": "1.0"
     }
   },
@@ -5887,7 +5903,7 @@
       "name": "ai-coding",
       "display_name": "AI Coding",
       "principles_file": "ai-coding-domain-principles-v2.2.1.md",
-      "methods_file": "ai-coding-methods-v2.1.0.md",
+      "methods_file": "ai-coding-methods-v2.2.0.md",
       "description": "Software development with AI assistance. Code generation, debugging, unit testing, pytest, integration tests, refactoring, code review, pull requests, git workflows, CI/CD pipelines, API design, software architecture, Python programming, project structure, file organization, project cleanup, repository hygiene, gitignore, build configuration, linting, and code quality.",
       "priority": 10,
       "embedding_id": 1
@@ -5902,7 +5918,7 @@
       "embedding_id": 2
     }
   ],
-  "created_at": "2026-01-02T21:16:41.074728+00:00",
+  "created_at": "2026-01-02T21:32:59.943804+00:00",
   "version": "1.0",
   "embedding_model": "all-MiniLM-L6-v2",
   "embedding_dimensions": 384

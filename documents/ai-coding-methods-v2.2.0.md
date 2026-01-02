@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.1.0
+**Version:** 2.2.0
 **Status:** Active
-**Effective Date:** 2025-12-31
+**Effective Date:** 2026-01-02
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -1472,6 +1472,131 @@ Before task completion:
 - [ ] Integration tests for new components
 - [ ] Coverage meets ≥80% threshold
 - [ ] All tests passing
+
+### 5.2.5 Test Organization Patterns
+
+🟡 **IMPORTANT** — Patterns for organizing test suites at scale.
+
+#### Test File Structure
+
+Separate unit tests from integration tests using file naming conventions:
+
+```
+tests/
+├── conftest.py                    # Shared fixtures (always load first)
+├── test_{module}.py               # Unit tests (mock dependencies)
+├── test_{module}_integration.py   # Integration tests (real components)
+└── __init__.py
+```
+
+**Rationale:** Unit tests run fast with mocks; integration tests verify real component interaction. Separation enables running fast tests during development (`pytest tests/test_*.py -m "not integration"`) and full suite in CI.
+
+#### Fixture Categories (conftest.py)
+
+Organize fixtures by purpose:
+
+| Category | Purpose | Example |
+|----------|---------|---------|
+| **Path Fixtures** | Isolated temp directories | `test_settings(tmp_path)` |
+| **Model Fixtures** | Sample valid objects | `sample_principle()` |
+| **State Reset** | Clear global state between tests | `reset_server_state()` |
+| **Mock Fixtures** | Pre-configured mocks for external dependencies | `mock_embedder()` |
+
+**State Reset Pattern:**
+```python
+@pytest.fixture(autouse=True)
+def reset_global_state():
+    """Reset module-level state before each test."""
+    import my_module
+    my_module._global_cache = None
+    my_module._singleton = None
+    yield
+    # Cleanup after test if needed
+```
+
+#### Test Markers
+
+Use markers to categorize tests for selective execution:
+
+```python
+@pytest.mark.slow           # ML models, network calls
+@pytest.mark.integration    # Full pipeline tests
+@pytest.mark.real_data      # Tests against production data
+@pytest.mark.asyncio        # Async tests (pytest-asyncio)
+```
+
+**pytest.ini configuration:**
+```ini
+[pytest]
+markers =
+    slow: marks tests as slow (deselect with '-m "not slow"')
+    integration: marks integration tests
+    real_data: marks tests using production data
+```
+
+**CI optimization:** Run `-m "not slow"` for fast feedback, full suite nightly.
+
+#### Standard Edge Cases Checklist
+
+Every function accepting input should test:
+
+- [ ] Empty string `""`
+- [ ] Missing required field / `None`
+- [ ] Boundary values (exactly at threshold, just below/above)
+- [ ] Invalid type (string where int expected)
+- [ ] Unicode/special characters
+- [ ] Very long input (truncation behavior)
+- [ ] Whitespace-only input `"   "`
+
+#### Response Parsing Helper
+
+When testing tools that wrap responses (footers, metadata), create a helper:
+
+```python
+def extract_json_from_response(text: str) -> str:
+    """Strip wrappers/footers from tool responses for JSON parsing."""
+    separator = "\n\n---\n"  # Common footer pattern
+    if separator in text:
+        return text.split(separator)[0]
+    return text
+
+# Usage in test
+response = await call_tool("my_tool", {"arg": "value"})
+parsed = json.loads(extract_json_from_response(response[0].text))
+assert parsed["status"] == "success"
+```
+
+#### When to Parameterize
+
+| Parameterize When | Keep Separate When |
+|-------------------|-------------------|
+| Same logic, different inputs | Different assertions per case |
+| >4 similar tests | Complex setup differs per case |
+| Boundary value testing | Need clear failure identification |
+| Enum/status code coverage | Debugging specific edge cases |
+
+**Parameterization example:**
+```python
+@pytest.mark.parametrize("score,expected_level", [
+    (0.8, "high"),
+    (0.5, "medium"),
+    (0.2, "low"),
+])
+def test_confidence_level(score, expected_level):
+    assert get_confidence(score) == expected_level
+```
+
+#### Mocking Strategy
+
+| Layer | Mock? | Rationale |
+|-------|-------|-----------|
+| External APIs | Always | Deterministic, fast, no network |
+| Database | Usually | Use in-memory or fixtures |
+| File system | Usually | Use `tmp_path` fixture |
+| Internal modules | Unit only | Integration uses real |
+| ML models | Unit only | Slow to load; mock embeddings |
+
+**Mock at boundaries, not internals.** Unit tests mock dependencies; integration tests use real components with controlled inputs.
 
 ---
 
@@ -3063,6 +3188,7 @@ Files to upload to Project Knowledge:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.2.0 | 2026-01-02 | Added §5.2.5 Test Organization Patterns: test file structure (unit vs integration separation), fixture categories (path, model, state reset, mock), test markers for selective execution, standard edge cases checklist, response parsing helper pattern, parameterization guidance, mocking strategy by layer. Derived from production test suite patterns (ai-governance-mcp: 271 tests, 90% coverage). |
 | 2.1.0 | 2025-12-31 | (1) Integrated Active Tasks table into main SESSION-STATE template (§7.1.2) with research rationale (§7.1.3). (2) Added Known Gotchas section to PROJECT-MEMORY template (§7.2.2). (3) Simplified Phase Gates table (removed Approver column, now optional for team projects). (4) Fixed loader template version reference. (5) Clarified Handoff Summary From/To fields. Based on 2025 AI agent memory architecture research (AIS, Zep, MongoDB patterns). |
 | 2.0.0 | 2025-12-31 | **BREAKING:** Major memory architecture revision. (1) Aligned memory files to cognitive types (Working, Semantic, Episodic, Procedural). (2) Eliminated separate gate artifact files (GATE-*.md) — gates now recorded inline in PROJECT-MEMORY.md. (3) Added Project Instructions File concept (loader document) formalizing CLAUDE.md as progressive disclosure pointer. (4) Added task tracking for solo mode in SESSION-STATE.md. (5) Added principles-based pruning guidance. (6) Added LEARNING-LOG creation timing and graduation to procedural memory. Based on industry research: CoALA framework, ADR patterns, Anthropic best practices, Mem0 memory architecture. |
 | 1.1.1 | 2025-12-29 | PATCH: Updated Document Governance version reference from v2.1 to v2.2. |
