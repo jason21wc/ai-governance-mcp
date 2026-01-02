@@ -1,6 +1,6 @@
 """MCP Server for AI Governance document retrieval.
 
-Per specification v4: FastMCP server with 6 tools for hybrid retrieval.
+Per specification v4: FastMCP server with 10 tools for hybrid retrieval.
 """
 
 import asyncio

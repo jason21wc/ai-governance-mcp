@@ -595,7 +595,7 @@ Show updated process map:
 | src/ai_governance_mcp/config.py | Settings management | ~224 |
 | src/ai_governance_mcp/extractor.py | Document parsing + embeddings | ~450 |
 | src/ai_governance_mcp/retrieval.py | Hybrid search engine | ~500 |
-| src/ai_governance_mcp/server.py | MCP server + 7 tools | ~550 |
+| src/ai_governance_mcp/server.py | MCP server + 10 tools | ~1530 |
 | src/ai_governance_mcp/config_generator.py | Multi-platform MCP configs | ~150 |
 
 ### Test Files
