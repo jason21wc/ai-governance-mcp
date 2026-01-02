@@ -371,6 +371,16 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Anti-Principle:** Never prune for size alone — large memory indicates detail or scope issues
 - **Sources:** [Mem0 priority scoring](https://mem0.ai), industry eviction policies
 
+## Roadmap
+
+### Planned Domains
+| Domain | Status | Reference Documents |
+|--------|--------|---------------------|
+| Prompt Engineering | Planned | `documents/prompt-engineering-best-practices-guide-v3.md` |
+| RAG Optimization | Planned | `documents/rag-document-optimization-best-practices-v3b.md`, `documents/AI-instructions-prompt-engineering-and-rag-optimization.md` |
+
+*These reference documents will be converted to domain principles and methods files.*
+
 ## Patterns and Conventions
 
 ### Communication Level (PO Approved)
