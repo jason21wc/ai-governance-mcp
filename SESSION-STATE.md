@@ -9,6 +9,17 @@
 - **Active Task:** None
 - **Blocker:** None
 
+## Orchestrator Installed
+
+The Orchestrator agent is now active at `.claude/agents/orchestrator.md`.
+
+**On next session start:**
+- Claude Code will load the orchestrator persona
+- All significant actions will flow through `evaluate_governance()` first
+- S-Series principles have veto authority (triggers ESCALATE)
+
+**To verify:** Look for 'orchestrator' in the agents list when starting Claude Code.
+
 ## Recent Work
 
 ### AI Coding Methods v2.2.0 (89395bd)
@@ -22,8 +33,6 @@ Added §5.2.5 Test Organization Patterns with 7 subsections:
 - When to Parameterize guidance
 - Mocking Strategy by layer
 
-Derived from production test suite analysis (271 tests, 90% coverage).
-
 ### Phase 2 Complete
 
 - [x] Phase 2-Pre: Documentation (PROJECT-MEMORY, methods v2.1.0)
@@ -31,6 +40,7 @@ Derived from production test suite analysis (271 tests, 90% coverage).
 - [x] Phase 2B: Agent installation architecture — d8ee431
 - [x] Phase 2C: Testing (integrated with 2A/2B)
 - [x] Phase 2D: README updated — d77b2bd
+- [x] Orchestrator installed — this session
 
 ## Quick Reference
 
@@ -41,8 +51,17 @@ Derived from production test suite analysis (271 tests, 90% coverage).
 | Index | 68 principles + 200 methods (268 total) |
 | Tools | 10 |
 | Methods | ai-coding v2.2.0, multi-agent v2.1.0 |
+| Orchestrator | Installed ✓ |
+
+## Remaining Roadmap
+
+- [ ] Docker containerization
+- [ ] Public API with auth
+- [ ] Vector database for scaling
+- [ ] GraphRAG for relationship-aware retrieval
+- [ ] Active learning from feedback
 
 ## Next Actions
 
-1. Push to GitHub
-2. Consider Phase 3 (if any remaining roadmap items)
+1. Leave session and return to test orchestrator
+2. Verify governance checks happen automatically on significant actions
