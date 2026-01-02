@@ -4,38 +4,33 @@
 
 ## Current Position
 
-- **Phase:** Implement (Phase 2B Complete)
+- **Phase:** Implement (Phase 2 Complete)
 - **Mode:** Standard
-- **Active Task:** None — Phase 2B agent installation architecture complete
+- **Active Task:** None
 - **Blocker:** None
 
-## Phase 2 Complete
+## Recent Work
+
+### AI Coding Methods v2.2.0 (89395bd)
+
+Added §5.2.5 Test Organization Patterns with 7 subsections:
+- Test File Structure (unit vs integration separation)
+- Fixture Categories (path, model, state reset, mock)
+- Test Markers (slow, integration, real_data, asyncio)
+- Standard Edge Cases Checklist
+- Response Parsing Helper pattern
+- When to Parameterize guidance
+- Mocking Strategy by layer
+
+Derived from production test suite analysis (271 tests, 90% coverage).
+
+### Phase 2 Complete
 
 - [x] Phase 2-Pre: Documentation (PROJECT-MEMORY, methods v2.1.0)
-- [x] Phase 2A: Audit infrastructure (models, server, 8 tools) — Committed b6f4264
-- [x] Phase 2B: Agent installation architecture — Committed this session
+- [x] Phase 2A: Audit infrastructure (models, server, 8 tools) — b6f4264
+- [x] Phase 2B: Agent installation architecture — d8ee431
 - [x] Phase 2C: Testing (integrated with 2A/2B)
-- [x] Phase 2D: README updated — Committed d77b2bd
-
-## What Was Implemented (Phase 2B)
-
-**Agent Installation System:**
-- `install_agent` tool — Installs Orchestrator to `.claude/agents/` (Claude Code only)
-- `uninstall_agent` tool — Removes installed agents
-- Claude Code environment detection via `.claude/` or `CLAUDE.md`
-- Non-Claude platforms skip installation (governance via SERVER_INSTRUCTIONS)
-- User confirmation flow with explanation before installation
-
-**Platform Research (Appendix F):**
-- Claude Code: `.claude/agents/*.md` with tool restrictions (HARD enforcement)
-- Codex CLI: `AGENTS.md` = project instructions (NOT agents)
-- Gemini CLI: `GEMINI.md` + `.gemini/system.md` (no agents)
-- ChatGPT/Grok/Perplexity: Cloud-based (no local agent files)
-
-**Documentation Updated:**
-- multi-agent-methods-v2.1.0.md — Added Appendix F: Cross-Platform Agent Support
-- README.md — Updated to 10 tools, 271 tests, added Agent Installation section
-- SERVER_INSTRUCTIONS — Added Orchestrator Protocol section
+- [x] Phase 2D: README updated — d77b2bd
 
 ## Quick Reference
 
@@ -43,11 +38,11 @@
 |--------|-------|
 | Tests | 271 passing |
 | Coverage | ~90% |
-| Index | 68 principles + 199 methods (267 total) |
+| Index | 68 principles + 200 methods (268 total) |
 | Tools | 10 |
+| Methods | ai-coding v2.2.0, multi-agent v2.1.0 |
 
 ## Next Actions
 
-1. Commit Phase 2B changes (all docs + agent infrastructure)
-2. Push to GitHub
-3. Consider Phase 3 (if any remaining roadmap items)
+1. Push to GitHub
+2. Consider Phase 3 (if any remaining roadmap items)
