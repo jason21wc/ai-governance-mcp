@@ -71,7 +71,7 @@ Runtime:
 
 ## How It Works
 
-### 7 MCP Tools
+### 8 MCP Tools
 
 | Tool | Purpose |
 |------|---------|
@@ -81,13 +81,22 @@ Runtime:
 | `get_domain_summary` | Domain exploration |
 | `log_feedback` | Quality tracking |
 | `get_metrics` | Performance analytics |
-| `evaluate_governance` | **Governance Agent** - Pre-action compliance check |
+| `evaluate_governance` | **Pre-action** compliance check (Layer 2) |
+| `verify_governance_compliance` | **Post-action** audit verification (Layer 3) |
 
-The `evaluate_governance` tool implements the Governance Agent pattern (per multi-agent-methods §4.3):
+**Governance Enforcement (Phase 2):**
+
+The `evaluate_governance` tool implements pre-action compliance checking:
 - Evaluates planned actions against principles BEFORE execution
 - Auto-detects S-Series (safety) concerns via keyword scanning
 - Returns PROCEED, PROCEED_WITH_MODIFICATIONS, or ESCALATE
 - S-Series violations force ESCALATE with human review required
+- Logs audit trail with unique `audit_id` for tracking
+
+The `verify_governance_compliance` tool enables post-action auditing:
+- Checks if governance was consulted for a completed action
+- Returns COMPLIANT, NON_COMPLIANT, or PARTIAL
+- Catches bypassed governance checks after the fact
 
 ### Example Usage
 
@@ -118,7 +127,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **90%** (242 tests) |
+| Test Coverage | 80% | **90%** (259 tests) |
 
 ## Getting Started
 
@@ -308,7 +317,7 @@ pre-commit install
 
 ### Test Suite
 
-242 tests across 10 test files with 90% coverage:
+259 tests across 10 test files with 90% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|

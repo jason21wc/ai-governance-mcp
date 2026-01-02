@@ -1001,3 +1001,177 @@ Hybrid retrieval best practices:
 Embedding models:
 - [all-MiniLM-L6-v2 on HuggingFace](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) - 22MB, 384 dimensions, good baseline
 - [Sentence Transformers Documentation](https://sbert.net/docs/quickstart.html)
+
+---
+
+## 2026-01-01 - Claude Code Agent Definitions (Research)
+
+### What Are Claude Code Agents?
+
+Claude Code agents are **specialized AI configurations** — not separate programs, but focused "personalities" with:
+- Their own system prompt defining behavior
+- Restricted (or full) tool access
+- Their own context window (isolated from main conversation)
+- Optionally a different model (haiku for speed, opus for depth)
+
+**Key insight:** An agent is essentially a prompt + tool constraints applied to the same underlying model.
+
+### File Format: Markdown with YAML Frontmatter
+
+```markdown
+---
+name: agent-name
+description: When/why to use this agent (triggers automatic invocation)
+tools: Tool1, Tool2, Tool3  # Optional - omit to inherit all
+model: sonnet              # Optional - sonnet, opus, haiku, or inherit
+permissionMode: default    # Optional - default, acceptEdits, bypassPermissions
+skills: skill1, skill2     # Optional - skills to auto-load
+---
+
+System prompt goes here. This defines the agent's personality,
+role, and instructions. Can be multiple paragraphs.
+
+When invoked:
+1. Do this first
+2. Then do this
+...
+```
+
+### Storage Locations
+
+| Location | Scope | Priority | Use Case |
+|----------|-------|----------|----------|
+| `.claude/agents/*.md` | Project | **Highest** | Team-shared, checked into git |
+| `~/.claude/agents/*.md` | User | Lower | Personal, all projects |
+
+Project-level agents override user-level agents with the same name.
+
+### Agent Definition Fields (Complete Reference)
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | **Yes** | Unique identifier (lowercase + hyphens) |
+| `description` | **Yes** | Natural language for when to invoke. Use "PROACTIVELY" to encourage auto-delegation |
+| `tools` | No | Comma-separated list. Omit to inherit all tools |
+| `model` | No | `sonnet`, `opus`, `haiku`, or `inherit` |
+| `permissionMode` | No | `default`, `acceptEdits`, `bypassPermissions`, `plan`, `ignore` |
+| `skills` | No | Skills to auto-load (agents don't inherit parent's skills) |
+
+### How to Create Agents
+
+**Method 1: Interactive (Recommended)**
+```bash
+/agents
+# Select "Create New Agent"
+# Choose project or user scope
+# Describe purpose
+# Select tools interactively
+```
+
+**Method 2: Manual File Creation**
+```bash
+mkdir -p .claude/agents
+cat > .claude/agents/my-agent.md << 'EOF'
+---
+name: my-agent
+description: Description here
+tools: Read, Edit, Bash
+---
+System prompt here
+EOF
+```
+
+**Method 3: CLI Flag (Session-specific)**
+```bash
+claude --agents '{
+  "agent-name": {
+    "description": "...",
+    "prompt": "...",
+    "tools": ["Read", "Grep"]
+  }
+}'
+```
+
+### How Agents Get Invoked
+
+1. **Automatic**: Claude reads `description` and matches to task
+2. **Explicit**: User says "Use the X agent to..."
+3. **Task tool**: `subagent_type: "agent-name"` in programmatic calls
+
+### Built-in Agents
+
+| Agent | Model | Tools | Purpose |
+|-------|-------|-------|---------|
+| general-purpose | Sonnet | All | Complex multi-step tasks |
+| Plan | Sonnet | Read-only | Research in plan mode |
+| Explore | Haiku | Read-only | Fast codebase search |
+
+### Example: Code Reviewer Agent
+
+```markdown
+---
+name: code-reviewer
+description: Expert code review specialist. PROACTIVELY reviews code after writing or modifying. Use immediately after code changes.
+tools: Read, Grep, Glob, Bash
+model: inherit
+---
+
+You are a senior code reviewer ensuring high standards of quality and security.
+
+When invoked:
+1. Run git diff to see recent changes
+2. Focus on modified files
+3. Begin review immediately
+
+Review checklist:
+- Code is clear and readable
+- Functions and variables are well-named
+- No duplicated code
+- Proper error handling
+- No exposed secrets or API keys
+- Input validation implemented
+- Good test coverage
+
+Provide feedback by priority:
+- Critical (must fix)
+- Warnings (should fix)
+- Suggestions (consider)
+
+Include specific examples of how to fix issues.
+```
+
+### Tool Restriction Enforcement
+
+| Platform | Enforcement Level |
+|----------|------------------|
+| Claude Code | **Hard** — CLI enforces tool restrictions |
+| Other LLMs via MCP | **Soft** — LLM must honor guidance |
+
+For non-Claude-Code LLMs, tool restrictions are advisory. Mitigation:
+- Layer 1: Prompt says "don't use X"
+- Layer 2: `evaluate_governance` should be called first
+- Layer 3: `verify_governance_compliance` catches bypasses
+- Layer 4: Audit log records everything
+
+### LLM-Agnostic Agent Design
+
+Claude Code agents (`.claude/agents/`) are platform-specific. For LLM-agnostic agents:
+
+| Approach | How It Works |
+|----------|--------------|
+| MCP Resources | Expose `resource://ai-governance/agents/orchestrator` |
+| MCP Tool | `get_agent_definition("orchestrator")` returns structured definition |
+| Document-based | Store in `documents/agents/`, retrieve via `query_governance` |
+| SERVER_INSTRUCTIONS | Include role guidance in MCP init |
+
+**Recommended hybrid:**
+1. Source of truth in `documents/agents/*.md`
+2. Claude Code gets `.claude/agents/` (platform-specific)
+3. MCP tool `get_agent_definition()` for LLM-agnostic access
+
+### Sources
+
+- [Claude Code Subagents Documentation](https://code.claude.com/docs/en/sub-agents)
+- [Claude Code CLI Reference](https://code.claude.com/docs/en/cli-reference.md)
+- [Building agents with Claude Agent SDK](https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk)
+- [Agent Skills Documentation](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)
