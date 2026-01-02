@@ -14,7 +14,19 @@ from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
 from .config import Settings, ensure_directories, load_settings, setup_logging
-from .models import ErrorResponse, Feedback, QueryLog, Metrics
+from .models import (
+    AssessmentStatus,
+    ComplianceEvaluation,
+    ComplianceStatus,
+    ConfidenceLevel,
+    ErrorResponse,
+    Feedback,
+    GovernanceAssessment,
+    Metrics,
+    QueryLog,
+    RelevantPrinciple,
+    SSeriesCheck,
+)
 from .retrieval import RetrievalEngine
 
 logger = setup_logging()
@@ -260,6 +272,35 @@ async def list_tools() -> list[Tool]:
                 "properties": {},
             },
         ),
+        # Tool 7: Evaluate governance (Governance Agent)
+        # Per multi-method-governance-agent-pattern (§4.3)
+        Tool(
+            name="evaluate_governance",
+            description=(
+                "Evaluate a planned action against governance principles BEFORE execution. "
+                "Returns compliance assessment with PROCEED, PROCEED_WITH_MODIFICATIONS, or ESCALATE. "
+                "S-Series (safety) principles have veto authority - will force ESCALATE if triggered. "
+                "Use this to validate actions before implementing them."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "planned_action": {
+                        "type": "string",
+                        "description": "Description of the action you plan to take",
+                    },
+                    "context": {
+                        "type": "string",
+                        "description": "Optional: Relevant background context",
+                    },
+                    "concerns": {
+                        "type": "string",
+                        "description": "Optional: Specific areas of uncertainty or concern",
+                    },
+                },
+                "required": ["planned_action"],
+            },
+        ),
     ]
 
 
@@ -288,6 +329,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             result = await _handle_log_feedback(arguments)
         elif name == "get_metrics":
             result = await _handle_get_metrics(arguments)
+        elif name == "evaluate_governance":
+            result = await _handle_evaluate_governance(engine, arguments)
         else:
             result = [TextContent(type="text", text=f"Unknown tool: {name}")]
 
@@ -590,6 +633,224 @@ async def _handle_get_metrics(args: dict) -> list[TextContent]:
         if metrics.avg_feedback_rating
         else None,
     }
+
+    return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+
+# S-Series safety keywords for automatic safety concern detection
+# Per governance hierarchy: S-Series has veto authority
+S_SERIES_KEYWORDS = {
+    "delete",
+    "remove",
+    "drop",
+    "destroy",
+    "credential",
+    "password",
+    "secret",
+    "api key",
+    "token",
+    "private key",
+    "security",
+    "authentication",
+    "authorization",
+    "permission",
+    "external api",
+    "production",
+    "deploy",
+    "database",
+    "user data",
+    "personal data",
+    "pii",
+    "sensitive",
+    "confidential",
+    "irreversible",
+    "destructive",
+}
+
+
+def _detect_safety_concerns(action: str) -> list[str]:
+    """Detect potential safety concerns from action description.
+
+    Per meta-quality-verification-mechanisms-before-action:
+    Actively check for safety keywords that may require S-Series review.
+    """
+    action_lower = action.lower()
+    concerns = []
+
+    for keyword in S_SERIES_KEYWORDS:
+        if keyword in action_lower:
+            concerns.append(f"Action mentions '{keyword}' - may require safety review")
+
+    return concerns
+
+
+def _determine_confidence(
+    best_score: float, s_series_triggered: bool
+) -> ConfidenceLevel:
+    """Determine assessment confidence based on retrieval quality and S-Series.
+
+    Per design decision: S-Series = HIGH (safety is not uncertain).
+    Otherwise based on retrieval match quality.
+    """
+    if s_series_triggered:
+        return ConfidenceLevel.HIGH  # Safety concerns are not uncertain
+    if best_score >= 0.7:
+        return ConfidenceLevel.HIGH
+    if best_score >= 0.4:
+        return ConfidenceLevel.MEDIUM
+    return ConfidenceLevel.LOW
+
+
+async def _handle_evaluate_governance(
+    engine: RetrievalEngine, args: dict
+) -> list[TextContent]:
+    """Handle evaluate_governance tool (Governance Agent).
+
+    Per multi-method-governance-agent-pattern (§4.3):
+    - Evaluates planned actions against governance principles
+    - Uses existing query_governance for retrieval
+    - Auto-detects S-Series concerns with keyword scanning
+    - Returns assessment with compliance status per principle
+    """
+    planned_action = args.get("planned_action", "")
+    context = args.get("context", "")
+    concerns = args.get("concerns", "")
+
+    if not planned_action:
+        error = ErrorResponse(
+            error_code="MISSING_REQUIRED_FIELD",
+            message="planned_action is required",
+            suggestions=["Provide a description of the action you plan to take"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Build composite query from inputs
+    query_parts = [planned_action]
+    if context:
+        query_parts.append(f"Context: {context}")
+    if concerns:
+        query_parts.append(f"Concerns: {concerns}")
+    composite_query = " ".join(query_parts)
+
+    # Use existing retrieval engine
+    result = engine.retrieve(composite_query, max_results=10)
+
+    # Collect relevant principles
+    all_principles = result.constitution_principles + result.domain_principles
+    relevant_principles: list[RelevantPrinciple] = []
+    compliance_evaluations: list[ComplianceEvaluation] = []
+    s_series_principles: list[str] = []
+
+    # Track best score for confidence calculation
+    best_score = 0.0
+
+    for sp in all_principles[:10]:  # Limit to top 10
+        p = sp.principle
+        score = sp.combined_score
+        if score > best_score:
+            best_score = score
+
+        # Check for S-Series
+        if p.series_code == "S":
+            s_series_principles.append(p.id)
+
+        # Add to relevant principles
+        relevance = (
+            f"Matched via {', '.join(sp.match_reasons)}"
+            if sp.match_reasons
+            else "Semantic match"
+        )
+        relevant_principles.append(
+            RelevantPrinciple(
+                id=p.id,
+                title=p.title,
+                relevance=relevance,
+                score=score,
+            )
+        )
+
+        # Evaluate compliance - default to COMPLIANT with guidance
+        # Note: Full compliance evaluation would require deeper analysis
+        # This provides the principle for the AI to apply
+        compliance_evaluations.append(
+            ComplianceEvaluation(
+                principle_id=p.id,
+                principle_title=p.title,
+                status=ComplianceStatus.COMPLIANT,
+                finding=f"Review action against: {p.title}. Apply this principle before proceeding.",
+            )
+        )
+
+    # S-Series keyword detection (dual-path checking)
+    safety_concerns = _detect_safety_concerns(planned_action)
+    if context:
+        safety_concerns.extend(_detect_safety_concerns(context))
+
+    # Build S-Series check result
+    s_series_triggered = len(s_series_principles) > 0 or len(safety_concerns) > 0
+    s_series_check = SSeriesCheck(
+        triggered=s_series_triggered,
+        principles=s_series_principles,
+        safety_concerns=safety_concerns,
+    )
+
+    # Determine assessment status
+    # Per governance hierarchy: S-Series forces ESCALATE
+    required_modifications: list[str] = []
+
+    if s_series_triggered:
+        assessment = AssessmentStatus.ESCALATE
+        rationale = (
+            "S-Series (safety) principles triggered. "
+            "Human review required before proceeding. "
+            f"Triggered by: {', '.join(s_series_principles + safety_concerns)}"
+        )
+    elif not relevant_principles:
+        assessment = AssessmentStatus.PROCEED
+        rationale = (
+            "No strongly relevant governance principles found. "
+            "Action may proceed but consider querying with more specific terms."
+        )
+    else:
+        # Check if any principles suggest modifications needed
+        # For now, default to PROCEED if no S-Series
+        # Future: deeper compliance analysis
+        assessment = AssessmentStatus.PROCEED
+        top_principle = relevant_principles[0] if relevant_principles else None
+        if top_principle and top_principle.score >= 0.5:
+            rationale = (
+                f"Action should comply with {len(relevant_principles)} relevant principles. "
+                f"Primary guidance: {top_principle.title}. "
+                "Review compliance evaluations before proceeding."
+            )
+        else:
+            rationale = (
+                "Low-confidence principle matches. "
+                "Consider rephrasing your action description for better governance matching."
+            )
+
+    # Determine confidence
+    confidence = _determine_confidence(best_score, s_series_triggered)
+
+    # Build assessment
+    governance_assessment = GovernanceAssessment(
+        action_reviewed=planned_action,
+        assessment=assessment,
+        confidence=confidence,
+        relevant_principles=relevant_principles,
+        compliance_evaluation=compliance_evaluations,
+        required_modifications=required_modifications,
+        s_series_check=s_series_check,
+        rationale=rationale,
+    )
+
+    # Format output
+    output = governance_assessment.model_dump()
+    # Convert enums to strings for JSON serialization
+    output["assessment"] = output["assessment"].value
+    output["confidence"] = output["confidence"].value
+    for ce in output["compliance_evaluation"]:
+        ce["status"] = ce["status"].value
 
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 

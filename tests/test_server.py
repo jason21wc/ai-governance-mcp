@@ -839,6 +839,194 @@ class TestCallTool:
 
 
 # =============================================================================
+# Evaluate Governance Tests (Governance Agent)
+# =============================================================================
+
+
+class TestEvaluateGovernance:
+    """Tests for evaluate_governance tool (Governance Agent).
+
+    Per multi-method-governance-agent-pattern (§4.3).
+    """
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_returns_assessment_structure(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should return proper assessment structure."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Add a new logging function"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # Verify structure
+                    assert "action_reviewed" in parsed
+                    assert "assessment" in parsed
+                    assert "confidence" in parsed
+                    assert "relevant_principles" in parsed
+                    assert "compliance_evaluation" in parsed
+                    assert "s_series_check" in parsed
+                    assert "rationale" in parsed
+
+                    # Assessment should be one of the valid statuses
+                    assert parsed["assessment"] in [
+                        "PROCEED",
+                        "PROCEED_WITH_MODIFICATIONS",
+                        "ESCALATE",
+                    ]
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_detects_safety_keywords(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should trigger ESCALATE for safety keywords."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    # Action with safety keyword
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Delete user credentials from database"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # S-Series should be triggered
+                    assert parsed["s_series_check"]["triggered"] is True
+                    assert len(parsed["s_series_check"]["safety_concerns"]) > 0
+                    # Assessment should be ESCALATE
+                    assert parsed["assessment"] == "ESCALATE"
+                    # Confidence should be HIGH (safety is not uncertain)
+                    assert parsed["confidence"] == "high"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_missing_planned_action(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should return error if planned_action missing."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool("evaluate_governance", {})
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert parsed["error_code"] == "MISSING_REQUIRED_FIELD"
+                    assert "planned_action" in parsed["message"]
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_includes_context(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should accept optional context and concerns."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {
+                            "planned_action": "Refactor authentication module",
+                            "context": "Legacy code needs modernization",
+                            "concerns": "Breaking changes to API",
+                        },
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # Should process without error
+                    assert "action_reviewed" in parsed
+                    assert parsed["action_reviewed"] == "Refactor authentication module"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_normal_action_proceeds(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should return PROCEED for normal actions without safety keywords."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    # Normal action without safety concerns - very neutral language
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Format code with prettier"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # No safety keyword concerns should be detected from the action
+                    assert len(parsed["s_series_check"]["safety_concerns"]) == 0
+                    # If no S-Series principles returned AND no keyword concerns,
+                    # assessment should be PROCEED
+                    if not parsed["s_series_check"]["principles"]:
+                        assert parsed["assessment"] == "PROCEED"
+
+
+# =============================================================================
 # Entry Point Tests
 # =============================================================================
 
@@ -912,13 +1100,13 @@ class TestListTools:
     """Tests for list_tools() async function."""
 
     @pytest.mark.asyncio
-    async def test_list_tools_returns_all_six(self):
-        """list_tools should return all 6 tools."""
+    async def test_list_tools_returns_all_seven(self):
+        """list_tools should return all 7 tools."""
         from ai_governance_mcp.server import list_tools
 
         tools = await list_tools()
 
-        assert len(tools) == 6
+        assert len(tools) == 7
         tool_names = [t.name for t in tools]
         assert "query_governance" in tool_names
         assert "get_principle" in tool_names
@@ -926,6 +1114,7 @@ class TestListTools:
         assert "get_domain_summary" in tool_names
         assert "log_feedback" in tool_names
         assert "get_metrics" in tool_names
+        assert "evaluate_governance" in tool_names
 
     @pytest.mark.asyncio
     async def test_list_tools_have_input_schemas(self):

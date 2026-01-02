@@ -34,6 +34,22 @@ class ConfidenceLevel(str, Enum):
     LOW = "low"  # Combined score < 0.4
 
 
+class AssessmentStatus(str, Enum):
+    """Governance assessment outcome status."""
+
+    PROCEED = "PROCEED"  # Action complies with governance
+    PROCEED_WITH_MODIFICATIONS = "PROCEED_WITH_MODIFICATIONS"  # Needs changes
+    ESCALATE = "ESCALATE"  # Human review required
+
+
+class ComplianceStatus(str, Enum):
+    """Compliance status for individual principle evaluation."""
+
+    COMPLIANT = "COMPLIANT"  # Action aligns with principle
+    GAP = "GAP"  # Principle not fully addressed
+    VIOLATION = "VIOLATION"  # Action conflicts with principle
+
+
 # =============================================================================
 # Core Data Models
 # =============================================================================
@@ -268,3 +284,69 @@ class ErrorResponse(BaseModel):
     error_code: str
     message: str
     suggestions: list[str] = Field(default_factory=list)
+
+
+# =============================================================================
+# Governance Agent Models
+# =============================================================================
+
+
+class RelevantPrinciple(BaseModel):
+    """A principle identified as relevant to a governance assessment."""
+
+    id: str = Field(..., description="Principle ID")
+    title: str = Field(..., description="Principle title")
+    relevance: str = Field(..., description="Why this principle is relevant")
+    score: float = Field(..., ge=0.0, le=1.0, description="Retrieval relevance score")
+
+
+class ComplianceEvaluation(BaseModel):
+    """Evaluation of action compliance against a single principle."""
+
+    principle_id: str = Field(..., description="Principle ID")
+    principle_title: str = Field(..., description="Principle title")
+    status: ComplianceStatus = Field(..., description="Compliance status")
+    finding: str = Field(..., description="Specific finding explanation")
+
+
+class SSeriesCheck(BaseModel):
+    """Result of S-Series (safety) principle check."""
+
+    triggered: bool = Field(
+        default=False, description="Whether any S-Series principle was triggered"
+    )
+    principles: list[str] = Field(
+        default_factory=list, description="S-Series principle IDs that were triggered"
+    )
+    safety_concerns: list[str] = Field(
+        default_factory=list, description="Specific safety concerns identified"
+    )
+
+
+class GovernanceAssessment(BaseModel):
+    """Complete governance assessment for a planned action.
+
+    Per multi-method-governance-agent-pattern (§4.3):
+    - PROCEED: Action complies with governance
+    - PROCEED_WITH_MODIFICATIONS: Apply modifications, then execute
+    - ESCALATE: Human review required (automatic if S-Series triggered)
+    """
+
+    action_reviewed: str = Field(
+        ..., description="The planned action that was assessed"
+    )
+    assessment: AssessmentStatus = Field(..., description="Assessment outcome")
+    confidence: ConfidenceLevel = Field(..., description="Assessment confidence level")
+    relevant_principles: list[RelevantPrinciple] = Field(
+        default_factory=list, description="Principles relevant to this action"
+    )
+    compliance_evaluation: list[ComplianceEvaluation] = Field(
+        default_factory=list, description="Per-principle compliance evaluation"
+    )
+    required_modifications: list[str] = Field(
+        default_factory=list, description="Modifications needed for compliance"
+    )
+    s_series_check: SSeriesCheck = Field(
+        default_factory=SSeriesCheck, description="S-Series safety check result"
+    )
+    rationale: str = Field(..., description="Explanation of the assessment")

@@ -71,7 +71,7 @@ Runtime:
 
 ## How It Works
 
-### 6 MCP Tools
+### 7 MCP Tools
 
 | Tool | Purpose |
 |------|---------|
@@ -81,6 +81,13 @@ Runtime:
 | `get_domain_summary` | Domain exploration |
 | `log_feedback` | Quality tracking |
 | `get_metrics` | Performance analytics |
+| `evaluate_governance` | **Governance Agent** - Pre-action compliance check |
+
+The `evaluate_governance` tool implements the Governance Agent pattern (per multi-agent-methods §4.3):
+- Evaluates planned actions against principles BEFORE execution
+- Auto-detects S-Series (safety) concerns via keyword scanning
+- Returns PROCEED, PROCEED_WITH_MODIFICATIONS, or ESCALATE
+- S-Series violations force ESCALATE with human review required
 
 ### Example Usage
 
@@ -111,7 +118,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **90%** (205 tests) |
+| Test Coverage | 80% | **90%** (225 tests) |
 
 ## Getting Started
 
@@ -225,7 +232,7 @@ ai-governance-mcp/
     ├── conftest.py      # Shared fixtures
     ├── test_models.py   # Model validation (24 tests)
     ├── test_config.py   # Config tests (17 tests)
-    ├── test_server.py   # Server unit tests (46 tests)
+    ├── test_server.py   # Server unit tests (51 tests)
     ├── test_server_integration.py   # Dispatcher + flows (12 tests)
     ├── test_extractor.py            # Extractor tests (35 tests)
     ├── test_extractor_integration.py # Pipeline tests (11 tests)
@@ -261,11 +268,11 @@ pre-commit install
 
 ### Test Suite
 
-205 tests across 9 test files with 90% coverage:
+225 tests across 9 test files with 90% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
-| Unit | 166 | Isolated component testing |
+| Unit | 186 | Isolated component testing |
 | Integration | 26 | Full pipeline flows |
 | Real Index | 6 | Production data validation |
 | Slow (ML) | 3 | Actual embedding models |

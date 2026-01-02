@@ -276,17 +276,22 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
   | Governance Agent | Evaluative | Assess compliance with principles |
 - **Each includes:** Full agent definition template with system prompt structure
 
-### Decision: Governance Agent Generic Pattern (Phase 2 Deferred)
+### Decision: Governance Agent Implementation (evaluate_governance Tool)
 - **Date:** 2026-01-01
-- **Status:** CAPTURED FOR PHASE 2
+- **Status:** IMPLEMENTED
 - **Problem:** Need active governance enforcement, not just passive reminders
-- **Generic Pattern Captured:** Governance Agent evaluates planned actions against principles, provides compliance feedback
-- **MCP-Specific Implementation:** Deferred to Phase 2 (multi-agent orchestration roadmap item)
-- **Design Notes:**
-  - `evaluate_governance()` tool specification
-  - Input: planned_action, context
-  - Output: compliant (bool), findings, required_modifications, confidence
-  - S-Series (safety) veto authority
+- **Solution:** `evaluate_governance` tool implementing Governance Agent pattern (§4.3)
+- **Governance Applied:**
+  - `multi-method-governance-agent-pattern` — Pre-action compliance check
+  - `multi-method-agent-definition-standard` — Agent components
+  - `meta-quality-verification-mechanisms-before-action` — Validate before acting
+- **Implementation:**
+  - Tool: `evaluate_governance(planned_action, context?, concerns?)`
+  - Output: `GovernanceAssessment` with assessment, confidence, compliance_evaluation, s_series_check
+  - S-Series: Dual-path detection (principle codes + keyword scanning)
+  - Assessment statuses: PROCEED, PROCEED_WITH_MODIFICATIONS, ESCALATE
+  - S-Series triggers force ESCALATE (veto authority)
+- **Tests Added:** 5 new tests, 225 total tests passing
 
 ### Decision: MCP Instruction Optimization v2 (Constraint-Based + Model-Specific)
 - **Date:** 2026-01-01

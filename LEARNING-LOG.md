@@ -840,6 +840,51 @@ This reframing explains why:
 
 ---
 
+### 2026-01-01 - Governance Agent Implementation: evaluate_governance Tool (CRITICAL)
+
+**Context:** Implementing active governance enforcement through the Governance Agent pattern from multi-agent-methods-v2.0.0 (§4.3 and §2.2.6).
+
+**Governance Queried Before Implementation:**
+- `multi-method-governance-agent-pattern` — Assess compliance before action
+- `multi-method-agent-definition-standard` — Required agent components
+- `meta-quality-verification-mechanisms-before-action` — Validate before acting
+
+**Design Decisions Made:**
+
+| Question | Recommendation | Rationale |
+|----------|----------------|-----------|
+| Retrieval approach | Use existing `retrieve()` | DRY, tested, maintained |
+| S-Series detection | Dual-path (principles + keywords) | Veto authority demands active checking |
+| Confidence scoring | Retrieval scores + S-Series override | Match quality = assessment quality |
+
+**Implementation Components:**
+
+1. **Pydantic Models** — `AssessmentStatus`, `ComplianceStatus`, `RelevantPrinciple`, `ComplianceEvaluation`, `SSeriesCheck`, `GovernanceAssessment`
+
+2. **S-Series Keyword Detection** — 25 safety-related keywords (delete, credential, password, security, production, deploy, database, user data, pii, sensitive, etc.)
+
+3. **Dual-Path S-Series Checking:**
+   - Check returned principles for `series_code="S"`
+   - Keyword scan action description for safety terms
+   - Either path triggers ESCALATE
+
+4. **Confidence Logic:**
+   - S-Series triggered → HIGH (safety is not uncertain)
+   - Best score ≥0.7 → HIGH
+   - Best score ≥0.4 → MEDIUM
+   - Otherwise → LOW
+
+**Key Pattern: Active vs. Passive Enforcement**
+
+| Approach | Mechanism | Guarantee |
+|----------|-----------|-----------|
+| Passive | GOVERNANCE_REMINDER | Suggests but can be ignored |
+| Active | `evaluate_governance` | Validates before action proceeds |
+
+**Lesson:** Passive reminders are insufficient for critical governance. Active enforcement through pre-action validation provides stronger guarantees. The Governance Agent pattern from multi-agent-methods-v2.0.0 provides a reusable design for this.
+
+---
+
 ### 2026-01-01 - MCP Instruction Optimization: Constraint-Based + Model-Specific Patterns (CRITICAL)
 
 **Context:** Reviewing SERVER_INSTRUCTIONS and GOVERNANCE_REMINDER for optimization. Previous version was "passive" — described what to do but didn't enforce it. Self-assessment earlier in session confirmed AI ignored reminders in practice.
