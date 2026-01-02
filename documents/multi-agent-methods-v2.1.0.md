@@ -2062,7 +2062,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
-| v2.1.0 | 2026-01-01 | **Governance Enforcement Architecture.** Added: §4.6 Governance Enforcement Architecture — Orchestrator-First pattern making governance structural (not optional), four-layer defense in depth (Default Persona → Governance Tool → Post-Action Audit → Per-Response Reminder), bypass authorization with narrow scope, audit trail requirements, Orchestrator Agent definition. Problem addressed: voluntary governance tools can be ignored even with reminders. Solution: Orchestrator as default persona with mandatory `evaluate_governance()` before delegation. ESCALATE is now blocking (halts execution until human approves). |
+| v2.1.0 | 2026-01-02 | **Governance Enforcement Architecture + Cross-Platform Research.** Added: §4.6 Governance Enforcement Architecture — Orchestrator-First pattern making governance structural (not optional), four-layer defense in depth (Default Persona → Governance Tool → Post-Action Audit → Per-Response Reminder), bypass authorization with narrow scope, audit trail requirements, Orchestrator Agent definition. Added: Appendix F Cross-Platform Agent Support — platform matrix (Claude Code, Codex CLI, Gemini CLI, ChatGPT, Grok/Perplexity), enforcement levels (HARD vs SOFT), LLM-agnostic design patterns, platform detection code, user communication templates. Problem addressed: voluntary governance tools can be ignored even with reminders. Solution: Orchestrator as default persona with mandatory `evaluate_governance()` before delegation. ESCALATE is now blocking (halts execution until human approves). |
 | v2.0.0 | 2026-01-01 | **Major revision aligned with Principles v2.0.0.** Added: Agent Definition Standard (§2.1), Agent Catalog with 6 patterns (§2.2), Contrarian Reviewer pattern (§4.2), Governance Agent pattern (§4.3), Handoff Pattern Taxonomy (§3.1), Compression Procedures (§3.4), Shared Assumptions Document. Enhanced: Pattern Selection with Linear-First default and Read-Write Analysis. Updated: Preamble scope for individual/sequential/parallel coverage. Renamed: Title numbering for new sections. Research: Anthropic, Google ADK, Cognition, LangChain, Microsoft, Vellum multi-agent patterns (2025). |
 | v1.1.0 | 2025-12-29 | Structural Fixes: Changed Title headers from `## Title` to `# TITLE` for extractor compatibility. Changed section headers from `### X.Y` to `### X.Y` for method extraction. Removed series codes from Principle to Title mapping. Updated status from Draft to Active. |
 | v1.0.0 | 2025-12-21 | Initial release. Implements 11 multi-agent domain principles. Core patterns derived from 2025 industry best practices and NetworkChuck workflow patterns. |
@@ -2097,6 +2097,105 @@ This methods document synthesizes patterns from:
 - State machine orchestration improves reliability
 - Sub-agent isolation protects main conversation context
 - "A focused 300-token context often outperforms an unfocused 113,000-token context" (Google ADK)
+
+---
+
+## Appendix F: Cross-Platform Agent Support (2025-2026)
+
+This appendix documents platform-specific agent capabilities for implementers building LLM-agnostic agent systems.
+
+### Platform Support Matrix
+
+| Platform | Local Agent Files | System Prompt Override | Tool Restrictions | Agent Installation |
+|----------|-------------------|----------------------|-------------------|-------------------|
+| **Claude Code** | `.claude/agents/*.md` | CLAUDE.md | ✅ Via YAML frontmatter | Supported |
+| **Codex CLI** | ❌ (`AGENTS.md` = project instructions) | `AGENTS.md`, `codex.md` | ❌ | N/A |
+| **Gemini CLI** | ❌ | `GEMINI.md`, `.gemini/system.md` | ❌ | N/A |
+| **ChatGPT Desktop** | ❌ | Built-in agent mode | ❌ | N/A |
+| **Grok/Perplexity** | ❌ | Cloud-based | ❌ | N/A |
+
+### Key Findings
+
+**Claude Code Agent System:**
+- Agents defined in `.claude/agents/*.md` with YAML frontmatter
+- **Tool restrictions in frontmatter** = hard enforcement
+- Agents invocable via `/agent:name` or Task tool with `subagent_type`
+- Example frontmatter:
+```yaml
+---
+name: orchestrator
+description: Governance-first coordinator
+tools: Read, Glob, Grep, Task, mcp__ai-governance__*
+model: inherit
+---
+```
+
+**Codex CLI (OpenAI) Clarification:**
+- `AGENTS.md` is **project instructions** (like CLAUDE.md), NOT agent definitions
+- No local agent file system
+- Agents are system-level (cloud-managed)
+
+**Gemini CLI:**
+- `GEMINI.md` at project root = project-specific instructions
+- `.gemini/system.md` = system prompt override
+- No agent definition format
+
+### Enforcement Levels
+
+| Level | Mechanism | Strength | Platform Coverage |
+|-------|-----------|----------|-------------------|
+| **Tool Restrictions** | YAML frontmatter limits available tools | HARD | Claude Code only |
+| **Behavioral Instructions** | SERVER_INSTRUCTIONS, system prompts | SOFT | All platforms |
+| **Per-Response Reminders** | Appended to tool responses | SOFT | All platforms |
+
+### Design Implications for LLM-Agnostic Systems
+
+1. **MCP is the Universal Layer**: Expose agents via MCP tools/resources, not local files
+2. **SERVER_INSTRUCTIONS for Soft Enforcement**: All platforms receive behavioral guidance
+3. **Agent Installation for Hard Enforcement**: Only Claude Code supports local agent files with tool restrictions
+4. **Detect Platform Before Installing**: Check for `.claude/` or `CLAUDE.md` before offering installation
+5. **Graceful Degradation**: Non-Claude platforms work via SERVER_INSTRUCTIONS (soft enforcement still better than none)
+
+### Implementation Pattern: Platform-Aware Agent Installation
+
+```python
+def detect_claude_code_environment() -> bool:
+    """Check for Claude Code indicators."""
+    cwd = Path.cwd()
+    if (cwd / ".claude").is_dir():
+        return True
+    if (cwd / "CLAUDE.md").is_file():
+        return True
+    # Check parent directories (up to 3 levels)
+    for parent in [cwd.parent, cwd.parent.parent, cwd.parent.parent.parent]:
+        if (parent / ".claude").is_dir() or (parent / "CLAUDE.md").is_file():
+            return True
+    return False
+
+# Usage in MCP tool
+if not detect_claude_code_environment():
+    return {"status": "not_applicable", "message": "Governance active via SERVER_INSTRUCTIONS"}
+```
+
+### User Communication Template
+
+When offering agent installation to users unfamiliar with the concept:
+
+> **What is an Agent?**
+> An agent is a specialized configuration that guides how your AI assistant approaches tasks. Think of it as giving your AI a specific "role" with clear responsibilities and boundaries.
+>
+> **Why Install?**
+> Installation adds tool restrictions that structurally enforce governance (the AI cannot access edit/write tools without passing governance checks). Without installation, governance is advisory-only.
+>
+> **What Gets Created?**
+> A single markdown file (`.claude/agents/orchestrator.md`) containing the agent's role definition, tool permissions, and behavioral protocol.
+
+### Research Sources
+
+- Claude Code Documentation: Agent definitions and Task tool
+- OpenAI Codex CLI: AGENTS.md specification
+- Google Gemini CLI: Settings and system prompt documentation
+- Platform testing: Direct verification of agent file support (2026-01)
 
 ---
 

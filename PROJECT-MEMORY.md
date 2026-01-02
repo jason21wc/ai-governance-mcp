@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 205 tests, 90% coverage
+- **Status:** COMPLETE - All phases done, 271 tests, 90% coverage, 10 tools
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -28,7 +28,7 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 ```
 
 **Core Components:**
-- `server.py` - FastMCP server with 7 tools
+- `server.py` - FastMCP server with 10 tools
 - `retrieval.py` - Domain routing, hybrid search, reranking
 - `extractor.py` - Document parsing, embedding generation, index building
 - `models.py` - Pydantic data structures
@@ -334,40 +334,46 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Governance Gap:** Did NOT query governance before implementation (violated CLAUDE.md checkpoint)
 
 ### Decision: Phase 2B LLM-Agnostic Agent Installation Architecture
-- **Date:** 2026-01-01
-- **Status:** DESIGNED (pending user answers to clarifying questions)
+- **Date:** 2026-01-02
+- **Status:** IMPLEMENTED
 - **Problem:** How to install Orchestrator/Governance agents across platforms (Claude, Gemini, ChatGPT, etc.)
 - **Research Finding:** Only Claude Code has local agent files (`.claude/agents/`). Other platforms (Gemini CLI, ChatGPT Desktop, Grok, Perplexity) have no equivalent — they only receive SERVER_INSTRUCTIONS.
-- **Solution — Hybrid with User Confirmation:**
+- **Solution — Hybrid with Platform Detection:**
   ```
   User calls: install_agent("orchestrator")
                      ↓
-  Tool returns preview: "I will create .claude/agents/orchestrator.md..."
+  Tool detects platform: _detect_claude_code_environment()
                      ↓
-  AI asks user: "1. Install automatically, 2. Show manual instructions, 3. Cancel"
-                     ↓
-  confirmed=true  →  Write file + confirm
-  manual=true     →  Show content + path + steps
+  Claude Code → Preview → User confirms → Write file
+  Non-Claude  → Return "not_applicable" (governance via SERVER_INSTRUCTIONS)
   ```
-- **Platform Matrix:**
+- **Platform Matrix (Verified 2026-01):**
   | Platform | Agent Files? | What We Provide |
   |----------|--------------|-----------------|
   | Claude Code | ✅ `.claude/agents/` | install_agent tool writes files |
-  | Gemini CLI | ❌ No equivalent | SERVER_INSTRUCTIONS only |
-  | ChatGPT Desktop | ❌ No local agents | SERVER_INSTRUCTIONS only |
+  | Codex CLI | ❌ (`AGENTS.md` = project instructions) | SERVER_INSTRUCTIONS only |
+  | Gemini CLI | ❌ (`GEMINI.md` = instructions) | SERVER_INSTRUCTIONS only |
+  | ChatGPT Desktop | ❌ Built-in agent mode | SERVER_INSTRUCTIONS only |
   | Grok/Perplexity | ❌ Cloud-based | SERVER_INSTRUCTIONS only |
 - **Key Insight:** MCP is the LLM-agnostic layer. Agent definitions exposed via:
   1. SERVER_INSTRUCTIONS (inline Orchestrator protocol) — all platforms
-  2. MCP Resources (`agent://orchestrator`) — reference templates
-  3. `install_agent` tool — Claude Code users only
-- **Pending Questions:**
-  1. Scope of agents to install (orchestrator, governance-agent, others?)
-  2. Include uninstall capability?
-  3. For non-Claude platforms, detect and say "no installation needed"?
+  2. `install_agent` / `uninstall_agent` tools — Claude Code only
+- **Implementation Details:**
+  - `_detect_claude_code_environment()` — checks for `.claude/` dir or `CLAUDE.md` file
+  - Agent template: `documents/agents/orchestrator.md` with YAML frontmatter
+  - Confirmation flow: preview → (install | manual | cancel)
+  - Robust user explanation via `AGENT_EXPLANATION` constant
+- **Enforcement Levels:**
+  | Level | Mechanism | Strength | Platform Coverage |
+  |-------|-----------|----------|-------------------|
+  | Tool Restrictions | YAML frontmatter | HARD | Claude Code only |
+  | Behavioral Instructions | SERVER_INSTRUCTIONS | SOFT | All platforms |
+  | Per-Response Reminders | Appended to responses | SOFT | All platforms |
+- **Documentation:** multi-agent-methods-v2.1.0.md Appendix F: Cross-Platform Agent Support
 
 ### Decision: Phase 2 Governance Agent Architecture (Orchestrator-First)
-- **Date:** 2026-01-01
-- **Status:** PLANNED (Phase 2A complete, Phase 2B designed)
+- **Date:** 2026-01-02
+- **Status:** COMPLETE (271 tests, 10 tools)
 - **Problem:** Phase 1 `evaluate_governance` tool is voluntary — AI can ignore it. Evidence: implemented config_generator without governance check despite CLAUDE.md checkpoints.
 - **Solution:** Orchestrator-First Architecture — make governance structural, not optional
 - **Key Design:**
@@ -537,8 +543,8 @@ Show updated process map:
 | T2 | Config/settings (pydantic-settings, env vars) | Complete |
 | T3-T5 | Extractor (parser, embeddings, GlobalIndex) | Complete |
 | T6-T11 | Retrieval (domain routing, BM25, semantic, fusion, rerank, hierarchy) | Complete |
-| T12-T18 | Server + 7 MCP tools | Complete |
-| T19-T22 | Tests (205 passing, 90% coverage) | Complete |
+| T12-T18 | Server + 10 MCP tools | Complete |
+| T19-T22 | Tests (271 passing, 90% coverage) | Complete |
 | T23 | Portfolio README | Complete |
 
 ### Test Coverage
@@ -546,11 +552,14 @@ Show updated process map:
 |--------|-------|----------|
 | models.py | 24 | 100% |
 | config.py | 17 | 98% |
-| server.py | 59 | 91% |
+| server.py | 68 | 90% |
 | extractor.py | 45 | 89% |
 | retrieval.py | 55 | 84% |
 | config_generator.py | 17 | 100% |
-| **Total** | **242** | **90%** |
+| server_integration.py | 12 | - |
+| extractor_integration.py | 11 | - |
+| retrieval_integration.py | 18 | - |
+| **Total** | **271** | **90%** |
 
 ## Dependencies
 
@@ -595,7 +604,7 @@ Show updated process map:
 | tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
 | tests/test_models.py | 24 | Model validation, constraints, enums |
 | tests/test_config.py | 17 | Settings, env vars, path handling |
-| tests/test_server.py | 51 | All 7 tools, formatting, metrics, governance |
+| tests/test_server.py | 68 | All 10 tools, formatting, metrics, governance, agent installation |
 | tests/test_server_integration.py | 12 | Dispatcher routing, end-to-end flows |
 | tests/test_extractor.py | 35 | Parsing, embeddings, metadata, validation |
 | tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |

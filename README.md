@@ -71,20 +71,22 @@ Runtime:
 
 ## How It Works
 
-### 8 MCP Tools
+### 10 MCP Tools
 
 | Tool | Purpose |
 |------|---------|
+| `evaluate_governance` | **Pre-action** compliance check — PROCEED/MODIFY/ESCALATE |
 | `query_governance` | Main retrieval with confidence scores |
+| `verify_governance_compliance` | **Post-action** audit verification |
 | `get_principle` | Full content by ID |
 | `list_domains` | Available domains with stats |
 | `get_domain_summary` | Domain exploration |
 | `log_feedback` | Quality tracking |
 | `get_metrics` | Performance analytics |
-| `evaluate_governance` | **Pre-action** compliance check (Layer 2) |
-| `verify_governance_compliance` | **Post-action** audit verification (Layer 3) |
+| `install_agent` | Install Orchestrator agent (Claude Code only) |
+| `uninstall_agent` | Remove installed agent |
 
-**Governance Enforcement (Phase 2):**
+**Governance Enforcement:**
 
 The `evaluate_governance` tool implements pre-action compliance checking:
 - Evaluates planned actions against principles BEFORE execution
@@ -97,6 +99,14 @@ The `verify_governance_compliance` tool enables post-action auditing:
 - Checks if governance was consulted for a completed action
 - Returns COMPLIANT, NON_COMPLIANT, or PARTIAL
 - Catches bypassed governance checks after the fact
+
+**Agent Installation (Claude Code):**
+
+The `install_agent` tool provides structural governance enforcement for Claude Code:
+- Installs the Orchestrator agent to `.claude/agents/orchestrator.md`
+- Orchestrator has restricted tools (read + governance only, no edit/write/bash)
+- Ensures `evaluate_governance()` is called before significant actions
+- Other platforms receive governance via SERVER_INSTRUCTIONS (no installation needed)
 
 ### Example Usage
 
@@ -127,7 +137,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **90%** (259 tests) |
+| Test Coverage | 80% | **90%** (271 tests) |
 
 ## Getting Started
 
@@ -281,7 +291,7 @@ ai-governance-mcp/
     ├── conftest.py      # Shared fixtures
     ├── test_models.py   # Model validation (24 tests)
     ├── test_config.py   # Config tests (17 tests)
-    ├── test_server.py   # Server unit tests (51 tests)
+    ├── test_server.py   # Server unit tests (68 tests)
     ├── test_server_integration.py   # Dispatcher + flows (12 tests)
     ├── test_extractor.py            # Extractor tests (35 tests)
     ├── test_extractor_integration.py # Pipeline tests (11 tests)
@@ -317,11 +327,11 @@ pre-commit install
 
 ### Test Suite
 
-259 tests across 10 test files with 90% coverage:
+271 tests across 10 test files with 90% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
-| Unit | 186 | Isolated component testing |
+| Unit | 198 | Isolated component testing |
 | Integration | 26 | Full pipeline flows |
 | Real Index | 6 | Production data validation |
 | Slow (ML) | 3 | Actual embedding models |

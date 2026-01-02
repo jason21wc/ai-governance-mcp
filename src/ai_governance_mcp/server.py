@@ -5,9 +5,11 @@ Per specification v4: FastMCP server with 6 tools for hybrid retrieval.
 
 import asyncio
 import json
+import os
 import signal
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
@@ -114,9 +116,20 @@ SERVER_INSTRUCTIONS = """
 
 Semantic retrieval of AI governance principles and methods. Query before acting.
 
+### Orchestrator Protocol (Default Behavior)
+
+For significant actions, follow this protocol:
+
+1. **Evaluate governance first**: Call `evaluate_governance(planned_action="your task")`
+2. **Act on assessment**:
+   - PROCEED: Continue with the task
+   - PROCEED_WITH_MODIFICATIONS: Apply required changes, then continue
+   - ESCALATE: STOP. Inform user. Wait for explicit approval.
+3. **S-Series = Absolute Veto**: If S-Series triggers, you MUST escalate regardless of other factors
+
 ### Required Actions
-1. **Query before implementation** — Call `query_governance("your task")` before writing code or making changes
-2. **Query before decisions** — Call before architectural, configuration, or significant choices
+1. **Evaluate before implementation** — Call `evaluate_governance(planned_action="...")` before writing code or making changes
+2. **Query for guidance** — Call `query_governance("your concern")` when you need principles to inform decisions
 3. **Cite influencing principles** — Reference principle IDs (e.g., `meta-core-context-engineering`) when they guide your approach
 4. **Pause on uncertainty** — If requirements are unclear, ask the user before proceeding
 
@@ -129,17 +142,28 @@ Semantic retrieval of AI governance principles and methods. Query before acting.
 | 4 | Methods | Procedural — workflows, patterns, templates |
 
 ### Forbidden Actions
-- Do NOT proceed with implementation without querying applicable principles
+- Do NOT proceed with significant actions without calling `evaluate_governance` first
+- Do NOT ignore ESCALATE assessments — human approval required
 - Do NOT make product/business/timeline decisions — escalate to user
 - Do NOT ignore S-Series principles under any circumstances
 
-### Tools
+### Tools (10 Available)
 | Tool | Purpose |
 |------|---------|
+| `evaluate_governance(planned_action)` | **Pre-action check** — returns PROCEED/MODIFY/ESCALATE |
 | `query_governance(query)` | Get relevant principles + methods |
+| `verify_governance_compliance(action)` | **Post-action audit** — check if governance was consulted |
 | `get_principle(id)` | Full content of principle or method |
 | `list_domains()` | Explore available domains |
+| `get_domain_summary(domain)` | Details about a specific domain |
 | `log_feedback(query, id, rating)` | Improve retrieval quality |
+| `get_metrics()` | Performance analytics |
+| `install_agent(agent_name)` | Install Orchestrator agent (Claude Code only) |
+| `uninstall_agent(agent_name)` | Remove installed agent |
+
+### Claude Code Users
+Run `install_agent(agent_name="orchestrator")` to install the Orchestrator agent.
+This enables structural governance enforcement with restricted tool access.
 
 ### Model-Specific Guidance
 
@@ -151,7 +175,7 @@ Semantic retrieval of AI governance principles and methods. Query before acting.
 
 **Llama / Mistral**: Keep governance context in system position. Repeat S-Series constraints at decision points.
 
-**All Models**: Query BEFORE acting, not after. Cite principle IDs explicitly. When unsure whether to query — query. False positives are cheap; governance violations are expensive.
+**All Models**: Evaluate BEFORE acting, not after. Cite principle IDs explicitly. When unsure — evaluate. False positives are cheap; governance violations are expensive.
 """.strip()
 
 # Compact reminder appended to every tool response for consistent governance reinforcement.
@@ -162,6 +186,118 @@ GOVERNANCE_REMINDER = """
 
 ---
 ⚖️ **Governance Check:** Did you `query_governance()` before this action? Cite influencing principle IDs. S-Series = veto authority."""
+
+# Agent installation explanation for users
+# Per Phase 2B design: robust explanation for both experts and beginners
+AGENT_EXPLANATION = """
+## AI Governance Agent Installation
+
+### What is an Agent?
+
+An agent is a specialized configuration that guides how your AI assistant approaches tasks.
+Think of it as giving your AI a specific "role" with clear responsibilities and boundaries —
+like hiring a specialist who follows particular protocols.
+
+### What Does the Orchestrator Do?
+
+The Orchestrator ensures your AI checks governance principles BEFORE taking significant actions.
+Instead of diving straight into tasks, it:
+
+1. **Evaluates** what you're asking against governance principles
+2. **Identifies** any safety concerns or required modifications
+3. **Proceeds** only when governance requirements are satisfied
+4. **Escalates** to you when human judgment is needed
+
+### Why Is This Important?
+
+Without structured guidance, AI assistants can:
+- Skip validation steps in complex workflows
+- Make assumptions instead of asking for clarification
+- Apply inconsistent approaches across similar problems
+- Miss critical safety considerations
+
+The Orchestrator makes governance automatic, not optional — ensuring consistent,
+high-quality AI collaboration every time.
+
+### What Will Be Installed?
+
+A single markdown file (.claude/agents/orchestrator.md) containing:
+- Role definition and responsibilities
+- Tool access permissions (governance tools + read operations)
+- Protocol for handling different governance assessments
+
+This file stays in your project. You can review, modify, or remove it at any time.
+It does not send data anywhere — it only configures how Claude Code behaves when
+working in this project.
+"""
+
+# Available agents for installation
+AVAILABLE_AGENTS = {"orchestrator"}
+
+
+def _detect_claude_code_environment() -> bool:
+    """Detect if we're running in a Claude Code environment.
+
+    Checks for indicators that suggest Claude Code is the client:
+    1. Presence of .claude/ directory in current working directory
+    2. Presence of CLAUDE.md file
+    3. Environment variable set by Claude Code
+
+    Returns True if Claude Code environment is detected.
+    """
+    cwd = Path.cwd()
+
+    # Check for .claude directory
+    if (cwd / ".claude").is_dir():
+        return True
+
+    # Check for CLAUDE.md file
+    if (cwd / "CLAUDE.md").is_file():
+        return True
+
+    # Check parent directories (up to 3 levels) for .claude or CLAUDE.md
+    current = cwd
+    for _ in range(3):
+        parent = current.parent
+        if parent == current:  # Reached root
+            break
+        if (parent / ".claude").is_dir() or (parent / "CLAUDE.md").is_file():
+            return True
+        current = parent
+
+    return False
+
+
+def _get_agent_template_path(agent_name: str) -> Path | None:
+    """Get the path to an agent template file.
+
+    Agent templates are stored in documents/agents/ within the package.
+    """
+    global _settings
+    if _settings is None:
+        _settings = load_settings()
+
+    template_path = _settings.documents_path / "agents" / f"{agent_name}.md"
+    if template_path.is_file():
+        return template_path
+    return None
+
+
+def _get_agent_install_path(agent_name: str, scope: str = "project") -> Path:
+    """Get the installation path for an agent.
+
+    Args:
+        agent_name: Name of the agent (e.g., 'orchestrator')
+        scope: 'project' for .claude/agents/ or 'user' for ~/.claude/agents/
+
+    Returns:
+        Path where the agent file should be installed.
+    """
+    if scope == "user":
+        return Path.home() / ".claude" / "agents" / f"{agent_name}.md"
+    else:
+        return Path.cwd() / ".claude" / "agents" / f"{agent_name}.md"
+
 
 # Create MCP server
 server = Server("ai-governance-mcp", instructions=SERVER_INSTRUCTIONS)
@@ -358,6 +494,72 @@ async def list_tools() -> list[Tool]:
                 "required": ["action_description"],
             },
         ),
+        # Tool 9: Install governance agent (Claude Code only)
+        # Per Phase 2B: LLM-agnostic agent architecture
+        Tool(
+            name="install_agent",
+            description=(
+                "Install a governance agent for Claude Code. "
+                "Creates agent definition files in .claude/agents/. "
+                "Only works in Claude Code environments - other platforms receive "
+                "governance guidance via server instructions automatically. "
+                "Available agents: orchestrator."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "agent_name": {
+                        "type": "string",
+                        "description": "Name of agent to install (e.g., 'orchestrator')",
+                        "enum": ["orchestrator"],
+                    },
+                    "scope": {
+                        "type": "string",
+                        "description": "Installation scope: 'project' (.claude/agents/) or 'user' (~/.claude/agents/)",
+                        "enum": ["project", "user"],
+                        "default": "project",
+                    },
+                    "confirmed": {
+                        "type": "boolean",
+                        "description": "Set to true to confirm installation after preview",
+                    },
+                    "show_manual": {
+                        "type": "boolean",
+                        "description": "Set to true to get manual installation instructions instead",
+                    },
+                },
+                "required": ["agent_name"],
+            },
+        ),
+        # Tool 10: Uninstall governance agent
+        Tool(
+            name="uninstall_agent",
+            description=(
+                "Remove a previously installed governance agent. "
+                "Deletes the agent definition file from .claude/agents/."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "agent_name": {
+                        "type": "string",
+                        "description": "Name of agent to uninstall (e.g., 'orchestrator')",
+                        "enum": ["orchestrator"],
+                    },
+                    "scope": {
+                        "type": "string",
+                        "description": "Scope to uninstall from: 'project' or 'user'",
+                        "enum": ["project", "user"],
+                        "default": "project",
+                    },
+                    "confirmed": {
+                        "type": "boolean",
+                        "description": "Set to true to confirm uninstallation",
+                    },
+                },
+                "required": ["agent_name"],
+            },
+        ),
     ]
 
 
@@ -390,6 +592,10 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             result = await _handle_evaluate_governance(engine, arguments)
         elif name == "verify_governance_compliance":
             result = await _handle_verify_governance(arguments)
+        elif name == "install_agent":
+            result = await _handle_install_agent(arguments)
+        elif name == "uninstall_agent":
+            result = await _handle_uninstall_agent(arguments)
         else:
             result = [TextContent(type="text", text=f"Unknown tool: {name}")]
 
@@ -1035,9 +1241,244 @@ async def _handle_verify_governance(args: dict) -> list[TextContent]:
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 
+async def _handle_install_agent(args: dict) -> list[TextContent]:
+    """Handle install_agent tool.
+
+    Per Phase 2B LLM-Agnostic Agent Architecture:
+    - Only installs for Claude Code environments
+    - Other platforms skip (already have SERVER_INSTRUCTIONS)
+    - Uses confirmation flow: preview -> user choice -> action
+    """
+    agent_name = args.get("agent_name", "")
+    scope = args.get("scope", "project")
+    confirmed = args.get("confirmed", False)
+    show_manual = args.get("show_manual", False)
+
+    # Validate agent name
+    if agent_name not in AVAILABLE_AGENTS:
+        error = ErrorResponse(
+            error_code="INVALID_AGENT",
+            message=f"Unknown agent: {agent_name}",
+            suggestions=[f"Available agents: {', '.join(AVAILABLE_AGENTS)}"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Check if Claude Code environment
+    is_claude = _detect_claude_code_environment()
+
+    if not is_claude:
+        # Non-Claude platform: governance is via SERVER_INSTRUCTIONS
+        output = {
+            "status": "not_applicable",
+            "platform": "non-claude",
+            "message": (
+                "Agent installation is only needed for Claude Code. "
+                "Your platform already receives governance guidance via server instructions. "
+                "The Orchestrator protocol is active through the Required Actions and "
+                "Forbidden Actions in the server instructions you received on connection."
+            ),
+            "guidance": (
+                "To use governance effectively:\n"
+                "1. Call query_governance() before significant actions\n"
+                "2. Call evaluate_governance() to validate planned actions\n"
+                "3. Follow the assessment (PROCEED/MODIFY/ESCALATE)\n"
+                "4. S-Series principles have veto authority"
+            ),
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    # Get template path
+    template_path = _get_agent_template_path(agent_name)
+    if not template_path:
+        error = ErrorResponse(
+            error_code="TEMPLATE_NOT_FOUND",
+            message=f"Agent template not found: {agent_name}",
+            suggestions=["Ensure the MCP server is properly installed"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Read template content
+    template_content = template_path.read_text()
+
+    # Get install path
+    install_path = _get_agent_install_path(agent_name, scope)
+
+    # Check if already installed
+    already_installed = install_path.is_file()
+
+    # Handle manual instructions request
+    if show_manual:
+        output = {
+            "status": "manual_instructions",
+            "agent_name": agent_name,
+            "install_path": str(install_path),
+            "instructions": (
+                f"To install the {agent_name} agent manually:\n\n"
+                f"1. Create the directory if it doesn't exist:\n"
+                f"   mkdir -p {install_path.parent}\n\n"
+                f"2. Create the file {install_path.name} with the content below\n\n"
+                f"3. Restart Claude Code to activate the agent"
+            ),
+            "content": template_content,
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    # Handle confirmation flow
+    if not confirmed:
+        # Return preview with explanation
+        scope_desc = (
+            "this project" if scope == "project" else "all your projects (user-level)"
+        )
+        status = "update" if already_installed else "install"
+
+        output = {
+            "status": "preview",
+            "agent_name": agent_name,
+            "scope": scope,
+            "install_path": str(install_path),
+            "already_installed": already_installed,
+            "explanation": AGENT_EXPLANATION.strip(),
+            "action_summary": (
+                f"Will {status} '{agent_name}' agent for {scope_desc}.\n\n"
+                f"File: {install_path}\n\n"
+                "This agent will:\n"
+                "- Ensure evaluate_governance() is called before significant actions\n"
+                "- Have restricted tools (read + governance only, no edit/write/bash)\n"
+                "- Escalate to you when S-Series (safety) principles trigger\n"
+            ),
+            "options": {
+                "install": "Call install_agent with confirmed=true to install",
+                "manual": "Call install_agent with show_manual=true for manual instructions",
+                "cancel": "Take no action to cancel",
+            },
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    # Confirmed: perform installation
+    try:
+        # Create directory if needed
+        install_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write agent file
+        install_path.write_text(template_content)
+
+        output = {
+            "status": "installed",
+            "agent_name": agent_name,
+            "scope": scope,
+            "install_path": str(install_path),
+            "message": (
+                f"Successfully installed '{agent_name}' agent.\n\n"
+                "The Orchestrator agent will activate on your next Claude Code session.\n"
+                "It will ensure governance is checked before significant actions.\n\n"
+                "To verify: Look for 'orchestrator' in the agents list when you start Claude Code.\n"
+                "To remove: Use uninstall_agent(agent_name='orchestrator')"
+            ),
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    except PermissionError:
+        output = {
+            "status": "error",
+            "error": "Permission denied",
+            "install_path": str(install_path),
+            "suggestion": (
+                "Cannot write to the installation path. Try:\n"
+                "1. Check directory permissions\n"
+                "2. Use show_manual=true to get the content for manual installation\n"
+                "3. Try scope='user' to install in your home directory"
+            ),
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    except Exception as e:
+        error = ErrorResponse(
+            error_code="INSTALL_FAILED",
+            message=f"Failed to install agent: {str(e)}",
+            suggestions=["Use show_manual=true for manual installation instructions"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+
+async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
+    """Handle uninstall_agent tool.
+
+    Removes a previously installed governance agent.
+    """
+    agent_name = args.get("agent_name", "")
+    scope = args.get("scope", "project")
+    confirmed = args.get("confirmed", False)
+
+    # Validate agent name
+    if agent_name not in AVAILABLE_AGENTS:
+        error = ErrorResponse(
+            error_code="INVALID_AGENT",
+            message=f"Unknown agent: {agent_name}",
+            suggestions=[f"Available agents: {', '.join(AVAILABLE_AGENTS)}"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Get install path
+    install_path = _get_agent_install_path(agent_name, scope)
+
+    # Check if installed
+    if not install_path.is_file():
+        output = {
+            "status": "not_installed",
+            "agent_name": agent_name,
+            "scope": scope,
+            "install_path": str(install_path),
+            "message": f"Agent '{agent_name}' is not installed at {install_path}",
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    # Handle confirmation flow
+    if not confirmed:
+        output = {
+            "status": "confirm_uninstall",
+            "agent_name": agent_name,
+            "scope": scope,
+            "install_path": str(install_path),
+            "warning": (
+                f"This will remove the '{agent_name}' agent.\n\n"
+                "After removal:\n"
+                "- Governance checks will no longer be automatically enforced\n"
+                "- You'll need to manually call governance tools\n"
+                "- SERVER_INSTRUCTIONS will still provide guidance\n\n"
+                "To confirm: Call uninstall_agent with confirmed=true"
+            ),
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    # Confirmed: perform uninstallation
+    try:
+        install_path.unlink()
+
+        output = {
+            "status": "uninstalled",
+            "agent_name": agent_name,
+            "scope": scope,
+            "install_path": str(install_path),
+            "message": (
+                f"Successfully removed '{agent_name}' agent.\n\n"
+                "The agent will no longer be active in new Claude Code sessions.\n"
+                "Governance tools are still available via the MCP server.\n\n"
+                "To reinstall: Use install_agent(agent_name='orchestrator')"
+            ),
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    except Exception as e:
+        error = ErrorResponse(
+            error_code="UNINSTALL_FAILED",
+            message=f"Failed to uninstall agent: {str(e)}",
+            suggestions=["Manually delete the file", f"Path: {install_path}"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+
 async def run_server():
     """Run the MCP server with graceful shutdown handling."""
-    import os
 
     logger.info("Starting AI Governance MCP Server v4")
 

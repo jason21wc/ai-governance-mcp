@@ -1291,13 +1291,13 @@ class TestListTools:
     """Tests for list_tools() async function."""
 
     @pytest.mark.asyncio
-    async def test_list_tools_returns_all_eight(self):
-        """list_tools should return all 8 tools."""
+    async def test_list_tools_returns_all_ten(self):
+        """list_tools should return all 10 tools."""
         from ai_governance_mcp.server import list_tools
 
         tools = await list_tools()
 
-        assert len(tools) == 8
+        assert len(tools) == 10
         tool_names = [t.name for t in tools]
         assert "query_governance" in tool_names
         assert "get_principle" in tool_names
@@ -1307,6 +1307,8 @@ class TestListTools:
         assert "get_metrics" in tool_names
         assert "evaluate_governance" in tool_names
         assert "verify_governance_compliance" in tool_names
+        assert "install_agent" in tool_names
+        assert "uninstall_agent" in tool_names
 
     @pytest.mark.asyncio
     async def test_list_tools_have_input_schemas(self):
@@ -1329,3 +1331,225 @@ class TestListTools:
 
         assert "query" in query_tool.inputSchema.get("required", [])
         assert "query" in query_tool.inputSchema["properties"]
+
+
+class TestInstallAgent:
+    """Tests for install_agent tool."""
+
+    @pytest.mark.asyncio
+    async def test_install_agent_non_claude_environment(self, tmp_path, monkeypatch):
+        """install_agent should return not_applicable for non-Claude environments."""
+        from ai_governance_mcp.server import _handle_install_agent
+
+        # Set cwd to temp path with no Claude indicators
+        monkeypatch.chdir(tmp_path)
+
+        result = await _handle_install_agent({"agent_name": "orchestrator"})
+
+        assert len(result) == 1
+        response = json.loads(
+            result[0].text.split("---")[0]
+        )  # Remove governance reminder
+        assert response["status"] == "not_applicable"
+        assert response["platform"] == "non-claude"
+        assert "server instructions" in response["message"].lower()
+
+    @pytest.mark.asyncio
+    async def test_install_agent_invalid_agent_name(self, tmp_path, monkeypatch):
+        """install_agent should reject unknown agent names."""
+        from ai_governance_mcp.server import _handle_install_agent
+
+        monkeypatch.chdir(tmp_path)
+
+        result = await _handle_install_agent({"agent_name": "unknown_agent"})
+
+        assert len(result) == 1
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["error_code"] == "INVALID_AGENT"
+        assert "unknown_agent" in response["message"]
+
+    @pytest.mark.asyncio
+    async def test_install_agent_preview_in_claude_environment(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """install_agent should return preview when not confirmed in Claude environment."""
+        import ai_governance_mcp.server as server_module
+
+        # Create Claude environment indicators
+        claude_dir = tmp_path / ".claude"
+        claude_dir.mkdir()
+        monkeypatch.chdir(tmp_path)
+
+        # Set up settings to point to real documents path (has agent templates)
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {"agent_name": "orchestrator"}
+        )
+
+        assert len(result) == 1
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "preview"
+        assert response["agent_name"] == "orchestrator"
+        assert "explanation" in response
+        assert "options" in response
+
+    @pytest.mark.asyncio
+    async def test_install_agent_manual_instructions(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """install_agent with show_manual should return installation instructions."""
+        import ai_governance_mcp.server as server_module
+
+        # Create Claude environment
+        claude_dir = tmp_path / ".claude"
+        claude_dir.mkdir()
+        monkeypatch.chdir(tmp_path)
+
+        # Set up settings to point to real documents path
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {"agent_name": "orchestrator", "show_manual": True}
+        )
+
+        assert len(result) == 1
+        # Extract JSON before the governance reminder (starts with "\n\n---\n")
+        text = result[0].text
+        json_end = text.rfind("\n\n---\n")
+        json_str = text[:json_end] if json_end > 0 else text
+        response = json.loads(json_str)
+        assert response["status"] == "manual_instructions"
+        assert "content" in response
+        assert "orchestrator" in response["content"].lower()
+
+    @pytest.mark.asyncio
+    async def test_install_agent_confirmed_creates_file(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """install_agent with confirmed=true should create the agent file."""
+        import ai_governance_mcp.server as server_module
+
+        # Create Claude environment
+        claude_dir = tmp_path / ".claude"
+        claude_dir.mkdir()
+        monkeypatch.chdir(tmp_path)
+
+        # Set up settings to point to real documents path
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {"agent_name": "orchestrator", "confirmed": True}
+        )
+
+        assert len(result) == 1
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "installed"
+
+        # Verify file was created
+        agent_file = tmp_path / ".claude" / "agents" / "orchestrator.md"
+        assert agent_file.exists()
+        content = agent_file.read_text()
+        assert "orchestrator" in content.lower()
+
+
+class TestUninstallAgent:
+    """Tests for uninstall_agent tool."""
+
+    @pytest.mark.asyncio
+    async def test_uninstall_agent_not_installed(self, tmp_path, monkeypatch):
+        """uninstall_agent should report when agent is not installed."""
+        from ai_governance_mcp.server import _handle_uninstall_agent
+
+        monkeypatch.chdir(tmp_path)
+
+        result = await _handle_uninstall_agent({"agent_name": "orchestrator"})
+
+        assert len(result) == 1
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "not_installed"
+
+    @pytest.mark.asyncio
+    async def test_uninstall_agent_invalid_agent_name(self, tmp_path, monkeypatch):
+        """uninstall_agent should reject unknown agent names."""
+        from ai_governance_mcp.server import _handle_uninstall_agent
+
+        monkeypatch.chdir(tmp_path)
+
+        result = await _handle_uninstall_agent({"agent_name": "unknown_agent"})
+
+        assert len(result) == 1
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["error_code"] == "INVALID_AGENT"
+
+    @pytest.mark.asyncio
+    async def test_uninstall_agent_confirm_prompt(self, tmp_path, monkeypatch):
+        """uninstall_agent should prompt for confirmation when agent exists."""
+        from ai_governance_mcp.server import _handle_uninstall_agent
+
+        # Create installed agent
+        agent_dir = tmp_path / ".claude" / "agents"
+        agent_dir.mkdir(parents=True)
+        agent_file = agent_dir / "orchestrator.md"
+        agent_file.write_text("# Test Agent")
+        monkeypatch.chdir(tmp_path)
+
+        result = await _handle_uninstall_agent({"agent_name": "orchestrator"})
+
+        assert len(result) == 1
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "confirm_uninstall"
+        assert "warning" in response
+
+    @pytest.mark.asyncio
+    async def test_uninstall_agent_confirmed_removes_file(self, tmp_path, monkeypatch):
+        """uninstall_agent with confirmed=true should remove the agent file."""
+        from ai_governance_mcp.server import _handle_uninstall_agent
+
+        # Create installed agent
+        agent_dir = tmp_path / ".claude" / "agents"
+        agent_dir.mkdir(parents=True)
+        agent_file = agent_dir / "orchestrator.md"
+        agent_file.write_text("# Test Agent")
+        monkeypatch.chdir(tmp_path)
+
+        result = await _handle_uninstall_agent(
+            {"agent_name": "orchestrator", "confirmed": True}
+        )
+
+        assert len(result) == 1
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "uninstalled"
+
+        # Verify file was removed
+        assert not agent_file.exists()
+
+
+class TestClaudeCodeDetection:
+    """Tests for Claude Code environment detection."""
+
+    def test_detect_claude_with_dot_claude_dir(self, tmp_path, monkeypatch):
+        """Should detect Claude Code when .claude/ directory exists."""
+        from ai_governance_mcp.server import _detect_claude_code_environment
+
+        (tmp_path / ".claude").mkdir()
+        monkeypatch.chdir(tmp_path)
+
+        assert _detect_claude_code_environment() is True
+
+    def test_detect_claude_with_claude_md(self, tmp_path, monkeypatch):
+        """Should detect Claude Code when CLAUDE.md exists."""
+        from ai_governance_mcp.server import _detect_claude_code_environment
+
+        (tmp_path / "CLAUDE.md").write_text("# Test")
+        monkeypatch.chdir(tmp_path)
+
+        assert _detect_claude_code_environment() is True
+
+    def test_detect_no_claude_indicators(self, tmp_path, monkeypatch):
+        """Should not detect Claude Code when no indicators present."""
+        from ai_governance_mcp.server import _detect_claude_code_environment
+
+        monkeypatch.chdir(tmp_path)
+
+        assert _detect_claude_code_environment() is False

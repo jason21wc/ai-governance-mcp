@@ -24,10 +24,12 @@ This project IS the AI Governance MCP. Use these tools:
 
 | Tool | Purpose |
 |------|---------|
+| `evaluate_governance` | Pre-action compliance check (Governance Agent) |
 | `query_governance` | Get principles for current task |
+| `verify_governance_compliance` | Post-action audit |
 | `get_principle` | Get full content by ID |
 | `list_domains` | See available domains |
-| `evaluate_governance` | Pre-action compliance check (Governance Agent) |
+| `install_agent` | Install Orchestrator (Claude Code only) |
 
 ### Mandatory Governance Checkpoints
 
@@ -43,7 +45,7 @@ Query `query_governance()` BEFORE:
 
 ```bash
 python -m ai_governance_mcp.extractor  # Rebuild index
-pytest tests/ -v                        # Run tests (242, 90% coverage)
+pytest tests/ -v                        # Run tests (271, 90% coverage)
 python -m ai_governance_mcp.server      # Run server
 ```
 
