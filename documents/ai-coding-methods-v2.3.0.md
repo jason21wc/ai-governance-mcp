@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.2.0
+**Version:** 2.3.0
 **Status:** Active
-**Effective Date:** 2026-01-02
+**Effective Date:** 2026-01-03
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -114,6 +114,9 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Context seems lost | Cold Start Kit | Scenario C: Recovery Prompt |
 | Uncertain about approach | §8.2 | Decision Presentation |
 | "framework check" received | Cold Start Kit | Scenario C: Recovery Prompt |
+| Deploying to Docker | §9.2 | Docker Distribution |
+| Building MCP server | §9.3 | MCP Server Development |
+| Config validation needed | §9.1 | Pre-Flight Validation |
 
 #### On Uncertainty
 
@@ -2800,6 +2803,340 @@ Gates are combined but not eliminated.
 
 ---
 
+# TITLE 9: DEPLOYMENT & DISTRIBUTION
+
+**Importance: 🟡 IMPORTANT — Load when deploying or distributing**
+
+**Implements:** Domain Principle "Security by Default" (coding-quality-security-by-default), Meta Principle "Risk Mitigation by Design" (meta-governance-risk-mitigation-by-design)
+
+---
+
+## Part 9.1: Pre-Flight Validation
+
+### 9.1.1 Purpose
+
+Validate configuration and external references at system startup, failing fast with actionable error messages rather than failing silently mid-execution.
+
+### 9.1.2 The Pattern
+
+**Problem:** Config-driven systems that silently accept invalid configurations cause hard-to-debug runtime failures.
+
+**Solution:** Validate all external references before expensive operations:
+
+```python
+def validate_config_at_startup():
+    """Call this BEFORE any processing begins."""
+    errors = []
+
+    # Check all file references
+    for ref in config.file_references:
+        if not ref.path.exists():
+            errors.append(f"Missing file: {ref.path}")
+
+    # Check all external dependencies
+    for dep in config.external_deps:
+        if not dep.is_available():
+            errors.append(f"Unavailable: {dep.name}")
+
+    # Report ALL errors at once, not just first
+    if errors:
+        raise ConfigurationError(
+            "Configuration validation failed:\n" +
+            "\n".join(f"  - {e}" for e in errors) +
+            "\n\nCheck your configuration file."
+        )
+```
+
+### 9.1.3 Key Principles
+
+| Principle | Rationale |
+|-----------|-----------|
+| **Fail fast** | Discover problems before expensive operations |
+| **Report all errors** | Don't make user fix one error at a time |
+| **Actionable messages** | Include what to check and how to fix |
+| **Validate at boundaries** | Check config on load, not during use |
+
+### 9.1.4 Common Validation Points
+
+| What | When | How |
+|------|------|-----|
+| File references | Startup | Check existence |
+| Environment variables | Startup | Check required vars set |
+| API endpoints | First use | Health check or timeout |
+| Database connections | Startup | Connection test |
+| External service configs | Startup | Validate schema |
+
+### 9.1.5 Anti-Pattern
+
+❌ **Don't do this:**
+```python
+def process_item(item):
+    config = load_config()  # Loads each time
+    if not config.valid:    # Fails mid-batch
+        raise Error(...)    # After partial work done
+```
+
+✅ **Do this:**
+```python
+def main():
+    validate_config()       # Fails immediately
+    for item in items:
+        process_item(item)  # Config known-good
+```
+
+---
+
+## Part 9.2: Docker Distribution
+
+### 9.2.1 Purpose
+
+Package applications for distribution to users who may not have development environments configured.
+
+### 9.2.2 Multi-Stage Build Pattern
+
+**When to use:** Applications with build-time dependencies (compilers, ML model downloads) that aren't needed at runtime.
+
+```dockerfile
+# Stage 1: BUILDER — Heavy dependencies, build artifacts
+FROM python:3.11-slim AS builder
+WORKDIR /app
+
+# Install build dependencies (gcc, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build your artifacts
+COPY . .
+RUN pip install . && python -m build_index
+
+# Stage 2: RUNTIME — Minimal image
+FROM python:3.11-slim AS runtime
+WORKDIR /app
+
+# Copy only what's needed from builder
+COPY --from=builder /app/dist/ ./dist/
+COPY --from=builder /app/index/ ./index/
+
+# Non-root user for security
+RUN useradd --create-home appuser
+USER appuser
+
+CMD ["python", "-m", "your_app"]
+```
+
+### 9.2.3 Security Hardening
+
+| Practice | Implementation | Rationale |
+|----------|---------------|-----------|
+| **Non-root user** | `USER appuser` | Limit container privileges |
+| **Minimal base** | `python:3.11-slim` | Smaller attack surface |
+| **No secrets in image** | Use env vars at runtime | Secrets shouldn't be baked in |
+| **Health checks** | `HEALTHCHECK` instruction | Orchestration monitoring |
+| **Read-only where possible** | `:ro` volume mounts | Prevent container writes |
+
+### 9.2.4 ML-Specific Optimizations
+
+**CPU-Only PyTorch** (saves ~1.8GB):
+```dockerfile
+RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
+```
+
+**Pre-built Indexes:**
+- Build embeddings/indexes in builder stage
+- Copy pre-built artifacts to runtime stage
+- Avoids model downloads at container start
+
+### 9.2.5 CI/CD Integration
+
+```yaml
+# Trigger on version tags
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+# Build and publish
+- uses: docker/build-push-action@v5
+  with:
+    push: true
+    tags: |
+      ${{ env.IMAGE }}:${{ env.VERSION }}
+      ${{ env.IMAGE }}:latest
+```
+
+### 9.2.6 .dockerignore Best Practices
+
+```dockerignore
+# Development files
+.git
+.venv
+__pycache__
+*.pyc
+tests/
+.pytest_cache/
+
+# Documentation (unless needed by build)
+*.md
+!README.md  # Keep if pyproject.toml references it
+
+# IDE
+.vscode/
+.idea/
+```
+
+---
+
+## Part 9.3: MCP Server Development
+
+### 9.3.1 Purpose
+
+Patterns specific to developing Model Context Protocol (MCP) servers for AI client integration.
+
+### 9.3.2 MCP Architecture Constraints
+
+| Constraint | Implication |
+|------------|-------------|
+| **stdio transport** | stdout is reserved for JSON-RPC; all logging → stderr |
+| **Synchronous I/O** | Can't gracefully cancel; use os._exit() for shutdown |
+| **Per-process lifecycle** | Server starts when AI client connects, exits when disconnected |
+| **No persistent state** | Each connection is fresh; state via index files |
+
+### 9.3.3 stdout/stderr Discipline
+
+**Critical:** MCP uses stdout for JSON-RPC communication. Any non-JSON output breaks the protocol.
+
+```python
+import sys
+import logging
+
+# Configure logging to stderr ONLY
+logging.basicConfig(
+    stream=sys.stderr,  # NOT stdout
+    level=logging.INFO,
+    format="%(levelname)s: %(message)s"
+)
+
+# Never use print() without explicit file=
+print("Debug info", file=sys.stderr)  # OK
+print("Debug info")  # BREAKS MCP PROTOCOL
+```
+
+### 9.3.4 Graceful Shutdown Pattern
+
+**Problem:** stdio transport blocks on synchronous reads; asyncio cancellation doesn't work.
+
+**Solution:** Use os._exit() for immediate termination:
+
+```python
+import signal
+import os
+
+def handle_signal(signum, frame):
+    """Handle SIGTERM/SIGINT for graceful shutdown."""
+    logging.info("Shutdown signal received")
+    os._exit(0)  # Immediate exit
+
+signal.signal(signal.SIGTERM, handle_signal)
+signal.signal(signal.SIGINT, handle_signal)
+
+async def main():
+    try:
+        await server.run()
+    finally:
+        # Also exit when pipes close (client disconnected)
+        os._exit(0)
+```
+
+### 9.3.5 Server Instructions Pattern
+
+**Purpose:** Provide behavioral guidance to AI clients at connection time.
+
+```python
+server = FastMCP(
+    name="your-server",
+    instructions="""
+## Required Actions
+- Call `your_tool()` before significant actions
+- Cite results when they influence your approach
+
+## Forbidden Actions
+- Do NOT proceed without checking first
+- Do NOT ignore ESCALATE responses
+
+## Tool Summary
+| Tool | Purpose |
+|------|---------|
+| your_tool | Brief description |
+"""
+)
+```
+
+**Key principles:**
+- Use constraint-based framing ("Required", "Forbidden")
+- Include quick-reference tables
+- Keep under 500 tokens for context efficiency
+
+### 9.3.6 Per-Response Reminders
+
+**Problem:** Server instructions load once at connection; AI may drift over long conversations.
+
+**Solution:** Append compact reminder to every tool response:
+
+```python
+REMINDER = "\n\n---\n⚖️ **Reminder:** Query governance on decisions. Cite principles."
+
+def append_reminder(response: dict) -> dict:
+    """Append governance reminder to tool response."""
+    if "content" in response:
+        response["content"] += REMINDER
+    return response
+```
+
+**Reminder guidelines:**
+- Keep under 50 tokens
+- Focus on most critical behaviors
+- Use symbols for visual distinction
+
+### 9.3.7 Docker for MCP Servers
+
+**Key considerations:**
+- Must run with `-i` flag (interactive for stdin)
+- Include `stdin_open: true` in docker-compose
+- Health check should import module, not start server:
+
+```dockerfile
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+    CMD python -c "from your_module import server; print('OK')"
+```
+
+### 9.3.8 Multi-Platform Configuration
+
+When supporting multiple AI platforms, use a config generator:
+
+```python
+def generate_config(platform: str) -> dict:
+    """Generate platform-specific MCP configuration."""
+    base = {
+        "command": "python",
+        "args": ["-m", "your_module.server"]
+    }
+
+    if platform == "gemini":
+        base["timeout"] = 30000  # Gemini-specific
+
+    return {"mcpServers": {"your-server": base}}
+```
+
+**Supported platforms (2026):**
+- Claude Code CLI, Claude Desktop
+- Gemini CLI
+- ChatGPT Desktop (Developer Mode)
+- Cursor, Windsurf
+- Others via MCP SuperAssistant browser extension
+
+---
+
 # APPENDICES
 
 **Importance: 🟢 OPTIONAL — Reference material, load on demand**
@@ -3188,6 +3525,7 @@ Files to upload to Project Knowledge:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.3.0 | 2026-01-03 | Added Title 9: Deployment & Distribution. (1) §9.1 Pre-Flight Validation: fail-fast config validation pattern, actionable error reporting, validation points table. (2) §9.2 Docker Distribution: multi-stage build pattern, security hardening, ML optimizations (CPU-only PyTorch), CI/CD integration, .dockerignore best practices. (3) §9.3 MCP Server Development: stdio/stderr discipline, graceful shutdown with os._exit(), server instructions pattern, per-response reminders, multi-platform configuration. Derived from ai-governance-mcp production patterns. |
 | 2.2.0 | 2026-01-02 | Added §5.2.5 Test Organization Patterns: test file structure (unit vs integration separation), fixture categories (path, model, state reset, mock), test markers for selective execution, standard edge cases checklist, response parsing helper pattern, parameterization guidance, mocking strategy by layer. Derived from production test suite patterns (ai-governance-mcp: 271 tests, 90% coverage). |
 | 2.1.0 | 2025-12-31 | (1) Integrated Active Tasks table into main SESSION-STATE template (§7.1.2) with research rationale (§7.1.3). (2) Added Known Gotchas section to PROJECT-MEMORY template (§7.2.2). (3) Simplified Phase Gates table (removed Approver column, now optional for team projects). (4) Fixed loader template version reference. (5) Clarified Handoff Summary From/To fields. Based on 2025 AI agent memory architecture research (AIS, Zep, MongoDB patterns). |
 | 2.0.0 | 2025-12-31 | **BREAKING:** Major memory architecture revision. (1) Aligned memory files to cognitive types (Working, Semantic, Episodic, Procedural). (2) Eliminated separate gate artifact files (GATE-*.md) — gates now recorded inline in PROJECT-MEMORY.md. (3) Added Project Instructions File concept (loader document) formalizing CLAUDE.md as progressive disclosure pointer. (4) Added task tracking for solo mode in SESSION-STATE.md. (5) Added principles-based pruning guidance. (6) Added LEARNING-LOG creation timing and graduation to procedural memory. Based on industry research: CoALA framework, ADR patterns, Anthropic best practices, Mem0 memory architecture. |
