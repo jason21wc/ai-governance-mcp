@@ -1274,3 +1274,100 @@ Cross-platform support requires understanding platform capabilities. Don't assum
 1. **Agent scope**: Just `orchestrator` and `governance-agent`, or more?
 2. **Uninstall**: Include `uninstall_agent()` capability?
 3. **Platform detection**: Auto-detect and skip file install for non-Claude platforms?
+
+---
+
+### 2026-01-02 - Script vs AI Judgment Layers for Governance Assessment (CRITICAL)
+
+**Context:** Testing `evaluate_governance()` tool to verify all three assessment paths work (PROCEED, PROCEED_WITH_MODIFICATIONS, ESCALATE).
+
+**What Happened:** Testing revealed the current implementation has a binary pattern:
+- S-Series keywords detected → ESCALATE
+- No S-Series triggers → PROCEED
+- PROCEED_WITH_MODIFICATIONS never triggers
+
+The tool found relevant principles (e.g., `coding-quality-testing-integration` for "deploy without tests") but couldn't generate specific required modifications.
+
+**Root Cause Analysis:** The implementation places judgment in the script layer:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    evaluate_governance()                     │
+│                      (Python script)                         │
+├─────────────────────────────────────────────────────────────┤
+│  1. Semantic search → find relevant principles               │
+│  2. Keyword check → S-Series triggers (delete, production)   │
+│  3. Decision logic → PROCEED or ESCALATE                     │  ← Script decides
+│  4. Return structured JSON                                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+The script can find principles but lacks the reasoning capability to:
+- Detect conflicts between action and principles
+- Generate specific modifications
+- Handle nuanced compliance evaluation
+
+**Key Insight — Separation of Concerns:**
+
+| Layer | Responsibility | Capability Needed |
+|-------|---------------|-------------------|
+| Script | Safety guardrails | Deterministic keyword matching |
+| Script | Data retrieval | Semantic search + ranking |
+| AI | Nuanced judgment | Reasoning about principle conflicts |
+| AI | Modification generation | Context-aware recommendations |
+
+**Solution — Hybrid Approach:**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    evaluate_governance()                     │
+│                   (Data provider + safety net)               │
+├─────────────────────────────────────────────────────────────┤
+│  1. Semantic search → find relevant principles               │
+│  2. S-Series keyword check → HARD safety guardrail           │
+│  3. Return: principles + context (let AI determine verdict)  │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│                    AI (Orchestrator/Client)                  │
+│                   (Judgment layer)                           │
+├─────────────────────────────────────────────────────────────┤
+│  • Reads full principle content                              │
+│  • Reasons about compliance                                  │
+│  • Determines: PROCEED / MODIFY / ESCALATE                   │
+│  • Generates specific required modifications                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**S-Series Remains Script-Enforced:**
+
+The S-Series safety net MUST remain in the script layer because:
+1. Deterministic — no reasoning variance between models
+2. Non-negotiable — veto authority shouldn't depend on AI judgment quality
+3. Fail-safe — works even if AI reasoning fails
+
+**Model Capability Considerations:**
+
+Different AI models have different reasoning capabilities:
+
+| Model Tier | Script Reliance | AI Judgment Quality |
+|------------|-----------------|---------------------|
+| Opus/GPT-4/Gemini Pro | Safety only | Excellent nuanced reasoning |
+| Sonnet/GPT-4o | Safety + some heuristics | Good, occasional misses |
+| Haiku/GPT-4o-mini | More scripted rules | May need explicit checklists |
+
+The hybrid approach should be model-aware: more capable models get more judgment latitude; less capable models get more scripted guidance.
+
+**Lesson:** For governance enforcement systems:
+1. **Safety = Script** — Deterministic, non-negotiable, always enforced
+2. **Nuance = AI** — Context-aware, model-dependent, requires reasoning
+3. **Data = Script** — Retrieval, ranking, structured output
+4. **Judgment = AI** — Compliance assessment, modification generation
+
+Don't try to script nuanced judgment. Don't let AI override safety guardrails.
+
+**Pattern Applied:** Added to roadmap as "AI-driven modification assessment (hybrid approach)"
+
+**Method Update:** Added §4.6.1 "Assessment Responsibility Layers" to multi-agent-methods
+
+---

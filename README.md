@@ -372,6 +372,11 @@ safety check
 - [ ] Public API with authentication
 
 **Architecture Enhancements**
+- [ ] AI-driven modification assessment (hybrid approach)
+  - Script layer: S-Series keyword detection (deterministic safety guardrails)
+  - AI layer: Nuanced principle conflict analysis for PROCEED_WITH_MODIFICATIONS
+  - Model-aware: More capable models get more judgment latitude
+  - Returns raw principles + context; AI determines required modifications
 - [ ] Multi-agent orchestration (specialized agents using this MCP)
   - **Governance Agent** — Specialized agent that queries governance before execution, injects relevant principles, audits outputs for compliance (Phase 2 enforcement)
   - Add [VALIDATED] vs [THEORETICAL] maturity markers to multi-agent principles

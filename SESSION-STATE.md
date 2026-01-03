@@ -9,38 +9,36 @@
 - **Active Task:** None
 - **Blocker:** None
 
-## Orchestrator Installed
+## Recent Work (This Session)
 
-The Orchestrator agent is now active at `.claude/agents/orchestrator.md`.
+### Orchestrator Testing Complete
 
-**On next session start:**
-- Claude Code will load the orchestrator persona
-- All significant actions will flow through `evaluate_governance()` first
-- S-Series principles have veto authority (triggers ESCALATE)
+Tested `evaluate_governance()` with three scenarios:
+1. **Dangerous action** ("bulk delete without confirmation") → **ESCALATE** ✓
+2. **Safe action** ("add debug logging") → **PROCEED** ✓
+3. **Needs modification** ("deploy without tests") → **ESCALATE** (S-Series triggered)
 
-**To verify:** Look for 'orchestrator' in the agents list when starting Claude Code.
+**Finding:** PROCEED_WITH_MODIFICATIONS doesn't trigger — current implementation is binary (PROCEED/ESCALATE).
 
-## Recent Work
+### Script vs AI Judgment Layers (New Pattern)
 
-### AI Coding Methods v2.2.0 (89395bd)
+Discovered architectural pattern for governance enforcement:
 
-Added §5.2.5 Test Organization Patterns with 7 subsections:
-- Test File Structure (unit vs integration separation)
-- Fixture Categories (path, model, state reset, mock)
-- Test Markers (slow, integration, real_data, asyncio)
-- Standard Edge Cases Checklist
-- Response Parsing Helper pattern
-- When to Parameterize guidance
-- Mocking Strategy by layer
+| Layer | Responsibility |
+|-------|---------------|
+| Script | S-Series safety (deterministic, non-negotiable) |
+| Script | Principle retrieval + ranking |
+| AI | Nuanced compliance judgment |
+| AI | Modification generation |
 
-### Phase 2 Complete
+**Key insight:** Don't script nuanced judgment. Don't let AI override safety guardrails.
 
-- [x] Phase 2-Pre: Documentation (PROJECT-MEMORY, methods v2.1.0)
-- [x] Phase 2A: Audit infrastructure (models, server, 8 tools) — b6f4264
-- [x] Phase 2B: Agent installation architecture — d8ee431
-- [x] Phase 2C: Testing (integrated with 2A/2B)
-- [x] Phase 2D: README updated — d77b2bd
-- [x] Orchestrator installed — this session
+### Updates Made
+
+1. **README.md** — Added "AI-driven modification assessment (hybrid approach)" to roadmap
+2. **LEARNING-LOG.md** — Added "Script vs AI Judgment Layers" entry (CRITICAL)
+3. **multi-agent-methods v2.2.0** — Added §4.6.1 "Assessment Responsibility Layers"
+4. **Index rebuilt** — 68 principles + 200 methods (268 total)
 
 ## Quick Reference
 
@@ -50,11 +48,12 @@ Added §5.2.5 Test Organization Patterns with 7 subsections:
 | Coverage | ~90% |
 | Index | 68 principles + 200 methods (268 total) |
 | Tools | 10 |
-| Methods | ai-coding v2.2.0, multi-agent v2.1.0 |
+| Methods | ai-coding v2.2.0, multi-agent v2.2.0 |
 | Orchestrator | Installed ✓ |
 
 ## Remaining Roadmap
 
+- [ ] AI-driven modification assessment (hybrid approach) ← NEW
 - [ ] Docker containerization
 - [ ] Public API with auth
 - [ ] Vector database for scaling
@@ -63,5 +62,5 @@ Added §5.2.5 Test Organization Patterns with 7 subsections:
 
 ## Next Actions
 
-1. Leave session and return to test orchestrator
-2. Verify governance checks happen automatically on significant actions
+1. Commit today's changes
+2. Consider implementing hybrid approach for PROCEED_WITH_MODIFICATIONS

@@ -1851,6 +1851,101 @@ This architecture extends existing patterns:
 | Fault Tolerance (§4.4) | Governance failures trigger retry/escalate |
 | Stop-the-Line (§4.4) | S-Series triggers automatic stop-the-line |
 
+#### 4.6.1 Assessment Responsibility Layers
+
+**Purpose:** Define what the script layer vs. AI layer should handle in governance assessment.
+
+**The Problem:**
+
+A governance tool like `evaluate_governance()` can return three assessments:
+- PROCEED — No concerns
+- PROCEED_WITH_MODIFICATIONS — Concerns addressable with changes
+- ESCALATE — Blocking concerns requiring human review
+
+Generating PROCEED_WITH_MODIFICATIONS requires nuanced reasoning:
+- Detecting conflicts between the action and retrieved principles
+- Understanding which modifications would resolve the conflict
+- Generating specific, contextual recommendations
+
+Scripts excel at deterministic tasks but cannot reason about nuance. AIs excel at reasoning but may be inconsistent or miss safety-critical patterns.
+
+**Solution — Hybrid Responsibility Layers:**
+
+| Layer | Responsibility | Why This Layer |
+|-------|---------------|----------------|
+| **Script** | S-Series keyword detection | Deterministic, non-negotiable safety |
+| **Script** | Principle retrieval + ranking | Fast, consistent semantic search |
+| **Script** | Structured data output | Reliable format for AI consumption |
+| **AI** | Principle conflict analysis | Requires reasoning about context |
+| **AI** | Modification generation | Context-aware recommendations |
+| **AI** | Final assessment (PROCEED/MODIFY) | Nuanced judgment call |
+
+**S-Series Remains Script-Enforced:**
+
+S-Series (Safety) principles MUST be enforced by the script layer because:
+
+1. **Deterministic** — No variance between AI models or reasoning runs
+2. **Non-negotiable** — Veto authority shouldn't depend on AI judgment quality
+3. **Fail-safe** — Works even if AI reasoning fails or is bypassed
+
+```
+if s_series_keywords_detected(action):
+    return ESCALATE  # Script enforces, AI cannot override
+```
+
+**AI Handles Nuanced Assessment:**
+
+For non-S-Series situations, the AI receives:
+- Retrieved principles with relevance scores
+- Full principle content (not just IDs)
+- Action context
+
+The AI then:
+1. Reads each principle's requirements
+2. Assesses whether the action complies
+3. Identifies conflicts and generates modifications
+4. Determines PROCEED or PROCEED_WITH_MODIFICATIONS
+
+**Model Capability Considerations:**
+
+Different AI models have different reasoning capabilities:
+
+| Model Tier | Script Reliance | AI Judgment Quality |
+|------------|-----------------|---------------------|
+| Frontier (Opus, GPT-4, Gemini Pro) | Safety guardrails only | Excellent nuanced reasoning |
+| Mid-tier (Sonnet, GPT-4o) | Safety + some heuristics | Good judgment, occasional misses |
+| Fast (Haiku, GPT-4o-mini) | More scripted rules needed | May need explicit checklists |
+
+**Implementation Pattern:**
+
+```python
+def evaluate_governance(action: str) -> GovernanceAssessment:
+    # Script layer: Safety guardrail (non-negotiable)
+    s_series = check_s_series_keywords(action)
+    if s_series.triggered:
+        return GovernanceAssessment(
+            assessment="ESCALATE",
+            rationale="S-Series safety review required",
+            s_series_check=s_series
+        )
+
+    # Script layer: Data retrieval
+    principles = retrieve_relevant_principles(action)
+
+    # Return data for AI judgment layer
+    return GovernanceAssessment(
+        assessment=None,  # AI determines
+        relevant_principles=principles,
+        requires_ai_judgment=True
+    )
+```
+
+The AI client then uses the returned principles to make the final assessment.
+
+**Key Principle:**
+
+> Don't try to script nuanced judgment. Don't let AI override safety guardrails.
+
 ---
 
 # TITLE 5: Cross-Tool Synchronization
@@ -2062,6 +2157,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.2.0 | 2026-01-02 | **Assessment Responsibility Layers.** Added: §4.6.1 Assessment Responsibility Layers — defines script vs AI layer responsibilities in governance assessment. Script handles: S-Series keyword detection (deterministic safety), principle retrieval, structured output. AI handles: principle conflict analysis, modification generation, nuanced judgment. Includes model capability considerations (Frontier/Mid-tier/Fast). Key principle: "Don't try to script nuanced judgment. Don't let AI override safety guardrails." |
 | v2.1.0 | 2026-01-02 | **Governance Enforcement Architecture + Cross-Platform Research.** Added: §4.6 Governance Enforcement Architecture — Orchestrator-First pattern making governance structural (not optional), four-layer defense in depth (Default Persona → Governance Tool → Post-Action Audit → Per-Response Reminder), bypass authorization with narrow scope, audit trail requirements, Orchestrator Agent definition. Added: Appendix F Cross-Platform Agent Support — platform matrix (Claude Code, Codex CLI, Gemini CLI, ChatGPT, Grok/Perplexity), enforcement levels (HARD vs SOFT), LLM-agnostic design patterns, platform detection code, user communication templates. Problem addressed: voluntary governance tools can be ignored even with reminders. Solution: Orchestrator as default persona with mandatory `evaluate_governance()` before delegation. ESCALATE is now blocking (halts execution until human approves). |
 | v2.0.0 | 2026-01-01 | **Major revision aligned with Principles v2.0.0.** Added: Agent Definition Standard (§2.1), Agent Catalog with 6 patterns (§2.2), Contrarian Reviewer pattern (§4.2), Governance Agent pattern (§4.3), Handoff Pattern Taxonomy (§3.1), Compression Procedures (§3.4), Shared Assumptions Document. Enhanced: Pattern Selection with Linear-First default and Read-Write Analysis. Updated: Preamble scope for individual/sequential/parallel coverage. Renamed: Title numbering for new sections. Research: Anthropic, Google ADK, Cognition, LangChain, Microsoft, Vellum multi-agent patterns (2025). |
 | v1.1.0 | 2025-12-29 | Structural Fixes: Changed Title headers from `## Title` to `# TITLE` for extractor compatibility. Changed section headers from `### X.Y` to `### X.Y` for method extraction. Removed series codes from Principle to Title mapping. Updated status from Draft to Active. |
