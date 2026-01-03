@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 271 tests, 90% coverage, 10 tools
+- **Status:** COMPLETE - All phases done, 279 tests, 90% coverage, 10 tools
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -371,9 +371,36 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
   | Per-Response Reminders | Appended to responses | SOFT | All platforms |
 - **Documentation:** multi-agent-methods-v2.1.0.md Appendix F: Cross-Platform Agent Support
 
+### Decision: Hybrid Assessment for AI Judgment Layer (§4.6.1)
+- **Date:** 2026-01-02
+- **Status:** IMPLEMENTED (279 tests)
+- **Problem:** evaluate_governance returns binary PROCEED/ESCALATE. PROCEED_WITH_MODIFICATIONS never triggers because script can't reason about principle conflicts.
+- **Research Finding:** Scripts excel at deterministic tasks (safety keywords). AIs excel at reasoning about nuance (principle conflicts, modification generation).
+- **Solution — Hybrid Responsibility Layers:**
+  | Layer | Responsibility | Why This Layer |
+  |-------|---------------|----------------|
+  | Script | S-Series keyword detection | Deterministic, non-negotiable safety |
+  | Script | Principle retrieval + ranking | Fast, consistent semantic search |
+  | Script | Structured data output | Reliable format for AI consumption |
+  | AI | Principle conflict analysis | Requires reasoning about context |
+  | AI | Modification generation | Context-aware recommendations |
+  | AI | Final assessment (PROCEED/MODIFY) | Nuanced judgment call |
+- **Key Principle:** "Don't try to script nuanced judgment. Don't let AI override safety guardrails."
+- **Implementation:**
+  - Added `content`, `series_code`, `domain` to RelevantPrinciple model
+  - Added `requires_ai_judgment`, `ai_judgment_guidance` to GovernanceAssessment model
+  - Added `suggested_modification` to ComplianceEvaluation model
+  - When no S-Series trigger: `requires_ai_judgment=true`, AI reads principle content
+  - Added AI Judgment Protocol section to SERVER_INSTRUCTIONS
+- **Governance Applied:**
+  - `meta-governance-technical-focus-with-clear-escalation-boundaries` — Clear AI vs script boundaries
+  - `meta-multi-hybrid-interaction-raci` — RACI between script and AI layers
+  - `meta-quality-structured-output-enforcement` — Structured data for AI consumption
+- **Tests Added:** 8 new tests (279 total)
+
 ### Decision: Phase 2 Governance Agent Architecture (Orchestrator-First)
 - **Date:** 2026-01-02
-- **Status:** COMPLETE (271 tests, 10 tools)
+- **Status:** COMPLETE (279 tests, 10 tools)
 - **Problem:** Phase 1 `evaluate_governance` tool is voluntary — AI can ignore it. Evidence: implemented config_generator without governance check despite CLAUDE.md checkpoints.
 - **Solution:** Orchestrator-First Architecture — make governance structural, not optional
 - **Key Design:**
@@ -544,22 +571,22 @@ Show updated process map:
 | T3-T5 | Extractor (parser, embeddings, GlobalIndex) | Complete |
 | T6-T11 | Retrieval (domain routing, BM25, semantic, fusion, rerank, hierarchy) | Complete |
 | T12-T18 | Server + 10 MCP tools | Complete |
-| T19-T22 | Tests (271 passing, 90% coverage) | Complete |
+| T19-T22 | Tests (279 passing, 90% coverage) | Complete |
 | T23 | Portfolio README | Complete |
 
 ### Test Coverage
 | Module | Tests | Coverage |
 |--------|-------|----------|
-| models.py | 24 | 100% |
+| models.py | 29 | 100% |
 | config.py | 17 | 98% |
-| server.py | 68 | 90% |
+| server.py | 71 | 90% |
 | extractor.py | 45 | 89% |
 | retrieval.py | 55 | 84% |
 | config_generator.py | 17 | 100% |
 | server_integration.py | 12 | - |
 | extractor_integration.py | 11 | - |
 | retrieval_integration.py | 18 | - |
-| **Total** | **271** | **90%** |
+| **Total** | **279** | **90%** |
 
 ## Dependencies
 

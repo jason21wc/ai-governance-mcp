@@ -137,7 +137,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **90%** (271 tests) |
+| Test Coverage | 80% | **90%** (279 tests) |
 
 ## Getting Started
 
@@ -327,7 +327,7 @@ pre-commit install
 
 ### Test Suite
 
-271 tests across 10 test files with 90% coverage:
+279 tests across 10 test files with 90% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
@@ -372,7 +372,7 @@ safety check
 - [ ] Public API with authentication
 
 **Architecture Enhancements**
-- [ ] AI-driven modification assessment (hybrid approach)
+- [x] AI-driven modification assessment (hybrid approach) ✓
   - Script layer: S-Series keyword detection (deterministic safety guardrails)
   - AI layer: Nuanced principle conflict analysis for PROCEED_WITH_MODIFICATIONS
   - Model-aware: More capable models get more judgment latitude

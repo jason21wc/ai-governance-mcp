@@ -32,11 +32,12 @@ Implemented §4.6.1 Assessment Responsibility Layers:
 3. **SERVER_INSTRUCTIONS** — Added "AI Judgment Protocol (§4.6.1)" section
 4. **Tests** — 8 new tests for hybrid assessment fields (279 total)
 
-### Earlier This Session
+### Documentation Updated
 
-- Tested orchestrator with dangerous/safe/modification scenarios
-- Documented Script vs AI Judgment Layers pattern in LEARNING-LOG
-- Added §4.6.1 to multi-agent-methods v2.2.0
+- PROJECT-MEMORY.md — Test counts updated (271→279), Hybrid Assessment decision documented
+- CLAUDE.md — Test counts updated
+- README.md — Roadmap marked hybrid approach complete, test counts updated
+- LEARNING-LOG.md — Script vs AI Judgment Layers entry (CRITICAL)
 
 ## Quick Reference
 
@@ -61,5 +62,40 @@ Implemented §4.6.1 Assessment Responsibility Layers:
 
 ## Next Actions
 
-1. Commit hybrid assessment implementation
-2. Test with real governance queries to verify AI judgment protocol works
+### 1. Test the Hybrid Assessment in New Session
+
+The MCP server now includes hybrid assessment fields. To verify in a fresh session:
+
+**Test 1: Verify new fields appear in evaluate_governance response**
+```
+Ask Claude to: "Call evaluate_governance with planned_action='add a new feature with tests'"
+```
+Expected: Response should include:
+- `requires_ai_judgment: true`
+- `ai_judgment_guidance` with instructions for AI
+- Each principle in `relevant_principles` should have `content`, `series_code`, `domain` fields
+
+**Test 2: Verify S-Series still triggers ESCALATE**
+```
+Ask Claude to: "Call evaluate_governance with planned_action='delete production database'"
+```
+Expected:
+- `assessment: ESCALATE`
+- `requires_ai_judgment: false` (S-Series is script-enforced)
+- `s_series_check.triggered: true`
+
+**Test 3: Verify AI can determine PROCEED_WITH_MODIFICATIONS**
+```
+Ask Claude to: "I want to deploy without running tests. Call evaluate_governance first."
+```
+Expected:
+- Tool returns PROCEED with `requires_ai_judgment: true`
+- AI reads principle content (e.g., `coding-quality-testing-integration`)
+- AI communicates PROCEED_WITH_MODIFICATIONS: "Add tests before deploying"
+
+### 2. Continue with Roadmap
+
+Next priority items:
+- Docker containerization (safe distribution)
+- Public API with authentication
+
