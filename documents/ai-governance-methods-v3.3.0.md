@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.2.0
+**Version:** 3.3.0
 **Status:** Active
-**Effective Date:** 2025-12-29
+**Effective Date:** 2026-01-03
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -113,6 +113,7 @@ Load this document when:
 | Formatting a new principle | Part 9.4.0-9.4.1 | Constitution vs Domain Templates |
 | Formatting a new method | Part 3.5.3 | Method Section Template |
 | Header level questions | Part 3.5.4 | Header Hierarchy |
+| Gathering requirements/preferences | Part 7.9 | Progressive Inquiry Protocol |
 | Emoji/badge usage | Part 3.5.7 | Emoji Conventions |
 
 ---
@@ -1049,6 +1050,112 @@ Not every interaction requires full ceremonial procedure. Apply protocols propor
 
 ---
 
+## Part 7.9: Progressive Inquiry Protocol (Structured Questioning)
+
+**Importance: IMPORTANT - Maximizes insight while minimizing question burden**
+
+This part operationalizes the Constitution's **Progressive Inquiry Protocol** principle. It provides procedures for gathering requirements, preferences, or context through progressive questioning.
+
+### 7.9.1 Question Architecture
+
+Structure questions in three tiers:
+
+| Tier | Purpose | When to Ask | Examples |
+|------|---------|-------------|----------|
+| **Foundation** | Establish strategic scope | Always ask first (2-3 questions) | Goal, primary constraints, stakeholder context |
+| **Branching** | Explore enabled paths | Conditionally, based on foundation answers | Technical approach, feature priority, integration points |
+| **Refinement** | Clarify details | Only if high-impact and not inferrable | Specific thresholds, edge cases, formatting preferences |
+
+### 7.9.2 Dependency Mapping
+
+Before asking questions, map dependencies:
+
+```
+1. List all potential questions
+2. Identify which questions depend on others
+3. Order from independent → dependent
+4. Mark questions that can be pruned based on early answers
+```
+
+**Example Dependency Chain:**
+```
+Q1: "Is this for internal use or external customers?" [Independent]
+    ├─ If Internal → Q2a: "What team will use this?"
+    │                └─ Q3a: "What's their technical level?"
+    └─ If External → Q2b: "What's your target user persona?"
+                     └─ Q3b: "What compliance requirements apply?"
+```
+
+### 7.9.3 Adaptive Branching Rules
+
+Apply these rules during questioning:
+
+| Rule | Trigger | Action |
+|------|---------|--------|
+| **Enable** | Answer reveals new relevant path | Add branching questions for that path |
+| **Prune** | Answer makes questions irrelevant | Skip entire question branch |
+| **Pivot** | Answer reveals wrong initial direction | Acknowledge, explain redirect, restart foundation |
+| **Consolidate** | ~10-12 questions reached OR user signals completion | Stop, summarize, validate |
+
+### 7.9.4 Cognitive Load Limits
+
+Prevent question fatigue:
+
+- **Maximum active questions:** 10-12 before consolidation
+- **Batch size:** 3-5 related questions at a time
+- **Sensitivity gradient:** Non-sensitive first, sensitive (budget, timeline) after rapport
+- **Termination triggers:**
+  - User says "that's enough" or similar
+  - All high-impact questions answered
+  - Only low-impact refinements remain
+  - Same topic clarified twice without resolution
+
+### 7.9.5 Consolidation Procedure
+
+When terminating questioning:
+
+```markdown
+**Understanding Summary:**
+- [Key requirement 1]
+- [Key requirement 2]
+- [Key constraint]
+
+**Assumptions Made:**
+- [Assumption 1] — inferred from [answer/context]
+- [Assumption 2] — defaulted to [value] (adjustable)
+
+**Deferred Topics:**
+- [Topic] — can address during implementation if needed
+
+Does this accurately capture your requirements?
+```
+
+### 7.9.6 Anti-Pattern Detection
+
+Avoid these questioning failures:
+
+| Anti-Pattern | Symptom | Correction |
+|--------------|---------|------------|
+| **Interrogation** | Asking all questions regardless of answers | Apply pruning after each answer |
+| **Shallow Foundation** | Jumping to details before strategic context | Return to foundation questions |
+| **Infinite Clarification** | Probing same ambiguity 3+ times | Note assumption, move forward |
+| **Missing Prune** | Asking questions made irrelevant by prior answers | Review dependency map before each question |
+
+### 7.9.7 Cross-Domain Application
+
+This protocol applies to any structured elicitation:
+
+| Domain | Foundation Questions | Typical Branching |
+|--------|---------------------|-------------------|
+| **Software Requirements** | Goal, users, constraints | Technical stack, integrations, scale |
+| **Consulting Discovery** | Problem, stakeholders, success criteria | Current state, attempted solutions, budget |
+| **Content/Book Planning** | Audience, purpose, format | Tone, depth, structure, examples |
+| **Project Scoping** | Deliverables, timeline, resources | Dependencies, risks, milestones |
+
+**Principle:** The structure is universal; only the specific questions vary by domain.
+
+---
+
 # TITLE 8: CONSTITUTIONAL GOVERNANCE
 
 **Importance: IMPORTANT - Framework evolution and amendment procedures**
@@ -1541,6 +1648,7 @@ For restructuring, philosophy shifts, principle removal:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.3.0 | 2026-01-03 | MINOR: Added Part 7.9 Progressive Inquiry Protocol. Operationalizes the Constitution's Progressive Inquiry Protocol principle with procedures for structured questioning: three-tier question architecture, dependency mapping, adaptive branching rules, cognitive load limits, consolidation procedure, and cross-domain application. Added Situation Index entry. |
 | 3.0.1 | 2025-12-29 | PATCH: Added missing importance tags to Parts 1.2, 2.2, 3.2, 3.3, 4.2, 5.2 for consistency. Added clarifying note to Part 9.4 referencing Part 3.5.1 (10-Field Template) relationship. |
 | 3.0.0 | 2025-12-29 | MAJOR 80/20 cleanup: Simplified TITLE 2 (Update Workflow) to table format. Consolidated Parts 3.2-3.3 (Index) removing redundant checklists. Streamlined TITLE 4 (Validation) to essential tables. Replaced TITLE 6 (CI/CD) detailed procedures with brief reference to README. Added Quick Reference entry to Situation Index. ~35% reduction in document size while preserving all essential governance procedures. |
 | 2.1.0 | 2025-12-29 | Added Part 3.5: Formatting Standards. Defines 10-field principle template, method section template, header hierarchy, text formatting conventions, list conventions, emoji/badge standards, code block conventions, table conventions, and cross-reference format. Reconciles existing ai-coding and multi-agent formatting patterns into unified standard. Updated Situation Index with formatting entries. |
