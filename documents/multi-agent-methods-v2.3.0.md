@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.1.0
+**Version:** 2.3.0
 **Status:** Active
-**Effective Date:** 2026-01-01
+**Effective Date:** 2026-01-03
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -112,6 +112,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Agent failure occurred | §4.4 | Fault Tolerance Procedures |
 | Need human approval | §4.5 | Human-in-the-Loop Gates |
 | Making governance structural | §4.6 | Governance Enforcement Architecture |
+| Non-Claude platform enforcement | §4.6.2 | Gateway-Based Enforcement |
 | Ending session | §3.6 | Session Closer Protocol |
 | Syncing context across tools | §5.1 | Cross-Tool Synchronization |
 | "framework check" received | §1.2 | Re-initialization |
@@ -1946,6 +1947,96 @@ The AI client then uses the returned principles to make the final assessment.
 
 > Don't try to script nuanced judgment. Don't let AI override safety guardrails.
 
+#### 4.6.2 Gateway-Based Enforcement (Platform-Agnostic)
+
+IMPORTANT
+
+**Purpose:** Provide architectural governance enforcement for platforms that lack subagent capability.
+
+**The Problem:**
+
+The Orchestrator-First pattern (§4.6) relies on Claude Code's subagent architecture—a unique feature where `.claude/agents/` defines parallel agents with restricted tool access. This works because the *client* manages agent separation.
+
+Other platforms (OpenAI, Gemini, Cursor, Windsurf) lack this capability:
+- No parallel agent architecture
+- No client-managed tool restrictions
+- Governance relies on instructions alone ("hope-based")
+
+**Solution — MCP Gateway Pattern:**
+
+Instead of hoping the AI follows governance instructions, enforce governance *physically* by controlling tool access at the server layer.
+
+```
+Without Gateway (Hope-Based):          With Gateway (Architecture-Based):
+┌──────────┐                           ┌──────────┐
+│ AI Agent │                           │ AI Agent │
+└────┬─────┘                           └────┬─────┘
+     │ Direct access                        │ Only sees governance tools
+     ▼                                      ▼
+┌──────────────┐                       ┌────────────────┐
+│ MCP Servers  │                       │ Governance     │
+│ (file, db,   │                       │ Gateway/Proxy  │
+│  shell, etc) │                       └────────┬───────┘
+└──────────────┘                                │ Validates before allowing
+                                                ▼
+                                       ┌──────────────┐
+                                       │ MCP Servers  │
+                                       └──────────────┘
+```
+
+**How Gateway Enforcement Works:**
+
+| Layer | What Happens |
+|-------|--------------|
+| 1. Request | AI calls tool (e.g., `edit_file`) via Gateway |
+| 2. Governance Check | Gateway calls `evaluate_governance(planned_action)` |
+| 3. Assessment | PROCEED → forward request; ESCALATE → reject with reason |
+| 4. Execution | Only governance-approved requests reach the actual server |
+| 5. Logging | All requests logged for audit trail |
+
+**Available MCP Gateway Solutions (2025):**
+
+| Gateway | Key Feature | Use Case |
+|---------|-------------|----------|
+| Lasso MCP Gateway | Plugin-based guardrails, PII detection | Security-focused orgs |
+| Envoy AI Gateway | Session-aware, leverages Envoy infra | Existing Envoy users |
+| IBM ContextForge | FastAPI-based, large-scale | Enterprise deployments |
+| Custom Governance Proxy | Wrap this MCP server as gatekeeper | Simple deployments |
+
+**When to Use Gateway vs Subagent:**
+
+| Factor | Subagent (Claude Code) | Gateway |
+|--------|----------------------|---------|
+| Platform | Claude Code/Desktop only | Any MCP client |
+| Setup complexity | Low (drop file in folder) | Medium (deploy proxy) |
+| Enforcement | Client-managed | Server-managed |
+| Visibility | Agent visible in UI | Transparent to AI |
+| Enterprise | Single-user focus | Multi-user, centralized |
+
+**Deployment Decision Matrix:**
+
+```
+Is this for Claude Code users only?
+├── YES → Use subagent pattern (§4.6, install_agent tool)
+└── NO → Does organization have MCP gateway infrastructure?
+         ├── YES → Integrate with existing gateway
+         └── NO → Deploy governance proxy or use instruction-based fallback
+```
+
+**Instruction-Based Fallback (Minimum Viable):**
+
+When gateway isn't feasible, layer defenses:
+
+1. **SERVER_INSTRUCTIONS** — Injected at MCP init
+2. **Per-Response Reminder** — Appended to every tool response
+3. **Audit Log Review** — Periodic `verify_governance_compliance()` checks
+
+This provides guidance but not enforcement—the AI *can* bypass. For high-stakes environments, gateway architecture is recommended.
+
+**Key Principle:**
+
+> Enforce governance *physically* (tool access control) rather than *psychologically* (instructions). Architecture beats hope.
+
 ---
 
 # TITLE 5: Cross-Tool Synchronization
@@ -2157,6 +2248,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.3.0 | 2026-01-03 | **Gateway-Based Enforcement.** Added: §4.6.2 Gateway-Based Enforcement (Platform-Agnostic) — documents MCP Gateway pattern for platforms lacking subagent architecture. Covers: problem (Claude Code subagents are unique), solution (server-side enforcement via gateway/proxy), available solutions (Lasso, Envoy, IBM ContextForge), decision matrix (subagent vs gateway), instruction-based fallback for minimum viable enforcement. Key principle: "Architecture beats hope." |
 | v2.2.0 | 2026-01-02 | **Assessment Responsibility Layers.** Added: §4.6.1 Assessment Responsibility Layers — defines script vs AI layer responsibilities in governance assessment. Script handles: S-Series keyword detection (deterministic safety), principle retrieval, structured output. AI handles: principle conflict analysis, modification generation, nuanced judgment. Includes model capability considerations (Frontier/Mid-tier/Fast). Key principle: "Don't try to script nuanced judgment. Don't let AI override safety guardrails." |
 | v2.1.0 | 2026-01-02 | **Governance Enforcement Architecture + Cross-Platform Research.** Added: §4.6 Governance Enforcement Architecture — Orchestrator-First pattern making governance structural (not optional), four-layer defense in depth (Default Persona → Governance Tool → Post-Action Audit → Per-Response Reminder), bypass authorization with narrow scope, audit trail requirements, Orchestrator Agent definition. Added: Appendix F Cross-Platform Agent Support — platform matrix (Claude Code, Codex CLI, Gemini CLI, ChatGPT, Grok/Perplexity), enforcement levels (HARD vs SOFT), LLM-agnostic design patterns, platform detection code, user communication templates. Problem addressed: voluntary governance tools can be ignored even with reminders. Solution: Orchestrator as default persona with mandatory `evaluate_governance()` before delegation. ESCALATE is now blocking (halts execution until human approves). |
 | v2.0.0 | 2026-01-01 | **Major revision aligned with Principles v2.0.0.** Added: Agent Definition Standard (§2.1), Agent Catalog with 6 patterns (§2.2), Contrarian Reviewer pattern (§4.2), Governance Agent pattern (§4.3), Handoff Pattern Taxonomy (§3.1), Compression Procedures (§3.4), Shared Assumptions Document. Enhanced: Pattern Selection with Linear-First default and Read-Write Analysis. Updated: Preamble scope for individual/sequential/parallel coverage. Renamed: Title numbering for new sections. Research: Anthropic, Google ADK, Cognition, LangChain, Microsoft, Vellum multi-agent patterns (2025). |

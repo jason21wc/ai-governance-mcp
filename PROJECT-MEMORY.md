@@ -543,6 +543,22 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Anti-Principle:** Never prune for size alone — large memory indicates detail or scope issues
 - **Sources:** [Mem0 priority scoring](https://mem0.ai), industry eviction policies
 
+### Decision: Gateway-Based Enforcement Pattern Documented
+- **Date:** 2026-01-03
+- **Status:** CONFIRMED
+- **Problem:** Claude Code subagent pattern (`.claude/agents/`) is unique to Claude; OpenAI, Gemini, and other platforms lack parallel agent architecture for governance enforcement
+- **Research:** MCP Gateway patterns are the platform-agnostic solution — Lasso MCP Gateway, Envoy AI Gateway, IBM ContextForge, Microsoft Windows 11 proxy pattern
+- **Choice:** Document §4.6.2 Gateway-Based Enforcement in multi-agent-methods; add Governance Proxy Mode to roadmap for future implementation
+- **Key Insight:** "Architecture beats hope" — server-side enforcement via gateway/proxy works across all platforms, unlike instruction-based approaches
+- **Implementation Strategy:**
+  | Approach | Enforcement | Platform |
+  |----------|-------------|----------|
+  | Subagent (§4.6) | Client-managed | Claude Code only |
+  | Gateway (§4.6.2) | Server-managed | Any MCP client |
+  | Instructions | Hope-based fallback | All platforms |
+- **Future Work:** Governance Proxy Mode — wrap other MCP servers with governance checks before forwarding requests
+- **Sources:** [Lasso MCP Gateway](https://lasso.security), [Envoy AI Gateway](https://aigateway.envoyproxy.io), [MCP Security Survival Guide](https://towardsdatascience.com)
+
 ## Roadmap
 
 ### Planned Domains

@@ -444,7 +444,8 @@ safety check
 ## Roadmap
 
 **Distribution & Deployment**
-- [ ] Docker containerization with security hardening (safe sharing, auto-updates from GitHub)
+- [x] Docker containerization with security hardening ✓
+- [ ] Docker Hub publishing (pending secrets setup)
 - [ ] Public API with authentication
 
 **Architecture Enhancements**
@@ -452,12 +453,12 @@ safety check
   - Script layer: S-Series keyword detection (deterministic safety guardrails)
   - AI layer: Nuanced principle conflict analysis for PROCEED_WITH_MODIFICATIONS
   - Model-aware: More capable models get more judgment latitude
-  - Returns raw principles + context; AI determines required modifications
+- [ ] **Governance Proxy Mode** — Platform-agnostic enforcement via MCP gateway
+  - Wraps other MCP servers, enforces governance before forwarding requests
+  - Enables architectural enforcement for non-Claude platforms (OpenAI, Gemini, etc.)
+  - Integrates with Lasso MCP Gateway, Envoy AI Gateway, or custom proxy
+  - See §4.6.2 in multi-agent-methods for pattern documentation
 - [ ] Multi-agent orchestration (specialized agents using this MCP)
-  - **Governance Agent** — Specialized agent that queries governance before execution, injects relevant principles, audits outputs for compliance (Phase 2 enforcement)
-  - Add [VALIDATED] vs [THEORETICAL] maturity markers to multi-agent principles
-  - Map multi-agent patterns to distributed systems literature (proven patterns)
-  - Add failure mode specificity based on actual multi-agent usage
 - [ ] Vector database for multi-user scaling
 - [ ] GraphRAG for relationship-aware retrieval
 - [ ] Active learning from feedback
