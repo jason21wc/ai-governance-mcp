@@ -141,7 +141,39 @@ AI uses query_governance("implementing authentication system")
 
 ## Getting Started
 
-### Installation
+### Option 1: Docker (Recommended)
+
+The easiest way to run the MCP server. Everything is pre-built and ready to go.
+
+```bash
+# Pull the image
+docker pull jason21wc/ai-governance-mcp:latest
+
+# Test it works
+docker run --rm jason21wc/ai-governance-mcp:latest python -c "print('Ready!')"
+```
+
+**Configure your AI client** (add to your MCP settings):
+
+```json
+{
+  "mcpServers": {
+    "ai-governance": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest"]
+    }
+  }
+}
+```
+
+**Update to latest version:**
+```bash
+docker pull jason21wc/ai-governance-mcp:latest
+```
+
+### Option 2: Local Installation
+
+For development or customization.
 
 ```bash
 # Clone the repository
@@ -158,14 +190,22 @@ python -m ai_governance_mcp.extractor
 ### Quick Test
 
 ```bash
-# Test retrieval
+# Test retrieval (local install)
 python -m ai_governance_mcp.server --test "how do I handle incomplete specs"
+
+# Test retrieval (Docker)
+docker run --rm jason21wc/ai-governance-mcp:latest \
+  python -m ai_governance_mcp.server --test "how do I handle incomplete specs"
 ```
 
 ### Run as MCP Server
 
 ```bash
+# Local install
 python -m ai_governance_mcp.server
+
+# Docker
+docker run -i --rm jason21wc/ai-governance-mcp:latest
 ```
 
 ### Platform Configuration
@@ -251,6 +291,40 @@ Restart Claude Desktop after saving.
 }
 ```
 
+#### Cursor
+
+Cursor has native MCP support. Add to your Cursor settings:
+
+```json
+{
+  "mcpServers": {
+    "ai-governance": {
+      "command": "python",
+      "args": ["-m", "ai_governance_mcp.server"]
+    }
+  }
+}
+```
+
+See [Cursor MCP Documentation](https://docs.cursor.com/context/model-context-protocol) for details.
+
+#### Windsurf
+
+Windsurf supports MCP through Cascade. Add to your Windsurf MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "ai-governance": {
+      "command": "python",
+      "args": ["-m", "ai_governance_mcp.server"]
+    }
+  }
+}
+```
+
+See [Windsurf MCP Documentation](https://docs.windsurf.com/windsurf/cascade/mcp) for details.
+
 #### Other Platforms (Grok, Perplexity, Google AI Studio)
 
 Use the [MCP SuperAssistant Chrome Extension](https://github.com/srbhptl39/MCP-SuperAssistant) to bridge MCP to web-based AI platforms.
@@ -289,14 +363,16 @@ ai-governance-mcp/
 ├── logs/                # Query + feedback logs
 └── tests/
     ├── conftest.py      # Shared fixtures
-    ├── test_models.py   # Model validation (24 tests)
+    ├── test_models.py   # Model validation (35 tests)
     ├── test_config.py   # Config tests (17 tests)
-    ├── test_server.py   # Server unit tests (68 tests)
-    ├── test_server_integration.py   # Dispatcher + flows (12 tests)
-    ├── test_extractor.py            # Extractor tests (35 tests)
+    ├── test_server.py   # Server unit tests (71 tests)
+    ├── test_server_integration.py   # Dispatcher + flows (11 tests)
+    ├── test_extractor.py            # Extractor tests (45 tests)
     ├── test_extractor_integration.py # Pipeline tests (11 tests)
-    ├── test_retrieval.py            # Retrieval unit (44 tests)
-    └── test_retrieval_integration.py # Retrieval pipeline (18 tests)
+    ├── test_retrieval.py            # Retrieval unit (36 tests)
+    ├── test_retrieval_integration.py # Retrieval pipeline (21 tests)
+    ├── test_config_generator.py     # Platform configs (17 tests)
+    └── test_validator.py            # Principle validation (15 tests)
 ```
 
 ## The Methodology
@@ -331,10 +407,10 @@ pre-commit install
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
-| Unit | 198 | Isolated component testing |
-| Integration | 26 | Full pipeline flows |
-| Real Index | 6 | Production data validation |
-| Slow (ML) | 3 | Actual embedding models |
+| Unit | 236 | Isolated component testing |
+| Integration | 43 | Full pipeline flows |
+
+Tests include real index validation and actual ML model tests (marked `@pytest.mark.slow`).
 
 ```bash
 # Run all tests

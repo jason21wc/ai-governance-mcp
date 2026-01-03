@@ -577,15 +577,16 @@ Show updated process map:
 ### Test Coverage
 | Module | Tests | Coverage |
 |--------|-------|----------|
-| models.py | 29 | 100% |
+| models.py | 35 | 100% |
 | config.py | 17 | 98% |
 | server.py | 71 | 90% |
 | extractor.py | 45 | 89% |
-| retrieval.py | 55 | 84% |
+| retrieval.py | 36 | 84% |
 | config_generator.py | 17 | 100% |
-| server_integration.py | 12 | - |
+| validator.py | 15 | 100% |
+| server_integration.py | 11 | - |
 | extractor_integration.py | 11 | - |
-| retrieval_integration.py | 18 | - |
+| retrieval_integration.py | 21 | - |
 | **Total** | **279** | **90%** |
 
 ## Dependencies
@@ -606,14 +607,12 @@ Show updated process map:
 | File | Purpose | Status |
 |------|---------|--------|
 | ai-governance-mcp-specification-v4.md | Complete specification | Approved |
-| ARCHITECTURE.md | System architecture | Approved |
-| GATE-SPECIFY.md | Specify phase gate | Complete |
-| GATE-PLAN.md | Plan phase gate | Complete |
-| GATE-TASKS.md | Tasks phase gate | Complete |
+| ARCHITECTURE.md | System architecture | Active |
 | SESSION-STATE.md | Current position | Active |
 | PROJECT-MEMORY.md | This file | Active |
 | LEARNING-LOG.md | Lessons learned | Active |
-| README.md | Portfolio showcase | Complete |
+| CLAUDE.md | AI session loader | Active |
+| README.md | Portfolio showcase | Active |
 
 ### Source Code
 | File | Purpose | Lines |
@@ -624,20 +623,22 @@ Show updated process map:
 | src/ai_governance_mcp/retrieval.py | Hybrid search engine | ~500 |
 | src/ai_governance_mcp/server.py | MCP server + 10 tools | ~1530 |
 | src/ai_governance_mcp/config_generator.py | Multi-platform MCP configs | ~150 |
+| src/ai_governance_mcp/validator.py | Principle ID validation | ~350 |
 
 ### Test Files
 | File | Tests | Purpose |
 |------|-------|---------|
 | tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
-| tests/test_models.py | 24 | Model validation, constraints, enums |
+| tests/test_models.py | 35 | Model validation, constraints, enums |
 | tests/test_config.py | 17 | Settings, env vars, path handling |
-| tests/test_server.py | 68 | All 10 tools, formatting, metrics, governance, agent installation |
-| tests/test_server_integration.py | 12 | Dispatcher routing, end-to-end flows |
-| tests/test_extractor.py | 35 | Parsing, embeddings, metadata, validation |
+| tests/test_server.py | 71 | All 10 tools, formatting, metrics, governance, agent installation |
+| tests/test_server_integration.py | 11 | Dispatcher routing, end-to-end flows |
+| tests/test_extractor.py | 45 | Parsing, embeddings, metadata, validation |
 | tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |
-| tests/test_retrieval.py | 44 | Unit tests + edge cases |
-| tests/test_retrieval_integration.py | 18 | Pipeline, utilities, performance |
+| tests/test_retrieval.py | 36 | Unit tests + edge cases |
+| tests/test_retrieval_integration.py | 21 | Pipeline, utilities, performance |
 | tests/test_config_generator.py | 17 | Platform configs, CLI commands |
+| tests/test_validator.py | 15 | Principle ID validation, fuzzy matching |
 
 ## Known Gotchas
 

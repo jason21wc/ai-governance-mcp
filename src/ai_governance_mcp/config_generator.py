@@ -5,6 +5,8 @@ Generates platform-specific configuration snippets for:
 - Claude Code CLI
 - Claude Desktop
 - ChatGPT Desktop (Developer Mode)
+- Cursor
+- Windsurf
 - Other platforms via MCP SuperAssistant
 """
 
@@ -59,6 +61,32 @@ def generate_chatgpt_config(python_path: Optional[str] = None) -> dict:
     }
 
 
+def generate_cursor_config(python_path: Optional[str] = None) -> dict:
+    """Generate Cursor MCP configuration."""
+    python_cmd = python_path or "python"
+    return {
+        "mcpServers": {
+            "ai-governance": {
+                "command": python_cmd,
+                "args": ["-m", "ai_governance_mcp.server"],
+            }
+        }
+    }
+
+
+def generate_windsurf_config(python_path: Optional[str] = None) -> dict:
+    """Generate Windsurf MCP configuration."""
+    python_cmd = python_path or "python"
+    return {
+        "mcpServers": {
+            "ai-governance": {
+                "command": python_cmd,
+                "args": ["-m", "ai_governance_mcp.server"],
+            }
+        }
+    }
+
+
 def get_gemini_cli_command() -> str:
     """Get the gemini mcp add command."""
     return "gemini mcp add -s user ai-governance python -m ai_governance_mcp.server"
@@ -76,6 +104,8 @@ def get_config_file_path(platform: str) -> str:
         "claude": "~/Library/Application Support/Claude/claude_desktop_config.json (macOS)\n"
         "         %APPDATA%\\Claude\\claude_desktop_config.json (Windows)",
         "chatgpt": "ChatGPT Desktop → Settings → Developer Mode → MCP Configuration",
+        "cursor": "Cursor Settings → MCP Servers",
+        "windsurf": "Windsurf Settings → Cascade → MCP",
     }
     return paths.get(platform, "Platform-specific")
 
@@ -119,6 +149,24 @@ def print_platform_config(platform: str, python_path: Optional[str] = None) -> N
         config = generate_chatgpt_config(python_path)
         print(f"  {json.dumps(config, indent=2).replace(chr(10), chr(10) + '  ')}")
 
+    elif platform == "cursor":
+        print("Cursor (Native MCP Support)")
+        print("-" * 40)
+        print("  See: https://docs.cursor.com/context/model-context-protocol")
+        print(f"\n  Configure in: {get_config_file_path('cursor')}")
+        print("\n  Add this configuration:")
+        config = generate_cursor_config(python_path)
+        print(f"  {json.dumps(config, indent=2).replace(chr(10), chr(10) + '  ')}")
+
+    elif platform == "windsurf":
+        print("Windsurf (Cascade MCP Support)")
+        print("-" * 40)
+        print("  See: https://docs.windsurf.com/windsurf/cascade/mcp")
+        print(f"\n  Configure in: {get_config_file_path('windsurf')}")
+        print("\n  Add this configuration:")
+        config = generate_windsurf_config(python_path)
+        print(f"  {json.dumps(config, indent=2).replace(chr(10), chr(10) + '  ')}")
+
     elif platform == "superassistant":
         print("MCP SuperAssistant Chrome Extension")
         print("-" * 40)
@@ -133,12 +181,14 @@ def print_platform_config(platform: str, python_path: Optional[str] = None) -> N
 
     else:
         print(f"Unknown platform: {platform}")
-        print("Supported platforms: gemini, claude, chatgpt, superassistant")
+        print(
+            "Supported platforms: gemini, claude, chatgpt, cursor, windsurf, superassistant"
+        )
 
 
 def print_all_configs(python_path: Optional[str] = None) -> None:
     """Print configuration for all supported platforms."""
-    platforms = ["gemini", "claude", "chatgpt", "superassistant"]
+    platforms = ["gemini", "claude", "chatgpt", "cursor", "windsurf", "superassistant"]
     for platform in platforms:
         print_platform_config(platform, python_path)
     print()
@@ -150,7 +200,7 @@ def generate_mcp_config(
     """Generate MCP configuration dictionary for a platform.
 
     Args:
-        platform: Target platform (gemini, claude, chatgpt)
+        platform: Target platform (gemini, claude, chatgpt, cursor, windsurf)
         python_path: Optional Python executable path
 
     Returns:
@@ -160,6 +210,8 @@ def generate_mcp_config(
         "gemini": generate_gemini_config,
         "claude": generate_claude_config,
         "chatgpt": generate_chatgpt_config,
+        "cursor": generate_cursor_config,
+        "windsurf": generate_windsurf_config,
     }
 
     if platform in generators:
@@ -184,7 +236,7 @@ Examples:
     parser.add_argument(
         "--platform",
         "-p",
-        choices=["gemini", "claude", "chatgpt", "superassistant"],
+        choices=["gemini", "claude", "chatgpt", "cursor", "windsurf", "superassistant"],
         help="Target platform for configuration",
     )
     parser.add_argument(
@@ -197,7 +249,7 @@ Examples:
         "--json",
         "-j",
         metavar="PLATFORM",
-        choices=["gemini", "claude", "chatgpt"],
+        choices=["gemini", "claude", "chatgpt", "cursor", "windsurf"],
         help="Output raw JSON configuration for a platform",
     )
     parser.add_argument(

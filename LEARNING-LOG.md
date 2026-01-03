@@ -462,8 +462,7 @@ The third is often forgotten. Without explicit activation, the framework exists 
 GOVERNANCE_REMINDER = """
 
 ---
-📋 **Governance:** Query on decisions/concerns. Apply Constitution→Domain→Methods.
-Cite influencing principles. S-Series=veto. Pause on spec gaps. Escalate product decisions."""
+⚖️ **Governance Check:** Did you `query_governance()` before this action? Cite influencing principle IDs. S-Series = veto authority."""
 
 def _append_governance_reminder(result: list[TextContent]) -> list[TextContent]:
     """Append governance reminder to tool response."""
@@ -478,18 +477,20 @@ def _append_governance_reminder(result: list[TextContent]) -> list[TextContent]:
 ```python
 def extract_json_from_response(text: str) -> str:
     """Extract JSON portion from response, stripping governance reminder."""
-    separator = "\n\n---\n📋"
+    separator = "\n\n---\n⚖️"
     if separator in text:
         return text.split(separator)[0]
     return text
 ```
 
 **Design Principles:**
-- Action-oriented, not explanatory
-- ~30 tokens (minimal overhead)
-- Covers: query triggers, hierarchy, citation, S-Series authority, escalation
+- Self-check question triggers reflection better than statements
+- ~35 tokens (minimal overhead)
+- Covers: query reminder, citation requirement, S-Series veto
 
 **Why It Works:** Uniform reinforcement at every interaction ensures AI clients don't drift, even in long conversations.
+
+**Note:** Later optimized from passive statement (📋) to self-check question (⚖️) — see "MCP Instruction Optimization" entry below.
 
 ---
 

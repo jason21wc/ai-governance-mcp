@@ -1337,18 +1337,31 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
 
     # Handle manual instructions request
     if show_manual:
+        # Build clear, actionable instructions
+        instructions = f"""To install the {agent_name} agent manually:
+
+1. Create the agents directory:
+   mkdir -p {install_path.parent}
+
+2. Save the content (from the "content" field below) to:
+   {install_path}
+
+3. Restart Claude Code to activate the agent
+
+**One-liner alternative** (copy/paste the content field into this command):
+```bash
+mkdir -p {install_path.parent} && cat > {install_path} << 'EOF'
+[paste content here]
+EOF
+```"""
+
         output = {
             "status": "manual_instructions",
             "agent_name": agent_name,
             "install_path": str(install_path),
-            "instructions": (
-                f"To install the {agent_name} agent manually:\n\n"
-                f"1. Create the directory if it doesn't exist:\n"
-                f"   mkdir -p {install_path.parent}\n\n"
-                f"2. Create the file {install_path.name} with the content below\n\n"
-                f"3. Restart Claude Code to activate the agent"
-            ),
+            "instructions": instructions,
             "content": template_content,
+            "note": "The 'content' field above contains the exact file contents to save.",
         }
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 

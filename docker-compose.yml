@@ -1,0 +1,46 @@
+# AI Governance MCP Server - Docker Compose
+#
+# NOTE: MCP servers use stdio (stdin/stdout), not HTTP.
+# This compose file is primarily for local testing and development.
+#
+# For production use with AI clients (Claude, Gemini, etc.),
+# configure your AI client to run the container directly.
+# See README.md for client configuration examples.
+
+services:
+  ai-governance-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jason21wc/ai-governance-mcp:latest
+    container_name: ai-governance-mcp
+
+    # Interactive mode required for MCP stdio communication
+    stdin_open: true
+    tty: true
+
+    # Optional: Mount custom documents (uncomment to use your own)
+    # volumes:
+    #   - ./my-documents:/app/documents:ro
+    #   - ./my-index:/app/index
+
+    # Optional: Override environment variables
+    # environment:
+    #   - AI_GOVERNANCE_SEMANTIC_WEIGHT=0.6
+
+    # Resource limits (adjust based on your system)
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
+# Usage:
+#
+# Build and test locally:
+#   docker compose build
+#   docker compose run --rm ai-governance-mcp
+#
+# For AI client configuration, use:
+#   docker run -i --rm jason21wc/ai-governance-mcp

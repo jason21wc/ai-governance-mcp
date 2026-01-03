@@ -1,8 +1,8 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.4
-**Date:** 2026-01-02
-**Phase:** COMPLETE (271 tests, 90% coverage, 10 tools)
+**Version:** 1.5
+**Date:** 2026-01-03
+**Phase:** COMPLETE (279 tests, 90% coverage, 10 tools)
 
 ---
 
@@ -90,7 +90,7 @@ ai-governance-mcp/
 │
 ├── index/                     # Generated
 │   ├── global_index.json      # Serialized GlobalIndex
-│   ├── content_embeddings.npy # Principle/method embeddings (250, 384)
+│   ├── content_embeddings.npy # Principle/method embeddings (268, 384)
 │   └── domain_embeddings.npy  # Domain embeddings for routing (3, 384)
 │
 ├── documents/                 # Source markdown docs
@@ -101,14 +101,16 @@ ai-governance-mcp/
 ├── tests/
 │   ├── conftest.py                  # Shared fixtures
 │   ├── fixtures/                    # Test data files
-│   ├── test_models.py               # Model tests (24)
+│   ├── test_models.py               # Model tests (35)
 │   ├── test_config.py               # Config tests (17)
-│   ├── test_server.py               # Server unit tests (46)
-│   ├── test_server_integration.py   # Server integration (12)
-│   ├── test_extractor.py            # Extractor tests (35)
+│   ├── test_server.py               # Server unit tests (71)
+│   ├── test_server_integration.py   # Server integration (11)
+│   ├── test_extractor.py            # Extractor tests (45)
 │   ├── test_extractor_integration.py # Extractor pipeline (11)
-│   ├── test_retrieval.py            # Retrieval unit (44)
-│   └── test_retrieval_integration.py # Retrieval pipeline (18)
+│   ├── test_retrieval.py            # Retrieval unit (36)
+│   ├── test_retrieval_integration.py # Retrieval pipeline (21)
+│   ├── test_config_generator.py     # Platform configs (17)
+│   └── test_validator.py            # Principle validation (15)
 │
 ├── pyproject.toml
 └── README.md
@@ -157,10 +159,11 @@ ai-governance-mcp/
 
 | Category | Files | Purpose |
 |----------|-------|---------|
-| **Unit** | test_models, test_config | Isolated component validation |
-| **Server** | test_server, test_server_integration | All 6 MCP tools, dispatcher routing |
+| **Unit** | test_models, test_config, test_validator | Isolated component validation |
+| **Server** | test_server, test_server_integration | All 10 MCP tools, dispatcher routing |
 | **Extractor** | test_extractor, test_extractor_integration | Parsing, embeddings, index build |
 | **Retrieval** | test_retrieval, test_retrieval_integration | Hybrid search, reranking, pipeline |
+| **Config** | test_config_generator | Multi-platform MCP configurations |
 
 ### Test Markers (pyproject.toml)
 
@@ -183,6 +186,8 @@ ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtu
 |--------|----------|-------|
 | models.py | 100% | Full validation coverage |
 | config.py | 98% | Env edge case uncovered |
-| server.py | 91% | async run_server uncovered |
+| server.py | 90% | async run_server uncovered |
 | extractor.py | 89% | CLI main uncovered |
 | retrieval.py | 84% | Rare filesystem errors uncovered |
+| config_generator.py | 100% | Full coverage |
+| validator.py | 100% | Full coverage |
