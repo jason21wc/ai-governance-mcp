@@ -44,9 +44,14 @@ Query `query_governance()` BEFORE:
 ## Key Commands
 
 ```bash
+# Development
 python -m ai_governance_mcp.extractor  # Rebuild index
 pytest tests/ -v                        # Run tests (279, 90% coverage)
 python -m ai_governance_mcp.server      # Run server
+
+# Docker
+docker build -t ai-governance-mcp .     # Build image
+docker run -i --rm ai-governance-mcp    # Run container
 ```
 
 ## Project Structure

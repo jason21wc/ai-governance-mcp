@@ -318,20 +318,43 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Rationale:** System instructions are behavioral contracts, not just documentation. Questions trigger reflection better than statements.
 
 ### Decision: Multi-Platform MCP Configuration Generator
-- **Date:** 2026-01-01
+- **Date:** 2026-01-01 (updated 2026-01-03)
 - **Status:** CONFIRMED
-- **Problem:** MCP is now supported by multiple AI platforms (Gemini CLI, Claude, ChatGPT, others via SuperAssistant), but each requires different configuration format or CLI commands.
+- **Problem:** MCP is now supported by multiple AI platforms (Gemini CLI, Claude, ChatGPT, Cursor, Windsurf, others via SuperAssistant), but each requires different configuration format or CLI commands.
 - **Solution:** Created `config_generator.py` module with:
   - CLI tool: `python -m ai_governance_mcp.config_generator --platform <name>`
   - Programmatic API: `generate_mcp_config(platform)` returns dict
-  - Platforms: gemini, claude, chatgpt, superassistant
+  - Platforms: gemini, claude, chatgpt, cursor, windsurf, superassistant (6 total)
   - Options: `--all` (all platforms), `--json` (raw JSON output)
 - **Implementation:**
   - New module: `src/ai_governance_mcp/config_generator.py`
   - 17 tests in `tests/test_config_generator.py`
   - README updated with Platform Configuration section
 - **Verified:** Gemini CLI integration tested — `gemini mcp add` successful, server connected
-- **Governance Gap:** Did NOT query governance before implementation (violated CLAUDE.md checkpoint)
+- **Update 2026-01-03:** Added Cursor and Windsurf native MCP support (both now support MCP natively)
+
+### Decision: Docker Containerization for Distribution
+- **Date:** 2026-01-03
+- **Status:** CONFIRMED
+- **Problem:** Local pip installation requires Python environment setup; users want simpler deployment
+- **Solution:** Docker multi-stage build with automated Docker Hub publishing
+- **Architecture:**
+  | Stage | Purpose |
+  |-------|---------|
+  | Builder | Install deps, gcc, build index, generate embeddings |
+  | Runtime | Minimal image with pre-built index, non-root user, health check |
+- **Key Decisions:**
+  - CPU-only PyTorch (avoids 2GB+ CUDA dependencies)
+  - Non-root user (appuser) for security
+  - Pre-built index copied from builder stage
+  - GitHub Actions workflow publishes on version tags
+- **Implementation:**
+  - `Dockerfile` — Multi-stage build
+  - `docker-compose.yml` — Local testing
+  - `.dockerignore` — Excludes tests, dev files
+  - `.github/workflows/docker-publish.yml` — Automated publishing
+- **Image:** ~1.6GB, 268 documents pre-indexed
+- **Distribution:** Docker Hub (`jason21wc/ai-governance-mcp`) + Dockerfile in repo
 
 ### Decision: Phase 2B LLM-Agnostic Agent Installation Architecture
 - **Date:** 2026-01-02

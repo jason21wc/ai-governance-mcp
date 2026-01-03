@@ -86,7 +86,13 @@ ai-governance-mcp/
 │       ├── retrieval.py       # Search logic
 │       ├── extractor.py       # Doc parsing, index building
 │       ├── models.py          # Pydantic schemas
-│       └── config.py          # Settings
+│       ├── config.py          # Settings
+│       ├── config_generator.py # Multi-platform MCP configs
+│       └── validator.py       # Principle ID validation
+│
+├── Dockerfile                 # Multi-stage build for Docker distribution
+├── docker-compose.yml         # Local testing configuration
+├── .dockerignore              # Docker build exclusions
 │
 ├── index/                     # Generated
 │   ├── global_index.json      # Serialized GlobalIndex
@@ -127,6 +133,38 @@ ai-governance-mcp/
 | **Retrieval isolated** | Can test/tune search without MCP complexity |
 | **Pydantic models** | Validation, IDE support, clean serialization |
 | **Append-only feedback** | Simple, no DB needed, enables future learning |
+
+---
+
+## Docker Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  DOCKER BUILD (Multi-Stage)                                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  Stage 1: BUILDER                     Stage 2: RUNTIME                      │
+│  ┌─────────────────────┐              ┌─────────────────────┐               │
+│  │ python:3.11-slim    │              │ python:3.11-slim    │               │
+│  │                     │              │                     │               │
+│  │ - Install deps      │              │ - Install deps      │               │
+│  │ - Build index       │──────────────│ - Copy index/       │               │
+│  │ - Generate embeds   │  (copy)      │ - Non-root user     │               │
+│  └─────────────────────┘              │ - Health check      │               │
+│                                       └─────────────────────┘               │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+| Component | Purpose |
+|-----------|---------|
+| **Multi-stage build** | Separate build (gcc, index generation) from runtime |
+| **CPU-only PyTorch** | Avoids 2GB+ CUDA dependencies |
+| **Non-root user** | Security hardening (appuser) |
+| **Pre-built index** | No model loading during build; copied from builder |
+| **Health check** | Container monitoring for orchestration |
+
+**Image size:** ~1.6GB (dominated by ML dependencies)
 
 ---
 

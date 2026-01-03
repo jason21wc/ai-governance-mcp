@@ -990,6 +990,82 @@ GOVERNANCE_REMINDER = """
 
 ---
 
+### 2026-01-03 - Docker Distribution Pattern for MCP Servers
+
+**Context:** Implementing Docker containerization for easy distribution to end users who may not have Python environments set up.
+
+**Key Decisions Made:**
+
+1. **Multi-Stage Build** — Separate builder (gcc, index generation) from runtime
+   - Builder stage: Installs gcc, builds index, generates embeddings
+   - Runtime stage: Minimal image with pre-built index copied over
+   - Result: Faster startup, smaller final image
+
+2. **CPU-Only PyTorch** — Critical for image size
+   ```dockerfile
+   RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
+   ```
+   - Default PyTorch pulls CUDA (~2GB)
+   - CPU-only version is ~200MB
+   - Saves ~1.8GB per image
+
+3. **Non-Root User** — Security hardening
+   ```dockerfile
+   RUN useradd --create-home --shell /bin/bash appuser
+   USER appuser
+   ```
+   - Containers shouldn't run as root
+   - Creates dedicated user for the application
+
+4. **Pre-Built Index** — Avoid runtime model loading
+   - Builder stage runs extractor to generate embeddings
+   - Runtime stage copies pre-built index
+   - First query still loads ML models, but index is ready
+
+5. **README.md Dependency** — pyproject.toml quirk
+   - `pyproject.toml` has `readme = "README.md"`
+   - pip install fails if README.md isn't present
+   - Must COPY README.md alongside pyproject.toml
+
+**MCP-Specific Considerations:**
+
+- MCP uses stdio (stdin/stdout), not HTTP
+- Container must run with `-i` flag (interactive)
+- Health check imports server module, doesn't start it
+- docker-compose.yml includes `stdin_open: true` and `tty: true`
+
+**CI/CD Pattern:**
+
+```yaml
+# Trigger on version tags
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+# Publish to Docker Hub with version + latest
+tags: |
+  ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
+  ${{ env.IMAGE_NAME }}:latest
+```
+
+**Image Size Breakdown:**
+
+| Component | Size |
+|-----------|------|
+| Base Python 3.11-slim | ~150MB |
+| PyTorch CPU | ~200MB |
+| sentence-transformers | ~500MB |
+| Other deps | ~300MB |
+| Index + documents | ~50MB |
+| **Total** | **~1.6GB** |
+
+**Lesson:** For ML-based MCP servers, Docker distribution trades image size (~1.6GB) for installation simplicity. The multi-stage build pattern and CPU-only PyTorch are essential optimizations.
+
+**Pattern Reusable For:** Any MCP server with ML dependencies.
+
+---
+
 ## Research Links (from 2025-12-24 session)
 
 Hybrid retrieval best practices:

@@ -4,37 +4,47 @@
 
 ## Current Position
 
-- **Phase:** Implement (Docker Complete)
+- **Phase:** Implement (Docker Complete, Docs In Progress)
 - **Mode:** Standard
-- **Active Task:** None
+- **Active Task:** Documentation review + lessons to framework
 - **Blocker:** None
 
 ## Recent Work (This Session)
 
 ### Docker Containerization Complete
 
-Implemented full Docker support for easy distribution:
+- Dockerfile, docker-compose.yml, .dockerignore created
+- GitHub Actions workflow for Docker Hub publishing
+- Image tested: 1.62GB, 268 documents, server works
+- README updated with Docker as Option 1 (Recommended)
 
-**Files Created:**
-- `Dockerfile` — Multi-stage build (builder + runtime), CPU-only PyTorch, non-root user, health check
-- `docker-compose.yml` — Local testing configuration with resource limits
-- `.dockerignore` — Excludes tests, dev files, keeps README for pyproject.toml
-- `.github/workflows/docker-publish.yml` — Automated Docker Hub publishing on version tags
+### Platform Support Expanded
 
-**Image Details:**
-- Size: 1.62GB (reasonable for ML dependencies)
-- Index: 268 documents pre-built during image creation
-- Works: Server imports, retrieval tested, governance queries functional
+- Added Cursor and Windsurf native MCP support
+- Config generator now supports 6 platforms
+- README and config_generator.py updated
 
-**README Updated:**
-- Docker as "Option 1: Recommended" installation method
-- Cursor and Windsurf native MCP support documented
-- Config generator supports all 6 platforms
+### Documentation Updates In Progress
 
-**Config Generator Enhanced:**
-- Added Cursor support with docs link
-- Added Windsurf support with docs link
-- Now supports: gemini, claude, chatgpt, cursor, windsurf, superassistant
+Updated:
+- [x] CLAUDE.md — Added Docker commands
+- [x] ARCHITECTURE.md — Added Docker section, config_generator.py, validator.py
+- [x] PROJECT-MEMORY.md — Added Docker decision, updated config_generator platforms
+- [x] README.md — Docker instructions, Cursor/Windsurf sections
+- [x] SESSION-STATE.md — Current file
+
+## Lessons Identified for Framework Promotion
+
+From LEARNING-LOG, these patterns may warrant promotion to governance framework:
+
+| Pattern | Current Location | Candidate Destination |
+|---------|-----------------|----------------------|
+| Pre-Flight Validation | LEARNING-LOG 2025-12-31 | ai-coding-methods (procedure) |
+| MCP Server Patterns | LEARNING-LOG scattered | New section or domain? |
+| Docker for MCP Distribution | New pattern | ai-coding-methods (deployment) |
+| Config Validation at Startup | LEARNING-LOG 2025-12-31 | Generalize to principle |
+
+**User decision needed:** Which patterns to promote and where.
 
 ## Quick Reference
 
@@ -49,16 +59,16 @@ Implemented full Docker support for easy distribution:
 
 ## Remaining Roadmap
 
-- [x] AI-driven modification assessment (hybrid approach) ✓
 - [x] Docker containerization ✓
-- [ ] Push Docker image to Docker Hub (requires GitHub secrets setup)
+- [ ] **Docker Hub secrets setup** ← NEXT
+- [ ] Push Docker image to Docker Hub
+- [ ] Promote lessons to governance framework
 - [ ] Public API with auth
 - [ ] Vector database for scaling
-- [ ] GraphRAG for relationship-aware retrieval
 
 ## Next Actions
 
-### 1. Configure Docker Hub Secrets
+### 1. Docker Hub Secrets (Pending User Action)
 
 To enable automated Docker publishing:
 
@@ -73,16 +83,16 @@ To enable automated Docker publishing:
    git push origin v1.0.0
    ```
 
-### 2. Test Manual Docker Build
+### 2. Lessons to Governance Framework
 
-Until Docker Hub is set up, users can build locally:
-```bash
-docker build -t ai-governance-mcp .
-docker run -i --rm ai-governance-mcp
-```
+User to decide which patterns from LEARNING-LOG should be promoted:
+- Pre-Flight Validation Pattern
+- MCP Server Patterns (stdout, shutdown, reminders)
+- Docker Distribution for MCP Servers
+- Config Validation at Startup
 
 ### 3. Continue with Roadmap
 
-Next priority items:
+After Docker Hub setup, next priority items:
 - Public API with authentication
 - Vector database for scaling
