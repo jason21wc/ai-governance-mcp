@@ -1025,6 +1025,108 @@ class TestEvaluateGovernance:
                     if not parsed["s_series_check"]["principles"]:
                         assert parsed["assessment"] == "PROCEED"
 
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_includes_principle_content(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should include full principle content for AI reasoning (§4.6.1)."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Implement user authentication"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # If principles were found, verify content is included
+                    if parsed["relevant_principles"]:
+                        first_principle = parsed["relevant_principles"][0]
+                        assert "content" in first_principle
+                        assert len(first_principle["content"]) > 0
+                        assert "domain" in first_principle
+                        assert "series_code" in first_principle
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_sets_requires_ai_judgment(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should set requires_ai_judgment for non-S-Series cases (§4.6.1)."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    # Non-safety action that should match principles
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Refactor the code structure"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # If principles found and no S-Series, should require AI judgment
+                    if (
+                        parsed["relevant_principles"]
+                        and not parsed["s_series_check"]["triggered"]
+                    ):
+                        assert parsed["requires_ai_judgment"] is True
+                        assert parsed["ai_judgment_guidance"] is not None
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_escalate_does_not_require_ai_judgment(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """S-Series ESCALATE should not require AI judgment (script-enforced, §4.6.1)."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Delete all user credentials"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # S-Series ESCALATE is script-enforced, not AI judgment
+                    assert parsed["assessment"] == "ESCALATE"
+                    assert parsed["requires_ai_judgment"] is False
+
 
 # =============================================================================
 # Audit Log Tests (Phase 2: Governance Enforcement)

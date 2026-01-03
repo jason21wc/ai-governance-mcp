@@ -320,6 +320,99 @@ class TestGovernanceAssessment:
             )
             assert assessment.assessment == status
 
+    def test_requires_ai_judgment_field(self):
+        """Should have requires_ai_judgment field (§4.6.1)."""
+        assessment = GovernanceAssessment(
+            action_reviewed="Test action",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+            rationale="Test rationale",
+            requires_ai_judgment=True,
+            ai_judgment_guidance="Review principles for conflicts",
+        )
+        assert assessment.requires_ai_judgment is True
+        assert assessment.ai_judgment_guidance is not None
+
+    def test_requires_ai_judgment_defaults_to_false(self):
+        """requires_ai_judgment should default to False."""
+        assessment = GovernanceAssessment(
+            action_reviewed="Test action",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+            rationale="Test rationale",
+        )
+        assert assessment.requires_ai_judgment is False
+        assert assessment.ai_judgment_guidance is None
+
+
+class TestRelevantPrinciple:
+    """Tests for enhanced RelevantPrinciple model (§4.6.1)."""
+
+    def test_relevant_principle_includes_content(self):
+        """RelevantPrinciple should include content field for AI reasoning."""
+        from ai_governance_mcp.models import RelevantPrinciple
+
+        principle = RelevantPrinciple(
+            id="test-C1",
+            title="Test Principle",
+            content="Full principle text for AI reasoning",
+            relevance="Semantic match",
+            score=0.85,
+            domain="constitution",
+        )
+        assert principle.content == "Full principle text for AI reasoning"
+        assert principle.domain == "constitution"
+
+    def test_relevant_principle_optional_series_code(self):
+        """series_code should be optional."""
+        from ai_governance_mcp.models import RelevantPrinciple
+
+        principle = RelevantPrinciple(
+            id="test-C1",
+            title="Test Principle",
+            content="Full text",
+            relevance="Match",
+            score=0.5,
+            domain="constitution",
+        )
+        assert principle.series_code is None
+
+        principle_with_code = RelevantPrinciple(
+            id="test-S1",
+            title="Safety Principle",
+            content="Safety text",
+            relevance="Match",
+            score=0.5,
+            series_code="S",
+            domain="constitution",
+        )
+        assert principle_with_code.series_code == "S"
+
+
+class TestComplianceEvaluation:
+    """Tests for enhanced ComplianceEvaluation model (§4.6.1)."""
+
+    def test_compliance_evaluation_suggested_modification(self):
+        """ComplianceEvaluation should have optional suggested_modification."""
+        from ai_governance_mcp.models import ComplianceEvaluation, ComplianceStatus
+
+        eval_without_mod = ComplianceEvaluation(
+            principle_id="test-C1",
+            principle_title="Test Principle",
+            status=ComplianceStatus.COMPLIANT,
+            finding="Action complies",
+        )
+        assert eval_without_mod.suggested_modification is None
+
+        eval_with_mod = ComplianceEvaluation(
+            principle_id="test-C1",
+            principle_title="Test Principle",
+            status=ComplianceStatus.GAP,
+            finding="Action has gap",
+            suggested_modification="Add tests before proceeding",
+        )
+        assert eval_with_mod.suggested_modification == "Add tests before proceeding"
+
 
 class TestGovernanceAuditLog:
     """Test GovernanceAuditLog model."""

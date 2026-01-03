@@ -147,10 +147,24 @@ For significant actions, follow this protocol:
 - Do NOT make product/business/timeline decisions — escalate to user
 - Do NOT ignore S-Series principles under any circumstances
 
+### AI Judgment Protocol (§4.6.1)
+
+When `requires_ai_judgment=true` in the evaluate_governance response:
+
+1. **Read principle content** — Each principle includes full text in the `content` field
+2. **Analyze for conflicts** — Does the action conflict with any principle requirements?
+3. **Determine outcome**:
+   - No conflicts → Confirm PROCEED
+   - Resolvable conflicts → PROCEED_WITH_MODIFICATIONS + list specific changes
+   - (ESCALATE only comes from script via S-Series, never from AI judgment)
+4. **Cite principle IDs** — Reference which principles informed your decision
+
+When `requires_ai_judgment=false`: The script has made a definitive decision (S-Series ESCALATE or no principles found). Follow the assessment as-is.
+
 ### Tools (10 Available)
 | Tool | Purpose |
 |------|---------|
-| `evaluate_governance(planned_action)` | **Pre-action check** — returns PROCEED/MODIFY/ESCALATE |
+| `evaluate_governance(planned_action)` | **Pre-action check** — returns assessment + principle content for AI judgment |
 | `query_governance(query)` | Get relevant principles + methods |
 | `verify_governance_compliance(action)` | **Post-action audit** — check if governance was consulted |
 | `get_principle(id)` | Full content of principle or method |
@@ -1029,8 +1043,11 @@ async def _handle_evaluate_governance(
             RelevantPrinciple(
                 id=p.id,
                 title=p.title,
+                content=p.content,  # Full text for AI reasoning (§4.6.1)
                 relevance=relevance,
                 score=score,
+                series_code=p.series_code,  # S, C, Q, O, G, MA
+                domain=p.domain,  # Source domain for hierarchy
             )
         )
 
@@ -1060,39 +1077,49 @@ async def _handle_evaluate_governance(
     )
 
     # Determine assessment status
-    # Per governance hierarchy: S-Series forces ESCALATE
+    # Per §4.6.1 Assessment Responsibility Layers:
+    # - S-Series = script-enforced (non-negotiable safety)
+    # - Non-S-Series = AI judgment required for nuanced compliance
     required_modifications: list[str] = []
+    requires_ai_judgment = False
+    ai_judgment_guidance: str | None = None
 
     if s_series_triggered:
+        # Script-enforced safety veto - no AI override possible
         assessment = AssessmentStatus.ESCALATE
+        requires_ai_judgment = False
         rationale = (
             "S-Series (safety) principles triggered. "
             "Human review required before proceeding. "
             f"Triggered by: {', '.join(s_series_principles + safety_concerns)}"
         )
     elif not relevant_principles:
+        # No principles found - safe to proceed
         assessment = AssessmentStatus.PROCEED
+        requires_ai_judgment = False
         rationale = (
             "No strongly relevant governance principles found. "
             "Action may proceed but consider querying with more specific terms."
         )
     else:
-        # Check if any principles suggest modifications needed
-        # For now, default to PROCEED if no S-Series
-        # Future: deeper compliance analysis
-        assessment = AssessmentStatus.PROCEED
-        top_principle = relevant_principles[0] if relevant_principles else None
-        if top_principle and top_principle.score >= 0.5:
-            rationale = (
-                f"Action should comply with {len(relevant_principles)} relevant principles. "
-                f"Primary guidance: {top_principle.title}. "
-                "Review compliance evaluations before proceeding."
-            )
-        else:
-            rationale = (
-                "Low-confidence principle matches. "
-                "Consider rephrasing your action description for better governance matching."
-            )
+        # Non-S-Series with relevant principles - AI judgment required
+        # Script provides data, AI determines PROCEED vs PROCEED_WITH_MODIFICATIONS
+        assessment = (
+            AssessmentStatus.PROCEED
+        )  # Default, AI may determine modifications needed
+        requires_ai_judgment = True
+        ai_judgment_guidance = (
+            "Review each principle's content against the planned action. "
+            "If the action conflicts with principle requirements and modifications can resolve it, "
+            "communicate PROCEED_WITH_MODIFICATIONS with the specific changes needed. "
+            "If the action fully complies with all principles, confirm PROCEED."
+        )
+        top_principle = relevant_principles[0]
+        rationale = (
+            f"AI judgment required for {len(relevant_principles)} relevant principles. "
+            f"Primary principle: {top_principle.title} (score: {top_principle.score:.2f}). "
+            "Read principle content and determine if modifications are needed."
+        )
 
     # Determine confidence
     confidence = _determine_confidence(best_score, s_series_triggered)
@@ -1107,6 +1134,8 @@ async def _handle_evaluate_governance(
         required_modifications=required_modifications,
         s_series_check=s_series_check,
         rationale=rationale,
+        requires_ai_judgment=requires_ai_judgment,  # §4.6.1 hybrid assessment
+        ai_judgment_guidance=ai_judgment_guidance,
     )
 
     # Log audit record (per §4.6 Audit Trail Requirements)

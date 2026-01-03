@@ -304,21 +304,38 @@ class ErrorResponse(BaseModel):
 
 
 class RelevantPrinciple(BaseModel):
-    """A principle identified as relevant to a governance assessment."""
+    """A principle identified as relevant to a governance assessment.
+
+    Per §4.6.1 Assessment Responsibility Layers: Script layer provides
+    full principle content for AI judgment layer to reason about.
+    """
 
     id: str = Field(..., description="Principle ID")
     title: str = Field(..., description="Principle title")
+    content: str = Field(..., description="Full principle text for AI reasoning")
     relevance: str = Field(..., description="Why this principle is relevant")
     score: float = Field(..., ge=0.0, le=1.0, description="Retrieval relevance score")
+    series_code: Optional[str] = Field(
+        None, description="Series code (S, C, Q, O, G, MA) if applicable"
+    )
+    domain: str = Field(..., description="Source domain for hierarchy resolution")
 
 
 class ComplianceEvaluation(BaseModel):
-    """Evaluation of action compliance against a single principle."""
+    """Evaluation of action compliance against a single principle.
+
+    When requires_ai_judgment=True, AI populates these fields.
+    When False, script provides placeholder guidance.
+    """
 
     principle_id: str = Field(..., description="Principle ID")
     principle_title: str = Field(..., description="Principle title")
     status: ComplianceStatus = Field(..., description="Compliance status")
     finding: str = Field(..., description="Specific finding explanation")
+    suggested_modification: Optional[str] = Field(
+        None,
+        description="AI-generated modification to achieve compliance (when status=GAP)",
+    )
 
 
 class SSeriesCheck(BaseModel):
@@ -377,6 +394,17 @@ class GovernanceAssessment(BaseModel):
         default_factory=SSeriesCheck, description="S-Series safety check result"
     )
     rationale: str = Field(..., description="Explanation of the assessment")
+
+    # Hybrid assessment fields (§4.6.1 Assessment Responsibility Layers)
+    requires_ai_judgment: bool = Field(
+        default=False,
+        description="True when AI should determine final assessment. "
+        "False when script has made definitive decision (e.g., ESCALATE from S-Series).",
+    )
+    ai_judgment_guidance: Optional[str] = Field(
+        None,
+        description="Instructions for AI layer when requires_ai_judgment=True",
+    )
 
 
 class VerificationStatus(str, Enum):
