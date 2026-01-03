@@ -1,7 +1,7 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.3.0
+**Version:** 3.3.1
 **Status:** Active
 **Effective Date:** 2026-01-03
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -1060,11 +1060,15 @@ This part operationalizes the Constitution's **Progressive Inquiry Protocol** pr
 
 Structure questions in three tiers:
 
-| Tier | Purpose | When to Ask | Examples |
-|------|---------|-------------|----------|
-| **Foundation** | Establish strategic scope | Always ask first (2-3 questions) | Goal, primary constraints, stakeholder context |
-| **Branching** | Explore enabled paths | Conditionally, based on foundation answers | Technical approach, feature priority, integration points |
-| **Refinement** | Clarify details | Only if high-impact and not inferrable | Specific thresholds, edge cases, formatting preferences |
+| Tier | Purpose | When to Ask | Format | Examples |
+|------|---------|-------------|--------|----------|
+| **Foundation** | Establish strategic scope | Always ask first (2-3 questions) | **Open-ended text** | Goal, primary constraints, stakeholder context |
+| **Branching** | Explore enabled paths | Conditionally, based on foundation answers | Open or semi-structured | Technical approach, feature priority, integration points |
+| **Refinement** | Clarify details | Only if high-impact and not inferrable | **Structured options** | Specific thresholds, edge cases, formatting preferences |
+
+**Format Rationale:**
+- **Foundation → Open-ended:** Answers are exploratory and unpredictable. Constraining options prematurely limits discovery.
+- **Refinement → Structured:** Answer space is bounded. User is selecting from known possibilities, not ideating.
 
 ### 7.9.2 Dependency Mapping
 
@@ -1648,6 +1652,7 @@ For restructuring, philosophy shifts, principle removal:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.3.1 | 2026-01-03 | PATCH: Added Format column to Question Architecture table (Part 7.9.1). Foundation questions → open-ended text; Refinement questions → structured options. Added Format Rationale section. Updated principle with matching guidance. |
 | 3.3.0 | 2026-01-03 | MINOR: Added Part 7.9 Progressive Inquiry Protocol. Operationalizes the Constitution's Progressive Inquiry Protocol principle with procedures for structured questioning: three-tier question architecture, dependency mapping, adaptive branching rules, cognitive load limits, consolidation procedure, and cross-domain application. Added Situation Index entry. |
 | 3.0.1 | 2025-12-29 | PATCH: Added missing importance tags to Parts 1.2, 2.2, 3.2, 3.3, 4.2, 5.2 for consistency. Added clarifying note to Part 9.4 referencing Part 3.5.1 (10-Field Template) relationship. |
 | 3.0.0 | 2025-12-29 | MAJOR 80/20 cleanup: Simplified TITLE 2 (Update Workflow) to table format. Consolidated Parts 3.2-3.3 (Index) removing redundant checklists. Streamlined TITLE 4 (Validation) to essential tables. Replaced TITLE 6 (CI/CD) detailed procedures with brief reference to README. Added Quick Reference entry to Situation Index. ~35% reduction in document size while preserving all essential governance procedures. |
