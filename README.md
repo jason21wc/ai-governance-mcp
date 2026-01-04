@@ -139,7 +139,65 @@ AI uses query_governance("implementing authentication system")
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
 | Test Coverage | 80% | **90%** (290 tests) |
 
-## Getting Started
+## Quick Start (Docker)
+
+**1. Pull the image**
+```bash
+docker pull jason21wc/ai-governance-mcp:latest
+```
+
+**2. Configure your AI client**
+
+<details>
+<summary><b>Claude Desktop</b> (macOS/Windows)</summary>
+
+Edit config file:
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "ai-governance": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Claude Code CLI</b></summary>
+
+```bash
+claude mcp add ai-governance -s user -- docker run -i --rm jason21wc/ai-governance-mcp:latest
+```
+</details>
+
+<details>
+<summary><b>Cursor / Windsurf / ChatGPT Desktop</b></summary>
+
+Add to MCP settings:
+```json
+{
+  "mcpServers": {
+    "ai-governance": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest"]
+    }
+  }
+}
+```
+</details>
+
+**3. Restart your AI client**
+
+**4. Test it** — Ask your AI: *"Query governance for handling incomplete specifications"*
+
+---
+
+## Getting Started (Detailed)
 
 ### Option 1: Docker (Recommended)
 
@@ -151,19 +209,6 @@ docker pull jason21wc/ai-governance-mcp:latest
 
 # Test it works
 docker run --rm jason21wc/ai-governance-mcp:latest python -c "print('Ready!')"
-```
-
-**Configure your AI client** (add to your MCP settings):
-
-```json
-{
-  "mcpServers": {
-    "ai-governance": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest"]
-    }
-  }
-}
 ```
 
 **Update to latest version:**
@@ -312,6 +357,19 @@ See [Cursor MCP Documentation](https://docs.cursor.com/context/model-context-pro
 
 Windsurf supports MCP through Cascade. Add to your Windsurf MCP configuration:
 
+**Docker (recommended):**
+```json
+{
+  "mcpServers": {
+    "ai-governance": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest"]
+    }
+  }
+}
+```
+
+**Local install:**
 ```json
 {
   "mcpServers": {
@@ -325,7 +383,7 @@ Windsurf supports MCP through Cascade. Add to your Windsurf MCP configuration:
 
 See [Windsurf MCP Documentation](https://docs.windsurf.com/windsurf/cascade/mcp) for details.
 
-#### Other Platforms (Grok, Perplexity, Google AI Studio)
+#### Perplexity, Grok, Google AI Studio (Web-based)
 
 Use the [MCP SuperAssistant Chrome Extension](https://github.com/srbhptl39/MCP-SuperAssistant) to bridge MCP to web-based AI platforms.
 
@@ -445,7 +503,7 @@ safety check
 
 **Distribution & Deployment**
 - [x] Docker containerization with security hardening ✓
-- [ ] Docker Hub publishing (pending secrets setup)
+- [x] Docker Hub publishing ✓ — `jason21wc/ai-governance-mcp:latest`
 - [ ] Public API with authentication
 
 **Architecture Enhancements**
