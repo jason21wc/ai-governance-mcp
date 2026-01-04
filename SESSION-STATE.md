@@ -11,24 +11,25 @@
 
 ## Recent Work (This Session)
 
-### v1.0.0 Release Complete
-- GitHub release created: https://github.com/jason21wc/ai-governance-mcp/releases/tag/v1.0.0
-- Docker Hub tags: `latest` and `v1.0.0`
-- Full release notes with features, tools, security, and installation guides
+### MCP Path Detection Fix (Critical)
+**Issue:** Server returned "0 domains" when used from other projects.
 
-### Docker Hub Publishing
-- Image: `jason21wc/ai-governance-mcp:latest`
-- Version tag: `jason21wc/ai-governance-mcp:v1.0.0`
-- Full description with platform-specific instructions
+**Root Cause:** Claude Desktop and Claude Code CLI have separate MCP configs. CLI config lacked env vars, causing CWD-based path detection to fail.
 
-### Documentation
-- Windows step-by-step installation guide
-- macOS step-by-step installation guide
-- Quick Start section with collapsible platform guides
-- Before/after JSON examples with comma reminder
+**Fixes Applied:**
+- `config_generator.py`: Auto-includes env vars with correct paths (detects from `__file__`, not CWD)
+- `server.py`: Added startup logging for resolved paths
+- `README.md`: Added troubleshooting section + Desktop vs CLI separation note
+- `LEARNING-LOG.md`: Documented lesson with root cause analysis
 
-### Security Hardening (Previous Session)
-All Gemini security review items implemented (C1-C2, H1-H5, M1-M6).
+**Commit:** `f2c9ded` — pushed to GitHub
+
+**Docker:** No update needed (paths baked in via ENV directives)
+
+### v1.0.0 Release (Previous Session)
+- GitHub release: https://github.com/jason21wc/ai-governance-mcp/releases/tag/v1.0.0
+- Docker Hub: `jason21wc/ai-governance-mcp:latest` and `v1.0.0`
+- Full documentation with platform-specific guides
 
 ## Quick Reference
 
