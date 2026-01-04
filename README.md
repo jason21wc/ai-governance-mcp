@@ -421,51 +421,48 @@ docker run -i --rm jason21wc/ai-governance-mcp:latest
 
 ### Platform Configuration
 
-MCP is now supported across major AI platforms. Use the config generator for platform-specific setup:
+MCP is now supported across major AI platforms. **Use the config generator** for platform-specific setup—it auto-detects your installation path and generates the correct environment variables:
 
 ```bash
-# Generate config for any platform
+# Generate config for any platform (includes correct paths!)
 python -m ai_governance_mcp.config_generator --platform gemini
 python -m ai_governance_mcp.config_generator --platform claude
 python -m ai_governance_mcp.config_generator --platform chatgpt
 python -m ai_governance_mcp.config_generator --all  # Show all platforms
+
+# Get JSON config for manual setup
+python -m ai_governance_mcp.config_generator --json claude
 ```
+
+> **Important for pip users**: The config generator automatically includes `AI_GOVERNANCE_INDEX_PATH` and `AI_GOVERNANCE_DOCUMENTS_PATH` environment variables. These are required when running the server from a different directory than the project root. Docker users don't need this—paths are baked into the image.
 
 #### Gemini CLI
 
+Use the command from the config generator, or:
+
 ```bash
-# Add to user config (available in all projects)
-gemini mcp add -s user ai-governance python -m ai_governance_mcp.server
-
-# Or manually add to ~/.gemini/settings.json
-```
-
-```json
-{
-  "mcpServers": {
-    "ai-governance": {
-      "command": "python",
-      "args": ["-m", "ai_governance_mcp.server"],
-      "timeout": 30000
-    }
-  }
-}
+# Add to user config (includes env vars for path resolution)
+gemini mcp add -s user \
+  --env AI_GOVERNANCE_DOCUMENTS_PATH="/path/to/ai-governance-mcp/documents" \
+  --env AI_GOVERNANCE_INDEX_PATH="/path/to/ai-governance-mcp/index" \
+  ai-governance python -m ai_governance_mcp.server
 ```
 
 Restart Gemini CLI after configuration.
 
 #### Claude Code CLI
 
-```bash
-# Global installation (available in all projects)
-claude mcp add ai-governance -s user -- python -m ai_governance_mcp.server
+Use the command from the config generator, or:
 
-# With environment variables
+```bash
+# Global installation (includes env vars for path resolution)
 claude mcp add ai-governance -s user \
-  --env AI_GOVERNANCE_DOCUMENTS_PATH=/path/to/documents \
-  --env AI_GOVERNANCE_INDEX_PATH=/path/to/index \
+  --env AI_GOVERNANCE_DOCUMENTS_PATH=/path/to/ai-governance-mcp/documents \
+  --env AI_GOVERNANCE_INDEX_PATH=/path/to/ai-governance-mcp/index \
   -- python -m ai_governance_mcp.server
 ```
+
+> **Note:** Claude Code CLI and Claude Desktop have **separate** MCP configurations. If you use both, configure each one independently. See [Troubleshooting](#troubleshooting) for details.
 
 #### Claude Desktop App
 
@@ -473,12 +470,18 @@ Edit the config file:
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
+Use the output from `python -m ai_governance_mcp.config_generator --json claude` which includes the correct paths, or manually add:
+
 ```json
 {
   "mcpServers": {
     "ai-governance": {
       "command": "python",
-      "args": ["-m", "ai_governance_mcp.server"]
+      "args": ["-m", "ai_governance_mcp.server"],
+      "env": {
+        "AI_GOVERNANCE_DOCUMENTS_PATH": "/path/to/ai-governance-mcp/documents",
+        "AI_GOVERNANCE_INDEX_PATH": "/path/to/ai-governance-mcp/index"
+      }
     }
   }
 }
@@ -489,33 +492,12 @@ Restart Claude Desktop after saving.
 #### ChatGPT Desktop (Developer Mode)
 
 1. Open ChatGPT Desktop → Settings → Developer Mode (enable)
-2. Add MCP server configuration:
-
-```json
-{
-  "mcpServers": {
-    "ai-governance": {
-      "command": "python",
-      "args": ["-m", "ai_governance_mcp.server"]
-    }
-  }
-}
-```
+2. Get config: `python -m ai_governance_mcp.config_generator --json chatgpt`
+3. Add the MCP server configuration (includes env vars for path resolution)
 
 #### Cursor
 
-Cursor has native MCP support. Add to your Cursor settings:
-
-```json
-{
-  "mcpServers": {
-    "ai-governance": {
-      "command": "python",
-      "args": ["-m", "ai_governance_mcp.server"]
-    }
-  }
-}
-```
+Cursor has native MCP support. Get config: `python -m ai_governance_mcp.config_generator --json cursor`
 
 See [Cursor MCP Documentation](https://docs.cursor.com/context/model-context-protocol) for details.
 
@@ -523,7 +505,7 @@ See [Cursor MCP Documentation](https://docs.cursor.com/context/model-context-pro
 
 Windsurf supports MCP through Cascade. Add to your Windsurf MCP configuration:
 
-**Docker (recommended):**
+**Docker (recommended—no path configuration needed):**
 ```json
 {
   "mcpServers": {
@@ -535,17 +517,7 @@ Windsurf supports MCP through Cascade. Add to your Windsurf MCP configuration:
 }
 ```
 
-**Local install:**
-```json
-{
-  "mcpServers": {
-    "ai-governance": {
-      "command": "python",
-      "args": ["-m", "ai_governance_mcp.server"]
-    }
-  }
-}
-```
+**Local install:** Get config with `python -m ai_governance_mcp.config_generator --json windsurf`
 
 See [Windsurf MCP Documentation](https://docs.windsurf.com/windsurf/cascade/mcp) for details.
 
@@ -570,6 +542,64 @@ export AI_GOVERNANCE_INDEX_PATH=/path/to/index
 export AI_GOVERNANCE_EMBEDDING_MODEL=all-MiniLM-L6-v2
 export AI_GOVERNANCE_SEMANTIC_WEIGHT=0.6
 ```
+
+### Troubleshooting
+
+#### "0 domains" or Empty Principles
+
+If the server connects but returns no data, the paths aren't configured correctly.
+
+**Quick diagnostic checklist:**
+
+```bash
+# 1. Is MCP connected?
+claude mcp list
+
+# 2. Are env vars set? (check Environment section in output)
+claude mcp get ai-governance
+
+# 3. Are paths resolving correctly?
+python -c "
+from ai_governance_mcp.config import Settings
+s = Settings()
+print(f'documents_path: {s.documents_path}')
+print(f'index_path: {s.index_path}')
+print(f'index exists: {(s.index_path / \"global_index.json\").exists()}')
+"
+
+# 4. Does the index exist?
+ls /path/to/ai-governance-mcp/index/global_index.json
+```
+
+**Common causes:**
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| Empty `Environment:` in `claude mcp get` | Env vars not set | Re-add with `-e` flags |
+| `index exists: False` | Wrong path | Check `AI_GOVERNANCE_INDEX_PATH` |
+| Works in Desktop, not CLI | Separate configs | Configure both (see below) |
+
+**Important: Desktop and CLI have separate configs**
+
+Claude Desktop and Claude Code CLI maintain independent MCP configurations:
+
+| Application | Config Location |
+|-------------|-----------------|
+| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Code CLI | `~/.claude.json` (user scope via `claude mcp add -s user`) |
+
+Configuring one does **not** configure the other. If you use both, add the MCP server to each.
+
+**Fix for CLI:**
+```bash
+claude mcp remove ai-governance -s user
+claude mcp add ai-governance -s user \
+  -e AI_GOVERNANCE_DOCUMENTS_PATH=/path/to/ai-governance-mcp/documents \
+  -e AI_GOVERNANCE_INDEX_PATH=/path/to/ai-governance-mcp/index \
+  -- python -m ai_governance_mcp.server
+```
+
+**Restart your session** after any config change—MCP configs are loaded at session start.
 
 ## Project Structure
 

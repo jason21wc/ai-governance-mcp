@@ -1805,6 +1805,16 @@ async def run_server():
     # Initialize engine on startup
     get_engine()
 
+    # Log resolved paths to help users verify configuration
+    if _settings:
+        logger.info(f"Documents path: {_settings.documents_path}")
+        logger.info(f"Index path: {_settings.index_path}")
+        index_file = _settings.index_path / "global_index.json"
+        if index_file.exists():
+            logger.info(f"Index loaded: {index_file}")
+        else:
+            logger.warning(f"Index NOT FOUND: {index_file} - run extractor first")
+
     def force_exit(signum, frame):
         """Force exit on signal - stdio streams can't be gracefully interrupted."""
         logger.info(f"Received signal {signum}, forcing exit...")

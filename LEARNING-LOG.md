@@ -7,6 +7,46 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-04 - Claude Desktop and CLI Have Separate MCP Configurations (CRITICAL)
+
+**Context:** User reported "0 domains" when using ai-governance MCP from another project.
+
+**What Happened:** Server connected successfully but returned empty data. Investigation revealed:
+- Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`) had env vars ✓
+- Claude Code CLI config (`~/.claude.json`) did NOT have env vars ✗
+- Server silently fell back to CWD-based path detection, which failed from other directories
+
+**Root Cause:** Assumption that configuring Claude Desktop also configured Claude Code CLI. They are completely independent systems with separate config files.
+
+**Silent Failure Pattern:** The server connects and responds, but with no data. This is worse than a hard error because users think it's working but don't understand why it's empty.
+
+**Diagnostic Commands That Revealed Issue:**
+```bash
+# Shows if env vars are set (look for empty "Environment:" section)
+claude mcp get ai-governance
+
+# Shows what paths the server actually resolves to
+python -c "
+from ai_governance_mcp.config import Settings
+s = Settings()
+print(f'index exists: {(s.index_path / \"global_index.json\").exists()}')
+"
+```
+
+**Fixes Applied:**
+1. Added troubleshooting section to README with diagnostic checklist
+2. Added note in Claude Code CLI section about separate configs
+3. Added startup logging showing resolved paths (so users can verify)
+4. Config generator now auto-includes env vars with correct paths
+
+**Lesson:** When building MCP servers that depend on file paths:
+1. Never rely on CWD-based path detection for user-installed servers
+2. Always require explicit paths via env vars or config
+3. Log resolved paths at startup so users can verify
+4. Fail loudly or warn when index files are missing, don't silently return empty data
+
+---
+
 ### 2026-01-04 - Security Hardening Phase 2: Defense-in-Depth Patterns
 
 **Context:** Implemented remaining high/medium priority items from Gemini security review.

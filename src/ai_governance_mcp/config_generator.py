@@ -8,12 +8,43 @@ Generates platform-specific configuration snippets for:
 - Cursor
 - Windsurf
 - Other platforms via MCP SuperAssistant
+
+IMPORTANT: Generated configs include environment variables pointing to the
+index and documents directories. This ensures the server works when called
+from any working directory (not just the project root).
 """
 
 import argparse
 import json
 import sys
+from pathlib import Path
 from typing import Optional
+
+
+def _find_project_root() -> Path:
+    """Find project root by looking for pyproject.toml or documents folder.
+
+    Searches from the directory containing this file (not CWD) to find the
+    ai-governance-mcp project root reliably.
+    """
+    # Start from this file's location, not CWD
+    start_path = Path(__file__).resolve().parent
+
+    for path in [start_path] + list(start_path.parents):
+        if (path / "pyproject.toml").exists() or (path / "documents").exists():
+            return path
+
+    # Fallback to user directory
+    return Path.home() / ".ai-governance"
+
+
+def get_env_vars() -> dict[str, str]:
+    """Get environment variables needed for the server to find its files."""
+    root = _find_project_root()
+    return {
+        "AI_GOVERNANCE_DOCUMENTS_PATH": str(root / "documents"),
+        "AI_GOVERNANCE_INDEX_PATH": str(root / "index"),
+    }
 
 
 def get_python_command() -> str:
@@ -29,6 +60,7 @@ def generate_gemini_config(python_path: Optional[str] = None) -> dict:
             "ai-governance": {
                 "command": python_cmd,
                 "args": ["-m", "ai_governance_mcp.server"],
+                "env": get_env_vars(),
                 "timeout": 30000,
             }
         }
@@ -43,6 +75,7 @@ def generate_claude_config(python_path: Optional[str] = None) -> dict:
             "ai-governance": {
                 "command": python_cmd,
                 "args": ["-m", "ai_governance_mcp.server"],
+                "env": get_env_vars(),
             }
         }
     }
@@ -56,6 +89,7 @@ def generate_chatgpt_config(python_path: Optional[str] = None) -> dict:
             "ai-governance": {
                 "command": python_cmd,
                 "args": ["-m", "ai_governance_mcp.server"],
+                "env": get_env_vars(),
             }
         }
     }
@@ -69,6 +103,7 @@ def generate_cursor_config(python_path: Optional[str] = None) -> dict:
             "ai-governance": {
                 "command": python_cmd,
                 "args": ["-m", "ai_governance_mcp.server"],
+                "env": get_env_vars(),
             }
         }
     }
@@ -82,19 +117,24 @@ def generate_windsurf_config(python_path: Optional[str] = None) -> dict:
             "ai-governance": {
                 "command": python_cmd,
                 "args": ["-m", "ai_governance_mcp.server"],
+                "env": get_env_vars(),
             }
         }
     }
 
 
 def get_gemini_cli_command() -> str:
-    """Get the gemini mcp add command."""
-    return "gemini mcp add -s user ai-governance python -m ai_governance_mcp.server"
+    """Get the gemini mcp add command with env vars."""
+    env_vars = get_env_vars()
+    env_args = " ".join(f'--env {k}="{v}"' for k, v in env_vars.items())
+    return f"gemini mcp add -s user {env_args} ai-governance python -m ai_governance_mcp.server"
 
 
 def get_claude_cli_command() -> str:
-    """Get the claude mcp add command."""
-    return "claude mcp add ai-governance -s user -- python -m ai_governance_mcp.server"
+    """Get the claude mcp add command with env vars."""
+    env_vars = get_env_vars()
+    env_args = " ".join(f'--env {k}="{v}"' for k, v in env_vars.items())
+    return f"claude mcp add ai-governance -s user {env_args} -- python -m ai_governance_mcp.server"
 
 
 def get_config_file_path(platform: str) -> str:
