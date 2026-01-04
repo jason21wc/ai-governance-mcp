@@ -543,6 +543,26 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Anti-Principle:** Never prune for size alone — large memory indicates detail or scope issues
 - **Sources:** [Mem0 priority scoring](https://mem0.ai), industry eviction policies
 
+### Decision: Subagent Prompt Content Belongs in Prompt Domain
+- **Date:** 2026-01-04
+- **Status:** CONFIRMED (Future Implementation)
+- **Context:** Subagent definition files (`.claude/agents/*.md`) combine:
+  1. Platform mechanics (YAML frontmatter: name, tools, model)
+  2. Prompt engineering (system prompt in markdown body)
+- **Analysis:**
+  | Content Type | Better Home | Rationale |
+  |--------------|-------------|-----------|
+  | System prompt structure, framing techniques, sandwich method, examples | **Prompt domain** | Applies to ALL prompts (subagents, CLAUDE.md, custom GPTs, etc.) |
+  | YAML frontmatter specification | **Multi-agent** | Platform-specific (Claude Code) |
+  | Tool scoping decisions | **Multi-agent** | Orchestration concern |
+  | Subagent validation checklist | **Multi-agent** | Includes agent-to-agent integration testing |
+- **Decision:** When Prompt Engineering domain is created:
+  1. Move general prompt best practices (§2.1.1 content) to Prompt Methods
+  2. Multi-agent §2.1.1 becomes reference: "For system prompt best practices, see Prompt Methods §X"
+  3. Keep platform-specific content (YAML, tool scoping, validation) in Multi-agent
+- **Rationale:** One source of truth for prompt engineering, referenced where needed. Follows governance framework's own anti-duplication principle.
+- **Current State:** Prompt best practices remain in multi-agent-methods-v2.4.0.md until Prompt domain is created
+
 ### Decision: Gateway-Based Enforcement Pattern Documented
 - **Date:** 2026-01-03
 - **Status:** CONFIRMED
