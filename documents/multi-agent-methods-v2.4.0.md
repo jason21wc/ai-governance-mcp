@@ -102,6 +102,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Writing effective system prompts | §2.1.1 | System Prompt Best Practices |
 | Deciding which tools to allow | §2.1.2 | Tool Scoping Guidelines |
 | Testing subagent before deployment | §2.1.3 | Subagent Validation Checklist |
+| Using subagents in sessions | §2.1.4 | Subagent Usage in Practice |
 | Choosing an agent pattern | §2.2 | Agent Catalog |
 | Setting up orchestrator | §2.3 | Orchestrator Configuration |
 | Choosing handoff pattern | §3.1 | Handoff Pattern Taxonomy |
@@ -688,6 +689,79 @@ Subagent is production-ready when:
 - [ ] All Phase 2 test cases pass
 - [ ] Phase 3 integration confirmed
 - [ ] At least 3 real-world uses without modification needed
+
+---
+
+#### 2.1.4 Subagent Usage in Practice
+
+IMPORTANT
+
+**Purpose:** How to invoke and use subagent definitions in actual sessions.
+
+**Key Insight:** Custom subagent definition files (`.claude/agents/*.md`) are **reference documentation**, not automatically invokable agent types. The Task tool has predefined `subagent_type` values; custom files must be explicitly referenced.
+
+**Usage Patterns:**
+
+**Pattern A: Explicit Request (User-Initiated)**
+
+User tells Claude to use a specific agent:
+
+```
+"Use the code-reviewer agent to review the authentication module"
+```
+
+Claude then:
+1. Reads `.claude/agents/code-reviewer.md`
+2. Applies the role, cognitive function, and output format
+3. Performs the task following that agent's instructions
+
+**Pattern B: CLAUDE.md Integration (Semi-Automatic)**
+
+Add to project's `CLAUDE.md`:
+
+```markdown
+## Subagents
+
+When tasks match these cognitive functions, read and apply the corresponding agent:
+
+| Task Type | Agent File | When to Use |
+|-----------|------------|-------------|
+| Code review | `code-reviewer.md` | After writing/modifying code |
+| Test creation | `test-generator.md` | When tests need to be written |
+| Security review | `security-auditor.md` | Before releases, auth changes |
+| Documentation | `documentation-writer.md` | README, docstrings needed |
+```
+
+Claude checks this table and proactively reads the appropriate agent file.
+
+**Pattern C: Task Tool Delegation (Subprocess)**
+
+For focused work in fresh context:
+
+```python
+Task(
+    subagent_type="general-purpose",
+    prompt="""You are a Code Reviewer specialist.
+
+    [Include full instructions from code-reviewer.md]
+
+    Review this code: [target]"""
+)
+```
+
+**Why Custom Files Don't Auto-Register:**
+
+The Task tool's `subagent_type` parameter accepts predefined values (general-purpose, Explore, Plan, etc.). Creating `.claude/agents/foo.md` does NOT add "foo" as a new subagent type. The files serve as:
+- Structured role documentation
+- Reusable prompt templates
+- Project-level conventions
+
+**Recommendation:**
+
+For projects using custom subagents:
+1. Document available agents in CLAUDE.md with trigger conditions
+2. Use explicit requests or CLAUDE.md integration for most cases
+3. Use Task tool delegation only when fresh context is needed
 
 ---
 

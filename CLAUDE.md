@@ -60,6 +60,26 @@ docker run -i --rm ai-governance-mcp    # Run container
 - `documents/` — Governance content (indexed)
 - `index/` — Generated embeddings
 - `tests/` — Test suite
+- `.claude/agents/` — Subagent definitions
+
+## Subagents
+
+This project has specialized subagent definitions in `.claude/agents/`. When a task matches a cognitive function below, read the agent file and apply its instructions.
+
+| Task Type | Agent File | When to Use |
+|-----------|------------|-------------|
+| Code review | `code-reviewer.md` | After writing or modifying code |
+| Test creation | `test-generator.md` | When tests need to be written |
+| Security review | `security-auditor.md` | Before releases, auth/security changes, sensitive data handling |
+| Documentation | `documentation-writer.md` | README updates, docstrings, technical writing |
+| Governance coordination | `orchestrator.md` | Complex multi-step tasks requiring governance checks |
+
+**How to use:**
+1. Read the agent file (e.g., `.claude/agents/code-reviewer.md`)
+2. Apply the role, cognitive function, and output format from that file
+3. Use Task tool with `general-purpose` if spawning a focused subprocess
+
+**Note:** Custom agent files are reference documentation — they define roles but aren't automatically invokable via Task tool's `subagent_type` parameter.
 
 ## Jurisdiction
 
