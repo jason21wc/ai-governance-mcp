@@ -11,15 +11,25 @@
 
 ## Recent Work (This Session)
 
-### Agent Authoring Best Practices
+### Subagent Terminology Standardization
+**Change:** Updated all documentation to use "subagent" terminology per Claude Code documentation.
+
+**Files Updated:**
+- `README.md`: "Agent Installation" → "Subagent Installation"
+- `server.py`: Updated SERVER_INSTRUCTIONS, AGENT_EXPLANATION, tool descriptions
+- `multi-agent-methods-v2.4.0.md`: Already had terminology from previous session
+
+**Commit:** `987b9b4` — pushed to GitHub
+
+### Agent Authoring Best Practices (Previous)
 **Analysis:** Per `multi-general-justified-complexity`, agent authoring is procedural (HOW), not binding rules (WHAT). Added as methods within existing multi-agent domain rather than new domain.
 
 **Methods Added (multi-agent-methods v2.4.0):**
 - §2.1.1 System Prompt Best Practices (positive framing, examples, sandwich method)
 - §2.1.2 Tool Scoping Guidelines (when to restrict vs inherit, decision matrix)
-- §2.1.3 Agent Validation Checklist (3-phase validation, graduation criteria)
+- §2.1.3 Subagent Validation Checklist (3-phase validation, graduation criteria)
 
-**Orchestrator Agent Improved:**
+**Orchestrator Subagent Improved:**
 - Added concrete examples (2 good, 1 bad)
 - Balanced "Boundaries" section (positive + negative framing)
 - Applied sandwich method (critical instruction at top and bottom)
