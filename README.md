@@ -304,7 +304,7 @@ claude mcp add ai-governance -s user -- docker run -i --rm jason21wc/ai-governan
 </details>
 
 <details>
-<summary><b>Cursor / Windsurf / ChatGPT Desktop</b></summary>
+<summary><b>Cursor / ChatGPT Desktop</b></summary>
 
 1. Install Docker Desktop and pull the image (see Windows/macOS steps above)
 2. Add to your MCP settings:
@@ -319,6 +319,46 @@ claude mcp add ai-governance -s user -- docker run -i --rm jason21wc/ai-governan
   }
 }
 ```
+</details>
+
+<details>
+<summary><b>Windsurf</b></summary>
+
+1. Install Docker Desktop and pull the image (see Windows/macOS steps above)
+2. Open Windsurf → **Settings** → **Cascade** → **MCP Servers**
+3. Add server configuration:
+
+```json
+{
+  "mcpServers": {
+    "ai-governance": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest"]
+    }
+  }
+}
+```
+
+4. Restart Windsurf
+5. Test: Ask Cascade *"Query governance for handling incomplete specifications"*
+</details>
+
+<details>
+<summary><b>Perplexity / Grok / Google AI Studio (Web-based)</b></summary>
+
+Web-based AI platforms require the MCP SuperAssistant browser extension.
+
+1. Install [MCP SuperAssistant](https://github.com/srbhptl39/MCP-SuperAssistant) Chrome extension
+2. Install Docker Desktop and pull the image:
+   ```bash
+   docker pull jason21wc/ai-governance-mcp:latest
+   ```
+3. Click the SuperAssistant extension icon in Chrome
+4. Add MCP server with command:
+   ```
+   docker run -i --rm jason21wc/ai-governance-mcp:latest
+   ```
+5. Go to Perplexity/Grok/AI Studio and use governance tools through the extension
 </details>
 
 ---
