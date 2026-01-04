@@ -7,6 +7,52 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-04 - Custom Subagent Files Are Reference Documentation, Not Invokable Types
+
+**Context:** Created 4 coding subagent definition files in `.claude/agents/` following §2.1 Subagent Definition Standard. Attempted to invoke them via Task tool.
+
+**What Happened:**
+```
+Task tool error: Agent type 'code-reviewer' not found.
+Available agents: general-purpose, statusline-setup, Explore, Plan, claude-code-guide, orchestrator
+```
+
+**Discovery:** The Task tool has a fixed set of built-in `subagent_type` values. Custom `.claude/agents/*.md` files do NOT automatically register as new invokable types.
+
+**What Custom Agent Files Actually Do:**
+1. Serve as **reference documentation** for the project
+2. Can be read and their instructions provided to `general-purpose` agent
+3. Define roles/personas that Claude can reference when asked
+4. The `orchestrator` appears in the list because it's a **built-in** type, not because of our `.claude/agents/orchestrator.md` file
+
+**Working Pattern for Custom Agents:**
+```python
+# Instead of:
+Task(subagent_type="code-reviewer", prompt="Review this code")  # ❌ Fails
+
+# Do this:
+Task(
+    subagent_type="general-purpose",
+    prompt="""You are a Code Reviewer specialist. [Include role instructions]
+
+    Review this code: ..."""
+)  # ✓ Works
+```
+
+**Why This Matters:**
+- Subagent definition files are still valuable as structured role documentation
+- They follow prompt engineering best practices (cognitive function, boundaries, examples)
+- They can be programmatically read and injected into prompts
+- But they're not "registered agents" that the Task tool knows about
+
+**Lesson:**
+- Claude Code's Task tool has predefined agent types
+- Custom `.claude/agents/` files are project-level role definitions/documentation
+- To use custom roles, read the file and provide instructions inline to general-purpose agent
+- The `install_agent` MCP tool creates files for project reference, not Task tool registration
+
+---
+
 ### 2026-01-04 - Claude Desktop and CLI Have Separate MCP Configurations (CRITICAL)
 
 **Context:** User reported "0 domains" when using ai-governance MCP from another project.
