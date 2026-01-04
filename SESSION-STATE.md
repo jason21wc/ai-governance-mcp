@@ -11,6 +11,23 @@
 
 ## Recent Work (This Session)
 
+### Agent Authoring Best Practices
+**Analysis:** Per `multi-general-justified-complexity`, agent authoring is procedural (HOW), not binding rules (WHAT). Added as methods within existing multi-agent domain rather than new domain.
+
+**Methods Added (multi-agent-methods v2.4.0):**
+- §2.1.1 System Prompt Best Practices (positive framing, examples, sandwich method)
+- §2.1.2 Tool Scoping Guidelines (when to restrict vs inherit, decision matrix)
+- §2.1.3 Agent Validation Checklist (3-phase validation, graduation criteria)
+
+**Orchestrator Agent Improved:**
+- Added concrete examples (2 good, 1 bad)
+- Balanced "Boundaries" section (positive + negative framing)
+- Applied sandwich method (critical instruction at top and bottom)
+
+**Commit:** `8cc9107` — pushed to GitHub
+
+**Sources:** Claude Code subagent docs, Anthropic prompt engineering, skill authoring best practices
+
 ### MCP Path Detection Fix (Critical)
 **Issue:** Server returned "0 domains" when used from other projects.
 
