@@ -559,6 +559,25 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Future Work:** Governance Proxy Mode — wrap other MCP servers with governance checks before forwarding requests
 - **Sources:** [Lasso MCP Gateway](https://lasso.security), [Envoy AI Gateway](https://aigateway.envoyproxy.io), [MCP Security Survival Guide](https://towardsdatascience.com)
 
+### Decision: Pause Automatic Governance Enforcement Implementation
+- **Date:** 2026-01-03
+- **Status:** PAUSED
+- **Goal:** Make AI compliance with governance automatic (AI can't skip `evaluate_governance`)
+- **Research Summary:**
+  | Approach | Can Enforce? | Limitation |
+  |----------|--------------|------------|
+  | Claude Hooks (`PreToolUse`) | Partial | Can block tools, cannot force orchestrator routing |
+  | Claude Hooks (`UserPromptSubmit`) | No | Can block prompts, cannot modify or reroute |
+  | MCP Proxy/Gateway | Tool-level | Gates tool calls, not reasoning patterns |
+  | LangChain Middleware | Full | Requires separate wrapper app, not MCP enhancement |
+  | MCP Resources | Depends | Inconsistent client auto-loading support |
+- **Key Finding:** True automatic enforcement requires architectural control outside the MCP — either a wrapper app (LangChain/LiteLLM) or waiting for MCP clients to mature
+- **Decision:** Pause implementation. Current instruction-based approach (SERVER_INSTRUCTIONS + reminders) is sufficient for now. Revisit when:
+  - MCP clients add better resource auto-loading
+  - Building a LangChain wrapper app becomes a priority
+  - Claude Code hooks gain prompt modification capability
+- **See Also:** LEARNING-LOG 2026-01-03 for detailed research findings
+
 ## Roadmap
 
 ### Planned Domains

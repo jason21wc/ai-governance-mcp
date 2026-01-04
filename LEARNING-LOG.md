@@ -7,6 +7,34 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-03 - Governance Enforcement Patterns Research
+
+**Context:** Explored how to make AI compliance with governance principles *automatic* rather than "hope-based" (AI might ignore instructions to call `evaluate_governance`).
+
+**Research Findings:**
+
+| Approach | Enforcement Level | Limitations |
+|----------|------------------|-------------|
+| **Instructions** (current) | Hope-based | AI can skip |
+| **Claude Code Hooks** | Partial | Can block tools, cannot modify prompts or force agent routing |
+| **MCP Proxy/Gateway** | Tool-level only | Enforces governance before tool calls, cannot enforce reasoning patterns |
+| **LangChain Middleware** | Full (custom app) | Requires building wrapper app, not an MCP enhancement |
+| **MCP Resources** | Client-dependent | Elegant but inconsistent client support |
+
+**Key Insight:** "Governance rules won't live inside the agent—they'll sit above it, enforced by governance services or agent policy gateways." True enforcement requires architectural control, not better instructions.
+
+**Claude Code Specifics:**
+- `UserPromptSubmit` hook can see/block prompts but **cannot modify or reroute**
+- `PreToolUse` hook can block writes until governance called (partial enforcement)
+- Cannot force `/agent:orchestrator` routing programmatically
+- Orchestrator agent exists but must be explicitly invoked
+
+**Conclusion:** True automatic enforcement for all platforms requires either (a) wrapper application with LangChain/LiteLLM middleware, or (b) waiting for MCP ecosystem to mature with better client-side resource auto-loading.
+
+**Sources:** [Claude Code Hooks Docs](https://docs.anthropic.com/en/docs/claude-code/hooks), [LangChain Middleware](https://medium.com/@pankaj_pandey/langchain-middleware-precise-control-around-the-agent-loop-1030a1c8e3ea), [Lasso MCP Gateway](https://github.com/lasso-security/mcp-gateway), [Portkey MCP Best Practices](https://portkey.ai/blog/best-practices-for-securing-and-governing-mcp-tools/)
+
+---
+
 ### 2025-12-31 - Task Tracking Belongs in Working Memory (Research-Backed)
 **Context:** User identified gap where SESSION-STATE referenced task IDs (T1, T2) without defining what those tasks are. Needed to decide where task definitions should live.
 **Research:** Reviewed 2025 AI agent memory architecture best practices from AIS, Zep, MongoDB, IBM. Key finding: "Task decomposition creates a structure that memory can track. The list of subtasks becomes part of the agent's state."
