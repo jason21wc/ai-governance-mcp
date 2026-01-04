@@ -4,54 +4,52 @@
 
 ## Current Position
 
-- **Phase:** Implement (Complete)
+- **Phase:** Released (v1.0.0)
 - **Mode:** Standard
 - **Active Task:** None
 - **Blocker:** None
 
 ## Recent Work (This Session)
 
-### Docker Hub Publishing Complete
-- Pushed image to `jason21wc/ai-governance-mcp:latest`
-- Verified pull from Docker Hub works
-- Container tested and functional (292 documents, all components)
-- Added full description to Docker Hub repo page
+### v1.0.0 Release Complete
+- GitHub release created: https://github.com/jason21wc/ai-governance-mcp/releases/tag/v1.0.0
+- Docker Hub tags: `latest` and `v1.0.0`
+- Full release notes with features, tools, security, and installation guides
 
-### Documentation Overhaul
-- Added **Quick Start** section with collapsible platform guides
-- **Windows step-by-step**: Docker Desktop GUI, File Explorer, Notepad editing
-- **macOS step-by-step**: Docker Desktop, Terminal commands, TextEdit config
-- Before/after JSON examples with comma reminder for non-technical users
-- Updated roadmap to show Docker Hub complete
+### Docker Hub Publishing
+- Image: `jason21wc/ai-governance-mcp:latest`
+- Version tag: `jason21wc/ai-governance-mcp:v1.0.0`
+- Full description with platform-specific instructions
+
+### Documentation
+- Windows step-by-step installation guide
+- macOS step-by-step installation guide
+- Quick Start section with collapsible platform guides
+- Before/after JSON examples with comma reminder
 
 ### Security Hardening (Previous Session)
-All Gemini security review items implemented:
-
-| Priority | Fixes |
-|----------|-------|
-| Critical | C1: Bounded audit log, C2: Path traversal protection |
-| High | H1-H5: Query validation, async I/O, graceful shutdown, rate limiting, dependency lock |
-| Medium | M1-M6: Input sanitization, JSON logging, log rotation, secrets detection, schema validation, error sanitization |
+All Gemini security review items implemented (C1-C2, H1-H5, M1-M6).
 
 ## Quick Reference
 
 | Metric | Value |
 |--------|-------|
+| Version | **v1.0.0** |
 | Tests | 290 passing |
 | Coverage | ~90% |
 | Index | 69 principles + 223 methods (292 total) |
 | Tools | 10 |
-| Docker Hub | `jason21wc/ai-governance-mcp:latest` |
+| Docker Hub | `jason21wc/ai-governance-mcp` |
 | Platforms | 6+ |
-| ai-governance-methods | v3.3.1 |
-| multi-agent-methods | v2.3.0 |
 
-## Remaining Roadmap
+## Links
 
-- [x] Docker containerization
-- [x] Security hardening (all items)
-- [x] Docker Hub publishing ✓
-- [x] Step-by-step installation guides ✓
-- [ ] Governance Proxy Mode (future)
+- **GitHub Release:** https://github.com/jason21wc/ai-governance-mcp/releases/tag/v1.0.0
+- **Docker Hub:** https://hub.docker.com/r/jason21wc/ai-governance-mcp
+- **Documentation:** https://github.com/jason21wc/ai-governance-mcp#readme
+
+## Future Roadmap
+
+- [ ] Governance Proxy Mode
 - [ ] Public API with auth
 - [ ] Vector database for scaling
