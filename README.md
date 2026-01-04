@@ -141,23 +141,61 @@ AI uses query_governance("implementing authentication system")
 
 ## Quick Start (Docker)
 
-**1. Pull the image**
-```bash
-docker pull jason21wc/ai-governance-mcp:latest
+<details>
+<summary><b>Windows Step-by-Step</b></summary>
+
+### Step 1: Install Docker Desktop
+
+1. Go to https://www.docker.com/products/docker-desktop/
+2. Click **Download for Windows**
+3. Run the installer and follow the prompts
+4. Restart your computer when prompted
+5. Open Docker Desktop and wait for it to fully start (whale icon appears in taskbar)
+
+### Step 2: Pull the Image
+
+1. In Docker Desktop, click the **Search** bar at the top
+2. Type: `jason21wc/ai-governance-mcp`
+3. Click **Pull** next to the result
+
+### Step 3: Edit Claude Desktop Config
+
+1. Open **File Explorer**
+2. Click the address bar and paste: `%APPDATA%\Claude`
+3. Press Enter
+4. Right-click `claude_desktop_config.json` → **Open with** → **Notepad**
+
+### Step 4: Add the MCP Server
+
+Find the line that says `"mcpServers": {`
+
+Add a comma `,` after the `}` of the last server entry, then paste this on a new line:
+
+```json
+    "ai-governance": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest"]
+    }
 ```
 
-**2. Configure your AI client**
-
-<details>
-<summary><b>Claude Desktop</b> (macOS/Windows)</summary>
-
-Edit config file:
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-
+**Example** — if your file looks like this:
 ```json
 {
   "mcpServers": {
+    "other-server": {
+      "command": "something"
+    }
+  }
+}
+```
+
+Change it to:
+```json
+{
+  "mcpServers": {
+    "other-server": {
+      "command": "something"
+    },
     "ai-governance": {
       "command": "docker",
       "args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest"]
@@ -165,12 +203,102 @@ Edit config file:
   }
 }
 ```
+
+> **Note:** Don't forget the comma after the `}` of the previous server entry!
+
+### Step 5: Save and Restart
+
+1. Save the file (Ctrl+S)
+2. Close and reopen Claude Desktop
+
+### Step 6: Test It
+
+Ask Claude: *"Query governance for handling incomplete specifications"*
+
 </details>
 
 <details>
-<summary><b>Claude Code CLI</b></summary>
+<summary><b>macOS Step-by-Step</b></summary>
+
+### Step 1: Install Docker Desktop
+
+1. Go to https://www.docker.com/products/docker-desktop/
+2. Click **Download for Mac** (choose Apple Silicon or Intel)
+3. Open the downloaded `.dmg` file
+4. Drag Docker to Applications
+5. Open Docker from Applications and wait for it to start (whale icon appears in menu bar)
+
+### Step 2: Pull the Image
+
+Open Terminal and run:
+```bash
+docker pull jason21wc/ai-governance-mcp:latest
+```
+
+### Step 3: Edit Claude Desktop Config
+
+Open Terminal and run:
+```bash
+open -a TextEdit ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+### Step 4: Add the MCP Server
+
+Find the line that says `"mcpServers": {`
+
+Add a comma `,` after the `}` of the last server entry, then paste this on a new line:
+
+```json
+    "ai-governance": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest"]
+    }
+```
+
+**Example** — if your file looks like this:
+```json
+{
+  "mcpServers": {
+    "other-server": {
+      "command": "something"
+    }
+  }
+}
+```
+
+Change it to:
+```json
+{
+  "mcpServers": {
+    "other-server": {
+      "command": "something"
+    },
+    "ai-governance": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest"]
+    }
+  }
+}
+```
+
+> **Note:** Don't forget the comma after the `}` of the previous server entry!
+
+### Step 5: Save and Restart
+
+1. Save the file (Cmd+S)
+2. Close and reopen Claude Desktop
+
+### Step 6: Test It
+
+Ask Claude: *"Query governance for handling incomplete specifications"*
+
+</details>
+
+<details>
+<summary><b>Claude Code CLI (Quick)</b></summary>
 
 ```bash
+docker pull jason21wc/ai-governance-mcp:latest
 claude mcp add ai-governance -s user -- docker run -i --rm jason21wc/ai-governance-mcp:latest
 ```
 </details>
@@ -178,7 +306,9 @@ claude mcp add ai-governance -s user -- docker run -i --rm jason21wc/ai-governan
 <details>
 <summary><b>Cursor / Windsurf / ChatGPT Desktop</b></summary>
 
-Add to MCP settings:
+1. Install Docker Desktop and pull the image (see Windows/macOS steps above)
+2. Add to your MCP settings:
+
 ```json
 {
   "mcpServers": {
@@ -190,10 +320,6 @@ Add to MCP settings:
 }
 ```
 </details>
-
-**3. Restart your AI client**
-
-**4. Test it** — Ask your AI: *"Query governance for handling incomplete specifications"*
 
 ---
 
