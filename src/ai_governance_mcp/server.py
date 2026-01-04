@@ -8,6 +8,7 @@ import json
 import os
 import signal
 import sys
+from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -61,35 +62,88 @@ def get_metrics() -> Metrics:
     return _metrics
 
 
-def log_query(query_log: QueryLog) -> None:
-    """Log query for analytics."""
+def _write_log_sync(log_file: Path, content: str) -> None:
+    """Synchronous log write helper for use with asyncio.to_thread.
+
+    H2 FIX: Isolated sync function enables non-blocking async wrapper.
+    """
+    with open(log_file, "a") as f:
+        f.write(content)
+        f.flush()  # H3 FIX: Explicit flush reduces data loss on shutdown
+
+
+async def log_query_async(query_log: QueryLog) -> None:
+    """Log query for analytics (async, non-blocking).
+
+    H2 FIX: Uses asyncio.to_thread to avoid blocking the event loop.
+    """
     global _settings
     if _settings:
         log_file = _settings.logs_path / "queries.jsonl"
-        with open(log_file, "a") as f:
-            f.write(query_log.model_dump_json() + "\n")
+        content = query_log.model_dump_json() + "\n"
+        await asyncio.to_thread(_write_log_sync, log_file, content)
 
 
-def log_feedback_entry(feedback: Feedback) -> None:
-    """Log feedback for future improvement."""
+def log_query(query_log: QueryLog) -> None:
+    """Log query for analytics (sync fallback for non-async contexts)."""
+    global _settings
+    if _settings:
+        log_file = _settings.logs_path / "queries.jsonl"
+        _write_log_sync(log_file, query_log.model_dump_json() + "\n")
+
+
+async def log_feedback_async(feedback: Feedback) -> None:
+    """Log feedback for future improvement (async, non-blocking).
+
+    H2 FIX: Uses asyncio.to_thread to avoid blocking the event loop.
+    """
     global _settings
     if _settings:
         log_file = _settings.logs_path / "feedback.jsonl"
-        with open(log_file, "a") as f:
-            f.write(feedback.model_dump_json() + "\n")
+        content = feedback.model_dump_json() + "\n"
+        await asyncio.to_thread(_write_log_sync, log_file, content)
 
+
+def log_feedback_entry(feedback: Feedback) -> None:
+    """Log feedback for future improvement (sync fallback)."""
+    global _settings
+    if _settings:
+        log_file = _settings.logs_path / "feedback.jsonl"
+        _write_log_sync(log_file, feedback.model_dump_json() + "\n")
+
+
+# H1 FIX: Maximum query length to prevent memory/performance issues
+MAX_QUERY_LENGTH = 10000
 
 # Governance audit log storage (in-memory for verification lookups)
 # Per §4.6 Governance Enforcement Architecture: enables post-action verification
-_audit_log: list[GovernanceAuditLog] = []
+# C1 FIX: Bounded deque prevents unbounded memory growth in long sessions
+AUDIT_LOG_MAX_SIZE = 1000
+_audit_log: deque[GovernanceAuditLog] = deque(maxlen=AUDIT_LOG_MAX_SIZE)
 
 
-def log_governance_audit(audit_entry: GovernanceAuditLog) -> None:
-    """Log governance assessment for audit trail.
+async def log_governance_audit_async(audit_entry: GovernanceAuditLog) -> None:
+    """Log governance assessment for audit trail (async, non-blocking).
 
     Per §4.6 Audit Trail Requirements: Every evaluate_governance() call
     generates an audit record for pattern analysis and bypass detection.
+
+    H2 FIX: Uses asyncio.to_thread to avoid blocking the event loop.
     """
+    global _settings, _audit_log
+
+    # Keep in-memory for verification lookups
+    _audit_log.append(audit_entry)
+
+    # Persist to file (non-blocking)
+    if _settings:
+        log_file = _settings.logs_path / "governance_audit.jsonl"
+        content = audit_entry.model_dump_json() + "\n"
+        await asyncio.to_thread(_write_log_sync, log_file, content)
+
+
+def log_governance_audit(audit_entry: GovernanceAuditLog) -> None:
+    """Log governance assessment for audit trail (sync fallback)."""
     global _settings, _audit_log
 
     # Keep in-memory for verification lookups
@@ -98,8 +152,7 @@ def log_governance_audit(audit_entry: GovernanceAuditLog) -> None:
     # Persist to file
     if _settings:
         log_file = _settings.logs_path / "governance_audit.jsonl"
-        with open(log_file, "a") as f:
-            f.write(audit_entry.model_dump_json() + "\n")
+        _write_log_sync(log_file, audit_entry.model_dump_json() + "\n")
 
 
 def get_audit_log() -> list[GovernanceAuditLog]:
@@ -306,11 +359,25 @@ def _get_agent_install_path(agent_name: str, scope: str = "project") -> Path:
 
     Returns:
         Path where the agent file should be installed.
+
+    Raises:
+        ValueError: If agent_name is not in AVAILABLE_AGENTS or path traversal detected.
     """
+    # C2 FIX: Validate agent name against allowlist before path construction
+    if agent_name not in AVAILABLE_AGENTS:
+        raise ValueError(f"Invalid agent: {agent_name}")
+
     if scope == "user":
-        return Path.home() / ".claude" / "agents" / f"{agent_name}.md"
+        base_path = Path.home() / ".claude" / "agents"
     else:
-        return Path.cwd() / ".claude" / "agents" / f"{agent_name}.md"
+        base_path = Path.cwd() / ".claude" / "agents"
+
+    # C2 FIX: Path containment check prevents path traversal attacks
+    final_path = (base_path / f"{agent_name}.md").resolve()
+    if not str(final_path).startswith(str(base_path.resolve())):
+        raise ValueError("Path traversal detected")
+
+    return final_path
 
 
 # Create MCP server
@@ -638,6 +705,15 @@ async def _handle_query_governance(
     if not query:
         return [TextContent(type="text", text="Error: query is required")]
 
+    # H1 FIX: Validate query length to prevent memory/performance issues
+    if len(query) > MAX_QUERY_LENGTH:
+        return [
+            TextContent(
+                type="text",
+                text=f"Error: query exceeds maximum length of {MAX_QUERY_LENGTH} characters",
+            )
+        ]
+
     result = engine.retrieve(
         query=query,
         domain=args.get("domain"),
@@ -661,7 +737,7 @@ async def _handle_query_governance(
             metrics.domain_query_counts.get(domain, 0) + 1
         )
 
-    # Log query
+    # Log query (H2 FIX: use async version to avoid blocking)
     query_log = QueryLog(
         timestamp=datetime.now(timezone.utc).isoformat(),
         query=query,
@@ -677,7 +753,7 @@ async def _handle_query_governance(
         if result.constitution_principles
         else None,
     )
-    log_query(query_log)
+    await log_query_async(query_log)
 
     # Update confidence distribution
     for sp in result.constitution_principles + result.domain_principles:
@@ -1003,6 +1079,16 @@ async def _handle_evaluate_governance(
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
+    # H1 FIX: Validate input lengths to prevent memory/performance issues
+    total_length = len(planned_action) + len(context) + len(concerns)
+    if total_length > MAX_QUERY_LENGTH:
+        error = ErrorResponse(
+            error_code="INPUT_TOO_LONG",
+            message=f"Combined input exceeds maximum length of {MAX_QUERY_LENGTH} characters",
+            suggestions=["Reduce the length of planned_action, context, or concerns"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
     # Build composite query from inputs
     query_parts = [planned_action]
     if context:
@@ -1139,6 +1225,7 @@ async def _handle_evaluate_governance(
     )
 
     # Log audit record (per §4.6 Audit Trail Requirements)
+    # H2 FIX: use async version to avoid blocking
     audit_entry = GovernanceAuditLog(
         audit_id=governance_assessment.audit_id,
         timestamp=governance_assessment.timestamp,
@@ -1152,7 +1239,7 @@ async def _handle_evaluate_governance(
         else None,
         confidence=confidence,
     )
-    log_governance_audit(audit_entry)
+    await log_governance_audit_async(audit_entry)
 
     # Format output
     output = governance_assessment.model_dump()
@@ -1519,6 +1606,26 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
 
+def _flush_all_logs() -> None:
+    """Flush all log files to ensure data is persisted before exit.
+
+    H3 FIX: Called before os._exit() to reduce data loss on shutdown.
+    """
+    global _settings
+    if _settings:
+        log_files = ["queries.jsonl", "feedback.jsonl", "governance_audit.jsonl"]
+        for log_name in log_files:
+            log_file = _settings.logs_path / log_name
+            try:
+                if log_file.exists():
+                    # Open and close with flush to ensure OS buffers are written
+                    with open(log_file, "a") as f:
+                        f.flush()
+                        os.fsync(f.fileno())
+            except Exception as e:
+                logger.warning(f"Failed to flush {log_name}: {e}")
+
+
 async def run_server():
     """Run the MCP server with graceful shutdown handling."""
 
@@ -1530,6 +1637,8 @@ async def run_server():
     def force_exit(signum, frame):
         """Force exit on signal - stdio streams can't be gracefully interrupted."""
         logger.info(f"Received signal {signum}, forcing exit...")
+        # H3 FIX: Flush logs before exit to prevent data loss
+        _flush_all_logs()
         os._exit(0)
 
     # Register signal handlers for immediate exit
@@ -1547,6 +1656,8 @@ async def run_server():
     except Exception as e:
         logger.error(f"Server error: {e}")
     finally:
+        # H3 FIX: Flush logs before exit to prevent data loss
+        _flush_all_logs()
         # Force exit to prevent sentence-transformers threads from keeping process alive
         logger.info("Server shutdown complete, forcing exit...")
         os._exit(0)
