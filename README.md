@@ -100,10 +100,10 @@ The `verify_governance_compliance` tool enables post-action auditing:
 - Returns COMPLIANT, NON_COMPLIANT, or PARTIAL
 - Catches bypassed governance checks after the fact
 
-**Agent Installation (Claude Code):**
+**Subagent Installation (Claude Code):**
 
 The `install_agent` tool provides structural governance enforcement for Claude Code:
-- Installs the Orchestrator agent to `.claude/agents/orchestrator.md`
+- Installs the Orchestrator subagent definition to `.claude/agents/orchestrator.md`
 - Orchestrator has restricted tools (read + governance only, no edit/write/bash)
 - Ensures `evaluate_governance()` is called before significant actions
 - Other platforms receive governance via SERVER_INSTRUCTIONS (no installation needed)

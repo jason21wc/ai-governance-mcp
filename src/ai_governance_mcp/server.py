@@ -354,11 +354,11 @@ When `requires_ai_judgment=false`: The script has made a definitive decision (S-
 | `get_domain_summary(domain)` | Details about a specific domain |
 | `log_feedback(query, id, rating)` | Improve retrieval quality |
 | `get_metrics()` | Performance analytics |
-| `install_agent(agent_name)` | Install Orchestrator agent (Claude Code only) |
-| `uninstall_agent(agent_name)` | Remove installed agent |
+| `install_agent(agent_name)` | Install Orchestrator subagent (Claude Code only) |
+| `uninstall_agent(agent_name)` | Remove installed subagent |
 
 ### Claude Code Users
-Run `install_agent(agent_name="orchestrator")` to install the Orchestrator agent.
+Run `install_agent(agent_name="orchestrator")` to install the Orchestrator subagent.
 This enables structural governance enforcement with restricted tool access.
 
 ### Model-Specific Guidance
@@ -383,14 +383,14 @@ GOVERNANCE_REMINDER = """
 ---
 ⚖️ **Governance Check:** Did you `query_governance()` before this action? Cite influencing principle IDs. S-Series = veto authority."""
 
-# Agent installation explanation for users
+# Subagent installation explanation for users
 # Per Phase 2B design: robust explanation for both experts and beginners
 AGENT_EXPLANATION = """
-## AI Governance Agent Installation
+## AI Governance Subagent Installation
 
-### What is an Agent?
+### What is a Subagent?
 
-An agent is a specialized configuration that guides how your AI assistant approaches tasks.
+A subagent is a specialized configuration that guides how your AI assistant approaches tasks.
 Think of it as giving your AI a specific "role" with clear responsibilities and boundaries —
 like hiring a specialist who follows particular protocols.
 
@@ -731,13 +731,13 @@ async def list_tools() -> list[Tool]:
                 "required": ["action_description"],
             },
         ),
-        # Tool 9: Install governance agent (Claude Code only)
+        # Tool 9: Install governance subagent (Claude Code only)
         # Per Phase 2B: LLM-agnostic agent architecture
         Tool(
             name="install_agent",
             description=(
-                "Install a governance agent for Claude Code. "
-                "Creates agent definition files in .claude/agents/. "
+                "Install a governance subagent for Claude Code. "
+                "Creates subagent definition files in .claude/agents/. "
                 "Only works in Claude Code environments - other platforms receive "
                 "governance guidance via server instructions automatically. "
                 "Available agents: orchestrator."
@@ -747,7 +747,7 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "agent_name": {
                         "type": "string",
-                        "description": "Name of agent to install (e.g., 'orchestrator')",
+                        "description": "Name of subagent to install (e.g., 'orchestrator')",
                         "enum": ["orchestrator"],
                     },
                     "scope": {
@@ -768,19 +768,19 @@ async def list_tools() -> list[Tool]:
                 "required": ["agent_name"],
             },
         ),
-        # Tool 10: Uninstall governance agent
+        # Tool 10: Uninstall governance subagent
         Tool(
             name="uninstall_agent",
             description=(
-                "Remove a previously installed governance agent. "
-                "Deletes the agent definition file from .claude/agents/."
+                "Remove a previously installed governance subagent. "
+                "Deletes the subagent definition file from .claude/agents/."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "agent_name": {
                         "type": "string",
-                        "description": "Name of agent to uninstall (e.g., 'orchestrator')",
+                        "description": "Name of subagent to uninstall (e.g., 'orchestrator')",
                         "enum": ["orchestrator"],
                     },
                     "scope": {

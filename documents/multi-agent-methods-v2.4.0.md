@@ -98,10 +98,10 @@ This document is designed for partial loading. AI should NOT load the entire doc
 |-----------|-------|---------------|
 | Deciding whether to use agents | §1.1 | Justified Complexity Check |
 | Starting agent workflow | §1.2 | Workflow Initialization |
-| Creating a new agent | §2.1 | Agent Definition Standard |
+| Creating a new subagent | §2.1 | Subagent Definition Standard |
 | Writing effective system prompts | §2.1.1 | System Prompt Best Practices |
 | Deciding which tools to allow | §2.1.2 | Tool Scoping Guidelines |
-| Testing agent before deployment | §2.1.3 | Agent Validation Checklist |
+| Testing subagent before deployment | §2.1.3 | Subagent Validation Checklist |
 | Choosing an agent pattern | §2.2 | Agent Catalog |
 | Setting up orchestrator | §2.3 | Orchestrator Configuration |
 | Choosing handoff pattern | §3.1 | Handoff Pattern Taxonomy |
@@ -421,15 +421,17 @@ IMPORTANT
 
 **Implements:** A1 (Cognitive Function Specialization), A2 (Context Isolation), A3 (Orchestrator Separation), A5 (Context Engineering Discipline)
 
-### 2.1 Agent Definition Standard
+### 2.1 Subagent Definition Standard
 
 CRITICAL
 
-**Purpose:** Standardize how agents are defined to ensure consistency and completeness.
+**Purpose:** Standardize how subagents are defined to ensure consistency and completeness.
 
-**Source:** Anthropic Claude Agent SDK, NetworkChuck AI-in-Terminal patterns
+**Source:** Anthropic Claude Code subagent documentation, NetworkChuck AI-in-Terminal patterns
 
-**Key Concept — Modular Personalities:** An agent is not a separate program—it's a specialized *configuration* of the same underlying model. Think of it as a "hat" the AI wears: different system prompt, different tools, different cognitive focus. The same base model becomes a coder, validator, or orchestrator based on its agent definition.
+**Terminology:** In Claude Code, agents invoked via the Task tool are called *subagents* because they run as child processes of the main conversation. Subagent definition files are stored in `.claude/agents/*.md` (project scope) or `~/.claude/agents/*.md` (user scope).
+
+**Key Concept — Modular Personalities:** A subagent is not a separate program—it's a specialized *configuration* of the same underlying model. Think of it as a "hat" the AI wears: different system prompt, different tools, different cognitive focus. The same base model becomes a coder, validator, or orchestrator based on its subagent definition.
 
 **Required Components:**
 
@@ -463,7 +465,7 @@ Every agent system prompt MUST include these sections:
 4. **Output Format** — Structured output template
 5. **Success Criteria** — How to know the task is complete
 
-**Agent Definition Template:**
+**Subagent Definition Template:**
 
 ```markdown
 ---
@@ -617,11 +619,11 @@ Does agent need to MODIFY files or state?
 - **Claude Code:** Tool restrictions in YAML frontmatter are HARD enforcement
 - **Other platforms:** May require gateway-based enforcement (see §4.6.2)
 
-#### 2.1.3 Agent Validation Checklist
+#### 2.1.3 Subagent Validation Checklist
 
 IMPORTANT
 
-**Purpose:** Verify agent effectiveness before deployment.
+**Purpose:** Verify subagent effectiveness before deployment.
 
 **Source:** Anthropic skill authoring best practices, iterative development patterns
 
@@ -672,7 +674,7 @@ Result: [ ] PASS / [ ] FAIL
 
 Per Anthropic guidance: Work with "Claude A" to design/refine agent, then test with "Claude B" in real tasks:
 
-1. Draft agent definition with Claude A
+1. Draft subagent definition with Claude A
 2. Deploy to project/user scope
 3. Test with Claude B in new session
 4. Collect failure cases
@@ -681,7 +683,7 @@ Per Anthropic guidance: Work with "Claude A" to design/refine agent, then test w
 
 **Graduation Criteria:**
 
-Agent is production-ready when:
+Subagent is production-ready when:
 - [ ] All Phase 1 checklist items pass
 - [ ] All Phase 2 test cases pass
 - [ ] Phase 3 integration confirmed
