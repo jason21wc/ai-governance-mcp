@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 279 tests, 90% coverage, 10 tools
+- **Status:** COMPLETE - All phases done, 290 tests, 90% coverage, 10 tools
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -559,26 +559,35 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Future Work:** Governance Proxy Mode — wrap other MCP servers with governance checks before forwarding requests
 - **Sources:** [Lasso MCP Gateway](https://lasso.security), [Envoy AI Gateway](https://aigateway.envoyproxy.io), [MCP Security Survival Guide](https://towardsdatascience.com)
 
-### Decision: Security Hardening Implementation
-- **Date:** 2026-01-03
+### Decision: Security Hardening Implementation (Phase 1 & 2)
+- **Date:** 2026-01-03 (Phase 1), 2026-01-04 (Phase 2)
 - **Status:** COMPLETE
 - **Context:** Comprehensive security review via Gemini sub-agent identified vulnerabilities in server.py
-- **Critical Issues Fixed:**
+
+**Phase 1 - Critical & High Priority:**
   | ID | Issue | Fix | Principle |
   |----|-------|-----|-----------|
   | C1 | Unbounded audit log | `deque(maxlen=1000)` | Resource exhaustion prevention |
   | C2 | Path traversal risk | `.resolve()` + containment check | Input validation |
-- **High Priority Issues Fixed:**
-  | ID | Issue | Fix | Principle |
-  |----|-------|-----|-----------|
   | H1 | No query length limits | `MAX_QUERY_LENGTH = 10000` | DoS prevention |
   | H2 | Sync file I/O in async | `asyncio.to_thread()` | Non-blocking I/O |
   | H3 | Force exit loses data | `_flush_all_logs()` + `os.fsync()` | Data integrity |
-- **Not Implemented (Future):**
-  - H4: Rate limiting — requires more complex infrastructure (Redis/token bucket)
-  - H5: Lock file for dependencies — process/CI change, not code
+
+**Phase 2 - High & Medium Priority:**
+  | ID | Issue | Fix | File |
+  |----|-------|-----|------|
+  | H4 | No rate limiting | Token bucket (100 tokens, 10/sec) | server.py |
+  | H5 | No dependency lock | `requirements.lock` | project root |
+  | M1 | Unsanitized logging | Truncate to MAX_LOG_CONTENT_LENGTH | server.py |
+  | M2 | Unstructured logs | `JSONFormatter` class | config.py |
+  | M3 | No log rotation | `RotatingFileHandler` | config.py |
+  | M4 | Secrets in logs | Regex redaction patterns | server.py |
+  | M5 | Weak input validation | maxLength/minLength/enum in schemas | server.py |
+  | M6 | Path leaks in errors | `_sanitize_error_message()` | server.py |
+  | M7 | (Already in CI) | pip-audit, bandit, safety | ci.yml |
+
 - **Governance Applied:** `coding-quality-security-first-development`, OWASP principles
-- **Tests:** All 279 passing after fixes
+- **Tests:** 290 passing (11 new security tests added)
 
 ### Decision: Pause Automatic Governance Enforcement Implementation
 - **Date:** 2026-01-03

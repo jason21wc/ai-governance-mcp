@@ -1655,3 +1655,146 @@ class TestClaudeCodeDetection:
         monkeypatch.chdir(tmp_path)
 
         assert _detect_claude_code_environment() is False
+
+
+# =============================================================================
+# Security Feature Tests (H4, M1, M4, M6)
+# =============================================================================
+
+
+class TestRateLimiting:
+    """Tests for H4: Rate limiting (token bucket algorithm)."""
+
+    def test_rate_limit_allows_initial_requests(self):
+        """Initial requests should be allowed."""
+        from ai_governance_mcp.server import _check_rate_limit
+
+        # Reset rate limiter
+        import ai_governance_mcp.server as server_module
+
+        server_module._rate_limit_tokens = server_module.RATE_LIMIT_TOKENS
+
+        assert _check_rate_limit() is True
+
+    def test_rate_limit_exhaustion(self):
+        """Rapid requests should eventually be rate limited."""
+        import ai_governance_mcp.server as server_module
+        from ai_governance_mcp.server import _check_rate_limit
+
+        # Exhaust the token bucket
+        server_module._rate_limit_tokens = 1
+        assert _check_rate_limit() is True  # Uses last token
+        assert _check_rate_limit() is False  # No tokens left
+
+        # Reset for other tests
+        server_module._rate_limit_tokens = server_module.RATE_LIMIT_TOKENS
+
+
+class TestSecretsDetection:
+    """Tests for M4: Secrets detection in queries."""
+
+    def test_sanitize_redacts_api_keys(self):
+        """API keys should be redacted from logging."""
+        from ai_governance_mcp.server import _sanitize_for_logging
+
+        content = "My api_key=sk_live_abc123xyz456789012345"
+        sanitized = _sanitize_for_logging(content)
+        assert "sk_live" not in sanitized
+        assert "REDACTED" in sanitized
+
+    def test_sanitize_redacts_passwords(self):
+        """Passwords should be redacted from logging."""
+        from ai_governance_mcp.server import _sanitize_for_logging
+
+        content = "password=supersecret123"
+        sanitized = _sanitize_for_logging(content)
+        assert "supersecret123" not in sanitized
+        assert "REDACTED" in sanitized
+
+    def test_sanitize_redacts_bearer_tokens(self):
+        """Bearer tokens should be redacted from logging."""
+        from ai_governance_mcp.server import _sanitize_for_logging
+
+        content = "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+        sanitized = _sanitize_for_logging(content)
+        assert "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9" not in sanitized
+        assert "REDACTED" in sanitized
+
+    def test_sanitize_truncates_long_content(self):
+        """Long content should be truncated."""
+        from ai_governance_mcp.server import (
+            _sanitize_for_logging,
+            MAX_LOG_CONTENT_LENGTH,
+        )
+
+        # Use a pattern that won't match the generic 32+ char alphanumeric secret detector
+        content = "Hello world. " * (MAX_LOG_CONTENT_LENGTH // 10)
+        sanitized = _sanitize_for_logging(content)
+        assert len(sanitized) < len(content)
+        assert "TRUNCATED" in sanitized
+
+    def test_sanitize_preserves_safe_content(self):
+        """Safe content should be preserved."""
+        from ai_governance_mcp.server import _sanitize_for_logging
+
+        content = "How do I implement a login system?"
+        sanitized = _sanitize_for_logging(content)
+        assert sanitized == content
+
+
+class TestErrorSanitization:
+    """Tests for M6: Error message sanitization."""
+
+    def test_sanitize_error_removes_absolute_paths(self):
+        """Absolute paths should be removed from error messages."""
+        from ai_governance_mcp.server import _sanitize_error_message
+
+        error = Exception("File not found: /Users/jason/secret/project/file.py")
+        sanitized = _sanitize_error_message(error)
+        assert "/Users/jason/secret/project" not in sanitized
+        assert "file.py" in sanitized
+
+    def test_sanitize_error_removes_line_numbers(self):
+        """Line numbers should be removed from error messages."""
+        from ai_governance_mcp.server import _sanitize_error_message
+
+        error = Exception("Error at script.py, line 42")
+        sanitized = _sanitize_error_message(error)
+        assert "line 42" not in sanitized
+
+    def test_sanitize_error_removes_memory_addresses(self):
+        """Memory addresses should be obscured in error messages."""
+        from ai_governance_mcp.server import _sanitize_error_message
+
+        error = Exception("Object at 0x7f8b4c3d2e1a")
+        sanitized = _sanitize_error_message(error)
+        assert "0x7f8b4c3d2e1a" not in sanitized
+        assert "0x***" in sanitized
+
+
+class TestInputValidation:
+    """Tests for M5: Type validation on MCP inputs."""
+
+    @pytest.mark.asyncio
+    async def test_query_length_validation(
+        self, reset_server_state, test_settings, saved_index
+    ):
+        """Queries exceeding MAX_QUERY_LENGTH should be rejected."""
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer"):
+                with patch("sentence_transformers.CrossEncoder"):
+                    from ai_governance_mcp.server import (
+                        _handle_query_governance,
+                        get_engine,
+                        MAX_QUERY_LENGTH,
+                    )
+
+                    engine = get_engine()
+                    long_query = "x" * (MAX_QUERY_LENGTH + 1)
+
+                    result = await _handle_query_governance(
+                        engine, {"query": long_query}
+                    )
+                    assert "exceeds maximum length" in result[0].text

@@ -7,6 +7,85 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-04 - Security Hardening Phase 2: Defense-in-Depth Patterns
+
+**Context:** Implemented remaining high/medium priority items from Gemini security review.
+
+**New Patterns Applied:**
+
+1. **Token Bucket Rate Limiting** (H4)
+   ```python
+   RATE_LIMIT_TOKENS = 100  # Max requests in bucket
+   RATE_LIMIT_REFILL_RATE = 10  # Tokens/second
+
+   def _check_rate_limit() -> bool:
+       global _rate_limit_tokens, _rate_limit_last_refill
+       now = time.time()
+       elapsed = now - _rate_limit_last_refill
+       _rate_limit_tokens = min(RATE_LIMIT_TOKENS,
+           _rate_limit_tokens + (elapsed * RATE_LIMIT_REFILL_RATE))
+       if _rate_limit_tokens >= 1:
+           _rate_limit_tokens -= 1
+           return True
+       return False
+   ```
+   - Simple in-process rate limiter (no Redis needed for single-instance)
+   - Burst-friendly: allows 100 rapid requests before throttling
+   - Self-recovering: refills at 10/sec
+
+2. **Secrets Redaction Pattern** (M4)
+   ```python
+   SECRET_PATTERNS = [
+       (re.compile(r'(?i)(api[_-]?key|apikey)["\s:=]+["\']?([a-zA-Z0-9_\-]{20,})["\']?'),
+        r'\1=***REDACTED***'),
+       (re.compile(r'(?i)(bearer)\s+([a-zA-Z0-9_\-\.]{20,})'),
+        r'\1 ***REDACTED***'),
+       # ... more patterns
+   ]
+
+   def _sanitize_for_logging(content: str) -> str:
+       for pattern, replacement in SECRET_PATTERNS:
+           content = pattern.sub(replacement, content)
+       return content
+   ```
+   - Apply BEFORE writing to logs, not after
+   - Regex patterns for common secret formats
+   - Better to over-redact than miss secrets
+
+3. **Error Sanitization Pattern** (M6)
+   ```python
+   def _sanitize_error_message(error: Exception) -> str:
+       message = str(error)
+       # Remove absolute paths (keep filename only)
+       message = re.sub(r'(?:[A-Za-z]:)?(?:[/\\][^/\\]+)+[/\\]([^/\\]+)', r'\1', message)
+       # Remove line numbers
+       message = re.sub(r', line \d+', '', message)
+       return message
+   ```
+   - Never expose internal paths to users
+   - Line numbers can reveal code structure
+   - Memory addresses are implementation details
+
+4. **JSON Schema Validation in MCP** (M5)
+   ```python
+   "query": {
+       "type": "string",
+       "maxLength": MAX_QUERY_LENGTH,  # Explicit limit
+       "minLength": 1,                  # No empty strings
+   },
+   "domain": {
+       "type": "string",
+       "enum": ["constitution", "ai-coding", "multi-agent"],  # Allowlist
+   }
+   ```
+   - MCP clients may validate schemas before sending
+   - Defense-in-depth: validate at schema AND handler level
+   - Enums prevent injection of arbitrary domain names
+
+**Lesson:** Security is layers. Rate limiting prevents DoS. Secrets redaction prevents data leaks. Error sanitization prevents info disclosure. Schema validation prevents injection. No single layer is sufficient.
+
+---
+
 ### 2026-01-03 - Security Hardening via External Review Pattern (CRITICAL)
 
 **Context:** Requested comprehensive project review focusing on security. Used a sub-agent to provide "fresh eyes" perspective on the codebase.

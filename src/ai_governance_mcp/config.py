@@ -6,13 +6,42 @@ Logging must use stderr (stdout reserved for MCP JSON-RPC).
 
 import json
 import logging
+import logging.handlers
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
 from .models import DomainConfig
+
+
+# M2 FIX: JSON formatter for structured logging
+class JSONFormatter(logging.Formatter):
+    """Format log records as JSON for structured logging.
+
+    M2 FIX: Enables machine-parseable log output.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        """Format the log record as a JSON string."""
+        log_data = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+
+        # Add exception info if present
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+
+        # Add extra fields if present
+        if hasattr(record, "extra_fields"):
+            log_data.update(record.extra_fields)
+
+        return json.dumps(log_data)
 
 
 def _find_project_root() -> Path:
@@ -112,6 +141,22 @@ class Settings(BaseSettings):
         description="Target retrieval latency in milliseconds",
     )
 
+    # M2 FIX: Logging format (json or text)
+    log_format: str = Field(
+        default="text",
+        description="Log format: 'json' for structured logging, 'text' for human-readable",
+    )
+
+    # M3 FIX: Log rotation settings
+    log_max_bytes: int = Field(
+        default=10 * 1024 * 1024,  # 10 MB
+        description="Maximum log file size in bytes before rotation",
+    )
+    log_backup_count: int = Field(
+        default=5,
+        description="Number of backup log files to keep",
+    )
+
     model_config = {
         "env_prefix": "AI_GOVERNANCE_",
         "env_file": ".env",
@@ -119,20 +164,54 @@ class Settings(BaseSettings):
     }
 
 
-def setup_logging(level: str = "INFO") -> logging.Logger:
+def setup_logging(
+    level: str = "INFO",
+    log_format: str = "text",
+    log_file: Path | None = None,
+    max_bytes: int = 10 * 1024 * 1024,
+    backup_count: int = 5,
+) -> logging.Logger:
     """Configure logging to stderr (stdout reserved for MCP JSON-RPC).
 
     Per LEARNING-LOG.md: MCP protocol uses stdout for JSON-RPC messages.
+
+    Args:
+        level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+        log_format: 'json' for structured logging, 'text' for human-readable.
+        log_file: Optional path for file-based logging with rotation.
+        max_bytes: Maximum log file size before rotation (M3 FIX).
+        backup_count: Number of backup files to keep (M3 FIX).
+
+    Returns:
+        Configured logger instance.
     """
     logger = logging.getLogger("ai_governance_mcp")
     logger.setLevel(getattr(logging, level.upper()))
 
     if not logger.handlers:
-        handler = logging.StreamHandler(stream=sys.stderr)
-        handler.setFormatter(
-            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        )
-        logger.addHandler(handler)
+        # M2 FIX: Choose formatter based on log_format setting
+        if log_format.lower() == "json":
+            formatter = JSONFormatter()
+        else:
+            formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+
+        # stderr handler (always present for MCP compatibility)
+        stderr_handler = logging.StreamHandler(stream=sys.stderr)
+        stderr_handler.setFormatter(formatter)
+        logger.addHandler(stderr_handler)
+
+        # M3 FIX: Optional rotating file handler
+        if log_file:
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+            file_handler = logging.handlers.RotatingFileHandler(
+                log_file,
+                maxBytes=max_bytes,
+                backupCount=backup_count,
+            )
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
 
     return logger
 

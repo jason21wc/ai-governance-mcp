@@ -6,8 +6,10 @@ Per specification v4: FastMCP server with 10 tools for hybrid retrieval.
 import asyncio
 import json
 import os
+import re
 import signal
 import sys
+import time
 from collections import deque
 from datetime import datetime, timezone
 from pathlib import Path
@@ -114,6 +116,133 @@ def log_feedback_entry(feedback: Feedback) -> None:
 
 # H1 FIX: Maximum query length to prevent memory/performance issues
 MAX_QUERY_LENGTH = 10000
+
+# M1/M4 FIX: Maximum length for logged content to prevent log bloat
+MAX_LOG_CONTENT_LENGTH = 2000
+
+# H4 FIX: Rate limiting configuration (token bucket algorithm)
+RATE_LIMIT_TOKENS = 100  # Maximum tokens (requests) in bucket
+RATE_LIMIT_REFILL_RATE = 10  # Tokens added per second
+_rate_limit_tokens = RATE_LIMIT_TOKENS
+_rate_limit_last_refill = time.time()
+
+# M4 FIX: Patterns for detecting secrets in queries (to redact before logging)
+SECRET_PATTERNS = [
+    (
+        re.compile(
+            r'(?i)(api[_-]?key|apikey)["\s:=]+["\']?([a-zA-Z0-9_\-]{20,})["\']?'
+        ),
+        r"\1=***REDACTED***",
+    ),
+    (
+        re.compile(r'(?i)(password|passwd|pwd)["\s:=]+["\']?([^\s"\']{8,})["\']?'),
+        r"\1=***REDACTED***",
+    ),
+    (
+        re.compile(r'(?i)(secret|token)["\s:=]+["\']?([a-zA-Z0-9_\-]{16,})["\']?'),
+        r"\1=***REDACTED***",
+    ),
+    (re.compile(r"(?i)(bearer)\s+([a-zA-Z0-9_\-\.]{20,})"), r"\1 ***REDACTED***"),
+    (
+        re.compile(r'(?i)(authorization)["\s:=]+["\']?([^\s"\']{20,})["\']?'),
+        r"\1=***REDACTED***",
+    ),
+    (
+        re.compile(r'(?i)(private[_-]?key)["\s:=]+["\']?([^\s"\']{20,})["\']?'),
+        r"\1=***REDACTED***",
+    ),
+    # AWS-style keys
+    (re.compile(r"(?i)(AKIA[A-Z0-9]{16})"), r"***AWS_KEY_REDACTED***"),
+    # Generic long alphanumeric strings that look like keys (32+ chars)
+    (
+        re.compile(r"(?<![a-zA-Z0-9])([a-zA-Z0-9]{32,})(?![a-zA-Z0-9])"),
+        r"***POSSIBLE_SECRET_REDACTED***",
+    ),
+]
+
+
+def _check_rate_limit() -> bool:
+    """Check if request is within rate limit using token bucket algorithm.
+
+    H4 FIX: Prevents DoS by limiting request rate.
+
+    Returns:
+        True if request is allowed, False if rate limited.
+    """
+    global _rate_limit_tokens, _rate_limit_last_refill
+
+    now = time.time()
+    elapsed = now - _rate_limit_last_refill
+    _rate_limit_last_refill = now
+
+    # Refill tokens based on elapsed time
+    _rate_limit_tokens = min(
+        RATE_LIMIT_TOKENS, _rate_limit_tokens + (elapsed * RATE_LIMIT_REFILL_RATE)
+    )
+
+    # Check if we have tokens available
+    if _rate_limit_tokens >= 1:
+        _rate_limit_tokens -= 1
+        return True
+    return False
+
+
+def _sanitize_for_logging(content: str) -> str:
+    """Sanitize content before logging to prevent sensitive data exposure.
+
+    M1 FIX: Truncates long content.
+    M4 FIX: Redacts potential secrets.
+
+    Args:
+        content: The content to sanitize.
+
+    Returns:
+        Sanitized content safe for logging.
+    """
+    if not content:
+        return content
+
+    # M4: Redact potential secrets
+    sanitized = content
+    for pattern, replacement in SECRET_PATTERNS:
+        sanitized = pattern.sub(replacement, sanitized)
+
+    # M1: Truncate if too long
+    if len(sanitized) > MAX_LOG_CONTENT_LENGTH:
+        sanitized = sanitized[:MAX_LOG_CONTENT_LENGTH] + "...[TRUNCATED]"
+
+    return sanitized
+
+
+def _sanitize_error_message(error: Exception) -> str:
+    """Sanitize error message to prevent information leakage.
+
+    M6 FIX: Removes internal paths and sensitive information from error messages.
+
+    Args:
+        error: The exception to sanitize.
+
+    Returns:
+        Sanitized error message safe for external display.
+    """
+    message = str(error)
+
+    # Remove absolute paths (keep only filename)
+    # Pattern matches /path/to/file.py or C:\path\to\file.py
+    message = re.sub(
+        r'(?:[A-Za-z]:)?(?:[/\\][^/\\:*?"<>|\s]+)+[/\\]([^/\\:*?"<>|\s]+)',
+        r"\1",
+        message,
+    )
+
+    # Remove line numbers from tracebacks
+    message = re.sub(r", line \d+", "", message)
+
+    # Remove memory addresses
+    message = re.sub(r"0x[0-9a-fA-F]+", "0x***", message)
+
+    return message
+
 
 # Governance audit log storage (in-memory for verification lookups)
 # Per §4.6 Governance Enforcement Architecture: enables post-action verification
@@ -389,6 +518,7 @@ async def list_tools() -> list[Tool]:
     """List available tools per spec v4."""
     return [
         # Tool 1: Main retrieval (T13)
+        # M5 FIX: Added maxLength constraints for input validation
         Tool(
             name="query_governance",
             description=(
@@ -403,10 +533,14 @@ async def list_tools() -> list[Tool]:
                     "query": {
                         "type": "string",
                         "description": "The situation, task, or concern to get governance guidance for",
+                        "maxLength": MAX_QUERY_LENGTH,  # M5 FIX
+                        "minLength": 1,  # M5 FIX
                     },
                     "domain": {
                         "type": "string",
                         "description": "Optional: Force specific domain (ai-coding, multi-agent)",
+                        "maxLength": 50,  # M5 FIX
+                        "enum": ["constitution", "ai-coding", "multi-agent"],
                     },
                     "include_constitution": {
                         "type": "boolean",
@@ -422,12 +556,15 @@ async def list_tools() -> list[Tool]:
                         "type": "integer",
                         "description": "Maximum principles per domain (default: 10)",
                         "default": 10,
+                        "minimum": 1,  # M5 FIX
+                        "maximum": 50,  # M5 FIX
                     },
                 },
                 "required": ["query"],
             },
         ),
         # Tool 2: Get specific principle (T14)
+        # M5 FIX: Added maxLength constraint
         Tool(
             name="get_principle",
             description=(
@@ -441,6 +578,8 @@ async def list_tools() -> list[Tool]:
                     "principle_id": {
                         "type": "string",
                         "description": "The principle ID (e.g., 'meta-C1', 'coding-Q2')",
+                        "maxLength": 100,  # M5 FIX
+                        "minLength": 1,  # M5 FIX
                     },
                 },
                 "required": ["principle_id"],
@@ -459,6 +598,7 @@ async def list_tools() -> list[Tool]:
             },
         ),
         # Tool 4: Get domain summary (T16)
+        # M5 FIX: Added enum constraint for domain validation
         Tool(
             name="get_domain_summary",
             description=(
@@ -471,12 +611,14 @@ async def list_tools() -> list[Tool]:
                     "domain": {
                         "type": "string",
                         "description": "Domain name (constitution, ai-coding, multi-agent)",
+                        "enum": ["constitution", "ai-coding", "multi-agent"],  # M5 FIX
                     },
                 },
                 "required": ["domain"],
             },
         ),
         # Tool 5: Log feedback (T17)
+        # M5 FIX: Added length constraints
         Tool(
             name="log_feedback",
             description=(
@@ -489,10 +631,14 @@ async def list_tools() -> list[Tool]:
                     "query": {
                         "type": "string",
                         "description": "The original query",
+                        "maxLength": MAX_QUERY_LENGTH,  # M5 FIX
+                        "minLength": 1,  # M5 FIX
                     },
                     "principle_id": {
                         "type": "string",
                         "description": "The principle being rated",
+                        "maxLength": 100,  # M5 FIX
+                        "minLength": 1,  # M5 FIX
                     },
                     "rating": {
                         "type": "integer",
@@ -503,6 +649,7 @@ async def list_tools() -> list[Tool]:
                     "comment": {
                         "type": "string",
                         "description": "Optional feedback comment",
+                        "maxLength": 1000,  # M5 FIX
                     },
                 },
                 "required": ["query", "principle_id", "rating"],
@@ -522,6 +669,7 @@ async def list_tools() -> list[Tool]:
         ),
         # Tool 7: Evaluate governance (Governance Agent)
         # Per multi-method-governance-agent-pattern (§4.3)
+        # M5 FIX: Added length constraints
         Tool(
             name="evaluate_governance",
             description=(
@@ -536,14 +684,18 @@ async def list_tools() -> list[Tool]:
                     "planned_action": {
                         "type": "string",
                         "description": "Description of the action you plan to take",
+                        "maxLength": MAX_QUERY_LENGTH,  # M5 FIX
+                        "minLength": 1,  # M5 FIX
                     },
                     "context": {
                         "type": "string",
                         "description": "Optional: Relevant background context",
+                        "maxLength": 2000,  # M5 FIX
                     },
                     "concerns": {
                         "type": "string",
                         "description": "Optional: Specific areas of uncertainty or concern",
+                        "maxLength": 1000,  # M5 FIX
                     },
                 },
                 "required": ["planned_action"],
@@ -551,6 +703,7 @@ async def list_tools() -> list[Tool]:
         ),
         # Tool 8: Verify governance compliance (Post-Action Audit)
         # Per §4.6 Governance Enforcement Architecture, Layer 3
+        # M5 FIX: Added length constraints
         Tool(
             name="verify_governance_compliance",
             description=(
@@ -565,11 +718,14 @@ async def list_tools() -> list[Tool]:
                     "action_description": {
                         "type": "string",
                         "description": "Description of the action that was completed",
+                        "maxLength": MAX_QUERY_LENGTH,  # M5 FIX
+                        "minLength": 1,  # M5 FIX
                     },
                     "expected_principles": {
                         "type": "array",
-                        "items": {"type": "string"},
+                        "items": {"type": "string", "maxLength": 100},  # M5 FIX
                         "description": "Optional: Principle IDs that should have been consulted",
+                        "maxItems": 20,  # M5 FIX
                     },
                 },
                 "required": ["action_description"],
@@ -654,6 +810,15 @@ def _append_governance_reminder(result: list[TextContent]) -> list[TextContent]:
 @server.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     """Handle tool calls."""
+    # H4 FIX: Rate limiting check
+    if not _check_rate_limit():
+        error = ErrorResponse(
+            error_code="RATE_LIMITED",
+            message="Too many requests. Please wait and try again.",
+            suggestions=["Wait a few seconds before retrying"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
     try:
         engine = get_engine()
 
@@ -684,9 +849,10 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
     except Exception as e:
         logger.error(f"Tool error: {e}")
+        # M6 FIX: Sanitize error message to prevent information leakage
         error = ErrorResponse(
             error_code="TOOL_ERROR",
-            message=str(e),
+            message=_sanitize_error_message(e),
             suggestions=[
                 "Check query syntax",
                 "Verify domain name",
@@ -738,9 +904,10 @@ async def _handle_query_governance(
         )
 
     # Log query (H2 FIX: use async version to avoid blocking)
+    # M1/M4 FIX: Sanitize query before logging
     query_log = QueryLog(
         timestamp=datetime.now(timezone.utc).isoformat(),
-        query=query,
+        query=_sanitize_for_logging(query),
         domains_detected=result.domains_detected,
         principles_returned=[
             sp.principle.id
@@ -943,11 +1110,14 @@ async def _handle_log_feedback(args: dict) -> list[TextContent]:
     if not 1 <= rating <= 5:
         return [TextContent(type="text", text="Error: rating must be 1-5")]
 
+    # M1/M4 FIX: Sanitize query and comment before logging
     feedback = Feedback(
-        query=query,
+        query=_sanitize_for_logging(query),
         principle_id=principle_id,
         rating=rating,
-        comment=args.get("comment"),
+        comment=_sanitize_for_logging(args.get("comment", ""))
+        if args.get("comment")
+        else None,
         timestamp=datetime.now(timezone.utc).isoformat(),
         session_id=args.get("session_id"),
     )
@@ -1226,10 +1396,11 @@ async def _handle_evaluate_governance(
 
     # Log audit record (per §4.6 Audit Trail Requirements)
     # H2 FIX: use async version to avoid blocking
+    # M1/M4 FIX: Sanitize action before logging
     audit_entry = GovernanceAuditLog(
         audit_id=governance_assessment.audit_id,
         timestamp=governance_assessment.timestamp,
-        action=planned_action,
+        action=_sanitize_for_logging(planned_action),
         assessment=assessment,
         principles_consulted=[rp.id for rp in relevant_principles],
         s_series_triggered=s_series_triggered,
