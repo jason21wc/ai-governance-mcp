@@ -19,8 +19,8 @@
     "name": "multi-agent",
     "display_name": "Multi-Agent",
     "principles_file": "multi-agent-domain-principles-v2.0.0.md",
-    "methods_file": "multi-agent-methods-v2.3.0.md",
-    "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Agent specialization, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, and governance compliance.",
+    "methods_file": "multi-agent-methods-v2.4.0.md",
+    "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Agent authoring, system prompt best practices, tool scoping, agent validation, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, and governance compliance.",
     "priority": 20
   }
 }

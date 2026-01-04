@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.3.0
+**Version:** 2.4.0
 **Status:** Active
-**Effective Date:** 2026-01-03
+**Effective Date:** 2026-01-04
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -99,6 +99,9 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Deciding whether to use agents | §1.1 | Justified Complexity Check |
 | Starting agent workflow | §1.2 | Workflow Initialization |
 | Creating a new agent | §2.1 | Agent Definition Standard |
+| Writing effective system prompts | §2.1.1 | System Prompt Best Practices |
+| Deciding which tools to allow | §2.1.2 | Tool Scoping Guidelines |
+| Testing agent before deployment | §2.1.3 | Agent Validation Checklist |
 | Choosing an agent pattern | §2.2 | Agent Catalog |
 | Setting up orchestrator | §2.3 | Orchestrator Configuration |
 | Choosing handoff pattern | §3.1 | Handoff Pattern Taxonomy |
@@ -499,6 +502,192 @@ You are a [cognitive function] specialist. Your role is to [specific mental mode
 - [ ] [Criterion 2]
 - Include confidence indication: HIGH/MEDIUM/LOW with rationale
 ```
+
+#### 2.1.1 System Prompt Best Practices
+
+IMPORTANT
+
+**Purpose:** Apply prompt engineering principles to agent system prompts for maximum effectiveness.
+
+**Source:** Anthropic prompt engineering research, industry best practices 2025
+
+**Principle Basis:** Derives from Constitution's Structured Output Enforcement and Rich but Not Verbose Communication.
+
+**Best Practice 1: Positive Framing Over Negative Constraints**
+
+The "Who I Am NOT" section uses negative framing which can confuse model interpretation. Balance with positive framing:
+
+| Instead of | Use |
+|------------|-----|
+| "I do NOT write code" | "I delegate coding to specialists" |
+| "I do NOT make product decisions" | "I escalate product decisions to humans" |
+| "I do NOT skip validation" | "I always validate outputs before delivery" |
+
+**Recommendation:** Lead with positive "Who I Am" section (what you DO), then use "Boundaries" section with mixed framing for clarity.
+
+**Best Practice 2: Include Concrete Examples**
+
+LLMs excel at pattern recognition. Include positive and negative examples:
+
+```markdown
+### Examples
+
+**Good Example — Clear Delegation:**
+User: "Fix the authentication bug"
+→ Evaluate governance
+→ Delegate to security-specialist with context: "Auth bug in login.py, user reports 401 on valid credentials"
+→ Include acceptance criteria: "Login works with valid credentials, tests pass"
+
+**Bad Example — Scope Creep:**
+User: "Fix the authentication bug"
+→ Start reading auth code directly ❌
+→ Implement fix without delegation ❌
+```
+
+**Best Practice 3: Sandwich Method for Critical Instructions**
+
+Place critical instructions at the beginning AND repeat at the end:
+
+```markdown
+# Agent Name
+
+You are [role]. **You must [critical constraint].**
+
+[... body of system prompt ...]
+
+## Remember
+
+- [Key point 1]
+- [Key point 2]
+- **[Critical constraint repeated from top]**
+```
+
+**Best Practice 4: Concrete Invocation Triggers**
+
+Describe WHEN the agent should be invoked with specific scenarios, not abstract descriptions:
+
+| Abstract (Avoid) | Concrete (Prefer) |
+|------------------|-------------------|
+| "Use for code review" | "Invoke after writing or modifying >20 lines of code" |
+| "Use for governance" | "Invoke before any action that modifies files, runs commands, or makes architectural decisions" |
+| "Use for debugging" | "Invoke when tests fail, errors occur, or behavior is unexpected" |
+
+#### 2.1.2 Tool Scoping Guidelines
+
+IMPORTANT
+
+**Purpose:** Determine when to restrict agent tools versus allowing full inheritance.
+
+**Source:** Claude Code subagent documentation, Anthropic multi-agent research
+
+**Principle Basis:** Derives from Orchestrator Separation Pattern (A3) and Context Isolation Architecture (A4).
+
+**Default Behavior:** If `tools` field is omitted, agent inherits ALL tools from parent context.
+
+**When to Restrict Tools:**
+
+| Condition | Restrict To | Rationale |
+|-----------|-------------|-----------|
+| **Orchestrator role** | Read, Glob, Grep, Task, governance MCPs | Prevents direct execution; forces delegation |
+| **Validator role** | Read, Grep, Glob (no Edit/Write) | Fresh perspective without modification ability |
+| **Research role** | Read, Grep, Glob, WebSearch, WebFetch | Information gathering, no side effects |
+| **Sensitive operations** | Explicit allowlist only | Principle of least privilege |
+
+**When to Allow Full Inheritance:**
+
+| Condition | Rationale |
+|-----------|-----------|
+| **Specialist executing work** | Needs full capability to complete domain tasks |
+| **Debugging agent** | May need any tool to diagnose issues |
+| **Trusted internal agent** | Overhead of restriction exceeds risk |
+
+**Tool Scoping Decision Matrix:**
+
+```
+Does agent need to MODIFY files or state?
+├── NO → Restrict to read-only tools
+│         (Read, Glob, Grep, WebSearch, WebFetch)
+└── YES → Does agent need ALL modification tools?
+          ├── NO → Explicit allowlist (Edit, Write only; or Bash only)
+          └── YES → Inherit all (omit tools field)
+```
+
+**Platform-Specific Notes:**
+
+- **Claude Code:** Tool restrictions in YAML frontmatter are HARD enforcement
+- **Other platforms:** May require gateway-based enforcement (see §4.6.2)
+
+#### 2.1.3 Agent Validation Checklist
+
+IMPORTANT
+
+**Purpose:** Verify agent effectiveness before deployment.
+
+**Source:** Anthropic skill authoring best practices, iterative development patterns
+
+**Principle Basis:** Derives from Validation Independence (Q1) and Fail-Fast Validation.
+
+**Validation Procedure:**
+
+**Phase 1: Static Review**
+
+- [ ] **Name** follows convention: lowercase, hyphens, descriptive
+- [ ] **Description** includes WHEN to invoke (concrete triggers, not abstract)
+- [ ] **Tools** explicitly listed OR inheritance intentional
+- [ ] **System prompt** includes all 5 required sections (Who I Am, Cognitive Function, Who I Am NOT, Output Format, Success Criteria)
+- [ ] **Examples** included (at least 1 positive, 1 negative/edge case)
+- [ ] **Critical instructions** repeated at end (sandwich method)
+
+**Phase 2: Functional Testing**
+
+Test with representative scenarios:
+
+```markdown
+## Test Cases
+
+### Happy Path
+Input: [typical task]
+Expected: [correct delegation/output]
+Result: [ ] PASS / [ ] FAIL
+
+### Edge Case
+Input: [boundary condition]
+Expected: [graceful handling]
+Result: [ ] PASS / [ ] FAIL
+
+### Negative Test
+Input: [out-of-scope request]
+Expected: [appropriate refusal or escalation]
+Result: [ ] PASS / [ ] FAIL
+```
+
+**Phase 3: Integration Testing**
+
+- [ ] Agent invokable via expected mechanism (Task tool, /agent command)
+- [ ] Handoffs to/from other agents work correctly
+- [ ] Output format matches specification
+- [ ] Tool restrictions enforced (attempt forbidden tool, verify rejection)
+
+**Iteration Process:**
+
+Per Anthropic guidance: Work with "Claude A" to design/refine agent, then test with "Claude B" in real tasks:
+
+1. Draft agent definition with Claude A
+2. Deploy to project/user scope
+3. Test with Claude B in new session
+4. Collect failure cases
+5. Refine with Claude A
+6. Repeat until validation passes
+
+**Graduation Criteria:**
+
+Agent is production-ready when:
+- [ ] All Phase 1 checklist items pass
+- [ ] All Phase 2 test cases pass
+- [ ] Phase 3 integration confirmed
+- [ ] At least 3 real-world uses without modification needed
+
+---
 
 ### 2.2 Agent Catalog
 
@@ -2248,6 +2437,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.4.0 | 2026-01-04 | **Agent Authoring Best Practices.** Added: §2.1.1 System Prompt Best Practices (positive framing, examples, sandwich method, concrete invocation triggers), §2.1.2 Tool Scoping Guidelines (when to restrict vs inherit, decision matrix), §2.1.3 Agent Validation Checklist (3-phase validation, iteration process, graduation criteria). Updated Situation Index with new sections. Source: Anthropic prompt engineering research, Claude Code subagent docs, skill authoring best practices. |
 | v2.3.0 | 2026-01-03 | **Gateway-Based Enforcement.** Added: §4.6.2 Gateway-Based Enforcement (Platform-Agnostic) — documents MCP Gateway pattern for platforms lacking subagent architecture. Covers: problem (Claude Code subagents are unique), solution (server-side enforcement via gateway/proxy), available solutions (Lasso, Envoy, IBM ContextForge), decision matrix (subagent vs gateway), instruction-based fallback for minimum viable enforcement. Key principle: "Architecture beats hope." |
 | v2.2.0 | 2026-01-02 | **Assessment Responsibility Layers.** Added: §4.6.1 Assessment Responsibility Layers — defines script vs AI layer responsibilities in governance assessment. Script handles: S-Series keyword detection (deterministic safety), principle retrieval, structured output. AI handles: principle conflict analysis, modification generation, nuanced judgment. Includes model capability considerations (Frontier/Mid-tier/Fast). Key principle: "Don't try to script nuanced judgment. Don't let AI override safety guardrails." |
 | v2.1.0 | 2026-01-02 | **Governance Enforcement Architecture + Cross-Platform Research.** Added: §4.6 Governance Enforcement Architecture — Orchestrator-First pattern making governance structural (not optional), four-layer defense in depth (Default Persona → Governance Tool → Post-Action Audit → Per-Response Reminder), bypass authorization with narrow scope, audit trail requirements, Orchestrator Agent definition. Added: Appendix F Cross-Platform Agent Support — platform matrix (Claude Code, Codex CLI, Gemini CLI, ChatGPT, Grok/Perplexity), enforcement levels (HARD vs SOFT), LLM-agnostic design patterns, platform detection code, user communication templates. Problem addressed: voluntary governance tools can be ignored even with reminders. Solution: Orchestrator as default persona with mandatory `evaluate_governance()` before delegation. ESCALATE is now blocking (halts execution until human approves). |
