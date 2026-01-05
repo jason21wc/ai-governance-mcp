@@ -64,11 +64,50 @@ def get_metrics() -> Metrics:
     return _metrics
 
 
+def _validate_log_path(log_file: Path) -> None:
+    """Validate log file path is within expected boundaries.
+
+    M1 FIX: Prevents arbitrary file writes via manipulated log path env vars.
+
+    Args:
+        log_file: The log file path to validate.
+
+    Raises:
+        ValueError: If path contains traversal sequences or is outside expected bounds.
+    """
+    import tempfile
+
+    # Check for path traversal sequences in the raw path string
+    path_str = str(log_file)
+    if ".." in path_str:
+        raise ValueError("Path traversal sequence detected in log path")
+
+    # Resolve to absolute path for containment check
+    resolved = log_file.resolve()
+
+    # Log files must be within project root, user home, or system temp directory
+    # (covers default logs/ dir, user-configured paths, and test environments)
+    project_root = Path(__file__).parent.parent.parent.resolve()
+    home_dir = Path.home().resolve()
+    temp_dir = Path(tempfile.gettempdir()).resolve()
+
+    is_in_project = str(resolved).startswith(str(project_root))
+    is_in_home = str(resolved).startswith(str(home_dir))
+    is_in_temp = str(resolved).startswith(str(temp_dir))
+
+    if not (is_in_project or is_in_home or is_in_temp):
+        raise ValueError(
+            f"Log path must be within project root, home, or temp directory: {resolved}"
+        )
+
+
 def _write_log_sync(log_file: Path, content: str) -> None:
     """Synchronous log write helper for use with asyncio.to_thread.
 
     H2 FIX: Isolated sync function enables non-blocking async wrapper.
+    M1 FIX: Validates path before writing.
     """
+    _validate_log_path(log_file)  # M1 FIX: Path containment check
     with open(log_file, "a") as f:
         f.write(content)
         f.flush()  # H3 FIX: Explicit flush reduces data loss on shutdown
@@ -218,6 +257,7 @@ def _sanitize_error_message(error: Exception) -> str:
     """Sanitize error message to prevent information leakage.
 
     M6 FIX: Removes internal paths and sensitive information from error messages.
+    M3 FIX: More aggressive sanitization for production deployments.
 
     Args:
         error: The exception to sanitize.
@@ -240,6 +280,30 @@ def _sanitize_error_message(error: Exception) -> str:
 
     # Remove memory addresses
     message = re.sub(r"0x[0-9a-fA-F]+", "0x***", message)
+
+    # M3 FIX: Additional sanitization patterns
+
+    # Remove Python module paths (e.g., "foo.bar.baz.function")
+    message = re.sub(r"\b\w+(?:\.\w+){2,}\b", "[module]", message)
+
+    # Remove function references in tracebacks (e.g., "in function_name")
+    message = re.sub(r"\bin\s+\w+\s*\(", "in [func](", message)
+
+    # Remove stack frame references (e.g., "File 'filename.py'" in tracebacks)
+    # Only match when quotes are present (traceback format), not general "File" usage
+    message = re.sub(r'File\s+["\'][^"\']+["\']', "File [redacted]", message)
+
+    # Remove internal exception chains
+    message = re.sub(
+        r"(?:During handling of|The above exception was)",
+        "[exception chain]",
+        message,
+    )
+
+    # Truncate very long messages (could contain embedded data)
+    max_error_length = 500
+    if len(message) > max_error_length:
+        message = message[:max_error_length] + "...[truncated]"
 
     return message
 
@@ -1590,8 +1654,18 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
     # Get install path
     install_path = _get_agent_install_path(agent_name, scope)
 
-    # Check if already installed
+    # Check if already installed and if content differs
+    # M2 FIX: Warn user before overwriting existing file with different content
     already_installed = install_path.is_file()
+    content_differs = False
+    existing_content = None
+    if already_installed:
+        try:
+            existing_content = install_path.read_text()
+            content_differs = existing_content != template_content
+        except (OSError, PermissionError):
+            # Can't read existing file - treat as content differs for safety
+            content_differs = True
 
     # Handle manual instructions request
     if show_manual:
@@ -1631,12 +1705,21 @@ EOF
         )
         status = "update" if already_installed else "install"
 
+        # M2 FIX: Build warning if overwriting with different content
+        overwrite_warning = None
+        if content_differs:
+            overwrite_warning = (
+                "WARNING: Existing file has different content and will be overwritten. "
+                "Use show_manual=true to see new content before installing."
+            )
+
         output = {
             "status": "preview",
             "agent_name": agent_name,
             "scope": scope,
             "install_path": str(install_path),
             "already_installed": already_installed,
+            "content_differs": content_differs,  # M2 FIX: Expose content diff status
             "explanation": SUBAGENT_EXPLANATION.strip(),
             "action_summary": (
                 f"Will {status} '{agent_name}' subagent for {scope_desc}.\n\n"
@@ -1652,6 +1735,8 @@ EOF
                 "cancel": "Take no action to cancel",
             },
         }
+        if overwrite_warning:
+            output["warning"] = overwrite_warning  # M2 FIX: Add warning to output
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     # Confirmed: perform installation

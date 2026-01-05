@@ -11,6 +11,23 @@
 
 ## Recent Work (This Session)
 
+### Security Hardening (3 MEDIUM Issues Fixed)
+**Audit:** Full codebase security audit via security-auditor subagent.
+
+**Findings:** 0 CRITICAL, 0 HIGH, 3 MEDIUM, 3 LOW
+- Risk Level: LOW (suitable for production)
+
+**Fixes Implemented:**
+| ID | Issue | Fix |
+|----|-------|-----|
+| M1 | Log path could be controlled via env var | `_validate_log_path()` - containment check for project/home/temp |
+| M2 | Agent install overwrites without warning | Content comparison + warning in preview output |
+| M3 | Some error details may leak | Aggressive sanitization (modules, functions, stack frames, truncation) |
+
+**Secure Patterns Verified (12):** Rate limiting, path traversal prevention, secret redaction, bounded memory, input validation, etc.
+
+**Re-audit:** Security-auditor confirmed all fixes correctly implemented, no new vulnerabilities.
+
 ### SUBAGENT_EXPLANATION Rename + Full Terminology Sweep
 **Change:** Renamed `AGENT_EXPLANATION` constant to `SUBAGENT_EXPLANATION` and updated all user-facing messages in server.py to use "subagent" terminology consistently.
 
