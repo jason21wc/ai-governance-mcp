@@ -57,8 +57,7 @@ Fresh Context Needed?
 ## Next Actions
 
 1. Monitor new Method vs Subagent guidance in practice
-2. Consider capturing MAP/Six Hats as methods if usage patterns emerge
-3. Review roadmap items when starting next enhancement cycle
+2. Review roadmap items when starting next enhancement cycle
 
 ## Links
 
