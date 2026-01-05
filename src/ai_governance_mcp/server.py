@@ -385,7 +385,7 @@ GOVERNANCE_REMINDER = """
 
 # Subagent installation explanation for users
 # Per Phase 2B design: robust explanation for both experts and beginners
-AGENT_EXPLANATION = """
+SUBAGENT_EXPLANATION = """
 ## AI Governance Subagent Installation
 
 ### What is a Subagent?
@@ -1559,7 +1559,7 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
             "status": "not_applicable",
             "platform": "non-claude",
             "message": (
-                "Agent installation is only needed for Claude Code. "
+                "Subagent installation is only needed for Claude Code. "
                 "Your platform already receives governance guidance via server instructions. "
                 "The Orchestrator protocol is active through the Required Actions and "
                 "Forbidden Actions in the server instructions you received on connection."
@@ -1579,7 +1579,7 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
     if not template_path:
         error = ErrorResponse(
             error_code="TEMPLATE_NOT_FOUND",
-            message=f"Agent template not found: {agent_name}",
+            message=f"Subagent template not found: {agent_name}",
             suggestions=["Ensure the MCP server is properly installed"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
@@ -1596,7 +1596,7 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
     # Handle manual instructions request
     if show_manual:
         # Build clear, actionable instructions
-        instructions = f"""To install the {agent_name} agent manually:
+        instructions = f"""To install the {agent_name} subagent manually:
 
 1. Create the agents directory:
    mkdir -p {install_path.parent}
@@ -1604,7 +1604,7 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
 2. Save the content (from the "content" field below) to:
    {install_path}
 
-3. Restart Claude Code to activate the agent
+3. Restart Claude Code to activate the subagent
 
 **One-liner alternative** (copy/paste the content field into this command):
 ```bash
@@ -1637,11 +1637,11 @@ EOF
             "scope": scope,
             "install_path": str(install_path),
             "already_installed": already_installed,
-            "explanation": AGENT_EXPLANATION.strip(),
+            "explanation": SUBAGENT_EXPLANATION.strip(),
             "action_summary": (
-                f"Will {status} '{agent_name}' agent for {scope_desc}.\n\n"
+                f"Will {status} '{agent_name}' subagent for {scope_desc}.\n\n"
                 f"File: {install_path}\n\n"
-                "This agent will:\n"
+                "This subagent will:\n"
                 "- Ensure evaluate_governance() is called before significant actions\n"
                 "- Have restricted tools (read + governance only, no edit/write/bash)\n"
                 "- Escalate to you when S-Series (safety) principles trigger\n"
@@ -1659,7 +1659,7 @@ EOF
         # Create directory if needed
         install_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Write agent file
+        # Write subagent file
         install_path.write_text(template_content)
 
         output = {
@@ -1668,8 +1668,8 @@ EOF
             "scope": scope,
             "install_path": str(install_path),
             "message": (
-                f"Successfully installed '{agent_name}' agent.\n\n"
-                "The Orchestrator agent will activate on your next Claude Code session.\n"
+                f"Successfully installed '{agent_name}' subagent.\n\n"
+                "The Orchestrator subagent will activate on your next Claude Code session.\n"
                 "It will ensure governance is checked before significant actions.\n\n"
                 "To verify: Look for 'orchestrator' in the agents list when you start Claude Code.\n"
                 "To remove: Use uninstall_agent(agent_name='orchestrator')"
@@ -1694,7 +1694,7 @@ EOF
     except Exception as e:
         error = ErrorResponse(
             error_code="INSTALL_FAILED",
-            message=f"Failed to install agent: {str(e)}",
+            message=f"Failed to install subagent: {str(e)}",
             suggestions=["Use show_manual=true for manual installation instructions"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
@@ -1728,7 +1728,7 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
             "agent_name": agent_name,
             "scope": scope,
             "install_path": str(install_path),
-            "message": f"Agent '{agent_name}' is not installed at {install_path}",
+            "message": f"Subagent '{agent_name}' is not installed at {install_path}",
         }
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
@@ -1740,7 +1740,7 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
             "scope": scope,
             "install_path": str(install_path),
             "warning": (
-                f"This will remove the '{agent_name}' agent.\n\n"
+                f"This will remove the '{agent_name}' subagent.\n\n"
                 "After removal:\n"
                 "- Governance checks will no longer be automatically enforced\n"
                 "- You'll need to manually call governance tools\n"
@@ -1760,8 +1760,8 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
             "scope": scope,
             "install_path": str(install_path),
             "message": (
-                f"Successfully removed '{agent_name}' agent.\n\n"
-                "The agent will no longer be active in new Claude Code sessions.\n"
+                f"Successfully removed '{agent_name}' subagent.\n\n"
+                "The subagent will no longer be active in new Claude Code sessions.\n"
                 "Governance tools are still available via the MCP server.\n\n"
                 "To reinstall: Use install_agent(agent_name='orchestrator')"
             ),
@@ -1771,7 +1771,7 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
     except Exception as e:
         error = ErrorResponse(
             error_code="UNINSTALL_FAILED",
-            message=f"Failed to uninstall agent: {str(e)}",
+            message=f"Failed to uninstall subagent: {str(e)}",
             suggestions=["Manually delete the file", f"Path: {install_path}"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]

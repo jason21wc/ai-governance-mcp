@@ -11,9 +11,26 @@
 
 ## Recent Work (This Session)
 
+### SUBAGENT_EXPLANATION Rename + Full Terminology Sweep
+**Change:** Renamed `AGENT_EXPLANATION` constant to `SUBAGENT_EXPLANATION` and updated all user-facing messages in server.py to use "subagent" terminology consistently.
+
+**Convention Established:**
+- **"Subagent"** = user-facing terminology (what users see)
+- **"Agent"** = technical/API terminology (tool names, directory paths, parameters)
+
+**Files Updated:**
+- `server.py`: 15 terminology fixes (constant rename + messages)
+- `CLAUDE.md`: 2 fixes (governance table)
+- `SESSION-STATE.md`: 2 fixes (subagent table header)
+
+**Process Used:**
+- Code-reviewer subagent: Found 2 additional issues beyond initial scope
+- Documentation-writer subagent: Reviewed docs for consistency
+- All 290 tests passing
+
 ### Coding Subagents Created (4 New)
-**Agents Created:**
-| Agent | Cognitive Function | Purpose |
+**Subagents Created:**
+| Subagent | Cognitive Function | Purpose |
 |-------|-------------------|---------|
 | code-reviewer | Analytical validation | Fresh-context code review against criteria |
 | test-generator | Systematic test design | Behavior-focused test creation |

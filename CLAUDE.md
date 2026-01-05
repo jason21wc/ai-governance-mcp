@@ -24,12 +24,12 @@ This project IS the AI Governance MCP. Use these tools:
 
 | Tool | Purpose |
 |------|---------|
-| `evaluate_governance` | Pre-action compliance check (Governance Agent) |
+| `evaluate_governance` | Pre-action compliance check (Governance Subagent) |
 | `query_governance` | Get principles for current task |
 | `verify_governance_compliance` | Post-action audit |
 | `get_principle` | Get full content by ID |
 | `list_domains` | See available domains |
-| `install_agent` | Install Orchestrator (Claude Code only) |
+| `install_agent` | Install Orchestrator subagent (Claude Code only) |
 
 ### Mandatory Governance Checkpoints
 
