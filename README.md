@@ -137,7 +137,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **90%** (290 tests) |
+| Test Coverage | 80% | **90%** (304 tests) |
 
 ## Quick Start (Docker)
 
@@ -619,7 +619,7 @@ ai-governance-mcp/
     ├── conftest.py      # Shared fixtures
     ├── test_models.py   # Model validation (35 tests)
     ├── test_config.py   # Config tests (17 tests)
-    ├── test_server.py   # Server unit tests (71 tests)
+    ├── test_server.py   # Server unit tests (96 tests)
     ├── test_server_integration.py   # Dispatcher + flows (11 tests)
     ├── test_extractor.py            # Extractor tests (45 tests)
     ├── test_extractor_integration.py # Pipeline tests (11 tests)
@@ -657,11 +657,11 @@ pre-commit install
 
 ### Test Suite
 
-290 tests across 10 test files with 90% coverage:
+304 tests across 10 test files with 90% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
-| Unit | 247 | Isolated component testing |
+| Unit | 261 | Isolated component testing |
 | Integration | 43 | Full pipeline flows |
 
 Tests include real index validation and actual ML model tests (marked `@pytest.mark.slow`).

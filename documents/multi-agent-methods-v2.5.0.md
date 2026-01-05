@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.4.0
+**Version:** 2.5.0
 **Status:** Active
-**Effective Date:** 2026-01-04
+**Effective Date:** 2026-01-05
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -109,7 +109,12 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Handing off between agents | §3.2 | Handoff Protocol |
 | Choosing orchestration pattern | §3.3 | Pattern Selection Matrix |
 | Compressing context at boundary | §3.4 | Compression Procedures |
+| Distilling memory for long sessions | §3.4.1 | Memory Distillation Procedure |
 | Persisting state across sessions | §3.5 | State Persistence Protocol |
+| Ending session | §3.6 | Session Closer Protocol |
+| Monitoring agent execution | §3.7 | Observability Protocol |
+| Production observability setup | §3.7.1 | Production Observability Patterns |
+| Configuring execution loops | §3.8 | ReAct Loop Configuration |
 | Validating agent output | §4.1 | Validation Agent Deployment |
 | Need devil's advocate review | §4.2 | Contrarian Reviewer Pattern |
 | Need governance compliance check | §4.3 | Governance Agent Pattern |
@@ -117,7 +122,8 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Need human approval | §4.5 | Human-in-the-Loop Gates |
 | Making governance structural | §4.6 | Governance Enforcement Architecture |
 | Non-Claude platform enforcement | §4.6.2 | Gateway-Based Enforcement |
-| Ending session | §3.6 | Session Closer Protocol |
+| Evaluating agent performance | §4.7 | Agent Evaluation Framework |
+| Implementing safety guardrails | §4.8 | Production Safety Guardrails |
 | Syncing context across tools | §5.1 | Cross-Tool Synchronization |
 | "framework check" received | §1.2 | Re-initialization |
 
@@ -1468,6 +1474,95 @@ After compressing, verify:
 - [ ] Artifact references are correct
 - [ ] Next agent can proceed without asking "what did you decide about X?"
 
+#### 3.4.1 Memory Distillation Procedure
+
+IMPORTANT
+
+**Purpose:** Compress conversation histories into essential facts for long-running agents.
+
+**Source:** AWS AgentCore Memory (89-95% compression), Mem0 (80% token reduction), Google Titans architecture
+
+**When This Differs from Standard Compression:**
+
+Standard compression (§3.4) applies at agent handoff boundaries. Memory distillation applies to long-running conversations within a single agent or session where context accumulates over time.
+
+**When to Distill:**
+
+| Trigger | Action |
+|---------|--------|
+| Session exceeds 10,000 tokens | Distill oldest conversation turns |
+| Agent handoff across session boundaries | Full distillation before persist |
+| Before archiving to long-term memory | Distill to facts + decisions |
+| Context window approaching 50% utilization | Proactive distillation |
+
+**Distillation Categories:**
+
+| Preserve (High Value) | Discard (Low Value) |
+|-----------------------|---------------------|
+| Decisions with rationale | Exploratory reasoning |
+| User constraints and preferences | Dead-end explorations |
+| Final artifact references | Draft versions |
+| Critical errors and lessons | Verbose explanations |
+| Architectural choices | Deliberation process |
+
+**Compression Targets:**
+
+| Memory Type | Target Compression | Rationale |
+|-------------|-------------------|-----------|
+| Working memory | 60-70% | Active context, preserve more |
+| Session handoff | 80-90% | Cross-session, preserve decisions |
+| Long-term archive | 90-95% | Reference only, minimal footprint |
+
+**LLM Distillation Prompt Template:**
+
+```markdown
+Summarize this conversation into essential facts:
+
+1. **Decisions Made:** What was decided and why?
+2. **Constraints Established:** What limits or requirements must be remembered?
+3. **Artifacts Produced:** What outputs exist and where?
+4. **Failures/Lessons:** What failed and what was learned?
+5. **Open Questions:** What remains unresolved?
+
+Format as structured data, not prose. Omit deliberation process.
+```
+
+**Distillation Output Format:**
+
+```markdown
+## Distilled Memory — [Session/Agent ID]
+**Distilled At:** [timestamp]
+**Original Tokens:** [count]
+**Distilled Tokens:** [count]
+**Compression Ratio:** [percentage]
+
+### Decisions
+| Decision | Rationale | Impact |
+|----------|-----------|--------|
+| [decision] | [why] | [what it affects] |
+
+### Constraints
+- [Constraint 1]
+- [Constraint 2]
+
+### Artifacts
+- [path]: [description]
+
+### Lessons
+- [What failed]: [What was learned]
+
+### Open Questions
+- [Question needing future resolution]
+```
+
+**Quality Verification:**
+
+After distillation, verify:
+- [ ] All decisions are recoverable from distilled memory
+- [ ] No critical constraints were lost
+- [ ] Artifact references are correct and complete
+- [ ] A new session could continue work from distilled memory alone
+
 ### 3.5 State Persistence Protocol
 
 CRITICAL
@@ -1605,6 +1700,190 @@ IMPORTANT
 **Blocker Escalation:**
 - Blockers must be reported IMMEDIATELY, not on next scheduled broadcast
 - Include: what's blocked, why, what's needed to unblock
+
+#### 3.7.1 Production Observability Patterns
+
+IMPORTANT
+
+**Purpose:** Instrument agents for production monitoring, debugging, and performance analysis.
+
+**Source:** IBM AgentOps (OpenTelemetry), AgentOps.ai (400+ integrations), AI Multiple Research
+
+**Why Basic Observability Is Insufficient:**
+
+The standard Observability Protocol (§3.7) covers status broadcasting during execution. Production observability adds persistent instrumentation for post-hoc analysis, cost tracking, and system-level monitoring.
+
+**The Observability Stack:**
+
+| Layer | What to Track | Tool Examples |
+|-------|--------------|---------------|
+| **Traces** | Full request path across agents | OpenTelemetry, LangSmith |
+| **Metrics** | Token usage, latency, error rates | Prometheus, AgentOps |
+| **Logs** | Decision rationale, handoff contents | Structured JSON logs |
+| **Sessions** | Point-in-time replay capability | AgentOps session replay |
+
+**Key Metrics to Track:**
+
+| Metric | Description | Target |
+|--------|-------------|--------|
+| Tokens per agent per task | Resource consumption | Track, optimize over time |
+| Handoff success rate | Inter-agent reliability | > 95% |
+| Mean time to task completion | Efficiency | Baseline + trend |
+| Cascade failure frequency | System resilience | < 1% of workflows |
+| Human escalation rate | Autonomy level | Task-appropriate |
+| Governance check latency | Compliance overhead | < 500ms |
+
+**Production Instrumentation Requirements:**
+
+```yaml
+observability:
+  tracing:
+    enabled: true
+    exporter: otlp  # OpenTelemetry Protocol
+    sample_rate: 1.0  # 100% for debugging, reduce in high-volume
+
+  metrics:
+    enabled: true
+    export_interval: 60s
+    dimensions:
+      - agent_name
+      - task_type
+      - outcome
+
+  logging:
+    level: INFO
+    format: json
+    include:
+      - timestamp
+      - agent_id
+      - action
+      - decision_rationale
+      - governance_assessment
+
+  session_replay:
+    enabled: true
+    retention: 7d
+```
+
+**Performance Budget:**
+
+Observability overhead should not exceed 15% of total latency:
+- Trace creation: < 10ms per span
+- Metric emission: < 5ms per batch
+- Log write: < 2ms per entry
+
+**Session Replay Requirement:**
+
+All production workflows MUST support point-in-time replay for debugging:
+- Capture: All inputs, outputs, and intermediate states
+- Storage: Indexed by session ID with timestamp
+- Retention: Minimum 7 days, configurable based on compliance needs
+
+**Alerting Thresholds:**
+
+| Condition | Alert Level | Action |
+|-----------|-------------|--------|
+| Error rate > 5% | WARNING | Investigate |
+| Error rate > 10% | CRITICAL | Immediate response |
+| Latency P95 > 2x baseline | WARNING | Investigate |
+| Token usage > 150% estimate | WARNING | Cost review |
+| Cascade failure detected | CRITICAL | Stop-the-line |
+
+### 3.8 ReAct Loop Configuration
+
+IMPORTANT
+
+**Purpose:** Control the Reason→Act→Observe execution cycle in agentic workflows.
+
+**Source:** IBM ReAct Agent, AG2 ReAct Loops, Prompting Guide
+
+**The ReAct Framework:**
+
+ReAct (Reason + Act) is the foundational pattern for agentic AI: the model reasons about what to do, takes an action, observes the result, and iterates.
+
+```
+┌──────────────────────────────────────────┐
+│              ReAct Loop                   │
+│                                          │
+│   ┌─────────┐    ┌─────────┐    ┌──────┐│
+│   │ Reason  │───►│   Act   │───►│Observe││
+│   └────▲────┘    └─────────┘    └───┬──┘│
+│        │                            │    │
+│        └────────────────────────────┘    │
+│                                          │
+└──────────────────────────────────────────┘
+```
+
+**Loop Control Parameters:**
+
+| Parameter | Default | Purpose |
+|-----------|---------|---------|
+| `max_iterations` | 10 | Prevent infinite loops |
+| `confidence_threshold` | 0.8 | Exit when confidence exceeds |
+| `observation_timeout` | 30s | Max time for observation step |
+| `backtrack_enabled` | false | Allow revising prior steps |
+| `idle_timeout` | 60s | Exit if no progress |
+
+**Loop Termination Triggers:**
+
+| Trigger | Condition | Action |
+|---------|-----------|--------|
+| Task complete | Agent declares done with HIGH confidence | Exit loop, return result |
+| Max iterations | `iteration >= max_iterations` | Exit loop, report incomplete |
+| Confidence met | Confidence >= threshold | Exit loop, return result |
+| User interrupt | External cancel signal | Exit loop, save state |
+| Fatal error | Unrecoverable exception | Exit loop, escalate |
+| Idle timeout | No new actions for `idle_timeout` | Exit loop, escalate |
+
+**Anti-Pattern: Runaway Loops**
+
+**Detection:**
+- Agent repeats similar actions without progress
+- Same tool called with same/similar parameters consecutively
+- Output doesn't change between iterations
+
+**Mitigation:**
+```python
+# Track action diversity
+recent_actions = []
+for action in loop:
+    if action.signature in recent_actions[-3:]:
+        similarity_count += 1
+    if similarity_count >= 3:
+        escalate("Runaway loop detected: repeated actions without progress")
+    recent_actions.append(action.signature)
+```
+
+**ReAct Configuration Template:**
+
+```yaml
+react_loop:
+  max_iterations: 10
+  confidence_threshold: 0.8
+  observation_timeout: 30s
+  idle_timeout: 60s
+  backtrack_enabled: false
+
+  termination:
+    on_max_iterations: escalate  # or: return_partial
+    on_timeout: escalate
+    on_low_confidence: continue  # or: escalate
+
+  monitoring:
+    log_each_iteration: true
+    track_action_diversity: true
+    alert_on_repetition: 3  # consecutive similar actions
+```
+
+**Configuring for Task Types:**
+
+| Task Type | Max Iterations | Confidence Threshold | Backtrack |
+|-----------|---------------|---------------------|-----------|
+| Simple query | 3 | 0.9 | false |
+| Research task | 15 | 0.7 | false |
+| Complex reasoning | 10 | 0.8 | true |
+| Code generation | 5 | 0.85 | false |
+| Debugging | 20 | 0.75 | true |
 
 ---
 
@@ -2302,6 +2581,286 @@ This provides guidance but not enforcement—the AI *can* bypass. For high-stake
 
 > Enforce governance *physically* (tool access control) rather than *psychologically* (instructions). Architecture beats hope.
 
+### 4.7 Agent Evaluation Framework
+
+CRITICAL
+
+**Purpose:** Systematically evaluate agent performance across multiple dimensions for continuous improvement.
+
+**Source:** Google Vertex AI Gen AI Evaluation Service, Confident AI, orq.ai evaluation research
+
+**Why Validation Alone Is Insufficient:**
+
+Validation (§4.1) checks individual outputs against acceptance criteria. The Agent Evaluation Framework provides systematic measurement of agent performance over time, enabling optimization and regression detection.
+
+**The Four Evaluation Layers:**
+
+| Layer | What It Measures | When to Evaluate | Key Metrics |
+|-------|------------------|------------------|-------------|
+| **Component** | Individual subsystem quality | After each component change | Per-tool accuracy, retrieval precision |
+| **Trajectory** | Decision-making path quality | Per task completion | Step efficiency, reasoning coherence |
+| **Outcome** | Task completion quality | Per task completion | Goal fulfillment, user satisfaction |
+| **System** | Multi-agent coordination | Per workflow completion | Handoff success, cascade failures |
+
+**Component-Level Evaluation:**
+
+Test subsystems in isolation:
+
+| Component | Evaluation Method | Metrics |
+|-----------|------------------|---------|
+| Routing logic | Accuracy on labeled dataset | Precision, recall, F1 |
+| Context compression | Manual review of distillation | Information preservation rate |
+| Tool selection | Comparison to ideal tool | Selection accuracy |
+| Governance retrieval | Relevance scoring | MRR, NDCG |
+
+**Trajectory Evaluation (Key Addition):**
+
+Evaluate the decision-making path, not just the final output:
+
+| Metric | Definition | Target |
+|--------|------------|--------|
+| **Exact match** | Trajectory exactly matches ideal solution | Task-dependent |
+| **In-order match** | Required actions in correct sequence | > 80% |
+| **Any-order match** | Required actions regardless of order | > 90% |
+| **Step efficiency** | Actual steps / Minimum required steps | < 1.5x |
+| **Backtrack rate** | Steps that revise prior decisions | < 10% |
+
+**Trajectory Evaluation Template:**
+
+```markdown
+## Trajectory Evaluation — [Task ID]
+
+### Ideal Trajectory
+1. [Expected step 1]
+2. [Expected step 2]
+3. [Expected step N]
+
+### Actual Trajectory
+1. [Actual step 1] — MATCH / EXTRA / WRONG
+2. [Actual step 2] — MATCH / EXTRA / WRONG
+...
+
+### Metrics
+- Exact Match: YES / NO
+- In-Order Match: [X]%
+- Any-Order Match: [X]%
+- Step Efficiency: [actual] / [ideal] = [ratio]
+- Backtrack Rate: [count] / [total] = [%]
+
+### Analysis
+[Why trajectory deviated, if applicable]
+```
+
+**Outcome Evaluation:**
+
+| Metric | Definition | Measurement |
+|--------|------------|-------------|
+| Goal fulfillment | Task objectives achieved | Checklist against acceptance criteria |
+| Output quality | Correctness, completeness | Domain-specific rubric |
+| User satisfaction | Human rating of usefulness | 1-5 scale or thumbs up/down |
+| Time to completion | Duration from start to done | Clock time |
+
+**System-Level Evaluation:**
+
+| Metric | Definition | Target |
+|--------|------------|--------|
+| Handoff success rate | Successful transfers / Total transfers | > 95% |
+| Cascade failure rate | Multi-agent failures from single error | < 1% |
+| Resource efficiency | Tokens used / Baseline estimate | < 150% |
+| Human escalation rate | Escalations / Total tasks | Task-appropriate |
+| End-to-end latency | Total time for multi-agent workflow | Within SLA |
+
+**Evaluation Cadence:**
+
+| Level | Frequency | Trigger |
+|-------|-----------|---------|
+| Component | On change | Code/config modification |
+| Trajectory | Per task | Task completion |
+| Outcome | Per task | Task completion |
+| System | Weekly | Scheduled review |
+
+**Evaluation Dashboard Requirements:**
+
+```yaml
+dashboard:
+  component_health:
+    - routing_accuracy
+    - compression_quality
+    - tool_selection_rate
+
+  trajectory_trends:
+    - avg_step_efficiency (7-day rolling)
+    - backtrack_rate_trend
+    - exact_match_rate
+
+  outcome_summary:
+    - goal_fulfillment_rate
+    - user_satisfaction_avg
+    - completion_time_p50_p95
+
+  system_alerts:
+    - cascade_failures_today
+    - escalation_rate_vs_baseline
+    - token_budget_utilization
+```
+
+### 4.8 Production Safety Guardrails
+
+CRITICAL
+
+**Purpose:** Implement multi-layer safety defenses for production agent deployments.
+
+**Source:** Dextra Labs Agentic AI Safety Playbook, Superagent Framework, OWASP 2025
+
+**The Guardrail Imperative:**
+
+Safety guardrails are required infrastructure, not optional enhancements. Production agents operate with significant autonomy; guardrails ensure this autonomy doesn't lead to harm.
+
+**The Guardrail Pipeline:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Guardrail Pipeline                          │
+│                                                                 │
+│  User Input ──► [Input Guardrails] ──► Model ──► [Output Guardrails] ──► User
+│                      │                              │           │
+│                      ▼                              ▼           │
+│                 Reject/Modify                  Redact/Block     │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Input Guardrails:**
+
+| Defense | What It Catches | Implementation |
+|---------|-----------------|----------------|
+| **Prompt injection detection** | Attempts to override instructions | Pattern matching + classifier |
+| **Topic classification** | Out-of-scope requests | Intent classifier |
+| **PII detection** | Sensitive data in prompts | Regex + NER |
+| **Rate limiting** | Abuse prevention | Token bucket / sliding window |
+| **Input length limits** | Context overflow attacks | Hard token limits |
+
+**Prompt Injection Defense:**
+
+```python
+# Example injection patterns to detect
+INJECTION_PATTERNS = [
+    r"ignore (previous|prior|above) instructions",
+    r"disregard (your|the) (rules|guidelines)",
+    r"you are now",
+    r"new instructions:",
+    r"override.*system.*prompt",
+    r"pretend you are",
+]
+
+def check_prompt_injection(input_text: str) -> bool:
+    for pattern in INJECTION_PATTERNS:
+        if re.search(pattern, input_text, re.IGNORECASE):
+            return True  # Potential injection detected
+    return False
+```
+
+**Output Guardrails:**
+
+| Defense | What It Catches | Implementation |
+|---------|-----------------|----------------|
+| **PII redaction** | Accidental data leakage | Pattern matching + replacement |
+| **Hallucination grounding** | Unsupported claims | Citation verification |
+| **Content moderation** | Inappropriate outputs | Classifier + blocklist |
+| **Tool call validation** | Unauthorized actions | Allowlist checking |
+| **Output length limits** | Runaway generation | Hard token limits |
+
+**PII Redaction Patterns:**
+
+| PII Type | Pattern | Replacement |
+|----------|---------|-------------|
+| Email | `[\w.-]+@[\w.-]+\.\w+` | `[EMAIL]` |
+| Phone | `\b\d{3}[-.]?\d{3}[-.]?\d{4}\b` | `[PHONE]` |
+| SSN | `\b\d{3}-\d{2}-\d{4}\b` | `[SSN]` |
+| Credit Card | `\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b` | `[CARD]` |
+| API Key | `\b(sk|api|key|token)[_-]?[a-zA-Z0-9]{20,}\b` | `[API_KEY]` |
+
+**RBAC for Tools (Per §2.1.2):**
+
+Each agent role should have explicit tool permissions:
+
+| Role | Allowed Tools | Rationale |
+|------|--------------|-----------|
+| Orchestrator | Read, Glob, Grep, Task, governance | No direct modification |
+| Specialist | Domain-appropriate | Principle of least privilege |
+| Validator | Read-only | Fresh perspective, no modification |
+| Researcher | Read, WebSearch, WebFetch | Information gathering only |
+
+**Guardrail Configuration Template:**
+
+```yaml
+guardrails:
+  input:
+    prompt_injection:
+      enabled: true
+      action: reject  # or: sanitize
+      patterns: default  # or: custom list
+
+    pii_detection:
+      enabled: true
+      action: warn  # or: reject
+      types: [email, phone, ssn, credit_card]
+
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 60
+      tokens_per_minute: 100000
+
+    max_input_tokens: 10000
+
+  output:
+    pii_redaction:
+      enabled: true
+      types: [email, phone, ssn, credit_card, api_key]
+
+    content_moderation:
+      enabled: true
+      categories: [hate, violence, sexual, self_harm]
+      threshold: 0.8
+
+    tool_call_validation:
+      enabled: true
+      mode: allowlist  # or: denylist
+      # Allowlist defined per agent role
+
+    max_output_tokens: 4000
+
+  logging:
+    log_blocked_requests: true
+    log_redactions: true
+    alert_on_injection_attempt: true
+```
+
+**Production Benchmarks (2025):**
+
+| Metric | Target | Notes |
+|--------|--------|-------|
+| MTTD (Mean Time to Detect) | < 5 minutes | Time to detect guardrail violation |
+| False positive rate | < 2% | Legitimate requests incorrectly blocked |
+| Guardrail overhead | < 100ms | Added latency for guardrail checks |
+| Coverage | 100% | All inputs/outputs pass through guardrails |
+
+**Integration with Governance:**
+
+Guardrails complement governance checks:
+- **Guardrails:** Fast, deterministic, pattern-based defenses
+- **Governance (§4.3):** Nuanced, principle-based assessment
+
+Both should be applied. Guardrails catch obvious violations quickly; governance catches subtle compliance issues.
+
+**S-Series Integration:**
+
+S-Series (Safety) principles from the Constitution have veto authority. Guardrail violations that align with S-Series triggers should:
+1. Block the action immediately
+2. Log the violation with full context
+3. Alert operators if configured
+4. Escalate to human review
+
 ---
 
 # TITLE 5: Cross-Tool Synchronization
@@ -2513,6 +3072,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.5.0 | 2026-01-05 | **Production Operations Expansion.** Added 6 new sections from Google Cloud AI Agents guide analysis + 2025-2026 industry research validation. New sections: §3.4.1 Memory Distillation Procedure (AWS AgentCore 89-95% compression, Mem0 80% token reduction, Google Titans architecture), §3.7.1 Production Observability Patterns (IBM AgentOps, OpenTelemetry, session replay), §3.8 ReAct Loop Configuration (loop controls, termination triggers, runaway detection), §4.7 Agent Evaluation Framework (4-layer model: Component/Trajectory/Outcome/System, trajectory metrics), §4.8 Production Safety Guardrails (multi-layer defense, prompt injection, PII redaction, RBAC). Updated Situation Index with 7 new entries. Sources: Google Vertex AI Gen AI Evaluation Service, Confident AI, Dextra Labs Safety Playbook, Superagent Framework, OWASP 2025. |
 | v2.4.0 | 2026-01-04 | **Agent Authoring Best Practices.** Added: §2.1.1 System Prompt Best Practices (positive framing, examples, sandwich method, concrete invocation triggers), §2.1.2 Tool Scoping Guidelines (when to restrict vs inherit, decision matrix), §2.1.3 Agent Validation Checklist (3-phase validation, iteration process, graduation criteria). Updated Situation Index with new sections. Source: Anthropic prompt engineering research, Claude Code subagent docs, skill authoring best practices. |
 | v2.3.0 | 2026-01-03 | **Gateway-Based Enforcement.** Added: §4.6.2 Gateway-Based Enforcement (Platform-Agnostic) — documents MCP Gateway pattern for platforms lacking subagent architecture. Covers: problem (Claude Code subagents are unique), solution (server-side enforcement via gateway/proxy), available solutions (Lasso, Envoy, IBM ContextForge), decision matrix (subagent vs gateway), instruction-based fallback for minimum viable enforcement. Key principle: "Architecture beats hope." |
 | v2.2.0 | 2026-01-02 | **Assessment Responsibility Layers.** Added: §4.6.1 Assessment Responsibility Layers — defines script vs AI layer responsibilities in governance assessment. Script handles: S-Series keyword detection (deterministic safety), principle retrieval, structured output. AI handles: principle conflict analysis, modification generation, nuanced judgment. Includes model capability considerations (Frontier/Mid-tier/Fast). Key principle: "Don't try to script nuanced judgment. Don't let AI override safety guardrails." |
@@ -2532,13 +3092,37 @@ This methods document synthesizes patterns from:
 - Anthropic Claude Agent SDK (2025)
 - Claude Code Subagents Documentation
 
-**Industry Research (2025):**
+**Industry Research (2025-2026):**
 - Anthropic Multi-Agent Research System (90.2% improvement, 15x tokens)
 - Google ADK "Architecting Efficient Context-Aware Multi-Agent Framework" (Agents-as-Tools vs Agent-Transfer)
+- Google Cloud "Startup Technical Guide: AI Agents" (2025) — comprehensive agent patterns
+- Google Vertex AI Gen AI Evaluation Service — 4-layer evaluation framework
 - Cognition "Don't Build Multi-Agents" (conflicting assumptions, read-write division)
 - LangChain "How and When to Build Multi-Agent Systems" (read-heavy parallelization)
 - Microsoft Multi-Agent Reference Architecture (context engineering)
 - Vellum "Multi-Agent Context Engineering" (Write/Select/Compress/Isolate)
+
+**Memory & Context Research (2025-2026):**
+- AWS AgentCore Memory Deep Dive — 89-95% compression rates in production
+- Mem0 Paper (arXiv:2504.19413) — 80% token reduction via graph-based distillation
+- Google Titans Architecture — Test-time memorization with "surprise" metrics
+
+**Observability & Operations (2025-2026):**
+- IBM AgentOps — Built on OpenTelemetry standards
+- AgentOps.ai — 400+ LLM integrations, visual event tracking
+- AI Multiple Research — 12-15% overhead acceptable for observability
+
+**Safety & Evaluation (2025-2026):**
+- Confident AI — Component-wise evaluation enables debugging
+- orq.ai Agent Evaluation — "Evaluate trajectory, not just a turn"
+- Dextra Labs Agentic AI Safety Playbook — "Required infrastructure, not nice-to-have"
+- Superagent Framework — Declarative safety policies
+- OWASP 2025 — Prompt injection is #1 risk
+
+**Execution Frameworks (2025-2026):**
+- IBM ReAct Agent — Standard for combining reasoning with tool use
+- AG2 ReAct Loops — Advanced loop evaluation patterns
+- Prompting Guide ReAct — De facto prompting standard
 
 **Practitioner Patterns:**
 - NetworkChuck multi-CLI workflow (2025)
@@ -2551,6 +3135,9 @@ This methods document synthesizes patterns from:
 - State machine orchestration improves reliability
 - Sub-agent isolation protects main conversation context
 - "A focused 300-token context often outperforms an unfocused 113,000-token context" (Google ADK)
+- Memory distillation achieves 80-95% compression while preserving decision fidelity
+- Trajectory evaluation catches decision-path issues missed by outcome-only evaluation
+- Production guardrails add < 100ms latency with proper implementation
 
 ---
 

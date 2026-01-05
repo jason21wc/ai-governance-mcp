@@ -2,7 +2,7 @@
 
 **Version:** 1.5
 **Date:** 2026-01-03
-**Phase:** COMPLETE (279 tests, 90% coverage, 10 tools)
+**Phase:** COMPLETE (304 tests, 90% coverage, 10 tools)
 
 ---
 
@@ -96,7 +96,7 @@ ai-governance-mcp/
 │
 ├── index/                     # Generated
 │   ├── global_index.json      # Serialized GlobalIndex
-│   ├── content_embeddings.npy # Principle/method embeddings (268, 384)
+│   ├── content_embeddings.npy # Principle/method embeddings (295, 384)
 │   └── domain_embeddings.npy  # Domain embeddings for routing (3, 384)
 │
 ├── documents/                 # Source markdown docs
@@ -109,7 +109,7 @@ ai-governance-mcp/
 │   ├── fixtures/                    # Test data files
 │   ├── test_models.py               # Model tests (35)
 │   ├── test_config.py               # Config tests (17)
-│   ├── test_server.py               # Server unit tests (71)
+│   ├── test_server.py               # Server unit tests (96)
 │   ├── test_server_integration.py   # Server integration (11)
 │   ├── test_extractor.py            # Extractor tests (45)
 │   ├── test_extractor_integration.py # Extractor pipeline (11)

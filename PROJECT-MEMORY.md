@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 290 tests, 90% coverage, 10 tools
+- **Status:** COMPLETE - All phases done, 304 tests, 90% coverage, 10 tools
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -543,6 +543,27 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Anti-Principle:** Never prune for size alone — large memory indicates detail or scope issues
 - **Sources:** [Mem0 priority scoring](https://mem0.ai), industry eviction policies
 
+### Decision: Multi-Agent Methods v2.5.0 Production Operations Expansion
+- **Date:** 2026-01-05
+- **Status:** CONFIRMED
+- **Context:** Analyzed Google Cloud "Startup Technical Guide: AI Agents" (2025) against existing multi-agent framework. Validated findings with 2025-2026 industry research.
+- **Key Finding:** Framework is well-designed and industry-aligned. Gaps were procedural (Methods) not architectural (Principles).
+- **New Sections Added:**
+  | Section | Purpose | Source |
+  |---------|---------|--------|
+  | §3.4.1 Memory Distillation | LLM-based compression for long sessions (80-95% reduction) | AWS AgentCore, Mem0, Google Titans |
+  | §3.7.1 Production Observability | OpenTelemetry, session replay, alerting thresholds | IBM AgentOps, AgentOps.ai |
+  | §3.8 ReAct Loop Configuration | Reason→Act→Observe controls, termination, runaway detection | IBM, AG2, Prompting Guide |
+  | §4.7 Agent Evaluation Framework | 4-layer: Component/Trajectory/Outcome/System | Google Vertex AI, Confident AI, orq.ai |
+  | §4.8 Production Safety Guardrails | Multi-layer defense, prompt injection, PII, RBAC | Dextra Labs, Superagent, OWASP 2025 |
+  | Appendix D (Principles) | A2A Protocol Awareness (emerging, Linux Foundation) | Google A2A, Linux Foundation |
+- **Governance Applied:**
+  - `meta-operational-continuous-learning` — Learning from industry research
+  - `meta-governance-risk-mitigation-by-design` — Safety Guardrails section
+  - `meta-multi-synchronization-observability` — AgentOps patterns
+- **Research URLs:** See MULTI-AGENT-ENHANCEMENT-REPORT.md for full source list
+- **Impact:** Index updated (69 principles + 230 methods = 299 total items)
+
 ### Decision: Subagent Prompt Content Belongs in Prompt Domain
 - **Date:** 2026-01-04
 - **Status:** CONFIRMED (Future Implementation)
@@ -739,7 +760,7 @@ Show updated process map:
 | tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
 | tests/test_models.py | 35 | Model validation, constraints, enums |
 | tests/test_config.py | 17 | Settings, env vars, path handling |
-| tests/test_server.py | 71 | All 10 tools, formatting, metrics, governance, agent installation |
+| tests/test_server.py | 96 | All 10 tools, formatting, metrics, governance, agent installation |
 | tests/test_server_integration.py | 11 | Dispatcher routing, end-to-end flows |
 | tests/test_extractor.py | 45 | Parsing, embeddings, metadata, validation |
 | tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |

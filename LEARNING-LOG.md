@@ -7,6 +7,59 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-05 - Google Cloud AI Agents Guide Validates Framework Architecture
+
+**Context:** Analyzed Google Cloud "Startup Technical Guide: AI Agents" (62 pages, 2025) against existing multi-agent framework to identify gaps and improvement opportunities.
+
+**Key Findings:**
+
+1. **Framework Architecture is Industry-Aligned:**
+   - Context isolation, orchestrator separation, validation independence — all validated by Google guide
+   - No fundamental architectural gaps identified
+   - Gaps were procedural (Methods) not architectural (Principles)
+
+2. **Industry Research Synthesis (2025-2026):**
+
+   | Topic | Key Pattern | Source |
+   |-------|-------------|--------|
+   | Memory Distillation | 80-95% compression via LLM summarization | AWS AgentCore, Mem0 (arXiv:2504.19413) |
+   | Trajectory Evaluation | Evaluate decision path, not just outcome | Google Vertex AI, Confident AI, orq.ai |
+   | AgentOps | OpenTelemetry + session replay + dashboards | IBM AgentOps, AgentOps.ai |
+   | ReAct Loops | Reason→Act→Observe with termination controls | IBM, AG2, Prompting Guide |
+   | Safety Guardrails | Input + Output pipeline, prompt injection #1 risk | Dextra Labs, Superagent, OWASP 2025 |
+   | A2A Protocol | Inter-system agent collaboration (emerging) | Google, Linux Foundation |
+
+3. **MCP Ecosystem Update:**
+   - MCP donated to Linux Foundation AAIF (Anthropic, Block, OpenAI co-founded)
+   - OpenAI officially adopted MCP (March 2025)
+   - MCP + A2A are complementary: MCP for tools, A2A for agent-to-agent
+
+**What Was Added to Framework (v2.5.0):**
+
+| Section | Purpose |
+|---------|---------|
+| §3.4.1 Memory Distillation | Formalize context compression beyond handoffs |
+| §3.7.1 Production Observability | OpenTelemetry patterns, session replay requirements |
+| §3.8 ReAct Loop Configuration | Loop controls, termination triggers, runaway detection |
+| §4.7 Agent Evaluation Framework | 4-layer model (Component/Trajectory/Outcome/System) |
+| §4.8 Production Safety Guardrails | Multi-layer defense, prompt injection patterns |
+| Appendix D (Principles) | A2A Protocol awareness for future interoperability |
+
+**Lesson:**
+- Validating framework against industry guides confirms design quality
+- Research confirms "eat your own dog food" — the framework's principles-first approach matches industry consensus
+- New patterns add depth to existing architecture rather than requiring restructuring
+- The 80/20 filter is critical — many guide recommendations were already implemented or low-value
+
+**Research Process (reproducible):**
+1. Read primary source document
+2. Search 5-7 validation queries across topic areas
+3. Cross-reference with existing framework
+4. Apply 80/20 filter: HIGH impact + LOW effort first
+5. Document sources for follow-up
+
+---
+
 ### 2026-01-04 - Custom Subagent Files Are Reference Documentation, Not Invokable Types
 
 **Context:** Created 4 coding subagent definition files in `.claude/agents/` following §2.1 Subagent Definition Standard. Attempted to invoke them via Task tool.

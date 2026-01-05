@@ -1410,6 +1410,74 @@ This framework derives from analysis of 2024-2025 research sources:
 
 ---
 
+## Appendix D: Inter-System Agent Protocols (Emerging)
+
+### A2A (Agent2Agent) Protocol
+
+**Status:** [EMERGING] — Industry adoption in progress, Linux Foundation governance (2025)
+
+**Purpose:** Enable agents from different AI systems to collaborate across organizational boundaries.
+
+**Key Concepts:**
+
+| Concept | Definition |
+|---------|------------|
+| **Agent Card** | JSON capability advertisement (what this agent can do) |
+| **Client Agent** | Agent initiating collaboration request |
+| **Remote Agent** | Agent providing capability |
+| **Task** | Unit of work exchanged between agents |
+
+**Relationship to This Framework:**
+
+This multi-agent framework governs **INTERNAL** agent coordination (agents within your system). A2A governs **EXTERNAL** interoperability (agents across different AI systems from different organizations or vendors).
+
+Both are complementary:
+- Your internal principles still apply when your agent participates in A2A
+- A2A provides the protocol for cross-system communication
+- Governance principles apply to your agent's behavior regardless of whether it's communicating internally or via A2A
+
+**When to Consider A2A:**
+
+| Scenario | A2A Relevance |
+|----------|---------------|
+| Integrating with partner AI systems | HIGH — A2A provides standard protocol |
+| Building marketplace of specialized agents | HIGH — Agent Cards enable discovery |
+| Cross-organization agent collaboration | HIGH — Standard interoperability |
+| Internal multi-agent orchestration | LOW — Use internal principles |
+| Single-system agent coordination | LOW — Not needed |
+
+**A2A + MCP Relationship:**
+
+| Protocol | Purpose | Relationship |
+|----------|---------|--------------|
+| **MCP** | Agent ↔ Tools/Data | How agents access capabilities and data |
+| **A2A** | Agent ↔ Agent | How agents collaborate with each other |
+
+These protocols are complementary, not competing. An agent might use MCP to access tools and A2A to collaborate with external agents.
+
+**Current Industry Status (2026):**
+
+- **Governance:** Linux Foundation AAIF (Agent2Agent Protocol Project)
+- **Adoption:** 50+ technology partners at launch
+- **Versions:** v0.3 adds gRPC support, signed security cards
+- **Security:** Agent cards can be signed for verification
+
+**Resources for Implementation:**
+
+- GitHub: https://github.com/a2aproject/A2A
+- Specification: https://google.github.io/a2a/
+- Linux Foundation: https://www.linuxfoundation.org/press/linux-foundation-launches-the-agent2agent-protocol-project-to-enable-secure-intelligent-communication-between-ai-agents
+
+**Future Consideration:**
+
+As A2A matures, this framework may add specific principles for:
+- How governance applies to outbound A2A requests
+- Security requirements for accepting inbound A2A requests
+- Audit logging for cross-system agent interactions
+- Trust establishment for remote agent collaboration
+
+---
+
 **End of Document**
 
 [Methods document (multi-agent-methods.md) provides operational procedures implementing these principles]

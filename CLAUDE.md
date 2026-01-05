@@ -46,7 +46,7 @@ Query `query_governance()` BEFORE:
 ```bash
 # Development
 python -m ai_governance_mcp.extractor  # Rebuild index
-pytest tests/ -v                        # Run tests (279, 90% coverage)
+pytest tests/ -v                        # Run tests (304, 90% coverage)
 python -m ai_governance_mcp.server      # Run server
 
 # Docker
@@ -73,6 +73,7 @@ This project has specialized subagent definitions in `.claude/agents/`. When a t
 | Security review | `security-auditor.md` | Before releases, auth/security changes, sensitive data handling |
 | Documentation | `documentation-writer.md` | README updates, docstrings, technical writing |
 | Governance coordination | `orchestrator.md` | Complex multi-step tasks requiring governance checks |
+| Devil's advocate | `contrarian-reviewer.md` | High-stakes decisions, architectural choices, challenge assumptions |
 
 **How to use:**
 1. Read the agent file (e.g., `.claude/agents/code-reviewer.md`)
