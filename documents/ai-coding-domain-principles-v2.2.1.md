@@ -1608,5 +1608,3 @@ Apply the Principle vs. Method test:
 ---
 
 **End of Document Structure**
-
-[Phase 4 will populate C1-C3, P1-P4, Q1-Q5 principles using the 9-field template]

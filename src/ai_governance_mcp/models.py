@@ -271,6 +271,42 @@ class QueryLog(BaseModel):
     top_confidence: Optional[ConfidenceLevel] = None
 
 
+class GovernanceOverheadMetrics(BaseModel):
+    """Track overhead introduced by governance checks.
+
+    Addresses contrarian review finding: 'No governance overhead measurement'.
+    Enables measuring the cost of governance compliance.
+
+    Note: Token counting removed per YAGNI - MCP server cannot accurately
+    measure tokens (depends on client tokenizer). Timing and counts are reliable.
+    """
+
+    # Query overhead
+    governance_evaluations: int = 0
+    total_governance_time_ms: float = 0.0
+    avg_governance_time_ms: float = 0.0
+
+    # Decision metrics
+    escalation_count: int = 0  # ESCALATE assessments
+    proceed_count: int = 0  # PROCEED assessments
+    proceed_with_modifications_count: int = 0  # PROCEED_WITH_MODIFICATIONS
+
+    def record_evaluation(self, time_ms: float, assessment: str) -> None:
+        """Record a governance evaluation."""
+        self.governance_evaluations += 1
+        self.total_governance_time_ms += time_ms
+        self.avg_governance_time_ms = (
+            self.total_governance_time_ms / self.governance_evaluations
+        )
+
+        if assessment == "ESCALATE":
+            self.escalation_count += 1
+        elif assessment == "PROCEED_WITH_MODIFICATIONS":
+            self.proceed_with_modifications_count += 1
+        else:  # PROCEED
+            self.proceed_count += 1
+
+
 class Metrics(BaseModel):
     """Aggregated retrieval metrics."""
 
@@ -283,6 +319,11 @@ class Metrics(BaseModel):
     )
     feedback_count: int = 0
     avg_feedback_rating: Optional[float] = None
+
+    # Governance overhead tracking (new)
+    governance_overhead: GovernanceOverheadMetrics = Field(
+        default_factory=GovernanceOverheadMetrics
+    )
 
 
 # =============================================================================

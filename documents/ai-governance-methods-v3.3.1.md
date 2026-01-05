@@ -124,7 +124,7 @@ Load this document when:
 
 This document assumes the AI has been directed here by a **loader document**. The canonical loader is:
 
-**`ai-instructions-v2.3.md`** — Framework Activation Protocol
+**`ai-instructions-v2.4.md`** — Framework Activation Protocol
 
 The loader is implemented through tool-specific configurations:
 - `CLAUDE.md` for Claude Code CLI
@@ -175,9 +175,9 @@ v2.1.3
 ### 1.1.3 Version in Filename
 
 Documents include version in filename for clarity:
-- `ai-coding-methods-v2.1.0.md`
+- `ai-coding-methods-v2.3.0.md`
 - `ai-interaction-principles-v2.1.md`
-- `ai-governance-methods-v3.2.0.md`
+- `ai-governance-methods-v3.3.1.md`
 
 ### 1.1.4 Cross-Reference Compatibility
 
@@ -677,7 +677,7 @@ Always specify language identifier for syntax highlighting:
 | Same document | Section name | "See Part 3.4" |
 | Same domain | Principle title | "per **Specification Completeness**" |
 | Cross-domain | Domain + title | "Constitution's **Context Engineering**" |
-| Document | Full name | `ai-coding-domain-principles-v2.2.md` |
+| Document | Full name | `ai-coding-domain-principles-v2.2.1.md` |
 
 ---
 

@@ -416,10 +416,20 @@ When `requires_ai_judgment=false`: The script has made a definitive decision (S-
 | `get_principle(id)` | Full content of principle or method |
 | `list_domains()` | Explore available domains |
 | `get_domain_summary(domain)` | Details about a specific domain |
-| `log_feedback(query, id, rating)` | Improve retrieval quality |
+| `log_feedback(query, id, rating)` | **Improve retrieval** — rate principle relevance (1-5) |
 | `get_metrics()` | Performance analytics |
 | `install_agent(agent_name)` | Install Orchestrator subagent (Claude Code only) |
 | `uninstall_agent(agent_name)` | Remove installed subagent |
+
+### Feedback Collection
+After receiving query results, use `log_feedback()` to rate relevance:
+- **Rating 5**: Principle was exactly what was needed
+- **Rating 4**: Principle was helpful
+- **Rating 3**: Principle was somewhat relevant
+- **Rating 2**: Principle was marginally useful
+- **Rating 1**: Principle was not relevant
+
+High-rated principles get boosted in future queries. Your feedback directly improves retrieval quality.
 
 ### Claude Code Users
 Run `install_agent(agent_name="orchestrator")` to install the Orchestrator subagent.
@@ -1068,6 +1078,15 @@ def _format_retrieval_result(result) -> str:
             "*No matching principles found. Try rephrasing your query or specifying a domain.*"
         )
 
+    # Feedback prompt to activate dormant feedback collection
+    # Per contrarian review finding: feedback infrastructure exists but is unused
+    if result.constitution_principles or result.domain_principles:
+        lines.append("---")
+        lines.append(
+            "*Help improve retrieval: Use `log_feedback(query, principle_id, rating)` "
+            "to rate relevance (1-5). High-rated principles get boosted in future queries.*"
+        )
+
     return "\n".join(lines)
 
 
@@ -1211,6 +1230,20 @@ async def _handle_get_metrics(args: dict) -> list[TextContent]:
     """Handle get_metrics tool (T18)."""
     metrics = get_metrics()
 
+    # Governance overhead metrics (addresses contrarian review finding)
+    # Note: Token counting removed per YAGNI - can't accurately measure at MCP layer
+    gov_overhead = metrics.governance_overhead
+    governance_overhead_output = {
+        "governance_evaluations": gov_overhead.governance_evaluations,
+        "avg_governance_time_ms": round(gov_overhead.avg_governance_time_ms, 2),
+        "total_governance_time_ms": round(gov_overhead.total_governance_time_ms, 2),
+        "assessment_breakdown": {
+            "proceed": gov_overhead.proceed_count,
+            "proceed_with_modifications": gov_overhead.proceed_with_modifications_count,
+            "escalate": gov_overhead.escalation_count,
+        },
+    }
+
     output = {
         "total_queries": metrics.total_queries,
         "avg_retrieval_time_ms": round(metrics.avg_retrieval_time_ms, 2),
@@ -1221,6 +1254,7 @@ async def _handle_get_metrics(args: dict) -> list[TextContent]:
         "avg_feedback_rating": round(metrics.avg_feedback_rating, 2)
         if metrics.avg_feedback_rating
         else None,
+        "governance_overhead": governance_overhead_output,
     }
 
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
@@ -1322,6 +1356,9 @@ async def _handle_evaluate_governance(
             suggestions=["Reduce the length of planned_action, context, or concerns"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Start timing for overhead measurement
+    governance_start_time = time.time()
 
     # Build composite query from inputs
     query_parts = [planned_action]
@@ -1483,6 +1520,12 @@ async def _handle_evaluate_governance(
     output["confidence"] = output["confidence"].value
     for ce in output["compliance_evaluation"]:
         ce["status"] = ce["status"].value
+
+    # Record governance overhead metrics
+    governance_time_ms = (time.time() - governance_start_time) * 1000
+    get_metrics().governance_overhead.record_evaluation(
+        time_ms=governance_time_ms, assessment=output["assessment"]
+    )
 
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 

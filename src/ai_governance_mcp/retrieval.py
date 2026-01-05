@@ -36,7 +36,9 @@ class RetrievalEngine:
         self.bm25_docs: list[tuple[str, str, int]] = []  # (domain, type, local_idx)
         self._embedder = None
         self._reranker = None
+        self._feedback_ratings: dict[str, tuple[float, int]] = {}  # id -> (avg, count)
         self._load_index()
+        self._load_feedback_ratings()
 
     @property
     def embedder(self):
@@ -111,6 +113,86 @@ class RetrievalEngine:
         if corpus:
             self.bm25_index = BM25Okapi(corpus)
             logger.info(f"Built BM25 index with {len(corpus)} documents")
+
+    def _load_feedback_ratings(self) -> None:
+        """Load feedback ratings from feedback.jsonl for adaptive retrieval.
+
+        Per contrarian review: activates dormant feedback infrastructure.
+        Calculates average rating per principle for score boosting.
+        """
+        if not self.settings.enable_feedback_adaptation:
+            logger.debug("Feedback adaptation disabled")
+            return
+
+        feedback_path = self.settings.logs_path / "feedback.jsonl"
+        if not feedback_path.exists():
+            logger.debug("No feedback file found - adaptive retrieval inactive")
+            return
+
+        # Collect ratings per principle
+        ratings_by_id: dict[str, list[int]] = {}
+
+        try:
+            with open(feedback_path) as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        entry = json.loads(line)
+                        principle_id = entry.get("principle_id", "")
+                        rating = entry.get("rating", 0)
+                        if principle_id and 1 <= rating <= 5:
+                            if principle_id not in ratings_by_id:
+                                ratings_by_id[principle_id] = []
+                            ratings_by_id[principle_id].append(rating)
+                    except json.JSONDecodeError:
+                        continue  # Skip malformed entries
+
+            # Calculate averages
+            for principle_id, ratings in ratings_by_id.items():
+                avg = sum(ratings) / len(ratings)
+                self._feedback_ratings[principle_id] = (avg, len(ratings))
+
+            if self._feedback_ratings:
+                logger.info(
+                    f"Loaded feedback for {len(self._feedback_ratings)} principles"
+                )
+        except Exception as e:
+            logger.warning(f"Failed to load feedback: {e}")
+
+    def reload_feedback_ratings(self) -> None:
+        """Reload feedback ratings from disk.
+
+        Call this to pick up new feedback without restarting the server.
+        """
+        self._feedback_ratings = {}
+        self._load_feedback_ratings()
+
+    def get_feedback_adjustment(self, principle_id: str) -> float:
+        """Get score adjustment for a principle based on feedback.
+
+        Returns:
+            Positive value for boost, negative for penalty, 0 for no adjustment.
+        """
+        if not self.settings.enable_feedback_adaptation:
+            return 0.0
+
+        if principle_id not in self._feedback_ratings:
+            return 0.0
+
+        avg_rating, count = self._feedback_ratings[principle_id]
+
+        # Require minimum ratings for confidence
+        if count < self.settings.feedback_min_ratings:
+            return 0.0
+
+        if avg_rating >= self.settings.feedback_boost_threshold:
+            return self.settings.feedback_boost_amount
+        elif avg_rating <= self.settings.feedback_penalty_threshold:
+            return -self.settings.feedback_penalty_amount
+
+        return 0.0
 
     def _get_bm25_text(self, principle: Principle) -> str:
         """Create text for BM25 indexing."""
@@ -443,14 +525,30 @@ class RetrievalEngine:
                 if principle.series_code == "S":
                     s_series_triggered = True
 
+                # Apply feedback-based score adjustment
+                # Per contrarian review: adaptive retrieval based on user feedback
+                # S-Series exemption: NEVER penalize safety principles (per second contrarian review)
+                feedback_adj = self.get_feedback_adjustment(principle.id)
+                if principle.series_code == "S" and feedback_adj < 0:
+                    feedback_adj = 0.0  # S-Series exempt from penalties
+                adjusted_combined = min(1.0, max(0.0, combined + feedback_adj))
+                adjusted_rerank = min(1.0, max(0.0, rerank_score + feedback_adj))
+
+                # Add feedback boost to match reasons if applied
+                match_reasons = self._get_match_reasons(bm25_norm, sem_score)
+                if feedback_adj > 0:
+                    match_reasons.append("feedback boost")
+                elif feedback_adj < 0:
+                    match_reasons.append("feedback penalty")
+
                 scored = ScoredPrinciple(
                     principle=principle,
                     semantic_score=sem_score,
                     keyword_score=bm25_norm,
-                    combined_score=combined,
-                    rerank_score=rerank_score,
-                    confidence=self._get_confidence(rerank_score),
-                    match_reasons=self._get_match_reasons(bm25_norm, sem_score),
+                    combined_score=adjusted_combined,
+                    rerank_score=adjusted_rerank,
+                    confidence=self._get_confidence(adjusted_rerank),
+                    match_reasons=match_reasons,
                 )
 
                 if domain_name == "constitution":

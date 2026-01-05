@@ -141,6 +141,32 @@ class Settings(BaseSettings):
         description="Target retrieval latency in milliseconds",
     )
 
+    # Adaptive retrieval (feedback-based score adjustment)
+    enable_feedback_adaptation: bool = Field(
+        default=True,
+        description="Enable feedback-driven score adjustment for principles",
+    )
+    feedback_min_ratings: int = Field(
+        default=5,
+        description="Minimum ratings required before applying score adjustment (per contrarian review: 3 too low)",
+    )
+    feedback_boost_threshold: float = Field(
+        default=4.0,
+        description="Average rating threshold for positive boost (≥ this gets boosted)",
+    )
+    feedback_penalty_threshold: float = Field(
+        default=2.0,
+        description="Average rating threshold for negative penalty (≤ this gets penalized)",
+    )
+    feedback_boost_amount: float = Field(
+        default=0.1,
+        description="Score boost for high-rated principles (added to combined score)",
+    )
+    feedback_penalty_amount: float = Field(
+        default=0.05,
+        description="Score penalty for low-rated principles (subtracted from combined score)",
+    )
+
     # M2 FIX: Logging format (json or text)
     log_format: str = Field(
         default="text",

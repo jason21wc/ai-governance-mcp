@@ -3151,7 +3151,7 @@ def generate_config(platform: str) -> dict:
 # Project: [Name]
 
 ## Governance
-- Framework: AI Coding Domain Principles v2.1
+- Framework: AI Coding Domain Principles v2.2.1
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Current State
@@ -3540,7 +3540,7 @@ Files to upload to Project Knowledge:
 
 ## Document Governance
 
-**Authority:** This document implements ai-coding-domain-principles.md (v2.2). Methods cannot contradict principles.
+**Authority:** This document implements ai-coding-domain-principles.md (v2.2.1). Methods cannot contradict principles.
 
 **Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.
 

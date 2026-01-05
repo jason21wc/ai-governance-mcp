@@ -547,3 +547,226 @@ class TestHierarchyOrdering:
         priority = 99 if unknown_code not in known_codes else 0
 
         assert priority == 99  # Unknown gets lowest priority
+
+
+class TestFeedbackAdaptation:
+    """Tests for adaptive retrieval based on user feedback."""
+
+    @pytest.fixture
+    def settings_with_feedback(self, tmp_path):
+        """Create settings with feedback enabled."""
+        settings = Settings()
+        settings.logs_path = tmp_path / "logs"
+        settings.logs_path.mkdir(parents=True, exist_ok=True)
+        settings.index_path = tmp_path / "index"
+        settings.documents_path = tmp_path / "documents"
+        settings.enable_feedback_adaptation = True
+        settings.feedback_min_ratings = 5  # Default is 5 per contrarian review
+        settings.feedback_boost_threshold = 4.0
+        settings.feedback_penalty_threshold = 2.0
+        settings.feedback_boost_amount = 0.1
+        settings.feedback_penalty_amount = 0.05
+        return settings
+
+    @pytest.fixture
+    def settings_with_min_3_ratings(self, tmp_path):
+        """Create settings with lower minimum for testing boost/penalty."""
+        settings = Settings()
+        settings.logs_path = tmp_path / "logs"
+        settings.logs_path.mkdir(parents=True, exist_ok=True)
+        settings.index_path = tmp_path / "index"
+        settings.documents_path = tmp_path / "documents"
+        settings.enable_feedback_adaptation = True
+        settings.feedback_min_ratings = 3  # Lower for easier testing
+        settings.feedback_boost_threshold = 4.0
+        settings.feedback_penalty_threshold = 2.0
+        settings.feedback_boost_amount = 0.1
+        settings.feedback_penalty_amount = 0.05
+        return settings
+
+    def test_load_feedback_ratings_parses_jsonl(self, settings_with_min_3_ratings):
+        """Should parse feedback.jsonl and calculate averages."""
+        # Create feedback file with ratings
+        feedback_file = settings_with_min_3_ratings.logs_path / "feedback.jsonl"
+        feedback_file.write_text(
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C1", "rating": 4}\n'
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C2", "rating": 1}\n'
+            '{"principle_id": "meta-C2", "rating": 2}\n'
+            '{"principle_id": "meta-C2", "rating": 1}\n'
+        )
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(settings_with_min_3_ratings)
+
+        # Check ratings were loaded
+        assert "meta-C1" in engine._feedback_ratings
+        assert "meta-C2" in engine._feedback_ratings
+
+        # Check averages calculated correctly
+        avg_c1, count_c1 = engine._feedback_ratings["meta-C1"]
+        assert count_c1 == 3
+        assert abs(avg_c1 - (5 + 4 + 5) / 3) < 0.01
+
+        avg_c2, count_c2 = engine._feedback_ratings["meta-C2"]
+        assert count_c2 == 3
+        assert abs(avg_c2 - (1 + 2 + 1) / 3) < 0.01
+
+    def test_get_feedback_adjustment_boosts_high_rated(
+        self, settings_with_min_3_ratings
+    ):
+        """Principles with high ratings should get positive boost."""
+        feedback_file = settings_with_min_3_ratings.logs_path / "feedback.jsonl"
+        feedback_file.write_text(
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C1", "rating": 4}\n'
+        )
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(settings_with_min_3_ratings)
+
+        adjustment = engine.get_feedback_adjustment("meta-C1")
+        assert adjustment == 0.1  # feedback_boost_amount
+
+    def test_get_feedback_adjustment_penalizes_low_rated(
+        self, settings_with_min_3_ratings
+    ):
+        """Principles with low ratings should get negative penalty."""
+        feedback_file = settings_with_min_3_ratings.logs_path / "feedback.jsonl"
+        feedback_file.write_text(
+            '{"principle_id": "meta-C2", "rating": 1}\n'
+            '{"principle_id": "meta-C2", "rating": 2}\n'
+            '{"principle_id": "meta-C2", "rating": 1}\n'
+        )
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(settings_with_min_3_ratings)
+
+        adjustment = engine.get_feedback_adjustment("meta-C2")
+        assert adjustment == -0.05  # -feedback_penalty_amount
+
+    def test_get_feedback_adjustment_requires_min_ratings(self, settings_with_feedback):
+        """Should not adjust if below minimum rating count."""
+        feedback_file = settings_with_feedback.logs_path / "feedback.jsonl"
+        feedback_file.write_text(
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C1", "rating": 5}\n'  # Only 4 ratings, need 5
+        )
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(settings_with_feedback)
+
+        adjustment = engine.get_feedback_adjustment("meta-C1")
+        assert adjustment == 0.0  # Not enough ratings
+
+    def test_get_feedback_adjustment_returns_zero_for_unknown(
+        self, settings_with_feedback
+    ):
+        """Unknown principles should get zero adjustment."""
+        feedback_file = settings_with_feedback.logs_path / "feedback.jsonl"
+        feedback_file.write_text("")  # Empty file
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(settings_with_feedback)
+
+        adjustment = engine.get_feedback_adjustment("unknown-principle")
+        assert adjustment == 0.0
+
+    def test_get_feedback_adjustment_middling_ratings_no_adjustment(
+        self, settings_with_min_3_ratings
+    ):
+        """Middling ratings (between thresholds) should get no adjustment."""
+        feedback_file = settings_with_min_3_ratings.logs_path / "feedback.jsonl"
+        feedback_file.write_text(
+            '{"principle_id": "meta-C1", "rating": 3}\n'
+            '{"principle_id": "meta-C1", "rating": 3}\n'
+            '{"principle_id": "meta-C1", "rating": 3}\n'
+        )
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(settings_with_min_3_ratings)
+
+        adjustment = engine.get_feedback_adjustment("meta-C1")
+        assert adjustment == 0.0  # Average 3.0 is between 2.0 and 4.0
+
+    def test_reload_feedback_ratings_clears_and_reloads(
+        self, settings_with_min_3_ratings
+    ):
+        """reload_feedback_ratings should pick up new feedback."""
+        feedback_file = settings_with_min_3_ratings.logs_path / "feedback.jsonl"
+        feedback_file.write_text(
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+        )
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(settings_with_min_3_ratings)
+        assert "meta-C1" in engine._feedback_ratings
+
+        # Update feedback file
+        feedback_file.write_text(
+            '{"principle_id": "meta-C2", "rating": 1}\n'
+            '{"principle_id": "meta-C2", "rating": 1}\n'
+            '{"principle_id": "meta-C2", "rating": 1}\n'
+        )
+
+        # Reload
+        engine.reload_feedback_ratings()
+
+        assert "meta-C1" not in engine._feedback_ratings  # Old cleared
+        assert "meta-C2" in engine._feedback_ratings  # New loaded
+
+    def test_feedback_disabled_returns_zero(self, settings_with_min_3_ratings):
+        """When disabled, should always return zero adjustment."""
+        settings_with_min_3_ratings.enable_feedback_adaptation = False
+
+        feedback_file = settings_with_min_3_ratings.logs_path / "feedback.jsonl"
+        feedback_file.write_text(
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+        )
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(settings_with_min_3_ratings)
+
+        # Even with high ratings, should return 0 when disabled
+        adjustment = engine.get_feedback_adjustment("meta-C1")
+        assert adjustment == 0.0
+
+    def test_handles_malformed_feedback_entries(self, settings_with_min_3_ratings):
+        """Should skip malformed JSON entries gracefully."""
+        feedback_file = settings_with_min_3_ratings.logs_path / "feedback.jsonl"
+        feedback_file.write_text(
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            "not valid json\n"
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+            '{"missing_rating": true}\n'
+            '{"principle_id": "meta-C1", "rating": 5}\n'
+        )
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(settings_with_min_3_ratings)
+
+        # Should have loaded 3 valid ratings
+        assert "meta-C1" in engine._feedback_ratings
+        _, count = engine._feedback_ratings["meta-C1"]
+        assert count == 3
+
+    def test_default_min_ratings_is_five(self, settings_with_feedback):
+        """Default minimum ratings should be 5 per contrarian review."""
+        assert settings_with_feedback.feedback_min_ratings == 5
