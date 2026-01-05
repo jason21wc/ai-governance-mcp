@@ -7,6 +7,120 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-04 - Contrarian Review Meta-Pattern: Second-Pass Catches Higher-Order Issues (CRITICAL)
+
+**Context:** Ran comprehensive contrarian review of governance framework, then addressed findings, then ran a second-pass contrarian review.
+
+**What Happened:** Second-pass contrarian review caught issues that first-pass missed:
+
+| Finding | First Pass | Second Pass |
+|---------|-----------|-------------|
+| S-Series penalty risk | ❌ Missed | ✅ Caught — low ratings could suppress safety principles |
+| Min ratings threshold | ❌ Missed | ✅ Caught — 3 ratings is too few for statistical significance |
+| Token counting accuracy | Noted as LOW | Elevated to REMOVE — can't measure accurately at MCP layer |
+
+**Root Cause:** First-pass contrarian reviews the *original* implementation. Second-pass reviews the *fixed* implementation, including the fixes themselves. Fixes can introduce new issues.
+
+**Key Findings Applied:**
+
+1. **S-Series Exemption from Penalties** — Added explicit check:
+   ```python
+   if principle.series_code == "S" and feedback_adj < 0:
+       feedback_adj = 0.0  # S-Series exempt from penalties
+   ```
+   Rationale: Safety principles have veto authority. User dissatisfaction with ESCALATE assessments shouldn't reduce safety visibility.
+
+2. **Minimum Ratings Threshold** — Raised from 3 to 5:
+   - 3 ratings: single negative outlier causes 33% impact
+   - 5 ratings: provides more statistical stability
+   - Configurable via `feedback_min_ratings` setting
+
+3. **Token Counting Removed (YAGNI)** — Removed `total_reminder_tokens` from metrics:
+   - MCP server cannot accurately count tokens (depends on client tokenizer)
+   - Different models use different tokenizers (cl100k, tiktoken, sentencepiece)
+   - Timing and counts are reliable; token counts are misleading
+
+**Deferred Suggestions Evaluation Process:**
+
+Used governance principles to evaluate remaining contrarian suggestions:
+
+| Suggestion | Verdict | Governance Principle Applied |
+|------------|---------|------------------------------|
+| Per-principle feedback analytics | Defer | MVP Discipline — use separate script if needed |
+| Log file rotation | Defer | YAGNI — add when scale becomes problem |
+| Cold/warm metrics separation | No action | Over-engineering for current scale |
+| Rich-get-richer bias | Document only | Consistency is feature for governance |
+
+**Lesson:** Multi-pass reviews catch different classes of issues:
+- First pass: Original design flaws
+- Second pass: Flaws in the fixes, unintended consequences
+- Principle-based evaluation: Filters out over-engineering suggestions
+
+**Pattern for Future Reviews:**
+1. Run contrarian review on implementation
+2. Fix HIGH/CRITICAL findings
+3. Run second-pass contrarian review on fixes
+4. Evaluate remaining suggestions against 80/20 and YAGNI principles
+5. Document deferred items with rationale
+
+---
+
+### 2026-01-04 - Adaptive Retrieval with Feedback: Score Boost/Penalty Pattern
+
+**Context:** Implementing feedback-driven score adjustment for governance principle retrieval.
+
+**Research Applied:**
+- Industry patterns show feedback loops improve retrieval quality over time
+- Must protect critical content from being suppressed by low ratings
+
+**Implementation Pattern:**
+
+```python
+# In retrieval.py
+def get_feedback_adjustment(self, principle_id: str) -> float:
+    """Get score adjustment based on user feedback history."""
+    if principle_id not in self._feedback_ratings:
+        return 0.0
+
+    avg_rating, count = self._feedback_ratings[principle_id]
+    if count < self.settings.feedback_min_ratings:
+        return 0.0  # Not enough data
+
+    if avg_rating >= self.settings.feedback_boost_threshold:  # ≥4.0
+        return self.settings.feedback_boost_amount  # +0.1
+    elif avg_rating <= self.settings.feedback_penalty_threshold:  # ≤2.0
+        return -self.settings.feedback_penalty_amount  # -0.05
+
+    return 0.0  # Middling ratings: no adjustment
+
+# In retrieve():
+feedback_adj = self.get_feedback_adjustment(principle.id)
+if principle.series_code == "S" and feedback_adj < 0:
+    feedback_adj = 0.0  # S-Series exempt from penalties
+adjusted_score = min(1.0, max(0.0, combined_score + feedback_adj))
+```
+
+**Configuration Settings Added:**
+- `enable_feedback_adaptation`: bool = True
+- `feedback_min_ratings`: int = 5 (raised from 3)
+- `feedback_boost_threshold`: float = 4.0
+- `feedback_penalty_threshold`: float = 2.0
+- `feedback_boost_amount`: float = 0.1
+- `feedback_penalty_amount`: float = 0.05
+
+**Key Design Decisions:**
+
+| Decision | Rationale |
+|----------|-----------|
+| Asymmetric adjustment (+0.1 vs -0.05) | Boost high-quality more than penalize low |
+| S-Series exemption | Safety principles must never be suppressed |
+| Minimum ratings threshold | Avoid noise from small sample sizes |
+| Score clamping [0.0, 1.0] | Maintain normalized score range |
+
+**Lesson:** Adaptive systems that modify critical content retrieval need explicit protection for safety-critical items. The feedback loop should improve quality without compromising safety visibility.
+
+---
+
 ### 2026-01-05 - Google Cloud AI Agents Guide Validates Framework Architecture
 
 **Context:** Analyzed Google Cloud "Startup Technical Guide: AI Agents" (62 pages, 2025) against existing multi-agent framework to identify gaps and improvement opportunities.
