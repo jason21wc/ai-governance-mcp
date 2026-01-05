@@ -1798,3 +1798,210 @@ class TestInputValidation:
                         engine, {"query": long_query}
                     )
                     assert "exceeds maximum length" in result[0].text
+
+
+class TestValidateLogPath:
+    """Tests for M1 FIX: Log path containment validation."""
+
+    def test_validate_log_path_accepts_project_root(self, tmp_path):
+        """Paths within project root should be accepted."""
+        from ai_governance_mcp.server import _validate_log_path
+
+        # Get project root (where server.py is located, go up 3 levels)
+        from pathlib import Path
+
+        project_root = Path(__file__).parent.parent.resolve()
+        log_path = project_root / "logs" / "test.jsonl"
+
+        # Should not raise
+        _validate_log_path(log_path)
+
+    def test_validate_log_path_accepts_home_directory(self):
+        """Paths within home directory should be accepted."""
+        from ai_governance_mcp.server import _validate_log_path
+        from pathlib import Path
+
+        home_path = Path.home() / ".ai-governance" / "logs" / "test.jsonl"
+
+        # Should not raise
+        _validate_log_path(home_path)
+
+    def test_validate_log_path_accepts_temp_directory(self, tmp_path):
+        """Paths within temp directory should be accepted (for tests)."""
+        from ai_governance_mcp.server import _validate_log_path
+
+        log_path = tmp_path / "logs" / "test.jsonl"
+
+        # Should not raise
+        _validate_log_path(log_path)
+
+    def test_validate_log_path_rejects_path_traversal(self, tmp_path):
+        """Paths containing '..' should be rejected."""
+        from ai_governance_mcp.server import _validate_log_path
+
+        malicious_path = tmp_path / "logs" / ".." / ".." / "etc" / "passwd"
+
+        with pytest.raises(ValueError, match="Path traversal sequence detected"):
+            _validate_log_path(malicious_path)
+
+    def test_validate_log_path_rejects_outside_boundaries(self):
+        """Paths outside project/home/temp should be rejected."""
+        from ai_governance_mcp.server import _validate_log_path
+        from pathlib import Path
+
+        # Use a path that's definitely outside boundaries
+        outside_path = Path("/nonexistent/random/location/log.jsonl")
+
+        with pytest.raises(ValueError, match="must be within"):
+            _validate_log_path(outside_path)
+
+
+class TestAgentOverwriteWarning:
+    """Tests for M2 FIX: Agent overwrite content comparison."""
+
+    @pytest.mark.asyncio
+    async def test_install_agent_content_differs_when_different(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """content_differs should be True when existing file has different content."""
+        import ai_governance_mcp.server as server_module
+
+        # Create Claude environment with existing agent file
+        claude_dir = tmp_path / ".claude"
+        agents_dir = claude_dir / "agents"
+        agents_dir.mkdir(parents=True)
+
+        # Create existing agent file with different content
+        existing_file = agents_dir / "orchestrator.md"
+        existing_file.write_text("# Old custom content\nThis is different.")
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {"agent_name": "orchestrator"}
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "preview"
+        assert response["already_installed"] is True
+        assert response["content_differs"] is True
+        assert "warning" in response
+        assert "different content" in response["warning"].lower()
+
+    @pytest.mark.asyncio
+    async def test_install_agent_content_differs_false_when_same(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """content_differs should be False when existing file has same content."""
+        import ai_governance_mcp.server as server_module
+
+        # Create Claude environment
+        claude_dir = tmp_path / ".claude"
+        agents_dir = claude_dir / "agents"
+        agents_dir.mkdir(parents=True)
+
+        # Read template content and create identical file
+        template_path = real_settings.documents_path / "agents" / "orchestrator.md"
+        template_content = template_path.read_text()
+
+        existing_file = agents_dir / "orchestrator.md"
+        existing_file.write_text(template_content)
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {"agent_name": "orchestrator"}
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "preview"
+        assert response["already_installed"] is True
+        assert response["content_differs"] is False
+        assert "warning" not in response
+
+    @pytest.mark.asyncio
+    async def test_install_agent_no_content_differs_for_new_install(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """content_differs should be False for new installations."""
+        import ai_governance_mcp.server as server_module
+
+        # Create Claude environment with no existing agent file
+        claude_dir = tmp_path / ".claude"
+        claude_dir.mkdir()
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {"agent_name": "orchestrator"}
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "preview"
+        assert response["already_installed"] is False
+        assert response["content_differs"] is False
+        assert "warning" not in response
+
+
+class TestImprovedErrorSanitization:
+    """Tests for M3 FIX: Improved error message sanitization."""
+
+    def test_sanitize_error_removes_module_paths(self):
+        """Module paths like foo.bar.baz should be sanitized."""
+        from ai_governance_mcp.server import _sanitize_error_message
+
+        error = Exception("Error in ai_governance_mcp.server.retrieval.query_engine")
+        sanitized = _sanitize_error_message(error)
+        assert "ai_governance_mcp.server.retrieval.query_engine" not in sanitized
+        assert "[module]" in sanitized
+
+    def test_sanitize_error_removes_function_references(self):
+        """Function references in tracebacks should be sanitized."""
+        from ai_governance_mcp.server import _sanitize_error_message
+
+        error = Exception("Error occurred in process_query()")
+        sanitized = _sanitize_error_message(error)
+        assert "process_query(" not in sanitized
+        assert "[func](" in sanitized
+
+    def test_sanitize_error_removes_quoted_file_references(self):
+        """Quoted file references from tracebacks should be sanitized."""
+        from ai_governance_mcp.server import _sanitize_error_message
+
+        error = Exception("File '/path/to/module.py' caused error")
+        sanitized = _sanitize_error_message(error)
+        assert "'/path/to/module.py'" not in sanitized
+        assert "File [redacted]" in sanitized
+
+    def test_sanitize_error_removes_exception_chains(self):
+        """Exception chain phrases should be sanitized."""
+        from ai_governance_mcp.server import _sanitize_error_message
+
+        error = Exception("During handling of the above exception, another occurred")
+        sanitized = _sanitize_error_message(error)
+        assert "During handling of" not in sanitized
+        assert "[exception chain]" in sanitized
+
+    def test_sanitize_error_truncates_long_messages(self):
+        """Very long error messages should be truncated."""
+        from ai_governance_mcp.server import _sanitize_error_message
+
+        # Create error with message over 500 chars
+        long_message = "x" * 600
+        error = Exception(long_message)
+        sanitized = _sanitize_error_message(error)
+        assert len(sanitized) <= 520  # 500 + "[truncated]" length
+        assert "...[truncated]" in sanitized
+
+    def test_sanitize_error_preserves_useful_content(self):
+        """Sanitization should preserve useful error context."""
+        from ai_governance_mcp.server import _sanitize_error_message
+
+        error = Exception("Configuration error: missing required field 'name'")
+        sanitized = _sanitize_error_message(error)
+        # Should preserve the main error message
+        assert "Configuration error" in sanitized
+        assert "missing required field" in sanitized
