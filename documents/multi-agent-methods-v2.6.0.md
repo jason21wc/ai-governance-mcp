@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.5.0
+**Version:** 2.6.0
 **Status:** Active
-**Effective Date:** 2026-01-05
+**Effective Date:** 2026-01-04
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -97,6 +97,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Situation | Go To | Key Procedure |
 |-----------|-------|---------------|
 | Deciding whether to use agents | §1.1 | Justified Complexity Check |
+| Choosing method vs subagent | §1.1 | Artifact Type Selection |
 | Starting agent workflow | §1.2 | Workflow Initialization |
 | Creating a new subagent | §2.1 | Subagent Definition Standard |
 | Writing effective system prompts | §2.1.1 | System Prompt Best Practices |
@@ -322,6 +323,66 @@ Before deploying ANY agent (including single specialized agents), verify at leas
               boundaries   read-write
                           analysis
 ```
+
+**Artifact Type Selection: Method vs. Subagent**
+
+When specialization IS justified, determine whether to formalize it as a **Method** (procedure for generalist to follow) or a **Subagent** (dedicated agent definition with fresh context).
+
+| Factor | Favors **Method** | Favors **Subagent** |
+|--------|-------------------|---------------------|
+| **Fresh Context** ⚡ | Current context acceptable | Fresh context required (isolation from bias) |
+| **Frequency** | Occasional/situational use | Repeated use pattern emerges |
+| **Cognitive Function** | Compatible with current mode | Requires distinct mental mode that conflicts |
+| **Tool Access** | Same tools appropriate | Restricted tools needed (e.g., read-only) |
+| **Quality Driver** | Procedure improves consistency | Isolation improves objectivity |
+
+⚡ = Primary signal. Fresh context need is the strongest indicator for subagent.
+
+**Decision Tree (Step 2):**
+
+```
+             Specialization IS justified (from Step 1)
+                              |
+            Primary question: Does this require fresh context
+            isolation from current reasoning?
+                              |
+              +---------------+---------------+
+              |                               |
+             YES                             NO
+              |                               |
+        Is there at least ONE              Document as METHOD
+        supporting factor?                 (procedure in methods
+        - Repeated use pattern              doc for generalist)
+        - Tool restrictions needed
+        - Conflicting cognitive function
+        - Objectivity requires isolation
+              |
+        +-----+-----+
+        |           |
+       YES         NO
+        |           |
+   SUBAGENT     METHOD
+   (fresh context  (still benefits from
+    + other value)  procedure without
+                    dedicated agent)
+```
+
+*Rationale: Fresh context alone may not justify dedicated agent overhead. Fresh context + frequency, tool needs, or cognitive isolation confirms subagent value.*
+
+**Examples:**
+
+| Capability | Artifact Type | Rationale |
+|------------|---------------|-----------|
+| Code Review | **Subagent** | Fresh context ⚡ (prevents writer bias) + repeated use + read-only tools + distinct cognitive function |
+| Deliberative Analysis | **Method** | No fresh context need (same context OK) → procedure guides structured thinking |
+| Security Audit | **Subagent** | Fresh context ⚡ (isolation from implementation bias) + tool restrictions + distinct cognitive function |
+| Six Thinking Hats | **Method** | No fresh context need (same context builds on reasoning) → procedure guides perspective rotation |
+| Contrarian Review | **Subagent** | Fresh context ⚡ (critical for objectivity) + repeated use + distinct critical cognitive function |
+| Tree of Thoughts | **Method** | No fresh context need (same context required for coherence) → procedure guides branching |
+
+**Key Insight:** Methods are "how the generalist thinks better." Subagents are "who else should think about this." If the value comes from *procedure*, use a method. If the value comes from *fresh perspective*, use a subagent.
+
+**When in Doubt:** Default to Method (lower overhead, easier to evolve). Upgrade to Subagent if usage patterns reveal isolation or reuse value. See §2.1 for Subagent Definition Standard once decision is made.
 
 **Documentation Requirement:**
 
@@ -3072,6 +3133,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.6.0 | 2026-01-04 | **Artifact Type Selection.** Added: §1.1 Artifact Type Selection: Method vs. Subagent — decision framework for choosing between method (procedure for generalist) or subagent (dedicated agent with fresh context) when specialization is justified. Fresh context is primary signal; requires supporting factor (frequency, tool restrictions, cognitive isolation) to justify subagent overhead. Includes comparison table, decision tree, examples, and "when in doubt" guidance. Updates Situation Index. Addresses gap: existing principles covered Agent vs Generalist but not Method vs Subagent as artifact types. |
 | v2.5.0 | 2026-01-05 | **Production Operations Expansion.** Added 6 new sections from Google Cloud AI Agents guide analysis + 2025-2026 industry research validation. New sections: §3.4.1 Memory Distillation Procedure (AWS AgentCore 89-95% compression, Mem0 80% token reduction, Google Titans architecture), §3.7.1 Production Observability Patterns (IBM AgentOps, OpenTelemetry, session replay), §3.8 ReAct Loop Configuration (loop controls, termination triggers, runaway detection), §4.7 Agent Evaluation Framework (4-layer model: Component/Trajectory/Outcome/System, trajectory metrics), §4.8 Production Safety Guardrails (multi-layer defense, prompt injection, PII redaction, RBAC). Updated Situation Index with 7 new entries. Sources: Google Vertex AI Gen AI Evaluation Service, Confident AI, Dextra Labs Safety Playbook, Superagent Framework, OWASP 2025. |
 | v2.4.0 | 2026-01-04 | **Agent Authoring Best Practices.** Added: §2.1.1 System Prompt Best Practices (positive framing, examples, sandwich method, concrete invocation triggers), §2.1.2 Tool Scoping Guidelines (when to restrict vs inherit, decision matrix), §2.1.3 Agent Validation Checklist (3-phase validation, iteration process, graduation criteria). Updated Situation Index with new sections. Source: Anthropic prompt engineering research, Claude Code subagent docs, skill authoring best practices. |
 | v2.3.0 | 2026-01-03 | **Gateway-Based Enforcement.** Added: §4.6.2 Gateway-Based Enforcement (Platform-Agnostic) — documents MCP Gateway pattern for platforms lacking subagent architecture. Covers: problem (Claude Code subagents are unique), solution (server-side enforcement via gateway/proxy), available solutions (Lasso, Envoy, IBM ContextForge), decision matrix (subagent vs gateway), instruction-based fallback for minimum viable enforcement. Key principle: "Architecture beats hope." |

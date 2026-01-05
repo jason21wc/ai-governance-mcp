@@ -1,66 +1,66 @@
 # Session State
 
-**Last Updated:** 2026-01-05
+**Last Updated:** 2026-01-04
 
 ## Current Position
 
-- **Phase:** Released (v1.0.0) + Enhancement (v2.5.0)
+- **Phase:** Released (v1.0.0) + Framework Enhancement Complete
 - **Mode:** Standard
-- **Active Task:** Documentation cleanup complete
+- **Active Task:** None (all phases complete)
 - **Blocker:** None
 
 ## Recent Work (This Session)
 
-### Multi-Agent Methods v2.5.0 — Production Operations Expansion
+### Artifact Type Selection Extension (multi-agent-methods v2.6.0)
 
-**Source:** Google Cloud "Startup Technical Guide: AI Agents" (2025) + 2025-2026 industry research validation
+**Trigger:** User research report on MAP/Six Thinking Hats prompting techniques led to meta-question: "When should something be a Method vs. Subagent?"
 
-**Governance Applied:** Called `evaluate_governance()` before implementation — PROCEED confirmed for all 10 relevant principles.
+**Governance Applied:**
+- `evaluate_governance()` before implementation
+- Code Reviewer subagent validation
+- Contrarian Reviewer challenge/modifications
+- `meta-method-methods-changes` procedure
+- `meta-method-version-increment-rules` (MINOR increment)
 
-**New Sections Added:**
+**Gap Identified:** Existing principles covered Agent vs Generalist but NOT Method vs Subagent as artifact types when specialization is justified.
 
-| Section | Purpose | Source |
-|---------|---------|--------|
-| §3.4.1 Memory Distillation | LLM-based compression (80-95% reduction) | AWS AgentCore, Mem0, Titans |
-| §3.7.1 Production Observability | OpenTelemetry, session replay, alerting | IBM AgentOps, AgentOps.ai |
-| §3.8 ReAct Loop Configuration | Loop controls, termination, runaway detection | IBM, AG2, Prompting Guide |
-| §4.7 Agent Evaluation Framework | 4-layer: Component/Trajectory/Outcome/System | Google Vertex AI, Confident AI |
-| §4.8 Production Safety Guardrails | Multi-layer defense, prompt injection, RBAC | Dextra Labs, OWASP 2025 |
+**Solution:** Extended `multi-method-justified-complexity-check` (§1.1) with "Artifact Type Selection" subsection.
 
-**Appendix D Added to Principles:** A2A Protocol Awareness (emerging, Linux Foundation governance)
+**Key Design:**
+- Fresh context is **primary signal** (marked with lightning bolt)
+- Requires **2+ factors** (fresh context + supporting factor) for subagent
+- Previous "ANY YES = Subagent" was too permissive
+- Removed arbitrary ">3x per project" threshold
 
-**Documents Updated:**
-- `multi-agent-methods-v2.5.0.md` (renamed from v2.4.0)
-- `multi-agent-domain-principles-v2.0.0.md` (new appendix)
-- `domains.json` (updated reference)
-- `PROJECT-MEMORY.md` (new decision)
-- `LEARNING-LOG.md` (research entry)
-- `MULTI-AGENT-ENHANCEMENT-REPORT.md` (created — full analysis)
+**Decision Framework:**
+```
+Fresh Context Needed?
+├── YES → Supporting factor? (frequency, tools, cognitive, isolation)
+│   ├── YES → SUBAGENT
+│   └── NO  → METHOD (still benefits from procedure)
+└── NO  → METHOD
+```
 
-**Key Finding:** Framework is industry-aligned. Google guide validates existing architecture (context isolation, orchestrator separation, validation independence). Gaps were procedural depth, not architectural.
+**Core Insight:** Methods are "how the generalist thinks better." Subagents are "who else should think about this."
 
 ## Quick Reference
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.0.0** (server), **v2.5.0** (methods) |
-| Tests | 304 passing |
+| Version | **v1.0.0** (server), **v2.6.0** (multi-agent-methods) |
+| Tests | **314 passing** |
 | Coverage | ~90% |
 | Index | 69 principles + 226 methods (295 total) |
 | Tools | 10 |
 | Docker Hub | `jason21wc/ai-governance-mcp` |
-| Platforms | 6+ |
+
+## Next Actions
+
+1. Monitor new Method vs Subagent guidance in practice
+2. Consider capturing MAP/Six Hats as methods if usage patterns emerge
+3. Review roadmap items when starting next enhancement cycle
 
 ## Links
 
-- **GitHub Release:** https://github.com/jason21wc/ai-governance-mcp/releases/tag/v1.0.0
+- **GitHub:** https://github.com/jason21wc/ai-governance-mcp
 - **Docker Hub:** https://hub.docker.com/r/jason21wc/ai-governance-mcp
-- **Documentation:** https://github.com/jason21wc/ai-governance-mcp#readme
-- **Enhancement Report:** `MULTI-AGENT-ENHANCEMENT-REPORT.md`
-
-## Future Roadmap
-
-- [ ] Governance Proxy Mode
-- [ ] Public API with auth
-- [ ] Vector database for scaling
-- [ ] Implement trajectory evaluation metrics
