@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.3.1
+**Version:** 3.4.0
 **Status:** Active
-**Effective Date:** 2026-01-03
+**Effective Date:** 2026-01-05
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -115,6 +115,15 @@ Load this document when:
 | Header level questions | Part 3.5.4 | Header Hierarchy |
 | Gathering requirements/preferences | Part 7.9 | Progressive Inquiry Protocol |
 | Emoji/badge usage | Part 3.5.7 | Emoji Conventions |
+| Determining content level (hierarchy) | Part 9.7 | Level Classification Procedure |
+| Applying constitutional analogy | Part 9.7 | Constitutional Analogy Application |
+| Cross-level references | Part 9.7.5 | Cross-Level Reference Format |
+| Model-specific guidance | Title 10 | Model-Specific Application |
+| Model capability comparison | Part 10.2 | Model Capability Matrix |
+| Claude-specific tactics | Appendix G | Claude (Anthropic) |
+| GPT/ChatGPT tactics | Appendix H | GPT / ChatGPT (OpenAI) |
+| Gemini-specific tactics | Appendix I | Gemini (Google) |
+| Perplexity-specific tactics | Appendix J | Perplexity |
 
 ---
 
@@ -1648,10 +1657,219 @@ For restructuring, philosophy shifts, principle removal:
 
 ---
 
+## Part 9.7: Constitutional Analogy Application
+
+**Importance: IMPORTANT - Applying the legal framework hierarchy**
+
+This part provides procedures for applying the US Constitution analogy when authoring, classifying, or maintaining framework content.
+
+### 9.7.1 Framework Hierarchy Reference
+
+The governance framework uses a 5-level hierarchy modeled on US legal structure:
+
+| Level | Legal Analogy | Framework Element | Stability | Example |
+|-------|---------------|-------------------|-----------|---------|
+| 1 | Bill of Rights | S-Series (Safety) | Immutable | Non-maleficence, Privacy Protection |
+| 2 | Constitution | Meta-Principles (C,Q,O,MA,G) | Very Stable | Context Engineering, Visible Reasoning |
+| 3 | Federal Statutes | Domain Principles | Stable | Test Before Claim (AI Coding) |
+| 4 | CFR Regulations | Domain Methods | Evolving | Cold Start Kit, Phase Gates |
+| 5 | Agency SOPs | Tool/Model Appendices | Frequently Updated | Claude Extended Thinking, GPT Reasoning |
+
+### 9.7.2 Level Classification Procedure
+
+When authoring new content, determine the correct level:
+
+**Step 1: Safety Check**
+- Does it prevent harm or protect fundamental rights?
+- Is it an absolute constraint that CANNOT be overridden?
+- → YES to both: **Level 1 (S-Series)**
+
+**Step 2: Constitution Check**
+- Does it govern reasoning across ALL domains?
+- Is it tool-agnostic and stable over time?
+- → YES to both: **Level 2 (Meta-Principles)**
+
+**Step 3: Domain Check**
+- Does it apply only within a specific field?
+- Does it derive from constitution for specific context?
+- → YES to both: **Level 3 (Domain Principles)**
+
+**Step 4: Methods Check**
+- Is it a procedure, workflow, or template?
+- Does it implement principles operationally?
+- → YES to both: **Level 4 (Domain Methods)**
+
+**Step 5: Appendix Check**
+- Is it specific to a tool, CLI, or AI model?
+- Does it provide platform-specific tactics?
+- → YES to both: **Level 5 (Appendix/SOP)**
+
+### 9.7.3 Derivation Principle
+
+Lower levels MUST derive from higher levels:
+
+```
+Constitution (Level 2)
+    │
+    ├── "Visible Reasoning" principle
+    │       │
+    │       └── AI Coding (Level 3)
+    │               │
+    │               └── "Test Before Claim" principle
+    │                       │
+    │                       └── Methods (Level 4)
+    │                               │
+    │                               └── Testing Procedures, Coverage Requirements
+    │
+    └── "Context Engineering" principle
+            │
+            └── Multi-Agent (Level 3)
+                    │
+                    └── "Shared Assumptions Protocol" principle
+                            │
+                            └── Methods (Level 4)
+                                    │
+                                    └── Handoff Templates, Context Compression
+```
+
+### 9.7.4 Conflict Resolution (Supremacy Clause)
+
+When content at different levels conflicts:
+
+1. **Higher level wins**: Bill of Rights > Constitution > Statutes > Regulations > SOPs
+2. **Document the conflict**: Note which higher-level principle overrides
+3. **Revise lower level**: Update the lower-level content to comply
+4. **No exceptions for S-Series**: Safety principles override ALL other guidance
+
+### 9.7.5 Cross-Level References
+
+When referencing across levels, use titles per Part 3.4.5:
+
+| Reference Type | Format | Example |
+|---------------|--------|---------|
+| Constitution → Domain | "Derives from **[Title]** (Constitution)" | "Derives from **Context Engineering** (Constitution)" |
+| Domain → Constitution | "Per **[Title]**" | "Per **Visible Reasoning**" |
+| Methods → Principles | "Implements **[Title]**" | "Implements **Test Before Claim**" |
+| Appendix → Methods | "Applies [method] to [platform]" | "Applies context compression to Claude" |
+
+**Note:** Use titles, not principle IDs, for human-readable references. IDs are for machine retrieval.
+
+---
+
+# TITLE 10: MODEL-SPECIFIC APPLICATION
+
+**Importance: IMPORTANT - Platform-specific guidance for AI models**
+
+This title establishes the framework for model-specific application guidance. Model capabilities vary significantly, and effective governance application requires understanding these differences.
+
+---
+
+## Part 10.1: Purpose and Scope
+
+**Importance: IMPORTANT - Why model-specific guidance exists**
+
+### 10.1.1 Rationale
+
+While constitutional principles apply universally, their **application** may vary by model:
+
+- **Context window limits** affect how much governance content can be loaded
+- **Tool/function calling** capabilities affect enforcement mechanisms
+- **Reasoning capabilities** affect principle interpretation depth
+- **Extended thinking** features affect visible reasoning implementation
+
+### 10.1.2 Relationship to Constitution
+
+Model-specific guidance is **Level 5 (Agency SOPs)** in the hierarchy:
+
+- **Does NOT override** any higher-level principles
+- **Adapts tactics** for effective principle application on specific platforms
+- **May be updated** frequently as models evolve
+- **Is optional** — constitution applies even without model-specific guidance
+
+### 10.1.3 Appendix Organization
+
+Model appendices use letters G-onwards (A-F reserved for other domains):
+
+| Appendix | Model Family | Provider |
+|----------|--------------|----------|
+| G | Claude (Opus, Sonnet, Haiku) | Anthropic |
+| H | GPT / ChatGPT (GPT-4o, o1, o3) | OpenAI |
+| I | Gemini (Pro, Flash, Ultra) | Google |
+| J | Perplexity (default, pro) | Perplexity AI |
+
+---
+
+## Part 10.2: Model Capability Matrix
+
+**Importance: IMPORTANT - Understanding model differences**
+
+### 10.2.1 Capability Comparison
+
+| Capability | Claude | GPT-4o | o1/o3 | Gemini | Perplexity |
+|------------|--------|--------|-------|--------|------------|
+| Context Window | 200K | 128K | 128K-200K | 1M-2M | 128K |
+| Extended Thinking | Yes (Opus/Sonnet) | No | Built-in | Deep Think | No |
+| Tool Use | Yes | Yes | Yes | Yes | Limited |
+| Web Search | Via MCP | Browsing | Browsing | Grounding | Native |
+| Citations | Manual | Manual | Manual | Manual | Automatic |
+| Code Execution | Via Bash | Code Interpreter | Yes | Code | No |
+
+### 10.2.2 When to Choose Which Model
+
+| Task Type | Recommended | Rationale |
+|-----------|-------------|-----------|
+| Complex reasoning | Claude Opus, o1, o3 | Extended thinking, deep reasoning |
+| Fast iteration | Claude Haiku, GPT-4o-mini, Gemini Flash | Speed optimized |
+| Large context | Gemini Pro/Ultra | 1M+ token window |
+| Research with citations | Perplexity | Native search integration |
+| Code generation | Claude Sonnet, GPT-4o | Strong coding capabilities |
+| Multi-modal analysis | GPT-4o, Gemini, Claude | Vision support |
+
+---
+
+## Part 10.3: Cross-Model Considerations
+
+**Importance: IMPORTANT - What's universal vs model-specific**
+
+### 10.3.1 Universal (Apply to ALL Models)
+
+These apply regardless of which model is used:
+
+- **Constitutional principles** — S-Series, Meta-Principles, Domain Principles
+- **Governance hierarchy** — Bill of Rights > Constitution > Statutes > Regulations
+- **Escalation requirements** — Human approval for significant actions
+- **Context engineering** — Load relevant governance before acting
+- **Verification mechanisms** — Validate outputs before delivery
+
+### 10.3.2 Model-Specific (See Appendices)
+
+These vary by model and are documented in appendices:
+
+- **System prompt structure** — How to format governance instructions
+- **Extended thinking usage** — When and how to activate
+- **Tool calling patterns** — Model-specific function invocation
+- **Output formatting** — Response structure optimization
+- **Token efficiency** — Context window management tactics
+
+### 10.3.3 Baseline Prompting (Cross-Model)
+
+These prompting patterns work across all major models:
+
+| Pattern | Application | Example |
+|---------|-------------|---------|
+| Role assignment | Set governance context | "You are operating under the AI Governance Framework..." |
+| Constraint specification | S-Series enforcement | "You MUST NOT proceed if safety principles are triggered" |
+| Output structure | Visible reasoning | "Show your reasoning before conclusions" |
+| Escalation triggers | Human handoff | "When uncertain, ask before proceeding" |
+| Citation format | Traceability | "Cite principle IDs that influence decisions" |
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.4.0 | 2026-01-05 | MINOR: Added Part 9.7 (Constitutional Analogy Application) with level classification procedure, derivation principle, conflict resolution, and cross-level references. Added TITLE 10 (Model-Specific Application) with capability matrix and cross-model considerations. Added Appendices G-J for Claude, GPT, Gemini, and Perplexity with model-specific governance tactics. Updated principles (ai-interaction-principles-v2.1.md) with enhanced US Constitution analogy table including 5-level hierarchy and level identification guidance. |
 | 3.3.1 | 2026-01-03 | PATCH: Added Format column to Question Architecture table (Part 7.9.1). Foundation questions → open-ended text; Refinement questions → structured options. Added Format Rationale section. Updated principle with matching guidance. |
 | 3.3.0 | 2026-01-03 | MINOR: Added Part 7.9 Progressive Inquiry Protocol. Operationalizes the Constitution's Progressive Inquiry Protocol principle with procedures for structured questioning: three-tier question architecture, dependency mapping, adaptive branching rules, cognitive load limits, consolidation procedure, and cross-domain application. Added Situation Index entry. |
 | 3.0.1 | 2025-12-29 | PATCH: Added missing importance tags to Parts 1.2, 2.2, 3.2, 3.3, 4.2, 5.2 for consistency. Added clarifying note to Part 9.4 referencing Part 3.5.1 (10-Field Template) relationship. |
@@ -1672,3 +1890,158 @@ For restructuring, philosophy shifts, principle removal:
 **Scope:** Applies to all framework maintenance activities across all domains.
 
 **Feedback:** Document gaps, conflicts, or improvement suggestions for inclusion in next version.
+
+---
+
+# APPENDICES: MODEL-SPECIFIC GUIDANCE
+
+The following appendices provide platform-specific tactics for applying the governance framework on different AI models. These are **Level 5 (Agency SOPs)** and do not override constitutional principles.
+
+**Information Currency:** Model capabilities change frequently. This guidance was verified as of January 2026. For current model specifications, consult official provider documentation. Constitutional principles remain stable regardless of model changes.
+
+---
+
+## Appendix G: Claude (Anthropic)
+
+**Applies to:** Claude Opus 4.5, Claude Sonnet 4, Claude Haiku
+
+### G.1 Model Variants
+
+| Variant | Use Case | Governance Notes |
+|---------|----------|------------------|
+| Opus 4.5 | Complex reasoning, architecture | Full governance loading; use extended thinking for principle analysis |
+| Sonnet 4 | Balanced coding/analysis | Standard governance loading; efficient for most tasks |
+| Haiku | Fast iteration, simple tasks | Minimal governance loading; rely on safety guardrails |
+
+### G.2 Key Differentiators
+
+- **Extended Thinking**: Available on Opus and Sonnet via API parameter or interface toggle (not prompt phrasing). Use for governance analysis, principle conflict resolution, and complex ethical reasoning. For visible reasoning in responses, request structured analysis.
+- **Tool Use**: Native MCP support. The ai-governance MCP provides semantic retrieval of principles.
+- **System Prompt**: Place governance hierarchy and S-Series constraints in system prompt for persistent enforcement.
+- **Context Window**: 200K tokens. Can load full constitution + domain + methods if needed.
+
+### G.3 Prompt Optimization Patterns
+
+| Pattern | Implementation |
+|---------|----------------|
+| Governance activation | Include framework hierarchy in system prompt |
+| S-Series enforcement | "You MUST refuse actions that trigger Safety principles" |
+| Visible reasoning | Request "thinking" block before conclusions |
+| Citation format | Use principle IDs in responses: `(per meta-core-context-engineering)` |
+| Escalation | "When uncertain about governance, ask before proceeding" |
+
+### G.4 Known Limitations
+
+- **Recency**: Knowledge cutoff may miss latest governance framework versions; use MCP for current content
+- **Verbosity**: May over-explain; request concise output when needed
+- **Deference**: May be overly cautious; clarify when autonomous action is appropriate
+
+---
+
+## Appendix H: GPT / ChatGPT (OpenAI)
+
+**Applies to:** GPT-4o, GPT-4o-mini, o1, o3
+
+### H.1 Model Variants
+
+| Variant | Use Case | Governance Notes |
+|---------|----------|------------------|
+| GPT-4o | General purpose, multimodal | Standard governance loading; good instruction following |
+| GPT-4o-mini | Fast iteration | Minimal governance; focus on safety constraints |
+| o1 / o3 | Deep reasoning | Built-in reasoning; suitable for principle analysis |
+
+### H.2 Key Differentiators
+
+- **Reasoning Models (o1/o3)**: Internal reasoning is not visible but produces more considered outputs. Good for governance analysis without explicit thinking blocks.
+- **Web Browsing**: Can fetch current information. Useful for checking latest framework versions.
+- **Code Interpreter**: Built-in code execution. Follow security principles when using.
+- **Custom GPTs**: Can embed governance instructions in GPT configuration.
+
+### H.3 Prompt Optimization Patterns
+
+| Pattern | Implementation |
+|---------|----------------|
+| Sandwich method | Governance at start AND end of system prompt |
+| Literal instruction | Be explicit; GPT follows instructions literally |
+| Constraint format | Use numbered lists for S-Series constraints |
+| Output structure | Request specific formats explicitly |
+| Escalation | Define explicit pause triggers |
+
+### H.4 Known Limitations
+
+- **Instruction override**: May follow user instructions that conflict with system prompt; reinforce constraints
+- **Context length**: 128K limit; may need governance summarization for long conversations
+- **Formatting**: May deviate from requested format; be explicit about structure
+
+---
+
+## Appendix I: Gemini (Google)
+
+**Applies to:** Gemini 2.0 Pro, Gemini 2.0 Flash, Gemini Ultra
+
+### I.1 Model Variants
+
+| Variant | Use Case | Governance Notes |
+|---------|----------|------------------|
+| Ultra | Complex analysis | Full governance loading; use for principle analysis |
+| Pro | Balanced capability | Standard governance; good for most tasks |
+| Flash | Speed-optimized | Minimal governance; safety guardrails only |
+
+### I.2 Key Differentiators
+
+- **Context Window**: Up to 2M tokens. Can load entire governance framework if needed.
+- **Structured Reasoning**: Request step-by-step analysis for complex governance evaluation. Gemini responds well to explicit reasoning instructions.
+- **Grounding**: Can ground responses in web search or specific documents.
+- **Multimodal**: Strong vision capabilities for code/diagram analysis.
+
+### I.3 Prompt Optimization Patterns
+
+| Pattern | Implementation |
+|---------|----------------|
+| Hierarchical headers | Use markdown headers for governance sections |
+| Structured reasoning | Request "analyze step by step" for complex governance |
+| Grounding | Reference specific principle documents |
+| Structured output | Use JSON mode for consistent formatting |
+| Safety repetition | Repeat S-Series constraints at key decision points |
+
+### I.4 Known Limitations
+
+- **Safety filters**: May refuse benign requests; rephrase if blocked incorrectly
+- **Verbosity control**: May produce lengthy responses; set explicit length limits
+- **Instruction persistence**: May need reminder of governance in long conversations
+
+---
+
+## Appendix J: Perplexity
+
+**Applies to:** Perplexity default, Perplexity Pro
+
+### J.1 Model Variants
+
+| Variant | Use Case | Governance Notes |
+|---------|----------|------------------|
+| Default | Quick research | Focus on citation accuracy; minimal governance needed |
+| Pro | Deep research | Standard governance; verify source quality |
+
+### J.2 Key Differentiators
+
+- **Search-First Architecture**: Every response includes web search. Strong for research tasks.
+- **Automatic Citations**: Built-in source attribution. Aligns with traceability principles.
+- **Focus Modes**: Academic, Writing, Math, etc. Use appropriate mode for task.
+- **Limited Tool Use**: No custom tool/function calling. Governance must be in prompts.
+
+### J.3 Prompt Optimization Patterns
+
+| Pattern | Implementation |
+|---------|----------------|
+| Research framing | Frame governance questions as research queries |
+| Source specification | Request specific source types (academic, official docs) |
+| Citation verification | Ask for verification of governance principle sources |
+| Synthesis request | Request synthesis across multiple governance documents |
+| Focus mode | Use "Writing" mode for governance document drafting |
+
+### J.4 Known Limitations
+
+- **No tool use**: Cannot call governance MCP; must include principles in prompts
+- **Search dependency**: May not find niche governance content; provide context
+- **Summarization bias**: May over-summarize; request full quotes when accuracy critical
