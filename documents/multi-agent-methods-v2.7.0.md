@@ -100,6 +100,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Choosing method vs subagent | §1.1 | Artifact Type Selection |
 | Starting agent workflow | §1.2 | Workflow Initialization |
 | Creating a new subagent | §2.1 | Subagent Definition Standard |
+| Adding governance to subagent | §2.1 | Governance Compliance Section (required item 4) |
 | Writing effective system prompts | §2.1.1 | System Prompt Best Practices |
 | Deciding which tools to allow | §2.1.2 | Tool Scoping Guidelines |
 | Testing subagent before deployment | §2.1.3 | Subagent Validation Checklist |
@@ -530,8 +531,9 @@ Every agent system prompt MUST include these sections:
 1. **Who I Am** — Positive role definition
 2. **My Cognitive Function** — Specific reasoning pattern I apply
 3. **Who I Am NOT** — Explicit boundaries to prevent drift
-4. **Output Format** — Structured output template
-5. **Success Criteria** — How to know the task is complete
+4. **Governance Compliance** — How this agent aligns with governance framework
+5. **Output Format** — Structured output template
+6. **Success Criteria** — How to know the task is complete
 
 **Subagent Definition Template:**
 
@@ -559,6 +561,17 @@ You are a [cognitive function] specialist. Your role is to [specific mental mode
 - I do NOT [anti-pattern 1]
 - I do NOT [anti-pattern 2]
 - I do NOT [anti-pattern 3]
+
+### Governance Compliance
+This agent operates within the AI Governance Framework hierarchy:
+- **S-Series (Safety):** Veto authority — I will STOP and escalate if safety principles are triggered
+- **Constitution:** I follow meta-principles (Context Engineering, Visible Reasoning, etc.)
+- **Domain:** I apply [relevant domain] principles and methods
+- **Judgment:** When uncertain, I query governance before proceeding
+
+**Note:** This section provides defense-in-depth awareness. Primary enforcement occurs via Orchestrator calling `evaluate_governance()` before delegation. This section ensures agents maintain governance awareness even when invoked directly.
+
+[Customize for this agent's specific governance touchpoints]
 
 ### Intent Context
 [This section is populated at runtime with the immutable intent object]
@@ -3133,6 +3146,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.7.0 | 2026-01-05 | **Governance Compliance Section.** Added: Governance Compliance as 6th required section in Subagent Definition Standard (§2.1). All subagent system prompts must now include governance framework alignment: S-Series veto authority, Constitution meta-principles, domain applicability, and uncertainty handling. Template updated with placeholder section. Addresses gap: subagents lacked explicit governance framework awareness, causing issues like Contrarian Reviewer "missing the point" by not following constitutional hierarchy. |
 | v2.6.0 | 2026-01-04 | **Artifact Type Selection.** Added: §1.1 Artifact Type Selection: Method vs. Subagent — decision framework for choosing between method (procedure for generalist) or subagent (dedicated agent with fresh context) when specialization is justified. Fresh context is primary signal; requires supporting factor (frequency, tool restrictions, cognitive isolation) to justify subagent overhead. Includes comparison table, decision tree, examples, and "when in doubt" guidance. Updates Situation Index. Addresses gap: existing principles covered Agent vs Generalist but not Method vs Subagent as artifact types. |
 | v2.5.0 | 2026-01-05 | **Production Operations Expansion.** Added 6 new sections from Google Cloud AI Agents guide analysis + 2025-2026 industry research validation. New sections: §3.4.1 Memory Distillation Procedure (AWS AgentCore 89-95% compression, Mem0 80% token reduction, Google Titans architecture), §3.7.1 Production Observability Patterns (IBM AgentOps, OpenTelemetry, session replay), §3.8 ReAct Loop Configuration (loop controls, termination triggers, runaway detection), §4.7 Agent Evaluation Framework (4-layer model: Component/Trajectory/Outcome/System, trajectory metrics), §4.8 Production Safety Guardrails (multi-layer defense, prompt injection, PII redaction, RBAC). Updated Situation Index with 7 new entries. Sources: Google Vertex AI Gen AI Evaluation Service, Confident AI, Dextra Labs Safety Playbook, Superagent Framework, OWASP 2025. |
 | v2.4.0 | 2026-01-04 | **Agent Authoring Best Practices.** Added: §2.1.1 System Prompt Best Practices (positive framing, examples, sandwich method, concrete invocation triggers), §2.1.2 Tool Scoping Guidelines (when to restrict vs inherit, decision matrix), §2.1.3 Agent Validation Checklist (3-phase validation, iteration process, graduation criteria). Updated Situation Index with new sections. Source: Anthropic prompt engineering research, Claude Code subagent docs, skill authoring best practices. |
