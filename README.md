@@ -324,27 +324,42 @@ claude mcp add ai-governance -s user -- docker run -i --rm jason21wc/ai-governan
 <details>
 <summary><b>Windsurf</b></summary>
 
-### Step 1: Install Docker Desktop and Pull Image
+### Step 1: Install Docker Desktop
 
-See Windows/macOS steps above, or run:
+**Mac:**
+1. Go to https://www.docker.com/products/docker-desktop/
+2. Click **Download for Mac** (choose Apple Silicon or Intel based on your Mac)
+3. Open the downloaded `.dmg` file
+4. Drag Docker to Applications
+5. Open Docker from Applications
+6. Wait for Docker to fully start (whale icon stops animating in menu bar)
+
+**Windows:**
+1. Go to https://www.docker.com/products/docker-desktop/
+2. Click **Download for Windows**
+3. Run the installer and follow the prompts
+4. Restart your computer when prompted
+5. Open Docker Desktop and wait for it to fully start
+
+### Step 2: Pull the Image
+
+Open Terminal (Mac) or PowerShell (Windows) and run:
 ```bash
 docker pull jason21wc/ai-governance-mcp:latest
 ```
 
-### Step 2: Enable MCP in Windsurf
+Verify it downloaded:
+```bash
+docker images | grep ai-governance
+```
 
-1. Open Windsurf
-2. Press `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows)
-3. Type "Open Windsurf Settings"
-4. Go to **Cascade** → **MCP Servers** section
-5. Enable Model Context Protocol
+### Step 3: Add the MCP Server to Windsurf
 
-### Step 3: Add the MCP Server
-
-**Option A: Via Settings UI**
-1. In Cascade chat, click the **hammer icon** (MCP servers)
-2. Click **Configure** → **View raw config**
-3. Add to `mcp_config.json`:
+1. Open **Windsurf**
+2. Look for the **plug icon** (MCP) in the top-right of the Cascade chat panel
+3. Click the plug icon → **Configure** or **View raw config**
+4. This opens the file `~/.codeium/windsurf/mcp_config.json`
+5. Add this configuration (or merge with existing servers):
 
 ```json
 {
@@ -357,9 +372,7 @@ docker pull jason21wc/ai-governance-mcp:latest
 }
 ```
 
-**Option B: Direct file edit**
-
-Config location: `~/.codeium/windsurf/mcp_config.json`
+6. **Save the file** (Cmd+S on Mac, Ctrl+S on Windows)
 
 ### Step 4: Restart Windsurf
 
