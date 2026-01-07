@@ -324,9 +324,27 @@ claude mcp add ai-governance -s user -- docker run -i --rm jason21wc/ai-governan
 <details>
 <summary><b>Windsurf</b></summary>
 
-1. Install Docker Desktop and pull the image (see Windows/macOS steps above)
-2. Open Windsurf → **Settings** → **Cascade** → **MCP Servers**
-3. Add server configuration:
+### Step 1: Install Docker Desktop and Pull Image
+
+See Windows/macOS steps above, or run:
+```bash
+docker pull jason21wc/ai-governance-mcp:latest
+```
+
+### Step 2: Enable MCP in Windsurf
+
+1. Open Windsurf
+2. Press `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows)
+3. Type "Open Windsurf Settings"
+4. Go to **Cascade** → **MCP Servers** section
+5. Enable Model Context Protocol
+
+### Step 3: Add the MCP Server
+
+**Option A: Via Settings UI**
+1. In Cascade chat, click the **hammer icon** (MCP servers)
+2. Click **Configure** → **View raw config**
+3. Add to `mcp_config.json`:
 
 ```json
 {
@@ -339,8 +357,22 @@ claude mcp add ai-governance -s user -- docker run -i --rm jason21wc/ai-governan
 }
 ```
 
-4. Restart Windsurf
-5. Test: Ask Cascade *"Query governance for handling incomplete specifications"*
+**Option B: Direct file edit**
+
+Config location: `~/.codeium/windsurf/mcp_config.json`
+
+### Step 4: Restart Windsurf
+
+Close and reopen Windsurf for the MCP server to load.
+
+### Step 5: Verify
+
+Ask Cascade: *"Query governance for handling incomplete specifications"*
+
+You should see the 10 governance tools available (query_governance, evaluate_governance, etc.)
+
+> **Note:** Windsurf has a 100 tool limit across all MCPs. This server provides 10 tools.
+
 </details>
 
 <details>
@@ -503,7 +535,7 @@ See [Cursor MCP Documentation](https://docs.cursor.com/context/model-context-pro
 
 #### Windsurf
 
-Windsurf supports MCP through Cascade. Add to your Windsurf MCP configuration:
+Windsurf supports MCP through Cascade. Configuration file: `~/.codeium/windsurf/mcp_config.json`
 
 **Docker (recommended—no path configuration needed):**
 ```json
@@ -518,6 +550,11 @@ Windsurf supports MCP through Cascade. Add to your Windsurf MCP configuration:
 ```
 
 **Local install:** Get config with `python -m ai_governance_mcp.config_generator --json windsurf`
+
+**Access the config:**
+1. In Cascade chat, click the hammer icon (MCP servers)
+2. Click **Configure** → **View raw config**
+3. Or directly edit `~/.codeium/windsurf/mcp_config.json`
 
 See [Windsurf MCP Documentation](https://docs.windsurf.com/windsurf/cascade/mcp) for details.
 
@@ -728,4 +765,4 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework - Constitution v2.1, Methods v3.3.1*
+*Built with the AI Governance Framework - Constitution v2.1, Governance Methods v3.4.0, Multi-Agent Methods v2.7.0*
