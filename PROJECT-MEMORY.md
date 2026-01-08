@@ -651,13 +651,13 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 
 ## Roadmap
 
-### Planned Domains
-| Domain | Status | Reference Documents |
-|--------|--------|---------------------|
-| Prompt Engineering | Planned | `documents/prompt-engineering-best-practices-guide-v3.md` |
-| RAG Optimization | Planned | `documents/rag-document-optimization-best-practices-v3b.md`, `documents/AI-instructions-prompt-engineering-and-rag-optimization.md` |
+### Completed Consolidations
+| Topic | Status | Location | Archived From |
+|-------|--------|----------|---------------|
+| Prompt Engineering | ✅ Complete | Title 11 in `ai-governance-methods-v3.6.0.md` | `prompt-engineering-best-practices-guide-v3.md` |
+| RAG Optimization | ✅ Complete | Title 12 in `ai-governance-methods-v3.6.0.md` | `rag-document-optimization-best-practices-v3b.md`, `AI-instructions-prompt-engineering-and-rag-optimization.md` |
 
-*These reference documents will be converted to domain principles and methods files.*
+*These were consolidated as techniques (methods), not separate domains. Underlying principles already existed in Constitution.*
 
 ## Patterns and Conventions
 

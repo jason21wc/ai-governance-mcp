@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.4.0
+**Version:** 3.6.0
 **Status:** Active
-**Effective Date:** 2026-01-05
+**Effective Date:** 2026-01-08
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -130,6 +130,12 @@ Load this document when:
 | Securing user input | Part 11.4 | Defensive Scaffolding |
 | Tool-using tasks | Part 11.5 | ReAct Pattern |
 | Choosing PE technique | Part 11.6 | Technique Selection Guide |
+| Chunking strategy selection | Part 12.1 | Chunking Strategy Selection |
+| Embedding model selection | Part 12.2 | Embedding Optimization |
+| Improving retrieval accuracy | Part 12.3 | Hybrid Retrieval Architecture |
+| Validating RAG outputs | Part 12.4 | RAG Triad Validation |
+| Domain-specific RAG | Part 12.5 | Domain-Specific Optimization |
+| RAG technique selection | Part 12.6 | RAG Technique Selection Guide |
 
 ---
 
@@ -2219,10 +2225,256 @@ Techniques can be layered:
 
 ---
 
+# TITLE 12: RAG OPTIMIZATION TECHNIQUES
+
+**Importance: IMPORTANT — Retrieval-Augmented Generation best practices**
+
+RAG systems retrieve relevant documents to ground AI responses in source material. These techniques optimize chunking, embedding, retrieval, and validation for accuracy and performance.
+
+**Principle Basis:** Derives from Constitution's Transparent Reasoning and Traceability (source attribution), Minimal Relevant Context (retrieval filtering), and Foundation-First Architecture (document prioritization).
+
+---
+
+## Part 12.1: Chunking Strategies
+
+**Importance: IMPORTANT — Document segmentation for retrieval**
+
+### 12.1.1 Chunking Strategy Hierarchy
+
+| Level | Strategy | Size | Performance | Use When |
+|-------|----------|------|-------------|----------|
+| 1 | Fixed-Size | 100-500 tokens | Baseline | Prototyping only |
+| 2 | Recursive | 200-500 tokens | +10-15% | Production baseline |
+| 3 | Semantic | 300-700 tokens, 15-20% overlap | +15-25% | Most production use |
+| 4 | Document-Structure | Varies by section | +20-25% | Markdown, HTML, structured docs |
+| 5 | Context-Enriched | 300-700 + summary | +35-40% | Complex queries |
+| 6 | Agentic | LLM-determined | +40-45% | Mixed content (3-5x cost) |
+
+### 12.1.2 Chunking Decision Guide
+
+```
+Does document have clear structure (headers, sections)?
+├── YES → Use Document-Structure Chunking
+│         Split on headers, preserve lists and code blocks
+└── NO → Is content semantically dense?
+         ├── YES → Use Semantic Chunking (15-20% overlap)
+         │         Let embedding model find boundaries
+         └── NO → Use Recursive Chunking
+                   Split on paragraphs, then sentences
+```
+
+### 12.1.3 Overlap Strategy
+
+| Overlap % | Trade-off | Recommended For |
+|-----------|-----------|-----------------|
+| 0% | Minimal redundancy, context loss at boundaries | Simple factual content |
+| 10-15% | Balanced | General use |
+| 15-20% | Good context preservation | **Default recommendation** |
+| 20-25% | Maximum context, higher storage | Legal, medical, complex reasoning |
+
+### 12.1.4 Query-Chunk Alignment
+
+**Critical insight:** Embedding similarity works best when query and chunk sizes are similar.
+
+| Query Type | Optimal Chunk Size | Rationale |
+|------------|-------------------|-----------|
+| Short questions | 200-400 tokens | Match query embedding scale |
+| Complex queries | 400-700 tokens | Capture full context |
+| Multi-part questions | 300-500 tokens | Balance precision and recall |
+
+---
+
+## Part 12.2: Embedding Optimization
+
+**Importance: IMPORTANT — Vector representation quality**
+
+### 12.2.1 Embedding Model Selection
+
+| Model | MTEB Score | Cost | Best For |
+|-------|------------|------|----------|
+| Voyage-3-large | 69.2 | $0.12/M tokens | Enterprise, highest accuracy |
+| OpenAI text-embedding-3-large | 64.6 | $0.13/M tokens | General purpose, good balance |
+| Gemini-text-embedding-004 | 66.3 | Free tier available | Cost-conscious implementations |
+| BGE-M3 (Open Source) | ~65 | Self-hosted | Hybrid search, multilingual |
+
+### 12.2.2 Dimensionality Trade-offs
+
+| Dimensions | Storage | Latency | Accuracy | Recommendation |
+|------------|---------|---------|----------|----------------|
+| 256 | Low | Fast | Reduced | Development only |
+| 512-768 | Medium | Balanced | Good | **Production default** |
+| 1024-1536 | High | Slower | Better | High-accuracy needs |
+| 3072 | Very High | Slowest | Best | When accuracy is critical |
+
+### 12.2.3 Embedding Best Practices
+
+- **Batch processing:** Embed documents in batches (100-1000) for efficiency
+- **Caching:** Cache embeddings; re-embed only on content change
+- **Normalization:** Normalize vectors for consistent cosine similarity
+- **Metadata:** Store chunk metadata alongside vectors for filtering
+
+---
+
+## Part 12.3: Retrieval Architecture
+
+**Importance: IMPORTANT — Finding relevant content**
+
+### 12.3.1 Retrieval Methods
+
+| Method | Mechanism | Strengths | Weaknesses |
+|--------|-----------|-----------|------------|
+| Dense (Semantic) | Vector similarity | Captures meaning | Misses exact terms |
+| Sparse (BM25) | Term frequency | Exact keyword match | Misses synonyms |
+| Learned Sparse (SPLADE) | Learned term weights | Best of both | Higher cost |
+
+### 12.3.2 Hybrid Retrieval (Recommended)
+
+Combine multiple methods with Reciprocal Rank Fusion:
+
+| Component | Weight | Purpose |
+|-----------|--------|---------|
+| Dense retrieval | 0.50 | Semantic understanding |
+| Sparse retrieval | 0.30 | Keyword matching |
+| BM25 | 0.20 | Traditional relevance |
+
+**Formula:** RRF score = Σ (1 / (k + rank_i)) where k = 60
+
+### 12.3.3 Reranking
+
+Apply reranking model after initial retrieval:
+
+1. Retrieve top-k (20-50) candidates from hybrid search
+2. Rerank with cross-encoder model
+3. Return top-n (5-10) final results
+
+**Impact:** +15-30% accuracy improvement, +50-100ms latency
+
+### 12.3.4 Query Optimization
+
+| Technique | Description | When to Use |
+|-----------|-------------|-------------|
+| Query expansion | Add synonyms, related terms | Broad searches |
+| Query decomposition | Break complex query into sub-queries | Multi-part questions |
+| HyDE | Generate hypothetical answer, embed that | Conceptual queries |
+
+---
+
+## Part 12.4: Validation Frameworks
+
+**Importance: CRITICAL — Ensuring response accuracy**
+
+### 12.4.1 RAG Triad Evaluation
+
+| Metric | Definition | Target | Measures |
+|--------|------------|--------|----------|
+| Context Relevance | Retrieved docs match query | >0.80 | Retrieval quality |
+| Groundedness | Response supported by context | >0.90 | Hallucination prevention |
+| Answer Relevance | Response addresses query | >0.80 | Response quality |
+
+### 12.4.2 Quality Thresholds
+
+| Metric | Target | Action if Below |
+|--------|--------|-----------------|
+| Hallucination rate | <8% | Increase validation layers |
+| Source grounding | >90% | Require explicit citations |
+| Confidence score | >85% | Flag for human review |
+| Retrieval precision@10 | >85% | Tune retrieval weights |
+
+### 12.4.3 Four-Layer Validation
+
+| Layer | Method | Threshold | Purpose |
+|-------|--------|-----------|---------|
+| 1 | Token similarity | 0.75 | Fast filtering |
+| 2 | Semantic similarity (BERT) | cosine > 0.8 | Subtle deviation detection |
+| 3 | LLM judge | Binary + confidence | Complex reasoning validation |
+| 4 | Structured grounding | Citation required | Source attribution |
+
+### 12.4.4 Confidence Scoring
+
+```
+Confidence = (0.3 × token_confidence) +
+             (0.4 × grounding_score) +
+             (0.3 × consistency_score)
+
+Threshold: ≥ 0.85 for autonomous response
+           < 0.85 flag uncertainty to user
+```
+
+---
+
+## Part 12.5: Domain-Specific Optimization
+
+**Importance: IMPORTANT — Tailored configurations**
+
+### 12.5.1 Domain Configuration Matrix
+
+| Domain | Chunk Size | Overlap | Validation | Confidence |
+|--------|------------|---------|------------|------------|
+| Technical Docs | 300-500 | 15-20% | Code syntax check | 0.85 |
+| Legal | 150-350 | 25% | Citation verification | 0.95 |
+| Medical | 200-400 | 20-25% | Terminology validation | 0.95 |
+| Financial | 250-450 | 15-20% | Calculation verification | 0.90 |
+| Customer Service | 200-400 | 10-15% | Intent classification | 0.80 |
+
+### 12.5.2 High-Accuracy Domains (Legal, Medical, Financial)
+
+Required controls:
+- Mandatory source citation for all claims
+- All four validation layers active
+- Confidence threshold: 0.95
+- Expert review triggers for edge cases
+- Complete audit trail
+
+### 12.5.3 High-Volume Domains (Customer Service, Knowledge Base)
+
+Optimization priorities:
+- Semantic caching for repeated queries
+- Confidence threshold: 0.80 (faster response)
+- Two-layer validation (skip LLM judge for routine queries)
+- Response templates for common patterns
+
+---
+
+## Part 12.6: RAG Technique Selection Guide
+
+**Importance: IMPORTANT — Choosing the right approach**
+
+### 12.6.1 Decision Matrix
+
+| Requirement | Chunking | Embedding | Retrieval | Validation |
+|-------------|----------|-----------|-----------|------------|
+| **Speed priority** | Fixed/Recursive | Small dims (512) | Dense only | 2-layer |
+| **Accuracy priority** | Semantic/Agentic | Large dims (1536+) | Hybrid + rerank | 4-layer |
+| **Cost-conscious** | Recursive | BGE-M3 (self-hosted) | Dense + BM25 | 2-layer |
+| **Complex documents** | Document-Structure | Medium dims (768) | Hybrid | 3-layer |
+| **Regulated domain** | Semantic (high overlap) | Voyage-3 | Hybrid + rerank | 4-layer |
+
+### 12.6.2 Performance Improvement Reference
+
+| Technique | Typical Improvement | Cost Impact |
+|-----------|---------------------|-------------|
+| Semantic chunking (vs fixed) | +15-25% accuracy | Minimal |
+| Hybrid retrieval (vs dense-only) | +20-35% accuracy | +50% latency |
+| Reranking | +15-30% accuracy | +50-100ms |
+| Context-enriched chunks | +35-40% accuracy | +30% storage |
+| Four-layer validation | -40-60% hallucinations | +200ms |
+
+### 12.6.3 Quick Start Configuration
+
+**Recommended production baseline:**
+- Chunking: Semantic, 400-600 tokens, 15% overlap
+- Embedding: text-embedding-3-large (768 dims)
+- Retrieval: Hybrid (dense 0.5, sparse 0.3, BM25 0.2)
+- Validation: RAG Triad + confidence scoring
+- Thresholds: Groundedness >0.9, Confidence >0.85
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.6.0 | 2026-01-08 | MINOR: Added TITLE 12 (RAG Optimization Techniques) with Parts 12.1-12.6 covering chunking strategies, embedding optimization, retrieval architecture, validation frameworks, domain-specific optimization, and technique selection guide. Consolidated RAG methods from external reference documents. Archived `rag-document-optimization-best-practices-v3b.md` and `AI-instructions-prompt-engineering-and-rag-optimization.md`. |
 | 3.5.0 | 2026-01-06 | MINOR: Added TITLE 11 (Prompt Engineering Techniques) with Parts 11.1-11.6 covering reasoning techniques (CoT, ToT, Meta-Prompting), hallucination prevention (CoVe, Step-Back, Source Grounding), prompt structure patterns, defensive prompting, ReAct pattern, and technique selection guide. Consolidated prompt engineering methods from external guide into governance framework. Updated Constitution (ai-interaction-principles-v2.2.md) with enhanced Transparent Reasoning and Traceability principle including source attribution for factual claims. |
 | 3.4.0 | 2026-01-05 | MINOR: Added Part 9.7 (Constitutional Analogy Application) with level classification procedure, derivation principle, conflict resolution, and cross-level references. Added TITLE 10 (Model-Specific Application) with capability matrix and cross-model considerations. Added Appendices G-J for Claude, GPT, Gemini, and Perplexity with model-specific governance tactics. Updated principles (ai-interaction-principles-v2.1.md) with enhanced US Constitution analogy table including 5-level hierarchy and level identification guidance. |
 | 3.3.1 | 2026-01-03 | PATCH: Added Format column to Question Architecture table (Part 7.9.1). Foundation questions → open-ended text; Refinement questions → structured options. Added Format Rationale section. Updated principle with matching guidance. |
