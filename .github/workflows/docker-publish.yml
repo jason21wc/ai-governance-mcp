@@ -70,6 +70,7 @@ jobs:
 
       - name: Update Docker Hub description
         if: steps.version.outputs.is_release == 'true'
+        continue-on-error: true  # Token may lack permission; image push is what matters
         uses: peter-evans/dockerhub-description@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
