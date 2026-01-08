@@ -11,35 +11,43 @@
 
 ## Recent Work (This Session)
 
-### v1.1.0 Release
+### Title 12: RAG Optimization Techniques
 
-**Released to Docker Hub:** 2026-01-08
+**Trigger:** User requested RAG optimization consolidation (same pattern as PE).
 
-**Changes since v1.0.0:**
-- Title 11: Prompt Engineering Techniques (Methods v3.5.0)
-- Constitution v2.2: Source attribution for hallucination prevention
-- Governance Compliance section in Subagent Definition Standard
-- Model-specific appendices (Claude, GPT, Gemini, Perplexity)
-- US Constitution analogy consolidation
-- Multi-agent methods v2.5.0 → v2.7.0
-- Security audit fixes (3 MEDIUM findings)
-- 4 coding subagent definitions
-- PE Guide archived (superseded by Title 11)
+**Analysis:**
+- RAG document reviewed: primarily techniques, not principles
+- Constitution already covers underlying principles (source attribution, hallucination prevention)
+- Same pattern as PE → techniques go in Methods, not new domain
 
-**CI Fix:** Made Docker Hub description update non-fatal (`continue-on-error: true`)
+**Changes Made:**
 
-**Commits:**
-- `a8e79b6` — feat(methods): Add Title 11 Prompt Engineering Techniques + archive PE Guide
-- `f2a3389` — fix(ci): Make Docker Hub description update non-fatal
+| File | Change |
+|------|--------|
+| ai-governance-methods v3.5.0 → v3.6.0 | Added Title 12 (6 parts, 6 Situation Index entries) |
+| rag-document-optimization-best-practices-v3b.md | Archived |
+| AI-instructions-prompt-engineering-and-rag-optimization.md | Archived |
+| MULTI-AGENT-ENHANCEMENT-REPORT.md | Archived (one-time report) |
+| PROJECT-MEMORY.md | Updated: PE and RAG now show as completed consolidations |
+
+**Title 12 Contents:**
+- 12.1 Chunking Strategies
+- 12.2 Embedding Optimization
+- 12.3 Retrieval Architecture
+- 12.4 Validation Frameworks
+- 12.5 Domain-Specific Optimization
+- 12.6 Technique Selection Guide
+
+**Commit:** `1914000` — feat(methods): Add Title 12 RAG Optimization Techniques + project cleanup
 
 ## Quick Reference
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.1.0** (server), **v2.7.0** (multi-agent-methods), **v3.5.0** (governance-methods) |
+| Version | **v1.1.0** (server), **v2.7.0** (multi-agent-methods), **v3.6.0** (governance-methods) |
 | Tests | **314 passing** |
 | Coverage | ~90% |
-| Index | 69 principles + 253 methods (322 total) |
+| Index | 69 principles + 274 methods (343 total) |
 
 ## Next Actions
 
