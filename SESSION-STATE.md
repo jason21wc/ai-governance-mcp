@@ -13,6 +13,8 @@
 
 ### v1.3.0 Release
 
+**Released to Docker Hub:** 2026-01-11
+
 **Changes since v1.2.0:**
 - New tool: `log_governance_reasoning` (11 tools total)
 - New models: `ReasoningEntry`, `GovernanceReasoningLog`
@@ -21,6 +23,9 @@
 - 21 new tests (335 total, 90% coverage)
 
 **Background:** Research into Sequential Thinking MCP and industry observability patterns revealed value in externalizing governance reasoning for auditability. The new `log_governance_reasoning` tool allows AI to record per-principle reasoning traces linked to governance assessments via `audit_id`.
+
+**Commits:**
+- `beb26ad` — feat(server): Add log_governance_reasoning tool for reasoning externalization
 
 ### v1.2.0 Release
 
