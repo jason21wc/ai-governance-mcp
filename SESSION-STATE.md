@@ -4,7 +4,7 @@
 
 ## Current Position
 
-- **Phase:** Implementation Complete (pending release)
+- **Phase:** Released (v1.4.0)
 - **Mode:** Standard
 - **Active Task:** None
 - **Blocker:** None
@@ -76,10 +76,9 @@
 
 ## Next Actions
 
-1. Restart MCP server to load new index (new principle won't appear until restart)
-2. Test `query_governance("anchor bias")` after restart
-3. Create release commit and bump to v1.4.0
-4. Push to Docker Hub
+None — v1.4.0 released to Docker Hub.
+
+**To use new features:** Restart MCP server to load updated index, then test with `query_governance("anchor bias")`.
 
 ## Links
 
