@@ -432,6 +432,26 @@ For significant actions, follow this protocol:
 - Do NOT make product/business/timeline decisions — escalate to user
 - Do NOT ignore S-Series principles under any circumstances
 
+### Anchor Bias Checkpoints (Part 7.10)
+
+At milestone boundaries, apply the Anchor Bias Mitigation Protocol:
+
+**Trigger Points:**
+- End of planning phase (before implementation)
+- Before significant implementation effort
+- When encountering unexpected complexity/resistance
+- At natural phase transitions
+
+**Quick Protocol:**
+1. **Reframe** — State the goal WITHOUT referencing current approach
+2. **Generate** — Identify 2-3 alternative approaches from scratch
+3. **Challenge** — "If we started fresh today, would we choose this approach?"
+4. **Evaluate** — Compare using fresh criteria, document decision
+
+**Signal to Watch:** Mounting complexity or repeated friction may indicate anchor bias — the frame may be wrong, not just the execution.
+
+Query `query_governance("anchor bias re-evaluation")` for full protocol.
+
 ### AI Judgment Protocol (§4.6.1)
 
 When `requires_ai_judgment=true` in the evaluate_governance response:

@@ -425,3 +425,34 @@ class TestRealIndexRetrieval:
         assert len(result.constitution_principles) == 0, (
             "Should not return constitution"
         )
+
+    def test_real_index_periodic_reevaluation_principle_exists(self, real_settings):
+        """Periodic Re-evaluation principle should exist and be retrievable by ID."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Get principle by ID
+        principle = engine.get_principle_by_id("meta-core-periodic-re-evaluation")
+
+        assert principle is not None, (
+            "Periodic Re-evaluation principle should be retrievable"
+        )
+        assert principle.title == "Periodic Re-evaluation"
+        assert "anchor bias" in principle.content.lower()
+        assert "milestone" in principle.content.lower()
+
+    def test_real_index_anchor_bias_method_exists(self, real_settings):
+        """Anchor Bias Mitigation Protocol method should exist in index."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+
+        # Query for anchor bias content
+        result = engine.retrieve("anchor bias mitigation protocol checkpoint")
+
+        # Should return methods related to anchor bias
+        method_titles = [m.method.title.lower() for m in result.methods]
+        assert any("anchor" in title or "bias" in title for title in method_titles), (
+            f"Should find anchor bias method. Found: {method_titles}"
+        )

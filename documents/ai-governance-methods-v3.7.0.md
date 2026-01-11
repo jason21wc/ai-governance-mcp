@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.6.0
+**Version:** 3.7.0
 **Status:** Active
-**Effective Date:** 2026-01-08
+**Effective Date:** 2026-01-11
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -1178,6 +1178,98 @@ This protocol applies to any structured elicitation:
 | **Project Scoping** | Deliverables, timeline, resources | Dependencies, risks, milestones |
 
 **Principle:** The structure is universal; only the specific questions vary by domain.
+
+---
+
+## Part 7.10: Anchor Bias Mitigation Protocol
+
+**Importance: IMPORTANT - Prevents reasoning quality degradation from early framing**
+
+**Implements:** Periodic Re-evaluation (C-Series)
+
+### 7.10.1 What Is Anchor Bias?
+
+Anchor bias causes AI to over-weight initial information:
+- **User-sourced:** AI anchors to user's initial problem framing
+- **Self-sourced:** AI anchors to its own early decisions within a session
+
+**Research Finding:** Simple prompting (Chain-of-Thought, reflection, "ignore previous") is insufficient. Multi-perspective generation and deliberate friction are required.
+
+**Why It Matters:** Both sources compound over time. Early framing persists unless explicitly interrupted, reducing solution quality as work progresses on suboptimal foundations.
+
+### 7.10.2 Trigger Points (When to Re-evaluate)
+
+Apply this protocol at these milestones:
+
+| Trigger | Why |
+|---------|-----|
+| **End of planning phase** | Before implementation begins — last chance to pivot cheaply |
+| **Before significant implementation** | Major effort about to start — high sunk cost ahead |
+| **Unexpected complexity** | Resistance suggests the frame may be wrong |
+| **Phase transitions** | Natural pause points for reflection |
+
+**Complexity as Signal:** Treat mounting friction, repeated blockers, or "this is harder than expected" as potential indicators of anchor bias — the problem may be the frame, not the execution.
+
+### 7.10.3 Re-evaluation Protocol (4 Steps)
+
+**Step 1: Reframe**
+State the problem WITHOUT referencing the current approach.
+```
+"The goal is to [outcome], given [constraints]."
+```
+- Do not mention the current solution
+- Focus on what success looks like, not how we're getting there
+
+**Step 2: Generate Alternatives**
+From scratch, identify 2-3 alternative approaches.
+- Pretend you're starting fresh today
+- Don't evaluate yet — just generate to break anchoring
+- Alternatives must be genuine, not strawmen designed to lose
+
+**Step 3: Challenge**
+Ask explicitly:
+- "What if our current approach is wrong?"
+- "What alternatives weren't considered because we started with X?"
+- "If we started fresh today, would we choose this approach?"
+- "What would we do differently knowing what we know now?"
+
+**Step 4: Evaluate**
+Compare alternatives against current approach:
+- Use fresh criteria (not criteria that favor current approach)
+- Consider: complexity, risk, alignment with actual goal
+- Document decision with rationale — whether confirming or pivoting
+
+### 7.10.4 Integration with Contrarian Reviewer
+
+When deploying the `contrarian-reviewer` subagent, include these anchor-bias-specific prompts:
+
+| Prompt | Purpose |
+|--------|---------|
+| "What was the original framing? Is it still valid?" | Surface the anchor |
+| "What alternatives weren't considered because we started with X?" | Identify blind spots |
+| "If we started fresh today, would we choose this approach?" | Test commitment |
+
+These prompts complement the contrarian reviewer's standard assumption-challenging protocol by specifically targeting anchor bias.
+
+### 7.10.5 Common Pitfalls
+
+| Pitfall | Description | Prevention |
+|---------|-------------|------------|
+| **Commitment Escalation** | Doubling down because effort invested | Evaluate on current merits; sunk costs are sunk |
+| **Friction Fatigue** | Skipping re-evaluation due to perceived overhead | Cost of wrong solution > cost of checking |
+| **Reframe Theater** | Going through motions without genuinely considering alternatives | Alternatives must be viable, not strawmen |
+| **Confirmation in Disguise** | Generating alternatives designed to lose | Each alternative should have genuine merit |
+
+### 7.10.6 Documentation Requirements
+
+When applying this protocol, document:
+1. **Trigger:** What triggered the re-evaluation (phase transition, complexity, etc.)
+2. **Reframe:** The goal stated without current approach
+3. **Alternatives:** 2-3 approaches considered
+4. **Decision:** Whether to continue, modify, or pivot
+5. **Rationale:** Why this decision was made
+
+This creates an audit trail for governance compliance and future learning.
 
 ---
 

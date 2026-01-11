@@ -87,6 +87,15 @@ For each assumption, ask:
 - Why weren't they chosen?
 - Should they have been?
 
+### Step 6: Check for Anchor Bias
+Explicitly challenge whether the framing itself is correct:
+- **"What was the original framing? Is it still valid?"** — Surface the anchor
+- **"What alternatives weren't considered because we started with X?"** — Identify blind spots from initial framing
+- **"If we started fresh today, would we choose this approach?"** — Test whether commitment is from merit or inertia
+- **"What would we do differently knowing what we know now?"** — Apply hindsight constructively
+
+**Anchor Bias Signals:** Mounting complexity, repeated friction, "this is harder than expected" may indicate the frame is wrong, not just the execution.
+
 ## When to Deploy
 
 | Situation | Deploy? | Rationale |
@@ -94,6 +103,8 @@ For each assumption, ask:
 | High-stakes decision | Yes | Catch costly errors before they happen |
 | Architectural choice | Yes | Validate assumptions before commitment |
 | Complex synthesis | Yes | Challenge conclusions from incomplete data |
+| Suspected anchor bias | Yes | Fresh perspective on whether frame is correct |
+| Mounting complexity | Yes | "Harder than expected" may mean wrong approach |
 | Routine validation | No | Standard validator sufficient |
 | Time-critical path | Maybe | Trade-off time vs risk |
 
