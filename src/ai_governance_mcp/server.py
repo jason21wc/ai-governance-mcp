@@ -28,8 +28,10 @@ from .models import (
     Feedback,
     GovernanceAssessment,
     GovernanceAuditLog,
+    GovernanceReasoningLog,
     Metrics,
     QueryLog,
+    ReasoningEntry,
     RelevantPrinciple,
     SSeriesCheck,
     VerificationResult,
@@ -353,6 +355,43 @@ def get_audit_log() -> list[GovernanceAuditLog]:
     return _audit_log
 
 
+# Governance reasoning log storage (linked to audit entries by audit_id)
+# Part of Governance Reasoning Externalization feature
+_reasoning_log: deque[GovernanceReasoningLog] = deque(maxlen=AUDIT_LOG_MAX_SIZE)
+
+
+async def log_reasoning_async(entry: GovernanceReasoningLog) -> None:
+    """Log governance reasoning trace asynchronously.
+
+    Links to existing audit entry via audit_id.
+    Part of Governance Reasoning Externalization feature.
+    """
+    global _reasoning_log, _settings
+    _reasoning_log.append(entry)
+    logger.debug(f"Logged reasoning for audit {entry.audit_id}")
+
+    # Persist to file (non-blocking)
+    if _settings:
+        log_file = _settings.logs_path / "governance_reasoning.jsonl"
+        content = entry.model_dump_json() + "\n"
+        await asyncio.to_thread(_write_log_sync, log_file, content)
+
+
+def log_reasoning_sync(entry: GovernanceReasoningLog) -> None:
+    """Log governance reasoning trace synchronously (fallback)."""
+    global _reasoning_log, _settings
+    _reasoning_log.append(entry)
+
+    if _settings:
+        log_file = _settings.logs_path / "governance_reasoning.jsonl"
+        _write_log_sync(log_file, entry.model_dump_json() + "\n")
+
+
+def get_reasoning_log() -> deque[GovernanceReasoningLog]:
+    """Get the in-memory reasoning log for inspection."""
+    return _reasoning_log
+
+
 # Server instructions injected into AI context at MCP initialization.
 # Optimized 2026-01-01: Added Required/Forbidden actions, model-specific guidance.
 # Per meta-operational-constraint-based-prompting: explicit constraints reduce ambiguity.
@@ -407,12 +446,30 @@ When `requires_ai_judgment=true` in the evaluate_governance response:
 
 When `requires_ai_judgment=false`: The script has made a definitive decision (S-Series ESCALATE or no principles found). Follow the assessment as-is.
 
-### Tools (10 Available)
+### Governance Reasoning Protocol
+
+After receiving an assessment from `evaluate_governance`, externalize your analysis:
+
+**Action:** [Brief description of planned action]
+
+**Principle Analysis:**
+| Principle ID | Status | Reasoning |
+|--------------|--------|-----------|
+| principle-id | COMPLIES / NEEDS_MODIFICATION / VIOLATION | [Why this principle applies] |
+
+**Decision:** [PROCEED / PROCEED_WITH_MODIFICATIONS / ESCALATE]
+**Modifications Applied:** [List any modifications, or "None"]
+
+After completing your analysis, call `log_governance_reasoning(audit_id, reasoning)` to record your trace.
+This creates an auditable governance reasoning trail.
+
+### Tools (11 Available)
 | Tool | Purpose |
 |------|---------|
 | `evaluate_governance(planned_action)` | **Pre-action check** — returns assessment + principle content for AI judgment |
 | `query_governance(query)` | Get relevant principles + methods |
 | `verify_governance_compliance(action)` | **Post-action audit** — check if governance was consulted |
+| `log_governance_reasoning(audit_id, reasoning)` | **Reasoning trace** — record per-principle analysis for audit trail |
 | `get_principle(id)` | Full content of principle or method |
 | `list_domains()` | Explore available domains |
 | `get_domain_summary(domain)` | Details about a specific domain |
@@ -871,6 +928,79 @@ async def list_tools() -> list[Tool]:
                 "required": ["agent_name"],
             },
         ),
+        # Tool 11: Log governance reasoning (Audit Trail Enhancement)
+        # Part of Governance Reasoning Externalization feature
+        Tool(
+            name="log_governance_reasoning",
+            description=(
+                "Log your governance reasoning trace to the audit trail. "
+                "Call after evaluate_governance to record per-principle analysis. "
+                "Links to assessment via audit_id for audit trail completeness."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "audit_id": {
+                        "type": "string",
+                        "description": "Audit ID from evaluate_governance response",
+                        "maxLength": 50,
+                        "minLength": 1,
+                        "pattern": "^gov-[a-f0-9]{12}$",
+                    },
+                    "reasoning": {
+                        "type": "array",
+                        "description": "Per-principle reasoning entries",
+                        "maxItems": 20,
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "principle_id": {
+                                    "type": "string",
+                                    "description": "Principle ID analyzed",
+                                    "maxLength": 100,
+                                    "minLength": 1,
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "description": "Assessment status for this principle",
+                                    "enum": [
+                                        "COMPLIES",
+                                        "NEEDS_MODIFICATION",
+                                        "VIOLATION",
+                                    ],
+                                },
+                                "reasoning": {
+                                    "type": "string",
+                                    "description": "Explanation of how principle applies",
+                                    "maxLength": 1000,
+                                    "minLength": 1,
+                                },
+                            },
+                            "required": ["principle_id", "status", "reasoning"],
+                        },
+                    },
+                    "final_decision": {
+                        "type": "string",
+                        "description": "Your final governance decision",
+                        "enum": [
+                            "PROCEED",
+                            "PROCEED_WITH_MODIFICATIONS",
+                            "ESCALATE",
+                        ],
+                    },
+                    "modifications_applied": {
+                        "type": "array",
+                        "description": "List of modifications applied (if any)",
+                        "maxItems": 10,
+                        "items": {
+                            "type": "string",
+                            "maxLength": 500,
+                        },
+                    },
+                },
+                "required": ["audit_id", "reasoning", "final_decision"],
+            },
+        ),
     ]
 
 
@@ -916,6 +1046,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             result = await _handle_install_agent(arguments)
         elif name == "uninstall_agent":
             result = await _handle_uninstall_agent(arguments)
+        elif name == "log_governance_reasoning":
+            result = await _handle_log_governance_reasoning(arguments)
         else:
             result = [TextContent(type="text", text=f"Unknown tool: {name}")]
 
@@ -1903,6 +2035,102 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
             suggestions=["Manually delete the file", f"Path: {install_path}"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+
+async def _handle_log_governance_reasoning(args: dict) -> list[TextContent]:
+    """Handle log_governance_reasoning tool (Audit Trail Enhancement).
+
+    Records AI's governance reasoning trace linked to an audit entry.
+    Part of Governance Reasoning Externalization feature.
+    Enables observability and audit trail completeness.
+    """
+    audit_id = args.get("audit_id", "")
+    reasoning = args.get("reasoning", [])
+    final_decision = args.get("final_decision", "")
+    modifications_applied = args.get("modifications_applied", [])
+
+    # Validate required fields
+    if not audit_id:
+        error = ErrorResponse(
+            error_code="MISSING_REQUIRED_FIELD",
+            message="audit_id is required",
+            suggestions=["Provide the audit_id from evaluate_governance response"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    if not reasoning:
+        error = ErrorResponse(
+            error_code="MISSING_REQUIRED_FIELD",
+            message="reasoning array is required and cannot be empty",
+            suggestions=[
+                "Provide at least one reasoning entry",
+                "Each entry needs: principle_id, status, reasoning",
+            ],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    if not final_decision:
+        error = ErrorResponse(
+            error_code="MISSING_REQUIRED_FIELD",
+            message="final_decision is required",
+            suggestions=["Provide PROCEED, PROCEED_WITH_MODIFICATIONS, or ESCALATE"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Validate audit_id exists in audit log
+    audit_log = get_audit_log()
+    matching_audit = None
+    for entry in audit_log:
+        if entry.audit_id == audit_id:
+            matching_audit = entry
+            break
+
+    if not matching_audit:
+        error = ErrorResponse(
+            error_code="AUDIT_NOT_FOUND",
+            message=f"No audit entry found with id: {audit_id}",
+            suggestions=[
+                "Ensure evaluate_governance was called first",
+                "Use the audit_id from the evaluate_governance response",
+            ],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Build reasoning entries with sanitization
+    reasoning_entries = []
+    for entry in reasoning[:20]:  # Limit to 20 entries
+        reasoning_entries.append(
+            ReasoningEntry(
+                principle_id=str(entry.get("principle_id", ""))[:100],
+                status=str(entry.get("status", "COMPLIES"))[:30],
+                reasoning=_sanitize_for_logging(str(entry.get("reasoning", "")))[:1000],
+            )
+        )
+
+    # Create reasoning log entry
+    reasoning_log_entry = GovernanceReasoningLog(
+        audit_id=audit_id,
+        reasoning_entries=reasoning_entries,
+        final_decision=final_decision,
+        modifications_applied=[
+            _sanitize_for_logging(str(m))[:500] for m in modifications_applied[:10]
+        ],
+    )
+
+    # Log asynchronously
+    await log_reasoning_async(reasoning_log_entry)
+
+    # Return success response
+    output = {
+        "status": "logged",
+        "audit_id": audit_id,
+        "entries_logged": len(reasoning_entries),
+        "final_decision": final_decision,
+        "modifications_count": len(modifications_applied),
+        "message": "Governance reasoning trace recorded successfully.",
+    }
+
+    return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 
 def _flush_all_logs() -> None:

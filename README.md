@@ -71,7 +71,7 @@ Runtime:
 
 ## How It Works
 
-### 10 MCP Tools
+### 11 MCP Tools
 
 | Tool | Purpose |
 |------|---------|
@@ -85,6 +85,7 @@ Runtime:
 | `get_metrics` | Performance analytics |
 | `install_agent` | Install Orchestrator agent (Claude Code only) |
 | `uninstall_agent` | Remove installed agent |
+| `log_governance_reasoning` | Record per-principle reasoning traces for audit |
 
 **Governance Enforcement:**
 
@@ -137,7 +138,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **90%** (304 tests) |
+| Test Coverage | 80% | **90%** (335 tests) |
 
 ## Quick Start (Docker)
 
@@ -382,9 +383,9 @@ Close and reopen Windsurf for the MCP server to load.
 
 Ask Cascade: *"Query governance for handling incomplete specifications"*
 
-You should see the 10 governance tools available (query_governance, evaluate_governance, etc.)
+You should see the 11 governance tools available (query_governance, evaluate_governance, etc.)
 
-> **Note:** Windsurf has a 100 tool limit across all MCPs. This server provides 10 tools.
+> **Note:** Windsurf has a 100 tool limit across all MCPs. This server provides 11 tools.
 
 </details>
 
@@ -707,7 +708,7 @@ pre-commit install
 
 ### Test Suite
 
-304 tests across 10 test files with 90% coverage:
+335 tests across 10 test files with 90% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|

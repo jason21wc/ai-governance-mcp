@@ -26,6 +26,8 @@ from ai_governance_mcp.models import (
     ErrorResponse,
     GovernanceAssessment,
     GovernanceAuditLog,
+    GovernanceReasoningLog,
+    ReasoningEntry,
     VerificationResult,
     VerificationStatus,
     generate_audit_id,
@@ -491,3 +493,184 @@ class TestVerificationResult:
             finding="Test",
         )
         assert "T" in result.timestamp
+
+
+# =============================================================================
+# Governance Reasoning Externalization Tests
+# =============================================================================
+
+
+class TestReasoningEntry:
+    """Tests for ReasoningEntry model."""
+
+    def test_valid_reasoning_entry(self):
+        """ReasoningEntry should accept valid data."""
+        entry = ReasoningEntry(
+            principle_id="meta-core-context-engineering",
+            status="COMPLIES",
+            reasoning="The action follows established patterns.",
+        )
+        assert entry.principle_id == "meta-core-context-engineering"
+        assert entry.status == "COMPLIES"
+        assert "established patterns" in entry.reasoning
+
+    def test_all_status_values(self):
+        """ReasoningEntry should accept all valid status values."""
+        for status in ["COMPLIES", "NEEDS_MODIFICATION", "VIOLATION"]:
+            entry = ReasoningEntry(
+                principle_id="test-id",
+                status=status,
+                reasoning="Test reasoning",
+            )
+            assert entry.status == status
+
+    def test_requires_principle_id(self):
+        """ReasoningEntry should require principle_id."""
+        with pytest.raises(ValidationError):
+            ReasoningEntry(
+                status="COMPLIES",
+                reasoning="Missing principle_id",
+            )
+
+    def test_requires_status(self):
+        """ReasoningEntry should require status."""
+        with pytest.raises(ValidationError):
+            ReasoningEntry(
+                principle_id="test-id",
+                reasoning="Missing status",
+            )
+
+    def test_requires_reasoning(self):
+        """ReasoningEntry should require reasoning."""
+        with pytest.raises(ValidationError):
+            ReasoningEntry(
+                principle_id="test-id",
+                status="COMPLIES",
+            )
+
+
+class TestGovernanceReasoningLog:
+    """Tests for GovernanceReasoningLog model."""
+
+    def test_valid_reasoning_log(self):
+        """GovernanceReasoningLog should accept valid data."""
+        log = GovernanceReasoningLog(
+            audit_id="gov-abc123def456",
+            reasoning_entries=[
+                ReasoningEntry(
+                    principle_id="meta-C1",
+                    status="COMPLIES",
+                    reasoning="Follows quality standards.",
+                )
+            ],
+            final_decision="PROCEED",
+        )
+        assert log.audit_id == "gov-abc123def456"
+        assert len(log.reasoning_entries) == 1
+        assert log.final_decision == "PROCEED"
+
+    def test_auto_generates_timestamp(self):
+        """GovernanceReasoningLog should auto-generate timestamp."""
+        log = GovernanceReasoningLog(
+            audit_id="gov-test123456",
+            reasoning_entries=[],
+            final_decision="PROCEED",
+        )
+        assert log.timestamp is not None
+        assert "T" in log.timestamp
+
+    def test_multiple_reasoning_entries(self):
+        """GovernanceReasoningLog should accept multiple entries."""
+        log = GovernanceReasoningLog(
+            audit_id="gov-multi123456",
+            reasoning_entries=[
+                ReasoningEntry(
+                    principle_id="meta-C1",
+                    status="COMPLIES",
+                    reasoning="First principle OK.",
+                ),
+                ReasoningEntry(
+                    principle_id="coding-Q1",
+                    status="NEEDS_MODIFICATION",
+                    reasoning="Needs input validation.",
+                ),
+                ReasoningEntry(
+                    principle_id="meta-S1",
+                    status="VIOLATION",
+                    reasoning="Safety concern identified.",
+                ),
+            ],
+            final_decision="ESCALATE",
+        )
+        assert len(log.reasoning_entries) == 3
+        assert log.final_decision == "ESCALATE"
+
+    def test_modifications_applied(self):
+        """GovernanceReasoningLog should track modifications applied."""
+        log = GovernanceReasoningLog(
+            audit_id="gov-mods123456",
+            reasoning_entries=[
+                ReasoningEntry(
+                    principle_id="coding-Q1",
+                    status="NEEDS_MODIFICATION",
+                    reasoning="Added validation.",
+                )
+            ],
+            final_decision="PROCEED_WITH_MODIFICATIONS",
+            modifications_applied=[
+                "Added input length validation",
+                "Sanitized user input",
+            ],
+        )
+        assert len(log.modifications_applied) == 2
+        assert "input length" in log.modifications_applied[0]
+
+    def test_empty_modifications_default(self):
+        """GovernanceReasoningLog should default to empty modifications list."""
+        log = GovernanceReasoningLog(
+            audit_id="gov-empty123456",
+            reasoning_entries=[],
+            final_decision="PROCEED",
+        )
+        assert log.modifications_applied == []
+
+    def test_requires_audit_id(self):
+        """GovernanceReasoningLog should require audit_id."""
+        with pytest.raises(ValidationError):
+            GovernanceReasoningLog(
+                reasoning_entries=[],
+                final_decision="PROCEED",
+            )
+
+    def test_requires_final_decision(self):
+        """GovernanceReasoningLog should require final_decision."""
+        with pytest.raises(ValidationError):
+            GovernanceReasoningLog(
+                audit_id="gov-test123456",
+                reasoning_entries=[],
+            )
+
+
+class TestGovernanceAssessmentReasoningGuidance:
+    """Tests for reasoning_guidance field on GovernanceAssessment."""
+
+    def test_has_reasoning_guidance_default(self):
+        """GovernanceAssessment should have default reasoning_guidance."""
+        assessment = GovernanceAssessment(
+            action_reviewed="Test action",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+            rationale="Test rationale",
+        )
+        assert assessment.reasoning_guidance is not None
+        assert "log_governance_reasoning" in assessment.reasoning_guidance
+
+    def test_reasoning_guidance_mentions_structured_format(self):
+        """reasoning_guidance should reference structured format."""
+        assessment = GovernanceAssessment(
+            action_reviewed="Test action",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+            rationale="Test rationale",
+        )
+        assert "structured format" in assessment.reasoning_guidance.lower()

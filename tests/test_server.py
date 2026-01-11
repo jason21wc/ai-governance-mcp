@@ -1393,13 +1393,13 @@ class TestListTools:
     """Tests for list_tools() async function."""
 
     @pytest.mark.asyncio
-    async def test_list_tools_returns_all_ten(self):
-        """list_tools should return all 10 tools."""
+    async def test_list_tools_returns_all_eleven(self):
+        """list_tools should return all 11 tools."""
         from ai_governance_mcp.server import list_tools
 
         tools = await list_tools()
 
-        assert len(tools) == 10
+        assert len(tools) == 11
         tool_names = [t.name for t in tools]
         assert "query_governance" in tool_names
         assert "get_principle" in tool_names
@@ -1409,6 +1409,7 @@ class TestListTools:
         assert "get_metrics" in tool_names
         assert "evaluate_governance" in tool_names
         assert "verify_governance_compliance" in tool_names
+        assert "log_governance_reasoning" in tool_names
         assert "install_agent" in tool_names
         assert "uninstall_agent" in tool_names
 
@@ -2005,3 +2006,246 @@ class TestImprovedErrorSanitization:
         # Should preserve the main error message
         assert "Configuration error" in sanitized
         assert "missing required field" in sanitized
+
+
+# =============================================================================
+# Governance Reasoning Externalization Tests
+# =============================================================================
+
+
+class TestLogGovernanceReasoning:
+    """Tests for log_governance_reasoning tool."""
+
+    @pytest.fixture(autouse=True)
+    def reset_logs(self):
+        """Reset audit and reasoning logs before each test."""
+        from ai_governance_mcp import server
+
+        server._audit_log.clear()
+        server._reasoning_log.clear()
+        yield
+        server._audit_log.clear()
+        server._reasoning_log.clear()
+
+    @pytest.mark.asyncio
+    async def test_log_reasoning_missing_audit_id(self, reset_server_state):
+        """Should return error when audit_id is missing."""
+        from ai_governance_mcp.server import _handle_log_governance_reasoning
+
+        result = await _handle_log_governance_reasoning({})
+        parsed = json.loads(extract_json_from_response(result[0].text))
+        assert parsed["error_code"] == "MISSING_REQUIRED_FIELD"
+        assert "audit_id" in parsed["message"]
+
+    @pytest.mark.asyncio
+    async def test_log_reasoning_missing_reasoning(self, reset_server_state):
+        """Should return error when reasoning array is empty."""
+        from ai_governance_mcp.server import _handle_log_governance_reasoning
+
+        result = await _handle_log_governance_reasoning(
+            {
+                "audit_id": "gov-123456789012",
+                "reasoning": [],
+                "final_decision": "PROCEED",
+            }
+        )
+        parsed = json.loads(extract_json_from_response(result[0].text))
+        assert parsed["error_code"] == "MISSING_REQUIRED_FIELD"
+        assert "reasoning" in parsed["message"]
+
+    @pytest.mark.asyncio
+    async def test_log_reasoning_missing_final_decision(self, reset_server_state):
+        """Should return error when final_decision is missing."""
+        from ai_governance_mcp.server import _handle_log_governance_reasoning
+
+        result = await _handle_log_governance_reasoning(
+            {
+                "audit_id": "gov-123456789012",
+                "reasoning": [
+                    {
+                        "principle_id": "test-id",
+                        "status": "COMPLIES",
+                        "reasoning": "Test",
+                    }
+                ],
+            }
+        )
+        parsed = json.loads(extract_json_from_response(result[0].text))
+        assert parsed["error_code"] == "MISSING_REQUIRED_FIELD"
+        assert "final_decision" in parsed["message"]
+
+    @pytest.mark.asyncio
+    async def test_log_reasoning_invalid_audit_id(self, reset_server_state):
+        """Should return error when audit_id doesn't exist."""
+        from ai_governance_mcp.server import _handle_log_governance_reasoning
+
+        result = await _handle_log_governance_reasoning(
+            {
+                "audit_id": "gov-nonexistent1",
+                "reasoning": [
+                    {
+                        "principle_id": "test-id",
+                        "status": "COMPLIES",
+                        "reasoning": "Test",
+                    }
+                ],
+                "final_decision": "PROCEED",
+            }
+        )
+        parsed = json.loads(extract_json_from_response(result[0].text))
+        assert parsed["error_code"] == "AUDIT_NOT_FOUND"
+
+    @pytest.mark.asyncio
+    async def test_log_reasoning_success(self, reset_server_state):
+        """log_governance_reasoning should log reasoning trace successfully."""
+        from ai_governance_mcp.server import (
+            _handle_log_governance_reasoning,
+            get_reasoning_log,
+            log_governance_audit,
+        )
+        from ai_governance_mcp.models import (
+            GovernanceAuditLog,
+            AssessmentStatus,
+            ConfidenceLevel,
+        )
+
+        # Create an audit entry directly (simpler than mocking full pipeline)
+        audit_id = "gov-success12345"
+        audit_entry = GovernanceAuditLog(
+            audit_id=audit_id,
+            timestamp="2026-01-01T00:00:00Z",
+            action="Test action for reasoning",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+        )
+        log_governance_audit(audit_entry)
+
+        # Now call log_governance_reasoning with that audit_id
+        result = await _handle_log_governance_reasoning(
+            {
+                "audit_id": audit_id,
+                "reasoning": [
+                    {
+                        "principle_id": "meta-C1",
+                        "status": "COMPLIES",
+                        "reasoning": "Action follows quality standards.",
+                    },
+                    {
+                        "principle_id": "coding-Q1",
+                        "status": "NEEDS_MODIFICATION",
+                        "reasoning": "Should add input validation.",
+                    },
+                ],
+                "final_decision": "PROCEED_WITH_MODIFICATIONS",
+                "modifications_applied": ["Added input validation"],
+            }
+        )
+
+        parsed = json.loads(extract_json_from_response(result[0].text))
+        assert parsed["status"] == "logged"
+        assert parsed["audit_id"] == audit_id
+        assert parsed["entries_logged"] == 2
+        assert parsed["final_decision"] == "PROCEED_WITH_MODIFICATIONS"
+        assert parsed["modifications_count"] == 1
+
+        # Verify reasoning log contains the entry
+        reasoning_log = get_reasoning_log()
+        assert len(reasoning_log) == 1
+        assert reasoning_log[0].audit_id == audit_id
+        assert len(reasoning_log[0].reasoning_entries) == 2
+        assert reasoning_log[0].final_decision == "PROCEED_WITH_MODIFICATIONS"
+
+    @pytest.mark.asyncio
+    async def test_log_reasoning_sanitizes_input(self, reset_server_state):
+        """Should sanitize reasoning text to prevent injection."""
+        from ai_governance_mcp.server import (
+            _handle_log_governance_reasoning,
+            get_reasoning_log,
+            log_governance_audit,
+        )
+        from ai_governance_mcp.models import (
+            GovernanceAuditLog,
+            AssessmentStatus,
+            ConfidenceLevel,
+        )
+
+        # Create an audit entry directly
+        audit_entry = GovernanceAuditLog(
+            audit_id="gov-sanitize123",
+            timestamp="2026-01-01T00:00:00Z",
+            action="Test sanitization",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+        )
+        log_governance_audit(audit_entry)
+
+        # Call with potentially dangerous input
+        result = await _handle_log_governance_reasoning(
+            {
+                "audit_id": "gov-sanitize123",
+                "reasoning": [
+                    {
+                        "principle_id": "test-id",
+                        "status": "COMPLIES",
+                        "reasoning": "Normal text <script>alert('xss')</script> more text",
+                    }
+                ],
+                "final_decision": "PROCEED",
+            }
+        )
+
+        parsed = json.loads(extract_json_from_response(result[0].text))
+        assert parsed["status"] == "logged"
+
+        # Verify the reasoning was logged (sanitization doesn't reject, just cleans)
+        reasoning_log = get_reasoning_log()
+        assert len(reasoning_log) == 1
+
+    @pytest.mark.asyncio
+    async def test_log_reasoning_limits_entries(self, reset_server_state):
+        """Should limit reasoning entries to 20."""
+        from ai_governance_mcp.server import (
+            _handle_log_governance_reasoning,
+            get_reasoning_log,
+            log_governance_audit,
+        )
+        from ai_governance_mcp.models import (
+            GovernanceAuditLog,
+            AssessmentStatus,
+            ConfidenceLevel,
+        )
+
+        # Create an audit entry
+        audit_entry = GovernanceAuditLog(
+            audit_id="gov-limit1234567",
+            timestamp="2026-01-01T00:00:00Z",
+            action="Test limits",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+        )
+        log_governance_audit(audit_entry)
+
+        # Create 25 reasoning entries
+        many_entries = [
+            {
+                "principle_id": f"test-{i}",
+                "status": "COMPLIES",
+                "reasoning": f"Entry {i}",
+            }
+            for i in range(25)
+        ]
+
+        result = await _handle_log_governance_reasoning(
+            {
+                "audit_id": "gov-limit1234567",
+                "reasoning": many_entries,
+                "final_decision": "PROCEED",
+            }
+        )
+
+        parsed = json.loads(extract_json_from_response(result[0].text))
+        assert parsed["status"] == "logged"
+        assert parsed["entries_logged"] == 20  # Limited to 20
+
+        reasoning_log = get_reasoning_log()
+        assert len(reasoning_log[0].reasoning_entries) == 20

@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 304 tests, 90% coverage, 10 tools
+- **Status:** COMPLETE - All phases done, 335 tests, 90% coverage, 11 tools
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -28,7 +28,7 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 ```
 
 **Core Components:**
-- `server.py` - FastMCP server with 10 tools
+- `server.py` - FastMCP server with 11 tools
 - `retrieval.py` - Domain routing, hybrid search, reranking
 - `extractor.py` - Document parsing, embedding generation, index building
 - `models.py` - Pydantic data structures
@@ -460,6 +460,28 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
   - [ ] Audit trail captures all assessments
   - [ ] Bypasses are logged and detectable
 
+### Decision: Governance Reasoning Externalization
+- **Date:** 2026-01-10
+- **Status:** IMPLEMENTED (335 tests, 11 tools)
+- **Problem:** Governance compliance was a "black box" — AI evaluated principles but reasoning wasn't visible or auditable
+- **Research:** Sequential Thinking MCP, Thinking Tool MCP, ThoughtMCP, industry observability patterns
+- **Key Insight:** Externalized reasoning adds visibility without enforcement. The trace is for auditability, not compliance enforcement.
+- **Solution — 3 Components:**
+  | Component | Type | Purpose |
+  |-----------|------|---------|
+  | `log_governance_reasoning` tool | Tool | Record per-principle reasoning traces linked via audit_id |
+  | `reasoning_guidance` field | Model field | Prompt AI to use Governance Reasoning Protocol |
+  | Governance Reasoning Protocol | SERVER_INSTRUCTIONS | Structured format for principle analysis |
+- **Implementation:**
+  - New models: `ReasoningEntry`, `GovernanceReasoningLog`
+  - New field: `reasoning_guidance` on `GovernanceAssessment`
+  - Tool validates audit_id against existing audit log
+  - Logs to `governance_reasoning.jsonl` alongside existing audit trail
+- **Governance Applied:**
+  - `meta-quality-verification-mechanisms-before-action` — Pre-action compliance check pattern
+  - `meta-operational-continuous-learning` — Learning from industry research
+  - `coding-quality-security-first-development` — Input validation, sanitization
+
 ---
 
 ## AI Coding Methods v2.0.0 Decisions
@@ -699,16 +721,16 @@ Show updated process map:
 | T2 | Config/settings (pydantic-settings, env vars) | Complete |
 | T3-T5 | Extractor (parser, embeddings, GlobalIndex) | Complete |
 | T6-T11 | Retrieval (domain routing, BM25, semantic, fusion, rerank, hierarchy) | Complete |
-| T12-T18 | Server + 10 MCP tools | Complete |
+| T12-T18 | Server + 11 MCP tools | Complete |
 | T19-T22 | Tests (279 passing, 90% coverage) | Complete |
 | T23 | Portfolio README | Complete |
 
 ### Test Coverage
 | Module | Tests | Coverage |
 |--------|-------|----------|
-| models.py | 35 | 100% |
+| models.py | 49 | 100% |
 | config.py | 17 | 98% |
-| server.py | 71 | 90% |
+| server.py | 78 | 90% |
 | extractor.py | 45 | 89% |
 | retrieval.py | 36 | 84% |
 | config_generator.py | 17 | 100% |
@@ -716,7 +738,7 @@ Show updated process map:
 | server_integration.py | 11 | - |
 | extractor_integration.py | 11 | - |
 | retrieval_integration.py | 21 | - |
-| **Total** | **279** | **90%** |
+| **Total** | **335** | **90%** |
 
 ## Dependencies
 
@@ -750,7 +772,7 @@ Show updated process map:
 | src/ai_governance_mcp/config.py | Settings management | ~224 |
 | src/ai_governance_mcp/extractor.py | Document parsing + embeddings | ~450 |
 | src/ai_governance_mcp/retrieval.py | Hybrid search engine | ~500 |
-| src/ai_governance_mcp/server.py | MCP server + 10 tools | ~1530 |
+| src/ai_governance_mcp/server.py | MCP server + 11 tools | ~1900 |
 | src/ai_governance_mcp/config_generator.py | Multi-platform MCP configs | ~150 |
 | src/ai_governance_mcp/validator.py | Principle ID validation | ~350 |
 
@@ -758,9 +780,9 @@ Show updated process map:
 | File | Tests | Purpose |
 |------|-------|---------|
 | tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
-| tests/test_models.py | 35 | Model validation, constraints, enums |
+| tests/test_models.py | 49 | Model validation, constraints, enums |
 | tests/test_config.py | 17 | Settings, env vars, path handling |
-| tests/test_server.py | 96 | All 10 tools, formatting, metrics, governance, agent installation |
+| tests/test_server.py | 103 | All 11 tools, formatting, metrics, governance, agent installation |
 | tests/test_server_integration.py | 11 | Dispatcher routing, end-to-end flows |
 | tests/test_extractor.py | 45 | Parsing, embeddings, metadata, validation |
 | tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |

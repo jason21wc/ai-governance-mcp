@@ -1,15 +1,26 @@
 # Session State
 
-**Last Updated:** 2026-01-08
+**Last Updated:** 2026-01-10
 
 ## Current Position
 
-- **Phase:** Released (v1.2.0)
+- **Phase:** Released (v1.3.0)
 - **Mode:** Standard
 - **Active Task:** None
 - **Blocker:** None
 
 ## Recent Work (This Session)
+
+### v1.3.0 Release
+
+**Changes since v1.2.0:**
+- New tool: `log_governance_reasoning` (11 tools total)
+- New models: `ReasoningEntry`, `GovernanceReasoningLog`
+- New field: `reasoning_guidance` on `GovernanceAssessment`
+- Updated SERVER_INSTRUCTIONS with Governance Reasoning Protocol
+- 21 new tests (335 total, 90% coverage)
+
+**Background:** Research into Sequential Thinking MCP and industry observability patterns revealed value in externalizing governance reasoning for auditability. The new `log_governance_reasoning` tool allows AI to record per-principle reasoning traces linked to governance assessments via `audit_id`.
 
 ### v1.2.0 Release
 
@@ -45,9 +56,10 @@
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.2.0** (server), **v2.7.0** (multi-agent-methods), **v3.6.0** (governance-methods) |
-| Tests | **314 passing** |
+| Version | **v1.3.0** (server), **v2.7.0** (multi-agent-methods), **v3.6.0** (governance-methods) |
+| Tests | **335 passing** |
 | Coverage | ~90% |
+| Tools | **11 MCP tools** |
 | Index | 69 principles + 274 methods (343 total) |
 
 ## Next Actions

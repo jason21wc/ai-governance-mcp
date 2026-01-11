@@ -447,6 +447,16 @@ class GovernanceAssessment(BaseModel):
         description="Instructions for AI layer when requires_ai_judgment=True",
     )
 
+    # Reasoning externalization guidance (for audit trail completeness)
+    reasoning_guidance: str = Field(
+        default=(
+            "After analyzing principles, document your reasoning using the structured format "
+            "(Governance Reasoning Protocol). Then call log_governance_reasoning() with this "
+            "assessment's audit_id to record your trace for audit trail completeness."
+        ),
+        description="Guidance for externalizing governance reasoning to audit trail",
+    )
+
 
 class VerificationStatus(str, Enum):
     """Status of governance compliance verification.
@@ -501,3 +511,60 @@ class GovernanceAuditLog(BaseModel):
         None, description="Reason for escalation if ESCALATE"
     )
     confidence: ConfidenceLevel = Field(..., description="Assessment confidence level")
+
+
+# =============================================================================
+# Governance Reasoning Externalization
+# =============================================================================
+
+
+class ReasoningEntry(BaseModel):
+    """Individual principle reasoning entry for audit trail.
+
+    Part of Governance Reasoning Externalization feature.
+    Enables structured, auditable governance reasoning.
+    """
+
+    principle_id: str = Field(
+        ...,
+        description="Principle ID that was analyzed",
+        max_length=100,
+    )
+    status: str = Field(
+        ...,
+        description="Assessment status: COMPLIES, NEEDS_MODIFICATION, or VIOLATION",
+        max_length=30,
+    )
+    reasoning: str = Field(
+        ...,
+        description="Explanation of how principle applies to planned action",
+        max_length=1000,
+    )
+
+
+class GovernanceReasoningLog(BaseModel):
+    """Reasoning trace linked to governance assessment via audit_id.
+
+    Enables observability into AI's governance analysis process.
+    Part of Governance Reasoning Externalization feature.
+    Linked to GovernanceAuditLog via audit_id for audit trail completeness.
+    """
+
+    audit_id: str = Field(..., description="Audit ID from evaluate_governance call")
+    timestamp: str = Field(
+        default_factory=generate_timestamp,
+        description="ISO timestamp when reasoning was logged",
+    )
+    reasoning_entries: list[ReasoningEntry] = Field(
+        ...,
+        description="Per-principle reasoning analysis",
+    )
+    final_decision: str = Field(
+        ...,
+        description="Final decision: PROCEED, PROCEED_WITH_MODIFICATIONS, or ESCALATE",
+        max_length=30,
+    )
+    modifications_applied: list[str] = Field(
+        default_factory=list,
+        description="List of modifications applied (if any)",
+    )
