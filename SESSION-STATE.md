@@ -68,15 +68,23 @@
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.3.0** (server), **v2.3** (Constitution), **v3.7.0** (governance-methods) |
+| Version | **v1.4.0** (server), **v2.3** (Constitution), **v3.7.0** (governance-methods) |
 | Tests | **337 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Index | 70 principles + 280 methods (350 total) |
 
+### Documentation Cleanup
+
+**Updated documentation for accuracy:**
+- README.md: Test count 335→337, framework versions updated (Constitution v2.3, Methods v3.7.0)
+- ARCHITECTURE.md: Test count 304→337, tool count 10→11
+- CLAUDE.md: Test count 304→337
+- PROJECT-MEMORY.md: Test count 335→337
+
 ## Next Actions
 
-None — v1.4.0 released to Docker Hub.
+None — v1.4.0 released to Docker Hub, documentation updated.
 
 **To use new features:** Restart MCP server to load updated index, then test with `query_governance("anchor bias")`.
 

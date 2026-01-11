@@ -2,7 +2,7 @@
 
 **Version:** 1.5
 **Date:** 2026-01-03
-**Phase:** COMPLETE (304 tests, 90% coverage, 10 tools)
+**Phase:** COMPLETE (337 tests, 90% coverage, 11 tools)
 
 ---
 
@@ -198,7 +198,7 @@ ai-governance-mcp/
 | Category | Files | Purpose |
 |----------|-------|---------|
 | **Unit** | test_models, test_config, test_validator | Isolated component validation |
-| **Server** | test_server, test_server_integration | All 10 MCP tools, dispatcher routing |
+| **Server** | test_server, test_server_integration | All 11 MCP tools, dispatcher routing |
 | **Extractor** | test_extractor, test_extractor_integration | Parsing, embeddings, index build |
 | **Retrieval** | test_retrieval, test_retrieval_integration | Hybrid search, reranking, pipeline |
 | **Config** | test_config_generator | Multi-platform MCP configurations |

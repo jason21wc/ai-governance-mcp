@@ -138,7 +138,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **90%** (335 tests) |
+| Test Coverage | 80% | **90%** (337 tests) |
 
 ## Quick Start (Docker)
 
@@ -708,7 +708,7 @@ pre-commit install
 
 ### Test Suite
 
-335 tests across 10 test files with 90% coverage:
+337 tests across 10 test files with 90% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
@@ -779,4 +779,4 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework - Constitution v2.2, Governance Methods v3.6.0, Multi-Agent Methods v2.7.0*
+*Built with the AI Governance Framework - Constitution v2.3, Governance Methods v3.7.0, Multi-Agent Methods v2.7.0*
