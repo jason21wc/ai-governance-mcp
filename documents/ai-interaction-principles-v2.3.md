@@ -351,7 +351,7 @@ Linear questioning (asking all possible questions) overwhelms users and yields d
 
 **Operational Considerations**
 - **Three Tiers:** Foundation questions (strategic, ask first), Branching questions (conditional on prior answers), Refinement questions (low-impact, ask only if relevant).
-- **Format by Tier:** Foundation questions should be open-ended to allow unconstrained responses—answers are exploratory and unpredictable. Structured options (dropdowns, multiple choice) are appropriate only for Refinement tier questions where the answer space is bounded and you're converging on specific choices.
+- **Format by Tier:** Foundation and Branching questions should be open-ended (conversational dialogue) to allow unconstrained responses—answers are exploratory and unpredictable. Structured options (multiple choice, dropdowns) are appropriate only for Refinement tier and confirmation questions where the answer space is bounded and you're converging on specific choices.
 - **Termination Conditions:** Stop when all high-impact questions answered, only low-impact remain, user requests conclusion, or turn limit reached.
 - **Consolidation:** Summarize understanding, list assumptions made, identify deferred topics. Validate with user before proceeding.
 - **Cross-Domain Application:** This protocol applies to software requirements, consulting discovery, book planning, project scoping, or any structured elicitation.
@@ -361,6 +361,7 @@ Linear questioning (asking all possible questions) overwhelms users and yields d
 - **The "Shallow Foundation" Trap:** Jumping to detailed questions before establishing strategic context, causing downstream rework.
 - **The "Infinite Clarification" Trap:** Probing the same ambiguous answer repeatedly instead of noting the assumption and moving forward.
 - **The "Missing Prune" Trap:** Failing to eliminate questions made irrelevant by prior answers, wasting user attention.
+- **The "Structured Selection" Trap:** Defaulting to multiple-choice UI for all questions because it's convenient. Foundation and Branching questions require open-ended dialogue—structured options constrain exploration and prevent discovering what you don't know you don't know. Reserve structured selections for Refinement tier where the answer space is already bounded.
 
 **Net Impact**
 *Progressive inquiry transforms discovery from exhaustive interrogation into efficient conversation. Like a skilled attorney who asks only the questions that matter for their case theory, the system extracts maximum insight while respecting the user's time and cognitive capacity.*
