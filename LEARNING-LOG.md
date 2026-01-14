@@ -7,6 +7,59 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-13 - RLM (Recursive Language Models): Outside Governance Scope
+
+**Context:** User shared an analysis proposing RLM patterns be added to the governance framework. Applied Anchor Bias Mitigation Protocol to evaluate independently.
+
+**What is RLM:**
+- Inference strategy from MIT (Zhang & Khattab, arXiv:2512.24601, Dec 2025)
+- Stores long context as Python variable in REPL environment
+- Model writes code to inspect/slice context rather than loading into context window
+- Spawns recursive sub-calls on snippets; aggregates results
+- Handles 10M+ tokens without degradation; GPT-5-mini with RLM outperforms raw GPT-5 by 2x
+
+**Original Analysis Claimed:**
+- Framework is "philosophically aligned" with RLM
+- Gap: Missing "Context as Environment" pattern
+- Priority: Medium, Effort: Low
+
+**Independent Evaluation (Contrarian Review Applied):**
+
+| Challenge | Finding |
+|-----------|---------|
+| **Scope mismatch** | RLM is inference architecture, not behavioral governance. Our framework governs AI *behavior*, not LLM *implementation*. |
+| **No failure case** | No documented query that fails due to context limits. 350 principles = ~50KB text, easily fits in memory. |
+| **Existing coverage** | Context engineering already covered: `meta-core-context-engineering`, `multi-architecture-context-engineering-discipline`, Methods 3.4/3.4.1. |
+| **Effort underestimate** | "Low effort" for REPL integration + code generation + recursion + security is not credible. Would be Medium-High. |
+| **Anchor bias signal** | Analysis started from "RLM is interesting" and worked backward. No user need motivated it. |
+
+**Decision:** Do not incorporate RLM into governance framework.
+
+**Rationale:**
+1. **Wrong layer** — Governance = behavioral principles. RLM = inference implementation.
+2. **No problem to solve** — 350 principles, 50ms queries, 90% coverage. What's broken?
+3. **Existing coverage** — Context engineering well-documented at principle and method levels.
+4. **Premature** — If we scale to 1000+ principles and hit context limits, revisit then.
+
+**What Would Change This Decision:**
+- A concrete failure case: "Query X returns Y but should return Z due to context limits"
+- Evidence that corpus exceeds practical context limits
+- Proposal scoped to tool appendix (implementation detail) vs principles/methods (behavioral governance)
+
+**Lesson:** "Philosophically aligned" is weak justification for adding content to a governance framework. Governance frameworks require *jurisdictional* alignment — the content must be within scope. Many things are philosophically aligned (formal verification, symbolic AI, neural-symbolic hybrids) but don't belong in behavioral governance principles.
+
+**Pattern Applied:** Anchor Bias Mitigation Protocol (`meta-core-periodic-re-evaluation`):
+1. Reframed question: "Does framework have gaps in behavioral guidance for long-context?" (Answer: No)
+2. Generated alternative: Do nothing, enhance existing context principles, defer until evidence
+3. Challenge: If starting fresh, would we add this? No — it's implementation, not behavior.
+
+**Sources:**
+- [Alex Zhang's RLM Blog](https://alexzhang13.github.io/blog/2025/rlm/)
+- [Prime Intellect: RLM Paradigm of 2026](https://www.primeintellect.ai/blog/rlm)
+- [arXiv:2512.24601](https://arxiv.org/abs/2512.24601)
+
+---
+
 ### 2026-01-04 - Contrarian Review Meta-Pattern: Second-Pass Catches Higher-Order Issues (CRITICAL)
 
 **Context:** Ran comprehensive contrarian review of governance framework, then addressed findings, then ran a second-pass contrarian review.
