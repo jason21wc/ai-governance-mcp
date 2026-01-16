@@ -7,6 +7,61 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-15 - Prompt Repetition Research: Outside Governance Scope
+
+**Context:** User shared arXiv paper (2512.14982) proposing prompt repetition as technique to improve LLM performance. Applied Anchor Bias Mitigation Protocol to evaluate independently.
+
+**What is Prompt Repetition:**
+- Technique from Google Research (Leviathan, Kalman, Matias, Dec 2024)
+- Transforms `<QUERY>` to `<QUERY><QUERY>` to give second copy bidirectional attention
+- Addresses causal attention limitation where early tokens can't attend to later tokens
+- 47 wins / 0 losses / 23 neutral across 70 tests (p<0.1)
+- Dramatic improvement on position-sensitive tasks (NameIndex: 21% → 97% for Gemini Flash-Lite)
+- No latency increase (happens in parallelizable prefill stage)
+
+**Critical Finding for Governance:**
+- **Reasoning models: 5 wins / 1 loss / 22 neutral (78% no benefit)**
+- Governance work IS reasoning — principle synthesis, conflict resolution, contextual judgment
+- The technique's best results are on position-sensitive retrieval, not reasoning tasks
+
+**Independent Evaluation (Contrarian Review Applied):**
+
+| Challenge | Finding |
+|-----------|---------|
+| **Scope mismatch** | This is a model-architecture workaround, not a governance principle. Framework governs AI *behavior*, not prompting tricks. |
+| **Evidence weakness** | p<0.1 (not p<0.05), custom benchmarks designed to maximize effect, 78% neutral/negative for reasoning models. |
+| **Existing coverage** | Framework already mitigates positional bias via hybrid retrieval, reranking, and hierarchy filters. |
+| **Precedent risk** | If we add this, what stops us from adding every new prompting paper? Framework becomes tip collection. |
+| **Staleness risk** | Preprint from Dec 2024. Model providers actively improving attention mechanisms. May be obsolete in 6-12 months. |
+
+**Decision:** Do not incorporate into governance framework.
+
+**Rationale:**
+1. **Wrong layer** — Governance = behavioral principles. Prompt repetition = model-specific workaround.
+2. **Evidence weak for our use case** — 78% no benefit for reasoning, which is what governance requires.
+3. **Existing coverage** — Retrieval architecture already addresses positional bias.
+4. **Fails 80/20 test** — Marginal benefit for minority of cases at 2x token cost.
+
+**What Would Change This Decision:**
+- Replication study with p<0.05 on reasoning tasks
+- Evidence of effectiveness for governance-specific queries (principle synthesis, conflict resolution)
+- Industry adoption signals (major AI providers recommending this as default)
+- Demonstration that it adds value ON TOP OF existing retrieval mitigations
+
+**Lesson:** "Interesting research" ≠ "governance-critical." The framework should contain behavioral guidance, not every prompting optimization. If the research never existed, the framework would not be incomplete — that's the test for whether something belongs.
+
+**Pattern Applied:** Anchor Bias Mitigation Protocol (`meta-core-periodic-re-evaluation`):
+1. Reframed question: "Is the framework incomplete without prompt repetition?" (Answer: No)
+2. Generated alternative: Note as awareness only, wait for industry validation, defer
+3. Challenge: If starting fresh, would we add this? No — it's a technique, not governance.
+
+**Sources:**
+- [Prompt Repetition Improves Non-Reasoning LLMs (arXiv)](https://arxiv.org/abs/2512.14982)
+- [VentureBeat Coverage](https://venturebeat.com/orchestration/this-new-dead-simple-prompt-technique-boosts-accuracy-on-llms-by-up-to-76-on)
+- [MIT Research on LLM Position Bias](https://news.mit.edu/2025/unpacking-large-language-model-bias-0617)
+
+---
+
 ### 2026-01-13 - RLM (Recursive Language Models): Outside Governance Scope
 
 **Context:** User shared an analysis proposing RLM patterns be added to the governance framework. Applied Anchor Bias Mitigation Protocol to evaluate independently.
