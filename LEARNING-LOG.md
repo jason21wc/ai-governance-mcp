@@ -7,6 +7,73 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-17 - Index Architecture and Verification Pattern
+
+**Context:** After rebuilding the index with new multi-agent v2.9.0 content, semantic queries weren't returning the new content. Investigation revealed architectural assumptions were wrong.
+
+**The Architecture (Not Documented Before):**
+```
+index/
+├── global_index.json     # Metadata: IDs, titles, content, keywords, embedding_id references
+├── content_embeddings.npy # Vectors: 406 embeddings × 384 dimensions
+└── domain_embeddings.npy  # Vectors: 4 domain embeddings for routing
+```
+
+The JSON stores `embedding_id` (integer index), NOT the embedding vector itself. Vectors are stored separately in NumPy files for efficiency.
+
+**Index Verification Pattern:**
+
+When index issues are suspected, verify in order:
+
+```bash
+# 1. Check .npy files exist and have correct shape
+python3 -c "import numpy as np; e=np.load('index/content_embeddings.npy'); print(f'Shape: {e.shape}')"
+
+# 2. Count items in JSON index
+python3 -c "
+import json
+with open('index/global_index.json') as f:
+    d = json.load(f)
+total = sum(len(d['domains'][x].get('principles',[])) + len(d['domains'][x].get('methods',[])) for x in d['domains'])
+print(f'Items: {total}')
+"
+
+# 3. Verify embedding_ids are assigned (not None)
+python3 -c "
+import json
+with open('index/global_index.json') as f:
+    d = json.load(f)
+for domain, data in d['domains'].items():
+    missing = sum(1 for m in data.get('methods',[]) if m.get('embedding_id') is None)
+    print(f'{domain}: {missing} methods missing embedding_id')
+"
+
+# 4. Test semantic similarity for specific content
+python3 -c "
+from sentence_transformers import SentenceTransformer
+import numpy as np
+model = SentenceTransformer('all-MiniLM-L6-v2')
+query_emb = model.encode('your search terms')
+content_emb = np.load('index/content_embeddings.npy')
+sims = np.dot(content_emb, query_emb) / (np.linalg.norm(content_emb, axis=1) * np.linalg.norm(query_emb))
+print(f'Top similarity: {sims.max():.4f} at index {sims.argmax()}')
+"
+```
+
+**Key Insight:** If Step 4 shows low similarity (< 0.4) for queries that SHOULD match, the problem is embedding quality, not index loading. Check:
+- Keywords extracted from title only (should include content)
+- Embedding text truncated (first 1000 chars may miss key content)
+- Missing trigger_phrases
+
+**MCP Server Restart:**
+- Restarting Claude Code session restarts MCP servers
+- Use `claude mcp list` to verify server is connected
+- Use `get_metrics()` to verify queries are hitting the server (total_queries increments)
+
+**Lesson:** "Restart the server" is often assumed to fix index issues, but low retrieval scores indicate embedding quality problems, not loading problems.
+
+---
+
 ### 2026-01-17 - Security Audit: Repository Clean
 
 **Context:** User requested comprehensive security review of GitHub repository to ensure no secrets, tokens, or sensitive data were committed.

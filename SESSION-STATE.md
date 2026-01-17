@@ -11,6 +11,43 @@
 
 ## Recent Work (This Session)
 
+### Index Verification Investigation
+
+**Trigger:** Testing if new multi-agent v2.9.0 content was retrievable after session restart.
+
+**Initial Hypothesis:** MCP server needed restart to load new index.
+
+**Investigation Process:**
+1. Queried for "advanced model considerations" — returned LOW confidence, wrong results
+2. Checked JSON index for `embedding` field — not found (wrong assumption)
+3. Discovered architecture: JSON stores `embedding_id`, vectors in separate `.npy` files
+4. Verified `.npy` files exist with correct shape (406 embeddings × 384 dims)
+5. Verified `embedding_id` references present in JSON (all 43 multi-agent methods have IDs)
+6. Tested actual semantic similarity — target method scores 0.28 vs top results at 0.46+
+
+**Root Cause:** Not a restart issue. The embedding doesn't capture key concepts because:
+1. **Method keywords are title-only** — `extractor.py:635` extracts from title (`['advanced', 'model', 'considerations']`)
+2. **Embedding text truncated at 1000 chars** — Guidelines content is past this cutoff
+3. **No trigger_phrases for methods** — Unlike principles which have rich metadata
+
+**Restart Clarification:** Server was correctly loaded. User's session restart was sufficient. The issue is index quality, not index loading.
+
+**Documentation Gaps Identified:**
+| Gap | Resolution |
+|-----|------------|
+| Index architecture (JSON + .npy) | Added to LEARNING-LOG |
+| Embedding text composition | Needs extractor.py docstrings |
+| How to verify index working | Added to LEARNING-LOG |
+
+**Roadmap Items Added:**
+- Extractor: content-based keyword extraction
+- Extractor: increase embedding text limit (1000 → 2000)
+- Extractor: trigger_phrase support for methods
+
+---
+
+## Previous Work
+
 ### Advanced Model Considerations (multi-agent-methods v2.9.0)
 
 **Source:** @EXM7777 prompt engineering thread (X.com), validated against research

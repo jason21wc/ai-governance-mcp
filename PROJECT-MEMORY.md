@@ -862,3 +862,29 @@ When updating governance document versions (e.g., `ai-coding-methods-v1.1.1.md` 
 **Fix:** Update `domains.json` to reference correct filename, then rebuild index.
 
 **Prevention:** Extractor now validates all file references at startup and fails fast with actionable error message listing ALL missing files.
+
+### Gotcha 13: Index Architecture — JSON + NumPy Separation
+The index stores metadata and embeddings separately:
+- `global_index.json` — Contains `embedding_id` (integer index), NOT embedding vectors
+- `content_embeddings.npy` — Contains actual vectors (406 × 384 dimensions)
+- `domain_embeddings.npy` — Contains domain routing vectors
+
+**Symptom:** Checking JSON for `embedding` field returns nothing. Assuming embeddings missing.
+
+**Reality:** Embeddings ARE there, in `.npy` files. JSON only stores references.
+
+**Verification:** See LEARNING-LOG "Index Architecture and Verification Pattern" for commands.
+
+### Gotcha 14: Method Keywords Are Title-Only (Quality Issue)
+`extractor.py:635` extracts keywords only from method titles:
+```python
+keywords = [w.lower() for w in data["title"].split() if len(w) > 3]
+```
+
+**Symptom:** Semantic search returns LOW confidence for queries that should match method content.
+
+**Root Cause:** Keywords like `['advanced', 'model', 'considerations']` are too generic. Key concepts in method body (e.g., "decision rules", "cognitive function") aren't indexed.
+
+**Workaround:** Use `get_principle(id)` to retrieve specific methods if you know the ID.
+
+**Fix (Roadmap):** Extract keywords from content body, increase embedding text limit, add trigger_phrases.

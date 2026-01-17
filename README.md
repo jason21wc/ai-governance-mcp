@@ -772,6 +772,10 @@ safety check
   - Script layer: S-Series keyword detection (deterministic safety guardrails)
   - AI layer: Nuanced principle conflict analysis for PROCEED_WITH_MODIFICATIONS
   - Model-aware: More capable models get more judgment latitude
+- [ ] **Improved Method Embedding Quality** — Better semantic retrieval for methods
+  - Content-based keyword extraction (not just title words)
+  - Increase embedding text limit (1000 → 2000 chars)
+  - Add trigger_phrase support for methods (like principles have)
 - [ ] **Governance Proxy Mode** — Platform-agnostic enforcement via MCP gateway
   - Wraps other MCP servers, enforces governance before forwarding requests
   - Enables architectural enforcement for non-Claude platforms (OpenAI, Gemini, etc.)
