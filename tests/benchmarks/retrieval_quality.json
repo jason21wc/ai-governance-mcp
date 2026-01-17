@@ -1,0 +1,130 @@
+{
+  "description": "Benchmark test cases for retrieval quality assessment",
+  "version": "1.1",
+  "created": "2026-01-17",
+  "notes": "IDs verified against actual index content",
+  "test_cases": {
+    "methods": [
+      {
+        "id": "method-1",
+        "query": "advanced model prompting strategies decision rules",
+        "expected_ids": ["multi-method-advanced-model-considerations"],
+        "min_score": 0.4,
+        "description": "Primary test case - Advanced Model Considerations should be found"
+      },
+      {
+        "id": "method-2",
+        "query": "how to calibrate project complexity for AI coding",
+        "expected_ids": ["coding-method-calibration-questions"],
+        "min_score": 0.4,
+        "description": "Project calibration method"
+      },
+      {
+        "id": "method-3",
+        "query": "session start procedure initialization",
+        "expected_ids": ["coding-method-session-start-procedure"],
+        "min_score": 0.4,
+        "description": "Session start procedure"
+      },
+      {
+        "id": "method-4",
+        "query": "anchor bias mitigation checkpoint protocol",
+        "expected_ids": ["meta-method-what-is-anchor-bias"],
+        "min_score": 0.4,
+        "description": "Anchor bias awareness method"
+      },
+      {
+        "id": "method-5",
+        "query": "cognitive memory working semantic episodic",
+        "expected_ids": ["coding-method-cognitive-memory-types"],
+        "min_score": 0.4,
+        "description": "Cognitive memory types"
+      },
+      {
+        "id": "method-6",
+        "query": "multi agent orchestration patterns coordination",
+        "expected_ids": ["multi-method-orchestration-pattern-selection"],
+        "min_score": 0.4,
+        "description": "Multi-agent orchestration pattern selection"
+      },
+      {
+        "id": "method-7",
+        "query": "reasoning models chain of thought prompting",
+        "expected_ids": ["multi-method-advanced-model-considerations"],
+        "min_score": 0.35,
+        "description": "Advanced model - reasoning models aspect"
+      },
+      {
+        "id": "method-8",
+        "query": "governance subagent orchestrator protocol",
+        "expected_ids": ["multi-method-governance-agent-pattern"],
+        "min_score": 0.4,
+        "description": "Governance agent pattern"
+      }
+    ],
+    "principles": [
+      {
+        "id": "principle-1",
+        "query": "context engineering specification gathering",
+        "expected_ids": ["meta-core-context-engineering"],
+        "min_score": 0.5,
+        "description": "Context engineering principle"
+      },
+      {
+        "id": "principle-2",
+        "query": "incomplete specification unclear requirements",
+        "expected_ids": ["coding-context-specification-completeness"],
+        "min_score": 0.5,
+        "description": "Specification completeness principle"
+      },
+      {
+        "id": "principle-3",
+        "query": "safety harm prevention bias fairness",
+        "expected_ids": ["meta-safety-bias-awareness-fairness"],
+        "min_score": 0.5,
+        "description": "Safety bias principle"
+      },
+      {
+        "id": "principle-4",
+        "query": "testing verification code quality assurance",
+        "expected_ids": ["coding-quality-testing-integration"],
+        "min_score": 0.45,
+        "description": "Testing integration principle"
+      },
+      {
+        "id": "principle-5",
+        "query": "multi agent handoff protocol explicit",
+        "expected_ids": ["multi-reliability-explicit-handoff-protocol"],
+        "min_score": 0.45,
+        "description": "Explicit handoff protocol principle"
+      },
+      {
+        "id": "principle-6",
+        "query": "periodic re-evaluation milestone checkpoint",
+        "expected_ids": ["meta-core-periodic-re-evaluation"],
+        "min_score": 0.5,
+        "description": "Periodic re-evaluation principle"
+      },
+      {
+        "id": "principle-7",
+        "query": "fault tolerance graceful degradation multi-agent",
+        "expected_ids": ["multi-quality-fault-tolerance-and-graceful-degradation"],
+        "min_score": 0.5,
+        "description": "Fault tolerance and graceful degradation"
+      },
+      {
+        "id": "principle-8",
+        "query": "human AI collaboration model process",
+        "expected_ids": ["coding-process-human-ai-collaboration-model"],
+        "min_score": 0.45,
+        "description": "Human-AI collaboration model"
+      }
+    ]
+  },
+  "metrics": {
+    "target_method_mrr": 0.6,
+    "target_principle_mrr": 0.7,
+    "target_recall_at_10": 0.8,
+    "target_precision_at_5": 0.6
+  }
+}

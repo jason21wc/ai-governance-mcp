@@ -86,6 +86,30 @@ class PrincipleMetadata(BaseModel):
     aliases: list[str] = Field(default_factory=list, description="Common abbreviations")
 
 
+class MethodMetadata(BaseModel):
+    """Expanded metadata for method matching.
+
+    Enables methods to have the same rich metadata as principles for
+    improved BM25 keyword search and embedding quality.
+    """
+
+    keywords: list[str] = Field(
+        default_factory=list, description="Primary trigger keywords from title/content"
+    )
+    trigger_phrases: list[str] = Field(
+        default_factory=list, description="Multi-word phrases that indicate this method"
+    )
+    purpose_keywords: list[str] = Field(
+        default_factory=list, description="Keywords from Purpose section"
+    )
+    applies_to: list[str] = Field(
+        default_factory=list, description="Contexts/situations this method applies to"
+    )
+    guideline_keywords: list[str] = Field(
+        default_factory=list, description="Keywords from guideline headers"
+    )
+
+
 class Principle(BaseModel):
     """A single governance principle with full metadata.
 
@@ -125,7 +149,12 @@ class Method(BaseModel):
     title: str = Field(..., description="Method title")
     content: str = Field(..., description="Complete method text")
     line_range: tuple[int, int] = Field(..., description="Source document line numbers")
-    keywords: list[str] = Field(default_factory=list, description="Trigger keywords")
+    keywords: list[str] = Field(
+        default_factory=list, description="Trigger keywords (legacy)"
+    )
+    metadata: MethodMetadata = Field(
+        default_factory=MethodMetadata, description="Expanded matching metadata"
+    )
     embedding_id: Optional[int] = Field(None, description="Index into embeddings array")
 
 

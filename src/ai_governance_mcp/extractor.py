@@ -24,6 +24,7 @@ from .models import (
     DomainIndex,
     GlobalIndex,
     Method,
+    MethodMetadata,
     Principle,
     PrincipleMetadata,
 )
@@ -37,7 +38,7 @@ class EmbeddingGenerator:
     Lazy-loads the model to avoid import overhead when not needed.
     """
 
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+    def __init__(self, model_name: str = "BAAI/bge-small-en-v1.5"):
         self.model_name = model_name
         self._model = None
 
@@ -142,7 +143,7 @@ class DocumentExtractor:
                 text_mapping.append((domain_config.name, "principle", i))
 
             for i, method in enumerate(index.methods):
-                text = f"{method.title}\n{method.content[:500]}"
+                text = self._get_method_embedding_text(method)
                 all_texts.append(text)
                 text_mapping.append((domain_config.name, "method", i))
 
@@ -186,10 +187,11 @@ class DocumentExtractor:
         """Create text for embedding from a principle.
 
         Combines title, content, and metadata for rich semantic representation.
+        Uses 1500 chars to fit in BGE model's 512 token limit (~375 tokens).
         """
         parts = [
             principle.title,
-            principle.content[:1000],  # First 1000 chars of content
+            principle.content[:1500],  # Increased from 1000 to use new token budget
         ]
 
         # Add metadata keywords for richer embedding
@@ -198,6 +200,30 @@ class DocumentExtractor:
             parts.append(" ".join(meta.keywords[:5]))
         if meta.trigger_phrases:
             parts.append(" ".join(meta.trigger_phrases[:3]))
+
+        return "\n".join(parts)
+
+    def _get_method_embedding_text(self, method: Method) -> str:
+        """Create text for embedding from a method.
+
+        Combines title, content, and metadata for rich semantic representation.
+        Uses 1500 chars to fit in BGE model's 512 token limit.
+        """
+        parts = [
+            method.title,
+            method.content[:1500],  # Increased from 500 to use new token budget
+        ]
+
+        # Add metadata keywords for richer embedding
+        meta = method.metadata
+        if meta.keywords:
+            parts.append(" ".join(meta.keywords[:5]))
+        if meta.trigger_phrases:
+            parts.append(" ".join(meta.trigger_phrases[:3]))
+        if meta.purpose_keywords:
+            parts.append(" ".join(meta.purpose_keywords[:5]))
+        if meta.applies_to:
+            parts.append(" ".join(meta.applies_to[:3]))
 
         return "\n".join(parts)
 
@@ -627,12 +653,15 @@ class DocumentExtractor:
         return methods
 
     def _build_method(self, data: dict, domain_prefix: str, index: int) -> Method:
-        """Build a Method object with slug-based ID."""
+        """Build a Method object with slug-based ID and rich metadata."""
         # Generate slug-based ID: {domain}-method-{title-slug}
         title_slug = self._slugify(data["title"])
         method_id = f"{domain_prefix}-method-{title_slug}"
 
         keywords = [w.lower() for w in data["title"].split() if len(w) > 3]
+
+        # Generate rich metadata for better search
+        metadata = self._generate_method_metadata(data["title"], data["content"])
 
         return Method(
             id=method_id,
@@ -641,7 +670,94 @@ class DocumentExtractor:
             content=data["content"],
             line_range=(data["start_line"], data["end_line"]),
             keywords=keywords,
+            metadata=metadata,
             embedding_id=None,  # Set later
+        )
+
+    def _generate_method_metadata(self, title: str, content: str) -> MethodMetadata:
+        """Generate metadata for method matching.
+
+        Extracts keywords from:
+        - Title words
+        - **Purpose:** section
+        - **Applies To:** section
+        - Bold text and headers
+        - Guideline headers
+        """
+        # Extract keywords from title
+        title_words = [w.lower() for w in title.split() if len(w) > 3]
+
+        # Extract purpose keywords
+        purpose_keywords = []
+        purpose_match = re.search(
+            r"\*\*Purpose[:\*]*\*\*[:\s]*(.+?)(?:\n\n|\*\*|$)",
+            content,
+            re.DOTALL | re.IGNORECASE,
+        )
+        if purpose_match:
+            purpose_text = purpose_match.group(1)
+            purpose_keywords = [
+                w.lower()
+                for w in re.findall(r"\b[a-z]{4,}\b", purpose_text.lower())
+                if w
+                not in (
+                    "this",
+                    "that",
+                    "with",
+                    "from",
+                    "have",
+                    "been",
+                    "will",
+                    "when",
+                    "used",
+                    "using",
+                    "provides",
+                )
+            ][:10]
+
+        # Extract applies_to keywords
+        applies_to = []
+        applies_match = re.search(
+            r"\*\*(?:Applies To|When to Use|Use When)[:\*]*\*\*[:\s]*(.+?)(?:\n\n|\*\*|$)",
+            content,
+            re.DOTALL | re.IGNORECASE,
+        )
+        if applies_match:
+            applies_text = applies_match.group(1)
+            applies_to = [
+                w.lower()
+                for w in re.findall(r"\b[a-z]{4,}\b", applies_text.lower())
+                if w not in ("this", "that", "with", "from")
+            ][:10]
+
+        # Extract trigger phrases from bold text
+        trigger_phrases = []
+        bold = re.findall(r"\*\*([^*]+)\*\*", content)
+        for b in bold[:15]:
+            if len(b.split()) <= 4 and len(b) > 5:
+                # Skip common section headers
+                if b.lower() not in (
+                    "purpose",
+                    "applies to",
+                    "when to use",
+                    "note",
+                    "example",
+                ):
+                    trigger_phrases.append(b.lower())
+
+        # Extract guideline keywords from subheaders (#### Guidelines, etc.)
+        guideline_keywords = []
+        guideline_matches = re.findall(r"^#{3,4}\s+(.+)$", content, re.MULTILINE)
+        for g in guideline_matches[:10]:
+            words = [w.lower() for w in g.split() if len(w) > 3]
+            guideline_keywords.extend(words[:3])
+
+        return MethodMetadata(
+            keywords=title_words,
+            trigger_phrases=trigger_phrases[:10],
+            purpose_keywords=purpose_keywords,
+            applies_to=applies_to,
+            guideline_keywords=guideline_keywords[:15],
         )
 
     def _get_domain_prefix(self, domain_name: str) -> str:

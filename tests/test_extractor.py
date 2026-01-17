@@ -38,7 +38,7 @@ class TestEmbeddingGeneratorInit:
 
         generator = EmbeddingGenerator()
 
-        assert generator.model_name == "all-MiniLM-L6-v2"
+        assert generator.model_name == "BAAI/bge-small-en-v1.5"
 
 
 class TestEmbeddingGeneratorLazyLoad:
@@ -595,7 +595,7 @@ class TestGetEmbeddingText:
     def test_get_embedding_text_truncates_content(
         self, test_settings, sample_domains_json
     ):
-        """Should truncate content to 1000 chars."""
+        """Should truncate content to 1500 chars (increased for BGE model)."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
             from ai_governance_mcp.models import Principle, PrincipleMetadata
@@ -616,10 +616,10 @@ class TestGetEmbeddingText:
 
             text = extractor._get_embedding_text(long_principle)
 
-            # Should not contain full content
-            assert "A" * 1500 not in text
-            # But should contain truncated content
-            assert "A" * 500 in text
+            # Should not contain full content (2000 chars)
+            assert "A" * 2000 not in text
+            # But should contain truncated content (1500 chars)
+            assert "A" * 1500 in text
 
 
 # =============================================================================
@@ -681,10 +681,10 @@ class TestRealEmbeddings:
     """Tests using real embedding model. Run with: pytest -m slow"""
 
     def test_real_embedding_dimensions(self):
-        """Verify all-MiniLM-L6-v2 produces 384 dims."""
+        """Verify BAAI/bge-small-en-v1.5 produces 384 dims."""
         from sentence_transformers import SentenceTransformer
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = SentenceTransformer("BAAI/bge-small-en-v1.5")
         emb = model.encode(["test"])
 
         assert emb.shape == (1, 384)
@@ -693,7 +693,7 @@ class TestRealEmbeddings:
         """Verify similar texts have higher similarity."""
         from sentence_transformers import SentenceTransformer
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = SentenceTransformer("BAAI/bge-small-en-v1.5")
         emb1 = model.encode(["write code"])
         emb2 = model.encode(["write software"])
         emb3 = model.encode(["cook dinner"])
@@ -709,7 +709,7 @@ class TestRealEmbeddings:
         """Verify batch embedding produces consistent results."""
         from sentence_transformers import SentenceTransformer
 
-        model = SentenceTransformer("all-MiniLM-L6-v2")
+        model = SentenceTransformer("BAAI/bge-small-en-v1.5")
 
         # Single vs batch should produce same result
         single = model.encode(["test query"])

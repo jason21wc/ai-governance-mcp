@@ -259,7 +259,7 @@ def sample_global_index(
         domain_configs=[sample_domain_config, sample_coding_domain_config],
         created_at="2025-01-01T00:00:00Z",
         version="1.0",
-        embedding_model="all-MiniLM-L6-v2",
+        embedding_model="BAAI/bge-small-en-v1.5",
         embedding_dimensions=384,
     )
 

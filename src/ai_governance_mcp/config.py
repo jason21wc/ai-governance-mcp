@@ -80,8 +80,9 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO", description="Logging level")
 
     # Embedding model
+    # BGE-small-en-v1.5: 512 token max (vs 256 for MiniLM), better quality
     embedding_model: str = Field(
-        default="all-MiniLM-L6-v2",
+        default="BAAI/bge-small-en-v1.5",
         description="Sentence-transformers model for embeddings",
     )
     embedding_dimensions: int = Field(

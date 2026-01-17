@@ -105,7 +105,7 @@ class RetrievalEngine:
                 self.bm25_docs.append((domain_name, "principle", i))
 
             for i, method in enumerate(domain_index.methods):
-                text = f"{method.title} {method.content[:500]}"
+                text = self._get_method_bm25_text(method)
                 tokens = text.lower().split()
                 corpus.append(tokens)
                 self.bm25_docs.append((domain_name, "method", i))
@@ -204,6 +204,32 @@ class RetrievalEngine:
             " ".join(principle.metadata.trigger_phrases),
             " ".join(principle.metadata.failure_indicators),
         ]
+        return " ".join(parts)
+
+    def _get_method_bm25_text(self, method: Method) -> str:
+        """Create text for BM25 indexing from a method.
+
+        Includes metadata fields for improved keyword matching.
+        """
+        parts = [
+            method.title,
+            method.content[:1500],  # Increased from 500
+            " ".join(method.keywords),  # Legacy keywords
+        ]
+
+        # Add metadata fields for richer keyword matching
+        meta = method.metadata
+        if meta.keywords:
+            parts.append(" ".join(meta.keywords))
+        if meta.trigger_phrases:
+            parts.append(" ".join(meta.trigger_phrases))
+        if meta.purpose_keywords:
+            parts.append(" ".join(meta.purpose_keywords))
+        if meta.applies_to:
+            parts.append(" ".join(meta.applies_to))
+        if meta.guideline_keywords:
+            parts.append(" ".join(meta.guideline_keywords))
+
         return " ".join(parts)
 
     # =========================================================================

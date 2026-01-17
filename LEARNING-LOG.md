@@ -7,6 +7,50 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-17 - Embedding Model Token Limits Matter
+
+**Context:** Method retrieval quality was poor (MRR 0.34). "Advanced Model Considerations" had semantic similarity 0.28 when it should match queries about prompting strategies.
+
+**Root Cause Discovery:**
+1. `all-MiniLM-L6-v2` has a **256 token max** (not 512 as often assumed)
+2. Method embedding text was `title + content[:500]` which exceeds 256 tokens
+3. Key content (guidelines, decision rules) appeared AFTER the truncation point
+
+**The Token Math:**
+- 1 token ≈ 4 characters for English
+- 256 tokens ≈ 1024 characters
+- Methods often had 2000+ character content, but only first ~500 chars were used for embedding
+- Even then, 500 chars can be ~125 tokens, but combined with title and metadata can exceed 256
+
+**Solution:**
+1. Upgraded to `BAAI/bge-small-en-v1.5` (512 token limit)
+2. Increased embedding text to 1500 chars (fits in ~375 tokens with buffer)
+3. Added MethodMetadata for richer semantic representation
+
+**Key Insight:** When retrieval quality is poor, check token limits FIRST. The embedding model documentation often doesn't prominently display max token limits.
+
+**Verification Pattern:**
+```python
+# Check actual token count for your content
+from transformers import AutoTokenizer
+tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-small-en-v1.5")
+text = "your embedding text here"
+tokens = tokenizer.encode(text)
+print(f"Token count: {len(tokens)}")  # Should be < 512
+```
+
+**Model Comparison:**
+| Model | Max Tokens | Dimensions | Quality |
+|-------|-----------|------------|---------|
+| all-MiniLM-L6-v2 | 256 | 384 | Good |
+| BAAI/bge-small-en-v1.5 | 512 | 384 | Better |
+| BAAI/bge-base-en-v1.5 | 512 | 768 | Better+ |
+| BAAI/bge-large-en-v1.5 | 512 | 1024 | Best |
+
+**Takeaway:** For retrieval with longer content chunks, prefer BGE models or similar with 512+ token support.
+
+---
+
 ### 2026-01-17 - Index Architecture and Verification Pattern
 
 **Context:** After rebuilding the index with new multi-agent v2.9.0 content, semantic queries weren't returning the new content. Investigation revealed architectural assumptions were wrong.

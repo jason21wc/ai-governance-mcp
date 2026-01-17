@@ -11,38 +11,49 @@
 
 ## Recent Work (This Session)
 
-### Index Verification Investigation
+### Method Retrieval Quality Improvement ✓ RESOLVED
 
-**Trigger:** Testing if new multi-agent v2.9.0 content was retrievable after session restart.
+**Problem:** Method "Advanced Model Considerations" had low semantic similarity (0.28) compared to principles (0.46+).
 
-**Initial Hypothesis:** MCP server needed restart to load new index.
+**Root Causes Identified:**
+1. `all-MiniLM-L6-v2` has 256 token max — content truncated
+2. Methods get minimal embedding: `title + content[:500]` only
+3. Methods have NO metadata (principles get keywords, trigger_phrases, etc.)
 
-**Investigation Process:**
-1. Queried for "advanced model considerations" — returned LOW confidence, wrong results
-2. Checked JSON index for `embedding` field — not found (wrong assumption)
-3. Discovered architecture: JSON stores `embedding_id`, vectors in separate `.npy` files
-4. Verified `.npy` files exist with correct shape (406 embeddings × 384 dims)
-5. Verified `embedding_id` references present in JSON (all 43 multi-agent methods have IDs)
-6. Tested actual semantic similarity — target method scores 0.28 vs top results at 0.46+
+**Solution Implemented:**
+1. **Model Upgrade:** `all-MiniLM-L6-v2` → `BAAI/bge-small-en-v1.5` (512 tokens, better quality)
+2. **MethodMetadata Model:** Added rich metadata extraction for methods (keywords, trigger_phrases, purpose_keywords, applies_to, guideline_keywords)
+3. **Text Limit Increase:** Embedding text increased from 500→1500 chars for methods, 1000→1500 for principles
+4. **BM25 Enhancement:** Methods now include metadata fields in keyword search
 
-**Root Cause:** Not a restart issue. The embedding doesn't capture key concepts because:
-1. **Method keywords are title-only** — `extractor.py:635` extracts from title (`['advanced', 'model', 'considerations']`)
-2. **Embedding text truncated at 1000 chars** — Guidelines content is past this cutoff
-3. **No trigger_phrases for methods** — Unlike principles which have rich metadata
+**Results (Benchmark Tests):**
+| Metric | Before | After | Change |
+|--------|--------|-------|--------|
+| Method MRR | 0.34 | **0.72** | +112% |
+| Principle MRR | 0.42 | **0.61** | +45% |
+| Method Recall@10 | 0.50 | **0.88** | +76% |
+| Principle Recall@10 | 0.50 | **1.00** | +100% |
 
-**Restart Clarification:** Server was correctly loaded. User's session restart was sufficient. The issue is index quality, not index loading.
+**Key Problem Case (Advanced Model Considerations):**
+| Metric | Before | After |
+|--------|--------|-------|
+| Semantic Score | 0.54 | **0.82** |
+| Combined Score | 0.72 | **0.89** |
 
-**Documentation Gaps Identified:**
-| Gap | Resolution |
-|-----|------------|
-| Index architecture (JSON + .npy) | Added to LEARNING-LOG |
-| Embedding text composition | Needs extractor.py docstrings |
-| How to verify index working | Added to LEARNING-LOG |
+**Files Changed:**
+- `src/ai_governance_mcp/config.py` — New embedding model default
+- `src/ai_governance_mcp/models.py` — Added MethodMetadata class
+- `src/ai_governance_mcp/extractor.py` — `_generate_method_metadata()`, `_get_method_embedding_text()`, increased limits
+- `src/ai_governance_mcp/retrieval.py` — `_get_method_bm25_text()` with metadata
+- `tests/benchmarks/` — New quality benchmark infrastructure
+- `tests/test_retrieval_quality.py` — MRR, Recall@K metrics
+- Updated test references to new embedding model
 
-**Roadmap Items Added:**
-- Extractor: content-based keyword extraction
-- Extractor: increase embedding text limit (1000 → 2000)
-- Extractor: trigger_phrase support for methods
+**All 337 tests passing.**
+
+---
+
+### Previous: Index Verification Investigation (led to above fix)
 
 ---
 

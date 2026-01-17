@@ -671,6 +671,23 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
   - Claude Code hooks gain prompt modification capability
 - **See Also:** LEARNING-LOG 2026-01-03 for detailed research findings
 
+### Decision: Embedding Model Upgrade (BGE-small-en-v1.5)
+- **Date:** 2026-01-17
+- **Status:** CONFIRMED
+- **Change:** `all-MiniLM-L6-v2` → `BAAI/bge-small-en-v1.5`
+- **Rationale:**
+  | Spec | Old Model | New Model |
+  |------|-----------|-----------|
+  | Max tokens | 256 | **512** |
+  | Dimensions | 384 | 384 (unchanged) |
+  | Quality | Good | Better (BGE family) |
+- **Trigger:** Method retrieval quality investigation revealed content truncation
+- **Impact:** Combined with MethodMetadata and text limit increases:
+  - Method MRR: +112%
+  - Method Recall@10: +76%
+- **Breaking Change:** Existing indexes must be rebuilt (`python -m ai_governance_mcp.extractor`)
+- **See Also:** Gotcha 14 (now resolved), SESSION-STATE.md
+
 ## Roadmap
 
 ### Completed Consolidations
@@ -875,16 +892,23 @@ The index stores metadata and embeddings separately:
 
 **Verification:** See LEARNING-LOG "Index Architecture and Verification Pattern" for commands.
 
-### Gotcha 14: Method Keywords Are Title-Only (Quality Issue)
-`extractor.py:635` extracts keywords only from method titles:
-```python
-keywords = [w.lower() for w in data["title"].split() if len(w) > 3]
-```
+### Gotcha 14: Method Keywords Are Title-Only (Quality Issue) ✓ RESOLVED
 
-**Symptom:** Semantic search returns LOW confidence for queries that should match method content.
+**Problem:** Methods had poor semantic retrieval quality (0.28 similarity vs 0.46+ for principles).
 
-**Root Cause:** Keywords like `['advanced', 'model', 'considerations']` are too generic. Key concepts in method body (e.g., "decision rules", "cognitive function") aren't indexed.
+**Root Causes:**
+1. `all-MiniLM-L6-v2` has 256 token max — method content truncated
+2. Method embedding text was only `title + content[:500]`
+3. No metadata extraction for methods (unlike principles)
 
-**Workaround:** Use `get_principle(id)` to retrieve specific methods if you know the ID.
+**Resolution (2026-01-17):**
+1. Upgraded embedding model to `BAAI/bge-small-en-v1.5` (512 tokens)
+2. Added `MethodMetadata` model with keywords, trigger_phrases, purpose_keywords, applies_to, guideline_keywords
+3. Increased embedding text limit to 1500 chars
+4. Enhanced BM25 to include method metadata
 
-**Fix (Roadmap):** Extract keywords from content body, increase embedding text limit, add trigger_phrases.
+**Results:**
+- Method MRR: 0.34 → **0.72** (+112%)
+- Method Recall@10: 0.50 → **0.88** (+76%)
+
+**See:** SESSION-STATE.md "Method Retrieval Quality Improvement"

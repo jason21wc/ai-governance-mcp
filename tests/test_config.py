@@ -26,7 +26,7 @@ class TestSettings:
         """Should have sensible defaults."""
         settings = Settings()
         assert settings.log_level == "INFO"
-        assert settings.embedding_model == "all-MiniLM-L6-v2"
+        assert settings.embedding_model == "BAAI/bge-small-en-v1.5"
         assert settings.embedding_dimensions == 384
         assert settings.semantic_weight == 0.6
         assert settings.max_results == 10
@@ -34,7 +34,7 @@ class TestSettings:
     def test_embedding_settings(self):
         """Should have embedding configuration."""
         settings = Settings()
-        assert "MiniLM" in settings.embedding_model
+        assert "bge" in settings.embedding_model.lower()
         assert settings.embedding_dimensions == 384
         assert settings.rerank_model == "cross-encoder/ms-marco-MiniLM-L-6-v2"
         assert settings.rerank_top_k == 20
