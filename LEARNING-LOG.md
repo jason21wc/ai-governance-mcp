@@ -7,6 +7,53 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-17 - Security Audit: Repository Clean
+
+**Context:** User requested comprehensive security review of GitHub repository to ensure no secrets, tokens, or sensitive data were committed.
+
+**Audit Scope:**
+- Secrets/credentials scan (including test fixtures)
+- Sensitive data exposure (PII, internal URLs, config)
+- Code security vulnerabilities (injection, path traversal)
+- Dependency vulnerabilities
+- Git history for previously committed secrets
+- Configuration files (.env, CI/CD configs)
+
+**Findings Summary:**
+
+| Severity | Count | Details |
+|----------|-------|---------|
+| CRITICAL | 0 | - |
+| HIGH | 0 | - |
+| MEDIUM | 1 | CI security scans use `continue-on-error` (acceptable for transitive deps) |
+| LOW | 2 | Large query processing (mitigated by rate limiting), JSONL files unbounded (low risk) |
+| INFO | 13 | Secure patterns documented |
+
+**Secure Patterns Observed:**
+1. Path traversal protection with containment checks
+2. Agent installation allowlist (`AVAILABLE_AGENTS = {"orchestrator"}`)
+3. Secret redaction patterns for logging (API keys, passwords, AWS keys, bearer tokens)
+4. Error message sanitization (removes paths, line numbers, memory addresses)
+5. Token bucket rate limiting (100 tokens, 10/sec refill)
+6. Input validation via Pydantic with Field constraints
+7. Docker runs as non-root user
+8. CI security scanning (pip-audit, bandit, safety)
+9. Test credentials obviously fake (`test@example.com`, `valid123`)
+10. No real secrets in git history
+11. Proper .gitignore excluding .env files
+12. No internal IPs or localhost in production code
+13. CI/CD secrets via GitHub secrets, not hardcoded
+
+**Dependency Status:** No vulnerabilities in direct dependencies (mcp, pydantic, sentence-transformers, rank-bm25, numpy).
+
+**Overall Risk Level:** LOW
+
+**Recommendation:** SHIP - Codebase demonstrates security-conscious development with defense-in-depth patterns.
+
+**Lesson:** Regular security audits by fresh perspectives catch issues that become invisible to primary developers. The "M1 FIX", "C2 FIX", "H4 FIX" comments in code document proactive security fixes during development.
+
+---
+
 ### 2026-01-15 - Prompt Repetition Research: Outside Governance Scope
 
 **Context:** User shared arXiv paper (2512.14982) proposing prompt repetition as technique to improve LLM performance. Applied Anchor Bias Mitigation Protocol to evaluate independently.
