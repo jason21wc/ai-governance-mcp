@@ -11,6 +11,29 @@
 
 ## Recent Work (This Session)
 
+### Documentation Cleanup ✓ COMPLETE
+
+**Scope:** Post-v1.6.0 review of documents, GitHub, Docker for stale references.
+
+**Issues Fixed (commit `2b1e973`):**
+| File | Issue | Fix |
+|------|-------|-----|
+| README.md:800 | Multi-Agent Methods v2.7.0 | → v2.9.0 |
+| README.md:53 | Multi-Agent method count 24 | → 43 |
+| ARCHITECTURE.md:3 | Version 1.5, Date 2026-01-03 | → 1.6, 2026-01-17 |
+| ARCHITECTURE.md:99 | Embeddings (295, 384) | → (406, 384) |
+| ARCHITECTURE.md:100 | Domain embeddings (3, 384) | → (4, 384) |
+
+**Verified Clean:**
+- Docker: Dockerfile and CI workflow current
+- domains.json: All file references correct
+- Version consistency: pyproject.toml, __init__.py, SESSION-STATE all at v1.6.0
+- Test/tool/domain counts consistent across docs
+
+**Note:** GitHub MCP credentials expired — user updating token.
+
+---
+
 ### Method Retrieval Quality Improvement ✓ RESOLVED
 
 **Problem:** Method "Advanced Model Considerations" had low semantic similarity (0.28) compared to principles (0.46+).
