@@ -28,6 +28,11 @@ Query: "how do I handle incomplete specifications?"
 → Routes to: ai-coding domain
 → Returns: coding-context-specification-completeness with HIGH confidence
 → Time: 45ms
+
+Query: "help me develop my protagonist's character arc"
+→ Routes to: storytelling domain
+→ Returns: storytelling-ST3-transformation-arc with HIGH confidence
+→ Time: 48ms
 ```
 
 ## Key Innovation
@@ -36,8 +41,17 @@ Query: "how do I handle incomplete specifications?"
 
 The framework has three layers:
 1. **Constitution** - Universal behavioral rules (safety, honesty, quality)
-2. **Domain Principles** - Context-specific guidance (coding, multi-agent, etc.)
+2. **Domain Principles** - Context-specific guidance (coding, multi-agent, storytelling)
 3. **Methods** - Procedural workflows (Specify → Plan → Tasks → Implement)
+
+### Available Domains
+
+| Domain | Principles | Methods | Coverage |
+|--------|------------|---------|----------|
+| **Constitution** | 44 | 128 | Universal AI behavior, safety, quality |
+| **AI Coding** | 12 | 128 | Software development, testing, deployment |
+| **Multi-Agent** | 14 | 24 | Agent orchestration, handoffs, evaluation |
+| **Storytelling** | 17 | 20 | Creative writing, narrative, voice preservation |
 
 ## Tech Stack
 
@@ -779,4 +793,4 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework - Constitution v2.3, Governance Methods v3.7.0, Multi-Agent Methods v2.7.0*
+*Built with the AI Governance Framework - Constitution v2.3, Governance Methods v3.7.0, Multi-Agent Methods v2.7.0, Storytelling v1.0.0*
