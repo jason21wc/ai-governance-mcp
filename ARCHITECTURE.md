@@ -1,7 +1,7 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.5
-**Date:** 2026-01-03
+**Version:** 1.6
+**Date:** 2026-01-17
 **Phase:** COMPLETE (337 tests, 90% coverage, 11 tools)
 
 ---
@@ -96,8 +96,8 @@ ai-governance-mcp/
 │
 ├── index/                     # Generated
 │   ├── global_index.json      # Serialized GlobalIndex
-│   ├── content_embeddings.npy # Principle/method embeddings (295, 384)
-│   └── domain_embeddings.npy  # Domain embeddings for routing (3, 384)
+│   ├── content_embeddings.npy # Principle/method embeddings (406, 384)
+│   └── domain_embeddings.npy  # Domain embeddings for routing (4, 384)
 │
 ├── documents/                 # Source markdown docs
 │

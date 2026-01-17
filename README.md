@@ -50,7 +50,7 @@ The framework has three layers:
 |--------|------------|---------|----------|
 | **Constitution** | 44 | 128 | Universal AI behavior, safety, quality |
 | **AI Coding** | 12 | 128 | Software development, testing, deployment |
-| **Multi-Agent** | 14 | 24 | Agent orchestration, handoffs, evaluation |
+| **Multi-Agent** | 14 | 43 | Agent orchestration, handoffs, evaluation |
 | **Storytelling** | 17 | 20 | Creative writing, narrative, voice preservation |
 
 ## Tech Stack
@@ -797,4 +797,4 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework - Constitution v2.3, Governance Methods v3.7.0, Multi-Agent Methods v2.7.0, Storytelling v1.0.0*
+*Built with the AI Governance Framework - Constitution v2.3, Governance Methods v3.7.0, Multi-Agent Methods v2.9.0, Storytelling v1.0.0*
