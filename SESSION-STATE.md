@@ -30,7 +30,7 @@
 - Version consistency: pyproject.toml, __init__.py, SESSION-STATE all at v1.6.0
 - Test/tool/domain counts consistent across docs
 
-**Note:** GitHub MCP credentials expired — user updating token.
+**Note:** GitHub MCP token being replaced — user generating new token and will restart Claude Code with it exported.
 
 ---
 
@@ -72,7 +72,7 @@
 - `tests/test_retrieval_quality.py` — MRR, Recall@K metrics
 - Updated test references to new embedding model
 
-**All 337 tests passing.**
+**All 345 tests passing.**
 
 ### v1.6.0 Released
 
@@ -160,7 +160,7 @@
 **Scope:** Full review of all cognitive memory documents for obsolete info, structure compliance, and cross-document consistency.
 
 **Documents Reviewed:**
-- CLAUDE.md — ✓ Structure correct, test count accurate (337)
+- CLAUDE.md — ✓ Structure correct, test count accurate (345)
 - SESSION-STATE.md — ✓ Structure correct
 - PROJECT-MEMORY.md — Fixed test count inconsistencies (205 → 337)
 - LEARNING-LOG.md — ✓ No pruning needed (102KB but valuable episodic memory)
@@ -174,7 +174,7 @@
 
 **Cross-Document Consistency Verified:**
 - Version: 1.4.1 (pyproject.toml, __init__.py, SESSION-STATE.md) ✓
-- Test count: 337 (CLAUDE.md, SESSION-STATE.md, PROJECT-MEMORY.md) ✓
+- Test count: 345 (CLAUDE.md, SESSION-STATE.md, PROJECT-MEMORY.md) ✓
 - Tool count: 11 (consistent across docs) ✓
 - Domain count: 4 (domains.json, SESSION-STATE.md) ✓
 
@@ -202,7 +202,7 @@
 - Domain routing: Working (enhanced description for genres, world-building terms)
 - Principle retrieval: HIGH confidence on core queries
 - Method retrieval: HIGH confidence on protocol queries
-- All 337 tests passing
+- All 345 tests passing
 
 **Files:**
 - `documents/drafts/storytelling-domain-principles-v0.2.0.md`
@@ -256,7 +256,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.6.0** (server), **v2.3** (Constitution), **v3.7.0** (governance-methods), **v2.9.0** (multi-agent-methods) |
-| Tests | **337 passing** |
+| Tests | **345 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Domains | **4** (constitution, ai-coding, multi-agent, storytelling) |
