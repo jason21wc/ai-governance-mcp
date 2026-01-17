@@ -555,8 +555,9 @@ class DocumentExtractor:
         methods = []
         domain_prefix = self._get_domain_prefix(domain_config.name)
 
-        # Pattern for method headers (## or ### with numbered sections like 1.2.3)
-        header_pattern = re.compile(r"^#{2,3}\s+(\d+(?:\.\d+)*)\s+(.+)$")
+        # Pattern for method headers (##, ###, or #### with numbered sections like 1.2.3)
+        # Includes #### to extract subsections (e.g., 2.1.5) as separate methods
+        header_pattern = re.compile(r"^#{2,4}\s+(\d+(?:\.\d+)*)\s+(.+)$")
 
         # Document structure sections to skip (not actual methods)
         skip_method_titles = [

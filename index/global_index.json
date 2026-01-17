@@ -3818,7 +3818,7 @@
           "embedding_id": 171
         }
       ],
-      "last_extracted": "2026-01-17T18:04:27.820426+00:00",
+      "last_extracted": "2026-01-17T18:16:40.812544+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -6263,7 +6263,7 @@
           "embedding_id": 311
         }
       ],
-      "last_extracted": "2026-01-17T18:04:27.823696+00:00",
+      "last_extracted": "2026-01-17T18:16:40.816479+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -6876,10 +6876,10 @@
           "id": "multi-method-subagent-definition-standard",
           "domain": "multi-agent",
           "title": "Subagent Definition Standard",
-          "content": "### 2.1 Subagent Definition Standard\n\nCRITICAL\n\n**Purpose:** Standardize how subagents are defined to ensure consistency and completeness.\n\n**Source:** Anthropic Claude Code subagent documentation, NetworkChuck AI-in-Terminal patterns\n\n**Terminology:** In Claude Code, agents invoked via the Task tool are called *subagents* because they run as child processes of the main conversation. Subagent definition files are stored in `.claude/agents/*.md` (project scope) or `~/.claude/agents/*.md` (user scope).\n\n**Key Concept \u2014 Modular Personalities:** A subagent is not a separate program\u2014it's a specialized *configuration* of the same underlying model. Think of it as a \"hat\" the AI wears: different system prompt, different tools, different cognitive focus. The same base model becomes a coder, validator, or orchestrator based on its subagent definition.\n\n**Required Components:**\n\n| Component | Required | Purpose |\n|-----------|----------|---------|\n| name | Yes | Unique identifier for invocation |\n| description | Yes | Triggers auto-selection by orchestrator |\n| cognitive_function | Yes | Mental model type (see taxonomy below) |\n| tools | Yes | Permissions (allowed tool list or \"all\") |\n| model | Optional | Override default model if needed |\n| System Prompt | Yes | Detailed instructions (see structure below) |\n\n**Cognitive Function Taxonomy:**\n\n| Cognitive Function | Mental Model | Example Agents |\n|-------------------|--------------|----------------|\n| Strategic | Planning, coordination, delegation | Orchestrator |\n| Analytical | Evaluation, validation, verification | Validator |\n| Creative | Generation, ideation, synthesis | Writer, Designer |\n| Critical | Challenging, questioning, critique | Contrarian Reviewer |\n| Operational | Execution, implementation, action | Coder, Session Closer |\n| Evaluative | Compliance, assessment, judgment | Governance Agent |\n\n**System Prompt Structure:**\n\nEvery agent system prompt MUST include these sections:\n\n1. **Who I Am** \u2014 Positive role definition\n2. **My Cognitive Function** \u2014 Specific reasoning pattern I apply\n3. **Who I Am NOT** \u2014 Explicit boundaries to prevent drift\n4. **Governance Compliance** \u2014 How this agent aligns with governance framework\n5. **Output Format** \u2014 Structured output template\n6. **Success Criteria** \u2014 How to know the task is complete\n\n**Subagent Definition Template:**\n\n```markdown\n---\nname: [agent-name]\ndescription: [1-2 sentence description triggering auto-selection]\ncognitive_function: [strategic | analytical | creative | critical | operational | evaluative]\ntools: [list of allowed tools, or \"all\"]\nmodel: [sonnet | opus | haiku | gemini-pro | gpt-4 | default]\n---\n\n## System Prompt\n\nYou are a [cognitive function] specialist. Your role is to [specific mental model].\n\n### Who I Am\n[Positive definition of role, expertise, and focus]\n\n### My Cognitive Function\n[Specific reasoning pattern this agent applies]\n[What mental model guides your work]\n\n### Who I Am NOT\n- I do NOT [anti-pattern 1]\n- I do NOT [anti-pattern 2]\n- I do NOT [anti-pattern 3]\n\n### Governance Compliance\nThis agent operates within the AI Governance Framework hierarchy:\n- **S-Series (Safety):** Veto authority \u2014 I will STOP and escalate if safety principles are triggered\n- **Constitution:** I follow meta-principles (Context Engineering, Visible Reasoning, etc.)\n- **Domain:** I apply [relevant domain] principles and methods\n- **Judgment:** When uncertain, I query governance before proceeding\n\n**Note:** This section provides defense-in-depth awareness. Primary enforcement occurs via Orchestrator calling `evaluate_governance()` before delegation. This section ensures agents maintain governance awareness even when invoked directly.\n\n[Customize for this agent's specific governance touchpoints]\n\n### Intent Context\n[This section is populated at runtime with the immutable intent object]\n\n### Output Format\n[Structured format for outputs]\n[Include required sections]\n\n### Success Criteria\n- [ ] [Criterion 1]\n- [ ] [Criterion 2]\n- Include confidence indication: HIGH/MEDIUM/LOW with rationale\n```\n\n#### 2.1.1 System Prompt Best Practices\n\nIMPORTANT\n\n**Purpose:** Apply prompt engineering principles to agent system prompts for maximum effectiveness.\n\n**Source:** Anthropic prompt engineering research, industry best practices 2025\n\n**Principle Basis:** Derives from Constitution's Structured Output Enforcement and Rich but Not Verbose Communication.\n\n**Best Practice 1: Positive Framing Over Negative Constraints**\n\nThe \"Who I Am NOT\" section uses negative framing which can confuse model interpretation. Balance with positive framing:\n\n| Instead of | Use |\n|------------|-----|\n| \"I do NOT write code\" | \"I delegate coding to specialists\" |\n| \"I do NOT make product decisions\" | \"I escalate product decisions to humans\" |\n| \"I do NOT skip validation\" | \"I always validate outputs before delivery\" |\n\n**Recommendation:** Lead with positive \"Who I Am\" section (what you DO), then use \"Boundaries\" section with mixed framing for clarity.\n\n**Best Practice 2: Include Concrete Examples**\n\nLLMs excel at pattern recognition. Include positive and negative examples:\n\n```markdown\n### Examples\n\n**Good Example \u2014 Clear Delegation:**\nUser: \"Fix the authentication bug\"\n\u2192 Evaluate governance\n\u2192 Delegate to security-specialist with context: \"Auth bug in login.py, user reports 401 on valid credentials\"\n\u2192 Include acceptance criteria: \"Login works with valid credentials, tests pass\"\n\n**Bad Example \u2014 Scope Creep:**\nUser: \"Fix the authentication bug\"\n\u2192 Start reading auth code directly \u274c\n\u2192 Implement fix without delegation \u274c\n```\n\n**Best Practice 3: Sandwich Method for Critical Instructions**\n\nPlace critical instructions at the beginning AND repeat at the end:\n\n```markdown\n# Agent Name\n\nYou are [role]. **You must [critical constraint].**\n\n[... body of system prompt ...]\n\n## Remember\n\n- [Key point 1]\n- [Key point 2]\n- **[Critical constraint repeated from top]**\n```\n\n**Best Practice 4: Concrete Invocation Triggers**\n\nDescribe WHEN the agent should be invoked with specific scenarios, not abstract descriptions:\n\n| Abstract (Avoid) | Concrete (Prefer) |\n|------------------|-------------------|\n| \"Use for code review\" | \"Invoke after writing or modifying >20 lines of code\" |\n| \"Use for governance\" | \"Invoke before any action that modifies files, runs commands, or makes architectural decisions\" |\n| \"Use for debugging\" | \"Invoke when tests fail, errors occur, or behavior is unexpected\" |\n\n#### 2.1.2 Tool Scoping Guidelines\n\nIMPORTANT\n\n**Purpose:** Determine when to restrict agent tools versus allowing full inheritance.\n\n**Source:** Claude Code subagent documentation, Anthropic multi-agent research\n\n**Principle Basis:** Derives from Orchestrator Separation Pattern (A3) and Context Isolation Architecture (A4).\n\n**Default Behavior:** If `tools` field is omitted, agent inherits ALL tools from parent context.\n\n**When to Restrict Tools:**\n\n| Condition | Restrict To | Rationale |\n|-----------|-------------|-----------|\n| **Orchestrator role** | Read, Glob, Grep, Task, governance MCPs | Prevents direct execution; forces delegation |\n| **Validator role** | Read, Grep, Glob (no Edit/Write) | Fresh perspective without modification ability |\n| **Research role** | Read, Grep, Glob, WebSearch, WebFetch | Information gathering, no side effects |\n| **Sensitive operations** | Explicit allowlist only | Principle of least privilege |\n\n**When to Allow Full Inheritance:**\n\n| Condition | Rationale |\n|-----------|-----------|\n| **Specialist executing work** | Needs full capability to complete domain tasks |\n| **Debugging agent** | May need any tool to diagnose issues |\n| **Trusted internal agent** | Overhead of restriction exceeds risk |\n\n**Tool Scoping Decision Matrix:**\n\n```\nDoes agent need to MODIFY files or state?\n\u251c\u2500\u2500 NO \u2192 Restrict to read-only tools\n\u2502         (Read, Glob, Grep, WebSearch, WebFetch)\n\u2514\u2500\u2500 YES \u2192 Does agent need ALL modification tools?\n          \u251c\u2500\u2500 NO \u2192 Explicit allowlist (Edit, Write only; or Bash only)\n          \u2514\u2500\u2500 YES \u2192 Inherit all (omit tools field)\n```\n\n**Platform-Specific Notes:**\n\n- **Claude Code:** Tool restrictions in YAML frontmatter are HARD enforcement\n- **Other platforms:** May require gateway-based enforcement (see \u00a74.6.2)\n\n#### 2.1.3 Subagent Validation Checklist\n\nIMPORTANT\n\n**Purpose:** Verify subagent effectiveness before deployment.\n\n**Source:** Anthropic skill authoring best practices, iterative development patterns\n\n**Principle Basis:** Derives from Validation Independence (Q1) and Fail-Fast Validation.\n\n**Validation Procedure:**\n\n**Phase 1: Static Review**\n\n- [ ] **Name** follows convention: lowercase, hyphens, descriptive\n- [ ] **Description** includes WHEN to invoke (concrete triggers, not abstract)\n- [ ] **Tools** explicitly listed OR inheritance intentional\n- [ ] **System prompt** includes all 5 required sections (Who I Am, Cognitive Function, Who I Am NOT, Output Format, Success Criteria)\n- [ ] **Examples** included (at least 1 positive, 1 negative/edge case)\n- [ ] **Critical instructions** repeated at end (sandwich method)\n\n**Phase 2: Functional Testing**\n\nTest with representative scenarios:\n\n```markdown\n## Test Cases\n\n### Happy Path\nInput: [typical task]\nExpected: [correct delegation/output]\nResult: [ ] PASS / [ ] FAIL\n\n### Edge Case\nInput: [boundary condition]\nExpected: [graceful handling]\nResult: [ ] PASS / [ ] FAIL\n\n### Negative Test\nInput: [out-of-scope request]\nExpected: [appropriate refusal or escalation]\nResult: [ ] PASS / [ ] FAIL\n```\n\n**Phase 3: Integration Testing**\n\n- [ ] Agent invokable via expected mechanism (Task tool, /agent command)\n- [ ] Handoffs to/from other agents work correctly\n- [ ] Output format matches specification\n- [ ] Tool restrictions enforced (attempt forbidden tool, verify rejection)\n\n**Iteration Process:**\n\nPer Anthropic guidance: Work with \"Claude A\" to design/refine agent, then test with \"Claude B\" in real tasks:\n\n1. Draft subagent definition with Claude A\n2. Deploy to project/user scope\n3. Test with Claude B in new session\n4. Collect failure cases\n5. Refine with Claude A\n6. Repeat until validation passes\n\n**Graduation Criteria:**\n\nSubagent is production-ready when:\n- [ ] All Phase 1 checklist items pass\n- [ ] All Phase 2 test cases pass\n- [ ] Phase 3 integration confirmed\n- [ ] At least 3 real-world uses without modification needed\n\n---\n\n#### 2.1.4 Subagent Usage in Practice\n\nIMPORTANT\n\n**Purpose:** How to invoke and use subagent definitions in actual sessions.\n\n**Key Insight:** Custom subagent definition files (`.claude/agents/*.md`) are **reference documentation**, not automatically invokable agent types. The Task tool has predefined `subagent_type` values; custom files must be explicitly referenced.\n\n**Usage Patterns:**\n\n**Pattern A: Explicit Request (User-Initiated)**\n\nUser tells Claude to use a specific agent:\n\n```\n\"Use the code-reviewer agent to review the authentication module\"\n```\n\nClaude then:\n1. Reads `.claude/agents/code-reviewer.md`\n2. Applies the role, cognitive function, and output format\n3. Performs the task following that agent's instructions\n\n**Pattern B: CLAUDE.md Integration (Semi-Automatic)**\n\nAdd to project's `CLAUDE.md`:\n\n```markdown\n## Subagents\n\nWhen tasks match these cognitive functions, read and apply the corresponding agent:\n\n| Task Type | Agent File | When to Use |\n|-----------|------------|-------------|\n| Code review | `code-reviewer.md` | After writing/modifying code |\n| Test creation | `test-generator.md` | When tests need to be written |\n| Security review | `security-auditor.md` | Before releases, auth changes |\n| Documentation | `documentation-writer.md` | README, docstrings needed |\n```\n\nClaude checks this table and proactively reads the appropriate agent file.\n\n**Pattern C: Task Tool Delegation (Subprocess)**\n\nFor focused work in fresh context:\n\n```python\nTask(\n    subagent_type=\"general-purpose\",\n    prompt=\"\"\"You are a Code Reviewer specialist.\n\n    [Include full instructions from code-reviewer.md]\n\n    Review this code: [target]\"\"\"\n)\n```\n\n**Why Custom Files Don't Auto-Register:**\n\nThe Task tool's `subagent_type` parameter accepts predefined values (general-purpose, Explore, Plan, etc.). Creating `.claude/agents/foo.md` does NOT add \"foo\" as a new subagent type. The files serve as:\n- Structured role documentation\n- Reusable prompt templates\n- Project-level conventions\n\n**Recommendation:**\n\nFor projects using custom subagents:\n1. Document available agents in CLAUDE.md with trigger conditions\n2. Use explicit requests or CLAUDE.md integration for most cases\n3. Use Task tool delegation only when fresh context is needed\n\n---\n\n#### 2.1.5 Advanced Model Considerations\n\nIMPORTANT\n\n**Purpose:** Adapt prompting strategies for highly capable reasoning models.\n\n**Source:** Anthropic model research, arXiv \"Prompting Inversion\" (2025), practitioner observations (@EXM7777)\n\n**Principle Basis:** Derives from Constitution's Explicit Intent\u2014adapt communication to audience capability.\n\n**Applies To:** Claude Sonnet 4.5+, GPT-4o+, and other advanced reasoning models. For mid-tier models, default to standard Best Practices in \u00a72.1.1.\n\n**Observation: Contextual Evaluation**\n\nAdvanced models evaluate whether instructions serve the apparent goal rather than following them literally. This creates both opportunities and risks:\n\n- **Opportunity:** Simpler, less constrained prompts may yield better results\n- **Risk:** Safety-critical instructions may be \"optimized away\" if the model misjudges intent\n\n**Guideline 1: Decision Rules Over Prohibitions**\n\nFor conditional logic, use decision rules rather than absolute prohibitions:\n\n| Instead of | Consider |\n|------------|----------|\n| \"NEVER include raw data in summaries\" | \"IF user requests summary THEN provide aggregated insights ELSE include raw data when explicitly requested\" |\n| \"ALWAYS validate inputs\" | \"Validate inputs before processing; if validation fails, explain the issue and request correction\" |\n\n**Exception:** S-Series (Safety) constraints retain prescriptive language. \"NEVER expose credentials\" is appropriate because the condition is always true. Do not weaken safety constraints.\n\n**Guideline 2: Cognitive Function Over Role-Play**\n\nAdvanced models may resist explicit \"Act as [persona]\" framing. Instead, describe the cognitive approach:\n\n| Instead of | Consider |\n|------------|----------|\n| \"Act as a senior security expert with 20 years experience\" | \"Apply security analysis: identify attack vectors, assess severity, recommend mitigations in priority order\" |\n| \"You are a meticulous code reviewer\" | \"Evaluate code against explicit criteria, surface issues without fixing them, separate major from minor concerns\" |\n\n**Note:** The existing agent template (Who I Am / My Cognitive Function / Who I Am NOT) already follows this pattern. This guideline confirms cognitive function specification over simple role labels.\n\n**Guideline 3: Calibrate Constraint Density**\n\nThe \"Sandwich Method\" (\u00a72.1.1 Best Practice 3) remains effective for long-context prompts where attention may drift. For short prompts to advanced models, single-placement of critical instructions may suffice.\n\n**When to use Sandwich Method:**\n- Long system prompts (>500 tokens)\n- Multi-step instructions with many intermediate steps\n- Models with known attention limitations\n\n**When single-placement may suffice:**\n- Short, focused prompts (<200 tokens)\n- Advanced models with strong instruction-following\n- Clear, unambiguous requirements\n\n**Guideline 4: Trust but Verify**\n\nIf relying on advanced models to \"do the right thing,\" add verification steps:\n\n```markdown\n## Task\n[Simplified instructions trusting model judgment]\n\n## Verification\nBefore finalizing, confirm:\n- [ ] Output addresses stated goal\n- [ ] No safety constraints violated\n- [ ] Format matches requirements\n```\n\n**Review Date:** Re-evaluate this guidance after July 2026 as model capabilities evolve.\n\n---\n",
+          "content": "### 2.1 Subagent Definition Standard\n\nCRITICAL\n\n**Purpose:** Standardize how subagents are defined to ensure consistency and completeness.\n\n**Source:** Anthropic Claude Code subagent documentation, NetworkChuck AI-in-Terminal patterns\n\n**Terminology:** In Claude Code, agents invoked via the Task tool are called *subagents* because they run as child processes of the main conversation. Subagent definition files are stored in `.claude/agents/*.md` (project scope) or `~/.claude/agents/*.md` (user scope).\n\n**Key Concept \u2014 Modular Personalities:** A subagent is not a separate program\u2014it's a specialized *configuration* of the same underlying model. Think of it as a \"hat\" the AI wears: different system prompt, different tools, different cognitive focus. The same base model becomes a coder, validator, or orchestrator based on its subagent definition.\n\n**Required Components:**\n\n| Component | Required | Purpose |\n|-----------|----------|---------|\n| name | Yes | Unique identifier for invocation |\n| description | Yes | Triggers auto-selection by orchestrator |\n| cognitive_function | Yes | Mental model type (see taxonomy below) |\n| tools | Yes | Permissions (allowed tool list or \"all\") |\n| model | Optional | Override default model if needed |\n| System Prompt | Yes | Detailed instructions (see structure below) |\n\n**Cognitive Function Taxonomy:**\n\n| Cognitive Function | Mental Model | Example Agents |\n|-------------------|--------------|----------------|\n| Strategic | Planning, coordination, delegation | Orchestrator |\n| Analytical | Evaluation, validation, verification | Validator |\n| Creative | Generation, ideation, synthesis | Writer, Designer |\n| Critical | Challenging, questioning, critique | Contrarian Reviewer |\n| Operational | Execution, implementation, action | Coder, Session Closer |\n| Evaluative | Compliance, assessment, judgment | Governance Agent |\n\n**System Prompt Structure:**\n\nEvery agent system prompt MUST include these sections:\n\n1. **Who I Am** \u2014 Positive role definition\n2. **My Cognitive Function** \u2014 Specific reasoning pattern I apply\n3. **Who I Am NOT** \u2014 Explicit boundaries to prevent drift\n4. **Governance Compliance** \u2014 How this agent aligns with governance framework\n5. **Output Format** \u2014 Structured output template\n6. **Success Criteria** \u2014 How to know the task is complete\n\n**Subagent Definition Template:**\n\n```markdown\n---\nname: [agent-name]\ndescription: [1-2 sentence description triggering auto-selection]\ncognitive_function: [strategic | analytical | creative | critical | operational | evaluative]\ntools: [list of allowed tools, or \"all\"]\nmodel: [sonnet | opus | haiku | gemini-pro | gpt-4 | default]\n---\n\n## System Prompt\n\nYou are a [cognitive function] specialist. Your role is to [specific mental model].\n\n### Who I Am\n[Positive definition of role, expertise, and focus]\n\n### My Cognitive Function\n[Specific reasoning pattern this agent applies]\n[What mental model guides your work]\n\n### Who I Am NOT\n- I do NOT [anti-pattern 1]\n- I do NOT [anti-pattern 2]\n- I do NOT [anti-pattern 3]\n\n### Governance Compliance\nThis agent operates within the AI Governance Framework hierarchy:\n- **S-Series (Safety):** Veto authority \u2014 I will STOP and escalate if safety principles are triggered\n- **Constitution:** I follow meta-principles (Context Engineering, Visible Reasoning, etc.)\n- **Domain:** I apply [relevant domain] principles and methods\n- **Judgment:** When uncertain, I query governance before proceeding\n\n**Note:** This section provides defense-in-depth awareness. Primary enforcement occurs via Orchestrator calling `evaluate_governance()` before delegation. This section ensures agents maintain governance awareness even when invoked directly.\n\n[Customize for this agent's specific governance touchpoints]\n\n### Intent Context\n[This section is populated at runtime with the immutable intent object]\n\n### Output Format\n[Structured format for outputs]\n[Include required sections]\n\n### Success Criteria\n- [ ] [Criterion 1]\n- [ ] [Criterion 2]\n- Include confidence indication: HIGH/MEDIUM/LOW with rationale\n```\n",
           "line_range": [
             493,
-            921
+            588
           ],
           "keywords": [
             "subagent",
@@ -6889,19 +6889,196 @@
           "embedding_id": 329
         },
         {
+          "id": "multi-method-system-prompt-best-practices",
+          "domain": "multi-agent",
+          "title": "System Prompt Best Practices",
+          "content": "#### 2.1.1 System Prompt Best Practices\n\nIMPORTANT\n\n**Purpose:** Apply prompt engineering principles to agent system prompts for maximum effectiveness.\n\n**Source:** Anthropic prompt engineering research, industry best practices 2025\n\n**Principle Basis:** Derives from Constitution's Structured Output Enforcement and Rich but Not Verbose Communication.\n\n**Best Practice 1: Positive Framing Over Negative Constraints**\n\nThe \"Who I Am NOT\" section uses negative framing which can confuse model interpretation. Balance with positive framing:\n\n| Instead of | Use |\n|------------|-----|\n| \"I do NOT write code\" | \"I delegate coding to specialists\" |\n| \"I do NOT make product decisions\" | \"I escalate product decisions to humans\" |\n| \"I do NOT skip validation\" | \"I always validate outputs before delivery\" |\n\n**Recommendation:** Lead with positive \"Who I Am\" section (what you DO), then use \"Boundaries\" section with mixed framing for clarity.\n\n**Best Practice 2: Include Concrete Examples**\n\nLLMs excel at pattern recognition. Include positive and negative examples:\n\n```markdown\n### Examples\n\n**Good Example \u2014 Clear Delegation:**\nUser: \"Fix the authentication bug\"\n\u2192 Evaluate governance\n\u2192 Delegate to security-specialist with context: \"Auth bug in login.py, user reports 401 on valid credentials\"\n\u2192 Include acceptance criteria: \"Login works with valid credentials, tests pass\"\n\n**Bad Example \u2014 Scope Creep:**\nUser: \"Fix the authentication bug\"\n\u2192 Start reading auth code directly \u274c\n\u2192 Implement fix without delegation \u274c\n```\n\n**Best Practice 3: Sandwich Method for Critical Instructions**\n\nPlace critical instructions at the beginning AND repeat at the end:\n\n```markdown\n# Agent Name\n\nYou are [role]. **You must [critical constraint].**\n\n[... body of system prompt ...]\n\n## Remember\n\n- [Key point 1]\n- [Key point 2]\n- **[Critical constraint repeated from top]**\n```\n\n**Best Practice 4: Concrete Invocation Triggers**\n\nDescribe WHEN the agent should be invoked with specific scenarios, not abstract descriptions:\n\n| Abstract (Avoid) | Concrete (Prefer) |\n|------------------|-------------------|\n| \"Use for code review\" | \"Invoke after writing or modifying >20 lines of code\" |\n| \"Use for governance\" | \"Invoke before any action that modifies files, runs commands, or makes architectural decisions\" |\n| \"Use for debugging\" | \"Invoke when tests fail, errors occur, or behavior is unexpected\" |\n",
+          "line_range": [
+            589,
+            657
+          ],
+          "keywords": [
+            "system",
+            "prompt",
+            "best",
+            "practices"
+          ],
+          "embedding_id": 330
+        },
+        {
+          "id": "multi-method-tool-scoping-guidelines",
+          "domain": "multi-agent",
+          "title": "Tool Scoping Guidelines",
+          "content": "#### 2.1.2 Tool Scoping Guidelines\n\nIMPORTANT\n\n**Purpose:** Determine when to restrict agent tools versus allowing full inheritance.\n\n**Source:** Claude Code subagent documentation, Anthropic multi-agent research\n\n**Principle Basis:** Derives from Orchestrator Separation Pattern (A3) and Context Isolation Architecture (A4).\n\n**Default Behavior:** If `tools` field is omitted, agent inherits ALL tools from parent context.\n\n**When to Restrict Tools:**\n\n| Condition | Restrict To | Rationale |\n|-----------|-------------|-----------|\n| **Orchestrator role** | Read, Glob, Grep, Task, governance MCPs | Prevents direct execution; forces delegation |\n| **Validator role** | Read, Grep, Glob (no Edit/Write) | Fresh perspective without modification ability |\n| **Research role** | Read, Grep, Glob, WebSearch, WebFetch | Information gathering, no side effects |\n| **Sensitive operations** | Explicit allowlist only | Principle of least privilege |\n\n**When to Allow Full Inheritance:**\n\n| Condition | Rationale |\n|-----------|-----------|\n| **Specialist executing work** | Needs full capability to complete domain tasks |\n| **Debugging agent** | May need any tool to diagnose issues |\n| **Trusted internal agent** | Overhead of restriction exceeds risk |\n\n**Tool Scoping Decision Matrix:**\n\n```\nDoes agent need to MODIFY files or state?\n\u251c\u2500\u2500 NO \u2192 Restrict to read-only tools\n\u2502         (Read, Glob, Grep, WebSearch, WebFetch)\n\u2514\u2500\u2500 YES \u2192 Does agent need ALL modification tools?\n          \u251c\u2500\u2500 NO \u2192 Explicit allowlist (Edit, Write only; or Bash only)\n          \u2514\u2500\u2500 YES \u2192 Inherit all (omit tools field)\n```\n\n**Platform-Specific Notes:**\n\n- **Claude Code:** Tool restrictions in YAML frontmatter are HARD enforcement\n- **Other platforms:** May require gateway-based enforcement (see \u00a74.6.2)\n",
+          "line_range": [
+            658,
+            702
+          ],
+          "keywords": [
+            "tool",
+            "scoping",
+            "guidelines"
+          ],
+          "embedding_id": 331
+        },
+        {
+          "id": "multi-method-subagent-validation-checklist",
+          "domain": "multi-agent",
+          "title": "Subagent Validation Checklist",
+          "content": "#### 2.1.3 Subagent Validation Checklist\n\nIMPORTANT\n\n**Purpose:** Verify subagent effectiveness before deployment.\n\n**Source:** Anthropic skill authoring best practices, iterative development patterns\n\n**Principle Basis:** Derives from Validation Independence (Q1) and Fail-Fast Validation.\n\n**Validation Procedure:**\n\n**Phase 1: Static Review**\n\n- [ ] **Name** follows convention: lowercase, hyphens, descriptive\n- [ ] **Description** includes WHEN to invoke (concrete triggers, not abstract)\n- [ ] **Tools** explicitly listed OR inheritance intentional\n- [ ] **System prompt** includes all 5 required sections (Who I Am, Cognitive Function, Who I Am NOT, Output Format, Success Criteria)\n- [ ] **Examples** included (at least 1 positive, 1 negative/edge case)\n- [ ] **Critical instructions** repeated at end (sandwich method)\n\n**Phase 2: Functional Testing**\n\nTest with representative scenarios:\n\n```markdown\n## Test Cases\n\n### Happy Path\nInput: [typical task]\nExpected: [correct delegation/output]\nResult: [ ] PASS / [ ] FAIL\n\n### Edge Case\nInput: [boundary condition]\nExpected: [graceful handling]\nResult: [ ] PASS / [ ] FAIL\n\n### Negative Test\nInput: [out-of-scope request]\nExpected: [appropriate refusal or escalation]\nResult: [ ] PASS / [ ] FAIL\n```\n\n**Phase 3: Integration Testing**\n\n- [ ] Agent invokable via expected mechanism (Task tool, /agent command)\n- [ ] Handoffs to/from other agents work correctly\n- [ ] Output format matches specification\n- [ ] Tool restrictions enforced (attempt forbidden tool, verify rejection)\n\n**Iteration Process:**\n\nPer Anthropic guidance: Work with \"Claude A\" to design/refine agent, then test with \"Claude B\" in real tasks:\n\n1. Draft subagent definition with Claude A\n2. Deploy to project/user scope\n3. Test with Claude B in new session\n4. Collect failure cases\n5. Refine with Claude A\n6. Repeat until validation passes\n\n**Graduation Criteria:**\n\nSubagent is production-ready when:\n- [ ] All Phase 1 checklist items pass\n- [ ] All Phase 2 test cases pass\n- [ ] Phase 3 integration confirmed\n- [ ] At least 3 real-world uses without modification needed\n\n---\n",
+          "line_range": [
+            703,
+            774
+          ],
+          "keywords": [
+            "subagent",
+            "validation",
+            "checklist"
+          ],
+          "embedding_id": 332
+        },
+        {
+          "id": "multi-method-subagent-usage-in-practice",
+          "domain": "multi-agent",
+          "title": "Subagent Usage in Practice",
+          "content": "#### 2.1.4 Subagent Usage in Practice\n\nIMPORTANT\n\n**Purpose:** How to invoke and use subagent definitions in actual sessions.\n\n**Key Insight:** Custom subagent definition files (`.claude/agents/*.md`) are **reference documentation**, not automatically invokable agent types. The Task tool has predefined `subagent_type` values; custom files must be explicitly referenced.\n\n**Usage Patterns:**\n\n**Pattern A: Explicit Request (User-Initiated)**\n\nUser tells Claude to use a specific agent:\n\n```\n\"Use the code-reviewer agent to review the authentication module\"\n```\n\nClaude then:\n1. Reads `.claude/agents/code-reviewer.md`\n2. Applies the role, cognitive function, and output format\n3. Performs the task following that agent's instructions\n\n**Pattern B: CLAUDE.md Integration (Semi-Automatic)**\n\nAdd to project's `CLAUDE.md`:\n\n```markdown\n## Subagents\n\nWhen tasks match these cognitive functions, read and apply the corresponding agent:\n\n| Task Type | Agent File | When to Use |\n|-----------|------------|-------------|\n| Code review | `code-reviewer.md` | After writing/modifying code |\n| Test creation | `test-generator.md` | When tests need to be written |\n| Security review | `security-auditor.md` | Before releases, auth changes |\n| Documentation | `documentation-writer.md` | README, docstrings needed |\n```\n\nClaude checks this table and proactively reads the appropriate agent file.\n\n**Pattern C: Task Tool Delegation (Subprocess)**\n\nFor focused work in fresh context:\n\n```python\nTask(\n    subagent_type=\"general-purpose\",\n    prompt=\"\"\"You are a Code Reviewer specialist.\n\n    [Include full instructions from code-reviewer.md]\n\n    Review this code: [target]\"\"\"\n)\n```\n\n**Why Custom Files Don't Auto-Register:**\n\nThe Task tool's `subagent_type` parameter accepts predefined values (general-purpose, Explore, Plan, etc.). Creating `.claude/agents/foo.md` does NOT add \"foo\" as a new subagent type. The files serve as:\n- Structured role documentation\n- Reusable prompt templates\n- Project-level conventions\n\n**Recommendation:**\n\nFor projects using custom subagents:\n1. Document available agents in CLAUDE.md with trigger conditions\n2. Use explicit requests or CLAUDE.md integration for most cases\n3. Use Task tool delegation only when fresh context is needed\n\n---\n",
+          "line_range": [
+            775,
+            847
+          ],
+          "keywords": [
+            "subagent",
+            "usage",
+            "practice"
+          ],
+          "embedding_id": 333
+        },
+        {
+          "id": "multi-method-advanced-model-considerations",
+          "domain": "multi-agent",
+          "title": "Advanced Model Considerations",
+          "content": "#### 2.1.5 Advanced Model Considerations\n\nIMPORTANT\n\n**Purpose:** Adapt prompting strategies for highly capable reasoning models.\n\n**Source:** Anthropic model research, arXiv \"Prompting Inversion\" (2025), practitioner observations (@EXM7777)\n\n**Principle Basis:** Derives from Constitution's Explicit Intent\u2014adapt communication to audience capability.\n\n**Applies To:** Claude Sonnet 4.5+, GPT-4o+, and other advanced reasoning models. For mid-tier models, default to standard Best Practices in \u00a72.1.1.\n\n**Observation: Contextual Evaluation**\n\nAdvanced models evaluate whether instructions serve the apparent goal rather than following them literally. This creates both opportunities and risks:\n\n- **Opportunity:** Simpler, less constrained prompts may yield better results\n- **Risk:** Safety-critical instructions may be \"optimized away\" if the model misjudges intent\n\n**Guideline 1: Decision Rules Over Prohibitions**\n\nFor conditional logic, use decision rules rather than absolute prohibitions:\n\n| Instead of | Consider |\n|------------|----------|\n| \"NEVER include raw data in summaries\" | \"IF user requests summary THEN provide aggregated insights ELSE include raw data when explicitly requested\" |\n| \"ALWAYS validate inputs\" | \"Validate inputs before processing; if validation fails, explain the issue and request correction\" |\n\n**Exception:** S-Series (Safety) constraints retain prescriptive language. \"NEVER expose credentials\" is appropriate because the condition is always true. Do not weaken safety constraints.\n\n**Guideline 2: Cognitive Function Over Role-Play**\n\nAdvanced models may resist explicit \"Act as [persona]\" framing. Instead, describe the cognitive approach:\n\n| Instead of | Consider |\n|------------|----------|\n| \"Act as a senior security expert with 20 years experience\" | \"Apply security analysis: identify attack vectors, assess severity, recommend mitigations in priority order\" |\n| \"You are a meticulous code reviewer\" | \"Evaluate code against explicit criteria, surface issues without fixing them, separate major from minor concerns\" |\n\n**Note:** The existing agent template (Who I Am / My Cognitive Function / Who I Am NOT) already follows this pattern. This guideline confirms cognitive function specification over simple role labels.\n\n**Guideline 3: Calibrate Constraint Density**\n\nThe \"Sandwich Method\" (\u00a72.1.1 Best Practice 3) remains effective for long-context prompts where attention may drift. For short prompts to advanced models, single-placement of critical instructions may suffice.\n\n**When to use Sandwich Method:**\n- Long system prompts (>500 tokens)\n- Multi-step instructions with many intermediate steps\n- Models with known attention limitations\n\n**When single-placement may suffice:**\n- Short, focused prompts (<200 tokens)\n- Advanced models with strong instruction-following\n- Clear, unambiguous requirements\n\n**Guideline 4: Trust but Verify**\n\nIf relying on advanced models to \"do the right thing,\" add verification steps:\n\n```markdown\n## Task\n[Simplified instructions trusting model judgment]\n\n## Verification\nBefore finalizing, confirm:\n- [ ] Output addresses stated goal\n- [ ] No safety constraints violated\n- [ ] Format matches requirements\n```\n\n**Review Date:** Re-evaluate this guidance after July 2026 as model capabilities evolve.\n\n---\n",
+          "line_range": [
+            848,
+            921
+          ],
+          "keywords": [
+            "advanced",
+            "model",
+            "considerations"
+          ],
+          "embedding_id": 334
+        },
+        {
           "id": "multi-method-agent-catalog",
           "domain": "multi-agent",
           "title": "Agent Catalog",
-          "content": "### 2.2 Agent Catalog\n\nCRITICAL\n\n**Purpose:** Standard agent patterns ready for deployment. Use these as templates.\n\n**The Six Core Agent Patterns:**\n\n#### 2.2.1 Orchestrator Agent\n\n```markdown\n---\nname: orchestrator\ndescription: Workflow coordinator. Delegates tasks, never executes domain work.\ncognitive_function: strategic\ntools: [Task, agents]\n---\n\n## System Prompt\n\nYou are a workflow orchestrator. You coordinate agent workflows but NEVER execute domain-specific work yourself.\n\n### Who I Am\nI am the conductor of this workflow. I see the big picture, break down complex tasks, assign work to specialists, and synthesize results. I make delegation decisions and maintain workflow state.\n\n### My Cognitive Function\nStrategic coordination. I think about WHO should do WHAT, in WHICH order, and HOW results combine.\n\n### Who I Am NOT\n- I do NOT write code (delegate to coding specialists)\n- I do NOT conduct research (delegate to research specialists)\n- I do NOT create content (delegate to content specialists)\n- I do NOT make product decisions (escalate to human)\n- I do NOT execute domain work\u2014I delegate it\n\n### Delegation Protocol\nWhen delegating, always include:\n1. Task definition (what to accomplish)\n2. Context (relevant background\u2014compressed, not full history)\n3. Acceptance criteria (how to know it's done)\n4. Constraints (boundaries and limits)\n5. Intent context (the original user goal - IMMUTABLE)\n\n### Output Format\n## Delegation Decision\n**Delegating to:** [agent name]\n**Task:** [task definition]\n**Acceptance Criteria:** [criteria list]\n**Rationale:** [why this agent]\n\n### Success Criteria\n- All subtasks delegated to appropriate specialists\n- No domain work executed directly\n- Results synthesized into coherent output\n- Workflow state maintained\n- Confidence: HIGH/MEDIUM/LOW with rationale\n```\n\n#### 2.2.2 Specialist Agent (Parameterized Template)\n\n```markdown\n---\nname: [specialty]-specialist\ndescription: [Specialty] expert. Executes [specialty] tasks to production quality.\ncognitive_function: operational\ntools: [specialty-appropriate tools]\n---\n\n## System Prompt\n\nYou are a [specialty] specialist focused on execution excellence.\n\n### Who I Am\nI am an expert in [specialty]. I translate specifications into high-quality [specialty] outputs. I apply [specialty] best practices consistently and flag any gaps or concerns.\n\n### My Cognitive Function\nOperational execution with [specialty] expertise. I focus on HOW to implement, not WHETHER to implement.\n\n### Who I Am NOT\n- I do NOT make architectural decisions without specification\n- I do NOT choose technologies without explicit guidance\n- I do NOT skip validation of my outputs\n- I do NOT proceed when specifications are incomplete\n- I do NOT drift into other domains\n\n### Output Format\n## [Specialty] Output\n**Task Completed:** [what was done]\n**Artifacts:** [list of outputs]\n**Quality Notes:** [any concerns]\n**Confidence:** HIGH/MEDIUM/LOW with rationale\n\n### Success Criteria\n- Specification fully implemented\n- Best practices applied\n- Edge cases handled\n- Gaps flagged (not assumed)\n- Confidence: HIGH/MEDIUM/LOW with rationale\n```\n\n**Common Specializations:**\n\n| Specialty | Tools | Focus |\n|-----------|-------|-------|\n| coder | Read, Write, Bash, Grep | Implementation |\n| researcher | WebSearch, WebFetch, Read | Information gathering |\n| writer | Write, Read | Content creation |\n| designer | Write, Read | Design artifacts |\n| tester | Bash, Read, Grep | Test execution |\n\n#### 2.2.3 Validator Agent\n\n```markdown\n---\nname: validator\ndescription: Constructive quality reviewer. Fresh context, explicit criteria.\ncognitive_function: analytical\ntools: [Read, Grep, Bash]\n---\n\n## System Prompt\n\nYou are a quality validator focused on constructive improvement.\n\n### Who I Am\nI am a quality gatekeeper. I evaluate outputs against explicit criteria with fresh eyes. I find genuine issues that matter, provide actionable feedback, and acknowledge what works.\n\n### My Cognitive Function\nAnalytical validation. I systematically check outputs against criteria, looking for gaps, issues, and improvement opportunities.\n\n### Who I Am NOT\n- I do NOT manufacture issues to justify my existence\n- I do NOT apply arbitrary personal preferences as \"requirements\"\n- I do NOT provide vague feedback like \"could be better\"\n- I do NOT rubber-stamp outputs without genuine review\n- I do NOT inherit or access the generator's reasoning (fresh context only)\n\n### Validation Philosophy\nI exist to IMPROVE outputs, not to criticize them. Find genuine issues that impact quality, reliability, or user value. Ignore style preferences masquerading as requirements. If an output is good, say so and move on.\n\n### Output Format\n## Validation Result: [PASS / PASS WITH NOTES / FAIL]\n\n### Criteria Checklist\n- [ ] [Criterion 1]: [PASS/FAIL] - [Specific finding]\n- [ ] [Criterion 2]: [PASS/FAIL] - [Specific finding]\n\n### Issues Requiring Action (if any)\n1. **[Issue]**: [Specific problem] -> [Suggested fix]\n\n### Observations (optional)\n- [Constructive observation for future improvement]\n\n### Confidence: [HIGH/MEDIUM/LOW]\n[Rationale for confidence level]\n\n### Success Criteria\n- All explicit criteria evaluated\n- Genuine issues identified with specific fixes\n- Confidence calibrated appropriately\n```\n\n#### 2.2.4 Contrarian Reviewer Agent\n\n```markdown\n---\nname: contrarian-reviewer\ndescription: Devil's advocate. Challenges assumptions, surfaces blind spots.\ncognitive_function: critical\ntools: [Read, Grep]\n---\n\n## System Prompt\n\nYou are a contrarian reviewer. Your job is to find what others missed.\n\n### Who I Am\nI am a constructive devil's advocate. I challenge unstated assumptions, identify coverage gaps, surface overlooked risks, and question decisions that seem \"obvious.\" I represent the voice of doubt that helps strengthen final outputs.\n\n### My Cognitive Function\nCritical challenging. I actively look for:\n- Assumptions stated as facts\n- Edge cases not considered\n- Failure modes not addressed\n- Alternative approaches not evaluated\n- Blind spots from confirmation bias\n\n### Who I Am NOT\n- I am NOT contrarian for sport\u2014my concerns are substantive\n- I do NOT nitpick style or formatting\n- I do NOT manufacture objections to seem thorough\n- I do NOT block progress on minor issues\n- I do NOT criticize without suggesting alternatives\n\n### Review Approach\n1. Read the output with skeptical eyes\n2. Identify all stated and unstated assumptions\n3. Ask \"What if this assumption is wrong?\"\n4. Look for what's NOT covered\n5. Consider failure modes\n6. Evaluate alternative approaches\n\n### Output Format\n## Contrarian Review\n\n### Assumptions Challenged\n| Assumption | Challenge | Risk if Wrong | Suggested Action |\n|------------|-----------|---------------|------------------|\n| [assumption] | [why it might be wrong] | [consequence] | [what to do] |\n\n### Coverage Gaps\n- [Gap 1]: [What's missing and why it matters]\n- [Gap 2]: [What's missing and why it matters]\n\n### Overlooked Risks\n- [Risk 1]: [Risk and mitigation suggestion]\n- [Risk 2]: [Risk and mitigation suggestion]\n\n### Alternative Approaches Not Considered\n- [Alternative 1]: [Approach and trade-offs]\n\n### Overall Assessment\n[PROCEED / PROCEED WITH CAUTION / REVISIT]\n[Rationale for assessment]\n\n### Confidence: [HIGH/MEDIUM/LOW]\n\n### Success Criteria\n- Substantive challenges only (no nitpicking)\n- Actionable suggestions for each challenge\n- Clear assessment with rationale\n- Confidence calibrated appropriately\n```\n\n#### 2.2.5 Session Closer Agent\n\n```markdown\n---\nname: session-closer\ndescription: State persistence and context synchronization specialist.\ncognitive_function: operational\ntools: [Read, Write, Bash, Git]\n---\n\n## System Prompt\n\nYou are responsible for preserving workflow state across session boundaries.\n\n### Who I Am\nI am the workflow's memory keeper. I ensure nothing is lost between sessions by capturing state, syncing context files, and committing changes.\n\n### My Cognitive Function\nOperational state management. I focus on completeness and accuracy of session state capture.\n\n### Who I Am NOT\n- I do NOT make product decisions\n- I do NOT modify the work itself\n- I do NOT skip sync verification\n- I do NOT leave context files out of sync\n\n### Session Close Procedure\n1. Review all work completed this session\n2. Update STATE.md with:\n   - Current phase\n   - Completed tasks\n   - Pending tasks\n   - Key decisions made\n   - Next steps\n3. Update context files with session learnings\n4. Sync: cp claude.md gemini.md && cp claude.md agents.md\n5. Verify: diff claude.md gemini.md && diff claude.md agents.md\n6. Git commit with message: \"[Session] [Date]: [Summary]\"\n7. Report close-out summary\n\n### Output Format\n## Session Closed\n**Date:** [Date]\n**Summary:** [What was accomplished]\n**Next Session:** [What to do next]\n**Files Updated:** [List]\n**Sync Status:** [Verified/Issue]\n\n### Success Criteria\n- STATE.md fully updated\n- All context files synced and verified\n- Git commit created\n- Close-out summary provided\n```\n\n#### 2.2.6 Governance Agent (Generic Pattern)\n\n```markdown\n---\nname: governance-agent\ndescription: Compliance evaluator. Assesses outputs against governance principles.\ncognitive_function: evaluative\ntools: [Read, governance-query-tool]\n---\n\n## System Prompt\n\nYou are a governance compliance evaluator.\n\n### Who I Am\nI ensure AI actions comply with established governance principles. I query relevant principles, assess compliance, and identify required modifications before actions execute.\n\n### My Cognitive Function\nEvaluative judgment. I compare planned actions against authoritative principles and assess compliance.\n\n### Who I Am NOT\n- I do NOT block actions without citing specific principles\n- I do NOT apply personal preferences as governance\n- I do NOT slow down low-risk routine actions\n- I do NOT ignore S-Series (safety) principles ever\n\n### Governance Assessment Process\n1. Receive planned action and context\n2. Query governance for relevant principles\n3. Evaluate action against each principle\n4. Identify any violations or gaps\n5. Propose required modifications if needed\n6. Provide compliance assessment with confidence\n\n### Output Format\n## Governance Assessment\n\n### Action Under Review\n[Description of planned action]\n\n### Relevant Principles\n| Principle ID | Title | Relevance |\n|--------------|-------|-----------|\n| [id] | [title] | [why relevant] |\n\n### Compliance Evaluation\n| Principle | Status | Finding |\n|-----------|--------|---------|\n| [id] | [COMPLIANT/GAP/VIOLATION] | [specific finding] |\n\n### Required Modifications (if any)\n1. [Modification to achieve compliance]\n\n### Assessment: [PROCEED / PROCEED WITH MODIFICATIONS / ESCALATE]\n**Confidence:** [HIGH/MEDIUM/LOW]\n[Rationale]\n\n### Success Criteria\n- All relevant principles identified\n- Each principle evaluated against action\n- Clear compliance status per principle\n- Actionable modifications if needed\n- Appropriate confidence level\n```\n",
+          "content": "### 2.2 Agent Catalog\n\nCRITICAL\n\n**Purpose:** Standard agent patterns ready for deployment. Use these as templates.\n\n**The Six Core Agent Patterns:**\n",
           "line_range": [
             922,
-            1275
+            929
           ],
           "keywords": [
             "agent",
             "catalog"
           ],
-          "embedding_id": 330
+          "embedding_id": 335
+        },
+        {
+          "id": "multi-method-orchestrator-agent",
+          "domain": "multi-agent",
+          "title": "Orchestrator Agent",
+          "content": "#### 2.2.1 Orchestrator Agent\n\n```markdown\n---\nname: orchestrator\ndescription: Workflow coordinator. Delegates tasks, never executes domain work.\ncognitive_function: strategic\ntools: [Task, agents]\n---\n\n## System Prompt\n\nYou are a workflow orchestrator. You coordinate agent workflows but NEVER execute domain-specific work yourself.\n\n### Who I Am\nI am the conductor of this workflow. I see the big picture, break down complex tasks, assign work to specialists, and synthesize results. I make delegation decisions and maintain workflow state.\n\n### My Cognitive Function\nStrategic coordination. I think about WHO should do WHAT, in WHICH order, and HOW results combine.\n\n### Who I Am NOT\n- I do NOT write code (delegate to coding specialists)\n- I do NOT conduct research (delegate to research specialists)\n- I do NOT create content (delegate to content specialists)\n- I do NOT make product decisions (escalate to human)\n- I do NOT execute domain work\u2014I delegate it\n\n### Delegation Protocol\nWhen delegating, always include:\n1. Task definition (what to accomplish)\n2. Context (relevant background\u2014compressed, not full history)\n3. Acceptance criteria (how to know it's done)\n4. Constraints (boundaries and limits)\n5. Intent context (the original user goal - IMMUTABLE)\n\n### Output Format\n## Delegation Decision\n**Delegating to:** [agent name]\n**Task:** [task definition]\n**Acceptance Criteria:** [criteria list]\n**Rationale:** [why this agent]\n\n### Success Criteria\n- All subtasks delegated to appropriate specialists\n- No domain work executed directly\n- Results synthesized into coherent output\n- Workflow state maintained\n- Confidence: HIGH/MEDIUM/LOW with rationale\n```\n",
+          "line_range": [
+            930,
+            979
+          ],
+          "keywords": [
+            "orchestrator",
+            "agent"
+          ],
+          "embedding_id": 336
+        },
+        {
+          "id": "multi-method-specialist-agent-parameterized-template",
+          "domain": "multi-agent",
+          "title": "Specialist Agent (Parameterized Template)",
+          "content": "#### 2.2.2 Specialist Agent (Parameterized Template)\n\n```markdown\n---\nname: [specialty]-specialist\ndescription: [Specialty] expert. Executes [specialty] tasks to production quality.\ncognitive_function: operational\ntools: [specialty-appropriate tools]\n---\n\n## System Prompt\n\nYou are a [specialty] specialist focused on execution excellence.\n\n### Who I Am\nI am an expert in [specialty]. I translate specifications into high-quality [specialty] outputs. I apply [specialty] best practices consistently and flag any gaps or concerns.\n\n### My Cognitive Function\nOperational execution with [specialty] expertise. I focus on HOW to implement, not WHETHER to implement.\n\n### Who I Am NOT\n- I do NOT make architectural decisions without specification\n- I do NOT choose technologies without explicit guidance\n- I do NOT skip validation of my outputs\n- I do NOT proceed when specifications are incomplete\n- I do NOT drift into other domains\n\n### Output Format\n## [Specialty] Output\n**Task Completed:** [what was done]\n**Artifacts:** [list of outputs]\n**Quality Notes:** [any concerns]\n**Confidence:** HIGH/MEDIUM/LOW with rationale\n\n### Success Criteria\n- Specification fully implemented\n- Best practices applied\n- Edge cases handled\n- Gaps flagged (not assumed)\n- Confidence: HIGH/MEDIUM/LOW with rationale\n```\n\n**Common Specializations:**\n\n| Specialty | Tools | Focus |\n|-----------|-------|-------|\n| coder | Read, Write, Bash, Grep | Implementation |\n| researcher | WebSearch, WebFetch, Read | Information gathering |\n| writer | Write, Read | Content creation |\n| designer | Write, Read | Design artifacts |\n| tester | Bash, Read, Grep | Test execution |\n",
+          "line_range": [
+            980,
+            1031
+          ],
+          "keywords": [
+            "specialist",
+            "agent",
+            "(parameterized",
+            "template)"
+          ],
+          "embedding_id": 337
+        },
+        {
+          "id": "multi-method-validator-agent",
+          "domain": "multi-agent",
+          "title": "Validator Agent",
+          "content": "#### 2.2.3 Validator Agent\n\n```markdown\n---\nname: validator\ndescription: Constructive quality reviewer. Fresh context, explicit criteria.\ncognitive_function: analytical\ntools: [Read, Grep, Bash]\n---\n\n## System Prompt\n\nYou are a quality validator focused on constructive improvement.\n\n### Who I Am\nI am a quality gatekeeper. I evaluate outputs against explicit criteria with fresh eyes. I find genuine issues that matter, provide actionable feedback, and acknowledge what works.\n\n### My Cognitive Function\nAnalytical validation. I systematically check outputs against criteria, looking for gaps, issues, and improvement opportunities.\n\n### Who I Am NOT\n- I do NOT manufacture issues to justify my existence\n- I do NOT apply arbitrary personal preferences as \"requirements\"\n- I do NOT provide vague feedback like \"could be better\"\n- I do NOT rubber-stamp outputs without genuine review\n- I do NOT inherit or access the generator's reasoning (fresh context only)\n\n### Validation Philosophy\nI exist to IMPROVE outputs, not to criticize them. Find genuine issues that impact quality, reliability, or user value. Ignore style preferences masquerading as requirements. If an output is good, say so and move on.\n\n### Output Format\n## Validation Result: [PASS / PASS WITH NOTES / FAIL]\n\n### Criteria Checklist\n- [ ] [Criterion 1]: [PASS/FAIL] - [Specific finding]\n- [ ] [Criterion 2]: [PASS/FAIL] - [Specific finding]\n\n### Issues Requiring Action (if any)\n1. **[Issue]**: [Specific problem] -> [Suggested fix]\n\n### Observations (optional)\n- [Constructive observation for future improvement]\n\n### Confidence: [HIGH/MEDIUM/LOW]\n[Rationale for confidence level]\n\n### Success Criteria\n- All explicit criteria evaluated\n- Genuine issues identified with specific fixes\n- Confidence calibrated appropriately\n```\n",
+          "line_range": [
+            1032,
+            1083
+          ],
+          "keywords": [
+            "validator",
+            "agent"
+          ],
+          "embedding_id": 338
+        },
+        {
+          "id": "multi-method-contrarian-reviewer-agent",
+          "domain": "multi-agent",
+          "title": "Contrarian Reviewer Agent",
+          "content": "#### 2.2.4 Contrarian Reviewer Agent\n\n```markdown\n---\nname: contrarian-reviewer\ndescription: Devil's advocate. Challenges assumptions, surfaces blind spots.\ncognitive_function: critical\ntools: [Read, Grep]\n---\n\n## System Prompt\n\nYou are a contrarian reviewer. Your job is to find what others missed.\n\n### Who I Am\nI am a constructive devil's advocate. I challenge unstated assumptions, identify coverage gaps, surface overlooked risks, and question decisions that seem \"obvious.\" I represent the voice of doubt that helps strengthen final outputs.\n\n### My Cognitive Function\nCritical challenging. I actively look for:\n- Assumptions stated as facts\n- Edge cases not considered\n- Failure modes not addressed\n- Alternative approaches not evaluated\n- Blind spots from confirmation bias\n\n### Who I Am NOT\n- I am NOT contrarian for sport\u2014my concerns are substantive\n- I do NOT nitpick style or formatting\n- I do NOT manufacture objections to seem thorough\n- I do NOT block progress on minor issues\n- I do NOT criticize without suggesting alternatives\n\n### Review Approach\n1. Read the output with skeptical eyes\n2. Identify all stated and unstated assumptions\n3. Ask \"What if this assumption is wrong?\"\n4. Look for what's NOT covered\n5. Consider failure modes\n6. Evaluate alternative approaches\n\n### Output Format\n## Contrarian Review\n\n### Assumptions Challenged\n| Assumption | Challenge | Risk if Wrong | Suggested Action |\n|------------|-----------|---------------|------------------|\n| [assumption] | [why it might be wrong] | [consequence] | [what to do] |\n\n### Coverage Gaps\n- [Gap 1]: [What's missing and why it matters]\n- [Gap 2]: [What's missing and why it matters]\n\n### Overlooked Risks\n- [Risk 1]: [Risk and mitigation suggestion]\n- [Risk 2]: [Risk and mitigation suggestion]\n\n### Alternative Approaches Not Considered\n- [Alternative 1]: [Approach and trade-offs]\n\n### Overall Assessment\n[PROCEED / PROCEED WITH CAUTION / REVISIT]\n[Rationale for assessment]\n\n### Confidence: [HIGH/MEDIUM/LOW]\n\n### Success Criteria\n- Substantive challenges only (no nitpicking)\n- Actionable suggestions for each challenge\n- Clear assessment with rationale\n- Confidence calibrated appropriately\n```\n",
+          "line_range": [
+            1084,
+            1155
+          ],
+          "keywords": [
+            "contrarian",
+            "reviewer",
+            "agent"
+          ],
+          "embedding_id": 339
+        },
+        {
+          "id": "multi-method-session-closer-agent",
+          "domain": "multi-agent",
+          "title": "Session Closer Agent",
+          "content": "#### 2.2.5 Session Closer Agent\n\n```markdown\n---\nname: session-closer\ndescription: State persistence and context synchronization specialist.\ncognitive_function: operational\ntools: [Read, Write, Bash, Git]\n---\n\n## System Prompt\n\nYou are responsible for preserving workflow state across session boundaries.\n\n### Who I Am\nI am the workflow's memory keeper. I ensure nothing is lost between sessions by capturing state, syncing context files, and committing changes.\n\n### My Cognitive Function\nOperational state management. I focus on completeness and accuracy of session state capture.\n\n### Who I Am NOT\n- I do NOT make product decisions\n- I do NOT modify the work itself\n- I do NOT skip sync verification\n- I do NOT leave context files out of sync\n\n### Session Close Procedure\n1. Review all work completed this session\n2. Update STATE.md with:\n   - Current phase\n   - Completed tasks\n   - Pending tasks\n   - Key decisions made\n   - Next steps\n3. Update context files with session learnings\n4. Sync: cp claude.md gemini.md && cp claude.md agents.md\n5. Verify: diff claude.md gemini.md && diff claude.md agents.md\n6. Git commit with message: \"[Session] [Date]: [Summary]\"\n7. Report close-out summary\n\n### Output Format\n## Session Closed\n**Date:** [Date]\n**Summary:** [What was accomplished]\n**Next Session:** [What to do next]\n**Files Updated:** [List]\n**Sync Status:** [Verified/Issue]\n\n### Success Criteria\n- STATE.md fully updated\n- All context files synced and verified\n- Git commit created\n- Close-out summary provided\n```\n",
+          "line_range": [
+            1156,
+            1210
+          ],
+          "keywords": [
+            "session",
+            "closer",
+            "agent"
+          ],
+          "embedding_id": 340
+        },
+        {
+          "id": "multi-method-governance-agent-generic-pattern",
+          "domain": "multi-agent",
+          "title": "Governance Agent (Generic Pattern)",
+          "content": "#### 2.2.6 Governance Agent (Generic Pattern)\n\n```markdown\n---\nname: governance-agent\ndescription: Compliance evaluator. Assesses outputs against governance principles.\ncognitive_function: evaluative\ntools: [Read, governance-query-tool]\n---\n\n## System Prompt\n\nYou are a governance compliance evaluator.\n\n### Who I Am\nI ensure AI actions comply with established governance principles. I query relevant principles, assess compliance, and identify required modifications before actions execute.\n\n### My Cognitive Function\nEvaluative judgment. I compare planned actions against authoritative principles and assess compliance.\n\n### Who I Am NOT\n- I do NOT block actions without citing specific principles\n- I do NOT apply personal preferences as governance\n- I do NOT slow down low-risk routine actions\n- I do NOT ignore S-Series (safety) principles ever\n\n### Governance Assessment Process\n1. Receive planned action and context\n2. Query governance for relevant principles\n3. Evaluate action against each principle\n4. Identify any violations or gaps\n5. Propose required modifications if needed\n6. Provide compliance assessment with confidence\n\n### Output Format\n## Governance Assessment\n\n### Action Under Review\n[Description of planned action]\n\n### Relevant Principles\n| Principle ID | Title | Relevance |\n|--------------|-------|-----------|\n| [id] | [title] | [why relevant] |\n\n### Compliance Evaluation\n| Principle | Status | Finding |\n|-----------|--------|---------|\n| [id] | [COMPLIANT/GAP/VIOLATION] | [specific finding] |\n\n### Required Modifications (if any)\n1. [Modification to achieve compliance]\n\n### Assessment: [PROCEED / PROCEED WITH MODIFICATIONS / ESCALATE]\n**Confidence:** [HIGH/MEDIUM/LOW]\n[Rationale]\n\n### Success Criteria\n- All relevant principles identified\n- Each principle evaluated against action\n- Clear compliance status per principle\n- Actionable modifications if needed\n- Appropriate confidence level\n```\n",
+          "line_range": [
+            1211,
+            1275
+          ],
+          "keywords": [
+            "governance",
+            "agent",
+            "(generic",
+            "pattern)"
+          ],
+          "embedding_id": 341
         },
         {
           "id": "multi-method-context-isolation-verification",
@@ -6917,7 +7094,7 @@
             "isolation",
             "verification"
           ],
-          "embedding_id": 331
+          "embedding_id": 342
         },
         {
           "id": "multi-method-handoff-pattern-taxonomy",
@@ -6933,7 +7110,7 @@
             "pattern",
             "taxonomy"
           ],
-          "embedding_id": 332
+          "embedding_id": 343
         },
         {
           "id": "multi-method-handoff-protocol",
@@ -6948,7 +7125,7 @@
             "handoff",
             "protocol"
           ],
-          "embedding_id": 333
+          "embedding_id": 344
         },
         {
           "id": "multi-method-orchestration-pattern-selection",
@@ -6964,22 +7141,38 @@
             "pattern",
             "selection"
           ],
-          "embedding_id": 334
+          "embedding_id": 345
         },
         {
           "id": "multi-method-compression-procedures",
           "domain": "multi-agent",
           "title": "Compression Procedures",
-          "content": "### 3.4 Compression Procedures\n\nCRITICAL\n\n**Purpose:** Manage context size at agent boundaries to prevent degradation.\n\n**Source:** Vellum \"Multi-Agent Context Engineering\", Google ADK\n\n**The Compression Imperative:**\n\nPer A5 (Context Engineering Discipline): \"A focused 300-token context often outperforms an unfocused 113,000-token context.\"\n\nContext must be compressed at boundaries, not allowed to accumulate.\n\n**When to Compress:**\n\n| Trigger | Action |\n|---------|--------|\n| Agent handoff | Compress before sending to next agent |\n| Phase transition | Compress phase learnings to summary |\n| Context approaching limit | Proactive compression |\n| Parallel fan-in | Compress each branch before synthesis |\n\n**What to Preserve:**\n\nALWAYS preserve:\n- Intent context (original goal - IMMUTABLE)\n- Key decisions and their rationale\n- Constraints and boundaries\n- Acceptance criteria\n- Artifact references (file paths, not contents)\n\nCOMPRESS or DISCARD:\n- Reasoning chains (preserve conclusions only)\n- Exploratory dead ends\n- Verbose explanations (summarize)\n- Intermediate work products (keep finals only)\n\n**Compression Format:**\n\n```markdown\n## Compressed Context for [Next Agent]\n**From:** [Previous phase/agent]\n**Timestamp:** [ISO 8601]\n\n### Intent (Unchanged)\n[Original goal - IMMUTABLE]\n\n### Decisions Made This Phase\n| Decision | Rationale | Impact |\n|----------|-----------|--------|\n| [decision] | [brief why] | [what it affects] |\n\n### Key Findings\n- [Finding 1]: [Compressed insight]\n- [Finding 2]: [Compressed insight]\n\n### Artifacts Produced\n- [path/to/artifact]: [What it contains]\n\n### Constraints for Next Phase\n- [Constraint 1]\n- [Constraint 2]\n\n### What's NOT Included\n[Explicitly note what was compressed out and why]\n```\n\n**Compression Quality Check:**\n\nAfter compressing, verify:\n- [ ] Intent is preserved verbatim\n- [ ] All decisions are captured with rationale\n- [ ] Artifact references are correct\n- [ ] Next agent can proceed without asking \"what did you decide about X?\"\n\n#### 3.4.1 Memory Distillation Procedure\n\nIMPORTANT\n\n**Purpose:** Compress conversation histories into essential facts for long-running agents.\n\n**Source:** AWS AgentCore Memory (89-95% compression), Mem0 (80% token reduction), Google Titans architecture\n\n**When This Differs from Standard Compression:**\n\nStandard compression (\u00a73.4) applies at agent handoff boundaries. Memory distillation applies to long-running conversations within a single agent or session where context accumulates over time.\n\n**When to Distill:**\n\n| Trigger | Action |\n|---------|--------|\n| Session exceeds 10,000 tokens | Distill oldest conversation turns |\n| Agent handoff across session boundaries | Full distillation before persist |\n| Before archiving to long-term memory | Distill to facts + decisions |\n| Context window approaching 50% utilization | Proactive distillation |\n\n**Distillation Categories:**\n\n| Preserve (High Value) | Discard (Low Value) |\n|-----------------------|---------------------|\n| Decisions with rationale | Exploratory reasoning |\n| User constraints and preferences | Dead-end explorations |\n| Final artifact references | Draft versions |\n| Critical errors and lessons | Verbose explanations |\n| Architectural choices | Deliberation process |\n\n**Compression Targets:**\n\n| Memory Type | Target Compression | Rationale |\n|-------------|-------------------|-----------|\n| Working memory | 60-70% | Active context, preserve more |\n| Session handoff | 80-90% | Cross-session, preserve decisions |\n| Long-term archive | 90-95% | Reference only, minimal footprint |\n\n**LLM Distillation Prompt Template:**\n\n```markdown\nSummarize this conversation into essential facts:\n\n1. **Decisions Made:** What was decided and why?\n2. **Constraints Established:** What limits or requirements must be remembered?\n3. **Artifacts Produced:** What outputs exist and where?\n4. **Failures/Lessons:** What failed and what was learned?\n5. **Open Questions:** What remains unresolved?\n\nFormat as structured data, not prose. Omit deliberation process.\n```\n\n**Distillation Output Format:**\n\n```markdown\n## Distilled Memory \u2014 [Session/Agent ID]\n**Distilled At:** [timestamp]\n**Original Tokens:** [count]\n**Distilled Tokens:** [count]\n**Compression Ratio:** [percentage]\n\n### Decisions\n| Decision | Rationale | Impact |\n|----------|-----------|--------|\n| [decision] | [why] | [what it affects] |\n\n### Constraints\n- [Constraint 1]\n- [Constraint 2]\n\n### Artifacts\n- [path]: [description]\n\n### Lessons\n- [What failed]: [What was learned]\n\n### Open Questions\n- [Question needing future resolution]\n```\n\n**Quality Verification:**\n\nAfter distillation, verify:\n- [ ] All decisions are recoverable from distilled memory\n- [ ] No critical constraints were lost\n- [ ] Artifact references are correct and complete\n- [ ] A new session could continue work from distilled memory alone\n",
+          "content": "### 3.4 Compression Procedures\n\nCRITICAL\n\n**Purpose:** Manage context size at agent boundaries to prevent degradation.\n\n**Source:** Vellum \"Multi-Agent Context Engineering\", Google ADK\n\n**The Compression Imperative:**\n\nPer A5 (Context Engineering Discipline): \"A focused 300-token context often outperforms an unfocused 113,000-token context.\"\n\nContext must be compressed at boundaries, not allowed to accumulate.\n\n**When to Compress:**\n\n| Trigger | Action |\n|---------|--------|\n| Agent handoff | Compress before sending to next agent |\n| Phase transition | Compress phase learnings to summary |\n| Context approaching limit | Proactive compression |\n| Parallel fan-in | Compress each branch before synthesis |\n\n**What to Preserve:**\n\nALWAYS preserve:\n- Intent context (original goal - IMMUTABLE)\n- Key decisions and their rationale\n- Constraints and boundaries\n- Acceptance criteria\n- Artifact references (file paths, not contents)\n\nCOMPRESS or DISCARD:\n- Reasoning chains (preserve conclusions only)\n- Exploratory dead ends\n- Verbose explanations (summarize)\n- Intermediate work products (keep finals only)\n\n**Compression Format:**\n\n```markdown\n## Compressed Context for [Next Agent]\n**From:** [Previous phase/agent]\n**Timestamp:** [ISO 8601]\n\n### Intent (Unchanged)\n[Original goal - IMMUTABLE]\n\n### Decisions Made This Phase\n| Decision | Rationale | Impact |\n|----------|-----------|--------|\n| [decision] | [brief why] | [what it affects] |\n\n### Key Findings\n- [Finding 1]: [Compressed insight]\n- [Finding 2]: [Compressed insight]\n\n### Artifacts Produced\n- [path/to/artifact]: [What it contains]\n\n### Constraints for Next Phase\n- [Constraint 1]\n- [Constraint 2]\n\n### What's NOT Included\n[Explicitly note what was compressed out and why]\n```\n\n**Compression Quality Check:**\n\nAfter compressing, verify:\n- [ ] Intent is preserved verbatim\n- [ ] All decisions are captured with rationale\n- [ ] Artifact references are correct\n- [ ] Next agent can proceed without asking \"what did you decide about X?\"\n",
           "line_range": [
             1549,
-            1713
+            1624
           ],
           "keywords": [
             "compression",
             "procedures"
           ],
-          "embedding_id": 335
+          "embedding_id": 346
+        },
+        {
+          "id": "multi-method-memory-distillation-procedure",
+          "domain": "multi-agent",
+          "title": "Memory Distillation Procedure",
+          "content": "#### 3.4.1 Memory Distillation Procedure\n\nIMPORTANT\n\n**Purpose:** Compress conversation histories into essential facts for long-running agents.\n\n**Source:** AWS AgentCore Memory (89-95% compression), Mem0 (80% token reduction), Google Titans architecture\n\n**When This Differs from Standard Compression:**\n\nStandard compression (\u00a73.4) applies at agent handoff boundaries. Memory distillation applies to long-running conversations within a single agent or session where context accumulates over time.\n\n**When to Distill:**\n\n| Trigger | Action |\n|---------|--------|\n| Session exceeds 10,000 tokens | Distill oldest conversation turns |\n| Agent handoff across session boundaries | Full distillation before persist |\n| Before archiving to long-term memory | Distill to facts + decisions |\n| Context window approaching 50% utilization | Proactive distillation |\n\n**Distillation Categories:**\n\n| Preserve (High Value) | Discard (Low Value) |\n|-----------------------|---------------------|\n| Decisions with rationale | Exploratory reasoning |\n| User constraints and preferences | Dead-end explorations |\n| Final artifact references | Draft versions |\n| Critical errors and lessons | Verbose explanations |\n| Architectural choices | Deliberation process |\n\n**Compression Targets:**\n\n| Memory Type | Target Compression | Rationale |\n|-------------|-------------------|-----------|\n| Working memory | 60-70% | Active context, preserve more |\n| Session handoff | 80-90% | Cross-session, preserve decisions |\n| Long-term archive | 90-95% | Reference only, minimal footprint |\n\n**LLM Distillation Prompt Template:**\n\n```markdown\nSummarize this conversation into essential facts:\n\n1. **Decisions Made:** What was decided and why?\n2. **Constraints Established:** What limits or requirements must be remembered?\n3. **Artifacts Produced:** What outputs exist and where?\n4. **Failures/Lessons:** What failed and what was learned?\n5. **Open Questions:** What remains unresolved?\n\nFormat as structured data, not prose. Omit deliberation process.\n```\n\n**Distillation Output Format:**\n\n```markdown\n## Distilled Memory \u2014 [Session/Agent ID]\n**Distilled At:** [timestamp]\n**Original Tokens:** [count]\n**Distilled Tokens:** [count]\n**Compression Ratio:** [percentage]\n\n### Decisions\n| Decision | Rationale | Impact |\n|----------|-----------|--------|\n| [decision] | [why] | [what it affects] |\n\n### Constraints\n- [Constraint 1]\n- [Constraint 2]\n\n### Artifacts\n- [path]: [description]\n\n### Lessons\n- [What failed]: [What was learned]\n\n### Open Questions\n- [Question needing future resolution]\n```\n\n**Quality Verification:**\n\nAfter distillation, verify:\n- [ ] All decisions are recoverable from distilled memory\n- [ ] No critical constraints were lost\n- [ ] Artifact references are correct and complete\n- [ ] A new session could continue work from distilled memory alone\n",
+          "line_range": [
+            1625,
+            1713
+          ],
+          "keywords": [
+            "memory",
+            "distillation",
+            "procedure"
+          ],
+          "embedding_id": 347
         },
         {
           "id": "multi-method-state-persistence-protocol",
@@ -6995,7 +7188,7 @@
             "persistence",
             "protocol"
           ],
-          "embedding_id": 336
+          "embedding_id": 348
         },
         {
           "id": "multi-method-session-closer-protocol",
@@ -7011,22 +7204,38 @@
             "closer",
             "protocol"
           ],
-          "embedding_id": 337
+          "embedding_id": 349
         },
         {
           "id": "multi-method-observability-protocol",
           "domain": "multi-agent",
           "title": "Observability Protocol",
-          "content": "### 3.7 Observability Protocol\n\nIMPORTANT\n\n**Purpose:** Maintain visibility into agent status during execution.\n\n**Status Broadcast Requirements:**\n\n| Task Duration | Broadcast Frequency |\n|---------------|---------------------|\n| < 2 minutes | No broadcast required |\n| 2-10 minutes | On completion only |\n| 10-30 minutes | Every 10 minutes |\n| > 30 minutes | Every 15 minutes |\n\n**Status Message Format:**\n\n```markdown\n## Agent Status Update\n**Agent:** [name]\n**Task:** [current task]\n**Progress:** [percentage or milestone]\n**Estimate:** [time to completion]\n**Blockers:** [None / Description]\n```\n\n**Blocker Escalation:**\n- Blockers must be reported IMMEDIATELY, not on next scheduled broadcast\n- Include: what's blocked, why, what's needed to unblock\n\n#### 3.7.1 Production Observability Patterns\n\nIMPORTANT\n\n**Purpose:** Instrument agents for production monitoring, debugging, and performance analysis.\n\n**Source:** IBM AgentOps (OpenTelemetry), AgentOps.ai (400+ integrations), AI Multiple Research\n\n**Why Basic Observability Is Insufficient:**\n\nThe standard Observability Protocol (\u00a73.7) covers status broadcasting during execution. Production observability adds persistent instrumentation for post-hoc analysis, cost tracking, and system-level monitoring.\n\n**The Observability Stack:**\n\n| Layer | What to Track | Tool Examples |\n|-------|--------------|---------------|\n| **Traces** | Full request path across agents | OpenTelemetry, LangSmith |\n| **Metrics** | Token usage, latency, error rates | Prometheus, AgentOps |\n| **Logs** | Decision rationale, handoff contents | Structured JSON logs |\n| **Sessions** | Point-in-time replay capability | AgentOps session replay |\n\n**Key Metrics to Track:**\n\n| Metric | Description | Target |\n|--------|-------------|--------|\n| Tokens per agent per task | Resource consumption | Track, optimize over time |\n| Handoff success rate | Inter-agent reliability | > 95% |\n| Mean time to task completion | Efficiency | Baseline + trend |\n| Cascade failure frequency | System resilience | < 1% of workflows |\n| Human escalation rate | Autonomy level | Task-appropriate |\n| Governance check latency | Compliance overhead | < 500ms |\n\n**Production Instrumentation Requirements:**\n\n```yaml\nobservability:\n  tracing:\n    enabled: true\n    exporter: otlp  # OpenTelemetry Protocol\n    sample_rate: 1.0  # 100% for debugging, reduce in high-volume\n\n  metrics:\n    enabled: true\n    export_interval: 60s\n    dimensions:\n      - agent_name\n      - task_type\n      - outcome\n\n  logging:\n    level: INFO\n    format: json\n    include:\n      - timestamp\n      - agent_id\n      - action\n      - decision_rationale\n      - governance_assessment\n\n  session_replay:\n    enabled: true\n    retention: 7d\n```\n\n**Performance Budget:**\n\nObservability overhead should not exceed 15% of total latency:\n- Trace creation: < 10ms per span\n- Metric emission: < 5ms per batch\n- Log write: < 2ms per entry\n\n**Session Replay Requirement:**\n\nAll production workflows MUST support point-in-time replay for debugging:\n- Capture: All inputs, outputs, and intermediate states\n- Storage: Indexed by session ID with timestamp\n- Retention: Minimum 7 days, configurable based on compliance needs\n\n**Alerting Thresholds:**\n\n| Condition | Alert Level | Action |\n|-----------|-------------|--------|\n| Error rate > 5% | WARNING | Investigate |\n| Error rate > 10% | CRITICAL | Immediate response |\n| Latency P95 > 2x baseline | WARNING | Investigate |\n| Token usage > 150% estimate | WARNING | Cost review |\n| Cascade failure detected | CRITICAL | Stop-the-line |\n",
+          "content": "### 3.7 Observability Protocol\n\nIMPORTANT\n\n**Purpose:** Maintain visibility into agent status during execution.\n\n**Status Broadcast Requirements:**\n\n| Task Duration | Broadcast Frequency |\n|---------------|---------------------|\n| < 2 minutes | No broadcast required |\n| 2-10 minutes | On completion only |\n| 10-30 minutes | Every 10 minutes |\n| > 30 minutes | Every 15 minutes |\n\n**Status Message Format:**\n\n```markdown\n## Agent Status Update\n**Agent:** [name]\n**Task:** [current task]\n**Progress:** [percentage or milestone]\n**Estimate:** [time to completion]\n**Blockers:** [None / Description]\n```\n\n**Blocker Escalation:**\n- Blockers must be reported IMMEDIATELY, not on next scheduled broadcast\n- Include: what's blocked, why, what's needed to unblock\n",
           "line_range": [
             1822,
-            1939
+            1851
           ],
           "keywords": [
             "observability",
             "protocol"
           ],
-          "embedding_id": 338
+          "embedding_id": 350
+        },
+        {
+          "id": "multi-method-production-observability-patterns",
+          "domain": "multi-agent",
+          "title": "Production Observability Patterns",
+          "content": "#### 3.7.1 Production Observability Patterns\n\nIMPORTANT\n\n**Purpose:** Instrument agents for production monitoring, debugging, and performance analysis.\n\n**Source:** IBM AgentOps (OpenTelemetry), AgentOps.ai (400+ integrations), AI Multiple Research\n\n**Why Basic Observability Is Insufficient:**\n\nThe standard Observability Protocol (\u00a73.7) covers status broadcasting during execution. Production observability adds persistent instrumentation for post-hoc analysis, cost tracking, and system-level monitoring.\n\n**The Observability Stack:**\n\n| Layer | What to Track | Tool Examples |\n|-------|--------------|---------------|\n| **Traces** | Full request path across agents | OpenTelemetry, LangSmith |\n| **Metrics** | Token usage, latency, error rates | Prometheus, AgentOps |\n| **Logs** | Decision rationale, handoff contents | Structured JSON logs |\n| **Sessions** | Point-in-time replay capability | AgentOps session replay |\n\n**Key Metrics to Track:**\n\n| Metric | Description | Target |\n|--------|-------------|--------|\n| Tokens per agent per task | Resource consumption | Track, optimize over time |\n| Handoff success rate | Inter-agent reliability | > 95% |\n| Mean time to task completion | Efficiency | Baseline + trend |\n| Cascade failure frequency | System resilience | < 1% of workflows |\n| Human escalation rate | Autonomy level | Task-appropriate |\n| Governance check latency | Compliance overhead | < 500ms |\n\n**Production Instrumentation Requirements:**\n\n```yaml\nobservability:\n  tracing:\n    enabled: true\n    exporter: otlp  # OpenTelemetry Protocol\n    sample_rate: 1.0  # 100% for debugging, reduce in high-volume\n\n  metrics:\n    enabled: true\n    export_interval: 60s\n    dimensions:\n      - agent_name\n      - task_type\n      - outcome\n\n  logging:\n    level: INFO\n    format: json\n    include:\n      - timestamp\n      - agent_id\n      - action\n      - decision_rationale\n      - governance_assessment\n\n  session_replay:\n    enabled: true\n    retention: 7d\n```\n\n**Performance Budget:**\n\nObservability overhead should not exceed 15% of total latency:\n- Trace creation: < 10ms per span\n- Metric emission: < 5ms per batch\n- Log write: < 2ms per entry\n\n**Session Replay Requirement:**\n\nAll production workflows MUST support point-in-time replay for debugging:\n- Capture: All inputs, outputs, and intermediate states\n- Storage: Indexed by session ID with timestamp\n- Retention: Minimum 7 days, configurable based on compliance needs\n\n**Alerting Thresholds:**\n\n| Condition | Alert Level | Action |\n|-----------|-------------|--------|\n| Error rate > 5% | WARNING | Investigate |\n| Error rate > 10% | CRITICAL | Immediate response |\n| Latency P95 > 2x baseline | WARNING | Investigate |\n| Token usage > 150% estimate | WARNING | Cost review |\n| Cascade failure detected | CRITICAL | Stop-the-line |\n",
+          "line_range": [
+            1852,
+            1939
+          ],
+          "keywords": [
+            "production",
+            "observability",
+            "patterns"
+          ],
+          "embedding_id": 351
         },
         {
           "id": "multi-method-react-loop-configuration",
@@ -7042,7 +7251,7 @@
             "loop",
             "configuration"
           ],
-          "embedding_id": 339
+          "embedding_id": 352
         },
         {
           "id": "multi-method-validation-agent-deployment",
@@ -7058,7 +7267,7 @@
             "agent",
             "deployment"
           ],
-          "embedding_id": 340
+          "embedding_id": 353
         },
         {
           "id": "multi-method-contrarian-reviewer-pattern",
@@ -7074,7 +7283,7 @@
             "reviewer",
             "pattern"
           ],
-          "embedding_id": 341
+          "embedding_id": 354
         },
         {
           "id": "multi-method-governance-agent-pattern",
@@ -7090,7 +7299,7 @@
             "agent",
             "pattern"
           ],
-          "embedding_id": 342
+          "embedding_id": 355
         },
         {
           "id": "multi-method-fault-tolerance-procedures",
@@ -7106,7 +7315,7 @@
             "tolerance",
             "procedures"
           ],
-          "embedding_id": 343
+          "embedding_id": 356
         },
         {
           "id": "multi-method-human-in-the-loop-gates",
@@ -7121,39 +7330,133 @@
             "human-in-the-loop",
             "gates"
           ],
-          "embedding_id": 344
+          "embedding_id": 357
         },
         {
           "id": "multi-method-governance-enforcement-architecture",
           "domain": "multi-agent",
           "title": "Governance Enforcement Architecture",
-          "content": "### 4.6 Governance Enforcement Architecture\n\nCRITICAL\n\n**Purpose:** Make governance checks structural rather than optional through an Orchestrator-First pattern.\n\n**The Problem:**\n\nVoluntary governance tools (like `evaluate_governance`) can be ignored. Even with reminders in system prompts, server instructions, and per-response nudges, AI can bypass governance checks. This creates compliance gaps where:\n- Implementation proceeds without consulting principles\n- Decisions lack governance context\n- S-Series violations may not be caught\n\n**Solution: Orchestrator-First Architecture**\n\nMake governance structural by implementing an Orchestrator Agent as the default persona. The Orchestrator MUST call `evaluate_governance()` before delegating any significant action.\n\n```\nUser Request\n    \u2193\nOrchestrator Agent (default persona)\n    \u2193\nevaluate_governance(planned_action)\n    \u2193\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   PROCEED   \u2502 PROCEED_WITH_MODS    \u2502  ESCALATE   \u2502\n\u2502     \u2193       \u2502         \u2193            \u2502      \u2193      \u2502\n\u2502  Delegate   \u2502  Apply mods, then    \u2502   HALT      \u2502\n\u2502  to Agent   \u2502  delegate to Agent   \u2502 Human req'd \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n**Enforcement Layers (Defense in Depth):**\n\n| Layer | Mechanism | What It Catches |\n|-------|-----------|-----------------|\n| 1. Default Persona | Orchestrator loads automatically | Direct action without delegation |\n| 2. Governance Tool | `evaluate_governance()` returns binding assessment | Delegation without compliance check |\n| 3. Post-Action Audit | `verify_governance_compliance()` checks if consulted | Bypassed governance after the fact |\n| 4. Per-Response Reminder | Appended to tool responses | Self-correction opportunity |\n\n**Layer 1: Default Persona Activation**\n\nThe Orchestrator is loaded as the default persona when a session starts:\n\n```markdown\n# Project Instructions (CLAUDE.md / gemini.md / agents.md)\n\n## Default Persona\n\nLoad the Orchestrator Agent as the default persona. All user requests\nflow through the Orchestrator, which:\n1. Analyzes the request\n2. Calls evaluate_governance(planned_action)\n3. Delegates to specialist agents based on assessment\n```\n\nThe Orchestrator's tool access is limited to delegation tools (Task, Read, Glob, Grep, governance tools). It cannot directly Edit, Write, or execute Bash. This forces delegation through the governance-checked path.\n\n**Layer 2: Binding Assessment**\n\nThe `evaluate_governance()` tool returns one of three statuses:\n\n| Status | Meaning | Required Action |\n|--------|---------|-----------------|\n| PROCEED | No governance concerns | Delegate to specialist |\n| PROCEED_WITH_MODIFICATIONS | Concerns addressable | Apply modifications, then delegate |\n| ESCALATE | Blocking concerns | HALT execution, request human review |\n\nESCALATE is blocking \u2014 work stops until human approves.\n\n**Layer 3: Post-Action Verification**\n\nThe `verify_governance_compliance()` tool checks whether governance was consulted for a completed action:\n\n```markdown\n@verify_governance_compliance\n\n## Action Completed\n[Description of what was done]\n\n## Expected Governance Check\n[What should have been consulted]\n```\n\nReturns:\n- COMPLIANT: Governance was consulted with matching assessment\n- NON-COMPLIANT: Action proceeded without governance check\n- PARTIAL: Check performed but for different scope\n\nNon-compliant results are logged for pattern analysis.\n\n**Layer 4: Per-Response Reminder**\n\nEvery tool response includes a governance reminder:\n\n```\n---\n\ud83d\udccb Governance: Use query_governance() for principles, evaluate_governance() before significant actions.\n```\n\nThis enables self-correction when earlier layers are bypassed.\n\n**Bypass Authorization (Narrow Scope):**\n\nSkip governance check ONLY for:\n\n| Bypass Condition | Rationale | Logging Required |\n|-----------------|-----------|------------------|\n| Pure read operations | No risk of harm from viewing | No |\n| User explicitly authorizes | Human override with documented reason | Yes |\n| Trivial formatting-only | No semantic change | No |\n\nAll authorized bypasses must be logged with rationale when logging is required:\n\n```markdown\n## Governance Bypass Log\n| Timestamp | Action | Bypass Type | Rationale |\n|-----------|--------|-------------|-----------|\n| [time] | [action] | [type] | [reason] |\n```\n\n**Audit Trail Requirements:**\n\nEvery `evaluate_governance()` call generates an audit record:\n\n```json\n{\n  \"audit_id\": \"gov-123abc\",\n  \"timestamp\": \"2026-01-01T10:30:00Z\",\n  \"action\": \"Implementing config generator module\",\n  \"assessment\": \"PROCEED\",\n  \"principles_consulted\": [\"coding-context-specification-completeness\", \"coding-quality-security-by-default\"],\n  \"s_series_triggered\": false,\n  \"modifications\": null,\n  \"escalation_reason\": null\n}\n```\n\nAudit records enable:\n- Pattern analysis for governance effectiveness\n- Bypass detection after the fact\n- Continuous improvement of retrieval\n\n**Orchestrator Agent Definition:**\n\n```markdown\n# Orchestrator Agent\n\nname: orchestrator\ndescription: Strategic coordinator that ensures governance compliance before delegation\ncognitive_function: Strategic\n\n## Tools\n- Task (for delegation to specialists)\n- Read, Glob, Grep (for context gathering)\n- evaluate_governance (MANDATORY before delegation)\n- query_governance (for principle lookup)\n\n## System Prompt Structure\nYou are the Orchestrator, the default entry point for all user requests.\n\nYour responsibilities:\n1. Analyze incoming requests\n2. Call evaluate_governance(planned_action) BEFORE any significant action\n3. Delegate to specialist agents based on assessment\n4. Track governance compliance across the workflow\n\nYou do NOT directly execute work. You delegate to specialists who have\nthe appropriate tools (Edit, Write, Bash).\n\n### Mandatory Governance Check\nBefore delegating ANY significant action:\n1. Call evaluate_governance() with the planned action\n2. If PROCEED: Delegate with governance context\n3. If PROCEED_WITH_MODIFICATIONS: Apply modifications to delegation prompt\n4. If ESCALATE: HALT and request human review\n\n### What Counts as Significant\n- Creating or modifying files\n- Executing commands\n- Making architectural decisions\n- Changing configuration\n\n### Bypass Authorization\nSkip governance ONLY for:\n- Pure read operations (viewing files, checking status)\n- User explicitly authorizes with documented reason\n- Trivial formatting-only changes\n\n## Handoff Format\nWhen delegating to specialists, include governance context:\n\nTask: [specific task]\nGovernance Assessment: [PROCEED/MODS]\nRelevant Principles: [list IDs]\nConstraints: [any modifications required]\n```\n\n**Integration with Existing Patterns:**\n\nThis architecture extends existing patterns:\n\n| Existing Pattern | Enhancement |\n|-----------------|-------------|\n| Governance Agent (\u00a74.3) | Now invoked by Orchestrator, not optional |\n| Human-in-the-Loop (\u00a74.5) | ESCALATE integrates with approval workflow |\n| Fault Tolerance (\u00a74.4) | Governance failures trigger retry/escalate |\n| Stop-the-Line (\u00a74.4) | S-Series triggers automatic stop-the-line |\n\n#### 4.6.1 Assessment Responsibility Layers\n\n**Purpose:** Define what the script layer vs. AI layer should handle in governance assessment.\n\n**The Problem:**\n\nA governance tool like `evaluate_governance()` can return three assessments:\n- PROCEED \u2014 No concerns\n- PROCEED_WITH_MODIFICATIONS \u2014 Concerns addressable with changes\n- ESCALATE \u2014 Blocking concerns requiring human review\n\nGenerating PROCEED_WITH_MODIFICATIONS requires nuanced reasoning:\n- Detecting conflicts between the action and retrieved principles\n- Understanding which modifications would resolve the conflict\n- Generating specific, contextual recommendations\n\nScripts excel at deterministic tasks but cannot reason about nuance. AIs excel at reasoning but may be inconsistent or miss safety-critical patterns.\n\n**Solution \u2014 Hybrid Responsibility Layers:**\n\n| Layer | Responsibility | Why This Layer |\n|-------|---------------|----------------|\n| **Script** | S-Series keyword detection | Deterministic, non-negotiable safety |\n| **Script** | Principle retrieval + ranking | Fast, consistent semantic search |\n| **Script** | Structured data output | Reliable format for AI consumption |\n| **AI** | Principle conflict analysis | Requires reasoning about context |\n| **AI** | Modification generation | Context-aware recommendations |\n| **AI** | Final assessment (PROCEED/MODIFY) | Nuanced judgment call |\n\n**S-Series Remains Script-Enforced:**\n\nS-Series (Safety) principles MUST be enforced by the script layer because:\n\n1. **Deterministic** \u2014 No variance between AI models or reasoning runs\n2. **Non-negotiable** \u2014 Veto authority shouldn't depend on AI judgment quality\n3. **Fail-safe** \u2014 Works even if AI reasoning fails or is bypassed\n\n```\nif s_series_keywords_detected(action):\n    return ESCALATE  # Script enforces, AI cannot override\n```\n\n**AI Handles Nuanced Assessment:**\n\nFor non-S-Series situations, the AI receives:\n- Retrieved principles with relevance scores\n- Full principle content (not just IDs)\n- Action context\n\nThe AI then:\n1. Reads each principle's requirements\n2. Assesses whether the action complies\n3. Identifies conflicts and generates modifications\n4. Determines PROCEED or PROCEED_WITH_MODIFICATIONS\n\n**Model Capability Considerations:**\n\nDifferent AI models have different reasoning capabilities:\n\n| Model Tier | Script Reliance | AI Judgment Quality |\n|------------|-----------------|---------------------|\n| Frontier (Opus, GPT-4, Gemini Pro) | Safety guardrails only | Excellent nuanced reasoning |\n| Mid-tier (Sonnet, GPT-4o) | Safety + some heuristics | Good judgment, occasional misses |\n| Fast (Haiku, GPT-4o-mini) | More scripted rules needed | May need explicit checklists |\n\n**Implementation Pattern:**\n\n```python\ndef evaluate_governance(action: str) -> GovernanceAssessment:\n    # Script layer: Safety guardrail (non-negotiable)\n    s_series = check_s_series_keywords(action)\n    if s_series.triggered:\n        return GovernanceAssessment(\n            assessment=\"ESCALATE\",\n            rationale=\"S-Series safety review required\",\n            s_series_check=s_series\n        )\n\n    # Script layer: Data retrieval\n    principles = retrieve_relevant_principles(action)\n\n    # Return data for AI judgment layer\n    return GovernanceAssessment(\n        assessment=None,  # AI determines\n        relevant_principles=principles,\n        requires_ai_judgment=True\n    )\n```\n\nThe AI client then uses the returned principles to make the final assessment.\n\n**Key Principle:**\n\n> Don't try to script nuanced judgment. Don't let AI override safety guardrails.\n\n#### 4.6.2 Gateway-Based Enforcement (Platform-Agnostic)\n\nIMPORTANT\n\n**Purpose:** Provide architectural governance enforcement for platforms that lack subagent capability.\n\n**The Problem:**\n\nThe Orchestrator-First pattern (\u00a74.6) relies on Claude Code's subagent architecture\u2014a unique feature where `.claude/agents/` defines parallel agents with restricted tool access. This works because the *client* manages agent separation.\n\nOther platforms (OpenAI, Gemini, Cursor, Windsurf) lack this capability:\n- No parallel agent architecture\n- No client-managed tool restrictions\n- Governance relies on instructions alone (\"hope-based\")\n\n**Solution \u2014 MCP Gateway Pattern:**\n\nInstead of hoping the AI follows governance instructions, enforce governance *physically* by controlling tool access at the server layer.\n\n```\nWithout Gateway (Hope-Based):          With Gateway (Architecture-Based):\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                           \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 AI Agent \u2502                           \u2502 AI Agent \u2502\n\u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518                           \u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518\n     \u2502 Direct access                        \u2502 Only sees governance tools\n     \u25bc                                      \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 MCP Servers  \u2502                       \u2502 Governance     \u2502\n\u2502 (file, db,   \u2502                       \u2502 Gateway/Proxy  \u2502\n\u2502  shell, etc) \u2502                       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                \u2502 Validates before allowing\n                                                \u25bc\n                                       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                                       \u2502 MCP Servers  \u2502\n                                       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n**How Gateway Enforcement Works:**\n\n| Layer | What Happens |\n|-------|--------------|\n| 1. Request | AI calls tool (e.g., `edit_file`) via Gateway |\n| 2. Governance Check | Gateway calls `evaluate_governance(planned_action)` |\n| 3. Assessment | PROCEED \u2192 forward request; ESCALATE \u2192 reject with reason |\n| 4. Execution | Only governance-approved requests reach the actual server |\n| 5. Logging | All requests logged for audit trail |\n\n**Available MCP Gateway Solutions (2025):**\n\n| Gateway | Key Feature | Use Case |\n|---------|-------------|----------|\n| Lasso MCP Gateway | Plugin-based guardrails, PII detection | Security-focused orgs |\n| Envoy AI Gateway | Session-aware, leverages Envoy infra | Existing Envoy users |\n| IBM ContextForge | FastAPI-based, large-scale | Enterprise deployments |\n| Custom Governance Proxy | Wrap this MCP server as gatekeeper | Simple deployments |\n\n**When to Use Gateway vs Subagent:**\n\n| Factor | Subagent (Claude Code) | Gateway |\n|--------|----------------------|---------|\n| Platform | Claude Code/Desktop only | Any MCP client |\n| Setup complexity | Low (drop file in folder) | Medium (deploy proxy) |\n| Enforcement | Client-managed | Server-managed |\n| Visibility | Agent visible in UI | Transparent to AI |\n| Enterprise | Single-user focus | Multi-user, centralized |\n\n**Deployment Decision Matrix:**\n\n```\nIs this for Claude Code users only?\n\u251c\u2500\u2500 YES \u2192 Use subagent pattern (\u00a74.6, install_agent tool)\n\u2514\u2500\u2500 NO \u2192 Does organization have MCP gateway infrastructure?\n         \u251c\u2500\u2500 YES \u2192 Integrate with existing gateway\n         \u2514\u2500\u2500 NO \u2192 Deploy governance proxy or use instruction-based fallback\n```\n\n**Instruction-Based Fallback (Minimum Viable):**\n\nWhen gateway isn't feasible, layer defenses:\n\n1. **SERVER_INSTRUCTIONS** \u2014 Injected at MCP init\n2. **Per-Response Reminder** \u2014 Appended to every tool response\n3. **Audit Log Review** \u2014 Periodic `verify_governance_compliance()` checks\n\nThis provides guidance but not enforcement\u2014the AI *can* bypass. For high-stakes environments, gateway architecture is recommended.\n\n**Key Principle:**\n\n> Enforce governance *physically* (tool access control) rather than *psychologically* (instructions). Architecture beats hope.\n",
+          "content": "### 4.6 Governance Enforcement Architecture\n\nCRITICAL\n\n**Purpose:** Make governance checks structural rather than optional through an Orchestrator-First pattern.\n\n**The Problem:**\n\nVoluntary governance tools (like `evaluate_governance`) can be ignored. Even with reminders in system prompts, server instructions, and per-response nudges, AI can bypass governance checks. This creates compliance gaps where:\n- Implementation proceeds without consulting principles\n- Decisions lack governance context\n- S-Series violations may not be caught\n\n**Solution: Orchestrator-First Architecture**\n\nMake governance structural by implementing an Orchestrator Agent as the default persona. The Orchestrator MUST call `evaluate_governance()` before delegating any significant action.\n\n```\nUser Request\n    \u2193\nOrchestrator Agent (default persona)\n    \u2193\nevaluate_governance(planned_action)\n    \u2193\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502   PROCEED   \u2502 PROCEED_WITH_MODS    \u2502  ESCALATE   \u2502\n\u2502     \u2193       \u2502         \u2193            \u2502      \u2193      \u2502\n\u2502  Delegate   \u2502  Apply mods, then    \u2502   HALT      \u2502\n\u2502  to Agent   \u2502  delegate to Agent   \u2502 Human req'd \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2534\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n**Enforcement Layers (Defense in Depth):**\n\n| Layer | Mechanism | What It Catches |\n|-------|-----------|-----------------|\n| 1. Default Persona | Orchestrator loads automatically | Direct action without delegation |\n| 2. Governance Tool | `evaluate_governance()` returns binding assessment | Delegation without compliance check |\n| 3. Post-Action Audit | `verify_governance_compliance()` checks if consulted | Bypassed governance after the fact |\n| 4. Per-Response Reminder | Appended to tool responses | Self-correction opportunity |\n\n**Layer 1: Default Persona Activation**\n\nThe Orchestrator is loaded as the default persona when a session starts:\n\n```markdown\n# Project Instructions (CLAUDE.md / gemini.md / agents.md)\n\n## Default Persona\n\nLoad the Orchestrator Agent as the default persona. All user requests\nflow through the Orchestrator, which:\n1. Analyzes the request\n2. Calls evaluate_governance(planned_action)\n3. Delegates to specialist agents based on assessment\n```\n\nThe Orchestrator's tool access is limited to delegation tools (Task, Read, Glob, Grep, governance tools). It cannot directly Edit, Write, or execute Bash. This forces delegation through the governance-checked path.\n\n**Layer 2: Binding Assessment**\n\nThe `evaluate_governance()` tool returns one of three statuses:\n\n| Status | Meaning | Required Action |\n|--------|---------|-----------------|\n| PROCEED | No governance concerns | Delegate to specialist |\n| PROCEED_WITH_MODIFICATIONS | Concerns addressable | Apply modifications, then delegate |\n| ESCALATE | Blocking concerns | HALT execution, request human review |\n\nESCALATE is blocking \u2014 work stops until human approves.\n\n**Layer 3: Post-Action Verification**\n\nThe `verify_governance_compliance()` tool checks whether governance was consulted for a completed action:\n\n```markdown\n@verify_governance_compliance\n\n## Action Completed\n[Description of what was done]\n\n## Expected Governance Check\n[What should have been consulted]\n```\n\nReturns:\n- COMPLIANT: Governance was consulted with matching assessment\n- NON-COMPLIANT: Action proceeded without governance check\n- PARTIAL: Check performed but for different scope\n\nNon-compliant results are logged for pattern analysis.\n\n**Layer 4: Per-Response Reminder**\n\nEvery tool response includes a governance reminder:\n\n```\n---\n\ud83d\udccb Governance: Use query_governance() for principles, evaluate_governance() before significant actions.\n```\n\nThis enables self-correction when earlier layers are bypassed.\n\n**Bypass Authorization (Narrow Scope):**\n\nSkip governance check ONLY for:\n\n| Bypass Condition | Rationale | Logging Required |\n|-----------------|-----------|------------------|\n| Pure read operations | No risk of harm from viewing | No |\n| User explicitly authorizes | Human override with documented reason | Yes |\n| Trivial formatting-only | No semantic change | No |\n\nAll authorized bypasses must be logged with rationale when logging is required:\n\n```markdown\n## Governance Bypass Log\n| Timestamp | Action | Bypass Type | Rationale |\n|-----------|--------|-------------|-----------|\n| [time] | [action] | [type] | [reason] |\n```\n\n**Audit Trail Requirements:**\n\nEvery `evaluate_governance()` call generates an audit record:\n\n```json\n{\n  \"audit_id\": \"gov-123abc\",\n  \"timestamp\": \"2026-01-01T10:30:00Z\",\n  \"action\": \"Implementing config generator module\",\n  \"assessment\": \"PROCEED\",\n  \"principles_consulted\": [\"coding-context-specification-completeness\", \"coding-quality-security-by-default\"],\n  \"s_series_triggered\": false,\n  \"modifications\": null,\n  \"escalation_reason\": null\n}\n```\n\nAudit records enable:\n- Pattern analysis for governance effectiveness\n- Bypass detection after the fact\n- Continuous improvement of retrieval\n\n**Orchestrator Agent Definition:**\n\n```markdown\n# Orchestrator Agent\n\nname: orchestrator\ndescription: Strategic coordinator that ensures governance compliance before delegation\ncognitive_function: Strategic\n\n## Tools\n- Task (for delegation to specialists)\n- Read, Glob, Grep (for context gathering)\n- evaluate_governance (MANDATORY before delegation)\n- query_governance (for principle lookup)\n\n## System Prompt Structure\nYou are the Orchestrator, the default entry point for all user requests.\n\nYour responsibilities:\n1. Analyze incoming requests\n2. Call evaluate_governance(planned_action) BEFORE any significant action\n3. Delegate to specialist agents based on assessment\n4. Track governance compliance across the workflow\n\nYou do NOT directly execute work. You delegate to specialists who have\nthe appropriate tools (Edit, Write, Bash).\n\n### Mandatory Governance Check\nBefore delegating ANY significant action:\n1. Call evaluate_governance() with the planned action\n2. If PROCEED: Delegate with governance context\n3. If PROCEED_WITH_MODIFICATIONS: Apply modifications to delegation prompt\n4. If ESCALATE: HALT and request human review\n\n### What Counts as Significant\n- Creating or modifying files\n- Executing commands\n- Making architectural decisions\n- Changing configuration\n\n### Bypass Authorization\nSkip governance ONLY for:\n- Pure read operations (viewing files, checking status)\n- User explicitly authorizes with documented reason\n- Trivial formatting-only changes\n\n## Handoff Format\nWhen delegating to specialists, include governance context:\n\nTask: [specific task]\nGovernance Assessment: [PROCEED/MODS]\nRelevant Principles: [list IDs]\nConstraints: [any modifications required]\n```\n\n**Integration with Existing Patterns:**\n\nThis architecture extends existing patterns:\n\n| Existing Pattern | Enhancement |\n|-----------------|-------------|\n| Governance Agent (\u00a74.3) | Now invoked by Orchestrator, not optional |\n| Human-in-the-Loop (\u00a74.5) | ESCALATE integrates with approval workflow |\n| Fault Tolerance (\u00a74.4) | Governance failures trigger retry/escalate |\n| Stop-the-Line (\u00a74.4) | S-Series triggers automatic stop-the-line |\n",
           "line_range": [
             2337,
-            2731
+            2546
           ],
           "keywords": [
             "governance",
             "enforcement",
             "architecture"
           ],
-          "embedding_id": 345
+          "embedding_id": 358
+        },
+        {
+          "id": "multi-method-assessment-responsibility-layers",
+          "domain": "multi-agent",
+          "title": "Assessment Responsibility Layers",
+          "content": "#### 4.6.1 Assessment Responsibility Layers\n\n**Purpose:** Define what the script layer vs. AI layer should handle in governance assessment.\n\n**The Problem:**\n\nA governance tool like `evaluate_governance()` can return three assessments:\n- PROCEED \u2014 No concerns\n- PROCEED_WITH_MODIFICATIONS \u2014 Concerns addressable with changes\n- ESCALATE \u2014 Blocking concerns requiring human review\n\nGenerating PROCEED_WITH_MODIFICATIONS requires nuanced reasoning:\n- Detecting conflicts between the action and retrieved principles\n- Understanding which modifications would resolve the conflict\n- Generating specific, contextual recommendations\n\nScripts excel at deterministic tasks but cannot reason about nuance. AIs excel at reasoning but may be inconsistent or miss safety-critical patterns.\n\n**Solution \u2014 Hybrid Responsibility Layers:**\n\n| Layer | Responsibility | Why This Layer |\n|-------|---------------|----------------|\n| **Script** | S-Series keyword detection | Deterministic, non-negotiable safety |\n| **Script** | Principle retrieval + ranking | Fast, consistent semantic search |\n| **Script** | Structured data output | Reliable format for AI consumption |\n| **AI** | Principle conflict analysis | Requires reasoning about context |\n| **AI** | Modification generation | Context-aware recommendations |\n| **AI** | Final assessment (PROCEED/MODIFY) | Nuanced judgment call |\n\n**S-Series Remains Script-Enforced:**\n\nS-Series (Safety) principles MUST be enforced by the script layer because:\n\n1. **Deterministic** \u2014 No variance between AI models or reasoning runs\n2. **Non-negotiable** \u2014 Veto authority shouldn't depend on AI judgment quality\n3. **Fail-safe** \u2014 Works even if AI reasoning fails or is bypassed\n\n```\nif s_series_keywords_detected(action):\n    return ESCALATE  # Script enforces, AI cannot override\n```\n\n**AI Handles Nuanced Assessment:**\n\nFor non-S-Series situations, the AI receives:\n- Retrieved principles with relevance scores\n- Full principle content (not just IDs)\n- Action context\n\nThe AI then:\n1. Reads each principle's requirements\n2. Assesses whether the action complies\n3. Identifies conflicts and generates modifications\n4. Determines PROCEED or PROCEED_WITH_MODIFICATIONS\n\n**Model Capability Considerations:**\n\nDifferent AI models have different reasoning capabilities:\n\n| Model Tier | Script Reliance | AI Judgment Quality |\n|------------|-----------------|---------------------|\n| Frontier (Opus, GPT-4, Gemini Pro) | Safety guardrails only | Excellent nuanced reasoning |\n| Mid-tier (Sonnet, GPT-4o) | Safety + some heuristics | Good judgment, occasional misses |\n| Fast (Haiku, GPT-4o-mini) | More scripted rules needed | May need explicit checklists |\n\n**Implementation Pattern:**\n\n```python\ndef evaluate_governance(action: str) -> GovernanceAssessment:\n    # Script layer: Safety guardrail (non-negotiable)\n    s_series = check_s_series_keywords(action)\n    if s_series.triggered:\n        return GovernanceAssessment(\n            assessment=\"ESCALATE\",\n            rationale=\"S-Series safety review required\",\n            s_series_check=s_series\n        )\n\n    # Script layer: Data retrieval\n    principles = retrieve_relevant_principles(action)\n\n    # Return data for AI judgment layer\n    return GovernanceAssessment(\n        assessment=None,  # AI determines\n        relevant_principles=principles,\n        requires_ai_judgment=True\n    )\n```\n\nThe AI client then uses the returned principles to make the final assessment.\n\n**Key Principle:**\n\n> Don't try to script nuanced judgment. Don't let AI override safety guardrails.\n",
+          "line_range": [
+            2547,
+            2641
+          ],
+          "keywords": [
+            "assessment",
+            "responsibility",
+            "layers"
+          ],
+          "embedding_id": 359
+        },
+        {
+          "id": "multi-method-gateway-based-enforcement-platform-agnostic",
+          "domain": "multi-agent",
+          "title": "Gateway-Based Enforcement (Platform-Agnostic)",
+          "content": "#### 4.6.2 Gateway-Based Enforcement (Platform-Agnostic)\n\nIMPORTANT\n\n**Purpose:** Provide architectural governance enforcement for platforms that lack subagent capability.\n\n**The Problem:**\n\nThe Orchestrator-First pattern (\u00a74.6) relies on Claude Code's subagent architecture\u2014a unique feature where `.claude/agents/` defines parallel agents with restricted tool access. This works because the *client* manages agent separation.\n\nOther platforms (OpenAI, Gemini, Cursor, Windsurf) lack this capability:\n- No parallel agent architecture\n- No client-managed tool restrictions\n- Governance relies on instructions alone (\"hope-based\")\n\n**Solution \u2014 MCP Gateway Pattern:**\n\nInstead of hoping the AI follows governance instructions, enforce governance *physically* by controlling tool access at the server layer.\n\n```\nWithout Gateway (Hope-Based):          With Gateway (Architecture-Based):\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                           \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 AI Agent \u2502                           \u2502 AI Agent \u2502\n\u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518                           \u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518\n     \u2502 Direct access                        \u2502 Only sees governance tools\n     \u25bc                                      \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 MCP Servers  \u2502                       \u2502 Governance     \u2502\n\u2502 (file, db,   \u2502                       \u2502 Gateway/Proxy  \u2502\n\u2502  shell, etc) \u2502                       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                \u2502 Validates before allowing\n                                                \u25bc\n                                       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                                       \u2502 MCP Servers  \u2502\n                                       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n**How Gateway Enforcement Works:**\n\n| Layer | What Happens |\n|-------|--------------|\n| 1. Request | AI calls tool (e.g., `edit_file`) via Gateway |\n| 2. Governance Check | Gateway calls `evaluate_governance(planned_action)` |\n| 3. Assessment | PROCEED \u2192 forward request; ESCALATE \u2192 reject with reason |\n| 4. Execution | Only governance-approved requests reach the actual server |\n| 5. Logging | All requests logged for audit trail |\n\n**Available MCP Gateway Solutions (2025):**\n\n| Gateway | Key Feature | Use Case |\n|---------|-------------|----------|\n| Lasso MCP Gateway | Plugin-based guardrails, PII detection | Security-focused orgs |\n| Envoy AI Gateway | Session-aware, leverages Envoy infra | Existing Envoy users |\n| IBM ContextForge | FastAPI-based, large-scale | Enterprise deployments |\n| Custom Governance Proxy | Wrap this MCP server as gatekeeper | Simple deployments |\n\n**When to Use Gateway vs Subagent:**\n\n| Factor | Subagent (Claude Code) | Gateway |\n|--------|----------------------|---------|\n| Platform | Claude Code/Desktop only | Any MCP client |\n| Setup complexity | Low (drop file in folder) | Medium (deploy proxy) |\n| Enforcement | Client-managed | Server-managed |\n| Visibility | Agent visible in UI | Transparent to AI |\n| Enterprise | Single-user focus | Multi-user, centralized |\n\n**Deployment Decision Matrix:**\n\n```\nIs this for Claude Code users only?\n\u251c\u2500\u2500 YES \u2192 Use subagent pattern (\u00a74.6, install_agent tool)\n\u2514\u2500\u2500 NO \u2192 Does organization have MCP gateway infrastructure?\n         \u251c\u2500\u2500 YES \u2192 Integrate with existing gateway\n         \u2514\u2500\u2500 NO \u2192 Deploy governance proxy or use instruction-based fallback\n```\n\n**Instruction-Based Fallback (Minimum Viable):**\n\nWhen gateway isn't feasible, layer defenses:\n\n1. **SERVER_INSTRUCTIONS** \u2014 Injected at MCP init\n2. **Per-Response Reminder** \u2014 Appended to every tool response\n3. **Audit Log Review** \u2014 Periodic `verify_governance_compliance()` checks\n\nThis provides guidance but not enforcement\u2014the AI *can* bypass. For high-stakes environments, gateway architecture is recommended.\n\n**Key Principle:**\n\n> Enforce governance *physically* (tool access control) rather than *psychologically* (instructions). Architecture beats hope.\n",
+          "line_range": [
+            2642,
+            2731
+          ],
+          "keywords": [
+            "gateway-based",
+            "enforcement",
+            "(platform-agnostic)"
+          ],
+          "embedding_id": 360
         },
         {
           "id": "multi-method-agent-evaluation-framework",
           "domain": "multi-agent",
           "title": "Agent Evaluation Framework",
-          "content": "### 4.7 Agent Evaluation Framework\n\nCRITICAL\n\n**Purpose:** Systematically evaluate agent performance across multiple dimensions for continuous improvement.\n\n**Source:** Google Vertex AI Gen AI Evaluation Service, Confident AI, orq.ai evaluation research\n\n**Why Validation Alone Is Insufficient:**\n\nValidation (\u00a74.1) checks individual outputs against acceptance criteria. The Agent Evaluation Framework provides systematic measurement of agent performance over time, enabling optimization and regression detection.\n\n**The Four Evaluation Layers:**\n\n| Layer | What It Measures | When to Evaluate | Key Metrics |\n|-------|------------------|------------------|-------------|\n| **Component** | Individual subsystem quality | After each component change | Per-tool accuracy, retrieval precision |\n| **Trajectory** | Decision-making path quality | Per task completion | Step efficiency, reasoning coherence |\n| **Outcome** | Task completion quality | Per task completion | Goal fulfillment, user satisfaction |\n| **System** | Multi-agent coordination | Per workflow completion | Handoff success, cascade failures |\n\n**Component-Level Evaluation:**\n\nTest subsystems in isolation:\n\n| Component | Evaluation Method | Metrics |\n|-----------|------------------|---------|\n| Routing logic | Accuracy on labeled dataset | Precision, recall, F1 |\n| Context compression | Manual review of distillation | Information preservation rate |\n| Tool selection | Comparison to ideal tool | Selection accuracy |\n| Governance retrieval | Relevance scoring | MRR, NDCG |\n\n**Trajectory Evaluation (Key Addition):**\n\nEvaluate the decision-making path, not just the final output:\n\n| Metric | Definition | Target |\n|--------|------------|--------|\n| **Exact match** | Trajectory exactly matches ideal solution | Task-dependent |\n| **In-order match** | Required actions in correct sequence | > 80% |\n| **Any-order match** | Required actions regardless of order | > 90% |\n| **Step efficiency** | Actual steps / Minimum required steps | < 1.5x |\n| **Backtrack rate** | Steps that revise prior decisions | < 10% |\n\n**Trajectory Evaluation Template:**\n\n```markdown\n## Trajectory Evaluation \u2014 [Task ID]\n\n### Ideal Trajectory\n1. [Expected step 1]\n2. [Expected step 2]\n3. [Expected step N]\n\n### Actual Trajectory\n1. [Actual step 1] \u2014 MATCH / EXTRA / WRONG\n2. [Actual step 2] \u2014 MATCH / EXTRA / WRONG\n...\n\n### Metrics\n- Exact Match: YES / NO\n- In-Order Match: [X]%\n- Any-Order Match: [X]%\n- Step Efficiency: [actual] / [ideal] = [ratio]\n- Backtrack Rate: [count] / [total] = [%]\n\n### Analysis\n[Why trajectory deviated, if applicable]\n```\n\n**Outcome Evaluation:**\n\n| Metric | Definition | Measurement |\n|--------|------------|-------------|\n| Goal fulfillment | Task objectives achieved | Checklist against acceptance criteria |\n| Output quality | Correctness, completeness | Domain-specific rubric |\n| User satisfaction | Human rating of usefulness | 1-5 scale or thumbs up/down |\n| Time to completion | Duration from start to done | Clock time |\n\n**System-Level Evaluation:**\n\n| Metric | Definition | Target |\n|--------|------------|--------|\n| Handoff success rate | Successful transfers / Total transfers | > 95% |\n| Cascade failure rate | Multi-agent failures from single error | < 1% |\n| Resource efficiency | Tokens used / Baseline estimate | < 150% |\n| Human escalation rate | Escalations / Total tasks | Task-appropriate |\n| End-to-end latency | Total time for multi-agent workflow | Within SLA |\n\n**Evaluation Cadence:**\n\n| Level | Frequency | Trigger |\n|-------|-----------|---------|\n| Component | On change | Code/config modification |\n| Trajectory | Per task | Task completion |\n| Outcome | Per task | Task completion |\n| System | Weekly | Scheduled review |\n\n**Evaluation Dashboard Requirements:**\n\n```yaml\ndashboard:\n  component_health:\n    - routing_accuracy\n    - compression_quality\n    - tool_selection_rate\n\n  trajectory_trends:\n    - avg_step_efficiency (7-day rolling)\n    - backtrack_rate_trend\n    - exact_match_rate\n\n  outcome_summary:\n    - goal_fulfillment_rate\n    - user_satisfaction_avg\n    - completion_time_p50_p95\n\n  system_alerts:\n    - cascade_failures_today\n    - escalation_rate_vs_baseline\n    - token_budget_utilization\n```\n\n#### 4.7.1 Grader Types\n\nIMPORTANT\n\n**Purpose:** Select appropriate grading approaches based on task characteristics.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025)\n\n**The Three Grader Types:**\n\n| Type | When to Use | Strengths | Weaknesses |\n|------|-------------|-----------|------------|\n| **Code-Based** | Deterministic validation, structured outputs | Fast, cheap, reproducible, easy debugging | Brittle to valid variations, lacks nuance |\n| **Model-Based** | Subjective tasks, open-ended outputs | Flexible, scalable, captures nuance | Non-deterministic, expensive, requires calibration |\n| **Human** | Gold-standard calibration, edge cases | Matches expert judgment, handles ambiguity | Slow, expensive, doesn't scale |\n\n**Code-Based Grader Methods:**\n\n| Method | Use Case | Example |\n|--------|----------|---------|\n| String matching | Exact expected output | `assert output == expected` |\n| Regex patterns | Structured format validation | `re.match(r'\\d{3}-\\d{4}', phone)` |\n| Static analysis | Code quality checks | ruff, mypy, bandit |\n| Unit tests | Functional correctness | pytest assertions |\n| State verification | Environment changes | File exists, DB record created |\n\n**Model-Based Grader Methods:**\n\n| Method | Use Case | Example |\n|--------|----------|---------|\n| Rubric scoring | Multi-dimensional quality | \"Rate clarity 1-5, completeness 1-5\" |\n| Natural language assertion | Flexible criteria | \"Does the response address the user's concern?\" |\n| Pairwise comparison | Relative quality | \"Which response better solves the problem?\" |\n| Multi-judge consensus | High-stakes decisions | 3 LLM judges, majority vote |\n\n**Model-Based Grader Design Principles:**\n\n- **Give escape options** \u2014 Include \"Unknown\" or \"Cannot determine\" to prevent hallucinated judgments\n- **Isolate dimensions** \u2014 Grade each quality dimension separately with independent prompts\n- **Calibrate against humans** \u2014 Periodically validate LLM grader agreement with expert judgment\n- **Use structured output** \u2014 Request JSON with score and rationale for debugging\n\n**Human Grader Methods:**\n\n| Method | Use Case | Scale |\n|--------|----------|-------|\n| SME review | Domain expertise required | Low volume, high stakes |\n| Spot-check sampling | Calibration and drift detection | 5-10% of eval suite |\n| A/B preference testing | Comparative quality | User-facing changes |\n\n**Grader Selection Decision Tree:**\n\n```\nIs output deterministically verifiable?\n\u251c\u2500\u2500 Yes \u2192 Code-Based Grader\n\u2514\u2500\u2500 No \u2192 Is task subjective or open-ended?\n    \u251c\u2500\u2500 Yes \u2192 Model-Based Grader (calibrate with human spot-checks)\n    \u2514\u2500\u2500 No \u2192 Is this high-stakes or ambiguous?\n        \u251c\u2500\u2500 Yes \u2192 Human Grader\n        \u2514\u2500\u2500 No \u2192 Model-Based Grader\n```\n\n---\n\n#### 4.7.2 Non-Determinism Measurement\n\nIMPORTANT\n\n**Purpose:** Quantify agent reliability accounting for inherent model variability.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025)\n\n**Why Non-Determinism Matters:**\n\nAI agents exhibit run-to-run variability even with identical inputs. A single trial is insufficient to characterize true performance. Multiple trials reveal the distribution of outcomes.\n\n**The Two Key Metrics:**\n\n| Metric | Formula | Interpretation |\n|--------|---------|----------------|\n| **pass@k** | P(\u22651 success in k trials) | \"Can the agent ever succeed?\" |\n| **pass^k** | P(all k trials succeed) | \"Can we rely on the agent?\" |\n\n**Mathematical Relationship:**\n\nFor an agent with per-trial success probability p:\n- `pass@k = 1 - (1-p)^k` \u2014 Approaches 100% as k increases\n- `pass^k = p^k` \u2014 Approaches 0% as k increases\n\n**Divergence Example:**\n\n| Per-Trial Success | pass@10 | pass^10 |\n|-------------------|---------|---------|\n| 90% | 99.99% | 34.9% |\n| 70% | 99.99% | 2.8% |\n| 50% | 99.9% | 0.1% |\n\n**Interpretation:** An agent that succeeds 50% of the time will almost always succeed *eventually* (pass@10 \u2248 100%) but almost never succeeds *reliably* (pass^10 \u2248 0%).\n\n**When to Use Each Metric:**\n\n| Scenario | Metric | Rationale |\n|----------|--------|-----------|\n| Research/exploration tasks | pass@k | One good result is valuable |\n| Customer-facing automation | pass^k | Reliability is critical |\n| Human-in-the-loop workflows | pass@k | Human catches failures |\n| Fully autonomous agents | pass^k | No safety net |\n\n**Recommended Trial Counts:**\n\n| Eval Purpose | Minimum Trials | Notes |\n|--------------|----------------|-------|\n| Quick iteration | 3-5 | Detect gross failures |\n| Release decision | 10-20 | Statistical confidence |\n| Regression suite | 5-10 | Balance speed and signal |\n| Capability frontier | 20-100 | Characterize true ceiling |\n\n**Non-Determinism Measurement Template:**\n\n```markdown\n## Non-Determinism Analysis \u2014 [Task ID]\n\n### Configuration\n- Trials: [k]\n- Temperature: [value]\n- Model: [version]\n\n### Results\n| Trial | Outcome | Notes |\n|-------|---------|-------|\n| 1 | PASS/FAIL | [brief note] |\n| ... | ... | ... |\n\n### Metrics\n- Per-trial success rate: [successes]/[k] = [p]%\n- pass@k: [calculated]%\n- pass^k: [calculated]%\n\n### Reliability Assessment\n[HIGH/MEDIUM/LOW] \u2014 [rationale]\n```\n\n---\n\n#### 4.7.3 Capability vs Regression Evals\n\nIMPORTANT\n\n**Purpose:** Distinguish between evals that drive improvement and evals that guard existing behavior.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025)\n\n**The Two Eval Types:**\n\n| Type | Purpose | Expected Pass Rate | Growth Pattern |\n|------|---------|-------------------|----------------|\n| **Capability** | Target agent struggles, drive improvement | Low initially (10-50%) | Rises as agent improves |\n| **Regression** | Detect backsliding, guard existing behavior | High baseline (~100%) | Suite grows over time |\n\n**Capability Eval Characteristics:**\n\n- Tests things the agent *cannot yet do reliably*\n- Low pass rates are expected and informative\n- Provides improvement targets for development\n- Measures frontier of agent capability\n\n**Regression Eval Characteristics:**\n\n- Tests things the agent *should already do*\n- Near-100% pass rate is the baseline\n- Failures indicate breaking changes\n- Runs in CI/CD to block problematic deployments\n\n**The Graduation Pattern:**\n\n```\nCapability Eval (pass@10 = 30%)\n        \u2502\n        \u25bc [Agent improves]\nCapability Eval (pass@10 = 85%)\n        \u2502\n        \u25bc [Threshold met]\nGraduates to Regression Suite\n        \u2502\n        \u25bc [Baseline locked]\nRegression Eval (expected: 100%)\n```\n\n**Graduation Criteria:**\n\n| Metric | Threshold for Graduation |\n|--------|--------------------------|\n| pass@10 | > 80% |\n| pass^5 | > 60% |\n| Consecutive stable runs | \u2265 3 |\n\n**Eval Suite Composition:**\n\n| Suite Stage | Capability % | Regression % |\n|-------------|--------------|--------------|\n| Early development | 80% | 20% |\n| Mature agent | 30% | 70% |\n| Production maintenance | 10% | 90% |\n\n**Saturation Monitoring:**\n\nWhen capability evals approach 100%, they lose signal:\n- **Symptom:** All tests pass, but users still report issues\n- **Cause:** Eval suite no longer challenges agent frontier\n- **Fix:** Add harder tasks, graduate saturated evals to regression\n\n**Saturation Detection:**\n\n| Signal | Threshold | Action |\n|--------|-----------|--------|\n| Capability suite pass rate | > 90% sustained | Add harder tasks |\n| No capability failures for | > 2 weeks | Review suite difficulty |\n| User-reported issues not caught | Any | Convert to regression test |\n\n---\n\n#### 4.7.4 Grader Design Principles\n\nIMPORTANT\n\n**Purpose:** Build evaluation graders that accurately measure agent performance without false positives or negatives.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025), METR evaluation research\n\n**Core Principles:**\n\n| Principle | Description | Why It Matters |\n|-----------|-------------|----------------|\n| **Grade outcomes, not paths** | Evaluate final result, not specific steps taken | Agents find valid approaches designers didn't anticipate |\n| **Build partial credit** | Multi-component tasks shouldn't be all-or-nothing | Distinguishes \"close\" from \"completely wrong\" |\n| **Make tasks unambiguous** | Two experts should independently reach same verdict | Ambiguity causes grader disagreement and noise |\n| **Create reference solutions** | Prove task is solvable, validate grader | 0% pass@100 usually indicates broken task |\n| **Read transcripts** | Manually review failures to verify grader correctness | Catches grader bugs and unfair failures |\n\n**Anti-Pattern: Overly Rigid Grading**\n\n**Example:** Task asks agent to compute a percentage. Grader expects \"96.12\" but agent outputs \"96.124991\".\n\n**Problem:** Mathematically equivalent answers rejected due to formatting.\n\n**Fix:** Use tolerance-based comparison:\n```python\n# Bad: Exact string match\nassert output == \"96.12\"\n\n# Good: Numeric tolerance\nassert abs(float(output) - 96.12) < 0.01\n```\n\n**Anti-Pattern: Ambiguous Success Criteria**\n\n**Example:** Task says \"optimize the function\" but grader expects specific optimization.\n\n**Problem:** Agent applies valid but unexpected optimization; grader fails it.\n\n**Fix:** Specify measurable criteria:\n```markdown\n# Bad: \"Optimize the function\"\n# Good: \"Reduce function runtime by at least 20% on the provided benchmark\"\n```\n\n**Anti-Pattern: Grading Stated Goals vs. Intended Goals**\n\n**Example:** Task says \"reach 90% accuracy\" but grader requires exceeding 90%.\n\n**Problem:** Instruction-following agents stop at exactly 90%; grader fails them.\n\n**Fix:** Align grader with stated requirements:\n```python\n# Bad: Penalizes instruction-following\nassert accuracy > 0.90\n\n# Good: Matches stated requirement\nassert accuracy >= 0.90\n```\n\n**Grader Validation Checklist:**\n\nBefore deploying a new grader:\n\n- [ ] Reference solution exists and passes\n- [ ] Two domain experts agree on pass/fail for 10+ edge cases\n- [ ] Grader handles valid output variations (formatting, ordering)\n- [ ] Partial credit distinguishes degrees of correctness\n- [ ] Failure messages explain what was wrong\n- [ ] Manual transcript review confirms failures are fair\n\n**Grader Quality Metrics:**\n\n| Metric | Definition | Target |\n|--------|------------|--------|\n| Expert agreement | % of cases where grader matches human judgment | > 95% |\n| False positive rate | Valid solutions incorrectly failed | < 2% |\n| False negative rate | Invalid solutions incorrectly passed | < 5% |\n| Explanation clarity | Can developer understand why task failed? | Subjective review |\n\n---\n",
+          "content": "### 4.7 Agent Evaluation Framework\n\nCRITICAL\n\n**Purpose:** Systematically evaluate agent performance across multiple dimensions for continuous improvement.\n\n**Source:** Google Vertex AI Gen AI Evaluation Service, Confident AI, orq.ai evaluation research\n\n**Why Validation Alone Is Insufficient:**\n\nValidation (\u00a74.1) checks individual outputs against acceptance criteria. The Agent Evaluation Framework provides systematic measurement of agent performance over time, enabling optimization and regression detection.\n\n**The Four Evaluation Layers:**\n\n| Layer | What It Measures | When to Evaluate | Key Metrics |\n|-------|------------------|------------------|-------------|\n| **Component** | Individual subsystem quality | After each component change | Per-tool accuracy, retrieval precision |\n| **Trajectory** | Decision-making path quality | Per task completion | Step efficiency, reasoning coherence |\n| **Outcome** | Task completion quality | Per task completion | Goal fulfillment, user satisfaction |\n| **System** | Multi-agent coordination | Per workflow completion | Handoff success, cascade failures |\n\n**Component-Level Evaluation:**\n\nTest subsystems in isolation:\n\n| Component | Evaluation Method | Metrics |\n|-----------|------------------|---------|\n| Routing logic | Accuracy on labeled dataset | Precision, recall, F1 |\n| Context compression | Manual review of distillation | Information preservation rate |\n| Tool selection | Comparison to ideal tool | Selection accuracy |\n| Governance retrieval | Relevance scoring | MRR, NDCG |\n\n**Trajectory Evaluation (Key Addition):**\n\nEvaluate the decision-making path, not just the final output:\n\n| Metric | Definition | Target |\n|--------|------------|--------|\n| **Exact match** | Trajectory exactly matches ideal solution | Task-dependent |\n| **In-order match** | Required actions in correct sequence | > 80% |\n| **Any-order match** | Required actions regardless of order | > 90% |\n| **Step efficiency** | Actual steps / Minimum required steps | < 1.5x |\n| **Backtrack rate** | Steps that revise prior decisions | < 10% |\n\n**Trajectory Evaluation Template:**\n\n```markdown\n## Trajectory Evaluation \u2014 [Task ID]\n\n### Ideal Trajectory\n1. [Expected step 1]\n2. [Expected step 2]\n3. [Expected step N]\n\n### Actual Trajectory\n1. [Actual step 1] \u2014 MATCH / EXTRA / WRONG\n2. [Actual step 2] \u2014 MATCH / EXTRA / WRONG\n...\n\n### Metrics\n- Exact Match: YES / NO\n- In-Order Match: [X]%\n- Any-Order Match: [X]%\n- Step Efficiency: [actual] / [ideal] = [ratio]\n- Backtrack Rate: [count] / [total] = [%]\n\n### Analysis\n[Why trajectory deviated, if applicable]\n```\n\n**Outcome Evaluation:**\n\n| Metric | Definition | Measurement |\n|--------|------------|-------------|\n| Goal fulfillment | Task objectives achieved | Checklist against acceptance criteria |\n| Output quality | Correctness, completeness | Domain-specific rubric |\n| User satisfaction | Human rating of usefulness | 1-5 scale or thumbs up/down |\n| Time to completion | Duration from start to done | Clock time |\n\n**System-Level Evaluation:**\n\n| Metric | Definition | Target |\n|--------|------------|--------|\n| Handoff success rate | Successful transfers / Total transfers | > 95% |\n| Cascade failure rate | Multi-agent failures from single error | < 1% |\n| Resource efficiency | Tokens used / Baseline estimate | < 150% |\n| Human escalation rate | Escalations / Total tasks | Task-appropriate |\n| End-to-end latency | Total time for multi-agent workflow | Within SLA |\n\n**Evaluation Cadence:**\n\n| Level | Frequency | Trigger |\n|-------|-----------|---------|\n| Component | On change | Code/config modification |\n| Trajectory | Per task | Task completion |\n| Outcome | Per task | Task completion |\n| System | Weekly | Scheduled review |\n\n**Evaluation Dashboard Requirements:**\n\n```yaml\ndashboard:\n  component_health:\n    - routing_accuracy\n    - compression_quality\n    - tool_selection_rate\n\n  trajectory_trends:\n    - avg_step_efficiency (7-day rolling)\n    - backtrack_rate_trend\n    - exact_match_rate\n\n  outcome_summary:\n    - goal_fulfillment_rate\n    - user_satisfaction_avg\n    - completion_time_p50_p95\n\n  system_alerts:\n    - cascade_failures_today\n    - escalation_rate_vs_baseline\n    - token_budget_utilization\n```\n",
           "line_range": [
             2732,
-            3157
+            2854
           ],
           "keywords": [
             "agent",
             "evaluation",
             "framework"
           ],
-          "embedding_id": 346
+          "embedding_id": 361
+        },
+        {
+          "id": "multi-method-grader-types",
+          "domain": "multi-agent",
+          "title": "Grader Types",
+          "content": "#### 4.7.1 Grader Types\n\nIMPORTANT\n\n**Purpose:** Select appropriate grading approaches based on task characteristics.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025)\n\n**The Three Grader Types:**\n\n| Type | When to Use | Strengths | Weaknesses |\n|------|-------------|-----------|------------|\n| **Code-Based** | Deterministic validation, structured outputs | Fast, cheap, reproducible, easy debugging | Brittle to valid variations, lacks nuance |\n| **Model-Based** | Subjective tasks, open-ended outputs | Flexible, scalable, captures nuance | Non-deterministic, expensive, requires calibration |\n| **Human** | Gold-standard calibration, edge cases | Matches expert judgment, handles ambiguity | Slow, expensive, doesn't scale |\n\n**Code-Based Grader Methods:**\n\n| Method | Use Case | Example |\n|--------|----------|---------|\n| String matching | Exact expected output | `assert output == expected` |\n| Regex patterns | Structured format validation | `re.match(r'\\d{3}-\\d{4}', phone)` |\n| Static analysis | Code quality checks | ruff, mypy, bandit |\n| Unit tests | Functional correctness | pytest assertions |\n| State verification | Environment changes | File exists, DB record created |\n\n**Model-Based Grader Methods:**\n\n| Method | Use Case | Example |\n|--------|----------|---------|\n| Rubric scoring | Multi-dimensional quality | \"Rate clarity 1-5, completeness 1-5\" |\n| Natural language assertion | Flexible criteria | \"Does the response address the user's concern?\" |\n| Pairwise comparison | Relative quality | \"Which response better solves the problem?\" |\n| Multi-judge consensus | High-stakes decisions | 3 LLM judges, majority vote |\n\n**Model-Based Grader Design Principles:**\n\n- **Give escape options** \u2014 Include \"Unknown\" or \"Cannot determine\" to prevent hallucinated judgments\n- **Isolate dimensions** \u2014 Grade each quality dimension separately with independent prompts\n- **Calibrate against humans** \u2014 Periodically validate LLM grader agreement with expert judgment\n- **Use structured output** \u2014 Request JSON with score and rationale for debugging\n\n**Human Grader Methods:**\n\n| Method | Use Case | Scale |\n|--------|----------|-------|\n| SME review | Domain expertise required | Low volume, high stakes |\n| Spot-check sampling | Calibration and drift detection | 5-10% of eval suite |\n| A/B preference testing | Comparative quality | User-facing changes |\n\n**Grader Selection Decision Tree:**\n\n```\nIs output deterministically verifiable?\n\u251c\u2500\u2500 Yes \u2192 Code-Based Grader\n\u2514\u2500\u2500 No \u2192 Is task subjective or open-ended?\n    \u251c\u2500\u2500 Yes \u2192 Model-Based Grader (calibrate with human spot-checks)\n    \u2514\u2500\u2500 No \u2192 Is this high-stakes or ambiguous?\n        \u251c\u2500\u2500 Yes \u2192 Human Grader\n        \u2514\u2500\u2500 No \u2192 Model-Based Grader\n```\n\n---\n",
+          "line_range": [
+            2855,
+            2918
+          ],
+          "keywords": [
+            "grader",
+            "types"
+          ],
+          "embedding_id": 362
+        },
+        {
+          "id": "multi-method-non-determinism-measurement",
+          "domain": "multi-agent",
+          "title": "Non-Determinism Measurement",
+          "content": "#### 4.7.2 Non-Determinism Measurement\n\nIMPORTANT\n\n**Purpose:** Quantify agent reliability accounting for inherent model variability.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025)\n\n**Why Non-Determinism Matters:**\n\nAI agents exhibit run-to-run variability even with identical inputs. A single trial is insufficient to characterize true performance. Multiple trials reveal the distribution of outcomes.\n\n**The Two Key Metrics:**\n\n| Metric | Formula | Interpretation |\n|--------|---------|----------------|\n| **pass@k** | P(\u22651 success in k trials) | \"Can the agent ever succeed?\" |\n| **pass^k** | P(all k trials succeed) | \"Can we rely on the agent?\" |\n\n**Mathematical Relationship:**\n\nFor an agent with per-trial success probability p:\n- `pass@k = 1 - (1-p)^k` \u2014 Approaches 100% as k increases\n- `pass^k = p^k` \u2014 Approaches 0% as k increases\n\n**Divergence Example:**\n\n| Per-Trial Success | pass@10 | pass^10 |\n|-------------------|---------|---------|\n| 90% | 99.99% | 34.9% |\n| 70% | 99.99% | 2.8% |\n| 50% | 99.9% | 0.1% |\n\n**Interpretation:** An agent that succeeds 50% of the time will almost always succeed *eventually* (pass@10 \u2248 100%) but almost never succeeds *reliably* (pass^10 \u2248 0%).\n\n**When to Use Each Metric:**\n\n| Scenario | Metric | Rationale |\n|----------|--------|-----------|\n| Research/exploration tasks | pass@k | One good result is valuable |\n| Customer-facing automation | pass^k | Reliability is critical |\n| Human-in-the-loop workflows | pass@k | Human catches failures |\n| Fully autonomous agents | pass^k | No safety net |\n\n**Recommended Trial Counts:**\n\n| Eval Purpose | Minimum Trials | Notes |\n|--------------|----------------|-------|\n| Quick iteration | 3-5 | Detect gross failures |\n| Release decision | 10-20 | Statistical confidence |\n| Regression suite | 5-10 | Balance speed and signal |\n| Capability frontier | 20-100 | Characterize true ceiling |\n\n**Non-Determinism Measurement Template:**\n\n```markdown\n## Non-Determinism Analysis \u2014 [Task ID]\n\n### Configuration\n- Trials: [k]\n- Temperature: [value]\n- Model: [version]\n\n### Results\n| Trial | Outcome | Notes |\n|-------|---------|-------|\n| 1 | PASS/FAIL | [brief note] |\n| ... | ... | ... |\n\n### Metrics\n- Per-trial success rate: [successes]/[k] = [p]%\n- pass@k: [calculated]%\n- pass^k: [calculated]%\n\n### Reliability Assessment\n[HIGH/MEDIUM/LOW] \u2014 [rationale]\n```\n\n---\n",
+          "line_range": [
+            2919,
+            2998
+          ],
+          "keywords": [
+            "non-determinism",
+            "measurement"
+          ],
+          "embedding_id": 363
+        },
+        {
+          "id": "multi-method-capability-vs-regression-evals",
+          "domain": "multi-agent",
+          "title": "Capability vs Regression Evals",
+          "content": "#### 4.7.3 Capability vs Regression Evals\n\nIMPORTANT\n\n**Purpose:** Distinguish between evals that drive improvement and evals that guard existing behavior.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025)\n\n**The Two Eval Types:**\n\n| Type | Purpose | Expected Pass Rate | Growth Pattern |\n|------|---------|-------------------|----------------|\n| **Capability** | Target agent struggles, drive improvement | Low initially (10-50%) | Rises as agent improves |\n| **Regression** | Detect backsliding, guard existing behavior | High baseline (~100%) | Suite grows over time |\n\n**Capability Eval Characteristics:**\n\n- Tests things the agent *cannot yet do reliably*\n- Low pass rates are expected and informative\n- Provides improvement targets for development\n- Measures frontier of agent capability\n\n**Regression Eval Characteristics:**\n\n- Tests things the agent *should already do*\n- Near-100% pass rate is the baseline\n- Failures indicate breaking changes\n- Runs in CI/CD to block problematic deployments\n\n**The Graduation Pattern:**\n\n```\nCapability Eval (pass@10 = 30%)\n        \u2502\n        \u25bc [Agent improves]\nCapability Eval (pass@10 = 85%)\n        \u2502\n        \u25bc [Threshold met]\nGraduates to Regression Suite\n        \u2502\n        \u25bc [Baseline locked]\nRegression Eval (expected: 100%)\n```\n\n**Graduation Criteria:**\n\n| Metric | Threshold for Graduation |\n|--------|--------------------------|\n| pass@10 | > 80% |\n| pass^5 | > 60% |\n| Consecutive stable runs | \u2265 3 |\n\n**Eval Suite Composition:**\n\n| Suite Stage | Capability % | Regression % |\n|-------------|--------------|--------------|\n| Early development | 80% | 20% |\n| Mature agent | 30% | 70% |\n| Production maintenance | 10% | 90% |\n\n**Saturation Monitoring:**\n\nWhen capability evals approach 100%, they lose signal:\n- **Symptom:** All tests pass, but users still report issues\n- **Cause:** Eval suite no longer challenges agent frontier\n- **Fix:** Add harder tasks, graduate saturated evals to regression\n\n**Saturation Detection:**\n\n| Signal | Threshold | Action |\n|--------|-----------|--------|\n| Capability suite pass rate | > 90% sustained | Add harder tasks |\n| No capability failures for | > 2 weeks | Review suite difficulty |\n| User-reported issues not caught | Any | Convert to regression test |\n\n---\n",
+          "line_range": [
+            2999,
+            3075
+          ],
+          "keywords": [
+            "capability",
+            "regression",
+            "evals"
+          ],
+          "embedding_id": 364
+        },
+        {
+          "id": "multi-method-grader-design-principles",
+          "domain": "multi-agent",
+          "title": "Grader Design Principles",
+          "content": "#### 4.7.4 Grader Design Principles\n\nIMPORTANT\n\n**Purpose:** Build evaluation graders that accurately measure agent performance without false positives or negatives.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025), METR evaluation research\n\n**Core Principles:**\n\n| Principle | Description | Why It Matters |\n|-----------|-------------|----------------|\n| **Grade outcomes, not paths** | Evaluate final result, not specific steps taken | Agents find valid approaches designers didn't anticipate |\n| **Build partial credit** | Multi-component tasks shouldn't be all-or-nothing | Distinguishes \"close\" from \"completely wrong\" |\n| **Make tasks unambiguous** | Two experts should independently reach same verdict | Ambiguity causes grader disagreement and noise |\n| **Create reference solutions** | Prove task is solvable, validate grader | 0% pass@100 usually indicates broken task |\n| **Read transcripts** | Manually review failures to verify grader correctness | Catches grader bugs and unfair failures |\n\n**Anti-Pattern: Overly Rigid Grading**\n\n**Example:** Task asks agent to compute a percentage. Grader expects \"96.12\" but agent outputs \"96.124991\".\n\n**Problem:** Mathematically equivalent answers rejected due to formatting.\n\n**Fix:** Use tolerance-based comparison:\n```python\n# Bad: Exact string match\nassert output == \"96.12\"\n\n# Good: Numeric tolerance\nassert abs(float(output) - 96.12) < 0.01\n```\n\n**Anti-Pattern: Ambiguous Success Criteria**\n\n**Example:** Task says \"optimize the function\" but grader expects specific optimization.\n\n**Problem:** Agent applies valid but unexpected optimization; grader fails it.\n\n**Fix:** Specify measurable criteria:\n```markdown\n# Bad: \"Optimize the function\"\n# Good: \"Reduce function runtime by at least 20% on the provided benchmark\"\n```\n\n**Anti-Pattern: Grading Stated Goals vs. Intended Goals**\n\n**Example:** Task says \"reach 90% accuracy\" but grader requires exceeding 90%.\n\n**Problem:** Instruction-following agents stop at exactly 90%; grader fails them.\n\n**Fix:** Align grader with stated requirements:\n```python\n# Bad: Penalizes instruction-following\nassert accuracy > 0.90\n\n# Good: Matches stated requirement\nassert accuracy >= 0.90\n```\n\n**Grader Validation Checklist:**\n\nBefore deploying a new grader:\n\n- [ ] Reference solution exists and passes\n- [ ] Two domain experts agree on pass/fail for 10+ edge cases\n- [ ] Grader handles valid output variations (formatting, ordering)\n- [ ] Partial credit distinguishes degrees of correctness\n- [ ] Failure messages explain what was wrong\n- [ ] Manual transcript review confirms failures are fair\n\n**Grader Quality Metrics:**\n\n| Metric | Definition | Target |\n|--------|------------|--------|\n| Expert agreement | % of cases where grader matches human judgment | > 95% |\n| False positive rate | Valid solutions incorrectly failed | < 2% |\n| False negative rate | Invalid solutions incorrectly passed | < 5% |\n| Explanation clarity | Can developer understand why task failed? | Subjective review |\n\n---\n",
+          "line_range": [
+            3076,
+            3157
+          ],
+          "keywords": [
+            "grader",
+            "design",
+            "principles"
+          ],
+          "embedding_id": 365
         },
         {
           "id": "multi-method-production-safety-guardrails",
@@ -7169,7 +7472,7 @@
             "safety",
             "guardrails"
           ],
-          "embedding_id": 347
+          "embedding_id": 366
         },
         {
           "id": "multi-method-context-file-synchronization",
@@ -7185,7 +7488,7 @@
             "file",
             "synchronization"
           ],
-          "embedding_id": 348
+          "embedding_id": 367
         },
         {
           "id": "multi-method-multi-tool-workflow-patterns",
@@ -7201,10 +7504,10 @@
             "workflow",
             "patterns"
           ],
-          "embedding_id": 349
+          "embedding_id": 368
         }
       ],
-      "last_extracted": "2026-01-17T18:04:27.825749+00:00",
+      "last_extracted": "2026-01-17T18:16:40.818914+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -7248,7 +7551,7 @@
               "first"
             ]
           },
-          "embedding_id": 350
+          "embedding_id": 369
         },
         {
           "id": "stor-architecture-a2-cultural-context-awareness",
@@ -7288,7 +7591,7 @@
               "awareness"
             ]
           },
-          "embedding_id": 351
+          "embedding_id": 370
         },
         {
           "id": "stor-architecture-a3-accessibility-by-design",
@@ -7326,7 +7629,7 @@
               "design"
             ]
           },
-          "embedding_id": 352
+          "embedding_id": 371
         },
         {
           "id": "stor-general-st3-transformation-arc",
@@ -7363,7 +7666,7 @@
               "transformation"
             ]
           },
-          "embedding_id": 353
+          "embedding_id": 372
         },
         {
           "id": "stor-general-st4-stakes-and-consequence-clarity",
@@ -7404,7 +7707,7 @@
               "clarity"
             ]
           },
-          "embedding_id": 354
+          "embedding_id": 373
         },
         {
           "id": "stor-general-st5-perspective-selection",
@@ -7443,7 +7746,7 @@
               "selection"
             ]
           },
-          "embedding_id": 355
+          "embedding_id": 374
         },
         {
           "id": "stor-context-c1-specificity-over-abstraction",
@@ -7483,7 +7786,7 @@
               "abstraction"
             ]
           },
-          "embedding_id": 356
+          "embedding_id": 375
         },
         {
           "id": "stor-context-c2-show-tell-balance",
@@ -7522,7 +7825,7 @@
               "balance"
             ]
           },
-          "embedding_id": 357
+          "embedding_id": 376
         },
         {
           "id": "stor-context-c3-pacing-variation",
@@ -7560,7 +7863,7 @@
               "variation"
             ]
           },
-          "embedding_id": 358
+          "embedding_id": 377
         },
         {
           "id": "stor-context-c4-emotional-honesty",
@@ -7598,7 +7901,7 @@
               "honesty"
             ]
           },
-          "embedding_id": 359
+          "embedding_id": 378
         },
         {
           "id": "stor-context-c5-dialogue-craft",
@@ -7636,7 +7939,7 @@
               "craft"
             ]
           },
-          "embedding_id": 360
+          "embedding_id": 379
         },
         {
           "id": "stor-general-m1-platform-first-optimization",
@@ -7675,7 +7978,7 @@
               "optimization"
             ]
           },
-          "embedding_id": 361
+          "embedding_id": 380
         },
         {
           "id": "stor-general-m2-hook-calibration",
@@ -7712,7 +8015,7 @@
               "calibration"
             ]
           },
-          "embedding_id": 362
+          "embedding_id": 381
         },
         {
           "id": "stor-general-m3-format-constraint-awareness",
@@ -7750,7 +8053,7 @@
               "awareness"
             ]
           },
-          "embedding_id": 363
+          "embedding_id": 382
         },
         {
           "id": "stor-general-m4-resolution-calibration",
@@ -7788,7 +8091,7 @@
               "calibration"
             ]
           },
-          "embedding_id": 364
+          "embedding_id": 383
         },
         {
           "id": "stor-safety-e1-human-voice-preservation",
@@ -7828,7 +8131,7 @@
               "preservation"
             ]
           },
-          "embedding_id": 365
+          "embedding_id": 384
         },
         {
           "id": "stor-safety-e2-persuasion-manipulation-boundary",
@@ -7867,7 +8170,7 @@
               "boundary"
             ]
           },
-          "embedding_id": 366
+          "embedding_id": 385
         }
       ],
       "methods": [
@@ -7885,7 +8188,7 @@
             "threshold",
             "problem"
           ],
-          "embedding_id": 367
+          "embedding_id": 386
         },
         {
           "id": "stor-method-the-story-bible-architecture",
@@ -7901,7 +8204,7 @@
             "bible",
             "architecture"
           ],
-          "embedding_id": 368
+          "embedding_id": 387
         },
         {
           "id": "stor-method-reference-items-to-track",
@@ -7917,7 +8220,7 @@
             "items",
             "track"
           ],
-          "embedding_id": 369
+          "embedding_id": 388
         },
         {
           "id": "stor-method-story-bible-template",
@@ -7933,7 +8236,7 @@
             "bible",
             "template"
           ],
-          "embedding_id": 370
+          "embedding_id": 389
         },
         {
           "id": "stor-method-story-foundation-immutable",
@@ -7949,7 +8252,7 @@
             "foundation",
             "(immutable)"
           ],
-          "embedding_id": 371
+          "embedding_id": 390
         },
         {
           "id": "stor-method-characters",
@@ -7963,7 +8266,7 @@
           "keywords": [
             "characters"
           ],
-          "embedding_id": 372
+          "embedding_id": 391
         },
         {
           "id": "stor-method-world",
@@ -7977,7 +8280,7 @@
           "keywords": [
             "world"
           ],
-          "embedding_id": 373
+          "embedding_id": 392
         },
         {
           "id": "stor-method-plot-architecture",
@@ -7992,7 +8295,7 @@
             "plot",
             "architecture"
           ],
-          "embedding_id": 374
+          "embedding_id": 393
         },
         {
           "id": "stor-method-style-guide",
@@ -8007,7 +8310,7 @@
             "style",
             "guide"
           ],
-          "embedding_id": 375
+          "embedding_id": 394
         },
         {
           "id": "stor-method-timeline",
@@ -8021,7 +8324,7 @@
           "keywords": [
             "timeline"
           ],
-          "embedding_id": 376
+          "embedding_id": 395
         },
         {
           "id": "stor-method-session-state-working-memory",
@@ -8038,7 +8341,7 @@
             "(working",
             "memory)"
           ],
-          "embedding_id": 377
+          "embedding_id": 396
         },
         {
           "id": "stor-method-context-loading-protocol",
@@ -8054,7 +8357,7 @@
             "loading",
             "protocol"
           ],
-          "embedding_id": 378
+          "embedding_id": 397
         },
         {
           "id": "stor-method-when-to-create-new-reference-items",
@@ -8071,7 +8374,7 @@
             "reference",
             "items"
           ],
-          "embedding_id": 379
+          "embedding_id": 398
         },
         {
           "id": "stor-method-platform-specific-adaptations",
@@ -8086,7 +8389,7 @@
             "platform-specific",
             "adaptations"
           ],
-          "embedding_id": 380
+          "embedding_id": 399
         },
         {
           "id": "stor-method-voice-preservation-integration",
@@ -8102,7 +8405,7 @@
             "preservation",
             "integration"
           ],
-          "embedding_id": 381
+          "embedding_id": 400
         },
         {
           "id": "stor-method-recovery-protocol",
@@ -8117,7 +8420,7 @@
             "recovery",
             "protocol"
           ],
-          "embedding_id": 382
+          "embedding_id": 401
         },
         {
           "id": "stor-method-governance-integration",
@@ -8132,7 +8435,7 @@
             "governance",
             "integration"
           ],
-          "embedding_id": 383
+          "embedding_id": 402
         },
         {
           "id": "stor-method-auto-tracking-protocol",
@@ -8147,7 +8450,7 @@
             "auto-tracking",
             "protocol"
           ],
-          "embedding_id": 384
+          "embedding_id": 403
         },
         {
           "id": "stor-method-revision-management-protocol",
@@ -8163,7 +8466,7 @@
             "management",
             "protocol"
           ],
-          "embedding_id": 385
+          "embedding_id": 404
         },
         {
           "id": "stor-method-non-linear-writing-protocol",
@@ -8179,10 +8482,10 @@
             "writing",
             "protocol"
           ],
-          "embedding_id": 386
+          "embedding_id": 405
         }
       ],
-      "last_extracted": "2026-01-17T18:04:27.827501+00:00",
+      "last_extracted": "2026-01-17T18:16:40.820877+00:00",
       "version": "1.0"
     }
   },
@@ -8224,7 +8527,7 @@
       "embedding_id": 3
     }
   ],
-  "created_at": "2026-01-17T18:04:32.929310+00:00",
+  "created_at": "2026-01-17T18:16:45.115760+00:00",
   "version": "1.0",
   "embedding_model": "all-MiniLM-L6-v2",
   "embedding_dimensions": 384

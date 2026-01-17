@@ -37,7 +37,7 @@
 
 **Review Date:** Re-evaluate guidance after July 2026.
 
-**Retrieval Note:** Content is indexed but subsections (####) are combined into parent section (###). The new §2.1.5 is part of the larger "2.1 Subagent Definition Standard" block. Direct queries for "advanced model considerations" may not surface it prominently due to content dilution in the large parent block. Consider future extraction refinement to split #### subsections.
+**Retrieval Note:** ~~Content was combined into parent sections~~ **FIXED** — Extractor now splits #### subsections into separate indexed methods. multi-agent methods: 24 → 43. `multi-method-advanced-model-considerations` is now directly searchable.
 
 ### Evaluation Methods Enhancement (multi-agent-methods v2.8.0)
 
@@ -182,7 +182,7 @@
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Domains | **4** (constitution, ai-coding, multi-agent, storytelling) |
-| Index | **87 principles + 300 methods (387 total)** |
+| Index | **87 principles + 319 methods (406 total)** |
 
 ## Next Actions
 
