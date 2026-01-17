@@ -1,7 +1,7 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.8.0
+**Version:** 2.9.0
 **Status:** Active
 **Effective Date:** 2026-01-17
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -842,6 +842,80 @@ For projects using custom subagents:
 1. Document available agents in CLAUDE.md with trigger conditions
 2. Use explicit requests or CLAUDE.md integration for most cases
 3. Use Task tool delegation only when fresh context is needed
+
+---
+
+#### 2.1.5 Advanced Model Considerations
+
+IMPORTANT
+
+**Purpose:** Adapt prompting strategies for highly capable reasoning models.
+
+**Source:** Anthropic model research, arXiv "Prompting Inversion" (2025), practitioner observations (@EXM7777)
+
+**Principle Basis:** Derives from Constitution's Explicit Intent—adapt communication to audience capability.
+
+**Applies To:** Claude Sonnet 4.5+, GPT-4o+, and other advanced reasoning models. For mid-tier models, default to standard Best Practices in §2.1.1.
+
+**Observation: Contextual Evaluation**
+
+Advanced models evaluate whether instructions serve the apparent goal rather than following them literally. This creates both opportunities and risks:
+
+- **Opportunity:** Simpler, less constrained prompts may yield better results
+- **Risk:** Safety-critical instructions may be "optimized away" if the model misjudges intent
+
+**Guideline 1: Decision Rules Over Prohibitions**
+
+For conditional logic, use decision rules rather than absolute prohibitions:
+
+| Instead of | Consider |
+|------------|----------|
+| "NEVER include raw data in summaries" | "IF user requests summary THEN provide aggregated insights ELSE include raw data when explicitly requested" |
+| "ALWAYS validate inputs" | "Validate inputs before processing; if validation fails, explain the issue and request correction" |
+
+**Exception:** S-Series (Safety) constraints retain prescriptive language. "NEVER expose credentials" is appropriate because the condition is always true. Do not weaken safety constraints.
+
+**Guideline 2: Cognitive Function Over Role-Play**
+
+Advanced models may resist explicit "Act as [persona]" framing. Instead, describe the cognitive approach:
+
+| Instead of | Consider |
+|------------|----------|
+| "Act as a senior security expert with 20 years experience" | "Apply security analysis: identify attack vectors, assess severity, recommend mitigations in priority order" |
+| "You are a meticulous code reviewer" | "Evaluate code against explicit criteria, surface issues without fixing them, separate major from minor concerns" |
+
+**Note:** The existing agent template (Who I Am / My Cognitive Function / Who I Am NOT) already follows this pattern. This guideline confirms cognitive function specification over simple role labels.
+
+**Guideline 3: Calibrate Constraint Density**
+
+The "Sandwich Method" (§2.1.1 Best Practice 3) remains effective for long-context prompts where attention may drift. For short prompts to advanced models, single-placement of critical instructions may suffice.
+
+**When to use Sandwich Method:**
+- Long system prompts (>500 tokens)
+- Multi-step instructions with many intermediate steps
+- Models with known attention limitations
+
+**When single-placement may suffice:**
+- Short, focused prompts (<200 tokens)
+- Advanced models with strong instruction-following
+- Clear, unambiguous requirements
+
+**Guideline 4: Trust but Verify**
+
+If relying on advanced models to "do the right thing," add verification steps:
+
+```markdown
+## Task
+[Simplified instructions trusting model judgment]
+
+## Verification
+Before finalizing, confirm:
+- [ ] Output addresses stated goal
+- [ ] No safety constraints violated
+- [ ] Format matches requirements
+```
+
+**Review Date:** Re-evaluate this guidance after July 2026 as model capabilities evolve.
 
 ---
 

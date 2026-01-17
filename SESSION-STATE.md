@@ -11,6 +11,32 @@
 
 ## Recent Work (This Session)
 
+### Advanced Model Considerations (multi-agent-methods v2.9.0)
+
+**Source:** @EXM7777 prompt engineering thread (X.com), validated against research
+
+**Analysis Process:**
+- Evaluated practitioner claims against academic research
+- Confirmed Sonnet 4.5 contextual evaluation behavior ([The Agent Architect](https://theagentarchitect.substack.com/p/claude-sonnet-4-prompts-stopped-working), [Mikhail Shilkov](https://mikhail.io/2025/09/sonnet-4-5-system-prompt-changes/))
+- Found arXiv paper on "Guardrail-to-Handcuff" transition in advanced models
+- Applied contrarian-reviewer to challenge proposed changes
+- Scoped changes as addendum (model-tier specific), not replacement
+
+**New Section Added (§2.1.5 Advanced Model Considerations):**
+- **Guideline 1:** Decision rules over prohibitions (except S-Series safety)
+- **Guideline 2:** Cognitive function over role-play framing
+- **Guideline 3:** Calibrate constraint density (sandwich method nuance)
+- **Guideline 4:** Trust but verify pattern
+
+**Files Changed:**
+- `documents/multi-agent-methods-v2.8.0.md` → `multi-agent-methods-v2.9.0.md` (renamed + ~75 lines added)
+- `documents/domains.json` (updated path reference and description)
+- `SESSION-STATE.md` (this update)
+
+**Key Insight:** Advanced models (Sonnet 4.5+) evaluate contextual necessity rather than following instructions literally. This requires adapted prompting strategies, but S-Series safety constraints should retain prescriptive language.
+
+**Review Date:** Re-evaluate guidance after July 2026.
+
 ### Evaluation Methods Enhancement (multi-agent-methods v2.8.0)
 
 **Source:** Anthropic Engineering "Demystifying Evals for AI Agents" (2025)
@@ -149,7 +175,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.5.0** (server), **v2.3** (Constitution), **v3.7.0** (governance-methods), **v2.8.0** (multi-agent-methods) |
+| Version | **v1.5.0** (server), **v2.3** (Constitution), **v3.7.0** (governance-methods), **v2.9.0** (multi-agent-methods) |
 | Tests | **337 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
@@ -159,9 +185,9 @@
 ## Next Actions
 
 1. ~~Promote storytelling from drafts to production~~ ✓ Done (v1.0.0)
-2. Optional: Develop storytelling coaching playbook (question taxonomies, Socratic patterns)
-3. Optional: Add platform-specific playbooks (TikTok, LinkedIn, long-form)
-4. Investigate X.com post (EXM7777/status/2011800604709175808) — deferred
+2. ~~Investigate X.com post (EXM7777/status/2011800604709175808)~~ ✓ Done (v2.9.0)
+3. Optional: Develop storytelling coaching playbook (question taxonomies, Socratic patterns)
+4. Optional: Add platform-specific playbooks (TikTok, LinkedIn, long-form)
 
 ## Links
 
