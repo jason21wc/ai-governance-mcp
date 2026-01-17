@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-01-16
+**Last Updated:** 2026-01-17
 
 ## Current Position
 
@@ -10,6 +10,32 @@
 - **Blocker:** None
 
 ## Recent Work (This Session)
+
+### Evaluation Methods Enhancement (multi-agent-methods v2.8.0)
+
+**Source:** Anthropic Engineering "Demystifying Evals for AI Agents" (2025)
+
+**Analysis Process:**
+- Applied Anchor Bias Mitigation Protocol (4-step re-evaluation)
+- Used contrarian-reviewer subagent to challenge assumptions
+- Compared article concepts against existing 4-layer evaluation framework
+- Initial analysis focused only on principles; user feedback redirected to methods perspective
+- Identified genuine gaps at methods level (not principles)
+
+**New Sections Added (§4.7.1-4.7.4):**
+1. **§4.7.1 Grader Types** — Code-Based, Model-Based, Human selection guidance with strengths/weaknesses table
+2. **§4.7.2 Non-Determinism Measurement** — pass@k (capability) and pass^k (reliability) formulas with target thresholds
+3. **§4.7.3 Capability vs Regression Evals** — When to use each, metrics differences, workflow integration
+4. **§4.7.4 Grader Design Principles** — Grade outcomes not paths, partial credit, multi-shot grading
+
+**Files Changed:**
+- `documents/multi-agent-methods-v2.7.0.md` → `multi-agent-methods-v2.8.0.md` (renamed + ~270 lines added)
+- `documents/domains.json` (updated path reference)
+- `index/` (rebuilt)
+
+**Key Insight:** Existing 4-layer framework (Component/Trajectory/Outcome/System) was at the right abstraction level, but lacked specific grader implementation guidance that practitioners need.
+
+## Previous Session
 
 ### Storytelling Domain Promoted to Production
 
@@ -121,7 +147,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.5.0** (server), **v2.3** (Constitution), **v3.7.0** (governance-methods) |
+| Version | **v1.5.0** (server), **v2.3** (Constitution), **v3.7.0** (governance-methods), **v2.8.0** (multi-agent-methods) |
 | Tests | **337 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |

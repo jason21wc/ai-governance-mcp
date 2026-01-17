@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.6.0
+**Version:** 2.8.0
 **Status:** Active
-**Effective Date:** 2026-01-04
+**Effective Date:** 2026-01-17
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -2778,6 +2778,309 @@ dashboard:
     - token_budget_utilization
 ```
 
+#### 4.7.1 Grader Types
+
+IMPORTANT
+
+**Purpose:** Select appropriate grading approaches based on task characteristics.
+
+**Source:** Anthropic Engineering "Demystifying Evals for AI Agents" (2025)
+
+**The Three Grader Types:**
+
+| Type | When to Use | Strengths | Weaknesses |
+|------|-------------|-----------|------------|
+| **Code-Based** | Deterministic validation, structured outputs | Fast, cheap, reproducible, easy debugging | Brittle to valid variations, lacks nuance |
+| **Model-Based** | Subjective tasks, open-ended outputs | Flexible, scalable, captures nuance | Non-deterministic, expensive, requires calibration |
+| **Human** | Gold-standard calibration, edge cases | Matches expert judgment, handles ambiguity | Slow, expensive, doesn't scale |
+
+**Code-Based Grader Methods:**
+
+| Method | Use Case | Example |
+|--------|----------|---------|
+| String matching | Exact expected output | `assert output == expected` |
+| Regex patterns | Structured format validation | `re.match(r'\d{3}-\d{4}', phone)` |
+| Static analysis | Code quality checks | ruff, mypy, bandit |
+| Unit tests | Functional correctness | pytest assertions |
+| State verification | Environment changes | File exists, DB record created |
+
+**Model-Based Grader Methods:**
+
+| Method | Use Case | Example |
+|--------|----------|---------|
+| Rubric scoring | Multi-dimensional quality | "Rate clarity 1-5, completeness 1-5" |
+| Natural language assertion | Flexible criteria | "Does the response address the user's concern?" |
+| Pairwise comparison | Relative quality | "Which response better solves the problem?" |
+| Multi-judge consensus | High-stakes decisions | 3 LLM judges, majority vote |
+
+**Model-Based Grader Design Principles:**
+
+- **Give escape options** — Include "Unknown" or "Cannot determine" to prevent hallucinated judgments
+- **Isolate dimensions** — Grade each quality dimension separately with independent prompts
+- **Calibrate against humans** — Periodically validate LLM grader agreement with expert judgment
+- **Use structured output** — Request JSON with score and rationale for debugging
+
+**Human Grader Methods:**
+
+| Method | Use Case | Scale |
+|--------|----------|-------|
+| SME review | Domain expertise required | Low volume, high stakes |
+| Spot-check sampling | Calibration and drift detection | 5-10% of eval suite |
+| A/B preference testing | Comparative quality | User-facing changes |
+
+**Grader Selection Decision Tree:**
+
+```
+Is output deterministically verifiable?
+├── Yes → Code-Based Grader
+└── No → Is task subjective or open-ended?
+    ├── Yes → Model-Based Grader (calibrate with human spot-checks)
+    └── No → Is this high-stakes or ambiguous?
+        ├── Yes → Human Grader
+        └── No → Model-Based Grader
+```
+
+---
+
+#### 4.7.2 Non-Determinism Measurement
+
+IMPORTANT
+
+**Purpose:** Quantify agent reliability accounting for inherent model variability.
+
+**Source:** Anthropic Engineering "Demystifying Evals for AI Agents" (2025)
+
+**Why Non-Determinism Matters:**
+
+AI agents exhibit run-to-run variability even with identical inputs. A single trial is insufficient to characterize true performance. Multiple trials reveal the distribution of outcomes.
+
+**The Two Key Metrics:**
+
+| Metric | Formula | Interpretation |
+|--------|---------|----------------|
+| **pass@k** | P(≥1 success in k trials) | "Can the agent ever succeed?" |
+| **pass^k** | P(all k trials succeed) | "Can we rely on the agent?" |
+
+**Mathematical Relationship:**
+
+For an agent with per-trial success probability p:
+- `pass@k = 1 - (1-p)^k` — Approaches 100% as k increases
+- `pass^k = p^k` — Approaches 0% as k increases
+
+**Divergence Example:**
+
+| Per-Trial Success | pass@10 | pass^10 |
+|-------------------|---------|---------|
+| 90% | 99.99% | 34.9% |
+| 70% | 99.99% | 2.8% |
+| 50% | 99.9% | 0.1% |
+
+**Interpretation:** An agent that succeeds 50% of the time will almost always succeed *eventually* (pass@10 ≈ 100%) but almost never succeeds *reliably* (pass^10 ≈ 0%).
+
+**When to Use Each Metric:**
+
+| Scenario | Metric | Rationale |
+|----------|--------|-----------|
+| Research/exploration tasks | pass@k | One good result is valuable |
+| Customer-facing automation | pass^k | Reliability is critical |
+| Human-in-the-loop workflows | pass@k | Human catches failures |
+| Fully autonomous agents | pass^k | No safety net |
+
+**Recommended Trial Counts:**
+
+| Eval Purpose | Minimum Trials | Notes |
+|--------------|----------------|-------|
+| Quick iteration | 3-5 | Detect gross failures |
+| Release decision | 10-20 | Statistical confidence |
+| Regression suite | 5-10 | Balance speed and signal |
+| Capability frontier | 20-100 | Characterize true ceiling |
+
+**Non-Determinism Measurement Template:**
+
+```markdown
+## Non-Determinism Analysis — [Task ID]
+
+### Configuration
+- Trials: [k]
+- Temperature: [value]
+- Model: [version]
+
+### Results
+| Trial | Outcome | Notes |
+|-------|---------|-------|
+| 1 | PASS/FAIL | [brief note] |
+| ... | ... | ... |
+
+### Metrics
+- Per-trial success rate: [successes]/[k] = [p]%
+- pass@k: [calculated]%
+- pass^k: [calculated]%
+
+### Reliability Assessment
+[HIGH/MEDIUM/LOW] — [rationale]
+```
+
+---
+
+#### 4.7.3 Capability vs Regression Evals
+
+IMPORTANT
+
+**Purpose:** Distinguish between evals that drive improvement and evals that guard existing behavior.
+
+**Source:** Anthropic Engineering "Demystifying Evals for AI Agents" (2025)
+
+**The Two Eval Types:**
+
+| Type | Purpose | Expected Pass Rate | Growth Pattern |
+|------|---------|-------------------|----------------|
+| **Capability** | Target agent struggles, drive improvement | Low initially (10-50%) | Rises as agent improves |
+| **Regression** | Detect backsliding, guard existing behavior | High baseline (~100%) | Suite grows over time |
+
+**Capability Eval Characteristics:**
+
+- Tests things the agent *cannot yet do reliably*
+- Low pass rates are expected and informative
+- Provides improvement targets for development
+- Measures frontier of agent capability
+
+**Regression Eval Characteristics:**
+
+- Tests things the agent *should already do*
+- Near-100% pass rate is the baseline
+- Failures indicate breaking changes
+- Runs in CI/CD to block problematic deployments
+
+**The Graduation Pattern:**
+
+```
+Capability Eval (pass@10 = 30%)
+        │
+        ▼ [Agent improves]
+Capability Eval (pass@10 = 85%)
+        │
+        ▼ [Threshold met]
+Graduates to Regression Suite
+        │
+        ▼ [Baseline locked]
+Regression Eval (expected: 100%)
+```
+
+**Graduation Criteria:**
+
+| Metric | Threshold for Graduation |
+|--------|--------------------------|
+| pass@10 | > 80% |
+| pass^5 | > 60% |
+| Consecutive stable runs | ≥ 3 |
+
+**Eval Suite Composition:**
+
+| Suite Stage | Capability % | Regression % |
+|-------------|--------------|--------------|
+| Early development | 80% | 20% |
+| Mature agent | 30% | 70% |
+| Production maintenance | 10% | 90% |
+
+**Saturation Monitoring:**
+
+When capability evals approach 100%, they lose signal:
+- **Symptom:** All tests pass, but users still report issues
+- **Cause:** Eval suite no longer challenges agent frontier
+- **Fix:** Add harder tasks, graduate saturated evals to regression
+
+**Saturation Detection:**
+
+| Signal | Threshold | Action |
+|--------|-----------|--------|
+| Capability suite pass rate | > 90% sustained | Add harder tasks |
+| No capability failures for | > 2 weeks | Review suite difficulty |
+| User-reported issues not caught | Any | Convert to regression test |
+
+---
+
+#### 4.7.4 Grader Design Principles
+
+IMPORTANT
+
+**Purpose:** Build evaluation graders that accurately measure agent performance without false positives or negatives.
+
+**Source:** Anthropic Engineering "Demystifying Evals for AI Agents" (2025), METR evaluation research
+
+**Core Principles:**
+
+| Principle | Description | Why It Matters |
+|-----------|-------------|----------------|
+| **Grade outcomes, not paths** | Evaluate final result, not specific steps taken | Agents find valid approaches designers didn't anticipate |
+| **Build partial credit** | Multi-component tasks shouldn't be all-or-nothing | Distinguishes "close" from "completely wrong" |
+| **Make tasks unambiguous** | Two experts should independently reach same verdict | Ambiguity causes grader disagreement and noise |
+| **Create reference solutions** | Prove task is solvable, validate grader | 0% pass@100 usually indicates broken task |
+| **Read transcripts** | Manually review failures to verify grader correctness | Catches grader bugs and unfair failures |
+
+**Anti-Pattern: Overly Rigid Grading**
+
+**Example:** Task asks agent to compute a percentage. Grader expects "96.12" but agent outputs "96.124991".
+
+**Problem:** Mathematically equivalent answers rejected due to formatting.
+
+**Fix:** Use tolerance-based comparison:
+```python
+# Bad: Exact string match
+assert output == "96.12"
+
+# Good: Numeric tolerance
+assert abs(float(output) - 96.12) < 0.01
+```
+
+**Anti-Pattern: Ambiguous Success Criteria**
+
+**Example:** Task says "optimize the function" but grader expects specific optimization.
+
+**Problem:** Agent applies valid but unexpected optimization; grader fails it.
+
+**Fix:** Specify measurable criteria:
+```markdown
+# Bad: "Optimize the function"
+# Good: "Reduce function runtime by at least 20% on the provided benchmark"
+```
+
+**Anti-Pattern: Grading Stated Goals vs. Intended Goals**
+
+**Example:** Task says "reach 90% accuracy" but grader requires exceeding 90%.
+
+**Problem:** Instruction-following agents stop at exactly 90%; grader fails them.
+
+**Fix:** Align grader with stated requirements:
+```python
+# Bad: Penalizes instruction-following
+assert accuracy > 0.90
+
+# Good: Matches stated requirement
+assert accuracy >= 0.90
+```
+
+**Grader Validation Checklist:**
+
+Before deploying a new grader:
+
+- [ ] Reference solution exists and passes
+- [ ] Two domain experts agree on pass/fail for 10+ edge cases
+- [ ] Grader handles valid output variations (formatting, ordering)
+- [ ] Partial credit distinguishes degrees of correctness
+- [ ] Failure messages explain what was wrong
+- [ ] Manual transcript review confirms failures are fair
+
+**Grader Quality Metrics:**
+
+| Metric | Definition | Target |
+|--------|------------|--------|
+| Expert agreement | % of cases where grader matches human judgment | > 95% |
+| False positive rate | Valid solutions incorrectly failed | < 2% |
+| False negative rate | Invalid solutions incorrectly passed | < 5% |
+| Explanation clarity | Can developer understand why task failed? | Subjective review |
+
+---
+
 ### 4.8 Production Safety Guardrails
 
 CRITICAL
@@ -3146,6 +3449,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.8.0 | 2026-01-17 | **Evaluation Methods Enhancement.** Added: §4.7.1 Grader Types (Code-Based, Model-Based, Human — selection guidance, strengths/weaknesses), §4.7.2 Non-Determinism Measurement (pass@k for capability testing, pass^k for reliability — formulas and target thresholds), §4.7.3 Capability vs Regression Evals (when to use each, metrics differences, workflow integration), §4.7.4 Grader Design Principles (grade outcomes not paths, partial credit, multi-shot grading). Source: Anthropic Engineering "Demystifying Evals for AI Agents" (2025). Fills gap: existing 4-layer framework lacked specific grader implementation guidance. |
 | v2.7.0 | 2026-01-05 | **Governance Compliance Section.** Added: Governance Compliance as 6th required section in Subagent Definition Standard (§2.1). All subagent system prompts must now include governance framework alignment: S-Series veto authority, Constitution meta-principles, domain applicability, and uncertainty handling. Template updated with placeholder section. Addresses gap: subagents lacked explicit governance framework awareness, causing issues like Contrarian Reviewer "missing the point" by not following constitutional hierarchy. |
 | v2.6.0 | 2026-01-04 | **Artifact Type Selection.** Added: §1.1 Artifact Type Selection: Method vs. Subagent — decision framework for choosing between method (procedure for generalist) or subagent (dedicated agent with fresh context) when specialization is justified. Fresh context is primary signal; requires supporting factor (frequency, tool restrictions, cognitive isolation) to justify subagent overhead. Includes comparison table, decision tree, examples, and "when in doubt" guidance. Updates Situation Index. Addresses gap: existing principles covered Agent vs Generalist but not Method vs Subagent as artifact types. |
 | v2.5.0 | 2026-01-05 | **Production Operations Expansion.** Added 6 new sections from Google Cloud AI Agents guide analysis + 2025-2026 industry research validation. New sections: §3.4.1 Memory Distillation Procedure (AWS AgentCore 89-95% compression, Mem0 80% token reduction, Google Titans architecture), §3.7.1 Production Observability Patterns (IBM AgentOps, OpenTelemetry, session replay), §3.8 ReAct Loop Configuration (loop controls, termination triggers, runaway detection), §4.7 Agent Evaluation Framework (4-layer model: Component/Trajectory/Outcome/System, trajectory metrics), §4.8 Production Safety Guardrails (multi-layer defense, prompt injection, PII redaction, RBAC). Updated Situation Index with 7 new entries. Sources: Google Vertex AI Gen AI Evaluation Service, Confident AI, Dextra Labs Safety Playbook, Superagent Framework, OWASP 2025. |
