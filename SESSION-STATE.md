@@ -37,7 +37,7 @@
 
 **Review Date:** Re-evaluate guidance after July 2026.
 
-**Retrieval Note:** ~~Content was combined into parent sections~~ **FIXED** — Extractor now splits #### subsections into separate indexed methods. multi-agent methods: 24 → 43. `multi-method-advanced-model-considerations` is now directly searchable.
+**Retrieval Note:** ~~Content was combined into parent sections~~ **FIXED** — Extractor now splits #### subsections into separate indexed methods. multi-agent methods: 24 → 43. Index rebuilt on disk. **Requires MCP server restart to load new index into memory.**
 
 ### Evaluation Methods Enhancement (multi-agent-methods v2.8.0)
 
