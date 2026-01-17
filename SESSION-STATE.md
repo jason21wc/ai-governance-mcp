@@ -51,6 +51,13 @@
 
 **All 337 tests passing.**
 
+### v1.6.0 Released
+
+- **GitHub:** Tag `v1.6.0` created and pushed
+- **Release:** https://github.com/jason21wc/ai-governance-mcp/releases/tag/v1.6.0
+- **Docker Hub:** `jason21wc/ai-governance-mcp:1.6.0` and `:latest` pushed
+- **Note:** MCP server restart required to load new index with BGE model
+
 ---
 
 ### Previous: Index Verification Investigation (led to above fix)
