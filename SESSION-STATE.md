@@ -37,6 +37,8 @@
 
 **Review Date:** Re-evaluate guidance after July 2026.
 
+**Retrieval Note:** Content is indexed but subsections (####) are combined into parent section (###). The new §2.1.5 is part of the larger "2.1 Subagent Definition Standard" block. Direct queries for "advanced model considerations" may not surface it prominently due to content dilution in the large parent block. Consider future extraction refinement to split #### subsections.
+
 ### Evaluation Methods Enhancement (multi-agent-methods v2.8.0)
 
 **Source:** Anthropic Engineering "Demystifying Evals for AI Agents" (2025)
