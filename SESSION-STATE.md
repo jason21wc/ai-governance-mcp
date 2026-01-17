@@ -35,6 +35,8 @@
 
 **Key Insight:** Existing 4-layer framework (Component/Trajectory/Outcome/System) was at the right abstraction level, but lacked specific grader implementation guidance that practitioners need.
 
+**Testing Note:** After rebuilding the index, discovered MCP server caches the index in memory at startup. The disk index is correct (verified: line range [2658, 3083], includes all new sections), but queries won't return new content until server restart.
+
 ## Previous Session
 
 ### Storytelling Domain Promoted to Production
@@ -156,9 +158,10 @@
 
 ## Next Actions
 
-1. Consider promoting storytelling from `drafts/` to main `documents/` when ready for production
+1. ~~Promote storytelling from drafts to production~~ ✓ Done (v1.0.0)
 2. Optional: Develop storytelling coaching playbook (question taxonomies, Socratic patterns)
 3. Optional: Add platform-specific playbooks (TikTok, LinkedIn, long-form)
+4. Investigate X.com post (EXM7777/status/2011800604709175808) — deferred
 
 ## Links
 
