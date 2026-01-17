@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-01-13
+**Last Updated:** 2026-01-16
 
 ## Current Position
 
@@ -11,32 +11,76 @@
 
 ## Recent Work (This Session)
 
-### v1.4.1 - Progressive Inquiry Protocol Enhancement
+### Storytelling Domain v0.2.0 (Draft)
 
-**Issue:** AI defaulting to structured selection UI (AskUserQuestion tool) for Foundation/Branching tier questions instead of conversational dialogue.
+**New domain for creative writing and narrative development:**
 
-**Analysis:** Guidance already existed in `meta-core-progressive-inquiry-protocol` under "Format by Tier" but was:
-1. Not explicit about Branching tier
-2. Missing a named failure mode
+**Principles (17):**
+- **Safety (E-Series):** E1 Human Voice Preservation, E2 Persuasion-Manipulation Boundary
+- **Architecture (A-Series):** A1 Audience Discovery First, A2 Cultural Context Awareness, A3 Accessibility
+- **Context (C-Series):** C1-C5 (Hook Variation, Show-Tell Balance, Pacing, Emotional Honesty, Dialogue Craft)
+- **General (ST/M-Series):** ST1-ST5, M1-M4 (Stakes, Perspective, Platform, Format, Resolution)
 
-**Changes to Constitution (ai-interaction-principles-v2.3.md):**
-1. **Clarified Format by Tier:** Added "and Branching" + "(conversational dialogue)" to make guidance explicit
-2. **Added new pitfall:** "The Structured Selection Trap" — named anti-pattern for defaulting to multiple-choice UI
+**Methods (20):**
+- Story Bible architecture (3-tier memory model)
+- Context loading protocol for long narratives
+- Non-linear writing protocol (fragment tracking, assembly)
+- Revision management and auto-tracking
+- Voice preservation integration
+- Platform-specific adaptations
 
-**Governance Applied:**
-- `meta-core-progressive-inquiry-protocol` (the principle being enhanced)
-- `meta-operational-constraint-based-prompting` (making guidance more explicit)
-- `meta-governance-rich-but-not-verbose-communication` (minimal, focused changes)
+**Testing Results:**
+- Domain routing: Working (enhanced description for genres, world-building terms)
+- Principle retrieval: HIGH confidence on core queries
+- Method retrieval: HIGH confidence on protocol queries
+- All 337 tests passing
+
+**Files:**
+- `documents/drafts/storytelling-domain-principles-v0.2.0.md`
+- `documents/drafts/storytelling-context-management-method-v0.2.0.md`
+- `documents/domains.json` (storytelling domain added)
+
+**Commit:** `093778a feat(storytelling): Add storytelling domain with 17 principles and 20 methods`
+
+### Coaching Mode Guidance
+
+**Issue:** Domain mentioned "coaching" in scope but lacked guidance on WHEN to coach vs generate, and HOW to coach through questions.
+
+**Research conducted:**
+- Khan Academy Writing Coach ("guides without writing a word for them")
+- Jennifer Lewy's reflective questioning approach
+- Socratic method for discovery learning
+- Contrarian review to challenge assumptions
+
+**Changes to storytelling-domain-principles-v0.2.0.md:**
+1. **ST-F13: Premature Generation** — New failure mode for AI generating when coaching would serve better
+2. **Mode Selection guidance** — Decision table for Generate vs Coach based on user signals
+3. **Enhanced coaching section** — References Progressive Inquiry Protocol, adds question examples
+4. **Planned Methods** — Added "Storytelling coaching playbook" for future development
+
+**Key insight:** The real gap wasn't questioning technique (Progressive Inquiry Protocol exists) — it was mode selection.
+
+**Commit:** `4f876d8 feat(storytelling): Add coaching mode guidance for questions over generation`
+
+### Also This Session
+
+- **LEARNING-LOG.md:** Added prompt repetition research evaluation (decided NOT to incorporate - 78% no benefit for reasoning models)
 
 ## Previous Session
 
-### v1.4.0 Release
+### v1.4.1 - Progressive Inquiry Protocol Enhancement
 
-**Anchor Bias Mitigation Feature:**
-- New principle: "Periodic Re-evaluation" (C-Series) in Constitution v2.3
-- New method: Part 7.10 "Anchor Bias Mitigation Protocol" in Methods v3.7.0
+**Issue:** AI defaulting to structured selection UI for Foundation/Branching tier questions.
+
+**Changes to Constitution:**
+1. Clarified Format by Tier with "and Branching" + "(conversational dialogue)"
+2. Added "The Structured Selection Trap" failure mode
+
+### v1.4.0 - Anchor Bias Mitigation
+
+- New principle: "Periodic Re-evaluation" (C-Series)
+- New method: Part 7.10 "Anchor Bias Mitigation Protocol"
 - Contrarian reviewer updated with Step 6: "Check for Anchor Bias"
-- SERVER_INSTRUCTIONS updated with checkpoint reminders
 
 ## Quick Reference
 
@@ -46,11 +90,14 @@
 | Tests | **337 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
-| Index | 70 principles + 280 methods (350 total) |
+| Domains | **4** (constitution, ai-coding, multi-agent, storytelling) |
+| Index | **87 principles + 300 methods (387 total)** |
 
 ## Next Actions
 
-None — project is current.
+1. Consider promoting storytelling from `drafts/` to main `documents/` when ready for production
+2. Optional: Develop storytelling coaching playbook (question taxonomies, Socratic patterns)
+3. Optional: Add platform-specific playbooks (TikTok, LinkedIn, long-form)
 
 ## Links
 
