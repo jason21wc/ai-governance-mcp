@@ -604,7 +604,7 @@ Supported platforms via SuperAssistant:
 ```bash
 export AI_GOVERNANCE_DOCUMENTS_PATH=/path/to/documents
 export AI_GOVERNANCE_INDEX_PATH=/path/to/index
-export AI_GOVERNANCE_EMBEDDING_MODEL=all-MiniLM-L6-v2
+export AI_GOVERNANCE_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
 export AI_GOVERNANCE_SEMANTIC_WEIGHT=0.6
 ```
 

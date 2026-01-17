@@ -4,7 +4,7 @@
 
 ## Current Position
 
-- **Phase:** Released (v1.5.0)
+- **Phase:** Released (v1.6.0)
 - **Mode:** Standard
 - **Active Task:** None
 - **Blocker:** None
@@ -225,7 +225,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.5.0** (server), **v2.3** (Constitution), **v3.7.0** (governance-methods), **v2.9.0** (multi-agent-methods) |
+| Version | **v1.6.0** (server), **v2.3** (Constitution), **v3.7.0** (governance-methods), **v2.9.0** (multi-agent-methods) |
 | Tests | **337 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
