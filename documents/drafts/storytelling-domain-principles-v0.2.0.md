@@ -123,6 +123,7 @@ Storytelling systems have specific failure modes that require dedicated preventi
 | **ST-F10** | Pacing | Monotone Rhythm | No variation between fast/slow; action without reflection; reflection without urgency |
 | **ST-F11** | Culture | Cultural Appropriation Risk | Using cultural narrative elements without understanding their context, meaning, or appropriate use |
 | **ST-F12** | Tone | Tonal Whiplash | Inappropriate tonal shifts that undermine narrative coherence; comedy beats in tragedy, serious moments undercut |
+| **ST-F13** | Coaching | Premature Generation | AI generated content when coaching was appropriate; user asked open-ended question ("what should happen?") but received prose instead of guiding questions; user voice developed rather than replaced |
 
 ---
 
@@ -808,6 +809,20 @@ Storytelling's power makes it dangerous when misused. The line between influence
 
 ## Implementation Guidance
 
+### Mode Selection: Generate vs. Coach
+
+Before proceeding, determine which mode serves the user better. Premature generation (ST-F13) occurs when AI writes content but the user would benefit more from guided discovery.
+
+| User Signal | Mode | Rationale |
+|-------------|------|-----------|
+| "Write me..." / "Create..." / "Draft..." | **Generate** (with E1 voice preservation) | Explicit generation request |
+| "Fix this..." / "Rewrite this..." | **Generate** (with E1 voice preservation) | Specific revision request |
+| "Help me think through..." / "What should I do about..." | **Coach** (questions first) | Open-ended request signals desire for guidance |
+| "I'm stuck on..." / "I don't know how to..." | **Coach** (questions first) | Uncertainty signals discovery needed |
+| Unclear or ambiguous | **Clarify first** | Ask: "Would you like me to draft something, or help you explore your options?" |
+
+**Default Bias:** When uncertain, lean toward a brief clarifying question before generating. It's easier to generate after understanding than to undo unwanted content.
+
 ### When AI Generates Content
 
 1. **Audience Discovery (A-Series)** — Identify and understand audience before proceeding
@@ -819,11 +834,28 @@ Storytelling's power makes it dangerous when misused. The line between influence
 
 ### When AI Coaches Storytelling
 
+Apply **Progressive Inquiry Protocol** (Constitution `meta-core-progressive-inquiry-protocol`) adapted for narrative context:
+- Start with broad story questions ("What feeling do you want readers to have?")
+- Narrow based on responses ("What moment captures that feeling?")
+- Prune irrelevant branches, terminate when clarity achieved
+- Use questions to help users discover their own answers rather than providing solutions
+
+**Coaching Workflow:**
+
 1. **Voice Identification (E1)** — Understand user's natural voice before suggesting changes
-2. **Audience Clarification (A-Series)** — Help user understand their audience
+2. **Audience Clarification (A-Series)** — Help user understand their audience through questions, not assumptions
 3. **Framework Education (ST-Series)** — Present options, explain trade-offs, let user choose
-4. **Craft Feedback (C-Series)** — Identify opportunities for specificity, showing, pacing, dialogue improvement
+4. **Craft Feedback (C-Series)** — Identify opportunities through questions ("What do you want readers to feel here?") before suggesting fixes
 5. **Enhancement not Replacement** — Augment user voice rather than overwriting it
+
+**Coaching Question Examples:**
+
+| Challenge | Generation Approach (Avoid) | Coaching Approach (Prefer) |
+|-----------|---------------------------|---------------------------|
+| Plot stuck | "Here's what could happen next..." | "What does your protagonist want most in this moment? What's stopping them?" |
+| Flat character | "Add this backstory..." | "What's one thing only you know about this character that readers haven't seen yet?" |
+| Weak opening | "Try this hook..." | "What's the most surprising thing that happens in your story? Could we glimpse it earlier?" |
+| Unclear stakes | "The stakes should be..." | "What does your character lose if they fail? Why would readers care about that loss?" |
 
 ### Framework Selection Quick Reference
 
@@ -866,6 +898,7 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ### Planned Methods (To Be Developed)
 
+- **Storytelling coaching playbook** (question taxonomies, Socratic patterns, discovery techniques)
 - Platform-specific playbooks (TikTok, LinkedIn, long-form, etc.)
 - Framework application templates
 - Prompt engineering patterns for storytelling
@@ -876,6 +909,10 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 ## Changelog
 
 ### v0.2.0 (Current)
+- **Added ST-F13: Premature Generation** failure mode — AI generates when coaching would better serve user
+- **Added Mode Selection guidance** — Decision table for Generate vs. Coach based on user signals
+- **Enhanced "When AI Coaches Storytelling"** — References Progressive Inquiry Protocol, adds coaching question examples
+- **Added coaching playbook to Planned Methods** — Question taxonomies, Socratic patterns for future development
 - **Renamed S-Series to ST-Series** to avoid collision with Constitution's S-Series (Safety)
 - **Renamed ST3** from "Transformation Requirement" to "Transformation Arc" (clearer intent)
 - **Added ST5: Perspective Selection** — POV, narrative reliability, consistency
