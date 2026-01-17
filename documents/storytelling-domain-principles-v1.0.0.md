@@ -1,4 +1,4 @@
-# Storytelling Domain Principles Framework v0.2.0 (DRAFT)
+# Storytelling Domain Principles Framework v1.0.0
 ## Federal Statutes for AI-Assisted Narrative Communication
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -883,7 +883,7 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **storytelling-context-management-method.md** | v0.2.0 | Context engineering for narrative persistence |
+| **storytelling-methods-v1.0.0.md** | v1.0.0 | Context engineering for narrative persistence |
 
 **Context Management Method includes:**
 - Context thresholds (when Story Bibles become mandatory)
@@ -908,7 +908,11 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ## Changelog
 
-### v0.2.0 (Current)
+### v1.0.0 (Current)
+- **Promoted to production** — moved from drafts/ to documents/
+- All features from v0.2.0 stable and validated
+
+### v0.2.0
 - **Added ST-F13: Premature Generation** failure mode — AI generates when coaching would better serve user
 - **Added Mode Selection guidance** — Decision table for Generate vs. Coach based on user signals
 - **Enhanced "When AI Coaches Storytelling"** — References Progressive Inquiry Protocol, adds coaching question examples
@@ -936,5 +940,5 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ---
 
-*Version 0.2.0 - Draft for Review*
+*Version 1.0.0*
 *Derived from: AI Coding Domain Principles v2.2.1, Multi-Agent Domain Principles v2.0.0*

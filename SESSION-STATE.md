@@ -11,6 +11,16 @@
 
 ## Recent Work (This Session)
 
+### Storytelling Domain Promoted to Production
+
+**Changes:**
+- Moved `drafts/storytelling-domain-principles-v0.2.0.md` → `storytelling-domain-principles-v1.0.0.md`
+- Moved `drafts/storytelling-context-management-method-v0.2.0.md` → `storytelling-methods-v1.0.0.md`
+- Updated domains.json with new paths
+- Updated version numbers and changelogs (v0.2.0 → v1.0.0)
+- Removed DRAFT designation
+- Rebuilt index (87 principles + 300 methods = 387 total)
+
 ### Comprehensive Document Review
 
 **Scope:** Full review of all cognitive memory documents for obsolete info, structure compliance, and cross-document consistency.

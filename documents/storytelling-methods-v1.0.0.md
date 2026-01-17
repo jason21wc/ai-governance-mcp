@@ -1,4 +1,4 @@
-# Storytelling Context Management Method v0.2.0 (DRAFT)
+# Storytelling Context Management Method v1.0.0
 ## Managing Narrative Persistence Beyond AI Context Windows
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -1593,7 +1593,11 @@ The fragments can be written in any order. The tracking system ensures they conn
 
 ## Changelog
 
-### v0.2.0 (Current)
+### v1.0.0 (Current)
+- **Promoted to production** — moved from drafts/ to documents/
+- All features from v0.2.0 stable and validated
+
+### v0.2.0
 - **Added Auto-Tracking Protocol (§11)** — automatic extraction of story elements
 - **Added Revision Management Protocol (§12)** — version control for narrative
 - **Added Non-Linear Writing Protocol (§13)** — scene fragment tracking and assembly for discovery writing
@@ -1667,5 +1671,5 @@ The fragments can be written in any order. The tracking system ensures they conn
 
 ---
 
-*Version 0.2.0 - Draft for Review*
-*Companion to: Storytelling Domain Principles v0.2.0*
+*Version 1.0.0*
+*Companion to: Storytelling Domain Principles v1.0.0*
