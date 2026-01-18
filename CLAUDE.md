@@ -15,8 +15,10 @@
 | Type | File | Purpose |
 |------|------|---------|
 | Working | SESSION-STATE.md | Current position, next actions |
-| Semantic | PROJECT-MEMORY.md | Decisions, architecture, gates |
+| Semantic | PROJECT-MEMORY.md | Decisions, constraints, gates |
 | Episodic | LEARNING-LOG.md | Lessons learned |
+| Structural | ARCHITECTURE.md | System design, component responsibilities, data flow |
+| Charter | README.md | Project purpose, scope, public contract. Validate features fit; flag scope drift. |
 
 ## Governance Integration
 

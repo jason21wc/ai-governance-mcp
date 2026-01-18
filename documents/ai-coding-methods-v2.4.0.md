@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.3.0
+**Version:** 2.4.0
 **Status:** Active
-**Effective Date:** 2026-01-03
+**Effective Date:** 2026-01-18
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -2571,11 +2571,72 @@ From [Anthropic Claude Code Best Practices](https://www.anthropic.com/engineerin
 
 ---
 
-## Part 7.5: Handoff Protocol
+## Part 7.5: Source Document Registry
+
+**Importance: 🟢 OPTIONAL — Enhances context discovery for specialized projects**
+
+### 7.5.1 Purpose
+
+Projects may have specialized source documents beyond the core memory files. These documents contain factual information (semantic memory content) but warrant explicit registration so AI knows when to consult them.
+
+**Key Distinction:** Source documents are *repositories of facts* — they don't represent different cognitive functions from the CoALA 4-type model. They're semantic memory stored in dedicated files for organizational clarity.
+
+### 7.5.2 Common Patterns
+
+| Document | Cognitive Role | Question Answered |
+|----------|---------------|-------------------|
+| ARCHITECTURE.md | Structural reference | How is it built? Component structure, data flow |
+| README.md | Charter/scope | What is this for? Does new work fit scope? |
+| SPECIFICATION.md | Requirements reference | What must it do? Acceptance criteria |
+| API.md | Interface reference | What endpoints exist? Expected inputs/outputs |
+
+### 7.5.3 When to Consult
+
+| Document | Consult Before |
+|----------|---------------|
+| ARCHITECTURE.md | Modifying system structure, adding components, changing data flow |
+| README.md | Adding features (scope validation), changing public contract |
+| SPECIFICATION.md | Implementation decisions, acceptance testing |
+
+### 7.5.4 Registry Template
+
+Add to PROJECT-MEMORY.md when the project has specialized source documents:
+
+```markdown
+## Source Documents
+
+| File | Purpose | Consult When |
+|------|---------|--------------|
+| ARCHITECTURE.md | System design, component responsibilities | Modifying structure |
+| README.md | Project charter, scope definition | Adding features (scope validation) |
+| [other files...] | [purpose] | [trigger conditions] |
+```
+
+### 7.5.5 Project Instructions Integration
+
+Reference source documents in the loader file (e.g., CLAUDE.md) using the Memory table pattern:
+
+```markdown
+## Memory (Cognitive Types)
+
+| Type | File | Purpose |
+|------|------|---------|
+| Working | SESSION-STATE.md | Current position, next actions |
+| Semantic | PROJECT-MEMORY.md | Decisions, constraints, gates |
+| Episodic | LEARNING-LOG.md | Lessons learned |
+| Structural | ARCHITECTURE.md | System design, component responsibilities |
+| Charter | README.md | Project scope, public contract |
+```
+
+**Note:** "Structural" and "Charter" labels are *organizational shortcuts*, not new cognitive types. Both contain semantic (factual) memory content.
+
+---
+
+## Part 7.6: Handoff Protocol
 
 **Importance: 🔴 CRITICAL — Enables smooth session transitions**
 
-### 7.5.1 Session End Procedure
+### 7.6.1 Session End Procedure
 
 Before ending any session:
 
@@ -2585,7 +2646,7 @@ Before ending any session:
 4. **Update LEARNING-LOG.md** if insights emerged
 5. **Commit changes** if using version control
 
-### 7.5.2 Session Start Procedure
+### 7.6.2 Session Start Procedure
 
 When starting a new session:
 
@@ -2595,7 +2656,7 @@ When starting a new session:
 4. **Check LEARNING-LOG.md** — Any relevant lessons?
 5. **Confirm understanding** — Ask PO if unclear
 
-### 7.5.3 Handoff Summary (for complex transitions)
+### 7.6.3 Handoff Summary (for complex transitions)
 
 When transitioning to different AI/tool/collaborator:
 
@@ -2621,11 +2682,11 @@ Immediate Priority:
 
 ---
 
-## Part 7.6: Recovery Procedures
+## Part 7.7: Recovery Procedures
 
 **Importance: 🟡 IMPORTANT — Handles unexpected interruptions**
 
-### 7.6.1 Recovery Triggers
+### 7.7.1 Recovery Triggers
 
 Execute recovery when:
 - Session ended unexpectedly
@@ -2633,7 +2694,7 @@ Execute recovery when:
 - Context seems wrong
 - "framework check" command received
 
-### 7.6.2 Recovery Procedure
+### 7.7.2 Recovery Procedure
 
 1. **Assess memory files:**
    - Check SESSION-STATE.md timestamp
@@ -2655,7 +2716,7 @@ Execute recovery when:
    - Reload governance documents
    - Confirm next actions
 
-### 7.6.3 Recovery Documentation
+### 7.7.3 Recovery Documentation
 
 Add to LEARNING-LOG.md:
 
