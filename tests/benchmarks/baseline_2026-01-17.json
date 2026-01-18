@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-01-17T12:23:00.798030",
+  "timestamp": "2026-01-17T16:49:04.614089",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
     "method_mrr": 0.71875,
