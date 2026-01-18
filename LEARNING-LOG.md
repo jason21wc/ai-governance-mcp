@@ -7,6 +7,42 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-17 - External Library Evaluation Pattern
+
+**Context:** Evaluated Vercel Labs' json-render library to determine if it revealed gaps in our AI governance framework.
+
+**The Trap:** "Cool new library/tool → must reveal a gap → add new principle"
+
+**The Pattern (What Worked):**
+
+1. **Fetch and understand** what the library actually does
+2. **Query governance** for related principles before assuming gaps
+3. **Apply contrarian reviewer** to challenge the assumption that new = gap
+4. **Reframe the question** (anchor bias check):
+   - Wrong: "Does this library reveal gaps?"
+   - Right: "Do our principles already cover this concept?"
+
+**json-render Case Study:**
+| Library Feature | Principle Coverage |
+|-----------------|-------------------|
+| Constrained vocabulary | `meta-quality-structured-output-enforcement` |
+| Schema validation | Same principle |
+| Anti-hallucination | Same principle |
+| Allowlist patterns | `multi-agent-methods` |
+
+**Verdict:** Library *implements* existing principles. Validates framework completeness.
+
+**Key Questions for Future Evaluations:**
+1. What *principle* does this tool implement? (Tools implement principles, not the other way around)
+2. Is there a *class* of concern this represents that we haven't named?
+3. Would adding this create redundancy or clarify an existing gap?
+
+**Anti-Pattern:** Adding principles for every implementation pattern dilutes the Constitution. Respect the hierarchy: Principles > Methods > Tools.
+
+**Takeaway:** When evaluating external tools, default to "validates existing coverage" unless you can identify a specific capability that cannot be derived from current principles.
+
+---
+
 ### 2026-01-17 - Embedding Model Token Limits Matter
 
 **Context:** Method retrieval quality was poor (MRR 0.34). "Advanced Model Considerations" had semantic similarity 0.28 when it should match queries about prompting strategies.
