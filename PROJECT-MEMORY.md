@@ -918,3 +918,32 @@ The index stores metadata and embeddings separately:
 - Method Recall@10: 0.50 → **0.88** (+76%)
 
 **See:** SESSION-STATE.md "Method Retrieval Quality Improvement"
+
+### Gotcha 15: MCP Server Caches Index at Startup — Restart Required After Rebuild
+
+**Problem:** After rebuilding the index, MCP `query_governance()` returns stale results while direct Python tests pass.
+
+**Root Cause:**
+- `server.py` uses singleton: `_engine: RetrievalEngine | None = None`
+- Engine loads index once at first call to `get_engine()`
+- Cached for entire server lifetime — disk changes not detected
+
+**Symptom:**
+| Test Method | Result |
+|-------------|--------|
+| `pytest tests/` | ✓ Pass (fresh engine per test) |
+| `query_governance()` via MCP | ✗ Stale results |
+
+**Solution:** After `python -m ai_governance_mcp.extractor`, restart the MCP server.
+
+**For Claude Code users:** Restart Claude Code session (or use `/mcp` to restart servers if available).
+
+**Testing Protocol:**
+1. Make document changes
+2. Rebuild: `python -m ai_governance_mcp.extractor`
+3. Run pytest (passes)
+4. **Apply §7.5.1 Session End Procedure** — update SESSION-STATE.md before restart
+5. Restart MCP server
+6. Verify via `query_governance()`
+
+**See Also:** LEARNING-LOG.md "MCP Server Index Caching During Development"

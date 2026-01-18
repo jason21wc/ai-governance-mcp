@@ -4,12 +4,64 @@
 
 ## Current Position
 
-- **Phase:** Released (v1.6.0)
+- **Phase:** Released (v1.6.0 server, v2.4.1 methods)
 - **Mode:** Standard
-- **Active Task:** None
-- **Blocker:** None
+- **Active Task:** None (pending MCP restart to verify §7.8)
+- **Blocker:** MCP restart required to load new index
 
 ## Recent Work (This Session)
+
+### §7.8 Project Initialization Protocol ✓ IMPLEMENTED (Pending Verification)
+
+**Problem:** §7.5 Source Document Registry exists but AI won't discover it during project initialization — no trigger mechanism.
+
+**Solution Implemented (Three-Layer Consistency Approach):**
+
+| Layer | Location | Change |
+|-------|----------|--------|
+| 1 (Trigger) | `server.py:420` | Added Required Action #5: "Query for project initialization" |
+| 2 (Discovery) | `ai-coding-methods-v2.4.1.md` | Added §7.8 Project Initialization Protocol |
+| 3 (Template) | `ai-coding-methods-v2.4.1.md` | Added note after §7.4.3 template |
+
+**§7.8 Contents:**
+- 7.8.1 Purpose (with keywords for discoverability)
+- 7.8.2 Initialization Checklist (7 steps)
+- 7.8.3 File Creation Notes (LEARNING-LOG stub, ARCHITECTURE timing)
+- 7.8.4 Minimal Viable Initialization (Expedited Mode)
+- 7.8.5 Cross-Reference Index
+
+**Verification Results (Direct Python):**
+```
+coding-method-initialization-checklist ranked #1 for "project initialization"
+BM25=1.00, Semantic=0.73, Combined=0.84
+```
+
+**Pending:** MCP `query_governance("project initialization")` verification requires server restart (Gotcha 15).
+
+**Files Changed:**
+- `documents/ai-coding-methods-v2.4.0.md` (version → 2.4.1, added §7.8, added §7.4.3 note)
+- `src/ai_governance_mcp/server.py` (Required Action #5)
+- Index rebuilt (413 items)
+
+**All 345 tests passing.**
+
+---
+
+### Session Handoff Protocol Documented ✓ COMPLETE
+
+**Context:** Recurring issue of MCP queries returning stale results after index rebuild. Applied our own governance (§7.3.6, §7.5.1) to capture the pattern.
+
+**Documentation Added:**
+| Document | Entry |
+|----------|-------|
+| LEARNING-LOG.md | "MCP Server Index Caching During Development" |
+| PROJECT-MEMORY.md | Gotcha 15: MCP Server Caches Index |
+
+**Key Insight:** Our framework already has the guidance (§7.5.1 Session End Procedure), but we weren't following it. The gotcha documents the MCP-specific behavior and testing protocol.
+
+**Governance Applied:** `coding-method-session-end-procedure`, `coding-method-graduation-to-procedural-memory`, `meta-governance-continuous-learning-adaptation`.
+
+---
 
 ### Docker ARM64 Build Fix ✓ COMPLETE
 
@@ -417,17 +469,19 @@
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.6.0** (server), **v2.3** (Constitution), **v3.7.0** (governance-methods), **v2.9.0** (multi-agent-methods) |
+| Version | **v1.6.0** (server), **v2.3** (Constitution), **v2.4.1** (ai-coding-methods), **v2.9.0** (multi-agent-methods) |
 | Tests | **345 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Domains | **4** (constitution, ai-coding, multi-agent, storytelling) |
-| Index | **87 principles + 319 methods (406 total)** |
+| Index | **87 principles + 326 methods (413 total)** |
 
 ## Next Actions
 
-1. Optional: Develop storytelling coaching playbook (question taxonomies, Socratic patterns)
-2. Optional: Add platform-specific playbooks (TikTok, LinkedIn, long-form)
+1. **Verify §7.8 via MCP** — After restart, run `query_governance("project initialization")` and confirm `coding-method-initialization-checklist` appears in top 3
+2. **Rename methods file** (optional) — Consider renaming `ai-coding-methods-v2.4.0.md` to `ai-coding-methods-v2.4.1.md` to match version
+3. Optional: Develop storytelling coaching playbook (question taxonomies, Socratic patterns)
+4. Optional: Add platform-specific playbooks (TikTok, LinkedIn, long-form)
 
 ## Links
 

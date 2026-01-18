@@ -417,6 +417,7 @@ For significant actions, follow this protocol:
 2. **Query for guidance** — Call `query_governance("your concern")` when you need principles to inform decisions
 3. **Cite influencing principles** — Reference principle IDs (e.g., `meta-core-context-engineering`) when they guide your approach
 4. **Pause on uncertainty** — If requirements are unclear, ask the user before proceeding
+5. **Query for project initialization** — For new projects, call `query_governance("project initialization")` before creating files
 
 ### Hierarchy (Binding Order)
 | Priority | Source | Scope |

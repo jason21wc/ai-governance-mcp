@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.4.0
+**Version:** 2.4.1
 **Status:** Active
 **Effective Date:** 2026-01-18
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -2555,6 +2555,8 @@ Load these files for context:
 [Project-specific build/test/lint commands]
 ```
 
+**Note:** For projects with source documents (ARCHITECTURE.md, README.md), extend Memory section per §7.5. See §7.8 for full initialization checklist.
+
 ### 7.4.4 Loader Best Practices
 
 From [Anthropic Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices):
@@ -2727,6 +2729,71 @@ Add to LEARNING-LOG.md:
 **Recovery Actions:** [What we did]
 **Prevention:** [How to avoid in future]
 ```
+
+---
+
+## Part 7.8: Project Initialization Protocol
+
+**Importance: 🔴 CRITICAL — Ensures consistent project setup**
+
+### 7.8.1 Purpose
+
+Single authoritative checklist for initializing new projects. Consolidates guidance from Cold Start Kit, §1.3, and memory architecture into one discoverable location.
+
+### 7.8.2 Initialization Checklist
+
+**Keywords:** project initialization, new project, bootstrap, cold start, project setup, starting fresh
+
+Execute in order:
+
+| Step | Action | Reference |
+|------|--------|-----------|
+| 1 | Calibrate procedural mode (Expedited/Standard/Enhanced) | §1.3 |
+| 2 | Create SESSION-STATE.md | Cold Start Kit |
+| 3 | Create PROJECT-MEMORY.md (start with Phase Gates table) | §7.2 |
+| 4 | Create LEARNING-LOG.md (stub with usage header) | §7.3, §7.8.3 |
+| 5 | Create project instructions file (CLAUDE.md, etc.) | §7.4.3 |
+| 6 | Register source documents if applicable | §7.5 |
+| 7 | Begin Specify phase | Title 2 |
+
+### 7.8.3 File Creation Notes
+
+| File | Guidance |
+|------|----------|
+| LEARNING-LOG.md | Create stub with usage header (no entries yet). Entries added when lessons emerge per §7.3.2 |
+| Detailed ARCHITECTURE.md | Create after Plan phase when technical decisions are made |
+
+**LEARNING-LOG.md stub template:**
+```markdown
+# Learning Log
+
+Record lessons learned during this project. Add entries when:
+- Something unexpected happens (good or bad)
+- A workaround is discovered
+- A decision proves right/wrong
+- A pattern emerges worth remembering
+
+## Entries
+
+<!-- Add entries below as lessons emerge during implementation -->
+```
+
+### 7.8.4 Minimal Viable Initialization (Expedited Mode)
+
+1. SESSION-STATE.md (current position)
+2. PROJECT-MEMORY.md (empty Phase Gates table)
+3. LEARNING-LOG.md (stub with usage header)
+
+### 7.8.5 Cross-Reference Index
+
+| Topic | Section |
+|-------|---------|
+| Mode selection | §1.3 |
+| Session state format | §7.1 |
+| Project memory format | §7.2 |
+| Learning log timing | §7.3.2 |
+| Loader template | §7.4.3 |
+| Source documents | §7.5 |
 
 ---
 

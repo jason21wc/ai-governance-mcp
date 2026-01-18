@@ -7,6 +7,41 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-18 - MCP Server Index Caching During Development
+
+**Context:** After implementing §7.8 and rebuilding the index, MCP queries returned stale results. Direct Python tests showed correct results. This is a recurring issue (3+ occurrences documented in SESSION-STATE.md).
+
+**The Problem:**
+| Test Method | Result | Why |
+|-------------|--------|-----|
+| Direct Python (`RetrievalEngine`) | ✓ Correct | Fresh engine loads from disk |
+| MCP `query_governance()` | ✗ Stale | Server caches engine at startup |
+
+**Root Cause:**
+- `server.py` uses singleton pattern: `_engine: RetrievalEngine | None = None`
+- Engine is created once in `get_engine()` and cached for session lifetime
+- Index changes on disk are not detected until server restart
+
+**The Lesson:** After rebuilding the index (`python -m ai_governance_mcp.extractor`), the MCP server MUST be restarted to load the new index.
+
+**Testing Protocol for Index Changes:**
+1. Make document changes
+2. Rebuild index: `python -m ai_governance_mcp.extractor`
+3. Run pytest (uses fresh engine per test)
+4. **Before MCP query verification:** Restart MCP server (or Claude Code session)
+5. Then test via `query_governance()`
+
+**Session Handoff Checklist (Before Restart):**
+Per §7.5.1, before ending session for restart:
+1. ✓ Update SESSION-STATE.md with current position
+2. ✓ Update PROJECT-MEMORY.md if decisions were made
+3. ✓ Update LEARNING-LOG.md if insights emerged (this entry)
+4. ✓ Commit changes
+
+**Graduation Status:** Project-specific (Gotcha 15 in PROJECT-MEMORY.md). Not universal to all AI coding projects — specific to MCP server development.
+
+---
+
 ### 2026-01-18 - Docker Multi-Arch Builds with ML Workloads
 
 **Context:** Docker ARM64 build timed out after 6+ hours on GitHub Actions. Investigation revealed QEMU emulation makes embedding generation ~500x slower.
