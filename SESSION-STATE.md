@@ -30,7 +30,31 @@
 - Version consistency: pyproject.toml, __init__.py, SESSION-STATE all at v1.6.0
 - Test/tool/domain counts consistent across docs
 
-**Note:** GitHub MCP token being replaced — user generating new token and will restart Claude Code with it exported.
+**Note:** GitHub MCP token working (tested via `get_me`).
+
+---
+
+### UniversalRAG Paper Analysis ✓ COMPLETE
+
+**Paper:** arXiv 2504.20734 — "UniversalRAG: Retrieval-Augmented Generation over Corpora of Diverse Modalities and Granularities"
+
+**Initial Proposals (Pre-Review):**
+1. Add "Granularity-Aware Retrieval" to RAG methods (HIGH priority)
+2. Add "Distribution Shift Testing" to evaluation methods (MEDIUM priority)
+3. Add "Router Ensemble Pattern" (LOW-MEDIUM priority)
+
+**Contrarian Review Findings:**
+| Proposal | Verdict | Rationale |
+|----------|---------|-----------|
+| Granularity-Aware Retrieval | ❌ REJECT | Already covered by §12.1.4 Query-Chunk Alignment — different terminology, same concept |
+| Router Ensemble Pattern | ❌ REJECT | Wrong domain — paper solves *multimodal* routing; our system is text-only |
+| Distribution Shift Testing | ⏸️ DEFER | Partially covered by §4.7.3 Saturation Monitoring; at most 1-2 sentence addition |
+
+**Anchor Bias Detected:** Initial analysis framed through paper's multimodal lens without verifying domain applicability.
+
+**Decision:** No changes. Current RAG coverage (Title 12, added 9 days ago) is adequate for text-based governance retrieval.
+
+**Governance Applied:** `meta-core-periodic-re-evaluation`, contrarian-reviewer subagent. Audit ID: `gov-ecadda364505`.
 
 ---
 
@@ -264,10 +288,8 @@
 
 ## Next Actions
 
-1. ~~Promote storytelling from drafts to production~~ ✓ Done (v1.0.0)
-2. ~~Investigate X.com post (EXM7777/status/2011800604709175808)~~ ✓ Done (v2.9.0)
-3. Optional: Develop storytelling coaching playbook (question taxonomies, Socratic patterns)
-4. Optional: Add platform-specific playbooks (TikTok, LinkedIn, long-form)
+1. Optional: Develop storytelling coaching playbook (question taxonomies, Socratic patterns)
+2. Optional: Add platform-specific playbooks (TikTok, LinkedIn, long-form)
 
 ## Links
 
