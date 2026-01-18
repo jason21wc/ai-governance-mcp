@@ -2805,7 +2805,11 @@ Before ending any session:
    - Remove completed work from SESSION-STATE (keep only current state)
    - Mark graduated lessons in LEARNING-LOG
    - Check for superseded decisions in PROJECT-MEMORY
-6. **Commit changes** if using version control
+6. **Pre-commit validation** (if governance/methods documents changed):
+   - Version: filename version matches header version
+   - Memory files: cognitive type headers present
+   - Index: rebuild if documents changed (`python -m ai_governance_mcp.extractor`)
+7. **Commit changes** if using version control
 
 ### 7.6.2 Session Start Procedure
 

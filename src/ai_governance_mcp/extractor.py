@@ -119,10 +119,86 @@ class DocumentExtractor:
                 f"Check documents/domains.json and ensure file versions match."
             )
 
+    def validate_version_consistency(self) -> None:
+        """Validate that filename versions match header versions.
+
+        Checks both principles and methods files for version consistency.
+        Extracts version from filename pattern (e.g., 'file-v2.5.0.md')
+        and compares to header version (e.g., '**Version:** 2.5.0').
+
+        Raises:
+            ExtractorConfigError: If any version mismatches are found.
+        """
+        version_mismatches: list[str] = []
+
+        for domain_config in self.domains:
+            # Check principles file
+            self._check_file_version(
+                domain_config.principles_file,
+                domain_config.name,
+                "principles",
+                version_mismatches,
+            )
+
+            # Check methods file
+            if domain_config.methods_file:
+                self._check_file_version(
+                    domain_config.methods_file,
+                    domain_config.name,
+                    "methods",
+                    version_mismatches,
+                )
+
+        if version_mismatches:
+            mismatches_list = "\n".join(version_mismatches)
+            raise ExtractorConfigError(
+                f"Version mismatches found (filename vs header):\n{mismatches_list}\n\n"
+                f"Update filename to match header version, or vice versa."
+            )
+
+    def _check_file_version(
+        self,
+        filename: str,
+        domain_name: str,
+        file_type: str,
+        mismatches: list[str],
+    ) -> None:
+        """Check version consistency for a single file."""
+        # Extract version from filename (e.g., 'ai-coding-methods-v2.5.0.md' -> '2.5.0')
+        filename_match = re.search(r"-v(\d+\.\d+\.\d+)\.md$", filename)
+        if not filename_match:
+            return  # No version in filename, skip check
+
+        filename_version = filename_match.group(1)
+
+        # Read file and extract header version
+        file_path = self.settings.documents_path / filename
+        if not file_path.exists():
+            return  # File doesn't exist, will be caught by validate_domain_files
+
+        content = file_path.read_text(encoding="utf-8")
+
+        # Look for version in header (e.g., '**Version:** 2.5.0' or 'Version: 2.5.0')
+        header_match = re.search(
+            r"\*?\*?Version:?\*?\*?\s*(\d+\.\d+\.\d+)", content[:2000]
+        )
+        if not header_match:
+            return  # No version in header, skip check
+
+        header_version = header_match.group(1)
+
+        if filename_version != header_version:
+            mismatches.append(
+                f"  - {domain_name} {file_type}: '{filename}'\n"
+                f"    Filename version: {filename_version}\n"
+                f"    Header version:   {header_version}"
+            )
+
     def extract_all(self) -> GlobalIndex:
         """Extract all domains and build global index with embeddings."""
-        # Pre-flight validation: fail fast if files are missing
+        # Pre-flight validation: fail fast if files are missing or inconsistent
         self.validate_domain_files()
+        self.validate_version_consistency()
 
         ensure_directories(self.settings)
 

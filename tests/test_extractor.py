@@ -904,3 +904,171 @@ class TestExtractorConfigError:
 
         error = ExtractorConfigError("Test error message")
         assert str(error) == "Test error message"
+
+
+# =============================================================================
+# Version Consistency Validation Tests
+# =============================================================================
+
+
+class TestValidateVersionConsistency:
+    """Tests for validate_version_consistency() version validation."""
+
+    def test_validate_version_consistency_passes_when_matching(
+        self, test_settings, tmp_path
+    ):
+        """Should not raise when filename version matches header version."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            # Create a file with matching versions
+            doc_file = tmp_path / "test-doc-v1.2.3.md"
+            doc_file.write_text("# Test\n\n**Version:** 1.2.3\n\nContent here.")
+
+            test_settings.documents_path = tmp_path
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains = [
+                DomainConfig(
+                    name="test",
+                    display_name="Test",
+                    principles_file="test-doc-v1.2.3.md",
+                    methods_file=None,
+                    description="Test domain",
+                    priority=0,
+                )
+            ]
+
+            # Should not raise - versions match
+            extractor.validate_version_consistency()
+
+    def test_validate_version_consistency_raises_for_mismatch(
+        self, test_settings, tmp_path
+    ):
+        """Should raise ExtractorConfigError when versions don't match."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import (
+                DocumentExtractor,
+                ExtractorConfigError,
+            )
+            from ai_governance_mcp.models import DomainConfig
+
+            # Create a file with mismatched versions
+            doc_file = tmp_path / "test-doc-v1.0.0.md"
+            doc_file.write_text("# Test\n\n**Version:** 2.0.0\n\nContent here.")
+
+            test_settings.documents_path = tmp_path
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains = [
+                DomainConfig(
+                    name="test-mismatch",
+                    display_name="Test Mismatch",
+                    principles_file="test-doc-v1.0.0.md",
+                    methods_file=None,
+                    description="Test domain",
+                    priority=0,
+                )
+            ]
+
+            with pytest.raises(ExtractorConfigError) as exc_info:
+                extractor.validate_version_consistency()
+
+            error_msg = str(exc_info.value)
+            assert "1.0.0" in error_msg  # Filename version
+            assert "2.0.0" in error_msg  # Header version
+            assert "test-mismatch" in error_msg
+
+    def test_validate_version_consistency_skips_files_without_version_in_name(
+        self, test_settings, tmp_path
+    ):
+        """Should skip validation for files without version in filename."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            # Create a file without version in name
+            doc_file = tmp_path / "test-doc.md"
+            doc_file.write_text("# Test\n\n**Version:** 1.0.0\n\nContent here.")
+
+            test_settings.documents_path = tmp_path
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains = [
+                DomainConfig(
+                    name="test",
+                    display_name="Test",
+                    principles_file="test-doc.md",
+                    methods_file=None,
+                    description="Test domain",
+                    priority=0,
+                )
+            ]
+
+            # Should not raise - no version in filename to compare
+            extractor.validate_version_consistency()
+
+    def test_validate_version_consistency_skips_files_without_header_version(
+        self, test_settings, tmp_path
+    ):
+        """Should skip validation for files without version in header."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            # Create a file with version in name but not in header
+            doc_file = tmp_path / "test-doc-v1.0.0.md"
+            doc_file.write_text("# Test\n\nNo version header here.\n\nContent.")
+
+            test_settings.documents_path = tmp_path
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains = [
+                DomainConfig(
+                    name="test",
+                    display_name="Test",
+                    principles_file="test-doc-v1.0.0.md",
+                    methods_file=None,
+                    description="Test domain",
+                    priority=0,
+                )
+            ]
+
+            # Should not raise - no header version to compare
+            extractor.validate_version_consistency()
+
+    def test_validate_version_consistency_checks_both_principles_and_methods(
+        self, test_settings, tmp_path
+    ):
+        """Should check version consistency for both file types."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import (
+                DocumentExtractor,
+                ExtractorConfigError,
+            )
+            from ai_governance_mcp.models import DomainConfig
+
+            # Create files with mismatched versions
+            principles_file = tmp_path / "principles-v1.0.0.md"
+            principles_file.write_text("# Principles\n\n**Version:** 1.0.0\n")
+
+            methods_file = tmp_path / "methods-v2.0.0.md"
+            methods_file.write_text("# Methods\n\n**Version:** 3.0.0\n")  # Mismatch!
+
+            test_settings.documents_path = tmp_path
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains = [
+                DomainConfig(
+                    name="test",
+                    display_name="Test",
+                    principles_file="principles-v1.0.0.md",
+                    methods_file="methods-v2.0.0.md",
+                    description="Test domain",
+                    priority=0,
+                )
+            ]
+
+            with pytest.raises(ExtractorConfigError) as exc_info:
+                extractor.validate_version_consistency()
+
+            error_msg = str(exc_info.value)
+            assert "methods" in error_msg
+            assert "2.0.0" in error_msg  # Filename version
+            assert "3.0.0" in error_msg  # Header version
