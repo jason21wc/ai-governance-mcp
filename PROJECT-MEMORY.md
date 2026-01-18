@@ -356,6 +356,25 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Image:** ~1.6GB, 268 documents pre-indexed
 - **Distribution:** Docker Hub (`jason21wc/ai-governance-mcp`) + Dockerfile in repo
 
+### Decision: Docker AMD64-Only Build (ARM64 Removed)
+- **Date:** 2026-01-18
+- **Status:** CONFIRMED
+- **Problem:** GitHub Actions Docker build for ARM64 timed out after 6+ hours
+- **Root Cause:** GitHub's runners are x86_64. Building ARM64 requires QEMU emulation, which makes embedding generation ~500x slower:
+  | Environment | Batch Time | Total (13 batches) |
+  |-------------|------------|-------------------|
+  | Native x86_64 | ~2 min | ~26 min |
+  | QEMU ARM64 emulation | ~1.5 hours | ~19 hours |
+- **Key Finding:** MKL-DNN (Intel's math library used by PyTorch) cannot detect ARM features under QEMU, falling back to unoptimized code paths
+- **Solution:** Remove ARM64 from Docker build platforms (AMD64 only)
+- **Apple Silicon Impact:** Minimal — Rosetta 2 emulation runs AMD64 containers efficiently
+- **Alternative Considered:** Self-hosted ARM64 runner — rejected (complexity, cost)
+- **Recommendation for Future Projects:**
+  1. Test multi-arch builds with computationally intensive workloads early
+  2. For ML models with embeddings: avoid QEMU emulation, use native runners
+  3. AMD64-only is acceptable when emulation provides adequate fallback
+- **Implementation:** `.github/workflows/docker-publish.yml` updated to `platforms: linux/amd64`
+
 ### Decision: Phase 2B LLM-Agnostic Agent Installation Architecture
 - **Date:** 2026-01-02
 - **Status:** IMPLEMENTED

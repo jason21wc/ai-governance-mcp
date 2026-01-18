@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-01-17
+**Last Updated:** 2026-01-18
 
 ## Current Position
 
@@ -10,6 +10,22 @@
 - **Blocker:** None
 
 ## Recent Work (This Session)
+
+### Docker ARM64 Build Fix ✓ COMPLETE
+
+**Problem:** GitHub Actions Docker build for ARM64 timed out after 6+ hours.
+
+**Root Cause:** QEMU emulation for ARM64 on x86 runners makes embedding generation ~500x slower (MKL-DNN cannot detect ARM features under emulation).
+
+**Solution:** Remove ARM64 from build platforms (`linux/amd64` only). Apple Silicon users use Rosetta 2.
+
+**Documented:**
+- PROJECT-MEMORY.md: New decision "Docker AMD64-Only Build (ARM64 Removed)"
+- LEARNING-LOG.md: New lesson "Docker Multi-Arch Builds with ML Workloads"
+
+**Recommendation for Future:** Test multi-arch builds with full ML workloads early. AMD64-only is acceptable when Rosetta 2 provides adequate fallback.
+
+---
 
 ### Claude Code Tutorial Analysis ✓ VALIDATES METHODS
 

@@ -7,6 +7,39 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-18 - Docker Multi-Arch Builds with ML Workloads
+
+**Context:** Docker ARM64 build timed out after 6+ hours on GitHub Actions. Investigation revealed QEMU emulation makes embedding generation ~500x slower.
+
+**The Problem:**
+| Build Stage | Native (x86_64) | QEMU (ARM64) | Slowdown |
+|-------------|-----------------|--------------|----------|
+| Dependencies | ~3 min | ~10 min | 3x |
+| Embedding generation | ~2 min/batch | ~1.5 hrs/batch | ~500x |
+
+**Root Cause:**
+- GitHub Actions runners are x86_64 only
+- ARM64 builds use QEMU userspace emulation
+- MKL-DNN (Intel math library) cannot detect ARM features under QEMU
+- Falls back to naive, unoptimized code paths
+
+**The Lesson:** Multi-architecture Docker builds with ML/embedding workloads should NOT rely on QEMU emulation.
+
+**Recommended Approach for GitHub Actions + Docker:**
+1. **Test early** — Run multi-arch builds with full workload before release pipelines
+2. **Know your bottlenecks** — Identify computationally intensive stages (embedding generation, model compilation)
+3. **Accept AMD64-only** when:
+   - Primary target (servers, CI) is x86_64
+   - Fallback (Rosetta 2 for Apple Silicon) has acceptable performance
+4. **Use native runners** when ARM64 is required:
+   - Self-hosted ARM64 runners (cost/complexity)
+   - Cloud providers with ARM instances (AWS Graviton, etc.)
+5. **Consider pre-built artifacts** — Ship embeddings, skip generation in build
+
+**Applied Fix:** Removed ARM64 from `docker-publish.yml` platforms. Apple Silicon users run AMD64 image via Rosetta 2.
+
+---
+
 ### 2026-01-18 - Evaluation Depth: Principles AND Methods
 
 **Context:** Evaluated three external sources (json-render, agent-skills, Claude Code tutorial). Analysis depth improved across evaluations after being asked "did you look at our methods?"
