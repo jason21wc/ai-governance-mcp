@@ -61,7 +61,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          # ARM64 disabled: QEMU emulation makes embedding generation take ~19 hours
+          # Apple Silicon users can run AMD64 images via Rosetta 2 with minimal impact
+          platforms: linux/amd64
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
