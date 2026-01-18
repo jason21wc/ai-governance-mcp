@@ -7,6 +7,35 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-01-18 - Evaluation Depth: Principles AND Methods
+
+**Context:** Evaluated three external sources (json-render, agent-skills, Claude Code tutorial). Analysis depth improved across evaluations after being asked "did you look at our methods?"
+
+**The Problem:**
+| Evaluation | Principles | Methods | Depth |
+|------------|------------|---------|-------|
+| json-render | ✓ Queried | Mentioned in passing | Shallow |
+| agent-skills | ✓ Queried | Retrieved template | Medium |
+| Claude Code tutorial | ✓ Queried | Retrieved 7+ methods, grep searched | Deep |
+
+**The Lesson:** External evaluations must systematically check BOTH principles AND methods with equal depth.
+
+**Updated Evaluation Checklist:**
+1. Query governance for related **principles**
+2. Query governance for related **methods** (check "Applicable Methods" in results)
+3. **Retrieve specific method content** — don't just note method names
+4. Compare external patterns against method procedures, not just principle concepts
+5. Apply contrarian reviewer to challenge gaps
+
+**Why Methods Matter:**
+- Principles define WHAT (concepts, rules)
+- Methods define HOW (procedures, templates, checklists)
+- External tutorials often describe HOW — compare against methods, not principles
+
+**Example:** Claude Code tutorial's "summary-based returns" matched `multi-method-compression-procedures` (a method), not a principle. Shallow analysis would miss this.
+
+---
+
 ### 2026-01-17 - External Library Evaluation Pattern
 
 **Context:** Evaluated Vercel Labs' json-render library to determine if it revealed gaps in our AI governance framework.
@@ -16,11 +45,12 @@ This log captures lessons learned during development. Review before making chang
 **The Pattern (What Worked):**
 
 1. **Fetch and understand** what the library actually does
-2. **Query governance** for related principles before assuming gaps
-3. **Apply contrarian reviewer** to challenge the assumption that new = gap
-4. **Reframe the question** (anchor bias check):
+2. **Query governance** for related principles AND methods (check both!)
+3. **Retrieve specific method content** for procedural comparisons
+4. **Apply contrarian reviewer** to challenge the assumption that new = gap
+5. **Reframe the question** (anchor bias check):
    - Wrong: "Does this library reveal gaps?"
-   - Right: "Do our principles already cover this concept?"
+   - Right: "Do our principles/methods already cover this concept?"
 
 **json-render Case Study:**
 | Library Feature | Principle Coverage |
