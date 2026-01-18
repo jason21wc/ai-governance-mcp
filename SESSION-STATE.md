@@ -11,6 +11,44 @@
 
 ## Recent Work (This Session)
 
+### agent-skills Pattern Analysis ✓ DECLINED
+
+**Source:** [Vercel Labs agent-skills](https://github.com/vercel-labs/agent-skills/tree/main/skills/react-best-practices) — Structured knowledge for AI agents
+
+**Pattern Features:**
+- One rule per file with YAML frontmatter (title, impact, tags)
+- Compiles to AGENTS.md (single deployment artifact)
+- Generates test-cases.json for LLM evaluation
+- Bad/Good contrastive examples per rule
+
+**Analysis Approach:** Contrarian-reviewer + research validation on contrastive examples.
+
+**Contrarian Review Findings:**
+| agent-skills Feature | Our Coverage | Verdict |
+|---------------------|--------------|---------|
+| One rule per file | MCP retrieval solves discovery | ✓ Covered differently |
+| Compile to AGENTS.md | Semantic retrieval superior for multi-domain | ✓ Architecturally superior |
+| Test case generation | Manual benchmark (16 cases) | ⚠️ Potential future enhancement |
+| **Bad/Good examples** | Common Pitfalls (prose) | ⚠️ Gap identified |
+
+**Contrastive Examples Research:**
+| Study | Result |
+|-------|--------|
+| Auto-CCoT (2025) | +4.0% GSM8K, +5.1% AQuA |
+| Critical caveat | "Does not increase performance in all models for all data" |
+
+**80/20 Analysis Applied:**
+- Research gains modest (4-5%) and inconsistent across models
+- Research applies to reasoning tasks (math), not behavioral governance
+- 130+ principles would need updates
+- "Common Pitfalls" already captures anti-patterns in prose
+
+**Verdict:** DECLINED per `meta-operational-resource-efficiency-waste-reduction` (Minimum Effective Dose)
+
+**Governance Applied:** `coding-method-mvp-discipline`, `multi-general-justified-complexity`, contrarian-reviewer subagent.
+
+---
+
 ### json-render Library Analysis ✓ COMPLETE
 
 **Source:** [Vercel Labs json-render](https://github.com/vercel-labs/json-render) — AI → JSON → UI framework

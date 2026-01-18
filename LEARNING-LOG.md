@@ -43,6 +43,36 @@ This log captures lessons learned during development. Review before making chang
 
 ---
 
+### 2026-01-17 - Contrastive Examples: Research vs 80/20 Principle
+
+**Context:** Evaluated whether adding Bad/Good contrastive examples to our principle template would improve framework effectiveness (triggered by agent-skills pattern analysis).
+
+**Research Findings:**
+| Study | Improvement | Domain |
+|-------|-------------|--------|
+| Auto-CCoT (2025) | +4.0% | GSM8K (math reasoning) |
+| Auto-CCoT (2025) | +5.1% | AQuA (math reasoning) |
+| Contrastive CoT | +1.6-2.2% | With Self-Consistency |
+
+**Critical Caveat:** "Contrastive CoT does not increase problem-solving performance in all language models for all data." Results vary significantly by model.
+
+**80/20 Analysis:**
+1. Research gains are modest (4-5%) and inconsistent
+2. Research applies to **reasoning tasks** (math, logic), not behavioral governance
+3. Our principles are about *when to escalate* and *how to behave* — different cognitive tasks
+4. We already have "Common Pitfalls" capturing anti-patterns in prose
+5. 130+ principles would need updating
+
+**Decision:** DECLINED — "Common Pitfalls" is the Minimum Effective Dose
+
+**Key Insight:** Not all prompt engineering research transfers to all domains. Contrastive examples help with step-by-step reasoning puzzles; behavioral governance principles may not benefit equally.
+
+**Sources:**
+- [Contrastive Chain-of-Thought Prompting (arXiv 2311.09277)](https://arxiv.org/abs/2311.09277)
+- [Auto-CCoT (ScienceDirect 2025)](https://www.sciencedirect.com/science/article/abs/pii/S0957417425045348)
+
+---
+
 ### 2026-01-17 - Embedding Model Token Limits Matter
 
 **Context:** Method retrieval quality was poor (MRR 0.34). "Advanced Model Considerations" had semantic similarity 0.28 when it should match queries about prompting strategies.
