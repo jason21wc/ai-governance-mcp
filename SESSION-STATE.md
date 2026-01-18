@@ -11,6 +11,30 @@
 
 ## Recent Work (This Session)
 
+### Conservative Memory Cleanup ✓ COMPLETE
+
+**Scope:** Contrarian-reviewed cleanup of SESSION-STATE.md and PROJECT-MEMORY.md.
+
+**Contrarian Review Outcome:** Original plan to remove ~400 lines rejected. Most "obsolete" content serves as architectural context or decision rationale.
+
+**Changes Made (commit `9eb29c7`):**
+| File | Change |
+|------|--------|
+| SESSION-STATE.md | Removed 2 completed strikethrough items from Next Actions |
+| PROJECT-MEMORY.md | Condensed phase checklist (5 items → 1 line) |
+| PROJECT-MEMORY.md | Removed detailed task table (T1-T23), kept summary |
+| PROJECT-MEMORY.md | Fixed stale gate file references (GATE-PLAN.md, GATE-TASKS.md) |
+
+**Kept (per contrarian review):**
+- Quick Reference table (not duplicate — PROJECT-MEMORY lacks consolidated view)
+- Confidence Thresholds decision (explains why 0.3/0.4/0.7 exist)
+- AI Coding Methods decisions (govern current system)
+- All Key Decisions (architectural rationale, not history)
+
+**Principle Applied:** "Memory serves reasoning, not archival."
+
+---
+
 ### Documentation Cleanup ✓ COMPLETE
 
 **Scope:** Post-v1.6.0 review of documents, GitHub, Docker for stale references.
