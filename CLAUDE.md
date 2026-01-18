@@ -84,6 +84,20 @@ This project has specialized subagent definitions in `.claude/agents/`. When a t
 
 **Note:** Custom agent files are reference documentation — they define roles but aren't automatically invokable via Task tool's `subagent_type` parameter.
 
+## Memory Hygiene Checkpoints
+
+Check memory health WHEN:
+- [ ] SESSION-STATE.md exceeds 300 lines
+- [ ] PROJECT-MEMORY.md exceeds 800 lines
+- [ ] Before major releases
+
+**Action:** Apply §7.0.4 distillation triggers
+
+**Quick Check:**
+```bash
+wc -l SESSION-STATE.md PROJECT-MEMORY.md LEARNING-LOG.md
+```
+
 ## Jurisdiction
 
 **AI Coding** applies:

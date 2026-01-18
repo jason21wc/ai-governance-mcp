@@ -249,7 +249,15 @@ Create this file in project root immediately.
 
 ```markdown
 # Session State
+
 **Last Updated:** [YYYY-MM-DD HH:MM]
+**Memory Type:** Working (transient)
+**Lifecycle:** Prune at session start per §7.0.4
+
+> This file tracks CURRENT work state only.
+> Historical information → PROJECT-MEMORY.md (decisions) or LEARNING-LOG.md (lessons)
+
+---
 
 ## Current Position
 - **Phase:** Specify
@@ -275,9 +283,17 @@ Create this file after Specify phase completes:
 
 ```markdown
 # Project Memory
+
 **Project:** [Name]
 **Started:** [Date]
 **Mode:** [Expedited/Standard/Enhanced]
+**Memory Type:** Semantic (accumulates)
+**Lifecycle:** Prune when decisions superseded per §7.0.4
+
+> Preserves significant decisions and rationale.
+> Mark superseded decisions with date and replacement link.
+
+---
 
 ## Specification Summary
 - **Problem:** [One sentence]
@@ -321,7 +337,14 @@ Create this file when the first lesson emerges (not at project start):
 
 ```markdown
 # Learning Log
+
 **Project:** [Name]
+**Memory Type:** Episodic (experiences)
+**Lifecycle:** Graduate to methods when pattern emerges per §7.0.4
+
+> When lesson becomes pattern: Add to methods doc, mark "Graduated to §X.Y"
+
+---
 
 ## Lessons
 
@@ -2358,6 +2381,21 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 
 **Superseded decisions:** Don't delete — mark as superseded with date and link to new decision. Context of why we changed matters.
 
+**Distillation Triggers:**
+
+| Memory File | Trigger | Action |
+|-------------|---------|--------|
+| SESSION-STATE.md | > 300 lines | Prune to current state only |
+| PROJECT-MEMORY.md | > 800 lines | Condense decisions, check superseded |
+| LEARNING-LOG.md | Entry > 6 months | Graduate to methods or delete |
+
+**Memory Health Check:**
+```bash
+wc -l SESSION-STATE.md PROJECT-MEMORY.md LEARNING-LOG.md
+# Targets: SESSION < 300, PROJECT < 800
+```
+Run this check: session end, before releases, when files feel bloated.
+
 ---
 
 ## Part 7.1: Session State
@@ -2374,7 +2412,15 @@ File: `SESSION-STATE.md` (project root)
 
 ```markdown
 # Session State
+
 **Last Updated:** [ISO timestamp]
+**Memory Type:** Working (transient)
+**Lifecycle:** Prune at session start per §7.0.4
+
+> This file tracks CURRENT work state only.
+> Historical information → PROJECT-MEMORY.md (decisions) or LEARNING-LOG.md (lessons)
+
+---
 
 ## Current Position
 - **Phase:** [Specify/Plan/Tasks/Implement]
@@ -2446,9 +2492,17 @@ File: `PROJECT-MEMORY.md` (project root)
 
 ```markdown
 # Project Memory
+
 **Project:** [Name]
 **Started:** [Date]
 **Mode:** [Expedited/Standard/Enhanced]
+**Memory Type:** Semantic (accumulates)
+**Lifecycle:** Prune when decisions superseded per §7.0.4
+
+> Preserves significant decisions and rationale.
+> Mark superseded decisions with date and replacement link.
+
+---
 
 ## Specification Summary
 [Condensed version of key requirements - not full spec]
@@ -2543,7 +2597,14 @@ File: `LEARNING-LOG.md` (project root)
 
 ```markdown
 # Learning Log
+
 **Project:** [Name]
+**Memory Type:** Episodic (experiences)
+**Lifecycle:** Graduate to methods when pattern emerges per §7.0.4
+
+> When lesson becomes pattern: Add to methods doc, mark "Graduated to §X.Y"
+
+---
 
 ## Lessons Learned
 
@@ -2740,7 +2801,11 @@ Before ending any session:
 2. **Update SESSION-STATE.md** with current position
 3. **Update PROJECT-MEMORY.md** if decisions were made
 4. **Update LEARNING-LOG.md** if insights emerged
-5. **Commit changes** if using version control
+5. **Memory hygiene check:**
+   - Remove completed work from SESSION-STATE (keep only current state)
+   - Mark graduated lessons in LEARNING-LOG
+   - Check for superseded decisions in PROJECT-MEMORY
+6. **Commit changes** if using version control
 
 ### 7.6.2 Session Start Procedure
 
@@ -2860,6 +2925,14 @@ Execute in order:
 **LEARNING-LOG.md stub template:**
 ```markdown
 # Learning Log
+
+**Project:** [Name]
+**Memory Type:** Episodic (experiences)
+**Lifecycle:** Graduate to methods when pattern emerges per §7.0.4
+
+> When lesson becomes pattern: Add to methods doc, mark "Graduated to §X.Y"
+
+---
 
 Record lessons learned during this project. Add entries when:
 - Something unexpected happens (good or bad)

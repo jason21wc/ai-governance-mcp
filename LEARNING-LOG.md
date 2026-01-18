@@ -1,5 +1,10 @@
 # AI Governance MCP - Learning Log
 
+**Memory Type:** Episodic (experiences)
+**Lifecycle:** Graduate to methods when pattern emerges per §7.0.4
+
+> When lesson becomes pattern: Add to methods doc, mark "Graduated to §X.Y"
+
 ## Purpose
 This log captures lessons learned during development. Review before making changes.
 

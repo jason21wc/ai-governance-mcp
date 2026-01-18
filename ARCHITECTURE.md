@@ -2,6 +2,11 @@
 
 **Version:** 1.6.1
 **Date:** 2026-01-18
+**Memory Type:** Structural (reference)
+
+> System design, component responsibilities, data flow.
+> For decisions/rationale → PROJECT-MEMORY.md
+
 **Phase:** COMPLETE (350 tests, 90% coverage, 11 tools)
 
 ---
@@ -229,3 +234,50 @@ ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtu
 | retrieval.py | 84% | Rare filesystem errors uncovered |
 | config_generator.py | 100% | Full coverage |
 | validator.py | 100% | Full coverage |
+
+---
+
+## Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| mcp | >=1.0.0 | MCP SDK (FastMCP) |
+| pydantic | >=2.0.0 | Data models |
+| pydantic-settings | >=2.0.0 | Configuration |
+| sentence-transformers | >=2.2.0 | Embeddings + reranking |
+| rank-bm25 | >=0.2.0 | BM25 keyword search |
+| numpy | >=1.24.0 | Vector operations |
+| pytest | >=7.0.0 | Testing (dev) |
+
+---
+
+## Test File Map
+
+| File | Tests | Purpose |
+|------|-------|---------|
+| tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
+| tests/test_models.py | 49 | Model validation, constraints, enums |
+| tests/test_config.py | 17 | Settings, env vars, path handling |
+| tests/test_server.py | 103 | All 11 tools, formatting, metrics, governance, agent installation |
+| tests/test_server_integration.py | 11 | Dispatcher routing, end-to-end flows |
+| tests/test_extractor.py | 45 | Parsing, embeddings, metadata, validation |
+| tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |
+| tests/test_retrieval.py | 36 | Unit tests + edge cases |
+| tests/test_retrieval_integration.py | 21 | Pipeline, utilities, performance |
+| tests/test_config_generator.py | 17 | Platform configs, CLI commands |
+| tests/test_validator.py | 15 | Principle ID validation, fuzzy matching |
+| tests/test_retrieval_quality.py | 8 | MRR, Recall@K benchmarks |
+
+---
+
+## Source File Map
+
+| File | Purpose | Lines |
+|------|---------|-------|
+| src/ai_governance_mcp/models.py | Pydantic data structures | ~350 |
+| src/ai_governance_mcp/config.py | Settings management | ~224 |
+| src/ai_governance_mcp/extractor.py | Document parsing + embeddings | ~450 |
+| src/ai_governance_mcp/retrieval.py | Hybrid search engine | ~500 |
+| src/ai_governance_mcp/server.py | MCP server + 11 tools | ~1900 |
+| src/ai_governance_mcp/config_generator.py | Multi-platform MCP configs | ~150 |
+| src/ai_governance_mcp/validator.py | Principle ID validation | ~350 |
