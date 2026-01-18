@@ -93,6 +93,47 @@
 
 ---
 
+### v1.6.1 Release ✓ PUBLISHED
+
+**Context:** User requested push to GitHub and verification that everything from GitHub to Docker is up-to-date.
+
+**Pre-Release Documentation Review:**
+- Used Explore agent to check consistency across all docs
+- Found 3 inconsistencies:
+  - README.md: "345 tests" in 2 locations → fixed to "350 tests"
+  - ARCHITECTURE.md: Version "1.6" → "1.6.0", test count "345" → "350"
+
+**Release Process:**
+1. Fixed documentation inconsistencies
+2. Bumped version 1.6.0 → 1.6.1 (pyproject.toml, __init__.py)
+3. Updated version references (SESSION-STATE.md, ARCHITECTURE.md)
+4. Pushed 5 commits to GitHub main
+5. Created tag v1.6.1, pushed to origin
+6. Created GitHub release via `gh release create`
+7. Docker build triggered automatically, completed in 2m55s
+
+**What's in v1.6.1 (since v1.6.0):**
+- §7.8 Project Initialization Protocol (server.py + methods)
+- §7.5 Source Document Registry pattern (methods)
+- §5.2.5 ML Model Mocking Pattern (methods)
+- Metrics Registry System with 5 regression tests
+- Documentation cleanup commits
+
+**Verification:**
+| Artifact | Status | URL/Tag |
+|----------|--------|---------|
+| GitHub | ✓ Pushed | main branch current |
+| Release | ✓ Created | v1.6.1 |
+| Docker Hub | ✓ Built | `1.6.1` and `latest` (2026-01-18T22:05:38Z) |
+
+**Governance Applied:**
+- `evaluate_governance` called pre-action (audit: `gov-c960a5d74722`)
+- `coding-quality-testing-integration`: All 350 tests passing
+- `meta-multi-standardized-collaboration-protocols`: Semantic versioning, clear commits
+- Reasoning logged via `log_governance_reasoning`
+
+---
+
 ### §7.8 Project Initialization Protocol ✓ VERIFIED
 
 **Previous Status:** Implemented, pending MCP verification after restart.
