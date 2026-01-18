@@ -16,14 +16,14 @@
 - **Active Task:** None
 - **Blocker:** None
 
-## Recent Accomplishments (v1.6.x)
+## Recent Accomplishments (v1.6.x / v2.5.0)
 
 | Feature | Status |
 |---------|--------|
-| §7.8 Project Initialization Protocol | ✓ Implemented |
-| §7.5 Source Document Registry | ✓ Added |
-| §5.2.5 ML Model Mocking Pattern | ✓ Added |
-| Metrics Registry System | ✓ 5 regression tests |
+| Memory file pruning & cognitive headers | ✓ v2.5.0 |
+| Version consistency validation (extractor) | ✓ 5 tests |
+| §7.6.1 Pre-commit validation checklist | ✓ Added |
+| §7.0.4 Distillation triggers | ✓ Added |
 | Method retrieval quality | MRR 0.34→0.72, Recall 0.50→0.88 |
 
 ## Quick Reference
@@ -31,7 +31,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.6.1** (server), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.9.0** (multi-agent-methods) |
-| Tests | **350 passing** |
+| Tests | **355 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Domains | **4** (constitution, ai-coding, multi-agent, storytelling) |
