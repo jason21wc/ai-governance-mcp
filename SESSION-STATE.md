@@ -4,7 +4,7 @@
 
 ## Current Position
 
-- **Phase:** Released (v1.6.0 server, v2.4.2 methods)
+- **Phase:** Released (v1.6.1 server, v2.4.2 methods)
 - **Mode:** Standard
 - **Active Task:** None
 - **Blocker:** None
@@ -559,7 +559,7 @@ BM25=1.00, Semantic=0.73, Combined=0.84
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.6.0** (server), **v2.3** (Constitution), **v2.4.2** (ai-coding-methods), **v2.9.0** (multi-agent-methods) |
+| Version | **v1.6.1** (server), **v2.3** (Constitution), **v2.4.2** (ai-coding-methods), **v2.9.0** (multi-agent-methods) |
 | Tests | **350 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |

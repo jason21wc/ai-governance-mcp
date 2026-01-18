@@ -1,6 +1,6 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.6.0
+**Version:** 1.6.1
 **Date:** 2026-01-18
 **Phase:** COMPLETE (350 tests, 90% coverage, 11 tools)
 
