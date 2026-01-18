@@ -5,7 +5,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods — "second brain" for AI
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 345 tests, 90% coverage, 11 tools
+- **Status:** COMPLETE - All phases done, 350 tests, 90% coverage, 11 tools
 - **Procedural Mode:** STANDARD
 - **Quality Target:** Showcase/production-ready, public-facing tool
 - **Portfolio Goal:** Showcase for recruiters, consulting customers, SME presentations
@@ -18,7 +18,7 @@
 | Specify → Plan | ✓ Passed | 2025-12-26 | PO validated requirements, chose Option C (Tier 1 + best of Tier 2) |
 | Plan → Tasks | ✓ Passed | 2025-12-26 | Architecture approved, hybrid retrieval design confirmed |
 | Tasks → Implement | ✓ Passed | 2025-12-27 | Task decomposition approved, 90+ test target set |
-| Implement → Complete | ✓ Passed | 2025-12-29 | 345 tests, 90% coverage, all features working |
+| Implement → Complete | ✓ Passed | 2025-12-29 | 350 tests, 90% coverage, all features working |
 
 ## Architecture Summary
 
@@ -707,6 +707,91 @@ Runtime:     Query → Domain Router → Hybrid Search → Reranker → Results
 - **Breaking Change:** Existing indexes must be rebuilt (`python -m ai_governance_mcp.extractor`)
 - **See Also:** Gotcha 14 (now resolved), SESSION-STATE.md
 
+---
+
+## Metrics Registry
+
+Systematic tracking of performance metrics. This section defines WHAT we measure, WHY it matters, and WHERE it's stored.
+
+### Metrics Framework
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| **Baseline Snapshots** | `tests/benchmarks/baseline_YYYY-MM-DD.json` | Point-in-time metrics for comparison |
+| **Test Cases** | `tests/benchmarks/retrieval_quality.json` | 16 benchmark queries (8 methods, 8 principles) |
+| **Regression Tests** | `tests/test_retrieval_quality.py::TestRegressionThresholds` | CI fails if quality degrades |
+| **Runtime Metrics** | `Metrics` class (in-memory) | Per-session observability |
+
+### Retrieval Quality Metrics
+
+| Metric | Definition | Current Value | Threshold | Rationale |
+|--------|------------|---------------|-----------|-----------|
+| **Method MRR** | Mean Reciprocal Rank for method retrieval | 0.72 | ≥ 0.60 | Primary quality signal for method discovery |
+| **Principle MRR** | Mean Reciprocal Rank for principle retrieval | 0.61 | ≥ 0.50 | Primary quality signal for principle discovery |
+| **Method Recall@10** | % of expected methods in top 10 | 0.88 | ≥ 0.75 | Ensures breadth of relevant results |
+| **Principle Recall@10** | % of expected principles in top 10 | 1.00 | ≥ 0.85 | Ensures breadth of relevant results |
+
+**Threshold Rationale:** Set ~15% below achieved values to allow variance without false alarms while catching genuine regressions.
+
+### System Metrics
+
+| Metric | Definition | Current Value | Threshold | Rationale |
+|--------|------------|---------------|-----------|-----------|
+| **Model Load Time** | Cold-start time to load embedding + reranker models | ~9s | ≤ 15s | User experience for first query |
+| **Index Size** | Total principles + methods indexed | 413 | — | Baseline for growth tracking |
+| **Embedding Dimensions** | Vector size for semantic search | 384 | — | Memory/quality tradeoff |
+
+### When to Record Baseline
+
+Record a new baseline (`pytest tests/test_retrieval_quality.py::TestBaselineRecording -v -m real_index`) when:
+
+1. **Embedding model changes** — New model = new baseline
+2. **Major index changes** — New domain added, significant document rewrites
+3. **Retrieval algorithm changes** — BM25 weights, fusion parameters, reranker updates
+4. **Before releases** — Capture state for regression comparison
+
+### Adding New Metrics
+
+When discovering a new metric worth tracking:
+
+1. **Define it here** — Add to appropriate table with definition, threshold, rationale
+2. **Add to baseline schema** — Update `test_record_baseline()` to capture it
+3. **Add regression test** — If threshold matters, add `test_*_threshold()` to `TestRegressionThresholds`
+4. **Document trigger** — Note what changes should prompt re-measurement
+
+### Baseline JSON Schema
+
+```json
+{
+  "timestamp": "ISO-8601",
+  "embedding_model": "model-name",
+  "metrics": {
+    "method_mrr": 0.72,
+    "principle_mrr": 0.61,
+    "method_recall_at_10": 0.88,
+    "principle_recall_at_10": 1.0
+  },
+  "system_metrics": {
+    "model_load_time_ms": 9000,
+    "index_stats": {
+      "total_principles": 87,
+      "total_methods": 326,
+      "domains": ["constitution", "ai-coding", "multi-agent", "storytelling"]
+    }
+  },
+  "method_details": { /* per-case breakdown */ },
+  "principle_details": { /* per-case breakdown */ }
+}
+```
+
+### Governance Reference
+
+- `multi-method-capability-vs-regression-evals`: Threshold tests implement regression eval pattern
+- `multi-method-production-observability-patterns`: Key metrics aligned with observability stack
+- `meta-governance-measurable-success-criteria`: Explicit thresholds for quality assessment
+
+---
+
 ## Roadmap
 
 ### Completed Consolidations
@@ -743,7 +828,7 @@ Show updated process map:
 
 ## Current State
 
-**All phases complete:** Specify → Plan → Tasks → Implement → Test (345 tests, 90% coverage)
+**All phases complete:** Specify → Plan → Tasks → Implement → Test (350 tests, 90% coverage)
 
 *Gate tracking is inline in Phase Gates table above. Task breakdown (T1-T23) archived — all 23 tasks complete.*
 

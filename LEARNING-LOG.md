@@ -42,6 +42,40 @@ Per §7.5.1, before ending session for restart:
 
 ---
 
+### 2026-01-18 - Metrics Tracking: Framework Methods Worked (Validation)
+
+**Context:** User requested systematic metrics tracking with historical comparison. Initial instinct was to create a new METRICS-LOG.md file.
+
+**The Process:**
+1. Queried governance for existing coverage
+2. Explored current metrics infrastructure (baseline JSON, Metrics class)
+3. Applied contrarian review to challenge "new file" assumption
+4. Implemented 3-part approach instead
+
+**What We Built:**
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| Extended baseline schema | `tests/benchmarks/baseline_*.json` | Added `system_metrics` (load time, index stats) |
+| Metrics Registry | PROJECT-MEMORY.md | Definitions, thresholds, when to record |
+| Regression threshold tests | `test_retrieval_quality.py::TestRegressionThresholds` | CI fails if quality degrades |
+
+**Key Insight:** The existing governance methods successfully guided the implementation:
+- `multi-method-capability-vs-regression-evals` → Regression threshold tests
+- `multi-method-production-observability-patterns` → System metrics selection
+- `meta-governance-measurable-success-criteria` → Threshold definitions with rationale
+
+**The Lesson:** When implementing something useful, resist the urge to add it to the framework. Ask: "Did existing methods provide adequate guidance?" If yes, the implementation *validates* the framework, not a gap in it.
+
+**Contrarian Review Verdict:** DON'T ADD new "Metrics Registry Pattern" method. Reasons:
+1. Existing 4 methods already cover this (used them successfully)
+2. Low generalizability (MRR/Recall are retrieval-specific)
+3. 80/20 fails (most projects don't need formal metrics registries)
+4. Better alternative: PROJECT-MEMORY template suggestion
+
+**Graduation Status:** Project-level application, not framework-level pattern. Documented in PROJECT-MEMORY.md Metrics Registry section.
+
+---
+
 ### 2026-01-18 - Docker Multi-Arch Builds with ML Workloads
 
 **Context:** Docker ARM64 build timed out after 6+ hours on GitHub Actions. Investigation revealed QEMU emulation makes embedding generation ~500x slower.

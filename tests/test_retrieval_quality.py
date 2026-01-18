@@ -383,6 +383,24 @@ class TestBaselineRecording:
         method_found = sum(1 for r in method_ranks if r is not None and r <= 10)
         principle_found = sum(1 for r in principle_ranks if r is not None and r <= 10)
 
+        # Measure model load time (cold start simulation)
+        import time
+
+        from ai_governance_mcp.retrieval import RetrievalEngine as RE
+
+        load_start = time.perf_counter()
+        _ = RE(real_settings)  # Fresh engine load
+        model_load_time_ms = (time.perf_counter() - load_start) * 1000
+
+        # Index statistics
+        index_stats = {
+            "total_principles": sum(
+                len(d.principles) for d in engine.index.domains.values()
+            ),
+            "total_methods": sum(len(d.methods) for d in engine.index.domains.values()),
+            "domains": list(engine.index.domains.keys()),
+        }
+
         baseline = {
             "timestamp": datetime.now().isoformat(),
             "embedding_model": engine.index.embedding_model
@@ -397,6 +415,10 @@ class TestBaselineRecording:
                 "principle_recall_at_10": principle_found / len(principle_ranks)
                 if principle_ranks
                 else 0,
+            },
+            "system_metrics": {
+                "model_load_time_ms": round(model_load_time_ms, 1),
+                "index_stats": index_stats,
             },
             "method_details": method_scores,
             "principle_details": principle_scores,
@@ -428,3 +450,154 @@ class TestBaselineRecording:
         print(f"  Rank: {adv_model.get('rank')}")
         print(f"  Score: {adv_model.get('score')}")
         print(f"  Semantic: {adv_model.get('semantic_score')}")
+
+        # Print system metrics
+        print("\n=== SYSTEM METRICS ===")
+        print(f"Model Load Time: {model_load_time_ms:.1f}ms")
+        print(
+            f"Index: {index_stats['total_principles']} principles, {index_stats['total_methods']} methods"
+        )
+
+
+# =============================================================================
+# REGRESSION THRESHOLD TESTS
+# =============================================================================
+# These tests enforce minimum quality thresholds. CI fails if quality degrades.
+# Thresholds based on baseline established after BGE model upgrade (2026-01-17).
+# See PROJECT-MEMORY.md "Metrics Registry" for threshold rationale.
+# =============================================================================
+
+
+@pytest.mark.real_index
+class TestRegressionThresholds:
+    """Regression tests that fail if retrieval quality drops below thresholds.
+
+    These tests implement the Capability vs Regression Eval pattern from
+    multi-method-capability-vs-regression-evals. Thresholds are set based on
+    established baselines; failures indicate breaking changes.
+    """
+
+    # Thresholds based on post-BGE-upgrade baseline (2026-01-17)
+    # Set ~15% below achieved values to allow variance without false alarms
+    METHOD_MRR_THRESHOLD = 0.60  # Achieved: 0.72, threshold: 0.60
+    PRINCIPLE_MRR_THRESHOLD = 0.50  # Achieved: 0.61, threshold: 0.50
+    METHOD_RECALL_THRESHOLD = 0.75  # Achieved: 0.88, threshold: 0.75
+    PRINCIPLE_RECALL_THRESHOLD = 0.85  # Achieved: 1.0, threshold: 0.85
+    MODEL_LOAD_TIME_THRESHOLD_MS = 15000  # 15 seconds max for cold start
+
+    def test_method_mrr_threshold(self, real_settings):
+        """REGRESSION: Method MRR must not drop below threshold."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+        benchmark = load_benchmark_cases()
+
+        ranks = []
+        for case in benchmark["test_cases"]["methods"]:
+            result = engine.retrieve(case["query"], include_methods=True)
+            method_ids = [m.method.id for m in result.methods]
+
+            rank = None
+            for expected_id in case["expected_ids"]:
+                if expected_id in method_ids:
+                    rank = method_ids.index(expected_id) + 1
+                    break
+            ranks.append(rank)
+
+        mrr = calculate_mrr(ranks)
+
+        assert mrr >= self.METHOD_MRR_THRESHOLD, (
+            f"Method MRR regression detected: {mrr:.3f} < {self.METHOD_MRR_THRESHOLD}. "
+            f"Check embedding model, index rebuild, or document changes."
+        )
+
+    def test_principle_mrr_threshold(self, real_settings):
+        """REGRESSION: Principle MRR must not drop below threshold."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+        benchmark = load_benchmark_cases()
+
+        ranks = []
+        for case in benchmark["test_cases"]["principles"]:
+            result = engine.retrieve(case["query"])
+            all_principles = result.constitution_principles + result.domain_principles
+            principle_ids = [p.principle.id for p in all_principles]
+
+            rank = None
+            for expected_id in case["expected_ids"]:
+                if expected_id in principle_ids:
+                    rank = principle_ids.index(expected_id) + 1
+                    break
+            ranks.append(rank)
+
+        mrr = calculate_mrr(ranks)
+
+        assert mrr >= self.PRINCIPLE_MRR_THRESHOLD, (
+            f"Principle MRR regression detected: {mrr:.3f} < {self.PRINCIPLE_MRR_THRESHOLD}. "
+            f"Check embedding model, index rebuild, or document changes."
+        )
+
+    def test_method_recall_threshold(self, real_settings):
+        """REGRESSION: Method Recall@10 must not drop below threshold."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+        benchmark = load_benchmark_cases()
+
+        found_counts = []
+        for case in benchmark["test_cases"]["methods"]:
+            result = engine.retrieve(
+                case["query"], include_methods=True, max_results=10
+            )
+            method_ids = [m.method.id for m in result.methods[:10]]
+
+            found = sum(1 for eid in case["expected_ids"] if eid in method_ids)
+            expected = len(case["expected_ids"])
+            found_counts.append((found, expected))
+
+        recall = calculate_recall_at_k(found_counts, k=10)
+
+        assert recall >= self.METHOD_RECALL_THRESHOLD, (
+            f"Method Recall@10 regression detected: {recall:.3f} < {self.METHOD_RECALL_THRESHOLD}. "
+            f"Expected methods not appearing in top 10 results."
+        )
+
+    def test_principle_recall_threshold(self, real_settings):
+        """REGRESSION: Principle Recall@10 must not drop below threshold."""
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(real_settings)
+        benchmark = load_benchmark_cases()
+
+        found_counts = []
+        for case in benchmark["test_cases"]["principles"]:
+            result = engine.retrieve(case["query"], max_results=10)
+            all_principles = result.constitution_principles + result.domain_principles
+            principle_ids = [p.principle.id for p in all_principles[:10]]
+
+            found = sum(1 for eid in case["expected_ids"] if eid in principle_ids)
+            expected = len(case["expected_ids"])
+            found_counts.append((found, expected))
+
+        recall = calculate_recall_at_k(found_counts, k=10)
+
+        assert recall >= self.PRINCIPLE_RECALL_THRESHOLD, (
+            f"Principle Recall@10 regression detected: {recall:.3f} < {self.PRINCIPLE_RECALL_THRESHOLD}. "
+            f"Expected principles not appearing in top 10 results."
+        )
+
+    def test_model_load_time_threshold(self, real_settings):
+        """REGRESSION: Model cold-start load time must stay reasonable."""
+        import time
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        load_start = time.perf_counter()
+        _ = RetrievalEngine(real_settings)
+        load_time_ms = (time.perf_counter() - load_start) * 1000
+
+        assert load_time_ms <= self.MODEL_LOAD_TIME_THRESHOLD_MS, (
+            f"Model load time regression: {load_time_ms:.0f}ms > {self.MODEL_LOAD_TIME_THRESHOLD_MS}ms. "
+            f"Check for model size increase or initialization overhead."
+        )

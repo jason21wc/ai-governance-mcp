@@ -4,14 +4,104 @@
 
 ## Current Position
 
-- **Phase:** Released (v1.6.0 server, v2.4.1 methods)
+- **Phase:** Released (v1.6.0 server, v2.4.2 methods)
 - **Mode:** Standard
-- **Active Task:** None (pending MCP restart to verify §7.8)
-- **Blocker:** MCP restart required to load new index
+- **Active Task:** None
+- **Blocker:** None
 
 ## Recent Work (This Session)
 
-### §7.8 Project Initialization Protocol ✓ IMPLEMENTED (Pending Verification)
+### §5.2.5 ML Model Mocking Pattern ✓ IMPLEMENTED
+
+**Context:** User requested review of project testing patterns to capture valuable practices in governance framework.
+
+**Analysis Process:**
+1. Queried governance for existing testing coverage
+2. Explored test suite (345 tests, 90% coverage, 7,374 lines)
+3. Compared actual patterns against documented methods
+4. Applied contrarian review to filter candidates
+
+**Gap Identified:** Existing `coding-method-test-organization-patterns` had shallow coverage of ML model mocking ("Unit only | Slow to load; mock embeddings") but lacked the HOW — patterns documented in Gotchas 5 & 6.
+
+**Candidates Evaluated:**
+| Candidate | Decision | Rationale |
+|-----------|----------|-----------|
+| ML Model Mocking Pattern | **ADD** | Non-obvious, hard-won knowledge, increasingly relevant |
+| Fixture Composition | REJECT | Standard pytest practice |
+| Benchmark Testing | REJECT | Already covered in multi-method-agent-evaluation-framework |
+| Async Testing Patterns | REJECT | Standard pytest-asyncio |
+
+**New Section Added (§5.2.5 ML Model Mocking Pattern):**
+1. Patch at source, not import location
+2. Import after patching (lazy loading)
+3. Seeded random for deterministic embeddings
+4. Mock rerankers with realistic score patterns
+5. Common Gotchas table
+
+**Files Changed:**
+- `documents/ai-coding-methods-v2.4.0.md` (version → 2.4.2, added ML Model Mocking Pattern ~90 lines)
+- Index rebuilt (413 items, ai-coding: 135 methods)
+
+**Governance Applied:**
+- `coding-quality-testing-integration`: "Tests should be deterministic"
+- `meta-operational-resource-efficiency-waste-reduction`: 80/20 filter
+- `meta-governance-continuous-learning-adaptation`: Capture lessons learned
+
+**All 345 tests passing.** *(Now 350 after Metrics Registry work)*
+
+---
+
+### Metrics Registry System ✓ IMPLEMENTED
+
+**Context:** User requested systematic metrics tracking with historical comparison capability.
+
+**Analysis Process:**
+1. Queried governance for existing coverage (found 4 relevant methods)
+2. Explored current metrics infrastructure (`tests/benchmarks/`, `Metrics` class)
+3. Applied contrarian review — challenged "new METRICS-LOG.md file" assumption
+4. Identified existing `baseline_*.json` as the right structure to extend
+
+**3-Part Implementation:**
+| Component | Location | What |
+|-----------|----------|------|
+| 1. Extended baseline schema | `tests/test_retrieval_quality.py:386-427` | Added `system_metrics` (model_load_time_ms, index_stats) |
+| 2. Metrics Registry | PROJECT-MEMORY.md | New section with definitions, thresholds, when to record, how to add new metrics |
+| 3. Regression threshold tests | `TestRegressionThresholds` class | 5 tests: method MRR, principle MRR, method recall, principle recall, model load time |
+
+**Thresholds Established:**
+| Metric | Achieved | Threshold | Rationale |
+|--------|----------|-----------|-----------|
+| Method MRR | 0.72 | ≥ 0.60 | ~15% below achieved to allow variance |
+| Principle MRR | 0.61 | ≥ 0.50 | ~15% below achieved |
+| Method Recall@10 | 0.88 | ≥ 0.75 | ~15% below achieved |
+| Principle Recall@10 | 1.00 | ≥ 0.85 | Some margin for variance |
+| Model Load Time | ~9s | ≤ 15s | User experience bound |
+
+**Governance Framework Update Evaluation:**
+- Applied contrarian review to "add Metrics Registry Pattern method" proposal
+- **Verdict: DON'T ADD** — existing methods successfully guided implementation
+- This validates the framework, not a gap in it
+- Documented in LEARNING-LOG.md as framework validation
+
+**Governance Applied:**
+- `multi-method-capability-vs-regression-evals`: Regression threshold tests
+- `multi-method-production-observability-patterns`: System metrics selection
+- `meta-governance-measurable-success-criteria`: Threshold definitions
+- Contrarian reviewer subagent (twice): metrics system design, framework update evaluation
+
+**Tests:** 350 passing (345 + 5 new regression threshold tests)
+
+---
+
+### §7.8 Project Initialization Protocol ✓ VERIFIED
+
+**Previous Status:** Implemented, pending MCP verification after restart.
+
+**Verification Result:** ✓ PASSED — `coding-method-initialization-checklist` ranked #1 in methods with HIGH confidence.
+
+---
+
+### §7.8 Project Initialization Protocol ✓ IMPLEMENTED (Previous Session)
 
 **Problem:** §7.5 Source Document Registry exists but AI won't discover it during project initialization — no trigger mechanism.
 
@@ -469,8 +559,8 @@ BM25=1.00, Semantic=0.73, Combined=0.84
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.6.0** (server), **v2.3** (Constitution), **v2.4.1** (ai-coding-methods), **v2.9.0** (multi-agent-methods) |
-| Tests | **345 passing** |
+| Version | **v1.6.0** (server), **v2.3** (Constitution), **v2.4.2** (ai-coding-methods), **v2.9.0** (multi-agent-methods) |
+| Tests | **350 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Domains | **4** (constitution, ai-coding, multi-agent, storytelling) |
@@ -478,10 +568,9 @@ BM25=1.00, Semantic=0.73, Combined=0.84
 
 ## Next Actions
 
-1. **Verify §7.8 via MCP** — After restart, run `query_governance("project initialization")` and confirm `coding-method-initialization-checklist` appears in top 3
-2. **Rename methods file** (optional) — Consider renaming `ai-coding-methods-v2.4.0.md` to `ai-coding-methods-v2.4.1.md` to match version
-3. Optional: Develop storytelling coaching playbook (question taxonomies, Socratic patterns)
-4. Optional: Add platform-specific playbooks (TikTok, LinkedIn, long-form)
+1. **Rename methods file** (optional) — Consider renaming `ai-coding-methods-v2.4.0.md` to `ai-coding-methods-v2.4.2.md` to match version
+2. Optional: Develop storytelling coaching playbook (question taxonomies, Socratic patterns)
+3. Optional: Add platform-specific playbooks (TikTok, LinkedIn, long-form)
 
 ## Links
 

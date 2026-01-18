@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.4.1
+**Version:** 2.4.2
 **Status:** Active
 **Effective Date:** 2026-01-18
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -1600,6 +1600,100 @@ def test_confidence_level(score, expected_level):
 | ML models | Unit only | Slow to load; mock embeddings |
 
 **Mock at boundaries, not internals.** Unit tests mock dependencies; integration tests use real components with controlled inputs.
+
+#### ML Model Mocking Pattern
+
+When testing code that uses ML models (embeddings, LLMs, rerankers, classifiers), standard mocking often fails due to lazy loading and batch processing. These patterns address common gotchas:
+
+**1. Patch at source, not import location:**
+
+ML models are often lazy-loaded inside properties or functions. Patch the source library, not where it's imported:
+
+```python
+# WRONG: Patches where used — fails if model is lazy-loaded in property
+with patch("my_module.SentenceTransformer"):
+    ...
+
+# CORRECT: Patches source library before any import triggers loading
+with patch("sentence_transformers.SentenceTransformer", Mock(return_value=mock_embedder)):
+    ...
+```
+
+**2. Import after patching:**
+
+If the module instantiates models at import time or in class properties, import AFTER establishing the patch:
+
+```python
+def test_embedding_generation(self, mock_embedder):
+    mock_constructor = Mock(return_value=mock_embedder)
+
+    with patch("sentence_transformers.SentenceTransformer", mock_constructor):
+        # Import AFTER patch is active
+        from my_module import EmbeddingService
+
+        service = EmbeddingService()
+        result = service.embed("test query")
+
+        assert result.shape == (384,)
+```
+
+**3. Use seeded random for deterministic embeddings:**
+
+Mock embeddings must be deterministic across test runs for reproducibility:
+
+```python
+@pytest.fixture
+def mock_embedder():
+    """Mock SentenceTransformer with deterministic embeddings."""
+    embedder = Mock()
+    np.random.seed(42)  # Same seed = same "random" vectors every run
+
+    def mock_encode(texts, *args, **kwargs):
+        # Handle both single string and batch inputs
+        if isinstance(texts, str):
+            return np.random.rand(384).astype(np.float32)
+        return np.random.rand(len(texts), 384).astype(np.float32)
+
+    embedder.encode = Mock(side_effect=mock_encode)
+    embedder.get_sentence_embedding_dimension = Mock(return_value=384)
+    return embedder
+```
+
+**Key elements:**
+- `side_effect` with callable (not static `return_value`) — responds to varying batch sizes
+- Match real interface contract (`encode`, `get_sentence_embedding_dimension`)
+- Correct dtype (`float32`) for numpy compatibility
+- Seeded random ensures test determinism
+
+**4. Mock rerankers with realistic score patterns:**
+
+Rerankers return relevance scores. Mock with decreasing scores to simulate realistic ranking:
+
+```python
+@pytest.fixture
+def mock_reranker():
+    """Mock CrossEncoder with plausible rerank scores."""
+    reranker = Mock()
+
+    def mock_predict(pairs, *args, **kwargs):
+        # Return decreasing scores: first pair most relevant
+        if isinstance(pairs, list):
+            return np.array([0.9 - i * 0.1 for i in range(len(pairs))])
+        return np.array([0.5])
+
+    reranker.predict = Mock(side_effect=mock_predict)
+    return reranker
+```
+
+**Common Gotchas:**
+
+| Gotcha | Symptom | Fix |
+|--------|---------|-----|
+| Patch wrong location | `Mock` object has no attribute `encode` | Patch `sentence_transformers.X`, not `my_module.X` |
+| Static return value | Shape mismatch on batch operations | Use `side_effect` with callable |
+| Missing seed | Tests pass locally, fail in CI | Add `np.random.seed()` before generating arrays |
+| Wrong dtype | numpy casting errors | Explicitly use `.astype(np.float32)` |
+| Import before patch | Real model loads (slow, or fails) | Import target module inside `with patch` block |
 
 ---
 
