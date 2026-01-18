@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.4.2
+**Version:** 2.5.0
 **Status:** Active
 **Effective Date:** 2026-01-18
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -3820,6 +3820,8 @@ Files to upload to Project Knowledge:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.5.0 | 2026-01-18 | **Memory Hygiene & Cognitive Headers:** (1) Added standardized cognitive type headers to all memory file templates (§7.1.2, §7.2.2, §7.3.3) with Memory Type, Lifecycle, and purpose guidance. (2) Added §7.0.4 distillation triggers (size thresholds for pruning). (3) Added §7.6.1 step 5: memory hygiene check to session end procedure. (4) Updated all Cold Start Kit minimal templates with headers. (5) Updated §7.8.3 initialization stub. Headers improve RAG chunking and provide clear lifecycle guidance per context engineering best practices. |
+| 2.4.0 | 2026-01-18 | Added §7.8 Project Initialization Protocol, §7.5 Source Document Registry, §5.2.5 ML Model Mocking Pattern. Added Metrics Registry System with regression tests. |
 | 2.3.0 | 2026-01-03 | Added Title 9: Deployment & Distribution. (1) §9.1 Pre-Flight Validation: fail-fast config validation pattern, actionable error reporting, validation points table. (2) §9.2 Docker Distribution: multi-stage build pattern, security hardening, ML optimizations (CPU-only PyTorch), CI/CD integration, .dockerignore best practices. (3) §9.3 MCP Server Development: stdio/stderr discipline, graceful shutdown with os._exit(), server instructions pattern, per-response reminders, multi-platform configuration. Derived from ai-governance-mcp production patterns. |
 | 2.2.0 | 2026-01-02 | Added §5.2.5 Test Organization Patterns: test file structure (unit vs integration separation), fixture categories (path, model, state reset, mock), test markers for selective execution, standard edge cases checklist, response parsing helper pattern, parameterization guidance, mocking strategy by layer. Derived from production test suite patterns (ai-governance-mcp: 271 tests, 90% coverage). |
 | 2.1.0 | 2025-12-31 | (1) Integrated Active Tasks table into main SESSION-STATE template (§7.1.2) with research rationale (§7.1.3). (2) Added Known Gotchas section to PROJECT-MEMORY template (§7.2.2). (3) Simplified Phase Gates table (removed Approver column, now optional for team projects). (4) Fixed loader template version reference. (5) Clarified Handoff Summary From/To fields. Based on 2025 AI agent memory architecture research (AIS, Zep, MongoDB patterns). |

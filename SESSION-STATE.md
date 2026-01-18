@@ -11,7 +11,7 @@
 
 ## Current Position
 
-- **Phase:** Released (v1.6.1 server, v2.4.2 methods)
+- **Phase:** Released (v1.6.1 server, v2.5.0 methods)
 - **Mode:** Standard
 - **Active Task:** None
 - **Blocker:** None
@@ -30,7 +30,7 @@
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.6.1** (server), **v2.3** (Constitution), **v2.4.2** (ai-coding-methods), **v2.9.0** (multi-agent-methods) |
+| Version | **v1.6.1** (server), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.9.0** (multi-agent-methods) |
 | Tests | **350 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
@@ -39,9 +39,8 @@
 
 ## Next Actions
 
-1. **(Optional)** Rename methods file `ai-coding-methods-v2.4.0.md` → `ai-coding-methods-v2.4.2.md` to match version
-2. **(Optional)** Develop storytelling coaching playbook
-3. **(Optional)** Add platform-specific playbooks (TikTok, LinkedIn, long-form)
+1. **(Optional)** Develop storytelling coaching playbook
+2. **(Optional)** Add platform-specific playbooks (TikTok, LinkedIn, long-form)
 
 ## Links
 
