@@ -16,6 +16,17 @@
 - **Active Task:** None
 - **Blocker:** None
 
+## Completed: GitHub MCP Configuration
+
+**Goal:** Access shared private repositories via GitHub MCP ✅
+
+**Repositories Now Accessible:**
+- `jason21wc/ai-governance-mcp` ✅
+- `Fairview-Development/Lean-Design-Simulator` ✅
+- `ProfessorPeregrine/Stats4ROI` ✅
+
+**Resolution:** Classic token (`ghp_...`) with `repo` scope in `~/.zshrc`. Fine-grained tokens cannot access collaborator repos you don't own (GitHub limitation).
+
 ## Recent Accomplishments (v1.6.x / v2.5.0)
 
 | Feature | Status |
