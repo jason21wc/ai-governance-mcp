@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.9.0
+**Version:** 2.10.0
 **Status:** Active
-**Effective Date:** 2026-01-17
+**Effective Date:** 2026-01-24
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -1546,6 +1546,42 @@ Before choosing parallel, categorize all tasks:
 - Intent context propagates through ALL levels
 - Shared Assumptions propagate to all levels
 
+**Dependency Declaration (Platform-Agnostic):**
+
+When coordinating tasks across agents (regardless of platform), declare dependencies explicitly:
+
+| Relationship | Meaning | Declaration |
+|--------------|---------|-------------|
+| `blockedBy` | This task waits for listed tasks to complete | Task B depends on Task A |
+| `blocks` | Listed tasks wait for this task to complete | Task A is prerequisite for B, C |
+
+**Common Patterns:**
+
+```
+# Pipeline: Sequential chain
+Task A (blockedBy: [])
+Task B (blockedBy: [A])
+Task C (blockedBy: [B])
+
+# Fan-Out: Parallel after single predecessor
+Task A (blockedBy: [])
+Task B (blockedBy: [A])
+Task C (blockedBy: [A])
+Task D (blockedBy: [A])
+
+# Fan-In: Convergence before continuation
+Task B, C, D (blockedBy: [A])
+Task E (blockedBy: [B, C, D])
+```
+
+**Dependency Best Practices:**
+
+- Declare dependencies at task creation time when known
+- Update dependencies if task scope changes
+- Blocked tasks should NOT be claimed by agents
+- Orchestrator resolves circular dependencies before execution
+- Fan-in synthesis tasks wait for ALL predecessors
+
 ### 3.4 Compression Procedures
 
 CRITICAL
@@ -1776,6 +1812,27 @@ CRITICAL
 - Significant decision made
 - Before risky operation
 - Every 30 minutes during long sessions
+
+**Task Ownership Protocol:**
+
+When multiple agents share a task backlog:
+
+| Rule | Description |
+|------|-------------|
+| Claim before work | Agent must set `owner` before starting task |
+| Verify availability | Check task has no owner and is not blocked before claiming |
+| Atomic progress | Each agent has at most ONE task `in_progress` at a time |
+| Release on block | If blocked, release ownership and create/update blocker task |
+| Complete or escalate | Never abandon owned task — complete it or escalate to orchestrator |
+
+**Task Reassignment on Session Resume:**
+
+When resuming a workflow with incomplete tasks:
+
+1. List all tasks with `in_progress` status
+2. Verify owning agent is still active
+3. If agent inactive: reassign to available agent or orchestrator
+4. Re-read task description before resuming work (context may have changed)
 
 ### 3.6 Session Closer Protocol
 
@@ -3447,6 +3504,106 @@ claude
 - Sub-agent results returned as concise summary
 - Use `Ctrl+O` to expand sub-agent details
 
+### Task Management System (v2.1.16+)
+
+Claude Code provides built-in task coordination via four tools. This supersedes the legacy TodoWrite system.
+
+#### Task Tools
+
+| Tool | Purpose | Key Parameters |
+|------|---------|----------------|
+| `TaskCreate` | Create structured task | `subject` (imperative), `description`, `activeForm` (present continuous) |
+| `TaskUpdate` | Update task state | `taskId`, `status`, `owner`, `addBlocks`, `addBlockedBy` |
+| `TaskList` | List all tasks | Returns: id, subject, status, owner, blockedBy |
+| `TaskGet` | Get full task details | `taskId` → full description, blocks, blockedBy |
+
+#### Task States
+
+```
+pending → in_progress → completed
+```
+
+- Mark `in_progress` BEFORE starting work
+- Mark `completed` ONLY when fully done (not partial, not failing tests)
+- Keep `in_progress` if blocked — create blocker task instead
+
+#### Dependency Tracking
+
+```bash
+# Task 2 waits for Task 1
+TaskUpdate(taskId="2", addBlockedBy=["1"])
+
+# Task 1 blocks Tasks 2 and 3
+TaskUpdate(taskId="1", addBlocks=["2", "3"])
+```
+
+**Dependency Patterns:**
+
+| Pattern | Structure | Use Case |
+|---------|-----------|----------|
+| Pipeline | `A → B → C` (B.blockedBy=[A], C.blockedBy=[B]) | Sequential processing |
+| Fan-Out | `A → [B,C,D]` (B/C/D.blockedBy=[A]) | Parallel after setup |
+| Fan-In | `[B,C,D] → E` (E.blockedBy=[B,C,D]) | Convergence before next phase |
+
+#### When to Use Tasks
+
+| Use Tasks | Skip Tasks |
+|-----------|------------|
+| Complex multi-step work (3+ steps) | Single straightforward task |
+| Plan mode tracking | Trivial operations |
+| User provides numbered list | Purely conversational |
+| Coordinating with sub-agents | <3 trivial steps |
+
+#### Best Practices
+
+1. Create tasks with clear imperative subjects ("Fix auth bug" not "Auth bug")
+2. Include enough description for another agent to complete independently
+3. Check `TaskList` before creating to avoid duplicates
+4. ONE task `in_progress` per agent at a time (atomic progress)
+5. Use `TaskGet` to read latest state before updating (avoid stale writes)
+
+#### Environment Variable
+
+```bash
+# Revert to legacy TodoWrite (temporary)
+CLAUDE_CODE_ENABLE_TASKS=false
+```
+
+### Multi-Agent Swarm Infrastructure (Emerging)
+
+**Status:** Feature-flagged. Document for awareness only. Review date: 2026-Q2.
+
+Claude Code binary contains TeammateTool infrastructure for swarm coordination. This is NOT yet publicly available but may activate in future releases.
+
+#### Anticipated Capabilities (When Enabled)
+
+| Capability | Description |
+|------------|-------------|
+| Team spawning | Create named teams with shared task lists |
+| Agent messaging | Direct (`write`) and broadcast communication |
+| Plan approval | Leader reviews agent plans before execution |
+| Graceful shutdown | Coordinated team termination |
+
+#### Environment Variables (When Enabled)
+
+| Variable | Purpose |
+|----------|---------|
+| `CLAUDE_CODE_TEAM_NAME` | Active team identifier |
+| `CLAUDE_CODE_AGENT_ID` | Unique agent reference |
+| `CLAUDE_CODE_AGENT_NAME` | Display identifier |
+
+#### File Structure (When Enabled)
+
+```
+~/.claude/
+├── teams/{team-name}/
+│   ├── config.json        # Team metadata, roster
+│   └── messages/          # Inter-agent mailbox
+└── tasks/{team-name}/     # Team-scoped task list
+```
+
+**Note:** Monitor [Claude Code release notes](https://github.com/anthropics/claude-code/releases) for TeammateTool activation.
+
 ---
 
 ## Appendix B: Gemini CLI Specifics
@@ -3523,6 +3680,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.10.0 | 2026-01-24 | **Task Management & Dependency Tracking.** Added: Appendix A Claude Code Task Management System (TaskCreate, TaskUpdate, TaskList, TaskGet tools with states and dependency tracking), Multi-Agent Swarm Infrastructure (emerging/feature-flagged TeammateTool awareness). Enhanced: §3.3 Dependency Declaration patterns (blockedBy/blocks relationships, Pipeline/Fan-Out/Fan-In patterns), §3.5 Task Ownership Protocol (claim-before-work, atomic progress, session resume reassignment). Sources: Claude Code v2.1.16 release notes, Anthropic Agent SDK documentation, community implementations (claude-flow, Piebald-AI system prompt extraction). |
 | v2.8.0 | 2026-01-17 | **Evaluation Methods Enhancement.** Added: §4.7.1 Grader Types (Code-Based, Model-Based, Human — selection guidance, strengths/weaknesses), §4.7.2 Non-Determinism Measurement (pass@k for capability testing, pass^k for reliability — formulas and target thresholds), §4.7.3 Capability vs Regression Evals (when to use each, metrics differences, workflow integration), §4.7.4 Grader Design Principles (grade outcomes not paths, partial credit, multi-shot grading). Source: Anthropic Engineering "Demystifying Evals for AI Agents" (2025). Fills gap: existing 4-layer framework lacked specific grader implementation guidance. |
 | v2.7.0 | 2026-01-05 | **Governance Compliance Section.** Added: Governance Compliance as 6th required section in Subagent Definition Standard (§2.1). All subagent system prompts must now include governance framework alignment: S-Series veto authority, Constitution meta-principles, domain applicability, and uncertainty handling. Template updated with placeholder section. Addresses gap: subagents lacked explicit governance framework awareness, causing issues like Contrarian Reviewer "missing the point" by not following constitutional hierarchy. |
 | v2.6.0 | 2026-01-04 | **Artifact Type Selection.** Added: §1.1 Artifact Type Selection: Method vs. Subagent — decision framework for choosing between method (procedure for generalist) or subagent (dedicated agent with fresh context) when specialization is justified. Fresh context is primary signal; requires supporting factor (frequency, tool restrictions, cognitive isolation) to justify subagent overhead. Includes comparison table, decision tree, examples, and "when in doubt" guidance. Updates Situation Index. Addresses gap: existing principles covered Agent vs Generalist but not Method vs Subagent as artifact types. |
@@ -3545,6 +3703,8 @@ This methods document synthesizes patterns from:
 - Anthropic Claude Code Best Practices (2025)
 - Anthropic Claude Agent SDK (2025)
 - Claude Code Subagents Documentation
+- Claude Code v2.1.16 Release Notes — Task Management System introduction
+- Claude Agent SDK Todo Tracking — Task states and lifecycle
 
 **Industry Research (2025-2026):**
 - Anthropic Multi-Agent Research System (90.2% improvement, 15x tokens)
