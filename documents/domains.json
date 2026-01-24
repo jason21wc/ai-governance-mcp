@@ -30,5 +30,13 @@
     "methods_file": "storytelling-methods-v1.0.0.md",
     "description": "Creative writing and narrative development with AI assistance. Character development, world-building, plot structure, dialogue, voice consistency, scene composition, pacing, emotional resonance, thematic depth, genre conventions, revision strategies, non-linear writing, fragment assembly, continuity management, and context tracking across long-form narratives. Covers fiction genres including fantasy, science fiction, romance, thriller, mystery, and horror. World-building elements: magic systems, settings, lore, backstory, mythology, rules of the world, fictional cultures. Narrative techniques: foreshadowing, tension, conflict, stakes, show dont tell, subtext, hooks, payoffs, story bible, character arcs. Formats: novels, short stories, novellas, screenplays, series, flash fiction.",
     "priority": 30
+  },
+  "multimodal-rag": {
+    "name": "multimodal-rag",
+    "display_name": "Multimodal RAG",
+    "principles_file": "multimodal-rag-domain-principles-v1.0.0.md",
+    "methods_file": "multimodal-rag-methods-v1.0.0.md",
+    "description": "AI agents that retrieve and present images inline with text responses. Image placement, reference document structuring, multimodal retrieval architecture, graceful degradation, readability optimization, procedural documentation, screenshot presentation, inline visuals, image selection criteria, fallback behaviors, and audience-adaptive communication. Covers hotel operations, training materials, customer support, and any context where visual reference materials enhance understanding.",
+    "priority": 40
   }
 }

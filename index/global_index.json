@@ -6258,7 +6258,7 @@
           "embedding_id": 171
         }
       ],
-      "last_extracted": "2026-01-24T20:51:58.635937+00:00",
+      "last_extracted": "2026-01-24T23:47:18.537261+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -11298,7 +11298,7 @@
           "embedding_id": 318
         }
       ],
-      "last_extracted": "2026-01-24T20:51:58.648768+00:00",
+      "last_extracted": "2026-01-24T23:47:18.548468+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -13999,7 +13999,7 @@
           "embedding_id": 375
         }
       ],
-      "last_extracted": "2026-01-24T20:51:58.654562+00:00",
+      "last_extracted": "2026-01-24T23:47:18.551891+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -15555,7 +15555,1133 @@
           "embedding_id": 412
         }
       ],
-      "last_extracted": "2026-01-24T20:51:58.656578+00:00",
+      "last_extracted": "2026-01-24T23:47:18.558612+00:00",
+      "version": "1.0"
+    },
+    "multimodal-rag": {
+      "domain": "multimodal-rag",
+      "principles": [
+        {
+          "id": "mult-process-p1-inline-image-integration",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "P1: Inline Image Integration",
+          "content": "### P1: Inline Image Integration\n\n**Definition**\nImages MUST be placed at the exact step they support, woven into the instruction flow rather than appended at the end or clustered separately. The image should appear immediately after the text that describes what the image shows.\n\n**How the AI Applies This Principle**\n- **Step Alignment:** For procedural content, place each image immediately after the instruction it illustrates.\n- **Concept Introduction First:** Never show an image before the concept it illustrates is introduced in text (prevents MR-F10).\n- **Flow Preservation:** Images should feel like a natural part of reading, not interruptions.\n\n**Constitutional Derivation**\nDerived from `meta-core-context-engineering` and `meta-quality-structured-output-enforcement`.\n\n**Why This Principle Matters**\nImages placed at wrong positions create cognitive dissonance. Research in instructional design consistently shows that proximity between text and related visuals improves comprehension and retention.\n\n**When Human Interaction Is Needed**\n- When image placement is ambiguous (could support multiple steps).\n- When source document structure doesn't clearly indicate image-step relationships.\n\n**Common Pitfalls or Failure Modes**\n- **The Appendix Dump:** Clustering all images at the end rather than inline.\n- **The Premature Visual:** Showing an image before explaining what it represents.\n- **The Orphan Image:** Image appears without clear connection to surrounding text.\n\n---\n",
+          "line_range": [
+            181,
+            207
+          ],
+          "metadata": {
+            "keywords": [
+              "inline",
+              "image",
+              "integration",
+              "process"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "definition",
+              "step alignment:",
+              "concept introduction first:",
+              "flow preservation:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the appendix dump:",
+              "the premature visual:",
+              "the orphan image:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "inline",
+              "image",
+              "integration"
+            ]
+          },
+          "embedding_id": 413
+        },
+        {
+          "id": "mult-process-p2-natural-integration",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "P2: Natural Integration",
+          "content": "### P2: Natural Integration\n\n**Definition**\nAI MUST NOT ask permission before showing relevant images. Images should be presented as natural components of the response, integrated seamlessly without conversational interruption.\n\n**How the AI Applies This Principle**\n- **No Permission Requests:** Never ask \"Would you like me to show...\" or \"Here's an image if you want it.\"\n- **Seamless Flow:** Present images as inherent parts of the answer, not optional additions.\n- **Declarative Framing:** \"Here is the interface:\" not \"Would you like to see the interface?\"\n\n**Constitutional Derivation**\nDomain-native principle addressing MR-F2 (Permission-Asking Pattern). Conceptually aligned with `meta-operational-interaction-mode-adaptation` (adapting to instructional context).\n\n**Why This Principle Matters**\nPermission-asking interrupts the instructional flow and reduces the \"order of magnitude\" effectiveness that images provide. The user asked a question; the answer includes images. No additional permission needed.\n\n**When Human Interaction Is Needed**\n- When images contain potentially sensitive content (not typical for procedural documentation).\n- When bandwidth or display constraints are explicitly communicated.\n\n**Common Pitfalls or Failure Modes**\n- **The Polite Interruption:** \"I found a screenshot\u2014would you like to see it?\"\n- **The Optional Qualifier:** \"If you'd like, I can show you...\"\n- **The Buried Reference:** Mentioning that an image exists rather than displaying it.\n\n---\n",
+          "line_range": [
+            208,
+            234
+          ],
+          "metadata": {
+            "keywords": [
+              "natural",
+              "integration",
+              "process"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "here is the interface:",
+              "order of magnitude",
+              "definition",
+              "no permission requests:",
+              "seamless flow:",
+              "declarative framing:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the polite interruption:",
+              "the optional qualifier:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "natural",
+              "integration"
+            ]
+          },
+          "embedding_id": 414
+        },
+        {
+          "id": "mult-process-p3-image-selection-criteria",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "P3: Image Selection Criteria",
+          "content": "### P3: Image Selection Criteria\n\n**Definition**\nSelect the single image that answers the most aspects of the query. Add additional images only if each adds at least 30% unique informational value not provided by already-selected images.\n\n**How the AI Applies This Principle**\n- **Best Image First:** Identify and present the single most informative image.\n- **30% Unique Value Threshold:** Additional images must provide substantial new information.\n- **No Redundancy:** Avoid multiple images showing the same information from different angles (MR-F8).\n- **Relevance Over Quantity:** One perfect image beats three tangential ones.\n\n**Constitutional Derivation**\nDerived from `meta-operational-minimal-relevant-context` and `meta-governance-resource-efficiency`.\n\n**Why This Principle Matters**\nEach additional image competes for attention. Visual overwhelm (MR-F3) dilutes impact. The goal is maximum clarity with minimum visual noise.\n\n**When Human Interaction Is Needed**\n- When multiple images have comparable relevance and the best choice is unclear.\n- When user explicitly requests comprehensive visual coverage.\n\n**Common Pitfalls or Failure Modes**\n- **The Kitchen Sink:** Including every image that's somewhat related.\n- **The Close Enough:** Selecting a tangentially-related image because no perfect match exists.\n- **The Redundant Angles:** Multiple screenshots of the same UI with minor variations.\n\n---\n",
+          "line_range": [
+            235,
+            262
+          ],
+          "metadata": {
+            "keywords": [
+              "image",
+              "selection",
+              "criteria",
+              "process"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "definition",
+              "best image first:",
+              "30% unique value threshold:",
+              "no redundancy:",
+              "relevance over quantity:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the kitchen sink:",
+              "the close enough:",
+              "the redundant angles:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "image",
+              "selection",
+              "criteria"
+            ]
+          },
+          "embedding_id": 415
+        },
+        {
+          "id": "mult-process-p4-readability-optimization",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "P4: Readability Optimization",
+          "content": "### P4: Readability Optimization\n\n**Definition**\nDefault text complexity to 9th-grade reading level with 15-20 word sentences and plain language. Adjust complexity based on audience and context, but maintain clarity as the primary goal.\n\n**How the AI Applies This Principle**\n- **Sentence Length:** Target 15-20 words per sentence average.\n- **Plain Language:** Avoid jargon unless audience requires it.\n- **9th-Grade Default:** Assume general audience unless context indicates otherwise.\n- **Image-Text Harmony:** Text complexity should match image complexity.\n\n**Constitutional Derivation**\nDerived from `meta-governance-accessibility-and-inclusiveness`.\n\n**Why This Principle Matters**\nComplex text paired with instructional images creates cognitive overload. The purpose of images is to simplify\u2014text should support that goal, not undermine it.\n\n**When Human Interaction Is Needed**\n- When audience expertise level is unclear.\n- When technical precision conflicts with simplicity.\n\n**Common Pitfalls or Failure Modes**\n- **The Expert Assumption:** Writing at technical level regardless of audience.\n- **The Jargon Wall:** Using terminology that excludes non-experts.\n- **The Run-On Explanation:** Long sentences that lose readers before they reach the image.\n\n---\n",
+          "line_range": [
+            263,
+            290
+          ],
+          "metadata": {
+            "keywords": [
+              "readability",
+              "optimization",
+              "process"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "definition",
+              "sentence length:",
+              "plain language:",
+              "9th-grade default:",
+              "image-text harmony:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the expert assumption:",
+              "the jargon wall:",
+              "the run-on explanation:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "readability",
+              "optimization"
+            ]
+          },
+          "embedding_id": 416
+        },
+        {
+          "id": "mult-process-p5-audience-adaptation",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "P5: Audience Adaptation",
+          "content": "### P5: Audience Adaptation\n\n**Definition**\nInfer audience from query context and available signals. Adjust both text complexity and image selection to match audience needs. When uncertain, default to accessible (P4) and offer to adjust.\n\n**How the AI Applies This Principle**\n- **Signal Reading:** Vocabulary in query, role mentioned, context clues.\n- **Bidirectional Adaptation:** Simplify for general audiences; use precision for experts.\n- **Image Matching:** Technical screenshots for technical users; annotated/simplified visuals for general users.\n- **Uncertainty Protocol:** When audience is unclear, use accessible defaults and invite calibration.\n\n**Constitutional Derivation**\nDerived from `meta-operational-interaction-mode-adaptation` and `meta-core-discovery-before-commitment`.\n\n**Why This Principle Matters**\nThe same image presented to different audiences may need different surrounding text. A network diagram with technical annotations serves engineers; the same diagram with simplified labels serves managers.\n\n**When Human Interaction Is Needed**\n- When audience signals are contradictory.\n- When single response must serve multiple audience segments.\n\n**Common Pitfalls or Failure Modes**\n- **The One-Size-Fits-All:** Same response regardless of audience signals.\n- **The Condescending Simplification:** Oversimplifying for clearly expert audiences.\n- **The Expertise Projection:** Assuming audience matches AI's knowledge level.\n\n---\n\n## R-Series: Reference Principles\n\n*Principles governing HOW to structure source documents with images*\n",
+          "line_range": [
+            291,
+            322
+          ],
+          "metadata": {
+            "keywords": [
+              "audience",
+              "adaptation",
+              "process"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "definition",
+              "signal reading:",
+              "bidirectional adaptation:",
+              "image matching:",
+              "uncertainty protocol:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the one-size-fits-all:",
+              "the condescending simplification:",
+              "the expertise projection:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "audience",
+              "adaptation"
+            ]
+          },
+          "embedding_id": 417
+        },
+        {
+          "id": "mult-reliability-r1-image-text-collocation",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "R1: Image-Text Collocation",
+          "content": "### R1: Image-Text Collocation\n\n**Definition**\nIn source documents, images MUST be placed immediately adjacent to the text they support. The organizing principle is proximity\u2014readers (and retrieval systems) should encounter image and related text together.\n\n**How the AI Applies This Principle (When Advising on Document Structure)**\n- **Adjacent Placement:** Image follows the paragraph or step it illustrates.\n- **No Separation:** Avoid image galleries or appendices that separate images from context.\n- **Structural Consistency:** Same collocation pattern throughout document.\n\n**Constitutional Derivation**\nDerived from `meta-core-context-engineering` applied to document design.\n\n**Why This Principle Matters**\nRetrieval systems chunk documents. If images are separated from their context, chunks containing images may lack the text needed to understand when to retrieve them.\n\n**When Human Interaction Is Needed**\n- When document format constraints prevent collocation (some PDFs, legacy systems).\n- When images support multiple text sections.\n\n**Common Pitfalls or Failure Modes**\n- **The Appendix Pattern:** All images at document end.\n- **The Gallery Cluster:** Images grouped by visual similarity rather than textual relevance.\n- **The Reference Number:** \"See Figure 7\" without embedding Figure 7 nearby.\n\n---\n",
+          "line_range": [
+            323,
+            349
+          ],
+          "metadata": {
+            "keywords": [
+              "image-text",
+              "collocation",
+              "reliability"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "see figure 7",
+              "definition",
+              "adjacent placement:",
+              "no separation:",
+              "structural consistency:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the appendix pattern:",
+              "the gallery cluster:",
+              "the reference number:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "image",
+              "text",
+              "collocation"
+            ]
+          },
+          "embedding_id": 418
+        },
+        {
+          "id": "mult-reliability-r2-descriptive-context",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "R2: Descriptive Context",
+          "content": "### R2: Descriptive Context\n\n**Definition**\nEvery image MUST have alt text describing what it shows AND contextual description explaining its purpose. Alt text serves accessibility; context serves retrieval.\n\n**How the AI Applies This Principle (When Advising on Document Structure)**\n- **Alt Text (What):** Describe visual content for accessibility.\n- **Context (Why):** Explain what the image demonstrates and when to use it.\n- **Dual Purpose:** Alt text for screen readers and accessibility; context for retrieval relevance.\n\n**Constitutional Derivation**\nDerived from `meta-governance-accessibility-and-inclusiveness` and `meta-core-context-engineering`.\n\n**Why This Principle Matters**\nImages without descriptions are invisible to retrieval systems and inaccessible to users with visual impairments. Descriptions bridge the semantic gap between visual content and text queries.\n\n**When Human Interaction Is Needed**\n- When images are complex and descriptions are difficult.\n- When balancing description length against document readability.\n\n**Common Pitfalls or Failure Modes**\n- **The File Name Alt:** \"image_003.png\" instead of descriptive alt text.\n- **The Missing Context:** Alt text exists but no explanation of when/why to use image.\n- **The Vague Description:** \"Screenshot of application\" instead of specific content description.\n\n---\n",
+          "line_range": [
+            350,
+            376
+          ],
+          "metadata": {
+            "keywords": [
+              "descriptive",
+              "context",
+              "reliability"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "image_003.png",
+              "screenshot of application",
+              "definition",
+              "alt text (what):",
+              "context (why):",
+              "dual purpose:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the file name alt:",
+              "the missing context:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "descriptive",
+              "context"
+            ]
+          },
+          "embedding_id": 419
+        },
+        {
+          "id": "mult-reliability-r3-retrieval-metadata",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "R3: Retrieval Metadata",
+          "content": "### R3: Retrieval Metadata\n\n**Definition**\nImages MUST have tags or metadata linking them to specific procedural steps, concepts, or use cases. This enables retrieval systems to match queries to images beyond semantic similarity alone.\n\n**How the AI Applies This Principle (When Advising on Document Structure)**\n- **Step Tags:** `step-3`, `guest-upgrade-process`\n- **Concept Tags:** `rate-codes`, `room-assignment`, `billing`\n- **Use Case Tags:** `troubleshooting`, `new-employee`, `advanced`\n\n**Constitutional Derivation**\nDerived from `meta-core-context-engineering` and `meta-operational-established-solutions-first` (using proven metadata patterns).\n\n**Why This Principle Matters**\nSemantic embedding alone may not distinguish between images of similar content used for different purposes. Metadata provides explicit signals that improve retrieval precision.\n\n**When Human Interaction Is Needed**\n- When establishing metadata taxonomy for a new document set.\n- When existing metadata standards must be followed.\n\n**Common Pitfalls or Failure Modes**\n- **The Missing Metadata:** Images stored without any categorization.\n- **The Inconsistent Taxonomy:** Different tag systems for different documents.\n- **The Over-Tagging:** So many tags that signal is lost in noise.\n\n---\n\n## A-Series: Architecture Principles\n\n*Principles governing HOW to build multimodal retrieval systems*\n",
+          "line_range": [
+            377,
+            407
+          ],
+          "metadata": {
+            "keywords": [
+              "retrieval",
+              "metadata",
+              "reliability"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "definition",
+              "step tags:",
+              "concept tags:",
+              "use case tags:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the missing metadata:",
+              "the inconsistent taxonomy:",
+              "the over-tagging:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "retrieval",
+              "metadata"
+            ]
+          },
+          "embedding_id": 420
+        },
+        {
+          "id": "mult-architecture-a1-unified-embedding-space",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "A1: Unified Embedding Space",
+          "content": "### A1: Unified Embedding Space\n\n**Definition**\nMultimodal RAG systems SHOULD use embedding models that place text and images in the same vector space, enabling direct similarity comparison between text queries and image content.\n\n**How the AI Applies This Principle (When Advising on System Design)**\n- **Multimodal Embeddings:** Prefer models like ColPali, ColQwen2, or similar that create unified representations.\n- **Cross-Modal Retrieval:** System should retrieve relevant images directly from text queries.\n- **Late Interaction:** Consider architectures that enable fine-grained query-document matching.\n\n**Constitutional Derivation**\nDomain-native principle addressing architectural foundations for effective multimodal retrieval.\n\n**Why This Principle Matters**\nSeparate embedding spaces for text and images require translation layers that introduce error and latency. Unified spaces enable direct semantic comparison.\n\n**When Human Interaction Is Needed**\n- When evaluating embedding model options for specific use cases.\n- When infrastructure constraints limit model choices.\n\n**Common Pitfalls or Failure Modes**\n- **The Translation Gap:** Separate text and image embeddings requiring brittle mapping.\n- **The Text-Only Retrieval:** Using text embeddings for image retrieval via captions alone.\n- **The Outdated Model:** Using embedding models that predate multimodal advances.\n\n---\n",
+          "line_range": [
+            408,
+            434
+          ],
+          "metadata": {
+            "keywords": [
+              "unified",
+              "embedding",
+              "space",
+              "architecture"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "definition",
+              "multimodal embeddings:",
+              "cross-modal retrieval:",
+              "late interaction:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the translation gap:",
+              "the text-only retrieval:",
+              "the outdated model:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "unified",
+              "embedding",
+              "space"
+            ]
+          },
+          "embedding_id": 421
+        },
+        {
+          "id": "mult-architecture-a2-relevance-scoring",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "A2: Relevance Scoring",
+          "content": "### A2: Relevance Scoring\n\n**Definition**\nCombine multiple signals to determine image relevance: semantic similarity, content-type match, recency, and step alignment. No single signal suffices.\n\n**Recommended Scoring Formula:**\n```\nfinal_score = semantic_similarity \u00d7 0.6 + content_type_match \u00d7 0.25 + recency \u00d7 0.1 + step_alignment \u00d7 0.05\n```\n\n**How the AI Applies This Principle (When Advising on System Design)**\n- **Semantic Similarity:** Core embedding distance/similarity.\n- **Content-Type Match:** Does the image type match query intent? (screenshot for UI question, diagram for concept question)\n- **Recency:** For rapidly-changing UIs, prefer recent images.\n- **Step Alignment:** For procedural queries, match images to specific steps.\n\n**Constitutional Derivation**\nDerived from `meta-quality-visible-reasoning` and `meta-governance-measurable-success-criteria`.\n\n**Why This Principle Matters**\nPure semantic similarity may rank tangentially-related images highly. Combining signals improves precision and reduces MR-F7 (Tangential Selection).\n\n**When Human Interaction Is Needed**\n- When calibrating weights for specific use cases.\n- When adding domain-specific scoring signals.\n\n**Common Pitfalls or Failure Modes**\n- **The Single Signal:** Relying only on embedding similarity.\n- **The Miscalibrated Weights:** Weights that don't reflect actual relevance patterns.\n- **The Missing Recency:** Showing outdated UI screenshots for current queries.\n\n---\n\n## F-Series: Fallback Principles\n\n*Principles governing WHAT happens when images fail*\n",
+          "line_range": [
+            435,
+            471
+          ],
+          "metadata": {
+            "keywords": [
+              "relevance",
+              "scoring",
+              "architecture"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "definition",
+              "recommended scoring formula:",
+              "semantic similarity:",
+              "content-type match:",
+              "recency:",
+              "step alignment:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the single signal:",
+              "the miscalibrated weights:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "relevance",
+              "scoring"
+            ]
+          },
+          "embedding_id": 422
+        },
+        {
+          "id": "mult-general-f1-graceful-degradation",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "F1: Graceful Degradation",
+          "content": "### F1: Graceful Degradation\n\n**Definition**\nWhen image retrieval fails, provide a complete text-only response plus a note about the missing image. The response must still answer the user's question; the image absence is acknowledged but doesn't block helpfulness.\n\n**How the AI Applies This Principle**\n- **Text-First Completeness:** Answer must be fully usable without the image.\n- **Explicit Acknowledgment:** Note that an image was intended but unavailable.\n- **Alternative Guidance:** Provide document reference for manual lookup if possible.\n\n**Constitutional Derivation**\nDerived from `meta-operational-graceful-degradation` from the Constitution.\n\n**Why This Principle Matters**\nSilent failure (MR-F4) leaves users without images AND without understanding why. Explicit degradation maintains trust and provides fallback options.\n\n**When Human Interaction Is Needed**\n- When image is critical and text-only response may be insufficient.\n- When repeated failures suggest systemic issues requiring escalation.\n\n**Common Pitfalls or Failure Modes**\n- **The Silent Failure:** Image simply doesn't appear; user doesn't know it was expected.\n- **The Blocking Failure:** \"I cannot answer without the image.\"\n- **The Incomplete Fallback:** Acknowledging failure but not providing alternative guidance.\n\n---\n",
+          "line_range": [
+            472,
+            498
+          ],
+          "metadata": {
+            "keywords": [
+              "graceful",
+              "degradation",
+              "general"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "definition",
+              "text-first completeness:",
+              "explicit acknowledgment:",
+              "alternative guidance:",
+              "constitutional derivation",
+              "why this principle matters",
+              "the silent failure:",
+              "the blocking failure:",
+              "the incomplete fallback:"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "graceful",
+              "degradation"
+            ]
+          },
+          "embedding_id": 423
+        },
+        {
+          "id": "mult-general-f2-failure-transparency",
+          "domain": "multimodal-rag",
+          "series_code": null,
+          "number": null,
+          "title": "F2: Failure Transparency",
+          "content": "### F2: Failure Transparency\n\n**Definition**\nWhen images fail, report the failure reason with enough specificity to enable troubleshooting. Distinguish between format issues, size limits, retrieval errors, and \"image not found\" scenarios.\n\n**Failure Response Format:**\n```\n[Text-only response here]\n\n---\nNote: Image for Step N could not be displayed.\nReason: [format_unsupported | size_exceeded | retrieval_failed | not_found]\nReference: [document_name, page/section] for manual lookup\n```\n\n**How the AI Applies This Principle**\n- **Classified Reasons:** Categorize failures into actionable types.\n- **Reference Pointers:** When possible, tell users where to find the image manually.\n- **Visibility:** Failure notes should be visible, not hidden in metadata.\n\n**Constitutional Derivation**\nDerived from `meta-governance-transparent-reasoning-and-traceability`.\n\n**Why This Principle Matters**\nDifferent failure types require different remediation. \"Format unsupported\" suggests source document issue; \"retrieval failed\" suggests system issue; \"not found\" suggests content gap.\n\n**When Human Interaction Is Needed**\n- When failure reasons are ambiguous.\n- When escalation path for persistent failures needs definition.\n\n**Common Pitfalls or Failure Modes**\n- **The Generic Error:** \"Image could not be loaded\" without specificity.\n- **The Hidden Diagnostic:** Failure details in logs but not in response.\n- **The Missing Reference:** Failure noted but no guidance for manual lookup.\n\n---\n\n## Implementation Guidance\n\n### When AI Retrieves and Presents Images\n\n1. **Query Analysis** \u2014 Understand what the user is asking and what visual support would help\n2. **Image Retrieval** \u2014 Select best image using A2 (Relevance Scoring)\n3. **Placement Planning** \u2014 Determine where image belongs in response (P1)\n4. **Natural Integration** \u2014 Present without permission-asking (P2)\n5. **Selection Validation** \u2014 Verify 30% unique value threshold for additional images (P3)\n6. **Text Calibration** \u2014 Match text complexity to audience (P4, P5)\n7. **Failure Handling** \u2014 If retrieval fails, apply F1 and F2\n\n### When AI Advises on Document Structure\n\nApply **R-Series** principles to guide reference document organization:\n- Collocate images with supporting text (R1)\n- Ensure all images have alt text and contextual descriptions (R2)\n- Establish consistent metadata/tagging scheme (R3)\n\n### When AI Advises on System Design\n\nApply **A-Series** principles to guide architecture decisions:\n- Recommend unified embedding approaches (A1)\n- Define multi-signal relevance scoring (A2)\n- Consider platform-specific constraints (see Methods Appendix A)\n\n---\n\n## Relationship to Methods\n\nThis Domain Principles document establishes WHAT governance applies to multimodal RAG. The companion methods document establishes HOW to implement these principles.\n\n### Available Methods Documents\n\n| Document | Version | Coverage |\n|----------|---------|----------|\n| **multimodal-rag-methods-v1.0.0.md** | v1.0.0 | Presentation patterns, document structuring, retrieval architecture, failure handling |\n\n**Methods document includes:**\n- Title 1: Presentation Patterns (image placement workflows, selection algorithms)\n- Title 2: Reference Document Structuring (templates, metadata schemas)\n- Title 3: Retrieval Architecture (4-layer architecture, embedding selection)\n- Title 4: Failure Handling (degradation procedures, error classification)\n- Appendix A: Claude-Specific Implementation\n- Appendix B: Infrastructure Landscape (current solutions, evaluation criteria)\n\n---\n\n## Changelog\n\n### v1.0.0 (Current)\n- Initial release\n- **Four series:** P-Series (Presentation), R-Series (Reference), A-Series (Architecture), F-Series (Fallback)\n- **Twelve principles:** P1-P5, R1-R3, A1-A2, F1-F2\n- **Ten failure modes:** MR-F1 through MR-F10\n- Scope: Retrieval-only (image generation out of scope)\n- Platform-agnostic principles with Claude-first methods\n\n---\n\n*Version 1.0.0*\n*Derived from: AI Coding Domain Principles v2.2.1, Multi-Agent Domain Principles v2.0.0, Storytelling Domain Principles v1.0.0*\n",
+          "line_range": [
+            499,
+            598
+          ],
+          "metadata": {
+            "keywords": [
+              "failure",
+              "transparency",
+              "general"
+            ],
+            "synonyms": [],
+            "trigger_phrases": [
+              "image not found",
+              "format unsupported",
+              "retrieval failed",
+              "not found",
+              "definition",
+              "failure response format:",
+              "classified reasons:",
+              "reference pointers:",
+              "visibility:",
+              "constitutional derivation"
+            ],
+            "failure_indicators": [],
+            "aliases": [
+              "failure",
+              "transparency"
+            ]
+          },
+          "embedding_id": 424
+        }
+      ],
+      "methods": [
+        {
+          "id": "mult-method-presentation-patterns",
+          "domain": "multimodal-rag",
+          "title": "Presentation Patterns",
+          "content": "## 1 Presentation Patterns\n",
+          "line_range": [
+            9,
+            10
+          ],
+          "keywords": [
+            "presentation",
+            "patterns"
+          ],
+          "metadata": {
+            "keywords": [
+              "presentation",
+              "patterns"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": []
+          },
+          "embedding_id": 425
+        },
+        {
+          "id": "mult-method-image-placement-workflow",
+          "domain": "multimodal-rag",
+          "title": "Image Placement Workflow",
+          "content": "### 1.1 Image Placement Workflow\n\nWhen responding with images, follow this sequence:\n\n```\n1. PARSE query to identify:\n   - What user is asking (procedural steps? concept explanation? troubleshooting?)\n   - Which steps/concepts need visual support\n   - Audience signals (vocabulary, role mentions)\n\n2. RETRIEVE candidate images for each identified need\n   - Apply \u00a71.3 Image Selection Algorithm\n   - Score using A2 Relevance Scoring\n\n3. PLAN response structure:\n   - Text for each step/concept\n   - Image placement points (after introducing the concept, before moving on)\n   - Ensure P1 (Inline Integration) compliance\n\n4. GENERATE response:\n   - Write text for Step/Concept N\n   - Insert image immediately after\n   - Continue to Step/Concept N+1\n   - No permission-asking (P2)\n\n5. VALIDATE before sending:\n   - Each image placed after its introduction?\n   - No orphan images?\n   - Text complexity appropriate (P4, P5)?\n```\n",
+          "line_range": [
+            11,
+            41
+          ],
+          "keywords": [
+            "image",
+            "placement",
+            "workflow"
+          ],
+          "metadata": {
+            "keywords": [
+              "image",
+              "placement",
+              "workflow"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "image",
+              "placement",
+              "workflow"
+            ]
+          },
+          "embedding_id": 426
+        },
+        {
+          "id": "mult-method-inline-placement-rules",
+          "domain": "multimodal-rag",
+          "title": "Inline Placement Rules",
+          "content": "### 1.2 Inline Placement Rules\n\n| Content Type | Placement Rule | Example |\n|--------------|----------------|---------|\n| Procedural steps | Image after step instruction, before next step | \"Click the Settings icon. [screenshot] Next, select...\" |\n| Concept explanation | Image after concept introduction | \"The dashboard shows real-time metrics. [screenshot] The key indicators are...\" |\n| Troubleshooting | Image showing error/state being discussed | \"If you see this error: [screenshot] The solution is...\" |\n| Comparison | Images side-by-side or sequential with clear labels | \"Before: [image1] After: [image2]\" |\n",
+          "line_range": [
+            42,
+            50
+          ],
+          "keywords": [
+            "inline",
+            "placement",
+            "rules"
+          ],
+          "metadata": {
+            "keywords": [
+              "inline",
+              "placement",
+              "rules"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "inline",
+              "placement",
+              "rules"
+            ]
+          },
+          "embedding_id": 427
+        },
+        {
+          "id": "mult-method-image-selection-algorithm",
+          "domain": "multimodal-rag",
+          "title": "Image Selection Algorithm",
+          "content": "### 1.3 Image Selection Algorithm\n\n```\nInput: Query Q, Candidate images I[], Current selection S[]\n\n1. SCORE each candidate image i:\n   relevance_score(i) =\n     semantic_similarity(Q, i) \u00d7 0.6 +\n     content_type_match(Q, i) \u00d7 0.25 +\n     recency(i) \u00d7 0.1 +\n     step_alignment(Q, i) \u00d7 0.05\n\n2. RANK images by relevance_score descending\n\n3. SELECT best image \u2192 add to S[]\n\n4. FOR each remaining image j (in score order):\n   unique_value(j) = information_in(j) NOT in any image in S[]\n   IF unique_value(j) >= 0.30:  # 30% threshold\n     Add j to S[]\n   ELSE:\n     Skip j (redundant)\n\n5. RETURN S[] (typically 1-3 images)\n```\n",
+          "line_range": [
+            51,
+            76
+          ],
+          "keywords": [
+            "image",
+            "selection",
+            "algorithm"
+          ],
+          "metadata": {
+            "keywords": [
+              "image",
+              "selection",
+              "algorithm"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "image",
+              "selection",
+              "algorithm"
+            ]
+          },
+          "embedding_id": 428
+        },
+        {
+          "id": "mult-method-content-type-matching",
+          "domain": "multimodal-rag",
+          "title": "Content-Type Matching",
+          "content": "### 1.4 Content-Type Matching\n\n| Query Intent | Preferred Image Type | Avoid |\n|--------------|---------------------|-------|\n| \"How do I...\" (procedural) | UI screenshot, step-by-step | Conceptual diagrams |\n| \"What is...\" (conceptual) | Diagram, flowchart | Raw UI screenshots |\n| \"Why does...\" (troubleshooting) | Error state screenshot | Success state images |\n| \"Where is...\" (navigation) | Annotated screenshot with highlight | Full-page screenshots |\n| \"Compare...\" | Side-by-side comparison | Single images |\n",
+          "line_range": [
+            77,
+            86
+          ],
+          "keywords": [
+            "content-type",
+            "matching"
+          ],
+          "metadata": {
+            "keywords": [
+              "content-type",
+              "matching"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "content-type",
+              "matching"
+            ]
+          },
+          "embedding_id": 429
+        },
+        {
+          "id": "mult-method-readability-standards",
+          "domain": "multimodal-rag",
+          "title": "Readability Standards",
+          "content": "### 1.5 Readability Standards\n\n**Default (9th-grade level):**\n- Sentence length: 15-20 words average\n- Paragraph length: 3-5 sentences\n- Vocabulary: Common words; define technical terms on first use\n- Structure: Short paragraphs, clear headings, numbered steps\n\n**Technical audience (detected by signals):**\n- Can use domain terminology without definition\n- Can reference advanced concepts\n- Still prefer clarity over complexity\n\n**Audience signals to detect:**\n- Vocabulary used in query\n- Role/title mentioned (\"as a developer...\", \"I'm a new employee...\")\n- Platform context (internal tool vs. public documentation)\n- Prior conversation history\n\n---\n",
+          "line_range": [
+            87,
+            107
+          ],
+          "keywords": [
+            "readability",
+            "standards"
+          ],
+          "metadata": {
+            "keywords": [
+              "readability",
+              "standards"
+            ],
+            "trigger_phrases": [
+              "default (9th-grade level):",
+              "audience signals to detect:"
+            ],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "readability",
+              "standards"
+            ]
+          },
+          "embedding_id": 430
+        },
+        {
+          "id": "mult-method-reference-document-structuring",
+          "domain": "multimodal-rag",
+          "title": "Reference Document Structuring",
+          "content": "## 2 Reference Document Structuring\n",
+          "line_range": [
+            108,
+            109
+          ],
+          "keywords": [
+            "reference",
+            "document",
+            "structuring"
+          ],
+          "metadata": {
+            "keywords": [
+              "reference",
+              "document",
+              "structuring"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": []
+          },
+          "embedding_id": 431
+        },
+        {
+          "id": "mult-method-document-organization-template",
+          "domain": "multimodal-rag",
+          "title": "Document Organization Template",
+          "content": "### 2.1 Document Organization Template\n\n```markdown\n# [Procedure/Concept Name]\n\n## Overview\n[1-2 sentence summary of what this document covers]\n\n## Prerequisites\n[What user needs before starting]\n\n---\n\n## Step 1: [Action Title]\n\n[Instruction text - keep sentences 15-20 words]\n\n![Step 1: [Descriptive title]](path/to/image.png)\n\n*Alt: [What the image shows - for accessibility]*\n\n*Context: [When/why this image is relevant - for retrieval]*\n\n*Tags: [procedure-name, step-1, relevant-concepts]*\n\n[Additional context if needed]\n\n---\n\n## Step 2: [Action Title]\n\n[Continue pattern...]\n```\n",
+          "line_range": [
+            110,
+            143
+          ],
+          "keywords": [
+            "document",
+            "organization",
+            "template"
+          ],
+          "metadata": {
+            "keywords": [
+              "document",
+              "organization",
+              "template"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "document",
+              "organization",
+              "template"
+            ]
+          },
+          "embedding_id": 432
+        },
+        {
+          "id": "mult-method-image-description-requirements",
+          "domain": "multimodal-rag",
+          "title": "Image Description Requirements",
+          "content": "### 2.2 Image Description Requirements\n\n**Alt Text (Required):**\n- Describes WHAT the image shows\n- Serves accessibility (screen readers)\n- Example: \"Opera PMS guest profile screen showing the upgrade button highlighted in the Actions menu\"\n\n**Context Description (Required):**\n- Explains WHY/WHEN this image is relevant\n- Serves retrieval optimization\n- Example: \"Use this image when explaining how to initiate a room upgrade for an existing guest reservation\"\n\n**Metadata Tags (Required):**\n- Procedure/process name\n- Step number if applicable\n- Key concepts shown\n- UI elements featured\n- Example: `guest-upgrade, step-2, actions-menu, profile-screen`\n",
+          "line_range": [
+            144,
+            162
+          ],
+          "keywords": [
+            "image",
+            "description",
+            "requirements"
+          ],
+          "metadata": {
+            "keywords": [
+              "image",
+              "description",
+              "requirements"
+            ],
+            "trigger_phrases": [
+              "alt text (required):",
+              "context description (required):",
+              "metadata tags (required):"
+            ],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "image",
+              "description",
+              "requirements"
+            ]
+          },
+          "embedding_id": 433
+        },
+        {
+          "id": "mult-method-metadata-schema",
+          "domain": "multimodal-rag",
+          "title": "Metadata Schema",
+          "content": "### 2.3 Metadata Schema\n\n```yaml\nimage_metadata:\n  file: \"upgrade-step-2.png\"\n  alt_text: \"Opera PMS guest profile with Actions menu expanded\"\n  context: \"Shows location of upgrade button for guest room upgrade process\"\n  tags:\n    procedure: \"guest-upgrade\"\n    step: 2\n    concepts: [\"actions-menu\", \"room-upgrade\", \"guest-profile\"]\n    ui_elements: [\"profile-header\", \"actions-dropdown\"]\n    audience: [\"front-desk\", \"reservations\"]\n  created: \"2026-01-15\"\n  source_document: \"front-desk-procedures.md\"\n  section: \"Room Upgrades\"\n```\n",
+          "line_range": [
+            163,
+            180
+          ],
+          "keywords": [
+            "metadata",
+            "schema"
+          ],
+          "metadata": {
+            "keywords": [
+              "metadata",
+              "schema"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "metadata",
+              "schema"
+            ]
+          },
+          "embedding_id": 434
+        },
+        {
+          "id": "mult-method-collocation-verification-checklist",
+          "domain": "multimodal-rag",
+          "title": "Collocation Verification Checklist",
+          "content": "### 2.4 Collocation Verification Checklist\n\nBefore publishing reference documents:\n\n- [ ] Every image appears within 2 paragraphs of its related text\n- [ ] No image galleries or appendices separating images from context\n- [ ] Each image has alt text (accessibility)\n- [ ] Each image has context description (retrieval)\n- [ ] Each image has metadata tags (filtering)\n- [ ] Step-by-step procedures have images at each visual step\n- [ ] Consistent image naming convention throughout document\n\n---\n",
+          "line_range": [
+            181,
+            194
+          ],
+          "keywords": [
+            "collocation",
+            "verification",
+            "checklist"
+          ],
+          "metadata": {
+            "keywords": [
+              "collocation",
+              "verification",
+              "checklist"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "collocation",
+              "verification",
+              "checklist"
+            ]
+          },
+          "embedding_id": 435
+        },
+        {
+          "id": "mult-method-retrieval-architecture",
+          "domain": "multimodal-rag",
+          "title": "Retrieval Architecture",
+          "content": "## 3 Retrieval Architecture\n",
+          "line_range": [
+            195,
+            196
+          ],
+          "keywords": [
+            "retrieval",
+            "architecture"
+          ],
+          "metadata": {
+            "keywords": [
+              "retrieval",
+              "architecture"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": []
+          },
+          "embedding_id": 436
+        },
+        {
+          "id": "mult-method-four-layer-architecture",
+          "domain": "multimodal-rag",
+          "title": "Four-Layer Architecture",
+          "content": "### 3.1 Four-Layer Architecture\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                    Layer 1: Query Processing               \u2502\n\u2502  Intent Classification \u2192 Query Expansion \u2192 Audience Detection\u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                              \u2502\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                  Layer 2: Multimodal Embedding              \u2502\n\u2502  Text Embedding \u2190\u2192 Unified Space \u2190\u2192 Image Embedding         \u2502\n\u2502  (ColPali, ColQwen2, or similar)                           \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                              \u2502\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                  Layer 3: Retrieval & Ranking               \u2502\n\u2502  Vector Search \u2192 Metadata Filter \u2192 Relevance Scoring        \u2502\n\u2502  (Apply A2 multi-signal scoring)                           \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                              \u2502\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                  Layer 4: Response Generation               \u2502\n\u2502  Text Generation \u2190 Image Placement \u2190 Failure Handling       \u2502\n\u2502  (Apply P-Series and F-Series principles)                  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n",
+          "line_range": [
+            197,
+            223
+          ],
+          "keywords": [
+            "four-layer",
+            "architecture"
+          ],
+          "metadata": {
+            "keywords": [
+              "four-layer",
+              "architecture"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "four-layer",
+              "architecture"
+            ]
+          },
+          "embedding_id": 437
+        },
+        {
+          "id": "mult-method-embedding-model-selection",
+          "domain": "multimodal-rag",
+          "title": "Embedding Model Selection",
+          "content": "### 3.2 Embedding Model Selection\n\n| Model Family | Strengths | Considerations |\n|--------------|-----------|----------------|\n| **ColPali** | Late interaction, fine-grained matching | Newer, evolving ecosystem |\n| **ColQwen2** | Strong multimodal understanding | Similar architecture to ColPali |\n| **CLIP-based** | Widely deployed, stable | Less fine-grained than late interaction |\n| **Custom fine-tuned** | Domain-specific optimization | Requires training infrastructure |\n\n**Selection Criteria:**\n1. Does the model support unified text-image embedding space? (A1)\n2. What is latency for your query volume?\n3. What is embedding dimension and storage cost?\n4. Does the model handle your image types well? (screenshots, diagrams, photos)\n",
+          "line_range": [
+            224,
+            238
+          ],
+          "keywords": [
+            "embedding",
+            "model",
+            "selection"
+          ],
+          "metadata": {
+            "keywords": [
+              "embedding",
+              "model",
+              "selection"
+            ],
+            "trigger_phrases": [
+              "colpali",
+              "colqwen2",
+              "clip-based",
+              "custom fine-tuned",
+              "selection criteria:"
+            ],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "embedding",
+              "model",
+              "selection"
+            ]
+          },
+          "embedding_id": 438
+        },
+        {
+          "id": "mult-method-relevance-scoring-implementation",
+          "domain": "multimodal-rag",
+          "title": "Relevance Scoring Implementation",
+          "content": "### 3.3 Relevance Scoring Implementation\n\n```python\ndef relevance_score(query, image, config):\n    \"\"\"\n    Multi-signal relevance scoring per A2 principle.\n\n    Weights are configurable per deployment.\n    Default weights optimized for procedural documentation.\n    \"\"\"\n    weights = config.get('weights', {\n        'semantic': 0.60,\n        'content_type': 0.25,\n        'recency': 0.10,\n        'step_alignment': 0.05\n    })\n\n    # Semantic similarity from embedding space\n    semantic = cosine_similarity(\n        embed_text(query),\n        embed_image(image)\n    )\n\n    # Content type match (screenshot for UI query, diagram for concept)\n    query_intent = classify_intent(query)  # procedural, conceptual, troubleshooting\n    image_type = image.metadata.get('type')  # screenshot, diagram, photo\n    content_type = content_type_score(query_intent, image_type)\n\n    # Recency (for rapidly-changing UIs)\n    days_old = (today() - image.metadata.get('created')).days\n    recency = max(0, 1 - (days_old / config.get('recency_halflife', 180)))\n\n    # Step alignment (for procedural queries)\n    if query_intent == 'procedural':\n        query_step = extract_step_reference(query)\n        image_step = image.metadata.get('step')\n        step_alignment = 1.0 if query_step == image_step else 0.5\n    else:\n        step_alignment = 0.5  # neutral for non-procedural\n\n    return (\n        weights['semantic'] * semantic +\n        weights['content_type'] * content_type +\n        weights['recency'] * recency +\n        weights['step_alignment'] * step_alignment\n    )\n```\n",
+          "line_range": [
+            239,
+            286
+          ],
+          "keywords": [
+            "relevance",
+            "scoring",
+            "implementation"
+          ],
+          "metadata": {
+            "keywords": [
+              "relevance",
+              "scoring",
+              "implementation"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "relevance",
+              "scoring",
+              "implementation"
+            ]
+          },
+          "embedding_id": 439
+        },
+        {
+          "id": "mult-method-chunk-strategy-for-multimodal-documents",
+          "domain": "multimodal-rag",
+          "title": "Chunk Strategy for Multimodal Documents",
+          "content": "### 3.4 Chunk Strategy for Multimodal Documents\n\nWhen indexing documents with images:\n\n```\nDocument: front-desk-procedures.md\n\u251c\u2500\u2500 Chunk 1: \"## Step 1: Access Guest Profile\\n[text]\\n[IMAGE_REF: step1.png]\"\n\u251c\u2500\u2500 Chunk 2: \"## Step 2: Open Actions Menu\\n[text]\\n[IMAGE_REF: step2.png]\"\n\u2514\u2500\u2500 Chunk 3: \"## Step 3: Select Upgrade Option\\n[text]\\n[IMAGE_REF: step3.png]\"\n```\n\n**Key principles:**\n- Keep images with their text context in same chunk\n- Include image metadata in chunk for filtering\n- Chunk boundaries at logical breaks (steps, sections)\n- Embed both text content and image for each chunk\n\n---\n",
+          "line_range": [
+            287,
+            305
+          ],
+          "keywords": [
+            "chunk",
+            "strategy",
+            "multimodal",
+            "documents"
+          ],
+          "metadata": {
+            "keywords": [
+              "chunk",
+              "strategy",
+              "multimodal",
+              "documents"
+            ],
+            "trigger_phrases": [
+              "key principles:"
+            ],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "chunk",
+              "strategy",
+              "multimodal"
+            ]
+          },
+          "embedding_id": 440
+        },
+        {
+          "id": "mult-method-failure-handling",
+          "domain": "multimodal-rag",
+          "title": "Failure Handling",
+          "content": "## 4 Failure Handling\n",
+          "line_range": [
+            306,
+            307
+          ],
+          "keywords": [
+            "failure",
+            "handling"
+          ],
+          "metadata": {
+            "keywords": [
+              "failure",
+              "handling"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": []
+          },
+          "embedding_id": 441
+        },
+        {
+          "id": "mult-method-failure-classification",
+          "domain": "multimodal-rag",
+          "title": "Failure Classification",
+          "content": "### 4.1 Failure Classification\n\n| Failure Type | Code | Cause | User-Facing Message |\n|--------------|------|-------|---------------------|\n| Format unsupported | `format_unsupported` | Image format not renderable | \"Image format not supported in this context\" |\n| Size exceeded | `size_exceeded` | Image too large for display/transmission | \"Image exceeds size limits\" |\n| Retrieval failed | `retrieval_failed` | Network/storage error during fetch | \"Unable to retrieve image at this time\" |\n| Not found | `not_found` | Image doesn't exist or was deleted | \"Referenced image not available\" |\n| Permission denied | `permission_denied` | Access control prevents retrieval | \"Access to image not permitted\" |\n",
+          "line_range": [
+            308,
+            317
+          ],
+          "keywords": [
+            "failure",
+            "classification"
+          ],
+          "metadata": {
+            "keywords": [
+              "failure",
+              "classification"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "failure",
+              "classification"
+            ]
+          },
+          "embedding_id": 442
+        },
+        {
+          "id": "mult-method-graceful-degradation-procedure",
+          "domain": "multimodal-rag",
+          "title": "Graceful Degradation Procedure",
+          "content": "### 4.2 Graceful Degradation Procedure\n\n```\nIF image_retrieval_fails:\n    1. LOG failure with classification and details\n\n    2. CONTINUE generating text response\n       - Response MUST be complete and useful without image\n       - Do NOT say \"I cannot answer without the image\"\n\n    3. APPEND failure note at appropriate position:\n       ---\n       Note: Visual reference for [Step N / this concept] could not be displayed.\n       Reason: [failure_type from \u00a74.1]\n       Reference: [source_document, section/page] for manual lookup\n\n    4. IF multiple images fail:\n       - Group failure notes at end of response\n       - Maintain readable response flow\n```\n",
+          "line_range": [
+            318,
+            338
+          ],
+          "keywords": [
+            "graceful",
+            "degradation",
+            "procedure"
+          ],
+          "metadata": {
+            "keywords": [
+              "graceful",
+              "degradation",
+              "procedure"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "graceful",
+              "degradation",
+              "procedure"
+            ]
+          },
+          "embedding_id": 443
+        },
+        {
+          "id": "mult-method-failure-note-templates",
+          "domain": "multimodal-rag",
+          "title": "Failure Note Templates",
+          "content": "### 4.3 Failure Note Templates\n\n**Single Image Failure:**\n```\n---\nNote: Screenshot for Step 3 could not be displayed.\nReason: Retrieval failed\nReference: See \"Front Desk Procedures\" document, page 12, for the visual guide.\n```\n\n**Multiple Image Failures:**\n```\n---\nNote: Some visual references could not be displayed:\n- Step 2 screenshot: Format not supported in this context\n- Step 5 diagram: Image not available\nReference: See \"System Administration Guide\" sections 4.2 and 4.5 for visuals.\n```\n\n**Critical Image Failure (escalation):**\n```\n---\nNote: The visual reference that typically accompanies this procedure could not be loaded.\nReason: [reason]\nRecommendation: This procedure is highly visual. Consider accessing the source document directly:\n- Document: [name]\n- Section: [section]\n- Or contact support if this persists.\n```\n",
+          "line_range": [
+            339,
+            368
+          ],
+          "keywords": [
+            "failure",
+            "note",
+            "templates"
+          ],
+          "metadata": {
+            "keywords": [
+              "failure",
+              "note",
+              "templates"
+            ],
+            "trigger_phrases": [
+              "single image failure:",
+              "multiple image failures:",
+              "critical image failure (escalation):"
+            ],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "failure",
+              "note",
+              "templates"
+            ]
+          },
+          "embedding_id": 444
+        },
+        {
+          "id": "mult-method-failure-logging-schema",
+          "domain": "multimodal-rag",
+          "title": "Failure Logging Schema",
+          "content": "### 4.4 Failure Logging Schema\n\n```yaml\nfailure_log:\n  timestamp: \"2026-01-24T14:30:00Z\"\n  query_id: \"q-12345\"\n  image_ref: \"upgrade-step-3.png\"\n  failure_type: \"retrieval_failed\"\n  error_detail: \"Connection timeout after 5000ms\"\n  fallback_applied: true\n  reference_provided: \"front-desk-procedures.md, section 3.3\"\n  user_notified: true\n```\n\n---\n\n## Appendix A: Claude-Specific Implementation\n\n### A.1 Vision Capabilities\n\nClaude supports inline images in conversations when:\n- Images are provided as base64-encoded data or URLs\n- Total image data stays within context limits\n- Images are in supported formats (PNG, JPEG, GIF, WebP)\n\n### A.2 Token Considerations\n\n| Image Size | Approximate Tokens | Recommendation |\n|------------|-------------------|----------------|\n| < 500KB | ~1,000-2,000 | Preferred for inline display |\n| 500KB-2MB | ~2,000-5,000 | Acceptable, monitor context usage |\n| > 2MB | ~5,000+ | Resize or compress before including |\n\n### A.3 Image Inclusion Format\n\n**For Claude API:**\n```json\n{\n  \"role\": \"user\",\n  \"content\": [\n    {\"type\": \"text\", \"text\": \"How do I upgrade a guest room?\"},\n    {\n      \"type\": \"image\",\n      \"source\": {\n        \"type\": \"base64\",\n        \"media_type\": \"image/png\",\n        \"data\": \"[base64_encoded_image_data]\"\n      }\n    }\n  ]\n}\n```\n\n**For retrieval integration:**\n```python\ndef format_response_with_images(text_response, images):\n    \"\"\"Format response with images for Claude.\"\"\"\n    content = []\n\n    # Parse text response for image placement markers\n    segments = parse_image_placements(text_response)\n\n    for segment in segments:\n        if segment.type == 'text':\n            content.append({\"type\": \"text\", \"text\": segment.content})\n        elif segment.type == 'image_marker':\n            image = images.get(segment.image_ref)\n            if image:\n                content.append({\n                    \"type\": \"image\",\n                    \"source\": {\n                        \"type\": \"base64\",\n                        \"media_type\": image.media_type,\n                        \"data\": image.base64_data\n                    }\n                })\n            else:\n                # Apply F-Series fallback\n                content.append({\n                    \"type\": \"text\",\n                    \"text\": format_failure_note(segment.image_ref)\n                })\n\n    return content\n```\n\n### A.4 Prompt Pattern for Multimodal RAG\n\n```\nYou are an assistant that answers questions using both text and images from a knowledge base.\n\nWhen answering:\n1. Place images at the exact step they support (P1)\n2. Do not ask permission before showing images (P2)\n3. Select the single best image; add others only if they provide 30%+ unique value (P3)\n4. Use clear, accessible language (P4)\n5. If an image fails to load, provide complete text answer with failure note (F1, F2)\n\nThe following images are available for this query:\n[Retrieved images with metadata]\n\nUser query: {query}\n```\n\n---\n\n## Appendix B: Infrastructure Landscape\n\n### B.1 Current Multimodal Embedding Solutions\n\n| Solution | Description | Status (2026) |\n|----------|-------------|---------------|\n| **ColPali** | Late interaction multimodal embedding; processes document pages as images | Production-ready |\n| **ColQwen2** | Similar architecture to ColPali with Qwen backbone | Production-ready |\n| **LlamaIndex** | Framework with multimodal RAG support | Integration available |\n| **LangChain** | Framework with image retrieval patterns | Integration available |\n| **Weaviate** | Vector DB with multimodal support | Production-ready |\n| **Pinecone** | Vector DB, multimodal via custom embeddings | Production-ready |\n\n### B.2 Evaluation Criteria\n\nWhen selecting infrastructure:\n\n| Criterion | Questions to Ask |\n|-----------|------------------|\n| **Embedding Quality** | Does the model handle your image types? (UI screenshots, diagrams, photos) |\n| **Latency** | What is p99 latency for your query volume? |\n| **Scale** | How many images? How many queries/second? |\n| **Integration** | Does it work with your existing stack? |\n| **Cost** | Embedding generation cost, storage cost, query cost |\n| **Maintenance** | Hosted vs. self-managed? Update frequency? |\n\n### B.3 Reference Architecture Example\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                      Reference Documents                     \u2502\n\u2502   (Markdown with embedded images following R-Series)         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                              \u2502 Ingestion\n                              \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                     Document Processor                       \u2502\n\u2502   - Extract text chunks with image context                   \u2502\n\u2502   - Generate metadata per \u00a72.3                              \u2502\n\u2502   - Validate collocation per \u00a72.4                           \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                              \u2502\n                              \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                   Multimodal Embedder                        \u2502\n\u2502   - ColPali/ColQwen2 for unified embedding                  \u2502\n\u2502   - Text chunks \u2192 vectors                                   \u2502\n\u2502   - Images \u2192 vectors (same space)                           \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                              \u2502\n                              \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                      Vector Database                         \u2502\n\u2502   - Store embeddings with metadata                          \u2502\n\u2502   - Support hybrid search (vector + filter)                 \u2502\n\u2502   - (Weaviate, Pinecone, or similar)                        \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                              \u2502 Query\n                              \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                     Retrieval Service                        \u2502\n\u2502   - Embed incoming query                                    \u2502\n\u2502   - Vector search + metadata filter                         \u2502\n\u2502   - Apply relevance scoring (\u00a73.3)                          \u2502\n\u2502   - Return ranked images with context                       \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                              \u2502\n                              \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                   Response Generator                         \u2502\n\u2502   - LLM (Claude) with retrieved images                      \u2502\n\u2502   - Apply P-Series presentation principles                  \u2502\n\u2502   - Apply F-Series fallback if needed                       \u2502\n\u2502   - Return multimodal response to user                      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n---\n\n## Governance Integration\n\n### Principle Mapping\n\nThis methods document implements:\n\n| Principle | Implementation Location |\n|-----------|------------------------|\n| P1: Inline Image Integration | \u00a71.1, \u00a71.2 |\n| P2: Natural Integration | \u00a71.1 (step 4), Appendix A.4 |\n| P3: Image Selection Criteria | \u00a71.3, \u00a71.4 |\n| P4: Readability Optimization | \u00a71.5 |\n| P5: Audience Adaptation | \u00a71.5 |\n| R1: Image-Text Collocation | \u00a72.1, \u00a72.4 |\n| R2: Descriptive Context | \u00a72.2 |\n| R3: Retrieval Metadata | \u00a72.2, \u00a72.3 |\n| A1: Unified Embedding Space | \u00a73.1, \u00a73.2 |\n| A2: Relevance Scoring | \u00a73.3 |\n| F1: Graceful Degradation | \u00a74.2 |\n| F2: Failure Transparency | \u00a74.1, \u00a74.3, \u00a74.4 |\n\n---\n\n## Changelog\n\n### v1.0.0 (Current)\n- Initial release\n- **Title 1:** Presentation Patterns (placement workflow, selection algorithm, readability standards)\n- **Title 2:** Reference Document Structuring (templates, metadata schema, collocation checklist)\n- **Title 3:** Retrieval Architecture (4-layer architecture, embedding selection, relevance scoring, chunking)\n- **Title 4:** Failure Handling (classification, degradation procedure, templates, logging)\n- **Appendix A:** Claude-Specific Implementation (vision capabilities, token considerations, API format)\n- **Appendix B:** Infrastructure Landscape (current solutions, evaluation criteria, reference architecture)\n\n---\n\n*Version 1.0.0*\n*Companion to: Multimodal RAG Domain Principles v1.0.0*\n",
+          "line_range": [
+            369,
+            592
+          ],
+          "keywords": [
+            "failure",
+            "logging",
+            "schema"
+          ],
+          "metadata": {
+            "keywords": [
+              "failure",
+              "logging",
+              "schema"
+            ],
+            "trigger_phrases": [
+              "for claude api:",
+              "for retrieval integration:",
+              "colpali",
+              "colqwen2",
+              "llamaindex",
+              "langchain",
+              "weaviate",
+              "pinecone",
+              "embedding quality",
+              "latency"
+            ],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "failure",
+              "logging",
+              "schema",
+              "vision",
+              "capabilities",
+              "token",
+              "considerations",
+              "image",
+              "inclusion",
+              "format",
+              "prompt",
+              "pattern",
+              "multimodal",
+              "current",
+              "multimodal"
+            ]
+          },
+          "embedding_id": 445
+        }
+      ],
+      "last_extracted": "2026-01-24T23:47:18.561729+00:00",
       "version": "1.0"
     }
   },
@@ -15595,9 +16721,18 @@
       "description": "Creative writing and narrative development with AI assistance. Character development, world-building, plot structure, dialogue, voice consistency, scene composition, pacing, emotional resonance, thematic depth, genre conventions, revision strategies, non-linear writing, fragment assembly, continuity management, and context tracking across long-form narratives. Covers fiction genres including fantasy, science fiction, romance, thriller, mystery, and horror. World-building elements: magic systems, settings, lore, backstory, mythology, rules of the world, fictional cultures. Narrative techniques: foreshadowing, tension, conflict, stakes, show dont tell, subtext, hooks, payoffs, story bible, character arcs. Formats: novels, short stories, novellas, screenplays, series, flash fiction.",
       "priority": 30,
       "embedding_id": 3
+    },
+    {
+      "name": "multimodal-rag",
+      "display_name": "Multimodal RAG",
+      "principles_file": "multimodal-rag-domain-principles-v1.0.0.md",
+      "methods_file": "multimodal-rag-methods-v1.0.0.md",
+      "description": "AI agents that retrieve and present images inline with text responses. Image placement, reference document structuring, multimodal retrieval architecture, graceful degradation, readability optimization, procedural documentation, screenshot presentation, inline visuals, image selection criteria, fallback behaviors, and audience-adaptive communication. Covers hotel operations, training materials, customer support, and any context where visual reference materials enhance understanding.",
+      "priority": 40,
+      "embedding_id": 4
     }
   ],
-  "created_at": "2026-01-24T20:52:05.858611+00:00",
+  "created_at": "2026-01-24T23:47:24.652451+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384

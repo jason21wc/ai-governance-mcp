@@ -11,28 +11,27 @@
 
 ## Current Position
 
-- **Phase:** Discovery (new domain)
-- **Mode:** Plan Mode
-- **Active Task:** Multimodal RAG Domain - Discovery Session
-- **Blocker:** None (paused for restart)
-- **Plan File:** `~/.claude/plans/stateful-hopping-eclipse.md`
+- **Phase:** Maintenance
+- **Mode:** Standard
+- **Active Task:** None
+- **Blocker:** None
 
-## Active: Multimodal RAG Domain
+## Recent: Multimodal RAG Domain (Completed)
 
-**Goal:** Add new domain for AI agents that retrieve and present reference images/screenshots inline with text responses.
+**Status:** ✅ Domain implemented and indexed
 
-**Use Case:** Hotel operations RAG where employees ask procedural questions and receive text + inline screenshots at correct steps.
+**Deliverables:**
+- `multimodal-rag-domain-principles-v1.0.0.md` — 12 principles (P1-P5, R1-R3, A1-A2, F1-F2)
+- `multimodal-rag-methods-v1.0.0.md` — 21 methods (4 titles + 2 appendices)
+- Domain registered in `domains.json` (priority 40)
+- Index rebuilt with 446 total items
 
-**Discovery Progress:**
-- Q1-8 completed (use case, source materials, platform, failure handling, scope)
-- Q9-10 pending (anti-patterns, domain scope boundaries)
-
-**Key Decisions So Far:**
+**Key Decisions:**
 - Retrieval-only (no generation) — architect for future extensibility
-- Platform-agnostic principles, Claude-first methods
-- Graceful degradation on failure (text + diagnostic info)
-
-**Resume Point:** Answer Q9-10, then consolidate and design
+- Platform-agnostic principles, Claude-first methods appendix
+- 4 series: Presentation (P), Reference (R), Architecture (A), Fallback (F)
+- 10 failure modes (MR-F1 through MR-F10)
+- 30% unique value threshold for additional images
 
 ## Recent Accomplishments (v1.6.x / v2.10.0)
 
@@ -50,17 +49,19 @@
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.6.1** (server), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.10.0** (multi-agent-methods) |
+| Version | **v1.6.1** (server), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.10.0** (multi-agent-methods), **v1.0.0** (multimodal-rag) |
 | Tests | **355 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
-| Domains | **4** (constitution, ai-coding, multi-agent, storytelling) |
-| Index | **87 principles + 326 methods (413 total)** |
+| Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
+| Index | **99 principles + 347 methods (446 total)** |
 
 ## Next Actions
 
 1. **(Optional)** Develop storytelling coaching playbook
 2. **(Optional)** Add platform-specific playbooks (TikTok, LinkedIn, long-form)
+3. **(Optional)** Expand multimodal-rag with video retrieval (Phase 2)
+4. **(Optional)** Add image generation domain when reliable methods exist
 
 ## Links
 
