@@ -3522,10 +3522,65 @@ claude
 | `/agents` | Manage agents |
 | `/context` | View context usage |
 | `/clear` | Clear conversation (keep files) |
+| `/compact [focus]` | Summarize context, optional focus area |
+| `/rewind` | Restore to checkpoint (conversation, code, or both) |
+| `/rename [name]` | Name session for later retrieval |
 | `/init` | Create claude.md from project |
+| `/skills` | Manage skills |
+| `/hooks` | Configure deterministic hooks |
+| `/permissions` | Manage tool allowlists |
 | `Shift+Tab` | Cycle modes (normal/plan) |
 | `Ctrl+O` | View agent execution details |
-| `--dangerously-skip-permissions` | Bypass permission prompts |
+| `Esc` | Stop current action (context preserved) |
+| `Esc + Esc` | Open rewind menu |
+| `--continue` | Resume most recent conversation |
+| `--resume` | Select from recent sessions |
+| `--dangerously-skip-permissions` | Bypass permission prompts (use in sandbox only) |
+| `-p "prompt"` | Headless mode for scripts/CI |
+| `--output-format json` | Structured output for parsing |
+
+### Session Anti-Patterns
+
+Common mistakes and fixes:
+
+| Anti-Pattern | Symptom | Fix |
+|--------------|---------|-----|
+| **Kitchen sink session** | Context full of unrelated tasks | `/clear` between unrelated tasks |
+| **Over-correction loop** | Corrected 2+ times, still wrong | `/clear`, write better initial prompt |
+| **Over-specified CLAUDE.md** | Instructions ignored | Prune ruthlessly; if Claude does it correctly without the rule, delete it |
+| **Trust-then-verify gap** | Plausible but broken code | Always provide verification (tests, scripts, screenshots) |
+| **Infinite exploration** | Context full from investigation | Scope narrowly or use subagents |
+
+### Skills (Domain Knowledge)
+
+Skills extend Claude's knowledge with project-specific information. Claude applies them automatically when relevant, or invoke directly with `/skill-name`.
+
+**Structure:**
+```
+.claude/skills/
+└── api-conventions/
+    └── SKILL.md
+```
+
+**SKILL.md Format:**
+```markdown
+---
+name: api-conventions
+description: REST API design conventions for our services
+disable-model-invocation: true  # Manual-only (for workflows with side effects)
+---
+# API Conventions
+[Content here]
+```
+
+**When to use Skills vs Agents:**
+| Use Case | Skills | Agents |
+|----------|--------|--------|
+| Domain knowledge | ✓ | |
+| Reusable workflows | ✓ | |
+| Isolated context needed | | ✓ |
+| Tool restrictions needed | | ✓ |
+| Fresh perspective | | ✓ |
 
 ### Sub-Agent Behavior
 

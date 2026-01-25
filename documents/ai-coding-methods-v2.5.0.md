@@ -2714,12 +2714,26 @@ Load these files for context:
 
 ### 7.4.4 Loader Best Practices
 
-From [Anthropic Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices):
+From [Anthropic Claude Code Best Practices](https://code.claude.com/docs/en/best-practices):
 
 1. **Less is more** — Include as few instructions as reasonably possible
 2. **Progressive disclosure** — Tell AI how to find info, not all info
 3. **Universally applicable** — Keep content relevant to all sessions
 4. **Hierarchical** — Use subdirectory files for scoped context (e.g., `src/backend/CLAUDE.md`)
+
+**CLAUDE.md Content Guide:**
+
+| ✅ Include | ❌ Exclude |
+|-----------|-----------|
+| Bash commands Claude can't guess | What Claude can figure out by reading code |
+| Code style rules differing from defaults | Standard language conventions |
+| Test instructions and preferred runners | Detailed API docs (link instead) |
+| Repo etiquette (branch naming, PR conventions) | Frequently changing information |
+| Architectural decisions specific to project | Long explanations or tutorials |
+| Developer environment quirks (required env vars) | File-by-file codebase descriptions |
+| Common gotchas or non-obvious behaviors | Self-evident practices ("write clean code") |
+
+**Test for each line:** "Would removing this cause Claude to make mistakes?" If not, cut it. Bloated files cause instructions to be ignored.
 
 **Anti-patterns:**
 - Duplicating memory file content in the loader
