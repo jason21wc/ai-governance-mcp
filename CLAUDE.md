@@ -1,7 +1,7 @@
 # AI Governance MCP Server
 
 **Project:** Semantic retrieval system for AI governance principles
-**Framework:** AI Coding Methods v2.3.0
+**Framework:** AI Coding Methods v2.5.0
 **Mode:** Standard
 
 ## On Session Start

@@ -52,6 +52,7 @@ The framework has three layers:
 | **AI Coding** | 12 | 128 | Software development, testing, deployment |
 | **Multi-Agent** | 14 | 43 | Agent orchestration, handoffs, evaluation |
 | **Storytelling** | 17 | 20 | Creative writing, narrative, voice preservation |
+| **Multimodal RAG** | 12 | 21 | Image retrieval, visual presentation, inline visuals |
 
 ## Tech Stack
 
@@ -152,7 +153,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **90%** (350 tests) |
+| Test Coverage | 80% | **90%** (355 tests) |
 
 ## Quick Start (Docker)
 
@@ -722,7 +723,7 @@ pre-commit install
 
 ### Test Suite
 
-350 tests across 11 test files with 90% coverage:
+355 tests across 11 test files with 90% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
@@ -797,4 +798,4 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework - Constitution v2.3, Governance Methods v3.7.0, Multi-Agent Methods v2.9.0, Storytelling v1.0.0*
+*Built with the AI Governance Framework - Constitution v2.3, Governance Methods v3.7.0, Multi-Agent Methods v2.10.0, Storytelling v1.0.0, Multimodal RAG v1.0.0*

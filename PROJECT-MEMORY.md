@@ -14,7 +14,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 350 tests, 90% coverage, 11 tools
+- **Status:** COMPLETE - All phases done, 355 tests, 90% coverage, 11 tools
 - **Repository:** github.com/jason21wc/ai-governance-mcp
 
 ## Phase Gates
@@ -24,7 +24,7 @@
 | Specify → Plan | ✓ Passed | 2025-12-26 | Option C (Tier 1 + best of Tier 2) |
 | Plan → Tasks | ✓ Passed | 2025-12-26 | Architecture approved |
 | Tasks → Implement | ✓ Passed | 2025-12-27 | 90+ test target set |
-| Implement → Complete | ✓ Passed | 2025-12-29 | 350 tests, 90% coverage |
+| Implement → Complete | ✓ Passed | 2025-12-29 | 355 tests, 90% coverage |
 
 ---
 
@@ -56,6 +56,16 @@
 | Agent Definition Standard | 2026-01-01 | Required: name, description, cognitive_function, tools, system prompt. |
 | Justified Complexity | 2026-01-01 | 15x token cost rule — must justify multi-agent over generalist. |
 | Linear-First Default | 2026-01-01 | Sequential is safe default. Parallel requires explicit validation. |
+| Task Dependency DAG | 2026-01-24 | Deadlock prevention added to §3.3. Graph traversal, depth tracking, timeout escalation. |
+
+### Multimodal RAG Domain
+
+| Decision | Date | Summary |
+|----------|------|---------|
+| Domain Created | 2026-01-24 | v1.0.0 — 12 principles (P/R/A/F series), 21 methods. Priority 40. |
+| Retrieval-Only Scope | 2026-01-24 | No generation. Architect for future extensibility. |
+| Mayer-Based Image Selection | 2026-01-24 | Three-Test Framework (Coherence, Unique Value, Proximity) replaces arbitrary thresholds. |
+| Hierarchy Separation | 2026-01-24 | Principles platform-agnostic. Platform-specific content in appendices only. |
 
 ### Security
 
