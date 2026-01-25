@@ -18,7 +18,7 @@
 
 ## Recent: Multimodal RAG Domain (Completed)
 
-**Status:** ✅ Domain implemented and indexed
+**Status:** ✅ Domain implemented, reviewed, and improved
 
 **Deliverables:**
 - `multimodal-rag-domain-principles-v1.0.0.md` — 12 principles (P1-P5, R1-R3, A1-A2, F1-F2)
@@ -31,12 +31,33 @@
 - Platform-agnostic principles, Claude-first methods appendix
 - 4 series: Presentation (P), Reference (R), Architecture (A), Fallback (F)
 - 10 failure modes (MR-F1 through MR-F10)
-- 30% unique value threshold for additional images
+- Mayer-based image selection (Three-Test Framework) — replaced arbitrary threshold
+
+## Recent: Gemini Review & Improvements
+
+**Process:** Used Gemini CLI as external reviewer for "eating our own dogfood" analysis.
+
+**Gemini Findings Evaluated:**
+
+| Finding | Valid? | Action |
+|---------|--------|--------|
+| "10-Field Template" missing | ❌ No | Rejected — template doesn't exist in our methods |
+| "30% threshold arbitrary" | ✅ Yes | Replaced with Mayer's Three-Test Framework |
+| "No visible reasoning" | ❌ No | Rejected — we used plan mode with Q1-Q14 discovery |
+| Cross-reference principles→Claude | ❌ No | Rejected — violates hierarchy separation |
+| Deadlock detection missing | ✅ Yes | Added to §3.3 multi-agent-methods |
+
+**Improvements Made:**
+- **P3 + §1.3:** Mayer-based image selection (Coherence, Unique Value, Proximity tests)
+- **§3.3:** Deadlock prevention for task dependencies (detection methods, resolution strategies)
 
 ## Recent Accomplishments (v1.6.x / v2.10.0)
 
 | Feature | Status |
 |---------|--------|
+| Multimodal RAG domain | ✓ v1.0.0 (5 domains total) |
+| Mayer-based image selection (P3) | ✓ Research-grounded criteria |
+| Deadlock prevention (§3.3) | ✓ Detection + resolution |
 | Multi-agent Task Management (Claude Code) | ✓ v2.10.0 |
 | Task dependency patterns (platform-agnostic) | ✓ §3.3 |
 | Task ownership protocol | ✓ §3.5 |
