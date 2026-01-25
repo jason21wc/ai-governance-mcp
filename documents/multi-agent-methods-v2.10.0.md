@@ -1582,6 +1582,31 @@ Task E (blockedBy: [B, C, D])
 - Orchestrator resolves circular dependencies before execution
 - Fan-in synthesis tasks wait for ALL predecessors
 
+**Deadlock Prevention:**
+
+Circular dependencies create deadlocks where tasks wait on each other indefinitely. Detect and resolve before execution:
+
+```
+# Deadlock Example (INVALID):
+Task A (blockedBy: [C])  ─┐
+Task B (blockedBy: [A])   ├── Circular: A→C→B→A
+Task C (blockedBy: [B])  ─┘
+```
+
+| Detection Method | When to Apply |
+|------------------|---------------|
+| **Graph traversal** | At task creation — reject if adding dependency creates cycle |
+| **Depth tracking** | During execution — if dependency chain exceeds task count, cycle exists |
+| **Timeout escalation** | Runtime safety — if blocked task unchanged for N iterations, escalate |
+
+**Resolution Strategies:**
+
+1. **Restructure:** Break cycle by identifying which dependency is weakest/optional
+2. **Merge:** Combine circular tasks into single task if truly interdependent
+3. **Escalate:** If cycle cannot be resolved, escalate to human for task redesign
+
+**Orchestrator Responsibility:** Validate dependency graph is acyclic (DAG) before dispatching tasks to agents. Never dispatch tasks with unresolved circular dependencies.
+
 ### 3.4 Compression Procedures
 
 CRITICAL

@@ -232,31 +232,42 @@ Permission-asking interrupts the instructional flow and reduces the "order of ma
 
 ---
 
-### P3: Image Selection Criteria
+### P3: Image Selection Criteria (Mayer-Based)
 
 **Definition**
-Select the single image that answers the most aspects of the query. Add additional images only if each adds at least 30% unique informational value not provided by already-selected images.
+Select images using Mayer's Multimedia Learning principles. Each image must pass the Coherence Test (directly supports instruction) and the Unique Value Test (adds information not conveyed by text). For multiple images, each must independently pass both tests.
 
 **How the AI Applies This Principle**
-- **Best Image First:** Identify and present the single most informative image.
-- **30% Unique Value Threshold:** Additional images must provide substantial new information.
+
+*The Three-Test Framework (based on Mayer's Multimedia Learning Theory):*
+
+| Test | Principle | Question |
+|------|-----------|----------|
+| **Coherence Test** | Coherence Principle | Does this image directly support the instruction being given? |
+| **Unique Value Test** | Redundancy Principle | Does this image add information NOT already conveyed by text? |
+| **Proximity Test** | Spatial Contiguity | Can this image be placed adjacent to the text it supports? |
+
+- **Best Image First:** Identify and present the single most informative image that passes all tests.
+- **Additional Images:** Each must independently pass all three tests; if images overlap in information, include only the most informative one.
+- **When Uncertain, Prefer Fewer:** Cognitive overload from redundant visuals hurts comprehension more than missing visuals.
 - **No Redundancy:** Avoid multiple images showing the same information from different angles (MR-F8).
-- **Relevance Over Quantity:** One perfect image beats three tangential ones.
 
 **Constitutional Derivation**
-Derived from `meta-operational-minimal-relevant-context` and `meta-governance-resource-efficiency`.
+Derived from `meta-operational-minimal-relevant-context` and `meta-governance-resource-efficiency`. Grounded in Mayer's Coherence Principle ("include only essential content directly linked to learning objectives") and Redundancy Principle ("people learn better when extraneous material is excluded").
 
 **Why This Principle Matters**
-Each additional image competes for attention. Visual overwhelm (MR-F3) dilutes impact. The goal is maximum clarity with minimum visual noise.
+Each additional image competes for attention and consumes cognitive capacity. Research shows that redundant visuals create extraneous cognitive load that interferes with learning. The goal is maximum clarity with minimum visual noise.
 
 **When Human Interaction Is Needed**
 - When multiple images have comparable relevance and the best choice is unclear.
 - When user explicitly requests comprehensive visual coverage.
+- When Coherence and Unique Value tests produce conflicting results.
 
 **Common Pitfalls or Failure Modes**
-- **The Kitchen Sink:** Including every image that's somewhat related.
+- **The Kitchen Sink:** Including every image that's somewhat related (fails Coherence Test).
 - **The Close Enough:** Selecting a tangentially-related image because no perfect match exists.
-- **The Redundant Angles:** Multiple screenshots of the same UI with minor variations.
+- **The Redundant Angles:** Multiple screenshots of the same UI with minor variations (fails Unique Value Test).
+- **The Overwhelming Gallery:** Adding images that pass Coherence but collectively create cognitive overload.
 
 ---
 

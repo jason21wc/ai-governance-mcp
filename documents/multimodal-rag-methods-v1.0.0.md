@@ -48,7 +48,9 @@ When responding with images, follow this sequence:
 | Troubleshooting | Image showing error/state being discussed | "If you see this error: [screenshot] The solution is..." |
 | Comparison | Images side-by-side or sequential with clear labels | "Before: [image1] After: [image2]" |
 
-### 1.3 Image Selection Algorithm
+### 1.3 Image Selection Algorithm (Mayer-Based)
+
+Based on Mayer's Multimedia Learning Theory principles. See P3 for rationale.
 
 ```
 Input: Query Q, Candidate images I[], Current selection S[]
@@ -62,17 +64,31 @@ Input: Query Q, Candidate images I[], Current selection S[]
 
 2. RANK images by relevance_score descending
 
-3. SELECT best image → add to S[]
+3. FOR each candidate image j (in score order):
+   # Mayer's Three-Test Framework
+   coherence_pass = image_directly_supports_instruction(j, Q)
+   unique_value_pass = image_adds_info_not_in_text(j, Q)
+   proximity_pass = image_can_be_placed_adjacent_to_text(j)
 
-4. FOR each remaining image j (in score order):
-   unique_value(j) = information_in(j) NOT in any image in S[]
-   IF unique_value(j) >= 0.30:  # 30% threshold
-     Add j to S[]
-   ELSE:
-     Skip j (redundant)
+   IF coherence_pass AND unique_value_pass AND proximity_pass:
+     IF S[] is empty:
+       Add j to S[]  # Best image
+     ELSE:
+       # Check for redundancy with already-selected images
+       IF NOT overlaps_with_existing(j, S[]):
+         Add j to S[]
 
-5. RETURN S[] (typically 1-3 images)
+4. RETURN S[] (typically 1-2 images; prefer fewer when uncertain)
 ```
+
+**Three-Test Definitions:**
+
+| Test | Implementation |
+|------|----------------|
+| `coherence_pass` | Image content directly relates to the specific instruction/step being explained |
+| `unique_value_pass` | Image conveys information that text alone cannot adequately express |
+| `proximity_pass` | Image can be placed immediately adjacent to relevant text (not orphaned) |
+| `overlaps_with_existing` | New image shows substantially same information as already-selected image |
 
 ### 1.4 Content-Type Matching
 
