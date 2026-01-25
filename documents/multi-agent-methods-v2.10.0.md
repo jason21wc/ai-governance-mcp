@@ -695,6 +695,11 @@ Does agent need to MODIFY files or state?
           └── YES → Inherit all (omit tools field)
 ```
 
+**Tool Risk Gradient:** Tools can also be categorized by risk level:
+- **Data-oriented** (read/query) → lowest risk, minimal HITL needed
+- **Logic-oriented** (compute/transform) → medium risk, validate outputs
+- **Action-oriented** (state changes, external calls) → highest risk, HITL gates recommended
+
 **Platform-Specific Notes:**
 
 - **Claude Code:** Tool restrictions in YAML frontmatter are HARD enforcement

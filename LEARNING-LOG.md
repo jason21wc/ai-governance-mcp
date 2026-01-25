@@ -2347,3 +2347,47 @@ Don't try to script nuanced judgment. Don't let AI override safety guardrails.
 **Method Update:** Added §4.6.1 "Assessment Responsibility Layers" to multi-agent-methods
 
 ---
+
+### 2026-01-25 - External Framework Evaluation: Palantir "Securing Agents in Production"
+
+**Context:** Reviewed Palantir's blog post on securing agents in production to evaluate if any concepts should be added to our ai-governance framework.
+
+**Source:** [Palantir AIP Agentic Runtime Blog](https://blog.palantir.com/) + [AI Ethics and Governance Docs](https://www.palantir.com/docs/foundry/aip/ethics-governance)
+
+**Palantir's 5 Security Dimensions:**
+1. Secure access to reasoning core (LLM)
+2. Insulated orchestration of agent executors
+3. Granular policy enforcement across memory
+4. Governed access and utilization of multimodal tools
+5. Real-time observability and post-hoc auditing
+
+**Concepts Evaluated:**
+
+| Palantir Concept | Our Coverage | Verdict |
+|------------------|--------------|---------|
+| Memory taxonomy (working/episodic/semantic/procedural) | ai-coding-methods §7.0.3 — already documented | ✓ Already covered |
+| 5 Security Dimensions | Mapped to existing principles (S-Series, A3, A4, R6, Tool Scoping) | ✓ Different framing, same coverage |
+| Tool risk categorization (data/logic/action) | Tool Scoping §2.1.2 decision matrix | ✓ Added terminology note |
+| Provenance-based security | Requires runtime infrastructure we don't have | ✗ Doesn't fit |
+
+**The Lesson:** When evaluating enterprise AI frameworks, distinguish between:
+- **Governance principles** (transferable) vs **Platform infrastructure** (not transferable)
+- **Conceptual gaps** (need to add) vs **Terminology differences** (map, don't duplicate)
+
+**Key Insight (Contrarian Reviewer):** The Palantir review served as *validation* of our existing framework, not a call for expansion. Initial "valuable additions" were mostly terminology differences, not capability gaps.
+
+**Anti-Pattern Avoided:** "Shiny Object Syndrome" — adding concepts from prestigious sources without demonstrated failure modes. Per `multi-general-justified-complexity`, additions require proportional value.
+
+**Applied Changes:**
+1. Added risk gradient terminology to Tool Scoping Guidelines §2.1.2
+2. Documented alignment mapping (this entry)
+3. No structural changes to framework
+
+**Graduation Status:** Pattern validated. External framework reviews should follow this evaluation checklist:
+1. Query governance for existing coverage (principles AND methods)
+2. Map external concepts to existing principles before concluding gaps
+3. Apply contrarian reviewer to challenge "add this" assumptions
+4. Distinguish platform infrastructure from transferable principles
+5. Default to "validates existing" unless specific capability gap identified
+
+---
