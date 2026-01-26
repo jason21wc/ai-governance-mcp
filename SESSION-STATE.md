@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-01-25
+**Last Updated:** 2026-01-26
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,36 +21,50 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.6.1** (server), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.10.0** (multi-agent-methods), **v1.0.0** (multimodal-rag) |
-| Tests | **352 passing** |
+| Tests | **362 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
 | Index | **99 principles + 347 methods (446 total)** |
 
-## Recent Session (2026-01-25)
+## Recent Session (2026-01-26)
 
-### Security Hardening — ike.io Exploit Response
+### Security Hardening v2 — Prompt Injection Defenses
 
-Analyzed ike.io prompt injection disclosure and implemented defenses:
+Implemented balanced 80/20 security hardening responding to ike.io exploit disclosure:
 
-**Commit:** `e934a5f` — `security: Add prompt injection defenses for governance documents`
+**Commits:**
+- `14e69f5` — `security: Harden prompt injection defenses (v2)`
+- `560bad3` — `fix(ci): Refine content security patterns to reduce false positives`
+- `096fb95` — `fix(ci): Use output check instead of exit code for security patterns`
 
 | Change | Description |
 |--------|-------------|
-| CI content-security job | Scans `documents/`, `CLAUDE.md`, `.claude/agents/` for injection patterns |
-| Hard-fail extraction | `ContentSecurityError` raised for `prompt_injection`, `hidden_instruction` |
-| Hash verification | Advisory SHA-256 check for agent templates (limitations documented) |
-| SECURITY.md | New file documenting threat model, attack surfaces, mitigations |
+| Example bypass fix | CRITICAL patterns now detected even with "example" in line context |
+| Unicode normalization | NFKC + invisible char stripping prevents homoglyph attacks |
+| SERVER_INSTRUCTIONS validation | Runtime check at module load for compromised instructions |
+| Domain description scanning | `domains.json` descriptions validated during extraction |
+| CI pattern refinement | Reduced false positives on legitimate documentation |
 
-**Contrarian review identified:**
-- Hash verification is "fox guarding henhouse" (same-repo storage) → documented as advisory only
-- Critical patterns should block, not warn → implemented hard-fail
-- Coverage gaps in instruction files → extended CI scan
+**New tests added (10):**
+- `TestContentSecurityPatterns` (2) — Example bypass behavior
+- `TestUnicodeNormalization` (4) — NFKC and invisible char handling
+- `TestServerInstructionsValidation` (2) — Runtime validation
+- `TestDomainDescriptionValidation` (2) — domains.json scanning
 
-**Not implemented (deferred):**
-- Unicode normalization (medium risk, needs dependency)
-- External hash manifest (needs infrastructure)
-- Separate document repo (architectural change)
+**CI improvements:**
+- Added `server.py` and `domains.json` to scan targets
+- Refined patterns to exclude documentation contexts (Watch for, example, Python regexes)
+- Fixed pipeline logic: use `[ -n "$OUTPUT" ]` instead of exit code
+
+**Deferred (high false-positive risk):**
+- "supersedes"/"overrides" patterns (6 legitimate uses in docs)
+- "from now on" pattern (too common in normal text)
+- Scan inside code blocks (docs show attack examples)
+
+## Previous Session (2026-01-25)
+
+Security hardening v1 — Initial ike.io response (commit `e934a5f`)
 
 ## Next Actions
 
