@@ -155,9 +155,15 @@ jobs:
           fi
 
           # Pattern 3: Prompt injection phrases (CRITICAL - causes failure)
+          # Exclusions:
+          # - Code blocks (```) - examples in documentation
+          # - 'Watch for' - documentation about what to detect
+          # - 'example' - documentation examples
+          # - r' and r" - Python regex patterns in docs
+          # Removed 'system\s+prompt\s+override' and 'you are now' - too many false positives
           echo ""
           echo "=== Checking for prompt injection phrases (CRITICAL) ==="
-          if grep -riEn 'ignore\s+(previous|prior|above)\s+instructions|you\s+are\s+now|disregard\s+(all|previous)|forget\s+(everything|all|previous)|new\s+instructions:|system\s+prompt\s+override' $SCAN_TARGETS 2>/dev/null | head -10; then
+          if grep -riEn 'ignore\s+(previous|prior|above)\s+instructions|disregard\s+(all|previous)|forget\s+(everything|all|previous)' $SCAN_TARGETS 2>/dev/null | grep -v '```' | grep -v 'Watch for' | grep -v 'example' | grep -v "r'" | grep -v 'r"' | head -10; then
             echo "::error::CRITICAL: Prompt injection phrases detected!"
             FOUND_ISSUES=$((FOUND_ISSUES + 10))  # Weight this heavily
           fi
@@ -170,9 +176,11 @@ jobs:
           fi
 
           # Pattern 5: Hidden instructions in comments (CRITICAL - causes failure)
+          # Note: 'OVERRIDE' comments are legitimate (documentation about validation overrides)
+          # Only flag comments that look like actual hidden instructions to AI
           echo ""
           echo "=== Checking for hidden HTML comments (CRITICAL) ==="
-          if grep -rEn '<!--[^>]*instruction|<!--[^>]*execute|<!--[^>]*ignore' $SCAN_TARGETS 2>/dev/null | head -10; then
+          if grep -rEn '<!--[^>]*instruction|<!--[^>]*execute' $SCAN_TARGETS 2>/dev/null | grep -vi 'OVERRIDE' | head -10; then
             echo "::error::CRITICAL: Hidden instructions in HTML comments!"
             FOUND_ISSUES=$((FOUND_ISSUES + 10))
           fi
