@@ -106,3 +106,85 @@ jobs:
       - name: Run ruff formatter check
         run: |
           ruff format --check src/ tests/
+
+  content-security:
+    name: Content Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan for prompt injection patterns
+        run: |
+          echo "Scanning governance documents and instruction files..."
+          FOUND_ISSUES=0
+
+          # Define all files to scan (documents/, CLAUDE.md, .claude/agents/)
+          # These are all "instruction-bearing" files that AI agents may consume
+          SCAN_TARGETS="documents/*.md"
+          if [ -f "CLAUDE.md" ]; then
+            SCAN_TARGETS="$SCAN_TARGETS CLAUDE.md"
+          fi
+          if [ -d ".claude/agents" ]; then
+            SCAN_TARGETS="$SCAN_TARGETS .claude/agents/*.md"
+          fi
+
+          echo "Scan targets: $SCAN_TARGETS"
+
+          # Pattern 1: Shell commands (backticks, $(), common shell commands)
+          echo ""
+          echo "=== Checking for shell command patterns ==="
+          if grep -rEn '`[^`]*`|\$\([^)]+\)|curl\s|wget\s|bash\s|sh\s|eval\s|exec\s' $SCAN_TARGETS 2>/dev/null | grep -v '```' | grep -v 'example' | head -20; then
+            echo "::warning::Potential shell commands found"
+            FOUND_ISSUES=$((FOUND_ISSUES + 1))
+          fi
+
+          # Pattern 2: Base64 encoded content (long base64 strings)
+          echo ""
+          echo "=== Checking for base64 patterns ==="
+          if grep -rEn 'base64\s+-d|base64\s+--decode|[A-Za-z0-9+/]{50,}={0,2}' $SCAN_TARGETS 2>/dev/null | head -10; then
+            echo "::warning::Potential base64 encoded content found"
+            FOUND_ISSUES=$((FOUND_ISSUES + 1))
+          fi
+
+          # Pattern 3: Prompt injection phrases (CRITICAL - causes failure)
+          echo ""
+          echo "=== Checking for prompt injection phrases (CRITICAL) ==="
+          if grep -riEn 'ignore\s+(previous|prior|above)\s+instructions|you\s+are\s+now|disregard\s+(all|previous)|forget\s+(everything|all|previous)|new\s+instructions:|system\s+prompt\s+override' $SCAN_TARGETS 2>/dev/null | head -10; then
+            echo "::error::CRITICAL: Prompt injection phrases detected!"
+            FOUND_ISSUES=$((FOUND_ISSUES + 10))  # Weight this heavily
+          fi
+
+          # Pattern 4: External URLs (excluding known safe domains)
+          echo ""
+          echo "=== Checking for external URLs ==="
+          if grep -rEon 'https?://[^)\s"]+' $SCAN_TARGETS 2>/dev/null | grep -v 'github.com' | grep -v 'anthropic.com' | grep -v 'example.com' | grep -v 'docker.com' | grep -v 'hub.docker.com' | grep -v 'pypi.org' | grep -v 'context7.com' | head -20; then
+            echo "::warning::External URLs found - verify these are intentional"
+          fi
+
+          # Pattern 5: Hidden instructions in comments (CRITICAL - causes failure)
+          echo ""
+          echo "=== Checking for hidden HTML comments (CRITICAL) ==="
+          if grep -rEn '<!--[^>]*instruction|<!--[^>]*execute|<!--[^>]*ignore' $SCAN_TARGETS 2>/dev/null | head -10; then
+            echo "::error::CRITICAL: Hidden instructions in HTML comments!"
+            FOUND_ISSUES=$((FOUND_ISSUES + 10))
+          fi
+
+          # Pattern 6: Data exfiltration patterns
+          echo ""
+          echo "=== Checking for data exfiltration patterns ==="
+          if grep -riEn 'cat\s+~/|cat\s+\$HOME|\.ssh/|\.env|\.aws/|credentials|/etc/passwd' $SCAN_TARGETS 2>/dev/null | grep -v '```' | grep -v 'example' | head -10; then
+            echo "::warning::Potential data exfiltration patterns found"
+            FOUND_ISSUES=$((FOUND_ISSUES + 1))
+          fi
+
+          echo ""
+          echo "=== Summary ==="
+          if [ $FOUND_ISSUES -ge 10 ]; then
+            echo "::error::CRITICAL security patterns detected - blocking merge"
+            exit 1
+          elif [ $FOUND_ISSUES -gt 0 ]; then
+            echo "::warning::Advisory patterns found ($FOUND_ISSUES) - review before merge"
+            echo "Advisory patterns do not block merge but should be reviewed."
+          else
+            echo "✓ No suspicious patterns detected in instruction-bearing files"
+          fi

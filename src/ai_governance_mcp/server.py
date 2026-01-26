@@ -582,6 +582,45 @@ working in this project.
 # Available agents for installation
 AVAILABLE_AGENTS = {"orchestrator"}
 
+# SHA-256 hashes of known-good agent templates
+# Update these when agent templates are intentionally modified
+#
+# SECURITY LIMITATION: These hashes are stored in the same repository as the
+# templates they verify. This means an attacker who can modify the templates
+# can also modify these hashes. This provides ADVISORY verification only:
+# - Detects accidental modifications
+# - Alerts users that content differs from expected
+# - Does NOT provide supply chain attack protection
+#
+# For true integrity verification, see SECURITY.md "Planned" section for
+# cryptographic signing roadmap.
+AGENT_TEMPLATE_HASHES = {
+    "orchestrator": "669f1d23130655c698462b437e15f88e3ef316ece92b4543e8d991bcbf8a0a50",
+}
+
+
+def _verify_template_hash(template_content: str, agent_name: str) -> tuple[bool, str]:
+    """Verify agent template content against known-good hash.
+
+    Args:
+        template_content: The content of the template file.
+        agent_name: Name of the agent to verify.
+
+    Returns:
+        Tuple of (is_valid, actual_hash).
+        is_valid is True if hash matches or no hash is registered.
+    """
+    import hashlib
+
+    actual_hash = hashlib.sha256(template_content.encode("utf-8")).hexdigest()
+    expected_hash = AGENT_TEMPLATE_HASHES.get(agent_name)
+
+    if expected_hash is None:
+        # No hash registered - allow but warn
+        return True, actual_hash
+
+    return actual_hash == expected_hash, actual_hash
+
 
 def _detect_claude_code_environment() -> bool:
     """Detect if we're running in a Claude Code environment.
@@ -1847,6 +1886,10 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
     # Read template content
     template_content = template_path.read_text()
 
+    # Verify template integrity
+    hash_valid, actual_hash = _verify_template_hash(template_content, agent_name)
+    expected_hash = AGENT_TEMPLATE_HASHES.get(agent_name)
+
     # Get install path
     install_path = _get_agent_install_path(agent_name, scope)
 
@@ -1916,6 +1959,11 @@ EOF
             "install_path": str(install_path),
             "already_installed": already_installed,
             "content_differs": content_differs,  # M2 FIX: Expose content diff status
+            "integrity": {
+                "hash_verified": hash_valid,
+                "expected_hash": expected_hash,
+                "actual_hash": actual_hash,
+            },
             "explanation": SUBAGENT_EXPLANATION.strip(),
             "action_summary": (
                 f"Will {status} '{agent_name}' subagent for {scope_desc}.\n\n"
@@ -1933,6 +1981,14 @@ EOF
         }
         if overwrite_warning:
             output["warning"] = overwrite_warning  # M2 FIX: Add warning to output
+        if not hash_valid:
+            output["security_warning"] = (
+                "SECURITY WARNING: Template hash does not match known-good value!\n"
+                "The agent template may have been modified. This could indicate:\n"
+                "1. An intentional update (maintainer should update AGENT_TEMPLATE_HASHES)\n"
+                "2. A supply chain attack (template was tampered with)\n\n"
+                "Use show_manual=true to review the content before installing."
+            )
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     # Confirmed: perform installation
@@ -1948,6 +2004,10 @@ EOF
             "agent_name": agent_name,
             "scope": scope,
             "install_path": str(install_path),
+            "integrity": {
+                "hash_verified": hash_valid,
+                "installed_hash": actual_hash,
+            },
             "message": (
                 f"Successfully installed '{agent_name}' subagent.\n\n"
                 "The Orchestrator subagent will activate on your next Claude Code session.\n"
@@ -1956,6 +2016,10 @@ EOF
                 "To remove: Use uninstall_agent(agent_name='orchestrator')"
             ),
         }
+        if not hash_valid:
+            output["security_warning"] = (
+                "Installed with UNVERIFIED hash. Review the installed content."
+            )
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     except PermissionError:

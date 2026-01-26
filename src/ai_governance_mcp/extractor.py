@@ -74,6 +74,69 @@ class ExtractorConfigError(Exception):
     pass
 
 
+class ContentSecurityError(Exception):
+    """Raised when critical security patterns are detected in governance documents.
+
+    Critical patterns include prompt injection phrases and hidden instructions
+    that could compromise AI agents consuming governance content.
+    """
+
+    pass
+
+
+# Patterns classified by severity
+# CRITICAL: Hard-fail extraction - these are clear attack indicators
+# ADVISORY: Warn only - may have legitimate uses in documentation
+CRITICAL_PATTERNS = {"prompt_injection", "hidden_instruction"}
+ADVISORY_PATTERNS = {"shell_command", "base64_payload", "data_exfiltration"}
+
+
+class ContentSecurityWarning:
+    """Warning about suspicious content in governance documents."""
+
+    def __init__(self, file: str, line: int, pattern_type: str, content: str):
+        self.file = file
+        self.line = line
+        self.pattern_type = pattern_type
+        self.content = content[:100]  # Truncate for logging
+
+    def __str__(self) -> str:
+        return f"{self.file}:{self.line} [{self.pattern_type}]: {self.content}"
+
+
+# Suspicious patterns that may indicate prompt injection or malicious content
+SUSPICIOUS_PATTERNS = {
+    "shell_command": re.compile(
+        r"(?<!`)`[^`]+`(?!`)|"  # Backtick commands (not in code blocks)
+        r"\$\([^)]+\)|"  # $() subshells
+        r"(?:^|\s)(?:curl|wget|bash|sh|eval|exec)\s+[^\s]",
+        re.MULTILINE,
+    ),
+    "prompt_injection": re.compile(
+        r"ignore\s+(?:previous|prior|above)\s+instructions|"
+        r"you\s+are\s+now\s+|"
+        r"disregard\s+(?:all|previous)|"
+        r"forget\s+(?:everything|all|previous)|"
+        r"new\s+instructions:|"
+        r"system\s+prompt\s+override",
+        re.IGNORECASE,
+    ),
+    "hidden_instruction": re.compile(
+        r"<!--[^>]*(?:instruction|execute|ignore|override)[^>]*-->",
+        re.IGNORECASE,
+    ),
+    "base64_payload": re.compile(
+        r"base64\s+(?:-d|--decode)|"
+        r"(?<![A-Za-z0-9+/])[A-Za-z0-9+/]{100,}={0,2}(?![A-Za-z0-9+/])",
+    ),
+    "data_exfiltration": re.compile(
+        r"(?:cat|type)\s+[~\/].*(?:\.ssh|\.env|\.aws|credentials|secret)|"
+        r"(?:curl|wget|nc|netcat).*(?:-d|--data|POST)",
+        re.IGNORECASE,
+    ),
+}
+
+
 class DocumentExtractor:
     """Extracts principles and methods from governance markdown documents.
 
@@ -118,6 +181,119 @@ class DocumentExtractor:
                 f"Domain configuration references missing files:\n{files_list}\n\n"
                 f"Check documents/domains.json and ensure file versions match."
             )
+
+    def validate_content_security(self) -> list[ContentSecurityWarning]:
+        """Scan governance documents for suspicious patterns.
+
+        Checks for prompt injection, shell commands, and other potentially
+        malicious content that could compromise AI agents consuming this content.
+
+        Returns:
+            List of advisory warnings found (non-critical patterns).
+
+        Raises:
+            ContentSecurityError: If CRITICAL patterns are detected (prompt injection,
+                hidden instructions). These hard-fail extraction because they are
+                clear indicators of supply chain attacks.
+
+        Note:
+            CRITICAL patterns (prompt_injection, hidden_instruction) cause hard failure.
+            ADVISORY patterns (shell_command, base64_payload, data_exfiltration) warn only.
+        """
+        warnings: list[ContentSecurityWarning] = []
+        critical_findings: list[ContentSecurityWarning] = []
+
+        for domain_config in self.domains:
+            # Check principles file
+            principles_path = (
+                self.settings.documents_path / domain_config.principles_file
+            )
+            if principles_path.exists():
+                file_warnings = self._scan_file_for_suspicious_content(principles_path)
+                for w in file_warnings:
+                    if w.pattern_type in CRITICAL_PATTERNS:
+                        critical_findings.append(w)
+                    else:
+                        warnings.append(w)
+
+            # Check methods file
+            if domain_config.methods_file:
+                methods_path = self.settings.documents_path / domain_config.methods_file
+                if methods_path.exists():
+                    file_warnings = self._scan_file_for_suspicious_content(methods_path)
+                    for w in file_warnings:
+                        if w.pattern_type in CRITICAL_PATTERNS:
+                            critical_findings.append(w)
+                        else:
+                            warnings.append(w)
+
+        # Check agent templates
+        agents_path = self.settings.documents_path / "agents"
+        if agents_path.exists():
+            for agent_file in agents_path.glob("*.md"):
+                file_warnings = self._scan_file_for_suspicious_content(agent_file)
+                for w in file_warnings:
+                    if w.pattern_type in CRITICAL_PATTERNS:
+                        critical_findings.append(w)
+                    else:
+                        warnings.append(w)
+
+        # Hard-fail on critical patterns
+        if critical_findings:
+            findings_list = "\n".join(f"  - {f}" for f in critical_findings)
+            raise ContentSecurityError(
+                f"CRITICAL: Prompt injection or hidden instructions detected!\n\n"
+                f"The following patterns were found in governance documents:\n"
+                f"{findings_list}\n\n"
+                f"This is a potential supply chain attack. Extraction blocked.\n"
+                f"If this is legitimate documentation, wrap in a code block (```)."
+            )
+
+        return warnings
+
+    def _scan_file_for_suspicious_content(
+        self, file_path: Path
+    ) -> list[ContentSecurityWarning]:
+        """Scan a single file for suspicious patterns."""
+        warnings: list[ContentSecurityWarning] = []
+        content = file_path.read_text(encoding="utf-8")
+        lines = content.split("\n")
+
+        # Track if we're inside a code block (where patterns may be examples)
+        in_code_block = False
+
+        for line_num, line in enumerate(lines, 1):
+            # Track code block state
+            if line.strip().startswith("```"):
+                in_code_block = not in_code_block
+                continue
+
+            # Skip patterns inside code blocks (likely examples)
+            if in_code_block:
+                continue
+
+            # Check each pattern
+            for pattern_type, pattern in SUSPICIOUS_PATTERNS.items():
+                matches = pattern.findall(line)
+                if matches:
+                    # Filter out false positives in example/documentation contexts
+                    line_lower = line.lower()
+                    if any(
+                        skip in line_lower
+                        for skip in ["example", "e.g.", "for instance", "such as"]
+                    ):
+                        continue
+
+                    warnings.append(
+                        ContentSecurityWarning(
+                            file=str(file_path.name),
+                            line=line_num,
+                            pattern_type=pattern_type,
+                            content=line.strip(),
+                        )
+                    )
+
+        return warnings
 
     def validate_version_consistency(self) -> None:
         """Validate that filename versions match header versions.
@@ -199,6 +375,20 @@ class DocumentExtractor:
         # Pre-flight validation: fail fast if files are missing or inconsistent
         self.validate_domain_files()
         self.validate_version_consistency()
+
+        # Security scan: critical patterns raise, advisory patterns warn
+        # Note: validate_content_security raises ContentSecurityError for critical patterns
+        security_warnings = self.validate_content_security()
+        if security_warnings:
+            logger.warning(
+                f"Content security scan found {len(security_warnings)} advisory pattern(s):"
+            )
+            for warning in security_warnings:
+                logger.warning(f"  {warning}")
+            logger.warning(
+                "These are ADVISORY warnings (shell commands, base64, etc.). "
+                "Critical patterns (prompt injection) would have blocked extraction."
+            )
 
         ensure_directories(self.settings)
 

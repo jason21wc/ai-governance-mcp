@@ -1,0 +1,168 @@
+# Security Policy
+
+## Supported Versions
+
+| Version | Supported          |
+| ------- | ------------------ |
+| 1.6.x   | :white_check_mark: |
+| < 1.6   | :x:                |
+
+## Reporting a Vulnerability
+
+**Please do not report security vulnerabilities through public GitHub issues.**
+
+Instead, please report them via email to the repository maintainer. You should receive a response within 48 hours. If for some reason you do not, please follow up to ensure we received your original message.
+
+Please include:
+- Type of vulnerability
+- Steps to reproduce
+- Potential impact
+- Suggested fix (if any)
+
+## Security Model
+
+### Threat Model
+
+This project is an **MCP server that serves governance principles to AI agents**. This creates a unique security consideration: our documents become part of the trust chain for downstream AI systems.
+
+#### Attack Surfaces
+
+| Surface | Risk | Mitigation |
+|---------|------|------------|
+| **Document Poisoning** | Malicious content in `documents/` served to all AI clients | CI content scanning, PR review |
+| **Agent Template Injection** | Compromised agent definitions via `install_agent` | Hash verification, user confirmation |
+| **Fork-Based Attacks** | Malicious forks with modified CLAUDE.md or agent files | User awareness, official repo verification |
+| **PR Content Injection** | Prompt injection hidden in legitimate-looking governance principles | CI scanning, multi-reviewer policy |
+| **Docker Image Poisoning** | Compromised dependencies or content at build time | Dependency scanning, image signing (planned) |
+
+### The ike.io Attack Pattern
+
+In January 2026, researchers disclosed a VSCode/Cursor vulnerability where malicious `tasks.json` files could:
+1. Execute arbitrary code when a folder is opened
+2. Search for and inject into AI instruction files (`.cursor/rules`)
+3. Hijack AI agents to exfiltrate secrets or sabotage code
+
+**Our exposure:**
+- We do NOT use `tasks.json` or auto-execution triggers
+- Our `CLAUDE.md` and `.claude/agents/` ARE instruction files loaded by Claude Code
+- Our `documents/` content is served to AI agents as authoritative guidance
+
+**Our mitigations:**
+- CI scanning for prompt injection patterns
+- Content validation during index extraction
+- Hash verification for agent templates
+- No auto-execution files in repository
+
+### Prompt Injection Considerations
+
+As a governance document server, we must guard against prompt injection at multiple levels:
+
+1. **In our documents**: Malicious instructions hidden in governance principles
+2. **Via our server**: Compromised `SERVER_INSTRUCTIONS` or tool responses
+3. **In agent templates**: Malicious behavior in installed subagents
+
+#### What We Scan For
+
+Our CI pipeline scans `documents/` for:
+- Shell commands (`curl`, `wget`, `bash`, `eval`, etc.)
+- Base64 encoded content
+- Prompt injection phrases ("ignore previous instructions", etc.)
+- Hidden HTML comments with instructions
+- External URLs (flagged for review)
+
+## Security Features
+
+### Implemented
+
+- **Rate limiting**: Token bucket algorithm prevents DoS
+- **Path traversal prevention**: Validated paths for log files and agent installation
+- **Log sanitization**: Secrets redacted from logs via regex patterns
+- **Bounded audit log**: Memory-bounded deque prevents unbounded growth
+- **Input validation**: Length limits on queries and parameters
+- **Non-root Docker**: Container runs as `appuser`, not root
+- **Agent allowlist**: Only approved agent names can be installed
+- **Pre-flight validation**: Index extraction fails fast on configuration errors
+- **Content security scanning**: CI and extraction scan for prompt injection patterns
+- **Critical pattern blocking**: Prompt injection phrases hard-fail extraction
+
+### Known Limitations
+
+> **IMPORTANT: Hash Verification is Advisory Only**
+>
+> The `install_agent` tool includes SHA-256 hash verification for agent templates.
+> However, **this provides limited supply chain protection** because:
+>
+> 1. The expected hashes are stored in `server.py` in the same repository
+> 2. An attacker who can modify `documents/agents/orchestrator.md` can also modify `AGENT_TEMPLATE_HASHES`
+> 3. This is "the fox guarding the henhouse"
+>
+> **What hash verification DOES provide:**
+> - Detection of accidental modifications
+> - Awareness that content differs from expected
+> - A forcing function for intentional updates
+>
+> **What it does NOT provide:**
+> - Protection against supply chain attacks
+> - Cryptographic integrity verification
+> - Defense against compromised repositories
+>
+> For true supply chain security, use the planned cryptographic signing (see below).
+
+### Planned
+
+- [ ] Docker image signing with cosign
+- [ ] Cryptographic signing of governance documents
+- [ ] SBOM (Software Bill of Materials) for releases
+
+## For Users
+
+### Verify You're Using the Official Repository
+
+Before using this project, verify:
+```bash
+# Check remote URL
+git remote get-url origin
+# Should be: https://github.com/jason21wc/ai-governance-mcp.git
+
+# Verify latest release signature (when available)
+gh release view --repo jason21wc/ai-governance-mcp
+```
+
+### Safe Docker Usage
+
+```bash
+# Pull from official source
+docker pull jason21wc/ai-governance-mcp:latest
+
+# Run without sensitive mounts
+docker run -i --rm jason21wc/ai-governance-mcp
+
+# AVOID mounting sensitive directories
+# BAD: docker run -v ~/.ssh:/data -i --rm jason21wc/ai-governance-mcp
+```
+
+### Review Agent Installations
+
+When using `install_agent`:
+1. Review the preview before confirming
+2. Use `show_manual=true` to see full content
+3. Check the installation path is expected
+4. Restart Claude Code to activate
+
+## For Contributors
+
+### Document Changes
+
+Changes to `documents/` require extra scrutiny:
+1. CI will scan for suspicious patterns
+2. Reviewers should verify no hidden instructions
+3. External URLs must be justified
+4. No shell commands in governance content
+
+### Security Checklist for PRs
+
+- [ ] No hardcoded secrets or credentials
+- [ ] No shell commands in document content
+- [ ] No external URLs without justification
+- [ ] No prompt injection patterns
+- [ ] Tests pass including security job
