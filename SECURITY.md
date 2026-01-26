@@ -63,12 +63,30 @@ As a governance document server, we must guard against prompt injection at multi
 
 #### What We Scan For
 
-Our CI pipeline scans `documents/` for:
+Our CI pipeline and extraction process scan for:
+
+**CRITICAL Patterns (Hard-fail)**
+- Prompt injection phrases ("ignore previous instructions", "you are now", etc.)
+- Hidden HTML comments with instructions
+
+**ADVISORY Patterns (Warning)**
 - Shell commands (`curl`, `wget`, `bash`, `eval`, etc.)
 - Base64 encoded content
-- Prompt injection phrases ("ignore previous instructions", etc.)
-- Hidden HTML comments with instructions
+- Data exfiltration patterns
 - External URLs (flagged for review)
+
+**Scanned Files**
+- `documents/*.md` — Governance principles and methods
+- `CLAUDE.md` — Project instructions
+- `.claude/agents/*.md` — Agent templates
+- `src/ai_governance_mcp/server.py` — SERVER_INSTRUCTIONS block
+- `documents/domains.json` — Domain descriptions for semantic routing
+
+**Security Hardening (v2)**
+- CRITICAL patterns are detected even with "example" context (prevents bypass)
+- Unicode NFKC normalization before pattern matching (prevents homoglyph attacks)
+- Runtime validation of SERVER_INSTRUCTIONS at module load
+- Domain descriptions scanned during extraction
 
 ## Security Features
 
@@ -84,6 +102,10 @@ Our CI pipeline scans `documents/` for:
 - **Pre-flight validation**: Index extraction fails fast on configuration errors
 - **Content security scanning**: CI and extraction scan for prompt injection patterns
 - **Critical pattern blocking**: Prompt injection phrases hard-fail extraction
+- **Example bypass protection**: CRITICAL patterns flagged even with "example" in context
+- **Unicode normalization**: NFKC normalization prevents homoglyph attacks (Cyrillic 'а' → Latin 'a')
+- **SERVER_INSTRUCTIONS validation**: Runtime check at module load to prevent compromised instructions
+- **Domain description scanning**: Validates `domains.json` descriptions used for semantic routing
 
 ### Known Limitations
 

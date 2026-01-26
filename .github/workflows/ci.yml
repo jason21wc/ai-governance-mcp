@@ -118,7 +118,7 @@ jobs:
           echo "Scanning governance documents and instruction files..."
           FOUND_ISSUES=0
 
-          # Define all files to scan (documents/, CLAUDE.md, .claude/agents/)
+          # Define all files to scan (documents/, CLAUDE.md, .claude/agents/, server.py, domains.json)
           # These are all "instruction-bearing" files that AI agents may consume
           SCAN_TARGETS="documents/*.md"
           if [ -f "CLAUDE.md" ]; then
@@ -126,6 +126,14 @@ jobs:
           fi
           if [ -d ".claude/agents" ]; then
             SCAN_TARGETS="$SCAN_TARGETS .claude/agents/*.md"
+          fi
+          # SERVER_INSTRUCTIONS is embedded in server.py - scan the full file
+          if [ -f "src/ai_governance_mcp/server.py" ]; then
+            SCAN_TARGETS="$SCAN_TARGETS src/ai_governance_mcp/server.py"
+          fi
+          # Domain descriptions are used for semantic routing
+          if [ -f "documents/domains.json" ]; then
+            SCAN_TARGETS="$SCAN_TARGETS documents/domains.json"
           fi
 
           echo "Scan targets: $SCAN_TARGETS"

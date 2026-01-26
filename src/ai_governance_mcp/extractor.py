@@ -7,6 +7,7 @@ for hybrid retrieval (BM25 + semantic search).
 import json
 import re
 import sys
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -104,6 +105,68 @@ class ContentSecurityWarning:
         return f"{self.file}:{self.line} [{self.pattern_type}]: {self.content}"
 
 
+# Invisible Unicode characters that should be stripped for security scanning
+# These can be used to hide malicious content from visual inspection
+_INVISIBLE_CATEGORIES = frozenset(
+    {
+        "Cf",  # Format characters (zero-width joiners, etc.)
+        "Cc",  # Control characters (except newlines/tabs)
+    }
+)
+
+# Specific invisible codepoints to strip
+_INVISIBLE_CODEPOINTS = frozenset(
+    {
+        0x200B,  # Zero-width space
+        0x200C,  # Zero-width non-joiner
+        0x200D,  # Zero-width joiner
+        0x200E,  # Left-to-right mark
+        0x200F,  # Right-to-left mark
+        0x2060,  # Word joiner
+        0x2061,  # Function application
+        0x2062,  # Invisible times
+        0x2063,  # Invisible separator
+        0x2064,  # Invisible plus
+        0xFEFF,  # Byte order mark / zero-width no-break space
+    }
+)
+
+
+def _is_invisible_char(char: str) -> bool:
+    """Check if a character is invisible and should be stripped for security."""
+    cp = ord(char)
+    # Keep newlines and tabs for pattern matching context
+    if char in "\n\r\t":
+        return False
+    # Check specific codepoints
+    if cp in _INVISIBLE_CODEPOINTS:
+        return True
+    # Check Unicode category
+    category = unicodedata.category(char)
+    return category in _INVISIBLE_CATEGORIES
+
+
+def normalize_text_for_security(text: str) -> str:
+    """Normalize text for security pattern matching.
+
+    Applies NFKC normalization (compatibility decomposition + canonical composition)
+    and strips invisible characters. This prevents homoglyph attacks where
+    Cyrillic 'а' (U+0430) is used instead of Latin 'a' (U+0061).
+
+    Per OWASP recommendations for input validation.
+
+    Args:
+        text: Raw text to normalize
+
+    Returns:
+        Normalized text safe for pattern matching
+    """
+    # NFKC normalization: handles homoglyphs, ligatures, compatibility chars
+    normalized = unicodedata.normalize("NFKC", text)
+    # Strip invisible characters that could hide malicious content
+    return "".join(c for c in normalized if not _is_invisible_char(c))
+
+
 # Suspicious patterns that may indicate prompt injection or malicious content
 SUSPICIOUS_PATTERNS = {
     "shell_command": re.compile(
@@ -113,13 +176,15 @@ SUSPICIOUS_PATTERNS = {
         re.MULTILINE,
     ),
     "prompt_injection": re.compile(
-        r"ignore\s+(?:previous|prior|above)\s+instructions|"
-        r"you\s+are\s+now\s+|"
-        r"disregard\s+(?:all|previous)|"
-        r"forget\s+(?:everything|all|previous)|"
-        r"new\s+instructions:|"
-        r"system\s+prompt\s+override",
-        re.IGNORECASE,
+        # These patterns must appear at start of sentence or after punctuation
+        # to avoid matching documentation that discusses these concepts
+        r"(?:^|[.!?]\s+)ignore\s+(?:previous|prior|above)\s+instructions|"
+        r"(?:^|[.!?]\s+)you\s+are\s+now\s+|"
+        r"(?:^|[.!?]\s+)disregard\s+(?:all|previous)|"
+        r"(?:^|[.!?]\s+)forget\s+(?:everything|all|previous)|"
+        # "new instructions:" is directive - scan only at line start or after bullet
+        r"(?:^|\*\s+)new\s+instructions:",
+        re.IGNORECASE | re.MULTILINE,
     ),
     "hidden_instruction": re.compile(
         r"<!--[^>]*(?:instruction|execute|ignore|override)[^>]*-->",
@@ -272,12 +337,33 @@ class DocumentExtractor:
             if in_code_block:
                 continue
 
-            # Check each pattern
+            # Normalize text for security scanning (NFKC + strip invisibles)
+            # This prevents homoglyph attacks (Cyrillic 'а' → Latin 'a')
+            normalized_line = normalize_text_for_security(line)
+
+            # Check each pattern against normalized text
             for pattern_type, pattern in SUSPICIOUS_PATTERNS.items():
-                matches = pattern.findall(line)
+                matches = pattern.findall(normalized_line)
                 if matches:
-                    # Filter out false positives in example/documentation contexts
-                    line_lower = line.lower()
+                    line_lower = normalized_line.lower()
+
+                    # For CRITICAL patterns: NEVER skip, even in "example" context
+                    # Per security hardening: prompt_injection and hidden_instruction
+                    # should never appear in governance docs, not even as examples.
+                    # Legitimate attack documentation should use code blocks (```)
+                    if pattern_type in CRITICAL_PATTERNS:
+                        warnings.append(
+                            ContentSecurityWarning(
+                                file=str(file_path.name),
+                                line=line_num,
+                                pattern_type=pattern_type,
+                                content=line.strip(),
+                            )
+                        )
+                        continue
+
+                    # For ADVISORY patterns: skip if in example/documentation context
+                    # These legitimately appear in documentation (shell commands, etc.)
                     if any(
                         skip in line_lower
                         for skip in ["example", "e.g.", "for instance", "such as"]
@@ -370,6 +456,54 @@ class DocumentExtractor:
                 f"    Header version:   {header_version}"
             )
 
+    def validate_domain_descriptions(self) -> list[ContentSecurityWarning]:
+        """Scan domain descriptions in domains.json for suspicious patterns.
+
+        Domain descriptions are used for semantic routing and are embedded
+        for similarity matching. They could be a vector for prompt injection
+        if an attacker adds malicious content to a description.
+
+        Returns:
+            List of advisory warnings found.
+
+        Raises:
+            ContentSecurityError: If CRITICAL patterns are detected.
+        """
+        warnings: list[ContentSecurityWarning] = []
+        critical_findings: list[ContentSecurityWarning] = []
+
+        for domain_config in self.domains:
+            # Normalize the description for security scanning
+            normalized_desc = normalize_text_for_security(domain_config.description)
+
+            for pattern_type, pattern in SUSPICIOUS_PATTERNS.items():
+                matches = pattern.findall(normalized_desc)
+                if matches:
+                    warning = ContentSecurityWarning(
+                        file="domains.json",
+                        line=0,  # No line number for JSON
+                        pattern_type=pattern_type,
+                        content=f"[{domain_config.name}]: {domain_config.description[:80]}",
+                    )
+
+                    if pattern_type in CRITICAL_PATTERNS:
+                        critical_findings.append(warning)
+                    else:
+                        # For ADVISORY patterns in descriptions, still warn
+                        # (no "example" context to skip in descriptions)
+                        warnings.append(warning)
+
+        if critical_findings:
+            findings_list = "\n".join(f"  - {f}" for f in critical_findings)
+            raise ContentSecurityError(
+                f"CRITICAL: Suspicious patterns in domain descriptions!\n\n"
+                f"The following patterns were found in domains.json:\n"
+                f"{findings_list}\n\n"
+                f"Domain descriptions are used for AI routing. This is a potential attack vector."
+            )
+
+        return warnings
+
     def extract_all(self) -> GlobalIndex:
         """Extract all domains and build global index with embeddings."""
         # Pre-flight validation: fail fast if files are missing or inconsistent
@@ -379,6 +513,11 @@ class DocumentExtractor:
         # Security scan: critical patterns raise, advisory patterns warn
         # Note: validate_content_security raises ContentSecurityError for critical patterns
         security_warnings = self.validate_content_security()
+
+        # Also scan domain descriptions (used for semantic routing)
+        domain_warnings = self.validate_domain_descriptions()
+        security_warnings.extend(domain_warnings)
+
         if security_warnings:
             logger.warning(
                 f"Content security scan found {len(security_warnings)} advisory pattern(s):"

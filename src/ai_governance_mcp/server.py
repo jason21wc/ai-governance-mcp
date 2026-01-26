@@ -41,6 +41,59 @@ from .retrieval import RetrievalEngine
 
 logger = setup_logging()
 
+
+class ServerInstructionsSecurityError(Exception):
+    """Raised when SERVER_INSTRUCTIONS contains suspicious patterns.
+
+    This is a critical security check - if SERVER_INSTRUCTIONS is compromised,
+    ALL AI clients consuming this server would be affected.
+    """
+
+    pass
+
+
+# Critical patterns that should NEVER appear in SERVER_INSTRUCTIONS
+# These patterns are more targeted than general document scanning because
+# SERVER_INSTRUCTIONS is a controlled, hand-written block.
+_CRITICAL_INSTRUCTION_PATTERNS = {
+    "prompt_injection": re.compile(
+        # Patterns must appear at start of sentence or after punctuation
+        r"(?:^|[.!?]\s+)ignore\s+(?:previous|prior|above)\s+instructions|"
+        r"(?:^|[.!?]\s+)you\s+are\s+now\s+|"
+        r"(?:^|[.!?]\s+)disregard\s+(?:all|previous)|"
+        r"(?:^|[.!?]\s+)forget\s+(?:everything|all|previous)|"
+        r"(?:^|\*\s+)new\s+instructions:",
+        re.IGNORECASE | re.MULTILINE,
+    ),
+    "hidden_instruction": re.compile(
+        r"<!--[^>]*(?:instruction|execute|ignore|override)[^>]*-->",
+        re.IGNORECASE,
+    ),
+}
+
+
+def _validate_server_instructions(instructions: str) -> None:
+    """Validate SERVER_INSTRUCTIONS contains no critical security patterns.
+
+    This is called at module load time to ensure the instruction block
+    that gets sent to ALL AI clients is clean.
+
+    Args:
+        instructions: The SERVER_INSTRUCTIONS string to validate
+
+    Raises:
+        ServerInstructionsSecurityError: If critical patterns are detected
+    """
+    for pattern_name, pattern in _CRITICAL_INSTRUCTION_PATTERNS.items():
+        matches = pattern.findall(instructions)
+        if matches:
+            raise ServerInstructionsSecurityError(
+                f"CRITICAL: SERVER_INSTRUCTIONS contains {pattern_name} pattern!\n"
+                f"Match: {matches[0][:50]}...\n"
+                f"This would compromise ALL AI clients. Blocking server start."
+            )
+
+
 # Global state
 _settings: Settings | None = None
 _engine: RetrievalEngine | None = None
@@ -578,6 +631,10 @@ This file stays in your project. You can review, modify, or remove it at any tim
 It does not send data anywhere — it only configures how Claude Code behaves when
 working in this project.
 """
+
+# Validate SERVER_INSTRUCTIONS at module load time
+# This catches tampering before any AI client receives the instructions
+_validate_server_instructions(SERVER_INSTRUCTIONS)
 
 # Available agents for installation
 AVAILABLE_AGENTS = {"orchestrator"}
