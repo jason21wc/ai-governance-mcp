@@ -54,7 +54,7 @@ All `@pytest.mark.real_index` test classes caused `httpx.ReadTimeout` on CI runn
 - `6355434` — `fix(ci): Mark real_index tests as slow to skip in CI`
 - `17f1609` — `fix(ci): Mark all real_index tests as slow, add post-push CI hook`
 
-**Fix:** Added `@pytest.mark.slow` to all 5 `real_index` classes across `test_retrieval_integration.py` (1 class, 8 tests) and `test_retrieval_quality.py` (4 classes, 13 tests). CI deselects 24 tests, 341 selected — all passing (verified green on `17f1609`).
+**Fix:** Added `@pytest.mark.slow` to all 5 `real_index` classes across `test_retrieval_integration.py` (1 class, 8 tests) and `test_retrieval_quality.py` (4 classes, 13 tests). CI deselects 24 tests, 341 selected — all passing. CI green on `17f1609` and `737edee`.
 
 ### Post-Push CI Hook
 
