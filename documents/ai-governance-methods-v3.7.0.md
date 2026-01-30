@@ -2073,6 +2073,49 @@ Then execute your chosen approach for: [task description]
 - When optimal approach is unclear
 - Complex multi-domain problems
 
+### 11.1.4 Few-Shot Chain-of-Thought
+
+**Purpose:** Improve reasoning quality by providing worked examples that include explicit reasoning chains, not just input/output pairs. Standard few-shot prompting shows examples of correct answers; few-shot CoT shows *how to arrive* at correct answers.
+
+**Research Basis:** Wei et al. 2022 demonstrated that including reasoning traces in examples significantly improves performance on arithmetic, commonsense, and symbolic reasoning tasks — especially for larger models.
+
+**Template:**
+```
+Solve the following problem. Here are examples showing the reasoning process:
+
+Example 1:
+Input: A store has 15 apples. 8 are sold in the morning, then 3 more are delivered.
+Reasoning: Start with 15. Subtract 8 sold = 7 remaining. Add 3 delivered = 10 total.
+Output: 10 apples
+
+Example 2:
+Input: A train leaves at 2:15 PM and the journey takes 1 hour 50 minutes.
+Reasoning: Start time is 2:15 PM. Add 1 hour = 3:15 PM. Add 50 minutes = 4:05 PM.
+Output: 4:05 PM
+
+Example 3:
+Input: A team of 6 needs to complete 18 tasks, each taking 2 hours.
+Reasoning: Total work = 18 × 2 = 36 hours. Divided by 6 people = 6 hours per person.
+Output: 6 hours per person
+
+Now solve:
+Input: [Your problem]
+Reasoning:
+Output:
+```
+
+**Contrast with Standard Few-Shot:**
+- **Standard few-shot:** Shows `Input → Output` pairs only. The model must infer reasoning patterns implicitly.
+- **Few-shot CoT:** Shows `Input → Reasoning → Output`. The model follows demonstrated reasoning patterns explicitly.
+
+Standard few-shot is sufficient for pattern-matching tasks (classification, formatting). Few-shot CoT is preferred when the task requires multi-step reasoning.
+
+**When to Use:**
+- Multi-step reasoning tasks (math, logic, planning)
+- When zero-shot CoT ("think step by step") underperforms
+- When you can provide 2-5 representative worked examples
+- Tasks where reasoning quality matters more than speed
+
 ---
 
 ## Part 11.2: Hallucination Prevention
@@ -2174,6 +2217,18 @@ Remember to:
 | "Don't guess" | "State only what you can verify" |
 | "Don't skip steps" | "Show each step explicitly" |
 | "Avoid hallucination" | "Ground claims in sources" |
+
+**Graduated Model:**
+
+Not all contexts benefit equally from positive framing. Use a graduated approach based on the severity of violation:
+
+| Context | Framing | Example | Rationale |
+|---------|---------|---------|-----------|
+| Safety constraints | Absolute negatives | "NEVER expose credentials in logs" | Condition is always true; violation consequence is severe |
+| Behavioral boundaries | Mixed framing | "Delegate implementation tasks" + "Do NOT make production deployments directly" | Positive sets the norm; negative marks the hard boundary |
+| General instructions | Positive preferred | "Be concise" rather than "Don't be verbose" | No severe consequence; positive framing is clearer and more actionable |
+
+> **Rationale:** Safety-critical contexts warrant negative constraints because the prohibition is unconditional and the cost of violation far exceeds the cognitive cost of processing a negation. For general instructions, positive framing remains clearer and more reliably followed.
 
 ### 11.3.3 Output Format Specification
 
@@ -2314,6 +2369,43 @@ Techniques can be layered:
 [CoVe: Verify before output]
 [Sandwich: Reminder at end]
 ```
+
+---
+
+## Part 11.7: Model Parameter Guidance
+
+**Importance: IMPORTANT — Sampling parameters affect output quality**
+
+**Principle Basis:** Supports Constitution's Interaction Mode Adaptation principle — different tasks require different generation behaviors.
+
+Model sampling parameters (temperature, top-p) control the randomness and diversity of generated output. Appropriate settings vary by task type.
+
+### 11.7.1 Temperature Ranges
+
+| Task Type | Range | Effect |
+|-----------|-------|--------|
+| Factual / Analytical | 0.1–0.3 | High consistency, deterministic outputs |
+| Balanced | 0.4–0.7 | Controlled creativity, reliable variation |
+| Creative | 0.8–1.2 | High diversity, exploratory outputs |
+
+### 11.7.2 Top-P (Nucleus Sampling) Ranges
+
+| Task Type | Range | Effect |
+|-----------|-------|--------|
+| Precise | 0.1–0.3 | Focused vocabulary, predictable phrasing |
+| Standard | 0.4–0.7 | Balanced token selection |
+| Creative | 0.8–0.95 | Diverse vocabulary, varied expression |
+
+> **Caveat:** These ranges are model-dependent heuristics, not universal constants. Different model families (Claude, GPT, Gemini, Llama) may respond differently to the same parameter values. Always validate settings against your specific model and task before relying on them in production.
+
+### 11.7.3 When Parameter Tuning Matters
+
+Parameter tuning has the highest impact when:
+- **Output consistency is critical** (e.g., structured data extraction, classification) — lower temperature
+- **Creative variation is desired** (e.g., brainstorming, content generation) — higher temperature
+- **Default settings produce poor results** for a specific task
+
+For most instruction-following tasks, model defaults (typically temperature ~0.7, top-p ~0.9) are reasonable starting points. Invest in prompt quality before parameter tuning — a well-structured prompt at default parameters usually outperforms a poor prompt with optimized parameters.
 
 ---
 
