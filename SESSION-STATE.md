@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-01-26
+**Last Updated:** 2026-01-30
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,13 +21,41 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.6.1** (server), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.10.0** (multi-agent-methods), **v1.0.0** (multimodal-rag) |
-| Tests | **362 passing** |
+| Tests | **365 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **99 principles + 347 methods (446 total)** |
+| Index | **99 principles + 351 methods (450 total)** |
 
-## Recent Session (2026-01-26)
+## Recent Session (2026-01-30)
+
+### Prompt Engineering Refinements — Methods v3.7.0
+
+Added three targeted improvements to Title 11 (Prompt Engineering Techniques) based on gap analysis from @alex_prompter thread review.
+
+**Commit:**
+- `5cdd745` — `content: Add prompt engineering refinements to methods v3.7.0`
+
+| Change | Description |
+|--------|-------------|
+| §11.1.4 Few-Shot Chain-of-Thought | New subsection with worked examples template, Wei et al. 2022 basis, contrast with standard few-shot |
+| Graduated Framing Model (§11.3.2) | Context-dependent framing table: absolute negatives for safety, mixed for boundaries, positive for general |
+| Part 11.7 Model Parameter Guidance | Temperature and top-p ranges, model-dependency caveat, when tuning matters vs. defaults |
+
+**Index:** Rebuilt to 450 items (99 principles + 351 methods). All new content discoverable via retrieval (top scores 0.77–0.91).
+
+**Tests:** 365 passing.
+
+### CI Fix — real_index Test Timeout
+
+`TestRealIndexRetrieval` (8 tests) caused `httpx.ReadTimeout` on CI runners (Python 3.11 and 3.12). Tests load sentence-transformers + cross-encoder models which time out during download on GitHub Actions.
+
+**Commit:**
+- `6355434` — `fix(ci): Mark real_index tests as slow to skip in CI`
+
+**Fix:** Added `@pytest.mark.slow` to `TestRealIndexRetrieval`. CI already filters with `-m "not slow"`, so these tests are now deselected. Local run: 354 passed, 11 deselected, 0 failures.
+
+## Previous Session (2026-01-26)
 
 ### Security Hardening v2 — Prompt Injection Defenses
 
@@ -62,9 +90,9 @@ Implemented balanced 80/20 security hardening responding to ike.io exploit discl
 - "from now on" pattern (too common in normal text)
 - Scan inside code blocks (docs show attack examples)
 
-## Previous Session (2026-01-25)
+## Older Sessions
 
-Security hardening v1 — Initial ike.io response (commit `e934a5f`)
+- **2026-01-25:** Security hardening v1 — Initial ike.io response (commit `e934a5f`)
 
 ## Next Actions
 

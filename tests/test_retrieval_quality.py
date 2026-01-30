@@ -90,6 +90,7 @@ def calculate_precision_at_k(
 
 
 @pytest.mark.real_index
+@pytest.mark.slow
 class TestMethodRetrievalQuality:
     """Benchmark tests for method retrieval quality."""
 
@@ -222,6 +223,7 @@ class TestMethodRetrievalQuality:
 
 
 @pytest.mark.real_index
+@pytest.mark.slow
 class TestPrincipleRetrievalQuality:
     """Benchmark tests for principle retrieval quality."""
 
@@ -312,6 +314,7 @@ class TestPrincipleRetrievalQuality:
 
 
 @pytest.mark.real_index
+@pytest.mark.slow
 class TestBaselineRecording:
     """Record baseline metrics before changes."""
 
@@ -469,6 +472,7 @@ class TestBaselineRecording:
 
 
 @pytest.mark.real_index
+@pytest.mark.slow
 class TestRegressionThresholds:
     """Regression tests that fail if retrieval quality drops below thresholds.
 
