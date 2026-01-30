@@ -326,6 +326,7 @@ class TestRetrievalPerformance:
 
 
 @pytest.mark.real_index
+@pytest.mark.slow
 class TestRealIndexRetrieval:
     """Tests using production index. Run with: pytest -m real_index"""
 
