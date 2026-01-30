@@ -46,14 +46,26 @@ Added three targeted improvements to Title 11 (Prompt Engineering Techniques) ba
 
 **Tests:** 365 passing.
 
-### CI Fix — real_index Test Timeout
+### CI Fix — real_index Test Timeouts
 
-`TestRealIndexRetrieval` (8 tests) caused `httpx.ReadTimeout` on CI runners (Python 3.11 and 3.12). Tests load sentence-transformers + cross-encoder models which time out during download on GitHub Actions.
+All `@pytest.mark.real_index` test classes caused `httpx.ReadTimeout` on CI runners. These tests load sentence-transformers + cross-encoder ML models which time out during download on GitHub Actions.
 
-**Commit:**
+**Commits:**
 - `6355434` — `fix(ci): Mark real_index tests as slow to skip in CI`
+- `17f1609` — `fix(ci): Mark all real_index tests as slow, add post-push CI hook`
 
-**Fix:** Added `@pytest.mark.slow` to `TestRealIndexRetrieval`. CI already filters with `-m "not slow"`, so these tests are now deselected. Local run: 354 passed, 11 deselected, 0 failures.
+**Fix:** Added `@pytest.mark.slow` to all 5 `real_index` classes across `test_retrieval_integration.py` (1 class, 8 tests) and `test_retrieval_quality.py` (4 classes, 13 tests). CI deselects 24 tests, 341 selected — all passing (verified green on `17f1609`).
+
+### Post-Push CI Hook
+
+Added Claude Code hook to automatically surface CI status after `git push`.
+
+| File | Purpose |
+|------|---------|
+| `.claude/settings.json` | `PostToolUse` hook config on `Bash` matcher |
+| `.claude/hooks/post-push-ci-check.sh` | Detects git push, waits 5s, fetches latest CI run via `gh run list` |
+
+Hook takes effect on next session start (config is snapshotted at session init).
 
 ## Previous Session (2026-01-26)
 
