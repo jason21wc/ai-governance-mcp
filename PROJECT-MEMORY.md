@@ -14,7 +14,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 355 tests, 90% coverage, 11 tools
+- **Status:** COMPLETE - All phases done, 365 tests, 90% coverage, 11 tools
 - **Repository:** github.com/jason21wc/ai-governance-mcp
 
 ## Phase Gates

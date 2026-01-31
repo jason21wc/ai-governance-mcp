@@ -7,7 +7,7 @@
 > System design, component responsibilities, data flow.
 > For decisions/rationale → PROJECT-MEMORY.md
 
-**Phase:** COMPLETE (350 tests, 90% coverage, 11 tools)
+**Phase:** COMPLETE (365 tests, 90% coverage, 11 tools)
 
 ---
 
