@@ -35,13 +35,15 @@ This project IS the AI Governance MCP. Use these tools:
 
 ### Mandatory Governance Checkpoints
 
-Query `query_governance()` BEFORE:
-- [ ] Starting any implementation task
-- [ ] Making architectural or configuration decisions
-- [ ] Modifying governance documents or templates
-- [ ] Phase transitions (Specify → Plan → Tasks → Implement)
+Call `evaluate_governance()` before any action UNLESS it is:
+- Reading files, searching, or exploring code
+- Answering questions that do not involve security-sensitive information
+- Trivial formatting (whitespace or comment text changes that do not alter behavior)
+- Human user explicitly says "skip governance" with documented reason
 
-**After querying:** Cite the principle ID when it influences your approach.
+When in doubt, evaluate.
+
+**After evaluating:** Cite the principle ID when it influences your approach.
 
 ## Key Commands
 

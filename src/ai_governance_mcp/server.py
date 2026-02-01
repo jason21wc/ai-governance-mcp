@@ -456,17 +456,22 @@ Semantic retrieval of AI governance principles and methods. Query before acting.
 
 ### Orchestrator Protocol (Default Behavior)
 
-For significant actions, follow this protocol:
+Call `evaluate_governance(planned_action="your task")` before any action UNLESS it is:
+- Reading files, searching, or exploring code
+- Answering questions that do not involve security-sensitive information
+- Trivial formatting (whitespace or comment text changes that do not alter behavior)
+- Human user explicitly says "skip governance" with documented reason
 
-1. **Evaluate governance first**: Call `evaluate_governance(planned_action="your task")`
-2. **Act on assessment**:
-   - PROCEED: Continue with the task
-   - PROCEED_WITH_MODIFICATIONS: Apply required changes, then continue
-   - ESCALATE: STOP. Inform user. Wait for explicit approval.
-3. **S-Series = Absolute Veto**: If S-Series triggers, you MUST escalate regardless of other factors
+When in doubt, evaluate. This list defines what may be skipped, not the only situations where governance applies.
+
+**Act on assessment:**
+- PROCEED: Continue with the task
+- PROCEED_WITH_MODIFICATIONS: Apply required changes, then continue
+- ESCALATE: STOP. Inform user. Wait for explicit approval.
+- **S-Series = Absolute Veto**: If S-Series triggers, you MUST escalate regardless of other factors
 
 ### Required Actions
-1. **Evaluate before implementation** — Call `evaluate_governance(planned_action="...")` before writing code or making changes
+1. **Evaluate before acting** — Call `evaluate_governance(planned_action="...")` for any action not on the skip list above
 2. **Query for guidance** — Call `query_governance("your concern")` when you need principles to inform decisions
 3. **Cite influencing principles** — Reference principle IDs (e.g., `meta-core-context-engineering`) when they guide your approach
 4. **Pause on uncertainty** — If requirements are unclear, ask the user before proceeding
@@ -481,7 +486,7 @@ For significant actions, follow this protocol:
 | 4 | Methods | Procedural — workflows, patterns, templates |
 
 ### Forbidden Actions
-- Do NOT proceed with significant actions without calling `evaluate_governance` first
+- Do NOT skip `evaluate_governance` for actions outside the skip list above
 - Do NOT ignore ESCALATE assessments — human approval required
 - Do NOT make product/business/timeline decisions — escalate to user
 - Do NOT ignore S-Series principles under any circumstances
@@ -492,7 +497,7 @@ At milestone boundaries, apply the Anchor Bias Mitigation Protocol:
 
 **Trigger Points:**
 - End of planning phase (before implementation)
-- Before significant implementation effort
+- Before multi-file implementation
 - When encountering unexpected complexity/resistance
 - At natural phase transitions
 
@@ -586,7 +591,7 @@ This enables structural governance enforcement with restricted tool access.
 GOVERNANCE_REMINDER = """
 
 ---
-⚖️ **Governance Check:** Did you `query_governance()` before this action? Cite influencing principle IDs. S-Series = veto authority."""
+⚖️ **Governance Check:** Unless this was a read-only or non-sensitive query, did you call `evaluate_governance()`? Cite principle IDs. S-Series = veto."""
 
 # Subagent installation explanation for users
 # Per Phase 2B design: robust explanation for both experts and beginners
@@ -601,7 +606,7 @@ like hiring a specialist who follows particular protocols.
 
 ### What Does the Orchestrator Do?
 
-The Orchestrator ensures your AI checks governance principles BEFORE taking significant actions.
+The Orchestrator ensures your AI checks governance principles BEFORE any action that is not a read-only operation, non-sensitive question, or trivial formatting change.
 Instead of diving straight into tasks, it:
 
 1. **Evaluates** what you're asking against governance principles
@@ -922,9 +927,9 @@ async def list_tools() -> list[Tool]:
             name="evaluate_governance",
             description=(
                 "Evaluate a planned action against governance principles BEFORE execution. "
+                "Call this before any action that is not a read-only operation, non-sensitive question, or trivial formatting change. "
                 "Returns compliance assessment with PROCEED, PROCEED_WITH_MODIFICATIONS, or ESCALATE. "
-                "S-Series (safety) principles have veto authority - will force ESCALATE if triggered. "
-                "Use this to validate actions before implementing them."
+                "S-Series (safety) principles have veto authority - will force ESCALATE if triggered."
             ),
             inputSchema={
                 "type": "object",
@@ -1809,7 +1814,7 @@ async def _handle_verify_governance(args: dict) -> list[TextContent]:
             matching_audit_id=None,
             finding=(
                 "No governance checks have been performed in this session. "
-                "All significant actions should be preceded by evaluate_governance()."
+                "All actions except reads, non-sensitive questions, and trivial formatting should be preceded by evaluate_governance()."
             ),
         )
         output = verification.model_dump()
@@ -1922,8 +1927,8 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
             ),
             "guidance": (
                 "To use governance effectively:\n"
-                "1. Call query_governance() before significant actions\n"
-                "2. Call evaluate_governance() to validate planned actions\n"
+                "1. Call evaluate_governance() before any action not on the skip list\n"
+                "2. Call query_governance() when you need principles to inform decisions\n"
                 "3. Follow the assessment (PROCEED/MODIFY/ESCALATE)\n"
                 "4. S-Series principles have veto authority"
             ),
@@ -2026,7 +2031,7 @@ EOF
                 f"Will {status} '{agent_name}' subagent for {scope_desc}.\n\n"
                 f"File: {install_path}\n\n"
                 "This subagent will:\n"
-                "- Ensure evaluate_governance() is called before significant actions\n"
+                "- Ensure evaluate_governance() is called before any action not on the skip list\n"
                 "- Have restricted tools (read + governance only, no edit/write/bash)\n"
                 "- Escalate to you when S-Series (safety) principles trigger\n"
             ),
@@ -2068,7 +2073,7 @@ EOF
             "message": (
                 f"Successfully installed '{agent_name}' subagent.\n\n"
                 "The Orchestrator subagent will activate on your next Claude Code session.\n"
-                "It will ensure governance is checked before significant actions.\n\n"
+                "It will ensure governance is checked before any action not on the skip list.\n\n"
                 "To verify: Look for 'orchestrator' in the agents list when you start Claude Code.\n"
                 "To remove: Use uninstall_agent(agent_name='orchestrator')"
             ),

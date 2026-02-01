@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-01-30
+**Last Updated:** 2026-02-01
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -20,14 +20,49 @@
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.6.1** (server), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.10.0** (multi-agent-methods), **v1.0.0** (multimodal-rag) |
+| Version | **v1.7.0** (server), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.10.0** (multi-agent-methods), **v1.0.0** (multimodal-rag) |
 | Tests | **365 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
 | Index | **99 principles + 351 methods (450 total)** |
 
-## Recent Session (2026-01-30)
+## Recent Session (2026-02-01)
+
+### Governance Trigger Criteria — Skip-List Inversion (v1.7.0)
+
+Replaced vague "significant action" governance trigger criteria with a deny-by-default skip-list approach across all operational instruction surfaces.
+
+**Problem:** "Significant action" was subjective and circular — the AI decided when to check its own oversight. The project's own principles (`meta-operational-explicit-over-implicit`, `meta-governance-measurable-success-criteria`) argued against it.
+
+**Solution:** Inverted from positive-list ("evaluate for these 7 actions") to skip-list-only ("evaluate for everything UNLESS it is one of these 4 exceptions"):
+- Reading files, searching, or exploring code
+- Answering questions that do not involve security-sensitive information
+- Trivial formatting (whitespace or comment text changes that do not alter behavior)
+- Human user explicitly says "skip governance" with documented reason
+
+**Files changed (7):**
+
+| File | Changes |
+|------|---------|
+| `src/ai_governance_mcp/server.py` | SERVER_INSTRUCTIONS, GOVERNANCE_REMINDER, `evaluate_governance` tool description, 4 operational strings |
+| `.claude/agents/orchestrator.md` | Skip list, description, body references |
+| `documents/agents/orchestrator.md` | Template copy — same changes |
+| `CLAUDE.md` | Mandatory checkpoints section |
+| `README.md` | Orchestrator description |
+| `src/ai_governance_mcp/__init__.py` | Version bump to v1.7.0 |
+
+**Key improvements from contrarian review:**
+- All three instruction surfaces (SERVER_INSTRUCTIONS, CLAUDE.md, orchestrator.md) now carry identical skip lists
+- "When in doubt, evaluate" catch-all added to prevent safe-harbor reasoning
+- "Skip governance" bypass requires "documented reason" everywhere (was inconsistent)
+- "Answering questions" narrowed to exclude security-sensitive information
+- GOVERNANCE_REMINDER updated to reference skip-list logic
+- `evaluate_governance` tool description now states when to call it
+
+**Tests:** 341 passed (24 slow deselected). SERVER_INSTRUCTIONS validation passed.
+
+## Previous Session (2026-01-30)
 
 ### Prompt Engineering Refinements — Methods v3.7.0
 
