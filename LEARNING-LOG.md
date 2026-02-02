@@ -12,6 +12,32 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-02-02 - Version Sync Discipline
+
+**Context:** `pyproject.toml` was at 1.6.1 while `__init__.py` was at 1.7.0. Discovered during comprehensive review.
+
+**The Lesson:** Version bumps must update BOTH `__init__.py` AND `pyproject.toml`. Add to pre-commit or release checklist.
+
+**Prevention:** Gotcha #16 in PROJECT-MEMORY.md. Consider adding a CI check that verifies both files match.
+
+---
+
+### 2026-02-02 - Instruction vs Content Surface Distinction
+
+**Context:** The v1.7.0 skip-list change updated operational instruction surfaces (SERVER_INSTRUCTIONS, CLAUDE.md, orchestrator.md) but did NOT propagate to the governance source documents that DEFINE the concepts. The source docs still said "significant action" — the very language the change was meant to replace.
+
+**The Lesson:** There are two distinct surfaces for governance concepts:
+1. **Instruction surfaces** — what the AI reads at runtime (SERVER_INSTRUCTIONS, CLAUDE.md, agent definitions)
+2. **Content surfaces** — the source documents that define the concepts (documents/*.md)
+
+Changes to governance CONCEPTS must propagate to both. Changes to operational INSTRUCTIONS only need instruction surfaces.
+
+**Pattern:** When changing governance trigger language, grep the source documents too: `grep -rn "old term" documents/`
+
+**Prevention:** Gotcha #17 in PROJECT-MEMORY.md.
+
+---
+
 ### 2026-01-18 - MCP Server Index Caching During Development
 
 **Context:** After implementing §7.8 and rebuilding the index, MCP queries returned stale results. Direct Python tests showed correct results. This is a recurring issue (3+ occurrences documented in SESSION-STATE.md).

@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-02-01
+**Last Updated:** 2026-02-02
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -20,126 +20,76 @@
 
 | Metric | Value |
 |--------|-------|
-| Version | **v1.7.0** (server), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.10.0** (multi-agent-methods), **v1.0.0** (multimodal-rag) |
-| Tests | **365 passing** |
+| Version | **v1.7.0** (server + pyproject.toml), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.10.0** (multi-agent-methods), **v1.0.0** (multimodal-rag) |
+| Tests | **364 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
 | Index | **99 principles + 351 methods (450 total)** |
 
-## Recent Session (2026-02-01)
+## Recent Session (2026-02-02)
 
-### Governance Trigger Criteria — Skip-List Inversion (v1.7.0)
+### Comprehensive Review Fix — 4 Phases
 
-Replaced vague "significant action" governance trigger criteria with a deny-by-default skip-list approach across all operational instruction surfaces.
+Full codebase review fixing 31 findings across 4 severity levels. One commit per phase, pytest validation gate between each.
 
-**Problem:** "Significant action" was subjective and circular — the AI decided when to check its own oversight. The project's own principles (`meta-operational-explicit-over-implicit`, `meta-governance-measurable-success-criteria`) argued against it.
-
-**Solution:** Inverted from positive-list ("evaluate for these 7 actions") to skip-list-only ("evaluate for everything UNLESS it is one of these 4 exceptions"):
-- Reading files, searching, or exploring code
-- Answering questions that do not involve security-sensitive information
-- Trivial formatting (whitespace or comment text changes that do not alter behavior)
-- Human user explicitly says "skip governance" with documented reason
-
-**Files changed (7):**
-
-| File | Changes |
-|------|---------|
-| `src/ai_governance_mcp/server.py` | SERVER_INSTRUCTIONS, GOVERNANCE_REMINDER, `evaluate_governance` tool description, 4 operational strings |
-| `.claude/agents/orchestrator.md` | Skip list, description, body references |
-| `documents/agents/orchestrator.md` | Template copy — same changes |
-| `CLAUDE.md` | Mandatory checkpoints section |
-| `README.md` | Orchestrator description |
-| `src/ai_governance_mcp/__init__.py` | Version bump to v1.7.0 |
-
-**Key improvements from contrarian review:**
-- All three instruction surfaces (SERVER_INSTRUCTIONS, CLAUDE.md, orchestrator.md) now carry identical skip lists
-- "When in doubt, evaluate" catch-all added to prevent safe-harbor reasoning
-- "Skip governance" bypass requires "documented reason" everywhere (was inconsistent)
-- "Answering questions" narrowed to exclude security-sensitive information
-- GOVERNANCE_REMINDER updated to reference skip-list logic
-- `evaluate_governance` tool description now states when to call it
-
-**Tests:** 341 passed (24 slow deselected). SERVER_INSTRUCTIONS validation passed.
-
-## Previous Session (2026-01-30)
-
-### Prompt Engineering Refinements — Methods v3.7.0
-
-Added three targeted improvements to Title 11 (Prompt Engineering Techniques) based on gap analysis from @alex_prompter thread review.
-
-**Commit:**
-- `5cdd745` — `content: Add prompt engineering refinements to methods v3.7.0`
+**Phase 1 — CRITICAL (4 findings):**
 
 | Change | Description |
 |--------|-------------|
-| §11.1.4 Few-Shot Chain-of-Thought | New subsection with worked examples template, Wei et al. 2022 basis, contrast with standard few-shot |
-| Graduated Framing Model (§11.3.2) | Context-dependent framing table: absolute negatives for safety, mixed for boundaries, positive for general |
-| Part 11.7 Model Parameter Guidance | Temperature and top-p ranges, model-dependency caveat, when tuning matters vs. defaults |
+| Version sync | `pyproject.toml` 1.6.1 → 1.7.0 to match `__init__.py` |
+| ARCHITECTURE.md header | Updated to v1.7.0 / 2026-02-01 |
+| Governance language | Replaced "significant action" with skip-list model in 3 source docs (10 instances) with changelog notes |
+| Domain coverage | Added storytelling/multimodal-rag to server enums, retrieval prefix maps, extractor prefix maps |
+| Index rebuild | Embeddings now (450, 384), domains (5, 384) |
 
-**Index:** Rebuilt to 450 items (99 principles + 351 methods). All new content discoverable via retrieval (top scores 0.77–0.91).
-
-**Tests:** 365 passing.
-
-### CI Fix — real_index Test Timeouts
-
-All `@pytest.mark.real_index` test classes caused `httpx.ReadTimeout` on CI runners. These tests load sentence-transformers + cross-encoder ML models which time out during download on GitHub Actions.
-
-**Commits:**
-- `6355434` — `fix(ci): Mark real_index tests as slow to skip in CI`
-- `17f1609` — `fix(ci): Mark all real_index tests as slow, add post-push CI hook`
-
-**Fix:** Added `@pytest.mark.slow` to all 5 `real_index` classes across `test_retrieval_integration.py` (1 class, 8 tests) and `test_retrieval_quality.py` (4 classes, 13 tests). CI deselects 24 tests, 341 selected — all passing. CI green on `17f1609` and `737edee`.
-
-### Post-Push CI Hook
-
-Added Claude Code hook to automatically surface CI status after `git push`.
-
-| File | Purpose |
-|------|---------|
-| `.claude/settings.json` | `PostToolUse` hook config on `Bash` matcher |
-| `.claude/hooks/post-push-ci-check.sh` | Detects git push, waits 5s, fetches latest CI run via `gh run list` |
-
-Hook takes effect on next session start (config is snapshotted at session init).
-
-## Previous Session (2026-01-26)
-
-### Security Hardening v2 — Prompt Injection Defenses
-
-Implemented balanced 80/20 security hardening responding to ike.io exploit disclosure:
-
-**Commits:**
-- `14e69f5` — `security: Harden prompt injection defenses (v2)`
-- `560bad3` — `fix(ci): Refine content security patterns to reduce false positives`
-- `096fb95` — `fix(ci): Use output check instead of exit code for security patterns`
+**Phase 2 — HIGH (5 findings):**
 
 | Change | Description |
 |--------|-------------|
-| Example bypass fix | CRITICAL patterns now detected even with "example" in line context |
-| Unicode normalization | NFKC + invisible char stripping prevents homoglyph attacks |
-| SERVER_INSTRUCTIONS validation | Runtime check at module load for compromised instructions |
-| Domain description scanning | `domains.json` descriptions validated during extraction |
-| CI pattern refinement | Reduced false positives on legitimate documentation |
+| `np.load()` | Explicit `allow_pickle=False` (CWE-502 defense-in-depth) |
+| Unvalidated session_id | Removed from feedback handler (CWE-117) |
+| Feedback capping | 100 per principle FIFO at load time (poisoning defense) |
+| Audit log return | `return list(_audit_log)` prevents mutation of raw deque |
+| Sort TypeError | `sp.principle.number or 0` fixes Optional[int] comparison |
 
-**New tests added (10):**
-- `TestContentSecurityPatterns` (2) — Example bypass behavior
-- `TestUnicodeNormalization` (4) — NFKC and invisible char handling
-- `TestServerInstructionsValidation` (2) — Runtime validation
-- `TestDomainDescriptionValidation` (2) — domains.json scanning
+**Phase 3 — WARNING (12 findings):**
 
-**CI improvements:**
-- Added `server.py` and `domains.json` to scan targets
-- Refined patterns to exclude documentation contexts (Watch for, example, Python regexes)
-- Fixed pipeline logic: use `[ -n "$OUTPUT" ]` instead of exit code
+| Change | Description |
+|--------|-------------|
+| SeriesCode enum | Removed dead code from models.py + test (365 → 364 tests) |
+| Test counts | Updated README.md + ARCHITECTURE.md to actual values |
+| ARCHITECTURE.md | Fixed data flow file names, embedding dimensions, added test_retrieval_quality.py |
+| PROJECT-MEMORY.md | Updated metrics to baseline_2026-01-30.json values |
+| CLAUDE.md | Added 5 missing tools to governance table |
+| Server docstring | "10 tools" → "11 tools" |
+| log_feedback | Switched to async (`log_feedback_async`) |
+| Unused code | Removed `_build_method` index param, `principle_count` variable |
+| Path validation | `is_relative_to()` instead of string prefix comparison |
+| Orchestrator sync | Added sync warning comment to both copies |
+| archive/ | Deleted root archive directory |
 
-**Deferred (high false-positive risk):**
-- "supersedes"/"overrides" patterns (6 legitimate uses in docs)
-- "from now on" pattern (too common in normal text)
-- Scan inside code blocks (docs show attack examples)
+**Phase 4 — INFO (5 findings):**
+
+| Change | Description |
+|--------|-------------|
+| ID examples | Updated to slug-based format in get_principle tool + error |
+| Version logging | Dynamic `f"v{__version__}"` instead of hardcoded "v4" |
+| Error sanitization | `_sanitize_error_message()` in install/uninstall handlers |
+| Config docstring | Explained CWD vs `__file__` root detection approach |
+| Rate limiter | Added scope comment: "Per-process, single-client. Not thread-safe." |
+
+## Previous Session (2026-02-01)
+
+### Skip-List Inversion (v1.7.0)
+
+Replaced "significant action" governance triggers with deny-by-default skip-list across operational instruction surfaces (SERVER_INSTRUCTIONS, CLAUDE.md, orchestrator.md).
 
 ## Older Sessions
 
-- **2026-01-25:** Security hardening v1 — Initial ike.io response (commit `e934a5f`)
+- **2026-01-30:** Prompt engineering refinements (methods v3.7.0), CI fix for real_index tests, post-push CI hook
+- **2026-01-26:** Security hardening v2 — prompt injection defenses (ike.io response)
+- **2026-01-25:** Security hardening v1 — initial ike.io response
 
 ## Next Actions
 
@@ -148,6 +98,7 @@ Implemented balanced 80/20 security hardening responding to ike.io exploit discl
 3. **(Optional)** Add platform-specific playbooks (TikTok, LinkedIn, long-form)
 4. **(Optional)** Expand multimodal-rag with video retrieval (Phase 2)
 5. **(Optional)** Add image generation domain when reliable methods exist
+6. **(Optional)** LEARNING-LOG.md distillation (deferred from this session)
 
 ## Links
 

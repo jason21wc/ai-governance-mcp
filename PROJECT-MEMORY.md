@@ -14,7 +14,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 365 tests, 90% coverage, 11 tools
+- **Status:** COMPLETE - All phases done, 364 tests, 90% coverage, 11 tools
 - **Repository:** github.com/jason21wc/ai-governance-mcp
 
 ## Phase Gates
@@ -47,6 +47,8 @@
 | Hybrid AI Judgment | 2026-01-02 | Script handles S-Series (safety). AI handles principle conflict analysis. |
 | Orchestrator-First | 2026-01-02 | Governance structural via orchestrator, not optional. |
 | Reasoning Externalization | 2026-01-10 | `log_governance_reasoning` tool for audit trail. |
+| Skip-List Governance | 2026-02-01 | Deny-by-default: evaluate unless on skip-list (4 exceptions). Replaces subjective "significant action". |
+| Governance Docs In-Place | 2026-02-02 | Source docs edited in-place with changelog notes (not file renames). |
 
 ### Multi-Agent Domain
 
@@ -160,6 +162,9 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 | 12 | evaluate_governance false positives | Security fixes trigger ESCALATE on keywords — check principles array |
 | 13 | Index architecture | JSON has `embedding_id` references; vectors in `.npy` files |
 | 15 | MCP caches index at startup | Restart server after `python -m ai_governance_mcp.extractor` |
+| 16 | Version bumps need pyproject.toml | `__init__.py` and `pyproject.toml` must stay in sync |
+| 17 | Operational changes need source docs | Skip-list/trigger changes must propagate to governance source documents, not just instruction surfaces |
+| 18 | `domain_name[:4]` generates implicit prefixes | Codify new domain prefixes in explicit maps (extractor, retrieval, server) |
 
 ### Resolved Gotchas
 
