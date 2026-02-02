@@ -2436,7 +2436,7 @@ Voluntary governance tools (like `evaluate_governance`) can be ignored. Even wit
 
 **Solution: Orchestrator-First Architecture**
 
-Make governance structural by implementing an Orchestrator Agent as the default persona. The Orchestrator MUST call `evaluate_governance()` before delegating any significant action.
+Make governance structural by implementing an Orchestrator Agent as the default persona. The Orchestrator MUST call `evaluate_governance()` before delegating governed actions (see skip-list).
 
 ```
 User Request
@@ -2519,7 +2519,7 @@ Every tool response includes a governance reminder:
 
 ```
 ---
-📋 Governance: Use query_governance() for principles, evaluate_governance() before significant actions.
+📋 Governance: Use query_governance() for principles, evaluate_governance() before governed actions.
 ```
 
 This enables self-correction when earlier layers are bypassed.
@@ -2585,7 +2585,7 @@ You are the Orchestrator, the default entry point for all user requests.
 
 Your responsibilities:
 1. Analyze incoming requests
-2. Call evaluate_governance(planned_action) BEFORE any significant action
+2. Call evaluate_governance(planned_action) BEFORE governed actions (unless skip-listed)
 3. Delegate to specialist agents based on assessment
 4. Track governance compliance across the workflow
 
@@ -2593,7 +2593,7 @@ You do NOT directly execute work. You delegate to specialists who have
 the appropriate tools (Edit, Write, Bash).
 
 ### Mandatory Governance Check
-Before delegating ANY significant action:
+Before delegating governed actions:
 1. Call evaluate_governance() with the planned action
 2. If PROCEED: Delegate with governance context
 3. If PROCEED_WITH_MODIFICATIONS: Apply modifications to delegation prompt
@@ -3942,3 +3942,8 @@ When offering agent installation to users unfamiliar with the concept:
 **End of Document**
 
 [Tool-specific appendices may be extended as new CLI tools emerge]
+
+---
+
+### v2.10.0.1 (2026-02-01)
+- Replaced "significant action" with skip-list model per v1.7.0 operational change

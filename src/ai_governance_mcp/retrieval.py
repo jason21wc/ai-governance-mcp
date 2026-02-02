@@ -665,6 +665,8 @@ class RetrievalEngine:
             "meta": "constitution",
             "coding": "ai-coding",
             "multi": "multi-agent",
+            "stor": "storytelling",
+            "mult": "multimodal-rag",
         }
 
         domain_name = prefix_to_domain.get(prefix)
@@ -691,6 +693,8 @@ class RetrievalEngine:
             "meta": "constitution",
             "coding": "ai-coding",
             "multi": "multi-agent",
+            "stor": "storytelling",
+            "mult": "multimodal-rag",
         }
 
         domain_name = prefix_to_domain.get(prefix)

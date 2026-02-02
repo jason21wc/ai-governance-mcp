@@ -793,7 +793,13 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Optional: Force specific domain (ai-coding, multi-agent)",
                         "maxLength": 50,  # M5 FIX
-                        "enum": ["constitution", "ai-coding", "multi-agent"],
+                        "enum": [
+                            "constitution",
+                            "ai-coding",
+                            "multi-agent",
+                            "storytelling",
+                            "multimodal-rag",
+                        ],
                     },
                     "include_constitution": {
                         "type": "boolean",
@@ -864,7 +870,13 @@ async def list_tools() -> list[Tool]:
                     "domain": {
                         "type": "string",
                         "description": "Domain name (constitution, ai-coding, multi-agent)",
-                        "enum": ["constitution", "ai-coding", "multi-agent"],  # M5 FIX
+                        "enum": [
+                            "constitution",
+                            "ai-coding",
+                            "multi-agent",
+                            "storytelling",
+                            "multimodal-rag",
+                        ],  # M5 FIX
                     },
                 },
                 "required": ["domain"],

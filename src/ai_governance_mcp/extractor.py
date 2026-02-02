@@ -1171,6 +1171,8 @@ class DocumentExtractor:
             "constitution": "meta",
             "ai-coding": "coding",
             "multi-agent": "multi",
+            "storytelling": "stor",
+            "multimodal-rag": "mult",
         }
         return prefixes.get(domain_name, domain_name[:4])
 

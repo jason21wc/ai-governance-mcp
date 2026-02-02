@@ -3370,7 +3370,7 @@ server = FastMCP(
     name="your-server",
     instructions="""
 ## Required Actions
-- Call `your_tool()` before significant actions
+- Call `your_tool()` before governed actions
 - Cite results when they influence your approach
 
 ## Forbidden Actions
@@ -3862,3 +3862,8 @@ Files to upload to Project Knowledge:
 **Feedback:** Document gaps, conflicts, or improvement suggestions to be captured and addressed in next version.
 
 **Relationship to Tools:** Tool-specific appendices may be added without changing core methods. Each appendix must comply with methods defined herein.
+
+---
+
+### v2.5.0.1 (2026-02-01)
+- Replaced "significant action" with skip-list model per v1.7.0 operational change
