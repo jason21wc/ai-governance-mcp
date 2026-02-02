@@ -45,7 +45,13 @@ class JSONFormatter(logging.Formatter):
 
 
 def _find_project_root() -> Path:
-    """Find project root by looking for pyproject.toml or documents folder."""
+    """Find project root by looking for pyproject.toml or documents folder.
+
+    Uses CWD-based search (walks up from current directory) so the server
+    works when run from any subdirectory. Note: config_generator.py uses
+    __file__-based root detection instead, since it's a CLI tool that needs
+    to find templates relative to the package installation.
+    """
     cwd = Path.cwd()
 
     for path in [cwd] + list(cwd.parents):

@@ -18,6 +18,7 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
+from . import __version__
 from .config import Settings, ensure_directories, load_settings, setup_logging
 from .models import (
     AssessmentStatus,
@@ -215,6 +216,7 @@ MAX_QUERY_LENGTH = 10000
 MAX_LOG_CONTENT_LENGTH = 2000
 
 # H4 FIX: Rate limiting configuration (token bucket algorithm)
+# Per-process, single-client. Not thread-safe.
 RATE_LIMIT_TOKENS = 100  # Maximum tokens (requests) in bucket
 RATE_LIMIT_REFILL_RATE = 10  # Tokens added per second
 _rate_limit_tokens = RATE_LIMIT_TOKENS
@@ -829,14 +831,14 @@ async def list_tools() -> list[Tool]:
             description=(
                 "Get the full content of a specific governance principle by ID. "
                 "Use after query_governance to get complete principle text. "
-                "IDs follow pattern: meta-C1, coding-C1, multi-A1, etc."
+                "IDs follow pattern: meta-core-context-engineering, coding-quality-testing, etc."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "principle_id": {
                         "type": "string",
-                        "description": "The principle ID (e.g., 'meta-C1', 'coding-Q2')",
+                        "description": "The principle ID (e.g., 'meta-core-context-engineering', 'coding-quality-testing')",
                         "maxLength": 100,  # M5 FIX
                         "minLength": 1,  # M5 FIX
                     },
@@ -1403,7 +1405,7 @@ async def _handle_get_principle(
         message=f"Principle '{principle_id}' not found",
         suggestions=[
             "Use list_domains to see available domains",
-            "Check ID format: meta-C1, coding-C1, multi-A1",
+            "Check ID format: meta-core-context-engineering, coding-quality-testing",
         ],
     )
     return [TextContent(type="text", text=error.model_dump_json(indent=2))]
@@ -2112,7 +2114,7 @@ EOF
     except Exception as e:
         error = ErrorResponse(
             error_code="INSTALL_FAILED",
-            message=f"Failed to install subagent: {str(e)}",
+            message=f"Failed to install subagent: {_sanitize_error_message(e)}",
             suggestions=["Use show_manual=true for manual installation instructions"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
@@ -2189,7 +2191,7 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
     except Exception as e:
         error = ErrorResponse(
             error_code="UNINSTALL_FAILED",
-            message=f"Failed to uninstall subagent: {str(e)}",
+            message=f"Failed to uninstall subagent: {_sanitize_error_message(e)}",
             suggestions=["Manually delete the file", f"Path: {install_path}"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
@@ -2314,7 +2316,7 @@ def _flush_all_logs() -> None:
 async def run_server():
     """Run the MCP server with graceful shutdown handling."""
 
-    logger.info("Starting AI Governance MCP Server v4")
+    logger.info(f"Starting AI Governance MCP Server v{__version__}")
 
     # Initialize engine on startup
     get_engine()
