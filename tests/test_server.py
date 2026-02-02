@@ -881,6 +881,7 @@ class TestEvaluateGovernance:
                     assert "assessment" in parsed
                     assert "confidence" in parsed
                     assert "relevant_principles" in parsed
+                    assert "relevant_methods" in parsed
                     assert "compliance_evaluation" in parsed
                     assert "s_series_check" in parsed
                     assert "rationale" in parsed
@@ -1126,6 +1127,83 @@ class TestEvaluateGovernance:
                     # S-Series ESCALATE is script-enforced, not AI judgment
                     assert parsed["assessment"] == "ESCALATE"
                     assert parsed["requires_ai_judgment"] is False
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_includes_methods(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should include relevant_methods as a list."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Implement project initialization workflow"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # relevant_methods should always be present as a list
+                    assert "relevant_methods" in parsed
+                    assert isinstance(parsed["relevant_methods"], list)
+
+                    # If methods were found, verify each entry has correct fields
+                    for method in parsed["relevant_methods"]:
+                        assert isinstance(method["id"], str)
+                        assert isinstance(method["title"], str)
+                        assert isinstance(method["domain"], str)
+                        assert isinstance(method["score"], (int, float))
+                        assert 0.0 <= method["score"] <= 1.0
+                        assert method["confidence"] in ["high", "medium", "low"]
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_methods_in_ai_guidance(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """ai_judgment_guidance should mention methods only when relevant_methods is non-empty."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Refactor the authentication module"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    if parsed.get("ai_judgment_guidance"):
+                        if parsed["relevant_methods"]:
+                            # When methods present, guidance should mention them
+                            assert "method" in parsed["ai_judgment_guidance"].lower()
+                        else:
+                            # When no methods, guidance should not mention them
+                            assert (
+                                "method" not in parsed["ai_judgment_guidance"].lower()
+                            )
 
 
 # =============================================================================

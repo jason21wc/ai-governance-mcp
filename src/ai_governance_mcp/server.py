@@ -33,6 +33,7 @@ from .models import (
     Metrics,
     QueryLog,
     ReasoningEntry,
+    RelevantMethod,
     RelevantPrinciple,
     SSeriesCheck,
     VerificationResult,
@@ -214,6 +215,9 @@ MAX_QUERY_LENGTH = 10000
 
 # M1/M4 FIX: Maximum length for logged content to prevent log bloat
 MAX_LOG_CONTENT_LENGTH = 2000
+
+# Maximum methods to include in evaluate_governance response (reference-only)
+MAX_RELEVANT_METHODS = 5
 
 # H4 FIX: Rate limiting configuration (token bucket algorithm)
 # Per-process, single-client. Not thread-safe.
@@ -518,12 +522,13 @@ Query `query_governance("anchor bias re-evaluation")` for full protocol.
 When `requires_ai_judgment=true` in the evaluate_governance response:
 
 1. **Read principle content** — Each principle includes full text in the `content` field
-2. **Analyze for conflicts** — Does the action conflict with any principle requirements?
-3. **Determine outcome**:
+2. **Check relevant methods** — If `relevant_methods` is non-empty, use `get_principle(id)` to retrieve full procedural content for methods that may inform compliance
+3. **Analyze for conflicts** — Does the action conflict with any principle requirements?
+4. **Determine outcome**:
    - No conflicts → Confirm PROCEED
    - Resolvable conflicts → PROCEED_WITH_MODIFICATIONS + list specific changes
    - (ESCALATE only comes from script via S-Series, never from AI judgment)
-4. **Cite principle IDs** — Reference which principles informed your decision
+5. **Cite principle IDs** — Reference which principles informed your decision
 
 When `requires_ai_judgment=false`: The script has made a definitive decision (S-Series ESCALATE or no principles found). Follow the assessment as-is.
 
@@ -547,7 +552,7 @@ This creates an auditable governance reasoning trail.
 ### Tools (11 Available)
 | Tool | Purpose |
 |------|---------|
-| `evaluate_governance(planned_action)` | **Pre-action check** — returns assessment + principle content for AI judgment |
+| `evaluate_governance(planned_action)` | **Pre-action check** — returns assessment + principle content for AI judgment + relevant method references |
 | `query_governance(query)` | Get relevant principles + methods |
 | `verify_governance_compliance(action)` | **Post-action audit** — check if governance was consulted |
 | `log_governance_reasoning(audit_id, reasoning)` | **Reasoning trace** — record per-principle analysis for audit trail |
@@ -1687,6 +1692,20 @@ async def _handle_evaluate_governance(
             )
         )
 
+    # Collect relevant methods (reference-only)
+    relevant_methods: list[RelevantMethod] = []
+    for sm in result.methods[:MAX_RELEVANT_METHODS]:
+        m = sm.method
+        relevant_methods.append(
+            RelevantMethod(
+                id=m.id,
+                title=m.title,
+                domain=m.domain,
+                score=sm.combined_score,
+                confidence=sm.confidence.value,
+            )
+        )
+
     # S-Series keyword detection (dual-path checking)
     safety_concerns = _detect_safety_concerns(planned_action)
     if context:
@@ -1738,6 +1757,12 @@ async def _handle_evaluate_governance(
             "communicate PROCEED_WITH_MODIFICATIONS with the specific changes needed. "
             "If the action fully complies with all principles, confirm PROCEED."
         )
+        if relevant_methods:
+            ai_judgment_guidance += (
+                " Relevant methods are included as references — use get_principle(id) "
+                "to retrieve full procedural content for any method that would help "
+                "determine compliance."
+            )
         top_principle = relevant_principles[0]
         rationale = (
             f"AI judgment required for {len(relevant_principles)} relevant principles. "
@@ -1754,6 +1779,7 @@ async def _handle_evaluate_governance(
         assessment=assessment,
         confidence=confidence,
         relevant_principles=relevant_principles,
+        relevant_methods=relevant_methods,
         compliance_evaluation=compliance_evaluations,
         required_modifications=required_modifications,
         s_series_check=s_series_check,
@@ -1771,6 +1797,7 @@ async def _handle_evaluate_governance(
         action=_sanitize_for_logging(planned_action),
         assessment=assessment,
         principles_consulted=[rp.id for rp in relevant_principles],
+        methods_surfaced=[rm.id for rm in relevant_methods],
         s_series_triggered=s_series_triggered,
         modifications=required_modifications if required_modifications else None,
         escalation_reason=rationale

@@ -7,7 +7,7 @@ Supports hybrid retrieval (BM25 + semantic embeddings + reranking).
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -380,6 +380,21 @@ class RelevantPrinciple(BaseModel):
     domain: str = Field(..., description="Source domain for hierarchy resolution")
 
 
+class RelevantMethod(BaseModel):
+    """A method identified as relevant to a governance assessment.
+
+    Reference-only: use get_principle(id) for full content.
+    """
+
+    id: str = Field(..., description="Method ID")
+    title: str = Field(..., description="Method title")
+    domain: str = Field(..., description="Source domain")
+    score: float = Field(..., ge=0.0, le=1.0, description="Retrieval relevance score")
+    confidence: Literal["high", "medium", "low"] = Field(
+        ..., description="Confidence level"
+    )
+
+
 class ComplianceEvaluation(BaseModel):
     """Evaluation of action compliance against a single principle.
 
@@ -442,6 +457,10 @@ class GovernanceAssessment(BaseModel):
     confidence: ConfidenceLevel = Field(..., description="Assessment confidence level")
     relevant_principles: list[RelevantPrinciple] = Field(
         default_factory=list, description="Principles relevant to this action"
+    )
+    relevant_methods: list[RelevantMethod] = Field(
+        default_factory=list,
+        description="Procedural methods relevant to this action (reference-only; use get_principle for full content)",
     )
     compliance_evaluation: list[ComplianceEvaluation] = Field(
         default_factory=list, description="Per-principle compliance evaluation"
@@ -518,6 +537,9 @@ class GovernanceAuditLog(BaseModel):
     assessment: AssessmentStatus = Field(..., description="Assessment outcome")
     principles_consulted: list[str] = Field(
         default_factory=list, description="Principle IDs that were consulted"
+    )
+    methods_surfaced: list[str] = Field(
+        default_factory=list, description="Method IDs surfaced in the assessment"
     )
     s_series_triggered: bool = Field(
         default=False, description="Whether S-Series safety principles were triggered"

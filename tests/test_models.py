@@ -336,6 +336,16 @@ class TestGovernanceAssessment:
         assert assessment.requires_ai_judgment is False
         assert assessment.ai_judgment_guidance is None
 
+    def test_relevant_methods_defaults_to_empty_list(self):
+        """relevant_methods should default to empty list."""
+        assessment = GovernanceAssessment(
+            action_reviewed="Test action",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+            rationale="Test rationale",
+        )
+        assert assessment.relevant_methods == []
+
 
 class TestRelevantPrinciple:
     """Tests for enhanced RelevantPrinciple model (§4.6.1)."""
@@ -381,6 +391,76 @@ class TestRelevantPrinciple:
         assert principle_with_code.series_code == "S"
 
 
+class TestRelevantMethod:
+    """Tests for RelevantMethod model."""
+
+    def test_relevant_method_fields(self):
+        """RelevantMethod should store all required fields."""
+        from ai_governance_mcp.models import RelevantMethod
+
+        method = RelevantMethod(
+            id="coding-method-test",
+            title="Test Method",
+            domain="ai-coding",
+            score=0.75,
+            confidence="high",
+        )
+        assert method.id == "coding-method-test"
+        assert method.title == "Test Method"
+        assert method.domain == "ai-coding"
+        assert method.score == 0.75
+        assert method.confidence == "high"
+
+    def test_relevant_method_confidence_validation(self):
+        """RelevantMethod should reject invalid confidence values."""
+        from ai_governance_mcp.models import RelevantMethod
+
+        with pytest.raises(ValidationError):
+            RelevantMethod(
+                id="test",
+                title="Test",
+                domain="test",
+                score=0.5,
+                confidence="invalid",
+            )
+
+    def test_relevant_method_score_bounds(self):
+        """RelevantMethod score should be constrained to 0-1."""
+        from ai_governance_mcp.models import RelevantMethod
+
+        with pytest.raises(ValidationError):
+            RelevantMethod(
+                id="test",
+                title="Test",
+                domain="test",
+                score=1.5,
+                confidence="high",
+            )
+
+        with pytest.raises(ValidationError):
+            RelevantMethod(
+                id="test",
+                title="Test",
+                domain="test",
+                score=-0.1,
+                confidence="low",
+            )
+
+    def test_relevant_method_all_confidence_levels(self):
+        """RelevantMethod should accept all valid confidence levels."""
+        from ai_governance_mcp.models import RelevantMethod
+
+        for level in ["high", "medium", "low"]:
+            method = RelevantMethod(
+                id="test",
+                title="Test",
+                domain="test",
+                score=0.5,
+                confidence=level,
+            )
+            assert method.confidence == level
+
+
 class TestComplianceEvaluation:
     """Tests for enhanced ComplianceEvaluation model (§4.6.1)."""
 
@@ -424,6 +504,31 @@ class TestGovernanceAuditLog:
         assert len(log.principles_consulted) == 2
         assert log.modifications is None
         assert log.escalation_reason is None
+
+    def test_methods_surfaced_defaults_to_empty_list(self):
+        """methods_surfaced should default to empty list."""
+        log = GovernanceAuditLog(
+            audit_id="gov-abc123def456",
+            timestamp="2026-01-01T10:00:00Z",
+            action="Test action",
+            assessment=AssessmentStatus.PROCEED,
+            confidence=ConfidenceLevel.HIGH,
+        )
+        assert log.methods_surfaced == []
+
+    def test_methods_surfaced_stores_method_ids(self):
+        """methods_surfaced should store method IDs."""
+        log = GovernanceAuditLog(
+            audit_id="gov-abc123def456",
+            timestamp="2026-01-01T10:00:00Z",
+            action="Test action",
+            assessment=AssessmentStatus.PROCEED,
+            principles_consulted=["coding-C1"],
+            methods_surfaced=["coding-method-test", "coding-method-review"],
+            confidence=ConfidenceLevel.HIGH,
+        )
+        assert len(log.methods_surfaced) == 2
+        assert "coding-method-test" in log.methods_surfaced
 
     def test_audit_log_with_escalation(self):
         """Should capture escalation reason."""
