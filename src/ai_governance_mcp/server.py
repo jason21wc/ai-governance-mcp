@@ -405,7 +405,7 @@ def log_governance_audit(audit_entry: GovernanceAuditLog) -> None:
 
 def get_audit_log() -> list[GovernanceAuditLog]:
     """Get the in-memory audit log for verification."""
-    return _audit_log
+    return list(_audit_log)
 
 
 # Governance reasoning log storage (linked to audit entries by audit_id)
@@ -1468,7 +1468,6 @@ async def _handle_log_feedback(args: dict) -> list[TextContent]:
         if args.get("comment")
         else None,
         timestamp=datetime.now(timezone.utc).isoformat(),
-        session_id=args.get("session_id"),
     )
 
     log_feedback_entry(feedback)

@@ -78,11 +78,11 @@ class RetrievalEngine:
 
         # Load embeddings
         if content_emb_path.exists():
-            self.content_embeddings = np.load(content_emb_path)
+            self.content_embeddings = np.load(content_emb_path, allow_pickle=False)
             logger.info(f"Loaded content embeddings: {self.content_embeddings.shape}")
 
         if domain_emb_path.exists():
-            self.domain_embeddings = np.load(domain_emb_path)
+            self.domain_embeddings = np.load(domain_emb_path, allow_pickle=False)
             logger.info(f"Loaded domain embeddings: {self.domain_embeddings.shape}")
 
         # Build BM25 index
@@ -146,6 +146,11 @@ class RetrievalEngine:
                             if principle_id not in ratings_by_id:
                                 ratings_by_id[principle_id] = []
                             ratings_by_id[principle_id].append(rating)
+                            # Cap per-principle ratings to prevent feedback poisoning
+                            if len(ratings_by_id[principle_id]) > 100:
+                                ratings_by_id[principle_id] = ratings_by_id[
+                                    principle_id
+                                ][-100:]
                     except json.JSONDecodeError:
                         continue  # Skip malformed entries
 
@@ -453,7 +458,7 @@ class RetrievalEngine:
         def sort_key(sp: ScoredPrinciple) -> tuple:
             series = sp.principle.series_code
             hierarchy = hierarchy_order.get(series, 99)
-            return (hierarchy, -sp.combined_score, sp.principle.number)
+            return (hierarchy, -sp.combined_score, sp.principle.number or 0)
 
         return sorted(principles, key=sort_key)
 
