@@ -1,3 +1,5 @@
+<!-- SYNC: This file is duplicated. Changes must be made to BOTH copies:
+     .claude/agents/orchestrator.md AND documents/agents/orchestrator.md -->
 ---
 name: orchestrator
 description: Governance-first coordinator. Ensures evaluate_governance() is called before any action unless it is a read-only operation, non-sensitive question, or trivial formatting change.

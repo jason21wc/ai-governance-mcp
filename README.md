@@ -683,14 +683,15 @@ ai-governance-mcp/
 ├── logs/                # Query + feedback logs
 └── tests/
     ├── conftest.py      # Shared fixtures
-    ├── test_models.py   # Model validation (35 tests)
+    ├── test_models.py   # Model validation (48 tests)
     ├── test_config.py   # Config tests (17 tests)
-    ├── test_server.py   # Server unit tests (96 tests)
+    ├── test_server.py   # Server unit tests (103 tests)
     ├── test_server_integration.py   # Dispatcher + flows (11 tests)
-    ├── test_extractor.py            # Extractor tests (45 tests)
+    ├── test_extractor.py            # Extractor tests (60 tests)
     ├── test_extractor_integration.py # Pipeline tests (11 tests)
-    ├── test_retrieval.py            # Retrieval unit (36 tests)
-    ├── test_retrieval_integration.py # Retrieval pipeline (21 tests)
+    ├── test_retrieval.py            # Retrieval unit (46 tests)
+    ├── test_retrieval_integration.py # Retrieval pipeline (23 tests)
+    ├── test_retrieval_quality.py    # MRR/Recall benchmarks (13 tests)
     ├── test_config_generator.py     # Platform configs (17 tests)
     └── test_validator.py            # Principle validation (15 tests)
 ```
@@ -723,12 +724,12 @@ pre-commit install
 
 ### Test Suite
 
-365 tests across 11 test files with 90% coverage:
+364 tests across 11 test files with 90% coverage:
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
-| Unit | 261 | Isolated component testing |
-| Integration | 43 | Full pipeline flows |
+| Unit | 306 | Isolated component testing |
+| Integration | 58 | Full pipeline flows |
 
 Tests include real index validation and actual ML model tests (marked `@pytest.mark.slow`).
 

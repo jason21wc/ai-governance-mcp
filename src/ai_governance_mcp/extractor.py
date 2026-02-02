@@ -728,7 +728,6 @@ class DocumentExtractor:
 
         current_principle = None
         current_section = "general"
-        principle_count = 0
 
         for i, line in enumerate(lines, 1):
             # Check for section headers
@@ -765,7 +764,6 @@ class DocumentExtractor:
                     principles.append(
                         self._build_principle(current_principle, domain_prefix)
                     )
-                    principle_count += 1
 
                 # Start new principle (old format)
                 series_code = old_match.group(1)
@@ -850,7 +848,6 @@ class DocumentExtractor:
                     principles.append(
                         self._build_principle(current_principle, domain_prefix)
                     )
-                    principle_count += 1
 
                 # Start new principle (new format)
                 current_principle = {
@@ -1031,9 +1028,7 @@ class DocumentExtractor:
                     current_method["content"] = "\n".join(
                         lines[current_method["start_line"] - 1 : i - 1]
                     )
-                    methods.append(
-                        self._build_method(current_method, domain_prefix, method_count)
-                    )
+                    methods.append(self._build_method(current_method, domain_prefix))
                     method_count += 1
 
                 current_method = {
@@ -1050,14 +1045,12 @@ class DocumentExtractor:
             current_method["content"] = "\n".join(
                 lines[current_method["start_line"] - 1 :]
             )
-            methods.append(
-                self._build_method(current_method, domain_prefix, method_count)
-            )
+            methods.append(self._build_method(current_method, domain_prefix))
 
         logger.info(f"Extracted {len(methods)} methods from {domain_config.name}")
         return methods
 
-    def _build_method(self, data: dict, domain_prefix: str, index: int) -> Method:
+    def _build_method(self, data: dict, domain_prefix: str) -> Method:
         """Build a Method object with slug-based ID and rich metadata."""
         # Generate slug-based ID: {domain}-method-{title-slug}
         title_slug = self._slugify(data["title"])

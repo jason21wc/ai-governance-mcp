@@ -7,7 +7,7 @@
 > System design, component responsibilities, data flow.
 > For decisions/rationale → PROJECT-MEMORY.md
 
-**Phase:** COMPLETE (365 tests, 90% coverage, 11 tools)
+**Phase:** COMPLETE (364 tests, 90% coverage, 11 tools)
 
 ---
 
@@ -68,9 +68,9 @@
 
 **Build Time (offline, when docs change):**
 ```
-documents/*.md  →  extractor.py  →  index/principles.json
-                                 →  index/embeddings.npy
-                                 →  index/domains.json
+documents/*.md  →  extractor.py  →  index/global_index.json
+                                 →  index/content_embeddings.npy
+                                 →  index/domain_embeddings.npy
 ```
 
 **Runtime (every query):**
@@ -101,8 +101,8 @@ ai-governance-mcp/
 │
 ├── index/                     # Generated
 │   ├── global_index.json      # Serialized GlobalIndex
-│   ├── content_embeddings.npy # Principle/method embeddings (406, 384)
-│   └── domain_embeddings.npy  # Domain embeddings for routing (4, 384)
+│   ├── content_embeddings.npy # Principle/method embeddings (450, 384)
+│   └── domain_embeddings.npy  # Domain embeddings for routing (5, 384)
 │
 ├── documents/                 # Source markdown docs
 │
@@ -112,14 +112,15 @@ ai-governance-mcp/
 ├── tests/
 │   ├── conftest.py                  # Shared fixtures
 │   ├── fixtures/                    # Test data files
-│   ├── test_models.py               # Model tests (35)
+│   ├── test_models.py               # Model tests (48)
 │   ├── test_config.py               # Config tests (17)
-│   ├── test_server.py               # Server unit tests (96)
+│   ├── test_server.py               # Server unit tests (103)
 │   ├── test_server_integration.py   # Server integration (11)
-│   ├── test_extractor.py            # Extractor tests (45)
+│   ├── test_extractor.py            # Extractor tests (60)
 │   ├── test_extractor_integration.py # Extractor pipeline (11)
-│   ├── test_retrieval.py            # Retrieval unit (36)
-│   ├── test_retrieval_integration.py # Retrieval pipeline (21)
+│   ├── test_retrieval.py            # Retrieval unit (46)
+│   ├── test_retrieval_integration.py # Retrieval pipeline (23)
+│   ├── test_retrieval_quality.py    # MRR/Recall benchmarks (13)
 │   ├── test_config_generator.py     # Platform configs (17)
 │   └── test_validator.py            # Principle validation (15)
 │
@@ -256,17 +257,17 @@ ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtu
 | File | Tests | Purpose |
 |------|-------|---------|
 | tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
-| tests/test_models.py | 49 | Model validation, constraints, enums |
+| tests/test_models.py | 48 | Model validation, constraints, enums |
 | tests/test_config.py | 17 | Settings, env vars, path handling |
 | tests/test_server.py | 103 | All 11 tools, formatting, metrics, governance, agent installation |
 | tests/test_server_integration.py | 11 | Dispatcher routing, end-to-end flows |
-| tests/test_extractor.py | 45 | Parsing, embeddings, metadata, validation |
+| tests/test_extractor.py | 60 | Parsing, embeddings, metadata, validation |
 | tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |
-| tests/test_retrieval.py | 36 | Unit tests + edge cases |
-| tests/test_retrieval_integration.py | 21 | Pipeline, utilities, performance |
+| tests/test_retrieval.py | 46 | Unit tests + edge cases |
+| tests/test_retrieval_integration.py | 23 | Pipeline, utilities, performance |
+| tests/test_retrieval_quality.py | 13 | MRR, Recall@K benchmarks |
 | tests/test_config_generator.py | 17 | Platform configs, CLI commands |
 | tests/test_validator.py | 15 | Principle ID validation, fuzzy matching |
-| tests/test_retrieval_quality.py | 8 | MRR, Recall@K benchmarks |
 
 ---
 

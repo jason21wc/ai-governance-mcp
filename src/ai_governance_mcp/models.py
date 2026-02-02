@@ -27,17 +27,6 @@ def generate_timestamp() -> str:
 # =============================================================================
 
 
-class SeriesCode(str, Enum):
-    """Constitution series codes with hierarchy order."""
-
-    S = "S"  # Safety - supreme priority
-    C = "C"  # Core behavioral
-    Q = "Q"  # Quality standards
-    OPER = "O"  # Operational (named OPER to avoid E741 ambiguity with zero)
-    G = "G"  # Growth
-    MA = "MA"  # Meta-awareness
-
-
 class ConfidenceLevel(str, Enum):
     """Confidence level for retrieval results."""
 

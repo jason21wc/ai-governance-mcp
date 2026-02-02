@@ -13,7 +13,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from ai_governance_mcp.models import (
     AssessmentStatus,
-    SeriesCode,
     ConfidenceLevel,
     PrincipleMetadata,
     Principle,
@@ -37,15 +36,6 @@ from ai_governance_mcp.models import (
 
 class TestEnums:
     """Test enum definitions."""
-
-    def test_series_codes(self):
-        """SeriesCode should have all expected values."""
-        assert SeriesCode.S == "S"
-        assert SeriesCode.C == "C"
-        assert SeriesCode.Q == "Q"
-        assert SeriesCode.OPER == "O"
-        assert SeriesCode.G == "G"
-        assert SeriesCode.MA == "MA"
 
     def test_confidence_levels(self):
         """ConfidenceLevel should have high, medium, low."""

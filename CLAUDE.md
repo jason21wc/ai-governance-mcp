@@ -29,9 +29,14 @@ This project IS the AI Governance MCP. Use these tools:
 | `evaluate_governance` | Pre-action compliance check (Governance Subagent) |
 | `query_governance` | Get principles for current task |
 | `verify_governance_compliance` | Post-action audit |
+| `log_governance_reasoning` | Record per-principle reasoning trace for audit trail |
 | `get_principle` | Get full content by ID |
 | `list_domains` | See available domains |
+| `get_domain_summary` | Detailed domain info with all principles and methods |
+| `log_feedback` | Rate principle relevance (1-5) to improve retrieval |
+| `get_metrics` | Performance analytics and retrieval stats |
 | `install_agent` | Install Orchestrator subagent (Claude Code only) |
+| `uninstall_agent` | Remove installed subagent |
 
 ### Mandatory Governance Checkpoints
 

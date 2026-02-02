@@ -1,6 +1,6 @@
 """MCP Server for AI Governance document retrieval.
 
-Per specification v4: FastMCP server with 10 tools for hybrid retrieval.
+Per specification v4: MCP server with 11 tools for hybrid retrieval.
 """
 
 import asyncio
@@ -146,9 +146,9 @@ def _validate_log_path(log_file: Path) -> None:
     home_dir = Path.home().resolve()
     temp_dir = Path(tempfile.gettempdir()).resolve()
 
-    is_in_project = str(resolved).startswith(str(project_root))
-    is_in_home = str(resolved).startswith(str(home_dir))
-    is_in_temp = str(resolved).startswith(str(temp_dir))
+    is_in_project = resolved.is_relative_to(project_root)
+    is_in_home = resolved.is_relative_to(home_dir)
+    is_in_temp = resolved.is_relative_to(temp_dir)
 
     if not (is_in_project or is_in_home or is_in_temp):
         raise ValueError(
@@ -756,7 +756,7 @@ def _get_agent_install_path(agent_name: str, scope: str = "project") -> Path:
 
     # C2 FIX: Path containment check prevents path traversal attacks
     final_path = (base_path / f"{agent_name}.md").resolve()
-    if not str(final_path).startswith(str(base_path.resolve())):
+    if not final_path.is_relative_to(base_path.resolve()):
         raise ValueError("Path traversal detected")
 
     return final_path
@@ -1470,7 +1470,7 @@ async def _handle_log_feedback(args: dict) -> list[TextContent]:
         timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
-    log_feedback_entry(feedback)
+    await log_feedback_async(feedback)
 
     # Update metrics
     metrics = get_metrics()
