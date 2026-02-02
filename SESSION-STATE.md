@@ -21,7 +21,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml), **v2.3** (Constitution), **v2.5.0** (ai-coding-methods), **v2.10.0** (multi-agent-methods), **v1.0.0** (multimodal-rag) |
-| Tests | **364 passing** |
+| Tests | **373 passing** |
 | Coverage | ~90% |
 | Tools | **11 MCP tools** |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
@@ -29,55 +29,29 @@
 
 ## Recent Session (2026-02-02)
 
-### Comprehensive Review Fix — 4 Phases
+### Feature: Methods in evaluate_governance Response
 
-Full codebase review fixing 31 findings across 4 severity levels. One commit per phase, pytest validation gate between each.
+`evaluate_governance` was retrieving methods but discarding them. Now surfaces them as compact references (`RelevantMethod`: id, title, domain, score, confidence) so AI agents get procedural guidance alongside principles. Full method content available via `get_principle(id)`.
 
-**Phase 1 — CRITICAL (4 findings):**
-
-| Change | Description |
+| Commit | Description |
 |--------|-------------|
-| Version sync | `pyproject.toml` 1.6.1 → 1.7.0 to match `__init__.py` |
-| ARCHITECTURE.md header | Updated to v1.7.0 / 2026-02-01 |
-| Governance language | Replaced "significant action" with skip-list model in 3 source docs (10 instances) with changelog notes |
-| Domain coverage | Added storytelling/multimodal-rag to server enums, retrieval prefix maps, extractor prefix maps |
-| Index rebuild | Embeddings now (450, 384), domains (5, 384) |
+| `1e11ce2` | `feat: Include relevant methods in evaluate_governance response` |
+| `acb5bde` | `fix: Add explicit requests dependency for Docker builds` |
 
-**Phase 2 — HIGH (5 findings):**
+**Changes (4 files):**
 
-| Change | Description |
-|--------|-------------|
-| `np.load()` | Explicit `allow_pickle=False` (CWE-502 defense-in-depth) |
-| Unvalidated session_id | Removed from feedback handler (CWE-117) |
-| Feedback capping | 100 per principle FIFO at load time (poisoning defense) |
-| Audit log return | `return list(_audit_log)` prevents mutation of raw deque |
-| Sort TypeError | `sp.principle.number or 0` fixes Optional[int] comparison |
+| File | Changes |
+|------|---------|
+| `models.py` | Added `RelevantMethod` model (Literal confidence), `relevant_methods` on `GovernanceAssessment`, `methods_surfaced` on `GovernanceAuditLog` |
+| `server.py` | Added import + `MAX_RELEVANT_METHODS=5`, method collection loop, conditional `ai_judgment_guidance`, updated SERVER_INSTRUCTIONS (tool table + AI Judgment Protocol) |
+| `test_models.py` | 7 new tests (RelevantMethod fields/validation, assessment/audit defaults) |
+| `test_server.py` | 2 new tests + 1 updated (structure, method fields, conditional guidance) |
 
-**Phase 3 — WARNING (12 findings):**
+**Docker fix:** `huggingface-hub>=1.0` dropped `requests` dependency (replaced with `httpx`), but `sentence-transformers==5.2.0` still imports it. Added `requests>=2.28.0` to `pyproject.toml`.
 
-| Change | Description |
-|--------|-------------|
-| SeriesCode enum | Removed dead code from models.py + test (365 → 364 tests) |
-| Test counts | Updated README.md + ARCHITECTURE.md to actual values |
-| ARCHITECTURE.md | Fixed data flow file names, embedding dimensions, added test_retrieval_quality.py |
-| PROJECT-MEMORY.md | Updated metrics to baseline_2026-01-30.json values |
-| CLAUDE.md | Added 5 missing tools to governance table |
-| Server docstring | "10 tools" → "11 tools" |
-| log_feedback | Switched to async (`log_feedback_async`) |
-| Unused code | Removed `_build_method` index param, `principle_count` variable |
-| Path validation | `is_relative_to()` instead of string prefix comparison |
-| Orchestrator sync | Added sync warning comment to both copies |
-| archive/ | Deleted root archive directory |
+### Earlier: Comprehensive Review Fix — 4 Phases
 
-**Phase 4 — INFO (5 findings):**
-
-| Change | Description |
-|--------|-------------|
-| ID examples | Updated to slug-based format in get_principle tool + error |
-| Version logging | Dynamic `f"v{__version__}"` instead of hardcoded "v4" |
-| Error sanitization | `_sanitize_error_message()` in install/uninstall handlers |
-| Config docstring | Explained CWD vs `__file__` root detection approach |
-| Rate limiter | Added scope comment: "Per-process, single-client. Not thread-safe." |
+Full codebase review fixing 31 findings across 4 severity levels. See git log for details (`ff3e0a3` and prior).
 
 ## Previous Session (2026-02-01)
 

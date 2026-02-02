@@ -12,6 +12,16 @@ This log captures lessons learned during development. Review before making chang
 
 ## Lessons
 
+### 2026-02-02 - Transitive Dependency Drift in Docker
+
+**Context:** Docker builds broke because `huggingface-hub>=1.0` replaced `requests` with `httpx`, but `sentence-transformers==5.2.0` still imports `requests` directly. Locally it worked because the older `huggingface-hub==0.36.0` was installed (which still depends on `requests`).
+
+**The Lesson:** Docker builds with `pip install .` resolve fresh dependency trees that may differ from local environments. Transitive dependencies can silently disappear when upstream packages change their dependency graphs. Pin or explicitly declare any library your code (or its dependencies) actually imports at runtime.
+
+**Prevention:** Gotcha #19 in PROJECT-MEMORY.md. Added `requests>=2.28.0` explicitly to pyproject.toml.
+
+---
+
 ### 2026-02-02 - Version Sync Discipline
 
 **Context:** `pyproject.toml` was at 1.6.1 while `__init__.py` was at 1.7.0. Discovered during comprehensive review.

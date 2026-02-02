@@ -14,7 +14,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 364 tests, 90% coverage, 11 tools
+- **Status:** COMPLETE - All phases done, 373 tests, 90% coverage, 11 tools
 - **Repository:** github.com/jason21wc/ai-governance-mcp
 
 ## Phase Gates
@@ -49,6 +49,7 @@
 | Reasoning Externalization | 2026-01-10 | `log_governance_reasoning` tool for audit trail. |
 | Skip-List Governance | 2026-02-01 | Deny-by-default: evaluate unless on skip-list (4 exceptions). Replaces subjective "significant action". |
 | Governance Docs In-Place | 2026-02-02 | Source docs edited in-place with changelog notes (not file renames). |
+| Methods in evaluate_governance | 2026-02-02 | Reference-only (id/title/domain/score/confidence). Full content via `get_principle(id)`. Top-5 cap. Audit log tracks `methods_surfaced`. |
 
 ### Multi-Agent Domain
 
@@ -165,6 +166,7 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 | 16 | Version bumps need pyproject.toml | `__init__.py` and `pyproject.toml` must stay in sync |
 | 17 | Operational changes need source docs | Skip-list/trigger changes must propagate to governance source documents, not just instruction surfaces |
 | 18 | `domain_name[:4]` generates implicit prefixes | Codify new domain prefixes in explicit maps (extractor, retrieval, server) |
+| 19 | `huggingface-hub>=1.0` drops `requests` | `sentence-transformers` still imports it. Explicit `requests>=2.28.0` in pyproject.toml. |
 
 ### Resolved Gotchas
 
