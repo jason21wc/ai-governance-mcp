@@ -698,7 +698,7 @@ Always specify language identifier for syntax highlighting:
 | Same document | Section name | "See Part 3.4" |
 | Same domain | Principle title | "per **Specification Completeness**" |
 | Cross-domain | Domain + title | "Constitution's **Context Engineering**" |
-| Document | Full name | `ai-coding-domain-principles-v2.2.1.md` |
+| Document | Full name | `ai-coding-domain-principles-v2.3.0.md` |
 
 ---
 

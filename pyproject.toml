@@ -33,6 +33,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+context-engine = [
+    "watchdog>=4.0.0",
+    "tree-sitter>=0.21.0",
+    "pymupdf>=1.24.0",
+    "openpyxl>=3.1.0",
+    "Pillow>=10.0.0",
+]
 dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",
@@ -47,6 +54,7 @@ dev = [
 [project.scripts]
 ai-governance-mcp = "ai_governance_mcp.server:main"
 ai-governance-extract = "ai_governance_mcp.extractor:main"
+ai-context-engine = "ai_governance_mcp.context_engine.server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ai_governance_mcp"]

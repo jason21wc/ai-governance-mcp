@@ -1,13 +1,13 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.7.0
-**Date:** 2026-02-01
+**Version:** 1.8.0
+**Date:** 2026-02-02
 **Memory Type:** Structural (reference)
 
 > System design, component responsibilities, data flow.
 > For decisions/rationale → PROJECT-MEMORY.md
 
-**Phase:** COMPLETE (364 tests, 90% coverage, 11 tools)
+**Phase:** COMPLETE (500+ tests, 90% coverage, 15 tools across 2 MCP servers)
 
 ---
 
@@ -282,3 +282,163 @@ ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtu
 | src/ai_governance_mcp/server.py | MCP server + 11 tools | ~1900 |
 | src/ai_governance_mcp/config_generator.py | Multi-platform MCP configs | ~150 |
 | src/ai_governance_mcp/validator.py | Principle ID validation | ~350 |
+
+---
+
+## Context Engine MCP Server
+
+A second MCP server providing semantic search across project content. Complements the governance MCP server (principles/methods) with project-specific content awareness.
+
+### System Structure
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  CONTEXT ENGINE MCP                                                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                     │
+│  │   server    │───→│  project    │───→│   indexer   │                     │
+│  │             │    │  manager    │    │             │                     │
+│  │ 4 MCP tools │    │             │    │ Embedding   │                     │
+│  │ Validation  │    │ Multi-proj  │    │ BM25 build  │                     │
+│  │ Rate limit  │    │ Hybrid QRY  │    │ Connectors  │                     │
+│  │ Sanitize    │    │ RLock sync  │    │             │                     │
+│  └─────────────┘    └─────────────┘    └─────────────┘                     │
+│                            │                  │                             │
+│                            ▼                  ▼                             │
+│                     ┌─────────────┐    ┌─────────────┐                     │
+│                     │   watcher   │    │ connectors  │                     │
+│                     │             │    │             │                     │
+│                     │ watchdog    │    │ code (TS)   │                     │
+│                     │ debounce    │    │ document    │                     │
+│                     │ incremental │    │ PDF         │                     │
+│                     └─────────────┘    │ spreadsheet │                     │
+│                                        │ image meta  │                     │
+│                            │           └─────────────┘                     │
+│                            ▼                                               │
+│                     ┌─────────────┐                                         │
+│                     │  storage    │  (~/.context-engine/indexes/{id}/)      │
+│                     │             │                                         │
+│                     │ filesystem  │  embeddings.npy, bm25.json,            │
+│                     │ JSON-based  │  metadata.json, manifest.json          │
+│                     └─────────────┘                                         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Component Responsibilities
+
+| Component | What It Does | Why Separate |
+|-----------|--------------|--------------|
+| **server.py** | 4 MCP tools, input validation, rate limiting, error sanitization | Entry point, security boundary |
+| **project_manager.py** | Multi-project lifecycle, hybrid search (semantic + BM25), score fusion | Core query logic, thread-safe |
+| **indexer.py** | File discovery, connector orchestration, embedding generation, BM25 build | Indexing pipeline, heavy compute |
+| **watcher.py** | File system monitoring, debounced change callbacks | Real-time updates, decoupled |
+| **connectors/** | Content-type-specific parsing (code, doc, PDF, spreadsheet, image) | Pluggable, independently testable |
+| **storage/** | Index persistence (filesystem-backed, JSON + NumPy) | Swappable backends |
+| **models.py** | Pydantic schemas (ContentChunk, ProjectIndex, QueryResult, etc.) | Type safety, validation |
+
+### Data Flow
+
+**Index Time (per project):**
+```
+project files  →  indexer._discover_files()  →  connectors.parse()  →  ContentChunks
+                                                                            │
+                   storage.save_*()  ←  BM25 index + embeddings  ←─────────┘
+```
+
+**Query Time (per request):**
+```
+AI query  →  server.py (validate)  →  project_manager.query_project()
+                                            │
+                 ┌──────────────────────────┤
+                 ▼                          ▼
+          semantic_search()          bm25_search()
+          (cosine similarity)        (keyword matching)
+                 │                          │
+                 └──────────┬───────────────┘
+                            ▼
+                     _fuse_scores()  →  ranked QueryResult[]
+```
+
+**Real-time Update (file watcher):**
+```
+file change  →  watchdog event  →  debounce (500ms)  →  incremental_update()
+                                                              │
+                                                     reload search indexes
+```
+
+### Security Features
+
+| Feature | Implementation | Location |
+|---------|---------------|----------|
+| **Input validation** | Type checks, length limits, bounds clamping | server.py |
+| **Rate limiting** | Token bucket (5 req/min) for index_project | server.py |
+| **Error sanitization** | Strip paths, line numbers, memory addresses, module paths | server.py |
+| **Path traversal prevention** | Hex-only project IDs, resolve + is_relative_to containment | storage/filesystem.py |
+| **Pickle deserialization** | allow_pickle=False on all np.load calls | storage/filesystem.py |
+| **JSON serialization** | BM25 index stored as JSON, not pickle | storage/filesystem.py |
+| **Symlink filtering** | Skip symlinks during file discovery | indexer.py |
+| **File size limits** | 10MB max per file during indexing | indexer.py |
+| **Thread safety** | RLock protecting shared index state from watcher mutations | project_manager.py |
+| **Log sanitization** | Truncate content before logging | server.py |
+| **Env var robustness** | try/except with fallback defaults for all env config | server.py |
+
+### Context Engine File Structure
+
+```
+src/ai_governance_mcp/context_engine/
+├── __init__.py
+├── server.py            # MCP server (4 tools, validation, rate limiting)
+├── project_manager.py   # Multi-project management, hybrid query
+├── indexer.py           # Core indexing pipeline
+├── watcher.py           # File system watcher (watchdog)
+├── models.py            # Pydantic data models
+├── connectors/
+│   ├── __init__.py
+│   ├── base.py          # BaseConnector interface
+│   ├── code.py          # Code parsing (tree-sitter)
+│   ├── document.py      # Markdown/text parsing
+│   ├── pdf.py           # PDF extraction
+│   ├── spreadsheet.py   # CSV/Excel parsing
+│   └── image.py         # Image metadata extraction
+└── storage/
+    ├── __init__.py
+    ├── base.py          # BaseStorage interface
+    └── filesystem.py    # Local filesystem storage
+```
+
+### Context Engine Test Coverage
+
+| Test Class | Tests | Coverage Area |
+|------------|-------|---------------|
+| TestContentChunk, TestFileMetadata, etc. | 10 | Model Literal types, validation, defaults |
+| TestProjectIdValidation | 8 | Path traversal prevention (hex-only IDs) |
+| TestFilesystemStorage | 16 | Round-trips, security, invalid directory filtering |
+| TestCodeConnector, TestDocumentConnector, etc. | 12 | Connector parsing, extensions, metadata |
+| TestIndexer | 11 | Discovery, ignore patterns, symlinks, BM25 tokenization |
+| TestProjectManager | 7 | Score fusion, BM25 query, RLock, shutdown |
+| TestProjectManagerLifecycle | 11 | Create/load/reindex, list, status, empty index |
+| TestServerSecurity | 9 | Error sanitization, rate limiting, constants |
+| TestServerHandlers | 8 | Input validation (empty, type, length, bounds) |
+| TestServerHandlersAdditional | 6 | list_projects, project_status, query results |
+| TestFileWatcher | 11 | Start/stop, debounce, ignore, callbacks |
+| TestErrorSanitizationExtended | 7 | Relative paths, UNC paths, module paths, Windows |
+| TestEnvVarParsing | 8 | Invalid values, negative, clamping, valid custom |
+| TestQueryResultConstraints | 4 | Score boundaries (le=1.0, ge=0.0) |
+| TestCreateServer | 2 | Server creation, instructions wiring |
+| TestIntegrationIndexQuery | 2 | Full pipeline, .contextignore respect |
+| **Total** | **137** | |
+
+### Context Engine Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| sentence-transformers | >=2.2.0 | Semantic embeddings (shared with governance) |
+| rank-bm25 | >=0.2.0 | BM25 keyword search (shared with governance) |
+| numpy | >=1.24.0 | Embeddings storage and similarity |
+| watchdog | (optional) | File system monitoring for real-time indexing |
+| tree-sitter | (optional) | Language-aware code parsing |
+| pymupdf | (optional) | PDF content extraction |
+| openpyxl | (optional) | Excel file parsing |
+| Pillow | (optional) | Image metadata extraction |

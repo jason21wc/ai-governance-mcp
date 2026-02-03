@@ -14,7 +14,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 373 tests, 90% coverage, 11 tools
+- **Status:** COMPLETE - All phases done, 500+ tests, 90% coverage, 15 tools (11 governance + 4 context engine)
 - **Repository:** github.com/jason21wc/ai-governance-mcp
 
 ## Phase Gates
@@ -94,6 +94,23 @@
 | Pre-Flight Validation | 2025-12-31 | `validate_domain_files()` — fail fast on missing config files. |
 | Multi-Platform Configs | 2026-01-01 | `config_generator.py` — Gemini, Claude, ChatGPT, Cursor, Windsurf, SuperAssistant. |
 
+### Context Engine
+
+| Decision | Date | Summary |
+|----------|------|---------|
+| Reference Memory Concept | 2026-02-02 | Fifth cognitive memory type: "what exists and where is it?" Complements Working/Semantic/Episodic/Procedural. |
+| Shared Repo, Separate Entry | 2026-02-02 | Context engine lives in `src/ai_governance_mcp/context_engine/`. Separate MCP server entry point (`ai-context-engine`). |
+| One Server, Multi-Project | 2026-02-02 | Single MCP server manages per-project indexes. Auto-detects by working directory (hash of absolute path). |
+| Hybrid Search (reused) | 2026-02-02 | Same BM25 + semantic pattern as governance server. Configurable weight (default 0.6 semantic / 0.4 keyword). |
+| Pluggable Connectors | 2026-02-02 | BaseConnector interface. 5 implementations: code (tree-sitter), document (markdown/text), PDF, spreadsheet, image metadata. |
+| JSON over Pickle | 2026-02-02 | BM25 index stored as JSON. NumPy loaded with `allow_pickle=False`. Prevents deserialization attacks. |
+| Hex-Only Project IDs | 2026-02-02 | Project IDs are 16-char hex hashes. Regex-validated to prevent path traversal. |
+| RLock for Thread Safety | 2026-02-02 | `threading.RLock` protects shared index state during watcher callbacks and queries. Reentrant for nested calls. |
+| Token Bucket Rate Limiting | 2026-02-02 | `index_project` limited to 5 req/min. Expensive operation, prevents resource exhaustion. |
+| Error Sanitization Parity | 2026-02-02 | Context engine mirrors governance server's error sanitization: strip paths, line numbers, addresses, module paths. |
+| Score Clamping | 2026-02-02 | Float32 precision can push fused scores above 1.0. Scores clamped with `min(score, 1.0)` before validation. |
+| .contextignore + .gitignore | 2026-02-02 | `.contextignore` takes precedence, falls back to `.gitignore`, then defaults. Follows fnmatch patterns. |
+
 ---
 
 ## Metrics Registry
@@ -167,6 +184,9 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 | 17 | Operational changes need source docs | Skip-list/trigger changes must propagate to governance source documents, not just instruction surfaces |
 | 18 | `domain_name[:4]` generates implicit prefixes | Codify new domain prefixes in explicit maps (extractor, retrieval, server) |
 | 19 | `huggingface-hub>=1.0` drops `requests` | `sentence-transformers` still imports it. Explicit `requests>=2.28.0` in pyproject.toml. |
+| 20 | Float32 score precision | Fused scores can exceed 1.0 by ~1e-7. Clamp with `min(score, 1.0)` before Pydantic validation. |
+| 21 | Context engine RLock, not Lock | query_project acquires lock for read phase. RLock needed because get_or_create_index may be called inside lock. |
+| 22 | Env vars crash on invalid values | All `AI_CONTEXT_ENGINE_*` env vars wrapped in try/except with fallback defaults. |
 
 ### Resolved Gotchas
 
