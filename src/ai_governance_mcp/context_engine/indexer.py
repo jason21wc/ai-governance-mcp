@@ -29,6 +29,9 @@ logger = logging.getLogger("ai_governance_mcp.context_engine.indexer")
 # Maximum file size to index (10MB) — prevents memory exhaustion on large binaries
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
 
+# Maximum number of files to index per project — prevents memory exhaustion
+MAX_FILE_COUNT = 10_000
+
 # Maximum content length for embedding input (chars)
 # BGE-small handles ~512 tokens (~2048 chars); larger models can handle more
 MAX_EMBEDDING_INPUT_CHARS = 2048
@@ -46,7 +49,7 @@ DEFAULT_IGNORE_PATTERNS = [
     ".venv/**",
     "venv/",
     "venv/**",
-    ".env",
+    ".env*",
     "*.egg-info/",
     "*.egg-info/**",
     "dist/",
@@ -80,7 +83,6 @@ class Indexer:
         self.embedding_model_name = embedding_model
         self.embedding_dimensions = embedding_dimensions
         self._embedding_model = None
-        self._bm25 = None
 
         # Initialize connectors in priority order
         self.connectors: list[BaseConnector] = [
@@ -286,6 +288,14 @@ class Indexer:
             # Check if any connector can handle this file
             if self._get_connector(file_path) is not None:
                 files.append(file_path)
+
+            # Enforce file count limit
+            if len(files) >= MAX_FILE_COUNT:
+                logger.warning(
+                    "File count limit reached (%d). Remaining files skipped.",
+                    MAX_FILE_COUNT,
+                )
+                break
 
         return sorted(files)
 

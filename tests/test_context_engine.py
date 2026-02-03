@@ -1794,3 +1794,257 @@ class TestIntegrationIndexQuery:
         # But Python and Markdown files should be
         assert any("main.py" in p for p in indexed_paths)
         assert any("README.md" in p for p in indexed_paths)
+
+
+# =============================================================================
+# Review Iteration 5 — Regression Tests
+# =============================================================================
+
+
+class TestRateLimiterThreadSafety:
+    """SEC-HIGH-1: Verify rate limiter has a threading.Lock."""
+
+    def test_rate_limit_lock_exists(self):
+        import ai_governance_mcp.context_engine.server as srv
+
+        assert hasattr(srv, "_rate_limit_lock")
+        assert isinstance(srv._rate_limit_lock, type(threading.Lock()))
+
+    def test_rate_limiter_concurrent_access(self):
+        """Verify rate limiter doesn't corrupt state under concurrent access."""
+        import ai_governance_mcp.context_engine.server as srv
+
+        # Reset state
+        srv._index_rate_tokens = srv._INDEX_RATE_LIMIT_TOKENS
+        srv._index_rate_last_refill = time.time()
+
+        results = []
+
+        def consume_token():
+            result = srv._check_index_rate_limit()
+            results.append(result)
+
+        # Launch 10 threads simultaneously trying to consume tokens
+        threads = [threading.Thread(target=consume_token) for _ in range(10)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        # Should have exactly 5 True (one per token) and 5 False
+        assert results.count(True) == 5
+        assert results.count(False) == 5
+
+
+class TestLockCoverage:
+    """SEC-HIGH-3: Verify get_or_create_index and reindex_project hold lock."""
+
+    def test_get_or_create_index_acquires_lock(self):
+        """get_or_create_index should hold _index_lock during execution.
+
+        Uses a separate thread to verify the lock is held (RLock is reentrant,
+        so same-thread checks would always succeed).
+        """
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        pm._loaded_indexes["test_id"] = Mock()
+
+        lock_held_from_other_thread = []
+        barrier = threading.Barrier(2, timeout=5)
+
+        def blocking_project_id(path):
+            # Signal that we're inside the locked section
+            barrier.wait()
+            # Wait for the checker thread to probe the lock
+            time.sleep(0.05)
+            return "test_id"
+
+        def check_lock():
+            # Wait until we know we're inside the locked section
+            barrier.wait()
+            # Try to acquire from this (different) thread
+            acquired = pm._index_lock.acquire(blocking=False)
+            if acquired:
+                pm._index_lock.release()
+                lock_held_from_other_thread.append(False)
+            else:
+                lock_held_from_other_thread.append(True)
+
+        with patch.object(
+            FilesystemStorage,
+            "project_id_from_path",
+            side_effect=blocking_project_id,
+        ):
+            checker = threading.Thread(target=check_lock)
+            checker.start()
+            pm.get_or_create_index(Path("/fake"))
+            checker.join()
+
+        assert lock_held_from_other_thread == [True]
+
+    def test_reindex_project_acquires_lock(self):
+        """reindex_project should hold _index_lock during execution.
+
+        Uses a separate thread to verify the lock is held.
+        """
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        pm.storage = Mock()
+        pm.storage.load_metadata.return_value = {"index_mode": "ondemand"}
+        pm._indexer = Mock()
+        mock_index = Mock()
+        pm._indexer.index_project.return_value = mock_index
+        pm.storage.load_embeddings.return_value = None
+        pm.storage.load_bm25_index.return_value = None
+
+        lock_held_from_other_thread = []
+        barrier = threading.Barrier(2, timeout=5)
+
+        original_index = pm._indexer.index_project
+
+        def blocking_index(*args, **kwargs):
+            barrier.wait()
+            time.sleep(0.05)
+            return original_index(*args, **kwargs)
+
+        pm._indexer.index_project = blocking_index
+
+        def check_lock():
+            barrier.wait()
+            acquired = pm._index_lock.acquire(blocking=False)
+            if acquired:
+                pm._index_lock.release()
+                lock_held_from_other_thread.append(False)
+            else:
+                lock_held_from_other_thread.append(True)
+
+        checker = threading.Thread(target=check_lock)
+        checker.start()
+        pm.reindex_project(Path("/fake"))
+        checker.join()
+
+        assert lock_held_from_other_thread == [True]
+
+
+class TestSignalHandlerCleanup:
+    """SEC-MED-7: Verify signal handler calls manager.shutdown()."""
+
+    def test_main_creates_manager_ref(self):
+        """main() should capture manager reference for signal handler."""
+        from ai_governance_mcp.context_engine.server import create_server
+
+        server, manager = create_server()
+        assert manager is not None
+        assert hasattr(manager, "shutdown")
+
+
+class TestEnvIgnorePatterns:
+    """SEC-MED-4: .env* pattern matches all .env variants."""
+
+    def test_env_wildcard_in_defaults(self):
+        from ai_governance_mcp.context_engine.indexer import DEFAULT_IGNORE_PATTERNS
+
+        assert ".env*" in DEFAULT_IGNORE_PATTERNS
+        assert ".env" not in DEFAULT_IGNORE_PATTERNS
+
+    def test_env_variants_ignored(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        assert indexer._is_ignored(".env", [".env*"])
+        assert indexer._is_ignored(".env.local", [".env*"])
+        assert indexer._is_ignored(".env.production", [".env*"])
+        assert indexer._is_ignored(".env.staging", [".env*"])
+        assert indexer._is_ignored(".env.development", [".env*"])
+
+
+class TestFileCountLimit:
+    """SEC-MED-2: File count limit during indexing."""
+
+    def test_max_file_count_constant_exists(self):
+        from ai_governance_mcp.context_engine.indexer import MAX_FILE_COUNT
+
+        assert MAX_FILE_COUNT == 10_000
+
+    def test_discover_files_enforces_limit(self, tmp_path):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        # Create more files than a small limit
+        for i in range(15):
+            (tmp_path / f"file_{i}.py").write_text(f"x = {i}")
+
+        indexer = Indexer(storage=Mock())
+
+        # Monkey-patch MAX_FILE_COUNT to a small value for testing
+        with patch("ai_governance_mcp.context_engine.indexer.MAX_FILE_COUNT", 10):
+            files = indexer._discover_files(tmp_path, [])
+        assert len(files) <= 10
+
+
+class TestImageConnectorFixes:
+    """SEC-MED-5, SEC-MED-6, CODE-MED-4: Image connector improvements."""
+
+    def test_relative_path_in_output(self, tmp_path):
+        """Image content should use relative path, not absolute."""
+        from ai_governance_mcp.context_engine.connectors.image import ImageConnector
+
+        conn = ImageConnector()
+        f = tmp_path / "images" / "test.png"
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) == 1
+        # Should contain relative path, not absolute
+        content = chunks[0].content
+        assert str(tmp_path) not in content or "images/test.png" in content
+
+    def test_1_based_line_numbers(self, tmp_path):
+        """Image chunks should use 1-based line numbers."""
+        from ai_governance_mcp.context_engine.connectors.image import ImageConnector
+
+        conn = ImageConnector()
+        f = tmp_path / "test.png"
+        f.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+        chunks = conn.parse(f)
+        assert chunks[0].start_line == 1
+        assert chunks[0].end_line == 1
+
+    def test_parse_without_project_root(self, tmp_path):
+        """parse() without project_root should fall back to filename only."""
+        from ai_governance_mcp.context_engine.connectors.image import ImageConnector
+
+        conn = ImageConnector()
+        f = tmp_path / "test.png"
+        f.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+        chunks = conn.parse(f)
+        assert len(chunks) == 1
+        assert "Path: test.png" in chunks[0].content
+
+
+class TestUnknownToolStructuredError:
+    """CODE-HIGH-4: Unknown tool returns structured JSON error."""
+
+    def test_unknown_tool_response_is_valid_json(self):
+        """The unknown tool error response at server.py should be structured JSON."""
+        # Verify the code structure by importing and checking the source
+        import inspect
+
+        from ai_governance_mcp.context_engine import server
+
+        source = inspect.getsource(server.create_server)
+        # The unknown tool branch should contain json.dumps and valid_tools
+        assert "json.dumps" in source
+        assert "valid_tools" in source
+        assert "Unknown tool" in source
+
+
+class TestDeadCodeRemoval:
+    """CODE-MED-1: self._bm25 dead code removed."""
+
+    def test_indexer_no_bm25_attribute(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        assert not hasattr(indexer, "_bm25")

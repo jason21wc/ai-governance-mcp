@@ -36,18 +36,29 @@ class ImageConnector(BaseConnector):
     def can_handle(self, file_path: Path) -> bool:
         return file_path.suffix.lower() in self.supported_extensions
 
-    def parse(self, file_path: Path) -> list[ContentChunk]:
+    def parse(
+        self, file_path: Path, project_root: Path | None = None
+    ) -> list[ContentChunk]:
         """Extract image metadata as an indexable chunk."""
         metadata_lines = [f"Image: {file_path.name}"]
 
         stat = file_path.stat()
         metadata_lines.append(f"Size: {stat.st_size} bytes")
-        metadata_lines.append(f"Path: {file_path}")
+        # Use relative path from project root to avoid leaking absolute paths
+        display_path = (
+            file_path.relative_to(project_root)
+            if project_root and file_path.is_relative_to(project_root)
+            else file_path.name
+        )
+        metadata_lines.append(f"Path: {display_path}")
 
         if self._pillow_available and file_path.suffix.lower() != ".svg":
             try:
                 from PIL import Image
                 from PIL.ExifTags import TAGS
+
+                # Guard against decompression bombs
+                Image.MAX_IMAGE_PIXELS = 178_956_970
 
                 with Image.open(file_path) as img:
                     metadata_lines.append(f"Dimensions: {img.width}x{img.height}")
@@ -77,8 +88,8 @@ class ImageConnector(BaseConnector):
             ContentChunk(
                 content=metadata_text,
                 source_path=str(file_path),
-                start_line=0,
-                end_line=0,
+                start_line=1,
+                end_line=1,
                 content_type="image",
                 heading=f"Image metadata: {file_path.name}",
             )

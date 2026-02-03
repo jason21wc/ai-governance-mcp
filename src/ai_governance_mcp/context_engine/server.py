@@ -22,8 +22,10 @@ import os
 import re
 import signal
 import sys
+import threading
 import time
 from pathlib import Path
+from typing import Optional
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
@@ -47,28 +49,32 @@ _INDEX_RATE_LIMIT_TOKENS = 5.0
 _INDEX_RATE_LIMIT_REFILL_RATE = 5 / 60  # 5 per minute
 _index_rate_tokens = _INDEX_RATE_LIMIT_TOKENS
 _index_rate_last_refill = time.time()
+_rate_limit_lock = threading.Lock()
 
 
 def _check_index_rate_limit() -> bool:
     """Check if index_project request is within rate limit.
 
     Uses token bucket algorithm. Returns True if allowed.
+    Thread-safe: guarded by _rate_limit_lock since MCP server
+    runs handlers via run_in_executor thread pool.
     """
     global _index_rate_tokens, _index_rate_last_refill
 
-    now = time.time()
-    elapsed = now - _index_rate_last_refill
-    _index_rate_last_refill = now
+    with _rate_limit_lock:
+        now = time.time()
+        elapsed = now - _index_rate_last_refill
+        _index_rate_last_refill = now
 
-    _index_rate_tokens = min(
-        _INDEX_RATE_LIMIT_TOKENS,
-        _index_rate_tokens + (elapsed * _INDEX_RATE_LIMIT_REFILL_RATE),
-    )
+        _index_rate_tokens = min(
+            _INDEX_RATE_LIMIT_TOKENS,
+            _index_rate_tokens + (elapsed * _INDEX_RATE_LIMIT_REFILL_RATE),
+        )
 
-    if _index_rate_tokens >= 1:
-        _index_rate_tokens -= 1
-        return True
-    return False
+        if _index_rate_tokens >= 1:
+            _index_rate_tokens -= 1
+            return True
+        return False
 
 
 def _sanitize_error_message(error: Exception) -> str:
@@ -305,7 +311,23 @@ def create_server() -> tuple[Server, ProjectManager]:
             elif name == "project_status":
                 return await _handle_project_status(manager)
             else:
-                return [TextContent(type="text", text=f"Unknown tool: {name}")]
+                return [
+                    TextContent(
+                        type="text",
+                        text=json.dumps(
+                            {
+                                "error": f"Unknown tool: {name}",
+                                "valid_tools": [
+                                    "query_project",
+                                    "index_project",
+                                    "list_projects",
+                                    "project_status",
+                                ],
+                            },
+                            indent=2,
+                        ),
+                    )
+                ]
         except Exception as e:
             logger.error(
                 "Error in tool %s: %s",
@@ -504,36 +526,41 @@ async def _handle_project_status(
     ]
 
 
-async def _run_server() -> None:
-    """Run the MCP server."""
-    server, manager = create_server()
-
-    try:
-        async with stdio_server() as (read_stream, write_stream):
-            await server.run(
-                read_stream,
-                write_stream,
-                server.create_initialization_options(),
-            )
-    finally:
-        manager.shutdown()
-
-
 def main() -> None:
     """Entry point for the context engine MCP server."""
     _setup_logging()
     logger.info("Starting Context Engine MCP Server")
 
+    # Module-level reference for signal handler access
+    _manager_ref: list[Optional[ProjectManager]] = [None]
+
     # Handle graceful shutdown
     def _signal_handler(sig, frame):
         logger.info("Received signal %s, shutting down", sig)
+        if _manager_ref[0] is not None:
+            _manager_ref[0].shutdown()
         os._exit(0)
 
     signal.signal(signal.SIGINT, _signal_handler)
     signal.signal(signal.SIGTERM, _signal_handler)
 
     try:
-        asyncio.run(_run_server())
+        # Create server early to capture manager reference for signal handler
+        server, manager = create_server()
+        _manager_ref[0] = manager
+
+        async def _run() -> None:
+            try:
+                async with stdio_server() as (read_stream, write_stream):
+                    await server.run(
+                        read_stream,
+                        write_stream,
+                        server.create_initialization_options(),
+                    )
+            finally:
+                manager.shutdown()
+
+        asyncio.run(_run())
     except KeyboardInterrupt:
         logger.info("Keyboard interrupt, shutting down")
     finally:

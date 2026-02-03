@@ -80,28 +80,29 @@ class ProjectManager:
         Returns:
             ProjectIndex for the project.
         """
-        project_id = FilesystemStorage.project_id_from_path(project_path)
+        with self._index_lock:
+            project_id = FilesystemStorage.project_id_from_path(project_path)
 
-        # Check if already loaded in memory
-        if project_id in self._loaded_indexes:
-            return self._loaded_indexes[project_id]
+            # Check if already loaded in memory
+            if project_id in self._loaded_indexes:
+                return self._loaded_indexes[project_id]
 
-        # Check if exists in storage
-        if self.storage.project_exists(project_id):
-            return self._load_project(project_id)
+            # Check if exists in storage
+            if self.storage.project_exists(project_id):
+                return self._load_project(project_id)
 
-        # Create new index
-        index = self._indexer.index_project(project_path, project_id, index_mode)
-        self._loaded_indexes[project_id] = index
+            # Create new index
+            index = self._indexer.index_project(project_path, project_id, index_mode)
+            self._loaded_indexes[project_id] = index
 
-        # Load search indexes
-        self._load_search_indexes(project_id)
+            # Load search indexes
+            self._load_search_indexes(project_id)
 
-        # Start watcher if realtime mode
-        if index_mode == "realtime":
-            self._start_watcher(project_path, project_id)
+            # Start watcher if realtime mode
+            if index_mode == "realtime":
+                self._start_watcher(project_path, project_id)
 
-        return index
+            return index
 
     def query_project(
         self,
@@ -170,30 +171,33 @@ class ProjectManager:
 
     def reindex_project(self, project_path: Path) -> ProjectIndex:
         """Force a full re-index of a project."""
-        project_id = FilesystemStorage.project_id_from_path(project_path)
+        with self._index_lock:
+            project_id = FilesystemStorage.project_id_from_path(project_path)
 
-        # Stop existing watcher if any
-        if project_id in self._watchers:
-            self._watchers[project_id].stop()
-            del self._watchers[project_id]
+            # Stop existing watcher if any
+            if project_id in self._watchers:
+                self._watchers[project_id].stop()
+                del self._watchers[project_id]
 
-        # Clear loaded data
-        self._loaded_indexes.pop(project_id, None)
-        self._loaded_embeddings.pop(project_id, None)
-        self._loaded_bm25.pop(project_id, None)
+            # Clear loaded data
+            self._loaded_indexes.pop(project_id, None)
+            self._loaded_embeddings.pop(project_id, None)
+            self._loaded_bm25.pop(project_id, None)
 
-        # Re-index
-        existing = self.storage.load_metadata(project_id)
-        index_mode = existing.get("index_mode", "realtime") if existing else "realtime"
+            # Re-index
+            existing = self.storage.load_metadata(project_id)
+            index_mode = (
+                existing.get("index_mode", "realtime") if existing else "realtime"
+            )
 
-        index = self._indexer.index_project(project_path, project_id, index_mode)
-        self._loaded_indexes[project_id] = index
-        self._load_search_indexes(project_id)
+            index = self._indexer.index_project(project_path, project_id, index_mode)
+            self._loaded_indexes[project_id] = index
+            self._load_search_indexes(project_id)
 
-        if index_mode == "realtime":
-            self._start_watcher(project_path, project_id)
+            if index_mode == "realtime":
+                self._start_watcher(project_path, project_id)
 
-        return index
+            return index
 
     def list_projects(self) -> list[ProjectStatus]:
         """List all indexed projects with their status."""

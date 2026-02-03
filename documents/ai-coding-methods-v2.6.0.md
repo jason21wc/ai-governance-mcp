@@ -3071,7 +3071,7 @@ credentials.json
 ```
 
 **Built-in defaults:** Even without a `.contextignore` file, the following patterns are always excluded:
-`.git/`, `__pycache__/`, `*.pyc`, `node_modules/`, `.venv/`, `venv/`, `.env`, `*.egg-info/`, `dist/`, `build/`, `.DS_Store`, `*.lock`
+`.git/`, `__pycache__/`, `*.pyc`, `node_modules/`, `.venv/`, `venv/`, `.env*` (matches `.env`, `.env.local`, `.env.production`, etc.), `*.egg-info/`, `dist/`, `build/`, `.DS_Store`, `*.lock`
 
 These defaults are appended to any custom `.contextignore` or `.gitignore` patterns.
 
@@ -3103,10 +3103,10 @@ A Reference Memory index consists of:
 
 | Mode | Behavior | Default For | Use When |
 |------|----------|-------------|----------|
-| **Real-time** | File watcher with debounce (~500ms), incremental re-index on change | Code projects | Files change frequently during development |
+| **Real-time** | File watcher with debounce (~500ms), full re-index on change (true incremental update planned) | Code projects | Files change frequently during development |
 | **On-demand** | Manual rebuild triggered when source documents change | Document-heavy projects | Content is relatively stable, updates are batched |
 
-Mode is configurable per project via project configuration. Real-time mode watches the filesystem and re-indexes only changed files. On-demand mode requires an explicit rebuild trigger.
+Mode is configurable per project via project configuration. Real-time mode watches the filesystem and triggers a full re-index on change (true incremental update — replacing only affected chunks — is planned but not yet implemented). On-demand mode requires an explicit rebuild trigger.
 
 **Concurrency model:** The file watcher runs on a separate thread with debounced callbacks (~500ms). A reentrant lock (`RLock`) protects shared index state from concurrent watcher mutations and query reads. Queries acquire the lock for the entire read phase (index lookup + semantic search + BM25 search + score fusion) to prevent mid-query index mutation. Query execution runs in `asyncio.run_in_executor()` on a thread pool since search operations are CPU-bound.
 
@@ -3216,11 +3216,12 @@ Reference Memory implementations must follow these security patterns:
 | **Error sanitization** | Strip absolute paths, relative paths, UNC paths, line numbers, memory addresses, and module paths from error messages returned to clients. Truncate to 500 characters. | Prevents information leakage about server internals |
 | **Rate limiting** | Token bucket on expensive operations (e.g., `index_project` at 5 requests/minute). | Prevents resource exhaustion |
 | **File size limits** | Maximum 10MB per file during indexing. | Prevents memory exhaustion on large binaries |
+| **File count limits** | Maximum 10,000 files per project during indexing. | Prevents memory exhaustion on massive repositories |
 | **Symlink filtering** | Skip symlinks during file discovery. | Prevents traversal outside project directory |
 | **Log sanitization** | Truncate content to 2,000 characters before logging. | Prevents log bloat and sensitive data in logs |
 | **Environment variable robustness** | All configuration env vars wrapped in try/except with fallback defaults. Invalid values logged as warnings, not errors. | Prevents crash on misconfiguration |
 | **Score clamping** | Combined scores clamped with `min(score, 1.0)` before validation. | Prevents float32 precision errors from exceeding constraints |
-| **Thread safety** | `RLock` protects shared index state from concurrent watcher callbacks and query reads. Reentrant to allow nested operations. | Prevents data corruption during concurrent access |
+| **Thread safety** | `RLock` protects all shared index state mutations (`get_or_create_index`, `reindex_project`, `query_project`, watcher callbacks). Rate limiter has its own `threading.Lock`. Reentrant lock allows nested operations. | Prevents data corruption during concurrent access |
 
 ---
 
@@ -4154,8 +4155,8 @@ The Context Engine runs as a shared MCP server managing multiple project indexes
 # Install from source (development)
 pip install -e ".[context-engine]"
 
-# Or via Docker (production)
-docker run -v ~/.context-engine:/data ai-governance-mcp context-engine
+# Docker support for the context engine is not yet available.
+# The existing Dockerfile only includes the governance server entrypoint.
 ```
 
 ### G.3 Configuration
@@ -4210,13 +4211,13 @@ docker run -v ~/.context-engine:/data ai-governance-mcp context-engine
 
 ### G.4 Project Setup
 
-**First use:** The context engine auto-indexes all files in the working directory on first connection. Subsequent sessions use the existing index, updating incrementally via file watcher (real-time mode) or on manual trigger (on-demand mode).
+**First use:** The context engine auto-indexes all files in the working directory on first connection. Subsequent sessions use the existing index, with the file watcher triggering re-index on change (real-time mode) or on manual trigger (on-demand mode). Note: the current implementation performs a full re-index on change; true incremental update (replacing only affected chunks) is planned.
 
 **`.contextignore` configuration:** Create `.contextignore` in project root to exclude files from indexing. Follows `.gitignore` pattern syntax. If no `.contextignore` exists, the engine falls back to `.gitignore` patterns plus sensible defaults (node_modules, __pycache__, .git, etc.).
 
 **Indexing mode configuration:** Set in project config or via environment variable:
 ```bash
-# Real-time (default for code projects) — file watcher with incremental re-index
+# Real-time (default for code projects) — file watcher with re-index on change
 AI_CONTEXT_ENGINE_INDEX_MODE=realtime
 
 # On-demand — manual rebuild when content changes
@@ -4304,11 +4305,12 @@ The context engine can support CI/CD workflows in headless mode:
 - **Documentation Drift:** Compare README/docs against actual code structure via context engine queries
 - **Security Scan:** Agent uses context engine to trace data flows and identify potential vulnerabilities
 
-```bash
-# Run in headless mode (no file watcher) for CI environments
-ai-context-engine --no-watch --index-only
+```
+Note: CLI flags (--no-watch, --index-only) are not yet implemented.
+The current server entry point runs the full MCP server with no argument parsing.
+CI/CD integration will require adding argparse support in a future release.
 
-# Indexes can be cached between CI runs for performance
+Indexes stored in ~/.context-engine/indexes/ can be cached between CI runs.
 ```
 
 ### G.10 Auto-Rules (Future Enhancement)
