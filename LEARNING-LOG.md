@@ -12,6 +12,14 @@
 
 ## Active Lessons
 
+### Bold Text Drives Method Retrieval Surfacing (2026-02-07)
+
+New method sections get generic chunk titles from the extractor (e.g., "Purpose", "Trigger Conditions"). The extractor picks up **bold text** as `trigger_phrases` (max 4 words, >5 chars). Without bold key terms, method chunks won't surface for natural-language queries.
+
+**Rule:** When adding new method sections, bold the 2-3 most distinctive terms in the content (e.g., `**documentation drift**`, `**coherence audit**`). Verify after index rebuild with `query_governance()`. Server restart required (Gotcha #15).
+
+---
+
 ### Transitive Dependency Drift in Docker (2026-02-02)
 
 Docker `pip install .` resolves fresh dependency trees that may differ from local environments. `huggingface-hub>=1.0` dropped `requests`, but `sentence-transformers` still imports it. Locally worked because older `huggingface-hub` was cached.
