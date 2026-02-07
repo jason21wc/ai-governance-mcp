@@ -275,6 +275,8 @@ Starting new project. Need to complete discovery and write specification.
 
 ## Session Notes
 [Any relevant context]
+
+<!-- Optional: Add Quick Reference table and Links for mature projects (see §7.1.2) -->
 ```
 
 #### Minimal PROJECT-MEMORY.md Template (Copy-Paste Ready)
@@ -2427,7 +2429,7 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 
 | Memory File | Trigger | Action |
 |-------------|---------|--------|
-| SESSION-STATE.md | > 300 lines | Prune to current state only |
+| SESSION-STATE.md | > 300 lines | Apply Working Memory Relevance Test (§7.1.1); remove completed work, stale session logs, and anything that doesn't help the next session orient and resume |
 | PROJECT-MEMORY.md | > 800 lines | Review entries against Decision Significance Test (§7.2.1); route implementation details to ARCHITECTURE.md, check superseded, condense |
 | LEARNING-LOG.md | Entry > 6 months | Graduate to methods, retain if still project-relevant and passing Future Action Test (§7.3.1), or delete |
 | LEARNING-LOG.md | > 200 lines | Review all entries against Future Action Test (§7.3.1); remove obsolete, graduated, or redundant entries. If all entries pass review, the file may legitimately exceed 200 lines — this is a quality review trigger, not a hard ceiling |
@@ -2449,6 +2451,8 @@ Run this check: session end, before releases, when files feel bloated.
 ### 7.1.1 Purpose
 
 Track current work state so any session (same AI, new AI, different tool) can resume seamlessly.
+
+**Working Memory Relevance Test:** An item belongs in Session State if the next session needs it to orient and resume work correctly. Completed work, past session narratives, and anything that only describes what happened belong in Learning Log or Project Memory instead.
 
 ### 7.1.2 Session State File Structure
 
@@ -2491,6 +2495,17 @@ File: `SESSION-STATE.md` (project root)
 
 ## Session Notes
 [Any context the next session needs that doesn't fit elsewhere]
+
+<!-- Optional sections for established projects with stable metrics -->
+
+## Quick Reference
+| Metric | Value |
+|--------|-------|
+| Version | **v1.0.0** |
+| Tests | **N passing** |
+
+## Links
+- **[Service]:** [URL]
 ```
 
 ### 7.1.3 Task Tracking Rationale
@@ -2519,6 +2534,8 @@ Update `SESSION-STATE.md` when:
 ### 7.1.5 Session State is Transient
 
 Session state captures the CURRENT moment. Historical information belongs in Project Memory or Learning Log. Keep session state minimal and actionable.
+
+**Session log lifecycle:** Refresh session state at each new session start — clear completed work and stale context, retaining only what helps the next session orient. If a session produced decisions or lessons worth preserving, route them to Project Memory or Learning Log before clearing.
 
 ---
 
@@ -2978,6 +2995,7 @@ Execute in order:
 
 | File | Guidance |
 |------|----------|
+| SESSION-STATE.md | Create from Cold Start Kit template. Add Quick Reference and Links sections when project has stable metrics (see §7.1.2) |
 | LEARNING-LOG.md | Create stub with usage header (no entries yet). Entries added when lessons emerge per §7.3.2 |
 | Detailed ARCHITECTURE.md | Create after Plan phase when technical decisions are made |
 
@@ -4326,7 +4344,7 @@ When the context engine is available, project-specific instructions could be sem
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 2.7.0 | 2026-02-08 | **Learning Log Reform + Project Memory Refinement:** **Learning Log:** (1) Tightened §7.3.1 Purpose with Future Action Test and "conclusions, not evidence" constraint. (2) Simplified §7.3.3 template: replaced 4 sections (Lessons Learned, Patterns That Worked, Patterns That Failed, Technical Discoveries) with 2 (Active Lessons, Graduated Patterns). Added entry rules blockquote, entry quality standard, and calibration example. (3) Updated §7.3.4 with explicit removal criteria (obsolete, graduated, captured elsewhere, fails Future Action Test). (4) Enhanced §7.0.4 distillation triggers: 200-line quality review trigger (not hard ceiling), distillation-time dedup check, "retain if still relevant" option for 6-month trigger. (5) Updated all 4 template surfaces (§7.3.3, quick-start, §7.8.3 stub, LEARNING-LOG.md header) for consistency. Root cause: Learning Log grew to 2,429 lines due to insufficient content standards and obsolescence criteria. **Project Memory:** (1) Added Decision Significance Test to §7.2.1: "A decision belongs in Project Memory if a future session would need to know it to make a correct choice." Routes implementation details to ARCHITECTURE.md. (2) Simplified §7.2.2 templates: replaced verbose per-decision format with condensed table for both decisions and gotchas. Updated Cold Start Kit template to match. (3) Updated §7.0.4 distillation trigger to reference Decision Significance Test. (4) Applied to PROJECT-MEMORY.md: removed 2 implementation-detail entries (PDF Resource Leak Fix, MAX_IMAGE_PIXELS), merged Completed Consolidations into Future Considerations with strikethrough. |
+| 2.7.0 | 2026-02-08 | **Memory Architecture Refinement (Learning Log + Project Memory + Session State):** **Learning Log:** (1) Tightened §7.3.1 Purpose with Future Action Test and "conclusions, not evidence" constraint. (2) Simplified §7.3.3 template: replaced 4 sections (Lessons Learned, Patterns That Worked, Patterns That Failed, Technical Discoveries) with 2 (Active Lessons, Graduated Patterns). Added entry rules blockquote, entry quality standard, and calibration example. (3) Updated §7.3.4 with explicit removal criteria (obsolete, graduated, captured elsewhere, fails Future Action Test). (4) Enhanced §7.0.4 distillation triggers: 200-line quality review trigger (not hard ceiling), distillation-time dedup check, "retain if still relevant" option for 6-month trigger. (5) Updated all 4 template surfaces (§7.3.3, quick-start, §7.8.3 stub, LEARNING-LOG.md header) for consistency. Root cause: Learning Log grew to 2,429 lines due to insufficient content standards and obsolescence criteria. **Project Memory:** (1) Added Decision Significance Test to §7.2.1: "A decision belongs in Project Memory if a future session would need to know it to make a correct choice." Routes implementation details to ARCHITECTURE.md. (2) Simplified §7.2.2 templates: replaced verbose per-decision format with condensed table for both decisions and gotchas. Updated Cold Start Kit template to match. (3) Updated §7.0.4 distillation trigger to reference Decision Significance Test. (4) Applied to PROJECT-MEMORY.md: removed 2 implementation-detail entries (PDF Resource Leak Fix, MAX_IMAGE_PIXELS), merged Completed Consolidations into Future Considerations with strikethrough. **Session State:** (1) Added Working Memory Relevance Test to §7.1.1: "An item belongs in Session State if the next session needs it to orient and resume work correctly." (2) Added optional Quick Reference and Links sections to §7.1.2 template for mature projects; Cold Start Kit stays minimal with comment pointer. (3) Added session log lifecycle guidance to §7.1.5: refresh at session start, route decisions/lessons before clearing. (4) Refined §7.0.4 distillation trigger to reference Working Memory Relevance Test with concrete removal examples. (5) Added SESSION-STATE row to §7.8.3 File Creation Notes. |
 | 2.6.0 | 2026-02-02 | **Reference Memory & Context Engine:** (1) Added Reference Memory to cognitive memory taxonomy (§7.0.2) with context engine index as source. (2) Updated Memory Loading Strategy (§7.0.3) with Reference Memory query guidance and complementary roles note. (3) Added §7.9 Reference Memory section: purpose, when to use, what gets indexed, .contextignore, index components, indexing modes, source connector architecture, query interface, workflow integration. (4) Added §5.1.5 Rollback Strategy: planning checklist, mechanism table, post-rollback documentation. (5) Added §3.3.5 Persistent Codebase Analysis: Reference Memory as context strategy layer. (6) Added Appendix G: Context Engine MCP Server Setup (architecture, installation, configuration, project setup, embedding models, storage, tools, governance integration, CI/CD patterns, auto-rules future). (7) Added MCP config sections to Appendix A (§A.4) and Appendix D (§D.6). **Post-implementation accuracy fixes:** (8) Fixed `bm25_index.pkl` → `bm25_index.json` (Appendix G.6). (9) Corrected code connector description to reflect actual regex-based boundary detection (§7.9.6). (10) Marked S3 storage as Future (Appendix G.6). (11) Added §7.9.9 Security Requirements (11 security patterns). (12) Added BaseConnector interface spec (§7.9.6) and BaseStorage interface spec (Appendix G.6). (13) Added data model schemas (§7.9.4), default ignore patterns (§7.9.3), chunking implementation details per connector (§7.9.6), score fusion algorithm (§7.9.7), embedding implementation details (Appendix G.5), thread safety/concurrency model (§7.9.5). |
 | 2.5.0 | 2026-01-18 | **Memory Hygiene & Cognitive Headers:** (1) Added standardized cognitive type headers to all memory file templates (§7.1.2, §7.2.2, §7.3.3) with Memory Type, Lifecycle, and purpose guidance. (2) Added §7.0.4 distillation triggers (size thresholds for pruning). (3) Added §7.6.1 step 5: memory hygiene check to session end procedure. (4) Updated all Cold Start Kit minimal templates with headers. (5) Updated §7.8.3 initialization stub. Headers improve RAG chunking and provide clear lifecycle guidance per context engineering best practices. |
 | 2.4.0 | 2026-01-18 | Added §7.8 Project Initialization Protocol, §7.5 Source Document Registry, §5.2.5 ML Model Mocking Pattern. Added Metrics Registry System with regression tests. |
