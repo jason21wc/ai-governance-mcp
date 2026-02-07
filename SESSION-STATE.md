@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-02-07
+**Last Updated:** 2026-02-08
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -13,7 +13,7 @@
 
 - **Phase:** Maintenance
 - **Mode:** Standard
-- **Active Task:** None (items 1-3 complete, pending commit)
+- **Active Task:** None
 - **Blocker:** None
 
 ## Quick Reference
@@ -40,14 +40,30 @@
 
 ### Prescribed Pattern Adoption
 
-5. Validator subagent (`.claude/agents/validator.md`) — §2.2.3 template, "checklist verification" cognitive function, Read/Grep/Glob tools
-6. Pre-release security checklist in CLAUDE.md — §5.3.2 adapted for MCP server
-7. Subagent justified complexity table in PROJECT-MEMORY.md — §1.1, all 7 agents documented
+5. Validator subagent (`.claude/agents/validator.md`) — §2.2.3 template, "checklist verification" cognitive function, Read/Grep/Glob tools (`f907947`)
+6. Pre-release security checklist in CLAUDE.md — §5.3.2 adapted for MCP server (`f907947`)
+7. Subagent justified complexity table in PROJECT-MEMORY.md — §1.1, all 7 agents documented (`f907947`)
 
 ## Next Actions
 
-1. Commit and push items 5-7
-2. Consider Priority 2 items: failure mode mapping, PoC documentation, context engineering strategy
+Prioritized backlog of unused governance patterns identified by auditing methods docs against project state. Same systematic approach applies: draft → contrarian + validator review → synthesize → implement → review rounds.
+
+### Priority 2 — Operational Improvements
+
+| # | Pattern | Source | What to Do |
+|---|---------|--------|------------|
+| 1 | Failure mode mapping | multi-agent methods §3.3 | Document failure modes for orchestrator, subagent timeouts, circuit breaker scenarios |
+| 2 | PoC documentation | ai-coding methods §3.1.4 | Document proof-of-concept results (embedding model selection, retrieval benchmarks) |
+| 3 | Context engineering strategy | ai-coding methods §7.0 | Formalize the memory file strategy as an explicit context engineering document |
+
+### Priority 3 — Structural Documentation
+
+| # | Pattern | Source | What to Do |
+|---|---------|--------|------------|
+| 4 | SPECIFICATION.md | ai-coding methods §2.1 | Create formal specification from README/PROJECT-MEMORY (problem, users, features, scope) |
+| 5 | API.md | ai-coding methods §3.1.3 | Document all 15 MCP tools with parameters, return types, examples |
+| 6 | Architecture Decision Records | ai-coding methods §3.1.3 | Formalize key decisions from PROJECT-MEMORY into ADR format |
+| 7 | SBOM | SECURITY.md planned items | Software Bill of Materials for releases |
 
 ## Links
 

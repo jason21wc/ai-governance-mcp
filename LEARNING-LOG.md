@@ -28,6 +28,14 @@ CI installed `.[dev]` but context engine tests need `pathspec` (in `.[context-en
 
 ---
 
+### Cognitive Function Labels Must Be Distinct Across Agents (2026-02-08)
+
+Validator and code-reviewer both initially used "Analytical validation" as cognitive function label. Contrarian reviewer caught the collision — identical labels undermine the distinctness argument. Renamed validator to "Checklist verification."
+
+**Rule:** When creating a new subagent, verify its cognitive function label is unique across all agent definitions. Same mental operation = extend existing agent; different operation = different label.
+
+---
+
 ### Instruction vs Content Surface Distinction (2026-02-02)
 
 Governance concepts have two surfaces: instruction surfaces (SERVER_INSTRUCTIONS, CLAUDE.md, agents) and content surfaces (documents/*.md). The skip-list change updated instructions but not source docs.
