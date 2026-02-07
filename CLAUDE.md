@@ -1,7 +1,7 @@
 # AI Governance MCP Server
 
 **Project:** Semantic retrieval system for AI governance principles
-**Framework:** AI Coding Methods v2.7.0
+**Framework:** AI Coding Methods v2.7.1
 **Mode:** Standard
 
 ## On Session Start
@@ -113,6 +113,9 @@ Per §5.3.2, apply before tagging a release:
 - [ ] `pip audit` or equivalent — zero HIGH/CRITICAL vulnerabilities
 - [ ] No new dependencies without justification
 - [ ] Docker image builds and runs as non-root
+
+**Documentation:**
+- [ ] Documentation coherence audit passes (meta-methods Part 4.3.2, full tier)
 
 **Scanning:**
 - [ ] `ruff check` passes

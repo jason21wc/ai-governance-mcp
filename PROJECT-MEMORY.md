@@ -84,6 +84,7 @@
 | Memory = Cognitive Types | 2025-12-31 | SESSION-STATE (working), PROJECT-MEMORY (semantic), LEARNING-LOG (episodic). |
 | Inline Phase Gates | 2025-12-31 | Record in PROJECT-MEMORY table, not separate GATE-*.md files. |
 | Principles-Based Pruning | 2025-12-31 | "Memory serves reasoning, not archival." Prune what only describes the past. |
+| Coherence Audit Method | 2026-02-07 | Part 4.3 in meta-methods v3.8.0. Operationalizes Context Engineering + SSOT + Periodic Re-eval. Quick/Full tiers. Method not principle — agents need HOW not more WHAT. |
 
 ### Implementation Details
 
