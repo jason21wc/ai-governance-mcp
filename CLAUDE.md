@@ -70,6 +70,7 @@ This project has specialized subagent definitions in `.claude/agents/`. When a t
 | Security review | `security-auditor.md` | Before releases, auth/security changes, sensitive data handling |
 | Documentation | `documentation-writer.md` | README updates, docstrings, technical writing |
 | Governance coordination | `orchestrator.md` | Complex multi-step tasks requiring governance checks |
+| Artifact validation | `validator.md` | Criteria-based validation of any artifact against explicit checklist |
 | Devil's advocate | `contrarian-reviewer.md` | High-stakes decisions, architectural choices, challenge assumptions |
 
 **How to use:**
@@ -93,6 +94,30 @@ Check memory health WHEN:
 ```bash
 wc -l SESSION-STATE.md PROJECT-MEMORY.md LEARNING-LOG.md
 ```
+
+## Pre-Release Security Checklist
+
+Per §5.3.2, apply before tagging a release:
+
+**Input Handling:**
+- [ ] No hardcoded secrets or credentials in source
+- [ ] All user input validated (query length limits, parameter bounds)
+- [ ] No direct file path construction from user input (path traversal prevention)
+
+**Content Security:**
+- [ ] CI content scan passes (no prompt injection in `documents/`, `CLAUDE.md`, `.claude/agents/`)
+- [ ] Agent template hashes match expected values (advisory — see SECURITY.md limitations)
+- [ ] No external URLs added without justification
+
+**Dependencies:**
+- [ ] `pip audit` or equivalent — zero HIGH/CRITICAL vulnerabilities
+- [ ] No new dependencies without justification
+- [ ] Docker image builds and runs as non-root
+
+**Scanning:**
+- [ ] `ruff check` passes
+- [ ] Full test suite passes (`pytest tests/ -v`)
+- [ ] Security CI job green
 
 ## Jurisdiction
 

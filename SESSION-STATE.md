@@ -13,7 +13,7 @@
 
 - **Phase:** Maintenance
 - **Mode:** Standard
-- **Active Task:** Systematic doc review (README.md complete, SECURITY.md next)
+- **Active Task:** None (items 1-3 complete, pending commit)
 - **Blocker:** None
 
 ## Quick Reference
@@ -33,15 +33,21 @@
 
 ### Systematic Doc Review (Continued)
 
-1. CLAUDE.md — version, governance table, memory hygiene, volatile counts (committed `a7bc36d`)
-2. ARCHITECTURE.md + §7.5 methods — Source Relevance Test, volatile metrics, snapshot tables (committed `a7bc36d`)
-3. README.md + §7.8.3 — footer version, domain counts, per-file test counts, roadmap honest accounting, §7.8.3 README entry (pending commit)
+1. CLAUDE.md — version, governance table, memory hygiene, volatile counts (`a7bc36d`)
+2. ARCHITECTURE.md + §7.5 methods — Source Relevance Test, volatile metrics, snapshot tables (`a7bc36d`)
+3. README.md + §7.8.3 + SECURITY.md — footer version, domain counts, volatile test counts, roadmap honest accounting, §7.8.3 README entry, 2 missing CE security features (`fa59d53`)
+4. Doc review complete for all 7 root-level MD files
+
+### Prescribed Pattern Adoption
+
+5. Validator subagent (`.claude/agents/validator.md`) — §2.2.3 template, "checklist verification" cognitive function, Read/Grep/Glob tools
+6. Pre-release security checklist in CLAUDE.md — §5.3.2 adapted for MCP server
+7. Subagent justified complexity table in PROJECT-MEMORY.md — §1.1, all 7 agents documented
 
 ## Next Actions
 
-1. **(Optional)** Auto-recovery with exponential backoff for circuit-broken watchers
-2. **(Optional)** Frozen Pydantic models (requires refactoring indexer embedding_id assignment)
-3. **(Optional)** Implement cosign for Docker image signing
+1. Commit and push items 5-7
+2. Consider Priority 2 items: failure mode mapping, PoC documentation, context engineering strategy
 
 ## Links
 

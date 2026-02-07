@@ -156,6 +156,24 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 
 ---
 
+## Subagent Justifications (§1.1)
+
+Per multi-agent methods §1.1, each subagent must justify its overhead vs. generalist. The 15x rule applies: multi-agent token cost must produce proportional value.
+
+| Agent | Justification Type | Evidence | Expected Benefit |
+|-------|-------------------|----------|------------------|
+| code-reviewer | Cognitive + Isolation | Fresh context prevents writer bias; LSP tool access distinct from generalist | Objective code quality assessment without implementation anchoring |
+| contrarian-reviewer | Isolation + Cognitive | Fresh context critical for objectivity; distinct critical-challenging cognitive function | Surfaces blind spots and assumptions that author cannot see |
+| validator | Isolation + Quality | Fresh context for criteria objectivity; artifact-agnostic (docs, configs, plans) | Systematic checklist validation without author's reasoning bias |
+| security-auditor | Quality + Isolation | Security expertise requires focused attention; restricted to read-only tools | Catches vulnerabilities that generalist development context misses |
+| documentation-writer | Cognitive | Distinct writing cognitive function; focuses on clarity for external audience | Documentation quality improves when writer isn't also the implementer |
+| orchestrator | Context Limit | Complex multi-step tasks exceed single-agent context; coordinates other agents | Manages governance compliance across multi-agent workflows |
+| test-generator | Cognitive + Quality | Test design benefits from fresh perspective on code behavior; distinct from implementation | Better edge case coverage when tester hasn't seen implementation reasoning |
+
+**Decision:** All current subagents justified. No subagent exists without at least one justification from the §1.1 checklist (Context Limit, Parallelization, Cognitive Mismatch, Quality Improvement, Isolation Requirement).
+
+**Review trigger:** Re-evaluate when adding new agents or when usage patterns show a subagent is rarely invoked.
+
 ## Patterns and Conventions
 
 | Pattern | Description |
