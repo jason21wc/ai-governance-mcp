@@ -481,7 +481,18 @@ When in doubt, evaluate. This list defines what may be skipped, not the only sit
 2. **Query for guidance** — Call `query_governance("your concern")` when you need principles to inform decisions
 3. **Cite influencing principles** — Reference principle IDs (e.g., `meta-core-context-engineering`) when they guide your approach
 4. **Pause on uncertainty** — If requirements are unclear, ask the user before proceeding
-5. **Query for project initialization** — For new projects, call `query_governance("project initialization")` before creating files
+5. **Initialize new projects** — See Project Initialization section below
+
+### Project Initialization
+
+When starting work on a new project for the first time, call `query_governance("project initialization")` to get the setup checklist. This returns the governance memory file templates:
+
+- **SESSION-STATE.md** — Current position and next actions
+- **PROJECT-MEMORY.md** — Decisions, constraints, phase gates
+- **LEARNING-LOG.md** — Lessons learned
+- **Project instructions file** — Platform-specific (CLAUDE.md, .cursorrules, etc.)
+
+**Important:** Suggest initialization to the user and wait for confirmation before creating files. If some governance files exist but others are missing, query for the checklist to fill gaps.
 
 ### Hierarchy (Binding Order)
 | Priority | Source | Scope |
