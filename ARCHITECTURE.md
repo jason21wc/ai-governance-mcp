@@ -1,13 +1,14 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.8.2
-**Date:** 2026-02-07
+**Version:** 1.9.0
+**Date:** 2026-02-08
 **Memory Type:** Structural (reference)
 
 > System design, component responsibilities, data flow.
 > For decisions/rationale → PROJECT-MEMORY.md
+> Avoid volatile metrics here (test counts, coverage %, dependency versions) — use canonical sources (`pytest`, `pytest --cov`, `pyproject.toml`).
 
-**Phase:** COMPLETE (574 tests, governance ~90% coverage, context engine ~65%, 15 tools across 2 MCP servers)
+**Phase:** COMPLETE — 15 tools across 2 MCP servers
 
 ---
 
@@ -101,8 +102,8 @@ ai-governance-mcp/
 │
 ├── index/                     # Generated
 │   ├── global_index.json      # Serialized GlobalIndex
-│   ├── content_embeddings.npy # Principle/method embeddings (450, 384)
-│   └── domain_embeddings.npy  # Domain embeddings for routing (5, 384)
+│   ├── content_embeddings.npy # Principle/method embeddings (384-dim)
+│   └── domain_embeddings.npy  # Domain embeddings for routing (384-dim)
 │
 ├── documents/                 # Source markdown docs
 │
@@ -112,18 +113,18 @@ ai-governance-mcp/
 ├── tests/
 │   ├── conftest.py                  # Shared fixtures
 │   ├── fixtures/                    # Test data files
-│   ├── test_models.py               # Model tests (55)
-│   ├── test_config.py               # Config tests (17)
-│   ├── test_server.py               # Server unit tests (105)
-│   ├── test_server_integration.py   # Server integration (11)
-│   ├── test_extractor.py            # Extractor tests (60)
-│   ├── test_extractor_integration.py # Extractor pipeline (11)
-│   ├── test_retrieval.py            # Retrieval unit (46)
-│   ├── test_retrieval_integration.py # Retrieval pipeline (23)
-│   ├── test_retrieval_quality.py    # MRR/Recall benchmarks (13)
-│   ├── test_config_generator.py     # Platform configs (17)
-│   ├── test_validator.py            # Principle validation (15)
-│   └── test_context_engine.py       # Context engine tests (201)
+│   ├── test_models.py               # Model validation
+│   ├── test_config.py               # Config + env vars
+│   ├── test_server.py               # All MCP tools, formatting, governance
+│   ├── test_server_integration.py   # Dispatcher routing, end-to-end flows
+│   ├── test_extractor.py            # Parsing, embeddings, metadata
+│   ├── test_extractor_integration.py # Full pipeline, index persistence
+│   ├── test_retrieval.py            # Hybrid search, reranking, edge cases
+│   ├── test_retrieval_integration.py # Pipeline, utilities, performance
+│   ├── test_retrieval_quality.py    # MRR/Recall benchmarks
+│   ├── test_config_generator.py     # Platform config generation
+│   ├── test_validator.py            # Principle ID validation, fuzzy matching
+│   └── test_context_engine.py       # Full context engine coverage
 │
 ├── pyproject.toml
 └── README.md
@@ -140,6 +141,7 @@ ai-governance-mcp/
 | **Retrieval isolated** | Can test/tune search without MCP complexity |
 | **Pydantic models** | Validation, IDE support, clean serialization |
 | **Append-only feedback** | Simple, no DB needed, enables future learning |
+| **Dependency pinning** | Core deps exact-pinned for reproducibility; optional deps range-pinned for compatibility (see pyproject.toml) |
 
 ---
 
@@ -225,66 +227,28 @@ ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtu
 - Mock returns numpy arrays with correct shapes via `side_effect`
 - Fixed random seed for reproducible tests
 
-### Coverage by Module
+### Known Test Boundaries
 
-| Module | Coverage | Notes |
-|--------|----------|-------|
-| models.py | 100% | Full validation coverage |
-| config.py | 98% | Env edge case uncovered |
-| server.py | 90% | async run_server uncovered |
-| extractor.py | 89% | CLI main uncovered |
-| retrieval.py | 84% | Rare filesystem errors uncovered |
-| config_generator.py | 100% | Full coverage |
-| validator.py | 100% | Full coverage |
+Deliberately uncovered areas (run `pytest --cov` for current percentages):
+- server.py: `async run_server()` — entry point, tested via integration
+- extractor.py: CLI `main()` — invoked manually
+- retrieval.py: Rare filesystem error paths
 
 ---
 
 ## Dependencies
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| mcp | 1.25.0 | MCP SDK (FastMCP) |
-| pydantic | 2.11.9 | Data models |
-| pydantic-settings | 2.11.0 | Configuration |
-| sentence-transformers | 5.2.0 | Embeddings + reranking |
-| rank-bm25 | 0.2.2 | BM25 keyword search |
-| numpy | 1.26.4 | Vector operations |
-| requests | >=2.28.0 | HTTP (required by sentence-transformers) |
-| pytest | >=7.0.0 | Testing (dev) |
-| ruff | 0.12.0 | Linting + formatting (dev) |
+| Package | Purpose |
+|---------|---------|
+| mcp | MCP SDK (FastMCP) |
+| pydantic / pydantic-settings | Data models + configuration |
+| sentence-transformers | Embeddings + reranking |
+| rank-bm25 | BM25 keyword search |
+| numpy | Vector operations |
+| requests | HTTP (required by sentence-transformers) |
+| pytest / ruff | Testing + linting (dev) |
 
----
-
-## Test File Map
-
-| File | Tests | Purpose |
-|------|-------|---------|
-| tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
-| tests/test_models.py | 55 | Model validation, constraints, enums |
-| tests/test_config.py | 17 | Settings, env vars, path handling |
-| tests/test_server.py | 105 | All 11 tools, formatting, metrics, governance, agent installation |
-| tests/test_server_integration.py | 11 | Dispatcher routing, end-to-end flows |
-| tests/test_extractor.py | 60 | Parsing, embeddings, metadata, validation |
-| tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |
-| tests/test_retrieval.py | 46 | Unit tests + edge cases |
-| tests/test_retrieval_integration.py | 23 | Pipeline, utilities, performance |
-| tests/test_retrieval_quality.py | 13 | MRR, Recall@K benchmarks |
-| tests/test_config_generator.py | 17 | Platform configs, CLI commands |
-| tests/test_validator.py | 15 | Principle ID validation, fuzzy matching |
-
----
-
-## Source File Map
-
-| File | Purpose | Lines |
-|------|---------|-------|
-| src/ai_governance_mcp/models.py | Pydantic data structures | ~350 |
-| src/ai_governance_mcp/config.py | Settings management | ~224 |
-| src/ai_governance_mcp/extractor.py | Document parsing + embeddings | ~450 |
-| src/ai_governance_mcp/retrieval.py | Hybrid search engine | ~500 |
-| src/ai_governance_mcp/server.py | MCP server + 11 tools | ~1900 |
-| src/ai_governance_mcp/config_generator.py | Multi-platform MCP configs | ~150 |
-| src/ai_governance_mcp/validator.py | Principle ID validation | ~350 |
+See `pyproject.toml` for pinned versions.
 
 ---
 
@@ -417,61 +381,29 @@ src/ai_governance_mcp/context_engine/
 
 ### Context Engine Test Coverage
 
-| Test Class | Tests | Coverage Area |
-|------------|-------|---------------|
-| TestContentChunk, TestFileMetadata, etc. | 10 | Model Literal types, validation, defaults |
-| TestProjectIdValidation | 8 | Path traversal prevention (hex-only IDs) |
-| TestFilesystemStorage | 16 | Round-trips, security, invalid directory filtering |
-| TestCodeConnector, TestDocumentConnector, etc. | 12 | Connector parsing, extensions, metadata |
-| TestIndexer | 11 | Discovery, ignore patterns, symlinks, BM25 tokenization |
-| TestProjectManager | 7 | Score fusion, BM25 query, RLock, shutdown |
-| TestProjectManagerLifecycle | 11 | Create/load/reindex, list, status, empty index |
-| TestServerSecurity | 9 | Error sanitization, rate limiting, constants |
-| TestServerHandlers | 8 | Input validation (empty, type, length, bounds) |
-| TestServerHandlersAdditional | 6 | list_projects, project_status, query results |
-| TestFileWatcher | 12 | Start/stop, debounce, ignore, callbacks, H4 guard |
-| TestErrorSanitizationExtended | 7 | Relative paths, UNC paths, module paths, Windows |
-| TestEnvVarParsing | 8 | Invalid values, negative, clamping, valid custom |
-| TestQueryResultConstraints | 4 | Score boundaries (le=1.0, ge=0.0) |
-| TestCreateServer | 2 | Server creation, instructions wiring |
-| TestIntegrationIndexQuery | 2 | Full pipeline, .contextignore respect |
-| TestRateLimiterThreadSafety | 2 | Lock exists, concurrent access correctness |
-| TestLockCoverage | 2 | get_or_create_index and reindex_project hold lock |
-| TestSignalHandlerCleanup | 1 | Manager reference creation |
-| TestEnvIgnorePatterns | 2 | .env* in defaults, variants matched |
-| TestFileCountLimit | 2 | Constant exists, discover_files enforces limit |
-| TestImageConnectorFixes | 3 | Relative path, 1-based lines, parse without project_root |
-| TestUnknownToolStructuredError | 1 | JSON with valid_tools in source |
-| TestDeadCodeRemoval | 1 | No _bm25 attribute on Indexer |
-| TestConnectorRelativePaths | 9 | All connectors: relative path with project_root, absolute without |
-| TestResourceCleanupOnException | 2 | Spreadsheet wb.close(), PDF doc.close() on error |
-| TestListProjectsSymlinkExclusion | 2 | list_projects excludes symlinks, containment check on delete |
-| TestBm25ZeroScoreNormalization | 3 | Zero/empty BM25 scores, normalization correctness |
-| TestJsonFileSizeLimits | 4 | Oversized JSON rejection for metadata, BM25, manifest |
-| TestStorageDirectoryPermissions | 4 | mode=0o700 + chmod hardening for pre-existing dirs |
-| TestModelAllowlist | 3 | Disallowed model raises, allowed accepted, env bypass |
-| TestWatcherIgnoreSpecPassthrough | 3 | _start_watcher passes ignore_spec, filtering works |
-| TestWatcherCircuitBreaker | 2 | Stop after 3 failures, success resets count |
-| TestSanitizeForLoggingReturnType | 3 | None/empty/normal string returns |
-| TestErrorSanitizationRegex | 3 | Preserves versions/IPs, still redacts modules |
-| TestHandleIndexProjectSuccess | 1 | index_project success path with mocked manager |
-| TestIncrementalUpdateDocstring | 1 | Logs warning about full re-index |
-| TestWatcherStatusInProjectStatus | 4 | M5: watcher_status field (running/circuit_broken/disabled/stopped) |
-| TestPDFLibraryFlags | 3 | L2: Separate pymupdf/pdfplumber flags |
-| TestPendingChangesLimit | 2 | L5: MAX_PENDING_CHANGES constant and force-flush |
-| **Total** | **201** | |
+All context engine tests are in `test_context_engine.py`. Run `pytest tests/test_context_engine.py -v` for current counts.
+
+| Category | Coverage Areas |
+|----------|---------------|
+| **Models** | ContentChunk, FileMetadata, ProjectIndex, QueryResult validation and constraints |
+| **Storage** | Filesystem round-trips, security (path traversal, symlinks), directory permissions, JSON size limits |
+| **Connectors** | Code/document/PDF/spreadsheet/image parsing, relative paths, resource cleanup |
+| **Indexer** | File discovery, ignore patterns (.contextignore, .env*), symlink filtering, file count limits, BM25 tokenization |
+| **Project Manager** | Score fusion, BM25 query, RLock thread safety, lifecycle (create/load/reindex/list/status/delete) |
+| **Server** | Error sanitization, rate limiting, input validation, env var parsing, handler routing |
+| **Watcher** | Start/stop, debounce, ignore spec passthrough, circuit breaker, status reporting |
+| **Integration** | Full index-query pipeline, .contextignore respect |
 
 ### Context Engine Dependencies
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| sentence-transformers | 5.2.0 | Semantic embeddings (shared with governance) |
-| rank-bm25 | 0.2.2 | BM25 keyword search (shared with governance) |
-| numpy | 1.26.4 | Embeddings storage and similarity |
-| watchdog | >=4.0.0 | File system monitoring for real-time indexing |
-| tree-sitter | >=0.21.0 | Language-aware code parsing |
-| pymupdf | >=1.24.0 | PDF content extraction (primary) |
-| pdfplumber | >=0.10.0 | PDF content extraction (fallback) |
-| openpyxl | >=3.1.0 | Excel file parsing |
-| Pillow | >=10.0.0 | Image metadata extraction |
-| pathspec | >=1.0.0,<2 | Gitignore-style pattern matching for .contextignore |
+| Package | Purpose |
+|---------|---------|
+| sentence-transformers / rank-bm25 / numpy | Shared with governance server (embeddings, BM25, vectors) |
+| watchdog | File system monitoring for real-time indexing |
+| tree-sitter | Language-aware code parsing |
+| pymupdf / pdfplumber | PDF content extraction (primary / fallback) |
+| openpyxl | Excel file parsing |
+| Pillow | Image metadata extraction |
+| pathspec | Gitignore-style pattern matching for .contextignore |
+
+See `pyproject.toml [project.optional-dependencies]` for versions.

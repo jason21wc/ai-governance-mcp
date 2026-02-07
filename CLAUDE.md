@@ -1,7 +1,7 @@
 # AI Governance MCP Server
 
 **Project:** Semantic retrieval system for AI governance principles
-**Framework:** AI Coding Methods v2.6.0
+**Framework:** AI Coding Methods v2.7.0
 **Mode:** Standard
 
 ## On Session Start
@@ -22,21 +22,7 @@
 
 ## Governance Integration
 
-This project IS the AI Governance MCP. Use these tools:
-
-| Tool | Purpose |
-|------|---------|
-| `evaluate_governance` | Pre-action compliance check (Governance Subagent) |
-| `query_governance` | Get principles for current task |
-| `verify_governance_compliance` | Post-action audit |
-| `log_governance_reasoning` | Record per-principle reasoning trace for audit trail |
-| `get_principle` | Get full content by ID |
-| `list_domains` | See available domains |
-| `get_domain_summary` | Detailed domain info with all principles and methods |
-| `log_feedback` | Rate principle relevance (1-5) to improve retrieval |
-| `get_metrics` | Performance analytics and retrieval stats |
-| `install_agent` | Install Orchestrator subagent (Claude Code only) |
-| `uninstall_agent` | Remove installed subagent |
+This project IS the AI Governance MCP. Primary tools: `evaluate_governance` (pre-action check), `query_governance` (get principles), `log_governance_reasoning` (audit trail). Secondary: `verify_governance_compliance`, `get_principle`, `log_feedback`, `list_domains`, `get_domain_summary`, `get_metrics`.
 
 ### Mandatory Governance Checkpoints
 
@@ -55,8 +41,9 @@ When in doubt, evaluate.
 ```bash
 # Development
 python -m ai_governance_mcp.extractor  # Rebuild index
-pytest tests/ -v                        # Run tests (574, governance ~90% / context engine ~65%)
-python -m ai_governance_mcp.server      # Run server
+pytest tests/ -v                        # Run tests
+python -m ai_governance_mcp.server      # Run governance server
+python -m ai_governance_mcp.context_engine.server  # Run context engine server
 
 # Docker
 docker build -t ai-governance-mcp .     # Build image
@@ -69,7 +56,7 @@ docker run -i --rm ai-governance-mcp    # Run container
 - `src/ai_governance_mcp/context_engine/` — Context Engine MCP server (4 tools)
 - `documents/` — Governance content (indexed)
 - `index/` — Generated embeddings
-- `tests/` — Test suite (574 tests across 12 files)
+- `tests/` — Test suite
 - `.claude/agents/` — Subagent definitions
 
 ## Subagents
@@ -100,7 +87,7 @@ Check memory health WHEN:
 - [ ] LEARNING-LOG.md exceeds 200 lines
 - [ ] Before major releases
 
-**Action:** Apply §7.0.4 distillation triggers
+**Action:** Apply distillation triggers per §7.0.4 — each memory type has a named significance test (Working Memory §7.1.1, Decision Significance §7.2.1, Future Action §7.3.1).
 
 **Quick Check:**
 ```bash
