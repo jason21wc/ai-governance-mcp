@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-07T11:19:00.880980",
+  "timestamp": "2026-02-07T13:30:36.046152",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
     "method_mrr": 0.6979166666666666,
@@ -8,7 +8,7 @@
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 21.3,
+    "model_load_time_ms": 20.4,
     "index_stats": {
       "total_principles": 99,
       "total_methods": 362,
@@ -37,7 +37,7 @@
         "coding-method-calibration-questions"
       ],
       "rank": 1,
-      "score": 0.6415705576553199,
+      "score": 0.6415719713989653,
       "semantic_score": 0.7116016745567322
     },
     "method-3": {
@@ -55,7 +55,7 @@
         "meta-method-what-is-anchor-bias"
       ],
       "rank": 1,
-      "score": 0.7460491629687871,
+      "score": 0.7460467868794275,
       "semantic_score": 0.6823557019233704
     },
     "method-5": {
@@ -73,7 +73,7 @@
         "multi-method-orchestration-pattern-selection"
       ],
       "rank": 1,
-      "score": 0.8168426701237639,
+      "score": 0.8168433527592193,
       "semantic_score": 0.7589589357376099
     },
     "method-7": {
@@ -91,7 +91,7 @@
         "multi-method-governance-agent-pattern"
       ],
       "rank": 4,
-      "score": 0.5454308214785253,
+      "score": 0.5454299933608402,
       "semantic_score": 0.6937937140464783
     }
   },
@@ -102,7 +102,7 @@
         "meta-core-context-engineering"
       ],
       "rank": 2,
-      "score": 0.7170025493284756
+      "score": 0.717002323312746
     },
     "principle-2": {
       "query": "incomplete specification unclear requirements",

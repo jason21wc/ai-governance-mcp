@@ -2765,7 +2765,7 @@ The following appendices provide platform-specific tactics for applying the gove
 
 ## Appendix G: Claude (Anthropic)
 
-**Applies to:** Claude Opus 4.5, Claude Sonnet 4, Claude Haiku
+**Applies to:** Claude Opus 4.5, Claude Sonnet 4, Claude Haiku; Claude Code CLI
 
 ### G.1 Model Variants
 
@@ -2797,6 +2797,48 @@ The following appendices provide platform-specific tactics for applying the gove
 - **Recency**: Knowledge cutoff may miss latest governance framework versions; use MCP for current content
 - **Verbosity**: May over-explain; request concise output when needed
 - **Deference**: May be overly cautious; clarify when autonomous action is appropriate
+
+### G.5 Claude Code Auto Memory
+
+**Applies To:** projects using Claude Code CLI with the cognitive memory architecture (§7.0)
+
+Claude Code provides a **platform-native auto memory** feature: a persistent file at `~/.claude/projects/<project-hash>/memory/MEMORY.md` that is automatically injected into the system prompt at every conversation start. This creates a second persistence layer alongside the framework's cognitive memory files.
+
+**Relationship to Framework Memory:**
+
+| Layer | Source of Truth? | Loading | Scope |
+|-------|-----------------|---------|-------|
+| Framework files (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG) | **Yes** — authoritative | Explicit read at session start | Version-controlled, shared |
+| Claude Code auto memory (MEMORY.md) | **No** — pointer only | Auto-injected into system prompt | Local to developer, not in repo |
+
+**Single Source of Truth Rule:** Framework memory files are the canonical source. Auto memory must NOT duplicate facts from them. Duplicated facts create **documentation drift** (§4.3) — when a metric changes in SESSION-STATE but not in MEMORY.md, they contradict each other.
+
+**What belongs in auto memory:**
+
+| Include | Exclude |
+|---------|---------|
+| Pointers to framework files ("Read SESSION-STATE.md first") | Test counts, version numbers, metrics (those live in SESSION-STATE) |
+| Session start protocol (which files to load, in what order) | Decisions and rationale (those live in PROJECT-MEMORY) |
+| Platform-specific quirks not appropriate for the shared repo | Lessons learned (those live in LEARNING-LOG) |
+| | Gotchas (those live in PROJECT-MEMORY Known Gotchas) |
+
+**Recommended auto memory template:**
+
+```markdown
+# [Project Name] - Auto Memory
+
+> **Role:** Thin pointer to framework files. Do NOT duplicate facts here.
+> **Source of truth:** SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md
+
+## On Session Start
+
+1. Read `SESSION-STATE.md` — current position, quick reference, next actions
+2. Read `PROJECT-MEMORY.md` — decisions, gotchas, patterns
+3. Read `LEARNING-LOG.md` — active lessons (check before repeating mistakes)
+4. Follow project instructions file (CLAUDE.md)
+```
+
+**Why this matters:** Auto memory is loaded before the AI reads any files. If it contains stale facts, those stale facts anchor the AI's understanding before it encounters the current truth in framework files. Keeping auto memory minimal eliminates this anchoring risk.
 
 ---
 
