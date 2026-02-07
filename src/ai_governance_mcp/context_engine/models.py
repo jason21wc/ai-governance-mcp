@@ -4,7 +4,7 @@ Defines content chunks, file metadata, project indexes,
 and query results used throughout the context engine.
 """
 
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -13,6 +13,9 @@ ContentType = Literal["code", "document", "data", "image"]
 
 # Valid indexing modes for projects
 IndexMode = Literal["realtime", "ondemand"]
+
+# Valid watcher states for projects
+WatcherStatus = Literal["running", "stopped", "circuit_broken", "disabled"]
 
 
 class ContentChunk(BaseModel):
@@ -24,34 +27,40 @@ class ContentChunk(BaseModel):
     """
 
     content: str = Field(..., description="The text content of this chunk")
-    source_path: str = Field(..., description="Absolute path to the source file")
+    source_path: str = Field(
+        ...,
+        description="Path to the source file (relative to project root when available)",
+    )
     start_line: int = Field(..., description="Starting line number in source file")
     end_line: int = Field(..., description="Ending line number in source file")
     content_type: ContentType = Field(
         ..., description="Content type: code, document, data, image"
     )
-    language: Optional[str] = Field(
+    language: str | None = Field(
         None, description="Programming language or file format"
     )
-    heading: Optional[str] = Field(
+    heading: str | None = Field(
         None, description="Section heading or function/class name"
     )
-    embedding_id: Optional[int] = Field(None, description="Index into embeddings array")
+    embedding_id: int | None = Field(None, description="Index into embeddings array")
 
 
 class FileMetadata(BaseModel):
     """Metadata about an indexed file."""
 
-    path: str = Field(..., description="Absolute file path")
+    path: str = Field(
+        ...,
+        description="Absolute file path (used for file manifest keying and change detection)",
+    )
     content_type: ContentType = Field(
         ..., description="Content type: code, document, data, image"
     )
-    language: Optional[str] = Field(
+    language: str | None = Field(
         None, description="Programming language or file format"
     )
     size_bytes: int = Field(..., description="File size in bytes")
     last_modified: float = Field(..., description="Last modification timestamp")
-    content_hash: Optional[str] = Field(
+    content_hash: str | None = Field(
         None, description="SHA-256 hash of file content for change detection"
     )
     chunk_count: int = Field(0, description="Number of chunks extracted")
@@ -103,7 +112,7 @@ class ProjectQueryResult(BaseModel):
         default_factory=list, description="Ranked results"
     )
     total_results: int = Field(0, description="Number of results returned")
-    query_time_ms: Optional[float] = Field(
+    query_time_ms: float | None = Field(
         None, description="Query execution time in milliseconds"
     )
 
@@ -116,8 +125,12 @@ class ProjectStatus(BaseModel):
     total_files: int = Field(0, description="Number of indexed files")
     total_chunks: int = Field(0, description="Number of indexed chunks")
     index_mode: IndexMode = Field("realtime", description="Current indexing mode")
-    last_updated: Optional[str] = Field(
+    last_updated: str | None = Field(
         None, description="ISO timestamp of last index update"
     )
     index_size_bytes: int = Field(0, description="Total index size on disk")
     embedding_model: str = Field(..., description="Model used for embeddings")
+    watcher_status: WatcherStatus = Field(
+        "stopped",
+        description="File watcher state: running, stopped, circuit_broken, disabled",
+    )

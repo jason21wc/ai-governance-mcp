@@ -25,7 +25,6 @@ import sys
 import threading
 import time
 from pathlib import Path
-from typing import Optional
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
@@ -58,6 +57,11 @@ def _check_index_rate_limit() -> bool:
     Uses token bucket algorithm. Returns True if allowed.
     Thread-safe: guarded by _rate_limit_lock since MCP server
     runs handlers via run_in_executor thread pool.
+
+    Limitation: Single-process only. Multiple server instances (e.g.,
+    separate Claude Code windows) each maintain independent rate limits.
+    Distributed rate limiting would require external coordination (Redis,
+    filesystem lock, etc.) — not implemented for v1 simplicity.
     """
     global _index_rate_tokens, _index_rate_last_refill
 
@@ -115,7 +119,8 @@ def _sanitize_error_message(error: Exception) -> str:
     message = re.sub(r"0x[0-9a-fA-F]+", "0x***", message)
 
     # Remove Python module paths (e.g., "foo.bar.baz.function")
-    message = re.sub(r"\b\w+(?:\.\w+){2,}\b", "[module]", message)
+    # Require alphabetic start per segment to avoid matching version numbers/IPs
+    message = re.sub(r"\b[A-Za-z_]\w*(?:\.[A-Za-z_]\w*){2,}\b", "[module]", message)
 
     # Remove function references in tracebacks
     message = re.sub(r"\bin\s+\w+\s*\(", "in [func](", message)
@@ -131,7 +136,7 @@ def _sanitize_error_message(error: Exception) -> str:
     return message
 
 
-def _sanitize_for_logging(content: str) -> str:
+def _sanitize_for_logging(content: str | None) -> str | None:
     """Sanitize content before logging to prevent sensitive data exposure."""
     if not content:
         return content
@@ -170,7 +175,7 @@ def _setup_logging() -> None:
         logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     )
     root_logger = logging.getLogger("ai_governance_mcp.context_engine")
-    root_logger.setLevel(getattr(logging, log_level.upper()))
+    root_logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
     root_logger.addHandler(handler)
 
 
@@ -213,6 +218,11 @@ def _create_project_manager() -> ProjectManager:
         semantic_weight = 0.6
 
     index_path = os.environ.get("AI_CONTEXT_ENGINE_INDEX_PATH")
+    if index_path:
+        logger.info(
+            "Using custom index path: %s (set via AI_CONTEXT_ENGINE_INDEX_PATH)",
+            Path(index_path).resolve(),
+        )
 
     from .storage.filesystem import FilesystemStorage
 
@@ -532,13 +542,15 @@ def main() -> None:
     logger.info("Starting Context Engine MCP Server")
 
     # Module-level reference for signal handler access
-    _manager_ref: list[Optional[ProjectManager]] = [None]
+    _manager_ref: list[ProjectManager | None] = [None]
 
-    # Handle graceful shutdown
+    # H3 fix: Signal handlers must only call async-signal-safe functions.
+    # logging.info() and manager.shutdown() can deadlock if signal arrives
+    # while locks are held. Use minimal handler — just exit immediately.
+    # The finally block in _run() handles graceful cleanup for normal exits.
     def _signal_handler(sig, frame):
-        logger.info("Received signal %s, shutting down", sig)
-        if _manager_ref[0] is not None:
-            _manager_ref[0].shutdown()
+        # Only async-signal-safe: set flag and exit
+        # Don't call logger (uses locks) or manager.shutdown() (acquires locks)
         os._exit(0)
 
     signal.signal(signal.SIGINT, _signal_handler)
@@ -564,7 +576,8 @@ def main() -> None:
     except KeyboardInterrupt:
         logger.info("Keyboard interrupt, shutting down")
     finally:
-        # Force exit to avoid hanging on async cleanup
+        # Force exit: MCP Python SDK asyncio cleanup can hang indefinitely
+        # (see github.com/modelcontextprotocol/python-sdk/issues/514)
         os._exit(0)
 
 

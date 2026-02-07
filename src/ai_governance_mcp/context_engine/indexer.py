@@ -8,11 +8,10 @@ import hashlib
 import logging
 import re
 from datetime import datetime, timezone
-from fnmatch import fnmatch
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
+import pathspec
 
 from .connectors.base import BaseConnector
 from .connectors.code import CodeConnector
@@ -36,26 +35,30 @@ MAX_FILE_COUNT = 10_000
 # BGE-small handles ~512 tokens (~2048 chars); larger models can handle more
 MAX_EMBEDDING_INPUT_CHARS = 2048
 
-# Default ignore patterns when no .contextignore exists
+# Vetted embedding models — prevents RCE via malicious HuggingFace pickle payloads.
+# Set AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true to bypass (at your own risk).
+ALLOWED_EMBEDDING_MODELS = {
+    "BAAI/bge-small-en-v1.5",
+    "BAAI/bge-base-en-v1.5",
+    "BAAI/bge-large-en-v1.5",
+    "sentence-transformers/all-MiniLM-L6-v2",
+    "sentence-transformers/all-MiniLM-L12-v2",
+    "sentence-transformers/all-mpnet-base-v2",
+}
+
+# Default ignore patterns (gitignore syntax via pathspec)
+# With pathspec, `foo/` matches the directory and all contents — no need for `foo/**`
 DEFAULT_IGNORE_PATTERNS = [
     ".git/",
-    ".git/**",
     "__pycache__/",
-    "__pycache__/**",
     "*.pyc",
     "node_modules/",
-    "node_modules/**",
     ".venv/",
-    ".venv/**",
     "venv/",
-    "venv/**",
     ".env*",
     "*.egg-info/",
-    "*.egg-info/**",
     "dist/",
-    "dist/**",
     "build/",
-    "build/**",
     ".DS_Store",
     "*.lock",
 ]
@@ -95,11 +98,35 @@ class Indexer:
 
     @property
     def embedding_model(self):
-        """Lazy-load the embedding model."""
+        """Lazy-load the embedding model with safety enforcement.
+
+        Uses safetensors format (prevents pickle RCE) and blocks remote code execution.
+        Model must be in ALLOWED_EMBEDDING_MODELS unless custom models are explicitly enabled.
+        """
         if self._embedding_model is None:
+            import os
+
             from sentence_transformers import SentenceTransformer
 
-            self._embedding_model = SentenceTransformer(self.embedding_model_name)
+            allow_custom = os.environ.get(
+                "AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS", ""
+            ).lower() in ("true", "1")
+
+            if (
+                not allow_custom
+                and self.embedding_model_name not in ALLOWED_EMBEDDING_MODELS
+            ):
+                raise ValueError(
+                    f"Model '{self.embedding_model_name}' is not in the allowed list. "
+                    f"Allowed models: {sorted(ALLOWED_EMBEDDING_MODELS)}. "
+                    "Set AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true to bypass."
+                )
+
+            self._embedding_model = SentenceTransformer(
+                self.embedding_model_name,
+                trust_remote_code=False,
+                model_kwargs={"use_safetensors": True},
+            )
         return self._embedding_model
 
     def index_project(
@@ -121,7 +148,7 @@ class Indexer:
         logger.info("Indexing project: %s (id: %s)", project_path, project_id)
 
         # Load ignore patterns
-        ignore_patterns = self._load_ignore_patterns(project_path)
+        ignore_patterns = self.load_ignore_patterns(project_path)
 
         # Discover files
         files = self._discover_files(project_path, ignore_patterns)
@@ -137,7 +164,7 @@ class Indexer:
                 continue
 
             try:
-                chunks = connector.parse(file_path)
+                chunks = connector.parse(file_path, project_root=project_path)
                 metadata = connector.extract_metadata(file_path)
 
                 # Compute content hash for change detection
@@ -201,8 +228,11 @@ class Indexer:
         project_path: Path,
         project_id: str,
         changed_files: list[Path],
-    ) -> Optional[ProjectIndex]:
-        """Incrementally update the index for changed files.
+    ) -> ProjectIndex | None:
+        """Update the index in response to file changes.
+
+        Note: Currently performs a full re-index. True incremental update
+        (replacing only changed file chunks) is not yet implemented.
 
         Args:
             project_path: Root directory of the project.
@@ -218,45 +248,45 @@ class Indexer:
             logger.info("No existing index found, performing full index")
             return self.index_project(project_path, project_id)
 
-        # For now, perform full re-index on any change
         # TODO: Implement true incremental update (replace only changed file chunks)
-        logger.info(
-            "Incremental update for %d changed files (full re-index for now)",
+        logger.warning(
+            "incremental_update performs full re-index (true incremental not yet "
+            "implemented). %d files changed.",
             len(changed_files),
         )
         return self.index_project(project_path, project_id)
 
-    def _load_ignore_patterns(self, project_path: Path) -> list[str]:
-        """Load ignore patterns from .contextignore, falling back to defaults."""
+    def load_ignore_patterns(self, project_path: Path) -> pathspec.GitIgnoreSpec:
+        """Load ignore patterns from .contextignore/.gitignore + defaults.
+
+        Returns a compiled GitIgnoreSpec for efficient matching.
+        Defaults come first so user patterns (including negation) take precedence.
+        """
+        # Defaults first — user patterns can override with !pattern negation
+        patterns = list(DEFAULT_IGNORE_PATTERNS)
+
         contextignore = project_path / ".contextignore"
-        if contextignore.exists():
-            patterns = []
-            for line in contextignore.read_text().splitlines():
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    patterns.append(line)
-            return patterns + DEFAULT_IGNORE_PATTERNS
-
-        # Fall back to .gitignore + defaults
         gitignore = project_path / ".gitignore"
-        if gitignore.exists():
-            patterns = []
-            for line in gitignore.read_text().splitlines():
+
+        source = contextignore if contextignore.exists() else gitignore
+        if source.exists():
+            for line in source.read_text().splitlines():
                 line = line.strip()
                 if line and not line.startswith("#"):
                     patterns.append(line)
-            return patterns + DEFAULT_IGNORE_PATTERNS
 
-        return DEFAULT_IGNORE_PATTERNS
+        return pathspec.GitIgnoreSpec.from_lines(patterns)
 
     def _discover_files(
-        self, project_path: Path, ignore_patterns: list[str]
+        self, project_path: Path, ignore_spec: pathspec.GitIgnoreSpec
     ) -> list[Path]:
         """Discover all indexable files in the project.
 
         Filters out symlinks, files exceeding size limit, and ignored patterns.
         """
         files = []
+        # Note: rglob does NOT follow directory symlinks (Python 3.4+, bpo-26012).
+        # File symlinks are filtered below. This is safe against symlink traversal attacks.
         for file_path in project_path.rglob("*"):
             if not file_path.is_file():
                 continue
@@ -266,11 +296,10 @@ class Indexer:
                 logger.debug("Skipping symlink: %s", file_path)
                 continue
 
-            # Check against ignore patterns
-            relative = file_path.relative_to(project_path)
-            rel_str = str(relative)
+            # Check against ignore patterns (gitignore semantics via pathspec)
+            rel_str = str(file_path.relative_to(project_path))
 
-            if self._is_ignored(rel_str, ignore_patterns):
+            if ignore_spec.match_file(rel_str):
                 continue
 
             # Skip files exceeding size limit
@@ -299,23 +328,7 @@ class Indexer:
 
         return sorted(files)
 
-    def _is_ignored(self, relative_path: str, patterns: list[str]) -> bool:
-        """Check if a file matches any ignore pattern."""
-        for pattern in patterns:
-            if fnmatch(relative_path, pattern):
-                return True
-            # Also check each path component for directory patterns
-            parts = relative_path.split("/")
-            for i, part in enumerate(parts):
-                if fnmatch(part, pattern):
-                    return True
-                # Check partial paths
-                partial = "/".join(parts[: i + 1])
-                if fnmatch(partial, pattern) or fnmatch(partial + "/", pattern):
-                    return True
-        return False
-
-    def _get_connector(self, file_path: Path) -> Optional[BaseConnector]:
+    def _get_connector(self, file_path: Path) -> BaseConnector | None:
         """Find the appropriate connector for a file."""
         for connector in self.connectors:
             if connector.can_handle(file_path):

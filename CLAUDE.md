@@ -1,7 +1,7 @@
 # AI Governance MCP Server
 
 **Project:** Semantic retrieval system for AI governance principles
-**Framework:** AI Coding Methods v2.5.0
+**Framework:** AI Coding Methods v2.6.0
 **Mode:** Standard
 
 ## On Session Start
@@ -55,7 +55,7 @@ When in doubt, evaluate.
 ```bash
 # Development
 python -m ai_governance_mcp.extractor  # Rebuild index
-pytest tests/ -v                        # Run tests (365, 90% coverage)
+pytest tests/ -v                        # Run tests (573, governance ~90% / context engine ~65%)
 python -m ai_governance_mcp.server      # Run server
 
 # Docker
@@ -65,10 +65,11 @@ docker run -i --rm ai-governance-mcp    # Run container
 
 ## Project Structure
 
-- `src/ai_governance_mcp/` — Source code
+- `src/ai_governance_mcp/` — Governance server source code
+- `src/ai_governance_mcp/context_engine/` — Context Engine MCP server (4 tools)
 - `documents/` — Governance content (indexed)
 - `index/` — Generated embeddings
-- `tests/` — Test suite
+- `tests/` — Test suite (573 tests across 14 files)
 - `.claude/agents/` — Subagent definitions
 
 ## Subagents
@@ -96,6 +97,7 @@ This project has specialized subagent definitions in `.claude/agents/`. When a t
 Check memory health WHEN:
 - [ ] SESSION-STATE.md exceeds 300 lines
 - [ ] PROJECT-MEMORY.md exceeds 800 lines
+- [ ] LEARNING-LOG.md exceeds 1500 lines
 - [ ] Before major releases
 
 **Action:** Apply §7.0.4 distillation triggers

@@ -56,7 +56,11 @@ class TestEmbeddingGeneratorLazyLoad:
 
             _ = generator.model
 
-            mock_st.assert_called_once_with("test-model")
+            mock_st.assert_called_once_with(
+                "test-model",
+                trust_remote_code=False,
+                model_kwargs={"use_safetensors": True},
+            )
             assert generator._model is not None
 
     def test_model_property_returns_cached(self, mock_embedder):

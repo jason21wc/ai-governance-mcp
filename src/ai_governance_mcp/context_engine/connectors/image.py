@@ -23,8 +23,10 @@ class ImageConnector(BaseConnector):
     def __init__(self) -> None:
         self._pillow_available = False
         try:
-            from PIL import Image  # noqa: F401
+            from PIL import Image
 
+            # Guard against decompression bombs — set once at init, not per-parse
+            Image.MAX_IMAGE_PIXELS = 178_956_970
             self._pillow_available = True
         except ImportError:
             pass
@@ -44,21 +46,17 @@ class ImageConnector(BaseConnector):
 
         stat = file_path.stat()
         metadata_lines.append(f"Size: {stat.st_size} bytes")
-        # Use relative path from project root to avoid leaking absolute paths
-        display_path = (
-            file_path.relative_to(project_root)
-            if project_root and file_path.is_relative_to(project_root)
-            else file_path.name
-        )
+        # Compute display path (relative to project root when available)
+        if project_root and file_path.is_relative_to(project_root):
+            display_path = str(file_path.relative_to(project_root))
+        else:
+            display_path = str(file_path)
         metadata_lines.append(f"Path: {display_path}")
 
         if self._pillow_available and file_path.suffix.lower() != ".svg":
             try:
                 from PIL import Image
                 from PIL.ExifTags import TAGS
-
-                # Guard against decompression bombs
-                Image.MAX_IMAGE_PIXELS = 178_956_970
 
                 with Image.open(file_path) as img:
                     metadata_lines.append(f"Dimensions: {img.width}x{img.height}")
@@ -87,7 +85,7 @@ class ImageConnector(BaseConnector):
         return [
             ContentChunk(
                 content=metadata_text,
-                source_path=str(file_path),
+                source_path=str(display_path),
                 start_line=1,
                 end_line=1,
                 content_type="image",

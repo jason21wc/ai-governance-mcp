@@ -45,12 +45,19 @@ class EmbeddingGenerator:
 
     @property
     def model(self):
-        """Lazy load the embedding model."""
+        """Lazy load the embedding model.
+
+        Uses safetensors format (prevents pickle RCE) and blocks remote code execution.
+        """
         if self._model is None:
             from sentence_transformers import SentenceTransformer
 
             logger.info(f"Loading embedding model: {self.model_name}")
-            self._model = SentenceTransformer(self.model_name)
+            self._model = SentenceTransformer(
+                self.model_name,
+                trust_remote_code=False,
+                model_kwargs={"use_safetensors": True},
+            )
         return self._model
 
     def embed(self, texts: list[str]) -> np.ndarray:

@@ -36,13 +36,21 @@ class SpreadsheetConnector(BaseConnector):
     def can_handle(self, file_path: Path) -> bool:
         return file_path.suffix.lower() in self.supported_extensions
 
-    def parse(self, file_path: Path) -> list[ContentChunk]:
+    def parse(
+        self, file_path: Path, project_root: Path | None = None
+    ) -> list[ContentChunk]:
         """Parse a spreadsheet into schema + sample chunks."""
+        # Compute display path (relative to project root when available)
+        if project_root and file_path.is_relative_to(project_root):
+            display_path = str(file_path.relative_to(project_root))
+        else:
+            display_path = str(file_path)
+
         suffix = file_path.suffix.lower()
         if suffix in {".csv", ".tsv"}:
-            return self._parse_csv(file_path, suffix)
+            return self._parse_csv(file_path, suffix, display_path)
         elif suffix == ".xlsx":
-            return self._parse_xlsx(file_path)
+            return self._parse_xlsx(file_path, display_path)
         return []
 
     def extract_metadata(self, file_path: Path) -> FileMetadata:
@@ -55,7 +63,9 @@ class SpreadsheetConnector(BaseConnector):
             last_modified=stat.st_mtime,
         )
 
-    def _parse_csv(self, file_path: Path, suffix: str) -> list[ContentChunk]:
+    def _parse_csv(
+        self, file_path: Path, suffix: str, display_path: str
+    ) -> list[ContentChunk]:
         """Parse CSV/TSV files."""
         chunks: list[ContentChunk] = []
         delimiter = "\t" if suffix == ".tsv" else ","
@@ -84,7 +94,7 @@ class SpreadsheetConnector(BaseConnector):
             chunks.append(
                 ContentChunk(
                     content=schema_text,
-                    source_path=str(file_path),
+                    source_path=display_path,
                     start_line=1,
                     end_line=len(rows),
                     content_type="data",
@@ -97,7 +107,7 @@ class SpreadsheetConnector(BaseConnector):
 
         return chunks
 
-    def _parse_xlsx(self, file_path: Path) -> list[ContentChunk]:
+    def _parse_xlsx(self, file_path: Path, display_path: str) -> list[ContentChunk]:
         """Parse Excel files."""
         if not self._openpyxl_available:
             return []
@@ -108,37 +118,41 @@ class SpreadsheetConnector(BaseConnector):
             import openpyxl
 
             wb = openpyxl.load_workbook(str(file_path), read_only=True, data_only=True)
-            for sheet_name in wb.sheetnames:
-                ws = wb[sheet_name]
-                rows = []
-                for i, row in enumerate(ws.iter_rows(values_only=True)):
-                    rows.append([str(cell) if cell is not None else "" for cell in row])
-                    if i >= 10:
-                        break
+            try:
+                for sheet_name in wb.sheetnames:
+                    ws = wb[sheet_name]
+                    rows = []
+                    for i, row in enumerate(ws.iter_rows(values_only=True)):
+                        rows.append(
+                            [str(cell) if cell is not None else "" for cell in row]
+                        )
+                        if i >= 10:
+                            break
 
-                if not rows:
-                    continue
+                    if not rows:
+                        continue
 
-                headers = rows[0]
-                schema_text = f"Sheet: {sheet_name}\n"
-                schema_text += f"Schema: {', '.join(headers)}\n"
-                schema_text += f"Columns: {len(headers)}\n"
-                if len(rows) > 1:
-                    schema_text += f"Sample rows ({min(len(rows) - 1, 10)}):\n"
-                    for row in rows[1:]:
-                        schema_text += f"  {', '.join(row)}\n"
+                    headers = rows[0]
+                    schema_text = f"Sheet: {sheet_name}\n"
+                    schema_text += f"Schema: {', '.join(headers)}\n"
+                    schema_text += f"Columns: {len(headers)}\n"
+                    if len(rows) > 1:
+                        schema_text += f"Sample rows ({min(len(rows) - 1, 10)}):\n"
+                        for row in rows[1:]:
+                            schema_text += f"  {', '.join(row)}\n"
 
-                chunks.append(
-                    ContentChunk(
-                        content=schema_text,
-                        source_path=str(file_path),
-                        start_line=1,
-                        end_line=len(rows),
-                        content_type="data",
-                        heading=f"Schema: {file_path.name} / {sheet_name}",
+                    chunks.append(
+                        ContentChunk(
+                            content=schema_text,
+                            source_path=display_path,
+                            start_line=1,
+                            end_line=len(rows),
+                            content_type="data",
+                            heading=f"Schema: {file_path.name} / {sheet_name}",
+                        )
                     )
-                )
-            wb.close()
+            finally:
+                wb.close()
         except Exception as e:
             logger.warning("Failed to parse Excel %s: %s", file_path, e)
             return []

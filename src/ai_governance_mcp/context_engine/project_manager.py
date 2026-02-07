@@ -10,8 +10,6 @@ import re
 import threading
 import time
 from pathlib import Path
-from typing import Optional
-
 import numpy as np
 from rank_bm25 import BM25Okapi
 
@@ -42,7 +40,7 @@ class ProjectManager:
 
     def __init__(
         self,
-        storage: Optional[BaseStorage] = None,
+        storage: BaseStorage | None = None,
         embedding_model: str = "BAAI/bge-small-en-v1.5",
         embedding_dimensions: int = 384,
         semantic_weight: float = 0.6,
@@ -65,6 +63,11 @@ class ProjectManager:
         # RLock protects shared index state from watcher callback mutations.
         # Reentrant because query_project may call get_or_create_index internally.
         self._index_lock = threading.RLock()
+
+        # Track consecutive watcher failures per project for circuit breaker
+        self._watcher_failures: dict[str, int] = {}
+        # Track projects with circuit-broken watchers (for status reporting)
+        self._circuit_broken: set[str] = set()
 
     def get_or_create_index(
         self,
@@ -107,7 +110,7 @@ class ProjectManager:
     def query_project(
         self,
         query: str,
-        project_path: Optional[Path] = None,
+        project_path: Path | None = None,
         max_results: int = 10,
     ) -> ProjectQueryResult:
         """Query a project's content using hybrid search.
@@ -199,6 +202,19 @@ class ProjectManager:
 
             return index
 
+    def _get_watcher_status(self, project_id: str, index_mode: str) -> str:
+        """Get watcher status for a project.
+
+        Returns: running, stopped, circuit_broken, or disabled
+        """
+        if index_mode == "ondemand":
+            return "disabled"
+        if project_id in self._circuit_broken:
+            return "circuit_broken"
+        if project_id in self._watchers and self._watchers[project_id].is_running:
+            return "running"
+        return "stopped"
+
     def list_projects(self) -> list[ProjectStatus]:
         """List all indexed projects with their status."""
         statuses = []
@@ -207,10 +223,15 @@ class ProjectManager:
             if metadata:
                 index_path = self.storage.get_index_path(project_id)
                 index_size = (
-                    sum(f.stat().st_size for f in index_path.iterdir() if f.is_file())
+                    sum(
+                        f.stat().st_size
+                        for f in index_path.iterdir()
+                        if f.is_file() and not f.is_symlink()
+                    )
                     if index_path.exists()
                     else 0
                 )
+                index_mode = metadata.get("index_mode", "realtime")
 
                 statuses.append(
                     ProjectStatus(
@@ -218,17 +239,18 @@ class ProjectManager:
                         project_path=metadata.get("project_path", "unknown"),
                         total_files=metadata.get("total_files", 0),
                         total_chunks=metadata.get("total_chunks", 0),
-                        index_mode=metadata.get("index_mode", "realtime"),
+                        index_mode=index_mode,
                         last_updated=metadata.get("updated_at"),
                         index_size_bytes=index_size,
                         embedding_model=metadata.get("embedding_model", "unknown"),
+                        watcher_status=self._get_watcher_status(project_id, index_mode),
                     )
                 )
         return statuses
 
     def get_project_status(
-        self, project_path: Optional[Path] = None
-    ) -> Optional[ProjectStatus]:
+        self, project_path: Path | None = None
+    ) -> ProjectStatus | None:
         """Get status of a specific project."""
         if project_path is None:
             project_path = Path.cwd()
@@ -240,20 +262,26 @@ class ProjectManager:
 
         index_path = self.storage.get_index_path(project_id)
         index_size = (
-            sum(f.stat().st_size for f in index_path.iterdir() if f.is_file())
+            sum(
+                f.stat().st_size
+                for f in index_path.iterdir()
+                if f.is_file() and not f.is_symlink()
+            )
             if index_path.exists()
             else 0
         )
 
+        index_mode = metadata.get("index_mode", "realtime")
         return ProjectStatus(
             project_id=project_id,
             project_path=metadata.get("project_path", str(project_path)),
             total_files=metadata.get("total_files", 0),
             total_chunks=metadata.get("total_chunks", 0),
-            index_mode=metadata.get("index_mode", "realtime"),
+            index_mode=index_mode,
             last_updated=metadata.get("updated_at"),
             index_size_bytes=index_size,
             embedding_model=metadata.get("embedding_model", "unknown"),
+            watcher_status=self._get_watcher_status(project_id, index_mode),
         )
 
     def shutdown(self) -> None:
@@ -310,8 +338,9 @@ class ProjectManager:
         scores = bm25.get_scores(tokenized_query)
 
         # Normalize to [0, 1]
-        max_score = scores.max() if len(scores) > 0 and scores.max() > 0 else 1.0
-        scores = scores / max_score
+        max_score = scores.max() if len(scores) > 0 else 0.0
+        if max_score > 0:
+            scores = scores / max_score
         return scores
 
     def _fuse_scores(
@@ -355,8 +384,9 @@ class ProjectManager:
             return
 
         def on_change(changed_files: list[Path]) -> None:
-            try:
-                with self._index_lock:
+            # H1 fix: Entire try/except inside lock to protect _watcher_failures
+            with self._index_lock:
+                try:
                     self._indexer.incremental_update(
                         project_path, project_id, changed_files
                     )
@@ -366,12 +396,32 @@ class ProjectManager:
                     metadata = self.storage.load_metadata(project_id)
                     if metadata:
                         self._loaded_indexes[project_id] = ProjectIndex(**metadata)
-            except Exception as e:
-                logger.error("Error during incremental update: %s", e)
+                    # Reset failure count on success
+                    self._watcher_failures.pop(project_id, None)
+                except Exception as e:
+                    failures = self._watcher_failures.get(project_id, 0) + 1
+                    self._watcher_failures[project_id] = failures
+                    logger.error(
+                        "Incremental update failed (%d consecutive): %s", failures, e
+                    )
+                    if failures >= 3:
+                        logger.error(
+                            "Stopping watcher for %s after %d consecutive failures",
+                            project_id,
+                            failures,
+                        )
+                        # H5 fix: Atomic pop() to prevent TOCTOU race
+                        watcher = self._watchers.pop(project_id, None)
+                        if watcher is not None:
+                            watcher.stop()
+                        # M5: Track circuit-broken state for status reporting
+                        self._circuit_broken.add(project_id)
 
+        ignore_spec = self._indexer.load_ignore_patterns(project_path)
         watcher = FileWatcher(
             project_path=project_path,
             on_change=on_change,
+            ignore_spec=ignore_spec,
         )
         watcher.start()
         self._watchers[project_id] = watcher

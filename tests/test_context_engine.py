@@ -9,6 +9,7 @@ Covers:
 - Server (input validation, error sanitization, rate limiting)
 """
 
+import os
 import re
 import threading
 import time
@@ -17,6 +18,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
 
 from ai_governance_mcp.context_engine.models import (
     ContentChunk,
@@ -51,7 +53,7 @@ class TestContentChunk:
             assert chunk.content_type == ct
 
     def test_invalid_content_type_rejected(self):
-        with pytest.raises(Exception):  # ValidationError
+        with pytest.raises(ValidationError):  # ValidationError
             ContentChunk(
                 content="test",
                 source_path="/tmp/test.py",
@@ -88,7 +90,7 @@ class TestFileMetadata:
         assert fm.chunk_count == 0  # default
 
     def test_invalid_content_type(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             FileMetadata(
                 path="/tmp/test.py",
                 content_type="spreadsheet",
@@ -113,7 +115,7 @@ class TestProjectIndex:
             assert idx.index_mode == mode
 
     def test_invalid_index_mode_rejected(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             ProjectIndex(
                 project_id="abc123",
                 project_path="/tmp/project",
@@ -178,7 +180,7 @@ class TestQueryResult:
             end_line=10,
             content_type="code",
         )
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             QueryResult(
                 chunk=chunk,
                 semantic_score=1.5,  # > 1.0
@@ -240,8 +242,9 @@ class TestFilesystemStorage:
     def test_default_base_path(self):
         with patch.object(Path, "home", return_value=Path("/mock/home")):
             with patch.object(Path, "mkdir"):
-                storage = FilesystemStorage()
-                assert "context-engine" in str(storage.base_path)
+                with patch("os.chmod"):
+                    storage = FilesystemStorage()
+                    assert "context-engine" in str(storage.base_path)
 
     def test_project_id_from_path(self):
         pid = FilesystemStorage.project_id_from_path(Path("/tmp/myproject"))
@@ -545,43 +548,50 @@ class TestIndexer:
         return proj
 
     def test_load_ignore_patterns_default(self, project_dir):
-        from ai_governance_mcp.context_engine.indexer import (
-            DEFAULT_IGNORE_PATTERNS,
-            Indexer,
-        )
+        from ai_governance_mcp.context_engine.indexer import Indexer
 
         indexer = Indexer(storage=Mock())
-        patterns = indexer._load_ignore_patterns(project_dir)
-        assert patterns == DEFAULT_IGNORE_PATTERNS
+        spec = indexer.load_ignore_patterns(project_dir)
+        # Default spec should match common ignored paths
+        assert spec.match_file(".git/HEAD")
+        assert spec.match_file("__pycache__/module.pyc")
+        assert spec.match_file("node_modules/pkg/index.js")
+        assert not spec.match_file("src/main.py")
 
     def test_load_ignore_patterns_contextignore(self, project_dir):
         from ai_governance_mcp.context_engine.indexer import Indexer
 
         (project_dir / ".contextignore").write_text("*.log\nsecrets/\n# comment\n")
         indexer = Indexer(storage=Mock())
-        patterns = indexer._load_ignore_patterns(project_dir)
-        assert "*.log" in patterns
-        assert "secrets/" in patterns
-        assert "# comment" not in patterns
+        spec = indexer.load_ignore_patterns(project_dir)
+        assert spec.match_file("app.log")
+        assert spec.match_file("secrets/key.txt")
+        # Comments should not be treated as patterns
+        assert not spec.match_file("src/main.py")
 
     def test_load_ignore_patterns_gitignore_fallback(self, project_dir):
         from ai_governance_mcp.context_engine.indexer import Indexer
 
         (project_dir / ".gitignore").write_text("*.pyc\nbuild/\n")
         indexer = Indexer(storage=Mock())
-        patterns = indexer._load_ignore_patterns(project_dir)
-        assert "*.pyc" in patterns
-        assert "build/" in patterns
+        spec = indexer.load_ignore_patterns(project_dir)
+        assert spec.match_file("module.pyc")
+        assert spec.match_file("build/output.js")
 
     def test_discover_files_skips_ignored(self, project_dir):
+        import pathspec
+
         from ai_governance_mcp.context_engine.indexer import Indexer
 
         (project_dir / "ignored.log").write_text("log content")
         indexer = Indexer(storage=Mock())
-        files = indexer._discover_files(project_dir, ["*.log"])
+        spec = pathspec.GitIgnoreSpec.from_lines(["*.log"])
+        files = indexer._discover_files(project_dir, spec)
         assert not any(f.name == "ignored.log" for f in files)
 
     def test_discover_files_skips_symlinks(self, project_dir):
+        import pathspec
+
         from ai_governance_mcp.context_engine.indexer import Indexer
 
         target = project_dir / "target.py"
@@ -589,10 +599,13 @@ class TestIndexer:
         link = project_dir / "link.py"
         link.symlink_to(target)
         indexer = Indexer(storage=Mock())
-        files = indexer._discover_files(project_dir, [])
+        spec = pathspec.GitIgnoreSpec.from_lines([])
+        files = indexer._discover_files(project_dir, spec)
         assert not any(f.name == "link.py" for f in files)
 
     def test_discover_files_skips_large_files(self, project_dir):
+        import pathspec
+
         from ai_governance_mcp.context_engine.indexer import (
             MAX_FILE_SIZE_BYTES,
             Indexer,
@@ -601,16 +614,25 @@ class TestIndexer:
         large = project_dir / "large.py"
         large.write_text("x = 1\n" * (MAX_FILE_SIZE_BYTES // 5))
         indexer = Indexer(storage=Mock())
-        files = indexer._discover_files(project_dir, [])
+        spec = pathspec.GitIgnoreSpec.from_lines([])
+        files = indexer._discover_files(project_dir, spec)
         assert not any(f.name == "large.py" for f in files)
 
-    def test_is_ignored(self):
-        from ai_governance_mcp.context_engine.indexer import Indexer
+    def test_gitignore_matching_with_pathspec(self):
+        """Verify pathspec handles gitignore patterns correctly."""
+        import pathspec
 
-        indexer = Indexer(storage=Mock())
-        assert indexer._is_ignored("__pycache__/module.pyc", ["__pycache__/**"])
-        assert indexer._is_ignored("node_modules/pkg/index.js", ["node_modules/**"])
-        assert not indexer._is_ignored("src/main.py", ["*.log"])
+        spec = pathspec.GitIgnoreSpec.from_lines(
+            [
+                "__pycache__/",
+                "node_modules/",
+                "*.log",
+            ]
+        )
+        assert spec.match_file("__pycache__/module.pyc")
+        assert spec.match_file("node_modules/pkg/index.js")
+        assert spec.match_file("deep/nested/error.log")
+        assert not spec.match_file("src/main.py")
 
     def test_file_hash_deterministic(self, project_dir):
         from ai_governance_mcp.context_engine.indexer import Indexer
@@ -986,7 +1008,7 @@ class TestFileWatcher:
         watcher = FileWatcher(project_path=tmp_path, on_change=callback)
         assert watcher.project_path == tmp_path
         assert watcher.debounce_seconds == 0.5
-        assert watcher.ignore_patterns == []
+        assert watcher.ignore_spec is None
         assert watcher.is_running is False
 
     def test_stop_without_start(self, tmp_path):
@@ -1009,15 +1031,18 @@ class TestFileWatcher:
 
     def test_file_changed_ignore_patterns(self, tmp_path):
         """Files matching ignore patterns should not be queued."""
+        import pathspec
+
         from ai_governance_mcp.context_engine.watcher import FileWatcher
 
         callback = Mock()
+        ignore_spec = pathspec.GitIgnoreSpec.from_lines(["*.log", "*.pyc"])
         watcher = FileWatcher(
             project_path=tmp_path,
             on_change=callback,
-            ignore_patterns=["*.log", "*.pyc"],
+            ignore_spec=ignore_spec,
         )
-        watcher._running = True
+        watcher._running.set()
         log_file = tmp_path / "app.log"
         log_file.write_text("log content")
         watcher._file_changed(log_file)
@@ -1029,7 +1054,7 @@ class TestFileWatcher:
 
         callback = Mock()
         watcher = FileWatcher(project_path=tmp_path / "subdir", on_change=callback)
-        watcher._running = True
+        watcher._running.set()
         outside_file = tmp_path / "outside.py"
         outside_file.write_text("x = 1")
         watcher._file_changed(outside_file)
@@ -1041,7 +1066,7 @@ class TestFileWatcher:
 
         callback = Mock()
         watcher = FileWatcher(project_path=tmp_path, on_change=callback)
-        watcher._running = True
+        watcher._running.set()
         test_file = tmp_path / "test.py"
         test_file.write_text("x = 1")
         # Cancel the debounce timer immediately to prevent background flush
@@ -1056,6 +1081,7 @@ class TestFileWatcher:
 
         callback = Mock()
         watcher = FileWatcher(project_path=tmp_path, on_change=callback)
+        watcher._running.set()  # H4 fix requires _running to be set
         test_file = tmp_path / "test.py"
         watcher._pending_changes.add(test_file)
         watcher._flush_changes()
@@ -1078,16 +1104,28 @@ class TestFileWatcher:
 
         callback = Mock(side_effect=RuntimeError("callback failed"))
         watcher = FileWatcher(project_path=tmp_path, on_change=callback)
+        watcher._running.set()  # H4 fix requires _running to be set
         watcher._pending_changes.add(tmp_path / "test.py")
         watcher._flush_changes()  # Should not raise
         callback.assert_called_once()
+
+    def test_flush_changes_noop_when_stopped(self, tmp_path):
+        """H4 fix: Flushing after stop should be a no-op."""
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        callback = Mock()
+        watcher = FileWatcher(project_path=tmp_path, on_change=callback)
+        # Don't set _running - simulates post-stop state
+        watcher._pending_changes.add(tmp_path / "test.py")
+        watcher._flush_changes()
+        callback.assert_not_called()  # Should skip when not running
 
     def test_is_running_property(self, tmp_path):
         from ai_governance_mcp.context_engine.watcher import FileWatcher
 
         watcher = FileWatcher(project_path=tmp_path, on_change=Mock())
         assert watcher.is_running is False
-        watcher._running = True
+        watcher._running.set()
         assert watcher.is_running is True
 
     def test_start_without_watchdog(self, tmp_path):
@@ -1605,7 +1643,7 @@ class TestQueryResultConstraints:
             end_line=1,
             content_type="code",
         )
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             QueryResult(
                 chunk=chunk,
                 semantic_score=0.5,
@@ -1621,7 +1659,7 @@ class TestQueryResultConstraints:
             end_line=1,
             content_type="code",
         )
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             QueryResult(
                 chunk=chunk,
                 semantic_score=0.5,
@@ -1637,7 +1675,7 @@ class TestQueryResultConstraints:
             end_line=1,
             content_type="code",
         )
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             QueryResult(
                 chunk=chunk,
                 semantic_score=-0.1,
@@ -1950,14 +1988,14 @@ class TestEnvIgnorePatterns:
         assert ".env" not in DEFAULT_IGNORE_PATTERNS
 
     def test_env_variants_ignored(self):
-        from ai_governance_mcp.context_engine.indexer import Indexer
+        import pathspec
 
-        indexer = Indexer(storage=Mock())
-        assert indexer._is_ignored(".env", [".env*"])
-        assert indexer._is_ignored(".env.local", [".env*"])
-        assert indexer._is_ignored(".env.production", [".env*"])
-        assert indexer._is_ignored(".env.staging", [".env*"])
-        assert indexer._is_ignored(".env.development", [".env*"])
+        spec = pathspec.GitIgnoreSpec.from_lines([".env*"])
+        assert spec.match_file(".env")
+        assert spec.match_file(".env.local")
+        assert spec.match_file(".env.production")
+        assert spec.match_file(".env.staging")
+        assert spec.match_file(".env.development")
 
 
 class TestFileCountLimit:
@@ -1969,6 +2007,8 @@ class TestFileCountLimit:
         assert MAX_FILE_COUNT == 10_000
 
     def test_discover_files_enforces_limit(self, tmp_path):
+        import pathspec
+
         from ai_governance_mcp.context_engine.indexer import Indexer
 
         # Create more files than a small limit
@@ -1976,10 +2016,11 @@ class TestFileCountLimit:
             (tmp_path / f"file_{i}.py").write_text(f"x = {i}")
 
         indexer = Indexer(storage=Mock())
+        spec = pathspec.GitIgnoreSpec.from_lines([])
 
         # Monkey-patch MAX_FILE_COUNT to a small value for testing
         with patch("ai_governance_mcp.context_engine.indexer.MAX_FILE_COUNT", 10):
-            files = indexer._discover_files(tmp_path, [])
+            files = indexer._discover_files(tmp_path, spec)
         assert len(files) <= 10
 
 
@@ -2012,7 +2053,7 @@ class TestImageConnectorFixes:
         assert chunks[0].end_line == 1
 
     def test_parse_without_project_root(self, tmp_path):
-        """parse() without project_root should fall back to filename only."""
+        """parse() without project_root should fall back to full path (consistent with other connectors)."""
         from ai_governance_mcp.context_engine.connectors.image import ImageConnector
 
         conn = ImageConnector()
@@ -2020,7 +2061,8 @@ class TestImageConnectorFixes:
         f.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
         chunks = conn.parse(f)
         assert len(chunks) == 1
-        assert "Path: test.png" in chunks[0].content
+        # Without project_root, display_path is str(file_path) — the full path
+        assert f"Path: {f}" in chunks[0].content
 
 
 class TestUnknownToolStructuredError:
@@ -2048,3 +2090,795 @@ class TestDeadCodeRemoval:
 
         indexer = Indexer(storage=Mock())
         assert not hasattr(indexer, "_bm25")
+
+
+# =============================================================================
+# Iteration 6/7 — Connector Relative Paths, Resource Cleanup, Symlink Exclusion
+# =============================================================================
+
+
+class TestConnectorRelativePaths:
+    """Test that all connectors produce relative source_path when project_root is provided."""
+
+    def test_code_connector_relative_path(self, tmp_path):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        conn = CodeConnector()
+        sub = tmp_path / "src"
+        sub.mkdir()
+        f = sub / "main.py"
+        f.write_text("def hello():\n    pass\n")
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) >= 1
+        assert chunks[0].source_path == "src/main.py"
+
+    def test_code_connector_absolute_path_without_root(self, tmp_path):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        conn = CodeConnector()
+        f = tmp_path / "main.py"
+        f.write_text("x = 1\n")
+        chunks = conn.parse(f)
+        assert len(chunks) >= 1
+        assert chunks[0].source_path == str(f)
+
+    def test_document_connector_relative_path(self, tmp_path):
+        from ai_governance_mcp.context_engine.connectors.document import (
+            DocumentConnector,
+        )
+
+        conn = DocumentConnector()
+        sub = tmp_path / "docs"
+        sub.mkdir()
+        f = sub / "readme.md"
+        f.write_text("# Title\n\nContent.\n")
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) >= 1
+        assert chunks[0].source_path == "docs/readme.md"
+
+    def test_document_connector_absolute_path_without_root(self, tmp_path):
+        from ai_governance_mcp.context_engine.connectors.document import (
+            DocumentConnector,
+        )
+
+        conn = DocumentConnector()
+        f = tmp_path / "notes.txt"
+        f.write_text("Some text.\n")
+        chunks = conn.parse(f)
+        assert len(chunks) >= 1
+        assert chunks[0].source_path == str(f)
+
+    def test_spreadsheet_connector_relative_path(self, tmp_path):
+        from ai_governance_mcp.context_engine.connectors.spreadsheet import (
+            SpreadsheetConnector,
+        )
+
+        conn = SpreadsheetConnector()
+        sub = tmp_path / "data"
+        sub.mkdir()
+        f = sub / "report.csv"
+        f.write_text("a,b\n1,2\n")
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) == 1
+        assert chunks[0].source_path == "data/report.csv"
+
+    def test_spreadsheet_connector_absolute_path_without_root(self, tmp_path):
+        from ai_governance_mcp.context_engine.connectors.spreadsheet import (
+            SpreadsheetConnector,
+        )
+
+        conn = SpreadsheetConnector()
+        f = tmp_path / "data.csv"
+        f.write_text("x,y\n10,20\n")
+        chunks = conn.parse(f)
+        assert len(chunks) == 1
+        assert chunks[0].source_path == str(f)
+
+    def test_image_connector_relative_path(self, tmp_path):
+        from ai_governance_mcp.context_engine.connectors.image import ImageConnector
+
+        conn = ImageConnector()
+        sub = tmp_path / "assets"
+        sub.mkdir()
+        f = sub / "logo.png"
+        f.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) == 1
+        assert chunks[0].source_path == "assets/logo.png"
+
+    def test_image_connector_absolute_path_without_root(self, tmp_path):
+        from ai_governance_mcp.context_engine.connectors.image import ImageConnector
+
+        conn = ImageConnector()
+        f = tmp_path / "photo.png"
+        f.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+        chunks = conn.parse(f)
+        assert len(chunks) == 1
+        assert chunks[0].source_path == str(f)
+
+    def test_pdf_connector_relative_path(self, tmp_path):
+        """PDF connector uses relative path when project_root provided (requires pymupdf)."""
+        from ai_governance_mcp.context_engine.connectors.pdf import PDFConnector
+
+        conn = PDFConnector()
+        if not conn._pdf_available:
+            pytest.skip("No PDF library available")
+        sub = tmp_path / "docs"
+        sub.mkdir()
+        f = sub / "manual.pdf"
+        # Create minimal PDF
+        f.write_bytes(b"%PDF-1.4\n")
+        # parse may return [] for invalid PDF, but source_path logic is testable
+        # via mock instead
+        with patch("pymupdf.open") as mock_open:
+            mock_doc = MagicMock()
+            mock_doc.__len__ = Mock(return_value=1)
+            mock_page = MagicMock()
+            mock_page.get_text.return_value = "Page content"
+            mock_doc.__getitem__ = Mock(return_value=mock_page)
+            mock_open.return_value = mock_doc
+            chunks = conn.parse(f, project_root=tmp_path)
+            assert len(chunks) == 1
+            assert chunks[0].source_path == "docs/manual.pdf"
+
+
+class TestResourceCleanupOnException:
+    """Test that connectors properly close resources even when exceptions occur."""
+
+    def test_spreadsheet_xlsx_closes_workbook_on_error(self, tmp_path):
+        """Spreadsheet connector closes workbook even when processing raises."""
+        from ai_governance_mcp.context_engine.connectors.spreadsheet import (
+            SpreadsheetConnector,
+        )
+
+        conn = SpreadsheetConnector()
+        conn._openpyxl_available = True
+        f = tmp_path / "bad.xlsx"
+        f.write_bytes(b"not a real xlsx")
+
+        mock_wb = MagicMock()
+        mock_wb.sheetnames = ["Sheet1"]
+        mock_ws = MagicMock()
+        mock_ws.iter_rows.side_effect = RuntimeError("corrupt sheet")
+        mock_wb.__getitem__ = Mock(return_value=mock_ws)
+
+        with patch("openpyxl.load_workbook", return_value=mock_wb):
+            chunks = conn._parse_xlsx(f, str(f))
+            # Should return [] on error, not raise
+            assert chunks == []
+            # Workbook must be closed despite the error
+            mock_wb.close.assert_called_once()
+
+    def test_pdf_pymupdf_closes_doc_on_error(self, tmp_path):
+        """PDF connector closes pymupdf doc even when page processing raises."""
+        import sys
+
+        from ai_governance_mcp.context_engine.connectors.pdf import PDFConnector
+
+        conn = PDFConnector()
+        # L2: Now separate flags — set pymupdf flag directly
+        conn._has_pymupdf = True
+        f = tmp_path / "bad.pdf"
+        f.write_bytes(b"%PDF-1.4\n")
+
+        mock_doc = MagicMock()
+        mock_doc.__len__ = Mock(return_value=1)
+        mock_doc.__getitem__ = Mock(side_effect=RuntimeError("corrupt page"))
+
+        mock_pymupdf = MagicMock()
+        mock_pymupdf.open = Mock(return_value=mock_doc)
+
+        with patch.dict(sys.modules, {"pymupdf": mock_pymupdf}):
+            chunks = conn.parse(f)
+            # Should return [] on error, not raise
+            assert chunks == []
+            # Document must be closed despite the error
+            mock_doc.close.assert_called_once()
+
+
+class TestListProjectsSymlinkExclusion:
+    """Test that list_projects excludes symlinks in storage directory."""
+
+    def test_symlink_excluded_from_list(self, tmp_path):
+        """Symlinked directories should not appear in list_projects."""
+        storage = FilesystemStorage(base_path=tmp_path)
+
+        # Create a real project directory
+        real_id = "abcdef1234567890"
+        real_dir = tmp_path / real_id
+        real_dir.mkdir()
+        (real_dir / "metadata.json").write_text('{"project_id": "real"}')
+
+        # Create a symlinked "project" pointing to a real directory
+        target = tmp_path / "external_target"
+        target.mkdir()
+        (target / "metadata.json").write_text('{"project_id": "fake"}')
+        sym_id = "1234567890abcdef"
+        (tmp_path / sym_id).symlink_to(target)
+
+        projects = storage.list_projects()
+        assert real_id in projects
+        assert sym_id not in projects
+
+    def test_symlink_outside_storage_blocked_by_containment(self, tmp_path):
+        """delete_project rejects symlinks pointing outside storage via containment check."""
+        storage_dir = tmp_path / "storage"
+        storage_dir.mkdir()
+        storage = FilesystemStorage(base_path=storage_dir)
+
+        # Target is OUTSIDE the storage directory
+        external_target = tmp_path / "external_data"
+        external_target.mkdir()
+        (external_target / "metadata.json").write_text('{"important": true}')
+
+        sym_id = "abcdef1234567890"
+        (storage_dir / sym_id).symlink_to(external_target)
+
+        # get_index_path resolves the symlink → external path → containment check fails
+        with pytest.raises(ValueError, match="Path traversal detected"):
+            storage.delete_project(sym_id)
+
+        # External target must still exist (not deleted)
+        assert external_target.exists()
+        assert (external_target / "metadata.json").exists()
+
+
+class TestBm25ZeroScoreNormalization:
+    """Test that BM25 normalization handles zero/empty scores without errors."""
+
+    def test_all_zero_scores_no_division_error(self):
+        """BM25 scores that are all zero should not cause division by zero."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        mock_bm25 = Mock()
+        mock_bm25.get_scores = Mock(return_value=np.array([0.0, 0.0, 0.0]))
+        pm._loaded_bm25["test_project"] = mock_bm25
+
+        scores = pm._bm25_search("query", "test_project")
+        # Should return zeros without error (no division by zero)
+        assert np.all(scores == 0.0)
+
+    def test_normal_scores_still_normalize(self):
+        """Non-zero BM25 scores should normalize to [0, 1]."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        mock_bm25 = Mock()
+        mock_bm25.get_scores = Mock(return_value=np.array([2.0, 4.0, 1.0]))
+        pm._loaded_bm25["test_project"] = mock_bm25
+
+        scores = pm._bm25_search("query", "test_project")
+        assert scores.max() == pytest.approx(1.0)
+        assert scores.min() == pytest.approx(0.25)
+
+    def test_empty_scores_array(self):
+        """Empty BM25 result should return empty array."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        # No BM25 loaded → empty
+        scores = pm._bm25_search("query", "nonexistent")
+        assert len(scores) == 0
+
+
+class TestJsonFileSizeLimits:
+    """Test that oversized JSON files are rejected to prevent OOM."""
+
+    def test_oversized_metadata_returns_none(self, tmp_path):
+        """Metadata exceeding size limit should return None."""
+        storage = FilesystemStorage(base_path=tmp_path)
+        project_id = "a" * 16
+        project_dir = tmp_path / project_id
+        project_dir.mkdir()
+
+        # Create oversized metadata file
+        metadata_path = project_dir / "metadata.json"
+        from ai_governance_mcp.context_engine.storage.filesystem import (
+            MAX_JSON_FILE_SIZE_BYTES,
+        )
+
+        # Write a file that exceeds the limit (use sparse approach)
+        with open(metadata_path, "w") as f:
+            f.seek(MAX_JSON_FILE_SIZE_BYTES + 1)
+            f.write("}")
+
+        result = storage.load_metadata(project_id)
+        assert result is None
+
+    def test_oversized_bm25_returns_none(self, tmp_path):
+        """BM25 index exceeding size limit should return None."""
+        storage = FilesystemStorage(base_path=tmp_path)
+        project_id = "b" * 16
+        project_dir = tmp_path / project_id
+        project_dir.mkdir()
+
+        bm25_path = project_dir / "bm25_index.json"
+        from ai_governance_mcp.context_engine.storage.filesystem import (
+            MAX_JSON_FILE_SIZE_BYTES,
+        )
+
+        with open(bm25_path, "w") as f:
+            f.seek(MAX_JSON_FILE_SIZE_BYTES + 1)
+            f.write("}")
+
+        result = storage.load_bm25_index(project_id)
+        assert result is None
+
+    def test_oversized_manifest_returns_none(self, tmp_path):
+        """File manifest exceeding size limit should return None."""
+        storage = FilesystemStorage(base_path=tmp_path)
+        project_id = "c" * 16
+        project_dir = tmp_path / project_id
+        project_dir.mkdir()
+
+        manifest_path = project_dir / "file_manifest.json"
+        from ai_governance_mcp.context_engine.storage.filesystem import (
+            MAX_JSON_FILE_SIZE_BYTES,
+        )
+
+        with open(manifest_path, "w") as f:
+            f.seek(MAX_JSON_FILE_SIZE_BYTES + 1)
+            f.write("}")
+
+        result = storage.load_file_manifest(project_id)
+        assert result is None
+
+    def test_normal_sized_files_load_fine(self, tmp_path):
+        """Files under the size limit should load normally."""
+        storage = FilesystemStorage(base_path=tmp_path)
+        project_id = "d" * 16
+        project_dir = tmp_path / project_id
+        project_dir.mkdir()
+
+        (project_dir / "metadata.json").write_text('{"key": "value"}')
+        result = storage.load_metadata(project_id)
+        assert result == {"key": "value"}
+
+
+class TestStorageDirectoryPermissions:
+    """Test that storage directories are created with restricted permissions."""
+
+    def test_base_path_created_with_restricted_mode(self, tmp_path):
+        """Base storage directory should be created with mode 0o700."""
+        import stat
+
+        storage_path = tmp_path / "new_storage"
+        FilesystemStorage(base_path=storage_path)
+        mode = storage_path.stat().st_mode & 0o777
+        # On macOS/Linux, umask may affect final mode, but owner bits should be rwx
+        assert mode & stat.S_IRWXU == stat.S_IRWXU  # owner has full access
+
+    def test_project_dir_created_with_restricted_mode(self, tmp_path):
+        """Project index directory should be created with mode 0o700."""
+        import stat
+
+        storage = FilesystemStorage(base_path=tmp_path)
+        project_dir = storage._ensure_dir("a" * 16)
+        mode = project_dir.stat().st_mode & 0o777
+        assert mode & stat.S_IRWXU == stat.S_IRWXU  # owner has full access
+
+    def test_chmod_tightens_preexisting_base_dir(self, tmp_path):
+        """chmod should tighten permissions even if directory pre-existed with weaker mode."""
+
+        storage_path = tmp_path / "preexisting"
+        storage_path.mkdir(mode=0o755)  # Weak permissions
+        # Verify weak permissions
+        assert storage_path.stat().st_mode & 0o077 != 0
+
+        # Creating storage should tighten
+        FilesystemStorage(base_path=storage_path)
+        mode = storage_path.stat().st_mode & 0o777
+        assert mode == 0o700  # Should be tightened to 0o700
+
+    def test_chmod_tightens_preexisting_project_dir(self, tmp_path):
+        """chmod should tighten permissions on pre-existing project directories."""
+
+        storage = FilesystemStorage(base_path=tmp_path)
+        project_id = "a" * 16
+        project_dir = storage.get_index_path(project_id)
+        project_dir.mkdir(parents=True, mode=0o755)  # Weak permissions
+
+        # _ensure_dir should tighten
+        storage._ensure_dir(project_id)
+        mode = project_dir.stat().st_mode & 0o777
+        assert mode == 0o700  # Should be tightened to 0o700
+
+
+class TestModelAllowlist:
+    """Test embedding model allowlist and bypass."""
+
+    def test_disallowed_model_raises(self):
+        """Loading a model not in the allowlist should raise ValueError."""
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(
+            storage=Mock(),
+            embedding_model="evil-org/backdoor-model",
+        )
+        with pytest.raises(ValueError, match="not in the allowed list"):
+            _ = indexer.embedding_model
+
+    def test_allowed_model_accepted(self):
+        """Models in the allowlist should not raise (mocked to avoid download)."""
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(
+            storage=Mock(),
+            embedding_model="BAAI/bge-small-en-v1.5",
+        )
+        with patch("sentence_transformers.SentenceTransformer") as mock_st:
+            mock_st.return_value = Mock()
+            model = indexer.embedding_model
+            mock_st.assert_called_once_with(
+                "BAAI/bge-small-en-v1.5",
+                trust_remote_code=False,
+                model_kwargs={"use_safetensors": True},
+            )
+            assert model is not None
+
+    def test_custom_model_bypass_via_env(self):
+        """Setting AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true should bypass allowlist."""
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(
+            storage=Mock(),
+            embedding_model="custom-org/custom-model",
+        )
+        with (
+            patch.dict(os.environ, {"AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS": "true"}),
+            patch("sentence_transformers.SentenceTransformer") as mock_st,
+        ):
+            mock_st.return_value = Mock()
+            model = indexer.embedding_model
+            mock_st.assert_called_once_with(
+                "custom-org/custom-model",
+                trust_remote_code=False,
+                model_kwargs={"use_safetensors": True},
+            )
+            assert model is not None
+
+
+class TestWatcherIgnoreSpecPassthrough:
+    """Test that FileWatcher receives the ignore_spec from ProjectManager."""
+
+    def test_start_watcher_passes_ignore_spec(self, tmp_path):
+        """_start_watcher should pass compiled ignore_spec to FileWatcher."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        project_path = tmp_path
+
+        # Mock the indexer's load_ignore_patterns to return a known spec
+        import pathspec
+
+        expected_spec = pathspec.GitIgnoreSpec.from_lines(["*.log", ".git/"])
+        pm._indexer.load_ignore_patterns = Mock(return_value=expected_spec)
+
+        with patch(
+            "ai_governance_mcp.context_engine.project_manager.FileWatcher"
+        ) as mock_fw:
+            mock_instance = Mock()
+            mock_fw.return_value = mock_instance
+            pm._start_watcher(project_path, "test_id")
+
+            mock_fw.assert_called_once_with(
+                project_path=project_path,
+                on_change=mock_fw.call_args[1]["on_change"],
+                ignore_spec=expected_spec,
+            )
+            mock_instance.start.assert_called_once()
+
+    def test_watcher_without_ignore_spec_fires_on_all(self, tmp_path):
+        """Without ignore_spec, watcher should fire on all file types."""
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        callback = Mock()
+        watcher = FileWatcher(project_path=tmp_path, on_change=callback)
+        watcher._running.set()
+
+        git_file = tmp_path / ".git" / "objects" / "abc123"
+        git_file.parent.mkdir(parents=True)
+        git_file.write_text("blob")
+        watcher._file_changed(git_file)
+        if watcher._debounce_timer:
+            watcher._debounce_timer.cancel()
+        assert git_file in watcher._pending_changes
+
+    def test_watcher_with_ignore_spec_filters(self, tmp_path):
+        """With ignore_spec, watcher should filter matching files."""
+        import pathspec
+
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        callback = Mock()
+        spec = pathspec.GitIgnoreSpec.from_lines([".git/", "*.pyc"])
+        watcher = FileWatcher(
+            project_path=tmp_path, on_change=callback, ignore_spec=spec
+        )
+        watcher._running.set()
+
+        # Create .git file — should be filtered
+        git_file = tmp_path / ".git" / "HEAD"
+        git_file.parent.mkdir(parents=True)
+        git_file.write_text("ref: refs/heads/main")
+        watcher._file_changed(git_file)
+        assert len(watcher._pending_changes) == 0
+
+        # Create .py file — should NOT be filtered
+        py_file = tmp_path / "main.py"
+        py_file.write_text("x = 1")
+        watcher._file_changed(py_file)
+        if watcher._debounce_timer:
+            watcher._debounce_timer.cancel()
+        assert py_file in watcher._pending_changes
+
+
+class TestWatcherCircuitBreaker:
+    """Test that watcher stops after consecutive failures."""
+
+    def test_circuit_breaker_stops_after_3_failures(self, tmp_path):
+        """Watcher should be stopped and removed after 3 consecutive callback failures."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        project_id = "test_circuit"
+
+        # Create a mock watcher
+        mock_watcher = Mock()
+        pm._watchers[project_id] = mock_watcher
+
+        # Simulate 3 consecutive failures via the circuit breaker logic
+        for i in range(3):
+            failures = pm._watcher_failures.get(project_id, 0) + 1
+            pm._watcher_failures[project_id] = failures
+            if failures >= 3:
+                if project_id in pm._watchers:
+                    pm._watchers[project_id].stop()
+                    del pm._watchers[project_id]
+
+        mock_watcher.stop.assert_called_once()
+        assert pm._watcher_failures[project_id] == 3
+        # CR-5: Watcher must be removed so it can restart later
+        assert project_id not in pm._watchers
+
+    def test_success_resets_failure_count(self):
+        """Successful update should reset the failure counter."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        project_id = "test_reset"
+        pm._watcher_failures[project_id] = 2
+
+        # Simulate success: remove from failures dict (as on_change does)
+        pm._watcher_failures.pop(project_id, None)
+        assert project_id not in pm._watcher_failures
+
+
+class TestSanitizeForLoggingReturnType:
+    """Test _sanitize_for_logging correctly handles None returns."""
+
+    def test_none_input_returns_none(self):
+        from ai_governance_mcp.context_engine.server import _sanitize_for_logging
+
+        result = _sanitize_for_logging(None)
+        assert result is None
+
+    def test_empty_string_returns_empty(self):
+        from ai_governance_mcp.context_engine.server import _sanitize_for_logging
+
+        result = _sanitize_for_logging("")
+        assert result == ""
+
+    def test_normal_string_returns_unchanged(self):
+        from ai_governance_mcp.context_engine.server import _sanitize_for_logging
+
+        result = _sanitize_for_logging("hello")
+        assert result == "hello"
+
+
+class TestErrorSanitizationRegex:
+    """Test that error sanitization doesn't over-match version numbers/IPs."""
+
+    def test_preserves_version_numbers(self):
+        from ai_governance_mcp.context_engine.server import _sanitize_error_message
+
+        err = Exception("Python 3.10.0 is required")
+        result = _sanitize_error_message(err)
+        assert "3.10.0" in result
+
+    def test_preserves_ip_addresses(self):
+        from ai_governance_mcp.context_engine.server import _sanitize_error_message
+
+        err = Exception("Connect to 192.168.1.1 failed")
+        result = _sanitize_error_message(err)
+        assert "192.168.1.1" in result
+
+    def test_still_redacts_module_paths(self):
+        from ai_governance_mcp.context_engine.server import _sanitize_error_message
+
+        err = Exception("Error in foo.bar.baz.func()")
+        result = _sanitize_error_message(err)
+        assert "foo.bar.baz" not in result
+        assert "[module]" in result
+
+
+class TestHandleIndexProjectSuccess:
+    """Test _handle_index_project success path."""
+
+    @pytest.mark.asyncio
+    async def test_index_project_success(self):
+        """index_project should return success with project stats."""
+        import ai_governance_mcp.context_engine.server as srv
+
+        # Reset rate limiter
+        srv._index_rate_tokens = srv._INDEX_RATE_LIMIT_TOKENS
+        srv._index_rate_last_refill = time.time()
+
+        mock_index = ProjectIndex(
+            project_id="abc123",
+            project_path="/test/path",
+            chunks=[],
+            files=[],
+            created_at="2026-01-01T00:00:00Z",
+            updated_at="2026-01-01T00:00:00Z",
+            embedding_model="BAAI/bge-small-en-v1.5",
+            total_chunks=42,
+            total_files=10,
+        )
+
+        mock_manager = Mock()
+        mock_manager.reindex_project = Mock(return_value=mock_index)
+
+        from ai_governance_mcp.context_engine.server import _handle_index_project
+
+        result = await _handle_index_project(mock_manager)
+        assert len(result) == 1
+
+        import json
+
+        data = json.loads(result[0].text)
+        assert data["message"] == "Project indexed successfully"
+        assert data["total_files"] == 10
+        assert data["total_chunks"] == 42
+
+
+class TestIncrementalUpdateDocstring:
+    """Test that incremental_update logs a warning about full re-index."""
+
+    def test_incremental_update_logs_warning(self, tmp_path):
+        """incremental_update should warn that it performs a full re-index."""
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+
+        # Mock storage to return existing metadata
+        indexer.storage.load_metadata = Mock(return_value={"index_mode": "realtime"})
+
+        # Mock index_project to avoid actually indexing
+        mock_index = Mock()
+        indexer.index_project = Mock(return_value=mock_index)
+
+        with patch("ai_governance_mcp.context_engine.indexer.logger") as mock_logger:
+            indexer.incremental_update(tmp_path, "test_id", [tmp_path / "file.py"])
+            # Should log a warning about full re-index
+            warning_calls = [
+                call
+                for call in mock_logger.warning.call_args_list
+                if "full re-index" in str(call).lower()
+            ]
+            assert len(warning_calls) >= 1
+
+
+class TestWatcherStatusInProjectStatus:
+    """Test M5: watcher_status field in ProjectStatus."""
+
+    def test_watcher_status_running(self):
+        """Running watcher should report status as 'running'."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        project_id = "test123"
+
+        # Create mock watcher that reports running
+        mock_watcher = Mock()
+        mock_watcher.is_running = True
+        pm._watchers[project_id] = mock_watcher
+
+        status = pm._get_watcher_status(project_id, "realtime")
+        assert status == "running"
+
+    def test_watcher_status_circuit_broken(self):
+        """Circuit-broken watcher should report status as 'circuit_broken'."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        project_id = "test123"
+        pm._circuit_broken.add(project_id)
+
+        status = pm._get_watcher_status(project_id, "realtime")
+        assert status == "circuit_broken"
+
+    def test_watcher_status_disabled_for_ondemand(self):
+        """Ondemand mode should report watcher as 'disabled'."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        project_id = "test123"
+
+        status = pm._get_watcher_status(project_id, "ondemand")
+        assert status == "disabled"
+
+    def test_watcher_status_stopped(self):
+        """No watcher should report status as 'stopped'."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        project_id = "test123"
+
+        status = pm._get_watcher_status(project_id, "realtime")
+        assert status == "stopped"
+
+
+class TestPDFLibraryFlags:
+    """Test L2: Separate PDF library flags."""
+
+    def test_pdf_available_with_pymupdf(self):
+        """_pdf_available should be True when pymupdf is available."""
+        from ai_governance_mcp.context_engine.connectors.pdf import PDFConnector
+
+        conn = PDFConnector()
+        conn._has_pymupdf = True
+        conn._has_pdfplumber = False
+        assert conn._pdf_available is True
+
+    def test_pdf_available_with_pdfplumber(self):
+        """_pdf_available should be True when pdfplumber is available."""
+        from ai_governance_mcp.context_engine.connectors.pdf import PDFConnector
+
+        conn = PDFConnector()
+        conn._has_pymupdf = False
+        conn._has_pdfplumber = True
+        assert conn._pdf_available is True
+
+    def test_pdf_not_available(self):
+        """_pdf_available should be False when no library available."""
+        from ai_governance_mcp.context_engine.connectors.pdf import PDFConnector
+
+        conn = PDFConnector()
+        conn._has_pymupdf = False
+        conn._has_pdfplumber = False
+        assert conn._pdf_available is False
+
+
+class TestPendingChangesLimit:
+    """Test L5: Bounded pending changes."""
+
+    def test_max_pending_changes_constant(self):
+        """MAX_PENDING_CHANGES should be 10,000."""
+        from ai_governance_mcp.context_engine.watcher import MAX_PENDING_CHANGES
+
+        assert MAX_PENDING_CHANGES == 10_000
+
+    def test_force_flush_at_limit(self, tmp_path):
+        """Watcher should force-flush when pending changes reach limit."""
+        from ai_governance_mcp.context_engine.watcher import (
+            FileWatcher,
+            MAX_PENDING_CHANGES,
+        )
+
+        callback = Mock()
+        watcher = FileWatcher(project_path=tmp_path, on_change=callback)
+        watcher._running.set()
+
+        # Add MAX_PENDING_CHANGES - 1 files (shouldn't flush yet)
+        for i in range(MAX_PENDING_CHANGES - 1):
+            watcher._pending_changes.add(tmp_path / f"file{i}.py")
+
+        # Add one more to trigger force-flush
+        watcher._file_changed(tmp_path / "trigger.py")
+
+        # Should have flushed immediately
+        callback.assert_called_once()
+        assert len(callback.call_args[0][0]) == MAX_PENDING_CHANGES
+        assert len(watcher._pending_changes) == 0

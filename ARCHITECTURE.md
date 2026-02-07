@@ -1,13 +1,13 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.8.0
-**Date:** 2026-02-02
+**Version:** 1.8.1
+**Date:** 2026-02-04
 **Memory Type:** Structural (reference)
 
 > System design, component responsibilities, data flow.
 > For decisions/rationale → PROJECT-MEMORY.md
 
-**Phase:** COMPLETE (500+ tests, 90% coverage, 15 tools across 2 MCP servers)
+**Phase:** COMPLETE (573 tests, governance ~90% coverage, context engine ~65%, 15 tools across 2 MCP servers)
 
 ---
 
@@ -112,9 +112,9 @@ ai-governance-mcp/
 ├── tests/
 │   ├── conftest.py                  # Shared fixtures
 │   ├── fixtures/                    # Test data files
-│   ├── test_models.py               # Model tests (48)
+│   ├── test_models.py               # Model tests (55)
 │   ├── test_config.py               # Config tests (17)
-│   ├── test_server.py               # Server unit tests (103)
+│   ├── test_server.py               # Server unit tests (105)
 │   ├── test_server_integration.py   # Server integration (11)
 │   ├── test_extractor.py            # Extractor tests (60)
 │   ├── test_extractor_integration.py # Extractor pipeline (11)
@@ -122,7 +122,8 @@ ai-governance-mcp/
 │   ├── test_retrieval_integration.py # Retrieval pipeline (23)
 │   ├── test_retrieval_quality.py    # MRR/Recall benchmarks (13)
 │   ├── test_config_generator.py     # Platform configs (17)
-│   └── test_validator.py            # Principle validation (15)
+│   ├── test_validator.py            # Principle validation (15)
+│   └── test_context_engine.py       # Context engine tests (200)
 │
 ├── pyproject.toml
 └── README.md
@@ -242,13 +243,15 @@ ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtu
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| mcp | >=1.0.0 | MCP SDK (FastMCP) |
-| pydantic | >=2.0.0 | Data models |
-| pydantic-settings | >=2.0.0 | Configuration |
-| sentence-transformers | >=2.2.0 | Embeddings + reranking |
-| rank-bm25 | >=0.2.0 | BM25 keyword search |
-| numpy | >=1.24.0 | Vector operations |
+| mcp | 1.25.0 | MCP SDK (FastMCP) |
+| pydantic | 2.11.9 | Data models |
+| pydantic-settings | 2.11.0 | Configuration |
+| sentence-transformers | 5.2.0 | Embeddings + reranking |
+| rank-bm25 | 0.2.2 | BM25 keyword search |
+| numpy | 1.26.4 | Vector operations |
+| requests | >=2.28.0 | HTTP (required by sentence-transformers) |
 | pytest | >=7.0.0 | Testing (dev) |
+| ruff | 0.12.0 | Linting + formatting (dev) |
 
 ---
 
@@ -257,9 +260,9 @@ ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtu
 | File | Tests | Purpose |
 |------|-------|---------|
 | tests/conftest.py | - | Shared fixtures (mock_embedder, saved_index, etc.) |
-| tests/test_models.py | 48 | Model validation, constraints, enums |
+| tests/test_models.py | 55 | Model validation, constraints, enums |
 | tests/test_config.py | 17 | Settings, env vars, path handling |
-| tests/test_server.py | 103 | All 11 tools, formatting, metrics, governance, agent installation |
+| tests/test_server.py | 105 | All 11 tools, formatting, metrics, governance, agent installation |
 | tests/test_server_integration.py | 11 | Dispatcher routing, end-to-end flows |
 | tests/test_extractor.py | 60 | Parsing, embeddings, metadata, validation |
 | tests/test_extractor_integration.py | 11 | Full pipeline, index persistence |
@@ -378,11 +381,15 @@ file change  →  watchdog event  →  debounce (500ms)  →  incremental_update
 | **Path traversal prevention** | Hex-only project IDs, resolve + is_relative_to containment | storage/filesystem.py |
 | **Pickle deserialization** | allow_pickle=False on all np.load calls | storage/filesystem.py |
 | **JSON serialization** | BM25 index stored as JSON, not pickle | storage/filesystem.py |
-| **Symlink filtering** | Skip symlinks during file discovery | indexer.py |
+| **Symlink filtering** | Skip symlinks during file discovery, list_projects, delete_project | indexer.py, storage/filesystem.py |
 | **File size limits** | 10MB max per file during indexing | indexer.py |
-| **Thread safety** | RLock protecting shared index state from watcher mutations | project_manager.py |
+| **File count limits** | 10,000 max files per project | indexer.py |
+| **Thread safety** | RLock protecting shared index state; Lock guarding rate limiter | project_manager.py, server.py |
+| **Decompression bomb guard** | PIL MAX_IMAGE_PIXELS limit set at connector init | connectors/image.py |
+| **Relative paths in output** | source_path computed relative to project root, not absolute | connectors/*.py |
 | **Log sanitization** | Truncate content before logging | server.py |
 | **Env var robustness** | try/except with fallback defaults for all env config | server.py |
+| **.env* filtering** | .env and all variants (.env.local, etc.) excluded by default | indexer.py |
 
 ### Context Engine File Structure
 
@@ -422,23 +429,49 @@ src/ai_governance_mcp/context_engine/
 | TestServerSecurity | 9 | Error sanitization, rate limiting, constants |
 | TestServerHandlers | 8 | Input validation (empty, type, length, bounds) |
 | TestServerHandlersAdditional | 6 | list_projects, project_status, query results |
-| TestFileWatcher | 11 | Start/stop, debounce, ignore, callbacks |
+| TestFileWatcher | 12 | Start/stop, debounce, ignore, callbacks, H4 guard |
 | TestErrorSanitizationExtended | 7 | Relative paths, UNC paths, module paths, Windows |
 | TestEnvVarParsing | 8 | Invalid values, negative, clamping, valid custom |
 | TestQueryResultConstraints | 4 | Score boundaries (le=1.0, ge=0.0) |
 | TestCreateServer | 2 | Server creation, instructions wiring |
 | TestIntegrationIndexQuery | 2 | Full pipeline, .contextignore respect |
-| **Total** | **137** | |
+| TestRateLimiterThreadSafety | 2 | Lock exists, concurrent access correctness |
+| TestLockCoverage | 2 | get_or_create_index and reindex_project hold lock |
+| TestSignalHandlerCleanup | 1 | Manager reference creation |
+| TestEnvIgnorePatterns | 2 | .env* in defaults, variants matched |
+| TestFileCountLimit | 2 | Constant exists, discover_files enforces limit |
+| TestImageConnectorFixes | 3 | Relative path, 1-based lines, parse without project_root |
+| TestUnknownToolStructuredError | 1 | JSON with valid_tools in source |
+| TestDeadCodeRemoval | 1 | No _bm25 attribute on Indexer |
+| TestConnectorRelativePaths | 9 | All connectors: relative path with project_root, absolute without |
+| TestResourceCleanupOnException | 2 | Spreadsheet wb.close(), PDF doc.close() on error |
+| TestListProjectsSymlinkExclusion | 2 | list_projects excludes symlinks, containment check on delete |
+| TestBm25ZeroScoreNormalization | 3 | Zero/empty BM25 scores, normalization correctness |
+| TestJsonFileSizeLimits | 4 | Oversized JSON rejection for metadata, BM25, manifest |
+| TestStorageDirectoryPermissions | 4 | mode=0o700 + chmod hardening for pre-existing dirs |
+| TestModelAllowlist | 3 | Disallowed model raises, allowed accepted, env bypass |
+| TestWatcherIgnoreSpecPassthrough | 3 | _start_watcher passes ignore_spec, filtering works |
+| TestWatcherCircuitBreaker | 2 | Stop after 3 failures, success resets count |
+| TestSanitizeForLoggingReturnType | 3 | None/empty/normal string returns |
+| TestErrorSanitizationRegex | 3 | Preserves versions/IPs, still redacts modules |
+| TestHandleIndexProjectSuccess | 1 | index_project success path with mocked manager |
+| TestIncrementalUpdateDocstring | 1 | Logs warning about full re-index |
+| TestWatcherStatusInProjectStatus | 4 | M5: watcher_status field (running/circuit_broken/disabled/stopped) |
+| TestPDFLibraryFlags | 3 | L2: Separate pymupdf/pdfplumber flags |
+| TestPendingChangesLimit | 2 | L5: MAX_PENDING_CHANGES constant and force-flush |
+| **Total** | **200** | |
 
 ### Context Engine Dependencies
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| sentence-transformers | >=2.2.0 | Semantic embeddings (shared with governance) |
-| rank-bm25 | >=0.2.0 | BM25 keyword search (shared with governance) |
-| numpy | >=1.24.0 | Embeddings storage and similarity |
-| watchdog | (optional) | File system monitoring for real-time indexing |
-| tree-sitter | (optional) | Language-aware code parsing |
-| pymupdf | (optional) | PDF content extraction |
-| openpyxl | (optional) | Excel file parsing |
-| Pillow | (optional) | Image metadata extraction |
+| sentence-transformers | 5.2.0 | Semantic embeddings (shared with governance) |
+| rank-bm25 | 0.2.2 | BM25 keyword search (shared with governance) |
+| numpy | 1.26.4 | Embeddings storage and similarity |
+| watchdog | >=4.0.0 | File system monitoring for real-time indexing |
+| tree-sitter | >=0.21.0 | Language-aware code parsing |
+| pymupdf | >=1.24.0 | PDF content extraction (primary) |
+| pdfplumber | >=0.10.0 | PDF content extraction (fallback) |
+| openpyxl | >=3.1.0 | Excel file parsing |
+| Pillow | >=10.0.0 | Image metadata extraction |
+| pathspec | >=1.0.0,<2 | Gitignore-style pattern matching for .contextignore |

@@ -17,18 +17,26 @@ class PDFConnector(BaseConnector):
     """Connector for PDF files."""
 
     def __init__(self) -> None:
-        self._pdf_available = False
+        # L2: Track libraries separately for clearer diagnostics
+        self._has_pymupdf = False
+        self._has_pdfplumber = False
         try:
             import pymupdf  # noqa: F401
 
-            self._pdf_available = True
+            self._has_pymupdf = True
         except ImportError:
-            try:
-                import pdfplumber  # noqa: F401
+            pass
+        try:
+            import pdfplumber  # noqa: F401
 
-                self._pdf_available = True
-            except ImportError:
-                pass
+            self._has_pdfplumber = True
+        except ImportError:
+            pass
+
+    @property
+    def _pdf_available(self) -> bool:
+        """Check if any PDF library is available."""
+        return self._has_pymupdf or self._has_pdfplumber
 
     @property
     def supported_extensions(self) -> set[str]:
@@ -37,10 +45,18 @@ class PDFConnector(BaseConnector):
     def can_handle(self, file_path: Path) -> bool:
         return file_path.suffix.lower() == ".pdf" and self._pdf_available
 
-    def parse(self, file_path: Path) -> list[ContentChunk]:
+    def parse(
+        self, file_path: Path, project_root: Path | None = None
+    ) -> list[ContentChunk]:
         """Parse a PDF into page-based chunks."""
         if not self._pdf_available:
             return []
+
+        # Compute display path (relative to project root when available)
+        if project_root and file_path.is_relative_to(project_root):
+            display_path = str(file_path.relative_to(project_root))
+        else:
+            display_path = str(file_path)
 
         chunks: list[ContentChunk] = []
 
@@ -48,21 +64,23 @@ class PDFConnector(BaseConnector):
             import pymupdf
 
             doc = pymupdf.open(str(file_path))
-            for page_num in range(len(doc)):
-                page = doc[page_num]
-                text = page.get_text()
-                if text.strip():
-                    chunks.append(
-                        ContentChunk(
-                            content=text,
-                            source_path=str(file_path),
-                            start_line=page_num + 1,
-                            end_line=page_num + 1,
-                            content_type="document",
-                            heading=f"Page {page_num + 1}",
+            try:
+                for page_num in range(len(doc)):
+                    page = doc[page_num]
+                    text = page.get_text()
+                    if text.strip():
+                        chunks.append(
+                            ContentChunk(
+                                content=text,
+                                source_path=display_path,
+                                start_line=page_num + 1,
+                                end_line=page_num + 1,
+                                content_type="document",
+                                heading=f"Page {page_num + 1}",
+                            )
                         )
-                    )
-            doc.close()
+            finally:
+                doc.close()
         except ImportError:
             try:
                 import pdfplumber
@@ -74,7 +92,7 @@ class PDFConnector(BaseConnector):
                             chunks.append(
                                 ContentChunk(
                                     content=text,
-                                    source_path=str(file_path),
+                                    source_path=display_path,
                                     start_line=page_num + 1,
                                     end_line=page_num + 1,
                                     content_type="document",

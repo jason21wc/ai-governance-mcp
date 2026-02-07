@@ -31,11 +31,15 @@ class BaseConnector(ABC):
         """
 
     @abstractmethod
-    def parse(self, file_path: Path) -> list[ContentChunk]:
+    def parse(
+        self, file_path: Path, project_root: Path | None = None
+    ) -> list[ContentChunk]:
         """Parse a file into indexable content chunks.
 
         Args:
             file_path: Path to the file to parse.
+            project_root: Root directory of the project, used for
+                computing relative display paths. Optional.
 
         Returns:
             List of content chunks extracted from the file.

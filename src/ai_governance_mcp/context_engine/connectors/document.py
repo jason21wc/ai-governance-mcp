@@ -22,7 +22,9 @@ class DocumentConnector(BaseConnector):
     def can_handle(self, file_path: Path) -> bool:
         return file_path.suffix.lower() in self.supported_extensions
 
-    def parse(self, file_path: Path) -> list[ContentChunk]:
+    def parse(
+        self, file_path: Path, project_root: Path | None = None
+    ) -> list[ContentChunk]:
         """Parse a document into section-based chunks."""
         try:
             content = file_path.read_text(encoding="utf-8", errors="replace")
@@ -32,9 +34,15 @@ class DocumentConnector(BaseConnector):
         if not content.strip():
             return []
 
+        # Compute display path (relative to project root when available)
+        if project_root and file_path.is_relative_to(project_root):
+            display_path = str(file_path.relative_to(project_root))
+        else:
+            display_path = str(file_path)
+
         if file_path.suffix.lower() in {".md", ".markdown"}:
-            return self._parse_markdown(file_path, content)
-        return self._parse_plain_text(file_path, content)
+            return self._parse_markdown(file_path, content, display_path)
+        return self._parse_plain_text(file_path, content, display_path)
 
     def extract_metadata(self, file_path: Path) -> FileMetadata:
         stat = file_path.stat()
@@ -46,7 +54,9 @@ class DocumentConnector(BaseConnector):
             last_modified=stat.st_mtime,
         )
 
-    def _parse_markdown(self, file_path: Path, content: str) -> list[ContentChunk]:
+    def _parse_markdown(
+        self, file_path: Path, content: str, display_path: str
+    ) -> list[ContentChunk]:
         """Parse markdown by heading structure."""
         lines = content.split("\n")
         chunks: list[ContentChunk] = []
@@ -62,7 +72,7 @@ class DocumentConnector(BaseConnector):
                     chunks.append(
                         ContentChunk(
                             content=chunk_content,
-                            source_path=str(file_path),
+                            source_path=display_path,
                             start_line=section_start,
                             end_line=i - 1,
                             content_type="document",
@@ -84,7 +94,7 @@ class DocumentConnector(BaseConnector):
                 chunks.append(
                     ContentChunk(
                         content=chunk_content,
-                        source_path=str(file_path),
+                        source_path=display_path,
                         start_line=section_start,
                         end_line=len(lines),
                         content_type="document",
@@ -94,7 +104,9 @@ class DocumentConnector(BaseConnector):
 
         return chunks
 
-    def _parse_plain_text(self, file_path: Path, content: str) -> list[ContentChunk]:
+    def _parse_plain_text(
+        self, file_path: Path, content: str, display_path: str
+    ) -> list[ContentChunk]:
         """Parse plain text into paragraph-based chunks."""
         lines = content.split("\n")
         chunks: list[ContentChunk] = []
@@ -115,7 +127,7 @@ class DocumentConnector(BaseConnector):
                     chunks.append(
                         ContentChunk(
                             content=chunk_content,
-                            source_path=str(file_path),
+                            source_path=display_path,
                             start_line=para_start,
                             end_line=i,
                             content_type="document",

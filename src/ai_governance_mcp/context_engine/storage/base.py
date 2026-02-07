@@ -6,7 +6,7 @@ BM25 index, metadata, file manifests) for each project.
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 
@@ -24,7 +24,7 @@ class BaseStorage(ABC):
         """
 
     @abstractmethod
-    def load_embeddings(self, project_id: str) -> Optional[np.ndarray]:
+    def load_embeddings(self, project_id: str) -> np.ndarray | None:
         """Load content embeddings for a project.
 
         Returns:
@@ -36,7 +36,7 @@ class BaseStorage(ABC):
         """Save BM25 keyword index for a project."""
 
     @abstractmethod
-    def load_bm25_index(self, project_id: str) -> Optional[Any]:
+    def load_bm25_index(self, project_id: str) -> Any | None:
         """Load BM25 keyword index for a project."""
 
     @abstractmethod
@@ -44,7 +44,7 @@ class BaseStorage(ABC):
         """Save project metadata (config, stats)."""
 
     @abstractmethod
-    def load_metadata(self, project_id: str) -> Optional[dict]:
+    def load_metadata(self, project_id: str) -> dict | None:
         """Load project metadata."""
 
     @abstractmethod
@@ -52,7 +52,7 @@ class BaseStorage(ABC):
         """Save file manifest (indexed files with hashes for change detection)."""
 
     @abstractmethod
-    def load_file_manifest(self, project_id: str) -> Optional[dict]:
+    def load_file_manifest(self, project_id: str) -> dict | None:
         """Load file manifest."""
 
     @abstractmethod

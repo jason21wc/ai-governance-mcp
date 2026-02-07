@@ -42,12 +42,19 @@ class RetrievalEngine:
 
     @property
     def embedder(self):
-        """Lazy-load embedding model for query encoding."""
+        """Lazy-load embedding model for query encoding.
+
+        Uses safetensors format (prevents pickle RCE) and blocks remote code execution.
+        """
         if self._embedder is None:
             from sentence_transformers import SentenceTransformer
 
             logger.info(f"Loading embedding model: {self.settings.embedding_model}")
-            self._embedder = SentenceTransformer(self.settings.embedding_model)
+            self._embedder = SentenceTransformer(
+                self.settings.embedding_model,
+                trust_remote_code=False,
+                model_kwargs={"use_safetensors": True},
+            )
         return self._embedder
 
     @property

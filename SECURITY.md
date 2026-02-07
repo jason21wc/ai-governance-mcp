@@ -4,8 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.6.x   | :white_check_mark: |
-| < 1.6   | :x:                |
+| 1.7.x   | :white_check_mark: |
+| < 1.7   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -92,9 +92,10 @@ Our CI pipeline and extraction process scan for:
 
 ### Implemented
 
-- **Rate limiting**: Token bucket algorithm prevents DoS
-- **Path traversal prevention**: Validated paths for log files and agent installation
-- **Log sanitization**: Secrets redacted from logs via regex patterns
+- **Rate limiting**: Token bucket algorithm prevents DoS (governance server + context engine)
+- **Thread-safe rate limiter**: Context engine rate limiter guarded by `threading.Lock`
+- **Path traversal prevention**: Validated paths for log files, agent installation, and project indexes (hex-only IDs)
+- **Log sanitization**: Secrets redacted from logs via regex patterns (6-pass sanitization)
 - **Bounded audit log**: Memory-bounded deque prevents unbounded growth
 - **Input validation**: Length limits on queries and parameters
 - **Non-root Docker**: Container runs as `appuser`, not root
@@ -106,6 +107,13 @@ Our CI pipeline and extraction process scan for:
 - **Unicode normalization**: NFKC normalization prevents homoglyph attacks (Cyrillic 'а' → Latin 'a')
 - **SERVER_INSTRUCTIONS validation**: Runtime check at module load to prevent compromised instructions
 - **Domain description scanning**: Validates `domains.json` descriptions used for semantic routing
+- **Symlink filtering**: Context engine skips symlinks in file discovery, project listing, and deletion
+- **File size/count limits**: Context engine enforces 10MB per file, 10K files per project
+- **Decompression bomb guard**: PIL `MAX_IMAGE_PIXELS` limit set at connector initialization
+- **JSON-only serialization**: Context engine BM25 index uses JSON (not pickle), NumPy loaded with `allow_pickle=False`
+- **Relative paths in output**: Context engine returns relative paths, not absolute filesystem paths
+- **.env variant filtering**: `.env*` pattern excludes all environment file variants from indexing
+- **RLock thread safety**: Context engine shared index state protected by reentrant lock
 
 ### Known Limitations
 

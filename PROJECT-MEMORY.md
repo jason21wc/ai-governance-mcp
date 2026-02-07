@@ -14,7 +14,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 500+ tests (governance ~90% coverage, context engine ~65%), 15 tools (11 governance + 4 context engine)
+- **Status:** COMPLETE - All phases done, 573 tests (governance ~90% coverage, context engine ~65%), 15 tools (11 governance + 4 context engine)
 - **Repository:** github.com/jason21wc/ai-governance-mcp
 
 ## Phase Gates
@@ -110,6 +110,15 @@
 | Error Sanitization Parity | 2026-02-02 | Context engine mirrors governance server's error sanitization: strip paths, line numbers, addresses, module paths. |
 | Score Clamping | 2026-02-02 | Float32 precision can push fused scores above 1.0. Scores clamped with `min(score, 1.0)` before validation. |
 | .contextignore + .gitignore | 2026-02-02 | `.contextignore` takes precedence, falls back to `.gitignore`, then defaults. Follows fnmatch patterns. |
+| Relative Paths in Output | 2026-02-04 | Connectors compute `source_path` relative to project root via `project_root` param. Prevents absolute path leakage. |
+| Thread-Safe Rate Limiter | 2026-02-03 | Rate limiter globals guarded by `threading.Lock`. MCP runs handlers via `run_in_executor` thread pool. |
+| Symlink Protection | 2026-02-04 | `list_projects()` skips symlinks. `delete_project()` unlinks symlinks instead of `rmtree`. File discovery already filtered. |
+| PDF Resource Leak Fix | 2026-02-04 | `pymupdf.open()` wrapped in `try/finally` to ensure `doc.close()` on errors. `pdfplumber` already uses context manager. |
+| MAX_IMAGE_PIXELS at Init | 2026-02-04 | Moved PIL decompression bomb guard from `parse()` (every call) to `__init__()` (once). |
+| Atomic JSON Writes | 2026-02-06 | `_atomic_write_json()` uses tmp file + rename for crash safety. POSIX atomic guarantees. |
+| Circuit Breaker Visibility | 2026-02-06 | `watcher_status` field in ProjectStatus exposes state (running/stopped/circuit_broken/disabled). |
+| Bounded Pending Changes | 2026-02-06 | MAX_PENDING_CHANGES (10K) with force-flush prevents unbounded memory growth. |
+| Language-Aware Chunking | 2026-02-06 | Code connector uses BOUNDARY_PATTERNS per language for better chunk boundaries. |
 
 ---
 

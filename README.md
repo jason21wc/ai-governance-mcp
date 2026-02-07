@@ -86,7 +86,9 @@ Runtime:
 
 ## How It Works
 
-### 11 MCP Tools
+### 15 MCP Tools (2 Servers)
+
+**Governance Server (11 tools):**
 
 | Tool | Purpose |
 |------|---------|
@@ -101,6 +103,15 @@ Runtime:
 | `install_agent` | Install Orchestrator agent (Claude Code only) |
 | `uninstall_agent` | Remove installed agent |
 | `log_governance_reasoning` | Record per-principle reasoning traces for audit |
+
+**Context Engine Server (4 tools):**
+
+| Tool | Purpose |
+|------|---------|
+| `query_project` | Semantic + keyword search across project content |
+| `index_project` | Trigger re-index of current project |
+| `list_projects` | Show all indexed projects |
+| `project_status` | Index stats for current project |
 
 **Governance Enforcement:**
 
@@ -153,7 +164,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **90%** (365 tests) |
+| Test Coverage | 80% | **~90%** governance, **~65%** context engine (573 tests) |
 
 ## Quick Start (Docker)
 
@@ -602,12 +613,55 @@ Supported platforms via SuperAssistant:
 
 ### Environment Variables
 
+**Governance Server:**
 ```bash
 export AI_GOVERNANCE_DOCUMENTS_PATH=/path/to/documents
 export AI_GOVERNANCE_INDEX_PATH=/path/to/index
 export AI_GOVERNANCE_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
 export AI_GOVERNANCE_SEMANTIC_WEIGHT=0.6
 ```
+
+**Context Engine Server:**
+```bash
+export AI_CONTEXT_ENGINE_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+export AI_CONTEXT_ENGINE_EMBEDDING_DIMENSIONS=384
+export AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT=0.6
+export AI_CONTEXT_ENGINE_INDEX_PATH=~/.context-engine/indexes
+export AI_CONTEXT_ENGINE_LOG_LEVEL=INFO
+```
+
+### Context Engine Server
+
+The Context Engine is a separate MCP server that provides semantic search across your project's source code and documents. It complements the Governance Server by providing project-specific content awareness.
+
+**Running the Context Engine:**
+
+```bash
+# Run standalone
+python -m ai_governance_mcp.context_engine.server
+
+# Or add to your MCP client config alongside governance server
+```
+
+**MCP Client Configuration (Claude Code):**
+
+```bash
+claude mcp add ai-context-engine -- python -m ai_governance_mcp.context_engine.server
+```
+
+**Features:**
+- Auto-indexes current working directory on first query
+- File watcher for real-time index updates (code projects)
+- Hybrid search (semantic + keyword) with configurable weights
+- Support for code, markdown, PDF, spreadsheet, and image metadata
+- `.contextignore` file support (same syntax as `.gitignore`)
+
+**How it differs from Governance Server:**
+| Aspect | Governance Server | Context Engine |
+|--------|------------------|----------------|
+| Content | Governance principles & methods | Your project's files |
+| Index | Pre-built, ships with image | Built per-project on first use |
+| Purpose | "What should I do?" | "What exists and where?" |
 
 ### Troubleshooting
 
@@ -672,20 +726,36 @@ claude mcp add ai-governance -s user \
 ```
 ai-governance-mcp/
 ├── src/ai_governance_mcp/
-│   ├── models.py        # Pydantic data structures
-│   ├── config.py        # Settings management
-│   ├── extractor.py     # Document parsing + embeddings
-│   ├── retrieval.py     # Hybrid search engine
-│   └── server.py        # MCP server + tools
-├── documents/           # Governance documents
-│   └── domains.json     # Domain configurations
-├── index/               # Generated index + embeddings
-├── logs/                # Query + feedback logs
+│   ├── models.py            # Pydantic data structures
+│   ├── config.py            # Settings management
+│   ├── extractor.py         # Document parsing + embeddings
+│   ├── retrieval.py         # Hybrid search engine
+│   ├── server.py            # Governance MCP server + 11 tools
+│   ├── config_generator.py  # Multi-platform MCP configs
+│   ├── validator.py         # Principle ID validation
+│   └── context_engine/      # Context Engine MCP server
+│       ├── server.py        # Context Engine server + 4 tools
+│       ├── project_manager.py # Multi-project management
+│       ├── indexer.py       # Core indexing pipeline
+│       ├── watcher.py       # File system watcher
+│       ├── models.py        # Context engine data models
+│       ├── connectors/      # Pluggable content parsers
+│       │   ├── code.py      # Code parsing (tree-sitter)
+│       │   ├── document.py  # Markdown/text parsing
+│       │   ├── pdf.py       # PDF extraction
+│       │   ├── spreadsheet.py # CSV/Excel parsing
+│       │   └── image.py     # Image metadata extraction
+│       └── storage/
+│           └── filesystem.py # Local filesystem storage
+├── documents/               # Governance documents
+│   └── domains.json         # Domain configurations
+├── index/                   # Generated index + embeddings
+├── logs/                    # Query + feedback logs
 └── tests/
-    ├── conftest.py      # Shared fixtures
-    ├── test_models.py   # Model validation (48 tests)
-    ├── test_config.py   # Config tests (17 tests)
-    ├── test_server.py   # Server unit tests (103 tests)
+    ├── conftest.py                  # Shared fixtures
+    ├── test_models.py               # Model validation (55 tests)
+    ├── test_config.py               # Config tests (17 tests)
+    ├── test_server.py               # Server unit tests (105 tests)
     ├── test_server_integration.py   # Dispatcher + flows (11 tests)
     ├── test_extractor.py            # Extractor tests (60 tests)
     ├── test_extractor_integration.py # Pipeline tests (11 tests)
@@ -693,7 +763,8 @@ ai-governance-mcp/
     ├── test_retrieval_integration.py # Retrieval pipeline (23 tests)
     ├── test_retrieval_quality.py    # MRR/Recall benchmarks (13 tests)
     ├── test_config_generator.py     # Platform configs (17 tests)
-    └── test_validator.py            # Principle validation (15 tests)
+    ├── test_validator.py            # Principle validation (15 tests)
+    └── test_context_engine.py       # Context engine tests (164 tests)
 ```
 
 ## The Methodology
@@ -724,12 +795,13 @@ pre-commit install
 
 ### Test Suite
 
-364 tests across 11 test files with 90% coverage:
+573 tests across 12 test files (governance ~90% coverage, context engine ~65%):
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
-| Unit | 306 | Isolated component testing |
-| Integration | 58 | Full pipeline flows |
+| Governance Unit | 313 | Isolated component testing |
+| Governance Integration | 60 | Full pipeline flows |
+| Context Engine | 200 | Models, connectors, indexer, server, security |
 
 Tests include real index validation and actual ML model tests (marked `@pytest.mark.slow`).
 
@@ -799,4 +871,4 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework - Constitution v2.3, Governance Methods v3.7.0, Multi-Agent Methods v2.10.0, Storytelling v1.0.0, Multimodal RAG v1.0.0*
+*Built with the AI Governance Framework - Constitution v2.4, AI Coding Methods v2.6.0, Governance Methods v3.7.0, Multi-Agent Methods v2.10.0, Storytelling v1.0.0, Multimodal RAG v1.0.0*
