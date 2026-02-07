@@ -97,7 +97,7 @@ This project has specialized subagent definitions in `.claude/agents/`. When a t
 Check memory health WHEN:
 - [ ] SESSION-STATE.md exceeds 300 lines
 - [ ] PROJECT-MEMORY.md exceeds 800 lines
-- [ ] LEARNING-LOG.md exceeds 1500 lines
+- [ ] LEARNING-LOG.md exceeds 200 lines
 - [ ] Before major releases
 
 **Action:** Apply §7.0.4 distillation triggers

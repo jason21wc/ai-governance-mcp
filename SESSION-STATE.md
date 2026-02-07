@@ -21,7 +21,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v2.6.0** (ai-coding), **v2.10.0** (multi-agent), **v1.0.0** (multimodal-rag) |
+| Content | **v2.4** (Constitution), **v2.7.0** (ai-coding), **v2.10.0** (multi-agent), **v1.0.0** (multimodal-rag) |
 | Tests | **574 passing** (373 governance + 201 context engine) |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |

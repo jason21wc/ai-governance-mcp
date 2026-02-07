@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.6.0
+**Version:** 2.7.0
 **Status:** Active
-**Effective Date:** 2026-02-02
+**Effective Date:** 2026-02-07
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -333,7 +333,7 @@ Create this file after Specify phase completes:
 
 #### Minimal LEARNING-LOG.md Template (Copy-Paste Ready)
 
-Create this file when the first lesson emerges (not at project start):
+Create this file when the first lesson emerges (not at project start). See §7.3.3 for full specification.
 
 ```markdown
 # Learning Log
@@ -342,29 +342,28 @@ Create this file when the first lesson emerges (not at project start):
 **Memory Type:** Episodic (experiences)
 **Lifecycle:** Graduate to methods when pattern emerges per §7.0.4
 
-> When lesson becomes pattern: Add to methods doc, mark "Graduated to §X.Y"
+> **Entry rules:** Each entry ≤5 lines. State what happened, then the actionable rule.
+> Record conclusions, not evidence. If it wouldn't change future behavior, it doesn't belong here.
+> When lesson graduates: Add to methods doc, mark "Graduated to §X.Y"
+> Route other content: decisions → PROJECT-MEMORY, architecture → ARCHITECTURE.md
 
 ---
 
-## Lessons
+## Active Lessons
 
-### [Date] - [Brief Title]
-**Context:** [What we were doing]
-**What Happened:** [The unexpected outcome]
-**Lesson:** [What we learned]
-**Action:** [How we'll apply this]
+### [Lesson Title] ([Date])
+
+[1-2 sentences: what happened and why it matters]
+
+**Rule:** [1 sentence: what to do differently next time]
 
 ---
 
-## Patterns That Worked
-| Pattern | Context | Why It Worked |
-|---------|---------|---------------|
-| [Pattern] | [When used] | [Why effective] |
+## Graduated Patterns
 
-## Patterns That Failed
-| Pattern | Context | Why It Failed |
-|---------|---------|---------------|
-| [Pattern] | [When tried] | [Why ineffective] |
+| Pattern | Graduated To | Date |
+|---------|-------------|------|
+| [Name] | [Target location] | [Date] |
 ```
 
 #### Mode Selection Decision Tree (Visual)
@@ -2427,12 +2426,14 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 |-------------|---------|--------|
 | SESSION-STATE.md | > 300 lines | Prune to current state only |
 | PROJECT-MEMORY.md | > 800 lines | Condense decisions, check superseded |
-| LEARNING-LOG.md | Entry > 6 months | Graduate to methods or delete |
+| LEARNING-LOG.md | Entry > 6 months | Graduate to methods, retain if still project-relevant and passing Future Action Test (§7.3.1), or delete |
+| LEARNING-LOG.md | > 200 lines | Review all entries against Future Action Test (§7.3.1); remove obsolete, graduated, or redundant entries. If all entries pass review, the file may legitimately exceed 200 lines — this is a quality review trigger, not a hard ceiling |
+| LEARNING-LOG.md | During distillation | Verify no entry duplicates content already in Gotcha table, PROJECT-MEMORY, or ARCHITECTURE.md |
 
 **Memory Health Check:**
 ```bash
 wc -l SESSION-STATE.md PROJECT-MEMORY.md LEARNING-LOG.md
-# Targets: SESSION < 300, PROJECT < 800
+# Targets: SESSION < 300, PROJECT < 800, LEARNING-LOG ~200 (review trigger)
 ```
 Run this check: session end, before releases, when files feel bloated.
 
@@ -2625,7 +2626,11 @@ Project Memory is a SUMMARY, not a replacement for source documents:
 
 ### 7.3.1 Purpose
 
-Capture lessons learned, patterns discovered, and insights that improve future work on this project (and potentially others). This is the project's episodic memory — specific events and experiences.
+Capture **actionable lessons** from mistakes, surprises, and validated patterns so future sessions avoid repeating failures. This is the project's episodic memory — specific experiences that change future behavior.
+
+**The Future Action Test:** An entry belongs in the Learning Log only if it would change what someone does next time they face a similar situation. If it wouldn't change behavior, it doesn't belong here.
+
+**Core constraint:** The Learning Log records **conclusions, not evidence.** The lesson is what we learned and what to do differently; the research, analysis, code, and investigation that led to the lesson belong in source documents or nowhere — not in the log.
 
 ### 7.3.2 Creation Timing
 
@@ -2642,54 +2647,50 @@ File: `LEARNING-LOG.md` (project root)
 **Memory Type:** Episodic (experiences)
 **Lifecycle:** Graduate to methods when pattern emerges per §7.0.4
 
-> When lesson becomes pattern: Add to methods doc, mark "Graduated to §X.Y"
+> **Entry rules:** Each entry ≤5 lines. State what happened, then the actionable rule.
+> Record conclusions, not evidence. If it wouldn't change future behavior, it doesn't belong here.
+> When lesson graduates: Add to methods doc, mark "Graduated to §X.Y"
+> Route other content: decisions → PROJECT-MEMORY, architecture → ARCHITECTURE.md
 
 ---
 
-## Lessons Learned
+## Active Lessons
 
-### [Date]: [Lesson Title]
-**Context:** [What situation prompted this learning]
-**Lesson:** [What we learned]
-**Application:** [How to apply this going forward]
+### [Lesson Title] ([Date])
+
+[1-2 sentences: what happened and why it matters]
+
+**Rule:** [1 sentence: what to do differently next time]
+
+---
 
 [Repeat for each lesson]
 
-## Patterns That Worked
+## Graduated Patterns
 
-### [Pattern Name]
-**Situation:** [When to use this pattern]
-**Approach:** [What to do]
-**Why It Works:** [Rationale]
-
-[Repeat for each pattern]
-
-## Patterns That Failed
-
-### [Pattern Name]
-**Situation:** [When we tried this]
-**What Happened:** [How it failed]
-**Instead Do:** [Better alternative]
-
-[Repeat for each anti-pattern]
-
-## Technical Discoveries
-
-### [Discovery Title]
-**Discovery:** [What we found]
-**Implication:** [How it affects our work]
-
-[Repeat for each discovery]
+| Pattern | Graduated To | Date |
+|---------|-------------|------|
+| [Name] | [Target location] | [Date] |
 ```
+
+**Entry quality standard:** Each entry must be self-contained, actionable, and concise. Apply *Rich but Not Verbose* — include the specific failure mode (what went wrong), the trigger condition (when it happens), and the corrective action (what to do instead). Exclude everything else: supporting evidence, implementation details, and verbose reasoning do not belong in the log. When in doubt, apply the Future Action Test (§7.3.1).
+
+**Calibration example (well-formed):**
+> ### Transitive Dependency Drift in Docker (2026-02-02)
+> Docker `pip install .` resolves fresh dependency trees that may differ from local environments. `huggingface-hub>=1.0` dropped `requests`, but `sentence-transformers` still imports it.
+> **Rule:** Pin or explicitly declare any library your code (or its dependencies) imports at runtime.
+
+This entry passes because: it states what went wrong (2 sentences), gives an actionable rule (1 sentence), and contains no supporting research, code, or investigation notes.
 
 ### 7.3.4 Update Triggers
 
-Update `LEARNING-LOG.md` when:
-- Something unexpected happens (good or bad)
-- A pattern proves effective (or ineffective)
-- Technical assumption proves wrong
-- A better approach is discovered
-- At milestone retrospectives (ENHANCED mode)
+**Add** an entry when something unexpected changes how you would approach future work. Before writing, apply the Future Action Test (§7.3.1).
+
+**Remove** an entry when:
+- The lesson has been graduated to procedural memory (§7.3.6)
+- The lesson is obsolete (the technology, approach, or context no longer applies)
+- The lesson is captured in a more permanent location (Gotcha table, architecture doc, methods doc)
+- The lesson no longer passes the Future Action Test
 
 ### 7.3.5 Learning Log Review
 
@@ -2988,19 +2989,21 @@ Execute in order:
 **Memory Type:** Episodic (experiences)
 **Lifecycle:** Graduate to methods when pattern emerges per §7.0.4
 
-> When lesson becomes pattern: Add to methods doc, mark "Graduated to §X.Y"
+> **Entry rules:** Each entry ≤5 lines. State what happened, then the actionable rule.
+> Record conclusions, not evidence. If it wouldn't change future behavior, it doesn't belong here.
+> When lesson graduates: Add to methods doc, mark "Graduated to §X.Y"
+> Route other content: decisions → PROJECT-MEMORY, architecture → ARCHITECTURE.md
 
 ---
 
-Record lessons learned during this project. Add entries when:
-- Something unexpected happens (good or bad)
-- A workaround is discovered
-- A decision proves right/wrong
-- A pattern emerges worth remembering
-
-## Entries
+## Active Lessons
 
 <!-- Add entries below as lessons emerge during implementation -->
+
+## Graduated Patterns
+
+| Pattern | Graduated To | Date |
+|---------|-------------|------|
 ```
 
 ### 7.8.4 Minimal Viable Initialization (Expedited Mode)
@@ -4323,6 +4326,7 @@ When the context engine is available, project-specific instructions could be sem
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.7.0 | 2026-02-07 | **Learning Log Reform:** (1) Tightened §7.3.1 Purpose with Future Action Test and "conclusions, not evidence" constraint. (2) Simplified §7.3.3 template: replaced 4 sections (Lessons Learned, Patterns That Worked, Patterns That Failed, Technical Discoveries) with 2 (Active Lessons, Graduated Patterns). Added entry rules blockquote, entry quality standard, and calibration example. (3) Updated §7.3.4 with explicit removal criteria (obsolete, graduated, captured elsewhere, fails Future Action Test). (4) Enhanced §7.0.4 distillation triggers: 200-line quality review trigger (not hard ceiling), distillation-time dedup check, "retain if still relevant" option for 6-month trigger. (5) Updated all 4 template surfaces (§7.3.3, quick-start, §7.8.3 stub, LEARNING-LOG.md header) for consistency. Root cause: Learning Log grew to 2,429 lines due to insufficient content standards and obsolescence criteria. |
 | 2.6.0 | 2026-02-02 | **Reference Memory & Context Engine:** (1) Added Reference Memory to cognitive memory taxonomy (§7.0.2) with context engine index as source. (2) Updated Memory Loading Strategy (§7.0.3) with Reference Memory query guidance and complementary roles note. (3) Added §7.9 Reference Memory section: purpose, when to use, what gets indexed, .contextignore, index components, indexing modes, source connector architecture, query interface, workflow integration. (4) Added §5.1.5 Rollback Strategy: planning checklist, mechanism table, post-rollback documentation. (5) Added §3.3.5 Persistent Codebase Analysis: Reference Memory as context strategy layer. (6) Added Appendix G: Context Engine MCP Server Setup (architecture, installation, configuration, project setup, embedding models, storage, tools, governance integration, CI/CD patterns, auto-rules future). (7) Added MCP config sections to Appendix A (§A.4) and Appendix D (§D.6). **Post-implementation accuracy fixes:** (8) Fixed `bm25_index.pkl` → `bm25_index.json` (Appendix G.6). (9) Corrected code connector description to reflect actual regex-based boundary detection (§7.9.6). (10) Marked S3 storage as Future (Appendix G.6). (11) Added §7.9.9 Security Requirements (11 security patterns). (12) Added BaseConnector interface spec (§7.9.6) and BaseStorage interface spec (Appendix G.6). (13) Added data model schemas (§7.9.4), default ignore patterns (§7.9.3), chunking implementation details per connector (§7.9.6), score fusion algorithm (§7.9.7), embedding implementation details (Appendix G.5), thread safety/concurrency model (§7.9.5). |
 | 2.5.0 | 2026-01-18 | **Memory Hygiene & Cognitive Headers:** (1) Added standardized cognitive type headers to all memory file templates (§7.1.2, §7.2.2, §7.3.3) with Memory Type, Lifecycle, and purpose guidance. (2) Added §7.0.4 distillation triggers (size thresholds for pruning). (3) Added §7.6.1 step 5: memory hygiene check to session end procedure. (4) Updated all Cold Start Kit minimal templates with headers. (5) Updated §7.8.3 initialization stub. Headers improve RAG chunking and provide clear lifecycle guidance per context engineering best practices. |
 | 2.4.0 | 2026-01-18 | Added §7.8 Project Initialization Protocol, §7.5 Source Document Registry, §5.2.5 ML Model Mocking Pattern. Added Metrics Registry System with regression tests. |

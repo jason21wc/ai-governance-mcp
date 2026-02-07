@@ -3,13 +3,10 @@
 **Memory Type:** Episodic (experiences)
 **Lifecycle:** Graduate to methods when pattern emerges per §7.0.4
 
-> When lesson becomes pattern: Add to methods doc, mark "Graduated to §X.Y"
-> For decisions/rationale → PROJECT-MEMORY.md
-> For implementation details → ARCHITECTURE.md
-
-## Purpose
-
-Captures lessons learned from mistakes, surprises, and validated patterns. Review before making changes. Each entry should answer: **What went wrong (or right unexpectedly), and what do we do differently next time?**
+> **Entry rules:** Each entry ≤5 lines. State what happened, then the actionable rule.
+> Record conclusions, not evidence. If it wouldn't change future behavior, it doesn't belong here.
+> When lesson graduates: Add to methods doc, mark "Graduated to §X.Y"
+> Route other content: decisions → PROJECT-MEMORY, architecture → ARCHITECTURE.md
 
 ---
 
