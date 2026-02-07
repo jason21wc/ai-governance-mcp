@@ -43,6 +43,7 @@ Implemented Part 4.3 in meta-methods (v3.7.0 → v3.8.0):
 - CLAUDE.md pre-release checklist updated
 - Bold trigger phrases added for retrieval surfacing
 - Index rebuilt: 460 items (99 principles + 361 methods), 573 tests pass
+- Coherence-auditor subagent created (`.claude/agents/coherence-auditor.md`) — analytical cognitive function, read-only tools, §1.1 justified
 
 ## Next Actions
 

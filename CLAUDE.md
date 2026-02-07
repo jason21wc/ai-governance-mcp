@@ -72,6 +72,7 @@ This project has specialized subagent definitions in `.claude/agents/`. When a t
 | Governance coordination | `orchestrator.md` | Complex multi-step tasks requiring governance checks |
 | Artifact validation | `validator.md` | Criteria-based validation of any artifact against explicit checklist |
 | Devil's advocate | `contrarian-reviewer.md` | High-stakes decisions, architectural choices, challenge assumptions |
+| Coherence audit | `coherence-auditor.md` | Pre-release doc review, session-start drift check, cross-file consistency |
 
 **How to use:**
 1. Read the agent file (e.g., `.claude/agents/code-reviewer.md`)

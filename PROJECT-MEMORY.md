@@ -170,6 +170,7 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | documentation-writer | Cognitive | Distinct writing cognitive function; focuses on clarity for external audience | Documentation quality improves when writer isn't also the implementer |
 | orchestrator | Context Limit | Complex multi-step tasks exceed single-agent context; coordinates other agents | Manages governance compliance across multi-agent workflows |
 | test-generator | Cognitive + Quality | Test design benefits from fresh perspective on code behavior; distinct from implementation | Better edge case coverage when tester hasn't seen implementation reasoning |
+| coherence-auditor | Isolation + Cognitive | Fresh context essential — drift is invisible to the author who caused it; distinct analytical function (cross-file consistency) vs. validator (criteria checking) | Catches stale facts, contradictions, and volatile metric drift that familiarity conceals |
 
 **Decision:** All current subagents justified. No subagent exists without at least one justification from the §1.1 checklist (Context Limit, Parallelization, Cognitive Mismatch, Quality Improvement, Isolation Requirement).
 
