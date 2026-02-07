@@ -55,7 +55,7 @@ When in doubt, evaluate.
 ```bash
 # Development
 python -m ai_governance_mcp.extractor  # Rebuild index
-pytest tests/ -v                        # Run tests (573, governance ~90% / context engine ~65%)
+pytest tests/ -v                        # Run tests (574, governance ~90% / context engine ~65%)
 python -m ai_governance_mcp.server      # Run server
 
 # Docker
@@ -69,7 +69,7 @@ docker run -i --rm ai-governance-mcp    # Run container
 - `src/ai_governance_mcp/context_engine/` — Context Engine MCP server (4 tools)
 - `documents/` — Governance content (indexed)
 - `index/` — Generated embeddings
-- `tests/` — Test suite (573 tests across 14 files)
+- `tests/` — Test suite (574 tests across 12 files)
 - `.claude/agents/` — Subagent definitions
 
 ## Subagents

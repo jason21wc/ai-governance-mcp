@@ -164,7 +164,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **~90%** governance, **~65%** context engine (573 tests) |
+| Test Coverage | 80% | **~90%** governance, **~65%** context engine (574 tests) |
 
 ## Quick Start (Docker)
 
@@ -764,7 +764,7 @@ ai-governance-mcp/
     ├── test_retrieval_quality.py    # MRR/Recall benchmarks (13 tests)
     ├── test_config_generator.py     # Platform configs (17 tests)
     ├── test_validator.py            # Principle validation (15 tests)
-    └── test_context_engine.py       # Context engine tests (164 tests)
+    └── test_context_engine.py       # Context engine tests (201 tests)
 ```
 
 ## The Methodology
@@ -795,13 +795,13 @@ pre-commit install
 
 ### Test Suite
 
-573 tests across 12 test files (governance ~90% coverage, context engine ~65%):
+574 tests across 12 test files (governance ~90% coverage, context engine ~65%):
 
 | Category | Tests | Purpose |
 |----------|-------|---------|
 | Governance Unit | 313 | Isolated component testing |
 | Governance Integration | 60 | Full pipeline flows |
-| Context Engine | 200 | Models, connectors, indexer, server, security |
+| Context Engine | 201 | Models, connectors, indexer, watcher, server, security |
 
 Tests include real index validation and actual ML model tests (marked `@pytest.mark.slow`).
 

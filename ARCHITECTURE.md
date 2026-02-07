@@ -1,13 +1,13 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.8.1
-**Date:** 2026-02-04
+**Version:** 1.8.2
+**Date:** 2026-02-07
 **Memory Type:** Structural (reference)
 
 > System design, component responsibilities, data flow.
 > For decisions/rationale → PROJECT-MEMORY.md
 
-**Phase:** COMPLETE (573 tests, governance ~90% coverage, context engine ~65%, 15 tools across 2 MCP servers)
+**Phase:** COMPLETE (574 tests, governance ~90% coverage, context engine ~65%, 15 tools across 2 MCP servers)
 
 ---
 
@@ -123,7 +123,7 @@ ai-governance-mcp/
 │   ├── test_retrieval_quality.py    # MRR/Recall benchmarks (13)
 │   ├── test_config_generator.py     # Platform configs (17)
 │   ├── test_validator.py            # Principle validation (15)
-│   └── test_context_engine.py       # Context engine tests (200)
+│   └── test_context_engine.py       # Context engine tests (201)
 │
 ├── pyproject.toml
 └── README.md
@@ -459,7 +459,7 @@ src/ai_governance_mcp/context_engine/
 | TestWatcherStatusInProjectStatus | 4 | M5: watcher_status field (running/circuit_broken/disabled/stopped) |
 | TestPDFLibraryFlags | 3 | L2: Separate pymupdf/pdfplumber flags |
 | TestPendingChangesLimit | 2 | L5: MAX_PENDING_CHANGES constant and force-flush |
-| **Total** | **200** | |
+| **Total** | **201** | |
 
 ### Context Engine Dependencies
 
