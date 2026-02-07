@@ -798,9 +798,11 @@ After any framework update, validate:
 
 **Constitutional Basis:** Context Engineering (prevent drift), Single Source of Truth (regularly audit), Periodic Re-evaluation (reassess at milestones)
 
-### 4.3.1 Purpose
+### 4.3.1 Documentation Drift Detection
 
 Detect and correct **documentation drift** — the silent divergence of documents from actual system state that accumulates over time. This **coherence audit** procedure applies to any document maintained across AI sessions: memory files, project documentation, governance source documents, and AI-generated artifacts.
+
+**Applies To:** reviewing documentation for accuracy, session handoff verification, release preparation, cross-file consistency checking
 
 Documentation drift occurs because:
 - AI generates content at velocity, but context windows reset between sessions
@@ -815,7 +817,7 @@ Documentation drift occurs because:
 | **Quick** | Session start (advisory) | Memory file dates vs. last known state; size thresholds per §7.0.4; obvious staleness (version mismatches, stale "Active Task") |
 | **Full** | Pre-release, framework version bump, new domain added, explicit human request | All 5 generic checks + file-type-specific checks per §4.3.3; cross-file consistency; subagent validation |
 
-**Note:** The Quick tier is advisory — it depends on AI agents following session start procedures. It does not provide guaranteed coverage. The Full tier should be treated as a gate (like the pre-release security checklist).
+**Note:** The **Quick tier** is advisory — it depends on AI agents following **session-start** procedures. It does not provide guaranteed coverage. The **Full tier** should be treated as a **pre-release gate** (like the pre-release security checklist).
 
 ### 4.3.3 Per-File Review Protocol
 
@@ -846,8 +848,8 @@ Documentation drift occurs because:
 
 ### 4.3.4 Validation Protocol
 
-1. Draft proposed changes from review findings
-2. Send to contrarian reviewer + validator in parallel (per Validation Independence principle — author cannot objectively assess their own corrections)
+1. Draft proposed changes from **review findings**
+2. Send to **contrarian reviewer** + **validator** in parallel (per **Validation Independence** principle — author cannot objectively assess their own corrections)
 3. Synthesize feedback — accept valid challenges, resolve conflicts
 4. Implement changes
 5. Review rounds: 3 rounds × 5 checks = 15 verification points across correctness, consistency, completeness

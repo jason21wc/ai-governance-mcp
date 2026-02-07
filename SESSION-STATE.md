@@ -13,7 +13,7 @@
 
 - **Phase:** Maintenance
 - **Mode:** Standard
-- **Active Task:** None — backlog items ready for next pick-up
+- **Active Task:** None
 - **Blocker:** None
 
 ## Quick Reference
@@ -35,7 +35,7 @@
 ### 1. Documentation Coherence Audit Method (`7579408`)
 
 New Part 4.3 in meta-methods (v3.7.0 → v3.8.0) operationalizing three existing constitution principles (Context Engineering, Single Source of Truth, Periodic Re-evaluation) into an executable drift detection procedure:
-- 4.3.1 Purpose — defines documentation drift, causes
+- 4.3.1 Documentation Drift Detection — defines documentation drift, causes
 - 4.3.2 Trigger Conditions — Quick (session start, advisory) + Full (pre-release gate)
 - 4.3.3 Per-File Review Protocol — 5 generic checks, drift severity classification, file-type checks
 - 4.3.4 Validation Protocol — contrarian + validator review, TITLE 8 for framework changes
@@ -55,22 +55,34 @@ Created `.claude/agents/coherence-auditor.md` following §2.1 Subagent Definitio
 - §1.1 justified in PROJECT-MEMORY.md (Isolation + Cognitive)
 - CLAUDE.md subagent table updated (Pattern B integration per §2.1.4)
 
-### Retrieval Note
+### 3. Part 4.3 Retrieval Tuning (content-only fix)
 
-New Part 4.3 method chunks are indexed in `global_index.json` with trigger phrases ("documentation drift", "coherence audit", "volatile metrics"). Retrieval surfacing requires MCP server restart (Gotcha #15) — the running server has the old index cached. After restart, verify with: `query_governance("documentation drift detection")`.
+Verified that Part 4.3 methods surfaced for queries 2-3 but NOT for query 1 ("documentation drift detection" → LOW) or query 4 (`evaluate_governance("reviewing project documentation for accuracy")` → absent). Root cause: three extraction issues in source document.
+
+**Fixes applied to `documents/ai-governance-methods-v3.8.0.md`:**
+- Renamed `### 4.3.1 Purpose` → `### 4.3.1 Documentation Drift Detection` (RC1: "purpose" was in extractor skip list, causing content to be absorbed into Platform Compatibility chunk)
+- Added `**Applies To:**` field to 4.3.1 with terms matching evaluate_governance queries (RC1: no applies_to metadata)
+- Bolded key terms in 4.3.2 Note: **Quick tier**, **session-start**, **Full tier**, **pre-release gate** (RC2: all bold terms were ≤5 chars, failing trigger_phrases filter)
+- Bolded key terms in 4.3.4: **review findings**, **contrarian reviewer**, **validator**, **Validation Independence** (RC3: no bold text at all)
+
+**Index verification (post-rebuild):**
+- `meta-method-documentation-drift-detection` — new chunk [801, 812] with trigger_phrases: "documentation drift", "coherence audit", "volatile metrics", "cross-file" + applies_to populated
+- `meta-method-trigger-conditions-documentation-coherence-audit` — trigger_phrases: "quick tier", "session-start", "full tier", "pre-release gate" (was empty)
+- `meta-method-validation-protocol` — trigger_phrases: "review findings", "contrarian reviewer", "validator", "validation independence" (was empty)
+- Platform Compatibility chunk now ends at line 800 (was 810) — no longer absorbs 4.3.1 content
+- 573 tests pass, 1 skipped, 0 failures
+
+**Pending:** MCP server restart needed (Gotcha #15) to verify queries 1 and 4 against new index.
 
 ## Next Actions
 
-### Priority 1 — Verify Retrieval Surfacing After MCP Server Restart
+### Priority 1 — COMPLETED: Part 4.3 Retrieval Verification
 
-The MCP server was restarted when this session started, so the new index should be loaded. Run these queries and confirm Part 4.3 methods appear in results:
-
-1. `query_governance("documentation drift detection")` — expect Part 4.3 chunks
-2. `query_governance("session start coherence check")` — expect trigger conditions chunk
-3. `query_governance("pre-release documentation review")` — expect per-file review protocol
-4. `evaluate_governance("reviewing project documentation for accuracy")` — expect new method in relevant_methods
-
-If Part 4.3 doesn't surface: retrieval tuning needed (see LEARNING-LOG "Bold Text Drives Method Retrieval Surfacing").
+All 4 queries confirmed working after server restart:
+1. `query_governance("documentation drift detection")` → `meta-method-documentation-drift-detection` at **HIGH** in methods
+2. `evaluate_governance("reviewing project documentation for accuracy")` → `meta-method-documentation-drift-detection` **#1 in relevant_methods** (score 0.84, HIGH)
+3. "session start coherence check" → confirmed earlier
+4. "pre-release documentation review" → confirmed earlier
 
 ### Priority 2 — Operational Improvements
 
