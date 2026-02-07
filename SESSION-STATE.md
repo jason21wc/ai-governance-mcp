@@ -84,25 +84,21 @@ All 4 queries confirmed working after server restart:
 3. "session start coherence check" → confirmed earlier
 4. "pre-release documentation review" → confirmed earlier
 
-### Priority 2 — Operational Improvements
+### Priority 2 — COMPLETED: Documentation Backlog (all 7 items)
 
-Prioritized backlog of unused governance patterns identified by auditing methods docs against project state. Same systematic approach applies: draft → contrarian + validator review → synthesize → implement → review rounds.
+All backlog items completed and coherence-audited:
 
+| # | Item | Result |
+|---|------|--------|
+| 1 | Failure mode mapping | Added to ARCHITECTURE.md (orchestrator, subagent, circuit breaker modes) |
+| 2 | PoC documentation | Added to ARCHITECTURE.md (embedding model selection, benchmarks, hybrid search validation) |
+| 3 | Context engineering strategy | Added to ARCHITECTURE.md (memory types, loading sequence, consistency rules) |
+| 4 | SPECIFICATION.md | Created (120 lines — problem, personas, features, scope, criteria, constraints) |
+| 5 | API.md | Created (all 15 tools with parameters, return types, examples) |
+| 6 | ADRs | Added 10 ADRs to PROJECT-MEMORY.md (Context + Consequences for key decisions) |
+| 7 | SBOM | Created (22 direct deps with licenses, security notes) |
 
-| # | Pattern | Source | What to Do |
-|---|---------|--------|------------|
-| 1 | Failure mode mapping | multi-agent methods §3.3 | Document failure modes for orchestrator, subagent timeouts, circuit breaker scenarios |
-| 2 | PoC documentation | ai-coding methods §3.1.4 | Document proof-of-concept results (embedding model selection, retrieval benchmarks) |
-| 3 | Context engineering strategy | ai-coding methods §7.0 | Formalize the memory file strategy as an explicit context engineering document |
-
-### Priority 3 — Structural Documentation
-
-| # | Pattern | Source | What to Do |
-|---|---------|--------|------------|
-| 4 | SPECIFICATION.md | ai-coding methods §2.1 | Create formal specification from README/PROJECT-MEMORY (problem, users, features, scope) |
-| 5 | API.md | ai-coding methods §3.1.3 | Document all 15 MCP tools with parameters, return types, examples |
-| 6 | Architecture Decision Records | ai-coding methods §3.1.3 | Formalize key decisions from PROJECT-MEMORY into ADR format |
-| 7 | SBOM | SECURITY.md planned items | Software Bill of Materials for releases |
+Coherence audit caught and fixed: ARCHITECTURE.md version/date mismatch, README stale framework versions and test counts, SPECIFICATION.md volatile metric caveat, ARCHITECTURE.md test table gaps, CLAUDE.md memory type completeness.
 
 ## Links
 

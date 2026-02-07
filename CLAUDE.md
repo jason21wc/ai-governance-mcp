@@ -19,6 +19,8 @@
 | Episodic | LEARNING-LOG.md | Lessons learned |
 | Structural | ARCHITECTURE.md | System design, component responsibilities, data flow |
 | Charter | README.md | Project purpose, scope, public contract. Validate features fit; flag scope drift. |
+| Procedural | Methods documents | How to do things (via MCP retrieval) |
+| Reference | Context Engine index | Project content, semantically searchable |
 
 ## Governance Integration
 

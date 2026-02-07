@@ -1,7 +1,7 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.9.0
-**Date:** 2026-02-08
+**Version:** 1.7.0
+**Date:** 2026-02-07
 **Memory Type:** Structural (reference)
 
 > System design, component responsibilities, data flow.
@@ -210,7 +210,9 @@ ai-governance-mcp/
 | **Server** | test_server, test_server_integration | All 11 MCP tools, dispatcher routing |
 | **Extractor** | test_extractor, test_extractor_integration | Parsing, embeddings, index build |
 | **Retrieval** | test_retrieval, test_retrieval_integration | Hybrid search, reranking, pipeline |
+| **Quality** | test_retrieval_quality | MRR/Recall benchmarks |
 | **Config** | test_config_generator | Multi-platform MCP configurations |
+| **Context Engine** | test_context_engine | Full context engine coverage |
 
 ### Test Markers (pyproject.toml)
 
@@ -249,6 +251,135 @@ Deliberately uncovered areas (run `pytest --cov` for current percentages):
 | pytest / ruff | Testing + linting (dev) |
 
 See `pyproject.toml` for pinned versions.
+
+---
+
+## Context Engineering Strategy
+
+How the project's memory files implement the cognitive memory architecture (ai-coding methods §7.0).
+
+### Memory Types and Loading
+
+| Cognitive Type | File | Loaded When | Content |
+|----------------|------|-------------|---------|
+| **Working** | `SESSION-STATE.md` | Always at session start | Current position, active task, blockers, next actions |
+| **Semantic** | `PROJECT-MEMORY.md` | Always at session start | Decisions, constraints, gotchas, patterns |
+| **Episodic** | `LEARNING-LOG.md` | Always at session start | Lessons learned, active and graduated |
+| **Structural** | `ARCHITECTURE.md` (this file) | On demand (design questions) | System design, components, data flow |
+| **Charter** | `README.md` | On demand (scope questions) | Project purpose, public contract, scope boundaries |
+| **Procedural** | Methods documents in `documents/` | Via MCP retrieval | How to do things (governance, coding, multi-agent) |
+| **Reference** | Context Engine index | Via MCP query | Project content, semantically searchable |
+
+### Loading Sequence
+
+```
+Session Start:
+  1. CLAUDE.md (auto-loaded by Claude Code → points to memory files)
+  2. SESSION-STATE.md (where are we? what's next?)
+  3. PROJECT-MEMORY.md (what constraints apply?)
+  4. LEARNING-LOG.md (what mistakes to avoid?)
+
+On Demand:
+  5. ARCHITECTURE.md (how does the system work?)
+  6. README.md (does this feature fit the project scope?)
+  7. query_governance() / get_principle() (what do the methods say?)
+  8. query_project() (what code/content exists where?)
+```
+
+### Memory Consistency Rules
+
+- **Single Source of Truth**: Each fact has exactly one canonical location. Don't duplicate across files.
+- **Platform memory is a pointer**: Claude Code's auto memory (`~/.claude/.../MEMORY.md`) points to framework files, never duplicates their content (see Appendix G.5 in meta-methods).
+- **Lifecycle alignment**: Working memory is overwritten each session. Semantic memory accumulates. Episodic memory prunes when lessons graduate to methods.
+- **Distillation triggers**: SESSION-STATE >300 lines, PROJECT-MEMORY >800 lines, LEARNING-LOG ~200 lines trigger review (not hard ceilings).
+
+---
+
+## Failure Mode Mapping
+
+Known failure modes for the multi-agent and orchestration patterns used in this project (multi-agent methods §3.3).
+
+### Orchestrator Failure Modes
+
+| Failure Mode | Cause | Detection | Mitigation |
+|--------------|-------|-----------|------------|
+| **Governance bypass** | Orchestrator skip-list too broad; action not evaluated | `verify_governance_compliance()` returns NON_COMPLIANT | Narrow skip-list; default to evaluate when in doubt |
+| **False ESCALATE** | S-Series keyword scan triggers on benign terms (e.g., "security fix") | Review `principles` array in assessment — keywords triggered but no real violation | Check principle content, not just keywords; document in Gotcha #12 |
+| **Stale index** | Server caches index at startup; index rebuilt but server not restarted | Queries return outdated or missing results | Restart MCP server after `python -m ai_governance_mcp.extractor` (Gotcha #15) |
+| **Context overflow** | Long conversation exceeds context window; governance instructions lost | AI stops calling `evaluate_governance()`; responses drift from framework | Per-response reminder (~30 tokens) appended to every tool response |
+
+### Subagent Failure Modes
+
+| Failure Mode | Cause | Detection | Mitigation |
+|--------------|-------|-----------|------------|
+| **Token limit exceeded** | Subagent task too broad; output exceeds max_turns | Agent returns truncated or incomplete results | Scope tasks narrowly; set appropriate max_turns |
+| **Tool unavailability** | Subagent type doesn't have required tool (e.g., documentation-writer can't run Bash) | Tool call rejected | Check agent tool list before delegating; use general-purpose if mixed tools needed |
+| **Context loss** | Custom agent files (.claude/agents/) are reference docs, not auto-loaded | Agent doesn't follow role instructions | Inline role instructions in Task prompt; or read agent file first (LEARNING-LOG lesson) |
+| **Stale delegation** | Orchestrator delegates based on outdated understanding of codebase | Subagent produces incorrect output | Load SESSION-STATE before delegating; include current context in handoff |
+
+### Circuit Breaker Scenarios
+
+| Scenario | Trigger | Recovery |
+|----------|---------|----------|
+| **Repeated validation failure** | Same gate fails 3+ times | Escalate to user — indicates systemic issue |
+| **Index corruption** | `global_index.json` malformed or embeddings shape mismatch | Re-run `python -m ai_governance_mcp.extractor` from source docs |
+| **Feedback loop** | `log_feedback()` boosts irrelevant principles, degrading future retrieval | Review feedback.jsonl; remove erroneous entries; rebalance boost/penalty weights |
+| **Memory file bloat** | SESSION-STATE >300 lines, causing slow context loading | Apply distillation triggers (§7.0.4); prune completed work |
+
+---
+
+## Proof-of-Concept Results
+
+Key technical decisions validated through prototyping and benchmarking (ai-coding methods §3.1.4).
+
+### Embedding Model Selection
+
+| Model | Token Limit | MRR (Methods) | Decision |
+|-------|-------------|---------------|----------|
+| `all-MiniLM-L6-v2` | 256 | 0.330 | **Rejected** — key content truncated beyond 256 tokens |
+| `BAAI/bge-small-en-v1.5` | 512 | 0.698 | **Selected** — +112% MRR improvement |
+
+**Why BGE won:** Method chunks frequently exceed 256 tokens. MiniLM truncated critical content (purpose, applies_to fields) that appeared after the token limit. BGE's 512-token window captures the full chunk content needed for accurate semantic matching. Both models produce 384-dimension embeddings, so the switch required no infrastructure changes.
+
+### Retrieval Quality Benchmarks
+
+Current metrics (baseline 2026-02-07, model: `BAAI/bge-small-en-v1.5`):
+
+| Metric | Value | Threshold | Status |
+|--------|-------|-----------|--------|
+| Method MRR | 0.698 | >= 0.60 | Pass |
+| Principle MRR | 0.588 | >= 0.50 | Pass |
+| Method Recall@10 | 0.875 | >= 0.75 | Pass |
+| Principle Recall@10 | 0.875 | >= 0.85 | Pass |
+
+**Methodology:** 8 principle + 8 method benchmark queries covering all 5 domains. Each query has expected top results. MRR measures average reciprocal rank of first correct result. Recall@10 measures whether the correct result appears in top 10. Baselines stored in `tests/benchmarks/`.
+
+### Hybrid Search Validation
+
+| Approach | Miss Rate | Notes |
+|----------|-----------|-------|
+| BM25 only | ~5% | Misses semantic synonyms |
+| Semantic only | ~3% | Misses exact terminology |
+| Hybrid (60/40) | <1% | Complementary strengths |
+
+The 60% semantic / 40% keyword weight was determined empirically. Semantic search handles paraphrased queries ("how to handle incomplete specs" → specification-completeness). BM25 handles exact matches ("S-Series" → safety principles). Combined, they achieve <1% miss rate.
+
+### Latency Profile
+
+| Operation | Typical | Target | Notes |
+|-----------|---------|--------|-------|
+| Model load (first query) | ~9s | <=15s | One-time cost at startup |
+| Subsequent queries | ~50ms | <100ms | In-memory search + reranking |
+| Index rebuild | ~30s | N/A | Offline operation |
+
+### Storage Architecture Decision
+
+| Option | Pros | Cons | Decision |
+|--------|------|------|----------|
+| In-memory (NumPy) | Fast queries, simple | Full reload at startup | **Selected** for v1 |
+| Vector DB (e.g., ChromaDB) | Incremental updates, scalability | Additional dependency, deployment complexity | Deferred to roadmap |
+
+**Rationale:** With 460 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
 
 ---
 

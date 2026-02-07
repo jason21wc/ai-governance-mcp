@@ -122,6 +122,73 @@
 
 ---
 
+## Architecture Decision Records
+
+Expanded context for the most significant decisions. The condensed tables above serve as an index; these ADRs capture why and what changed.
+
+### ADR-1: Hybrid Retrieval (Option C)
+- **Status:** Accepted (2025-12-26)
+- **Context:** Three retrieval approaches evaluated: (A) keyword-only, (B) semantic-only, (C) hybrid BM25 + semantic with reranking. PO required <1% miss rate.
+- **Decision:** Option C — hybrid retrieval with cross-encoder reranking.
+- **Consequences:** (+) <1% miss rate, (+) complementary strengths (keyword for exact terms, semantic for paraphrases), (-) higher latency than keyword-only (~50ms vs ~5ms), (-) requires ML model dependency.
+- **Alternatives rejected:** A (~5% miss rate, insufficient), B (~3% miss rate, misses exact terminology).
+
+### ADR-2: Embedding Model Upgrade
+- **Status:** Accepted (2026-01-17), supersedes `all-MiniLM-L6-v2`
+- **Context:** Method retrieval quality was poor (MRR 0.33). Root cause: MiniLM has 256-token limit, but method chunks frequently exceed this. Key content (purpose, applies_to) was truncated.
+- **Decision:** Switch to `BAAI/bge-small-en-v1.5` (512-token limit, same 384 dimensions).
+- **Consequences:** (+) MRR improved +112% (0.33 → 0.698), (+) no infrastructure changes needed (same dimensions), (-) slightly larger model (~33MB vs ~22MB), (-) requires model re-download on fresh installs.
+
+### ADR-3: Hybrid AI Judgment for Governance
+- **Status:** Accepted (2026-01-02)
+- **Context:** Pure script-based enforcement produced too many false positives. Pure AI judgment risked missing safety violations. Needed deterministic safety with nuanced analysis.
+- **Decision:** Script handles S-Series (safety) keyword detection deterministically. AI handles principle conflict analysis for non-safety principles.
+- **Consequences:** (+) S-Series violations never missed (deterministic), (+) nuanced analysis for non-safety principles, (-) AI judgment depends on model capability, (-) requires `requires_ai_judgment` flag in responses.
+
+### ADR-4: Skip-List Governance Model
+- **Status:** Accepted (2026-02-01), supersedes "significant action" heuristic
+- **Context:** "Evaluate for significant actions" was subjective — different AI models interpreted "significant" inconsistently. Needed deny-by-default with explicit exceptions.
+- **Decision:** Evaluate governance for ALL actions unless on a narrow skip-list (4 exceptions: reads, non-sensitive questions, trivial formatting, explicit user skip).
+- **Consequences:** (+) deterministic — no ambiguity about what requires evaluation, (+) consistent across AI models, (-) more governance calls for borderline actions, (-) skip-list must be maintained in sync across instruction surfaces (Gotcha #17).
+
+### ADR-5: Cognitive Memory Architecture
+- **Status:** Accepted (2025-12-31), extended 2026-02-02 (Reference Memory)
+- **Context:** AI sessions are stateless. Needed external memory that maps to known cognitive science patterns. CoALA framework (Cognitive Architectures for Language Agents) provides taxonomy.
+- **Decision:** Four memory types mapped to files: Working (SESSION-STATE), Semantic (PROJECT-MEMORY), Episodic (LEARNING-LOG), Procedural (methods docs). Fifth type (Reference Memory via Context Engine) added 2026-02-02.
+- **Consequences:** (+) clear lifecycle per type (transient/accumulate/prune/evolve), (+) prevents "memory as archive" antipattern, (-) requires discipline to route content correctly, (-) new contributors must learn the taxonomy.
+
+### ADR-6: Context Engine as Separate Server
+- **Status:** Accepted (2026-02-02)
+- **Context:** Governance server indexes governance content. Projects also need project-specific content awareness. Could be same server (add tools) or separate server (independent lifecycle).
+- **Decision:** Shared repository, separate MCP entry point (`ai-context-engine`). Code lives in `src/ai_governance_mcp/context_engine/`.
+- **Consequences:** (+) independent deployment and configuration, (+) shared dependencies (sentence-transformers, BM25), (+) separate rate limiting and security boundaries, (-) two servers to configure, (-) optional dependency group adds CI complexity (Gotcha #23).
+
+### ADR-7: JSON over Pickle for Index Storage
+- **Status:** Accepted (2026-02-02)
+- **Context:** BM25 index and metadata need persistence. Pickle is Python's default serialization but allows arbitrary code execution on deserialization — a known security risk for files that could be tampered with.
+- **Decision:** BM25 stored as JSON. NumPy arrays loaded with `allow_pickle=False`. No pickle anywhere in the project.
+- **Consequences:** (+) eliminates deserialization attack vector, (+) human-readable index files for debugging, (-) JSON serialization slightly slower, (-) custom serialization needed for BM25 corpus.
+
+### ADR-8: Coherence Audit as Method, Not Principle
+- **Status:** Accepted (2026-02-07)
+- **Context:** Documentation drift is a real problem — facts go stale across sessions. Three existing principles (Context Engineering, SSOT, Periodic Re-evaluation) address the "what" but agents need "how" — a concrete procedure.
+- **Decision:** Part 4.3 in meta-methods: executable drift detection procedure with Quick (session start, advisory) and Full (pre-release, gate) tiers.
+- **Consequences:** (+) operationalizes existing principles, (+) two tiers match urgency levels, (+) dedicated subagent (coherence-auditor) for fresh-context review, (-) method content must be tuned for retrieval surfacing (bold terms, descriptive titles, Applies To field).
+
+### ADR-9: Docker AMD64-Only
+- **Status:** Accepted (2026-01-18)
+- **Context:** Multi-arch Docker builds via QEMU make embedding generation ~500x slower. MKL-DNN can't detect ARM features under emulation. Build time exceeded CI limits.
+- **Decision:** AMD64-only images. Apple Silicon runs via Rosetta 2 translation.
+- **Consequences:** (+) CI builds complete in reasonable time, (+) Rosetta 2 performance acceptable for stdio MCP, (-) no native ARM64 images, (-) ARM Linux servers can't run the image.
+
+### ADR-10: Platform-Native Memory as Pointer Only
+- **Status:** Accepted (2026-02-07)
+- **Context:** Claude Code's auto memory (`MEMORY.md`) duplicated facts from SESSION-STATE, PROJECT-MEMORY, and LEARNING-LOG, violating Single Source of Truth. Stale facts in auto memory anchored AI understanding before it read framework files.
+- **Decision:** Auto memory contains only pointers to framework files. No duplicated facts. Formalized in Appendix G.5 of meta-methods.
+- **Consequences:** (+) eliminates drift between two persistence layers, (+) auto memory stays small (12 lines vs 28), (-) AI must read framework files to get context (can't rely on auto memory alone).
+
+---
+
 ## Metrics Registry
 
 Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test coverage.
