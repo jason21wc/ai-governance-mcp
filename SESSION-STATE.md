@@ -61,9 +61,21 @@ New Part 4.3 method chunks are indexed in `global_index.json` with trigger phras
 
 ## Next Actions
 
-Prioritized backlog of unused governance patterns identified by auditing methods docs against project state. Same systematic approach applies: draft → contrarian + validator review → synthesize → implement → review rounds.
+### Priority 1 — Verify Retrieval Surfacing After MCP Server Restart
+
+The MCP server was restarted when this session started, so the new index should be loaded. Run these queries and confirm Part 4.3 methods appear in results:
+
+1. `query_governance("documentation drift detection")` — expect Part 4.3 chunks
+2. `query_governance("session start coherence check")` — expect trigger conditions chunk
+3. `query_governance("pre-release documentation review")` — expect per-file review protocol
+4. `evaluate_governance("reviewing project documentation for accuracy")` — expect new method in relevant_methods
+
+If Part 4.3 doesn't surface: retrieval tuning needed (see LEARNING-LOG "Bold Text Drives Method Retrieval Surfacing").
 
 ### Priority 2 — Operational Improvements
+
+Prioritized backlog of unused governance patterns identified by auditing methods docs against project state. Same systematic approach applies: draft → contrarian + validator review → synthesize → implement → review rounds.
+
 
 | # | Pattern | Source | What to Do |
 |---|---------|--------|------------|
