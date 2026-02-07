@@ -3,7 +3,7 @@
 
 **Version:** 2.7.0
 **Status:** Active
-**Effective Date:** 2026-02-07
+**Effective Date:** 2026-02-08
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -312,8 +312,11 @@ Create this file after Specify phase completes:
 
 > Status: ⏳ Pending | ✓ Passed | ❌ Failed. Add "Approver" column for team projects.
 
-## Architecture Decisions
-[Add decisions as they're made using ADR format]
+## Key Decisions
+
+| Decision | Date | Summary |
+|----------|------|---------|
+| [Add decisions as they're made] | | |
 
 ## Technical Stack
 - **Frontend:** [TBD or technologies]
@@ -2425,7 +2428,7 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 | Memory File | Trigger | Action |
 |-------------|---------|--------|
 | SESSION-STATE.md | > 300 lines | Prune to current state only |
-| PROJECT-MEMORY.md | > 800 lines | Condense decisions, check superseded |
+| PROJECT-MEMORY.md | > 800 lines | Review entries against Decision Significance Test (§7.2.1); route implementation details to ARCHITECTURE.md, check superseded, condense |
 | LEARNING-LOG.md | Entry > 6 months | Graduate to methods, retain if still project-relevant and passing Future Action Test (§7.3.1), or delete |
 | LEARNING-LOG.md | > 200 lines | Review all entries against Future Action Test (§7.3.1); remove obsolete, graduated, or redundant entries. If all entries pass review, the file may legitimately exceed 200 lines — this is a quality review trigger, not a hard ceiling |
 | LEARNING-LOG.md | During distillation | Verify no entry duplicates content already in Gotcha table, PROJECT-MEMORY, or ARCHITECTURE.md |
@@ -2527,6 +2530,8 @@ Session state captures the CURRENT moment. Historical information belongs in Pro
 
 Preserve significant decisions, specifications, architecture, and phase gate status so they don't need to be re-discovered or re-debated. This is the project's semantic memory — facts that remain true until superseded.
 
+**Decision Significance Test:** A decision belongs in Project Memory if a future session would need to know it to make a correct choice. Implementation details discoverable from the code or relevant only to a single component belong in ARCHITECTURE.md, not here.
+
 ### 7.2.2 Project Memory File Structure
 
 File: `PROJECT-MEMORY.md` (project root)
@@ -2563,16 +2568,14 @@ File: `PROJECT-MEMORY.md` (project root)
 
 > Status: ⏳ Pending | ✓ Passed | ❌ Failed. Add "Approver" column for team projects.
 
-## Architecture Decisions
+## Key Decisions
 
-### [Decision Title]
-- **Decision:** [What we decided]
-- **Rationale:** [Why we decided it]
-- **Alternatives Considered:** [What we rejected]
-- **Date:** [When decided]
-- **Status:** [Active / Superseded by X]
+| Decision | Date | Summary |
+|----------|------|---------|
+| [Decision title] | [Date] | [One sentence: what was decided and why] |
 
-[Repeat for each significant decision]
+> For decisions requiring extended rationale, add a paragraph below the table.
+> Apply Decision Significance Test (§7.2.1) before adding entries.
 
 ## Technical Stack
 - **Frontend:** [Technologies]
@@ -2592,13 +2595,10 @@ File: `PROJECT-MEMORY.md` (project root)
 | [etc.] | | |
 
 ## Known Gotchas
-> Project-specific pitfalls discovered during development. Review before making changes.
 
-### [Gotcha Title]
-**Issue:** [What goes wrong]
-**Solution:** [How to avoid or fix it]
-
-[Repeat for each gotcha discovered]
+| # | Issue | Solution |
+|---|-------|----------|
+| [N] | [What goes wrong] | [How to avoid or fix it] |
 ```
 
 ### 7.2.3 Update Triggers
@@ -4326,7 +4326,7 @@ When the context engine is available, project-specific instructions could be sem
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 2.7.0 | 2026-02-07 | **Learning Log Reform:** (1) Tightened §7.3.1 Purpose with Future Action Test and "conclusions, not evidence" constraint. (2) Simplified §7.3.3 template: replaced 4 sections (Lessons Learned, Patterns That Worked, Patterns That Failed, Technical Discoveries) with 2 (Active Lessons, Graduated Patterns). Added entry rules blockquote, entry quality standard, and calibration example. (3) Updated §7.3.4 with explicit removal criteria (obsolete, graduated, captured elsewhere, fails Future Action Test). (4) Enhanced §7.0.4 distillation triggers: 200-line quality review trigger (not hard ceiling), distillation-time dedup check, "retain if still relevant" option for 6-month trigger. (5) Updated all 4 template surfaces (§7.3.3, quick-start, §7.8.3 stub, LEARNING-LOG.md header) for consistency. Root cause: Learning Log grew to 2,429 lines due to insufficient content standards and obsolescence criteria. |
+| 2.7.0 | 2026-02-08 | **Learning Log Reform + Project Memory Refinement:** **Learning Log:** (1) Tightened §7.3.1 Purpose with Future Action Test and "conclusions, not evidence" constraint. (2) Simplified §7.3.3 template: replaced 4 sections (Lessons Learned, Patterns That Worked, Patterns That Failed, Technical Discoveries) with 2 (Active Lessons, Graduated Patterns). Added entry rules blockquote, entry quality standard, and calibration example. (3) Updated §7.3.4 with explicit removal criteria (obsolete, graduated, captured elsewhere, fails Future Action Test). (4) Enhanced §7.0.4 distillation triggers: 200-line quality review trigger (not hard ceiling), distillation-time dedup check, "retain if still relevant" option for 6-month trigger. (5) Updated all 4 template surfaces (§7.3.3, quick-start, §7.8.3 stub, LEARNING-LOG.md header) for consistency. Root cause: Learning Log grew to 2,429 lines due to insufficient content standards and obsolescence criteria. **Project Memory:** (1) Added Decision Significance Test to §7.2.1: "A decision belongs in Project Memory if a future session would need to know it to make a correct choice." Routes implementation details to ARCHITECTURE.md. (2) Simplified §7.2.2 templates: replaced verbose per-decision format with condensed table for both decisions and gotchas. Updated Cold Start Kit template to match. (3) Updated §7.0.4 distillation trigger to reference Decision Significance Test. (4) Applied to PROJECT-MEMORY.md: removed 2 implementation-detail entries (PDF Resource Leak Fix, MAX_IMAGE_PIXELS), merged Completed Consolidations into Future Considerations with strikethrough. |
 | 2.6.0 | 2026-02-02 | **Reference Memory & Context Engine:** (1) Added Reference Memory to cognitive memory taxonomy (§7.0.2) with context engine index as source. (2) Updated Memory Loading Strategy (§7.0.3) with Reference Memory query guidance and complementary roles note. (3) Added §7.9 Reference Memory section: purpose, when to use, what gets indexed, .contextignore, index components, indexing modes, source connector architecture, query interface, workflow integration. (4) Added §5.1.5 Rollback Strategy: planning checklist, mechanism table, post-rollback documentation. (5) Added §3.3.5 Persistent Codebase Analysis: Reference Memory as context strategy layer. (6) Added Appendix G: Context Engine MCP Server Setup (architecture, installation, configuration, project setup, embedding models, storage, tools, governance integration, CI/CD patterns, auto-rules future). (7) Added MCP config sections to Appendix A (§A.4) and Appendix D (§D.6). **Post-implementation accuracy fixes:** (8) Fixed `bm25_index.pkl` → `bm25_index.json` (Appendix G.6). (9) Corrected code connector description to reflect actual regex-based boundary detection (§7.9.6). (10) Marked S3 storage as Future (Appendix G.6). (11) Added §7.9.9 Security Requirements (11 security patterns). (12) Added BaseConnector interface spec (§7.9.6) and BaseStorage interface spec (Appendix G.6). (13) Added data model schemas (§7.9.4), default ignore patterns (§7.9.3), chunking implementation details per connector (§7.9.6), score fusion algorithm (§7.9.7), embedding implementation details (Appendix G.5), thread safety/concurrency model (§7.9.5). |
 | 2.5.0 | 2026-01-18 | **Memory Hygiene & Cognitive Headers:** (1) Added standardized cognitive type headers to all memory file templates (§7.1.2, §7.2.2, §7.3.3) with Memory Type, Lifecycle, and purpose guidance. (2) Added §7.0.4 distillation triggers (size thresholds for pruning). (3) Added §7.6.1 step 5: memory hygiene check to session end procedure. (4) Updated all Cold Start Kit minimal templates with headers. (5) Updated §7.8.3 initialization stub. Headers improve RAG chunking and provide clear lifecycle guidance per context engineering best practices. |
 | 2.4.0 | 2026-01-18 | Added §7.8 Project Initialization Protocol, §7.5 Source Document Registry, §5.2.5 ML Model Mocking Pattern. Added Metrics Registry System with regression tests. |

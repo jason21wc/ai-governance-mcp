@@ -113,8 +113,6 @@
 | Relative Paths in Output | 2026-02-04 | Connectors compute `source_path` relative to project root via `project_root` param. Prevents absolute path leakage. |
 | Thread-Safe Rate Limiter | 2026-02-03 | Rate limiter globals guarded by `threading.Lock`. MCP runs handlers via `run_in_executor` thread pool. |
 | Symlink Protection | 2026-02-04 | `list_projects()` skips symlinks. `delete_project()` unlinks symlinks instead of `rmtree`. File discovery already filtered. |
-| PDF Resource Leak Fix | 2026-02-04 | `pymupdf.open()` wrapped in `try/finally` to ensure `doc.close()` on errors. `pdfplumber` already uses context manager. |
-| MAX_IMAGE_PIXELS at Init | 2026-02-04 | Moved PIL decompression bomb guard from `parse()` (every call) to `__init__()` (once). |
 | Atomic JSON Writes | 2026-02-06 | `_atomic_write_json()` uses tmp file + rename for crash safety. POSIX atomic guarantees. |
 | Circuit Breaker Visibility | 2026-02-06 | `watcher_status` field in ProjectStatus exposes state (running/stopped/circuit_broken/disabled). |
 | Bounded Pending Changes | 2026-02-06 | MAX_PENDING_CHANGES (10K) with force-flush prevents unbounded memory growth. |
@@ -148,18 +146,13 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 
 ## Roadmap
 
-### Completed Consolidations
-
-| Topic | Status | Location |
-|-------|--------|----------|
-| Prompt Engineering | ✅ | Title 11 in ai-governance-methods |
-| RAG Optimization | ✅ | Title 12 in ai-governance-methods |
-
 ### Future Considerations
 
 - Prompt Engineering domain (when created, move system prompt best practices from multi-agent)
 - Gateway-Based Enforcement (§4.6.2) — server-side governance for all platforms
 - Vector DB migration (when scale requires)
+- ~~Prompt Engineering consolidation~~ → Title 11 in ai-governance-methods (done)
+- ~~RAG Optimization consolidation~~ → Title 12 in ai-governance-methods (done)
 
 ---
 
