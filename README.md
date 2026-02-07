@@ -46,10 +46,11 @@ The framework has three layers:
 
 ### Available Domains
 
+<!-- Verify counts: python -c "import json; d=json.load(open('index/global_index.json'))['domains']; [print(f'{k}: {len(v.get(\"principles\",[]))}p, {len(v.get(\"methods\",[]))}m') for k,v in d.items()]" -->
 | Domain | Principles | Methods | Coverage |
 |--------|------------|---------|----------|
-| **Constitution** | 44 | 128 | Universal AI behavior, safety, quality |
-| **AI Coding** | 12 | 128 | Software development, testing, deployment |
+| **Constitution** | 44 | 132 | Universal AI behavior, safety, quality |
+| **AI Coding** | 12 | 142 | Software development, testing, deployment |
 | **Multi-Agent** | 14 | 43 | Agent orchestration, handoffs, evaluation |
 | **Storytelling** | 17 | 20 | Creative writing, narrative, voice preservation |
 | **Multimodal RAG** | 12 | 21 | Image retrieval, visual presentation, inline visuals |
@@ -164,7 +165,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **~90%** governance, **~65%** context engine (574 tests) |
+| Test Coverage | 80% | **~90%** governance, **~65%** context engine (500+ tests) |
 
 ## Quick Start (Docker)
 
@@ -753,18 +754,18 @@ ai-governance-mcp/
 ├── logs/                    # Query + feedback logs
 └── tests/
     ├── conftest.py                  # Shared fixtures
-    ├── test_models.py               # Model validation (55 tests)
-    ├── test_config.py               # Config tests (17 tests)
-    ├── test_server.py               # Server unit tests (105 tests)
-    ├── test_server_integration.py   # Dispatcher + flows (11 tests)
-    ├── test_extractor.py            # Extractor tests (60 tests)
-    ├── test_extractor_integration.py # Pipeline tests (11 tests)
-    ├── test_retrieval.py            # Retrieval unit (46 tests)
-    ├── test_retrieval_integration.py # Retrieval pipeline (23 tests)
-    ├── test_retrieval_quality.py    # MRR/Recall benchmarks (13 tests)
-    ├── test_config_generator.py     # Platform configs (17 tests)
-    ├── test_validator.py            # Principle validation (15 tests)
-    └── test_context_engine.py       # Context engine tests (201 tests)
+    ├── test_models.py               # Model validation
+    ├── test_config.py               # Config tests
+    ├── test_server.py               # Server unit tests
+    ├── test_server_integration.py   # Dispatcher + flows
+    ├── test_extractor.py            # Extractor tests
+    ├── test_extractor_integration.py # Pipeline tests
+    ├── test_retrieval.py            # Retrieval unit
+    ├── test_retrieval_integration.py # Retrieval pipeline
+    ├── test_retrieval_quality.py    # MRR/Recall benchmarks
+    ├── test_config_generator.py     # Platform configs
+    ├── test_validator.py            # Principle validation
+    └── test_context_engine.py       # Context engine tests
 ```
 
 ## The Methodology
@@ -795,13 +796,13 @@ pre-commit install
 
 ### Test Suite
 
-574 tests across 12 test files (governance ~90% coverage, context engine ~65%):
+500+ tests covering governance (~90% coverage) and context engine (~65%):
 
-| Category | Tests | Purpose |
-|----------|-------|---------|
-| Governance Unit | 313 | Isolated component testing |
-| Governance Integration | 60 | Full pipeline flows |
-| Context Engine | 201 | Models, connectors, indexer, watcher, server, security |
+| Category | Purpose |
+|----------|---------|
+| Governance Unit | Isolated component testing (models, config, server, extractor, retrieval, validator) |
+| Governance Integration | Full pipeline flows (dispatcher, retrieval pipeline, extractor pipeline) |
+| Context Engine | Models, connectors, indexer, watcher, server, security |
 
 Tests include real index validation and actual ML model tests (marked `@pytest.mark.slow`).
 
@@ -846,10 +847,10 @@ safety check
   - Script layer: S-Series keyword detection (deterministic safety guardrails)
   - AI layer: Nuanced principle conflict analysis for PROCEED_WITH_MODIFICATIONS
   - Model-aware: More capable models get more judgment latitude
-- [ ] **Improved Method Embedding Quality** — Better semantic retrieval for methods
-  - Content-based keyword extraction (not just title words)
-  - Increase embedding text limit (1000 → 2000 chars)
-  - Add trigger_phrase support for methods (like principles have)
+- [x] **Improved Method Embedding Quality** ✓ — MRR 0.0 → 0.698
+  - [x] Content-based keyword extraction (via MethodMetadata: purpose_keywords, applies_to, guideline_keywords; legacy `keywords` field remains title-derived)
+  - [x] Increase embedding text limit (1000/500 → 1500 chars)
+  - [x] Add trigger_phrase support for methods (like principles have)
 - [ ] **Governance Proxy Mode** — Platform-agnostic enforcement via MCP gateway
   - Wraps other MCP servers, enforces governance before forwarding requests
   - Enables architectural enforcement for non-Claude platforms (OpenAI, Gemini, etc.)
@@ -871,4 +872,4 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework - Constitution v2.4, AI Coding Methods v2.6.0, Governance Methods v3.7.0, Multi-Agent Methods v2.10.0, Storytelling v1.0.0, Multimodal RAG v1.0.0*
+*Built with the AI Governance Framework - Constitution v2.4, AI Coding Methods v2.7.0, Governance Methods v3.7.0, Multi-Agent Methods v2.10.0, Storytelling v1.0.0, Multimodal RAG v1.0.0*

@@ -114,6 +114,8 @@ Our CI pipeline and extraction process scan for:
 - **Relative paths in output**: Context engine returns relative paths, not absolute filesystem paths
 - **.env variant filtering**: `.env*` pattern excludes all environment file variants from indexing
 - **RLock thread safety**: Context engine shared index state protected by reentrant lock
+- **Error message sanitization**: Context engine strips paths, line numbers, and module paths from error responses to prevent information leakage
+- **Bounded pending changes**: Context engine watcher limits pending file changes (MAX_PENDING_CHANGES=10K) with force-flush to prevent unbounded memory growth
 
 ### Known Limitations
 

@@ -13,7 +13,7 @@
 
 - **Phase:** Maintenance
 - **Mode:** Standard
-- **Active Task:** None
+- **Active Task:** Systematic doc review (README.md complete, SECURITY.md next)
 - **Blocker:** None
 
 ## Quick Reference
@@ -26,19 +26,16 @@
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **99 principles + 351 methods (450 total)** |
+| Index | **99 principles + 358 methods (457 total)** |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 
 ## Recent Session (2026-02-07)
 
-### Release & CI Fix
+### Systematic Doc Review (Continued)
 
-1. Committed iterations 6-11 context engine fixes (thread safety, security, hardening)
-2. Pushed to GitHub (`7d79718`)
-3. Fixed CI — added `.[context-engine]` extras so tests can import `pathspec` (`03fe342`)
-4. Tagged `v1.7.0` and pushed Docker image to Docker Hub
-5. All CI jobs green (574 tests, 550 passed + 24 slow deselected)
-6. Comprehensive doc review and LEARNING-LOG distillation (2429 → 167 lines, 93% compression)
+1. CLAUDE.md — version, governance table, memory hygiene, volatile counts (committed `a7bc36d`)
+2. ARCHITECTURE.md + §7.5 methods — Source Relevance Test, volatile metrics, snapshot tables (committed `a7bc36d`)
+3. README.md + §7.8.3 — footer version, domain counts, per-file test counts, roadmap honest accounting, §7.8.3 README entry (pending commit)
 
 ## Next Actions
 
