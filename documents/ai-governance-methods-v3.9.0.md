@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.8.0
+**Version:** 3.9.0
 **Status:** Active
-**Effective Date:** 2026-02-07
+**Effective Date:** 2026-02-08
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -97,6 +97,7 @@ Load this document when:
 | Documents may have drifted | Part 4.3 | Documentation Coherence Audit |
 | Preparing a release | Part 4.3.2 | Full coherence audit (pre-release gate) |
 | Starting a new session | Part 4.3.2 | Quick coherence check (advisory) |
+| Fixing a coherence audit finding | Part 4.3.4 | Drift Remediation Patterns |
 | Version number question | Title 1 | Semantic Versioning Rules |
 | Writing new principles | Part 3.4 | ID System & Authoring Rules |
 | Cross-referencing principles | Part 3.4.5 | Cross-Reference Format |
@@ -846,9 +847,47 @@ Documentation drift occurs because:
 - **Policy docs:** Implemented features list complete
 - **Operational docs:** Commands runnable, tables current
 
-### 4.3.4 Validation Protocol
+### 4.3.4 Drift Remediation Patterns
 
-1. Draft proposed changes from **review findings**
+Once drift is detected (§4.3.3), remediate by classifying the drifted content's **purpose** before choosing a fix. Different purposes demand different strategies — a pedagogical example needs specifics, while an operational reference needs generics.
+
+**Applies To:** Fixing findings from the coherence audit (§4.3.3). Use after detection, before validation (§4.3.5).
+
+**Bold triggers:** `drift remediation`, `content-purpose classification`, `volatile value fix strategies`, `SSOT remediation`
+
+#### Content-Purpose Classification
+
+| Purpose | Definition | Example |
+|---------|-----------|---------|
+| **Pedagogical** | Teaches a concept; specifics aid understanding | "42 principles organized into 6 categories" in a framework overview |
+| **Operational** | Referenced during active work; must stay current | "See ai-governance-methods-v3.8.0.md for procedures" |
+| **Historical** | Records a point-in-time snapshot; accuracy is archival | Version history entries, changelog rows |
+
+#### Remediation Strategy by Purpose
+
+| Purpose | Strategy | Rationale |
+|---------|----------|-----------|
+| **Pedagogical** | Keep specifics + add authoritative pointer (e.g., "42 at the time of v2.0; see index for current count") | Specifics teach, but readers need a path to current truth. Pointer prevents future drift from becoming misleading. |
+| **Operational** | Use generic name, no version (e.g., "the governance methods document" not "ai-governance-methods-v3.8.0.md"); add pointer to resolver (e.g., "see `domains.json` for current filename") | Operational references should survive file renames and version bumps without edits. |
+| **Historical** | Keep exact values; never genericize | History is a frozen record. Changing "v2.0 added 42 principles" to "v2.0 added principles" destroys the historical record. |
+
+**Scope:** Classification is **per-finding, not per-file** — a single document may contain all three content purposes. Classify each drifted item individually.
+
+#### Decision Rules
+
+- When purpose is ambiguous, default to **pedagogical** (keep specifics + add pointer). Rationale: the information-preserving strategy is safer than the information-destroying one. Genericizing uncertain content is irreversible; keeping specifics that turn out to be operational is merely verbose and correctable in a future audit.
+- **Normative content** (rules, constraints, authority statements — e.g., the Supremacy Clause, S-Series definitions, override tables) should be treated as **historical**: keep verbatim, verify still accurate. Never genericize a rule.
+- The classification is intentionally minimal (three categories). Extend only via TITLE 8 procedures if a concrete, recurring misclassification demonstrates insufficiency.
+
+#### Cross-References
+
+- §7.5.1 Source Relevance Test — determines *whether* content belongs; this section determines *how* to fix content that belongs but has drifted
+- Generic Check #2 (§4.3.3) — detects hardcoded volatile values; this section provides the fix strategy
+- Every pointer added during remediation becomes a future Generic Check #3 (cross-file consistency) checkpoint
+
+### 4.3.5 Validation Protocol
+
+1. Draft proposed changes from review findings **using remediation patterns from §4.3.4**
 2. Send to **contrarian reviewer** + **validator** in parallel (per **Validation Independence** principle — author cannot objectively assess their own corrections)
 3. Synthesize feedback — accept valid challenges, resolve conflicts
 4. Implement changes
@@ -2728,6 +2767,7 @@ Optimization priorities:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.9.0 | 2026-02-08 | MINOR: Added §4.3.4 (Drift Remediation Patterns) to Part 4.3 Documentation Coherence Audit. Provides content-purpose classification (pedagogical/operational/historical) with per-type remediation strategies for fixing coherence findings without re-introducing future drift. Renumbered previous §4.3.4 Validation Protocol to §4.3.5. Added Situation Index entry. |
 | 3.8.0 | 2026-02-07 | MINOR: Added Part 4.3 (Documentation Coherence Audit) with sections 4.3.1-4.3.4 covering purpose, trigger conditions (Quick/Full tiers), per-file review protocol (5 generic checks, drift severity classification, file-type-specific checks), and validation protocol. Operationalizes existing constitution principles (Context Engineering, Single Source of Truth, Periodic Re-evaluation) into executable procedure. Added 3 Situation Index entries (documents may have drifted, preparing a release, starting a new session). |
 | 3.6.0 | 2026-01-08 | MINOR: Added TITLE 12 (RAG Optimization Techniques) with Parts 12.1-12.6 covering chunking strategies, embedding optimization, retrieval architecture, validation frameworks, domain-specific optimization, and technique selection guide. Consolidated RAG methods from external reference documents. Archived `rag-document-optimization-best-practices-v3b.md` and `AI-instructions-prompt-engineering-and-rag-optimization.md`. |
 | 3.5.0 | 2026-01-06 | MINOR: Added TITLE 11 (Prompt Engineering Techniques) with Parts 11.1-11.6 covering reasoning techniques (CoT, ToT, Meta-Prompting), hallucination prevention (CoVe, Step-Back, Source Grounding), prompt structure patterns, defensive prompting, ReAct pattern, and technique selection guide. Consolidated prompt engineering methods from external guide into governance framework. Updated Constitution (ai-interaction-principles-v2.2.md) with enhanced Transparent Reasoning and Traceability principle including source attribution for factual claims. |

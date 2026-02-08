@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation
 - **Mode:** Standard
-- **Active Task:** AI Coding Methods v2.9.0
+- **Active Task:** Meta-Methods v3.9.0
 - **Blocker:** None
 
 ## Quick Reference
@@ -21,18 +21,31 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v3.8.0** (meta-methods), **v2.9.0** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
+| Content | **v2.4** (Constitution), **v3.9.0** (meta-methods), **v2.9.0** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
 | Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **101 principles + 400 methods (501 total)** |
+| Index | **101 principles + 401 methods (502 total)** |
 | Subagents | **10** (code-reviewer, contrarian-reviewer, validator, security-auditor, documentation-writer, orchestrator, test-generator, coherence-auditor, continuity-auditor, voice-coach) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 
 ## Completed This Session (2026-02-08)
 
-### 1. AI Coding Methods v2.9.0 — Application Security & Review Procedures
+### 1. Meta-Methods v3.9.0 — Drift Remediation Patterns
+
+Added §4.3.4 Drift Remediation Patterns to Part 4.3 Documentation Coherence Audit. Provides content-purpose classification (pedagogical/operational/historical) with per-type remediation strategies for fixing coherence findings without re-introducing future drift. Renumbered previous §4.3.4 Validation Protocol to §4.3.5. Added cross-reference in §4.3.5 step 1 for discoverability.
+
+**New Section:**
+- §4.3.4 Drift Remediation Patterns: content-purpose classification table (pedagogical/operational/historical), remediation strategy table (per-type fix strategies with rationale), scope note (per-finding not per-file), decision rules (default to pedagogical, normative = historical, minimal taxonomy), cross-references to §7.5.1, Generic Check #2, Generic Check #3
+
+**Housekeeping:**
+- Renamed file to v3.9.0, updated domains.json methods_file
+- Added 1 Situation Index row, version history entry
+- Index: 101 principles + 401 methods (502 total, was 501, +1 new method)
+- Tests: 573 pass, 1 skipped, 0 failures — no regressions
+
+### 2. AI Coding Methods v2.9.0 — Application Security & Review Procedures
 
 Added 2 new Parts to Title 5 (Implementation) with 10 subsections (~560 lines). Implements Q2 (Security-First Development). Research basis: OWASP Top 10 2025, OWASP API Security Top 10, ASVS v5, 2025-2026 breach analysis.
 
