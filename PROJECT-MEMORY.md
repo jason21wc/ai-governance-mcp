@@ -95,6 +95,7 @@
 | Principles-Based Pruning | 2025-12-31 | "Memory serves reasoning, not archival." Prune what only describes the past. |
 | Coherence Audit Method | 2026-02-07 | Part 4.3 in meta-methods v3.8.0. Operationalizes Context Engineering + SSOT + Periodic Re-eval. Quick/Full tiers. Method not principle — agents need HOW not more WHAT. |
 | Vibe-Coding Security v2.8.0 | 2026-02-08 | 4 new sections (§5.3.5, §5.3.6, §5.4.5, §5.6) in Title 5. Implements Security-First Development, Supply Chain Integrity, Workflow Integrity principles. Research: Moltbook breach, Stanford false confidence, OWASP Agentic Top 10. Plan reviewed by 3 agents. "Coding tool injection defense" (not "prompt injection defense") avoids multi-agent domain collision. Platform checklists include staleness note. |
+| App Security v2.9.0 | 2026-02-08 | 2 new Parts (§5.7, §5.8) with 10 subsections (~560 lines) in Title 5. Tier 1: application security patterns (auth/session, HTTP headers, CORS, error handling, crypto). Tier 2: domain-specific review (language patterns, API security, data protection, container security). Extends §5.3.5 blind spots into full procedures. Tier 3 (RAG poisoning, agent memory injection) deferred to multi-agent domain. Research: OWASP Top 10 2025, API Security Top 10, ASVS v5, Blue Shield of California breach (2025). |
 
 ### Implementation Details
 

@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Maintenance
+- **Phase:** Implementation
 - **Mode:** Standard
-- **Active Task:** None
+- **Active Task:** AI Coding Methods v2.9.0
 - **Blocker:** None
 
 ## Quick Reference
@@ -21,18 +21,32 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v3.8.0** (meta-methods), **v2.8.0** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
+| Content | **v2.4** (Constitution), **v3.8.0** (meta-methods), **v2.9.0** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
 | Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **101 principles + 391 methods (492 total)** |
+| Index | **101 principles + 400 methods (501 total)** |
 | Subagents | **10** (code-reviewer, contrarian-reviewer, validator, security-auditor, documentation-writer, orchestrator, test-generator, coherence-auditor, continuity-auditor, voice-coach) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 
 ## Completed This Session (2026-02-08)
 
-### 1. AI Coding Methods v2.8.0 — Vibe-Coding Security Best Practices
+### 1. AI Coding Methods v2.9.0 — Application Security & Review Procedures
+
+Added 2 new Parts to Title 5 (Implementation) with 10 subsections (~560 lines). Implements Q2 (Security-First Development). Research basis: OWASP Top 10 2025, OWASP API Security Top 10, ASVS v5, 2025-2026 breach analysis.
+
+**New Sections:**
+- §5.7 Application Security Patterns: §5.7.1 purpose, §5.7.2 Authentication & Session Security (OAuth 2.0/OIDC, JWT, session management, cookie attributes), §5.7.3 HTTP Security Headers (reference table, CSP guidance), §5.7.4 CORS Configuration (checklist, code examples), §5.7.5 Error Handling & Information Disclosure (fail-closed pattern, OWASP A10:2025), §5.7.6 Cryptography Implementation (algorithm table, key management, TLS, timing-safe comparison)
+- §5.8 Domain-Specific Security Review: §5.8.1 purpose, §5.8.2 Language-Specific Security Patterns (Python, JS/TS, Go, Rust tables), §5.8.3 API Security Patterns (rate limiting, GraphQL, WebSocket, versioning), §5.8.4 Data Protection & Privacy (sensitivity tiers, PII checklist, analytics leakage, Blue Shield case study), §5.8.5 Container Security (Docker checklist, secrets in layers, image scanning)
+
+**Housekeeping:**
+- Renamed file to v2.9.0, updated domains.json (methods_file + description keywords) and CLAUDE.md
+- Added 2 Situation Index rows, version history entry
+- Index: 101 principles + 400 methods (501 total, was 492, +9 new methods)
+- Tests: 573 pass, 1 skipped, 0 failures — no regressions
+
+### 2. AI Coding Methods v2.8.0 — Vibe-Coding Security Best Practices
 
 Added 4 new security method sections to Title 5 (Implementation), expanded 3 existing sections, updated mapping table and cross-references. Research basis: Moltbook breach (Jan 2026), Stanford 2022, Georgetown CSET, ACM TOSEM 2025, OWASP Agentic Top 10 2026.
 

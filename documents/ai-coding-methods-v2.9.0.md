@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.8.0
+**Version:** 2.9.0
 **Status:** Active
 **Effective Date:** 2026-02-08
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -117,6 +117,8 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Deploying to Docker | §9.2 | Docker Distribution |
 | Building MCP server | §9.3 | MCP Server Development |
 | Config validation needed | §9.1 | Pre-Flight Validation |
+| Security review (application) | §5.7 | Application Security Patterns |
+| Security review (by technology) | §5.8 | Domain-Specific Security Review |
 
 #### On Uncertainty
 
@@ -2117,6 +2119,425 @@ AI coding tools can delete data, overwrite files, and execute arbitrary commands
 **OWASP Top 10 for Agentic Applications (2026):** ASI01 Agent Goal Hijack, ASI02 Tool Misuse, ASI03 Identity/Privilege Abuse, ASI04 Supply Chain, ASI05 Unexpected Code Execution, ASI09 Human-Agent Trust Exploitation
 
 **Palo Alto SHIELD Framework:** Separation of duties, Human in the loop, Input/Output validation, Enforce security-focused helper models, Least agency, Defense in depth
+
+---
+
+## Part 5.7: Application Security Patterns
+
+**Implements:** Q2 (Security-First Development)
+**Applies To:** All web applications, APIs, and services
+
+### 5.7.1 Purpose
+
+Provide defensive security patterns that AI should apply during implementation and verify during **security reviews**. These patterns cover controls that AI coding tools do not add by default (extending §5.3.5 blind spots into full procedures). Use this Part as a checklist when performing **application security audits**.
+
+### 5.7.2 Authentication & Session Security
+
+**Applies To:** Any application with **user authentication**, **OAuth 2.0 PKCE**, **JWT algorithm confusion** prevention, **session management**, or **cookie security attributes**.
+
+**OAuth 2.0 / OIDC Checklist:**
+- [ ] **PKCE required** for all public clients (SPA, mobile) — `code_challenge_method=S256`
+- [ ] `state` parameter generated per request, validated on callback (CSRF defense)
+- [ ] Redirect URI validated by **exact match** — no pattern matching, no wildcards
+- [ ] Authorization code is **single-use** and short-lived (≤10 minutes)
+- [ ] Tokens exchanged server-side, not in browser (authorization code flow, not implicit)
+- [ ] For OIDC: `nonce` parameter included and validated in ID token
+- [ ] ID token validated: `iss` matches expected issuer, `aud` matches client ID, `exp` not passed
+- [ ] Access tokens are short-lived (≤1 hour); refresh tokens are long-lived with rotation
+
+**JWT Security Checklist:**
+- [ ] Algorithm **explicitly whitelisted** — reject `alg:none` and unexpected algorithms
+- [ ] `exp` (expiry) claim enforced — reject expired tokens
+- [ ] `aud` (audience) and `iss` (issuer) claims validated against expected values
+- [ ] Tokens **not stored in localStorage** (XSS-accessible) — use HttpOnly cookies or in-memory
+- [ ] Refresh token rotation enabled — each refresh issues new refresh token and invalidates old
+- [ ] Token size monitored — JWTs grow with claims; excessive size indicates design issues
+- [ ] Signing key rotation plan exists — keys can be rotated without invalidating all sessions
+
+**Vulnerable vs. Secure JWT Verification (Python):**
+```python
+# VULNERABLE — accepts any algorithm including "none"
+payload = jwt.decode(token, secret, algorithms=None)
+
+# SECURE — explicit algorithm whitelist
+payload = jwt.decode(
+    token,
+    secret,
+    algorithms=["HS256"],
+    options={"require": ["exp", "iss", "aud"]},
+    audience="my-app",
+    issuer="https://auth.example.com",
+)
+```
+
+**Session Management Checklist:**
+- [ ] Session ID regenerated on authentication state change (login, privilege escalation)
+- [ ] Idle timeout enforced (default: 30 minutes)
+- [ ] Absolute timeout enforced (default: 8 hours)
+- [ ] Session invalidated server-side on logout (not just cookie deletion)
+- [ ] Concurrent session limits considered for sensitive applications
+
+**Cookie Security Attributes:**
+
+| Attribute | Required Value | Purpose |
+|-----------|---------------|---------|
+| `HttpOnly` | `true` | Prevents JavaScript access (XSS mitigation) |
+| `Secure` | `true` | Cookie sent only over HTTPS |
+| `SameSite` | `Strict` or `Lax` | CSRF mitigation — `Strict` for auth, `Lax` for navigation |
+| `__Host-` prefix | Use for session cookies | Requires `Secure`, no `Domain`, `Path=/` — prevents subdomain attacks |
+| `Max-Age` | Set explicitly | Avoid session cookies persisting indefinitely |
+| `Path` | `/` or narrowest scope | Limit cookie transmission to necessary paths |
+
+> **Cross-reference:** §5.3.5 (session timeout in blind spots table), §5.3.2 (auth/authz checklist)
+
+### 5.7.3 HTTP Security Headers
+
+**Applies To:** All web applications serving HTTP responses. Covers **security headers**, **Content Security Policy**, and **HSTS configuration**.
+
+**Headers Reference Table:**
+
+| Header | Recommended Value | Purpose |
+|--------|------------------|---------|
+| `Content-Security-Policy` | See CSP guidance below | Prevents XSS, data injection, clickjacking |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | Forces HTTPS for 2 years, including subdomains |
+| `X-Content-Type-Options` | `nosniff` | Prevents MIME-type sniffing |
+| `X-Frame-Options` | `DENY` or `SAMEORIGIN` | Prevents clickjacking (legacy; CSP `frame-ancestors` preferred) |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Controls referrer information leakage |
+| `Permissions-Policy` | Restrict unused APIs (e.g., `camera=(), microphone=()`) | Disables browser features not needed by application |
+| `Cross-Origin-Opener-Policy` | `same-origin` | Isolates browsing context from cross-origin documents |
+| `Cross-Origin-Resource-Policy` | `same-origin` | Prevents cross-origin reads of resources |
+
+**Content Security Policy Guidance:**
+- [ ] Avoid `unsafe-inline` and `unsafe-eval` — use **nonce-based CSP** (`'nonce-<random>'`) for inline scripts
+- [ ] `default-src 'self'` as baseline — add specific directives as needed
+- [ ] `script-src` explicitly lists allowed script sources — no wildcards like `*.cdn.com`
+- [ ] Deploy in `Content-Security-Policy-Report-Only` mode first to identify violations
+- [ ] `report-uri` or `report-to` directive configured to collect violation reports
+- [ ] Review CSP after every third-party script addition
+
+**AI-Specific Note:** AI coding tools **never add security headers**. These must be verified at the middleware or reverse proxy level. When reviewing AI-generated web applications, check for security header configuration — its absence is the default, not an oversight.
+
+> **Cross-reference:** §5.3.5 (CSP headers in blind spots table)
+
+### 5.7.4 CORS Configuration
+
+**Applies To:** Any API accepting cross-origin requests. Covers **CORS misconfiguration**, **origin validation**, and **credentials with wildcard** prevention.
+
+**CORS Security Checklist:**
+- [ ] Allowed origins are **explicitly listed** — no wildcard `*` with credentials
+- [ ] Origin is **not reflected** from request header (see vulnerable pattern below)
+- [ ] `Vary: Origin` header set when origin is dynamic
+- [ ] `Access-Control-Allow-Methods` restricted to actually used HTTP methods
+- [ ] `Access-Control-Allow-Headers` restricted to actually used headers
+- [ ] `Access-Control-Max-Age` set to limit preflight cache duration
+- [ ] Credentials mode (`Access-Control-Allow-Credentials: true`) used only when necessary
+
+**Vulnerable vs. Secure CORS (Python/Flask):**
+```python
+# VULNERABLE — reflects any origin (allows any site to make credentialed requests)
+@app.after_request
+def add_cors(response):
+    origin = request.headers.get("Origin")
+    response.headers["Access-Control-Allow-Origin"] = origin  # Reflects attacker origin
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    return response
+
+# SECURE — explicit allowlist
+ALLOWED_ORIGINS = {"https://app.example.com", "https://staging.example.com"}
+
+@app.after_request
+def add_cors(response):
+    origin = request.headers.get("Origin")
+    if origin in ALLOWED_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Vary"] = "Origin"
+    return response
+```
+
+**AI Mistake Pattern:** AI generates permissive CORS by default — `cors(origin: "*")`, `CORS(app, resources={r"/*": {"origins": "*"}})`, or origin reflection. Always verify CORS configuration matches the deployment's actual cross-origin requirements.
+
+> **Cross-reference:** §5.3.5 (CSRF in blind spots table)
+
+### 5.7.5 Error Handling & Information Disclosure
+
+**Applies To:** All applications. Covers the **fail-closed pattern**, **information disclosure**, and **stack trace leakage**. Addresses OWASP A10:2025 (Mishandling of Exceptional Conditions — new entry).
+
+**Fail-Closed Principle:**
+Security decisions must **deny on error**, never grant. If an authorization check throws an exception, the request is denied — not allowed through. The fail-closed pattern ensures that unexpected states result in the most restrictive outcome.
+
+**Fail-Open vs. Fail-Closed (Python):**
+```python
+# FAIL-OPEN (VULNERABLE) — exception grants access
+def is_authorized(user, resource):
+    try:
+        return permission_service.check(user, resource)
+    except Exception:
+        return True  # "Let them through if something breaks"
+
+# FAIL-CLOSED (SECURE) — exception denies access
+def is_authorized(user, resource):
+    try:
+        return permission_service.check(user, resource)
+    except Exception:
+        logger.error("Authorization check failed", exc_info=True)
+        return False  # Deny on error
+```
+
+**Information Disclosure Checklist:**
+- [ ] **Stack traces** not exposed in production responses (configure framework's debug mode OFF)
+- [ ] **Database errors** not returned to client (no SQL syntax, table names, or column names)
+- [ ] **Server version headers** removed or generic (`Server`, `X-Powered-By`)
+- [ ] **Debug endpoints** disabled in production (`/debug`, `/phpinfo`, `/__debug__`)
+- [ ] **Account enumeration** prevented — login, registration, and password reset return identical responses for existing vs. non-existing accounts
+- [ ] **Source maps** not served in production (`.map` files)
+- [ ] **Health check endpoints** do not expose internal system details (versions, configs, connection strings)
+- [ ] **API error responses** use opaque error codes, not internal exception messages
+
+**Production Error Response Pattern:**
+```json
+{
+  "error": "An unexpected error occurred",
+  "code": "INTERNAL_ERROR",
+  "correlation_id": "req-a1b2c3d4"
+}
+```
+Log the full error with stack trace server-side, keyed by `correlation_id`. Return only the opaque response to the client. This enables debugging without exposing internals.
+
+> **Cross-reference:** §5.3.5 (error messages in blind spots table)
+
+### 5.7.6 Cryptography Implementation
+
+**Applies To:** Any application handling encryption, hashing, or TLS. Covers **cryptography best practices**, **password hashing**, and **constant-time comparison**.
+
+**Algorithm Selection Table:**
+
+| Purpose | Recommended Algorithm | Avoid |
+|---------|----------------------|-------|
+| Password hashing | bcrypt (cost ≥12) or Argon2id | MD5, SHA-1, SHA-256 (without salt/iteration) |
+| Data integrity / checksums | SHA-256 or SHA-3 | MD5, SHA-1 |
+| Symmetric encryption | AES-256-GCM | AES-ECB, DES, 3DES, RC4 |
+| Asymmetric encryption | RSA-2048+ or Ed25519 | RSA-1024, DSA |
+| Cryptographic random | `secrets` module (Python), `crypto.randomBytes` (Node.js) | `random`, `Math.random()` |
+| Message authentication | HMAC-SHA256 | Custom MAC constructions |
+
+**Key Management Checklist:**
+- [ ] **No hardcoded keys or secrets** in source code (use environment variables or secret managers)
+- [ ] Key **rotation plan** exists — keys can be rotated without downtime
+- [ ] **Encrypt-then-MAC** (or use authenticated encryption like AES-GCM which combines both)
+- [ ] **Timing-safe comparison** for all secret comparisons (see below)
+- [ ] **No custom cryptography** — use established libraries (cryptography, libsodium, Web Crypto API)
+- [ ] Keys have **appropriate bit lengths** — RSA ≥2048, AES ≥256, HMAC key ≥ hash output size
+
+**TLS Checklist:**
+- [ ] TLS 1.2 minimum, TLS 1.3 preferred
+- [ ] Strong cipher suites only (no NULL, RC4, DES, export ciphers)
+- [ ] `verify=False` / `NODE_TLS_REJECT_UNAUTHORIZED=0` **never used in production**
+- [ ] HSTS header configured (see §5.7.3)
+- [ ] Certificate pinning considered for mobile apps
+
+**Timing-Safe Comparison (Python):**
+```python
+import hmac
+
+# VULNERABLE — string comparison leaks length via timing
+if user_token == stored_token:  # Short-circuits on first difference
+    grant_access()
+
+# SECURE — constant-time comparison
+if hmac.compare_digest(user_token.encode(), stored_token.encode()):
+    grant_access()
+```
+
+> **Cross-reference:** §5.3.5 (crypto and random values in blind spots table), §5.3.2 (data protection checklist)
+
+---
+
+## Part 5.8: Domain-Specific Security Review
+
+**Implements:** Q2 (Security-First Development)
+**Applies To:** Security reviews targeting specific technology stacks
+
+### 5.8.1 Purpose
+
+Provide **language-specific**, **API**, **data protection**, and **container security** patterns for targeted security reviews. Use this Part during **security audits** or **code review** in specific technology domains.
+
+### 5.8.2 Language-Specific Security Patterns
+
+**Applies To:** Code review of Python, JavaScript/TypeScript, Go, or Rust codebases. Covers **language security patterns**, **prototype pollution**, **Python deserialization**, and **ReDoS prevention**.
+
+**Python Security Patterns:**
+
+| Vulnerability | Dangerous Pattern | Secure Alternative |
+|--------------|-------------------|-------------------|
+| Deserialization | `pickle.loads(user_data)` | `json.loads()` or schema-validated deserialization |
+| Code execution | `eval()`, `exec()`, `compile()` with user input | AST-based parsing, restricted evaluation |
+| Command injection | `subprocess.run(cmd, shell=True)` | `subprocess.run([cmd, arg1, arg2], shell=False)` |
+| YAML deserialization | `yaml.load(data)` | `yaml.safe_load(data)` |
+| Path traversal | `open(base_dir + user_path)` | `pathlib.Path(base_dir).joinpath(user_path).resolve()` + prefix check |
+| XML attacks (XXE, billion laughs) | `xml.etree.ElementTree` | `defusedxml` library |
+| ReDoS | Complex regex with nested quantifiers | Limit input length, use `re2` or timeout |
+| Archive traversal | `tarfile.extractall()` | Filter members, check paths with `tarfile.data_filter` (Python 3.12+) |
+
+**JavaScript/TypeScript Security Patterns:**
+
+| Vulnerability | Dangerous Pattern | Secure Alternative |
+|--------------|-------------------|-------------------|
+| Prototype pollution | `merge(target, userInput)` deep merge | `Object.freeze()`, schema validation, `Object.create(null)` |
+| ReDoS | `/^(a+)+$/` with attacker input | Use `re2` bindings, limit input length, use non-backtracking patterns |
+| XSS via DOM | `element.innerHTML = userInput` | `element.textContent`, DOMPurify for HTML |
+| Code execution | `eval()`, `new Function()`, `setTimeout(string)` | JSON.parse for data, explicit function references |
+| Dependency confusion | Private package names not scoped | Use `@org/package` scoped packages, configure `.npmrc` with registry scoping |
+| Path traversal | `path.join(base, userInput)` | `path.resolve()` + `startsWith(base)` check |
+
+**Go Security Patterns:**
+
+| Vulnerability | Dangerous Pattern | Secure Alternative |
+|--------------|-------------------|-------------------|
+| Race conditions | Shared state without synchronization | `go test -race`, `sync.Mutex`, channels |
+| Missing timeouts | `http.Get(url)` (no timeout) | `http.Client{Timeout: 10 * time.Second}` |
+| Integer overflow | Unchecked arithmetic on user input | `math.MaxInt` bounds checks, `math/big` for arbitrary precision |
+| Template injection | `template.HTML(userInput)` | `html/template` with auto-escaping (default) |
+| Resource leaks | `resp, _ := http.Get(url)` | Always `defer resp.Body.Close()` after nil check |
+
+**Rust Security Patterns:**
+
+| Vulnerability | Dangerous Pattern | Secure Alternative |
+|--------------|-------------------|-------------------|
+| Unsafe memory | `unsafe { }` blocks | Minimize `unsafe`, audit every block, use `cargo-audit` |
+| FFI validation | Trusting C data across FFI boundary | Validate all data received from FFI calls |
+| Panics in production | `.unwrap()` on user-controlled data | `.map_err()`, `?` operator, custom error types |
+| Unchecked arithmetic | Integer overflow in release mode | `.checked_add()`, `.saturating_add()`, `#[overflow-checks]` |
+
+> **Cross-reference:** §5.3.5 (CWE watch list), §5.6.2 (credentials management)
+
+### 5.8.3 API Security Patterns
+
+**Applies To:** REST APIs, GraphQL endpoints, WebSocket connections. Covers **API rate limiting**, **GraphQL security**, **WebSocket authentication**, and **query depth limiting**.
+
+**Rate Limiting Checklist:**
+- [ ] Rate limits applied **per authenticated user**, not just per IP (IP-based is bypassable via proxies)
+- [ ] **Authentication endpoints** have separate, stricter rate limits (brute force defense)
+- [ ] Rate limit headers returned: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`
+- [ ] **Sliding window** algorithm preferred over fixed window (prevents burst at window boundaries)
+- [ ] Rate limiting applied **before** expensive operations (database queries, external API calls)
+- [ ] Different tiers for different operations (read vs. write, search vs. CRUD)
+- [ ] `429 Too Many Requests` response includes `Retry-After` header
+
+**GraphQL Security Checklist:**
+- [ ] **Query depth limiting** — reject queries exceeding maximum depth (default: 10)
+- [ ] **Query complexity analysis** — assign cost per field, reject queries exceeding budget
+- [ ] **Introspection disabled** in production (`__schema`, `__type` queries)
+- [ ] **Field-level authorization** — not just endpoint-level; check permissions per resolver
+- [ ] **Batching limits** — restrict number of queries per batch request
+- [ ] **Persisted queries** preferred — clients send query ID, not arbitrary query strings
+- [ ] **Timeout enforcement** — kill long-running queries
+
+**WebSocket Security Checklist:**
+- [ ] **Origin validation** — verify `Origin` header matches allowed origins
+- [ ] **Authentication at connection time** — authenticate during upgrade, not after
+- [ ] **Message size limits** — prevent memory exhaustion from oversized messages
+- [ ] **Message rate limits** — prevent flooding attacks
+- [ ] **Connection timeout** — idle connections closed after configurable period
+- [ ] **Authorization per message** — validate permissions for each message type, not just at connect
+
+**API Versioning Security:**
+- [ ] API versions have explicit **end-of-life dates** documented
+- [ ] Security patches **backported** to all supported versions
+- [ ] Version-scoped API keys — keys tied to specific API version for deprecation tracking
+- [ ] Deprecated versions return warning headers before EOL
+
+> **Cross-reference:** §5.3.5 (rate limiting in blind spots table), §5.6.4 (OWASP cross-reference)
+
+### 5.8.4 Data Protection & Privacy
+
+**Applies To:** Applications handling personal data or subject to privacy regulations. Covers **data classification**, **PII in logs**, **analytics pixel leakage**, and **data sensitivity tiers**.
+
+**Data Sensitivity Tiers:**
+
+| Tier | Examples | Handling Requirements |
+|------|----------|----------------------|
+| **Critical** | Passwords, encryption keys, payment card numbers, SSN | Encrypted at rest + in transit, access-logged, never cached, never logged, retention minimized |
+| **High** | Email, phone, medical records, financial data | Encrypted at rest + in transit, access-controlled, masked in logs, retention policy enforced |
+| **Medium** | Name, address, purchase history, preferences | Encrypted in transit, access-controlled, pseudonymized where possible |
+| **Low** | Public profile data, aggregated statistics | Standard access controls, no special handling required |
+
+**PII Protection Checklist:**
+- [ ] PII **masked or excluded** from application logs (no emails, names, addresses in log output)
+- [ ] PII **never appears** in URLs (query parameters are logged by web servers, proxies, browsers)
+- [ ] PII **excluded** from error reports sent to external services (Sentry, Datadog, etc.)
+- [ ] Data **retention policy** defined and enforced — data not kept longer than needed
+- [ ] **Right-to-delete** implemented — user data can be fully purged on request
+- [ ] **Audit logging** for all access to Critical and High tier data
+- [ ] PII **not stored** in client-side storage (localStorage, sessionStorage) without encryption
+- [ ] Database queries for PII use **minimal field selection** — don't `SELECT *` when only name is needed
+
+**Analytics & Third-Party Pixel Leakage:**
+Third-party scripts (analytics, marketing pixels, chat widgets) can inadvertently receive PII through page URLs, form data, or referrer headers.
+
+- [ ] Third-party scripts **audited** for data collection — understand what each script captures
+- [ ] Consent management implemented where required (GDPR, CCPA)
+- [ ] `Referrer-Policy` header prevents URL leakage to third parties (see §5.7.3)
+- [ ] Server-side analytics preferred over client-side when PII is present on page
+- [ ] Form fields containing PII use `autocomplete="off"` where appropriate
+
+**Case study:** Blue Shield of California (2025) — misconfigured Google Analytics shared protected health information of 4.7 million members with Google Ads for nearly 3 years. Root cause: analytics tracking code placed on pages containing member health data without data layer filtering.
+
+> **Cross-reference:** §5.3.2 (data protection checklist), §5.7.3 (Referrer-Policy)
+
+### 5.8.5 Container Security
+
+**Applies To:** Any project using **Docker containers**. Covers **container security checklist**, **Docker image hardening**, and **secrets in layers**.
+
+**Docker Security Checklist:**
+- [ ] Container runs as **non-root user** (`USER` directive in Dockerfile)
+- [ ] Base image pinned to **specific digest** (not just tag) for reproducibility
+- [ ] **No secrets in image layers** — secrets passed at runtime via environment or mounted volumes (see example below)
+- [ ] **Multi-stage build** used — build tools not present in final image
+- [ ] Filesystem set to **read-only** where possible (`--read-only` flag)
+- [ ] Capabilities dropped: `--cap-drop ALL`, add back only what's needed
+- [ ] `HEALTHCHECK` instruction defined
+- [ ] Minimal base image used (`-slim`, `-alpine`, or distroless)
+- [ ] `COPY` preferred over `ADD` (ADD auto-extracts archives and supports URLs — unnecessary attack surface)
+
+**Secrets in Layers — Vulnerable vs. Secure:**
+```dockerfile
+# VULNERABLE — .env file baked into image layer (visible with docker history)
+COPY .env /app/.env
+RUN source /app/.env && ./setup.sh
+RUN rm /app/.env  # Still visible in earlier layer!
+
+# SECURE — multi-stage build, secrets only in build stage (not in final image)
+FROM python:3.12-slim AS builder
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+FROM python:3.12-slim
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY src/ /app/src/
+USER nobody
+# Secrets injected at runtime: docker run -e SECRET_KEY=... or --env-file
+```
+
+**.dockerignore Requirements:**
+```
+.env
+.env.*
+.git
+*.pem
+*.key
+**/credentials*
+**/secrets*
+tests/
+```
+
+**Image Scanning:**
+- [ ] Container image scanned in CI with **Trivy**, **Grype**, or **Snyk Container**
+- [ ] **Zero CRITICAL/HIGH** vulnerabilities as deployment gate (align with §5.3.1)
+- [ ] Base image update schedule defined (monthly minimum for security patches)
+- [ ] Scanning runs on **every build**, not just releases
+
+> **Cross-reference:** §9.2 (Docker Distribution), §9.2.3 (security hardening), §5.3.3 (scanning)
 
 ---
 
@@ -4582,6 +5003,7 @@ When the context engine is available, project-specific instructions could be sem
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.9.0 | 2026-02-08 | **Application Security & Review Procedures:** (1) Added §5.7 Application Security Patterns (new Part): §5.7.1 purpose implementing Q2; §5.7.2 Authentication & Session Security — OAuth 2.0/OIDC checklist (PKCE, state, redirect URI, code single-use, nonce, ID token validation), JWT security checklist (algorithm whitelist, expiry, audience/issuer, no localStorage, refresh rotation) with vulnerable vs. secure code example, session management checklist (regeneration, idle/absolute timeout, server-side invalidation), cookie security attributes table (HttpOnly, Secure, SameSite, `__Host-` prefix); §5.7.3 HTTP Security Headers — reference table (CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, COOP, CORP), CSP nonce-based guidance, AI-specific note on missing headers; §5.7.4 CORS Configuration — security checklist, vulnerable vs. secure origin validation code example, AI mistake pattern note; §5.7.5 Error Handling & Information Disclosure — fail-closed principle with code example, information disclosure checklist (8 items), production error response pattern with correlation ID (OWASP A10:2025); §5.7.6 Cryptography Implementation — algorithm selection table (6 categories), key management checklist, TLS checklist, timing-safe comparison example. (2) Added §5.8 Domain-Specific Security Review (new Part): §5.8.1 purpose; §5.8.2 Language-Specific Security Patterns — Python table (8 vulnerabilities: pickle, eval, subprocess, yaml, tarfile, XML, ReDoS, path traversal), JavaScript/TypeScript table (6: prototype pollution, ReDoS, innerHTML, eval, dependency confusion, path traversal), Go table (5: race conditions, timeouts, integer overflow, template injection, resource leaks), Rust table (4: unsafe blocks, FFI, unwrap, unchecked arithmetic); §5.8.3 API Security Patterns — rate limiting checklist (7 items: per-user, auth endpoint limits, sliding window), GraphQL security checklist (7 items: depth limiting, complexity analysis, introspection disabled, field-level authz, batching, persisted queries), WebSocket security checklist (6 items), API versioning security; §5.8.4 Data Protection & Privacy — data sensitivity tiers table (Critical/High/Medium/Low), PII protection checklist (8 items), analytics pixel leakage with Blue Shield of California case study (4.7M members, 2025); §5.8.5 Container Security — Docker security checklist (9 items), secrets in layers vulnerable vs. secure Dockerfile example, .dockerignore requirements, image scanning. (3) Added 2 Situation Index rows: security review (application) → §5.7, security review (by technology) → §5.8. Research basis: OWASP Top 10 2025, OWASP API Security Top 10, ASVS v5, 2025-2026 breach analysis. |
 | 2.8.0 | 2026-02-08 | **Vibe-Coding Security Best Practices:** (1) Added §5.3.5 AI-Generated Code Security Patterns: AI security blind spots table, CWE watch list (10 CWEs from Georgetown CSET/ACM TOSEM/OWASP), phantom API detection, security-conscious specification example, AI-specific code review checklist. (2) Added §5.3.6 Backend-as-a-Service Security: default configuration trap (Moltbook breach case study), Supabase checklist (9 items), Firebase checklist (6 items), environment variable exposure prevention (5 items), pre-deployment BaaS verification procedure. (3) Added §5.4.5 Slopsquatting Defense: attack mechanics, transient execution environments, package provenance verification table, SCA integration. (4) Added §5.6 AI Coding Tool Security: §5.6.1 coding tool injection defense (5 attack patterns including MCP tool poisoning/shadowing with CVEs, defense checklist), §5.6.2 credential isolation and secrets management (pre-commit hooks, CI scanning, secrets sprawl statistics), §5.6.3 destructive action prevention (Replit incident, 5 prevention rules), §5.6.4 OWASP security framework cross-reference (LLM Top 10 2025, Agentic Top 10 2026, SHIELD framework). (5) Updated §5.3.2 with BaaS checklist items. (6) Updated §5.4.3 with slopsquatting cross-reference. (7) Updated principle-to-title mapping: Workflow Integrity → Title 5 + Title 8 with explanatory note. (8) Added Title 8 cross-reference to §5.6. Research basis: Stanford 2022 (false confidence), Georgetown CSET (CWE failure rates), ACM TOSEM 2025 (Copilot vulnerabilities), Moltbook breach (Jan 2026), MCPTox 2025 (tool shadowing), OWASP Agentic Top 10 2026. |
 | 2.7.1 | 2026-02-07 | PATCH: Added advisory quick coherence check step to §7.6.2 Session Start Procedure (step 5). References meta-methods Part 4.3.2 for documentation drift detection. |
 | 2.7.0 | 2026-02-08 | **Memory Architecture Refinement (Learning Log + Project Memory + Session State + Source Documents):** **Learning Log:** (1) Tightened §7.3.1 Purpose with Future Action Test and "conclusions, not evidence" constraint. (2) Simplified §7.3.3 template: replaced 4 sections (Lessons Learned, Patterns That Worked, Patterns That Failed, Technical Discoveries) with 2 (Active Lessons, Graduated Patterns). Added entry rules blockquote, entry quality standard, and calibration example. (3) Updated §7.3.4 with explicit removal criteria (obsolete, graduated, captured elsewhere, fails Future Action Test). (4) Enhanced §7.0.4 distillation triggers: 200-line quality review trigger (not hard ceiling), distillation-time dedup check, "retain if still relevant" option for 6-month trigger. (5) Updated all 4 template surfaces (§7.3.3, quick-start, §7.8.3 stub, LEARNING-LOG.md header) for consistency. Root cause: Learning Log grew to 2,429 lines due to insufficient content standards and obsolescence criteria. **Project Memory:** (1) Added Decision Significance Test to §7.2.1: "A decision belongs in Project Memory if a future session would need to know it to make a correct choice." Routes implementation details to ARCHITECTURE.md. (2) Simplified §7.2.2 templates: replaced verbose per-decision format with condensed table for both decisions and gotchas. Updated Cold Start Kit template to match. (3) Updated §7.0.4 distillation trigger to reference Decision Significance Test. (4) Applied to PROJECT-MEMORY.md: removed 2 implementation-detail entries (PDF Resource Leak Fix, MAX_IMAGE_PIXELS), merged Completed Consolidations into Future Considerations with strikethrough. **Session State:** (1) Added Working Memory Relevance Test to §7.1.1: "An item belongs in Session State if the next session needs it to orient and resume work correctly." (2) Added optional Quick Reference and Links sections to §7.1.2 template for mature projects; Cold Start Kit stays minimal with comment pointer. (3) Added session log lifecycle guidance to §7.1.5: refresh at session start, route decisions/lessons before clearing. (4) Refined §7.0.4 distillation trigger to reference Working Memory Relevance Test with concrete removal examples. (5) Added SESSION-STATE row to §7.8.3 File Creation Notes. **Source Documents:** (1) Added Source Relevance Test to §7.5.1: "A fact belongs in a source document if removing it would cause someone to make a mistake when modifying the system." Complements Loader Content Test (§7.4.4) for source document content. Includes canonical-source guidance and replacement pointer obligation. (2) Added source documents distillation trigger to §7.0.4 (~500 lines review trigger) with Source Relevance Test reference. Added ARCHITECTURE.md to health check command. (3) Expanded §7.8.3 ARCHITECTURE.md file creation note with Source Relevance Test cross-reference. (4) Added README.md row to §7.8.3 File Creation Notes with charter/scope guidance and Source Relevance Test reference. |
