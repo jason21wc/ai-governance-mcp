@@ -1,7 +1,7 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.9.1
+**Version:** 3.9.2
 **Status:** Active
 **Effective Date:** 2026-02-08
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -826,7 +826,7 @@ Documentation drift occurs because:
 
 | # | Check | Test Applied | Severity if Failed |
 |---|-------|-------------|-------------------|
-| 1 | Does every fact belong in this file? | Source Relevance Test (ai-coding §7.5.1): compare each fact against the file's stated purpose and cognitive type | Misleading |
+| 1 | Does every fact belong in this file? | Source Relevance Test — a fact belongs if removing it would cause someone to make a mistake (see ai-coding §7.5.1 for full procedure): compare each fact against the file's stated purpose and cognitive type | Misleading |
 | 2 | Are runtime-derivable values hardcoded? | Volatile metric scan | Cosmetic → Misleading |
 | 3 | Does this file contradict any other file? | Cross-file consistency | Dangerous |
 | 4 | Does a methods template exist for this file type? | Template conformance: check ai-coding §7.8.3 (File Creation Notes) and Part 3.5 (Formatting Standards) for prescribed templates | Cosmetic |
@@ -881,7 +881,7 @@ Once drift is detected (§4.3.3), remediate by classifying the drifted content's
 
 #### Cross-References
 
-- Source Relevance Test (ai-coding §7.5.1) — determines *whether* content belongs; this section determines *how* to fix content that belongs but has drifted
+- Source Relevance Test — a fact belongs if removing it would cause someone to make a mistake (ai-coding §7.5.1 for full procedure) — determines *whether* content belongs; this section determines *how* to fix content that belongs but has drifted
 - Generic Check #2 (§4.3.3) — detects hardcoded volatile values; this section provides the fix strategy
 - Every pointer added during remediation becomes a future Generic Check #3 (cross-file consistency) checkpoint
 
@@ -2767,6 +2767,7 @@ Optimization priorities:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.9.2 | 2026-02-08 | PATCH: Inlined Source Relevance Test decision criterion into Generic Check #1 (§4.3.3) and §4.3.4 cross-reference — auditors can now execute the check without loading ai-coding methods. Architectural decision: cross-level method references are valid; elevation of ai-coding §7.5.1 and §7.8.3 to meta-methods not warranted (see PROJECT-MEMORY.md ADR-11). Updated coherence-auditor subagent to match. |
 | 3.9.1 | 2026-02-08 | PATCH: Coherence audit remediation. Disambiguated cross-document §7.5.1 and §7.8.3 references in Generic Checks table (§4.3.3) and cross-references (§4.3.4) — added document qualifiers pointing to ai-coding methods. Moved orphaned v3.7.0.1 entry into version history table; reconstructed missing v3.7.0 row from git history. Updated Appendix G model names (Opus 4.6, Sonnet 4.5, Haiku 4.5). Scoped Information Currency disclaimer per-appendix. Updated coherence-auditor subagent §7.8.3 reference. |
 | 3.9.0 | 2026-02-08 | MINOR: Added §4.3.4 (Drift Remediation Patterns) to Part 4.3 Documentation Coherence Audit. Provides content-purpose classification (pedagogical/operational/historical) with per-type remediation strategies for fixing coherence findings without re-introducing future drift. Renumbered previous §4.3.4 Validation Protocol to §4.3.5. Added Situation Index entry. |
 | 3.8.0 | 2026-02-07 | MINOR: Added Part 4.3 (Documentation Coherence Audit) with sections 4.3.1-4.3.4 covering purpose, trigger conditions (Quick/Full tiers), per-file review protocol (5 generic checks, drift severity classification, file-type-specific checks), and validation protocol. Operationalizes existing constitution principles (Context Engineering, Single Source of Truth, Periodic Re-evaluation) into executable procedure. Added 3 Situation Index entries (documents may have drifted, preparing a release, starting a new session). |

@@ -192,6 +192,15 @@ Expanded context for the most significant decisions. The condensed tables above 
 - **Decision:** AMD64-only images. Apple Silicon runs via Rosetta 2 translation.
 - **Consequences:** (+) CI builds complete in reasonable time, (+) Rosetta 2 performance acceptable for stdio MCP, (-) no native ARM64 images, (-) ARM Linux servers can't run the image.
 
+### ADR-11: Cross-Level Method References Are Valid (No Elevation)
+- **Status:** Accepted (2026-02-08)
+- **Context:** Meta-methods Part 4.3.3 Generic Checks #1 and #4 reference ai-coding methods (§7.5.1 Source Relevance Test, §7.8.3 File Creation Notes). v3.9.1 disambiguated with document qualifiers. Question: should these domain procedures be elevated to meta-methods since they serve a framework-level audit?
+- **Decision:** Do not elevate. Cross-level references from meta-methods to domain-methods are architecturally valid per §9.7.5. Instead, inline the core decision criterion ("a fact belongs if removing it would cause someone to make a mistake") into the Generic Check #1 table cell, keeping the full procedure in ai-coding.
+- **Rationale:** (1) §8.2 classifies these as Level 4 methods, not framework principles — classification doesn't distinguish meta-methods vs domain-methods. (2) §7.5.1 core is domain-agnostic but its framing uses ai-coding concepts (CoALA, pyproject.toml, §7.4.4). (3) Partial elevation (§7.5.1 yes, §7.8.3 no) creates worse asymmetry — auditor still needs ai-coding methods for Check #4. (4) No evidence of practical failure from cross-references. (5) v3.9.1 already solved the ambiguity problem.
+- **Consequences:** (+) No content duplication, no drift risk, (+) auditors have decision criterion inline for Check #1, (+) clear precedent for future cross-level references, (-) auditors must load ai-coding methods for full §7.5.1 procedure and Check #4 templates.
+- **TITLE 8 gap identified:** Framework lacks explicit criteria for when cross-level method references warrant elevation vs. when they're appropriate as-is. Deferred — current cross-references are sufficient.
+- **Review agents:** 4 exploration agents (source text, meta-methods structure, TITLE 8 rules), contrarian reviewer (PROCEED WITH CAUTION toward lightest-touch), validator (PASS 7/7 criteria).
+
 ### ADR-10: Platform-Native Memory as Pointer Only
 - **Status:** Accepted (2026-02-07)
 - **Context:** Claude Code's auto memory (`MEMORY.md`) duplicated facts from SESSION-STATE, PROJECT-MEMORY, and LEARNING-LOG, violating Single Source of Truth. Stale facts in auto memory anchored AI understanding before it read framework files.

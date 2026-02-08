@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation
 - **Mode:** Standard
-- **Active Task:** Meta-Methods v3.9.1
+- **Active Task:** Meta-Methods v3.9.2
 - **Blocker:** None
 
 ## Quick Reference
@@ -21,7 +21,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v3.9.1** (meta-methods), **v2.9.0** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
+| Content | **v2.4** (Constitution), **v3.9.2** (meta-methods), **v2.9.0** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
 | Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -32,7 +32,13 @@
 
 ## Completed This Session (2026-02-08)
 
-### 1. Meta-Methods v3.9.1 — Coherence Audit Remediation
+### 1. Meta-Methods v3.9.2 — Cross-Level Reference Architecture Decision
+
+PATCH: Inlined Source Relevance Test decision criterion into Generic Check #1 (§4.3.3) and §4.3.4 cross-reference. Architectural decision (ADR-11): cross-level method references from meta-methods to domain-methods are architecturally valid; elevation of ai-coding §7.5.1 and §7.8.3 not warranted. Updated coherence-auditor subagent to match.
+
+**Analysis:** Full research (4 exploration agents), contrarian review (PROCEED WITH CAUTION toward lightest-touch), validator (PASS 7/7). §7.5.1 is domain-agnostic in core but ai-coding-specific in framing (CoALA, pyproject.toml). §7.8.3 is tied to ai-coding templates. Partial elevation creates worse asymmetry. §8.2/8.3 classification doesn't support elevation. TITLE 8 gap identified: no explicit criteria for when cross-level references warrant elevation.
+
+### 2. Meta-Methods v3.9.1 — Coherence Audit Remediation
 
 PATCH: Full-tier coherence audit remediation. Disambiguated cross-document §7.5.1 and §7.8.3 references in Generic Checks table (§4.3.3) and cross-references (§4.3.4) — added document qualifiers pointing to ai-coding methods. Moved orphaned v3.7.0.1 entry into version history table; reconstructed missing v3.7.0 row from git history. Updated Appendix G model names (Opus 4.6, Sonnet 4.5, Haiku 4.5). Scoped Information Currency disclaimer per-appendix. Updated coherence-auditor subagent §7.8.3 reference.
 

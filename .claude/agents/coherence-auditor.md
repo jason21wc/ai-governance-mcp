@@ -75,7 +75,7 @@ For each document in scope, apply all 5 generic checks from Part 4.3.3:
 
 | # | Check | How to Verify |
 |---|-------|---------------|
-| 1 | Does every fact belong in this file? | Compare against file's stated purpose and cognitive type |
+| 1 | Does every fact belong in this file? | A fact belongs if removing it would cause someone to make a mistake (see ai-coding §7.5.1 for full procedure). Compare against file's stated purpose and cognitive type |
 | 2 | Are runtime-derivable values hardcoded? | Look for test counts, coverage %, line counts, version numbers that should be derived |
 | 3 | Does this file contradict any other file? | Cross-reference claims against other documents |
 | 4 | Does a methods template exist for this file type? | Check ai-coding §7.8.3 (File Creation Notes) and Part 3.5 (Formatting Standards) for prescribed templates |
