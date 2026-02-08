@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.10.0
+**Version:** 2.11.0
 **Status:** Active
-**Effective Date:** 2026-01-24
+**Effective Date:** 2026-02-08
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -663,7 +663,7 @@ IMPORTANT
 
 **Source:** Claude Code subagent documentation, Anthropic multi-agent research
 
-**Principle Basis:** Derives from Orchestrator Separation Pattern (A3) and Context Isolation Architecture (A4).
+**Principle Basis:** Derives from Orchestrator Separation Pattern (A3) and Context Isolation Architecture (A2).
 
 **Default Behavior:** If `tools` field is omitted, agent inherits ALL tools from parent context.
 
@@ -722,7 +722,7 @@ IMPORTANT
 - [ ] **Name** follows convention: lowercase, hyphens, descriptive
 - [ ] **Description** includes WHEN to invoke (concrete triggers, not abstract)
 - [ ] **Tools** explicitly listed OR inheritance intentional
-- [ ] **System prompt** includes all 5 required sections (Who I Am, Cognitive Function, Who I Am NOT, Output Format, Success Criteria)
+- [ ] **System prompt** includes all 6 required sections (Who I Am, Cognitive Function, Who I Am NOT, Governance Compliance, Output Format, Success Criteria)
 - [ ] **Examples** included (at least 1 positive, 1 negative/edge case)
 - [ ] **Critical instructions** repeated at end (sandwich method)
 
@@ -858,7 +858,7 @@ IMPORTANT
 
 **Source:** Anthropic model research, arXiv "Prompting Inversion" (2025), practitioner observations (@EXM7777)
 
-**Principle Basis:** Derives from Constitution's Explicit Intent—adapt communication to audience capability.
+**Principle Basis:** Derives from Constitution's Explicit Over Implicit—adapt communication to audience capability.
 
 **Applies To:** Claude Sonnet 4.5+, GPT-4o+, and other advanced reasoning models. For mid-tier models, default to standard Best Practices in §2.1.1.
 
@@ -2553,7 +2553,7 @@ Every `evaluate_governance()` call generates an audit record:
   "timestamp": "2026-01-01T10:30:00Z",
   "action": "Implementing config generator module",
   "assessment": "PROCEED",
-  "principles_consulted": ["coding-context-specification-completeness", "coding-quality-security-by-default"],
+  "principles_consulted": ["coding-context-specification-completeness", "coding-quality-security-first-development"],
   "s_series_triggered": false,
   "modifications": null,
   "escalation_reason": null
@@ -3698,7 +3698,7 @@ OPTIONAL — Load when using Gemini CLI
 ### Installation
 
 ```bash
-npm install -g @anthropic-ai/gemini-cli
+npm install -g @google/gemini-cli
 # or
 brew install gemini-cli
 ```
@@ -3765,11 +3765,14 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.11.0 | 2026-02-08 | MINOR: Coherence audit remediation. (1) Fixed A-Series ID conflict: §2.1.2 Context Isolation Architecture A4→A2 (matching 3 other references). (2) Updated validation checklist from "5 required sections" to "6 required sections" (adding Governance Compliance per v2.7.0). (3) Fixed Effective Date (2026-01-24→2026-02-08). (4) Fixed phantom principle name: "Explicit Intent"→"Explicit Over Implicit". (5) Fixed npm scope: @anthropic-ai/gemini-cli→@google/gemini-cli. (6) Moved orphaned v2.10.0.1 into version history table. (7) Fixed version history date (v2.5.0: 2026-01-05→2026-01-04 per git history). |
+| v2.10.1 | 2026-02-08 | PATCH: Coherence audit cascade fix. Corrected principle ID in §4.5 audit record example (line 2556): `coding-quality-security-by-default` → `coding-quality-security-first-development` per ai-coding-domain-principles v2.3.1 canonical ID. |
+| v2.10.0.1 | 2026-02-01 | PATCH: Replaced "significant action" with skip-list model per v1.7.0 operational change. |
 | v2.10.0 | 2026-01-24 | **Task Management & Dependency Tracking.** Added: Appendix A Claude Code Task Management System (TaskCreate, TaskUpdate, TaskList, TaskGet tools with states and dependency tracking), Multi-Agent Swarm Infrastructure (emerging/feature-flagged TeammateTool awareness). Enhanced: §3.3 Dependency Declaration patterns (blockedBy/blocks relationships, Pipeline/Fan-Out/Fan-In patterns), §3.5 Task Ownership Protocol (claim-before-work, atomic progress, session resume reassignment). Sources: Claude Code v2.1.16 release notes, Anthropic Agent SDK documentation, community implementations (claude-flow, Piebald-AI system prompt extraction). |
 | v2.8.0 | 2026-01-17 | **Evaluation Methods Enhancement.** Added: §4.7.1 Grader Types (Code-Based, Model-Based, Human — selection guidance, strengths/weaknesses), §4.7.2 Non-Determinism Measurement (pass@k for capability testing, pass^k for reliability — formulas and target thresholds), §4.7.3 Capability vs Regression Evals (when to use each, metrics differences, workflow integration), §4.7.4 Grader Design Principles (grade outcomes not paths, partial credit, multi-shot grading). Source: Anthropic Engineering "Demystifying Evals for AI Agents" (2025). Fills gap: existing 4-layer framework lacked specific grader implementation guidance. |
 | v2.7.0 | 2026-01-05 | **Governance Compliance Section.** Added: Governance Compliance as 6th required section in Subagent Definition Standard (§2.1). All subagent system prompts must now include governance framework alignment: S-Series veto authority, Constitution meta-principles, domain applicability, and uncertainty handling. Template updated with placeholder section. Addresses gap: subagents lacked explicit governance framework awareness, causing issues like Contrarian Reviewer "missing the point" by not following constitutional hierarchy. |
 | v2.6.0 | 2026-01-04 | **Artifact Type Selection.** Added: §1.1 Artifact Type Selection: Method vs. Subagent — decision framework for choosing between method (procedure for generalist) or subagent (dedicated agent with fresh context) when specialization is justified. Fresh context is primary signal; requires supporting factor (frequency, tool restrictions, cognitive isolation) to justify subagent overhead. Includes comparison table, decision tree, examples, and "when in doubt" guidance. Updates Situation Index. Addresses gap: existing principles covered Agent vs Generalist but not Method vs Subagent as artifact types. |
-| v2.5.0 | 2026-01-05 | **Production Operations Expansion.** Added 6 new sections from Google Cloud AI Agents guide analysis + 2025-2026 industry research validation. New sections: §3.4.1 Memory Distillation Procedure (AWS AgentCore 89-95% compression, Mem0 80% token reduction, Google Titans architecture), §3.7.1 Production Observability Patterns (IBM AgentOps, OpenTelemetry, session replay), §3.8 ReAct Loop Configuration (loop controls, termination triggers, runaway detection), §4.7 Agent Evaluation Framework (4-layer model: Component/Trajectory/Outcome/System, trajectory metrics), §4.8 Production Safety Guardrails (multi-layer defense, prompt injection, PII redaction, RBAC). Updated Situation Index with 7 new entries. Sources: Google Vertex AI Gen AI Evaluation Service, Confident AI, Dextra Labs Safety Playbook, Superagent Framework, OWASP 2025. |
+| v2.5.0 | 2026-01-04 | **Production Operations Expansion.** Added 6 new sections from Google Cloud AI Agents guide analysis + 2025-2026 industry research validation. New sections: §3.4.1 Memory Distillation Procedure (AWS AgentCore 89-95% compression, Mem0 80% token reduction, Google Titans architecture), §3.7.1 Production Observability Patterns (IBM AgentOps, OpenTelemetry, session replay), §3.8 ReAct Loop Configuration (loop controls, termination triggers, runaway detection), §4.7 Agent Evaluation Framework (4-layer model: Component/Trajectory/Outcome/System, trajectory metrics), §4.8 Production Safety Guardrails (multi-layer defense, prompt injection, PII redaction, RBAC). Updated Situation Index with 7 new entries. Sources: Google Vertex AI Gen AI Evaluation Service, Confident AI, Dextra Labs Safety Playbook, Superagent Framework, OWASP 2025. |
 | v2.4.0 | 2026-01-04 | **Agent Authoring Best Practices.** Added: §2.1.1 System Prompt Best Practices (positive framing, examples, sandwich method, concrete invocation triggers), §2.1.2 Tool Scoping Guidelines (when to restrict vs inherit, decision matrix), §2.1.3 Agent Validation Checklist (3-phase validation, iteration process, graduation criteria). Updated Situation Index with new sections. Source: Anthropic prompt engineering research, Claude Code subagent docs, skill authoring best practices. |
 | v2.3.0 | 2026-01-03 | **Gateway-Based Enforcement.** Added: §4.6.2 Gateway-Based Enforcement (Platform-Agnostic) — documents MCP Gateway pattern for platforms lacking subagent architecture. Covers: problem (Claude Code subagents are unique), solution (server-side enforcement via gateway/proxy), available solutions (Lasso, Envoy, IBM ContextForge), decision matrix (subagent vs gateway), instruction-based fallback for minimum viable enforcement. Key principle: "Architecture beats hope." |
 | v2.2.0 | 2026-01-02 | **Assessment Responsibility Layers.** Added: §4.6.1 Assessment Responsibility Layers — defines script vs AI layer responsibilities in governance assessment. Script handles: S-Series keyword detection (deterministic safety), principle retrieval, structured output. AI handles: principle conflict analysis, modification generation, nuanced judgment. Includes model capability considerations (Frontier/Mid-tier/Fast). Key principle: "Don't try to script nuanced judgment. Don't let AI override safety guardrails." |
@@ -3942,8 +3945,3 @@ When offering agent installation to users unfamiliar with the concept:
 **End of Document**
 
 [Tool-specific appendices may be extended as new CLI tools emerge]
-
----
-
-### v2.10.0.1 (2026-02-01)
-- Replaced "significant action" with skip-list model per v1.7.0 operational change

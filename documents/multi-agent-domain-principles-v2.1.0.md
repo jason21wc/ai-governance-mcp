@@ -1,4 +1,4 @@
-# Multi-Agent Domain Principles Framework v2.0.0
+# Multi-Agent Domain Principles Framework v2.1.0
 ## Federal Statutes for Multi-Agent AI System Orchestration
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -153,13 +153,19 @@ Multi-agent systems have specific failure modes that require dedicated preventio
 | **MA-C1** | Coordination | Conflicting Assumptions → Integration Failure | Parallel agents produce contradictory outputs; implicit decisions that conflict |
 | **MA-C2** | Coordination | Context Drift → Information Loss | Downstream asks questions already answered; context summaries missing critical constraints |
 | **MA-C3** | Coordination | Context Mismanagement → Degraded Outputs | Attention dilution (too much context) or hallucination (too little context) |
-| **MA-R1** | Reliability | Implicit Handoffs → Information Loss | Receiving agent asks clarifying questions sender already answered; natural language handoffs |
-| **MA-R2** | Reliability | Missing Deadlock Prevention → Agent Gridlock | Agent response time exceeds 2x normal; circular wait chains; no timeout configuration |
-| **MA-R3** | Reliability | Pattern Mismatch → Coordination Failure | Parallel agents wait for same resource; dependent tasks running in parallel |
-| **MA-R4** | Reliability | Token Explosion → Unsustainable Cost | >20x baseline token usage without proportional value improvement |
+| **MA-C4** | Coordination | Conflicting Writes → Incoherent Outputs | Parallel agents produce outputs that conflict; integration requires choosing between incompatible approaches |
+| **MA-R1** | Coordination | Implicit Handoffs → Information Loss | Receiving agent asks clarifying questions sender already answered; natural language handoffs |
+| **MA-R2** | Coordination | Missing Deadlock Prevention → Agent Gridlock | Agent response time exceeds 2x normal; circular wait chains; no timeout configuration |
+| **MA-R3** | Coordination | Pattern Mismatch → Coordination Failure | Parallel agents wait for same resource; dependent tasks running in parallel |
+| **MA-R4** | Coordination | Token Explosion → Unsustainable Cost | >20x baseline token usage without proportional value improvement |
+| **MA-R5** | Coordination | Session Discontinuity → Context Loss | New session repeats questions answered previously; agents lack awareness of prior decisions |
+| **MA-R6** | Coordination | Invisible Agent Status → Late Blocker Detection | Without visibility into agent progress, blockers discovered late; cascading delays |
+| **MA-R7** | Coordination | Gate Bypass → Rework Cascades | Validation gates skipped; downstream work based on unvalidated upstream outputs |
 | **MA-Q1** | Quality | Self-Validation Bias → False Quality Assurance | Validation pass rate >95% with no rework; validator and generator are same agent |
 | **MA-Q2** | Quality | Cascading Failures → System-Wide Corruption | Error in agent A appears in outputs of B, C, D; single failure causes multiple rework |
 | **MA-Q3** | Quality | Synthesis Degradation → Missing Findings | Final output missing subagent discoveries; compression discards critical information |
+| **MA-Q4** | Quality | Autonomous Consequential Decisions → Unchecked AI Authority | Workflow produces production actions without human approval; no escalation triggers |
+| **MA-Q5** | Quality | Silent Failures → Undetected Error Propagation | Agent errors ignored or hidden; corrupted outputs flow downstream without detection |
 
 ---
 
@@ -291,7 +297,7 @@ Each agent must be assigned a single cognitive function with clear domain bounda
 
 - Role Specialization & Topology: Specialized roles for distinct functions
 - Single Source of Truth: Each cognitive function has one authoritative agent
-- DRY (Don't Repeat Yourself): Avoid cognitive function duplication across agents
+- Role Specialization & Topology: Avoid cognitive function duplication across agents
 
 **Truth Sources**
 
@@ -435,7 +441,7 @@ Each specialized agent must operate in a completely independent context window w
 
 - Context Engineering: Load necessary information—implies NOT loading unnecessary information
 - Hybrid Interaction & RACI: Transitions maintain state—implies state is transferred explicitly, not leaked
-- Context Optimization: Minimize context consumption—implies isolation prevents bloat
+- Minimal Relevant Context: Minimize context consumption—implies isolation prevents bloat
 
 **Truth Sources**
 
@@ -497,7 +503,7 @@ A dedicated orchestrator agent manages workflow coordination, validation gates, 
 
 - Standardized Collaboration Protocols: Established protocols govern interaction
 - Role Specialization & Topology: Orchestration is a distinct function from execution
-- Documentation: Orchestrator maintains authoritative workflow state
+- Transparent Reasoning and Traceability: Orchestrator maintains authoritative workflow state
 
 **Truth Sources**
 
@@ -632,7 +638,7 @@ Agents must verify their outputs serve the original intent AND align with shared
 **Maturity:** [VALIDATED] — LangChain, Cognition with published architectural guidance
 
 **Failure Mode(s) Addressed:**
-- **MA-C1: Conflicting Writes → Incoherent Outputs** — Parallel agents making write decisions create conflicts that cannot be reconciled, causing integration failures.
+- **MA-C4: Conflicting Writes → Incoherent Outputs** — Parallel agents making write decisions create conflicts that cannot be reconciled, causing integration failures.
   - *Detect via:* Parallel agents produce outputs that conflict; integration requires choosing between incompatible approaches; no single agent had authority over contested decisions.
 
 **Why This Principle Matters**
@@ -729,7 +735,7 @@ Every inter-agent transfer must follow an explicit handoff protocol that include
 - Hybrid Interaction & RACI: Transitions maintain state and avoid rework
 - Standardized Collaboration Protocols: Structured contracts, not natural language; deadlock prevention required
 - Context Engineering: Load necessary information to prevent hallucination
-- Documentation: Capture decisions for future reference
+- Transparent Reasoning and Traceability: Capture decisions for future reference
 
 **Truth Sources**
 
@@ -791,7 +797,7 @@ Every inter-agent transfer must follow an explicit handoff protocol that include
 **Failure Mode(s) Addressed:**
 - **MA-R3: Pattern Mismatch → Coordination Failure** — Wrong orchestration pattern causes bottlenecks (over-serialization) or errors (inappropriate parallelization of dependent tasks).
   - *Detect via:* Parallel agents wait for same resource; sequential tasks that could run in parallel; agent starts before its dependency completes; orchestration pattern not documented in workflow design.
-- **MA-R4: Gate Bypass → Rework Cascades** — Skipping validation gates causes downstream work based on unvalidated upstream outputs.
+- **MA-R7: Gate Bypass → Rework Cascades** — Skipping validation gates causes downstream work based on unvalidated upstream outputs.
   - *Detect via:* Phase N+1 starts before Phase N validation completes; downstream agent receives input without validation status; failed upstream outputs consumed by downstream agents; no validation checkpoint between phases.
 
 **Why This Principle Matters**
@@ -818,7 +824,7 @@ Select orchestration pattern based on task characteristics: use sequential for d
 - Standardized Collaboration Protocols: Established protocols govern interaction
 - Discovery Before Commitment: Validate independence before parallel commitment
 - Risk Mitigation by Design: Prefer safer defaults (sequential)
-- Inversion of Control: Reason backward from goal to identify dependencies
+- Goal-First Dependency Mapping: Reason backward from goal to identify dependencies
 
 **Truth Sources**
 
@@ -903,7 +909,7 @@ START: Can task be parallelized?
 
 **Why This Principle Matters**
 
-Multi-agent systems amplify the stateless session problem. Individual agent context, orchestration state, delegation history, and cross-agent decisions all require persistence to maintain coherence across sessions. The constitutional principle Documentation requires capturing decisions for future reference; for multi-agent systems, this means comprehensive state management that enables any future session to reconstruct context and continue work.
+Multi-agent systems amplify the stateless session problem. Individual agent context, orchestration state, delegation history, and cross-agent decisions all require persistence to maintain coherence across sessions. The constitutional principle Transparent Reasoning and Traceability requires capturing decisions for future reference; for multi-agent systems, this means comprehensive state management that enables any future session to reconstruct context and continue work.
 
 **v2.0.0 Enhancement: Compression at Persistence**
 
@@ -915,7 +921,7 @@ Multi-agent workflow state must be persisted to structured files that survive se
 
 **Constitutional Basis**
 
-- Documentation: Capture decisions for future reference
+- Transparent Reasoning and Traceability: Capture decisions for future reference
 - Hybrid Interaction & RACI: Transitions maintain state—includes cross-session transitions
 - Context Engineering: Load necessary information—includes prior session context
 
@@ -984,7 +990,7 @@ Long-running agents must proactively broadcast status (current task, progress, b
 
 - Synchronization & Observability: Agents must implement heartbeat/standup mechanism
 - Blameless Error Reporting: Proactive reporting of blockers and issues
-- Fail-Fast Detection: Detect problems early through visibility
+- Fail-Fast Validation: Detect problems early through visibility
 
 **Truth Sources**
 
@@ -1052,9 +1058,9 @@ Validation must be performed by a dedicated agent separate from the agent that p
 **Constitutional Basis**
 
 - Verification Mechanisms: Validate outputs against requirements
-- Cognitive Function Specialization: Validation is a distinct cognitive function from generation
+- Role Specialization & Topology: Validation is a distinct cognitive function from generation
 - Blameless Error Reporting: Confidence scoring on critical outputs; accuracy over completion
-- Fail-Fast Detection: Flag low-confidence outputs for enhanced review
+- Fail-Fast Validation: Flag low-confidence outputs for enhanced review
 
 **Truth Sources**
 
@@ -1114,12 +1120,12 @@ Validation must be performed by a dedicated agent separate from the agent that p
 **Failure Mode(s) Addressed:**
 - **MA-Q2: Cascading Failures → System-Wide Corruption** — Failures in one agent propagate through the network, corrupting outputs across the entire multi-agent workflow.
   - *Detect via:* Error in agent A appears in outputs of agents B, C, D; single failure causes multiple downstream rework; no circuit breaker triggers despite clear failure; failure impact expands rather than isolates.
-- **MA-Q3: Silent Failures → Undetected Error Propagation** — Agent errors ignored or hidden, causing corrupted outputs to flow downstream without detection.
+- **MA-Q5: Silent Failures → Undetected Error Propagation** — Agent errors ignored or hidden, causing corrupted outputs to flow downstream without detection.
   - *Detect via:* Agent returns output despite encountering error condition; error logs empty despite observable failures; downstream agents receive corrupted input without warning; exception caught and suppressed without escalation.
 
 **Why This Principle Matters**
 
-Multi-agent systems have multiple failure points—any agent can fail, any handoff can corrupt, any context can overflow. Without explicit fault tolerance, a single failure cascades through the agent network, corrupting all downstream outputs. The constitutional principle Fail-Fast Detection requires catching failures early; for multi-agent systems, this extends to isolating failures and degrading gracefully. Additionally, Blameless Error Reporting establishes that any agent can "stop the line" when critical issues are detected—this authority must be preserved and respected.
+Multi-agent systems have multiple failure points—any agent can fail, any handoff can corrupt, any context can overflow. Without explicit fault tolerance, a single failure cascades through the agent network, corrupting all downstream outputs. The constitutional principle Fail-Fast Validation requires catching failures early; for multi-agent systems, this extends to isolating failures and degrading gracefully. Additionally, Blameless Error Reporting establishes that any agent can "stop the line" when critical issues are detected—this authority must be preserved and respected.
 
 **Domain Application (Binding Rule)**
 
@@ -1127,10 +1133,10 @@ Multi-agent workflows must implement fault isolation and graceful degradation. A
 
 **Constitutional Basis**
 
-- Fail-Fast Detection: Catch failures early and prevent propagation
-- Failure Recovery: Explicit strategies for recovering from errors
+- Fail-Fast Validation: Catch failures early and prevent propagation
+- Failure Recovery & Resilience: Explicit strategies for recovering from errors
 - Blameless Error Reporting: Any agent can halt workflow; reporting failure is success
-- Documentation: Log all failures, near-misses, and recovery actions
+- Transparent Reasoning and Traceability: Log all failures, near-misses, and recovery actions
 
 **Truth Sources**
 
@@ -1196,7 +1202,7 @@ Multi-agent workflows must implement fault isolation and graceful degradation. A
 
 **Why This Principle Matters**
 
-Multi-agent systems can generate significant outputs quickly—faster than human review capacity. Without explicit human checkpoints, multi-agent systems can propagate errors at scale or make consequential decisions without appropriate oversight. The constitutional principle Boundaries of AI Autonomy establishes that AI should not make organizational decisions autonomously; for multi-agent systems, this means defining clear escalation triggers and approval gates.
+Multi-agent systems can generate significant outputs quickly—faster than human review capacity. Without explicit human checkpoints, multi-agent systems can propagate errors at scale or make consequential decisions without appropriate oversight. The constitutional principle Technical Focus with Clear Escalation Boundaries establishes that AI should not make organizational decisions autonomously; for multi-agent systems, this means defining clear escalation triggers and approval gates.
 
 **Domain Application (Binding Rule)**
 
@@ -1204,9 +1210,9 @@ Multi-agent workflows must define explicit human approval points for: phase tran
 
 **Constitutional Basis**
 
-- Boundaries of AI Autonomy: AI should not make organizational decisions autonomously
+- Technical Focus with Clear Escalation Boundaries: AI should not make organizational decisions autonomously
 - Blameless Error Reporting (Stop the Line): Critical issues halt progression
-- Human-AI Collaboration Boundaries: Appropriate review of AI recommendations
+- Hybrid Interaction & RACI: Appropriate review of AI recommendations
 
 **Truth Sources**
 
@@ -1266,10 +1272,10 @@ Multi-agent workflows must define explicit human approval points for: phase tran
 | Standardized Collaboration Protocols | Orchestrator Separation, Explicit Handoff, Orchestration Patterns, Read-Write Division |
 | Synchronization & Observability | Observability Protocol |
 | Verification Mechanisms | Validation Independence |
-| Fail-Fast Detection | Fault Tolerance and Graceful Degradation |
-| Failure Recovery | Fault Tolerance and Graceful Degradation |
-| Documentation | State Persistence Protocol |
-| Boundaries of AI Autonomy | Human-in-the-Loop Protocol |
+| Fail-Fast Validation | Fault Tolerance and Graceful Degradation |
+| Failure Recovery & Resilience | Fault Tolerance and Graceful Degradation |
+| Transparent Reasoning and Traceability | State Persistence Protocol |
+| Technical Focus with Clear Escalation Boundaries | Human-in-the-Loop Protocol |
 
 ---
 
@@ -1341,6 +1347,7 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.1.0 | 2026-02-08 | MINOR: Coherence audit remediation. (1) Expanded failure mode taxonomy from 13 to 19 codes: added MA-C4, MA-R5, MA-R6, MA-R7, MA-Q4, MA-Q5. (2) Fixed 3 code collisions: MA-R4 body→MA-R7, MA-Q3 body→MA-Q5, MA-C1 body→MA-C4 (taxonomy definitions preserved as authoritative). (3) Fixed R-Series taxonomy category "Reliability"→"Coordination" (matching section headings). (4) Corrected 9 phantom constitutional principle names across 17 sites: "Fail-Fast Detection"→"Fail-Fast Validation", "Boundaries of AI Autonomy"→"Technical Focus with Clear Escalation Boundaries", "Human-AI Collaboration Boundaries"→"Hybrid Interaction & RACI", "DRY"→"Role Specialization & Topology", "Context Optimization"→"Minimal Relevant Context", "Inversion of Control"→"Goal-First Dependency Mapping", "Documentation"→"Transparent Reasoning and Traceability". (5) Fixed "Failure Recovery"→"Failure Recovery & Resilience" (2 sites). (6) Fixed hierarchy violation: replaced domain principle "Cognitive Function Specialization" with constitutional "Role Specialization & Topology" in Validation Independence constitutional basis. |
 | v2.0.0 | 2026-01-01 | **MAJOR: Scope Expansion + New Principles.** (1) Scope: Explicitly covers individual specialized agents, sequential composition, AND parallel coordination—not just parallel multi-agent. (2) New J-Series: Justified Complexity principle addresses when to specialize. (3) New A-Series: Context Engineering Discipline (4 strategies: Write, Select, Compress, Isolate). (4) New R-Series: Read-Write Division for parallel safety. (5) Enhanced Intent Propagation with Shared Assumptions Protocol. (6) Enhanced Orchestration Pattern Selection with Linear-First default. (7) New Failure Mode Taxonomy (MA-* codes). (8) Maturity indicators on all principles. Research basis: Anthropic 2025, Google ADK 2025, Cognition 2025, LangChain 2025, Microsoft 2025, Vellum 2025. |
 | v1.3.0 | 2025-12-31 | Detection Heuristics: Added "Detect via" line to all 12 failure modes (A1-A4, R1-R6, Q1-Q4). |
 | v1.2.0 | 2025-12-29 | Template Consistency: Added "Failure Mode(s) Addressed" field to all 11 principles. |

@@ -1,4 +1,4 @@
-# AI Coding Domain Principles Framework v2.3.0
+# AI Coding Domain Principles Framework v2.3.1
 ## Federal Statutes for AI-Assisted Software Development
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -88,7 +88,7 @@ These domain principles provide the **thresholds, mechanisms, constraints, gates
 
 ### Evidence Base
 
-This framework is derived from 80+ research sources (2024-2025), including:
+This framework is derived from 80+ research sources (2025), including:
 - Veracode 2025 study: 45% vulnerability rate across 100+ LLMs
 - Stack Overflow 2025 Developer Survey: Only 3.8% report both low hallucinations AND high confidence
 - DORA 2025 Report: 25-30% productivity gains with structured AI workflows
@@ -1534,6 +1534,7 @@ At EVERY phase boundary or significant checkpoint:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.3.1 | 2026-02-08 | PATCH: Coherence audit remediation. Updated stale "2024-2025" year references to "2025" in 3 pedagogical locations (framework introduction, Evidence Base Summary, Appendix D extension guidance). |
 | v2.3.0 | 2026-02-02 | **Reference Memory Integration:** (1) Added persistent semantic index to Context Priority Hierarchy Reference tier in Context Window Management. (2) Added Reference Memory as 6th State Component in Session State Continuity. Tool-agnostic additions extending existing memory taxonomy. |
 | v2.2.1 | 2025-12-29 | PATCH: Cleaned up template section (removed outdated series code format, added clarifying note that series codes are for organization only). |
 | v2.2.0 | 2025-12-28 | ID System Refactoring: Removed series codes from principle headers (C1, P1, Q1 → titles only). Series codes retained for document organization but not principle identification. Cross-references converted to principle titles. Aligns with Constitution v1.5 changes. |
@@ -1543,7 +1544,7 @@ At EVERY phase boundary or significant checkpoint:
 
 ### Evidence Base Summary
 
-This framework derives from analysis of 80+ research sources (2024-2025):
+This framework derives from analysis of 80+ research sources (2025):
 
 **Security Research:**
 - Veracode 2025: 45% vulnerability rate in AI-generated code (100+ LLMs tested)
@@ -1582,7 +1583,7 @@ This framework derives from analysis of 80+ research sources (2024-2025):
 ### How to Add a New Domain Principle
 
 1. **Identify Failure Mode:** Document the specific failure mode(s) that current principles do not address
-2. **Research Validation:** Gather evidence (2024-2025 sources preferred) supporting the failure mode's significance
+2. **Research Validation:** Gather evidence (2025 sources preferred) supporting the failure mode's significance
 3. **Constitutional Mapping:** Identify which Meta-Principle(s) the new principle derives from
 4. **Gap Analysis:** Explain why Meta-Principles alone are insufficient for this failure mode
 5. **Series Classification:** Use this decision tree:

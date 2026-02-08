@@ -1,7 +1,7 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.9.2
+**Version:** 3.9.3
 **Status:** Active
 **Effective Date:** 2026-02-08
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -2088,7 +2088,7 @@ This title provides operational techniques for constructing effective prompts. T
 - **Visible Reasoning** → Chain-of-Thought techniques
 - **Transparent Reasoning and Traceability** → Source attribution patterns
 - **Explicit Over Implicit** → Structure and clarity techniques
-- **Security by Default** → Defensive prompting patterns
+- **Security-First Development** → Defensive prompting patterns
 
 ---
 
@@ -2767,6 +2767,7 @@ Optimization priorities:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.9.3 | 2026-02-08 | PATCH: Coherence audit cascade fix. Corrected principle reference in TITLE 11 relationship mapping (line 2091): "Security by Default" → "Security-First Development" per ai-coding-domain-principles v2.3.1 canonical name. |
 | 3.9.2 | 2026-02-08 | PATCH: Inlined Source Relevance Test decision criterion into Generic Check #1 (§4.3.3) and §4.3.4 cross-reference — auditors can now execute the check without loading ai-coding methods. Architectural decision: cross-level method references are valid; elevation of ai-coding §7.5.1 and §7.8.3 to meta-methods not warranted (see PROJECT-MEMORY.md ADR-11). Updated coherence-auditor subagent to match. |
 | 3.9.1 | 2026-02-08 | PATCH: Coherence audit remediation. Disambiguated cross-document §7.5.1 and §7.8.3 references in Generic Checks table (§4.3.3) and cross-references (§4.3.4) — added document qualifiers pointing to ai-coding methods. Moved orphaned v3.7.0.1 entry into version history table; reconstructed missing v3.7.0 row from git history. Updated Appendix G model names (Opus 4.6, Sonnet 4.5, Haiku 4.5). Scoped Information Currency disclaimer per-appendix. Updated coherence-auditor subagent §7.8.3 reference. |
 | 3.9.0 | 2026-02-08 | MINOR: Added §4.3.4 (Drift Remediation Patterns) to Part 4.3 Documentation Coherence Audit. Provides content-purpose classification (pedagogical/operational/historical) with per-type remediation strategies for fixing coherence findings without re-introducing future drift. Renumbered previous §4.3.4 Validation Protocol to §4.3.5. Added Situation Index entry. |

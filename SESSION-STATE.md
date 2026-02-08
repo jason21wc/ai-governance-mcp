@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation
 - **Mode:** Standard
-- **Active Task:** Meta-Methods v3.9.2
+- **Active Task:** Multi-Agent Domain Coherence Audit Remediation
 - **Blocker:** None
 
 ## Quick Reference
@@ -21,18 +21,26 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v3.9.2** (meta-methods), **v2.9.0** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
+| Content | **v2.4** (Constitution), **v3.9.3** (meta-methods), **v2.9.1** (ai-coding methods), **v2.3.1** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.11.0** (multi-agent methods), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
 | Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **101 principles + 401 methods (502 total)** |
+| Index | **101 principles + 401 methods (502 total)** (taxonomy expanded to 21 codes, within existing sections) |
 | Subagents | **10** (code-reviewer, contrarian-reviewer, validator, security-auditor, documentation-writer, orchestrator, test-generator, coherence-auditor, continuity-auditor, voice-coach) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 
 ## Completed This Session (2026-02-08)
 
-### 1. Meta-Methods v3.9.2 — Cross-Level Reference Architecture Decision
+### 1. Multi-Agent Domain Coherence Audit Remediation
+
+MINOR across 2 files: multi-agent-domain-principles v2.0.0→v2.1.0, multi-agent-methods v2.10.1→v2.11.0. (1) Expanded failure mode taxonomy from 13→19 codes: added MA-C4, MA-R5, MA-R6, MA-R7, MA-Q4, MA-Q5. (2) Fixed 3 code collisions (taxonomy authoritative, body definitions reassigned to new codes). (3) Fixed R-Series taxonomy category "Reliability"→"Coordination". (4) Corrected 9 phantom constitutional principle names across 17 sites + 1 abbreviation (2 sites). (5) Fixed CFS hierarchy violation in Validation Independence. (6) Fixed A-Series ID conflict (A4→A2 for Context Isolation). (7) Updated validation checklist 5→6 required sections. (8) Fixed npm scope @anthropic-ai→@google. (9) Fixed Effective Date, orphaned v2.10.0.1, "Explicit Intent" phantom, version history date. Updated domains.json, SESSION-STATE.md.
+
+### 2. AI Coding Domain Coherence Audit Remediation
+
+PATCH across 4 files: ai-coding-principles v2.3.1, ai-coding-methods v2.9.1, meta-methods v3.9.3, multi-agent-methods v2.10.1. (1) Fixed wrong principle name/ID "Security by Default" (coding-quality-security-by-default) → "Security-First Development" (coding-quality-security-first-development) in 3 files. (2) Normalized TITLE 9 Implements header format. (3) Moved orphaned v2.5.0.1 entry into ai-coding-methods version history table. (4) Updated stale "2024-2025" year references to "2025" in ai-coding-principles (3 locations). (5) Updated Document Governance principles version reference (v2.3.0 → v2.3.1). Updated domains.json (4 references), CLAUDE.md, SESSION-STATE.md.
+
+### 2. Meta-Methods v3.9.2 — Cross-Level Reference Architecture Decision
 
 PATCH: Inlined Source Relevance Test decision criterion into Generic Check #1 (§4.3.3) and §4.3.4 cross-reference. Architectural decision (ADR-11): cross-level method references from meta-methods to domain-methods are architecturally valid; elevation of ai-coding §7.5.1 and §7.8.3 not warranted. Updated coherence-auditor subagent to match.
 
