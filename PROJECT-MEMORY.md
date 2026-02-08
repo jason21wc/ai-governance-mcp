@@ -94,6 +94,7 @@
 | Inline Phase Gates | 2025-12-31 | Record in PROJECT-MEMORY table, not separate GATE-*.md files. |
 | Principles-Based Pruning | 2025-12-31 | "Memory serves reasoning, not archival." Prune what only describes the past. |
 | Coherence Audit Method | 2026-02-07 | Part 4.3 in meta-methods v3.8.0. Operationalizes Context Engineering + SSOT + Periodic Re-eval. Quick/Full tiers. Method not principle — agents need HOW not more WHAT. |
+| Vibe-Coding Security v2.8.0 | 2026-02-08 | 4 new sections (§5.3.5, §5.3.6, §5.4.5, §5.6) in Title 5. Implements Security-First Development, Supply Chain Integrity, Workflow Integrity principles. Research: Moltbook breach, Stanford false confidence, OWASP Agentic Top 10. Plan reviewed by 3 agents. "Coding tool injection defense" (not "prompt injection defense") avoids multi-agent domain collision. Platform checklists include staleness note. |
 
 ### Implementation Details
 

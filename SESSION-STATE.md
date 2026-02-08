@@ -21,54 +21,38 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v3.8.0** (meta-methods), **v2.7.1** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
+| Content | **v2.4** (Constitution), **v3.8.0** (meta-methods), **v2.8.0** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
 | Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **101 principles + 384 methods (485 total)** |
+| Index | **101 principles + 391 methods (492 total)** |
 | Subagents | **10** (code-reviewer, contrarian-reviewer, validator, security-auditor, documentation-writer, orchestrator, test-generator, coherence-auditor, continuity-auditor, voice-coach) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 
 ## Completed This Session (2026-02-08)
 
-### 1. Storytelling Domain v1.1.0
+### 1. AI Coding Methods v2.8.0 — Vibe-Coding Security Best Practices
 
-Comprehensive audit and strengthening of the storytelling domain:
+Added 4 new security method sections to Title 5 (Implementation), expanded 3 existing sections, updated mapping table and cross-references. Research basis: Moltbook breach (Jan 2026), Stanford 2022, Georgetown CSET, ACM TOSEM 2025, OWASP Agentic Top 10 2026.
 
-**Phase 1 — Extractor Bug Fix:**
-- Fixed `old_header_pattern` to accept colons (`[.:]`) — ST1/ST2 were missing from index
-- Added `st-series`, `m-series`, `e-series` to `is_series_header` list
-- Added storytelling series to `_get_category_from_section` mapping
-- Result: 19 principles now indexed (was 17)
+**New Sections:**
+- §5.3.5 AI-Generated Code Security Patterns — AI blind spots table (7 controls), CWE watch list (10 CWEs), phantom API detection, security-conscious specification example, AI-specific code review checklist (6 items)
+- §5.3.6 Backend-as-a-Service Security — default configuration trap, Supabase checklist (9 items), Firebase checklist (6 items), env var exposure prevention (5 items), pre-deployment BaaS verification
+- §5.4.5 Slopsquatting Defense — attack mechanics (5 steps), transient execution environments, package provenance verification (6 checks), SCA integration
+- §5.6 AI Coding Tool Security — §5.6.1 coding tool injection defense (5 attack patterns with CVEs, 8-item defense checklist), §5.6.2 credential isolation and secrets management (7 rules, pre-commit hooks, CI scanning), §5.6.3 destructive action prevention (5 rules, Replit incident), §5.6.4 OWASP cross-reference (LLM Top 10, Agentic Top 10, SHIELD)
 
-**Phase 2 — Principles v1.1.0:**
-- Strengthened trigger phrases across all 19 principles (2-3 distinctive bold phrases each)
-- Added E1 Skill Erosion Prevention Techniques (voice journals, style samples, AI-free sessions, before-after comparison, skill rotation)
-- Added ST-F14: Character Drift failure mode
-- Updated methods reference to v1.1.0
+**Updated Sections:**
+- §5.3.2: Added BaaS security items
+- §5.4.3: Added slopsquatting cross-reference
+- Principle-to-title mapping: Workflow Integrity → Title 5 + Title 8
+- Title 8: Added §5.6 cross-reference
 
-**Phase 3 — Methods v1.1.0:**
-- Enhanced Full Template: Character Voice Profile, enhanced Relationships table, Genre Conventions section, Promise/Payoff Ledger
-- Enhanced Session State template: Voice & Tone Notes, Progress, POV Tracking
-- Added Story Log Template (§14) with explicit episodic log format
-- Added Character Voice Profiles (§15) — voice profile components, Voice Distinction Test, voice drift detection
-- Added Genre Conventions Guide (§16) — convention reference table, decision workflow
-- Added Plot Consistency Checks (§17) — 5 check categories, quick consistency scan
-- Added Coaching Question Taxonomy (§18) — 6 question categories, progressive inquiry pattern
-- Added Impact Assessment to Revision Log template
-
-**Phase 4 — Subagents:**
-- Created `continuity-auditor.md` — narrative consistency verification (Story Bible vs. manuscript)
-- Created `voice-coach.md` — character voice analysis (Voice Distinction Test, voice drift detection)
-- Updated CLAUDE.md subagent table
-
-**Phase 5 — Housekeeping:**
-- Updated domains.json file references to v1.1.0, expanded description
-- Removed old v1.0.0 files
-- Rebuilt index: 101 principles + 384 methods (485 total, was 460)
-- All 573 tests pass, no regressions
-- Retrieval verified: C5 at HIGH for "character voice distinction", E1 at MEDIUM for "skill erosion"
+**Housekeeping:**
+- Renamed file to v2.8.0, updated domains.json and CLAUDE.md
+- Index: 101 principles + 391 methods (492 total, was 485)
+- 573 tests pass, 1 skipped, no regressions
+- Retrieval verified: 5/7 queries surface correct section at HIGH/MEDIUM, negative query correctly routes to multi-agent domain
 
 ## Next Actions
 
