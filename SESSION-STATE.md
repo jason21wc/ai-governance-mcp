@@ -21,7 +21,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v3.9.3** (meta-methods), **v2.9.1** (ai-coding methods), **v2.3.1** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.11.0** (multi-agent methods), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
+| Content | **v2.4** (Constitution), **v3.9.3** (meta-methods), **v2.9.1** (ai-coding methods), **v2.3.1** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.11.0** (multi-agent methods), **v1.1.1** (storytelling), **v1.0.0** (multimodal-rag) |
 | Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -32,7 +32,11 @@
 
 ## Completed This Session (2026-02-08)
 
-### 1. Multi-Agent Domain Coherence Audit Remediation
+### 1. Storytelling Domain Coherence Audit Remediation
+
+PATCH across 2 files: storytelling-domain-principles v1.1.0→v1.1.1, storytelling-methods v1.1.0→v1.1.1. (1) Fixed changelog principle count "15"→"16" (v0.1.0 had 16 principles, not 15). (2) Updated methods system instruction to reflect expanded scope (was context-window-only, now covers full storytelling methods including voice, genre, plot, coaching). (3) Added Version/Status/Effective Date/Governance Level metadata block to methods file. Findings 1-3 (truncated `meta-safety-non-maleficence` ID) deferred to system-level remediation — meta-methods example table uses same truncated form. Updated domains.json, SESSION-STATE.md.
+
+### 2. Multi-Agent Domain Coherence Audit Remediation
 
 MINOR across 2 files: multi-agent-domain-principles v2.0.0→v2.1.0, multi-agent-methods v2.10.1→v2.11.0. (1) Expanded failure mode taxonomy from 13→19 codes: added MA-C4, MA-R5, MA-R6, MA-R7, MA-Q4, MA-Q5. (2) Fixed 3 code collisions (taxonomy authoritative, body definitions reassigned to new codes). (3) Fixed R-Series taxonomy category "Reliability"→"Coordination". (4) Corrected 9 phantom constitutional principle names across 17 sites + 1 abbreviation (2 sites). (5) Fixed CFS hierarchy violation in Validation Independence. (6) Fixed A-Series ID conflict (A4→A2 for Context Isolation). (7) Updated validation checklist 5→6 required sections. (8) Fixed npm scope @anthropic-ai→@google. (9) Fixed Effective Date, orphaned v2.10.0.1, "Explicit Intent" phantom, version history date. Updated domains.json, SESSION-STATE.md.
 

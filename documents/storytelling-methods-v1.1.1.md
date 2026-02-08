@@ -1,8 +1,13 @@
-# Storytelling Methods v1.1.0
+# Storytelling Methods v1.1.1
 ## Narrative Persistence, Character Voice, Genre Conventions, and Coaching
 
+**Version:** 1.1.1
+**Status:** Active
+**Effective Date:** 2026-02-08
+**Governance Level:** Methods (Code of Federal Regulations equivalent)
+
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
-> This method governs HOW to maintain story coherence when narrative scope exceeds AI context window capacity. It implements the constitutional principle `meta-core-context-engineering` for the storytelling domain.
+> This methods document provides HOW-TO procedures for implementing storytelling domain principles, including narrative persistence, character voice management, genre conventions, plot consistency, and coaching workflows. It implements the constitutional principle `meta-core-context-engineering` for the storytelling domain.
 
 ---
 
@@ -1876,7 +1881,10 @@ Terminate when the writer has clarity. Do not continue questioning past the poin
 
 ## Changelog
 
-### v1.1.0 (Current)
+### v1.1.1 (Current)
+- **Coherence audit remediation.** (1) Updated system instruction to reflect expanded scope (was context-window-only, now covers full storytelling methods). (2) Added Version/Status/Effective Date/Governance Level metadata block per methods template convention.
+
+### v1.1.0
 - **Added Character Voice Profile** to Full Template — vocabulary, sentence patterns, verbal tics, emotional tells, sample lines
 - **Enhanced Relationships table** in Full Template — added Tension Source column
 - **Added Genre Conventions** section to Full Template — primary genre, reader expectations, conventions, intentional subversions
@@ -1969,4 +1977,4 @@ Terminate when the writer has clarity. Do not continue questioning past the poin
 ---
 
 *Version 1.1.0*
-*Companion to: Storytelling Domain Principles v1.1.0*
+*Companion to: Storytelling Domain Principles v1.1.1*

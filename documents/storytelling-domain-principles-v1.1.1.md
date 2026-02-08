@@ -1,4 +1,4 @@
-# Storytelling Domain Principles Framework v1.1.0
+# Storytelling Domain Principles Framework v1.1.1
 ## Federal Statutes for AI-Assisted Narrative Communication
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -919,7 +919,10 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ## Changelog
 
-### v1.1.0 (Current)
+### v1.1.1 (Current)
+- **Coherence audit remediation.** Fixed changelog principle count (15 → 16; v0.1.0 had 16 principles, not 15).
+
+### v1.1.0
 - **Strengthened trigger phrases** across all 19 principles — added 2-3 distinctive bold phrases per principle body for improved retrieval surfacing
 - **Added E1 Skill Erosion Prevention Techniques** — voice journals, style samples, AI-free sessions, before-after comparison, skill rotation
 - **Added ST-F14: Character Drift** failure mode — character details changing subtly across long narratives without intention
@@ -951,7 +954,7 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
   - A2: Reframed Campbell critique as "critics argue" rather than consensus
   - Evidence Base: Noted neuroscience research is under continued study
 - **Expanded ST2 Alternative Frameworks table** to include all 11 frameworks
-- **Updated principle count** from 15 to 19
+- **Updated principle count** from 16 to 19
 - **Updated "Relationship to Methods" section** — linked to context-management-method v0.2.0, including non-linear writing protocol
 
 ### v0.1.0
@@ -959,5 +962,5 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ---
 
-*Version 1.1.0*
+*Version 1.1.1*
 *Derived from: AI Coding Domain Principles v2.2.1, Multi-Agent Domain Principles v2.0.0*

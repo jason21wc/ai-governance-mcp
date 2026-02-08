@@ -26,8 +26,8 @@
   "storytelling": {
     "name": "storytelling",
     "display_name": "Storytelling",
-    "principles_file": "storytelling-domain-principles-v1.1.0.md",
-    "methods_file": "storytelling-methods-v1.1.0.md",
+    "principles_file": "storytelling-domain-principles-v1.1.1.md",
+    "methods_file": "storytelling-methods-v1.1.1.md",
     "description": "Creative writing and narrative development with AI assistance. Character development, world-building, plot structure, dialogue, voice consistency, character voice profiles, voice distinction, scene composition, pacing, emotional resonance, thematic depth, genre conventions, revision strategies, non-linear writing, fragment assembly, continuity management, plot consistency checks, coaching questions, and context tracking across long-form narratives. Covers fiction genres including fantasy, science fiction, romance, thriller, mystery, and horror. World-building elements: magic systems, settings, lore, backstory, mythology, rules of the world, fictional cultures. Narrative techniques: foreshadowing, tension, conflict, stakes, show dont tell, subtext, hooks, payoffs, story bible, character arcs, skill erosion prevention. Formats: novels, short stories, novellas, screenplays, series, flash fiction.",
     "priority": 30
   },
