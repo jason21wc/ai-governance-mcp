@@ -30,10 +30,12 @@ This framework uses a **US Legal System Analogy** to define hierarchy, stability
 | 4 | CFR Regulations | Domain Methods (procedures, workflows, templates) | **Execution** — implementation details | Evolving |
 | 5 | Agency SOPs | Tool/Model Appendices (CLI guides, model-specific tactics) | **Tactical** — platform-specific guidance | Frequently Updated |
 
-**Current Framework Domains:**
+**Current Framework Domains** (see `domains.json` for the authoritative list):
 - **Constitution (this document):** Universal behavioral rules for all AI interactions
-- **AI Coding:** Software development with AI assistance (code generation, testing, refactoring, git workflows)
+- **AI Coding:** Software development with AI assistance (code generation, testing, security, deployment)
 - **Multi-Agent:** Agent orchestration (specialization, handoffs, context engineering, subagent patterns)
+- **Storytelling:** Creative writing and narrative development (character, world-building, voice, continuity)
+- **Multimodal RAG:** Retrieval and inline presentation of images with text responses
 
 **How Levels Derive from Each Other:**
 1. **S-Series (Bill of Rights):** Absolute constraints that CANNOT be overridden. Example: "Non-maleficence" — no domain rule can authorize harmful actions.
@@ -65,15 +67,15 @@ This framework organizes all principles into six domains that address different 
 
 2.  **Quality & Integrity Principles (Q-Series)**
     *   **Role:** The **Judicial Standard**.
-    *   **Function:** Verification and judgment. Like an independent Judiciary, these principles validate outputs against requirements (Chain of Thought, Testing), ensuring truth and correctness before execution.
+    *   **Function:** Verification and judgment. Like an independent Judiciary, these principles validate outputs against requirements (Visible Reasoning, Verification Mechanisms), ensuring truth and correctness before execution.
 
 3.  **Operational Efficiency Principles (O-Series)**
     *   **Role:** The **Executive Function**.
-    *   **Function:** Execution and resource management. Like the Executive Branch, these principles (Iterative Design, DRY) focus on getting the job done efficiently and pragmatically.
+    *   **Function:** Execution and resource management. Like the Executive Branch, these principles (Resource Efficiency, Atomic Task Decomposition) focus on getting the job done efficiently and pragmatically.
 
 4.  **Collaborative Intelligence Principles (MA-Series)**
     *   **Role:** The **Checks & Balances** (Separation of Powers).
-    *   **Function:** Governance of agent interaction. These principles (Role Segregation, Handoffs) ensure that the "Executive" (Coder) and "Judiciary" (Reviewer) remain independent and effective.
+    *   **Function:** Governance of agent interaction. These principles (Role Specialization, Standardized Collaboration Protocols) ensure that the "Executive" (Coder) and "Judiciary" (Reviewer) remain independent and effective.
 
 5.  **Governance & Evolution Principles (G-Series)**
     *   **Role:** The **Administrative State**.
@@ -659,7 +661,7 @@ Document task boundaries, interfaces, and handoff states at each decomposition l
 
 ---
 
-### Idempotency by Design [DOMAIN: Software]
+### Idempotency by Design
 **Definition**
 Design operations, APIs, and processes so that performing the same action multiple times with the same inputs always produces the same effect—without causing unintended side effects, state corruption, or duplication. Repeated executions must be safe, predictable, and have no unintended cumulative impact.
 
@@ -1513,6 +1515,20 @@ A "confident wrong answer" is the most dangerous output an AI can provide. *This
 
 ---
 
+#### **v2.3 (January 2026) - Anchor Bias Mitigation**
+*   **NEW: Periodic Re-evaluation Principle**
+    *   **Change:** Added "Periodic Re-evaluation" to Core Architecture Principles.
+    *   **Reasoning:** Initial framing and early decisions create anchor bias. Existing principles (Discovery Before Commitment) address pre-commitment investigation but not post-commitment reassessment. This principle establishes milestone checkpoints, reframing techniques, and explicit re-evaluation triggers to counter anchor bias during execution.
+
+---
+
+#### **v2.2 (January 2026) - Progressive Inquiry**
+*   **NEW: Progressive Inquiry Protocol Principle**
+    *   **Change:** Added "Progressive Inquiry Protocol" to Core Architecture Principles.
+    *   **Reasoning:** Requirements gathering lacked structured guidance. Progressive funnel structure (broad → narrow) achieves maximum insight with minimum questions. Addresses the Structured Selection Trap where presenting options prematurely constrains discovery.
+
+---
+
 #### **v2.1 (December 2025) - Consistency Update**
 *   **Title Correction**
     *   **Change:** Document title changed from "Principles Framework for AI-Guided Code Development" to "Principles Framework for AI Interaction".
@@ -1539,10 +1555,10 @@ A "confident wrong answer" is the most dangerous output an AI can provide. *This
         - Domain Implementation Guide → Methods TITLE 9
         - 9-Field Template → Methods TITLE 9, Part 9.4
         - Universal Numbering Protocol → Obsolete (replaced by Part 3.4 ID System)
-    *   **Instruction:** For operational procedures (how to apply principles, how to amend the Constitution, how to author domain principles), consult `ai-governance-methods-v2.0.0.md`.
+    *   **Instruction:** For operational procedures (how to apply principles, how to amend the Constitution, how to author domain principles), consult the governance methods document (see `domains.json` for current filename).
 
 *   **Document Focus: Principles Only**
-    *   **Change:** This document now contains only the 42 Constitutional Principles plus version history.
+    *   **Change:** This document now contains only the Constitutional Principles (42 at the time of v2.0) plus version history.
     *   **Reasoning:** Cleaner document structure, easier navigation, principles stand alone as authoritative source.
 
 ---

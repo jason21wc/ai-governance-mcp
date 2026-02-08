@@ -872,4 +872,4 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework - Constitution v2.4, AI Coding Methods v2.7.1, Governance Methods v3.8.0, Multi-Agent Methods v2.10.0, Storytelling v1.0.0, Multimodal RAG v1.0.0*
+*Built with the AI Governance Framework — Constitution, AI Coding Methods, Governance Methods, Multi-Agent Methods, Storytelling, and Multimodal RAG (see `documents/domains.json` for current versions)*
