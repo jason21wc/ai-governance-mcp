@@ -77,6 +77,15 @@
 | Security Hardening | 2026-01-03 | Bounded audit log, path traversal prevention, rate limiting, log sanitization. |
 | Pause Auto-Enforcement | 2026-01-03 | True automatic enforcement needs wrapper app or mature MCP clients. Deferred. |
 
+### Storytelling Domain
+
+| Decision | Date | Summary |
+|----------|------|---------|
+| Domain Created | 2026-02-07 | v1.0.0 — 19 principles (A/ST/C/M/E series), methods for Story Bible, Session State, Revision Log, Story Log. Priority 30. |
+| Comprehensive Audit v1.1.0 | 2026-02-08 | Fixed extractor bug (colon headers), strengthened trigger phrases across all 19 principles, added E1 skill erosion techniques, ST-F14 failure mode. Methods: 5 new sections (§14-§18) — Story Log Template, Character Voice Profiles, Genre Conventions Guide, Plot Consistency Checks, Coaching Question Taxonomy. Two new subagents (continuity-auditor, voice-coach). Index: 485 total items (was 460). |
+| Colon Header Pattern | 2026-02-08 | Storytelling uses `### ST1: Title` (colon). Old header pattern required dot. Changed `\.` to `[.:]` in extractor. Other domains unaffected. |
+| Category Collision (A-Series) | 2026-02-08 | Both multi-agent and storytelling have A-Series. Multi-agent: "Architecture" → category `architecture`. Storytelling: "Audience" → also maps to `architecture` via `"audience principle": "architecture"`. Acceptable: storytelling A-Series uses old header format (colon), which doesn't go through section header processing. Different ID prefixes (`mult-architecture-` vs `stor-architecture-`) prevent collision. |
+
 ### AI Coding Methods Framework
 
 | Decision | Date | Summary |
@@ -222,6 +231,18 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 - ~~Prompt Engineering consolidation~~ → Title 11 in ai-governance-methods (done)
 - ~~RAG Optimization consolidation~~ → Title 12 in ai-governance-methods (done)
 
+### Project Initialization — Part B (Bootstrap Gap)
+
+Part A shipped (`150e4e6`): strengthened SERVER_INSTRUCTIONS with a dedicated "Project Initialization" section, conversational trigger, consent step, and partial-init handling. Advisory only — no enforcement.
+
+Three approaches to close the gap further:
+
+1. **`scaffold_project` tool** — New MCP tool that auto-creates governance memory files (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, project instructions file). AI calls the tool; files are created server-side. Requires adding filesystem write capability to the MCP server.
+2. **Server-side first-run detection** — MCP server detects uninitialized projects (e.g., no governance files in working directory) and proactively triggers initialization protocol. Requires filesystem read access and a mechanism to signal the AI client.
+3. **Wrapper/web app/IDE plugin** — Move beyond MCP for scaffolding. A web app, CLI wrapper, or IDE plugin (e.g., Augment-style) handles project setup outside the MCP protocol. Decouples initialization from AI session entirely.
+
+**Status:** Deferred. Revisit after additional improvements ship.
+
 ---
 
 ## Subagent Justifications (§1.1)
@@ -238,6 +259,8 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | orchestrator | Context Limit | Complex multi-step tasks exceed single-agent context; coordinates other agents | Manages governance compliance across multi-agent workflows |
 | test-generator | Cognitive + Quality | Test design benefits from fresh perspective on code behavior; distinct from implementation | Better edge case coverage when tester hasn't seen implementation reasoning |
 | coherence-auditor | Isolation + Cognitive | Fresh context essential — drift is invisible to the author who caused it; distinct analytical function (cross-file consistency) vs. validator (criteria checking) | Catches stale facts, contradictions, and volatile metric drift that familiarity conceals |
+| continuity-auditor | Isolation + Quality | Fresh context catches character drift, timeline conflicts, world rule violations that the author is blind to after extended familiarity; distinct function (narrative consistency) vs. coherence-auditor (documentation consistency) | Systematic Story Bible vs. manuscript verification that writer's internalized knowledge conceals |
+| voice-coach | Cognitive + Isolation | Distinct analytical function — comparing dialogue against voice profiles, not creating dialogue; writer familiarity makes voice convergence invisible | Detects when characters sound identical, voice drifts from profiles, or AI default style overtakes distinctiveness |
 
 **Decision:** All current subagents justified. No subagent exists without at least one justification from the §1.1 checklist (Context Limit, Parallelization, Cognitive Mismatch, Quality Improvement, Isolation Requirement).
 
@@ -278,6 +301,7 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 21 | Context engine RLock, not Lock | query_project acquires lock for read phase. RLock needed because get_or_create_index may be called inside lock. |
 | 22 | Env vars crash on invalid values | All `AI_CONTEXT_ENGINE_*` env vars wrapped in try/except with fallback defaults. |
 | 23 | CI needs context-engine extras | `pip install -e ".[dev,context-engine]"` — tests import `pathspec` from optional group |
+| 24 | Storytelling A-Series category collision | Multi-agent A-Series = "Architecture", Storytelling A-Series = "Audience" — both map to category `architecture`. Safe because different domain prefixes (`mult-` vs `stor-`) and storytelling uses colon headers (old format). Watch for new domains with A-Series. |
 
 ### Resolved Gotchas
 

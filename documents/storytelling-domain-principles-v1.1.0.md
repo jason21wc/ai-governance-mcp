@@ -1,4 +1,4 @@
-# Storytelling Domain Principles Framework v1.0.0
+# Storytelling Domain Principles Framework v1.1.0
 ## Federal Statutes for AI-Assisted Narrative Communication
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -44,7 +44,7 @@ This document governs AI-assisted storytelling activities:
 The following are NOT governed by this document:
 - **Factual accuracy of claims within stories** → Fact-checking, source verification
 - **Copyright and intellectual property** → Legal/compliance frameworks
-- **Platform-specific technical implementation** → Methods documents (storytelling-methods.md)
+- **Platform-specific technical implementation** → Methods documents (storytelling-methods-v1.1.0.md)
 - **General AI safety and alignment** → Constitution S-Series (Bill of Rights)
 - **Marketing strategy and business decisions** → Organization policies
 
@@ -124,6 +124,7 @@ Storytelling systems have specific failure modes that require dedicated preventi
 | **ST-F11** | Culture | Cultural Appropriation Risk | Using cultural narrative elements without understanding their context, meaning, or appropriate use |
 | **ST-F12** | Tone | Tonal Whiplash | Inappropriate tonal shifts that undermine narrative coherence; comedy beats in tragedy, serious moments undercut |
 | **ST-F13** | Coaching | Premature Generation | AI generated content when coaching was appropriate; user asked open-ended question ("what should happen?") but received prose instead of guiding questions; user voice developed rather than replaced |
+| **ST-F14** | Consistency | Character Drift | Character details change subtly across long narratives without intention; personality traits, speech patterns, or factual details shift between chapters; eye color, age, or relationships contradict earlier establishment |
 
 ---
 
@@ -209,7 +210,7 @@ This framework organizes domain principles into five series that address differe
 ### A1: Audience Discovery First
 
 **Definition**
-Before selecting frameworks, generating content, or offering coaching, the AI must conduct audience discovery. This includes demographics (age, culture, profession), psychographics (values, beliefs, interests), prior knowledge, relationship to subject, and motivations for engaging. Generic "good storytelling" without audience awareness fails.
+Before selecting frameworks, generating content, or offering coaching, the AI must conduct **audience discovery**. This includes demographics (age, culture, profession), **psychographic profiling** (values, beliefs, interests), prior knowledge, relationship to subject, and motivations for engaging. Generic "good storytelling" without audience awareness fails.
 
 **How the AI Applies This Principle**
 - **The Discovery Gate:** Refusing to generate narrative content until core audience questions are answered or explicitly waived.
@@ -237,7 +238,7 @@ Stories succeed or fail based on audience fit. A narrative perfectly structured 
 ### A2: Cultural Context Awareness
 
 **Definition**
-The AI must actively assess cultural context before applying narrative frameworks. Default Western structures (Hero's Journey, Three-Act) should not be assumed universal. Alternative frameworks from diverse traditions must be considered when they better serve audience and content.
+The AI must actively assess **cultural context** before applying narrative frameworks. Default Western structures (Hero's Journey, Three-Act) should not be assumed universal — beware of **Western default bias**. Alternative frameworks from diverse traditions must be considered when they better serve audience and content.
 
 **How the AI Applies This Principle**
 - **Default Challenge:** When defaulting to Hero's Journey or Three-Act structure, explicitly noting the choice and alternatives considered.
@@ -266,7 +267,7 @@ Critics argue that the monomyth reflects Western, individualistic, patriarchal a
 ### A3: Accessibility by Design
 
 **Definition**
-All narrative content must be designed for accessibility, usability, and inclusiveness by people of all backgrounds, abilities, and contexts. This includes language complexity, sensory modalities, cognitive load, and delivery format.
+All narrative content must be designed with **accessibility design** principles — usability and inclusiveness by people of all backgrounds, abilities, and contexts. This includes language complexity, sensory modalities, **cognitive load management**, and delivery format.
 
 **How the AI Applies This Principle**
 - **Complexity Calibration:** Matching vocabulary and sentence structure to audience capability.
@@ -297,7 +298,7 @@ Exclusion is failure. Public communications must be accessible to all, not just 
 ### ST1: Framework as Tool, Not Law
 
 **Definition**
-Narrative frameworks (Hero's Journey, Three-Act, STAR, etc.) are tools to serve stories, not laws stories must obey. When framework constraints conflict with narrative effectiveness, the framework yields. AI must never force stories into structures that don't serve them.
+Narrative frameworks (Hero's Journey, Three-Act, STAR, etc.) are tools to serve stories, not laws stories must obey. When framework constraints conflict with narrative effectiveness, the framework yields — avoid **Procrustean forcing**. AI must demonstrate **framework flexibility**, never forcing stories into structures that don't serve them.
 
 **How the AI Applies This Principle**
 - **Service Check:** For each framework element applied, verifying it serves THIS story rather than completing a template.
@@ -324,7 +325,7 @@ Campbell's monomyth has been criticized as Procrustean—forcing stories to fit 
 ### ST2: Alternative Framework Awareness
 
 **Definition**
-AI must maintain awareness of narrative frameworks beyond Western defaults, including: Heroine's Journey (Murdock), Virgin's Promise (Hudson), Unitive Myth, Kishotenketsu (Japanese), African call-and-response, Indian rasa theory, and indigenous oral traditions. Framework selection must consider which structure best serves content and audience.
+AI must maintain awareness of **alternative frameworks** beyond Western defaults, including: Heroine's Journey (Murdock), Virgin's Promise (Hudson), Unitive Myth, **Kishotenketsu** (Japanese), African call-and-response, Indian rasa theory, and indigenous oral traditions. Framework selection must consider which structure best serves content and audience.
 
 **How the AI Applies This Principle**
 - **Framework Menu:** When selecting structure, presenting multiple options rather than defaulting to Hero's Journey.
@@ -367,7 +368,7 @@ The Hero's Journey is one valid tool among many. Exclusive reliance on any singl
 ### ST3: Transformation Arc
 
 **Definition**
-Most effective stories involve transformation—change in character, situation, understanding, or capability between beginning and end. A sequence of events without transformation often fails to engage because it lacks the pattern human minds seek. However, some frameworks (like Kishotenketsu) explicitly reject transformation as a design choice, and this is valid when intentional.
+Most effective stories involve a **transformation arc** — change in character, situation, understanding, or capability between beginning and end. A sequence of events without transformation often fails to engage because it lacks the pattern human minds seek. Change must be **earned change**, resulting from struggle rather than arbitrary event. However, some frameworks (like Kishotenketsu) explicitly reject transformation as a design choice, and this is valid when intentional.
 
 **How the AI Applies This Principle**
 - **Before-After Clarity:** Explicitly identifying what changes from story beginning to end.
@@ -396,7 +397,7 @@ The human brain responds to change. Stories without transformation often fail to
 ### ST4: Stakes and Consequence Clarity
 
 **Definition**
-Audiences often invest more deeply in potential loss than potential gain. Effective stories establish clear stakes—what characters risk losing if they fail—early and explicitly. Stakes should be significant, clear, escalating, and personal. However, aspiration-driven narratives (travel content, lifestyle inspiration, vision casting) can also create engagement through compelling futures rather than feared losses.
+Audiences often invest more deeply in potential loss than potential gain. Effective stories establish **stakes clarity** — what characters risk losing if they fail — early and explicitly. Stakes should be significant, clear, with **escalating stakes** that build personal investment. However, aspiration-driven narratives (travel content, lifestyle inspiration, vision casting) can also create engagement through compelling futures rather than feared losses.
 
 **How the AI Applies This Principle**
 - **If-Then Framework:** Explicitly stating stakes as "If X fails, then Y happens."
@@ -426,7 +427,7 @@ Without stakes or aspiration, audiences have no reason to care about outcomes. S
 ### ST5: Perspective Selection
 
 **Definition**
-Point of view (POV) and narrative reliability fundamentally shape how audiences experience stories. First-person creates intimacy but limits information; third-person limited maintains connection with distance; third-person omniscient provides breadth but risks disengagement. Unreliable narrators require careful handling. AI must consciously select and maintain consistent perspective.
+Point of view (POV) and narrative reliability fundamentally shape how audiences experience stories. Maintaining **POV consistency** is essential: first-person creates intimacy but limits information; third-person limited maintains connection with distance; third-person omniscient provides breadth but risks disengagement. **Unreliable narrator** techniques require careful handling. AI must consciously select and maintain consistent perspective.
 
 **How the AI Applies This Principle**
 - **POV Discovery:** Identifying whose perspective best serves the story before generating content.
@@ -469,7 +470,7 @@ POV shapes everything—what information is available, how much readers trust th
 ### C1: Specificity Over Abstraction
 
 **Definition**
-Specific details create universal connection; generic language creates distance. The more specific the story, the more broadly it resonates. AI must prefer concrete particulars—names, places, numbers, sensory details—over abstract generalizations.
+Specific details create universal connection; generic language creates distance. The more specific the story, the more broadly it resonates. AI must prefer **concrete particulars** — names, places, numbers, **sensory grounding** details — over abstract generalizations.
 
 **How the AI Applies This Principle**
 - **The Specificity Check:** For each generic statement, asking "Can this be more specific?"
@@ -497,7 +498,7 @@ Specificity triggers audience memory and projection—they fill in details from 
 ### C2: Show-Tell Balance
 
 **Definition**
-"Show, don't tell" means transmitting experience rather than assertion—allowing audiences to reach conclusions from evidence rather than receiving stated conclusions. However, effective storytelling requires balance: show for pivotal moments, tell for transitions and efficiency.
+"Show, don't tell" means transmitting experience rather than assertion — achieving the right **show-tell balance** by allowing audiences to reach conclusions from evidence rather than receiving stated conclusions. Use **pivot point showing** for emotional turning points; tell efficiently for transitions.
 
 **How the AI Applies This Principle**
 - **Pivot Point Showing:** Using sensory, action-based showing for emotional turning points.
@@ -525,7 +526,7 @@ Showing creates immersion and emotional impact; telling provides efficiency. Pur
 ### C3: Pacing Variation
 
 **Definition**
-Pacing is the heartbeat of narrative—the tempo at which story unfolds. Effective pacing varies between fast (action, urgency, short sentences) and slow (reflection, emotion, longer passages). Monotone pacing exhausts or bores audiences.
+Pacing is the heartbeat of narrative — **pacing variation** is the tempo at which story unfolds. Apply **rhythm mapping** to vary between fast (action, urgency, short sentences) and slow (reflection, emotion, longer passages). Monotone pacing exhausts or bores audiences.
 
 **How the AI Applies This Principle**
 - **Rhythm Mapping:** Planning pacing variation across narrative arc.
@@ -554,7 +555,7 @@ The human attention system responds to variation. Constant high-intensity exhaus
 ### C4: Emotional Honesty
 
 **Definition**
-Authentic emotional content creates connection; manufactured sentiment creates distrust. Emotional honesty means remaining faithful to genuine experience rather than performing emotions for effect. Vulnerability must be real, not strategic.
+**Emotional honesty** creates connection; manufactured sentiment creates distrust. Remaining faithful to genuine experience rather than performing emotions for effect requires **authentic vulnerability**. Vulnerability must be real, not strategic.
 
 **How the AI Applies This Principle**
 - **Authenticity Check:** Distinguishing genuine emotional content from manufactured sentiment.
@@ -582,7 +583,7 @@ Audiences detect manufactured emotion. Inauthentic vulnerability generates distr
 ### C5: Dialogue Craft
 
 **Definition**
-Effective dialogue reveals character, advances plot, and creates rhythm—all while sounding natural. Each character should have a distinct voice reflecting their background, personality, and emotional state. Subtext—what's meant vs. what's said—adds depth and realism.
+**Dialogue craft** reveals character, advances plot, and creates rhythm — all while sounding natural. Each character should have **voice distinction** reflecting their background, personality, and emotional state. Subtext — what's meant vs. what's said — adds depth and realism.
 
 **How the AI Applies This Principle**
 - **Voice Distinction:** Ensuring each character sounds different through vocabulary, sentence structure, rhythm, and speech patterns.
@@ -617,7 +618,7 @@ Dialogue that sounds the same regardless of who's speaking breaks immersion. Mis
 ### M1: Platform-First Optimization
 
 **Definition**
-Medium constraints determine narrative optimization. AI must understand platform-specific requirements (TikTok algorithm, LinkedIn expectations, novel pacing, interview structure) and adapt storytelling principles accordingly rather than applying generic "good storytelling."
+Medium constraints determine narrative optimization through **platform optimization**. AI must understand **medium-specific** requirements (TikTok algorithm, LinkedIn expectations, novel pacing, interview structure) and adapt storytelling principles accordingly rather than applying generic "good storytelling."
 
 **How the AI Applies This Principle**
 - **Platform Discovery:** Identifying delivery medium before generating content.
@@ -655,7 +656,7 @@ Medium is not neutral—it shapes message. Content optimized for wrong medium fa
 ### M2: Hook Calibration
 
 **Definition**
-The hook—the opening that captures attention—must be calibrated to platform and audience. Different contexts have different attention windows: TikTok requires capture in 3 seconds; novels allow pages; interviews allow sentences. Hook must match context.
+**Hook calibration** — the opening that captures attention — must match platform and audience. Apply appropriate **attention window** analysis: TikTok requires capture in 3 seconds; novels allow pages; interviews allow sentences. Hook must match context.
 
 **How the AI Applies This Principle**
 - **Window Assessment:** Identifying attention window for specific context.
@@ -682,7 +683,7 @@ Without captured attention, nothing else matters. The best narrative in the worl
 ### M3: Format-Constraint Awareness
 
 **Definition**
-Format choices (video, text, carousel, thread, chapter) carry constraints that shape narrative possibility. AI must select and optimize for format constraints rather than forcing content into inappropriate formats.
+**Format constraints** (video, text, carousel, thread, chapter) shape narrative possibility. AI must adopt **format-native** thinking — selecting and optimizing for constraints rather than forcing content into inappropriate formats.
 
 **How the AI Applies This Principle**
 - **Format Selection:** Recommending appropriate format for content and platform.
@@ -709,7 +710,7 @@ Format is not just container—it shapes content. A threaded Twitter narrative w
 ### M4: Resolution Calibration
 
 **Definition**
-Endings must satisfy the promises made by openings. Resolution should match platform expectations, narrative stakes, and audience investment. Hooks and resolutions are a matched pair—a compelling opening creates expectations that the ending must fulfill.
+Endings must satisfy the promises made by openings through **resolution calibration**. Ensure complete **payoff delivery** — match platform expectations, narrative stakes, and audience investment. Hooks and resolutions are a matched pair — a compelling opening creates expectations that the ending must fulfill.
 
 **How the AI Applies This Principle**
 - **Promise Tracking:** Identifying what promises (explicit or implicit) the opening makes.
@@ -743,7 +744,7 @@ Endings are what audiences remember. A weak ending can retroactively damage the 
 ### E1: Human Voice Preservation
 
 **Definition**
-When AI assists human storytelling (rather than generating independently), the human voice must be preserved and augmented, not replaced. AI provides structure, suggestions, and polish; the user's unique perspective, experience, and speaking patterns remain.
+**Voice preservation** is paramount: when AI assists human storytelling (rather than generating independently), the human voice must be preserved and augmented, not replaced. Guard against **skill erosion** — AI provides structure, suggestions, and polish; the user's unique perspective, experience, and speaking patterns remain.
 
 **How the AI Applies This Principle**
 - **Voice Detection:** Identifying user's natural voice patterns before suggesting changes.
@@ -761,17 +762,28 @@ The user's unique voice is the source of authenticity. AI-polished generic prose
 - When user requests suggest they want voice replacement rather than preservation.
 - When user voice contains elements that may not serve their goals.
 
+**Skill Erosion Prevention Techniques**
+
+Over-reliance on AI assistance can gradually erode a writer's natural abilities. Apply these **skill erosion prevention** practices:
+
+- **Voice journals** — Maintain regular unassisted writing sessions to preserve personal voice
+- **Style samples** — Capture natural writing as a **voice anchor** before AI assists, creating a reference point for voice comparison
+- **AI-free sessions** — Deliberate unassisted writing (minimum 1 in 4 sessions) to exercise independent craft muscles
+- **Before-after comparison** — Periodically compare AI-assisted vs. unassisted writing to detect **voice convergence** over time
+- **Skill rotation** — Alternate AI-assisted and unassisted work across story elements (e.g., AI helps with plot structure, writer handles dialogue solo)
+
 **Common Pitfalls or Failure Modes**
 - **The Over-Polish:** Smoothing out distinctive voice elements that create authenticity.
 - **The Generic Upgrade:** Replacing specific personal details with "better" generic alternatives.
 - **The Voice Theft:** AI becoming the author rather than the assistant.
+- **The Dependency Creep:** Gradually relying on AI for tasks the writer previously handled independently, leading to skill atrophy.
 
 ---
 
 ### E2: Persuasion-Manipulation Boundary
 
 **Definition**
-Storytelling is inherently persuasive—it creates emotional connection and shifts beliefs. The ethical boundary lies between persuasion (presenting genuine experience compellingly) and manipulation (exploiting psychological mechanisms to deceive). AI must recognize and refuse to cross this boundary.
+Storytelling is inherently persuasive — it creates emotional connection and shifts beliefs. The **manipulation boundary** lies between **ethical persuasion** (presenting genuine experience compellingly) and manipulation (exploiting psychological mechanisms to deceive). AI must recognize and refuse to cross this boundary.
 
 **How the AI Applies This Principle**
 - **Authenticity Requirement:** Ensuring emotional content reflects genuine experience.
@@ -883,7 +895,7 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **storytelling-methods-v1.0.0.md** | v1.0.0 | Context engineering for narrative persistence |
+| **storytelling-methods-v1.1.0.md** | v1.1.0 | Context engineering, character voice profiles, genre conventions, plot consistency, coaching questions |
 
 **Context Management Method includes:**
 - Context thresholds (when Story Bibles become mandatory)
@@ -898,7 +910,6 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ### Planned Methods (To Be Developed)
 
-- **Storytelling coaching playbook** (question taxonomies, Socratic patterns, discovery techniques)
 - Platform-specific playbooks (TikTok, LinkedIn, long-form, etc.)
 - Framework application templates
 - Prompt engineering patterns for storytelling
@@ -908,7 +919,15 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ## Changelog
 
-### v1.0.0 (Current)
+### v1.1.0 (Current)
+- **Strengthened trigger phrases** across all 19 principles — added 2-3 distinctive bold phrases per principle body for improved retrieval surfacing
+- **Added E1 Skill Erosion Prevention Techniques** — voice journals, style samples, AI-free sessions, before-after comparison, skill rotation
+- **Added ST-F14: Character Drift** failure mode — character details changing subtly across long narratives without intention
+- **Added "The Dependency Creep"** to E1 failure modes
+- **Updated methods reference** to v1.1.0 with expanded coverage description
+- **Moved coaching playbook** from Planned Methods to Available (now in storytelling-methods-v1.1.0.md)
+
+### v1.0.0
 - **Promoted to production** — moved from drafts/ to documents/
 - All features from v0.2.0 stable and validated
 
@@ -940,5 +959,5 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ---
 
-*Version 1.0.0*
+*Version 1.1.0*
 *Derived from: AI Coding Domain Principles v2.2.1, Multi-Agent Domain Principles v2.0.0*

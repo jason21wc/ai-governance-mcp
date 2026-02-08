@@ -1,5 +1,5 @@
-# Storytelling Context Management Method v1.0.0
-## Managing Narrative Persistence Beyond AI Context Windows
+# Storytelling Methods v1.1.0
+## Narrative Persistence, Character Voice, Genre Conventions, and Coaching
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > This method governs HOW to maintain story coherence when narrative scope exceeds AI context window capacity. It implements the constitutional principle `meta-core-context-engineering` for the storytelling domain.
@@ -231,6 +231,16 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 - **Appearance:** [Height, build, hair, eyes, distinguishing marks]
 - **Voice:** [Speech patterns, vocabulary, verbal tics, sample dialogue]
 
+#### Character Voice Profile
+- **Vocabulary Level:** [Simple/moderate/complex, jargon domains]
+- **Sentence Patterns:** [Short and clipped / long and flowing / mixed]
+- **Verbal Tics:** [Repeated phrases, filler words, speech mannerisms]
+- **Emotional Tells:** [How speech changes under stress, joy, fear]
+- **Sample Lines:**
+  - *Calm:* "[Dialogue example in neutral state]"
+  - *Under stress:* "[Dialogue example when pressured]"
+  - *With [specific character]:* "[Dialogue example showing relationship dynamic]"
+
 #### Psychology
 - **Want (External):** [Conscious goal]
 - **Need (Internal):** [Unconscious growth required]
@@ -243,9 +253,9 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 - **Key Transformation Moment:** [Scene where change crystallizes]
 
 #### Relationships
-| Character | Relationship | Dynamic |
-|-----------|--------------|---------|
-| [Name] | [Type] | [How they interact, tension source] |
+| Character | Relationship | Dynamic | Tension Source |
+|-----------|--------------|---------|----------------|
+| [Name] | [Type] | [How they interact] | [Core conflict or friction point] |
 
 #### Current State (Working Memory)
 - **Last Scene:** [What happened]
@@ -311,6 +321,12 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 |-------|-----------------|--------|-------------------|
 | [Hint] | Ch. [X] | [Revelation] | Ch. [Y] |
 
+### Promise/Payoff Ledger
+
+| Promise | Where Made | Type | Status | Payoff Location |
+|---------|-----------|------|--------|-----------------|
+| [What the story implicitly/explicitly promises] | Ch. [X] | [Setup / Foreshadowing / Hook] | [Open / Delivered / Broken] | Ch. [Y] or [Pending] |
+
 ### Open Questions (Reader Expectations)
 
 | Question | Raised In | Answered In | Answer |
@@ -336,6 +352,13 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 | Choice | NOT | Reason |
 |--------|-----|--------|
 | [okay] | [OK] | [Style preference] |
+
+### Genre Conventions
+- **Primary Genre:** [Genre/Subgenre]
+- **Reader Expectations:** [What this genre's audience expects]
+- **Conventions to Follow:** [Which genre conventions to honor]
+- **Intentional Subversions:** [Which conventions to break and why]
+  - [Convention] → [Subversion] — Rationale: [Why this serves the story]
 
 ---
 
@@ -366,10 +389,24 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 - **POV Character:** [Whose head we're in]
 - **Last Line Written:** [Exact quote for continuity]
 
+### Voice & Tone Notes
+- **Dominant Tone:** [Tense / playful / melancholic / urgent / etc.]
+- **POV Character Voice Reminder:** [Key speech patterns for this scene's POV]
+- **Planned Tonal Shifts:** [Any shifts planned within this scene]
+
 ### Active Tension
 - **Immediate Conflict:** [What's happening NOW]
 - **Scene Goal:** [What POV character wants this scene]
 - **Obstacles:** [What's preventing it]
+
+### Progress
+- **Word Count:** [Current] / [Target]
+- **Scene Status:** [Drafting / Revising / Complete]
+
+### POV Tracking
+| Scene | POV Character | Tense | Notes |
+|-------|---------------|-------|-------|
+| [Scene name] | [Character] | [Past/Present] | [Any POV-specific notes] |
 
 ### Character States (This Scene)
 | Character | Location | Emotional State | Knowledge State |
@@ -944,6 +981,20 @@ Maintain a dedicated `REVISION-LOG.md` file:
 
 - **Elena's age change (34→28):** Would break mentor dynamic with Jake
 - **First-person POV:** Lost omniscient foreshadowing capability
+
+## Impact Assessment Template
+
+### Blast Radius Analysis
+| Affected Element | Impact Level | Action Required |
+|-----------------|-------------|-----------------|
+| [Chapter/Character/Timeline] | [High/Medium/Low] | [Rewrite/Revise/Review] |
+
+### Cascade Check
+- [ ] Character states consistent after change
+- [ ] Timeline still coherent
+- [ ] Foreshadowing still intact (not broken or orphaned)
+- [ ] Cross-references updated
+- [ ] Promises/payoffs not broken
 ```
 
 ### Conflict Resolution
@@ -1591,9 +1642,255 @@ The fragments can be written in any order. The tracking system ensures they conn
 
 ---
 
+## 14 Story Log Template
+
+The **episodic memory log** tracks what happened in the story, providing compressed summaries for context loading across sessions.
+
+**Applies To:** Any narrative project using the three-tier memory model (§2). Mandatory for projects over 25K words.
+
+```markdown
+# Story Log: [Project Name]
+
+## Chapter/Scene Summaries
+
+### [Chapter/Scene Number]: [Title]
+**Date Written:** [Date]
+**Word Count:** [Words added this session]
+
+#### Events Summary
+[2-3 sentence summary of what happened in this section]
+
+#### Character Changes
+| Character | Change | Significance |
+|-----------|--------|-------------|
+| [Name] | [What changed — knowledge, emotional state, relationships] | [Story impact] |
+
+#### Emotional Arc Position
+- **Reader Emotion Target:** [What the reader should feel at this point]
+- **Trajectory:** [Building / Releasing / Shifting — direction of emotional momentum]
+
+#### Promise/Payoff Status
+- **New Promises Made:** [Any implicit or explicit promises to the reader]
+- **Promises Delivered:** [Payoffs from earlier setups]
+- **Still Open:** [Unresolved promises carried forward]
+
+#### New Elements Introduced
+- [New character/location/rule/object — brief description]
+
+#### Unresolved Threads
+- [Active threads readers are tracking]
+```
+
+---
+
+## 15 Character Voice Profiles
+
+Maintaining **character voice distinction** across long narratives prevents the ST-F14 (Character Drift) failure mode where all characters begin sounding identical.
+
+**Applies To:** Fiction with 3+ speaking characters, **dialogue-heavy scenes**, multi-POV narratives where voice distinction is critical for immersion.
+
+### 15.1 Voice Profile Components
+
+For each significant speaking character, document:
+
+| Component | What to Capture | Example |
+|-----------|----------------|---------|
+| **Vocabulary Range** | Education level, domain-specific words | "Uses medical terminology casually; avoids slang" |
+| **Sentence Structure** | Length, complexity, fragments | "Short declarative sentences; rarely uses subordinate clauses" |
+| **Speech Rhythm** | Pace, pauses, emphasis patterns | "Rapid-fire when excited; drawn-out pauses when thinking" |
+| **Verbal Tics** | Repeated phrases, filler words | "Says 'you know what I mean' as a rhetorical bridge" |
+| **Emotional Tells** | How voice changes under stress, joy | "Becomes monosyllabic when angry; verbose when nervous" |
+| **Dialogue Samples** | 3+ lines showing range | Calm, stressed, and with-specific-character examples |
+
+### 15.2 Voice Distinction Test
+
+The **cover-the-attribution test**: remove character names and dialogue tags from a conversation. Can you tell who is speaking from voice alone?
+
+**How to Apply:**
+1. Select a dialogue exchange between 2-3 characters
+2. Remove all attribution ("she said", "Marcus replied")
+3. Read the bare dialogue — each line should be identifiable by voice
+4. If lines are interchangeable, revise for **voice distinction**
+
+**Common Distinction Markers:**
+- Formality level (contractions vs. full forms)
+- Sentence length patterns
+- Question frequency
+- Metaphor domains (a doctor uses body metaphors; a soldier uses tactical ones)
+- Emotional expression style (direct vs. deflecting)
+
+### 15.3 Voice Drift Detection
+
+Over long narratives, characters' voices can **converge toward the AI's default style**. Check for drift by comparing:
+- Early dialogue samples vs. recent dialogue
+- Character voice profile vs. actual dialogue produced
+- Distinct markers (are verbal tics still present? Is vocabulary range maintained?)
+
+**Prevention:** Reload the character's voice profile from the Story Bible before writing dialogue-heavy scenes.
+
+---
+
+## 16 Genre Conventions Guide
+
+**Genre conventions** shape reader expectations. Understanding and deliberately choosing which conventions to follow vs. subvert prevents the ST-F3 (Medium-Context Misapplication) failure mode.
+
+**Applies To:** Any narrative where **genre reader expectations** matter — genre fiction, hybrid genres, literary fiction with genre elements.
+
+### 16.1 Convention Reference
+
+| Genre | Key Conventions | Reader Expectations |
+|-------|----------------|---------------------|
+| **Romance** | HEA/HFN ending, central love story, emotional beats | Satisfying romantic resolution; emotional payoff |
+| **Thriller** | High stakes, pacing, ticking clock, twist | Tension that escalates; protagonist in danger |
+| **Mystery** | Fair play clues, red herrings, satisfying reveal | Solvable puzzle; clues were available |
+| **Science Fiction** | Internal consistency, extrapolation, world rules | Logical world-building; "what if" answered |
+| **Fantasy** | Magic system consistency, world depth, quest/journey | Immersive world; rules that don't change |
+| **Horror** | Atmosphere, dread building, consequence | Growing unease; sense of threat |
+| **Literary** | Prose quality, thematic depth, character interiority | Beautiful language; meaningful exploration |
+
+### 16.2 Convention Decision Workflow
+
+1. **Identify genre** — What genre(s) does this story belong to?
+2. **List conventions** — What does this genre's audience expect?
+3. **Choose adherence** — Which conventions will you honor? (builds trust)
+4. **Choose subversions** — Which will you intentionally break? (creates surprise)
+5. **Assess subversion risk** — Does breaking this convention alienate the target audience?
+6. **Document decisions** — Record in Story Bible Genre Conventions section
+
+**The Trust-Then-Surprise Pattern:** Follow enough conventions to establish genre trust, then subvert selectively for impact. Subverting before establishing trust confuses rather than surprises.
+
+---
+
+## 17 Plot Consistency Checks
+
+Systematic **plot hole detection** for long-form narratives where continuity errors risk breaking immersion. Addresses ST-F14 (Character Drift) and supports the Revision Management Protocol (§12).
+
+**Applies To:** **Long-form narratives** (novellas, novels, series) where continuity errors accumulate across chapters and writing sessions.
+
+### 17.1 Check Categories
+
+| Check Type | What It Catches | When to Run |
+|-----------|-----------------|-------------|
+| **Character Knowledge Audit** | Characters acting on information they shouldn't have | After scenes where information is revealed |
+| **Timeline Verification** | Events happening in impossible order or timeframes | After time jumps, at act breaks |
+| **Rule Compliance Scan** | Magic/tech/social systems violating their own rules | When systems are used in new ways |
+| **Object Tracking** | Items appearing/disappearing without explanation | At scene transitions |
+| **Relationship Continuity** | Relationship states contradicting established dynamics | After relationship-changing events |
+
+### 17.2 Character Knowledge Audit
+
+For each scene, verify:
+- Does every character only act on information they've been shown to possess?
+- If a character "knows" something, trace back to the scene where they learned it
+- Watch for "author knowledge leaking" — characters knowing what only the writer knows
+
+### 17.3 Timeline Verification
+
+- Map events to story days/times
+- Verify travel times are plausible
+- Check that simultaneous events don't contradict
+- Ensure character aging is consistent
+
+### 17.4 Quick Consistency Scan
+
+A fast check to run at scene boundaries:
+- [ ] All characters present were established as being at this location
+- [ ] No character references an event they haven't witnessed
+- [ ] Physical states match (injuries, clothing, items carried)
+- [ ] Time of day / weather / season is consistent with timeline
+- [ ] Emotional states follow logically from recent events
+
+---
+
+## 18 Coaching Question Taxonomy
+
+A structured taxonomy of **coaching questions for writers** organized by challenge type. Implements the coaching mode described in the Storytelling Domain Principles (Mode Selection).
+
+**Applies To:** Sessions in **coaching mode** rather than generation mode — when the user needs guidance rather than AI-generated content. See principles document Mode Selection table for trigger signals.
+
+### 18.1 Question Categories
+
+| Category | Purpose | When to Use |
+|----------|---------|-------------|
+| **Discovery** | Help writer find their story | Early stages, unclear direction |
+| **Character** | Deepen character understanding | Flat characters, unclear motivations |
+| **Structure** | Clarify narrative architecture | Plot stuck, pacing issues |
+| **Craft** | Improve specific techniques | Weak dialogue, flat prose |
+| **Revision** | Guide editing and improvement | Revision phase, specific problems |
+| **Stuck** | Unblock creative flow | Writer's block, decision paralysis |
+
+### 18.2 Discovery Questions
+
+- "What feeling do you want readers to have when they finish?"
+- "If you had to describe this story in one sentence to a friend, what would you say?"
+- "What scene do you see most vividly? Start there."
+- "Who is this story really about, and what do they want more than anything?"
+
+### 18.3 Character Questions
+
+- "What's the worst thing that could happen to this character? What would they sacrifice to prevent it?"
+- "What does this character believe about the world that isn't true?"
+- "If this character were alone, with no one watching, what would they do?"
+- "What's one thing only you know about this character that hasn't appeared in the story yet?"
+
+### 18.4 Structure Questions
+
+- "What does your protagonist want in this scene, right now? What's stopping them?"
+- "What's the most surprising thing that happens in your story? Could readers glimpse it earlier?"
+- "If you removed this scene entirely, what would the reader miss?"
+- "What promise did your opening make? How will your ending deliver on it?"
+
+### 18.5 Craft Questions
+
+- "Read this dialogue aloud — does it sound like how real people talk?"
+- "What does this setting smell like? Sound like? What's the temperature?"
+- "Can you tell who's speaking without the dialogue tags?"
+- "What emotion do you want the reader to feel here? Does the prose create that feeling?"
+
+### 18.6 Revision Questions
+
+- "What's the weakest scene in your draft? What makes it weak?"
+- "Are there scenes where you're telling the reader what to feel instead of showing them?"
+- "Which characters sound the same? How could their voices diverge?"
+- "Where did you lose interest while re-reading? Your reader will lose interest there too."
+
+### 18.7 Stuck Questions
+
+- "What's the last thing you wrote that excited you?"
+- "What if the opposite happened? What if the character did the unexpected thing?"
+- "Skip ahead — write the next scene you're excited about, not the next scene in order"
+- "What would your favorite author do with this character in this situation?"
+
+### 18.8 Progressive Inquiry Pattern
+
+Apply questions in a **broad → narrow → probe → challenge** sequence:
+
+1. **Broad** — "What's this story about?" (Open exploration)
+2. **Narrow** — "What moment captures that theme?" (Focus)
+3. **Probe** — "Why does that moment matter to the character?" (Depth)
+4. **Challenge** — "What if that moment didn't happen? What changes?" (Test)
+
+Terminate when the writer has clarity. Do not continue questioning past the point of usefulness.
+
+---
+
 ## Changelog
 
-### v1.0.0 (Current)
+### v1.1.0 (Current)
+- **Added Character Voice Profile** to Full Template — vocabulary, sentence patterns, verbal tics, emotional tells, sample lines
+- **Enhanced Relationships table** in Full Template — added Tension Source column
+- **Added Genre Conventions** section to Full Template — primary genre, reader expectations, conventions, intentional subversions
+- **Added Promise/Payoff Ledger** to Plot Architecture — tracks reader promises, their status, and payoff locations
+- **Enhanced Session State template** — added Voice & Tone Notes, Progress tracking, POV Tracking table
+- **Added Story Log Template (§14)** — explicit episodic log template with events, character changes, emotional arc, promise/payoff status
+- **Added Character Voice Profiles (§15)** — voice profile components, Voice Distinction Test, voice drift detection
+- **Added Genre Conventions Guide (§16)** — convention reference table, convention decision workflow, trust-then-surprise pattern
+- **Added Plot Consistency Checks (§17)** — character knowledge audit, timeline verification, rule compliance, object tracking, relationship continuity
+- **Added Coaching Question Taxonomy (§18)** — 6 question categories, progressive inquiry pattern, example questions per category
+- **Added Impact Assessment** to Revision Log template — blast radius analysis, cascade check checklist
+- **Updated title** from "Context Management Method" to "Storytelling Methods" to reflect expanded scope
+
+### v1.0.0
 - **Promoted to production** — moved from drafts/ to documents/
 - All features from v0.2.0 stable and validated
 
@@ -1671,5 +1968,5 @@ The fragments can be written in any order. The tracking system ensures they conn
 
 ---
 
-*Version 1.0.0*
-*Companion to: Storytelling Domain Principles v1.0.0*
+*Version 1.1.0*
+*Companion to: Storytelling Domain Principles v1.1.0*

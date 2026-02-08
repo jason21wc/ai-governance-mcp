@@ -685,6 +685,14 @@ class DocumentExtractor:
             "architecture principle": "architecture",
             "r-series": "reliability",
             "reliability principle": "reliability",
+            # Storytelling-series mapping
+            "st-series": "structure",
+            "structure principle": "structure",
+            "m-series": "medium",
+            "medium principle": "medium",
+            "e-series": "safety",
+            "ethics principle": "safety",
+            "audience principle": "architecture",
             # Descriptive mapping (constitution and general)
             "core": "core",
             "architecture": "core",
@@ -750,6 +758,9 @@ class DocumentExtractor:
                         "q-series",
                         "a-series",
                         "r-series",
+                        "st-series",
+                        "m-series",
+                        "e-series",
                     ]
                 )
                 if "###" not in line or is_series_header:
@@ -801,7 +812,7 @@ class DocumentExtractor:
                     "decision tree",
                     "pre-action",
                     "operational",
-                    "framework",
+                    "framework overview",
                     "immediate",
                     # Document structure sections
                     "domain implementation",
@@ -810,6 +821,8 @@ class DocumentExtractor:
                     "template structure",
                     "the twelve",
                     "the three series",
+                    "the four series",
+                    "the five series",
                     "version history",
                     "evidence base",
                     "glossary",
@@ -829,6 +842,18 @@ class DocumentExtractor:
                     "quality principles",
                     "architecture principles",
                     "reliability principles",
+                    # Storytelling series headers (defense-in-depth)
+                    "st-series:",
+                    "m-series:",
+                    "e-series:",
+                    "structure principles",
+                    "craft principles",
+                    "medium principles",
+                    "ethics principles",
+                    "audience principles",
+                    # Multimodal-RAG series headers
+                    "f-series:",
+                    "fallback principles",
                 ]
                 if any(kw in title.lower() for kw in skip_keywords):
                     continue

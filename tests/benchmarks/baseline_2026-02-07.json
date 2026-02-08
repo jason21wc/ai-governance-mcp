@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-07T14:49:19.357676",
+  "timestamp": "2026-02-07T20:52:34.793142",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
     "method_mrr": 0.6979166666666666,
@@ -8,10 +8,10 @@
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 19.6,
+    "model_load_time_ms": 20.9,
     "index_stats": {
-      "total_principles": 99,
-      "total_methods": 362,
+      "total_principles": 101,
+      "total_methods": 384,
       "domains": [
         "constitution",
         "ai-coding",
@@ -37,7 +37,7 @@
         "coding-method-calibration-questions"
       ],
       "rank": 1,
-      "score": 0.6415719713989653,
+      "score": 0.6412206894723148,
       "semantic_score": 0.7116016745567322
     },
     "method-3": {
@@ -46,8 +46,8 @@
         "coding-method-session-start-procedure"
       ],
       "rank": 1,
-      "score": 0.8729588508605957,
-      "semantic_score": 0.7882647514343262
+      "score": 0.8729588866233826,
+      "semantic_score": 0.788264811038971
     },
     "method-4": {
       "query": "anchor bias mitigation checkpoint protocol",
@@ -55,7 +55,7 @@
         "meta-method-what-is-anchor-bias"
       ],
       "rank": 1,
-      "score": 0.7460467868794275,
+      "score": 0.7459020830234986,
       "semantic_score": 0.6823557019233704
     },
     "method-5": {
@@ -73,7 +73,7 @@
         "multi-method-orchestration-pattern-selection"
       ],
       "rank": 1,
-      "score": 0.8168433527592193,
+      "score": 0.8165817628066296,
       "semantic_score": 0.7589589357376099
     },
     "method-7": {
@@ -91,7 +91,7 @@
         "multi-method-governance-agent-pattern"
       ],
       "rank": 4,
-      "score": 0.5454299933608402,
+      "score": 0.5469809084870874,
       "semantic_score": 0.6937937140464783
     }
   },
@@ -102,7 +102,7 @@
         "meta-core-context-engineering"
       ],
       "rank": 2,
-      "score": 0.717002323312746
+      "score": 0.7178276335218777
     },
     "principle-2": {
       "query": "incomplete specification unclear requirements",

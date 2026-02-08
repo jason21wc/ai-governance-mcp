@@ -75,6 +75,8 @@ This project has specialized subagent definitions in `.claude/agents/`. When a t
 | Artifact validation | `validator.md` | Criteria-based validation of any artifact against explicit checklist |
 | Devil's advocate | `contrarian-reviewer.md` | High-stakes decisions, architectural choices, challenge assumptions |
 | Coherence audit | `coherence-auditor.md` | Pre-release doc review, session-start drift check, cross-file consistency |
+| Continuity audit | `continuity-auditor.md` | Narrative consistency — Story Bible vs. manuscript, character drift, timeline conflicts |
+| Voice analysis | `voice-coach.md` | Character voice distinction, voice profile compliance, voice drift detection |
 
 **How to use:**
 1. Read the agent file (e.g., `.claude/agents/code-reviewer.md`)
