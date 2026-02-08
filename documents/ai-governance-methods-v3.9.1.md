@@ -1,7 +1,7 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.9.0
+**Version:** 3.9.1
 **Status:** Active
 **Effective Date:** 2026-02-08
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -826,10 +826,10 @@ Documentation drift occurs because:
 
 | # | Check | Test Applied | Severity if Failed |
 |---|-------|-------------|-------------------|
-| 1 | Does every fact belong in this file? | Source Relevance Test (§7.5.1) | Misleading |
+| 1 | Does every fact belong in this file? | Source Relevance Test (ai-coding §7.5.1): compare each fact against the file's stated purpose and cognitive type | Misleading |
 | 2 | Are runtime-derivable values hardcoded? | Volatile metric scan | Cosmetic → Misleading |
 | 3 | Does this file contradict any other file? | Cross-file consistency | Dangerous |
-| 4 | Does a methods template exist for this file type? | Template conformance (§7.8.3) | Cosmetic |
+| 4 | Does a methods template exist for this file type? | Template conformance: check ai-coding §7.8.3 (File Creation Notes) and Part 3.5 (Formatting Standards) for prescribed templates | Cosmetic |
 | 5 | Are prescribed patterns adopted where applicable? | Pattern completeness | Cosmetic |
 
 **Drift severity classification:**
@@ -881,7 +881,7 @@ Once drift is detected (§4.3.3), remediate by classifying the drifted content's
 
 #### Cross-References
 
-- §7.5.1 Source Relevance Test — determines *whether* content belongs; this section determines *how* to fix content that belongs but has drifted
+- Source Relevance Test (ai-coding §7.5.1) — determines *whether* content belongs; this section determines *how* to fix content that belongs but has drifted
 - Generic Check #2 (§4.3.3) — detects hardcoded volatile values; this section provides the fix strategy
 - Every pointer added during remediation becomes a future Generic Check #3 (cross-file consistency) checkpoint
 
@@ -2767,8 +2767,11 @@ Optimization priorities:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.9.1 | 2026-02-08 | PATCH: Coherence audit remediation. Disambiguated cross-document §7.5.1 and §7.8.3 references in Generic Checks table (§4.3.3) and cross-references (§4.3.4) — added document qualifiers pointing to ai-coding methods. Moved orphaned v3.7.0.1 entry into version history table; reconstructed missing v3.7.0 row from git history. Updated Appendix G model names (Opus 4.6, Sonnet 4.5, Haiku 4.5). Scoped Information Currency disclaimer per-appendix. Updated coherence-auditor subagent §7.8.3 reference. |
 | 3.9.0 | 2026-02-08 | MINOR: Added §4.3.4 (Drift Remediation Patterns) to Part 4.3 Documentation Coherence Audit. Provides content-purpose classification (pedagogical/operational/historical) with per-type remediation strategies for fixing coherence findings without re-introducing future drift. Renumbered previous §4.3.4 Validation Protocol to §4.3.5. Added Situation Index entry. |
 | 3.8.0 | 2026-02-07 | MINOR: Added Part 4.3 (Documentation Coherence Audit) with sections 4.3.1-4.3.4 covering purpose, trigger conditions (Quick/Full tiers), per-file review protocol (5 generic checks, drift severity classification, file-type-specific checks), and validation protocol. Operationalizes existing constitution principles (Context Engineering, Single Source of Truth, Periodic Re-evaluation) into executable procedure. Added 3 Situation Index entries (documents may have drifted, preparing a release, starting a new session). |
+| 3.7.0.1 | 2026-02-01 | PATCH: Replaced "significant action" with skip-list model per v1.7.0 operational change. |
+| 3.7.0 | 2026-01-30 | MINOR: Added §11.1.4 (Few-Shot Chain-of-Thought with worked examples template), Graduated Framing Model in §11.3.2, and Part 11.7 (Model Parameter Guidance with temperature and top-p ranges). |
 | 3.6.0 | 2026-01-08 | MINOR: Added TITLE 12 (RAG Optimization Techniques) with Parts 12.1-12.6 covering chunking strategies, embedding optimization, retrieval architecture, validation frameworks, domain-specific optimization, and technique selection guide. Consolidated RAG methods from external reference documents. Archived `rag-document-optimization-best-practices-v3b.md` and `AI-instructions-prompt-engineering-and-rag-optimization.md`. |
 | 3.5.0 | 2026-01-06 | MINOR: Added TITLE 11 (Prompt Engineering Techniques) with Parts 11.1-11.6 covering reasoning techniques (CoT, ToT, Meta-Prompting), hallucination prevention (CoVe, Step-Back, Source Grounding), prompt structure patterns, defensive prompting, ReAct pattern, and technique selection guide. Consolidated prompt engineering methods from external guide into governance framework. Updated Constitution (ai-interaction-principles-v2.2.md) with enhanced Transparent Reasoning and Traceability principle including source attribution for factual claims. |
 | 3.4.0 | 2026-01-05 | MINOR: Added Part 9.7 (Constitutional Analogy Application) with level classification procedure, derivation principle, conflict resolution, and cross-level references. Added TITLE 10 (Model-Specific Application) with capability matrix and cross-model considerations. Added Appendices G-J for Claude, GPT, Gemini, and Perplexity with model-specific governance tactics. Updated principles (ai-interaction-principles-v2.1.md) with enhanced US Constitution analogy table including 5-level hierarchy and level identification guidance. |
@@ -2799,21 +2802,21 @@ Optimization priorities:
 
 The following appendices provide platform-specific tactics for applying the governance framework on different AI models. These are **Level 5 (Agency SOPs)** and do not override constitutional principles.
 
-**Information Currency:** Model capabilities change frequently. This guidance was verified as of January 2026. For current model specifications, consult official provider documentation. Constitutional principles remain stable regardless of model changes.
+**Information Currency:** Model capabilities change frequently. Appendix G (Claude) verified February 2026; Appendices H-J last verified January 2026. For current model specifications, consult official provider documentation. Constitutional principles remain stable regardless of model changes.
 
 ---
 
 ## Appendix G: Claude (Anthropic)
 
-**Applies to:** Claude Opus 4.5, Claude Sonnet 4, Claude Haiku; Claude Code CLI
+**Applies to:** Claude Opus 4.6, Claude Sonnet 4.5, Claude Haiku 4.5; Claude Code CLI
 
 ### G.1 Model Variants
 
 | Variant | Use Case | Governance Notes |
 |---------|----------|------------------|
-| Opus 4.5 | Complex reasoning, architecture | Full governance loading; use extended thinking for principle analysis |
-| Sonnet 4 | Balanced coding/analysis | Standard governance loading; efficient for most tasks |
-| Haiku | Fast iteration, simple tasks | Minimal governance loading; rely on safety guardrails |
+| Opus 4.6 | Complex reasoning, architecture | Full governance loading; use extended thinking for principle analysis |
+| Sonnet 4.5 | Balanced coding/analysis | Standard governance loading; efficient for most tasks |
+| Haiku 4.5 | Fast iteration, simple tasks | Minimal governance loading; rely on safety guardrails |
 
 ### G.2 Key Differentiators
 
@@ -2990,7 +2993,3 @@ Claude Code provides a **platform-native auto memory** feature: a persistent fil
 - **Search dependency**: May not find niche governance content; provide context
 - **Summarization bias**: May over-summarize; request full quotes when accuracy critical
 
----
-
-### v3.7.0.1 (2026-02-01)
-- Replaced "significant action" with skip-list model per v1.7.0 operational change

@@ -3,7 +3,7 @@
     "name": "constitution",
     "display_name": "Constitution",
     "principles_file": "ai-interaction-principles-v2.4.md",
-    "methods_file": "ai-governance-methods-v3.9.0.md",
+    "methods_file": "ai-governance-methods-v3.9.1.md",
     "description": "Universal behavioral rules for AI interaction. Safety principles, core behavioral guidelines, quality standards, operational rules, growth mindset, and meta-awareness. Applies to all AI interactions.",
     "priority": 0
   },

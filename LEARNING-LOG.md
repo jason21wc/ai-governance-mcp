@@ -41,6 +41,14 @@ CI installed `.[dev]` but context engine tests need `pathspec` (in `.[context-en
 
 ---
 
+### Version History Entries Can Be Silently Dropped (2026-02-08)
+
+Coherence audit found v3.7.0 missing from version history table and v3.7.0.1 orphaned at end of file. During edits, version history entries can be accidentally deleted or displaced without anyone noticing — the table is long and entries look similar.
+
+**Rule:** Add a version-history-completeness check to pre-release audits: verify descending order, no gaps, and no orphaned entries outside the table. Grep for `### v` outside the table section.
+
+---
+
 ### Cognitive Function Labels Must Be Distinct Across Agents (2026-02-08)
 
 Validator and code-reviewer both initially used "Analytical validation" as cognitive function label. Contrarian reviewer caught the collision — identical labels undermine the distinctness argument. Renamed validator to "Checklist verification."

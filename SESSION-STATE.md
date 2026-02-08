@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation
 - **Mode:** Standard
-- **Active Task:** Meta-Methods v3.9.0
+- **Active Task:** Meta-Methods v3.9.1
 - **Blocker:** None
 
 ## Quick Reference
@@ -21,7 +21,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v3.9.0** (meta-methods), **v2.9.0** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
+| Content | **v2.4** (Constitution), **v3.9.1** (meta-methods), **v2.9.0** (ai-coding), **v2.10.0** (multi-agent), **v1.1.0** (storytelling), **v1.0.0** (multimodal-rag) |
 | Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -32,7 +32,16 @@
 
 ## Completed This Session (2026-02-08)
 
-### 1. Meta-Methods v3.9.0 — Drift Remediation Patterns
+### 1. Meta-Methods v3.9.1 — Coherence Audit Remediation
+
+PATCH: Full-tier coherence audit remediation. Disambiguated cross-document §7.5.1 and §7.8.3 references in Generic Checks table (§4.3.3) and cross-references (§4.3.4) — added document qualifiers pointing to ai-coding methods. Moved orphaned v3.7.0.1 entry into version history table; reconstructed missing v3.7.0 row from git history. Updated Appendix G model names (Opus 4.6, Sonnet 4.5, Haiku 4.5). Scoped Information Currency disclaimer per-appendix. Updated coherence-auditor subagent §7.8.3 reference.
+
+**Housekeeping:**
+- Renamed file to v3.9.1, updated domains.json methods_file
+- Updated coherence-auditor.md cross-reference
+- Tests: 573+ pass, 0 failures — no regressions
+
+### 2. Meta-Methods v3.9.0 — Drift Remediation Patterns
 
 Added §4.3.4 Drift Remediation Patterns to Part 4.3 Documentation Coherence Audit. Provides content-purpose classification (pedagogical/operational/historical) with per-type remediation strategies for fixing coherence findings without re-introducing future drift. Renumbered previous §4.3.4 Validation Protocol to §4.3.5. Added cross-reference in §4.3.5 step 1 for discoverability.
 
