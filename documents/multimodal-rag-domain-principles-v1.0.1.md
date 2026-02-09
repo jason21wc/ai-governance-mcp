@@ -1,4 +1,4 @@
-# Multimodal RAG Domain Principles Framework v1.0.0
+# Multimodal RAG Domain Principles Framework v1.0.1
 ## Federal Statutes for AI Agents Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -41,8 +41,8 @@ The following are NOT governed by this document:
 - **Image generation** — Creating new images (DALL-E, Midjourney, etc.) → Future domain when reliable methods exist
 - **Video retrieval** — Phase 2 consideration after static images
 - **General AI safety and alignment** — Constitution S-Series (Bill of Rights)
-- **Text-only RAG retrieval mechanics** — Constitution Title 12 (RAG Optimization)
-- **Platform-specific API implementation** — Methods documents (multimodal-rag-methods.md)
+- **Text-only RAG retrieval mechanics** — Governance Methods Title 12 (RAG Optimization Techniques)
+- **Platform-specific API implementation** — Methods documents (multimodal-rag-methods-v1.0.1.md)
 
 If a concern falls outside this scope, refer to the Constitution or appropriate organizational policies.
 
@@ -81,7 +81,7 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 | Context Engineering | "Load necessary information" | **Selection:** WHICH image best answers this query at this step? |
 | Visible Reasoning | "Articulate reasoning before output" | **Presentation:** HOW to weave images naturally into text flow? |
 | Minimal Relevant Context | "Only load what's necessary" | **Threshold:** When does an additional image ADD vs. DISTRACT? |
-| Graceful Degradation | "Handle failures appropriately" | **Fallback:** What specific information to provide when images fail? |
+| Failure Recovery & Resilience | "Handle failures appropriately" | **Fallback:** What specific information to provide when images fail? |
 | Foundation-First Architecture | "Establish foundations before implementation" | **Structure:** HOW to organize reference documents for multimodal retrieval? |
 
 These domain principles provide the **selection criteria, presentation patterns, threshold rules, fallback procedures, and structuring guidance** that make meta-principles actionable for multimodal RAG specifically.
@@ -253,7 +253,7 @@ Select images using Mayer's Multimedia Learning principles. Each image must pass
 - **No Redundancy:** Avoid multiple images showing the same information from different angles (MR-F8).
 
 **Constitutional Derivation**
-Derived from `meta-operational-minimal-relevant-context` and `meta-governance-resource-efficiency`. Grounded in Mayer's Coherence Principle ("include only essential content directly linked to learning objectives") and Redundancy Principle ("people learn better when extraneous material is excluded").
+Derived from `meta-operational-minimal-relevant-context` and `meta-operational-resource-efficiency-waste-reduction`. Grounded in Mayer's Coherence Principle ("include only essential content directly linked to learning objectives") and Redundancy Principle ("people learn better when extraneous material is excluded").
 
 **Why This Principle Matters**
 Each additional image competes for attention and consumes cognitive capacity. Research shows that redundant visuals create extraneous cognitive load that interferes with learning. The goal is maximum clarity with minimum visual noise.
@@ -491,7 +491,7 @@ When image retrieval fails, provide a complete text-only response plus a note ab
 - **Alternative Guidance:** Provide document reference for manual lookup if possible.
 
 **Constitutional Derivation**
-Derived from `meta-operational-graceful-degradation` from the Constitution.
+Derived from `meta-quality-failure-recovery-resilience` (Failure Recovery & Resilience) from the Constitution.
 
 **Why This Principle Matters**
 Silent failure (MR-F4) leaves users without images AND without understanding why. Explicit degradation maintains trust and provides fallback options.
@@ -552,7 +552,7 @@ Different failure types require different remediation. "Format unsupported" sugg
 2. **Image Retrieval** — Select best image using A2 (Relevance Scoring)
 3. **Placement Planning** — Determine where image belongs in response (P1)
 4. **Natural Integration** — Present without permission-asking (P2)
-5. **Selection Validation** — Verify 30% unique value threshold for additional images (P3)
+5. **Selection Validation** — Verify unique value for additional images per P3
 6. **Text Calibration** — Match text complexity to audience (P4, P5)
 7. **Failure Handling** — If retrieval fails, apply F1 and F2
 
@@ -580,7 +580,7 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **multimodal-rag-methods-v1.0.0.md** | v1.0.0 | Presentation patterns, document structuring, retrieval architecture, failure handling |
+| **multimodal-rag-methods-v1.0.1.md** | v1.0.1 | Presentation patterns, document structuring, retrieval architecture, failure handling |
 
 **Methods document includes:**
 - Title 1: Presentation Patterns (image placement workflows, selection algorithms)
@@ -594,7 +594,10 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ## Changelog
 
-### v1.0.0 (Current)
+### v1.0.1 (Current)
+- PATCH: Coherence audit remediation. (1) Fixed 2 phantom constitutional IDs: `meta-operational-graceful-degradation` → `meta-quality-failure-recovery-resilience`, `meta-governance-resource-efficiency` → `meta-operational-resource-efficiency-waste-reduction`. (2) Corrected meta-principle name "Graceful Degradation" → "Failure Recovery & Resilience" in contextual table. (3) Fixed "Constitution Title 12" → "Governance Methods Title 12 (RAG Optimization Techniques)". (4) Removed ungrounded "30%" threshold from Implementation Guidance (P3 defines qualitative test, not numeric threshold). (5) Added version to methods file cross-reference. (6) Updated methods document version reference in Relationship to Methods table.
+
+### v1.0.0
 - Initial release
 - **Four series:** P-Series (Presentation), R-Series (Reference), A-Series (Architecture), F-Series (Fallback)
 - **Twelve principles:** P1-P5, R1-R3, A1-A2, F1-F2
@@ -604,5 +607,5 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ---
 
-*Version 1.0.0*
+*Version 1.0.1*
 *Derived from: AI Coding Domain Principles v2.2.1, Multi-Agent Domain Principles v2.0.0, Storytelling Domain Principles v1.0.0*

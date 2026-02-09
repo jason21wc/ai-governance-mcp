@@ -21,7 +21,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v3.9.3** (meta-methods), **v2.9.1** (ai-coding methods), **v2.3.1** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.11.0** (multi-agent methods), **v1.1.1** (storytelling), **v1.0.0** (multimodal-rag) |
+| Content | **v2.4** (Constitution), **v3.9.3** (meta-methods), **v2.9.1** (ai-coding methods), **v2.3.1** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.11.0** (multi-agent methods), **v1.1.1** (storytelling), **v1.0.1** (multimodal-rag) |
 | Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -32,7 +32,11 @@
 
 ## Completed This Session (2026-02-08)
 
-### 1. Storytelling Domain Coherence Audit Remediation
+### 1. Multimodal RAG Domain Coherence Audit Remediation
+
+PATCH across 2 files: multimodal-rag-domain-principles v1.0.0→v1.0.1, multimodal-rag-methods v1.0.0→v1.0.1. (1) Fixed 2 phantom constitutional IDs: `meta-operational-graceful-degradation` → `meta-quality-failure-recovery-resilience`, `meta-governance-resource-efficiency` → `meta-operational-resource-efficiency-waste-reduction`. (2) Corrected meta-principle name "Graceful Degradation" → "Failure Recovery & Resilience" in contextual table. (3) Fixed "Constitution Title 12" → "Governance Methods Title 12 (RAG Optimization Techniques)". (4) Removed ungrounded "30%" threshold from principles Implementation Guidance and methods Appendix A.4 prompt pattern (P3 defines qualitative test, not numeric threshold). (5) Added version to cross-file references in both files. (6) Updated methods document version reference in Relationship to Methods table. Findings 8-9 (missing metadata blocks) deferred — systemic cross-domain pattern, no domain file has them. New issues (A2 weights line 453, MR-F3 threshold line 108) noted for backlog. Updated domains.json, SESSION-STATE.md.
+
+### 2. Storytelling Domain Coherence Audit Remediation
 
 PATCH across 2 files: storytelling-domain-principles v1.1.0→v1.1.1, storytelling-methods v1.1.0→v1.1.1. (1) Fixed changelog principle count "15"→"16" (v0.1.0 had 16 principles, not 15). (2) Updated methods system instruction to reflect expanded scope (was context-window-only, now covers full storytelling methods including voice, genre, plot, coaching). (3) Added Version/Status/Effective Date/Governance Level metadata block to methods file. Findings 1-3 (truncated `meta-safety-non-maleficence` ID) deferred to system-level remediation — meta-methods example table uses same truncated form. Updated domains.json, SESSION-STATE.md.
 

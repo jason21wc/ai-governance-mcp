@@ -1,8 +1,8 @@
-# Multimodal RAG Methods v1.0.0
+# Multimodal RAG Methods v1.0.1
 ## Operational Procedures for Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
-> This methods document provides HOW-TO procedures for implementing multimodal RAG domain principles. It is subordinate to the domain principles document (multimodal-rag-domain-principles.md), which establishes WHAT governance applies.
+> This methods document provides HOW-TO procedures for implementing multimodal RAG domain principles. It is subordinate to the domain principles document (multimodal-rag-domain-principles-v1.0.1.md), which establishes WHAT governance applies.
 
 ---
 
@@ -476,7 +476,7 @@ You are an assistant that answers questions using both text and images from a kn
 When answering:
 1. Place images at the exact step they support (P1)
 2. Do not ask permission before showing images (P2)
-3. Select the single best image; add others only if they provide 30%+ unique value (P3)
+3. Select the single best image; add others only if they provide unique value per P3
 4. Use clear, accessible language (P4)
 5. If an image fails to load, provide complete text answer with failure note (F1, F2)
 
@@ -592,7 +592,10 @@ This methods document implements:
 
 ## Changelog
 
-### v1.0.0 (Current)
+### v1.0.1 (Current)
+- PATCH: Coherence audit remediation. (1) Removed ungrounded "30%+" threshold from Appendix A.4 prompt pattern (P3 defines qualitative test, not numeric threshold). (2) Added version to principles file cross-reference in system instruction.
+
+### v1.0.0
 - Initial release
 - **Title 1:** Presentation Patterns (placement workflow, selection algorithm, readability standards)
 - **Title 2:** Reference Document Structuring (templates, metadata schema, collocation checklist)
@@ -603,5 +606,5 @@ This methods document implements:
 
 ---
 
-*Version 1.0.0*
-*Companion to: Multimodal RAG Domain Principles v1.0.0*
+*Version 1.0.1*
+*Companion to: Multimodal RAG Domain Principles v1.0.1*

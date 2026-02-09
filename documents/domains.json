@@ -34,8 +34,8 @@
   "multimodal-rag": {
     "name": "multimodal-rag",
     "display_name": "Multimodal RAG",
-    "principles_file": "multimodal-rag-domain-principles-v1.0.0.md",
-    "methods_file": "multimodal-rag-methods-v1.0.0.md",
+    "principles_file": "multimodal-rag-domain-principles-v1.0.1.md",
+    "methods_file": "multimodal-rag-methods-v1.0.1.md",
     "description": "AI agents that retrieve and present images inline with text responses. Image placement, reference document structuring, multimodal retrieval architecture, graceful degradation, readability optimization, procedural documentation, screenshot presentation, inline visuals, image selection criteria, fallback behaviors, and audience-adaptive communication. Covers hotel operations, training materials, customer support, and any context where visual reference materials enhance understanding.",
     "priority": 40
   }
