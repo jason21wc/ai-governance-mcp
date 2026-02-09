@@ -30,7 +30,7 @@ This document defines operational procedures for maintaining the AI Governance F
                               |
                               v
 +-------------------------------------------------------------+
-|  Domain Methods: ai-coding-methods.md, multi-agent-methods.md|
+|  Domain Methods (see domains.json for current list)          |
 |  Domain-specific operational procedures.                     |
 +-------------------------------------------------------------+
 ```
