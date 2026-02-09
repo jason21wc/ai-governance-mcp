@@ -69,8 +69,8 @@ When delegating via Task tool, include:
 User: "Refactor the authentication module"
 
 1. Call `evaluate_governance(planned_action="Refactor authentication module - restructure code for maintainability")`
-2. Assessment: PROCEED with principles `meta-quality-testing`, `coding-security-input-validation`
-3. Delegate to coding-specialist: "Refactor auth module. Constraints: maintain test coverage (meta-quality-testing), preserve input validation (coding-security-input-validation)"
+2. Assessment: PROCEED with principles `coding-quality-testing-integration`, `coding-quality-security-first-development`
+3. Delegate to coding-specialist: "Refactor auth module. Constraints: maintain test coverage (coding-quality-testing-integration), preserve input validation (coding-quality-security-first-development)"
 
 ### Good Example — Appropriate Escalation
 

@@ -149,7 +149,7 @@ Load this document when:
 
 This document assumes the AI has been directed here by a **loader document**. The canonical loader is:
 
-**`ai-instructions-v2.4.md`** — Framework Activation Protocol
+**`ai-instructions-v2.5.md`** — Framework Activation Protocol
 
 The loader is implemented through tool-specific configurations:
 - `CLAUDE.md` for Claude Code CLI
@@ -163,7 +163,7 @@ Tool Config (CLAUDE.md) → ai-instructions → Constitution → Domain → Meth
 ```
 
 **If you arrived here without activation:** Execute the first response protocol from ai-instructions before proceeding:
-1. Identify jurisdiction (AI Coding, Multi-Agent, or General)
+1. Identify jurisdiction (AI Coding, Multi-Agent, Storytelling, Multimodal RAG, or General)
 2. Check for SESSION-STATE.md in project root
 3. State framework status in your first response
 
@@ -523,16 +523,25 @@ for domain, data in idx['domains'].items():
 **Expected output:**
 ```
 constitution:
-  meta-governance-ratification-process
   meta-core-context-engineering
   meta-core-single-source-of-truth
+  meta-core-separation-of-instructions-and-data
 ai-coding:
   coding-context-specification-completeness
   coding-context-context-window-management
-  coding-process-sequential-phase-dependencies
+  coding-context-session-state-continuity
 multi-agent:
-  multi-core-cognitive-function-specialization
-  multi-core-context-isolation-architecture
+  multi-general-justified-complexity
+  multi-architecture-cognitive-function-specialization
+  multi-architecture-context-engineering-discipline
+storytelling:
+  stor-architecture-a1-audience-discovery-first
+  stor-architecture-a2-cultural-context-awareness
+  stor-architecture-a3-accessibility-by-design
+multimodal-rag:
+  mult-process-p1-inline-image-integration
+  mult-process-p2-natural-integration
+  mult-process-p3-image-selection-criteria
 ```
 
 ---

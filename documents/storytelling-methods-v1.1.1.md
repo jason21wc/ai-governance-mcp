@@ -1976,5 +1976,5 @@ Terminate when the writer has clarity. Do not continue questioning past the poin
 
 ---
 
-*Version 1.1.0*
-*Companion to: Storytelling Domain Principles v1.1.1*
+*Version 1.1.1*
+*Companion to: Storytelling Domain Principles v1.1.2*

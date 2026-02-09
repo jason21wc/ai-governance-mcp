@@ -2833,7 +2833,7 @@ Before deploying CI/CD:
 
 **Importance: 🟡 IMPORTANT — Maintains codebase health over time**
 
-**Implements:** Q3 (Testing Standards), G1 (Sustainable Practices)
+**Implements:** Q3 (Testing Integration), Resource Efficiency & Waste Reduction (Meta)
 **Applies to:** All project phases, especially before releases and after major milestones
 
 ### 6.5.1 Purpose

@@ -140,4 +140,4 @@ If context seems lost: `query_governance("framework recovery")`
 
 ---
 
-*See documents/ai-instructions-v2.4.md for full activation protocol.*
+*See documents/ai-instructions-v2.5.md for full activation protocol.*

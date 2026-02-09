@@ -103,7 +103,7 @@ Follow the Operational Application Protocol:
 │     • ai-coding-domain-principles.md (12 principles)        │
 │     • multi-agent-domain-principles.md (14 principles)      │
 │     • storytelling-domain-principles.md (19 principles)     │
-│     • multimodal-rag-domain-principles.md (5 principles)    │
+│     • multimodal-rag-domain-principles.md (12 principles)   │
 │     Defines WHAT must be achieved (outcomes, thresholds).   │
 └─────────────────────────────────────────────────────────────┘
                               │
