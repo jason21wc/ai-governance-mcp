@@ -467,13 +467,13 @@ Reference other principles by title, not ID:
 
 **Same-domain references:**
 ```markdown
-- See also: Verification Mechanisms, Fail-Fast Detection
+- See also: Verification Mechanisms, Fail-Fast Validation
 ```
 
 **Cross-domain references (domain docs → Constitution):**
 ```markdown
 - Derives from **Context Engineering** (Constitution)
-- Constitutional Basis: Verification Mechanisms, Fail-Fast Detection
+- Constitutional Basis: Verification Mechanisms, Fail-Fast Validation
 ```
 
 **Incorrect formats:**
