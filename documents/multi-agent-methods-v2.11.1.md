@@ -1,7 +1,7 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.11.0
+**Version:** 2.11.1
 **Status:** Active
 **Effective Date:** 2026-02-08
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -33,7 +33,7 @@ This document defines operational procedures that implement the Multi-Agent Doma
 +---------------------------------------------------------------------+
 |  multi-agent-domain-principles.md (FEDERAL STATUTES)                |
 |  Domain Principles: Agent-specific binding law.                     |
-|  14 Principles: J1, A1-A5, R1-R5, Q1-Q3                             |
+|  14 Principles: J1, A1-A4, R1-R5, Q1-Q4                             |
 +---------------------------------------------------------------------+
                               |
                               v
@@ -3765,6 +3765,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.11.1 | 2026-02-09 | PATCH: Cross-domain audit remediation. Fixed principle enumeration in governance hierarchy box: "J1, A1-A5, R1-R5, Q1-Q3" → "J1, A1-A4, R1-R5, Q1-Q4" to match actual v2.1.0 principle structure. |
 | v2.11.0 | 2026-02-08 | MINOR: Coherence audit remediation. (1) Fixed A-Series ID conflict: §2.1.2 Context Isolation Architecture A4→A2 (matching 3 other references). (2) Updated validation checklist from "5 required sections" to "6 required sections" (adding Governance Compliance per v2.7.0). (3) Fixed Effective Date (2026-01-24→2026-02-08). (4) Fixed phantom principle name: "Explicit Intent"→"Explicit Over Implicit". (5) Fixed npm scope: @anthropic-ai/gemini-cli→@google/gemini-cli. (6) Moved orphaned v2.10.0.1 into version history table. (7) Fixed version history date (v2.5.0: 2026-01-05→2026-01-04 per git history). |
 | v2.10.1 | 2026-02-08 | PATCH: Coherence audit cascade fix. Corrected principle ID in §4.5 audit record example (line 2556): `coding-quality-security-by-default` → `coding-quality-security-first-development` per ai-coding-domain-principles v2.3.1 canonical ID. |
 | v2.10.0.1 | 2026-02-01 | PATCH: Replaced "significant action" with skip-list model per v1.7.0 operational change. |

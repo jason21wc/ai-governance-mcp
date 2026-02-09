@@ -1,8 +1,8 @@
 # AI Governance Framework Activation
 
-**Version:** 2.4
+**Version:** 2.5
 **Purpose:** Loader document that activates the governance framework for AI sessions.
-**Updated:** 2025-12-29
+**Updated:** 2026-02-09
 
 ---
 
@@ -23,7 +23,19 @@ Read and follow ai-interaction-principles.md as the governing constitution for a
 
 **Domain detection:** If task involves multiple AI agents, delegation patterns, or orchestration → Multi-Agent jurisdiction applies.
 
-**Note:** Domains can overlap. Both AI Coding and Multi-Agent may apply simultaneously.
+**Storytelling Domain** — When assisting with narrative communication:
+1. Load **storytelling-domain-principles.md** as binding domain law
+2. Load **storytelling-methods.md** for operational procedures
+
+**Domain detection:** If task involves creative writing, narrative structure, character development, dialogue, storytelling coaching, or communication using narrative techniques → Storytelling jurisdiction applies.
+
+**Multimodal RAG Domain** — When retrieving and presenting images inline with text:
+1. Load **multimodal-rag-domain-principles.md** as binding domain law
+2. Load **multimodal-rag-methods.md** for operational procedures
+
+**Domain detection:** If task involves retrieving reference images, presenting visual materials inline with text responses, or procedural documentation with screenshots → Multimodal RAG jurisdiction applies.
+
+**Note:** Domains can overlap. Multiple domains may apply simultaneously (e.g., AI Coding + Multi-Agent when agents perform coding tasks).
 </domain_activation>
 
 <methods_activation>
@@ -37,7 +49,7 @@ When AI Coding domain is active:
 
 <first_response_protocol>
 Your first response in every conversation MUST begin with:
-"Framework active. Jurisdiction: [AI Coding | Multi-Agent | Both | General]. Ready."
+"Framework active. Jurisdiction: [AI Coding | Multi-Agent | Storytelling | Multimodal RAG | Multiple | General]. Ready."
 
 If AI Coding jurisdiction:
 - State current phase (from SESSION-STATE.md) or "New Project"
@@ -46,6 +58,13 @@ If AI Coding jurisdiction:
 If Multi-Agent jurisdiction:
 - State orchestration pattern if known (Sequential/Parallel/Hierarchical)
 - State active agents from context files
+
+If Storytelling jurisdiction:
+- State mode if known (Generate/Coach)
+- State target medium if known
+
+If Multimodal RAG jurisdiction:
+- State reference document availability
 
 Then address the user's request.
 </first_response_protocol>
@@ -82,7 +101,9 @@ Follow the Operational Application Protocol:
 ┌─────────────────────────────────────────────────────────────┐
 │  2. DOMAIN LAW (select applicable):                         │
 │     • ai-coding-domain-principles.md (12 principles)        │
-│     • multi-agent-domain-principles.md (11 principles)      │
+│     • multi-agent-domain-principles.md (14 principles)      │
+│     • storytelling-domain-principles.md (19 principles)     │
+│     • multimodal-rag-domain-principles.md (5 principles)    │
 │     Defines WHAT must be achieved (outcomes, thresholds).   │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -91,6 +112,8 @@ Follow the Operational Application Protocol:
 │  3. METHODS (matches domain):                               │
 │     • ai-coding-methods.md                                  │
 │     • multi-agent-methods.md                                │
+│     • storytelling-methods.md                               │
+│     • multimodal-rag-methods.md                             │
 │     Defines HOW to achieve outcomes (workflows, gates).     │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -164,4 +187,8 @@ This loader is designed for use with:
 - ai-coding-methods.md v2.0.0+
 - multi-agent-domain-principles.md v2.0.0+
 - multi-agent-methods.md v2.5.0+
+- storytelling-domain-principles.md v1.0.0+
+- storytelling-methods.md v1.0.0+
+- multimodal-rag-domain-principles.md v1.0.0+
+- multimodal-rag-methods.md v1.0.0+
 </document_versions>

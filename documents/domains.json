@@ -10,8 +10,8 @@
   "ai-coding": {
     "name": "ai-coding",
     "display_name": "AI Coding",
-    "principles_file": "ai-coding-domain-principles-v2.3.1.md",
-    "methods_file": "ai-coding-methods-v2.9.1.md",
+    "principles_file": "ai-coding-domain-principles-v2.3.2.md",
+    "methods_file": "ai-coding-methods-v2.9.2.md",
     "description": "Software development with AI assistance. Code generation, debugging, unit testing, pytest, integration tests, refactoring, code review, pull requests, git workflows, CI/CD pipelines, API design, software architecture, Python programming, project structure, file organization, project cleanup, repository hygiene, gitignore, build configuration, linting, code quality, Docker containerization, MCP server development, deployment patterns, configuration validation, application security review, authentication security, OAuth PKCE, JWT security, session management, HTTP security headers, CORS configuration, error handling, cryptography, language-specific security patterns, API rate limiting, GraphQL security, data protection, PII handling, and container security.",
     "priority": 10
   },
@@ -19,14 +19,14 @@
     "name": "multi-agent",
     "display_name": "Multi-Agent",
     "principles_file": "multi-agent-domain-principles-v2.1.0.md",
-    "methods_file": "multi-agent-methods-v2.11.0.md",
+    "methods_file": "multi-agent-methods-v2.11.1.md",
     "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Artifact type selection (method vs subagent), agent authoring, system prompt best practices, tool scoping, agent validation, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, memory distillation, production observability, ReAct loop configuration, agent evaluation framework (4-layer), production safety guardrails, governance compliance, task management, task dependencies, task lifecycle, task ownership, and advanced model considerations for prompting strategies.",
     "priority": 20
   },
   "storytelling": {
     "name": "storytelling",
     "display_name": "Storytelling",
-    "principles_file": "storytelling-domain-principles-v1.1.1.md",
+    "principles_file": "storytelling-domain-principles-v1.1.2.md",
     "methods_file": "storytelling-methods-v1.1.1.md",
     "description": "Creative writing and narrative development with AI assistance. Character development, world-building, plot structure, dialogue, voice consistency, character voice profiles, voice distinction, scene composition, pacing, emotional resonance, thematic depth, genre conventions, revision strategies, non-linear writing, fragment assembly, continuity management, plot consistency checks, coaching questions, and context tracking across long-form narratives. Covers fiction genres including fantasy, science fiction, romance, thriller, mystery, and horror. World-building elements: magic systems, settings, lore, backstory, mythology, rules of the world, fictional cultures. Narrative techniques: foreshadowing, tension, conflict, stakes, show dont tell, subtext, hooks, payoffs, story bible, character arcs, skill erosion prevention. Formats: novels, short stories, novellas, screenplays, series, flash fiction.",
     "priority": 30

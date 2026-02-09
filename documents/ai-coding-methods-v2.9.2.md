@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.9.1
+**Version:** 2.9.2
 **Status:** Active
 **Effective Date:** 2026-02-08
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -4387,7 +4387,7 @@ def generate_config(platform: str) -> dict:
 # Project: [Name]
 
 ## Governance
-- Framework: AI Coding Domain Principles v2.3.0
+- Framework: AI Coding Domain Principles v2.3.2
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Current State
@@ -5003,6 +5003,7 @@ When the context engine is available, project-specific instructions could be sem
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.9.2 | 2026-02-09 | PATCH: Cross-domain audit remediation. (1) Updated CLAUDE.md template in Appendix A.1: principles version reference v2.3.0 → v2.3.2. (2) Updated Document Governance principles version reference (v2.3.1 → v2.3.2). |
 | 2.9.1 | 2026-02-08 | PATCH: Coherence audit remediation. (1) Fixed principle reference in TITLE 9 §9.2 (line 4046): corrected "Security by Default" (coding-quality-security-by-default) to "Security-First Development" and normalized Implements header format. (2) Moved orphaned v2.5.0.1 entry into version history table. (3) Updated Document Governance principles version reference (v2.3.0 → v2.3.1). |
 | 2.9.0 | 2026-02-08 | **Application Security & Review Procedures:** (1) Added §5.7 Application Security Patterns (new Part): §5.7.1 purpose implementing Q2; §5.7.2 Authentication & Session Security — OAuth 2.0/OIDC checklist (PKCE, state, redirect URI, code single-use, nonce, ID token validation), JWT security checklist (algorithm whitelist, expiry, audience/issuer, no localStorage, refresh rotation) with vulnerable vs. secure code example, session management checklist (regeneration, idle/absolute timeout, server-side invalidation), cookie security attributes table (HttpOnly, Secure, SameSite, `__Host-` prefix); §5.7.3 HTTP Security Headers — reference table (CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, COOP, CORP), CSP nonce-based guidance, AI-specific note on missing headers; §5.7.4 CORS Configuration — security checklist, vulnerable vs. secure origin validation code example, AI mistake pattern note; §5.7.5 Error Handling & Information Disclosure — fail-closed principle with code example, information disclosure checklist (8 items), production error response pattern with correlation ID (OWASP A10:2025); §5.7.6 Cryptography Implementation — algorithm selection table (6 categories), key management checklist, TLS checklist, timing-safe comparison example. (2) Added §5.8 Domain-Specific Security Review (new Part): §5.8.1 purpose; §5.8.2 Language-Specific Security Patterns — Python table (8 vulnerabilities: pickle, eval, subprocess, yaml, tarfile, XML, ReDoS, path traversal), JavaScript/TypeScript table (6: prototype pollution, ReDoS, innerHTML, eval, dependency confusion, path traversal), Go table (5: race conditions, timeouts, integer overflow, template injection, resource leaks), Rust table (4: unsafe blocks, FFI, unwrap, unchecked arithmetic); §5.8.3 API Security Patterns — rate limiting checklist (7 items: per-user, auth endpoint limits, sliding window), GraphQL security checklist (7 items: depth limiting, complexity analysis, introspection disabled, field-level authz, batching, persisted queries), WebSocket security checklist (6 items), API versioning security; §5.8.4 Data Protection & Privacy — data sensitivity tiers table (Critical/High/Medium/Low), PII protection checklist (8 items), analytics pixel leakage with Blue Shield of California case study (4.7M members, 2025); §5.8.5 Container Security — Docker security checklist (9 items), secrets in layers vulnerable vs. secure Dockerfile example, .dockerignore requirements, image scanning. (3) Added 2 Situation Index rows: security review (application) → §5.7, security review (by technology) → §5.8. Research basis: OWASP Top 10 2025, OWASP API Security Top 10, ASVS v5, 2025-2026 breach analysis. |
 | 2.8.0 | 2026-02-08 | **Vibe-Coding Security Best Practices:** (1) Added §5.3.5 AI-Generated Code Security Patterns: AI security blind spots table, CWE watch list (10 CWEs from Georgetown CSET/ACM TOSEM/OWASP), phantom API detection, security-conscious specification example, AI-specific code review checklist. (2) Added §5.3.6 Backend-as-a-Service Security: default configuration trap (Moltbook breach case study), Supabase checklist (9 items), Firebase checklist (6 items), environment variable exposure prevention (5 items), pre-deployment BaaS verification procedure. (3) Added §5.4.5 Slopsquatting Defense: attack mechanics, transient execution environments, package provenance verification table, SCA integration. (4) Added §5.6 AI Coding Tool Security: §5.6.1 coding tool injection defense (5 attack patterns including MCP tool poisoning/shadowing with CVEs, defense checklist), §5.6.2 credential isolation and secrets management (pre-commit hooks, CI scanning, secrets sprawl statistics), §5.6.3 destructive action prevention (Replit incident, 5 prevention rules), §5.6.4 OWASP security framework cross-reference (LLM Top 10 2025, Agentic Top 10 2026, SHIELD framework). (5) Updated §5.3.2 with BaaS checklist items. (6) Updated §5.4.3 with slopsquatting cross-reference. (7) Updated principle-to-title mapping: Workflow Integrity → Title 5 + Title 8 with explanatory note. (8) Added Title 8 cross-reference to §5.6. Research basis: Stanford 2022 (false confidence), Georgetown CSET (CWE failure rates), ACM TOSEM 2025 (Copilot vulnerabilities), Moltbook breach (Jan 2026), MCPTox 2025 (tool shadowing), OWASP Agentic Top 10 2026. |
@@ -5027,7 +5028,7 @@ When the context engine is available, project-specific instructions could be sem
 
 ## Document Governance
 
-**Authority:** This document implements ai-coding-domain-principles.md (v2.3.1). Methods cannot contradict principles.
+**Authority:** This document implements ai-coding-domain-principles.md (v2.3.2). Methods cannot contradict principles.
 
 **Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.
 

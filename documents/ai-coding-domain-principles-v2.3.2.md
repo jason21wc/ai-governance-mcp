@@ -1,4 +1,4 @@
-# AI Coding Domain Principles Framework v2.3.1
+# AI Coding Domain Principles Framework v2.3.2
 ## Federal Statutes for AI-Assisted Software Development
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -182,17 +182,17 @@ This table maps each domain principle to its Constitutional basis and evidence f
 | Domain Principle | Failure Mode Cluster | Constitutional Basis | Primary Truth Sources |
 |------------------|---------------------|---------------------|----------------------|
 | **Specification Completeness** | A1: Hallucination from incomplete specs | Context Engineering, Verification Mechanisms | Technical specs, requirements docs, acceptance criteria |
-| **Context Window Management** | A3: Context overflow, "context rot" | Context Optimization | Token limits, session metrics, quality indicators |
-| **Session State Continuity** | A2: Context loss between sessions | Documentation, Context Engineering | State files (CLAUDE.md), session logs, decision records |
-| **Sequential Phase Dependencies** | C2: Implementation before architecture | Prioritization, Verification Mechanisms | Phase definitions, completion criteria, architecture docs |
-| **Validation Gates** | B1/B2/B3/C2: Skipped validation | Verification Mechanisms, Evidence Standards | Gate criteria, test results, security scans |
-| **Atomic Task Decomposition** | C1: Large chunks resist review | Task Scoping, Verification Mechanisms | Task definitions, file counts, test coverage |
-| **Human-AI Collaboration** | D1/D2: AI makes product decisions; automation bias | Human Authority, Transparency | Decision logs, escalation records, review acceptance criteria |
-| **Production-Ready Standards** | C3: Technical debt from velocity | Verification Mechanisms, Completeness | Production checklists, code standards, documentation |
-| **Security-First Development** | B3: 45% vulnerability rate | Security, Verification Mechanisms | Security scan results, vulnerability databases |
-| **Testing Integration** | B2: Inadequate test coverage | Verification Mechanisms, Evidence Standards | Test results, coverage reports |
-| **Supply Chain Integrity** | Hallucinated dependencies, slopsquatting | Security, Context Engineering | Package registries (npm, PyPI, crates.io), SBOMs |
-| **Workflow Integrity** | Prompt injection, tool misuse, adversarial context | Safety Boundaries, Security | Trusted instruction sources, context validation |
+| **Context Window Management** | A3: Context overflow, "context rot" | Minimal Relevant Context | Token limits, session metrics, quality indicators |
+| **Session State Continuity** | A2: Context loss between sessions | Transparent Reasoning, Context Engineering | State files (CLAUDE.md), session logs, decision records |
+| **Sequential Phase Dependencies** | C2: Implementation before architecture | Goal-First Dependency Mapping, Verification Mechanisms | Phase definitions, completion criteria, architecture docs |
+| **Validation Gates** | B1/B2/B3/C2: Skipped validation | Verification Mechanisms, Verifiable Outputs | Gate criteria, test results, security scans |
+| **Atomic Task Decomposition** | C1: Large chunks resist review | Atomic Task Decomposition, Verification Mechanisms | Task definitions, file counts, test coverage |
+| **Human-AI Collaboration** | D1/D2: AI makes product decisions; automation bias | Clear Roles, Transparent Reasoning | Decision logs, escalation records, review acceptance criteria |
+| **Production-Ready Standards** | C3: Technical debt from velocity | Verification Mechanisms, Constraint-Based Prompting | Production checklists, code standards, documentation |
+| **Security-First Development** | B3: 45% vulnerability rate | Security by Default, Verification Mechanisms | Security scan results, vulnerability databases |
+| **Testing Integration** | B2: Inadequate test coverage | Verification Mechanisms, Verifiable Outputs | Test results, coverage reports |
+| **Supply Chain Integrity** | Hallucinated dependencies, slopsquatting | Security by Default, Context Engineering | Package registries (npm, PyPI, crates.io), SBOMs |
+| **Workflow Integrity** | Prompt injection, tool misuse, adversarial context | Non-Maleficence, Security by Default | Trusted instruction sources, context validation |
 
 ---
 
@@ -379,7 +379,7 @@ This document is a living artifact. It should be evolved cautiously—adding, mo
 
 **Constitutional Basis:**
 - Derives from **Context Engineering:** Load necessary information to prevent hallucination—specifications are the primary context for code generation
-- Derives from **Explicit Intent:** All goals, constraints, and requirements must be explicitly stated before execution
+- Derives from **Explicit Over Implicit:** All goals, constraints, and requirements must be explicitly stated before execution
 - Derives from **Verification Mechanisms:** Output must match requirements—impossible without complete requirements to match against
 - Derives from **Non-Maleficence:** Incomplete specs lead to hallucinations that cause downstream harm (security vulnerabilities, rework, user-facing bugs)
 
@@ -459,12 +459,12 @@ Garbage in, garbage out—but confidently. *This corresponds to "The Evidentiary
 - **A3: Context Window Overflow → Quality Degradation** — Performance degrades as context approaches limits ("context rot"), characterized by hallucinations, contradictions, and loss of earlier decisions.
 
 **Constitutional Basis:**
-- Derives from **Context Optimization:** Minimize context consumption while maintaining effectiveness
+- Derives from **Minimal Relevant Context:** Minimize context consumption while maintaining effectiveness
 - Derives from **Context Engineering:** Load only necessary information—strategic selection, not exhaustive loading
-- Derives from **Documentation:** Keep information current, accessible, and retrievable from external storage
+- Derives from **Single Source of Truth:** Keep information current, accessible, and retrievable from external storage
 
 **Why Meta-Principles Alone Are Insufficient:**
-Meta-Principle Context Optimization states "minimize context consumption" but doesn't address what happens when context **overflows despite optimization**—a scenario unique to AI coding where sessions can span hours and touch hundreds of files. Traditional development has no equivalent constraint. This domain principle establishes: (1) proactive monitoring thresholds, (2) prioritization hierarchies for what stays vs. what goes, and (3) recovery protocols when overflow occurs.
+Meta-Principle Minimal Relevant Context states "minimize context consumption" but doesn't address what happens when context **overflows despite optimization**—a scenario unique to AI coding where sessions can span hours and touch hundreds of files. Traditional development has no equivalent constraint. This domain principle establishes: (1) proactive monitoring thresholds, (2) prioritization hierarchies for what stays vs. what goes, and (3) recovery protocols when overflow occurs.
 
 **Domain Application:**
 AI coding assistants operate within finite context windows (typically 100K-200K tokens). Despite large theoretical limits, research shows performance degrades significantly around 32K tokens due to the "lost in the middle" phenomenon. Effective development requires strategic context management: loading essential information while keeping less-critical details in external, retrievable storage. Context overflow causes information loss, hallucinations, contradicting earlier decisions, and degraded code quality.
@@ -527,11 +527,11 @@ Memory is finite; forgetting is fatal. *This corresponds to "Judicial Economy"�
 
 **Constitutional Basis:**
 - Derives from **Context Engineering:** Maintain necessary information across interactions—sessions are just interaction boundaries
-- Derives from **Documentation:** Capture decisions and rationale for future reference
+- Derives from **Transparent Reasoning and Traceability:** Capture decisions and rationale for future reference
 - Derives from **Single Source of Truth:** Centralized state management prevents conflicting sources
 
 **Why Meta-Principles Alone Are Insufficient:**
-Meta-Principle Documentation states "document decisions for future reference" but doesn't address the **unique statelessness of AI sessions**. Traditional documentation assumes human memory bridges gaps between documents. AI sessions have no memory—each starts completely fresh. This domain principle establishes: (1) what state components must persist, (2) protocols for session start/end, and (3) mechanisms for seamless resumption.
+Meta-Principle Transparent Reasoning and Traceability states "document decisions for future reference" but doesn't address the **unique statelessness of AI sessions**. Traditional documentation assumes human memory bridges gaps between documents. AI sessions have no memory—each starts completely fresh. This domain principle establishes: (1) what state components must persist, (2) protocols for session start/end, and (3) mechanisms for seamless resumption.
 
 **Domain Application:**
 AI coding sessions reset between interactions, losing ALL context. Multi-session development projects require explicit state management mechanisms to maintain continuity: what's been completed, what decisions were made, what's next, and why. Without state continuity, each session starts from zero, causing redundant work ("re-contextualizing"), contradictory decisions, and lost architectural coherence.
@@ -609,7 +609,7 @@ Amnesia defeats expertise. *This corresponds to "Stare Decisis"—courts rely on
 - Derives from **Foundation-First Architecture:** Establish architectural foundations before implementation
 - Derives from **Discovery Before Commitment:** Complete discovery phases before committing to downstream work
 - Derives from **Verification Mechanisms:** Validate each phase before proceeding to next
-- Derives from **Prioritization:** Work in dependency order, not arbitrary order
+- Derives from **Goal-First Dependency Mapping:** Work in dependency order, not arbitrary order
 
 **Why Meta-Principles Alone Are Insufficient:**
 Meta-Principle Foundation-First Architecture states "establish foundations before implementation" but doesn't define **what constitutes a complete foundation** in AI coding or **how phases relate to each other**. Traditional development assumes human judgment bridges phase gaps. AI coding requires explicit phase dependencies because AI will confidently proceed with incomplete upstream context, generating plausible-looking code that violates unstated architectural constraints. This domain principle establishes: (1) phase dependency order, (2) what "complete" means for each phase, and (3) cascade protocols when upstream changes occur.
@@ -682,8 +682,8 @@ You cannot build the roof before the foundation. *This corresponds to "Procedura
 
 **Constitutional Basis:**
 - Derives from **Verification Mechanisms:** Validate output against requirements before considering work complete
-- Derives from **Fail-Fast Detection:** Catch errors early before they propagate
-- Derives from **Failure Recovery:** Define clear recovery paths when errors detected
+- Derives from **Fail-Fast Validation:** Catch errors early before they propagate
+- Derives from **Failure Recovery & Resilience:** Define clear recovery paths when errors detected
 
 **Why Meta-Principles Alone Are Insufficient:**
 Meta-Principle Verification Mechanisms states "validate outputs against requirements" but doesn't specify **WHEN** validation must occur in AI coding or **WHAT** happens when validation fails. Traditional development often defers validation to QA phases. AI coding velocity makes this dangerous—thousands of lines can be generated before any validation, amplifying error propagation. This domain principle establishes: (1) mandatory gate points, (2) gate types (technical vs. vision), and (3) failure protocols.
@@ -770,12 +770,12 @@ P-series mandates *that* verification happens at specific points; Q-series defin
 - **C1: Large Chunk Generation → Review/Debug Difficulty** — AI generates massive code blocks that resist review, testing, and debugging. Errors hide in volume.
 
 **Constitutional Basis:**
-- Derives from **Atomic Decomposition:** Break complex problems into independently solvable units
-- Derives from **Iterative Design:** Build and validate incrementally
-- Derives from **Requirements Decomposition:** Break requirements into testable units
+- Derives from **Atomic Task Decomposition:** Break complex problems into independently solvable units
+- Derives from **Iterative Planning and Delivery:** Build and validate incrementally
+- Derives from **Incremental Validation:** Break requirements into testable units
 
 **Why Meta-Principles Alone Are Insufficient:**
-Meta-Principle Atomic Decomposition states "break into smallest units" but doesn't specify **AI-coding-specific thresholds** for what "smallest" means or how to prevent AI's natural tendency to generate large, complete implementations. Unlike humans who naturally pause at cognitive boundaries, AI optimizes for completeness—it will generate 1,000 lines as readily as 50. This domain principle establishes: (1) concrete size limits (≤15 files), (2) independence criteria, and (3) validation granularity requirements.
+Meta-Principle Atomic Task Decomposition states "break into smallest units" but doesn't specify **AI-coding-specific thresholds** for what "smallest" means or how to prevent AI's natural tendency to generate large, complete implementations. Unlike humans who naturally pause at cognitive boundaries, AI optimizes for completeness—it will generate 1,000 lines as readily as 50. This domain principle establishes: (1) concrete size limits (≤15 files), (2) independence criteria, and (3) validation granularity requirements.
 
 **Domain Application:**
 Development work must be decomposed into atomic tasks that: affect ≤15 files, are completable independently, have clear acceptance criteria, and can be validated individually. Atomic tasks enable: focused context (preventing overflow), granular validation (catching errors early), clear progress tracking, and manageable human review. AI must generate incrementally with validation after each increment, not in large chunks that resist review.
@@ -843,12 +843,12 @@ Complexity defeats comprehension. *This corresponds to "Severability"—legal co
 - **D2: Automation Bias** — Human over-relies on AI recommendations, accepting suggestions without appropriate critical review
 
 **Constitutional Basis:**
-- Derives from **Role Segregation:** Clear separation between executor and validator roles
-- Derives from **Handoff Protocols:** Explicit handoff between different roles
-- Derives from **Human Agency Boundary:** Human makes strategic decisions; AI executes technical implementation
+- Derives from **Role Specialization & Topology:** Clear separation between executor and validator roles
+- Derives from **Hybrid Interaction & RACI:** Explicit handoff between different roles
+- Derives from **Technical Focus with Clear Escalation Boundaries:** Human makes strategic decisions; AI executes technical implementation
 
 **Why Meta-Principles Alone Are Insufficient:**
-Meta-Principle Human Agency Boundary states "humans make strategic decisions, AI executes" but doesn't define **specific decision boundaries** for AI coding or protocols for the inverted paradigm where AI is primary executor rather than assistant. Traditional development assumes human coder with AI assistance. AI-assisted development inverts this: AI codes, human directs. This requires explicit protocols for: which decisions AI owns, which require escalation, how to present options, and how to prevent both over-escalation (slowing velocity) and under-escalation (AI overreach). The principle also addresses automation bias—the tendency to accept AI outputs without critical review.
+Meta-Principle Technical Focus with Clear Escalation Boundaries states "humans make strategic decisions, AI executes" but doesn't define **specific decision boundaries** for AI coding or protocols for the inverted paradigm where AI is primary executor rather than assistant. Traditional development assumes human coder with AI assistance. AI-assisted development inverts this: AI codes, human directs. This requires explicit protocols for: which decisions AI owns, which require escalation, how to present options, and how to prevent both over-escalation (slowing velocity) and under-escalation (AI overreach). The principle also addresses automation bias—the tendency to accept AI outputs without critical review.
 
 **Domain Application:**
 AI serves as primary executor implementing technical tasks, while Product Owner provides strategic direction, makes key decisions, and validates alignment with product vision. This inverted paradigm requires explicit protocols for decision authority, escalation triggers, option presentation, and human review expectations.
@@ -964,7 +964,7 @@ Execution without authority is tyranny; authority without execution is paralysis
 **Constitutional Basis:**
 - Derives from **Non-Maleficence:** Prevent harm through security and quality—incomplete code causes downstream harm
 - Derives from **Verification Mechanisms:** Validate against production requirements before delivery
-- Derives from **Constraint Awareness:** Respect production constraints from start, not as afterthought
+- Derives from **Constraint-Based Prompting:** Respect production constraints from start, not as afterthought
 
 **Why Meta-Principles Alone Are Insufficient:**
 Meta-Principle Verification Mechanisms states "validate against requirements" but doesn't address the **velocity-quality tension unique to AI coding**. Traditional development naturally paces quality integration because humans write slower. AI generates thousands of lines in minutes—if quality isn't integrated from the start, massive amounts of incomplete code accumulate before anyone notices. This domain principle establishes: (1) what "production-ready" means concretely, (2) when quality attributes must be integrated (from inception, not retrofit), and (3) specific thresholds for deployment readiness.
@@ -1046,11 +1046,11 @@ Velocity without quality is just faster failure. *This corresponds to "Building 
 
 **Constitutional Basis:**
 - Derives from **Non-Maleficence:** First, do no harm—security vulnerabilities are forms of harm
-- Derives from **Security:** Comprehensive security testing required
+- Derives from **Security, Privacy, and Compliance by Default:** Comprehensive security testing required
 - Derives from **Verification Mechanisms:** Validate security before deployment
 
 **Why Meta-Principles Alone Are Insufficient:**
-Meta-Principle Non-Maleficence states "do no harm" and Security requires "security testing," but neither specifies the **severity thresholds for AI-generated code** where 45% contains vulnerabilities by default. This domain principle establishes: (1) specific severity gates (zero HIGH/CRITICAL for production), (2) mandatory scanning integration, and (3) when security can NEVER be deferred.
+Meta-Principle Non-Maleficence states "do no harm" and Security, Privacy, and Compliance by Default requires "security testing," but neither specifies the **severity thresholds for AI-generated code** where 45% contains vulnerabilities by default. This domain principle establishes: (1) specific severity gates (zero HIGH/CRITICAL for production), (2) mandatory scanning integration, and (3) when security can NEVER be deferred.
 
 **Domain Application:**
 Security vulnerabilities are forms of harm that must be prevented, not remediated after deployment. AI code generation requires explicit security integration: input validation, authentication/authorization, data protection, secure coding patterns, and vulnerability scanning. Security is validated at every phase gate with zero HIGH/CRITICAL vulnerabilities as the production gate. Security cannot be deferred, overridden, or "addressed in the next sprint."
@@ -1123,11 +1123,11 @@ A vulnerability shipped is harm delivered. *This corresponds to "Strict Liabilit
 
 **Constitutional Basis:**
 - Derives from **Verification Mechanisms:** Output must match requirements—tests verify this
-- Derives from **Testing:** Tests prevent defects from reaching users
-- Derives from **Evidence Standards:** Tests provide evidence of correctness
+- Derives from **Incremental Validation:** Tests prevent defects from reaching users
+- Derives from **Verifiable Outputs:** Tests provide evidence of correctness
 
 **Why Meta-Principles Alone Are Insufficient:**
-Meta-Principle Testing states "tests prevent defects" but doesn't specify **when tests must be created** relative to implementation or **what coverage threshold** is acceptable for AI-generated code. Traditional development often allows test-after approaches. AI coding cannot—the volume of generated code makes after-the-fact testing impractical. This domain principle establishes: (1) tests generated WITH implementation, (2) coverage thresholds (≥80%), and (3) what "tested" means beyond just coverage percentage.
+Meta-Principle Incremental Validation states "tests prevent defects" but doesn't specify **when tests must be created** relative to implementation or **what coverage threshold** is acceptable for AI-generated code. Traditional development often allows test-after approaches. AI coding cannot—the volume of generated code makes after-the-fact testing impractical. This domain principle establishes: (1) tests generated WITH implementation, (2) coverage thresholds (≥80%), and (3) what "tested" means beyond just coverage percentage.
 
 **Domain Application:**
 Tests must be generated simultaneously with implementation, not as afterthought. Test coverage threshold (default ≥80%) must be met before code is considered complete. Tests must validate actual behavior against specifications, not just exercise code paths. Testing is part of "done," not a separate phase.
@@ -1202,7 +1202,7 @@ Tests are evidence; evidence must be contemporaneous. *This corresponds to "Chai
 - **A4: Hallucinated Dependencies → Malicious Package Injection** — AI recommends packages that don't exist; attackers register these names with malicious code ("slopsquatting").
 
 **Constitutional Basis:**
-- Derives from **Security:** Security includes dependency security
+- Derives from **Security, Privacy, and Compliance by Default:** Security includes dependency security
 - Derives from **Context Engineering:** Dependencies must be grounded in truth (registries), not hallucinated
 - Derives from **Established Solutions First:** Use verified, established packages
 
@@ -1278,12 +1278,12 @@ Trust but verify—AI recommendations are not verified by default. *This corresp
 - **Workflow Manipulation** — Untrusted inputs cause AI to perform unintended actions (unauthorized changes, data exposure, bypass of controls).
 
 **Constitutional Basis:**
-- Derives from **Safety Boundaries:** AI must not be manipulated into unsafe actions
-- Derives from **Security:** Security includes protection of the AI workflow itself
+- Derives from **Non-Maleficence & Privacy First:** AI must not be manipulated into unsafe actions
+- Derives from **Security, Privacy, and Compliance by Default:** Security includes protection of the AI workflow itself
 - Derives from **Context Engineering:** Context must come from trusted sources
 
 **Why Meta-Principles Alone Are Insufficient:**
-Meta-Principle Safety Boundaries establishes safety boundaries but doesn't address the **unique vulnerability of AI coding assistants to prompt injection via development artifacts**. Traditional security protects code outputs; AI coding also requires protecting the AI process itself from manipulation. Repository content, PR comments, documentation, and even web pages can contain adversarial instructions that cause AI to behave unexpectedly. This domain principle establishes: (1) what sources are trusted, (2) how to handle untrusted inputs, and (3) detection of manipulation attempts.
+Meta-Principle Non-Maleficence & Privacy First establishes safety boundaries but doesn't address the **unique vulnerability of AI coding assistants to prompt injection via development artifacts**. Traditional security protects code outputs; AI coding also requires protecting the AI process itself from manipulation. Repository content, PR comments, documentation, and even web pages can contain adversarial instructions that cause AI to behave unexpectedly. This domain principle establishes: (1) what sources are trusted, (2) how to handle untrusted inputs, and (3) detection of manipulation attempts.
 
 **Domain Application:**
 AI coding workflows process untrusted inputs: repository content, PR comments, documentation, web pages. These may contain adversarial instructions designed to manipulate AI behavior. Unlike traditional security (protecting code outputs), workflow integrity protects the AI assistant itself from manipulation that could cause unsafe actions.
@@ -1534,6 +1534,7 @@ At EVERY phase boundary or significant checkpoint:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.3.2 | 2026-02-09 | PATCH: Cross-domain audit remediation. Corrected ~20 fabricated/inaccurate meta-principle names in Constitutional Basis sections and mapping table to use canonical Constitution principle names. Key fixes: "Explicit Intent" → "Explicit Over Implicit", "Context Optimization" → "Minimal Relevant Context", "Documentation" → "Transparent Reasoning and Traceability" / "Single Source of Truth", "Role Segregation" → "Role Specialization & Topology", "Safety Boundaries" → "Non-Maleficence & Privacy First", "Security" → "Security, Privacy, and Compliance by Default", and 14 others. |
 | v2.3.1 | 2026-02-08 | PATCH: Coherence audit remediation. Updated stale "2024-2025" year references to "2025" in 3 pedagogical locations (framework introduction, Evidence Base Summary, Appendix D extension guidance). |
 | v2.3.0 | 2026-02-02 | **Reference Memory Integration:** (1) Added persistent semantic index to Context Priority Hierarchy Reference tier in Context Window Management. (2) Added Reference Memory as 6th State Component in Session State Continuity. Tool-agnostic additions extending existing memory taxonomy. |
 | v2.2.1 | 2025-12-29 | PATCH: Cleaned up template section (removed outdated series code format, added clarifying note that series codes are for organization only). |

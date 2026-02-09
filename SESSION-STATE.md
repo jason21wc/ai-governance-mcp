@@ -21,7 +21,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v3.9.3** (meta-methods), **v2.9.1** (ai-coding methods), **v2.3.1** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.11.0** (multi-agent methods), **v1.1.1** (storytelling), **v1.0.1** (multimodal-rag) |
+| Content | **v2.4** (Constitution), **v3.9.3** (meta-methods), **v2.9.2** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.11.1** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
 | Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -32,7 +32,23 @@
 
 ## Completed This Session (2026-02-08)
 
-### 1. Multimodal RAG Domain Coherence Audit Remediation
+### 1. Cross-Domain Consistency Audit Remediation
+
+PATCH/MINOR across 6 files. Cross-domain audit with 3 parallel agents (Constitutional ID Integrity, Cross-File Reference Consistency, Governance Hierarchy & Structure) found 8 findings. All remediated:
+
+**(1) ai-coding-domain-principles v2.3.1→v2.3.2:** Corrected ~20 fabricated/inaccurate meta-principle names in Constitutional Basis sections and mapping table. Key fixes: "Explicit Intent"→"Explicit Over Implicit", "Context Optimization"→"Minimal Relevant Context", "Documentation"→"Transparent Reasoning and Traceability"/"Single Source of Truth", "Role Segregation"→"Role Specialization & Topology", "Safety Boundaries"→"Non-Maleficence & Privacy First", "Security"→"Security, Privacy, and Compliance by Default", plus 14 others.
+
+**(2) storytelling-domain-principles v1.1.1→v1.1.2:** Fixed 3 stale methods cross-references (storytelling-methods v1.1.0→v1.1.1) in Out of Scope, Relationship to Methods table, and v1.1.0 changelog.
+
+**(3) ai-instructions v2.4→v2.5:** Added missing Storytelling and Multimodal RAG domain activation sections. Fixed multi-agent principle count (11→14). Updated governance hierarchy box with all 4 domains. Updated first response protocol and document versions list.
+
+**(4) ai-coding-methods v2.9.1→v2.9.2:** Updated CLAUDE.md template principles version reference (v2.3.0→v2.3.2). Updated Document Governance principles reference (v2.3.1→v2.3.2).
+
+**(5) multi-agent-methods v2.11.0→v2.11.1:** Fixed principle enumeration in governance hierarchy box (J1,A1-A5,R1-R5,Q1-Q3 → J1,A1-A4,R1-R5,Q1-Q4).
+
+**Deferred:** `meta-safety-non-maleficence` truncated ID in storytelling (system-level). Meta-methods versioning examples (pedagogical, per §4.3.4). Updated domains.json (4 refs), CLAUDE.md, SESSION-STATE.md.
+
+### 2. Multimodal RAG Domain Coherence Audit Remediation
 
 PATCH across 2 files: multimodal-rag-domain-principles v1.0.0→v1.0.1, multimodal-rag-methods v1.0.0→v1.0.1. (1) Fixed 2 phantom constitutional IDs: `meta-operational-graceful-degradation` → `meta-quality-failure-recovery-resilience`, `meta-governance-resource-efficiency` → `meta-operational-resource-efficiency-waste-reduction`. (2) Corrected meta-principle name "Graceful Degradation" → "Failure Recovery & Resilience" in contextual table. (3) Fixed "Constitution Title 12" → "Governance Methods Title 12 (RAG Optimization Techniques)". (4) Removed ungrounded "30%" threshold from principles Implementation Guidance and methods Appendix A.4 prompt pattern (P3 defines qualitative test, not numeric threshold). (5) Added version to cross-file references in both files. (6) Updated methods document version reference in Relationship to Methods table. Findings 8-9 (missing metadata blocks) deferred — systemic cross-domain pattern, no domain file has them. New issues (A2 weights line 453, MR-F3 threshold line 108) noted for backlog. Updated domains.json, SESSION-STATE.md.
 

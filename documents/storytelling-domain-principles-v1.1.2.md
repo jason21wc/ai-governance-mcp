@@ -1,4 +1,4 @@
-# Storytelling Domain Principles Framework v1.1.1
+# Storytelling Domain Principles Framework v1.1.2
 ## Federal Statutes for AI-Assisted Narrative Communication
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -44,7 +44,7 @@ This document governs AI-assisted storytelling activities:
 The following are NOT governed by this document:
 - **Factual accuracy of claims within stories** → Fact-checking, source verification
 - **Copyright and intellectual property** → Legal/compliance frameworks
-- **Platform-specific technical implementation** → Methods documents (storytelling-methods-v1.1.0.md)
+- **Platform-specific technical implementation** → Methods documents (storytelling-methods-v1.1.1.md)
 - **General AI safety and alignment** → Constitution S-Series (Bill of Rights)
 - **Marketing strategy and business decisions** → Organization policies
 
@@ -895,7 +895,7 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **storytelling-methods-v1.1.0.md** | v1.1.0 | Context engineering, character voice profiles, genre conventions, plot consistency, coaching questions |
+| **storytelling-methods-v1.1.1.md** | v1.1.1 | Context engineering, character voice profiles, genre conventions, plot consistency, coaching questions |
 
 **Context Management Method includes:**
 - Context thresholds (when Story Bibles become mandatory)
@@ -919,7 +919,10 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ## Changelog
 
-### v1.1.1 (Current)
+### v1.1.2 (Current)
+- **Cross-domain audit remediation.** Fixed 3 stale methods cross-references: updated storytelling-methods filename from v1.1.0 to v1.1.1 in Out of Scope section, Relationship to Methods table, and v1.1.0 changelog entry.
+
+### v1.1.1
 - **Coherence audit remediation.** Fixed changelog principle count (15 → 16; v0.1.0 had 16 principles, not 15).
 
 ### v1.1.0
@@ -928,7 +931,7 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 - **Added ST-F14: Character Drift** failure mode — character details changing subtly across long narratives without intention
 - **Added "The Dependency Creep"** to E1 failure modes
 - **Updated methods reference** to v1.1.0 with expanded coverage description
-- **Moved coaching playbook** from Planned Methods to Available (now in storytelling-methods-v1.1.0.md)
+- **Moved coaching playbook** from Planned Methods to Available (now in storytelling-methods-v1.1.1.md)
 
 ### v1.0.0
 - **Promoted to production** — moved from drafts/ to documents/
@@ -962,5 +965,5 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ---
 
-*Version 1.1.1*
+*Version 1.1.2*
 *Derived from: AI Coding Domain Principles v2.2.1, Multi-Agent Domain Principles v2.0.0*
