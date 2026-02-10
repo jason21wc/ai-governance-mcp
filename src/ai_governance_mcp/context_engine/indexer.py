@@ -228,7 +228,7 @@ class Indexer:
         project_path: Path,
         project_id: str,
         changed_files: list[Path],
-    ) -> ProjectIndex | None:
+    ) -> ProjectIndex:
         """Update the index in response to file changes.
 
         Note: Currently performs a full re-index. True incremental update
@@ -240,7 +240,7 @@ class Indexer:
             changed_files: List of files that changed.
 
         Returns:
-            Updated ProjectIndex, or None if full re-index is needed.
+            Updated ProjectIndex (always succeeds via full re-index fallback).
         """
         # Load existing index
         existing = self.storage.load_metadata(project_id)
@@ -248,7 +248,8 @@ class Indexer:
             logger.info("No existing index found, performing full index")
             return self.index_project(project_path, project_id)
 
-        # TODO: Implement true incremental update (replace only changed file chunks)
+        # TODO: Implement true incremental update (replace only changed file chunks).
+        # Currently falls back to full re-index for all changes.
         logger.warning(
             "incremental_update performs full re-index (true incremental not yet "
             "implemented). %d files changed.",

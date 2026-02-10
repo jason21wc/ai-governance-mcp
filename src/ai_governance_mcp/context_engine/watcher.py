@@ -2,7 +2,8 @@
 
 Monitors project files for changes and triggers incremental re-indexing.
 Uses watchdog library for cross-platform file system events.
-Default debounce of 500ms to batch rapid changes.
+Default debounce of 0.5 seconds to batch rapid changes.
+Safety limit: MAX_PENDING_CHANGES (10,000) triggers force-flush to prevent unbounded memory.
 """
 
 import logging

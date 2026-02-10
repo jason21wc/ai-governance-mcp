@@ -16,6 +16,7 @@ from rank_bm25 import BM25Okapi
 from .indexer import Indexer
 from .models import (
     ContentChunk,
+    IndexMode,
     ProjectIndex,
     ProjectQueryResult,
     ProjectStatus,
@@ -72,7 +73,7 @@ class ProjectManager:
     def get_or_create_index(
         self,
         project_path: Path,
-        index_mode: str = "realtime",
+        index_mode: IndexMode = "realtime",
     ) -> ProjectIndex:
         """Get existing index or create a new one for a project.
 
@@ -202,7 +203,7 @@ class ProjectManager:
 
             return index
 
-    def _get_watcher_status(self, project_id: str, index_mode: str) -> str:
+    def _get_watcher_status(self, project_id: str, index_mode: IndexMode) -> str:
         """Get watcher status for a project.
 
         Returns: running, stopped, circuit_broken, or disabled

@@ -300,7 +300,8 @@ def create_server() -> tuple[Server, ProjectManager]:
                 name="project_status",
                 description=(
                     "Get detailed index statistics for the current project: "
-                    "file count, chunk count, last updated, index size."
+                    "file count, chunk count, last updated, index size, "
+                    "watcher status, and connector availability."
                 ),
                 inputSchema={
                     "type": "object",
@@ -417,7 +418,7 @@ async def _handle_query_project(
                 "type": r.chunk.content_type,
                 "score": round(r.combined_score, 3),
                 "heading": r.chunk.heading,
-                "content": r.chunk.content[:500],  # Truncate for display
+                "content": r.chunk.content[:500],  # Truncate to 500 chars for display
             }
         )
 
@@ -440,7 +441,7 @@ async def _handle_index_project(manager: ProjectManager) -> list[TextContent]:
                 type="text",
                 text=json.dumps(
                     {
-                        "error": "Rate limited. index_project is an expensive operation. "
+                        "error": "Rate limited (max 5 per minute). index_project is an expensive operation. "
                         "Please wait before trying again.",
                     },
                     indent=2,

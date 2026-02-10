@@ -26,8 +26,8 @@ logger = logging.getLogger("ai_governance_mcp.context_engine.storage.filesystem"
 # Project IDs must be hex characters only (SHA-256 truncation output)
 _PROJECT_ID_PATTERN = re.compile(r"^[0-9a-f]{1,64}$")
 
-# Maximum JSON file size to load (100MB) — prevents OOM on corrupted/malicious files
-MAX_JSON_FILE_SIZE_BYTES = 100 * 1024 * 1024
+# Maximum JSON file size to load — prevents OOM on corrupted/malicious files
+MAX_JSON_FILE_SIZE_BYTES = 100 * 1024 * 1024  # 100 MB
 
 
 def _atomic_write_json(path: Path, data: Any, indent: int | None = None) -> None:
