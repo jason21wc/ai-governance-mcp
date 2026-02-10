@@ -830,7 +830,7 @@ Documentation drift occurs because:
 
 | Tier | Trigger | What to Check |
 |------|---------|---------------|
-| **Quick** | Session start (advisory) | Memory file dates vs. last known state; size thresholds per §7.0.4; obvious staleness (version mismatches, stale "Active Task") |
+| **Quick** | Session start (advisory) | Memory file dates vs. last known state; size thresholds per ai-coding §7.0.4; obvious staleness (version mismatches, stale "Active Task") |
 | **Full** | Pre-release, framework version bump, new domain added, explicit human request | All 5 generic checks + file-type-specific checks per §4.3.3; cross-file consistency; subagent validation |
 
 **Note:** The **Quick tier** is advisory — it depends on AI agents following **session-start** procedures. It does not provide guaranteed coverage. The **Full tier** should be treated as a **pre-release gate** (like the pre-release security checklist).
@@ -856,7 +856,7 @@ Documentation drift occurs because:
 | **Cosmetic** | Minor staleness with no decision impact (e.g., approximate count slightly off, missing optional template section) | Fix at convenience |
 
 **File-type-specific checks:**
-- **Memory files:** Named significance test for every entry (Working Memory §7.1.1, Decision Significance §7.2.1, Future Action §7.3.1)
+- **Memory files:** Named significance test for every entry (ai-coding §7.1.1 Working Memory, ai-coding §7.2.1 Decision Significance, ai-coding §7.3.1 Future Action)
 - **Charter/public docs:** Public-facing accuracy, version alignment, dynamic reference verification
 - **Structural docs:** Snapshot tables match code reality
 - **Policy docs:** Implemented features list complete
@@ -1200,7 +1200,7 @@ Not every interaction requires full ceremonial procedure. Apply protocols propor
 
 **Importance: IMPORTANT — Maximizes insight while minimizing question burden**
 
-**Implements:** Progressive Inquiry Protocol (C-Series)
+**Implements:** Progressive Inquiry Protocol (`meta-core-progressive-inquiry-protocol`) (C-Series)
 
 **Applies To:** Any scenario requiring **requirements gathering**, **preference elicitation**, or **context discovery** through questioning. **Open-ended vs structured question format**, **question format selection**, **progressive questioning**, **discovery conversation**, **requirements elicitation**, **adaptive inquiry**.
 
@@ -3137,7 +3137,7 @@ The following appendices provide platform-specific tactics for applying the gove
 
 ### G.5 Claude Code Auto Memory
 
-**Applies To:** projects using Claude Code CLI with the cognitive memory architecture (§7.0)
+**Applies To:** projects using Claude Code CLI with the cognitive memory architecture (ai-coding §7.0)
 
 Claude Code provides a **platform-native auto memory** feature: a persistent file at `~/.claude/projects/<project-hash>/memory/MEMORY.md` that is automatically injected into the system prompt at every conversation start. This creates a second persistence layer alongside the framework's cognitive memory files.
 

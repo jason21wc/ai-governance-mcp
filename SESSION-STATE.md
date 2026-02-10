@@ -32,7 +32,21 @@
 
 ## Completed This Session (2026-02-08 / 2026-02-09)
 
-### 1. Progressive Inquiry Protocol Enhancement
+### 1. Full Document Coherence Audit + Remediation
+
+Full-tier coherence audit across all governance documents using 4 parallel auditor agents: (1) meta-methods v3.10.1, (2) Constitution + domains.json, (3) multi-agent + CLAUDE.md, (4) SESSION-STATE + ai-coding.
+
+**Results:** 0 Dangerous, 0 Misleading remaining after remediation. Constitution + domains.json: clean pass. SESSION-STATE + ai-coding: false positive (index count grep overcounted). Multi-agent + CLAUDE.md: pre-existing + intentional + false positive (no action needed).
+
+**Meta-methods v3.10.1 — 4 actionable findings remediated:**
+1. Added principle ID `meta-core-progressive-inquiry-protocol` to Part 7.9 `Implements:` field (was missing from new metadata)
+2. Added "ai-coding" qualifier to §7.1.1, §7.2.1, §7.3.1 cross-references (line 859, pre-existing)
+3. Added "ai-coding" qualifier to §7.0.4 cross-reference (line 833, pre-existing)
+4. Added "ai-coding" qualifier to §7.0 cross-reference (line 3140, pre-existing)
+
+**Known deferred:** Multi-agent Appendix A line 3613 "200K tokens" (model-dependent, Opus 4.6 has 1M). `meta-safety-non-maleficence` truncated ID (system-level, 4 sites).
+
+### 2. Progressive Inquiry Protocol Enhancement
 
 PATCH: meta-methods v3.10.0→v3.10.1. Analysis found Part 7.9 had 5 gaps between the Constitutional principle and its operational method: (1) Structured Selection Trap anti-pattern present in principle but missing from method's §7.9.6 table. (2) No `Implements:` or `Applies To:` metadata fields (unlike all newer sections), reducing retrieval surfacing. (3) Misleading subtitle "(Structured Questioning)" contradicting the principle's open-ended emphasis. (4) Missing Branching tier format rationale in §7.9.1. (5) No format selection decision procedure. Also added platform-specific tool mapping to CLAUDE.md (Foundation/Branching → conversational text, Refinement → AskUserQuestion).
 
