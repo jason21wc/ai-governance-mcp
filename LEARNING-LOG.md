@@ -12,6 +12,14 @@
 
 ## Active Lessons
 
+### Context Engine Hardening: Defense-in-Depth for Indexing Systems (2026-02-09)
+
+File watcher, storage, and parsing systems need layered defenses even for local-use tools: (1) BM25Okapi crashes on empty corpus — guard with `any(len(doc) > 0 for doc in corpus)` before construction, (2) Timer threads must be daemon to prevent blocking process exit, tracked for cancellation in `stop()`, and guarded with `_running.is_set()` checks, (3) All persistent file loads need corrupt-file recovery (try/except → log → delete → return None), (4) CSV/XLSX parsers need column limits (`row[:500]`), plain text parsers need force-split at max lines.
+
+**Rule:** When building indexing/search systems: extract duplicate guard logic into helpers, make all timers daemon with lifecycle tracking, implement circuit breakers for repeated failures (3 strikes), add atomic writes (tmp+rename) for all persisted data, and column/row/size limits for all file parsers.
+
+---
+
 ### Bold Text Drives Method Retrieval Surfacing (2026-02-07)
 
 New method sections get generic chunk titles from the extractor (e.g., "Purpose", "Trigger Conditions"). The extractor picks up **bold text** as `trigger_phrases` (max 4 words, >5 chars). Without bold key terms, method chunks won't surface for natural-language queries.

@@ -75,7 +75,8 @@ class SpreadsheetConnector(BaseConnector):
                 reader = csv.reader(f, delimiter=delimiter)
                 rows = []
                 for i, row in enumerate(reader):
-                    rows.append(row)
+                    # Limit columns to prevent memory exhaustion on wide CSVs
+                    rows.append(row[:500])
                     if i >= 10:  # Header + 10 sample rows
                         break
 
@@ -124,7 +125,10 @@ class SpreadsheetConnector(BaseConnector):
                     rows = []
                     for i, row in enumerate(ws.iter_rows(values_only=True)):
                         rows.append(
-                            [str(cell) if cell is not None else "" for cell in row]
+                            [
+                                str(cell) if cell is not None else ""
+                                for cell in row[:500]
+                            ]
                         )
                         if i >= 10:
                             break

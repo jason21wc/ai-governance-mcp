@@ -475,7 +475,8 @@ async def _handle_index_project(manager: ProjectManager) -> list[TextContent]:
 
 async def _handle_list_projects(manager: ProjectManager) -> list[TextContent]:
     """Handle list_projects tool call."""
-    projects = manager.list_projects()
+    loop = asyncio.get_running_loop()
+    projects = await loop.run_in_executor(None, manager.list_projects)
 
     if not projects:
         return [
@@ -512,7 +513,8 @@ async def _handle_project_status(
     manager: ProjectManager,
 ) -> list[TextContent]:
     """Handle project_status tool call."""
-    status = manager.get_project_status()
+    loop = asyncio.get_running_loop()
+    status = await loop.run_in_executor(None, manager.get_project_status)
 
     if status is None:
         return [

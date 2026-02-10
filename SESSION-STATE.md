@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation
 - **Mode:** Standard
-- **Active Task:** None (Unified Update Checklist complete)
+- **Active Task:** Context engine hardening — commit pending
 - **Blocker:** None
 
 ## Quick Reference
@@ -31,6 +31,41 @@
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 
 ## Completed This Session (2026-02-08 / 2026-02-10)
+
+### 0. Context Engine Hardening (14 fixes across 8 files)
+
+Comprehensive hardening of the context engine MCP server based on security audit, code review, and research into common failure modes for indexing/search systems. Applied in 3 rounds: initial fixes (H1-H4, M1-M7), research-driven fixes (10 additional), and code reviewer follow-up fixes (H1-H2, M1-M4).
+
+**Thread safety & lifecycle:**
+- Moved expensive indexing outside `_index_lock` (RLock only for in-memory swaps)
+- Added debounce (2s) + cooldown (5s) + force-flush (10K pending) to file watcher
+- Daemon timer threads with proper lifecycle tracking + cancellation in `stop()`
+- Added `_running.is_set()` guard to `_do_flush()` for defense-in-depth
+- Circuit breaker: 3 consecutive failures → stop watcher, report status
+
+**Storage resilience:**
+- Atomic file writes (tmp + rename) for JSON and .npy files
+- Corrupt file recovery on all load methods (try/except → log → delete → return None)
+- 100MB JSON file size limits to prevent OOM
+- Corrupt metadata recovery via Pydantic fallback to minimal ProjectIndex
+- Orphan .tmp cleanup on startup
+
+**Parser hardening:**
+- CSV/XLSX column limit (500 columns)
+- Plain text force-split at 200 lines
+- BM25 empty corpus guard (extracted `_build_bm25()` helper)
+- Chunk count + content size limits (50,000 chunks, 100KB per chunk)
+
+**Infrastructure:**
+- Model download timeout (60s) with thread-safe lazy-load
+- LRU project eviction (max 10 loaded projects)
+- Error-safe index size computation
+- Removed misleading CSV comment (never called)
+- Removed dead `end_line` parameter from `_emit_section()`
+
+**Documentation updated:** ARCHITECTURE.md v1.7.0→v1.8.0 (15 new security features documented, watcher data flow updated), README.md (3 new features), LEARNING-LOG.md (1 new lesson).
+
+**Verification:** 574 tests pass, 0 failures. Code review: PASS WITH NOTES (all notes addressed).
 
 ### 0. Full Coherence Audit Remediation (4 PATCH bumps)
 

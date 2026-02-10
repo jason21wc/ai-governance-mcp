@@ -241,7 +241,11 @@ class CodeConnector(BaseConnector):
                 or any(line.lstrip().startswith(p) for p in boundary_patterns)
             )
 
-            if is_boundary or i == len(lines):
+            # Hard split at 4x target to prevent single massive chunks
+            # when no boundary pattern matches (e.g., minified code)
+            force_split = len(chunk_lines) >= target_chunk_size * 4
+
+            if is_boundary or force_split or i == len(lines):
                 chunk_content = "\n".join(chunk_lines)
                 if chunk_content.strip():
                     chunks.append(

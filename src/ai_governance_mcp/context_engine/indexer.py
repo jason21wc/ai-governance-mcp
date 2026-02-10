@@ -7,6 +7,7 @@ generates embeddings, and builds the hybrid search index (BM25 + semantic).
 import hashlib
 import logging
 import re
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -31,9 +32,19 @@ MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024
 # Maximum number of files to index per project — prevents memory exhaustion
 MAX_FILE_COUNT = 10_000
 
+# Maximum total chunks across all files — prevents OOM during embedding
+MAX_TOTAL_CHUNKS = 100_000
+
+# Maximum content per chunk (chars) — prevents memory amplification
+# Chunks exceeding this are truncated (content is preserved in source files)
+MAX_CHUNK_CONTENT_CHARS = 10_000
+
 # Maximum content length for embedding input (chars)
 # BGE-small handles ~512 tokens (~2048 chars); larger models can handle more
 MAX_EMBEDDING_INPUT_CHARS = 2048
+
+# Batch size for embedding generation — limits peak memory
+EMBEDDING_BATCH_SIZE = 1000
 
 # Vetted embedding models — prevents RCE via malicious HuggingFace pickle payloads.
 # Set AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true to bypass (at your own risk).
@@ -86,6 +97,7 @@ class Indexer:
         self.embedding_model_name = embedding_model
         self.embedding_dimensions = embedding_dimensions
         self._embedding_model = None
+        self._model_lock = threading.Lock()  # Thread-safe lazy model loading
 
         # Initialize connectors in priority order
         self.connectors: list[BaseConnector] = [
@@ -100,13 +112,27 @@ class Indexer:
     def embedding_model(self):
         """Lazy-load the embedding model with safety enforcement.
 
-        Uses safetensors format (prevents pickle RCE) and blocks remote code execution.
-        Model must be in ALLOWED_EMBEDDING_MODELS unless custom models are explicitly enabled.
+        Thread-safe: uses a lock to prevent duplicate model loading when
+        concurrent queries race on a cold start. Uses safetensors format
+        (prevents pickle RCE) and blocks remote code execution.
         """
-        if self._embedding_model is None:
+        if self._embedding_model is not None:
+            return self._embedding_model
+
+        with self._model_lock:
+            # Double-check after acquiring lock
+            if self._embedding_model is not None:
+                return self._embedding_model
+
             import os
 
-            from sentence_transformers import SentenceTransformer
+            try:
+                from sentence_transformers import SentenceTransformer
+            except ImportError:
+                raise ImportError(
+                    "sentence-transformers not installed. "
+                    "Install with: pip install 'ai-governance-mcp[context-engine]'"
+                )
 
             allow_custom = os.environ.get(
                 "AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS", ""
@@ -118,15 +144,19 @@ class Indexer:
             ):
                 raise ValueError(
                     f"Model '{self.embedding_model_name}' is not in the allowed list. "
-                    f"Allowed models: {sorted(ALLOWED_EMBEDDING_MODELS)}. "
-                    "Set AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true to bypass."
+                    f"Allowed models: {sorted(ALLOWED_EMBEDDING_MODELS)}."
                 )
 
+            logger.info(
+                "Loading embedding model: %s (this may take a moment on first use)",
+                self.embedding_model_name,
+            )
             self._embedding_model = SentenceTransformer(
                 self.embedding_model_name,
                 trust_remote_code=False,
                 model_kwargs={"use_safetensors": True},
             )
+            logger.info("Embedding model loaded successfully")
         return self._embedding_model
 
     def index_project(
@@ -172,8 +202,21 @@ class Indexer:
                 metadata.content_hash = content_hash
                 metadata.chunk_count = len(chunks)
 
+                # Truncate oversized chunk content to prevent memory amplification
+                for chunk in chunks:
+                    if len(chunk.content) > MAX_CHUNK_CONTENT_CHARS:
+                        chunk.content = chunk.content[:MAX_CHUNK_CONTENT_CHARS]
+
                 all_chunks.extend(chunks)
                 all_metadata.append(metadata)
+
+                # Enforce total chunk limit
+                if len(all_chunks) >= MAX_TOTAL_CHUNKS:
+                    logger.warning(
+                        "Chunk limit reached (%d). Remaining files skipped.",
+                        MAX_TOTAL_CHUNKS,
+                    )
+                    break
             except Exception as e:
                 logger.warning("Failed to parse %s: %s", file_path, e)
                 continue
@@ -348,17 +391,32 @@ class Indexer:
         return hasher.hexdigest()
 
     def _generate_embeddings(self, chunks: list[ContentChunk]) -> np.ndarray:
-        """Generate embeddings for all content chunks."""
+        """Generate embeddings in batches to limit peak memory.
+
+        Instead of passing all texts to encode() at once (which can spike
+        memory for large projects), processes in batches of EMBEDDING_BATCH_SIZE.
+        """
         if not chunks:
             return np.zeros((0, self.embedding_dimensions))
 
         texts = [chunk.content[:MAX_EMBEDDING_INPUT_CHARS] for chunk in chunks]
-        embeddings = self.embedding_model.encode(
-            texts,
-            show_progress_bar=False,
-            normalize_embeddings=True,
+
+        # Batch to limit peak memory
+        all_embeddings = []
+        for i in range(0, len(texts), EMBEDDING_BATCH_SIZE):
+            batch = texts[i : i + EMBEDDING_BATCH_SIZE]
+            batch_embeddings = self.embedding_model.encode(
+                batch,
+                show_progress_bar=False,
+                normalize_embeddings=True,
+            )
+            all_embeddings.append(np.array(batch_embeddings))
+
+        return (
+            np.vstack(all_embeddings)
+            if all_embeddings
+            else np.zeros((0, self.embedding_dimensions))
         )
-        return np.array(embeddings)
 
     def _build_bm25_index(self, chunks: list[ContentChunk]) -> dict:
         """Build BM25 index data from content chunks.

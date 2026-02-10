@@ -652,10 +652,12 @@ claude mcp add ai-context-engine -- python -m ai_governance_mcp.context_engine.s
 
 **Features:**
 - Auto-indexes current working directory on first query
-- File watcher for real-time index updates (code projects)
+- File watcher for real-time index updates with debounce (2s) and cooldown (5s)
+- Circuit breaker stops watcher after 3 consecutive failures
 - Hybrid search (semantic + keyword) with configurable weights
 - Support for code, markdown, PDF, spreadsheet, and image metadata
 - `.contextignore` file support (same syntax as `.gitignore`)
+- Atomic file writes, corrupt file recovery, LRU project eviction
 
 **How it differs from Governance Server:**
 | Aspect | Governance Server | Context Engine |

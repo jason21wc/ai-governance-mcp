@@ -54,31 +54,43 @@ class DocumentConnector(BaseConnector):
             last_modified=stat.st_mtime,
         )
 
+    # Maximum lines per markdown section before force-splitting
+    _MAX_SECTION_LINES = 200
+
     def _parse_markdown(
         self, file_path: Path, content: str, display_path: str
     ) -> list[ContentChunk]:
-        """Parse markdown by heading structure."""
+        """Parse markdown by heading structure with max section size."""
         lines = content.split("\n")
         chunks: list[ContentChunk] = []
         section_lines: list[str] = []
         section_start = 1
         current_heading = ""
 
-        for i, line in enumerate(lines, start=1):
-            # Detect heading boundaries
-            if line.startswith("#") and section_lines:
-                chunk_content = "\n".join(section_lines)
+        def _emit_section() -> None:
+            """Emit accumulated section lines as chunk(s), splitting if oversized."""
+            nonlocal section_lines, section_start
+            while section_lines:
+                batch = section_lines[: self._MAX_SECTION_LINES]
+                chunk_content = "\n".join(batch)
                 if chunk_content.strip():
                     chunks.append(
                         ContentChunk(
                             content=chunk_content,
                             source_path=display_path,
                             start_line=section_start,
-                            end_line=i - 1,
+                            end_line=section_start + len(batch) - 1,
                             content_type="document",
                             heading=current_heading,
                         )
                     )
+                section_start += len(batch)
+                section_lines = section_lines[len(batch) :]
+
+        for i, line in enumerate(lines, start=1):
+            # Detect heading boundaries
+            if line.startswith("#") and section_lines:
+                _emit_section()
                 section_lines = [line]
                 section_start = i
                 current_heading = line.lstrip("#").strip()
@@ -89,18 +101,7 @@ class DocumentConnector(BaseConnector):
 
         # Final section
         if section_lines:
-            chunk_content = "\n".join(section_lines)
-            if chunk_content.strip():
-                chunks.append(
-                    ContentChunk(
-                        content=chunk_content,
-                        source_path=display_path,
-                        start_line=section_start,
-                        end_line=len(lines),
-                        content_type="document",
-                        heading=current_heading,
-                    )
-                )
+            _emit_section()
 
         return chunks
 
@@ -121,7 +122,10 @@ class DocumentConnector(BaseConnector):
                 len(para_lines) >= target_size and line.strip() == ""
             ) or i == len(lines)
 
-            if is_boundary:
+            # Hard split at max section size to prevent single massive chunks
+            force_split = len(para_lines) >= self._MAX_SECTION_LINES
+
+            if is_boundary or force_split:
                 chunk_content = "\n".join(para_lines)
                 if chunk_content.strip():
                     chunks.append(

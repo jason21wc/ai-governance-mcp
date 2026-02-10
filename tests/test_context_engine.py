@@ -1007,7 +1007,8 @@ class TestFileWatcher:
         callback = Mock()
         watcher = FileWatcher(project_path=tmp_path, on_change=callback)
         assert watcher.project_path == tmp_path
-        assert watcher.debounce_seconds == 0.5
+        assert watcher.debounce_seconds == 2.0
+        assert watcher.cooldown_seconds == 5.0
         assert watcher.ignore_spec is None
         assert watcher.is_running is False
 

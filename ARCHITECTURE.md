@@ -1,7 +1,7 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.7.0
-**Date:** 2026-02-07
+**Version:** 1.8.0
+**Date:** 2026-02-09
 **Memory Type:** Structural (reference)
 
 > System design, component responsibilities, data flow.
@@ -408,8 +408,9 @@ A second MCP server providing semantic search across project content. Complement
 │                     │   watcher   │    │ connectors  │                     │
 │                     │             │    │             │                     │
 │                     │ watchdog    │    │ code (TS)   │                     │
-│                     │ debounce    │    │ document    │                     │
-│                     │ incremental │    │ PDF         │                     │
+│                     │ debounce 2s │    │ document    │                     │
+│                     │ cooldown 5s │    │ PDF         │                     │
+│                     │ circuit brk │    │ spreadsheet │                     │
 │                     └─────────────┘    │ spreadsheet │                     │
 │                                        │ image meta  │                     │
 │                            │           └─────────────┘                     │
@@ -461,9 +462,11 @@ AI query  →  server.py (validate)  →  project_manager.query_project()
 
 **Real-time Update (file watcher):**
 ```
-file change  →  watchdog event  →  debounce (500ms)  →  incremental_update()
+file change  →  watchdog event  →  debounce (2s)  →  incremental_update()
                                                               │
                                                      reload search indexes
+                                                              │
+                                                     cooldown (5s) before next re-index
 ```
 
 ### Security Features
@@ -485,6 +488,19 @@ file change  →  watchdog event  →  debounce (500ms)  →  incremental_update
 | **Log sanitization** | Truncate content before logging | server.py |
 | **Env var robustness** | try/except with fallback defaults for all env config | server.py |
 | **.env* filtering** | .env and all variants (.env.local, etc.) excluded by default | indexer.py |
+| **Atomic file writes** | tmp file + rename pattern for JSON and .npy (prevents corruption on crash) | storage/filesystem.py |
+| **Corrupt file recovery** | All load methods: try/except → log warning → delete corrupt file → return None | storage/filesystem.py |
+| **JSON file size limits** | 100MB cap on JSON loads (prevents OOM on corrupted/malicious files) | storage/filesystem.py |
+| **BM25 empty corpus guard** | Check `any(len(doc) > 0 for doc in corpus)` before BM25Okapi construction | project_manager.py |
+| **Column limits** | CSV/XLSX rows truncated to 500 columns (prevents wide-file memory exhaustion) | connectors/spreadsheet.py |
+| **Force-split chunking** | Plain text sections force-split at 200 lines (prevents single massive chunks) | connectors/document.py |
+| **Watcher debounce + cooldown** | 2s debounce batches rapid changes; 5s cooldown prevents re-index storms | watcher.py |
+| **Watcher force-flush** | 10,000 pending changes triggers immediate flush (prevents unbounded memory) | watcher.py |
+| **Watcher circuit breaker** | 3 consecutive failures → stop watcher, report circuit_broken status | project_manager.py |
+| **LRU project eviction** | Max 10 loaded projects; least-recently-used evicted with watcher cleanup | project_manager.py |
+| **Daemon timer threads** | All Timer threads marked daemon (prevents blocking process exit) | watcher.py |
+| **Corrupt metadata recovery** | Pydantic validation failure → fallback to minimal empty ProjectIndex | project_manager.py |
+| **Orphan tmp cleanup** | On startup, removes .tmp files left by crashed atomic writes | storage/filesystem.py |
 
 ### Context Engine File Structure
 
@@ -522,7 +538,7 @@ All context engine tests are in `test_context_engine.py`. Run `pytest tests/test
 | **Indexer** | File discovery, ignore patterns (.contextignore, .env*), symlink filtering, file count limits, BM25 tokenization |
 | **Project Manager** | Score fusion, BM25 query, RLock thread safety, lifecycle (create/load/reindex/list/status/delete) |
 | **Server** | Error sanitization, rate limiting, input validation, env var parsing, handler routing |
-| **Watcher** | Start/stop, debounce, ignore spec passthrough, circuit breaker, status reporting |
+| **Watcher** | Start/stop, debounce, cooldown, force-flush, ignore spec passthrough, circuit breaker, daemon timers, status reporting |
 | **Integration** | Full index-query pipeline, .contextignore respect |
 
 ### Context Engine Dependencies

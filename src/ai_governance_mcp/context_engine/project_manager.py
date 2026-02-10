@@ -29,6 +29,22 @@ from .watcher import FileWatcher
 logger = logging.getLogger("ai_governance_mcp.context_engine.project_manager")
 
 
+# Maximum number of projects kept in memory simultaneously.
+# Older projects are evicted (watchers stopped, data unloaded) when limit is hit.
+MAX_LOADED_PROJECTS = 10
+
+
+def _build_bm25(corpus: list[list[str]]) -> BM25Okapi | None:
+    """Build a BM25 index from a tokenized corpus, with empty-corpus guard.
+
+    BM25Okapi raises ZeroDivisionError on empty or all-empty-document corpus.
+    Returns None if the corpus is unusable.
+    """
+    if corpus and any(len(doc) > 0 for doc in corpus):
+        return BM25Okapi(corpus)
+    return None
+
+
 class ProjectManager:
     """Manages multiple project indexes and provides query interface.
 
@@ -37,6 +53,7 @@ class ProjectManager:
     - Manage index lifecycle (create, update, delete)
     - Route queries to the correct project index
     - Provide hybrid search (semantic + BM25)
+    - LRU eviction of loaded projects when MAX_LOADED_PROJECTS exceeded
     """
 
     def __init__(
@@ -60,6 +77,9 @@ class ProjectManager:
         self._loaded_indexes: dict[str, ProjectIndex] = {}
         self._loaded_embeddings: dict[str, np.ndarray] = {}
         self._loaded_bm25: dict[str, BM25Okapi] = {}
+
+        # LRU tracking: list of project_ids ordered by last access (most recent last)
+        self._access_order: list[str] = []
 
         # RLock protects shared index state from watcher callback mutations.
         # Reentrant because query_project may call get_or_create_index internally.
@@ -89,11 +109,17 @@ class ProjectManager:
 
             # Check if already loaded in memory
             if project_id in self._loaded_indexes:
+                self._touch_project(project_id)
                 return self._loaded_indexes[project_id]
+
+            # Evict old projects before loading new one
+            self._evict_if_needed()
 
             # Check if exists in storage
             if self.storage.project_exists(project_id):
-                return self._load_project(project_id)
+                index = self._load_project(project_id)
+                self._touch_project(project_id)
+                return index
 
             # Create new index
             index = self._indexer.index_project(project_path, project_id, index_mode)
@@ -101,6 +127,7 @@ class ProjectManager:
 
             # Load search indexes
             self._load_search_indexes(project_id)
+            self._touch_project(project_id)
 
             # Start watcher if realtime mode
             if index_mode == "realtime":
@@ -141,6 +168,7 @@ class ProjectManager:
                 else:
                     self.get_or_create_index(project_path)
 
+            self._touch_project(project_id)
             index = self._loaded_indexes.get(project_id)
             if index is None or not index.chunks:
                 return ProjectQueryResult(
@@ -197,6 +225,11 @@ class ProjectManager:
             index = self._indexer.index_project(project_path, project_id, index_mode)
             self._loaded_indexes[project_id] = index
             self._load_search_indexes(project_id)
+            self._touch_project(project_id)
+
+            # Clear circuit breaker and failure history on successful re-index
+            self._circuit_broken.discard(project_id)
+            self._watcher_failures.pop(project_id, None)
 
             if index_mode == "realtime":
                 self._start_watcher(project_path, project_id)
@@ -220,33 +253,13 @@ class ProjectManager:
         """List all indexed projects with their status."""
         statuses = []
         for project_id in self.storage.list_projects():
-            metadata = self.storage.load_metadata(project_id)
-            if metadata:
-                index_path = self.storage.get_index_path(project_id)
-                index_size = (
-                    sum(
-                        f.stat().st_size
-                        for f in index_path.iterdir()
-                        if f.is_file() and not f.is_symlink()
-                    )
-                    if index_path.exists()
-                    else 0
-                )
-                index_mode = metadata.get("index_mode", "realtime")
-
-                statuses.append(
-                    ProjectStatus(
-                        project_id=project_id,
-                        project_path=metadata.get("project_path", "unknown"),
-                        total_files=metadata.get("total_files", 0),
-                        total_chunks=metadata.get("total_chunks", 0),
-                        index_mode=index_mode,
-                        last_updated=metadata.get("updated_at"),
-                        index_size_bytes=index_size,
-                        embedding_model=metadata.get("embedding_model", "unknown"),
-                        watcher_status=self._get_watcher_status(project_id, index_mode),
-                    )
-                )
+            try:
+                metadata = self.storage.load_metadata(project_id)
+                if metadata:
+                    statuses.append(self._build_project_status(project_id, metadata))
+            except Exception as e:
+                logger.warning("Error loading project %s: %s", project_id, e)
+                continue
         return statuses
 
     def get_project_status(
@@ -261,29 +274,7 @@ class ProjectManager:
         if metadata is None:
             return None
 
-        index_path = self.storage.get_index_path(project_id)
-        index_size = (
-            sum(
-                f.stat().st_size
-                for f in index_path.iterdir()
-                if f.is_file() and not f.is_symlink()
-            )
-            if index_path.exists()
-            else 0
-        )
-
-        index_mode = metadata.get("index_mode", "realtime")
-        return ProjectStatus(
-            project_id=project_id,
-            project_path=metadata.get("project_path", str(project_path)),
-            total_files=metadata.get("total_files", 0),
-            total_chunks=metadata.get("total_chunks", 0),
-            index_mode=index_mode,
-            last_updated=metadata.get("updated_at"),
-            index_size_bytes=index_size,
-            embedding_model=metadata.get("embedding_model", "unknown"),
-            watcher_status=self._get_watcher_status(project_id, index_mode),
-        )
+        return self._build_project_status(project_id, metadata, project_path)
 
     def shutdown(self) -> None:
         """Stop all watchers and clean up resources."""
@@ -294,13 +285,96 @@ class ProjectManager:
 
     # ─── Private methods ───
 
+    def _build_project_status(
+        self,
+        project_id: str,
+        metadata: dict,
+        project_path: Path | None = None,
+    ) -> ProjectStatus:
+        """Build a ProjectStatus from metadata with error-safe index size."""
+        index_path = self.storage.get_index_path(project_id)
+        index_size = 0
+        if index_path.exists():
+            try:
+                index_size = sum(
+                    f.stat().st_size
+                    for f in index_path.iterdir()
+                    if f.is_file() and not f.is_symlink()
+                )
+            except OSError as e:
+                logger.warning("Error computing index size for %s: %s", project_id, e)
+
+        index_mode = metadata.get("index_mode", "realtime")
+        with self._index_lock:
+            watcher_status = self._get_watcher_status(project_id, index_mode)
+
+        return ProjectStatus(
+            project_id=project_id,
+            project_path=metadata.get("project_path", str(project_path or "unknown")),
+            total_files=metadata.get("total_files", 0),
+            total_chunks=metadata.get("total_chunks", 0),
+            index_mode=index_mode,
+            last_updated=metadata.get("updated_at"),
+            index_size_bytes=index_size,
+            embedding_model=metadata.get("embedding_model", "unknown"),
+            watcher_status=watcher_status,
+        )
+
+    def _touch_project(self, project_id: str) -> None:
+        """Mark a project as recently accessed for LRU eviction.
+
+        Must be called with _index_lock held.
+        """
+        if project_id in self._access_order:
+            self._access_order.remove(project_id)
+        self._access_order.append(project_id)
+
+    def _evict_if_needed(self) -> None:
+        """Evict least-recently-used projects if at/over MAX_LOADED_PROJECTS.
+
+        Called before loading a new project, so >= ensures the new project
+        plus existing ones never exceed MAX_LOADED_PROJECTS.
+        Must be called with _index_lock held.
+        """
+        while len(self._loaded_indexes) >= MAX_LOADED_PROJECTS and self._access_order:
+            evict_id = self._access_order.pop(0)
+            if evict_id not in self._loaded_indexes:
+                continue
+            # Stop watcher for evicted project
+            watcher = self._watchers.pop(evict_id, None)
+            if watcher is not None:
+                watcher.stop()
+            # Unload from memory
+            self._loaded_indexes.pop(evict_id, None)
+            self._loaded_embeddings.pop(evict_id, None)
+            self._loaded_bm25.pop(evict_id, None)
+            logger.info("Evicted project %s from memory (LRU)", evict_id)
+
     def _load_project(self, project_id: str) -> ProjectIndex:
-        """Load a project index from storage."""
+        """Load a project index from storage.
+
+        If metadata is corrupt (fails Pydantic validation), logs a warning
+        and returns a minimal empty index so the caller can trigger re-indexing.
+        """
         metadata = self.storage.load_metadata(project_id)
         if metadata is None:
             raise ValueError(f"Project {project_id} not found in storage")
 
-        index = ProjectIndex(**metadata)
+        try:
+            index = ProjectIndex(**metadata)
+        except Exception as e:
+            logger.warning(
+                "Corrupt metadata for project %s, creating empty index: %s",
+                project_id,
+                e,
+            )
+            index = ProjectIndex(
+                project_id=project_id,
+                project_path=metadata.get("project_path", "unknown"),
+                created_at=metadata.get("created_at", "unknown"),
+                updated_at=metadata.get("updated_at", "unknown"),
+                embedding_model=metadata.get("embedding_model", "unknown"),
+            )
         self._loaded_indexes[project_id] = index
         self._load_search_indexes(project_id)
         return index
@@ -313,7 +387,9 @@ class ProjectManager:
 
         bm25_data = self.storage.load_bm25_index(project_id)
         if bm25_data and bm25_data.get("tokenized_corpus"):
-            self._loaded_bm25[project_id] = BM25Okapi(bm25_data["tokenized_corpus"])
+            bm25 = _build_bm25(bm25_data["tokenized_corpus"])
+            if bm25 is not None:
+                self._loaded_bm25[project_id] = bm25
 
     def _semantic_search(self, query: str, project_id: str) -> np.ndarray:
         """Perform semantic search, returning per-chunk scores."""
@@ -385,38 +461,49 @@ class ProjectManager:
             return
 
         def on_change(changed_files: list[Path]) -> None:
-            # H1 fix: Entire try/except inside lock to protect _watcher_failures
-            with self._index_lock:
-                try:
-                    self._indexer.incremental_update(
-                        project_path, project_id, changed_files
-                    )
-                    # Reload search indexes
-                    self._load_search_indexes(project_id)
-                    # Reload metadata
-                    metadata = self.storage.load_metadata(project_id)
-                    if metadata:
-                        self._loaded_indexes[project_id] = ProjectIndex(**metadata)
-                    # Reset failure count on success
+            # Perform expensive I/O work OUTSIDE the lock so queries aren't blocked.
+            # Only acquire the lock briefly to swap in-memory data structures.
+            try:
+                new_index = self._indexer.incremental_update(
+                    project_path, project_id, changed_files
+                )
+                # Load search data from storage (disk I/O, still outside lock)
+                new_embeddings = self.storage.load_embeddings(project_id)
+                new_bm25_data = self.storage.load_bm25_index(project_id)
+                new_bm25 = _build_bm25(
+                    new_bm25_data["tokenized_corpus"]
+                    if new_bm25_data and new_bm25_data.get("tokenized_corpus")
+                    else []
+                )
+
+                # Brief lock: swap in-memory structures atomically
+                with self._index_lock:
+                    self._loaded_indexes[project_id] = new_index
+                    if new_embeddings is not None:
+                        self._loaded_embeddings[project_id] = new_embeddings
+                    if new_bm25 is not None:
+                        self._loaded_bm25[project_id] = new_bm25
                     self._watcher_failures.pop(project_id, None)
-                except Exception as e:
+
+            except Exception as e:
+                with self._index_lock:
                     failures = self._watcher_failures.get(project_id, 0) + 1
                     self._watcher_failures[project_id] = failures
+                logger.error(
+                    "Incremental update failed (%d consecutive): %s", failures, e
+                )
+                if failures >= 3:
                     logger.error(
-                        "Incremental update failed (%d consecutive): %s", failures, e
+                        "Stopping watcher for %s after %d consecutive failures",
+                        project_id,
+                        failures,
                     )
-                    if failures >= 3:
-                        logger.error(
-                            "Stopping watcher for %s after %d consecutive failures",
-                            project_id,
-                            failures,
-                        )
-                        # H5 fix: Atomic pop() to prevent TOCTOU race
-                        watcher = self._watchers.pop(project_id, None)
-                        if watcher is not None:
-                            watcher.stop()
-                        # M5: Track circuit-broken state for status reporting
+                    # Pop watcher and stop it OUTSIDE the lock
+                    with self._index_lock:
+                        watcher_to_stop = self._watchers.pop(project_id, None)
                         self._circuit_broken.add(project_id)
+                    if watcher_to_stop is not None:
+                        watcher_to_stop.stop()
 
         ignore_spec = self._indexer.load_ignore_patterns(project_path)
         watcher = FileWatcher(
