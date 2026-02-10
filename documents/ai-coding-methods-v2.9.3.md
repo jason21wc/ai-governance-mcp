@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.9.2
+**Version:** 2.9.3
 **Status:** Active
-**Effective Date:** 2026-02-08
+**Effective Date:** 2026-02-09
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -119,6 +119,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Config validation needed | §9.1 | Pre-Flight Validation |
 | Security review (application) | §5.7 | Application Security Patterns |
 | Security review (by technology) | §5.8 | Domain-Specific Security Review |
+| CI/CD supply chain hardening | §6.4.6 | Supply Chain Hardening practices |
 
 #### On Uncertainty
 
@@ -2678,7 +2679,7 @@ State File: [Updated location]
 
 ### 6.4.1 Purpose
 
-Continuous Integration/Continuous Deployment (CI/CD) automates validation gates, ensuring code quality is verified on every change. This implements Q-series principles (Production-Ready Standards, Security-First Development, Testing Integration) through automated enforcement.
+Continuous Integration/Continuous Deployment (CI/CD) automates validation gates, ensuring code quality is verified on every change. This implements Q-series principles (Production-Ready Standards, Security-First Development, Testing Integration, Supply Chain Integrity) through automated enforcement.
 
 ### 6.4.2 CI/CD Benefits
 
@@ -2712,6 +2713,8 @@ Every production project should have automated validation:
 
 ### 6.4.4 GitHub Actions Template
 
+**Supply chain hardening** is applied throughout this template. See §6.4.6 for rationale.
+
 ```yaml
 name: CI
 
@@ -2721,16 +2724,23 @@ on:
   pull_request:
     branches: [main]
 
+# Least-privilege: no permissions by default; grant per-job
+permissions: {}
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@<commit-sha>  # v4 — pin to full SHA
+        with:
+          persist-credentials: false
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@<commit-sha>  # v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -2740,10 +2750,14 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@<commit-sha>  # v4
+        with:
+          persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@<commit-sha>  # v5
         with:
           python-version: "3.11"
       - name: Install dependencies
@@ -2755,10 +2769,14 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@<commit-sha>  # v4
+        with:
+          persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@<commit-sha>  # v5
         with:
           python-version: "3.11"
       - name: Install linter
@@ -2768,6 +2786,11 @@ jobs:
       - name: Check formatting
         run: ruff format --check src/ tests/
 ```
+
+**Template notes:**
+- Replace `<commit-sha>` with the full 40-character commit SHA from the action's releases page
+- Add a `# vN` comment after each SHA for human readability
+- Get SHAs: visit the action's GitHub repo → Releases → copy the full commit SHA for the version tag
 
 ### 6.4.5 CI/CD Integration Points
 
@@ -2795,7 +2818,7 @@ jobs:
 - Use matrix strategy for multi-version testing
 
 **Reliability:**
-- Pin action versions (`@v4` not `@latest`)
+- Pin action versions to **full commit SHAs** (not version tags) — prevents supply chain attacks via tag hijacking (see Supply Chain Hardening below)
 - Use `continue-on-error` for non-blocking checks
 - Set reasonable timeouts
 - Handle rate limits gracefully
@@ -2805,6 +2828,23 @@ jobs:
 - Use GitHub secrets for credentials
 - Scan for secrets in commits
 - Pin dependencies to exact versions
+
+**Supply Chain Hardening:**
+
+GitHub Actions run third-party code in your CI environment. Tag-based pinning (`@v4`) is vulnerable to **tag hijacking** — an attacker compromises the action repo and moves the tag to a malicious commit. The tj-actions/changed-files supply chain attack (March 2025) exploited this pattern, affecting 23,000+ repositories.
+
+| Practice | Why | How |
+|----------|-----|-----|
+| **Pin to commit SHA** | Tags are mutable; SHAs are immutable | `uses: actions/checkout@<40-char-sha> # v4` |
+| **Workflow-level `permissions: {}`** | Least-privilege by default | Set at top of workflow; grant per-job only |
+| **Per-job permissions** | Each job gets only what it needs | `permissions: contents: read` for most jobs |
+| **`persist-credentials: false`** | Prevents token leakage into `.git/config` | Add to `actions/checkout` `with:` block |
+| **Restrict Actions sources** | Block untrusted action authors | Settings → Actions → Allow select actions |
+| **Enable CodeQL scanning** | Free SAST for public repos | Add `codeql.yml` workflow with `security-extended` queries |
+
+**Anti-pattern:** Using `@v4` or `@latest` tags without SHA pinning. Even trusted actions can be compromised via account takeover.
+
+**Maintenance:** SHA-pinned actions do not auto-update. Configure **Dependabot** or **Renovate** with `package-ecosystem: github-actions` to receive automated PRs when new action versions are released. Without automated update tooling, SHA pinning trades tag-hijacking risk for permanently running unpatched action versions.
 
 **ML/AI Projects:**
 - Use CPU-only PyTorch in CI to avoid disk space issues:
@@ -2826,6 +2866,15 @@ Before deploying CI/CD:
 - [ ] Caching configured for dependencies
 - [ ] Matrix covers supported versions
 - [ ] Failure notifications configured
+
+**Supply chain hardening (§6.4.6):**
+- [ ] All actions pinned to full commit SHAs (not version tags)
+- [ ] Workflow-level `permissions: {}` (least-privilege default)
+- [ ] Per-job permissions grant only what's needed
+- [ ] `persist-credentials: false` on all `actions/checkout` steps
+- [ ] CodeQL or equivalent SAST scanning enabled
+- [ ] Actions restricted to GitHub-owned and verified creators
+- [ ] Dependabot or Renovate configured for `github-actions` ecosystem (automated SHA updates)
 
 ---
 
@@ -5003,6 +5052,7 @@ When the context engine is available, project-specific instructions could be sem
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.9.3 | 2026-02-09 | PATCH: CI/CD supply chain hardening. (1) Updated §6.4.4 GitHub Actions Template: added workflow-level `permissions: {}`, per-job permissions grants, `persist-credentials: false` on checkout, SHA-pinned action references with `<commit-sha>` placeholders and usage notes. (2) Added §6.4.6 Supply Chain Hardening subsection: tj-actions incident context, SHA pinning rationale, 6-row practice table (commit SHA, workflow permissions, per-job permissions, persist-credentials, Actions restrictions, CodeQL scanning), anti-pattern note, Dependabot maintenance guidance. Updated Reliability bullet from tag pinning to SHA pinning. (3) Updated §6.4.7 CI/CD Checklist: added 7 supply chain hardening items (SHA pinning, workflow permissions, per-job permissions, persist-credentials, CodeQL, Actions restrictions, Dependabot). (4) Added Situation Index entry: CI/CD supply chain hardening → §6.4.6. (5) Added Supply Chain Integrity to §6.4.1 purpose statement. |
 | 2.9.2 | 2026-02-09 | PATCH: Cross-domain audit remediation. (1) Updated CLAUDE.md template in Appendix A.1: principles version reference v2.3.0 → v2.3.2. (2) Updated Document Governance principles version reference (v2.3.1 → v2.3.2). |
 | 2.9.1 | 2026-02-08 | PATCH: Coherence audit remediation. (1) Fixed principle reference in TITLE 9 §9.2 (line 4046): corrected "Security by Default" (coding-quality-security-by-default) to "Security-First Development" and normalized Implements header format. (2) Moved orphaned v2.5.0.1 entry into version history table. (3) Updated Document Governance principles version reference (v2.3.0 → v2.3.1). |
 | 2.9.0 | 2026-02-08 | **Application Security & Review Procedures:** (1) Added §5.7 Application Security Patterns (new Part): §5.7.1 purpose implementing Q2; §5.7.2 Authentication & Session Security — OAuth 2.0/OIDC checklist (PKCE, state, redirect URI, code single-use, nonce, ID token validation), JWT security checklist (algorithm whitelist, expiry, audience/issuer, no localStorage, refresh rotation) with vulnerable vs. secure code example, session management checklist (regeneration, idle/absolute timeout, server-side invalidation), cookie security attributes table (HttpOnly, Secure, SameSite, `__Host-` prefix); §5.7.3 HTTP Security Headers — reference table (CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, COOP, CORP), CSP nonce-based guidance, AI-specific note on missing headers; §5.7.4 CORS Configuration — security checklist, vulnerable vs. secure origin validation code example, AI mistake pattern note; §5.7.5 Error Handling & Information Disclosure — fail-closed principle with code example, information disclosure checklist (8 items), production error response pattern with correlation ID (OWASP A10:2025); §5.7.6 Cryptography Implementation — algorithm selection table (6 categories), key management checklist, TLS checklist, timing-safe comparison example. (2) Added §5.8 Domain-Specific Security Review (new Part): §5.8.1 purpose; §5.8.2 Language-Specific Security Patterns — Python table (8 vulnerabilities: pickle, eval, subprocess, yaml, tarfile, XML, ReDoS, path traversal), JavaScript/TypeScript table (6: prototype pollution, ReDoS, innerHTML, eval, dependency confusion, path traversal), Go table (5: race conditions, timeouts, integer overflow, template injection, resource leaks), Rust table (4: unsafe blocks, FFI, unwrap, unchecked arithmetic); §5.8.3 API Security Patterns — rate limiting checklist (7 items: per-user, auth endpoint limits, sliding window), GraphQL security checklist (7 items: depth limiting, complexity analysis, introspection disabled, field-level authz, batching, persisted queries), WebSocket security checklist (6 items), API versioning security; §5.8.4 Data Protection & Privacy — data sensitivity tiers table (Critical/High/Medium/Low), PII protection checklist (8 items), analytics pixel leakage with Blue Shield of California case study (4.7M members, 2025); §5.8.5 Container Security — Docker security checklist (9 items), secrets in layers vulnerable vs. secure Dockerfile example, .dockerignore requirements, image scanning. (3) Added 2 Situation Index rows: security review (application) → §5.7, security review (by technology) → §5.8. Research basis: OWASP Top 10 2025, OWASP API Security Top 10, ASVS v5, 2025-2026 breach analysis. |

@@ -486,16 +486,14 @@ class TestHandleGetDomainSummary:
 
     @pytest.mark.asyncio
     async def test_handle_get_domain_summary_not_found(self, reset_server_state):
-        """get_domain_summary should return ErrorResponse when not found."""
+        """get_domain_summary should return error for invalid domain."""
         from ai_governance_mcp.server import _handle_get_domain_summary
 
         mock_engine = Mock()
-        mock_engine.get_domain_summary.return_value = None
 
         result = await _handle_get_domain_summary(mock_engine, {"domain": "invalid"})
 
-        parsed = json.loads(extract_json_from_response(result[0].text))
-        assert parsed["error_code"] == "DOMAIN_NOT_FOUND"
+        assert "Error: Invalid domain" in result[0].text
 
     @pytest.mark.asyncio
     async def test_handle_get_domain_summary_empty_domain(self, reset_server_state):

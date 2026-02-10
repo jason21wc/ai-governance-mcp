@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation
 - **Mode:** Standard
-- **Active Task:** None (Progressive Inquiry enhancement complete)
+- **Active Task:** None (Unified Update Checklist complete)
 - **Blocker:** None
 
 ## Quick Reference
@@ -21,8 +21,8 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4.1** (Constitution), **v3.10.1** (meta-methods), **v2.9.2** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.12.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
-| Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
+| Content | **v2.4.1** (Constitution), **v3.10.2** (meta-methods), **v2.9.3** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.12.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
+| Tests | **574 collected** (373 governance + 201 context engine), 549 pass + 1 skipped + 24 deselected |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
@@ -30,7 +30,33 @@
 | Subagents | **10** (code-reviewer, contrarian-reviewer, validator, security-auditor, documentation-writer, orchestrator, test-generator, coherence-auditor, continuity-auditor, voice-coach) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 
-## Completed This Session (2026-02-08 / 2026-02-09)
+## Completed This Session (2026-02-08 / 2026-02-10)
+
+### 0. Unified Update Checklist (meta-methods v3.10.1→v3.10.2)
+
+PATCH: Expanded §2.1.1 Update Flow from 5 to 11 steps — added CLAUDE.md propagation (step 4), SESSION-STATE propagation (step 5), coherence audit trigger check (step 9), retrieval verification (step 10), git commit (step 11). Added conditional notes for PATCH vs MINOR/MAJOR. Added cross-references linking §2.1.1 ↔ §4.1 ↔ §9.6 ↔ §4.3.2 for discoverability. Added 2 Situation Index entries. Updated domains.json, SESSION-STATE.md.
+
+**Pre-gates:** Governance evaluation (PROCEED), contrarian review (REVISIT → adopted additive linking approach), validator (PASS WITH NOTES). 3 files total.
+
+**Verification:** Index rebuilt (513 items). Tests 549 pass, 1 skipped, 0 failures. Retrieval verified (3 queries surface relevant methods). Quick-tier coherence audit: 0 Dangerous, 0 Misleading (1 Cosmetic finding — §2.1.2 lacks reciprocal reference to §2.1.1, intentional since they're adjacent subsections).
+
+### 0. CI/CD Security Hardening + Supply Chain Hardening Methods
+
+**GitHub repo security:** Enabled Dependabot alerts, Dependabot security updates, secret scanning, push protection. Added branch protection on main (required CI checks, block force push/deletion). Restricted Actions to GitHub-owned and verified only.
+
+**Pre-release security checklist:** 13/13 items PASS. Fixed orchestrator template hash (stale after previous edit). Added defense-in-depth input validation: `max_results` clamping and `domain` validation at handler level in `query_governance` and `get_domain_summary`.
+
+**CI/CD supply chain hardening (4 gaps fixed):**
+1. SHA-pinned all 10 GitHub Actions across 3 workflow files (ci.yml, docker-publish.yml, codeql.yml) — prevents tag hijacking (tj-actions incident March 2025)
+2. Added workflow-level `permissions: {}` with per-job least-privilege grants
+3. Added `persist-credentials: false` to all `actions/checkout` steps
+4. Added CodeQL code scanning workflow (Python, security-extended queries, weekly + push/PR)
+
+**AI-coding methods v2.9.2→v2.9.3:** Updated §6.4.4 template (SHA-pinned pattern), added §6.4.6 Supply Chain Hardening subsection, updated §6.4.7 checklist (7 supply chain items), added Situation Index entry.
+
+**Subagent review:** Contrarian reviewer (PROCEED WITH CAUTION), validator (10/10 PASS), coherence auditor (1D 3M 3C). Addressed: SHA-pinned CodeQL actions (was D finding), removed unused `packages: write` from docker-publish, added Dependabot maintenance note, added Supply Chain Integrity to §6.4.1.
+
+**Research basis:** OWASP MCP Top 10 (2025), tj-actions supply chain attack (March 2025), MCPTox tool shadowing (2025), CVE-2025-6514 mcp-remote.
 
 ### 1. Full Document Coherence Audit + Remediation
 

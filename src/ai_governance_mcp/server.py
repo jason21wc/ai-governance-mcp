@@ -675,7 +675,7 @@ AVAILABLE_AGENTS = {"orchestrator"}
 # For true integrity verification, see SECURITY.md "Planned" section for
 # cryptographic signing roadmap.
 AGENT_TEMPLATE_HASHES = {
-    "orchestrator": "669f1d23130655c698462b437e15f88e3ef316ece92b4543e8d991bcbf8a0a50",
+    "orchestrator": "c1912c00b9e9e113cfcd0b7be775dfafc11dc8f1fc933d3224e8d8f1b407f9ff",
 }
 
 
@@ -1238,12 +1238,37 @@ async def _handle_query_governance(
             )
         ]
 
+    # Validate domain at handler level (defense-in-depth beyond schema enum)
+    domain = args.get("domain")
+    valid_domains = {
+        "constitution",
+        "ai-coding",
+        "multi-agent",
+        "storytelling",
+        "multimodal-rag",
+    }
+    if domain is not None and domain not in valid_domains:
+        return [
+            TextContent(
+                type="text",
+                text=f"Error: Invalid domain '{domain}'. Valid: {', '.join(sorted(valid_domains))}",
+            )
+        ]
+
+    # Clamp max_results at handler level (defense-in-depth beyond schema bounds)
+    max_results = args.get("max_results")
+    if max_results is not None:
+        try:
+            max_results = min(max(int(max_results), 1), 50)
+        except (ValueError, TypeError):
+            max_results = 10
+
     result = engine.retrieve(
         query=query,
-        domain=args.get("domain"),
+        domain=domain,
         include_constitution=args.get("include_constitution", True),
         include_methods=args.get("include_methods", True),
-        max_results=args.get("max_results"),
+        max_results=max_results,
     )
 
     # Update metrics
@@ -1448,6 +1473,22 @@ async def _handle_get_domain_summary(
     domain = args.get("domain", "")
     if not domain:
         return [TextContent(type="text", text="Error: domain is required")]
+
+    # Validate domain at handler level (defense-in-depth beyond schema enum)
+    valid_domains = {
+        "constitution",
+        "ai-coding",
+        "multi-agent",
+        "storytelling",
+        "multimodal-rag",
+    }
+    if domain not in valid_domains:
+        return [
+            TextContent(
+                type="text",
+                text=f"Error: Invalid domain '{domain}'. Valid: {', '.join(sorted(valid_domains))}",
+            )
+        ]
 
     summary = engine.get_domain_summary(domain)
     if summary:
