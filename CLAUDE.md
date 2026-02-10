@@ -127,6 +127,18 @@ Per §5.3.2, apply before tagging a release:
 - [ ] Full test suite passes (`pytest tests/ -v`)
 - [ ] Security CI job green
 
+## Progressive Inquiry — Tool Mapping
+
+When asking questions, match the interaction mechanism to the question tier (per Part 7.9.1):
+
+| Question Tier | Mechanism | Why |
+|---------------|-----------|-----|
+| **Foundation** (strategic scope) | Conversational text in your response — pose the question naturally and let the user respond freely | Answers are exploratory; pre-set options constrain discovery |
+| **Branching** (conditional exploration) | Conversational text (default) or AskUserQuestion if narrowing between 2-4 known alternatives | Open-ended unless prior answers have bounded the options |
+| **Refinement** (bounded details) | AskUserQuestion tool with structured options | Answer space is known; selection is efficient |
+
+**Rule of thumb:** If the user's answer could surprise you, ask conversationally. If you're converging on specifics, use AskUserQuestion.
+
 ## Jurisdiction
 
 **AI Coding** applies:

@@ -1,7 +1,7 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.10.0
+**Version:** 3.10.1
 **Status:** Active
 **Effective Date:** 2026-02-09
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -121,6 +121,7 @@ Load this document when:
 | Formatting a new method | Part 3.5.3 | Method Section Template |
 | Header level questions | Part 3.5.4 | Header Hierarchy |
 | Gathering requirements/preferences | Part 7.9 | Progressive Inquiry Protocol |
+| Open-ended vs structured question format | Part 7.9.1 | Format Selection Decision |
 | Emoji/badge usage | Part 3.5.7 | Emoji Conventions |
 | Determining content level (hierarchy) | Part 9.7 | Level Classification Procedure |
 | Applying constitutional analogy | Part 9.7 | Constitutional Analogy Application |
@@ -1195,11 +1196,15 @@ Not every interaction requires full ceremonial procedure. Apply protocols propor
 
 ---
 
-## Part 7.9: Progressive Inquiry Protocol (Structured Questioning)
+## Part 7.9: Progressive Inquiry Protocol (Adaptive Questioning)
 
-**Importance: IMPORTANT - Maximizes insight while minimizing question burden**
+**Importance: IMPORTANT — Maximizes insight while minimizing question burden**
 
-This part operationalizes the Constitution's **Progressive Inquiry Protocol** principle. It provides procedures for gathering requirements, preferences, or context through progressive questioning.
+**Implements:** Progressive Inquiry Protocol (C-Series)
+
+**Applies To:** Any scenario requiring **requirements gathering**, **preference elicitation**, or **context discovery** through questioning. **Open-ended vs structured question format**, **question format selection**, **progressive questioning**, **discovery conversation**, **requirements elicitation**, **adaptive inquiry**.
+
+This part operationalizes the Constitution's **Progressive Inquiry Protocol** principle. It provides procedures for gathering requirements, preferences, or context through adaptive questioning — using open-ended dialogue for exploration and structured options only when converging on bounded choices.
 
 ### 7.9.1 Question Architecture
 
@@ -1212,8 +1217,22 @@ Structure questions in three tiers:
 | **Refinement** | Clarify details | Only if high-impact and not inferrable | **Structured options** | Specific thresholds, edge cases, formatting preferences |
 
 **Format Rationale:**
-- **Foundation → Open-ended:** Answers are exploratory and unpredictable. Constraining options prematurely limits discovery.
-- **Refinement → Structured:** Answer space is bounded. User is selecting from known possibilities, not ideating.
+- **Foundation → Open-ended:** Answers are exploratory and unpredictable. Constraining options prematurely limits discovery — you cannot discover what you don't know you don't know through a pre-set menu.
+- **Branching → Open-ended or semi-structured:** Paths are conditionally enabled by prior answers. Open-ended when exploring new territory; semi-structured when narrowing between known alternatives revealed by earlier answers.
+- **Refinement → Structured:** Answer space is bounded. User is selecting from known possibilities, not ideating. Multiple choice, dropdowns, and confirmation prompts are appropriate here.
+
+**Format Selection Decision:**
+
+| Question | Answer | → Format |
+|----------|--------|----------|
+| Is the answer space known and bounded? | No — exploratory, unpredictable | **Open-ended** (conversational text) |
+| Is the answer space known and bounded? | Yes — selecting between known options | **Structured** (options/choices) |
+| Are you establishing strategic scope? | Yes — Foundation tier | **Open-ended** (always) |
+| Are you confirming or refining details? | Yes — Refinement tier | **Structured** (appropriate) |
+| Could the user's answer surprise you? | Yes — you might learn something unexpected | **Open-ended** (structured options would constrain discovery) |
+| Could the user's answer surprise you? | No — you're converging on specifics | **Structured** (efficient for bounded selection) |
+
+**Implementation:** Open-ended questions are asked as conversational dialogue — the AI poses the question in its response text and the user responds naturally. Structured questions present explicit options for the user to select from. The key distinction: use conversational dialogue when exploring, use structured selection when converging.
 
 ### 7.9.2 Dependency Mapping
 
@@ -1289,6 +1308,7 @@ Avoid these questioning failures:
 | **Shallow Foundation** | Jumping to details before strategic context | Return to foundation questions |
 | **Infinite Clarification** | Probing same ambiguity 3+ times | Note assumption, move forward |
 | **Missing Prune** | Asking questions made irrelevant by prior answers | Review dependency map before each question |
+| **Structured Selection** | Using multiple-choice for Foundation/Branching questions where answers are exploratory | Use open-ended conversational dialogue; reserve structured options for Refinement tier only (see §7.9.1 Format Selection Decision) |
 
 ### 7.9.7 Cross-Domain Application
 
@@ -3034,6 +3054,7 @@ Classify tasks by the minimum model capability required for acceptable quality:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.10.1 | 2026-02-09 | PATCH: Enhanced Part 7.9 Progressive Inquiry Protocol. Added missing Structured Selection Trap to anti-pattern table (§7.9.6) — was in Constitution principle but omitted from method. Added `Implements:` and `Applies To:` metadata fields for retrieval surfacing. Fixed subtitle "(Structured Questioning)" → "(Adaptive Questioning)". Added Branching format rationale and Format Selection Decision table to §7.9.1. Added Situation Index entry for format selection. |
 | 3.10.0 | 2026-02-09 | MINOR: API Cost Optimization enhancement. Added TITLE 13 (API Cost Optimization) with Parts 13.1-13.4 covering prompt caching strategies, batch processing patterns, model right-sizing, and cost monitoring. Added §10.1.4 (Model Reference Conventions) codifying family-name vs version-pinned naming strategy. Added §10.2.3 (Progressive Model Optimization Workflow) with task-complexity-to-model-tier routing. Updated §10.2.1 capability matrix (Claude context window 200K→200K-1M). Updated §10.2.2 model selection table (added Claude Opus to Large context row). Enhanced §12.5.3 High-Volume Domains with batch processing, model tier routing, and prompt caching bullets. Updated Appendix G with Opus 4.6 capabilities (1M context, adaptive thinking, 128K output, agent teams). Added §4.3.4 cross-reference note for model version naming convention. Added §3.5 cross-reference note for model name formatting. |
 | 3.9.3 | 2026-02-08 | PATCH: Coherence audit cascade fix. Corrected principle reference in TITLE 11 relationship mapping (line 2091): "Security by Default" → "Security-First Development" per ai-coding-domain-principles v2.3.1 canonical name. |
 | 3.9.2 | 2026-02-08 | PATCH: Inlined Source Relevance Test decision criterion into Generic Check #1 (§4.3.3) and §4.3.4 cross-reference — auditors can now execute the check without loading ai-coding methods. Architectural decision: cross-level method references are valid; elevation of ai-coding §7.5.1 and §7.8.3 to meta-methods not warranted (see PROJECT-MEMORY.md ADR-11). Updated coherence-auditor subagent to match. |
