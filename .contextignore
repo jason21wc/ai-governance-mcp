@@ -1,0 +1,23 @@
+# Context Engine ignore patterns for ai-governance-mcp
+# Controls which files are excluded from project indexing
+
+# Generated index files (large, binary)
+index/
+*.npy
+
+# Archive (old document versions — current versions are in documents/)
+documents/archive/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Cache
+.pytest_cache/
+.ruff_cache/
+__pycache__/
+
+# Docker
+Dockerfile
+docker-compose.yml

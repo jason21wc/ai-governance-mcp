@@ -411,8 +411,7 @@ A second MCP server providing semantic search across project content. Complement
 │                     │ debounce 2s │    │ document    │                     │
 │                     │ cooldown 5s │    │ PDF         │                     │
 │                     │ circuit brk │    │ spreadsheet │                     │
-│                     └─────────────┘    │ spreadsheet │                     │
-│                                        │ image meta  │                     │
+│                     └─────────────┘    │             │                     │
 │                            │           └─────────────┘                     │
 │                            ▼                                               │
 │                     ┌─────────────┐                                         │
@@ -432,7 +431,7 @@ A second MCP server providing semantic search across project content. Complement
 | **server.py** | 4 MCP tools, input validation, rate limiting, error sanitization | Entry point, security boundary |
 | **project_manager.py** | Multi-project lifecycle, hybrid search (semantic + BM25), score fusion | Core query logic, thread-safe |
 | **indexer.py** | File discovery, connector orchestration, embedding generation, BM25 build | Indexing pipeline, heavy compute |
-| **watcher.py** | File system monitoring, debounced change callbacks | Real-time updates, decoupled |
+| **watcher.py** | File system monitoring, debounced change callbacks (2s), post-index cooldown (5s), circuit breaker (3 failures) | Real-time updates, decoupled |
 | **connectors/** | Content-type-specific parsing (code, doc, PDF, spreadsheet, image) | Pluggable, independently testable |
 | **storage/** | Index persistence (filesystem-backed, JSON + NumPy) | Swappable backends |
 | **models.py** | Pydantic schemas (ContentChunk, ProjectIndex, QueryResult, etc.) | Type safety, validation |
@@ -488,6 +487,15 @@ file change  →  watchdog event  →  debounce (2s)  →  incremental_update()
 | **Log sanitization** | Truncate content before logging | server.py |
 | **Env var robustness** | try/except with fallback defaults for all env config | server.py |
 | **.env* filtering** | .env and all variants (.env.local, etc.) excluded by default | indexer.py |
+| **Atomic writes** | JSON: tmp + fsync + rename. NumPy: tmp + rename. Orphaned .tmp cleanup on init | storage/filesystem.py |
+| **Corrupt file recovery** | All load methods: try/except → log warning → delete corrupt file → return None | storage/filesystem.py |
+| **BM25 empty corpus guard** | Check `any(len(doc) > 0 for doc in corpus)` before BM25Okapi construction | project_manager.py |
+| **Column/row limits** | CSV/Excel: 500 columns max, 11 rows max (header + 10 sample) | connectors/spreadsheet.py |
+| **Chunk force-splitting** | Markdown and plain text force-split at 200 lines | connectors/document.py |
+| **Timer lifecycle** | Daemon threads for debounce/cooldown timers, cancel on stop(), running guard | watcher.py |
+| **Circuit breaker** | 3 consecutive watcher failures stops watcher, marks project circuit_broken | project_manager.py |
+| **LRU eviction** | Max 10 loaded projects, least-recently-used evicted | project_manager.py |
+| **JSON size limits** | 100MB max for BM25 index, metadata, file manifest files | storage/filesystem.py |
 | **Atomic file writes** | tmp file + rename pattern for JSON and .npy (prevents corruption on crash) | storage/filesystem.py |
 | **Corrupt file recovery** | All load methods: try/except → log warning → delete corrupt file → return None | storage/filesystem.py |
 | **JSON file size limits** | 100MB cap on JSON loads (prevents OOM on corrupted/malicious files) | storage/filesystem.py |
