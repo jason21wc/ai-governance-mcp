@@ -2,8 +2,8 @@
   "constitution": {
     "name": "constitution",
     "display_name": "Constitution",
-    "principles_file": "ai-interaction-principles-v2.4.md",
-    "methods_file": "ai-governance-methods-v3.9.3.md",
+    "principles_file": "ai-interaction-principles-v2.4.1.md",
+    "methods_file": "ai-governance-methods-v3.10.0.md",
     "description": "Universal behavioral rules for AI interaction. Safety principles, core behavioral guidelines, quality standards, operational rules, growth mindset, and meta-awareness. Applies to all AI interactions.",
     "priority": 0
   },
@@ -19,7 +19,7 @@
     "name": "multi-agent",
     "display_name": "Multi-Agent",
     "principles_file": "multi-agent-domain-principles-v2.1.0.md",
-    "methods_file": "multi-agent-methods-v2.11.1.md",
+    "methods_file": "multi-agent-methods-v2.12.0.md",
     "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Artifact type selection (method vs subagent), agent authoring, system prompt best practices, tool scoping, agent validation, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, memory distillation, production observability, ReAct loop configuration, agent evaluation framework (4-layer), production safety guardrails, governance compliance, task management, task dependencies, task lifecycle, task ownership, and advanced model considerations for prompting strategies.",
     "priority": 20
   },

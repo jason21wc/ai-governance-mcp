@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.9.3
+**Version:** 3.10.0
 **Status:** Active
-**Effective Date:** 2026-02-08
+**Effective Date:** 2026-02-09
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -98,6 +98,9 @@ Load this document when:
 | Preparing a release | Part 4.3.2 | Full coherence audit (pre-release gate) |
 | Starting a new session | Part 4.3.2 | Quick coherence check (advisory) |
 | Fixing a coherence audit finding | Part 4.3.4 | Drift Remediation Patterns |
+| API cost optimization | Title 13 | Caching, batching, model right-sizing |
+| Model right-sizing workflow | Part 10.2.3 | Progressive Model Optimization |
+| How to reference model names | Part 10.1.4 | Model Reference Conventions |
 | Version number question | Title 1 | Semantic Versioning Rules |
 | Writing new principles | Part 3.4 | ID System & Authoring Rules |
 | Cross-referencing principles | Part 3.4.5 | Cross-Reference Format |
@@ -713,6 +716,8 @@ Always specify language identifier for syntax highlighting:
 | Cross-domain | Domain + title | "Constitution's **Context Engineering**" |
 | Document | Full name | `ai-coding-domain-principles-v2.3.0.md` |
 
+For model name formatting conventions, see §10.1.4 Model Reference Conventions.
+
 ---
 
 ## Part 3.6: Server Configuration
@@ -887,6 +892,7 @@ Once drift is detected (§4.3.3), remediate by classifying the drifted content's
 - When purpose is ambiguous, default to **pedagogical** (keep specifics + add pointer). Rationale: the information-preserving strategy is safer than the information-destroying one. Genericizing uncertain content is irreversible; keeping specifics that turn out to be operational is merely verbose and correctable in a future audit.
 - **Normative content** (rules, constraints, authority statements — e.g., the Supremacy Clause, S-Series definitions, override tables) should be treated as **historical**: keep verbatim, verify still accurate. Never genericize a rule.
 - The classification is intentionally minimal (three categories). Extend only via TITLE 8 procedures if a concrete, recurring misclassification demonstrates insufficiency.
+- Model version numbers in general content should use family names per §10.1.4 Model Reference Conventions.
 
 #### Cross-References
 
@@ -2019,6 +2025,28 @@ Model appendices use letters G-onwards (A-F reserved for other domains):
 | I | Gemini (Pro, Flash, Ultra) | Google |
 | J | Perplexity (default, pro) | Perplexity AI |
 
+### 10.1.4 Model Reference Conventions
+
+**Importance: IMPORTANT — Preventing documentation drift from volatile model versions**
+
+**Applies To:** Authoring or updating any governance document that references AI models. **Model version naming**, **documentation drift prevention**, **model reference formatting**.
+
+When referencing AI models in governance documents, follow these conventions to prevent drift from frequent model version changes:
+
+| Context | Convention | Example | Rationale |
+|---------|-----------|---------|-----------|
+| General tables (§10.2.2) | Family name only | "Claude Opus", "Claude Sonnet" | Survives version bumps without edits (§4.3.4) |
+| Progressive optimization (§10.2.3) | Family tier only | "Haiku", "Sonnet", "Opus" | Optimization workflow applies regardless of version |
+| Cross-cutting methods (TITLE 13) | Family tier + disclaimer | "Opus" with Information Currency note | Methods apply across versions |
+| Model appendices (G-J) | Full versioned name | "Opus 4.6", "Sonnet 4.5" | Appendix-specific currency disclaimer covers volatility |
+| Capability matrices (§10.2.1) | Capability values, not names | "200K-1M" for context window | Capabilities change; update values when significant |
+
+**When to version-pin:** Only in Appendix G-J and when a specific version introduces a capability change that alters the task-type recommendation (e.g., a model gaining 1M context window changes which "Large context" row it belongs in).
+
+**When NOT to version-pin:** In any general-purpose guidance, cross-cutting methods, or decision tables. Use family names that remain accurate across version bumps.
+
+**Cross-reference:** §4.3.4 Drift Remediation Patterns — model version numbers are a common source of operational-content staleness.
+
 ---
 
 ## Part 10.2: Model Capability Matrix
@@ -2029,7 +2057,7 @@ Model appendices use letters G-onwards (A-F reserved for other domains):
 
 | Capability | Claude | GPT-4o | o1/o3 | Gemini | Perplexity |
 |------------|--------|--------|-------|--------|------------|
-| Context Window | 200K | 128K | 128K-200K | 1M-2M | 128K |
+| Context Window | 200K-1M | 128K | 128K-200K | 1M-2M | 128K |
 | Extended Thinking | Yes (Opus/Sonnet) | No | Built-in | Deep Think | No |
 | Tool Use | Yes | Yes | Yes | Yes | Limited |
 | Web Search | Via MCP | Browsing | Browsing | Grounding | Native |
@@ -2042,10 +2070,46 @@ Model appendices use letters G-onwards (A-F reserved for other domains):
 |-----------|-------------|-----------|
 | Complex reasoning | Claude Opus, o1, o3 | Extended thinking, deep reasoning |
 | Fast iteration | Claude Haiku, GPT-4o-mini, Gemini Flash | Speed optimized |
-| Large context | Gemini Pro/Ultra | 1M+ token window |
+| Large context | Claude Opus, Gemini Pro/Ultra | 1M+ token window |
 | Research with citations | Perplexity | Native search integration |
 | Code generation | Claude Sonnet, GPT-4o | Strong coding capabilities |
 | Multi-modal analysis | GPT-4o, Gemini, Claude | Vision support |
+
+### 10.2.3 Progressive Model Optimization Workflow
+
+**Importance: IMPORTANT — Systematic cost reduction through model right-sizing**
+
+**Applies To:** Any production workflow using AI model APIs. **Model right-sizing**, **progressive model optimization**, **cost-quality tradeoff**, **model tier selection**.
+
+**Purpose:** Systematically reduce API costs by matching model capability to task complexity. Start with the most capable model during development, then progressively downgrade where quality permits.
+
+**Procedure:**
+
+1. **Develop with Sonnet:** Use a mid-tier model (e.g., Claude Sonnet) for initial development and prompt iteration. This provides good quality feedback at moderate cost.
+2. **Evaluate quality delta:** Run representative test cases through both higher-tier (Opus) and lower-tier (Haiku) models. Measure quality difference on task-specific criteria.
+3. **Route by complexity in production:** Classify tasks and route to the appropriate model tier:
+
+| Task Complexity | Recommended Tier | Examples |
+|-----------------|-----------------|----------|
+| Simple / high-volume | Haiku | Classification, extraction, formatting, simple Q&A |
+| Standard | Sonnet | Code generation, analysis, summarization, standard reasoning |
+| Complex / high-stakes | Opus | Architecture decisions, multi-step reasoning, governance analysis |
+
+4. **Re-evaluate periodically:** Model capabilities evolve. What required Opus yesterday may work with Sonnet today. Schedule monthly reviews of tier assignments.
+
+**Anti-pattern:** Using the most expensive model for all tasks regardless of complexity. This violates the **Resource Efficiency & Waste Reduction** principle — "We do not convene a Grand Jury for a parking ticket."
+
+**Validation:**
+- [ ] Task complexity classification is documented
+- [ ] Quality benchmarks exist for tier downgrade decisions
+- [ ] No blanket "always use Opus" defaults without justification
+
+**Cross-references:**
+- Constitution: **Resource Efficiency & Waste Reduction** — "Minimum Effective Dose" of complexity
+- Multi-agent domain: **Justified Complexity** (`multi-general-justified-complexity`) — 15x cost rule
+- TITLE 13 for complementary cost levers (caching, batching, monitoring)
+
+**Information Currency:** Model tiers evolve; see Appendix G-J for current version details and capabilities. Model names here use family tiers per §10.1.4.
 
 ---
 
@@ -2734,6 +2798,9 @@ Optimization priorities:
 - Confidence threshold: 0.80 (faster response)
 - Two-layer validation (skip LLM judge for routine queries)
 - Response templates for common patterns
+- Batch processing for non-time-sensitive bulk operations (see TITLE 13)
+- Model tier routing: Haiku for routine queries, Sonnet/Opus for complex (see Appendix G for current versions)
+- Prompt caching for shared system prompts across all queries
 
 ---
 
@@ -2772,10 +2839,202 @@ Optimization priorities:
 
 ---
 
+# TITLE 13: API COST OPTIMIZATION
+
+**Importance: IMPORTANT — Reducing API costs without sacrificing quality**
+
+**Constitutional Basis:**
+- **Resource Efficiency & Waste Reduction** (`meta-operational-resource-efficiency-waste-reduction`) — "Minimum Effective Dose" of complexity and cost
+- **Justified Complexity** (`multi-general-justified-complexity`) — Cost must be proportional to value
+
+**Applies To:** Any workflow consuming AI model APIs. **API cost optimization**, **prompt caching**, **batch processing**, **model right-sizing**, **cost monitoring**, **token economy**.
+
+## Part 13.1: Prompt Caching Strategies
+
+### 13.1.1 When to Cache
+
+**Applies To:** Reducing redundant token processing for repeated context. **Prompt caching decision**, **cache-worthy patterns**, **cache invalidation**.
+
+Use prompt caching when the same content is sent repeatedly across requests. Caching avoids reprocessing static context, reducing both latency and cost.
+
+**Cache-Worthy Patterns:**
+
+| Pattern | Description | Cache Benefit |
+|---------|-------------|---------------|
+| **System prompts** | Governance instructions, role definitions | High — identical across all requests |
+| **Reference documents** | Constitution, domain principles, method docs | High — changes infrequently |
+| **Few-shot examples** | Worked examples for consistent output format | Medium — stable per task type |
+| **Conversation prefixes** | Prior conversation history in multi-turn | Medium — grows but prefix is stable |
+
+**Cache Invalidation Triggers:**
+- Document content updated (new version deployed)
+- System prompt modified (governance rules changed)
+- Few-shot examples revised (quality improvement cycle)
+- Cache TTL expired (provider-specific, typically 5 minutes for ephemeral)
+
+**Validation:**
+- [ ] Static content identified and placed before dynamic content
+- [ ] Cache invalidation triggers documented
+- [ ] Cache hit rate monitored (target: >50% for repeated contexts)
+
+### 13.1.2 Cache Architecture Patterns
+
+**Applies To:** Structuring prompts for maximum cache effectiveness. **Static-first prompt design**, **cache control parameters**, **prompt structure optimization**.
+
+**Static-First Prompt Structure:**
+
+Place content in order of decreasing stability to maximize cache prefix hits:
+
+```
+1. System prompt (most stable — governance framework, role definition)
+2. Reference documents (stable — principles, methods)
+3. Few-shot examples (semi-stable — change per task type)
+4. Conversation history (dynamic — grows per turn)
+5. Current user input (most dynamic — changes every request)
+```
+
+**Anthropic Cache Control:**
+- Use `cache_control: {"type": "ephemeral"}` on message blocks containing stable content
+- Place cache breakpoints at natural content boundaries (after system prompt, after documents)
+- Cached content gets 90% input token discount on cache hits
+
+**Anti-pattern:** Interspersing dynamic content within static blocks. This breaks cache prefix matching and eliminates cost savings.
+
+**Validation:**
+- [ ] Prompt structure follows static-first ordering
+- [ ] Cache breakpoints placed at stability boundaries
+- [ ] No dynamic content embedded within cached blocks
+
+## Part 13.2: Batch Processing Patterns
+
+### 13.2.1 Batch vs. Real-Time Decision Criteria
+
+**Applies To:** Choosing between synchronous and batch API calls. **Batch processing decision criteria**, **real-time vs batch**, **async workload optimization**.
+
+**Decision Table:**
+
+| Criterion | Real-Time | Batch | Hybrid |
+|-----------|-----------|-------|--------|
+| **User waiting for response?** | Yes | No | Some tasks yes, some no |
+| **Latency tolerance** | < 30 seconds | Hours acceptable | Mixed |
+| **Volume** | Individual requests | 10+ similar requests | Varies |
+| **Cost priority** | Secondary to speed | Primary concern | Balance |
+
+**When to use batch:** Evaluations, bulk classification, content generation pipelines, data extraction, test suite generation, documentation generation.
+
+**When to use real-time:** Interactive chat, code completion, live assistance, time-sensitive decisions.
+
+### 13.2.2 Batch API Implementation
+
+**Applies To:** Using batch APIs for cost reduction on async workloads. **Batch API patterns**, **queue design**, **priority levels for batch processing**.
+
+**Anthropic Batches API** provides ~50% cost reduction for asynchronous workloads:
+- Submit up to 10,000 requests per batch
+- Results available within 24 hours (typically much faster)
+- Same model quality as real-time requests
+
+**Queue Design:**
+
+| Priority | Latency Target | Use Case |
+|----------|---------------|----------|
+| **P0 — Immediate** | < 30s | User-facing, interactive |
+| **P1 — Soon** | < 5 min | Background tasks user will check shortly |
+| **P2 — Batch** | < 24h | Bulk operations, evaluations, reports |
+
+**Anti-pattern:** Batching latency-sensitive requests. Users waiting for responses should always use real-time endpoints regardless of cost savings.
+
+**Validation:**
+- [ ] Workloads classified by latency tolerance
+- [ ] Batch-eligible workloads identified and routed
+- [ ] P0 requests never routed to batch queue
+
+## Part 13.3: Model Right-Sizing
+
+### 13.3.1 Task Complexity Classification
+
+**Applies To:** Matching model capability to task requirements. **Task complexity classification**, **model tier selection**, **right-sizing validation**.
+
+Classify tasks by the minimum model capability required for acceptable quality:
+
+| Complexity Tier | Characteristics | Recommended Model Tier | Cost Profile |
+|----------------|-----------------|----------------------|--------------|
+| **Tier 1 — Routine** | Structured input/output, pattern matching, formatting | Haiku | Lowest |
+| **Tier 2 — Standard** | Reasoning required, code generation, analysis | Sonnet | Moderate |
+| **Tier 3 — Complex** | Multi-step reasoning, architecture, governance analysis | Opus | Highest |
+
+**Complexity Signals:**
+
+| Signal | Points Toward |
+|--------|---------------|
+| Task has clear input/output format | Tier 1 |
+| Requires understanding context | Tier 2 |
+| Requires extended reasoning or creativity | Tier 3 |
+| High-stakes decision (security, architecture) | Tier 3 |
+| Volume > 100 requests/day for same task type | Start at Tier 2, test Tier 1 |
+
+### 13.3.2 Right-Sizing Validation
+
+**Applies To:** Validating that a lower-tier model maintains acceptable quality. **A/B model benchmarking**, **quality threshold validation**, **model downgrade testing**.
+
+**A/B Benchmarking Method:**
+
+1. Select 20-50 representative inputs for the task
+2. Run through both current tier and candidate lower tier
+3. Score outputs on task-specific quality criteria
+4. Accept downgrade if quality delta < 5% on critical metrics
+
+**Quality Threshold Checks:**
+- Accuracy on structured tasks (extraction, classification): must maintain >95%
+- Coherence on generation tasks: must maintain >90% human preference
+- Safety compliance: must maintain 100% (no model tier compromise on safety)
+
+**Cross-reference:** §10.2.3 Progressive Model Optimization — the iterative workflow for production right-sizing.
+
+## Part 13.4: Cost Monitoring and Feedback Loop
+
+### 13.4.1 Key Cost Metrics
+
+**Applies To:** Tracking API spending for optimization opportunities. **Cost monitoring metrics**, **API spend tracking**, **cost per task measurement**.
+
+| Metric | Description | Target |
+|--------|-------------|--------|
+| **Cost per task completion** | Total API spend per workflow completion | Track, establish baseline, improve |
+| **Cache hit rate** | Percentage of tokens served from cache | > 50% for repeated contexts |
+| **Batch ratio** | Percentage of eligible workloads using batch | Maximize for eligible workloads |
+| **Model tier distribution** | Percentage of requests per model tier | Match task complexity distribution |
+| **Cost per quality point** | Spend normalized by output quality score | Minimize without quality degradation |
+
+### 13.4.2 Alerting Thresholds
+
+**Applies To:** Detecting cost anomalies and optimization regressions. **Cost alerting thresholds**, **spending anomaly detection**, **optimization regression alerts**.
+
+| Condition | Alert Level | Recommended Action |
+|-----------|-------------|-------------------|
+| Cost per task > 2x baseline | WARNING | Investigate model tier and prompt changes |
+| Cache hit rate < 50% (repeated contexts) | WARNING | Review prompt structure for cache-breaking changes |
+| Batch-eligible tasks on real-time | INFO | Route to batch queue |
+| Model tier distribution skewed to Opus > 50% | WARNING | Review task classification |
+
+### 13.4.3 Review Cadence
+
+**Applies To:** Scheduling optimization reviews. **Cost optimization review schedule**, **periodic cost review cadence**.
+
+**Monthly Optimization Review:**
+1. Review cost metrics against baseline
+2. Identify top 3 cost drivers
+3. Test model tier downgrades for highest-volume tasks
+4. Update cache strategy for new prompt patterns
+5. Adjust alerting thresholds based on trend data
+
+**Cross-reference:** Multi-agent methods §3.7.1 (Production Observability Patterns) for observability infrastructure that supports cost tracking.
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.10.0 | 2026-02-09 | MINOR: API Cost Optimization enhancement. Added TITLE 13 (API Cost Optimization) with Parts 13.1-13.4 covering prompt caching strategies, batch processing patterns, model right-sizing, and cost monitoring. Added §10.1.4 (Model Reference Conventions) codifying family-name vs version-pinned naming strategy. Added §10.2.3 (Progressive Model Optimization Workflow) with task-complexity-to-model-tier routing. Updated §10.2.1 capability matrix (Claude context window 200K→200K-1M). Updated §10.2.2 model selection table (added Claude Opus to Large context row). Enhanced §12.5.3 High-Volume Domains with batch processing, model tier routing, and prompt caching bullets. Updated Appendix G with Opus 4.6 capabilities (1M context, adaptive thinking, 128K output, agent teams). Added §4.3.4 cross-reference note for model version naming convention. Added §3.5 cross-reference note for model name formatting. |
 | 3.9.3 | 2026-02-08 | PATCH: Coherence audit cascade fix. Corrected principle reference in TITLE 11 relationship mapping (line 2091): "Security by Default" → "Security-First Development" per ai-coding-domain-principles v2.3.1 canonical name. |
 | 3.9.2 | 2026-02-08 | PATCH: Inlined Source Relevance Test decision criterion into Generic Check #1 (§4.3.3) and §4.3.4 cross-reference — auditors can now execute the check without loading ai-coding methods. Architectural decision: cross-level method references are valid; elevation of ai-coding §7.5.1 and §7.8.3 to meta-methods not warranted (see PROJECT-MEMORY.md ADR-11). Updated coherence-auditor subagent to match. |
 | 3.9.1 | 2026-02-08 | PATCH: Coherence audit remediation. Disambiguated cross-document §7.5.1 and §7.8.3 references in Generic Checks table (§4.3.3) and cross-references (§4.3.4) — added document qualifiers pointing to ai-coding methods. Moved orphaned v3.7.0.1 entry into version history table; reconstructed missing v3.7.0 row from git history. Updated Appendix G model names (Opus 4.6, Sonnet 4.5, Haiku 4.5). Scoped Information Currency disclaimer per-appendix. Updated coherence-auditor subagent §7.8.3 reference. |
@@ -2832,9 +3091,12 @@ The following appendices provide platform-specific tactics for applying the gove
 ### G.2 Key Differentiators
 
 - **Extended Thinking**: Available on Opus and Sonnet via API parameter or interface toggle (not prompt phrasing). Use for governance analysis, principle conflict resolution, and complex ethical reasoning. For visible reasoning in responses, request structured analysis.
+- **Adaptive Thinking**: Opus 4.6 supports adaptive thinking — the model auto-decides when deeper reasoning is helpful, without explicit activation. This reduces prompt engineering overhead for complex tasks.
 - **Tool Use**: Native MCP support. The ai-governance MCP provides semantic retrieval of principles.
 - **System Prompt**: Place governance hierarchy and S-Series constraints in system prompt for persistent enforcement.
-- **Context Window**: 200K tokens. Can load full constitution + domain + methods if needed.
+- **Context Window**: 200K tokens (Sonnet 4.5, Haiku 4.5), 1M tokens (Opus 4.6). Opus can load full constitution + all domain principles + all methods simultaneously.
+- **Output Tokens**: Up to 128K (Opus 4.6), enabling large document generation and comprehensive analysis in a single response.
+- **Agent Teams**: Opus 4.6 supports distributed agent teams with independent context windows and mailbox-protocol peer-to-peer messaging.
 
 ### G.3 Prompt Optimization Patterns
 

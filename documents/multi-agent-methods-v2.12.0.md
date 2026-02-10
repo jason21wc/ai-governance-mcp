@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.11.1
+**Version:** 2.12.0
 **Status:** Active
-**Effective Date:** 2026-02-08
+**Effective Date:** 2026-02-09
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -1503,6 +1503,24 @@ Before choosing parallel, categorize all tasks:
 - [ ] Conflict resolution procedure is defined
 - [ ] Synthesis agent is designated for combining results
 
+#### Batch vs. Real-Time Orchestration
+
+**Applies To:** Choosing between real-time and batch API endpoints for orchestrated workflows. **Batch orchestration**, **real-time vs batch decision**, **async workload routing**.
+
+Before selecting Sequential/Parallel/Hierarchical patterns, determine whether the workload should use real-time or batch processing:
+
+| Criterion | Real-Time | Batch | Hybrid Queue |
+|-----------|-----------|-------|--------------|
+| User waiting for response? | Yes | No | Mixed |
+| Volume of similar tasks? | Low (1-5) | High (10+) | Varies |
+| Latency tolerance? | < 30 seconds | Hours acceptable | Route by task |
+
+**Integration note:** Determine batch vs. real-time FIRST, then apply Sequential/Parallel/Hierarchical within that mode. Batch tasks can still use parallel orchestration patterns — the batch applies to the API call layer, not the orchestration topology.
+
+**Anti-pattern:** Running hundreds of independent evaluation tasks through real-time endpoints when batch processing would provide ~50% cost reduction with acceptable latency.
+
+**Cross-reference:** Governance Methods TITLE 13 (API Cost Optimization) for detailed batch processing patterns and decision criteria.
+
 **Sequential Pattern:**
 
 ```
@@ -1967,6 +1985,10 @@ The standard Observability Protocol (§3.7) covers status broadcasting during ex
 | Cascade failure frequency | System resilience | < 1% of workflows |
 | Human escalation rate | Autonomy level | Task-appropriate |
 | Governance check latency | Compliance overhead | < 500ms |
+| Cost per task completion | Total API spend per workflow | Track, set budgets |
+| Cache hit rate | Prompt caching effectiveness | > 50% for repeated contexts |
+| Batch vs. real-time ratio | Async workload utilization | Maximize batch for eligible |
+| Model tier distribution | Right-sizing effectiveness | Match task complexity |
 
 **Production Instrumentation Requirements:**
 
@@ -2022,7 +2044,11 @@ All production workflows MUST support point-in-time replay for debugging:
 | Error rate > 10% | CRITICAL | Immediate response |
 | Latency P95 > 2x baseline | WARNING | Investigate |
 | Token usage > 150% estimate | WARNING | Cost review |
+| Cache hit rate < 50% (repeated contexts) | WARNING | Review caching strategy |
+| Cost per task > 2x baseline | WARNING | Model tier and caching review |
 | Cascade failure detected | CRITICAL | Stop-the-line |
+
+**Cross-reference:** See Governance Framework Methods TITLE 13 (API Cost Optimization) for detailed cost optimization procedures.
 
 ### 3.8 ReAct Loop Configuration
 
@@ -3765,6 +3791,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.12.0 | 2026-02-09 | MINOR: API Cost Optimization integration. Added cost metrics to §3.7.1 Production Observability (cost per task, cache hit rate, batch ratio, model tier distribution) with alerting thresholds. Added Batch vs. Real-Time Orchestration subsection to §3.3 (decision criteria table, integration note, anti-pattern). Cross-references to Governance Methods TITLE 13. |
 | v2.11.1 | 2026-02-09 | PATCH: Cross-domain audit remediation. Verified principle enumeration in governance hierarchy box (J1, A1-A5, R1-R5, Q1-Q3) is correct per v2.1.0 principle structure. |
 | v2.11.0 | 2026-02-08 | MINOR: Coherence audit remediation. (1) Fixed A-Series ID conflict: §2.1.2 Context Isolation Architecture A4→A2 (matching 3 other references). (2) Updated validation checklist from "5 required sections" to "6 required sections" (adding Governance Compliance per v2.7.0). (3) Fixed Effective Date (2026-01-24→2026-02-08). (4) Fixed phantom principle name: "Explicit Intent"→"Explicit Over Implicit". (5) Fixed npm scope: @anthropic-ai/gemini-cli→@google/gemini-cli. (6) Moved orphaned v2.10.0.1 into version history table. (7) Fixed version history date (v2.5.0: 2026-01-05→2026-01-04 per git history). |
 | v2.10.1 | 2026-02-08 | PATCH: Coherence audit cascade fix. Corrected principle ID in §4.5 audit record example (line 2556): `coding-quality-security-by-default` → `coding-quality-security-first-development` per ai-coding-domain-principles v2.3.1 canonical ID. |

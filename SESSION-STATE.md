@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation
 - **Mode:** Standard
-- **Active Task:** None (verification audits complete)
+- **Active Task:** None (API Cost Optimization complete)
 - **Blocker:** None
 
 ## Quick Reference
@@ -21,18 +21,34 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4** (Constitution), **v3.9.3** (meta-methods), **v2.9.2** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.11.1** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
+| Content | **v2.4.1** (Constitution), **v3.10.0** (meta-methods), **v2.9.2** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.12.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
 | Tests | **574 collected** (373 governance + 201 context engine), 573 pass + 1 skipped |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **101 principles + 401 methods (502 total)** (taxonomy expanded to 21 codes, within existing sections) |
+| Index | **101 principles + 412 methods (513 total)** (taxonomy expanded to 21 codes, TITLE 13 + §10.1.4 + §10.2.3 added) |
 | Subagents | **10** (code-reviewer, contrarian-reviewer, validator, security-auditor, documentation-writer, orchestrator, test-generator, coherence-auditor, continuity-auditor, voice-coach) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 
 ## Completed This Session (2026-02-08 / 2026-02-09)
 
-### 1. Verification Audit Remediation (5 rounds)
+### 1. API Cost Optimization Framework Enhancement
+
+MINOR across 3 files: meta-methods v3.9.3→v3.10.0, multi-agent-methods v2.11.1→v2.12.0. PATCH: Constitution v2.4→v2.4.1.
+
+**(1) Meta-methods v3.10.0:** New TITLE 13 (API Cost Optimization) with Parts 13.1-13.4 (prompt caching strategies, batch processing patterns, model right-sizing, cost monitoring). New §10.1.4 (Model Reference Conventions) codifying family-name vs version-pinned naming strategy. New §10.2.3 (Progressive Model Optimization Workflow). Updated §10.2.1 capability matrix (Claude context window 200K→200K-1M). Updated §10.2.2 (added Claude Opus to Large context row). Enhanced §12.5.3 with batch/caching/routing bullets. Updated Appendix G Opus 4.6 capabilities (1M context, adaptive thinking, 128K output, agent teams). Added §4.3.4 and §3.5 cross-references for model naming conventions.
+
+**(2) Constitution v2.4.1:** Added "API Cost Optimization" bullet to Resource Efficiency application guidance. Expanded "Cost Awareness" operational consideration with concrete levers. Historical Amendment entry added.
+
+**(3) Multi-agent-methods v2.12.0:** Added 4 cost metrics to §3.7.1 observability (cost per task, cache hit rate, batch ratio, model tier distribution). Added 2 alerting thresholds. Added Batch vs. Real-Time Orchestration subsection to §3.3. Cross-references to TITLE 13.
+
+**(4) Housekeeping:** Updated domains.json (2 methods_file paths + principles_file rename), SESSION-STATE.md (versions + completed work). Renamed Constitution file to `ai-interaction-principles-v2.4.1.md` to match internal version header (coherence audit remediation).
+
+**Pre-gates:** Governance evaluation (PROCEED), contrarian review (PROCEED WITH CAUTION — Constitution concerns addressed), validator (PASS WITH NOTES). 6 files total, within 15-file limit.
+
+**Verification:** Index rebuilt (513 items: 101 principles + 412 methods). Test suite 573/573 pass. Retrieval quality baselines maintained (13/13 quality tests pass, MRR/Recall@10 thresholds met). Coherence audit: 0 Dangerous, 0 Misleading — gate PASS.
+
+### 2. Verification Audit Remediation (5 rounds)
 
 Five-round verification audit using 3 parallel agents per round (Constitutional ID Integrity, Cross-File Reference Consistency, Structural Consistency). Findings decreased 10→6→2→2→0 across rounds. All fixes committed incrementally (commits c834f41, 82796c2, 038673a).
 
