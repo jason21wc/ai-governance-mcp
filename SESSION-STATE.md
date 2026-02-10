@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation
 - **Mode:** Standard
-- **Active Task:** Context engine hardening — commit pending
+- **Active Task:** None — all work committed and pushed
 - **Blocker:** None
 
 ## Quick Reference
@@ -21,8 +21,8 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4.1** (Constitution), **v3.10.3** (meta-methods), **v2.9.4** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.1** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
-| Tests | **574 collected** (373 governance + 201 context engine), 549 pass + 1 skipped + 24 deselected |
+| Content | **v2.4.1** (Constitution), **v3.10.3** (meta-methods), **v2.9.5** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.1** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
+| Tests | **574 collected** (373 governance + 201 context engine), 550 pass + 24 deselected |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
