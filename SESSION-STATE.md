@@ -21,7 +21,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
-| Content | **v2.4.1** (Constitution), **v3.10.2** (meta-methods), **v2.9.3** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.0** (multi-agent principles), **v2.12.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
+| Content | **v2.4.1** (Constitution), **v3.10.3** (meta-methods), **v2.9.4** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.1** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
 | Tests | **574 collected** (373 governance + 201 context engine), 549 pass + 1 skipped + 24 deselected |
 | Coverage | governance ~90%, context engine ~65% |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -31,6 +31,20 @@
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 
 ## Completed This Session (2026-02-08 / 2026-02-10)
+
+### 0. Full Coherence Audit Remediation (4 PATCH bumps)
+
+Full-tier coherence audit across all 10 content files + 3 config files using 4 parallel auditors. Results: 0 Dangerous, 6 Misleading (4 actionable), 6 Cosmetic (by design). All actionable findings remediated:
+
+**(1) meta-methods v3.10.2→v3.10.3:** Added domain qualifier to "Validation Independence" reference in §4.3.5 (multi-agent domain principle, not Constitution).
+
+**(2) ai-coding-methods v2.9.3→v2.9.4:** Fixed principle name "Human-AI Collaboration"→"Human-AI Collaboration Model" in mapping table. Standardized 3 Implements headers from deprecated series codes (Q2, Q3) to full principle names. Removed stale test count from v2.2.0 version history.
+
+**(3) multi-agent-methods v2.12.0→v2.12.1:** Standardized document reference "Governance Framework Methods"→"Governance Methods" in §3.7.1. Corrected v2.12.0 version history description accuracy.
+
+**(4) multi-agent-principles v2.1.0→v2.1.1:** Removed erroneous "(especially MA-Series)" from peer domain note — MA-Series are domain failure codes, not constitutional principles.
+
+**Verification:** Index rebuilt (513 items). Tests 549 pass, 1 skipped, 0 failures.
 
 ### 0. Unified Update Checklist (meta-methods v3.10.1→v3.10.2)
 
