@@ -24,7 +24,7 @@
 | Specify → Plan | ✓ Passed | 2025-12-26 | Option C (Tier 1 + best of Tier 2) |
 | Plan → Tasks | ✓ Passed | 2025-12-26 | Architecture approved |
 | Tasks → Implement | ✓ Passed | 2025-12-27 | 90+ test target set |
-| Implement → Complete | ✓ Passed | 2025-12-29 | 355 tests, 90% coverage |
+| Implement → Complete | ✓ Passed | 2025-12-29 | Gate passed at 355 tests, 90% coverage (run `pytest` for current counts) |
 
 ---
 

@@ -4,8 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.7.x   | :white_check_mark: |
-| < 1.7   | :x:                |
+| 1.8.x   | :white_check_mark: |
+| < 1.8   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -93,7 +93,7 @@ Our CI pipeline and extraction process scan for:
 ### Implemented
 
 - **Rate limiting**: Token bucket algorithm prevents DoS (governance server + context engine)
-- **Thread-safe rate limiter**: Context engine rate limiter guarded by `threading.Lock`
+- **Thread-safe rate limiters**: Both governance and context engine rate limiters guarded by `threading.Lock`
 - **Path traversal prevention**: Validated paths for log files, agent installation, and project indexes (hex-only IDs)
 - **Log sanitization**: Secrets redacted from logs via regex patterns (6-pass sanitization)
 - **Bounded audit log**: Memory-bounded deque prevents unbounded growth

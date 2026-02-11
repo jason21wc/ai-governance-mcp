@@ -1,6 +1,6 @@
 """MCP Server for AI Governance document retrieval.
 
-Per specification v4: MCP server with 11 tools for hybrid retrieval.
+MCP server with 11 tools for hybrid retrieval of governance principles.
 """
 
 import asyncio
@@ -9,6 +9,7 @@ import os
 import re
 import signal
 import sys
+import threading
 import time
 from collections import deque
 from datetime import datetime, timezone
@@ -220,11 +221,11 @@ MAX_LOG_CONTENT_LENGTH = 2000
 MAX_RELEVANT_METHODS = 5
 
 # H4 FIX: Rate limiting configuration (token bucket algorithm)
-# Per-process, single-client. Not thread-safe.
 RATE_LIMIT_TOKENS = 100  # Maximum tokens (requests) in bucket
 RATE_LIMIT_REFILL_RATE = 10  # Tokens added per second
 _rate_limit_tokens = RATE_LIMIT_TOKENS
 _rate_limit_last_refill = time.time()
+_rate_limit_lock = threading.Lock()
 
 # M4 FIX: Patterns for detecting secrets in queries (to redact before logging)
 SECRET_PATTERNS = [
@@ -265,26 +266,28 @@ def _check_rate_limit() -> bool:
     """Check if request is within rate limit using token bucket algorithm.
 
     H4 FIX: Prevents DoS by limiting request rate.
+    Thread-safe via _rate_limit_lock (defense-in-depth for run_in_executor).
 
     Returns:
         True if request is allowed, False if rate limited.
     """
     global _rate_limit_tokens, _rate_limit_last_refill
 
-    now = time.time()
-    elapsed = now - _rate_limit_last_refill
-    _rate_limit_last_refill = now
+    with _rate_limit_lock:
+        now = time.time()
+        elapsed = now - _rate_limit_last_refill
+        _rate_limit_last_refill = now
 
-    # Refill tokens based on elapsed time
-    _rate_limit_tokens = min(
-        RATE_LIMIT_TOKENS, _rate_limit_tokens + (elapsed * RATE_LIMIT_REFILL_RATE)
-    )
+        # Refill tokens based on elapsed time
+        _rate_limit_tokens = min(
+            RATE_LIMIT_TOKENS, _rate_limit_tokens + (elapsed * RATE_LIMIT_REFILL_RATE)
+        )
 
-    # Check if we have tokens available
-    if _rate_limit_tokens >= 1:
-        _rate_limit_tokens -= 1
-        return True
-    return False
+        # Check if we have tokens available
+        if _rate_limit_tokens >= 1:
+            _rate_limit_tokens -= 1
+            return True
+        return False
 
 
 def _sanitize_for_logging(content: str) -> str:

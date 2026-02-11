@@ -108,7 +108,10 @@ ai-governance-mcp/
 ├── documents/                 # Source markdown docs
 │
 ├── logs/
-│   └── feedback.jsonl         # Retrieval feedback
+│   ├── feedback.jsonl         # Retrieval feedback
+│   ├── queries.jsonl          # Query audit log
+│   ├── governance_audit.jsonl # Governance evaluation audit trail
+│   └── governance_reasoning.jsonl # Per-principle reasoning traces
 │
 ├── tests/
 │   ├── conftest.py                  # Shared fixtures
@@ -379,7 +382,7 @@ The 60% semantic / 40% keyword weight was determined empirically. Semantic searc
 | In-memory (NumPy) | Fast queries, simple | Full reload at startup | **Selected** for v1 |
 | Vector DB (e.g., ChromaDB) | Incremental updates, scalability | Additional dependency, deployment complexity | Deferred to roadmap |
 
-**Rationale:** With ~500 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
+**Rationale:** With ~513 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
 
 ---
 
@@ -418,7 +421,8 @@ A second MCP server providing semantic search across project content. Complement
 │                     │  storage    │  (~/.context-engine/indexes/{id}/)      │
 │                     │             │                                         │
 │                     │ filesystem  │  embeddings.npy, bm25.json,            │
-│                     │ JSON-based  │  metadata.json, manifest.json          │
+│                     │ JSON-based  │  metadata.json, chunks.json,           │
+│                     │             │  manifest.json                         │
 │                     └─────────────┘                                         │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -481,7 +485,7 @@ file change  →  watchdog event  →  debounce (2s)  →  incremental_update()
 | **Symlink filtering** | Skip symlinks during file discovery, list_projects, delete_project | indexer.py, storage/filesystem.py |
 | **File size limits** | 10MB max per file during indexing | indexer.py |
 | **File count limits** | 10,000 max files per project | indexer.py |
-| **Thread safety** | RLock protecting shared index state; Lock guarding rate limiter | project_manager.py, server.py |
+| **Thread safety** | RLock protecting shared index state; Lock guarding rate limiters (both servers) | project_manager.py, server.py |
 | **Decompression bomb guard** | PIL MAX_IMAGE_PIXELS limit set at connector init | connectors/image.py |
 | **Relative paths in output** | source_path computed relative to project root, not absolute | connectors/*.py |
 | **Log sanitization** | Truncate content before logging | server.py |
