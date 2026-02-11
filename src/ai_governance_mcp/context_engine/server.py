@@ -327,7 +327,7 @@ def create_server() -> tuple[Server, ProjectManager]:
                         type="text",
                         text=json.dumps(
                             {
-                                "error": f"Unknown tool: {name}",
+                                "error": f"Unknown tool: {name[:50]}",
                                 "valid_tools": [
                                     "query_project",
                                     "index_project",

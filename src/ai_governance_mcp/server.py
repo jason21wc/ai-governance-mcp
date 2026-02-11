@@ -169,6 +169,7 @@ def _write_log_sync(log_file: Path, content: str) -> None:
     with open(log_file, "a") as f:
         f.write(content)
         f.flush()  # H3 FIX: Explicit flush reduces data loss on shutdown
+        os.fsync(f.fileno())  # Ensure OS buffers are written to disk
 
 
 async def log_query_async(query_log: QueryLog) -> None:
@@ -430,7 +431,7 @@ async def log_reasoning_async(entry: GovernanceReasoningLog) -> None:
     """
     global _reasoning_log, _settings
     _reasoning_log.append(entry)
-    logger.debug(f"Logged reasoning for audit {entry.audit_id}")
+    logger.debug("Logged reasoning for audit %s", entry.audit_id)
 
     # Persist to file (non-blocking)
     if _settings:
@@ -449,9 +450,9 @@ def log_reasoning_sync(entry: GovernanceReasoningLog) -> None:
         _write_log_sync(log_file, entry.model_dump_json() + "\n")
 
 
-def get_reasoning_log() -> deque[GovernanceReasoningLog]:
+def get_reasoning_log() -> list[GovernanceReasoningLog]:
     """Get the in-memory reasoning log for inspection."""
-    return _reasoning_log
+    return list(_reasoning_log)
 
 
 # Server instructions injected into AI context at MCP initialization.
@@ -1209,7 +1210,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         return _append_governance_reminder(result)
 
     except Exception as e:
-        logger.error(f"Tool error: {e}")
+        logger.error("Tool error: %s", e)
         # M6 FIX: Sanitize error message to prevent information leakage
         error = ErrorResponse(
             error_code="TOOL_ERROR",
@@ -1274,20 +1275,21 @@ async def _handle_query_governance(
         max_results=max_results,
     )
 
-    # Update metrics
+    # Update metrics (thread-safe via lock — defense-in-depth for run_in_executor)
     metrics = get_metrics()
-    metrics.total_queries += 1
-    metrics.avg_retrieval_time_ms = (
-        metrics.avg_retrieval_time_ms * (metrics.total_queries - 1)
-        + result.retrieval_time_ms
-    ) / metrics.total_queries
-    if result.s_series_triggered:
-        metrics.s_series_trigger_count += 1
+    with _rate_limit_lock:
+        metrics.total_queries += 1
+        metrics.avg_retrieval_time_ms = (
+            metrics.avg_retrieval_time_ms * (metrics.total_queries - 1)
+            + result.retrieval_time_ms
+        ) / metrics.total_queries
+        if result.s_series_triggered:
+            metrics.s_series_trigger_count += 1
 
-    for domain in result.domains_detected:
-        metrics.domain_query_counts[domain] = (
-            metrics.domain_query_counts.get(domain, 0) + 1
-        )
+        for detected_domain in result.domains_detected:
+            metrics.domain_query_counts[detected_domain] = (
+                metrics.domain_query_counts.get(detected_domain, 0) + 1
+            )
 
     # Log query (H2 FIX: use async version to avoid blocking)
     # M1/M4 FIX: Sanitize query before logging
@@ -2382,7 +2384,12 @@ def _flush_all_logs() -> None:
     """
     global _settings
     if _settings:
-        log_files = ["queries.jsonl", "feedback.jsonl", "governance_audit.jsonl"]
+        log_files = [
+            "queries.jsonl",
+            "feedback.jsonl",
+            "governance_audit.jsonl",
+            "governance_reasoning.jsonl",
+        ]
         for log_name in log_files:
             log_file = _settings.logs_path / log_name
             try:

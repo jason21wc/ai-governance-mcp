@@ -415,10 +415,28 @@ class ProjectManager:
         return index
 
     def _load_search_indexes(self, project_id: str) -> None:
-        """Load embeddings and BM25 index for a project."""
-        embeddings = self.storage.load_embeddings(project_id)
-        if embeddings is not None:
-            self._loaded_embeddings[project_id] = embeddings
+        """Load embeddings and BM25 index for a project.
+
+        Respects embedding model mismatch: if _load_project discarded
+        embeddings due to model mismatch, this method will not reload them.
+        Also validates embeddings/chunks length consistency.
+        """
+        # Skip embedding reload if they were discarded due to model mismatch
+        if project_id not in self._loaded_embeddings:
+            embeddings = self.storage.load_embeddings(project_id)
+            if embeddings is not None:
+                # A1 FIX: Validate embeddings/chunks length consistency
+                index = self._loaded_indexes.get(project_id)
+                if index and len(embeddings) != len(index.chunks):
+                    logger.warning(
+                        "Embeddings/chunks length mismatch for %s "
+                        "(%d embeddings vs %d chunks). Discarding embeddings.",
+                        project_id,
+                        len(embeddings),
+                        len(index.chunks),
+                    )
+                else:
+                    self._loaded_embeddings[project_id] = embeddings
 
         bm25_data = self.storage.load_bm25_index(project_id)
         if bm25_data and bm25_data.get("tokenized_corpus"):
@@ -427,14 +445,26 @@ class ProjectManager:
                 self._loaded_bm25[project_id] = bm25
 
     def _semantic_search(self, query: str, project_id: str) -> np.ndarray:
-        """Perform semantic search, returning per-chunk scores."""
+        """Perform semantic search, returning per-chunk scores.
+
+        Falls back to empty results (BM25-only) if the embedding model
+        fails to load, preventing a single model failure from breaking
+        all queries.
+        """
         embeddings = self._loaded_embeddings.get(project_id)
         if embeddings is None or len(embeddings) == 0:
             return np.array([])
 
-        query_embedding = self._indexer.embedding_model.encode(
-            [query], normalize_embeddings=True
-        )
+        try:
+            query_embedding = self._indexer.embedding_model.encode(
+                [query], normalize_embeddings=True
+            )
+        except Exception as e:
+            logger.warning(
+                "Embedding model failed for query, falling back to BM25-only: %s", e
+            )
+            return np.array([])
+
         scores = np.dot(embeddings, query_embedding.T).flatten()
         # Clip to [0, 1]
         scores = np.clip(scores, 0.0, 1.0)

@@ -1,6 +1,6 @@
 """Retrieval engine for AI Governance documents.
 
-Per specification v4: Hybrid retrieval with BM25 + semantic search + reranking.
+Hybrid retrieval with BM25 + semantic search + reranking.
 """
 
 import json
@@ -23,6 +23,24 @@ from .models import (
 )
 
 logger = setup_logging()
+
+# Security: Allowlists for ML models to prevent loading untrusted code.
+# Only vetted models may be loaded. Override with env vars for testing only.
+ALLOWED_EMBEDDING_MODELS = {
+    "BAAI/bge-small-en-v1.5",
+    "BAAI/bge-base-en-v1.5",
+    "BAAI/bge-large-en-v1.5",
+    "sentence-transformers/all-MiniLM-L6-v2",
+    "sentence-transformers/all-mpnet-base-v2",
+    "sentence-transformers/paraphrase-MiniLM-L6-v2",
+}
+ALLOWED_RERANKER_MODELS = {
+    "cross-encoder/ms-marco-MiniLM-L-6-v2",
+    "cross-encoder/ms-marco-MiniLM-L-12-v2",
+    "cross-encoder/ms-marco-TinyBERT-L-2-v2",
+    "BAAI/bge-reranker-base",
+    "BAAI/bge-reranker-large",
+}
 
 
 class RetrievalEngine:
@@ -50,9 +68,15 @@ class RetrievalEngine:
         if self._embedder is None:
             from sentence_transformers import SentenceTransformer
 
-            logger.info(f"Loading embedding model: {self.settings.embedding_model}")
+            model_name = self.settings.embedding_model
+            if model_name not in ALLOWED_EMBEDDING_MODELS:
+                raise ValueError(
+                    f"Embedding model '{model_name}' not in allowlist. "
+                    f"Allowed: {sorted(ALLOWED_EMBEDDING_MODELS)}"
+                )
+            logger.info(f"Loading embedding model: {model_name}")
             self._embedder = SentenceTransformer(
-                self.settings.embedding_model,
+                model_name,
                 trust_remote_code=False,
                 model_kwargs={"use_safetensors": True},
             )
@@ -64,8 +88,17 @@ class RetrievalEngine:
         if self._reranker is None:
             from sentence_transformers import CrossEncoder
 
-            logger.info(f"Loading reranking model: {self.settings.rerank_model}")
-            self._reranker = CrossEncoder(self.settings.rerank_model)
+            model_name = self.settings.rerank_model
+            if model_name not in ALLOWED_RERANKER_MODELS:
+                raise ValueError(
+                    f"Reranker model '{model_name}' not in allowlist. "
+                    f"Allowed: {sorted(ALLOWED_RERANKER_MODELS)}"
+                )
+            logger.info(f"Loading reranking model: {model_name}")
+            self._reranker = CrossEncoder(
+                model_name,
+                trust_remote_code=False,
+            )
         return self._reranker
 
     def _load_index(self) -> None:
@@ -688,26 +721,11 @@ class RetrievalEngine:
         if not self.index:
             return None
 
-        parts = principle_id.split("-")
-        if len(parts) < 2:
-            return None
-
-        prefix = parts[0]
-        prefix_to_domain = {
-            "meta": "constitution",
-            "coding": "ai-coding",
-            "multi": "multi-agent",
-            "stor": "storytelling",
-            "mult": "multimodal-rag",
-        }
-
-        domain_name = prefix_to_domain.get(prefix)
-        if not domain_name or domain_name not in self.index.domains:
-            return None
-
-        for principle in self.index.domains[domain_name].principles:
-            if principle.id == principle_id:
-                return principle
+        # Search all domains — avoids prefix collision (e.g., "multi" vs "mult")
+        for domain_index in self.index.domains.values():
+            for principle in domain_index.principles:
+                if principle.id == principle_id:
+                    return principle
 
         return None
 
@@ -716,26 +734,11 @@ class RetrievalEngine:
         if not self.index:
             return None
 
-        parts = method_id.split("-")
-        if len(parts) < 2:
-            return None
-
-        prefix = parts[0]
-        prefix_to_domain = {
-            "meta": "constitution",
-            "coding": "ai-coding",
-            "multi": "multi-agent",
-            "stor": "storytelling",
-            "mult": "multimodal-rag",
-        }
-
-        domain_name = prefix_to_domain.get(prefix)
-        if not domain_name or domain_name not in self.index.domains:
-            return None
-
-        for method in self.index.domains[domain_name].methods:
-            if method.id == method_id:
-                return method
+        # Search all domains — avoids prefix collision (e.g., "multi" vs "mult")
+        for domain_index in self.index.domains.values():
+            for method in domain_index.methods:
+                if method.id == method_id:
+                    return method
 
         return None
 

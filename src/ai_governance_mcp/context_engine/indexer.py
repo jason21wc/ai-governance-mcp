@@ -314,7 +314,9 @@ class Indexer:
             "implemented). %d files changed.",
             len(changed_files),
         )
-        return self.index_project(project_path, project_id)
+        # C3 FIX: Preserve stored index_mode through re-index
+        index_mode = existing.get("index_mode", "ondemand")
+        return self.index_project(project_path, project_id, index_mode)
 
     def load_ignore_patterns(self, project_path: Path) -> pathspec.GitIgnoreSpec:
         """Load ignore patterns from .contextignore/.gitignore + defaults.
