@@ -124,6 +124,7 @@
 | .contextignore + .gitignore | 2026-02-02 | `.contextignore` takes precedence, falls back to `.gitignore`, then defaults. Follows fnmatch patterns. |
 | Relative Paths in Output | 2026-02-04 | Connectors compute `source_path` relative to project root via `project_root` param. Prevents absolute path leakage. |
 | Thread-Safe Rate Limiter | 2026-02-03 | Rate limiter globals guarded by `threading.Lock`. MCP runs handlers via `run_in_executor` thread pool. |
+| Model Allowlists | 2026-02-10 | Embedding (6 models) and reranker (5 models) allowlists in `retrieval.py`. CrossEncoder now uses `trust_remote_code=False`. Mirrors context engine's allowlist pattern. |
 | Symlink Protection | 2026-02-04 | `list_projects()` skips symlinks. `delete_project()` unlinks symlinks instead of `rmtree`. File discovery already filtered. |
 | Atomic JSON Writes | 2026-02-06 | `_atomic_write_json()` uses tmp file + rename for crash safety. POSIX atomic guarantees. |
 | Circuit Breaker Visibility | 2026-02-06 | `watcher_status` field in ProjectStatus exposes state (running/stopped/circuit_broken/disabled). |
@@ -313,6 +314,8 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 22 | Env vars crash on invalid values | All `AI_CONTEXT_ENGINE_*` env vars wrapped in try/except with fallback defaults. |
 | 23 | CI needs context-engine extras | `pip install -e ".[dev,context-engine]"` — tests import `pathspec` from optional group |
 | 24 | Storytelling A-Series category collision | Multi-agent A-Series = "Architecture", Storytelling A-Series = "Audience" — both map to category `architecture`. Safe because different domain prefixes (`mult-` vs `stor-`) and storytelling uses colon headers (old format). Watch for new domains with A-Series. |
+| 25 | `get_*_by_id` prefix collision | `"multi"` (multi-agent) and `"mult"` (multimodal-rag) shared a common prefix. Fixed by replacing prefix→domain map with exhaustive search across all domains. O(n) but n is small (~500 items). |
+| 26 | `_load_search_indexes` undoes mismatch guard | `_load_project` discards embeddings on model mismatch, then calls `_load_search_indexes` which reloads them unconditionally. Fixed: skip embedding reload if already discarded. |
 
 ### Resolved Gotchas
 

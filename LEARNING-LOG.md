@@ -12,6 +12,14 @@
 
 ## Active Lessons
 
+### Guard-Then-Load Pattern: Don't Undo Your Own Safety Checks (2026-02-10)
+
+`_load_project` correctly discarded incompatible embeddings on model mismatch. Then immediately called `_load_search_indexes` which reloaded them unconditionally — undoing the safety check. Similarly, `get_principle_by_id` used a prefix→domain map where "multi" (multi-agent) and "mult" (multimodal-rag) collided because Python dict lookup stops at the first prefix match.
+
+**Rule:** When a function sets a safety state (discarding data, marking flags), audit all subsequent calls to verify they don't silently reverse that state. When mapping IDs to domains, prefer exhaustive search over prefix heuristics — domain count is small, correctness matters more than lookup speed.
+
+---
+
 ### Context Engine Hardening: Defense-in-Depth for Indexing Systems (2026-02-09)
 
 File watcher, storage, and parsing systems need layered defenses even for local-use tools: (1) BM25Okapi crashes on empty corpus — guard with `any(len(doc) > 0 for doc in corpus)` before construction, (2) Timer threads must be daemon to prevent blocking process exit, tracked for cancellation in `stop()`, and guarded with `_running.is_set()` checks, (3) All persistent file loads need corrupt-file recovery (try/except → log → delete → return None), (4) CSV/XLSX parsers need column limits (`row[:500]`), plain text parsers need force-split at max lines.

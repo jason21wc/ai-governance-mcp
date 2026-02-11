@@ -32,24 +32,18 @@
 
 ## Completed This Session (2026-02-10)
 
-### Context Engine Code Review + Readiness Fixes
+### Context Engine Code Review + Readiness Fixes (Rounds 4-6)
 
-5-agent deep review (code reviewer, security auditor, 3 coherence auditors) run twice (Rounds 4-5).
+**Round 4 fixes (commit adc4060):** 4 code fixes from review + security audit.
 
-**Round 4 fixes (commit adc4060):** 4 code fixes from review + security audit:
-1. Default `index_mode` "realtime" → "ondemand" (6 locations across 4 files) — realtime triggers full re-index on every file change
-2. Separated chunks from metadata.json into chunks.json — keeps metadata lightweight for list/status operations
-3. Generation counter for watcher/reindex race condition — prevents stale watcher results from overwriting fresh index
-4. PDF fallback duplicate prevention — clears partial pymupdf chunks before pdfplumber retry
+**Round 5 fixes (commit 7a76408):** Documentation staleness + code cleanup. Audit verdict: READY FOR USE.
 
-**Round 5 fixes (this commit):** Documentation staleness + code cleanup:
-1. server.py: Removed stale "specification v4" docstring reference
-2. server.py: Added `threading.Lock` to governance rate limiter (defense-in-depth, matches context engine pattern)
-3. ARCHITECTURE.md: Updated logs/ listing (added 3 missing log files), storage listing (added chunks.json), ~500→~513 items
-4. SECURITY.md: Updated supported version 1.7.x→1.8.x, thread-safe rate limiter note (both servers)
-5. PROJECT-MEMORY.md: Clarified "355 tests" as historical gate fact
-
-**Round 5 audit verdict:** READY FOR USE. 0 blockers, 0 critical. Context engine code is production-ready.
+**Round 6 deep review (commit e78f63e):** 5-agent deep review (code reviewer, security auditor, architecture reviewer, test coverage analyzer, coherence auditor). 16 fixes across 6 files:
+- Security HIGH (S1-S3): `trust_remote_code=False` on CrossEncoder, embedding model allowlist (6 models), reranker model allowlist (5 models)
+- Code Quality HIGH (C1-C3): `get_reasoning_log()` returns `list()` not raw deque, `_load_search_indexes` respects model mismatch discard, `incremental_update` passes stored `index_mode`
+- Architecture HIGH (A1-A2): Embeddings/chunks length consistency check, model failure isolation with BM25-only fallback
+- Coherence (D1): SECURITY.md version reverted to 1.7.x (was incorrectly bumped to 1.8.x in Round 5)
+- Medium (M1-M6): Metrics lock, tool name truncation, domain variable shadow, `os.fsync` in `_write_log_sync`, prefix collision eliminated (search all domains by ID), f-string logging → `%s`
 
 ### Prior Session Work (compressed — see git history for details)
 
