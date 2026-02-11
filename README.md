@@ -59,7 +59,7 @@ The framework has three layers:
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
-| Server | FastMCP | Official MCP SDK |
+| Server | MCP Python SDK | Official MCP SDK (`mcp.server.Server`) |
 | Embeddings | sentence-transformers | Semantic similarity |
 | Keyword Search | rank-bm25 | BM25 keyword matching |
 | Reranking | CrossEncoder | Result refinement |

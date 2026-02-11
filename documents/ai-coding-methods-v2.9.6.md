@@ -3775,7 +3775,7 @@ All projects benefit from Reference Memory. It becomes critical for projects exc
 
 All project files — code, documents, configurations, data files — excluding patterns specified in `.contextignore`. The index covers the raw project content itself, not the decisions or lessons about it (those belong in PROJECT-MEMORY and LEARNING-LOG respectively).
 
-**`.contextignore` file:** Follows `.gitignore` pattern syntax (fnmatch). Place in project root. Example:
+**`.contextignore` file:** Follows `.gitignore` pattern syntax (via `pathspec.GitIgnoreSpec`). Place in project root. Example:
 
 ```
 # Dependencies and build artifacts
@@ -3798,7 +3798,7 @@ credentials.json
 **Built-in defaults:** Even without a `.contextignore` file, the following patterns are always excluded:
 `.git/`, `__pycache__/`, `*.pyc`, `node_modules/`, `.venv/`, `venv/`, `.env*` (matches `.env`, `.env.local`, `.env.production`, etc.), `*.egg-info/`, `dist/`, `build/`, `.DS_Store`, `*.lock`
 
-These defaults are appended to any custom `.contextignore` or `.gitignore` patterns.
+These defaults are prepended before any custom `.contextignore` or `.gitignore` patterns, so user `!pattern` negation rules can override them.
 
 ### 7.9.4 Index Components
 
@@ -3819,7 +3819,7 @@ A Reference Memory index consists of:
 |-------|---------|------------|
 | `ContentChunk` | Single indexable unit | `content`, `source_path`, `start_line`, `end_line`, `content_type` (Literal: code/document/data/image), `language`, `heading`, `embedding_id` |
 | `FileMetadata` | Per-file tracking | `path`, `content_type`, `language`, `size_bytes`, `last_modified`, `content_hash` (SHA-256), `chunk_count` |
-| `ProjectIndex` | Full project state | `project_id`, `project_path`, `chunks[]`, `files[]`, `created_at`, `updated_at`, `embedding_model`, `total_chunks`, `total_files` |
+| `ProjectIndex` | Full project state | `project_id`, `project_path`, `chunks[]`, `files[]`, `created_at`, `updated_at`, `embedding_model`, `total_chunks`, `total_files`, `index_mode` |
 | `QueryResult` | Single search result | `chunk`, `semantic_score` (0.0-1.0), `keyword_score` (0.0-1.0), `combined_score` (0.0-1.0) |
 | `ProjectQueryResult` | Full query response | `query`, `project_id`, `project_path`, `results[]`, `total_results`, `query_time_ms` |
 | `ProjectStatus` | Index statistics | `project_id`, `project_path`, `total_files`, `total_chunks`, `index_mode`, `last_updated`, `index_size_bytes`, `embedding_model`, `watcher_status` (running/stopped/circuit_broken/disabled) |
@@ -4364,7 +4364,7 @@ async def main():
 **Purpose:** Provide behavioral guidance to AI clients at connection time.
 
 ```python
-server = FastMCP(
+server = Server(
     name="your-server",
     instructions="""
 ## Required Actions
@@ -4977,7 +4977,7 @@ pip install -e ".[context-engine]"
 | Model | Dimensions | Best For | Trade-off |
 |-------|-----------|----------|-----------|
 | `BAAI/bge-small-en-v1.5` | 384 | General use, lightweight | Good quality, fast indexing |
-| `voyage-code-3` | 1024 | Code-heavy projects | Superior code understanding, requires API key |
+| `voyage-code-3` | 1024 | Code-heavy projects | Superior code understanding, requires API key + `ALLOW_CUSTOM_MODELS=true` (not in default allowlist) |
 | `BAAI/bge-base-en-v1.5` | 768 | Large document projects | Better document retrieval, heavier |
 
 Default: `BAAI/bge-small-en-v1.5` (same as governance MCP — proven, lightweight, no API key required).
@@ -5073,7 +5073,7 @@ When the context engine is available, project-specific instructions could be sem
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 2.9.6 | 2026-02-10 | PATCH: Context Engine hardening Round 2 — gotchas, security patterns, and coherence audit remediation. (1) Fixed §9.3.4 Graceful Shutdown Pattern: removed `logging.info()` from signal handler code example (POSIX async-signal-safety violation — can deadlock if signal arrives while logging lock held), added safety comments and gotcha note. (2) Added 5 rows to §7.9.9 Security Requirements: watcher change re-queue on callback failure, embedding model mismatch detection on project load, ML model safety flags (`trust_remote_code=False`, `use_safetensors=True`), embedding model allowlist (6 vetted models + bypass env var), chunk limits (MAX_TOTAL_CHUNKS, MAX_CHUNK_CONTENT_CHARS, EMBEDDING_BATCH_SIZE). (3) Added 2 implementation details to Appendix G.5: model mismatch detection with warning log, cosine similarity clamping via `np.clip` for float32 precision overflow prevention. (4) Fixed §7.9.6 BaseConnector.parse() signature: added missing `project_root: Path \| None = None` parameter. (5) Fixed §7.9.4 data model schemas: added `project_path` to ProjectIndex/ProjectQueryResult/ProjectStatus, added `chunk_count` to FileMetadata, removed undocumented `index_mode` from ProjectIndex. (6) Fixed Appendix G.4: replaced unimplemented `AI_CONTEXT_ENGINE_INDEX_MODE` env var documentation with accurate description (real-time only, on-demand planned). |
+| 2.9.6 | 2026-02-10 | PATCH: Context Engine hardening Round 2 — gotchas, security patterns, and coherence audit remediation. (1) Fixed §9.3.4 Graceful Shutdown Pattern: removed `logging.info()` from signal handler code example (POSIX async-signal-safety violation — can deadlock if signal arrives while logging lock held), added safety comments and gotcha note. (2) Added 5 rows to §7.9.9 Security Requirements: watcher change re-queue on callback failure, embedding model mismatch detection on project load, ML model safety flags (`trust_remote_code=False`, `use_safetensors=True`), embedding model allowlist (6 vetted models + bypass env var), chunk limits (MAX_TOTAL_CHUNKS, MAX_CHUNK_CONTENT_CHARS, EMBEDDING_BATCH_SIZE). (3) Added 2 implementation details to Appendix G.5: model mismatch detection with warning log, cosine similarity clamping via `np.clip` for float32 precision overflow prevention. (4) Fixed §7.9.6 BaseConnector.parse() signature: added missing `project_root: Path \| None = None` parameter. (5) Fixed §7.9.4 data model schemas: added `project_path` to ProjectIndex/ProjectQueryResult/ProjectStatus, added `chunk_count` to FileMetadata, restored `index_mode` to ProjectIndex (still used in code). (6) Fixed Appendix G.4: replaced unimplemented `AI_CONTEXT_ENGINE_INDEX_MODE` env var documentation with accurate description (real-time only, on-demand planned). (7) Fixed §7.9.3: `.contextignore` syntax description from "fnmatch" to "gitignore syntax (via `pathspec.GitIgnoreSpec`)"; fixed default pattern order from "appended" to "prepended" (user `!pattern` negation can override). (8) Fixed §9.3.5: Server Instructions Pattern code example from `FastMCP` to `Server` (matches actual MCP SDK usage). (9) Fixed G.5: added allowlist bypass note for `voyage-code-3` (`ALLOW_CUSTOM_MODELS=true` required). |
 | 2.9.5 | 2026-02-09 | PATCH: Context Engine hardening. (1) Updated §7.9.5 Indexing Modes: debounce 500ms → 2s, added 5s cooldown, documented incremental updates (replaces "full re-index planned"), added circuit breaker (3 failures), LRU eviction (10 projects max), updated concurrency model (expensive I/O outside lock). (2) Updated §7.9.6 connectors: document connector force-split at 200 lines, data connector 500-column limit for CSV and Excel. (3) Updated §7.9.4: added `watcher_status` to ProjectStatus model. (4) Expanded §7.9.9 Security Requirements: added 10 patterns (atomic writes, corrupt file recovery, BM25 empty corpus guard, column/row limits, chunk force-splitting, timer lifecycle, circuit breaker, LRU eviction, JSON file size limits, updated thread safety description). (5) Updated Appendix G.4: documented debounce/cooldown/flush parameters, removed "incremental planned" note. |
 | 2.9.4 | 2026-02-10 | PATCH: Coherence audit remediation. (1) Fixed principle name "Human-AI Collaboration" → "Human-AI Collaboration Model" in mapping table. (2) Standardized 3 Implements headers from deprecated series codes (Q2, Q3) to full principle names: "Security-First Development (Domain)" (§5.7, §5.8), "Testing Integration (Domain)" (§6.5). (3) Removed stale test count from v2.2.0 version history entry (volatile metric). |
 | 2.9.3 | 2026-02-09 | PATCH: CI/CD supply chain hardening. (1) Updated §6.4.4 GitHub Actions Template: added workflow-level `permissions: {}`, per-job permissions grants, `persist-credentials: false` on checkout, SHA-pinned action references with `<commit-sha>` placeholders and usage notes. (2) Added §6.4.6 Supply Chain Hardening subsection: tj-actions incident context, SHA pinning rationale, 6-row practice table (commit SHA, workflow permissions, per-job permissions, persist-credentials, Actions restrictions, CodeQL scanning), anti-pattern note, Dependabot maintenance guidance. Updated Reliability bullet from tag pinning to SHA pinning. (3) Updated §6.4.7 CI/CD Checklist: added 7 supply chain hardening items (SHA pinning, workflow permissions, per-job permissions, persist-credentials, CodeQL, Actions restrictions, Dependabot). (4) Added Situation Index entry: CI/CD supply chain hardening → §6.4.6. (5) Added Supply Chain Integrity to §6.4.1 purpose statement. |

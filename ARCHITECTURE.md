@@ -343,7 +343,7 @@ Key technical decisions validated through prototyping and benchmarking (ai-codin
 
 ### Retrieval Quality Benchmarks
 
-Current metrics (baseline 2026-02-07, model: `BAAI/bge-small-en-v1.5`):
+Current metrics (see `tests/benchmarks/` for latest baseline, model: `BAAI/bge-small-en-v1.5`):
 
 | Metric | Value | Threshold | Status |
 |--------|-------|-----------|--------|
