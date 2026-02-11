@@ -375,6 +375,17 @@ class ProjectManager:
                 updated_at=metadata.get("updated_at", "unknown"),
                 embedding_model=metadata.get("embedding_model", "unknown"),
             )
+        # Warn if stored embedding model differs from configured model
+        stored_model = index.embedding_model
+        if stored_model and stored_model != self.embedding_model_name:
+            logger.warning(
+                "Project %s was indexed with model '%s' but server is configured "
+                "for '%s'. Search quality may be degraded. Re-index to fix.",
+                project_id,
+                stored_model,
+                self.embedding_model_name,
+            )
+
         self._loaded_indexes[project_id] = index
         self._load_search_indexes(project_id)
         return index

@@ -5,6 +5,7 @@ for hybrid retrieval (BM25 + semantic search).
 """
 
 import json
+import os
 import re
 import sys
 import unicodedata
@@ -1202,18 +1203,33 @@ class DocumentExtractor:
         return prefixes.get(domain_name, domain_name[:4])
 
     def _save_index(self, index: GlobalIndex) -> None:
-        """Save global index to JSON file."""
-        index_file = self.settings.index_path / "global_index.json"
+        """Save global index to JSON file atomically (tmp + fsync + rename).
 
-        with open(index_file, "w") as f:
+        Prevents corruption if the process crashes mid-write.
+        """
+        index_file = self.settings.index_path / "global_index.json"
+        tmp_file = index_file.with_suffix(".tmp")
+
+        with open(tmp_file, "w") as f:
             json.dump(index.model_dump(), f, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+        tmp_file.replace(index_file)
 
         logger.info(f"Saved index to {index_file}")
 
     def _save_embeddings(self, embeddings: np.ndarray, filename: str) -> None:
-        """Save embeddings to NumPy file."""
+        """Save embeddings to NumPy file atomically (tmp + rename).
+
+        np.save auto-appends .npy, so we use a .tmp base name and
+        rename the resulting .tmp.npy to the final path.
+        """
         embeddings_file = self.settings.index_path / filename
-        np.save(embeddings_file, embeddings)
+        tmp_base = embeddings_file.with_suffix(".tmp")
+        np.save(tmp_base, embeddings)
+        # np.save creates {name}.tmp.npy — rename to final path
+        actual_tmp = tmp_base.with_suffix(".tmp.npy")
+        actual_tmp.replace(embeddings_file)
         logger.info(
             f"Saved embeddings to {embeddings_file} (shape: {embeddings.shape})"
         )

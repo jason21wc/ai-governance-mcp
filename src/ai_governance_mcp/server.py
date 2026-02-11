@@ -2411,10 +2411,13 @@ async def run_server():
             logger.warning(f"Index NOT FOUND: {index_file} - run extractor first")
 
     def force_exit(signum, frame):
-        """Force exit on signal - stdio streams can't be gracefully interrupted."""
-        logger.info(f"Received signal {signum}, forcing exit...")
-        # H3 FIX: Flush logs before exit to prevent data loss
-        _flush_all_logs()
+        """Force exit on signal - stdio streams can't be gracefully interrupted.
+
+        Only async-signal-safe operations here. Do NOT call logger (uses locks)
+        or _flush_all_logs (opens files) — either can deadlock if the signal
+        arrives while a lock is held. The finally block handles cleanup for
+        normal exits. Matches context_engine/server.py signal handler pattern.
+        """
         os._exit(0)
 
     # Register signal handlers for immediate exit

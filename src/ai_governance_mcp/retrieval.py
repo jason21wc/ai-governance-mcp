@@ -4,6 +4,7 @@ Per specification v4: Hybrid retrieval with BM25 + semantic search + reranking.
 """
 
 import json
+import re
 import time
 from typing import Optional
 
@@ -83,14 +84,29 @@ class RetrievalEngine:
             self.index = GlobalIndex(**data)
         logger.info(f"Loaded index with {len(self.index.domains)} domains")
 
-        # Load embeddings
+        # Load embeddings — gracefully degrade to BM25-only on corrupt .npy files
         if content_emb_path.exists():
-            self.content_embeddings = np.load(content_emb_path, allow_pickle=False)
-            logger.info(f"Loaded content embeddings: {self.content_embeddings.shape}")
+            try:
+                self.content_embeddings = np.load(content_emb_path, allow_pickle=False)
+                logger.info(
+                    f"Loaded content embeddings: {self.content_embeddings.shape}"
+                )
+            except Exception as e:
+                logger.warning(
+                    "Corrupt content embeddings file, falling back to BM25-only: %s",
+                    e,
+                )
+                self.content_embeddings = None
 
         if domain_emb_path.exists():
-            self.domain_embeddings = np.load(domain_emb_path, allow_pickle=False)
-            logger.info(f"Loaded domain embeddings: {self.domain_embeddings.shape}")
+            try:
+                self.domain_embeddings = np.load(domain_emb_path, allow_pickle=False)
+                logger.info(f"Loaded domain embeddings: {self.domain_embeddings.shape}")
+            except Exception as e:
+                logger.warning(
+                    "Corrupt domain embeddings file, falling back to BM25-only: %s",
+                    e,
+                )
 
         # Build BM25 index
         self._build_bm25_index()
@@ -105,15 +121,15 @@ class RetrievalEngine:
 
         for domain_name, domain_index in self.index.domains.items():
             for i, principle in enumerate(domain_index.principles):
-                # Tokenize for BM25
+                # Tokenize for BM25 — strip punctuation for consistent matching
                 text = self._get_bm25_text(principle)
-                tokens = text.lower().split()
+                tokens = re.findall(r"\w+", text.lower())
                 corpus.append(tokens)
                 self.bm25_docs.append((domain_name, "principle", i))
 
             for i, method in enumerate(domain_index.methods):
                 text = self._get_method_bm25_text(method)
-                tokens = text.lower().split()
+                tokens = re.findall(r"\w+", text.lower())
                 corpus.append(tokens)
                 self.bm25_docs.append((domain_name, "method", i))
 
@@ -290,7 +306,7 @@ class RetrievalEngine:
         if not self.bm25_index:
             return []
 
-        tokens = query.lower().split()
+        tokens = re.findall(r"\w+", query.lower())
         scores = self.bm25_index.get_scores(tokens)
 
         # Filter by domains if specified
@@ -631,12 +647,16 @@ class RetrievalEngine:
     # =========================================================================
 
     def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
-        """Calculate cosine similarity between two vectors."""
+        """Calculate cosine similarity between two vectors.
+
+        Clamps to [0, 1] to prevent float-precision overflow (e.g., 1.0000000149)
+        from causing Pydantic ValidationError on fields with le=1.0.
+        """
         norm_a = np.linalg.norm(a)
         norm_b = np.linalg.norm(b)
         if norm_a == 0 or norm_b == 0:
             return 0.0
-        return float(np.dot(a, b) / (norm_a * norm_b))
+        return float(np.clip(np.dot(a, b) / (norm_a * norm_b), 0.0, 1.0))
 
     def _get_confidence(self, score: float) -> ConfidenceLevel:
         """Determine confidence level from score."""
