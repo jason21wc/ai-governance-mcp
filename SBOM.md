@@ -54,7 +54,7 @@
 
 ## Security Notes
 
-- Zero known vulnerabilities (`pip-audit`, last checked 2026-02-07)
+- Zero known vulnerabilities (`pip-audit` — run `pip-audit` for current status)
 - No hardcoded secrets or credentials in source
 - All user input validated (query length limits, parameter bounds)
 - Pickle deserialization disabled (`allow_pickle=False`)

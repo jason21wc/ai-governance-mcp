@@ -608,4 +608,4 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 ---
 
 *Version 1.0.1*
-*Derived from: AI Coding Domain Principles v2.2.1, Multi-Agent Domain Principles v2.0.0, Storytelling Domain Principles v1.0.0*
+*Derived from: AI Coding Domain Principles v2.2.1 (at time of creation), Multi-Agent Domain Principles v2.0.0 (at time of creation), Storytelling Domain Principles v1.0.0 (at time of creation)*

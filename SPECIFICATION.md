@@ -56,15 +56,15 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 - **Pluggable connectors** -- Code (tree-sitter), markdown/text, PDF, spreadsheet, image metadata
 - **`.contextignore` support** -- Same syntax as `.gitignore`
 
-### Governance Framework (5 domains, 460 indexed items)
+### Governance Framework (5 domains — see README.md for current counts)
 
-| Domain | Principles | Methods | Coverage |
-|--------|------------|---------|----------|
-| Constitution | 44 | 132 | Universal AI behavior, safety, quality |
-| AI Coding | 12 | 142 | Software development, testing, deployment |
-| Multi-Agent | 14 | 43 | Agent orchestration, handoffs, evaluation |
-| Storytelling | 17 | 20 | Creative writing, narrative, voice preservation |
-| Multimodal RAG | 12 | 21 | Image retrieval, visual presentation |
+| Domain | Coverage |
+|--------|----------|
+| Constitution | Universal AI behavior, safety, quality |
+| AI Coding | Software development, testing, deployment |
+| Multi-Agent | Agent orchestration, handoffs, evaluation |
+| Storytelling | Creative writing, narrative, voice preservation |
+| Multimodal RAG | Image retrieval, visual presentation |
 
 ## Scope Boundaries
 
@@ -96,10 +96,10 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 | Query latency | <100ms | ~50ms typical |
 | Token savings vs. full context | >90% | ~98% (1-3K vs 55K+) |
 | Test coverage (governance) | 80% | ~90% |
-| Method MRR | >= 0.60 | 0.698 |
-| Principle MRR | >= 0.50 | 0.588 |
-| Method Recall@10 | >= 0.75 | 0.875 |
-| Principle Recall@10 | >= 0.85 | 0.875 |
+| Method MRR | >= 0.60 | See `tests/benchmarks/` for current |
+| Principle MRR | >= 0.50 | See `tests/benchmarks/` for current |
+| Method Recall@10 | >= 0.75 | See `tests/benchmarks/` for current |
+| Principle Recall@10 | >= 0.85 | See `tests/benchmarks/` for current |
 | Model load time | <= 15s | ~9s |
 
 ## Constraints
@@ -111,7 +111,7 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 | **Python** | 3.10+ required (type hint syntax) |
 | **Transport** | MCP stdio transport (JSON-RPC over stdin/stdout) |
 | **Docker** | AMD64 architecture only |
-| **Index size** | 460 items (99 principles + 361 methods) across 5 domains |
+| **Index size** | See `tests/benchmarks/` for current totals across 5 domains |
 | **Embedding model** | BAAI/bge-small-en-v1.5, 384 dimensions, 512 token limit |
 | **Rate limits** | `index_project` capped at 5 requests/minute |
 | **Stdout** | Reserved for JSON-RPC; all logging to stderr |

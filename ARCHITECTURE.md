@@ -379,7 +379,7 @@ The 60% semantic / 40% keyword weight was determined empirically. Semantic searc
 | In-memory (NumPy) | Fast queries, simple | Full reload at startup | **Selected** for v1 |
 | Vector DB (e.g., ChromaDB) | Incremental updates, scalability | Additional dependency, deployment complexity | Deferred to roadmap |
 
-**Rationale:** With 513 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
+**Rationale:** With ~500 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
 
 ---
 

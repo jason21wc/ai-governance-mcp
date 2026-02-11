@@ -278,9 +278,11 @@ class ProjectManager:
 
     def shutdown(self) -> None:
         """Stop all watchers and clean up resources."""
-        for project_id, watcher in self._watchers.items():
+        with self._index_lock:
+            watchers = list(self._watchers.values())
+            self._watchers.clear()
+        for watcher in watchers:
             watcher.stop()
-        self._watchers.clear()
         logger.info("Project manager shut down")
 
     # ─── Private methods ───
@@ -496,29 +498,33 @@ class ProjectManager:
                     self._loaded_indexes[project_id] = new_index
                     if new_embeddings is not None:
                         self._loaded_embeddings[project_id] = new_embeddings
+                    else:
+                        # Discard stale embeddings — array length won't match new chunks
+                        self._loaded_embeddings.pop(project_id, None)
                     if new_bm25 is not None:
                         self._loaded_bm25[project_id] = new_bm25
+                    else:
+                        self._loaded_bm25.pop(project_id, None)
                     self._watcher_failures.pop(project_id, None)
 
             except Exception as e:
+                watcher_to_stop = None
                 with self._index_lock:
                     failures = self._watcher_failures.get(project_id, 0) + 1
                     self._watcher_failures[project_id] = failures
+                    if failures >= 3:
+                        watcher_to_stop = self._watchers.pop(project_id, None)
+                        self._circuit_broken.add(project_id)
                 logger.error(
                     "Incremental update failed (%d consecutive): %s", failures, e
                 )
-                if failures >= 3:
+                if watcher_to_stop is not None:
                     logger.error(
                         "Stopping watcher for %s after %d consecutive failures",
                         project_id,
                         failures,
                     )
-                    # Pop watcher and stop it OUTSIDE the lock
-                    with self._index_lock:
-                        watcher_to_stop = self._watchers.pop(project_id, None)
-                        self._circuit_broken.add(project_id)
-                    if watcher_to_stop is not None:
-                        watcher_to_stop.stop()
+                    watcher_to_stop.stop()
 
         ignore_spec = self._indexer.load_ignore_patterns(project_path)
         watcher = FileWatcher(

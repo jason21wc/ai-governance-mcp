@@ -54,7 +54,7 @@ Comprehensive hardening of the context engine MCP server based on security audit
 - CSV/XLSX column limit (500 columns)
 - Plain text force-split at 200 lines
 - BM25 empty corpus guard (extracted `_build_bm25()` helper)
-- Chunk count + content size limits (50,000 chunks, 100KB per chunk)
+- Chunk count + content size limits (100,000 chunks, 10K chars per chunk)
 
 **Infrastructure:**
 - Model download timeout (60s) with thread-safe lazy-load

@@ -206,9 +206,9 @@ v2.1.3
 ### 1.1.3 Version in Filename
 
 Documents include version in filename for clarity:
-- `ai-coding-methods-v2.3.0.md`
-- `ai-interaction-principles-v2.1.md`
-- `ai-governance-methods-v3.3.1.md`
+- `ai-coding-methods-v2.9.6.md`
+- `ai-interaction-principles-v2.4.1.md`
+- `ai-governance-methods-v3.10.3.md`
 
 ### 1.1.4 Cross-Reference Compatibility
 
@@ -734,7 +734,7 @@ Always specify language identifier for syntax highlighting:
 | Same document | Section name | "See Part 3.4" |
 | Same domain | Principle title | "per **Specification Completeness**" |
 | Cross-domain | Domain + title | "Constitution's **Context Engineering**" |
-| Document | Full name | `ai-coding-domain-principles-v2.3.0.md` |
+| Document | Full name | `ai-coding-domain-principles-v2.3.2.md` |
 
 For model name formatting conventions, see §10.1.4 Model Reference Conventions.
 

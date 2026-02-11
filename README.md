@@ -165,7 +165,7 @@ AI uses query_governance("implementing authentication system")
 | Miss Rate | <1% | <1% (hybrid retrieval) |
 | Latency | <100ms | ~50ms typical |
 | Token Savings | >90% | ~98% (1-3K vs 55K+) |
-| Test Coverage | 80% | **~90%** governance, **~65%** context engine (570+ tests) |
+| Test Coverage | 80% | **~90%** governance, **~65%** context engine (run `pytest --collect-only -q` for current count) |
 
 ## Quick Start (Docker)
 
@@ -798,7 +798,7 @@ pre-commit install
 
 ### Test Suite
 
-570+ tests covering governance (~90% coverage) and context engine (~65%):
+Full test suite covering governance (~90% coverage) and context engine (~65%). Run `pytest --collect-only -q | tail -1` for current count.
 
 | Category | Purpose |
 |----------|---------|

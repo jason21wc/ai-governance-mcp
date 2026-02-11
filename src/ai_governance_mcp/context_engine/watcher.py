@@ -193,9 +193,15 @@ class FileWatcher:
             self._last_index_time = time.time()
         except Exception as e:
             logger.error("Error in change callback: %s", e)
-            # Re-queue failed changes so they are retried on the next flush
+            # Re-queue failed changes and schedule a retry timer
             with self._lock:
                 self._pending_changes.update(changes)
+                if self._debounce_timer is not None:
+                    self._debounce_timer.cancel()
+                timer = threading.Timer(self.cooldown_seconds, self._flush_changes)
+                timer.daemon = True
+                timer.start()
+                self._debounce_timer = timer
 
     def _flush_changes(self) -> None:
         """Flush pending changes to the callback."""

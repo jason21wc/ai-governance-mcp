@@ -966,4 +966,4 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 ---
 
 *Version 1.1.2*
-*Derived from: AI Coding Domain Principles v2.2.1, Multi-Agent Domain Principles v2.0.0*
+*Derived from: AI Coding Domain Principles v2.2.1 (at time of creation), Multi-Agent Domain Principles v2.0.0 (at time of creation)*

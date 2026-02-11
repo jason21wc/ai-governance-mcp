@@ -304,7 +304,7 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 12 | evaluate_governance false positives | Security fixes trigger ESCALATE on keywords — check principles array |
 | 13 | Index architecture | JSON has `embedding_id` references; vectors in `.npy` files |
 | 15 | MCP caches index at startup | Restart server after `python -m ai_governance_mcp.extractor` |
-| 16 | Version bumps need pyproject.toml | `__init__.py` and `pyproject.toml` must stay in sync |
+| 16 | Version bumps need multiple files | `__init__.py`, `pyproject.toml`, `SBOM.md`, `SECURITY.md` must stay in sync |
 | 17 | Operational changes need source docs | Skip-list/trigger changes must propagate to governance source documents, not just instruction surfaces |
 | 18 | `domain_name[:4]` generates implicit prefixes | Codify new domain prefixes in explicit maps (extractor, retrieval, server) |
 | 19 | `huggingface-hub>=1.0` drops `requests` | `sentence-transformers` still imports it. Explicit `requests>=2.28.0` in pyproject.toml. |

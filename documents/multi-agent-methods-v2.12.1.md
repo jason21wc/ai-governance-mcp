@@ -14,7 +14,7 @@
 
 This document defines operational procedures that implement the Multi-Agent Domain Principles. It translates binding principles into executable workflows that AI systems and human operators follow when orchestrating agent-based workflows.
 
-**Scope (v2.0.0):** This document covers:
+**Scope (since v2.0.0):** This document covers:
 - **Individual Specialized Agents** — Single agent with focused cognitive function
 - **Sequential Agent Composition** — Agents invoked in sequence, output of one feeds next
 - **Parallel Agent Coordination** — Multiple agents working simultaneously on independent tasks
@@ -171,8 +171,8 @@ JUSTIFY -----> INITIALIZE -----> DELEGATE -----> EXECUTE -----> VALIDATE -----> 
 | Context Engineering Discipline | Title 2 (Agent Architecture) |
 | Context Isolation Architecture | Title 2 (Agent Architecture) |
 | Orchestrator Separation Pattern | Title 2 (Agent Architecture) |
-| Read-Write Division | Title 3 (Coordination) |
 | Intent Propagation / Shared Assumptions | Title 3 (Coordination) |
+| Read-Write Division | Title 3 (Coordination) |
 | Explicit Handoff Protocol | Title 3 (Coordination) |
 | Orchestration Pattern Selection | Title 3 (Coordination) |
 | State Persistence Protocol | Title 3 (Coordination) |
@@ -279,7 +279,7 @@ Create this file as `claude.md`, `gemini.md`, AND `agents.md` in project root:
 
 # TITLE 1: Workflow Initialization
 
-**Implements:** J1 (Justified Complexity), A4 (Intent Propagation / Shared Assumptions), R4 (State Persistence)
+**Implements:** J1 (Justified Complexity), A5 (Intent Propagation / Shared Assumptions), R4 (State Persistence)
 
 ### 1.1 Justified Complexity Check
 
@@ -488,7 +488,7 @@ IMPORTANT
 
 # TITLE 2: Agent Architecture
 
-**Implements:** A1 (Cognitive Function Specialization), A2 (Context Isolation), A3 (Orchestrator Separation), A5 (Context Engineering Discipline)
+**Implements:** A1 (Cognitive Function Specialization), A2 (Context Engineering Discipline), A3 (Context Isolation Architecture), A4 (Orchestrator Separation Pattern)
 
 ### 2.1 Subagent Definition Standard
 
@@ -1304,7 +1304,7 @@ IMPORTANT
 
 # TITLE 3: Workflow Coordination
 
-**Implements:** R1 (Handoff Protocol), R2 (Read-Write Division), R3 (Orchestration Patterns), R4 (State Persistence), R5 (Observability), A4 (Intent Propagation / Shared Assumptions)
+**Implements:** R1 (Read-Write Division), R2 (Explicit Handoff Protocol), R3 (Orchestration Pattern Selection), R4 (State Persistence), R5 (Observability), A5 (Intent Propagation / Shared Assumptions)
 
 ### 3.1 Handoff Pattern Taxonomy
 

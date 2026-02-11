@@ -284,8 +284,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="constitution",
             display_name="Constitution",
-            principles_file="ai-interaction-principles.md",
-            methods_file=None,
+            principles_file="ai-interaction-principles-v2.4.1.md",
+            methods_file="ai-governance-methods-v3.10.3.md",
             description=(
                 "Universal behavioral rules for AI interaction. Safety principles, "
                 "core behavioral guidelines, quality standards, operational rules, "
@@ -296,8 +296,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="ai-coding",
             display_name="AI Coding",
-            principles_file="ai-coding-domain-principles.md",
-            methods_file="ai-coding-methods.md",
+            principles_file="ai-coding-domain-principles-v2.3.2.md",
+            methods_file="ai-coding-methods-v2.9.6.md",
             description=(
                 "Software development with AI assistance. Code generation, debugging, "
                 "testing, refactoring, code review, pull requests, git workflows, "
@@ -308,8 +308,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="multi-agent",
             display_name="Multi-Agent",
-            principles_file="multi-agent-domain-principles.md",
-            methods_file="multi-agent-methods.md",
+            principles_file="multi-agent-domain-principles-v2.1.1.md",
+            methods_file="multi-agent-methods-v2.12.1.md",
             description=(
                 "Multi-agent AI systems and orchestration. Agent coordination, "
                 "task delegation, handoffs, swarm intelligence, ensemble methods, "
@@ -320,8 +320,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="storytelling",
             display_name="Storytelling",
-            principles_file="storytelling-domain-principles.md",
-            methods_file="storytelling-methods.md",
+            principles_file="storytelling-domain-principles-v1.1.2.md",
+            methods_file="storytelling-methods-v1.1.1.md",
             description=(
                 "Creative writing and narrative craft. Story structure, character "
                 "development, voice preservation, dialogue, pacing, and revision."
@@ -331,8 +331,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="multimodal-rag",
             display_name="Multimodal RAG",
-            principles_file="multimodal-rag-domain-principles.md",
-            methods_file="multimodal-rag-methods.md",
+            principles_file="multimodal-rag-domain-principles-v1.0.1.md",
+            methods_file="multimodal-rag-methods-v1.0.1.md",
             description=(
                 "Multimodal retrieval-augmented generation. Image retrieval, "
                 "visual presentation, cross-modal search, and document layout."
