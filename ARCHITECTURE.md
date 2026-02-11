@@ -242,7 +242,7 @@ Deliberately uncovered areas (run `pytest --cov` for current percentages):
 
 | Package | Purpose |
 |---------|---------|
-| mcp | MCP SDK (FastMCP) |
+| mcp | MCP Python SDK (`mcp.server.Server`) |
 | pydantic / pydantic-settings | Data models + configuration |
 | sentence-transformers | Embeddings + reranking |
 | rank-bm25 | BM25 keyword search |

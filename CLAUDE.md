@@ -24,7 +24,7 @@
 
 ## Governance Integration
 
-This project IS the AI Governance MCP. Primary tools: `evaluate_governance` (pre-action check), `query_governance` (get principles), `log_governance_reasoning` (audit trail). Secondary: `verify_governance_compliance`, `get_principle`, `log_feedback`, `list_domains`, `get_domain_summary`, `get_metrics`.
+This project IS the AI Governance MCP. Primary tools: `evaluate_governance` (pre-action check), `query_governance` (get principles), `log_governance_reasoning` (audit trail). Secondary: `verify_governance_compliance`, `get_principle`, `log_feedback`, `list_domains`, `get_domain_summary`, `get_metrics`. Utility: `install_agent`, `uninstall_agent`.
 
 ### Mandatory Governance Checkpoints
 
@@ -129,7 +129,7 @@ Per §5.3.2, apply before tagging a release:
 
 ## Progressive Inquiry — Tool Mapping
 
-When asking questions, match the interaction mechanism to the question tier (per Part 7.9.1):
+When asking questions, match the interaction mechanism to the question tier (per meta-methods Part 7.9.1):
 
 | Question Tier | Mechanism | Why |
 |---------------|-----------|-----|

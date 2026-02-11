@@ -22,11 +22,11 @@
 |--------|-------|
 | Version | **v1.7.0** (server + pyproject.toml + Docker + GitHub tag) |
 | Content | **v2.4.1** (Constitution), **v3.10.3** (meta-methods), **v2.9.6** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.1** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
-| Tests | **574 collected** (373 governance + 201 context engine), 550 pass + 24 deselected |
-| Coverage | governance ~90%, context engine ~65% |
+| Tests | Run `pytest tests/ -v` for current counts (last known: 574 collected, 550 pass + 24 deselected) |
+| Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **101 principles + 412 methods (513 total)** (taxonomy expanded to 21 codes, TITLE 13 + §10.1.4 + §10.2.3 added) |
+| Index | **101 principles + 412 methods** (see `tests/benchmarks/` for current totals; taxonomy: 21 codes) |
 | Subagents | **10** (code-reviewer, contrarian-reviewer, validator, security-auditor, documentation-writer, orchestrator, test-generator, coherence-auditor, continuity-auditor, voice-coach) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 

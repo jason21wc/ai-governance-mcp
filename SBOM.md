@@ -11,7 +11,7 @@
 
 | Package | Version | License | Purpose |
 |---------|---------|---------|---------|
-| mcp | 1.25.0 | MIT | MCP SDK (FastMCP) |
+| mcp | 1.25.0 | MIT | MCP Python SDK (`mcp.server.Server`) |
 | pydantic | 2.11.9 | MIT | Data validation and schemas |
 | pydantic-settings | 2.11.0 | MIT | Settings management |
 | sentence-transformers | 5.2.0 | Apache 2.0 | Embedding generation and cross-encoder reranking |

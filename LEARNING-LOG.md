@@ -73,16 +73,6 @@ Governance concepts have two surfaces: instruction surfaces (SERVER_INSTRUCTIONS
 
 ---
 
-### Version Sync Discipline (2026-02-02)
-
-`pyproject.toml` was at 1.6.1 while `__init__.py` was at 1.7.0. Version bumps must update both. See Gotcha #16.
-
----
-
-### MCP Server Index Caching (2026-01-18)
-
-After rebuilding the index, MCP queries returned stale results. Server caches engine at startup — restart required after `python -m ai_governance_mcp.extractor`. See Gotcha #15.
-
 ---
 
 ### Embedding Model Token Limits (2026-01-17)
@@ -165,22 +155,6 @@ Second-pass contrarian review caught issues first-pass missed (S-Series penalty 
 
 ---
 
-### Security Hardening Is Layers (2026-01-04)
-
-Rate limiting prevents DoS. Secrets redaction prevents data leaks. Error sanitization prevents info disclosure. Schema validation prevents injection. No single layer is sufficient.
-
----
-
-### Research ≠ Governance (2026-01-13/15)
-
-Evaluated RLM (MIT) and prompt repetition (Google). Both are interesting research but wrong layer — governance defines behavioral principles, not model-specific workarounds. Test: "If this research never existed, would the framework be incomplete?"
-
----
-
-### Anchor Bias in Document Review (2025-12-29)
-
-Working on documents creates familiarity blindness. Mitigate: search for gaps (what's missing), compare against external standards, check cross-references systematically.
-
 ---
 
 ## Graduated Patterns
@@ -198,3 +172,8 @@ Working on documents creates familiarity blindness. Mitigate: search for gaps (w
 | Index architecture verification | Gotcha #13, ARCHITECTURE.md | 2026-01-17 |
 | Feedback score boost/penalty | retrieval.py, PROJECT-MEMORY decisions | 2026-01-04 |
 | Governance enforcement research | PROJECT-MEMORY decisions | 2026-01-03 |
+| Version sync discipline | Gotcha #16, PROJECT-MEMORY | 2026-02-10 |
+| MCP server index caching | Gotcha #15 | 2026-02-10 |
+| Security hardening is layers | ARCHITECTURE.md Security Features | 2026-02-10 |
+| Research ≠ governance test | PROJECT-MEMORY decisions | 2026-02-10 |
+| Anchor bias in document review | meta-methods Part 7.10 | 2026-02-10 |

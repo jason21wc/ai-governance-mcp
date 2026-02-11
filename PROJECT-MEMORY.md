@@ -14,7 +14,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 574 tests (governance ~90% coverage, context engine ~65%), 15 tools (11 governance + 4 context engine)
+- **Status:** COMPLETE - All phases done, 15 tools (11 governance + 4 context engine). Run `pytest tests/ -v` for current test counts.
 - **Repository:** github.com/jason21wc/ai-governance-mcp
 
 ## Phase Gates
@@ -284,7 +284,7 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | Communication Level | Default "Interview-ready"; deep dive on request |
 | Principle IDs | `{domain}-{category}-{title-slug}` |
 | Domain names | lowercase, hyphenated |
-| Code Style | Python 3.10+, Pydantic, FastMCP, type hints, logging to stderr |
+| Code Style | Python 3.10+, Pydantic, MCP Python SDK, type hints, logging to stderr |
 
 ---
 
