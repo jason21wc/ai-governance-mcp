@@ -12,6 +12,9 @@ from ..models import ContentChunk, FileMetadata
 
 logger = logging.getLogger("ai_governance_mcp.context_engine.connectors.pdf")
 
+# Maximum pages to process per PDF — prevents memory exhaustion on huge documents
+MAX_PDF_PAGES = 500
+
 
 class PDFConnector(BaseConnector):
     """Connector for PDF files."""
@@ -60,33 +63,60 @@ class PDFConnector(BaseConnector):
 
         chunks: list[ContentChunk] = []
 
-        try:
-            import pymupdf
+        # Try pymupdf first, fall back to pdfplumber on any failure
+        parsed = False
 
-            doc = pymupdf.open(str(file_path))
+        if self._has_pymupdf:
             try:
-                for page_num in range(len(doc)):
-                    page = doc[page_num]
-                    text = page.get_text()
-                    if text.strip():
-                        chunks.append(
-                            ContentChunk(
-                                content=text,
-                                source_path=display_path,
-                                start_line=page_num + 1,
-                                end_line=page_num + 1,
-                                content_type="document",
-                                heading=f"Page {page_num + 1}",
-                            )
+                import pymupdf
+
+                doc = pymupdf.open(str(file_path))
+                try:
+                    num_pages = min(len(doc), MAX_PDF_PAGES)
+                    if len(doc) > MAX_PDF_PAGES:
+                        logger.warning(
+                            "PDF %s has %d pages, truncating to %d",
+                            file_path.name,
+                            len(doc),
+                            MAX_PDF_PAGES,
                         )
-            finally:
-                doc.close()
-        except ImportError:
+                    for page_num in range(num_pages):
+                        page = doc[page_num]
+                        text = page.get_text()
+                        if text.strip():
+                            chunks.append(
+                                ContentChunk(
+                                    content=text,
+                                    source_path=display_path,
+                                    start_line=page_num + 1,
+                                    end_line=page_num + 1,
+                                    content_type="document",
+                                    heading=f"Page {page_num + 1}",
+                                )
+                            )
+                finally:
+                    doc.close()
+                parsed = True
+            except Exception as e:
+                logger.warning(
+                    "pymupdf failed for %s, trying pdfplumber: %s", file_path.name, e
+                )
+
+        if not parsed and self._has_pdfplumber:
             try:
                 import pdfplumber
 
                 with pdfplumber.open(str(file_path)) as pdf:
-                    for page_num, page in enumerate(pdf.pages):
+                    num_pages = min(len(pdf.pages), MAX_PDF_PAGES)
+                    if len(pdf.pages) > MAX_PDF_PAGES:
+                        logger.warning(
+                            "PDF %s has %d pages, truncating to %d",
+                            file_path.name,
+                            len(pdf.pages),
+                            MAX_PDF_PAGES,
+                        )
+                    for page_num in range(num_pages):
+                        page = pdf.pages[page_num]
                         text = page.extract_text()
                         if text and text.strip():
                             chunks.append(
@@ -100,13 +130,8 @@ class PDFConnector(BaseConnector):
                                 )
                             )
             except Exception as e:
-                logger.warning(
-                    "Failed to parse PDF with pdfplumber %s: %s", file_path, e
-                )
+                logger.warning("Failed to parse PDF %s: %s", file_path.name, e)
                 return []
-        except Exception as e:
-            logger.warning("Failed to parse PDF with pymupdf %s: %s", file_path, e)
-            return []
 
         return chunks
 

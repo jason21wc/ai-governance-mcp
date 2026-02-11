@@ -147,6 +147,14 @@ class Indexer:
                     f"Allowed models: {sorted(ALLOWED_EMBEDDING_MODELS)}."
                 )
 
+            if allow_custom:
+                logger.warning(
+                    "Embedding model allowlist bypassed via "
+                    "AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true. "
+                    "Model '%s' not verified for safety.",
+                    self.embedding_model_name,
+                )
+
             logger.info(
                 "Loading embedding model: %s (this may take a moment on first use)",
                 self.embedding_model_name,
@@ -314,10 +322,20 @@ class Indexer:
 
         source = contextignore if contextignore.exists() else gitignore
         if source.exists():
-            for line in source.read_text().splitlines():
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    patterns.append(line)
+            try:
+                # Guard against oversized ignore files (1MB limit)
+                if source.stat().st_size > 1_048_576:
+                    logger.warning(
+                        "Ignore file %s exceeds 1MB, using defaults only",
+                        source.name,
+                    )
+                else:
+                    for line in source.read_text().splitlines():
+                        line = line.strip()
+                        if line and not line.startswith("#"):
+                            patterns.append(line)
+            except OSError as e:
+                logger.warning("Failed to read %s: %s", source.name, e)
 
         return pathspec.GitIgnoreSpec.from_lines(patterns)
 

@@ -4,9 +4,16 @@
 **Version:** 1.7.0
 **Status:** Complete
 
+> **Staleness warning:** This file is a point-in-time snapshot from v1.7.0. For current information:
+> - **User-facing setup**: See `README.md` (authoritative)
+> - **Architecture details**: See `ARCHITECTURE.md` (authoritative)
+> - **Live metrics**: Run `pytest --cov`, `pytest --collect-only -q`, or see `tests/benchmarks/`
+> - **Index counts**: See `SESSION-STATE.md` Quick Reference
+>
+> Metrics and counts below may have drifted from current values.
+
 > Defines WHAT the system does and for whom. For HOW it works, see ARCHITECTURE.md.
 > For user-facing setup and usage, see README.md.
-> Metrics below are snapshots — verify with `pytest --cov`, `pytest --collect-only -q`, and `tests/benchmarks/`.
 
 ---
 

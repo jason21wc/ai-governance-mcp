@@ -317,6 +317,28 @@ def _default_domains() -> list[DomainConfig]:
             ),
             priority=20,
         ),
+        DomainConfig(
+            name="storytelling",
+            display_name="Storytelling",
+            principles_file="storytelling-domain-principles.md",
+            methods_file="storytelling-methods.md",
+            description=(
+                "Creative writing and narrative craft. Story structure, character "
+                "development, voice preservation, dialogue, pacing, and revision."
+            ),
+            priority=30,
+        ),
+        DomainConfig(
+            name="multimodal-rag",
+            display_name="Multimodal RAG",
+            principles_file="multimodal-rag-domain-principles.md",
+            methods_file="multimodal-rag-methods.md",
+            description=(
+                "Multimodal retrieval-augmented generation. Image retrieval, "
+                "visual presentation, cross-modal search, and document layout."
+            ),
+            priority=40,
+        ),
     ]
 
 

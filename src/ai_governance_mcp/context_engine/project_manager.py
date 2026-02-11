@@ -375,16 +375,20 @@ class ProjectManager:
                 updated_at=metadata.get("updated_at", "unknown"),
                 embedding_model=metadata.get("embedding_model", "unknown"),
             )
-        # Warn if stored embedding model differs from configured model
+        # Warn if stored embedding model differs from configured model.
+        # Mismatched embeddings produce garbage similarity scores — disable
+        # semantic search and fall back to BM25-only until re-indexed.
         stored_model = index.embedding_model
         if stored_model and stored_model != self.embedding_model_name:
             logger.warning(
                 "Project %s was indexed with model '%s' but server is configured "
-                "for '%s'. Search quality may be degraded. Re-index to fix.",
+                "for '%s'. Semantic search disabled — using BM25-only. Re-index to fix.",
                 project_id,
                 stored_model,
                 self.embedding_model_name,
             )
+            # Discard incompatible embeddings so _semantic_search returns empty
+            self._loaded_embeddings.pop(project_id, None)
 
         self._loaded_indexes[project_id] = index
         self._load_search_indexes(project_id)
