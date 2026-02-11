@@ -7191,7 +7191,7 @@
           "embedding_id": 191
         }
       ],
-      "last_extracted": "2026-02-11T04:26:59.827524+00:00",
+      "last_extracted": "2026-02-11T05:28:06.641674+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -13267,7 +13267,7 @@
           "embedding_id": 361
         }
       ],
-      "last_extracted": "2026-02-11T04:26:59.833098+00:00",
+      "last_extracted": "2026-02-11T05:28:06.646773+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -15980,7 +15980,7 @@
           "embedding_id": 418
         }
       ],
-      "last_extracted": "2026-02-11T04:26:59.836437+00:00",
+      "last_extracted": "2026-02-11T05:28:06.649940+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -18406,7 +18406,7 @@
           "embedding_id": 479
         }
       ],
-      "last_extracted": "2026-02-11T04:26:59.838782+00:00",
+      "last_extracted": "2026-02-11T05:28:06.652231+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -19536,7 +19536,7 @@
           "embedding_id": 512
         }
       ],
-      "last_extracted": "2026-02-11T04:26:59.839946+00:00",
+      "last_extracted": "2026-02-11T05:28:06.653312+00:00",
       "version": "1.0"
     }
   },
@@ -19587,7 +19587,7 @@
       "embedding_id": 4
     }
   ],
-  "created_at": "2026-02-11T04:27:08.941102+00:00",
+  "created_at": "2026-02-11T05:28:13.187484+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384

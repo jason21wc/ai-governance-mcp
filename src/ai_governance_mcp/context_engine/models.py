@@ -83,7 +83,10 @@ class ProjectIndex(BaseModel):
     total_chunks: int = Field(0, description="Total number of chunks indexed")
     total_files: int = Field(0, description="Total number of files indexed")
     index_mode: IndexMode = Field(
-        "realtime", description="Indexing mode: realtime or ondemand"
+        "ondemand",
+        description="Indexing mode: realtime or ondemand. "
+        "Defaults to ondemand (incremental update not yet implemented — "
+        "realtime mode triggers full re-index on every file change)",
     )
 
 
@@ -124,7 +127,7 @@ class ProjectStatus(BaseModel):
     project_path: str = Field(..., description="Absolute path to project root")
     total_files: int = Field(0, description="Number of indexed files")
     total_chunks: int = Field(0, description="Number of indexed chunks")
-    index_mode: IndexMode = Field("realtime", description="Current indexing mode")
+    index_mode: IndexMode = Field("ondemand", description="Current indexing mode")
     last_updated: str | None = Field(
         None, description="ISO timestamp of last index update"
     )

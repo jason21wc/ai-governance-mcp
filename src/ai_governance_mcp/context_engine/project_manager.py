@@ -89,11 +89,14 @@ class ProjectManager:
         self._watcher_failures: dict[str, int] = {}
         # Track projects with circuit-broken watchers (for status reporting)
         self._circuit_broken: set[str] = set()
+        # Generation counter per project — prevents stale watcher results from
+        # overwriting fresh manual reindex results (race condition mitigation)
+        self._index_generations: dict[str, int] = {}
 
     def get_or_create_index(
         self,
         project_path: Path,
-        index_mode: IndexMode = "realtime",
+        index_mode: IndexMode = "ondemand",
     ) -> ProjectIndex:
         """Get existing index or create a new one for a project.
 
@@ -211,6 +214,11 @@ class ProjectManager:
                 self._watchers[project_id].stop()
                 del self._watchers[project_id]
 
+            # Increment generation — any in-flight watcher callbacks will
+            # detect the mismatch and discard their stale results
+            gen = self._index_generations.get(project_id, 0) + 1
+            self._index_generations[project_id] = gen
+
             # Clear loaded data
             self._loaded_indexes.pop(project_id, None)
             self._loaded_embeddings.pop(project_id, None)
@@ -219,7 +227,7 @@ class ProjectManager:
             # Re-index
             existing = self.storage.load_metadata(project_id)
             index_mode = (
-                existing.get("index_mode", "realtime") if existing else "realtime"
+                existing.get("index_mode", "ondemand") if existing else "ondemand"
             )
 
             index = self._indexer.index_project(project_path, project_id, index_mode)
@@ -306,7 +314,7 @@ class ProjectManager:
             except OSError as e:
                 logger.warning("Error computing index size for %s: %s", project_id, e)
 
-        index_mode = metadata.get("index_mode", "realtime")
+        index_mode = metadata.get("index_mode", "ondemand")
         with self._index_lock:
             watcher_status = self._get_watcher_status(project_id, index_mode)
 
@@ -355,12 +363,22 @@ class ProjectManager:
     def _load_project(self, project_id: str) -> ProjectIndex:
         """Load a project index from storage.
 
+        Loads metadata (lightweight) and chunks (separate file) independently.
+        Handles backward compat: if metadata still contains chunks (old format),
+        uses them as fallback when chunks.json doesn't exist.
+
         If metadata is corrupt (fails Pydantic validation), logs a warning
         and returns a minimal empty index so the caller can trigger re-indexing.
         """
         metadata = self.storage.load_metadata(project_id)
         if metadata is None:
             raise ValueError(f"Project {project_id} not found in storage")
+
+        # Load chunks from dedicated file (new format)
+        chunks_data = self.storage.load_chunks(project_id)
+        if chunks_data is not None:
+            metadata["chunks"] = chunks_data
+        # else: metadata may still contain chunks from old format — use as-is
 
         try:
             index = ProjectIndex(**metadata)
@@ -481,6 +499,12 @@ class ProjectManager:
             # Perform expensive I/O work OUTSIDE the lock so queries aren't blocked.
             # Only acquire the lock briefly to swap in-memory data structures.
             try:
+                # Snapshot generation before expensive work — if a manual reindex
+                # runs concurrently, it increments the generation and we'll detect
+                # the mismatch before committing stale results.
+                with self._index_lock:
+                    gen = self._index_generations.get(project_id, 0)
+
                 new_index = self._indexer.incremental_update(
                     project_path, project_id, changed_files
                 )
@@ -495,6 +519,16 @@ class ProjectManager:
 
                 # Brief lock: swap in-memory structures atomically
                 with self._index_lock:
+                    # Check generation — discard if a manual reindex ran while
+                    # we were doing expensive work outside the lock
+                    if self._index_generations.get(project_id, 0) != gen:
+                        logger.info(
+                            "Discarding stale watcher result for %s "
+                            "(generation changed during re-index)",
+                            project_id,
+                        )
+                        return
+
                     self._loaded_indexes[project_id] = new_index
                     if new_embeddings is not None:
                         self._loaded_embeddings[project_id] = new_embeddings

@@ -135,7 +135,7 @@ class TestProjectIndex:
         )
         assert idx.total_chunks == 0
         assert idx.total_files == 0
-        assert idx.index_mode == "realtime"
+        assert idx.index_mode == "ondemand"
         assert idx.chunks == []
         assert idx.files == []
 

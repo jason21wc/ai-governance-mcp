@@ -48,6 +48,18 @@ class BaseStorage(ABC):
         """Load project metadata."""
 
     @abstractmethod
+    def save_chunks(self, project_id: str, chunks: list[dict]) -> None:
+        """Save content chunks for a project (separate from metadata)."""
+
+    @abstractmethod
+    def load_chunks(self, project_id: str) -> list[dict] | None:
+        """Load content chunks for a project.
+
+        Returns:
+            List of chunk dicts, or None if not found.
+        """
+
+    @abstractmethod
     def save_file_manifest(self, project_id: str, manifest: dict) -> None:
         """Save file manifest (indexed files with hashes for change detection)."""
 

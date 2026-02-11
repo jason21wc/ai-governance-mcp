@@ -171,7 +171,7 @@ class Indexer:
         self,
         project_path: Path,
         project_id: str,
-        index_mode: str = "realtime",
+        index_mode: str = "ondemand",
     ) -> ProjectIndex:
         """Index an entire project.
 
@@ -261,7 +261,15 @@ class Indexer:
         # Persist to storage
         self.storage.save_embeddings(project_id, embeddings)
         self.storage.save_bm25_index(project_id, bm25_data)
-        self.storage.save_metadata(project_id, project_index.model_dump())
+
+        # Save chunks separately from metadata — keeps metadata lightweight
+        # so list_projects/get_project_status don't load all chunk content
+        full_dump = project_index.model_dump()
+        chunks_data = full_dump.pop("chunks", [])
+        full_dump.pop("files", None)  # Already stored in file_manifest.json
+        self.storage.save_chunks(project_id, chunks_data)
+        self.storage.save_metadata(project_id, full_dump)
+
         self.storage.save_file_manifest(
             project_id,
             {fm.path: fm.model_dump() for fm in all_metadata},

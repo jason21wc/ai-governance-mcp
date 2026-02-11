@@ -103,6 +103,14 @@ class PDFConnector(BaseConnector):
                 )
 
         if not parsed and self._has_pdfplumber:
+            # Clear any partial chunks from failed pymupdf parse to prevent
+            # duplicates — pdfplumber will re-parse all pages from scratch
+            if chunks:
+                logger.info(
+                    "Discarding %d partial pymupdf chunks before pdfplumber fallback",
+                    len(chunks),
+                )
+                chunks = []
             try:
                 import pdfplumber
 

@@ -63,6 +63,7 @@ class FilesystemStorage(BaseStorage):
                 content_embeddings.npy
                 bm25_index.json
                 metadata.json
+                chunks.json
                 file_manifest.json
 
     Security:
@@ -232,6 +233,43 @@ class FilesystemStorage(BaseStorage):
                 )
                 try:
                     path.unlink()
+                except OSError:
+                    pass
+                return None
+        return None
+
+    def save_chunks(self, project_id: str, chunks: list[dict]) -> None:
+        """Save content chunks to a dedicated file (separate from metadata).
+
+        Chunks are the largest data in the index. Separating them from
+        metadata allows list_projects/get_project_status to load only
+        lightweight config/stats without reading all chunk content.
+        """
+        path = self._ensure_dir(project_id)
+        _atomic_write_json(path / "chunks.json", chunks)
+
+    def load_chunks(self, project_id: str) -> list[dict] | None:
+        """Load content chunks with corrupt-file recovery."""
+        json_path = self.get_index_path(project_id) / "chunks.json"
+        if json_path.exists():
+            if json_path.stat().st_size > MAX_JSON_FILE_SIZE_BYTES:
+                logger.warning(
+                    "Chunks file exceeds %d byte limit, skipping: %s",
+                    MAX_JSON_FILE_SIZE_BYTES,
+                    project_id,
+                )
+                return None
+            try:
+                with open(json_path) as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, OSError) as e:
+                logger.warning(
+                    "Corrupt chunks file for project %s, removing: %s",
+                    project_id,
+                    e,
+                )
+                try:
+                    json_path.unlink()
                 except OSError:
                     pass
                 return None
