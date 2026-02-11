@@ -218,7 +218,7 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 | Metric | Current | Threshold | Rationale |
 |--------|---------|-----------|-----------|
 | Method MRR | 0.698 | ≥ 0.60 | Primary method discovery signal |
-| Principle MRR | 0.588 | ≥ 0.50 | Primary principle discovery signal |
+| Principle MRR | 0.604 | ≥ 0.50 | Primary principle discovery signal |
 | Method Recall@10 | 0.875 | ≥ 0.75 | Breadth of relevant results |
 | Principle Recall@10 | 0.875 | ≥ 0.85 | Breadth of relevant results |
 | Model Load Time | ~9s | ≤ 15s | User experience bound |

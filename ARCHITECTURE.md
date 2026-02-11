@@ -348,7 +348,7 @@ Current metrics (baseline 2026-02-07, model: `BAAI/bge-small-en-v1.5`):
 | Metric | Value | Threshold | Status |
 |--------|-------|-----------|--------|
 | Method MRR | 0.698 | >= 0.60 | Pass |
-| Principle MRR | 0.588 | >= 0.50 | Pass |
+| Principle MRR | 0.604 | >= 0.50 | Pass |
 | Method Recall@10 | 0.875 | >= 0.75 | Pass |
 | Principle Recall@10 | 0.875 | >= 0.85 | Pass |
 
@@ -379,7 +379,7 @@ The 60% semantic / 40% keyword weight was determined empirically. Semantic searc
 | In-memory (NumPy) | Fast queries, simple | Full reload at startup | **Selected** for v1 |
 | Vector DB (e.g., ChromaDB) | Incremental updates, scalability | Additional dependency, deployment complexity | Deferred to roadmap |
 
-**Rationale:** With 460 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
+**Rationale:** With 513 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
 
 ---
 
@@ -407,11 +407,11 @@ A second MCP server providing semantic search across project content. Complement
 │                     ┌─────────────┐    ┌─────────────┐                     │
 │                     │   watcher   │    │ connectors  │                     │
 │                     │             │    │             │                     │
-│                     │ watchdog    │    │ code (TS)   │                     │
+│                     │ watchdog    │    │ code        │                     │
 │                     │ debounce 2s │    │ document    │                     │
 │                     │ cooldown 5s │    │ PDF         │                     │
 │                     │ circuit brk │    │ spreadsheet │                     │
-│                     └─────────────┘    │             │                     │
+│                     └─────────────┘    │ image       │                     │
 │                            │           └─────────────┘                     │
 │                            ▼                                               │
 │                     ┌─────────────┐                                         │
@@ -495,20 +495,17 @@ file change  →  watchdog event  →  debounce (2s)  →  incremental_update()
 | **Timer lifecycle** | Daemon threads for debounce/cooldown timers, cancel on stop(), running guard | watcher.py |
 | **Circuit breaker** | 3 consecutive watcher failures stops watcher, marks project circuit_broken | project_manager.py |
 | **LRU eviction** | Max 10 loaded projects, least-recently-used evicted | project_manager.py |
-| **JSON size limits** | 100MB max for BM25 index, metadata, file manifest files | storage/filesystem.py |
-| **Atomic file writes** | tmp file + rename pattern for JSON and .npy (prevents corruption on crash) | storage/filesystem.py |
-| **Corrupt file recovery** | All load methods: try/except → log warning → delete corrupt file → return None | storage/filesystem.py |
-| **JSON file size limits** | 100MB cap on JSON loads (prevents OOM on corrupted/malicious files) | storage/filesystem.py |
-| **BM25 empty corpus guard** | Check `any(len(doc) > 0 for doc in corpus)` before BM25Okapi construction | project_manager.py |
-| **Column limits** | CSV/XLSX rows truncated to 500 columns (prevents wide-file memory exhaustion) | connectors/spreadsheet.py |
-| **Force-split chunking** | Plain text sections force-split at 200 lines (prevents single massive chunks) | connectors/document.py |
+| **JSON file size limits** | 100MB max for BM25 index, metadata, file manifest files | storage/filesystem.py |
 | **Watcher debounce + cooldown** | 2s debounce batches rapid changes; 5s cooldown prevents re-index storms | watcher.py |
 | **Watcher force-flush** | 10,000 pending changes triggers immediate flush (prevents unbounded memory) | watcher.py |
-| **Watcher circuit breaker** | 3 consecutive failures → stop watcher, report circuit_broken status | project_manager.py |
-| **LRU project eviction** | Max 10 loaded projects; least-recently-used evicted with watcher cleanup | project_manager.py |
+| **Watcher change re-queue** | Failed callback changes re-added to pending set for retry | watcher.py |
 | **Daemon timer threads** | All Timer threads marked daemon (prevents blocking process exit) | watcher.py |
 | **Corrupt metadata recovery** | Pydantic validation failure → fallback to minimal empty ProjectIndex | project_manager.py |
 | **Orphan tmp cleanup** | On startup, removes .tmp files left by crashed atomic writes | storage/filesystem.py |
+| **Embedding model mismatch** | Warn on load if stored model differs from configured model | project_manager.py |
+| **Embedding model allowlist** | 6 vetted models; custom requires `AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true` | indexer.py |
+| **Chunk limits** | MAX_TOTAL_CHUNKS (100K), MAX_CHUNK_CONTENT_CHARS (10K), EMBEDDING_BATCH_SIZE (1K) | indexer.py |
+| **Cosine similarity clamping** | `np.clip(..., 0.0, 1.0)` prevents float32 overflow past Pydantic bounds | project_manager.py |
 
 ### Context Engine File Structure
 
@@ -523,7 +520,7 @@ src/ai_governance_mcp/context_engine/
 ├── connectors/
 │   ├── __init__.py
 │   ├── base.py          # BaseConnector interface
-│   ├── code.py          # Code parsing (tree-sitter)
+│   ├── code.py          # Code parsing (keyword-based, tree-sitter prepared)
 │   ├── document.py      # Markdown/text parsing
 │   ├── pdf.py           # PDF extraction
 │   ├── spreadsheet.py   # CSV/Excel parsing

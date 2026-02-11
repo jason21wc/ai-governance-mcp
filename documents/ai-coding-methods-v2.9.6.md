@@ -3818,11 +3818,11 @@ A Reference Memory index consists of:
 | Model | Purpose | Key Fields |
 |-------|---------|------------|
 | `ContentChunk` | Single indexable unit | `content`, `source_path`, `start_line`, `end_line`, `content_type` (Literal: code/document/data/image), `language`, `heading`, `embedding_id` |
-| `FileMetadata` | Per-file tracking | `path`, `content_type`, `language`, `size_bytes`, `last_modified`, `content_hash` (SHA-256) |
-| `ProjectIndex` | Full project state | `project_id`, `chunks[]`, `files[]`, `created_at`, `updated_at`, `embedding_model`, `index_mode` (Literal: realtime/ondemand), `total_chunks`, `total_files` |
+| `FileMetadata` | Per-file tracking | `path`, `content_type`, `language`, `size_bytes`, `last_modified`, `content_hash` (SHA-256), `chunk_count` |
+| `ProjectIndex` | Full project state | `project_id`, `project_path`, `chunks[]`, `files[]`, `created_at`, `updated_at`, `embedding_model`, `total_chunks`, `total_files` |
 | `QueryResult` | Single search result | `chunk`, `semantic_score` (0.0-1.0), `keyword_score` (0.0-1.0), `combined_score` (0.0-1.0) |
-| `ProjectQueryResult` | Full query response | `query`, `project_id`, `results[]`, `total_results`, `query_time_ms` |
-| `ProjectStatus` | Index statistics | `project_id`, `total_files`, `total_chunks`, `index_mode`, `last_updated`, `index_size_bytes`, `embedding_model`, `watcher_status` (running/stopped/circuit_broken/disabled) |
+| `ProjectQueryResult` | Full query response | `query`, `project_id`, `project_path`, `results[]`, `total_results`, `query_time_ms` |
+| `ProjectStatus` | Index statistics | `project_id`, `project_path`, `total_files`, `total_chunks`, `index_mode`, `last_updated`, `index_size_bytes`, `embedding_model`, `watcher_status` (running/stopped/circuit_broken/disabled) |
 
 ### 7.9.5 Indexing Modes
 
@@ -3848,7 +3848,7 @@ class BaseConnector(ABC):
     @property
     def supported_extensions(self) -> set[str]: ...   # File extensions this connector handles
     def can_handle(self, file_path: Path) -> bool: ... # Check if connector can parse this file
-    def parse(self, file_path: Path) -> list[ContentChunk]: ...  # Parse into indexable chunks
+    def parse(self, file_path: Path, project_root: Path | None = None) -> list[ContentChunk]: ...  # Parse into indexable chunks
     def extract_metadata(self, file_path: Path) -> FileMetadata: ... # Extract file metadata
 ```
 
@@ -3964,6 +3964,8 @@ Reference Memory implementations must follow these security patterns:
 | **Watcher change re-queue** | If the re-index callback fails (OOM, disk full, transient error), failed file changes are re-added to `_pending_changes` for retry on the next flush. | Prevents silent data loss where changed files are never re-indexed |
 | **Embedding model mismatch detection** | On project load, compare stored `embedding_model` against configured model. Log warning with re-index guidance if they differ. | Prevents silently degraded search from incompatible vector spaces |
 | **ML model safety flags** | All ML models (embedders, rerankers) loaded with `trust_remote_code=False`. Embedders additionally use `use_safetensors=True` to prevent pickle-based RCE. | Prevents arbitrary code execution via malicious model checkpoints |
+| **Embedding model allowlist** | Only 6 vetted models allowed by default (`BAAI/bge-small-en-v1.5`, `BAAI/bge-base-en-v1.5`, `BAAI/bge-large-en-v1.5`, `sentence-transformers/all-MiniLM-L6-v2`, `sentence-transformers/all-MiniLM-L12-v2`, `sentence-transformers/all-mpnet-base-v2`). Custom models require `AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true`. | Prevents RCE via malicious HuggingFace model checkpoints; allowlist is the primary defense layer |
+| **Chunk limits** | `MAX_TOTAL_CHUNKS` (100,000) caps total chunks per project. `MAX_CHUNK_CONTENT_CHARS` (10,000) truncates individual chunks. `EMBEDDING_BATCH_SIZE` (1,000) controls peak memory during embedding generation. | Prevents OOM during indexing of large projects |
 
 ---
 
@@ -4968,14 +4970,7 @@ pip install -e ".[context-engine]"
 
 **`.contextignore` configuration:** Create `.contextignore` in project root to exclude files from indexing. Follows `.gitignore` pattern syntax. If no `.contextignore` exists, the engine falls back to `.gitignore` patterns plus sensible defaults (node_modules, __pycache__, .git, etc.).
 
-**Indexing mode configuration:** Set in project config or via environment variable:
-```bash
-# Real-time (default for code projects) — file watcher with re-index on change
-AI_CONTEXT_ENGINE_INDEX_MODE=realtime
-
-# On-demand — manual rebuild when content changes
-AI_CONTEXT_ENGINE_INDEX_MODE=ondemand
-```
+**Indexing mode configuration:** Real-time mode (file watcher with re-index on change) is currently the only implemented mode. All projects use real-time indexing with debounced watcher. On-demand mode is planned but not yet implemented.
 
 ### G.5 Embedding Model Recommendation
 
@@ -5078,7 +5073,7 @@ When the context engine is available, project-specific instructions could be sem
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 2.9.6 | 2026-02-10 | PATCH: Context Engine hardening Round 2 — gotchas and security patterns. (1) Fixed §9.3.4 Graceful Shutdown Pattern: removed `logging.info()` from signal handler code example (POSIX async-signal-safety violation — can deadlock if signal arrives while logging lock held), added safety comments and gotcha note. (2) Added 3 rows to §7.9.9 Security Requirements: watcher change re-queue on callback failure, embedding model mismatch detection on project load, ML model safety flags (`trust_remote_code=False`, `use_safetensors=True`). (3) Added 2 implementation details to Appendix G.5: model mismatch detection with warning log, cosine similarity clamping via `np.clip` for float32 precision overflow prevention. |
+| 2.9.6 | 2026-02-10 | PATCH: Context Engine hardening Round 2 — gotchas, security patterns, and coherence audit remediation. (1) Fixed §9.3.4 Graceful Shutdown Pattern: removed `logging.info()` from signal handler code example (POSIX async-signal-safety violation — can deadlock if signal arrives while logging lock held), added safety comments and gotcha note. (2) Added 5 rows to §7.9.9 Security Requirements: watcher change re-queue on callback failure, embedding model mismatch detection on project load, ML model safety flags (`trust_remote_code=False`, `use_safetensors=True`), embedding model allowlist (6 vetted models + bypass env var), chunk limits (MAX_TOTAL_CHUNKS, MAX_CHUNK_CONTENT_CHARS, EMBEDDING_BATCH_SIZE). (3) Added 2 implementation details to Appendix G.5: model mismatch detection with warning log, cosine similarity clamping via `np.clip` for float32 precision overflow prevention. (4) Fixed §7.9.6 BaseConnector.parse() signature: added missing `project_root: Path \| None = None` parameter. (5) Fixed §7.9.4 data model schemas: added `project_path` to ProjectIndex/ProjectQueryResult/ProjectStatus, added `chunk_count` to FileMetadata, removed undocumented `index_mode` from ProjectIndex. (6) Fixed Appendix G.4: replaced unimplemented `AI_CONTEXT_ENGINE_INDEX_MODE` env var documentation with accurate description (real-time only, on-demand planned). |
 | 2.9.5 | 2026-02-09 | PATCH: Context Engine hardening. (1) Updated §7.9.5 Indexing Modes: debounce 500ms → 2s, added 5s cooldown, documented incremental updates (replaces "full re-index planned"), added circuit breaker (3 failures), LRU eviction (10 projects max), updated concurrency model (expensive I/O outside lock). (2) Updated §7.9.6 connectors: document connector force-split at 200 lines, data connector 500-column limit for CSV and Excel. (3) Updated §7.9.4: added `watcher_status` to ProjectStatus model. (4) Expanded §7.9.9 Security Requirements: added 10 patterns (atomic writes, corrupt file recovery, BM25 empty corpus guard, column/row limits, chunk force-splitting, timer lifecycle, circuit breaker, LRU eviction, JSON file size limits, updated thread safety description). (5) Updated Appendix G.4: documented debounce/cooldown/flush parameters, removed "incremental planned" note. |
 | 2.9.4 | 2026-02-10 | PATCH: Coherence audit remediation. (1) Fixed principle name "Human-AI Collaboration" → "Human-AI Collaboration Model" in mapping table. (2) Standardized 3 Implements headers from deprecated series codes (Q2, Q3) to full principle names: "Security-First Development (Domain)" (§5.7, §5.8), "Testing Integration (Domain)" (§6.5). (3) Removed stale test count from v2.2.0 version history entry (volatile metric). |
 | 2.9.3 | 2026-02-09 | PATCH: CI/CD supply chain hardening. (1) Updated §6.4.4 GitHub Actions Template: added workflow-level `permissions: {}`, per-job permissions grants, `persist-credentials: false` on checkout, SHA-pinned action references with `<commit-sha>` placeholders and usage notes. (2) Added §6.4.6 Supply Chain Hardening subsection: tj-actions incident context, SHA pinning rationale, 6-row practice table (commit SHA, workflow permissions, per-job permissions, persist-credentials, Actions restrictions, CodeQL scanning), anti-pattern note, Dependabot maintenance guidance. Updated Reliability bullet from tag pinning to SHA pinning. (3) Updated §6.4.7 CI/CD Checklist: added 7 supply chain hardening items (SHA pinning, workflow permissions, per-job permissions, persist-credentials, CodeQL, Actions restrictions, Dependabot). (4) Added Situation Index entry: CI/CD supply chain hardening → §6.4.6. (5) Added Supply Chain Integrity to §6.4.1 purpose statement. |

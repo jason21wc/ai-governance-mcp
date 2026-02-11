@@ -49,10 +49,10 @@ The framework has three layers:
 <!-- Verify counts: python -c "import json; d=json.load(open('index/global_index.json'))['domains']; [print(f'{k}: {len(v.get(\"principles\",[]))}p, {len(v.get(\"methods\",[]))}m') for k,v in d.items()]" -->
 | Domain | Principles | Methods | Coverage |
 |--------|------------|---------|----------|
-| **Constitution** | 44 | 132 | Universal AI behavior, safety, quality |
-| **AI Coding** | 12 | 142 | Software development, testing, deployment |
+| **Constitution** | 44 | 148 | Universal AI behavior, safety, quality |
+| **AI Coding** | 12 | 158 | Software development, testing, deployment |
 | **Multi-Agent** | 14 | 43 | Agent orchestration, handoffs, evaluation |
-| **Storytelling** | 17 | 20 | Creative writing, narrative, voice preservation |
+| **Storytelling** | 19 | 42 | Creative writing, narrative, voice preservation |
 | **Multimodal RAG** | 12 | 21 | Image retrieval, visual presentation, inline visuals |
 
 ## Tech Stack
@@ -154,7 +154,7 @@ The `install_agent` tool provides structural governance enforcement for Claude C
 User: "I need to implement a login system"
 
 AI uses query_governance("implementing authentication system")
-→ Returns coding-quality-security-by-default + coding-context-specification-completeness
+→ Returns coding-quality-security-first-development + coding-context-specification-completeness
 → AI knows to: verify security requirements, ask about auth method preferences
 ```
 

@@ -301,7 +301,7 @@ def create_server() -> tuple[Server, ProjectManager]:
                 description=(
                     "Get detailed index statistics for the current project: "
                     "file count, chunk count, last updated, index size, "
-                    "watcher status, and connector availability."
+                    "watcher status, and embedding model."
                 ),
                 inputSchema={
                     "type": "object",
