@@ -5,6 +5,7 @@ Hybrid retrieval with BM25 + semantic search + reranking.
 
 import json
 import re
+import threading
 import time
 from typing import Optional
 
@@ -55,6 +56,7 @@ class RetrievalEngine:
         self.bm25_docs: list[tuple[str, str, int]] = []  # (domain, type, local_idx)
         self._embedder = None
         self._reranker = None
+        self._model_lock = threading.Lock()
         self._feedback_ratings: dict[str, tuple[float, int]] = {}  # id -> (avg, count)
         self._load_index()
         self._load_feedback_ratings()
@@ -66,39 +68,43 @@ class RetrievalEngine:
         Uses safetensors format (prevents pickle RCE) and blocks remote code execution.
         """
         if self._embedder is None:
-            from sentence_transformers import SentenceTransformer
+            with self._model_lock:
+                if self._embedder is None:  # Double-checked locking
+                    from sentence_transformers import SentenceTransformer
 
-            model_name = self.settings.embedding_model
-            if model_name not in ALLOWED_EMBEDDING_MODELS:
-                raise ValueError(
-                    f"Embedding model '{model_name}' not in allowlist. "
-                    f"Allowed: {sorted(ALLOWED_EMBEDDING_MODELS)}"
-                )
-            logger.info(f"Loading embedding model: {model_name}")
-            self._embedder = SentenceTransformer(
-                model_name,
-                trust_remote_code=False,
-                model_kwargs={"use_safetensors": True},
-            )
+                    model_name = self.settings.embedding_model
+                    if model_name not in ALLOWED_EMBEDDING_MODELS:
+                        raise ValueError(
+                            f"Embedding model '{model_name}' not in allowlist. "
+                            f"Allowed: {sorted(ALLOWED_EMBEDDING_MODELS)}"
+                        )
+                    logger.info(f"Loading embedding model: {model_name}")
+                    self._embedder = SentenceTransformer(
+                        model_name,
+                        trust_remote_code=False,
+                        model_kwargs={"use_safetensors": True},
+                    )
         return self._embedder
 
     @property
     def reranker(self):
         """Lazy-load cross-encoder reranking model."""
         if self._reranker is None:
-            from sentence_transformers import CrossEncoder
+            with self._model_lock:
+                if self._reranker is None:  # Double-checked locking
+                    from sentence_transformers import CrossEncoder
 
-            model_name = self.settings.rerank_model
-            if model_name not in ALLOWED_RERANKER_MODELS:
-                raise ValueError(
-                    f"Reranker model '{model_name}' not in allowlist. "
-                    f"Allowed: {sorted(ALLOWED_RERANKER_MODELS)}"
-                )
-            logger.info(f"Loading reranking model: {model_name}")
-            self._reranker = CrossEncoder(
-                model_name,
-                trust_remote_code=False,
-            )
+                    model_name = self.settings.rerank_model
+                    if model_name not in ALLOWED_RERANKER_MODELS:
+                        raise ValueError(
+                            f"Reranker model '{model_name}' not in allowlist. "
+                            f"Allowed: {sorted(ALLOWED_RERANKER_MODELS)}"
+                        )
+                    logger.info(f"Loading reranking model: {model_name}")
+                    self._reranker = CrossEncoder(
+                        model_name,
+                        trust_remote_code=False,
+                    )
         return self._reranker
 
     def _load_index(self) -> None:
@@ -140,6 +146,20 @@ class RetrievalEngine:
                     "Corrupt domain embeddings file, falling back to BM25-only: %s",
                     e,
                 )
+
+        # H3 FIX: Check embedding model mismatch — discard embeddings if generated
+        # by a different model than currently configured (prevents silent degradation)
+        if self.index and self.content_embeddings is not None:
+            stored_model = getattr(self.index, "embedding_model", None)
+            if stored_model and stored_model != self.settings.embedding_model:
+                logger.warning(
+                    "Embedding model mismatch: index has '%s' but configured '%s'. "
+                    "Falling back to BM25-only. Rebuild index to use semantic search.",
+                    stored_model,
+                    self.settings.embedding_model,
+                )
+                self.content_embeddings = None
+                self.domain_embeddings = None
 
         # Build BM25 index
         self._build_bm25_index()
@@ -754,7 +774,11 @@ class RetrievalEngine:
                 {
                     "name": domain_config.name,
                     "display_name": domain_config.display_name,
-                    "description": domain_config.description[:100] + "...",
+                    "description": (
+                        domain_config.description[:100] + "..."
+                        if len(domain_config.description) > 100
+                        else domain_config.description
+                    ),
                     "principles_count": len(domain_index.principles)
                     if domain_index
                     else 0,

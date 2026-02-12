@@ -27,10 +27,17 @@ class TestEmbeddingGeneratorInit:
         """Should store model name without loading model."""
         from ai_governance_mcp.extractor import EmbeddingGenerator
 
-        generator = EmbeddingGenerator("test-model")
+        generator = EmbeddingGenerator("BAAI/bge-base-en-v1.5")
 
-        assert generator.model_name == "test-model"
+        assert generator.model_name == "BAAI/bge-base-en-v1.5"
         assert generator._model is None  # Not loaded yet
+
+    def test_init_rejects_non_allowlisted_model(self):
+        """Should reject models not in the allowlist."""
+        from ai_governance_mcp.extractor import EmbeddingGenerator
+
+        with pytest.raises(ValueError, match="not in allowlist"):
+            EmbeddingGenerator("malicious-model")
 
     def test_init_default_model(self):
         """Should use default model name if not specified."""
@@ -51,13 +58,13 @@ class TestEmbeddingGeneratorLazyLoad:
         with patch("sentence_transformers.SentenceTransformer", mock_st):
             from ai_governance_mcp.extractor import EmbeddingGenerator
 
-            generator = EmbeddingGenerator("test-model")
+            generator = EmbeddingGenerator("BAAI/bge-small-en-v1.5")
             assert generator._model is None
 
             _ = generator.model
 
             mock_st.assert_called_once_with(
-                "test-model",
+                "BAAI/bge-small-en-v1.5",
                 trust_remote_code=False,
                 model_kwargs={"use_safetensors": True},
             )
@@ -70,7 +77,7 @@ class TestEmbeddingGeneratorLazyLoad:
         with patch("sentence_transformers.SentenceTransformer", mock_st):
             from ai_governance_mcp.extractor import EmbeddingGenerator
 
-            generator = EmbeddingGenerator("test-model")
+            generator = EmbeddingGenerator("BAAI/bge-small-en-v1.5")
 
             _ = generator.model
             _ = generator.model

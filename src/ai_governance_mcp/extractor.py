@@ -1,6 +1,6 @@
 """Document extractor for AI Governance documents.
 
-Per specification v4: Build-time extraction creates index and embeddings
+Build-time extraction creates index and embeddings
 for hybrid retrieval (BM25 + semantic search).
 """
 
@@ -41,6 +41,13 @@ class EmbeddingGenerator:
     """
 
     def __init__(self, model_name: str = "BAAI/bge-small-en-v1.5"):
+        from .retrieval import ALLOWED_EMBEDDING_MODELS
+
+        if model_name not in ALLOWED_EMBEDDING_MODELS:
+            raise ValueError(
+                f"Embedding model '{model_name}' not in allowlist. "
+                f"Allowed: {sorted(ALLOWED_EMBEDDING_MODELS)}"
+            )
         self.model_name = model_name
         self._model = None
 
@@ -1221,14 +1228,14 @@ class DocumentExtractor:
     def _save_embeddings(self, embeddings: np.ndarray, filename: str) -> None:
         """Save embeddings to NumPy file atomically (tmp + rename).
 
-        np.save auto-appends .npy, so we use a .tmp base name and
-        rename the resulting .tmp.npy to the final path.
+        np.save auto-appends .npy, so we construct a tmp path that accounts
+        for this: {name}.tmp → np.save creates {name}.tmp.npy → rename.
         """
         embeddings_file = self.settings.index_path / filename
-        tmp_base = embeddings_file.with_suffix(".tmp")
+        # Explicit path construction: np.save("foo.tmp") creates "foo.tmp.npy"
+        tmp_base = Path(str(embeddings_file) + ".tmp")
         np.save(tmp_base, embeddings)
-        # np.save creates {name}.tmp.npy — rename to final path
-        actual_tmp = tmp_base.with_suffix(".tmp.npy")
+        actual_tmp = Path(str(tmp_base) + ".npy")
         actual_tmp.replace(embeddings_file)
         logger.info(
             f"Saved embeddings to {embeddings_file} (shape: {embeddings.shape})"

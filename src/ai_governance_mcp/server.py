@@ -166,7 +166,8 @@ def _write_log_sync(log_file: Path, content: str) -> None:
     M1 FIX: Validates path before writing.
     """
     _validate_log_path(log_file)  # M1 FIX: Path containment check
-    with open(log_file, "a") as f:
+    fd = os.open(log_file, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+    with os.fdopen(fd, "a") as f:
         f.write(content)
         f.flush()  # H3 FIX: Explicit flush reduces data loss on shutdown
         os.fsync(f.fileno())  # Ensure OS buffers are written to disk
@@ -1205,7 +1206,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         elif name == "log_governance_reasoning":
             result = await _handle_log_governance_reasoning(arguments)
         else:
-            result = [TextContent(type="text", text=f"Unknown tool: {name}")]
+            result = [TextContent(type="text", text=f"Unknown tool: {name[:50]}")]
 
         return _append_governance_reminder(result)
 
@@ -1277,11 +1278,11 @@ async def _handle_query_governance(
 
     # Update metrics (thread-safe via lock — defense-in-depth for run_in_executor)
     metrics = get_metrics()
+    retrieval_ms = result.retrieval_time_ms or 0.0
     with _rate_limit_lock:
         metrics.total_queries += 1
         metrics.avg_retrieval_time_ms = (
-            metrics.avg_retrieval_time_ms * (metrics.total_queries - 1)
-            + result.retrieval_time_ms
+            metrics.avg_retrieval_time_ms * (metrics.total_queries - 1) + retrieval_ms
         ) / metrics.total_queries
         if result.s_series_triggered:
             metrics.s_series_trigger_count += 1
@@ -1289,6 +1290,13 @@ async def _handle_query_governance(
         for detected_domain in result.domains_detected:
             metrics.domain_query_counts[detected_domain] = (
                 metrics.domain_query_counts.get(detected_domain, 0) + 1
+            )
+
+        # Confidence distribution — inside lock for thread safety
+        for sp in result.constitution_principles + result.domain_principles:
+            level = sp.confidence.value
+            metrics.confidence_distribution[level] = (
+                metrics.confidence_distribution.get(level, 0) + 1
             )
 
     # Log query (H2 FIX: use async version to avoid blocking)
@@ -1309,13 +1317,6 @@ async def _handle_query_governance(
         else None,
     )
     await log_query_async(query_log)
-
-    # Update confidence distribution
-    for sp in result.constitution_principles + result.domain_principles:
-        level = sp.confidence.value
-        metrics.confidence_distribution[level] = (
-            metrics.confidence_distribution.get(level, 0) + 1
-        )
 
     # Format response
     output = _format_retrieval_result(result)
@@ -1536,15 +1537,16 @@ async def _handle_log_feedback(args: dict) -> list[TextContent]:
 
     await log_feedback_async(feedback)
 
-    # Update metrics
+    # Update metrics (thread-safe via lock)
     metrics = get_metrics()
-    metrics.feedback_count += 1
-    if metrics.avg_feedback_rating is None:
-        metrics.avg_feedback_rating = float(rating)
-    else:
-        metrics.avg_feedback_rating = (
-            metrics.avg_feedback_rating * (metrics.feedback_count - 1) + rating
-        ) / metrics.feedback_count
+    with _rate_limit_lock:
+        metrics.feedback_count += 1
+        if metrics.avg_feedback_rating is None:
+            metrics.avg_feedback_rating = float(rating)
+        else:
+            metrics.avg_feedback_rating = (
+                metrics.avg_feedback_rating * (metrics.feedback_count - 1) + rating
+            ) / metrics.feedback_count
 
     output = {
         "status": "logged",
@@ -1872,11 +1874,12 @@ async def _handle_evaluate_governance(
     for ce in output["compliance_evaluation"]:
         ce["status"] = ce["status"].value
 
-    # Record governance overhead metrics
+    # Record governance overhead metrics (thread-safe via lock)
     governance_time_ms = (time.time() - governance_start_time) * 1000
-    get_metrics().governance_overhead.record_evaluation(
-        time_ms=governance_time_ms, assessment=output["assessment"]
-    )
+    with _rate_limit_lock:
+        get_metrics().governance_overhead.record_evaluation(
+            time_ms=governance_time_ms, assessment=output["assessment"]
+        )
 
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 

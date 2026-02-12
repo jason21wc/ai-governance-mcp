@@ -72,6 +72,16 @@ DEFAULT_IGNORE_PATTERNS = [
     "build/",
     ".DS_Store",
     "*.lock",
+    # Secret/credential files — prevent accidental indexing
+    "*.pem",
+    "*.key",
+    "*.p12",
+    "*.pfx",
+    ".netrc",
+    "credentials.json",
+    "service_account.json",
+    "id_rsa*",
+    "id_ed25519*",
 ]
 
 
