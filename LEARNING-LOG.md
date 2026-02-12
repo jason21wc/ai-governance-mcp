@@ -12,6 +12,22 @@
 
 ## Active Lessons
 
+### Standalone MCP Config Files Aren't Picked Up by Claude Code (2026-02-11)
+
+Config at `~/.claude/mcp-servers/context-engine.json` was never loaded — Claude Code reads MCP servers from `~/.claude.json` under `mcpServers`. The standalone file format is not a Claude Code convention. See also Gotcha #8 (project vs user scope) and the CRITICAL lesson "Claude Desktop and CLI Have Separate MCP Configs."
+
+**Rule:** Always register MCP servers in `~/.claude.json` `mcpServers` for Claude Code. Verify tools appear after restart before assuming connection works.
+
+---
+
+### Test Inputs Must Traverse the Full Validation Chain (2026-02-11)
+
+Two test bugs: (1) `"nonexistent00"` has non-hex chars — hit project_id hex validation before reaching the "not found" path we intended to test. (2) `cooldown_seconds=0.0` caused infinite retry cascade — each failed callback re-queued and the 0s timer fired immediately, chaining endlessly and spamming logs.
+
+**Rule:** When writing tests for code with layered validation, trace the full call path to ensure your test input reaches the code path you intend to test. For timer-based retry tests, use a high cooldown (e.g., 60s) so the retry timer never fires during the test, and call `_running.clear()` in cleanup.
+
+---
+
 ### Guard-Then-Load Pattern: Don't Undo Your Own Safety Checks (2026-02-10)
 
 `_load_project` correctly discarded incompatible embeddings on model mismatch. Then immediately called `_load_search_indexes` which reloaded them unconditionally — undoing the safety check. Similarly, `get_principle_by_id` used a prefix→domain map where "multi" (multi-agent) and "mult" (multimodal-rag) collided because Python dict lookup stops at the first prefix match.
