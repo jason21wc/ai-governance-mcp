@@ -11,15 +11,15 @@
     "name": "ai-coding",
     "display_name": "AI Coding",
     "principles_file": "ai-coding-domain-principles-v2.3.2.md",
-    "methods_file": "ai-coding-methods-v2.9.6.md",
-    "description": "Software development with AI assistance. Code generation, debugging, unit testing, pytest, integration tests, refactoring, code review, pull requests, git workflows, CI/CD pipelines, API design, software architecture, Python programming, project structure, file organization, project cleanup, repository hygiene, gitignore, build configuration, linting, code quality, Docker containerization, MCP server development, deployment patterns, configuration validation, application security review, authentication security, OAuth PKCE, JWT security, session management, HTTP security headers, CORS configuration, error handling, cryptography, language-specific security patterns, API rate limiting, GraphQL security, data protection, PII handling, and container security.",
+    "methods_file": "ai-coding-methods-v2.10.0.md",
+    "description": "Software development with AI assistance. Code generation, debugging, unit testing, pytest, integration tests, refactoring, code review, pull requests, git workflows, CI/CD pipelines, API design, software architecture, Python programming, project structure, file organization, project cleanup, repository hygiene, gitignore, build configuration, linting, code quality, Docker containerization, MCP server development, deployment patterns, configuration validation, application security review, authentication security, OAuth PKCE, JWT security, session management, HTTP security headers, CORS configuration, error handling, error sanitization, cryptography, language-specific security patterns, API rate limiting, GraphQL security, data protection, PII handling, container security, thread safety, concurrency patterns, lock ordering, deadlock prevention, asyncio safety, daemon threads, atomic file writes, crash-safe persistence, corrupt file recovery, circuit breaker, graceful degradation, resource bounding, deserialization safety, dead code detection, code duplication, structured logging, and production hardening.",
     "priority": 10
   },
   "multi-agent": {
     "name": "multi-agent",
     "display_name": "Multi-Agent",
     "principles_file": "multi-agent-domain-principles-v2.1.1.md",
-    "methods_file": "multi-agent-methods-v2.12.1.md",
+    "methods_file": "multi-agent-methods-v2.12.2.md",
     "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Artifact type selection (method vs subagent), agent authoring, system prompt best practices, tool scoping, agent validation, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, memory distillation, production observability, ReAct loop configuration, agent evaluation framework (4-layer), production safety guardrails, governance compliance, task management, task dependencies, task lifecycle, task ownership, and advanced model considerations for prompting strategies.",
     "priority": 20
   },

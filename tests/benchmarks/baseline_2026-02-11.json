@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-11T18:54:37.714353",
+  "timestamp": "2026-02-11T21:05:16.353504",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
     "method_mrr": 0.6979166666666666,
@@ -8,10 +8,10 @@
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 25.5,
+    "model_load_time_ms": 25.4,
     "index_stats": {
       "total_principles": 101,
-      "total_methods": 412,
+      "total_methods": 429,
       "domains": [
         "constitution",
         "ai-coding",
@@ -46,7 +46,7 @@
         "coding-method-session-start-procedure"
       ],
       "rank": 1,
-      "score": 0.8510584911955581,
+      "score": 0.862069249754974,
       "semantic_score": 0.7882647514343262
     },
     "method-4": {
@@ -55,7 +55,7 @@
         "meta-method-what-is-anchor-bias"
       ],
       "rank": 1,
-      "score": 0.8072325334866268,
+      "score": 0.8074277183821792,
       "semantic_score": 0.6823557019233704
     },
     "method-5": {
@@ -73,7 +73,7 @@
         "multi-method-orchestration-pattern-selection"
       ],
       "rank": 1,
-      "score": 0.85077976519585,
+      "score": 0.8508447570169644,
       "semantic_score": 0.7572815418243408
     },
     "method-7": {
@@ -82,7 +82,7 @@
         "multi-method-advanced-model-considerations"
       ],
       "rank": 3,
-      "score": 0.742305043331424,
+      "score": 0.7397878655248762,
       "semantic_score": 0.7591487169265747
     },
     "method-8": {
@@ -91,7 +91,7 @@
         "multi-method-governance-agent-pattern"
       ],
       "rank": 4,
-      "score": 0.5345469617105728,
+      "score": 0.5365356617522499,
       "semantic_score": 0.6937937140464783
     }
   },
@@ -102,7 +102,7 @@
         "meta-core-context-engineering"
       ],
       "rank": 2,
-      "score": 0.6789412090177215
+      "score": 0.6796570080616895
     },
     "principle-2": {
       "query": "incomplete specification unclear requirements",
@@ -126,7 +126,7 @@
         "coding-quality-testing-integration"
       ],
       "rank": 2,
-      "score": 0.8343963142208286
+      "score": 0.8347751547917508
     },
     "principle-5": {
       "query": "multi agent handoff protocol explicit",

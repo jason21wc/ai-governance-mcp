@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.12.1
+**Version:** 2.12.2
 **Status:** Active
-**Effective Date:** 2026-02-10
+**Effective Date:** 2026-02-11
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -2340,6 +2340,28 @@ CRITICAL
    - Escalate to human
    - Document for post-mortem
 
+**Circuit Breaker for Repeated Failures:**
+
+When a component or agent fails repeatedly, a circuit breaker prevents infinite retry loops from consuming resources.
+
+State machine:
+```
+CLOSED ──[failure threshold]──→ OPEN ──[recovery timeout]──→ HALF_OPEN
+  ↑                                                             │
+  └──────────────[success]───────────────────────────────────────┘
+  HALF_OPEN ──[failure]──→ OPEN
+```
+
+| State | Agent Behavior | Transition |
+|-------|---------------|------------|
+| CLOSED | Normal operation; count consecutive failures | → OPEN after N failures (default: 3, matching retry protocol above) |
+| OPEN | Fail-fast; skip agent and use degraded path | → HALF_OPEN after recovery timeout (e.g., 60s or next task cycle) |
+| HALF_OPEN | Route one probe request to the agent | → CLOSED on success; → OPEN on failure |
+
+**Integration with retry protocol:** The 3-failure retry protocol above naturally maps to the circuit breaker threshold. After the third failure triggers human escalation, the circuit opens. The orchestrator marks the agent/component as circuit-broken and routes subsequent tasks to alternative agents or degraded paths until the breaker resets.
+
+> **Cross-reference:** For implementation patterns in non-agent contexts (file watchers, service calls), see ai-coding-methods §5.10.5.
+
 **Stop-the-Line Authority:**
 
 ANY agent detecting a critical issue can halt the workflow:
@@ -3791,6 +3813,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.12.2 | 2026-02-11 | PATCH: Added circuit breaker state machine to §4.4 Fault Tolerance Procedures. State diagram (CLOSED→OPEN→HALF_OPEN), behavior table, integration with existing 3-failure retry protocol. Cross-reference to ai-coding-methods §5.10.5. |
 | v2.12.1 | 2026-02-10 | PATCH: Coherence audit remediation. (1) Standardized document reference "Governance Framework Methods TITLE 13" → "Governance Methods TITLE 13" in §3.7.1 cross-reference. (2) Corrected v2.12.0 version history description: "cost metrics" → "cost-related alerting thresholds" (accuracy). |
 | v2.12.0 | 2026-02-09 | MINOR: API Cost Optimization integration. Added cost-related alerting thresholds to §3.7.1 Production Observability (cost per task, cache hit rate). Added Batch vs. Real-Time Orchestration subsection to §3.3 (decision criteria table, integration note, anti-pattern). Cross-references to Governance Methods TITLE 13. |
 | v2.11.1 | 2026-02-09 | PATCH: Cross-domain audit remediation. Verified principle enumeration in governance hierarchy box (J1, A1-A5, R1-R5, Q1-Q3) is correct per v2.1.0 principle structure. |
