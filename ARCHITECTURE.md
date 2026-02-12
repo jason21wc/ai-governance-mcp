@@ -420,9 +420,9 @@ A second MCP server providing semantic search across project content. Complement
 │                     ┌─────────────┐                                         │
 │                     │  storage    │  (~/.context-engine/indexes/{id}/)      │
 │                     │             │                                         │
-│                     │ filesystem  │  embeddings.npy, bm25.json,            │
-│                     │ JSON-based  │  metadata.json, chunks.json,           │
-│                     │             │  manifest.json                         │
+│                     │ filesystem  │  content_embeddings.npy,               │
+│                     │ JSON-based  │  bm25_index.json, metadata.json,       │
+│                     │             │  chunks.json, file_manifest.json       │
 │                     └─────────────┘                                         │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘

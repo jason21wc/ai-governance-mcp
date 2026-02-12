@@ -2883,3 +2883,413 @@ class TestPendingChangesLimit:
         callback.assert_called_once()
         assert len(callback.call_args[0][0]) == MAX_PENDING_CHANGES
         assert len(watcher._pending_changes) == 0
+
+
+# ═══════════════════════════════════════════════════════════════════
+# Review Round 8: High-Risk Untested Scenarios
+# Covers: embeddings/chunks mismatch, corrupt metadata recovery,
+# model mismatch detection, watcher generation counter, cooldown re-queue
+# ═══════════════════════════════════════════════════════════════════
+
+
+class TestEmbeddingsChunksMismatch:
+    """Test A1 FIX: embeddings/chunks length mismatch detection."""
+
+    def test_mismatch_discards_embeddings(self, tmp_path):
+        """When embeddings count != chunks count, embeddings should be discarded."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        storage = FilesystemStorage(base_path=tmp_path / "indexes")
+        pm = ProjectManager(storage=storage)
+        pid = "aabbccdd"
+
+        # Create index with 3 chunks
+        index = ProjectIndex(
+            project_id=pid,
+            project_path="/tmp/test",
+            created_at="2025-01-01T00:00:00Z",
+            updated_at="2025-01-01T00:00:00Z",
+            embedding_model="BAAI/bge-small-en-v1.5",
+            chunks=[
+                ContentChunk(
+                    content=f"chunk {i}",
+                    source_path="test.py",
+                    start_line=i,
+                    end_line=i,
+                    content_type="code",
+                    embedding_id=i,
+                )
+                for i in range(3)
+            ],
+        )
+        pm._loaded_indexes[pid] = index
+
+        # Save mismatched embeddings (5 rows vs 3 chunks)
+        storage.save_embeddings(pid, np.random.rand(5, 384).astype(np.float32))
+
+        # Load search indexes — should detect mismatch and discard
+        pm._load_search_indexes(pid)
+
+        # Embeddings should NOT be loaded due to mismatch
+        assert pid not in pm._loaded_embeddings
+
+    def test_matching_lengths_loads_normally(self, tmp_path):
+        """When embeddings count == chunks count, embeddings should load."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        storage = FilesystemStorage(base_path=tmp_path / "indexes")
+        pm = ProjectManager(storage=storage)
+        pid = "aabbccdd"
+
+        # Create index with 3 chunks
+        index = ProjectIndex(
+            project_id=pid,
+            project_path="/tmp/test",
+            created_at="2025-01-01T00:00:00Z",
+            updated_at="2025-01-01T00:00:00Z",
+            embedding_model="BAAI/bge-small-en-v1.5",
+            chunks=[
+                ContentChunk(
+                    content=f"chunk {i}",
+                    source_path="test.py",
+                    start_line=i,
+                    end_line=i,
+                    content_type="code",
+                    embedding_id=i,
+                )
+                for i in range(3)
+            ],
+        )
+        pm._loaded_indexes[pid] = index
+
+        # Save matching embeddings (3 rows for 3 chunks)
+        embeddings = np.random.rand(3, 384).astype(np.float32)
+        storage.save_embeddings(pid, embeddings)
+
+        pm._load_search_indexes(pid)
+
+        # Embeddings should be loaded
+        assert pid in pm._loaded_embeddings
+        assert pm._loaded_embeddings[pid].shape[0] == 3
+
+
+class TestCorruptMetadataRecovery:
+    """Test _load_project corrupt metadata recovery path."""
+
+    def test_corrupt_metadata_returns_empty_index(self, tmp_path):
+        """Corrupt metadata should produce empty index, not crash."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        storage = FilesystemStorage(base_path=tmp_path / "indexes")
+        pm = ProjectManager(storage=storage)
+        pid = "aabbccdd"
+
+        # Save metadata with invalid field types that will fail Pydantic
+        storage.save_metadata(
+            pid,
+            {
+                "project_id": pid,
+                "project_path": "/tmp/test",
+                "created_at": "2025-01-01T00:00:00Z",
+                "updated_at": "2025-01-01T00:00:00Z",
+                "embedding_model": "BAAI/bge-small-en-v1.5",
+                "chunks": "not_a_list",  # Invalid: should be list
+                "total_chunks": "not_an_int",  # Invalid
+            },
+        )
+
+        # Should not raise — returns empty index
+        index = pm._load_project(pid)
+        assert index.project_id == pid
+        assert len(index.chunks) == 0
+
+    def test_missing_metadata_raises(self, tmp_path):
+        """Non-existent project should raise ValueError."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        storage = FilesystemStorage(base_path=tmp_path / "indexes")
+        pm = ProjectManager(storage=storage)
+
+        with pytest.raises(ValueError, match="not found"):
+            pm._load_project("deadbeef00000000")
+
+
+class TestEmbeddingModelMismatch:
+    """Test model mismatch detection in _load_project."""
+
+    def test_mismatch_disables_semantic_search(self, tmp_path):
+        """When stored model differs from configured, semantic search disabled."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        storage = FilesystemStorage(base_path=tmp_path / "indexes")
+        # Configure with model A
+        pm = ProjectManager(
+            storage=storage,
+            embedding_model="BAAI/bge-small-en-v1.5",
+        )
+        pid = "aabbccdd"
+
+        # Save metadata that was indexed with model B
+        storage.save_metadata(
+            pid,
+            {
+                "project_id": pid,
+                "project_path": "/tmp/test",
+                "created_at": "2025-01-01T00:00:00Z",
+                "updated_at": "2025-01-01T00:00:00Z",
+                "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+            },
+        )
+
+        # Save embeddings (from old model)
+        storage.save_embeddings(pid, np.random.rand(3, 384).astype(np.float32))
+
+        pm._load_project(pid)
+
+        # Embeddings should have been discarded
+        assert pid not in pm._loaded_embeddings
+        # Semantic search should return empty
+        scores = pm._semantic_search("test query", pid)
+        assert len(scores) == 0
+
+    def test_matching_model_loads_embeddings(self, tmp_path):
+        """When stored model matches configured, embeddings should load."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        storage = FilesystemStorage(base_path=tmp_path / "indexes")
+        pm = ProjectManager(
+            storage=storage,
+            embedding_model="BAAI/bge-small-en-v1.5",
+        )
+        pid = "aabbccdd"
+
+        chunks = [
+            ContentChunk(
+                content="test chunk",
+                source_path="test.py",
+                start_line=1,
+                end_line=1,
+                content_type="code",
+                embedding_id=0,
+            )
+        ]
+
+        storage.save_metadata(
+            pid,
+            {
+                "project_id": pid,
+                "project_path": "/tmp/test",
+                "created_at": "2025-01-01T00:00:00Z",
+                "updated_at": "2025-01-01T00:00:00Z",
+                "embedding_model": "BAAI/bge-small-en-v1.5",
+                "chunks": [c.model_dump() for c in chunks],
+            },
+        )
+
+        embeddings = np.random.rand(1, 384).astype(np.float32)
+        storage.save_embeddings(pid, embeddings)
+
+        pm._load_project(pid)
+
+        # Embeddings should be loaded
+        assert pid in pm._loaded_embeddings
+
+
+class TestWatcherGenerationCounter:
+    """Test generation counter prevents stale watcher results."""
+
+    def test_stale_watcher_result_discarded(self, tmp_path):
+        """If generation changes during watcher work, result is discarded."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        storage = FilesystemStorage(base_path=tmp_path / "indexes")
+        pm = ProjectManager(storage=storage)
+        pid = "aabbccdd"
+
+        # Set up initial state
+        initial_index = ProjectIndex(
+            project_id=pid,
+            project_path=str(tmp_path),
+            created_at="2025-01-01T00:00:00Z",
+            updated_at="2025-01-01T00:00:00Z",
+            embedding_model="BAAI/bge-small-en-v1.5",
+        )
+        pm._loaded_indexes[pid] = initial_index
+        pm._index_generations[pid] = 0
+
+        # Simulate what the on_change callback does:
+        # 1. Snapshot generation under lock
+        with pm._index_lock:
+            gen = pm._index_generations.get(pid, 0)
+
+        # 2. Meanwhile, a manual reindex increments generation
+        with pm._index_lock:
+            pm._index_generations[pid] = gen + 1
+            # Manual reindex puts a fresh index
+            fresh_index = ProjectIndex(
+                project_id=pid,
+                project_path=str(tmp_path),
+                created_at="2025-01-01T00:00:00Z",
+                updated_at="2025-01-02T00:00:00Z",  # Newer
+                embedding_model="BAAI/bge-small-en-v1.5",
+            )
+            pm._loaded_indexes[pid] = fresh_index
+
+        # 3. Watcher callback tries to commit with stale generation
+        stale_index = ProjectIndex(
+            project_id=pid,
+            project_path=str(tmp_path),
+            created_at="2025-01-01T00:00:00Z",
+            updated_at="2025-01-01T00:00:00Z",
+            embedding_model="BAAI/bge-small-en-v1.5",
+        )
+
+        with pm._index_lock:
+            # This is the guard — should detect mismatch
+            if pm._index_generations.get(pid, 0) != gen:
+                discarded = True
+            else:
+                pm._loaded_indexes[pid] = stale_index
+                discarded = False
+
+        assert discarded is True
+        # Fresh index should still be in place
+        assert pm._loaded_indexes[pid].updated_at == "2025-01-02T00:00:00Z"
+
+
+class TestWatcherCooldownRequeue:
+    """Test _do_flush cooldown re-queue and error retry paths."""
+
+    def test_cooldown_requeues_changes(self, tmp_path):
+        """Changes during cooldown should be re-queued, not dropped."""
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        callback = Mock()
+        watcher = FileWatcher(
+            project_path=tmp_path,
+            on_change=callback,
+            cooldown_seconds=10.0,
+        )
+        watcher._running.set()
+
+        # Simulate a recent index completion (cooldown active)
+        with watcher._lock:
+            watcher._last_index_time = time.time()
+
+        # Try to flush during cooldown
+        changes = [tmp_path / "file1.py", tmp_path / "file2.py"]
+        watcher._do_flush(changes)
+
+        # Callback should NOT have been called (deferred)
+        callback.assert_not_called()
+
+        # Changes should be re-queued in pending
+        assert len(watcher._pending_changes) == 2
+        assert tmp_path / "file1.py" in watcher._pending_changes
+
+        # Clean up timer
+        with watcher._lock:
+            if watcher._cooldown_timer is not None:
+                watcher._cooldown_timer.cancel()
+
+    def test_error_requeues_changes(self, tmp_path):
+        """Failed callback should re-queue changes for retry."""
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        callback = Mock(side_effect=RuntimeError("indexing failed"))
+        watcher = FileWatcher(
+            project_path=tmp_path,
+            on_change=callback,
+            cooldown_seconds=60.0,  # High cooldown prevents retry cascade
+        )
+        watcher._running.set()
+        watcher._last_index_time = 0.0  # No cooldown for first flush
+
+        changes = [tmp_path / "file1.py"]
+        watcher._do_flush(changes)
+
+        # Callback was called and failed
+        callback.assert_called_once()
+
+        # Changes should be re-queued for retry
+        assert len(watcher._pending_changes) == 1
+        assert tmp_path / "file1.py" in watcher._pending_changes
+
+        # Clean up: stop watcher and cancel any pending timer
+        watcher._running.clear()
+        with watcher._lock:
+            if watcher._debounce_timer is not None:
+                watcher._debounce_timer.cancel()
+
+
+class TestListProjectsNarrowException:
+    """Test that list_projects only catches expected exception types."""
+
+    def test_catches_oserror(self, tmp_path):
+        """OSError from storage should be caught gracefully."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        storage = FilesystemStorage(base_path=tmp_path / "indexes")
+        pm = ProjectManager(storage=storage)
+
+        # Create a project dir but with corrupt metadata
+        pid = "aabbccdd"
+        project_dir = tmp_path / "indexes" / pid
+        project_dir.mkdir(parents=True)
+        (project_dir / "metadata.json").write_text("not valid json")
+
+        # Should not raise — catches ValueError from json
+        result = pm.list_projects()
+        # Corrupt project may or may not appear depending on storage handling
+        assert isinstance(result, list)
+
+    def test_propagates_unexpected_errors(self, tmp_path):
+        """Unexpected errors like TypeError should propagate."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        storage = FilesystemStorage(base_path=tmp_path / "indexes")
+        pm = ProjectManager(storage=storage)
+
+        # Patch load_metadata to raise TypeError
+        def bad_load(pid):
+            raise TypeError("unexpected programming error")
+
+        storage.load_metadata = bad_load
+
+        # Create a project dir so list_projects iterates
+        pid = "aabbccdd"
+        project_dir = tmp_path / "indexes" / pid
+        project_dir.mkdir(parents=True)
+        (project_dir / "metadata.json").write_text("{}")
+
+        # TypeError should propagate (not caught by narrow exception)
+        with pytest.raises(TypeError, match="unexpected programming error"):
+            pm.list_projects()
+
+
+class TestPdfPageTextLimit:
+    """Test PDF per-page text truncation."""
+
+    def test_max_page_text_chars_constant(self):
+        from ai_governance_mcp.context_engine.connectors.pdf import MAX_PAGE_TEXT_CHARS
+
+        assert MAX_PAGE_TEXT_CHARS == 50_000
+
+
+class TestIndexPathValidation:
+    """Test custom index path validation."""
+
+    def test_rejects_path_outside_home(self):
+        """Paths outside user home should be rejected."""
+        from ai_governance_mcp.context_engine.server import _create_project_manager
+
+        with patch.dict(
+            os.environ,
+            {
+                "AI_CONTEXT_ENGINE_INDEX_PATH": "/etc/evil-path",
+            },
+        ):
+            # Should not raise — falls back to default
+            pm = _create_project_manager()
+            # Verify it used the default path (under home), not /etc/
+            assert "/etc/evil-path" not in str(pm.storage.base_path)

@@ -219,10 +219,22 @@ def _create_project_manager() -> ProjectManager:
 
     index_path = os.environ.get("AI_CONTEXT_ENGINE_INDEX_PATH")
     if index_path:
-        logger.info(
-            "Using custom index path: %s (set via AI_CONTEXT_ENGINE_INDEX_PATH)",
-            Path(index_path).resolve(),
-        )
+        resolved = Path(index_path).resolve()
+        # Validate custom path is under user home to prevent writing to system dirs
+        home = Path.home().resolve()
+        if not str(resolved).startswith(str(home)):
+            logger.warning(
+                "Custom index path %s is outside user home directory (%s). "
+                "Ignoring — using default path for safety.",
+                resolved,
+                home,
+            )
+            index_path = None
+        else:
+            logger.info(
+                "Using custom index path: %s (set via AI_CONTEXT_ENGINE_INDEX_PATH)",
+                resolved,
+            )
 
     from .storage.filesystem import FilesystemStorage
 
@@ -544,9 +556,6 @@ def main() -> None:
     _setup_logging()
     logger.info("Starting Context Engine MCP Server")
 
-    # Module-level reference for signal handler access
-    _manager_ref: list[ProjectManager | None] = [None]
-
     # H3 fix: Signal handlers must only call async-signal-safe functions.
     # logging.info() and manager.shutdown() can deadlock if signal arrives
     # while locks are held. Use minimal handler — just exit immediately.
@@ -560,9 +569,7 @@ def main() -> None:
     signal.signal(signal.SIGTERM, _signal_handler)
 
     try:
-        # Create server early to capture manager reference for signal handler
         server, manager = create_server()
-        _manager_ref[0] = manager
 
         async def _run() -> None:
             try:

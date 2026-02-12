@@ -265,7 +265,7 @@ class ProjectManager:
                 metadata = self.storage.load_metadata(project_id)
                 if metadata:
                     statuses.append(self._build_project_status(project_id, metadata))
-            except Exception as e:
+            except (OSError, ValueError, KeyError) as e:
                 logger.warning("Error loading project %s: %s", project_id, e)
                 continue
         return statuses

@@ -170,7 +170,9 @@ class FileWatcher:
 
         # Enforce cooldown: if a re-index just completed, defer
         now = time.time()
-        elapsed_since_last = now - self._last_index_time
+        with self._lock:
+            last_index = self._last_index_time
+        elapsed_since_last = now - last_index
         if elapsed_since_last < self.cooldown_seconds:
             wait_time = self.cooldown_seconds - elapsed_since_last
             logger.debug(
@@ -190,7 +192,8 @@ class FileWatcher:
         logger.info("Flushing %d file changes for re-indexing", len(changes))
         try:
             self.on_change(changes)
-            self._last_index_time = time.time()
+            with self._lock:
+                self._last_index_time = time.time()
         except Exception as e:
             logger.error("Error in change callback: %s", e)
             # Re-queue failed changes and schedule a retry timer

@@ -158,10 +158,12 @@ class Indexer:
                 )
 
             if allow_custom:
-                logger.warning(
-                    "Embedding model allowlist bypassed via "
+                logger.error(
+                    "SECURITY: Embedding model allowlist bypassed via "
                     "AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true. "
-                    "Model '%s' not verified for safety.",
+                    "Model '%s' not verified for safety. "
+                    "This may enable remote code execution if the model "
+                    "contains malicious payloads. Only use trusted models.",
                     self.embedding_model_name,
                 )
 

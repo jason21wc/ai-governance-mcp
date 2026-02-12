@@ -15,6 +15,10 @@ logger = logging.getLogger("ai_governance_mcp.context_engine.connectors.pdf")
 # Maximum pages to process per PDF — prevents memory exhaustion on huge documents
 MAX_PDF_PAGES = 500
 
+# Maximum text per page (chars) — prevents memory exhaustion from decompression bombs.
+# A single PDF page can decompress to multi-MB text; cap to prevent OOM.
+MAX_PAGE_TEXT_CHARS = 50_000
+
 
 class PDFConnector(BaseConnector):
     """Connector for PDF files."""
@@ -83,6 +87,8 @@ class PDFConnector(BaseConnector):
                     for page_num in range(num_pages):
                         page = doc[page_num]
                         text = page.get_text()
+                        if len(text) > MAX_PAGE_TEXT_CHARS:
+                            text = text[:MAX_PAGE_TEXT_CHARS]
                         if text.strip():
                             chunks.append(
                                 ContentChunk(
@@ -126,6 +132,8 @@ class PDFConnector(BaseConnector):
                     for page_num in range(num_pages):
                         page = pdf.pages[page_num]
                         text = page.extract_text()
+                        if text and len(text) > MAX_PAGE_TEXT_CHARS:
+                            text = text[:MAX_PAGE_TEXT_CHARS]
                         if text and text.strip():
                             chunks.append(
                                 ContentChunk(
