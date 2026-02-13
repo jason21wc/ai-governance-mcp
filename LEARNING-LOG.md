@@ -12,6 +12,38 @@
 
 ## Active Lessons
 
+### Editable Install Doesn't Fix Running MCP Server Processes (2026-02-12)
+
+After implementing tree-sitter parsing, re-indexing via the live MCP server produced chunks with `heading: null`. The package is installed in editable mode (`pip install -e .`), so the server reads source files directly — but the already-running process had the OLD `connectors/code.py` cached in Python's module cache. Re-indexing used the stale line-based parser, not the new tree-sitter code. Pytest worked because it spawns a fresh process.
+
+**Rule:** After modifying source code used by a running MCP server, restart Claude Code (or the server process) before testing via MCP tools. Editable installs don't help — Python caches imported modules for the lifetime of the process. See Gotcha #27.
+
+---
+
+### Go type_declaration Names Are on type_spec Child (2026-02-12)
+
+Tree-sitter Go grammar: `type_declaration` wraps a `type_spec` node which holds the `name` field. `child_by_field_name("name")` on the parent returns None — must iterate children to find `type_spec` first.
+
+**Rule:** When adding tree-sitter support for a new language, verify the actual AST node structure with a live parser before assuming field names exist on the expected node.
+
+---
+
+### BM25Okapi Can Return Negative Scores (2026-02-12)
+
+BM25Okapi returns negative IDF scores for common terms in small corpora. When `max_score <= 0`, normalization doesn't fire, leaving raw negatives that violate Pydantic `ge=0.0` constraints.
+
+**Rule:** Always clamp BM25 scores with `np.clip(scores, 0.0, 1.0)` after normalization. Don't assume score range is [0, 1].
+
+---
+
+### Environment-Aware Tests for Optional Dependencies (2026-02-12)
+
+Tests for `_get_chunking_version()` failed because tree-sitter IS installed in dev but not CI. Hardcoded `"line-based-v1"` broke when the actual connector detected tree-sitter.
+
+**Rule:** Tests that depend on optional package availability should either: (1) explicitly force the flag (`c._tree_sitter_available = False`), or (2) dynamically detect the actual value. Never hardcode expected values for environment-dependent behavior.
+
+---
+
 ### Standalone MCP Config Files Aren't Picked Up by Claude Code (2026-02-11)
 
 Config at `~/.claude/mcp-servers/context-engine.json` was never loaded — Claude Code reads MCP servers from `~/.claude.json` under `mcpServers`. The standalone file format is not a Claude Code convention. See also Gotcha #8 (project vs user scope) and the CRITICAL lesson "Claude Desktop and CLI Have Separate MCP Configs."
@@ -89,37 +121,7 @@ Validator and code-reviewer both initially used "Analytical validation" as cogni
 
 ---
 
-### Instruction vs Content Surface Distinction (2026-02-02)
-
-Governance concepts have two surfaces: instruction surfaces (SERVER_INSTRUCTIONS, CLAUDE.md, agents) and content surfaces (documents/*.md). The skip-list change updated instructions but not source docs.
-
-**Rule:** Changes to governance CONCEPTS must propagate to both surfaces. Grep source docs: `grep -rn "old term" documents/`. See Gotcha #17.
-
 ---
-
----
-
-### Embedding Model Token Limits (2026-01-17)
-
-Method retrieval quality was poor (MRR 0.34). `all-MiniLM-L6-v2` has 256 token max (not 512). Key content appeared after truncation.
-
-**Rule:** When retrieval quality is poor, check token limits first. Upgraded to `BAAI/bge-small-en-v1.5` (512 tokens). MRR improved +112%.
-
----
-
-### Docker Multi-Arch with ML Workloads (2026-01-18)
-
-ARM64 Docker builds via QEMU make embedding generation ~500x slower. MKL-DNN can't detect ARM features under emulation.
-
-**Rule:** Don't use QEMU for ML workloads. Accept AMD64-only or use native ARM runners. Apple Silicon runs AMD64 via Rosetta 2.
-
----
-
-### External Evaluation Depth: Principles AND Methods (2026-01-18)
-
-External evaluations initially checked principles shallowly and skipped methods. Methods define HOW (procedures), which is what external tutorials describe.
-
-**Rule:** Always retrieve and read specific method content — don't just note method names. Compare external patterns against method procedures.
 
 ---
 
@@ -128,12 +130,6 @@ External evaluations initially checked principles shallowly and skipped methods.
 Implemented full server based on spec that said "~5% miss rate with keyword matching." PO review revealed this was unacceptable. Spec became a constraint instead of a starting point.
 
 **Rule:** Run discovery questions with PO before implementing architectural decisions. Present options with tradeoffs. Wait for explicit approval.
-
----
-
-### Custom Subagent Files Are Reference Docs, Not Invokable (2026-01-04)
-
-Task tool has fixed `subagent_type` values. Custom `.claude/agents/*.md` files don't register as new types. Use `general-purpose` and inline the role instructions.
 
 ---
 
@@ -148,26 +144,6 @@ User reported "0 domains" — server connected but returned empty data. CLI conf
 ### ML Model Mocking: Patch at Source (2025-12-27) — CRITICAL
 
 Mocking at `ai_governance_mcp.retrieval.SentenceTransformer` fails — models are lazy-loaded. Patch at `sentence_transformers.SentenceTransformer`. Use `side_effect` returning `np.random.rand(len(texts), 384)` for correct batch shapes. See Gotchas #5, #6.
-
----
-
-### MCP Stdio Transport Requires Immediate Exit (2025-12-29)
-
-Async event coordination doesn't work for stdio transport (blocking I/O). Use `os._exit(0)` in signal handlers — standard pattern for MCP servers.
-
----
-
-### Framework Bootstrap Needs Activation Layer (2025-12-29) — CRITICAL
-
-A governance framework needs three things: rules (principles), procedures (methods), and activation (loader). Without CLAUDE.md as entry point, Claude Code had no way to discover the framework.
-
-**Rule:** Always create an entry point document. Bootstrap: Tool Config → ai-instructions → Constitution → Domain → Methods.
-
----
-
-### Per-Response Reminder Prevents Drift (2025-12-31)
-
-SERVER_INSTRUCTIONS are only injected once. ~30 token self-check question appended to every tool response prevents AI clients from drifting over long conversations.
 
 ---
 
@@ -201,3 +177,11 @@ Second-pass contrarian review caught issues first-pass missed (S-Series penalty 
 | Security hardening is layers | ARCHITECTURE.md Security Features | 2026-02-10 |
 | Research ≠ governance test | PROJECT-MEMORY decisions | 2026-02-10 |
 | Anchor bias in document review | meta-methods Part 7.10 | 2026-02-10 |
+| Instruction vs content surfaces | Gotcha #17 | 2026-02-12 |
+| Embedding model token limits | ADR-2 in PROJECT-MEMORY | 2026-02-12 |
+| Docker multi-arch ML | ADR-9 in PROJECT-MEMORY | 2026-02-12 |
+| External eval depth | General knowledge (active since Jan) | 2026-02-12 |
+| Custom subagent files not invokable | CLAUDE.md subagents note | 2026-02-12 |
+| MCP stdio immediate exit | server.py implementation | 2026-02-12 |
+| Per-response reminder prevents drift | server.py implementation | 2026-02-12 |
+| Framework bootstrap activation layer | CLAUDE.md + ai-instructions | 2026-02-12 |

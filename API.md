@@ -344,6 +344,17 @@ Run with: `python -m ai_governance_mcp.server`
 
 Run with: `python -m ai_governance_mcp.context_engine.server`
 
+**Configuration (environment variables):**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AI_CONTEXT_ENGINE_EMBEDDING_MODEL` | `BAAI/bge-small-en-v1.5` | Embedding model name |
+| `AI_CONTEXT_ENGINE_EMBEDDING_DIMENSIONS` | `384` | Embedding dimensions |
+| `AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT` | `0.6` | Semantic vs keyword weight (0.0-1.0) |
+| `AI_CONTEXT_ENGINE_INDEX_PATH` | `~/.context-engine/indexes` | Index storage path |
+| `AI_CONTEXT_ENGINE_INDEX_MODE` | `ondemand` | `ondemand` (manual re-index) or `realtime` (file watcher with incremental updates) |
+| `AI_CONTEXT_ENGINE_LOG_LEVEL` | `INFO` | Logging level |
+
 ### query_project
 
 **Purpose:** Search project content using semantic and keyword matching. Returns ranked results with file paths and line numbers.
@@ -362,6 +373,8 @@ Run with: `python -m ai_governance_mcp.context_engine.server`
 | `query` | string | The original query |
 | `total_results` | integer | Number of results returned |
 | `query_time_ms` | float | Query execution time in milliseconds |
+| `last_indexed_at` | string\|null | ISO timestamp of when the index was last updated |
+| `index_age_seconds` | float\|null | Seconds since the index was last updated |
 | `results` | array | Ranked results, each containing `file` (relative path), `lines` (line range), `type` (content type), `score` (relevance 0-1), `heading` (section/function name), `content` (first 500 chars) |
 
 **Example:**

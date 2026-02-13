@@ -628,6 +628,7 @@ export AI_CONTEXT_ENGINE_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
 export AI_CONTEXT_ENGINE_EMBEDDING_DIMENSIONS=384
 export AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT=0.6
 export AI_CONTEXT_ENGINE_INDEX_PATH=~/.context-engine/indexes
+export AI_CONTEXT_ENGINE_INDEX_MODE=ondemand  # or 'realtime' to enable file watcher
 export AI_CONTEXT_ENGINE_LOG_LEVEL=INFO
 ```
 
@@ -652,8 +653,8 @@ claude mcp add ai-context-engine -- python -m ai_governance_mcp.context_engine.s
 
 **Features:**
 - Auto-indexes current working directory on first query
-- File watcher for real-time index updates with debounce (2s) and cooldown (5s)
-- Circuit breaker stops watcher after 3 consecutive failures
+- File watcher for real-time index updates (opt-in via `AI_CONTEXT_ENGINE_INDEX_MODE=realtime`) with debounce (2s) and cooldown (5s)
+- Circuit breaker stops watcher after 3 consecutive failures (realtime mode only)
 - Hybrid search (semantic + keyword) with configurable weights
 - Support for code, markdown, PDF, spreadsheet, and image metadata
 - `.contextignore` file support (same syntax as `.gitignore`)

@@ -131,6 +131,12 @@
 | Bounded Pending Changes | 2026-02-06 | MAX_PENDING_CHANGES (10K) with force-flush prevents unbounded memory growth. |
 | Language-Aware Chunking | 2026-02-06 | Code connector uses BOUNDARY_PATTERNS per language for better chunk boundaries. |
 | CI Context-Engine Extras | 2026-02-07 | CI must install `.[dev,context-engine]` — `pathspec` in optional extras needed by tests. |
+| Incremental Indexing | 2026-02-12 | File-level granularity: classify UNCHANGED/MODIFIED/ADDED/DELETED via content hash. Reuse embeddings for unchanged chunks. Manifest LAST save ordering (commit record). `content_hash=None` → MODIFIED (legacy safety). |
+| Schema + Chunking Version | 2026-02-12 | `schema_version` (int) and `chunking_version` (str, e.g. "tree-sitter-v1") in ProjectIndex. Mismatch triggers full re-index in incremental path. |
+| Tree-sitter Language Pack | 2026-02-12 | Replaced `tree-sitter>=0.21.0` with `tree-sitter-language-pack>=0.7.0,<1.0`. 6 priority languages (Python, JS, TS, Go, Rust, Java). Non-priority → line-based fallback. Large defs (>200 lines) split at nested boundaries. |
+| File Watcher Env Var | 2026-02-12 | `AI_CONTEXT_ENGINE_INDEX_MODE` env var (ondemand/realtime). `reindex_project` uses env var, not stored metadata (fixes contrarian O9). |
+| BM25 Negative Score Fix | 2026-02-12 | `np.clip(scores, 0.0, 1.0)` in `_bm25_search` — BM25Okapi can return negative IDF for common terms in small corpora. |
+| Query Freshness Metadata | 2026-02-12 | `last_indexed_at` and `index_age_seconds` in query responses. Server differentiates indexed-but-no-match vs not-indexed. |
 
 ---
 
@@ -216,6 +222,8 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 
 ### Retrieval Quality Thresholds
 
+**Governance Server:**
+
 | Metric | Current | Threshold | Rationale |
 |--------|---------|-----------|-----------|
 | Method MRR | 0.698 | ≥ 0.60 | Primary method discovery signal |
@@ -224,11 +232,22 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 | Principle Recall@10 | 0.875 | ≥ 0.85 | Breadth of relevant results |
 | Model Load Time | ~9s | ≤ 15s | User experience bound |
 
+**Context Engine** (baseline 2026-02-12, saved in `tests/benchmarks/ce_baseline_2026-02-12.json`):
+
+| Metric | Current | Threshold | Rationale |
+|--------|---------|-----------|-----------|
+| CE MRR | 0.692 | ≥ 0.50 | Primary content discovery signal |
+| CE Recall@5 | 0.800 | ≥ 0.70 | Top-5 result coverage |
+| CE Recall@10 | 0.800 | ≥ 0.80 | Top-10 result coverage |
+
+Note: CE benchmark uses this project's codebase as corpus. Expected results may need updates as code evolves. Benchmark file: `tests/benchmarks/context_engine_quality.json` (8 queries). Tree-sitter was available during benchmark (pytest spawns fresh process with current code).
+
 ### When to Record New Baseline
 
 - Embedding model changes
 - Major index changes (new domain, significant rewrites)
 - Retrieval algorithm changes
+- Tree-sitter language additions or chunking strategy changes
 - Before releases
 
 ---
@@ -316,6 +335,7 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 24 | Storytelling A-Series category collision | Multi-agent A-Series = "Architecture", Storytelling A-Series = "Audience" — both map to category `architecture`. Safe because different domain prefixes (`mult-` vs `stor-`) and storytelling uses colon headers (old format). Watch for new domains with A-Series. |
 | 25 | `get_*_by_id` prefix collision | `"multi"` (multi-agent) and `"mult"` (multimodal-rag) shared a common prefix. Fixed by replacing prefix→domain map with exhaustive search across all domains. O(n) but n is small (~500 items). |
 | 26 | `_load_search_indexes` undoes mismatch guard | `_load_project` discards embeddings on model mismatch, then calls `_load_search_indexes` which reloads them unconditionally. Fixed: skip embedding reload if already discarded. |
+| 27 | MCP server caches code in memory | Even with editable pip install, a running MCP server process keeps old code in memory. Source changes (e.g., new tree-sitter parsing) won't take effect until the server process restarts. Restart Claude Code to restart all MCP servers. Re-index after restart. |
 
 ### Resolved Gotchas
 

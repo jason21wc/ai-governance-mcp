@@ -1,0 +1,61 @@
+{
+  "description": "Benchmark test cases for Context Engine retrieval quality",
+  "version": "1.0",
+  "created": "2026-02-12",
+  "notes": "Uses this project's codebase as corpus. Expected files are relative paths from project root.",
+  "metrics": {
+    "target_mrr": 0.5,
+    "target_recall_at_5": 0.7,
+    "target_recall_at_10": 0.8
+  },
+  "test_cases": [
+    {
+      "id": "ce-1",
+      "query": "file watcher circuit breaker consecutive failures",
+      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py", "src/ai_governance_mcp/context_engine/watcher.py"],
+      "description": "Circuit breaker logic for watcher failures"
+    },
+    {
+      "id": "ce-2",
+      "query": "BM25 keyword search tokenization",
+      "expected_files": ["src/ai_governance_mcp/context_engine/indexer.py", "src/ai_governance_mcp/context_engine/project_manager.py"],
+      "description": "BM25 index building and keyword search"
+    },
+    {
+      "id": "ce-3",
+      "query": "atomic file write JSON corruption prevention",
+      "expected_files": ["src/ai_governance_mcp/context_engine/storage/filesystem.py"],
+      "description": "Atomic write pattern for crash safety"
+    },
+    {
+      "id": "ce-4",
+      "query": "PDF content extraction page limit",
+      "expected_files": ["src/ai_governance_mcp/context_engine/connectors/pdf.py"],
+      "description": "PDF connector with page limits"
+    },
+    {
+      "id": "ce-5",
+      "query": "rate limiting token bucket index_project",
+      "expected_files": ["src/ai_governance_mcp/context_engine/server.py"],
+      "description": "Rate limiting for index_project tool"
+    },
+    {
+      "id": "ce-6",
+      "query": "LRU project eviction MAX_LOADED_PROJECTS",
+      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py"],
+      "description": "LRU eviction of loaded projects"
+    },
+    {
+      "id": "ce-7",
+      "query": "embedding model allowlist security validation",
+      "expected_files": ["src/ai_governance_mcp/context_engine/indexer.py"],
+      "description": "Embedding model safety allowlist"
+    },
+    {
+      "id": "ce-8",
+      "query": "gitignore contextignore pattern matching",
+      "expected_files": ["src/ai_governance_mcp/context_engine/indexer.py"],
+      "description": "Ignore pattern loading and matching"
+    }
+  ]
+}

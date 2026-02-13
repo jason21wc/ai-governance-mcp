@@ -84,9 +84,16 @@ class ProjectIndex(BaseModel):
     total_files: int = Field(0, description="Total number of files indexed")
     index_mode: IndexMode = Field(
         "ondemand",
-        description="Indexing mode: realtime or ondemand. "
-        "Defaults to ondemand (incremental update not yet implemented — "
-        "realtime mode triggers full re-index on every file change)",
+        description="Indexing mode: realtime (file watcher with incremental updates) "
+        "or ondemand (manual re-index only). Defaults to ondemand.",
+    )
+    schema_version: int = Field(
+        1, description="Index format version; increment on breaking changes"
+    )
+    chunking_version: str = Field(
+        "line-based-v1",
+        description="Parser strategy identifier (e.g., 'line-based-v1', 'tree-sitter-v1'). "
+        "Mismatch triggers full re-index in incremental path.",
     )
 
 
@@ -117,6 +124,12 @@ class ProjectQueryResult(BaseModel):
     total_results: int = Field(0, description="Number of results returned")
     query_time_ms: float | None = Field(
         None, description="Query execution time in milliseconds"
+    )
+    last_indexed_at: str | None = Field(
+        None, description="ISO timestamp of when the index was last updated"
+    )
+    index_age_seconds: float | None = Field(
+        None, description="Seconds since the index was last updated"
     )
 
 

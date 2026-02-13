@@ -463,9 +463,12 @@ AI query  →  server.py (validate)  →  project_manager.query_project()
                      _fuse_scores()  →  ranked QueryResult[]
 ```
 
-**Real-time Update (file watcher):**
+**Real-time Update (file watcher — opt-in via `AI_CONTEXT_ENGINE_INDEX_MODE=realtime`):**
 ```
 file change  →  watchdog event  →  debounce (2s)  →  incremental_update()
+                                                              │
+                                                     reuse unchanged embeddings
+                                                     generate only for changed files
                                                               │
                                                      reload search indexes
                                                               │

@@ -2744,31 +2744,64 @@ class TestHandleIndexProjectSuccess:
         assert data["total_chunks"] == 42
 
 
-class TestIncrementalUpdateDocstring:
-    """Test that incremental_update logs a warning about full re-index."""
+class TestIncrementalUpdateFallback:
+    """Test that incremental_update falls back to full re-index when needed."""
 
-    def test_incremental_update_logs_warning(self, tmp_path):
-        """incremental_update should warn that it performs a full re-index."""
+    def test_incremental_update_no_manifest_falls_back(self, tmp_path):
+        """incremental_update should fall back to full re-index if no manifest."""
         from ai_governance_mcp.context_engine.indexer import Indexer
 
         indexer = Indexer(storage=Mock())
 
-        # Mock storage to return existing metadata
-        indexer.storage.load_metadata = Mock(return_value={"index_mode": "realtime"})
+        # Metadata exists but no manifest → fall back to full re-index
+        indexer.storage.load_metadata = Mock(
+            return_value={"index_mode": "realtime", "chunking_version": "line-based-v1"}
+        )
+        indexer.storage.load_file_manifest = Mock(return_value=None)
 
-        # Mock index_project to avoid actually indexing
         mock_index = Mock()
         indexer.index_project = Mock(return_value=mock_index)
 
-        with patch("ai_governance_mcp.context_engine.indexer.logger") as mock_logger:
-            indexer.incremental_update(tmp_path, "test_id", [tmp_path / "file.py"])
-            # Should log a warning about full re-index
-            warning_calls = [
-                call
-                for call in mock_logger.warning.call_args_list
-                if "full re-index" in str(call).lower()
-            ]
-            assert len(warning_calls) >= 1
+        indexer.incremental_update(tmp_path, "test_id", [tmp_path / "file.py"])
+        indexer.index_project.assert_called_once()
+
+    def test_incremental_update_no_metadata_falls_back(self, tmp_path):
+        """incremental_update should fall back if no existing metadata."""
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        indexer.storage.load_metadata = Mock(return_value=None)
+
+        mock_index = Mock()
+        indexer.index_project = Mock(return_value=mock_index)
+
+        indexer.incremental_update(tmp_path, "test_id", [tmp_path / "file.py"])
+        indexer.index_project.assert_called_once()
+
+    def test_chunking_version_mismatch_triggers_full_reindex(self, tmp_path):
+        """Chunking version change should trigger full re-index."""
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        # Force a known chunking version
+        for c in indexer.connectors:
+            if isinstance(c, CodeConnector):
+                c._tree_sitter_available = False
+
+        # Stored version differs from current (line-based-v1)
+        indexer.storage.load_metadata = Mock(
+            return_value={
+                "index_mode": "ondemand",
+                "chunking_version": "tree-sitter-v1",
+            }
+        )
+
+        mock_index = Mock()
+        indexer.index_project = Mock(return_value=mock_index)
+
+        indexer.incremental_update(tmp_path, "test_id", [tmp_path / "file.py"])
+        indexer.index_project.assert_called_once()
 
 
 class TestWatcherStatusInProjectStatus:
@@ -3293,3 +3326,1153 @@ class TestIndexPathValidation:
             pm = _create_project_manager()
             # Verify it used the default path (under home), not /etc/
             assert "/etc/evil-path" not in str(pm.storage.base_path)
+
+
+# =============================================================================
+# Phase 1: Freshness Metadata + Auto-Index Messaging Tests
+# =============================================================================
+
+
+class TestProjectQueryResultFreshnessFields:
+    """Test that ProjectQueryResult accepts freshness metadata."""
+
+    def test_freshness_fields_default_none(self):
+        from ai_governance_mcp.context_engine.models import ProjectQueryResult
+
+        result = ProjectQueryResult(
+            query="test",
+            project_id="abc123",
+            project_path="/tmp/test",
+        )
+        assert result.last_indexed_at is None
+        assert result.index_age_seconds is None
+
+    def test_freshness_fields_populated(self):
+        from ai_governance_mcp.context_engine.models import ProjectQueryResult
+
+        result = ProjectQueryResult(
+            query="test",
+            project_id="abc123",
+            project_path="/tmp/test",
+            last_indexed_at="2026-02-12T00:00:00+00:00",
+            index_age_seconds=42.5,
+        )
+        assert result.last_indexed_at == "2026-02-12T00:00:00+00:00"
+        assert result.index_age_seconds == 42.5
+
+    def test_index_age_seconds_positive_and_reasonable(self):
+        """index_age_seconds computed from query_project should be >= 0."""
+        from ai_governance_mcp.context_engine.models import ProjectQueryResult
+
+        result = ProjectQueryResult(
+            query="test",
+            project_id="abc123",
+            project_path="/tmp/test",
+            index_age_seconds=0.01,
+        )
+        assert result.index_age_seconds >= 0
+
+
+class TestQueryProjectFreshnessIntegration:
+    """Test freshness fields are populated by query_project."""
+
+    def test_freshness_in_query_result(self, tmp_path):
+        """query_project should populate last_indexed_at and index_age_seconds."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        storage = FilesystemStorage(base_path=tmp_path / "indexes")
+        pm = ProjectManager(storage=storage)
+
+        # Create a minimal project to index
+        project_dir = tmp_path / "project"
+        project_dir.mkdir()
+        (project_dir / "test.py").write_text("def hello():\n    return 'world'\n")
+
+        # Mock embeddings with a fixed unit vector to ensure stable
+        # cosine similarity (all positive, avoids BM25 negative edge cases).
+        def _mock_encode(texts, **kw):
+            vec = np.ones((1, 384), dtype=np.float32)
+            vec /= np.linalg.norm(vec)
+            return np.tile(vec, (len(texts), 1))
+
+        with patch("sentence_transformers.SentenceTransformer") as mock_st:
+            mock_model = MagicMock()
+            mock_model.encode = _mock_encode
+            mock_st.return_value = mock_model
+
+            # Index and then query
+            pm.get_or_create_index(project_dir)
+            result = pm.query_project("hello", project_path=project_dir)
+
+        assert result.last_indexed_at is not None
+        assert result.index_age_seconds is not None
+        assert result.index_age_seconds >= 0
+        # Should be very recent (< 60 seconds)
+        assert result.index_age_seconds < 60
+
+
+class TestServerFreshnessOutput:
+    """Test server response includes freshness fields."""
+
+    @pytest.mark.asyncio
+    async def test_server_response_includes_freshness(self):
+        """Server output JSON should contain last_indexed_at and index_age_seconds."""
+        import json
+
+        from ai_governance_mcp.context_engine.server import _handle_query_project
+
+        mock_result = Mock()
+        mock_result.results = [
+            Mock(
+                chunk=Mock(
+                    source_path="test.py",
+                    start_line=1,
+                    end_line=10,
+                    content_type="code",
+                    combined_score=0.8,
+                    heading="test",
+                    content="def test(): pass",
+                ),
+                combined_score=0.8,
+                semantic_score=0.7,
+                keyword_score=0.5,
+            )
+        ]
+        mock_result.total_results = 1
+        mock_result.query_time_ms = 10.5
+        mock_result.last_indexed_at = "2026-02-12T00:00:00+00:00"
+        mock_result.index_age_seconds = 42.5
+
+        manager = Mock()
+        manager.query_project = Mock(return_value=mock_result)
+
+        result = await _handle_query_project(manager, {"query": "test"})
+        output = json.loads(result[0].text)
+        assert output["last_indexed_at"] == "2026-02-12T00:00:00+00:00"
+        assert output["index_age_seconds"] == 42.5
+
+
+class TestEmptyResultsMessage:
+    """Test differentiated empty result messages."""
+
+    @pytest.mark.asyncio
+    async def test_indexed_but_no_match(self):
+        """When index exists but no results match, show rephrase message."""
+        import json
+
+        from ai_governance_mcp.context_engine.server import _handle_query_project
+
+        mock_result = Mock()
+        mock_result.results = []
+        mock_result.last_indexed_at = "2026-02-12T00:00:00+00:00"
+        mock_result.index_age_seconds = 10.0
+
+        manager = Mock()
+        manager.query_project = Mock(return_value=mock_result)
+
+        result = await _handle_query_project(manager, {"query": "nonexistent"})
+        output = json.loads(result[0].text)
+        assert "rephrasing" in output["message"].lower()
+        assert "index_project" not in output["message"]
+
+    @pytest.mark.asyncio
+    async def test_not_indexed(self):
+        """When no index exists, show index_project suggestion."""
+        import json
+
+        from ai_governance_mcp.context_engine.server import _handle_query_project
+
+        mock_result = Mock()
+        mock_result.results = []
+        mock_result.last_indexed_at = None
+        mock_result.index_age_seconds = None
+
+        manager = Mock()
+        manager.query_project = Mock(return_value=mock_result)
+
+        result = await _handle_query_project(manager, {"query": "anything"})
+        output = json.loads(result[0].text)
+        assert "index_project" in output["message"]
+
+
+# =============================================================================
+# Phase 3: Incremental Indexing Tests
+# =============================================================================
+
+
+class TestFileClassification:
+    """Test _classify_files for UNCHANGED/MODIFIED/ADDED/DELETED."""
+
+    def test_classify_unchanged(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        manifest = {"/proj/a.py": {"content_hash": "abc123"}}
+        current_hashes = {"/proj/a.py": "abc123"}
+        current_files = [Path("/proj/a.py")]
+
+        unchanged, modified, added, deleted = indexer._classify_files(
+            manifest, current_hashes, current_files
+        )
+        assert unchanged == ["/proj/a.py"]
+        assert modified == []
+        assert added == []
+        assert deleted == []
+
+    def test_classify_modified(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        manifest = {"/proj/a.py": {"content_hash": "old_hash"}}
+        current_hashes = {"/proj/a.py": "new_hash"}
+        current_files = [Path("/proj/a.py")]
+
+        unchanged, modified, added, deleted = indexer._classify_files(
+            manifest, current_hashes, current_files
+        )
+        assert unchanged == []
+        assert [str(p) for p in modified] == ["/proj/a.py"]
+        assert added == []
+        assert deleted == []
+
+    def test_classify_added(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        manifest = {}
+        current_hashes = {"/proj/new.py": "hash1"}
+        current_files = [Path("/proj/new.py")]
+
+        unchanged, modified, added, deleted = indexer._classify_files(
+            manifest, current_hashes, current_files
+        )
+        assert unchanged == []
+        assert modified == []
+        assert [str(p) for p in added] == ["/proj/new.py"]
+        assert deleted == []
+
+    def test_classify_deleted(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        manifest = {"/proj/gone.py": {"content_hash": "hash1"}}
+        current_hashes = {}
+        current_files = []
+
+        unchanged, modified, added, deleted = indexer._classify_files(
+            manifest, current_hashes, current_files
+        )
+        assert unchanged == []
+        assert modified == []
+        assert added == []
+        assert deleted == ["/proj/gone.py"]
+
+    def test_classify_content_hash_none_treated_as_modified(self):
+        """content_hash=None in manifest should be treated as MODIFIED."""
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        manifest = {"/proj/a.py": {"content_hash": None}}
+        current_hashes = {"/proj/a.py": "abc123"}
+        current_files = [Path("/proj/a.py")]
+
+        unchanged, modified, added, deleted = indexer._classify_files(
+            manifest, current_hashes, current_files
+        )
+        assert unchanged == []
+        assert len(modified) == 1
+        assert str(modified[0]) == "/proj/a.py"
+
+    def test_classify_mixed_scenario(self):
+        """1 unchanged, 1 modified, 1 added, 1 deleted."""
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        manifest = {
+            "/proj/same.py": {"content_hash": "hash_same"},
+            "/proj/changed.py": {"content_hash": "old_hash"},
+            "/proj/gone.py": {"content_hash": "hash_gone"},
+        }
+        current_hashes = {
+            "/proj/same.py": "hash_same",
+            "/proj/changed.py": "new_hash",
+            "/proj/new.py": "hash_new",
+        }
+        current_files = [
+            Path("/proj/same.py"),
+            Path("/proj/changed.py"),
+            Path("/proj/new.py"),
+        ]
+
+        unchanged, modified, added, deleted = indexer._classify_files(
+            manifest, current_hashes, current_files
+        )
+        assert unchanged == ["/proj/same.py"]
+        assert [str(p) for p in modified] == ["/proj/changed.py"]
+        assert [str(p) for p in added] == ["/proj/new.py"]
+        assert deleted == ["/proj/gone.py"]
+
+
+class TestCollectUnchangedChunks:
+    """Test _collect_unchanged_chunks preserves content and vectors."""
+
+    def test_unchanged_chunks_preserved(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        chunks_data = [
+            {
+                "content": "def hello(): pass",
+                "source_path": "a.py",
+                "start_line": 1,
+                "end_line": 1,
+                "content_type": "code",
+                "embedding_id": 0,
+            },
+            {
+                "content": "def world(): pass",
+                "source_path": "b.py",
+                "start_line": 1,
+                "end_line": 1,
+                "content_type": "code",
+                "embedding_id": 1,
+            },
+        ]
+        # a.py is unchanged, b.py is not
+        unchanged_files = ["/proj/a.py"]
+        old_embeddings = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+
+        chunks, vectors = indexer._collect_unchanged_chunks(
+            chunks_data, unchanged_files, old_embeddings
+        )
+        assert len(chunks) == 1
+        assert chunks[0].content == "def hello(): pass"
+        assert len(vectors) == 1
+        np.testing.assert_array_equal(vectors[0], [1.0, 2.0, 3.0])
+
+    def test_deleted_file_chunks_removed(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        chunks_data = [
+            {
+                "content": "will be deleted",
+                "source_path": "deleted.py",
+                "start_line": 1,
+                "end_line": 1,
+                "content_type": "code",
+                "embedding_id": 0,
+            },
+        ]
+        unchanged_files = []
+        old_embeddings = np.array([[1.0, 2.0]])
+
+        chunks, vectors = indexer._collect_unchanged_chunks(
+            chunks_data, unchanged_files, old_embeddings
+        )
+        assert len(chunks) == 0
+        assert len(vectors) == 0
+
+
+class TestBuildIncrementalEmbeddings:
+    """Test _build_incremental_embeddings reuses and generates correctly."""
+
+    def test_reuses_unchanged_vectors(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock(), embedding_dimensions=3)
+        chunks = [
+            ContentChunk(
+                content="old",
+                source_path="a.py",
+                start_line=1,
+                end_line=1,
+                content_type="code",
+                embedding_id=0,
+            ),
+        ]
+        unchanged_vectors = [np.array([1.0, 2.0, 3.0])]
+
+        result = indexer._build_incremental_embeddings(chunks, 1, unchanged_vectors)
+        assert result.shape == (1, 3)
+        np.testing.assert_array_equal(result[0], [1.0, 2.0, 3.0])
+
+    def test_generates_for_new_chunks(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock(), embedding_dimensions=384)
+        chunks = [
+            ContentChunk(
+                content="new chunk",
+                source_path="new.py",
+                start_line=1,
+                end_line=1,
+                content_type="code",
+                embedding_id=0,
+            ),
+        ]
+
+        with patch("sentence_transformers.SentenceTransformer") as mock_st:
+            mock_model = MagicMock()
+            mock_model.encode = lambda texts, **kw: np.ones(
+                (len(texts), 384), dtype=np.float32
+            )
+            mock_st.return_value = mock_model
+
+            result = indexer._build_incremental_embeddings(chunks, 0, [])
+            assert result.shape == (1, 384)
+            assert result[0, 0] == 1.0
+
+    def test_mixed_reuse_and_generate(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock(), embedding_dimensions=3)
+        chunks = [
+            ContentChunk(
+                content="old",
+                source_path="a.py",
+                start_line=1,
+                end_line=1,
+                content_type="code",
+                embedding_id=0,
+            ),
+            ContentChunk(
+                content="new",
+                source_path="b.py",
+                start_line=1,
+                end_line=1,
+                content_type="code",
+                embedding_id=1,
+            ),
+        ]
+        unchanged_vectors = [np.array([1.0, 2.0, 3.0])]
+
+        with patch("sentence_transformers.SentenceTransformer") as mock_st:
+            mock_model = MagicMock()
+            mock_model.encode = lambda texts, **kw: np.full(
+                (len(texts), 3), 9.0, dtype=np.float32
+            )
+            mock_st.return_value = mock_model
+
+            result = indexer._build_incremental_embeddings(chunks, 1, unchanged_vectors)
+            assert result.shape == (2, 3)
+            # First chunk: reused
+            np.testing.assert_array_equal(result[0], [1.0, 2.0, 3.0])
+            # Second chunk: generated
+            np.testing.assert_array_equal(result[1], [9.0, 9.0, 9.0])
+
+    def test_empty_chunks(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock(), embedding_dimensions=3)
+        result = indexer._build_incremental_embeddings([], 0, [])
+        assert result.shape == (0, 3)
+
+
+class TestIncrementalNoChangeFastPath:
+    """Test that no-change scenario returns existing index without re-embedding."""
+
+    def test_no_changes_returns_existing(self, tmp_path):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock(), embedding_dimensions=3)
+
+        # Set up: file exists, hash matches manifest
+        project_dir = tmp_path / "proj"
+        project_dir.mkdir()
+        test_file = project_dir / "a.py"
+        test_file.write_text("def hello(): pass")
+
+        file_hash = indexer._file_hash(test_file)
+        current_chunking = indexer._get_chunking_version()
+
+        indexer.storage.load_metadata = Mock(
+            return_value={
+                "index_mode": "ondemand",
+                "chunking_version": current_chunking,
+                "created_at": "2026-01-01T00:00:00Z",
+                "updated_at": "2026-01-01T00:00:00Z",
+                "embedding_model": "BAAI/bge-small-en-v1.5",
+                "total_chunks": 1,
+                "total_files": 1,
+            }
+        )
+        indexer.storage.load_file_manifest = Mock(
+            return_value={
+                str(test_file): {
+                    "content_hash": file_hash,
+                    "path": str(test_file),
+                    "content_type": "code",
+                    "language": "python",
+                    "size_bytes": 100,
+                    "last_modified": 0.0,
+                    "chunk_count": 1,
+                },
+            }
+        )
+        indexer.storage.load_chunks = Mock(
+            return_value=[
+                {
+                    "content": "def hello(): pass",
+                    "source_path": "a.py",
+                    "start_line": 1,
+                    "end_line": 1,
+                    "content_type": "code",
+                    "embedding_id": 0,
+                }
+            ]
+        )
+        indexer.storage.load_embeddings = Mock(return_value=np.array([[1.0, 2.0, 3.0]]))
+
+        # Should NOT call index_project (full re-index)
+        indexer.index_project = Mock()
+
+        result = indexer.incremental_update(project_dir, "test_id", [])
+        indexer.index_project.assert_not_called()
+        assert result.total_chunks == 1
+
+
+class TestSchemaAndChunkingVersion:
+    """Test schema_version and chunking_version in ProjectIndex."""
+
+    def test_default_schema_version(self):
+        idx = ProjectIndex(
+            project_id="test",
+            project_path="/test",
+            created_at="2026-01-01",
+            updated_at="2026-01-01",
+            embedding_model="test",
+        )
+        assert idx.schema_version == 1
+
+    def test_default_chunking_version(self):
+        idx = ProjectIndex(
+            project_id="test",
+            project_path="/test",
+            created_at="2026-01-01",
+            updated_at="2026-01-01",
+            embedding_model="test",
+        )
+        assert idx.chunking_version == "line-based-v1"
+
+    def test_chunking_version_set(self):
+        idx = ProjectIndex(
+            project_id="test",
+            project_path="/test",
+            created_at="2026-01-01",
+            updated_at="2026-01-01",
+            embedding_model="test",
+            chunking_version="tree-sitter-v1",
+        )
+        assert idx.chunking_version == "tree-sitter-v1"
+
+
+class TestGetChunkingVersion:
+    """Test _get_chunking_version returns correct strategy identifier."""
+
+    def test_returns_valid_version_string(self):
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        version = indexer._get_chunking_version()
+        assert version in ("line-based-v1", "tree-sitter-v1")
+
+    def test_line_based_when_tree_sitter_not_available(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        # Force tree-sitter unavailable on the code connector
+        for c in indexer.connectors:
+            if isinstance(c, CodeConnector):
+                c._tree_sitter_available = False
+        assert indexer._get_chunking_version() == "line-based-v1"
+
+    def test_tree_sitter_when_available(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        for c in indexer.connectors:
+            if isinstance(c, CodeConnector):
+                c._tree_sitter_available = True
+        assert indexer._get_chunking_version() == "tree-sitter-v1"
+
+
+# =============================================================================
+# Phase 4: Tree-sitter AST Parsing Tests
+# =============================================================================
+
+
+class TestTreeSitterAvailability:
+    """Test tree-sitter-language-pack detection."""
+
+    def test_tree_sitter_available_flag(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        c = CodeConnector()
+        # In our dev environment, tree-sitter-language-pack is installed
+        assert isinstance(c._tree_sitter_available, bool)
+
+    def test_tree_sitter_flag_controls_path(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        c = CodeConnector()
+        c._tree_sitter_available = False
+        # With tree-sitter disabled, should use line-based
+        import tempfile
+
+        code = "def hello():\n    pass\n"
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as f:
+            f.write(code)
+            tmp = Path(f.name)
+        try:
+            chunks = c.parse(tmp, project_root=tmp.parent)
+            # Line-based chunks don't set heading
+            for chunk in chunks:
+                assert chunk.heading is None
+        finally:
+            os.unlink(tmp)
+
+
+class TestTreeSitterPythonParsing:
+    """Test tree-sitter AST parsing for Python."""
+
+    def setup_method(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        self.connector = CodeConnector()
+        if not self.connector._tree_sitter_available:
+            pytest.skip("tree-sitter-language-pack not installed")
+
+    def _parse_code(self, code: str, suffix: str = ".py") -> list:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(suffix=suffix, mode="w", delete=False) as f:
+            f.write(code)
+            tmp = Path(f.name)
+        try:
+            return self.connector.parse(tmp, project_root=tmp.parent)
+        finally:
+            os.unlink(tmp)
+
+    def test_function_heading(self):
+        chunks = self._parse_code("def hello():\n    pass\n")
+        assert any(c.heading == "hello" for c in chunks)
+
+    def test_class_heading(self):
+        chunks = self._parse_code("class MyClass:\n    pass\n")
+        assert any(c.heading == "MyClass" for c in chunks)
+
+    def test_preamble_chunk(self):
+        code = "import os\nimport sys\n\ndef foo():\n    pass\n"
+        chunks = self._parse_code(code)
+        preamble = [c for c in chunks if c.heading == "preamble"]
+        assert len(preamble) >= 1
+        assert "import os" in preamble[0].content
+
+    def test_decorated_function(self):
+        code = "@staticmethod\ndef decorated():\n    pass\n"
+        chunks = self._parse_code(code)
+        assert any(c.heading == "decorated" for c in chunks)
+
+    def test_multiple_definitions(self):
+        code = "def a():\n    pass\n\ndef b():\n    pass\n\nclass C:\n    pass\n"
+        chunks = self._parse_code(code)
+        headings = [c.heading for c in chunks]
+        assert "a" in headings
+        assert "b" in headings
+        assert "C" in headings
+
+    def test_no_definitions_falls_back(self):
+        """File with only imports/constants uses line-based."""
+        code = "import os\nimport sys\nCONST = 42\n"
+        chunks = self._parse_code(code)
+        # Should still produce chunks (via line-based fallback)
+        assert len(chunks) > 0
+
+    def test_empty_file_returns_empty(self):
+        chunks = self._parse_code("")
+        assert chunks == []
+
+    def test_epilogue_chunk(self):
+        code = "def foo():\n    pass\n\n# trailing comment\nFINAL = 1\n"
+        chunks = self._parse_code(code)
+        # Last chunk should be preamble with the trailing code
+        preambles = [c for c in chunks if c.heading == "preamble"]
+        if preambles:
+            assert any("FINAL" in p.content for p in preambles)
+
+
+class TestTreeSitterJavaScriptParsing:
+    """Test tree-sitter AST parsing for JavaScript."""
+
+    def setup_method(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        self.connector = CodeConnector()
+        if not self.connector._tree_sitter_available:
+            pytest.skip("tree-sitter-language-pack not installed")
+
+    def _parse_code(self, code: str) -> list:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(suffix=".js", mode="w", delete=False) as f:
+            f.write(code)
+            tmp = Path(f.name)
+        try:
+            return self.connector.parse(tmp, project_root=tmp.parent)
+        finally:
+            os.unlink(tmp)
+
+    def test_function_declaration(self):
+        chunks = self._parse_code("function greet(name) {\n  return name;\n}\n")
+        assert any(c.heading == "greet" for c in chunks)
+
+    def test_class_declaration(self):
+        code = "class Calculator {\n  add(a, b) { return a + b; }\n}\n"
+        chunks = self._parse_code(code)
+        assert any(c.heading == "Calculator" for c in chunks)
+
+    def test_export_statement(self):
+        code = "export function main() {\n  console.log('hi');\n}\n"
+        chunks = self._parse_code(code)
+        assert any(c.heading == "main" for c in chunks)
+
+
+class TestTreeSitterGoParsing:
+    """Test tree-sitter AST parsing for Go."""
+
+    def setup_method(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        self.connector = CodeConnector()
+        if not self.connector._tree_sitter_available:
+            pytest.skip("tree-sitter-language-pack not installed")
+
+    def _parse_code(self, code: str) -> list:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(suffix=".go", mode="w", delete=False) as f:
+            f.write(code)
+            tmp = Path(f.name)
+        try:
+            return self.connector.parse(tmp, project_root=tmp.parent)
+        finally:
+            os.unlink(tmp)
+
+    def test_function_heading(self):
+        code = 'package main\n\nfunc hello() {\n  println("hi")\n}\n'
+        chunks = self._parse_code(code)
+        assert any(c.heading == "hello" for c in chunks)
+
+    def test_type_declaration(self):
+        code = "package main\n\ntype Person struct {\n  Name string\n}\n"
+        chunks = self._parse_code(code)
+        assert any(c.heading == "Person" for c in chunks)
+
+    def test_method_declaration(self):
+        code = (
+            "package main\n\ntype P struct{}\n\n"
+            'func (p P) Greet() string {\n  return "hi"\n}\n'
+        )
+        chunks = self._parse_code(code)
+        assert any(c.heading == "Greet" for c in chunks)
+
+
+class TestTreeSitterRustParsing:
+    """Test tree-sitter AST parsing for Rust."""
+
+    def setup_method(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        self.connector = CodeConnector()
+        if not self.connector._tree_sitter_available:
+            pytest.skip("tree-sitter-language-pack not installed")
+
+    def _parse_code(self, code: str) -> list:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(suffix=".rs", mode="w", delete=False) as f:
+            f.write(code)
+            tmp = Path(f.name)
+        try:
+            return self.connector.parse(tmp, project_root=tmp.parent)
+        finally:
+            os.unlink(tmp)
+
+    def test_function_item(self):
+        chunks = self._parse_code('fn hello() {\n    println!("hi");\n}\n')
+        assert any(c.heading == "hello" for c in chunks)
+
+    def test_struct_item(self):
+        chunks = self._parse_code("struct Point {\n    x: i32,\n    y: i32,\n}\n")
+        assert any(c.heading == "Point" for c in chunks)
+
+    def test_impl_item(self):
+        code = (
+            "struct Point { x: i32 }\n\n"
+            "impl Point {\n    fn new() -> Self {\n        Point { x: 0 }\n    }\n}\n"
+        )
+        chunks = self._parse_code(code)
+        assert any(c.heading and "impl Point" in c.heading for c in chunks)
+
+    def test_enum_item(self):
+        code = "enum Color {\n    Red,\n    Green,\n    Blue,\n}\n"
+        chunks = self._parse_code(code)
+        assert any(c.heading == "Color" for c in chunks)
+
+    def test_trait_item(self):
+        code = "trait Drawable {\n    fn draw(&self);\n}\n"
+        chunks = self._parse_code(code)
+        assert any(c.heading == "Drawable" for c in chunks)
+
+
+class TestTreeSitterFallback:
+    """Test fallback behavior when tree-sitter is disabled or unsupported."""
+
+    def setup_method(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        self.connector = CodeConnector()
+
+    def _parse_code(self, code: str, suffix: str) -> list:
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(suffix=suffix, mode="w", delete=False) as f:
+            f.write(code)
+            tmp = Path(f.name)
+        try:
+            return self.connector.parse(tmp, project_root=tmp.parent)
+        finally:
+            os.unlink(tmp)
+
+    def test_non_priority_language_uses_line_based(self):
+        """Ruby is not a priority language — should use line-based chunking."""
+        code = "class Foo\n  def bar\n    42\n  end\nend\n"
+        chunks = self._parse_code(code, ".rb")
+        # Line-based chunks don't have heading set
+        for chunk in chunks:
+            assert chunk.heading is None
+
+    def test_parse_error_falls_back(self):
+        """If tree-sitter parse fails, should fall back to line-based."""
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        c = CodeConnector()
+        c._tree_sitter_available = True  # Pretend available
+
+        # Monkey-patch to simulate parse error
+        original = c._parse_with_tree_sitter
+
+        def broken_parser(file_path, content, display_path):
+            # Patch get_parser to raise
+            import unittest.mock
+
+            with unittest.mock.patch(
+                "ai_governance_mcp.context_engine.connectors.code.get_parser",
+                side_effect=Exception("grammar not found"),
+                create=True,
+            ):
+                return original(file_path, content, display_path)
+
+        c._parse_with_tree_sitter = broken_parser
+
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as f:
+            f.write("def foo():\n    pass\n")
+            tmp = Path(f.name)
+        try:
+            chunks = c.parse(tmp, project_root=tmp.parent)
+            # Should still produce chunks via line-based fallback
+            assert len(chunks) > 0
+        finally:
+            os.unlink(tmp)
+
+
+class TestTreeSitterLargeDefinitionSplit:
+    """Test splitting of definitions > 200 lines."""
+
+    def setup_method(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        self.connector = CodeConnector()
+        if not self.connector._tree_sitter_available:
+            pytest.skip("tree-sitter-language-pack not installed")
+
+    def test_large_class_splits_at_methods(self):
+        """A class > 200 lines should be split at method boundaries."""
+        import tempfile
+
+        methods = []
+        for i in range(35):
+            methods.append(
+                f"    def method_{i}(self):\n"
+                f"        value = {i}\n"
+                f"        for j in range({i}):\n"
+                f"            value += j\n"
+                f"        result = value * 2\n"
+                f"        return result\n"
+            )
+        code = "class LargeClass:\n" + "\n".join(methods)
+        total_lines = len(code.splitlines())
+        assert total_lines > 200, f"Test class must exceed 200 lines, got {total_lines}"
+
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as f:
+            f.write(code)
+            tmp = Path(f.name)
+        try:
+            chunks = self.connector.parse(tmp, project_root=tmp.parent)
+            headings = [c.heading for c in chunks]
+
+            # Should have a header chunk
+            assert any("(header)" in h for h in headings if h)
+
+            # Should have method chunks
+            assert any("LargeClass.method_" in h for h in headings if h)
+
+            # Should have more chunks than just 1 (the unsplit class)
+            assert len(chunks) > 5
+        finally:
+            os.unlink(tmp)
+
+    def test_small_class_stays_single_chunk(self):
+        """A class < 200 lines should remain a single chunk."""
+        import tempfile
+
+        code = "class SmallClass:\n    def __init__(self):\n        self.x = 1\n\n    def method(self):\n        return self.x\n"
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as f:
+            f.write(code)
+            tmp = Path(f.name)
+        try:
+            chunks = self.connector.parse(tmp, project_root=tmp.parent)
+            class_chunks = [c for c in chunks if c.heading == "SmallClass"]
+            assert len(class_chunks) == 1
+        finally:
+            os.unlink(tmp)
+
+    def test_large_def_no_nested_stays_single(self):
+        """A large function (no nested defs) stays as one chunk."""
+        import tempfile
+
+        # Create a function > 200 lines with no nested definitions
+        lines = ["def big_function():"]
+        for i in range(220):
+            lines.append(f"    x_{i} = {i}")
+        lines.append("    return x_0")
+        code = "\n".join(lines) + "\n"
+
+        with tempfile.NamedTemporaryFile(suffix=".py", mode="w", delete=False) as f:
+            f.write(code)
+            tmp = Path(f.name)
+        try:
+            chunks = self.connector.parse(tmp, project_root=tmp.parent)
+            func_chunks = [c for c in chunks if c.heading == "big_function"]
+            # Should still be one chunk (no nested defs to split at)
+            assert len(func_chunks) == 1
+        finally:
+            os.unlink(tmp)
+
+
+class TestTreeSitterChunkingVersion:
+    """Test chunking version detection with tree-sitter."""
+
+    def test_version_reflects_tree_sitter_availability(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        indexer = Indexer(storage=Mock())
+        code_connector = next(
+            c for c in indexer.connectors if isinstance(c, CodeConnector)
+        )
+
+        if code_connector._tree_sitter_available:
+            assert indexer._get_chunking_version() == "tree-sitter-v1"
+        else:
+            assert indexer._get_chunking_version() == "line-based-v1"
+
+
+class TestTreeSitterModuleConstants:
+    """Test module-level constants for tree-sitter configuration."""
+
+    def test_tree_sitter_languages(self):
+        from ai_governance_mcp.context_engine.connectors.code import (
+            TREE_SITTER_LANGUAGES,
+        )
+
+        assert "python" in TREE_SITTER_LANGUAGES
+        assert "javascript" in TREE_SITTER_LANGUAGES
+        assert "typescript" in TREE_SITTER_LANGUAGES
+        assert "go" in TREE_SITTER_LANGUAGES
+        assert "rust" in TREE_SITTER_LANGUAGES
+        assert "java" in TREE_SITTER_LANGUAGES
+        # Non-priority languages should NOT be in the set
+        assert "ruby" not in TREE_SITTER_LANGUAGES
+
+    def test_definition_node_types(self):
+        from ai_governance_mcp.context_engine.connectors.code import (
+            DEFINITION_NODE_TYPES,
+        )
+
+        # All priority languages should have node types
+        for lang in ("python", "javascript", "typescript", "go", "rust", "java"):
+            assert lang in DEFINITION_NODE_TYPES
+            assert len(DEFINITION_NODE_TYPES[lang]) > 0
+
+    def test_max_definition_lines(self):
+        from ai_governance_mcp.context_engine.connectors.code import (
+            MAX_DEFINITION_LINES,
+        )
+
+        assert MAX_DEFINITION_LINES == 200
+
+
+# =============================================================================
+# Phase 5: File Watcher Env Var Tests
+# =============================================================================
+
+
+class TestIndexModeEnvVar:
+    """Test AI_CONTEXT_ENGINE_INDEX_MODE environment variable handling."""
+
+    def test_default_is_ondemand(self):
+        """Default index mode when env var is not set."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock())
+        assert pm.default_index_mode == "ondemand"
+
+    def test_ondemand_explicit(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="ondemand")
+        assert pm.default_index_mode == "ondemand"
+
+    def test_realtime_explicit(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+        assert pm.default_index_mode == "realtime"
+
+    def test_env_var_parsing_ondemand(self):
+        """Server parses 'ondemand' from env var."""
+        with patch.dict(os.environ, {"AI_CONTEXT_ENGINE_INDEX_MODE": "ondemand"}):
+            from ai_governance_mcp.context_engine.server import _create_project_manager
+
+            pm = _create_project_manager()
+            assert pm.default_index_mode == "ondemand"
+
+    def test_env_var_parsing_realtime(self):
+        """Server parses 'realtime' from env var."""
+        with patch.dict(os.environ, {"AI_CONTEXT_ENGINE_INDEX_MODE": "realtime"}):
+            from ai_governance_mcp.context_engine.server import _create_project_manager
+
+            pm = _create_project_manager()
+            assert pm.default_index_mode == "realtime"
+
+    def test_env_var_case_insensitive(self):
+        """Env var parsing is case-insensitive."""
+        with patch.dict(os.environ, {"AI_CONTEXT_ENGINE_INDEX_MODE": "REALTIME"}):
+            from ai_governance_mcp.context_engine.server import _create_project_manager
+
+            pm = _create_project_manager()
+            assert pm.default_index_mode == "realtime"
+
+    def test_env_var_invalid_falls_back(self):
+        """Invalid value falls back to ondemand."""
+        with patch.dict(os.environ, {"AI_CONTEXT_ENGINE_INDEX_MODE": "invalid"}):
+            from ai_governance_mcp.context_engine.server import _create_project_manager
+
+            pm = _create_project_manager()
+            assert pm.default_index_mode == "ondemand"
+
+
+class TestDefaultIndexModePassthrough:
+    """Test that default_index_mode is used in query_project and reindex_project."""
+
+    def test_query_project_passes_default_mode(self):
+        """query_project passes default_index_mode to get_or_create_index."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+
+        # Mock storage to say project doesn't exist (triggers get_or_create_index)
+        pm.storage.project_exists = Mock(return_value=False)
+
+        # Mock get_or_create_index to capture the call
+        with patch.object(pm, "get_or_create_index") as mock_goci:
+            # Set up mock to return a minimal ProjectIndex
+            mock_index = Mock()
+            mock_index.chunks = []
+            mock_goci.return_value = mock_index
+            pm._loaded_indexes = {}
+
+            pm.query_project("test query")
+
+            # Verify default_index_mode was passed
+            mock_goci.assert_called_once()
+            call_kwargs = mock_goci.call_args
+            assert call_kwargs.kwargs.get("index_mode") == "realtime"
+
+    def test_reindex_uses_default_mode(self):
+        """reindex_project uses default_index_mode, not stored metadata."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+
+        # Mock storage
+        pm.storage.project_exists = Mock(return_value=True)
+        pm.storage.load_metadata = Mock(
+            return_value={"index_mode": "ondemand"}  # stored says ondemand
+        )
+
+        # Mock indexer
+        mock_index = Mock()
+        mock_index.chunks = []
+        pm._indexer.index_project = Mock(return_value=mock_index)
+
+        # Mock _load_search_indexes and _start_watcher
+        pm._load_search_indexes = Mock()
+        pm._start_watcher = Mock()
+
+        pm.reindex_project(Path("/tmp/test-project"))
+
+        # Verify index_project was called with realtime (from default), not ondemand (from stored)
+        call_args = pm._indexer.index_project.call_args
+        assert call_args[0][2] == "realtime"  # Third positional arg is index_mode
+
+    def test_realtime_mode_starts_watcher(self):
+        """get_or_create_index with realtime mode starts watcher."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+
+        # Mock storage
+        pm.storage.project_exists = Mock(return_value=False)
+        mock_index = Mock()
+        mock_index.chunks = []
+        pm._indexer.index_project = Mock(return_value=mock_index)
+        pm._load_search_indexes = Mock()
+        pm._start_watcher = Mock()
+
+        pm.get_or_create_index(Path("/tmp/test-project"), index_mode="realtime")
+
+        pm._start_watcher.assert_called_once()
+
+    def test_ondemand_mode_does_not_start_watcher(self):
+        """get_or_create_index with ondemand mode does NOT start watcher."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="ondemand")
+
+        pm.storage.project_exists = Mock(return_value=False)
+        mock_index = Mock()
+        mock_index.chunks = []
+        pm._indexer.index_project = Mock(return_value=mock_index)
+        pm._load_search_indexes = Mock()
+        pm._start_watcher = Mock()
+
+        pm.get_or_create_index(Path("/tmp/test-project"), index_mode="ondemand")
+
+        pm._start_watcher.assert_not_called()

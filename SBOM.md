@@ -1,7 +1,7 @@
 # Software Bill of Materials (SBOM)
 
 **Project:** ai-governance-mcp
-**Version:** 1.7.0
+**Version:** 1.8.0
 **Generated:** 2026-02-07
 **Python:** >=3.10
 **License:** MIT
@@ -25,7 +25,7 @@
 |---------|---------|---------|---------|
 | pathspec | >=1.0.0,<2 | MPL 2.0 | Gitignore-style pattern matching |
 | watchdog | >=4.0.0 | Apache 2.0 | File system monitoring |
-| tree-sitter | >=0.21.0 | MIT | Language-aware code parsing |
+| tree-sitter-language-pack | >=0.7.0,<1.0 | MIT OR Apache-2.0 | AST-based code parsing (160+ languages, 6 priority). Pulls tree-sitter as transitive dep. |
 | pymupdf | >=1.24.0 | AGPL-3.0 | PDF extraction (primary) |
 | pdfplumber | >=0.10.0 | MIT | PDF extraction (fallback) |
 | openpyxl | >=3.1.0 | MIT | Excel file parsing |

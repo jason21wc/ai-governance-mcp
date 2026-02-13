@@ -9,6 +9,7 @@ import logging
 import re
 import threading
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 import numpy as np
 from rank_bm25 import BM25Okapi
@@ -62,11 +63,13 @@ class ProjectManager:
         embedding_model: str = "BAAI/bge-small-en-v1.5",
         embedding_dimensions: int = 384,
         semantic_weight: float = 0.6,
+        default_index_mode: IndexMode = "ondemand",
     ) -> None:
         self.storage = storage or FilesystemStorage()
         self.embedding_model_name = embedding_model
         self.embedding_dimensions = embedding_dimensions
         self.semantic_weight = semantic_weight
+        self.default_index_mode: IndexMode = default_index_mode
 
         self._indexer = Indexer(
             storage=self.storage,
@@ -169,7 +172,9 @@ class ProjectManager:
                 if self.storage.project_exists(project_id):
                     self._load_project(project_id)
                 else:
-                    self.get_or_create_index(project_path)
+                    self.get_or_create_index(
+                        project_path, index_mode=self.default_index_mode
+                    )
 
             self._touch_project(project_id)
             index = self._loaded_indexes.get(project_id)
@@ -195,6 +200,18 @@ class ProjectManager:
 
         elapsed_ms = (time.time() - start_time) * 1000
 
+        # Compute freshness metadata from loaded index
+        last_indexed_at = None
+        index_age_seconds = None
+        if index is not None and index.updated_at:
+            last_indexed_at = index.updated_at
+            try:
+                updated_dt = datetime.fromisoformat(index.updated_at)
+                age = (datetime.now(timezone.utc) - updated_dt).total_seconds()
+                index_age_seconds = round(max(age, 0.0), 2)
+            except (ValueError, TypeError):
+                pass
+
         return ProjectQueryResult(
             query=query,
             project_id=project_id,
@@ -202,6 +219,8 @@ class ProjectManager:
             results=results,
             total_results=len(results),
             query_time_ms=round(elapsed_ms, 2),
+            last_indexed_at=last_indexed_at,
+            index_age_seconds=index_age_seconds,
         )
 
     def reindex_project(self, project_path: Path) -> ProjectIndex:
@@ -224,11 +243,9 @@ class ProjectManager:
             self._loaded_embeddings.pop(project_id, None)
             self._loaded_bm25.pop(project_id, None)
 
-            # Re-index
-            existing = self.storage.load_metadata(project_id)
-            index_mode = (
-                existing.get("index_mode", "ondemand") if existing else "ondemand"
-            )
+            # Re-index — use default_index_mode (from env var) rather than only
+            # stored metadata, so env var changes take effect on reindex
+            index_mode = self.default_index_mode
 
             index = self._indexer.index_project(project_path, project_id, index_mode)
             self._loaded_indexes[project_id] = index
@@ -479,10 +496,12 @@ class ProjectManager:
         tokenized_query = re.findall(r"\w+", query.lower())
         scores = bm25.get_scores(tokenized_query)
 
-        # Normalize to [0, 1]
+        # Normalize to [0, 1]. BM25 IDF can produce negative scores for
+        # very common terms in small corpora — clip after normalization.
         max_score = scores.max() if len(scores) > 0 else 0.0
         if max_score > 0:
             scores = scores / max_score
+        scores = np.clip(scores, 0.0, 1.0)
         return scores
 
     def _fuse_scores(

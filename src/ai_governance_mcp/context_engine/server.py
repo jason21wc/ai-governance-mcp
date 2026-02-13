@@ -187,6 +187,7 @@ def _create_project_manager() -> ProjectManager:
         AI_CONTEXT_ENGINE_EMBEDDING_DIMENSIONS: Integer dimensions (default: 384)
         AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT: Float 0.0-1.0 (default: 0.6)
         AI_CONTEXT_ENGINE_INDEX_PATH: Custom index storage path (default: ~/.context-engine/indexes/)
+        AI_CONTEXT_ENGINE_INDEX_MODE: 'ondemand' (default) or 'realtime' (enables file watcher)
     """
     embedding_model = os.environ.get(
         "AI_CONTEXT_ENGINE_EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5"
@@ -236,6 +237,23 @@ def _create_project_manager() -> ProjectManager:
                 resolved,
             )
 
+    # Parse index mode (ondemand or realtime)
+    index_mode_raw = os.environ.get("AI_CONTEXT_ENGINE_INDEX_MODE", "ondemand").lower()
+    if index_mode_raw in ("ondemand", "realtime"):
+        default_index_mode = index_mode_raw
+    else:
+        logger.warning(
+            "Invalid AI_CONTEXT_ENGINE_INDEX_MODE: '%s'. "
+            "Must be 'ondemand' or 'realtime'. Using default 'ondemand'.",
+            index_mode_raw,
+        )
+        default_index_mode = "ondemand"
+
+    if default_index_mode == "realtime":
+        logger.info(
+            "Index mode set to 'realtime' — file watcher will be enabled for new projects"
+        )
+
     from .storage.filesystem import FilesystemStorage
 
     storage = FilesystemStorage(base_path=Path(index_path) if index_path else None)
@@ -245,6 +263,7 @@ def _create_project_manager() -> ProjectManager:
         embedding_model=embedding_model,
         embedding_dimensions=embedding_dimensions,
         semantic_weight=semantic_weight,
+        default_index_mode=default_index_mode,
     )
 
 
@@ -405,14 +424,21 @@ async def _handle_query_project(
     )
 
     if not result.results:
+        # Differentiate: indexed-but-no-match vs truly-not-indexed
+        if result.last_indexed_at is not None:
+            message = "No matching results found — try rephrasing your query."
+        else:
+            message = (
+                "No results found. The project may not be indexed yet. "
+                "Use index_project to create the index."
+            )
         return [
             TextContent(
                 type="text",
                 text=json.dumps(
                     {
                         "query": query,
-                        "message": "No results found. The project may not be indexed yet. "
-                        "Use index_project to create the index.",
+                        "message": message,
                         "total_results": 0,
                     },
                     indent=2,
@@ -438,6 +464,8 @@ async def _handle_query_project(
         "query": query,
         "total_results": result.total_results,
         "query_time_ms": result.query_time_ms,
+        "last_indexed_at": result.last_indexed_at,
+        "index_age_seconds": result.index_age_seconds,
         "results": formatted_results,
     }
 

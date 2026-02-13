@@ -11,6 +11,42 @@ from .base import BaseConnector
 from ..models import ContentChunk, FileMetadata
 
 
+# Priority languages with tree-sitter AST parsing support.
+# All others fall back to line-based chunking even when tree-sitter is available.
+TREE_SITTER_LANGUAGES = {"python", "javascript", "typescript", "go", "rust", "java"}
+
+# Node types considered top-level definitions per language.
+# These are the AST node types that tree-sitter produces for each language.
+DEFINITION_NODE_TYPES: dict[str, set[str]] = {
+    "python": {"function_definition", "class_definition", "decorated_definition"},
+    "javascript": {
+        "function_declaration",
+        "class_declaration",
+        "export_statement",
+    },
+    "typescript": {
+        "function_declaration",
+        "class_declaration",
+        "export_statement",
+    },
+    "go": {"function_declaration", "method_declaration", "type_declaration"},
+    "rust": {"function_item", "impl_item", "struct_item", "enum_item", "trait_item"},
+    "java": {"class_declaration", "method_declaration", "interface_declaration"},
+}
+
+# Body node types that may contain nested definitions (e.g., methods in a class).
+BODY_NODE_TYPES = {
+    "block",
+    "class_body",
+    "statement_block",
+    "declaration_list",
+    "interface_body",
+}
+
+# Definitions larger than this are split at nested boundaries.
+MAX_DEFINITION_LINES = 200
+
+
 class CodeConnector(BaseConnector):
     """Connector for source code files.
 
@@ -144,7 +180,7 @@ class CodeConnector(BaseConnector):
         """Initialize the code connector."""
         self._tree_sitter_available = False
         try:
-            import tree_sitter  # noqa: F401
+            import tree_sitter_language_pack  # noqa: F401
 
             self._tree_sitter_available = True
         except ImportError:
@@ -201,14 +237,290 @@ class CodeConnector(BaseConnector):
     ) -> list[ContentChunk]:
         """Parse using Tree-sitter AST for language-aware chunking.
 
-        TODO: Implement Tree-sitter parsing. This requires:
-        1. Loading the appropriate language grammar
-        2. Parsing the file into an AST
-        3. Extracting top-level definitions (functions, classes, methods)
-        4. Creating chunks at logical boundaries
+        For priority languages, parses the AST and creates one chunk per
+        top-level definition (function, class, etc.) with heading set to
+        the definition name. Non-definition code (imports, constants)
+        becomes "preamble" chunks. Definitions > 200 lines are split at
+        nested definition boundaries (e.g., methods within a class).
+
+        Falls back to line-based parsing for non-priority languages or
+        on any parse error.
         """
-        # Placeholder: fall back to line-based parsing until Tree-sitter is integrated
-        return self._parse_line_based(file_path, content, display_path)
+        language = self.LANGUAGE_MAP.get(file_path.suffix.lower())
+
+        # Only use tree-sitter for priority languages
+        if language not in TREE_SITTER_LANGUAGES:
+            return self._parse_line_based(file_path, content, display_path)
+
+        try:
+            from tree_sitter_language_pack import get_parser
+
+            parser = get_parser(language)
+            tree = parser.parse(content.encode("utf-8"))
+        except Exception:
+            return self._parse_line_based(file_path, content, display_path)
+
+        root = tree.root_node
+        lines = content.split("\n")
+        definitions = self._extract_definitions(root, language)
+
+        if not definitions:
+            return self._parse_line_based(file_path, content, display_path)
+
+        chunks: list[ContentChunk] = []
+        covered_end = 0  # Next uncovered line (0-indexed)
+
+        for node, name in definitions:
+            start_row = node.start_point[0]
+            end_row = node.end_point[0]
+
+            # Gap before this definition -> preamble chunk
+            if start_row > covered_end:
+                gap = "\n".join(lines[covered_end:start_row])
+                if gap.strip():
+                    chunks.append(
+                        ContentChunk(
+                            content=gap,
+                            source_path=display_path,
+                            start_line=covered_end + 1,
+                            end_line=start_row,
+                            content_type="code",
+                            language=language,
+                            heading="preamble",
+                        )
+                    )
+
+            def_line_count = end_row - start_row + 1
+
+            if def_line_count > MAX_DEFINITION_LINES:
+                # Split large definitions at nested boundaries
+                sub = self._split_large_definition(
+                    node, lines, display_path, language, name
+                )
+                chunks.extend(sub)
+            else:
+                def_content = "\n".join(lines[start_row : end_row + 1])
+                if def_content.strip():
+                    chunks.append(
+                        ContentChunk(
+                            content=def_content,
+                            source_path=display_path,
+                            start_line=start_row + 1,
+                            end_line=end_row + 1,
+                            content_type="code",
+                            language=language,
+                            heading=name,
+                        )
+                    )
+
+            covered_end = end_row + 1
+
+        # Epilogue after last definition
+        if covered_end < len(lines):
+            epilogue = "\n".join(lines[covered_end:])
+            if epilogue.strip():
+                chunks.append(
+                    ContentChunk(
+                        content=epilogue,
+                        source_path=display_path,
+                        start_line=covered_end + 1,
+                        end_line=len(lines),
+                        content_type="code",
+                        language=language,
+                        heading="preamble",
+                    )
+                )
+
+        if not chunks:
+            return self._parse_line_based(file_path, content, display_path)
+
+        return chunks
+
+    def _extract_definitions(self, root, language: str) -> list[tuple]:
+        """Extract top-level definition nodes from the AST.
+
+        Returns list of (node, name) tuples for top-level definitions.
+        """
+        def_types = DEFINITION_NODE_TYPES.get(language, set())
+        definitions = []
+
+        for child in root.children:
+            if child.type in def_types:
+                name = self._get_definition_name(child, language)
+                definitions.append((child, name))
+
+        return definitions
+
+    def _get_definition_name(self, node, language: str) -> str | None:
+        """Extract the human-readable name of a definition node."""
+        # Handle Python decorated definitions -- unwrap to the actual definition
+        if node.type == "decorated_definition":
+            definition = node.child_by_field_name("definition")
+            if definition:
+                return self._get_definition_name(definition, language)
+            return None
+
+        # Handle JS/TS export statements -- look for the wrapped declaration
+        if node.type == "export_statement":
+            def_types = DEFINITION_NODE_TYPES.get(language, set())
+            for child in node.children:
+                if child.type in def_types and child.type != "export_statement":
+                    return self._get_definition_name(child, language)
+            # Fallback: check 'declaration' field
+            declaration = node.child_by_field_name("declaration")
+            if declaration:
+                return self._get_definition_name(declaration, language)
+            return "export"
+
+        # Standard: look for 'name' field
+        name_node = node.child_by_field_name("name")
+        if name_node:
+            return name_node.text.decode("utf-8")
+
+        # Rust impl: use 'type' field for the impl target
+        if node.type == "impl_item":
+            type_node = node.child_by_field_name("type")
+            if type_node:
+                return f"impl {type_node.text.decode('utf-8')}"
+
+        # Go type_declaration: name is on the type_spec child
+        if node.type == "type_declaration":
+            for child in node.children:
+                if child.type == "type_spec":
+                    spec_name = child.child_by_field_name("name")
+                    if spec_name:
+                        return spec_name.text.decode("utf-8")
+
+        return None
+
+    def _split_large_definition(
+        self,
+        node,
+        lines: list[str],
+        display_path: str,
+        language: str,
+        parent_name: str | None,
+    ) -> list[ContentChunk]:
+        """Split a large definition (>200 lines) at nested definition boundaries.
+
+        For classes/impls with many methods, splits into:
+        - A "header" chunk (class signature + code before first nested def)
+        - One chunk per nested definition
+        - Remaining code after last nested definition
+
+        If no nested definitions are found, returns the whole definition as one chunk.
+        """
+        nested = self._find_nested_definitions(node, language)
+
+        start_row = node.start_point[0]
+        end_row = node.end_point[0]
+
+        if not nested:
+            content = "\n".join(lines[start_row : end_row + 1])
+            if content.strip():
+                return [
+                    ContentChunk(
+                        content=content,
+                        source_path=display_path,
+                        start_line=start_row + 1,
+                        end_line=end_row + 1,
+                        content_type="code",
+                        language=language,
+                        heading=parent_name,
+                    )
+                ]
+            return []
+
+        chunks: list[ContentChunk] = []
+        covered = start_row
+
+        for nested_node, name in nested:
+            ns = nested_node.start_point[0]
+            ne = nested_node.end_point[0]
+
+            # Gap before this nested def (class header or inter-method code)
+            if ns > covered:
+                gap_content = "\n".join(lines[covered:ns])
+                if gap_content.strip():
+                    heading = (
+                        f"{parent_name} (header)"
+                        if covered == start_row
+                        else parent_name
+                    )
+                    chunks.append(
+                        ContentChunk(
+                            content=gap_content,
+                            source_path=display_path,
+                            start_line=covered + 1,
+                            end_line=ns,
+                            content_type="code",
+                            language=language,
+                            heading=heading,
+                        )
+                    )
+
+            # The nested definition itself
+            nest_content = "\n".join(lines[ns : ne + 1])
+            if nest_content.strip():
+                heading = (
+                    f"{parent_name}.{name}"
+                    if parent_name and name
+                    else name or parent_name
+                )
+                chunks.append(
+                    ContentChunk(
+                        content=nest_content,
+                        source_path=display_path,
+                        start_line=ns + 1,
+                        end_line=ne + 1,
+                        content_type="code",
+                        language=language,
+                        heading=heading,
+                    )
+                )
+
+            covered = ne + 1
+
+        # Remaining code after last nested def
+        if covered <= end_row:
+            remaining = "\n".join(lines[covered : end_row + 1])
+            if remaining.strip():
+                chunks.append(
+                    ContentChunk(
+                        content=remaining,
+                        source_path=display_path,
+                        start_line=covered + 1,
+                        end_line=end_row + 1,
+                        content_type="code",
+                        language=language,
+                        heading=parent_name,
+                    )
+                )
+
+        return chunks
+
+    def _find_nested_definitions(self, node, language: str) -> list[tuple]:
+        """Find nested definitions one level deep within a parent node.
+
+        Searches the immediate children and body blocks (class_body, block, etc.)
+        for definition node types.
+
+        Returns list of (node, name) tuples.
+        """
+        def_types = DEFINITION_NODE_TYPES.get(language, set())
+        nested = []
+
+        for child in node.children:
+            if child.type in def_types:
+                name = self._get_definition_name(child, language)
+                nested.append((child, name))
+            elif child.type in BODY_NODE_TYPES:
+                for grandchild in child.children:
+                    if grandchild.type in def_types:
+                        name = self._get_definition_name(grandchild, language)
+                        nested.append((grandchild, name))
+
+        return nested
 
     def _parse_line_based(
         self, file_path: Path, content: str, display_path: str
