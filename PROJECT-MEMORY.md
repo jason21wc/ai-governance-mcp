@@ -141,6 +141,7 @@
 | Query Freshness Metadata | 2026-02-12 | `last_indexed_at` and `index_age_seconds` in query responses. Server differentiates indexed-but-no-match vs not-indexed. |
 | CE Natural Usage | 2026-02-14 | Enforcement-oriented SERVER_INSTRUCTIONS (trigger phrases, required behaviors). CE nudge in governance reminder. CE cross-ref in Required Actions. CLAUDE.md CE Integration section. Security validation mirrors governance pattern. Stale index warning (>1hr). Realtime mode in MCP config. |
 | CE Weight Tuning | 2026-02-14 | semantic_weight default 0.6 → 0.7 (+6.7% MRR, no recall loss). Embedding model eval confirmed bge-small-en-v1.5 outperforms bge-base and all-mpnet. Jina safetensors verified. Governance server weight unchanged (separate benchmarks). |
+| CE Desktop Config | 2026-02-14 | Added context-engine to Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`). Both governance + CE now available in Desktop and Cowork. Claude Code config (`~/.claude.json`) already had it. See LEARNING-LOG "Claude Desktop and CLI Have Separate MCP Configs." |
 
 ---
 

@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — embedding eval complete, CE weight tuned
+- **Active Task:** None — CE weight tuned, Desktop config updated
 
 ## Quick Reference
 
