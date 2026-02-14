@@ -68,6 +68,7 @@ markers = [
     "slow: marks tests as slow (require real ML models, deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "real_index: marks tests using production index",
+    "model_eval: marks model comparison tests (download models, never auto-run in CI)",
 ]
 filterwarnings = [
     "ignore::DeprecationWarning:sentence_transformers",

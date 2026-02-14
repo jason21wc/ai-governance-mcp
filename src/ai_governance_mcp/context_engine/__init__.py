@@ -8,4 +8,4 @@ Architecture: One shared MCP server managing multiple project indexes,
 auto-detecting working directory for per-project index management.
 """
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"

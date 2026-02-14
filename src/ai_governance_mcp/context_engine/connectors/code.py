@@ -46,6 +46,13 @@ BODY_NODE_TYPES = {
 # Definitions larger than this are split at nested boundaries.
 MAX_DEFINITION_LINES = 200
 
+# Import enrichment constants
+MAX_IMPORT_COUNT = 5
+MAX_IMPORT_CONTEXT_CHARS = 400
+
+# Python AST node types for import statements
+PYTHON_IMPORT_NODE_TYPES = {"import_statement", "import_from_statement"}
+
 
 class CodeConnector(BaseConnector):
     """Connector for source code files.
@@ -267,6 +274,13 @@ class CodeConnector(BaseConnector):
         if not definitions:
             return self._parse_line_based(file_path, content, display_path)
 
+        # Collect import nodes for enrichment (Python only)
+        import_nodes: list[tuple[str, object]] = []
+        if language == "python":
+            for child in root.children:
+                if child.type in PYTHON_IMPORT_NODE_TYPES:
+                    import_nodes.append((child.text.decode("utf-8"), child))
+
         chunks: list[ContentChunk] = []
         covered_end = 0  # Next uncovered line (0-indexed)
 
@@ -297,8 +311,20 @@ class CodeConnector(BaseConnector):
                 sub = self._split_large_definition(
                     node, lines, display_path, language, name
                 )
+                # Enrich split chunks with import context
+                if import_nodes:
+                    for chunk in sub:
+                        if chunk.heading != "preamble":
+                            chunk.import_context = self._filter_imports_for_chunk(
+                                import_nodes, node
+                            )
                 chunks.extend(sub)
             else:
+                # Compute import context for this definition chunk
+                import_ctx = None
+                if import_nodes:
+                    import_ctx = self._filter_imports_for_chunk(import_nodes, node)
+
                 def_content = "\n".join(lines[start_row : end_row + 1])
                 if def_content.strip():
                     chunks.append(
@@ -310,6 +336,7 @@ class CodeConnector(BaseConnector):
                             content_type="code",
                             language=language,
                             heading=name,
+                            import_context=import_ctx,
                         )
                     )
 
@@ -335,6 +362,122 @@ class CodeConnector(BaseConnector):
             return self._parse_line_based(file_path, content, display_path)
 
         return chunks
+
+    # ─── Import enrichment helpers (Python only) ───
+
+    def _extract_import_lines(self, root) -> list[str]:
+        """Extract import statement text from Python AST root node.
+
+        Returns list of import line strings (e.g., 'import os', 'from pathlib import Path').
+        Only processes top-level import_statement and import_from_statement nodes.
+        """
+        lines = []
+        for child in root.children:
+            if child.type in PYTHON_IMPORT_NODE_TYPES:
+                lines.append(child.text.decode("utf-8"))
+        return lines
+
+    def _get_imported_names(self, import_line: str, node) -> list[str]:
+        """Extract the usable names from an import AST node.
+
+        For 'import numpy as np' → ['np'] (alias takes precedence)
+        For 'from os.path import join, exists' → ['join', 'exists']
+        For 'from foo import *' → ['*']
+        For 'import os' → ['os']
+        """
+        names = []
+        if node.type == "import_from_statement":
+            # Check for star import
+            for child in node.children:
+                if child.type == "wildcard_import":
+                    return ["*"]
+
+            # Look for imported names (skip the module path)
+            module_node = node.child_by_field_name("module_name")
+            for child in node.children:
+                if child.type == "dotted_name" and child is not module_node:
+                    # This is an imported name (not the module path)
+                    names.append(child.text.decode("utf-8"))
+                elif child.type == "aliased_import":
+                    alias = child.child_by_field_name("alias")
+                    if alias:
+                        names.append(alias.text.decode("utf-8"))
+                    else:
+                        name = child.child_by_field_name("name")
+                        if name:
+                            names.append(name.text.decode("utf-8"))
+        elif node.type == "import_statement":
+            for child in node.children:
+                if child.type == "aliased_import":
+                    alias = child.child_by_field_name("alias")
+                    if alias:
+                        names.append(alias.text.decode("utf-8"))
+                    else:
+                        name = child.child_by_field_name("name")
+                        if name:
+                            # For 'import os.path', the usable name is 'os'
+                            full = name.text.decode("utf-8")
+                            names.append(full.split(".")[0])
+                elif child.type == "dotted_name":
+                    full = child.text.decode("utf-8")
+                    names.append(full.split(".")[0])
+        return names
+
+    def _get_identifier_names_in_node(self, node) -> set[str]:
+        """Collect all identifier token text within an AST node (recursive).
+
+        Used to determine which imports are actually referenced in a function body.
+        """
+        names: set[str] = set()
+        if node.type == "identifier":
+            names.add(node.text.decode("utf-8"))
+        for child in node.children:
+            names.update(self._get_identifier_names_in_node(child))
+        return names
+
+    def _filter_imports_for_chunk(
+        self, import_nodes: list[tuple[str, object]], chunk_node
+    ) -> str | None:
+        """Filter imports to only those referenced in the chunk's function body.
+
+        Args:
+            import_nodes: List of (import_line_text, ast_node) tuples.
+            chunk_node: The AST node for the function/class definition.
+
+        Returns:
+            Filtered import context string, or None if no relevant imports.
+            Capped at MAX_IMPORT_COUNT imports and MAX_IMPORT_CONTEXT_CHARS characters.
+        """
+        if not import_nodes:
+            return None
+
+        body_identifiers = self._get_identifier_names_in_node(chunk_node)
+        relevant = []
+
+        for line, node in import_nodes:
+            names = self._get_imported_names(line, node)
+            # Star imports are always included (we can't know what they provide)
+            if "*" in names:
+                relevant.append(line)
+            elif any(name in body_identifiers for name in names):
+                relevant.append(line)
+
+            if len(relevant) >= MAX_IMPORT_COUNT:
+                break
+
+        if not relevant:
+            return None
+
+        result = "\n".join(relevant)
+        if len(result) > MAX_IMPORT_CONTEXT_CHARS:
+            # Truncate at last complete line boundary
+            truncated = result[:MAX_IMPORT_CONTEXT_CHARS]
+            last_newline = truncated.rfind("\n")
+            if last_newline > 0:
+                result = truncated[:last_newline]
+            else:
+                result = truncated
+        return result
 
     def _extract_definitions(self, root, language: str) -> list[tuple]:
         """Extract top-level definition nodes from the AST.

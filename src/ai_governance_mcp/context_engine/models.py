@@ -42,6 +42,11 @@ class ContentChunk(BaseModel):
     heading: str | None = Field(
         None, description="Section heading or function/class name"
     )
+    import_context: str | None = Field(
+        None,
+        description="Filtered import lines relevant to this chunk (Python only). "
+        "Used at embedding time to enrich semantic signal; not displayed.",
+    )
     embedding_id: int | None = Field(None, description="Index into embeddings array")
 
 
@@ -109,6 +114,12 @@ class QueryResult(BaseModel):
     )
     combined_score: float = Field(
         0.0, ge=0.0, le=1.0, description="Fused relevance score"
+    )
+    boost_score: float = Field(
+        0.0,
+        ge=-0.05,
+        le=0.05,
+        description="File-type + recency bonus applied before clamping",
     )
 
 

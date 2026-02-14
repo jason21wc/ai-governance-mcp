@@ -108,6 +108,8 @@
 
 ### Context Engine
 
+**Provenance:** Inspired by [Augment Code](https://www.augmentcode.com/context-engine)'s Context Engine — a cloud-hosted, per-developer semantic indexing system that maintains a live understanding of entire codebases. Our implementation adapts the core concept (semantic project search via embeddings + hybrid retrieval) for a local-first, single-user, privacy-preserving architecture. Key differences: Augment uses custom-trained code embeddings on cloud GPUs, quantized ANN search for 100M+ LOC scale, per-developer branch-aware indices, and cross-repo awareness. We use open-source models locally (BAAI/bge-small-en-v1.5), tree-sitter AST chunking, and per-project indexes with on-demand or file-watcher indexing. See ADR-12 for the full comparison analysis.
+
 | Decision | Date | Summary |
 |----------|------|---------|
 | Reference Memory Concept | 2026-02-02 | Fifth cognitive memory type: "what exists and where is it?" Complements Working/Semantic/Episodic/Procedural. |
@@ -213,6 +215,57 @@ Expanded context for the most significant decisions. The condensed tables above 
 - **Context:** Claude Code's auto memory (`MEMORY.md`) duplicated facts from SESSION-STATE, PROJECT-MEMORY, and LEARNING-LOG, violating Single Source of Truth. Stale facts in auto memory anchored AI understanding before it read framework files.
 - **Decision:** Auto memory contains only pointers to framework files. No duplicated facts. Formalized in Appendix G.5 of meta-methods.
 - **Consequences:** (+) eliminates drift between two persistence layers, (+) auto memory stays small (12 lines vs 28), (-) AI must read framework files to get context (can't rely on auto memory alone).
+
+### ADR-12: Context Engine — Comparison with Augment Code and Industry Best Practices
+- **Status:** Accepted (2026-02-13)
+- **Context:** Our context engine (v1.0.0) was inspired by Augment Code's Context Engine. After shipping all 5 phases (incremental indexing, tree-sitter, file watcher, benchmarks, freshness metadata), we conducted a systematic comparison against Augment Code's published architecture and industry best practices (sources: Augment Code blog, cAST paper EMNLP 2025, Modal embedding benchmarks, Sourcegraph Zoekt, Aider repo map, Continue.dev, Qodo, Milvus).
+
+**Augment Code Architecture (for reference, not our target):**
+- Cloud-hosted, per-developer semantic indexing on Google Cloud GPUs
+- Custom-trained embedding models (usefulness > similarity)
+- Quantized ANN search: 8x memory reduction, 99.9% accuracy parity for 100M+ LOC
+- Per-developer branch-aware indices, cross-repo awareness
+- Context Lineage: commit history indexed via Gemini Flash summarization
+- Compression: 4,456 sources → 682 relevant → 2,847 tokens used
+- 70.6% SWE-bench accuracy (vs 56% for file-limited competitors)
+
+**Our architecture (local-first, single-user):**
+- Local CPU inference, privacy-preserving, no network dependency
+- Open-source embeddings (BAAI/bge-small-en-v1.5, 384 dims)
+- Hybrid BM25 + semantic with cross-encoder reranking
+- Tree-sitter AST chunking for 6 priority languages
+- Incremental indexing with content hashing, on-demand or file-watcher modes
+- Handles projects up to 10K files / 100K chunks
+
+**Comparison analysis (single-user priorities):**
+
+| Dimension | Our Implementation | Best Practice | Gap | Priority |
+|-----------|-------------------|---------------|-----|----------|
+| **Chunking** | Tree-sitter AST, per-definition chunks, preamble chunks | Include imports + docstrings WITH each function chunk; include class context for methods (cAST EMNLP 2025, supermemory code-chunk) | Functions lack import context — embedding misses dependency signals (e.g., "this function uses pandas") | **High** |
+| **Embedding model** | bge-small-en-v1.5 (general purpose, 384 dims) | Code-specific models: Jina Code Embeddings, CodeXEmbed-400M, or at minimum bge-base (768 dims). Modal benchmarks show CodeBERT/GraphCodeBERT are outdated. | General-purpose model likely underperforms on code search. Cross-encoder reranking compensates but doesn't close the gap fully. | **Medium** |
+| **Ranking signals** | Raw relevance scores only | File-type weighting (source > test > generated), recency bias, symbol-type boost, path proximity (Sourcegraph model) | All results treated equally regardless of file type, recency, or structural role | **Medium** |
+| **Result deduplication** | None — overlapping chunks from same file can appear | Deduplicate overlapping chunks, keep higher-scored one | Minor issue with current chunk sizes but could matter for large files | **Low** |
+| **Token budget** | Fixed max_results count | Budget-aware packing: rank all candidates, greedily fill a token budget, deduplicate (Aider model) | No token-aware result sizing | **Low** (users control via max_results) |
+| **Repository map** | Not implemented | Lightweight symbol summary (Aider uses tree-sitter + PageRank for symbol importance) — cheap to produce, high value for LLM orientation | LLMs must search to understand project structure | **Medium** |
+| **Incremental indexing** | File-level granularity, content hashing | Chunk-level granularity: re-parse AST, re-embed only changed chunks within a file (Meta Glean model) | Re-embeds ALL chunks from a modified file, even if only one function changed | **Low** (file-level is good enough for single-user) |
+| **Debouncing** | File watcher batches via 30s flush interval | 3-5s debounce consensus (avoid embedding on every keystroke) | Our 30s is conservative — acceptable for single-user | **None** |
+| **Security** | Model allowlists, symlink protection, path sanitization, rate limiting | Industry standard for local tools | Well covered | **None** |
+
+**Decision:** No immediate changes needed — current implementation is solid for single-user use. Identified three improvement candidates for future consideration:
+
+1. **Import-enriched chunks** (High) — Prepend the file's import block to each function chunk before embedding. Improves semantic search for dependency-aware queries ("where do we use numpy?"). Low implementation cost: ~30 lines in code.py.
+2. **Ranking signals** (Medium) — Add file-type weighting (down-rank test files, generated code) and recency bias (boost recently modified files). Improves practical relevance without changing the retrieval pipeline.
+3. **Code-specific embedding model** (Medium) — Evaluate Jina Code Embeddings or bge-base-en-v1.5 as drop-in replacement. Requires re-running CE benchmarks to measure actual improvement. May not justify the larger model size if cross-encoder reranking is already compensating.
+
+**What we deliberately skip (overkill for single-user):**
+- Cloud-hosted inference (Augment's model)
+- Cross-repo search
+- Per-developer branch-aware indices
+- Quantized ANN search (only needed at 100M+ LOC scale)
+- Commit history indexing (LLM summarization)
+- Repository map / symbol graph (useful but separate feature, not a retrieval improvement)
+
+- **Consequences:** (+) Documented provenance and rationale, (+) clear improvement backlog with priorities, (+) validated that core architecture (hybrid search + tree-sitter + incremental) aligns with industry best practices, (-) embedding model is general-purpose rather than code-specific.
 
 ---
 

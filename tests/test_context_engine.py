@@ -731,7 +731,8 @@ class TestProjectManager:
         kw = np.array([0.4])
         results = pm._fuse_scores(chunks, sem, kw, max_results=10)
         assert len(results) == 1
-        expected = 0.6 * 0.8 + 0.4 * 0.4
+        # Base score + source file boost (+0.02)
+        expected = 0.6 * 0.8 + 0.4 * 0.4 + 0.02
         assert abs(results[0].combined_score - expected) < 0.001
 
     def test_fuse_scores_empty(self):
@@ -748,7 +749,7 @@ class TestProjectManager:
         chunks = [
             ContentChunk(
                 content=f"chunk {i}",
-                source_path="/tmp/test.py",
+                source_path=f"/tmp/test_{i}.py",
                 start_line=i,
                 end_line=i,
                 content_type="code",
@@ -783,7 +784,11 @@ class TestProjectManager:
         sem = np.array([0.8, 0.0])
         kw = np.array([0.6, 0.0])
         results = pm._fuse_scores(chunks, sem, kw, max_results=10)
-        assert len(results) == 1
+        # Second chunk has zero base scores but gets file-type boost (+0.02),
+        # so it has combined_score > 0. Both chunks appear in results.
+        # Per-file dedup keeps both since they are different files.
+        assert len(results) == 2
+        assert results[0].combined_score > results[1].combined_score
 
     def test_bm25_search_tokenization(self):
         """Verify BM25 query tokenization uses word-boundary splitting."""
@@ -3875,7 +3880,7 @@ class TestGetChunkingVersion:
 
         indexer = Indexer(storage=Mock())
         version = indexer._get_chunking_version()
-        assert version in ("line-based-v1", "tree-sitter-v1")
+        assert version in ("line-based-v1", "tree-sitter-v1", "tree-sitter-v2")
 
     def test_line_based_when_tree_sitter_not_available(self):
         from ai_governance_mcp.context_engine.connectors.code import CodeConnector
@@ -3896,7 +3901,7 @@ class TestGetChunkingVersion:
         for c in indexer.connectors:
             if isinstance(c, CodeConnector):
                 c._tree_sitter_available = True
-        assert indexer._get_chunking_version() == "tree-sitter-v1"
+        assert indexer._get_chunking_version() == "tree-sitter-v2"
 
 
 # =============================================================================
@@ -4288,7 +4293,7 @@ class TestTreeSitterChunkingVersion:
         )
 
         if code_connector._tree_sitter_available:
-            assert indexer._get_chunking_version() == "tree-sitter-v1"
+            assert indexer._get_chunking_version() == "tree-sitter-v2"
         else:
             assert indexer._get_chunking_version() == "line-based-v1"
 
@@ -4476,3 +4481,360 @@ class TestDefaultIndexModePassthrough:
         pm.get_or_create_index(Path("/tmp/test-project"), index_mode="ondemand")
 
         pm._start_watcher.assert_not_called()
+
+
+# =============================================================================
+# Import Enrichment Tests (Improvement 1)
+# =============================================================================
+
+
+class TestImportEnrichment:
+    """Test import-enriched chunks for Python code."""
+
+    @pytest.fixture
+    def connector(self):
+        from ai_governance_mcp.context_engine.connectors.code import CodeConnector
+
+        c = CodeConnector()
+        if not c._tree_sitter_available:
+            pytest.skip("tree-sitter not available")
+        return c
+
+    def _parse_string(self, connector, code: str, filename: str = "test.py"):
+        """Helper to parse a Python string via tree-sitter."""
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
+            f.write(code)
+            f.flush()
+            path = Path(f.name)
+        try:
+            chunks = connector.parse(path, project_root=path.parent)
+            return chunks
+        finally:
+            path.unlink()
+
+    def test_python_import_lines_extracted_from_ast(self, connector):
+        """Import lines are extracted from Python AST root."""
+        from tree_sitter_language_pack import get_parser
+
+        parser = get_parser("python")
+        code = "import os\nfrom pathlib import Path\nimport sys\n"
+        tree = parser.parse(code.encode("utf-8"))
+        lines = connector._extract_import_lines(tree.root_node)
+        assert len(lines) == 3
+        assert "import os" in lines
+        assert "from pathlib import Path" in lines
+        assert "import sys" in lines
+
+    def test_filtered_imports_match_function_identifiers(self, connector):
+        """Only imports whose names appear in the function body are included."""
+        code = (
+            "import os\n"
+            "import sys\n"
+            "from pathlib import Path\n"
+            "import json\n"
+            "\n"
+            "def process_file(p):\n"
+            "    return Path(p).read_text()\n"
+        )
+        chunks = self._parse_string(connector, code)
+        func_chunk = next((c for c in chunks if c.heading == "process_file"), None)
+        assert func_chunk is not None
+        assert func_chunk.import_context is not None
+        assert "from pathlib import Path" in func_chunk.import_context
+        # os, sys, json are NOT used in the function
+        assert "import os" not in func_chunk.import_context
+        assert "import sys" not in func_chunk.import_context
+        assert "import json" not in func_chunk.import_context
+
+    def test_max_five_imports_cap(self, connector):
+        """At most MAX_IMPORT_COUNT imports are included."""
+        imports = "\n".join(f"import mod{i}" for i in range(10))
+        # Function uses all 10 modules
+        body_lines = "\n".join(f"    mod{i}.run()" for i in range(10))
+        code = f"{imports}\n\ndef use_all():\n{body_lines}\n"
+        chunks = self._parse_string(connector, code)
+        func_chunk = next((c for c in chunks if c.heading == "use_all"), None)
+        assert func_chunk is not None
+        assert func_chunk.import_context is not None
+        # Count import lines in context
+        import_lines = [
+            line for line in func_chunk.import_context.split("\n") if line.strip()
+        ]
+        assert len(import_lines) <= 5
+
+    def test_import_context_char_cap(self, connector):
+        """Import context is capped at MAX_IMPORT_CONTEXT_CHARS characters."""
+        from ai_governance_mcp.context_engine.connectors.code import (
+            MAX_IMPORT_CONTEXT_CHARS,
+        )
+
+        # Create very long import names
+        imports = "\n".join(f"import {'a' * 100}_{i}" for i in range(5))
+        body_lines = "\n".join(f"    {'a' * 100}_{i}.run()" for i in range(5))
+        code = f"{imports}\n\ndef use_all():\n{body_lines}\n"
+        chunks = self._parse_string(connector, code)
+        func_chunk = next((c for c in chunks if c.heading == "use_all"), None)
+        assert func_chunk is not None
+        if func_chunk.import_context:
+            assert len(func_chunk.import_context) <= MAX_IMPORT_CONTEXT_CHARS
+
+    def test_star_import_included_unconditionally(self, connector):
+        """Star imports are always included regardless of body identifiers."""
+        code = "from utils import *\n\ndef simple():\n    return 42\n"
+        chunks = self._parse_string(connector, code)
+        func_chunk = next((c for c in chunks if c.heading == "simple"), None)
+        assert func_chunk is not None
+        assert func_chunk.import_context is not None
+        assert "from utils import *" in func_chunk.import_context
+
+    def test_aliased_import_matches_alias_name(self, connector):
+        """'import numpy as np' matches on alias 'np', not 'numpy'."""
+        code = (
+            "import numpy as np\n"
+            "import pandas\n"
+            "\n"
+            "def compute():\n"
+            "    return np.array([1, 2, 3])\n"
+        )
+        chunks = self._parse_string(connector, code)
+        func_chunk = next((c for c in chunks if c.heading == "compute"), None)
+        assert func_chunk is not None
+        assert func_chunk.import_context is not None
+        assert "import numpy as np" in func_chunk.import_context
+        # pandas is NOT used
+        assert "import pandas" not in func_chunk.import_context
+
+    def test_preamble_chunks_not_enriched(self, connector):
+        """Preamble chunks (imports/constants area) have no import_context."""
+        code = "import os\nimport sys\n\nCONSTANT = 42\n\ndef foo():\n    pass\n"
+        chunks = self._parse_string(connector, code)
+        preamble_chunks = [c for c in chunks if c.heading == "preamble"]
+        for pc in preamble_chunks:
+            assert pc.import_context is None
+
+    def test_import_context_used_in_embedding_input(self):
+        """Embedding text includes import_context when present."""
+        from ai_governance_mcp.context_engine.indexer import Indexer
+
+        mock_storage = Mock()
+        indexer = Indexer(storage=mock_storage)
+
+        # Create a chunk with import_context
+        chunk = ContentChunk(
+            content="def foo():\n    return Path('.').resolve()",
+            source_path="test.py",
+            start_line=5,
+            end_line=6,
+            content_type="code",
+            language="python",
+            import_context="from pathlib import Path",
+        )
+
+        # Mock the embedding model
+        mock_model = Mock()
+        mock_model.encode = Mock(return_value=np.zeros((1, 384)))
+        indexer._embedding_model = mock_model
+
+        indexer._generate_embeddings([chunk])
+
+        # Verify the text passed to encode includes the import context
+        call_args = mock_model.encode.call_args
+        batch = call_args[0][0]
+        assert len(batch) == 1
+        assert batch[0].startswith("from pathlib import Path\n")
+        assert "def foo()" in batch[0]
+
+    def test_chunk_content_unchanged_for_display(self, connector):
+        """Content field stays clean (no imports prepended)."""
+        code = "import os\n\ndef check():\n    return os.path.exists('/tmp')\n"
+        chunks = self._parse_string(connector, code)
+        func_chunk = next((c for c in chunks if c.heading == "check"), None)
+        assert func_chunk is not None
+        assert func_chunk.content.startswith("def check()")
+        assert "import os" not in func_chunk.content
+
+    def test_relative_import_handled_correctly(self, connector):
+        """Relative imports like 'from .bar import baz' are handled correctly."""
+        code = (
+            "from .utils import helper\n"
+            "from ..core import base\n"
+            "import os\n"
+            "\n"
+            "def do_work():\n"
+            "    return helper() + base.run()\n"
+        )
+        chunks = self._parse_string(connector, code)
+        func_chunk = next((c for c in chunks if c.heading == "do_work"), None)
+        assert func_chunk is not None
+        assert func_chunk.import_context is not None
+        assert "from .utils import helper" in func_chunk.import_context
+        assert "from ..core import base" in func_chunk.import_context
+        # os is NOT used in the function body
+        assert "import os" not in func_chunk.import_context
+
+    def test_import_context_truncated_at_line_boundary(self, connector):
+        """Import context truncation preserves complete lines."""
+        # Create very long import names that will exceed the char cap
+        imports = "\n".join(f"import {'a' * 100}_{i}" for i in range(5))
+        body_lines = "\n".join(f"    {'a' * 100}_{i}.run()" for i in range(5))
+        code = f"{imports}\n\ndef use_all():\n{body_lines}\n"
+        chunks = self._parse_string(connector, code)
+        func_chunk = next((c for c in chunks if c.heading == "use_all"), None)
+        assert func_chunk is not None
+        if (
+            func_chunk.import_context
+            and len(func_chunk.import_context)
+            < sum(len(f"import {'a' * 100}_{i}") for i in range(5)) + 4
+        ):
+            # If truncated, should end at a line boundary (no partial line)
+            assert not func_chunk.import_context.endswith("a")
+            lines = func_chunk.import_context.split("\n")
+            for line in lines:
+                if line.strip():
+                    assert line.startswith("import ")
+
+    def test_non_python_languages_no_import_context(self, connector):
+        """Non-Python languages get no import_context (graceful no-op)."""
+        import tempfile
+
+        js_code = (
+            "import { foo } from 'bar';\n\nfunction hello() {\n  return foo();\n}\n"
+        )
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".js", delete=False) as f:
+            f.write(js_code)
+            f.flush()
+            path = Path(f.name)
+        try:
+            chunks = connector.parse(path, project_root=path.parent)
+            for chunk in chunks:
+                assert chunk.import_context is None
+        finally:
+            path.unlink()
+
+
+# =============================================================================
+# Ranking Signals Tests (Improvement 2)
+# =============================================================================
+
+
+class TestRankingSignals:
+    """Test file-type boost, recency boost, and per-file deduplication."""
+
+    def _make_chunk(self, source_path: str, content: str = "test") -> ContentChunk:
+        return ContentChunk(
+            content=content,
+            source_path=source_path,
+            start_line=1,
+            end_line=1,
+            content_type="code",
+        )
+
+    def test_source_file_boosted(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        assert ProjectManager._classify_file_type("src/main.py") == "source"
+        assert ProjectManager._classify_file_type("app/handler.ts") == "source"
+        assert ProjectManager._classify_file_type("lib/utils.go") == "source"
+
+    def test_test_file_penalized(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        assert ProjectManager._classify_file_type("tests/test_foo.py") == "test"
+        assert ProjectManager._classify_file_type("test_bar.py") == "test"
+        assert ProjectManager._classify_file_type("src/foo_test.py") == "test"
+        # Go/Rust conventions
+        assert ProjectManager._classify_file_type("pkg/handler_test.go") == "test"
+        assert ProjectManager._classify_file_type("src/lib_test.rs") == "test"
+        # JS/TS conventions
+        assert ProjectManager._classify_file_type("src/App.test.js") == "test"
+        assert ProjectManager._classify_file_type("src/App.test.tsx") == "test"
+        assert ProjectManager._classify_file_type("src/App.spec.ts") == "test"
+        # __tests__ directory
+        assert ProjectManager._classify_file_type("__tests__/foo.js") == "test"
+
+    def test_docs_neutral(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        assert ProjectManager._classify_file_type("README.md") == "other"
+        assert ProjectManager._classify_file_type("docs/guide.txt") == "other"
+        assert ProjectManager._classify_file_type("config.yaml") == "other"
+
+    def test_recent_file_boosted(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        now = time.time()
+        recency_map = {"recent.py": now - 3600}  # 1 hour ago
+        bonus = ProjectManager._compute_recency_bonus("recent.py", recency_map)
+        assert bonus == 0.01
+
+    def test_stale_file_penalized(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        now = time.time()
+        recency_map = {"old.py": now - 100 * 86400}  # 100 days ago
+        bonus = ProjectManager._compute_recency_bonus("old.py", recency_map)
+        assert bonus == -0.01
+
+    def test_bonuses_are_additive(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.5)
+        chunks = [
+            self._make_chunk("src/main.py"),  # source → +0.02
+        ]
+        sem = np.array([0.5])
+        kw = np.array([0.5])
+        results = pm._fuse_scores(chunks, sem, kw, max_results=10)
+        # 0.5 * 0.5 + 0.5 * 0.5 + 0.02 = 0.52
+        assert abs(results[0].combined_score - 0.52) < 0.001
+
+    def test_combined_score_clamped_to_unit(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.6)
+        chunks = [
+            self._make_chunk("src/main.py"),
+        ]
+        sem = np.array([1.0])
+        kw = np.array([1.0])
+        results = pm._fuse_scores(chunks, sem, kw, max_results=10)
+        # 0.6 * 1.0 + 0.4 * 1.0 + 0.02 = 1.02 → clamped to 1.0
+        assert results[0].combined_score <= 1.0
+
+    def test_dedup_keeps_highest_per_file(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.5)
+        # Two chunks from the same file
+        chunks = [
+            self._make_chunk("src/main.py", "high relevance"),
+            self._make_chunk("src/main.py", "low relevance"),
+            self._make_chunk("src/other.py", "other file"),
+        ]
+        sem = np.array([0.9, 0.3, 0.5])
+        kw = np.array([0.8, 0.2, 0.4])
+        results = pm._fuse_scores(chunks, sem, kw, max_results=10)
+        # Dedup: only 2 unique files
+        result_paths = [r.chunk.source_path for r in results]
+        assert len(result_paths) == 2
+        assert len(set(result_paths)) == 2
+        # The higher-scored main.py chunk survives
+        main_result = next(r for r in results if r.chunk.source_path == "src/main.py")
+        assert main_result.chunk.content == "high relevance"
+
+    def test_no_bonuses_when_no_recency_map(self):
+        """Without a recency map, only file-type bonuses apply."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.5)
+        chunks = [
+            self._make_chunk("README.md"),  # other → 0.0 type bonus
+        ]
+        sem = np.array([0.5])
+        kw = np.array([0.5])
+        results = pm._fuse_scores(chunks, sem, kw, max_results=10)
+        # 0.5 * 0.5 + 0.5 * 0.5 + 0.0 = 0.5
+        assert abs(results[0].combined_score - 0.5) < 0.001
+        assert results[0].boost_score == 0.0

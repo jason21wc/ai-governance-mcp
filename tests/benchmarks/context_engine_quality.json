@@ -1,7 +1,8 @@
 {
   "description": "Benchmark test cases for Context Engine retrieval quality",
-  "version": "1.0",
+  "version": "2.0",
   "created": "2026-02-12",
+  "updated": "2026-02-13",
   "notes": "Uses this project's codebase as corpus. Expected files are relative paths from project root.",
   "metrics": {
     "target_mrr": 0.5,
@@ -56,6 +57,54 @@
       "query": "gitignore contextignore pattern matching",
       "expected_files": ["src/ai_governance_mcp/context_engine/indexer.py"],
       "description": "Ignore pattern loading and matching"
+    },
+    {
+      "id": "ce-9",
+      "query": "how does the watcher interact with the indexer for incremental updates",
+      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py", "src/ai_governance_mcp/context_engine/watcher.py"],
+      "description": "Cross-file relationship: watcher triggers indexer"
+    },
+    {
+      "id": "ce-10",
+      "query": "error handling patterns in MCP server tools",
+      "expected_files": ["src/ai_governance_mcp/context_engine/server.py"],
+      "description": "Natural language query about error handling"
+    },
+    {
+      "id": "ce-11",
+      "query": "tree-sitter AST parsing function definitions",
+      "expected_files": ["src/ai_governance_mcp/context_engine/connectors/code.py"],
+      "description": "Tree-sitter code parsing implementation"
+    },
+    {
+      "id": "ce-12",
+      "query": "markdown heading extraction document chunking",
+      "expected_files": ["src/ai_governance_mcp/context_engine/connectors/document.py"],
+      "description": "Document connector heading-based chunking"
+    },
+    {
+      "id": "ce-13",
+      "query": "hybrid search combining semantic and keyword scores",
+      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py"],
+      "description": "Score fusion algorithm"
+    },
+    {
+      "id": "ce-14",
+      "query": "incremental indexing file hash change detection",
+      "expected_files": ["src/ai_governance_mcp/context_engine/indexer.py"],
+      "description": "File change detection via content hash"
+    },
+    {
+      "id": "ce-15",
+      "query": "spreadsheet CSV Excel parsing",
+      "expected_files": ["src/ai_governance_mcp/context_engine/connectors/spreadsheet.py"],
+      "description": "Spreadsheet connector"
+    },
+    {
+      "id": "ce-16",
+      "query": "project status index size watcher health",
+      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py", "src/ai_governance_mcp/context_engine/server.py"],
+      "description": "Project status reporting across code and docs"
     }
   ]
 }

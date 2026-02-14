@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-02-12
+**Last Updated:** 2026-02-13
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,130 +11,84 @@
 
 ## Current Position
 
-- **Phase:** Verification
+- **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** Context Engine v1.0.0 — verify tree-sitter parsing via live MCP server
-- **Blocker:** MCP server restart required (see Next Actions)
+- **Active Task:** None — Context Engine v1.1.0 implemented
 
 ## Quick Reference
 
 | Metric | Value |
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
-| Context Engine | **v1.0.0** (incremental indexing, tree-sitter, file watcher) |
+| Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
 | Content | **v2.4.1** (Constitution), **v3.10.3** (meta-methods), **v2.10.0** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.2** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
-| Tests | **633 pass**, 0 failures, 29 deselected (slow) |
+| Tests | **654 pass** (non-slow), 0 failures, deselected (slow/model_eval) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
 | Index | **101 principles + 429 methods** (see `tests/benchmarks/` for current totals; taxonomy: 21 codes) |
 | Subagents | **10** (code-reviewer, contrarian-reviewer, validator, security-auditor, documentation-writer, orchestrator, test-generator, coherence-auditor, continuity-auditor, voice-coach) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
-| CE Benchmark | **MRR=0.692** (target 0.5), **Recall@5=0.800** (target 0.7), **Recall@10=0.800** (target 0.8) |
+| CE Benchmark | **MRR=0.746**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, baseline `ce_baseline_2026-02-13.json`) |
+| CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## What Was Done (2026-02-12)
+## What Was Done (2026-02-13)
 
-### Context Engine Full Feature Rollout — All 5 Phases Complete
+### Context Engine v1.1.0 — Three Retrieval Improvements
 
-All phases implemented, tested, and verified. 633 tests pass, ruff clean.
+**Improvement 1: Import-Enriched Chunks**
+- Added `import_context` field to `ContentChunk` (models.py)
+- Tree-sitter AST extracts Python imports, filters to referenced names only
+- Max 5 imports, 400 chars cap; star imports always included; alias matching
+- Composed at embedding time only — `content` stays clean for display/BM25
+- Bumped chunking_version to `tree-sitter-v2` (triggers auto re-index)
+- 10 new tests in `TestImportEnrichment`
 
-**Phase 1: Documentation + Freshness Metadata** (~9 files)
-- Added `last_indexed_at` and `index_age_seconds` to query responses
-- Fixed auto-index empty results messaging (indexed-but-no-match vs not-indexed)
-- Fixed README/ARCHITECTURE watcher description (opt-in via env var)
-- Fixed BM25 negative score bug with `np.clip`
-- 7 new tests
+**Improvement 2: Ranking Signals**
+- File-type boost: source +0.02, test -0.02, other 0.0
+- Recency boost: <7 days +0.01, >90 days -0.01
+- Per-file deduplication: only top chunk per file in results
+- Additive bonuses applied before `np.clip(0, 1)` — no Pydantic validation issues
+- Added `boost_score` field to `QueryResult`
+- 9 new tests in `TestRankingSignals`
 
-**Phase 2: Retrieval Quality Benchmark** (2 new files)
-- Created `tests/benchmarks/context_engine_quality.json` (8 benchmark queries)
-- Created `tests/test_context_engine_quality.py` (MRR, Recall@5, Recall@10)
-- Marked `@pytest.mark.real_index` and `@pytest.mark.slow`
+**Improvement 3: Embedding Model Evaluation**
+- Expanded benchmark queries from 8 to 16 (cross-file, natural language, etc.)
+- Added `jinaai/jina-embeddings-v2-small-en` to embedding model allowlist
+- Created `scripts/evaluate_embeddings.py` with model comparison and weight sweep
+- Added `@pytest.mark.model_eval` marker for model comparison test
+- Bumped benchmark version to 2.0
 
-**Phase 3: Incremental Indexing** (~6 files)
-- Rewrote `incremental_update()` with file classification (UNCHANGED/MODIFIED/ADDED/DELETED)
-- Embedding reuse for unchanged chunks, new embeddings only for changed
-- Added `schema_version` and `chunking_version` to ProjectIndex
-- Atomic save ordering (manifest LAST as commit record)
-- `content_hash=None` treated as MODIFIED (legacy safety)
-- 17 new tests
+**Review Fixes (post-review):**
+- H1: Fixed `_get_imported_names` — use `child_by_field_name("module_name")` for relative import safety
+- M1: Fixed import context truncation — line boundary, not mid-import
+- M2: Expanded test file detection — Go, Rust, JS/TS, `__tests__/`
+- C1: Removed 3x fetch heuristic — fetch all candidates before dedup
+- Added Jina model to `TestCompareModels.CANDIDATE_MODELS`
+- 3 new tests added (relative imports, line-boundary truncation, expanded test detection)
 
-**Phase 4: Tree-sitter AST Parsing** (~8 files)
-- Replaced `tree-sitter>=0.21.0` with `tree-sitter-language-pack>=0.7.0,<1.0` (v0.13.0 installed)
-- Implemented `_parse_with_tree_sitter()` for 6 priority languages (Python, JS, TS, Go, Rust, Java)
-- Per-definition chunks with heading = definition name (function/class/method names)
-- Preamble chunks for imports/constants
-- Large definitions (>200 lines) split at nested boundaries
-- Non-priority languages fall back to line-based chunking
-- Updated SBOM.md and SECURITY.md
-- 30 new tests
+**Total:** 654 tests pass (non-slow), 0 failures, ruff clean
 
-**Phase 5: Enable File Watcher** (~7 files)
-- New env var: `AI_CONTEXT_ENGINE_INDEX_MODE` (ondemand|realtime)
-- Added `default_index_mode` to ProjectManager
-- `reindex_project` uses env var value, not stored metadata (contrarian O9 fix)
-- Updated README, ARCHITECTURE, API docs
-- 11 new tests
+### Benchmark Results (v1.1.0 vs v1.0.0)
 
-**Version Bump:**
-- `pyproject.toml`: 1.7.0 → 1.8.0
-- `__init__.py` (governance): 1.7.0 → 1.8.0
-- `context_engine/__init__.py`: 0.1.0 → 1.0.0
-- SBOM.md, SECURITY.md updated
-
-**Package Reinstall:**
-- Ran `pip install -e ".[context-engine]"` to update pip metadata (was showing 1.7.0)
-- Now shows v1.8.0 in editable mode, reading from source at `/Users/jasoncollier/Developer/ai-governance-mcp/src/`
-- `tree-sitter-language-pack` v0.13.0 confirmed installed and working
-
-### CE Benchmark Results (pytest, fresh process)
-
-Baseline saved to `tests/benchmarks/ce_baseline_2026-02-12.json`.
-
-| Metric | Result | Target | Status |
+| Metric | v1.0.0 | v1.1.0 | Change |
 |--------|--------|--------|--------|
-| MRR | 0.692 | >= 0.5 | Pass |
-| Recall@5 | 0.800 | >= 0.7 | Pass |
-| Recall@10 | 0.800 | >= 0.8 | Pass |
+| MRR | 0.692 | **0.746** | +7.8% |
+| Recall@5 | 0.800 | **0.850** | +6.3% |
+| Recall@10 | 0.800 | **1.000** | +25.0% |
 
-### Live MCP Server Test — Stale Code Issue Found
-
-1. Queried live context-engine MCP → got stale results from old index
-2. Called `index_project` via MCP → re-indexed (105 files, 2,701 chunks)
-3. Queried again → content was fresh BUT `heading: null` on all code chunks
-4. **Root cause:** The running MCP server process was started before our code changes. Even though the package is in editable mode (reads source directly), the server process has the OLD `connectors/code.py` cached in memory — it used the old line-based parser during re-indexing, which doesn't set headings.
-5. **Fix:** Restart Claude Code so the context-engine MCP server restarts and picks up the new tree-sitter code.
+16 queries (was 8). 10/16 hit rank 1. Worst rank: 5. Baseline saved: `ce_baseline_2026-02-13.json`
 
 ## Next Actions
 
-### 1. Verify Tree-sitter via Live MCP (After Restart)
-
-**Prerequisite:** Restart Claude Code (this restarts all MCP servers)
-
-After restart:
+### 1. Run Embedding Model Evaluation (optional)
 ```bash
-# The context engine MCP server will load the new code on startup
-# Re-index to get tree-sitter-based chunks:
-# (call index_project via MCP tool)
-
-# Then query and verify headings are populated:
-# (call query_project with "function definition parsing" or similar)
-# Expected: headings like "CodeConnector", "_parse_with_tree_sitter", "preamble" instead of null
+python scripts/evaluate_embeddings.py
+python scripts/evaluate_embeddings.py --sweep-weights
 ```
 
-If headings appear → tree-sitter is working end-to-end via MCP. If still null:
-- Check if `tree-sitter-language-pack` is importable from the server's Python: `/opt/anaconda3/bin/python -c "import tree_sitter_language_pack"`
-- Check server logs for fallback messages
-
-### 2. Consider: Commit + Push
-
-All changes are local. 633 tests pass, ruff clean. When satisfied with verification:
-- Commit all changes (one commit covering the full rollout, or per-phase — user preference)
-- Push to remote
-- Consider CI run to verify 3.10/3.11/3.12 compatibility (tree-sitter-language-pack needs wheels for all)
-
 ### 3. Backlog — Project Initialization Part B
-
-Three deferred approaches for closing the bootstrap gap beyond advisory guidance. Documented in PROJECT-MEMORY.md > Roadmap > Part B. Revisit after other improvements ship.
+Three deferred approaches for closing the bootstrap gap beyond advisory guidance. Documented in PROJECT-MEMORY.md > Roadmap > Part B. Revisit when prioritized.
 
 ## Links
 

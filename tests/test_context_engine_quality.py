@@ -256,3 +256,86 @@ class TestContextEngineRetrievalQuality:
         print(f"  MRR: {mrr:.3f}")
         print(f"  Recall@5: {recall_5:.3f}")
         print(f"  Recall@10: {recall_10:.3f}")
+
+
+@pytest.mark.model_eval
+@pytest.mark.slow
+class TestCompareModels:
+    """Compare embedding models using benchmark queries.
+
+    Run with: pytest tests/test_context_engine_quality.py -v -m "model_eval and slow" -s
+    This test downloads models and is slow — never runs in CI automatically.
+    """
+
+    CANDIDATE_MODELS = [
+        ("BAAI/bge-small-en-v1.5", 384),
+        ("BAAI/bge-base-en-v1.5", 768),
+        ("sentence-transformers/all-mpnet-base-v2", 768),
+        ("jinaai/jina-embeddings-v2-small-en", 512),
+    ]
+
+    def test_compare_models(self):
+        """Compare multiple embedding models on benchmark queries."""
+        import shutil
+        import tempfile
+        import time
+
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+        from ai_governance_mcp.context_engine.storage.filesystem import (
+            FilesystemStorage,
+        )
+
+        project_root = Path(__file__).parent.parent
+        benchmark = load_benchmark_cases()
+        results = []
+
+        for model_name, dims in self.CANDIDATE_MODELS:
+            print(f"\nEvaluating: {model_name}")
+            tmp_dir = tempfile.mkdtemp(prefix="ce_eval_")
+            try:
+                storage = FilesystemStorage(base_path=Path(tmp_dir))
+                pm = ProjectManager(
+                    storage=storage,
+                    embedding_model=model_name,
+                    embedding_dimensions=dims,
+                )
+
+                start = time.time()
+                pm.get_or_create_index(project_root)
+                index_time = time.time() - start
+
+                ranks = []
+                for case in benchmark["test_cases"]:
+                    result = pm.query_project(
+                        query=case["query"],
+                        project_path=project_root,
+                        max_results=10,
+                    )
+                    result_files = [r.chunk.source_path for r in result.results]
+                    rank = None
+                    for ef in case["expected_files"]:
+                        if ef in result_files:
+                            r = result_files.index(ef) + 1
+                            if rank is None or r < rank:
+                                rank = r
+                    ranks.append(rank)
+
+                mrr = calculate_mrr(ranks)
+                print(f"  MRR: {mrr:.3f}, Index time: {index_time:.1f}s")
+                results.append(
+                    {
+                        "model": model_name,
+                        "dims": dims,
+                        "mrr": mrr,
+                        "index_time": index_time,
+                        "ranks": ranks,
+                    }
+                )
+            finally:
+                shutil.rmtree(tmp_dir, ignore_errors=True)
+
+        # Print comparison
+        print("\n" + "=" * 70)
+        for r in results:
+            print(f"  {r['model']:<40} MRR={r['mrr']:.3f} ({r['dims']}d)")
+        print("=" * 70)

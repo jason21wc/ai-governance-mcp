@@ -55,6 +55,7 @@ ALLOWED_EMBEDDING_MODELS = {
     "sentence-transformers/all-MiniLM-L6-v2",
     "sentence-transformers/all-MiniLM-L12-v2",
     "sentence-transformers/all-mpnet-base-v2",
+    "jinaai/jina-embeddings-v2-small-en",
 }
 
 # Default ignore patterns (gitignore syntax via pathspec)
@@ -513,7 +514,7 @@ class Indexer:
             (c for c in self.connectors if isinstance(c, CodeConnector)), None
         )
         if code_connector and code_connector._tree_sitter_available:
-            return "tree-sitter-v1"
+            return "tree-sitter-v2"
         return "line-based-v1"
 
     def _classify_files(
@@ -779,7 +780,13 @@ class Indexer:
         if not chunks:
             return np.zeros((0, self.embedding_dimensions))
 
-        texts = [chunk.content[:MAX_EMBEDDING_INPUT_CHARS] for chunk in chunks]
+        texts = []
+        for chunk in chunks:
+            if chunk.import_context:
+                text = chunk.import_context + "\n" + chunk.content
+            else:
+                text = chunk.content
+            texts.append(text[:MAX_EMBEDDING_INPUT_CHARS])
 
         # Batch to limit peak memory
         all_embeddings = []

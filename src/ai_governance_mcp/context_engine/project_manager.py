@@ -34,6 +34,21 @@ logger = logging.getLogger("ai_governance_mcp.context_engine.project_manager")
 # Older projects are evicted (watchers stopped, data unloaded) when limit is hit.
 MAX_LOADED_PROJECTS = 10
 
+# ─── Ranking signal constants ───
+
+# File-type bonuses (additive, applied before clamping)
+FILE_TYPE_BONUSES: dict[str, float] = {
+    "source": 0.02,
+    "test": -0.02,
+    "other": 0.0,
+}
+
+# Recency thresholds (seconds) and bonuses
+RECENCY_RECENT_DAYS = 7
+RECENCY_STALE_DAYS = 90
+RECENCY_RECENT_BONUS = 0.01
+RECENCY_STALE_PENALTY = -0.01
+
 
 def _build_bm25(corpus: list[list[str]]) -> BM25Okapi | None:
     """Build a BM25 index from a tokenized corpus, with empty-corpus guard.
@@ -193,9 +208,16 @@ class ProjectManager:
             # BM25 keyword search
             keyword_scores = self._bm25_search(query, project_id)
 
-            # Fuse scores
+            # Build file recency map for ranking signals
+            file_recency_map = self._build_file_recency_map(project_id)
+
+            # Fuse scores with ranking signals
             results = self._fuse_scores(
-                index.chunks, semantic_scores, keyword_scores, max_results
+                index.chunks,
+                semantic_scores,
+                keyword_scores,
+                max_results,
+                file_recency_map=file_recency_map,
             )
 
         elapsed_ms = (time.time() - start_time) * 1000
@@ -504,14 +526,133 @@ class ProjectManager:
         scores = np.clip(scores, 0.0, 1.0)
         return scores
 
+    @staticmethod
+    def _classify_file_type(source_path: str) -> str:
+        """Classify a chunk's source file as 'source', 'test', or 'other'."""
+        parts = source_path.replace("\\", "/").split("/")
+        basename = parts[-1] if parts else ""
+
+        # Test file detection
+        if basename.startswith("test_") or basename.endswith("_test.py"):
+            return "test"
+        # Go/Rust test convention
+        if basename.endswith("_test.go") or basename.endswith("_test.rs"):
+            return "test"
+        # JS/TS test conventions
+        for suffix in (
+            ".test.js",
+            ".test.ts",
+            ".test.jsx",
+            ".test.tsx",
+            ".spec.js",
+            ".spec.ts",
+            ".spec.jsx",
+            ".spec.tsx",
+        ):
+            if basename.endswith(suffix):
+                return "test"
+        if any(p == "tests" or p == "test" or p == "__tests__" for p in parts):
+            return "test"
+
+        # Source code detection by extension
+        code_exts = {
+            ".py",
+            ".js",
+            ".ts",
+            ".jsx",
+            ".tsx",
+            ".java",
+            ".go",
+            ".rs",
+            ".rb",
+            ".c",
+            ".cpp",
+            ".h",
+            ".hpp",
+            ".cs",
+            ".swift",
+            ".kt",
+            ".scala",
+        }
+        for ext in code_exts:
+            if basename.endswith(ext):
+                return "source"
+
+        return "other"
+
+    @staticmethod
+    def _compute_recency_bonus(
+        source_path: str, file_recency_map: dict[str, float] | None
+    ) -> float:
+        """Compute recency bonus for a chunk based on file modification time.
+
+        Args:
+            source_path: Relative path from the chunk.
+            file_recency_map: {relative_path: last_modified_timestamp} or None.
+
+        Returns:
+            Bonus: +0.01 for recent, -0.01 for stale, 0.0 otherwise.
+        """
+        if file_recency_map is None:
+            return 0.0
+
+        last_mod = file_recency_map.get(source_path)
+        if last_mod is None:
+            return 0.0
+
+        age_seconds = time.time() - last_mod
+        age_days = age_seconds / 86400
+
+        if age_days <= RECENCY_RECENT_DAYS:
+            return RECENCY_RECENT_BONUS
+        elif age_days > RECENCY_STALE_DAYS:
+            return RECENCY_STALE_PENALTY
+        return 0.0
+
+    def _build_file_recency_map(self, project_id: str) -> dict[str, float] | None:
+        """Build {relative_path: last_modified} map from loaded index.
+
+        FileMetadata.path is absolute; ContentChunk.source_path is relative.
+        Strips project root to create the mapping.
+        """
+        index = self._loaded_indexes.get(project_id)
+        if index is None or not index.files:
+            return None
+
+        project_root = index.project_path
+        recency_map: dict[str, float] = {}
+        for fm in index.files:
+            # Convert absolute path to relative
+            abs_path = fm.path
+            if abs_path.startswith(project_root):
+                rel = abs_path[len(project_root) :].lstrip("/").lstrip("\\")
+            else:
+                rel = abs_path
+            recency_map[rel] = fm.last_modified
+
+        return recency_map
+
+    @staticmethod
+    def _deduplicate_per_file(results: list[QueryResult]) -> list[QueryResult]:
+        """Keep only the highest-scoring chunk per source file."""
+        seen_files: set[str] = set()
+        deduped: list[QueryResult] = []
+        for r in results:
+            path = r.chunk.source_path
+            if path not in seen_files:
+                seen_files.add(path)
+                deduped.append(r)
+        return deduped
+
     def _fuse_scores(
         self,
         chunks: list[ContentChunk],
         semantic_scores: np.ndarray,
         keyword_scores: np.ndarray,
         max_results: int,
+        file_recency_map: dict[str, float] | None = None,
     ) -> list[QueryResult]:
-        """Fuse semantic and keyword scores and return top results."""
+        """Fuse semantic and keyword scores with ranking bonuses and return top results."""
         if len(chunks) == 0:
             return []
 
@@ -519,10 +660,22 @@ class ProjectManager:
         sem = semantic_scores if len(semantic_scores) == n else np.zeros(n)
         kw = keyword_scores if len(keyword_scores) == n else np.zeros(n)
 
-        combined = self.semantic_weight * sem + (1 - self.semantic_weight) * kw
+        # Compute per-chunk bonuses
+        bonuses = np.zeros(n)
+        for i, chunk in enumerate(chunks):
+            file_type = self._classify_file_type(chunk.source_path)
+            bonuses[i] = FILE_TYPE_BONUSES.get(file_type, 0.0)
+            bonuses[i] += self._compute_recency_bonus(
+                chunk.source_path, file_recency_map
+            )
 
-        # Get top results
-        top_indices = np.argsort(combined)[::-1][:max_results]
+        combined = (
+            self.semantic_weight * sem + (1 - self.semantic_weight) * kw + bonuses
+        )
+        combined = np.clip(combined, 0.0, 1.0)
+
+        # Fetch all non-zero candidates; dedup will reduce to max_results
+        top_indices = np.argsort(combined)[::-1]
 
         results = []
         for idx in top_indices:
@@ -533,11 +686,15 @@ class ProjectManager:
                     chunk=chunks[idx],
                     semantic_score=float(min(sem[idx], 1.0)),
                     keyword_score=float(min(kw[idx], 1.0)),
-                    combined_score=float(min(combined[idx], 1.0)),
+                    combined_score=float(combined[idx]),
+                    boost_score=float(np.clip(bonuses[idx], -0.05, 0.05)),
                 )
             )
 
-        return results
+        # Per-file deduplication
+        results = self._deduplicate_per_file(results)
+
+        return results[:max_results]
 
     def _start_watcher(self, project_path: Path, project_id: str) -> None:
         """Start a file watcher for a project."""
