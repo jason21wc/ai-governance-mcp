@@ -254,8 +254,8 @@ Expanded context for the most significant decisions. The condensed tables above 
 
 **Decision:** No immediate changes needed — current implementation is solid for single-user use. Identified three improvement candidates for future consideration:
 
-1. **Import-enriched chunks** (High) — Prepend the file's import block to each function chunk before embedding. Improves semantic search for dependency-aware queries ("where do we use numpy?"). Low implementation cost: ~30 lines in code.py.
-2. **Ranking signals** (Medium) — Add file-type weighting (down-rank test files, generated code) and recency bias (boost recently modified files). Improves practical relevance without changing the retrieval pipeline.
+1. **Import-enriched chunks** (High) — ✓ DONE (CE v1.1.0, `eba8df6`). Prepends import block to each function chunk.
+2. **Ranking signals** (Medium) — ✓ DONE (CE v1.1.0, `eba8df6`). File-type weighting in `project_manager.py:37-50`.
 3. **Code-specific embedding model** (Medium) — Evaluate Jina Code Embeddings or bge-base-en-v1.5 as drop-in replacement. Requires re-running CE benchmarks to measure actual improvement. May not justify the larger model size if cross-encoder reranking is already compensating.
 
 **What we deliberately skip (overkill for single-user):**
@@ -286,15 +286,15 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 | Principle Recall@10 | 0.875 | ≥ 0.85 | Breadth of relevant results |
 | Model Load Time | ~9s | ≤ 15s | User experience bound |
 
-**Context Engine** (baseline 2026-02-12, saved in `tests/benchmarks/ce_baseline_2026-02-12.json`):
+**Context Engine** (baseline 2026-02-14, saved in `tests/benchmarks/ce_baseline_2026-02-14.json`):
 
 | Metric | Current | Threshold | Rationale |
 |--------|---------|-----------|-----------|
-| CE MRR | 0.692 | ≥ 0.50 | Primary content discovery signal |
-| CE Recall@5 | 0.800 | ≥ 0.70 | Top-5 result coverage |
-| CE Recall@10 | 0.800 | ≥ 0.80 | Top-10 result coverage |
+| CE MRR | 0.622 | ≥ 0.50 | Primary content discovery signal |
+| CE Recall@5 | 0.850 | ≥ 0.70 | Top-5 result coverage |
+| CE Recall@10 | 1.000 | ≥ 0.80 | Top-10 result coverage |
 
-Note: CE benchmark uses this project's codebase as corpus. Expected results may need updates as code evolves. Benchmark file: `tests/benchmarks/context_engine_quality.json` (8 queries). Tree-sitter was available during benchmark (pytest spawns fresh process with current code).
+Note: CE benchmark v2.0 uses this project's codebase as corpus with 16 queries (expanded from 8 in v1.0). MRR varies naturally as code evolves (~0.62-0.75 range observed). Benchmark file: `tests/benchmarks/context_engine_quality.json`. Tree-sitter was available during benchmark (pytest spawns fresh process with current code).
 
 ### When to Record New Baseline
 
