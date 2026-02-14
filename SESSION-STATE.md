@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — CE v1.1.0 live-verified, ProjectStatus fix pending restart
+- **Active Task:** None — CE v1.1.0 live-verified, ProjectStatus fix confirmed
 
 ## Quick Reference
 
@@ -34,19 +34,16 @@
 
 ## Next Actions
 
-### 1. Confirm ProjectStatus fix after restart
-After restarting Claude Code, verify `project_status` returns `chunking_version: tree-sitter-v2`. The fix adds `chunking_version` to `ProjectStatus` model and `_build_project_status`. Tests pass (304). No re-index needed — field reads from existing metadata.
-
-### 2. Run Embedding Model Evaluation (optional)
+### 1. Run Embedding Model Evaluation (optional)
 ```bash
 python scripts/evaluate_embeddings.py
 python scripts/evaluate_embeddings.py --sweep-weights
 ```
 
-### 3. Verify Jina Model Safetensors (before recommending)
+### 2. Verify Jina Model Safetensors (before recommending)
 Manually confirm `jinaai/jina-embeddings-v2-small-en` publishes safetensors weights on HuggingFace. If not, remove from allowlist.
 
-### 4. Backlog — Project Initialization Part B
+### 3. Backlog — Project Initialization Part B
 Three deferred approaches for closing the bootstrap gap beyond advisory guidance. Documented in PROJECT-MEMORY.md > Roadmap > Part B. Revisit when prioritized.
 
 ## Links

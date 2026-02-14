@@ -2325,3 +2325,45 @@ class TestLogGovernanceReasoning:
 
         reasoning_log = get_reasoning_log()
         assert len(reasoning_log[0].reasoning_entries) == 20
+
+
+# =============================================================================
+# Governance Reminder CE Nudge Tests (Fix 3)
+# =============================================================================
+
+
+class TestGovernanceReminderCENudge:
+    """Test that GOVERNANCE_REMINDER includes context engine nudge (Fix 3)."""
+
+    def test_reminder_contains_ce_nudge(self):
+        from ai_governance_mcp.server import GOVERNANCE_REMINDER
+
+        assert "context engine" in GOVERNANCE_REMINDER.lower()
+        assert "existing patterns" in GOVERNANCE_REMINDER.lower()
+
+    def test_reminder_retains_governance_check(self):
+        from ai_governance_mcp.server import GOVERNANCE_REMINDER
+
+        assert "evaluate_governance()" in GOVERNANCE_REMINDER
+        assert "S-Series = veto" in GOVERNANCE_REMINDER
+
+
+# =============================================================================
+# Required Actions CE Cross-Reference Tests (Fix 5)
+# =============================================================================
+
+
+class TestRequiredActionsCEReference:
+    """Test that SERVER_INSTRUCTIONS includes CE cross-reference in Required Actions (Fix 5)."""
+
+    def test_required_actions_contains_query_project(self):
+        from ai_governance_mcp.server import SERVER_INSTRUCTIONS
+
+        assert "query_project" in SERVER_INSTRUCTIONS
+        assert "Context Engine MCP" in SERVER_INSTRUCTIONS
+
+    def test_required_actions_has_six_items(self):
+        from ai_governance_mcp.server import SERVER_INSTRUCTIONS
+
+        # Should now have item 6 about querying project context
+        assert "6. **Query project context**" in SERVER_INSTRUCTIONS

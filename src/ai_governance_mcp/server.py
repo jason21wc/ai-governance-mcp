@@ -487,6 +487,7 @@ When in doubt, evaluate. This list defines what may be skipped, not the only sit
 3. **Cite influencing principles** — Reference principle IDs (e.g., `meta-core-context-engineering`) when they guide your approach
 4. **Pause on uncertainty** — If requirements are unclear, ask the user before proceeding
 5. **Initialize new projects** — See Project Initialization section below
+6. **Query project context** — Before implementing, call `query_project("...")` via the Context Engine MCP to discover existing patterns
 
 ### Project Initialization
 
@@ -614,7 +615,8 @@ This enables structural governance enforcement with restricted tool access.
 GOVERNANCE_REMINDER = """
 
 ---
-⚖️ **Governance Check:** Unless this was a read-only or non-sensitive query, did you call `evaluate_governance()`? Cite principle IDs. S-Series = veto."""
+⚖️ **Governance Check:** Unless this was a read-only or non-sensitive query, did you call `evaluate_governance()`? Cite principle IDs. S-Series = veto.
+🔍 Before implementing, query context engine for existing patterns."""
 
 # Subagent installation explanation for users
 # Per Phase 2B design: robust explanation for both experts and beginners

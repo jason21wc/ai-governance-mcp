@@ -20,7 +20,7 @@
 | Structural | ARCHITECTURE.md | System design, component responsibilities, data flow |
 | Charter | README.md | Project purpose, scope, public contract. Validate features fit; flag scope drift. |
 | Procedural | Methods documents | How to do things (via MCP retrieval) |
-| Reference | Context Engine index | Project content, semantically searchable |
+| Reference | Context Engine index | Project content, semantically searchable. Query before implementing. |
 
 ## Governance Integration
 
@@ -37,6 +37,22 @@ Call `evaluate_governance()` before any action UNLESS it is:
 When in doubt, evaluate.
 
 **After evaluating:** Cite the principle ID when it influences your approach.
+
+## Context Engine Integration
+
+Query the context engine before creating or modifying code to discover existing patterns and prevent duplication.
+
+### When to Query
+- Before creating new files, functions, classes, or modules
+- Before modifying code — understand related patterns first
+- When searching for "where does X happen?" or "do we already have Y?"
+- During planning phase — build a context inventory of affected areas
+
+### After Querying
+Cite file paths and patterns found, or confirm nothing relevant exists.
+
+### Staleness
+If working for an extended session, check `project_status`. If stale, call `index_project` before querying.
 
 ## Key Commands
 

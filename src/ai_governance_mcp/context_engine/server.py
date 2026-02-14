@@ -148,9 +148,20 @@ def _sanitize_for_logging(content: str | None) -> str | None:
 # Server instructions injected into every response
 SERVER_INSTRUCTIONS = """## Context Engine MCP Server
 
-Semantic search across project content. Use these tools to discover what exists in the project
-and where it is located. Complements the governance MCP server (principles/methods) with
-project-specific content awareness.
+Semantic search across project content. Query to discover what already exists before implementing.
+
+### When to Query
+Call `query_project(query="...")` before creating or modifying code:
+- **Before creating** a new file, function, class, or module — check for existing implementations
+- **Before modifying** existing code — understand related patterns and dependencies
+- **When you hear** "where does X happen?", "do we already have Y?", "what pattern do we use for Z?"
+- **During planning** — build a context inventory of affected areas
+
+### Required Behavior
+1. **Query before creating** — `query_project("existing [thing] implementation")`
+2. **Query before modifying** — `query_project("how does [component] work")`
+3. **Cite findings** — Reference file paths and patterns found, or confirm nothing relevant exists
+4. **Check freshness** — If `project_status` shows stale index, call `index_project` first
 
 ### Tools
 | Tool | Purpose |
@@ -160,11 +171,47 @@ project-specific content awareness.
 | `list_projects` | Show all indexed projects |
 | `project_status` | Index stats for current project |
 
-### Usage Pattern
-1. Query governance MCP for *how* to approach a task
-2. Query context engine for *what already exists* in the project
-3. Implement following governance guidance, informed by existing patterns
+### Companion: AI Governance MCP
+Query governance for *how* to approach a task (principles, methods).
+Query context engine for *what already exists* (code, patterns, files).
 """
+
+
+_CE_CRITICAL_PATTERNS = {
+    "prompt_injection": re.compile(
+        r"(?:^|[.!?]\s+)ignore\s+(?:previous|prior|above)\s+instructions|"
+        r"(?:^|[.!?]\s+)you\s+are\s+now\s+|"
+        r"(?:^|[.!?]\s+)disregard\s+(?:all|previous)|"
+        r"(?:^|[.!?]\s+)forget\s+(?:everything|all|previous)|"
+        r"(?:^|\*\s+)new\s+instructions:",
+        re.IGNORECASE | re.MULTILINE,
+    ),
+    "hidden_instruction": re.compile(
+        r"<!--[^>]*(?:instruction|execute|ignore|override)[^>]*-->",
+        re.IGNORECASE,
+    ),
+}
+
+
+def _validate_ce_server_instructions(instructions: str) -> None:
+    """Validate CE SERVER_INSTRUCTIONS for prompt injection patterns.
+
+    Called at module load time to ensure the instruction block
+    sent to AI clients is clean. Mirrors the governance server's
+    _validate_server_instructions pattern.
+
+    Raises:
+        RuntimeError: If critical patterns are detected.
+    """
+    for pattern_name, pattern in _CE_CRITICAL_PATTERNS.items():
+        matches = pattern.findall(instructions)
+        if matches:
+            raise RuntimeError(
+                f"CRITICAL: CE SERVER_INSTRUCTIONS contains {pattern_name} pattern"
+            )
+
+
+_validate_ce_server_instructions(SERVER_INSTRUCTIONS)
 
 
 def _setup_logging() -> None:
@@ -468,6 +515,13 @@ async def _handle_query_project(
         "index_age_seconds": result.index_age_seconds,
         "results": formatted_results,
     }
+
+    # Warn if index is stale (>1 hour old)
+    if result.index_age_seconds is not None and result.index_age_seconds > 3600:
+        hours = result.index_age_seconds / 3600
+        output["staleness_warning"] = (
+            f"Index is {hours:.1f} hours old. Run index_project to refresh."
+        )
 
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
