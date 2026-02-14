@@ -1600,7 +1600,7 @@ class TestEnvVarParsing:
 
         with patch.dict("os.environ", {"AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT": "abc"}):
             pm = _create_project_manager()
-            assert pm.semantic_weight == 0.6  # fallback default
+            assert pm.semantic_weight == 0.7  # fallback default
 
     def test_semantic_weight_clamped_high(self):
         from ai_governance_mcp.context_engine.server import _create_project_manager

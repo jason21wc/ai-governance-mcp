@@ -350,7 +350,7 @@ Run with: `python -m ai_governance_mcp.context_engine.server`
 |----------|---------|-------------|
 | `AI_CONTEXT_ENGINE_EMBEDDING_MODEL` | `BAAI/bge-small-en-v1.5` | Embedding model name |
 | `AI_CONTEXT_ENGINE_EMBEDDING_DIMENSIONS` | `384` | Embedding dimensions |
-| `AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT` | `0.6` | Semantic vs keyword weight (0.0-1.0) |
+| `AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT` | `0.7` | Semantic vs keyword weight (0.0-1.0) |
 | `AI_CONTEXT_ENGINE_INDEX_PATH` | `~/.context-engine/indexes` | Index storage path |
 | `AI_CONTEXT_ENGINE_INDEX_MODE` | `ondemand` | `ondemand` (manual re-index) or `realtime` (file watcher with incremental updates) |
 | `AI_CONTEXT_ENGINE_LOG_LEVEL` | `INFO` | Logging level |

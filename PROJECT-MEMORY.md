@@ -115,7 +115,7 @@
 | Reference Memory Concept | 2026-02-02 | Fifth cognitive memory type: "what exists and where is it?" Complements Working/Semantic/Episodic/Procedural. |
 | Shared Repo, Separate Entry | 2026-02-02 | Context engine lives in `src/ai_governance_mcp/context_engine/`. Separate MCP server entry point (`ai-context-engine`). |
 | One Server, Multi-Project | 2026-02-02 | Single MCP server manages per-project indexes. Auto-detects by working directory (hash of absolute path). |
-| Hybrid Search (reused) | 2026-02-02 | Same BM25 + semantic pattern as governance server. Configurable weight (default 0.6 semantic / 0.4 keyword). |
+| Hybrid Search (reused) | 2026-02-02 | Same BM25 + semantic pattern as governance server. Configurable weight (default 0.7 semantic / 0.3 keyword; tuned from 0.6 on 2026-02-14). |
 | Pluggable Connectors | 2026-02-02 | BaseConnector interface. 5 implementations: code (tree-sitter), document (markdown/text), PDF, spreadsheet, image metadata. |
 | JSON over Pickle | 2026-02-02 | BM25 index stored as JSON. NumPy loaded with `allow_pickle=False`. Prevents deserialization attacks. |
 | Hex-Only Project IDs | 2026-02-02 | Project IDs are 16-char hex hashes. Regex-validated to prevent path traversal. |
@@ -140,6 +140,7 @@
 | BM25 Negative Score Fix | 2026-02-12 | `np.clip(scores, 0.0, 1.0)` in `_bm25_search` — BM25Okapi can return negative IDF for common terms in small corpora. |
 | Query Freshness Metadata | 2026-02-12 | `last_indexed_at` and `index_age_seconds` in query responses. Server differentiates indexed-but-no-match vs not-indexed. |
 | CE Natural Usage | 2026-02-14 | Enforcement-oriented SERVER_INSTRUCTIONS (trigger phrases, required behaviors). CE nudge in governance reminder. CE cross-ref in Required Actions. CLAUDE.md CE Integration section. Security validation mirrors governance pattern. Stale index warning (>1hr). Realtime mode in MCP config. |
+| CE Weight Tuning | 2026-02-14 | semantic_weight default 0.6 → 0.7 (+6.7% MRR, no recall loss). Embedding model eval confirmed bge-small-en-v1.5 outperforms bge-base and all-mpnet. Jina safetensors verified. Governance server weight unchanged (separate benchmarks). |
 
 ---
 
@@ -243,7 +244,7 @@ Expanded context for the most significant decisions. The condensed tables above 
 | Dimension | Our Implementation | Best Practice | Gap | Priority |
 |-----------|-------------------|---------------|-----|----------|
 | **Chunking** | Tree-sitter AST, per-definition chunks, preamble chunks | Include imports + docstrings WITH each function chunk; include class context for methods (cAST EMNLP 2025, supermemory code-chunk) | Functions lack import context — embedding misses dependency signals (e.g., "this function uses pandas") | **High** |
-| **Embedding model** | bge-small-en-v1.5 (general purpose, 384 dims) | Code-specific models: Jina Code Embeddings, CodeXEmbed-400M, or at minimum bge-base (768 dims). Modal benchmarks show CodeBERT/GraphCodeBERT are outdated. | General-purpose model likely underperforms on code search. Cross-encoder reranking compensates but doesn't close the gap fully. | **Medium** |
+| **Embedding model** | bge-small-en-v1.5 (general purpose, 384 dims) | Code-specific models: Jina Code Embeddings, CodeXEmbed-400M, or at minimum bge-base (768 dims). Modal benchmarks show CodeBERT/GraphCodeBERT are outdated. | ✓ Evaluated 2026-02-14: bge-small outperforms bge-base (MRR 0.627 vs 0.598) and all-mpnet (0.569) on our corpus. Cross-encoder reranking compensates effectively. | **Closed** |
 | **Ranking signals** | Raw relevance scores only | File-type weighting (source > test > generated), recency bias, symbol-type boost, path proximity (Sourcegraph model) | All results treated equally regardless of file type, recency, or structural role | **Medium** |
 | **Result deduplication** | None — overlapping chunks from same file can appear | Deduplicate overlapping chunks, keep higher-scored one | Minor issue with current chunk sizes but could matter for large files | **Low** |
 | **Token budget** | Fixed max_results count | Budget-aware packing: rank all candidates, greedily fill a token budget, deduplicate (Aider model) | No token-aware result sizing | **Low** (users control via max_results) |
@@ -256,7 +257,7 @@ Expanded context for the most significant decisions. The condensed tables above 
 
 1. **Import-enriched chunks** (High) — ✓ DONE (CE v1.1.0, `eba8df6`). Prepends import block to each function chunk.
 2. **Ranking signals** (Medium) — ✓ DONE (CE v1.1.0, `eba8df6`). File-type weighting in `project_manager.py:37-50`.
-3. **Code-specific embedding model** (Medium) — Evaluate Jina Code Embeddings or bge-base-en-v1.5 as drop-in replacement. Requires re-running CE benchmarks to measure actual improvement. May not justify the larger model size if cross-encoder reranking is already compensating.
+3. **Code-specific embedding model** (Medium) — ✓ EVALUATED (2026-02-14). bge-small-en-v1.5 outperforms bge-base (MRR 0.627 vs 0.598) and all-mpnet-base-v2 (0.569) on our corpus. Larger models don't justify 2x dimensions. Jina safetensors verified. No model change needed.
 
 **What we deliberately skip (overkill for single-user):**
 - Cloud-hosted inference (Augment's model)
@@ -290,11 +291,11 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 
 | Metric | Current | Threshold | Rationale |
 |--------|---------|-----------|-----------|
-| CE MRR | 0.622 | ≥ 0.50 | Primary content discovery signal |
+| CE MRR | 0.664 | ≥ 0.50 | Primary content discovery signal |
 | CE Recall@5 | 0.850 | ≥ 0.70 | Top-5 result coverage |
 | CE Recall@10 | 1.000 | ≥ 0.80 | Top-10 result coverage |
 
-Note: CE benchmark v2.0 uses this project's codebase as corpus with 16 queries (expanded from 8 in v1.0). MRR varies naturally as code evolves (~0.62-0.75 range observed). Benchmark file: `tests/benchmarks/context_engine_quality.json`. Tree-sitter was available during benchmark (pytest spawns fresh process with current code).
+Note: CE benchmark v2.0 uses this project's codebase as corpus with 16 queries (expanded from 8 in v1.0). MRR varies naturally as code evolves (~0.62-0.75 range observed). Benchmark file: `tests/benchmarks/context_engine_quality.json`. Tree-sitter was available during benchmark (pytest spawns fresh process with current code). Weight tuned to 0.7 on 2026-02-14 (+6.7% MRR).
 
 ### When to Record New Baseline
 

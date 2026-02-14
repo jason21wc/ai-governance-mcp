@@ -232,7 +232,7 @@ def _create_project_manager() -> ProjectManager:
     Environment variables:
         AI_CONTEXT_ENGINE_EMBEDDING_MODEL: Model name (default: BAAI/bge-small-en-v1.5)
         AI_CONTEXT_ENGINE_EMBEDDING_DIMENSIONS: Integer dimensions (default: 384)
-        AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT: Float 0.0-1.0 (default: 0.6)
+        AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT: Float 0.0-1.0 (default: 0.7)
         AI_CONTEXT_ENGINE_INDEX_PATH: Custom index storage path (default: ~/.context-engine/indexes/)
         AI_CONTEXT_ENGINE_INDEX_MODE: 'ondemand' (default) or 'realtime' (enables file watcher)
     """
@@ -255,15 +255,15 @@ def _create_project_manager() -> ProjectManager:
 
     try:
         semantic_weight = float(
-            os.environ.get("AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT", "0.6")
+            os.environ.get("AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT", "0.7")
         )
         semantic_weight = max(0.0, min(1.0, semantic_weight))
     except (ValueError, TypeError) as e:
         logger.warning(
-            "Invalid AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT: %s. Using default 0.6.",
+            "Invalid AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT: %s. Using default 0.7.",
             e,
         )
-        semantic_weight = 0.6
+        semantic_weight = 0.7
 
     index_path = os.environ.get("AI_CONTEXT_ENGINE_INDEX_PATH")
     if index_path:

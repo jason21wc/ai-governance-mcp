@@ -77,7 +77,7 @@ class ProjectManager:
         storage: BaseStorage | None = None,
         embedding_model: str = "BAAI/bge-small-en-v1.5",
         embedding_dimensions: int = 384,
-        semantic_weight: float = 0.6,
+        semantic_weight: float = 0.7,
         default_index_mode: IndexMode = "ondemand",
     ) -> None:
         self.storage = storage or FilesystemStorage()

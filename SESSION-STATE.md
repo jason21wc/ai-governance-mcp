@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — CE adoption assessment complete, v2.0 benchmark baselined
+- **Active Task:** None — embedding eval complete, CE weight tuned
 
 ## Quick Reference
 
@@ -29,22 +29,12 @@
 | Index | **101 principles + 429 methods** (see `tests/benchmarks/` for current totals; taxonomy: 21 codes) |
 | Subagents | **10** (code-reviewer, contrarian-reviewer, validator, security-auditor, documentation-writer, orchestrator, test-generator, coherence-auditor, continuity-auditor, voice-coach) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
-| CE Benchmark | **MRR=0.622**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`) |
+| CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Next Actions
 
-### 1. Run Embedding Model Evaluation
-```bash
-python scripts/evaluate_embeddings.py
-python scripts/evaluate_embeddings.py --sweep-weights
-```
-Next feature-level improvement. Tooling exists. May improve CE MRR (currently 0.622).
-
-### 2. Verify Jina Model Safetensors (before recommending)
-Manually confirm `jinaai/jina-embeddings-v2-small-en` publishes safetensors weights on HuggingFace. If not, remove from allowlist. Do alongside embedding eval (#1).
-
-### 3. Backlog — Project Initialization Part B
+### 1. Backlog — Project Initialization Part B
 Three deferred approaches for closing the bootstrap gap beyond advisory guidance. Documented in PROJECT-MEMORY.md > Roadmap > Part B. Revisit when prioritized.
 
 ## Links
