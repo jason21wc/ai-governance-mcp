@@ -139,6 +139,7 @@
 | File Watcher Env Var | 2026-02-12 | `AI_CONTEXT_ENGINE_INDEX_MODE` env var (ondemand/realtime). `reindex_project` uses env var, not stored metadata (fixes contrarian O9). |
 | BM25 Negative Score Fix | 2026-02-12 | `np.clip(scores, 0.0, 1.0)` in `_bm25_search` — BM25Okapi can return negative IDF for common terms in small corpora. |
 | Query Freshness Metadata | 2026-02-12 | `last_indexed_at` and `index_age_seconds` in query responses. Server differentiates indexed-but-no-match vs not-indexed. |
+| CE Natural Usage | 2026-02-14 | Enforcement-oriented SERVER_INSTRUCTIONS (trigger phrases, required behaviors). CE nudge in governance reminder. CE cross-ref in Required Actions. CLAUDE.md CE Integration section. Security validation mirrors governance pattern. Stale index warning (>1hr). Realtime mode in MCP config. |
 
 ---
 

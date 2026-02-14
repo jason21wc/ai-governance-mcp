@@ -12,6 +12,14 @@
 
 ## Active Lessons
 
+### Passive MCP Instructions Don't Drive Tool Usage (2026-02-14)
+
+The CE had well-built tools but passive instructions ("Use these tools to discover what exists"). The governance server achieves automatic usage via deny-by-default skip lists, per-response reminders, and redundant instruction surfaces. Applying the same pattern to the CE — enforcement-oriented trigger phrases ("Before creating...", "Before modifying..."), a nudge in the governance reminder, and a Required Actions cross-reference — bridges the gap without creating a parallel skip-list hierarchy.
+
+**Rule:** When an MCP tool isn't being used naturally, check whether instructions are passive/advisory vs enforcement-oriented. Add trigger phrases that tell the AI WHEN to query, cross-reference from high-frequency surfaces (e.g., governance reminder), and unify enforcement in CLAUDE.md rather than creating parallel hierarchies.
+
+---
+
 ### Tree-sitter Positional Children Are Fragile — Use Field Names (2026-02-13)
 
 `_get_imported_names` used `node.children[1]` to skip the module path in `from X import Y`. This broke for relative imports (`from .bar import baz`) where the module node sits at a different index due to the `.` prefix. Fixed by using `node.child_by_field_name("module_name")` for identity comparison.

@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — CE v1.1.0 live-verified, ProjectStatus fix confirmed
+- **Active Task:** None — CE natural usage improvements shipped (6e81c77)
 
 ## Quick Reference
 
@@ -22,7 +22,7 @@
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
 | Content | **v2.4.1** (Constitution), **v3.10.3** (meta-methods), **v2.10.0** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.2** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
-| Tests | **654 pass** (non-slow), 0 failures, deselected (slow/model_eval) |
+| Tests | **703 pass** (non-slow), 0 failures, deselected (slow/model_eval) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
