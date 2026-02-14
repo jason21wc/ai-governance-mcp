@@ -157,6 +157,9 @@ class ProjectStatus(BaseModel):
     )
     index_size_bytes: int = Field(0, description="Total index size on disk")
     embedding_model: str = Field(..., description="Model used for embeddings")
+    chunking_version: str = Field(
+        "unknown", description="Chunking strategy version (e.g., tree-sitter-v2)"
+    )
     watcher_status: WatcherStatus = Field(
         "stopped",
         description="File watcher state: running, stopped, circuit_broken, disabled",

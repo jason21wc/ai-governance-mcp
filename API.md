@@ -447,6 +447,7 @@ Run with: `python -m ai_governance_mcp.context_engine.server`
 | `last_updated` | string or null | ISO timestamp of last index update |
 | `index_size_bytes` | integer | Total index size on disk |
 | `embedding_model` | string | Model used for embeddings |
+| `chunking_version` | string | Chunking strategy version (e.g., `"tree-sitter-v2"`, `"line-based-v1"`) |
 | `watcher_status` | string | File watcher state: `running`, `stopped`, `circuit_broken`, or `disabled` |
 
 **Example:**

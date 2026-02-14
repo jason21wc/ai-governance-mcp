@@ -366,6 +366,7 @@ class ProjectManager:
             last_updated=metadata.get("updated_at"),
             index_size_bytes=index_size,
             embedding_model=metadata.get("embedding_model", "unknown"),
+            chunking_version=metadata.get("chunking_version", "unknown"),
             watcher_status=watcher_status,
         )
 

@@ -1,0 +1,164 @@
+{
+  "timestamp": "2026-02-13T18:48:16.192638",
+  "embedding_model": "BAAI/bge-small-en-v1.5",
+  "metrics": {
+    "method_mrr": 0.6979166666666666,
+    "principle_mrr": 0.6041666666666666,
+    "method_recall_at_10": 0.875,
+    "principle_recall_at_10": 0.875
+  },
+  "system_metrics": {
+    "model_load_time_ms": 29.4,
+    "index_stats": {
+      "total_principles": 101,
+      "total_methods": 429,
+      "domains": [
+        "constitution",
+        "ai-coding",
+        "multi-agent",
+        "storytelling",
+        "multimodal-rag"
+      ]
+    }
+  },
+  "method_details": {
+    "method-1": {
+      "query": "advanced model prompting strategies decision rules",
+      "expected": [
+        "multi-method-advanced-model-considerations"
+      ],
+      "rank": 1,
+      "score": 0.8957130670547485,
+      "semantic_score": 0.8261884450912476
+    },
+    "method-2": {
+      "query": "how to calibrate project complexity for AI coding",
+      "expected": [
+        "coding-method-calibration-questions"
+      ],
+      "rank": 1,
+      "score": 0.4269610047340393,
+      "semantic_score": 0.7116016745567322
+    },
+    "method-3": {
+      "query": "session start procedure initialization",
+      "expected": [
+        "coding-method-session-start-procedure"
+      ],
+      "rank": 1,
+      "score": 0.862069249754974,
+      "semantic_score": 0.7882647514343262
+    },
+    "method-4": {
+      "query": "anchor bias mitigation checkpoint protocol",
+      "expected": [
+        "meta-method-what-is-anchor-bias"
+      ],
+      "rank": 1,
+      "score": 0.8074277183821792,
+      "semantic_score": 0.6823557019233704
+    },
+    "method-5": {
+      "query": "cognitive memory working semantic episodic",
+      "expected": [
+        "coding-method-cognitive-memory-types"
+      ],
+      "rank": null,
+      "score": null,
+      "semantic_score": null
+    },
+    "method-6": {
+      "query": "multi agent orchestration patterns coordination",
+      "expected": [
+        "multi-method-orchestration-pattern-selection"
+      ],
+      "rank": 1,
+      "score": 0.8508447570169644,
+      "semantic_score": 0.7572815418243408
+    },
+    "method-7": {
+      "query": "reasoning models chain of thought prompting",
+      "expected": [
+        "multi-method-advanced-model-considerations"
+      ],
+      "rank": 3,
+      "score": 0.7397878655248762,
+      "semantic_score": 0.7591487169265747
+    },
+    "method-8": {
+      "query": "governance subagent orchestrator protocol",
+      "expected": [
+        "multi-method-governance-agent-pattern"
+      ],
+      "rank": 4,
+      "score": 0.5365356617522499,
+      "semantic_score": 0.6937937140464783
+    }
+  },
+  "principle_details": {
+    "principle-1": {
+      "query": "context engineering specification gathering",
+      "expected": [
+        "meta-core-context-engineering"
+      ],
+      "rank": 2,
+      "score": 0.6796570080616895
+    },
+    "principle-2": {
+      "query": "incomplete specification unclear requirements",
+      "expected": [
+        "coding-context-specification-completeness"
+      ],
+      "rank": 1,
+      "score": 0.8759542346000672
+    },
+    "principle-3": {
+      "query": "safety harm prevention bias fairness",
+      "expected": [
+        "meta-safety-bias-awareness-fairness"
+      ],
+      "rank": 1,
+      "score": 0.8704167246818543
+    },
+    "principle-4": {
+      "query": "testing verification code quality assurance",
+      "expected": [
+        "coding-quality-testing-integration"
+      ],
+      "rank": 2,
+      "score": 0.8347751547917508
+    },
+    "principle-5": {
+      "query": "multi agent handoff protocol explicit",
+      "expected": [
+        "multi-reliability-explicit-handoff-protocol"
+      ],
+      "rank": 2,
+      "score": 0.8874727845191955
+    },
+    "principle-6": {
+      "query": "periodic re-evaluation milestone checkpoint",
+      "expected": [
+        "meta-core-periodic-re-evaluation"
+      ],
+      "rank": 1,
+      "score": 0.8817418694496155
+    },
+    "principle-7": {
+      "query": "fault tolerance graceful degradation multi-agent",
+      "expected": [
+        "multi-quality-fault-tolerance-and-graceful-degradation"
+      ],
+      "rank": 3,
+      "score": 0.8879203557968139
+    },
+    "principle-8": {
+      "query": "human AI collaboration model process",
+      "expected": [
+        "coding-process-human-ai-collaboration-model"
+      ],
+      "rank": null,
+      "score": null
+    }
+  }
+}

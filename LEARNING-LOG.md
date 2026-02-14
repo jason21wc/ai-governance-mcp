@@ -12,6 +12,14 @@
 
 ## Active Lessons
 
+### Tree-sitter Positional Children Are Fragile — Use Field Names (2026-02-13)
+
+`_get_imported_names` used `node.children[1]` to skip the module path in `from X import Y`. This broke for relative imports (`from .bar import baz`) where the module node sits at a different index due to the `.` prefix. Fixed by using `node.child_by_field_name("module_name")` for identity comparison.
+
+**Rule:** When navigating tree-sitter AST nodes, prefer `child_by_field_name()` over positional `children[N]` indexing. Positional assumptions break across syntax variants of the same node type.
+
+---
+
 ### Editable Install Doesn't Fix Running MCP Server Processes (2026-02-12)
 
 After implementing tree-sitter parsing, re-indexing via the live MCP server produced chunks with `heading: null`. The package is installed in editable mode (`pip install -e .`), so the server reads source files directly — but the already-running process had the OLD `connectors/code.py` cached in Python's module cache. Re-indexing used the stale line-based parser, not the new tree-sitter code. Pytest worked because it spawns a fresh process.
