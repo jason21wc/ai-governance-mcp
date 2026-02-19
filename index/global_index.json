@@ -7191,7 +7191,7 @@
           "embedding_id": 191
         }
       ],
-      "last_extracted": "2026-02-12T04:04:17.756262+00:00",
+      "last_extracted": "2026-02-19T01:51:35.865649+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -13860,7 +13860,7 @@
           "embedding_id": 378
         }
       ],
-      "last_extracted": "2026-02-12T04:04:17.762034+00:00",
+      "last_extracted": "2026-02-19T01:51:35.871123+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -16107,10 +16107,10 @@
           "id": "multi-method-gateway-based-enforcement-platform-agnostic",
           "domain": "multi-agent",
           "title": "Gateway-Based Enforcement (Platform-Agnostic)",
-          "content": "#### 4.6.2 Gateway-Based Enforcement (Platform-Agnostic)\n\nIMPORTANT\n\n**Purpose:** Provide architectural governance enforcement for platforms that lack subagent capability.\n\n**The Problem:**\n\nThe Orchestrator-First pattern (\u00a74.6) relies on Claude Code's subagent architecture\u2014a unique feature where `.claude/agents/` defines parallel agents with restricted tool access. This works because the *client* manages agent separation.\n\nOther platforms (OpenAI, Gemini, Cursor, Windsurf) lack this capability:\n- No parallel agent architecture\n- No client-managed tool restrictions\n- Governance relies on instructions alone (\"hope-based\")\n\n**Solution \u2014 MCP Gateway Pattern:**\n\nInstead of hoping the AI follows governance instructions, enforce governance *physically* by controlling tool access at the server layer.\n\n```\nWithout Gateway (Hope-Based):          With Gateway (Architecture-Based):\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                           \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 AI Agent \u2502                           \u2502 AI Agent \u2502\n\u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518                           \u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518\n     \u2502 Direct access                        \u2502 Only sees governance tools\n     \u25bc                                      \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 MCP Servers  \u2502                       \u2502 Governance     \u2502\n\u2502 (file, db,   \u2502                       \u2502 Gateway/Proxy  \u2502\n\u2502  shell, etc) \u2502                       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                \u2502 Validates before allowing\n                                                \u25bc\n                                       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                                       \u2502 MCP Servers  \u2502\n                                       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n**How Gateway Enforcement Works:**\n\n| Layer | What Happens |\n|-------|--------------|\n| 1. Request | AI calls tool (e.g., `edit_file`) via Gateway |\n| 2. Governance Check | Gateway calls `evaluate_governance(planned_action)` |\n| 3. Assessment | PROCEED \u2192 forward request; ESCALATE \u2192 reject with reason |\n| 4. Execution | Only governance-approved requests reach the actual server |\n| 5. Logging | All requests logged for audit trail |\n\n**Available MCP Gateway Solutions (2025):**\n\n| Gateway | Key Feature | Use Case |\n|---------|-------------|----------|\n| Lasso MCP Gateway | Plugin-based guardrails, PII detection | Security-focused orgs |\n| Envoy AI Gateway | Session-aware, leverages Envoy infra | Existing Envoy users |\n| IBM ContextForge | FastAPI-based, large-scale | Enterprise deployments |\n| Custom Governance Proxy | Wrap this MCP server as gatekeeper | Simple deployments |\n\n**When to Use Gateway vs Subagent:**\n\n| Factor | Subagent (Claude Code) | Gateway |\n|--------|----------------------|---------|\n| Platform | Claude Code/Desktop only | Any MCP client |\n| Setup complexity | Low (drop file in folder) | Medium (deploy proxy) |\n| Enforcement | Client-managed | Server-managed |\n| Visibility | Agent visible in UI | Transparent to AI |\n| Enterprise | Single-user focus | Multi-user, centralized |\n\n**Deployment Decision Matrix:**\n\n```\nIs this for Claude Code users only?\n\u251c\u2500\u2500 YES \u2192 Use subagent pattern (\u00a74.6, install_agent tool)\n\u2514\u2500\u2500 NO \u2192 Does organization have MCP gateway infrastructure?\n         \u251c\u2500\u2500 YES \u2192 Integrate with existing gateway\n         \u2514\u2500\u2500 NO \u2192 Deploy governance proxy or use instruction-based fallback\n```\n\n**Instruction-Based Fallback (Minimum Viable):**\n\nWhen gateway isn't feasible, layer defenses:\n\n1. **SERVER_INSTRUCTIONS** \u2014 Injected at MCP init\n2. **Per-Response Reminder** \u2014 Appended to every tool response\n3. **Audit Log Review** \u2014 Periodic `verify_governance_compliance()` checks\n\nThis provides guidance but not enforcement\u2014the AI *can* bypass. For high-stakes environments, gateway architecture is recommended.\n\n**Key Principle:**\n\n> Enforce governance *physically* (tool access control) rather than *psychologically* (instructions). Architecture beats hope.\n",
+          "content": "#### 4.6.2 Gateway-Based Enforcement (Platform-Agnostic)\n\nIMPORTANT\n\n**Purpose:** Provide architectural governance enforcement for platforms that lack subagent capability.\n\n**The Problem:**\n\nThe Orchestrator-First pattern (\u00a74.6) relies on Claude Code's subagent architecture\u2014a unique feature where `.claude/agents/` defines parallel agents with restricted tool access. This works because the *client* manages agent separation.\n\nOther platforms (OpenAI, Gemini, Cursor, Windsurf) lack this capability:\n- No parallel agent architecture\n- No client-managed tool restrictions\n- Governance relies on instructions alone (\"hope-based\")\n\n**Solution \u2014 MCP Gateway Pattern:**\n\nInstead of hoping the AI follows governance instructions, enforce governance *physically* by controlling tool access at the server layer.\n\n```\nWithout Gateway (Hope-Based):          With Gateway (Architecture-Based):\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                           \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 AI Agent \u2502                           \u2502 AI Agent \u2502\n\u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518                           \u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518\n     \u2502 Direct access                        \u2502 Only sees governance tools\n     \u25bc                                      \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 MCP Servers  \u2502                       \u2502 Governance     \u2502\n\u2502 (file, db,   \u2502                       \u2502 Gateway/Proxy  \u2502\n\u2502  shell, etc) \u2502                       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                                \u2502 Validates before allowing\n                                                \u25bc\n                                       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                                       \u2502 MCP Servers  \u2502\n                                       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n**How Gateway Enforcement Works:**\n\n| Layer | What Happens |\n|-------|--------------|\n| 1. Request | AI calls tool (e.g., `edit_file`) via Gateway |\n| 2. Governance Check | Gateway calls `evaluate_governance(planned_action)` |\n| 3. Assessment | PROCEED \u2192 forward request; ESCALATE \u2192 reject with reason |\n| 4. Execution | Only governance-approved requests reach the actual server |\n| 5. Logging | All requests logged for audit trail |\n\n**Available MCP Gateway Solutions (2025):**\n\n| Gateway | Key Feature | Use Case |\n|---------|-------------|----------|\n| Lasso MCP Gateway | Plugin-based guardrails, PII detection | Security-focused orgs |\n| Envoy AI Gateway | Session-aware, leverages Envoy infra | Existing Envoy users |\n| IBM ContextForge | FastAPI-based, large-scale | Enterprise deployments |\n| Custom Governance Proxy | Wrap this MCP server as gatekeeper | Simple deployments |\n\n**When to Use Gateway vs Subagent:**\n\n| Factor | Subagent (Claude Code) | Gateway |\n|--------|----------------------|---------|\n| Platform | Claude Code/Desktop only | Any MCP client |\n| Setup complexity | Low (drop file in folder) | Medium (deploy proxy) |\n| Enforcement | Client-managed | Server-managed |\n| Visibility | Agent visible in UI | Transparent to AI |\n| Enterprise | Single-user focus | Multi-user, centralized |\n\n**Deployment Decision Matrix:**\n\n```\nDoes the AI client support hook events (PreToolUse, UserPromptSubmit)?\n\u251c\u2500\u2500 YES \u2192 Use hook-based enforcement (\u00a74.6.3) + subagent pattern (\u00a74.6)\n\u2514\u2500\u2500 NO \u2192 Is this for Claude Code users only?\n         \u251c\u2500\u2500 YES \u2192 Use subagent pattern (\u00a74.6, install_agent tool)\n         \u2514\u2500\u2500 NO \u2192 Does organization have MCP gateway infrastructure?\n                  \u251c\u2500\u2500 YES \u2192 Integrate with existing gateway\n                  \u2514\u2500\u2500 NO \u2192 Deploy governance proxy or use instruction-based fallback\n```\n\n**Instruction-Based Fallback (Minimum Viable):**\n\nWhen gateway isn't feasible, layer defenses:\n\n1. **SERVER_INSTRUCTIONS** \u2014 Injected at MCP init\n2. **Per-Response Reminder** \u2014 Appended to every tool response\n3. **Audit Log Review** \u2014 Periodic `verify_governance_compliance()` checks\n\nThis provides guidance but not enforcement\u2014the AI *can* bypass. For high-stakes environments, gateway architecture is recommended.\n\n**Key Principle:**\n\n> Enforce governance *physically* (tool access control) rather than *psychologically* (instructions). Architecture beats hope.\n",
           "line_range": [
             2777,
-            2866
+            2868
           ],
           "keywords": [
             "gateway-based",
@@ -16154,13 +16154,68 @@
           "embedding_id": 427
         },
         {
+          "id": "multi-method-hook-based-enforcement-client-side-deterministic",
+          "domain": "multi-agent",
+          "title": "Hook-Based Enforcement (Client-Side Deterministic)",
+          "content": "#### 4.6.3 Hook-Based Enforcement (Client-Side Deterministic)\n\nIMPORTANT\n\n**Applies To:** Governance enforcement, compliance checking, structural validation, hook-based automation, client-side policy enforcement\n\n**The Problem:**\n\nGateway enforcement (\u00a74.6.2) requires deploying server-side proxy infrastructure. Subagent enforcement (\u00a74.6) requires platform-specific agent architectures. Both add deployment complexity. For teams using AI coding tools that support **client-side hook events**, a lighter-weight enforcement layer exists: intercepting tool calls and user prompts at the client before they reach the AI or MCP servers.\n\nResearch confirms AI models follow governance instructions probabilistically \u2014 compliance degrades in long sessions, with many tools, and when the model doesn't perceive a governance concern (see \u00a74.6.1 for the judgment protocol). **Hook-based enforcement** provides a deterministic safety net that runs regardless of the AI's judgment.\n\n**How Hook-Based Enforcement Works:**\n\nAI coding tools (e.g., Claude Code) expose **hook events** \u2014 lifecycle points where external scripts execute before or after specific actions. Hooks are configured in project settings, committed to version control, and run deterministically on every matching action.\n\n```\nWithout Hooks (Advisory Only):          With Hooks (Structural):\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                           \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502 AI Agent \u2502                           \u2502 AI Agent \u2502\n\u2502 (may skip\u2502                           \u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518\n\u2502 governance)                                \u2502 Every prompt\n\u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2518                           \u250c\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n     \u2502 Direct action                   \u2502 UserPromptSubmit   \u2502\n     \u25bc                                 \u2502 Hook: inject       \u2502\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510                       \u2502 governance reminder\u2502\n\u2502 File System  \u2502                       \u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518                            \u2502 Before file ops\n                                       \u250c\u2500\u2500\u2500\u2500\u25bc\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                                       \u2502 PreToolUse Hook:   \u2502\n                                       \u2502 check transcript   \u2502\n                                       \u2502 for governance call\u2502\n                                       \u2514\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                            \u2502 Verified\n                                            \u25bc\n                                       \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n                                       \u2502 File System  \u2502\n                                       \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n**Hook Event Types for Governance:**\n\n| Event | When It Fires | Governance Use |\n|-------|---------------|----------------|\n| **UserPromptSubmit** | Before every user message is processed | Inject **governance reminders** to combat multi-turn drift |\n| **PreToolUse** | Before a tool call executes | **Verify governance was consulted** before file-modifying actions |\n| **PostToolUse** | After a tool call completes | Audit logging, CI status checks |\n| **Stop** | When the AI finishes a response | Session-level compliance verification |\n\n**Hook Types:**\n\n| Type | Execution | Latency | Use Case |\n|------|-----------|---------|----------|\n| **Command** | Shell script | ~10-50ms | Fast, deterministic checks (transcript parsing, reminders) |\n| **Prompt** | Fast LLM evaluation | ~1-5s | Nuanced judgment (\"Was this action governance-relevant?\") |\n| **Agent** | Subagent with tool access | ~5-30s | Complex verification requiring MCP tool calls |\n\n**Recommended for governance:** Command hooks. They are fastest, most deterministic, and require no additional LLM calls. Reserve prompt/agent hooks for cases requiring judgment.\n\n**Recommended Hook Patterns:**\n\n**Pattern 1: Governance Reminder Injection (UserPromptSubmit)**\n\nInject a **governance protocol reminder** as `additionalContext` on every user prompt. This combats multi-turn drift \u2014 the AI receives the governance protocol at the start of every turn, not just at session initialization.\n\n```bash\n#!/usr/bin/env bash\n# UserPromptSubmit hook \u2014 governance reminder injection\nset -euo pipefail\n\nREMINDER='Call evaluate_governance(planned_action=\"...\") before file-modifying actions.'\n\npython3 -c \"\nimport json, sys\nsys.stdout.write(json.dumps({'additionalContext': sys.argv[1]}))\n\" \"$REMINDER\" 2>/dev/null || true\n```\n\nKey design decisions:\n- `#!/usr/bin/env bash` \u2014 avoids `.zshrc` profile pollution that can corrupt stdout\n- Python for JSON serialization \u2014 avoids `jq` dependency for output, handles escaping safely\n- Reminder passed via `sys.argv` \u2014 avoids shell variable substitution quoting issues\n- `|| true` fallback \u2014 if Python fails, hook exits cleanly\n- Exit 0 always \u2014 **UserPromptSubmit hooks should never block prompts**\n\n**Pattern 2: Transcript-Based Governance Verification (PreToolUse)**\n\nBefore file-modifying tool calls (`Bash|Edit|Write`), parse the session transcript to verify `evaluate_governance()` was called. This is **session-level verification** \u2014 one governance call covers a batch of related edits.\n\n```bash\n#!/usr/bin/env bash\n# PreToolUse hook \u2014 transcript governance check\nset -euo pipefail\n\nINPUT=$(cat)\nTRANSCRIPT_PATH=$(echo \"$INPUT\" | jq -r '.transcript_path // \"\"' 2>/dev/null) || true\n\n# Fail-open: missing transcript \u2192 allow\n[ -z \"$TRANSCRIPT_PATH\" ] || [ ! -r \"$TRANSCRIPT_PATH\" ] && exit 0\n\n# Scan for evaluate_governance tool_use in transcript JSONL\nTARGET=\"mcp__ai-governance__evaluate_governance\"\nFOUND=$(python3 -c \"\nimport json, sys\ntarget, path = sys.argv[1], sys.argv[2]\nwith open(path) as f:\n    for line in f:\n        if target not in line: continue  # Fast string pre-filter\n        entry = json.loads(line)\n        for block in entry.get('message',{}).get('content',[]):\n            if block.get('name') == target:\n                print('yes'); sys.exit(0)\nprint('no')\n\" \"$TARGET\" \"$TRANSCRIPT_PATH\" 2>/dev/null) || FOUND=\"no\"\n\n[ \"$FOUND\" = \"yes\" ] && exit 0\n\n# No governance found \u2014 soft enforcement (inject reminder)\npython3 -c \"\nimport json, sys\nsys.stdout.write(json.dumps({'additionalContext': sys.argv[1]}))\n\" \"GOVERNANCE NOT DETECTED: Call evaluate_governance() before proceeding.\" 2>/dev/null || true\n```\n\n**Session-Level vs Time-Window Verification:**\n\n| Strategy | How It Works | Tradeoff |\n|----------|-------------|----------|\n| **Session-level** (recommended) | Any `evaluate_governance()` call in transcript = pass | May allow late-session edits without fresh evaluation |\n| **Time-window** | Only counts calls within last N minutes | Creates false positives for long implementation batches |\n| **Per-action** | Requires governance call immediately before each tool use | Too strict \u2014 blocks normal edit-test-edit workflows |\n\n**Session-level is recommended** because real usage shows one `evaluate_governance()` call followed by 10+ minutes of edits in the same task batch. Time-window checks would block legitimate workflows.\n\n**Soft vs Hard Enforcement:**\n\n| Mode | Mechanism | Effect | When to Use |\n|------|-----------|--------|-------------|\n| **Soft** (recommended) | `additionalContext` in response JSON | AI sees reminder but is not blocked | Default \u2014 allows the AI to contextualize |\n| **Hard** | `hookSpecificOutput.permissionDecision: \"deny\"` in response JSON | Tool call is rejected entirely | High-security environments, compliance-critical |\n\n**Start with soft enforcement.** The goal is compliance improvement, not workflow disruption. Hard mode (`permissionDecision: \"deny\"`) should be reserved for environments where governance bypass has material consequences.\n\n**Hook Configuration:**\n\nHooks are configured in project settings (e.g., `.claude/settings.json` for Claude Code) and committed to version control:\n\n```json\n{\n  \"hooks\": {\n    \"UserPromptSubmit\": [\n      {\n        \"hooks\": [{\n          \"type\": \"command\",\n          \"command\": \"bash hooks/governance-reminder.sh\",\n          \"timeout\": 5\n        }]\n      }\n    ],\n    \"PreToolUse\": [\n      {\n        \"matcher\": \"Bash|Edit|Write\",\n        \"hooks\": [{\n          \"type\": \"command\",\n          \"command\": \"bash hooks/governance-check.sh\",\n          \"timeout\": 10\n        }]\n      }\n    ]\n  }\n}\n```\n\nConfiguration notes:\n- **`matcher`** \u2014 case-sensitive regex matching tool names. `Bash|Edit|Write` targets file-modifying tools\n- **UserPromptSubmit ignores `matcher`** \u2014 it always fires (no tool to match against)\n- **Timeouts** \u2014 5s for reminders, 10s for transcript checks (generous; actual latency ~10ms / ~50ms)\n- **Settings are project-scoped and committable** \u2014 team-wide enforcement via version control\n\n**Implementation Gotchas:**\n\n| Issue | Impact | Mitigation |\n|-------|--------|------------|\n| **stdout purity** | Any non-JSON stdout corrupts hook response | All debug output to stderr; use `python3 -c` with `sys.stdout.write` (not `print`) |\n| **Shell profile pollution** | `.zshrc`/`.bashrc` may print to stdout | Use `#!/usr/bin/env bash` (not zsh); bash non-interactive mode skips profiles |\n| **Exit code semantics** | Exit 0 = process JSON output; Exit 2 = silently skip hook | Always exit 0 when outputting JSON. Exit 2 means \"ignore my output entirely\" |\n| **`jq` availability** | Not installed on all systems | Use `jq` for input parsing with python3 fallback; use python3 for output (always available) |\n| **Large transcripts** | Session transcripts grow over time | Fast string pre-filter (`target not in line`) skips 99% of lines before JSON parse |\n| **Read-only tool matching** | `Bash` matcher catches `git status`, `ls`, etc. | Soft mode handles this gracefully \u2014 AI reads reminder and contextualizes |\n\n**When to Use Hooks vs Gateway vs Subagent:**\n\n| Factor | Hooks (\u00a74.6.3) | Gateway (\u00a74.6.2) | Subagent (\u00a74.6) |\n|--------|----------------|-------------------|-----------------|\n| **Infrastructure** | None (client-side scripts) | Deploy proxy server | Drop file in folder |\n| **Platform** | Clients with hook events | Any MCP client | Claude Code only |\n| **Enforcement** | Deterministic per-action | Deterministic per-request | AI-managed |\n| **Latency** | ~10-50ms (command type) | ~50-200ms | ~5-30s |\n| **Bypass resistance** | High (platform-enforced) | High (server-enforced) | Medium (AI can ignore) |\n| **Setup effort** | Low (shell scripts + config) | Medium (proxy deployment) | Low (agent file) |\n| **Maintenance** | Low (simple scripts) | Medium (proxy updates) | Low (agent file) |\n\n**Layered Enforcement Recommendation:**\n\nFor maximum compliance, layer multiple enforcement mechanisms:\n\n1. **Advisory** \u2014 SERVER_INSTRUCTIONS + per-response reminders (all platforms)\n2. **Hooks** \u2014 UserPromptSubmit + PreToolUse (platforms with hook support)\n3. **Subagent** \u2014 Orchestrator pattern with restricted tools (Claude Code)\n4. **Gateway** \u2014 MCP proxy for model-agnostic enforcement (high-security)\n5. **Audit** \u2014 `verify_governance_compliance()` in CI/pre-commit (all platforms)\n\nEach layer catches failures the previous layer misses. Advisory works most of the time; hooks catch drift; subagents enforce tool restrictions; gateways provide model-agnostic guarantees; audits catch everything else post-hoc.\n\n**Key Principle:**\n\n> Deterministic enforcement beats probabilistic compliance. Hooks run on every matching action regardless of the AI's judgment, context window position, or tool count. Start soft, escalate to hard only when needed.\n",
+          "line_range": [
+            2869,
+            3086
+          ],
+          "keywords": [
+            "hook-based",
+            "enforcement",
+            "(client-side",
+            "deterministic)"
+          ],
+          "metadata": {
+            "keywords": [
+              "hook-based",
+              "enforcement",
+              "(client-side",
+              "deterministic)"
+            ],
+            "trigger_phrases": [
+              "applies to:",
+              "the problem:",
+              "client-side hook events",
+              "hook-based enforcement",
+              "how hook-based enforcement works:",
+              "hook events",
+              "userpromptsubmit",
+              "governance reminders",
+              "pretooluse",
+              "verify governance was consulted"
+            ],
+            "purpose_keywords": [],
+            "applies_to": [
+              "governance",
+              "enforcement",
+              "compliance",
+              "checking",
+              "structural",
+              "validation",
+              "hook",
+              "based",
+              "automation",
+              "client"
+            ],
+            "guideline_keywords": [
+              "4.6.3",
+              "hook-based",
+              "enforcement"
+            ]
+          },
+          "embedding_id": 428
+        },
+        {
           "id": "multi-method-agent-evaluation-framework",
           "domain": "multi-agent",
           "title": "Agent Evaluation Framework",
           "content": "### 4.7 Agent Evaluation Framework\n\nCRITICAL\n\n**Purpose:** Systematically evaluate agent performance across multiple dimensions for continuous improvement.\n\n**Source:** Google Vertex AI Gen AI Evaluation Service, Confident AI, orq.ai evaluation research\n\n**Why Validation Alone Is Insufficient:**\n\nValidation (\u00a74.1) checks individual outputs against acceptance criteria. The Agent Evaluation Framework provides systematic measurement of agent performance over time, enabling optimization and regression detection.\n\n**The Four Evaluation Layers:**\n\n| Layer | What It Measures | When to Evaluate | Key Metrics |\n|-------|------------------|------------------|-------------|\n| **Component** | Individual subsystem quality | After each component change | Per-tool accuracy, retrieval precision |\n| **Trajectory** | Decision-making path quality | Per task completion | Step efficiency, reasoning coherence |\n| **Outcome** | Task completion quality | Per task completion | Goal fulfillment, user satisfaction |\n| **System** | Multi-agent coordination | Per workflow completion | Handoff success, cascade failures |\n\n**Component-Level Evaluation:**\n\nTest subsystems in isolation:\n\n| Component | Evaluation Method | Metrics |\n|-----------|------------------|---------|\n| Routing logic | Accuracy on labeled dataset | Precision, recall, F1 |\n| Context compression | Manual review of distillation | Information preservation rate |\n| Tool selection | Comparison to ideal tool | Selection accuracy |\n| Governance retrieval | Relevance scoring | MRR, NDCG |\n\n**Trajectory Evaluation (Key Addition):**\n\nEvaluate the decision-making path, not just the final output:\n\n| Metric | Definition | Target |\n|--------|------------|--------|\n| **Exact match** | Trajectory exactly matches ideal solution | Task-dependent |\n| **In-order match** | Required actions in correct sequence | > 80% |\n| **Any-order match** | Required actions regardless of order | > 90% |\n| **Step efficiency** | Actual steps / Minimum required steps | < 1.5x |\n| **Backtrack rate** | Steps that revise prior decisions | < 10% |\n\n**Trajectory Evaluation Template:**\n\n```markdown\n## Trajectory Evaluation \u2014 [Task ID]\n\n### Ideal Trajectory\n1. [Expected step 1]\n2. [Expected step 2]\n3. [Expected step N]\n\n### Actual Trajectory\n1. [Actual step 1] \u2014 MATCH / EXTRA / WRONG\n2. [Actual step 2] \u2014 MATCH / EXTRA / WRONG\n...\n\n### Metrics\n- Exact Match: YES / NO\n- In-Order Match: [X]%\n- Any-Order Match: [X]%\n- Step Efficiency: [actual] / [ideal] = [ratio]\n- Backtrack Rate: [count] / [total] = [%]\n\n### Analysis\n[Why trajectory deviated, if applicable]\n```\n\n**Outcome Evaluation:**\n\n| Metric | Definition | Measurement |\n|--------|------------|-------------|\n| Goal fulfillment | Task objectives achieved | Checklist against acceptance criteria |\n| Output quality | Correctness, completeness | Domain-specific rubric |\n| User satisfaction | Human rating of usefulness | 1-5 scale or thumbs up/down |\n| Time to completion | Duration from start to done | Clock time |\n\n**System-Level Evaluation:**\n\n| Metric | Definition | Target |\n|--------|------------|--------|\n| Handoff success rate | Successful transfers / Total transfers | > 95% |\n| Cascade failure rate | Multi-agent failures from single error | < 1% |\n| Resource efficiency | Tokens used / Baseline estimate | < 150% |\n| Human escalation rate | Escalations / Total tasks | Task-appropriate |\n| End-to-end latency | Total time for multi-agent workflow | Within SLA |\n\n**Evaluation Cadence:**\n\n| Level | Frequency | Trigger |\n|-------|-----------|---------|\n| Component | On change | Code/config modification |\n| Trajectory | Per task | Task completion |\n| Outcome | Per task | Task completion |\n| System | Weekly | Scheduled review |\n\n**Evaluation Dashboard Requirements:**\n\n```yaml\ndashboard:\n  component_health:\n    - routing_accuracy\n    - compression_quality\n    - tool_selection_rate\n\n  trajectory_trends:\n    - avg_step_efficiency (7-day rolling)\n    - backtrack_rate_trend\n    - exact_match_rate\n\n  outcome_summary:\n    - goal_fulfillment_rate\n    - user_satisfaction_avg\n    - completion_time_p50_p95\n\n  system_alerts:\n    - cascade_failures_today\n    - escalation_rate_vs_baseline\n    - token_budget_utilization\n```\n",
           "line_range": [
-            2867,
-            2989
+            3087,
+            3209
           ],
           "keywords": [
             "agent",
@@ -16209,7 +16264,7 @@
               "analysis"
             ]
           },
-          "embedding_id": 428
+          "embedding_id": 429
         },
         {
           "id": "multi-method-grader-types",
@@ -16217,8 +16272,8 @@
           "title": "Grader Types",
           "content": "#### 4.7.1 Grader Types\n\nIMPORTANT\n\n**Purpose:** Select appropriate grading approaches based on task characteristics.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025)\n\n**The Three Grader Types:**\n\n| Type | When to Use | Strengths | Weaknesses |\n|------|-------------|-----------|------------|\n| **Code-Based** | Deterministic validation, structured outputs | Fast, cheap, reproducible, easy debugging | Brittle to valid variations, lacks nuance |\n| **Model-Based** | Subjective tasks, open-ended outputs | Flexible, scalable, captures nuance | Non-deterministic, expensive, requires calibration |\n| **Human** | Gold-standard calibration, edge cases | Matches expert judgment, handles ambiguity | Slow, expensive, doesn't scale |\n\n**Code-Based Grader Methods:**\n\n| Method | Use Case | Example |\n|--------|----------|---------|\n| String matching | Exact expected output | `assert output == expected` |\n| Regex patterns | Structured format validation | `re.match(r'\\d{3}-\\d{4}', phone)` |\n| Static analysis | Code quality checks | ruff, mypy, bandit |\n| Unit tests | Functional correctness | pytest assertions |\n| State verification | Environment changes | File exists, DB record created |\n\n**Model-Based Grader Methods:**\n\n| Method | Use Case | Example |\n|--------|----------|---------|\n| Rubric scoring | Multi-dimensional quality | \"Rate clarity 1-5, completeness 1-5\" |\n| Natural language assertion | Flexible criteria | \"Does the response address the user's concern?\" |\n| Pairwise comparison | Relative quality | \"Which response better solves the problem?\" |\n| Multi-judge consensus | High-stakes decisions | 3 LLM judges, majority vote |\n\n**Model-Based Grader Design Principles:**\n\n- **Give escape options** \u2014 Include \"Unknown\" or \"Cannot determine\" to prevent hallucinated judgments\n- **Isolate dimensions** \u2014 Grade each quality dimension separately with independent prompts\n- **Calibrate against humans** \u2014 Periodically validate LLM grader agreement with expert judgment\n- **Use structured output** \u2014 Request JSON with score and rationale for debugging\n\n**Human Grader Methods:**\n\n| Method | Use Case | Scale |\n|--------|----------|-------|\n| SME review | Domain expertise required | Low volume, high stakes |\n| Spot-check sampling | Calibration and drift detection | 5-10% of eval suite |\n| A/B preference testing | Comparative quality | User-facing changes |\n\n**Grader Selection Decision Tree:**\n\n```\nIs output deterministically verifiable?\n\u251c\u2500\u2500 Yes \u2192 Code-Based Grader\n\u2514\u2500\u2500 No \u2192 Is task subjective or open-ended?\n    \u251c\u2500\u2500 Yes \u2192 Model-Based Grader (calibrate with human spot-checks)\n    \u2514\u2500\u2500 No \u2192 Is this high-stakes or ambiguous?\n        \u251c\u2500\u2500 Yes \u2192 Human Grader\n        \u2514\u2500\u2500 No \u2192 Model-Based Grader\n```\n\n---\n",
           "line_range": [
-            2990,
-            3053
+            3210,
+            3273
           ],
           "keywords": [
             "grader",
@@ -16257,7 +16312,7 @@
               "types"
             ]
           },
-          "embedding_id": 429
+          "embedding_id": 430
         },
         {
           "id": "multi-method-non-determinism-measurement",
@@ -16265,8 +16320,8 @@
           "title": "Non-Determinism Measurement",
           "content": "#### 4.7.2 Non-Determinism Measurement\n\nIMPORTANT\n\n**Purpose:** Quantify agent reliability accounting for inherent model variability.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025)\n\n**Why Non-Determinism Matters:**\n\nAI agents exhibit run-to-run variability even with identical inputs. A single trial is insufficient to characterize true performance. Multiple trials reveal the distribution of outcomes.\n\n**The Two Key Metrics:**\n\n| Metric | Formula | Interpretation |\n|--------|---------|----------------|\n| **pass@k** | P(\u22651 success in k trials) | \"Can the agent ever succeed?\" |\n| **pass^k** | P(all k trials succeed) | \"Can we rely on the agent?\" |\n\n**Mathematical Relationship:**\n\nFor an agent with per-trial success probability p:\n- `pass@k = 1 - (1-p)^k` \u2014 Approaches 100% as k increases\n- `pass^k = p^k` \u2014 Approaches 0% as k increases\n\n**Divergence Example:**\n\n| Per-Trial Success | pass@10 | pass^10 |\n|-------------------|---------|---------|\n| 90% | 99.99% | 34.9% |\n| 70% | 99.99% | 2.8% |\n| 50% | 99.9% | 0.1% |\n\n**Interpretation:** An agent that succeeds 50% of the time will almost always succeed *eventually* (pass@10 \u2248 100%) but almost never succeeds *reliably* (pass^10 \u2248 0%).\n\n**When to Use Each Metric:**\n\n| Scenario | Metric | Rationale |\n|----------|--------|-----------|\n| Research/exploration tasks | pass@k | One good result is valuable |\n| Customer-facing automation | pass^k | Reliability is critical |\n| Human-in-the-loop workflows | pass@k | Human catches failures |\n| Fully autonomous agents | pass^k | No safety net |\n\n**Recommended Trial Counts:**\n\n| Eval Purpose | Minimum Trials | Notes |\n|--------------|----------------|-------|\n| Quick iteration | 3-5 | Detect gross failures |\n| Release decision | 10-20 | Statistical confidence |\n| Regression suite | 5-10 | Balance speed and signal |\n| Capability frontier | 20-100 | Characterize true ceiling |\n\n**Non-Determinism Measurement Template:**\n\n```markdown\n## Non-Determinism Analysis \u2014 [Task ID]\n\n### Configuration\n- Trials: [k]\n- Temperature: [value]\n- Model: [version]\n\n### Results\n| Trial | Outcome | Notes |\n|-------|---------|-------|\n| 1 | PASS/FAIL | [brief note] |\n| ... | ... | ... |\n\n### Metrics\n- Per-trial success rate: [successes]/[k] = [p]%\n- pass@k: [calculated]%\n- pass^k: [calculated]%\n\n### Reliability Assessment\n[HIGH/MEDIUM/LOW] \u2014 [rationale]\n```\n\n---\n",
           "line_range": [
-            3054,
-            3133
+            3274,
+            3353
           ],
           "keywords": [
             "non-determinism",
@@ -16310,7 +16365,7 @@
               "assessment"
             ]
           },
-          "embedding_id": 430
+          "embedding_id": 431
         },
         {
           "id": "multi-method-capability-vs-regression-evals",
@@ -16318,8 +16373,8 @@
           "title": "Capability vs Regression Evals",
           "content": "#### 4.7.3 Capability vs Regression Evals\n\nIMPORTANT\n\n**Purpose:** Distinguish between evals that drive improvement and evals that guard existing behavior.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025)\n\n**The Two Eval Types:**\n\n| Type | Purpose | Expected Pass Rate | Growth Pattern |\n|------|---------|-------------------|----------------|\n| **Capability** | Target agent struggles, drive improvement | Low initially (10-50%) | Rises as agent improves |\n| **Regression** | Detect backsliding, guard existing behavior | High baseline (~100%) | Suite grows over time |\n\n**Capability Eval Characteristics:**\n\n- Tests things the agent *cannot yet do reliably*\n- Low pass rates are expected and informative\n- Provides improvement targets for development\n- Measures frontier of agent capability\n\n**Regression Eval Characteristics:**\n\n- Tests things the agent *should already do*\n- Near-100% pass rate is the baseline\n- Failures indicate breaking changes\n- Runs in CI/CD to block problematic deployments\n\n**The Graduation Pattern:**\n\n```\nCapability Eval (pass@10 = 30%)\n        \u2502\n        \u25bc [Agent improves]\nCapability Eval (pass@10 = 85%)\n        \u2502\n        \u25bc [Threshold met]\nGraduates to Regression Suite\n        \u2502\n        \u25bc [Baseline locked]\nRegression Eval (expected: 100%)\n```\n\n**Graduation Criteria:**\n\n| Metric | Threshold for Graduation |\n|--------|--------------------------|\n| pass@10 | > 80% |\n| pass^5 | > 60% |\n| Consecutive stable runs | \u2265 3 |\n\n**Eval Suite Composition:**\n\n| Suite Stage | Capability % | Regression % |\n|-------------|--------------|--------------|\n| Early development | 80% | 20% |\n| Mature agent | 30% | 70% |\n| Production maintenance | 10% | 90% |\n\n**Saturation Monitoring:**\n\nWhen capability evals approach 100%, they lose signal:\n- **Symptom:** All tests pass, but users still report issues\n- **Cause:** Eval suite no longer challenges agent frontier\n- **Fix:** Add harder tasks, graduate saturated evals to regression\n\n**Saturation Detection:**\n\n| Signal | Threshold | Action |\n|--------|-----------|--------|\n| Capability suite pass rate | > 90% sustained | Add harder tasks |\n| No capability failures for | > 2 weeks | Review suite difficulty |\n| User-reported issues not caught | Any | Convert to regression test |\n\n---\n",
           "line_range": [
-            3134,
-            3210
+            3354,
+            3430
           ],
           "keywords": [
             "capability",
@@ -16362,7 +16417,7 @@
               "regression"
             ]
           },
-          "embedding_id": 431
+          "embedding_id": 432
         },
         {
           "id": "multi-method-grader-design-principles",
@@ -16370,8 +16425,8 @@
           "title": "Grader Design Principles",
           "content": "#### 4.7.4 Grader Design Principles\n\nIMPORTANT\n\n**Purpose:** Build evaluation graders that accurately measure agent performance without false positives or negatives.\n\n**Source:** Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025), METR evaluation research\n\n**Core Principles:**\n\n| Principle | Description | Why It Matters |\n|-----------|-------------|----------------|\n| **Grade outcomes, not paths** | Evaluate final result, not specific steps taken | Agents find valid approaches designers didn't anticipate |\n| **Build partial credit** | Multi-component tasks shouldn't be all-or-nothing | Distinguishes \"close\" from \"completely wrong\" |\n| **Make tasks unambiguous** | Two experts should independently reach same verdict | Ambiguity causes grader disagreement and noise |\n| **Create reference solutions** | Prove task is solvable, validate grader | 0% pass@100 usually indicates broken task |\n| **Read transcripts** | Manually review failures to verify grader correctness | Catches grader bugs and unfair failures |\n\n**Anti-Pattern: Overly Rigid Grading**\n\n**Example:** Task asks agent to compute a percentage. Grader expects \"96.12\" but agent outputs \"96.124991\".\n\n**Problem:** Mathematically equivalent answers rejected due to formatting.\n\n**Fix:** Use tolerance-based comparison:\n```python\n# Bad: Exact string match\nassert output == \"96.12\"\n\n# Good: Numeric tolerance\nassert abs(float(output) - 96.12) < 0.01\n```\n\n**Anti-Pattern: Ambiguous Success Criteria**\n\n**Example:** Task says \"optimize the function\" but grader expects specific optimization.\n\n**Problem:** Agent applies valid but unexpected optimization; grader fails it.\n\n**Fix:** Specify measurable criteria:\n```markdown\n# Bad: \"Optimize the function\"\n# Good: \"Reduce function runtime by at least 20% on the provided benchmark\"\n```\n\n**Anti-Pattern: Grading Stated Goals vs. Intended Goals**\n\n**Example:** Task says \"reach 90% accuracy\" but grader requires exceeding 90%.\n\n**Problem:** Instruction-following agents stop at exactly 90%; grader fails them.\n\n**Fix:** Align grader with stated requirements:\n```python\n# Bad: Penalizes instruction-following\nassert accuracy > 0.90\n\n# Good: Matches stated requirement\nassert accuracy >= 0.90\n```\n\n**Grader Validation Checklist:**\n\nBefore deploying a new grader:\n\n- [ ] Reference solution exists and passes\n- [ ] Two domain experts agree on pass/fail for 10+ edge cases\n- [ ] Grader handles valid output variations (formatting, ordering)\n- [ ] Partial credit distinguishes degrees of correctness\n- [ ] Failure messages explain what was wrong\n- [ ] Manual transcript review confirms failures are fair\n\n**Grader Quality Metrics:**\n\n| Metric | Definition | Target |\n|--------|------------|--------|\n| Expert agreement | % of cases where grader matches human judgment | > 95% |\n| False positive rate | Valid solutions incorrectly failed | < 2% |\n| False negative rate | Invalid solutions incorrectly passed | < 5% |\n| Explanation clarity | Can developer understand why task failed? | Subjective review |\n\n---\n",
           "line_range": [
-            3211,
-            3292
+            3431,
+            3512
           ],
           "keywords": [
             "grader",
@@ -16415,7 +16470,7 @@
               "design"
             ]
           },
-          "embedding_id": 432
+          "embedding_id": 433
         },
         {
           "id": "multi-method-production-safety-guardrails",
@@ -16423,8 +16478,8 @@
           "title": "Production Safety Guardrails",
           "content": "### 4.8 Production Safety Guardrails\n\nCRITICAL\n\n**Purpose:** Implement multi-layer safety defenses for production agent deployments.\n\n**Source:** Dextra Labs Agentic AI Safety Playbook, Superagent Framework, OWASP 2025\n\n**The Guardrail Imperative:**\n\nSafety guardrails are required infrastructure, not optional enhancements. Production agents operate with significant autonomy; guardrails ensure this autonomy doesn't lead to harm.\n\n**The Guardrail Pipeline:**\n\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                     Guardrail Pipeline                          \u2502\n\u2502                                                                 \u2502\n\u2502  User Input \u2500\u2500\u25ba [Input Guardrails] \u2500\u2500\u25ba Model \u2500\u2500\u25ba [Output Guardrails] \u2500\u2500\u25ba User\n\u2502                      \u2502                              \u2502           \u2502\n\u2502                      \u25bc                              \u25bc           \u2502\n\u2502                 Reject/Modify                  Redact/Block     \u2502\n\u2502                                                                 \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n**Input Guardrails:**\n\n| Defense | What It Catches | Implementation |\n|---------|-----------------|----------------|\n| **Prompt injection detection** | Attempts to override instructions | Pattern matching + classifier |\n| **Topic classification** | Out-of-scope requests | Intent classifier |\n| **PII detection** | Sensitive data in prompts | Regex + NER |\n| **Rate limiting** | Abuse prevention | Token bucket / sliding window |\n| **Input length limits** | Context overflow attacks | Hard token limits |\n\n**Prompt Injection Defense:**\n\n```python\n# Example injection patterns to detect\nINJECTION_PATTERNS = [\n    r\"ignore (previous|prior|above) instructions\",\n    r\"disregard (your|the) (rules|guidelines)\",\n    r\"you are now\",\n    r\"new instructions:\",\n    r\"override.*system.*prompt\",\n    r\"pretend you are\",\n]\n\ndef check_prompt_injection(input_text: str) -> bool:\n    for pattern in INJECTION_PATTERNS:\n        if re.search(pattern, input_text, re.IGNORECASE):\n            return True  # Potential injection detected\n    return False\n```\n\n**Output Guardrails:**\n\n| Defense | What It Catches | Implementation |\n|---------|-----------------|----------------|\n| **PII redaction** | Accidental data leakage | Pattern matching + replacement |\n| **Hallucination grounding** | Unsupported claims | Citation verification |\n| **Content moderation** | Inappropriate outputs | Classifier + blocklist |\n| **Tool call validation** | Unauthorized actions | Allowlist checking |\n| **Output length limits** | Runaway generation | Hard token limits |\n\n**PII Redaction Patterns:**\n\n| PII Type | Pattern | Replacement |\n|----------|---------|-------------|\n| Email | `[\\w.-]+@[\\w.-]+\\.\\w+` | `[EMAIL]` |\n| Phone | `\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b` | `[PHONE]` |\n| SSN | `\\b\\d{3}-\\d{2}-\\d{4}\\b` | `[SSN]` |\n| Credit Card | `\\b\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{4}\\b` | `[CARD]` |\n| API Key | `\\b(sk|api|key|token)[_-]?[a-zA-Z0-9]{20,}\\b` | `[API_KEY]` |\n\n**RBAC for Tools (Per \u00a72.1.2):**\n\nEach agent role should have explicit tool permissions:\n\n| Role | Allowed Tools | Rationale |\n|------|--------------|-----------|\n| Orchestrator | Read, Glob, Grep, Task, governance | No direct modification |\n| Specialist | Domain-appropriate | Principle of least privilege |\n| Validator | Read-only | Fresh perspective, no modification |\n| Researcher | Read, WebSearch, WebFetch | Information gathering only |\n\n**Guardrail Configuration Template:**\n\n```yaml\nguardrails:\n  input:\n    prompt_injection:\n      enabled: true\n      action: reject  # or: sanitize\n      patterns: default  # or: custom list\n\n    pii_detection:\n      enabled: true\n      action: warn  # or: reject\n      types: [email, phone, ssn, credit_card]\n\n    rate_limiting:\n      enabled: true\n      requests_per_minute: 60\n      tokens_per_minute: 100000\n\n    max_input_tokens: 10000\n\n  output:\n    pii_redaction:\n      enabled: true\n      types: [email, phone, ssn, credit_card, api_key]\n\n    content_moderation:\n      enabled: true\n      categories: [hate, violence, sexual, self_harm]\n      threshold: 0.8\n\n    tool_call_validation:\n      enabled: true\n      mode: allowlist  # or: denylist\n      # Allowlist defined per agent role\n\n    max_output_tokens: 4000\n\n  logging:\n    log_blocked_requests: true\n    log_redactions: true\n    alert_on_injection_attempt: true\n```\n\n**Production Benchmarks (2025):**\n\n| Metric | Target | Notes |\n|--------|--------|-------|\n| MTTD (Mean Time to Detect) | < 5 minutes | Time to detect guardrail violation |\n| False positive rate | < 2% | Legitimate requests incorrectly blocked |\n| Guardrail overhead | < 100ms | Added latency for guardrail checks |\n| Coverage | 100% | All inputs/outputs pass through guardrails |\n\n**Integration with Governance:**\n\nGuardrails complement governance checks:\n- **Guardrails:** Fast, deterministic, pattern-based defenses\n- **Governance (\u00a74.3):** Nuanced, principle-based assessment\n\nBoth should be applied. Guardrails catch obvious violations quickly; governance catches subtle compliance issues.\n\n**S-Series Integration:**\n\nS-Series (Safety) principles from the Constitution have veto authority. Guardrail violations that align with S-Series triggers should:\n1. Block the action immediately\n2. Log the violation with full context\n3. Alert operators if configured\n4. Escalate to human review\n\n---\n\n# TITLE 5: Cross-Tool Synchronization\n\n**Implements:** R4 (State Persistence), supports multi-CLI workflow\n",
           "line_range": [
-            3293,
-            3455
+            3513,
+            3675
           ],
           "keywords": [
             "production",
@@ -16466,7 +16521,7 @@
               "guardrails"
             ]
           },
-          "embedding_id": 433
+          "embedding_id": 434
         },
         {
           "id": "multi-method-context-file-synchronization",
@@ -16474,8 +16529,8 @@
           "title": "Context File Synchronization",
           "content": "### 5.1 Context File Synchronization\n\nCRITICAL\n\n**Purpose:** Keep context identical across Claude Code, Gemini CLI, and Codex CLI.\n\n**The Three Context Files:**\n\n| File | Tool | Must Contain |\n|------|------|--------------|\n| `claude.md` | Claude Code CLI | Project context, agent registry, decisions |\n| `gemini.md` | Gemini CLI | IDENTICAL to claude.md |\n| `agents.md` | Codex CLI | IDENTICAL to claude.md |\n\n**Sync Protocol:**\n\n1. **Designate Primary:** Claude Code is typically primary (most capable)\n2. **Edit Primary:** Make all context edits to `claude.md`\n3. **Sync Command:** After edits:\n   ```bash\n   cp claude.md gemini.md && cp claude.md agents.md\n   ```\n4. **Verify Sync:**\n   ```bash\n   diff claude.md gemini.md && diff claude.md agents.md && echo \"Sync verified\"\n   ```\n\n**Sync Triggers:**\n\n- After every significant decision\n- After session closer runs\n- Before switching to different CLI tool\n- Before ending work session\n\n**Sync Verification Prompt:**\n\nUse this when switching tools:\n\n```\nI'm switching from [Claude/Gemini/Codex] to [Claude/Gemini/Codex].\n\nPlease verify:\n1. Context files are synced (claude.md = gemini.md = agents.md)\n2. STATE.md reflects current position\n3. No pending handoffs that need attention\n\nThen load context and confirm ready state.\n```\n",
           "line_range": [
-            3456,
-            3504
+            3676,
+            3724
           ],
           "keywords": [
             "context",
@@ -16516,16 +16571,16 @@
               "synchronization"
             ]
           },
-          "embedding_id": 434
+          "embedding_id": 435
         },
         {
           "id": "multi-method-multi-tool-workflow-patterns",
           "domain": "multi-agent",
           "title": "Multi-Tool Workflow Patterns",
-          "content": "### 5.2 Multi-Tool Workflow Patterns\n\nIMPORTANT\n\n**Pattern: Parallel Research with Different Models**\n\n```\nUser Request: \"Research [topic] from multiple perspectives\"\n\n1. Claude: \"Write a hook for this, authority angle -> authority-hook.md\"\n2. Gemini: \"Write a hook for this, discovery angle -> discovery-hook.md\"\n3. Codex: \"Review both hooks, synthesize recommendation\"\n```\n\n**Pattern: Specialized Tool Selection**\n\n| Task Type | Recommended Tool | Rationale |\n|-----------|-----------------|-----------|\n| Complex reasoning | Claude Code | Best at nuanced analysis |\n| Web research | Gemini CLI | Strong search integration |\n| Code review | Claude Code or Codex | Both strong at code |\n| Quick lookup | Gemini CLI | Fast, free tier |\n| Synthesis/critique | Codex | Good at high-level analysis |\n\n**Pattern: Cross-Tool Validation**\n\n```\n1. Claude: Generate output\n2. Switch to Gemini: Validate output (fresh model = fresh perspective)\n3. Synthesize feedback\n```\n\n---\n\n## Appendix A: Claude Code CLI Specifics\n\nOPTIONAL \u2014 Load when using Claude Code\n\n### Agent Creation\n\n```bash\n# Launch Claude Code\nclaude\n\n# Create agent interactively\n/agents\n# Select \"Create new agent\"\n# Choose project or personal scope\n# Paste agent definition\n```\n\n### Agent Invocation\n\n```bash\n# Automatic (Claude decides)\n\"Perform research on X\"  # Claude invokes appropriate agent\n\n# Explicit\n\"@home-lab-guru Research the best NAS options\"\n```\n\n### Key Commands\n\n| Command | Purpose |\n|---------|---------|\n| `/agents` | Manage agents |\n| `/context` | View context usage |\n| `/clear` | Clear conversation (keep files) |\n| `/compact [focus]` | Summarize context, optional focus area |\n| `/rewind` | Restore to checkpoint (conversation, code, or both) |\n| `/rename [name]` | Name session for later retrieval |\n| `/init` | Create claude.md from project |\n| `/skills` | Manage skills |\n| `/hooks` | Configure deterministic hooks |\n| `/permissions` | Manage tool allowlists |\n| `Shift+Tab` | Cycle modes (normal/plan) |\n| `Ctrl+O` | View agent execution details |\n| `Esc` | Stop current action (context preserved) |\n| `Esc + Esc` | Open rewind menu |\n| `--continue` | Resume most recent conversation |\n| `--resume` | Select from recent sessions |\n| `--dangerously-skip-permissions` | Bypass permission prompts (use in sandbox only) |\n| `-p \"prompt\"` | Headless mode for scripts/CI |\n| `--output-format json` | Structured output for parsing |\n\n### Session Anti-Patterns\n\nCommon mistakes and fixes:\n\n| Anti-Pattern | Symptom | Fix |\n|--------------|---------|-----|\n| **Kitchen sink session** | Context full of unrelated tasks | `/clear` between unrelated tasks |\n| **Over-correction loop** | Corrected 2+ times, still wrong | `/clear`, write better initial prompt |\n| **Over-specified CLAUDE.md** | Instructions ignored | Prune ruthlessly; if Claude does it correctly without the rule, delete it |\n| **Trust-then-verify gap** | Plausible but broken code | Always provide verification (tests, scripts, screenshots) |\n| **Infinite exploration** | Context full from investigation | Scope narrowly or use subagents |\n\n### Skills (Domain Knowledge)\n\nSkills extend Claude's knowledge with project-specific information. Claude applies them automatically when relevant, or invoke directly with `/skill-name`.\n\n**Structure:**\n```\n.claude/skills/\n\u2514\u2500\u2500 api-conventions/\n    \u2514\u2500\u2500 SKILL.md\n```\n\n**SKILL.md Format:**\n```markdown\n---\nname: api-conventions\ndescription: REST API design conventions for our services\ndisable-model-invocation: true  # Manual-only (for workflows with side effects)\n---\n# API Conventions\n[Content here]\n```\n\n**When to use Skills vs Agents:**\n| Use Case | Skills | Agents |\n|----------|--------|--------|\n| Domain knowledge | \u2713 | |\n| Reusable workflows | \u2713 | |\n| Isolated context needed | | \u2713 |\n| Tool restrictions needed | | \u2713 |\n| Fresh perspective | | \u2713 |\n\n### Sub-Agent Behavior\n\n- Sub-agents get FRESH context window (200K tokens)\n- Sub-agents CANNOT spawn other sub-agents\n- Sub-agent results returned as concise summary\n- Use `Ctrl+O` to expand sub-agent details\n\n### Task Management System (v2.1.16+)\n\nClaude Code provides built-in task coordination via four tools. This supersedes the legacy TodoWrite system.\n\n#### Task Tools\n\n| Tool | Purpose | Key Parameters |\n|------|---------|----------------|\n| `TaskCreate` | Create structured task | `subject` (imperative), `description`, `activeForm` (present continuous) |\n| `TaskUpdate` | Update task state | `taskId`, `status`, `owner`, `addBlocks`, `addBlockedBy` |\n| `TaskList` | List all tasks | Returns: id, subject, status, owner, blockedBy |\n| `TaskGet` | Get full task details | `taskId` \u2192 full description, blocks, blockedBy |\n\n#### Task States\n\n```\npending \u2192 in_progress \u2192 completed\n```\n\n- Mark `in_progress` BEFORE starting work\n- Mark `completed` ONLY when fully done (not partial, not failing tests)\n- Keep `in_progress` if blocked \u2014 create blocker task instead\n\n#### Dependency Tracking\n\n```bash\n# Task 2 waits for Task 1\nTaskUpdate(taskId=\"2\", addBlockedBy=[\"1\"])\n\n# Task 1 blocks Tasks 2 and 3\nTaskUpdate(taskId=\"1\", addBlocks=[\"2\", \"3\"])\n```\n\n**Dependency Patterns:**\n\n| Pattern | Structure | Use Case |\n|---------|-----------|----------|\n| Pipeline | `A \u2192 B \u2192 C` (B.blockedBy=[A], C.blockedBy=[B]) | Sequential processing |\n| Fan-Out | `A \u2192 [B,C,D]` (B/C/D.blockedBy=[A]) | Parallel after setup |\n| Fan-In | `[B,C,D] \u2192 E` (E.blockedBy=[B,C,D]) | Convergence before next phase |\n\n#### When to Use Tasks\n\n| Use Tasks | Skip Tasks |\n|-----------|------------|\n| Complex multi-step work (3+ steps) | Single straightforward task |\n| Plan mode tracking | Trivial operations |\n| User provides numbered list | Purely conversational |\n| Coordinating with sub-agents | <3 trivial steps |\n\n#### Best Practices\n\n1. Create tasks with clear imperative subjects (\"Fix auth bug\" not \"Auth bug\")\n2. Include enough description for another agent to complete independently\n3. Check `TaskList` before creating to avoid duplicates\n4. ONE task `in_progress` per agent at a time (atomic progress)\n5. Use `TaskGet` to read latest state before updating (avoid stale writes)\n\n#### Environment Variable\n\n```bash\n# Revert to legacy TodoWrite (temporary)\nCLAUDE_CODE_ENABLE_TASKS=false\n```\n\n### Multi-Agent Swarm Infrastructure (Emerging)\n\n**Status:** Feature-flagged. Document for awareness only. Review date: 2026-Q2.\n\nClaude Code binary contains TeammateTool infrastructure for swarm coordination. This is NOT yet publicly available but may activate in future releases.\n\n#### Anticipated Capabilities (When Enabled)\n\n| Capability | Description |\n|------------|-------------|\n| Team spawning | Create named teams with shared task lists |\n| Agent messaging | Direct (`write`) and broadcast communication |\n| Plan approval | Leader reviews agent plans before execution |\n| Graceful shutdown | Coordinated team termination |\n\n#### Environment Variables (When Enabled)\n\n| Variable | Purpose |\n|----------|---------|\n| `CLAUDE_CODE_TEAM_NAME` | Active team identifier |\n| `CLAUDE_CODE_AGENT_ID` | Unique agent reference |\n| `CLAUDE_CODE_AGENT_NAME` | Display identifier |\n\n#### File Structure (When Enabled)\n\n```\n~/.claude/\n\u251c\u2500\u2500 teams/{team-name}/\n\u2502   \u251c\u2500\u2500 config.json        # Team metadata, roster\n\u2502   \u2514\u2500\u2500 messages/          # Inter-agent mailbox\n\u2514\u2500\u2500 tasks/{team-name}/     # Team-scoped task list\n```\n\n**Note:** Monitor [Claude Code release notes](https://github.com/anthropics/claude-code/releases) for TeammateTool activation.\n\n---\n\n## Appendix B: Gemini CLI Specifics\n\nOPTIONAL \u2014 Load when using Gemini CLI\n\n### Installation\n\n```bash\nnpm install -g @google/gemini-cli\n# or\nbrew install gemini-cli\n```\n\n### Context File\n\n```bash\n# Create context file\ngemini\n/init  # Creates gemini.md\n```\n\n### Key Commands\n\n| Command | Purpose |\n|---------|---------|\n| `/init` | Create gemini.md from project |\n| `/tools` | View available tools |\n| `/context` | View context usage |\n\n### Headless Mode\n\n```bash\n# Run single prompt without TUI\ngemini -p \"Your prompt here\"\n```\n\nUseful for: Agent invoking Gemini for specific tasks\n\n---\n\n## Appendix C: Codex CLI (OpenAI) Specifics\n\nOPTIONAL \u2014 Load when using Codex CLI\n\n### Installation\n\n```bash\nnpm install -g @openai/codex\n```\n\n### Context File\n\nUses `agents.md` by convention (sync with claude.md/gemini.md)\n\n### Key Commands\n\n| Command | Purpose |\n|---------|---------|\n| `/model` | Switch models |\n| `/sessions` | View past sessions |\n| `/share` | Share session URL |\n| `/timeline` | View/restore session history |\n\n### Session Sharing\n\n```bash\n/share  # Copies shareable URL to clipboard\n```\n\n---\n\n## Appendix D: Version History\n\n| Version | Date | Changes |\n|---------|------|---------|\n| v2.12.2 | 2026-02-11 | PATCH: Added circuit breaker state machine to \u00a74.4 Fault Tolerance Procedures. State diagram (CLOSED\u2192OPEN\u2192HALF_OPEN), behavior table, integration with existing 3-failure retry protocol. Cross-reference to ai-coding-methods \u00a75.10.5. |\n| v2.12.1 | 2026-02-10 | PATCH: Coherence audit remediation. (1) Standardized document reference \"Governance Framework Methods TITLE 13\" \u2192 \"Governance Methods TITLE 13\" in \u00a73.7.1 cross-reference. (2) Corrected v2.12.0 version history description: \"cost metrics\" \u2192 \"cost-related alerting thresholds\" (accuracy). |\n| v2.12.0 | 2026-02-09 | MINOR: API Cost Optimization integration. Added cost-related alerting thresholds to \u00a73.7.1 Production Observability (cost per task, cache hit rate). Added Batch vs. Real-Time Orchestration subsection to \u00a73.3 (decision criteria table, integration note, anti-pattern). Cross-references to Governance Methods TITLE 13. |\n| v2.11.1 | 2026-02-09 | PATCH: Cross-domain audit remediation. Verified principle enumeration in governance hierarchy box (J1, A1-A5, R1-R5, Q1-Q3) is correct per v2.1.0 principle structure. |\n| v2.11.0 | 2026-02-08 | MINOR: Coherence audit remediation. (1) Fixed A-Series ID conflict: \u00a72.1.2 Context Isolation Architecture A4\u2192A2 (matching 3 other references). (2) Updated validation checklist from \"5 required sections\" to \"6 required sections\" (adding Governance Compliance per v2.7.0). (3) Fixed Effective Date (2026-01-24\u21922026-02-08). (4) Fixed phantom principle name: \"Explicit Intent\"\u2192\"Explicit Over Implicit\". (5) Fixed npm scope: @anthropic-ai/gemini-cli\u2192@google/gemini-cli. (6) Moved orphaned v2.10.0.1 into version history table. (7) Fixed version history date (v2.5.0: 2026-01-05\u21922026-01-04 per git history). |\n| v2.10.1 | 2026-02-08 | PATCH: Coherence audit cascade fix. Corrected principle ID in \u00a74.5 audit record example (line 2556): `coding-quality-security-by-default` \u2192 `coding-quality-security-first-development` per ai-coding-domain-principles v2.3.1 canonical ID. |\n| v2.10.0.1 | 2026-02-01 | PATCH: Replaced \"significant action\" with skip-list model per v1.7.0 operational change. |\n| v2.10.0 | 2026-01-24 | **Task Management & Dependency Tracking.** Added: Appendix A Claude Code Task Management System (TaskCreate, TaskUpdate, TaskList, TaskGet tools with states and dependency tracking), Multi-Agent Swarm Infrastructure (emerging/feature-flagged TeammateTool awareness). Enhanced: \u00a73.3 Dependency Declaration patterns (blockedBy/blocks relationships, Pipeline/Fan-Out/Fan-In patterns), \u00a73.5 Task Ownership Protocol (claim-before-work, atomic progress, session resume reassignment). Sources: Claude Code v2.1.16 release notes, Anthropic Agent SDK documentation, community implementations (claude-flow, Piebald-AI system prompt extraction). |\n| v2.8.0 | 2026-01-17 | **Evaluation Methods Enhancement.** Added: \u00a74.7.1 Grader Types (Code-Based, Model-Based, Human \u2014 selection guidance, strengths/weaknesses), \u00a74.7.2 Non-Determinism Measurement (pass@k for capability testing, pass^k for reliability \u2014 formulas and target thresholds), \u00a74.7.3 Capability vs Regression Evals (when to use each, metrics differences, workflow integration), \u00a74.7.4 Grader Design Principles (grade outcomes not paths, partial credit, multi-shot grading). Source: Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025). Fills gap: existing 4-layer framework lacked specific grader implementation guidance. |\n| v2.7.0 | 2026-01-05 | **Governance Compliance Section.** Added: Governance Compliance as 6th required section in Subagent Definition Standard (\u00a72.1). All subagent system prompts must now include governance framework alignment: S-Series veto authority, Constitution meta-principles, domain applicability, and uncertainty handling. Template updated with placeholder section. Addresses gap: subagents lacked explicit governance framework awareness, causing issues like Contrarian Reviewer \"missing the point\" by not following constitutional hierarchy. |\n| v2.6.0 | 2026-01-04 | **Artifact Type Selection.** Added: \u00a71.1 Artifact Type Selection: Method vs. Subagent \u2014 decision framework for choosing between method (procedure for generalist) or subagent (dedicated agent with fresh context) when specialization is justified. Fresh context is primary signal; requires supporting factor (frequency, tool restrictions, cognitive isolation) to justify subagent overhead. Includes comparison table, decision tree, examples, and \"when in doubt\" guidance. Updates Situation Index. Addresses gap: existing principles covered Agent vs Generalist but not Method vs Subagent as artifact types. |\n| v2.5.0 | 2026-01-04 | **Production Operations Expansion.** Added 6 new sections from Google Cloud AI Agents guide analysis + 2025-2026 industry research validation. New sections: \u00a73.4.1 Memory Distillation Procedure (AWS AgentCore 89-95% compression, Mem0 80% token reduction, Google Titans architecture), \u00a73.7.1 Production Observability Patterns (IBM AgentOps, OpenTelemetry, session replay), \u00a73.8 ReAct Loop Configuration (loop controls, termination triggers, runaway detection), \u00a74.7 Agent Evaluation Framework (4-layer model: Component/Trajectory/Outcome/System, trajectory metrics), \u00a74.8 Production Safety Guardrails (multi-layer defense, prompt injection, PII redaction, RBAC). Updated Situation Index with 7 new entries. Sources: Google Vertex AI Gen AI Evaluation Service, Confident AI, Dextra Labs Safety Playbook, Superagent Framework, OWASP 2025. |\n| v2.4.0 | 2026-01-04 | **Agent Authoring Best Practices.** Added: \u00a72.1.1 System Prompt Best Practices (positive framing, examples, sandwich method, concrete invocation triggers), \u00a72.1.2 Tool Scoping Guidelines (when to restrict vs inherit, decision matrix), \u00a72.1.3 Agent Validation Checklist (3-phase validation, iteration process, graduation criteria). Updated Situation Index with new sections. Source: Anthropic prompt engineering research, Claude Code subagent docs, skill authoring best practices. |\n| v2.3.0 | 2026-01-03 | **Gateway-Based Enforcement.** Added: \u00a74.6.2 Gateway-Based Enforcement (Platform-Agnostic) \u2014 documents MCP Gateway pattern for platforms lacking subagent architecture. Covers: problem (Claude Code subagents are unique), solution (server-side enforcement via gateway/proxy), available solutions (Lasso, Envoy, IBM ContextForge), decision matrix (subagent vs gateway), instruction-based fallback for minimum viable enforcement. Key principle: \"Architecture beats hope.\" |\n| v2.2.0 | 2026-01-02 | **Assessment Responsibility Layers.** Added: \u00a74.6.1 Assessment Responsibility Layers \u2014 defines script vs AI layer responsibilities in governance assessment. Script handles: S-Series keyword detection (deterministic safety), principle retrieval, structured output. AI handles: principle conflict analysis, modification generation, nuanced judgment. Includes model capability considerations (Frontier/Mid-tier/Fast). Key principle: \"Don't try to script nuanced judgment. Don't let AI override safety guardrails.\" |\n| v2.1.0 | 2026-01-02 | **Governance Enforcement Architecture + Cross-Platform Research.** Added: \u00a74.6 Governance Enforcement Architecture \u2014 Orchestrator-First pattern making governance structural (not optional), four-layer defense in depth (Default Persona \u2192 Governance Tool \u2192 Post-Action Audit \u2192 Per-Response Reminder), bypass authorization with narrow scope, audit trail requirements, Orchestrator Agent definition. Added: Appendix F Cross-Platform Agent Support \u2014 platform matrix (Claude Code, Codex CLI, Gemini CLI, ChatGPT, Grok/Perplexity), enforcement levels (HARD vs SOFT), LLM-agnostic design patterns, platform detection code, user communication templates. Problem addressed: voluntary governance tools can be ignored even with reminders. Solution: Orchestrator as default persona with mandatory `evaluate_governance()` before delegation. ESCALATE is now blocking (halts execution until human approves). |\n| v2.0.0 | 2026-01-01 | **Major revision aligned with Principles v2.0.0.** Added: Agent Definition Standard (\u00a72.1), Agent Catalog with 6 patterns (\u00a72.2), Contrarian Reviewer pattern (\u00a74.2), Governance Agent pattern (\u00a74.3), Handoff Pattern Taxonomy (\u00a73.1), Compression Procedures (\u00a73.4), Shared Assumptions Document. Enhanced: Pattern Selection with Linear-First default and Read-Write Analysis. Updated: Preamble scope for individual/sequential/parallel coverage. Renamed: Title numbering for new sections. Research: Anthropic, Google ADK, Cognition, LangChain, Microsoft, Vellum multi-agent patterns (2025). |\n| v1.1.0 | 2025-12-29 | Structural Fixes: Changed Title headers from `## Title` to `# TITLE` for extractor compatibility. Changed section headers from `### X.Y` to `### X.Y` for method extraction. Removed series codes from Principle to Title mapping. Updated status from Draft to Active. |\n| v1.0.0 | 2025-12-21 | Initial release. Implements 11 multi-agent domain principles. Core patterns derived from 2025 industry best practices and NetworkChuck workflow patterns. |\n\n---\n\n## Appendix E: Evidence Base\n\nThis methods document synthesizes patterns from:\n\n**Official Documentation:**\n- Anthropic Claude Code Best Practices (2025)\n- Anthropic Claude Agent SDK (2025)\n- Claude Code Subagents Documentation\n- Claude Code v2.1.16 Release Notes \u2014 Task Management System introduction\n- Claude Agent SDK Todo Tracking \u2014 Task states and lifecycle\n\n**Industry Research (2025-2026):**\n- Anthropic Multi-Agent Research System (90.2% improvement, 15x tokens)\n- Google ADK \"Architecting Efficient Context-Aware Multi-Agent Framework\" (Agents-as-Tools vs Agent-Transfer)\n- Google Cloud \"Startup Technical Guide: AI Agents\" (2025) \u2014 comprehensive agent patterns\n- Google Vertex AI Gen AI Evaluation Service \u2014 4-layer evaluation framework\n- Cognition \"Don't Build Multi-Agents\" (conflicting assumptions, read-write division)\n- LangChain \"How and When to Build Multi-Agent Systems\" (read-heavy parallelization)\n- Microsoft Multi-Agent Reference Architecture (context engineering)\n- Vellum \"Multi-Agent Context Engineering\" (Write/Select/Compress/Isolate)\n\n**Memory & Context Research (2025-2026):**\n- AWS AgentCore Memory Deep Dive \u2014 89-95% compression rates in production\n- Mem0 Paper (arXiv:2504.19413) \u2014 80% token reduction via graph-based distillation\n- Google Titans Architecture \u2014 Test-time memorization with \"surprise\" metrics\n\n**Observability & Operations (2025-2026):**\n- IBM AgentOps \u2014 Built on OpenTelemetry standards\n- AgentOps.ai \u2014 400+ LLM integrations, visual event tracking\n- AI Multiple Research \u2014 12-15% overhead acceptable for observability\n\n**Safety & Evaluation (2025-2026):**\n- Confident AI \u2014 Component-wise evaluation enables debugging\n- orq.ai Agent Evaluation \u2014 \"Evaluate trajectory, not just a turn\"\n- Dextra Labs Agentic AI Safety Playbook \u2014 \"Required infrastructure, not nice-to-have\"\n- Superagent Framework \u2014 Declarative safety policies\n- OWASP 2025 \u2014 Prompt injection is #1 risk\n\n**Execution Frameworks (2025-2026):**\n- IBM ReAct Agent \u2014 Standard for combining reasoning with tool use\n- AG2 ReAct Loops \u2014 Advanced loop evaluation patterns\n- Prompting Guide ReAct \u2014 De facto prompting standard\n\n**Practitioner Patterns:**\n- NetworkChuck multi-CLI workflow (2025)\n- Cross-tool context synchronization patterns\n- Session state persistence patterns\n\n**Research Findings:**\n- Context editing reduces token consumption 84%\n- Fresh context validation eliminates confirmation bias\n- State machine orchestration improves reliability\n- Sub-agent isolation protects main conversation context\n- \"A focused 300-token context often outperforms an unfocused 113,000-token context\" (Google ADK)\n- Memory distillation achieves 80-95% compression while preserving decision fidelity\n- Trajectory evaluation catches decision-path issues missed by outcome-only evaluation\n- Production guardrails add < 100ms latency with proper implementation\n\n---\n\n## Appendix F: Cross-Platform Agent Support (2025-2026)\n\nThis appendix documents platform-specific agent capabilities for implementers building LLM-agnostic agent systems.\n\n### Platform Support Matrix\n\n| Platform | Local Agent Files | System Prompt Override | Tool Restrictions | Agent Installation |\n|----------|-------------------|----------------------|-------------------|-------------------|\n| **Claude Code** | `.claude/agents/*.md` | CLAUDE.md | \u2705 Via YAML frontmatter | Supported |\n| **Codex CLI** | \u274c (`AGENTS.md` = project instructions) | `AGENTS.md`, `codex.md` | \u274c | N/A |\n| **Gemini CLI** | \u274c | `GEMINI.md`, `.gemini/system.md` | \u274c | N/A |\n| **ChatGPT Desktop** | \u274c | Built-in agent mode | \u274c | N/A |\n| **Grok/Perplexity** | \u274c | Cloud-based | \u274c | N/A |\n\n### Key Findings\n\n**Claude Code Agent System:**\n- Agents defined in `.claude/agents/*.md` with YAML frontmatter\n- **Tool restrictions in frontmatter** = hard enforcement\n- Agents invocable via `/agent:name` or Task tool with `subagent_type`\n- Example frontmatter:\n```yaml\n---\nname: orchestrator\ndescription: Governance-first coordinator\ntools: Read, Glob, Grep, Task, mcp__ai-governance__*\nmodel: inherit\n---\n```\n\n**Codex CLI (OpenAI) Clarification:**\n- `AGENTS.md` is **project instructions** (like CLAUDE.md), NOT agent definitions\n- No local agent file system\n- Agents are system-level (cloud-managed)\n\n**Gemini CLI:**\n- `GEMINI.md` at project root = project-specific instructions\n- `.gemini/system.md` = system prompt override\n- No agent definition format\n\n### Enforcement Levels\n\n| Level | Mechanism | Strength | Platform Coverage |\n|-------|-----------|----------|-------------------|\n| **Tool Restrictions** | YAML frontmatter limits available tools | HARD | Claude Code only |\n| **Behavioral Instructions** | SERVER_INSTRUCTIONS, system prompts | SOFT | All platforms |\n| **Per-Response Reminders** | Appended to tool responses | SOFT | All platforms |\n\n### Design Implications for LLM-Agnostic Systems\n\n1. **MCP is the Universal Layer**: Expose agents via MCP tools/resources, not local files\n2. **SERVER_INSTRUCTIONS for Soft Enforcement**: All platforms receive behavioral guidance\n3. **Agent Installation for Hard Enforcement**: Only Claude Code supports local agent files with tool restrictions\n4. **Detect Platform Before Installing**: Check for `.claude/` or `CLAUDE.md` before offering installation\n5. **Graceful Degradation**: Non-Claude platforms work via SERVER_INSTRUCTIONS (soft enforcement still better than none)\n\n### Implementation Pattern: Platform-Aware Agent Installation\n\n```python\ndef detect_claude_code_environment() -> bool:\n    \"\"\"Check for Claude Code indicators.\"\"\"\n    cwd = Path.cwd()\n    if (cwd / \".claude\").is_dir():\n        return True\n    if (cwd / \"CLAUDE.md\").is_file():\n        return True\n    # Check parent directories (up to 3 levels)\n    for parent in [cwd.parent, cwd.parent.parent, cwd.parent.parent.parent]:\n        if (parent / \".claude\").is_dir() or (parent / \"CLAUDE.md\").is_file():\n            return True\n    return False\n\n# Usage in MCP tool\nif not detect_claude_code_environment():\n    return {\"status\": \"not_applicable\", \"message\": \"Governance active via SERVER_INSTRUCTIONS\"}\n```\n\n### User Communication Template\n\nWhen offering agent installation to users unfamiliar with the concept:\n\n> **What is an Agent?**\n> An agent is a specialized configuration that guides how your AI assistant approaches tasks. Think of it as giving your AI a specific \"role\" with clear responsibilities and boundaries.\n>\n> **Why Install?**\n> Installation adds tool restrictions that structurally enforce governance (the AI cannot access edit/write tools without passing governance checks). Without installation, governance is advisory-only.\n>\n> **What Gets Created?**\n> A single markdown file (`.claude/agents/orchestrator.md`) containing the agent's role definition, tool permissions, and behavioral protocol.\n\n### Research Sources\n\n- Claude Code Documentation: Agent definitions and Task tool\n- OpenAI Codex CLI: AGENTS.md specification\n- Google Gemini CLI: Settings and system prompt documentation\n- Platform testing: Direct verification of agent file support (2026-01)\n\n---\n\n**End of Document**\n\n[Tool-specific appendices may be extended as new CLI tools emerge]\n",
+          "content": "### 5.2 Multi-Tool Workflow Patterns\n\nIMPORTANT\n\n**Pattern: Parallel Research with Different Models**\n\n```\nUser Request: \"Research [topic] from multiple perspectives\"\n\n1. Claude: \"Write a hook for this, authority angle -> authority-hook.md\"\n2. Gemini: \"Write a hook for this, discovery angle -> discovery-hook.md\"\n3. Codex: \"Review both hooks, synthesize recommendation\"\n```\n\n**Pattern: Specialized Tool Selection**\n\n| Task Type | Recommended Tool | Rationale |\n|-----------|-----------------|-----------|\n| Complex reasoning | Claude Code | Best at nuanced analysis |\n| Web research | Gemini CLI | Strong search integration |\n| Code review | Claude Code or Codex | Both strong at code |\n| Quick lookup | Gemini CLI | Fast, free tier |\n| Synthesis/critique | Codex | Good at high-level analysis |\n\n**Pattern: Cross-Tool Validation**\n\n```\n1. Claude: Generate output\n2. Switch to Gemini: Validate output (fresh model = fresh perspective)\n3. Synthesize feedback\n```\n\n---\n\n## Appendix A: Claude Code CLI Specifics\n\nOPTIONAL \u2014 Load when using Claude Code\n\n### Agent Creation\n\n```bash\n# Launch Claude Code\nclaude\n\n# Create agent interactively\n/agents\n# Select \"Create new agent\"\n# Choose project or personal scope\n# Paste agent definition\n```\n\n### Agent Invocation\n\n```bash\n# Automatic (Claude decides)\n\"Perform research on X\"  # Claude invokes appropriate agent\n\n# Explicit\n\"@home-lab-guru Research the best NAS options\"\n```\n\n### Key Commands\n\n| Command | Purpose |\n|---------|---------|\n| `/agents` | Manage agents |\n| `/context` | View context usage |\n| `/clear` | Clear conversation (keep files) |\n| `/compact [focus]` | Summarize context, optional focus area |\n| `/rewind` | Restore to checkpoint (conversation, code, or both) |\n| `/rename [name]` | Name session for later retrieval |\n| `/init` | Create claude.md from project |\n| `/skills` | Manage skills |\n| `/hooks` | Configure deterministic hooks |\n| `/permissions` | Manage tool allowlists |\n| `Shift+Tab` | Cycle modes (normal/plan) |\n| `Ctrl+O` | View agent execution details |\n| `Esc` | Stop current action (context preserved) |\n| `Esc + Esc` | Open rewind menu |\n| `--continue` | Resume most recent conversation |\n| `--resume` | Select from recent sessions |\n| `--dangerously-skip-permissions` | Bypass permission prompts (use in sandbox only) |\n| `-p \"prompt\"` | Headless mode for scripts/CI |\n| `--output-format json` | Structured output for parsing |\n\n### Session Anti-Patterns\n\nCommon mistakes and fixes:\n\n| Anti-Pattern | Symptom | Fix |\n|--------------|---------|-----|\n| **Kitchen sink session** | Context full of unrelated tasks | `/clear` between unrelated tasks |\n| **Over-correction loop** | Corrected 2+ times, still wrong | `/clear`, write better initial prompt |\n| **Over-specified CLAUDE.md** | Instructions ignored | Prune ruthlessly; if Claude does it correctly without the rule, delete it |\n| **Trust-then-verify gap** | Plausible but broken code | Always provide verification (tests, scripts, screenshots) |\n| **Infinite exploration** | Context full from investigation | Scope narrowly or use subagents |\n\n### Skills (Domain Knowledge)\n\nSkills extend Claude's knowledge with project-specific information. Claude applies them automatically when relevant, or invoke directly with `/skill-name`.\n\n**Structure:**\n```\n.claude/skills/\n\u2514\u2500\u2500 api-conventions/\n    \u2514\u2500\u2500 SKILL.md\n```\n\n**SKILL.md Format:**\n```markdown\n---\nname: api-conventions\ndescription: REST API design conventions for our services\ndisable-model-invocation: true  # Manual-only (for workflows with side effects)\n---\n# API Conventions\n[Content here]\n```\n\n**When to use Skills vs Agents:**\n| Use Case | Skills | Agents |\n|----------|--------|--------|\n| Domain knowledge | \u2713 | |\n| Reusable workflows | \u2713 | |\n| Isolated context needed | | \u2713 |\n| Tool restrictions needed | | \u2713 |\n| Fresh perspective | | \u2713 |\n\n### Sub-Agent Behavior\n\n- Sub-agents get FRESH context window (200K tokens)\n- Sub-agents CANNOT spawn other sub-agents\n- Sub-agent results returned as concise summary\n- Use `Ctrl+O` to expand sub-agent details\n\n### Task Management System (v2.1.16+)\n\nClaude Code provides built-in task coordination via four tools. This supersedes the legacy TodoWrite system.\n\n#### Task Tools\n\n| Tool | Purpose | Key Parameters |\n|------|---------|----------------|\n| `TaskCreate` | Create structured task | `subject` (imperative), `description`, `activeForm` (present continuous) |\n| `TaskUpdate` | Update task state | `taskId`, `status`, `owner`, `addBlocks`, `addBlockedBy` |\n| `TaskList` | List all tasks | Returns: id, subject, status, owner, blockedBy |\n| `TaskGet` | Get full task details | `taskId` \u2192 full description, blocks, blockedBy |\n\n#### Task States\n\n```\npending \u2192 in_progress \u2192 completed\n```\n\n- Mark `in_progress` BEFORE starting work\n- Mark `completed` ONLY when fully done (not partial, not failing tests)\n- Keep `in_progress` if blocked \u2014 create blocker task instead\n\n#### Dependency Tracking\n\n```bash\n# Task 2 waits for Task 1\nTaskUpdate(taskId=\"2\", addBlockedBy=[\"1\"])\n\n# Task 1 blocks Tasks 2 and 3\nTaskUpdate(taskId=\"1\", addBlocks=[\"2\", \"3\"])\n```\n\n**Dependency Patterns:**\n\n| Pattern | Structure | Use Case |\n|---------|-----------|----------|\n| Pipeline | `A \u2192 B \u2192 C` (B.blockedBy=[A], C.blockedBy=[B]) | Sequential processing |\n| Fan-Out | `A \u2192 [B,C,D]` (B/C/D.blockedBy=[A]) | Parallel after setup |\n| Fan-In | `[B,C,D] \u2192 E` (E.blockedBy=[B,C,D]) | Convergence before next phase |\n\n#### When to Use Tasks\n\n| Use Tasks | Skip Tasks |\n|-----------|------------|\n| Complex multi-step work (3+ steps) | Single straightforward task |\n| Plan mode tracking | Trivial operations |\n| User provides numbered list | Purely conversational |\n| Coordinating with sub-agents | <3 trivial steps |\n\n#### Best Practices\n\n1. Create tasks with clear imperative subjects (\"Fix auth bug\" not \"Auth bug\")\n2. Include enough description for another agent to complete independently\n3. Check `TaskList` before creating to avoid duplicates\n4. ONE task `in_progress` per agent at a time (atomic progress)\n5. Use `TaskGet` to read latest state before updating (avoid stale writes)\n\n#### Environment Variable\n\n```bash\n# Revert to legacy TodoWrite (temporary)\nCLAUDE_CODE_ENABLE_TASKS=false\n```\n\n### Multi-Agent Swarm Infrastructure (Emerging)\n\n**Status:** Feature-flagged. Document for awareness only. Review date: 2026-Q2.\n\nClaude Code binary contains TeammateTool infrastructure for swarm coordination. This is NOT yet publicly available but may activate in future releases.\n\n#### Anticipated Capabilities (When Enabled)\n\n| Capability | Description |\n|------------|-------------|\n| Team spawning | Create named teams with shared task lists |\n| Agent messaging | Direct (`write`) and broadcast communication |\n| Plan approval | Leader reviews agent plans before execution |\n| Graceful shutdown | Coordinated team termination |\n\n#### Environment Variables (When Enabled)\n\n| Variable | Purpose |\n|----------|---------|\n| `CLAUDE_CODE_TEAM_NAME` | Active team identifier |\n| `CLAUDE_CODE_AGENT_ID` | Unique agent reference |\n| `CLAUDE_CODE_AGENT_NAME` | Display identifier |\n\n#### File Structure (When Enabled)\n\n```\n~/.claude/\n\u251c\u2500\u2500 teams/{team-name}/\n\u2502   \u251c\u2500\u2500 config.json        # Team metadata, roster\n\u2502   \u2514\u2500\u2500 messages/          # Inter-agent mailbox\n\u2514\u2500\u2500 tasks/{team-name}/     # Team-scoped task list\n```\n\n**Note:** Monitor [Claude Code release notes](https://github.com/anthropics/claude-code/releases) for TeammateTool activation.\n\n---\n\n## Appendix B: Gemini CLI Specifics\n\nOPTIONAL \u2014 Load when using Gemini CLI\n\n### Installation\n\n```bash\nnpm install -g @google/gemini-cli\n# or\nbrew install gemini-cli\n```\n\n### Context File\n\n```bash\n# Create context file\ngemini\n/init  # Creates gemini.md\n```\n\n### Key Commands\n\n| Command | Purpose |\n|---------|---------|\n| `/init` | Create gemini.md from project |\n| `/tools` | View available tools |\n| `/context` | View context usage |\n\n### Headless Mode\n\n```bash\n# Run single prompt without TUI\ngemini -p \"Your prompt here\"\n```\n\nUseful for: Agent invoking Gemini for specific tasks\n\n---\n\n## Appendix C: Codex CLI (OpenAI) Specifics\n\nOPTIONAL \u2014 Load when using Codex CLI\n\n### Installation\n\n```bash\nnpm install -g @openai/codex\n```\n\n### Context File\n\nUses `agents.md` by convention (sync with claude.md/gemini.md)\n\n### Key Commands\n\n| Command | Purpose |\n|---------|---------|\n| `/model` | Switch models |\n| `/sessions` | View past sessions |\n| `/share` | Share session URL |\n| `/timeline` | View/restore session history |\n\n### Session Sharing\n\n```bash\n/share  # Copies shareable URL to clipboard\n```\n\n---\n\n## Appendix D: Version History\n\n| Version | Date | Changes |\n|---------|------|---------|\n| v2.12.3 | 2026-02-18 | PATCH: Added \u00a74.6.3 Hook-Based Enforcement (Client-Side Deterministic). Documents hook-based governance enforcement patterns: UserPromptSubmit reminder injection, PreToolUse transcript verification, soft vs hard enforcement modes, session-level verification strategy. Updated \u00a74.6.2 deployment decision matrix to include hooks. Added Client-Side Hooks and MCP Gateway/Proxy rows to Appendix F Enforcement Levels table. |\n| v2.12.2 | 2026-02-11 | PATCH: Added circuit breaker state machine to \u00a74.4 Fault Tolerance Procedures. State diagram (CLOSED\u2192OPEN\u2192HALF_OPEN), behavior table, integration with existing 3-failure retry protocol. Cross-reference to ai-coding-methods \u00a75.10.5. |\n| v2.12.1 | 2026-02-10 | PATCH: Coherence audit remediation. (1) Standardized document reference \"Governance Framework Methods TITLE 13\" \u2192 \"Governance Methods TITLE 13\" in \u00a73.7.1 cross-reference. (2) Corrected v2.12.0 version history description: \"cost metrics\" \u2192 \"cost-related alerting thresholds\" (accuracy). |\n| v2.12.0 | 2026-02-09 | MINOR: API Cost Optimization integration. Added cost-related alerting thresholds to \u00a73.7.1 Production Observability (cost per task, cache hit rate). Added Batch vs. Real-Time Orchestration subsection to \u00a73.3 (decision criteria table, integration note, anti-pattern). Cross-references to Governance Methods TITLE 13. |\n| v2.11.1 | 2026-02-09 | PATCH: Cross-domain audit remediation. Verified principle enumeration in governance hierarchy box (J1, A1-A5, R1-R5, Q1-Q3) is correct per v2.1.0 principle structure. |\n| v2.11.0 | 2026-02-08 | MINOR: Coherence audit remediation. (1) Fixed A-Series ID conflict: \u00a72.1.2 Context Isolation Architecture A4\u2192A2 (matching 3 other references). (2) Updated validation checklist from \"5 required sections\" to \"6 required sections\" (adding Governance Compliance per v2.7.0). (3) Fixed Effective Date (2026-01-24\u21922026-02-08). (4) Fixed phantom principle name: \"Explicit Intent\"\u2192\"Explicit Over Implicit\". (5) Fixed npm scope: @anthropic-ai/gemini-cli\u2192@google/gemini-cli. (6) Moved orphaned v2.10.0.1 into version history table. (7) Fixed version history date (v2.5.0: 2026-01-05\u21922026-01-04 per git history). |\n| v2.10.1 | 2026-02-08 | PATCH: Coherence audit cascade fix. Corrected principle ID in \u00a74.5 audit record example (line 2556): `coding-quality-security-by-default` \u2192 `coding-quality-security-first-development` per ai-coding-domain-principles v2.3.1 canonical ID. |\n| v2.10.0.1 | 2026-02-01 | PATCH: Replaced \"significant action\" with skip-list model per v1.7.0 operational change. |\n| v2.10.0 | 2026-01-24 | **Task Management & Dependency Tracking.** Added: Appendix A Claude Code Task Management System (TaskCreate, TaskUpdate, TaskList, TaskGet tools with states and dependency tracking), Multi-Agent Swarm Infrastructure (emerging/feature-flagged TeammateTool awareness). Enhanced: \u00a73.3 Dependency Declaration patterns (blockedBy/blocks relationships, Pipeline/Fan-Out/Fan-In patterns), \u00a73.5 Task Ownership Protocol (claim-before-work, atomic progress, session resume reassignment). Sources: Claude Code v2.1.16 release notes, Anthropic Agent SDK documentation, community implementations (claude-flow, Piebald-AI system prompt extraction). |\n| v2.8.0 | 2026-01-17 | **Evaluation Methods Enhancement.** Added: \u00a74.7.1 Grader Types (Code-Based, Model-Based, Human \u2014 selection guidance, strengths/weaknesses), \u00a74.7.2 Non-Determinism Measurement (pass@k for capability testing, pass^k for reliability \u2014 formulas and target thresholds), \u00a74.7.3 Capability vs Regression Evals (when to use each, metrics differences, workflow integration), \u00a74.7.4 Grader Design Principles (grade outcomes not paths, partial credit, multi-shot grading). Source: Anthropic Engineering \"Demystifying Evals for AI Agents\" (2025). Fills gap: existing 4-layer framework lacked specific grader implementation guidance. |\n| v2.7.0 | 2026-01-05 | **Governance Compliance Section.** Added: Governance Compliance as 6th required section in Subagent Definition Standard (\u00a72.1). All subagent system prompts must now include governance framework alignment: S-Series veto authority, Constitution meta-principles, domain applicability, and uncertainty handling. Template updated with placeholder section. Addresses gap: subagents lacked explicit governance framework awareness, causing issues like Contrarian Reviewer \"missing the point\" by not following constitutional hierarchy. |\n| v2.6.0 | 2026-01-04 | **Artifact Type Selection.** Added: \u00a71.1 Artifact Type Selection: Method vs. Subagent \u2014 decision framework for choosing between method (procedure for generalist) or subagent (dedicated agent with fresh context) when specialization is justified. Fresh context is primary signal; requires supporting factor (frequency, tool restrictions, cognitive isolation) to justify subagent overhead. Includes comparison table, decision tree, examples, and \"when in doubt\" guidance. Updates Situation Index. Addresses gap: existing principles covered Agent vs Generalist but not Method vs Subagent as artifact types. |\n| v2.5.0 | 2026-01-04 | **Production Operations Expansion.** Added 6 new sections from Google Cloud AI Agents guide analysis + 2025-2026 industry research validation. New sections: \u00a73.4.1 Memory Distillation Procedure (AWS AgentCore 89-95% compression, Mem0 80% token reduction, Google Titans architecture), \u00a73.7.1 Production Observability Patterns (IBM AgentOps, OpenTelemetry, session replay), \u00a73.8 ReAct Loop Configuration (loop controls, termination triggers, runaway detection), \u00a74.7 Agent Evaluation Framework (4-layer model: Component/Trajectory/Outcome/System, trajectory metrics), \u00a74.8 Production Safety Guardrails (multi-layer defense, prompt injection, PII redaction, RBAC). Updated Situation Index with 7 new entries. Sources: Google Vertex AI Gen AI Evaluation Service, Confident AI, Dextra Labs Safety Playbook, Superagent Framework, OWASP 2025. |\n| v2.4.0 | 2026-01-04 | **Agent Authoring Best Practices.** Added: \u00a72.1.1 System Prompt Best Practices (positive framing, examples, sandwich method, concrete invocation triggers), \u00a72.1.2 Tool Scoping Guidelines (when to restrict vs inherit, decision matrix), \u00a72.1.3 Agent Validation Checklist (3-phase validation, iteration process, graduation criteria). Updated Situation Index with new sections. Source: Anthropic prompt engineering research, Claude Code subagent docs, skill authoring best practices. |\n| v2.3.0 | 2026-01-03 | **Gateway-Based Enforcement.** Added: \u00a74.6.2 Gateway-Based Enforcement (Platform-Agnostic) \u2014 documents MCP Gateway pattern for platforms lacking subagent architecture. Covers: problem (Claude Code subagents are unique), solution (server-side enforcement via gateway/proxy), available solutions (Lasso, Envoy, IBM ContextForge), decision matrix (subagent vs gateway), instruction-based fallback for minimum viable enforcement. Key principle: \"Architecture beats hope.\" |\n| v2.2.0 | 2026-01-02 | **Assessment Responsibility Layers.** Added: \u00a74.6.1 Assessment Responsibility Layers \u2014 defines script vs AI layer responsibilities in governance assessment. Script handles: S-Series keyword detection (deterministic safety), principle retrieval, structured output. AI handles: principle conflict analysis, modification generation, nuanced judgment. Includes model capability considerations (Frontier/Mid-tier/Fast). Key principle: \"Don't try to script nuanced judgment. Don't let AI override safety guardrails.\" |\n| v2.1.0 | 2026-01-02 | **Governance Enforcement Architecture + Cross-Platform Research.** Added: \u00a74.6 Governance Enforcement Architecture \u2014 Orchestrator-First pattern making governance structural (not optional), four-layer defense in depth (Default Persona \u2192 Governance Tool \u2192 Post-Action Audit \u2192 Per-Response Reminder), bypass authorization with narrow scope, audit trail requirements, Orchestrator Agent definition. Added: Appendix F Cross-Platform Agent Support \u2014 platform matrix (Claude Code, Codex CLI, Gemini CLI, ChatGPT, Grok/Perplexity), enforcement levels (HARD vs SOFT), LLM-agnostic design patterns, platform detection code, user communication templates. Problem addressed: voluntary governance tools can be ignored even with reminders. Solution: Orchestrator as default persona with mandatory `evaluate_governance()` before delegation. ESCALATE is now blocking (halts execution until human approves). |\n| v2.0.0 | 2026-01-01 | **Major revision aligned with Principles v2.0.0.** Added: Agent Definition Standard (\u00a72.1), Agent Catalog with 6 patterns (\u00a72.2), Contrarian Reviewer pattern (\u00a74.2), Governance Agent pattern (\u00a74.3), Handoff Pattern Taxonomy (\u00a73.1), Compression Procedures (\u00a73.4), Shared Assumptions Document. Enhanced: Pattern Selection with Linear-First default and Read-Write Analysis. Updated: Preamble scope for individual/sequential/parallel coverage. Renamed: Title numbering for new sections. Research: Anthropic, Google ADK, Cognition, LangChain, Microsoft, Vellum multi-agent patterns (2025). |\n| v1.1.0 | 2025-12-29 | Structural Fixes: Changed Title headers from `## Title` to `# TITLE` for extractor compatibility. Changed section headers from `### X.Y` to `### X.Y` for method extraction. Removed series codes from Principle to Title mapping. Updated status from Draft to Active. |\n| v1.0.0 | 2025-12-21 | Initial release. Implements 11 multi-agent domain principles. Core patterns derived from 2025 industry best practices and NetworkChuck workflow patterns. |\n\n---\n\n## Appendix E: Evidence Base\n\nThis methods document synthesizes patterns from:\n\n**Official Documentation:**\n- Anthropic Claude Code Best Practices (2025)\n- Anthropic Claude Agent SDK (2025)\n- Claude Code Subagents Documentation\n- Claude Code v2.1.16 Release Notes \u2014 Task Management System introduction\n- Claude Agent SDK Todo Tracking \u2014 Task states and lifecycle\n\n**Industry Research (2025-2026):**\n- Anthropic Multi-Agent Research System (90.2% improvement, 15x tokens)\n- Google ADK \"Architecting Efficient Context-Aware Multi-Agent Framework\" (Agents-as-Tools vs Agent-Transfer)\n- Google Cloud \"Startup Technical Guide: AI Agents\" (2025) \u2014 comprehensive agent patterns\n- Google Vertex AI Gen AI Evaluation Service \u2014 4-layer evaluation framework\n- Cognition \"Don't Build Multi-Agents\" (conflicting assumptions, read-write division)\n- LangChain \"How and When to Build Multi-Agent Systems\" (read-heavy parallelization)\n- Microsoft Multi-Agent Reference Architecture (context engineering)\n- Vellum \"Multi-Agent Context Engineering\" (Write/Select/Compress/Isolate)\n\n**Memory & Context Research (2025-2026):**\n- AWS AgentCore Memory Deep Dive \u2014 89-95% compression rates in production\n- Mem0 Paper (arXiv:2504.19413) \u2014 80% token reduction via graph-based distillation\n- Google Titans Architecture \u2014 Test-time memorization with \"surprise\" metrics\n\n**Observability & Operations (2025-2026):**\n- IBM AgentOps \u2014 Built on OpenTelemetry standards\n- AgentOps.ai \u2014 400+ LLM integrations, visual event tracking\n- AI Multiple Research \u2014 12-15% overhead acceptable for observability\n\n**Safety & Evaluation (2025-2026):**\n- Confident AI \u2014 Component-wise evaluation enables debugging\n- orq.ai Agent Evaluation \u2014 \"Evaluate trajectory, not just a turn\"\n- Dextra Labs Agentic AI Safety Playbook \u2014 \"Required infrastructure, not nice-to-have\"\n- Superagent Framework \u2014 Declarative safety policies\n- OWASP 2025 \u2014 Prompt injection is #1 risk\n\n**Execution Frameworks (2025-2026):**\n- IBM ReAct Agent \u2014 Standard for combining reasoning with tool use\n- AG2 ReAct Loops \u2014 Advanced loop evaluation patterns\n- Prompting Guide ReAct \u2014 De facto prompting standard\n\n**Practitioner Patterns:**\n- NetworkChuck multi-CLI workflow (2025)\n- Cross-tool context synchronization patterns\n- Session state persistence patterns\n\n**Research Findings:**\n- Context editing reduces token consumption 84%\n- Fresh context validation eliminates confirmation bias\n- State machine orchestration improves reliability\n- Sub-agent isolation protects main conversation context\n- \"A focused 300-token context often outperforms an unfocused 113,000-token context\" (Google ADK)\n- Memory distillation achieves 80-95% compression while preserving decision fidelity\n- Trajectory evaluation catches decision-path issues missed by outcome-only evaluation\n- Production guardrails add < 100ms latency with proper implementation\n\n---\n\n## Appendix F: Cross-Platform Agent Support (2025-2026)\n\nThis appendix documents platform-specific agent capabilities for implementers building LLM-agnostic agent systems.\n\n### Platform Support Matrix\n\n| Platform | Local Agent Files | System Prompt Override | Tool Restrictions | Agent Installation |\n|----------|-------------------|----------------------|-------------------|-------------------|\n| **Claude Code** | `.claude/agents/*.md` | CLAUDE.md | \u2705 Via YAML frontmatter | Supported |\n| **Codex CLI** | \u274c (`AGENTS.md` = project instructions) | `AGENTS.md`, `codex.md` | \u274c | N/A |\n| **Gemini CLI** | \u274c | `GEMINI.md`, `.gemini/system.md` | \u274c | N/A |\n| **ChatGPT Desktop** | \u274c | Built-in agent mode | \u274c | N/A |\n| **Grok/Perplexity** | \u274c | Cloud-based | \u274c | N/A |\n\n### Key Findings\n\n**Claude Code Agent System:**\n- Agents defined in `.claude/agents/*.md` with YAML frontmatter\n- **Tool restrictions in frontmatter** = hard enforcement\n- Agents invocable via `/agent:name` or Task tool with `subagent_type`\n- Example frontmatter:\n```yaml\n---\nname: orchestrator\ndescription: Governance-first coordinator\ntools: Read, Glob, Grep, Task, mcp__ai-governance__*\nmodel: inherit\n---\n```\n\n**Codex CLI (OpenAI) Clarification:**\n- `AGENTS.md` is **project instructions** (like CLAUDE.md), NOT agent definitions\n- No local agent file system\n- Agents are system-level (cloud-managed)\n\n**Gemini CLI:**\n- `GEMINI.md` at project root = project-specific instructions\n- `.gemini/system.md` = system prompt override\n- No agent definition format\n\n### Enforcement Levels\n\n| Level | Mechanism | Strength | Platform Coverage |\n|-------|-----------|----------|-------------------|\n| **Client-Side Hooks** | PreToolUse/UserPromptSubmit intercept and enforce (\u00a74.6.3) | HARD | Clients with hook events (e.g., Claude Code \u2014 14 events) |\n| **MCP Gateway/Proxy** | Server-side interception of all tool calls (\u00a74.6.2) | HARD | Any MCP client |\n| **Tool Restrictions** | YAML frontmatter limits available tools | HARD | Claude Code only |\n| **Behavioral Instructions** | SERVER_INSTRUCTIONS, system prompts | SOFT | All platforms |\n| **Per-Response Reminders** | Appended to tool responses | SOFT | All platforms |\n\n### Design Implications for LLM-Agnostic Systems\n\n1. **MCP is the Universal Layer**: Expose agents via MCP tools/resources, not local files\n2. **SERVER_INSTRUCTIONS for Soft Enforcement**: All platforms receive behavioral guidance\n3. **Agent Installation for Hard Enforcement**: Only Claude Code supports local agent files with tool restrictions\n4. **Detect Platform Before Installing**: Check for `.claude/` or `CLAUDE.md` before offering installation\n5. **Graceful Degradation**: Non-Claude platforms work via SERVER_INSTRUCTIONS (soft enforcement still better than none)\n\n### Implementation Pattern: Platform-Aware Agent Installation\n\n```python\ndef detect_claude_code_environment() -> bool:\n    \"\"\"Check for Claude Code indicators.\"\"\"\n    cwd = Path.cwd()\n    if (cwd / \".claude\").is_dir():\n        return True\n    if (cwd / \"CLAUDE.md\").is_file():\n        return True\n    # Check parent directories (up to 3 levels)\n    for parent in [cwd.parent, cwd.parent.parent, cwd.parent.parent.parent]:\n        if (parent / \".claude\").is_dir() or (parent / \"CLAUDE.md\").is_file():\n            return True\n    return False\n\n# Usage in MCP tool\nif not detect_claude_code_environment():\n    return {\"status\": \"not_applicable\", \"message\": \"Governance active via SERVER_INSTRUCTIONS\"}\n```\n\n### User Communication Template\n\nWhen offering agent installation to users unfamiliar with the concept:\n\n> **What is an Agent?**\n> An agent is a specialized configuration that guides how your AI assistant approaches tasks. Think of it as giving your AI a specific \"role\" with clear responsibilities and boundaries.\n>\n> **Why Install?**\n> Installation adds tool restrictions that structurally enforce governance (the AI cannot access edit/write tools without passing governance checks). Without installation, governance is advisory-only.\n>\n> **What Gets Created?**\n> A single markdown file (`.claude/agents/orchestrator.md`) containing the agent's role definition, tool permissions, and behavioral protocol.\n\n### Research Sources\n\n- Claude Code Documentation: Agent definitions and Task tool\n- OpenAI Codex CLI: AGENTS.md specification\n- Google Gemini CLI: Settings and system prompt documentation\n- Platform testing: Direct verification of agent file support (2026-01)\n\n---\n\n**End of Document**\n\n[Tool-specific appendices may be extended as new CLI tools emerge]\n",
           "line_range": [
-            3505,
-            4000
+            3725,
+            4223
           ],
           "keywords": [
             "multi-tool",
@@ -16570,10 +16625,10 @@
               "behavior"
             ]
           },
-          "embedding_id": 435
+          "embedding_id": 436
         }
       ],
-      "last_extracted": "2026-02-12T04:04:17.765232+00:00",
+      "last_extracted": "2026-02-19T01:51:35.874384+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -16617,7 +16672,7 @@
               "first"
             ]
           },
-          "embedding_id": 436
+          "embedding_id": 437
         },
         {
           "id": "stor-architecture-a2-cultural-context-awareness",
@@ -16657,7 +16712,7 @@
               "awareness"
             ]
           },
-          "embedding_id": 437
+          "embedding_id": 438
         },
         {
           "id": "stor-architecture-a3-accessibility-by-design",
@@ -16695,7 +16750,7 @@
               "design"
             ]
           },
-          "embedding_id": 438
+          "embedding_id": 439
         },
         {
           "id": "stor-structure-st1-framework-as-tool-not-law",
@@ -16734,7 +16789,7 @@
               "tool"
             ]
           },
-          "embedding_id": 439
+          "embedding_id": 440
         },
         {
           "id": "stor-structure-st2-alternative-framework-awareness",
@@ -16775,7 +16830,7 @@
               "awareness"
             ]
           },
-          "embedding_id": 440
+          "embedding_id": 441
         },
         {
           "id": "stor-structure-st3-transformation-arc",
@@ -16812,7 +16867,7 @@
               "transformation"
             ]
           },
-          "embedding_id": 441
+          "embedding_id": 442
         },
         {
           "id": "stor-structure-st4-stakes-and-consequence-clarity",
@@ -16853,7 +16908,7 @@
               "clarity"
             ]
           },
-          "embedding_id": 442
+          "embedding_id": 443
         },
         {
           "id": "stor-structure-st5-perspective-selection",
@@ -16892,7 +16947,7 @@
               "selection"
             ]
           },
-          "embedding_id": 443
+          "embedding_id": 444
         },
         {
           "id": "stor-context-c1-specificity-over-abstraction",
@@ -16932,7 +16987,7 @@
               "abstraction"
             ]
           },
-          "embedding_id": 444
+          "embedding_id": 445
         },
         {
           "id": "stor-context-c2-show-tell-balance",
@@ -16971,7 +17026,7 @@
               "balance"
             ]
           },
-          "embedding_id": 445
+          "embedding_id": 446
         },
         {
           "id": "stor-context-c3-pacing-variation",
@@ -17009,7 +17064,7 @@
               "variation"
             ]
           },
-          "embedding_id": 446
+          "embedding_id": 447
         },
         {
           "id": "stor-context-c4-emotional-honesty",
@@ -17047,7 +17102,7 @@
               "honesty"
             ]
           },
-          "embedding_id": 447
+          "embedding_id": 448
         },
         {
           "id": "stor-context-c5-dialogue-craft",
@@ -17085,7 +17140,7 @@
               "craft"
             ]
           },
-          "embedding_id": 448
+          "embedding_id": 449
         },
         {
           "id": "stor-medium-m1-platform-first-optimization",
@@ -17124,7 +17179,7 @@
               "optimization"
             ]
           },
-          "embedding_id": 449
+          "embedding_id": 450
         },
         {
           "id": "stor-medium-m2-hook-calibration",
@@ -17162,7 +17217,7 @@
               "calibration"
             ]
           },
-          "embedding_id": 450
+          "embedding_id": 451
         },
         {
           "id": "stor-medium-m3-format-constraint-awareness",
@@ -17201,7 +17256,7 @@
               "awareness"
             ]
           },
-          "embedding_id": 451
+          "embedding_id": 452
         },
         {
           "id": "stor-medium-m4-resolution-calibration",
@@ -17239,7 +17294,7 @@
               "calibration"
             ]
           },
-          "embedding_id": 452
+          "embedding_id": 453
         },
         {
           "id": "stor-safety-e1-human-voice-preservation",
@@ -17279,7 +17334,7 @@
               "preservation"
             ]
           },
-          "embedding_id": 453
+          "embedding_id": 454
         },
         {
           "id": "stor-safety-e2-persuasion-manipulation-boundary",
@@ -17318,7 +17373,7 @@
               "boundary"
             ]
           },
-          "embedding_id": 454
+          "embedding_id": 455
         }
       ],
       "methods": [
@@ -17363,7 +17418,7 @@
               "math"
             ]
           },
-          "embedding_id": 455
+          "embedding_id": 456
         },
         {
           "id": "stor-method-the-story-bible-architecture",
@@ -17404,7 +17459,7 @@
               "tiers?"
             ]
           },
-          "embedding_id": 456
+          "embedding_id": 457
         },
         {
           "id": "stor-method-reference-items-to-track",
@@ -17458,7 +17513,7 @@
               "guide"
             ]
           },
-          "embedding_id": 457
+          "embedding_id": 458
         },
         {
           "id": "stor-method-story-bible-template",
@@ -17509,7 +17564,7 @@
               "(25k+"
             ]
           },
-          "embedding_id": 458
+          "embedding_id": 459
         },
         {
           "id": "stor-method-story-foundation-immutable",
@@ -17542,7 +17597,7 @@
               "stakes"
             ]
           },
-          "embedding_id": 459
+          "embedding_id": 460
         },
         {
           "id": "stor-method-characters",
@@ -17591,7 +17646,7 @@
               "sheets...]"
             ]
           },
-          "embedding_id": 460
+          "embedding_id": 461
         },
         {
           "id": "stor-method-world",
@@ -17631,7 +17686,7 @@
               "magic/technology/social]"
             ]
           },
-          "embedding_id": 461
+          "embedding_id": 462
         },
         {
           "id": "stor-method-plot-architecture",
@@ -17671,7 +17726,7 @@
               "(reader"
             ]
           },
-          "embedding_id": 462
+          "embedding_id": 463
         },
         {
           "id": "stor-method-style-guide",
@@ -17713,7 +17768,7 @@
               "conventions"
             ]
           },
-          "embedding_id": 463
+          "embedding_id": 464
         },
         {
           "id": "stor-method-timeline",
@@ -17746,7 +17801,7 @@
               "events"
             ]
           },
-          "embedding_id": 464
+          "embedding_id": 465
         },
         {
           "id": "stor-method-session-state-working-memory",
@@ -17802,7 +17857,7 @@
               "last"
             ]
           },
-          "embedding_id": 465
+          "embedding_id": 466
         },
         {
           "id": "stor-method-context-loading-protocol",
@@ -17844,7 +17899,7 @@
               "guideline"
             ]
           },
-          "embedding_id": 466
+          "embedding_id": 467
         },
         {
           "id": "stor-method-when-to-create-new-reference-items",
@@ -17893,7 +17948,7 @@
               "mid-project"
             ]
           },
-          "embedding_id": 467
+          "embedding_id": 468
         },
         {
           "id": "stor-method-platform-specific-adaptations",
@@ -17945,7 +18000,7 @@
               "(web"
             ]
           },
-          "embedding_id": 468
+          "embedding_id": 469
         },
         {
           "id": "stor-method-voice-preservation-integration",
@@ -17992,7 +18047,7 @@
               "change"
             ]
           },
-          "embedding_id": 469
+          "embedding_id": 470
         },
         {
           "id": "stor-method-recovery-protocol",
@@ -18038,7 +18093,7 @@
               "long"
             ]
           },
-          "embedding_id": 470
+          "embedding_id": 471
         },
         {
           "id": "stor-method-governance-integration",
@@ -18069,7 +18124,7 @@
               "sessions"
             ]
           },
-          "embedding_id": 471
+          "embedding_id": 472
         },
         {
           "id": "stor-method-auto-tracking-protocol",
@@ -18121,7 +18176,7 @@
               "auto-extraction"
             ]
           },
-          "embedding_id": 472
+          "embedding_id": 473
         },
         {
           "id": "stor-method-revision-management-protocol",
@@ -18175,7 +18230,7 @@
               "type"
             ]
           },
-          "embedding_id": 473
+          "embedding_id": 474
         },
         {
           "id": "stor-method-non-linear-writing-protocol",
@@ -18228,7 +18283,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 474
+          "embedding_id": 475
         },
         {
           "id": "stor-method-story-log-template",
@@ -18290,7 +18345,7 @@
               "threads"
             ]
           },
-          "embedding_id": 475
+          "embedding_id": 476
         },
         {
           "id": "stor-method-character-voice-profiles",
@@ -18325,7 +18380,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 476
+          "embedding_id": 477
         },
         {
           "id": "stor-method-voice-profile-components",
@@ -18363,7 +18418,7 @@
               "profile"
             ]
           },
-          "embedding_id": 477
+          "embedding_id": 478
         },
         {
           "id": "stor-method-voice-distinction-test",
@@ -18399,7 +18454,7 @@
               "distinction"
             ]
           },
-          "embedding_id": 478
+          "embedding_id": 479
         },
         {
           "id": "stor-method-voice-drift-detection",
@@ -18432,7 +18487,7 @@
               "drift"
             ]
           },
-          "embedding_id": 479
+          "embedding_id": 480
         },
         {
           "id": "stor-method-genre-conventions-guide",
@@ -18466,7 +18521,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 480
+          "embedding_id": 481
         },
         {
           "id": "stor-method-convention-reference",
@@ -18503,7 +18558,7 @@
               "reference"
             ]
           },
-          "embedding_id": 481
+          "embedding_id": 482
         },
         {
           "id": "stor-method-convention-decision-workflow",
@@ -18542,7 +18597,7 @@
               "decision"
             ]
           },
-          "embedding_id": 482
+          "embedding_id": 483
         },
         {
           "id": "stor-method-plot-consistency-checks",
@@ -18577,7 +18632,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 483
+          "embedding_id": 484
         },
         {
           "id": "stor-method-check-categories",
@@ -18612,7 +18667,7 @@
               "categories"
             ]
           },
-          "embedding_id": 484
+          "embedding_id": 485
         },
         {
           "id": "stor-method-character-knowledge-audit",
@@ -18643,7 +18698,7 @@
               "knowledge"
             ]
           },
-          "embedding_id": 485
+          "embedding_id": 486
         },
         {
           "id": "stor-method-timeline-verification",
@@ -18672,7 +18727,7 @@
               "verification"
             ]
           },
-          "embedding_id": 486
+          "embedding_id": 487
         },
         {
           "id": "stor-method-quick-consistency-scan",
@@ -18703,7 +18758,7 @@
               "consistency"
             ]
           },
-          "embedding_id": 487
+          "embedding_id": 488
         },
         {
           "id": "stor-method-coaching-question-taxonomy",
@@ -18736,7 +18791,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 488
+          "embedding_id": 489
         },
         {
           "id": "stor-method-question-categories",
@@ -18770,7 +18825,7 @@
               "categories"
             ]
           },
-          "embedding_id": 489
+          "embedding_id": 490
         },
         {
           "id": "stor-method-discovery-questions",
@@ -18799,7 +18854,7 @@
               "questions"
             ]
           },
-          "embedding_id": 490
+          "embedding_id": 491
         },
         {
           "id": "stor-method-character-questions",
@@ -18828,7 +18883,7 @@
               "questions"
             ]
           },
-          "embedding_id": 491
+          "embedding_id": 492
         },
         {
           "id": "stor-method-structure-questions",
@@ -18857,7 +18912,7 @@
               "questions"
             ]
           },
-          "embedding_id": 492
+          "embedding_id": 493
         },
         {
           "id": "stor-method-craft-questions",
@@ -18886,7 +18941,7 @@
               "questions"
             ]
           },
-          "embedding_id": 493
+          "embedding_id": 494
         },
         {
           "id": "stor-method-revision-questions",
@@ -18915,7 +18970,7 @@
               "questions"
             ]
           },
-          "embedding_id": 494
+          "embedding_id": 495
         },
         {
           "id": "stor-method-stuck-questions",
@@ -18944,7 +18999,7 @@
               "questions"
             ]
           },
-          "embedding_id": 495
+          "embedding_id": 496
         },
         {
           "id": "stor-method-progressive-inquiry-pattern",
@@ -18996,10 +19051,10 @@
               "best"
             ]
           },
-          "embedding_id": 496
+          "embedding_id": 497
         }
       ],
-      "last_extracted": "2026-02-12T04:04:17.767416+00:00",
+      "last_extracted": "2026-02-19T01:51:35.876584+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -19042,7 +19097,7 @@
               "integration"
             ]
           },
-          "embedding_id": 497
+          "embedding_id": 498
         },
         {
           "id": "mult-process-p2-natural-integration",
@@ -19080,7 +19135,7 @@
               "integration"
             ]
           },
-          "embedding_id": 498
+          "embedding_id": 499
         },
         {
           "id": "mult-process-p3-image-selection-criteria",
@@ -19120,7 +19175,7 @@
               "criteria"
             ]
           },
-          "embedding_id": 499
+          "embedding_id": 500
         },
         {
           "id": "mult-process-p4-readability-optimization",
@@ -19158,7 +19213,7 @@
               "optimization"
             ]
           },
-          "embedding_id": 500
+          "embedding_id": 501
         },
         {
           "id": "mult-process-p5-audience-adaptation",
@@ -19196,7 +19251,7 @@
               "adaptation"
             ]
           },
-          "embedding_id": 501
+          "embedding_id": 502
         },
         {
           "id": "mult-reliability-r1-image-text-collocation",
@@ -19235,7 +19290,7 @@
               "collocation"
             ]
           },
-          "embedding_id": 502
+          "embedding_id": 503
         },
         {
           "id": "mult-reliability-r2-descriptive-context",
@@ -19273,7 +19328,7 @@
               "context"
             ]
           },
-          "embedding_id": 503
+          "embedding_id": 504
         },
         {
           "id": "mult-reliability-r3-retrieval-metadata",
@@ -19310,7 +19365,7 @@
               "metadata"
             ]
           },
-          "embedding_id": 504
+          "embedding_id": 505
         },
         {
           "id": "mult-architecture-a1-unified-embedding-space",
@@ -19349,7 +19404,7 @@
               "space"
             ]
           },
-          "embedding_id": 505
+          "embedding_id": 506
         },
         {
           "id": "mult-architecture-a2-relevance-scoring",
@@ -19387,7 +19442,7 @@
               "scoring"
             ]
           },
-          "embedding_id": 506
+          "embedding_id": 507
         },
         {
           "id": "mult-general-f1-graceful-degradation",
@@ -19424,7 +19479,7 @@
               "degradation"
             ]
           },
-          "embedding_id": 507
+          "embedding_id": 508
         },
         {
           "id": "mult-general-f2-failure-transparency",
@@ -19462,7 +19517,7 @@
               "transparency"
             ]
           },
-          "embedding_id": 508
+          "embedding_id": 509
         }
       ],
       "methods": [
@@ -19489,7 +19544,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 509
+          "embedding_id": 510
         },
         {
           "id": "mult-method-image-placement-workflow",
@@ -19520,7 +19575,7 @@
               "workflow"
             ]
           },
-          "embedding_id": 510
+          "embedding_id": 511
         },
         {
           "id": "mult-method-inline-placement-rules",
@@ -19551,7 +19606,7 @@
               "rules"
             ]
           },
-          "embedding_id": 511
+          "embedding_id": 512
         },
         {
           "id": "mult-method-image-selection-algorithm-mayer-based",
@@ -19586,7 +19641,7 @@
               "algorithm"
             ]
           },
-          "embedding_id": 512
+          "embedding_id": 513
         },
         {
           "id": "mult-method-content-type-matching",
@@ -19614,7 +19669,7 @@
               "matching"
             ]
           },
-          "embedding_id": 513
+          "embedding_id": 514
         },
         {
           "id": "mult-method-readability-standards",
@@ -19645,7 +19700,7 @@
               "standards"
             ]
           },
-          "embedding_id": 514
+          "embedding_id": 515
         },
         {
           "id": "mult-method-reference-document-structuring",
@@ -19672,7 +19727,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 515
+          "embedding_id": 516
         },
         {
           "id": "mult-method-document-organization-template",
@@ -19703,7 +19758,7 @@
               "template"
             ]
           },
-          "embedding_id": 516
+          "embedding_id": 517
         },
         {
           "id": "mult-method-image-description-requirements",
@@ -19738,7 +19793,7 @@
               "requirements"
             ]
           },
-          "embedding_id": 517
+          "embedding_id": 518
         },
         {
           "id": "mult-method-metadata-schema",
@@ -19766,7 +19821,7 @@
               "schema"
             ]
           },
-          "embedding_id": 518
+          "embedding_id": 519
         },
         {
           "id": "mult-method-collocation-verification-checklist",
@@ -19797,7 +19852,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 519
+          "embedding_id": 520
         },
         {
           "id": "mult-method-retrieval-architecture",
@@ -19822,7 +19877,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 520
+          "embedding_id": 521
         },
         {
           "id": "mult-method-four-layer-architecture",
@@ -19850,7 +19905,7 @@
               "architecture"
             ]
           },
-          "embedding_id": 521
+          "embedding_id": 522
         },
         {
           "id": "mult-method-embedding-model-selection",
@@ -19887,7 +19942,7 @@
               "selection"
             ]
           },
-          "embedding_id": 522
+          "embedding_id": 523
         },
         {
           "id": "mult-method-relevance-scoring-implementation",
@@ -19918,7 +19973,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 523
+          "embedding_id": 524
         },
         {
           "id": "mult-method-chunk-strategy-for-multimodal-documents",
@@ -19953,7 +20008,7 @@
               "multimodal"
             ]
           },
-          "embedding_id": 524
+          "embedding_id": 525
         },
         {
           "id": "mult-method-failure-handling",
@@ -19978,7 +20033,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 525
+          "embedding_id": 526
         },
         {
           "id": "mult-method-failure-classification",
@@ -20006,7 +20061,7 @@
               "classification"
             ]
           },
-          "embedding_id": 526
+          "embedding_id": 527
         },
         {
           "id": "mult-method-graceful-degradation-procedure",
@@ -20037,7 +20092,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 527
+          "embedding_id": 528
         },
         {
           "id": "mult-method-failure-note-templates",
@@ -20072,7 +20127,7 @@
               "templates"
             ]
           },
-          "embedding_id": 528
+          "embedding_id": 529
         },
         {
           "id": "mult-method-failure-logging-schema",
@@ -20126,10 +20181,10 @@
               "multimodal"
             ]
           },
-          "embedding_id": 529
+          "embedding_id": 530
         }
       ],
-      "last_extracted": "2026-02-12T04:04:17.768481+00:00",
+      "last_extracted": "2026-02-19T01:51:35.877658+00:00",
       "version": "1.0"
     }
   },
@@ -20156,7 +20211,7 @@
       "name": "multi-agent",
       "display_name": "Multi-Agent",
       "principles_file": "multi-agent-domain-principles-v2.1.1.md",
-      "methods_file": "multi-agent-methods-v2.12.2.md",
+      "methods_file": "multi-agent-methods-v2.12.3.md",
       "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Artifact type selection (method vs subagent), agent authoring, system prompt best practices, tool scoping, agent validation, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, memory distillation, production observability, ReAct loop configuration, agent evaluation framework (4-layer), production safety guardrails, governance compliance, task management, task dependencies, task lifecycle, task ownership, and advanced model considerations for prompting strategies.",
       "priority": 20,
       "embedding_id": 2
@@ -20180,7 +20235,7 @@
       "embedding_id": 4
     }
   ],
-  "created_at": "2026-02-12T04:04:25.341410+00:00",
+  "created_at": "2026-02-19T01:51:43.723533+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384

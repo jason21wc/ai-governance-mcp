@@ -1,7 +1,7 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.12.2
+**Version:** 2.12.3
 **Status:** Active
 **Effective Date:** 2026-02-11
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -2843,11 +2843,13 @@ Without Gateway (Hope-Based):          With Gateway (Architecture-Based):
 **Deployment Decision Matrix:**
 
 ```
-Is this for Claude Code users only?
-├── YES → Use subagent pattern (§4.6, install_agent tool)
-└── NO → Does organization have MCP gateway infrastructure?
-         ├── YES → Integrate with existing gateway
-         └── NO → Deploy governance proxy or use instruction-based fallback
+Does the AI client support hook events (PreToolUse, UserPromptSubmit)?
+├── YES → Use hook-based enforcement (§4.6.3) + subagent pattern (§4.6)
+└── NO → Is this for Claude Code users only?
+         ├── YES → Use subagent pattern (§4.6, install_agent tool)
+         └── NO → Does organization have MCP gateway infrastructure?
+                  ├── YES → Integrate with existing gateway
+                  └── NO → Deploy governance proxy or use instruction-based fallback
 ```
 
 **Instruction-Based Fallback (Minimum Viable):**
@@ -2863,6 +2865,224 @@ This provides guidance but not enforcement—the AI *can* bypass. For high-stake
 **Key Principle:**
 
 > Enforce governance *physically* (tool access control) rather than *psychologically* (instructions). Architecture beats hope.
+
+#### 4.6.3 Hook-Based Enforcement (Client-Side Deterministic)
+
+IMPORTANT
+
+**Applies To:** Governance enforcement, compliance checking, structural validation, hook-based automation, client-side policy enforcement
+
+**The Problem:**
+
+Gateway enforcement (§4.6.2) requires deploying server-side proxy infrastructure. Subagent enforcement (§4.6) requires platform-specific agent architectures. Both add deployment complexity. For teams using AI coding tools that support **client-side hook events**, a lighter-weight enforcement layer exists: intercepting tool calls and user prompts at the client before they reach the AI or MCP servers.
+
+Research confirms AI models follow governance instructions probabilistically — compliance degrades in long sessions, with many tools, and when the model doesn't perceive a governance concern (see §4.6.1 for the judgment protocol). **Hook-based enforcement** provides a deterministic safety net that runs regardless of the AI's judgment.
+
+**How Hook-Based Enforcement Works:**
+
+AI coding tools (e.g., Claude Code) expose **hook events** — lifecycle points where external scripts execute before or after specific actions. Hooks are configured in project settings, committed to version control, and run deterministically on every matching action.
+
+```
+Without Hooks (Advisory Only):          With Hooks (Structural):
+┌──────────┐                           ┌──────────┐
+│ AI Agent │                           │ AI Agent │
+│ (may skip│                           └────┬─────┘
+│ governance)                                │ Every prompt
+└────┬─────┘                           ┌────▼──────────────┐
+     │ Direct action                   │ UserPromptSubmit   │
+     ▼                                 │ Hook: inject       │
+┌──────────────┐                       │ governance reminder│
+│ File System  │                       └────┬──────────────┘
+└──────────────┘                            │ Before file ops
+                                       ┌────▼──────────────┐
+                                       │ PreToolUse Hook:   │
+                                       │ check transcript   │
+                                       │ for governance call│
+                                       └────┬──────────────┘
+                                            │ Verified
+                                            ▼
+                                       ┌──────────────┐
+                                       │ File System  │
+                                       └──────────────┘
+```
+
+**Hook Event Types for Governance:**
+
+| Event | When It Fires | Governance Use |
+|-------|---------------|----------------|
+| **UserPromptSubmit** | Before every user message is processed | Inject **governance reminders** to combat multi-turn drift |
+| **PreToolUse** | Before a tool call executes | **Verify governance was consulted** before file-modifying actions |
+| **PostToolUse** | After a tool call completes | Audit logging, CI status checks |
+| **Stop** | When the AI finishes a response | Session-level compliance verification |
+
+**Hook Types:**
+
+| Type | Execution | Latency | Use Case |
+|------|-----------|---------|----------|
+| **Command** | Shell script | ~10-50ms | Fast, deterministic checks (transcript parsing, reminders) |
+| **Prompt** | Fast LLM evaluation | ~1-5s | Nuanced judgment ("Was this action governance-relevant?") |
+| **Agent** | Subagent with tool access | ~5-30s | Complex verification requiring MCP tool calls |
+
+**Recommended for governance:** Command hooks. They are fastest, most deterministic, and require no additional LLM calls. Reserve prompt/agent hooks for cases requiring judgment.
+
+**Recommended Hook Patterns:**
+
+**Pattern 1: Governance Reminder Injection (UserPromptSubmit)**
+
+Inject a **governance protocol reminder** as `additionalContext` on every user prompt. This combats multi-turn drift — the AI receives the governance protocol at the start of every turn, not just at session initialization.
+
+```bash
+#!/usr/bin/env bash
+# UserPromptSubmit hook — governance reminder injection
+set -euo pipefail
+
+REMINDER='Call evaluate_governance(planned_action="...") before file-modifying actions.'
+
+python3 -c "
+import json, sys
+sys.stdout.write(json.dumps({'additionalContext': sys.argv[1]}))
+" "$REMINDER" 2>/dev/null || true
+```
+
+Key design decisions:
+- `#!/usr/bin/env bash` — avoids `.zshrc` profile pollution that can corrupt stdout
+- Python for JSON serialization — avoids `jq` dependency for output, handles escaping safely
+- Reminder passed via `sys.argv` — avoids shell variable substitution quoting issues
+- `|| true` fallback — if Python fails, hook exits cleanly
+- Exit 0 always — **UserPromptSubmit hooks should never block prompts**
+
+**Pattern 2: Transcript-Based Governance Verification (PreToolUse)**
+
+Before file-modifying tool calls (`Bash|Edit|Write`), parse the session transcript to verify `evaluate_governance()` was called. This is **session-level verification** — one governance call covers a batch of related edits.
+
+```bash
+#!/usr/bin/env bash
+# PreToolUse hook — transcript governance check
+set -euo pipefail
+
+INPUT=$(cat)
+TRANSCRIPT_PATH=$(echo "$INPUT" | jq -r '.transcript_path // ""' 2>/dev/null) || true
+
+# Fail-open: missing transcript → allow
+[ -z "$TRANSCRIPT_PATH" ] || [ ! -r "$TRANSCRIPT_PATH" ] && exit 0
+
+# Scan for evaluate_governance tool_use in transcript JSONL
+TARGET="mcp__ai-governance__evaluate_governance"
+FOUND=$(python3 -c "
+import json, sys
+target, path = sys.argv[1], sys.argv[2]
+with open(path) as f:
+    for line in f:
+        if target not in line: continue  # Fast string pre-filter
+        entry = json.loads(line)
+        for block in entry.get('message',{}).get('content',[]):
+            if block.get('name') == target:
+                print('yes'); sys.exit(0)
+print('no')
+" "$TARGET" "$TRANSCRIPT_PATH" 2>/dev/null) || FOUND="no"
+
+[ "$FOUND" = "yes" ] && exit 0
+
+# No governance found — soft enforcement (inject reminder)
+python3 -c "
+import json, sys
+sys.stdout.write(json.dumps({'additionalContext': sys.argv[1]}))
+" "GOVERNANCE NOT DETECTED: Call evaluate_governance() before proceeding." 2>/dev/null || true
+```
+
+**Session-Level vs Time-Window Verification:**
+
+| Strategy | How It Works | Tradeoff |
+|----------|-------------|----------|
+| **Session-level** (recommended) | Any `evaluate_governance()` call in transcript = pass | May allow late-session edits without fresh evaluation |
+| **Time-window** | Only counts calls within last N minutes | Creates false positives for long implementation batches |
+| **Per-action** | Requires governance call immediately before each tool use | Too strict — blocks normal edit-test-edit workflows |
+
+**Session-level is recommended** because real usage shows one `evaluate_governance()` call followed by 10+ minutes of edits in the same task batch. Time-window checks would block legitimate workflows.
+
+**Soft vs Hard Enforcement:**
+
+| Mode | Mechanism | Effect | When to Use |
+|------|-----------|--------|-------------|
+| **Soft** (recommended) | `additionalContext` in response JSON | AI sees reminder but is not blocked | Default — allows the AI to contextualize |
+| **Hard** | `hookSpecificOutput.permissionDecision: "deny"` in response JSON | Tool call is rejected entirely | High-security environments, compliance-critical |
+
+**Start with soft enforcement.** The goal is compliance improvement, not workflow disruption. Hard mode (`permissionDecision: "deny"`) should be reserved for environments where governance bypass has material consequences.
+
+**Hook Configuration:**
+
+Hooks are configured in project settings (e.g., `.claude/settings.json` for Claude Code) and committed to version control:
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [{
+          "type": "command",
+          "command": "bash hooks/governance-reminder.sh",
+          "timeout": 5
+        }]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Edit|Write",
+        "hooks": [{
+          "type": "command",
+          "command": "bash hooks/governance-check.sh",
+          "timeout": 10
+        }]
+      }
+    ]
+  }
+}
+```
+
+Configuration notes:
+- **`matcher`** — case-sensitive regex matching tool names. `Bash|Edit|Write` targets file-modifying tools
+- **UserPromptSubmit ignores `matcher`** — it always fires (no tool to match against)
+- **Timeouts** — 5s for reminders, 10s for transcript checks (generous; actual latency ~10ms / ~50ms)
+- **Settings are project-scoped and committable** — team-wide enforcement via version control
+
+**Implementation Gotchas:**
+
+| Issue | Impact | Mitigation |
+|-------|--------|------------|
+| **stdout purity** | Any non-JSON stdout corrupts hook response | All debug output to stderr; use `python3 -c` with `sys.stdout.write` (not `print`) |
+| **Shell profile pollution** | `.zshrc`/`.bashrc` may print to stdout | Use `#!/usr/bin/env bash` (not zsh); bash non-interactive mode skips profiles |
+| **Exit code semantics** | Exit 0 = process JSON output; Exit 2 = silently skip hook | Always exit 0 when outputting JSON. Exit 2 means "ignore my output entirely" |
+| **`jq` availability** | Not installed on all systems | Use `jq` for input parsing with python3 fallback; use python3 for output (always available) |
+| **Large transcripts** | Session transcripts grow over time | Fast string pre-filter (`target not in line`) skips 99% of lines before JSON parse |
+| **Read-only tool matching** | `Bash` matcher catches `git status`, `ls`, etc. | Soft mode handles this gracefully — AI reads reminder and contextualizes |
+
+**When to Use Hooks vs Gateway vs Subagent:**
+
+| Factor | Hooks (§4.6.3) | Gateway (§4.6.2) | Subagent (§4.6) |
+|--------|----------------|-------------------|-----------------|
+| **Infrastructure** | None (client-side scripts) | Deploy proxy server | Drop file in folder |
+| **Platform** | Clients with hook events | Any MCP client | Claude Code only |
+| **Enforcement** | Deterministic per-action | Deterministic per-request | AI-managed |
+| **Latency** | ~10-50ms (command type) | ~50-200ms | ~5-30s |
+| **Bypass resistance** | High (platform-enforced) | High (server-enforced) | Medium (AI can ignore) |
+| **Setup effort** | Low (shell scripts + config) | Medium (proxy deployment) | Low (agent file) |
+| **Maintenance** | Low (simple scripts) | Medium (proxy updates) | Low (agent file) |
+
+**Layered Enforcement Recommendation:**
+
+For maximum compliance, layer multiple enforcement mechanisms:
+
+1. **Advisory** — SERVER_INSTRUCTIONS + per-response reminders (all platforms)
+2. **Hooks** — UserPromptSubmit + PreToolUse (platforms with hook support)
+3. **Subagent** — Orchestrator pattern with restricted tools (Claude Code)
+4. **Gateway** — MCP proxy for model-agnostic enforcement (high-security)
+5. **Audit** — `verify_governance_compliance()` in CI/pre-commit (all platforms)
+
+Each layer catches failures the previous layer misses. Advisory works most of the time; hooks catch drift; subagents enforce tool restrictions; gateways provide model-agnostic guarantees; audits catch everything else post-hoc.
+
+**Key Principle:**
+
+> Deterministic enforcement beats probabilistic compliance. Hooks run on every matching action regardless of the AI's judgment, context window position, or tool count. Start soft, escalate to hard only when needed.
 
 ### 4.7 Agent Evaluation Framework
 
@@ -3813,6 +4033,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.12.3 | 2026-02-18 | PATCH: Added §4.6.3 Hook-Based Enforcement (Client-Side Deterministic). Documents hook-based governance enforcement patterns: UserPromptSubmit reminder injection, PreToolUse transcript verification, soft vs hard enforcement modes, session-level verification strategy. Updated §4.6.2 deployment decision matrix to include hooks. Added Client-Side Hooks and MCP Gateway/Proxy rows to Appendix F Enforcement Levels table. |
 | v2.12.2 | 2026-02-11 | PATCH: Added circuit breaker state machine to §4.4 Fault Tolerance Procedures. State diagram (CLOSED→OPEN→HALF_OPEN), behavior table, integration with existing 3-failure retry protocol. Cross-reference to ai-coding-methods §5.10.5. |
 | v2.12.1 | 2026-02-10 | PATCH: Coherence audit remediation. (1) Standardized document reference "Governance Framework Methods TITLE 13" → "Governance Methods TITLE 13" in §3.7.1 cross-reference. (2) Corrected v2.12.0 version history description: "cost metrics" → "cost-related alerting thresholds" (accuracy). |
 | v2.12.0 | 2026-02-09 | MINOR: API Cost Optimization integration. Added cost-related alerting thresholds to §3.7.1 Production Observability (cost per task, cache hit rate). Added Batch vs. Real-Time Orchestration subsection to §3.3 (decision criteria table, integration note, anti-pattern). Cross-references to Governance Methods TITLE 13. |
@@ -3939,6 +4160,8 @@ model: inherit
 
 | Level | Mechanism | Strength | Platform Coverage |
 |-------|-----------|----------|-------------------|
+| **Client-Side Hooks** | PreToolUse/UserPromptSubmit intercept and enforce (§4.6.3) | HARD | Clients with hook events (e.g., Claude Code — 14 events) |
+| **MCP Gateway/Proxy** | Server-side interception of all tool calls (§4.6.2) | HARD | Any MCP client |
 | **Tool Restrictions** | YAML frontmatter limits available tools | HARD | Claude Code only |
 | **Behavioral Instructions** | SERVER_INSTRUCTIONS, system prompts | SOFT | All platforms |
 | **Per-Response Reminders** | Appended to tool responses | SOFT | All platforms |
