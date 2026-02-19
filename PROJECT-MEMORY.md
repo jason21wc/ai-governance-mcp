@@ -50,6 +50,7 @@
 | Skip-List Governance | 2026-02-01 | Deny-by-default: evaluate unless on skip-list (4 exceptions). Replaces subjective "significant action". |
 | Governance Docs In-Place | 2026-02-02 | Source docs edited in-place with changelog notes (not file renames). |
 | Methods in evaluate_governance | 2026-02-02 | Reference-only (id/title/domain/score/confidence). Full content via `get_principle(id)`. Top-5 cap. Audit log tracks `methods_surfaced`. |
+| Advisory-Only Limitation | 2026-02-16 | Research confirmed: MCP server instructions are probabilistic, not deterministic. Models skip governance calls when confident, in long conversations, or with many tools. Need structural enforcement (hooks/proxy) beyond advisory instructions. See ADR-13. |
 
 ### Multi-Agent Domain
 
@@ -220,17 +221,24 @@ Expanded context for the most significant decisions. The condensed tables above 
 - **Consequences:** (+) eliminates drift between two persistence layers, (+) auto memory stays small (12 lines vs 28), (-) AI must read framework files to get context (can't rely on auto memory alone).
 
 ### ADR-12: Context Engine — Comparison with Augment Code and Industry Best Practices
-- **Status:** Accepted (2026-02-13)
+- **Status:** Accepted (2026-02-13), expanded 2026-02-16 (deep Augment Code research)
 - **Context:** Our context engine (v1.0.0) was inspired by Augment Code's Context Engine. After shipping all 5 phases (incremental indexing, tree-sitter, file watcher, benchmarks, freshness metadata), we conducted a systematic comparison against Augment Code's published architecture and industry best practices (sources: Augment Code blog, cAST paper EMNLP 2025, Modal embedding benchmarks, Sourcegraph Zoekt, Aider repo map, Continue.dev, Qodo, Milvus).
 
 **Augment Code Architecture (for reference, not our target):**
-- Cloud-hosted, per-developer semantic indexing on Google Cloud GPUs
-- Custom-trained embedding models (usefulness > similarity)
-- Quantized ANN search: 8x memory reduction, 99.9% accuracy parity for 100M+ LOC
-- Per-developer branch-aware indices, cross-repo awareness
+- Founded 2022 by Igor Ostrovsky (ex-Pure Storage chief architect) + Guy Gur-Ari (ex-Google AI researcher). $252M funding, ~$977M valuation. Team from Google, Meta, NVIDIA, Microsoft.
+- **Core thesis:** "Every AI uses the same models. Context is the difference." LLMs are commodity (they use Claude + GPT); the moat is the Context Engine.
+- Cloud-hosted, per-developer semantic indexing on Google Cloud (PubSub, BigTable, AI Hypercomputer)
+- Custom-trained embedding models (usefulness > similarity) — NOT generic embeddings. Trained to understand that callsites differ from definitions, docs may not resemble code.
+- Quantized ANN search: binary quantization with two-phase retrieval (quantized candidates → full-precision rescoring). 8x memory reduction (2GB → 250MB for 100M LOC), sub-200ms latency (was 2+ seconds), 99.9% accuracy parity. Estimated 10-20M vectors for 100M LOC.
+- Per-developer branch-aware indices, cross-repo awareness. Branch switches near-instant.
+- Security: "Proof of Possession" — IDE must send crypto hash proving file knowledge before retrieval. Self-hosted embeddings (no third-party APIs, citing embedding inversion attacks: arXiv 2305.03010, 2004.00053).
 - Context Lineage: commit history indexed via Gemini Flash summarization
 - Compression: 4,456 sources → 682 relevant → 2,847 tokens used
 - 70.6% SWE-bench accuracy (vs 56% for file-limited competitors)
+- VS Code extension rebuilt with Redux-Saga state management, Svelte UI, parallel tool execution. 1.2-2x faster tool-heavy workflows.
+- **MCP protocol support:** Context Engine exposed as MCP server (local via Auggie CLI or remote via HTTP). ~40-70 credits per query. Supports 12+ MCP clients including Claude Code, Cursor, Codex, Zed.
+- **Pricing (credit-based, Oct 2025):** Indie $20/mo (40K credits), Standard $60/mo (130K credits), Max $200/mo (450K credits). Small task ~293 credits, medium ~860, complex ~4,261.
+- **Sources:** augmentcode.com/context-engine, augmentcode.com/blog/a-real-time-index-for-your-codebase-secure-personal-scalable, augmentcode.com/blog/repo-scale-100M-line-codebase-quantized-vector-search, augmentcode.com/blog/rebuilding-state-management, docs.augmentcode.com/context-services/mcp/overview
 
 **Our architecture (local-first, single-user):**
 - Local CPU inference, privacy-preserving, no network dependency
@@ -269,6 +277,100 @@ Expanded context for the most significant decisions. The condensed tables above 
 - Repository map / symbol graph (useful but separate feature, not a retrieval improvement)
 
 - **Consequences:** (+) Documented provenance and rationale, (+) clear improvement backlog with priorities, (+) validated that core architecture (hybrid search + tree-sitter + incremental) aligns with industry best practices, (-) embedding model is general-purpose rather than code-specific.
+
+### ADR-13: Governance Enforcement — From Advisory to Structural
+- **Status:** Accepted (2026-02-16)
+- **Context:** Research confirmed that MCP server instructions are probabilistic, not deterministic. AI models skip governance calls when they don't perceive a governance concern, during long conversations, or when many tools compete for attention. The current advisory approach (CLAUDE.md instructions, MCP server instructions, per-response reminders) works most of the time in short conversations with few tools, but compliance degrades predictably. This project needs structural enforcement — mechanisms that run deterministically regardless of the AI's judgment.
+
+**AI Instruction Compliance — Key Data Points:**
+- IFEval benchmark: best models follow simple, single-turn instructions 85-92% of the time (sources: Scale AI Leaderboard, Vellum, LLM Stats)
+- Anthropic's own tool selection accuracy: Opus 4 = **49% baseline** (improving to 74% with Tool Search Tool); Opus 4.5 = 79.5% baseline (improving to 88.1%). Source: anthropic.com/engineering/advanced-tool-use
+- Berkeley Function Calling Leaderboard (BFCL): Claude Sonnet 4 = 70.29%, GPT-5 = 59.22%. Source: klavis.ai
+- MCPMark (realistic multi-tool tasks): GPT-5 = ~52.6% pass@1, Claude Sonnet 4 = **28.1%** pass@1
+- Multi-turn conversation degradation: **39% average performance drop** across 15 LLMs, 200K+ conversations. Even top models (Claude 3.7, Gemini 2.5, GPT-4.1) degrade 30-40%. Source: Microsoft Research, arxiv.org/abs/2505.06120
+- Context rot: GPT-4.1 accuracy drops from 84% at 8K tokens to 50% at 1M tokens. Claude decays slowest but tends to abstain/skip rather than call incorrectly. Source: Chroma Research (research.trychroma.com/context-rot)
+- Tool flooding threshold: degradation after ~40 tools, cliff at ~60 tools. Source: developer reports (arsturn.com, hackteam.io)
+- **No published benchmark exists for MCP governance check compliance rates.** This is a confirmed data gap.
+
+**Key failure modes for governance MCP specifically:**
+1. Model skips `evaluate_governance()` when it doesn't perceive a governance concern (confident in internal knowledge)
+2. Multi-turn degradation causes governance instructions to be "forgotten" over long sessions
+3. Tool flooding from multiple MCP servers dilutes governance tool prominence
+4. Claude specifically tends to silently abstain rather than call incorrectly — governance checks just don't happen
+
+**Decision:** Move from advisory-only to layered enforcement:
+- **Layer 1 (Advisory):** Current CLAUDE.md + MCP server instructions + per-response reminders — KEEP
+- **Layer 2 (Structural — Claude-specific):** Claude Code hooks (PreToolUse, UserPromptSubmit) — deterministic, platform-enforced. Three hook types: command (shell scripts), prompt (fast LLM evaluation), agent (subagent with tool access). 14 hook events, regex matcher system for targeting specific tools.
+- **Layer 3 (Structural — Model-agnostic):** MCP proxy/gateway that intercepts tool calls before forwarding to downstream servers. Candidates: Latch (latchagent.com), MCPTrust (github.com/mcptrust/mcptrust), FastMCP Middleware. Works with any MCP client.
+- **Layer 4 (Audit):** Post-action verification via `verify_governance_compliance()` in CI/pre-commit hooks.
+
+**Enforcement tools evaluated:**
+| Tool | Type | Model-Agnostic | Blocks Actions | Effort |
+|------|------|----------------|----------------|--------|
+| Claude Code hooks | Platform hooks | No (Claude only) | Yes (PreToolUse) | Low |
+| Claude Agent SDK hooks | Python SDK | No (Claude only) | Yes | Low-Med |
+| Rampart (github.com/peg/rampart) | Agent firewall | Yes ($SHELL wrapping) | Yes (YAML policy) | Low |
+| Latch (latchagent.com) | MCP proxy | Yes | Yes (policy-based) | Low-Med |
+| MCPTrust (github.com/mcptrust/mcptrust) | MCP proxy | Yes | Yes (lockfile+CEL) | Low-Med |
+| FastMCP Middleware | MCP framework | Yes | Yes | Low |
+| Portkey AI Gateway | LLM proxy | Yes | Yes (guardrails) | Low |
+| NeMo Guardrails (NVIDIA) | Guardrails DSL | Yes | Yes (Colang rules) | Medium |
+| Guardrails AI | Validation framework | Yes | No (validates I/O) | Low-Med |
+| OpenAI Agents SDK | Platform guardrails | No (OpenAI only) | Yes (tripwires) | Low-Med |
+
+**Also evaluated and rejected:**
+- Custom VS Code extension (Solution 1): Very high effort (3-6 months), rebuilds what Cline/Roo Code already do. Custom extension uses API pricing, not Max subscription.
+- Fork Roo Code (Solution 2): Medium effort, gives custom modes, but high maintenance burden.
+- Obsidian + AI plugin: Wrong ecosystem for governance enforcement, fragments workflow.
+- Claude Desktop + MCP (Solution 5): Zero build effort but lacks agentic file editing capabilities.
+
+**IDE plug-in cost caveat:** Max subscription ($100/mo) only covers Anthropic's own products (claude.ai, Claude Code). Custom VS Code extensions or Roo Code forks calling the Anthropic API directly use **API pricing** ($3/$15 per MTok for Sonnet 4.5). For weekend+evening usage, API cost estimated at ~$30-70/mo — potentially cheaper, but with variance risk.
+
+**Philosophy:** The goal is compliance-by-architecture, not compliance-by-instruction. Advisory instructions serve as the first line but will inevitably degrade in long sessions. Structural enforcement (hooks, proxies) provides a deterministic safety net. The system should work with any frontier model, not just Claude.
+
+- **Consequences:** (+) Three enforcement vectors (advisory + structural + audit), (+) model-agnostic path via MCP proxy, (+) immediate low-effort option (Claude Code hooks), (-) Claude-specific hooks don't help other models, (-) MCP proxy adds infrastructure complexity.
+- **Sources:** anthropic.com/engineering/advanced-tool-use, arxiv.org/abs/2505.06120, research.trychroma.com/context-rot, arxiv.org/abs/2411.07037 (LIFBench), code.claude.com/docs/en/hooks, github.com/peg/rampart, latchagent.com, github.com/mcptrust/mcptrust
+
+### ADR-14: Quantized Vector Search — Premature for Current Scale
+- **Status:** Deferred (2026-02-16)
+- **Context:** Augment Code uses binary quantized vector search for 100M+ LOC codebases (10-20M vectors). Investigated whether our Context Engine should implement similar optimization.
+
+**Our scale vs. Augment Code:**
+| Metric | Context Engine | Augment Code |
+|--------|----------------|--------------|
+| Vectors | 10K-100K | 10-20 million |
+| Scale multiplier | 1x | 100-200x larger |
+| Memory (max) | 147 MB (100K × 384 × 4 bytes) | 2 GB → 250 MB after quantization |
+| Brute-force latency (100K vectors) | **1-5 ms** | N/A (too slow at their scale) |
+| Actual bottleneck | Embedding query (~50-100 ms) | Vector search (2+ seconds pre-optimization) |
+
+**Quantization methods evaluated:**
+| Method | Memory Reduction | Speed Improvement | Recall Loss | Complexity |
+|--------|-----------------|-------------------|-------------|------------|
+| Brute force f32 (current) | 1x | 1x | 0% | None |
+| float16 (trivial change) | 2x | ~1.5x | Negligible | 1 line change |
+| Scalar int8 | 4x | ~3-4x | 1-3% | Low |
+| Binary | 32x | ~10-30x | 5-15% | Medium |
+| Product Quantization | 48-192x | ~10-100x | 3-10% | High (training) |
+| HNSW + SQ8 | ~0.5x (net save) | 100-1000x | 2-5% | Medium |
+
+**Libraries evaluated:** FAISS (most mature, heavy dep), hnswlib (lightweight HNSW), USearch (single-file, f16/i8 native, 10-100x faster than FAISS claims), Annoy (older), ScaNN (Linux only).
+
+**Decision:** Do not implement now. At 100K vectors, `np.dot` takes 1-5 ms — the embedding step (50-100 ms) is the bottleneck, not search. 147 MB memory is trivial.
+
+**Phased implementation path (when needed):**
+1. **Phase 1 (trivial):** Change `dtype=np.float32` to `dtype=np.float16` in indexer. 2x memory, negligible accuracy loss, zero deps.
+2. **Phase 2 (moderate):** Add USearch (`pip install usearch`) as optional backend. Lightweight, cross-platform, f16/i8 + HNSW. Sub-ms at 10M vectors.
+3. **Phase 3 (heavy):** FAISS with IVF+SQ8 for multi-workspace search at 1M+ vectors.
+
+**Revisit triggers:**
+- Context Engine evolves to index multiple projects simultaneously (500K+ vectors)
+- Larger embedding models adopted (768+ dimensions)
+- Users report perceptible latency on large projects
+- ANN crossover point: ~500K-1M vectors for sub-100ms interactive requirement
+
+- **Consequences:** (+) No premature complexity, (+) clear phased path when needed, (+) documented rationale prevents future re-investigation, (-) misses opportunity for storage optimization.
+- **Sources:** augmentcode.com/blog/repo-scale-100M-line-codebase-quantized-vector-search, github.com/facebookresearch/faiss/wiki, ann-benchmarks.com, github.com/unum-cloud/USearch, huggingface.co/blog/embedding-quantization
 
 ---
 
@@ -310,11 +412,45 @@ Note: CE benchmark v2.0 uses this project's codebase as corpus with 16 queries (
 
 ## Roadmap
 
+### Structural Governance Enforcement (Priority: HIGH — ADR-13)
+
+**Goal:** Move from advisory-only governance (AI might skip calls) to structural enforcement (deterministic, platform-enforced).
+
+**Phase 1 — Claude Code Hooks (COMPLETE — 2026-02-18):**
+- ✓ `PreToolUse` hook for `Bash|Edit|Write` — transcript-based governance verification
+- ✓ `UserPromptSubmit` hook — governance reminder injection on every prompt
+- ✓ Evaluated hook types: chose command (shell scripts, ~10-50ms latency, deterministic)
+- ✓ Configured in `.claude/settings.json` (project-level, committable)
+- ✓ Documented as §4.6.3 in multi-agent-methods-v2.12.3.md
+- ✓ Soft enforcement (default) + hard mode via `GOVERNANCE_HARD_MODE=true`
+- ✓ Configurable tool name via `GOVERNANCE_TOOL_NAME` env var
+- ✓ Debug logging via `GOVERNANCE_HOOK_DEBUG=true`
+- ✓ Reviewed by contrarian, code-reviewer, and coherence-auditor
+
+**Phase 1b — Hook Improvements (Low priority, from contrarian review):**
+- Recency heuristic: PreToolUse scans last ~500 transcript lines instead of full session. Catches task-boundary pivots in long sessions. One-line change (`collections.deque(f, maxlen=500)`).
+- Suppress UserPromptSubmit after governance established: add transcript check to inject hook, skip reminder when `evaluate_governance()` already called. Saves ~10K tokens/session.
+
+**Phase 2 — MCP Proxy for Model-Agnostic Enforcement (Near-term):**
+- Evaluate Latch (latchagent.com), MCPTrust (github.com/mcptrust/mcptrust), FastMCP Middleware
+- MCP proxy intercepts ALL tool calls regardless of which AI model is used
+- Could inject mandatory `evaluate_governance()` before forwarding to downstream servers
+- Docker-deployable, no cloud dependency
+
+**Phase 3 — CI/Audit Integration (When Phase 1 ships):**
+- Pre-commit hook calling `verify_governance_compliance()` to catch bypassed governance
+- Governor (github.com/ulsc/governor) for security-auditing AI-generated code
+- Governance validation step in CI pipeline
+
+### Quantized Vector Search (Priority: LOW — ADR-14, Deferred)
+
+Not needed at current scale. Phased approach documented in ADR-14. Revisit when CE reaches 500K+ vectors.
+
 ### Future Considerations
 
 - Prompt Engineering domain (when created, move system prompt best practices from multi-agent)
-- Gateway-Based Enforcement (§4.6.2) — server-side governance for all platforms
-- Vector DB migration (when scale requires)
+- ~~Gateway-Based Enforcement (§4.6.2)~~ → superseded by ADR-13 (structural enforcement roadmap)
+- Vector DB migration (when scale requires) — see also ADR-14 Phase 3
 - ~~Prompt Engineering consolidation~~ → Title 11 in ai-governance-methods (done)
 - ~~RAG Optimization consolidation~~ → Title 12 in ai-governance-methods (done)
 
@@ -392,6 +528,11 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 25 | `get_*_by_id` prefix collision | `"multi"` (multi-agent) and `"mult"` (multimodal-rag) shared a common prefix. Fixed by replacing prefix→domain map with exhaustive search across all domains. O(n) but n is small (~500 items). |
 | 26 | `_load_search_indexes` undoes mismatch guard | `_load_project` discards embeddings on model mismatch, then calls `_load_search_indexes` which reloads them unconditionally. Fixed: skip embedding reload if already discarded. |
 | 27 | MCP server caches code in memory | Even with editable pip install, a running MCP server process keeps old code in memory. Source changes (e.g., new tree-sitter parsing) won't take effect until the server process restarts. Restart Claude Code to restart all MCP servers. Re-index after restart. |
+| 28 | Hook JSON stdout purity | Hook scripts must output ONLY valid JSON to stdout. Any debug output, shell profile noise, or stray `print()` corrupts the hook response. Use `sys.stdout.write()` (not `print`), redirect all stderr with `2>/dev/null`, and use `#!/usr/bin/env bash` (not zsh) to avoid profile pollution. |
+| 29 | UserPromptSubmit ignores matcher | The `matcher` field on UserPromptSubmit hooks is ignored — the hook always fires. This is because UserPromptSubmit runs before tool selection, so there's no tool name to match against. |
+| 30 | PreToolUse fires on read-only Bash | The `Bash` matcher catches `git status`, `ls`, `cat`, etc. In soft mode the AI contextualizes the reminder. In hard mode, this blocks read-only operations — hard mode requires a different approach to Bash matching. |
+| 31 | PreToolUse uses hookSpecificOutput | PreToolUse hooks use `hookSpecificOutput.permissionDecision` (deny/allow/ask), NOT `decision: "block"`. Other events (PostToolUse, Stop) use top-level `decision: "block"`. Different JSON schemas for different events. |
+| 32 | GOVERNANCE_HARD_MODE env var | Controls enforcement strictness. `false` (default) = soft enforcement via additionalContext. `true` = hard enforcement via permissionDecision deny. Also affects fail behavior: soft=fail-open, hard=fail-closed on missing transcript. |
 
 ### Resolved Gotchas
 

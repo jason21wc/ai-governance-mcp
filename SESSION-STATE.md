@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-02-14
+**Last Updated:** 2026-02-18
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — CE weight tuned, Desktop config updated, Docker image pushed
+- **Active Task:** None — Governance enforcement hooks shipped (Phase 1)
 
 ## Quick Reference
 
@@ -21,21 +21,36 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
-| Content | **v2.4.1** (Constitution), **v3.10.3** (meta-methods), **v2.10.0** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.2** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
+| Content | **v2.4.1** (Constitution), **v3.10.3** (meta-methods), **v2.10.0** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
 | Tests | **703 pass** (non-slow), 0 failures, deselected (slow/model_eval) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **101 principles + 429 methods** (see `tests/benchmarks/` for current totals; taxonomy: 21 codes) |
+| Index | **101 principles + 430 methods** (see `tests/benchmarks/` for current totals; taxonomy: 21 codes) |
 | Subagents | **10** (code-reviewer, contrarian-reviewer, validator, security-auditor, documentation-writer, orchestrator, test-generator, coherence-auditor, continuity-auditor, voice-coach) |
+| Hooks | **3** (PostToolUse CI check, UserPromptSubmit governance inject, PreToolUse governance check) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Next Actions
 
-### 1. Backlog — Project Initialization Part B
+### 1. Hook Improvements (Priority: LOW)
+Two improvements identified by contrarian review during Phase 1 implementation:
+1. **Recency heuristic** — PreToolUse hook currently uses session-level check (any governance call in transcript = pass). For long sessions with task pivots, scan only the last ~500 transcript lines instead. One-line change to Python scanning logic (`collections.deque(f, maxlen=500)`).
+2. **Suppress reminder after governance established** — UserPromptSubmit hook currently injects ~200 tokens on every prompt regardless. Add transcript check (same logic as PreToolUse) to suppress the reminder once `evaluate_governance()` has been called. Saves ~10K tokens/session over 50 turns.
+
+### 2. Evaluate MCP Proxy for Model-Agnostic Enforcement (Priority: MEDIUM)
+For enforcement beyond Claude Code. An MCP proxy sits between ANY AI client and MCP servers, intercepting tool calls. Candidates:
+- **Latch** (latchagent.com) — open-source, Docker, natural language or rule-based policies
+- **MCPTrust** (github.com/mcptrust/mcptrust) — lockfile enforcement, drift detection, CEL policy
+- **FastMCP Middleware** — native framework middleware for request interception
+
+### 3. Backlog — Project Initialization Part B
 Three deferred approaches for closing the bootstrap gap beyond advisory guidance. Documented in PROJECT-MEMORY.md > Roadmap > Part B. Revisit when prioritized.
+
+### 4. Backlog — Quantized Vector Search (Deferred)
+Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revisit when Context Engine reaches 500K+ vectors (multi-project indexing) or users report perceptible latency. See PROJECT-MEMORY.md > Roadmap > Quantized Vector Search for phased approach.
 
 ## Links
 

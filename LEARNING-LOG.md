@@ -12,6 +12,22 @@
 
 ## Active Lessons
 
+### Advisory Governance Instructions Are Probabilistic, Not Deterministic (2026-02-16) — CRITICAL
+
+Research confirmed with hard data: AI models follow system prompt instructions 85-92% of the time on SHORT, SINGLE-TURN prompts (IFEval). In multi-turn conversations, performance degrades ~39% on average (Microsoft Research, 200K+ conversations). Anthropic's own data shows Opus 4 tool selection accuracy is **49% baseline** with large tool libraries (improving to 88% with mitigations). Models skip governance calls when they don't perceive a concern, prefer internal knowledge over tools, and silently abstain rather than calling incorrectly.
+
+**Rule:** Never rely solely on MCP server instructions or CLAUDE.md for governance compliance. Structural enforcement (Claude Code hooks, MCP proxies) must complement advisory instructions. The model WILL skip governance calls — the question is how often, not whether. See ADR-13. Key references: anthropic.com/engineering/advanced-tool-use, arxiv.org/abs/2505.06120, research.trychroma.com/context-rot.
+
+---
+
+### IDE Plug-ins Use API Pricing, Not Subscription Pricing (2026-02-16)
+
+Claude Max subscription ($100/mo) only covers Anthropic's own products (claude.ai, Claude Code CLI, Claude Desktop). A custom VS Code extension, Roo Code fork, or any third-party tool calling the Anthropic API directly uses **API pricing** ($3/$15 per MTok for Sonnet 4.5). Building a custom IDE plug-in would mean paying API costs potentially on top of any existing subscription.
+
+**Rule:** When evaluating build-vs-buy for AI tooling wrappers, verify whether the target subscription covers third-party API calls. Factor API costs into the total cost of ownership before committing to a custom build.
+
+---
+
 ### Passive MCP Instructions Don't Drive Tool Usage (2026-02-14)
 
 The CE had well-built tools but passive instructions ("Use these tools to discover what exists"). The governance server achieves automatic usage via deny-by-default skip lists, per-response reminders, and redundant instruction surfaces. Applying the same pattern to the CE — enforcement-oriented trigger phrases ("Before creating...", "Before modifying..."), a nudge in the governance reminder, and a Required Actions cross-reference — bridges the gap without creating a parallel skip-list hierarchy.
