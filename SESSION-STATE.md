@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — Governance enforcement hooks shipped (Phase 1)
+- **Active Task:** None — Governance enforcement hooks shipped (Phase 1), Docker image pushed
 
 ## Quick Reference
 
@@ -46,10 +46,16 @@ For enforcement beyond Claude Code. An MCP proxy sits between ANY AI client and 
 - **MCPTrust** (github.com/mcptrust/mcptrust) — lockfile enforcement, drift detection, CEL policy
 - **FastMCP Middleware** — native framework middleware for request interception
 
-### 3. Backlog — Project Initialization Part B
+### 3. Backlog — Governance Compliance Effectiveness Tracking (Priority: MEDIUM)
+Measure real-world governance compliance rates across sessions. Track how often `evaluate_governance()` is actually called vs skipped, whether hooks successfully nudge behavior, and correlate with session length/complexity. Could involve: transcript analysis scripts, aggregated metrics from `get_metrics()`, before/after comparisons with hooks enabled/disabled. Goal: empirical data on whether the enforcement layers (advisory instructions + hooks) achieve target compliance rates, and where gaps remain.
+
+### 4. Backlog — Context Engine Usage Effectiveness Tracking (Priority: MEDIUM)
+Same concept for Context Engine: measure real-world `query_project()` usage rates, whether queries happen before file creation/modification as intended, and whether results influence decisions. Track: query frequency per session, query-before-create compliance, result relevance (via user behavior after query). Goal: empirical evidence that the CE is reducing duplication and improving code quality, not just being called perfunctorily.
+
+### 5. Backlog — Project Initialization Part B
 Three deferred approaches for closing the bootstrap gap beyond advisory guidance. Documented in PROJECT-MEMORY.md > Roadmap > Part B. Revisit when prioritized.
 
-### 4. Backlog — Quantized Vector Search (Deferred)
+### 6. Backlog — Quantized Vector Search (Deferred)
 Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revisit when Context Engine reaches 500K+ vectors (multi-project indexing) or users report perceptible latency. See PROJECT-MEMORY.md > Roadmap > Quantized Vector Search for phased approach.
 
 ## Links
