@@ -12,6 +12,14 @@
 
 ## Active Lessons
 
+### __file__-Based Paths Break in Docker Non-Editable Installs (2026-02-19)
+
+`_validate_log_path()` used `Path(__file__).parent.parent.parent` to find project root. Inside Docker with `pip install .` (non-editable), `__file__` resolves to site-packages (`/usr/local/lib/...`), not `/app`. Log writes to `/app/logs/` were rejected as "outside boundaries." Meanwhile, `config.py` already had a CWD-based `_find_project_root()` that worked correctly.
+
+**Rule:** Never use `__file__`-based path traversal to find the project root in code that runs inside Docker containers with non-editable installs. Use CWD-based detection or env vars instead. When multiple modules need the project root, reuse the canonical function rather than reimplementing.
+
+---
+
 ### Advisory Governance Instructions Are Probabilistic, Not Deterministic (2026-02-16) — CRITICAL
 
 Research confirmed with hard data: AI models follow system prompt instructions 85-92% of the time on SHORT, SINGLE-TURN prompts (IFEval). In multi-turn conversations, performance degrades ~39% on average (Microsoft Research, 200K+ conversations). Anthropic's own data shows Opus 4 tool selection accuracy is **49% baseline** with large tool libraries (improving to 88% with mitigations). Models skip governance calls when they don't perceive a concern, prefer internal knowledge over tools, and silently abstain rather than calling incorrectly.
