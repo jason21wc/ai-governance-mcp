@@ -1884,13 +1884,23 @@ class TestValidateLogPath:
         """Paths within project root should be accepted."""
         from ai_governance_mcp.server import _validate_log_path
 
-        # Get project root (where server.py is located, go up 3 levels)
-        from pathlib import Path
+        from ai_governance_mcp.config import _find_project_root
 
-        project_root = Path(__file__).parent.parent.resolve()
+        project_root = _find_project_root().resolve()
         log_path = project_root / "logs" / "test.jsonl"
 
         # Should not raise
+        _validate_log_path(log_path)
+
+    def test_validate_log_path_accepts_cwd(self, tmp_path, monkeypatch):
+        """Paths within CWD should be accepted (Docker /app scenario)."""
+        from ai_governance_mcp.server import _validate_log_path
+
+        # Simulate Docker: CWD is /app-like dir without pyproject.toml
+        monkeypatch.chdir(tmp_path)
+        log_path = tmp_path / "logs" / "governance_audit.jsonl"
+
+        # Should not raise — CWD is an allowed directory
         _validate_log_path(log_path)
 
     def test_validate_log_path_accepts_home_directory(self):

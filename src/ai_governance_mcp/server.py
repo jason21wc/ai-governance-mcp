@@ -20,7 +20,13 @@ from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
 from . import __version__
-from .config import Settings, ensure_directories, load_settings, setup_logging
+from .config import (
+    Settings,
+    _find_project_root,
+    ensure_directories,
+    load_settings,
+    setup_logging,
+)
 from .models import (
     AssessmentStatus,
     ComplianceEvaluation,
@@ -143,19 +149,21 @@ def _validate_log_path(log_file: Path) -> None:
     # Resolve to absolute path for containment check
     resolved = log_file.resolve()
 
-    # Log files must be within project root, user home, or system temp directory
-    # (covers default logs/ dir, user-configured paths, and test environments)
-    project_root = Path(__file__).parent.parent.parent.resolve()
+    # Log files must be within project root, CWD, user home, or system temp directory
+    # (covers default logs/ dir, user-configured paths, Docker /app, and test environments)
+    project_root = _find_project_root().resolve()
+    cwd = Path.cwd().resolve()
     home_dir = Path.home().resolve()
     temp_dir = Path(tempfile.gettempdir()).resolve()
 
     is_in_project = resolved.is_relative_to(project_root)
+    is_in_cwd = resolved.is_relative_to(cwd)
     is_in_home = resolved.is_relative_to(home_dir)
     is_in_temp = resolved.is_relative_to(temp_dir)
 
-    if not (is_in_project or is_in_home or is_in_temp):
+    if not (is_in_project or is_in_cwd or is_in_home or is_in_temp):
         raise ValueError(
-            f"Log path must be within project root, home, or temp directory: {resolved}"
+            f"Log path must be within project root, CWD, home, or temp directory: {resolved}"
         )
 
 
