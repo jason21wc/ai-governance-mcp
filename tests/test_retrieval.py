@@ -770,3 +770,137 @@ class TestFeedbackAdaptation:
     def test_default_min_ratings_is_five(self, settings_with_feedback):
         """Default minimum ratings should be 5 per contrarian review."""
         assert settings_with_feedback.feedback_min_ratings == 5
+
+
+class TestAutoReload:
+    """Tests for auto-reload of index on disk changes."""
+
+    def _make_index_json(self, title="Test Principle"):
+        """Create a minimal valid global_index.json dict."""
+        import json
+
+        return json.dumps(
+            {
+                "domains": {
+                    "constitution": {
+                        "domain": "constitution",
+                        "principles": [
+                            {
+                                "id": "meta-C1",
+                                "domain": "constitution",
+                                "series_code": "C",
+                                "number": 1,
+                                "title": title,
+                                "content": "Test content for BM25 indexing",
+                                "line_range": [1, 10],
+                            }
+                        ],
+                        "methods": [],
+                        "last_extracted": "2026-01-01T00:00:00Z",
+                    }
+                },
+                "domain_configs": [
+                    {
+                        "name": "constitution",
+                        "display_name": "Constitution",
+                        "principles_file": "const.md",
+                        "description": "Universal rules",
+                    }
+                ],
+                "created_at": "2026-01-01T00:00:00Z",
+                "version": "1.0",
+                "embedding_model": "BAAI/bge-small-en-v1.5",
+                "embedding_dimensions": 384,
+            }
+        )
+
+    @pytest.fixture
+    def index_dir(self, tmp_path):
+        """Create a tmp_path with a valid minimal index."""
+        index_path = tmp_path / "index"
+        index_path.mkdir()
+        (index_path / "global_index.json").write_text(self._make_index_json())
+        return index_path
+
+    @pytest.fixture
+    def engine_settings(self, index_dir, tmp_path):
+        """Create settings pointing at the temp index."""
+        settings = Settings()
+        settings.index_path = index_dir
+        settings.logs_path = tmp_path / "logs"
+        settings.logs_path.mkdir(parents=True, exist_ok=True)
+        settings.documents_path = tmp_path / "documents"
+        return settings
+
+    def test_auto_reload_detects_index_change(self, engine_settings, index_dir):
+        """Should reload index when global_index.json mtime changes."""
+        import time as time_mod
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(engine_settings)
+
+        # Verify initial load
+        assert engine.index is not None
+        assert (
+            engine.index.domains["constitution"].principles[0].title == "Test Principle"
+        )
+
+        # Write updated index with a different title
+
+        time_mod.sleep(0.05)  # Ensure mtime changes
+        (index_dir / "global_index.json").write_text(
+            self._make_index_json(title="Updated Principle")
+        )
+
+        # Call a public method — should trigger auto-reload
+        domains = engine.list_domains()
+
+        # Verify reload happened
+        assert (
+            engine.index.domains["constitution"].principles[0].title
+            == "Updated Principle"
+        )
+        assert len(domains) == 1
+
+    def test_auto_reload_skips_when_unchanged(self, engine_settings):
+        """Should not reload index when mtime is unchanged."""
+        from unittest.mock import patch as mock_patch
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(engine_settings)
+        original_mtime = engine._index_mtime
+
+        # Patch _load_index to track calls after init
+        with mock_patch.object(engine, "_load_index") as mock_load:
+            engine.list_domains()
+            engine.get_principle_by_id("meta-C1")
+            engine.get_method_by_id("nonexistent")
+            engine.get_domain_summary("constitution")
+
+            # _load_index should NOT have been called again
+            mock_load.assert_not_called()
+
+        # mtime unchanged
+        assert engine._index_mtime == original_mtime
+
+    def test_auto_reload_handles_missing_index_file(self, engine_settings, index_dir):
+        """Should not crash if index file is deleted after initial load."""
+        import os
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine(engine_settings)
+        assert engine.index is not None
+
+        # Delete the index file
+        os.remove(index_dir / "global_index.json")
+
+        # Public methods should not crash — keeps old index
+        domains = engine.list_domains()
+        assert len(domains) == 1  # Still has the old data
+
+        principle = engine.get_principle_by_id("meta-C1")
+        assert principle is not None
+        assert principle.title == "Test Principle"

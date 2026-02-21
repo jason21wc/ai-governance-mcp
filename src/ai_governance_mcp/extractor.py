@@ -596,10 +596,12 @@ class DocumentExtractor:
             embedding_dimensions=self.embedder.dimensions,
         )
 
-        # Save everything
-        self._save_index(global_index)
+        # Save everything — embeddings first, JSON last.
+        # JSON mtime change acts as "commit" signal for auto-reload
+        # (see retrieval.py _check_index_freshness).
         self._save_embeddings(embeddings, "content_embeddings.npy")
         self._save_embeddings(domain_embeddings, "domain_embeddings.npy")
+        self._save_index(global_index)
 
         return global_index
 

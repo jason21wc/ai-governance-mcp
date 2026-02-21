@@ -57,6 +57,8 @@ class RetrievalEngine:
         self._embedder = None
         self._reranker = None
         self._model_lock = threading.Lock()
+        self._index_lock = threading.Lock()
+        self._index_mtime: float = 0.0
         self._feedback_ratings: dict[str, tuple[float, int]] = {}  # id -> (avg, count)
         self._load_index()
         self._load_feedback_ratings()
@@ -108,7 +110,11 @@ class RetrievalEngine:
         return self._reranker
 
     def _load_index(self) -> None:
-        """Load global index and embeddings from disk."""
+        """Load global index and embeddings from disk.
+
+        Called from __init__ (pre-concurrent, no lock needed) and from
+        _check_index_freshness (already holding _index_lock).
+        """
         index_path = self.settings.index_path / "global_index.json"
         content_emb_path = self.settings.index_path / "content_embeddings.npy"
         domain_emb_path = self.settings.index_path / "domain_embeddings.npy"
@@ -163,6 +169,41 @@ class RetrievalEngine:
 
         # Build BM25 index
         self._build_bm25_index()
+
+        # Record mtime for auto-reload freshness checks
+        try:
+            self._index_mtime = index_path.stat().st_mtime
+        except OSError:
+            pass
+
+    def _check_index_freshness(self) -> None:
+        """Reload index if the on-disk file has changed since last load.
+
+        Uses global_index.json mtime as the commit signal — the extractor
+        saves embeddings first, JSON last, so a JSON mtime change means
+        all index files are ready (see extractor.py save order).
+        """
+        index_path = self.settings.index_path / "global_index.json"
+        try:
+            current_mtime = index_path.stat().st_mtime
+        except OSError:
+            return  # File missing or inaccessible — keep current index
+
+        if current_mtime != self._index_mtime:
+            with self._index_lock:
+                # Double-checked locking — defensive for future threading
+                try:
+                    recheck_mtime = index_path.stat().st_mtime
+                except OSError:
+                    return
+                if recheck_mtime != self._index_mtime:
+                    logger.info(
+                        "Index file changed on disk (mtime: %.2f → %.2f), reloading...",
+                        self._index_mtime,
+                        recheck_mtime,
+                    )
+                    self._load_index()
+                    self._load_feedback_ratings()
 
     def _build_bm25_index(self) -> None:
         """Build BM25 index from loaded documents."""
@@ -561,6 +602,7 @@ class RetrievalEngine:
         """
         start_time = time.time()
         max_results = max_results or self.settings.max_results
+        self._check_index_freshness()
 
         if not self.index:
             return RetrievalResult(
@@ -738,6 +780,7 @@ class RetrievalEngine:
 
     def get_principle_by_id(self, principle_id: str) -> Principle | None:
         """Get a specific principle by its ID."""
+        self._check_index_freshness()
         if not self.index:
             return None
 
@@ -751,6 +794,7 @@ class RetrievalEngine:
 
     def get_method_by_id(self, method_id: str) -> Method | None:
         """Get a specific method by its ID."""
+        self._check_index_freshness()
         if not self.index:
             return None
 
@@ -764,6 +808,7 @@ class RetrievalEngine:
 
     def list_domains(self) -> list[dict]:
         """List all available domains with stats."""
+        self._check_index_freshness()
         if not self.index:
             return []
 
@@ -790,6 +835,7 @@ class RetrievalEngine:
 
     def get_domain_summary(self, domain_name: str) -> dict | None:
         """Get detailed summary of a domain."""
+        self._check_index_freshness()
         if not self.index or domain_name not in self.index.domains:
             return None
 

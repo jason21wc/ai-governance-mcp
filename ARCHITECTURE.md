@@ -29,7 +29,7 @@
 │         │                  │                                                │
 │         │                  ▼                                                │
 │         │           ┌─────────────┐                                         │
-│         │           │   index     │  (loaded at startup)                    │
+│         │           │   index     │  (loaded at startup, auto-reloaded)     │
 │         │           │             │                                         │
 │         │           │ principles  │                                         │
 │         │           │ embeddings  │                                         │
@@ -308,7 +308,7 @@ Known failure modes for the multi-agent and orchestration patterns used in this 
 |--------------|-------|-----------|------------|
 | **Governance bypass** | Orchestrator skip-list too broad; action not evaluated | `verify_governance_compliance()` returns NON_COMPLIANT | Narrow skip-list; default to evaluate when in doubt |
 | **False ESCALATE** | S-Series keyword scan triggers on benign terms (e.g., "security fix") | Review `principles` array in assessment — keywords triggered but no real violation | Check principle content, not just keywords; document in Gotcha #12 |
-| **Stale index** | Server caches index at startup; index rebuilt but server not restarted | Queries return outdated or missing results | Restart MCP server after `python -m ai_governance_mcp.extractor` (Gotcha #15) |
+| **Stale index** | Server caches index at startup; index rebuilt but server not restarted | Queries return outdated or missing results | Auto-reload: server checks index mtime on each query and reloads when changed. No restart needed. |
 | **Context overflow** | Long conversation exceeds context window; governance instructions lost | AI stops calling `evaluate_governance()`; responses drift from framework | Per-response reminder (~30 tokens) appended to every tool response |
 
 ### Subagent Failure Modes

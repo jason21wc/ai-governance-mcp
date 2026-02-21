@@ -125,7 +125,7 @@ Three additional extraction traps discovered during Part 4.3 tuning:
 2. **Short bold terms** — Bold text ≤5 chars (e.g., `**Quick**`, `**Full**`, `**Note:**`) fails the `len(b) > 5` filter. Fix: bold multi-word phrases instead (e.g., `**Quick tier**`).
 3. **`Applies To:` field** — The extractor parses `**Applies To:**` lines (extractor.py:1123-1136) into both BM25 and embedding text. Adding this field helps methods surface for `evaluate_governance()` queries.
 
-**Rule:** When adding new method sections: (a) avoid skip-list titles ("purpose", "overview", etc.), (b) bold 2-3 distinctive phrases >5 chars, (c) add `**Applies To:**` with natural-language use cases. Verify after index rebuild + server restart (Gotcha #15).
+**Rule:** When adding new method sections: (a) avoid skip-list titles ("purpose", "overview", etc.), (b) bold 2-3 distinctive phrases >5 chars, (c) add `**Applies To:**` with natural-language use cases. Verify after index rebuild (auto-reload picks up changes on next query).
 
 ---
 
@@ -213,7 +213,7 @@ Second-pass contrarian review caught issues first-pass missed (S-Series penalty 
 | Feedback score boost/penalty | retrieval.py, PROJECT-MEMORY decisions | 2026-01-04 |
 | Governance enforcement research | PROJECT-MEMORY decisions | 2026-01-03 |
 | Version sync discipline | Gotcha #16, PROJECT-MEMORY | 2026-02-10 |
-| MCP server index caching | Gotcha #15 | 2026-02-10 |
+| MCP server index caching | Gotcha #15 (resolved by auto-reload) | 2026-02-10 |
 | Security hardening is layers | ARCHITECTURE.md Security Features | 2026-02-10 |
 | Research ≠ governance test | PROJECT-MEMORY decisions | 2026-02-10 |
 | Anchor bias in document review | meta-methods Part 7.10 | 2026-02-10 |

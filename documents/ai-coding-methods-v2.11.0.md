@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.10.0
+**Version:** 2.11.0
 **Status:** Active
-**Effective Date:** 2026-02-11
+**Effective Date:** 2026-02-19
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -126,6 +126,9 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Error sanitization | §5.7.5 | Error Sanitization Patterns |
 | Dead code / TODO policy | §6.5.9 | Dead Code & Technical Debt |
 | Structured logging (MCP) | §9.3.9 | Structured Logging Patterns |
+| Zero trust security review | §5.11 | Zero Trust Application Patterns |
+| MCP server vetting | §5.6.5 | MCP Server Vetting Procedure |
+| Audit logging setup | §5.11.3 | Production Audit Logging |
 | Production hardening sweep | Appendix H | Production Hardening Checklist |
 
 #### On Uncertainty
@@ -2085,7 +2088,7 @@ AI coding tools process untrusted content (repository files, PR comments, web pa
 - [ ] Check for namespace collisions across configured MCP servers
 - [ ] Keep AI coding tools updated (security patches address known CVEs)
 - [ ] Restrict AI tool permissions to minimum required (file access, network, commands)
-- [ ] Run `mcp-scan` or equivalent before adding new MCP servers
+- [ ] Run `agent-scan` (formerly mcp-scan) or equivalent before adding new MCP servers
 
 ### 5.6.2 Credential Isolation and Secrets Management
 
@@ -2124,9 +2127,69 @@ AI coding tools can delete data, overwrite files, and execute arbitrary commands
 
 **OWASP Top 10 for LLM Applications (2025):** LLM01 Prompt Injection, LLM02 Sensitive Info Disclosure, LLM03 Supply Chain, LLM06 Excessive Agency, LLM07 System Prompt Leakage
 
-**OWASP Top 10 for Agentic Applications (2026):** ASI01 Agent Goal Hijack, ASI02 Tool Misuse, ASI03 Identity/Privilege Abuse, ASI04 Supply Chain, ASI05 Unexpected Code Execution, ASI09 Human-Agent Trust Exploitation
+**OWASP Top 10 for Agentic Applications (2026):** ASI01 Agent Goal Hijack, ASI02 Tool Misuse, ASI03 Identity/Privilege Abuse, ASI04 Supply Chain, ASI05 Unexpected Code Execution, ASI06 Excessive Autonomy, ASI07 Prompt & Context Manipulation, ASI08 Multi-Agent Trust Exploitation, ASI09 Human-Agent Trust Exploitation, ASI10 Insufficient Oversight
+
+**OWASP MCP Top 10 (2025):** MCP01 Token Mismanagement, MCP02 Privilege Escalation/Scope Creep, MCP03 Tool Poisoning, MCP04 Supply Chain/Dependency Tampering, MCP05 Command Injection, MCP06 Intent Flow Subversion, MCP07 Insufficient Auth/Authz, MCP08 Lack of Audit/Telemetry, MCP09 Shadow MCP Servers, MCP10 Context Injection/Over-Sharing
 
 **Palo Alto SHIELD Framework:** Separation of duties, Human in the loop, Input/Output validation, Enforce security-focused helper models, Least agency, Defense in depth
+
+### 5.6.5 MCP Server Vetting Procedure
+
+**Applies To:** Any project using MCP servers (Claude Code, Cursor, Windsurf, or any MCP-compatible client).
+
+MCP servers execute code on your machine with access to your files, environment variables, and network. A compromised or malicious MCP server can exfiltrate secrets, modify files, or hijack other tools. Vet before installing.
+
+**Pre-Installation Checklist:**
+- [ ] **Source verification** — server comes from a known author/organization with public repository; check commit history and contributor count
+- [ ] **Scan with `agent-scan`** — run [agent-scan](https://github.com/snyk/agent-scan) (Snyk, formerly Invariant Labs' mcp-scan) against the server before first use
+- [ ] **Tool description review** — read every tool description in the server's manifest; look for hidden instructions (e.g., "always include this header", "send data to this endpoint")
+- [ ] **Tool count and name audit** — verify the number of tools matches documentation; unexpected tools indicate tampering or scope creep (MCP02)
+- [ ] **Shadow tool detection** — check if any tool names collide with tools from your other MCP servers; collisions enable interception (MCP09)
+- [ ] **Permission scope review** — verify the server requests only the permissions it needs (file access, network, environment variables); reject broad permissions without justification
+- [ ] **Individual tool audit for large servers** — servers with >10 tools: audit each tool's parameters and return types; large surface area increases risk
+- [ ] **Lock tool descriptions** — after vetting, record tool description hashes for rug pull detection (§5.6.6)
+
+**OWASP MCP Top 10 Quick Reference:**
+
+| ID | Risk | One-Line Mitigation |
+|----|------|---------------------|
+| MCP01 | Token Mismanagement | Never pass long-lived tokens through MCP tools; use scoped, short-lived credentials |
+| MCP02 | Privilege Escalation/Scope Creep | Audit tool count against documentation; alert on new tools after updates |
+| MCP03 | Tool Poisoning | Scan with `agent-scan`; review tool descriptions for hidden instructions |
+| MCP04 | Supply Chain/Dependency Tampering | Pin server versions; verify source integrity before updating |
+| MCP05 | Command Injection | Validate all parameters passed to MCP tools; never construct shell commands from tool outputs |
+| MCP06 | Intent Flow Subversion | Monitor for unexpected tool call sequences; flag tools that redirect to other tools |
+| MCP07 | Insufficient Auth/Authz | Require authentication for all MCP server endpoints; enforce per-tool authorization |
+| MCP08 | Lack of Audit/Telemetry | Log all MCP tool invocations with parameters and results; alert on anomalies |
+| MCP09 | Shadow MCP Servers | Audit for namespace collisions across all configured servers; isolate trust boundaries |
+| MCP10 | Context Injection/Over-Sharing | Review what context MCP tools can access; restrict to minimum needed |
+
+**Known Attack Patterns (Invariant Labs PoC):**
+- **Direct tool poisoning** — malicious tool descriptions contain hidden instructions that exfiltrate SSH keys, environment variables, or file contents. Demonstrated against Claude Desktop and Cursor.
+- **Cross-server shadowing** — a malicious MCP server registers a tool that overrides how a trusted server's tools behave. The AI client unknowingly routes calls through the attacker's tool.
+- **Rug pull** — server passes initial vetting with benign tool descriptions, then mutates descriptions after gaining trust (e.g., after an update). Requires ongoing integrity monitoring (§5.6.6).
+
+> **Cross-references:** §5.6.1 (coding tool injection defense), §5.6.4 (OWASP framework listing)
+
+### 5.6.6 Tool Integrity Monitoring
+
+**Applies To:** Production projects using MCP tools in CI/CD or automated workflows. Also recommended for development environments using MCP servers regularly.
+
+After initial vetting (§5.6.5), MCP servers can change. Tool descriptions may mutate after updates, new tools may appear, or server behavior may drift. This is the **rug pull** attack vector.
+
+**Rug Pull Defense:**
+- [ ] **Pin tool descriptions by hash** — after vetting, compute SHA-256 of each tool's description and parameter schema; store in a lockfile
+- [ ] **Alert on changes** — before each session or CI run, re-hash tool descriptions and compare against lockfile; any mismatch triggers review
+- [ ] **Re-scan after updates** — when an MCP server updates, run `agent-scan` again and re-audit tool descriptions before accepting the update
+- [ ] **Fail-closed for unexpected changes** — in automated workflows (CI/CD), reject MCP tool calls if description hashes don't match lockfile; require human approval to update lockfile
+
+**Cross-Server Isolation Rules:**
+- [ ] **Separate trust boundaries** — group MCP servers by trust level; high-trust (your own) vs. medium-trust (reputable third-party) vs. low-trust (new/unvetted)
+- [ ] **Flag cross-server references** — if a tool's description references tools from another server, investigate; legitimate tools rarely need to direct the AI to other servers
+- [ ] **Namespace isolation** — ensure no two servers register tools with the same name; if collision is unavoidable, prefer the higher-trust server and document the decision
+- [ ] **Monitor tool call patterns** — in production, log which tools call which other tools; unexpected cross-server call patterns indicate potential shadowing
+
+> **Cross-references:** §5.6.1 (attack patterns), §5.6.5 (initial vetting)
 
 ---
 
@@ -2815,6 +2878,234 @@ Before shipping production software:
 - [ ] Degradation strategies documented per component (§5.10.6)
 - [ ] All resource categories bounded with named constants (§5.10.7)
 - [ ] No unsafe deserialization formats in use (§5.10.8)
+
+---
+
+## Part 5.11: Zero Trust Application Patterns
+
+**Importance: 🟡 IMPORTANT — Prevents credential compromise and lateral movement**
+
+**Implements:** Security-First Development (Domain), Supply Chain Integrity (Domain)
+**Applies To:** Production web applications, APIs, and services handling user data or credentials
+
+### 5.11.1 Zero Trust Design Principles
+
+Zero trust is a security model that eliminates implicit trust. Every request is verified regardless of source — even requests from inside the network perimeter.
+
+**Four Pillars:**
+
+| Pillar | Meaning | Already Covered In |
+|--------|---------|-------------------|
+| **Assume breach** | Design systems expecting attackers are already inside | §5.7.5 (error sanitization), §5.10.5 (circuit breaker) |
+| **Least privilege** | Grant minimum permissions needed for each operation | §5.7.2 (scoped tokens), §5.8.3 (API rate limiting) |
+| **Continuous verification** | Re-verify identity and authorization on every request | §5.7.2 (JWT expiry), §5.7.4 (CORS validation) |
+| **Default deny** | Reject unless explicitly allowed | §5.8.3 (rate limiting defaults), §5.7.3 (CSP) |
+
+**Decision Heuristic:** When unsure about access — deny. When unsure about input — reject. When unsure about a credential — re-verify.
+
+**Reference:** NIST SP 800-207 Zero Trust Architecture defines the formal model. The patterns below are practitioner implementations of its core tenets.
+
+> **Bold triggers:** **zero trust architecture**, **assume breach design**, **default deny posture**
+
+### 5.11.2 Service Identity and Credential Lifecycle
+
+Every credential has a lifecycle: **Issue → Use → Rotate → Revoke**. Credentials without a documented lifecycle become permanent attack vectors.
+
+**API Key Management Checklist:**
+- [ ] **Scoped permissions** — each API key grants access to specific resources only, not blanket access
+- [ ] **Secret manager storage** — keys stored in a secret manager (cloud provider's secret manager, or `.env` with strict file permissions for solo projects) — never in source code, config files, or environment variable defaults in Dockerfiles
+- [ ] **Rotation schedule** — every API key has a documented rotation interval (90-day maximum for production keys)
+- [ ] **Revocation procedure** — documented steps to revoke a compromised key within minutes, including which services need restarting
+- [ ] **Usage logging** — API key usage logged with timestamp, source IP, and endpoint accessed; enables anomaly detection (§5.11.5)
+
+**OAuth Client Credentials (Service-to-Service):**
+- [ ] **Client secret rotation** — rotate client secrets on the same schedule as API keys; use dual-key rotation (§5.11.4) for zero downtime
+- [ ] **Short token lifetime** — access tokens expire in ≤15 minutes; use refresh flow for longer operations
+- [ ] **Minimal scope** — request only the OAuth scopes the service actually uses; audit scope requests quarterly
+
+**Zero-Downtime Rotation Pattern:**
+
+When rotating a credential used by a running service, use the dual-key acceptance window:
+
+1. **Generate** new credential (old credential still active)
+2. **Deploy** new credential to consuming services
+3. **Verify** services successfully authenticate with new credential
+4. **Dual-accept** — producing service accepts both old and new credential during transition window (≤1 hour)
+5. **Revoke** old credential after all consumers confirmed on new credential
+
+> **Cross-references:** §5.6.2 (AI tool credential isolation), §5.7.2 (JWT key rotation)
+> **Does NOT duplicate:** OAuth 2.0 PKCE, JWT algorithm selection (already in §5.7.2)
+> **Bold triggers:** **credential rotation**, **service account security**, **API key lifecycle**
+
+### 5.11.3 Production Audit Logging
+
+Audit logs are the foundation of incident detection and response. Without them, breaches go undetected and post-incident analysis is impossible.
+
+**What to Log:**
+
+| Event Category | Examples | Why |
+|---------------|----------|-----|
+| Authentication events | Login success/failure, logout, MFA challenge, password reset | Detect brute force, credential stuffing, account takeover |
+| Authorization denials | Access denied, insufficient permissions, role violations | Detect privilege escalation attempts |
+| Data access | Read/export of sensitive records, bulk data operations | Detect data exfiltration, insider threats |
+| Configuration changes | Setting modifications, permission grants, feature flag changes | Detect unauthorized modifications |
+| Failed operations | Validation failures, rate limit hits, circuit breaker trips | Detect scanning, enumeration, DoS attempts |
+
+**Structured Log Format:**
+
+```json
+{
+  "timestamp": "2026-02-19T14:30:00Z",
+  "event_type": "auth.login.failure",
+  "actor": {"id": "user-123", "ip": "192.168.1.1", "user_agent": "Mozilla/5.0..."},
+  "resource": {"type": "session", "id": "sess-456"},
+  "outcome": "denied",
+  "reason": "invalid_password",
+  "correlation_id": "req-789abc"
+}
+```
+
+**Retention Policy:**
+
+| Event Type | Minimum Retention | Rationale |
+|-----------|------------------|-----------|
+| Authentication events | 90 days | Cover typical breach detection timelines (median 204 days, but most actionable within 90) |
+| Data access logs | 1 year | Compliance requirements (SOC 2, GDPR investigations) |
+| Error/failure logs | 30 days | Debugging window; high volume makes longer retention expensive |
+| Audit trail (config changes) | 1 year | Change attribution for compliance and incident reconstruction |
+
+**Log Integrity:**
+- [ ] **Append-only storage** — logs written to an append-only destination (managed logging service, or append-only file with restricted permissions)
+- [ ] **Tampering detection** — if using file-based logging, ship logs to a centralized service promptly; local-only logs are vulnerable to deletion by an attacker with host access
+- [ ] **Centralized aggregation** — use a managed logging service (CloudWatch, Datadog, Grafana Cloud, etc.) rather than local log files for production; enables cross-service correlation
+
+**Small-Team Aggregation (1-5 developers):**
+
+You don't need a SIEM. A managed logging service with three alert rules covers 80% of detection:
+
+| Alert | Condition | Response |
+|-------|-----------|----------|
+| Brute force | >10 failed logins from same IP in 1 hour | Block IP, notify admin |
+| Admin from new location | Admin login from previously unseen IP/country | Verify with admin, revoke if unauthorized |
+| Bulk data access | Single user exports >1000 records in 1 hour | Review access, suspend if unauthorized |
+
+> **Cross-references:** §5.7.5 (correlation IDs), §9.3.9 (structured logging for MCP servers)
+> **Does NOT duplicate:** MCP server logging patterns (§9.3.9), error sanitization (§5.7.5)
+> **Bold triggers:** **audit logging best practices**, **security event logging**, **log retention policy**
+
+### 5.11.4 Secret Rotation Procedures
+
+Every secret in production must have a documented rotation procedure. Untested rotation procedures fail during incidents.
+
+**Rotation Frequency Table:**
+
+| Secret Type | Rotation Interval | Rationale |
+|------------|-------------------|-----------|
+| Database credentials | 90 days | High-value target; frequent rotation limits blast radius |
+| API keys (external services) | 90 days | Third-party breach may expose keys; regular rotation limits exposure window |
+| JWT signing keys | 6 months | Key compromise allows token forgery; balance rotation cost vs. risk |
+| TLS certificates | Auto-renew (Let's Encrypt) or 90 days | Short-lived certs reduce compromise window; automation removes human error |
+| Encryption keys (data at rest) | Annual | Re-encryption is expensive; annual rotation with key versioning |
+
+**Zero-Downtime Rotation Pattern (5 Steps):**
+
+1. **Generate** — create new secret; old secret remains active
+2. **Dual-accept** — configure the consuming service to accept both old and new secrets
+3. **Deploy** — roll out new secret to all producers/consumers
+4. **Verify** — confirm all services operate correctly with new secret (health checks, test requests)
+5. **Revoke** — disable old secret after verification period (≤24 hours for planned rotation)
+
+**Rotation Readiness Checklist:**
+- [ ] Every production secret has a documented rotation procedure
+- [ ] Rotation has been tested at least once (not just documented)
+- [ ] Post-rotation verification steps are automated where possible (health check endpoints)
+- [ ] Emergency rotation procedure exists for compromised credentials (target: <15 minutes to revoke)
+
+> **Cross-references:** §5.6.2 (credential isolation), §5.7.6 (key management)
+> **Bold triggers:** **secret rotation procedure**, **zero-downtime rotation**
+
+### 5.11.5 Behavioral Monitoring Patterns
+
+Detection complements prevention. Even with strong access controls, monitor for anomalous behavior that indicates compromise or misuse.
+
+**What to Monitor:**
+
+| Category | Anomaly Signal | Indicates |
+|----------|---------------|-----------|
+| Authentication | Impossible travel (login from two countries within minutes), login from new device/IP | Account compromise |
+| API usage | Sudden spike in requests, off-hours activity, unusual endpoint access patterns | API key compromise, automated abuse |
+| Data access | Bulk export, access to resources outside normal scope, sequential record enumeration | Data exfiltration, insider threat |
+
+**Small-Team Implementation:**
+
+Build monitoring on top of your audit logging (§5.11.3) — alerting rules on your logging service, not custom ML pipelines.
+
+**Three Starter Alerts:**
+
+| Alert | Rule | Action |
+|-------|------|--------|
+| Brute force detection | >10 failed auth attempts from same source per hour | Temporary block + admin notification |
+| Admin access anomaly | Admin-level action from IP not in known admin IP list | Require re-authentication + admin notification |
+| Bulk data access | >1000 records accessed/exported by single actor per hour | Suspend access + admin review |
+
+**Kill Switch Pattern:**
+
+Every production service should have a **kill switch** — a feature flag or configuration that can disable any endpoint or feature instantly without a code deployment. When monitoring detects active exploitation:
+
+1. Trigger kill switch for affected endpoint
+2. Investigate with audit logs
+3. Fix root cause
+4. Re-enable with monitoring
+
+**Canary Deployment:**
+
+Roll out changes gradually to detect issues before full exposure:
+
+1. Deploy to **1%** of traffic — monitor error rates and key metrics for 15 minutes
+2. Expand to **10%** — monitor for 1 hour
+3. Expand to **100%** — continue monitoring for 24 hours
+
+If error rates exceed baseline by >5% at any stage, roll back immediately. Canary deployments catch issues that testing misses — configuration-dependent bugs, performance regressions under production load, and unexpected user behavior patterns.
+
+> **Cross-references:** §5.8.3 (rate limiting), §5.10.5 (circuit breaker pattern)
+> **Bold triggers:** **anomaly detection patterns**, **behavioral monitoring**, **canary deployment**
+
+### 5.11.6 AI Feature Security in Applications
+
+**Applies To:** Applications that include AI-powered features — LLM API calls, agent workflows, AI-generated content, or AI-driven decision-making.
+
+This section covers securing AI features **in the apps you build** — not the AI coding tools you use to build them (that's §5.6).
+
+**OWASP Agentic Top 10 — Key Risks for App Developers:**
+
+| Risk | One-Line Mitigation |
+|------|---------------------|
+| ASI01 Agent Goal Hijack | Validate AI outputs against expected format/schema before acting on them |
+| ASI02 Tool Misuse | Restrict which tools/APIs the AI can call; allowlist, don't blocklist |
+| ASI03 Identity/Privilege Abuse | AI features run with dedicated service accounts, not user credentials |
+| ASI09 Human-Agent Trust Exploitation | Never auto-execute AI recommendations that have side effects |
+
+**Production Guardrails Checklist:**
+- [ ] **AI feature rate limiting** — separate, stricter rate limits for AI-powered endpoints (LLM calls are expensive and slow; abuse is costly)
+- [ ] **Output sanitization** — sanitize AI-generated content before rendering (HTML escaping, markdown sanitization) to prevent stored XSS via AI output
+- [ ] **Human approval gate** — any AI-recommended action with side effects (sending email, modifying data, making purchases) requires explicit human confirmation
+- [ ] **Cost controls** — set spending limits on LLM API usage; alert when costs exceed expected thresholds; kill switch to disable AI features if budget exceeded
+- [ ] **Kill switch** — feature flag to disable all AI features instantly without deployment (§5.11.5 pattern)
+- [ ] **AI content labeling** — clearly label AI-generated content to users; never present AI output as human-authored
+- [ ] **Input validation on AI-facing endpoints** — validate and sanitize all inputs to endpoints that feed into LLM prompts; length limits, character restrictions, injection pattern detection
+
+**Human-in-the-Loop Decision Matrix:**
+
+| AI Action Type | Required Control | Example |
+|---------------|-----------------|---------|
+| Read-only query | Rate limiting only | Search, recommendation, summarization |
+| Content generation | Human review before publish | Blog posts, emails, reports |
+| Side effects | Explicit confirmation dialog | Send message, update record, place order |
+| Financial / irreversible | MFA + confirmation + audit log | Payment, account deletion, contract signing |
+
+> **Cross-references:** §5.6.4 (OWASP frameworks), §5.8.3 (rate limiting)
+> **Does NOT duplicate:** Prompt injection defense for AI coding tools (§5.6.1) — this section covers securing AI features in the apps developers build
+> **Bold triggers:** **AI feature security**, **agent security in apps**, **human-in-the-loop patterns**
 
 ---
 
@@ -5447,8 +5738,10 @@ A 10-item sweep checklist consolidating the most commonly-missed production hard
 | 8 | Deserialization safety (no pickle, yaml.load, allow_pickle) | §5.10.8 | Data loading | Grep for `pickle`, `yaml.load`, `allow_pickle`, `torch.load` |
 | 9 | Background threads and cleanup (lifecycle tracking, cancel on stop) | §5.9.6 | Background tasks | Review all `Timer`/`Thread` creation — verify cleanup in `stop()` |
 | 10 | Input validation at EVERY boundary (config, stored data, env vars) | §5.10.7 | All projects | Review all data ingestion points — verify validation before processing |
+| 11 | Secret rotation procedures documented and tested | §5.11.4 | Any production secrets | Review each secret type — verify rotation procedure exists and has been tested |
+| 12 | Audit logging covers auth, access denials, data access | §5.11.3 | Any user-facing app | Verify auth/authz/data events captured; check retention meets policy |
 
-> **Usage:** Copy this table into your project's release checklist. Skip items where "Applies If" doesn't match your project. Items 1, 4, 5, 8, 10 are universal; items 2, 3, 6, 7, 9 apply when their conditions are met.
+> **Usage:** Copy this table into your project's release checklist. Skip items where "Applies If" doesn't match your project. Items 1, 4, 5, 8, 10 are universal; items 2, 3, 6, 7, 9, 11, 12 apply when their conditions are met.
 
 ---
 
@@ -5456,6 +5749,7 @@ A 10-item sweep checklist consolidating the most commonly-missed production hard
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.11.0 | 2026-02-19 | **Zero Trust Application Security:** Adds zero trust best practices for production web applications and extends MCP tool security with vetting and integrity monitoring procedures. Prompted by OWASP Agentic Top 10, OWASP MCP Top 10, and Invariant Labs tool poisoning research. (1) Fixed §5.6.1: `mcp-scan` → `agent-scan` (Snyk acquired Invariant Labs' tool). (2) Completed §5.6.4 OWASP Agentic list (6→10 ASI items: added ASI06 Excessive Autonomy, ASI07 Prompt & Context Manipulation, ASI08 Multi-Agent Trust Exploitation, ASI10 Insufficient Oversight). (3) Added OWASP MCP Top 10 reference to §5.6.4 (MCP01-MCP10, verified canonical ordering). (4) New §5.6.5 — MCP Server Vetting Procedure: 8-item pre-installation checklist, OWASP MCP Top 10 quick reference table with one-line mitigations, Invariant Labs known attack patterns (direct poisoning, cross-server shadowing, rug pull). (5) New §5.6.6 — Tool Integrity Monitoring: rug pull defense (hash pinning, change alerting, fail-closed for CI/CD), cross-server isolation rules (trust boundaries, namespace isolation, call pattern monitoring). (6) New Part 5.11 — Zero Trust Application Patterns: §5.11.1 Zero Trust Design Principles (4 pillars mapped to existing framework sections, decision heuristic, NIST SP 800-207 reference), §5.11.2 Service Identity and Credential Lifecycle (API key management checklist, OAuth client credentials flow, zero-downtime rotation pattern), §5.11.3 Production Audit Logging (structured JSON format, retention policy table, log integrity checklist, 3 starter alerts for small teams), §5.11.4 Secret Rotation Procedures (rotation frequency table by secret type, 5-step zero-downtime pattern, rotation readiness checklist), §5.11.5 Behavioral Monitoring Patterns (anomaly signals table, 3 starter alerts, kill switch pattern, canary deployment 1%→10%→100%), §5.11.6 AI Feature Security in Applications (OWASP Agentic key risks for app developers, 7-item production guardrails checklist, human-in-the-loop decision matrix). (7) Updated Situation Index: 3 new entries (zero trust review, MCP vetting, audit logging). (8) Expanded Appendix H: 2 new items (secret rotation, audit logging coverage). Sources: OWASP Top 10 for Agentic Applications (Dec 2025), OWASP MCP Top 10 (2025), Invariant Labs tool poisoning PoC, Snyk agent-scan, NIST SP 800-207. |
 | 2.10.0 | 2026-02-11 | **Production Best Practices from Context Engine Implementation:** Codifies patterns discovered across 7 rounds of deep code review into reusable governance methods. Follows `meta-governance-continuous-learning-adaptation`. (1) New Part 5.9 — Concurrency Safety Patterns: thread safety decision matrix (§5.9.2), double-checked locking for lazy singletons (§5.9.3), lock ordering and deadlock prevention (§5.9.4), asyncio safety rules (§5.9.5), daemon thread lifecycle management (§5.9.6), 7-item concurrency checklist (§5.9.7). (2) New Part 5.10 — Production Resilience Patterns: atomic write pattern with tmp+fsync+rename (§5.10.2), corrupt file recovery strategies by file type (§5.10.3), orphaned temp cleanup (§5.10.4), circuit breaker state machine CLOSED→OPEN→HALF_OPEN (§5.10.5), graceful degradation strategies table (§5.10.6), resource bounding by category with named constants pattern (§5.10.7), deserialization safety table (§5.10.8), 7-item resilience checklist (§5.10.9). (3) Expanded §5.7.5 — Error Sanitization Patterns: regex patterns table for stripping paths, line numbers, memory addresses, module paths, stack frames from error messages; implementation pattern with correlation ID. (4) Expanded §5.8.2 — ML Model Safety: 3 new Python security rows (trust_remote_code, model allowlists, embedding mismatch detection). (5) New §6.5.9 — Dead Code & Technical Debt: TODO/FIXME policy with 90-day staleness threshold, stub handling rules, dead code removal rules. (6) New §6.5.10 — Code Duplication Detection: acceptable duplication criteria, refactoring triggers (3+ copies or >10 lines), extraction pattern. (7) New §9.3.9 — Structured Logging Patterns: MCP channel discipline (stdout=protocol, stderr=logs), log level via env var, required structured fields, log sanitization cross-ref to §5.7.5, anti-patterns. (8) New Appendix H — Production Hardening Checklist: 10-item pre-release sweep cross-referencing §5.9/§5.10 patterns. (9) Added §7.9.9 cross-reference note linking Context Engine-specific patterns to general Parts 5.9/5.10. (10) Updated Situation Index: 7 new entries for concurrency, resilience, error sanitization, dead code, logging, and hardening. |
 | 2.9.6 | 2026-02-10 | PATCH: Context Engine hardening Round 2 — gotchas, security patterns, and coherence audit remediation. (1) Fixed §9.3.4 Graceful Shutdown Pattern: removed `logging.info()` from signal handler code example (POSIX async-signal-safety violation — can deadlock if signal arrives while logging lock held), added safety comments and gotcha note. (2) Added 5 rows to §7.9.9 Security Requirements: watcher change re-queue on callback failure, embedding model mismatch detection on project load, ML model safety flags (`trust_remote_code=False`, `use_safetensors=True`), embedding model allowlist (6 vetted models + bypass env var), chunk limits (MAX_TOTAL_CHUNKS, MAX_CHUNK_CONTENT_CHARS, EMBEDDING_BATCH_SIZE). (3) Added 2 implementation details to Appendix G.5: model mismatch detection with warning log, cosine similarity clamping via `np.clip` for float32 precision overflow prevention. (4) Fixed §7.9.6 BaseConnector.parse() signature: added missing `project_root: Path \| None = None` parameter. (5) Fixed §7.9.4 data model schemas: added `project_path` to ProjectIndex/ProjectQueryResult/ProjectStatus, added `chunk_count` to FileMetadata, restored `index_mode` to ProjectIndex (still used in code). (6) Fixed Appendix G.4: replaced unimplemented `AI_CONTEXT_ENGINE_INDEX_MODE` env var documentation with accurate description (real-time only, on-demand planned). (7) Fixed §7.9.3: `.contextignore` syntax description from "fnmatch" to "gitignore syntax (via `pathspec.GitIgnoreSpec`)"; fixed default pattern order from "appended" to "prepended" (user `!pattern` negation can override). (8) Fixed §9.3.5: Server Instructions Pattern code example from `FastMCP` to `Server` (matches actual MCP SDK usage). (9) Fixed G.5: added allowlist bypass note for `voyage-code-3` (`ALLOW_CUSTOM_MODELS=true` required). (10) Fixed §7.9.5 concurrency description: broadened from "query execution" to "tool handlers" (all 4 tools use `run_in_executor`). (11) Fixed G.6 `BaseStorage` type annotations: `Optional[T]` → `T | None` to match codebase PEP 604 conventions. (12) Added 2 undocumented env vars to G.3 config example: `AI_CONTEXT_ENGINE_EMBEDDING_DIMENSIONS`, `AI_CONTEXT_ENGINE_LOG_LEVEL`. |
 | 2.9.5 | 2026-02-09 | PATCH: Context Engine hardening. (1) Updated §7.9.5 Indexing Modes: debounce 500ms → 2s, added 5s cooldown, documented incremental updates (replaces "full re-index planned"), added circuit breaker (3 failures), LRU eviction (10 projects max), updated concurrency model (expensive I/O outside lock). (2) Updated §7.9.6 connectors: document connector force-split at 200 lines, data connector 500-column limit for CSV and Excel. (3) Updated §7.9.4: added `watcher_status` to ProjectStatus model. (4) Expanded §7.9.9 Security Requirements: added 10 patterns (atomic writes, corrupt file recovery, BM25 empty corpus guard, column/row limits, chunk force-splitting, timer lifecycle, circuit breaker, LRU eviction, JSON file size limits, updated thread safety description). (5) Updated Appendix G.4: documented debounce/cooldown/flush parameters, removed "incremental planned" note. |

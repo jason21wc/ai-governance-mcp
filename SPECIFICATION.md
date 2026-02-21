@@ -122,6 +122,6 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 - MCP stdio transport is the delivery mechanism (no HTTP server in v1)
 - Single-process deployment; no horizontal scaling
 - Source documents are markdown files in the `documents/` directory
-- MCP server is restarted after index rebuilds (cached at startup)
+- MCP server auto-reloads index when it detects on-disk changes
 - AI clients support the MCP protocol (Claude, Cursor, Windsurf, ChatGPT, Gemini, etc.)
 - Docker users accept AMD64 emulation on ARM64 platforms

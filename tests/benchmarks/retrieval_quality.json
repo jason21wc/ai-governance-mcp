@@ -60,6 +60,34 @@
         "expected_ids": ["multi-method-governance-agent-pattern"],
         "min_score": 0.4,
         "description": "Governance agent pattern"
+      },
+      {
+        "id": "method-9",
+        "query": "how to vet MCP servers before installing",
+        "expected_ids": ["coding-method-mcp-server-vetting-procedure"],
+        "min_score": 0.35,
+        "description": "MCP server vetting procedure"
+      },
+      {
+        "id": "method-10",
+        "query": "zero trust security patterns for web applications",
+        "expected_ids": ["coding-method-zero-trust-design-principles"],
+        "min_score": 0.35,
+        "description": "Zero trust design principles"
+      },
+      {
+        "id": "method-11",
+        "query": "how to implement audit logging for production app",
+        "expected_ids": ["coding-method-production-audit-logging"],
+        "min_score": 0.35,
+        "description": "Production audit logging"
+      },
+      {
+        "id": "method-12",
+        "query": "API key rotation and credential lifecycle",
+        "expected_ids": ["coding-method-service-identity-and-credential-lifecycle"],
+        "min_score": 0.35,
+        "description": "Service identity and credential lifecycle"
       }
     ],
     "principles": [

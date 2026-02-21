@@ -515,7 +515,7 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 10 | get_principle retrieves both | Must search both principles AND methods collections |
 | 12 | evaluate_governance false positives | Security fixes trigger ESCALATE on keywords — check principles array |
 | 13 | Index architecture | JSON has `embedding_id` references; vectors in `.npy` files |
-| 15 | MCP caches index at startup | Restart server after `python -m ai_governance_mcp.extractor` |
+| 15 | MCP caches index at startup | Resolved — auto-reload detects index changes via mtime check on each query |
 | 16 | Version bumps need multiple files | `__init__.py`, `pyproject.toml`, `SBOM.md`, `SECURITY.md` must stay in sync |
 | 17 | Operational changes need source docs | Skip-list/trigger changes must propagate to governance source documents, not just instruction surfaces |
 | 18 | `domain_name[:4]` generates implicit prefixes | Codify new domain prefixes in explicit maps (extractor, retrieval, server) |
