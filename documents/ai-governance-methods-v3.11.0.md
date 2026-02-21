@@ -1,7 +1,7 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.10.3
+**Version:** 3.11.0
 **Status:** Active
 **Effective Date:** 2026-02-10
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -209,6 +209,12 @@ Documents include version in filename for clarity:
 - `ai-coding-methods-v2.9.6.md`
 - `ai-interaction-principles-v2.4.1.md`
 - `ai-governance-methods-v3.10.3.md`
+
+**Version semantics:**
+- `v0.x.x` — **Pre-release draft.** Content is in development, not yet registered in `domains.json`, and not indexed. Lives in `documents/` alongside published files (version number communicates maturity; no separate `drafts/` folder).
+- `v1.0.0+` — **Published.** Registered in `domains.json`, indexed, and active.
+
+See §5.1.4 for the full document lifecycle.
 
 ### 1.1.4 Cross-Reference Compatibility
 
@@ -981,6 +987,32 @@ To add a new domain:
   }
 }
 ```
+
+### 5.1.4 Document Lifecycle
+
+**Importance: IMPORTANT — Prevents ad-hoc folder structures**
+
+Governance documents follow a three-stage lifecycle. **All stages use `documents/` as the single location** — version numbers communicate maturity, not folder placement.
+
+| Stage | Version | Location | In `domains.json`? | Indexed? |
+|-------|---------|----------|---------------------|----------|
+| **Draft** | `v0.x.x` | `documents/` | No | No |
+| **Published** | `v1.0.0+` | `documents/` | Yes | Yes |
+| **Archived** | Any | `documents/archive/` | No (removed) | No |
+
+**Draft → Published (`v0.x.x` → `v1.0.0`):**
+1. Content passes the **domain review checklist** (§9.5)
+2. Document registered in `domains.json` (§5.1.3)
+3. Version bumped to `v1.0.0` in filename and header
+4. Index rebuilt (`python -m ai_governance_mcp.extractor`)
+
+**Published → Archived (superseded by new version):**
+1. New version placed in `documents/` with updated filename
+2. `domains.json` updated to point to new filename
+3. Old version moved to `documents/archive/`
+4. Index rebuilt
+
+**Key rule:** Do not create subdirectories under `documents/` for lifecycle stages (no `drafts/`, `wip/`, `staging/`). The version number is the status indicator. The only subdirectory is `archive/` for superseded versions.
 
 ---
 
@@ -3081,6 +3113,7 @@ Classify tasks by the minimum model capability required for acceptable quality:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.11.0 | 2026-02-20 | MINOR: Added §5.1.4 Document Lifecycle — defines draft/published/archived stages for governance documents. Clarifies that all documents live in `documents/` (no `drafts/` subdirectory); version numbers (`v0.x.x` vs `v1.0.0+`) communicate maturity. Added version semantics to §1.1.3. Prevents ad-hoc folder structures. Cross-referenced from ai-coding methods §6.5.2. |
 | 3.10.3 | 2026-02-10 | PATCH: Coherence audit remediation. Added domain qualifier to "Validation Independence" reference in §4.3.5 (multi-agent domain principle, not Constitution). |
 | 3.10.2 | 2026-02-10 | PATCH: Unified Update Checklist. Expanded §2.1.1 Update Flow from 5 to 11 steps — added CLAUDE.md propagation (step 4), SESSION-STATE propagation (step 5), coherence audit trigger check (step 9), retrieval verification (step 10), git commit (step 11). Added conditional notes for PATCH vs MINOR/MAJOR. Added cross-references linking §2.1.1 ↔ §4.1 ↔ §9.6 ↔ §4.3.2 for discoverability. Added 2 Situation Index entries (updating a governance document, post-update housekeeping). |
 | 3.10.1 | 2026-02-09 | PATCH: Enhanced Part 7.9 Progressive Inquiry Protocol. Added missing Structured Selection Trap to anti-pattern table (§7.9.6) — was in Constitution principle but omitted from method. Added `Implements:` and `Applies To:` metadata fields for retrieval surfacing. Fixed subtitle "(Structured Questioning)" → "(Adaptive Questioning)". Added Branching format rationale and Format Selection Decision table to §7.9.1. Added Situation Index entry for format selection. |
