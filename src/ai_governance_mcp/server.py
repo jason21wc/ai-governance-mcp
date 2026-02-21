@@ -637,17 +637,7 @@ A subagent is a specialized configuration that guides how your AI assistant appr
 Think of it as giving your AI a specific "role" with clear responsibilities and boundaries —
 like hiring a specialist who follows particular protocols.
 
-### What Does the Orchestrator Do?
-
-The Orchestrator ensures your AI checks governance principles BEFORE any action that is not a read-only operation, non-sensitive question, or trivial formatting change.
-Instead of diving straight into tasks, it:
-
-1. **Evaluates** what you're asking against governance principles
-2. **Identifies** any safety concerns or required modifications
-3. **Proceeds** only when governance requirements are satisfied
-4. **Escalates** to you when human judgment is needed
-
-### Why Is This Important?
+### Why Install Subagents?
 
 Without structured guidance, AI assistants can:
 - Skip validation steps in complex workflows
@@ -655,15 +645,15 @@ Without structured guidance, AI assistants can:
 - Apply inconsistent approaches across similar problems
 - Miss critical safety considerations
 
-The Orchestrator makes governance automatic, not optional — ensuring consistent,
+Subagents make specialized behaviors automatic, not optional — ensuring consistent,
 high-quality AI collaboration every time.
 
 ### What Will Be Installed?
 
-A single markdown file (.claude/agents/orchestrator.md) containing:
+A single markdown file (.claude/agents/<agent_name>.md) containing:
 - Role definition and responsibilities
-- Tool access permissions (governance tools + read operations)
-- Protocol for handling different governance assessments
+- Tool access permissions appropriate to the agent's function
+- Protocol for handling the agent's specific cognitive task
 
 This file stays in your project. You can review, modify, or remove it at any time.
 It does not send data anywhere — it only configures how Claude Code behaves when
@@ -675,7 +665,18 @@ working in this project.
 _validate_server_instructions(SERVER_INSTRUCTIONS)
 
 # Available agents for installation
-AVAILABLE_AGENTS = {"orchestrator"}
+AVAILABLE_AGENTS = {
+    "code-reviewer",
+    "coherence-auditor",
+    "continuity-auditor",
+    "contrarian-reviewer",
+    "documentation-writer",
+    "orchestrator",
+    "security-auditor",
+    "test-generator",
+    "validator",
+    "voice-coach",
+}
 
 # SHA-256 hashes of known-good agent templates
 # Update these when agent templates are intentionally modified
@@ -690,7 +691,161 @@ AVAILABLE_AGENTS = {"orchestrator"}
 # For true integrity verification, see SECURITY.md "Planned" section for
 # cryptographic signing roadmap.
 AGENT_TEMPLATE_HASHES = {
+    "code-reviewer": "db3135eba11267b27e3b6b5ae91214337aa36eb73face175cb062c4111dd7767",
+    "coherence-auditor": "0da5973ea7fab3f0930a4af6288457b79769a37bc8ad18924d2e81970836d52a",
+    "continuity-auditor": "7d9cda0534855b590f71c6c9fa24d4e6b6bc151c9addd39a697634cdc96e61e3",
+    "contrarian-reviewer": "a9d0a2235d06c3049106616a39f83f09945a9221f807ba2fccbd098565e60c85",
+    "documentation-writer": "5121b9e72a164515e6ee61502a348713460138f52a5cdb6cb88d485479deaccb",
     "orchestrator": "c1912c00b9e9e113cfcd0b7be775dfafc11dc8f1fc933d3224e8d8f1b407f9ff",
+    "security-auditor": "d1f441a41397001830e0e79f66b0031109cc10acde7e4492351a5f613ff7a3ae",
+    "test-generator": "79a40d51b53fab23f5d590a314d05ca64f2669c55a28a23c229d3bacd3b0e2a9",
+    "validator": "bbd878d49705f8e797a6a043df4b61d7514637c1b7c99264c21c0af73bb76901",
+    "voice-coach": "12d6be1a026a15de783cf2ce9fe2178ed06211c6ec2595b8ee5ca1ef8471e781",
+}
+
+# Agent metadata: short descriptions, action summaries, and activation messages
+# Used for parameterized install/uninstall messages across all agents
+AGENT_METADATA = {
+    "code-reviewer": {
+        "short_description": "Fresh-context code review specialist",
+        "action_summary": (
+            "- Review code against explicit acceptance criteria with fresh eyes\n"
+            "- Identify issues by severity (CRITICAL/HIGH/MEDIUM/LOW) with file:line locations\n"
+            "- Provide actionable fixes and acknowledge what works well"
+        ),
+        "activation_message": (
+            "The Code Reviewer subagent will activate on your next Claude Code session.\n"
+            "It provides independent quality assessment against explicit criteria.\n\n"
+            "To verify: Look for 'code-reviewer' in the agents list when you start Claude Code.\n"
+            "To remove: Use uninstall_agent(agent_name='code-reviewer')"
+        ),
+    },
+    "coherence-auditor": {
+        "short_description": "Documentation drift detector",
+        "action_summary": (
+            "- Detect where documents have silently diverged from system state\n"
+            "- Apply 5 generic checks plus file-type-specific checks per Part 4.3\n"
+            "- Report staleness, cross-file contradictions, and volatile metric issues"
+        ),
+        "activation_message": (
+            "The Coherence Auditor subagent will activate on your next Claude Code session.\n"
+            "It systematically detects documentation drift and cross-file contradictions.\n\n"
+            "To verify: Look for 'coherence-auditor' in the agents list when you start Claude Code.\n"
+            "To remove: Use uninstall_agent(agent_name='coherence-auditor')"
+        ),
+    },
+    "continuity-auditor": {
+        "short_description": "Narrative consistency verifier",
+        "action_summary": (
+            "- Check manuscripts against Story Bible for continuity errors\n"
+            "- Detect character drift, timeline conflicts, and knowledge-state leaks\n"
+            "- Verify world rule compliance and object tracking consistency"
+        ),
+        "activation_message": (
+            "The Continuity Auditor subagent will activate on your next Claude Code session.\n"
+            "It verifies narrative consistency against Story Bible entries.\n\n"
+            "To verify: Look for 'continuity-auditor' in the agents list when you start Claude Code.\n"
+            "To remove: Use uninstall_agent(agent_name='continuity-auditor')"
+        ),
+    },
+    "contrarian-reviewer": {
+        "short_description": "Devil's advocate for high-stakes decisions",
+        "action_summary": (
+            "- Challenge unstated assumptions and surface blind spots\n"
+            "- Identify coverage gaps and overlooked risks\n"
+            "- Suggest alternative approaches with actionable recommendations"
+        ),
+        "activation_message": (
+            "The Contrarian Reviewer subagent will activate on your next Claude Code session.\n"
+            "It challenges assumptions and surfaces overlooked risks before commitment.\n\n"
+            "To verify: Look for 'contrarian-reviewer' in the agents list when you start Claude Code.\n"
+            "To remove: Use uninstall_agent(agent_name='contrarian-reviewer')"
+        ),
+    },
+    "documentation-writer": {
+        "short_description": "Documentation specialist for technical writing",
+        "action_summary": (
+            "- Write README files, docstrings, guides, and API documentation\n"
+            "- Verify all claims against code before documenting\n"
+            "- Structure information for the target audience"
+        ),
+        "activation_message": (
+            "The Documentation Writer subagent will activate on your next Claude Code session.\n"
+            "It creates accurate, well-structured technical documentation.\n\n"
+            "To verify: Look for 'documentation-writer' in the agents list when you start Claude Code.\n"
+            "To remove: Use uninstall_agent(agent_name='documentation-writer')"
+        ),
+    },
+    "orchestrator": {
+        "short_description": "Governance coordination agent",
+        "action_summary": (
+            "- Ensure evaluate_governance() is called before any action not on the skip list\n"
+            "- Have restricted tools (read + governance only, no edit/write/bash)\n"
+            "- Escalate to you when S-Series (safety) principles trigger"
+        ),
+        "activation_message": (
+            "The Orchestrator subagent will activate on your next Claude Code session.\n"
+            "It will ensure governance is checked before any action not on the skip list.\n\n"
+            "To verify: Look for 'orchestrator' in the agents list when you start Claude Code.\n"
+            "To remove: Use uninstall_agent(agent_name='orchestrator')"
+        ),
+    },
+    "security-auditor": {
+        "short_description": "Security-focused vulnerability detection",
+        "action_summary": (
+            "- Scan code for OWASP Top 10 and Python-specific vulnerabilities\n"
+            "- Classify findings by severity with specific remediation guidance\n"
+            "- Think adversarially about trust boundaries and attack surfaces"
+        ),
+        "activation_message": (
+            "The Security Auditor subagent will activate on your next Claude Code session.\n"
+            "It identifies security vulnerabilities with an adversarial mindset.\n\n"
+            "To verify: Look for 'security-auditor' in the agents list when you start Claude Code.\n"
+            "To remove: Use uninstall_agent(agent_name='security-auditor')"
+        ),
+    },
+    "test-generator": {
+        "short_description": "Test creation specialist for behavior validation",
+        "action_summary": (
+            "- Design test cases covering happy paths, errors, and edge cases\n"
+            "- Write tests that validate behavior, not implementation details\n"
+            "- Track and report coverage impact"
+        ),
+        "activation_message": (
+            "The Test Generator subagent will activate on your next Claude Code session.\n"
+            "It creates comprehensive test suites focused on behavior validation.\n\n"
+            "To verify: Look for 'test-generator' in the agents list when you start Claude Code.\n"
+            "To remove: Use uninstall_agent(agent_name='test-generator')"
+        ),
+    },
+    "validator": {
+        "short_description": "Criteria-based quality validator",
+        "action_summary": (
+            "- Validate any artifact against an explicit criteria checklist\n"
+            "- Systematically check each criterion with evidence\n"
+            "- Report PASS / PASS WITH NOTES / FAIL with actionable fixes"
+        ),
+        "activation_message": (
+            "The Validator subagent will activate on your next Claude Code session.\n"
+            "It validates artifacts against explicit criteria with fresh context.\n\n"
+            "To verify: Look for 'validator' in the agents list when you start Claude Code.\n"
+            "To remove: Use uninstall_agent(agent_name='validator')"
+        ),
+    },
+    "voice-coach": {
+        "short_description": "Character voice analyst for dialogue distinction",
+        "action_summary": (
+            "- Evaluate whether characters sound distinct from each other\n"
+            "- Detect voice drift from established Character Voice Profiles\n"
+            "- Apply the cover-the-attribution voice distinction test"
+        ),
+        "activation_message": (
+            "The Voice Coach subagent will activate on your next Claude Code session.\n"
+            "It detects voice convergence and drift from character voice profiles.\n\n"
+            "To verify: Look for 'voice-coach' in the agents list when you start Claude Code.\n"
+            "To remove: Use uninstall_agent(agent_name='voice-coach')"
+        ),
+    },
 }
 
 
@@ -1038,7 +1193,7 @@ async def list_tools() -> list[Tool]:
                 "Creates subagent definition files in .claude/agents/. "
                 "Only works in Claude Code environments - other platforms receive "
                 "governance guidance via server instructions automatically. "
-                "Available agents: orchestrator."
+                "Available agents: " + ", ".join(sorted(AVAILABLE_AGENTS)) + "."
             ),
             inputSchema={
                 "type": "object",
@@ -1046,7 +1201,7 @@ async def list_tools() -> list[Tool]:
                     "agent_name": {
                         "type": "string",
                         "description": "Name of subagent to install (e.g., 'orchestrator')",
-                        "enum": ["orchestrator"],
+                        "enum": sorted(AVAILABLE_AGENTS),
                     },
                     "scope": {
                         "type": "string",
@@ -1079,7 +1234,7 @@ async def list_tools() -> list[Tool]:
                     "agent_name": {
                         "type": "string",
                         "description": "Name of subagent to uninstall (e.g., 'orchestrator')",
-                        "enum": ["orchestrator"],
+                        "enum": sorted(AVAILABLE_AGENTS),
                     },
                     "scope": {
                         "type": "string",
@@ -2025,17 +2180,30 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
     is_claude = _detect_claude_code_environment()
 
     if not is_claude:
-        # Non-Claude platform: governance is via SERVER_INSTRUCTIONS
+        # Non-Claude platform: provide agent content as reference material
+        template_path = _get_agent_template_path(agent_name)
+        agent_content = ""
+        if template_path:
+            agent_content = template_path.read_text()
+
         output = {
             "status": "not_applicable",
             "platform": "non-claude",
+            "agent_name": agent_name,
             "message": (
-                "Subagent installation is only needed for Claude Code. "
-                "Your platform already receives governance guidance via server instructions. "
-                "The Orchestrator protocol is active through the Required Actions and "
-                "Forbidden Actions in the server instructions you received on connection."
+                f"Subagent installation is only available for Claude Code. "
+                f"However, here is the '{agent_name}' agent definition for reference. "
+                f"You can adapt this for your platform."
             ),
-            "guidance": (
+            "agent_content": agent_content,
+            "adaptation_guidance": (
+                "To use this agent definition on other platforms:\n"
+                "1. Extract the role and cognitive function from the content above\n"
+                "2. Add the role description to your system prompt or agent configuration\n"
+                "3. Adapt tool references to match your platform's available tools\n"
+                "4. Follow the protocol and output format sections for structured behavior"
+            ),
+            "governance_guidance": (
                 "To use governance effectively:\n"
                 "1. Call evaluate_governance() before any action not on the skip list\n"
                 "2. Call query_governance() when you need principles to inform decisions\n"
@@ -2140,10 +2308,8 @@ EOF
             "action_summary": (
                 f"Will {status} '{agent_name}' subagent for {scope_desc}.\n\n"
                 f"File: {install_path}\n\n"
-                "This subagent will:\n"
-                "- Ensure evaluate_governance() is called before any action not on the skip list\n"
-                "- Have restricted tools (read + governance only, no edit/write/bash)\n"
-                "- Escalate to you when S-Series (safety) principles trigger\n"
+                f"This subagent will:\n"
+                f"{AGENT_METADATA.get(agent_name, {}).get('action_summary', 'Provide specialized agent behavior')}"
             ),
             "options": {
                 "install": "Call install_agent with confirmed=true to install",
@@ -2182,10 +2348,11 @@ EOF
             },
             "message": (
                 f"Successfully installed '{agent_name}' subagent.\n\n"
-                "The Orchestrator subagent will activate on your next Claude Code session.\n"
-                "It will ensure governance is checked before any action not on the skip list.\n\n"
-                "To verify: Look for 'orchestrator' in the agents list when you start Claude Code.\n"
-                "To remove: Use uninstall_agent(agent_name='orchestrator')"
+                + AGENT_METADATA.get(agent_name, {}).get(
+                    "activation_message",
+                    f"The '{agent_name}' subagent will activate on your next Claude Code session.\n\n"
+                    f"To remove: Use uninstall_agent(agent_name='{agent_name}')",
+                )
             ),
         }
         if not hash_valid:
@@ -2257,11 +2424,12 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
             "scope": scope,
             "install_path": str(install_path),
             "warning": (
-                f"This will remove the '{agent_name}' subagent.\n\n"
+                f"This will remove the '{agent_name}' subagent "
+                f"({AGENT_METADATA.get(agent_name, {}).get('short_description', 'specialized agent')}).\n\n"
                 "After removal:\n"
-                "- Governance checks will no longer be automatically enforced\n"
-                "- You'll need to manually call governance tools\n"
-                "- SERVER_INSTRUCTIONS will still provide guidance\n\n"
+                f"- The '{agent_name}' behavior will no longer be automatically available\n"
+                "- You can reinstall at any time\n"
+                "- SERVER_INSTRUCTIONS will still provide governance guidance\n\n"
                 "To confirm: Call uninstall_agent with confirmed=true"
             ),
         }
@@ -2280,7 +2448,7 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
                 f"Successfully removed '{agent_name}' subagent.\n\n"
                 "The subagent will no longer be active in new Claude Code sessions.\n"
                 "Governance tools are still available via the MCP server.\n\n"
-                "To reinstall: Use install_agent(agent_name='orchestrator')"
+                f"To reinstall: Use install_agent(agent_name='{agent_name}')"
             ),
         }
         return [TextContent(type="text", text=json.dumps(output, indent=2))]

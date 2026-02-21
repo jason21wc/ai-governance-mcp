@@ -1531,7 +1531,9 @@ class TestInstallAgent:
         )  # Remove governance reminder
         assert response["status"] == "not_applicable"
         assert response["platform"] == "non-claude"
-        assert "server instructions" in response["message"].lower()
+        assert response["agent_name"] == "orchestrator"
+        assert "agent_content" in response
+        assert "adaptation_guidance" in response
 
     @pytest.mark.asyncio
     async def test_install_agent_invalid_agent_name(self, tmp_path, monkeypatch):
@@ -2377,3 +2379,183 @@ class TestRequiredActionsCEReference:
 
         # Should now have item 6 about querying project context
         assert "6. **Query project context**" in SERVER_INSTRUCTIONS
+
+
+# =============================================================================
+# Multi-Agent Support Tests
+# =============================================================================
+
+
+class TestMultiAgentConsistency:
+    """Tests for multi-agent installation support.
+
+    Verifies that all 10 agents have consistent configuration:
+    template files, hashes, metadata, and proper tool schema coverage.
+    """
+
+    def test_all_agents_have_template_files(self):
+        """Every agent in AVAILABLE_AGENTS must have a template in documents/agents/."""
+        from ai_governance_mcp.server import AVAILABLE_AGENTS
+
+        project_root = Path(__file__).parent.parent
+        agents_dir = project_root / "documents" / "agents"
+
+        for agent_name in AVAILABLE_AGENTS:
+            template = agents_dir / f"{agent_name}.md"
+            assert template.exists(), f"Missing template for '{agent_name}': {template}"
+            content = template.read_text()
+            assert len(content) > 100, f"Template for '{agent_name}' seems empty"
+
+    def test_all_agents_have_hashes(self):
+        """Every agent in AVAILABLE_AGENTS must have a hash in AGENT_TEMPLATE_HASHES."""
+        from ai_governance_mcp.server import AGENT_TEMPLATE_HASHES, AVAILABLE_AGENTS
+
+        for agent_name in AVAILABLE_AGENTS:
+            assert agent_name in AGENT_TEMPLATE_HASHES, (
+                f"Missing hash for '{agent_name}' in AGENT_TEMPLATE_HASHES"
+            )
+            assert len(AGENT_TEMPLATE_HASHES[agent_name]) == 64, (
+                f"Hash for '{agent_name}' is not a valid SHA-256 hex digest"
+            )
+
+    def test_all_agents_have_metadata(self):
+        """Every agent in AVAILABLE_AGENTS must have metadata in AGENT_METADATA."""
+        from ai_governance_mcp.server import AGENT_METADATA, AVAILABLE_AGENTS
+
+        required_keys = {"short_description", "action_summary", "activation_message"}
+
+        for agent_name in AVAILABLE_AGENTS:
+            assert agent_name in AGENT_METADATA, (
+                f"Missing metadata for '{agent_name}' in AGENT_METADATA"
+            )
+            for key in required_keys:
+                assert key in AGENT_METADATA[agent_name], (
+                    f"Missing '{key}' in AGENT_METADATA['{agent_name}']"
+                )
+                assert len(AGENT_METADATA[agent_name][key]) > 0, (
+                    f"Empty '{key}' in AGENT_METADATA['{agent_name}']"
+                )
+
+    def test_available_agents_count(self):
+        """There should be exactly 10 available agents."""
+        from ai_governance_mcp.server import AVAILABLE_AGENTS
+
+        assert len(AVAILABLE_AGENTS) == 10
+
+    def test_template_hashes_match_files(self):
+        """Stored hashes must match actual file content."""
+        import hashlib
+
+        from ai_governance_mcp.server import AGENT_TEMPLATE_HASHES, AVAILABLE_AGENTS
+
+        project_root = Path(__file__).parent.parent
+        agents_dir = project_root / "documents" / "agents"
+
+        for agent_name in AVAILABLE_AGENTS:
+            template = agents_dir / f"{agent_name}.md"
+            if template.exists():
+                content = template.read_text()
+                actual_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+                assert actual_hash == AGENT_TEMPLATE_HASHES[agent_name], (
+                    f"Hash mismatch for '{agent_name}': "
+                    f"expected {AGENT_TEMPLATE_HASHES[agent_name]}, got {actual_hash}"
+                )
+
+    def test_no_extra_hashes_without_agents(self):
+        """AGENT_TEMPLATE_HASHES should not have entries for non-existent agents."""
+        from ai_governance_mcp.server import AGENT_TEMPLATE_HASHES, AVAILABLE_AGENTS
+
+        for agent_name in AGENT_TEMPLATE_HASHES:
+            assert agent_name in AVAILABLE_AGENTS, (
+                f"Hash exists for '{agent_name}' but it's not in AVAILABLE_AGENTS"
+            )
+
+    @pytest.mark.asyncio
+    async def test_non_claude_response_includes_agent_content(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """Non-Claude install_agent response should include agent definition content."""
+        import ai_governance_mcp.server as server_module
+
+        # No .claude dir → non-Claude environment
+        monkeypatch.chdir(tmp_path)
+        # But need settings so template path resolves
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {"agent_name": "code-reviewer"}
+        )
+
+        assert len(result) == 1
+        response = json.loads(extract_json_from_response(result[0].text))
+        assert response["status"] == "not_applicable"
+        assert response["agent_name"] == "code-reviewer"
+        assert "agent_content" in response
+        assert "Code Reviewer" in response["agent_content"]
+        assert "adaptation_guidance" in response
+
+    @pytest.mark.asyncio
+    async def test_install_preview_works_for_non_orchestrator(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """install_agent preview should work for agents other than orchestrator."""
+        import ai_governance_mcp.server as server_module
+
+        claude_dir = tmp_path / ".claude"
+        claude_dir.mkdir()
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {"agent_name": "security-auditor"}
+        )
+
+        assert len(result) == 1
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "preview"
+        assert response["agent_name"] == "security-auditor"
+        assert (
+            "OWASP" in response["action_summary"]
+            or "vulnerability" in response["action_summary"].lower()
+        )
+        assert "explanation" in response
+
+    @pytest.mark.asyncio
+    async def test_install_confirmed_creates_non_orchestrator_file(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """install_agent confirmed should create files for non-orchestrator agents."""
+        import ai_governance_mcp.server as server_module
+
+        claude_dir = tmp_path / ".claude"
+        claude_dir.mkdir()
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {"agent_name": "code-reviewer", "confirmed": True}
+        )
+
+        assert len(result) == 1
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "installed"
+
+        agent_file = tmp_path / ".claude" / "agents" / "code-reviewer.md"
+        assert agent_file.exists()
+        content = agent_file.read_text()
+        assert "Code Reviewer" in content
+
+    @pytest.mark.asyncio
+    async def test_tool_schema_lists_all_agents(self):
+        """install_agent and uninstall_agent tool schemas should list all agents."""
+        from ai_governance_mcp.server import AVAILABLE_AGENTS, list_tools
+
+        tools = await list_tools()
+        install_tool = next(t for t in tools if t.name == "install_agent")
+        uninstall_tool = next(t for t in tools if t.name == "uninstall_agent")
+
+        install_enum = install_tool.inputSchema["properties"]["agent_name"]["enum"]
+        uninstall_enum = uninstall_tool.inputSchema["properties"]["agent_name"]["enum"]
+
+        assert set(install_enum) == AVAILABLE_AGENTS
+        assert set(uninstall_enum) == AVAILABLE_AGENTS

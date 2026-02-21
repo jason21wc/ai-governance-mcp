@@ -139,7 +139,7 @@ jobs:
 
           # Define all files to scan (documents/, CLAUDE.md, .claude/agents/, server.py, domains.json)
           # These are all "instruction-bearing" files that AI agents may consume
-          SCAN_TARGETS="documents/*.md"
+          SCAN_TARGETS="documents/*.md documents/agents/*.md"
           if [ -f "CLAUDE.md" ]; then
             SCAN_TARGETS="$SCAN_TARGETS CLAUDE.md"
           fi

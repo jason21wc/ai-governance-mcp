@@ -135,7 +135,7 @@ Our CI pipeline and extraction process scan for:
 > However, **this provides limited supply chain protection** because:
 >
 > 1. The expected hashes are stored in `server.py` in the same repository
-> 2. An attacker who can modify `documents/agents/orchestrator.md` can also modify `AGENT_TEMPLATE_HASHES`
+> 2. An attacker who can modify `documents/agents/` templates can also modify `AGENT_TEMPLATE_HASHES`
 > 3. This is "the fox guarding the henhouse"
 >
 > **What hash verification DOES provide:**
