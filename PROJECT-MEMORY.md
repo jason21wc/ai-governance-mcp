@@ -106,6 +106,7 @@
 | Confidence Thresholds | 2025-12-31 | HIGH ≥0.7, MEDIUM ≥0.4, LOW ≥0.3. Validated — keep defaults. |
 | Pre-Flight Validation | 2025-12-31 | `validate_domain_files()` — fail fast on missing config files. |
 | Multi-Platform Configs | 2026-01-01 | `config_generator.py` — Gemini, Claude, ChatGPT, Cursor, Windsurf, SuperAssistant. |
+| All 10 Agents Installable | 2026-02-21 | `install_agent`/`uninstall_agent` expanded from orchestrator-only to all 10 agents. `AGENT_METADATA` dict provides per-agent descriptions, action summaries, activation messages. Non-Claude users receive agent definition content as adaptable reference. Templates in `documents/agents/`. CI content scan covers `documents/agents/*.md`. |
 
 ### Context Engine
 

@@ -600,8 +600,8 @@ After receiving query results, use `log_feedback()` to rate relevance:
 High-rated principles get boosted in future queries. Your feedback directly improves retrieval quality.
 
 ### Claude Code Users
-Run `install_agent(agent_name="orchestrator")` to install the Orchestrator subagent.
-This enables structural governance enforcement with restricted tool access.
+Run `install_agent(agent_name="orchestrator")` to install the Orchestrator subagent for governance enforcement.
+10 specialized subagents are available — run `install_agent` with any agent name to see options.
 
 ### Model-Specific Guidance
 

@@ -101,8 +101,8 @@ Runtime:
 | `get_domain_summary` | Domain exploration |
 | `log_feedback` | Quality tracking |
 | `get_metrics` | Performance analytics |
-| `install_agent` | Install Orchestrator agent (Claude Code only) |
-| `uninstall_agent` | Remove installed agent |
+| `install_agent` | Install governance subagent (Claude Code only) |
+| `uninstall_agent` | Remove installed subagent |
 | `log_governance_reasoning` | Record per-principle reasoning traces for audit |
 
 **Context Engine Server (4 tools):**
@@ -130,11 +130,19 @@ The `verify_governance_compliance` tool enables post-action auditing:
 
 **Subagent Installation (Claude Code):**
 
-The `install_agent` tool provides structural governance enforcement for Claude Code:
-- Installs the Orchestrator subagent definition to `.claude/agents/orchestrator.md`
-- Orchestrator has restricted tools (read + governance only, no edit/write/bash)
-- Ensures `evaluate_governance()` is called before any action not on the skip list (reads, non-sensitive questions, trivial formatting)
-- Other platforms receive governance via SERVER_INSTRUCTIONS (no installation needed)
+The `install_agent` tool provides 10 specialized subagents for Claude Code:
+- **orchestrator** — governance coordination (ensures `evaluate_governance()` is called)
+- **code-reviewer** — fresh-context code review against explicit criteria
+- **security-auditor** — OWASP-aligned vulnerability detection
+- **test-generator** — behavior-focused test creation
+- **documentation-writer** — technical writing specialist
+- **validator** — criteria-based quality validation
+- **contrarian-reviewer** — devil's advocate for high-stakes decisions
+- **coherence-auditor** — documentation drift detection
+- **continuity-auditor** — narrative consistency verification
+- **voice-coach** — character voice distinction analysis
+
+Other platforms receive agent definitions as adaptable reference material via `install_agent`.
 
 ### Example Usage
 
