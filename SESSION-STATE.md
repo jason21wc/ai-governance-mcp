@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — v2.1.0 expansion + coherence audit remediation complete
+- **Active Task:** None — v2.1.1 §2.5 Content Ingestion Assistance Workflow complete
 
 ## Quick Reference
 
@@ -21,41 +21,30 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
-| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.11.1** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.0** (multimodal-rag methods), **v2.5** (ai-instructions) |
+| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.11.1** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
 | Tests | **726 pass** (non-slow), 0 failures, 30 deselected (slow/model_eval) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **124 principles + 481 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
+| Index | **124 principles + 482 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit governance inject, PreToolUse governance check) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-02-21)
+## Session Summary (2026-02-22)
 
 ### Completed This Session
 
-1. **Multimodal-RAG v2.1.0 Content Expansion** (`af5791b`)
-   - 6 new principles: AG1-AG3 (AG-Series), V4, A4, A5
-   - 4 new failure modes: MR-F24 through MR-F27
-   - Title 11: Agentic Retrieval Patterns (§11.1-§11.5)
-   - Extended methods: §3.7, §3.8, §5.5, Appendix C
-   - Totals: 29→35 principles, ~54→63 methods, 23→27 failure modes, 10→11 series
-
-2. **Code Review + Coherence Audit Remediation** (`add7f08`)
-   - Fixed misleading ag-series collision comment (no real collision — `"a-series" in "ag-series"` is False)
-   - Added `f-series` → `"fallback"` category mapping (was defaulting to `"general"`)
-   - Added `"reference"` → `"reference"` mapping for multimodal-RAG R-Series (was `"reliability"`)
-   - Updated document titles/footers from v2.0.0 to v2.1.0 (version consistency)
-   - Added 7 v2.1.0 research references to Evidence Base
-   - Fixed Relationship to Methods version column
-   - Fixed PROJECT-MEMORY stale `[.:]` extractor claim
-   - Corrected Gotcha #35, added Gotchas #36 (version validator scope), #37 (F/R-Series fix)
-
-3. **Benchmark Baselines Updated** (`5b9aed8`)
-   - All 30 benchmarks pass, metrics unchanged after category mapping changes
+1. **Multimodal-RAG Methods v2.1.1 — §2.5 Content Ingestion Assistance Workflow**
+   - Added §2.5: AI procedure for assisting users with preparing multimodal content for RAG knowledge bases
+   - 5-step workflow: Intake Assessment → Image Analysis & Text Generation → Document Assembly → Quality Validation → Retrieval Optimization
+   - Batch Processing Pattern callout for full-workflow documentation
+   - Updated Governance Integration table: §2.5 added to R1, R2, R3, P1
+   - Updated changelog, version headers/footer (v2.1.0 → v2.1.1)
+   - Methods: 63 → 64 (multimodal-rag), 481 → 482 (total)
+   - 726 tests pass, retrieval spot-checks confirm §2.5 surfaces for 3/4 positive queries, no displacement of §2.2
 
 ## Next Actions
 

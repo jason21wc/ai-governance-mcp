@@ -7229,7 +7229,7 @@
           "embedding_id": 192
         }
       ],
-      "last_extracted": "2026-02-22T06:01:54.523986+00:00",
+      "last_extracted": "2026-02-22T06:51:34.857724+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -14270,7 +14270,7 @@
           "embedding_id": 387
         }
       ],
-      "last_extracted": "2026-02-22T06:01:54.529785+00:00",
+      "last_extracted": "2026-02-22T06:51:34.863488+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -17038,7 +17038,7 @@
           "embedding_id": 445
         }
       ],
-      "last_extracted": "2026-02-22T06:01:54.533150+00:00",
+      "last_extracted": "2026-02-22T06:51:34.866997+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -19464,7 +19464,7 @@
           "embedding_id": 506
         }
       ],
-      "last_extracted": "2026-02-22T06:01:54.535380+00:00",
+      "last_extracted": "2026-02-22T06:51:34.869248+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -21225,10 +21225,10 @@
           "id": "mrag-method-collocation-verification-checklist",
           "domain": "multimodal-rag",
           "title": "Collocation Verification Checklist",
-          "content": "### 2.4 Collocation Verification Checklist\n\nBefore publishing reference documents:\n\n- [ ] Every image appears within 2 paragraphs of its related text\n- [ ] No image galleries or appendices separating images from context\n- [ ] Each image has alt text (accessibility)\n- [ ] Each image has context description (retrieval)\n- [ ] Each image has metadata tags (filtering)\n- [ ] Step-by-step procedures have images at each visual step\n- [ ] Consistent image naming convention throughout document\n\n---\n",
+          "content": "### 2.4 Collocation Verification Checklist\n\nBefore publishing reference documents:\n\n- [ ] Every image appears within 2 paragraphs of its related text\n- [ ] No image galleries or appendices separating images from context\n- [ ] Each image has alt text (accessibility)\n- [ ] Each image has context description (retrieval)\n- [ ] Each image has metadata tags (filtering)\n- [ ] Step-by-step procedures have images at each visual step\n- [ ] Consistent image naming convention throughout document\n",
           "line_range": [
             234,
-            247
+            245
           ],
           "keywords": [
             "collocation",
@@ -21253,13 +21253,69 @@
           "embedding_id": 553
         },
         {
+          "id": "mrag-method-content-ingestion-assistance-workflow",
+          "domain": "multimodal-rag",
+          "title": "Content Ingestion Assistance Workflow",
+          "content": "### 2.5 Content Ingestion Assistance Workflow\n\n**Content Ingestion Assistance** procedure for AI agents assisting users with preparing multimodal content for RAG knowledge bases. Follow this workflow when a user uploads images, screenshots, or raw documentation and requests help incorporating them into a multimodal RAG system.\n\n#### Step 1: Intake Assessment\n\nWhen a user provides raw materials (screenshots, images, documents):\n\n1. **Identify content type** \u2014 procedural UI steps, conceptual diagram, troubleshooting, or reference\n2. **Assess image quality** \u2014 legibility, completeness, appropriate UI state shown\n3. **Sensitive Data Screening** \u2014 scan for PII, credentials, internal IDs, or other sensitive data requiring masking. Flag to user and do NOT proceed with that image until the user confirms it has been masked or cleared\n4. **Determine context** \u2014 what procedure or concept does this content support?\n5. **Ask clarifying questions** \u2014 target audience, related procedures, where this fits in the existing knowledge base\n\n#### Step 2: Image Analysis and Text Generation\n\nFor each image the user provides:\n\n1. **Generate alt text** per \u00a72.2 \u2014 describe WHAT the image shows (serves accessibility)\n2. **Generate context description** per \u00a72.2 \u2014 explain WHY/WHEN this image is relevant (serves retrieval optimization, R2)\n3. **Generate metadata tags** per \u00a72.3 \u2014 procedure name, step number, concepts, UI elements, audience\n4. **Produce the \u00a72.3 YAML metadata block** \u2014 filled out with all applicable fields\n5. **Present all generated text to user** for review and correction before proceeding\n\n**Image Analysis and Text Generation** produces the three required description layers (alt text, context, tags) in a single pass per image, ensuring consistency across layers.\n\n#### Step 3: Document Assembly\n\nUsing the \u00a72.1 template, structure the content:\n\n1. **Collocate images with related text** \u2014 every image appears within context of its related instruction (R1)\n2. **Write or refine step/concept text** to pair with each image\n3. **Place images inline** after the instruction they illustrate, before the next step (P1)\n4. **Add cross-references** to related procedures in the knowledge base\n5. **Match text complexity** to the target audience (P4, P5)\n\n#### Step 4: Quality Validation\n\nRun checks against the assembled document:\n\n1. **Execute \u00a72.4 Collocation Verification Checklist** \u2014 flag any failures\n2. **Legibility check** \u2014 can all text in screenshots be read at standard display size?\n3. **Accuracy check** \u2014 does each screenshot match the written instruction it accompanies?\n4. **Completeness check** \u2014 are there gaps where a visual would help but is missing?\n5. **Tag consistency check** \u2014 are tags consistent with existing documents in the knowledge base? (R3)\n6. **PII re-check** \u2014 scan for any sensitive data that may have been missed in Step 1\n\n#### Step 5: Retrieval Optimization\n\nOptimize the prepared content for retrieval quality:\n\n1. **Search term alignment** \u2014 verify that generated alt text and context descriptions contain terms users would actually search for\n2. **Tag expansion** \u2014 suggest additional tags based on common query patterns for this domain (R3)\n3. **Chunking guidance** \u2014 recommend chunking boundaries if the document is long (cross-reference \u00a73.5 Vision-Guided Chunking)\n4. **Document-as-image considerations** \u2014 if the knowledge base uses document-as-image retrieval (A4), advise on image resolution and format requirements\n5. **Knowledge graph extraction** \u2014 if the knowledge base uses knowledge graphs (A5), identify entities and relationships to extract\n\n**Retrieval Optimization** bridges content preparation and the retrieval pipeline, ensuring prepared documents are findable through the architecture described in Title 3.\n\n> **Batch Processing Pattern**\n>\n> When a user needs to document an entire workflow (e.g., a full multi-step procedure):\n>\n> 1. Guide the user to walk through the complete procedure first and capture all screenshots in one pass (ensures consistent UI state)\n> 2. Process all images through Steps 1\u20135 as a batch\n> 3. Generate cross-links between related procedure documents\n> 4. Validate tag consistency across the full document set\n>\n> **Batch Processing Pattern** avoids the inconsistency that arises from documenting steps piecemeal across separate sessions.\n\n---\n",
+          "line_range": [
+            246,
+            317
+          ],
+          "keywords": [
+            "content",
+            "ingestion",
+            "assistance",
+            "workflow"
+          ],
+          "metadata": {
+            "keywords": [
+              "content",
+              "ingestion",
+              "assistance",
+              "workflow"
+            ],
+            "trigger_phrases": [
+              "content ingestion assistance",
+              "identify content type",
+              "assess image quality",
+              "sensitive data screening",
+              "determine context",
+              "ask clarifying questions",
+              "generate alt text",
+              "generate context description",
+              "generate metadata tags",
+              "place images inline"
+            ],
+            "purpose_keywords": [],
+            "applies_to": [],
+            "guideline_keywords": [
+              "content",
+              "ingestion",
+              "assistance",
+              "step",
+              "intake",
+              "assessment",
+              "step",
+              "image",
+              "analysis",
+              "step",
+              "document",
+              "assembly",
+              "step",
+              "quality",
+              "validation"
+            ]
+          },
+          "embedding_id": 554
+        },
+        {
           "id": "mrag-method-retrieval-architecture",
           "domain": "multimodal-rag",
           "title": "Retrieval Architecture",
           "content": "## 3 Retrieval Architecture\n",
           "line_range": [
-            248,
-            249
+            318,
+            319
           ],
           "keywords": [
             "retrieval",
@@ -21275,7 +21331,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 554
+          "embedding_id": 555
         },
         {
           "id": "mrag-method-four-layer-architecture",
@@ -21283,8 +21339,8 @@
           "title": "Four-Layer Architecture",
           "content": "### 3.1 Four-Layer Architecture\n\n```\n+------------------------------------------------------------+\n|                    Layer 1: Query Processing                 |\n|  Intent Classification > Query Expansion > Audience Detection|\n+------------------------------+-----------------------------+\n                               |\n+------------------------------v-----------------------------+\n|                  Layer 2: Multimodal Embedding               |\n|  Text Embedding <-> Unified Space <-> Image Embedding        |\n|  (ColPali, ColQwen2, or similar)                            |\n+------------------------------+-----------------------------+\n                               |\n+------------------------------v-----------------------------+\n|                  Layer 3: Retrieval & Ranking                |\n|  Vector Search > Metadata Filter > Relevance Scoring         |\n|  (Apply A2 multi-signal scoring)                            |\n+------------------------------+-----------------------------+\n                               |\n+------------------------------v-----------------------------+\n|                  Layer 4: Response Generation                |\n|  Text Generation < Image Placement < Failure Handling        |\n|  (Apply P-Series, V-Series, CT-Series, and F-Series)       |\n+------------------------------------------------------------+\n```\n",
           "line_range": [
-            250,
-            276
+            320,
+            346
           ],
           "keywords": [
             "four-layer",
@@ -21303,7 +21359,7 @@
               "architecture"
             ]
           },
-          "embedding_id": 555
+          "embedding_id": 556
         },
         {
           "id": "mrag-method-embedding-model-selection",
@@ -21311,8 +21367,8 @@
           "title": "Embedding Model Selection",
           "content": "### 3.2 Embedding Model Selection\n\n| Model Family | Strengths | Considerations |\n|--------------|-----------|----------------|\n| **ColPali** | Late interaction, fine-grained matching | Newer, evolving ecosystem |\n| **ColQwen2** | Strong multimodal understanding | Similar architecture to ColPali |\n| **CLIP-based** | Widely deployed, stable | Less fine-grained than late interaction |\n| **Custom fine-tuned** | Domain-specific optimization | Requires training infrastructure |\n\n**Selection Criteria:**\n1. Does the model support unified text-image embedding space? (A1)\n2. What is latency for your query volume?\n3. What is embedding dimension and storage cost?\n4. Does the model handle your image types well? (screenshots, diagrams, photos)\n",
           "line_range": [
-            277,
-            291
+            347,
+            361
           ],
           "keywords": [
             "embedding",
@@ -21340,7 +21396,7 @@
               "selection"
             ]
           },
-          "embedding_id": 556
+          "embedding_id": 557
         },
         {
           "id": "mrag-method-relevance-scoring-implementation",
@@ -21348,8 +21404,8 @@
           "title": "Relevance Scoring Implementation",
           "content": "### 3.3 Relevance Scoring Implementation\n\n```python\ndef relevance_score(query, image, config):\n    \"\"\"\n    Multi-signal relevance scoring per A2 principle.\n\n    Weights are configurable per deployment.\n    Default weights optimized for procedural documentation.\n    \"\"\"\n    weights = config.get('weights', {\n        'semantic': 0.60,\n        'content_type': 0.25,\n        'recency': 0.10,\n        'step_alignment': 0.05\n    })\n\n    # Semantic similarity from embedding space\n    semantic = cosine_similarity(\n        embed_text(query),\n        embed_image(image)\n    )\n\n    # Content type match (screenshot for UI query, diagram for concept)\n    query_intent = classify_intent(query)  # procedural, conceptual, troubleshooting\n    image_type = image.metadata.get('type')  # screenshot, diagram, photo\n    content_type = content_type_score(query_intent, image_type)\n\n    # Recency (for rapidly-changing UIs)\n    days_old = (today() - image.metadata.get('created')).days\n    recency = max(0, 1 - (days_old / config.get('recency_halflife', 180)))\n\n    # Step alignment (for procedural queries)\n    if query_intent == 'procedural':\n        query_step = extract_step_reference(query)\n        image_step = image.metadata.get('step')\n        step_alignment = 1.0 if query_step == image_step else 0.5\n    else:\n        step_alignment = 0.5  # neutral for non-procedural\n\n    return (\n        weights['semantic'] * semantic +\n        weights['content_type'] * content_type +\n        weights['recency'] * recency +\n        weights['step_alignment'] * step_alignment\n    )\n```\n",
           "line_range": [
-            292,
-            339
+            362,
+            409
           ],
           "keywords": [
             "relevance",
@@ -21371,7 +21427,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 557
+          "embedding_id": 558
         },
         {
           "id": "mrag-method-chunk-strategy-for-multimodal-documents",
@@ -21379,8 +21435,8 @@
           "title": "Chunk Strategy for Multimodal Documents",
           "content": "### 3.4 Chunk Strategy for Multimodal Documents\n\nWhen indexing documents with images:\n\n```\nDocument: front-desk-procedures.md\n+-- Chunk 1: \"## Step 1: Access Guest Profile\\n[text]\\n[IMAGE_REF: step1.png]\"\n+-- Chunk 2: \"## Step 2: Open Actions Menu\\n[text]\\n[IMAGE_REF: step2.png]\"\n+-- Chunk 3: \"## Step 3: Select Upgrade Option\\n[text]\\n[IMAGE_REF: step3.png]\"\n```\n\n**Key principles:**\n- Keep images with their text context in same chunk\n- Include image metadata in chunk for filtering\n- Chunk boundaries at logical breaks (steps, sections)\n- Embed both text content and image for each chunk\n",
           "line_range": [
-            340,
-            356
+            410,
+            426
           ],
           "keywords": [
             "chunk",
@@ -21406,7 +21462,7 @@
               "multimodal"
             ]
           },
-          "embedding_id": 558
+          "embedding_id": 559
         },
         {
           "id": "mrag-method-vision-guided-chunking-procedures",
@@ -21414,8 +21470,8 @@
           "title": "Vision-Guided Chunking Procedures",
           "content": "### 3.5 Vision-Guided Chunking Procedures\n\n**Purpose:** Operational procedures for implementing A3 (Vision-Guided Chunking). Ensures visual elements are preserved as complete units during document indexing.\n\n**Applies To:** Any document processing pipeline that chunks multimodal documents for embedding and retrieval.\n\n**Visual Element Detection:**\n\nBefore chunking, identify visual elements using layout analysis:\n\n```\n1. SCAN document for visual elements:\n   - Tables (detected by grid structure, | characters, or HTML <table>)\n   - Charts/graphs (detected by axis labels, legends, data points)\n   - Diagrams (detected by shapes, arrows, flow patterns)\n   - Code blocks (detected by ``` fencing or indentation)\n   - Images with captions (detected by ![...] markdown or <img> tags)\n\n2. MARK element boundaries:\n   - Start: first line of the visual element (or its title/caption)\n   - End: last line of the visual element (or trailing caption/notes)\n   - Context: preceding paragraph (up to 3 sentences) for semantic grounding\n\n3. CLASSIFY elements:\n   - ATOMIC: Must not be split (tables, charts, diagrams)\n   - CAPTIONED: Must stay with caption (images, figures)\n   - CONTEXTUAL: Must stay with surrounding text (inline code, formulas)\n```\n\n**Chunking Rules:**\n\n| Visual Element | Chunking Rule | Max Chunk Size Override |\n|----------------|---------------|------------------------|\n| Table (< 50 rows) | Keep complete with title and any notes | 2x normal chunk size |\n| Table (>= 50 rows) | Split at logical row groups (sections, categories) | 1.5x normal chunk size per group |\n| Chart/Graph | Keep complete with title, legend, and axis labels | 2x normal chunk size |\n| Diagram | Keep complete with all labels and caption | 2x normal chunk size |\n| Image + Caption | Keep image reference with caption and preceding paragraph | 1.5x normal chunk size |\n| Code block | Keep complete with preceding context sentence | 2x normal chunk size |\n\n**Validation Checklist:**\n\n- [ ] No table is split mid-row\n- [ ] No diagram is separated from its caption or legend\n- [ ] No chart is separated from its axis labels\n- [ ] Each visual element chunk includes at least one sentence of surrounding context\n- [ ] Chunk size overrides are logged for monitoring\n",
           "line_range": [
-            357,
-            404
+            427,
+            474
           ],
           "keywords": [
             "vision-guided",
@@ -21463,7 +21519,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 559
+          "embedding_id": 560
         },
         {
           "id": "mrag-method-cross-modal-reference-linking",
@@ -21471,8 +21527,8 @@
           "title": "Cross-Modal Reference Linking",
           "content": "### 3.6 Cross-Modal Reference Linking\n\n**Purpose:** Procedures for maintaining links between text references and visual elements across chunks.\n\n**Applies To:** Systems where text in one chunk references visual elements in another chunk.\n\n**Reference Types:**\n\n| Reference Pattern | Detection | Action |\n|-------------------|-----------|--------|\n| \"See Figure N\" / \"See Table N\" | Regex: `[Ss]ee\\s+(Figure|Table|Chart|Diagram)\\s+\\d+` | Store bidirectional link between text chunk and visual chunk |\n| \"As shown above/below\" | Proximity: find nearest visual element | Store positional reference |\n| Explicit image reference | Markdown: `![...]` or HTML: `<img>` | Ensure image ref and text in same chunk |\n| Footnote/endnote to visual | Footnote pattern + visual ID | Store reference mapping |\n\n**Link Storage Schema:**\n\n```yaml\ncross_modal_references:\n  - source_chunk_id: \"chunk-042\"\n    target_chunk_id: \"chunk-038\"\n    reference_type: \"figure_reference\"\n    reference_text: \"See Figure 3\"\n    target_element: \"figure-3\"\n  - source_chunk_id: \"chunk-055\"\n    target_chunk_id: \"chunk-055\"\n    reference_type: \"inline_image\"\n    reference_text: \"![Dashboard overview]\"\n    target_element: \"dashboard-overview.png\"\n```\n\n**At Query Time:**\nWhen a text chunk is retrieved, also retrieve any linked visual element chunks. Present them together in the response per P1 (Inline Integration).\n",
           "line_range": [
-            405,
-            438
+            475,
+            508
           ],
           "keywords": [
             "cross-modal",
@@ -21521,7 +21577,7 @@
               "linking"
             ]
           },
-          "embedding_id": 560
+          "embedding_id": 561
         },
         {
           "id": "mrag-method-late-interaction-and-document-as-image-retrieval",
@@ -21529,8 +21585,8 @@
           "title": "Late Interaction and Document-as-Image Retrieval",
           "content": "### 3.7 Late Interaction and Document-as-Image Retrieval\n\n**Purpose:** Procedures for implementing A4 (Document-as-Image Retrieval). Defines when and how to use late interaction models (ColPali, ColQwen2, ColEmbed V2) that treat document pages as images rather than extracting text.\n\n**Applies To:** Document collections where layout, formatting, tables, or visual annotations carry semantic meaning that text extraction destroys.\n\n**Paradigm Decision Tree:**\n\n| Document Characteristic | Recommended Paradigm | Rationale |\n|------------------------|---------------------|-----------|\n| Plain text (articles, manuals, code) | Text extraction + standard embedding | Layout carries no semantic meaning |\n| Simple tables (uniform structure) | Text extraction with table parser | Structure can be faithfully extracted |\n| Complex tables (merged cells, nested headers) | Document-as-image | Extraction often fails on complex table structures |\n| Infographics, annotated diagrams | Document-as-image | Visual arrangement IS the content |\n| Forms with spatial relationships | Document-as-image | Field-value spatial relationships lost in extraction |\n| Mixed content (text + figures on same page) | Hybrid (both pipelines) | Use text extraction for prose, image for figures |\n\n**Multi-Vector Indexing Procedure:**\n\n```\nInput: Document page P (as image), Model M (ColPali/ColQwen2/ColEmbed V2)\n\n1. ENCODE page P through vision-language model M:\n   - Output: Set of patch embeddings E[] (one per image patch, typically 1024+ per page)\n   - Each patch embedding captures local visual + textual features\n\n2. INDEX patch embeddings:\n   - Store all patch embeddings with page_id metadata\n   - Storage requirement: ~N_patches \u00d7 embedding_dim \u00d7 4 bytes per page\n   - Typical: 1024 patches \u00d7 128 dims = 512 KB per page (vs. ~1 KB for single-vector)\n\n3. AT QUERY TIME:\n   - Encode query Q through model M's text encoder\n   - Compute late interaction score: MaxSim(Q_tokens, P_patches)\n   - Score = sum over query tokens of max similarity to any page patch\n   - This enables fine-grained matching: specific query terms match specific page regions\n\n4. RANK pages by late interaction score\n```\n\n**When to Use vs. Text Extraction:**\n\n```\nDecision: Use document-as-image retrieval IF:\n  - Text extraction quality < 90% (measured on sample) OR\n  - Document contains >30% visual/layout content OR\n  - Users report \"can't find\" for content that exists in documents OR\n  - A/B test shows higher retrieval quality with image-based indexing\n\nDecision: Use text extraction IF:\n  - Documents are primarily prose text OR\n  - Storage budget is constrained (multi-vector is 100-500x more per page) OR\n  - Latency budget is constrained (VLM inference is slower than text encoding)\n```\n\n**Cost-Quality Reference:**\n\n| Metric | Text Extraction | Document-as-Image | Notes |\n|--------|----------------|-------------------|-------|\n| Storage per page | ~1 KB (single vector) | ~500 KB (multi-vector) | 500x increase |\n| Index time per page | ~10ms (text encode) | ~200ms (VLM encode) | 20x increase |\n| Query latency | ~5ms (ANN search) | ~50ms (MaxSim) | 10x increase |\n| Retrieval quality (layout-rich) | Low-Medium | High | Main benefit |\n| Retrieval quality (text-only) | High | Medium-High | Text extraction wins here |\n",
           "line_range": [
-            439,
-            503
+            509,
+            573
           ],
           "keywords": [
             "late",
@@ -21582,7 +21638,7 @@
               "document-as-image"
             ]
           },
-          "embedding_id": 561
+          "embedding_id": 562
         },
         {
           "id": "mrag-method-graph-based-multimodal-retrieval",
@@ -21590,8 +21646,8 @@
           "title": "Graph-Based Multimodal Retrieval",
           "content": "### 3.8 Graph-Based Multimodal Retrieval\n\n**Purpose:** Procedures for implementing A5 (Knowledge Graph Integration). Defines how to construct and query a knowledge graph from multimodal content for relationship-aware retrieval.\n\n**Applies To:** Complex knowledge bases where entities and relationships span multiple documents and modalities. Particularly valuable when queries involve structural relationships (\"what depends on X?\", \"how is A related to B?\").\n\n**Knowledge Graph Construction:**\n\n```\nInput: Document collection D[], Modalities: text, images, tables\n\n1. ENTITY EXTRACTION:\n   - Text: Apply NER (Named Entity Recognition) for persons, organizations,\n     components, concepts, versions\n   - Images: Apply visual object detection for components, UI elements,\n     diagram entities\n   - Tables: Extract row/column headers as entity types, cell values as\n     entity instances\n\n2. ENTITY RESOLUTION:\n   - Match entities across modalities (text \"Login Button\" \u2194 image region\n     containing login button)\n   - Resolve aliases (\"Auth Module\" = \"Authentication Module\" = component\n     in diagram)\n   - Assign canonical entity IDs\n\n3. RELATIONSHIP EXTRACTION:\n   - Text: Extract relationships from sentence structure (\"X depends on Y\",\n     \"X connects to Y\")\n   - Images: Extract spatial relationships from diagrams (containment,\n     connection, flow arrows)\n   - Tables: Extract column relationships (row entity has attribute\n     column value)\n\n4. GRAPH CONSTRUCTION:\n   - Nodes: Resolved entities with attributes (type, source_doc,\n     source_modality, embedding)\n   - Edges: Relationships with attributes (type, confidence, source_doc)\n   - Store: Graph database (Neo4j, NetworkX for small scale) + vector index\n     on node embeddings\n```\n\n**Graph-Augmented Retrieval Procedure:**\n\n```\nInput: Query Q, Knowledge Graph G, Vector Index V\n\n1. VECTOR RETRIEVAL: Standard top-K retrieval from V\n   - Returns document chunks related to Q\n\n2. ENTITY MATCHING: Identify entities in Q that exist in G\n   - Match query terms to graph node labels/aliases\n\n3. GRAPH EXPANSION: For matched entities, traverse G:\n   - 1-hop neighbors: directly related entities\n   - 2-hop neighbors: entities related to related entities (use sparingly)\n   - Filter by relationship type relevance to query\n\n4. AUGMENTED RETRIEVAL: For each graph-expanded entity:\n   - Retrieve the document chunks containing that entity\n   - Score by: graph_relevance * 0.4 + vector_relevance * 0.6\n\n5. MERGE: Combine vector results and graph-augmented results\n   - Deduplicate by chunk ID\n   - Re-rank combined set\n```\n\n**Graph Maintenance:**\n\n| Trigger | Action | Frequency |\n|---------|--------|-----------|\n| New document added | Extract entities/relationships, merge into graph | On ingest |\n| Document updated | Re-extract changed sections, update graph nodes/edges | On update |\n| Entity conflict detected | Queue for human resolution | As needed |\n| Graph quality audit | Sample-based verification of entity/relationship accuracy | Monthly |\n\n---\n",
           "line_range": [
-            504,
-            581
+            574,
+            651
           ],
           "keywords": [
             "graph-based",
@@ -21641,7 +21697,7 @@
               "retrieval"
             ]
           },
-          "embedding_id": 562
+          "embedding_id": 563
         },
         {
           "id": "mrag-method-failure-handling",
@@ -21649,8 +21705,8 @@
           "title": "Failure Handling",
           "content": "## 4 Failure Handling\n",
           "line_range": [
-            582,
-            583
+            652,
+            653
           ],
           "keywords": [
             "failure",
@@ -21666,7 +21722,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 563
+          "embedding_id": 564
         },
         {
           "id": "mrag-method-failure-classification",
@@ -21674,8 +21730,8 @@
           "title": "Failure Classification",
           "content": "### 4.1 Failure Classification\n\n| Failure Type | Code | Cause | User-Facing Message |\n|--------------|------|-------|---------------------|\n| Format unsupported | `format_unsupported` | Image format not renderable | \"Image format not supported in this context\" |\n| Size exceeded | `size_exceeded` | Image too large for display/transmission | \"Image exceeds size limits\" |\n| Retrieval failed | `retrieval_failed` | Network/storage error during fetch | \"Unable to retrieve image at this time\" |\n| Not found | `not_found` | Image doesn't exist or was deleted | \"Referenced image not available\" |\n| Permission denied | `permission_denied` | Access control prevents retrieval | \"Access to image not permitted\" |\n",
           "line_range": [
-            584,
-            593
+            654,
+            663
           ],
           "keywords": [
             "failure",
@@ -21694,7 +21750,7 @@
               "classification"
             ]
           },
-          "embedding_id": 564
+          "embedding_id": 565
         },
         {
           "id": "mrag-method-graceful-degradation-procedure",
@@ -21702,8 +21758,8 @@
           "title": "Graceful Degradation Procedure",
           "content": "### 4.2 Graceful Degradation Procedure\n\n```\nIF image_retrieval_fails:\n    1. LOG failure with classification and details\n\n    2. CONTINUE generating text response\n       - Response MUST be complete and useful without image\n       - Do NOT say \"I cannot answer without the image\"\n\n    3. APPEND failure note at appropriate position:\n       ---\n       Note: Visual reference for [Step N / this concept] could not be displayed.\n       Reason: [failure_type from section 4.1]\n       Reference: [source_document, section/page] for manual lookup\n\n    4. IF multiple images fail:\n       - Group failure notes at end of response\n       - Maintain readable response flow\n```\n",
           "line_range": [
-            594,
-            614
+            664,
+            684
           ],
           "keywords": [
             "graceful",
@@ -21725,7 +21781,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 565
+          "embedding_id": 566
         },
         {
           "id": "mrag-method-failure-note-templates",
@@ -21733,8 +21789,8 @@
           "title": "Failure Note Templates",
           "content": "### 4.3 Failure Note Templates\n\n**Single Image Failure:**\n```\n---\nNote: Screenshot for Step 3 could not be displayed.\nReason: Retrieval failed\nReference: See \"Front Desk Procedures\" document, page 12, for the visual guide.\n```\n\n**Multiple Image Failures:**\n```\n---\nNote: Some visual references could not be displayed:\n- Step 2 screenshot: Format not supported in this context\n- Step 5 diagram: Image not available\nReference: See \"System Administration Guide\" sections 4.2 and 4.5 for visuals.\n```\n\n**Critical Image Failure (escalation):**\n```\n---\nNote: The visual reference that typically accompanies this procedure could not be loaded.\nReason: [reason]\nRecommendation: This procedure is highly visual. Consider accessing the source document directly:\n- Document: [name]\n- Section: [section]\n- Or contact support if this persists.\n```\n",
           "line_range": [
-            615,
-            644
+            685,
+            714
           ],
           "keywords": [
             "failure",
@@ -21760,7 +21816,7 @@
               "templates"
             ]
           },
-          "embedding_id": 566
+          "embedding_id": 567
         },
         {
           "id": "mrag-method-failure-logging-schema",
@@ -21768,8 +21824,8 @@
           "title": "Failure Logging Schema",
           "content": "### 4.4 Failure Logging Schema\n\n```yaml\nfailure_log:\n  timestamp: \"2026-01-24T14:30:00Z\"\n  query_id: \"q-12345\"\n  image_ref: \"upgrade-step-3.png\"\n  failure_type: \"retrieval_failed\"\n  error_detail: \"Connection timeout after 5000ms\"\n  fallback_applied: true\n  reference_provided: \"front-desk-procedures.md, section 3.3\"\n  user_notified: true\n```\n\n---\n",
           "line_range": [
-            645,
-            660
+            715,
+            730
           ],
           "keywords": [
             "failure",
@@ -21791,7 +21847,7 @@
               "schema"
             ]
           },
-          "embedding_id": 567
+          "embedding_id": 568
         },
         {
           "id": "mrag-method-verification-and-hallucination-prevention",
@@ -21799,8 +21855,8 @@
           "title": "Verification and Hallucination Prevention",
           "content": "## 5 Verification and Hallucination Prevention\n",
           "line_range": [
-            661,
-            662
+            731,
+            732
           ],
           "keywords": [
             "verification",
@@ -21818,7 +21874,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 568
+          "embedding_id": 569
         },
         {
           "id": "mrag-method-cross-modal-consistency-check",
@@ -21826,8 +21882,8 @@
           "title": "Cross-Modal Consistency Check",
           "content": "### 5.1 Cross-Modal Consistency Check\n\n**Purpose:** Procedures for implementing V1 (Cross-Modal Consistency Verification). Ensures text descriptions match retrieved image content.\n\n**Applies To:** Any response that combines generated text with retrieved images.\n\n**Verification Workflow:**\n\n```\n1. DRAFT text that references or describes image content\n\n2. RE-EXAMINE the image with specific attention to:\n   - Object presence: Are all described objects actually visible?\n   - Attribute accuracy: Colors, sizes, labels, counts correct?\n   - Spatial relationships: \"left of\", \"above\", \"next to\" verified?\n   - Text in image: Any text/labels readable and correctly cited?\n\n3. COMPARE draft text against image:\n   - Mark each image-referencing claim as VERIFIED or UNVERIFIED\n   - For UNVERIFIED claims: correct text or add uncertainty qualifier\n\n4. RESOLVE conflicts:\n   - If text contradicts image: ALWAYS prefer what the image shows\n   - If image is ambiguous: State the ambiguity explicitly\n   - If multiple images conflict: Note the discrepancy per V1 (CoRe-MMRAG)\n```\n\n**Conflict Resolution Matrix:**\n\n| Conflict Type | Resolution | Example |\n|---------------|------------|---------|\n| Text says X, image shows Y | Correct text to match image | \"The blue button\" -> \"The green button\" (matching screenshot) |\n| Text describes element absent from image | Remove claim or add qualifier | \"The sidebar shows...\" -> \"The sidebar (not visible in this view) typically shows...\" |\n| Multiple images show different states | Note both states, indicate which is current | \"Figure A shows the old layout; Figure B shows the current design\" |\n| Image too low-resolution to verify | State uncertainty | \"The label appears to read 'Settings' (image resolution limits certainty)\" |\n",
           "line_range": [
-            663,
-            698
+            733,
+            768
           ],
           "keywords": [
             "cross-modal",
@@ -21872,7 +21928,7 @@
               "check"
             ]
           },
-          "embedding_id": 569
+          "embedding_id": 570
         },
         {
           "id": "mrag-method-visual-scene-graph-validation",
@@ -21880,8 +21936,8 @@
           "title": "Visual Scene Graph Validation",
           "content": "### 5.2 Visual Scene Graph Validation\n\n**Purpose:** Procedures for implementing V2 (Visual Scene Graph Checking). Prevents hallucinated visual descriptions.\n\n**Applies To:** Any text that describes the content of an image.\n\n**Validation Steps:**\n\n```\nBefore asserting any visual detail, verify:\n\n1. OBJECTS: List objects you can definitively identify in the image\n   - Only claim objects you can see, not objects you expect to see\n   - \"The image shows a dialog box with two buttons\" (verified count)\n\n2. ATTRIBUTES: For each object, verify observable attributes\n   - Color: Only state if clearly discernible\n   - Size: Use relative terms (\"larger than\", \"approximately half\")\n   - State: Active/inactive, expanded/collapsed, checked/unchecked\n\n3. SPATIAL LAYOUT: Verify positions before claiming them\n   - Use image quadrants: \"upper-left\", \"center\", \"bottom-right\"\n   - Verify adjacency: \"next to the search bar\" (confirm search bar is visible)\n\n4. TEXT IN IMAGE: Only quote text that is legible\n   - If partially legible: \"The heading reads '[readable part]...'\"\n   - If illegible: \"A text label is present but not legible at this resolution\"\n```\n\n**Red Flags (likely hallucination):**\n\n| Signal | Risk | Action |\n|--------|------|--------|\n| Describing specific text you cannot read | High | Remove specific text, note illegibility |\n| Counting items in a dense area | Medium | Qualify with \"approximately\" |\n| Describing colors in a low-contrast image | Medium | Use hedging language |\n| Referencing UI elements by name without visible label | High | Describe by position instead |\n",
           "line_range": [
-            699,
-            736
+            769,
+            806
           ],
           "keywords": [
             "visual",
@@ -21926,7 +21982,7 @@
               "graph"
             ]
           },
-          "embedding_id": 570
+          "embedding_id": 571
         },
         {
           "id": "mrag-method-modality-conflict-resolution",
@@ -21934,8 +21990,8 @@
           "title": "Modality Conflict Resolution",
           "content": "### 5.3 Modality Conflict Resolution\n\n**Purpose:** Procedures for handling conflicts between retrieved text and image sources. Based on CoRe-MMRAG (ACL 2025) methodology.\n\n**Applies To:** Responses that synthesize information from both text and image sources.\n\n**Decision Framework:**\n\n```\nWhen text source and image source provide conflicting information:\n\n1. IDENTIFY the conflict explicitly\n   - \"The text manual states [X], but the screenshot shows [Y]\"\n\n2. ASSESS which is more likely current:\n   - Image dated more recently? Prefer image.\n   - Text updated after image? Prefer text.\n   - No date information? Flag uncertainty.\n\n3. PRESENT resolution:\n   - State both pieces of information\n   - Indicate which you believe is more current and why\n   - Recommend the user verify with the primary source\n\n4. NEVER silently pick one over the other\n```\n",
           "line_range": [
-            737,
-            763
+            807,
+            833
           ],
           "keywords": [
             "modality",
@@ -21980,7 +22036,7 @@
               "resolution"
             ]
           },
-          "embedding_id": 571
+          "embedding_id": 572
         },
         {
           "id": "mrag-method-visual-textual-inconsistency-handling",
@@ -21988,8 +22044,8 @@
           "title": "Visual-Textual Inconsistency Handling",
           "content": "### 5.4 Visual-Textual Inconsistency Handling\n\n**Purpose:** Specific handling procedures for the most common inconsistency patterns.\n\n| Inconsistency Pattern | Detection | Response Template |\n|----------------------|-----------|-------------------|\n| UI has changed since screenshot | Screenshot shows old layout; text describes new layout | \"Note: The screenshot shows an earlier version of this interface. The current layout may differ. [Describe known changes if available.]\" |\n| Caption doesn't match image | Image metadata/caption describes different content | Do not use the caption. Describe what the image actually shows. |\n| Step numbering mismatch | Text says \"Step 3\" but image shows \"Step 4\" content | \"The image shows the state after Step [correct number]. [Describe what's shown.]\" |\n| Partial image (cropped) | Image is cropped and missing elements referenced in text | \"Note: The image shows a partial view. [Element X] referenced in the instructions is not visible in this screenshot.\" |\n",
           "line_range": [
-            764,
-            774
+            834,
+            844
           ],
           "keywords": [
             "visual-textual",
@@ -22021,7 +22077,7 @@
               "handling"
             ]
           },
-          "embedding_id": 572
+          "embedding_id": 573
         },
         {
           "id": "mrag-method-multi-hop-cross-modal-reasoning-verification",
@@ -22029,8 +22085,8 @@
           "title": "Multi-Hop Cross-Modal Reasoning Verification",
           "content": "### 5.5 Multi-Hop Cross-Modal Reasoning Verification\n\n**Purpose:** Procedures for implementing V4 (Cross-Modal Reasoning Chain Integrity). Defines chain integrity checks, hop-level error detection, and propagation control for multi-hop cross-modal reasoning.\n\n**Applies To:** Queries that require reasoning across multiple modalities in sequence (e.g., identify component in image \u2192 find specification in table \u2192 verify against diagram).\n\n**Chain Integrity Check Procedure:**\n\n```\nInput: Multi-hop reasoning chain C = [hop_1, hop_2, ..., hop_n]\n       Each hop_i = {source_modality, source_element, conclusion, confidence}\n\nFOR each hop_i in C:\n  1. VERIFY hop independently:\n     - Does the source element support the conclusion?\n     - Is the modality transition valid (e.g., image element \u2192 table lookup)?\n     - Confidence above threshold? (default: 0.6 per hop)\n\n  2. VERIFY chain consistency:\n     - Does hop_i conclusion align with hop_{i-1} conclusion?\n     - Are there contradictions between hop results?\n\n  3. COMPUTE cumulative confidence:\n     - chain_confidence = product(hop_confidences)\n     - WARNING: Cumulative confidence drops rapidly\n       Example: 3 hops at 0.8 each \u2192 0.8\u00b3 = 0.512\n\n  4. GATE decision:\n     | Hop Confidence | Chain Confidence | Action |\n     |---------------|------------------|--------|\n     | \u2265 0.8 | \u2265 0.5 | Continue to next hop |\n     | \u2265 0.6 | \u2265 0.3 | Continue with uncertainty marker |\n     | < 0.6 | any | STOP chain, report partial results |\n     | any | < 0.3 | STOP chain, report partial results |\n```\n\n**Error Detection at Modality Transitions:**\n\n| Transition | Common Errors | Detection Method |\n|-----------|--------------|-----------------|\n| Image \u2192 Text | Misidentifying visual element | Cross-check element label against image OCR/detection |\n| Text \u2192 Image | Finding wrong image for text reference | Verify image metadata matches text entity |\n| Image \u2192 Table | Looking up wrong row/column | Verify entity name match between image and table header |\n| Table \u2192 Diagram | Mapping wrong specification to component | Verify identifier consistency across sources |\n\n**Chain Provenance Template:**\n\n```yaml\nreasoning_chain:\n  query: \"What is the max throughput for the component shown in Figure 3?\"\n  hops:\n    - hop: 1\n      source_modality: image\n      source_element: \"Figure 3\"\n      action: \"Identify component in image\"\n      conclusion: \"Component is Redis Cache Layer\"\n      confidence: 0.85\n      verified: true\n    - hop: 2\n      source_modality: table\n      source_element: \"Table 2: Component Specifications\"\n      action: \"Look up max throughput for Redis Cache Layer\"\n      conclusion: \"Max throughput: 100K ops/sec\"\n      confidence: 0.92\n      verified: true\n  chain_confidence: 0.782  # 0.85 \u00d7 0.92\n  status: \"VERIFIED\"\n```\n\n**Partial Result Reporting:**\nWhen a chain is stopped due to low confidence:\n```\nBased on the available evidence:\n- [Hop 1 result]: [conclusion] (verified, confidence: [score])\n- [Hop 2 result]: [conclusion] (verified, confidence: [score])\n- [Hop 3]: Could not be reliably completed.\n  Reason: [confidence below threshold / contradictory evidence / ambiguous source]\n  Suggestion: [Manually verify / Provide clearer source / Rephrase query]\n```\n\n---\n",
           "line_range": [
-            775,
-            856
+            845,
+            926
           ],
           "keywords": [
             "multi-hop",
@@ -22082,7 +22138,7 @@
               "reasoning"
             ]
           },
-          "embedding_id": 573
+          "embedding_id": 574
         },
         {
           "id": "mrag-method-evaluation-framework",
@@ -22090,8 +22146,8 @@
           "title": "Evaluation Framework",
           "content": "## 6 Evaluation Framework\n",
           "line_range": [
-            857,
-            858
+            927,
+            928
           ],
           "keywords": [
             "evaluation",
@@ -22107,7 +22163,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 574
+          "embedding_id": 575
         },
         {
           "id": "mrag-method-rag-check-6-metric-implementation",
@@ -22115,8 +22171,8 @@
           "title": "RAG-Check 6-Metric Implementation",
           "content": "### 6.1 RAG-Check 6-Metric Implementation\n\n**Purpose:** Procedures for implementing EV1 (Retrieval Quality Measurement) and EV2 (Answer Faithfulness Assessment). Based on RAG-Check framework (arxiv 2501.03995).\n\n**Applies To:** Any multimodal RAG system in production or evaluation.\n\n**The Six Metrics:**\n\n| Metric | What It Measures | How to Calculate | Target |\n|--------|-----------------|------------------|--------|\n| **Claim Recall** | Proportion of source claims captured in response | (claims in response that match source) / (total claims in source) | >= 0.80 |\n| **Context Relevance** | How relevant retrieved context is to the query | (relevant chunks retrieved) / (total chunks retrieved) | >= 0.70 |\n| **Faithfulness** | Whether response claims are supported by sources | (supported claims) / (total claims in response) | >= 0.90 |\n| **Context Utilization** | How much of retrieved context is actually used | (used context chunks) / (retrieved context chunks) | >= 0.50 |\n| **Noise Sensitivity** | Whether irrelevant context causes errors | (errors introduced by irrelevant context) / (total responses with irrelevant context) | <= 0.10 |\n| **Hallucination Rate** | Unsupported claims in responses | (unsupported claims) / (total claims in response) | <= 0.05 |\n\n**Implementation Steps:**\n\n```\n1. BUILD evaluation dataset:\n   - 50+ query-source-response triples\n   - Include diverse query types (procedural, conceptual, troubleshooting)\n   - Include queries requiring images and text-only queries\n   - Label ground truth for each metric\n\n2. RUN evaluation:\n   - Submit each query to the system\n   - Collect retrieved context, generated response, and source documents\n   - Score each metric per the calculation method above\n\n3. ANALYZE results:\n   - Identify metrics below target\n   - Root-cause analysis for failing queries\n   - Prioritize improvements by metric impact\n\n4. TRACK over time:\n   - Run evaluation after every significant system change\n   - Store results with system version for trend analysis\n```\n",
           "line_range": [
-            859,
-            899
+            929,
+            969
           ],
           "keywords": [
             "rag-check",
@@ -22165,7 +22221,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 575
+          "embedding_id": 576
         },
         {
           "id": "mrag-method-multimodal-mrr-calculation",
@@ -22173,8 +22229,8 @@
           "title": "Multimodal MRR Calculation",
           "content": "### 6.2 Multimodal MRR Calculation\n\n**Purpose:** Extending Mean Reciprocal Rank for multimodal retrieval contexts.\n\n**Standard MRR** measures rank of first relevant result. **Multimodal MRR** extends this by considering both text relevance and image relevance.\n\n```python\ndef multimodal_mrr(queries, retrieval_results, ground_truth):\n    \"\"\"\n    Calculate MRR accounting for both text and image relevance.\n\n    A result is 'relevant' if:\n    - The text chunk answers the query (text_relevant), OR\n    - The associated image answers the query (image_relevant), OR\n    - The combination of text + image answers the query (combined_relevant)\n    \"\"\"\n    reciprocal_ranks = []\n\n    for query in queries:\n        results = retrieval_results[query.id]\n        truth = ground_truth[query.id]\n\n        rank = None\n        for i, result in enumerate(results, 1):\n            text_match = result.chunk_id in truth.relevant_chunks\n            image_match = result.image_id in truth.relevant_images\n            combined_match = (result.chunk_id, result.image_id) in truth.relevant_pairs\n\n            if text_match or image_match or combined_match:\n                rank = i\n                break\n\n        reciprocal_ranks.append(1.0 / rank if rank else 0.0)\n\n    return sum(reciprocal_ranks) / len(reciprocal_ranks)\n```\n",
           "line_range": [
-            900,
-            936
+            970,
+            1006
           ],
           "keywords": [
             "multimodal",
@@ -22205,7 +22261,7 @@
               "calculation"
             ]
           },
-          "embedding_id": 576
+          "embedding_id": 577
         },
         {
           "id": "mrag-method-drift-detection",
@@ -22213,8 +22269,8 @@
           "title": "Drift Detection",
           "content": "### 6.3 Drift Detection\n\n**Purpose:** Procedures for implementing EV3 (Continuous Quality Monitoring). Detects quality degradation over time.\n\n**Applies To:** Production multimodal RAG systems.\n\n**Monitoring Setup:**\n\n```\n1. ESTABLISH baseline:\n   - Run full evaluation (section 6.1) on current system\n   - Record all six metrics with timestamp\n   - Save as baseline_v[version].json\n\n2. CONFIGURE drift detection:\n   - Threshold: Alert if any metric drops > 10% from baseline\n   - Frequency: Run benchmark suite after every index rebuild\n   - Comparison: Always compare against the most recent approved baseline\n\n3. ALERT conditions:\n   - WARN: Single metric drops 5-10% from baseline\n   - ALERT: Single metric drops > 10% from baseline\n   - CRITICAL: Two or more metrics drop > 10% simultaneously\n\n4. RESPONSE to alerts:\n   - WARN: Log for review at next scheduled evaluation\n   - ALERT: Investigate root cause within 24 hours; consider rollback\n   - CRITICAL: Immediate rollback to last known-good index; investigate\n```\n\n**Drift Sources to Monitor:**\n\n| Source | How It Causes Drift | Detection Method |\n|--------|---------------------|------------------|\n| Content changes | New/updated documents change retrieval landscape | Compare content hash before/after |\n| Model updates | Embedding model changes alter similarity scores | Run benchmark suite pre/post |\n| Weight changes | Relevance scoring weight adjustments | A/B evaluation with old vs. new weights |\n| Query pattern shift | Users ask different types of questions | Monitor query intent distribution |\n| Index corruption | Storage or processing errors | Validate index integrity checksums |\n",
           "line_range": [
-            937,
-            976
+            1007,
+            1046
           ],
           "keywords": [
             "drift",
@@ -22253,7 +22309,7 @@
               "detection"
             ]
           },
-          "embedding_id": 577
+          "embedding_id": 578
         },
         {
           "id": "mrag-method-benchmark-construction",
@@ -22261,8 +22317,8 @@
           "title": "Benchmark Construction",
           "content": "### 6.4 Benchmark Construction\n\n**Purpose:** How to build and maintain a benchmark dataset for multimodal RAG evaluation.\n\n**Benchmark Dataset Requirements:**\n\n| Component | Minimum Count | Description |\n|-----------|---------------|-------------|\n| Queries | 50 | Representative of actual usage; mix of types |\n| Ground truth documents | Per query | Which source documents/images should be retrieved |\n| Expected response elements | Per query | Key facts that should appear in the response |\n| Negative examples | 10+ | Queries that should NOT retrieve certain content |\n\n**Construction Process:**\n\n```\n1. SAMPLE queries from production logs (if available)\n   - Stratify by query type: procedural, conceptual, troubleshooting, navigation\n   - Include edge cases: ambiguous queries, multi-step queries, queries requiring images\n\n2. ANNOTATE ground truth:\n   - For each query, identify the ideal retrieved chunks (text + images)\n   - Mark relevance level: highly relevant, somewhat relevant, not relevant\n   - Note expected image types for each query\n\n3. VALIDATE with domain experts:\n   - Have 2+ people independently annotate a subset\n   - Measure inter-annotator agreement (target: Cohen's kappa >= 0.7)\n   - Resolve disagreements through discussion\n\n4. VERSION and store:\n   - Store benchmark with version number tied to content snapshot\n   - Update benchmark when content changes significantly\n   - Keep previous versions for trend comparison\n```\n\n---\n",
           "line_range": [
-            977,
-            1014
+            1047,
+            1084
           ],
           "keywords": [
             "benchmark",
@@ -22292,7 +22348,7 @@
               "construction"
             ]
           },
-          "embedding_id": 578
+          "embedding_id": 579
         },
         {
           "id": "mrag-method-citation-and-attribution",
@@ -22300,8 +22356,8 @@
           "title": "Citation and Attribution",
           "content": "## 7 Citation and Attribution\n",
           "line_range": [
-            1015,
-            1016
+            1085,
+            1086
           ],
           "keywords": [
             "citation",
@@ -22317,7 +22373,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 579
+          "embedding_id": 580
         },
         {
           "id": "mrag-method-fragment-level-source-tracking",
@@ -22325,8 +22381,8 @@
           "title": "Fragment-Level Source Tracking",
           "content": "### 7.1 Fragment-Level Source Tracking\n\n**Purpose:** Procedures for implementing CT1 (Fragment-Level Source Attribution). Enables tracing every claim to a specific source passage.\n\n**Applies To:** Any response that incorporates information from retrieved sources.\n\n**Attribution Workflow:**\n\n```\n1. During retrieval, capture source metadata for each chunk:\n   - document_id: Which document\n   - section_id: Which section/heading\n   - chunk_id: Specific chunk identifier\n   - line_range: Line numbers in source document\n   - image_id: Associated image (if any)\n\n2. During response generation, maintain a claim-source mapping:\n   - For each factual statement in the response, record which chunk(s) support it\n   - Flag statements that synthesize from multiple chunks\n\n3. Format attribution in response:\n   - Inline: \"[Source: Document Name, Section 3.2]\"\n   - Footnote-style: Statement[1], with [1] listed at end\n   - Hover/tooltip: For interactive formats, attribution on hover\n```\n\n**Attribution Levels:**\n\n| Level | Detail | When to Use |\n|-------|--------|-------------|\n| **Document-level** | \"Source: Front Desk Manual\" | Minimum acceptable; for simple queries |\n| **Section-level** | \"Source: Front Desk Manual, Section 3.2\" | Standard; for most responses |\n| **Fragment-level** | \"Source: Front Desk Manual, Section 3.2, paragraph 3\" | Ideal; for critical or disputed information |\n| **Image-region** | \"Source: Dashboard screenshot, upper-left metrics panel\" | For visual content; see section 7.2 |\n",
           "line_range": [
-            1017,
-            1051
+            1087,
+            1121
           ],
           "keywords": [
             "fragment-level",
@@ -22374,7 +22430,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 580
+          "embedding_id": 581
         },
         {
           "id": "mrag-method-visa-spatial-attribution",
@@ -22382,8 +22438,8 @@
           "title": "VISA Spatial Attribution",
           "content": "### 7.2 VISA Spatial Attribution\n\n**Purpose:** Procedures for implementing CT2 (Spatial Attribution for Visual Content). Based on VISA methodology (arxiv 2412.14457).\n\n**Applies To:** Responses that reference specific regions within images.\n\n**Spatial Attribution Methods:**\n\n**Method 1: Verbal Region Description (always available)**\n```\n\"In the top-right corner of the dashboard screenshot, the notification bell icon\nshows 3 pending alerts.\"\n```\n\n**Method 2: Quadrant-Based Reference**\n```\nDivide image into a 3x3 grid:\n+----------+----------+----------+\n| top-left | top-mid  | top-right|\n+----------+----------+----------+\n| mid-left | center   | mid-right|\n+----------+----------+----------+\n| bot-left | bot-mid  | bot-right|\n+----------+----------+----------+\n\nReference: \"In the top-right quadrant of the screenshot...\"\n```\n\n**Method 3: Bounding Box Coordinates (when tooling supports)**\n```json\n{\n  \"attribution\": {\n    \"image_id\": \"dashboard-v3.png\",\n    \"region\": {\n      \"x\": 0.75,\n      \"y\": 0.05,\n      \"width\": 0.20,\n      \"height\": 0.15\n    },\n    \"description\": \"Notification bell with alert count\"\n  }\n}\n```\n\n**When to Use Each Method:**\n\n| Context | Recommended Method |\n|---------|-------------------|\n| Text-based response (chat, email) | Method 1 (Verbal) |\n| Interactive UI with image overlay | Method 3 (Bounding Box) |\n| Documentation or training materials | Method 2 (Quadrant) |\n| Complex diagram with many elements | Methods 1 + 2 combined |\n",
           "line_range": [
-            1052,
-            1104
+            1122,
+            1174
           ],
           "keywords": [
             "visa",
@@ -22428,7 +22484,7 @@
               "attribution"
             ]
           },
-          "embedding_id": 581
+          "embedding_id": 582
         },
         {
           "id": "mrag-method-citation-formatting",
@@ -22436,8 +22492,8 @@
           "title": "Citation Formatting",
           "content": "### 7.3 Citation Formatting\n\n**Purpose:** Standard formatting for citations in multimodal RAG responses.\n\n**Inline Citation Format:**\n\n```\nThe guest profile shows the reservation status in the header bar\n[Source: Front Desk Manual v3.1, Section 4.2].\n```\n\n**Multi-Source Citation Format:**\n\n```\nThe upgrade process requires both a room availability check [Source: Reservations\nGuide, Section 2.1] and manager approval for rate changes exceeding $50\n[Source: Rate Management Policy, Section 3.4].\n```\n\n**Image Citation Format:**\n\n```\nThe Actions menu (shown in the upper-right of the screenshot below) contains\nthe Upgrade option [Source: Opera PMS v5.6, Actions Menu screenshot, captured\n2026-01-15].\n```\n",
           "line_range": [
-            1105,
-            1131
+            1175,
+            1201
           ],
           "keywords": [
             "citation",
@@ -22467,7 +22523,7 @@
               "formatting"
             ]
           },
-          "embedding_id": 582
+          "embedding_id": 583
         },
         {
           "id": "mrag-method-citation-verification-checklist",
@@ -22475,8 +22531,8 @@
           "title": "Citation Verification Checklist",
           "content": "### 7.4 Citation Verification Checklist\n\nBefore delivering a response, verify:\n\n- [ ] Every factual claim has an identified source\n- [ ] Sources are cited at the appropriate level (document/section/fragment)\n- [ ] Image references include spatial attribution per section 7.2\n- [ ] No claim is attributed to a source that doesn't contain it (false citation)\n- [ ] Synthesized information from multiple sources notes all contributing sources\n- [ ] General knowledge statements are clearly distinguished from sourced claims\n\n---\n",
           "line_range": [
-            1132,
-            1144
+            1202,
+            1214
           ],
           "keywords": [
             "citation",
@@ -22498,7 +22554,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 583
+          "embedding_id": 584
         },
         {
           "id": "mrag-method-security-for-multimodal-knowledge-bases",
@@ -22506,8 +22562,8 @@
           "title": "Security for Multimodal Knowledge Bases",
           "content": "## 8 Security for Multimodal Knowledge Bases\n",
           "line_range": [
-            1145,
-            1146
+            1215,
+            1216
           ],
           "keywords": [
             "security",
@@ -22527,7 +22583,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 584
+          "embedding_id": 585
         },
         {
           "id": "mrag-method-poisoning-attack-taxonomy",
@@ -22535,8 +22591,8 @@
           "title": "Poisoning Attack Taxonomy",
           "content": "### 8.1 Poisoning Attack Taxonomy\n\n**Purpose:** Classification of multimodal-specific attack types. Informs SEC1 (Multimodal Poisoning Defense) implementation.\n\n**Applies To:** Any multimodal knowledge base that accepts content from multiple sources or undergoes regular updates.\n\n**Attack Classification (based on MM-PoisonRAG, arxiv 2502.17832):**\n\n| Attack Type | Mechanism | Impact | Detection Difficulty |\n|-------------|-----------|--------|---------------------|\n| **Localized Image Poisoning** | Adversarial image optimized to rank highly for specific queries | Targeted misinformation for specific topics | Medium |\n| **Globalized Image Poisoning** | Adversarial image that disrupts retrieval across many queries | Broad retrieval quality degradation | Easier \u2014 shows up in aggregate metrics |\n| **Caption Poisoning** | Legitimate image with manipulated caption/metadata | False information attributed to legitimate visual | Hard \u2014 image looks correct, text is wrong |\n| **Cross-Modal Injection** | Malicious text hidden in image metadata (EXIF, XMP) | Prompt injection via metadata pipeline | Medium \u2014 requires metadata sanitization |\n| **Single-Image Attack** | One poisoned document page redirects visual RAG results (arxiv 2504.02132) | High-precision targeted attack | Hard \u2014 minimal footprint in knowledge base |\n",
           "line_range": [
-            1147,
-            1162
+            1217,
+            1232
           ],
           "keywords": [
             "poisoning",
@@ -22588,7 +22644,7 @@
               "taxonomy"
             ]
           },
-          "embedding_id": 585
+          "embedding_id": 586
         },
         {
           "id": "mrag-method-input-validation-pipeline",
@@ -22596,8 +22652,8 @@
           "title": "Input Validation Pipeline",
           "content": "### 8.2 Input Validation Pipeline\n\n**Purpose:** Procedures for implementing SEC2 (Cross-Modal Input Validation).\n\n**Applies To:** Any content ingestion pipeline for multimodal knowledge bases.\n\n**Validation Stages:**\n\n```\nSTAGE 1: Format Validation\n  - Verify image format (PNG, JPEG, GIF, WebP, PDF)\n  - Verify file size within acceptable bounds\n  - Verify image dimensions within bounds\n  - Reject or quarantine files that fail format checks\n\nSTAGE 2: Content Screening\n  - Scan image content for anomalous patterns (statistical analysis of pixel values)\n  - Check for steganographic content (LSB analysis)\n  - Verify image is not adversarially optimized (embedding outlier detection)\n\nSTAGE 3: Metadata Sanitization\n  - Strip non-essential EXIF data\n  - Sanitize text fields in metadata (remove HTML, scripts, injection patterns)\n  - Validate metadata schema conformance\n  - Check caption-image consistency\n\nSTAGE 4: Cross-Modal Consistency\n  - Verify caption/description matches image content (using VLM if available)\n  - Check for metadata-content mismatches\n  - Flag items where text description contradicts visual content\n\nSTAGE 5: Provenance Verification\n  - Verify source is in allowed sources list\n  - Check content signature/hash if available\n  - Record full ingestion provenance per DG2\n```\n",
           "line_range": [
-            1163,
-            1199
+            1233,
+            1269
           ],
           "keywords": [
             "input",
@@ -22637,7 +22693,7 @@
               "pipeline"
             ]
           },
-          "embedding_id": 586
+          "embedding_id": 587
         },
         {
           "id": "mrag-method-defense-assessment-checklist",
@@ -22645,8 +22701,8 @@
           "title": "Defense Assessment Checklist",
           "content": "### 8.3 Defense Assessment Checklist\n\n**Periodic security assessment for multimodal knowledge bases:**\n\n- [ ] **Input validation active** \u2014 All ingestion paths run through section 8.2 pipeline\n- [ ] **Embedding monitoring** \u2014 New embeddings checked for outlier distance from cluster centers\n- [ ] **Caption integrity** \u2014 Sample of captions verified against image content quarterly\n- [ ] **Access logs reviewed** \u2014 Query and retrieval logs checked for anomalous patterns\n- [ ] **Benchmark regression** \u2014 Security-specific benchmark queries run after each content update\n- [ ] **Metadata sanitization** \u2014 EXIF and XMP fields sanitized before text pipeline ingestion\n- [ ] **Incident response** \u2014 Procedure exists for quarantining and investigating suspicious content\n",
           "line_range": [
-            1200,
-            1211
+            1270,
+            1281
           ],
           "keywords": [
             "defense",
@@ -22676,7 +22732,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 587
+          "embedding_id": 588
         },
         {
           "id": "mrag-method-cross-domain-security-reference",
@@ -22684,8 +22740,8 @@
           "title": "Cross-Domain Security Reference",
           "content": "### 8.4 Cross-Domain Security Reference\n\n**Purpose:** Mapping multimodal-RAG security concerns to related governance in other domains.\n\nThis section provides cross-references, not duplicate content. Each domain owns its security concerns:\n\n| Security Concern | Primary Domain | Reference |\n|-----------------|----------------|-----------|\n| Adversarial image attacks on retrieval | **Multimodal RAG** (this document) | SEC1, section 8.1 |\n| Cross-modal input injection | **Multimodal RAG** (this document) | SEC2, section 8.2 |\n| Agent memory injection | **Multi-Agent** | multi-agent-methods, Title 4 (Agent Security) |\n| Tool poisoning defense | **Multi-Agent** | multi-agent-methods, section 4.6 |\n| Supply chain integrity | **AI-Coding** | ai-coding-methods, section 5.3.6 |\n| Application security patterns | **AI-Coding** | ai-coding-methods, sections 5.7-5.8 |\n| MCP server vetting | **AI-Coding** | ai-coding-methods, section 5.4 |\n| Content security scanning | **Constitution** | ai-governance-methods, Part 4.3 |\n\n**When to consult other domains:**\n- If the security concern involves agent behavior or tool calls -> Multi-Agent\n- If the security concern involves code, dependencies, or deployment -> AI-Coding\n- If the security concern involves governance document integrity -> Constitution\n\n---\n",
           "line_range": [
-            1212,
-            1235
+            1282,
+            1305
           ],
           "keywords": [
             "cross-domain",
@@ -22726,7 +22782,7 @@
               "reference"
             ]
           },
-          "embedding_id": 588
+          "embedding_id": 589
         },
         {
           "id": "mrag-method-data-governance",
@@ -22734,8 +22790,8 @@
           "title": "Data Governance",
           "content": "## 9 Data Governance\n",
           "line_range": [
-            1236,
-            1237
+            1306,
+            1307
           ],
           "keywords": [
             "data",
@@ -22751,7 +22807,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 589
+          "embedding_id": 590
         },
         {
           "id": "mrag-method-rbac-configuration",
@@ -22759,8 +22815,8 @@
           "title": "RBAC Configuration",
           "content": "### 9.1 RBAC Configuration\n\n**Purpose:** Procedures for implementing DG1 (Access Control for Multimodal Knowledge Bases).\n\n**Applies To:** Any multimodal knowledge base serving users with different access levels.\n\n**Role-Based Access Control Schema:**\n\n```yaml\nrbac_config:\n  roles:\n    - name: \"viewer\"\n      description: \"Can query and view public content\"\n      permissions:\n        - \"query:public\"\n        - \"view:public_images\"\n\n    - name: \"contributor\"\n      description: \"Can view all content and add new content\"\n      inherits: \"viewer\"\n      permissions:\n        - \"query:internal\"\n        - \"view:internal_images\"\n        - \"ingest:content\"\n\n    - name: \"admin\"\n      description: \"Full access including restricted content and configuration\"\n      inherits: \"contributor\"\n      permissions:\n        - \"query:restricted\"\n        - \"view:restricted_images\"\n        - \"manage:roles\"\n        - \"manage:index\"\n        - \"audit:access_logs\"\n\n  content_classification:\n    - level: \"public\"\n      description: \"Available to all authenticated users\"\n    - level: \"internal\"\n      description: \"Available to contributors and admins\"\n    - level: \"restricted\"\n      description: \"Available to admins and specifically authorized users\"\n```\n\n**Enforcement Points:**\n\n| Layer | Enforcement Action |\n|-------|-------------------|\n| Query processing | Check user role before executing query |\n| Retrieval | Filter results to only include content the user can access |\n| Response generation | Verify all images in response are accessible to user |\n| Audit logging | Record user, query, and returned content for compliance |\n",
           "line_range": [
-            1238,
-            1290
+            1308,
+            1360
           ],
           "keywords": [
             "rbac",
@@ -22801,7 +22857,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 590
+          "embedding_id": 591
         },
         {
           "id": "mrag-method-encryption-and-transit-security",
@@ -22809,8 +22865,8 @@
           "title": "Encryption and Transit Security",
           "content": "### 9.2 Encryption and Transit Security\n\n**Purpose:** Ensuring visual content is protected at rest and in transit.\n\n**Requirements:**\n\n| State | Minimum Standard | Implementation |\n|-------|-----------------|----------------|\n| At rest (storage) | AES-256 encryption | Encrypt knowledge base files and index |\n| In transit (API) | TLS 1.2+ | HTTPS for all API endpoints |\n| In transit (internal) | TLS 1.2+ or mTLS | Encrypted communication between services |\n| Embeddings at rest | AES-256 encryption | Embeddings can reconstruct source content |\n\n**Note:** Embeddings deserve the same protection as source content. Research has demonstrated that embeddings can be inverted to reconstruct original text (arxiv 2305.03010), making unprotected embeddings a data leakage vector.\n",
           "line_range": [
-            1291,
-            1305
+            1361,
+            1375
           ],
           "keywords": [
             "encryption",
@@ -22842,7 +22898,7 @@
               "security"
             ]
           },
-          "embedding_id": 591
+          "embedding_id": 592
         },
         {
           "id": "mrag-method-audit-trail-schema",
@@ -22850,8 +22906,8 @@
           "title": "Audit Trail Schema",
           "content": "### 9.3 Audit Trail Schema\n\n**Purpose:** Audit logging requirements for access compliance.\n\n```yaml\naudit_log_entry:\n  timestamp: \"2026-02-15T10:30:00Z\"\n  user_id: \"user-456\"\n  user_role: \"contributor\"\n  action: \"query\"\n  query_text: \"How do I process a refund?\"\n  results_returned:\n    - content_id: \"doc-123-chunk-5\"\n      classification: \"internal\"\n      content_type: \"text\"\n    - content_id: \"img-456\"\n      classification: \"internal\"\n      content_type: \"image\"\n  access_decision: \"allowed\"\n  response_delivered: true\n```\n\n**Retention Requirements:**\n- Audit logs retained for minimum 90 days (configurable per organizational policy)\n- Access logs for restricted content retained for minimum 1 year\n- Audit logs must be append-only (no modification or deletion)\n",
           "line_range": [
-            1306,
-            1332
+            1376,
+            1402
           ],
           "keywords": [
             "audit",
@@ -22882,7 +22938,7 @@
               "schema"
             ]
           },
-          "embedding_id": 592
+          "embedding_id": 593
         },
         {
           "id": "mrag-method-data-lineage-tracking",
@@ -22890,8 +22946,8 @@
           "title": "Data Lineage Tracking",
           "content": "### 9.4 Data Lineage Tracking\n\n**Purpose:** Procedures for implementing DG2 (Data Lineage and Provenance).\n\n**Lineage Record Schema:**\n\n```yaml\nlineage_record:\n  content_id: \"img-789\"\n  content_type: \"image\"\n\n  origin:\n    source: \"front-desk-procedures-v3.docx\"\n    page: 12\n    extracted_by: \"document-processor-v2.1\"\n    extracted_at: \"2026-01-20T08:00:00Z\"\n    original_hash: \"sha256:abc123...\"\n\n  transformations:\n    - step: 1\n      action: \"resize\"\n      from: \"3000x2000\"\n      to: \"1500x1000\"\n      tool: \"image-processor-v1.2\"\n      timestamp: \"2026-01-20T08:01:00Z\"\n    - step: 2\n      action: \"embed\"\n      model: \"ColPali-v1.3\"\n      dimensions: 128\n      timestamp: \"2026-01-20T08:02:00Z\"\n\n  current:\n    hash: \"sha256:def456...\"\n    index_version: \"idx-v4.2\"\n    last_verified: \"2026-02-01T00:00:00Z\"\n```\n\n**Lineage Verification:**\n- On ingestion: Record full origin metadata\n- On transformation: Log each processing step\n- On query: Include provenance metadata in response citations\n- On audit: Verify lineage chain is complete (no gaps)\n\n---\n",
           "line_range": [
-            1333,
-            1377
+            1403,
+            1447
           ],
           "keywords": [
             "data",
@@ -22923,7 +22979,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 593
+          "embedding_id": 594
         },
         {
           "id": "mrag-method-operational-management",
@@ -22931,8 +22987,8 @@
           "title": "Operational Management",
           "content": "## 10 Operational Management\n\n### 10.1 Vector Index Versioning\n\n**Purpose:** Procedures for implementing O1 (Index Version Management).\n\n**Applies To:** Any system that maintains vector indices for multimodal retrieval.\n\n**Version Identifier Format:**\n\n```\nidx-v{major}.{minor}_{content_hash}_{model_hash}_{timestamp}\n\nExample: idx-v4.2_a1b2c3_d4e5f6_20260215\n```\n\n| Component | What It Tracks |\n|-----------|----------------|\n| `major.minor` | Semantic version of the index configuration |\n| `content_hash` | Hash of content snapshot (first 6 chars) |\n| `model_hash` | Hash of embedding model identifier (first 6 chars) |\n| `timestamp` | Build date (YYYYMMDD) |\n\n**Deployment Workflow:**\n\n```\n1. BUILD new index version\n   - Record: model version, content snapshot, configuration parameters\n   - Generate version identifier\n\n2. TEST against benchmark suite (section 6.1)\n   - Run all benchmark queries\n   - Compare metrics against current production baseline\n   - Document any metric changes (improvements and regressions)\n\n3. STAGE for validation\n   - Deploy to staging environment\n   - Run spot-check queries from production traffic sample\n   - Verify no unexpected behavior\n\n4. PROMOTE to production\n   - Keep previous version as rollback target\n   - Switch traffic to new index\n   - Monitor for 24 hours\n\n5. ARCHIVE previous version\n   - Retain for minimum 7 days after promotion\n   - Compress and move to cold storage after retention period\n```\n",
           "line_range": [
-            1378,
-            1427
+            1448,
+            1497
           ],
           "keywords": [
             "operational",
@@ -22970,7 +23026,7 @@
               "index"
             ]
           },
-          "embedding_id": 594
+          "embedding_id": 595
         },
         {
           "id": "mrag-method-embedding-model-lifecycle",
@@ -22978,8 +23034,8 @@
           "title": "Embedding Model Lifecycle",
           "content": "### 10.2 Embedding Model Lifecycle\n\n**Purpose:** Managing embedding model transitions without service disruption.\n\n**Model Change Process:**\n\n```\n1. EVALUATE new model:\n   - Run benchmark suite with new model (section 6.1)\n   - Compare against current model on all six metrics\n   - Document improvements and regressions\n\n2. PARALLEL embedding generation:\n   - Generate embeddings for entire corpus with new model\n   - Keep old embeddings intact\n   - Compare retrieval results side-by-side for sample queries\n\n3. CUTOVER decision:\n   - Require: No metric regression > 5% on any single metric\n   - Require: Net improvement across majority of metrics\n   - Document decision rationale\n\n4. EXECUTE transition:\n   - Build new index with new model embeddings\n   - Follow deployment workflow (section 10.1)\n   - Update model identifier in index version\n\n5. RETAIN old model artifacts:\n   - Keep old embeddings for rollback capability\n   - Document model version in index lineage\n```\n",
           "line_range": [
-            1428,
-            1459
+            1498,
+            1529
           ],
           "keywords": [
             "embedding",
@@ -23012,7 +23068,7 @@
               "model"
             ]
           },
-          "embedding_id": 595
+          "embedding_id": 596
         },
         {
           "id": "mrag-method-prompt-template-versioning",
@@ -23020,8 +23076,8 @@
           "title": "Prompt Template Versioning",
           "content": "### 10.3 Prompt Template Versioning\n\n**Purpose:** Tracking changes to prompts used in the RAG pipeline.\n\n**What to Version:**\n- System prompts for response generation\n- Query expansion prompts\n- Intent classification prompts\n- Verification prompts (section 5.1)\n\n**Version Control Requirements:**\n- All prompt templates stored in version control (git)\n- Changes to prompts require evaluation against benchmark suite\n- Prompt version recorded in response metadata for debugging\n- Rollback capability: previous prompt versions retained\n",
           "line_range": [
-            1460,
-            1475
+            1530,
+            1545
           ],
           "keywords": [
             "prompt",
@@ -23052,7 +23108,7 @@
               "template"
             ]
           },
-          "embedding_id": 596
+          "embedding_id": 597
         },
         {
           "id": "mrag-method-cost-monitoring",
@@ -23060,8 +23116,8 @@
           "title": "Cost Monitoring",
           "content": "### 10.4 Cost Monitoring\n\n**Purpose:** Tracking operational costs for multimodal RAG systems.\n\n**Cost Categories:**\n\n| Category | What to Track | Alert Threshold |\n|----------|---------------|-----------------|\n| **Embedding generation** | Cost per 1K embeddings; monthly total | > 2x baseline |\n| **Vector storage** | Storage cost per GB; growth rate | > 1.5x baseline monthly growth |\n| **Query inference** | Cost per query; p95 cost | > 3x average cost |\n| **Image storage** | Storage cost for source images | > 1.5x baseline |\n| **Model hosting** | Compute cost for embedding/reranking models | > 1.5x baseline |\n\n**Monthly Cost Review:**\n- Compare against previous month and 3-month rolling average\n- Investigate any category exceeding alert threshold\n- Forecast next month based on growth trends\n- Identify optimization opportunities (compression, caching, batching)\n",
           "line_range": [
-            1476,
-            1495
+            1546,
+            1565
           ],
           "keywords": [
             "cost",
@@ -23096,7 +23152,7 @@
               "monitoring"
             ]
           },
-          "embedding_id": 597
+          "embedding_id": 598
         },
         {
           "id": "mrag-method-observability-dashboard",
@@ -23104,8 +23160,8 @@
           "title": "Observability Dashboard",
           "content": "### 10.5 Observability Dashboard\n\n**Purpose:** Procedures for implementing O2 (Operational Observability).\n\n**Key Metrics to Display:**\n\n| Metric | Display | Alert Rule |\n|--------|---------|------------|\n| Query latency (p50, p95, p99) | Time series chart | p95 > 500ms |\n| Retrieval error rate | Percentage gauge | > 1% over 1-hour window |\n| Index freshness | Time since last update | > 24 hours |\n| Embedding generation throughput | Items/minute gauge | < 50% of baseline |\n| Active queries | Real-time counter | > 2x normal peak |\n| Faithfulness score (rolling) | Trend line | Drops > 10% from baseline |\n\n**Dashboard Tiers:**\n\n| Tier | Audience | Refresh Rate | Content |\n|------|----------|-------------|---------|\n| **Operational** | Engineers on-call | Real-time (30s) | Latency, errors, throughput |\n| **Quality** | Product/ML team | Hourly | Faithfulness, MRR, drift |\n| **Executive** | Leadership | Daily/weekly | Cost, query volume, SLA compliance |\n\n---\n",
           "line_range": [
-            1496,
-            1520
+            1566,
+            1590
           ],
           "keywords": [
             "observability",
@@ -23137,7 +23193,7 @@
               "dashboard"
             ]
           },
-          "embedding_id": 598
+          "embedding_id": 599
         },
         {
           "id": "mrag-method-agentic-retrieval-patterns",
@@ -23145,8 +23201,8 @@
           "title": "Agentic Retrieval Patterns",
           "content": "## 11 Agentic Retrieval Patterns\n",
           "line_range": [
-            1521,
-            1522
+            1591,
+            1592
           ],
           "keywords": [
             "agentic",
@@ -23164,7 +23220,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 599
+          "embedding_id": 600
         },
         {
           "id": "mrag-method-adaptive-retrieval-loop-design",
@@ -23172,8 +23228,8 @@
           "title": "Adaptive Retrieval Loop Design",
           "content": "### 11.1 Adaptive Retrieval Loop Design\n\n**Purpose:** Procedures for implementing AG1 (Adaptive Retrieval Strategy). Defines the control loop architecture for agent-driven retrieval with dynamic modality routing.\n\n**Applies To:** Multimodal RAG systems where query complexity varies and multiple retrieval indexes or modalities are available.\n\n**Adaptive Retrieval Loop:**\n\n```\nInput: Query Q, Available indexes I[], Max iterations N (default: 3)\nState: Retrieved results R[], Iteration count k=0, Strategy S=\"default\"\n\n1. ANALYZE query Q:\n   - Complexity signal: word count, entity count, modality references\n   - Modality hints: \"show me\" \u2192 visual, \"explain\" \u2192 text, \"compare\" \u2192 multi-source\n   - Decomposition needed? (see \u00a711.2)\n\n2. SELECT initial strategy S based on analysis:\n   | Complexity | Strategy | Description |\n   |------------|----------|-------------|\n   | Simple (single intent, single modality) | single-pass | Top-K from best index |\n   | Moderate (single intent, multi-modal) | parallel-search | Query multiple indexes, merge |\n   | Complex (multi-intent) | decompose-and-merge | Split query, retrieve per sub-query |\n   | Exploratory (vague query) | iterative-refinement | Retrieve, evaluate, refine query |\n\n3. ROUTE to modality-appropriate index(es):\n   | Query Signal | Primary Index | Secondary Index |\n   |-------------|---------------|-----------------|\n   | Visual content requested | Image embedding index | Document-as-image index (A4) |\n   | Structured data referenced | Knowledge graph (A5) | Text index |\n   | Layout-rich documents | Document-as-image index | Text index |\n   | General information | Text index | Image index |\n   | Relationship query | Knowledge graph | Text index |\n\n4. EXECUTE retrieval with selected strategy\n5. EVALUATE sufficiency (see \u00a711.3)\n6. IF sufficient OR k >= N: proceed to generation\n   ELSE: adjust strategy and GOTO step 2 with k++\n```\n\n**Dynamic Modality Routing Decision Tree:**\n\n```\nQuery Q arrives\n\u251c\u2500\u2500 Contains visual reference (\"show\", \"image\", \"diagram\", \"screenshot\")?\n\u2502   \u251c\u2500\u2500 YES \u2192 Route to image/document-as-image index\n\u2502   \u2502         Also query text index for supporting context\n\u2502   \u2514\u2500\u2500 NO \u2192 Continue\n\u251c\u2500\u2500 References structured relationships (\"related to\", \"depends on\", \"connected\")?\n\u2502   \u251c\u2500\u2500 YES \u2192 Route to knowledge graph\n\u2502   \u2502         Also query text index for detail\n\u2502   \u2514\u2500\u2500 NO \u2192 Continue\n\u251c\u2500\u2500 References layout-dependent content (\"table\", \"form\", \"infographic\")?\n\u2502   \u251c\u2500\u2500 YES \u2192 Route to document-as-image index (ColPali/ColQwen2)\n\u2502   \u2514\u2500\u2500 NO \u2192 Continue\n\u2514\u2500\u2500 Default \u2192 Route to text index\n    Also query image index if multimodal content exists\n```\n\n**Termination Criteria:**\n- Retrieval sufficiency threshold met (see \u00a711.3)\n- Maximum iteration count reached\n- Timeout exceeded (configurable, default: 10s for interactive, 60s for batch)\n- No improvement between iterations (relevance scores plateaued)\n",
           "line_range": [
-            1523,
-            1587
+            1593,
+            1657
           ],
           "keywords": [
             "adaptive",
@@ -23224,7 +23280,7 @@
               "retrieval"
             ]
           },
-          "embedding_id": 600
+          "embedding_id": 601
         },
         {
           "id": "mrag-method-query-decomposition-procedures",
@@ -23232,8 +23288,8 @@
           "title": "Query Decomposition Procedures",
           "content": "### 11.2 Query Decomposition Procedures\n\n**Purpose:** Procedures for implementing AG2 (Query Decomposition). Defines patterns for splitting compound multimodal queries into modality-aware sub-queries.\n\n**Applies To:** Queries that contain multiple intents, reference multiple modalities, or require multi-step information synthesis.\n\n**Decomposition Decision:**\n\n```\nInput: Query Q\n\n1. COUNT intents in Q:\n   - Information need count (distinct questions embedded in Q)\n   - Modality reference count (text, image, table, diagram mentions)\n\n2. DECIDE:\n   | Intent Count | Modality Count | Action |\n   |-------------|----------------|--------|\n   | 1 | 1 | No decomposition needed |\n   | 1 | 2+ | Modality-parallel decomposition |\n   | 2+ | 1 | Intent-serial decomposition |\n   | 2+ | 2+ | Full decomposition (intent \u00d7 modality) |\n```\n\n**Decomposition Patterns:**\n\n| Pattern | When to Use | Example |\n|---------|------------|---------|\n| **Modality-parallel** | Single intent needs information from multiple modalities | \"How does Component X work?\" \u2192 Sub-Q1: \"Component X text description\" (text index) + Sub-Q2: \"Component X diagram\" (image index) |\n| **Intent-serial** | Multiple questions that may depend on each other | \"What failed in yesterday's deployment and how do we fix it?\" \u2192 Sub-Q1: \"deployment failure yesterday\" \u2192 Sub-Q2: \"fix for [result of Q1]\" |\n| **Full decomposition** | Multiple intents across modalities | \"Show me the architecture diagram for Service X and list its failure modes from the incident report\" \u2192 Sub-Q1: \"Service X architecture diagram\" (image) + Sub-Q2: \"Service X failure modes incident report\" (text) |\n\n**Sub-Query Generation Rules:**\n1. Each sub-query must be self-contained (understandable without the parent query)\n2. Add context from parent query when splitting loses important constraints\n3. Preserve modality hints in sub-queries (don't strip \"show me\" from visual sub-queries)\n4. Tag each sub-query with its target modality for routing\n\n**Result Recombination:**\n\n```\nInput: Sub-query results SR[], Original query Q\n\n1. FOR each sub-query result sr in SR[]:\n   - Tag with source sub-query ID and modality\n   - Preserve relevance score from retrieval\n\n2. CHECK for conflicts between sub-query results\n   - If visual content contradicts text content \u2192 flag per V1\n   - If multiple sub-queries return overlapping content \u2192 deduplicate\n\n3. SYNTHESIZE unified response:\n   - Order by original query structure (not retrieval order)\n   - Weave multi-modal results together per P1 (inline integration)\n   - Attribute each claim to its sub-query source per CT1\n```\n",
           "line_range": [
-            1588,
-            1644
+            1658,
+            1714
           ],
           "keywords": [
             "query",
@@ -23287,7 +23343,7 @@
               "decomposition"
             ]
           },
-          "embedding_id": 601
+          "embedding_id": 602
         },
         {
           "id": "mrag-method-retrieval-sufficiency-evaluation",
@@ -23295,8 +23351,8 @@
           "title": "Retrieval Sufficiency Evaluation",
           "content": "### 11.3 Retrieval Sufficiency Evaluation\n\n**Purpose:** Procedures for implementing AG3 (Retrieval Sufficiency Evaluation). Defines how the agent evaluates whether retrieved results are adequate for faithful generation.\n\n**Applies To:** Any agentic retrieval system that iterates on retrieval results.\n\n**Sufficiency Assessment Framework:**\n\n```\nInput: Query Q, Retrieved results R[], Quality thresholds T\n\n1. COMPUTE coverage score:\n   - Extract intents from Q (or use sub-queries from \u00a711.2)\n   - For each intent, check if at least one result in R[] addresses it\n   - coverage = intents_covered / total_intents\n\n2. COMPUTE relevance score:\n   - Mean relevance score of top-K results\n   - Weighted by position (top results weighted more)\n\n3. COMPUTE confidence:\n   - confidence = coverage * 0.5 + mean_relevance * 0.3 + source_diversity * 0.2\n   - source_diversity = unique_sources / total_results\n\n4. DECIDE:\n   | Confidence | Coverage | Action |\n   |-----------|----------|--------|\n   | \u2265 0.7 | \u2265 0.8 | PROCEED to generation |\n   | \u2265 0.5 | \u2265 0.6 | PROCEED with gap notes |\n   | < 0.5 | any | RE-RETRIEVE with adjusted params |\n   | any | < 0.6 | RE-RETRIEVE with broader query |\n```\n\n**Re-Retrieval Adjustments:**\n\n| Situation | Adjustment |\n|-----------|------------|\n| Low relevance, adequate coverage | Increase top-K, apply cross-encoder reranking |\n| High relevance, low coverage | Broaden query terms, add synonyms, try alternate modality |\n| Low both | Decompose query (\u00a711.2) if not already decomposed |\n| Previous iteration showed no improvement | Switch retrieval strategy (e.g., vector \u2192 graph) |\n\n**Gap Reporting:**\nWhen proceeding with incomplete coverage, explicitly note gaps:\n```\n[Response based on retrieved content]\n\n---\nNote: The following aspects of your query could not be fully addressed\nfrom available sources:\n- [Uncovered intent 1]: No matching content found in [searched indexes]\n- [Uncovered intent 2]: Partial match found but confidence is low\n```\n",
           "line_range": [
-            1645,
-            1698
+            1715,
+            1768
           ],
           "keywords": [
             "retrieval",
@@ -23342,7 +23398,7 @@
               "sufficiency"
             ]
           },
-          "embedding_id": 602
+          "embedding_id": 603
         },
         {
           "id": "mrag-method-agent-coordination-for-knowledge-synthesis",
@@ -23350,8 +23406,8 @@
           "title": "Agent Coordination for Knowledge Synthesis",
           "content": "### 11.4 Agent Coordination for Knowledge Synthesis\n\n**Purpose:** Procedures for coordinating multiple retrieval agents when a query requires knowledge synthesis across modalities or sources.\n\n**Applies To:** Complex queries that benefit from parallel agent execution or specialized agent delegation.\n\n**Coordination Patterns:**\n\n| Pattern | When to Use | Architecture |\n|---------|------------|--------------|\n| **Parallel retrieval** | Independent sub-queries across modalities | Spawn one agent per modality; merge results |\n| **Sequential handoff** | Dependent sub-queries (Q2 depends on Q1 result) | Chain agents; pass context between hops |\n| **Specialist delegation** | Domain-specific sub-queries | Route to domain-expert agent (e.g., graph traversal agent for relationship queries) |\n\n**Cross-Reference to Multi-Agent Domain:**\nAgent coordination patterns here complement multi-agent orchestration principles (multi-agent-methods \u00a71-\u00a72). Key differences:\n- Multi-agent domain covers general agent coordination (any task)\n- This section covers retrieval-specific coordination (query planning, result merging, sufficiency evaluation)\n- Use multi-agent \u00a73.3 (Task Dependencies) for dependency ordering between retrieval agents\n\n**Knowledge Synthesis Procedure:**\n\n```\nInput: Sub-query results from multiple agents, Original query Q\n\n1. COLLECT all agent results with metadata:\n   - Source agent ID, target modality, confidence score\n   - Retrieved content with attribution\n\n2. RESOLVE conflicts:\n   - Apply V1 (Cross-Modal Consistency) between agent results\n   - Apply V4 (Reasoning Chain Integrity) for multi-hop synthesis\n   - When agents disagree, prefer the agent with higher-confidence primary source\n\n3. SYNTHESIZE:\n   - Build unified response following original query structure\n   - Interleave visual and text content per P1\n   - Maintain per-claim attribution per CT1\n   - Note any unresolved conflicts transparently\n```\n",
           "line_range": [
-            1699,
-            1739
+            1769,
+            1809
           ],
           "keywords": [
             "agent",
@@ -23405,16 +23461,16 @@
               "coordination"
             ]
           },
-          "embedding_id": 603
+          "embedding_id": 604
         },
         {
           "id": "mrag-method-termination-and-fallback-controls",
           "domain": "multimodal-rag",
           "title": "Termination and Fallback Controls",
-          "content": "### 11.5 Termination and Fallback Controls\n\n**Purpose:** Procedures for preventing runaway retrieval loops and ensuring graceful degradation when retrieval cannot satisfy the query.\n\n**Applies To:** All agentic retrieval systems. Implements safeguards against MR-F26 (Infinite Retrieval Loop).\n\n**Termination Controls:**\n\n| Control | Default Value | Configurable | Purpose |\n|---------|--------------|-------------|---------|\n| Max retrieval iterations | 3 | Yes | Prevent infinite loops |\n| Per-iteration timeout | 5s (interactive), 30s (batch) | Yes | Bound per-step latency |\n| Total timeout | 15s (interactive), 120s (batch) | Yes | Bound total response time |\n| No-improvement threshold | 2 consecutive iterations | Yes | Stop when retrieval plateaus |\n| Max tokens retrieved | 10,000 | Yes | Prevent context overflow |\n\n**Fallback Escalation Ladder:**\n\n```\n1. NORMAL: Retrieval sufficient \u2192 Generate response\n2. PARTIAL: Coverage gaps \u2192 Generate with gap notes (\u00a711.3)\n3. DEGRADED: Low confidence \u2192 Generate with explicit uncertainty markers\n4. MINIMAL: Timeout or max iterations \u2192 Report what was found, note limitations\n5. FAILURE: No relevant results \u2192 Apply F-Series (F1, F2) fallback procedures\n```\n\n**Graceful Degradation Template:**\n\n```\n[Best available response based on retrieved content]\n\n---\nRetrieval Note: This response was generated with [partial/limited] retrieval coverage.\n- Retrieval iterations: [k] of [N] maximum\n- Coverage: [X]% of query intents addressed\n- Confidence: [score]\n- Uncovered aspects: [list]\n- Suggestion: [Rephrase query / Try specific sub-question / Consult [source] directly]\n```\n\n**Anti-Pattern: The Infinite Loop**\n```\n# BAD: No termination control\nwhile not sufficient(results):\n    results = retrieve(query)  # May never terminate\n\n# GOOD: Bounded with fallback\nfor k in range(max_iterations):\n    results = retrieve(query, strategy=strategies[k])\n    if sufficient(results):\n        break\n    if no_improvement(results, previous_results):\n        break\n# Always proceed, even with imperfect results\ngenerate_response(results, coverage_notes=assess_gaps(results, query))\n```\n\n---\n\n## Appendix A: Claude-Specific Implementation\n\n### A.1 Vision Capabilities\n\nClaude supports inline images in conversations when:\n- Images are provided as base64-encoded data or URLs\n- Total image data stays within context limits\n- Images are in supported formats (PNG, JPEG, GIF, WebP)\n\n### A.2 Token Considerations\n\n| Image Size | Approximate Tokens | Recommendation |\n|------------|-------------------|----------------|\n| < 500KB | ~1,000-2,000 | Preferred for inline display |\n| 500KB-2MB | ~2,000-5,000 | Acceptable, monitor context usage |\n| > 2MB | ~5,000+ | Resize or compress before including |\n\n### A.3 Image Inclusion Format\n\n**For Claude API:**\n```json\n{\n  \"role\": \"user\",\n  \"content\": [\n    {\"type\": \"text\", \"text\": \"How do I upgrade a guest room?\"},\n    {\n      \"type\": \"image\",\n      \"source\": {\n        \"type\": \"base64\",\n        \"media_type\": \"image/png\",\n        \"data\": \"[base64_encoded_image_data]\"\n      }\n    }\n  ]\n}\n```\n\n**For retrieval integration:**\n```python\ndef format_response_with_images(text_response, images):\n    \"\"\"Format response with images for Claude.\"\"\"\n    content = []\n\n    # Parse text response for image placement markers\n    segments = parse_image_placements(text_response)\n\n    for segment in segments:\n        if segment.type == 'text':\n            content.append({\"type\": \"text\", \"text\": segment.content})\n        elif segment.type == 'image_marker':\n            image = images.get(segment.image_ref)\n            if image:\n                content.append({\n                    \"type\": \"image\",\n                    \"source\": {\n                        \"type\": \"base64\",\n                        \"media_type\": image.media_type,\n                        \"data\": image.base64_data\n                    }\n                })\n            else:\n                # Apply F-Series fallback\n                content.append({\n                    \"type\": \"text\",\n                    \"text\": format_failure_note(segment.image_ref)\n                })\n\n    return content\n```\n\n### A.4 Prompt Pattern for Multimodal RAG\n\n```\nYou are an assistant that answers questions using both text and images from a knowledge base.\n\nWhen answering:\n1. Place images at the exact step they support (P1)\n2. Do not ask permission before showing images (P2)\n3. Select the single best image; add others only if they provide unique value per P3\n4. Use clear, accessible language (P4)\n5. Ensure all images have alt text descriptions (P6)\n6. Verify text descriptions match image content (V1)\n7. Cite sources for factual claims (CT1)\n8. If an image fails to load, provide complete text answer with failure note (F1, F2)\n\nThe following images are available for this query:\n[Retrieved images with metadata]\n\nUser query: {query}\n```\n\n---\n\n## Appendix B: Infrastructure Landscape\n\n### B.1 Current Multimodal Embedding Solutions\n\n| Solution | Description | Status (2026) |\n|----------|-------------|---------------|\n| **ColPali** | Late interaction multimodal embedding; processes document pages as images | Production-ready |\n| **ColQwen2** | Similar architecture to ColPali with Qwen backbone | Production-ready |\n| **LlamaIndex** | Framework with multimodal RAG support | Integration available |\n| **LangChain** | Framework with image retrieval patterns | Integration available |\n| **Weaviate** | Vector DB with multimodal support | Production-ready |\n| **Pinecone** | Vector DB, multimodal via custom embeddings | Production-ready |\n\n### B.2 Evaluation Criteria\n\nWhen selecting infrastructure:\n\n| Criterion | Questions to Ask |\n|-----------|------------------|\n| **Embedding Quality** | Does the model handle your image types? (UI screenshots, diagrams, photos) |\n| **Latency** | What is p99 latency for your query volume? |\n| **Scale** | How many images? How many queries/second? |\n| **Integration** | Does it work with your existing stack? |\n| **Cost** | Embedding generation cost, storage cost, query cost |\n| **Maintenance** | Hosted vs. self-managed? Update frequency? |\n\n### B.3 Reference Architecture Example\n\n```\n+-------------------------------------------------------------+\n|                      Reference Documents                      |\n|   (Markdown with embedded images following R-Series)          |\n+------------------------------+------------------------------+\n                               | Ingestion\n                               v\n+-------------------------------------------------------------+\n|                     Document Processor                        |\n|   - Vision-guided chunking per section 3.5                   |\n|   - Generate metadata per section 2.3                        |\n|   - Validate collocation per section 2.4                     |\n|   - Input validation per section 8.2                         |\n+------------------------------+------------------------------+\n                               |\n                               v\n+-------------------------------------------------------------+\n|                   Multimodal Embedder                         |\n|   - ColPali/ColQwen2 for unified embedding                   |\n|   - Text chunks -> vectors                                   |\n|   - Images -> vectors (same space)                           |\n+------------------------------+------------------------------+\n                               |\n                               v\n+-------------------------------------------------------------+\n|                      Vector Database                          |\n|   - Store embeddings with metadata                           |\n|   - Support hybrid search (vector + filter)                  |\n|   - RBAC enforcement per section 9.1                         |\n|   - (Weaviate, Pinecone, or similar)                         |\n+------------------------------+------------------------------+\n                               | Query\n                               v\n+-------------------------------------------------------------+\n|                     Retrieval Service                         |\n|   - Embed incoming query                                     |\n|   - Vector search + metadata filter                          |\n|   - Apply relevance scoring (section 3.3)                    |\n|   - Verify cross-modal consistency (section 5.1)             |\n|   - Return ranked images with context and citations          |\n+------------------------------+------------------------------+\n                               |\n                               v\n+-------------------------------------------------------------+\n|                   Response Generator                          |\n|   - LLM (Claude) with retrieved images                       |\n|   - Apply P-Series presentation principles                   |\n|   - Apply V-Series verification                              |\n|   - Apply CT-Series citation                                 |\n|   - Apply F-Series fallback if needed                        |\n|   - Return multimodal response to user                       |\n+-------------------------------------------------------------+\n```\n\n---\n\n## Appendix C: Research References\n\n### Verification and Hallucination Prevention\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| CoRe-MMRAG (ACL 2025) | Cross-source knowledge reconciliation for multimodal RAG; methodology for resolving conflicting information across text and image sources | 2025 |\n| Vision-guided chunking (arxiv 2506.16035) | Preserving visual elements as complete units during document chunking; layout-aware chunking significantly improves retrieval accuracy | 2025 |\n\n### Evaluation Metrics\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| RAG-Check (arxiv 2501.03995) | 6-metric evaluation framework: claim recall, context relevance, faithfulness, context utilization, noise sensitivity, hallucination rate | 2025 |\n| MAVIS (arxiv 2511.12142) | Multimodal source attribution benchmark; standardized evaluation for attribution quality in multimodal RAG | 2025 |\n\n### Citation and Attribution\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| VISA (arxiv 2412.14457) | Visual Information Spatial Attribution; bounding box-based attribution linking claims to specific image regions | 2024 |\n| MAVIS (arxiv 2511.12142) | Multimodal attribution verification benchmark | 2025 |\n\n### Security and Poisoning\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| MM-PoisonRAG (arxiv 2502.17832) | Localized and globalized multimodal poisoning attacks; demonstrates single-image attack capability | 2025 |\n| Single-Image Attacks (arxiv 2504.02132) | Visual document RAG poisoning via single adversarial page insertion | 2025 |\n| Embedding Inversion (arxiv 2305.03010) | Demonstrates that embeddings can be inverted to reconstruct source text; implications for embedding storage security | 2023 |\n\n### Accessibility\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| WCAG 2.1 AA (W3C) | Web Content Accessibility Guidelines; Level AA conformance requirements for images, multimedia, and visual content | 2018 (current standard) |\n| DOJ 2026 Mandate | U.S. Department of Justice digital accessibility requirements for public-facing services | 2026 |\n\n### Agentic Retrieval and Multi-Hop Reasoning\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| MMA-RAG (HAL hal-05322313) | Multimodal Agentic RAG survey; adaptive retrieval strategies, agent-driven modality routing, self-reflective retrieval evaluation | 2025 |\n| MMhops-R1 (arxiv 2512.13573) | Multi-hop multimodal reasoning benchmark; demonstrates error propagation in cross-modal reasoning chains; query decomposition with modality-aware sub-queries | 2025 |\n| Ask in Any Modality (arxiv 2502.08826, ACL 2025) | Comprehensive survey of multimodal RAG covering agentic retrieval, evaluation, and emerging architectures | 2025 |\n| Awesome RAG Reasoning (EMNLP 2025) | Reasoning-focused RAG advances including multi-step retrieval, chain-of-thought with retrieval, and reasoning verification | 2025 |\n\n### Late Interaction and Document-as-Image Retrieval\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| ColPali (arxiv 2407.01449) | Late interaction retrieval treating document pages as images via VLM embeddings; outperforms complex extraction pipelines on layout-rich documents | 2024 |\n| ColQwen2 (github illuin-tech/colpali) | Qwen2-VL-based late interaction model; improved multi-lingual and multi-resolution document retrieval | 2025 |\n| ColEmbed V2 (arxiv 2602.03992, NVIDIA) | Top-performing late interaction model; multi-vector document representations with efficient MaxSim scoring | 2026 |\n\n### Knowledge Graph Multimodal RAG\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| RAG-Anything (github HKUDS/RAG-Anything) | Knowledge graph construction from multimodal sources; entity and relationship extraction across text, images, and tables; graph-augmented retrieval for complex queries | 2025 |\n\n### Industry Best Practices\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| Augment Code 12 Best Practices | Production multimodal RAG best practices: chunking, retrieval, evaluation, and operations | 2025 |\n| ColPali Architecture | Late interaction mechanism for unified multimodal embedding | 2024 |\n\n---\n\n## Governance Integration\n\n### Principle Mapping\n\nThis methods document implements:\n\n| Principle | Implementation Location |\n|-----------|------------------------|\n| P1: Inline Image Integration | \u00a71.1, \u00a71.2 |\n| P2: Natural Integration | \u00a71.1 (step 4), Appendix A.4 |\n| P3: Image Selection Criteria | \u00a71.3, \u00a71.4 |\n| P4: Readability Optimization | \u00a71.5 |\n| P5: Audience Adaptation | \u00a71.5 |\n| P6: Accessibility Compliance | \u00a71.6 |\n| R1: Image-Text Collocation | \u00a72.1, \u00a72.4 |\n| R2: Descriptive Context | \u00a72.2 |\n| R3: Retrieval Metadata | \u00a72.2, \u00a72.3 |\n| A1: Unified Embedding Space | \u00a73.1, \u00a73.2 |\n| A2: Relevance Scoring | \u00a73.3 |\n| A3: Vision-Guided Chunking | \u00a73.5 |\n| A4: Document-as-Image Retrieval | \u00a73.7 |\n| A5: Knowledge Graph Integration | \u00a73.8 |\n| F1: Graceful Degradation | \u00a74.2 |\n| F2: Failure Transparency | \u00a74.1, \u00a74.3, \u00a74.4 |\n| V1: Cross-Modal Consistency Verification | \u00a75.1, \u00a75.3 |\n| V2: Visual Scene Graph Checking | \u00a75.2 |\n| V3: Source Fidelity | \u00a75.1, \u00a75.4 |\n| V4: Cross-Modal Reasoning Chain Integrity | \u00a75.5 |\n| EV1: Retrieval Quality Measurement | \u00a76.1, \u00a76.2 |\n| EV2: Answer Faithfulness Assessment | \u00a76.1 |\n| EV3: Continuous Quality Monitoring | \u00a76.3, \u00a76.4 |\n| CT1: Fragment-Level Source Attribution | \u00a77.1 |\n| CT2: Spatial Attribution for Visual Content | \u00a77.2 |\n| CT3: Citation Completeness | \u00a77.3, \u00a77.4 |\n| SEC1: Multimodal Poisoning Defense | \u00a78.1, \u00a78.3 |\n| SEC2: Cross-Modal Input Validation | \u00a78.2 |\n| DG1: Access Control for Multimodal KBs | \u00a79.1, \u00a79.2 |\n| DG2: Data Lineage and Provenance | \u00a79.3, \u00a79.4 |\n| O1: Index Version Management | \u00a710.1, \u00a710.2 |\n| O2: Operational Observability | \u00a710.4, \u00a710.5 |\n| AG1: Adaptive Retrieval Strategy | \u00a711.1 |\n| AG2: Query Decomposition | \u00a711.2 |\n| AG3: Retrieval Sufficiency Evaluation | \u00a711.3, \u00a711.5 |\n\n---\n\n## Changelog\n\n### v2.1.0 (Current)\n- Content expansion addressing 6 gap areas (MMA-RAG, MMhops-R1, ColPali/ColQwen2, RAG-Anything, ACL 2025 survey).\n- **Title 11:** Agentic Retrieval Patterns (\u00a711.1-11.5) \u2014 adaptive retrieval loops, query decomposition, sufficiency evaluation, agent coordination, termination controls\n- **\u00a73.7:** Late Interaction and Document-as-Image Retrieval (ColPali, ColQwen2, ColEmbed V2 procedures)\n- **\u00a73.8:** Graph-Based Multimodal Retrieval (knowledge graph construction, graph-augmented retrieval)\n- **\u00a75.5:** Multi-Hop Cross-Modal Reasoning Verification (chain integrity checks, hop-level error detection)\n- **Appendix C:** Added research references for agentic retrieval, multi-hop reasoning, late interaction, and knowledge graph RAG\n- Updated Governance Integration principle mapping table (29 \u2192 35 principles)\n\n### v2.0.0\n- **Title 5:** Verification & Hallucination Prevention (\u00a75.1-5.4)\n- **Title 6:** Evaluation Framework (\u00a76.1-6.4)\n- **Title 7:** Citation & Attribution (\u00a77.1-7.4)\n- **Title 8:** Security for Multimodal Knowledge Bases (\u00a78.1-8.4)\n- **Title 9:** Data Governance (\u00a79.1-9.4)\n- **Title 10:** Operational Management (\u00a710.1-10.5)\n- **\u00a71.6:** Accessibility Implementation Checklist (new section in Title 1)\n- **\u00a73.5:** Vision-Guided Chunking Procedures (new section in Title 3)\n- **\u00a73.6:** Cross-Modal Reference Linking (new section in Title 3)\n- **Appendix C:** Research References (new appendix)\n- Updated \u00a71.1 verification step and \u00a73.1 Layer 4 references\n- Updated Appendix A.4 prompt pattern with V-Series and CT-Series\n- Updated Appendix B.3 reference architecture with new processing stages\n- Expanded Governance Integration principle mapping table (12 -> 29 principles)\n\n### v1.0.1\n- PATCH: Coherence audit remediation. (1) Removed ungrounded \"30%+\" threshold from Appendix A.4 prompt pattern (P3 defines qualitative test, not numeric threshold). (2) Added version to principles file cross-reference in system instruction.\n\n### v1.0.0\n- Initial release\n- **Title 1:** Presentation Patterns (placement workflow, selection algorithm, readability standards)\n- **Title 2:** Reference Document Structuring (templates, metadata schema, collocation checklist)\n- **Title 3:** Retrieval Architecture (4-layer architecture, embedding selection, relevance scoring, chunking)\n- **Title 4:** Failure Handling (classification, degradation procedure, templates, logging)\n- **Appendix A:** Claude-Specific Implementation (vision capabilities, token considerations, API format)\n- **Appendix B:** Infrastructure Landscape (current solutions, evaluation criteria, reference architecture)\n\n---\n\n*Version 2.1.0*\n*Companion to: Multimodal RAG Domain Principles v2.1.0*\n",
+          "content": "### 11.5 Termination and Fallback Controls\n\n**Purpose:** Procedures for preventing runaway retrieval loops and ensuring graceful degradation when retrieval cannot satisfy the query.\n\n**Applies To:** All agentic retrieval systems. Implements safeguards against MR-F26 (Infinite Retrieval Loop).\n\n**Termination Controls:**\n\n| Control | Default Value | Configurable | Purpose |\n|---------|--------------|-------------|---------|\n| Max retrieval iterations | 3 | Yes | Prevent infinite loops |\n| Per-iteration timeout | 5s (interactive), 30s (batch) | Yes | Bound per-step latency |\n| Total timeout | 15s (interactive), 120s (batch) | Yes | Bound total response time |\n| No-improvement threshold | 2 consecutive iterations | Yes | Stop when retrieval plateaus |\n| Max tokens retrieved | 10,000 | Yes | Prevent context overflow |\n\n**Fallback Escalation Ladder:**\n\n```\n1. NORMAL: Retrieval sufficient \u2192 Generate response\n2. PARTIAL: Coverage gaps \u2192 Generate with gap notes (\u00a711.3)\n3. DEGRADED: Low confidence \u2192 Generate with explicit uncertainty markers\n4. MINIMAL: Timeout or max iterations \u2192 Report what was found, note limitations\n5. FAILURE: No relevant results \u2192 Apply F-Series (F1, F2) fallback procedures\n```\n\n**Graceful Degradation Template:**\n\n```\n[Best available response based on retrieved content]\n\n---\nRetrieval Note: This response was generated with [partial/limited] retrieval coverage.\n- Retrieval iterations: [k] of [N] maximum\n- Coverage: [X]% of query intents addressed\n- Confidence: [score]\n- Uncovered aspects: [list]\n- Suggestion: [Rephrase query / Try specific sub-question / Consult [source] directly]\n```\n\n**Anti-Pattern: The Infinite Loop**\n```\n# BAD: No termination control\nwhile not sufficient(results):\n    results = retrieve(query)  # May never terminate\n\n# GOOD: Bounded with fallback\nfor k in range(max_iterations):\n    results = retrieve(query, strategy=strategies[k])\n    if sufficient(results):\n        break\n    if no_improvement(results, previous_results):\n        break\n# Always proceed, even with imperfect results\ngenerate_response(results, coverage_notes=assess_gaps(results, query))\n```\n\n---\n\n## Appendix A: Claude-Specific Implementation\n\n### A.1 Vision Capabilities\n\nClaude supports inline images in conversations when:\n- Images are provided as base64-encoded data or URLs\n- Total image data stays within context limits\n- Images are in supported formats (PNG, JPEG, GIF, WebP)\n\n### A.2 Token Considerations\n\n| Image Size | Approximate Tokens | Recommendation |\n|------------|-------------------|----------------|\n| < 500KB | ~1,000-2,000 | Preferred for inline display |\n| 500KB-2MB | ~2,000-5,000 | Acceptable, monitor context usage |\n| > 2MB | ~5,000+ | Resize or compress before including |\n\n### A.3 Image Inclusion Format\n\n**For Claude API:**\n```json\n{\n  \"role\": \"user\",\n  \"content\": [\n    {\"type\": \"text\", \"text\": \"How do I upgrade a guest room?\"},\n    {\n      \"type\": \"image\",\n      \"source\": {\n        \"type\": \"base64\",\n        \"media_type\": \"image/png\",\n        \"data\": \"[base64_encoded_image_data]\"\n      }\n    }\n  ]\n}\n```\n\n**For retrieval integration:**\n```python\ndef format_response_with_images(text_response, images):\n    \"\"\"Format response with images for Claude.\"\"\"\n    content = []\n\n    # Parse text response for image placement markers\n    segments = parse_image_placements(text_response)\n\n    for segment in segments:\n        if segment.type == 'text':\n            content.append({\"type\": \"text\", \"text\": segment.content})\n        elif segment.type == 'image_marker':\n            image = images.get(segment.image_ref)\n            if image:\n                content.append({\n                    \"type\": \"image\",\n                    \"source\": {\n                        \"type\": \"base64\",\n                        \"media_type\": image.media_type,\n                        \"data\": image.base64_data\n                    }\n                })\n            else:\n                # Apply F-Series fallback\n                content.append({\n                    \"type\": \"text\",\n                    \"text\": format_failure_note(segment.image_ref)\n                })\n\n    return content\n```\n\n### A.4 Prompt Pattern for Multimodal RAG\n\n```\nYou are an assistant that answers questions using both text and images from a knowledge base.\n\nWhen answering:\n1. Place images at the exact step they support (P1)\n2. Do not ask permission before showing images (P2)\n3. Select the single best image; add others only if they provide unique value per P3\n4. Use clear, accessible language (P4)\n5. Ensure all images have alt text descriptions (P6)\n6. Verify text descriptions match image content (V1)\n7. Cite sources for factual claims (CT1)\n8. If an image fails to load, provide complete text answer with failure note (F1, F2)\n\nThe following images are available for this query:\n[Retrieved images with metadata]\n\nUser query: {query}\n```\n\n---\n\n## Appendix B: Infrastructure Landscape\n\n### B.1 Current Multimodal Embedding Solutions\n\n| Solution | Description | Status (2026) |\n|----------|-------------|---------------|\n| **ColPali** | Late interaction multimodal embedding; processes document pages as images | Production-ready |\n| **ColQwen2** | Similar architecture to ColPali with Qwen backbone | Production-ready |\n| **LlamaIndex** | Framework with multimodal RAG support | Integration available |\n| **LangChain** | Framework with image retrieval patterns | Integration available |\n| **Weaviate** | Vector DB with multimodal support | Production-ready |\n| **Pinecone** | Vector DB, multimodal via custom embeddings | Production-ready |\n\n### B.2 Evaluation Criteria\n\nWhen selecting infrastructure:\n\n| Criterion | Questions to Ask |\n|-----------|------------------|\n| **Embedding Quality** | Does the model handle your image types? (UI screenshots, diagrams, photos) |\n| **Latency** | What is p99 latency for your query volume? |\n| **Scale** | How many images? How many queries/second? |\n| **Integration** | Does it work with your existing stack? |\n| **Cost** | Embedding generation cost, storage cost, query cost |\n| **Maintenance** | Hosted vs. self-managed? Update frequency? |\n\n### B.3 Reference Architecture Example\n\n```\n+-------------------------------------------------------------+\n|                      Reference Documents                      |\n|   (Markdown with embedded images following R-Series)          |\n+------------------------------+------------------------------+\n                               | Ingestion\n                               v\n+-------------------------------------------------------------+\n|                     Document Processor                        |\n|   - Vision-guided chunking per section 3.5                   |\n|   - Generate metadata per section 2.3                        |\n|   - Validate collocation per section 2.4                     |\n|   - Input validation per section 8.2                         |\n+------------------------------+------------------------------+\n                               |\n                               v\n+-------------------------------------------------------------+\n|                   Multimodal Embedder                         |\n|   - ColPali/ColQwen2 for unified embedding                   |\n|   - Text chunks -> vectors                                   |\n|   - Images -> vectors (same space)                           |\n+------------------------------+------------------------------+\n                               |\n                               v\n+-------------------------------------------------------------+\n|                      Vector Database                          |\n|   - Store embeddings with metadata                           |\n|   - Support hybrid search (vector + filter)                  |\n|   - RBAC enforcement per section 9.1                         |\n|   - (Weaviate, Pinecone, or similar)                         |\n+------------------------------+------------------------------+\n                               | Query\n                               v\n+-------------------------------------------------------------+\n|                     Retrieval Service                         |\n|   - Embed incoming query                                     |\n|   - Vector search + metadata filter                          |\n|   - Apply relevance scoring (section 3.3)                    |\n|   - Verify cross-modal consistency (section 5.1)             |\n|   - Return ranked images with context and citations          |\n+------------------------------+------------------------------+\n                               |\n                               v\n+-------------------------------------------------------------+\n|                   Response Generator                          |\n|   - LLM (Claude) with retrieved images                       |\n|   - Apply P-Series presentation principles                   |\n|   - Apply V-Series verification                              |\n|   - Apply CT-Series citation                                 |\n|   - Apply F-Series fallback if needed                        |\n|   - Return multimodal response to user                       |\n+-------------------------------------------------------------+\n```\n\n---\n\n## Appendix C: Research References\n\n### Verification and Hallucination Prevention\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| CoRe-MMRAG (ACL 2025) | Cross-source knowledge reconciliation for multimodal RAG; methodology for resolving conflicting information across text and image sources | 2025 |\n| Vision-guided chunking (arxiv 2506.16035) | Preserving visual elements as complete units during document chunking; layout-aware chunking significantly improves retrieval accuracy | 2025 |\n\n### Evaluation Metrics\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| RAG-Check (arxiv 2501.03995) | 6-metric evaluation framework: claim recall, context relevance, faithfulness, context utilization, noise sensitivity, hallucination rate | 2025 |\n| MAVIS (arxiv 2511.12142) | Multimodal source attribution benchmark; standardized evaluation for attribution quality in multimodal RAG | 2025 |\n\n### Citation and Attribution\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| VISA (arxiv 2412.14457) | Visual Information Spatial Attribution; bounding box-based attribution linking claims to specific image regions | 2024 |\n| MAVIS (arxiv 2511.12142) | Multimodal attribution verification benchmark | 2025 |\n\n### Security and Poisoning\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| MM-PoisonRAG (arxiv 2502.17832) | Localized and globalized multimodal poisoning attacks; demonstrates single-image attack capability | 2025 |\n| Single-Image Attacks (arxiv 2504.02132) | Visual document RAG poisoning via single adversarial page insertion | 2025 |\n| Embedding Inversion (arxiv 2305.03010) | Demonstrates that embeddings can be inverted to reconstruct source text; implications for embedding storage security | 2023 |\n\n### Accessibility\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| WCAG 2.1 AA (W3C) | Web Content Accessibility Guidelines; Level AA conformance requirements for images, multimedia, and visual content | 2018 (current standard) |\n| DOJ 2026 Mandate | U.S. Department of Justice digital accessibility requirements for public-facing services | 2026 |\n\n### Agentic Retrieval and Multi-Hop Reasoning\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| MMA-RAG (HAL hal-05322313) | Multimodal Agentic RAG survey; adaptive retrieval strategies, agent-driven modality routing, self-reflective retrieval evaluation | 2025 |\n| MMhops-R1 (arxiv 2512.13573) | Multi-hop multimodal reasoning benchmark; demonstrates error propagation in cross-modal reasoning chains; query decomposition with modality-aware sub-queries | 2025 |\n| Ask in Any Modality (arxiv 2502.08826, ACL 2025) | Comprehensive survey of multimodal RAG covering agentic retrieval, evaluation, and emerging architectures | 2025 |\n| Awesome RAG Reasoning (EMNLP 2025) | Reasoning-focused RAG advances including multi-step retrieval, chain-of-thought with retrieval, and reasoning verification | 2025 |\n\n### Late Interaction and Document-as-Image Retrieval\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| ColPali (arxiv 2407.01449) | Late interaction retrieval treating document pages as images via VLM embeddings; outperforms complex extraction pipelines on layout-rich documents | 2024 |\n| ColQwen2 (github illuin-tech/colpali) | Qwen2-VL-based late interaction model; improved multi-lingual and multi-resolution document retrieval | 2025 |\n| ColEmbed V2 (arxiv 2602.03992, NVIDIA) | Top-performing late interaction model; multi-vector document representations with efficient MaxSim scoring | 2026 |\n\n### Knowledge Graph Multimodal RAG\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| RAG-Anything (github HKUDS/RAG-Anything) | Knowledge graph construction from multimodal sources; entity and relationship extraction across text, images, and tables; graph-augmented retrieval for complex queries | 2025 |\n\n### Industry Best Practices\n\n| Reference | Key Contribution | Year |\n|-----------|-----------------|------|\n| Augment Code 12 Best Practices | Production multimodal RAG best practices: chunking, retrieval, evaluation, and operations | 2025 |\n| ColPali Architecture | Late interaction mechanism for unified multimodal embedding | 2024 |\n\n---\n\n## Governance Integration\n\n### Principle Mapping\n\nThis methods document implements:\n\n| Principle | Implementation Location |\n|-----------|------------------------|\n| P1: Inline Image Integration | \u00a71.1, \u00a71.2, \u00a72.5 |\n| P2: Natural Integration | \u00a71.1 (step 4), Appendix A.4 |\n| P3: Image Selection Criteria | \u00a71.3, \u00a71.4 |\n| P4: Readability Optimization | \u00a71.5 |\n| P5: Audience Adaptation | \u00a71.5 |\n| P6: Accessibility Compliance | \u00a71.6 |\n| R1: Image-Text Collocation | \u00a72.1, \u00a72.4, \u00a72.5 |\n| R2: Descriptive Context | \u00a72.2, \u00a72.5 |\n| R3: Retrieval Metadata | \u00a72.2, \u00a72.3, \u00a72.5 |\n| A1: Unified Embedding Space | \u00a73.1, \u00a73.2 |\n| A2: Relevance Scoring | \u00a73.3 |\n| A3: Vision-Guided Chunking | \u00a73.5 |\n| A4: Document-as-Image Retrieval | \u00a73.7 |\n| A5: Knowledge Graph Integration | \u00a73.8 |\n| F1: Graceful Degradation | \u00a74.2 |\n| F2: Failure Transparency | \u00a74.1, \u00a74.3, \u00a74.4 |\n| V1: Cross-Modal Consistency Verification | \u00a75.1, \u00a75.3 |\n| V2: Visual Scene Graph Checking | \u00a75.2 |\n| V3: Source Fidelity | \u00a75.1, \u00a75.4 |\n| V4: Cross-Modal Reasoning Chain Integrity | \u00a75.5 |\n| EV1: Retrieval Quality Measurement | \u00a76.1, \u00a76.2 |\n| EV2: Answer Faithfulness Assessment | \u00a76.1 |\n| EV3: Continuous Quality Monitoring | \u00a76.3, \u00a76.4 |\n| CT1: Fragment-Level Source Attribution | \u00a77.1 |\n| CT2: Spatial Attribution for Visual Content | \u00a77.2 |\n| CT3: Citation Completeness | \u00a77.3, \u00a77.4 |\n| SEC1: Multimodal Poisoning Defense | \u00a78.1, \u00a78.3 |\n| SEC2: Cross-Modal Input Validation | \u00a78.2 |\n| DG1: Access Control for Multimodal KBs | \u00a79.1, \u00a79.2 |\n| DG2: Data Lineage and Provenance | \u00a79.3, \u00a79.4 |\n| O1: Index Version Management | \u00a710.1, \u00a710.2 |\n| O2: Operational Observability | \u00a710.4, \u00a710.5 |\n| AG1: Adaptive Retrieval Strategy | \u00a711.1 |\n| AG2: Query Decomposition | \u00a711.2 |\n| AG3: Retrieval Sufficiency Evaluation | \u00a711.3, \u00a711.5 |\n\n---\n\n## Changelog\n\n### v2.1.1 (Current)\n- **\u00a72.5:** Content Ingestion Assistance Workflow \u2014 AI procedure for assisting users with preparing multimodal content for RAG knowledge bases (intake assessment, image analysis and text generation, document assembly, quality validation, retrieval optimization, batch processing)\n- Updated Governance Integration table: added \u00a72.5 to R1, R2, R3, P1\n\n### v2.1.0\n- Content expansion addressing 6 gap areas (MMA-RAG, MMhops-R1, ColPali/ColQwen2, RAG-Anything, ACL 2025 survey).\n- **Title 11:** Agentic Retrieval Patterns (\u00a711.1-11.5) \u2014 adaptive retrieval loops, query decomposition, sufficiency evaluation, agent coordination, termination controls\n- **\u00a73.7:** Late Interaction and Document-as-Image Retrieval (ColPali, ColQwen2, ColEmbed V2 procedures)\n- **\u00a73.8:** Graph-Based Multimodal Retrieval (knowledge graph construction, graph-augmented retrieval)\n- **\u00a75.5:** Multi-Hop Cross-Modal Reasoning Verification (chain integrity checks, hop-level error detection)\n- **Appendix C:** Added research references for agentic retrieval, multi-hop reasoning, late interaction, and knowledge graph RAG\n- Updated Governance Integration principle mapping table (29 \u2192 35 principles)\n\n### v2.0.0\n- **Title 5:** Verification & Hallucination Prevention (\u00a75.1-5.4)\n- **Title 6:** Evaluation Framework (\u00a76.1-6.4)\n- **Title 7:** Citation & Attribution (\u00a77.1-7.4)\n- **Title 8:** Security for Multimodal Knowledge Bases (\u00a78.1-8.4)\n- **Title 9:** Data Governance (\u00a79.1-9.4)\n- **Title 10:** Operational Management (\u00a710.1-10.5)\n- **\u00a71.6:** Accessibility Implementation Checklist (new section in Title 1)\n- **\u00a73.5:** Vision-Guided Chunking Procedures (new section in Title 3)\n- **\u00a73.6:** Cross-Modal Reference Linking (new section in Title 3)\n- **Appendix C:** Research References (new appendix)\n- Updated \u00a71.1 verification step and \u00a73.1 Layer 4 references\n- Updated Appendix A.4 prompt pattern with V-Series and CT-Series\n- Updated Appendix B.3 reference architecture with new processing stages\n- Expanded Governance Integration principle mapping table (12 -> 29 principles)\n\n### v1.0.1\n- PATCH: Coherence audit remediation. (1) Removed ungrounded \"30%+\" threshold from Appendix A.4 prompt pattern (P3 defines qualitative test, not numeric threshold). (2) Added version to principles file cross-reference in system instruction.\n\n### v1.0.0\n- Initial release\n- **Title 1:** Presentation Patterns (placement workflow, selection algorithm, readability standards)\n- **Title 2:** Reference Document Structuring (templates, metadata schema, collocation checklist)\n- **Title 3:** Retrieval Architecture (4-layer architecture, embedding selection, relevance scoring, chunking)\n- **Title 4:** Failure Handling (classification, degradation procedure, templates, logging)\n- **Appendix A:** Claude-Specific Implementation (vision capabilities, token considerations, API format)\n- **Appendix B:** Infrastructure Landscape (current solutions, evaluation criteria, reference architecture)\n\n---\n\n*Version 2.1.1*\n*Companion to: Multimodal RAG Domain Principles v2.1.0*\n",
           "line_range": [
-            1740,
-            2135
+            1810,
+            2209
           ],
           "keywords": [
             "termination",
@@ -23480,10 +23536,10 @@
               "multimodal"
             ]
           },
-          "embedding_id": 604
+          "embedding_id": 605
         }
       ],
-      "last_extracted": "2026-02-22T06:01:54.538396+00:00",
+      "last_extracted": "2026-02-22T06:51:34.872303+00:00",
       "version": "1.0"
     }
   },
@@ -23534,7 +23590,7 @@
       "embedding_id": 4
     }
   ],
-  "created_at": "2026-02-22T06:02:02.441209+00:00",
+  "created_at": "2026-02-22T06:51:42.700603+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384

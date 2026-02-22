@@ -1,4 +1,4 @@
-# Multimodal RAG Methods v2.1.0
+# Multimodal RAG Methods v2.1.1
 ## Operational Procedures for Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -242,6 +242,76 @@ Before publishing reference documents:
 - [ ] Each image has metadata tags (filtering)
 - [ ] Step-by-step procedures have images at each visual step
 - [ ] Consistent image naming convention throughout document
+
+### 2.5 Content Ingestion Assistance Workflow
+
+**Content Ingestion Assistance** procedure for AI agents assisting users with preparing multimodal content for RAG knowledge bases. Follow this workflow when a user uploads images, screenshots, or raw documentation and requests help incorporating them into a multimodal RAG system.
+
+#### Step 1: Intake Assessment
+
+When a user provides raw materials (screenshots, images, documents):
+
+1. **Identify content type** — procedural UI steps, conceptual diagram, troubleshooting, or reference
+2. **Assess image quality** — legibility, completeness, appropriate UI state shown
+3. **Sensitive Data Screening** — scan for PII, credentials, internal IDs, or other sensitive data requiring masking. Flag to user and do NOT proceed with that image until the user confirms it has been masked or cleared
+4. **Determine context** — what procedure or concept does this content support?
+5. **Ask clarifying questions** — target audience, related procedures, where this fits in the existing knowledge base
+
+#### Step 2: Image Analysis and Text Generation
+
+For each image the user provides:
+
+1. **Generate alt text** per §2.2 — describe WHAT the image shows (serves accessibility)
+2. **Generate context description** per §2.2 — explain WHY/WHEN this image is relevant (serves retrieval optimization, R2)
+3. **Generate metadata tags** per §2.3 — procedure name, step number, concepts, UI elements, audience
+4. **Produce the §2.3 YAML metadata block** — filled out with all applicable fields
+5. **Present all generated text to user** for review and correction before proceeding
+
+**Image Analysis and Text Generation** produces the three required description layers (alt text, context, tags) in a single pass per image, ensuring consistency across layers.
+
+#### Step 3: Document Assembly
+
+Using the §2.1 template, structure the content:
+
+1. **Collocate images with related text** — every image appears within context of its related instruction (R1)
+2. **Write or refine step/concept text** to pair with each image
+3. **Place images inline** after the instruction they illustrate, before the next step (P1)
+4. **Add cross-references** to related procedures in the knowledge base
+5. **Match text complexity** to the target audience (P4, P5)
+
+#### Step 4: Quality Validation
+
+Run checks against the assembled document:
+
+1. **Execute §2.4 Collocation Verification Checklist** — flag any failures
+2. **Legibility check** — can all text in screenshots be read at standard display size?
+3. **Accuracy check** — does each screenshot match the written instruction it accompanies?
+4. **Completeness check** — are there gaps where a visual would help but is missing?
+5. **Tag consistency check** — are tags consistent with existing documents in the knowledge base? (R3)
+6. **PII re-check** — scan for any sensitive data that may have been missed in Step 1
+
+#### Step 5: Retrieval Optimization
+
+Optimize the prepared content for retrieval quality:
+
+1. **Search term alignment** — verify that generated alt text and context descriptions contain terms users would actually search for
+2. **Tag expansion** — suggest additional tags based on common query patterns for this domain (R3)
+3. **Chunking guidance** — recommend chunking boundaries if the document is long (cross-reference §3.5 Vision-Guided Chunking)
+4. **Document-as-image considerations** — if the knowledge base uses document-as-image retrieval (A4), advise on image resolution and format requirements
+5. **Knowledge graph extraction** — if the knowledge base uses knowledge graphs (A5), identify entities and relationships to extract
+
+**Retrieval Optimization** bridges content preparation and the retrieval pipeline, ensuring prepared documents are findable through the architecture described in Title 3.
+
+> **Batch Processing Pattern**
+>
+> When a user needs to document an entire workflow (e.g., a full multi-step procedure):
+>
+> 1. Guide the user to walk through the complete procedure first and capture all screenshots in one pass (ensures consistent UI state)
+> 2. Process all images through Steps 1–5 as a batch
+> 3. Generate cross-links between related procedure documents
+> 4. Validate tag consistency across the full document set
+>
+> **Batch Processing Pattern** avoids the inconsistency that arises from documenting steps piecemeal across separate sessions.
 
 ---
 
@@ -2051,15 +2121,15 @@ This methods document implements:
 
 | Principle | Implementation Location |
 |-----------|------------------------|
-| P1: Inline Image Integration | §1.1, §1.2 |
+| P1: Inline Image Integration | §1.1, §1.2, §2.5 |
 | P2: Natural Integration | §1.1 (step 4), Appendix A.4 |
 | P3: Image Selection Criteria | §1.3, §1.4 |
 | P4: Readability Optimization | §1.5 |
 | P5: Audience Adaptation | §1.5 |
 | P6: Accessibility Compliance | §1.6 |
-| R1: Image-Text Collocation | §2.1, §2.4 |
-| R2: Descriptive Context | §2.2 |
-| R3: Retrieval Metadata | §2.2, §2.3 |
+| R1: Image-Text Collocation | §2.1, §2.4, §2.5 |
+| R2: Descriptive Context | §2.2, §2.5 |
+| R3: Retrieval Metadata | §2.2, §2.3, §2.5 |
 | A1: Unified Embedding Space | §3.1, §3.2 |
 | A2: Relevance Scoring | §3.3 |
 | A3: Vision-Guided Chunking | §3.5 |
@@ -2091,7 +2161,11 @@ This methods document implements:
 
 ## Changelog
 
-### v2.1.0 (Current)
+### v2.1.1 (Current)
+- **§2.5:** Content Ingestion Assistance Workflow — AI procedure for assisting users with preparing multimodal content for RAG knowledge bases (intake assessment, image analysis and text generation, document assembly, quality validation, retrieval optimization, batch processing)
+- Updated Governance Integration table: added §2.5 to R1, R2, R3, P1
+
+### v2.1.0
 - Content expansion addressing 6 gap areas (MMA-RAG, MMhops-R1, ColPali/ColQwen2, RAG-Anything, ACL 2025 survey).
 - **Title 11:** Agentic Retrieval Patterns (§11.1-11.5) — adaptive retrieval loops, query decomposition, sufficiency evaluation, agent coordination, termination controls
 - **§3.7:** Late Interaction and Document-as-Image Retrieval (ColPali, ColQwen2, ColEmbed V2 procedures)
@@ -2130,5 +2204,5 @@ This methods document implements:
 
 ---
 
-*Version 2.1.0*
+*Version 2.1.1*
 *Companion to: Multimodal RAG Domain Principles v2.1.0*
