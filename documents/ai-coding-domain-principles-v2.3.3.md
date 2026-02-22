@@ -1,4 +1,4 @@
-# AI Coding Domain Principles Framework v2.3.2
+# AI Coding Domain Principles Framework v2.3.3
 ## Federal Statutes for AI-Assisted Software Development
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -1185,6 +1185,7 @@ Tests are evidence; evidence must be contemporaneous. *This corresponds to "Chai
 - **The "Test Later" Trap:** Writing implementation first, planning to "add tests after." Tests never achieve meaningful coverage. *Prevention: Tests WITH implementation, not after.*
 - **The "Happy Path Only" Trap:** Testing only success scenarios, leaving errors untested. *Prevention: Error case tests required for every error handling path.*
 - **The "Brittle Tests" Trap:** Tests so tightly coupled to implementation that any change breaks them. *Prevention: Test behavior, not implementation details.*
+- **The "Echo Chamber" Trap:** AI writes code, then writes tests that validate the implementation rather than the specification. Tests pass because they mirror what was built, not what was intended. Multiple iterations deepen the echo — each cycle reinforces the implementation's assumptions. *Prevention: Anchor every test assertion to an explicit specification statement or acceptance criterion. When AI writes both code and tests, never derive expected values from observed output — derive them from the specification. If no specification exists for a behavior, flag the gap rather than writing a test that merely confirms current output.*
 
 **Success Criteria:**
 - ✅ Test coverage ≥80% (configurable threshold)
@@ -1534,6 +1535,7 @@ At EVERY phase boundary or significant checkpoint:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.3.3 | 2026-02-22 | PATCH: Added "Echo Chamber" Trap to Testing Integration pitfalls — AI writes tests that validate implementation rather than specification. Added echo chamber research to Evidence Base (ThoughtWorks ASSESS 2025, 67% practitioner trust stat). |
 | v2.3.2 | 2026-02-09 | PATCH: Cross-domain audit remediation. Corrected ~20 fabricated/inaccurate meta-principle names in Constitutional Basis sections and mapping table to use canonical Constitution principle names. Key fixes: "Explicit Intent" → "Explicit Over Implicit", "Context Optimization" → "Minimal Relevant Context", "Documentation" → "Transparent Reasoning and Traceability" / "Single Source of Truth", "Role Segregation" → "Role Specialization & Topology", "Safety Boundaries" → "Non-Maleficence & Privacy First", "Security" → "Security, Privacy, and Compliance by Default", and 14 others. |
 | v2.3.1 | 2026-02-08 | PATCH: Coherence audit remediation. Updated stale "2024-2025" year references to "2025" in 3 pedagogical locations (framework introduction, Evidence Base Summary, Appendix D extension guidance). |
 | v2.3.0 | 2026-02-02 | **Reference Memory Integration:** (1) Added persistent semantic index to Context Priority Hierarchy Reference tier in Context Window Management. (2) Added Reference Memory as 6th State Component in Session State Continuity. Tool-agnostic additions extending existing memory taxonomy. |
@@ -1576,6 +1578,8 @@ This framework derives from analysis of 80+ research sources (2025):
 **Testing Research:**
 - Teams using AI for testing: 2.5x more confident in test quality
 - RAG grounding achieves 94% hallucination detection accuracy
+- Echo chamber risk in AI-generated tests (ThoughtWorks ASSESS 2025, QualiZeal/GitClear analysis)
+- 67% of practitioners trust AI-generated tests only with human review
 
 ---
 

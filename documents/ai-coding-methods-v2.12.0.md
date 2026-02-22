@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.11.1
+**Version:** 2.12.0
 **Status:** Active
-**Effective Date:** 2026-02-19
+**Effective Date:** 2026-02-22
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -130,6 +130,8 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | MCP server vetting | §5.6.5 | MCP Server Vetting Procedure |
 | Audit logging setup | §5.11.3 | Production Audit Logging |
 | Production hardening sweep | Appendix H | Production Hardening Checklist |
+| Test failing during implementation | §5.2.6 | Autonomous Test Maintenance |
+| Local vs CI validation mismatch | §6.4.8 | Local-CI Validation Parity |
 
 #### On Uncertainty
 
@@ -1464,6 +1466,8 @@ For each task:
         Next Task              Fix & Re-run
 ```
 
+**Autonomous Fix & Re-run:** Not all failures in the Fix & Re-run path are equal. Routine failures (syntax errors, import mistakes, assertion mismatches with clear cause) should be fixed autonomously — this is the normal implementation loop. Judgment failures (ambiguous regressions, specification mismatches, flaky tests) require human input. See §5.2.6 for the full failure classification table and iteration limits that govern when to fix autonomously vs. escalate.
+
 ### 5.1.3 Implementation Quality Standards
 
 During WRITE phase, apply:
@@ -1770,6 +1774,93 @@ def mock_reranker():
 | Missing seed | Tests pass locally, fail in CI | Add `np.random.seed()` before generating arrays |
 | Wrong dtype | numpy casting errors | Explicitly use `.astype(np.float32)` |
 | Import before patch | Real model loads (slow, or fails) | Import target module inside `with patch` block |
+
+### 5.2.6 Autonomous Test Maintenance
+
+**Importance: 🔴 CRITICAL — Prevents silent regressions and over-escalation**
+
+**Implements:** Testing Integration (Domain), Validation Gates (Domain)
+**Applies to:** All implementation work where AI runs and interprets test results
+
+When tests fail during the Write → Run → Validate loop (§5.1.2), AI must decide whether to fix autonomously or escalate to the human. This section provides the decision framework.
+
+#### Failure Classification
+
+**Autonomous Test Maintenance** — use this table to classify each test failure and determine the correct action:
+
+| Failure Type | Examples | AI Action |
+|---|---|---|
+| Syntax / Import | Missing import, typo, indentation error | Fix autonomously |
+| Assertion mismatch (clear cause) | Expected value changed due to intentional code change in current task | Fix autonomously |
+| Configuration / Environment | Missing fixture, wrong path, missing test dependency | Fix autonomously |
+| Regression (clear cause) | Existing test breaks, root cause traceable to current change | Fix autonomously |
+| Regression (ambiguous cause) | Existing test breaks, unclear if current change or pre-existing issue | **Escalate** |
+| Specification mismatch | Test validates wrong behavior, correct behavior unclear from specification | **Escalate** |
+| Flaky / Non-deterministic | Test passes/fails inconsistently across runs | **Escalate** |
+
+**Decision heuristic:** If you can identify the root cause AND the fix aligns with the specification, fix autonomously. If the root cause is ambiguous OR the correct behavior is unclear, escalate.
+
+#### Iteration Limits
+
+Bounded retry prevents infinite fix-and-rerun loops:
+
+- **3 attempts** per individual failing test — if a test still fails after 3 fix attempts, escalate regardless of failure type
+- **5 total fix-and-rerun iterations** per task — if the overall fix-run-validate cycle has been attempted 5 times, pause and report status to the human
+
+When hitting an iteration limit, provide a structured escalation (see Escalation Format below) rather than continuing to attempt fixes.
+
+#### Specification Anchoring Check
+
+The **specification anchoring check** prevents the **echo chamber** problem — where AI writes code, then writes tests that validate the implementation rather than the specification:
+
+1. **Every assertion traces to a specification.** Before writing or modifying a test assertion, identify the specification statement, acceptance criterion, or documented behavior it validates. If no specification exists for the behavior being tested, flag the gap.
+
+2. **Never derive expected values from observed output.** When a test fails, do not simply update the expected value to match what the code produces. Instead: (a) determine what the specification says the correct value should be, (b) determine whether the code or the test is wrong, (c) fix the incorrect one.
+
+3. **Distinguish "test is wrong" from "code is wrong."** A failing test may indicate a bug in the code (regression) OR a bug in the test (stale expectation). The specification is the tiebreaker — not the current implementation output.
+
+#### Validation Scope
+
+Run the appropriate test scope for the situation:
+
+| Context | Scope | Rationale |
+|---------|-------|-----------|
+| During active development | Targeted tests (affected files/modules) | Fast feedback loop; catch immediate errors |
+| Before marking task complete | Full test suite | Catch regressions across the codebase |
+| After fixing a regression | Full test suite | Confirm fix doesn't cascade to other failures |
+| After hitting iteration limit | Full test suite (report only) | Give human complete picture of test health |
+
+Cross-reference: §6.4.8 (Local-CI Validation Parity) for ensuring local test runs match CI behavior.
+
+#### Escalation Format
+
+When escalating a test failure, use this structured format (consistent with §8.2.2 Decision Presentation):
+
+```
+## Test Failure Escalation
+
+**Test:** [test file path :: test function name]
+**Failure Type:** [from classification table above]
+**Attempts:** [N of 3] per-test / [N of 5] per-task
+
+**What failed:**
+[One-line summary of the assertion or error]
+
+**Root cause analysis:**
+[What you determined, or "Ambiguous — unable to determine root cause"]
+
+**What I tried:**
+- Attempt 1: [brief description → result]
+- Attempt 2: [brief description → result]
+
+**Specification gap (if applicable):**
+[What specification is missing or ambiguous that prevents autonomous resolution]
+
+**Recommendation:**
+[Your best assessment of what should be done, even if you can't do it autonomously]
+```
+
+This format gives the human enough context to make a decision without re-investigating from scratch. Cross-reference: §8.1 (Escalation Triggers), §8.2.2 (Decision Presentation).
 
 ---
 
@@ -3442,6 +3533,37 @@ Before deploying CI/CD:
 - [ ] CodeQL or equivalent SAST scanning enabled
 - [ ] Actions restricted to GitHub-owned and verified creators
 - [ ] Dependabot or Renovate configured for `github-actions` ecosystem (automated SHA updates)
+
+### 6.4.8 Local-CI Validation Parity
+
+**Local-CI Validation Parity** — local validation should mirror CI validation. When the same checks run locally and in CI, failures are caught early (faster feedback) and CI surprises are eliminated. The pattern: one validation script that both developers and CI invoke.
+
+**Implementation pattern:**
+
+```bash
+#!/usr/bin/env bash
+# scripts/validate.sh — Single validation entry point for local and CI use
+set -euo pipefail
+
+echo "=== Lint ==="
+ruff check .            # or: eslint ., golangci-lint run, etc.
+
+echo "=== Type Check ==="
+mypy src/               # or: tsc --noEmit, etc.
+
+echo "=== Tests ==="
+pytest tests/ -v        # or: jest, go test ./..., cargo test, etc.
+
+echo "=== Security Scan ==="
+pip-audit               # or: npm audit, cargo audit, etc.
+
+echo "=== All checks passed ==="
+```
+
+**Usage:**
+- **Locally:** Run `./scripts/validate.sh` before marking a task complete (§5.2.6 — full suite before task completion)
+- **In CI:** CI jobs invoke the same script (§6.4.3 — minimum CI pipeline), ensuring identical checks
+- Adapt commands to your project's language/tooling — the principle is one shared script, not the specific tools
 
 ---
 
@@ -5750,6 +5872,7 @@ A 10-item sweep checklist consolidating the most commonly-missed production hard
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.12.0 | 2026-02-22 | **Autonomous Testing Best Practices:** (1) New §5.2.6 Autonomous Test Maintenance: failure classification table (7 failure types with fix-vs-escalate decisions), iteration limits (3 per test, 5 per task), specification anchoring check (echo chamber prevention), validation scope guidance (targeted vs full suite), structured escalation format. (2) Enhanced §5.1.2: added Autonomous Fix & Re-run annotation distinguishing routine vs judgment failures, cross-referencing §5.2.6. (3) New §6.4.8 Local-CI Validation Parity: single validation script pattern ensuring local checks mirror CI, cross-references §5.2.6 and §6.4.3. (4) Added 2 Situation Index entries. Research basis: ThoughtWorks Technology Radar ASSESS 2025 (AI-aided test-first), QualiZeal/GitClear analysis (echo chamber risk), Anthropic verification loops (2-3x quality improvement). |
 | 2.11.1 | 2026-02-20 | PATCH: Added cross-reference to governance methods §5.1.4 (Document Lifecycle) in §6.5.2 Standard Directory Structure. Clarifies no lifecycle subdirectories under `documents/`. |
 | 2.11.0 | 2026-02-19 | **Zero Trust Application Security:** Adds zero trust best practices for production web applications and extends MCP tool security with vetting and integrity monitoring procedures. Prompted by OWASP Agentic Top 10, OWASP MCP Top 10, and Invariant Labs tool poisoning research. (1) Fixed §5.6.1: `mcp-scan` → `agent-scan` (Snyk acquired Invariant Labs' tool). (2) Completed §5.6.4 OWASP Agentic list (6→10 ASI items: added ASI06 Excessive Autonomy, ASI07 Prompt & Context Manipulation, ASI08 Multi-Agent Trust Exploitation, ASI10 Insufficient Oversight). (3) Added OWASP MCP Top 10 reference to §5.6.4 (MCP01-MCP10, verified canonical ordering). (4) New §5.6.5 — MCP Server Vetting Procedure: 8-item pre-installation checklist, OWASP MCP Top 10 quick reference table with one-line mitigations, Invariant Labs known attack patterns (direct poisoning, cross-server shadowing, rug pull). (5) New §5.6.6 — Tool Integrity Monitoring: rug pull defense (hash pinning, change alerting, fail-closed for CI/CD), cross-server isolation rules (trust boundaries, namespace isolation, call pattern monitoring). (6) New Part 5.11 — Zero Trust Application Patterns: §5.11.1 Zero Trust Design Principles (4 pillars mapped to existing framework sections, decision heuristic, NIST SP 800-207 reference), §5.11.2 Service Identity and Credential Lifecycle (API key management checklist, OAuth client credentials flow, zero-downtime rotation pattern), §5.11.3 Production Audit Logging (structured JSON format, retention policy table, log integrity checklist, 3 starter alerts for small teams), §5.11.4 Secret Rotation Procedures (rotation frequency table by secret type, 5-step zero-downtime pattern, rotation readiness checklist), §5.11.5 Behavioral Monitoring Patterns (anomaly signals table, 3 starter alerts, kill switch pattern, canary deployment 1%→10%→100%), §5.11.6 AI Feature Security in Applications (OWASP Agentic key risks for app developers, 7-item production guardrails checklist, human-in-the-loop decision matrix). (7) Updated Situation Index: 3 new entries (zero trust review, MCP vetting, audit logging). (8) Expanded Appendix H: 2 new items (secret rotation, audit logging coverage). Sources: OWASP Top 10 for Agentic Applications (Dec 2025), OWASP MCP Top 10 (2025), Invariant Labs tool poisoning PoC, Snyk agent-scan, NIST SP 800-207. |
 | 2.10.0 | 2026-02-11 | **Production Best Practices from Context Engine Implementation:** Codifies patterns discovered across 7 rounds of deep code review into reusable governance methods. Follows `meta-governance-continuous-learning-adaptation`. (1) New Part 5.9 — Concurrency Safety Patterns: thread safety decision matrix (§5.9.2), double-checked locking for lazy singletons (§5.9.3), lock ordering and deadlock prevention (§5.9.4), asyncio safety rules (§5.9.5), daemon thread lifecycle management (§5.9.6), 7-item concurrency checklist (§5.9.7). (2) New Part 5.10 — Production Resilience Patterns: atomic write pattern with tmp+fsync+rename (§5.10.2), corrupt file recovery strategies by file type (§5.10.3), orphaned temp cleanup (§5.10.4), circuit breaker state machine CLOSED→OPEN→HALF_OPEN (§5.10.5), graceful degradation strategies table (§5.10.6), resource bounding by category with named constants pattern (§5.10.7), deserialization safety table (§5.10.8), 7-item resilience checklist (§5.10.9). (3) Expanded §5.7.5 — Error Sanitization Patterns: regex patterns table for stripping paths, line numbers, memory addresses, module paths, stack frames from error messages; implementation pattern with correlation ID. (4) Expanded §5.8.2 — ML Model Safety: 3 new Python security rows (trust_remote_code, model allowlists, embedding mismatch detection). (5) New §6.5.9 — Dead Code & Technical Debt: TODO/FIXME policy with 90-day staleness threshold, stub handling rules, dead code removal rules. (6) New §6.5.10 — Code Duplication Detection: acceptable duplication criteria, refactoring triggers (3+ copies or >10 lines), extraction pattern. (7) New §9.3.9 — Structured Logging Patterns: MCP channel discipline (stdout=protocol, stderr=logs), log level via env var, required structured fields, log sanitization cross-ref to §5.7.5, anti-patterns. (8) New Appendix H — Production Hardening Checklist: 10-item pre-release sweep cross-referencing §5.9/§5.10 patterns. (9) Added §7.9.9 cross-reference note linking Context Engine-specific patterns to general Parts 5.9/5.10. (10) Updated Situation Index: 7 new entries for concurrency, resilience, error sanitization, dead code, logging, and hardening. |
@@ -5782,7 +5905,7 @@ A 10-item sweep checklist consolidating the most commonly-missed production hard
 
 ## Document Governance
 
-**Authority:** This document implements ai-coding-domain-principles.md (v2.3.2). Methods cannot contradict principles.
+**Authority:** This document implements ai-coding-domain-principles.md (v2.3.3). Methods cannot contradict principles.
 
 **Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.
 
