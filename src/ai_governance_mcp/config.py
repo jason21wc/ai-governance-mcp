@@ -331,11 +331,16 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="multimodal-rag",
             display_name="Multimodal RAG",
-            principles_file="multimodal-rag-domain-principles-v1.0.1.md",
-            methods_file="multimodal-rag-methods-v1.0.1.md",
+            principles_file="multimodal-rag-domain-principles-v2.0.0.md",
+            methods_file="multimodal-rag-methods-v2.0.0.md",
             description=(
                 "Multimodal retrieval-augmented generation. Image retrieval, "
-                "visual presentation, cross-modal search, and document layout."
+                "visual presentation, cross-modal search, document layout, "
+                "hallucination prevention, cross-modal consistency verification, "
+                "citation and source attribution, multimodal evaluation metrics, "
+                "knowledge base security, poisoning defense, accessibility compliance, "
+                "WCAG, data governance, data lineage, vector index versioning, "
+                "operational observability, vision-guided chunking, and graceful degradation."
             ),
             priority=40,
         ),

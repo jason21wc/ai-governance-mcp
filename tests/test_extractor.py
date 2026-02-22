@@ -1286,3 +1286,352 @@ class TestDomainDescriptionValidation:
 
             assert "domains.json" in str(exc_info.value)
             assert "malicious" in str(exc_info.value)
+
+
+# =============================================================================
+# Multimodal-RAG Extraction Tests
+# =============================================================================
+
+
+MULTIMODAL_RAG_PRINCIPLES_MD = """\
+# Multimodal RAG Domain Principles v2.0.0
+
+## P-Series: Presentation Principles
+
+### P1: Inline Image Integration
+
+**Definition**
+Images MUST be placed inline with text.
+
+**Why This Principle Matters**
+Better comprehension.
+
+---
+
+### P2: Natural Integration
+
+**Definition**
+Never ask permission before showing images.
+
+**Why This Principle Matters**
+Reduces friction.
+
+---
+
+## R-Series: Reference Principles
+
+### R1: Image-Text Collocation
+
+**Definition**
+Keep images near related text.
+
+**Why This Principle Matters**
+Context preservation.
+
+---
+
+## A-Series: Architecture Principles
+
+### A1: Unified Embedding Space
+
+**Definition**
+Text and images in same embedding space.
+
+**Why This Principle Matters**
+Cross-modal retrieval.
+
+---
+
+### A3: Vision-Guided Chunking
+
+**Definition**
+Preserve visual elements as complete units.
+
+**Why This Principle Matters**
+Prevents splitting tables and diagrams.
+
+---
+
+## F-Series: Fallback Principles
+
+### F1: Graceful Degradation
+
+**Definition**
+When images fail, provide text alternatives.
+
+**Why This Principle Matters**
+Reliability.
+
+---
+
+## V-Series: Verification Principles
+
+### V1: Cross-Modal Consistency Verification
+
+**Definition**
+Text claims must match visual content.
+
+**Why This Principle Matters**
+Hallucination prevention.
+
+---
+
+## EV-Series: Evaluation Principles
+
+### EV1: Retrieval Quality Measurement
+
+**Definition**
+Track multimodal MRR and Recall@K.
+
+**Why This Principle Matters**
+Quality assurance.
+
+---
+
+### EV2: Answer Faithfulness Assessment
+
+**Definition**
+Assess response faithfulness to sources.
+
+**Why This Principle Matters**
+Prevents hallucination.
+
+---
+
+## CT-Series: Citation Principles
+
+### CT1: Fragment-Level Source Attribution
+
+**Definition**
+Every claim must cite its source fragment.
+
+**Why This Principle Matters**
+Traceability.
+
+---
+
+## SEC-Series: Security Principles
+
+### SEC1: Multimodal Poisoning Defense
+
+**Definition**
+Defend against adversarial content in knowledge bases.
+
+**Why This Principle Matters**
+System integrity.
+
+---
+
+### SEC2: Cross-Modal Input Validation
+
+**Definition**
+Validate inputs across all modalities.
+
+**Why This Principle Matters**
+Prevents injection attacks.
+
+---
+
+## DG-Series: Data Governance Principles
+
+### DG1: Access Control for Multimodal Knowledge Bases
+
+**Definition**
+Enforce role-based access control.
+
+**Why This Principle Matters**
+Compliance.
+
+---
+
+## O-Series: Operations Principles
+
+### O1: Index Version Management
+
+**Definition**
+Version all index rebuilds.
+
+**Why This Principle Matters**
+Reproducibility.
+
+---
+
+### O2: Operational Observability
+
+**Definition**
+Expose operational metrics for monitoring.
+
+**Why This Principle Matters**
+Diagnosability.
+"""
+
+
+class TestMultimodalRagExtraction:
+    """Tests for multimodal-RAG principle extraction.
+
+    Verifies correct series detection, category assignment, and prefix generation
+    for the multimodal-RAG domain with its 10 series (P, R, A, F, V, EV, CT, SEC,
+    DG, O). Specifically guards against substring collisions (EV/V, SEC/C).
+    """
+
+    @pytest.fixture
+    def mrag_settings(self, tmp_path):
+        """Settings with multimodal-RAG domain documents."""
+        docs_path = tmp_path / "documents"
+        docs_path.mkdir()
+        index_path = tmp_path / "index"
+        index_path.mkdir()
+
+        # Write principles file
+        (docs_path / "mrag-principles.md").write_text(MULTIMODAL_RAG_PRINCIPLES_MD)
+
+        # Write domains.json
+        domains = [
+            {
+                "name": "multimodal-rag",
+                "display_name": "Multimodal RAG",
+                "principles_file": "mrag-principles.md",
+                "description": "Multimodal RAG domain.",
+                "priority": 40,
+            }
+        ]
+        (docs_path / "domains.json").write_text(json.dumps(domains))
+
+        settings = Mock()
+        settings.documents_path = docs_path
+        settings.index_path = index_path
+        settings.embedding_model = "BAAI/bge-small-en-v1.5"
+        settings.embedding_dimensions = 384
+        return settings
+
+    def _extract(self, mrag_settings):
+        """Helper to extract principles from the multimodal-RAG domain."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            extractor = DocumentExtractor(mrag_settings)
+            domain_config = DomainConfig(
+                name="multimodal-rag",
+                display_name="Multimodal RAG",
+                principles_file="mrag-principles.md",
+                description="Multimodal RAG domain.",
+                priority=40,
+            )
+            return extractor._extract_principles(domain_config)
+
+    def test_extracts_correct_principle_count(self, mrag_settings):
+        """Should extract exactly 15 principles from the test document."""
+        principles = self._extract(mrag_settings)
+        assert len(principles) == 15
+
+    def test_prefix_is_mrag(self, mrag_settings):
+        """All multimodal-RAG principles should use 'mrag-' prefix."""
+        principles = self._extract(mrag_settings)
+        for p in principles:
+            assert p.id.startswith("mrag-"), f"Expected mrag- prefix, got: {p.id}"
+
+    def test_p_series_category_is_presentation(self, mrag_settings):
+        """P-Series should be categorized as 'presentation', not 'process'."""
+        principles = self._extract(mrag_settings)
+        p_series = [p for p in principles if "-p1-" in p.id or "-p2-" in p.id]
+        assert len(p_series) == 2
+        for p in p_series:
+            assert "presentation" in p.id, f"Expected presentation category: {p.id}"
+
+    def test_ev_series_not_verification(self, mrag_settings):
+        """EV-Series must be 'evaluation', not 'verification' (substring collision guard)."""
+        principles = self._extract(mrag_settings)
+        ev_series = [p for p in principles if "ev1" in p.id or "ev2" in p.id]
+        assert len(ev_series) == 2
+        for p in ev_series:
+            assert "evaluation" in p.id, f"EV-Series should be evaluation: {p.id}"
+            assert "verification" not in p.id, f"EV-Series got verification: {p.id}"
+
+    def test_sec_series_not_context(self, mrag_settings):
+        """SEC-Series must be 'security', not 'context' (substring collision guard)."""
+        principles = self._extract(mrag_settings)
+        sec_series = [p for p in principles if "sec1" in p.id or "sec2" in p.id]
+        assert len(sec_series) == 2
+        for p in sec_series:
+            assert "security" in p.id, f"SEC-Series should be security: {p.id}"
+            assert "context" not in p.id, f"SEC-Series got context: {p.id}"
+
+    def test_o2_extracted(self, mrag_settings):
+        """O2 (Operational Observability) must not be skipped by skip_keywords."""
+        principles = self._extract(mrag_settings)
+        o2 = [p for p in principles if "o2" in p.id]
+        assert len(o2) == 1, f"O2 missing — got IDs: {[p.id for p in principles]}"
+        assert "operations" in o2[0].id
+
+    def test_all_series_categories(self, mrag_settings):
+        """Verify each series maps to its expected category."""
+        principles = self._extract(mrag_settings)
+        ids = [p.id for p in principles]
+
+        expected_categories = {
+            "presentation": ["p1", "p2"],
+            "reliability": ["r1"],
+            "architecture": ["a1", "a3"],
+            "general": ["f1"],
+            "verification": ["v1"],
+            "evaluation": ["ev1", "ev2"],
+            "citation": ["ct1"],
+            "security": ["sec1", "sec2"],
+            "data-governance": ["dg1"],
+            "operations": ["o1", "o2"],
+        }
+
+        for category, series_codes in expected_categories.items():
+            for code in series_codes:
+                matching = [i for i in ids if f"-{code}-" in i]
+                assert len(matching) == 1, (
+                    f"Expected 1 principle for {code}, got {len(matching)}: {matching}"
+                )
+                assert category in matching[0], (
+                    f"Expected '{category}' in ID for {code}, got: {matching[0]}"
+                )
+
+    def test_no_ai_coding_p_series_collision(self, tmp_path):
+        """AI-coding P-Series should remain 'process' despite multimodal-rag 'presentation'."""
+        docs_path = tmp_path / "documents"
+        docs_path.mkdir()
+
+        # Write ai-coding principles with P-Series as "Process"
+        coding_md = """\
+# AI Coding Domain Principles
+
+## P-Series: Process Principles
+
+### P1: Sequential Phase Dependencies
+
+**Definition**
+Follow Specify, Plan, Tasks, Implement sequence.
+
+**Why This Principle Matters**
+Prevents skipping critical steps.
+"""
+        (docs_path / "coding-principles.md").write_text(coding_md)
+
+        settings = Mock()
+        settings.documents_path = docs_path
+        settings.embedding_model = "BAAI/bge-small-en-v1.5"
+        settings.embedding_dimensions = 384
+
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            extractor = DocumentExtractor(settings)
+            domain_config = DomainConfig(
+                name="ai-coding",
+                display_name="AI Coding",
+                principles_file="coding-principles.md",
+                description="AI coding domain.",
+                priority=10,
+            )
+            principles = extractor._extract_principles(domain_config)
+
+        assert len(principles) == 1
+        assert "process" in principles[0].id
+        assert "presentation" not in principles[0].id

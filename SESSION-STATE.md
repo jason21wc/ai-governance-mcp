@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — All 10 subagents now installable via MCP tool
+- **Active Task:** None — Multimodal-RAG v2.0.0 expansion + contrarian review complete
 
 ## Quick Reference
 
@@ -21,12 +21,12 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
-| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.11.1** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v1.0.1** (multimodal-rag), **v2.5** (ai-instructions) |
-| Tests | **687 pass** (non-slow), 0 failures, 30 deselected (slow/model_eval) |
+| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.11.1** (ai-coding methods), **v2.3.2** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.0.0** (multimodal-rag principles), **v2.0.0** (multimodal-rag methods), **v2.5** (ai-instructions) |
+| Tests | **725 pass** (non-slow), 0 failures, 30 deselected (slow/model_eval) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **101 principles + 439 methods** (see `tests/benchmarks/` for current totals; taxonomy: 21 codes) |
+| Index | **118 principles + 472 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit governance inject, PreToolUse governance check) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
@@ -57,6 +57,9 @@ Three deferred approaches for closing the bootstrap gap beyond advisory guidance
 
 ### 6. Backlog — Quantized Vector Search (Deferred)
 Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revisit when Context Engine reaches 500K+ vectors (multi-project indexing) or users report perceptible latency. See PROJECT-MEMORY.md > Roadmap > Quantized Vector Search for phased approach.
+
+### 7. Backlog — Add Procedures Domain (Priority: TBD)
+New governance domain for procedures. Framework content to be provided by Jason. Will require: domain config, document(s) in `documents/`, extractor support for the domain's structure, index rebuild, and tests.
 
 ## Links
 

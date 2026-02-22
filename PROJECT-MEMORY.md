@@ -70,6 +70,7 @@
 | Retrieval-Only Scope | 2026-01-24 | No generation. Architect for future extensibility. |
 | Mayer-Based Image Selection | 2026-01-24 | Three-Test Framework (Coherence, Unique Value, Proximity) replaces arbitrary thresholds. |
 | Hierarchy Separation | 2026-01-24 | Principles platform-agnostic. Platform-specific content in appendices only. |
+| Content Expansion v2.0.0 | 2026-02-21 | 12→29 principles (+17), ~21→54 methods, 10→23 failure modes. Six new series: V (Verification), EV (Evaluation), CT (Citation), SEC (Security), DG (Data Governance), O (Operations). Plus P6 (Accessibility) and A3 (Vision-Guided Chunking). MR-F23 (Retrieval-Limiting Caption) added post-review. Domain prefix changed `mult` → `mrag`. P-Series category fixed `process` → `presentation`. Research: RAG-Check, MM-PoisonRAG, VISA, CoRe-MMRAG, Vision-Guided Chunking, WCAG 2.1 AA. Extractor bugs fixed: category_mapping substring collisions (ev/v-series, sec/c-series), skip_keyword "operational" blocking O2. Contrarian review completed — 8 extraction tests added. |
 
 ### Security
 
@@ -526,7 +527,7 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 22 | Env vars crash on invalid values | All `AI_CONTEXT_ENGINE_*` env vars wrapped in try/except with fallback defaults. |
 | 23 | CI needs context-engine extras | `pip install -e ".[dev,context-engine]"` — tests import `pathspec` from optional group |
 | 24 | Storytelling A-Series category collision | Multi-agent A-Series = "Architecture", Storytelling A-Series = "Audience" — both map to category `architecture`. Safe because different domain prefixes (`mult-` vs `stor-`) and storytelling uses colon headers (old format). Watch for new domains with A-Series. |
-| 25 | `get_*_by_id` prefix collision | `"multi"` (multi-agent) and `"mult"` (multimodal-rag) shared a common prefix. Fixed by replacing prefix→domain map with exhaustive search across all domains. O(n) but n is small (~500 items). |
+| 25 | `get_*_by_id` prefix collision | `"multi"` (multi-agent) and `"mult"` (multimodal-rag) shared a common prefix. Fixed two ways: (1) renamed multimodal-rag prefix `mult` → `mrag` in extractor, (2) replaced prefix→domain map with exhaustive search across all domains in retrieval.py. O(n) but n is small (~500 items). |
 | 26 | `_load_search_indexes` undoes mismatch guard | `_load_project` discards embeddings on model mismatch, then calls `_load_search_indexes` which reloads them unconditionally. Fixed: skip embedding reload if already discarded. |
 | 27 | MCP server caches code in memory | Even with editable pip install, a running MCP server process keeps old code in memory. Source changes (e.g., new tree-sitter parsing) won't take effect until the server process restarts. Restart Claude Code to restart all MCP servers. Re-index after restart. |
 | 28 | Hook JSON stdout purity | Hook scripts must output ONLY valid JSON to stdout. Any debug output, shell profile noise, or stray `print()` corrupts the hook response. Use `sys.stdout.write()` (not `print`), redirect all stderr with `2>/dev/null`, and use `#!/usr/bin/env bash` (not zsh) to avoid profile pollution. |
@@ -534,6 +535,8 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 30 | PreToolUse fires on read-only Bash | The `Bash` matcher catches `git status`, `ls`, `cat`, etc. In soft mode the AI contextualizes the reminder. In hard mode, this blocks read-only operations — hard mode requires a different approach to Bash matching. |
 | 31 | PreToolUse uses hookSpecificOutput | PreToolUse hooks use `hookSpecificOutput.permissionDecision` (deny/allow/ask), NOT `decision: "block"`. Other events (PostToolUse, Stop) use top-level `decision: "block"`. Different JSON schemas for different events. |
 | 32 | GOVERNANCE_HARD_MODE env var | Controls enforcement strictness. `false` (default) = soft enforcement via additionalContext. `true` = hard enforcement via permissionDecision deny. Also affects fail behavior: soft=fail-open, hard=fail-closed on missing transcript. |
+| 33 | category_mapping substring collisions | `_get_category_from_section()` uses `keyword in section_lower`. Longer series (ev-series, sec-series) must appear BEFORE shorter substrings (v-series, c-series) in the dict. Fixed in v2.0.0 expansion. Also: `is_series_header` list uses `any()` so order doesn't matter there (True is correct for either match), but `category_mapping` is order-dependent. |
+| 34 | skip_keywords too broad | "operational" in skip_keywords blocked "O2: Operational Observability". Removed — principle_indicators check (`**Definition**` etc.) already filters non-principles. Be specific with skip keywords. |
 
 ### Resolved Gotchas
 

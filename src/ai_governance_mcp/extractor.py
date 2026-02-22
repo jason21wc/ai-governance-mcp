@@ -683,6 +683,24 @@ class DocumentExtractor:
         series headers ("C-Series: Context Principles").
         """
         category_mapping = {
+            # Multimodal-RAG series mapping
+            # IMPORTANT: Longer series names MUST come before shorter ones
+            # to prevent substring collisions (e.g., "v-series" in "ev-series")
+            "ev-series": "evaluation",
+            "evaluation principle": "evaluation",
+            "sec-series": "security",
+            "security principle": "security",
+            "ct-series": "citation",
+            "citation principle": "citation",
+            "dg-series": "data-governance",
+            "data governance principle": "data-governance",
+            "v-series": "verification",
+            "verification principle": "verification",
+            "o-series": "operations",
+            "operations principle": "operations",
+            # Multimodal-RAG P-Series = "Presentation" (must precede ai-coding "p-series" = "process")
+            # Note: section_pattern regex strips trailing "Principles?" so text is "P-Series: Presentation"
+            "presentation": "presentation",
             # Series-based mapping (ai-coding domain)
             "c-series": "context",
             "context principle": "context",
@@ -771,6 +789,12 @@ class DocumentExtractor:
                         "st-series",
                         "m-series",
                         "e-series",
+                        "v-series",
+                        "ev-series",
+                        "ct-series",
+                        "sec-series",
+                        "dg-series",
+                        "o-series",
                     ]
                 )
                 if "###" not in line or is_series_header:
@@ -821,7 +845,6 @@ class DocumentExtractor:
                     "quick reference",
                     "decision tree",
                     "pre-action",
-                    "operational",
                     "framework overview",
                     "immediate",
                     # Document structure sections
@@ -864,6 +887,18 @@ class DocumentExtractor:
                     # Multimodal-RAG series headers
                     "f-series:",
                     "fallback principles",
+                    "v-series:",
+                    "ev-series:",
+                    "ct-series:",
+                    "sec-series:",
+                    "dg-series:",
+                    "o-series:",
+                    "verification principles",
+                    "evaluation principles",
+                    "citation principles",
+                    "security principles",
+                    "data governance principles",
+                    "operations principles",
                 ]
                 if any(kw in title.lower() for kw in skip_keywords):
                     continue
@@ -1207,7 +1242,7 @@ class DocumentExtractor:
             "ai-coding": "coding",
             "multi-agent": "multi",
             "storytelling": "stor",
-            "multimodal-rag": "mult",
+            "multimodal-rag": "mrag",
         }
         return prefixes.get(domain_name, domain_name[:4])
 
