@@ -156,14 +156,18 @@ Multimodal RAG systems have specific failure modes that require dedicated preven
 | **MR-F21** | Data Governance | Unauthorized Visual Access | User accesses visual content they lack permission to view based on role or clearance |
 | **MR-F22** | Operations | Silent Index Drift | Embedding model updates or index rebuilds change retrieval behavior without detection or rollback capability. *Change goes undetected; compare MR-F14 which is absence of any measurement.* |
 | **MR-F23** | Retrieval | Retrieval-Limiting Caption | Accurate but insufficiently detailed text representation of visual content causes relevant multimodal content to be missed during retrieval. *Distinct from MR-F12 (hallucinated description): the caption is correct but lacks the specificity needed for retrieval matching.* |
+| **MR-F24** | Reasoning | Cross-Modal Error Propagation | Error in one reasoning hop propagates and amplifies through subsequent hops in a multi-hop cross-modal reasoning chain. Early misidentification of a visual element causes cascading incorrect conclusions in later steps. |
+| **MR-F25** | Retrieval | Overloaded Retrieval Query | Complex multimodal query conflating multiple intents or modalities is submitted as a single retrieval operation, causing poor recall because no single result satisfies all sub-intents simultaneously. |
+| **MR-F26** | Agentic | Infinite Retrieval Loop | Agentic retrieval system repeatedly retrieves, evaluates as insufficient, and re-retrieves without converging on a satisfactory result set, consuming resources without producing a response. |
+| **MR-F27** | Architecture | Retrieval Paradigm Mismatch | System uses text-extraction-based retrieval for documents where layout, formatting, or visual structure carries semantic meaning that text extraction destroys (e.g., infographics, complex tables, annotated screenshots). |
 
 ---
 
-## Framework Overview: The Ten Principle Series
+## Framework Overview: The Eleven Principle Series
 
-This framework organizes domain principles into ten series that address different functional aspects of multimodal RAG. This mirrors the Constitution's functional organization and groups principles by what they govern.
+This framework organizes domain principles into eleven series that address different functional aspects of multimodal RAG. This mirrors the Constitution's functional organization and groups principles by what they govern.
 
-### The Ten Series
+### The Eleven Series
 
 1. **Presentation Principles (P-Series)**
    * **Role:** Response Optimization
@@ -205,7 +209,11 @@ This framework organizes domain principles into ten series that address differen
     * **Role:** System Lifecycle Management
     * **Function:** Managing index versions, embedding model transitions, and operational observability. These principles ensure multimodal RAG systems remain reliable through change.
 
-### The Twenty-Nine Domain Principles
+11. **Agentic Retrieval Principles (AG-Series)**
+    * **Role:** Agent-Driven Retrieval Orchestration
+    * **Function:** Governing HOW AI agents adaptively plan, decompose, execute, and evaluate retrieval operations. These principles address dynamic modality routing, query decomposition for overloaded multimodal queries, and self-reflective retrieval sufficiency evaluation.
+
+### The Thirty-Five Domain Principles
 
 **P-Series: Presentation Principles** — *How AI presents images with text*
 
@@ -233,6 +241,8 @@ This framework organizes domain principles into ten series that address differen
 | A1: Unified Embedding Space | MR-F7 (Tangential Selection) |
 | A2: Relevance Scoring | MR-F7 (Tangential Selection), MR-F8 (Redundant Information) |
 | A3: Vision-Guided Chunking | MR-F1 (Image-Text Misalignment), MR-F5 (Missing Image Context) |
+| A4: Document-as-Image Retrieval | MR-F27 (Retrieval Paradigm Mismatch) |
+| A5: Knowledge Graph Integration | MR-F7 (Tangential Selection), MR-F16 (Untraceable Claim) |
 
 **F-Series: Fallback Principles** — *What happens when images fail*
 
@@ -248,6 +258,7 @@ This framework organizes domain principles into ten series that address differen
 | V1: Cross-Modal Consistency Verification | MR-F11 (Cross-Modal Contradiction) |
 | V2: Visual Scene Graph Checking | MR-F12 (Hallucinated Visual Description) |
 | V3: Source Fidelity | MR-F13 (Source Distortion) |
+| V4: Cross-Modal Reasoning Chain Integrity | MR-F24 (Cross-Modal Error Propagation) |
 
 **EV-Series: Evaluation Principles** — *How to measure and monitor quality*
 
@@ -285,6 +296,14 @@ This framework organizes domain principles into ten series that address differen
 |-----------|-------------------------------|
 | O1: Index Version Management | MR-F22 (Silent Index Drift) |
 | O2: Operational Observability | MR-F22 (Silent Index Drift), MR-F14 (Unmeasured Quality) |
+
+**AG-Series: Agentic Retrieval Principles** — *Agent-driven retrieval orchestration*
+
+| Principle | Primary Failure Mode Addressed |
+|-----------|-------------------------------|
+| AG1: Adaptive Retrieval Strategy | MR-F7 (Tangential Selection), MR-F27 (Retrieval Paradigm Mismatch) |
+| AG2: Query Decomposition | MR-F25 (Overloaded Retrieval Query) |
+| AG3: Retrieval Sufficiency Evaluation | MR-F26 (Infinite Retrieval Loop), MR-F15 (Faithfulness Gap) |
 
 ---
 
@@ -648,6 +667,64 @@ Standard text-based chunking splits documents at fixed token counts, frequently 
 
 ---
 
+### A4: Document-as-Image Retrieval
+
+**Definition**
+Systems SHOULD support a late interaction retrieval paradigm where document pages are indexed as images (not extracted text) and matched against queries using vision-language model embeddings. This preserves layout, formatting, and visual structure that text extraction destroys.
+
+**How the AI Applies This Principle (When Advising on System Design)**
+- **Paradigm Selection:** Evaluate whether documents are layout-rich (infographics, complex tables, annotated screenshots, forms) or text-heavy (articles, manuals). Layout-rich documents benefit from document-as-image retrieval; text-heavy documents can use traditional text extraction.
+- **Multi-Vector Indexing:** When using late interaction models (ColPali, ColQwen2, ColEmbed V2), index each document page as a set of patch-level embeddings rather than a single vector. This preserves spatial information for fine-grained matching.
+- **Hybrid Pipeline:** Maintain both text-extraction-based and image-based retrieval pipelines. Route queries to the appropriate pipeline based on document type and query characteristics.
+- **Cost-Quality Tradeoff:** Document-as-image retrieval requires more storage (multi-vector per page) and compute (VLM inference). Apply to document collections where layout carries meaning; use text extraction for structurally simple documents.
+
+**Constitutional Derivation**
+Domain-native principle addressing MR-F27 (Retrieval Paradigm Mismatch). Aligned with `meta-operational-established-solutions-first` (choose the right tool for the document type).
+
+**Why This Principle Matters**
+Traditional RAG pipelines assume documents can be faithfully converted to text via OCR or PDF extraction. For documents where layout, spatial relationships, tables, and visual annotations carry semantic meaning, this assumption is false. ColPali (arxiv 2407.01449) demonstrated that treating document pages as images and using VLM embeddings can outperform complex extraction pipelines while being simpler to implement. The late interaction paradigm (multi-vector representations) enables fine-grained matching between query tokens and document page patches.
+
+**When Human Interaction Is Needed**
+- When deciding which document collections warrant image-based vs. text-based indexing.
+- When storage and compute budgets constrain the choice of retrieval paradigm.
+- When evaluating retrieval quality differences between paradigms for specific content types.
+
+**Common Pitfalls or Failure Modes**
+- **The Universal Extractor:** Applying text extraction to all documents regardless of whether layout carries meaning.
+- **The Resolution Trap:** Indexing document images at too low a resolution, losing fine-grained visual details.
+- **The Overkill Index:** Using document-as-image retrieval for plain text documents where it adds cost without quality benefit.
+
+---
+
+### A5: Knowledge Graph Integration
+
+**Definition**
+For complex knowledge bases where entities, relationships, and hierarchies span multiple documents and modalities, systems SHOULD construct and maintain a knowledge graph that links multimodal content structurally. Graph-based retrieval complements vector similarity search by enabling relationship-aware traversal.
+
+**How the AI Applies This Principle (When Advising on System Design)**
+- **Entity Extraction:** Extract entities from both text (NER) and images (visual object detection, diagram parsing) and unify them in a shared graph.
+- **Relationship Mapping:** Build explicit relationships between entities across modalities (e.g., "Component X" in text → visual representation in Diagram Y → specification in Table Z).
+- **Graph-Augmented Retrieval:** Use the knowledge graph to expand retrieval results: when a query matches entity A, also retrieve content about entities related to A via graph traversal.
+- **Incremental Maintenance:** Update the knowledge graph incrementally as new content is added, rather than rebuilding from scratch.
+
+**Constitutional Derivation**
+Domain-native principle addressing complex multimodal knowledge bases. Aligned with `meta-core-context-engineering` (maintaining relationships between content) and `meta-quality-structured-output-enforcement`.
+
+**Why This Principle Matters**
+Vector similarity search finds content that looks similar to the query but cannot follow structural relationships. When a user asks about a component that spans multiple documents, diagrams, and specifications, vector search may find some relevant chunks but miss structurally related content. Knowledge graph integration (RAG-Anything) enables traversal from one piece of knowledge to related pieces across modalities, improving answer completeness for complex queries.
+
+**When Human Interaction Is Needed**
+- When defining the entity types and relationship schema for the knowledge graph.
+- When deciding which document collections warrant graph construction overhead.
+- When resolving entity conflicts (same name, different entities across documents).
+
+**Common Pitfalls or Failure Modes**
+- **The Flat Graph:** Building a graph without meaningful relationship types, reducing it to a glorified tag system.
+- **The Stale Graph:** Graph structure diverges from underlying documents as content is updated but the graph is not.
+- **The Extraction Hallucination:** NER or visual detection extracts non-existent entities, creating phantom nodes in the graph.
+
+---
+
 ## F-Series: Fallback Principles
 
 *Principles governing WHAT happens when images fail*
@@ -801,6 +878,36 @@ Source distortion (MR-F13) can range from subtle rewording that changes meaning 
 - **The Creative Paraphrase:** Rewording source content in a way that subtly changes its meaning.
 - **The Confidence Injection:** Stating source claims with more certainty than the source itself expresses.
 - **The Invisible Omission:** Dropping caveats or qualifications from source material without noting the omission.
+
+---
+
+### V4: Cross-Modal Reasoning Chain Integrity
+
+**Definition**
+When answering queries that require multi-hop reasoning across modalities (e.g., "identify the component in Image A, find its specification in Table B, then verify against Diagram C"), the AI MUST verify the correctness of each reasoning hop independently before proceeding to the next. Error propagation controls must be applied at each modality transition.
+
+**How the AI Applies This Principle**
+- **Hop-Level Verification:** After each reasoning step that crosses a modality boundary (text→image, image→table, etc.), verify the intermediate conclusion before using it as input to the next hop.
+- **Confidence Gating:** If confidence in an intermediate conclusion falls below a usable threshold, stop the chain and report partial results with explicit uncertainty markers rather than propagating a likely error.
+- **Chain Provenance:** Maintain a reasoning trace that records: (1) the source modality and element for each hop, (2) the intermediate conclusion, and (3) the confidence level. This trace enables post-hoc verification and debugging.
+- **Error Isolation:** When a multi-hop chain fails verification at hop N, report results up to hop N-1 as verified and clearly mark hop N onward as unverified.
+
+**Constitutional Derivation**
+Extends V1 (Cross-Modal Consistency Verification) to multi-hop chains. Derived from `meta-quality-visible-reasoning` (make reasoning steps auditable) and `meta-governance-transparent-reasoning-and-traceability`.
+
+**Why This Principle Matters**
+Multi-hop cross-modal reasoning is uniquely vulnerable to error amplification (MR-F24). A small misidentification in the first hop (e.g., confusing two similar components in an image) can cascade through subsequent hops, producing a final answer that appears internally consistent but is built on a faulty foundation. Research on MMhops-R1 demonstrates that even frontier models struggle with multi-hop multimodal reasoning, achieving significantly lower accuracy as hop count increases.
+
+**When Human Interaction Is Needed**
+- When multi-hop chains exceed 3 hops with declining confidence.
+- When intermediate conclusions depend on ambiguous visual elements.
+- When the final answer has high-stakes implications (safety, financial, medical).
+
+**Common Pitfalls or Failure Modes**
+- **The Cascade Error:** Misidentifying a component in Image A, then confidently looking up the wrong specification in Table B.
+- **The Confidence Illusion:** Each individual hop has moderate confidence, but compound probability makes the chain unreliable.
+- **The Missing Link:** Skipping a verification step between hops because the chain "makes sense" end-to-end.
+- **The Anchored Interpretation:** First-hop interpretation anchors subsequent hops, preventing correction even when later evidence contradicts it.
 
 ---
 
@@ -1165,13 +1272,106 @@ Without observability, operational problems manifest as quality degradation that
 
 ---
 
+## AG-Series: Agentic Retrieval Principles
+
+*Principles governing agent-driven retrieval orchestration for multimodal RAG*
+
+### AG1: Adaptive Retrieval Strategy
+
+**Definition**
+Multimodal RAG systems SHOULD support agent-driven retrieval that evaluates result sufficiency and adapts strategy, depth, and modality routing dynamically. Rather than executing a fixed retrieval pipeline, the agent selects and sequences retrieval operations based on query characteristics, available modalities, and intermediate results.
+
+**How the AI Applies This Principle**
+- **Dynamic Modality Routing:** Analyze query characteristics to determine which modalities to search (text index, image index, graph store, document-as-image index). Route sub-queries to the most appropriate index rather than searching all indexes uniformly.
+- **Adaptive Depth:** Start with lightweight retrieval (top-K vector search). If results are insufficient, escalate to more expensive operations (cross-encoder reranking, multi-hop graph traversal, document-as-image matching).
+- **Strategy Selection:** Maintain a repertoire of retrieval strategies (single-pass, iterative refinement, decompose-and-merge, graph-augmented) and select based on query complexity signals.
+- **Feedback-Driven Adjustment:** Use retrieval result quality signals (relevance scores, coverage gaps, confidence levels) to adjust strategy mid-flight rather than committing to a single approach.
+
+**Constitutional Derivation**
+Derived from `meta-core-iterative-discovery-and-course-correction` (adapt approach based on evidence) and `meta-operational-resource-efficiency-waste-reduction` (don't over-retrieve when simple retrieval suffices).
+
+**Why This Principle Matters**
+Fixed retrieval pipelines apply the same strategy regardless of query complexity. Simple queries waste resources on unnecessary steps; complex queries get insufficient retrieval depth. MMA-RAG research demonstrates that agentic retrieval—where an agent plans and adapts its retrieval strategy—significantly outperforms static pipelines on complex multimodal queries.
+
+**When Human Interaction Is Needed**
+- When defining the available retrieval strategy repertoire and their cost profiles.
+- When setting resource budgets that constrain how aggressively the agent can escalate.
+- When retrieval strategy selection logic needs tuning based on production query patterns.
+
+**Common Pitfalls or Failure Modes**
+- **The One-Size Pipeline:** Applying the same retrieval depth and strategy to all queries regardless of complexity.
+- **The Greedy Escalator:** Always escalating to the most expensive retrieval strategy without trying simpler approaches first.
+- **The Modality Blind Spot:** Routing all queries to text retrieval even when the answer is primarily visual.
+
+---
+
+### AG2: Query Decomposition
+
+**Definition**
+Complex multimodal queries that contain multiple intents, reference multiple modalities, or require information synthesis SHOULD be decomposed into modality-aware sub-queries. Each sub-query targets a specific modality and intent, and results are recombined after independent retrieval.
+
+**How the AI Applies This Principle**
+- **Intent Detection:** Identify when a query contains multiple information needs (e.g., "Show me the architecture diagram for Service X and explain its failure modes from the incident report").
+- **Modality-Aware Splitting:** Decompose into sub-queries that align with available modalities: one sub-query for visual content (architecture diagram), another for text content (failure modes).
+- **Sub-Query Independence:** Each sub-query should be self-contained and independently retrievable. Add context from the parent query as needed to maintain semantic completeness.
+- **Result Recombination:** After retrieving results for each sub-query, synthesize a unified response that addresses the original compound query. Maintain attribution for which sub-query produced which result.
+
+**Constitutional Derivation**
+Derived from `meta-core-progressive-inquiry` (break complex problems into manageable parts) and `meta-quality-structured-output-enforcement`.
+
+**Why This Principle Matters**
+Overloaded queries (MR-F25) that conflate multiple intents perform poorly as single retrieval operations because no single document fragment satisfies all sub-intents simultaneously. Decomposition enables each sub-intent to find its best match independently. MMhops-R1 research shows that decomposition with modality-aware routing substantially improves accuracy on complex multimodal questions.
+
+**When Human Interaction Is Needed**
+- When query decomposition is ambiguous (multiple valid ways to split).
+- When sub-query results conflict and recombination requires judgment.
+- When the user's original query intent is unclear and decomposition may lose nuance.
+
+**Common Pitfalls or Failure Modes**
+- **The Concatenation Fallacy:** Submitting a compound query as-is to a single retrieval index instead of decomposing.
+- **The Over-Decomposer:** Splitting simple queries into unnecessary sub-queries, adding latency without quality benefit.
+- **The Context-Free Split:** Decomposing in a way that strips necessary context from sub-queries, making them ambiguous.
+- **The Lost Thread:** Failing to recombine sub-query results into a coherent unified response.
+
+---
+
+### AG3: Retrieval Sufficiency Evaluation
+
+**Definition**
+Agentic retrieval systems MUST evaluate whether retrieved results meet quality thresholds before proceeding to generation. The agent must determine if the retrieved context is sufficient to answer the query faithfully, and either proceed, re-retrieve with adjusted parameters, or report insufficiency.
+
+**How the AI Applies This Principle**
+- **Quality Thresholds:** Define minimum thresholds for retrieval quality: relevance score floor, minimum number of supporting sources, and coverage of query intents.
+- **Coverage Assessment:** Evaluate whether retrieved results address all aspects of the query. Flag gaps where no retrieved content supports a specific sub-intent.
+- **Confidence Scoring:** Compute an aggregate confidence score for the retrieved result set. Below a configured threshold, trigger re-retrieval with adjusted parameters (broader query, different index, expanded scope).
+- **Termination Controls:** Set maximum retrieval iterations (default: 3) to prevent infinite loops (MR-F26). After max iterations, proceed with best available results and explicitly note coverage gaps.
+
+**Constitutional Derivation**
+Derived from `meta-quality-failure-recovery-resilience` (handle insufficient results gracefully) and `meta-governance-measurable-success-criteria` (define what "good enough" looks like).
+
+**Why This Principle Matters**
+Without sufficiency evaluation, agentic retrieval either proceeds with inadequate context (producing unfaithful responses) or loops indefinitely trying to achieve perfection (MR-F26). MMA-RAG research demonstrates that self-reflective retrieval agents—those that evaluate their own results before generation—produce significantly more faithful and complete responses than single-pass retrieval.
+
+**When Human Interaction Is Needed**
+- When retrieval sufficiency thresholds need calibration for a specific domain.
+- When the agent reaches max iterations without sufficient results and needs guidance on whether to proceed or escalate.
+- When the balance between retrieval thoroughness and response latency needs adjustment.
+
+**Common Pitfalls or Failure Modes**
+- **The Infinite Loop:** Agent never deems results "sufficient" and keeps re-retrieving, consuming resources without producing a response.
+- **The Uncritical Pass:** Agent always deems results sufficient regardless of quality, defeating the purpose of evaluation.
+- **The Threshold Cliff:** Hard threshold causes binary behavior—slightly below threshold triggers full re-retrieval when results are nearly adequate.
+- **The Latency Explosion:** Each re-retrieval iteration adds significant latency, making the system too slow for interactive use.
+
+---
+
 ## Implementation Guidance
 
 ### When AI Retrieves and Presents Images
 
 1. **Query Analysis** — Understand what the user is asking and what visual support would help
 2. **Image Retrieval** — Select best image using A2 (Relevance Scoring)
-3. **Verification** — Verify cross-modal consistency (V1, V2) and source fidelity (V3)
+3. **Verification** — Verify cross-modal consistency (V1, V2), source fidelity (V3), and multi-hop chain integrity (V4)
 4. **Placement Planning** — Determine where image belongs in response (P1)
 5. **Natural Integration** — Present without permission-asking (P2)
 6. **Selection Validation** — Verify unique value for additional images per P3
@@ -1189,10 +1389,13 @@ Apply **R-Series** principles to guide reference document organization:
 
 ### When AI Advises on System Design
 
-Apply **A-Series**, **SEC-Series**, **DG-Series**, and **O-Series** principles:
+Apply **A-Series**, **AG-Series**, **SEC-Series**, **DG-Series**, and **O-Series** principles:
 - Recommend unified embedding approaches (A1)
 - Define multi-signal relevance scoring (A2)
 - Use vision-guided chunking for multimodal documents (A3)
+- Evaluate document-as-image retrieval for layout-rich content (A4)
+- Integrate knowledge graphs for complex multimodal knowledge bases (A5)
+- Design agentic retrieval with adaptive strategy and query decomposition (AG1, AG2, AG3)
 - Implement poisoning defense and input validation (SEC1, SEC2)
 - Design access control and lineage tracking (DG1, DG2)
 - Plan for index versioning and observability (O1, O2)
@@ -1215,19 +1418,20 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **multimodal-rag-methods-v2.0.0.md** | v2.0.0 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management |
+| **multimodal-rag-methods-v2.0.0.md** | v2.0.0 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
 
 **Methods document includes:**
 - Title 1: Presentation Patterns (image placement workflows, selection algorithms, accessibility checklist)
 - Title 2: Reference Document Structuring (templates, metadata schemas)
-- Title 3: Retrieval Architecture (4-layer architecture, embedding selection, vision-guided chunking, cross-modal linking)
+- Title 3: Retrieval Architecture (4-layer architecture, embedding selection, vision-guided chunking, cross-modal linking, late interaction retrieval, graph-based retrieval)
 - Title 4: Failure Handling (degradation procedures, error classification)
-- Title 5: Verification & Hallucination Prevention (cross-modal consistency, scene graph validation, conflict resolution)
+- Title 5: Verification & Hallucination Prevention (cross-modal consistency, scene graph validation, conflict resolution, multi-hop verification)
 - Title 6: Evaluation Framework (RAG-Check metrics, multimodal MRR, drift detection, benchmark construction)
 - Title 7: Citation & Attribution (fragment-level tracking, VISA spatial attribution, citation formatting, verification checklist)
 - Title 8: Security for Multimodal Knowledge Bases (poisoning taxonomy, input validation pipeline, defense assessment, cross-domain references)
 - Title 9: Data Governance (RBAC configuration, encryption, audit trail schema, lineage tracking)
 - Title 10: Operational Management (index versioning, embedding lifecycle, prompt template versioning, cost monitoring, observability)
+- Title 11: Agentic Retrieval Patterns (adaptive retrieval loops, query decomposition, sufficiency evaluation, agent coordination, termination controls)
 - Appendix A: Claude-Specific Implementation
 - Appendix B: Infrastructure Landscape (current solutions, evaluation criteria)
 - Appendix C: Research References
@@ -1236,7 +1440,16 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ## Changelog
 
-### v2.0.0 (Current)
+### v2.1.0 (Current)
+- Content expansion addressing 6 gap areas identified by 2025-2026 literature review (MMA-RAG, MMhops-R1, ColPali/ColQwen2, RAG-Anything, ACL 2025 survey).
+- **One new series:** AG-Series (Agentic Retrieval) — AG1 (Adaptive Retrieval Strategy), AG2 (Query Decomposition), AG3 (Retrieval Sufficiency Evaluation)
+- **Three extended series:** V4 (Cross-Modal Reasoning Chain Integrity), A4 (Document-as-Image Retrieval), A5 (Knowledge Graph Integration)
+- **Four new failure modes:** MR-F24 (Cross-Modal Error Propagation), MR-F25 (Overloaded Retrieval Query), MR-F26 (Infinite Retrieval Loop), MR-F27 (Retrieval Paradigm Mismatch)
+- Updated framework overview from "Ten Series" to "Eleven Series", "Twenty-Nine" to "Thirty-Five" principles
+- Updated implementation guidance to include AG-Series, A4, A5 references
+- Updated methods document reference to include Title 11
+
+### v2.0.0
 - MAJOR: Content expansion addressing 8 gap areas identified by 2025-2026 best practices research.
 - **Six new series:** V-Series (Verification), EV-Series (Evaluation), CT-Series (Citation), SEC-Series (Security), DG-Series (Data Governance), O-Series (Operations)
 - **Seventeen new principles:** P6, A3, V1-V3, EV1-EV3, CT1-CT3, SEC1-SEC2, DG1-DG2, O1-O2

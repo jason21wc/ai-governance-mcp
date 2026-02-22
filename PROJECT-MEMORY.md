@@ -71,6 +71,7 @@
 | Mayer-Based Image Selection | 2026-01-24 | Three-Test Framework (Coherence, Unique Value, Proximity) replaces arbitrary thresholds. |
 | Hierarchy Separation | 2026-01-24 | Principles platform-agnostic. Platform-specific content in appendices only. |
 | Content Expansion v2.0.0 | 2026-02-21 | 12→29 principles (+17), ~21→54 methods, 10→23 failure modes. Six new series: V (Verification), EV (Evaluation), CT (Citation), SEC (Security), DG (Data Governance), O (Operations). Plus P6 (Accessibility) and A3 (Vision-Guided Chunking). MR-F23 (Retrieval-Limiting Caption) added post-review. Domain prefix changed `mult` → `mrag`. P-Series category fixed `process` → `presentation`. Research: RAG-Check, MM-PoisonRAG, VISA, CoRe-MMRAG, Vision-Guided Chunking, WCAG 2.1 AA. Extractor bugs fixed: category_mapping substring collisions (ev/v-series, sec/c-series), skip_keyword "operational" blocking O2. Contrarian review completed — 8 extraction tests added. |
+| Content Expansion v2.1.0 | 2026-02-21 | 29→35 principles (+6), ~54→63 methods (+9), 23→27 failure modes (+4). One new series: AG (Agentic Retrieval) — AG1 (Adaptive Retrieval Strategy), AG2 (Query Decomposition), AG3 (Retrieval Sufficiency Evaluation). Extended series: V4 (Cross-Modal Reasoning Chain Integrity), A4 (Document-as-Image Retrieval), A5 (Knowledge Graph Integration). New failure modes: MR-F24 through MR-F27. New methods: Title 11 (Agentic Retrieval Patterns, §11.1-11.5), §3.7 (Late Interaction), §3.8 (Graph-Based Retrieval), §5.5 (Multi-Hop Verification). Research: MMA-RAG, MMhops-R1, ColPali, ColQwen2, ColEmbed V2, RAG-Anything, ACL 2025 survey. AG-Series category_mapping placed before A-Series (substring collision). |
 
 ### Security
 
@@ -537,6 +538,7 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 32 | GOVERNANCE_HARD_MODE env var | Controls enforcement strictness. `false` (default) = soft enforcement via additionalContext. `true` = hard enforcement via permissionDecision deny. Also affects fail behavior: soft=fail-open, hard=fail-closed on missing transcript. |
 | 33 | category_mapping substring collisions | `_get_category_from_section()` uses `keyword in section_lower`. Longer series (ev-series, sec-series) must appear BEFORE shorter substrings (v-series, c-series) in the dict. Fixed in v2.0.0 expansion. Also: `is_series_header` list uses `any()` so order doesn't matter there (True is correct for either match), but `category_mapping` is order-dependent. |
 | 34 | skip_keywords too broad | "operational" in skip_keywords blocked "O2: Operational Observability". Removed — principle_indicators check (`**Definition**` etc.) already filters non-principles. Be specific with skip keywords. |
+| 35 | ag-series substring collision | `"a-series" in "ag-series"` is True. `ag-series` MUST come BEFORE `a-series` in `category_mapping` dict. Same pattern as ev/v-series (Gotcha #33). Test: `test_ag_series_not_architecture`. |
 
 ### Resolved Gotchas
 

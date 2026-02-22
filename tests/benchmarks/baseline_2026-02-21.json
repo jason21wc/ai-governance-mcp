@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-02-21T21:22:05.274603",
+  "timestamp": "2026-02-21T21:59:44.388034",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
-    "method_mrr": 0.7777777777777777,
-    "principle_mrr": 0.6041666666666666,
+    "method_mrr": 0.736111111111111,
+    "principle_mrr": 0.625,
     "method_recall_at_10": 0.8333333333333334,
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 30.4,
+    "model_load_time_ms": 31.0,
     "index_stats": {
-      "total_principles": 118,
-      "total_methods": 472,
+      "total_principles": 124,
+      "total_methods": 481,
       "domains": [
         "constitution",
         "ai-coding",
@@ -46,7 +46,7 @@
         "coding-method-session-start-procedure"
       ],
       "rank": 1,
-      "score": 0.8590690889088237,
+      "score": 0.8548973265645067,
       "semantic_score": 0.7882646322250366
     },
     "method-4": {
@@ -55,7 +55,7 @@
         "meta-method-what-is-anchor-bias"
       ],
       "rank": 1,
-      "score": 0.8047268946036901,
+      "score": 0.8040015869179264,
       "semantic_score": 0.6823557019233704
     },
     "method-5": {
@@ -72,9 +72,9 @@
       "expected": [
         "multi-method-orchestration-pattern-selection"
       ],
-      "rank": 1,
-      "score": 0.851674836557395,
-      "semantic_score": 0.7572815418243408
+      "rank": 2,
+      "score": 0.7785551564303783,
+      "semantic_score": 0.7572816610336304
     },
     "method-7": {
       "query": "reasoning models chain of thought prompting",
@@ -82,7 +82,7 @@
         "multi-method-advanced-model-considerations"
       ],
       "rank": 3,
-      "score": 0.7367138629062293,
+      "score": 0.7358972564007911,
       "semantic_score": 0.7591487169265747
     },
     "method-8": {
@@ -100,8 +100,8 @@
         "coding-method-mcp-server-vetting-procedure"
       ],
       "rank": 1,
-      "score": 0.8825531840324402,
-      "semantic_score": 0.8042553067207336
+      "score": 0.8825531482696534,
+      "semantic_score": 0.8042552471160889
     },
     "method-10": {
       "query": "zero trust security patterns for web applications",
@@ -109,7 +109,7 @@
         "coding-method-zero-trust-design-principles"
       ],
       "rank": 1,
-      "score": 0.8216311563161461,
+      "score": 0.8209803733093611,
       "semantic_score": 0.755804181098938
     },
     "method-11": {
@@ -138,7 +138,7 @@
         "meta-core-context-engineering"
       ],
       "rank": 2,
-      "score": 0.6825875945970039
+      "score": 0.6860375087660066
     },
     "principle-2": {
       "query": "incomplete specification unclear requirements",
@@ -162,7 +162,7 @@
         "coding-quality-testing-integration"
       ],
       "rank": 2,
-      "score": 0.8277711370810464
+      "score": 0.8277696022205123
     },
     "principle-5": {
       "query": "multi agent handoff protocol explicit",
@@ -185,7 +185,7 @@
       "expected": [
         "multi-quality-fault-tolerance-and-graceful-degradation"
       ],
-      "rank": 3,
+      "rank": 2,
       "score": 0.8879203557968139
     },
     "principle-8": {

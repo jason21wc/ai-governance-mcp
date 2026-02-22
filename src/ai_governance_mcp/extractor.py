@@ -685,7 +685,10 @@ class DocumentExtractor:
         category_mapping = {
             # Multimodal-RAG series mapping
             # IMPORTANT: Longer series names MUST come before shorter ones
-            # to prevent substring collisions (e.g., "v-series" in "ev-series")
+            # to prevent substring collisions (e.g., "v-series" in "ev-series",
+            # "a-series" in "ag-series")
+            "ag-series": "agentic-retrieval",
+            "agentic retrieval principle": "agentic-retrieval",
             "ev-series": "evaluation",
             "evaluation principle": "evaluation",
             "sec-series": "security",
@@ -795,6 +798,7 @@ class DocumentExtractor:
                         "sec-series",
                         "dg-series",
                         "o-series",
+                        "ag-series",
                     ]
                 )
                 if "###" not in line or is_series_header:
@@ -893,12 +897,14 @@ class DocumentExtractor:
                     "sec-series:",
                     "dg-series:",
                     "o-series:",
+                    "ag-series:",
                     "verification principles",
                     "evaluation principles",
                     "citation principles",
                     "security principles",
                     "data governance principles",
                     "operations principles",
+                    "agentic retrieval principles",
                 ]
                 if any(kw in title.lower() for kw in skip_keywords):
                     continue

@@ -436,6 +436,147 @@ cross_modal_references:
 **At Query Time:**
 When a text chunk is retrieved, also retrieve any linked visual element chunks. Present them together in the response per P1 (Inline Integration).
 
+### 3.7 Late Interaction and Document-as-Image Retrieval
+
+**Purpose:** Procedures for implementing A4 (Document-as-Image Retrieval). Defines when and how to use late interaction models (ColPali, ColQwen2, ColEmbed V2) that treat document pages as images rather than extracting text.
+
+**Applies To:** Document collections where layout, formatting, tables, or visual annotations carry semantic meaning that text extraction destroys.
+
+**Paradigm Decision Tree:**
+
+| Document Characteristic | Recommended Paradigm | Rationale |
+|------------------------|---------------------|-----------|
+| Plain text (articles, manuals, code) | Text extraction + standard embedding | Layout carries no semantic meaning |
+| Simple tables (uniform structure) | Text extraction with table parser | Structure can be faithfully extracted |
+| Complex tables (merged cells, nested headers) | Document-as-image | Extraction often fails on complex table structures |
+| Infographics, annotated diagrams | Document-as-image | Visual arrangement IS the content |
+| Forms with spatial relationships | Document-as-image | Field-value spatial relationships lost in extraction |
+| Mixed content (text + figures on same page) | Hybrid (both pipelines) | Use text extraction for prose, image for figures |
+
+**Multi-Vector Indexing Procedure:**
+
+```
+Input: Document page P (as image), Model M (ColPali/ColQwen2/ColEmbed V2)
+
+1. ENCODE page P through vision-language model M:
+   - Output: Set of patch embeddings E[] (one per image patch, typically 1024+ per page)
+   - Each patch embedding captures local visual + textual features
+
+2. INDEX patch embeddings:
+   - Store all patch embeddings with page_id metadata
+   - Storage requirement: ~N_patches × embedding_dim × 4 bytes per page
+   - Typical: 1024 patches × 128 dims = 512 KB per page (vs. ~1 KB for single-vector)
+
+3. AT QUERY TIME:
+   - Encode query Q through model M's text encoder
+   - Compute late interaction score: MaxSim(Q_tokens, P_patches)
+   - Score = sum over query tokens of max similarity to any page patch
+   - This enables fine-grained matching: specific query terms match specific page regions
+
+4. RANK pages by late interaction score
+```
+
+**When to Use vs. Text Extraction:**
+
+```
+Decision: Use document-as-image retrieval IF:
+  - Text extraction quality < 90% (measured on sample) OR
+  - Document contains >30% visual/layout content OR
+  - Users report "can't find" for content that exists in documents OR
+  - A/B test shows higher retrieval quality with image-based indexing
+
+Decision: Use text extraction IF:
+  - Documents are primarily prose text OR
+  - Storage budget is constrained (multi-vector is 100-500x more per page) OR
+  - Latency budget is constrained (VLM inference is slower than text encoding)
+```
+
+**Cost-Quality Reference:**
+
+| Metric | Text Extraction | Document-as-Image | Notes |
+|--------|----------------|-------------------|-------|
+| Storage per page | ~1 KB (single vector) | ~500 KB (multi-vector) | 500x increase |
+| Index time per page | ~10ms (text encode) | ~200ms (VLM encode) | 20x increase |
+| Query latency | ~5ms (ANN search) | ~50ms (MaxSim) | 10x increase |
+| Retrieval quality (layout-rich) | Low-Medium | High | Main benefit |
+| Retrieval quality (text-only) | High | Medium-High | Text extraction wins here |
+
+### 3.8 Graph-Based Multimodal Retrieval
+
+**Purpose:** Procedures for implementing A5 (Knowledge Graph Integration). Defines how to construct and query a knowledge graph from multimodal content for relationship-aware retrieval.
+
+**Applies To:** Complex knowledge bases where entities and relationships span multiple documents and modalities. Particularly valuable when queries involve structural relationships ("what depends on X?", "how is A related to B?").
+
+**Knowledge Graph Construction:**
+
+```
+Input: Document collection D[], Modalities: text, images, tables
+
+1. ENTITY EXTRACTION:
+   - Text: Apply NER (Named Entity Recognition) for persons, organizations,
+     components, concepts, versions
+   - Images: Apply visual object detection for components, UI elements,
+     diagram entities
+   - Tables: Extract row/column headers as entity types, cell values as
+     entity instances
+
+2. ENTITY RESOLUTION:
+   - Match entities across modalities (text "Login Button" ↔ image region
+     containing login button)
+   - Resolve aliases ("Auth Module" = "Authentication Module" = component
+     in diagram)
+   - Assign canonical entity IDs
+
+3. RELATIONSHIP EXTRACTION:
+   - Text: Extract relationships from sentence structure ("X depends on Y",
+     "X connects to Y")
+   - Images: Extract spatial relationships from diagrams (containment,
+     connection, flow arrows)
+   - Tables: Extract column relationships (row entity has attribute
+     column value)
+
+4. GRAPH CONSTRUCTION:
+   - Nodes: Resolved entities with attributes (type, source_doc,
+     source_modality, embedding)
+   - Edges: Relationships with attributes (type, confidence, source_doc)
+   - Store: Graph database (Neo4j, NetworkX for small scale) + vector index
+     on node embeddings
+```
+
+**Graph-Augmented Retrieval Procedure:**
+
+```
+Input: Query Q, Knowledge Graph G, Vector Index V
+
+1. VECTOR RETRIEVAL: Standard top-K retrieval from V
+   - Returns document chunks related to Q
+
+2. ENTITY MATCHING: Identify entities in Q that exist in G
+   - Match query terms to graph node labels/aliases
+
+3. GRAPH EXPANSION: For matched entities, traverse G:
+   - 1-hop neighbors: directly related entities
+   - 2-hop neighbors: entities related to related entities (use sparingly)
+   - Filter by relationship type relevance to query
+
+4. AUGMENTED RETRIEVAL: For each graph-expanded entity:
+   - Retrieve the document chunks containing that entity
+   - Score by: graph_relevance * 0.4 + vector_relevance * 0.6
+
+5. MERGE: Combine vector results and graph-augmented results
+   - Deduplicate by chunk ID
+   - Re-rank combined set
+```
+
+**Graph Maintenance:**
+
+| Trigger | Action | Frequency |
+|---------|--------|-----------|
+| New document added | Extract entities/relationships, merge into graph | On ingest |
+| Document updated | Re-extract changed sections, update graph nodes/edges | On update |
+| Entity conflict detected | Queue for human resolution | As needed |
+| Graph quality audit | Sample-based verification of entity/relationship accuracy | Monthly |
+
 ---
 
 ## 4 Failure Handling
@@ -630,6 +771,86 @@ When text source and image source provide conflicting information:
 | Caption doesn't match image | Image metadata/caption describes different content | Do not use the caption. Describe what the image actually shows. |
 | Step numbering mismatch | Text says "Step 3" but image shows "Step 4" content | "The image shows the state after Step [correct number]. [Describe what's shown.]" |
 | Partial image (cropped) | Image is cropped and missing elements referenced in text | "Note: The image shows a partial view. [Element X] referenced in the instructions is not visible in this screenshot." |
+
+### 5.5 Multi-Hop Cross-Modal Reasoning Verification
+
+**Purpose:** Procedures for implementing V4 (Cross-Modal Reasoning Chain Integrity). Defines chain integrity checks, hop-level error detection, and propagation control for multi-hop cross-modal reasoning.
+
+**Applies To:** Queries that require reasoning across multiple modalities in sequence (e.g., identify component in image → find specification in table → verify against diagram).
+
+**Chain Integrity Check Procedure:**
+
+```
+Input: Multi-hop reasoning chain C = [hop_1, hop_2, ..., hop_n]
+       Each hop_i = {source_modality, source_element, conclusion, confidence}
+
+FOR each hop_i in C:
+  1. VERIFY hop independently:
+     - Does the source element support the conclusion?
+     - Is the modality transition valid (e.g., image element → table lookup)?
+     - Confidence above threshold? (default: 0.6 per hop)
+
+  2. VERIFY chain consistency:
+     - Does hop_i conclusion align with hop_{i-1} conclusion?
+     - Are there contradictions between hop results?
+
+  3. COMPUTE cumulative confidence:
+     - chain_confidence = product(hop_confidences)
+     - WARNING: Cumulative confidence drops rapidly
+       Example: 3 hops at 0.8 each → 0.8³ = 0.512
+
+  4. GATE decision:
+     | Hop Confidence | Chain Confidence | Action |
+     |---------------|------------------|--------|
+     | ≥ 0.8 | ≥ 0.5 | Continue to next hop |
+     | ≥ 0.6 | ≥ 0.3 | Continue with uncertainty marker |
+     | < 0.6 | any | STOP chain, report partial results |
+     | any | < 0.3 | STOP chain, report partial results |
+```
+
+**Error Detection at Modality Transitions:**
+
+| Transition | Common Errors | Detection Method |
+|-----------|--------------|-----------------|
+| Image → Text | Misidentifying visual element | Cross-check element label against image OCR/detection |
+| Text → Image | Finding wrong image for text reference | Verify image metadata matches text entity |
+| Image → Table | Looking up wrong row/column | Verify entity name match between image and table header |
+| Table → Diagram | Mapping wrong specification to component | Verify identifier consistency across sources |
+
+**Chain Provenance Template:**
+
+```yaml
+reasoning_chain:
+  query: "What is the max throughput for the component shown in Figure 3?"
+  hops:
+    - hop: 1
+      source_modality: image
+      source_element: "Figure 3"
+      action: "Identify component in image"
+      conclusion: "Component is Redis Cache Layer"
+      confidence: 0.85
+      verified: true
+    - hop: 2
+      source_modality: table
+      source_element: "Table 2: Component Specifications"
+      action: "Look up max throughput for Redis Cache Layer"
+      conclusion: "Max throughput: 100K ops/sec"
+      confidence: 0.92
+      verified: true
+  chain_confidence: 0.782  # 0.85 × 0.92
+  status: "VERIFIED"
+```
+
+**Partial Result Reporting:**
+When a chain is stopped due to low confidence:
+```
+Based on the available evidence:
+- [Hop 1 result]: [conclusion] (verified, confidence: [score])
+- [Hop 2 result]: [conclusion] (verified, confidence: [score])
+- [Hop 3]: Could not be reliably completed.
+  Reason: [confidence below threshold / contradictory evidence / ambiguous source]
+  Suggestion: [Manually verify / Provide clearer source / Rephrase query]
+```
 
 ---
 
@@ -1297,6 +1518,284 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 
 ---
 
+## 11 Agentic Retrieval Patterns
+
+### 11.1 Adaptive Retrieval Loop Design
+
+**Purpose:** Procedures for implementing AG1 (Adaptive Retrieval Strategy). Defines the control loop architecture for agent-driven retrieval with dynamic modality routing.
+
+**Applies To:** Multimodal RAG systems where query complexity varies and multiple retrieval indexes or modalities are available.
+
+**Adaptive Retrieval Loop:**
+
+```
+Input: Query Q, Available indexes I[], Max iterations N (default: 3)
+State: Retrieved results R[], Iteration count k=0, Strategy S="default"
+
+1. ANALYZE query Q:
+   - Complexity signal: word count, entity count, modality references
+   - Modality hints: "show me" → visual, "explain" → text, "compare" → multi-source
+   - Decomposition needed? (see §11.2)
+
+2. SELECT initial strategy S based on analysis:
+   | Complexity | Strategy | Description |
+   |------------|----------|-------------|
+   | Simple (single intent, single modality) | single-pass | Top-K from best index |
+   | Moderate (single intent, multi-modal) | parallel-search | Query multiple indexes, merge |
+   | Complex (multi-intent) | decompose-and-merge | Split query, retrieve per sub-query |
+   | Exploratory (vague query) | iterative-refinement | Retrieve, evaluate, refine query |
+
+3. ROUTE to modality-appropriate index(es):
+   | Query Signal | Primary Index | Secondary Index |
+   |-------------|---------------|-----------------|
+   | Visual content requested | Image embedding index | Document-as-image index (A4) |
+   | Structured data referenced | Knowledge graph (A5) | Text index |
+   | Layout-rich documents | Document-as-image index | Text index |
+   | General information | Text index | Image index |
+   | Relationship query | Knowledge graph | Text index |
+
+4. EXECUTE retrieval with selected strategy
+5. EVALUATE sufficiency (see §11.3)
+6. IF sufficient OR k >= N: proceed to generation
+   ELSE: adjust strategy and GOTO step 2 with k++
+```
+
+**Dynamic Modality Routing Decision Tree:**
+
+```
+Query Q arrives
+├── Contains visual reference ("show", "image", "diagram", "screenshot")?
+│   ├── YES → Route to image/document-as-image index
+│   │         Also query text index for supporting context
+│   └── NO → Continue
+├── References structured relationships ("related to", "depends on", "connected")?
+│   ├── YES → Route to knowledge graph
+│   │         Also query text index for detail
+│   └── NO → Continue
+├── References layout-dependent content ("table", "form", "infographic")?
+│   ├── YES → Route to document-as-image index (ColPali/ColQwen2)
+│   └── NO → Continue
+└── Default → Route to text index
+    Also query image index if multimodal content exists
+```
+
+**Termination Criteria:**
+- Retrieval sufficiency threshold met (see §11.3)
+- Maximum iteration count reached
+- Timeout exceeded (configurable, default: 10s for interactive, 60s for batch)
+- No improvement between iterations (relevance scores plateaued)
+
+### 11.2 Query Decomposition Procedures
+
+**Purpose:** Procedures for implementing AG2 (Query Decomposition). Defines patterns for splitting compound multimodal queries into modality-aware sub-queries.
+
+**Applies To:** Queries that contain multiple intents, reference multiple modalities, or require multi-step information synthesis.
+
+**Decomposition Decision:**
+
+```
+Input: Query Q
+
+1. COUNT intents in Q:
+   - Information need count (distinct questions embedded in Q)
+   - Modality reference count (text, image, table, diagram mentions)
+
+2. DECIDE:
+   | Intent Count | Modality Count | Action |
+   |-------------|----------------|--------|
+   | 1 | 1 | No decomposition needed |
+   | 1 | 2+ | Modality-parallel decomposition |
+   | 2+ | 1 | Intent-serial decomposition |
+   | 2+ | 2+ | Full decomposition (intent × modality) |
+```
+
+**Decomposition Patterns:**
+
+| Pattern | When to Use | Example |
+|---------|------------|---------|
+| **Modality-parallel** | Single intent needs information from multiple modalities | "How does Component X work?" → Sub-Q1: "Component X text description" (text index) + Sub-Q2: "Component X diagram" (image index) |
+| **Intent-serial** | Multiple questions that may depend on each other | "What failed in yesterday's deployment and how do we fix it?" → Sub-Q1: "deployment failure yesterday" → Sub-Q2: "fix for [result of Q1]" |
+| **Full decomposition** | Multiple intents across modalities | "Show me the architecture diagram for Service X and list its failure modes from the incident report" → Sub-Q1: "Service X architecture diagram" (image) + Sub-Q2: "Service X failure modes incident report" (text) |
+
+**Sub-Query Generation Rules:**
+1. Each sub-query must be self-contained (understandable without the parent query)
+2. Add context from parent query when splitting loses important constraints
+3. Preserve modality hints in sub-queries (don't strip "show me" from visual sub-queries)
+4. Tag each sub-query with its target modality for routing
+
+**Result Recombination:**
+
+```
+Input: Sub-query results SR[], Original query Q
+
+1. FOR each sub-query result sr in SR[]:
+   - Tag with source sub-query ID and modality
+   - Preserve relevance score from retrieval
+
+2. CHECK for conflicts between sub-query results
+   - If visual content contradicts text content → flag per V1
+   - If multiple sub-queries return overlapping content → deduplicate
+
+3. SYNTHESIZE unified response:
+   - Order by original query structure (not retrieval order)
+   - Weave multi-modal results together per P1 (inline integration)
+   - Attribute each claim to its sub-query source per CT1
+```
+
+### 11.3 Retrieval Sufficiency Evaluation
+
+**Purpose:** Procedures for implementing AG3 (Retrieval Sufficiency Evaluation). Defines how the agent evaluates whether retrieved results are adequate for faithful generation.
+
+**Applies To:** Any agentic retrieval system that iterates on retrieval results.
+
+**Sufficiency Assessment Framework:**
+
+```
+Input: Query Q, Retrieved results R[], Quality thresholds T
+
+1. COMPUTE coverage score:
+   - Extract intents from Q (or use sub-queries from §11.2)
+   - For each intent, check if at least one result in R[] addresses it
+   - coverage = intents_covered / total_intents
+
+2. COMPUTE relevance score:
+   - Mean relevance score of top-K results
+   - Weighted by position (top results weighted more)
+
+3. COMPUTE confidence:
+   - confidence = coverage * 0.5 + mean_relevance * 0.3 + source_diversity * 0.2
+   - source_diversity = unique_sources / total_results
+
+4. DECIDE:
+   | Confidence | Coverage | Action |
+   |-----------|----------|--------|
+   | ≥ 0.7 | ≥ 0.8 | PROCEED to generation |
+   | ≥ 0.5 | ≥ 0.6 | PROCEED with gap notes |
+   | < 0.5 | any | RE-RETRIEVE with adjusted params |
+   | any | < 0.6 | RE-RETRIEVE with broader query |
+```
+
+**Re-Retrieval Adjustments:**
+
+| Situation | Adjustment |
+|-----------|------------|
+| Low relevance, adequate coverage | Increase top-K, apply cross-encoder reranking |
+| High relevance, low coverage | Broaden query terms, add synonyms, try alternate modality |
+| Low both | Decompose query (§11.2) if not already decomposed |
+| Previous iteration showed no improvement | Switch retrieval strategy (e.g., vector → graph) |
+
+**Gap Reporting:**
+When proceeding with incomplete coverage, explicitly note gaps:
+```
+[Response based on retrieved content]
+
+---
+Note: The following aspects of your query could not be fully addressed
+from available sources:
+- [Uncovered intent 1]: No matching content found in [searched indexes]
+- [Uncovered intent 2]: Partial match found but confidence is low
+```
+
+### 11.4 Agent Coordination for Knowledge Synthesis
+
+**Purpose:** Procedures for coordinating multiple retrieval agents when a query requires knowledge synthesis across modalities or sources.
+
+**Applies To:** Complex queries that benefit from parallel agent execution or specialized agent delegation.
+
+**Coordination Patterns:**
+
+| Pattern | When to Use | Architecture |
+|---------|------------|--------------|
+| **Parallel retrieval** | Independent sub-queries across modalities | Spawn one agent per modality; merge results |
+| **Sequential handoff** | Dependent sub-queries (Q2 depends on Q1 result) | Chain agents; pass context between hops |
+| **Specialist delegation** | Domain-specific sub-queries | Route to domain-expert agent (e.g., graph traversal agent for relationship queries) |
+
+**Cross-Reference to Multi-Agent Domain:**
+Agent coordination patterns here complement multi-agent orchestration principles (multi-agent-methods §1-§2). Key differences:
+- Multi-agent domain covers general agent coordination (any task)
+- This section covers retrieval-specific coordination (query planning, result merging, sufficiency evaluation)
+- Use multi-agent §3.3 (Task Dependencies) for dependency ordering between retrieval agents
+
+**Knowledge Synthesis Procedure:**
+
+```
+Input: Sub-query results from multiple agents, Original query Q
+
+1. COLLECT all agent results with metadata:
+   - Source agent ID, target modality, confidence score
+   - Retrieved content with attribution
+
+2. RESOLVE conflicts:
+   - Apply V1 (Cross-Modal Consistency) between agent results
+   - Apply V4 (Reasoning Chain Integrity) for multi-hop synthesis
+   - When agents disagree, prefer the agent with higher-confidence primary source
+
+3. SYNTHESIZE:
+   - Build unified response following original query structure
+   - Interleave visual and text content per P1
+   - Maintain per-claim attribution per CT1
+   - Note any unresolved conflicts transparently
+```
+
+### 11.5 Termination and Fallback Controls
+
+**Purpose:** Procedures for preventing runaway retrieval loops and ensuring graceful degradation when retrieval cannot satisfy the query.
+
+**Applies To:** All agentic retrieval systems. Implements safeguards against MR-F26 (Infinite Retrieval Loop).
+
+**Termination Controls:**
+
+| Control | Default Value | Configurable | Purpose |
+|---------|--------------|-------------|---------|
+| Max retrieval iterations | 3 | Yes | Prevent infinite loops |
+| Per-iteration timeout | 5s (interactive), 30s (batch) | Yes | Bound per-step latency |
+| Total timeout | 15s (interactive), 120s (batch) | Yes | Bound total response time |
+| No-improvement threshold | 2 consecutive iterations | Yes | Stop when retrieval plateaus |
+| Max tokens retrieved | 10,000 | Yes | Prevent context overflow |
+
+**Fallback Escalation Ladder:**
+
+```
+1. NORMAL: Retrieval sufficient → Generate response
+2. PARTIAL: Coverage gaps → Generate with gap notes (§11.3)
+3. DEGRADED: Low confidence → Generate with explicit uncertainty markers
+4. MINIMAL: Timeout or max iterations → Report what was found, note limitations
+5. FAILURE: No relevant results → Apply F-Series (F1, F2) fallback procedures
+```
+
+**Graceful Degradation Template:**
+
+```
+[Best available response based on retrieved content]
+
+---
+Retrieval Note: This response was generated with [partial/limited] retrieval coverage.
+- Retrieval iterations: [k] of [N] maximum
+- Coverage: [X]% of query intents addressed
+- Confidence: [score]
+- Uncovered aspects: [list]
+- Suggestion: [Rephrase query / Try specific sub-question / Consult [source] directly]
+```
+
+**Anti-Pattern: The Infinite Loop**
+```
+# BAD: No termination control
+while not sufficient(results):
+    results = retrieve(query)  # May never terminate
+
+# GOOD: Bounded with fallback
+for k in range(max_iterations):
+    results = retrieve(query, strategy=strategies[k])
+    if sufficient(results):
+        break
+    if no_improvement(results, previous_results):
+        break
+# Always proceed, even with imperfect results
+generate_response(results, coverage_notes=assess_gaps(results, query))
+```
+
+---
+
 ## Appendix A: Claude-Specific Implementation
 
 ### A.1 Vision Capabilities
@@ -1512,6 +2011,29 @@ When selecting infrastructure:
 | WCAG 2.1 AA (W3C) | Web Content Accessibility Guidelines; Level AA conformance requirements for images, multimedia, and visual content | 2018 (current standard) |
 | DOJ 2026 Mandate | U.S. Department of Justice digital accessibility requirements for public-facing services | 2026 |
 
+### Agentic Retrieval and Multi-Hop Reasoning
+
+| Reference | Key Contribution | Year |
+|-----------|-----------------|------|
+| MMA-RAG (HAL hal-05322313) | Multimodal Agentic RAG survey; adaptive retrieval strategies, agent-driven modality routing, self-reflective retrieval evaluation | 2025 |
+| MMhops-R1 (arxiv 2512.13573) | Multi-hop multimodal reasoning benchmark; demonstrates error propagation in cross-modal reasoning chains; query decomposition with modality-aware sub-queries | 2025 |
+| Ask in Any Modality (arxiv 2502.08826, ACL 2025) | Comprehensive survey of multimodal RAG covering agentic retrieval, evaluation, and emerging architectures | 2025 |
+| Awesome RAG Reasoning (EMNLP 2025) | Reasoning-focused RAG advances including multi-step retrieval, chain-of-thought with retrieval, and reasoning verification | 2025 |
+
+### Late Interaction and Document-as-Image Retrieval
+
+| Reference | Key Contribution | Year |
+|-----------|-----------------|------|
+| ColPali (arxiv 2407.01449) | Late interaction retrieval treating document pages as images via VLM embeddings; outperforms complex extraction pipelines on layout-rich documents | 2024 |
+| ColQwen2 (github illuin-tech/colpali) | Qwen2-VL-based late interaction model; improved multi-lingual and multi-resolution document retrieval | 2025 |
+| ColEmbed V2 (arxiv 2602.03992, NVIDIA) | Top-performing late interaction model; multi-vector document representations with efficient MaxSim scoring | 2026 |
+
+### Knowledge Graph Multimodal RAG
+
+| Reference | Key Contribution | Year |
+|-----------|-----------------|------|
+| RAG-Anything (github HKUDS/RAG-Anything) | Knowledge graph construction from multimodal sources; entity and relationship extraction across text, images, and tables; graph-augmented retrieval for complex queries | 2025 |
+
 ### Industry Best Practices
 
 | Reference | Key Contribution | Year |
@@ -1541,11 +2063,14 @@ This methods document implements:
 | A1: Unified Embedding Space | §3.1, §3.2 |
 | A2: Relevance Scoring | §3.3 |
 | A3: Vision-Guided Chunking | §3.5 |
+| A4: Document-as-Image Retrieval | §3.7 |
+| A5: Knowledge Graph Integration | §3.8 |
 | F1: Graceful Degradation | §4.2 |
 | F2: Failure Transparency | §4.1, §4.3, §4.4 |
 | V1: Cross-Modal Consistency Verification | §5.1, §5.3 |
 | V2: Visual Scene Graph Checking | §5.2 |
 | V3: Source Fidelity | §5.1, §5.4 |
+| V4: Cross-Modal Reasoning Chain Integrity | §5.5 |
 | EV1: Retrieval Quality Measurement | §6.1, §6.2 |
 | EV2: Answer Faithfulness Assessment | §6.1 |
 | EV3: Continuous Quality Monitoring | §6.3, §6.4 |
@@ -1558,13 +2083,24 @@ This methods document implements:
 | DG2: Data Lineage and Provenance | §9.3, §9.4 |
 | O1: Index Version Management | §10.1, §10.2 |
 | O2: Operational Observability | §10.4, §10.5 |
+| AG1: Adaptive Retrieval Strategy | §11.1 |
+| AG2: Query Decomposition | §11.2 |
+| AG3: Retrieval Sufficiency Evaluation | §11.3, §11.5 |
 
 ---
 
 ## Changelog
 
-### v2.0.0 (Current)
-- MAJOR: Content expansion addressing 8 gap areas.
+### v2.1.0 (Current)
+- Content expansion addressing 6 gap areas (MMA-RAG, MMhops-R1, ColPali/ColQwen2, RAG-Anything, ACL 2025 survey).
+- **Title 11:** Agentic Retrieval Patterns (§11.1-11.5) — adaptive retrieval loops, query decomposition, sufficiency evaluation, agent coordination, termination controls
+- **§3.7:** Late Interaction and Document-as-Image Retrieval (ColPali, ColQwen2, ColEmbed V2 procedures)
+- **§3.8:** Graph-Based Multimodal Retrieval (knowledge graph construction, graph-augmented retrieval)
+- **§5.5:** Multi-Hop Cross-Modal Reasoning Verification (chain integrity checks, hop-level error detection)
+- **Appendix C:** Added research references for agentic retrieval, multi-hop reasoning, late interaction, and knowledge graph RAG
+- Updated Governance Integration principle mapping table (29 → 35 principles)
+
+### v2.0.0
 - **Title 5:** Verification & Hallucination Prevention (§5.1-5.4)
 - **Title 6:** Evaluation Framework (§6.1-6.4)
 - **Title 7:** Citation & Attribution (§7.1-7.4)

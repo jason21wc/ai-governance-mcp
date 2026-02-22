@@ -1352,6 +1352,26 @@ Prevents splitting tables and diagrams.
 
 ---
 
+### A4: Document-as-Image Retrieval
+
+**Definition**
+Support late interaction retrieval where document pages are indexed as images.
+
+**Why This Principle Matters**
+Preserves layout and visual structure.
+
+---
+
+### A5: Knowledge Graph Integration
+
+**Definition**
+Construct knowledge graphs linking multimodal content structurally.
+
+**Why This Principle Matters**
+Relationship-aware retrieval.
+
+---
+
 ## F-Series: Fallback Principles
 
 ### F1: Graceful Degradation
@@ -1373,6 +1393,16 @@ Text claims must match visual content.
 
 **Why This Principle Matters**
 Hallucination prevention.
+
+---
+
+### V4: Cross-Modal Reasoning Chain Integrity
+
+**Definition**
+Verify each hop in multi-hop cross-modal reasoning chains independently.
+
+**Why This Principle Matters**
+Prevents error propagation across modality transitions.
 
 ---
 
@@ -1463,6 +1493,38 @@ Expose operational metrics for monitoring.
 
 **Why This Principle Matters**
 Diagnosability.
+
+---
+
+## AG-Series: Agentic Retrieval Principles
+
+### AG1: Adaptive Retrieval Strategy
+
+**Definition**
+Support agent-driven retrieval with adaptive strategy and dynamic modality routing.
+
+**Why This Principle Matters**
+Better retrieval for complex multimodal queries.
+
+---
+
+### AG2: Query Decomposition
+
+**Definition**
+Decompose complex multimodal queries into modality-aware sub-queries.
+
+**Why This Principle Matters**
+Prevents overloaded retrieval queries.
+
+---
+
+### AG3: Retrieval Sufficiency Evaluation
+
+**Definition**
+Evaluate whether retrieved results meet quality thresholds before generation.
+
+**Why This Principle Matters**
+Prevents infinite retrieval loops and unfaithful responses.
 """
 
 
@@ -1521,9 +1583,9 @@ class TestMultimodalRagExtraction:
             return extractor._extract_principles(domain_config)
 
     def test_extracts_correct_principle_count(self, mrag_settings):
-        """Should extract exactly 15 principles from the test document."""
+        """Should extract exactly 21 principles from the test document."""
         principles = self._extract(mrag_settings)
-        assert len(principles) == 15
+        assert len(principles) == 21
 
     def test_prefix_is_mrag(self, mrag_settings):
         """All multimodal-RAG principles should use 'mrag-' prefix."""
@@ -1572,14 +1634,15 @@ class TestMultimodalRagExtraction:
         expected_categories = {
             "presentation": ["p1", "p2"],
             "reliability": ["r1"],
-            "architecture": ["a1", "a3"],
+            "architecture": ["a1", "a3", "a4", "a5"],
             "general": ["f1"],
-            "verification": ["v1"],
+            "verification": ["v1", "v4"],
             "evaluation": ["ev1", "ev2"],
             "citation": ["ct1"],
             "security": ["sec1", "sec2"],
             "data-governance": ["dg1"],
             "operations": ["o1", "o2"],
+            "agentic-retrieval": ["ag1", "ag2", "ag3"],
         }
 
         for category, series_codes in expected_categories.items():
@@ -1591,6 +1654,19 @@ class TestMultimodalRagExtraction:
                 assert category in matching[0], (
                     f"Expected '{category}' in ID for {code}, got: {matching[0]}"
                 )
+
+    def test_ag_series_not_architecture(self, mrag_settings):
+        """AG-Series must be 'agentic-retrieval', not 'architecture' (substring collision guard)."""
+        principles = self._extract(mrag_settings)
+        ag_series = [
+            p for p in principles if "ag1" in p.id or "ag2" in p.id or "ag3" in p.id
+        ]
+        assert len(ag_series) == 3
+        for p in ag_series:
+            assert "agentic-retrieval" in p.id, (
+                f"AG-Series should be agentic-retrieval: {p.id}"
+            )
+            assert "architecture" not in p.id, f"AG-Series got architecture: {p.id}"
 
     def test_no_ai_coding_p_series_collision(self, tmp_path):
         """AI-coding P-Series should remain 'process' despite multimodal-rag 'presentation'."""
