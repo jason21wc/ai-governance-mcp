@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — Coherence audit remediation complete
+- **Active Task:** None — v2.1.0 expansion + coherence audit remediation complete
 
 ## Quick Reference
 
@@ -32,6 +32,30 @@
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
+
+## Session Summary (2026-02-21)
+
+### Completed This Session
+
+1. **Multimodal-RAG v2.1.0 Content Expansion** (`af5791b`)
+   - 6 new principles: AG1-AG3 (AG-Series), V4, A4, A5
+   - 4 new failure modes: MR-F24 through MR-F27
+   - Title 11: Agentic Retrieval Patterns (§11.1-§11.5)
+   - Extended methods: §3.7, §3.8, §5.5, Appendix C
+   - Totals: 29→35 principles, ~54→63 methods, 23→27 failure modes, 10→11 series
+
+2. **Code Review + Coherence Audit Remediation** (`add7f08`)
+   - Fixed misleading ag-series collision comment (no real collision — `"a-series" in "ag-series"` is False)
+   - Added `f-series` → `"fallback"` category mapping (was defaulting to `"general"`)
+   - Added `"reference"` → `"reference"` mapping for multimodal-RAG R-Series (was `"reliability"`)
+   - Updated document titles/footers from v2.0.0 to v2.1.0 (version consistency)
+   - Added 7 v2.1.0 research references to Evidence Base
+   - Fixed Relationship to Methods version column
+   - Fixed PROJECT-MEMORY stale `[.:]` extractor claim
+   - Corrected Gotcha #35, added Gotchas #36 (version validator scope), #37 (F/R-Series fix)
+
+3. **Benchmark Baselines Updated** (`5b9aed8`)
+   - All 30 benchmarks pass, metrics unchanged after category mapping changes
 
 ## Next Actions
 
