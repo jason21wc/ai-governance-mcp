@@ -1532,8 +1532,8 @@ class TestMultimodalRagExtraction:
     """Tests for multimodal-RAG principle extraction.
 
     Verifies correct series detection, category assignment, and prefix generation
-    for the multimodal-RAG domain with its 10 series (P, R, A, F, V, EV, CT, SEC,
-    DG, O). Specifically guards against substring collisions (EV/V, SEC/C).
+    for the multimodal-RAG domain with its 11 series (P, R, A, F, V, EV, CT, SEC,
+    DG, O, AG). Specifically guards against substring collisions (EV/V, SEC/C).
     """
 
     @pytest.fixture
@@ -1633,9 +1633,9 @@ class TestMultimodalRagExtraction:
 
         expected_categories = {
             "presentation": ["p1", "p2"],
-            "reliability": ["r1"],
+            "reference": ["r1"],
             "architecture": ["a1", "a3", "a4", "a5"],
-            "general": ["f1"],
+            "fallback": ["f1"],
             "verification": ["v1", "v4"],
             "evaluation": ["ev1", "ev2"],
             "citation": ["ct1"],

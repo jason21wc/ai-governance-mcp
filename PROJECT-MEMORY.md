@@ -86,7 +86,7 @@
 |----------|------|---------|
 | Domain Created | 2026-02-07 | v1.0.0 — 19 principles (A/ST/C/M/E series), methods for Story Bible, Session State, Revision Log, Story Log. Priority 30. |
 | Comprehensive Audit v1.1.0 | 2026-02-08 | Fixed extractor bug (colon headers), strengthened trigger phrases across all 19 principles, added E1 skill erosion techniques, ST-F14 failure mode. Methods: 5 new sections (§14-§18) — Story Log Template, Character Voice Profiles, Genre Conventions Guide, Plot Consistency Checks, Coaching Question Taxonomy. Two new subagents (continuity-auditor, voice-coach). Index: 485 total items (was 460). |
-| Colon Header Pattern | 2026-02-08 | Storytelling uses `### ST1: Title` (colon). Old header pattern required dot. Changed `\.` to `[.:]` in extractor. Other domains unaffected. |
+| Colon Header Pattern | 2026-02-08 | Storytelling uses `### ST1: Title` (colon). Old header pattern requires dot. Colon headers handled by `new_header_pattern` (line ~772) which catches both formats. Other domains unaffected. |
 | Category Collision (A-Series) | 2026-02-08 | Both multi-agent and storytelling have A-Series. Multi-agent: "Architecture" → category `architecture`. Storytelling: "Audience" → also maps to `architecture` via `"audience principle": "architecture"`. Acceptable: storytelling A-Series uses old header format (colon), which doesn't go through section header processing. Different ID prefixes (`mult-architecture-` vs `stor-architecture-`) prevent collision. |
 
 ### AI Coding Methods Framework
@@ -538,7 +538,9 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 32 | GOVERNANCE_HARD_MODE env var | Controls enforcement strictness. `false` (default) = soft enforcement via additionalContext. `true` = hard enforcement via permissionDecision deny. Also affects fail behavior: soft=fail-open, hard=fail-closed on missing transcript. |
 | 33 | category_mapping substring collisions | `_get_category_from_section()` uses `keyword in section_lower`. Longer series (ev-series, sec-series) must appear BEFORE shorter substrings (v-series, c-series) in the dict. Fixed in v2.0.0 expansion. Also: `is_series_header` list uses `any()` so order doesn't matter there (True is correct for either match), but `category_mapping` is order-dependent. |
 | 34 | skip_keywords too broad | "operational" in skip_keywords blocked "O2: Operational Observability". Removed — principle_indicators check (`**Definition**` etc.) already filters non-principles. Be specific with skip keywords. |
-| 35 | ag-series substring collision | `"a-series" in "ag-series"` is True. `ag-series` MUST come BEFORE `a-series` in `category_mapping` dict. Same pattern as ev/v-series (Gotcha #33). Test: `test_ag_series_not_architecture`. |
+| 35 | ag-series ordering (defensive) | `"a-series" in "ag-series"` is actually False (no real substring collision). Ordering ag-series before a-series in `category_mapping` is defensive, not required. The real collisions are ev/v-series and sec/c-series (Gotcha #33). Test: `test_ag_series_not_architecture`. |
+| 36 | Version validator scope | `validate_version_consistency()` only checks `content[:2000]` for `Version:? X.Y.Z` pattern. Title format (`v2.1.0`) and footer (`*Version 2.1.0*` at EOF) are NOT caught. Titles/footers must be updated manually when content version changes — the validator won't flag staleness. |
+| 37 | F-Series / R-Series category fix | F-Series was unmapped (defaulted to `"general"`) and R-Series mapped to `"reliability"` for all domains. Fixed: added `"f-series": "fallback"` and `"reference": "reference"` (before `"r-series"`) to `category_mapping`. R-Series now correctly maps to `"reference"` for multimodal-RAG (header `R-Series: Reference`) and `"reliability"` for multi-agent (header `Coordination Principles (R-Series)` — no "reference" substring). |
 
 ### Resolved Gotchas
 

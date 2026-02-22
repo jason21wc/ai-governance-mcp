@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-21T21:59:44.388034",
+  "timestamp": "2026-02-21T23:04:19.085605",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
     "method_mrr": 0.736111111111111,
@@ -109,7 +109,7 @@
         "coding-method-zero-trust-design-principles"
       ],
       "rank": 1,
-      "score": 0.8209803733093611,
+      "score": 0.8209804524694443,
       "semantic_score": 0.755804181098938
     },
     "method-11": {

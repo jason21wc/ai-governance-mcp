@@ -1,4 +1,4 @@
-# Multimodal RAG Domain Principles Framework v2.0.0
+# Multimodal RAG Domain Principles Framework v2.1.0
 ## Federal Statutes for AI Agents Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -124,6 +124,13 @@ This framework derives from analysis of multimodal retrieval research including:
 - **CoRe-MMRAG (ACL 2025):** Cross-source knowledge reconciliation for multimodal RAG
 - **Vision-guided chunking (arxiv 2506.16035):** Preserving visual elements as complete units during document chunking
 - **MAVIS (arxiv 2511.12142):** Multimodal source attribution benchmark
+- **MMA-RAG (HAL hal-05322313):** Multimodal Agentic RAG survey — adaptive retrieval, query decomposition, sufficiency evaluation
+- **MMhops-R1 (arxiv 2512.13573):** Multi-hop multimodal reasoning with reinforcement learning
+- **ColPali (arxiv 2407.01449):** Document retrieval with Vision Language Models — late interaction paradigm
+- **ColQwen2 (github illuin-tech/colpali):** Qwen2-based late interaction retrieval model
+- **ColEmbed V2 (arxiv 2602.03992):** NVIDIA late interaction model for document-as-image retrieval
+- **RAG-Anything (github HKUDS/RAG-Anything):** Knowledge graph construction for multimodal RAG
+- **Ask in Any Modality survey (arxiv 2502.08826, ACL 2025):** Comprehensive multimodal RAG survey
 
 ---
 
@@ -1418,7 +1425,7 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **multimodal-rag-methods-v2.0.0.md** | v2.0.0 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
+| **multimodal-rag-methods-v2.0.0.md** | v2.1.0 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
 
 **Methods document includes:**
 - Title 1: Presentation Patterns (image placement workflows, selection algorithms, accessibility checklist)
@@ -1474,5 +1481,5 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ---
 
-*Version 2.0.0*
+*Version 2.1.0*
 *Derived from: AI Coding Domain Principles v2.3.2, Multi-Agent Domain Principles v2.1.1, Storytelling Domain Principles v1.1.2, Constitution v2.4.1*

@@ -686,7 +686,7 @@ class DocumentExtractor:
             # Multimodal-RAG series mapping
             # IMPORTANT: Longer series names MUST come before shorter ones
             # to prevent substring collisions (e.g., "v-series" in "ev-series",
-            # "a-series" in "ag-series")
+            # "c-series" in "sec-series")
             "ag-series": "agentic-retrieval",
             "agentic retrieval principle": "agentic-retrieval",
             "ev-series": "evaluation",
@@ -701,6 +701,8 @@ class DocumentExtractor:
             "verification principle": "verification",
             "o-series": "operations",
             "operations principle": "operations",
+            "f-series": "fallback",
+            "fallback principle": "fallback",
             # Multimodal-RAG P-Series = "Presentation" (must precede ai-coding "p-series" = "process")
             # Note: section_pattern regex strips trailing "Principles?" so text is "P-Series: Presentation"
             "presentation": "presentation",
@@ -714,6 +716,8 @@ class DocumentExtractor:
             # Architecture-series mapping (multi-agent domain)
             "a-series": "architecture",
             "architecture principle": "architecture",
+            # Multimodal-RAG R-Series = "Reference" (must precede "r-series" = "reliability")
+            "reference": "reference",
             "r-series": "reliability",
             "reliability principle": "reliability",
             # Storytelling-series mapping
@@ -799,6 +803,7 @@ class DocumentExtractor:
                         "dg-series",
                         "o-series",
                         "ag-series",
+                        "f-series",
                     ]
                 )
                 if "###" not in line or is_series_header:

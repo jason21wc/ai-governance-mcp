@@ -1,4 +1,4 @@
-# Multimodal RAG Methods v2.0.0
+# Multimodal RAG Methods v2.1.0
 ## Operational Procedures for Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -2130,5 +2130,5 @@ This methods document implements:
 
 ---
 
-*Version 2.0.0*
-*Companion to: Multimodal RAG Domain Principles v2.0.0*
+*Version 2.1.0*
+*Companion to: Multimodal RAG Domain Principles v2.1.0*
