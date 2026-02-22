@@ -28,14 +28,6 @@ Research confirmed with hard data: AI models follow system prompt instructions 8
 
 ---
 
-### IDE Plug-ins Use API Pricing, Not Subscription Pricing (2026-02-16)
-
-Claude Max subscription ($100/mo) only covers Anthropic's own products (claude.ai, Claude Code CLI, Claude Desktop). A custom VS Code extension, Roo Code fork, or any third-party tool calling the Anthropic API directly uses **API pricing** ($3/$15 per MTok for Sonnet 4.5). Building a custom IDE plug-in would mean paying API costs potentially on top of any existing subscription.
-
-**Rule:** When evaluating build-vs-buy for AI tooling wrappers, verify whether the target subscription covers third-party API calls. Factor API costs into the total cost of ownership before committing to a custom build.
-
----
-
 ### Passive MCP Instructions Don't Drive Tool Usage (2026-02-14)
 
 The CE had well-built tools but passive instructions ("Use these tools to discover what exists"). The governance server achieves automatic usage via deny-by-default skip lists, per-response reminders, and redundant instruction surfaces. Applying the same pattern to the CE — enforcement-oriented trigger phrases ("Before creating...", "Before modifying..."), a nudge in the governance reminder, and a Required Actions cross-reference — bridges the gap without creating a parallel skip-list hierarchy.
@@ -52,43 +44,11 @@ The CE had well-built tools but passive instructions ("Use these tools to discov
 
 ---
 
-### Editable Install Doesn't Fix Running MCP Server Processes (2026-02-12)
-
-After implementing tree-sitter parsing, re-indexing via the live MCP server produced chunks with `heading: null`. The package is installed in editable mode (`pip install -e .`), so the server reads source files directly — but the already-running process had the OLD `connectors/code.py` cached in Python's module cache. Re-indexing used the stale line-based parser, not the new tree-sitter code. Pytest worked because it spawns a fresh process.
-
-**Rule:** After modifying source code used by a running MCP server, restart Claude Code (or the server process) before testing via MCP tools. Editable installs don't help — Python caches imported modules for the lifetime of the process. See Gotcha #27.
-
----
-
-### Go type_declaration Names Are on type_spec Child (2026-02-12)
-
-Tree-sitter Go grammar: `type_declaration` wraps a `type_spec` node which holds the `name` field. `child_by_field_name("name")` on the parent returns None — must iterate children to find `type_spec` first.
-
-**Rule:** When adding tree-sitter support for a new language, verify the actual AST node structure with a live parser before assuming field names exist on the expected node.
-
----
-
-### BM25Okapi Can Return Negative Scores (2026-02-12)
-
-BM25Okapi returns negative IDF scores for common terms in small corpora. When `max_score <= 0`, normalization doesn't fire, leaving raw negatives that violate Pydantic `ge=0.0` constraints.
-
-**Rule:** Always clamp BM25 scores with `np.clip(scores, 0.0, 1.0)` after normalization. Don't assume score range is [0, 1].
-
----
-
 ### Environment-Aware Tests for Optional Dependencies (2026-02-12)
 
 Tests for `_get_chunking_version()` failed because tree-sitter IS installed in dev but not CI. Hardcoded `"line-based-v1"` broke when the actual connector detected tree-sitter.
 
 **Rule:** Tests that depend on optional package availability should either: (1) explicitly force the flag (`c._tree_sitter_available = False`), or (2) dynamically detect the actual value. Never hardcode expected values for environment-dependent behavior.
-
----
-
-### Standalone MCP Config Files Aren't Picked Up by Claude Code (2026-02-11)
-
-Config at `~/.claude/mcp-servers/context-engine.json` was never loaded — Claude Code reads MCP servers from `~/.claude.json` under `mcpServers`. The standalone file format is not a Claude Code convention. See also Gotcha #8 (project vs user scope) and the CRITICAL lesson "Claude Desktop and CLI Have Separate MCP Configs."
-
-**Rule:** Always register MCP servers in `~/.claude.json` `mcpServers` for Claude Code. Verify tools appear after restart before assuming connection works.
 
 ---
 
@@ -108,14 +68,6 @@ Two test bugs: (1) `"nonexistent00"` has non-hex chars — hit project_id hex va
 
 ---
 
-### Context Engine Hardening: Defense-in-Depth for Indexing Systems (2026-02-09)
-
-File watcher, storage, and parsing systems need layered defenses even for local-use tools: (1) BM25Okapi crashes on empty corpus — guard with `any(len(doc) > 0 for doc in corpus)` before construction, (2) Timer threads must be daemon to prevent blocking process exit, tracked for cancellation in `stop()`, and guarded with `_running.is_set()` checks, (3) All persistent file loads need corrupt-file recovery (try/except → log → delete → return None), (4) CSV/XLSX parsers need column limits (`row[:500]`), plain text parsers need force-split at max lines.
-
-**Rule:** When building indexing/search systems: extract duplicate guard logic into helpers, make all timers daemon with lifecycle tracking, implement circuit breakers for repeated failures (3 strikes), add atomic writes (tmp+rename) for all persisted data, and column/row/size limits for all file parsers.
-
----
-
 ### Bold Text Drives Method Retrieval Surfacing (2026-02-07)
 
 New method sections get generic chunk titles from the extractor (e.g., "Purpose", "Trigger Conditions"). The extractor picks up **bold text** as `trigger_phrases` (max 4 words, >5 chars). Without bold key terms, method chunks won't surface for natural-language queries.
@@ -126,14 +78,6 @@ Three additional extraction traps discovered during Part 4.3 tuning:
 3. **`Applies To:` field** — The extractor parses `**Applies To:**` lines (extractor.py:1123-1136) into both BM25 and embedding text. Adding this field helps methods surface for `evaluate_governance()` queries.
 
 **Rule:** When adding new method sections: (a) avoid skip-list titles ("purpose", "overview", etc.), (b) bold 2-3 distinctive phrases >5 chars, (c) add `**Applies To:**` with natural-language use cases. Verify after index rebuild (auto-reload picks up changes on next query).
-
----
-
-### Transitive Dependency Drift in Docker (2026-02-02)
-
-Docker `pip install .` resolves fresh dependency trees that may differ from local environments. `huggingface-hub>=1.0` dropped `requests`, but `sentence-transformers` still imports it. Locally worked because older `huggingface-hub` was cached.
-
-**Rule:** Pin or explicitly declare any library your code (or its dependencies) imports at runtime. See Gotcha #19.
 
 ---
 
@@ -161,14 +105,6 @@ Validator and code-reviewer both initially used "Analytical validation" as cogni
 
 ---
 
-### Substring Collision Comments Must Be Verified, Not Assumed (2026-02-21)
-
-Comment in `category_mapping` claimed `"a-series" in "ag-series"` is True. Code review proved it's False — `a-series` (a-hyphen) doesn't match `ag-series` (ag-hyphen). The real collisions are `"v-series" in "ev-series"` and `"c-series" in "sec-series"`. The defensive ordering is harmless, but the incorrect comment would mislead future maintainers.
-
-**Rule:** When documenting substring collision guards, verify the claim with actual Python `in` evaluation. Don't extrapolate from pattern similarity — `"a-series" in "ag-series"` looks like it should be True but isn't.
-
----
-
 ### Run Code Review + Coherence Audit After Content Expansions (2026-02-21)
 
 After a 6-principle multimodal-RAG expansion, code review found 3 code issues (misleading comment, missing f-series mapping, r-series semantic mismatch) and coherence audit found 7 document issues (stale version headers/footers, missing evidence base refs, cross-file contradictions). None were caught by the test suite because tests validated extraction behavior, not document-level consistency.
@@ -190,10 +126,6 @@ After a 6-principle multimodal-RAG expansion, code review found 3 code issues (m
 `validate_version_consistency()` only searches `content[:2000]` for the pattern `Version:? X.Y.Z`. Document titles (e.g., `# Framework v2.0.0`) use a different format that the regex doesn't match. Footers (e.g., `*Version 2.0.0*`) are beyond the 2000-char window. Both went stale when content was updated to v2.1.0 in-place without renaming files.
 
 **Rule:** When updating document content versions in-place (per "Governance Docs In-Place" decision), manually update title, footer, and cross-reference version numbers. The automated validator won't catch these.
-
----
-
----
 
 ---
 
@@ -227,8 +159,6 @@ Second-pass contrarian review caught issues first-pass missed (S-Series penalty 
 
 ---
 
----
-
 ## Graduated Patterns
 
 | Pattern | Graduated To | Date |
@@ -257,3 +187,11 @@ Second-pass contrarian review caught issues first-pass missed (S-Series penalty 
 | MCP stdio immediate exit | server.py implementation | 2026-02-12 |
 | Per-response reminder prevents drift | server.py implementation | 2026-02-12 |
 | Framework bootstrap activation layer | CLAUDE.md + ai-instructions | 2026-02-12 |
+| Context Engine hardening (defense-in-depth) | Methods §5.9/§5.10 | 2026-02-22 |
+| BM25Okapi negative score clamping | Code implementation + §5.10 | 2026-02-22 |
+| Go type_declaration tree-sitter names | Code implementation | 2026-02-22 |
+| Editable install vs running MCP server | Gotcha #27 | 2026-02-22 |
+| Transitive dependency drift in Docker | Gotcha #19 | 2026-02-22 |
+| Substring collision comment verification | Code review finding, implemented | 2026-02-22 |
+| IDE plug-in API vs subscription pricing | General knowledge (not project-specific) | 2026-02-22 |
+| Standalone MCP config files | Redundant with CRITICAL lesson #24 | 2026-02-22 |

@@ -45,6 +45,16 @@
    - Updated Situation Index (+2 entries), version metadata, version history, Document Governance ref
    - Methods: 482 → 484 (ai-coding: 182 → 185), 726 tests pass, all 4 spot-check queries surface new content
 
+2. **Agent template sync documentation + drift detection test**
+   - Documented two-directory architecture in CLAUDE.md (documents/agents/ = canonical source, .claude/agents/ = local install)
+   - Added `test_agent_templates_synced_with_local` to catch drift between directories
+   - 727 tests pass
+
+3. **Project cleanup + LEARNING-LOG distillation**
+   - Removed `reference docs/` (obsolete analysis document)
+   - Cleaned `.DS_Store` files
+   - Distilled LEARNING-LOG: 259 → 197 lines (graduated 8 lessons, removed stale separators)
+
 ## Next Actions
 
 ### 1. Hook Improvements (Priority: LOW)
