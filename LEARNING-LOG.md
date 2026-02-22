@@ -177,6 +177,14 @@ After a 6-principle multimodal-RAG expansion, code review found 3 code issues (m
 
 ---
 
+### S-Series Keyword Trigger Produces False Positives on Negations (2026-02-22)
+
+`evaluate_governance(planned_action="...no security implications — purely content expansion...")` returned ESCALATE because the S-Series keyword scanner matched "security" in the action description. No actual S-Series principles were returned (`principles: []`), confirming the trigger was the word itself, not a real safety concern. The action was a content-only document edit with no code, auth, or infrastructure changes.
+
+**Rule:** When `s_series_check.triggered=true` but `s_series_check.principles=[]`, this is a keyword false positive. Proceed with documented override. When writing `planned_action` descriptions, avoid safety-adjacent keywords in negation phrases (e.g., say "purely content expansion" instead of "no security implications") to reduce false trigger noise.
+
+---
+
 ### Version Validator Has Blind Spots — Title and Footer Not Checked (2026-02-21)
 
 `validate_version_consistency()` only searches `content[:2000]` for the pattern `Version:? X.Y.Z`. Document titles (e.g., `# Framework v2.0.0`) use a different format that the regex doesn't match. Footers (e.g., `*Version 2.0.0*`) are beyond the 2000-char window. Both went stale when content was updated to v2.1.0 in-place without renaming files.
