@@ -161,6 +161,30 @@ Validator and code-reviewer both initially used "Analytical validation" as cogni
 
 ---
 
+### Substring Collision Comments Must Be Verified, Not Assumed (2026-02-21)
+
+Comment in `category_mapping` claimed `"a-series" in "ag-series"` is True. Code review proved it's False — `a-series` (a-hyphen) doesn't match `ag-series` (ag-hyphen). The real collisions are `"v-series" in "ev-series"` and `"c-series" in "sec-series"`. The defensive ordering is harmless, but the incorrect comment would mislead future maintainers.
+
+**Rule:** When documenting substring collision guards, verify the claim with actual Python `in` evaluation. Don't extrapolate from pattern similarity — `"a-series" in "ag-series"` looks like it should be True but isn't.
+
+---
+
+### Run Code Review + Coherence Audit After Content Expansions (2026-02-21)
+
+After a 6-principle multimodal-RAG expansion, code review found 3 code issues (misleading comment, missing f-series mapping, r-series semantic mismatch) and coherence audit found 7 document issues (stale version headers/footers, missing evidence base refs, cross-file contradictions). None were caught by the test suite because tests validated extraction behavior, not document-level consistency.
+
+**Rule:** After any content expansion that adds new series, principles, or methods: run both code-reviewer and coherence-auditor agents before considering the work complete. Tests catch extraction bugs; audits catch semantic drift.
+
+---
+
+### Version Validator Has Blind Spots — Title and Footer Not Checked (2026-02-21)
+
+`validate_version_consistency()` only searches `content[:2000]` for the pattern `Version:? X.Y.Z`. Document titles (e.g., `# Framework v2.0.0`) use a different format that the regex doesn't match. Footers (e.g., `*Version 2.0.0*`) are beyond the 2000-char window. Both went stale when content was updated to v2.1.0 in-place without renaming files.
+
+**Rule:** When updating document content versions in-place (per "Governance Docs In-Place" decision), manually update title, footer, and cross-reference version numbers. The automated validator won't catch these.
+
+---
+
 ---
 
 ---
