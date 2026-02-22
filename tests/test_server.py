@@ -2559,3 +2559,52 @@ class TestMultiAgentConsistency:
 
         assert set(install_enum) == AVAILABLE_AGENTS
         assert set(uninstall_enum) == AVAILABLE_AGENTS
+
+    def test_agent_templates_synced_with_local(self):
+        """documents/agents/ (canonical source) must match .claude/agents/ (local install).
+
+        Two directories serve different purposes:
+        - documents/agents/: Canonical distribution templates. The install_agent
+          MCP tool reads from here. Indexed by Context Engine. Ships with package.
+        - .claude/agents/: Local installation for Claude Code to use in this project.
+
+        Both must stay in sync. Edit documents/agents/ first, then copy to .claude/agents/.
+        """
+        from ai_governance_mcp.server import AVAILABLE_AGENTS
+
+        project_root = Path(__file__).parent.parent
+        canonical_dir = project_root / "documents" / "agents"
+        local_dir = project_root / ".claude" / "agents"
+
+        assert canonical_dir.is_dir(), f"Canonical agents dir missing: {canonical_dir}"
+        assert local_dir.is_dir(), f"Local agents dir missing: {local_dir}"
+
+        drifted = []
+        missing_local = []
+
+        for agent_name in AVAILABLE_AGENTS:
+            canonical = canonical_dir / f"{agent_name}.md"
+            local = local_dir / f"{agent_name}.md"
+
+            if not canonical.exists():
+                continue  # Covered by test_all_agents_have_template_files
+
+            if not local.exists():
+                missing_local.append(agent_name)
+                continue
+
+            canonical_content = canonical.read_text()
+            local_content = local.read_text()
+
+            if canonical_content != local_content:
+                drifted.append(agent_name)
+
+        assert not missing_local, (
+            f"Agents in documents/agents/ but missing from .claude/agents/: "
+            f"{missing_local}. Copy from documents/agents/ (canonical source)."
+        )
+        assert not drifted, (
+            f"Agent templates have drifted between documents/agents/ (canonical) "
+            f"and .claude/agents/ (local): {drifted}. "
+            f"Edit documents/agents/ first, then copy to .claude/agents/."
+        )

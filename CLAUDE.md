@@ -73,13 +73,25 @@ docker run -i --rm ai-governance-mcp    # Run container
 - `src/ai_governance_mcp/` — Governance server source code
 - `src/ai_governance_mcp/context_engine/` — Context Engine MCP server (4 tools)
 - `documents/` — Governance content (indexed)
+- `documents/agents/` — Canonical agent templates (distribution source — see Subagents below)
 - `index/` — Generated embeddings
 - `tests/` — Test suite
-- `.claude/agents/` — Subagent definitions
+- `.claude/agents/` — Local agent installations (see Subagents below)
 
 ## Subagents
 
 This project has specialized subagent definitions in `.claude/agents/`. When a task matches a cognitive function below, read the agent file and apply its instructions.
+
+### Two Directories, Two Purposes
+
+Agent definitions exist in two locations with distinct roles:
+
+| Directory | Purpose | Consumer |
+|-----------|---------|----------|
+| `documents/agents/` | **Canonical source (distribution templates).** Ships with the package. The `install_agent` MCP tool reads from here to install agents on other users' machines. Also indexed by the Context Engine for semantic search. | `install_agent` tool, Context Engine, CI hash verification |
+| `.claude/agents/` | **Local installation (operational).** Claude Code reads these files to apply subagent roles in this project. Created by `install_agent` or manual copy. | Claude Code (this project only) |
+
+**Editing rule:** Always edit `documents/agents/` first (the canonical source), then copy to `.claude/agents/`. Never edit `.claude/agents/` directly — it will drift from the distribution templates. A CI test (`test_agent_templates_synced_with_local`) verifies both directories match byte-for-byte.
 
 | Task Type | Agent File | When to Use |
 |-----------|------------|-------------|
