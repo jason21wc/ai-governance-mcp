@@ -45,23 +45,10 @@
    - Updated Situation Index (+4 entries), Appendix H (+2 rows), version metadata, version history
    - Methods: 484 → 494 (ai-coding: 185 → 195), 727 tests pass, 4/5 spot-check queries surface new content at high confidence
 
-2. **Autonomous Testing Best Practices — ai-coding v2.3.3 principles + v2.12.0 methods**
-   - Added "Echo Chamber" Trap (5th pitfall) to Testing Integration principle + 2 Evidence Base entries
-   - New §5.2.6 Autonomous Test Maintenance: failure classification table (7 types), iteration limits (3/test, 5/task), specification anchoring check, validation scope, structured escalation format
-   - Enhanced §5.1.2 with Autonomous Fix & Re-run annotation (routine vs judgment failures)
-   - New §6.4.8 Local-CI Validation Parity: single validation script pattern
-   - Updated Situation Index (+2 entries), version metadata, version history, Document Governance ref
-   - Methods: 482 → 484 (ai-coding: 182 → 185), 726 tests pass, all 4 spot-check queries surface new content
-
-2. **Agent template sync documentation + drift detection test**
-   - Documented two-directory architecture in CLAUDE.md (documents/agents/ = canonical source, .claude/agents/ = local install)
-   - Added `test_agent_templates_synced_with_local` to catch drift between directories
-   - 727 tests pass
-
-3. **Project cleanup + LEARNING-LOG distillation**
-   - Removed `reference docs/` (obsolete analysis document)
-   - Cleaned `.DS_Store` files
-   - Distilled LEARNING-LOG: 259 → 197 lines (graduated 8 lessons, removed stale separators)
+2. **Coherence audit remediation — 3 stale references fixed**
+   - Appendix H item count: 10 → 14 (accumulated from v2.11.0 + v2.14.0 additions)
+   - CLAUDE.md template principles version: v2.3.2 → v2.3.4 (pre-existing drift)
+   - Title 8 Implements header: "Human-AI Collaboration" → "Human-AI Collaboration Model" (pre-existing drift)
 
 ## Next Actions
 
