@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — Autonomous Testing Best Practices complete
+- **Active Task:** None — Postgres Best Practices integration complete
 
 ## Quick Reference
 
@@ -21,12 +21,12 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
-| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.12.0** (ai-coding methods), **v2.3.3** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
-| Tests | **726 pass** (non-slow), 0 failures, 30 deselected (slow/model_eval) |
+| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.14.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
+| Tests | **727 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **124 principles + 484 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
+| Index | **124 principles + 494 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit governance inject, PreToolUse governance check) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
@@ -37,7 +37,15 @@
 
 ### Completed This Session
 
-1. **Autonomous Testing Best Practices — ai-coding v2.3.3 principles + v2.12.0 methods**
+1. **Postgres Best Practices Integration — ai-coding v2.3.4 principles + v2.14.0 methods**
+   - New Part 5.12 Stateful System Interaction Patterns: atomic operations (§5.12.2), resource scope minimization (§5.12.3), consistent ordering (§5.12.4), batch operations (§5.12.5), pagination (§5.12.6), connection pooling (§5.12.7), schema evolution safety (§5.12.8), 7-item checklist (§5.12.9)
+   - New §5.8.6 AI-Generated Database Code: parameterized queries, least-privilege connections, read-only defaults, database-enforced access control
+   - New Appendix I Postgres/Supabase Quick Reference: 12 practices in 6 subsections (data types, indexing, queries, connections, migrations, RLS)
+   - New "Stateful Blindspot" Trap pitfall in principles + "Database & Stateful Systems Research" evidence base category
+   - Updated Situation Index (+4 entries), Appendix H (+2 rows), version metadata, version history
+   - Methods: 484 → 494 (ai-coding: 185 → 195), 727 tests pass, 4/5 spot-check queries surface new content at high confidence
+
+2. **Autonomous Testing Best Practices — ai-coding v2.3.3 principles + v2.12.0 methods**
    - Added "Echo Chamber" Trap (5th pitfall) to Testing Integration principle + 2 Evidence Base entries
    - New §5.2.6 Autonomous Test Maintenance: failure classification table (7 types), iteration limits (3/test, 5/task), specification anchoring check, validation scope, structured escalation format
    - Enhanced §5.1.2 with Autonomous Fix & Re-run annotation (routine vs judgment failures)
