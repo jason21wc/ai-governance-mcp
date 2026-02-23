@@ -5132,7 +5132,7 @@ Reference Memory implementations must follow these security patterns:
 
 **Importance: 🟡 IMPORTANT — Maintains human authority**
 
-**Implements:** Human-AI Collaboration (Domain), Workflow Integrity (Domain)  
+**Implements:** Human-AI Collaboration Model (Domain), Workflow Integrity (Domain)
 **Applies to:** All human-AI interactions
 
 ## Part 8.1: Escalation Triggers
@@ -5661,7 +5661,7 @@ def generate_config(platform: str) -> dict:
 # Project: [Name]
 
 ## Governance
-- Framework: AI Coding Domain Principles v2.3.2
+- Framework: AI Coding Domain Principles v2.3.4
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Current State
@@ -6274,7 +6274,7 @@ When the context engine is available, project-specific instructions could be sem
 
 **Importance: 🟢 OPTIONAL — Pre-release sweep for commonly-missed patterns**
 
-A 10-item sweep checklist consolidating the most commonly-missed production hardening patterns discovered across multiple deep code reviews. Run this before tagging a release.
+A 14-item sweep checklist consolidating the most commonly-missed production hardening patterns discovered across multiple deep code reviews. Run this before tagging a release.
 
 | # | Check | Section | Applies If | How to Verify |
 |---|-------|---------|------------|---------------|
