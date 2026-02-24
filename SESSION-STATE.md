@@ -44,6 +44,7 @@
    - Archived v2.15.0, renamed to v2.15.1, updated domains.json (methods_file + 2 keywords)
    - Index: 124 principles + 496 methods, 727 tests pass, spot-checks surface §5.3.3/§5.3.5/§6.4.9
    - Watch item added to Next Actions; deferred decision recorded in PROJECT-MEMORY.md
+   - CI: all 6 jobs green (content scan, tests 3.10/3.11/3.12, security, lint)
 
 2. **Post-Change Completion Sequence — ai-coding methods v2.15.0** (earlier this session)
    - New §5.1.6 Post-Change Completion Sequence (~25 lines): assembles existing validation, recording, and delivery procedures into a single per-change checkpoint. Change-type profiles (code/content/configuration/documentation) via table, not conditional skip-if-N/A
