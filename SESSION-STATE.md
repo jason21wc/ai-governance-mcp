@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — Post-Change Completion Sequence (§5.1.6) added to ai-coding methods v2.15.0
+- **Active Task:** None — AI Security Scanning guidance distributed across §5.3.3, §5.3.5, §6.4.9 (v2.15.1)
 
 ## Quick Reference
 
@@ -21,12 +21,12 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
-| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.15.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
+| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.15.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
 | Tests | **727 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **124 principles + 497 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
+| Index | **124 principles + 496 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit governance inject, PreToolUse governance check) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
@@ -37,7 +37,15 @@
 
 ### Completed This Session
 
-1. **Post-Change Completion Sequence — ai-coding methods v2.15.0**
+1. **AI Security Scanning Guidance — Distributed Enrichment (v2.15.1)**
+   - Enriched 3 existing sections (~12 lines total) instead of new §5.3.7: §5.3.3 (+AI-contextual scanners), §5.3.5 (+Snyk 2.74x XSS patch risk paragraph), §6.4.9 (+security scanner row, runtime validation limitation, 2 bold triggers)
+   - Triggered by Anthropic Claude Code Security announcement (2026-02-20); contrarian review recommended distributed approach over standalone section
+   - Full standalone section deferred pending vendor-independent benchmarks (OWASP, NIST, academic)
+   - Archived v2.15.0, renamed to v2.15.1, updated domains.json (methods_file + 2 keywords)
+   - Index: 124 principles + 496 methods, 727 tests pass, spot-checks surface §5.3.3/§5.3.5/§6.4.9
+   - Watch item added to Next Actions; deferred decision recorded in PROJECT-MEMORY.md
+
+2. **Post-Change Completion Sequence — ai-coding methods v2.15.0** (earlier this session)
    - New §5.1.6 Post-Change Completion Sequence (~25 lines): assembles existing validation, recording, and delivery procedures into a single per-change checkpoint. Change-type profiles (code/content/configuration/documentation) via table, not conditional skip-if-N/A
    - Updated §5.1.2 Implementation Cycle diagram: PASS now routes through Completion Sequence (§5.1.6) before Next Task
    - Added §7.6.1 cross-reference note clarifying per-change vs per-session overlap
@@ -76,6 +84,9 @@ Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revis
 
 ### 7. Backlog — Add Procedures Domain (Priority: TBD)
 New governance domain for procedures. Framework content to be provided by Jason. Will require: domain config, document(s) in `documents/`, extractor support for the domain's structure, index rebuild, and tests.
+
+### 8. Watch — AI-Powered Security Scanning (Trigger: Independent Benchmarks)
+Claude Code Security announced 2026-02-20. Interim guidance distributed across §5.3.3, §5.3.5, §6.4.9 (v2.15.1). Full standalone section deferred pending vendor-independent accuracy data (OWASP, NIST, academic studies). Revisit when independent benchmarks confirm AI-contextual scanners are categorically different from AI code reviewers in governance-relevant ways.
 
 ## Links
 
