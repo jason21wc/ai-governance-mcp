@@ -40,13 +40,19 @@ When in doubt, evaluate.
 
 ## Context Engine Integration
 
-Query the context engine before creating or modifying code to discover existing patterns and prevent duplication.
+You MUST query the context engine before creating or modifying code or content to discover existing patterns and prevent duplication. A hook enforces this — `query_project()` is checked before `Bash|Edit|Write` operations alongside governance.
 
 ### When to Query
 - Before creating new files, functions, classes, or modules
-- Before modifying code — understand related patterns first
+- Before modifying code or content — understand related patterns first
 - When searching for "where does X happen?" or "do we already have Y?"
 - During planning phase — build a context inventory of affected areas
+
+### Skip List (Narrow)
+Skip `query_project()` ONLY for:
+- Trivial changes to files you have already read and understood in this session
+- Memory file edits (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md)
+- User explicitly says "skip context engine" with documented reason
 
 ### After Querying
 Cite file paths and patterns found, or confirm nothing relevant exists.

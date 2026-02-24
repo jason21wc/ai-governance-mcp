@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — Agent-to-Service Integration Patterns added as §5.6.7 (v2.16.0)
+- **Active Task:** None — CE Compliance Enforcement implemented (ai-coding v2.17.0 + hooks + tests)
 
 ## Quick Reference
 
@@ -21,14 +21,14 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
-| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.16.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
-| Tests | **727 pass** (non-slow), 0 failures |
+| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.17.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
+| Tests | **741 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **124 principles + 497 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
+| Index | **124 principles + 498 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
-| Hooks | **3** (PostToolUse CI check, UserPromptSubmit governance inject, PreToolUse governance check) |
+| Hooks | **3** (PostToolUse CI check, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
@@ -37,25 +37,30 @@
 
 ### Completed This Session
 
-1. **Agent-to-Service Integration Patterns — ai-coding methods v2.16.0**
-   - New §5.6.7 (~50 lines): cross-system authority model (confused deputy at SaaS scale), dynamically-discovered tool trust tiers (pre-vetted/domain-verified/untrusted), cross-service context isolation, agent-facing API design checklist (7 items, B2A pattern)
-   - Enriched 3 existing sections (~8 lines): §5.6.5 (+dynamic tool discovery attack pattern), §5.6.2 (+cross-system authority checklist item), §5.11.6 (+builder-side cross-reference)
-   - Added §5.8.3 cross-reference, 2 Situation Index entries, version history entry
-   - Contrarian review: ~70% genuinely new content, Bustamante inline attribution added, context isolation workaround for platforms without separate context windows
-   - Validator: found 2 missing back-references (§5.6.5, §5.6.6 → §5.6.7) — fixed; multi-agent A2 back-reference skipped (cross-domain, out of scope)
-   - Archived v2.15.1, renamed to v2.16.0, updated domains.json (methods_file + 7 keywords)
-   - Index: 124 principles + 497 methods (ai-coding: 196 → 198), 727 tests pass
-   - Spot-checks: all 3 queries surface §5.6.7 at high confidence
-   - CI: all 6 jobs green (content scan, tests 3.10/3.11/3.12, security, lint)
-   - Docker: no rebuild needed (content-only change, no src/pyproject.toml/Dockerfile modifications)
-   - Research: W3C WebMCP (2026, early preview), Bustamante (2026, practitioner evidence), OWASP MCP/Agentic Top 10
+1. **Context Engine Compliance Enforcement — ai-coding methods v2.17.0 + hooks + tests**
+   - **Part A (Documentation):** New §9.3.10 MCP Compliance Enforcement Patterns (~35 lines) — 4-layer enforcement stack (advisory instructions → per-response reminders → structural hooks → hard mode blocking). Documents session-level transcript scanning, soft/hard mode toggle, fast pre-filter optimization, fail-open/fail-closed behavior, enforcement design heuristics. Added 1 Situation Index entry, 1 version history entry.
+   - **Part B (Implementation):**
+     - Extended PreToolUse hook: single-pass dual scan for `evaluate_governance` AND `query_project`. Adaptive output (both/gov_only/ce_only/neither). Independent hard modes (`CE_HARD_MODE` separate from `GOVERNANCE_HARD_MODE`).
+     - Extended UserPromptSubmit hook: added CE nudge (~25 tokens) to existing governance reminder.
+     - Strengthened CLAUDE.md: CE section advisory→mandatory, "code"→"code or content", added hook note, added skip list.
+     - Updated orchestrator subagent: added `query_project` + `project_status` to tools, Step 1.5 Query Context Engine, updated examples. Synced to `.claude/agents/`, updated template hash.
+     - New `tests/test_hooks.py`: 14 subprocess-based tests covering all hook behaviors (both present, gov missing, CE missing, both missing, hard mode deny, soft mode fail-open, hard mode fail-closed, valid JSON, malformed JSONL, prompt hook).
+   - Archived v2.16.0, renamed to v2.17.0, updated domains.json (+4 keywords)
+   - Index: 124 principles + 498 methods (ai-coding: 198 → 199), 741 tests pass
+   - Spot-check: §9.3.10 surfaces at high confidence
+   - Code review: PASS WITH NOTES — no critical/high issues, added malformed JSONL test per reviewer suggestion
+   - Docker: server.py hash updated but pyproject.toml/Dockerfile unchanged → no rebuild needed
+
+2. **Agent-to-Service Integration Patterns — ai-coding methods v2.16.0** (earlier this session)
+   - New §5.6.7 (~50 lines): cross-system authority model, dynamically-discovered tool trust tiers, cross-service context isolation, agent-facing API design checklist
+   - Full details in archive — see v2.16.0 completion notes
 
 ## Next Actions
 
 ### 1. Hook Improvements (Priority: LOW)
 Two improvements identified by contrarian review during Phase 1 implementation:
-1. **Recency heuristic** — PreToolUse hook currently uses session-level check (any governance call in transcript = pass). For long sessions with task pivots, scan only the last ~500 transcript lines instead. One-line change to Python scanning logic (`collections.deque(f, maxlen=500)`).
-2. **Suppress reminder after governance established** — UserPromptSubmit hook currently injects ~200 tokens on every prompt regardless. Add transcript check (same logic as PreToolUse) to suppress the reminder once `evaluate_governance()` has been called. Saves ~10K tokens/session over 50 turns.
+1. **Recency heuristic** — PreToolUse hook currently uses session-level check (any governance/CE call in transcript = pass). For long sessions with task pivots, scan only the last ~500 transcript lines instead. One-line change to Python scanning logic (`collections.deque(f, maxlen=500)`).
+2. **Suppress reminder after governance established** — UserPromptSubmit hook currently injects ~225 tokens on every prompt regardless. Add transcript check (same logic as PreToolUse) to suppress the reminder once both `evaluate_governance()` and `query_project()` have been called. Saves ~11K tokens/session over 50 turns.
 
 ### 2. Evaluate MCP Proxy for Model-Agnostic Enforcement (Priority: MEDIUM)
 For enforcement beyond Claude Code. An MCP proxy sits between ANY AI client and MCP servers, intercepting tool calls. Candidates:

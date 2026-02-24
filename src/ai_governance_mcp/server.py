@@ -696,7 +696,7 @@ AGENT_TEMPLATE_HASHES = {
     "continuity-auditor": "7d9cda0534855b590f71c6c9fa24d4e6b6bc151c9addd39a697634cdc96e61e3",
     "contrarian-reviewer": "a9d0a2235d06c3049106616a39f83f09945a9221f807ba2fccbd098565e60c85",
     "documentation-writer": "5121b9e72a164515e6ee61502a348713460138f52a5cdb6cb88d485479deaccb",
-    "orchestrator": "c1912c00b9e9e113cfcd0b7be775dfafc11dc8f1fc933d3224e8d8f1b407f9ff",
+    "orchestrator": "e93eabc98a3ac23229912d936225a004bd770c3ecca39ef5a31826ca8d78f491",
     "security-auditor": "d1f441a41397001830e0e79f66b0031109cc10acde7e4492351a5f613ff7a3ae",
     "test-generator": "79a40d51b53fab23f5d590a314d05ca64f2669c55a28a23c229d3bacd3b0e2a9",
     "validator": "bbd878d49705f8e797a6a043df4b61d7514637c1b7c99264c21c0af73bb76901",
