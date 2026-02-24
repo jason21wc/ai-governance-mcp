@@ -45,6 +45,7 @@
    - Archived v2.14.0 to `documents/archive/`
    - Methods: 494 → 495 (ai-coding: 195 → 196), 727 tests pass, query spot-check surfaces §6.4.9 at high confidence
    - Contrarian review informed scope: §6.4.9 subsection (not appendix), tool-neutral framing, PATCH bump
+   - CI: all 6 jobs green (content scan, tests 3.10/3.11/3.12, security, lint) + CodeQL passed
 
 ## Next Actions
 
