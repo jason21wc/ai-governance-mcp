@@ -46,6 +46,8 @@
    - Archived v2.15.1, renamed to v2.16.0, updated domains.json (methods_file + 7 keywords)
    - Index: 124 principles + 497 methods (ai-coding: 196 → 198), 727 tests pass
    - Spot-checks: all 3 queries surface §5.6.7 at high confidence
+   - CI: all 6 jobs green (content scan, tests 3.10/3.11/3.12, security, lint)
+   - Docker: no rebuild needed (content-only change, no src/pyproject.toml/Dockerfile modifications)
    - Research: W3C WebMCP (2026, early preview), Bustamante (2026, practitioner evidence), OWASP MCP/Agentic Top 10
 
 ## Next Actions
