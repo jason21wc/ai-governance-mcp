@@ -47,6 +47,11 @@
    - Contrarian review informed scope: §6.4.9 subsection (not appendix), tool-neutral framing, PATCH bump
    - CI: all 6 jobs green (content scan, tests 3.10/3.11/3.12, security, lint) + CodeQL passed
 
+2. **Docker image rebuild — v1.8.0**
+   - Rebuilt to pick up accumulated code changes since last build: all 10 installable agents, auto-reload index, Context Engine v1.1.0 (import enrichment, ranking signals, weight tuning), CWD-based root detection fix, multimodal-RAG v2.0/v2.1, extractor fixes, and v2.14.1 content
+   - Pushed `jason21wc/ai-governance-mcp:1.8.0` + `:latest` to Docker Hub
+   - No server version bump (code was already v1.8.0, image was just stale)
+
 ## Next Actions
 
 ### 1. Hook Improvements (Priority: LOW)
