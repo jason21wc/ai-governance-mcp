@@ -47,6 +47,7 @@
    - Archived v2.14.1 to `documents/archive/`
    - Methods: 495 → 497 (ai-coding: 195 → 197), 727 tests pass, query spot-check surfaces §5.1.6 at high confidence
    - Contrarian review informed two-layer approach (methods for general principle, CLAUDE.md for project-specific steps)
+   - CI: all 6 jobs green (content scan, tests 3.10/3.11/3.12, security, lint) + CodeQL passed
 
 ## Next Actions
 
