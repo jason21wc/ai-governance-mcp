@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — AI Code Review Services (§6.4.9) added to ai-coding methods v2.14.1
+- **Active Task:** None — Post-Change Completion Sequence (§5.1.6) added to ai-coding methods v2.15.0
 
 ## Quick Reference
 
@@ -21,12 +21,12 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
-| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.14.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
+| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.15.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
 | Tests | **727 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **124 principles + 495 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
+| Index | **124 principles + 497 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit governance inject, PreToolUse governance check) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
@@ -37,20 +37,16 @@
 
 ### Completed This Session
 
-1. **AI Code Review Services — ai-coding methods v2.14.1**
-   - New §6.4.9 AI Code Review Services (~30 lines): integration guidance for AI-powered PR review tools (CodeRabbit, Copilot review, or equivalent). Covers automatic triggering value, limitations vs human review, finding weight (CI signal class), conflict resolution (framework governs), configuration guidance
-   - New §6.4.3 recommended additions row (`ai-review`)
-   - New Situation Index entry (AI-powered code review service → §6.4.9)
-   - Updated domains.json: methods_file reference + 3 description keywords (CodeRabbit, AI code review, automated PR review)
-   - Archived v2.14.0 to `documents/archive/`
-   - Methods: 494 → 495 (ai-coding: 195 → 196), 727 tests pass, query spot-check surfaces §6.4.9 at high confidence
-   - Contrarian review informed scope: §6.4.9 subsection (not appendix), tool-neutral framing, PATCH bump
-   - CI: all 6 jobs green (content scan, tests 3.10/3.11/3.12, security, lint) + CodeQL passed
-
-2. **Docker image rebuild — v1.8.0**
-   - Rebuilt to pick up accumulated code changes since last build: all 10 installable agents, auto-reload index, Context Engine v1.1.0 (import enrichment, ranking signals, weight tuning), CWD-based root detection fix, multimodal-RAG v2.0/v2.1, extractor fixes, and v2.14.1 content
-   - Pushed `jason21wc/ai-governance-mcp:1.8.0` + `:latest` to Docker Hub
-   - No server version bump (code was already v1.8.0, image was just stale)
+1. **Post-Change Completion Sequence — ai-coding methods v2.15.0**
+   - New §5.1.6 Post-Change Completion Sequence (~25 lines): assembles existing validation, recording, and delivery procedures into a single per-change checkpoint. Change-type profiles (code/content/configuration/documentation) via table, not conditional skip-if-N/A
+   - Updated §5.1.2 Implementation Cycle diagram: PASS now routes through Completion Sequence (§5.1.6) before Next Task
+   - Added §7.6.1 cross-reference note clarifying per-change vs per-session overlap
+   - New Situation Index entry (Done implementing / change complete → §5.1.6)
+   - CLAUDE.md: project-specific Post-Change Completion Checklist with code/content/documentation-only profiles
+   - Updated domains.json: methods_file reference + 3 description keywords (post-change completion, completion sequence, task completion)
+   - Archived v2.14.1 to `documents/archive/`
+   - Methods: 495 → 497 (ai-coding: 195 → 197), 727 tests pass, query spot-check surfaces §5.1.6 at high confidence
+   - Contrarian review informed two-layer approach (methods for general principle, CLAUDE.md for project-specific steps)
 
 ## Next Actions
 
