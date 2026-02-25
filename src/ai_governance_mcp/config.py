@@ -45,20 +45,31 @@ class JSONFormatter(logging.Formatter):
 
 
 def _find_project_root() -> Path:
-    """Find project root by looking for pyproject.toml or documents folder.
+    """Find the ai-governance-mcp data root directory.
 
-    Uses CWD-based search (walks up from current directory) so the server
-    works when run from any subdirectory. Note: config_generator.py uses
-    __file__-based root detection instead, since it's a CLI tool that needs
-    to find templates relative to the package installation.
+    Uses CWD-based search (walks up from current directory) looking for the
+    ai-governance-specific marker ``documents/domains.json``. This avoids
+    false-matching on unrelated Python projects that happen to have a
+    ``pyproject.toml`` or ``documents/`` directory.
+
+    Note: config_generator.py uses __file__-based root detection instead,
+    since it's a CLI tool that needs to find templates relative to the
+    package installation.
     """
     cwd = Path.cwd()
 
     for path in [cwd] + list(cwd.parents):
-        if (path / "pyproject.toml").exists() or (path / "documents").exists():
+        if (path / "documents" / "domains.json").exists():
             return path
 
-    return Path.home() / ".ai-governance"
+    fallback = Path.home() / ".ai-governance"
+    if not (fallback / "documents" / "domains.json").exists():
+        logging.getLogger("ai_governance_mcp").warning(
+            "Could not find ai-governance data directory. "
+            "Set AI_GOVERNANCE_DOCUMENTS_PATH and AI_GOVERNANCE_INDEX_PATH "
+            "environment variables, or run: python -m ai_governance_mcp.config_generator"
+        )
+    return fallback
 
 
 class Settings(BaseSettings):

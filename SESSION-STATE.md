@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-02-23
+**Last Updated:** 2026-02-24
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — CE Compliance Enforcement implemented (ai-coding v2.17.0 + hooks + tests)
+- **Active Task:** None — _find_project_root() false-match bug fixed
 
 ## Quick Reference
 
@@ -22,7 +22,7 @@
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
 | Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.17.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
-| Tests | **741 pass** (non-slow), 0 failures |
+| Tests | **748 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
@@ -33,27 +33,16 @@
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-02-23)
+## Session Summary (2026-02-24)
 
 ### Completed This Session
 
-1. **Context Engine Compliance Enforcement — ai-coding methods v2.17.0 + hooks + tests**
-   - **Part A (Documentation):** New §9.3.10 MCP Compliance Enforcement Patterns (~35 lines) — 4-layer enforcement stack (advisory instructions → per-response reminders → structural hooks → hard mode blocking). Documents session-level transcript scanning, soft/hard mode toggle, fast pre-filter optimization, fail-open/fail-closed behavior, enforcement design heuristics. Added 1 Situation Index entry, 1 version history entry.
-   - **Part B (Implementation):**
-     - Extended PreToolUse hook: single-pass dual scan for `evaluate_governance` AND `query_project`. Adaptive output (both/gov_only/ce_only/neither). Independent hard modes (`CE_HARD_MODE` separate from `GOVERNANCE_HARD_MODE`).
-     - Extended UserPromptSubmit hook: added CE nudge (~25 tokens) to existing governance reminder.
-     - Strengthened CLAUDE.md: CE section advisory→mandatory, "code"→"code or content", added hook note, added skip list.
-     - Updated orchestrator subagent: added `query_project` + `project_status` to tools, Step 1.5 Query Context Engine, updated examples. Synced to `.claude/agents/`, updated template hash.
-     - New `tests/test_hooks.py`: 14 subprocess-based tests covering all hook behaviors (both present, gov missing, CE missing, both missing, hard mode deny, soft mode fail-open, hard mode fail-closed, valid JSON, malformed JSONL, prompt hook).
-   - Archived v2.16.0, renamed to v2.17.0, updated domains.json (+4 keywords)
-   - Index: 124 principles + 498 methods (ai-coding: 198 → 199), 741 tests pass
-   - Spot-check: §9.3.10 surfaces at high confidence
-   - Code review: PASS WITH NOTES — no critical/high issues, added malformed JSONL test per reviewer suggestion
-   - Docker: server.py hash updated but pyproject.toml/Dockerfile unchanged → no rebuild needed
-
-2. **Agent-to-Service Integration Patterns — ai-coding methods v2.16.0** (earlier this session)
-   - New §5.6.7 (~50 lines): cross-system authority model, dynamically-discovered tool trust tiers, cross-service context isolation, agent-facing API design checklist
-   - Full details in archive — see v2.16.0 completion notes
+1. **Fix _find_project_root() false-match bug**
+   - Changed marker from generic `pyproject.toml` / `documents` to ai-governance-specific `documents/domains.json` in both `config.py` and `config_generator.py`
+   - Added warning log when fallback `~/.ai-governance/` is used and data files not found (tells users to set env vars or run config_generator)
+   - 7 new tests: false-match prevention (pyproject.toml, documents/), correct match, walk-up, fallback, nearest-match
+   - Code review: PASS WITH NOTES — no critical issues
+   - 748 tests pass (741 → 748)
 
 ## Next Actions
 

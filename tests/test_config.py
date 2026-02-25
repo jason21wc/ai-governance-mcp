@@ -16,7 +16,88 @@ from ai_governance_mcp.config import (
     ensure_directories,
     get_settings,
     _default_domains,
+    _find_project_root,
 )
+
+
+class TestFindProjectRoot:
+    """Tests for _find_project_root() data directory detection."""
+
+    def test_finds_root_from_project_directory(self):
+        """Should find root when CWD is the ai-governance project."""
+        # Running tests from the project root, so this should work
+        root = _find_project_root()
+        assert (root / "documents" / "domains.json").exists()
+
+    def test_does_not_match_generic_pyproject_toml(self, tmp_path, monkeypatch):
+        """Should NOT match a directory with only pyproject.toml (no domains.json)."""
+        # Create a generic Python project structure
+        (tmp_path / "pyproject.toml").write_text("[project]\nname = 'other-project'\n")
+        (tmp_path / "src").mkdir()
+
+        monkeypatch.chdir(tmp_path)
+        root = _find_project_root()
+
+        # Should NOT return the tmp_path (generic project)
+        assert root != tmp_path
+
+    def test_does_not_match_generic_documents_dir(self, tmp_path, monkeypatch):
+        """Should NOT match a directory with only a documents/ folder (no domains.json)."""
+        (tmp_path / "documents").mkdir()
+
+        monkeypatch.chdir(tmp_path)
+        root = _find_project_root()
+
+        assert root != tmp_path
+
+    def test_matches_directory_with_domains_json(self, tmp_path, monkeypatch):
+        """Should match when documents/domains.json exists."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+        (docs / "domains.json").write_text("[]")
+
+        monkeypatch.chdir(tmp_path)
+        root = _find_project_root()
+
+        assert root == tmp_path
+
+    def test_walks_up_to_find_root(self, tmp_path, monkeypatch):
+        """Should find root from a subdirectory."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+        (docs / "domains.json").write_text("[]")
+        subdir = tmp_path / "src" / "deep" / "nested"
+        subdir.mkdir(parents=True)
+
+        monkeypatch.chdir(subdir)
+        root = _find_project_root()
+
+        assert root == tmp_path
+
+    def test_fallback_when_no_marker_found(self, tmp_path, monkeypatch):
+        """Should fall back to ~/.ai-governance when no marker found."""
+        monkeypatch.chdir(tmp_path)
+        root = _find_project_root()
+
+        assert root == Path.home() / ".ai-governance"
+
+    def test_prefers_nearest_match(self, tmp_path, monkeypatch):
+        """Should return the nearest ancestor with the marker, not a higher one."""
+        # Outer project
+        outer_docs = tmp_path / "documents"
+        outer_docs.mkdir()
+        (outer_docs / "domains.json").write_text("[]")
+
+        # Inner project (nested)
+        inner = tmp_path / "inner"
+        inner_docs = inner / "documents"
+        inner_docs.mkdir(parents=True)
+        (inner_docs / "domains.json").write_text("[]")
+
+        monkeypatch.chdir(inner)
+        root = _find_project_root()
+
+        assert root == inner
 
 
 class TestSettings:

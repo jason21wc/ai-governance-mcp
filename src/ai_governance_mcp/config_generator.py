@@ -22,16 +22,18 @@ from typing import Optional
 
 
 def _find_project_root() -> Path:
-    """Find project root by looking for pyproject.toml or documents folder.
+    """Find the ai-governance-mcp data root directory.
 
-    Searches from the directory containing this file (not CWD) to find the
-    ai-governance-mcp project root reliably.
+    Searches from the directory containing this file (not CWD) looking for
+    the ai-governance-specific marker ``documents/domains.json``. This avoids
+    false-matching on unrelated Python projects that happen to have a
+    ``pyproject.toml`` or ``documents/`` directory.
     """
     # Start from this file's location, not CWD
     start_path = Path(__file__).resolve().parent
 
     for path in [start_path] + list(start_path.parents):
-        if (path / "pyproject.toml").exists() or (path / "documents").exists():
+        if (path / "documents" / "domains.json").exists():
             return path
 
     # Fallback to user directory
