@@ -1,7 +1,7 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.11.0
+**Version:** 3.11.1
 **Status:** Active
 **Effective Date:** 2026-02-10
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -3113,6 +3113,7 @@ Classify tasks by the minimum model capability required for acceptable quality:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.11.1 | 2026-02-24 | PATCH: Added "Platform vs. governance memory" note to Appendix G.5 auto memory template — clarifies governance memory files live in project repository root, not platform memory directories. Fixed `<project-hash>` → `*` in G.5 Claude Code memory path (it's a path-derived identifier, not a hash). |
 | 3.11.0 | 2026-02-20 | MINOR: Added §5.1.4 Document Lifecycle — defines draft/published/archived stages for governance documents. Clarifies that all documents live in `documents/` (no `drafts/` subdirectory); version numbers (`v0.x.x` vs `v1.0.0+`) communicate maturity. Added version semantics to §1.1.3. Prevents ad-hoc folder structures. Cross-referenced from ai-coding methods §6.5.2. |
 | 3.10.3 | 2026-02-10 | PATCH: Coherence audit remediation. Added domain qualifier to "Validation Independence" reference in §4.3.5 (multi-agent domain principle, not Constitution). |
 | 3.10.2 | 2026-02-10 | PATCH: Unified Update Checklist. Expanded §2.1.1 Update Flow from 5 to 11 steps — added CLAUDE.md propagation (step 4), SESSION-STATE propagation (step 5), coherence audit trigger check (step 9), retrieval verification (step 10), git commit (step 11). Added conditional notes for PATCH vs MINOR/MAJOR. Added cross-references linking §2.1.1 ↔ §4.1 ↔ §9.6 ↔ §4.3.2 for discoverability. Added 2 Situation Index entries (updating a governance document, post-update housekeeping). |
@@ -3201,7 +3202,7 @@ The following appendices provide platform-specific tactics for applying the gove
 
 **Applies To:** projects using Claude Code CLI with the cognitive memory architecture (ai-coding §7.0)
 
-Claude Code provides a **platform-native auto memory** feature: a persistent file at `~/.claude/projects/<project-hash>/memory/MEMORY.md` that is automatically injected into the system prompt at every conversation start. This creates a second persistence layer alongside the framework's cognitive memory files.
+Claude Code provides a **platform-native auto memory** feature: a persistent file at `~/.claude/projects/*/memory/MEMORY.md` that is automatically injected into the system prompt at every conversation start. This creates a second persistence layer alongside the framework's cognitive memory files.
 
 **Relationship to Framework Memory:**
 
@@ -3236,6 +3237,8 @@ Claude Code provides a **platform-native auto memory** feature: a persistent fil
 3. Read `LEARNING-LOG.md` — active lessons (check before repeating mistakes)
 4. Follow project instructions file (CLAUDE.md)
 ```
+
+**Platform vs. governance memory:** This auto memory template is for the platform's own memory system (e.g., Claude Code's `MEMORY.md` in `~/.claude/projects/*/memory/`). The governance files it references (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md) live in the **project repository root** — they are project artifacts, not entries in the platform's memory directory. The auto memory file simply points to them.
 
 **Why this matters:** Auto memory is loaded before the AI reads any files. If it contains stale facts, those stale facts anchor the AI's understanding before it encounters the current truth in framework files. Keeping auto memory minimal eliminates this anchoring risk.
 

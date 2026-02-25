@@ -136,7 +136,7 @@ AI Coding domain uses three memory files for session continuity:
 | **PROJECT-MEMORY.md** | Decisions, architecture, constraints | When relevant to current work |
 | **LEARNING-LOG.md** | Lessons learned, patterns | When similar situation arises |
 
-Create these files using templates in Methods §Cold Start Kit.
+Create these files in the **project repository root** using templates in Methods §Cold Start Kit. These are project artifacts tracked in version control — they are NOT platform-native memory (e.g., Claude Code's `~/.claude/projects/*/memory/MEMORY.md`, Cursor's `.cursor/rules/`). The project instructions file (CLAUDE.md, etc.) is the one overlap point between governance and the platform's memory system.
 </memory_architecture>
 
 <quick_reference>

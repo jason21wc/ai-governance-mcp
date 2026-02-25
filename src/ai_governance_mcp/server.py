@@ -504,7 +504,9 @@ When starting work on a new project for the first time, call `query_governance("
 - **SESSION-STATE.md** — Current position and next actions
 - **PROJECT-MEMORY.md** — Decisions, constraints, phase gates
 - **LEARNING-LOG.md** — Lessons learned
-- **Project instructions file** — Platform-specific (CLAUDE.md, .cursorrules, etc.)
+- **Project instructions file** — Platform-specific (CLAUDE.md, .cursor/rules/, etc.)
+
+**File Location:** Create governance memory files in the **project repository root**. These are project artifacts tracked in version control — they are NOT platform-native memory (e.g., Claude Code's `~/.claude/projects/*/memory/MEMORY.md`, Cursor's `.cursor/rules/`). The project instructions file (CLAUDE.md, etc.) is the one overlap point between governance and platform. Do not place governance memory files inside platform memory directories or manage them through the platform's memory system.
 
 **Important:** Suggest initialization to the user and wait for confirmation before creating files. If some governance files exist but others are missing, query for the checklist to fill gaps.
 

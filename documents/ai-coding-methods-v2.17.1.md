@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.17.0
+**Version:** 2.17.1
 **Status:** Active
 **Effective Date:** 2026-02-23
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -4979,6 +4979,8 @@ Execute in order:
 | 6 | Register source documents if applicable | §7.5 |
 | 7 | Begin Specify phase | Title 2 |
 
+**File Location:** Create governance memory files (steps 2–4) in the **project repository root**, alongside the project instructions file. These are project artifacts tracked in version control — they are NOT platform-native memory (e.g., Claude Code's `~/.claude/projects/*/memory/MEMORY.md`, Cursor's `.cursor/rules/`). The project instructions file (step 5) is the one overlap point: it is both a platform-native file AND a governance artifact. Do not place governance memory files inside platform memory directories or manage them through the platform's memory system.
+
 ### 7.8.3 File Creation Notes
 
 | File | Guidance |
@@ -5014,6 +5016,8 @@ Execute in order:
 ```
 
 ### 7.8.4 Minimal Viable Initialization (Expedited Mode)
+
+Create all files in the **project repository root** (see §7.8.2 File Location note).
 
 1. SESSION-STATE.md (current position)
 2. PROJECT-MEMORY.md (empty Phase Gates table)
@@ -6608,6 +6612,7 @@ CREATE POLICY "Users insert own documents" ON documents
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.17.1 | 2026-02-24 | PATCH: Added File Location guidance to §7.8.2 Initialization Checklist and §7.8.4 Minimal Viable Initialization — specifies governance memory files go in project repository root, distinguishes from platform-native memory (Claude Code MEMORY.md, Cursor .cursor/rules/, etc.), identifies project instructions file as the one overlap point. Fixes bug where AIs placed governance files in platform memory directories. Updated `.cursorrules` → `.cursor/rules/` per §7.4.2 canonical reference. |
 | 2.17.0 | 2026-02-23 | **MCP Compliance Enforcement Patterns:** New §9.3.10 — 4-layer enforcement stack (advisory instructions → per-response reminders → structural hooks → hard mode blocking). Documents session-level transcript scanning, soft/hard mode toggle, fast pre-filter optimization, fail-open/fail-closed behavior, and enforcement design heuristics. Extends §9.3.5 and §9.3.6 with structural enforcement mechanisms for governance-critical MCP applications. Added 1 Situation Index entry. Prompted by observed advisory-only compliance failure during v2.16.0 implementation. |
 | 2.16.0 | 2026-02-23 | **Agent-to-Service Integration Patterns:** New §5.6.7 — cross-system authority model (confused deputy at SaaS scale, per-task credential scoping, blast radius assessment), dynamically-discovered tool trust tiers (pre-vetted / domain-verified / untrusted with promotion path, WebMCP early preview), cross-service context isolation (data leakage prevention between services), agent-facing API design checklist (7 items for builders creating agent-consumable APIs). Enriched 3 existing sections: §5.6.5 (+dynamic tool discovery warning), §5.6.2 (+cross-system authority checklist item), §5.11.6 (+builder-side cross-reference to §5.6.7). Added §5.8.3 cross-reference. Added 2 Situation Index entries. Research basis: W3C WebMCP (2026, early preview), Bustamante (2026, practitioner evidence), OWASP MCP Top 10, OWASP Agentic Top 10. |
 | 2.15.1 | 2026-02-23 | **AI Security Scanning Guidance (Distributed):** Enriched 3 existing sections rather than creating new §5.3.7. §5.3.3: added AI-contextual scanners to SAST bullet. §5.3.5: added AI-generated patch risk paragraph citing Snyk 2.74x XSS finding (2026). §6.4.9: added security-focused AI scanner row to integration table, runtime validation limitation to does-NOT-provide list, 2 bold triggers (AI security scanning, AI vulnerability scanner). Triggered by Anthropic Claude Code Security announcement (2026-02-20); contrarian review recommended distributed enrichment over standalone section pending independent benchmarks. |

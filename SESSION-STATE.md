@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — _find_project_root() false-match bug fixed
+- **Active Task:** None — initialization file location bug fixed
 
 ## Quick Reference
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
-| Content | **v2.4.1** (Constitution), **v3.11.0** (meta-methods), **v2.17.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
+| Content | **v2.4.1** (Constitution), **v3.11.1** (meta-methods), **v2.17.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
 | Tests | **748 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -37,12 +37,16 @@
 
 ### Completed This Session
 
-1. **Fix _find_project_root() false-match bug**
-   - Changed marker from generic `pyproject.toml` / `documents` to ai-governance-specific `documents/domains.json` in both `config.py` and `config_generator.py`
-   - Added warning log when fallback `~/.ai-governance/` is used and data files not found (tells users to set env vars or run config_generator)
-   - 7 new tests: false-match prevention (pyproject.toml, documents/), correct match, walk-up, fallback, nearest-match
-   - Code review: PASS WITH NOTES — no critical issues
-   - 748 tests pass (741 → 748)
+1. **Fix initialization checklist file location bug**
+   - Added File Location guidance to §7.8.2 and §7.8.4 (ai-coding methods v2.17.1)
+   - Added Platform vs. governance memory note to G.5 auto memory template (meta-methods v3.11.1)
+   - Added location guidance to ai-instructions-v2.5.md `<memory_architecture>` section
+   - Strengthened SERVER_INSTRUCTIONS: added "tracked in version control", multi-platform example, explicit prohibition
+   - Fixed `.cursorrules` → `.cursor/rules/` (deprecated) in §7.8.2 and server.py
+   - Fixed `<project-hash>` → `*` in meta-methods G.5
+   - Code review: PASS WITH NOTES (3 MEDIUM addressed)
+   - Coherence audit: 3 misleading findings addressed, 4 cosmetic addressed
+   - 748 tests pass, 0 failures
 
 ## Next Actions
 
