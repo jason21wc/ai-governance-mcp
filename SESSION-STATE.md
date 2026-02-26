@@ -13,7 +13,7 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — initialization file location bug fixed
+- **Active Task:** None — auto prompt caching governance update
 
 ## Quick Reference
 
@@ -21,33 +21,29 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
-| Content | **v2.4.1** (Constitution), **v3.11.1** (meta-methods), **v2.17.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
+| Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.17.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
 | Tests | **748 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **124 principles + 498 methods** (see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
+| Index | **124 principles + 498 methods** (622 total; see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-02-24)
+## Session Summary (2026-02-25)
 
 ### Completed This Session
 
-1. **Fix initialization checklist file location bug**
-   - Added File Location guidance to §7.8.2 and §7.8.4 (ai-coding methods v2.17.1)
-   - Added Platform vs. governance memory note to G.5 auto memory template (meta-methods v3.11.1)
-   - Added location guidance to ai-instructions-v2.5.md `<memory_architecture>` section
-   - Strengthened SERVER_INSTRUCTIONS: added "tracked in version control", multi-platform example, explicit prohibition
-   - Fixed `.cursorrules` → `.cursor/rules/` (deprecated) in §7.8.2 and server.py
-   - Fixed `<project-hash>` → `*` in meta-methods G.5
-   - Code review: PASS WITH NOTES (3 MEDIUM addressed)
-   - Coherence audit: 3 misleading findings addressed, 4 cosmetic addressed
+1. **Auto prompt caching governance update** (meta-methods v3.11.1 → v3.12.0)
+   - Updated §13.1.2 Cache Architecture Patterns: auto vs explicit vs combined caching decision model, expanded anti-patterns and validation checklist
+   - Added Appendix G.6 (Prompt Caching Implementation): Anthropic-specific auto/explicit API examples, pricing table, 1-hour TTL, ITPM exemption, minimum cacheable tokens by model, 20-block lookback window, decision guide
+   - Updated §13.1.1 cache TTL bullet with extended TTL reference
+   - Added 1 Situation Index entry (implementing prompt caching)
+   - Archived v3.11.1, updated domains.json reference
    - 748 tests pass, 0 failures
-   - CI green, Docker image rebuilt and pushed
 
 ## Next Actions
 
