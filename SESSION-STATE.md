@@ -44,6 +44,7 @@
    - Added 1 Situation Index entry (implementing prompt caching)
    - Archived v3.11.1, updated domains.json reference
    - 748 tests pass, 0 failures
+   - CI green, Docker image rebuilt and pushed
 
 ## Next Actions
 
