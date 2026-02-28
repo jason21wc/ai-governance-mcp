@@ -72,8 +72,63 @@ Three deferred approaches for closing the bootstrap gap beyond advisory guidance
 ### 6. Backlog — Quantized Vector Search (Deferred)
 Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revisit when Context Engine reaches 500K+ vectors (multi-project indexing) or users report perceptible latency. See PROJECT-MEMORY.md > Roadmap > Quantized Vector Search for phased approach.
 
-### 7. Backlog — Add Procedures Domain (Priority: TBD)
-New governance domain for procedures. Framework content to be provided by Jason. Will require: domain config, document(s) in `documents/`, extractor support for the domain's structure, index rebuild, and tests.
+### 7. Backlog — Add Training & Instructional Design Domain (Priority: TBD)
+New governance domain for training, instructional design, and procedures. Replaces the original "Procedures Domain" placeholder — procedures are a type of training content and belong under this broader umbrella.
+
+**Scope — Content types:**
+- Standard Operating Procedures (SOPs) and runbooks
+- Technical tutorials and how-to guides
+- Onboarding materials (new hire, new project, new tool)
+- Workshop and course design
+- E-learning and self-paced training content
+- Knowledge assessments and certification criteria
+- Job aids, quick reference cards, cheat sheets
+
+**Principles (candidate areas):**
+- Learning objective alignment (every training artifact tied to measurable outcomes)
+- Scaffolded complexity (progressive disclosure, prerequisite sequencing)
+- Audience-appropriate design (novice vs. intermediate vs. expert paths)
+- Active learning over passive consumption (practice, application, reflection)
+- Assessment validity (testing understanding, not just recall)
+- Procedure safety completeness (no skipped critical steps, exception handling)
+- Knowledge retention design (spaced repetition, retrieval practice)
+- Accessibility and inclusivity in training materials
+
+**Methods (candidate areas):**
+- Procedure/SOP authoring workflow (draft → review → validate → publish)
+- Training needs analysis (gap identification, audience profiling)
+- Course/module structure design
+- Assessment design and rubric creation
+- Training effectiveness measurement
+- Knowledge transfer and handoff protocols
+- Maintenance and currency review (keeping training materials up to date)
+
+**AI-specific failure modes to address:**
+- AI generating technically accurate but pedagogically poor content (information dump, no scaffolding)
+- AI skipping critical safety steps in procedures
+- AI not adapting detail level to audience expertise
+- AI creating assessments that test recall rather than understanding or application
+- AI generating procedures without exception/error handling paths
+- AI producing training without explicit learning objectives
+- AI over-relying on text when visual/interactive approaches would be more effective
+
+**Evidence base and industry best practices to research:**
+- **TWI (Training Within Industry)** — WWII-era methodology still foundational: Job Instruction (JI), Job Methods (JM), Job Relations (JR), Job Safety (JS). Four-step JI method (Prepare → Present → Try Out → Follow Up) is the gold standard for procedural training
+- **Bloom's Taxonomy** — Cognitive domain hierarchy (Remember → Understand → Apply → Analyze → Evaluate → Create) for writing learning objectives and assessments
+- **ADDIE Model** — Instructional design lifecycle (Analysis → Design → Development → Implementation → Evaluation)
+- **SAM (Successive Approximation Model)** — Agile alternative to ADDIE with iterative prototyping
+- **Kirkpatrick's Four Levels** — Training effectiveness evaluation (Reaction → Learning → Behavior → Results)
+- **Merrill's First Principles of Instruction** — Task-centered learning, activation, demonstration, application, integration
+- **Gagné's Nine Events of Instruction** — Structured instructional sequence from attention through retention/transfer
+- **Lean/Toyota Kata** — Improvement and coaching routines for building organizational capability
+- **ISO 10015** — Quality management guidelines for training
+- **WCAG** — Accessibility standards applied to training materials
+- **Mayer's Multimedia Learning Principles** — Cognitive load theory applied to multimedia instruction (coherence, signaling, redundancy, spatial contiguity, temporal contiguity)
+- **Dreyfus Model of Skill Acquisition** — Novice → Advanced Beginner → Competent → Proficient → Expert progression for audience-appropriate design
+- **Spaced Repetition Research** — Ebbinghaus, Leitner system, evidence base for retention design
+- **Deliberate Practice** (Ericsson) — Structured practice with feedback for skill development
+
+**Implementation requirements:** Domain config in `domains.json`, principle document(s), methods document(s), extractor support, index rebuild, tests. Framework content to be developed collaboratively — Jason to provide domain-specific context, AI to research and structure per framework standards.
 
 ### 8. Backlog — Add UI/UX Domain (Priority: TBD)
 New governance domain for UI/UX design principles and methods. **Separate domain** from ai-coding — ai-coding §2.4/§2.5 cover *process* (when to do UX work); this domain covers *substance* (what good UX is).
