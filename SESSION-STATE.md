@@ -45,6 +45,7 @@
    - Added `AI_CONTEXT_ENGINE_INDEX_MODE: "realtime"` to MCP config
    - Code review: fixed circuit breaker clearing under `_index_lock`, added empty path guard, documented benign LRU race
    - 12 new tests, 1 updated test; 759 total pass, 0 failures
+   - CI green (all jobs), Docker image rebuilt and pushed
 
 ## Next Actions
 
