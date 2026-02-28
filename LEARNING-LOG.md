@@ -12,6 +12,14 @@
 
 ## Active Lessons
 
+### Multi-Path Methods Must Handle All Paths Uniformly (2026-02-28)
+
+`get_or_create_index()` had 3 code paths but only path #3 (create new) started the watcher. Path #2 (load from storage) — the boot-time path — silently skipped it. Bug persisted across multiple sessions because manual `reindex_project()` (which has its own watcher start) always masked it. Similarly, `query_project()`'s lazy-reload path after LRU eviction had no watcher start.
+
+**Rule:** When a method has N code paths that should all produce equivalent side effects, audit ALL paths — not just the obvious ones. Extract the shared side effect into a named helper (`_ensure_watcher`) and call it from every path. The boot-time path and the eviction-reload path are the easiest to miss because they're only exercised after restart or under memory pressure.
+
+---
+
 ### External Framework Comparison: Start from Gaps, Not Borrowing (2026-02-28)
 
 Evaluated Atlas framework against our ai-coding domain. Initial framing was "what can we borrow?" which anchored toward inclusion. Contrarian reviewer identified **intellectual generosity bias** — the desire to find value in external work to avoid appearing dismissive. Reframing to "does this reveal a genuine gap?" produced the correct conclusion: no gaps, no changes needed. All 5 candidate incorporations failed our framework's own quality bar (evidence-based, failure-mode-grounded, configurable thresholds).

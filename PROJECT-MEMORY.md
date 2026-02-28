@@ -149,6 +149,7 @@
 | Atomic JSON Writes | 2026-02-06 | `_atomic_write_json()` uses tmp file + rename for crash safety. POSIX atomic guarantees. |
 | Circuit Breaker Visibility | 2026-02-06 | `watcher_status` field in ProjectStatus exposes state (running/stopped/circuit_broken/disabled/not_loaded). |
 | Eager Watcher Startup | 2026-02-27 | `startup_watchers()` method pre-warms embedding model and loads realtime projects at boot in daemon thread. Watcher no longer waits for first query. `"not_loaded"` status distinguishes unloaded from stopped. `AI_CONTEXT_ENGINE_INDEX_MODE` added to MCP config. |
+| _ensure_watcher Helper | 2026-02-28 | Idempotent watcher lifecycle helper: no-op if running, restarts stale (in dict but dead), respects circuit breaker. Separate from `_start_watcher` (low-level primitive) because `reindex_project` explicitly clears circuit breaker before calling `_start_watcher` — adding CB checks to `_start_watcher` would break that flow. `is_running` hardened to check `_observer.is_alive()`. CE v1.2.1. |
 | Bounded Pending Changes | 2026-02-06 | MAX_PENDING_CHANGES (10K) with force-flush prevents unbounded memory growth. |
 | Language-Aware Chunking | 2026-02-06 | Code connector uses BOUNDARY_PATTERNS per language for better chunk boundaries. |
 | CI Context-Engine Extras | 2026-02-07 | CI must install `.[dev,context-engine]` — `pathspec` in optional extras needed by tests. |
