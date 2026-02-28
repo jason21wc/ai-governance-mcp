@@ -12,6 +12,14 @@
 
 ## Active Lessons
 
+### External Framework Comparison: Start from Gaps, Not Borrowing (2026-02-28)
+
+Evaluated Atlas framework against our ai-coding domain. Initial framing was "what can we borrow?" which anchored toward inclusion. Contrarian reviewer identified **intellectual generosity bias** — the desire to find value in external work to avoid appearing dismissive. Reframing to "does this reveal a genuine gap?" produced the correct conclusion: no gaps, no changes needed. All 5 candidate incorporations failed our framework's own quality bar (evidence-based, failure-mode-grounded, configurable thresholds).
+
+**Rule:** When evaluating external frameworks, start from "does this reveal a gap in ours?" not "what can we incorporate?" Apply our own principle derivation test: what failure mode does it address? What evidence supports it? What constitutional basis? If it doesn't meet that bar, it doesn't belong — regardless of community popularity.
+
+---
+
 ### __file__-Based Paths Break in Docker Non-Editable Installs (2026-02-19)
 
 `_validate_log_path()` used `Path(__file__).parent.parent.parent` to find project root. Inside Docker with `pip install .` (non-editable), `__file__` resolves to site-packages (`/usr/local/lib/...`), not `/app`. Log writes to `/app/logs/` were rejected as "outside boundaries." Meanwhile, `config.py` already had a CWD-based `_find_project_root()` that worked correctly.
