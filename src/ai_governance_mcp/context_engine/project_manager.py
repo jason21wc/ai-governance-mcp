@@ -131,6 +131,8 @@ class ProjectManager:
             # Check if already loaded in memory
             if project_id in self._loaded_indexes:
                 self._touch_project(project_id)
+                if index_mode == "realtime":
+                    self._ensure_watcher(project_path, project_id)
                 return self._loaded_indexes[project_id]
 
             # Evict old projects before loading new one
@@ -140,6 +142,8 @@ class ProjectManager:
             if self.storage.project_exists(project_id):
                 index = self._load_project(project_id)
                 self._touch_project(project_id)
+                if index_mode == "realtime":
+                    self._ensure_watcher(project_path, project_id)
                 return index
 
             # Create new index
@@ -152,7 +156,7 @@ class ProjectManager:
 
             # Start watcher if realtime mode
             if index_mode == "realtime":
-                self._start_watcher(project_path, project_id)
+                self._ensure_watcher(project_path, project_id)
 
             return index
 
@@ -186,6 +190,16 @@ class ProjectManager:
             if project_id not in self._loaded_indexes:
                 if self.storage.project_exists(project_id):
                     self._load_project(project_id)
+                    # Start watcher if project was indexed as realtime
+                    metadata = self.storage.load_metadata(project_id)
+                    stored_mode = (metadata or {}).get("index_mode", "ondemand")
+                    if stored_mode == "realtime":
+                        try:
+                            self._ensure_watcher(project_path, project_id)
+                        except Exception as e:
+                            logger.warning(
+                                "Failed to start watcher for %s: %s", project_id, e
+                            )
                 else:
                     self.get_or_create_index(
                         project_path, index_mode=self.default_index_mode
@@ -841,3 +855,25 @@ class ProjectManager:
         )
         watcher.start()
         self._watchers[project_id] = watcher
+
+    def _ensure_watcher(self, project_path: Path, project_id: str) -> None:
+        """Ensure a file watcher is running for a realtime project.
+
+        Idempotent: no-op if watcher already running. Restarts stale
+        watchers (in dict but not running). Respects circuit breaker.
+        Must be called under _index_lock.
+        """
+        if project_id in self._circuit_broken:
+            return
+        existing = self._watchers.get(project_id)
+        if existing is not None and existing.is_running:
+            return
+        # Remove stale entry (stopped but still in dict)
+        if existing is not None:
+            logger.warning(
+                "Detected stale watcher for %s (in dict but not running), restarting",
+                project_id,
+            )
+            existing.stop()  # Ensure clean shutdown before restart
+            self._watchers.pop(project_id, None)
+        self._start_watcher(project_path, project_id)

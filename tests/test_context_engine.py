@@ -1132,6 +1132,9 @@ class TestFileWatcher:
         watcher = FileWatcher(project_path=tmp_path, on_change=Mock())
         assert watcher.is_running is False
         watcher._running.set()
+        mock_observer = Mock()
+        mock_observer.is_alive.return_value = True
+        watcher._observer = mock_observer
         assert watcher.is_running is True
 
     def test_start_without_watchdog(self, tmp_path):
@@ -5324,3 +5327,197 @@ class TestWatcherStatusNotLoaded:
             watcher_status="not_loaded",
         )
         assert status.watcher_status == "not_loaded"
+
+
+class TestEnsureWatcher:
+    """Tests for _ensure_watcher and watcher-on-boot fixes."""
+
+    def test_load_from_storage_starts_watcher_for_realtime(self, tmp_path):
+        """Existing project loaded via get_or_create_index(realtime) starts watcher."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+        from ai_governance_mcp.context_engine.storage.filesystem import (
+            FilesystemStorage,
+        )
+
+        pm = ProjectManager(storage=Mock())
+        project_id = FilesystemStorage.project_id_from_path(tmp_path)
+
+        # Storage says project exists; _load_project returns a mock index
+        pm.storage.project_exists = Mock(return_value=True)
+        mock_index = Mock()
+        mock_index.chunks = []
+        pm._load_project = Mock(return_value=mock_index)
+        pm._start_watcher = Mock()
+
+        pm.get_or_create_index(tmp_path, index_mode="realtime")
+
+        pm._start_watcher.assert_called_once_with(tmp_path, project_id)
+
+    def test_load_from_storage_no_watcher_for_ondemand(self, tmp_path):
+        """Existing project loaded via get_or_create_index(ondemand) does NOT start watcher."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock())
+
+        pm.storage.project_exists = Mock(return_value=True)
+        mock_index = Mock()
+        mock_index.chunks = []
+        pm._load_project = Mock(return_value=mock_index)
+        pm._start_watcher = Mock()
+
+        pm.get_or_create_index(tmp_path, index_mode="ondemand")
+
+        pm._start_watcher.assert_not_called()
+
+    def test_ensure_watcher_restarts_stopped_watcher(self, tmp_path):
+        """Watcher in dict but not running is removed and restarted with WARNING."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock())
+        project_id = "stale-proj"
+
+        # Stale watcher: in dict but is_running returns False
+        stale_watcher = Mock()
+        stale_watcher.is_running = False
+        pm._watchers[project_id] = stale_watcher
+        pm._start_watcher = Mock()
+
+        with self._index_lock_context(pm):
+            pm._ensure_watcher(tmp_path, project_id)
+
+        # Stale entry removed, _start_watcher called
+        assert (
+            project_id not in pm._watchers or pm._watchers[project_id] != stale_watcher
+        )
+        pm._start_watcher.assert_called_once_with(tmp_path, project_id)
+
+    def test_ensure_watcher_respects_circuit_breaker(self, tmp_path):
+        """Circuit-broken project should NOT get watcher restarted."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock())
+        project_id = "cb-proj"
+        pm._circuit_broken.add(project_id)
+        pm._start_watcher = Mock()
+
+        with self._index_lock_context(pm):
+            pm._ensure_watcher(tmp_path, project_id)
+
+        pm._start_watcher.assert_not_called()
+
+    def test_ensure_watcher_noop_for_running(self, tmp_path):
+        """Running watcher should NOT be restarted."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock())
+        project_id = "running-proj"
+
+        running_watcher = Mock()
+        running_watcher.is_running = True
+        pm._watchers[project_id] = running_watcher
+        pm._start_watcher = Mock()
+
+        with self._index_lock_context(pm):
+            pm._ensure_watcher(tmp_path, project_id)
+
+        pm._start_watcher.assert_not_called()
+
+    def test_startup_watchers_watcher_status_running(self, tmp_path):
+        """After startup_watchers(), watcher status should be 'running'."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+        from ai_governance_mcp.context_engine.storage.filesystem import (
+            FilesystemStorage,
+        )
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+        pm._indexer = Mock()
+        pm._indexer.embedding_model = Mock()
+
+        project_id = FilesystemStorage.project_id_from_path(tmp_path)
+
+        pm.storage.list_projects = Mock(return_value=[project_id])
+        pm.storage.load_metadata = Mock(
+            return_value={
+                "index_mode": "realtime",
+                "project_path": str(tmp_path),
+            }
+        )
+
+        # Mock get_or_create_index to simulate loading + watcher start
+        mock_index = Mock()
+        mock_index.chunks = []
+
+        def fake_get_or_create(path, index_mode="ondemand"):
+            pm._loaded_indexes[project_id] = mock_index
+            # Simulate watcher being started
+            mock_watcher = Mock()
+            mock_watcher.is_running = True
+            pm._watchers[project_id] = mock_watcher
+            return mock_index
+
+        pm.get_or_create_index = Mock(side_effect=fake_get_or_create)
+
+        pm.startup_watchers()
+
+        status = pm._get_watcher_status(project_id, "realtime")
+        assert status == "running"
+
+    def test_query_project_starts_watcher_after_eviction(self, tmp_path):
+        """Project evicted then queried should get watcher restarted via stored metadata."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+        from ai_governance_mcp.context_engine.storage.filesystem import (
+            FilesystemStorage,
+        )
+
+        pm = ProjectManager(storage=Mock())
+        project_id = FilesystemStorage.project_id_from_path(tmp_path)
+
+        # Project exists in storage but NOT in memory (evicted)
+        pm.storage.project_exists = Mock(return_value=True)
+        pm.storage.load_metadata = Mock(
+            return_value={
+                "index_mode": "realtime",
+                "project_path": str(tmp_path),
+            }
+        )
+
+        mock_index = Mock()
+        mock_index.chunks = []
+        mock_index.updated_at = None
+
+        # _load_project simulates loading from storage into memory
+        def fake_load(pid):
+            pm._loaded_indexes[pid] = mock_index
+            return mock_index
+
+        pm._load_project = Mock(side_effect=fake_load)
+        pm._ensure_watcher = Mock()
+
+        # Semantic/BM25 return empty
+        pm._semantic_search = Mock(return_value=np.array([]))
+        pm._bm25_search = Mock(return_value=np.array([]))
+
+        pm.query_project(query="test", project_path=tmp_path)
+
+        pm._ensure_watcher.assert_called_once_with(tmp_path, project_id)
+
+    def test_is_running_false_when_observer_dead(self):
+        """is_running should return False when _observer.is_alive() is False."""
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        watcher = FileWatcher(
+            project_path=Path("/tmp/test"),
+            on_change=Mock(),
+        )
+        # Simulate: _running is set but observer thread is dead
+        watcher._running.set()
+        mock_observer = Mock()
+        mock_observer.is_alive.return_value = False
+        watcher._observer = mock_observer
+
+        assert watcher.is_running is False
+
+    @staticmethod
+    def _index_lock_context(pm):
+        """Helper to acquire _index_lock for _ensure_watcher calls."""
+        return pm._index_lock

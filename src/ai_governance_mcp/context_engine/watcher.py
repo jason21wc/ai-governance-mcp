@@ -221,4 +221,5 @@ class FileWatcher:
     @property
     def is_running(self) -> bool:
         """Check if the watcher is currently running."""
-        return self._running.is_set()
+        obs = self._observer
+        return self._running.is_set() and obs is not None and obs.is_alive()

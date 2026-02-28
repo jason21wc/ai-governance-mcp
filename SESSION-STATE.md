@@ -11,18 +11,18 @@
 
 ## Current Position
 
-- **Phase:** Complete
+- **Phase:** Implementation complete, pending commit
 - **Mode:** Standard
-- **Active Task:** None — all changes committed and pushed
+- **Active Task:** Context Engine watcher boot fix — completion sequence
 
 ## Quick Reference
 
 | Metric | Value |
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
-| Context Engine | **v1.2.0** (eager watcher startup, not_loaded status) |
+| Context Engine | **v1.2.1** (watcher auto-start on boot fix) |
 | Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.17.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
-| Tests | **759 pass** (non-slow), 0 failures |
+| Tests | **767 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
@@ -37,7 +37,17 @@
 
 ### Completed This Session
 
-1. **Confirmed Context Engine v1.2.0 realtime mode working**
+1. **Fixed Context Engine watcher not starting on boot** (Context Engine v1.2.1)
+   - Root cause: `get_or_create_index()` path #2 (load from storage) never started the watcher — the exact path taken on every server boot
+   - Added `_ensure_watcher()` idempotent helper (stale detection, circuit breaker respect, restart)
+   - Updated all 3 paths in `get_or_create_index()` + `query_project()` LRU eviction path
+   - Hardened `FileWatcher.is_running` to check `_observer.is_alive()` (detects dead threads)
+   - 8 new tests in `TestEnsureWatcher`, 1 existing test fixed, 767 total passing
+   - Files: `watcher.py`, `project_manager.py`, `test_context_engine.py`
+
+2. **Added backlog item #8: Subagent Output Framing** — Clarify that subagent findings are advisory, not authoritative. Main agent must independently evaluate with anchor bias mitigation.
+
+3. **Confirmed Context Engine v1.2.0 realtime mode working**
    - Verified `index_mode: "realtime"` env var picked up after Claude Code restart
    - Watcher initially showed "stopped" — re-index resolved it, watcher now "running"
    - Index refreshed: 138 files / 3,427 chunks (up from 129/3,339)
@@ -350,6 +360,35 @@ Periodic review method for keeping our security guidance (§5.3-§5.11, security
 **Cadence:** TBD — quarterly review seems reasonable for security content, but frequency should match the pace of landscape change. Could be event-triggered (major tool launch, OWASP update) rather than calendar-driven.
 
 **Implementation requirements:** Not a code change — this is a methods-level practice. May result in: updated methods sections, new appendices for favored tools, updated evidence base citations, revised security-auditor subagent instructions.
+
+### 8. Backlog — Subagent Output Framing: Advisory, Not Authoritative (Priority: TBD)
+Clarify across all governance touchpoints that subagent findings and suggestions are **advisory inputs**, not authoritative directives. The orchestrating AI (main agent) must independently review subagent output, assess whether it agrees, and decide what to implement — free from anchor bias toward either its own original output or the subagent's suggestions.
+
+**Problem:** Current subagent definitions and orchestrator instructions don't make the advisory nature of subagent output explicit enough. An AI receiving a code review, security audit, or validation result from a subagent may treat those findings as requirements to implement wholesale, rather than expert opinions to evaluate critically. This creates two failure modes:
+1. **Subagent anchor bias** — AI implements every subagent suggestion without critical evaluation, even when suggestions conflict with project context, user intent, or practical constraints
+2. **Original output anchor bias** — AI dismisses subagent findings to preserve its initial approach, rationalizing why each suggestion doesn't apply
+
+**Goal:** Crystal-clear framing at every layer — subagent definitions, orchestrator instructions, and SERVER_INSTRUCTIONS — that subagent output is input to a decision, not the decision itself. The main agent should apply the same anchor bias mitigation protocol (§7.10) to both its original work and subagent suggestions.
+
+**Scope — What gets updated:**
+- **Subagent definitions** (`documents/agents/*.md`) — Add explicit "Advisory Output" section to each agent template stating that findings are recommendations, not mandates. The consuming agent must evaluate each finding against project context before acting.
+- **Orchestrator subagent** (`documents/agents/orchestrator.md`) — Add protocol for how the orchestrator should process subagent results: receive → evaluate independently → decide → document reasoning. Explicit instruction to avoid both anchor bias directions.
+- **SERVER_INSTRUCTIONS** (governance server instructions) — Add guidance in the orchestrator protocol section about subagent output being advisory. Reference §7.10 anchor bias checkpoints for evaluating subagent suggestions.
+- **Constitution or meta-methods** — Consider whether this needs a principle-level statement (e.g., "AI agents must independently evaluate delegated findings rather than implementing them uncritically") or if method-level guidance suffices.
+
+**Anchor bias protocol integration:**
+The existing §7.10 Anchor Bias Mitigation Protocol applies directly. When reviewing subagent output, the main agent should:
+1. **Reframe** — State the goal without referencing the subagent's specific suggestions
+2. **Generate** — Consider alternatives the subagent may not have suggested
+3. **Challenge** — "Would I make this change if I discovered it myself vs. being told to?"
+4. **Evaluate** — Compare subagent suggestion against project context, user intent, and practical constraints
+
+**Key design decisions:**
+- Should each subagent definition include the advisory framing, or should it be centralized in the orchestrator only? (Recommendation: both — belt and suspenders. Subagent definitions state "my output is advisory"; orchestrator states "evaluate subagent output critically".)
+- How explicit should the "disagree and commit" protocol be? The main agent needs permission to reject subagent findings with documented reasoning.
+- Should there be a structured output format for subagent evaluation? (e.g., "Finding: X | Agree/Disagree | Reasoning: Y | Action: Z")
+
+**Implementation requirements:** Content changes to agent templates and SERVER_INSTRUCTIONS. Rebuild index after document changes. Tests for updated agent template content validation. No code changes expected — this is a governance content update. Sync `documents/agents/` → `.claude/agents/` after edits.
 
 ## Links
 
