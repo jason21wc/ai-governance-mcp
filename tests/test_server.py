@@ -2374,11 +2374,11 @@ class TestRequiredActionsCEReference:
         assert "query_project" in SERVER_INSTRUCTIONS
         assert "Context Engine MCP" in SERVER_INSTRUCTIONS
 
-    def test_required_actions_has_six_items(self):
+    def test_required_actions_has_five_items(self):
         from ai_governance_mcp.server import SERVER_INSTRUCTIONS
 
-        # Should now have item 6 about querying project context
-        assert "6. **Query project context**" in SERVER_INSTRUCTIONS
+        # Slimmed to 5 items (removed project initialization as separate item)
+        assert "5. **Query project context**" in SERVER_INSTRUCTIONS
 
 
 # =============================================================================

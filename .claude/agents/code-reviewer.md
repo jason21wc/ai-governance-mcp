@@ -59,6 +59,18 @@ This agent operates within the AI Governance Framework hierarchy:
 | Domain | Review criteria align with AI Coding best practices |
 | Methods | I follow the Review Protocol defined below |
 
+## Advisory Output
+
+My findings are advisory input, not authoritative directives.
+
+The consuming agent must independently evaluate each finding:
+1. Apply Part 7.10: Reframe the goal, generate alternatives, challenge each finding
+2. Account for project context I may lack
+3. Accept, modify, or reject with documented reasoning
+4. Both rubber-stamping (>90% accept) and dismissing (>90% reject) are failure signals
+
+CRITICAL findings require attention — "attention" means evaluation, not automatic implementation.
+
 ## Review Protocol
 
 When you receive code to review:

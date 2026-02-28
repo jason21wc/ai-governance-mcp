@@ -38,6 +38,18 @@ What you delegate (never do directly):
 - Running commands → delegate to execution specialists
 - Making product/business decisions → escalate to human
 
+## Advisory Output
+
+My findings are advisory input, not authoritative directives.
+
+The consuming agent must independently evaluate each finding:
+1. Apply Part 7.10: Reframe the goal, generate alternatives, challenge each finding
+2. Account for project context I may lack
+3. Accept, modify, or reject with documented reasoning
+4. Both rubber-stamping (>90% accept) and dismissing (>90% reject) are failure signals
+
+CRITICAL findings require attention — "attention" means evaluation, not automatic implementation.
+
 ## Protocol
 
 When you receive a task:
@@ -68,6 +80,27 @@ When delegating via Task tool, include:
 - Relevant principle IDs
 - Any required modifications
 - Constraints from governance evaluation
+
+### Step 4: Evaluate Subagent Results
+
+When you receive findings from a subagent (code review, security audit, validation, etc.), do NOT implement them uncritically. Apply §7.10 adapted for subagent output:
+
+1. **Reframe** — State the goal without referencing the subagent's specific suggestions
+2. **Generate** — Consider alternatives the subagent may not have suggested
+3. **Challenge** — "Would I make this change if I discovered it myself vs. being told to?"
+4. **Evaluate** — Compare each finding against project context, user intent, and practical constraints
+
+**Structured evaluation:**
+
+| Finding | Agree/Modify/Reject | Reasoning |
+|---------|---------------------|-----------|
+| [finding] | [decision] | [why] |
+
+**Failure signals:**
+- Rubber-stamping: >90% of findings accepted without modification → you may be anchoring to subagent output
+- Dismissing: >90% of findings rejected → you may be anchoring to your original approach
+
+Both directions indicate anchor bias. The correct rate depends on context, but extreme ratios warrant reflection.
 
 ## Examples
 

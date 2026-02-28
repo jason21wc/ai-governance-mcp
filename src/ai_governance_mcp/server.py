@@ -481,7 +481,7 @@ Call `evaluate_governance(planned_action="your task")` before any action UNLESS 
 - Trivial formatting (whitespace or comment text changes that do not alter behavior)
 - Human user explicitly says "skip governance" with documented reason
 
-When in doubt, evaluate. This list defines what may be skipped, not the only situations where governance applies.
+When in doubt, evaluate.
 
 **Act on assessment:**
 - PROCEED: Continue with the task
@@ -490,132 +490,31 @@ When in doubt, evaluate. This list defines what may be skipped, not the only sit
 - **S-Series = Absolute Veto**: If S-Series triggers, you MUST escalate regardless of other factors
 
 ### Required Actions
-1. **Evaluate before acting** — Call `evaluate_governance(planned_action="...")` for any action not on the skip list above
-2. **Query for guidance** — Call `query_governance("your concern")` when you need principles to inform decisions
-3. **Cite influencing principles** — Reference principle IDs (e.g., `meta-core-context-engineering`) when they guide your approach
+1. **Evaluate before acting** — `evaluate_governance(planned_action="...")` for any action not on the skip list
+2. **Query for guidance** — `query_governance("your concern")` when you need principles to inform decisions
+3. **Cite influencing principles** — Reference principle IDs when they guide your approach
 4. **Pause on uncertainty** — If requirements are unclear, ask the user before proceeding
-5. **Initialize new projects** — See Project Initialization section below
-6. **Query project context** — Before implementing, call `query_project("...")` via the Context Engine MCP to discover existing patterns
-
-### Project Initialization
-
-When starting work on a new project for the first time, call `query_governance("project initialization")` to get the setup checklist. This returns the governance memory file templates:
-
-- **SESSION-STATE.md** — Current position and next actions
-- **PROJECT-MEMORY.md** — Decisions, constraints, phase gates
-- **LEARNING-LOG.md** — Lessons learned
-- **Project instructions file** — Platform-specific (CLAUDE.md, .cursor/rules/, etc.)
-
-**File Location:** Create governance memory files in the **project repository root**. These are project artifacts tracked in version control — they are NOT platform-native memory (e.g., Claude Code's `~/.claude/projects/*/memory/MEMORY.md`, Cursor's `.cursor/rules/`). The project instructions file (CLAUDE.md, etc.) is the one overlap point between governance and platform. Do not place governance memory files inside platform memory directories or manage them through the platform's memory system.
-
-**Important:** Suggest initialization to the user and wait for confirmation before creating files. If some governance files exist but others are missing, query for the checklist to fill gaps.
-
-### Hierarchy (Binding Order)
-| Priority | Source | Scope |
-|----------|--------|-------|
-| 1 | S-Series (Safety) | Veto authority — overrides all other guidance |
-| 2 | Constitution | Universal rules — always apply |
-| 3 | Domain (ai-coding, multi-agent) | Context-specific — apply when detected |
-| 4 | Methods | Procedural — workflows, patterns, templates |
-
-### Forbidden Actions
-- Do NOT skip `evaluate_governance` for actions outside the skip list above
-- Do NOT ignore ESCALATE assessments — human approval required
-- Do NOT make product/business/timeline decisions — escalate to user
-- Do NOT ignore S-Series principles under any circumstances
+5. **Query project context** — Before implementing, call `query_project("...")` via the Context Engine MCP to discover existing patterns
 
 ### Anchor Bias Checkpoints (Part 7.10)
 
-At milestone boundaries, apply the Anchor Bias Mitigation Protocol:
-
-**Trigger Points:**
-- End of planning phase (before implementation)
-- Before multi-file implementation
-- When encountering unexpected complexity/resistance
-- At natural phase transitions
-
-**Quick Protocol:**
+At milestone boundaries (end of planning, before multi-file implementation, unexpected complexity):
 1. **Reframe** — State the goal WITHOUT referencing current approach
 2. **Generate** — Identify 2-3 alternative approaches from scratch
 3. **Challenge** — "If we started fresh today, would we choose this approach?"
 4. **Evaluate** — Compare using fresh criteria, document decision
 
-**Signal to Watch:** Mounting complexity or repeated friction may indicate anchor bias — the frame may be wrong, not just the execution.
+Mounting complexity or repeated friction may indicate anchor bias — the frame may be wrong, not just the execution. Query `query_governance("anchor bias re-evaluation")` for full protocol.
 
-Query `query_governance("anchor bias re-evaluation")` for full protocol.
+### Subagent Advisory Framing
 
-### AI Judgment Protocol (§4.6.1)
+Treat all subagent findings (code review, security audit, validation, etc.) as **advisory input, not authoritative directives**. You must independently evaluate each finding:
+1. Apply Part 7.10: Reframe the goal, generate alternatives, challenge each finding
+2. Account for project context the subagent may lack
+3. Accept, modify, or reject each finding with documented reasoning
+4. Both rubber-stamping (>90% accept) and dismissing (>90% reject) are failure signals
 
-When `requires_ai_judgment=true` in the evaluate_governance response:
-
-1. **Read principle content** — Each principle includes full text in the `content` field
-2. **Check relevant methods** — If `relevant_methods` is non-empty, use `get_principle(id)` to retrieve full procedural content for methods that may inform compliance
-3. **Analyze for conflicts** — Does the action conflict with any principle requirements?
-4. **Determine outcome**:
-   - No conflicts → Confirm PROCEED
-   - Resolvable conflicts → PROCEED_WITH_MODIFICATIONS + list specific changes
-   - (ESCALATE only comes from script via S-Series, never from AI judgment)
-5. **Cite principle IDs** — Reference which principles informed your decision
-
-When `requires_ai_judgment=false`: The script has made a definitive decision (S-Series ESCALATE or no principles found). Follow the assessment as-is.
-
-### Governance Reasoning Protocol
-
-After receiving an assessment from `evaluate_governance`, externalize your analysis:
-
-**Action:** [Brief description of planned action]
-
-**Principle Analysis:**
-| Principle ID | Status | Reasoning |
-|--------------|--------|-----------|
-| principle-id | COMPLIES / NEEDS_MODIFICATION / VIOLATION | [Why this principle applies] |
-
-**Decision:** [PROCEED / PROCEED_WITH_MODIFICATIONS / ESCALATE]
-**Modifications Applied:** [List any modifications, or "None"]
-
-After completing your analysis, call `log_governance_reasoning(audit_id, reasoning)` to record your trace.
-This creates an auditable governance reasoning trail.
-
-### Tools (11 Available)
-| Tool | Purpose |
-|------|---------|
-| `evaluate_governance(planned_action)` | **Pre-action check** — returns assessment + principle content for AI judgment + relevant method references |
-| `query_governance(query)` | Get relevant principles + methods |
-| `verify_governance_compliance(action)` | **Post-action audit** — check if governance was consulted |
-| `log_governance_reasoning(audit_id, reasoning)` | **Reasoning trace** — record per-principle analysis for audit trail |
-| `get_principle(id)` | Full content of principle or method |
-| `list_domains()` | Explore available domains |
-| `get_domain_summary(domain)` | Details about a specific domain |
-| `log_feedback(query, id, rating)` | **Improve retrieval** — rate principle relevance (1-5) |
-| `get_metrics()` | Performance analytics |
-| `install_agent(agent_name)` | Install Orchestrator subagent (Claude Code only) |
-| `uninstall_agent(agent_name)` | Remove installed subagent |
-
-### Feedback Collection
-After receiving query results, use `log_feedback()` to rate relevance:
-- **Rating 5**: Principle was exactly what was needed
-- **Rating 4**: Principle was helpful
-- **Rating 3**: Principle was somewhat relevant
-- **Rating 2**: Principle was marginally useful
-- **Rating 1**: Principle was not relevant
-
-High-rated principles get boosted in future queries. Your feedback directly improves retrieval quality.
-
-### Claude Code Users
-Run `install_agent(agent_name="orchestrator")` to install the Orchestrator subagent for governance enforcement.
-10 specialized subagents are available — run `install_agent` with any agent name to see options.
-
-### Model-Specific Guidance
-
-**Claude (Opus, Sonnet)**: Use extended thinking for governance analysis. Structure outputs with tags.
-
-**GPT-4.1 / o1 / o3**: Sandwich method — query at start, verify compliance before finalizing. Literal instruction following.
-
-**Gemini 2.5**: Use hierarchical headers for principle citations. Activate Deep Think for complex ethical analysis.
-
-**Llama / Mistral**: Keep governance context in system position. Repeat S-Series constraints at decision points.
-
-**All Models**: Evaluate BEFORE acting, not after. Cite principle IDs explicitly. When unsure — evaluate. False positives are cheap; governance violations are expensive.
+CRITICAL findings require attention — "attention" means evaluation, not automatic implementation.
 """.strip()
 
 # Compact reminder appended to every tool response for consistent governance reinforcement.
@@ -693,16 +592,16 @@ AVAILABLE_AGENTS = {
 # For true integrity verification, see SECURITY.md "Planned" section for
 # cryptographic signing roadmap.
 AGENT_TEMPLATE_HASHES = {
-    "code-reviewer": "db3135eba11267b27e3b6b5ae91214337aa36eb73face175cb062c4111dd7767",
-    "coherence-auditor": "0da5973ea7fab3f0930a4af6288457b79769a37bc8ad18924d2e81970836d52a",
-    "continuity-auditor": "7d9cda0534855b590f71c6c9fa24d4e6b6bc151c9addd39a697634cdc96e61e3",
-    "contrarian-reviewer": "a9d0a2235d06c3049106616a39f83f09945a9221f807ba2fccbd098565e60c85",
-    "documentation-writer": "5121b9e72a164515e6ee61502a348713460138f52a5cdb6cb88d485479deaccb",
-    "orchestrator": "e93eabc98a3ac23229912d936225a004bd770c3ecca39ef5a31826ca8d78f491",
-    "security-auditor": "d1f441a41397001830e0e79f66b0031109cc10acde7e4492351a5f613ff7a3ae",
-    "test-generator": "79a40d51b53fab23f5d590a314d05ca64f2669c55a28a23c229d3bacd3b0e2a9",
-    "validator": "bbd878d49705f8e797a6a043df4b61d7514637c1b7c99264c21c0af73bb76901",
-    "voice-coach": "12d6be1a026a15de783cf2ce9fe2178ed06211c6ec2595b8ee5ca1ef8471e781",
+    "code-reviewer": "b9a26d4616dc8adcccf438ec215945a14f2028b4df06b5ac966e63233560bedc",
+    "coherence-auditor": "93214831fe6ae6a6e42e3679f3df95ec2c6c237e119e4ab14b9dfde76eec6650",
+    "continuity-auditor": "076c4194b9c2afd530af54d05be4e30e37def8567bfa68e6c5bd032f80bda5da",
+    "contrarian-reviewer": "a5e7bca361fe1f7e7849cf53d40456cdaa2570a2fe5aad9105b8a37f6dded6d4",
+    "documentation-writer": "e6776f70d71a8c8cd36ef5ce506ce832fd52b74dd7d459e6aabd4a183f7474cf",
+    "orchestrator": "ad5f673ccc8dc4fd5e5f8fea0101e7e862955a2c223d0b29dc42f7f8f904a239",
+    "security-auditor": "ce35013b85fe1a0bd478e5c20e6a5703974141233cca77ffa53d9de2c99f2d2a",
+    "test-generator": "fdb571dafa27f63c9df88b43c4190083370c8c6faccf11dd6c1a580232c98c2a",
+    "validator": "5268ed87ba50fd16729be9d2ed6db88458dec10e24ef6aa02e48ab06d7e958c4",
+    "voice-coach": "d3ec3a1bde7cded67e816244c1ac9cab450eb6d9c204b9d7c4f552732522e179",
 }
 
 # Agent metadata: short descriptions, action summaries, and activation messages

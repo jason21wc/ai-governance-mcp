@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Complete
+- **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None — all changes committed and pushed
+- **Active Task:** Unified Governance Enforcement System — awaiting commit
 
 ## Quick Reference
 
@@ -22,13 +22,13 @@
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.2.1** (watcher auto-start on boot fix) |
 | Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.17.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
-| Tests | **767 pass** (non-slow), 0 failures |
+| Tests | **785 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
 | Index | **124 principles + 498 methods** (622 total; see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
-| Hooks | **3** (PostToolUse CI check, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check) |
+| Hooks | **3** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check with recency window) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
@@ -37,42 +37,17 @@
 
 ### Completed This Session
 
-1. **Fixed Context Engine watcher not starting on boot** (Context Engine v1.2.1)
-   - Root cause: `get_or_create_index()` path #2 (load from storage) never started the watcher — the exact path taken on every server boot
-   - Added `_ensure_watcher()` idempotent helper (stale detection, circuit breaker respect, restart)
-   - Updated all 3 paths in `get_or_create_index()` + `query_project()` LRU eviction path
-   - Hardened `FileWatcher.is_running` to check `_observer.is_alive()` (detects dead threads)
-   - 8 new tests in `TestEnsureWatcher`, 1 existing test fixed, 767 total passing
-   - Files: `watcher.py`, `project_manager.py`, `test_context_engine.py`
-
-2. **Added backlog item #8: Subagent Output Framing** — Clarify that subagent findings are advisory, not authoritative. Main agent must independently evaluate with anchor bias mitigation.
-
-3. **Confirmed Context Engine v1.2.0 realtime mode working**
-   - Verified `index_mode: "realtime"` env var picked up after Claude Code restart
-   - Watcher initially showed "stopped" — re-index resolved it, watcher now "running"
-   - Index refreshed: 138 files / 3,427 chunks (up from 129/3,339)
-   - Cleared pending manual action from previous session
-
-2. **Atlas framework comparison** (research, no changes)
-   - Researched syahiidkamil's ATLAS (Adaptive Technical Learning and Architecture System, 280 GitHub stars)
-   - Compared against our ai-coding domain (12 principles, 6,665 lines of methods, 80+ research citations)
-   - Ran contrarian reviewer on 5 candidate incorporations — all rejected or reframed
-   - Conclusion: Atlas reveals no gaps in our framework; our evidence-based, failure-mode-grounded approach covers all substantive concerns with greater rigor
-   - Broader web research confirmed our framework aligns with 2026 context engineering best practices
-
-3. **Three new candidate domains added to backlog**
-   - **Training & Instructional Design** — replaced thin "Procedures" placeholder; covers SOPs, tutorials, onboarding, courses, assessments, job aids; evidence base includes TWI, Bloom's Taxonomy, ADDIE, Kirkpatrick, Merrill, Gagné, Mayer, Toyota Kata, spaced repetition research
-   - **UI/UX** — interactive software interfaces (web sites, web apps, desktop apps, mobile apps); scoped separately from ai-coding (§2.4/§2.5 cover process, this covers substance); includes Figma MCP connectors and AI tooling integration
-   - **Visual Communication** — presentations, documents, reports, infographics, print design; separate from UI/UX due to different failure mode clusters; evidence base includes Tufte, Duarte, Reynolds
-
-4. **Backlog consolidation and detail pass** (10 items → 7)
-   - Rolled up hooks, MCP proxy, governance analytics, and CE analytics into single **Enforcement & Compliance Infrastructure** initiative (item #1) with Parts A/B/C and documented synergies
-   - Fleshed out **Project Initialization Part B** (#2) to be self-contained with 3 candidate approaches, problem statement, and open questions
-   - Added **priority recommendations** for new domains: UI/UX 1st (highest ai-coding adjacency), Training 2nd (broad applicability), Visual Communication 3rd (narrower scope, can inherit patterns)
-   - Reframed narrow "AI Security Scanning" watch into broader **Security Content Currency Process** (#7) with tool-specific appendix pattern (generalized → methods, specific tools we use → appendix)
-   - Added MCP Proxy 3-tier audience analysis (personal → teams → open-source) with evaluation criteria and open questions
-   - Added AI tooling integration and implementation requirements to Visual Communication for consistency with other domain items
-   - Fixed all cross-references for new numbering
+1. **Unified Governance Enforcement System** — 9-step implementation addressing 87% hook non-compliance
+   - **Shared scanner module** (`.claude/hooks/scan_transcript.py`) — reusable Python scanner with recency window support
+   - **PreToolUse hook → hard mode default** — flipped from soft to hard; BLOCKS Bash|Edit|Write until both `evaluate_governance()` and `query_project()` called; 200-line recency window; soft-mode escape hatches via `GOVERNANCE_SOFT_MODE`/`CE_SOFT_MODE`
+   - **UserPromptSubmit hook → conditional suppression** — silent when compliant (saves ~128 tokens/prompt), shortened reminder (~50 tokens) when not; reads transcript_path from stdin JSON
+   - **CLAUDE.md slimmed** from 214 → 74 lines; Post-Change Checklist → `COMPLETION-CHECKLIST.md`; "ENFORCED BY HOOK" framing
+   - **SERVER_INSTRUCTIONS slimmed** from ~148 → ~45 lines; removed retrievable sections; added Subagent Advisory Framing section
+   - **Advisory Output section** added to all 10 agent templates (canonical + synced to local); orchestrator got Step 4: Evaluate Subagent Results with structured evaluation table and 90% threshold signals
+   - **Template hashes updated** in `AGENT_TEMPLATE_HASHES`
+   - **Compliance analysis script** (`scripts/analyze_compliance.py`) — parses JSONL transcripts, reports per-session and aggregate compliance rates
+   - **13 new tests** (27 total hook tests, 780 total passing)
+   - Files changed: 3 hooks, 10+10 agent templates, server.py, CLAUDE.md, COMPLETION-CHECKLIST.md, tests/test_hooks.py, tests/test_server.py, scripts/analyze_compliance.py, SESSION-STATE.md
 
 ## Next Actions
 
@@ -81,10 +56,9 @@ Unified initiative covering enforcement improvements, cross-platform reach, and 
 
 **Goal:** Empirical evidence that our enforcement layers work, measurable compliance rates, and governance enforcement that works across any AI client — not just Claude Code.
 
-**Part A: Hook Improvements** (tactical, low effort)
-Two improvements identified by contrarian review:
-1. **Recency heuristic** — PreToolUse hook currently uses session-level check (any governance/CE call in transcript = pass). For long sessions with task pivots, scan only the last ~500 transcript lines instead. One-line change to Python scanning logic (`collections.deque(f, maxlen=500)`).
-2. **Suppress reminder after governance established** — UserPromptSubmit hook currently injects ~225 tokens on every prompt regardless. Add transcript check (same logic as PreToolUse) to suppress the reminder once both `evaluate_governance()` and `query_project()` have been called. Saves ~11K tokens/session over 50 turns.
+**Part A: Hook Improvements** — COMPLETE (2026-02-28)
+- Hard-mode default with recency window (200 lines), shared scanner module, conditional suppression
+- See session summary above for details
 
 **Part B: MCP Proxy for Model-Agnostic Enforcement** (research → implementation)
 An MCP proxy sits between ANY AI client and MCP servers, intercepting tool calls to enforce governance policies regardless of which AI model or IDE is used.
@@ -361,8 +335,8 @@ Periodic review method for keeping our security guidance (§5.3-§5.11, security
 
 **Implementation requirements:** Not a code change — this is a methods-level practice. May result in: updated methods sections, new appendices for favored tools, updated evidence base citations, revised security-auditor subagent instructions.
 
-### 8. Backlog — Subagent Output Framing: Advisory, Not Authoritative (Priority: TBD)
-Clarify across all governance touchpoints that subagent findings and suggestions are **advisory inputs**, not authoritative directives. The orchestrating AI (main agent) must independently review subagent output, assess whether it agrees, and decide what to implement — free from anchor bias toward either its own original output or the subagent's suggestions.
+### 8. Backlog — Subagent Output Framing: Advisory, Not Authoritative — COMPLETE (2026-02-28)
+Implemented as part of Unified Governance Enforcement System. Advisory Output section added to all 10 agent templates, orchestrator Step 4, and SERVER_INSTRUCTIONS Subagent Advisory Framing section. See session summary.
 
 **Problem:** Current subagent definitions and orchestrator instructions don't make the advisory nature of subagent output explicit enough. An AI receiving a code review, security audit, or validation result from a subagent may treat those findings as requirements to implement wholesale, rather than expert opinions to evaluate critically. This creates two failure modes:
 1. **Subagent anchor bias** — AI implements every subagent suggestion without critical evaluation, even when suggestions conflict with project context, user intent, or practical constraints
