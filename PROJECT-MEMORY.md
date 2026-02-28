@@ -136,7 +136,8 @@
 | Model Allowlists | 2026-02-10 | Embedding (6 models) and reranker (5 models) allowlists in `retrieval.py`. CrossEncoder now uses `trust_remote_code=False`. Mirrors context engine's allowlist pattern. |
 | Symlink Protection | 2026-02-04 | `list_projects()` skips symlinks. `delete_project()` unlinks symlinks instead of `rmtree`. File discovery already filtered. |
 | Atomic JSON Writes | 2026-02-06 | `_atomic_write_json()` uses tmp file + rename for crash safety. POSIX atomic guarantees. |
-| Circuit Breaker Visibility | 2026-02-06 | `watcher_status` field in ProjectStatus exposes state (running/stopped/circuit_broken/disabled). |
+| Circuit Breaker Visibility | 2026-02-06 | `watcher_status` field in ProjectStatus exposes state (running/stopped/circuit_broken/disabled/not_loaded). |
+| Eager Watcher Startup | 2026-02-27 | `startup_watchers()` method pre-warms embedding model and loads realtime projects at boot in daemon thread. Watcher no longer waits for first query. `"not_loaded"` status distinguishes unloaded from stopped. `AI_CONTEXT_ENGINE_INDEX_MODE` added to MCP config. |
 | Bounded Pending Changes | 2026-02-06 | MAX_PENDING_CHANGES (10K) with force-flush prevents unbounded memory growth. |
 | Language-Aware Chunking | 2026-02-06 | Code connector uses BOUNDARY_PATTERNS per language for better chunk boundaries. |
 | CI Context-Engine Extras | 2026-02-07 | CI must install `.[dev,context-engine]` — `pathspec` in optional extras needed by tests. |
