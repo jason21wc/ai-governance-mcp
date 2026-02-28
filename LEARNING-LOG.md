@@ -12,6 +12,22 @@
 
 ## Active Lessons
 
+### Hard-Mode Hooks Prove Deterministic Enforcement Works (2026-02-28)
+
+During the implementation session itself, the recency window (200 lines) expired 3 times, blocking my own edits until I re-called `evaluate_governance()` and `query_project()`. This was not a bug — it proved the system works exactly as designed: even the implementing agent cannot bypass enforcement. Advisory instructions failed at 87%; structural blocking achieves near-100% by making non-compliance physically impossible rather than merely discouraged.
+
+**Rule:** When enforcement is the goal, architecture beats instruction. A hook that returns `permissionDecision: "deny"` is infinitely more reliable than a reminder that says "please call this tool first." Design enforcement mechanisms that you yourself cannot bypass during normal work.
+
+---
+
+### Code Review Advisory Framing Prevents Both Rubber-Stamping and Dismissal (2026-02-28)
+
+Applied the new advisory framing to evaluate the code-reviewer's findings on our own changes. Of 6 findings: accepted 2 (H1 ValueError fix, H2 mixed mode tests — genuine gaps), rejected 2 (M2 CLAUDE.md pointers — intentional removal, M4 debug inconsistency — acceptable). Ratio: 33% accept, 33% reject, 33% not applicable. The structured evaluation table forced explicit reasoning for each decision rather than blanket acceptance.
+
+**Rule:** When receiving subagent findings, use the structured evaluation table (Finding | Agree/Modify/Reject | Reasoning). The exercise of writing a reason for each decision is more valuable than the table itself — it prevents both "implement everything" and "dismiss everything" failure modes.
+
+---
+
 ### Multi-Path Methods Must Handle All Paths Uniformly (2026-02-28)
 
 `get_or_create_index()` had 3 code paths but only path #3 (create new) started the watcher. Path #2 (load from storage) — the boot-time path — silently skipped it. Bug persisted across multiple sessions because manual `reindex_project()` (which has its own watcher start) always masked it. Similarly, `query_project()`'s lazy-reload path after LRU eviction had no watcher start.
@@ -36,11 +52,13 @@ Evaluated Atlas framework against our ai-coding domain. Initial framing was "wha
 
 ---
 
-### Advisory Governance Instructions Are Probabilistic, Not Deterministic (2026-02-16) — CRITICAL
+### Advisory Governance Instructions Are Probabilistic, Not Deterministic (2026-02-16) — CRITICAL — PARTIALLY GRADUATED
 
 Research confirmed with hard data: AI models follow system prompt instructions 85-92% of the time on SHORT, SINGLE-TURN prompts (IFEval). In multi-turn conversations, performance degrades ~39% on average (Microsoft Research, 200K+ conversations). Anthropic's own data shows Opus 4 tool selection accuracy is **49% baseline** with large tool libraries (improving to 88% with mitigations). Models skip governance calls when they don't perceive a concern, prefer internal knowledge over tools, and silently abstain rather than calling incorrectly.
 
 **Rule:** Never rely solely on MCP server instructions or CLAUDE.md for governance compliance. Structural enforcement (Claude Code hooks, MCP proxies) must complement advisory instructions. The model WILL skip governance calls — the question is how often, not whether. See ADR-13. Key references: anthropic.com/engineering/advanced-tool-use, arxiv.org/abs/2505.06120, research.trychroma.com/context-rot.
+
+**Graduated (2026-02-28):** Hard-mode hooks implemented — PreToolUse blocks non-compliant tool calls. Still active because MCP proxy (cross-platform) enforcement is not yet built (Backlog #1 Part B).
 
 ---
 

@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** Unified Governance Enforcement System — awaiting commit
+- **Active Task:** None — Unified Governance Enforcement System complete
 
 ## Quick Reference
 
@@ -46,8 +46,11 @@
    - **Advisory Output section** added to all 10 agent templates (canonical + synced to local); orchestrator got Step 4: Evaluate Subagent Results with structured evaluation table and 90% threshold signals
    - **Template hashes updated** in `AGENT_TEMPLATE_HASHES`
    - **Compliance analysis script** (`scripts/analyze_compliance.py`) — parses JSONL transcripts, reports per-session and aggregate compliance rates
-   - **13 new tests** (27 total hook tests, 780 total passing)
-   - Files changed: 3 hooks, 10+10 agent templates, server.py, CLAUDE.md, COMPLETION-CHECKLIST.md, tests/test_hooks.py, tests/test_server.py, scripts/analyze_compliance.py, SESSION-STATE.md
+   - **18 new tests** (32 total hook tests, 785 total passing) — includes mixed enforcement mode tests and non-numeric window arg test
+   - **Code review findings evaluated** using advisory framing: H1 (ValueError fix) accepted, H2 (mixed mode tests) accepted, M2 (CLAUDE.md pointers) rejected (intentional slimming), M4 (debug inconsistency) rejected (acceptable divergence)
+   - Files changed: 33 files, +1512 -504 lines
+   - **Docker image rebuilt and pushed** — `jason21wc/ai-governance-mcp:latest` (sha256:7dbc94c67272a3bd82afaecb709efc3b506d8b7844da469baa41ac4962528808)
+   - CI: all green (3.10, 3.11, 3.12 + security + lint + content scan)
 
 ## Next Actions
 

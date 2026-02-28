@@ -51,6 +51,8 @@
 | Governance Docs In-Place | 2026-02-02 | Source docs edited in-place with changelog notes (not file renames). |
 | Methods in evaluate_governance | 2026-02-02 | Reference-only (id/title/domain/score/confidence). Full content via `get_principle(id)`. Top-5 cap. Audit log tracks `methods_surfaced`. |
 | Advisory-Only Limitation | 2026-02-16 | Research confirmed: MCP server instructions are probabilistic, not deterministic. Models skip governance calls when confident, in long conversations, or with many tools. Need structural enforcement (hooks/proxy) beyond advisory instructions. See ADR-13. |
+| Hard-Mode Enforcement | 2026-02-28 | Flipped PreToolUse hook from soft→hard default. Blocks Bash/Edit/Write until both `evaluate_governance()` and `query_project()` called. 200-line recency window forces re-evaluation after task pivots. Soft-mode escape hatches via env vars. Conditional UserPromptSubmit suppression saves ~11K tokens/50-turn session. Compliance: 13%→expected 90%+ (deterministic enforcement). |
+| Subagent Advisory Framing | 2026-02-28 | All 10 subagent templates now include Advisory Output section. Orchestrator has Step 4: Evaluate Subagent Results with §7.10 protocol. SERVER_INSTRUCTIONS includes advisory framing. Findings are advisory input, not authoritative directives; 90% accept/reject threshold signals anchor bias. |
 
 ### Multi-Agent Domain
 
