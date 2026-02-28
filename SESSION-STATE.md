@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-02-27
+**Last Updated:** 2026-02-28
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -33,19 +33,27 @@
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-02-27)
+## Session Summary (2026-02-28)
 
 ### Completed This Session
 
-1. **Eager watcher startup** (Context Engine v1.1.0 → v1.2.0)
-   - Added `startup_watchers()` method to ProjectManager: pre-warms embedding model, loads realtime projects, starts file watchers at boot
-   - Launched startup in daemon thread from server.py `main()` between `create_server()` and `asyncio.run()`
-   - Added `"not_loaded"` to WatcherStatus Literal in models.py for better status reporting
-   - Updated `_get_watcher_status()` to distinguish not-loaded vs stopped
-   - Added `AI_CONTEXT_ENGINE_INDEX_MODE: "realtime"` to MCP config
-   - Code review: fixed circuit breaker clearing under `_index_lock`, added empty path guard, documented benign LRU race
-   - 12 new tests, 1 updated test; 759 total pass, 0 failures
-   - CI green (all jobs), Docker image rebuilt and pushed
+1. **Confirmed Context Engine v1.2.0 realtime mode working**
+   - Verified `index_mode: "realtime"` env var picked up after Claude Code restart
+   - Watcher initially showed "stopped" — re-index resolved it, watcher now "running"
+   - Index refreshed: 138 files / 3,427 chunks (up from 129/3,339)
+   - Cleared pending manual action from previous session
+
+2. **Atlas framework comparison** (research, no changes)
+   - Researched syahiidkamil's ATLAS (Adaptive Technical Learning and Architecture System, 280 GitHub stars)
+   - Compared against our ai-coding domain (12 principles, 6,665 lines of methods, 80+ research citations)
+   - Ran contrarian reviewer on 5 candidate incorporations — all rejected or reframed
+   - Conclusion: Atlas reveals no gaps in our framework; our evidence-based, failure-mode-grounded approach covers all substantive concerns with greater rigor
+   - Broader web research confirmed our framework aligns with 2026 context engineering best practices
+
+3. **Three new candidate domains added to backlog**
+   - **#7 Training & Instructional Design** — replaced thin "Procedures" placeholder; covers SOPs, tutorials, onboarding, courses, assessments, job aids; evidence base includes TWI, Bloom's Taxonomy, ADDIE, Kirkpatrick, Merrill, Gagné, Mayer, Toyota Kata, spaced repetition research
+   - **#8 UI/UX** — interactive software interfaces (web sites, web apps, desktop apps, mobile apps); scoped separately from ai-coding (§2.4/§2.5 cover process, this covers substance); includes Figma MCP connectors and AI tooling integration
+   - **#9 Visual Communication** — presentations, documents, reports, infographics, print design; separate from UI/UX due to different failure mode clusters; evidence base includes Tufte, Duarte, Reynolds
 
 ## Next Actions
 
