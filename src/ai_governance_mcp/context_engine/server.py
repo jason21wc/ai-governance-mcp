@@ -653,6 +653,17 @@ def main() -> None:
     try:
         server, manager = create_server()
 
+        # Eagerly start watchers for realtime projects in a background thread.
+        # Runs between create_server() and asyncio.run() so watchers begin
+        # loading while the MCP server starts accepting connections.
+        # daemon=True so the process can exit without joining this thread.
+        startup_thread = threading.Thread(
+            target=manager.startup_watchers,
+            name="watcher-startup",
+            daemon=True,
+        )
+        startup_thread.start()
+
         async def _run() -> None:
             try:
                 async with stdio_server() as (read_stream, write_stream):

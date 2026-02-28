@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-02-25
+**Last Updated:** 2026-02-27
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -13,16 +13,16 @@
 
 - **Phase:** Complete
 - **Mode:** Standard
-- **Active Task:** None — auto prompt caching governance update
+- **Active Task:** None — eager watcher startup implemented
 
 ## Quick Reference
 
 | Metric | Value |
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
-| Context Engine | **v1.1.0** (import enrichment, ranking signals, model eval tooling) |
+| Context Engine | **v1.2.0** (eager watcher startup, not_loaded status) |
 | Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.17.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
-| Tests | **748 pass** (non-slow), 0 failures |
+| Tests | **759 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
@@ -33,18 +33,18 @@
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-02-25)
+## Session Summary (2026-02-27)
 
 ### Completed This Session
 
-1. **Auto prompt caching governance update** (meta-methods v3.11.1 → v3.12.0)
-   - Updated §13.1.2 Cache Architecture Patterns: auto vs explicit vs combined caching decision model, expanded anti-patterns and validation checklist
-   - Added Appendix G.6 (Prompt Caching Implementation): Anthropic-specific auto/explicit API examples, pricing table, 1-hour TTL, ITPM exemption, minimum cacheable tokens by model, 20-block lookback window, decision guide
-   - Updated §13.1.1 cache TTL bullet with extended TTL reference
-   - Added 1 Situation Index entry (implementing prompt caching)
-   - Archived v3.11.1, updated domains.json reference
-   - 748 tests pass, 0 failures
-   - CI green, Docker image rebuilt and pushed
+1. **Eager watcher startup** (Context Engine v1.1.0 → v1.2.0)
+   - Added `startup_watchers()` method to ProjectManager: pre-warms embedding model, loads realtime projects, starts file watchers at boot
+   - Launched startup in daemon thread from server.py `main()` between `create_server()` and `asyncio.run()`
+   - Added `"not_loaded"` to WatcherStatus Literal in models.py for better status reporting
+   - Updated `_get_watcher_status()` to distinguish not-loaded vs stopped
+   - Added `AI_CONTEXT_ENGINE_INDEX_MODE: "realtime"` to MCP config
+   - Code review: fixed circuit breaker clearing under `_index_lock`, added empty path guard, documented benign LRU race
+   - 12 new tests, 1 updated test; 759 total pass, 0 failures
 
 ## Next Actions
 

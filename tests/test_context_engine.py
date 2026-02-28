@@ -2849,11 +2849,13 @@ class TestWatcherStatusInProjectStatus:
         assert status == "disabled"
 
     def test_watcher_status_stopped(self):
-        """No watcher should report status as 'stopped'."""
+        """Loaded project with no running watcher should report 'stopped'."""
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
         pm = ProjectManager()
         project_id = "test123"
+        # Project is loaded but no watcher running
+        pm._loaded_indexes[project_id] = Mock()
 
         status = pm._get_watcher_status(project_id, "realtime")
         assert status == "stopped"
@@ -5059,3 +5061,266 @@ class TestStaleIndexWarning:
         result = await _handle_query_project(manager, {"query": "test"})
         output = json.loads(result[0].text)
         assert "staleness_warning" not in output
+
+
+# =============================================================================
+# Startup Watchers Tests
+# =============================================================================
+
+
+class TestStartupWatchers:
+    """Tests for eager watcher startup at server boot."""
+
+    def test_startup_watchers_starts_realtime_projects(self, tmp_path):
+        """Only realtime projects should get watchers started."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+
+        # Two stored projects: one realtime, one ondemand
+        pm.storage.list_projects = Mock(return_value=["proj-realtime", "proj-ondemand"])
+        pm.storage.load_metadata = Mock(
+            side_effect=lambda pid: {
+                "proj-realtime": {
+                    "index_mode": "realtime",
+                    "project_path": str(tmp_path),
+                },
+                "proj-ondemand": {
+                    "index_mode": "ondemand",
+                    "project_path": str(tmp_path),
+                },
+            }[pid]
+        )
+
+        # Mock get_or_create_index to avoid real indexing
+        mock_index = Mock()
+        mock_index.chunks = []
+        pm.get_or_create_index = Mock(return_value=mock_index)
+
+        # Pre-warm mock
+        pm._indexer = Mock()
+        pm._indexer.embedding_model = Mock()
+
+        started = pm.startup_watchers()
+
+        assert started == 1
+        pm.get_or_create_index.assert_called_once_with(tmp_path, index_mode="realtime")
+
+    def test_startup_watchers_respects_lru_limit(self, tmp_path):
+        """Should stop loading when MAX_LOADED_PROJECTS is reached."""
+        from ai_governance_mcp.context_engine.project_manager import (
+            MAX_LOADED_PROJECTS,
+            ProjectManager,
+        )
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+        pm._indexer = Mock()
+        pm._indexer.embedding_model = Mock()
+
+        # Simulate already at the LRU limit
+        for i in range(MAX_LOADED_PROJECTS):
+            pm._loaded_indexes[f"existing-{i}"] = Mock()
+
+        # Even if there are realtime projects, none should be loaded
+        pm.storage.list_projects = Mock(return_value=["new-proj"])
+        pm.storage.load_metadata = Mock(
+            return_value={"index_mode": "realtime", "project_path": str(tmp_path)}
+        )
+        pm.get_or_create_index = Mock()
+
+        started = pm.startup_watchers()
+
+        assert started == 0
+        pm.get_or_create_index.assert_not_called()
+
+    def test_startup_watchers_skips_missing_paths(self, tmp_path):
+        """Projects with nonexistent paths should be skipped."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+        pm._indexer = Mock()
+        pm._indexer.embedding_model = Mock()
+
+        pm.storage.list_projects = Mock(return_value=["missing-proj"])
+        pm.storage.load_metadata = Mock(
+            return_value={
+                "index_mode": "realtime",
+                "project_path": "/nonexistent/path/that/does/not/exist",
+            }
+        )
+        pm.get_or_create_index = Mock()
+
+        started = pm.startup_watchers()
+
+        assert started == 0
+        pm.get_or_create_index.assert_not_called()
+
+    def test_startup_watchers_clears_circuit_breaker(self, tmp_path):
+        """Circuit-broken state should be cleared on fresh boot."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+        pm._indexer = Mock()
+        pm._indexer.embedding_model = Mock()
+
+        project_id = "cb-proj"
+        pm._circuit_broken.add(project_id)
+        pm._watcher_failures[project_id] = 3
+
+        pm.storage.list_projects = Mock(return_value=[project_id])
+        pm.storage.load_metadata = Mock(
+            return_value={
+                "index_mode": "realtime",
+                "project_path": str(tmp_path),
+            }
+        )
+        mock_index = Mock()
+        mock_index.chunks = []
+        pm.get_or_create_index = Mock(return_value=mock_index)
+
+        pm.startup_watchers()
+
+        assert project_id not in pm._circuit_broken
+        assert project_id not in pm._watcher_failures
+
+    def test_startup_watchers_handles_corrupt_metadata(self, tmp_path):
+        """One corrupt project should not block others from starting."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+        pm._indexer = Mock()
+        pm._indexer.embedding_model = Mock()
+
+        pm.storage.list_projects = Mock(return_value=["corrupt-proj", "good-proj"])
+
+        def metadata_side_effect(pid):
+            if pid == "corrupt-proj":
+                raise ValueError("corrupt metadata")
+            return {
+                "index_mode": "realtime",
+                "project_path": str(tmp_path),
+            }
+
+        pm.storage.load_metadata = Mock(side_effect=metadata_side_effect)
+        mock_index = Mock()
+        mock_index.chunks = []
+        pm.get_or_create_index = Mock(return_value=mock_index)
+
+        started = pm.startup_watchers()
+
+        # Only the good project should start
+        assert started == 1
+
+    def test_startup_watchers_skips_empty_path(self):
+        """Projects with empty project_path should be skipped."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+        pm._indexer = Mock()
+        pm._indexer.embedding_model = Mock()
+
+        pm.storage.list_projects = Mock(return_value=["empty-path-proj"])
+        pm.storage.load_metadata = Mock(
+            return_value={"index_mode": "realtime", "project_path": ""}
+        )
+        pm.get_or_create_index = Mock()
+
+        started = pm.startup_watchers()
+
+        assert started == 0
+        pm.get_or_create_index.assert_not_called()
+
+    def test_startup_watchers_prewarms_embedding_model(self):
+        """Embedding model should be accessed before project iteration."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+        pm.storage.list_projects = Mock(return_value=[])
+
+        # Track access order
+        access_order = []
+
+        class TrackedIndexer:
+            @property
+            def embedding_model(self):
+                access_order.append("model_accessed")
+                return Mock()
+
+        pm._indexer = TrackedIndexer()
+
+        pm.startup_watchers()
+
+        assert "model_accessed" in access_order
+
+    def test_startup_watchers_already_loaded_short_circuits(self, tmp_path):
+        """Already-loaded projects call get_or_create_index which short-circuits."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+        from ai_governance_mcp.context_engine.storage.filesystem import (
+            FilesystemStorage,
+        )
+
+        pm = ProjectManager(storage=Mock(), default_index_mode="realtime")
+        pm._indexer = Mock()
+        pm._indexer.embedding_model = Mock()
+
+        project_id = FilesystemStorage.project_id_from_path(tmp_path)
+
+        # Pre-load the project
+        existing_index = Mock()
+        pm._loaded_indexes[project_id] = existing_index
+
+        pm.storage.list_projects = Mock(return_value=[project_id])
+        pm.storage.load_metadata = Mock(
+            return_value={
+                "index_mode": "realtime",
+                "project_path": str(tmp_path),
+            }
+        )
+
+        # get_or_create_index should short-circuit (return existing)
+        pm.get_or_create_index = Mock(return_value=existing_index)
+
+        started = pm.startup_watchers()
+
+        # It still calls get_or_create_index (which internally short-circuits),
+        # so started counts it
+        assert started == 1
+        pm.get_or_create_index.assert_called_once()
+
+
+class TestWatcherStatusNotLoaded:
+    """Test not_loaded watcher status for projects not yet in memory."""
+
+    def test_watcher_status_not_loaded(self):
+        """Realtime project not in memory should return 'not_loaded'."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        project_id = "unloaded-proj"
+
+        # Project is NOT in _loaded_indexes and NOT circuit_broken
+        status = pm._get_watcher_status(project_id, "realtime")
+        assert status == "not_loaded"
+
+    def test_watcher_status_not_loaded_vs_stopped(self):
+        """Loaded project without watcher returns 'stopped', not 'not_loaded'."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager()
+        project_id = "loaded-proj"
+
+        # Project IS loaded but no watcher
+        pm._loaded_indexes[project_id] = Mock()
+
+        status = pm._get_watcher_status(project_id, "realtime")
+        assert status == "stopped"
+
+    def test_not_loaded_status_in_project_status(self):
+        """ProjectStatus model accepts 'not_loaded' as valid watcher_status."""
+        status = ProjectStatus(
+            project_id="test",
+            project_path="/tmp/test",
+            embedding_model="test-model",
+            watcher_status="not_loaded",
+        )
+        assert status.watcher_status == "not_loaded"

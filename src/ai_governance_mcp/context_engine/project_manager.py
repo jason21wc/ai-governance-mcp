@@ -286,7 +286,7 @@ class ProjectManager:
     def _get_watcher_status(self, project_id: str, index_mode: IndexMode) -> str:
         """Get watcher status for a project.
 
-        Returns: running, stopped, circuit_broken, or disabled
+        Returns: running, stopped, circuit_broken, disabled, or not_loaded
         """
         if index_mode == "ondemand":
             return "disabled"
@@ -294,6 +294,9 @@ class ProjectManager:
             return "circuit_broken"
         if project_id in self._watchers and self._watchers[project_id].is_running:
             return "running"
+        # Distinguish: project not loaded into memory yet vs watcher stopped
+        if project_id not in self._loaded_indexes:
+            return "not_loaded"
         return "stopped"
 
     def list_projects(self) -> list[ProjectStatus]:
@@ -331,6 +334,69 @@ class ProjectManager:
         for watcher in watchers:
             watcher.stop()
         logger.info("Project manager shut down")
+
+    def startup_watchers(self) -> int:
+        """Start watchers for stored projects with index_mode='realtime'.
+
+        Called at server boot to eagerly load realtime projects and start
+        file watchers. Pre-warms the embedding model outside _index_lock
+        to avoid blocking concurrent MCP queries during the expensive
+        first model load.
+
+        Returns number of watchers started.
+        """
+        # Pre-warm embedding model outside _index_lock.
+        # Lock ordering: _index_lock must always be acquired before _model_lock.
+        # By warming the model here, get_or_create_index() won't trigger the
+        # expensive lazy load while holding _index_lock.
+        try:
+            _ = self._indexer.embedding_model
+        except Exception as e:
+            logger.warning("Failed to pre-warm embedding model: %s", e)
+            # Continue — projects with stored embeddings can still load
+
+        started = 0
+        for project_id in self.storage.list_projects():
+            # Soft LRU check — get_or_create_index enforces the hard limit
+            # under _index_lock via _evict_if_needed. Racing here is benign.
+            if len(self._loaded_indexes) >= MAX_LOADED_PROJECTS:
+                logger.info(
+                    "LRU limit reached (%d), skipping remaining projects",
+                    MAX_LOADED_PROJECTS,
+                )
+                break
+            try:
+                metadata = self.storage.load_metadata(project_id)
+                if not metadata or metadata.get("index_mode") != "realtime":
+                    continue
+                raw_path = metadata.get("project_path", "")
+                if not raw_path:
+                    logger.warning(
+                        "Skipping project %s: no project_path in metadata",
+                        project_id,
+                    )
+                    continue
+                project_path = Path(raw_path)
+                if not project_path.is_dir():
+                    logger.warning(
+                        "Skipping project %s: path does not exist: %s",
+                        project_id,
+                        project_path,
+                    )
+                    continue
+                # Clear circuit breaker on fresh boot — safe without lock here
+                # because no watchers are running for this project yet (they
+                # start inside get_or_create_index below).
+                with self._index_lock:
+                    self._circuit_broken.discard(project_id)
+                    self._watcher_failures.pop(project_id, None)
+                # Load index and start watcher
+                self.get_or_create_index(project_path, index_mode="realtime")
+                started += 1
+            except Exception as e:
+                logger.warning("Failed to start watcher for %s: %s", project_id, e)
+        logger.info("Eager startup: %d watcher(s) started", started)
+        return started
 
     # ─── Private methods ───
 

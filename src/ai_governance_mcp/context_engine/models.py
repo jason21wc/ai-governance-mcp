@@ -15,7 +15,9 @@ ContentType = Literal["code", "document", "data", "image"]
 IndexMode = Literal["realtime", "ondemand"]
 
 # Valid watcher states for projects
-WatcherStatus = Literal["running", "stopped", "circuit_broken", "disabled"]
+WatcherStatus = Literal[
+    "running", "stopped", "circuit_broken", "disabled", "not_loaded"
+]
 
 
 class ContentChunk(BaseModel):
@@ -162,5 +164,5 @@ class ProjectStatus(BaseModel):
     )
     watcher_status: WatcherStatus = Field(
         "stopped",
-        description="File watcher state: running, stopped, circuit_broken, disabled",
+        description="File watcher state: running, stopped, circuit_broken, disabled, not_loaded",
     )
