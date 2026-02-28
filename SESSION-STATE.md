@@ -47,10 +47,6 @@
    - 12 new tests, 1 updated test; 759 total pass, 0 failures
    - CI green (all jobs), Docker image rebuilt and pushed
 
-## Pending Manual Action
-
-**Restart Claude Code** to pick up the new `AI_CONTEXT_ENGINE_INDEX_MODE: "realtime"` env var in `~/.claude/mcp-servers/context-engine.json`. After restart, verify with `project_status` tool — `watcher_status` should show `"running"` immediately (no query needed first). If it shows `"not_loaded"`, the eager startup is working but the project hasn't loaded yet (check server logs).
-
 ## Next Actions
 
 ### 1. Hook Improvements (Priority: LOW)
