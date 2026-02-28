@@ -75,7 +75,103 @@ Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revis
 ### 7. Backlog — Add Procedures Domain (Priority: TBD)
 New governance domain for procedures. Framework content to be provided by Jason. Will require: domain config, document(s) in `documents/`, extractor support for the domain's structure, index rebuild, and tests.
 
-### 8. Watch — AI-Powered Security Scanning (Trigger: Independent Benchmarks)
+### 8. Backlog — Add UI/UX Domain (Priority: TBD)
+New governance domain for UI/UX design principles and methods. **Separate domain** from ai-coding — ai-coding §2.4/§2.5 cover *process* (when to do UX work); this domain covers *substance* (what good UX is).
+
+**Scope — Interactive software interfaces only:**
+- Web sites (marketing, content, e-commerce)
+- Web apps (SaaS, dashboards, admin panels)
+- Desktop apps (native, Electron/Tauri)
+- Mobile apps (iOS, Android, cross-platform)
+
+**Explicitly out of scope:** Presentations (slide decks, pitch decks), documents, reports, infographics, print design, and other non-interactive visual artifacts. These are different failure mode clusters (narrative flow and information density vs. accessibility, responsive layout, and interaction design) with different evidence bases and tooling. If needed, they belong in a separate Visual Communication domain — see backlog item #10.
+
+**Principles (candidate areas):**
+- Visual hierarchy and layout composition
+- Consistency and design system adherence
+- Accessibility (WCAG compliance, screen readers, color contrast, keyboard navigation)
+- Responsive and adaptive design
+- Information architecture and navigation patterns
+- Interaction design (feedback, affordances, microinteractions)
+- Typography and readability
+- Color theory and theming (light/dark mode)
+- Performance perception (skeleton screens, progressive loading)
+- Platform convention compliance (Apple HIG, Material Design, web standards)
+
+**Methods (candidate areas):**
+- Design-to-code workflow (Figma → implementation)
+- Component library governance (design tokens, atomic design)
+- Design review and validation gates
+- Accessibility testing and auditing procedures
+- Responsive breakpoint strategy
+- Cross-platform adaptation (shared design language, platform-specific adjustments)
+- Design system documentation and maintenance
+
+**AI tooling integration:**
+- Figma MCP connectors (design context for Claude/frontier models)
+- Anysphere/Cursor design integrations
+- Design token extraction and code generation
+- Screenshot-to-feedback loops (visual regression)
+
+**Evidence base to research:**
+- Nielsen's 10 Usability Heuristics
+- WCAG 2.2 / upcoming 3.0
+- Apple Human Interface Guidelines
+- Google Material Design 3
+- Laws of UX (Fitts's Law, Hick's Law, Jakob's Law, etc.)
+- Baymard Institute e-commerce UX research
+
+**AI-specific failure modes to address:**
+- AI generating inaccessible markup (missing alt text, ARIA, semantic HTML)
+- Inconsistent spacing/typography across generated components
+- Platform convention violations (iOS patterns on Android, etc.)
+- Over-designed UI (AI tendency toward visual complexity over usability)
+- Design system drift (AI generating one-off styles vs. using tokens)
+
+**Implementation requirements:** Domain config in `domains.json`, principle document(s), methods document(s), extractor support, index rebuild, tests. Cross-reference: ai-coding §2.4/§2.5 may need minor updates to reference the new domain.
+
+### 9. Backlog — Add Visual Communication Domain (Priority: TBD)
+New governance domain for non-coding visual artifacts: presentations, documents, reports, infographics, and print design. Separate from UI/UX (item #8) because different failure mode clusters, evidence bases, and tooling.
+
+**Scope — Artifact types:**
+- Presentations (slide decks, pitch decks, keynotes)
+- Documents and reports (executive summaries, technical reports, proposals)
+- Infographics and data visualizations
+- Print design (brochures, posters, one-pagers)
+
+**Principles (candidate areas):**
+- Narrative flow and story structure
+- Information density and cognitive load (Tufte's data-ink ratio)
+- Visual hierarchy for static layouts
+- Audience-appropriate design (executive vs. technical vs. public)
+- Brand consistency and style guide adherence
+- Data visualization integrity (no misleading charts, appropriate chart types)
+- Accessibility in documents (heading structure, alt text, color contrast, screen reader compatibility)
+
+**Methods (candidate areas):**
+- Slide deck composition workflow (outline → structure → design → review)
+- Presentation review and validation gates
+- Template and brand compliance checking
+- Data visualization best practices
+- Document accessibility auditing
+
+**AI-specific failure modes to address:**
+- AI generating text-heavy slides (wall of text vs. visual communication)
+- Inconsistent styling across generated slides/pages
+- Misleading or inappropriate data visualizations
+- Poor narrative structure (information dump vs. story arc)
+- Brand guideline violations
+
+**Evidence base to research:**
+- Edward Tufte (data visualization, information design)
+- Nancy Duarte (presentation design, story structure)
+- Garr Reynolds (Presentation Zen)
+- WCAG document accessibility guidelines
+- Data visualization research (Cleveland & McGill, Few)
+
+**Implementation requirements:** Same as other domains — domain config, documents, extractor support, index rebuild, tests.
+
+### 10. Watch — AI-Powered Security Scanning (Trigger: Independent Benchmarks)
 Claude Code Security announced 2026-02-20. Interim guidance distributed across §5.3.3, §5.3.5, §6.4.9 (v2.15.1). Full standalone section deferred pending vendor-independent accuracy data (OWASP, NIST, academic studies). Revisit when independent benchmarks confirm AI-contextual scanners are categorically different from AI code reviewers in governance-relevant ways.
 
 ## Links
