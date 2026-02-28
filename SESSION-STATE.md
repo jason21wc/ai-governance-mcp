@@ -51,9 +51,18 @@
    - Broader web research confirmed our framework aligns with 2026 context engineering best practices
 
 3. **Three new candidate domains added to backlog**
-   - **#7 Training & Instructional Design** — replaced thin "Procedures" placeholder; covers SOPs, tutorials, onboarding, courses, assessments, job aids; evidence base includes TWI, Bloom's Taxonomy, ADDIE, Kirkpatrick, Merrill, Gagné, Mayer, Toyota Kata, spaced repetition research
-   - **#8 UI/UX** — interactive software interfaces (web sites, web apps, desktop apps, mobile apps); scoped separately from ai-coding (§2.4/§2.5 cover process, this covers substance); includes Figma MCP connectors and AI tooling integration
-   - **#9 Visual Communication** — presentations, documents, reports, infographics, print design; separate from UI/UX due to different failure mode clusters; evidence base includes Tufte, Duarte, Reynolds
+   - **Training & Instructional Design** — replaced thin "Procedures" placeholder; covers SOPs, tutorials, onboarding, courses, assessments, job aids; evidence base includes TWI, Bloom's Taxonomy, ADDIE, Kirkpatrick, Merrill, Gagné, Mayer, Toyota Kata, spaced repetition research
+   - **UI/UX** — interactive software interfaces (web sites, web apps, desktop apps, mobile apps); scoped separately from ai-coding (§2.4/§2.5 cover process, this covers substance); includes Figma MCP connectors and AI tooling integration
+   - **Visual Communication** — presentations, documents, reports, infographics, print design; separate from UI/UX due to different failure mode clusters; evidence base includes Tufte, Duarte, Reynolds
+
+4. **Backlog consolidation and detail pass** (10 items → 7)
+   - Rolled up hooks, MCP proxy, governance analytics, and CE analytics into single **Enforcement & Compliance Infrastructure** initiative (item #1) with Parts A/B/C and documented synergies
+   - Fleshed out **Project Initialization Part B** (#2) to be self-contained with 3 candidate approaches, problem statement, and open questions
+   - Added **priority recommendations** for new domains: UI/UX 1st (highest ai-coding adjacency), Training 2nd (broad applicability), Visual Communication 3rd (narrower scope, can inherit patterns)
+   - Reframed narrow "AI Security Scanning" watch into broader **Security Content Currency Process** (#7) with tool-specific appendix pattern (generalized → methods, specific tools we use → appendix)
+   - Added MCP Proxy 3-tier audience analysis (personal → teams → open-source) with evaluation criteria and open questions
+   - Added AI tooling integration and implementation requirements to Visual Communication for consistency with other domain items
+   - Fixed all cross-references for new numbering
 
 ## Next Actions
 
