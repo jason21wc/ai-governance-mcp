@@ -57,30 +57,100 @@
 
 ## Next Actions
 
-### 1. Hook Improvements (Priority: LOW)
-Two improvements identified by contrarian review during Phase 1 implementation:
+### 1. Backlog — Enforcement & Compliance Infrastructure (Priority: MEDIUM)
+Unified initiative covering enforcement improvements, cross-platform reach, and effectiveness measurement. Rolled up from four related items — tackling together enables systems-level view, avoids unexpected interactions, and identifies synergies between approaches.
+
+**Goal:** Empirical evidence that our enforcement layers work, measurable compliance rates, and governance enforcement that works across any AI client — not just Claude Code.
+
+**Part A: Hook Improvements** (tactical, low effort)
+Two improvements identified by contrarian review:
 1. **Recency heuristic** — PreToolUse hook currently uses session-level check (any governance/CE call in transcript = pass). For long sessions with task pivots, scan only the last ~500 transcript lines instead. One-line change to Python scanning logic (`collections.deque(f, maxlen=500)`).
 2. **Suppress reminder after governance established** — UserPromptSubmit hook currently injects ~225 tokens on every prompt regardless. Add transcript check (same logic as PreToolUse) to suppress the reminder once both `evaluate_governance()` and `query_project()` have been called. Saves ~11K tokens/session over 50 turns.
 
-### 2. Evaluate MCP Proxy for Model-Agnostic Enforcement (Priority: MEDIUM)
-For enforcement beyond Claude Code. An MCP proxy sits between ANY AI client and MCP servers, intercepting tool calls. Candidates:
+**Part B: MCP Proxy for Model-Agnostic Enforcement** (research → implementation)
+An MCP proxy sits between ANY AI client and MCP servers, intercepting tool calls to enforce governance policies regardless of which AI model or IDE is used.
+
+*Proxy candidates:*
 - **Latch** (latchagent.com) — open-source, Docker, natural language or rule-based policies
 - **MCPTrust** (github.com/mcptrust/mcptrust) — lockfile enforcement, drift detection, CEL policy
 - **FastMCP Middleware** — native framework middleware for request interception
 
-### 3. Backlog — Governance Compliance Effectiveness Tracking (Priority: MEDIUM)
-Measure real-world governance compliance rates across sessions. Track how often `evaluate_governance()` is actually called vs skipped, whether hooks successfully nudge behavior, and correlate with session length/complexity. Could involve: transcript analysis scripts, aggregated metrics from `get_metrics()`, before/after comparisons with hooks enabled/disabled. Goal: empirical data on whether the enforcement layers (advisory instructions + hooks) achieve target compliance rates, and where gaps remain.
+*Target audiences (progressive):*
+1. **Personal** — Governance enforcement across Claude Code, Cursor, Gemini CLI, and other AI clients Jason uses. Proving ground for policy design.
+2. **Teams** — Shared governance policies across team members with consistent enforcement. Adds: centralized policy config, team onboarding docs, policy-as-code.
+3. **Open-source consumers** — Easy way for anyone using the framework to get enforcement. Adds: distribution mechanism, setup guide, sensible defaults, documented customization.
 
-### 4. Backlog — Context Engine Usage Effectiveness Tracking (Priority: MEDIUM)
-Same concept for Context Engine: measure real-world `query_project()` usage rates, whether queries happen before file creation/modification as intended, and whether results influence decisions. Track: query frequency per session, query-before-create compliance, result relevance (via user behavior after query). Goal: empirical evidence that the CE is reducing duplication and improving code quality, not just being called perfunctorily.
+*Open questions (to resolve when work begins):*
+- Which proxy tool best fits our architecture? (Requires hands-on evaluation)
+- What governance rules get enforced at proxy level vs. advisory level?
+- How does proxy enforcement interact with existing hooks? (Complementary or replacement?)
+- What's the configuration/policy format? (Natural language, CEL, custom DSL?)
 
-### 5. Backlog — Project Initialization Part B
-Three deferred approaches for closing the bootstrap gap beyond advisory guidance. Documented in PROJECT-MEMORY.md > Roadmap > Part B. Revisit when prioritized.
+*Evaluation criteria:*
+- Works with stdio MCP transport (our primary)
+- Open-source with active maintenance
+- Policy language expressive enough for our skip-list and enforcement rules
+- Minimal latency overhead on tool calls
+- Can be distributed as part of the framework package
 
-### 6. Backlog — Quantized Vector Search (Deferred)
-Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revisit when Context Engine reaches 500K+ vectors (multi-project indexing) or users report perceptible latency. See PROJECT-MEMORY.md > Roadmap > Quantized Vector Search for phased approach.
+**Part C: Effectiveness Analytics** (measurement)
+Measure real-world compliance rates for both governance and Context Engine. Same methodology, two tracks.
 
-### 7. Backlog — Add Training & Instructional Design Domain (Priority: TBD)
+*Governance track:*
+- How often is `evaluate_governance()` actually called vs. skipped?
+- Do hooks successfully nudge behavior? (Before/after comparisons)
+- Correlation with session length/complexity (context rot effect on compliance)
+- Aggregated metrics from `get_metrics()` over time
+
+*Context Engine track:*
+- Real-world `query_project()` usage rates per session
+- Query-before-create compliance (does querying happen before file creation/modification?)
+- Result relevance — does queried information influence decisions, or is it perfunctory?
+- Query frequency correlation with code duplication rates
+
+*Approach (both tracks):*
+- Transcript analysis scripts (parse Claude Code transcripts for tool call patterns)
+- Aggregated `get_metrics()` data over multiple sessions
+- Before/after comparisons with hooks enabled/disabled
+- Session length bucketing (short <10 turns, medium 10-50, long 50+)
+
+*Success criteria:*
+- Baseline compliance rates established for both governance and CE
+- Measurable improvement from each enforcement layer (advisory → hooks → proxy)
+- Data-driven decisions on where enforcement gaps remain
+
+**Synergies across parts:**
+- Part A (hook improvements) directly affects Part C (analytics) — better hooks should show measurable compliance improvement
+- Part B (proxy) provides a second enforcement layer measurable in Part C
+- Part C data informs which Part B proxy policies matter most
+- All three share transcript analysis infrastructure
+
+### 2. Backlog — Project Initialization Part B (Priority: TBD)
+Closing the bootstrap gap — making it easier for new users to get governance memory files created when starting a new project. Part A shipped (`150e4e6`): advisory-only SERVER_INSTRUCTIONS with project initialization section, conversational trigger, consent step, and partial-init handling.
+
+**Problem:** New users connecting the MCP server to a project for the first time don't automatically get governance memory files (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, project instructions file). Part A relies on the AI suggesting initialization — advisory only, no enforcement.
+
+**Three candidate approaches (pick one or combine):**
+1. **`scaffold_project` MCP tool** — New tool that auto-creates governance memory files. AI calls the tool; files are created server-side. Requires adding filesystem write capability to the MCP server. *Pros:* Works within MCP protocol, AI-initiated. *Cons:* Requires filesystem write (security consideration), depends on AI remembering to call it.
+2. **Server-side first-run detection** — MCP server detects uninitialized projects (no governance files in working directory) and proactively triggers initialization protocol. *Pros:* Automatic, no AI cooperation needed. *Cons:* Requires filesystem read access, mechanism to signal AI client, may be surprising.
+3. **Wrapper/web app/IDE plugin** — Move beyond MCP for scaffolding. CLI wrapper, web app, or IDE plugin handles project setup outside the MCP protocol. *Pros:* Decouples initialization from AI session entirely, best UX. *Cons:* Separate tool to build and maintain, platform-specific.
+
+**Open questions:**
+- Which approach best balances ease-of-use with security constraints?
+- Should scaffold_project be opt-in (AI suggests) or opt-out (auto-detect)?
+- How does this interact with existing `install_agent` tool patterns?
+
+**Implementation requirements:** Depends on chosen approach. All require tests. Approach 1 requires new MCP tool + filesystem write. Approach 2 requires filesystem read + client signaling. Approach 3 requires separate tooling. See PROJECT-MEMORY.md > Roadmap > Part B for full analysis.
+
+### 3. Backlog — Quantized Vector Search (Deferred)
+Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revisit when Context Engine reaches 500K+ vectors (multi-project indexing) or users report perceptible latency.
+
+**Trigger conditions:** 500K+ vectors loaded, OR user-reported perceptible query latency (>100ms).
+
+**Phased approach:** See PROJECT-MEMORY.md > Roadmap > Quantized Vector Search for full details (product quantization → scalar quantization → HNSW index progression).
+
+### 4. Backlog — Add Training & Instructional Design Domain (Priority: TBD, Recommended: 2nd)
+**Recommended priority: 2nd** — Broad applicability. AI is increasingly used to generate training materials, SOPs, and tutorials. Strong evidence base already identified. Slightly lower urgency than UI/UX because it's less adjacent to day-to-day AI-assisted coding.
 New governance domain for training, instructional design, and procedures. Replaces the original "Procedures Domain" placeholder — procedures are a type of training content and belong under this broader umbrella.
 
 **Scope — Content types:**
@@ -138,8 +208,10 @@ New governance domain for training, instructional design, and procedures. Replac
 
 **Implementation requirements:** Domain config in `domains.json`, principle document(s), methods document(s), extractor support, index rebuild, tests. Framework content to be developed collaboratively — Jason to provide domain-specific context, AI to research and structure per framework standards.
 
-### 8. Backlog — Add UI/UX Domain (Priority: TBD)
+### 5. Backlog — Add UI/UX Domain (Priority: TBD, Recommended: 1st)
 New governance domain for UI/UX design principles and methods. **Separate domain** from ai-coding — ai-coding §2.4/§2.5 cover *process* (when to do UX work); this domain covers *substance* (what good UX is).
+
+**Recommended priority: 1st** — Highest ai-coding adjacency. A huge amount of AI-assisted development involves building interfaces. Bridges naturally from existing §2.4/§2.5. Most immediate value for framework users.
 
 **Scope — Interactive software interfaces only:**
 - Web sites (marketing, content, e-commerce)
@@ -147,7 +219,7 @@ New governance domain for UI/UX design principles and methods. **Separate domain
 - Desktop apps (native, Electron/Tauri)
 - Mobile apps (iOS, Android, cross-platform)
 
-**Explicitly out of scope:** Presentations (slide decks, pitch decks), documents, reports, infographics, print design, and other non-interactive visual artifacts. These are different failure mode clusters (narrative flow and information density vs. accessibility, responsive layout, and interaction design) with different evidence bases and tooling. If needed, they belong in a separate Visual Communication domain — see backlog item #10.
+**Explicitly out of scope:** Presentations (slide decks, pitch decks), documents, reports, infographics, print design, and other non-interactive visual artifacts. These are different failure mode clusters (narrative flow and information density vs. accessibility, responsive layout, and interaction design) with different evidence bases and tooling. If needed, they belong in a separate Visual Communication domain — see backlog item #6.
 
 **Principles (candidate areas):**
 - Visual hierarchy and layout composition
@@ -193,8 +265,10 @@ New governance domain for UI/UX design principles and methods. **Separate domain
 
 **Implementation requirements:** Domain config in `domains.json`, principle document(s), methods document(s), extractor support, index rebuild, tests. Cross-reference: ai-coding §2.4/§2.5 may need minor updates to reference the new domain.
 
-### 9. Backlog — Add Visual Communication Domain (Priority: TBD)
-New governance domain for non-coding visual artifacts: presentations, documents, reports, infographics, and print design. Separate from UI/UX (item #8) because different failure mode clusters, evidence bases, and tooling.
+### 6. Backlog — Add Visual Communication Domain (Priority: TBD, Recommended: 3rd)
+New governance domain for non-coding visual artifacts: presentations, documents, reports, infographics, and print design. Separate from UI/UX (item #5) because different failure mode clusters, evidence bases, and tooling.
+
+**Recommended priority: 3rd** — Narrower scope, fewer failure modes. Can inherit domain structure patterns established by UI/UX and Training domains. Less urgency since fewer people use AI for presentation/document design as a primary workflow.
 
 **Scope — Artifact types:**
 - Presentations (slide decks, pitch decks, keynotes)
@@ -218,6 +292,12 @@ New governance domain for non-coding visual artifacts: presentations, documents,
 - Data visualization best practices
 - Document accessibility auditing
 
+**AI tooling integration:**
+- Presentation generation tools (Gamma, Beautiful.ai, Tome, SlidesGPT)
+- Document generation (Google Docs AI, Notion AI, markdown-to-PDF pipelines)
+- Data visualization libraries (D3.js, Plotly, Matplotlib) — AI-generated chart code
+- Brand asset management tools and template engines
+
 **AI-specific failure modes to address:**
 - AI generating text-heavy slides (wall of text vs. visual communication)
 - Inconsistent styling across generated slides/pages
@@ -232,10 +312,35 @@ New governance domain for non-coding visual artifacts: presentations, documents,
 - WCAG document accessibility guidelines
 - Data visualization research (Cleveland & McGill, Few)
 
-**Implementation requirements:** Same as other domains — domain config, documents, extractor support, index rebuild, tests.
+**Implementation requirements:** Domain config in `domains.json`, principle document(s), methods document(s), extractor support, index rebuild, tests.
 
-### 10. Watch — AI-Powered Security Scanning (Trigger: Independent Benchmarks)
-Claude Code Security announced 2026-02-20. Interim guidance distributed across §5.3.3, §5.3.5, §6.4.9 (v2.15.1). Full standalone section deferred pending vendor-independent accuracy data (OWASP, NIST, academic studies). Revisit when independent benchmarks confirm AI-contextual scanners are categorically different from AI code reviewers in governance-relevant ways.
+### 7. Backlog — Security Content Currency Process (Priority: LOW)
+Periodic review method for keeping our security guidance (§5.3-§5.11, security-auditor subagent, pre-release checklist) current as the AI security landscape evolves. Replaces the narrow "wait for AI scanner benchmarks" watch item with a broader currency practice.
+
+**Problem:** AI security is evolving rapidly — new tool categories emerge (e.g., Claude Code Security, 2026-02-20), attack patterns shift (prompt injection, supply chain, agent-specific threats), and standards update (OWASP, CWE). Our security content is comprehensive today but will go stale without a review cadence.
+
+**Scope — What gets reviewed:**
+- Existing methods coverage (§5.3 Security Validation, §5.6 AI Coding Tool Security, §5.7 Application Security Patterns, §5.8 Domain-Specific Security, §5.11 Zero Trust)
+- Security-auditor subagent definition and checklist
+- Pre-release security checklist in CLAUDE.md
+- Evidence base citations — are referenced sources still current?
+
+**Framework pattern for tool-specific content:**
+- **Generalized guidance** (tool-agnostic) → methods sections (e.g., "how to evaluate AI security scanners" lives in §5.3 or §5.6)
+- **Specific tool guidance** (tools we use and favor) → appendix or tool-specific subsection (e.g., "Claude Code Security configuration and usage" as an appendix to §5.3)
+- We don't aim for comprehensive coverage of every tool — capture what we actively use. If we switch tools, add the new one accordingly.
+
+**Inputs to monitor:**
+- New AI security tool categories and independent benchmarks (OWASP, NIST, academic studies)
+- Emerging attack patterns specific to AI-assisted development (agent-specific threats, MCP-specific vulnerabilities)
+- Standards updates (OWASP Top 10 revisions, CWE/SANS updates, new CVE patterns)
+- Our own security-auditor findings across sessions (recurring gaps = content gap)
+
+**Current status of AI scanner question:** Claude Code Security launched 2026-02-20. Interim guidance distributed across §5.3.3, §5.3.5, §6.4.9 (v2.15.1). Still waiting for vendor-independent accuracy data to determine if AI-contextual scanners are categorically different from AI code reviewers. When benchmarks arrive, apply the generalized/tool-specific pattern above.
+
+**Cadence:** TBD — quarterly review seems reasonable for security content, but frequency should match the pace of landscape change. Could be event-triggered (major tool launch, OWASP update) rather than calendar-driven.
+
+**Implementation requirements:** Not a code change — this is a methods-level practice. May result in: updated methods sections, new appendices for favored tools, updated evidence base citations, revised security-auditor subagent instructions.
 
 ## Links
 
