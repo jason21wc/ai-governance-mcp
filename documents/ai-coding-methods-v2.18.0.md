@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.17.1
+**Version:** 2.18.0
 **Status:** Active
-**Effective Date:** 2026-02-23
+**Effective Date:** 2026-03-01
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -142,6 +142,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | AI-powered code review service | §6.4.9 | AI Code Review Services |
 | Agent using multiple SaaS APIs | §5.6.7 | Cross-system authority model, dynamic tool trust |
 | Building API for AI agent consumption | §5.6.7 | Agent-facing API design checklist |
+| Building a chat / real-time AI application | §5.11.6, §5.8.3, §5.12 | AI Feature Security + API/WebSocket Security + Stateful Patterns |
 
 #### On Uncertainty
 
@@ -1120,6 +1121,44 @@ Technologies should be:
 - [ ] Over-engineering (complex solutions for simple problems)
 - [ ] Vendor lock-in (dependencies preventing future flexibility)
 - [ ] Premature optimization (solving scale problems not yet present)
+
+#### Evaluation Methodology
+
+When choosing between **competing libraries, SDKs, or frameworks**, apply structured evaluation rather than defaulting to the first suggestion:
+
+**Step 1 — Define weighted criteria.** Identify 4-6 criteria weighted by project needs:
+
+| Criterion | Weight Guidance | Questions to Answer |
+|-----------|----------------|---------------------|
+| Fitness for requirements | High | Does it solve the actual problem, or an adjacent one? |
+| Maintenance health | High | Active maintenance? Bus factor >1? Breaking change frequency? |
+| Integration compatibility | High | Works with existing stack without adapter layers? |
+| Abstraction trade-offs | Medium | What does the abstraction hide? What control do you lose? |
+| Migration path | Medium | Can you replace it later without rewriting? |
+| Dependency footprint | Low | How many transitive dependencies? Security surface area? |
+
+**Step 2 — Compare 2-3 realistic candidates.** Not exhaustive surveys. For each:
+- Read the **getting started guide** (not just the feature list or marketing page)
+- Check **issue tracker health** (response times, open bugs, breaking change history)
+- Verify **your specific use case** has first-class support (not "possible with workarounds")
+- Evaluate **trust boundary implications** — SDKs that abstract multiple external platforms (chat services, cloud providers, payment processors) create implicit trust boundaries; review how each platform adapter handles authentication, data flow, and error semantics independently
+
+**Step 3 — Document the decision.** Record in PROJECT-MEMORY.md: chosen option, alternatives considered, key differentiators, and trade-offs accepted. This prevents re-litigating the same choice later.
+
+#### AI-Specific Technology Selection Failures
+
+AI models introduce predictable failure modes when recommending technologies:
+
+| Failure Mode | What Happens | Mitigation |
+|-------------|-------------|------------|
+| **Popularity bias** | AI recommends tools heavily represented in training data regardless of project fit | Evaluate fitness against YOUR requirements, not general popularity |
+| **Familiarity anchoring** | AI suggests tools it generates the most code for, not the best tools for the job | Separate "AI can write code for X easily" from "X is the right choice" |
+| **Abstraction stacking** | AI adds middleware, adapters, and abstraction layers without evaluating whether the abstraction is needed | For each layer: what failure modes does this introduce that the direct API doesn't? |
+| **Stale recommendations** | Training data lags reality — recommended tools may be deprecated or have known vulnerabilities | Verify current maintenance status and latest stable release |
+| **Prototype-production conflation** | AI applies production-grade tooling (ORMs, state management, caching) to prototypes that need none | Match tool complexity to project phase — §1.3 mode calibration applies |
+
+> **Applies To:** choosing a library, **evaluating an SDK**, **comparing frameworks**, technology stack decisions, **dependency selection**
+> **Cross-reference:** §5.6.5 (MCP Server Vetting Procedure — detailed trust evaluation for MCP tools specifically)
 
 ---
 
@@ -6612,6 +6651,7 @@ CREATE POLICY "Users insert own documents" ON documents
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.18.0 | 2026-03-01 | **Technology Selection Expansion:** (1) Expanded §3.1.4 Technology Selection Criteria with structured evaluation methodology (3-step process, 6-criterion weighted table) and AI-specific failure modes table (5 failure modes: popularity bias, familiarity anchoring, abstraction stacking, stale recommendations, prototype-production conflation). Includes trust boundary evaluation guidance for multi-platform SDKs. Cross-references §5.6.5. (2) Added 1 Situation Index entry: "Building a chat / real-time AI application" routing to §5.11.6 + §5.8.3 + §5.12. Prompted by gap analysis of §3.1.4 vs. comparable sections (§5.2.7, §5.6.5). |
 | 2.17.1 | 2026-02-24 | PATCH: Added File Location guidance to §7.8.2 Initialization Checklist and §7.8.4 Minimal Viable Initialization — specifies governance memory files go in project repository root, distinguishes from platform-native memory (Claude Code MEMORY.md, Cursor .cursor/rules/, etc.), identifies project instructions file as the one overlap point. Fixes bug where AIs placed governance files in platform memory directories. Updated `.cursorrules` → `.cursor/rules/` per §7.4.2 canonical reference. |
 | 2.17.0 | 2026-02-23 | **MCP Compliance Enforcement Patterns:** New §9.3.10 — 4-layer enforcement stack (advisory instructions → per-response reminders → structural hooks → hard mode blocking). Documents session-level transcript scanning, soft/hard mode toggle, fast pre-filter optimization, fail-open/fail-closed behavior, and enforcement design heuristics. Extends §9.3.5 and §9.3.6 with structural enforcement mechanisms for governance-critical MCP applications. Added 1 Situation Index entry. Prompted by observed advisory-only compliance failure during v2.16.0 implementation. |
 | 2.16.0 | 2026-02-23 | **Agent-to-Service Integration Patterns:** New §5.6.7 — cross-system authority model (confused deputy at SaaS scale, per-task credential scoping, blast radius assessment), dynamically-discovered tool trust tiers (pre-vetted / domain-verified / untrusted with promotion path, WebMCP early preview), cross-service context isolation (data leakage prevention between services), agent-facing API design checklist (7 items for builders creating agent-consumable APIs). Enriched 3 existing sections: §5.6.5 (+dynamic tool discovery warning), §5.6.2 (+cross-system authority checklist item), §5.11.6 (+builder-side cross-reference to §5.6.7). Added §5.8.3 cross-reference. Added 2 Situation Index entries. Research basis: W3C WebMCP (2026, early preview), Bustamante (2026, practitioner evidence), OWASP MCP Top 10, OWASP Agentic Top 10. |

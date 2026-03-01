@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.2.1** (watcher auto-start on boot fix) |
-| Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.17.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
+| Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.18.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
 | Tests | **860 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -33,9 +33,18 @@
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-02-28)
+## Session Summary (2026-03-01)
 
 ### Completed This Session
+
+1. **§3.1.4 Technology Selection Expansion** (v2.18.0)
+   - Expanded §3.1.4 with structured **evaluation methodology** (3-step process, 6-criterion weighted table) and **AI-specific failure modes** table (5 modes: popularity bias, familiarity anchoring, abstraction stacking, stale recommendations, prototype-production conflation)
+   - Added trust boundary evaluation guidance for multi-platform SDKs
+   - Added Situation Index entry: "Building a chat / real-time AI application" → §5.11.6 + §5.8.3 + §5.12
+   - Prompted by Vercel Chat SDK gap analysis; applied Learning Log rule "start from gaps, not borrowing"
+   - Files changed: `documents/ai-coding-methods-v2.18.0.md` (renamed from v2.17.1), `documents/domains.json`, `index/` (rebuilt)
+
+### Previous Session (2026-02-28)
 
 1. **Tiered Governance Principle Activation (Phase 0 + Phase 1)** — Backlog #8
    - **Phase 0: Fixed dead `series_code`** — Added `CATEGORY_SERIES_MAP` (28 entries) in extractor.py `_build_principle()` to infer series_code from (domain, category) for new-format headers. Constitution safety → "S", storytelling ethics → "E", multimodal-rag security → "SEC". Restores `apply_hierarchy()` sorting and `p.series_code == "S"` detection in server.py.
