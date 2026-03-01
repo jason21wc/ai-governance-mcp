@@ -2896,7 +2896,13 @@ class TestTiersPrincipleIdValidation:
             if pid and pid not in all_ids:
                 missing.append(pid)
 
+        # Also validate method IDs that reference principles
+        for m in floor.get("methods", []):
+            mid = m.get("id")
+            if mid and mid not in all_ids:
+                missing.append(mid)
+
         assert not missing, (
-            f"tiers.json references principle IDs not in index: {missing}. "
+            f"tiers.json references IDs not in index: {missing}. "
             f"Update tiers.json or rebuild index."
         )

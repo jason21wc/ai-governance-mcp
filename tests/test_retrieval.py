@@ -555,7 +555,7 @@ class TestApplyHierarchyDomainAware:
         return ScoredPrinciple(
             principle=p,
             semantic_score=score,
-            bm25_score=0.0,
+            keyword_score=0.0,
             rerank_score=None,
             combined_score=score,
             confidence=ConfidenceLevel.MEDIUM,

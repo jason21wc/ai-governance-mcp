@@ -108,6 +108,7 @@ _settings: Settings | None = None
 _engine: RetrievalEngine | None = None
 _metrics: Metrics | None = None
 _tiers_config: dict | None = None
+_tiers_loaded: bool = False
 
 
 def get_engine() -> RetrievalEngine:
@@ -134,9 +135,10 @@ def _load_tiers_config() -> dict | None:
 
     Returns the parsed config, or None if the file doesn't exist.
     Cached in module-level _tiers_config after first load.
+    Uses _tiers_loaded flag to distinguish "never attempted" from "absent/failed".
     """
-    global _tiers_config
-    if _tiers_config is not None:
+    global _tiers_config, _tiers_loaded
+    if _tiers_loaded:
         return _tiers_config
 
     # Look for tiers.json in documents directory
@@ -146,15 +148,18 @@ def _load_tiers_config() -> dict | None:
         logger.debug(
             "tiers.json not found at %s — universal floor disabled", tiers_path
         )
+        _tiers_loaded = True
         return None
 
     try:
         with open(tiers_path) as f:
             _tiers_config = json.load(f)
         logger.info("Loaded tiers config from %s", tiers_path)
+        _tiers_loaded = True
         return _tiers_config
     except (json.JSONDecodeError, OSError) as e:
         logger.warning("Failed to load tiers.json: %s", e)
+        _tiers_loaded = True
         return None
 
 

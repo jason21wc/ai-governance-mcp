@@ -1016,6 +1016,12 @@ class DocumentExtractor:
             # New format: infer series_code from (domain, category)
             domain = data.get("domain", "")
             series_code = self.CATEGORY_SERIES_MAP.get((domain, category))
+            if not series_code and category != "general":
+                logger.warning(
+                    "No series code mapping for (%s, %s) — principle will sort at lowest priority",
+                    domain,
+                    category,
+                )
 
         metadata = self._generate_metadata(
             principle_id, category, data["title"], data["content"]

@@ -47,6 +47,15 @@ ALLOWED_RERANKER_MODELS = {
 class RetrievalEngine:
     """Hybrid retrieval engine with BM25 + semantic search + reranking."""
 
+    _CONSTITUTION_HIERARCHY: dict[str, int] = {
+        "S": 0,  # Safety - highest priority
+        "C": 1,  # Core
+        "Q": 2,  # Quality
+        "O": 3,  # Operational
+        "MA": 4,  # Meta-awareness
+        "G": 5,  # Governance
+    }
+
     def __init__(self, settings: Settings):
         self.settings = settings
         self.index: Optional[GlobalIndex] = None
@@ -564,20 +573,12 @@ class RetrievalEngine:
         Series codes like C/Q are shared across domains, so domain
         context is used to disambiguate hierarchy level.
         """
-        constitution_hierarchy = {
-            "S": 0,  # Safety - highest priority
-            "C": 1,  # Core
-            "Q": 2,  # Quality
-            "O": 3,  # Operational
-            "MA": 4,  # Meta-awareness
-            "G": 5,  # Governance
-        }
 
         def sort_key(sp: ScoredPrinciple) -> tuple:
             series = sp.principle.series_code
             is_constitution = sp.principle.domain == "constitution"
             if is_constitution and series:
-                hierarchy = constitution_hierarchy.get(series, 6)
+                hierarchy = self._CONSTITUTION_HIERARCHY.get(series, 6)
             elif series:
                 hierarchy = 10  # All domain principles below constitution
             else:
