@@ -959,6 +959,46 @@ class DocumentExtractor:
         logger.info(f"Extracted {len(principles)} principles from {domain_config.name}")
         return principles
 
+    # Category → series code mapping, keyed by (domain, category).
+    # Critical: only ("constitution", "safety") → "S" triggers S-Series veto.
+    # Restores apply_hierarchy() sorting and series_code == "S" detection
+    # that broke when v1.5 removed numeric series headers (### S1. → ### Title).
+    CATEGORY_SERIES_MAP: dict[tuple[str, str], str] = {
+        # Constitution — S/C/Q/O/MA/G
+        ("constitution", "safety"): "S",
+        ("constitution", "core"): "C",
+        ("constitution", "quality"): "Q",
+        ("constitution", "operational"): "O",
+        ("constitution", "multi"): "MA",
+        ("constitution", "governance"): "G",
+        # AI-Coding — C/P/Q series
+        ("ai-coding", "context"): "C",
+        ("ai-coding", "process"): "P",
+        ("ai-coding", "quality"): "Q",
+        # Multi-Agent — A/R/Q series (J-series maps to "general", no code)
+        ("multi-agent", "architecture"): "A",
+        ("multi-agent", "reliability"): "R",
+        ("multi-agent", "quality"): "Q",
+        # Storytelling — A/ST/C/M/E series
+        ("storytelling", "architecture"): "A",
+        ("storytelling", "structure"): "ST",
+        ("storytelling", "context"): "C",
+        ("storytelling", "medium"): "M",
+        ("storytelling", "safety"): "E",
+        # Multimodal-RAG — P/R/A/F/V/EV/CT/SEC/DG/O/AG series
+        ("multimodal-rag", "presentation"): "P",
+        ("multimodal-rag", "reference"): "R",
+        ("multimodal-rag", "architecture"): "A",
+        ("multimodal-rag", "fallback"): "F",
+        ("multimodal-rag", "verification"): "V",
+        ("multimodal-rag", "evaluation"): "EV",
+        ("multimodal-rag", "citation"): "CT",
+        ("multimodal-rag", "security"): "SEC",
+        ("multimodal-rag", "data-governance"): "DG",
+        ("multimodal-rag", "operations"): "O",
+        ("multimodal-rag", "agentic-retrieval"): "AG",
+    }
+
     def _build_principle(self, data: dict, domain_prefix: str) -> Principle:
         """Build a Principle object with metadata."""
         # Generate slug-based ID: {domain}-{category}-{title-slug}
@@ -966,12 +1006,16 @@ class DocumentExtractor:
         title_slug = self._slugify(data["title"])
         principle_id = f"{domain_prefix}-{category}-{title_slug}"
 
-        # For backwards compatibility, extract series_code and number if present
+        # Resolve series_code: old format sets it directly, new format infers from category
         series_code = data.get("series_code")
         number = None
         if series_code:
             # Old format had series_code, try to get number from old-style matching
             number = data.get("number", 0)
+        else:
+            # New format: infer series_code from (domain, category)
+            domain = data.get("domain", "")
+            series_code = self.CATEGORY_SERIES_MAP.get((domain, category))
 
         metadata = self._generate_metadata(
             principle_id, category, data["title"], data["content"]

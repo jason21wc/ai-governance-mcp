@@ -558,23 +558,30 @@ class RetrievalEngine:
 
         S-Series > Constitution > Domain principles.
         Within same level, sort by score.
+
+        Constitution series codes get priority 0-5 (S highest).
+        Domain principles all get priority 10 (sorted by score within).
+        Series codes like C/Q are shared across domains, so domain
+        context is used to disambiguate hierarchy level.
         """
-        hierarchy_order = {
+        constitution_hierarchy = {
             "S": 0,  # Safety - highest priority
             "C": 1,  # Core
             "Q": 2,  # Quality
             "O": 3,  # Operational
             "MA": 4,  # Meta-awareness
-            "G": 5,  # Growth
-            "P": 6,  # Process (domain)
-            "A": 7,  # Architecture (multi-agent)
-            "T": 8,  # Trust
-            "D": 9,  # Delegation
+            "G": 5,  # Governance
         }
 
         def sort_key(sp: ScoredPrinciple) -> tuple:
             series = sp.principle.series_code
-            hierarchy = hierarchy_order.get(series, 99)
+            is_constitution = sp.principle.domain == "constitution"
+            if is_constitution and series:
+                hierarchy = constitution_hierarchy.get(series, 6)
+            elif series:
+                hierarchy = 10  # All domain principles below constitution
+            else:
+                hierarchy = 99  # No series code — sort by score only
             return (hierarchy, -sp.combined_score, sp.principle.number or 0)
 
         return sorted(principles, key=sort_key)

@@ -2608,3 +2608,295 @@ class TestMultiAgentConsistency:
             f"and .claude/agents/ (local): {drifted}. "
             f"Edit documents/agents/ first, then copy to .claude/agents/."
         )
+
+
+# =============================================================================
+# Universal Floor (Tier 1) Tests
+# =============================================================================
+
+
+class TestTiersConfig:
+    """Tests for tiers.json loading and universal floor building."""
+
+    def test_load_tiers_config_from_documents(self, reset_server_state, test_settings):
+        """Should load tiers.json from documents directory."""
+        import ai_governance_mcp.server as srv
+
+        # Write a minimal tiers.json
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text(
+            json.dumps(
+                {
+                    "universal_floor": {
+                        "principles": [
+                            {
+                                "id": "meta-safety-transparent-limitations",
+                                "check": "Are you honest?",
+                            }
+                        ],
+                        "methods": [],
+                    }
+                }
+            )
+        )
+
+        srv._settings = test_settings
+        srv._tiers_config = None  # Reset cache
+
+        config = srv._load_tiers_config()
+        assert config is not None
+        assert "universal_floor" in config
+        assert len(config["universal_floor"]["principles"]) == 1
+
+    def test_load_tiers_config_missing_file(self, reset_server_state, test_settings):
+        """Should return None when tiers.json doesn't exist."""
+        import ai_governance_mcp.server as srv
+
+        srv._settings = test_settings
+        srv._tiers_config = None
+
+        config = srv._load_tiers_config()
+        assert config is None
+
+    def test_load_tiers_config_caches(self, reset_server_state, test_settings):
+        """Should cache config after first load."""
+        import ai_governance_mcp.server as srv
+
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text(json.dumps({"universal_floor": {"principles": []}}))
+
+        srv._settings = test_settings
+        srv._tiers_config = None
+
+        config1 = srv._load_tiers_config()
+        config2 = srv._load_tiers_config()
+        assert config1 is config2  # Same object (cached)
+
+    def test_load_tiers_config_invalid_json(self, reset_server_state, test_settings):
+        """Should return None for invalid JSON."""
+        import ai_governance_mcp.server as srv
+
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text("not valid json{{{")
+
+        srv._settings = test_settings
+        srv._tiers_config = None
+
+        config = srv._load_tiers_config()
+        assert config is None
+
+    def test_build_universal_floor_all_types(self):
+        """Should build items for principles, methods, and subagent check."""
+        from ai_governance_mcp.server import _build_universal_floor
+
+        config = {
+            "universal_floor": {
+                "principles": [{"id": "test-principle", "check": "Did you check?"}],
+                "methods": [{"ref": "§7.8", "id": None, "check": "Proportional?"}],
+                "subagent_check": {"check": "Would a subagent help?"},
+            }
+        }
+        items = _build_universal_floor(config)
+
+        assert len(items) == 3
+        assert items[0]["type"] == "principle"
+        assert items[0]["id"] == "test-principle"
+        assert items[1]["type"] == "method"
+        assert items[1]["ref"] == "§7.8"
+        assert items[2]["type"] == "subagent_check"
+
+    def test_build_universal_floor_empty_config(self):
+        """Should return empty list for empty config."""
+        from ai_governance_mcp.server import _build_universal_floor
+
+        items = _build_universal_floor({})
+        assert items == []
+
+    def test_build_universal_floor_no_subagent(self):
+        """Should work without subagent_check."""
+        from ai_governance_mcp.server import _build_universal_floor
+
+        config = {
+            "universal_floor": {
+                "principles": [{"id": "p1", "check": "check1"}],
+                "methods": [],
+            }
+        }
+        items = _build_universal_floor(config)
+        assert len(items) == 1
+        assert items[0]["type"] == "principle"
+
+
+class TestUniversalFloorInEvaluateGovernance:
+    """Tests for universal floor injection in evaluate_governance responses."""
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_includes_universal_floor(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should include universal_floor when tiers.json exists."""
+        # Write tiers.json to test documents dir
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text(
+            json.dumps(
+                {
+                    "universal_floor": {
+                        "principles": [
+                            {
+                                "id": "meta-safety-transparent-limitations",
+                                "check": "Epistemic check",
+                            }
+                        ],
+                        "methods": [
+                            {"ref": "§7.8", "id": None, "check": "Proportional check"}
+                        ],
+                        "subagent_check": {"check": "Subagent check"},
+                    }
+                }
+            )
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Add a new helper function"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert "universal_floor" in parsed
+                    floor = parsed["universal_floor"]
+                    assert len(floor) == 3
+                    assert floor[0]["type"] == "principle"
+                    assert floor[0]["check"] == "Epistemic check"
+                    assert floor[1]["type"] == "method"
+                    assert floor[2]["type"] == "subagent_check"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_no_floor_without_tiers(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should not include universal_floor when tiers.json missing."""
+        # No tiers.json written — should gracefully omit
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Format code with prettier"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert "universal_floor" not in parsed
+
+    @pytest.mark.asyncio
+    async def test_universal_floor_separate_from_max_results(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Universal floor items should NOT reduce the max_results=10 retrieval count."""
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text(
+            json.dumps(
+                {
+                    "universal_floor": {
+                        "principles": [
+                            {"id": "floor-p1", "check": "check1"},
+                            {"id": "floor-p2", "check": "check2"},
+                        ],
+                        "methods": [],
+                    }
+                }
+            )
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Refactor database module"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # Floor items are separate
+                    if "universal_floor" in parsed:
+                        assert len(parsed["universal_floor"]) == 2
+
+                    # relevant_principles still has up to 10
+                    # (won't be reduced by floor items)
+                    assert "relevant_principles" in parsed
+
+
+class TestTiersPrincipleIdValidation:
+    """CI validation: all principle IDs in tiers.json must exist in the index."""
+
+    def test_tiers_principle_ids_exist_in_index(self):
+        """Every principle ID in tiers.json must exist in the production index."""
+        tiers_path = Path(__file__).parent.parent / "documents" / "tiers.json"
+        index_path = Path(__file__).parent.parent / "index" / "global_index.json"
+
+        if not tiers_path.exists():
+            pytest.skip("tiers.json not found")
+        if not index_path.exists():
+            pytest.skip("Production index not found")
+
+        with open(tiers_path) as f:
+            tiers = json.load(f)
+        with open(index_path) as f:
+            index = json.load(f)
+
+        # Collect all principle IDs from index
+        all_ids = set()
+        for domain_data in index.get("domains", {}).values():
+            for p in domain_data.get("principles", []):
+                all_ids.add(p["id"])
+
+        # Validate tier principle IDs
+        floor = tiers.get("universal_floor", {})
+        missing = []
+        for p in floor.get("principles", []):
+            pid = p.get("id")
+            if pid and pid not in all_ids:
+                missing.append(pid)
+
+        assert not missing, (
+            f"tiers.json references principle IDs not in index: {missing}. "
+            f"Update tiers.json or rebuild index."
+        )

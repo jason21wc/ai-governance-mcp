@@ -555,6 +555,7 @@ def reset_server_state():
     server_module._settings = None
     server_module._engine = None
     server_module._metrics = None
+    server_module._tiers_config = None
 
     yield
 
@@ -562,6 +563,7 @@ def reset_server_state():
     server_module._settings = None
     server_module._engine = None
     server_module._metrics = None
+    server_module._tiers_config = None
 
 
 @pytest.fixture

@@ -157,19 +157,18 @@ class TestHierarchyFilter:
 
     def test_s_series_highest_priority(self):
         """S-Series should be sorted first."""
-        hierarchy = {"S": 0, "C": 1, "Q": 2}
+        constitution_hierarchy = {"S": 0, "C": 1, "Q": 2, "O": 3, "MA": 4, "G": 5}
         series = ["Q", "S", "C"]
-        sorted_series = sorted(series, key=lambda s: hierarchy.get(s, 99))
+        sorted_series = sorted(series, key=lambda s: constitution_hierarchy.get(s, 99))
 
         assert sorted_series[0] == "S"
 
     def test_constitution_before_domain(self):
-        """Constitution series should come before domain series."""
-        hierarchy = {"S": 0, "C": 1, "Q": 2, "P": 6}
-        series = ["P", "C", "Q"]
-        sorted_series = sorted(series, key=lambda s: hierarchy.get(s, 99))
-
-        assert sorted_series.index("C") < sorted_series.index("P")
+        """Constitution series (hierarchy 0-5) should come before domain (10)."""
+        # In the domain-aware model: constitution gets 0-5, domain gets 10
+        constitution_c = 1  # C in constitution
+        domain_p = 10  # P in domain
+        assert constitution_c < domain_p
 
 
 class TestConfidenceLevels:
@@ -516,37 +515,123 @@ class TestLargeInputs:
 
 
 class TestHierarchyOrdering:
-    """Additional tests for series hierarchy ordering."""
+    """Tests for domain-aware series hierarchy ordering."""
 
-    def test_all_series_codes_have_priority(self):
-        """All known series codes should have defined priorities."""
-        series_priority = {
-            "S": 0,  # Safety first
-            "C": 1,  # Core
-            "Q": 2,  # Quality
-            "O": 3,  # Operational
-            "MA": 4,  # Meta-awareness
-            "G": 5,  # Growth
-            "P": 6,  # Process (domain-specific)
-            "A": 7,  # Architecture (domain-specific)
-            "T": 8,  # Technical (domain-specific)
-            "D": 9,  # Documentation (domain-specific)
-        }
+    def test_constitution_hierarchy_has_all_codes(self):
+        """Constitution hierarchy should define S/C/Q/O/MA/G priorities."""
+        constitution_hierarchy = {"S": 0, "C": 1, "Q": 2, "O": 3, "MA": 4, "G": 5}
 
-        # Verify S is highest priority (lowest number)
-        assert series_priority["S"] < series_priority["C"]
-        assert series_priority["C"] < series_priority["Q"]
-        assert series_priority["Q"] < series_priority["O"]
+        assert constitution_hierarchy["S"] < constitution_hierarchy["C"]
+        assert constitution_hierarchy["C"] < constitution_hierarchy["Q"]
+        assert constitution_hierarchy["Q"] < constitution_hierarchy["O"]
 
-    def test_unknown_series_code_gets_low_priority(self):
-        """Unknown series codes should get low (high number) priority."""
-        known_codes = {"S", "C", "Q", "O", "MA", "G", "P", "A", "T", "D"}
-        unknown_code = "X"
+    def test_domain_principles_below_constitution(self):
+        """Domain-level principles (hierarchy=10) should sort below constitution (0-5)."""
+        constitution_max = 5  # G
+        domain_level = 10  # All domain principles
+        assert domain_level > constitution_max
 
-        # Simulate priority lookup with default for unknown
-        priority = 99 if unknown_code not in known_codes else 0
+    def test_null_series_code_gets_lowest_priority(self):
+        """Principles with no series_code get hierarchy=99 (lowest)."""
+        # Simulates the apply_hierarchy sort key for None series_code
+        hierarchy = 99  # No series code
+        assert hierarchy > 10  # Below domain principles too
 
-        assert priority == 99  # Unknown gets lowest priority
+
+class TestApplyHierarchyDomainAware:
+    """Tests for apply_hierarchy() with domain-aware sorting."""
+
+    def _make_scored(self, principle_id, domain, series_code, score):
+        """Helper to create a ScoredPrinciple for testing."""
+        p = Principle(
+            id=principle_id,
+            domain=domain,
+            series_code=series_code,
+            number=None,
+            title=principle_id,
+            content="test",
+            line_range=(1, 2),
+        )
+        return ScoredPrinciple(
+            principle=p,
+            semantic_score=score,
+            bm25_score=0.0,
+            rerank_score=None,
+            combined_score=score,
+            confidence=ConfidenceLevel.MEDIUM,
+            match_reasons=["test"],
+        )
+
+    def test_s_series_sorts_first(self, tmp_path):
+        """Constitution S-Series principles should sort before all others."""
+        settings = Settings()
+        settings.index_path = tmp_path / "index"
+        settings.documents_path = tmp_path / "docs"
+        settings.logs_path = tmp_path / "logs"
+        settings.logs_path.mkdir(parents=True, exist_ok=True)
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine.__new__(RetrievalEngine)
+        engine.settings = settings
+
+        principles = [
+            self._make_scored("coding-P1", "ai-coding", "P", 0.9),
+            self._make_scored("meta-S1", "constitution", "S", 0.5),
+            self._make_scored("meta-C1", "constitution", "C", 0.8),
+        ]
+        result = engine.apply_hierarchy(principles)
+
+        assert result[0].principle.id == "meta-S1", "S-Series must be first"
+        assert result[1].principle.id == "meta-C1", "Constitution C before domain"
+        assert result[2].principle.id == "coding-P1", "Domain principles last"
+
+    def test_same_code_different_domains(self, tmp_path):
+        """Same series code (Q) in constitution vs domain: constitution wins."""
+        settings = Settings()
+        settings.index_path = tmp_path / "index"
+        settings.documents_path = tmp_path / "docs"
+        settings.logs_path = tmp_path / "logs"
+        settings.logs_path.mkdir(parents=True, exist_ok=True)
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine.__new__(RetrievalEngine)
+        engine.settings = settings
+
+        principles = [
+            self._make_scored("coding-Q1", "ai-coding", "Q", 0.9),
+            self._make_scored("meta-Q1", "constitution", "Q", 0.5),
+        ]
+        result = engine.apply_hierarchy(principles)
+
+        assert result[0].principle.domain == "constitution", (
+            "Constitution Q should sort before domain Q"
+        )
+
+    def test_none_series_code_sorts_last(self, tmp_path):
+        """Principles with series_code=None sort below all coded principles."""
+        settings = Settings()
+        settings.index_path = tmp_path / "index"
+        settings.documents_path = tmp_path / "docs"
+        settings.logs_path = tmp_path / "logs"
+        settings.logs_path.mkdir(parents=True, exist_ok=True)
+
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        engine = RetrievalEngine.__new__(RetrievalEngine)
+        engine.settings = settings
+
+        principles = [
+            self._make_scored("multi-general-J1", "multi-agent", None, 0.95),
+            self._make_scored("coding-P1", "ai-coding", "P", 0.3),
+        ]
+        result = engine.apply_hierarchy(principles)
+
+        assert result[0].principle.series_code == "P", (
+            "Coded domain principle before uncoded"
+        )
+        assert result[1].principle.series_code is None
 
 
 class TestFeedbackAdaptation:

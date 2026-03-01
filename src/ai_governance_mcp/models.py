@@ -112,7 +112,9 @@ class Principle(BaseModel):
         ..., description="Domain name: 'constitution', 'ai-coding', 'multi-agent'"
     )
     series_code: Optional[str] = Field(
-        None, description="Legacy series identifier (S, C, Q, O, G, MA) - deprecated"
+        None,
+        description="Series identifier inferred from (domain, category). "
+        "Constitution: S/C/Q/O/MA/G. Domain-specific codes vary.",
     )
     number: Optional[int] = Field(
         None, description="Legacy principle number - deprecated"

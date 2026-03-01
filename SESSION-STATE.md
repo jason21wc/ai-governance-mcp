@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None — Unified Governance Enforcement System complete
+- **Active Task:** None — Tiered Principle Activation Phase 1.5 complete (Phase 2 not needed)
 
 ## Quick Reference
 
@@ -22,7 +22,7 @@
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.2.1** (watcher auto-start on boot fix) |
 | Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.17.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
-| Tests | **785 pass** (non-slow), 0 failures |
+| Tests | **810 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
@@ -37,7 +37,15 @@
 
 ### Completed This Session
 
-1. **Unified Governance Enforcement System** — 9-step implementation addressing 87% hook non-compliance
+1. **Tiered Governance Principle Activation (Phase 0 + Phase 1)** — Backlog #8
+   - **Phase 0: Fixed dead `series_code`** — Added `CATEGORY_SERIES_MAP` (28 entries) in extractor.py `_build_principle()` to infer series_code from (domain, category) for new-format headers. Constitution safety → "S", storytelling ethics → "E", multimodal-rag security → "SEC". Restores `apply_hierarchy()` sorting and `p.series_code == "S"` detection in server.py.
+   - **Phase 0: Domain-aware `apply_hierarchy()`** — Updated retrieval.py to use domain context for hierarchy sorting. Constitution principles (0-5) sort above domain principles (10). Shared codes like C/Q no longer collide across domains.
+   - **Phase 1: Universal floor tier** — Created `documents/tiers.json` with 3 principles, 3 methods, 1 subagent check as compact anti-pattern checks. Added `_load_tiers_config()` and `_build_universal_floor()` to server.py. `evaluate_governance` now includes `universal_floor` section in every response (separate from `max_results=10` similarity results).
+   - **25 new tests** (810 total passing) — 10 extractor tests (CATEGORY_SERIES_MAP, S-Series isolation, new-format inference), 3 retrieval tests (domain-aware hierarchy), 11 server tests (tiers loading, floor building, evaluate_governance integration, CI ID validation), 1 production index validation
+   - **Index rebuilt** — All 124 principles now have series_code populated (only 1 None: multi-agent justification with "general" category)
+   - Files changed: `extractor.py`, `retrieval.py`, `models.py`, `server.py`, `conftest.py`, `test_extractor.py`, `test_retrieval.py`, `test_server.py`, `documents/tiers.json` (new), `index/` (rebuilt)
+
+2. **Unified Governance Enforcement System** — 9-step implementation addressing 87% hook non-compliance
    - **Shared scanner module** (`.claude/hooks/scan_transcript.py`) — reusable Python scanner with recency window support
    - **PreToolUse hook → hard mode default** — flipped from soft to hard; BLOCKS Bash|Edit|Write until both `evaluate_governance()` and `query_project()` called; 200-line recency window; soft-mode escape hatches via `GOVERNANCE_SOFT_MODE`/`CE_SOFT_MODE`
    - **UserPromptSubmit hook → conditional suppression** — silent when compliant (saves ~128 tokens/prompt), shortened reminder (~50 tokens) when not; reads transcript_path from stdin JSON
@@ -366,6 +374,34 @@ The existing §7.10 Anchor Bias Mitigation Protocol applies directly. When revie
 - Should there be a structured output format for subagent evaluation? (e.g., "Finding: X | Agree/Disagree | Reasoning: Y | Action: Z")
 
 **Implementation requirements:** Content changes to agent templates and SERVER_INSTRUCTIONS. Rebuild index after document changes. Tests for updated agent template content validation. No code changes expected — this is a governance content update. Sync `documents/agents/` → `.claude/agents/` after edits.
+
+### 9. Backlog — Tiered Principle Activation (Priority: MEDIUM)
+Multi-phase feature: intermediate governance tiers between S-Series veto and similarity-scored retrieval.
+
+**Phase 0: Fix dead `series_code`** — COMPLETE (2026-02-28)
+- Added `CATEGORY_SERIES_MAP` (28 entries) in extractor.py. Domain-aware `apply_hierarchy()` in retrieval.py.
+
+**Phase 1: Universal Floor (Tier 1)** — COMPLETE (2026-02-28)
+- `documents/tiers.json` with 3 principles + 3 methods + 1 subagent check as compact anti-pattern reminders.
+- `evaluate_governance` injects `universal_floor` section in every response (separate from `max_results=10`).
+
+**Phase 1.5: Measure Tool-Active Gap** — COMPLETE (2026-03-01)
+- Ran 24 representative queries through `query_governance`. Results:
+  - Context Engine "query first": 0/24 surfaced — NOT a retrieval gap (enforced by hooks, not in documents)
+  - Testing Integration: 3/24 surfaced — MODERATE gap, addressed by adding testing check to universal floor
+  - Security principles: 7/8 surfaced — SMALL gap, adequate retrieval
+  - Multi-agent/subagent: 3/3 surfaced — NO gap
+  - Post-action verification: 0/24 — MODERATE gap, addressed by adding §7.5 check to universal floor
+- **Verdict: Phase 2 NOT NEEDED.** Gaps are cross-cutting procedural, not tool-specific.
+- Added 2 items to `tiers.json` v1.1.0: testing reminder + post-action verification (9 total items)
+
+**Phase 2: Tool-Active (Tier 2)** — CANCELLED per Phase 1.5 results
+- Similarity-scored retrieval handles security and multi-agent guidance adequately.
+- Remaining gaps (testing, post-action) addressed via universal floor additions.
+
+**Phase 3: Accountable Reasoning combined principle** (deferred)
+- After Phase 1 proves valuable, consider formal combined principle.
+- Until then, tier config synthesizes both existing IDs.
 
 ## Links
 

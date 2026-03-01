@@ -107,6 +107,7 @@ def _validate_server_instructions(instructions: str) -> None:
 _settings: Settings | None = None
 _engine: RetrievalEngine | None = None
 _metrics: Metrics | None = None
+_tiers_config: dict | None = None
 
 
 def get_engine() -> RetrievalEngine:
@@ -126,6 +127,75 @@ def get_metrics() -> Metrics:
     if _metrics is None:
         _metrics = Metrics()
     return _metrics
+
+
+def _load_tiers_config() -> dict | None:
+    """Load tiers.json configuration for universal floor injection.
+
+    Returns the parsed config, or None if the file doesn't exist.
+    Cached in module-level _tiers_config after first load.
+    """
+    global _tiers_config
+    if _tiers_config is not None:
+        return _tiers_config
+
+    # Look for tiers.json in documents directory
+    settings = _settings or load_settings()
+    tiers_path = settings.documents_path / "tiers.json"
+    if not tiers_path.exists():
+        logger.debug(
+            "tiers.json not found at %s — universal floor disabled", tiers_path
+        )
+        return None
+
+    try:
+        with open(tiers_path) as f:
+            _tiers_config = json.load(f)
+        logger.info("Loaded tiers config from %s", tiers_path)
+        return _tiers_config
+    except (json.JSONDecodeError, OSError) as e:
+        logger.warning("Failed to load tiers.json: %s", e)
+        return None
+
+
+def _build_universal_floor(tiers_config: dict) -> list[dict]:
+    """Build compact universal floor items from tiers config.
+
+    Returns a list of check items in compact format:
+    {"type": "principle"|"method"|"subagent_check", "id": str|null, "check": str}
+    """
+    floor_section = tiers_config.get("universal_floor", {})
+    items: list[dict] = []
+
+    for p in floor_section.get("principles", []):
+        items.append(
+            {
+                "type": "principle",
+                "id": p.get("id"),
+                "check": p.get("check", ""),
+            }
+        )
+
+    for m in floor_section.get("methods", []):
+        items.append(
+            {
+                "type": "method",
+                "ref": m.get("ref"),
+                "id": m.get("id"),
+                "check": m.get("check", ""),
+            }
+        )
+
+    subagent = floor_section.get("subagent_check")
+    if subagent:
+        items.append(
+            {
+                "type": "subagent_check",
+                "check": subagent.get("check", ""),
+            }
+        )
+
+    return items
 
 
 def _validate_log_path(log_file: Path) -> None:
@@ -1939,6 +2009,11 @@ async def _handle_evaluate_governance(
     output["confidence"] = output["confidence"].value
     for ce in output["compliance_evaluation"]:
         ce["status"] = ce["status"].value
+
+    # Inject universal floor (Tier 1) — separate section, not counted against max_results
+    tiers_config = _load_tiers_config()
+    if tiers_config:
+        output["universal_floor"] = _build_universal_floor(tiers_config)
 
     # Record governance overhead metrics (thread-safe via lock)
     governance_time_ms = (time.time() - governance_start_time) * 1000

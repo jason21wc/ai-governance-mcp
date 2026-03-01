@@ -1,0 +1,50 @@
+{
+  "_comment": "Tiered Governance Principle Activation — universal floor items prepended to every evaluate_governance response. Compact anti-pattern checks, not full principle text. See plan: Phase 1 of Tiered Principle Activation.",
+  "_version": "1.1.0",
+  "universal_floor": {
+    "principles": [
+      {
+        "id": "meta-safety-transparent-limitations",
+        "check": "Epistemic honesty: Are you stating uncertainty where it exists, or presenting a best guess as fact?"
+      },
+      {
+        "id": "meta-quality-visible-reasoning",
+        "check": "Accountable reasoning: Is your reasoning visible before output, and are sources cited? (+ meta-governance-transparent-reasoning-and-traceability)"
+      },
+      {
+        "id": "meta-quality-verification-mechanisms-before-action",
+        "check": "Verification before action: Did you check preconditions and validate assumptions before proceeding?"
+      }
+    ],
+    "methods": [
+      {
+        "ref": "§7.8",
+        "id": null,
+        "check": "Proportional application: Is your rigor matched to the stakes of this task?"
+      },
+      {
+        "ref": "§7.4",
+        "id": null,
+        "check": "Citation requirements: Are you citing principle IDs when they influence your decisions?"
+      },
+      {
+        "ref": "§7.6",
+        "id": null,
+        "check": "Drift prevention: Has the conversation exceeded 10+ exchanges or shifted topics since last governance check?"
+      },
+      {
+        "ref": "§5.1.6",
+        "id": null,
+        "check": "Post-action: Did you verify and close out the previous task before starting this one? (§7.5 Post-Action Verification)"
+      },
+      {
+        "ref": "§5.2",
+        "id": "coding-quality-testing-integration",
+        "check": "Testing: Have you included or updated tests for this change? (coding-quality-testing-integration)"
+      }
+    ],
+    "subagent_check": {
+      "check": "Subagent applicability: Would a specialized agent (code-reviewer, security-auditor, test-generator, etc.) produce higher-quality output for this task?"
+    }
+  }
+}

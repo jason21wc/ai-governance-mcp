@@ -1711,3 +1711,199 @@ Prevents skipping critical steps.
         assert len(principles) == 1
         assert "process" in principles[0].id
         assert "presentation" not in principles[0].id
+
+
+# =============================================================================
+# CATEGORY_SERIES_MAP and series_code Inference Tests
+# =============================================================================
+
+
+class TestCategorySeriesMap:
+    """Tests for CATEGORY_SERIES_MAP and series_code inference in _build_principle."""
+
+    def test_map_has_all_constitution_categories(self):
+        """Constitution safety/core/quality/operational/multi/governance all mapped."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        assert m[("constitution", "safety")] == "S"
+        assert m[("constitution", "core")] == "C"
+        assert m[("constitution", "quality")] == "Q"
+        assert m[("constitution", "operational")] == "O"
+        assert m[("constitution", "multi")] == "MA"
+        assert m[("constitution", "governance")] == "G"
+
+    def test_s_series_only_in_constitution(self):
+        """S-Series must ONLY map from constitution safety, never another domain."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        for (domain, category), code in m.items():
+            if code == "S":
+                assert domain == "constitution" and category == "safety", (
+                    f"S-Series mapped from ({domain}, {category}) — must be constitution/safety only"
+                )
+
+    def test_storytelling_safety_is_ethics_not_s_series(self):
+        """Storytelling ethics principles map to E, not S (no safety veto)."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        assert m[("storytelling", "safety")] == "E"
+
+    def test_multimodal_rag_security_is_sec_not_s(self):
+        """Multimodal-RAG security maps to SEC, not S."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        assert m[("multimodal-rag", "security")] == "SEC"
+
+    def test_shared_codes_across_domains(self):
+        """Codes like C, Q, A can appear in multiple domains."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        # C appears in constitution (Core) and ai-coding (Context) and storytelling (Craft)
+        assert m[("constitution", "core")] == "C"
+        assert m[("ai-coding", "context")] == "C"
+        assert m[("storytelling", "context")] == "C"
+
+    def test_unmapped_category_returns_none(self):
+        """Categories not in the map should yield None (e.g., 'general')."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        assert m.get(("multi-agent", "general")) is None
+        assert m.get(("constitution", "unknown")) is None
+
+    def test_new_format_header_gets_series_code(self, tmp_path):
+        """New-format headers (no series prefix) should get series_code from category."""
+        docs_path = tmp_path / "documents"
+        docs_path.mkdir()
+
+        # Write a new-format constitution principles file
+        content = """\
+# Test Constitution
+
+## Safety & Ethics Principles
+
+### Transparent Limitations
+**Definition**
+The AI must be transparent about its limitations.
+
+**How the AI Applies This Principle**
+- Admit when uncertain
+"""
+        (docs_path / "test-principles.md").write_text(content)
+
+        settings = Mock()
+        settings.documents_path = docs_path
+        settings.embedding_model = "BAAI/bge-small-en-v1.5"
+        settings.embedding_dimensions = 384
+
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            extractor = DocumentExtractor(settings)
+            domain_config = DomainConfig(
+                name="constitution",
+                display_name="Constitution",
+                principles_file="test-principles.md",
+                description="Test",
+                priority=0,
+            )
+            principles = extractor._extract_principles(domain_config)
+
+        assert len(principles) == 1
+        assert principles[0].series_code == "S", (
+            f"Constitution safety principle should get series_code 'S', got '{principles[0].series_code}'"
+        )
+
+    def test_new_format_domain_principle_gets_series_code(self, tmp_path):
+        """Domain principles in new format get their domain-specific series code."""
+        docs_path = tmp_path / "documents"
+        docs_path.mkdir()
+
+        content = """\
+# AI Coding Principles
+
+## P-Series: Process Principles
+
+### Validation Gates
+**Definition**
+Each phase requires explicit validation before proceeding.
+
+**Why This Principle Matters**
+Prevents premature phase transitions.
+"""
+        (docs_path / "coding-principles.md").write_text(content)
+
+        settings = Mock()
+        settings.documents_path = docs_path
+        settings.embedding_model = "BAAI/bge-small-en-v1.5"
+        settings.embedding_dimensions = 384
+
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            extractor = DocumentExtractor(settings)
+            domain_config = DomainConfig(
+                name="ai-coding",
+                display_name="AI Coding",
+                principles_file="coding-principles.md",
+                description="Test",
+                priority=10,
+            )
+            principles = extractor._extract_principles(domain_config)
+
+        assert len(principles) == 1
+        assert principles[0].series_code == "P"
+
+    def test_old_format_preserves_original_series_code(
+        self, test_settings, sample_principles_md
+    ):
+        """Old-format headers (### S1. Title) should keep their parsed series_code."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            extractor = DocumentExtractor(test_settings)
+            domain_config = DomainConfig(
+                name="constitution",
+                display_name="Constitution",
+                principles_file="test-principles.md",
+                description="Test",
+                priority=0,
+            )
+            principles = extractor._extract_principles(domain_config)
+
+        s_principles = [p for p in principles if p.series_code == "S"]
+        assert len(s_principles) >= 1, (
+            "Old-format S1 header should produce series_code 'S'"
+        )
+
+    def test_multimodal_rag_all_series_codes(self, tmp_path):
+        """Multimodal-RAG principles should get correct series codes for all categories."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        expected = {
+            "presentation": "P",
+            "reference": "R",
+            "architecture": "A",
+            "fallback": "F",
+            "verification": "V",
+            "evaluation": "EV",
+            "citation": "CT",
+            "security": "SEC",
+            "data-governance": "DG",
+            "operations": "O",
+            "agentic-retrieval": "AG",
+        }
+        for category, expected_code in expected.items():
+            actual = m.get(("multimodal-rag", category))
+            assert actual == expected_code, (
+                f"multimodal-rag {category} should be '{expected_code}', got '{actual}'"
+            )
