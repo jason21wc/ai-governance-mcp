@@ -166,6 +166,7 @@ def analyze_transcript(
             gov_gaps.append(pos)
         if not ce_recent:
             ce_gaps.append(pos)
+        # Combined gap = missing EITHER gov or CE (union of gov_gaps and ce_gaps)
         if not gov_recent or not ce_recent:
             gaps.append(pos)
 
@@ -468,7 +469,7 @@ def compare_baselines(path_a: Path, path_b: Path) -> None:
 
     # Total file mods
     ma = agg_a.get("total_file_mods", agg_a.get("total_file_mod_calls", 0))
-    mb = agg_b.get("total_file_mods", 0)
+    mb = agg_b.get("total_file_mods", agg_b.get("total_file_mod_calls", 0))
     print(f"{'Total file mods:':<25} {ma:>12} {mb:>12} {mb - ma:>+12}")
 
     # Gap rate (primary metric)
