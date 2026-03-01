@@ -1,14 +1,12 @@
 """Tests for scripts/analyze_compliance.py — effectiveness analytics."""
 
 import json
-import os
-import tempfile
 from datetime import date, datetime
 from pathlib import Path
 
 import pytest
 
-# Import from scripts — add to path
+# Import from scripts — add to path (intentional for script-level non-package code)
 import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
@@ -23,11 +21,12 @@ from analyze_compliance import (
     _nearest_preceding,
     analyze_transcript,
     compare_baselines,
+    print_report,
     save_baseline,
 )
 
 
-def _make_line(tool_name: str, line_content: str = "") -> str:
+def _make_line(tool_name: str) -> str:
     """Create a JSONL line with a tool_use entry."""
     entry = {
         "message": {"content": [{"type": "tool_use", "name": tool_name, "input": {}}]}
@@ -35,21 +34,19 @@ def _make_line(tool_name: str, line_content: str = "") -> str:
     return json.dumps(entry)
 
 
-def _make_transcript(lines: list[str]) -> Path:
-    """Write lines to a temp JSONL file and return its path."""
-    f = tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False)
-    for line in lines:
-        f.write(line + "\n")
-    f.close()
-    return Path(f.name)
+def _write_transcript(tmp_path: Path, lines: list[str], name: str = "t.jsonl") -> Path:
+    """Write lines to a JSONL file in tmp_path and return its path."""
+    path = tmp_path / name
+    path.write_text("\n".join(lines) + "\n" if lines else "")
+    return path
 
 
 # --- analyze_transcript: basic classification ---
 
 
 class TestClassification:
-    def test_empty_transcript(self):
-        path = _make_transcript([])
+    def test_empty_transcript(self, tmp_path):
+        path = _write_transcript(tmp_path, [])
         result = analyze_transcript(path)
         assert result["classification"] == "COMPLIANT"
         assert result["gov_calls"] == 0
@@ -58,95 +55,92 @@ class TestClassification:
         assert result["gaps"] == []
         assert result["gov_gaps"] == []
         assert result["ce_gaps"] == []
-        os.unlink(path)
 
-    def test_gov_only(self):
-        path = _make_transcript(
+    def test_gov_only(self, tmp_path):
+        path = _write_transcript(
+            tmp_path,
             [
                 _make_line("mcp__ai-governance__evaluate_governance"),
                 _make_line("Edit"),
-            ]
+            ],
         )
         result = analyze_transcript(path)
         assert result["classification"] == "PARTIAL"
         assert result["gov_calls"] == 1
         assert result["ce_calls"] == 0
-        os.unlink(path)
 
-    def test_ce_only(self):
-        path = _make_transcript(
+    def test_ce_only(self, tmp_path):
+        path = _write_transcript(
+            tmp_path,
             [
                 _make_line("mcp__context-engine__query_project"),
                 _make_line("Write"),
-            ]
+            ],
         )
         result = analyze_transcript(path)
         assert result["classification"] == "PARTIAL"
         assert result["gov_calls"] == 0
         assert result["ce_calls"] == 1
-        os.unlink(path)
 
-    def test_both_gov_and_ce(self):
-        path = _make_transcript(
+    def test_both_gov_and_ce(self, tmp_path):
+        path = _write_transcript(
+            tmp_path,
             [
                 _make_line("mcp__ai-governance__evaluate_governance"),
                 _make_line("mcp__context-engine__query_project"),
                 _make_line("Edit"),
-            ]
+            ],
         )
         result = analyze_transcript(path)
         assert result["classification"] == "COMPLIANT"
         assert result["gov_calls"] == 1
         assert result["ce_calls"] == 1
-        os.unlink(path)
 
-    def test_neither_with_file_mods(self):
-        path = _make_transcript(
+    def test_neither_with_file_mods(self, tmp_path):
+        path = _write_transcript(
+            tmp_path,
             [
                 _make_line("Edit"),
                 _make_line("Write"),
                 _make_line("Bash"),
-            ]
+            ],
         )
         result = analyze_transcript(path)
         assert result["classification"] == "NON_COMPLIANT"
         assert result["file_mod_calls"] == 3
-        os.unlink(path)
 
-    def test_no_file_mods_is_compliant(self):
+    def test_no_file_mods_is_compliant(self, tmp_path):
         """Sessions with no file modifications are always COMPLIANT."""
-        path = _make_transcript(
+        path = _write_transcript(
+            tmp_path,
             [
                 _make_line("Read"),
                 _make_line("Glob"),
-            ]
+            ],
         )
         result = analyze_transcript(path)
         assert result["classification"] == "COMPLIANT"
         assert result["file_mod_calls"] == 0
-        os.unlink(path)
 
 
 # --- Gap detection ---
 
 
 class TestGapDetection:
-    def test_within_window_no_gap(self):
+    def test_within_window_no_gap(self, tmp_path):
         """Gov + CE within recency window before file-mod = no gap."""
         lines = [
             _make_line("mcp__ai-governance__evaluate_governance"),
             _make_line("mcp__context-engine__query_project"),
+            _make_line("Edit"),
         ]
-        # Add file-mod within window (line 3 is within 200 of lines 1-2)
-        lines.append(_make_line("Edit"))
-        path = _make_transcript(lines)
+        path = _write_transcript(tmp_path, lines)
         result = analyze_transcript(path)
         assert result["gaps"] == []
         assert result["gov_gaps"] == []
         assert result["ce_gaps"] == []
-        os.unlink(path)
 
-    def test_outside_window_has_gap(self):
+    def test_outside_window_has_gap(self, tmp_path):
         """Gov + CE calls outside recency window = gap."""
         lines = [
             _make_line("mcp__ai-governance__evaluate_governance"),
@@ -156,39 +150,35 @@ class TestGapDetection:
         for _ in range(RECENCY_WINDOW + 1):
             lines.append(json.dumps({"message": {"content": []}}))
         lines.append(_make_line("Edit"))
-        path = _make_transcript(lines)
+        path = _write_transcript(tmp_path, lines)
         result = analyze_transcript(path)
-        # File mod is at line RECENCY_WINDOW + 3, gov/ce at lines 1-2
         assert len(result["gaps"]) == 1
-        os.unlink(path)
 
-    def test_split_gaps_gov_present_ce_missing(self):
+    def test_split_gaps_gov_present_ce_missing(self, tmp_path):
         """Gov present but CE missing = ce_gap only (combined gap too)."""
         lines = [
             _make_line("mcp__ai-governance__evaluate_governance"),
             _make_line("Edit"),
         ]
-        path = _make_transcript(lines)
+        path = _write_transcript(tmp_path, lines)
         result = analyze_transcript(path)
         assert result["gov_gaps"] == []
         assert result["ce_gaps"] == [2]  # line 2 is the Edit
         assert result["gaps"] == [2]  # combined gap
-        os.unlink(path)
 
-    def test_split_gaps_ce_present_gov_missing(self):
+    def test_split_gaps_ce_present_gov_missing(self, tmp_path):
         """CE present but gov missing = gov_gap only."""
         lines = [
             _make_line("mcp__context-engine__query_project"),
             _make_line("Edit"),
         ]
-        path = _make_transcript(lines)
+        path = _write_transcript(tmp_path, lines)
         result = analyze_transcript(path)
         assert result["gov_gaps"] == [2]
         assert result["ce_gaps"] == []
         assert result["gaps"] == [2]
-        os.unlink(path)
 
-    def test_custom_recency_window(self):
+    def test_custom_recency_window(self, tmp_path):
         """Custom window size is respected."""
         lines = [
             _make_line("mcp__ai-governance__evaluate_governance"),
@@ -198,7 +188,7 @@ class TestGapDetection:
         for _ in range(5):
             lines.append(json.dumps({"message": {"content": []}}))
         lines.append(_make_line("Edit"))
-        path = _make_transcript(lines)
+        path = _write_transcript(tmp_path, lines)
 
         # Window=10 should cover the gap
         result = analyze_transcript(path, recency_window=10)
@@ -207,7 +197,6 @@ class TestGapDetection:
         # Window=3 should NOT cover the gap (Edit at line 8, gov at line 1)
         result = analyze_transcript(path, recency_window=3)
         assert len(result["gaps"]) == 1
-        os.unlink(path)
 
 
 # --- Session buckets ---
@@ -266,27 +255,26 @@ class TestComplianceQuality:
 
 
 class TestEnforcementEra:
-    def test_pre_enforcement(self):
-        path = _make_transcript([_make_line("Edit")])
+    def test_pre_enforcement(self, tmp_path):
+        path = _write_transcript(tmp_path, [_make_line("Edit")])
         # Set mtime to a date before deployment
+        import os
+
         old_ts = datetime(2025, 1, 1).timestamp()
         os.utime(path, (old_ts, old_ts))
         result = analyze_transcript(path, deployment_date=date(2026, 1, 1))
         assert result["enforcement_era"] == "pre"
-        os.unlink(path)
 
-    def test_post_enforcement(self):
-        path = _make_transcript([_make_line("Edit")])
+    def test_post_enforcement(self, tmp_path):
+        path = _write_transcript(tmp_path, [_make_line("Edit")])
         # File was just created, mtime is today
         result = analyze_transcript(path, deployment_date=date(2020, 1, 1))
         assert result["enforcement_era"] == "post"
-        os.unlink(path)
 
-    def test_no_deployment_date(self):
-        path = _make_transcript([_make_line("Edit")])
+    def test_no_deployment_date(self, tmp_path):
+        path = _write_transcript(tmp_path, [_make_line("Edit")])
         result = analyze_transcript(path)
         assert result["enforcement_era"] == "unknown"
-        os.unlink(path)
 
 
 # --- Proximity ---
@@ -314,53 +302,51 @@ class TestProximity:
     def test_avg_proximity_no_file_mods(self):
         assert _compute_avg_proximity([], [5, 15]) is None
 
-    def test_proximity_in_transcript(self):
+    def test_proximity_in_transcript(self, tmp_path):
         lines = [
             _make_line("mcp__ai-governance__evaluate_governance"),  # line 1
             _make_line("mcp__context-engine__query_project"),  # line 2
             _make_line("Edit"),  # line 3
         ]
-        path = _make_transcript(lines)
+        path = _write_transcript(tmp_path, lines)
         result = analyze_transcript(path)
         # Edit at line 3, gov at line 1: distance 2
         assert result["avg_gov_proximity"] == 2.0
         # Edit at line 3, CE at line 2: distance 1
         assert result["avg_ce_proximity"] == 1.0
-        os.unlink(path)
 
 
 # --- Gap rates ---
 
 
 class TestGapRates:
-    def test_zero_file_mods(self):
-        path = _make_transcript([])
+    def test_zero_file_mods(self, tmp_path):
+        path = _write_transcript(tmp_path, [])
         result = analyze_transcript(path)
         assert result["gov_gap_rate"] == 0.0
         assert result["ce_gap_rate"] == 0.0
         assert result["combined_gap_rate"] == 0.0
-        os.unlink(path)
 
-    def test_all_gaps(self):
-        path = _make_transcript(
+    def test_all_gaps(self, tmp_path):
+        path = _write_transcript(
+            tmp_path,
             [
                 _make_line("Edit"),
                 _make_line("Write"),
-            ]
+            ],
         )
         result = analyze_transcript(path)
         assert result["gov_gap_rate"] == 1.0
         assert result["ce_gap_rate"] == 1.0
         assert result["combined_gap_rate"] == 1.0
-        os.unlink(path)
 
-    def test_partial_coverage(self):
+    def test_partial_coverage(self, tmp_path):
         """Gov covers first edit, CE covers neither."""
         lines = [
             _make_line("mcp__ai-governance__evaluate_governance"),  # line 1
             _make_line("Edit"),  # line 2 — gov recent, CE not
         ]
-        path = _make_transcript(lines)
+        path = _write_transcript(tmp_path, lines)
         result = analyze_transcript(path)
         # gov_gap_rate = 0/1 = 0.0 (gov is recent)
         assert result["gov_gap_rate"] == 0.0
@@ -368,7 +354,6 @@ class TestGapRates:
         assert result["ce_gap_rate"] == 1.0
         # combined = 1/1 = 1.0 (either missing = gap)
         assert result["combined_gap_rate"] == 1.0
-        os.unlink(path)
 
 
 # --- Aggregates ---
@@ -459,12 +444,28 @@ class TestAggregates:
         agg = _compute_aggregates(results)
         assert agg["total_sessions"] == 1
 
+    def test_gap_totals_exposed(self):
+        """Aggregate dict includes total_gaps, total_gov_gaps, total_ce_gaps."""
+        results = [
+            self._make_result(
+                file_mod_calls=10,
+                gaps=[1, 2, 3],
+                gov_gaps=[1, 2],
+                ce_gaps=[1, 2, 3],
+                session_bucket="short",
+            ),
+        ]
+        agg = _compute_aggregates(results)
+        assert agg["total_gaps"] == 3
+        assert agg["total_gov_gaps"] == 2
+        assert agg["total_ce_gaps"] == 3
+
 
 # --- Baseline save/load ---
 
 
 class TestBaseline:
-    def test_save_and_load(self):
+    def test_save_and_load(self, tmp_path):
         results = [
             {
                 "path": "/tmp/test.jsonl",
@@ -488,9 +489,7 @@ class TestBaseline:
                 "enforcement_era": "post",
             }
         ]
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
-            out_path = Path(f.name)
-
+        out_path = tmp_path / "baseline.json"
         save_baseline(results, out_path, label="test")
         with open(out_path) as f:
             loaded = json.load(f)
@@ -501,14 +500,13 @@ class TestBaseline:
         assert len(loaded["sessions"]) == 1
         assert loaded["sessions"][0]["gov_gap_count"] == 3
         assert loaded["sessions"][0]["ce_gap_count"] == 5
-        os.unlink(out_path)
 
 
 # --- Comparison ---
 
 
 class TestComparison:
-    def test_compare_two_baselines(self, capsys):
+    def test_compare_two_baselines(self, tmp_path, capsys):
         before = {
             "label": "pre-enforcement",
             "date": "2026-02-28",
@@ -540,12 +538,10 @@ class TestComparison:
             },
         }
 
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as fa:
-            json.dump(before, fa)
-            pa = Path(fa.name)
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as fb:
-            json.dump(after, fb)
-            pb = Path(fb.name)
+        pa = tmp_path / "before.json"
+        pb = tmp_path / "after.json"
+        pa.write_text(json.dumps(before))
+        pb.write_text(json.dumps(after))
 
         compare_baselines(pa, pb)
         output = capsys.readouterr().out
@@ -555,10 +551,7 @@ class TestComparison:
         assert "Gap rate" in output
         assert "Sessions:" in output
 
-        os.unlink(pa)
-        os.unlink(pb)
-
-    def test_old_format_baseline_graceful(self, capsys):
+    def test_old_format_baseline_graceful(self, tmp_path, capsys):
         """Old-format baseline missing new fields doesn't crash."""
         old = {
             "date": "2026-02-28",
@@ -584,22 +577,43 @@ class TestComparison:
             },
         }
 
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as fa:
-            json.dump(old, fa)
-            pa = Path(fa.name)
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as fb:
-            json.dump(new, fb)
-            pb = Path(fb.name)
+        pa = tmp_path / "old.json"
+        pb = tmp_path / "new.json"
+        pa.write_text(json.dumps(old))
+        pb.write_text(json.dumps(new))
 
         # Should not raise
         compare_baselines(pa, pb)
         output = capsys.readouterr().out
 
-        assert "N/A" in output or "—" in output  # graceful missing fields
+        assert "N/A" in output or "\u2014" in output  # graceful missing fields
         assert "Gov/CE split not available" in output
 
-        os.unlink(pa)
-        os.unlink(pb)
+
+# --- print_report smoke test ---
+
+
+class TestPrintReport:
+    def test_smoke_no_crash(self, tmp_path, capsys):
+        """print_report does not crash and contains expected sections."""
+        path = _write_transcript(
+            tmp_path,
+            [
+                _make_line("mcp__ai-governance__evaluate_governance"),
+                _make_line("mcp__context-engine__query_project"),
+                _make_line("Edit"),
+                _make_line("Write"),
+            ],
+        )
+        results = [analyze_transcript(path)]
+        print_report(results)
+        output = capsys.readouterr().out
+
+        assert "GOVERNANCE COMPLIANCE REPORT" in output
+        assert "BREAKDOWN BY SESSION LENGTH" in output
+        assert "BREAKDOWN BY COMPLIANCE QUALITY" in output
+        assert "SPLIT GAP RATES" in output
+        assert "Total sessions:" in output
 
 
 # --- Format helpers ---
@@ -615,5 +629,5 @@ class TestFormatHelpers:
     def test_fmt_delta(self):
         assert _fmt_delta(0.5, 0.3) == "-20.0pp"
         assert _fmt_delta(0.3, 0.5) == "+20.0pp"
-        assert _fmt_delta(None, 0.5) == "—"
-        assert _fmt_delta(0.5, None) == "—"
+        assert _fmt_delta(None, 0.5) == "\u2014"
+        assert _fmt_delta(0.5, None) == "\u2014"

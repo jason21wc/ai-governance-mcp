@@ -42,7 +42,7 @@ def _classify_bucket(file_mod_calls: int) -> str:
     for bucket, (lo, hi) in BUCKET_RANGES.items():
         if lo <= file_mod_calls <= hi:
             return bucket
-    return "very_long"
+    return "very_long"  # unreachable for non-negative inputs; defensive fallback
 
 
 def _classify_quality(
@@ -273,6 +273,9 @@ def _compute_aggregates(results: list[dict]) -> dict:
         "gov_gap_rate": round(gov_gap_rate, 4),
         "ce_gap_rate": round(ce_gap_rate, 4),
         "total_file_mods": total_file_mods,
+        "total_gaps": total_gaps,
+        "total_gov_gaps": total_gov_gaps,
+        "total_ce_gaps": total_ce_gaps,
         "by_bucket": by_bucket,
         "by_compliance_quality": by_quality,
     }
@@ -350,11 +353,11 @@ def print_report(results: list[dict]) -> None:
             f"  {cap + ':':<12} {info['count']:>3} sessions — avg_gap_rate: {info['gap_rate']:.2f}"
         )
 
-    # Split gap rates
+    # Split gap rates (from aggregates — no re-computation)
     total_mods = agg["total_file_mods"]
-    total_gov_gaps = sum(len(r.get("gov_gaps", [])) for r in valid)
-    total_ce_gaps = sum(len(r.get("ce_gaps", [])) for r in valid)
-    total_combined_gaps = sum(len(r["gaps"]) for r in valid)
+    total_gov_gaps = agg["total_gov_gaps"]
+    total_ce_gaps = agg["total_ce_gaps"]
+    total_combined_gaps = agg["total_gaps"]
 
     print()
     print("SPLIT GAP RATES")
@@ -427,11 +430,11 @@ def save_baseline(
     )
 
 
-def _fmt_pct(value: float | None, multiplier: float = 100.0) -> str:
+def _fmt_pct(value: float | None) -> str:
     """Format a float as percentage string, or N/A if None."""
     if value is None:
         return "N/A"
-    return f"{value * multiplier:.1f}%"
+    return f"{value * 100:.1f}%"
 
 
 def _fmt_delta(before: float | None, after: float | None) -> str:
