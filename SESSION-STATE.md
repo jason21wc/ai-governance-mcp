@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-02-28
+**Last Updated:** 2026-03-01
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None — Tiered Principle Activation Phase 1.5 complete (Phase 2 not needed)
+- **Active Task:** None — Part C Effectiveness Analytics complete
 
 ## Quick Reference
 
@@ -22,7 +22,7 @@
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.2.1** (watcher auto-start on boot fix) |
 | Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.17.1** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
-| Tests | **810 pass** (non-slow), 0 failures |
+| Tests | **858 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
@@ -97,7 +97,10 @@ An MCP proxy sits between ANY AI client and MCP servers, intercepting tool calls
 - Minimal latency overhead on tool calls
 - Can be distributed as part of the framework package
 
-**Part C: Effectiveness Analytics** (measurement)
+**Part C: Effectiveness Analytics** — COMPLETE (2026-03-01)
+Enhanced `scripts/analyze_compliance.py` with argparse CLI (analyze/baseline/compare subcommands), split gap rates (gov vs CE), session buckets, compliance quality classification, enforcement era detection, proximity metrics. 48 new tests in `tests/test_analyze_compliance.py`. Post-enforcement baseline generated: 71 sessions, 94.2% combined gap rate (62.6% gov, 92.7% CE), 16.9% compliance rate. Only 2 sessions under hard-mode enforcement so far — delta will grow as more post-enforcement sessions accumulate.
+
+*Original scope (retained for reference):*
 Measure real-world compliance rates for both governance and Context Engine. Same methodology, two tracks.
 
 *Governance track:*
