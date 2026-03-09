@@ -17,9 +17,10 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 2. `pytest tests/ -v` — full test suite
 3. Spot-check: `query_governance("new content topic")` → verify it surfaces
 4. Update SESSION-STATE.md (version, counts, summary)
-5. Commit and push
-6. Verify CI green
-7. Docker check: if content significantly changed or code also changed → rebuild and push
+5. README check: if principle/method counts or domains changed → update README domain table
+6. Commit and push
+7. Verify CI green
+8. Docker check: if content significantly changed or code also changed → rebuild and push
 
 ## Documentation-only changes (memory files, README)
 
