@@ -473,6 +473,107 @@ Full standalone domain if autonomous agent patterns grow beyond what multi-agent
 
 **Evidence to watch:** Regulatory frameworks specifically targeting autonomous AI agents (beyond general AI regulation). Current evidence base (CNBC, Strata, Singapore IMDA, UC Berkeley 2026) supports AO-Series but not yet a full domain.
 
+### 12. Backlog — Operational / Deployment Runbook Domain (Priority: TBD)
+A governance domain (or standalone document) covering post-deployment operations, infrastructure security, and ongoing maintenance — the concerns that fall OUTSIDE AI coding governance but are critical for shipping and running production applications.
+
+**Definition:** An operational runbook provides structured, actionable procedures for deploying, monitoring, maintaining, securing, and recovering production systems. It governs what happens AFTER code is written and deployed — infrastructure, operations, incident response, compliance monitoring, and cost management. Since AI will be a major part of our operational workflow (deploying, maintaining, fixing), the runbook must address AI-assisted operations specifically.
+
+**Problem:** Our AI governance framework comprehensively covers how AI produces code (principles, methods, security checklists) but explicitly scopes out infrastructure and operations. Analysis of 30 viral "AI vibe coding security rules" revealed 3 solid practices we couldn't place because they're operational, not coding concerns. This gap will grow as AI becomes central to deployment, maintenance, and incident response workflows.
+
+**Open question:** Do we need this? Our framework currently governs AI coding assistants. If AI increasingly handles deployment, monitoring, and incident response, operational governance becomes essential. Decision factors:
+- Are we using AI for deployment/maintenance workflows? (If yes → need this)
+- Is this a governance domain (principles + methods) or a standalone runbook document?
+- Should it live inside the ai-governance framework or as a separate project artifact?
+
+**Seed items (from vibe coding analysis):**
+- DDoS protection and edge/CDN configuration (Cloudflare, Vercel)
+- Email infrastructure security (SPF/DKIM/DMARC records)
+- Backup automation and restoration testing
+
+**Scope — Candidate sections (from industry research):**
+
+**Deployment & Release:**
+- Pre-deployment verification checklist and sign-offs
+- Deployment sequence, ordering, and rollback procedures
+- Database migration procedures
+- Feature flag and canary/blue-green deployment strategies
+- Post-deployment smoke tests and health checks
+- Performance baseline establishment
+
+**Infrastructure Security (Post-Deployment):**
+- DDoS protection and WAF configuration
+- TLS/SSL certificate management and rotation
+- Firewall rules and network segmentation
+- Access control verification (RBAC, least privilege)
+- Email infrastructure (SPF/DKIM/DMARC)
+- Secret rotation verification in production
+
+**Monitoring & Observability:**
+- Application performance monitoring (APM)
+- Error rate and exception tracking
+- Log aggregation, retention, and analysis
+- Distributed tracing
+- Alerting rules and escalation procedures
+- Resource utilization tracking
+
+**Incident Response & Recovery:**
+- Detection procedures (what signals indicate a problem)
+- Severity classification and triage
+- Investigation procedures (logs, dashboards, traces)
+- Mitigation strategies (rollback, failover, scaling, feature flags)
+- Communication and escalation procedures
+- Post-incident review (PIR) process
+
+**Backup & Disaster Recovery:**
+- Backup frequency and retention policy
+- Backup validation and restore testing schedule
+- Recovery time/point objectives (RTO/RPO)
+- Geographic redundancy and failover procedures
+
+**Ongoing Maintenance:**
+- Patch and security update procedures
+- Dependency update cadence
+- Certificate renewal schedule
+- Configuration drift detection
+- Database maintenance (optimization, cleanup)
+- Capacity planning and forecasting
+
+**AI-Assisted Operations (Key Differentiator):**
+- AI-powered anomaly detection and alerting
+- AI-suggested remediation with human approval gates
+- Automated scaling decisions and validation
+- Confidence thresholds for autonomous operational actions
+- Human-in-the-loop requirements for irreversible infrastructure changes
+- Fallback procedures when AI recommendations fail
+- Integration with AO-Series (Blast Radius Classification applies to ops actions too)
+
+**Compliance & Audit:**
+- GDPR/HIPAA/SOC2 operational compliance monitoring
+- Audit trail verification and retention
+- EU AI Act operational requirements (full enforcement Aug 2026)
+- Evidence collection for compliance reviews
+- Regulatory reporting schedules
+
+**Cost Management:**
+- AI API cost monitoring and budget alerts
+- Cloud resource utilization and waste detection
+- Auto-scaling policy optimization
+- Cost allocation tracking
+
+**Evaluation criteria:**
+- Does our team use AI for operational tasks beyond coding?
+- Is the scope large enough to warrant a governance domain (6+ principles) or is a single methods appendix sufficient?
+- Would this complement or duplicate existing AO-Series (autonomous operations) in multi-agent domain?
+- Are there industry frameworks (SRE, ITIL) we should align with rather than building from scratch?
+
+**Implementation requirements:** Decision on format first (domain vs. document vs. appendix). If domain: follows standard domain creation process (principles + methods + extractor rebuild). If standalone: simpler — a markdown document with checklists and procedures, not indexed by governance MCP. Content changes only — no code changes expected unless we create a new domain requiring extractor updates.
+
+**Relationship to existing governance:**
+- Complements AI Coding domain (coding stops at "code is ready to deploy"; this picks up from there)
+- Connects to AO-Series in Multi-Agent domain (autonomous operations principles apply to operational AI agents too)
+- Connects to S4 (Security, Privacy, Compliance by Default) for compliance monitoring
+- Connects to §5.11 (Zero Trust Production Deployment) which currently has some operational overlap
+
 ## Links
 
 - **GitHub:** https://github.com/jason21wc/ai-governance-mcp

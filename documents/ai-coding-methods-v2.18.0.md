@@ -2110,7 +2110,7 @@ Apply per task:
 - [ ] All user input validated
 - [ ] No direct SQL construction (use parameterized)
 - [ ] No direct HTML rendering of user content (use sanitization)
-- [ ] File uploads validated and constrained
+- [ ] File uploads validated by **content signature** (magic bytes), not just extension; size limits enforced server-side; allowed MIME types restricted
 
 **Authentication/Authorization:**
 - [ ] Auth checks on all protected endpoints
@@ -2639,6 +2639,9 @@ payload = jwt.decode(
 
 > **Cross-reference:** §5.3.5 (session timeout in blind spots table), §5.3.2 (auth/authz checklist)
 
+**Managed Auth Preference:**
+For AI-generated applications, **prefer managed authentication providers** (e.g., Clerk, Supabase Auth, Auth0, Firebase Auth) over custom-built auth implementations. AI-generated auth code has a higher defect rate in security-critical paths — password hashing, token lifecycle, session invalidation — and the complexity surface area of custom auth is disproportionate to the risk. Managed providers handle these concerns as core competency. If custom auth is required, apply every checklist item above and request security-auditor review.
+
 ### 5.7.3 HTTP Security Headers
 
 **Applies To:** All web applications serving HTTP responses. Covers **security headers**, **Content Security Policy**, and **HSTS configuration**.
@@ -2924,6 +2927,18 @@ Provide **language-specific**, **API**, **data protection**, and **container sec
 
 > **Cross-reference:** §5.3.5 (rate limiting in blind spots table), §5.6.4 (OWASP cross-reference)
 > **See also:** §5.6.7 (agent-facing API design) for making APIs consumable by AI agents
+
+**Webhook Security Checklist:**
+Webhook endpoints receive external payloads and are high-value targets, especially for payment/billing flows (Stripe, PayPal, etc.). AI commonly generates webhook handlers that process payloads without signature verification.
+
+- [ ] **HMAC signature verification** — validate payload signature against provider secret before processing (e.g., `Stripe-Signature` header, `X-Hub-Signature-256` for GitHub)
+- [ ] **Timestamp validation** — reject payloads older than 5 minutes to prevent replay attacks
+- [ ] **Idempotent processing** — deduplicate by event ID to handle provider retries safely
+- [ ] **Raw body preservation** — verify signature against raw request body, not parsed JSON (parsing may alter byte representation)
+- [ ] **Secret rotation support** — support multiple signing secrets during rotation periods
+- [ ] **Failure isolation** — webhook processing failures do not expose internal error details to the caller; return `200 OK` after signature verification to prevent information leakage via response codes
+
+> **AI anti-pattern:** AI generates webhook handlers that immediately deserialize and act on payloads without verifying origin. This is equivalent to processing unsigned input as trusted — treat unverified webhooks as untrusted user input.
 
 ### 5.8.4 Data Protection & Privacy
 
