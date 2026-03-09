@@ -1040,6 +1040,7 @@ async def list_tools() -> list[Tool]:
                             "multi-agent",
                             "storytelling",
                             "multimodal-rag",
+                            "ui-ux",
                         ],  # M5 FIX
                     },
                 },
@@ -1392,6 +1393,7 @@ async def _handle_query_governance(
         "multi-agent",
         "storytelling",
         "multimodal-rag",
+        "ui-ux",
     }
     if domain is not None and domain not in valid_domains:
         return [
@@ -1628,6 +1630,7 @@ async def _handle_get_domain_summary(
         "multi-agent",
         "storytelling",
         "multimodal-rag",
+        "ui-ux",
     }
     if domain not in valid_domains:
         return [

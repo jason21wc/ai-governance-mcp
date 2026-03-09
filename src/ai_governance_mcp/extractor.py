@@ -703,6 +703,21 @@ class DocumentExtractor:
             "operations principle": "operations",
             "f-series": "fallback",
             "fallback principle": "fallback",
+            # UI/UX series mapping
+            # IMPORTANT: Longer series names MUST come before shorter ones
+            # (e.g., "acc-series" before "c-series", "ix-series" before "x-series")
+            "vh-series": "visual-hierarchy",
+            "visual hierarchy principle": "visual-hierarchy",
+            "ds-series": "design-system",
+            "design system principle": "design-system",
+            "acc-series": "accessibility",
+            "accessibility principle": "accessibility",
+            "rd-series": "responsive",
+            "responsive design principle": "responsive",
+            "ix-series": "interaction",
+            "interaction principle": "interaction",
+            "pl-series": "platform",
+            "platform principle": "platform",
             # Multimodal-RAG P-Series = "Presentation" (must precede ai-coding "p-series" = "process")
             # Note: section_pattern regex strips trailing "Principles?" so text is "P-Series: Presentation"
             "presentation": "presentation",
@@ -804,6 +819,13 @@ class DocumentExtractor:
                         "o-series",
                         "ag-series",
                         "f-series",
+                        # UI/UX series
+                        "vh-series",
+                        "ds-series",
+                        "acc-series",
+                        "rd-series",
+                        "ix-series",
+                        "pl-series",
                     ]
                 )
                 if "###" not in line or is_series_header:
@@ -865,6 +887,7 @@ class DocumentExtractor:
                     "the three series",
                     "the four series",
                     "the five series",
+                    "the six series",
                     "version history",
                     "evidence base",
                     "glossary",
@@ -910,6 +933,19 @@ class DocumentExtractor:
                     "data governance principles",
                     "operations principles",
                     "agentic retrieval principles",
+                    # UI/UX series headers
+                    "vh-series:",
+                    "ds-series:",
+                    "acc-series:",
+                    "rd-series:",
+                    "ix-series:",
+                    "pl-series:",
+                    "visual hierarchy principles",
+                    "design system principles",
+                    "accessibility principles",
+                    "responsive design principles",
+                    "interaction principles",
+                    "platform principles",
                 ]
                 if any(kw in title.lower() for kw in skip_keywords):
                     continue
@@ -997,6 +1033,13 @@ class DocumentExtractor:
         ("multimodal-rag", "data-governance"): "DG",
         ("multimodal-rag", "operations"): "O",
         ("multimodal-rag", "agentic-retrieval"): "AG",
+        # UI/UX — VH/DS/ACC/RD/IX/PL series
+        ("ui-ux", "visual-hierarchy"): "VH",
+        ("ui-ux", "design-system"): "DS",
+        ("ui-ux", "accessibility"): "ACC",
+        ("ui-ux", "responsive"): "RD",
+        ("ui-ux", "interaction"): "IX",
+        ("ui-ux", "platform"): "PL",
     }
 
     def _build_principle(self, data: dict, domain_prefix: str) -> Principle:
@@ -1304,6 +1347,7 @@ class DocumentExtractor:
             "multi-agent": "multi",
             "storytelling": "stor",
             "multimodal-rag": "mrag",
+            "ui-ux": "uiux",
         }
         return prefixes.get(domain_name, domain_name[:4])
 

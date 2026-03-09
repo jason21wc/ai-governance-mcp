@@ -36,6 +36,7 @@ This framework uses a **US Legal System Analogy** to define hierarchy, stability
 - **Multi-Agent:** Agent orchestration (specialization, handoffs, context engineering, subagent patterns)
 - **Storytelling:** Creative writing and narrative development (character, world-building, voice, continuity)
 - **Multimodal RAG:** Retrieval and inline presentation of images with text responses
+- **UI/UX:** Interactive software interface design and development (visual hierarchy, accessibility, design systems, interaction patterns, platform conventions)
 
 **How Levels Derive from Each Other:**
 1. **S-Series (Bill of Rights):** Absolute constraints that CANNOT be overridden. Example: "Non-maleficence" — no domain rule can authorize harmful actions.

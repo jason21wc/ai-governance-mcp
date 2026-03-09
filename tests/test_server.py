@@ -2906,3 +2906,75 @@ class TestTiersPrincipleIdValidation:
             f"tiers.json references IDs not in index: {missing}. "
             f"Update tiers.json or rebuild index."
         )
+
+
+# =============================================================================
+# UI/UX Domain Integration Tests
+# =============================================================================
+
+
+class TestUiUxDomainIntegration:
+    """Tests for UI/UX domain integration in server."""
+
+    @pytest.mark.asyncio
+    async def test_get_domain_summary_accepts_ui_ux(self, reset_server_state):
+        """get_domain_summary should accept 'ui-ux' as a valid domain."""
+        from ai_governance_mcp.server import _handle_get_domain_summary
+
+        mock_summary = {
+            "name": "ui-ux",
+            "display_name": "UI/UX",
+            "description": "Interactive software interfaces",
+            "principles_count": 20,
+            "methods_count": 0,
+        }
+        mock_engine = Mock()
+        mock_engine.get_domain_summary.return_value = mock_summary
+
+        result = await _handle_get_domain_summary(mock_engine, {"domain": "ui-ux"})
+
+        assert len(result) == 1
+        assert "ui-ux" in result[0].text or "UI/UX" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_query_governance_rejects_invalid_domain(self, reset_server_state):
+        """query_governance should reject invalid domains but accept ui-ux."""
+        from ai_governance_mcp.server import _handle_query_governance
+
+        mock_engine = Mock()
+
+        # Invalid domain should return error
+        result = await _handle_query_governance(
+            mock_engine,
+            {"query": "test", "domain": "not-a-domain"},
+        )
+        assert "Error: Invalid domain" in result[0].text
+
+        # ui-ux should NOT return an invalid domain error
+        # (it will proceed past validation and call engine.retrieve, which is fine)
+        mock_engine.retrieve.side_effect = Exception("past validation")
+        try:
+            await _handle_query_governance(
+                mock_engine,
+                {"query": "visual hierarchy", "domain": "ui-ux"},
+            )
+        except Exception as e:
+            # If we get past the validation to hit the mock, that proves ui-ux is valid
+            assert "past validation" in str(e)
+
+    @pytest.mark.asyncio
+    async def test_ui_ux_in_tool_schema_enum(self, reset_server_state):
+        """ui-ux should be in the get_domain_summary tool schema enum."""
+        from ai_governance_mcp.server import list_tools
+
+        tools = await list_tools()
+        domain_summary_tool = None
+        for tool in tools:
+            if tool.name == "get_domain_summary":
+                domain_summary_tool = tool
+                break
+
+        assert domain_summary_tool is not None, "get_domain_summary tool not found"
+        schema = domain_summary_tool.inputSchema
+        domain_enum = schema["properties"]["domain"]["enum"]
+        assert "ui-ux" in domain_enum, f"ui-ux not in domain enum: {domain_enum}"

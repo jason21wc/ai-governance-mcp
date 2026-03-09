@@ -992,6 +992,8 @@ Before proceeding:
 - [ ] Accessibility requirements defined
 - [ ] Prototype validated with stakeholders
 
+> **Cross-reference:** For the *substance* of what good UX is — accessibility requirements, visual hierarchy, interaction patterns, platform conventions — see the **UI/UX Domain Principles** (ui-ux-domain-principles-v1.0.0.md). This section covers *when* to do UX work; the UI/UX domain covers *what good UX is*.
+
 ---
 
 ## Part 2.5: Visual Design Specs [ENHANCED Mode]
@@ -1034,6 +1036,8 @@ Before proceeding:
 - [ ] Responsive behavior specified
 - [ ] Accessibility verified
 - [ ] Stakeholder approval received
+
+> **Cross-reference:** For design system architecture, token management, component governance, and accessibility auditing procedures, see the **UI/UX Methods** (ui-ux-methods-v1.0.0.md). This section covers *when* to create visual design specs; the UI/UX domain covers *how* to implement them correctly.
 
 ---
 

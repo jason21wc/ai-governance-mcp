@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-03-01
+**Last Updated:** 2026-03-08
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None — Part C Effectiveness Analytics complete
+- **Active Task:** None — UI/UX Domain (Backlog #5) complete
 
 ## Quick Reference
 
@@ -21,28 +21,41 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.2.1** (watcher auto-start on boot fix) |
-| Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.18.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v2.5** (ai-instructions) |
-| Tests | **860 pass** (non-slow), 0 failures |
+| Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.18.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.1.1** (multi-agent principles), **v2.12.3** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
+| Tests | **867 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
-| Domains | **5** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag) |
-| Index | **124 principles + 498 methods** (622 total; see `tests/benchmarks/` for current totals; taxonomy: 27 codes) |
+| Domains | **6** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux) |
+| Index | **144 principles + 541 methods** (685 total; see `tests/benchmarks/` for current totals; taxonomy: 33 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check with recency window) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-01)
+## Session Summary (2026-03-08)
 
 ### Completed This Session
 
-1. **§3.1.4 Technology Selection Expansion** (v2.18.0)
-   - Expanded §3.1.4 with structured **evaluation methodology** (3-step process, 6-criterion weighted table) and **AI-specific failure modes** table (5 modes: popularity bias, familiarity anchoring, abstraction stacking, stale recommendations, prototype-production conflation)
-   - Added trust boundary evaluation guidance for multi-platform SDKs
-   - Added Situation Index entry: "Building a chat / real-time AI application" → §5.11.6 + §5.8.3 + §5.12
-   - Prompted by Vercel Chat SDK gap analysis; applied Learning Log rule "start from gaps, not borrowing"
-   - Files changed: `documents/ai-coding-methods-v2.18.0.md` (renamed from v2.17.1), `documents/domains.json`, `index/` (rebuilt)
+1. **UI/UX Governance Domain** (Backlog #5) — v1.0.0 + Phase 6 External Review
+   - New domain for interactive software interface design with AI assistance
+   - **20 principles** across 6 series: VH (Visual Hierarchy, 3), DS (Design System, 3), ACC (Accessibility, 3), RD (Responsive, 2), IX (Interaction, 7), PL (Platform, 2)
+   - **43 methods** across 9 sections: Design-to-Code Workflow, Component Library Governance, Design Review Gates (+ Dark Pattern Screening, Core Web Vitals), Accessibility Testing, Responsive Strategy, Cross-Platform Adaptation (+ Convention Currency), Design System Documentation, AI Tooling Integration, UX Content/Microcopy Governance
+   - **18 AI-specific failure modes** (UX-F1-F3, F5-F10, F12-F19, F21; F4/F11 cut for insufficient AI-specificity; F20 rejected as already covered)
+   - Phase 6 additions: IX7 (Ethical Interaction Design — dark patterns), UX-F19 (motion accessibility), UX-F21 (deceptive design), 6 new evidence citations (ISO 40500:2025, DTCG v2025.10, WCAG 2.5.8, MobileSoft 2025, Serezlic & Quijada 2025, FTC dark patterns), 6 new methods sections (§3.5, §3.6, §6.4, §9.1-9.3), i18n flagged for v1.1.0
+   - Evidence base: WCAG 2.2/ISO 40500:2025, Nielsen 10 Heuristics, Laws of UX, Apple HIG, Material Design 3, GitClear 2025, WebAIM Million, Atomic Design, FTC Dark Patterns, DTCG v2025.10, MobileSoft 2025, Serezlic & Quijada 2025
+   - Scope boundary: ai-coding §2.4/§2.5 = process (when); UI/UX = substance (what)
+   - Technical integration: `domains.json`, `extractor.py` (prefix + 6 CATEGORY_SERIES_MAP + 12 category_mapping + is_series_header + skip_keywords), `server.py` (valid_domains + enum), constitution domain list updated
+   - Cross-references added in ai-coding §2.4.3 and §2.5.3
+   - 7 new tests (4 extractor + 3 server), 867 total passing
+   - Multi-pass validation: validator (PASS — 1 cross-ref fix applied), coherence-auditor (3 findings fixed: constitutional derivation name, IX-Series description, RD2 MUST/SHOULD harmonization; 1 cosmetic rejected), contrarian-reviewer (4 findings — 1 accepted: motion accessibility added to ACC3; 2 deferred to v1.1.0; 1 rejected), code-reviewer (defensive improvements applied to extractor)
+   - Retrieval quality: all 5 new spot-checks pass (dark patterns→IX7, CWV→§3.6, platform currency→§6.4, error messages→§9.2, animation accessibility→ACC3)
+   - Perplexity Deep Research external review: 14 findings evaluated, 7 ACCEPT, 3 ACCEPT IN PART, 1 REJECT, 3 DEFER
+   - Files changed: `documents/ui-ux-domain-principles-v1.0.0.md`, `documents/ui-ux-methods-v1.0.0.md`, `index/` (rebuilt)
+
+### Previous Session (2026-03-01)
+
+1. **§3.1.4 Technology Selection Expansion** (v2.18.0) — see git log for details
 
 ### Previous Session (2026-02-28)
 
@@ -224,8 +237,8 @@ New governance domain for training, instructional design, and procedures. Replac
 
 **Implementation requirements:** Domain config in `domains.json`, principle document(s), methods document(s), extractor support, index rebuild, tests. Framework content to be developed collaboratively — Jason to provide domain-specific context, AI to research and structure per framework standards.
 
-### 5. Backlog — Add UI/UX Domain (Priority: TBD, Recommended: 1st)
-New governance domain for UI/UX design principles and methods. **Separate domain** from ai-coding — ai-coding §2.4/§2.5 cover *process* (when to do UX work); this domain covers *substance* (what good UX is).
+### 5. Backlog — Add UI/UX Domain — COMPLETE (2026-03-08)
+New governance domain for UI/UX design principles and methods. **Separate domain** from ai-coding — ai-coding §2.4/§2.5 cover *process* (when to do UX work); this domain covers *substance* (what good UX is). See session summary for details.
 
 **Recommended priority: 1st** — Highest ai-coding adjacency. A huge amount of AI-assisted development involves building interfaces. Bridges naturally from existing §2.4/§2.5. Most immediate value for framework users.
 
@@ -414,6 +427,21 @@ Multi-phase feature: intermediate governance tiers between S-Series veto and sim
 **Phase 3: Accountable Reasoning combined principle** (deferred)
 - After Phase 1 proves valuable, consider formal combined principle.
 - Until then, tier config synthesizes both existing IDs.
+
+### 10. Backlog — UI/UX Tool-Specific Integration Guides (Priority: LOW, Usage-Driven)
+Add tool-specific appendices to ui-ux-methods §8 as tools are adopted. Per tool-specific content pattern: capture what we actively use, not catalog every option.
+
+**Candidate tools (researched 2026-03-08, production-grade):**
+- **Figma Official MCP** — read design context/tokens + write rendered UI back (March 2026). Token cost warning: 600K+ tokens for large designs.
+- **Storybook MCP** (official, Aug 2025) — component manifests with metadata, variants, token bindings. Optimized payload reduces token cost vs. raw source parsing.
+- **Deque Axe MCP** (official) — accessibility auditing. Would make ACC1-ACC3 validation criteria enforceable in-loop.
+- **Microsoft Playwright MCP** (official) — browser automation, screenshots at any viewport. Enables RD1/RD2 responsive validation.
+- **Percy via BrowserStack MCP** — visual regression with AI review agent. 3x faster review, 40% false positive reduction.
+- **Playwright-Lighthouse MCP** (community) — Lighthouse audits + Playwright. Maps to §3.6 Core Web Vitals.
+
+**Trigger:** When Jason adopts any of these tools in a real project, add integration guide with observed failure modes and token cost data.
+
+**Known risks:** Token cost (Figma 15x estimate gap), design data privacy through AI APIs, fidelity gaps requiring manual adjustment, design system maturity as prerequisite.
 
 ## Links
 

@@ -1907,3 +1907,180 @@ Prevents premature phase transitions.
             assert actual == expected_code, (
                 f"multimodal-rag {category} should be '{expected_code}', got '{actual}'"
             )
+
+    def test_ui_ux_all_series_codes(self):
+        """UI/UX principles should get correct series codes for all categories."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        expected = {
+            "visual-hierarchy": "VH",
+            "design-system": "DS",
+            "accessibility": "ACC",
+            "responsive": "RD",
+            "interaction": "IX",
+            "platform": "PL",
+        }
+        for category, expected_code in expected.items():
+            actual = m.get(("ui-ux", category))
+            assert actual == expected_code, (
+                f"ui-ux {category} should be '{expected_code}', got '{actual}'"
+            )
+
+    def test_ui_ux_series_codes_no_collision_with_existing(self):
+        """UI/UX series codes must not collide with S-Series or create substring ambiguity."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        ui_ux_codes = {code for (domain, _), code in m.items() if domain == "ui-ux"}
+        # VH, DS, ACC, RD, IX, PL — none should be "S" (reserved for safety veto)
+        assert "S" not in ui_ux_codes, (
+            "UI/UX must not use S-Series (safety veto reserved)"
+        )
+        # Verify expected count
+        assert len(ui_ux_codes) == 6, (
+            f"Expected 6 UI/UX series codes, got {len(ui_ux_codes)}"
+        )
+
+
+# =============================================================================
+# UI/UX Domain Prefix Tests
+# =============================================================================
+
+
+class TestGetDomainPrefixUiUx:
+    """Tests for _get_domain_prefix() with ui-ux domain."""
+
+    def test_get_domain_prefix_ui_ux(self, test_settings, sample_domains_json):
+        """Should return 'uiux' for ui-ux domain."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor(test_settings)
+            prefix = extractor._get_domain_prefix("ui-ux")
+
+            assert prefix == "uiux"
+
+
+# =============================================================================
+# UI/UX Principle Extraction Tests
+# =============================================================================
+
+
+class TestUiUxPrincipleExtraction:
+    """Tests for UI/UX domain principle extraction."""
+
+    def test_ui_ux_principle_extraction_sample(self, tmp_path):
+        """Sample UI/UX principles should extract with correct series codes."""
+        docs_path = tmp_path / "documents"
+        docs_path.mkdir()
+
+        content = """\
+# UI/UX Domain Principles
+
+## VH-Series: Visual Hierarchy Principles
+
+### VH1: Layout Composition and Visual Weight
+
+**Constitutional Basis:** Derived from Structured Organization.
+
+**Why This Principle Matters**
+Users scan interfaces in predictable patterns.
+
+**Failure Mode**
+UX-F6: AI generates flat layouts.
+
+**Definition**
+Every interface must establish clear visual hierarchy.
+
+## DS-Series: Design System Principles
+
+### DS1: Design Token Architecture
+
+**Constitutional Basis:** Derived from Foundation-First Architecture.
+
+**Why This Principle Matters**
+AI generates hard-coded values instead of tokens.
+
+**Failure Mode**
+UX-F2: Spacing/typography inconsistency.
+
+**Definition**
+All visual properties MUST reference design tokens.
+
+## ACC-Series: Accessibility Principles
+
+### ACC1: Semantic Markup and ARIA Contracts
+
+**Constitutional Basis:** Derived from Accessibility and Inclusiveness.
+
+**Why This Principle Matters**
+AI generates div soup instead of semantic HTML.
+
+**Failure Mode**
+UX-F1: Inaccessible markup.
+
+**Definition**
+All interfaces MUST use semantic HTML as the foundation.
+"""
+
+        principles_file = docs_path / "ui-ux-domain-principles-v1.0.0.md"
+        principles_file.write_text(content)
+
+        domains_json = docs_path / "domains.json"
+        domains_json.write_text(
+            '{"ui-ux": {"name": "ui-ux", "display_name": "UI/UX", '
+            '"principles_file": "ui-ux-domain-principles-v1.0.0.md", '
+            '"description": "UI/UX design", "priority": 15}}'
+        )
+
+        from ai_governance_mcp.config import Settings
+
+        settings = Settings(
+            documents_path=docs_path,
+            index_path=tmp_path / "index",
+        )
+        (tmp_path / "index").mkdir()
+
+        with patch("sentence_transformers.SentenceTransformer") as mock_st:
+            import numpy as np
+
+            mock_model = mock_st.return_value
+            mock_model.encode.side_effect = lambda texts, **kwargs: np.random.rand(
+                len(texts), 384
+            )
+
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor(settings)
+            extractor.domains = [
+                type(
+                    "DomainConfig",
+                    (),
+                    {
+                        "name": "ui-ux",
+                        "display_name": "UI/UX",
+                        "principles_file": "ui-ux-domain-principles-v1.0.0.md",
+                        "methods_file": None,
+                        "description": "UI/UX design",
+                        "priority": 15,
+                    },
+                )()
+            ]
+            principles = extractor._extract_principles(extractor.domains[0])
+
+        assert len(principles) >= 3, (
+            f"Expected at least 3 principles, got {len(principles)}"
+        )
+
+        # Check series codes
+        series_codes = {p.series_code for p in principles if p.series_code}
+        assert "VH" in series_codes, f"VH not found in series codes: {series_codes}"
+        assert "DS" in series_codes, f"DS not found in series codes: {series_codes}"
+        assert "ACC" in series_codes, f"ACC not found in series codes: {series_codes}"
+
+        # Check IDs use uiux prefix
+        for p in principles:
+            assert p.id.startswith("uiux-"), (
+                f"Principle ID '{p.id}' should start with 'uiux-'"
+            )
