@@ -699,6 +699,9 @@ class DocumentExtractor:
             "data governance principle": "data-governance",
             "v-series": "verification",
             "verification principle": "verification",
+            # IMPORTANT: ao-series MUST come before o-series (substring collision)
+            "ao-series": "autonomous",
+            "autonomous operation principle": "autonomous",
             "o-series": "operations",
             "operations principle": "operations",
             "f-series": "fallback",
@@ -807,6 +810,7 @@ class DocumentExtractor:
                         "p-series",
                         "q-series",
                         "a-series",
+                        "ao-series",
                         "r-series",
                         "st-series",
                         "m-series",
@@ -1011,8 +1015,9 @@ class DocumentExtractor:
         ("ai-coding", "context"): "C",
         ("ai-coding", "process"): "P",
         ("ai-coding", "quality"): "Q",
-        # Multi-Agent — A/R/Q series (J-series maps to "general", no code)
+        # Multi-Agent — A/R/Q/AO series (J-series maps to "general", no code)
         ("multi-agent", "architecture"): "A",
+        ("multi-agent", "autonomous"): "AO",
         ("multi-agent", "reliability"): "R",
         ("multi-agent", "quality"): "Q",
         # Storytelling — A/ST/C/M/E series

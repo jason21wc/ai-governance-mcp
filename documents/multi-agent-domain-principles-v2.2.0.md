@@ -1,4 +1,4 @@
-# Multi-Agent Domain Principles Framework v2.1.1
+# Multi-Agent Domain Principles Framework v2.2.0
 ## Federal Statutes for Multi-Agent AI System Orchestration
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -58,6 +58,7 @@ This document governs multi-agent AI system design and orchestration:
 - State persistence across sessions and agent boundaries
 - Human-in-the-loop escalation for multi-agent decisions
 - Fault tolerance and graceful degradation
+- Autonomous operation governance (HITL removal criteria, blast radius, drift monitoring) [NEW in v2.2.0]
 
 ### Out of Scope (Handled Elsewhere)
 
@@ -166,14 +167,18 @@ Multi-agent systems have specific failure modes that require dedicated preventio
 | **MA-Q3** | Quality | Synthesis Degradation → Missing Findings | Final output missing subagent discoveries; compression discards critical information |
 | **MA-Q4** | Quality | Autonomous Consequential Decisions → Unchecked AI Authority | Workflow produces production actions without human approval; no escalation triggers |
 | **MA-Q5** | Quality | Silent Failures → Undetected Error Propagation | Agent errors ignored or hidden; corrupted outputs flow downstream without detection |
+| **MA-AO1** | Autonomous | Unclassified External Action → Irreversible Consequences | Agent posts publicly, sends emails, or modifies external systems without blast radius classification; no distinction between internal and external-facing actions |
+| **MA-AO2** | Autonomous | Premature HITL Removal → Unchecked Autonomous Operation | Human oversight removed without compensating controls; cron-scheduled agents act without approval gates or monitoring; no defined criteria for when autonomy is safe |
+| **MA-AO3** | Autonomous | Autonomous Drift → Compounding Bias | Long-running agents (days/weeks) develop emergent behavior patterns; small biases compound without periodic human review; feedback loops amplify errors |
+| **MA-AO4** | Autonomous | External Platform Violation → Account/Legal Liability | Agents violate platform ToS (automated posting without disclosure), FTC guidelines (undisclosed AI endorsements), or generate legally liable content (marketing claims, health/safety assertions) |
 
 ---
 
-## Framework Overview: The Four Principle Series
+## Framework Overview: The Five Principle Series
 
-This framework organizes domain principles into four series addressing different functional aspects of multi-agent AI orchestration. v2.0.0 adds a Justification Series (J-Series) addressing when to use specialized agents.
+This framework organizes domain principles into five series addressing different functional aspects of multi-agent AI orchestration. v2.0.0 added a Justification Series (J-Series) addressing when to use specialized agents. v2.2.0 adds an Autonomous Operation Series (AO-Series) addressing governance of agents operating without human-in-the-loop.
 
-### The Four Series
+### The Five Series
 
 1. **Justification Principles (J-Series)** — 1 principle [NEW in v2.0.0]
    * **Role:** Deployment Decision
@@ -190,6 +195,10 @@ This framework organizes domain principles into four series addressing different
 4. **Quality Principles (Q-Series)** — 3 principles
    * **Role:** Output Assurance
    * **Function:** Ensuring multi-agent outputs meet standards through independent validation, fault tolerance, and human oversight. These principles prevent confirmation bias, cascading failures, and quality degradation.
+
+5. **Autonomous Operation Principles (AO-Series)** — 4 principles [NEW in v2.2.0]
+   * **Role:** Autonomous Governance
+   * **Function:** Governing agent systems that operate without continuous human oversight — cron-scheduled agents, always-on workflows, external-facing autonomous actions. These principles establish blast radius classification, criteria for safe HITL removal, compensating controls, and drift monitoring for long-running autonomous systems.
 
 ---
 
@@ -1256,6 +1265,356 @@ Multi-agent workflows must define explicit human approval points for: phase tran
 
 ---
 
+## Autonomous Operation Principles (AO-Series) [NEW in v2.2.0]
+
+*Principles governing agent systems that operate without continuous human oversight*
+
+### Action Blast Radius Classification
+
+**Maturity:** [EMERGING] — Industry reports (CNBC 2026, HackerNoon 2026, Help Net Security 2026), solo-founder deployments
+
+**Failure Mode(s) Addressed:**
+- **MA-AO1: Unclassified External Action → Irreversible Consequences** — Agents perform external-facing actions (public posts, emails, API calls to third-party services) with the same governance as internal actions (file writes, local processing), despite fundamentally different risk profiles.
+  - *Detect via:* Agent writes to external platforms without explicit classification; no distinction between reversible internal actions and irreversible external actions; blast radius not documented per agent.
+
+**Why This Principle Matters**
+
+The constitutional principle Technical Focus with Clear Escalation Boundaries establishes that AI should escalate consequential decisions. But current multi-agent governance treats all agent outputs equally — a developer agent writing a local file and a content agent posting on Reddit receive the same oversight level. The blast radius of these actions is fundamentally different: internal actions are reversible and contained; external actions are irreversible, public, and carry legal, reputational, and platform-compliance consequences.
+
+Industry data confirms the gap: 80% of organizations report risky agent behaviors including unauthorized system access and improper data exposure (Help Net Security 2026). Fewer than 10% of companies running agents in production can actually govern them (Strata 2026).
+
+**Domain Application (Binding Rule)**
+
+Every agent action must be classified by blast radius before execution:
+
+| Level | Scope | Examples | Required Oversight |
+|-------|-------|----------|-------------------|
+| **L0: Internal-Reversible** | Local files, logs, internal state | Write to file, update database, modify config | Standard agent governance |
+| **L1: Internal-Irreversible** | Production systems, data deletion | Deploy to production, drop table, send internal notification | HITL gate (per Q-Series HITL Protocol) |
+| **L2: External-Reversible** | Editable external actions | Draft PR on GitHub, stage content in CMS | Review before publish |
+| **L3: External-Irreversible** | Public-facing, cannot be recalled | Social media post, email to customer, public API response, marketing claim | Mandatory human approval OR compensating controls per AO2 |
+
+Agents must declare their maximum blast radius level in their agent definition. Orchestrators must verify that an agent's action does not exceed its declared level.
+
+**Constitutional Basis**
+
+- Technical Focus with Clear Escalation Boundaries: Consequential actions require escalation
+- Hybrid Interaction & RACI: Human remains Accountable for irreversible outcomes
+- Blameless Error Reporting: External failures must be immediately visible
+
+**Truth Sources**
+
+- Help Net Security (2026): 80% of organizations report risky agent behaviors
+- Strata (2026): <10% of companies can govern agents in production; 144 non-human identities per human employee
+- CNBC (2026): "Silent failure at scale" — AI increases system complexity beyond human comprehension
+- IMDA Singapore Framework (2026): Five critical risk categories including unauthorized actions and system disruption
+
+**How AI Applies This Principle**
+
+1. Before designing an agent, classify all its potential actions by blast radius level
+2. Document maximum blast radius in agent definition
+3. Implement escalation gates at each level boundary
+4. Orchestrator verifies action classification before permitting execution
+5. External-irreversible actions (L3) require either human approval or documented compensating controls
+6. Log all L2+ actions with full context for audit trail
+
+**Success Criteria**
+
+- Every agent has a declared maximum blast radius level
+- No agent performs actions above its declared level without escalation
+- All L3 actions are logged with full context
+- External-facing actions are distinguishable from internal actions in audit trail
+
+**Human Interaction Points**
+
+- Define blast radius classification for novel action types
+- Approve L3 actions when compensating controls are not established
+- Review blast radius escalation patterns for systemic issues
+
+**Common Pitfalls**
+
+- **The Flat Classification:** Treating all agent outputs as L0, ignoring external-facing risk
+- **The Implicit Upgrade:** Agent gradually takes on higher-blast-radius actions without reclassification
+- **The Platform Blind Spot:** Classifying API calls as "internal" when they hit external services
+
+**Configurable Defaults**
+
+- Default blast radius for new agents: L0 (Internal-Reversible)
+- L3 actions: Require human approval unless compensating controls documented (configurable per environment)
+
+---
+
+### HITL Removal Criteria
+
+**Maturity:** [EMERGING] — Singapore IMDA Framework (2026), UC Berkeley Risk-Management Profile (2026), enterprise autonomous agent deployments
+
+**Failure Mode(s) Addressed:**
+- **MA-AO2: Premature HITL Removal → Unchecked Autonomous Operation** — Human oversight is removed from agent workflows without establishing when autonomy is safe, what compensating controls are required, or how to detect when autonomous operation is failing.
+  - *Detect via:* Agents run on cron schedules without defined review cadence; no documented criteria for when HITL was removed or why; compensating controls absent or undefined; no rollback plan if autonomous operation fails.
+
+**Why This Principle Matters**
+
+The Q-Series Human-in-the-Loop Protocol establishes that multi-agent workflows must define explicit human approval points. But increasingly, the explicit goal of agent systems is to *remove* human-in-the-loop — agents running on cron schedules, always-on monitoring, automated content pipelines. The existing HITL protocol says "humans must approve consequential actions" but provides no guidance for the increasingly common case where the entire purpose is that humans are NOT in the loop.
+
+By late 2026, a large percentage of agentic initiatives will be shut down not because the models failed, but because enterprises failed to govern autonomous execution (Kore.ai 2026). The gap is not whether to have HITL, but *when and how to safely remove it*.
+
+**Domain Application (Binding Rule)**
+
+HITL removal requires explicit justification through a **Graduated Autonomy Assessment**:
+
+| Autonomy Level | Description | HITL State | Required Before Advancing |
+|----------------|-------------|------------|---------------------------|
+| **AL-0: Supervised** | Human reviews every output before action | Full HITL | Default starting state |
+| **AL-1: Batch Approved** | Human reviews batches of outputs periodically | Periodic HITL | Demonstrated accuracy over N supervised cycles |
+| **AL-2: Monitored Autonomous** | Agent acts autonomously; human reviews logs | Post-hoc HITL | Defined compensating controls (AO3), monitoring (AO4), rollback plan |
+| **AL-3: Fully Autonomous** | Agent acts without human review | No HITL | All of AL-2 requirements + blast radius ≤ L1 (per AO1) + circuit breakers + proven track record |
+
+**Advancement criteria:**
+- Moving from AL-0 → AL-1: Minimum supervised cycles with acceptable error rate (configurable)
+- Moving from AL-1 → AL-2: Compensating controls documented and tested; monitoring active; rollback plan defined
+- Moving from AL-2 → AL-3: Only for L0/L1 blast radius; circuit breakers proven; minimum autonomous runtime without intervention
+
+**AL-3 is never appropriate for L3 (External-Irreversible) actions.** Public-facing autonomous operation always requires at minimum AL-2 (monitored) with active drift detection.
+
+**Constitutional Basis**
+
+- Technical Focus with Clear Escalation Boundaries: Define when autonomy is appropriate
+- Discovery Before Commitment: Validate autonomy readiness before removing oversight
+- Verification Mechanisms: Compensating controls replace human verification
+
+**Truth Sources**
+
+- Singapore IMDA Framework (2026): Human accountability as continuous governance, not backup
+- UC Berkeley Risk-Management Profile (2026): System-level governance for multi-agent complexity
+- Kore.ai (2026): Agentic initiatives shut down due to unclear ROI and weak controls
+- HackerNoon (2026): Existing frameworks struggle with agents' speed and cascading multi-agent failures
+
+**How AI Applies This Principle**
+
+1. Start all agent workflows at AL-0 (Supervised)
+2. Document current autonomy level and advancement criteria for each agent
+3. Before advancing autonomy level, verify all prerequisites are met
+4. Never advance directly from AL-0 to AL-3 — graduated progression required
+5. If autonomous agent produces unexpected output, demote to previous autonomy level
+6. Review autonomy level classification periodically (not just at initial setup)
+
+**Success Criteria**
+
+- Every agent has a documented autonomy level
+- HITL removal is justified with documented criteria, not implicit
+- Compensating controls exist before any agent reaches AL-2
+- No L3-blast-radius agent operates at AL-3
+- Autonomy demotion triggers defined and tested
+
+**Human Interaction Points**
+
+- Approve autonomy level advancement for each agent
+- Define acceptable error rates for supervised-to-batch transition
+- Set review cadence for AL-2 agents
+- Decide whether AL-3 is ever appropriate for their context
+
+**Common Pitfalls**
+
+- **The Immediate AL-3:** Deploying cron agents at full autonomy without graduated testing
+- **The Forgotten Review:** Setting up AL-2 monitoring but never actually reviewing logs
+- **The One-Way Ratchet:** Advancing autonomy level but never demoting when quality degrades
+- **The Approval Shortcut:** Removing HITL "temporarily" that becomes permanent
+
+**Configurable Defaults**
+
+- Default autonomy level: AL-0 (Supervised)
+- Minimum supervised cycles before AL-1: Configurable per task type (default: 10 cycles)
+- AL-3 eligibility: L0/L1 blast radius only (not configurable — this is the principle)
+
+---
+
+### Compensating Controls for Autonomous Operation
+
+**Maturity:** [EMERGING] — Enterprise agent security patterns, defense-in-depth architecture
+
+**Failure Mode(s) Addressed:**
+- **MA-AO2: Premature HITL Removal → Unchecked Autonomous Operation** (secondary)
+- **MA-AO4: External Platform Violation → Account/Legal Liability** — Agents operating autonomously on external platforms without controls for content liability, platform ToS compliance, or regulatory requirements.
+  - *Detect via:* Agent posts content without content review gate; no FTC disclosure compliance check; platform ToS not referenced in agent definition; no rate limiting on external actions.
+
+**Why This Principle Matters**
+
+When human oversight is reduced or removed (per AO2 Graduated Autonomy), compensating controls must replace the judgment that human review provided. Without compensating controls, autonomous agents are uncontrolled actors — they can post defamatory content, make false marketing claims, violate platform terms of service, and create legal liability faster than any human could. Shadow AI incidents cost $670,000 more than standard breaches due to delayed detection (Help Net Security 2026).
+
+**Domain Application (Binding Rule)**
+
+For any agent operating at AL-2 or AL-3, the following compensating controls are **required** (not optional):
+
+**1. Circuit Breakers**
+- Define automatic pause triggers: error rate threshold, anomaly detection, output volume spike
+- Agent must stop and alert when circuit breaker trips
+- Restart requires human approval or automated cooldown period
+
+**2. Content Review Gates (for L2/L3 blast radius)**
+- AI-generated content intended for external consumption must pass a content review gate
+- Gate checks: factual claims verification, legal liability scan (no guarantees, health/safety claims), platform ToS compliance, brand voice consistency
+- Gate can be automated (rules-based) or human (batch review) depending on autonomy level
+
+**3. Rate Limiting**
+- External-facing actions must have rate limits: maximum posts per hour, maximum emails per day, maximum API calls per minute
+- Rate limits prevent runaway agents from flooding external systems
+- Limits should be conservative initially, relaxed with demonstrated reliability
+
+**4. Audit Trail**
+- Every autonomous action logged with: timestamp, agent, action type, blast radius level, input context, output, and review status
+- Audit trail must be queryable for pattern analysis
+- Retention period: minimum 30 days for L2, 90 days for L3
+
+**5. Platform Compliance**
+- Agents engaging on third-party platforms must comply with platform ToS
+- FTC guidelines require disclosure of AI-generated endorsements and marketing
+- Agent definitions must reference applicable platform rules
+- Automated disclosure insertion where platform allows
+
+**Constitutional Basis**
+
+- Verification Mechanisms: Compensating controls as automated verification
+- Transparent Reasoning and Traceability: Audit trail for all autonomous actions
+- Blameless Error Reporting: Circuit breakers enable safe failure reporting
+
+**Truth Sources**
+
+- Help Net Security (2026): Shadow AI incidents cost $670K more due to delayed detection; only 21% of executives have complete visibility into agent permissions
+- FTC "Bringing Dark Patterns to Light": AI-generated endorsement disclosure requirements
+- IMDA Singapore Framework (2026): Pre-deployment and post-deployment monitoring as technical controls
+- SafePaaS (2026): Every AI agent is a SOX risk — audit trail requirements for financial operations
+
+**How AI Applies This Principle**
+
+1. Before advancing any agent to AL-2, document all five compensating control categories
+2. Circuit breakers: define specific thresholds (error rate, volume, anomaly score)
+3. Content review: implement appropriate gate for the agent's blast radius level
+4. Rate limits: set conservative initial limits; document rationale for any increase
+5. Audit trail: verify logging captures all required fields
+6. Platform compliance: reference specific ToS and regulatory requirements in agent definition
+
+**Success Criteria**
+
+- All AL-2+ agents have documented compensating controls across all five categories
+- Circuit breakers tested and proven to trigger correctly
+- Content review gates operational before any L2/L3 agent reaches AL-2
+- Rate limits enforced and logged
+- Audit trail queryable and retained per policy
+- Platform compliance documented per agent
+
+**Human Interaction Points**
+
+- Define circuit breaker thresholds for novel agent types
+- Review and approve content review gate rules
+- Set initial rate limits and approve increases
+- Define audit trail retention policy
+- Verify platform ToS compliance for new platforms
+
+**Common Pitfalls**
+
+- **The Paper Control:** Documenting controls without implementing them
+- **The Stale Threshold:** Circuit breaker thresholds set once, never updated as agent behavior evolves
+- **The Missing Disclosure:** AI-generated content posted without FTC-required disclosure
+- **The Infinite Buffer:** Audit trail grows without anyone reviewing it
+
+**Configurable Defaults**
+
+- Circuit breaker error rate threshold: 5% (configurable per agent)
+- Rate limits: Platform-specific defaults (configurable)
+- Audit trail retention: 30 days L2, 90 days L3 (configurable)
+- Content review gate: Required for L2/L3 (not configurable — this is the principle)
+
+---
+
+### Autonomous Drift Monitoring
+
+**Maturity:** [EMERGING] — Continuous monitoring patterns, ML model drift detection applied to agent systems
+
+**Failure Mode(s) Addressed:**
+- **MA-AO3: Autonomous Drift → Compounding Bias** — Long-running agents develop emergent behavior patterns where small biases compound over time without periodic human review, producing outputs that gradually diverge from intended behavior.
+  - *Detect via:* Agent outputs show gradual distribution shift over time; content tone/style changes without explicit instruction; feedback loops amplify initial biases; periodic review reveals drift from original intent.
+
+**Why This Principle Matters**
+
+Agents running on cron schedules for days or weeks are fundamentally different from session-based agents. Session-based agents start fresh and benefit from human review between sessions. Cron-scheduled agents accumulate state, develop patterns, and can enter feedback loops where their own outputs influence their future inputs. A content research agent that favors certain sources gradually narrows its research scope. A trend-following agent that gets engagement on certain topics produces more of that content, creating a self-reinforcing loop. Without drift monitoring, these patterns compound silently until the agent's behavior no longer matches its intended purpose.
+
+**Domain Application (Binding Rule)**
+
+Autonomous agents (AL-2 or AL-3) must implement drift monitoring:
+
+**1. Output Distribution Monitoring**
+- Track key output metrics over time (topic distribution, sentiment, action types, error rates)
+- Define baseline distribution during supervised (AL-0) operation
+- Alert when output distribution shifts beyond defined threshold from baseline
+
+**2. Periodic Human Review Cadence**
+- AL-2 agents: Human reviews sample of outputs at defined cadence (minimum weekly)
+- AL-3 agents: Human reviews aggregate metrics and flagged anomalies (minimum weekly)
+- Review includes comparison to original intent and baseline behavior
+
+**3. Feedback Loop Detection**
+- Identify cases where agent output feeds back into agent input
+- When feedback loops exist, implement dampening (diversity requirements, cooldown periods, source rotation)
+- Monitor for amplification signals: increasing homogeneity, narrowing scope, escalating engagement
+
+**4. Intent Drift Assessment**
+- Periodically re-evaluate: "Is this agent still serving its original purpose?"
+- Compare current behavior against the intent context object (per A5 Intent Propagation)
+- If drift detected, demote autonomy level and recalibrate
+
+**Constitutional Basis**
+
+- Synchronization & Observability: Continuous monitoring of agent behavior
+- Verification Mechanisms: Drift detection as ongoing verification
+- Intent Preservation: Ensure long-running agents maintain alignment with original goals
+
+**Truth Sources**
+
+- ML model monitoring practices: Distribution shift detection applied to agent outputs
+- CNBC (2026): AI increases system complexity beyond human comprehension — drift is the autonomous manifestation
+- Enterprise agent patterns: Continuous real-time monitoring recommended for all agent deployments
+- UC Berkeley (2026): "System-level governance" addressing emergent multi-agent behaviors
+
+**How AI Applies This Principle**
+
+1. During AL-0 operation, establish baseline output distributions
+2. Implement automated monitoring for distribution shifts
+3. Set review cadence appropriate to autonomy level and blast radius
+4. When designing feedback loops (agent output → agent input), add dampening controls
+5. Conduct periodic intent drift assessment (compare current vs. original purpose)
+6. Demote autonomy level if drift exceeds threshold
+
+**Success Criteria**
+
+- All AL-2+ agents have defined baseline distributions
+- Automated drift detection active with defined thresholds
+- Human review cadence established and followed
+- Feedback loops identified with dampening controls in place
+- Intent drift assessment conducted at defined cadence
+- Autonomy demotion triggered when drift threshold exceeded
+
+**Human Interaction Points**
+
+- Define acceptable drift thresholds for each agent type
+- Conduct periodic review at defined cadence
+- Decide on autonomy demotion when drift detected
+- Recalibrate agent intent after drift correction
+
+**Common Pitfalls**
+
+- **The Boiling Frog:** Drift too gradual for periodic review to catch — requires automated detection
+- **The Engagement Trap:** Agent optimizes for engagement metrics (clicks, responses) rather than intended purpose
+- **The Echo Chamber:** Research agents narrowing source diversity over time
+- **The Missing Baseline:** Starting autonomous operation without establishing baseline behavior first
+
+**Configurable Defaults**
+
+- Drift detection threshold: Configurable per metric (default: >2σ from baseline)
+- Human review cadence: Weekly minimum for AL-2, weekly minimum for AL-3 (configurable to more frequent)
+- Feedback loop dampening: Required when feedback loops exist (not configurable — this is the principle)
+
+---
+
 ## Meta ↔ Domain Crosswalk
 
 | Constitutional Principle | Multi-Agent Domain Application |
@@ -1267,15 +1626,15 @@ Multi-agent workflows must define explicit human approval points for: phase tran
 | Hybrid Interaction & RACI | Explicit Handoff Protocol, State Persistence Protocol |
 | Intent Preservation | Intent Propagation with Shared Assumptions |
 | Explicit Over Implicit | Intent Propagation with Shared Assumptions, Explicit Handoff Protocol |
-| Discovery Before Commitment | Justified Complexity, Orchestration Pattern Selection |
+| Discovery Before Commitment | Justified Complexity, Orchestration Pattern Selection, HITL Removal Criteria |
 | Blameless Error Reporting | Validation Independence (confidence), Fault Tolerance (stop-the-line) |
 | Standardized Collaboration Protocols | Orchestrator Separation, Explicit Handoff, Orchestration Patterns, Read-Write Division |
-| Synchronization & Observability | Observability Protocol |
+| Synchronization & Observability | Observability Protocol, Autonomous Drift Monitoring |
 | Verification Mechanisms | Validation Independence |
 | Fail-Fast Validation | Fault Tolerance and Graceful Degradation |
 | Failure Recovery & Resilience | Fault Tolerance and Graceful Degradation |
 | Transparent Reasoning and Traceability | State Persistence Protocol |
-| Technical Focus with Clear Escalation Boundaries | Human-in-the-Loop Protocol |
+| Technical Focus with Clear Escalation Boundaries | Human-in-the-Loop Protocol, Action Blast Radius Classification, HITL Removal Criteria |
 
 ---
 
@@ -1290,6 +1649,7 @@ When multi-agent systems perform coding tasks, both domain principles apply:
 - Fault handling across agent network (Fault Tolerance and Graceful Degradation)
 - Human approval gates for multi-agent workflow (Human-in-the-Loop Protocol)
 - When to use specialized agents (Justified Complexity)
+- Autonomous operation governance: blast radius, HITL removal, compensating controls, drift (AO-Series)
 
 **AI Coding Domain Governs:**
 - Specification completeness before implementation (Specification Completeness)
@@ -1306,6 +1666,14 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 ## Glossary
 
 **Agent:** An AI instance with defined cognitive function, context window, and task scope operating as part of a multi-agent system. [v2.0.0: Can operate individually, sequentially, or in parallel with other agents]
+
+**Autonomy Level (AL):** Classification of human oversight for an agent: AL-0 (Supervised), AL-1 (Batch Approved), AL-2 (Monitored Autonomous), AL-3 (Fully Autonomous). Advancement requires documented criteria and compensating controls. [NEW in v2.2.0]
+
+**Blast Radius:** Classification of an agent action's scope and reversibility: L0 (Internal-Reversible), L1 (Internal-Irreversible), L2 (External-Reversible), L3 (External-Irreversible). Higher levels require stronger oversight. [NEW in v2.2.0]
+
+**Circuit Breaker:** Automatic pause mechanism that halts an autonomous agent when predefined thresholds are exceeded (error rate, anomaly detection, output volume). Restart requires human approval or cooldown period. [NEW in v2.2.0]
+
+**Compensating Controls:** Mechanisms that replace human judgment when HITL is removed: circuit breakers, content review gates, rate limiting, audit trails, and platform compliance checks. [NEW in v2.2.0]
 
 **Cognitive Function:** A mental model or reasoning pattern (strategic analysis, creative synthesis, critical evaluation, etc.) that defines an agent's specialized capability.
 
@@ -1347,6 +1715,7 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.2.0 | 2026-03-09 | **MINOR: Autonomous Operation Governance.** (1) New AO-Series: 4 principles — AO1 (Action Blast Radius Classification), AO2 (HITL Removal Criteria / Graduated Autonomy), AO3 (Compensating Controls for Autonomous Operation), AO4 (Autonomous Drift Monitoring). (2) New failure modes: MA-AO1 through MA-AO4 addressing external-facing autonomous agent actions, premature HITL removal, compounding drift, and platform/legal liability. (3) Updated Framework Overview from "Four" to "Five" principle series. (4) New glossary entries: Autonomy Level, Blast Radius, Circuit Breaker, Compensating Controls. (5) Updated crosswalk table. Evidence basis: CNBC 2026, Help Net Security 2026, Strata 2026, Singapore IMDA Framework 2026, UC Berkeley Risk-Management Profile 2026, HackerNoon 2026, Kore.ai 2026, SafePaaS 2026. Catalyst: Analysis of OpenClaw autonomous agent architectures running businesses without HITL. |
 | v2.1.1 | 2026-02-10 | PATCH: Coherence audit remediation. Removed erroneous "(especially MA-Series)" parenthetical from peer domain relationship note — MA-Series are domain failure mode codes, not constitutional principles. |
 | v2.1.0 | 2026-02-08 | MINOR: Coherence audit remediation. (1) Expanded failure mode taxonomy from 13 to 19 codes: added MA-C4, MA-R5, MA-R6, MA-R7, MA-Q4, MA-Q5. (2) Fixed 3 code collisions: MA-R4 body→MA-R7, MA-Q3 body→MA-Q5, MA-C1 body→MA-C4 (taxonomy definitions preserved as authoritative). (3) Fixed R-Series taxonomy category "Reliability"→"Coordination" (matching section headings). (4) Corrected 9 phantom constitutional principle names across 17 sites: "Fail-Fast Detection"→"Fail-Fast Validation", "Boundaries of AI Autonomy"→"Technical Focus with Clear Escalation Boundaries", "Human-AI Collaboration Boundaries"→"Hybrid Interaction & RACI", "DRY"→"Role Specialization & Topology", "Context Optimization"→"Minimal Relevant Context", "Inversion of Control"→"Goal-First Dependency Mapping", "Documentation"→"Transparent Reasoning and Traceability". (5) Fixed "Failure Recovery"→"Failure Recovery & Resilience" (2 sites). (6) Fixed hierarchy violation: replaced domain principle "Cognitive Function Specialization" with constitutional "Role Specialization & Topology" in Validation Independence constitutional basis. |
 | v2.0.0 | 2026-01-01 | **MAJOR: Scope Expansion + New Principles.** (1) Scope: Explicitly covers individual specialized agents, sequential composition, AND parallel coordination—not just parallel multi-agent. (2) New J-Series: Justified Complexity principle addresses when to specialize. (3) New A-Series: Context Engineering Discipline (4 strategies: Write, Select, Compress, Isolate). (4) New R-Series: Read-Write Division for parallel safety. (5) Enhanced Intent Propagation with Shared Assumptions Protocol. (6) Enhanced Orchestration Pattern Selection with Linear-First default. (7) New Failure Mode Taxonomy (MA-* codes). (8) Maturity indicators on all principles. Research basis: Anthropic 2025, Google ADK 2025, Cognition 2025, LangChain 2025, Microsoft 2025, Vellum 2025. |
@@ -1385,6 +1754,17 @@ This framework derives from analysis of 2024-2025 research sources:
 - Enterprise patterns: Fallback paths, resilience design
 - Retry strategies with modification before escalation
 
+**Autonomous Operation Research:** [NEW in v2.2.0]
+- CNBC (2026): "Silent failure at scale" — AI increases system complexity beyond human comprehension; autonomous systems fail silently
+- Help Net Security (2026): 80% of organizations report risky agent behaviors; shadow AI incidents cost $670K more than standard breaches; only 21% of executives have visibility into agent permissions
+- Strata (2026): <10% of companies can govern agents in production; 144 non-human identities per human employee; AI agent identity crisis
+- Singapore IMDA Framework (2026): Four-pillar agentic AI governance — risk assessment, human accountability, technical controls, end-user responsibility
+- UC Berkeley Risk-Management Profile (2026): System-level governance aligned with NIST AI RMF Govern-Map-Measure-Manage functions
+- HackerNoon (2026): Existing frameworks assume deterministic systems; agents' speed and cascading failures create governance gaps
+- Kore.ai (2026): Agentic initiatives shut down due to unclear ROI, weak controls, and rising runtime costs
+- SafePaaS (2026): Every AI agent is a SOX risk — audit trail and financial governance requirements
+- FTC "Bringing Dark Patterns to Light": AI-generated endorsement disclosure requirements
+
 ---
 
 ## Appendix C: Extending This Framework
@@ -1400,6 +1780,7 @@ This framework derives from analysis of 2024-2025 research sources:
    - Does it address agent STRUCTURE or BOUNDARIES? → **A-Series**
    - Does it govern COMMUNICATION or WORKFLOW? → **R-Series**
    - Does it ensure OUTPUT QUALITY or SAFETY? → **Q-Series**
+   - Does it govern AUTONOMOUS OPERATION or HITL removal? → **AO-Series**
 6. **Template Completion:** Write all fields of the principle template
 7. **Crosswalk Update:** Add entry to Meta ↔ Domain Crosswalk table
 8. **Validation:** Ensure no overlap with existing principles

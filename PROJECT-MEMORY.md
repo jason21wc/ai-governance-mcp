@@ -65,6 +65,7 @@
 | Justified Complexity | 2026-01-01 | 15x token cost rule — must justify multi-agent over generalist. |
 | Linear-First Default | 2026-01-01 | Sequential is safe default. Parallel requires explicit validation. |
 | Task Dependency DAG | 2026-01-24 | Deadlock prevention added to §3.3. Graph traversal, depth tracking, timeout escalation. |
+| AO-Series v2.2.0 | 2026-03-09 | New Autonomous Operation series (AO1-AO4): Blast Radius Classification (L0-L3), HITL Removal Criteria (AL-0 through AL-3), Compensating Controls (circuit breakers, content review gates, rate limiting, audit trail, platform compliance), Autonomous Drift Monitoring. 4 failure modes (MA-AO1–MA-AO4). Methods TITLE 6 (§6.1-6.4). Catalyst: OpenClaw autonomous agent architecture analysis. Phase 1 extension — not a new domain yet. Future: full Autonomous Operations domain if evidence base grows sufficiently. Substring collision: `ao-series` must precede `o-series` in category_mapping. |
 
 ### Multimodal RAG Domain
 

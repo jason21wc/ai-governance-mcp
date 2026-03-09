@@ -18,9 +18,9 @@
   "multi-agent": {
     "name": "multi-agent",
     "display_name": "Multi-Agent",
-    "principles_file": "multi-agent-domain-principles-v2.1.1.md",
-    "methods_file": "multi-agent-methods-v2.12.3.md",
-    "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Artifact type selection (method vs subagent), agent authoring, system prompt best practices, tool scoping, agent validation, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, memory distillation, production observability, ReAct loop configuration, agent evaluation framework (4-layer), production safety guardrails, governance compliance, task management, task dependencies, task lifecycle, task ownership, and advanced model considerations for prompting strategies.",
+    "principles_file": "multi-agent-domain-principles-v2.2.0.md",
+    "methods_file": "multi-agent-methods-v2.13.0.md",
+    "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Artifact type selection (method vs subagent), agent authoring, system prompt best practices, tool scoping, agent validation, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, memory distillation, production observability, ReAct loop configuration, agent evaluation framework (4-layer), production safety guardrails, governance compliance, task management, task dependencies, task lifecycle, task ownership, advanced model considerations for prompting strategies, autonomous operation governance, blast radius classification, HITL removal criteria, graduated autonomy levels, compensating controls for autonomous agents, circuit breakers, content review gates, rate limiting, audit trails, platform ToS compliance, FTC disclosure, autonomous drift monitoring, feedback loop detection, cron-scheduled agents, always-on agent workflows, and external-facing agent actions.",
     "priority": 20
   },
   "storytelling": {

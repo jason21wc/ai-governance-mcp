@@ -2978,3 +2978,35 @@ class TestUiUxDomainIntegration:
         schema = domain_summary_tool.inputSchema
         domain_enum = schema["properties"]["domain"]["enum"]
         assert "ui-ux" in domain_enum, f"ui-ux not in domain enum: {domain_enum}"
+
+
+# =============================================================================
+# AO-Series Production Index Validation
+# =============================================================================
+
+
+class TestAoSeriesProductionIndex:
+    """Validate AO-Series principles exist in the production index."""
+
+    def test_ao_series_principles_in_index(self):
+        """Production index should contain AO-Series principles with correct series codes."""
+        index_path = Path(__file__).parent.parent / "index" / "global_index.json"
+        if not index_path.exists():
+            pytest.skip("Production index not found")
+
+        with open(index_path) as f:
+            index = json.load(f)
+
+        multi_agent = index.get("domains", {}).get("multi-agent", {})
+        principles = multi_agent.get("principles", [])
+
+        ao_principles = [p for p in principles if p.get("series_code") == "AO"]
+        assert len(ao_principles) == 4, (
+            f"Expected 4 AO-Series principles, got {len(ao_principles)}"
+        )
+
+        # Verify they have correct autonomous category
+        for p in ao_principles:
+            assert "autonomous" in p["id"], (
+                f"AO principle ID should contain 'autonomous': {p['id']}"
+            )

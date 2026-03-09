@@ -2084,3 +2084,56 @@ All interfaces MUST use semantic HTML as the foundation.
             assert p.id.startswith("uiux-"), (
                 f"Principle ID '{p.id}' should start with 'uiux-'"
             )
+
+
+# =============================================================================
+# AO-Series (Autonomous Operation) Tests
+# =============================================================================
+
+
+class TestAoSeriesCategorySeriesMap:
+    """Tests for AO-Series entries in CATEGORY_SERIES_MAP."""
+
+    def test_ao_series_code(self):
+        """AO-Series should map ('multi-agent', 'autonomous') -> 'AO'."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        assert m.get(("multi-agent", "autonomous")) == "AO", (
+            "('multi-agent', 'autonomous') should map to 'AO'"
+        )
+
+    def test_ao_series_no_collision_with_existing(self):
+        """AO series code must not collide with S-Series or other multi-agent codes."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        multi_agent_codes = {
+            code for (domain, _), code in m.items() if domain == "multi-agent"
+        }
+        # AO should be present
+        assert "AO" in multi_agent_codes
+        # S is reserved for constitution safety veto
+        assert "S" not in multi_agent_codes
+        # Expected codes: A, AO, R, Q (J-series maps to "general", no code)
+        assert multi_agent_codes == {"A", "AO", "R", "Q"}, (
+            f"Unexpected multi-agent codes: {multi_agent_codes}"
+        )
+
+    def test_ao_series_substring_collision_with_o_series(self):
+        """ao-series must match before o-series in category_mapping to prevent collision.
+
+        This is a known extractor pattern: longer series names must come before
+        shorter ones that are substrings (see ev-series/v-series, sec-series/c-series).
+        """
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        with patch("sentence_transformers.SentenceTransformer"):
+            extractor = DocumentExtractor.__new__(DocumentExtractor)
+            # Simulate what happens when extractor sees an AO-Series header
+            test_title = "autonomous operation principles (ao-series) [new in v2.2.0]"
+            category = extractor._get_category_from_section(test_title)
+            assert category == "autonomous", (
+                f"AO-Series header should map to 'autonomous', got '{category}'. "
+                "Check that 'ao-series' comes before 'o-series' in category_mapping."
+            )

@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-03-08T19:39:50.803330",
+  "timestamp": "2026-03-08T21:32:10.337550",
   "type": "context_engine",
   "metrics": {
     "mrr": 0.613,
-    "recall_at_5": 0.8,
+    "recall_at_5": 0.75,
     "recall_at_10": 1.0
   },
   "individual_ranks": [

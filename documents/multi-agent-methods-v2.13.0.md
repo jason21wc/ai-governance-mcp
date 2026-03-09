@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.12.3
+**Version:** 2.13.0
 **Status:** Active
-**Effective Date:** 2026-02-11
+**Effective Date:** 2026-03-09
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -33,7 +33,7 @@ This document defines operational procedures that implement the Multi-Agent Doma
 +---------------------------------------------------------------------+
 |  multi-agent-domain-principles.md (FEDERAL STATUTES)                |
 |  Domain Principles: Agent-specific binding law.                     |
-|  14 Principles: J1, A1-A5, R1-R5, Q1-Q3                             |
+|  18 Principles: J1, A1-A5, R1-R5, Q1-Q3, AO1-AO4                   |
 +---------------------------------------------------------------------+
                               |
                               v
@@ -127,6 +127,12 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Evaluating agent performance | §4.7 | Agent Evaluation Framework |
 | Implementing safety guardrails | §4.8 | Production Safety Guardrails |
 | Syncing context across tools | §5.1 | Cross-Tool Synchronization |
+| Agent posting on external platform | §6.1 | Action Blast Radius Classification |
+| Removing human oversight from agent | §6.2 | Autonomy Level Assessment |
+| Agent running on cron/schedule | §6.3 | Compensating Controls Checklist |
+| Detecting agent behavior drift | §6.4 | Drift Monitoring Procedures |
+| Agent making marketing claims | §6.3 | Content Review Gate |
+| Platform ToS compliance for agents | §6.3 | Platform Compliance Check |
 | "framework check" received | §1.2 | Re-initialization |
 
 ### On Uncertainty
@@ -3756,6 +3762,246 @@ User Request: "Research [topic] from multiple perspectives"
 
 ---
 
+# TITLE 6: Autonomous Operation Governance [NEW in v2.13.0]
+
+**Implements:** AO1 (Action Blast Radius Classification), AO2 (HITL Removal Criteria), AO3 (Compensating Controls), AO4 (Autonomous Drift Monitoring)
+
+IMPORTANT
+
+**Purpose:** Operational procedures for governing agent systems that operate without continuous human oversight — cron-scheduled agents, always-on workflows, and external-facing autonomous actions.
+
+**Applies To:** Any agent operating at Autonomy Level AL-1 or higher, or any agent with blast radius L2 or higher. Also applies when evaluating whether an existing human-supervised workflow should transition to autonomous operation.
+
+---
+
+### 6.1 Action Blast Radius Classification
+
+CRITICAL
+
+**Purpose:** Classify every agent action by **scope and reversibility** before execution.
+
+**Applies To:** All agent actions, especially when defining new agents or expanding an existing agent's capabilities.
+
+**Classification Procedure:**
+
+For each action an agent can perform, classify using this decision tree:
+
+```
+Is the action's effect contained within local/internal systems?
+├── YES → Is the action reversible (undo, rollback, delete)?
+│   ├── YES → L0: Internal-Reversible
+│   └── NO  → L1: Internal-Irreversible
+└── NO  → Is the action editable/retractable after execution?
+    ├── YES → L2: External-Reversible
+    └── NO  → L3: External-Irreversible
+```
+
+**Blast Radius Level Details:**
+
+| Level | Examples | Required Controls |
+|-------|----------|-------------------|
+| **L0** | Write local file, update internal DB, modify config, run tests | Standard agent governance |
+| **L1** | Deploy to production, delete data, send internal notification, merge to main | HITL gate per Q-Series §4.5 |
+| **L2** | Create draft PR on GitHub, stage content in CMS, create draft email | Review-before-publish gate |
+| **L3** | Post on social media, send email to customer, publish marketing content, submit to external API | Human approval OR **documented compensating controls** |
+
+**Agent Definition Requirement:**
+
+Every agent definition must include a `blast_radius` field:
+
+```markdown
+## Agent: Content Publisher
+blast_radius: L3 (External-Irreversible)
+justification: Posts to social media platforms — cannot be recalled once published
+compensating_controls: Content review gate, rate limit (max 5 posts/day), FTC disclosure check
+```
+
+**Bold phrases for retrieval:** **blast radius classification**, **external-facing action**, **action reversibility assessment**
+
+---
+
+### 6.2 Autonomy Level Assessment
+
+CRITICAL
+
+**Purpose:** Determine and document the appropriate level of human oversight for each agent.
+
+**Applies To:** All agents, especially when transitioning from supervised to autonomous operation.
+
+**Graduated Autonomy Assessment Procedure:**
+
+**Step 1: Determine Current Autonomy Level**
+
+| Level | Human Oversight | Description |
+|-------|----------------|-------------|
+| **AL-0** | Every output reviewed | Human approves each action before execution |
+| **AL-1** | Batch review | Human reviews batches of outputs periodically (e.g., daily) |
+| **AL-2** | Monitored autonomous | Agent acts; human reviews logs and flagged items |
+| **AL-3** | Fully autonomous | Agent acts without human review (metrics-only monitoring) |
+
+**Step 2: Verify Advancement Prerequisites**
+
+Before advancing from one level to the next:
+
+| Transition | Prerequisites |
+|------------|---------------|
+| **AL-0 → AL-1** | Minimum 10 supervised cycles with <5% error rate (configurable); consistent output quality; no safety incidents |
+| **AL-1 → AL-2** | All **compensating controls** documented and tested (§6.3); **drift monitoring** active (§6.4); **rollback plan** defined; blast radius classified (§6.1) |
+| **AL-2 → AL-3** | Blast radius ≤ L1 only; **circuit breakers** proven effective; minimum 30 days at AL-2 without intervention; human review cadence maintained |
+
+**Step 3: Document Autonomy Decision**
+
+```markdown
+## Autonomy Level Record
+Agent: [name]
+Current Level: [AL-0/1/2/3]
+Blast Radius: [L0/1/2/3]
+Date Assessed: [ISO date]
+Assessed By: [human name]
+Prerequisites Met: [checklist]
+Compensating Controls: [reference to §6.3 documentation]
+Next Review Date: [ISO date]
+```
+
+**Hard Rule:** AL-3 is never appropriate for L3 (External-Irreversible) blast radius. Public-facing autonomous operation always requires at minimum AL-2 with active drift detection.
+
+**Bold phrases for retrieval:** **autonomy level assessment**, **graduated autonomy**, **HITL removal criteria**
+
+---
+
+### 6.3 Compensating Controls Checklist
+
+CRITICAL
+
+**Purpose:** Ensure all required **compensating controls** are in place before advancing an agent beyond AL-1.
+
+**Applies To:** Any agent at AL-2 or higher, or any agent with blast radius L2 or higher.
+
+**Required Controls (all five categories must be addressed):**
+
+**1. Circuit Breakers**
+
+| Parameter | Default | Notes |
+|-----------|---------|-------|
+| Error rate threshold | 5% over rolling window | Pause agent when exceeded |
+| Output volume spike | 3x baseline in 1 hour | May indicate runaway loop |
+| Anomaly detection | >2σ from baseline distribution | Catches novel failure modes |
+| Restart policy | Human approval required | Or automated cooldown (configurable) |
+
+**2. Content Review Gates** (required for L2/L3 blast radius)
+
+Checklist for **content review gate** before external publication:
+
+- [ ] No unverifiable factual claims (especially "guarantees", performance promises)
+- [ ] No health, safety, or financial advice without disclaimers
+- [ ] **FTC disclosure compliance** — AI-generated content identified where required
+- [ ] Platform ToS compliance — no prohibited automated behavior
+- [ ] Brand voice consistency — matches established tone guidelines
+- [ ] No personally identifiable information (PII) exposed
+- [ ] Legal liability scan — no defamatory, misleading, or deceptive content
+
+**3. Rate Limiting**
+
+| Action Type | Recommended Default | Rationale |
+|-------------|-------------------|-----------|
+| Social media posts | Max 5/day per platform | Avoids spam detection and ToS violations |
+| Emails to customers | Max 10/day | Prevents mass outreach disasters |
+| External API calls | Max 100/hour | Prevents cost explosion and rate limit bans |
+| Content publications | Max 3/day | Ensures content quality isn't sacrificed for volume |
+
+**4. Audit Trail**
+
+Required fields for every autonomous action:
+
+```json
+{
+  "timestamp": "ISO 8601",
+  "agent": "agent_name",
+  "action_type": "post_social_media",
+  "blast_radius": "L3",
+  "autonomy_level": "AL-2",
+  "input_context": "summary of what triggered the action",
+  "output": "what the agent produced",
+  "review_status": "pending|approved|flagged",
+  "compensating_controls_active": ["circuit_breaker", "rate_limit", "content_gate"]
+}
+```
+
+Retention: 30 days minimum for L2, 90 days for L3.
+
+**5. Platform Compliance**
+
+For each external platform an agent interacts with:
+
+- [ ] Platform ToS reviewed and referenced in agent definition
+- [ ] Automated behavior disclosure requirements identified
+- [ ] Rate limits set within platform guidelines
+- [ ] Account suspension risk assessed and mitigation documented
+- [ ] FTC endorsement guidelines applied (if recommending products/services)
+
+**Bold phrases for retrieval:** **compensating controls checklist**, **circuit breaker configuration**, **content review gate**, **platform compliance check**, **FTC disclosure compliance**
+
+---
+
+### 6.4 Drift Monitoring Procedures
+
+IMPORTANT
+
+**Purpose:** Detect and correct behavioral **drift in long-running autonomous agents** before it compounds into significant deviation from intended behavior.
+
+**Applies To:** Any agent at AL-2 or higher that runs continuously or on a recurring schedule.
+
+**Baseline Establishment (during AL-0 supervised operation):**
+
+Before advancing to autonomous operation, establish baselines:
+
+| Metric | How to Measure | Baseline Period |
+|--------|---------------|-----------------|
+| Topic distribution | Categorize outputs by topic; track % per category | Minimum 10 supervised cycles |
+| Sentiment range | Score output sentiment; track distribution | Minimum 10 supervised cycles |
+| Action type distribution | Count action types; track % per type | Minimum 10 supervised cycles |
+| Error rate | Track errors per 100 actions | Minimum 10 supervised cycles |
+| Output volume | Track outputs per time period | Minimum 10 supervised cycles |
+
+**Automated Drift Detection:**
+
+Configure alerts for:
+
+| Signal | Threshold | Response |
+|--------|-----------|----------|
+| Topic concentration | Any single topic >60% (baseline was <40%) | Flag for review |
+| Sentiment shift | Mean sentiment shifts >1σ from baseline | Flag for review |
+| Error rate increase | >2x baseline error rate | Trip circuit breaker |
+| Volume spike | >3x baseline in any time window | Trip circuit breaker |
+| Source diversity decline | Agent citing <50% of baseline source count | Flag for review — may indicate **echo chamber** |
+
+**Feedback Loop Detection:**
+
+When agent output feeds back into agent input (e.g., research agent reads its own past analyses):
+
+1. **Identify** all feedback paths in agent architecture
+2. **Implement dampening:** Source rotation requirements, diversity minimums, cooldown periods between self-referencing cycles
+3. **Monitor** for amplification: increasing homogeneity in outputs, narrowing scope over time
+4. **Break loops** when amplification detected: inject fresh external input, rotate sources, reset agent state
+
+**Human Review Cadence:**
+
+| Autonomy Level | Review Cadence | Review Content |
+|----------------|---------------|----------------|
+| AL-2 | Weekly minimum (daily for L3 blast radius) | Sample outputs, drift metrics, flagged anomalies |
+| AL-3 | Weekly minimum | Aggregate metrics, circuit breaker logs, intent alignment |
+
+**Intent Drift Assessment (quarterly or when drift detected):**
+
+1. Retrieve agent's original intent context object (per A5 Intent Propagation)
+2. Sample recent agent outputs (minimum 20)
+3. Ask: "Are these outputs serving the original purpose?"
+4. If drift detected: demote autonomy level, recalibrate, re-establish baseline
+
+**Bold phrases for retrieval:** **autonomous drift monitoring**, **feedback loop detection**, **intent drift assessment**, **behavioral baseline establishment**
+
+---
+
 ## Appendix A: Claude Code CLI Specifics
 
 OPTIONAL — Load when using Claude Code
@@ -4033,6 +4279,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.13.0 | 2026-03-09 | **MINOR: Autonomous Operation Governance.** New TITLE 6 with 4 sections: §6.1 Action Blast Radius Classification (L0-L3 decision tree, agent definition requirement), §6.2 Autonomy Level Assessment (AL-0 through AL-3 graduated progression, advancement prerequisites), §6.3 Compensating Controls Checklist (circuit breakers, content review gates, rate limiting, audit trail, platform compliance — all 5 required for AL-2+), §6.4 Drift Monitoring Procedures (baseline establishment, automated detection, feedback loop dampening, intent drift assessment). Updated governance hierarchy box (14→18 principles). Added 6 situation index entries. Implements AO1-AO4 principles from v2.2.0 domain principles. |
 | v2.12.3 | 2026-02-18 | PATCH: Added §4.6.3 Hook-Based Enforcement (Client-Side Deterministic). Documents hook-based governance enforcement patterns: UserPromptSubmit reminder injection, PreToolUse transcript verification, soft vs hard enforcement modes, session-level verification strategy. Updated §4.6.2 deployment decision matrix to include hooks. Added Client-Side Hooks and MCP Gateway/Proxy rows to Appendix F Enforcement Levels table. |
 | v2.12.2 | 2026-02-11 | PATCH: Added circuit breaker state machine to §4.4 Fault Tolerance Procedures. State diagram (CLOSED→OPEN→HALF_OPEN), behavior table, integration with existing 3-failure retry protocol. Cross-reference to ai-coding-methods §5.10.5. |
 | v2.12.1 | 2026-02-10 | PATCH: Coherence audit remediation. (1) Standardized document reference "Governance Framework Methods TITLE 13" → "Governance Methods TITLE 13" in §3.7.1 cross-reference. (2) Corrected v2.12.0 version history description: "cost metrics" → "cost-related alerting thresholds" (accuracy). |
