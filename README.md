@@ -50,7 +50,7 @@ The framework has three layers:
 | Domain | Principles | Methods | Coverage |
 |--------|------------|---------|----------|
 | **Constitution** | 44 | 149 | Universal AI behavior, safety, quality |
-| **AI Coding** | 12 | 199 | Software development, testing, deployment |
+| **AI Coding** | 12 | 200 | Software development, testing, deployment |
 | **Multi-Agent** | 18 | 48 | Agent orchestration, handoffs, autonomous operation |
 | **Storytelling** | 19 | 42 | Creative writing, narrative, voice preservation |
 | **Multimodal RAG** | 35 | 64 | Image retrieval, visual presentation, agentic retrieval |

@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-03-08
+**Last Updated:** 2026-03-12
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -26,16 +26,49 @@
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **6** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux) |
-| Index | **148 principles + 545 methods** (693 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
+| Index | **148 principles + 546 methods** (694 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check with recency window) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | **MRR=0.664**, **Recall@5=0.850**, **Recall@10=1.000** (v1.1.0, 16 queries, v2.0 baseline `ce_baseline_2026-02-14.json`, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-09)
+## Session Summary (2026-03-12)
 
 ### Completed This Session
+
+1. **§3.1.4 Tool Content Model** — ai-coding methods v2.18.0
+   - New `####` subsection codifying the framework's implicit three-mode tool inclusion pattern
+   - Three modes: named reference, appendix, build our own — each with criteria and examples
+   - Discovery-driven philosophy: tools enter through usage, not market surveys
+   - 5-item decision checklist + supersession rule
+   - Cross-references: Appendix F, §5.6.5, §5.6.8
+   - Document Governance updated with cross-reference to Tool Content Model
+   - Changelog: combined entry for v2.18.0 (§3.1.4 expansion + Tool Content Model + §5.6.8)
+   - Index rebuilt: 148 principles + 546 methods (694 total, no count change — subsection within existing method)
+   - 871 tests passing, 0 failures
+   - Context Engine retrieval verified: score 0.844
+   - Files changed: `documents/ai-coding-methods-v2.18.0.md`, `SESSION-STATE.md` (backlog #13), `index/` (rebuilt)
+
+2. **Backlog #13: Governance-Aware Output Compression** — added to SESSION-STATE.md
+   - PostToolUse hook concept for compressing verbose Bash output
+   - Trigger: >20% context consumed by terminal output (not hitting today)
+   - Fits "build our own" mode — external tools (RTK) fail §5.6.8 vetting
+
+### Previous Session (2026-03-11)
+
+1. **§5.6.8 Third-Party Hook Vetting Procedure** — ai-coding methods v2.18.0
+   - New section after §5.6.7 addressing governance gap: hooks have more privileged access than MCP servers but had zero vetting guidance
+   - Pre-Installation Checklist: 6 items (source verification, behavior audit, governance interference check, information loss assessment, permission scope review, supply chain review)
+   - Information Intermediary Warning: output compression tools can cause silent information loss during security scans
+   - §5.6.5 updated with cross-reference to §5.6.8 for hook-based tools
+   - Catalyst: RTK (Rust Token Killer) analysis — tool itself doesn't belong in framework (tool-agnostic), but exposed the hook vetting gap
+   - Index rebuilt: 148 principles + 546 methods (694 total, +1 method)
+   - 871 tests passing, 0 failures
+   - Retrieval verified: `coding-method-third-party-hook-vetting-procedure` surfaces with HIGH confidence
+   - Files changed: `documents/ai-coding-methods-v2.18.0.md`, `README.md` (count update), `index/` (rebuilt)
+
+### Previous Session (2026-03-09)
 
 1. **Multi-Agent AO-Series: Autonomous Operation Governance** — v2.2.0 principles, v2.13.0 methods
    - New AO-Series: 4 principles (AO1-AO4) — Blast Radius Classification, HITL Removal Criteria, Compensating Controls, Autonomous Drift Monitoring
@@ -573,6 +606,22 @@ A governance domain (or standalone document) covering post-deployment operations
 - Connects to AO-Series in Multi-Agent domain (autonomous operations principles apply to operational AI agents too)
 - Connects to S4 (Security, Privacy, Compliance by Default) for compliance monitoring
 - Connects to §5.11 (Zero Trust Production Deployment) which currently has some operational overlap
+
+### 13. Backlog — Governance-Aware Output Compression (PostToolUse Hook) (Priority: LOW)
+
+**Problem:** Long Bash output wastes context window tokens. External tools (e.g., RTK) fail §5.6.8 Third-Party Hook Vetting (single maintainer, command rewriting capability, information intermediary risk — the tool sits between the AI and its own output, creating an opportunity to suppress security warnings or governance enforcement messages).
+
+**Approach:** Build a PostToolUse hook (matcher: Bash) that compresses verbose terminal output while preserving:
+- Security-relevant lines (warnings, errors, vulnerability notices)
+- Governance enforcement output (hook pass/fail messages)
+- Structured data (JSON, table output)
+- First/last N lines of long output with "[X lines compressed]" summary
+
+Fits the "build our own" mode from §3.1.4 Tool Content Model — tighter governance integration justifies building over adopting an external tool that can't be trusted with output filtering.
+
+**Trigger:** Context window pressure from terminal output becomes measurable (>20% of context consumed by Bash output in typical sessions). Not hitting this today.
+
+**Cross-references:** §5.6.8 (information intermediary warning), §9.3.10 (building hooks — enforcement stack), §3.1.4 (Tool Content Model — "build our own" mode)
 
 ## Links
 

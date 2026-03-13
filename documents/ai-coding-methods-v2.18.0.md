@@ -1164,6 +1164,31 @@ AI models introduce predictable failure modes when recommending technologies:
 > **Applies To:** choosing a library, **evaluating an SDK**, **comparing frameworks**, technology stack decisions, **dependency selection**
 > **Cross-reference:** §5.6.5 (MCP Server Vetting Procedure — detailed trust evaluation for MCP tools specifically)
 
+#### Tool Content Model
+
+This framework is not tool-agnostic — it references specific tools and platforms at multiple levels. Tools enter through three inclusion modes, each with different criteria:
+
+| Mode | When to Use | Examples |
+|------|-------------|---------|
+| **Named reference** | Best-in-class for a specific task; no governance-internal equivalent exists | `agent-scan` (§5.6.5), Trivy/Grype (§5.3.3) |
+| **Appendix** | Tool is actively in use; platform-specific best practices warrant dedicated guidance | Claude Code (A), Gemini CLI (D), Chrome Extension (E), Context Engine (G), Postgres/Supabase (I) |
+| **Build our own** | Tighter integration or governance alignment justifies building over adopting | Context Engine (from Augment Code concept), governance enforcement hooks (§9.3.10) |
+
+**Discovery-driven, not catalog-driven.** Tools enter the framework through actual research and usage — not market surveys, not feature comparisons, not "what's popular." If we haven't used it, it doesn't belong here.
+
+**Decision checklist** for whether and how to include a tool:
+
+1. **Do we use it?** If no → don't include it (discovery-driven)
+2. **Is it best-in-class with no internal equivalent?** If yes → named reference
+3. **Does it need platform-specific guidance?** If yes → appendix
+4. **Can we build better-integrated capability?** If yes → build our own
+5. **Do we already have equivalent capability?** If yes → no need for the external tool
+
+**Supersession rule:** If we build or already have equivalent capability, the external tool is superseded. Do not maintain references to inferior external tools when a governance-integrated alternative exists.
+
+> **Cross-references:** Appendix F (Tool Comparison Matrix), §5.6.5 (MCP Server Vetting Procedure), §5.6.8 (Third-Party Hook Vetting Procedure)
+> **Bold triggers:** **tool content model**, **when to add tool appendix**, **tool inclusion criteria**, **build vs adopt tool**
+
 ---
 
 ## Part 3.2: Technical Planning
@@ -2461,7 +2486,7 @@ AI coding tools can delete data, overwrite files, and execute arbitrary commands
 
 ### 5.6.5 MCP Server Vetting Procedure
 
-**Applies To:** Any project using MCP servers (Claude Code, Cursor, Windsurf, or any MCP-compatible client).
+**Applies To:** Any project using MCP servers (Claude Code, Cursor, Windsurf, or any MCP-compatible client). For **hook-based tools** (PreToolUse/PostToolUse scripts from external sources), see §5.6.8.
 
 MCP servers execute code on your machine with access to your files, environment variables, and network. A compromised or malicious MCP server can exfiltrate secrets, modify files, or hijack other tools. Vet before installing.
 
@@ -2568,6 +2593,27 @@ For practitioners building APIs that AI agents will consume (the **B2A pattern**
 - [ ] **Confirmation endpoints for irreversible operations** — agents should not auto-execute destructive actions; provide a two-phase commit pattern (propose → confirm) for operations like account deletion, bulk updates, or financial transactions
 
 > **Cross-references:** §5.6.2 (credential isolation), §5.6.5 (vetting procedure), §5.6.6 (trust tiers and integrity monitoring), §5.8.3 (API security patterns), §5.11.6 (AI feature security), multi-agent principle A2 (Context Isolation Architecture)
+
+### 5.6.8 Third-Party Hook Vetting Procedure
+
+**Applies To:** Any AI coding tool hook (PreToolUse, PostToolUse, UserPromptSubmit, etc.) sourced from **external authors** — open-source hook libraries, community scripts, or commercial hook packages. Does NOT apply to hooks you write and maintain yourself (see §9.3.10 for building enforcement hooks).
+
+Hooks operate at a **more privileged layer** than MCP servers: they can deny tool calls, rewrite commands before execution, and modify what the AI perceives. A compromised hook can silently disable governance enforcement, hide security warnings, or redirect commands — all without the AI or user detecting the change. Vet with at least the same rigor as MCP servers (§5.6.5).
+
+**Pre-Installation Checklist:**
+- [ ] **Source verification** — hook comes from a known author/organization with public repository; check commit history and contributor count (same criteria as §5.6.5)
+- [ ] **Behavior audit** — read the hook script/code end-to-end; document: (1) what events it intercepts, (2) what it modifies or rewrites, (3) what it can deny, (4) what external calls it makes (if any)
+- [ ] **Governance interference check** — verify the hook does not conflict with existing governance enforcement hooks; test hook execution order explicitly (Claude Code runs hooks in array order per event type)
+- [ ] **Information loss assessment** — if the hook compresses, filters, or summarizes tool output, identify what information is removed; ensure security-relevant output (warnings, errors, vulnerability notices, audit results) is preserved uncompressed
+- [ ] **Permission scope review** — verify the hook accesses only what it needs (filesystem paths, environment variables, network); reject hooks with broad access without justification
+- [ ] **Supply chain review** — verify installation source (Homebrew, npm, pip, manual); single-maintainer tools carry higher bus-factor risk; pin versions where possible
+
+**Information Intermediary Warning:**
+Tools that compress, filter, or summarize AI tool output can cause **silent information loss**. During security reviews (§5.3.2), dependency audits (§5.4.3), or vulnerability scans (§5.3.3), ensure the AI receives full, uncompressed output. Governance enforcement hooks (§9.3.10) should run against unmodified tool output, not compressed versions.
+
+> **AI anti-pattern:** AI coding tools with output compression hooks may report "no issues found" during security scans — not because no issues exist, but because warnings were compressed away before the AI could read them. This is a silent failure mode with no error signal.
+
+> **Cross-references:** §5.6.5 (MCP server vetting — analogous procedure for MCP tools), §5.6.6 (tool integrity monitoring), §9.3.10 (building your own enforcement hooks)
 
 ---
 
@@ -6670,7 +6716,8 @@ CREATE POLICY "Users insert own documents" ON documents
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 2.18.0 | 2026-03-01 | **Technology Selection Expansion:** (1) Expanded §3.1.4 Technology Selection Criteria with structured evaluation methodology (3-step process, 6-criterion weighted table) and AI-specific failure modes table (5 failure modes: popularity bias, familiarity anchoring, abstraction stacking, stale recommendations, prototype-production conflation). Includes trust boundary evaluation guidance for multi-platform SDKs. Cross-references §5.6.5. (2) Added 1 Situation Index entry: "Building a chat / real-time AI application" routing to §5.11.6 + §5.8.3 + §5.12. Prompted by gap analysis of §3.1.4 vs. comparable sections (§5.2.7, §5.6.5). |
+| 2.18.0 | 2026-03-01 | **Technology Selection Expansion & Tool Governance:** (1) Expanded §3.1.4 Technology Selection Criteria with structured evaluation methodology (3-step process, 6-criterion weighted table) and AI-specific failure modes table (5 failure modes: popularity bias, familiarity anchoring, abstraction stacking, stale recommendations, prototype-production conflation). Includes trust boundary evaluation guidance for multi-platform SDKs. Cross-references §5.6.5. (2) Added §3.1.4 Tool Content Model — codifies implicit three-mode tool inclusion pattern (named reference, appendix, build our own) with discovery-driven philosophy, decision checklist, and supersession rule. Cross-references Appendix F, §5.6.5, §5.6.8. (3) Added §5.6.8 Third-Party Hook Vetting Procedure — 8-item security checklist for evaluating external hook/plugin tools, information intermediary risk assessment, command rewriting detection, single-maintainer risk evaluation. (4) Added 1 Situation Index entry: "Building a chat / real-time AI application" routing to §5.11.6 + §5.8.3 + §5.12. (5) Updated Document Governance: cross-reference to Tool Content Model. |
+| ~~2.18.0~~ | ~~2026-03-01~~ | ~~**Technology Selection Expansion:** (1) Expanded §3.1.4 Technology Selection Criteria with structured evaluation methodology (3-step process, 6-criterion weighted table) and AI-specific failure modes table (5 failure modes: popularity bias, familiarity anchoring, abstraction stacking, stale recommendations, prototype-production conflation). Includes trust boundary evaluation guidance for multi-platform SDKs. Cross-references §5.6.5. (2) Added 1 Situation Index entry: "Building a chat / real-time AI application" routing to §5.11.6 + §5.8.3 + §5.12. Prompted by gap analysis of §3.1.4 vs. comparable sections (§5.2.7, §5.6.5).~~ |
 | 2.17.1 | 2026-02-24 | PATCH: Added File Location guidance to §7.8.2 Initialization Checklist and §7.8.4 Minimal Viable Initialization — specifies governance memory files go in project repository root, distinguishes from platform-native memory (Claude Code MEMORY.md, Cursor .cursor/rules/, etc.), identifies project instructions file as the one overlap point. Fixes bug where AIs placed governance files in platform memory directories. Updated `.cursorrules` → `.cursor/rules/` per §7.4.2 canonical reference. |
 | 2.17.0 | 2026-02-23 | **MCP Compliance Enforcement Patterns:** New §9.3.10 — 4-layer enforcement stack (advisory instructions → per-response reminders → structural hooks → hard mode blocking). Documents session-level transcript scanning, soft/hard mode toggle, fast pre-filter optimization, fail-open/fail-closed behavior, and enforcement design heuristics. Extends §9.3.5 and §9.3.6 with structural enforcement mechanisms for governance-critical MCP applications. Added 1 Situation Index entry. Prompted by observed advisory-only compliance failure during v2.16.0 implementation. |
 | 2.16.0 | 2026-02-23 | **Agent-to-Service Integration Patterns:** New §5.6.7 — cross-system authority model (confused deputy at SaaS scale, per-task credential scoping, blast radius assessment), dynamically-discovered tool trust tiers (pre-vetted / domain-verified / untrusted with promotion path, WebMCP early preview), cross-service context isolation (data leakage prevention between services), agent-facing API design checklist (7 items for builders creating agent-consumable APIs). Enriched 3 existing sections: §5.6.5 (+dynamic tool discovery warning), §5.6.2 (+cross-system authority checklist item), §5.11.6 (+builder-side cross-reference to §5.6.7). Added §5.8.3 cross-reference. Added 2 Situation Index entries. Research basis: W3C WebMCP (2026, early preview), Bustamante (2026, practitioner evidence), OWASP MCP Top 10, OWASP Agentic Top 10. |
@@ -6718,7 +6765,7 @@ CREATE POLICY "Users insert own documents" ON documents
 
 **Feedback:** Document gaps, conflicts, or improvement suggestions to be captured and addressed in next version.
 
-**Relationship to Tools:** Tool-specific appendices may be added without changing core methods. Each appendix must comply with methods defined herein.
+**Relationship to Tools:** Tool-specific appendices may be added without changing core methods. Each appendix must comply with methods defined herein. See §3.1.4 Tool Content Model for when and how tools are documented.
 
 ---
 
