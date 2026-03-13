@@ -295,8 +295,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="constitution",
             display_name="Constitution",
-            principles_file="ai-interaction-principles-v2.4.1.md",
-            methods_file="ai-governance-methods-v3.10.3.md",
+            principles_file="ai-interaction-principles-v2.5.0.md",
+            methods_file="ai-governance-methods-v3.13.0.md",
             description=(
                 "Universal behavioral rules for AI interaction. Safety principles, "
                 "core behavioral guidelines, quality standards, operational rules, "
@@ -307,8 +307,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="ai-coding",
             display_name="AI Coding",
-            principles_file="ai-coding-domain-principles-v2.3.3.md",
-            methods_file="ai-coding-methods-v2.9.6.md",
+            principles_file="ai-coding-domain-principles-v2.3.4.md",
+            methods_file="ai-coding-methods-v2.20.0.md",
             description=(
                 "Software development with AI assistance. Code generation, debugging, "
                 "testing, refactoring, code review, pull requests, git workflows, "
@@ -319,8 +319,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="multi-agent",
             display_name="Multi-Agent",
-            principles_file="multi-agent-domain-principles-v2.1.1.md",
-            methods_file="multi-agent-methods-v2.12.1.md",
+            principles_file="multi-agent-domain-principles-v2.3.0.md",
+            methods_file="multi-agent-methods-v2.14.0.md",
             description=(
                 "Multi-agent AI systems and orchestration. Agent coordination, "
                 "task delegation, handoffs, swarm intelligence, ensemble methods, "
@@ -354,6 +354,26 @@ def _default_domains() -> list[DomainConfig]:
                 "operational observability, vision-guided chunking, and graceful degradation."
             ),
             priority=40,
+        ),
+        DomainConfig(
+            name="ui-ux",
+            display_name="UI/UX",
+            principles_file="ui-ux-domain-principles-v1.0.0.md",
+            methods_file="ui-ux-methods-v1.0.0.md",
+            description=(
+                "Interactive software interface design and development with AI "
+                "assistance. Visual hierarchy, layout composition, spacing, typography, "
+                "readability, design tokens, design system architecture, component "
+                "consistency, accessibility, WCAG 2.2 Level AA, ARIA authoring practices, "
+                "semantic HTML, keyboard navigation, focus management, screen reader "
+                "support, responsive design, breakpoints, mobile-first CSS, touch targets, "
+                "interaction design, loading states, skeleton screens, progress indicators, "
+                "error handling, form validation, microinteractions, platform conventions, "
+                "Apple Human Interface Guidelines, Material Design 3, cross-platform "
+                "adaptation, Figma MCP, design token extraction, and AI-generated UI "
+                "anti-patterns."
+            ),
+            priority=15,
         ),
     ]
 

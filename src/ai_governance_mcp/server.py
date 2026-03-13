@@ -963,6 +963,7 @@ async def list_tools() -> list[Tool]:
                             "multi-agent",
                             "storytelling",
                             "multimodal-rag",
+                            "ui-ux",
                         ],
                     },
                     "include_constitution": {
