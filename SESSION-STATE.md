@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None — AO-Series (multi-agent v2.2.0) complete
+- **Active Task:** Cross-Domain Project Reference Documents (Constitution v2.5.0, meta-methods v3.13.0, ai-coding v2.19.0)
 
 ## Quick Reference
 
@@ -21,12 +21,12 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.2.1** (watcher auto-start on boot fix) |
-| Content | **v2.4.1** (Constitution), **v3.12.0** (meta-methods), **v2.18.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.2.0** (multi-agent principles), **v2.13.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
+| Content | **v2.5.0** (Constitution), **v3.13.0** (meta-methods), **v2.19.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
 | Tests | **871 pass** (non-slow), 0 failures |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **6** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux) |
-| Index | **148 principles + 546 methods** (694 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
+| Index | **149 principles + 567 methods** (716 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check with recency window) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
@@ -54,6 +54,18 @@
    - PostToolUse hook concept for compressing verbose Bash output
    - Trigger: >20% context consumed by terminal output (not hitting today)
    - Fits "build our own" mode — external tools (RTK) fail §5.6.8 vetting
+
+3. **Multi-Agent Orchestrator-Absent Pattern Gaps** — v2.3.0 principles, v2.14.0 methods
+   - Catalyst: OpenAI Symphony framework analysis (queue-to-isolated-agent dispatch, no orchestrator)
+   - Aggregate Blast Radius rules in AO-1: escalation table for N concurrent agents at same level (N>3 → L(x+1)), mandatory review for concurrent L3
+   - Decentralized Dispatch Variant under Parallel Pattern (§3.3): 4 compensating controls for orchestrator-absent topologies, 2 anti-patterns
+   - Continuous Queue Consumption protocol in Task Ownership: post-task gates, aggregate review every N tasks, pool pause on failure
+   - Isolation Blindspot pitfall in Context Isolation (MA-A2): isolation prevents cross-agent awareness of overlapping changes
+   - Validated by contrarian-reviewer and coherence-auditor in planning phase
+   - Index rebuilt: 148 principles + 546 methods (694 total, no count change — additions within existing sections)
+   - 871 tests passing, 0 failures
+   - Retrieval verified: all 3 queries surface correct top-hit principles
+   - Files changed: `documents/multi-agent-domain-principles-v2.3.0.md` (renamed from v2.2.0), `documents/multi-agent-methods-v2.14.0.md` (renamed from v2.13.0), `documents/domains.json`, `SESSION-STATE.md`, `index/` (rebuilt)
 
 ### Previous Session (2026-03-11)
 

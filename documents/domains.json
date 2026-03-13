@@ -2,8 +2,8 @@
   "constitution": {
     "name": "constitution",
     "display_name": "Constitution",
-    "principles_file": "ai-interaction-principles-v2.4.1.md",
-    "methods_file": "ai-governance-methods-v3.12.0.md",
+    "principles_file": "ai-interaction-principles-v2.5.0.md",
+    "methods_file": "ai-governance-methods-v3.13.0.md",
     "description": "Universal behavioral rules for AI interaction. Safety principles, core behavioral guidelines, quality standards, operational rules, growth mindset, and meta-awareness. Applies to all AI interactions.",
     "priority": 0
   },
@@ -11,16 +11,16 @@
     "name": "ai-coding",
     "display_name": "AI Coding",
     "principles_file": "ai-coding-domain-principles-v2.3.4.md",
-    "methods_file": "ai-coding-methods-v2.18.0.md",
+    "methods_file": "ai-coding-methods-v2.19.0.md",
     "description": "Software development with AI assistance. Code generation, debugging, unit testing, pytest, integration tests, refactoring, code review, pull requests, git workflows, CI/CD pipelines, API design, software architecture, Python programming, project structure, file organization, project cleanup, repository hygiene, gitignore, build configuration, linting, code quality, Docker containerization, MCP server development, deployment patterns, configuration validation, application security review, authentication security, OAuth PKCE, JWT security, session management, HTTP security headers, CORS configuration, error handling, error sanitization, cryptography, language-specific security patterns, API rate limiting, GraphQL security, data protection, PII handling, container security, thread safety, concurrency patterns, lock ordering, deadlock prevention, asyncio safety, daemon threads, atomic file writes, crash-safe persistence, corrupt file recovery, circuit breaker, graceful degradation, resource bounding, deserialization safety, dead code detection, code duplication, structured logging, production hardening, zero trust, MCP server vetting, tool poisoning defense, credential rotation, audit logging, secret rotation, assume breach, database interaction patterns, stateful system safety, SQL injection prevention, parameterized queries, connection pooling, N+1 query prevention, cursor pagination, schema migration safety, upsert patterns, check-then-act prevention, Postgres best practices, Supabase, Row Level Security, PgBouncer, database-enforced access control, CodeRabbit, AI code review, automated PR review, post-change completion, completion sequence, task completion, AI security scanning, AI vulnerability scanner, agent-to-service integration, cross-system authority, dynamically-discovered tools, WebMCP, agent-facing API design, confused deputy, credential blast radius, compliance enforcement, hook enforcement, enforcement stack, and advisory vs structural enforcement.",
     "priority": 10
   },
   "multi-agent": {
     "name": "multi-agent",
     "display_name": "Multi-Agent",
-    "principles_file": "multi-agent-domain-principles-v2.2.0.md",
-    "methods_file": "multi-agent-methods-v2.13.0.md",
-    "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Artifact type selection (method vs subagent), agent authoring, system prompt best practices, tool scoping, agent validation, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, memory distillation, production observability, ReAct loop configuration, agent evaluation framework (4-layer), production safety guardrails, governance compliance, task management, task dependencies, task lifecycle, task ownership, advanced model considerations for prompting strategies, autonomous operation governance, blast radius classification, HITL removal criteria, graduated autonomy levels, compensating controls for autonomous agents, circuit breakers, content review gates, rate limiting, audit trails, platform ToS compliance, FTC disclosure, autonomous drift monitoring, feedback loop detection, cron-scheduled agents, always-on agent workflows, and external-facing agent actions.",
+    "principles_file": "multi-agent-domain-principles-v2.3.0.md",
+    "methods_file": "multi-agent-methods-v2.14.0.md",
+    "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Artifact type selection (method vs subagent), agent authoring, system prompt best practices, tool scoping, agent validation, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, memory distillation, production observability, ReAct loop configuration, agent evaluation framework (4-layer), production safety guardrails, governance compliance, task management, task dependencies, task lifecycle, task ownership, advanced model considerations for prompting strategies, autonomous operation governance, blast radius classification, HITL removal criteria, graduated autonomy levels, compensating controls for autonomous agents, circuit breakers, content review gates, rate limiting, audit trails, platform ToS compliance, FTC disclosure, autonomous drift monitoring, feedback loop detection, cron-scheduled agents, always-on agent workflows, external-facing agent actions, aggregate blast radius for concurrent agents, decentralized dispatch, orchestrator-absent topologies, queue-driven fan-out, continuous queue consumption, and isolation blindspot awareness.",
     "priority": 20
   },
   "storytelling": {

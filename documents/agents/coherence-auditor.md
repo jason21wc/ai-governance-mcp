@@ -36,6 +36,7 @@ What I audit:
 - Charter/public docs (README) against actual capabilities and versions
 - Structural docs (ARCHITECTURE) against code reality
 - Operational docs (CLAUDE.md) against current procedures
+- Reference docs (DATA-REFERENCE, PRODUCT-CONTEXT, STORY-BIBLE, etc.) against source state and freshness metadata
 - Cross-file consistency between any documents that reference each other
 
 What I delegate or decline:
@@ -102,6 +103,7 @@ For each document in scope, apply all 5 generic checks from Part 4.3.3:
 | **Structural docs** | Snapshot tables match code reality |
 | **Policy docs** | Implemented features list complete |
 | **Operational docs** | Commands runnable, tables current |
+| **Reference docs** | Freshness metadata present and current per §14.2, entries still accurate per source state, no stale entity relationships or outdated business rules |
 
 ### Step 4: Classify Drift Severity
 

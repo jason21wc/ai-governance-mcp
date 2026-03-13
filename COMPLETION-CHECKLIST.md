@@ -16,11 +16,12 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 1. `python -m ai_governance_mcp.extractor` — rebuild index
 2. `pytest tests/ -v` — full test suite
 3. Spot-check: `query_governance("new content topic")` → verify it surfaces
-4. Update SESSION-STATE.md (version, counts, summary)
-5. README check: if principle/method counts or domains changed → update README domain table
-6. Commit and push
-7. Verify CI green
-8. Docker check: if content significantly changed or code also changed → rebuild and push
+4. Reference doc staleness check: if project has reference docs (DATA-REFERENCE, PRODUCT-CONTEXT, etc.), verify `Last Verified` dates are current per §14.2
+5. Update SESSION-STATE.md (version, counts, summary)
+6. README check: if principle/method counts or domains changed → update README domain table
+7. Commit and push
+8. Verify CI green
+9. Docker check: if content significantly changed or code also changed → rebuild and push
 
 ## Documentation-only changes (memory files, README)
 
