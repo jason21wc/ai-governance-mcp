@@ -207,9 +207,9 @@ v2.1.3
 ### 1.1.3 Version in Filename
 
 Documents include version in filename for clarity:
-- `ai-coding-methods-v2.9.6.md`
-- `ai-interaction-principles-v2.4.1.md`
-- `ai-governance-methods-v3.10.3.md`
+- `ai-coding-methods-v2.20.0.md`
+- `ai-interaction-principles-v2.5.0.md`
+- `ai-governance-methods-v3.13.0.md`
 
 **Version semantics:**
 - `v0.x.x` — **Pre-release draft.** Content is in development, not yet registered in `domains.json`, and not indexed. Lives in `documents/` alongside published files (version number communicates maturity; no separate `drafts/` folder).

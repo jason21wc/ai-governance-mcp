@@ -419,19 +419,19 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 
 | Metric | Current | Threshold | Rationale |
 |--------|---------|-----------|-----------|
-| Method MRR | 0.698 | ≥ 0.60 | Primary method discovery signal |
-| Principle MRR | 0.604 | ≥ 0.50 | Primary principle discovery signal |
-| Method Recall@10 | 0.875 | ≥ 0.75 | Breadth of relevant results |
+| Method MRR | 0.694 | ≥ 0.60 | Primary method discovery signal |
+| Principle MRR | 0.688 | ≥ 0.50 | Primary principle discovery signal |
+| Method Recall@10 | 0.833 | ≥ 0.75 | Breadth of relevant results |
 | Principle Recall@10 | 0.875 | ≥ 0.85 | Breadth of relevant results |
 | Model Load Time | ~9s | ≤ 15s | User experience bound |
 
-**Context Engine** (baseline 2026-02-14, saved in `tests/benchmarks/ce_baseline_2026-02-14.json`):
+**Context Engine** (baseline 2026-03-13, saved in `tests/benchmarks/ce_baseline_2026-03-13.json`):
 
 | Metric | Current | Threshold | Rationale |
 |--------|---------|-----------|-----------|
-| CE MRR | 0.664 | ≥ 0.50 | Primary content discovery signal |
-| CE Recall@5 | 0.850 | ≥ 0.70 | Top-5 result coverage |
-| CE Recall@10 | 1.000 | ≥ 0.80 | Top-10 result coverage |
+| CE MRR | 0.58 | ≥ 0.50 | Primary content discovery signal |
+| CE Recall@5 | 0.75 | ≥ 0.70 | Top-5 result coverage |
+| CE Recall@10 | 0.95 | ≥ 0.80 | Top-10 result coverage |
 
 Note: CE benchmark v2.0 uses this project's codebase as corpus with 16 queries (expanded from 8 in v1.0). MRR varies naturally as code evolves (~0.62-0.75 range observed). Benchmark file: `tests/benchmarks/context_engine_quality.json`. Tree-sitter was available during benchmark (pytest spawns fresh process with current code). Weight tuned to 0.7 on 2026-02-14 (+6.7% MRR).
 

@@ -1931,7 +1931,7 @@
           "id": "meta-method-version-in-filename",
           "domain": "constitution",
           "title": "Version in Filename",
-          "content": "### 1.1.3 Version in Filename\n\nDocuments include version in filename for clarity:\n- `ai-coding-methods-v2.9.6.md`\n- `ai-interaction-principles-v2.4.1.md`\n- `ai-governance-methods-v3.10.3.md`\n\n**Version semantics:**\n- `v0.x.x` \u2014 **Pre-release draft.** Content is in development, not yet registered in `domains.json`, and not indexed. Lives in `documents/` alongside published files (version number communicates maturity; no separate `drafts/` folder).\n- `v1.0.0+` \u2014 **Published.** Registered in `domains.json`, indexed, and active.\n\nSee \u00a75.1.4 for the full document lifecycle.\n",
+          "content": "### 1.1.3 Version in Filename\n\nDocuments include version in filename for clarity:\n- `ai-coding-methods-v2.20.0.md`\n- `ai-interaction-principles-v2.5.0.md`\n- `ai-governance-methods-v3.13.0.md`\n\n**Version semantics:**\n- `v0.x.x` \u2014 **Pre-release draft.** Content is in development, not yet registered in `domains.json`, and not indexed. Lives in `documents/` alongside published files (version number communicates maturity; no separate `drafts/` folder).\n- `v1.0.0+` \u2014 **Published.** Registered in `domains.json`, indexed, and active.\n\nSee \u00a75.1.4 for the full document lifecycle.\n",
           "line_range": [
             207,
             219
@@ -7822,7 +7822,7 @@
           "embedding_id": 208
         }
       ],
-      "last_extracted": "2026-03-13T14:49:31.091185+00:00",
+      "last_extracted": "2026-03-13T17:04:10.537896+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -16247,7 +16247,7 @@
           "embedding_id": 431
         }
       ],
-      "last_extracted": "2026-03-13T14:49:31.099655+00:00",
+      "last_extracted": "2026-03-13T17:04:10.545698+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -19415,7 +19415,7 @@
           "embedding_id": 497
         }
       ],
-      "last_extracted": "2026-03-13T14:49:31.104250+00:00",
+      "last_extracted": "2026-03-13T17:04:10.550140+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -21841,7 +21841,7 @@
           "embedding_id": 558
         }
       ],
-      "last_extracted": "2026-03-13T14:49:31.106986+00:00",
+      "last_extracted": "2026-03-13T17:04:10.552599+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -25916,7 +25916,7 @@
           "embedding_id": 657
         }
       ],
-      "last_extracted": "2026-03-13T14:49:31.110741+00:00",
+      "last_extracted": "2026-03-13T17:04:10.555992+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -28854,7 +28854,7 @@
           "embedding_id": 720
         }
       ],
-      "last_extracted": "2026-03-13T14:49:31.114227+00:00",
+      "last_extracted": "2026-03-13T17:04:10.559063+00:00",
       "version": "1.0"
     }
   },
@@ -28914,7 +28914,7 @@
       "embedding_id": 5
     }
   ],
-  "created_at": "2026-03-13T14:49:39.376233+00:00",
+  "created_at": "2026-03-13T17:04:18.230292+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384
