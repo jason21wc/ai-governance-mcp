@@ -1,7 +1,7 @@
 # AI Governance MCP — Architecture
 
 **Version:** 1.8.0
-**Date:** 2026-02-09
+**Date:** 2026-03-13
 **Memory Type:** Structural (reference)
 
 > System design, component responsibilities, data flow.
@@ -113,21 +113,29 @@ ai-governance-mcp/
 │   ├── governance_audit.jsonl # Governance evaluation audit trail
 │   └── governance_reasoning.jsonl # Per-principle reasoning traces
 │
+├── scripts/                           # Utility scripts
+│
 ├── tests/
-│   ├── conftest.py                  # Shared fixtures
-│   ├── fixtures/                    # Test data files
-│   ├── test_models.py               # Model validation
-│   ├── test_config.py               # Config + env vars
-│   ├── test_server.py               # All MCP tools, formatting, governance
-│   ├── test_server_integration.py   # Dispatcher routing, end-to-end flows
-│   ├── test_extractor.py            # Parsing, embeddings, metadata
-│   ├── test_extractor_integration.py # Full pipeline, index persistence
-│   ├── test_retrieval.py            # Hybrid search, reranking, edge cases
-│   ├── test_retrieval_integration.py # Pipeline, utilities, performance
-│   ├── test_retrieval_quality.py    # MRR/Recall benchmarks
-│   ├── test_config_generator.py     # Platform config generation
-│   ├── test_validator.py            # Principle ID validation, fuzzy matching
-│   └── test_context_engine.py       # Full context engine coverage
+│   ├── conftest.py                    # Shared fixtures
+│   ├── fixtures/                      # Test data files
+│   ├── benchmarks/                    # Baseline metrics (MRR, Recall)
+│   ├── test_models.py                 # Model validation
+│   ├── test_config.py                 # Config + env vars
+│   ├── test_server.py                 # All MCP tools, formatting, governance
+│   ├── test_server_integration.py     # Dispatcher routing, end-to-end flows
+│   ├── test_extractor.py             # Parsing, embeddings, metadata
+│   ├── test_extractor_integration.py  # Full pipeline, index persistence
+│   ├── test_retrieval.py             # Hybrid search, reranking, edge cases
+│   ├── test_retrieval_integration.py  # Pipeline, utilities, performance
+│   ├── test_retrieval_quality.py     # MRR/Recall benchmarks
+│   ├── test_config_generator.py      # Platform config generation
+│   ├── test_validator.py             # Principle ID validation, fuzzy matching
+│   ├── test_hooks.py                 # Hook enforcement tests
+│   ├── test_analyze_compliance.py    # Compliance analysis tests
+│   ├── test_context_engine.py        # Full context engine coverage
+│   └── test_context_engine_quality.py # CE MRR/Recall benchmarks
+│
+├── .claude/hooks/                     # Pre/post tool use hooks
 │
 ├── pyproject.toml
 └── README.md
@@ -215,7 +223,10 @@ ai-governance-mcp/
 | **Retrieval** | test_retrieval, test_retrieval_integration | Hybrid search, reranking, pipeline |
 | **Quality** | test_retrieval_quality | MRR/Recall benchmarks |
 | **Config** | test_config_generator | Multi-platform MCP configurations |
+| **Hooks** | test_hooks | Hook enforcement validation |
+| **Compliance** | test_analyze_compliance | Compliance analysis |
 | **Context Engine** | test_context_engine | Full context engine coverage |
+| **CE Quality** | test_context_engine_quality | CE MRR/Recall benchmarks |
 
 ### Test Markers (pyproject.toml)
 
@@ -224,6 +235,7 @@ ai-governance-mcp/
 | `@pytest.mark.slow` | Tests requiring actual ML models (~30s each) |
 | `@pytest.mark.integration` | End-to-end pipeline tests |
 | `@pytest.mark.real_index` | Tests using production index data |
+| `@pytest.mark.model_eval` | Model evaluation benchmarks |
 
 ### Mocking Strategy
 
@@ -350,12 +362,12 @@ Current metrics (see `tests/benchmarks/` for latest baseline, model: `BAAI/bge-s
 
 | Metric | Value | Threshold | Status |
 |--------|-------|-----------|--------|
-| Method MRR | 0.698 | >= 0.60 | Pass |
-| Principle MRR | 0.604 | >= 0.50 | Pass |
-| Method Recall@10 | 0.875 | >= 0.75 | Pass |
+| Method MRR | 0.694 | >= 0.60 | Pass |
+| Principle MRR | 0.688 | >= 0.50 | Pass |
+| Method Recall@10 | 0.833 | >= 0.75 | Pass |
 | Principle Recall@10 | 0.875 | >= 0.85 | Pass |
 
-**Methodology:** 8 principle + 8 method benchmark queries covering all 5 domains. Each query has expected top results. MRR measures average reciprocal rank of first correct result. Recall@10 measures whether the correct result appears in top 10. Baselines stored in `tests/benchmarks/`.
+**Methodology:** 8 principle + 12 method benchmark queries covering all 6 domains. Each query has expected top results. MRR measures average reciprocal rank of first correct result. Recall@10 measures whether the correct result appears in top 10. Canonical source: `tests/benchmarks/`.
 
 ### Hybrid Search Validation
 
@@ -382,7 +394,7 @@ The 60% semantic / 40% keyword weight was determined empirically. Semantic searc
 | In-memory (NumPy) | Fast queries, simple | Full reload at startup | **Selected** for v1 |
 | Vector DB (e.g., ChromaDB) | Incremental updates, scalability | Additional dependency, deployment complexity | Deferred to roadmap |
 
-**Rationale:** With ~513 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
+**Rationale:** With ~720 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
 
 ---
 
