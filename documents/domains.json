@@ -34,8 +34,8 @@
   "multimodal-rag": {
     "name": "multimodal-rag",
     "display_name": "Multimodal RAG",
-    "principles_file": "multimodal-rag-domain-principles-v2.0.0.md",
-    "methods_file": "multimodal-rag-methods-v2.0.0.md",
+    "principles_file": "multimodal-rag-domain-principles-v2.1.0.md",
+    "methods_file": "multimodal-rag-methods-v2.1.1.md",
     "description": "AI agents that retrieve and present images inline with text responses. Image placement, reference document structuring, multimodal retrieval architecture, graceful degradation, readability optimization, procedural documentation, screenshot presentation, inline visuals, image selection criteria, fallback behaviors, audience-adaptive communication, hallucination prevention, cross-modal consistency verification, visual scene graph checking, source fidelity validation, citation and source attribution, spatial attribution for visual content, multimodal evaluation metrics, retrieval quality measurement, answer faithfulness assessment, knowledge base security, multimodal poisoning defense, cross-modal input validation, accessibility compliance, WCAG 2.1 AA, alt text for visual content, audio descriptions, data governance, access control, data lineage and provenance, vector index version management, operational observability, vision-guided chunking, cross-modal reference linking, agentic retrieval, adaptive retrieval strategy, query decomposition, retrieval sufficiency evaluation, multi-hop reasoning, cross-modal reasoning chain, late interaction retrieval, document-as-image retrieval, ColPali, ColQwen2, knowledge graph integration, graph RAG, dynamic modality routing, and agent-driven retrieval.",
     "priority": 40
   },

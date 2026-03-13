@@ -51,7 +51,7 @@ The following are NOT governed by this document:
 - **Text-only RAG retrieval mechanics** — Governance Methods Title 12 (RAG Optimization Techniques)
 - **Agent memory injection attacks** — Multi-agent methods (multi-agent-methods, Title 4)
 - **General application security** — AI-coding methods (ai-coding-methods, Title 5)
-- **Platform-specific API implementation** — Methods documents (multimodal-rag-methods-v2.0.0.md)
+- **Platform-specific API implementation** — Methods documents (multimodal-rag-methods-v2.1.1.md)
 
 If a concern falls outside this scope, refer to the Constitution or appropriate organizational policies.
 
@@ -1425,7 +1425,7 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **multimodal-rag-methods-v2.0.0.md** | v2.1.0 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
+| **multimodal-rag-methods-v2.1.1.md** | v2.1.0 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
 
 **Methods document includes:**
 - Title 1: Presentation Patterns (image placement workflows, selection algorithms, accessibility checklist)

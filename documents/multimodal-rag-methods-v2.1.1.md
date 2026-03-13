@@ -2,7 +2,7 @@
 ## Operational Procedures for Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
-> This methods document provides HOW-TO procedures for implementing multimodal RAG domain principles. It is subordinate to the domain principles document (multimodal-rag-domain-principles-v2.0.0.md), which establishes WHAT governance applies.
+> This methods document provides HOW-TO procedures for implementing multimodal RAG domain principles. It is subordinate to the domain principles document (multimodal-rag-domain-principles-v2.1.0.md), which establishes WHAT governance applies.
 
 ---
 
