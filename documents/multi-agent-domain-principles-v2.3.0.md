@@ -1,4 +1,4 @@
-# Multi-Agent Domain Principles Framework v2.2.0
+# Multi-Agent Domain Principles Framework v2.3.0
 ## Federal Statutes for Multi-Agent AI System Orchestration
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -444,7 +444,7 @@ Context pollution—where information from one domain inappropriately influences
 
 **Domain Application (Binding Rule)**
 
-Each specialized agent must operate in a completely independent context window with zero unintended information cross-contamination between agents. Context flows through the orchestrator, not directly between execution agents. Each agent receives only context relevant to its cognitive function.
+Each specialized agent must operate in a completely independent context window with zero unintended information cross-contamination between agents. In orchestrator-present topologies, context flows through the orchestrator, not directly between execution agents. In orchestrator-absent topologies (decentralized dispatch, queue-driven fan-out), workspace isolation (separate branches/worktrees) substitutes for orchestrator-mediated context flow, with compensating controls per AO1 and methods §3.3. Each agent receives only context relevant to its cognitive function.
 
 **Constitutional Basis**
 
@@ -484,6 +484,7 @@ Each specialized agent must operate in a completely independent context window w
 - **Context Dumping:** Passing full conversation history to sub-agents
 - **Shared Memory Anti-Pattern:** Using shared memory stores without access controls
 - **Result Bloat:** Passing verbose intermediate results instead of synthesized summaries
+- **The Isolation Blind Spot:** Isolation prevents context pollution but also prevents necessary cross-agent awareness of overlapping changes — when concurrent agents work on semantically related tasks, isolation becomes the failure mode rather than the safeguard. Compensate with pre-dispatch dependency analysis and post-hoc aggregate review (see Decentralized Dispatch Variant in methods §3.3).
 
 **Configurable Defaults**
 
@@ -1296,6 +1297,18 @@ Every agent action must be classified by blast radius before execution:
 
 Agents must declare their maximum blast radius level in their agent definition. Orchestrators must verify that an agent's action does not exceed its declared level.
 
+**Aggregate Blast Radius (Concurrent Autonomous Agents)**
+
+When multiple agents execute concurrently, the effective blast radius is the *compound* of individual actions, not the maximum individual level. Coordinated failure across independent agents produces damage that individual-level oversight cannot detect.
+
+| Concurrent Agent Count at Same Level | Effective Blast Radius | Required Action |
+|--------------------------------------|------------------------|-----------------|
+| N ≤ 3 at same level | Individual level applies | Standard oversight per level |
+| N > 3 at same level | Treat as L(x+1) — one level higher | Pre-dispatch aggregate review |
+| Any concurrent L3 actions | Mandatory aggregate review | Full dispatch set review before any agent begins |
+
+Pre-dispatch aggregate review checkpoint: Before dispatching concurrent agents whose combined blast radius triggers level escalation, review the full task set for compound risk. This is especially critical in orchestrator-absent topologies where no runtime mediator detects emergent conflicts (see Decentralized Dispatch Variant in methods §3.3).
+
 **Constitutional Basis**
 
 - Technical Focus with Clear Escalation Boundaries: Consequential actions require escalation
@@ -1715,6 +1728,7 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.3.0 | 2026-03-12 | **MINOR: Orchestrator-Absent Pattern Gaps.** (1) Aggregate Blast Radius rules added to AO1: escalation table for N concurrent agents at same level (N≤3 individual level, N>3 treat as L(x+1), any concurrent L3 mandatory aggregate review), pre-dispatch aggregate review checkpoint. (2) New pitfall "The Isolation Blind Spot" added to Context Isolation Architecture (MA-A2): isolation prevents cross-agent awareness of overlapping changes in concurrent execution. (3) Context Isolation binding rule updated with orchestrator-absent topology qualifier. Catalyst: OpenAI Symphony framework analysis (queue-driven dispatch without orchestrator). |
 | v2.2.0 | 2026-03-09 | **MINOR: Autonomous Operation Governance.** (1) New AO-Series: 4 principles — AO1 (Action Blast Radius Classification), AO2 (HITL Removal Criteria / Graduated Autonomy), AO3 (Compensating Controls for Autonomous Operation), AO4 (Autonomous Drift Monitoring). (2) New failure modes: MA-AO1 through MA-AO4 addressing external-facing autonomous agent actions, premature HITL removal, compounding drift, and platform/legal liability. (3) Updated Framework Overview from "Four" to "Five" principle series. (4) New glossary entries: Autonomy Level, Blast Radius, Circuit Breaker, Compensating Controls. (5) Updated crosswalk table. Evidence basis: CNBC 2026, Help Net Security 2026, Strata 2026, Singapore IMDA Framework 2026, UC Berkeley Risk-Management Profile 2026, HackerNoon 2026, Kore.ai 2026, SafePaaS 2026. Catalyst: Analysis of OpenClaw autonomous agent architectures running businesses without HITL. |
 | v2.1.1 | 2026-02-10 | PATCH: Coherence audit remediation. Removed erroneous "(especially MA-Series)" parenthetical from peer domain relationship note — MA-Series are domain failure mode codes, not constitutional principles. |
 | v2.1.0 | 2026-02-08 | MINOR: Coherence audit remediation. (1) Expanded failure mode taxonomy from 13 to 19 codes: added MA-C4, MA-R5, MA-R6, MA-R7, MA-Q4, MA-Q5. (2) Fixed 3 code collisions: MA-R4 body→MA-R7, MA-Q3 body→MA-Q5, MA-C1 body→MA-C4 (taxonomy definitions preserved as authoritative). (3) Fixed R-Series taxonomy category "Reliability"→"Coordination" (matching section headings). (4) Corrected 9 phantom constitutional principle names across 17 sites: "Fail-Fast Detection"→"Fail-Fast Validation", "Boundaries of AI Autonomy"→"Technical Focus with Clear Escalation Boundaries", "Human-AI Collaboration Boundaries"→"Hybrid Interaction & RACI", "DRY"→"Role Specialization & Topology", "Context Optimization"→"Minimal Relevant Context", "Inversion of Control"→"Goal-First Dependency Mapping", "Documentation"→"Transparent Reasoning and Traceability". (5) Fixed "Failure Recovery"→"Failure Recovery & Resilience" (2 sites). (6) Fixed hierarchy violation: replaced domain principle "Cognitive Function Specialization" with constitutional "Role Specialization & Topology" in Validation Independence constitutional basis. |

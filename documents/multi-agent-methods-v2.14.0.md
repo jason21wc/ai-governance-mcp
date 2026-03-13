@@ -1,7 +1,7 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.13.0
+**Version:** 2.14.0
 **Status:** Active
 **Effective Date:** 2026-03-09
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -1557,6 +1557,32 @@ Before selecting Sequential/Parallel/Hierarchical patterns, determine whether th
 - Individual agent failures don't block others
 - NEVER parallelize writes to same resource
 
+**Decentralized Dispatch Variant (Orchestrator-Absent):**
+
+**Applies To:** **decentralized dispatch**, **queue-driven fan-out**, **orchestrator-absent** topologies, **concurrent agent pool** systems
+
+```
+[Queue/Scheduler] → Agent A → output (branch A)
+                  → Agent B → output (branch B)
+                  → Agent C → output (branch C)
+                  (no synthesize step — outputs reviewed independently or in aggregate)
+```
+
+**Use when:** Tasks are truly independent tickets, each agent operates in an isolated workspace (separate branch/worktree), and CI/PR review serves as the quality gate. The queue/scheduler handles pure dispatch without runtime conflict detection or synthesis.
+
+**Required Compensating Controls** (no orchestrator to mediate):
+
+1. **Pre-dispatch dependency analysis:** Before dispatching a batch, analyze the task set for semantic overlap, shared file targets, or implicit ordering dependencies. Tasks with detected dependencies must be serialized or assigned to the same agent.
+2. **VCS-level conflict detection:** Each agent works on a separate branch. Merge conflicts serve as a structural signal of undetected dependencies.
+3. **Post-hoc aggregate review:** A reviewer (human or agent) must see the *combined diff* of all concurrent agent outputs, not just individual PRs. Individual review misses emergent conflicts.
+4. **Aggregate blast radius assessment:** Apply AO1 aggregate blast radius rules to the full dispatch set before any agent begins work. N > 3 concurrent agents at the same blast radius level triggers mandatory pre-dispatch review.
+
+**Anti-patterns:**
+- **Dispatch Without Analysis:** Sending tasks to agents without checking for dependency overlap — isolation prevents agents from detecting conflicts that a dependency scan would catch (see "The Isolation Blind Spot" pitfall under Context Isolation Architecture, MA-A2)
+- **Individual-Only Review:** Reviewing each agent's PR in isolation without seeing the combined impact across all concurrent outputs
+
+**Cross-references:** Context Isolation Architecture (MA-A2), Read-Write Division (§3.3), Action Blast Radius Classification (AO1)
+
 **Hierarchical Pattern:**
 
 ```
@@ -1878,6 +1904,16 @@ When multiple agents share a task backlog:
 | Atomic progress | Each agent has at most ONE task `in_progress` at a time |
 | Release on block | If blocked, release ownership and create/update blocker task |
 | Complete or escalate | Never abandon owned task — complete it or escalate to orchestrator |
+
+**Continuous Queue Consumption:**
+
+When agents operate in a **continuous queue consumption** pattern (pulling tasks from a shared queue without orchestrator mediation):
+
+1. **Post-task completion gate:** After completing each task, the agent must verify its output (tests pass, lint clean, PR created) before claiming the next task from the queue. No speculative claiming.
+2. **Aggregate review checkpoint:** Every N tasks (configurable, default: 5), pause queue consumption for aggregate review — a reviewer examines the combined output of the last N tasks for emergent conflicts, drift, or compounding errors.
+3. **Pool pause on failure:** If any agent in the pool triggers a CI failure or review rejection, ALL agents in the pool pause consumption until the failure is resolved. This prevents compounding drift where subsequent tasks build on a broken baseline.
+4. **Blast radius reassessment:** At each aggregate review checkpoint, reassess the compound blast radius of the accumulated task set per AO1 aggregate rules. Escalate if the cumulative output has crossed a blast radius threshold.
+5. **Escalation target:** In orchestrator-absent patterns, agents cannot escalate to an orchestrator. Escalate instead to the queue coordinator, designated human reviewer, or trigger a pool pause per rule 3 above.
 
 **Task Reassignment on Session Resume:**
 
@@ -4279,6 +4315,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.14.0 | 2026-03-12 | **MINOR: Orchestrator-Absent Pattern Gaps.** (1) Decentralized Dispatch Variant added under Parallel Pattern (§3.3): orchestrator-absent topology with 4 required compensating controls (pre-dispatch dependency analysis, VCS-level conflict detection, post-hoc aggregate review, aggregate blast radius assessment), 2 anti-patterns (Dispatch Without Analysis, Individual-Only Review). (2) Continuous Queue Consumption protocol added to Task Ownership (§3.5): post-task completion gate, aggregate review checkpoint every N tasks, pool pause on CI/review failure, blast radius reassessment at checkpoints, orchestrator-absent escalation target. Implements AO1 aggregate blast radius rules from v2.3.0 domain principles. Catalyst: OpenAI Symphony framework analysis. |
 | v2.13.0 | 2026-03-09 | **MINOR: Autonomous Operation Governance.** New TITLE 6 with 4 sections: §6.1 Action Blast Radius Classification (L0-L3 decision tree, agent definition requirement), §6.2 Autonomy Level Assessment (AL-0 through AL-3 graduated progression, advancement prerequisites), §6.3 Compensating Controls Checklist (circuit breakers, content review gates, rate limiting, audit trail, platform compliance — all 5 required for AL-2+), §6.4 Drift Monitoring Procedures (baseline establishment, automated detection, feedback loop dampening, intent drift assessment). Updated governance hierarchy box (14→18 principles). Added 6 situation index entries. Implements AO1-AO4 principles from v2.2.0 domain principles. |
 | v2.12.3 | 2026-02-18 | PATCH: Added §4.6.3 Hook-Based Enforcement (Client-Side Deterministic). Documents hook-based governance enforcement patterns: UserPromptSubmit reminder injection, PreToolUse transcript verification, soft vs hard enforcement modes, session-level verification strategy. Updated §4.6.2 deployment decision matrix to include hooks. Added Client-Side Hooks and MCP Gateway/Proxy rows to Appendix F Enforcement Levels table. |
 | v2.12.2 | 2026-02-11 | PATCH: Added circuit breaker state machine to §4.4 Fault Tolerance Procedures. State diagram (CLOSED→OPEN→HALF_OPEN), behavior table, integration with existing 3-failure retry protocol. Cross-reference to ai-coding-methods §5.10.5. |
