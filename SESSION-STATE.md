@@ -33,9 +33,19 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-12)
+## Session Summary (2026-03-13)
 
 ### Completed This Session
+
+1. **Coherence Review and Repair** — 5-batch fix for ~25 audit findings
+   - Batch 1: Added missing ui-ux domain to config.py fallback, server.py enum, test assertion; updated stale version refs in fallback
+   - Batch 2: CLAUDE.md framework version v2.9.6→v2.20.0; meta-methods §1.1.3 filename examples; PROJECT-MEMORY metrics to baseline_2026-03-13; SESSION-STATE hardcoded values→pointers
+   - Batch 3: Archived 4 superseded docs; renamed multimodal-rag files v2.0.0→v2.1.0/v2.1.1; updated all cross-references
+   - Batch 4: ARCHITECTURE.md date, file tree, test table, markers, benchmarks, item count; SPECIFICATION.md domain count+table
+   - Batch 5: README.md footer; tiers.json ref disambiguation; COMPLETION-CHECKLIST.md domain-change propagation checklist
+   - Root cause: incomplete propagation when ui-ux domain was added — COMPLETION-CHECKLIST now prevents recurrence
+
+### Previous Session (2026-03-12)
 
 1. **§3.1.4 Tool Content Model** — ai-coding methods v2.18.0
    - New `####` subsection codifying the framework's implicit three-mode tool inclusion pattern

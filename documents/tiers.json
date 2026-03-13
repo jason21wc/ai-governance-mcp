@@ -18,27 +18,27 @@
     ],
     "methods": [
       {
-        "ref": "§7.8",
+        "ref": "meta-methods §7.8",
         "id": null,
         "check": "Proportional application: Is your rigor matched to the stakes of this task?"
       },
       {
-        "ref": "§7.4",
+        "ref": "meta-methods §7.4",
         "id": null,
         "check": "Citation requirements: Are you citing principle IDs when they influence your decisions?"
       },
       {
-        "ref": "§7.6",
+        "ref": "meta-methods §7.6",
         "id": null,
         "check": "Drift prevention: Has the conversation exceeded 10+ exchanges or shifted topics since last governance check?"
       },
       {
-        "ref": "§5.1.6",
+        "ref": "ai-coding §5.1.6",
         "id": null,
-        "check": "Post-action: Did you verify and close out the previous task before starting this one? (§7.5 Post-Action Verification)"
+        "check": "Post-action: Did you verify and close out the previous task before starting this one? (meta-methods §7.5 Post-Action Verification)"
       },
       {
-        "ref": "§5.2",
+        "ref": "ai-coding §5.2",
         "id": "coding-quality-testing-integration",
         "check": "Testing: Have you included or updated tests for this change? (coding-quality-testing-integration)"
       }

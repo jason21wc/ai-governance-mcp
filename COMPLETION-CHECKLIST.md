@@ -23,6 +23,19 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 8. Verify CI green
 9. Docker check: if content significantly changed or code also changed → rebuild and push
 
+## Domain changes (adding/removing/renaming domains)
+
+1. Update `documents/domains.json`
+2. Update `src/ai_governance_mcp/config.py` `_default_domains()` fallback
+3. Update `src/ai_governance_mcp/server.py` tool schema enums (query_governance, get_domain_summary)
+4. Update `tests/test_config.py` domain count assertion and name list
+5. Update `SPECIFICATION.md` domain count and table
+6. Update `ARCHITECTURE.md` domain count references and benchmark methodology
+7. Update `README.md` footer domain list
+8. `python -m ai_governance_mcp.extractor` — rebuild index
+9. `pytest tests/ -v` — full test suite
+10. Update SESSION-STATE.md domain count
+
 ## Documentation-only changes (memory files, README)
 
 1. Update SESSION-STATE.md if applicable
