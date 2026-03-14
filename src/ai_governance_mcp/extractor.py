@@ -999,6 +999,18 @@ class DocumentExtractor:
         logger.info(f"Extracted {len(principles)} principles from {domain_config.name}")
         return principles
 
+    # Domain name → principle ID prefix mapping.
+    # Used by _get_domain_prefix() to generate stable principle IDs.
+    # Promoted from local dict for direct testability (TestDomainConsistency).
+    DOMAIN_PREFIXES: dict[str, str] = {
+        "constitution": "meta",
+        "ai-coding": "coding",
+        "multi-agent": "multi",
+        "storytelling": "stor",
+        "multimodal-rag": "mrag",
+        "ui-ux": "uiux",
+    }
+
     # Category → series code mapping, keyed by (domain, category).
     # Critical: only ("constitution", "safety") → "S" triggers S-Series veto.
     # Restores apply_hierarchy() sorting and series_code == "S" detection
@@ -1346,15 +1358,7 @@ class DocumentExtractor:
 
     def _get_domain_prefix(self, domain_name: str) -> str:
         """Get the prefix for principle IDs based on domain."""
-        prefixes = {
-            "constitution": "meta",
-            "ai-coding": "coding",
-            "multi-agent": "multi",
-            "storytelling": "stor",
-            "multimodal-rag": "mrag",
-            "ui-ux": "uiux",
-        }
-        return prefixes.get(domain_name, domain_name[:4])
+        return self.DOMAIN_PREFIXES.get(domain_name, domain_name[:4])
 
     def _save_index(self, index: GlobalIndex) -> None:
         """Save global index to JSON file atomically (tmp + fsync + rename).

@@ -25,16 +25,44 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 
 ## Domain changes (adding/removing/renaming domains)
 
-1. Update `documents/domains.json`
-2. Update `src/ai_governance_mcp/config.py` `_default_domains()` fallback
-3. Update `src/ai_governance_mcp/server.py` tool schema enums (query_governance, get_domain_summary)
-4. Update `tests/test_config.py` domain count assertion and name list
-5. Update `SPECIFICATION.md` domain count and table
-6. Update `ARCHITECTURE.md` domain count references and benchmark methodology
-7. Update `README.md` footer domain list
-8. `python -m ai_governance_mcp.extractor` — rebuild index
-9. `pytest tests/ -v` — full test suite
-10. Update SESSION-STATE.md domain count
+> **Renames change principle ID prefixes** — this is a breaking change.
+> Downstream consumers keyed on IDs (tiers.json, benchmarks, feedback logs) will break.
+> Prefer add-then-deprecate over in-place rename.
+> If rename is necessary, update tiers.json, benchmarks, and feedback logs to use the new prefix before deploying.
+
+> **`TestDomainConsistency` catches source-of-truth and enum/prefix consistency (items 1-5) at CI time.**
+> Items 6-20 require manual verification.
+
+**Source of truth:**
+1. Update `documents/domains.json` (name, display_name, files, description, priority)
+
+**Code surfaces:**
+2. `src/ai_governance_mcp/config.py` — `_default_domains()` fallback
+3. `src/ai_governance_mcp/server.py` — tool schema enums (`query_governance` + `get_domain_summary`)
+4. `src/ai_governance_mcp/server.py` — handler-level `valid_domains` sets (separate from enums)
+5. `src/ai_governance_mcp/extractor.py` — `DOMAIN_PREFIXES` class constant
+6. `src/ai_governance_mcp/extractor.py` — `CATEGORY_SERIES_MAP` entries for new domain's categories
+7. `src/ai_governance_mcp/extractor.py` — `is_series_header` keyword list in `_extract_principles_from_domain()` (if domain uses series headers)
+8. `src/ai_governance_mcp/extractor.py` — `category_mapping` dict in `_get_category_from_section()` (if domain has category keywords)
+
+**Test surfaces:**
+9. `tests/test_config.py` — `TestDefaultDomains` count and name list
+10. `tests/test_extractor.py` — `TestGetDomainPrefix` for new domain
+11. `tests/test_extractor.py` — `TestCategorySeriesMap` assertions for new domain
+12. `tests/test_server.py` — domain integration test class (follow `TestUiUxDomainIntegration`)
+13. `tests/benchmarks/retrieval_quality.json` — benchmark queries for new domain
+
+**Documentation:**
+14. `SPECIFICATION.md` — domain count and table
+15. `ARCHITECTURE.md` — domain count references and benchmark methodology
+16. `README.md` — footer domain list
+17. `PROJECT-MEMORY.md` — domain decisions section
+
+**Verification:**
+18. `python -m ai_governance_mcp.extractor` — rebuild index
+19. Spot-check: verify new domain principles have correct `series_code` values (not null) in index
+20. `pytest tests/ -v` — full test suite (includes `TestDomainConsistency`)
+21. Update `SESSION-STATE.md` domain count
 
 ## Documentation-only changes (memory files, README)
 

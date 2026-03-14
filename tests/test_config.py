@@ -3,8 +3,12 @@
 Per specification v4: Validates settings and configuration loading.
 """
 
+import json
 from pathlib import Path
 import sys
+from unittest.mock import Mock, patch
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -260,3 +264,195 @@ class TestEnsureDirectories:
         assert settings.documents_path.exists()
         assert settings.index_path.exists()
         assert settings.logs_path.exists()
+
+
+class TestDomainConsistency:
+    """Automated domain consistency checks across all code surfaces.
+
+    Uses domains.json as the single source of truth — no domain names
+    hardcoded in tests. Catches incomplete domain propagation at CI time.
+    """
+
+    @staticmethod
+    def _load_registry() -> dict | None:
+        """Load domains.json registry, return None if missing."""
+        domains_path = Path(__file__).parent.parent / "documents" / "domains.json"
+        if not domains_path.exists():
+            return None
+        with open(domains_path) as f:
+            return json.load(f)
+
+    def test_registry_matches_default_domains_names(self):
+        """domains.json keys should match _default_domains() names bidirectionally."""
+        registry = self._load_registry()
+        if registry is None:
+            pytest.skip("domains.json not found")
+
+        registry_names = set(registry.keys())
+        default_names = {d.name for d in _default_domains()}
+
+        assert registry_names == default_names, (
+            f"Mismatch between domains.json and _default_domains().\n"
+            f"  In registry only: {registry_names - default_names}\n"
+            f"  In defaults only: {default_names - registry_names}"
+        )
+
+    async def test_registry_matches_server_enums(self):
+        """Both tool schema enum lists should contain all domains.json keys."""
+        registry = self._load_registry()
+        if registry is None:
+            pytest.skip("domains.json not found")
+
+        registry_names = set(registry.keys())
+
+        from ai_governance_mcp.server import list_tools
+
+        tools = await list_tools()
+
+        enum_sets = {}
+        for tool in tools:
+            if tool.name in ("query_governance", "get_domain_summary"):
+                schema = tool.inputSchema
+                props = schema.get("properties", {})
+                domain_prop = props.get("domain", {})
+                enum_list = domain_prop.get("enum", [])
+                if enum_list:
+                    enum_sets[tool.name] = set(enum_list)
+
+        assert "query_governance" in enum_sets, "query_governance missing domain enum"
+        assert "get_domain_summary" in enum_sets, (
+            "get_domain_summary missing domain enum"
+        )
+
+        for tool_name, enum_set in enum_sets.items():
+            assert enum_set == registry_names, (
+                f"{tool_name} enum mismatch with domains.json.\n"
+                f"  In enum only: {enum_set - registry_names}\n"
+                f"  In registry only: {registry_names - enum_set}"
+            )
+
+    async def test_registry_matches_handler_valid_domains(self):
+        """Handler valid_domains sets should match domains.json (behavioral test).
+
+        Sends an invalid domain to each handler and parses the accepted set from
+        the error message format: "Valid: ai-coding, constitution, ..."
+        """
+        registry = self._load_registry()
+        if registry is None:
+            pytest.skip("domains.json not found")
+
+        registry_names = set(registry.keys())
+
+        from ai_governance_mcp.server import (
+            _handle_query_governance,
+            _handle_get_domain_summary,
+        )
+
+        async def _extract_valid_set(handler, args):
+            mock_engine = Mock()
+            result = await handler(mock_engine, args)
+            text = result[0].text
+            if "Valid:" in text:
+                valid_str = text.split("Valid:")[1].strip()
+                return {name.strip(".,; ") for name in valid_str.split(", ")}
+            return None
+
+        # query_governance handler
+        qg_set = await _extract_valid_set(
+            _handle_query_governance,
+            {"query": "test", "domain": "__invalid__"},
+        )
+        assert qg_set is not None, (
+            "Could not extract valid_domains from query_governance"
+        )
+        assert qg_set == registry_names, (
+            f"query_governance handler valid_domains mismatch.\n"
+            f"  In handler only: {qg_set - registry_names}\n"
+            f"  In registry only: {registry_names - qg_set}"
+        )
+
+        # get_domain_summary handler
+        gds_set = await _extract_valid_set(
+            _handle_get_domain_summary,
+            {"domain": "__invalid__"},
+        )
+        assert gds_set is not None, (
+            "Could not extract valid_domains from get_domain_summary"
+        )
+        assert gds_set == registry_names, (
+            f"get_domain_summary handler valid_domains mismatch.\n"
+            f"  In handler only: {gds_set - registry_names}\n"
+            f"  In registry only: {registry_names - gds_set}"
+        )
+
+    def test_registry_matches_extractor_prefix_keys(self):
+        """DOMAIN_PREFIXES keys should match domains.json keys exactly."""
+        registry = self._load_registry()
+        if registry is None:
+            pytest.skip("domains.json not found")
+
+        registry_names = set(registry.keys())
+
+        # Mock is for import-time SentenceTransformer side effect, not DOMAIN_PREFIXES
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            prefix_keys = set(DocumentExtractor.DOMAIN_PREFIXES.keys())
+
+        assert prefix_keys == registry_names, (
+            f"DOMAIN_PREFIXES keys mismatch with domains.json.\n"
+            f"  In prefixes only: {prefix_keys - registry_names}\n"
+            f"  In registry only: {registry_names - prefix_keys}"
+        )
+
+    def test_domain_files_exist_on_disk(self):
+        """All principles_file and methods_file from domains.json should exist."""
+        registry = self._load_registry()
+        if registry is None:
+            pytest.skip("domains.json not found")
+
+        documents_dir = Path(__file__).parent.parent / "documents"
+        missing = []
+
+        for domain_name, domain_data in registry.items():
+            for file_key in ("principles_file", "methods_file"):
+                filename = domain_data.get(file_key)
+                if filename and not (documents_dir / filename).exists():
+                    missing.append(f"{domain_name}.{file_key}: {filename}")
+
+        assert not missing, "Domain files missing from documents/:\n  " + "\n  ".join(
+            missing
+        )
+
+    def test_default_domains_files_match_registry(self):
+        """_default_domains() file paths should match domains.json exactly."""
+        registry = self._load_registry()
+        if registry is None:
+            pytest.skip("domains.json not found")
+
+        defaults = {d.name: d for d in _default_domains()}
+        mismatches = []
+
+        for domain_name, reg_data in registry.items():
+            if domain_name not in defaults:
+                continue  # Caught by test_registry_matches_default_domains_names
+            default = defaults[domain_name]
+            if default.principles_file != reg_data.get("principles_file"):
+                mismatches.append(
+                    f"{domain_name} principles_file: "
+                    f"default={default.principles_file!r} vs "
+                    f"registry={reg_data.get('principles_file')!r}"
+                )
+            if hasattr(
+                default, "methods_file"
+            ) and default.methods_file != reg_data.get("methods_file"):
+                mismatches.append(
+                    f"{domain_name} methods_file: "
+                    f"default={default.methods_file!r} vs "
+                    f"registry={reg_data.get('methods_file')!r}"
+                )
+
+        assert not mismatches, (
+            "File path mismatches between _default_domains() and domains.json:\n  "
+            + "\n  ".join(mismatches)
+        )

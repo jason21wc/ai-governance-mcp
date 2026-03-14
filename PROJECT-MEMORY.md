@@ -553,7 +553,7 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 | 15 | MCP caches index at startup | Resolved — auto-reload detects index changes via mtime check on each query |
 | 16 | Version bumps need multiple files | `__init__.py`, `pyproject.toml`, `SBOM.md`, `SECURITY.md` must stay in sync |
 | 17 | Operational changes need source docs | Skip-list/trigger changes must propagate to governance source documents, not just instruction surfaces |
-| 18 | `domain_name[:4]` generates implicit prefixes | Codify new domain prefixes in explicit maps (extractor, retrieval, server) |
+| 18 | `domain_name[:4]` generates implicit prefixes | Resolved — `DOMAIN_PREFIXES` class constant in extractor.py; `TestDomainConsistency` enforces at CI (2026-03-13) |
 | 19 | `huggingface-hub>=1.0` drops `requests` | `sentence-transformers` still imports it. Explicit `requests>=2.28.0` in pyproject.toml. |
 | 20 | Float32 score precision | Fused scores can exceed 1.0 by ~1e-7. Clamp with `min(score, 1.0)` before Pydantic validation. |
 | 21 | Context engine RLock, not Lock | query_project acquires lock for read phase. RLock needed because get_or_create_index may be called inside lock. |
