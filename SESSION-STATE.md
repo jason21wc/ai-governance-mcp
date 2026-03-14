@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** Coherence Review and Repair
+- **Active Task:** None (ready for next task)
 
 ## Quick Reference
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.2.1** (watcher auto-start on boot fix) |
-| Content | **v2.5.0** (Constitution), **v3.13.0** (meta-methods), **v2.20.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
+| Content | **v2.5.0** (Constitution), **v3.13.0** (meta-methods), **v2.21.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -37,7 +37,14 @@
 
 ### Completed This Session
 
-1. **Domain Consistency Enforcement** — automated test + expanded checklist
+1. **§5.13.2 Browser Tooling Guidance Expansion** — ai-coding methods v2.20.0→v2.21.0
+   - Expanded 2-line Playwright/Chrome DevTools references into comprehensive subsection
+   - Added: capability flags table (8 categories), token cost hierarchy, install commands (Claude Code + Desktop), debugging workflow, headed/headless, session lifecycle, when-not-to-use, security notes
+   - Fixed: `@latest`→pinned v0.0.68, "MIT"→Apache-2.0 (verified via npm), "25+ tools"→per-category language
+   - Version bump v2.20.0→v2.21.0 with file rename + 5 reference updates
+   - 877 tests passing, index rebuilt, semantic retrieval verified
+
+2. **Domain Consistency Enforcement** — automated test + expanded checklist
    - `TestDomainConsistency` (6 tests): validates domains.json matches config.py, server.py enums, handler valid_domains, extractor DOMAIN_PREFIXES, disk files, file paths
    - Promoted extractor `_get_domain_prefix()` local dict to `DOMAIN_PREFIXES` class constant for direct testability
    - COMPLETION-CHECKLIST.md: expanded domain changes section from 10→21 items (source of truth, code, test, doc, verification)

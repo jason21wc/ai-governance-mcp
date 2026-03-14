@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.20.0
+**Version:** 2.21.0
 **Status:** Active
 **Effective Date:** 2026-03-13
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -3897,8 +3897,84 @@ Before asking the user for information, AI must attempt to gather it programmati
 
 **Recommended browser tooling:**
 
-- **Playwright MCP** (Microsoft, MIT license): `claude mcp add playwright -- npx @playwright/mcp@latest` — 25+ tools including navigate, screenshot, accessibility snapshot (structured DOM), click, type, console log capture, network monitoring. Works with localhost. Accessibility snapshot gives structured DOM without needing vision — more reliable than screenshots for state verification.
-- **Chrome DevTools MCP** (Google, open-source): `claude mcp add chrome-devtools -- npx chrome-devtools-mcp@latest` — attaches to existing Chrome session for performance profiling, network inspection, console messages. Use when debugging in user's specific browser state vs. clean Playwright session.
+**Playwright MCP** (Microsoft, `@playwright/mcp`, Apache-2.0)
+
+Dozens of tools across 8 capability categories (exact count varies by version). Use `--caps` flag to load only what you need — each loaded tool adds schema overhead to every request.
+
+| Capability | Tools | When to Include |
+|---|---|---|
+| `core` | Navigate, click, fill, snapshot, screenshot, hover, select, drag | Always — essential browser interaction |
+| `tabs` | Tab management (new, select, close, list) | Multi-page workflows |
+| `pdf` | Save page as PDF | Documentation capture |
+| `testing` | Generate Playwright test code, expect assertions | Writing E2E tests |
+| `devtools` | Console logs, JS evaluation | Debugging — critical for error capture |
+| `network` | Request interception, HAR recording | API debugging, request inspection |
+| `storage` | Cookie/localStorage read/write | Auth state manipulation |
+| `vision` | Coordinate-based clicking from screenshots | Only when accessibility tree is insufficient |
+
+**Recommended default:** `--caps=core,tabs,pdf,testing,devtools`. Add `network`, `storage`, `vision` per-project as needed.
+
+**Install (Claude Code):**
+
+```bash
+# Check current version
+npm view @playwright/mcp version
+
+# Install with pinned version (replace 0.0.68 with current)
+claude mcp add playwright -- npx @playwright/mcp@0.0.68 --caps=core,tabs,pdf,testing,devtools
+```
+
+> Pin to a specific version — `@latest` can pull breaking changes or compromised publishes without warning. Run `npm view` first, then pin what you verified.
+
+**Install (Claude Desktop)** — add to `claude_desktop_config.json`:
+
+```json
+"playwright": {
+  "command": "npx",
+  "args": ["@playwright/mcp@0.0.68", "--caps=core,tabs,pdf,testing,devtools"]
+}
+```
+
+**First run:** Initial `npx @playwright/mcp` downloads Chromium (~200 MB). Expect a delay on first invocation.
+
+**Token cost hierarchy — prefer cheaper operations:**
+
+| Operation | Approximate Cost | Use Case |
+|---|---|---|
+| `browser_snapshot` | ~2–5 KB (structured text) | **Default inspection mode** — accessibility tree gives structured DOM without vision |
+| `browser_console_messages` | ~1–3 KB | Error capture, JS debugging |
+| `browser_take_screenshot` | ~50–100 KB (base64 image) | Visual verification only when DOM structure is insufficient |
+
+**Key pattern:** Use `browser_snapshot` (accessibility tree) as the primary inspection tool. It returns structured, parseable text at a fraction of screenshot cost. Reserve screenshots for visual layout verification where DOM structure alone can't answer the question.
+
+**Browser debugging workflow:**
+
+1. `browser_navigate` to the page under test (works with localhost)
+2. `browser_snapshot` to inspect current DOM state
+3. `browser_console_messages` to check for JS errors
+4. Fix the code
+5. `browser_navigate` again (or reload) to verify the fix
+6. `browser_snapshot` to confirm resolution
+
+This closed loop (navigate → inspect → fix → verify) replaces manual copy-paste debugging.
+
+**Chrome DevTools MCP** (Google, Apache-2.0, `chrome-devtools-mcp`)
+
+Attaches to an existing Chrome session — use when you need the user's actual browser state (logged-in sessions, specific extensions, populated caches) rather than a clean Playwright session.
+
+```bash
+claude mcp add chrome-devtools -- npx chrome-devtools-mcp@0.1.2
+```
+
+Complementary to Playwright: Playwright launches clean sessions for reproducible testing; Chrome DevTools attaches to live sessions for debugging user-specific issues.
+
+**Headed vs. headless:** Playwright MCP runs headed (visible browser window) by default. Add `--headless` for CI or terminal-only environments where a display is unavailable. Headed mode is preferred during development — you can watch the browser alongside the AI's actions.
+
+**Session lifecycle:** Call `browser_close` when done with a debugging session. Unclosed browser sessions consume memory, especially during long Claude Code sessions with multiple navigate cycles.
+
+**When NOT to use browser tooling:** Skip browser MCP for server-side-only code, CLI tools, static file generation, or any task where the output can be verified by reading files or test output directly. Browser tooling adds token overhead — use it when you need actual rendered output, not when simpler verification suffices.
+
+**Security:** Browser MCPs can navigate to any URL and execute JavaScript. Do not use on machines with access to sensitive internal networks without understanding the risk surface. Treat browser MCP sessions like an open browser tab — anything the browser can access, the AI can access.
 
 #### Minimum Diagnostic Evidence by Failure Type
 
