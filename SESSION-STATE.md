@@ -37,7 +37,15 @@
 
 ### Completed This Session
 
-1. **Coherence Review and Repair** — 5-batch fix for ~25 audit findings
+1. **Domain Consistency Enforcement** — automated test + expanded checklist
+   - `TestDomainConsistency` (6 tests): validates domains.json matches config.py, server.py enums, handler valid_domains, extractor DOMAIN_PREFIXES, disk files, file paths
+   - Promoted extractor `_get_domain_prefix()` local dict to `DOMAIN_PREFIXES` class constant for direct testability
+   - COMPLETION-CHECKLIST.md: expanded domain changes section from 10→21 items (source of truth, code, test, doc, verification)
+   - PROJECT-MEMORY.md: marked Gotcha #18 (implicit prefixes) as resolved
+   - Reviewed by: code-reviewer (2 passes), contrarian-reviewer, coherence-auditor, validator — all pass
+   - 877 tests passing, 0 failures
+
+2. **Coherence Review and Repair** — 5-batch fix for ~25 audit findings
    - Batch 1: Added missing ui-ux domain to config.py fallback, server.py enum, test assertion; updated stale version refs in fallback
    - Batch 2: CLAUDE.md framework version v2.9.6→v2.20.0; meta-methods §1.1.3 filename examples; PROJECT-MEMORY metrics to baseline_2026-03-13; SESSION-STATE hardcoded values→pointers
    - Batch 3: Archived 4 superseded docs; renamed multimodal-rag files v2.0.0→v2.1.0/v2.1.1; updated all cross-references
