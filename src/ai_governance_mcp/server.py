@@ -955,7 +955,7 @@ async def list_tools() -> list[Tool]:
                     },
                     "domain": {
                         "type": "string",
-                        "description": "Optional: Force specific domain (ai-coding, multi-agent)",
+                        "description": "Optional: Force specific domain (e.g. ai-coding, storytelling, ui-ux)",
                         "maxLength": 50,  # M5 FIX
                         "enum": [
                             "constitution",
@@ -1034,7 +1034,7 @@ async def list_tools() -> list[Tool]:
                 "properties": {
                     "domain": {
                         "type": "string",
-                        "description": "Domain name (constitution, ai-coding, multi-agent)",
+                        "description": "Domain name (e.g. ai-coding, storytelling, ui-ux)",
                         "enum": [
                             "constitution",
                             "ai-coding",
