@@ -56,6 +56,13 @@
 | Tiered Principle Activation | 2026-02-28 | Phase 0: Fixed dead `series_code` via `CATEGORY_SERIES_MAP` (28 entries, domain-aware). S-Series detection now works via metadata, not just keywords. Phase 1: Universal floor tier — `documents/tiers.json` with 3 principles + 3 methods + 1 subagent check injected as `universal_floor` section in every `evaluate_governance` response. Separate from `max_results=10`. Anti-pattern check format ("Did you...?") with principle ID citations. |
 | Domain-Aware Hierarchy | 2026-02-28 | `apply_hierarchy()` now uses domain context: constitution principles (S=0,C=1,Q=2,O=3,MA=4,G=5) sort above domain principles (all at 10). Shared series codes (C, Q) no longer collide across domains. Storytelling ethics → "E" (not "S"), multimodal-rag security → "SEC" (not "S"). Only constitution safety → "S" triggers veto. |
 
+### Content Architecture
+
+| Decision | Date | Summary |
+|----------|------|---------|
+| AGENTS.md Overlay Pattern | 2026-03-17 | AGENTS.md holds shared project context (50 lines). CLAUDE.md is overlay with governance enforcement + subagent registry only. Governance hooks MUST stay in CLAUDE.md (safety-adjacent, cannot depend on "read another file" directive). ETH Zurich research: keep instruction files lean. |
+| Document Kit Tiering | 2026-03-17 | §1.5 defines 3 tiers: Core (4 files, all modes), Standard (+3), Enhanced (+evaluated per §7.10). Avoids file proliferation — Enhanced additions are advisory, not mandatory. |
+
 ### Multi-Agent Domain
 
 | Decision | Date | Summary |

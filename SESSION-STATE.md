@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-03-13
+**Last Updated:** 2026-03-17
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -33,21 +33,21 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-13)
+## Session Summary (2026-03-17)
 
 ### Completed This Session
 
-1. **§5.13.2 Browser Tooling Guidance Expansion** — ai-coding methods v2.20.0→v2.21.0
-   - Expanded 2-line Playwright/Chrome DevTools references into comprehensive subsection
-   - Added: capability flags table (8 categories), token cost hierarchy, install commands (Claude Code + Desktop), debugging workflow, headed/headless, session lifecycle, when-not-to-use, security notes
-   - Fixed: `@latest`→pinned v0.0.68, "MIT"→Apache-2.0 (verified via npm), "25+ tools"→per-category language
-   - Version bump v2.20.0→v2.21.0 with file rename + 5 reference updates
-   - 877 tests passing, index rebuilt, semantic retrieval verified
-
-2. **Domain Consistency Enforcement** — automated test + expanded checklist
-   - `TestDomainConsistency` (6 tests): validates domains.json matches config.py, server.py enums, handler valid_domains, extractor DOMAIN_PREFIXES, disk files, file paths
-   - Promoted extractor `_get_domain_prefix()` local dict to `DOMAIN_PREFIXES` class constant for direct testability
-   - COMPLETION-CHECKLIST.md: expanded domain changes section from 10→21 items (source of truth, code, test, doc, verification)
+1. **Document Kit Tiering & AGENTS.md Cross-Tool Support** — ai-coding methods v2.21.0→v2.22.0
+   - New §1.5 Document Kit Tiering: Core Kit (4 files, all modes), Standard Kit (+3), Enhanced Kit (evaluated per §7.10)
+   - New Appendix K: AGENTS.md cross-tool standard (template, overlay pattern, migration guide, naming disambiguation)
+   - Updated Appendix A (CLAUDE.md template → overlay) and Appendix D (GEMINI.md template → overlay)
+   - Cross-reference updates: §7.4.2, §7.8.2, §7.8.4, Situation Index (+2 entries), Cold Start Kit
+   - Created AGENTS.md for this project (50 lines, shared content)
+   - Refactored CLAUDE.md to overlay pattern (governance enforcement + subagents only)
+   - Added AGENTS.md propagation awareness to COMPLETION-CHECKLIST.md
+   - Updated: domains.json, config.py, README.md (211→216 methods)
+   - Index: 149 principles + 577 methods (726 total, up from 721)
+   - 877 tests passing, CI green, semantic retrieval verified
    - PROJECT-MEMORY.md: marked Gotcha #18 (implicit prefixes) as resolved
    - Reviewed by: code-reviewer (2 passes), contrarian-reviewer, coherence-auditor, validator — all pass
    - 877 tests passing, 0 failures
