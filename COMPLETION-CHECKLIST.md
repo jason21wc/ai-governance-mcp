@@ -64,6 +64,11 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 20. `pytest tests/ -v` — full test suite (includes `TestDomainConsistency`)
 21. Update `SESSION-STATE.md` domain count
 
+## Propagation awareness
+
+When modifying shared project context, check whether changes need to propagate:
+- **AGENTS.md** ↔ **CLAUDE.md**: shared content lives in AGENTS.md; Claude-specific content in CLAUDE.md. If you change project context (commands, structure, memory files), update AGENTS.md. If you change governance enforcement or subagent registry, update CLAUDE.md.
+
 ## Documentation-only changes (memory files, README)
 
 1. Update SESSION-STATE.md if applicable

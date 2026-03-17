@@ -308,7 +308,7 @@ def _default_domains() -> list[DomainConfig]:
             name="ai-coding",
             display_name="AI Coding",
             principles_file="ai-coding-domain-principles-v2.3.4.md",
-            methods_file="ai-coding-methods-v2.21.0.md",
+            methods_file="ai-coding-methods-v2.22.0.md",
             description=(
                 "Software development with AI assistance. Code generation, debugging, "
                 "testing, refactoring, code review, pull requests, git workflows, "
