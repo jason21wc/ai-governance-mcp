@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.22.0
+**Version:** 2.23.0
 **Status:** Active
 **Effective Date:** 2026-03-16
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -6523,7 +6523,7 @@ Also read AGENTS.md for project context.
 
 ## Governance — ENFORCED BY HOOK
 [Hook enforcement details if applicable]
-- Framework: AI Coding Methods v2.22.0
+- Framework: AI Coding Methods v2.23.0
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Debugging
@@ -7122,6 +7122,108 @@ Indexes stored in ~/.context-engine/indexes/ can be cached between CI runs.
 
 When the context engine is available, project-specific instructions could be semantically matched to the current task rather than always loaded. For example, a `.claude/rules/` directory could contain contextual instructions that are only surfaced when relevant — "security review checklist" only loads when reviewing security-sensitive code. This pattern is noted for future exploration.
 
+### G.11 Cross-Environment Compatibility
+
+The Context Engine MCP server runs as a **host-side process** (not inside sandboxed VMs). In environments like Claude Cowork, Docker containers, or CI runners, the server auto-detects read-only filesystems and enters **read-only mode** — querying pre-built indexes without any filesystem writes.
+
+**Environment variable:** `AI_CONTEXT_ENGINE_READONLY` (`true`/`false`/`auto`)
+- **`auto` (default):** Probes `~/.context-engine/indexes/` writability. Falls back to read-only if `PermissionError`.
+- **`true`:** Force read-only mode.
+- **`false`:** Force writable mode (existing behavior).
+
+**Read-only mode behavior:**
+- `query_project`: Works normally against pre-built indexes (including semantic search if embeddings exist on disk). Falls back to **BM25-only keyword search** if embeddings are unavailable.
+- `index_project`: Returns a helpful error with instructions to index from a writable environment.
+- Staleness warnings direct users to re-index from a writable environment instead of suggesting `index_project`.
+- No embedding model download, no file watcher startup, no filesystem writes.
+
+**Environment compatibility matrix:**
+
+| Feature | Claude Code CLI | Cowork | Cursor | Docker/CI |
+|---------|----------------|--------|--------|-----------|
+| `query_project` | Full | Read-only¹ | Full | Read-only |
+| `index_project` | Yes | No | Yes | No |
+| File watcher (realtime) | Yes | No | Yes | No |
+| Standalone watcher daemon | Yes | Use host | Yes | Use host |
+
+¹ Cowork's MCP servers run on the host, but CWD may not match the project. Use the **`project_path` parameter** on `query_project`, `index_project`, and `project_status` to specify the target project explicitly.
+
+**Pattern: Index once, query everywhere.** Build indexes from a writable environment (Claude Code CLI, direct terminal). All environments — including sandboxed clients — query the same pre-built indexes at `~/.context-engine/indexes/`.
+
+### G.12 Standalone Watcher Daemon
+
+The `context-engine-watcher` CLI keeps indexes fresh **independently of any AI client session**. It discovers indexed projects, starts file watchers, and runs as a foreground process (daemonization handled by platform service layer — see G.13).
+
+**Usage:**
+
+```bash
+# Watch all realtime projects
+context-engine-watcher --all
+
+# Watch specific projects
+context-engine-watcher --projects /path/to/project1 /path/to/project2
+
+# With logging to file (for background use)
+context-engine-watcher --all --log-file ~/.context-engine/logs/watcher.log
+```
+
+**Features:**
+- Discovers projects from `~/.context-engine/indexes/` metadata
+- Starts `FileWatcher` for each project (reuses existing debounce/cooldown/circuit-breaker infrastructure)
+- **Heartbeat file** at `~/.context-engine/watcher-heartbeat.json` (updated every 60s): `{"pid": N, "alive_at": "...", "projects_watched": N}`
+- **PID file** at `~/.context-engine/watcher.pid`
+- Graceful shutdown on SIGTERM/SIGINT (stops all watchers, removes PID and heartbeat files)
+- `project_status` tool reports daemon heartbeat status when available
+
+**When to use:**
+- You want indexes fresh across all AI clients without relying on any specific client session
+- You use multiple AI clients (Claude Code, Cowork, Cursor) that share the same indexes
+- You have long-running projects where files change outside of AI sessions
+
+**Relationship to MCP server watcher:** Complementary, not replacement. The MCP server's built-in watcher runs only while the server is active. The standalone daemon runs independently. Both write to the same index storage — the generation tracking mechanism prevents stale results from overwriting fresh ones.
+
+### G.13 Platform Service Installation
+
+The `context-engine-service` CLI installs the watcher daemon as a persistent background service that starts automatically on login.
+
+**Usage:**
+
+```bash
+context-engine-service install     # Auto-detect platform, install + start
+context-engine-service uninstall   # Stop + remove service
+context-engine-service status      # Check if running, show PID
+context-engine-service logs        # Tail service logs
+```
+
+**Platform-specific details:**
+
+**macOS (launchd):**
+- Installs a LaunchAgent plist at `~/Library/LaunchAgents/com.ai-governance.context-engine-watcher.plist`
+- `RunAtLoad: true` — starts on login
+- `KeepAlive: true` — auto-restarts on crash
+- `ThrottleInterval: 30` — minimum 30s between restarts
+- Logs to `~/.context-engine/logs/watcher.{out,err}.log`
+- **Full Disk Access** may be required on macOS 13+ for projects outside `~/`
+
+**Linux (systemd user service):**
+- Installs a user service unit at `~/.config/systemd/user/context-engine-watcher.service`
+- `Restart=on-failure`, `RestartSec=30`
+- `MemoryMax=512M`, `CPUQuota=25%` — resource limits
+- **Important:** Run `sudo loginctl enable-linger $USER` to keep the service running after logout
+- **inotify watch limit:** Large projects may need `echo 65536 | sudo tee /proc/sys/fs/inotify/max_user_watches`
+- Logs via `journalctl --user -u context-engine-watcher`
+
+**Windows (Task Scheduler):**
+- Creates a scheduled task `ContextEngineWatcher` via `schtasks`
+- Triggers on logon
+- For persistent service behavior, install NSSM and wrap the watcher executable
+
+**Troubleshooting:**
+- **Service won't start:** Check that `context-engine-watcher` is on PATH. The service config uses the absolute path found at install time. If you reinstall Python or move environments, re-run `context-engine-service install`.
+- **No projects watched:** Ensure at least one project has been indexed with `index_mode=realtime`. Use `context-engine-watcher --all` to watch all projects regardless of stored mode.
+- **High CPU:** Check `~/.context-engine/watcher-heartbeat.json` for project count. If watching many large projects, consider switching some to `ondemand` mode.
+- **Permission errors on macOS:** Grant Full Disk Access to the terminal app or Python executable in System Settings > Privacy & Security.
+
 ---
 
 ## Appendix H: Production Hardening Checklist
@@ -7319,7 +7421,7 @@ CREATE POLICY "Users insert own documents" ON documents
 # Project: [Name]
 
 **Description:** [1-2 sentences]
-**Framework:** AI Coding Methods v2.22.0
+**Framework:** AI Coding Methods v2.23.0
 **Mode:** [Expedited/Standard/Enhanced]
 
 ## Memory Files
@@ -7421,6 +7523,7 @@ These are unrelated. AGENTS.md configures the AI tool's behavior for the project
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.23.0 | 2026-03-22 | **Context Engine Cross-Environment Compatibility:** New Appendix G.11-G.13. (1) G.11 Cross-Environment Compatibility — read-only mode for sandboxed environments (Cowork VM, Docker, CI), `AI_CONTEXT_ENGINE_READONLY` env var with auto-detection, `project_path` parameter on all tools, environment compatibility matrix, "index once, query everywhere" pattern. (2) G.12 Standalone Watcher Daemon — `context-engine-watcher` CLI keeps indexes fresh independently of AI client sessions, heartbeat/PID file management, graceful shutdown. (3) G.13 Platform Service Installation — `context-engine-service` CLI with install/uninstall/status/logs subcommands, platform generators for macOS launchd, Linux systemd, Windows Task Scheduler, troubleshooting guide. Context Engine v1.3.0. |
 | 2.22.0 | 2026-03-16 | **Document Kit Tiering & AGENTS.md Cross-Tool Support:** (1) New §1.5 Document Kit Tiering — defines which project documents to create at each procedural mode. §1.5.1 Core Memory Kit (4 files, all modes): SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, project instruction file. §1.5.2 Standard Kit (core + 3: ARCHITECTURE.md, SPECIFICATION.md, COMPLETION-CHECKLIST.md). §1.5.3 Enhanced Kit (standard + evaluated additions per §7.10 thresholds). §1.5.4 Kit Scaling Rules (mode transitions). §1.5.5 Project Instruction File Pattern (AGENTS.md + tool overlay model). (2) New Appendix K — AGENTS.md Configuration: K.1 Overview (cross-tool standard, AAIF/Linux Foundation backing, 60K+ repos). K.2 AGENTS.md Template (~50-80 lines, lean per ETH Zurich guidance). K.3 Overlay Pattern (CLAUDE.md/GEMINI.md layer on top). K.4 Migration Guide (identical-copy to shared-core + overlay). K.5 Naming Disambiguation (AGENTS.md instructions vs agents/ subagent templates). (3) Updated Appendix A: CLAUDE.md template adds "Also read AGENTS.md" directive, governance enforcement must-stay note. (4) Updated Appendix D: GEMINI.md template adds @./AGENTS.md import. (5) Cross-reference updates: §7.4.2 AGENTS.md status upgraded to "Universal standard (AAIF/Linux Foundation)", §7.8.2 initialization checklist aligned with §1.5, §7.8.4 minimal init updated to 4 files, 1 Situation Index entry added. Constitutional basis: Project Reference Persistence, Context Engineering. Research: ETH Zurich LLM-generated instruction study (detailed files reduce success 3%, increase costs 20%+), GitHub issue #6235 (Claude Code does not auto-load AGENTS.md). |
 | 2.20.0 | 2026-03-13 | **Structured Debugging Protocol:** New Part 5.13 — prevents AI fix spirals through mandatory evidence-based debugging. (1) §5.13.1 Purpose: entry/exit criteria for structured debugging. (2) §5.13.2 Diagnostic Block Requirement: mandatory structured diagnosis before fix attempts, automation-first evidence gathering table (6 evidence types with AI self-service vs user-ask guidance), recommended browser tooling (Playwright MCP, Chrome DevTools MCP), minimum diagnostic evidence by failure type (5 types). (3) §5.13.3 Instrumentation-First Protocol: add logging before fixing when root cause unclear, instrumentation by context table (6 contexts), cleanup requirement. (4) §5.13.4 Fix Decay Protocol: extends §5.2.6 iteration limits with hypothesis re-examination at attempt 2, Debugging Escalation Report template at attempt 3, context reset trigger, revert-and-re-approach option, multi-file cascade rule. (5) §5.13.5 Fix Verification with Objective Evidence: 4-level verification hierarchy, claim-verification format, multi-path verification table, "reasoning is NOT evidence" rule. (6) §5.13.6 Anti-Patterns & Checklist: 6 debugging anti-patterns (fix-claim-fail spiral, symptom treatment, tunnel vision, shotgun debugging, silent exception swallowing, reasoning as evidence), before/after debugging checklist. Integration: 4 Situation Index entries, §5.1.2 persistent failure cross-reference, §5.2.6 debugging protocol integration note, §8.1.2 fix spiral escalation trigger, Cold Start Kit Scenario D (debugging recovery), CLAUDE.md template debugging section. Research basis: Oxford/McGill 2024 (60-80% LLM debugging decay within 2-3 attempts), ai-expert LEARNING-LOG L042-L050 field evidence. |
 | 2.19.0 | 2026-03-12 | **Project Reference Documents (Coding Domain):** New §7.10 — coding domain's reference document taxonomy implementing Constitution principle "Project Reference Persistence" (v2.5.0). §7.10.2 Complexity Thresholds (4-tier scaling: <50/50-200/200-500/500+ files). §7.10.3 Reference Document Taxonomy: Tier 1 DATA-REFERENCE.md (entity relationships, business rules, architectural invariants, integration boundaries), Tier 2 PRODUCT-CONTEXT.md (user profiles/ICPs, API contracts, non-linter conventions, platform constraints), Tier 3 PRODUCT-VISION.md (product direction, domain glossary, technical debt registry). §7.10.4 Staleness Triggers (7 event types). §7.10.5-6 Copy-paste templates for DATA-REFERENCE and PRODUCT-CONTEXT. §7.10.7 Auto-Tracking Protocol adapted from storytelling §11. Cross-references governance methods §14 (shared infrastructure). |

@@ -58,6 +58,7 @@ ai-governance-mcp = "ai_governance_mcp.server:main"
 ai-governance-extract = "ai_governance_mcp.extractor:main"
 ai-context-engine = "ai_governance_mcp.context_engine.server:main"
 context-engine-watcher = "ai_governance_mcp.context_engine.watcher_daemon:main"
+context-engine-service = "ai_governance_mcp.context_engine.service:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ai_governance_mcp"]
