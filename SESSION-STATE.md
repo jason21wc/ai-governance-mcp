@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-03-17
+**Last Updated:** 2026-03-22
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -20,8 +20,8 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
-| Context Engine | **v1.2.1** (watcher auto-start on boot fix) |
-| Content | **v2.5.0** (Constitution), **v3.13.0** (meta-methods), **v2.22.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
+| Context Engine | **v1.3.0** (read-only mode, watcher daemon, service installer, project_path parameter) |
+| Content | **v2.5.0** (Constitution), **v3.13.0** (meta-methods), **v2.23.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -33,9 +33,25 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-17)
+## Session Summary (2026-03-22)
 
 ### Completed This Session
+
+1. **Context Engine Cross-Environment Compatibility** — CE v1.3.0, ai-coding methods v2.22.0→v2.23.0
+   - **Catalyst:** Claude Cowork VM could not use context engine — permission errors on query, CWD=/ indexing root filesystem
+   - **Phase 1: Read-only mode** — `ReadOnlyFilesystemStorage` subclass, `readonly` flag on Indexer/ProjectManager/Server, `AI_CONTEXT_ENGINE_READONLY` env var with auto-detection, BM25-only fallback
+   - **Phase 1 fix: project_path parameter** — Added `project_path` to `query_project`, `index_project`, `project_status` tools. Resolution: args > `AI_CONTEXT_ENGINE_DEFAULT_PROJECT` env var > CWD. Fixes Cowork CWD=/ issue.
+   - **Phase 2: Standalone watcher daemon** — `context-engine-watcher` CLI with --all/--projects/--log-file. Heartbeat file (60s), PID file, graceful SIGTERM/SIGINT. Registered in pyproject.toml.
+   - **Phase 3: Platform service installer** — `context-engine-service` CLI (install/uninstall/status/logs). macOS launchd plist, Linux systemd user service, Windows Task Scheduler. Auto-detects platform.
+   - **Phase 4: Framework documentation** — Appendix G.11 (Cross-Environment Compatibility), G.12 (Standalone Watcher Daemon), G.13 (Platform Service Installation). Changelog entry.
+   - **Phase 5: Installation docs** — README rewrite with Quick Start (AI-Assisted), Manual Setup, Sandboxed Environments sections. API.md updated with new env vars, CLI tools, project_path parameters. SERVER_INSTRUCTIONS Setup & Maintenance section for AI-assisted setup detection.
+   - Key insight: Cowork MCP servers run on the host, not inside the VM. The issue was CWD=/ not sandbox writes.
+   - Installed service on macOS: watching 4 projects, auto-starts on login
+   - 964 tests passing (877 original + 34 readonly + 21 daemon + 32 service), 0 failures
+   - Files changed: 15 files, ~2400 lines added
+   - 5 new CLI entry points total: ai-governance-mcp, ai-governance-extract, ai-context-engine, context-engine-watcher, context-engine-service
+
+### Previous Session (2026-03-17)
 
 1. **Document Kit Tiering & AGENTS.md Cross-Tool Support** — ai-coding methods v2.21.0→v2.22.0
    - New §1.5 Document Kit Tiering: Core Kit (4 files, all modes), Standard Kit (+3), Enhanced Kit (evaluated per §7.10)

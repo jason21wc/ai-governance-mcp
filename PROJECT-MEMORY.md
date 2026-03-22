@@ -56,6 +56,16 @@
 | Tiered Principle Activation | 2026-02-28 | Phase 0: Fixed dead `series_code` via `CATEGORY_SERIES_MAP` (28 entries, domain-aware). S-Series detection now works via metadata, not just keywords. Phase 1: Universal floor tier — `documents/tiers.json` with 3 principles + 3 methods + 1 subagent check injected as `universal_floor` section in every `evaluate_governance` response. Separate from `max_results=10`. Anti-pattern check format ("Did you...?") with principle ID citations. |
 | Domain-Aware Hierarchy | 2026-02-28 | `apply_hierarchy()` now uses domain context: constitution principles (S=0,C=1,Q=2,O=3,MA=4,G=5) sort above domain principles (all at 10). Shared series codes (C, Q) no longer collide across domains. Storytelling ethics → "E" (not "S"), multimodal-rag security → "SEC" (not "S"). Only constitution safety → "S" triggers veto. |
 
+### Context Engine Cross-Environment
+
+| Decision | Date | Summary |
+|----------|------|---------|
+| Read-Only Mode | 2026-03-22 | `ReadOnlyFilesystemStorage` subclass + `AI_CONTEXT_ENGINE_READONLY` env var (auto/true/false). Auto-detects read-only filesystems. Query path has zero writes — no mkdir, chmod, tmp cleanup, model download. BM25-only fallback if embeddings unavailable. |
+| Project Path Parameter | 2026-03-22 | All 3 data tools (query_project, index_project, project_status) accept optional `project_path`. Resolution: args > `AI_CONTEXT_ENGINE_DEFAULT_PROJECT` env var > CWD. Required for Cowork where CWD=/ (MCP server runs on host, not in VM). |
+| Standalone Watcher Daemon | 2026-03-22 | `context-engine-watcher` CLI keeps indexes fresh independently of AI client sessions. Heartbeat (60s), PID file, graceful shutdown. Reuses existing FileWatcher + ProjectManager infrastructure. |
+| Platform Service Installer | 2026-03-22 | `context-engine-service` CLI with install/uninstall/status/logs. macOS launchd (RunAtLoad+KeepAlive), Linux systemd (user service+linger), Windows schtasks. Auto-detects platform. |
+| Cowork Architecture Insight | 2026-03-22 | Cowork MCP servers run on the HOST, not inside the VM. VM filesystem is a read-only mount of host paths. CWD inside MCP server process is `/`, not the project directory. The fix was `project_path` parameter, not read-only mode (though read-only mode is still valuable for Docker/CI). |
+
 ### Content Architecture
 
 | Decision | Date | Summary |

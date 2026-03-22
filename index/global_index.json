@@ -7822,7 +7822,7 @@
           "embedding_id": 208
         }
       ],
-      "last_extracted": "2026-03-22T14:32:51.657824+00:00",
+      "last_extracted": "2026-03-22T19:44:27.319863+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -16430,7 +16430,7 @@
           "embedding_id": 436
         }
       ],
-      "last_extracted": "2026-03-22T14:32:51.665981+00:00",
+      "last_extracted": "2026-03-22T19:44:27.327642+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -19598,7 +19598,7 @@
           "embedding_id": 502
         }
       ],
-      "last_extracted": "2026-03-22T14:32:51.670285+00:00",
+      "last_extracted": "2026-03-22T19:44:27.331697+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -22024,7 +22024,7 @@
           "embedding_id": 563
         }
       ],
-      "last_extracted": "2026-03-22T14:32:51.672906+00:00",
+      "last_extracted": "2026-03-22T19:44:27.334276+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -26099,7 +26099,7 @@
           "embedding_id": 662
         }
       ],
-      "last_extracted": "2026-03-22T14:32:51.676415+00:00",
+      "last_extracted": "2026-03-22T19:44:27.337768+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -29037,7 +29037,7 @@
           "embedding_id": 725
         }
       ],
-      "last_extracted": "2026-03-22T14:32:51.680260+00:00",
+      "last_extracted": "2026-03-22T19:44:27.341345+00:00",
       "version": "1.0"
     }
   },
@@ -29097,7 +29097,7 @@
       "embedding_id": 5
     }
   ],
-  "created_at": "2026-03-22T14:33:00.171293+00:00",
+  "created_at": "2026-03-22T19:44:36.135477+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384
