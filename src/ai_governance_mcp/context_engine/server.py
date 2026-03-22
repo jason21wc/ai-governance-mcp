@@ -391,6 +391,14 @@ def create_server() -> tuple[Server, ProjectManager]:
                             "minimum": 1,
                             "maximum": 50,
                         },
+                        "project_path": {
+                            "type": "string",
+                            "description": (
+                                "Absolute path to the project directory to query. "
+                                "Optional — defaults to current working directory. "
+                                "Use when CWD is not the project (e.g., in Cowork VM)."
+                            ),
+                        },
                     },
                     "required": ["query"],
                 },
@@ -404,7 +412,15 @@ def create_server() -> tuple[Server, ProjectManager]:
                 ),
                 inputSchema={
                     "type": "object",
-                    "properties": {},
+                    "properties": {
+                        "project_path": {
+                            "type": "string",
+                            "description": (
+                                "Absolute path to the project directory to index. "
+                                "Optional — defaults to current working directory."
+                            ),
+                        },
+                    },
                 },
             ),
             Tool(
@@ -424,7 +440,15 @@ def create_server() -> tuple[Server, ProjectManager]:
                 ),
                 inputSchema={
                     "type": "object",
-                    "properties": {},
+                    "properties": {
+                        "project_path": {
+                            "type": "string",
+                            "description": (
+                                "Absolute path to the project directory. "
+                                "Optional — defaults to current working directory."
+                            ),
+                        },
+                    },
                 },
             ),
         ]
@@ -435,11 +459,11 @@ def create_server() -> tuple[Server, ProjectManager]:
             if name == "query_project":
                 return await _handle_query_project(manager, arguments)
             elif name == "index_project":
-                return await _handle_index_project(manager)
+                return await _handle_index_project(manager, arguments)
             elif name == "list_projects":
                 return await _handle_list_projects(manager)
             elif name == "project_status":
-                return await _handle_project_status(manager)
+                return await _handle_project_status(manager, arguments)
             else:
                 return [
                     TextContent(
@@ -478,6 +502,29 @@ def create_server() -> tuple[Server, ProjectManager]:
     return server, manager
 
 
+def _resolve_project_path(arguments: dict) -> Path | None:
+    """Resolve project path from tool arguments, env var, or CWD.
+
+    Priority: arguments['project_path'] > AI_CONTEXT_ENGINE_DEFAULT_PROJECT > CWD.
+    Returns None if the resolved path doesn't exist.
+    """
+    raw = arguments.get("project_path")
+    if raw and isinstance(raw, str):
+        p = Path(raw).resolve()
+        if p.exists() and p.is_dir():
+            return p
+        logger.warning("Specified project_path does not exist: %s", p)
+        return None
+
+    default = os.environ.get("AI_CONTEXT_ENGINE_DEFAULT_PROJECT")
+    if default:
+        p = Path(default).resolve()
+        if p.exists() and p.is_dir():
+            return p
+
+    return Path.cwd()
+
+
 async def _handle_query_project(
     manager: ProjectManager, arguments: dict
 ) -> list[TextContent]:
@@ -504,11 +551,16 @@ async def _handle_query_project(
     except (TypeError, ValueError):
         max_results = 10
 
+    # Resolve project path
+    project_path = _resolve_project_path(arguments)
+
     # Run indexing/query in thread pool (CPU-bound)
     loop = asyncio.get_running_loop()
     result = await loop.run_in_executor(
         None,
-        lambda: manager.query_project(query=query, max_results=max_results),
+        lambda: manager.query_project(
+            query=query, project_path=project_path, max_results=max_results
+        ),
     )
 
     if not result.results:
@@ -584,7 +636,9 @@ async def _handle_query_project(
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 
-async def _handle_index_project(manager: ProjectManager) -> list[TextContent]:
+async def _handle_index_project(
+    manager: ProjectManager, arguments: dict | None = None
+) -> list[TextContent]:
     """Handle index_project tool call."""
     if manager.readonly:
         return [
@@ -622,7 +676,7 @@ async def _handle_index_project(manager: ProjectManager) -> list[TextContent]:
             )
         ]
 
-    project_path = Path.cwd()
+    project_path = _resolve_project_path(arguments or {})
 
     loop = asyncio.get_running_loop()
     index = await loop.run_in_executor(
@@ -683,11 +737,14 @@ async def _handle_list_projects(manager: ProjectManager) -> list[TextContent]:
 
 
 async def _handle_project_status(
-    manager: ProjectManager,
+    manager: ProjectManager, arguments: dict | None = None
 ) -> list[TextContent]:
     """Handle project_status tool call."""
+    project_path = _resolve_project_path(arguments or {})
     loop = asyncio.get_running_loop()
-    status = await loop.run_in_executor(None, manager.get_project_status)
+    status = await loop.run_in_executor(
+        None, lambda: manager.get_project_status(project_path)
+    )
 
     if status is None:
         return [
