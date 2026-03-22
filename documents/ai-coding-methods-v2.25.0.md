@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.24.0
+**Version:** 2.25.0
 **Status:** Active
 **Effective Date:** 2026-03-16
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -150,6 +150,8 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Choosing which documents to create | §1.5 | Document Kit Tiering |
 | Setting up AGENTS.md / multi-tool instructions | §1.5.5, Appendix K | Project Instruction File Pattern |
 | Setting up AI memory for Cowork / document folder | Appendix L | Folder-Based AI Environment Support |
+| Setting up repository security / branch protection | §6.4.10 | Repository Security Configuration |
+| Setting up CodeQL / semantic code analysis | §6.4.11 | Semantic Code Analysis Setup |
 
 #### On Uncertainty
 
@@ -2305,6 +2307,8 @@ When available, run automated security scanning:
 - Secret detection
 
 **Threshold:** Zero HIGH/CRITICAL vulnerabilities before task completion.
+
+See §6.4.10 for repository-level enforcement of scan results (branch protection) and §6.4.11 for semantic analysis setup (CodeQL and equivalents).
 
 ### 5.3.4 Security Escalation
 
@@ -4540,7 +4544,7 @@ GitHub Actions run third-party code in your CI environment. Tag-based pinning (`
 | **Per-job permissions** | Each job gets only what it needs | `permissions: contents: read` for most jobs |
 | **`persist-credentials: false`** | Prevents token leakage into `.git/config` | Add to `actions/checkout` `with:` block |
 | **Restrict Actions sources** | Block untrusted action authors | Settings → Actions → Allow select actions |
-| **Enable CodeQL scanning** | Free SAST for public repos | Add `codeql.yml` workflow with `security-extended` queries |
+| **Enable CodeQL scanning** | Free SAST for public repos | Add `codeql.yml` workflow with `security-extended` queries (see §6.4.11 for detailed setup) |
 
 **Anti-pattern:** Using `@v4` or `@latest` tags without SHA pinning. Even trusted actions can be compromised via account takeover.
 
@@ -4638,6 +4642,127 @@ AI code review services (CodeRabbit, GitHub Copilot code review, or equivalent) 
 
 > **Cross-references:** §5.3.5 (external review requirement), §5.1.3 (implementation quality checklist), code-reviewer subagent (on-demand deep review during implementation)
 > **Bold triggers:** **AI code review service**, **automated PR review**, **CodeRabbit integration**, **AI security scanning**, **AI vulnerability scanner**
+
+### 6.4.10 Repository Security Configuration
+
+**Applies To:** Any project using a hosted repository (GitHub, GitLab, Bitbucket, etc.)
+
+**Keywords:** **repository security settings**, **branch protection rules**, **enforce CI before merge**, **secret scanning setup**
+
+CI pipelines tell you what's wrong. **Repository security settings** prevent merging when something IS wrong. Without enforcement at the repository level, CI findings are advisory only — the same problem advisory governance instructions had before structural hooks (§9.3.10).
+
+**Universal Checklist (platform-agnostic):**
+
+| # | Setting | Why | Tier |
+|---|---------|-----|------|
+| 1 | **Branch protection** on main/production branches | Prevents direct pushes; forces PR workflow | Minimum |
+| 2 | **Require status checks** to pass before merge | CI failures block merge — not just warnings | Minimum |
+| 3 | **Enable secret scanning** | Prevents credential leaks to version control | Minimum |
+| 4 | **Require pull request reviews** (≥1 reviewer) | Human verification before merge | Standard |
+| 5 | **Dismiss stale PR approvals** on new pushes | Prevents approving then pushing unreviewed changes | Standard |
+| 6 | **Enable dependency vulnerability alerts** | Catches known CVEs in dependencies | Standard |
+| 7 | **Enable semantic code analysis** (CodeQL or equivalent) | Catches data-flow vulnerabilities linters miss (see §6.4.11) | Standard |
+| 8 | **Restrict force pushes** to protected branches | Prevents history rewriting on shared branches | Standard |
+| 9 | **Require signed commits** | Verifies commit author identity | Production |
+| 10 | **Configure CODEOWNERS** | Enforces domain-expert review for critical paths | Production |
+
+**Enforcement tiers (progressive):**
+
+- **Minimum (solo developer):** Items 1-3. Branch protection + CI enforcement + secret scanning. Prevents the most common mistakes (pushing broken code, leaking credentials).
+- **Standard (small team):** Items 1-8. Adds review requirements, dependency alerts, semantic analysis. The baseline for any team project.
+- **Production (regulated/enterprise):** Items 1-10. Adds commit signing, CODEOWNERS, audit log retention. Required when compliance, regulatory, or contractual obligations apply.
+
+**Platform Quick Reference:**
+
+| Setting | GitHub | GitLab | Bitbucket |
+|---------|--------|--------|-----------|
+| Branch protection | Settings → Branches → Add rule | Settings → Repository → Protected Branches | Repository settings → Branch permissions |
+| Require CI pass | "Require status checks to pass" | "Pipelines must succeed" | "Minimum successful builds: 1" |
+| Require reviews | "Require approvals" (set count) | "Approvals required" (set count) | "Minimum approvals: 1" |
+| Dismiss stale approvals | "Dismiss stale pull request approvals" | "Remove all approvals when commits are added" | Bitbucket Pipelines config |
+| Secret scanning | Security → Secret scanning (auto for public) | Settings → Security → Secret Detection CI job | Snyk or third-party integration |
+| Dependency alerts | Dependabot alerts (enabled by default) | Dependency Scanning CI template | Snyk or third-party integration |
+| Semantic analysis | CodeQL workflow (see §6.4.11) | SAST CI template (auto-included) | SonarQube or Semgrep integration |
+| Force push protection | "Do not allow force pushes" | "Allowed to force push: No one" | "Prevent rewriting history" |
+| Signed commits | "Require signed commits" | "Reject unsigned commits" (push rule) | N/A (not natively supported) |
+| CODEOWNERS | `.github/CODEOWNERS` file + "Require review from Code Owners" | `CODEOWNERS` file + "Require approval from code owners" | N/A (use Reviewers feature) |
+
+**AI-assisted setup:** When an AI assistant is helping set up a new repository, it should configure these settings as part of project initialization. For GitHub, this can be done via the GitHub API or CLI (`gh api`). The AI should ask the user which enforcement tier to apply.
+
+> **Cross-references:** §6.4.6 (supply chain hardening), §6.4.11 (CodeQL setup), §5.3 (security validation), §9.3.10 (enforcement patterns — same advisory vs. structural principle applies to repositories)
+> **Bold triggers:** **repository security**, **branch protection**, **enforce CI**, **secret scanning**, **Dependabot setup**, **CODEOWNERS**
+
+### 6.4.11 Semantic Code Analysis (CodeQL and Equivalents)
+
+**Applies To:** Production projects, especially those with external-facing APIs or user-input-handling code
+
+**Keywords:** **CodeQL setup**, **semantic code analysis**, **SAST configuration**, **data flow security scanning**
+
+**What semantic analysis adds beyond linting:** Linters check style, patterns, and common mistakes. **Semantic analysis** builds a database of your code's data flow and queries it for vulnerabilities — tracing tainted input from an HTTP parameter through function calls to a SQL query or shell command. It catches issues linters fundamentally cannot detect because linters operate line-by-line while semantic analysis operates on the full program graph.
+
+**Examples of what semantic analysis catches that linters miss:**
+- SQL injection via tainted input passed through 3 function calls
+- Path traversal where user input reaches `open()` after string concatenation
+- Command injection where formatted strings reach `subprocess.run()`
+- Cross-site scripting where user content reaches template rendering
+- Insecure deserialization where untrusted data reaches `pickle.loads()`
+
+**GitHub CodeQL Setup:**
+
+1. Add a workflow file (`.github/workflows/codeql.yml`):
+
+```yaml
+name: CodeQL
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  security-events: write
+  contents: read
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: [python]  # Add: javascript, go, java, etc.
+    steps:
+      - uses: actions/checkout@<sha>  # Pin to SHA per §6.4.6
+      - uses: github/codeql-action/init@<sha>
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended  # Recommended over 'default'
+      - uses: github/codeql-action/autobuild@<sha>
+      - uses: github/codeql-action/analyze@<sha>
+```
+
+2. **Query suites:**
+   - `default` — basic security queries
+   - `security-extended` — recommended; includes additional security queries with higher false positive tolerance
+   - `security-and-quality` — most comprehensive; includes code quality queries
+
+3. **Availability:** Free for public repositories. Private repos require GitHub Advanced Security (paid).
+
+4. **Integration with branch protection:** Settings → Branches → "Require CodeQL to pass before merging"
+
+**Alternatives for Non-GitHub Platforms:**
+
+| Platform | Tool | How |
+|----------|------|-----|
+| GitLab | Built-in SAST | Include `SAST.gitlab-ci.yml` template — auto-detects languages |
+| Bitbucket | SonarQube | Configure SonarQube integration in Pipelines |
+| Any platform | **Semgrep** | Open-source, runs anywhere: `semgrep --config auto .` |
+| Any platform | **Bandit** (Python) | `bandit -r src/` — Python-specific security linter |
+
+**Managing Findings:**
+- Review findings in Security tab (GitHub) or pipeline output (GitLab)
+- **False positive suppression:** Use inline comments (`# nosec B603` for Bandit, `// lgtm` for CodeQL) with documented justification
+- **Severity triage:** Apply the same severity gates as §5.3 (zero HIGH/CRITICAL for production)
+- **Alert fatigue prevention:** Start with `security-extended` queries, not `security-and-quality`, to reduce noise
+
+> **Cross-references:** §5.3.3 (security scanning), §6.4.6 (CodeQL mentioned in supply chain checklist), §6.4.10 (repository settings to enforce CodeQL)
+> **Bold triggers:** **CodeQL configuration**, **semantic code analysis**, **SAST setup**, **Semgrep**, **security scanning configuration**
 
 ---
 
@@ -6548,7 +6673,7 @@ Also read AGENTS.md for project context.
 
 ## Governance — ENFORCED BY HOOK
 [Hook enforcement details if applicable]
-- Framework: AI Coding Methods v2.24.0
+- Framework: AI Coding Methods v2.25.0
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Debugging
@@ -7255,7 +7380,7 @@ context-engine-service logs        # Tail service logs
 
 **Importance: 🟢 OPTIONAL — Pre-release sweep for commonly-missed patterns**
 
-A 14-item sweep checklist consolidating the most commonly-missed production hardening patterns discovered across multiple deep code reviews. Run this before tagging a release.
+A 16-item sweep checklist consolidating the most commonly-missed production hardening patterns discovered across multiple deep code reviews. Run this before tagging a release.
 
 | # | Check | Section | Applies If | How to Verify |
 |---|-------|---------|------------|---------------|
@@ -7273,6 +7398,8 @@ A 14-item sweep checklist consolidating the most commonly-missed production hard
 | 12 | Audit logging covers auth, access denials, data access | §5.11.3 | Any user-facing app | Verify auth/authz/data events captured; check retention meets policy |
 | 13 | Stateful operations use atomic patterns (upserts, not check-then-act) | §5.12.2 | Any database writes | Review write operations for read-decide-write sequences; verify upserts/conditional updates |
 | 14 | Database queries use parameterized values, not string interpolation | §5.8.6 | Any database queries | Grep for string interpolation in SQL; verify parameterized query patterns |
+| 15 | Repository branch protection configured (require CI + reviews) | §6.4.10 | Any hosted repository | Verify branch protection rules are active on main/production branches |
+| 16 | Semantic code analysis enabled (CodeQL or equivalent) | §6.4.11 | Production projects | Verify CodeQL/SAST workflow runs on PRs and results are required for merge |
 
 > **Usage:** Copy this table into your project's release checklist. Skip items where "Applies If" doesn't match your project. Items 1, 4, 5, 8, 10, 14 are universal; items 2, 3, 6, 7, 9, 11, 12, 13 apply when their conditions are met.
 
@@ -7446,7 +7573,7 @@ CREATE POLICY "Users insert own documents" ON documents
 # Project: [Name]
 
 **Description:** [1-2 sentences]
-**Framework:** AI Coding Methods v2.24.0
+**Framework:** AI Coding Methods v2.25.0
 **Mode:** [Expedited/Standard/Enhanced]
 
 ## Memory Files
@@ -7780,6 +7907,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.25.0 | 2026-03-22 | **Repository Security Configuration & Semantic Code Analysis:** (1) New §6.4.10 Repository Security Configuration — universal 10-item checklist (branch protection, CI enforcement, secret scanning, dependency alerts, CodeQL, CODEOWNERS), 3 enforcement tiers (Minimum/Standard/Production), cross-platform quick reference table (GitHub, GitLab, Bitbucket). (2) New §6.4.11 Semantic Code Analysis — CodeQL workflow template, query suite guidance (security-extended recommended), platform alternatives (GitLab SAST, Semgrep, Bandit), finding management and false positive suppression. (3) Appendix H expanded from 14 to 16 items (+repository branch protection, +semantic analysis enabled). (4) §5.3.3 cross-reference to §6.4.10/§6.4.11 for enforcement. (5) §6.4.6 CodeQL bullet expanded with §6.4.11 reference. (6) Situation Index +2 entries. Prompted by bandit CI failure revealing the gap between "run scans" and "enforce scan results." |
 | 2.24.0 | 2026-03-22 | **Folder-Based AI Environment Support:** New Appendix L. (1) L.1 Overview — problem statement for folder-based tools (Cowork, ChatGPT Desktop) that lack auto-discovery. (2) L.2 Folder Structure Convention — `_ai-context/` naming rationale (underscore sorts to top, visible, cross-platform), standalone vs hybrid layouts. (3) L.3 README.md Loader Templates — standalone (~50 lines, project description + memory file table + session protocol) and hybrid redirect (~15 lines, points to root-level files). (4) L.4 Cowork Project Instructions Template — copy-paste block for GUI bootstrapping. (5) L.5 Bootstrapping Protocol — conversational (AI creates files), manual (copy templates), MCP tool (future scaffold_project). (6) L.6 Non-Code Session State Variant — simplified Quick Reference for document projects. (7) L.7 Cross-Tool Coexistence — environment matrix, coexistence rules, advisory enforcement note. Cross-references: §1.5.1 (folder-based note), §1.5.5 (added _ai-context/README.md row), §7.8.4 (folder-based variant), Situation Index (+1 entry), Cold Start Kit (+Scenario E). Constitutional basis: Project Reference Persistence, Context Engineering. |
 | 2.23.0 | 2026-03-22 | **Context Engine Cross-Environment Compatibility:** New Appendix G.11-G.13. (1) G.11 Cross-Environment Compatibility — read-only mode for sandboxed environments (Cowork VM, Docker, CI), `AI_CONTEXT_ENGINE_READONLY` env var with auto-detection, `project_path` parameter on all tools, environment compatibility matrix, "index once, query everywhere" pattern. (2) G.12 Standalone Watcher Daemon — `context-engine-watcher` CLI keeps indexes fresh independently of AI client sessions, heartbeat/PID file management, graceful shutdown. (3) G.13 Platform Service Installation — `context-engine-service` CLI with install/uninstall/status/logs subcommands, platform generators for macOS launchd, Linux systemd, Windows Task Scheduler, troubleshooting guide. Context Engine v1.3.0. |
 | 2.22.0 | 2026-03-16 | **Document Kit Tiering & AGENTS.md Cross-Tool Support:** (1) New §1.5 Document Kit Tiering — defines which project documents to create at each procedural mode. §1.5.1 Core Memory Kit (4 files, all modes): SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, project instruction file. §1.5.2 Standard Kit (core + 3: ARCHITECTURE.md, SPECIFICATION.md, COMPLETION-CHECKLIST.md). §1.5.3 Enhanced Kit (standard + evaluated additions per §7.10 thresholds). §1.5.4 Kit Scaling Rules (mode transitions). §1.5.5 Project Instruction File Pattern (AGENTS.md + tool overlay model). (2) New Appendix K — AGENTS.md Configuration: K.1 Overview (cross-tool standard, AAIF/Linux Foundation backing, 60K+ repos). K.2 AGENTS.md Template (~50-80 lines, lean per ETH Zurich guidance). K.3 Overlay Pattern (CLAUDE.md/GEMINI.md layer on top). K.4 Migration Guide (identical-copy to shared-core + overlay). K.5 Naming Disambiguation (AGENTS.md instructions vs agents/ subagent templates). (3) Updated Appendix A: CLAUDE.md template adds "Also read AGENTS.md" directive, governance enforcement must-stay note. (4) Updated Appendix D: GEMINI.md template adds @./AGENTS.md import. (5) Cross-reference updates: §7.4.2 AGENTS.md status upgraded to "Universal standard (AAIF/Linux Foundation)", §7.8.2 initialization checklist aligned with §1.5, §7.8.4 minimal init updated to 4 files, 1 Situation Index entry added. Constitutional basis: Project Reference Persistence, Context Engineering. Research: ETH Zurich LLM-generated instruction study (detailed files reduce success 3%, increase costs 20%+), GitHub issue #6235 (Claude Code does not auto-load AGENTS.md). |
