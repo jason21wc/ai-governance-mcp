@@ -637,7 +637,8 @@ export AI_CONTEXT_ENGINE_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
 export AI_CONTEXT_ENGINE_EMBEDDING_DIMENSIONS=384
 export AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT=0.6
 export AI_CONTEXT_ENGINE_INDEX_PATH=~/.context-engine/indexes
-export AI_CONTEXT_ENGINE_INDEX_MODE=ondemand  # or 'realtime' to enable file watcher
+export AI_CONTEXT_ENGINE_INDEX_MODE=realtime    # 'ondemand' or 'realtime' (file watcher)
+export AI_CONTEXT_ENGINE_READONLY=auto          # 'true', 'false', or 'auto' (sandbox detection)
 export AI_CONTEXT_ENGINE_LOG_LEVEL=INFO
 ```
 
@@ -645,22 +646,101 @@ export AI_CONTEXT_ENGINE_LOG_LEVEL=INFO
 
 The Context Engine is a separate MCP server that provides semantic search across your project's source code and documents. It complements the Governance Server by providing project-specific content awareness.
 
-**Running the Context Engine:**
+#### Quick Start (AI-Assisted)
+
+If you're using an AI coding assistant (Claude Code, Cursor, etc.), ask it to:
+
+> "Set up the context engine MCP server for this project and install the background watcher service."
+
+The AI should run these commands for you:
 
 ```bash
-# Run standalone
-python -m ai_governance_mcp.context_engine.server
-
-# Or add to your MCP client config alongside governance server
-```
-
-**MCP Client Configuration (Claude Code):**
-
-```bash
+# 1. Add MCP server to your AI client
 claude mcp add ai-context-engine -- python -m ai_governance_mcp.context_engine.server
+
+# 2. Install background watcher (keeps indexes fresh automatically)
+context-engine-service install
+
+# 3. Verify it's running
+context-engine-service status
 ```
 
-**Features:**
+That's it. The context engine will auto-index your project on first query and keep it updated.
+
+#### Manual Setup
+
+**Step 1: Configure the MCP server** in your AI client:
+
+```bash
+# Claude Code CLI
+claude mcp add ai-context-engine -- python -m ai_governance_mcp.context_engine.server
+
+# Or add to claude_desktop_config.json / .claude/settings.json manually:
+# {
+#   "mcpServers": {
+#     "context-engine": {
+#       "command": "ai-context-engine",
+#       "env": {
+#         "AI_CONTEXT_ENGINE_INDEX_MODE": "realtime"
+#       }
+#     }
+#   }
+# }
+```
+
+**Step 2 (Recommended): Install the background watcher service.**
+
+The watcher daemon keeps your indexes fresh automatically — even when no AI client is running. Without it, indexes only update during active AI sessions.
+
+```bash
+# Auto-detects your platform (macOS/Linux/Windows) and installs
+context-engine-service install
+
+# Verify
+context-engine-service status
+
+# Other commands
+context-engine-service logs        # Tail service logs
+context-engine-service uninstall   # Remove the service
+```
+
+| Platform | What it does |
+|----------|-------------|
+| macOS | Installs a LaunchAgent — auto-starts on login, auto-restarts on crash |
+| Linux | Installs a systemd user service — run `sudo loginctl enable-linger $USER` to persist after logout |
+| Windows | Creates a Task Scheduler entry — runs on logon |
+
+**Step 3 (Optional): Run the watcher manually** instead of as a service:
+
+```bash
+# Watch all indexed projects
+context-engine-watcher --all
+
+# Watch specific projects
+context-engine-watcher --projects /path/to/project1 /path/to/project2
+
+# With log file (for background use)
+context-engine-watcher --all --log-file ~/.context-engine/logs/watcher.log &
+```
+
+#### Sandboxed Environments (Cowork, Docker, CI)
+
+The context engine auto-detects read-only filesystems and enters **read-only mode**:
+- Queries work against pre-built indexes (semantic + keyword search)
+- `index_project` returns a helpful error directing to a writable environment
+- No embedding model download, no filesystem writes
+
+**Important for Cowork:** Since the MCP server runs on the host but Cowork's CWD may not match your project, pass `project_path` explicitly in tool calls:
+```
+query_project(query="...", project_path="/Users/you/path/to/project")
+```
+
+**Pattern: Index once, query everywhere.** Build indexes from a writable environment (Claude Code CLI, terminal). All environments query the same indexes at `~/.context-engine/indexes/`.
+
+To force read-only mode explicitly: `AI_CONTEXT_ENGINE_READONLY=true`
+
+#### Features
+
 - Auto-indexes current working directory on first query
 - File watcher for real-time index updates (opt-in via `AI_CONTEXT_ENGINE_INDEX_MODE=realtime`) with debounce (2s) and cooldown (5s)
 - Circuit breaker stops watcher after 3 consecutive failures (realtime mode only)
@@ -668,6 +748,9 @@ claude mcp add ai-context-engine -- python -m ai_governance_mcp.context_engine.s
 - Support for code, markdown, PDF, spreadsheet, and image metadata
 - `.contextignore` file support (same syntax as `.gitignore`)
 - Atomic file writes, corrupt file recovery, LRU project eviction
+- Read-only mode for sandboxed environments (auto-detected)
+- Standalone watcher daemon (`context-engine-watcher`) with heartbeat monitoring
+- Platform service installer (`context-engine-service`) for auto-start on login
 
 **How it differs from Governance Server:**
 | Aspect | Governance Server | Context Engine |

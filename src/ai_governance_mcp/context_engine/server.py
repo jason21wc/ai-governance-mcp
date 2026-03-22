@@ -174,6 +174,12 @@ In sandboxed environments (Cowork VM, Docker, CI), the server auto-detects read-
 | `list_projects` | Show all indexed projects |
 | `project_status` | Index stats for current project |
 
+### Setup & Maintenance
+- **First use:** The index is built automatically on first `query_project` call.
+- **Keep indexes fresh:** If `project_status` shows no daemon watcher, suggest: `context-engine-service install` (installs a background service that auto-updates indexes). The user only needs to do this once.
+- **Sandboxed clients (Cowork, Docker):** Use `project_path` parameter on tools to specify the project directory explicitly, since CWD may not match the project.
+- **Stale index:** If `project_status` shows the index is hours old and no watcher is running, suggest either `index_project` (one-time refresh) or `context-engine-service install` (permanent fix).
+
 ### Companion: AI Governance MCP
 Query governance for *how* to approach a task (principles, methods).
 Query context engine for *what already exists* (code, patterns, files).

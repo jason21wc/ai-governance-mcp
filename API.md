@@ -353,7 +353,17 @@ Run with: `python -m ai_governance_mcp.context_engine.server`
 | `AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT` | `0.7` | Semantic vs keyword weight (0.0-1.0) |
 | `AI_CONTEXT_ENGINE_INDEX_PATH` | `~/.context-engine/indexes` | Index storage path |
 | `AI_CONTEXT_ENGINE_INDEX_MODE` | `ondemand` | `ondemand` (manual re-index) or `realtime` (file watcher with incremental updates) |
+| `AI_CONTEXT_ENGINE_READONLY` | `auto` | `true` (force read-only), `false` (force writable), `auto` (probe filesystem) |
+| `AI_CONTEXT_ENGINE_DEFAULT_PROJECT` | *(none)* | Fallback project path when CWD is not the project (e.g., in Cowork VM) |
 | `AI_CONTEXT_ENGINE_LOG_LEVEL` | `INFO` | Logging level |
+
+**CLI tools:**
+
+| Command | Purpose |
+|---------|---------|
+| `ai-context-engine` | Run the MCP server (stdio) |
+| `context-engine-watcher` | Standalone watcher daemon (keeps indexes fresh) |
+| `context-engine-service` | Install/manage watcher as a system service |
 
 ### query_project
 
@@ -365,6 +375,7 @@ Run with: `python -m ai_governance_mcp.context_engine.server`
 |------|------|----------|-------------|
 | `query` | string | Yes | Natural language query or keyword search (1-10,000 chars). Examples: `"where do we handle authentication?"`, `"validate_token function"`, `"error handling patterns"` |
 | `max_results` | integer | No | Maximum results to return, 1-50 (default: `10`) |
+| `project_path` | string | No | Absolute path to the project directory. Defaults to CWD. Use in sandboxed environments where CWD is not the project. |
 
 **Returns:**
 
@@ -387,9 +398,13 @@ Run with: `python -m ai_governance_mcp.context_engine.server`
 
 ### index_project
 
-**Purpose:** Trigger a full re-index of the current project. Use when files have changed and the index may be stale, or after initial project setup. Rate limited to 5 requests per minute.
+**Purpose:** Trigger a full re-index of the current project. Use when files have changed and the index may be stale, or after initial project setup. Rate limited to 5 requests per minute. Returns an error in read-only mode.
 
-**Parameters:** None.
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `project_path` | string | No | Absolute path to the project directory. Defaults to CWD. |
 
 **Returns:**
 
@@ -431,9 +446,13 @@ Run with: `python -m ai_governance_mcp.context_engine.server`
 
 ### project_status
 
-**Purpose:** Get detailed index statistics for the current project.
+**Purpose:** Get detailed index statistics for the current project. Also reports standalone watcher daemon status if a heartbeat file exists.
 
-**Parameters:** None.
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `project_path` | string | No | Absolute path to the project directory. Defaults to CWD. |
 
 **Returns:**
 
