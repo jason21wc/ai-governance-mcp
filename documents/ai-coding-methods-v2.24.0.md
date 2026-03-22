@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.23.0
+**Version:** 2.24.0
 **Status:** Active
 **Effective Date:** 2026-03-16
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -149,6 +149,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Need to see browser state / visual debugging | §5.13.2 | Automation-First Evidence (Playwright MCP) |
 | Choosing which documents to create | §1.5 | Document Kit Tiering |
 | Setting up AGENTS.md / multi-tool instructions | §1.5.5, Appendix K | Project Instruction File Pattern |
+| Setting up AI memory for Cowork / document folder | Appendix L | Folder-Based AI Environment Support |
 
 #### On Uncertainty
 
@@ -288,6 +289,22 @@ before attempting any more fixes. If Playwright MCP is available, use it
 to gather browser evidence. Consider reverting all fix attempts and
 starting fresh with instrumentation.
 ```
+
+#### Scenario E: Folder-Based Project — First Prompt (Cowork, ChatGPT, etc.)
+
+Copy and send this when starting a new project in a folder-based AI tool:
+
+```
+Set up AI memory for this project. Create the _ai-context folder with:
+- README.md (project description and instructions)
+- SESSION-STATE.md (current position tracker)
+- PROJECT-MEMORY.md (decisions and context)
+- LEARNING-LOG.md (lessons learned)
+
+Ask me for a brief project description first.
+```
+
+See Appendix L for the full bootstrapping protocol and templates.
 
 #### Minimal SESSION-STATE.md Template (Copy-Paste Ready)
 
@@ -823,7 +840,7 @@ Every project creates these 4 files regardless of procedural mode:
 | LEARNING-LOG.md | Episodic memory | Lessons emerge immediately; empty is fine, existence matters |
 | Project instruction file* | Tool config | AI needs project context to be effective |
 
-*\*Project instruction file = AGENTS.md (universal). For Claude Code, also CLAUDE.md (overlay). For Gemini CLI, also GEMINI.md (overlay). At Expedited, the tool-specific file alone suffices if only using one tool. See §1.5.5 for the full pattern.*
+*\*Project instruction file = AGENTS.md (universal). For Claude Code, also CLAUDE.md (overlay). For Gemini CLI, also GEMINI.md (overlay). For folder-based tools (Cowork, ChatGPT Desktop), use `_ai-context/README.md` — see Appendix L. At Expedited, the tool-specific file alone suffices if only using one tool. See §1.5.5 for the full pattern.*
 
 **Rationale:** §7.8.4 already requires the first 3 files. Adding the project instruction file aligns with the universal need for AI to have project context. These files map directly to the CoALA cognitive memory types (§7.0).
 
@@ -890,6 +907,12 @@ GEMINI.md (Gemini CLI overlay — auto-loaded by Gemini)
   ├── "Also read @./AGENTS.md for project context"
   ├── Gemini-specific memory commands
   └── @file.md import syntax
+
+_ai-context/README.md (folder-based tools — Cowork, ChatGPT, etc.)
+  ├── Project description and context
+  ├── Memory file table with read-when guidance
+  ├── Session start/end protocol
+  └── Bootstrapped via Cowork Project Instructions (GUI)
 ```
 
 **Key rules:**
@@ -897,7 +920,7 @@ GEMINI.md (Gemini CLI overlay — auto-loaded by Gemini)
 2. **AGENTS.md stays lean** — per ETH Zurich research, detailed LLM-generated instruction files reduced success rates by 3% and increased costs 20%+. Include only what AI cannot infer from reading the codebase (see §7.4.4 content test)
 3. **At Expedited with single tool** — the tool-specific file alone suffices; AGENTS.md adds value when using multiple tools or when other contributors use different AI tools
 
-See Appendix K for templates, migration guide, and naming disambiguation.
+See Appendix K for templates, migration guide, and naming disambiguation. See Appendix L for folder-based tool setup (`_ai-context/` convention for Cowork, ChatGPT Desktop, etc.).
 
 ---
 
@@ -5524,6 +5547,8 @@ Create all files in the **project repository root** (see §7.8.2 File Location n
 3. LEARNING-LOG.md (stub with usage header)
 4. Project instruction file — CLAUDE.md, GEMINI.md, or AGENTS.md + overlay per §1.5.5
 
+**Folder-based variant:** For non-code document projects using folder-based AI tools (Cowork, ChatGPT Desktop), create these same 4 files inside `_ai-context/` at the project root instead. The README.md inside `_ai-context/` serves as the project instruction file. See Appendix L.
+
 ### 7.8.5 Cross-Reference Index
 
 | Topic | Section |
@@ -6523,7 +6548,7 @@ Also read AGENTS.md for project context.
 
 ## Governance — ENFORCED BY HOOK
 [Hook enforcement details if applicable]
-- Framework: AI Coding Methods v2.23.0
+- Framework: AI Coding Methods v2.24.0
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Debugging
@@ -7421,7 +7446,7 @@ CREATE POLICY "Users insert own documents" ON documents
 # Project: [Name]
 
 **Description:** [1-2 sentences]
-**Framework:** AI Coding Methods v2.23.0
+**Framework:** AI Coding Methods v2.24.0
 **Mode:** [Expedited/Standard/Enhanced]
 
 ## Memory Files
@@ -7519,10 +7544,243 @@ These are unrelated. AGENTS.md configures the AI tool's behavior for the project
 
 ---
 
+## Appendix L: Folder-Based AI Environment Support
+
+**Importance: 🟡 IMPORTANT — When using Cowork, ChatGPT Desktop, or any folder-based AI tool**
+
+**Keywords:** **folder-based AI memory**, **Cowork project setup**, **document folder AI context**, **_ai-context folder**, **non-CLI AI memory**
+
+**Applies To:** Any AI tool that accesses a project via folder selection rather than CLI-based auto-discovery. Includes Claude Cowork, ChatGPT Desktop, any LLM with file/folder access, and future tools that lack native instruction file support.
+
+### L.1 Overview
+
+CLI-based AI tools auto-discover instruction files (CLAUDE.md, GEMINI.md, .cursor/rules/). **Folder-based tools have no auto-discovery** — the AI can read all files in a folder but won't prioritize any unless instructed. Additionally, many folder-based projects are **non-code document folders** (investment analysis, research collections, school notes) that lack git repos, build systems, or CLAUDE.md conventions.
+
+This appendix defines a **self-documenting folder convention** (`_ai-context/`) that enables governance memory files in any folder-based AI environment. The convention follows the same three-memory-type model (§7.0.2: working, semantic, episodic) used throughout the framework.
+
+**Constitutional basis:** Project Reference Persistence (curated reference documents for cross-session continuity), Context Engineering (load relevant context before acting).
+
+### L.2 Folder Structure Convention
+
+**Convention:** Place all AI memory files inside `_ai-context/` at the project's top level.
+
+**Why `_ai-context/`:**
+
+| Alternative | Verdict | Reason |
+|-------------|---------|--------|
+| `.ai/` | Reject | Hidden on macOS/Linux by default — users forget it exists |
+| `AI/` | Reject | Case-sensitivity issues across platforms; too generic |
+| `ai-context/` | Weak | Sorts between user content alphabetically, no visual separation |
+| `_ai-context/` | **Recommend** | Underscore sorts to top in file managers; visible; descriptive; recognized "meta" convention (`_layouts/`, `_templates/`); cross-platform safe |
+| Long descriptive name | Reject | Breaks CLI workflows; unwieldy in paths |
+
+**Standalone layout (document folders):**
+
+```
+Investment Analysis/
+  _ai-context/
+    README.md              # Loader file — read this first
+    SESSION-STATE.md       # Current position, next actions
+    PROJECT-MEMORY.md      # Decisions, constraints, context
+    LEARNING-LOG.md        # Lessons from past sessions
+  Market Research/
+  Financial Projections/
+  Reports/
+```
+
+**Hybrid layout (code projects using both CLI and folder-based tools):**
+
+```
+my-app/
+  AGENTS.md                # CLI tools read this (unchanged)
+  CLAUDE.md                # Claude Code overlay (unchanged)
+  SESSION-STATE.md         # Memory files at root (unchanged)
+  PROJECT-MEMORY.md
+  LEARNING-LOG.md
+  _ai-context/
+    README.md              # Redirect — points to root-level files
+  src/
+```
+
+In the hybrid case, `_ai-context/README.md` is a **short redirect** (~15 lines) pointing folder-based tools to the existing root-level files. No duplication.
+
+### L.3 README.md Loader Templates
+
+**L.3.1 Standalone Template (Document Folders)**
+
+Use for non-code projects where `_ai-context/` contains the only memory files. Target: ~50 lines.
+
+```markdown
+# AI Context for [Project Name]
+
+**Description:** [1-2 sentences about what this project is]
+**Last Updated:** [Date]
+
+## Instructions
+
+You are assisting with [brief project description]. Read the memory files below at the start of every conversation to maintain continuity across sessions.
+
+## Memory Files
+
+| File | Purpose | When to Read |
+|------|---------|-------------|
+| SESSION-STATE.md | Current position, next actions | Always — read first |
+| PROJECT-MEMORY.md | Decisions, constraints, context | When making decisions |
+| LEARNING-LOG.md | Lessons from past sessions | Before repeating past approaches |
+
+## On Session Start
+
+1. Read SESSION-STATE.md — it tells you where we left off
+2. Follow the Next Actions listed there
+3. Check PROJECT-MEMORY.md for decisions that constrain current work
+4. Check LEARNING-LOG.md before approaches that might repeat past mistakes
+
+## On Session End
+
+Before ending, update:
+1. SESSION-STATE.md — current position and next actions for the next session
+2. PROJECT-MEMORY.md — any new decisions or context worth preserving
+3. LEARNING-LOG.md — any lessons learned (≤5 lines each, state the rule)
+
+## Project Context
+
+[What this project contains, what the user is trying to accomplish,
+key constraints, important background information]
+
+## Working Conventions
+
+[User's preferences: communication style, formatting, level of detail,
+domain expertise level, any specific instructions]
+```
+
+**L.3.2 Hybrid Redirect Template (Code Projects)**
+
+Use when root-level AGENTS.md and memory files already exist. Target: ~15 lines.
+
+```markdown
+# AI Context for [Project Name]
+
+This project uses governance memory files at the project root.
+If you are a folder-based AI tool (Cowork, ChatGPT, etc.), read these files:
+
+1. **../AGENTS.md** — Project instructions and context
+2. **../SESSION-STATE.md** — Current position (read first)
+3. **../PROJECT-MEMORY.md** — Decisions and constraints
+4. **../LEARNING-LOG.md** — Lessons learned
+
+Start with SESSION-STATE.md, then follow its Next Actions.
+```
+
+### L.4 Cowork Project Instructions Template
+
+Paste this into Cowork's **Project Instructions** or **Folder Instructions** GUI field. This is the bootstrap mechanism — it tells Cowork to look for and use the memory files.
+
+**For document folders (standalone `_ai-context/`):**
+
+```
+This project uses AI memory files for session continuity.
+
+On session start:
+1. Read _ai-context/README.md for project context
+2. Read _ai-context/SESSION-STATE.md for current position
+3. Follow the Next Actions listed there
+
+On session end:
+1. Update _ai-context/SESSION-STATE.md with position and next actions
+2. Record decisions in _ai-context/PROJECT-MEMORY.md
+3. Record lessons in _ai-context/LEARNING-LOG.md
+
+If _ai-context/ does not exist, ask if I'd like to set up AI memory for this project.
+```
+
+**For code projects (hybrid with root-level files):**
+
+```
+This project uses AI memory files for session continuity.
+
+On session start:
+1. Read AGENTS.md for project context
+2. Read SESSION-STATE.md for current position
+3. Follow the Next Actions listed there
+
+On session end:
+1. Update SESSION-STATE.md with position and next actions
+2. Record decisions in PROJECT-MEMORY.md
+3. Record lessons in LEARNING-LOG.md
+```
+
+### L.5 Bootstrapping Protocol
+
+Three paths to set up `_ai-context/` in a project, ordered by recommendation:
+
+**Path A: Conversational (recommended — AI creates files with user consent)**
+
+Open Cowork on the folder and say:
+
+> "Set up AI memory for this project. Create the _ai-context folder with memory files."
+
+If the Cowork Project Instructions template (L.4) is already pasted, the AI will detect the missing `_ai-context/` folder and offer to create it. The AI should:
+1. Ask the user for a brief project description
+2. Create `_ai-context/` with README.md, SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md
+3. Populate README.md with project context from the conversation
+4. Create stub SESSION-STATE.md with initial position
+
+**Path B: Manual (copy templates)**
+
+1. Create `_ai-context/` folder in the project
+2. Copy the README.md template from L.3.1 into `_ai-context/README.md`
+3. Create stub SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md (use §7.8.3 templates)
+4. Paste the Cowork Project Instructions template from L.4 into Cowork's GUI
+
+**Path C: MCP tool (future — aligns with Backlog #2 Part B)**
+
+A future `scaffold_project` MCP tool could support:
+```
+scaffold_project(project_name="Hotel Analysis", project_type="document")
+```
+When `project_type="document"`, creates `_ai-context/` instead of root-level files. This requires the MCP server to be configured first, so it supplements rather than replaces Paths A/B.
+
+### L.6 Non-Code Session State Variant
+
+For document/analysis projects, the SESSION-STATE.md Quick Reference table should reflect project-relevant metrics, not software metrics:
+
+```markdown
+## Quick Reference
+
+| Item | Value |
+|------|-------|
+| Project Focus | [Current analysis area or task] |
+| Key Files | [Most relevant files right now] |
+| Open Questions | [Unresolved items needing attention] |
+| Decisions Pending | [Choices waiting on information or user input] |
+```
+
+Compare with the code project variant (§7.1) which includes version numbers, test counts, CI status, and tool counts. The memory file formats (PROJECT-MEMORY.md, LEARNING-LOG.md) are already domain-agnostic and need no adaptation.
+
+### L.7 Cross-Tool Coexistence
+
+| Environment | Instruction Source | Memory File Location | Setup |
+|-------------|-------------------|---------------------|-------|
+| Claude Code CLI | CLAUDE.md (auto-loaded) | Project root | §7.8 |
+| Gemini CLI | GEMINI.md (auto-loaded) | Project root | Appendix D |
+| Cursor | .cursor/rules/ (auto-loaded) | Project root | §7.4.2 |
+| Claude Cowork | Project Instructions (GUI) | `_ai-context/` or root | L.4 template |
+| ChatGPT Desktop | Custom Instructions (GUI) | `_ai-context/` | L.4 adapted |
+| Any folder-based LLM | User prompt or instructions | `_ai-context/` | L.3 template |
+
+**Coexistence rule:** CLI tools ignore `_ai-context/` (it's not in their auto-discovery path). Folder-based tools use `_ai-context/README.md` as their entry point. Both access the same memory files — either directly at root (code projects) or inside `_ai-context/` (document projects). No duplication, no conflict.
+
+**Enforcement note:** Folder-based environments have no hook mechanism. Memory file updates at session end are **advisory only** — the AI follows the instructions in the Cowork Project Instructions template, but compliance depends on the AI model's instruction-following reliability. This is a known limitation documented in LEARNING-LOG ("Advisory Governance Instructions Are Probabilistic," 2026-02-16).
+
+> **Bold triggers:** **folder-based AI memory**, **Cowork memory setup**, **document folder AI**, **_ai-context convention**, **non-CLI project memory**
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.24.0 | 2026-03-22 | **Folder-Based AI Environment Support:** New Appendix L. (1) L.1 Overview — problem statement for folder-based tools (Cowork, ChatGPT Desktop) that lack auto-discovery. (2) L.2 Folder Structure Convention — `_ai-context/` naming rationale (underscore sorts to top, visible, cross-platform), standalone vs hybrid layouts. (3) L.3 README.md Loader Templates — standalone (~50 lines, project description + memory file table + session protocol) and hybrid redirect (~15 lines, points to root-level files). (4) L.4 Cowork Project Instructions Template — copy-paste block for GUI bootstrapping. (5) L.5 Bootstrapping Protocol — conversational (AI creates files), manual (copy templates), MCP tool (future scaffold_project). (6) L.6 Non-Code Session State Variant — simplified Quick Reference for document projects. (7) L.7 Cross-Tool Coexistence — environment matrix, coexistence rules, advisory enforcement note. Cross-references: §1.5.1 (folder-based note), §1.5.5 (added _ai-context/README.md row), §7.8.4 (folder-based variant), Situation Index (+1 entry), Cold Start Kit (+Scenario E). Constitutional basis: Project Reference Persistence, Context Engineering. |
 | 2.23.0 | 2026-03-22 | **Context Engine Cross-Environment Compatibility:** New Appendix G.11-G.13. (1) G.11 Cross-Environment Compatibility — read-only mode for sandboxed environments (Cowork VM, Docker, CI), `AI_CONTEXT_ENGINE_READONLY` env var with auto-detection, `project_path` parameter on all tools, environment compatibility matrix, "index once, query everywhere" pattern. (2) G.12 Standalone Watcher Daemon — `context-engine-watcher` CLI keeps indexes fresh independently of AI client sessions, heartbeat/PID file management, graceful shutdown. (3) G.13 Platform Service Installation — `context-engine-service` CLI with install/uninstall/status/logs subcommands, platform generators for macOS launchd, Linux systemd, Windows Task Scheduler, troubleshooting guide. Context Engine v1.3.0. |
 | 2.22.0 | 2026-03-16 | **Document Kit Tiering & AGENTS.md Cross-Tool Support:** (1) New §1.5 Document Kit Tiering — defines which project documents to create at each procedural mode. §1.5.1 Core Memory Kit (4 files, all modes): SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, project instruction file. §1.5.2 Standard Kit (core + 3: ARCHITECTURE.md, SPECIFICATION.md, COMPLETION-CHECKLIST.md). §1.5.3 Enhanced Kit (standard + evaluated additions per §7.10 thresholds). §1.5.4 Kit Scaling Rules (mode transitions). §1.5.5 Project Instruction File Pattern (AGENTS.md + tool overlay model). (2) New Appendix K — AGENTS.md Configuration: K.1 Overview (cross-tool standard, AAIF/Linux Foundation backing, 60K+ repos). K.2 AGENTS.md Template (~50-80 lines, lean per ETH Zurich guidance). K.3 Overlay Pattern (CLAUDE.md/GEMINI.md layer on top). K.4 Migration Guide (identical-copy to shared-core + overlay). K.5 Naming Disambiguation (AGENTS.md instructions vs agents/ subagent templates). (3) Updated Appendix A: CLAUDE.md template adds "Also read AGENTS.md" directive, governance enforcement must-stay note. (4) Updated Appendix D: GEMINI.md template adds @./AGENTS.md import. (5) Cross-reference updates: §7.4.2 AGENTS.md status upgraded to "Universal standard (AAIF/Linux Foundation)", §7.8.2 initialization checklist aligned with §1.5, §7.8.4 minimal init updated to 4 files, 1 Situation Index entry added. Constitutional basis: Project Reference Persistence, Context Engineering. Research: ETH Zurich LLM-generated instruction study (detailed files reduce success 3%, increase costs 20%+), GitHub issue #6235 (Claude Code does not auto-load AGENTS.md). |
 | 2.20.0 | 2026-03-13 | **Structured Debugging Protocol:** New Part 5.13 — prevents AI fix spirals through mandatory evidence-based debugging. (1) §5.13.1 Purpose: entry/exit criteria for structured debugging. (2) §5.13.2 Diagnostic Block Requirement: mandatory structured diagnosis before fix attempts, automation-first evidence gathering table (6 evidence types with AI self-service vs user-ask guidance), recommended browser tooling (Playwright MCP, Chrome DevTools MCP), minimum diagnostic evidence by failure type (5 types). (3) §5.13.3 Instrumentation-First Protocol: add logging before fixing when root cause unclear, instrumentation by context table (6 contexts), cleanup requirement. (4) §5.13.4 Fix Decay Protocol: extends §5.2.6 iteration limits with hypothesis re-examination at attempt 2, Debugging Escalation Report template at attempt 3, context reset trigger, revert-and-re-approach option, multi-file cascade rule. (5) §5.13.5 Fix Verification with Objective Evidence: 4-level verification hierarchy, claim-verification format, multi-path verification table, "reasoning is NOT evidence" rule. (6) §5.13.6 Anti-Patterns & Checklist: 6 debugging anti-patterns (fix-claim-fail spiral, symptom treatment, tunnel vision, shotgun debugging, silent exception swallowing, reasoning as evidence), before/after debugging checklist. Integration: 4 Situation Index entries, §5.1.2 persistent failure cross-reference, §5.2.6 debugging protocol integration note, §8.1.2 fix spiral escalation trigger, Cold Start Kit Scenario D (debugging recovery), CLAUDE.md template debugging section. Research basis: Oxford/McGill 2024 (60-80% LLM debugging decay within 2-3 attempts), ai-expert LEARNING-LOG L042-L050 field evidence. |

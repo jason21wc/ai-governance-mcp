@@ -65,6 +65,7 @@
 | Standalone Watcher Daemon | 2026-03-22 | `context-engine-watcher` CLI keeps indexes fresh independently of AI client sessions. Heartbeat (60s), PID file, graceful shutdown. Reuses existing FileWatcher + ProjectManager infrastructure. |
 | Platform Service Installer | 2026-03-22 | `context-engine-service` CLI with install/uninstall/status/logs. macOS launchd (RunAtLoad+KeepAlive), Linux systemd (user service+linger), Windows schtasks. Auto-detects platform. |
 | Cowork Architecture Insight | 2026-03-22 | Cowork MCP servers run on the HOST, not inside the VM. VM filesystem is a read-only mount of host paths. CWD inside MCP server process is `/`, not the project directory. The fix was `project_path` parameter, not read-only mode (though read-only mode is still valuable for Docker/CI). |
+| Folder-Based AI Memory (`_ai-context/`) | 2026-03-22 | New Appendix L in ai-coding methods v2.24.0. `_ai-context/` folder convention for non-CLI AI environments (Cowork, ChatGPT Desktop, any folder-based LLM). Underscore sorts to top, visible, self-documenting. README.md as loader (AGENTS.md equivalent). Memory files inside subfolder for document projects; redirect for code projects. Cowork Project Instructions template for GUI bootstrap. Three bootstrapping paths: conversational (primary), manual (fallback), MCP tool (future). Advisory enforcement only — no hooks in folder-based environments. |
 
 ### Content Architecture
 

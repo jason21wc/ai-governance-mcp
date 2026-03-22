@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.3.0** (read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v2.5.0** (Constitution), **v3.13.0** (meta-methods), **v2.23.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
+| Content | **v2.5.0** (Constitution), **v3.13.0** (meta-methods), **v2.24.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -50,6 +50,14 @@
    - 964 tests passing (877 original + 34 readonly + 21 daemon + 32 service), 0 failures
    - Files changed: 15 files, ~2400 lines added
    - 5 new CLI entry points total: ai-governance-mcp, ai-governance-extract, ai-context-engine, context-engine-watcher, context-engine-service
+
+2. **Folder-Based AI Environment Support** — ai-coding methods v2.23.0→v2.24.0
+   - New Appendix L: `_ai-context/` folder convention for Cowork, ChatGPT Desktop, any folder-based LLM
+   - L.1 Overview, L.2 Folder Structure (`_ai-context/` rationale), L.3 README.md Templates (standalone + hybrid redirect), L.4 Cowork Project Instructions template, L.5 Bootstrapping Protocol (conversational/manual/MCP tool), L.6 Non-Code Session State variant, L.7 Cross-Tool Coexistence matrix
+   - Cross-references: §1.5.1, §1.5.5 (+_ai-context row), §7.8.4 (+folder variant), Situation Index (+1), Cold Start Kit (+Scenario E)
+   - Partially resolves Backlog #2 (Project Initialization Part B) for folder-based environments
+   - Validated by: coherence-auditor, validator subagents
+   - 964 tests passing, 0 failures
 
 ### Previous Session (2026-03-17)
 
@@ -271,6 +279,8 @@ Closing the bootstrap gap — making it easier for new users to get governance m
 - How does this interact with existing `install_agent` tool patterns?
 
 **Implementation requirements:** Depends on chosen approach. All require tests. Approach 1 requires new MCP tool + filesystem write. Approach 2 requires filesystem read + client signaling. Approach 3 requires separate tooling. See PROJECT-MEMORY.md > Roadmap > Part B for full analysis.
+
+**Partial resolution (2026-03-22):** Appendix L (ai-coding methods v2.24.0) provides conversational bootstrapping for folder-based environments. The Cowork Project Instructions template includes "If _ai-context/ does not exist, ask if the user wants to set up AI memory." This addresses the folder-based bootstrapping gap. The `scaffold_project` MCP tool remains open for CLI-based environments.
 
 ### 3. Backlog — Quantized Vector Search (Deferred)
 Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revisit when Context Engine reaches 500K+ vectors (multi-project indexing) or users report perceptible latency.
