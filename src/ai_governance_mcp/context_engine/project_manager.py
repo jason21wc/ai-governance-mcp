@@ -79,17 +79,20 @@ class ProjectManager:
         embedding_dimensions: int = 384,
         semantic_weight: float = 0.7,
         default_index_mode: IndexMode = "ondemand",
+        readonly: bool = False,
     ) -> None:
         self.storage = storage or FilesystemStorage()
         self.embedding_model_name = embedding_model
         self.embedding_dimensions = embedding_dimensions
         self.semantic_weight = semantic_weight
         self.default_index_mode: IndexMode = default_index_mode
+        self.readonly = readonly
 
         self._indexer = Indexer(
             storage=self.storage,
             embedding_model=embedding_model,
             embedding_dimensions=embedding_dimensions,
+            readonly=readonly,
         )
         self._watchers: dict[str, FileWatcher] = {}
         self._loaded_indexes: dict[str, ProjectIndex] = {}
@@ -190,16 +193,32 @@ class ProjectManager:
             if project_id not in self._loaded_indexes:
                 if self.storage.project_exists(project_id):
                     self._load_project(project_id)
-                    # Start watcher if project was indexed as realtime
-                    metadata = self.storage.load_metadata(project_id)
-                    stored_mode = (metadata or {}).get("index_mode", "ondemand")
-                    if stored_mode == "realtime":
-                        try:
-                            self._ensure_watcher(project_path, project_id)
-                        except Exception as e:
-                            logger.warning(
-                                "Failed to start watcher for %s: %s", project_id, e
-                            )
+                    # Start watcher if project was indexed as realtime (skip in readonly)
+                    if not self.readonly:
+                        metadata = self.storage.load_metadata(project_id)
+                        stored_mode = (metadata or {}).get("index_mode", "ondemand")
+                        if stored_mode == "realtime":
+                            try:
+                                self._ensure_watcher(project_path, project_id)
+                            except Exception as e:
+                                logger.warning(
+                                    "Failed to start watcher for %s: %s",
+                                    project_id,
+                                    e,
+                                )
+                elif self.readonly:
+                    # Read-only mode: can't auto-index missing projects
+                    return ProjectQueryResult(
+                        query=query,
+                        project_id=project_id,
+                        project_path=str(project_path),
+                        results=[],
+                        total_results=0,
+                        readonly_message=(
+                            "Project not indexed. Index from a writable environment "
+                            "(e.g., Claude Code CLI) first, then queries will work here."
+                        ),
+                    )
                 else:
                     self.get_or_create_index(
                         project_path, index_mode=self.default_index_mode
@@ -261,6 +280,11 @@ class ProjectManager:
 
     def reindex_project(self, project_path: Path) -> ProjectIndex:
         """Force a full re-index of a project."""
+        if self.readonly:
+            raise RuntimeError(
+                "Cannot reindex in read-only mode. "
+                "Index from a writable environment first."
+            )
         with self._index_lock:
             project_id = FilesystemStorage.project_id_from_path(project_path)
 
@@ -357,8 +381,11 @@ class ProjectManager:
         to avoid blocking concurrent MCP queries during the expensive
         first model load.
 
-        Returns number of watchers started.
+        Returns number of watchers started. Returns 0 immediately in
+        read-only mode (no watchers needed).
         """
+        if self.readonly:
+            return 0
         # Pre-warm embedding model outside _index_lock.
         # Lock ordering: _index_lock must always be acquired before _model_lock.
         # By warming the model here, get_or_create_index() won't trigger the

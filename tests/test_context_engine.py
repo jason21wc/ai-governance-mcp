@@ -946,7 +946,7 @@ class TestServerHandlers:
         """max_results should be clamped to [1, 50]."""
         from ai_governance_mcp.context_engine.server import _handle_query_project
 
-        mock_result = Mock()
+        mock_result = Mock(readonly_message=None)
         mock_result.results = []
         manager.query_project = Mock(return_value=mock_result)
 
@@ -959,7 +959,7 @@ class TestServerHandlers:
         """Invalid max_results type should fall back to default."""
         from ai_governance_mcp.context_engine.server import _handle_query_project
 
-        mock_result = Mock()
+        mock_result = Mock(readonly_message=None)
         mock_result.results = []
         manager.query_project = Mock(return_value=mock_result)
 
@@ -978,7 +978,7 @@ class TestServerHandlers:
         srv._index_rate_tokens = 0.0
         srv._index_rate_last_refill = time.time()
 
-        manager = Mock()
+        manager = Mock(readonly=False)
         result = await _handle_index_project(manager)
         assert "rate limited" in result[0].text.lower()
         manager.reindex_project.assert_not_called()
@@ -1490,7 +1490,7 @@ class TestServerHandlersAdditional:
             results=[],
             total_results=0,
         )
-        manager = Mock()
+        manager = Mock(readonly=False)
         manager.query_project.return_value = query_result
 
         result = await _handle_query_project(manager, {"query": "nonexistent"})
@@ -2736,7 +2736,7 @@ class TestHandleIndexProjectSuccess:
             total_files=10,
         )
 
-        mock_manager = Mock()
+        mock_manager = Mock(readonly=False)
         mock_manager.reindex_project = Mock(return_value=mock_index)
 
         from ai_governance_mcp.context_engine.server import _handle_index_project
@@ -3431,7 +3431,7 @@ class TestServerFreshnessOutput:
 
         from ai_governance_mcp.context_engine.server import _handle_query_project
 
-        mock_result = Mock()
+        mock_result = Mock(readonly_message=None)
         mock_result.results = [
             Mock(
                 chunk=Mock(
@@ -3453,7 +3453,7 @@ class TestServerFreshnessOutput:
         mock_result.last_indexed_at = "2026-02-12T00:00:00+00:00"
         mock_result.index_age_seconds = 42.5
 
-        manager = Mock()
+        manager = Mock(readonly=False)
         manager.query_project = Mock(return_value=mock_result)
 
         result = await _handle_query_project(manager, {"query": "test"})
@@ -3472,12 +3472,12 @@ class TestEmptyResultsMessage:
 
         from ai_governance_mcp.context_engine.server import _handle_query_project
 
-        mock_result = Mock()
+        mock_result = Mock(readonly_message=None)
         mock_result.results = []
         mock_result.last_indexed_at = "2026-02-12T00:00:00+00:00"
         mock_result.index_age_seconds = 10.0
 
-        manager = Mock()
+        manager = Mock(readonly=False)
         manager.query_project = Mock(return_value=mock_result)
 
         result = await _handle_query_project(manager, {"query": "nonexistent"})
@@ -3492,12 +3492,12 @@ class TestEmptyResultsMessage:
 
         from ai_governance_mcp.context_engine.server import _handle_query_project
 
-        mock_result = Mock()
+        mock_result = Mock(readonly_message=None)
         mock_result.results = []
         mock_result.last_indexed_at = None
         mock_result.index_age_seconds = None
 
-        manager = Mock()
+        manager = Mock(readonly=False)
         manager.query_project = Mock(return_value=mock_result)
 
         result = await _handle_query_project(manager, {"query": "anything"})
@@ -4971,7 +4971,7 @@ class TestStaleIndexWarning:
 
         from ai_governance_mcp.context_engine.server import _handle_query_project
 
-        mock_result = Mock()
+        mock_result = Mock(readonly_message=None)
         mock_result.results = [
             Mock(
                 chunk=Mock(
@@ -4990,7 +4990,7 @@ class TestStaleIndexWarning:
         mock_result.last_indexed_at = "2026-02-12T00:00:00+00:00"
         mock_result.index_age_seconds = 7200.0  # 2 hours
 
-        manager = Mock()
+        manager = Mock(readonly=False)
         manager.query_project = Mock(return_value=mock_result)
 
         result = await _handle_query_project(manager, {"query": "test"})
@@ -5006,7 +5006,7 @@ class TestStaleIndexWarning:
 
         from ai_governance_mcp.context_engine.server import _handle_query_project
 
-        mock_result = Mock()
+        mock_result = Mock(readonly_message=None)
         mock_result.results = [
             Mock(
                 chunk=Mock(
@@ -5025,7 +5025,7 @@ class TestStaleIndexWarning:
         mock_result.last_indexed_at = "2026-02-12T00:00:00+00:00"
         mock_result.index_age_seconds = 300.0  # 5 minutes
 
-        manager = Mock()
+        manager = Mock(readonly=False)
         manager.query_project = Mock(return_value=mock_result)
 
         result = await _handle_query_project(manager, {"query": "test"})
@@ -5039,7 +5039,7 @@ class TestStaleIndexWarning:
 
         from ai_governance_mcp.context_engine.server import _handle_query_project
 
-        mock_result = Mock()
+        mock_result = Mock(readonly_message=None)
         mock_result.results = [
             Mock(
                 chunk=Mock(
@@ -5058,7 +5058,7 @@ class TestStaleIndexWarning:
         mock_result.last_indexed_at = None
         mock_result.index_age_seconds = None
 
-        manager = Mock()
+        manager = Mock(readonly=False)
         manager.query_project = Mock(return_value=mock_result)
 
         result = await _handle_query_project(manager, {"query": "test"})

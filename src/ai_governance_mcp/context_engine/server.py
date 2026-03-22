@@ -163,6 +163,9 @@ Call `query_project(query="...")` before creating or modifying code:
 3. **Cite findings** — Reference file paths and patterns found, or confirm nothing relevant exists
 4. **Check freshness** — If `project_status` shows stale index, call `index_project` first
 
+### Read-Only Mode
+In sandboxed environments (Cowork VM, Docker, CI), the server auto-detects read-only filesystems and enters read-only mode. Queries work against pre-built indexes. `index_project` returns an error with instructions to index from a writable environment. Set `AI_CONTEXT_ENGINE_READONLY=true/false/auto` to control explicitly.
+
 ### Tools
 | Tool | Purpose |
 |------|---------|
@@ -226,6 +229,35 @@ def _setup_logging() -> None:
     root_logger.addHandler(handler)
 
 
+def _detect_readonly_mode(base_path: Path | None = None) -> bool:
+    """Detect whether the storage directory is writable.
+
+    Checks AI_CONTEXT_ENGINE_READONLY env var first (explicit wins).
+    Then probes filesystem writability for 'auto' mode.
+
+    Returns True if read-only mode should be used.
+    """
+    readonly_env = os.environ.get("AI_CONTEXT_ENGINE_READONLY", "auto").lower()
+    if readonly_env in ("true", "1"):
+        logger.info("Read-only mode enabled via AI_CONTEXT_ENGINE_READONLY=true")
+        return True
+    if readonly_env in ("false", "0"):
+        return False
+
+    # Auto-detect: probe filesystem writability
+    probe_path = base_path or (Path.home() / ".context-engine" / "indexes")
+    if probe_path.exists():
+        return not os.access(probe_path, os.W_OK)
+    else:
+        # Try to create it — if that fails, we're read-only
+        try:
+            probe_path.mkdir(parents=True, exist_ok=True, mode=0o700)
+            return False
+        except OSError:
+            logger.info("Read-only mode auto-detected: cannot create %s", probe_path)
+            return True
+
+
 def _create_project_manager() -> ProjectManager:
     """Create and configure the project manager from environment.
 
@@ -235,6 +267,7 @@ def _create_project_manager() -> ProjectManager:
         AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT: Float 0.0-1.0 (default: 0.7)
         AI_CONTEXT_ENGINE_INDEX_PATH: Custom index storage path (default: ~/.context-engine/indexes/)
         AI_CONTEXT_ENGINE_INDEX_MODE: 'ondemand' (default) or 'realtime' (enables file watcher)
+        AI_CONTEXT_ENGINE_READONLY: 'true', 'false', or 'auto' (default: auto)
     """
     embedding_model = os.environ.get(
         "AI_CONTEXT_ENGINE_EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5"
@@ -301,9 +334,16 @@ def _create_project_manager() -> ProjectManager:
             "Index mode set to 'realtime' — file watcher will be enabled for new projects"
         )
 
-    from .storage.filesystem import FilesystemStorage
+    from .storage.filesystem import FilesystemStorage, ReadOnlyFilesystemStorage
 
-    storage = FilesystemStorage(base_path=Path(index_path) if index_path else None)
+    resolved_base = Path(index_path) if index_path else None
+    readonly = _detect_readonly_mode(resolved_base)
+
+    if readonly:
+        storage = ReadOnlyFilesystemStorage(base_path=resolved_base)
+        logger.info("Context Engine starting in READ-ONLY mode")
+    else:
+        storage = FilesystemStorage(base_path=resolved_base)
 
     return ProjectManager(
         storage=storage,
@@ -311,6 +351,7 @@ def _create_project_manager() -> ProjectManager:
         embedding_dimensions=embedding_dimensions,
         semantic_weight=semantic_weight,
         default_index_mode=default_index_mode,
+        readonly=readonly,
     )
 
 
@@ -472,8 +513,15 @@ async def _handle_query_project(
 
     if not result.results:
         # Differentiate: indexed-but-no-match vs truly-not-indexed
-        if result.last_indexed_at is not None:
+        if result.readonly_message:
+            message = result.readonly_message
+        elif result.last_indexed_at is not None:
             message = "No matching results found — try rephrasing your query."
+        elif manager.readonly:
+            message = (
+                "No results found. The project is not indexed and this environment "
+                "is read-only. Index from Claude Code CLI or another writable environment first."
+            )
         else:
             message = (
                 "No results found. The project may not be indexed yet. "
@@ -516,18 +564,49 @@ async def _handle_query_project(
         "results": formatted_results,
     }
 
+    # Include readonly message if present
+    if result.readonly_message:
+        output["readonly_message"] = result.readonly_message
+
     # Warn if index is stale (>1 hour old)
     if result.index_age_seconds is not None and result.index_age_seconds > 3600:
         hours = result.index_age_seconds / 3600
-        output["staleness_warning"] = (
-            f"Index is {hours:.1f} hours old. Run index_project to refresh."
-        )
+        if manager.readonly:
+            output["staleness_warning"] = (
+                f"Index is {hours:.1f} hours old. "
+                "Re-index from a writable environment (e.g., Claude Code CLI) to refresh."
+            )
+        else:
+            output["staleness_warning"] = (
+                f"Index is {hours:.1f} hours old. Run index_project to refresh."
+            )
 
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 
 async def _handle_index_project(manager: ProjectManager) -> list[TextContent]:
     """Handle index_project tool call."""
+    if manager.readonly:
+        return [
+            TextContent(
+                type="text",
+                text=json.dumps(
+                    {
+                        "error": "Read-only mode: indexing unavailable in this environment",
+                        "hint": (
+                            "Index this project from Claude Code CLI or another writable "
+                            "environment. The index at ~/.context-engine/indexes/ will be "
+                            "available for queries here."
+                        ),
+                        "readonly_reason": os.environ.get(
+                            "AI_CONTEXT_ENGINE_READONLY", "auto-detected"
+                        ),
+                    },
+                    indent=2,
+                ),
+            )
+        ]
+
     # Rate limit indexing requests (expensive operation)
     if not _check_index_rate_limit():
         return [
@@ -625,12 +704,52 @@ async def _handle_project_status(
             )
         ]
 
+    output = status.model_dump()
+
+    # Include standalone watcher daemon status if heartbeat exists
+    daemon_status = _read_daemon_heartbeat()
+    if daemon_status:
+        output["daemon_watcher"] = daemon_status
+
     return [
         TextContent(
             type="text",
-            text=json.dumps(status.model_dump(), indent=2),
+            text=json.dumps(output, indent=2),
         )
     ]
+
+
+def _read_daemon_heartbeat() -> dict | None:
+    """Read watcher daemon heartbeat file if it exists.
+
+    Returns daemon status dict or None if no daemon is running.
+    """
+    heartbeat_path = _get_base_path().parent / "watcher-heartbeat.json"
+    if not heartbeat_path.exists():
+        return None
+    try:
+        with open(heartbeat_path) as f:
+            data = json.load(f)
+        # Check if daemon is likely still alive (heartbeat < 5 minutes old)
+        alive_at = data.get("alive_at", "")
+        if alive_at:
+            from datetime import datetime, timezone
+
+            dt = datetime.fromisoformat(alive_at)
+            age_seconds = (datetime.now(timezone.utc) - dt).total_seconds()
+            data["heartbeat_age_seconds"] = round(age_seconds, 1)
+            data["likely_alive"] = age_seconds < 300  # 5 minutes
+        return data
+    except (json.JSONDecodeError, OSError, ValueError):
+        return None
+
+
+def _get_base_path() -> Path:
+    """Get the index base path from env or default."""
+    custom = os.environ.get("AI_CONTEXT_ENGINE_INDEX_PATH")
+    if custom:
+        return Path(custom).resolve()
+    return Path.home() / ".context-engine" / "indexes"
 
 
 def main() -> None:
@@ -657,12 +776,14 @@ def main() -> None:
         # Runs between create_server() and asyncio.run() so watchers begin
         # loading while the MCP server starts accepting connections.
         # daemon=True so the process can exit without joining this thread.
-        startup_thread = threading.Thread(
-            target=manager.startup_watchers,
-            name="watcher-startup",
-            daemon=True,
-        )
-        startup_thread.start()
+        # Skip entirely in read-only mode (no watchers needed).
+        if not manager.readonly:
+            startup_thread = threading.Thread(
+                target=manager.startup_watchers,
+                name="watcher-startup",
+                daemon=True,
+            )
+            startup_thread.start()
 
         async def _run() -> None:
             try:

@@ -103,10 +103,12 @@ class Indexer:
         storage: BaseStorage,
         embedding_model: str = "BAAI/bge-small-en-v1.5",
         embedding_dimensions: int = 384,
+        readonly: bool = False,
     ) -> None:
         self.storage = storage
         self.embedding_model_name = embedding_model
         self.embedding_dimensions = embedding_dimensions
+        self.readonly = readonly
         self._embedding_model = None
         self._model_lock = threading.Lock()  # Thread-safe lazy model loading
 
@@ -129,6 +131,9 @@ class Indexer:
         """
         if self._embedding_model is not None:
             return self._embedding_model
+
+        if self.readonly:
+            return None
 
         with self._model_lock:
             # Double-check after acquiring lock
@@ -196,6 +201,11 @@ class Indexer:
         Returns:
             Complete ProjectIndex with all chunks and metadata.
         """
+        if self.readonly:
+            raise RuntimeError(
+                "Cannot index projects in read-only mode. "
+                "Index from a writable environment first."
+            )
         logger.info("Indexing project: %s (id: %s)", project_path, project_id)
 
         # Load ignore patterns
@@ -309,6 +319,8 @@ class Indexer:
     ) -> ProjectIndex:
         """Update the index incrementally in response to file changes.
 
+        Raises RuntimeError in read-only mode.
+
         Only re-parses and re-embeds changed/added files. Reuses existing
         chunks and embeddings for unchanged files. Falls back to full
         re-index when incremental state is unavailable.
@@ -327,6 +339,11 @@ class Indexer:
         Returns:
             Updated ProjectIndex.
         """
+        if self.readonly:
+            raise RuntimeError(
+                "Cannot update index in read-only mode. "
+                "Index from a writable environment first."
+            )
         # Load existing state
         existing_metadata = self.storage.load_metadata(project_id)
         if existing_metadata is None:

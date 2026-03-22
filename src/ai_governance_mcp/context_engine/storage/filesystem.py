@@ -23,6 +23,11 @@ from .base import BaseStorage
 
 logger = logging.getLogger("ai_governance_mcp.context_engine.storage.filesystem")
 
+
+class ReadOnlyStorageError(Exception):
+    """Raised when a write operation is attempted in read-only mode."""
+
+
 # Project IDs must be hex characters only (SHA-256 truncation output)
 _PROJECT_ID_PATTERN = re.compile(r"^[0-9a-f]{1,64}$")
 
@@ -336,3 +341,150 @@ class FilesystemStorage(BaseStorage):
                 path.unlink()
             else:
                 shutil.rmtree(path)
+
+
+class ReadOnlyFilesystemStorage(FilesystemStorage):
+    """Read-only filesystem storage for sandboxed environments.
+
+    Queries pre-built indexes without any filesystem writes. Used when
+    the storage directory is on a read-only mount (e.g., Cowork VM,
+    Docker containers, CI environments).
+
+    All read operations (load_*, list_projects, project_exists) work
+    normally. All write operations raise ReadOnlyStorageError.
+    Corrupt-file recovery skips unlink() and logs a warning instead.
+    """
+
+    def __init__(self, base_path: Path | None = None) -> None:
+        """Initialize read-only storage — no mkdir, chmod, or cleanup."""
+        if base_path is None:
+            base_path = Path.home() / ".context-engine" / "indexes"
+        self.base_path = base_path.resolve()
+        # No mkdir, no chmod, no _cleanup_tmp_files — pure read-only
+
+    # ── Write operations: all blocked ──
+
+    def save_embeddings(self, project_id: str, embeddings: np.ndarray) -> None:
+        raise ReadOnlyStorageError(
+            "Cannot save embeddings in read-only mode. "
+            "Index this project from a writable environment first."
+        )
+
+    def save_bm25_index(self, project_id: str, index_data: Any) -> None:
+        raise ReadOnlyStorageError("Cannot save BM25 index in read-only mode.")
+
+    def save_metadata(self, project_id: str, metadata: dict) -> None:
+        raise ReadOnlyStorageError("Cannot save metadata in read-only mode.")
+
+    def save_chunks(self, project_id: str, chunks: list[dict]) -> None:
+        raise ReadOnlyStorageError("Cannot save chunks in read-only mode.")
+
+    def save_file_manifest(self, project_id: str, manifest: dict) -> None:
+        raise ReadOnlyStorageError("Cannot save file manifest in read-only mode.")
+
+    def delete_project(self, project_id: str) -> None:
+        raise ReadOnlyStorageError("Cannot delete projects in read-only mode.")
+
+    # ── Read operations: override only corrupt-file recovery ──
+
+    def load_embeddings(self, project_id: str) -> np.ndarray | None:
+        path = self.get_index_path(project_id) / "content_embeddings.npy"
+        if path.exists():
+            try:
+                return np.load(path, allow_pickle=False)
+            except Exception as e:
+                logger.warning(
+                    "Corrupt embeddings file for project %s (read-only, cannot remove): %s",
+                    project_id,
+                    e,
+                )
+                return None
+        return None
+
+    def load_bm25_index(self, project_id: str) -> Any | None:
+        json_path = self.get_index_path(project_id) / "bm25_index.json"
+        if json_path.exists():
+            if json_path.stat().st_size > MAX_JSON_FILE_SIZE_BYTES:
+                logger.warning(
+                    "BM25 index exceeds %d byte limit, skipping: %s",
+                    MAX_JSON_FILE_SIZE_BYTES,
+                    project_id,
+                )
+                return None
+            try:
+                with open(json_path) as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, OSError) as e:
+                logger.warning(
+                    "Corrupt BM25 index for project %s (read-only, cannot remove): %s",
+                    project_id,
+                    e,
+                )
+                return None
+        return None
+
+    def load_metadata(self, project_id: str) -> dict | None:
+        path = self.get_index_path(project_id) / "metadata.json"
+        if path.exists():
+            if path.stat().st_size > MAX_JSON_FILE_SIZE_BYTES:
+                logger.warning(
+                    "Metadata exceeds %d byte limit, skipping: %s",
+                    MAX_JSON_FILE_SIZE_BYTES,
+                    project_id,
+                )
+                return None
+            try:
+                with open(path) as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, OSError) as e:
+                logger.warning(
+                    "Corrupt metadata for project %s (read-only, cannot remove): %s",
+                    project_id,
+                    e,
+                )
+                return None
+        return None
+
+    def load_chunks(self, project_id: str) -> list[dict] | None:
+        json_path = self.get_index_path(project_id) / "chunks.json"
+        if json_path.exists():
+            if json_path.stat().st_size > MAX_JSON_FILE_SIZE_BYTES:
+                logger.warning(
+                    "Chunks file exceeds %d byte limit, skipping: %s",
+                    MAX_JSON_FILE_SIZE_BYTES,
+                    project_id,
+                )
+                return None
+            try:
+                with open(json_path) as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, OSError) as e:
+                logger.warning(
+                    "Corrupt chunks file for project %s (read-only, cannot remove): %s",
+                    project_id,
+                    e,
+                )
+                return None
+        return None
+
+    def load_file_manifest(self, project_id: str) -> dict | None:
+        path = self.get_index_path(project_id) / "file_manifest.json"
+        if path.exists():
+            if path.stat().st_size > MAX_JSON_FILE_SIZE_BYTES:
+                logger.warning(
+                    "File manifest exceeds %d byte limit, skipping: %s",
+                    MAX_JSON_FILE_SIZE_BYTES,
+                    project_id,
+                )
+                return None
+            try:
+                with open(path) as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, OSError) as e:
+                logger.warning(
+                    "Corrupt file manifest for project %s (read-only, cannot remove): %s",
+                    project_id,
+                    e,
+                )
+                return None
+        return None

@@ -144,6 +144,9 @@ class ProjectQueryResult(BaseModel):
     index_age_seconds: float | None = Field(
         None, description="Seconds since the index was last updated"
     )
+    readonly_message: str | None = Field(
+        None, description="Message when read-only mode prevents an operation"
+    )
 
 
 class ProjectStatus(BaseModel):

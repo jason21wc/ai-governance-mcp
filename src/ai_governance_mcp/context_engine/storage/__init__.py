@@ -5,5 +5,6 @@ remote storage (S3) for team sharing.
 """
 
 from .base import BaseStorage
+from .filesystem import ReadOnlyFilesystemStorage, ReadOnlyStorageError
 
-__all__ = ["BaseStorage"]
+__all__ = ["BaseStorage", "ReadOnlyFilesystemStorage", "ReadOnlyStorageError"]
