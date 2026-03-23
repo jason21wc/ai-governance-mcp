@@ -1310,6 +1310,7 @@ AI models introduce predictable failure modes when recommending technologies:
 | **Abstraction stacking** | AI adds middleware, adapters, and abstraction layers without evaluating whether the abstraction is needed | For each layer: what failure modes does this introduce that the direct API doesn't? |
 | **Stale recommendations** | Training data lags reality — recommended tools may be deprecated or have known vulnerabilities | Verify current maintenance status and latest stable release |
 | **Prototype-production conflation** | AI applies production-grade tooling (ORMs, state management, caching) to prototypes that need none | Match tool complexity to project phase — §1.3 mode calibration applies |
+| **Agent-legibility blindspot** | AI recommends tools with complex/opaque APIs that are hard for agents to reason about in-context | Prefer stable, composable, well-documented technologies ("boring tech") — they are easier for AI agents to model due to API stability and training data representation. When agents will maintain the code, agent legibility is a selection criterion alongside human readability. |
 
 > **Applies To:** choosing a library, **evaluating an SDK**, **comparing frameworks**, technology stack decisions, **dependency selection**
 > **Cross-reference:** §5.6.5 (MCP Server Vetting Procedure — detailed trust evaluation for MCP tools specifically)
@@ -4791,6 +4792,8 @@ Project hygiene prevents accumulation of obsolete files, maintains clear organiz
 - Prevent confusion about which files are current
 - Keep repository size manageable
 - Pass security audits (no exposed secrets or debug artifacts)
+
+**At high agent throughput**, hygiene becomes a recurring automated process, not just a human checklist. Teams with heavy AI code generation benefit from scheduled "garbage collection" — background agent tasks that scan for pattern drift, stale documentation, and suboptimal code, then open targeted cleanup PRs. This prevents technical debt from compounding faster than humans can review it.
 
 ### 6.5.2 Standard Directory Structure
 
