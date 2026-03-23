@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.25.0
+**Version:** 2.26.0
 **Status:** Active
 **Effective Date:** 2026-03-16
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -1095,15 +1095,24 @@ Do NOT proceed to Plan phase with incomplete specification.
 
 ## Part 2.4: UX Elaboration [ENHANCED Mode]
 
-**Importance: 🟢 OPTIONAL — Only for UX-critical projects**
+**Importance: 🟡 IMPORTANT for UI-facing projects — 🟢 OPTIONAL for backend/CLI-only**
+
+**Keywords:** **UX elaboration**, **design before build**, **wireframe before code**, **prototype validation**, **UI specification**
+
+For projects with a user-facing interface (web app, mobile app, desktop GUI), treat this section as **IMPORTANT**, not optional. Skipping design validation before code generation is the leading cause of rebuild loops — AI generates plausible-looking UI from vague prompts, but the result rarely matches what the user actually needed. Interactive prototypes (Figma, Google Stitch, or hand-drawn wireframes) catch misalignment in minutes; rebuilding code catches it in hours.
+
+**The anti-pattern:** Prompting AI to "build me a dashboard" without a design reference. The AI generates something that looks professional but has the navigation in the wrong place, the wrong data hierarchy, and interaction patterns that confuse real users. This is the UI equivalent of Specification Completeness failure mode A1 (Incomplete Specifications → Hallucination).
+
+**The fix:** Create a design artifact first — even a rough wireframe — validate it with stakeholders, THEN use it as the AI's implementation reference. Figma MCP (UI/UX Methods §8.1) enables AI agents to read design data directly from Figma files, making this workflow seamless.
 
 ### 2.4.1 When to Apply
 
-Apply UX Elaboration procedures when:
-- User experience is critical to success
-- Novel interaction patterns required
-- Multiple user personas with different needs
-- Accessibility requirements significant
+Apply UX Elaboration procedures when the project has a user-facing interface. This includes:
+- Web applications, mobile apps, desktop GUIs
+- Admin dashboards and internal tools with visual interfaces
+- Any project where users interact through screens rather than CLI/API
+
+**Always skip for:** CLI tools, pure APIs, backend services, libraries, infrastructure.
 
 ### 2.4.2 UX Elaboration Procedures
 
@@ -1315,15 +1324,17 @@ This framework is not tool-agnostic — it references specific tools and platfor
 | **Appendix** | Tool is actively in use; platform-specific best practices warrant dedicated guidance | Claude Code (A), Gemini CLI (D), Chrome Extension (E), Context Engine (G), Postgres/Supabase (I) |
 | **Build our own** | Tighter integration or governance alignment justifies building over adopting | Context Engine (from Augment Code concept), governance enforcement hooks (§9.3.10) |
 
-**Discovery-driven, not catalog-driven.** Tools enter the framework through actual research and usage — not market surveys, not feature comparisons, not "what's popular." If we haven't used it, it doesn't belong here.
+**Discovery-driven, not catalog-driven.** Tools enter the framework through actual research, usage, or evaluated potential — not market surveys, not feature comparisons, not "what's popular."
 
 **Decision checklist** for whether and how to include a tool:
 
-1. **Do we use it?** If no → don't include it (discovery-driven)
+1. **Do we use it or plan to use it?** If actively using → include per modes below. If evaluating for potential use → add as a named reference with a note that it's under evaluation, and ask the user if they'd like to adopt it.
 2. **Is it best-in-class with no internal equivalent?** If yes → named reference
 3. **Does it need platform-specific guidance?** If yes → appendix
 4. **Can we build better-integrated capability?** If yes → build our own
 5. **Do we already have equivalent capability?** If yes → no need for the external tool
+
+**Prospective tools:** When research surfaces a tool that could benefit the workflow but hasn't been adopted yet, the AI should (a) note it as a named reference with "under evaluation" status, and (b) ask the user whether they'd like to add it to their workflow. This prevents useful discoveries from being lost while maintaining the discovery-driven philosophy.
 
 **Supersession rule:** If we build or already have equivalent capability, the external tool is superseded. Do not maintain references to inferior external tools when a governance-integrated alternative exists.
 
@@ -6673,7 +6684,7 @@ Also read AGENTS.md for project context.
 
 ## Governance — ENFORCED BY HOOK
 [Hook enforcement details if applicable]
-- Framework: AI Coding Methods v2.25.0
+- Framework: AI Coding Methods v2.26.0
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Debugging
@@ -7573,7 +7584,7 @@ CREATE POLICY "Users insert own documents" ON documents
 # Project: [Name]
 
 **Description:** [1-2 sentences]
-**Framework:** AI Coding Methods v2.25.0
+**Framework:** AI Coding Methods v2.26.0
 **Mode:** [Expedited/Standard/Enhanced]
 
 ## Memory Files
@@ -7907,6 +7918,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.26.0 | 2026-03-22 | **Design-Before-Build & Tool Discovery:** (1) §2.4 UX Elaboration elevated from OPTIONAL to IMPORTANT for UI-facing projects — added anti-pattern description (prompting AI for UI without design reference), fix guidance (create design artifact first, validate, then implement), Figma MCP cross-reference for seamless design-to-code workflow. §2.4.1 When to Apply rewritten with clear inclusion/exclusion criteria. (2) §3.1.4 Tool Content Model updated: "tools we may use" inclusion path — prospective tools noted as named references under evaluation with user consent before adoption. Prevents useful discoveries from being lost while maintaining discovery-driven philosophy. Prompted by analysis of vibe-coding anti-patterns in AI development community. |
 | 2.25.0 | 2026-03-22 | **Repository Security Configuration & Semantic Code Analysis:** (1) New §6.4.10 Repository Security Configuration — universal 10-item checklist (branch protection, CI enforcement, secret scanning, dependency alerts, CodeQL, CODEOWNERS), 3 enforcement tiers (Minimum/Standard/Production), cross-platform quick reference table (GitHub, GitLab, Bitbucket). (2) New §6.4.11 Semantic Code Analysis — CodeQL workflow template, query suite guidance (security-extended recommended), platform alternatives (GitLab SAST, Semgrep, Bandit), finding management and false positive suppression. (3) Appendix H expanded from 14 to 16 items (+repository branch protection, +semantic analysis enabled). (4) §5.3.3 cross-reference to §6.4.10/§6.4.11 for enforcement. (5) §6.4.6 CodeQL bullet expanded with §6.4.11 reference. (6) Situation Index +2 entries. Prompted by bandit CI failure revealing the gap between "run scans" and "enforce scan results." |
 | 2.24.0 | 2026-03-22 | **Folder-Based AI Environment Support:** New Appendix L. (1) L.1 Overview — problem statement for folder-based tools (Cowork, ChatGPT Desktop) that lack auto-discovery. (2) L.2 Folder Structure Convention — `_ai-context/` naming rationale (underscore sorts to top, visible, cross-platform), standalone vs hybrid layouts. (3) L.3 README.md Loader Templates — standalone (~50 lines, project description + memory file table + session protocol) and hybrid redirect (~15 lines, points to root-level files). (4) L.4 Cowork Project Instructions Template — copy-paste block for GUI bootstrapping. (5) L.5 Bootstrapping Protocol — conversational (AI creates files), manual (copy templates), MCP tool (future scaffold_project). (6) L.6 Non-Code Session State Variant — simplified Quick Reference for document projects. (7) L.7 Cross-Tool Coexistence — environment matrix, coexistence rules, advisory enforcement note. Cross-references: §1.5.1 (folder-based note), §1.5.5 (added _ai-context/README.md row), §7.8.4 (folder-based variant), Situation Index (+1 entry), Cold Start Kit (+Scenario E). Constitutional basis: Project Reference Persistence, Context Engineering. |
 | 2.23.0 | 2026-03-22 | **Context Engine Cross-Environment Compatibility:** New Appendix G.11-G.13. (1) G.11 Cross-Environment Compatibility — read-only mode for sandboxed environments (Cowork VM, Docker, CI), `AI_CONTEXT_ENGINE_READONLY` env var with auto-detection, `project_path` parameter on all tools, environment compatibility matrix, "index once, query everywhere" pattern. (2) G.12 Standalone Watcher Daemon — `context-engine-watcher` CLI keeps indexes fresh independently of AI client sessions, heartbeat/PID file management, graceful shutdown. (3) G.13 Platform Service Installation — `context-engine-service` CLI with install/uninstall/status/logs subcommands, platform generators for macOS launchd, Linux systemd, Windows Task Scheduler, troubleshooting guide. Context Engine v1.3.0. |
