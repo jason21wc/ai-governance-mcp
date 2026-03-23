@@ -509,6 +509,19 @@ Not needed at current scale. Phased approach documented in ADR-14. Revisit when 
 - Vector DB migration (when scale requires) — see also ADR-14 Phase 3
 - ~~Prompt Engineering consolidation~~ → Title 11 in ai-governance-methods (done)
 - ~~RAG Optimization consolidation~~ → Title 12 in ai-governance-methods (done)
+- Governance-aware PR review (GitHub Action + Claude API + governance principles, ~$0.02-0.03/review with Haiku) — see SESSION-STATE Backlog #4 notes
+
+### Evidence Sources for Future Domain Updates
+
+Reviewed 2026-03-22. These articles validate existing framework patterns. Filed for citation when updating ai-coding or multi-agent domains.
+
+| Source | Date | Validates | Key Insight |
+|--------|------|-----------|-------------|
+| Lopopolo (OpenAI) "Harness Engineering: Leveraging Codex" | 2026-03 | AGENTS.md-as-map (Appendix K), enforcement-over-documentation (§9.3.10), graduated autonomy (AO-Series), automated hygiene (§6.5) | At scale, "golden principles" encoded mechanically beat documentation. Agent legibility is a first-class design criterion. 1M lines, 0 manually-written. |
+| LangChain "Improving Deep Agents with Harness Engineering" | 2026-02 | Self-verification loops (§5.1.2), doom loop detection (§5.13.4), progressive context injection (§7.8), trace-based improvement | PreCompletionChecklistMiddleware = our completion sequence. LoopDetectionMiddleware = our fix decay protocol. "Reasoning sandwich" (xhigh-high-xhigh) for planning/execution/verification. |
+| Anthropic "Effective Harnesses for Long-Running Agents" | 2025-11 | Session state persistence (§7.0 memory files), incremental progress (§4.1 atomic tasks), completion sequence (§5.1.6), feature tracking | claude-progress.txt = our SESSION-STATE.md. JSON feature list = structured acceptance criteria. "Test baseline before new work" pattern (implied by our §7.8 but not explicit). |
+| Shen & Tamkin (Anthropic) "How AI Impacts Skill Formation" | 2026-01 | Human-AI Collaboration (Skill Preservation subsection) | Exoskeleton effect: AI erodes skills when users delegate fully. Added to ai-coding principles. arXiv:2601.20245. |
+| Macnamara et al. "Does AI Accelerate Skill Decay?" | 2024 | Human-AI Collaboration (Skill Preservation subsection) | AI-induced skill decay operates outside performer awareness. PMC/Cognitive Research. |
 
 ### Project Initialization — Part B (Bootstrap Gap)
 
