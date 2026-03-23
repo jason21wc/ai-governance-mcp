@@ -303,6 +303,15 @@ Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revis
 **Recommended priority: 2nd** — Broad applicability. AI is increasingly used to generate training materials, SOPs, and tutorials. Strong evidence base already identified. Slightly lower urgency than UI/UX because it's less adjacent to day-to-day AI-assisted coding.
 New governance domain for training, instructional design, and procedures. Replaces the original "Procedures Domain" placeholder — procedures are a type of training content and belong under this broader umbrella.
 
+**Contrarian Review (2026-03-22) — Verdict: REVISIT.** Key findings:
+- Scope is 2-3 domains masquerading as one (SOPs, course design, assessments are distinct disciplines)
+- 14 evidence frameworks is a research project, not a domain scope — narrow to 3-4
+- No demonstrated usage need yet — framework pattern is domains emerging from practice
+- Exoskeleton effect (Shen & Tamkin 2026) addressed separately via ai-coding principles Skill Preservation subsection
+- **Recommended path:** (1) Produce 3-5 real training artifacts with AI, log failure modes. (2) If failures emerge that existing governance cannot address, scope narrow domain (Procedures & SOPs only first). (3) Expand from usage, not from literature review.
+- **New evidence sources for when domain is built:** Shen & Tamkin 2026 (exoskeleton effect, arXiv:2601.20245), Macnamara et al. 2024 (AI skill decay, PMC), MIT Media Lab EEG study (neural connectivity during AI-assisted work)
+- **Governance-aware PR review** also noted as a future backlog item (GitHub Action + Claude API + governance principles, ~$0.02-0.03/review with Haiku)
+
 **Scope — Content types:**
 - Standard Operating Procedures (SOPs) and runbooks
 - Technical tutorials and how-to guides

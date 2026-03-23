@@ -902,6 +902,13 @@ AI serves as primary executor implementing technical tasks, while Product Owner 
   * Flag areas where human judgment is particularly important
   * Encourage critical review, not rubber-stamping
   * Document reasoning so PO can evaluate, not just accept
+- **Skill Preservation (The Exoskeleton Effect):**
+  Research shows AI assistance can erode underlying skills — productivity improves in the moment, but competence degrades when the tool is removed (Shen & Tamkin 2026, Anthropic; n=52, software engineers learning new libraries). Participants who fully delegated to AI finished fastest but scored lowest on comprehension. The determining factor was **cognitive engagement**, not whether AI was used.
+  * **High-performing patterns** (maintain skill growth): Ask AI for explanations rather than complete solutions. Generate code then drill into it with follow-ups until you understand. Ask conceptual questions and resolve errors independently.
+  * **Low-performing patterns** (cause skill decay): Let AI one-shot the entire task. Start independently then gradually delegate everything. Use AI repeatedly to verify/debug without developing understanding.
+  * **The rule:** Stay in the driver's seat cognitively. Use AI as a sparring partner, not a cheat sheet. When learning new skills or technologies, prefer the "conceptual inquiry" pattern — ask AI to explain concepts while you write the code yourself.
+  * **When this matters most:** Learning new frameworks/libraries, onboarding to unfamiliar codebases, safety-critical domains where independent competence is required.
+  * *Evidence: Shen & Tamkin (2026) "How AI Impacts Skill Formation" arXiv:2601.20245; Macnamara et al. (2024) "Does using AI accelerate skill decay?" Cognitive Research: Principles and Implications; MIT Media Lab EEG study showing reduced neural connectivity during AI-assisted writing.*
 
 **Solo Developer Mode:**
 
