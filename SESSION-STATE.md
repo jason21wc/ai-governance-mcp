@@ -21,12 +21,12 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.3.0** (read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v2.5.0** (Constitution), **v3.13.0** (meta-methods), **v2.26.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
+| Content | **v2.6.0** (Constitution), **v3.13.0** (meta-methods), **v2.26.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **6** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux) |
-| Index | **149 principles + 579 methods** (728 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
+| Index | **150 principles + 579 methods** (729 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check with recency window) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
@@ -68,6 +68,22 @@
    - §2.4 UX Elaboration: OPTIONAL→IMPORTANT for UI-facing projects, anti-pattern description, Figma MCP cross-reference
    - §3.1.4 Tool Content Model: added "tools we may use" prospective evaluation path with user consent
    - Catalyst: Sean Kochel newsletter analysis on vibe-coding rebuild loops
+
+5. **Skill Preservation (Exoskeleton Effect)** — ai-coding principles update
+   - Added Skill Preservation subsection to Human-AI Collaboration principle
+   - Cites Shen & Tamkin 2026 (Anthropic), Macnamara et al. 2024, MIT Media Lab EEG study
+   - Three high-performing + three low-performing AI interaction patterns
+   - Training domain backlog updated with contrarian reviewer REVISIT verdict
+
+6. **Intent Discovery** — Constitution v2.5.0→v2.6.0 (NEW CONSTITUTIONAL PRINCIPLE)
+   - New C-Series principle: assess whether stated request reflects actual underlying need
+   - Proportional skepticism: Dig/Proceed signals calibrate investigation depth
+   - Evidence: VOC/CTQ (Six Sigma), Kano model, Five Whys, XY Problem, IEEE 29148, McKinsey, Zou et al. 2022, Zhang/Knox/Choi ICLR 2025
+   - 6 named traps (Therapist, I Know Better, Interrogation, Infinite Regress, Solution Prejudice, False Positive)
+   - Relationship: sibling to Discovery Before Commitment (DBC explores within frame, ID questions the frame)
+   - Contrarian review: MODIFY accepted — moved signal list to Operational Considerations, added domain calibration
+   - Index: 150 principles + 579 methods (729 total)
+   - 964 tests passing
 
 ### Previous Session (2026-03-17)
 
