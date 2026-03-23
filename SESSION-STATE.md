@@ -21,12 +21,12 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.3.0** (read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v2.5.0** (Constitution), **v3.13.0** (meta-methods), **v2.24.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
+| Content | **v2.5.0** (Constitution), **v3.13.0** (meta-methods), **v2.26.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **6** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux) |
-| Index | **149 principles + 577 methods** (726 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
+| Index | **149 principles + 579 methods** (728 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check with recency window) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
@@ -58,6 +58,16 @@
    - Partially resolves Backlog #2 (Project Initialization Part B) for folder-based environments
    - Validated by: coherence-auditor, validator subagents
    - 964 tests passing, 0 failures
+
+3. **Repository Security Configuration** — ai-coding methods v2.24.0→v2.25.0
+   - New §6.4.10: 10-item universal checklist (branch protection → CODEOWNERS), 3 enforcement tiers, cross-platform table (GitHub/GitLab/Bitbucket)
+   - New §6.4.11: CodeQL workflow template, query suite guidance, platform alternatives (GitLab SAST, Semgrep, Bandit)
+   - Appendix H expanded 14→16 items, §5.3.3 cross-ref, Situation Index +2
+
+4. **Design-Before-Build & Tool Discovery** — ai-coding methods v2.25.0→v2.26.0
+   - §2.4 UX Elaboration: OPTIONAL→IMPORTANT for UI-facing projects, anti-pattern description, Figma MCP cross-reference
+   - §3.1.4 Tool Content Model: added "tools we may use" prospective evaluation path with user consent
+   - Catalyst: Sean Kochel newsletter analysis on vibe-coding rebuild loops
 
 ### Previous Session (2026-03-17)
 
