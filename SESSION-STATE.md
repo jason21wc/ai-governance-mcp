@@ -85,6 +85,25 @@
    - Index: 150 principles + 579 methods (729 total)
    - 964 tests passing
 
+7. **Knowledge Management & People Development Domain — Design** (no code yet)
+   - Renamed from "Training & Instructional Design" — training is one activity within the scope
+   - Jason's framework (novel synthesis): two pillars (Lead People / Manage Process), continuous knowledge scale, derivation chains, empowerment model (Luftig/BPE)
+   - Deep research confirmed: no published framework combines all elements
+   - Maturity model designed (6 levels), scope boundary defined, verification model established
+   - 8 Q&A rounds captured, 18 book-worthy themes documented
+   - Full design document: `.claude/plans/peaceful-pondering-dahl.md`
+   - Next: draft principles + methods documents in a fresh session
+   - Note: proprietary domain — will use private repo (not public GitHub)
+
+8. **Domain Creation Criteria (§5.1.0)** — meta-methods update
+   - Added "When to Create a Domain" section: active practice, planned practice, OR significant possibility
+   - The test is "will AI-specific failure modes exist?" not "have I already hit them?"
+   - Proactive governance is valid — building codes before construction
+
+9. **Evidence sources filed** — 5 articles (Lopopolo/OpenAI, LangChain, Anthropic, Shen & Tamkin, Macnamara) validating existing framework patterns
+
+10. **Agent-legibility + automated hygiene** — two small additions to ai-coding methods from OpenAI Codex article
+
 ### Previous Session (2026-03-17)
 
 1. **Document Kit Tiering & AGENTS.md Cross-Tool Support** — ai-coding methods v2.21.0→v2.22.0
@@ -315,9 +334,21 @@ Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revis
 
 **Phased approach:** See PROJECT-MEMORY.md > Roadmap > Quantized Vector Search for full details (product quantization → scalar quantization → HNSW index progression).
 
-### 4. Backlog — Add Training & Instructional Design Domain (Priority: TBD, Recommended: 2nd)
-**Recommended priority: 2nd** — Broad applicability. AI is increasingly used to generate training materials, SOPs, and tutorials. Strong evidence base already identified. Slightly lower urgency than UI/UX because it's less adjacent to day-to-day AI-assisted coding.
-New governance domain for training, instructional design, and procedures. Replaces the original "Procedures Domain" placeholder — procedures are a type of training content and belong under this broader umbrella.
+### 4. Backlog — Knowledge Management & People Development Domain (Priority: NEXT)
+**Renamed from "Training & Instructional Design"** — "Training" was too narrow. The domain covers knowledge capture, abstraction, transfer, people readiness, and process standardization.
+
+**Status: DESIGN COMPLETE. Ready to draft principles + methods documents.**
+Full design document: `.claude/plans/peaceful-pondering-dahl.md` (comprehensive — 18 book-worthy themes, maturity model, scope boundary, all Q&A captured).
+
+**Key design decisions (2026-03-23/24):**
+- One domain (like storytelling — multiple formats, shared principles)
+- Jason's framework IS the skeleton (two pillars: Lead People / Manage Process)
+- Continuous scale of detail, not discrete tiers (Detailed KB → purpose-driven extractions)
+- Derivation chains: Detailed KB → Cross-Training Matrix → Job Description → Onboarding (novel)
+- Maturity model: 6 levels (Tribal → Ad Hoc → Structured → Extracted → Managed → Optimizing)
+- Empowerment model (Luftig/BPE): Tools, Knowledge, Responsibility, Accountability, Authority
+- Proprietary domain — private repo, not public GitHub
+- Research confirmed: NO existing published framework combines all elements (novel synthesis)
 
 **Contrarian Review (2026-03-22) — Verdict: REVISIT.** Key findings:
 - Scope is 2-3 domains masquerading as one (SOPs, course design, assessments are distinct disciplines)
