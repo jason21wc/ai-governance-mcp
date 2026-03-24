@@ -322,9 +322,9 @@ New governance domain for training, instructional design, and procedures. Replac
 **Contrarian Review (2026-03-22) — Verdict: REVISIT.** Key findings:
 - Scope is 2-3 domains masquerading as one (SOPs, course design, assessments are distinct disciplines)
 - 14 evidence frameworks is a research project, not a domain scope — narrow to 3-4
-- No demonstrated usage need yet — framework pattern is domains emerging from practice
 - Exoskeleton effect (Shen & Tamkin 2026) addressed separately via ai-coding principles Skill Preservation subsection
-- **Recommended path:** (1) Produce 3-5 real training artifacts with AI, log failure modes. (2) If failures emerge that existing governance cannot address, scope narrow domain (Procedures & SOPs only first). (3) Expand from usage, not from literature review.
+- **Recommended path:** (1) Scope narrow domain (Procedures & SOPs only first). (2) Expand from usage, not from literature review.
+- **Clarification (2026-03-23):** The contrarian reviewer's "no demonstrated usage" objection was based on an implicit assumption that domains must emerge from existing practice. This was corrected in meta-methods §5.1.0: domains can be created based on active practice, planned practice, OR significant possibility. The test is "will AI-specific failure modes exist when I do this?" not "have I already hit them." Proactive governance is valid — building codes before construction, not after collapse.
 - **New evidence sources for when domain is built:** Shen & Tamkin 2026 (exoskeleton effect, arXiv:2601.20245), Macnamara et al. 2024 (AI skill decay, PMC), MIT Media Lab EEG study (neural connectivity during AI-assisted work)
 - **Governance-aware PR review** also noted as a future backlog item (GitHub Action + Claude API + governance principles, ~$0.02-0.03/review with Haiku)
 

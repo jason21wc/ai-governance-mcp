@@ -950,6 +950,23 @@ Once drift is detected (§4.3.3), remediate by classifying the drifted content's
 
 ## Part 5.1: Adding New Domains
 
+### 5.1.0 When to Create a Domain
+
+A new governance domain is justified when AI-specific failure modes exist in a content area that constitutional principles alone cannot adequately address. Domains can be created based on any of these triggers:
+
+- **Active practice:** You are currently producing this type of content with AI and hitting failure modes
+- **Planned practice:** You intend to produce this type of content and want governance in place before you start
+- **Significant possibility:** Your workflow, role, or projects make it likely you will produce this content, and proactive governance prevents the "build without guardrails, retrofit later" anti-pattern
+
+The key test is not "have I already done this?" but "will AI-specific failure modes exist when I do this?" If yes, creating governance proactively is valid — the same way you establish building codes before construction begins, not after the first collapse.
+
+**What is NOT sufficient justification:**
+- Intellectual interest alone (reading about a topic does not create a domain need)
+- Market trends without personal workflow relevance
+- A single research paper (evidence for principles within a domain, not for the domain itself)
+
+**Scope discipline:** When creating a domain, scope to one coherent content type first. Expand from demonstrated need, not from comprehensive literature review. A domain covering "SOPs and runbooks" is better than one covering "all training, instructional design, assessment, course design, knowledge transfer, and e-learning" — the latter is 3-4 domains masquerading as one.
+
 ### 5.1.1 New Domain Checklist
 
 To add a new domain:
