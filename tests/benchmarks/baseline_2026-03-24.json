@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-24T22:59:55.985520",
+  "timestamp": "2026-03-24T23:32:16.804953",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
     "method_mrr": 0.7111111111111111,
@@ -8,7 +8,7 @@
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 46.7,
+    "model_load_time_ms": 46.6,
     "index_stats": {
       "total_principles": 163,
       "total_methods": 616,
@@ -57,7 +57,7 @@
         "meta-method-what-is-anchor-bias"
       ],
       "rank": 1,
-      "score": 0.7962065205301294,
+      "score": 0.7961987206368766,
       "semantic_score": 0.6823557019233704
     },
     "method-5": {
@@ -75,7 +75,7 @@
         "multi-method-orchestration-pattern-selection"
       ],
       "rank": 2,
-      "score": 0.7758680569431253,
+      "score": 0.7758698169875424,
       "semantic_score": 0.7572816610336304
     },
     "method-7": {
@@ -84,7 +84,7 @@
         "multi-method-advanced-model-considerations"
       ],
       "rank": 3,
-      "score": 0.7347162612191085,
+      "score": 0.7347157887008542,
       "semantic_score": 0.7591487169265747
     },
     "method-8": {
@@ -93,7 +93,7 @@
         "multi-method-governance-agent-pattern"
       ],
       "rank": 5,
-      "score": 0.5306278546844017,
+      "score": 0.5306260098312158,
       "semantic_score": 0.6937937140464783
     },
     "method-9": {
@@ -111,7 +111,7 @@
         "coding-method-zero-trust-design-principles"
       ],
       "rank": 1,
-      "score": 0.8495189221830463,
+      "score": 0.8495130849127117,
       "semantic_score": 0.755804181098938
     },
     "method-11": {
@@ -140,7 +140,7 @@
         "meta-core-context-engineering"
       ],
       "rank": 1,
-      "score": 0.6762074321611964
+      "score": 0.6762068897395892
     },
     "principle-2": {
       "query": "incomplete specification unclear requirements",
@@ -164,7 +164,7 @@
         "coding-quality-testing-integration"
       ],
       "rank": 2,
-      "score": 0.8116121617628549
+      "score": 0.8116103975195376
     },
     "principle-5": {
       "query": "multi agent handoff protocol explicit",

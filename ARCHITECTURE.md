@@ -1,7 +1,7 @@
 # AI Governance MCP — Architecture
 
 **Version:** 1.8.0
-**Date:** 2026-03-13
+**Date:** 2026-03-25
 **Memory Type:** Structural (reference)
 
 > System design, component responsibilities, data flow.
@@ -133,7 +133,10 @@ ai-governance-mcp/
 │   ├── test_hooks.py                 # Hook enforcement tests
 │   ├── test_analyze_compliance.py    # Compliance analysis tests
 │   ├── test_context_engine.py        # Full context engine coverage
-│   └── test_context_engine_quality.py # CE MRR/Recall benchmarks
+│   ├── test_context_engine_quality.py # CE MRR/Recall benchmarks
+│   ├── test_watcher_daemon.py        # Watcher daemon tests
+│   ├── test_readonly.py              # Read-only mode tests
+│   └── test_service.py               # Platform service installer tests
 │
 ├── .claude/hooks/                     # Pre/post tool use hooks
 │
@@ -367,7 +370,7 @@ Current metrics (see `tests/benchmarks/` for latest baseline, model: `BAAI/bge-s
 | Method Recall@10 | 0.833 | >= 0.75 | Pass |
 | Principle Recall@10 | 0.875 | >= 0.85 | Pass |
 
-**Methodology:** 8 principle + 12 method benchmark queries covering all 6 domains. Each query has expected top results. MRR measures average reciprocal rank of first correct result. Recall@10 measures whether the correct result appears in top 10. Canonical source: `tests/benchmarks/`.
+**Methodology:** 8 principle + 12 method benchmark queries covering all 7 domains. Each query has expected top results. MRR measures average reciprocal rank of first correct result. Recall@10 measures whether the correct result appears in top 10. Canonical source: `tests/benchmarks/`.
 
 ### Hybrid Search Validation
 
@@ -394,7 +397,7 @@ The 60% semantic / 40% keyword weight was determined empirically. Semantic searc
 | In-memory (NumPy) | Fast queries, simple | Full reload at startup | **Selected** for v1 |
 | Vector DB (e.g., ChromaDB) | Incremental updates, scalability | Additional dependency, deployment complexity | Deferred to roadmap |
 
-**Rationale:** With ~720 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
+**Rationale:** With ~780 indexed items and ~1MB of embeddings, in-memory storage provides <100ms query latency with minimal complexity. Vector DB migration is designed-for but deferred until scale requires it.
 
 ---
 
@@ -535,6 +538,8 @@ src/ai_governance_mcp/context_engine/
 ├── project_manager.py   # Multi-project management, hybrid query
 ├── indexer.py           # Core indexing pipeline
 ├── watcher.py           # File system watcher (watchdog)
+├── watcher_daemon.py    # Standalone watcher daemon (CLI)
+├── service.py           # Platform service installer (launchd/systemd/schtasks)
 ├── models.py            # Pydantic data models
 ├── connectors/
 │   ├── __init__.py

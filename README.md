@@ -55,6 +55,7 @@ The framework has three layers:
 | **Storytelling** | 19 | 42 | Creative writing, narrative, voice preservation |
 | **Multimodal RAG** | 35 | 64 | Image retrieval, visual presentation, agentic retrieval |
 | **UI/UX** | 20 | 43 | Visual hierarchy, accessibility, interaction design |
+| **KM&PD** | 13 | 36 | Knowledge management, people development, training |
 
 ## Tech Stack
 
@@ -834,6 +835,8 @@ ai-governance-mcp/
 │       ├── project_manager.py # Multi-project management
 │       ├── indexer.py       # Core indexing pipeline
 │       ├── watcher.py       # File system watcher
+│       ├── watcher_daemon.py # Standalone watcher daemon (CLI)
+│       ├── service.py       # Platform service installer
 │       ├── models.py        # Context engine data models
 │       ├── connectors/      # Pluggable content parsers
 │       │   ├── code.py      # Code parsing (tree-sitter)
@@ -860,7 +863,13 @@ ai-governance-mcp/
     ├── test_retrieval_quality.py    # MRR/Recall benchmarks
     ├── test_config_generator.py     # Platform configs
     ├── test_validator.py            # Principle validation
-    └── test_context_engine.py       # Context engine tests
+    ├── test_hooks.py                # Hook enforcement tests
+    ├── test_analyze_compliance.py   # Compliance analysis tests
+    ├── test_context_engine.py       # Context engine tests
+    ├── test_context_engine_quality.py # CE MRR/Recall benchmarks
+    ├── test_watcher_daemon.py       # Watcher daemon tests
+    ├── test_readonly.py             # Read-only mode tests
+    └── test_service.py              # Platform service installer tests
 ```
 
 ## The Methodology

@@ -433,7 +433,7 @@ def _sanitize_error_message(error: Exception) -> str:
     # M3 FIX: Additional sanitization patterns
 
     # Remove Python module paths (e.g., "foo.bar.baz.function")
-    message = re.sub(r"\b\w+(?:\.\w+){2,}\b", "[module]", message)
+    message = re.sub(r"\b[A-Za-z_]\w*(?:\.[A-Za-z_]\w*){2,}\b", "[module]", message)
 
     # Remove function references in tracebacks (e.g., "in function_name")
     message = re.sub(r"\bin\s+\w+\s*\(", "in [func](", message)
@@ -1359,7 +1359,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         return _append_governance_reminder(result)
 
     except Exception as e:
-        logger.error("Tool error: %s", e)
+        logger.error("Tool error: %s", e, exc_info=True)
         # M6 FIX: Sanitize error message to prevent information leakage
         error = ErrorResponse(
             error_code="TOOL_ERROR",

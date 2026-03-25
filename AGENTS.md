@@ -1,7 +1,7 @@
 # AI Governance MCP Server
 
 **Description:** Semantic retrieval system for AI governance principles and methods.
-**Framework:** AI Coding Methods v2.22.0
+**Framework:** AI Coding Methods v2.26.0
 **Mode:** Standard
 
 ## Memory Files

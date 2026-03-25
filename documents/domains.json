@@ -50,8 +50,8 @@
   "kmpd": {
     "name": "kmpd",
     "display_name": "Knowledge Management & People Development",
-    "principles_file": "kmpd-domain-principles-v1.0.0.md",
-    "methods_file": "kmpd-methods-v1.0.0.md",
+    "principles_file": "kmpd-domain-principles-v1.1.0.md",
+    "methods_file": "kmpd-methods-v1.1.0.md",
     "description": "Organizational knowledge capture, abstraction, transfer, and people development with AI assistance. Detailed Knowledge Bases, single source of truth architecture, purpose-driven extractions (Quick References, checklists, visual work instructions, job instruction cards, troubleshooting guides, decision trees, SIPOCs, process flows), derivation chains, cross-training matrices, job descriptions, onboarding programs, empowerment assessment (Tools Knowledge Responsibility Accountability Authority), training delivery, learning objective alignment, Bloom's Taxonomy assessment design, Kirkpatrick effectiveness evaluation, TWI Job Instruction method, Checklist Manifesto design discipline, scaffolded complexity, audience-appropriate design, training value optimization, procedure safety completeness, regulatory compliance awareness, verification guidance, knowledge conflict prevention, maturity model assessment, standard operating procedures, SOPs, runbooks, process documentation, competency tracking, skills matrix, organizational capability.",
     "priority": 25
   }

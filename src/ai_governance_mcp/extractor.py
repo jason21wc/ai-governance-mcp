@@ -840,6 +840,11 @@ class DocumentExtractor:
                         "rd-series",
                         "ix-series",
                         "pl-series",
+                        # KMPD series
+                        "ka-series",
+                        "tl-series",
+                        "pd-series",
+                        "qa-series",
                     ]
                 )
                 if "###" not in line or is_series_header:
@@ -960,6 +965,15 @@ class DocumentExtractor:
                     "responsive design principles",
                     "interaction principles",
                     "platform principles",
+                    # KMPD series headers
+                    "ka-series:",
+                    "tl-series:",
+                    "pd-series:",
+                    "qa-series:",
+                    "knowledge architecture principles",
+                    "training & learning principles",
+                    "people development principles",
+                    "quality assurance principles",
                 ]
                 if any(kw in title.lower() for kw in skip_keywords):
                     continue

@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-03-22
+**Last Updated:** 2026-03-25
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.3.0** (read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v2.6.0** (Constitution), **v3.13.0** (meta-methods), **v2.26.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.0.0** (kmpd principles), **v1.0.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v2.6.0** (Constitution), **v3.13.0** (meta-methods), **v2.26.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
@@ -34,9 +34,20 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-22)
+## Session Summary (2026-03-25)
 
 ### Completed This Session
+
+1. **KM&PD v1.0.0 → v1.1.0** — Added Situation Index (17 routing entries), expanded cross-domain Storytelling integration (A-Series, ST-Series, pacing/progressive revelation, scope boundary)
+2. **Comprehensive Self-Review** — 4 subagents in parallel (coherence auditor, validator, contrarian reviewer, code reviewer). 36 findings total. Fixed 11 accepted findings:
+   - CRITICAL: KM&PD "N-Series" cross-reference → corrected to "ST-Series" (3 files)
+   - Propagation gaps: README/SPEC/ARCH domain counts (6→7), AGENTS.md version (v2.22→v2.26), file trees (+7 missing files)
+   - Code: KMPD series headers added to extractor `is_series_header` + `skip_keywords`, sanitization regex fix, `exc_info=True` added to error handler
+   - SESSION-STATE pruned: ~130 lines of historical session summaries removed per §7.1.5
+3. **Cowork Brief** — Extracted KM&PD book + consulting practice items for Cowork handoff (tasks 3-4: book design, consulting go-to-market, trademark investigation)
+4. **964 tests passing**, index rebuilt, spot-check verified (QA2 surfaces correctly)
+
+### Previous Session (2026-03-22)
 
 1. **Context Engine Cross-Environment Compatibility** — CE v1.3.0, ai-coding methods v2.22.0→v2.23.0
    - **Catalyst:** Claude Cowork VM could not use context engine — permission errors on query, CWD=/ indexing root filesystem
@@ -125,137 +136,7 @@
 
 10. **Agent-legibility + automated hygiene** — two small additions to ai-coding methods from OpenAI Codex article
 
-### Previous Session (2026-03-17)
-
-1. **Document Kit Tiering & AGENTS.md Cross-Tool Support** — ai-coding methods v2.21.0→v2.22.0
-   - New §1.5 Document Kit Tiering: Core Kit (4 files, all modes), Standard Kit (+3), Enhanced Kit (evaluated per §7.10)
-   - New Appendix K: AGENTS.md cross-tool standard (template, overlay pattern, migration guide, naming disambiguation)
-   - Updated Appendix A (CLAUDE.md template → overlay) and Appendix D (GEMINI.md template → overlay)
-   - Cross-reference updates: §7.4.2, §7.8.2, §7.8.4, Situation Index (+2 entries), Cold Start Kit
-   - Created AGENTS.md for this project (50 lines, shared content)
-   - Refactored CLAUDE.md to overlay pattern (governance enforcement + subagents only)
-   - Added AGENTS.md propagation awareness to COMPLETION-CHECKLIST.md
-   - Updated: domains.json, config.py, README.md (211→216 methods)
-   - Index: 149 principles + 577 methods (726 total, up from 721)
-   - 877 tests passing, CI green, semantic retrieval verified
-   - PROJECT-MEMORY.md: marked Gotcha #18 (implicit prefixes) as resolved
-   - Reviewed by: code-reviewer (2 passes), contrarian-reviewer, coherence-auditor, validator — all pass
-   - 877 tests passing, 0 failures
-
-2. **Coherence Review and Repair** — 5-batch fix for ~25 audit findings
-   - Batch 1: Added missing ui-ux domain to config.py fallback, server.py enum, test assertion; updated stale version refs in fallback
-   - Batch 2: CLAUDE.md framework version v2.9.6→v2.20.0; meta-methods §1.1.3 filename examples; PROJECT-MEMORY metrics to baseline_2026-03-13; SESSION-STATE hardcoded values→pointers
-   - Batch 3: Archived 4 superseded docs; renamed multimodal-rag files v2.0.0→v2.1.0/v2.1.1; updated all cross-references
-   - Batch 4: ARCHITECTURE.md date, file tree, test table, markers, benchmarks, item count; SPECIFICATION.md domain count+table
-   - Batch 5: README.md footer; tiers.json ref disambiguation; COMPLETION-CHECKLIST.md domain-change propagation checklist
-   - Root cause: incomplete propagation when ui-ux domain was added — COMPLETION-CHECKLIST now prevents recurrence
-
-### Previous Session (2026-03-12)
-
-1. **§3.1.4 Tool Content Model** — ai-coding methods v2.18.0
-   - New `####` subsection codifying the framework's implicit three-mode tool inclusion pattern
-   - Three modes: named reference, appendix, build our own — each with criteria and examples
-   - Discovery-driven philosophy: tools enter through usage, not market surveys
-   - 5-item decision checklist + supersession rule
-   - Cross-references: Appendix F, §5.6.5, §5.6.8
-   - Document Governance updated with cross-reference to Tool Content Model
-   - Changelog: combined entry for v2.18.0 (§3.1.4 expansion + Tool Content Model + §5.6.8)
-   - Index rebuilt: 148 principles + 546 methods (694 total, no count change — subsection within existing method)
-   - 871 tests passing, 0 failures
-   - Context Engine retrieval verified: score 0.844
-   - Files changed: `documents/ai-coding-methods-v2.18.0.md`, `SESSION-STATE.md` (backlog #13), `index/` (rebuilt)
-
-2. **Backlog #13: Governance-Aware Output Compression** — added to SESSION-STATE.md
-   - PostToolUse hook concept for compressing verbose Bash output
-   - Trigger: >20% context consumed by terminal output (not hitting today)
-   - Fits "build our own" mode — external tools (RTK) fail §5.6.8 vetting
-
-3. **Multi-Agent Orchestrator-Absent Pattern Gaps** — v2.3.0 principles, v2.14.0 methods
-   - Catalyst: OpenAI Symphony framework analysis (queue-to-isolated-agent dispatch, no orchestrator)
-   - Aggregate Blast Radius rules in AO-1: escalation table for N concurrent agents at same level (N>3 → L(x+1)), mandatory review for concurrent L3
-   - Decentralized Dispatch Variant under Parallel Pattern (§3.3): 4 compensating controls for orchestrator-absent topologies, 2 anti-patterns
-   - Continuous Queue Consumption protocol in Task Ownership: post-task gates, aggregate review every N tasks, pool pause on failure
-   - Isolation Blindspot pitfall in Context Isolation (MA-A2): isolation prevents cross-agent awareness of overlapping changes
-   - Validated by contrarian-reviewer and coherence-auditor in planning phase
-   - Index rebuilt: 148 principles + 546 methods (694 total, no count change — additions within existing sections)
-   - 871 tests passing, 0 failures
-   - Retrieval verified: all 3 queries surface correct top-hit principles
-   - Files changed: `documents/multi-agent-domain-principles-v2.3.0.md` (renamed from v2.2.0), `documents/multi-agent-methods-v2.14.0.md` (renamed from v2.13.0), `documents/domains.json`, `SESSION-STATE.md`, `index/` (rebuilt)
-
-### Previous Session (2026-03-11)
-
-1. **§5.6.8 Third-Party Hook Vetting Procedure** — ai-coding methods v2.18.0
-   - New section after §5.6.7 addressing governance gap: hooks have more privileged access than MCP servers but had zero vetting guidance
-   - Pre-Installation Checklist: 6 items (source verification, behavior audit, governance interference check, information loss assessment, permission scope review, supply chain review)
-   - Information Intermediary Warning: output compression tools can cause silent information loss during security scans
-   - §5.6.5 updated with cross-reference to §5.6.8 for hook-based tools
-   - Catalyst: RTK (Rust Token Killer) analysis — tool itself doesn't belong in framework (tool-agnostic), but exposed the hook vetting gap
-   - Index rebuilt: 148 principles + 546 methods (694 total, +1 method)
-   - 871 tests passing, 0 failures
-   - Retrieval verified: `coding-method-third-party-hook-vetting-procedure` surfaces with HIGH confidence
-   - Files changed: `documents/ai-coding-methods-v2.18.0.md`, `README.md` (count update), `index/` (rebuilt)
-
-### Previous Session (2026-03-09)
-
-1. **Multi-Agent AO-Series: Autonomous Operation Governance** — v2.2.0 principles, v2.13.0 methods
-   - New AO-Series: 4 principles (AO1-AO4) — Blast Radius Classification, HITL Removal Criteria, Compensating Controls, Autonomous Drift Monitoring
-   - 4 new failure modes (MA-AO1 through MA-AO4) addressing external-facing autonomous actions, premature HITL removal, compounding drift, platform/legal liability
-   - New TITLE 6 in methods: §6.1-6.4 covering blast radius classification, autonomy level assessment, compensating controls checklist, drift monitoring procedures
-   - Graduated Autonomy Levels: AL-0 (Supervised) → AL-1 (Batch Approved) → AL-2 (Monitored Autonomous) → AL-3 (Fully Autonomous)
-   - Blast Radius Classification: L0 (Internal-Reversible) → L1 (Internal-Irreversible) → L2 (External-Reversible) → L3 (External-Irreversible)
-   - Extractor: `("multi-agent", "autonomous"): "AO"` in CATEGORY_SERIES_MAP; `ao-series` before `o-series` in category_mapping (substring collision fix)
-   - Evidence: CNBC 2026, Help Net Security 2026, Strata 2026, Singapore IMDA 2026, UC Berkeley 2026, HackerNoon 2026, Kore.ai 2026, SafePaaS 2026
-   - Catalyst: Analysis of OpenClaw autonomous agent architectures (Jacob Klug's AI agent army article)
-   - 4 new tests (3 extractor + 1 server), 871 total passing
-   - Index rebuilt: 148 principles + 545 methods (693 total)
-   - Files changed: `documents/multi-agent-domain-principles-v2.2.0.md` (renamed from v2.1.1), `documents/multi-agent-methods-v2.13.0.md` (renamed from v2.12.3), `documents/domains.json`, `src/ai_governance_mcp/extractor.py`, `tests/test_extractor.py`, `tests/test_server.py`, `index/` (rebuilt)
-
-### Previous Session (2026-03-08)
-
-1. **UI/UX Governance Domain** (Backlog #5) — v1.0.0 + Phase 6 External Review
-   - New domain for interactive software interface design with AI assistance
-   - **20 principles** across 6 series: VH (Visual Hierarchy, 3), DS (Design System, 3), ACC (Accessibility, 3), RD (Responsive, 2), IX (Interaction, 7), PL (Platform, 2)
-   - **43 methods** across 9 sections: Design-to-Code Workflow, Component Library Governance, Design Review Gates (+ Dark Pattern Screening, Core Web Vitals), Accessibility Testing, Responsive Strategy, Cross-Platform Adaptation (+ Convention Currency), Design System Documentation, AI Tooling Integration, UX Content/Microcopy Governance
-   - **18 AI-specific failure modes** (UX-F1-F3, F5-F10, F12-F19, F21; F4/F11 cut for insufficient AI-specificity; F20 rejected as already covered)
-   - Phase 6 additions: IX7 (Ethical Interaction Design — dark patterns), UX-F19 (motion accessibility), UX-F21 (deceptive design), 6 new evidence citations (ISO 40500:2025, DTCG v2025.10, WCAG 2.5.8, MobileSoft 2025, Serezlic & Quijada 2025, FTC dark patterns), 6 new methods sections (§3.5, §3.6, §6.4, §9.1-9.3), i18n flagged for v1.1.0
-   - Evidence base: WCAG 2.2/ISO 40500:2025, Nielsen 10 Heuristics, Laws of UX, Apple HIG, Material Design 3, GitClear 2025, WebAIM Million, Atomic Design, FTC Dark Patterns, DTCG v2025.10, MobileSoft 2025, Serezlic & Quijada 2025
-   - Scope boundary: ai-coding §2.4/§2.5 = process (when); UI/UX = substance (what)
-   - Technical integration: `domains.json`, `extractor.py` (prefix + 6 CATEGORY_SERIES_MAP + 12 category_mapping + is_series_header + skip_keywords), `server.py` (valid_domains + enum), constitution domain list updated
-   - Cross-references added in ai-coding §2.4.3 and §2.5.3
-   - 7 new tests (4 extractor + 3 server), 867 total passing
-   - Multi-pass validation: validator (PASS — 1 cross-ref fix applied), coherence-auditor (3 findings fixed: constitutional derivation name, IX-Series description, RD2 MUST/SHOULD harmonization; 1 cosmetic rejected), contrarian-reviewer (4 findings — 1 accepted: motion accessibility added to ACC3; 2 deferred to v1.1.0; 1 rejected), code-reviewer (defensive improvements applied to extractor)
-   - Retrieval quality: all 5 new spot-checks pass (dark patterns→IX7, CWV→§3.6, platform currency→§6.4, error messages→§9.2, animation accessibility→ACC3)
-   - Perplexity Deep Research external review: 14 findings evaluated, 7 ACCEPT, 3 ACCEPT IN PART, 1 REJECT, 3 DEFER
-   - Files changed: `documents/ui-ux-domain-principles-v1.0.0.md`, `documents/ui-ux-methods-v1.0.0.md`, `index/` (rebuilt)
-
-### Previous Session (2026-03-01)
-
-1. **§3.1.4 Technology Selection Expansion** (v2.18.0) — see git log for details
-
-### Previous Session (2026-02-28)
-
-1. **Tiered Governance Principle Activation (Phase 0 + Phase 1)** — Backlog #8
-   - **Phase 0: Fixed dead `series_code`** — Added `CATEGORY_SERIES_MAP` (28 entries) in extractor.py `_build_principle()` to infer series_code from (domain, category) for new-format headers. Constitution safety → "S", storytelling ethics → "E", multimodal-rag security → "SEC". Restores `apply_hierarchy()` sorting and `p.series_code == "S"` detection in server.py.
-   - **Phase 0: Domain-aware `apply_hierarchy()`** — Updated retrieval.py to use domain context for hierarchy sorting. Constitution principles (0-5) sort above domain principles (10). Shared codes like C/Q no longer collide across domains.
-   - **Phase 1: Universal floor tier** — Created `documents/tiers.json` with 3 principles, 3 methods, 1 subagent check as compact anti-pattern checks. Added `_load_tiers_config()` and `_build_universal_floor()` to server.py. `evaluate_governance` now includes `universal_floor` section in every response (separate from `max_results=10` similarity results).
-   - **25 new tests** (810 total passing) — 10 extractor tests (CATEGORY_SERIES_MAP, S-Series isolation, new-format inference), 3 retrieval tests (domain-aware hierarchy), 11 server tests (tiers loading, floor building, evaluate_governance integration, CI ID validation), 1 production index validation
-   - **Index rebuilt** — All 124 principles now have series_code populated (only 1 None: multi-agent justification with "general" category)
-   - Files changed: `extractor.py`, `retrieval.py`, `models.py`, `server.py`, `conftest.py`, `test_extractor.py`, `test_retrieval.py`, `test_server.py`, `documents/tiers.json` (new), `index/` (rebuilt)
-
-2. **Unified Governance Enforcement System** — 9-step implementation addressing 87% hook non-compliance
-   - **Shared scanner module** (`.claude/hooks/scan_transcript.py`) — reusable Python scanner with recency window support
-   - **PreToolUse hook → hard mode default** — flipped from soft to hard; BLOCKS Bash|Edit|Write until both `evaluate_governance()` and `query_project()` called; 200-line recency window; soft-mode escape hatches via `GOVERNANCE_SOFT_MODE`/`CE_SOFT_MODE`
-   - **UserPromptSubmit hook → conditional suppression** — silent when compliant (saves ~128 tokens/prompt), shortened reminder (~50 tokens) when not; reads transcript_path from stdin JSON
-   - **CLAUDE.md slimmed** from 214 → 74 lines; Post-Change Checklist → `COMPLETION-CHECKLIST.md`; "ENFORCED BY HOOK" framing
-   - **SERVER_INSTRUCTIONS slimmed** from ~148 → ~45 lines; removed retrievable sections; added Subagent Advisory Framing section
-   - **Advisory Output section** added to all 10 agent templates (canonical + synced to local); orchestrator got Step 4: Evaluate Subagent Results with structured evaluation table and 90% threshold signals
-   - **Template hashes updated** in `AGENT_TEMPLATE_HASHES`
-   - **Compliance analysis script** (`scripts/analyze_compliance.py`) — parses JSONL transcripts, reports per-session and aggregate compliance rates
-   - **18 new tests** (32 total hook tests, 785 total passing) — includes mixed enforcement mode tests and non-numeric window arg test
-   - **Code review findings evaluated** using advisory framing: H1 (ValueError fix) accepted, H2 (mixed mode tests) accepted, M2 (CLAUDE.md pointers) rejected (intentional slimming), M4 (debug inconsistency) rejected (acceptable divergence)
-   - Files changed: 33 files, +1512 -504 lines
-   - **Docker image rebuilt and pushed** — `jason21wc/ai-governance-mcp:latest` (sha256:7dbc94c67272a3bd82afaecb709efc3b506d8b7844da469baa41ac4962528808)
-   - CI: all green (3.10, 3.11, 3.12 + security + lint + content scan)
+*Previous session summaries pruned per §7.1.5 (session state is transient). Decisions and lessons routed to PROJECT-MEMORY.md and LEARNING-LOG.md. Full history available via `git log`.*
 
 ## Next Actions
 
@@ -355,85 +236,10 @@ Not needed at current scale (10K-100K vectors, 1-5ms brute-force latency). Revis
 
 **Phased approach:** See PROJECT-MEMORY.md > Roadmap > Quantized Vector Search for full details (product quantization → scalar quantization → HNSW index progression).
 
-### 4. Backlog — Knowledge Management & People Development Domain (Priority: NEXT)
-**Renamed from "Training & Instructional Design"** — "Training" was too narrow. The domain covers knowledge capture, abstraction, transfer, people readiness, and process standardization.
+### 4. Backlog — Knowledge Management & People Development Domain — COMPLETE (2026-03-25)
+Domain v1.1.0 shipped. 13 principles (KA1-4, TL1-4, PD1-3, QA1-2), 13 failure modes, 7 methods sections, Situation Index (17 entries), cross-domain storytelling integration. Design document moved to Jason's personal documents folder for book/consulting work.
 
-**Status: DESIGN COMPLETE. Ready to draft principles + methods documents.**
-Full design document: `.claude/plans/peaceful-pondering-dahl.md` (comprehensive — 18 book-worthy themes, maturity model, scope boundary, all Q&A captured).
-
-**Key design decisions (2026-03-23/24):**
-- One domain (like storytelling — multiple formats, shared principles)
-- Jason's framework IS the skeleton (two pillars: Lead People / Manage Process)
-- Continuous scale of detail, not discrete tiers (Detailed KB → purpose-driven extractions)
-- Derivation chains: Detailed KB → Cross-Training Matrix → Job Description → Onboarding (novel)
-- Maturity model: 6 levels (Tribal → Ad Hoc → Structured → Extracted → Managed → Optimizing)
-- Empowerment model (Luftig/BPE): Tools, Knowledge, Responsibility, Accountability, Authority
-- Proprietary domain — private repo, not public GitHub
-- Research confirmed: NO existing published framework combines all elements (novel synthesis)
-
-**Contrarian Review (2026-03-22) — Verdict: REVISIT.** Key findings:
-- Scope is 2-3 domains masquerading as one (SOPs, course design, assessments are distinct disciplines)
-- 14 evidence frameworks is a research project, not a domain scope — narrow to 3-4
-- Exoskeleton effect (Shen & Tamkin 2026) addressed separately via ai-coding principles Skill Preservation subsection
-- **Recommended path:** (1) Scope narrow domain (Procedures & SOPs only first). (2) Expand from usage, not from literature review.
-- **Clarification (2026-03-23):** The contrarian reviewer's "no demonstrated usage" objection was based on an implicit assumption that domains must emerge from existing practice. This was corrected in meta-methods §5.1.0: domains can be created based on active practice, planned practice, OR significant possibility. The test is "will AI-specific failure modes exist when I do this?" not "have I already hit them." Proactive governance is valid — building codes before construction, not after collapse.
-- **New evidence sources for when domain is built:** Shen & Tamkin 2026 (exoskeleton effect, arXiv:2601.20245), Macnamara et al. 2024 (AI skill decay, PMC), MIT Media Lab EEG study (neural connectivity during AI-assisted work)
-- **Governance-aware PR review** also noted as a future backlog item (GitHub Action + Claude API + governance principles, ~$0.02-0.03/review with Haiku)
-
-**Scope — Content types:**
-- Standard Operating Procedures (SOPs) and runbooks
-- Technical tutorials and how-to guides
-- Onboarding materials (new hire, new project, new tool)
-- Workshop and course design
-- E-learning and self-paced training content
-- Knowledge assessments and certification criteria
-- Job aids, quick reference cards, cheat sheets
-
-**Principles (candidate areas):**
-- Learning objective alignment (every training artifact tied to measurable outcomes)
-- Scaffolded complexity (progressive disclosure, prerequisite sequencing)
-- Audience-appropriate design (novice vs. intermediate vs. expert paths)
-- Active learning over passive consumption (practice, application, reflection)
-- Assessment validity (testing understanding, not just recall)
-- Procedure safety completeness (no skipped critical steps, exception handling)
-- Knowledge retention design (spaced repetition, retrieval practice)
-- Accessibility and inclusivity in training materials
-
-**Methods (candidate areas):**
-- Procedure/SOP authoring workflow (draft → review → validate → publish)
-- Training needs analysis (gap identification, audience profiling)
-- Course/module structure design
-- Assessment design and rubric creation
-- Training effectiveness measurement
-- Knowledge transfer and handoff protocols
-- Maintenance and currency review (keeping training materials up to date)
-
-**AI-specific failure modes to address:**
-- AI generating technically accurate but pedagogically poor content (information dump, no scaffolding)
-- AI skipping critical safety steps in procedures
-- AI not adapting detail level to audience expertise
-- AI creating assessments that test recall rather than understanding or application
-- AI generating procedures without exception/error handling paths
-- AI producing training without explicit learning objectives
-- AI over-relying on text when visual/interactive approaches would be more effective
-
-**Evidence base and industry best practices to research:**
-- **TWI (Training Within Industry)** — WWII-era methodology still foundational: Job Instruction (JI), Job Methods (JM), Job Relations (JR), Job Safety (JS). Four-step JI method (Prepare → Present → Try Out → Follow Up) is the gold standard for procedural training
-- **Bloom's Taxonomy** — Cognitive domain hierarchy (Remember → Understand → Apply → Analyze → Evaluate → Create) for writing learning objectives and assessments
-- **ADDIE Model** — Instructional design lifecycle (Analysis → Design → Development → Implementation → Evaluation)
-- **SAM (Successive Approximation Model)** — Agile alternative to ADDIE with iterative prototyping
-- **Kirkpatrick's Four Levels** — Training effectiveness evaluation (Reaction → Learning → Behavior → Results)
-- **Merrill's First Principles of Instruction** — Task-centered learning, activation, demonstration, application, integration
-- **Gagné's Nine Events of Instruction** — Structured instructional sequence from attention through retention/transfer
-- **Lean/Toyota Kata** — Improvement and coaching routines for building organizational capability
-- **ISO 10015** — Quality management guidelines for training
-- **WCAG** — Accessibility standards applied to training materials
-- **Mayer's Multimedia Learning Principles** — Cognitive load theory applied to multimedia instruction (coherence, signaling, redundancy, spatial contiguity, temporal contiguity)
-- **Dreyfus Model of Skill Acquisition** — Novice → Advanced Beginner → Competent → Proficient → Expert progression for audience-appropriate design
-- **Spaced Repetition Research** — Ebbinghaus, Leitner system, evidence base for retention design
-- **Deliberate Practice** (Ericsson) — Structured practice with feedback for skill development
-
-**Implementation requirements:** Domain config in `domains.json`, principle document(s), methods document(s), extractor support, index rebuild, tests. Framework content to be developed collaboratively — Jason to provide domain-specific context, AI to research and structure per framework standards.
+All design material is in Jason's personal documents folder (plan file). Domain documents: `kmpd-domain-principles-v1.1.0.md`, `kmpd-methods-v1.1.0.md`.
 
 ### 5. Backlog — Add UI/UX Domain — COMPLETE (2026-03-08)
 New governance domain for UI/UX design principles and methods. **Separate domain** from ai-coding — ai-coding §2.4/§2.5 cover *process* (when to do UX work); this domain covers *substance* (what good UX is). See session summary for details.
