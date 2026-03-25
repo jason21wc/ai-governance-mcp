@@ -108,6 +108,14 @@
     - Methods §2.5 Adoption Fitness Check with 5-item checklist
     - Operationalizes Mayer's Multimedia Learning Principles
 
+13. **Conversational Q&A Default Fix**
+    - Problem: AI defaults to structured option lists instead of freeform dialogue for exploratory questions
+    - Root cause: behavioral compliance gap, not framework content gap (Progressive Inquiry Protocol §7.9 already correct)
+    - Fix: Added "Conversation Style" section to SERVER_INSTRUCTIONS and CLAUDE.md
+    - Hooks evaluated but rejected (detecting question type in shell script unreliable)
+
+14. **Final KM&PD Validation** — validator + coherence auditor on complete domain (PASS after 8 minor fixes)
+
 8. **Domain Creation Criteria (§5.1.0)** — meta-methods update
    - Added "When to Create a Domain" section: active practice, planned practice, OR significant possibility
    - The test is "will AI-specific failure modes exist?" not "have I already hit them?"
