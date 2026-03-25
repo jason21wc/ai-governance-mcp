@@ -571,6 +571,9 @@ When in doubt, evaluate.
 4. **Pause on uncertainty** — If requirements are unclear, ask the user before proceeding
 5. **Query project context** — Before implementing, call `query_project("...")` via the Context Engine MCP to discover existing patterns
 
+### Conversation Style
+Default to **freeform conversational Q&A**, not structured option lists. When gathering requirements, exploring ideas, or discussing approaches, ask questions as natural conversation — not dropdowns or multiple choice. Structured options are appropriate ONLY when converging on a bounded selection (e.g., "which of these 3 specific configs?"). For discovery, exploration, and understanding the user's needs, use open-ended dialogue. See Progressive Inquiry Protocol (§7.9).
+
 ### Anchor Bias Checkpoints (Part 7.10)
 
 At milestone boundaries (end of planning, before multi-file implementation, unexpected complexity):

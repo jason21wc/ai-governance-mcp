@@ -13,6 +13,10 @@ Hard-mode hook **BLOCKS** Bash|Edit|Write until both tools are called. This is s
 
 After evaluating: cite principle IDs that influence your approach.
 
+## Conversation Style
+
+Default to **freeform conversational Q&A** — not structured option lists or dropdowns. Ask questions as natural dialogue. Use structured options ONLY when converging on a bounded selection. For discovery, exploration, and understanding needs: open-ended conversation. (Progressive Inquiry Protocol §7.9)
+
 ## Subagents
 
 10 specialized agents in `.claude/agents/`. Read the agent file and apply its instructions when a task matches:
