@@ -119,7 +119,7 @@ Knowledge management and people development have specific failure modes requirin
 |------|----------|-------------|---------------------|
 | **KM-F1** | Content | Information Dump — undifferentiated walls of text without scaffolding | Content lacks headings, progressive structure, or clear learning path; reader cannot find what they need |
 | **KM-F2** | Safety | Safety/Compliance Omission — critical warnings, exceptions, or regulatory steps omitted | Procedure covers happy path but no error/exception/safety handling; no regulatory cross-reference where applicable |
-| **KM-F3** | Architecture | Abstraction Level Mismatch — Detailed Reference content in a Quick Reference or vice versa | Quick Reference contains step-by-step detail that assumes novice knowledge; Detailed Reference lacks depth needed for learning |
+| **KM-F3** | Architecture | Abstraction Level Mismatch — Detailed KB content in a Quick Reference or vice versa | Quick Reference contains step-by-step detail that assumes novice knowledge; Detailed KB lacks depth needed for learning |
 | **KM-F4** | Assessment | Recall-Only Assessment — tests facts, not application or understanding | Assessment questions answerable by reading alone without understanding; no scenario-based or application questions |
 | **KM-F5** | Content | Missing Learning Objectives — content produced without stating what learner should be able to DO | Training artifact has no "after completing this, you will be able to..." statement; no measurable outcome |
 | **KM-F6** | Content | Text-Over-Visual Bias — text used where images/diagrams would be more effective | Multi-paragraph descriptions of physical layouts, screen interactions, or process flows with no visual aids |
@@ -227,7 +227,7 @@ Detailed KB major items → Cross-Training Matrix items → Job Description resp
 A Detailed Knowledge Base with blow-by-blow instructions is useless to an experienced practitioner who just needs a reminder of the three steps most likely to be missed. Conversely, a Quick Reference is useless to a new hire who doesn't know what the software is called. AI generates at a single level of detail unless explicitly governed to calibrate for the audience and purpose. The result: bloated checklists that include obvious steps, or skeletal references that assume knowledge the reader doesn't have.
 
 **Failure Mode**
-KM-F3 (Abstraction Level Mismatch): AI generates a "Quick Reference" that contains 47 detailed steps with screenshots — it is actually a Detailed Reference mislabeled. Or AI generates a "Training Manual" that reads like bullet points with no explanation. The content level doesn't match the artifact type or audience need. Observable symptoms: practitioners ignore the checklist because it's too long; new hires can't follow the "quick start" because it assumes too much.
+KM-F3 (Abstraction Level Mismatch): AI generates a "Quick Reference" that contains 47 detailed steps with screenshots — it is actually a Detailed KB mislabeled. Or AI generates a "Training Manual" that reads like bullet points with no explanation. The content level doesn't match the artifact type or audience need. Observable symptoms: practitioners ignore the checklist because it's too long; new hires can't follow the "quick start" because it assumes too much.
 
 KM-F7 (Bloated Reference): AI includes "open the application by double-clicking the icon" in a Quick Reference for experienced users. Every element must earn its place. The Checklist Manifesto principle: include only what gets missed, not what people already do.
 
@@ -546,7 +546,7 @@ The AI MUST guide users toward appropriate verification but MUST NOT claim to va
 **Constitutional Basis:** Derived from `Minimal Relevant Context (Context Curation)` and `Resource Efficiency & Waste Reduction`.
 
 **Why This Principle Matters**
-AI includes everything because it cannot distinguish what an audience needs from what is merely related. A Quick Reference with 47 items is not a Quick Reference — it's a Detailed Reference with a misleading title. The Checklist Manifesto principle (Gawande 2009): focus on "killer items" — steps most dangerous to skip yet sometimes overlooked. Keep to 5-9 items per pause point. If everything is highlighted, nothing is highlighted.
+AI includes everything because it cannot distinguish what an audience needs from what is merely related. A Quick Reference with 47 items is not a Quick Reference — it's a Detailed KB with a misleading title. The Checklist Manifesto principle (Gawande 2009): focus on "killer items" — steps most dangerous to skip yet sometimes overlooked. Keep to 5-9 items per pause point. If everything is highlighted, nothing is highlighted.
 
 **Failure Mode**
 KM-F7 (Bloated Reference): AI generates a "pre-flight checklist" with 85 items including "ensure the aircraft has wings." Every element that could possibly be relevant is included. Practitioners stop using the checklist because it takes 30 minutes to complete. The document's verbosity defeats its purpose.
@@ -789,7 +789,7 @@ Check all five empowerment components:
 
 ### v1.0.0 (Current)
 - Initial release
-- **Four series:** KA (Knowledge Architecture, 4 principles), TL (Training & Learning, 4 principles), PD (People Development, 3 principles), QA (Quality Assurance, 1 principle)
+- **Four series:** KA (Knowledge Architecture, 4 principles), TL (Training & Learning, 4 principles), PD (People Development, 3 principles), QA (Quality Assurance, 2 principles)
 - **Thirteen principles:** KA1-KA4, TL1-TL4, PD1-PD3, QA1-QA2
 - **Thirteen failure modes:** KM-F1 through KM-F13
 - Scope: Ongoing organizational knowledge and capability tools

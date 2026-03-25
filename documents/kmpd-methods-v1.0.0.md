@@ -69,7 +69,7 @@ Present the maturity model and ask the user to self-identify:
 | 5 | **Optimizing** | "Is continuous improvement embedded in your knowledge management?" |
 
 **Routing:**
-- Level 0-1 → Start with §2 (Detailed Reference Authoring) for core processes
+- Level 0-1 → Start with §2 (Detailed Knowledge Base Authoring) for core processes
 - Level 2 → Start with §3 (Quick Reference Design) to create purpose-driven extractions
 - Level 3 → Start with §5 (People Development Artifacts) to build competency systems
 - Level 4-5 → Focus on specific gaps the user identifies
@@ -184,7 +184,7 @@ When a user needs to update an existing Detailed KB because the process has chan
 
 **Importance: CRITICAL — The single source of truth for process knowledge**
 
-**Implements:** KA1 (Single Source Architecture), TL3 (Procedure Safety Completeness), QA1 (Regulatory Awareness), PD1 (Verification Guidance Responsibility), PD2 (Purpose-Driven Content Curation), PD3 (Scaffolded Complexity)
+**Implements:** KA1 (Single Source Architecture), TL3 (Procedure Safety Completeness), QA1 (Regulatory Awareness), QA2 (Artifact Adoption Fitness), PD1 (Verification Guidance Responsibility), PD2 (Purpose-Driven Content Curation), PD3 (Scaffolded Complexity)
 
 ### 2.1 Design Principles for the Detailed Knowledge Base
 
@@ -205,7 +205,7 @@ When a user needs to update an existing Detailed KB because the process has chan
 
 ### 2.3 Step Writing Standards
 
-Each step in the Detailed Reference follows a consistent format:
+Each step in the Detailed Knowledge Base follows a consistent format:
 
 | Element | Purpose | Example |
 |---------|---------|---------|
@@ -226,7 +226,7 @@ Each step in the Detailed Reference follows a consistent format:
 
 ### 2.4 Verification Recommendation
 
-Every Detailed Reference must end with a verification section:
+Every Detailed Knowledge Base must end with a verification section:
 
 ```markdown
 ## Verification Status
