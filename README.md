@@ -967,4 +967,15 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework — Constitution, AI Coding Methods, Governance Methods, Multi-Agent Methods, Storytelling, Multimodal RAG, and UI/UX (see `documents/domains.json` for current versions)*
+*Built with the AI Governance Framework — Constitution, AI Coding Methods, Governance Methods, Multi-Agent Methods, Storytelling, Multimodal RAG, UI/UX, and Knowledge Management & People Development (see `documents/domains.json` for current versions)*
+
+---
+
+## License
+
+This project uses dual licensing:
+
+- **Source code** (`src/`, `tests/`, `scripts/`, build files): [Apache License 2.0](LICENSE)
+- **Framework content** (`documents/`, `index/`): [CC BY-NC-ND 4.0](LICENSE-CONTENT) — Copyright (c) 2026 Jason Collier
+
+You may freely use the MCP server code. The governance framework content may be shared and referenced with attribution, but may not be used commercially or modified without permission. See [LICENSE-CONTENT](LICENSE-CONTENT) for details.

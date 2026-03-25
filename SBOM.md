@@ -4,7 +4,7 @@
 **Version:** 1.8.0
 **Generated:** 2026-02-07
 **Python:** >=3.10
-**License:** MIT
+**License:** Apache-2.0 (code), CC-BY-NC-ND-4.0 (framework content)
 **Build System:** hatchling
 
 ## Core Dependencies

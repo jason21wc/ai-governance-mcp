@@ -964,6 +964,7 @@ async def list_tools() -> list[Tool]:
                             "storytelling",
                             "multimodal-rag",
                             "ui-ux",
+                            "kmpd",
                         ],
                     },
                     "include_constitution": {
@@ -1042,6 +1043,7 @@ async def list_tools() -> list[Tool]:
                             "storytelling",
                             "multimodal-rag",
                             "ui-ux",
+                            "kmpd",
                         ],  # M5 FIX
                     },
                 },
@@ -1395,6 +1397,7 @@ async def _handle_query_governance(
         "storytelling",
         "multimodal-rag",
         "ui-ux",
+        "kmpd",
     }
     if domain is not None and domain not in valid_domains:
         return [
@@ -1632,6 +1635,7 @@ async def _handle_get_domain_summary(
         "storytelling",
         "multimodal-rag",
         "ui-ux",
+        "kmpd",
     }
     if domain not in valid_domains:
         return [

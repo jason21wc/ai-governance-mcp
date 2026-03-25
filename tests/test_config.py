@@ -166,10 +166,10 @@ class TestEnvironmentOverrides:
 class TestDefaultDomains:
     """Test default domain configurations."""
 
-    def test_six_default_domains(self):
-        """Should have all 6 domains: constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux."""
+    def test_seven_default_domains(self):
+        """Should have all 7 domains: constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd."""
         domains = _default_domains()
-        assert len(domains) == 6
+        assert len(domains) == 7
         names = [d.name for d in domains]
         assert "constitution" in names
         assert "ai-coding" in names
@@ -177,6 +177,7 @@ class TestDefaultDomains:
         assert "storytelling" in names
         assert "multimodal-rag" in names
         assert "ui-ux" in names
+        assert "kmpd" in names
 
     def test_constitution_highest_priority(self):
         """Constitution should have priority 0."""

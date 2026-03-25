@@ -54,3 +54,4 @@ logs/*.jsonl
 # Environment
 .env
 .env.local
+private-domains/

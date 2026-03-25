@@ -1,0 +1,46 @@
+Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
+
+Copyright (c) 2026 Jason Collier. All rights reserved.
+
+This license applies to all governance framework content in this repository,
+including but not limited to the contents of the documents/ directory
+(principles, methods, governance frameworks, and all associated content).
+
+You are free to:
+  Share — copy and redistribute the material in any medium or format
+
+Under the following terms:
+  Attribution — You must give appropriate credit, provide a link to the
+  license, and indicate if changes were made. You may do so in any
+  reasonable manner, but not in any way that suggests the licensor
+  endorses you or your use.
+
+  NonCommercial — You may not use the material for commercial purposes.
+
+  NoDerivatives — If you remix, transform, or build upon the material,
+  you may not distribute the modified material.
+
+  No additional restrictions — You may not apply legal terms or
+  technological measures that legally restrict others from doing
+  anything the license permits.
+
+Full license text: https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+
+For commercial licensing inquiries, contact the copyright holder.
+
+---
+
+SCOPE OF THIS LICENSE:
+
+The following directories and their contents are covered by this license:
+  - documents/          (all governance framework content)
+  - private-domains/    (all proprietary domain content)
+  - index/              (generated index derived from framework content)
+
+The following are NOT covered by this license (covered by Apache 2.0 — see LICENSE):
+  - src/                (Python source code)
+  - tests/              (test suite)
+  - scripts/            (utility scripts)
+  - .github/            (CI/CD configuration)
+  - .claude/            (Claude Code configuration)
+  - pyproject.toml, Dockerfile, and other build/config files

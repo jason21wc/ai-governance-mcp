@@ -46,5 +46,13 @@
     "methods_file": "ui-ux-methods-v1.0.0.md",
     "description": "Interactive software interface design and development with AI assistance. Visual hierarchy, layout composition, spacing, typography, readability, design tokens, design system architecture, component consistency, component library governance, atomic design, CSS custom properties, Tailwind configuration, accessibility, WCAG 2.2 Level AA, ARIA authoring practices, semantic HTML, keyboard navigation, focus management, screen reader support, color contrast, color vision deficiency, responsive design, breakpoints, mobile-first CSS, touch targets, viewport adaptation, content stacking, interaction design, loading states, skeleton screens, progress indicators, error handling, form validation, affordances, discoverability, microinteractions, state management, platform conventions, Apple Human Interface Guidelines, HIG, Liquid Glass, Material Design 3, Material You, web platform standards, cross-platform adaptation, React Native, Flutter, Figma MCP, design token extraction, visual QA, component naming, design review gates, accessibility auditing, responsive testing, dark mode, and AI-generated UI anti-patterns.",
     "priority": 15
+  },
+  "kmpd": {
+    "name": "kmpd",
+    "display_name": "Knowledge Management & People Development",
+    "principles_file": "kmpd-domain-principles-v1.0.0.md",
+    "methods_file": "kmpd-methods-v1.0.0.md",
+    "description": "Organizational knowledge capture, abstraction, transfer, and people development with AI assistance. Detailed Knowledge Bases, single source of truth architecture, purpose-driven extractions (Quick References, checklists, visual work instructions, job instruction cards, troubleshooting guides, decision trees, SIPOCs, process flows), derivation chains, cross-training matrices, job descriptions, onboarding programs, empowerment assessment (Tools Knowledge Responsibility Accountability Authority), training delivery, learning objective alignment, Bloom's Taxonomy assessment design, Kirkpatrick effectiveness evaluation, TWI Job Instruction method, Checklist Manifesto design discipline, scaffolded complexity, audience-appropriate design, training value optimization, procedure safety completeness, regulatory compliance awareness, verification guidance, knowledge conflict prevention, maturity model assessment, standard operating procedures, SOPs, runbooks, process documentation, competency tracking, skills matrix, organizational capability.",
+    "priority": 25
   }
 }

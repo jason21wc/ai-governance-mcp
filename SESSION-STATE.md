@@ -21,12 +21,13 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.3.0** (read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v2.6.0** (Constitution), **v3.13.0** (meta-methods), **v2.26.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v2.5** (ai-instructions) |
+| Content | **v2.6.0** (Constitution), **v3.13.0** (meta-methods), **v2.26.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.0.0** (kmpd principles), **v1.0.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
-| Domains | **6** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux) |
-| Index | **150 principles + 579 methods** (729 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
+| Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
+| License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
+| Index | **163 principles + 616 methods** (779 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check with recency window) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
@@ -92,8 +93,20 @@
    - Maturity model designed (6 levels), scope boundary defined, verification model established
    - 8 Q&A rounds captured, 18 book-worthy themes documented
    - Full design document: `.claude/plans/peaceful-pondering-dahl.md`
-   - Next: draft principles + methods documents in a fresh session
-   - Note: proprietary domain — will use private repo (not public GitHub)
+   - **COMPLETED:** Principles doc (13 principles, 4 series, 13 failure modes) + Methods doc (7 sections + appendices)
+   - Validated by: validator (2 rounds), coherence-auditor (2 rounds), contrarian-reviewer (3 rounds: design, final, QA2)
+   - All template fields complete, all constitutional derivations verified, all cross-references valid
+
+11. **License Change** — MIT → Apache 2.0 (code) + CC-BY-NC-ND 4.0 (framework content)
+    - Protects proprietary framework content while keeping code open
+    - Research confirmed: publish framework (builds market), protect brand (trademark), sell implementation (consulting)
+    - EOS/Sinek/Lencioni/Collins/Brown model: "give away the what, sell the how"
+
+12. **QA2: Artifact Adoption Fitness** + **KM-F13: Adoption Failure**
+    - New principle: artifacts must WIN the adoption competition against informal alternatives
+    - Contrarian reviewed: MODIFY accepted (design quality as principle, co-creation stays in methods §7.4)
+    - Methods §2.5 Adoption Fitness Check with 5-item checklist
+    - Operationalizes Mayer's Multimedia Learning Principles
 
 8. **Domain Creation Criteria (§5.1.0)** — meta-methods update
    - Added "When to Create a Domain" section: active practice, planned practice, OR significant possibility

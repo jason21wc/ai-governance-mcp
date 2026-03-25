@@ -746,6 +746,16 @@ class DocumentExtractor:
             "e-series": "safety",
             "ethics principle": "safety",
             "audience principle": "architecture",
+            # KM&PD series mapping
+            "ka-series": "knowledge-architecture",
+            "knowledge architecture principle": "knowledge-architecture",
+            "tl-series": "training",
+            "training & learning principle": "training",
+            "training principle": "training",
+            "pd-series": "people-development",
+            "people development principle": "people-development",
+            "qa-series": "quality-assurance",
+            "quality assurance principle": "quality-assurance",
             # Descriptive mapping (constitution and general)
             "core": "core",
             "architecture": "core",
@@ -1009,6 +1019,7 @@ class DocumentExtractor:
         "storytelling": "stor",
         "multimodal-rag": "mrag",
         "ui-ux": "uiux",
+        "kmpd": "kmpd",
     }
 
     # Category → series code mapping, keyed by (domain, category).
@@ -1057,6 +1068,15 @@ class DocumentExtractor:
         ("ui-ux", "responsive"): "RD",
         ("ui-ux", "interaction"): "IX",
         ("ui-ux", "platform"): "PL",
+        # KM&PD series mapping
+        ("kmpd", "knowledge-architecture"): "KA",
+        ("kmpd", "knowledge"): "KA",
+        ("kmpd", "training"): "TL",
+        ("kmpd", "learning"): "TL",
+        ("kmpd", "people-development"): "PD",
+        ("kmpd", "people"): "PD",
+        ("kmpd", "quality-assurance"): "QA",
+        ("kmpd", "quality"): "QA",
     }
 
     def _build_principle(self, data: dict, domain_prefix: str) -> Principle:

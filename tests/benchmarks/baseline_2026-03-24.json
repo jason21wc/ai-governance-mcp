@@ -1,24 +1,25 @@
 {
-  "timestamp": "2026-03-22T22:18:02.566664",
+  "timestamp": "2026-03-24T22:59:55.985520",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
-    "method_mrr": 0.6944444444444443,
+    "method_mrr": 0.7111111111111111,
     "principle_mrr": 0.6875,
-    "method_recall_at_10": 0.8333333333333334,
+    "method_recall_at_10": 0.9166666666666666,
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 39.9,
+    "model_load_time_ms": 46.7,
     "index_stats": {
-      "total_principles": 149,
-      "total_methods": 579,
+      "total_principles": 163,
+      "total_methods": 616,
       "domains": [
         "constitution",
         "ai-coding",
         "multi-agent",
         "storytelling",
         "multimodal-rag",
-        "ui-ux"
+        "ui-ux",
+        "kmpd"
       ]
     }
   },
@@ -56,7 +57,7 @@
         "meta-method-what-is-anchor-bias"
       ],
       "rank": 1,
-      "score": 0.8051545763033334,
+      "score": 0.7962065205301294,
       "semantic_score": 0.6823557019233704
     },
     "method-5": {
@@ -74,7 +75,7 @@
         "multi-method-orchestration-pattern-selection"
       ],
       "rank": 2,
-      "score": 0.7776849989456908,
+      "score": 0.7758680569431253,
       "semantic_score": 0.7572816610336304
     },
     "method-7": {
@@ -83,7 +84,7 @@
         "multi-method-advanced-model-considerations"
       ],
       "rank": 3,
-      "score": 0.7320834821393369,
+      "score": 0.7347162612191085,
       "semantic_score": 0.7591487169265747
     },
     "method-8": {
@@ -91,9 +92,9 @@
       "expected": [
         "multi-method-governance-agent-pattern"
       ],
-      "rank": null,
-      "score": null,
-      "semantic_score": null
+      "rank": 5,
+      "score": 0.5306278546844017,
+      "semantic_score": 0.6937937140464783
     },
     "method-9": {
       "query": "how to vet MCP servers before installing",
@@ -110,7 +111,7 @@
         "coding-method-zero-trust-design-principles"
       ],
       "rank": 1,
-      "score": 0.851536251482234,
+      "score": 0.8495189221830463,
       "semantic_score": 0.755804181098938
     },
     "method-11": {
@@ -139,7 +140,7 @@
         "meta-core-context-engineering"
       ],
       "rank": 1,
-      "score": 0.6757119444288849
+      "score": 0.6762074321611964
     },
     "principle-2": {
       "query": "incomplete specification unclear requirements",
@@ -163,7 +164,7 @@
         "coding-quality-testing-integration"
       ],
       "rank": 2,
-      "score": 0.8123430443876283
+      "score": 0.8116121617628549
     },
     "principle-5": {
       "query": "multi agent handoff protocol explicit",

@@ -375,6 +375,20 @@ def _default_domains() -> list[DomainConfig]:
             ),
             priority=15,
         ),
+        DomainConfig(
+            name="kmpd",
+            display_name="Knowledge Management & People Development",
+            principles_file="kmpd-domain-principles-v1.0.0.md",
+            methods_file="kmpd-methods-v1.0.0.md",
+            description=(
+                "Organizational knowledge capture, abstraction, transfer, and people "
+                "development with AI assistance. Detailed Knowledge Bases, single source "
+                "of truth architecture, purpose-driven extractions, derivation chains, "
+                "cross-training matrices, job descriptions, onboarding programs, empowerment "
+                "assessment, training delivery, procedure documentation, SOPs, competency tracking."
+            ),
+            priority=25,
+        ),
     ]
 
 

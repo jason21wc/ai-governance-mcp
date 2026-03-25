@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-22T22:18:02.566664",
+  "timestamp": "2026-03-23T14:15:19.474920",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
     "method_mrr": 0.6944444444444443,
@@ -8,10 +8,10 @@
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 39.9,
+    "model_load_time_ms": 182.4,
     "index_stats": {
-      "total_principles": 149,
-      "total_methods": 579,
+      "total_principles": 150,
+      "total_methods": 580,
       "domains": [
         "constitution",
         "ai-coding",
@@ -56,7 +56,7 @@
         "meta-method-what-is-anchor-bias"
       ],
       "rank": 1,
-      "score": 0.8051545763033334,
+      "score": 0.8050683544389383,
       "semantic_score": 0.6823557019233704
     },
     "method-5": {
@@ -74,7 +74,7 @@
         "multi-method-orchestration-pattern-selection"
       ],
       "rank": 2,
-      "score": 0.7776849989456908,
+      "score": 0.7776180489458855,
       "semantic_score": 0.7572816610336304
     },
     "method-7": {
@@ -83,7 +83,7 @@
         "multi-method-advanced-model-considerations"
       ],
       "rank": 3,
-      "score": 0.7320834821393369,
+      "score": 0.7321089022503879,
       "semantic_score": 0.7591487169265747
     },
     "method-8": {
@@ -110,7 +110,7 @@
         "coding-method-zero-trust-design-principles"
       ],
       "rank": 1,
-      "score": 0.851536251482234,
+      "score": 0.85140763378086,
       "semantic_score": 0.755804181098938
     },
     "method-11": {
@@ -139,7 +139,7 @@
         "meta-core-context-engineering"
       ],
       "rank": 1,
-      "score": 0.6757119444288849
+      "score": 0.6758474300873527
     },
     "principle-2": {
       "query": "incomplete specification unclear requirements",
@@ -163,7 +163,7 @@
         "coding-quality-testing-integration"
       ],
       "rank": 2,
-      "score": 0.8123430443876283
+      "score": 0.812438932632928
     },
     "principle-5": {
       "query": "multi agent handoff protocol explicit",
