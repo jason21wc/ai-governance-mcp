@@ -1,4 +1,4 @@
-# AI Coding Domain Principles Framework v2.3.4
+# AI Coding Domain Principles Framework v2.3.5
 ## Federal Statutes for AI-Assisted Software Development
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -903,12 +903,12 @@ AI serves as primary executor implementing technical tasks, while Product Owner 
   * Encourage critical review, not rubber-stamping
   * Document reasoning so PO can evaluate, not just accept
 - **Skill Preservation (The Exoskeleton Effect):**
-  Research shows AI assistance can erode underlying skills — productivity improves in the moment, but competence degrades when the tool is removed (Shen & Tamkin 2026, Anthropic; n=52, software engineers learning new libraries). Participants who fully delegated to AI finished fastest but scored lowest on comprehension. The determining factor was **cognitive engagement**, not whether AI was used.
+  Research shows AI assistance can erode underlying skills — productivity improves in the moment, but competence degrades when the tool is removed (Shen & Tamkin 2026, Anthropic; n=52, software engineers learning new libraries). Participants who fully delegated to AI finished fastest but scored lowest on comprehension. The determining factor was **cognitive engagement**, not whether AI was used. Willison (2026) calls the codebase-facing version of this phenomenon **"cognitive debt"** — the accumulated cost of code you don't understand, which compounds as agent output volume grows. While the exoskeleton effect describes skill decay in the developer, cognitive debt describes comprehension debt in the codebase.
   * **High-performing patterns** (maintain skill growth): Ask AI for explanations rather than complete solutions. Generate code then drill into it with follow-ups until you understand. Ask conceptual questions and resolve errors independently.
   * **Low-performing patterns** (cause skill decay): Let AI one-shot the entire task. Start independently then gradually delegate everything. Use AI repeatedly to verify/debug without developing understanding.
   * **The rule:** Stay in the driver's seat cognitively. Use AI as a sparring partner, not a cheat sheet. When learning new skills or technologies, prefer the "conceptual inquiry" pattern — ask AI to explain concepts while you write the code yourself.
   * **When this matters most:** Learning new frameworks/libraries, onboarding to unfamiliar codebases, safety-critical domains where independent competence is required.
-  * *Evidence: Shen & Tamkin (2026) "How AI Impacts Skill Formation" arXiv:2601.20245; Macnamara et al. (2024) "Does using AI accelerate skill decay?" Cognitive Research: Principles and Implications; MIT Media Lab EEG study showing reduced neural connectivity during AI-assisted writing.*
+  * *Evidence: Shen & Tamkin (2026) "How AI Impacts Skill Formation" arXiv:2601.20245; Macnamara et al. (2024) "Does using AI accelerate skill decay?" Cognitive Research: Principles and Implications; MIT Media Lab EEG study showing reduced neural connectivity during AI-assisted writing; Willison (2026) "Agentic Engineering Patterns" (cognitive debt concept).*
 
 **Solo Developer Mode:**
 
@@ -1543,6 +1543,7 @@ At EVERY phase boundary or significant checkpoint:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.3.5 | 2026-03-26 | PATCH: Added "cognitive debt" concept (Willison 2026) to Skill Preservation subsection — codebase-facing complement to the exoskeleton effect (understanding debt compounds as agent output grows). Added citation to Evidence Base. |
 | v2.3.4 | 2026-02-22 | PATCH: Added "Stateful Blindspot" Trap to Production-Ready Standards pitfalls — AI generates correct business logic but uses check-then-act patterns that race under concurrency. Added "Database & Stateful Systems Research" category to Evidence Base (Supabase AI agent practices, OFFSET degradation, N+1 patterns, connection exhaustion). |
 | v2.3.3 | 2026-02-22 | PATCH: Added "Echo Chamber" Trap to Testing Integration pitfalls — AI writes tests that validate implementation rather than specification. Added echo chamber research to Evidence Base (ThoughtWorks ASSESS 2025, 67% practitioner trust stat). |
 | v2.3.2 | 2026-02-09 | PATCH: Cross-domain audit remediation. Corrected ~20 fabricated/inaccurate meta-principle names in Constitutional Basis sections and mapping table to use canonical Constitution principle names. Key fixes: "Explicit Intent" → "Explicit Over Implicit", "Context Optimization" → "Minimal Relevant Context", "Documentation" → "Transparent Reasoning and Traceability" / "Single Source of Truth", "Role Segregation" → "Role Specialization & Topology", "Safety Boundaries" → "Non-Maleficence & Privacy First", "Security" → "Security, Privacy, and Compliance by Default", and 14 others. |

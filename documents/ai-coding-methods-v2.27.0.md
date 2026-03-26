@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.26.0
+**Version:** 2.27.0
 **Status:** Active
-**Effective Date:** 2026-03-16
+**Effective Date:** 2026-03-26
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -152,6 +152,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Setting up AI memory for Cowork / document folder | Appendix L | Folder-Based AI Environment Support |
 | Setting up repository security / branch protection | §6.4.10 | Repository Security Configuration |
 | Setting up CodeQL / semantic code analysis | §6.4.11 | Semantic Code Analysis Setup |
+| Need to understand unfamiliar code / onboarding | §5.13.7 | Code Comprehension via Linear Walkthrough |
 
 #### On Uncertainty
 
@@ -1789,18 +1790,25 @@ Implement Q3 (Testing Integration) by writing tests alongside implementation.
 
 Two acceptable patterns:
 
-**Test-First (TDD):**
-1. Write failing test
-2. Write minimal code to pass
-3. Refactor
-4. Repeat
+**Test-First (TDD) — RECOMMENDED for AI-assisted development:**
+1. Write failing test (Red)
+2. Confirm the test fails (critical — skipping this risks tests that already pass)
+3. Write minimal code to pass (Green)
+4. Refactor
+5. Repeat
 
-**Test-With:**
+**Why Test-First is preferred for AI agents:** Failing tests serve as **unambiguous, machine-verifiable specifications** that constrain agent behavior. The red-then-green cycle prevents the Echo Chamber trap (see Domain Principles: Testing Integration) where agents write tests that merely confirm what the code already does. It gives agents a deterministic exit criterion (test passes = done) rather than subjective "looks good" assessment. The two-step verification (confirm failure, then confirm pass) catches hallucinations that "test alongside" misses.
+
+**Operational detail:** Provide agents with **specific test context** — which test files to run, how to run them, expected test names — rather than generic "follow TDD" instructions. Research shows that targeted test context reduces regressions by 70%, while generic TDD instructions without test specifics can actually worsen results (TDAD, arXiv 2026).
+
+*Evidence: Willison (2026) "Agentic Engineering Patterns"; GitHub Copilot official TDD guide; TDAD "Test-Driven Agentic Development" arXiv (2026); Google Cloud DORA (2025); monday.com/Cursor engineering (2026).*
+
+**Test-With (acceptable alternative):**
 1. Write code and test together
 2. Both complete before moving on
 3. Neither deferred to "later"
 
-Both patterns satisfy Q3. Choose based on preference and context.
+Both patterns satisfy Q3. **Test-First is recommended** when features have clear acceptance criteria. Test-With remains acceptable for exploratory work or unfamiliar APIs where requirements are still being discovered.
 
 ### 5.2.3 Test Types by Layer
 
@@ -4255,6 +4263,22 @@ When reporting a fix, use this format:
 - [ ] Debug instrumentation removed (§5.13.3 cleanup requirement)
 - [ ] If multi-layer: each layer verified independently
 
+### 5.13.7 Code Comprehension via Linear Walkthrough
+
+When entering unfamiliar code — onboarding, post-agent-generation review, or pre-debugging — use the agent to build understanding before making changes.
+
+**Pattern:** Ask the agent to analyze source files and produce a **structured walkthrough** explaining how the code works. The walkthrough should follow the execution path (not the file tree), explaining what each component does, why it exists, and how it connects to adjacent components.
+
+**When to use:**
+- Before debugging code you did not write or agent-wrote code you did not review
+- Before modifying a subsystem you have not touched in multiple sessions
+- As a **Skill Preservation** practice (see Domain Principles: The Exoskeleton Effect) — understanding agent-written code is a high-performing AI interaction pattern that combats **cognitive debt**
+- When onboarding to a new codebase or unfamiliar module
+
+**Output:** A narrative document suitable for adding to project documentation (§7.5) if the codebase lacks adequate architectural documentation.
+
+*Reference: Willison (2026) "Agentic Engineering Patterns" (linear walkthrough and interactive explanation techniques).*
+
 ---
 
 # TITLE 6: VALIDATION PROCEDURES
@@ -5536,10 +5560,11 @@ When starting a new session:
 
 1. **Load SESSION-STATE.md** — Where are we?
 2. **Review Next Actions** — What should we do?
-3. **Load relevant PROJECT-MEMORY.md sections** — What constraints apply?
-4. **Check LEARNING-LOG.md** — Any relevant lessons?
-5. **Quick coherence check** (advisory) — Check memory file dates, size thresholds per §7.0.4, obvious staleness (version mismatches, stale "Active Task"). Per meta-methods Part 4.3.2. Skip if session context is clearly current.
-6. **Confirm understanding** — Ask PO if unclear
+3. **Run existing tests** (if applicable) — If the project has a test suite, run it before making changes. Establishes a known-good baseline, discovers regressions from external changes (dependency updates, environment drift), and prevents attribution errors where pre-existing failures get blamed on new work. Skip if no test suite exists or if Next Actions indicate a documentation-only session. (See §5.2)
+4. **Load relevant PROJECT-MEMORY.md sections** — What constraints apply?
+5. **Check LEARNING-LOG.md** — Any relevant lessons?
+6. **Quick coherence check** (advisory) — Check memory file dates, size thresholds per §7.0.4, obvious staleness (version mismatches, stale "Active Task"). Per meta-methods Part 4.3.2. Skip if session context is clearly current.
+7. **Confirm understanding** — Ask PO if unclear
 
 ### 7.6.3 Handoff Summary (for complex transitions)
 
@@ -6687,7 +6712,7 @@ Also read AGENTS.md for project context.
 
 ## Governance — ENFORCED BY HOOK
 [Hook enforcement details if applicable]
-- Framework: AI Coding Methods v2.26.0
+- Framework: AI Coding Methods v2.27.0
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Debugging
@@ -7587,7 +7612,7 @@ CREATE POLICY "Users insert own documents" ON documents
 # Project: [Name]
 
 **Description:** [1-2 sentences]
-**Framework:** AI Coding Methods v2.26.0
+**Framework:** AI Coding Methods v2.27.0
 **Mode:** [Expedited/Standard/Enhanced]
 
 ## Memory Files
@@ -7921,6 +7946,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.27.0 | 2026-03-26 | **Agentic Engineering Patterns Integration:** (1) §5.2.2 Red/green TDD elevated from equal alternative to RECOMMENDED pattern for AI-assisted development, citing research consensus (Willison 2026, GitHub Copilot TDD guide, TDAD arXiv 2026, DORA 2025). Added TDAD finding on providing specific test context. (2) §7.6.2 Session Start Procedure: added step 3 "Run existing tests" to establish known-good baseline before changes. (3) New §5.13.7 Code Comprehension via Linear Walkthrough — structured technique for understanding unfamiliar/agent-written code, combating cognitive debt, supporting Skill Preservation. (4) Situation Index +1 entry. |
 | 2.26.0 | 2026-03-22 | **Design-Before-Build & Tool Discovery:** (1) §2.4 UX Elaboration elevated from OPTIONAL to IMPORTANT for UI-facing projects — added anti-pattern description (prompting AI for UI without design reference), fix guidance (create design artifact first, validate, then implement), Figma MCP cross-reference for seamless design-to-code workflow. §2.4.1 When to Apply rewritten with clear inclusion/exclusion criteria. (2) §3.1.4 Tool Content Model updated: "tools we may use" inclusion path — prospective tools noted as named references under evaluation with user consent before adoption. Prevents useful discoveries from being lost while maintaining discovery-driven philosophy. Prompted by analysis of vibe-coding anti-patterns in AI development community. |
 | 2.25.0 | 2026-03-22 | **Repository Security Configuration & Semantic Code Analysis:** (1) New §6.4.10 Repository Security Configuration — universal 10-item checklist (branch protection, CI enforcement, secret scanning, dependency alerts, CodeQL, CODEOWNERS), 3 enforcement tiers (Minimum/Standard/Production), cross-platform quick reference table (GitHub, GitLab, Bitbucket). (2) New §6.4.11 Semantic Code Analysis — CodeQL workflow template, query suite guidance (security-extended recommended), platform alternatives (GitLab SAST, Semgrep, Bandit), finding management and false positive suppression. (3) Appendix H expanded from 14 to 16 items (+repository branch protection, +semantic analysis enabled). (4) §5.3.3 cross-reference to §6.4.10/§6.4.11 for enforcement. (5) §6.4.6 CodeQL bullet expanded with §6.4.11 reference. (6) Situation Index +2 entries. Prompted by bandit CI failure revealing the gap between "run scans" and "enforce scan results." |
 | 2.24.0 | 2026-03-22 | **Folder-Based AI Environment Support:** New Appendix L. (1) L.1 Overview — problem statement for folder-based tools (Cowork, ChatGPT Desktop) that lack auto-discovery. (2) L.2 Folder Structure Convention — `_ai-context/` naming rationale (underscore sorts to top, visible, cross-platform), standalone vs hybrid layouts. (3) L.3 README.md Loader Templates — standalone (~50 lines, project description + memory file table + session protocol) and hybrid redirect (~15 lines, points to root-level files). (4) L.4 Cowork Project Instructions Template — copy-paste block for GUI bootstrapping. (5) L.5 Bootstrapping Protocol — conversational (AI creates files), manual (copy templates), MCP tool (future scaffold_project). (6) L.6 Non-Code Session State Variant — simplified Quick Reference for document projects. (7) L.7 Cross-Tool Coexistence — environment matrix, coexistence rules, advisory enforcement note. Cross-references: §1.5.1 (folder-based note), §1.5.5 (added _ai-context/README.md row), §7.8.4 (folder-based variant), Situation Index (+1 entry), Cold Start Kit (+Scenario E). Constitutional basis: Project Reference Persistence, Context Engineering. |
