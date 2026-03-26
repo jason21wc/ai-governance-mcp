@@ -509,6 +509,20 @@ def create_server() -> tuple[Server, ProjectManager]:
     return server, manager
 
 
+def _is_within_allowed_scope(p: Path) -> bool:
+    """Check if a resolved path is within allowed scope (home, CWD, or temp dirs)."""
+    home = Path.home().resolve()
+    cwd = Path.cwd().resolve()
+    tmp = Path(tempfile.gettempdir()).resolve()
+    allowed = [home, cwd, tmp]
+    # Also allow system /tmp explicitly (macOS symlinks it to /private/tmp,
+    # which differs from tempfile.gettempdir() user-specific temp dir)
+    system_tmp = Path("/tmp").resolve()  # nosec B108
+    if system_tmp != tmp:
+        allowed.append(system_tmp)
+    return any(p.is_relative_to(base) for base in allowed)
+
+
 def _resolve_project_path(arguments: dict) -> Path | None:
     """Resolve project path from tool arguments, env var, or CWD.
 
@@ -521,13 +535,7 @@ def _resolve_project_path(arguments: dict) -> Path | None:
         if not p.exists() or not p.is_dir():
             logger.warning("Specified project_path does not exist: %s", p)
             return None
-        # Scope restriction: only allow paths under home, CWD, or /tmp
-        home = Path.home().resolve()
-        cwd = Path.cwd().resolve()
-        tmp = Path(tempfile.gettempdir()).resolve()
-        if not (
-            p.is_relative_to(home) or p.is_relative_to(cwd) or p.is_relative_to(tmp)
-        ):
+        if not _is_within_allowed_scope(p):
             logger.warning(
                 "project_path %s is outside allowed scope (home, CWD, /tmp)", p
             )
@@ -537,8 +545,14 @@ def _resolve_project_path(arguments: dict) -> Path | None:
     default = os.environ.get("AI_CONTEXT_ENGINE_DEFAULT_PROJECT")
     if default:
         p = Path(default).resolve()
-        if p.exists() and p.is_dir():
-            return p
+        if not p.exists() or not p.is_dir():
+            return None
+        if not _is_within_allowed_scope(p):
+            logger.warning(
+                "AI_CONTEXT_ENGINE_DEFAULT_PROJECT %s is outside allowed scope", p
+            )
+            return None
+        return p
 
     return Path.cwd()
 
