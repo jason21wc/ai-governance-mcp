@@ -22,6 +22,7 @@ import os
 import re
 import signal
 import sys
+import tempfile
 import threading
 import time
 from pathlib import Path
@@ -523,7 +524,7 @@ def _resolve_project_path(arguments: dict) -> Path | None:
         # Scope restriction: only allow paths under home, CWD, or /tmp
         home = Path.home().resolve()
         cwd = Path.cwd().resolve()
-        tmp = Path("/tmp").resolve()
+        tmp = Path(tempfile.gettempdir()).resolve()
         if not (
             p.is_relative_to(home) or p.is_relative_to(cwd) or p.is_relative_to(tmp)
         ):
