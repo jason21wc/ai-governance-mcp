@@ -21,6 +21,8 @@ from .config import (
     setup_logging,
     ensure_directories,
 )
+import yaml  # nosec B506 — safe_load only, never yaml.load
+
 from .models import (
     DomainConfig,
     DomainIndex,
@@ -29,6 +31,7 @@ from .models import (
     MethodMetadata,
     Principle,
     PrincipleMetadata,
+    ReferenceEntry,
 )
 
 logger = setup_logging()
@@ -567,6 +570,11 @@ class DocumentExtractor:
                 all_texts.append(text)
                 text_mapping.append((domain_config.name, "method", i))
 
+            for i, ref in enumerate(index.references):
+                text = self._get_reference_embedding_text(ref)
+                all_texts.append(text)
+                text_mapping.append((domain_config.name, "reference", i))
+
         # Generate embeddings for all content
         logger.info(f"Generating embeddings for {len(all_texts)} items...")
         embeddings = self.embedder.embed(all_texts)
@@ -575,8 +583,10 @@ class DocumentExtractor:
         for idx, (domain_name, item_type, local_idx) in enumerate(text_mapping):
             if item_type == "principle":
                 domain_indexes[domain_name].principles[local_idx].embedding_id = idx
-            else:
+            elif item_type == "method":
                 domain_indexes[domain_name].methods[local_idx].embedding_id = idx
+            elif item_type == "reference":
+                domain_indexes[domain_name].references[local_idx].embedding_id = idx
 
         # Generate domain description embeddings
         logger.info("Generating domain embeddings for routing...")
@@ -649,17 +659,145 @@ class DocumentExtractor:
 
         return "\n".join(parts)
 
+    def _get_reference_embedding_text(self, ref: ReferenceEntry) -> str:
+        """Create text for embedding from a reference entry.
+
+        Combines title, summary, tags, and content for semantic representation.
+        """
+        parts = [ref.title]
+        if ref.summary:
+            parts.append(ref.summary)
+        if ref.tags:
+            parts.append(" ".join(ref.tags))
+        parts.append(ref.content[:1500])
+
+        meta = ref.metadata
+        if meta.purpose_keywords:
+            parts.append(" ".join(meta.purpose_keywords[:5]))
+
+        return "\n".join(parts)
+
+    def _extract_references(self, domain_config: DomainConfig) -> list[ReferenceEntry]:
+        """Extract reference library entries from reference-library/{domain}/ directory.
+
+        Parses YAML frontmatter from individual markdown files.
+        Skips staging/ subdirectory and _criteria.yaml.
+        """
+        entries: list[ReferenceEntry] = []
+        base = self.settings.documents_path.parent
+
+        for ref_dir in [
+            base / "reference-library" / domain_config.name,
+            base / "private-reference-library" / domain_config.name,
+        ]:
+            if not ref_dir.exists():
+                continue
+            for md_file in sorted(ref_dir.glob("*.md")):
+                # Skip staging directory entries and non-md files
+                if "staging" in str(md_file):
+                    continue
+                entry = self._parse_reference_file(md_file, domain_config.name)
+                if entry:
+                    entries.append(entry)
+
+        if entries:
+            logger.info(
+                f"Extracted {len(entries)} reference entries for {domain_config.name}"
+            )
+        return entries
+
+    def _parse_reference_file(
+        self, file_path: Path, domain_name: str
+    ) -> ReferenceEntry | None:
+        """Parse a single reference library markdown file with YAML frontmatter.
+
+        Returns None if the file is invalid or missing required fields.
+        Uses yaml.safe_load() exclusively — never yaml.load().
+        """
+        try:
+            content = file_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as e:
+            logger.warning(f"Cannot read reference file {file_path}: {e}")
+            return None
+
+        # Parse YAML frontmatter (between --- delimiters)
+        if not content.startswith("---"):
+            logger.warning(f"No YAML frontmatter in {file_path}")
+            return None
+
+        parts = content.split("---", 2)
+        if len(parts) < 3:
+            logger.warning(f"Invalid frontmatter format in {file_path}")
+            return None
+
+        try:
+            frontmatter = yaml.safe_load(parts[1])  # nosec B506
+        except yaml.YAMLError as e:
+            logger.warning(f"Invalid YAML in {file_path}: {e}")
+            return None
+
+        if not isinstance(frontmatter, dict):
+            logger.warning(f"Frontmatter is not a dict in {file_path}")
+            return None
+
+        # Validate required fields
+        required = {"id", "title", "domain", "tags", "status", "entry_type"}
+        missing = required - set(frontmatter.keys())
+        if missing:
+            logger.warning(f"Missing required fields in {file_path}: {missing}")
+            return None
+
+        body = parts[2].strip()
+
+        # Build metadata for search
+        metadata = self._generate_method_metadata(frontmatter["title"], body)
+        # Enrich with tags
+        metadata.purpose_keywords = list(
+            set(metadata.purpose_keywords + frontmatter.get("tags", []))
+        )
+
+        # YAML parses dates as datetime.date — convert to strings
+        created = frontmatter.get("created")
+        if created and not isinstance(created, str):
+            created = str(created)
+        last_verified = frontmatter.get("last_verified")
+        if last_verified and not isinstance(last_verified, str):
+            last_verified = str(last_verified)
+
+        return ReferenceEntry(
+            id=frontmatter["id"],
+            domain=frontmatter.get("domain", domain_name),
+            title=frontmatter["title"],
+            summary=frontmatter.get("summary", ""),
+            content=body,
+            tags=frontmatter.get("tags", []),
+            status=frontmatter.get("status", "current"),
+            maturity=frontmatter.get("maturity", "seedling"),
+            entry_type=frontmatter.get("entry_type", "direct"),
+            decay_class=frontmatter.get("decay_class", "framework"),
+            created=created,
+            last_verified=last_verified,
+            source=frontmatter.get("source"),
+            supersedes=frontmatter.get("supersedes", []),
+            superseded_by=frontmatter.get("superseded_by"),
+            related=frontmatter.get("related", []),
+            source_path=str(file_path.relative_to(self.settings.documents_path.parent)),
+            metadata=metadata,
+        )
+
     def _extract_domain(self, domain_config: DomainConfig) -> DomainIndex:
         """Extract a single domain."""
         principles = self._extract_principles(domain_config)
         methods = []
         if domain_config.methods_file:
             methods = self._extract_methods(domain_config)
+        references = self._extract_references(domain_config)
 
         return DomainIndex(
             domain=domain_config.name,
             principles=principles,
             methods=methods,
+            references=references,
             last_extracted=datetime.now(timezone.utc).isoformat(),
             version="1.0",
         )

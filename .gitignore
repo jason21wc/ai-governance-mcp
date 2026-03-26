@@ -55,3 +55,4 @@ logs/*.jsonl
 .env
 .env.local
 private-domains/
+private-reference-library/

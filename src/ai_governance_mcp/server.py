@@ -1538,6 +1538,26 @@ def _format_retrieval_result(result) -> str:
             lines.append(f"- **{m.id}:** {m.title} (confidence: {sm.confidence.value})")
         lines.append("")
 
+    # Reference Library (Case Law Precedent)
+    if result.references:
+        lines.append("## Relevant Precedent (Reference Library)")
+        for sr in result.references:
+            r = sr.reference
+            status_icon = {
+                "current": "🟢",
+                "caution": "🟡",
+                "deprecated": "🔴",
+                "archived": "⬜",
+            }
+            icon = status_icon.get(r.status, "")
+            lines.append(
+                f"- {icon} **{r.id}:** {r.title} [{r.maturity}/{r.status}] "
+                f"(confidence: {sr.confidence.value})"
+            )
+            if r.summary:
+                lines.append(f"  {r.summary}")
+        lines.append("")
+
     if not result.constitution_principles and not result.domain_principles:
         lines.append(
             "*No matching principles found. Try rephrasing your query or specifying a domain.*"

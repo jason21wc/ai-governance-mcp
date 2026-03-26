@@ -1,0 +1,32 @@
+# Auto-capture criteria for ai-coding reference library
+# Entries matching these criteria go directly to library with maturity: seedling
+# User approves criteria; AI applies them during work sessions
+
+domain: ai-coding
+
+auto_capture_rules:
+  - name: "Reused test fixtures"
+    description: "Test fixture patterns used in 2+ test files"
+    trigger: "fixture defined in conftest.py and used across multiple test modules"
+    maturity: seedling
+
+  - name: "Working Docker patterns"
+    description: "Dockerfile or docker-compose patterns that pass CI"
+    trigger: "Docker configuration that successfully builds and runs in CI"
+    maturity: seedling
+
+  - name: "MCP tool patterns"
+    description: "MCP server tool handler patterns that pass integration tests"
+    trigger: "New MCP tool implementation with passing tests"
+    maturity: seedling
+
+  - name: "Configuration patterns"
+    description: "pyproject.toml, CI workflow, or deployment configurations that work"
+    trigger: "Configuration file pattern that solves a non-trivial setup problem"
+    maturity: seedling
+
+# Staging suggestions (AI proposes, user reviews)
+suggestion_triggers:
+  - "Pattern used in current session that resembles an existing library entry"
+  - "Solution to a problem the user has asked about before"
+  - "Working implementation of a technique referenced in governance methods"

@@ -149,6 +149,56 @@ class Method(BaseModel):
     embedding_id: Optional[int] = Field(None, description="Index into embeddings array")
 
 
+class ReferenceEntry(BaseModel):
+    """A curated reference library entry (case law precedent).
+
+    Individual markdown files with YAML frontmatter, stored in
+    reference-library/{domain}/ directories. See TITLE 15 in
+    ai-governance methods.
+    """
+
+    id: str = Field(
+        ..., description="Globally unique slug, e.g., 'ref-ai-coding-pytest-fixtures'"
+    )
+    domain: str = Field(..., description="Domain this entry belongs to")
+    title: str = Field(..., description="Human-readable title")
+    summary: str = Field(default="", description="One-line description for search")
+    content: str = Field(..., description="Full markdown body after frontmatter")
+    tags: list[str] = Field(default_factory=list, description="Faceted tags (3-8)")
+    status: str = Field(
+        default="current", description="current|caution|deprecated|archived"
+    )
+    maturity: str = Field(default="seedling", description="seedling|budding|evergreen")
+    entry_type: str = Field(default="direct", description="direct|reference")
+    decay_class: str = Field(
+        default="framework", description="evergreen|framework|api|transient"
+    )
+    created: Optional[str] = Field(None, description="ISO date")
+    last_verified: Optional[str] = Field(None, description="ISO date")
+    source: Optional[str] = Field(None, description="Provenance")
+    supersedes: list[str] = Field(default_factory=list)
+    superseded_by: Optional[str] = Field(None)
+    related: list[str] = Field(default_factory=list)
+    source_path: Optional[str] = Field(
+        None, description="File path relative to reference-library/"
+    )
+    metadata: MethodMetadata = Field(
+        default_factory=MethodMetadata,
+        description="Search metadata (reuses MethodMetadata)",
+    )
+    embedding_id: Optional[int] = Field(None, description="Index into embeddings array")
+
+
+class ScoredReference(BaseModel):
+    """A reference entry with hybrid retrieval scores."""
+
+    reference: ReferenceEntry
+    semantic_score: float = Field(0.0, ge=0.0, le=1.0)
+    keyword_score: float = Field(0.0, ge=0.0)
+    combined_score: float = Field(0.0, ge=0.0, le=1.0)
+    confidence: ConfidenceLevel = Field(ConfidenceLevel.LOW)
+
+
 class DomainConfig(BaseModel):
     """Configuration for a single domain.
 
@@ -182,6 +232,7 @@ class DomainIndex(BaseModel):
     domain: str
     principles: list[Principle] = Field(default_factory=list)
     methods: list[Method] = Field(default_factory=list)
+    references: list[ReferenceEntry] = Field(default_factory=list)
     last_extracted: str = Field(..., description="ISO timestamp of last extraction")
     version: str = Field(default="1.0", description="Index format version")
 
@@ -248,6 +299,7 @@ class RetrievalResult(BaseModel):
     constitution_principles: list[ScoredPrinciple] = Field(default_factory=list)
     domain_principles: list[ScoredPrinciple] = Field(default_factory=list)
     methods: list[ScoredMethod] = Field(default_factory=list)
+    references: list[ScoredReference] = Field(default_factory=list)
     s_series_triggered: bool = Field(
         default=False, description="Whether S-Series applies"
     )

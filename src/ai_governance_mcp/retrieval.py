@@ -18,9 +18,11 @@ from .models import (
     GlobalIndex,
     Method,
     Principle,
+    ReferenceEntry,
     RetrievalResult,
     ScoredMethod,
     ScoredPrinciple,
+    ScoredReference,
 )
 
 logger = setup_logging()
@@ -236,6 +238,12 @@ class RetrievalEngine:
                 corpus.append(tokens)
                 self.bm25_docs.append((domain_name, "method", i))
 
+            for i, ref in enumerate(domain_index.references):
+                text = self._get_reference_bm25_text(ref)
+                tokens = re.findall(r"\w+", text.lower())
+                corpus.append(tokens)
+                self.bm25_docs.append((domain_name, "reference", i))
+
         if corpus:
             self.bm25_index = BM25Okapi(corpus)
             logger.info(f"Built BM25 index with {len(corpus)} documents")
@@ -361,6 +369,21 @@ class RetrievalEngine:
         if meta.guideline_keywords:
             parts.append(" ".join(meta.guideline_keywords))
 
+        return " ".join(parts)
+
+    def _get_reference_bm25_text(self, ref: ReferenceEntry) -> str:
+        """Create text for BM25 indexing from a reference entry."""
+        parts = [
+            ref.title,
+            ref.summary,
+            " ".join(ref.tags),
+            ref.content[:1500],
+        ]
+        meta = ref.metadata
+        if meta.purpose_keywords:
+            parts.append(" ".join(meta.purpose_keywords))
+        if meta.applies_to:
+            parts.append(" ".join(meta.applies_to))
         return " ".join(parts)
 
     # =========================================================================
@@ -553,6 +576,9 @@ class RetrievalEngine:
         elif item_type == "method" and local_idx < len(domain_index.methods):
             m = domain_index.methods[local_idx]
             return f"{m.title}\n{m.content[:500]}"
+        elif item_type == "reference" and local_idx < len(domain_index.references):
+            r = domain_index.references[local_idx]
+            return f"{r.title}\n{r.summary}\n{r.content[:500]}"
 
         return ""
 
@@ -664,6 +690,7 @@ class RetrievalEngine:
         constitution_principles: list[ScoredPrinciple] = []
         domain_principles: list[ScoredPrinciple] = []
         methods: list[ScoredMethod] = []
+        references: list[ScoredReference] = []
         s_series_triggered = False
 
         for domain_name, item_type, local_idx, rerank_score in reranked:
@@ -726,6 +753,32 @@ class RetrievalEngine:
                     )
                     methods.append(scored_method)
 
+            elif item_type == "reference":
+                if local_idx < len(domain_index.references):
+                    ref = domain_index.references[local_idx]
+                    # Apply maturity/status score adjustments
+                    maturity_adj = {"evergreen": 0.1, "budding": 0.0, "seedling": -0.05}
+                    status_adj = {
+                        "current": 0.0,
+                        "caution": -0.1,
+                        "deprecated": -0.2,
+                        "archived": -0.3,
+                    }
+                    adj = (
+                        combined
+                        + maturity_adj.get(ref.maturity, 0.0)
+                        + status_adj.get(ref.status, 0.0)
+                    )
+                    adj = min(1.0, max(0.0, adj))
+                    scored_ref = ScoredReference(
+                        reference=ref,
+                        semantic_score=sem_score,
+                        keyword_score=bm25_norm,
+                        combined_score=adj,
+                        confidence=self._get_confidence(adj),
+                    )
+                    references.append(scored_ref)
+
         # Step 8: Apply hierarchy and limit
         constitution_principles = self.apply_hierarchy(constitution_principles)[
             :max_results
@@ -741,6 +794,9 @@ class RetrievalEngine:
             constitution_principles=constitution_principles,
             domain_principles=domain_principles,
             methods=methods[:max_results] if include_methods else [],
+            references=sorted(references, key=lambda r: r.combined_score, reverse=True)[
+                :max_results
+            ],
             s_series_triggered=s_series_triggered,
             retrieval_time_ms=retrieval_time,
         )

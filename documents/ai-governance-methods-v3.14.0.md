@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.13.0
+**Version:** 3.14.0
 **Status:** Active
-**Effective Date:** 2026-03-12
+**Effective Date:** 2026-03-26
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -1763,7 +1763,8 @@ Each domain must establish its truth source hierarchy:
 1. **Constitution:** Always highest authority (immutable)
 2. **Domain Principles:** Binding within domain
 3. **Domain Methods:** Implementation guidance
-4. **External References:** Industry standards, tool documentation
+4. **Reference Library:** Curated precedent — concrete artifacts that worked in practice (see TITLE 15)
+5. **External References:** Uncurated industry standards, tool documentation
 
 ### 9.3.2 Conflict Resolution
 
@@ -3379,10 +3380,256 @@ Each domain methods document should include a section following this structure:
 
 ---
 
+# TITLE 15: REFERENCE LIBRARY (CASE LAW)
+
+**Importance: IMPORTANT — Enables curated precedent for agent retrieval and recombination**
+
+**Implements:** Project Reference Persistence (Constitution), Single Source of Truth (Constitution), Established Solutions First (Constitution)
+**Applies to:** All domains that accumulate reusable artifacts (code, templates, configurations, external references)
+
+## Part 15.1: Concept and Legal Analogy
+
+The Reference Library is the framework's **Case Law** — a curated collection of concrete, vetted artifacts that worked in practice, indexed for retrieval and recombination by AI agents.
+
+**Constitutional analogy:**
+- **Constitution** → Framework constitution (meta-principles)
+- **Federal Statutes** → Domain principles (binding rules)
+- **Code of Federal Regulations** → Domain methods (implementation procedures)
+- **Agency Technical Guidance** → Appendices (tool-specific guidance)
+- **Case Law / Legal Precedent** → **Reference Library** (curated artifacts from practice)
+
+**What makes case law distinct from statutes:** Case law is *concrete* (an actual ruling about actual facts), *curated* (only published decisions become citable precedent), *combinable* (lawyers cite multiple precedents to build novel arguments), and *grows from practice* (every new case potentially becomes precedent). The Reference Library has the same properties: concrete artifacts, curated through governance, combinable by agents, growing from real work.
+
+**Truth Source Hierarchy** (extends §9.3.1):
+1. Constitution — always highest authority (immutable)
+2. Domain Principles — binding within domain
+3. Domain Methods — implementation guidance
+4. **Reference Library — curated precedent (case law)**
+5. External References — uncurated industry standards, tool documentation
+
+**Distinction from TITLE 14 (Project Reference Documents):** TITLE 14 = per-project semantic memory ("your project's case file"). TITLE 15 = framework-level curated precedent ("the law library everyone cites"). A project's DATA-REFERENCE.md captures facts about *that* project. A Reference Library entry captures a reusable pattern applicable *across* projects.
+
+**Domain-agnostic design:** Any domain can maintain a Reference Library. The content varies by domain:
+- **ai-coding:** Working code snippets, configurations, test patterns, Dockerfiles
+- **KM&PD:** Proven document templates, training program structures, checklist designs
+- **Storytelling:** Character voice profiles, narrative structures, dialogue patterns
+- **Any future domain:** Whatever concrete artifacts practitioners reuse in that domain
+
+*Source: Willison (2026) "Agentic Engineering Patterns" — "Hoard things you know how to do." Research: Zettelkasten methodology (atomic reusable notes), digital garden model (maturity-based curation), legal precedent systems (KeyCite/Shepard's currency tracking).*
+
+## Part 15.2: Entry Types
+
+### 15.2.1 Direct Entry
+The actual artifact lives in the library. The entry IS the reusable material.
+
+**Examples:** A working pytest fixture pattern, a Docker multi-arch build configuration, a TWI Job Instruction Card template, a validated SIPOC example.
+
+### 15.2.2 Reference Entry
+A pointer to an external source with curated context, summary, and lessons. Like case law annotations: "for further treatment of this issue, see these sources."
+
+**Examples:** A pointer to Willison's blog post on agent testing patterns, a reference to the TWI Institute's canonical 4-step Job Instruction method, a link to a Stack Overflow answer that solved a specific integration problem.
+
+**When to use Reference vs Direct:** Use Reference when the source is authoritative, maintained by others, and better consumed at the source. Use Direct when you need the exact artifact preserved (external sources change or disappear) or when you've adapted the pattern significantly.
+
+## Part 15.3: Entry Template
+
+Each Reference Library entry is a markdown file with YAML frontmatter. The frontmatter envelope is consistent; the body content varies by domain.
+
+### 15.3.1 YAML Frontmatter Specification
+
+```yaml
+---
+# === REQUIRED (6 fields) ===
+id: ref-{domain}-{descriptive-slug}        # Globally unique, never reused
+title: "Human-readable title"
+domain: ai-coding                           # Single-select from domains.json
+tags: [testing, pytest, fixtures, mcp]      # 3-8 from controlled vocabulary
+status: current                             # current | caution | deprecated | archived
+entry_type: direct                          # direct | reference
+
+# === RECOMMENDED (6 fields) ===
+summary: "One-line description optimized for semantic search"
+created: 2026-03-26
+last_verified: 2026-03-26
+maturity: seedling                          # seedling | budding | evergreen
+decay_class: framework                      # evergreen | framework | api | transient
+source: "project/file or session where this originated"
+
+# === RELATIONSHIPS (optional) ===
+supersedes: []                              # Entry IDs this replaces
+superseded_by: null                         # Entry ID that replaced this
+related: []                                 # Related entry IDs
+derived_from: null                          # Parent entry if refined
+
+# === REFERENCE ENTRY ONLY (when entry_type: reference) ===
+# external_url: "https://..."
+# external_author: "Author Name"
+# accessed_date: 2026-03-26
+---
+```
+
+### 15.3.2 Markdown Body Specification
+
+```markdown
+## Context
+
+When to use this and why it exists. What problem it solves.
+
+## Artifact
+
+The actual code/template/config (direct entries) or curated summary (reference entries).
+
+## Lessons Learned
+
+What worked, what didn't, edge cases, gotchas discovered in practice.
+
+## Cross-References
+
+- Principles: [relevant principle IDs]
+- Methods: [relevant method section refs]
+- See also: [related entry IDs]
+```
+
+## Part 15.4: Curation Governance
+
+### 15.4.1 Three Intake Paths
+
+**Path 1 — Auto-capture (rule-based, no-brainers):**
+- Domain-specific criteria stored in `_criteria.yaml` per library domain directory
+- User defines rules explicitly, or AI recommends rules based on observed patterns (user approves)
+- Matching entries go directly to library with `maturity: seedling`
+- Example criteria (ai-coding): "any test fixture used in 2+ projects," "any Docker pattern that passes CI"
+- Example criteria (non-code): "Pokemon cards valued at $20+," "any TWI template validated through gemba"
+- Auto-captured entries still require user review before promotion beyond seedling
+
+**Path 2 — Staged suggestion (AI proposes, user reviews):**
+- AI notices potential entries during normal work sessions
+- Adds candidate to `staging/` subdirectory with `status: pending-review`
+- Review trigger: during completion sequence (§5.1.6) as a lightweight check — "Any reusable patterns from this session worth capturing?"
+- User reviews periodically: approve moves to library, reject deletes from staging
+- AI signals: pattern frequency, cross-project applicability, user behavior (asked about similar patterns before)
+
+**Path 3 — Manual capture (user-directed):**
+- User says "add this to the reference library" or "capture this pattern"
+- AI creates entry with proper frontmatter via the `capture_reference` MCP tool
+- User provides or confirms metadata; AI drafts the body content
+
+### 15.4.2 Inclusion Criteria (what qualifies as precedent)
+
+Adapted from legal reportability criteria:
+- **Establishes a new pattern** not already in the library
+- **Applies an existing pattern to a novel context** worth documenting
+- **Solves a problem the user is likely to face again** (reuse potential)
+- **Represents a vetted, working implementation** — not theoretical or untested
+- For reference entries: **source is authoritative and stable** (maintained by others, not a random blog post)
+
+**Exclusion criteria:**
+- Project-specific configurations with no cross-project value
+- Trivial patterns that any competent practitioner would know
+- Unstable/experimental approaches not yet validated
+- Duplicates of existing entries (consolidate instead)
+
+### 15.4.3 Maturity Pipeline (digital garden model)
+
+| Maturity | Definition | Retrieval Weight | Promotion Criteria |
+|----------|-----------|-----------------|-------------------|
+| **Seedling** | Newly captured, minimal context, may need refinement | Slightly penalized (-0.05) | Verified working in at least one context |
+| **Budding** | Verified working, has context and lessons, not yet battle-tested | Neutral (0.0) | Used successfully in 2+ projects or validated by SME |
+| **Evergreen** | Proven across projects/time, comprehensive context, high confidence | Boosted (+0.1) | Stable pattern unlikely to change; comprehensive lessons captured |
+
+### 15.4.4 Currency Tracking (KeyCite model)
+
+**Status signals** — inspired by Westlaw KeyCite / LexisNexis Shepard's Citations:
+
+| Status | Signal | Definition | Retrieval Impact |
+|--------|--------|-----------|-----------------|
+| **Current** | Green | Verified working, recommended for use | No penalty (0.0) |
+| **Caution** | Yellow | Newer approach exists, or dependency has changed, but original still works | Mild penalty (-0.1) |
+| **Deprecated** | Red | Superseded by a better approach; use `superseded_by` entry instead | Strong penalty (-0.2) |
+| **Archived** | Gray | Historical interest only; not recommended for active use | Very strong penalty (-0.3) |
+
+**Decay classes** — how quickly an entry ages based on its content type:
+
+| Decay Class | Half-Life | Examples |
+|-------------|-----------|---------|
+| **Evergreen** | Immune to decay | Language-level patterns, algorithm implementations, universal principles |
+| **Framework** | Slow (~2 years) | React patterns, Django configurations, established library usage |
+| **API** | Moderate (~6 months) | Specific API versions, cloud service configurations |
+| **Transient** | Fast (~3 months) | Bleeding-edge tool configs, beta API patterns |
+
+**Last-verified date** tracks currency independently of content changes. An entry can be unchanged but re-verified as still working.
+
+### 15.4.5 Bloat Prevention
+
+- **Zettelkasten atomicity:** One reusable unit per entry. If an entry tries to cover multiple patterns, split it.
+- **Periodic review:** Entries with zero retrievals in 90 days are candidates for archival.
+- **Content ownership:** Each entry's `source` field tracks provenance for accountability.
+- **Merge duplicates:** If two entries cover the same pattern, consolidate into the stronger entry and mark the other as `superseded_by`.
+- **Controlled vocabulary for tags:** Tags grow organically but are reviewed for sprawl. Prefer existing tags over new ones.
+
+## Part 15.5: Classification System
+
+**Domain** (single-select): From `domains.json`. Each entry belongs to exactly one domain. This is the primary organizational axis.
+
+**Tags** (multi-select, 3-8 per entry): Faceted classification from a controlled vocabulary. Tags enable cross-cutting retrieval that domains alone cannot provide. Examples: `[testing, pytest, fixtures, mocking]` or `[docker, multi-arch, ci-cd]`.
+
+**Relationship edges:**
+- `supersedes` / `superseded_by` — deprecation chain (like case law overruling)
+- `related` — entries addressing similar problems from different angles
+- `derived_from` — refined version of a parent entry
+
+**Why faceted classification over pure hierarchy:** AI agents retrieve by combining multiple independent dimensions simultaneously. Faceted classification (domain + tags + relationships) outperforms tree hierarchies for semantic search because agents can match on any combination of facets.
+
+## Part 15.6: Directory Structure and Privacy
+
+```
+reference-library/                          # Public entries (version-controlled)
+    ai-coding/
+        _criteria.yaml                      # Auto-capture rules for this domain
+        staging/                            # Pending review (Path 2 intake)
+        ref-ai-coding-pytest-fixtures.md
+        ref-ai-coding-mcp-testing.md
+    kmpd/
+        _criteria.yaml
+        staging/
+        ref-kmpd-twi-job-instruction.md
+    {domain}/                               # Any domain can add a library
+        _criteria.yaml
+        staging/
+        *.md
+
+private-reference-library/                  # Private entries (.gitignored)
+    ai-coding/
+        staging/
+        ref-ai-coding-proprietary-pattern.md
+```
+
+**Privacy model:** Same pattern as `private-domains/`. Public entries travel with the repository. Private entries stay local via `.gitignore`. The extractor discovers entries from both locations.
+
+**File naming:** `{id}.md` where `id` matches the YAML frontmatter `id` field. Example: `ref-ai-coding-pytest-fixtures.md` contains `id: ref-ai-coding-pytest-fixtures`.
+
+## Part 15.7: Proportional Application
+
+Reference Library entries inherit the framework's existing proportionality rules (§7.8):
+- **Low-stakes tasks** do not require reference library lookups
+- **Standard tasks** surface relevant entries alongside principles/methods in `query_governance` results
+- **High-stakes tasks** may warrant explicit reference library search for established precedent
+
+Entries are **not a separate lookup** — they integrate into the existing retrieval pipeline alongside principles and methods. When an agent queries for governance guidance, relevant precedent surfaces automatically if it scores high enough.
+
+**Cross-reference:** §7.8 (Proportional Application), §5.1.6 (Completion Sequence for staging review)
+
+---
+
+# TITLE 15 END
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.14.0 | 2026-03-26 | MINOR: Added TITLE 15 (Reference Library / Case Law). Defines curated precedent system for concrete reusable artifacts (code snippets, templates, configurations, vetted external references). Parts 15.1-15.7 covering concept and legal analogy, entry types (direct/reference), entry template (YAML frontmatter + markdown body), curation governance (three intake paths: auto-capture, staged suggestion, manual), maturity pipeline (seedling/budding/evergreen), KeyCite-style currency tracking (current/caution/deprecated/archived), classification system (faceted: domain + tags + relationship edges), directory structure and privacy, proportional application. Updated §9.3.1 Truth Source Hierarchy to include Reference Library as level 4. Operationalizes constitution principle Project Reference Persistence. Source: Willison (2026) "Agentic Engineering Patterns" + Zettelkasten methodology + legal precedent systems research. |
 | 3.13.0 | 2026-03-12 | MINOR: Added TITLE 14 (Project Reference Documents) with Parts 14.1-14.5. §14.1 Complexity Scaling Tiers — domain-specific complexity metrics and four-tier scaling model (None/Minimal/Standard/Mandatory External). §14.2 Staleness Management Protocol — freshness metadata format, detection procedure, domain-specific thresholds, refresh procedure, coherence-auditor integration. §14.3 Three-Tier Memory Mapping — generalizes storytelling Story Bible pattern to cross-domain Working/Semantic/Episodic memory architecture. §14.4 Agent Consumption — selective loading protocol, pre-action reference checks, post-action update triggers. §14.5 Domain Declaration Template — standard format for domains to declare their reference doc taxonomy. Implements new Constitution principle "Project Reference Persistence" (v2.5.0). Cross-referenced from ai-coding methods §7.10, storytelling methods §2. |
 | 3.12.0 | 2026-02-25 | MINOR: Updated §13.1.2 Cache Architecture Patterns with auto vs explicit caching decision model, combined approach, and expanded validation checklist. Added Appendix G.6 (Prompt Caching Implementation) with Anthropic-specific details: auto/explicit API examples, pricing table, 1-hour TTL option, ITPM exemption, minimum cacheable token thresholds by model, 20-block lookback window, and decision guide. Added 1 Situation Index entry. |
 | 3.11.1 | 2026-02-24 | PATCH: Added "Platform vs. governance memory" note to Appendix G.5 auto memory template — clarifies governance memory files live in project repository root, not platform memory directories. Fixed `<project-hash>` → `*` in G.5 Claude Code memory path (it's a path-derived identifier, not a hash). |
