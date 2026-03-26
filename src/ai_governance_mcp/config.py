@@ -320,7 +320,7 @@ def _default_domains() -> list[DomainConfig]:
             name="multi-agent",
             display_name="Multi-Agent",
             principles_file="multi-agent-domain-principles-v2.3.0.md",
-            methods_file="multi-agent-methods-v2.14.0.md",
+            methods_file="multi-agent-methods-v2.15.0.md",
             description=(
                 "Multi-agent AI systems and orchestration. Agent coordination, "
                 "task delegation, handoffs, swarm intelligence, ensemble methods, "

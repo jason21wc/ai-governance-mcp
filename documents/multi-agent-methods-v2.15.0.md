@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.14.0
+**Version:** 2.15.0
 **Status:** Active
-**Effective Date:** 2026-03-09
+**Effective Date:** 2026-03-26
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -4038,6 +4038,193 @@ When agent output feeds back into agent input (e.g., research agent reads its ow
 
 ---
 
+### 6.5 Autonomous Experimentation Protocol
+
+**Implements:** AO-1 (Blast Radius Classification), AO-2 (HITL Removal Criteria), AO-3 (Compensating Controls), AO-4 (Autonomous Drift Monitoring)
+
+Operationalizes the AO-Series for autonomous agent experimentation — agents running modify→test→evaluate→decide loops without continuous human supervision.
+
+*Source: Karpathy (2026) "autoresearch" — autonomous ML research overnight on a single GPU. Pattern generalized beyond ML to any domain with measurable optimization criteria.*
+
+#### 6.5.1 The Research Protocol Document (program.md Pattern)
+
+A **research protocol** is a structured instruction document that tells an AI agent how to conduct autonomous experimentation. The human writes the protocol (the "what" and "how"); the agent executes it (the "doing"). The human is the **research architect**; the agent is the **research executor**.
+
+**Required sections in a research protocol:**
+
+| Section | Purpose | Example |
+|---------|---------|---------|
+| **Objective** | What the agent is optimizing/discovering | "Minimize validation loss for GPT training" |
+| **Scope constraint** | Files/systems the agent MAY modify (everything else read-only) | "Only modify `train.py`" |
+| **Evaluation metric** | Single measurable outcome — lower/higher is better | "val_bpb (lower is better)" |
+| **Time budget** | Fixed duration per experiment for comparability | "5 minutes wall-clock per run" |
+| **Keep/discard criteria** | When to commit vs revert | "Keep if metric improves; discard otherwise" |
+| **Logging format** | How results are recorded | "Append to results.tsv: commit, metric, status" |
+| **Termination conditions** | When to stop (circuit breakers per AO-3) | "Stop after 8 hours OR 10 consecutive failures" |
+| **Prohibited actions** | What the agent must NOT do | "Do not install packages; do not modify infra" |
+
+**Research Protocol Template:**
+
+```markdown
+# Research Protocol: [Name]
+
+## Objective
+[What are we trying to optimize or discover?]
+
+## Scope
+- MODIFY: [list of files/directories the agent may change]
+- READ-ONLY: Everything else
+- PROHIBITED: [list of specific things the agent must NOT do]
+
+## Evaluation
+- Metric: [name] ([lower/higher] is better)
+- Measurement: [how to compute — command, script, test suite]
+- Time budget: [duration] per experiment
+
+## Decision Criteria
+- KEEP: [when to commit the change]
+- DISCARD: [when to revert — git reset]
+
+## Logging
+- File: results.tsv
+- Format: commit | metric_value | resource_usage | status | description | timestamp
+- Status values: keep | discard | crash | timeout
+
+## Termination Conditions (Circuit Breakers)
+- Maximum total runtime: [hours]
+- Maximum consecutive failures: [count]
+- Metric degradation threshold: [% worse than best result]
+- Disk space limit: [GB remaining]
+
+## Git Strategy
+- Branch: autoresearch/[tag] from main
+- One commit per experiment
+- Keep = commit stays; Discard = git reset --hard HEAD~1
+
+## Notes
+[Domain-specific context, constraints, or hints for the agent]
+```
+
+**AI guidance for helping users write research protocols:**
+- Start with the objective and success metric — without a measurable goal, autonomous experimentation is aimless
+- Assess blast radius (AO-1): autonomous experimentation should be **L0 (Internal-Reversible) only** — never L2/L3
+- Recommend conservative time budgets initially (5 minutes per experiment = ~12 experiments/hour = ~100 overnight)
+- Include circuit breaker conditions (AO-3) — the "NEVER STOP" directive must always be paired with termination conditions
+- Scope constraints must be explicit — ambiguity in scope is the highest risk for autonomous agents
+
+#### 6.5.2 Permission Configuration for Autonomous Operation
+
+Running agents overnight requires pre-approving the specific operations the agent will perform. Three approaches, ordered by governance preference:
+
+**Approach A: Surgical Allowlists (RECOMMENDED)**
+
+Configure `.claude/settings.json` or `.claude/settings.local.json` with specific allowed tools matching the research protocol's scope:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(python train.py*)",
+      "Bash(git commit*)",
+      "Bash(git reset*)",
+      "Bash(grep*)",
+      "Read",
+      "Write(train.py)",
+      "Edit(train.py)"
+    ]
+  }
+}
+```
+
+This grants exactly the permissions the research protocol requires and nothing more. The permission scope IS the compensating control (AO-3). **Use `.claude/settings.local.json`** for experiment-specific permissions that don't persist in the repo.
+
+**Approach B: Programmatic Launch with Explicit Permissions**
+
+Launch Claude Code via CLI with pre-approved tools:
+
+```bash
+claude --allowedTools "Bash(python train.py*),Bash(git *),Read,Write(train.py),Edit(train.py)" \
+  --print "Read program.md and begin autonomous experimentation"
+```
+
+Good for scripted or scheduled autonomous runs. Permission scope is visible in the launch command.
+
+**Approach C: Full Permission Bypass (NOT RECOMMENDED)**
+
+The `--dangerously-skip-permissions` flag bypasses ALL permission checks. Only appropriate when ALL of:
+- Blast radius is L0 (internal-reversible)
+- Running in an isolated environment (container, VM, dedicated machine)
+- No network access to external systems
+- All AO-3 compensating controls are in place at the environment level
+
+Maps to AL-3 (Fully Autonomous). Requires documented justification per AO-2 advancement criteria.
+
+**For all approaches:**
+- Governance hooks (PreToolUse, PostToolUse) should continue operating — don't disable them
+- Set up results logging BEFORE starting autonomous operation
+- Define circuit breakers in the research protocol, not just in permissions
+- Use a git branch per experiment run for easy rollback
+- Consider running in a tmux/screen session for overnight persistence
+
+#### 6.5.3 The Experimentation Loop
+
+The standard autonomous experimentation cycle:
+
+```
+1. Read research protocol
+2. Review current state (git log, results log, last experiment outcome)
+3. Generate hypothesis / modification
+4. Apply modification (within scope constraint)
+5. Commit the change (git commit)
+6. Run experiment (within time budget)
+7. Evaluate result against metric
+8. Decision:
+   - KEEP: metric improved → log "keep", move to step 2
+   - DISCARD: metric worsened → git reset, log "discard", move to step 2
+   - CRASH: experiment failed → log "crash", fix if trivial, else move to step 2
+   - TIMEOUT: experiment exceeded time budget → log "timeout", move to step 2
+9. Check termination conditions → if met, STOP; else return to step 2
+```
+
+**The "NEVER STOP" directive and its governance:** Karpathy's autoresearch instructs agents to "continue indefinitely until manually interrupted." This maps to AL-2/AL-3 operation. The research protocol MUST include termination conditions as compensating controls (AO-3). An autonomous agent without termination conditions is an uncontrolled agent.
+
+**Recommended termination conditions:**
+- Maximum total runtime (e.g., 8 hours for overnight)
+- Maximum consecutive failures without improvement (e.g., 10)
+- Metric degradation threshold (e.g., if best result degrades 20%)
+- Resource limits (disk space, memory)
+
+#### 6.5.4 Results Logging
+
+Every experiment produces a log entry. This is the audit trail required by AO-3 for autonomous operation.
+
+**Format:** Tab-separated values (TSV), not CSV (TSV is simpler to parse and less ambiguous).
+
+**Required columns:**
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `commit` | string | Git commit hash (short) |
+| `metric_value` | float | The evaluation metric result |
+| `resource_usage` | string | Memory/compute used (e.g., "4.2GB VRAM") |
+| `status` | enum | keep / discard / crash / timeout |
+| `description` | string | What the experiment tried |
+| `timestamp` | ISO 8601 | When the experiment completed |
+
+**Example:**
+
+```
+commit	metric_value	resource_usage	status	description	timestamp
+a1b2c3d	1.042	4.2GB	keep	increased model depth from 6 to 8 layers	2026-03-26T22:15:00Z
+e4f5g6h	1.098	3.8GB	discard	replaced Muon optimizer with pure AdamW	2026-03-26T22:20:00Z
+```
+
+**Post-run review:** When the human returns, they review results.tsv to understand what the agent tried, what worked, and what didn't. This is the AL-2 "human reviews logs" pattern from AO-2.
+
+**Bold phrases for retrieval:** **autonomous experimentation protocol**, **research protocol document**, **program.md pattern**, **overnight autonomous operation**, **permission configuration for autonomous agents**, **experimentation loop**, **results logging**
+
+---
+
 ## Appendix A: Claude Code CLI Specifics
 
 OPTIONAL — Load when using Claude Code
@@ -4315,6 +4502,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.15.0 | 2026-03-26 | **MINOR: Autonomous Experimentation Protocol.** New §6.5 operationalizing AO-Series for autonomous agent experimentation loops. §6.5.1 Research Protocol Document (program.md pattern) — structured template for defining autonomous agent objectives, scope, metrics, termination conditions. §6.5.2 Permission Configuration — three approaches for Claude Code autonomous operation (surgical allowlists recommended, programmatic launch, full bypass). §6.5.3 Experimentation Loop — standard modify→test→evaluate→decide cycle with "NEVER STOP" governance. §6.5.4 Results Logging — TSV audit trail format. Source: Karpathy (2026) "autoresearch". |
 | v2.14.0 | 2026-03-12 | **MINOR: Orchestrator-Absent Pattern Gaps.** (1) Decentralized Dispatch Variant added under Parallel Pattern (§3.3): orchestrator-absent topology with 4 required compensating controls (pre-dispatch dependency analysis, VCS-level conflict detection, post-hoc aggregate review, aggregate blast radius assessment), 2 anti-patterns (Dispatch Without Analysis, Individual-Only Review). (2) Continuous Queue Consumption protocol added to Task Ownership (§3.5): post-task completion gate, aggregate review checkpoint every N tasks, pool pause on CI/review failure, blast radius reassessment at checkpoints, orchestrator-absent escalation target. Implements AO1 aggregate blast radius rules from v2.3.0 domain principles. Catalyst: OpenAI Symphony framework analysis. |
 | v2.13.0 | 2026-03-09 | **MINOR: Autonomous Operation Governance.** New TITLE 6 with 4 sections: §6.1 Action Blast Radius Classification (L0-L3 decision tree, agent definition requirement), §6.2 Autonomy Level Assessment (AL-0 through AL-3 graduated progression, advancement prerequisites), §6.3 Compensating Controls Checklist (circuit breakers, content review gates, rate limiting, audit trail, platform compliance — all 5 required for AL-2+), §6.4 Drift Monitoring Procedures (baseline establishment, automated detection, feedback loop dampening, intent drift assessment). Updated governance hierarchy box (14→18 principles). Added 6 situation index entries. Implements AO1-AO4 principles from v2.2.0 domain principles. |
 | v2.12.3 | 2026-02-18 | PATCH: Added §4.6.3 Hook-Based Enforcement (Client-Side Deterministic). Documents hook-based governance enforcement patterns: UserPromptSubmit reminder injection, PreToolUse transcript verification, soft vs hard enforcement modes, session-level verification strategy. Updated §4.6.2 deployment decision matrix to include hooks. Added Client-Side Hooks and MCP Gateway/Proxy rows to Appendix F Enforcement Levels table. |
