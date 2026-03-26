@@ -649,6 +649,6 @@ For quick routing of common scenarios to relevant methods:
 ---
 
 *Version 1.1.0*
-*Derived from: KM&PD Domain Principles v1.1.0, Constitution v2.6.0, AI Coding Methods v2.26.0*
+*Derived from: KM&PD Domain Principles v1.1.0, Constitution v2.6.0, AI Coding Methods v2.27.0*
 *Framework: Jason Collier's Knowledge Management & People Development Framework (novel synthesis)*
 *Domain Classification: Type B (proprietary — see framework owner for access)*

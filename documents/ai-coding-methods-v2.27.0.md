@@ -7997,7 +7997,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 ## Document Governance
 
-**Authority:** This document implements ai-coding-domain-principles.md (v2.3.4). Methods cannot contradict principles.
+**Authority:** This document implements ai-coding-domain-principles.md (v2.3.5). Methods cannot contradict principles.
 
 **Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.
 
