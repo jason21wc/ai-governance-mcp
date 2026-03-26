@@ -512,15 +512,26 @@ def _resolve_project_path(arguments: dict) -> Path | None:
     """Resolve project path from tool arguments, env var, or CWD.
 
     Priority: arguments['project_path'] > AI_CONTEXT_ENGINE_DEFAULT_PROJECT > CWD.
-    Returns None if the resolved path doesn't exist.
+    Returns None if the resolved path doesn't exist or is outside allowed scope.
     """
     raw = arguments.get("project_path")
     if raw and isinstance(raw, str):
         p = Path(raw).resolve()
-        if p.exists() and p.is_dir():
-            return p
-        logger.warning("Specified project_path does not exist: %s", p)
-        return None
+        if not p.exists() or not p.is_dir():
+            logger.warning("Specified project_path does not exist: %s", p)
+            return None
+        # Scope restriction: only allow paths under home, CWD, or /tmp
+        home = Path.home().resolve()
+        cwd = Path.cwd().resolve()
+        tmp = Path("/tmp").resolve()
+        if not (
+            p.is_relative_to(home) or p.is_relative_to(cwd) or p.is_relative_to(tmp)
+        ):
+            logger.warning(
+                "project_path %s is outside allowed scope (home, CWD, /tmp)", p
+            )
+            return None
+        return p
 
     default = os.environ.get("AI_CONTEXT_ENGINE_DEFAULT_PROJECT")
     if default:

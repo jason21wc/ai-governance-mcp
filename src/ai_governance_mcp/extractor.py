@@ -724,6 +724,18 @@ class DocumentExtractor:
             # Multimodal-RAG P-Series = "Presentation" (must precede ai-coding "p-series" = "process")
             # Note: section_pattern regex strips trailing "Principles?" so text is "P-Series: Presentation"
             "presentation": "presentation",
+            # KM&PD series mapping
+            # IMPORTANT: ka-series MUST come before a-series (substring collision)
+            # IMPORTANT: qa-series MUST come before a-series AND q-series
+            "ka-series": "knowledge-architecture",
+            "knowledge architecture principle": "knowledge-architecture",
+            "tl-series": "training",
+            "training & learning principle": "training",
+            "training principle": "training",
+            "pd-series": "people-development",
+            "people development principle": "people-development",
+            "qa-series": "quality-assurance",
+            "quality assurance principle": "quality-assurance",
             # Series-based mapping (ai-coding domain)
             "c-series": "context",
             "context principle": "context",
@@ -746,16 +758,6 @@ class DocumentExtractor:
             "e-series": "safety",
             "ethics principle": "safety",
             "audience principle": "architecture",
-            # KM&PD series mapping
-            "ka-series": "knowledge-architecture",
-            "knowledge architecture principle": "knowledge-architecture",
-            "tl-series": "training",
-            "training & learning principle": "training",
-            "training principle": "training",
-            "pd-series": "people-development",
-            "people development principle": "people-development",
-            "qa-series": "quality-assurance",
-            "quality assurance principle": "quality-assurance",
             # Descriptive mapping (constitution and general)
             "core": "core",
             "architecture": "core",

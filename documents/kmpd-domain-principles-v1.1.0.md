@@ -674,6 +674,8 @@ An artifact that is content-correct but harder to use than the informal alternat
 **Failure Mode**
 KM-F13 (Adoption Failure): AI generates a Quick Reference for a manufacturing process. The content is accurate — every item earned its place per PD2. The abstraction level is correct per KA3. The audience is calibrated per TL1. But it is formatted as five paragraphs of continuous text with no bullet points, no visual hierarchy, no bold key terms, and no use-context optimization (it's meant for a workstation but reads like a report). Practitioners print it, glance at it, and revert to asking their experienced coworker. Observable symptoms: artifact exists but practitioners don't reference it; "we have a checklist but nobody uses it"; usage drops to zero within weeks of deployment.
 
+Also addresses KM-F6 (Text-Over-Visual Bias): AI defaults to text when images, diagrams, or visual formatting would be more effective for the use context. Text-heavy artifacts lose the adoption competition against visual alternatives.
+
 **Definition**
 Every knowledge artifact MUST be designed to WIN the adoption competition against informal alternatives (memory, asking a coworker, working from established habit). The artifact must be easier, faster, or more reliable to use than NOT using it. Specifically:
 - **Format must match use context:** A workstation checklist needs different design than a desktop reference. Consider: will the user have gloves? A small screen? Limited time? Need to scan quickly?
@@ -723,7 +725,7 @@ Every knowledge artifact MUST be designed to WIN the adoption competition agains
 | Measurable Success Criteria | Learning Objective Alignment, Assessment Validity | TL |
 | Intent Discovery | Audience-Appropriate Design, Learning Objective Alignment | TL |
 | Interaction Mode Adaptation | Audience-Appropriate Design (calibrate to audience) | TL |
-| Resource Efficiency & Waste Reduction | Purpose-Driven Content Curation, Training Value Optimization, Artifact Adoption Fitness | PD, TL, QA |
+| Resource Efficiency & Waste Reduction | Purpose-Driven Content Curation, Artifact Adoption Fitness | PD, QA |
 | Non-Maleficence & Privacy First | Regulatory and Compliance Awareness (S-Series adjacent) | QA |
 | Fail-Fast Validation | Procedure Safety Completeness | TL |
 | Technical Focus with Clear Escalation Boundaries | Verification Guidance Responsibility (AI guides, human validates) | PD |
