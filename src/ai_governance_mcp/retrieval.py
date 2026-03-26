@@ -380,6 +380,10 @@ class RetrievalEngine:
             ref.content[:1500],
         ]
         meta = ref.metadata
+        if meta.keywords:
+            parts.append(" ".join(meta.keywords))
+        if meta.trigger_phrases:
+            parts.append(" ".join(meta.trigger_phrases))
         if meta.purpose_keywords:
             parts.append(" ".join(meta.purpose_keywords))
         if meta.applies_to:

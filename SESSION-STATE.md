@@ -21,22 +21,49 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.3.0** (read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v2.6.0** (Constitution), **v3.13.0** (meta-methods), **v2.26.0** (ai-coding methods), **v2.3.4** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v2.6.0** (Constitution), **v3.14.0** (meta-methods), **v2.27.0** (ai-coding methods), **v2.3.5** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **15 MCP tools** (11 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **163 principles + 616 methods** (779 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
+| Index | **163 principles + 616 methods + 3 references** (782 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check with recency window) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-25)
+## Session Summary (2026-03-26)
 
 ### Completed This Session
+
+1. **Agentic Engineering Patterns Integration** — ai-coding methods v2.26.0→v2.27.0, principles v2.3.4→v2.3.5
+   - Source: Willison (2026) "Agentic Engineering Patterns" guide evaluation
+   - §5.2.2: Red/green TDD elevated to RECOMMENDED for AI-assisted development (5 research sources)
+   - §7.6.2: Added "Run existing tests" as session start step 3
+   - §5.13.7: New Code Comprehension via Linear Walkthrough technique
+   - Skill Preservation: Added "cognitive debt" concept (Willison 2026) alongside exoskeleton effect
+
+2. **Reference Library (Case Law)** — meta-methods v3.13.0→v3.14.0 (NEW STRUCTURAL COMPONENT)
+   - New TITLE 15: Reference Library — curated precedent system alongside principles/methods/appendices
+   - Legal analogy: Case Law = concrete artifacts that worked in practice, indexed for retrieval and recombination
+   - Entry template: YAML frontmatter (6 required + 6 recommended fields) + markdown body
+   - Three intake paths: auto-capture (rule-based), staged suggestion (AI proposes), manual capture
+   - Maturity pipeline: seedling → budding → evergreen (digital garden model)
+   - Currency tracking: current/caution/deprecated/archived (KeyCite model) + decay classes
+   - Code: ReferenceEntry/ScoredReference models, YAML extractor, retrieval integration, server output formatting
+   - 3 example entries for ai-coding + _criteria.yaml auto-capture rules template
+   - Updated §9.3.1 Truth Source Hierarchy (new level 4: Reference Library)
+   - Deferred to v2: capture_reference MCP tool, auto-capture engine, staging workflow, decay enforcement
+
+3. **Self-Review (3 rounds)** — comprehensive dogfooding audit of entire framework
+   - Round 1 (4 agents): 36 findings, 11 fixed — propagation gaps, N-Series cross-ref, README counts
+   - Round 2 (4 agents): 12 findings, 7 fixed — CRITICAL extraction bug (6/13 KMPD null series_code from substring collision), security hardening (project_path scope), principle quality
+   - Round 3 (5 agents): 8 findings, 3 fixed — README counts, env var scope bypass, macOS /tmp mismatch
+   - Post-Reference-Library review (5 agents): security scan gap, frontmatter parsing, symlink protection
+
+### Previous Session (2026-03-25)
 
 1. **KM&PD v1.0.0 → v1.1.0** — Added Situation Index (17 routing entries), expanded cross-domain Storytelling integration (A-Series, ST-Series, pacing/progressive revelation, scope boundary)
 2. **Comprehensive Self-Review** — 4 subagents in parallel (coherence auditor, validator, contrarian reviewer, code reviewer). 36 findings total. Fixed 11 accepted findings:

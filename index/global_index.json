@@ -8224,7 +8224,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-03-26T17:46:31.634116+00:00",
+      "last_extracted": "2026-03-26T18:54:47.665111+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -17039,11 +17039,11 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "testing",
               "asyncio",
-              "tool-handlers",
               "integration-testing",
-              "mcp"
+              "tool-handlers",
+              "mcp",
+              "testing"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -17090,9 +17090,9 @@
               "testing",
               "pytest",
               "fixtures",
+              "mcp",
               "sentence-transformers",
-              "mocking",
-              "mcp"
+              "mocking"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -17148,7 +17148,7 @@
           "embedding_id": 453
         }
       ],
-      "last_extracted": "2026-03-26T17:46:31.644767+00:00",
+      "last_extracted": "2026-03-26T18:54:47.675776+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -20317,7 +20317,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-03-26T17:46:31.649584+00:00",
+      "last_extracted": "2026-03-26T18:54:47.680728+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -22744,7 +22744,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-03-26T17:46:31.658249+00:00",
+      "last_extracted": "2026-03-26T18:54:47.689394+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -26820,7 +26820,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-03-26T17:46:31.661976+00:00",
+      "last_extracted": "2026-03-26T18:54:47.693191+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -29759,7 +29759,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-03-26T17:46:31.665426+00:00",
+      "last_extracted": "2026-03-26T18:54:47.696404+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -31615,7 +31615,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-03-26T17:46:31.667485+00:00",
+      "last_extracted": "2026-03-26T18:54:47.698402+00:00",
       "version": "1.0"
     }
   },
@@ -31684,7 +31684,7 @@
       "embedding_id": 6
     }
   ],
-  "created_at": "2026-03-26T17:46:40.172922+00:00",
+  "created_at": "2026-03-26T18:54:55.927266+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384

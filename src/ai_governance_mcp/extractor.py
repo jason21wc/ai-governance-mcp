@@ -321,6 +321,22 @@ class DocumentExtractor:
                     else:
                         warnings.append(w)
 
+        # Scan reference library files
+        base = self.settings.documents_path.parent
+        for domain_config in self.domains:
+            for ref_dir_name in ["reference-library", "private-reference-library"]:
+                ref_dir = base / ref_dir_name / domain_config.name
+                if ref_dir.exists() and not ref_dir.is_symlink():
+                    for md_file in ref_dir.glob("*.md"):
+                        if md_file.is_symlink():
+                            continue
+                        file_warnings = self._scan_file_for_suspicious_content(md_file)
+                        for w in file_warnings:
+                            if w.pattern_type in CRITICAL_PATTERNS:
+                                critical_findings.append(w)
+                            else:
+                                warnings.append(w)
+
         # Hard-fail on critical patterns
         if critical_findings:
             findings_list = "\n".join(f"  - {f}" for f in critical_findings)
@@ -690,12 +706,9 @@ class DocumentExtractor:
             base / "reference-library" / domain_config.name,
             base / "private-reference-library" / domain_config.name,
         ]:
-            if not ref_dir.exists():
+            if not ref_dir.exists() or ref_dir.is_symlink():
                 continue
             for md_file in sorted(ref_dir.glob("*.md")):
-                # Skip staging directory entries and non-md files
-                if "staging" in str(md_file):
-                    continue
                 entry = self._parse_reference_file(md_file, domain_config.name)
                 if entry:
                     entries.append(entry)
@@ -714,6 +727,18 @@ class DocumentExtractor:
         Returns None if the file is invalid or missing required fields.
         Uses yaml.safe_load() exclusively — never yaml.load().
         """
+        # Security: skip symlinks and oversized files
+        if file_path.is_symlink():
+            logger.warning(f"Skipping symlink reference file: {file_path}")
+            return None
+        MAX_REFERENCE_FILE_SIZE = 512 * 1024  # 512 KB
+        try:
+            if file_path.stat().st_size > MAX_REFERENCE_FILE_SIZE:
+                logger.warning(f"Reference file too large, skipping: {file_path}")
+                return None
+        except OSError:
+            return None
+
         try:
             content = file_path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError) as e:
@@ -721,17 +746,15 @@ class DocumentExtractor:
             return None
 
         # Parse YAML frontmatter (between --- delimiters)
-        if not content.startswith("---"):
-            logger.warning(f"No YAML frontmatter in {file_path}")
-            return None
-
-        parts = content.split("---", 2)
-        if len(parts) < 3:
+        fm_match = re.match(r"^---\n(.*?\n)---\n(.*)", content, re.DOTALL)
+        if not fm_match:
             logger.warning(f"Invalid frontmatter format in {file_path}")
             return None
+        yaml_text = fm_match.group(1)
+        body = fm_match.group(2).strip()
 
         try:
-            frontmatter = yaml.safe_load(parts[1])  # nosec B506
+            frontmatter = yaml.safe_load(yaml_text)  # nosec B506
         except yaml.YAMLError as e:
             logger.warning(f"Invalid YAML in {file_path}: {e}")
             return None
@@ -746,8 +769,6 @@ class DocumentExtractor:
         if missing:
             logger.warning(f"Missing required fields in {file_path}: {missing}")
             return None
-
-        body = parts[2].strip()
 
         # Build metadata for search
         metadata = self._generate_method_metadata(frontmatter["title"], body)
