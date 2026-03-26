@@ -6,10 +6,16 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 
 1. `pytest tests/ -v` — full test suite
 2. Code review (code-reviewer subagent) if substantial
-3. Update SESSION-STATE.md (version, counts, summary)
-4. Commit and push
-5. Verify CI green (`gh run watch`)
-6. Docker check: if `src/`, `pyproject.toml`, or `Dockerfile` changed since last image build → rebuild and push
+3. **New code path check** (if adding code that reads files, parses external data, or handles user-controlled input):
+   - [ ] Is the new code path included in `validate_content_security()` scan? (extractor.py)
+   - [ ] Does it validate/sanitize file paths? (symlink protection, path traversal, size limits)
+   - [ ] Does it use safe parsing? (`yaml.safe_load()`, not `yaml.load()`; `json.loads()`, not `eval()`)
+   - [ ] Does it have dedicated tests? (NOT just passing through existing tests)
+   - [ ] If it returns content to AI clients, is the content scanned for prompt injection?
+4. Update SESSION-STATE.md (version, counts, summary)
+5. Commit and push
+6. Verify CI green (`gh run watch`)
+7. Docker check: if `src/`, `pyproject.toml`, or `Dockerfile` changed since last image build → rebuild and push
 
 ## Content changes (governance documents)
 
@@ -43,7 +49,7 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 5. `src/ai_governance_mcp/extractor.py` — `DOMAIN_PREFIXES` class constant
 6. `src/ai_governance_mcp/extractor.py` — `CATEGORY_SERIES_MAP` entries for new domain's categories
 7. `src/ai_governance_mcp/extractor.py` — `is_series_header` keyword list in `_extract_principles_from_domain()` (if domain uses series headers)
-8. `src/ai_governance_mcp/extractor.py` — `category_mapping` dict in `_get_category_from_section()` (if domain has category keywords)
+8. `src/ai_governance_mcp/extractor.py` — `category_mapping` dict in `_get_category_from_section()` (if domain has category keywords). **IMPORTANT: Check for substring collisions** — longer series names MUST come before shorter ones in dict insertion order (e.g., `ka-series` before `a-series`). See Gotcha #33 in PROJECT-MEMORY.md.
 
 **Test surfaces:**
 9. `tests/test_config.py` — `TestDefaultDomains` count and name list
