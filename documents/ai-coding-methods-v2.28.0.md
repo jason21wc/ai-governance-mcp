@@ -6855,7 +6855,9 @@ Use **allowlist thinking** (approve specific safe patterns) NOT denylist thinkin
       "Bash(find*)",
       "Bash(sort*)",
       "Bash(gh run*)",
-      "Bash(gh pr*)"
+      "Bash(gh pr*)",
+      "WebSearch",
+      "WebFetch"
     ],
     "deny": [
       "Edit(.claude/settings.json)",
