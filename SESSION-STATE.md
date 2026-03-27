@@ -21,15 +21,15 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.3.0** (read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v2.6.0** (Constitution), **v3.14.0** (meta-methods), **v2.28.0** (ai-coding methods), **v2.3.5** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.15.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v2.6.0** (Constitution), **v3.14.0** (meta-methods), **v2.29.0** (ai-coding methods), **v2.3.5** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.15.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
-| Tools | **16 MCP tools** (12 governance + 4 context engine) |
+| Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
 | Index | **163 principles + 621 methods + 4 references** (788 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
-| Hooks | **3** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check with recency window) |
+| Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
@@ -61,6 +61,27 @@
    - Tool count: 15→16 (12 governance + 4 CE)
 
 8. **Article evaluations** — RAG chunking (no gaps), Cloudflare Dynamic Workers (no gaps), autoresearch (led to §6.5)
+
+9. **capture_reference MCP tool** (Tool #13) — creates Reference Library entries via tool call
+   - YAML frontmatter generation, ID/domain validation, path traversal protection
+   - Hardened from code-reviewer + security-auditor: _escape_yaml_value() helper, domain regex
+   - 5 tests (TestCaptureReference)
+
+10. **Substring collision regression test** — 1 test covering 8 collision-prone category_mapping pairs
+
+11. **Pre-push Quality Gate Hook** — structural enforcement for subagent reviews
+   - Blocks git push unless tests run AND risky changes reviewed by subagents
+   - Risk-based triggers: core code files + new src/ files
+   - Docs-only escape hatch, emergency skip via QUALITY_GATE_SKIP=true
+   - Hard mode from day one per LEARNING-LOG lessons
+   - Methods §5.1.7 (Subagent Review Triggers), §9.3.11 (Layer 5 enforcement)
+   - LEARNING-LOG: graduated 2 lessons to methods
+   - COMPLETION-CHECKLIST: subagent review triggers integrated
+   - Reviewed by: code-reviewer + security-auditor before push
+
+12. **Permission Configuration** — comprehensive .claude/settings.local.json allowlist
+   - Reviewed by explore + security-auditor subagents for completeness and risk
+   - docker push added to allowlist (L1 blast radius, own registry)
 
 ### Previous Session Items (2026-03-26)
 
