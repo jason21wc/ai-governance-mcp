@@ -2832,9 +2832,11 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
     Two-step flow: preview (no confirmed) → create (confirmed=true).
     Follows install_agent pattern for safety and UX consistency.
     """
-    from datetime import datetime, timezone
-
-    project_name = str(args.get("project_name", Path.cwd().name))[:100]
+    project_name = str(args.get("project_name", "") or Path.cwd().name).strip()[:100]
+    if not project_name:
+        project_name = Path.cwd().name
+    # Escape curly braces to prevent str.format() injection
+    safe_project_name = project_name.replace("{", "{{").replace("}", "}}")
     project_type = args.get("project_type", "code")
     kit_tier = args.get("kit_tier", "core")
     confirmed = args.get("confirmed", False)
@@ -2879,7 +2881,7 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
             logger.warning("Path traversal rejected: %s", relative_path)
             continue
 
-        content = template.format(project_name=project_name, date=date_str)
+        content = template.format(project_name=safe_project_name, date=date_str)
         exists = full_path.is_file()
 
         manifest.append(
@@ -2944,6 +2946,14 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
                 continue
 
             full_path = Path(f["full_path"])
+
+            # Symlink check before write
+            if full_path.exists() and full_path.is_symlink():
+                skipped.append(
+                    {"path": f["relative_path"], "reason": "symlink detected"}
+                )
+                continue
+
             full_path.parent.mkdir(parents=True, exist_ok=True)
             full_path.write_text(f["content"])
             created.append(f["relative_path"])
@@ -2951,14 +2961,14 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
     except PermissionError as e:
         error = ErrorResponse(
             error_code="PERMISSION_ERROR",
-            message=f"Cannot write files: {_sanitize_error_message(e)}",
+            message=f"Cannot write files: {_sanitize_error_message(e)}. Files created before error: {created}",
             suggestions=["Check directory permissions", "Try a different directory"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
     except Exception as e:
         error = ErrorResponse(
             error_code="SCAFFOLD_ERROR",
-            message=_sanitize_error_message(e),
+            message=f"{_sanitize_error_message(e)}. Files created before error: {created}",
             suggestions=["Check file system permissions"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
