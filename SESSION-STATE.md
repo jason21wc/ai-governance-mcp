@@ -21,22 +21,48 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v1.3.0** (read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v2.6.0** (Constitution), **v3.14.0** (meta-methods), **v2.27.0** (ai-coding methods), **v2.3.5** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.14.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v2.6.0** (Constitution), **v3.14.0** (meta-methods), **v2.28.0** (ai-coding methods), **v2.3.5** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.15.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
-| Tools | **15 MCP tools** (11 governance + 4 context engine) |
+| Tools | **16 MCP tools** (12 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **163 principles + 616 methods + 3 references** (782 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
+| Index | **163 principles + 621 methods + 4 references** (788 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **3** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check with recency window) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-26)
+## Session Summary (2026-03-27)
 
-### Completed This Session
+### Completed This Session (continued from 2026-03-26)
+
+5. **Autonomous Experimentation Protocol** — multi-agent methods v2.14.0→v2.15.0
+   - New §6.5: Autonomous Experimentation Protocol (Karpathy autoresearch pattern)
+   - §6.5.1: Research Protocol Document (program.md pattern) with template
+   - §6.5.2: Permission Configuration for autonomous operation (3 approaches)
+   - §6.5.3: Experimentation Loop with termination conditions
+   - §6.5.4: Results Logging (TSV audit trail)
+   - Reference Library entry for autoresearch pattern
+
+6. **Permission Configuration** — ai-coding methods v2.27.0→v2.28.0
+   - New Appendix A.5: Permission Configuration (5 subsections)
+   - Hook-permission interaction documented (hooks fire BEFORE permissions)
+   - Day-to-day development allowlist with governance-critical file hard deny rule
+   - Contrarian-reviewed: verified hooks+permissions complementary, not conflicting
+   - Configured .claude/settings.local.json with comprehensive allowlist
+
+7. **scaffold_project MCP Tool** — Backlog #2 COMPLETE
+   - New MCP tool: two-step flow (preview → confirm) for project initialization
+   - Core kit (4 files) or standard kit (6 files), code or document project types
+   - SERVER_INSTRUCTIONS: AI checks for missing governance files on first interaction
+   - 10 new tests, hardened from code/security review (format injection, symlink, partial failure)
+   - Tool count: 15→16 (12 governance + 4 CE)
+
+8. **Article evaluations** — RAG chunking (no gaps), Cloudflare Dynamic Workers (no gaps), autoresearch (led to §6.5)
+
+### Previous Session Items (2026-03-26)
 
 1. **Agentic Engineering Patterns Integration** — ai-coding methods v2.26.0→v2.27.0, principles v2.3.4→v2.3.5
    - Source: Willison (2026) "Agentic Engineering Patterns" guide evaluation
@@ -237,7 +263,7 @@ Measure real-world compliance rates for both governance and Context Engine. Same
 - Part C data informs which Part B proxy policies matter most
 - All three share transcript analysis infrastructure
 
-### 2. Backlog — Project Initialization Part B (Priority: TBD)
+### 2. Backlog — Project Initialization Part B — COMPLETE (2026-03-27)
 Closing the bootstrap gap — making it easier for new users to get governance memory files created when starting a new project. Part A shipped (`150e4e6`): advisory-only SERVER_INSTRUCTIONS with project initialization section, conversational trigger, consent step, and partial-init handling.
 
 **Problem:** New users connecting the MCP server to a project for the first time don't automatically get governance memory files (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, project instructions file). Part A relies on the AI suggesting initialization — advisory only, no enforcement.
