@@ -1560,6 +1560,83 @@ async def list_tools() -> list[Tool]:
                 "required": [],
             },
         ),
+        # Tool 13: Capture reference library entry
+        Tool(
+            name="capture_reference",
+            description=(
+                "Create a new Reference Library entry (case law precedent). "
+                "Generates a markdown file with YAML frontmatter in "
+                "reference-library/{domain}/. Provide the content and metadata; "
+                "the tool handles formatting and file creation."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Unique entry ID, e.g., 'ref-ai-coding-my-pattern'",
+                        "maxLength": 100,
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Human-readable title",
+                        "maxLength": 200,
+                    },
+                    "domain": {
+                        "type": "string",
+                        "description": "Domain this entry belongs to",
+                        "maxLength": 50,
+                    },
+                    "tags": {
+                        "type": "array",
+                        "description": "Faceted tags (3-8)",
+                        "items": {"type": "string", "maxLength": 50},
+                        "maxItems": 10,
+                    },
+                    "entry_type": {
+                        "type": "string",
+                        "description": "direct (artifact in library) or reference (pointer to external source)",
+                        "enum": ["direct", "reference"],
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": "One-line description for search",
+                        "maxLength": 300,
+                    },
+                    "context": {
+                        "type": "string",
+                        "description": "When to use this and why it exists",
+                        "maxLength": 2000,
+                    },
+                    "artifact": {
+                        "type": "string",
+                        "description": "The actual code/template/config or curated summary",
+                        "maxLength": 10000,
+                    },
+                    "lessons": {
+                        "type": "string",
+                        "description": "What worked, what didn't, edge cases",
+                        "maxLength": 2000,
+                    },
+                    "maturity": {
+                        "type": "string",
+                        "description": "seedling (new), budding (verified), evergreen (proven)",
+                        "enum": ["seedling", "budding", "evergreen"],
+                    },
+                    "external_url": {
+                        "type": "string",
+                        "description": "URL for reference entries",
+                        "maxLength": 500,
+                    },
+                    "external_author": {
+                        "type": "string",
+                        "description": "Author for reference entries",
+                        "maxLength": 100,
+                    },
+                },
+                "required": ["id", "title", "domain", "tags", "entry_type", "artifact"],
+            },
+        ),
     ]
 
 
@@ -1609,6 +1686,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             result = await _handle_log_governance_reasoning(arguments)
         elif name == "scaffold_project":
             result = await _handle_scaffold_project(arguments)
+        elif name == "capture_reference":
+            result = await _handle_capture_reference(arguments)
         else:
             result = [TextContent(type="text", text=f"Unknown tool: {name[:50]}")]
 
@@ -2986,6 +3065,179 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
             "1. Fill in [bracketed placeholders] in the created files\n"
             "2. Run install_agent(agent_name='orchestrator') to add governance orchestration\n"
             "3. Begin work — the AI will read these files at session start"
+        ),
+    }
+    return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+
+async def _handle_capture_reference(args: dict) -> list[TextContent]:
+    """Handle capture_reference tool — create a Reference Library entry file.
+
+    Creates a markdown file with YAML frontmatter in reference-library/{domain}/.
+    """
+    import re as _re
+
+    # Extract and validate required fields
+    entry_id = str(args.get("id", ""))[:100].strip()
+    title = str(args.get("title", ""))[:200].strip()
+    domain = str(args.get("domain", ""))[:50].strip()
+    tags = args.get("tags", [])
+    entry_type = args.get("entry_type", "direct")
+    artifact = str(args.get("artifact", ""))[:10000]
+
+    if not entry_id or not title or not domain or not tags or not artifact:
+        error = ErrorResponse(
+            error_code="MISSING_REQUIRED_FIELDS",
+            message="Required fields: id, title, domain, tags, entry_type, artifact",
+            suggestions=["Provide all required fields"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Validate ID format
+    if not _re.match(r"^ref-[a-z0-9][a-z0-9-]*$", entry_id):
+        error = ErrorResponse(
+            error_code="INVALID_ID_FORMAT",
+            message=f"ID must start with 'ref-' and contain only lowercase letters, numbers, hyphens: '{entry_id[:50]}'",
+            suggestions=["Example: ref-ai-coding-my-pattern"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    if entry_type not in ("direct", "reference"):
+        error = ErrorResponse(
+            error_code="INVALID_ENTRY_TYPE",
+            message=f"entry_type must be 'direct' or 'reference': '{entry_type[:20]}'",
+            suggestions=[
+                "Use 'direct' for artifacts in the library",
+                "Use 'reference' for external pointers",
+            ],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Build file path
+    cwd = Path.cwd().resolve()
+    ref_dir = cwd / "reference-library" / domain
+    file_path = (ref_dir / f"{entry_id}.md").resolve()
+
+    # Path validation
+    if not file_path.is_relative_to(cwd):
+        error = ErrorResponse(
+            error_code="PATH_TRAVERSAL",
+            message="Invalid domain or ID — path traversal detected",
+            suggestions=["Use simple domain names and IDs without path separators"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Check if file already exists
+    if file_path.is_file():
+        error = ErrorResponse(
+            error_code="ENTRY_EXISTS",
+            message=f"Reference entry already exists: {entry_id}",
+            suggestions=["Use a different ID", "Edit the existing file directly"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Build YAML frontmatter
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    summary = str(args.get("summary", ""))[:300]
+    context = str(args.get("context", ""))[:2000]
+    lessons = str(args.get("lessons", ""))[:2000]
+    maturity = args.get("maturity", "seedling")
+    external_url = str(args.get("external_url", ""))[:500]
+    external_author = str(args.get("external_author", ""))[:100]
+
+    # Escape curly braces in user content for safety
+    safe_title = title.replace("{", "{{").replace("}", "}}")
+
+    # Build tags as YAML list
+    tags_yaml = ", ".join(t[:50] for t in tags[:10])
+
+    lines = [
+        "---",
+        f"id: {entry_id}",
+        f'title: "{safe_title}"',
+        f"domain: {domain}",
+        f"tags: [{tags_yaml}]",
+        "status: current",
+        f"entry_type: {entry_type}",
+    ]
+    if summary:
+        safe_summary = summary.replace('"', '\\"')
+        lines.append(f'summary: "{safe_summary}"')
+    lines.extend(
+        [
+            f"created: {date_str}",
+            f"last_verified: {date_str}",
+            f"maturity: {maturity if maturity in ('seedling', 'budding', 'evergreen') else 'seedling'}",
+            "decay_class: framework",
+            'source: "Captured via capture_reference tool"',
+        ]
+    )
+    if entry_type == "reference" and external_url:
+        lines.append(f'external_url: "{external_url}"')
+        if external_author:
+            lines.append(f'external_author: "{external_author}"')
+        lines.append(f"accessed_date: {date_str}")
+    lines.append("---")
+    lines.append("")
+    lines.append("## Context")
+    lines.append("")
+    lines.append(context if context else "[When to use this and why it exists]")
+    lines.append("")
+    lines.append("## Artifact")
+    lines.append("")
+    lines.append(artifact)
+    lines.append("")
+    lines.append("## Lessons Learned")
+    lines.append("")
+    lines.append(lessons if lessons else "[What worked, what didn't, edge cases]")
+    lines.append("")
+    lines.append("## Cross-References")
+    lines.append("")
+    lines.append("- Principles: [relevant principle IDs]")
+    lines.append("- Methods: [relevant method section refs]")
+    lines.append("- See also: [related entry IDs]")
+    lines.append("")
+
+    content = "\n".join(lines)
+
+    # Create file
+    try:
+        ref_dir.mkdir(parents=True, exist_ok=True)
+        if file_path.is_symlink():
+            error = ErrorResponse(
+                error_code="SYMLINK_DETECTED",
+                message="Target path is a symlink — refusing to write",
+                suggestions=["Remove the symlink and try again"],
+            )
+            return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+        file_path.write_text(content)
+    except PermissionError as e:
+        error = ErrorResponse(
+            error_code="PERMISSION_ERROR",
+            message=f"Cannot write file: {_sanitize_error_message(e)}",
+            suggestions=["Check directory permissions"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+    except Exception as e:
+        error = ErrorResponse(
+            error_code="CAPTURE_ERROR",
+            message=_sanitize_error_message(e),
+            suggestions=["Check file system permissions"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    output = {
+        "status": "captured",
+        "entry_id": entry_id,
+        "file_path": str(file_path.relative_to(cwd)),
+        "domain": domain,
+        "entry_type": entry_type,
+        "maturity": maturity,
+        "message": f"Reference entry '{title}' captured successfully.",
+        "next_steps": (
+            "Entry created. To make it searchable:\n"
+            "1. Run `python -m ai_governance_mcp.extractor` to rebuild the index\n"
+            "2. Verify with `query_governance` that the entry surfaces for relevant queries"
         ),
     }
     return [TextContent(type="text", text=json.dumps(output, indent=2))]

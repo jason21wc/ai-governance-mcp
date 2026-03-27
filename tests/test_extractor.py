@@ -2137,3 +2137,67 @@ class TestAoSeriesCategorySeriesMap:
                 f"AO-Series header should map to 'autonomous', got '{category}'. "
                 "Check that 'ao-series' comes before 'o-series' in category_mapping."
             )
+
+
+class TestCategoryMappingSubstringCollisions:
+    """Regression test: verify no substring collision in category_mapping dict ordering.
+
+    category_mapping uses `keyword in section_lower` matching, which means
+    shorter keys that are substrings of longer keys will match incorrectly
+    if they appear first in dict iteration order. This test catches the
+    class of bug where 'a-series' matches inside 'ka-series'.
+
+    See Gotcha #33 in PROJECT-MEMORY.md and COMPLETION-CHECKLIST item 8.
+    """
+
+    def test_no_substring_collisions_in_ordering(self):
+        """For every pair of keys where one is a substring of the other,
+        the longer key MUST appear first in dict insertion order."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        with patch("sentence_transformers.SentenceTransformer"):
+            extractor = DocumentExtractor.__new__(DocumentExtractor)
+            # Test by exercising known collision-prone headers
+            collision_tests = [
+                # (header text, expected category, collision description)
+                (
+                    "ka-series: knowledge architecture",
+                    "knowledge-architecture",
+                    "ka-series vs a-series",
+                ),
+                (
+                    "qa-series: quality assurance",
+                    "quality-assurance",
+                    "qa-series vs a-series/q-series",
+                ),
+                (
+                    "ao-series: autonomous operation",
+                    "autonomous",
+                    "ao-series vs o-series",
+                ),
+                ("ev-series: evaluation", "evaluation", "ev-series vs v-series"),
+                ("sec-series: security", "security", "sec-series vs c-series"),
+                (
+                    "acc-series: accessibility",
+                    "accessibility",
+                    "acc-series vs c-series",
+                ),
+                (
+                    "pd-series: people development",
+                    "people-development",
+                    "pd-series vs d-series (if added)",
+                ),
+                (
+                    "tl-series: training & learning",
+                    "training",
+                    "tl-series vs l-series (if added)",
+                ),
+            ]
+
+            for header, expected, description in collision_tests:
+                result = extractor._get_category_from_section(header)
+                assert result == expected, (
+                    f"Substring collision: {description}. "
+                    f"Header '{header}' mapped to '{result}', expected '{expected}'. "
+                    f"Check ordering in category_mapping dict."
+                )

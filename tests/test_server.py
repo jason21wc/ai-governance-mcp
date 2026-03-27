@@ -1475,7 +1475,7 @@ class TestListTools:
 
         tools = await list_tools()
 
-        assert len(tools) == 12
+        assert len(tools) == 13
         tool_names = [t.name for t in tools]
         assert "query_governance" in tool_names
         assert "get_principle" in tool_names
@@ -3199,3 +3199,126 @@ class TestScaffoldProject:
         assert (tmp_path / "_ai-context").is_dir()
         assert (tmp_path / "_ai-context" / "SESSION-STATE.md").is_file()
         assert (tmp_path / "_ai-context" / "README.md").is_file()
+
+
+class TestCaptureReference:
+    """Tests for capture_reference tool."""
+
+    @pytest.mark.asyncio
+    async def test_capture_direct_entry(self, tmp_path, monkeypatch):
+        """Should create a reference library entry file."""
+        from ai_governance_mcp.server import _handle_capture_reference
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_capture_reference(
+            {
+                "id": "ref-ai-coding-test-pattern",
+                "title": "Test Pattern",
+                "domain": "ai-coding",
+                "tags": ["testing", "patterns"],
+                "entry_type": "direct",
+                "artifact": "```python\ndef test_example(): pass\n```",
+                "summary": "A test pattern example",
+                "context": "When writing tests",
+                "lessons": "Keep it simple",
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "captured"
+        assert response["entry_id"] == "ref-ai-coding-test-pattern"
+
+        # Verify file exists
+        entry_file = (
+            tmp_path
+            / "reference-library"
+            / "ai-coding"
+            / "ref-ai-coding-test-pattern.md"
+        )
+        assert entry_file.is_file()
+        content = entry_file.read_text()
+        assert "Test Pattern" in content
+        assert "testing" in content
+        assert "def test_example" in content
+
+    @pytest.mark.asyncio
+    async def test_capture_reference_entry(self, tmp_path, monkeypatch):
+        """Should create a reference entry with external fields."""
+        from ai_governance_mcp.server import _handle_capture_reference
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_capture_reference(
+            {
+                "id": "ref-ai-coding-external-guide",
+                "title": "External Guide",
+                "domain": "ai-coding",
+                "tags": ["guide"],
+                "entry_type": "reference",
+                "artifact": "Summary of the external resource",
+                "external_url": "https://example.com/guide",
+                "external_author": "Jane Doe",
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "captured"
+        assert response["entry_type"] == "reference"
+
+        content = (
+            tmp_path
+            / "reference-library"
+            / "ai-coding"
+            / "ref-ai-coding-external-guide.md"
+        ).read_text()
+        assert "external_url" in content
+        assert "Jane Doe" in content
+
+    @pytest.mark.asyncio
+    async def test_capture_rejects_existing(self, tmp_path, monkeypatch):
+        """Should reject if entry already exists."""
+        from ai_governance_mcp.server import _handle_capture_reference
+
+        monkeypatch.chdir(tmp_path)
+        ref_dir = tmp_path / "reference-library" / "ai-coding"
+        ref_dir.mkdir(parents=True)
+        (ref_dir / "ref-ai-coding-existing.md").write_text("existing")
+
+        result = await _handle_capture_reference(
+            {
+                "id": "ref-ai-coding-existing",
+                "title": "Existing",
+                "domain": "ai-coding",
+                "tags": ["test"],
+                "entry_type": "direct",
+                "artifact": "content",
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["error_code"] == "ENTRY_EXISTS"
+
+    @pytest.mark.asyncio
+    async def test_capture_rejects_invalid_id(self, tmp_path, monkeypatch):
+        """Should reject IDs not matching ref- prefix pattern."""
+        from ai_governance_mcp.server import _handle_capture_reference
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_capture_reference(
+            {
+                "id": "bad-id-no-ref-prefix",
+                "title": "Bad",
+                "domain": "ai-coding",
+                "tags": ["test"],
+                "entry_type": "direct",
+                "artifact": "content",
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["error_code"] == "INVALID_ID_FORMAT"
+
+    @pytest.mark.asyncio
+    async def test_capture_rejects_missing_fields(self, tmp_path, monkeypatch):
+        """Should reject when required fields are missing."""
+        from ai_governance_mcp.server import _handle_capture_reference
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_capture_reference({"id": "ref-test"})
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["error_code"] == "MISSING_REQUIRED_FIELDS"
