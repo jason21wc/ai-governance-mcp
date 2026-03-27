@@ -3070,13 +3070,25 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 
+def _escape_yaml_value(value: str) -> str:
+    """Escape a string for safe inclusion in double-quoted YAML values.
+
+    Handles quotes, newlines, and other YAML-special characters.
+    Applied uniformly to all user-supplied fields in YAML frontmatter.
+    """
+    return (
+        value.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", " ")
+        .replace("\r", "")
+    )
+
+
 async def _handle_capture_reference(args: dict) -> list[TextContent]:
     """Handle capture_reference tool — create a Reference Library entry file.
 
     Creates a markdown file with YAML frontmatter in reference-library/{domain}/.
     """
-    import re as _re
-
     # Extract and validate required fields
     entry_id = str(args.get("id", ""))[:100].strip()
     title = str(args.get("title", ""))[:200].strip()
@@ -3093,8 +3105,17 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
+    # Validate domain format (safe directory name)
+    if not re.match(r"^[a-z0-9][a-z0-9-]*$", domain):
+        error = ErrorResponse(
+            error_code="INVALID_DOMAIN",
+            message=f"Domain must be lowercase alphanumeric with hyphens: '{domain[:50]}'",
+            suggestions=["Example: ai-coding, kmpd, storytelling"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
     # Validate ID format
-    if not _re.match(r"^ref-[a-z0-9][a-z0-9-]*$", entry_id):
+    if not re.match(r"^ref-[a-z0-9][a-z0-9-]*$", entry_id):
         error = ErrorResponse(
             error_code="INVALID_ID_FORMAT",
             message=f"ID must start with 'ref-' and contain only lowercase letters, numbers, hyphens: '{entry_id[:50]}'",
@@ -3145,11 +3166,9 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
     external_url = str(args.get("external_url", ""))[:500]
     external_author = str(args.get("external_author", ""))[:100]
 
-    # Escape curly braces in user content for safety
-    safe_title = title.replace("{", "{{").replace("}", "}}")
-
-    # Build tags as YAML list
-    tags_yaml = ", ".join(t[:50] for t in tags[:10])
+    # Escape all user-supplied fields uniformly for YAML safety
+    safe_title = _escape_yaml_value(title)
+    tags_yaml = ", ".join(f'"{_escape_yaml_value(t[:50])}"' for t in tags[:10])
 
     lines = [
         "---",
@@ -3161,8 +3180,7 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
         f"entry_type: {entry_type}",
     ]
     if summary:
-        safe_summary = summary.replace('"', '\\"')
-        lines.append(f'summary: "{safe_summary}"')
+        lines.append(f'summary: "{_escape_yaml_value(summary)}"')
     lines.extend(
         [
             f"created: {date_str}",
@@ -3173,9 +3191,9 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
         ]
     )
     if entry_type == "reference" and external_url:
-        lines.append(f'external_url: "{external_url}"')
+        lines.append(f'external_url: "{_escape_yaml_value(external_url)}"')
         if external_author:
-            lines.append(f'external_author: "{external_author}"')
+            lines.append(f'external_author: "{_escape_yaml_value(external_author)}"')
         lines.append(f"accessed_date: {date_str}")
     lines.append("---")
     lines.append("")
