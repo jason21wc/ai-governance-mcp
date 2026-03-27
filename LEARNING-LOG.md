@@ -139,7 +139,7 @@ Validator and code-reviewer both initially used "Analytical validation" as cogni
 
 ---
 
-### Run Code Review + Coherence Audit After Content Expansions (2026-02-21)
+### Run Code Review + Coherence Audit After Content Expansions (2026-02-21) — GRADUATED to §5.1.7
 
 After a 6-principle multimodal-RAG expansion, code review found 3 code issues (misleading comment, missing f-series mapping, r-series semantic mismatch) and coherence audit found 7 document issues (stale version headers/footers, missing evidence base refs, cross-file contradictions). None were caught by the test suite because tests validated extraction behavior, not document-level consistency.
 
@@ -185,7 +185,7 @@ Mocking at `ai_governance_mcp.retrieval.SentenceTransformer` fails — models ar
 
 ---
 
-### Multi-Pass Reviews Catch Different Issue Classes (2026-01-04) — CRITICAL
+### Multi-Pass Reviews Catch Different Issue Classes (2026-01-04) — CRITICAL — GRADUATED to §5.1.7
 
 Second-pass contrarian review caught issues first-pass missed (S-Series penalty risk, min ratings threshold). First pass reviews original design; second pass reviews the fixes.
 
@@ -229,3 +229,5 @@ Second-pass contrarian review caught issues first-pass missed (S-Series penalty 
 | Substring collision comment verification | Code review finding, implemented | 2026-02-22 |
 | IDE plug-in API vs subscription pricing | General knowledge (not project-specific) | 2026-02-22 |
 | Standalone MCP config files | Redundant with CRITICAL lesson #24 | 2026-02-22 |
+| Code review + coherence audit after expansions | ai-coding methods §5.1.7 + §9.3.11 | 2026-03-27 |
+| Multi-pass reviews catch different issues | ai-coding methods §5.1.7 | 2026-03-27 |

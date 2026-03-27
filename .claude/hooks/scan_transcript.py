@@ -4,10 +4,14 @@
 Scans a Claude Code transcript (JSONL) for tool_use entries matching target
 tool names. Supports a recency window to expire old calls.
 
-Usage:
+Usage (governance mode):
     python3 scan_transcript.py <gov_tool_name> <ce_tool_name> <transcript_path> [window_size]
+    Output: one of: both | gov_only | ce_only | neither
 
-Output (stdout): one of: both | gov_only | ce_only | neither
+Usage (pattern mode):
+    python3 scan_transcript.py --pattern <pattern> <transcript_path> [window_size]
+    Output: true | false
+
 Exit code: always 0 (fail-open on errors)
 """
 
@@ -78,7 +82,46 @@ def scan_transcript(
         return "neither"
 
 
+def scan_for_pattern(
+    pattern: str, transcript_path: str, window_size: int = 500
+) -> bool:
+    """Scan transcript for any line containing a pattern string.
+
+    General-purpose pattern matching for quality gate checks.
+    Used by pre-push-quality-gate.sh to check for test runs, subagent invocations, etc.
+
+    Args:
+        pattern: String to search for in transcript lines
+        transcript_path: Path to JSONL transcript file
+        window_size: Only scan last N lines (default 500)
+
+    Returns:
+        True if pattern found, False otherwise
+    """
+    try:
+        with open(transcript_path, "r") as f:
+            lines = deque(f, maxlen=window_size) if window_size > 0 else f
+            for line in lines:
+                if pattern in line:
+                    return True
+    except Exception:
+        pass
+    return False
+
+
 if __name__ == "__main__":
+    # Pattern mode: --pattern <pattern> <transcript> [window]
+    if len(sys.argv) >= 4 and sys.argv[1] == "--pattern":
+        pattern = sys.argv[2]
+        transcript = sys.argv[3]
+        try:
+            window = int(sys.argv[4]) if len(sys.argv) > 4 else 500
+        except (ValueError, TypeError):
+            window = 500
+        print("true" if scan_for_pattern(pattern, transcript, window) else "false")
+        sys.exit(0)
+
+    # Governance mode: <gov_tool> <ce_tool> <transcript> [window]
     if len(sys.argv) < 4:
         print("neither")
         sys.exit(0)

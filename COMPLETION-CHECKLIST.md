@@ -5,7 +5,13 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 ## Code changes
 
 1. `pytest tests/ -v` — full test suite
-2. Code review (code-reviewer subagent) if substantial
+2. **Subagent review** — required for risky changes (enforced by pre-push quality gate hook):
+   - New MCP tool or handler → code-reviewer + security-auditor
+   - Changes to server.py, extractor.py, retrieval.py, config.py → code-reviewer
+   - New file-handling code path → security-auditor
+   - Content expansion (new principles/methods) → coherence-auditor + validator
+   - Changes >5 files → code-reviewer
+   - See §5.1.7 for full trigger table
 3. **New code path check** (if adding code that reads files, parses external data, or handles user-controlled input):
    - [ ] Is the new code path included in `validate_content_security()` scan? (extractor.py)
    - [ ] Does it validate/sanitize file paths? (symlink protection, path traversal, size limits)

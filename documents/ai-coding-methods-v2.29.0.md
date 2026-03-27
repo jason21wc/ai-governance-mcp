@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.28.0
+**Version:** 2.29.0
 **Status:** Active
 **Effective Date:** 2026-03-26
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -1777,6 +1777,22 @@ The **completion sequence** runs per-change. The **session end procedure** (§7.
 
 > **Cross-references:** §5.1.2 (Implementation Cycle — insert after PASS), §5.2.6 (full test suite before task completion), §6.4.8 (Local-CI Validation Parity), §7.6.1 (Session End Procedure)
 > **Bold triggers:** **post-change checklist**, **completion sequence**, **after implementation steps**, **task completion gate**
+
+#### 5.1.7 Subagent Review Triggers
+
+**Importance: IMPORTANT — Determines when subagent reviews are required, not optional**
+
+When changes match these patterns, invoke the corresponding subagent BEFORE committing/pushing. The pre-push quality gate hook (§9.3.11) structurally enforces this for risky code changes.
+
+| Change Type | Required Subagent | Rationale |
+|-------------|-------------------|-----------|
+| New MCP tool or handler | code-reviewer + security-auditor | New tools accept user input and return content to AI clients |
+| Changes to extractor/retrieval/server core | code-reviewer | Core pipeline changes affect all governance queries |
+| New file-handling code path | security-auditor | Per COMPLETION-CHECKLIST new code path checklist |
+| Content expansion (new principles/methods) | coherence-auditor + validator | Cross-reference integrity and template compliance |
+| Any changes >5 files | code-reviewer | Broad changes need fresh-context review |
+
+*Source: LEARNING-LOG lessons — "Run Code Review + Coherence Audit After Content Expansions" (2026-02-21), "Multi-Pass Reviews Catch Different Issue Classes" (2026-01-04).*
 
 ---
 
@@ -6666,6 +6682,7 @@ Advisory instructions alone are probabilistic — AI models skip compliance call
 | 2. Per-Response Reminders | Appended to every tool response (§9.3.6) | Medium — persistent but advisory | ~30-50 tokens/response |
 | 3. Structural Hooks | PreToolUse/UserPromptSubmit **transcript scanning** | High — deterministic, cannot be skipped | ~0 (runs outside context) |
 | 4. Hard Mode Blocking | Hook returns `permissionDecision: deny` | Maximum — blocks non-compliant actions | ~0 (runs outside context) |
+| **5. Pre-Push Quality Gate** | PreToolUse on `git push` — transcript scanning for tests + reviews | Maximum — blocks push without tests/reviews | Claude Code only |
 
 **Layer 3: Structural Hook Pattern:**
 - Scan transcript (JSONL) for required tool calls before allowing file-modifying operations (`Bash|Edit|Write`)
@@ -6680,6 +6697,21 @@ Advisory instructions alone are probabilistic — AI models skip compliance call
 - Returns `permissionDecision: "deny"` — platform rejects the tool call
 - For compliance-critical environments where advisory enforcement is insufficient
 - **Independent toggles** per compliance system (governance hard mode ≠ context engine hard mode)
+
+**Layer 5: Pre-Push Quality Gate** (structural, blocks push)
+
+A PreToolUse hook on `git push` that verifies:
+1. Tests were run this session (scans transcript for pytest invocations)
+2. For risky changes (core code files or new src/ files): subagent review was performed (scans transcript for code-reviewer or security-auditor invocations)
+3. Docs-only changes (only .md files modified) bypass review requirement
+
+**Configuration:** `.claude/settings.json` with a second PreToolUse matcher on `Bash`. Uses `scan_transcript.py --pattern` mode for flexible pattern matching. Hard mode from day one — returns `permissionDecision: "deny"` if checks fail.
+
+**Emergency override:** `QUALITY_GATE_SKIP=true` environment variable. Documented override, not silent bypass.
+
+**Design rationale:** Pre-push (not pre-commit) because commit is cheap/reversible; push is the irreversible boundary where harm occurs. Risk-based triggers (core code files + new src files) rather than file count. Per LEARNING-LOG: "advisory failed at 87%; structural blocking achieves near-100%."
+
+*Cross-references: §5.1.7 (Subagent Review Triggers), COMPLETION-CHECKLIST (New Code Path Security Checklist)*
 
 **Enforcement Design Heuristics:**
 - [ ] Start with Layer 1 (instructions) + Layer 2 (reminders) — measure compliance
@@ -6712,7 +6744,7 @@ Also read AGENTS.md for project context.
 
 ## Governance — ENFORCED BY HOOK
 [Hook enforcement details if applicable]
-- Framework: AI Coding Methods v2.28.0
+- Framework: AI Coding Methods v2.29.0
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Debugging
@@ -7743,7 +7775,7 @@ CREATE POLICY "Users insert own documents" ON documents
 # Project: [Name]
 
 **Description:** [1-2 sentences]
-**Framework:** AI Coding Methods v2.28.0
+**Framework:** AI Coding Methods v2.29.0
 **Mode:** [Expedited/Standard/Enhanced]
 
 ## Memory Files
@@ -8077,6 +8109,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.29.0 | 2026-03-27 | **Quality Gate Enforcement:** (1) New §5.1.7 Subagent Review Triggers — change-type matrix determining when subagent reviews are required before commit/push (5 change types: new MCP tools, core pipeline, new file-handling paths, content expansion, broad changes >5 files). (2) §9.3.10 expanded from 4-Layer to 5-Layer Enforcement Stack: new Layer 5 Pre-Push Quality Gate — PreToolUse hook on `git push` with transcript scanning for test execution and subagent review invocations, risk-based triggers (core code + new src files), docs-only bypass, emergency override via `QUALITY_GATE_SKIP` env var. Design rationale: pre-push not pre-commit (irreversibility boundary), hard mode from day one. Cross-references §5.1.7 and COMPLETION-CHECKLIST. |
 | 2.28.0 | 2026-03-26 | **Permission Configuration:** New Appendix A.5 with 5 subsections: A.5.1 Permission Layering (user/project/project-local with precedence), A.5.2 Hook-Permission Interaction (hooks fire BEFORE permissions — governance enforcement safe), A.5.3 Day-to-Day Development Allowlist (recommended pre-approvals + governance-critical file exclusion hard rule), A.5.4 Autonomous Operation Permissions (cross-ref to multi-agent §6.5.2), A.5.5 Reviewing and Updating Permissions. Broadens permission guidance from autonomous-only (§6.5.2) to general Claude Code usage. |
 | 2.27.0 | 2026-03-26 | **Agentic Engineering Patterns Integration:** (1) §5.2.2 Red/green TDD elevated from equal alternative to RECOMMENDED pattern for AI-assisted development, citing research consensus (Willison 2026, GitHub Copilot TDD guide, TDAD arXiv 2026, DORA 2025). Added TDAD finding on providing specific test context. (2) §7.6.2 Session Start Procedure: added step 3 "Run existing tests" to establish known-good baseline before changes. (3) New §5.13.7 Code Comprehension via Linear Walkthrough — structured technique for understanding unfamiliar/agent-written code, combating cognitive debt, supporting Skill Preservation. (4) Situation Index +1 entry. |
 | 2.26.0 | 2026-03-22 | **Design-Before-Build & Tool Discovery:** (1) §2.4 UX Elaboration elevated from OPTIONAL to IMPORTANT for UI-facing projects — added anti-pattern description (prompting AI for UI without design reference), fix guidance (create design artifact first, validate, then implement), Figma MCP cross-reference for seamless design-to-code workflow. §2.4.1 When to Apply rewritten with clear inclusion/exclusion criteria. (2) §3.1.4 Tool Content Model updated: "tools we may use" inclusion path — prospective tools noted as named references under evaluation with user consent before adoption. Prevents useful discoveries from being lost while maintaining discovery-driven philosophy. Prompted by analysis of vibe-coding anti-patterns in AI development community. |
