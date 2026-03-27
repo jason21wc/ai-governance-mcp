@@ -4114,6 +4114,8 @@ A **research protocol** is a structured instruction document that tells an AI ag
 
 #### 6.5.2 Permission Configuration for Autonomous Operation
 
+*For general Claude Code permission configuration (day-to-day development, permission layering, hook-permission interaction), see ai-coding methods Appendix A.5. This section covers the additional considerations specific to autonomous operation.*
+
 Running agents overnight requires pre-approving the specific operations the agent will perform. Three approaches, ordered by governance preference:
 
 **Approach A: Surgical Allowlists (RECOMMENDED)**

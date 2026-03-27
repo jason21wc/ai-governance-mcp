@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.27.0
+**Version:** 2.28.0
 **Status:** Active
 **Effective Date:** 2026-03-26
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -6712,7 +6712,7 @@ Also read AGENTS.md for project context.
 
 ## Governance — ENFORCED BY HOOK
 [Hook enforcement details if applicable]
-- Framework: AI Coding Methods v2.27.0
+- Framework: AI Coding Methods v2.28.0
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Debugging
@@ -6780,6 +6780,135 @@ Configure both governance and context engine MCP servers in `.claude/settings.js
 ```
 
 See Appendix G for detailed context engine configuration options.
+
+### A.5 Permission Configuration
+
+**Applies to:** Claude Code CLI only. Other tools (Gemini CLI, Cursor) have analogous systems — consult their documentation. See Appendix F for general tool comparison.
+
+#### A.5.1 Permission Layering
+
+Claude Code uses a layered settings system with clear precedence:
+
+| Layer | File | Scope | Git-tracked? | Use case |
+|-------|------|-------|-------------|----------|
+| **User-level** | `~/.claude/settings.json` | All projects on this machine | N/A (personal) | Operations you always approve everywhere |
+| **Project-level** | `.claude/settings.json` | This project, all collaborators | Yes | Team-shared enforcement (hooks, policies) |
+| **Project-local** | `.claude/settings.local.json` | This project, your machine only | No (gitignored) | Personal preferences, experiment-specific |
+
+**Precedence:** project-local > project-level > user-level. A project-local setting overrides both project-level and user-level for the same key.
+
+**Recommendation:** Keep governance hooks in project-level (committed, shared). Keep permission allowlists in project-local (personal, not committed) or user-level (global personal preference).
+
+#### A.5.2 Hook-Permission Interaction
+
+**IMPORTANT:** PreToolUse hooks fire BEFORE permission checks. Adding a tool to the allowlist skips the **user prompt** — it does NOT skip governance hooks. Your governance enforcement remains structural regardless of permission configuration.
+
+```
+Execution order:
+1. PreToolUse hook fires (governance check)     ← ALWAYS runs
+2. Hook returns allow/block/ask
+3. If hook allows → permission system checks allowlist
+4. If allowlisted → tool executes (no user prompt)
+5. If NOT allowlisted → user is prompted for approval
+```
+
+This means permissions and hooks are **complementary**:
+- **Hooks** enforce governance compliance (structural, non-bypassable)
+- **Permissions** control user prompting (convenience, bypassable by design)
+
+You can safely add tools to allowlists without fear of bypassing governance — the hook system is structural, not advisory.
+
+#### A.5.3 Day-to-Day Development Allowlist
+
+Use **allowlist thinking** (approve specific safe patterns) NOT denylist thinking (block dangerous patterns). An allowlist is the correct security posture — anything not explicitly approved requires manual approval.
+
+**Recommended pre-approvals for development work:**
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Bash(pytest*)",
+      "Bash(python -m pytest*)",
+      "Bash(python -c*)",
+      "Bash(python -m ai_governance_mcp*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git branch*)",
+      "Bash(git checkout*)",
+      "Bash(git stash*)",
+      "Bash(ruff*)",
+      "Bash(bandit*)",
+      "Bash(docker build*)",
+      "Bash(wc*)",
+      "Bash(ls*)",
+      "Bash(cat*)",
+      "Bash(head*)",
+      "Bash(tail*)",
+      "Bash(grep*)",
+      "Bash(find*)",
+      "Bash(sort*)",
+      "Bash(gh run*)",
+      "Bash(gh pr*)"
+    ],
+    "deny": [
+      "Edit(.claude/settings.json)",
+      "Write(.claude/settings.json)",
+      "Edit(.claude/hooks/*)",
+      "Write(.claude/hooks/*)",
+      "Edit(CLAUDE.md)",
+      "Write(CLAUDE.md)",
+      "Edit(.github/*)",
+      "Write(.github/*)"
+    ]
+  }
+}
+```
+
+**HARD RULE — governance-critical files are ALWAYS denied in allowlists:**
+- `.claude/settings.json` — agent could modify its own enforcement hooks
+- `.claude/hooks/*` — agent could disable governance checks
+- `CLAUDE.md` — agent could change its own behavioral instructions
+- `.github/*` — agent could modify CI/CD pipeline
+
+Self-modification of governance enforcement is an S-Series (safety) concern. These files require explicit human approval for every edit.
+
+**Keep as MANUAL APPROVAL** (high blast radius per AO-1):
+- `git push` — external-facing, affects shared state
+- `git reset --hard`, `rm`, `mv` — destructive / irreversible
+- `docker push` — external deployment
+- `pip install`, `npm install` — dependency changes (supply chain risk)
+- `curl`, `wget` — network access / data exfiltration risk
+- `chmod`, `chown` — permission escalation
+- `npx`, `npm run` — arbitrary script execution
+
+#### A.5.4 Autonomous Operation Permissions
+
+For overnight or unattended runs, scope permissions to match the research protocol exactly. See multi-agent methods §6.5.2 for the full autonomous experimentation protocol.
+
+Key differences from day-to-day:
+- Use **project-local** settings (`.claude/settings.local.json`) — don't contaminate shared config
+- Scope Edit/Write to **ONLY** the files in the research protocol (e.g., `Edit(train.py)`)
+- Remove experiment-specific permissions when done
+- Add termination conditions in the research protocol, not just permissions
+- Consider `--allowedTools` CLI flag for one-off scripted runs
+
+#### A.5.5 Reviewing and Updating Permissions
+
+Re-evaluate permission configuration when:
+- Project structure changes significantly (new deployment targets, sensitive directories)
+- New tools or workflows are adopted
+- A permission proves too broad (agent modified something unexpected)
+- Moving between development phases (prototyping → production hardening)
+- Onboarding new team members who will use the project's committed settings
+
+**Cross-references:** §5.6.1 (Coding Tool Injection Defense), §5.6.3 (Destructive Action Prevention), §9.3.10 (Enforcement Stack), multi-agent methods §6.5.2 (Autonomous Operation Permissions)
 
 ---
 
@@ -7612,7 +7741,7 @@ CREATE POLICY "Users insert own documents" ON documents
 # Project: [Name]
 
 **Description:** [1-2 sentences]
-**Framework:** AI Coding Methods v2.27.0
+**Framework:** AI Coding Methods v2.28.0
 **Mode:** [Expedited/Standard/Enhanced]
 
 ## Memory Files
@@ -7946,6 +8075,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.28.0 | 2026-03-26 | **Permission Configuration:** New Appendix A.5 with 5 subsections: A.5.1 Permission Layering (user/project/project-local with precedence), A.5.2 Hook-Permission Interaction (hooks fire BEFORE permissions — governance enforcement safe), A.5.3 Day-to-Day Development Allowlist (recommended pre-approvals + governance-critical file exclusion hard rule), A.5.4 Autonomous Operation Permissions (cross-ref to multi-agent §6.5.2), A.5.5 Reviewing and Updating Permissions. Broadens permission guidance from autonomous-only (§6.5.2) to general Claude Code usage. |
 | 2.27.0 | 2026-03-26 | **Agentic Engineering Patterns Integration:** (1) §5.2.2 Red/green TDD elevated from equal alternative to RECOMMENDED pattern for AI-assisted development, citing research consensus (Willison 2026, GitHub Copilot TDD guide, TDAD arXiv 2026, DORA 2025). Added TDAD finding on providing specific test context. (2) §7.6.2 Session Start Procedure: added step 3 "Run existing tests" to establish known-good baseline before changes. (3) New §5.13.7 Code Comprehension via Linear Walkthrough — structured technique for understanding unfamiliar/agent-written code, combating cognitive debt, supporting Skill Preservation. (4) Situation Index +1 entry. |
 | 2.26.0 | 2026-03-22 | **Design-Before-Build & Tool Discovery:** (1) §2.4 UX Elaboration elevated from OPTIONAL to IMPORTANT for UI-facing projects — added anti-pattern description (prompting AI for UI without design reference), fix guidance (create design artifact first, validate, then implement), Figma MCP cross-reference for seamless design-to-code workflow. §2.4.1 When to Apply rewritten with clear inclusion/exclusion criteria. (2) §3.1.4 Tool Content Model updated: "tools we may use" inclusion path — prospective tools noted as named references under evaluation with user consent before adoption. Prevents useful discoveries from being lost while maintaining discovery-driven philosophy. Prompted by analysis of vibe-coding anti-patterns in AI development community. |
 | 2.25.0 | 2026-03-22 | **Repository Security Configuration & Semantic Code Analysis:** (1) New §6.4.10 Repository Security Configuration — universal 10-item checklist (branch protection, CI enforcement, secret scanning, dependency alerts, CodeQL, CODEOWNERS), 3 enforcement tiers (Minimum/Standard/Production), cross-platform quick reference table (GitHub, GitLab, Bitbucket). (2) New §6.4.11 Semantic Code Analysis — CodeQL workflow template, query suite guidance (security-extended recommended), platform alternatives (GitLab SAST, Semgrep, Bandit), finding management and false positive suppression. (3) Appendix H expanded from 14 to 16 items (+repository branch protection, +semantic analysis enabled). (4) §5.3.3 cross-reference to §6.4.10/§6.4.11 for enforcement. (5) §6.4.6 CodeQL bullet expanded with §6.4.11 reference. (6) Situation Index +2 entries. Prompted by bandit CI failure revealing the gap between "run scans" and "enforce scan results." |
