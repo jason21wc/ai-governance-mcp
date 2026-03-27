@@ -593,6 +593,13 @@ Treat all subagent findings (code review, security audit, validation, etc.) as *
 4. Both rubber-stamping (>90% accept) and dismissing (>90% reject) are failure signals
 
 CRITICAL findings require attention — "attention" means evaluation, not automatic implementation.
+
+### Project Initialization Detection
+
+On first interaction with a new project, check if governance memory files exist.
+If SESSION-STATE.md, PROJECT-MEMORY.md, and LEARNING-LOG.md are all missing,
+suggest using `scaffold_project` to initialize the project with governance memory.
+Do not auto-run scaffold_project — ask the user first.
 """.strip()
 
 # Compact reminder appended to every tool response for consistent governance reinforcement.
@@ -604,6 +611,218 @@ GOVERNANCE_REMINDER = """
 ---
 ⚖️ **Governance Check:** Unless this was a read-only or non-sensitive query, did you call `evaluate_governance()`? Cite principle IDs. S-Series = veto.
 🔍 Before implementing, query context engine for existing patterns."""
+
+# =============================================================================
+# Scaffold Project Templates
+# =============================================================================
+
+SCAFFOLD_SESSION_STATE = """# Session State
+
+**Last Updated:** {date}
+**Memory Type:** Working (transient)
+**Lifecycle:** Prune at session start per §7.0.4
+
+> This file tracks CURRENT work state only.
+> Historical information → PROJECT-MEMORY.md (decisions) or LEARNING-LOG.md (lessons)
+
+---
+
+## Current Position
+
+- **Phase:** Specify
+- **Mode:** Standard
+- **Active Task:** None (ready for first task)
+
+## Quick Reference
+
+| Metric | Value |
+|--------|-------|
+| Project | **{project_name}** |
+
+## Session Summary
+
+*No sessions yet.*
+
+## Next Actions
+
+*Define during first session.*
+"""
+
+SCAFFOLD_PROJECT_MEMORY = """# Project Memory
+
+**Memory Type:** Semantic (accumulates)
+**Lifecycle:** Grows with project per §7.0.4
+**Project:** {project_name}
+**Created:** {date}
+
+> Record decisions and their rationale here. When in doubt, write it down.
+
+---
+
+## Phase Gates
+
+| Gate | Status | Date | Notes |
+|------|--------|------|-------|
+| Specify | Pending | | |
+| Plan | Pending | | |
+| Implement | Pending | | |
+| Validate | Pending | | |
+
+## Spec Summary
+
+*Fill in after Specify phase.*
+
+## Key Decisions
+
+| Decision | Date | Rationale |
+|----------|------|-----------|
+| | | |
+
+## Tech Stack
+
+*Fill in after Plan phase.*
+
+## Constraints
+
+*Document any constraints discovered during work.*
+
+## Known Gotchas
+
+| # | Gotcha | Date |
+|---|--------|------|
+| | | |
+"""
+
+SCAFFOLD_LEARNING_LOG = """# Learning Log
+
+**Memory Type:** Episodic (experiences)
+**Lifecycle:** Graduate to methods when pattern emerges per §7.0.4
+
+> **Entry rules:** Each entry ≤5 lines. State what happened, then the actionable rule.
+> Record conclusions, not evidence. If it wouldn't change future behavior, it doesn't belong here.
+> Route other content: decisions → PROJECT-MEMORY, architecture → ARCHITECTURE.md
+
+---
+
+## Active Lessons
+
+*No lessons yet. Add entries as you learn from mistakes and discoveries.*
+
+---
+
+## Graduated Patterns
+
+| Pattern | Graduated To | Date |
+|---------|-------------|------|
+| | | |
+"""
+
+SCAFFOLD_AGENTS_MD = """# {project_name}
+
+**Description:** [Brief project description]
+**Framework:** AI Coding Methods v2.28.0
+**Mode:** Standard
+
+## Session Start
+
+1. Read `SESSION-STATE.md` — current position, quick reference, next actions
+2. Read `PROJECT-MEMORY.md` — decisions, constraints, gotchas
+3. Read `LEARNING-LOG.md` — active lessons
+4. Run existing tests (if applicable) — establish known-good baseline
+
+## Key Commands
+
+- `pytest tests/ -v` — run tests
+- [Add project-specific commands here]
+
+## Project Structure
+
+[Document key directories and files as the project grows]
+"""
+
+SCAFFOLD_CLAUDE_MD = """# {project_name}
+
+Also read AGENTS.md for project context.
+
+## Governance
+
+If ai-governance MCP server is connected:
+- `evaluate_governance(planned_action="...")` — before any non-read action
+- `query_project(query="...")` — before creating or modifying code/content
+
+## Subagents
+
+See `.claude/agents/` for installed subagents.
+"""
+
+SCAFFOLD_COMPLETION_CHECKLIST = """# Post-Change Completion Checklist
+
+## Code changes
+
+1. Run tests — full test suite
+2. Code review if substantial
+3. Update SESSION-STATE.md (version, counts, summary)
+4. Commit and push
+5. Verify CI green
+
+## Content changes
+
+1. Run tests — full test suite
+2. Update SESSION-STATE.md
+3. Commit and push
+
+## Documentation-only changes
+
+1. Update SESSION-STATE.md if applicable
+2. Commit and push
+"""
+
+SCAFFOLD_AI_CONTEXT_README = """# {project_name} — AI Context
+
+**Created:** {date}
+**Type:** Document project
+
+## Project Description
+
+[Brief description of this project]
+
+## Memory Files
+
+| File | Purpose | Update Frequency |
+|------|---------|-----------------|
+| SESSION-STATE.md | Current work state | Every session |
+| PROJECT-MEMORY.md | Decisions and rationale | When decisions are made |
+| LEARNING-LOG.md | Lessons from experience | When lessons emerge |
+
+## Session Protocol
+
+1. Read SESSION-STATE.md first
+2. Check PROJECT-MEMORY.md for constraints
+3. Check LEARNING-LOG.md for relevant lessons
+"""
+
+SCAFFOLD_CORE_FILES = {
+    "code": [
+        ("SESSION-STATE.md", SCAFFOLD_SESSION_STATE),
+        ("PROJECT-MEMORY.md", SCAFFOLD_PROJECT_MEMORY),
+        ("LEARNING-LOG.md", SCAFFOLD_LEARNING_LOG),
+        ("AGENTS.md", SCAFFOLD_AGENTS_MD),
+    ],
+    "document": [
+        ("_ai-context/SESSION-STATE.md", SCAFFOLD_SESSION_STATE),
+        ("_ai-context/PROJECT-MEMORY.md", SCAFFOLD_PROJECT_MEMORY),
+        ("_ai-context/LEARNING-LOG.md", SCAFFOLD_LEARNING_LOG),
+        ("_ai-context/README.md", SCAFFOLD_AI_CONTEXT_README),
+    ],
+}
+
+SCAFFOLD_STANDARD_EXTRAS = {
+    "code": [
+        ("CLAUDE.md", SCAFFOLD_CLAUDE_MD),
+        ("COMPLETION-CHECKLIST.md", SCAFFOLD_COMPLETION_CHECKLIST),
+    ],
+    "document": [],
+}
 
 # Subagent installation explanation for users
 # Per Phase 2B design: robust explanation for both experts and beginners
@@ -1306,6 +1525,41 @@ async def list_tools() -> list[Tool]:
                 "required": ["audit_id", "reasoning", "final_decision"],
             },
         ),
+        # Tool 12: Scaffold project (Project Initialization Part B)
+        Tool(
+            name="scaffold_project",
+            description=(
+                "Initialize governance memory files for a new project. "
+                "Creates SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, "
+                "and project instruction files. Two-step flow: call without "
+                "confirmed for preview, then with confirmed=true to create files."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "project_name": {
+                        "type": "string",
+                        "description": "Project name (defaults to current directory name)",
+                        "maxLength": 100,
+                    },
+                    "project_type": {
+                        "type": "string",
+                        "description": "Type: 'code' for repositories, 'document' for folder-based projects",
+                        "enum": ["code", "document"],
+                    },
+                    "kit_tier": {
+                        "type": "string",
+                        "description": "Kit tier: 'core' (4 files) or 'standard' (6 files, adds CLAUDE.md + checklist)",
+                        "enum": ["core", "standard"],
+                    },
+                    "confirmed": {
+                        "type": "boolean",
+                        "description": "Set to true to create files after preview",
+                    },
+                },
+                "required": [],
+            },
+        ),
     ]
 
 
@@ -1353,6 +1607,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             result = await _handle_uninstall_agent(arguments)
         elif name == "log_governance_reasoning":
             result = await _handle_log_governance_reasoning(arguments)
+        elif name == "scaffold_project":
+            result = await _handle_scaffold_project(arguments)
         else:
             result = [TextContent(type="text", text=f"Unknown tool: {name[:50]}")]
 
@@ -2567,6 +2823,161 @@ async def _handle_log_governance_reasoning(args: dict) -> list[TextContent]:
         "message": "Governance reasoning trace recorded successfully.",
     }
 
+    return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+
+async def _handle_scaffold_project(args: dict) -> list[TextContent]:
+    """Handle scaffold_project tool — initialize governance memory files for a new project.
+
+    Two-step flow: preview (no confirmed) → create (confirmed=true).
+    Follows install_agent pattern for safety and UX consistency.
+    """
+    from datetime import datetime, timezone
+
+    project_name = str(args.get("project_name", Path.cwd().name))[:100]
+    project_type = args.get("project_type", "code")
+    kit_tier = args.get("kit_tier", "core")
+    confirmed = args.get("confirmed", False)
+
+    # Validate parameters
+    if project_type not in ("code", "document"):
+        error = ErrorResponse(
+            error_code="INVALID_PROJECT_TYPE",
+            message=f"Invalid project_type: '{project_type}'. Must be 'code' or 'document'.",
+            suggestions=[
+                "Use project_type='code' for repositories",
+                "Use project_type='document' for folder-based projects",
+            ],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    if kit_tier not in ("core", "standard"):
+        error = ErrorResponse(
+            error_code="INVALID_KIT_TIER",
+            message=f"Invalid kit_tier: '{kit_tier}'. Must be 'core' or 'standard'.",
+            suggestions=[
+                "Use kit_tier='core' for 4 essential files",
+                "Use kit_tier='standard' for 6 files (adds CLAUDE.md + checklist)",
+            ],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # Build file manifest
+    date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    cwd = Path.cwd().resolve()
+
+    files = list(SCAFFOLD_CORE_FILES.get(project_type, []))
+    if kit_tier == "standard":
+        files.extend(SCAFFOLD_STANDARD_EXTRAS.get(project_type, []))
+
+    manifest = []
+    for relative_path, template in files:
+        full_path = (cwd / relative_path).resolve()
+
+        # Path validation — reject traversal attempts
+        if not full_path.is_relative_to(cwd):
+            logger.warning("Path traversal rejected: %s", relative_path)
+            continue
+
+        content = template.format(project_name=project_name, date=date_str)
+        exists = full_path.is_file()
+
+        manifest.append(
+            {
+                "relative_path": relative_path,
+                "full_path": str(full_path),
+                "exists": exists,
+                "action": "skip (already exists)" if exists else "create",
+                "content_preview": content[:200] + "..."
+                if len(content) > 200
+                else content,
+                "content": content,
+            }
+        )
+
+    files_to_create = [f for f in manifest if not f["exists"]]
+    files_to_skip = [f for f in manifest if f["exists"]]
+
+    # Preview mode
+    if not confirmed:
+        output = {
+            "status": "preview",
+            "project_name": project_name,
+            "project_type": project_type,
+            "kit_tier": kit_tier,
+            "files": [
+                {
+                    "path": f["relative_path"],
+                    "action": f["action"],
+                    "preview": f["content_preview"],
+                }
+                for f in manifest
+            ],
+            "files_to_create": len(files_to_create),
+            "files_to_skip": len(files_to_skip),
+            "options": {
+                "create": "Call scaffold_project with confirmed=true to create files",
+                "cancel": "Take no action to cancel",
+            },
+        }
+        if not files_to_create:
+            output["warning"] = (
+                "All governance files already exist. No files will be created."
+            )
+        else:
+            output["next_steps"] = (
+                "After scaffolding:\n"
+                "1. Fill in [bracketed placeholders] in the created files\n"
+                "2. Run install_agent(agent_name='orchestrator') for governance orchestration\n"
+                "3. Start working — the AI will read these files at session start"
+            )
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
+    # Confirmed mode — create files
+    created = []
+    skipped = []
+
+    try:
+        for f in manifest:
+            if f["exists"]:
+                skipped.append({"path": f["relative_path"], "reason": "already exists"})
+                continue
+
+            full_path = Path(f["full_path"])
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+            full_path.write_text(f["content"])
+            created.append(f["relative_path"])
+
+    except PermissionError as e:
+        error = ErrorResponse(
+            error_code="PERMISSION_ERROR",
+            message=f"Cannot write files: {_sanitize_error_message(e)}",
+            suggestions=["Check directory permissions", "Try a different directory"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+    except Exception as e:
+        error = ErrorResponse(
+            error_code="SCAFFOLD_ERROR",
+            message=_sanitize_error_message(e),
+            suggestions=["Check file system permissions"],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    output = {
+        "status": "scaffolded",
+        "project_name": project_name,
+        "project_type": project_type,
+        "kit_tier": kit_tier,
+        "files_created": created,
+        "files_skipped": skipped,
+        "message": f"Successfully initialized governance memory for '{project_name}'.",
+        "next_steps": (
+            "Your project is set up! Next:\n"
+            "1. Fill in [bracketed placeholders] in the created files\n"
+            "2. Run install_agent(agent_name='orchestrator') to add governance orchestration\n"
+            "3. Begin work — the AI will read these files at session start"
+        ),
+    }
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 

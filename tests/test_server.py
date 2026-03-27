@@ -1469,13 +1469,13 @@ class TestListTools:
     """Tests for list_tools() async function."""
 
     @pytest.mark.asyncio
-    async def test_list_tools_returns_all_eleven(self):
-        """list_tools should return all 11 tools."""
+    async def test_list_tools_returns_all_twelve(self):
+        """list_tools should return all 12 tools."""
         from ai_governance_mcp.server import list_tools
 
         tools = await list_tools()
 
-        assert len(tools) == 11
+        assert len(tools) == 12
         tool_names = [t.name for t in tools]
         assert "query_governance" in tool_names
         assert "get_principle" in tool_names
@@ -3010,3 +3010,192 @@ class TestAoSeriesProductionIndex:
             assert "autonomous" in p["id"], (
                 f"AO principle ID should contain 'autonomous': {p['id']}"
             )
+
+
+class TestScaffoldProject:
+    """Tests for scaffold_project tool."""
+
+    @pytest.mark.asyncio
+    async def test_preview_code_core(self, tmp_path, monkeypatch):
+        """Preview mode for code/core should return 4-file manifest."""
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_scaffold_project(
+            {
+                "project_name": "test-project",
+                "project_type": "code",
+                "kit_tier": "core",
+            }
+        )
+        assert len(result) == 1
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "preview"
+        assert response["files_to_create"] == 4
+        paths = [f["path"] for f in response["files"]]
+        assert "SESSION-STATE.md" in paths
+        assert "PROJECT-MEMORY.md" in paths
+        assert "LEARNING-LOG.md" in paths
+        assert "AGENTS.md" in paths
+
+    @pytest.mark.asyncio
+    async def test_preview_code_standard(self, tmp_path, monkeypatch):
+        """Preview mode for code/standard should return 6-file manifest."""
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_scaffold_project(
+            {
+                "project_type": "code",
+                "kit_tier": "standard",
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["files_to_create"] == 6
+        paths = [f["path"] for f in response["files"]]
+        assert "CLAUDE.md" in paths
+        assert "COMPLETION-CHECKLIST.md" in paths
+
+    @pytest.mark.asyncio
+    async def test_preview_document_core(self, tmp_path, monkeypatch):
+        """Preview for document/core should use _ai-context/ paths."""
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_scaffold_project(
+            {
+                "project_type": "document",
+                "kit_tier": "core",
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["files_to_create"] == 4
+        paths = [f["path"] for f in response["files"]]
+        assert all("_ai-context/" in p for p in paths)
+
+    @pytest.mark.asyncio
+    async def test_confirmed_creates_files(self, tmp_path, monkeypatch):
+        """Confirmed mode should create all core files."""
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_scaffold_project(
+            {
+                "project_name": "my-project",
+                "project_type": "code",
+                "kit_tier": "core",
+                "confirmed": True,
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "scaffolded"
+        assert len(response["files_created"]) == 4
+        # Verify files exist on disk
+        assert (tmp_path / "SESSION-STATE.md").is_file()
+        assert (tmp_path / "PROJECT-MEMORY.md").is_file()
+        assert (tmp_path / "LEARNING-LOG.md").is_file()
+        assert (tmp_path / "AGENTS.md").is_file()
+        # Verify content has project name
+        content = (tmp_path / "SESSION-STATE.md").read_text()
+        assert "my-project" in content
+
+    @pytest.mark.asyncio
+    async def test_skips_existing_files(self, tmp_path, monkeypatch):
+        """Confirmed mode should skip files that already exist."""
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        # Pre-create one file
+        (tmp_path / "SESSION-STATE.md").write_text("existing content")
+
+        result = await _handle_scaffold_project(
+            {
+                "project_type": "code",
+                "kit_tier": "core",
+                "confirmed": True,
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "scaffolded"
+        assert len(response["files_created"]) == 3
+        assert len(response["files_skipped"]) == 1
+        # Original content preserved
+        assert (tmp_path / "SESSION-STATE.md").read_text() == "existing content"
+
+    @pytest.mark.asyncio
+    async def test_all_files_exist_warning(self, tmp_path, monkeypatch):
+        """Preview should warn when all files already exist."""
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        for name in [
+            "SESSION-STATE.md",
+            "PROJECT-MEMORY.md",
+            "LEARNING-LOG.md",
+            "AGENTS.md",
+        ]:
+            (tmp_path / name).write_text("exists")
+
+        result = await _handle_scaffold_project(
+            {
+                "project_type": "code",
+                "kit_tier": "core",
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["files_to_create"] == 0
+        assert "warning" in response
+
+    @pytest.mark.asyncio
+    async def test_invalid_project_type(self, tmp_path, monkeypatch):
+        """Invalid project_type should return error."""
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_scaffold_project({"project_type": "invalid"})
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["error_code"] == "INVALID_PROJECT_TYPE"
+
+    @pytest.mark.asyncio
+    async def test_invalid_kit_tier(self, tmp_path, monkeypatch):
+        """Invalid kit_tier should return error."""
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_scaffold_project({"kit_tier": "premium"})
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["error_code"] == "INVALID_KIT_TIER"
+
+    @pytest.mark.asyncio
+    async def test_default_project_name(self, tmp_path, monkeypatch):
+        """Omitting project_name should use CWD name."""
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_scaffold_project(
+            {
+                "project_type": "code",
+                "kit_tier": "core",
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["project_name"] == tmp_path.name
+
+    @pytest.mark.asyncio
+    async def test_document_creates_ai_context_dir(self, tmp_path, monkeypatch):
+        """Document type should create _ai-context/ directory."""
+        from ai_governance_mcp.server import _handle_scaffold_project
+
+        monkeypatch.chdir(tmp_path)
+        result = await _handle_scaffold_project(
+            {
+                "project_type": "document",
+                "kit_tier": "core",
+                "confirmed": True,
+            }
+        )
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "scaffolded"
+        assert (tmp_path / "_ai-context").is_dir()
+        assert (tmp_path / "_ai-context" / "SESSION-STATE.md").is_file()
+        assert (tmp_path / "_ai-context" / "README.md").is_file()
