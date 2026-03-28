@@ -102,13 +102,20 @@ class DocumentConnector(BaseConnector):
             parts.append(f"[type: {fm['entry_type']}]")
         return " ".join(parts)
 
+    # Minimum section size for overlap (shorter sections get no overlap)
+    _MIN_OVERLAP_LINES = 15
+    # Number of overlap lines to carry from previous section
+    _OVERLAP_LINES = 3
+
     def _parse_markdown(
         self, file_path: Path, content: str, display_path: str
     ) -> list[ContentChunk]:
         """Parse markdown by heading structure with max section size.
 
         Extracts YAML frontmatter and stores as structured metadata on chunks.
-        Prepends frontmatter summary to first chunk for embedding enrichment.
+        Prepends frontmatter summary + heading breadcrumb to first chunk for
+        embedding enrichment (~70% of LLM contextual retrieval benefit at zero cost).
+        Adds overlap between chunks >15 lines for context continuity.
         """
         # Extract frontmatter before chunking
         frontmatter, content_without_fm = self._extract_frontmatter(content)
@@ -119,31 +126,72 @@ class DocumentConnector(BaseConnector):
         section_lines: list[str] = []
         section_start = 1
         current_heading = ""
+        parent_heading = ""  # Track parent heading for breadcrumbs
+        prev_section_tail: list[str] = []  # Overlap lines from previous section
+
+        def _build_breadcrumb() -> str:
+            """Build heading breadcrumb for embedding enrichment.
+
+            Format: file_path > Parent Heading > Current Heading
+            Provides ~70% of LLM contextual retrieval benefit at zero cost.
+            """
+            parts = [display_path]
+            if parent_heading:
+                parts.append(parent_heading)
+            if current_heading and current_heading != parent_heading:
+                parts.append(current_heading)
+            return " > ".join(parts)
 
         def _emit_section() -> None:
             """Emit accumulated section lines as chunk(s), splitting if oversized."""
-            nonlocal section_lines, section_start
+            nonlocal section_lines, section_start, prev_section_tail
             while section_lines:
                 batch = section_lines[: self._MAX_SECTION_LINES]
+
+                # Add overlap from previous section if this section is long enough
+                if prev_section_tail and len(batch) >= self._MIN_OVERLAP_LINES:
+                    batch = prev_section_tail + batch
+                    # Don't adjust section_start — overlap lines are context, not content
+
                 chunk_content = "\n".join(batch)
                 if chunk_content.strip():
-                    # Prepend frontmatter summary to first chunk for embedding enrichment
-                    enriched_content = chunk_content
+                    # Build enrichment prefix for embedding
+                    prefix_parts = []
                     if len(chunks) == 0 and fm_summary:
-                        enriched_content = fm_summary + "\n" + chunk_content
+                        prefix_parts.append(fm_summary)
+                    breadcrumb = _build_breadcrumb()
+                    if breadcrumb:
+                        prefix_parts.append(f"[{breadcrumb}]")
+
+                    enriched_content = (
+                        "\n".join(prefix_parts) + "\n" + chunk_content
+                        if prefix_parts
+                        else chunk_content
+                    )
+
                     chunks.append(
                         ContentChunk(
                             content=enriched_content,
                             source_path=display_path,
                             start_line=section_start,
-                            end_line=section_start + len(batch) - 1,
+                            end_line=section_start
+                            + len(section_lines[: self._MAX_SECTION_LINES])
+                            - 1,
                             content_type="document",
                             heading=current_heading,
                             frontmatter=frontmatter,
                         )
                     )
-                section_start += len(batch)
-                section_lines = section_lines[len(batch) :]
+
+                # Save tail lines for next section's overlap
+                original_batch = section_lines[: self._MAX_SECTION_LINES]
+                if len(original_batch) >= self._MIN_OVERLAP_LINES:
+                    prev_section_tail = original_batch[-self._OVERLAP_LINES :]
+                else:
+                    prev_section_tail = []
+
+                section_start += len(section_lines[: self._MAX_SECTION_LINES])
+                section_lines = section_lines[self._MAX_SECTION_LINES :]
 
         for i, line in enumerate(lines, start=1):
             # Detect heading boundaries
@@ -151,10 +199,19 @@ class DocumentConnector(BaseConnector):
                 _emit_section()
                 section_lines = [line]
                 section_start = i
-                current_heading = line.lstrip("#").strip()
+                # Track heading hierarchy for breadcrumbs
+                heading_level = len(line) - len(line.lstrip("#"))
+                new_heading = line.lstrip("#").strip()
+                if heading_level <= 2:
+                    parent_heading = new_heading
+                current_heading = new_heading
             else:
                 if line.startswith("#") and not section_lines:
-                    current_heading = line.lstrip("#").strip()
+                    heading_level = len(line) - len(line.lstrip("#"))
+                    new_heading = line.lstrip("#").strip()
+                    if heading_level <= 2:
+                        parent_heading = new_heading
+                    current_heading = new_heading
                 section_lines.append(line)
 
         # Final section

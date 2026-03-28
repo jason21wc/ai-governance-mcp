@@ -36,6 +36,7 @@ ALLOWED_EMBEDDING_MODELS = {
     "sentence-transformers/all-MiniLM-L6-v2",
     "sentence-transformers/all-mpnet-base-v2",
     "sentence-transformers/paraphrase-MiniLM-L6-v2",
+    "nomic-ai/nomic-embed-text-v1.5",  # 768 dims, 8K context, MTEB 86.2
 }
 ALLOWED_RERANKER_MODELS = {
     "cross-encoder/ms-marco-MiniLM-L-6-v2",

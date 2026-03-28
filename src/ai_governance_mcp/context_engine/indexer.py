@@ -41,7 +41,9 @@ MAX_CHUNK_CONTENT_CHARS = 10_000
 
 # Maximum content length for embedding input (chars)
 # BGE-small handles ~512 tokens (~2048 chars); larger models can handle more
-MAX_EMBEDDING_INPUT_CHARS = 2048
+MAX_EMBEDDING_INPUT_CHARS = (
+    6000  # Increased for nomic-embed-text-v1.5 (8K token context)
+)
 
 # Batch size for embedding generation — limits peak memory
 EMBEDDING_BATCH_SIZE = 1000
@@ -56,6 +58,7 @@ ALLOWED_EMBEDDING_MODELS = {
     "sentence-transformers/all-MiniLM-L12-v2",
     "sentence-transformers/all-mpnet-base-v2",
     "jinaai/jina-embeddings-v2-small-en",
+    "nomic-ai/nomic-embed-text-v1.5",  # 768 dims, 8K context, MTEB 86.2
 }
 
 # Default ignore patterns (gitignore syntax via pathspec)
@@ -101,8 +104,8 @@ class Indexer:
     def __init__(
         self,
         storage: BaseStorage,
-        embedding_model: str = "BAAI/bge-small-en-v1.5",
-        embedding_dimensions: int = 384,
+        embedding_model: str = "nomic-ai/nomic-embed-text-v1.5",
+        embedding_dimensions: int = 768,
         readonly: bool = False,
     ) -> None:
         self.storage = storage
