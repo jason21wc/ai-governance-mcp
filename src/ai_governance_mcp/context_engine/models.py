@@ -49,6 +49,13 @@ class ContentChunk(BaseModel):
         description="Filtered import lines relevant to this chunk (Python only). "
         "Used at embedding time to enrich semantic signal; not displayed.",
     )
+    frontmatter: dict | None = Field(
+        None,
+        description="Parsed YAML frontmatter metadata from markdown files. "
+        "Contains structured fields (tags, status, maturity, domain, etc.) "
+        "for metadata-enhanced retrieval. Reference Library entries and other "
+        "YAML-fronted markdown files populate this field.",
+    )
     embedding_id: int | None = Field(None, description="Index into embeddings array")
 
 

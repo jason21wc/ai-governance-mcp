@@ -1,10 +1,13 @@
 """Document connector for parsing text and markdown files.
 
 Parses by document structure (headings, sections, paragraphs).
-Extracts metadata including title, headers, and front matter.
+Extracts YAML frontmatter metadata for structured retrieval.
 """
 
+import re
 from pathlib import Path
+
+import yaml  # nosec B506 — safe_load only
 
 from .base import BaseConnector
 from ..models import ContentChunk, FileMetadata
@@ -57,11 +60,61 @@ class DocumentConnector(BaseConnector):
     # Maximum lines per markdown section before force-splitting
     _MAX_SECTION_LINES = 200
 
+    @staticmethod
+    def _extract_frontmatter(content: str) -> tuple[dict | None, str]:
+        """Extract YAML frontmatter from markdown content.
+
+        Returns (frontmatter_dict, content_without_frontmatter).
+        Uses yaml.safe_load() exclusively for security.
+        Returns (None, original_content) if no valid frontmatter.
+        """
+        fm_match = re.match(r"^---\n(.*?\n)---\n(.*)", content, re.DOTALL)
+        if not fm_match:
+            return None, content
+        try:
+            frontmatter = yaml.safe_load(fm_match.group(1))  # nosec B506
+        except yaml.YAMLError:
+            return None, content
+        if not isinstance(frontmatter, dict):
+            return None, content
+        return frontmatter, fm_match.group(2)
+
+    @staticmethod
+    def _frontmatter_summary(fm: dict) -> str:
+        """Create a compact text summary of frontmatter for embedding enrichment.
+
+        Prepended to the first chunk's content before embedding to improve
+        metadata-aware retrieval. ~70% of LLM contextual retrieval benefit
+        at zero cost (per Anthropic Contextual Retrieval research).
+        """
+        parts = []
+        if "tags" in fm and isinstance(fm["tags"], list):
+            parts.append(f"[tags: {', '.join(str(t) for t in fm['tags'][:8])}]")
+        if "status" in fm:
+            parts.append(f"[status: {fm['status']}]")
+        if "maturity" in fm:
+            parts.append(f"[maturity: {fm['maturity']}]")
+        if "domain" in fm:
+            parts.append(f"[domain: {fm['domain']}]")
+        if "title" in fm:
+            parts.append(f"[title: {fm['title']}]")
+        if "entry_type" in fm:
+            parts.append(f"[type: {fm['entry_type']}]")
+        return " ".join(parts)
+
     def _parse_markdown(
         self, file_path: Path, content: str, display_path: str
     ) -> list[ContentChunk]:
-        """Parse markdown by heading structure with max section size."""
-        lines = content.split("\n")
+        """Parse markdown by heading structure with max section size.
+
+        Extracts YAML frontmatter and stores as structured metadata on chunks.
+        Prepends frontmatter summary to first chunk for embedding enrichment.
+        """
+        # Extract frontmatter before chunking
+        frontmatter, content_without_fm = self._extract_frontmatter(content)
+        fm_summary = self._frontmatter_summary(frontmatter) if frontmatter else ""
+
+        lines = content_without_fm.split("\n")
         chunks: list[ContentChunk] = []
         section_lines: list[str] = []
         section_start = 1
@@ -74,14 +127,19 @@ class DocumentConnector(BaseConnector):
                 batch = section_lines[: self._MAX_SECTION_LINES]
                 chunk_content = "\n".join(batch)
                 if chunk_content.strip():
+                    # Prepend frontmatter summary to first chunk for embedding enrichment
+                    enriched_content = chunk_content
+                    if len(chunks) == 0 and fm_summary:
+                        enriched_content = fm_summary + "\n" + chunk_content
                     chunks.append(
                         ContentChunk(
-                            content=chunk_content,
+                            content=enriched_content,
                             source_path=display_path,
                             start_line=section_start,
                             end_line=section_start + len(batch) - 1,
                             content_type="document",
                             heading=current_heading,
+                            frontmatter=frontmatter,
                         )
                     )
                 section_start += len(batch)

@@ -251,6 +251,7 @@ class ProjectManager:
                 keyword_scores,
                 max_results,
                 file_recency_map=file_recency_map,
+                query_lower=query.lower(),
             )
 
         elapsed_ms = (time.time() - start_time) * 1000
@@ -752,6 +753,46 @@ class ProjectManager:
                 deduped.append(r)
         return deduped
 
+    @staticmethod
+    def _compute_metadata_bonus(chunk: ContentChunk, query_lower: str) -> float:
+        """Compute score bonus based on YAML frontmatter metadata.
+
+        Boosts chunks whose metadata tags match query terms.
+        Penalizes deprecated/archived entries. Boosts evergreen entries.
+        Per QAM research (Amazon/SIGIR 2025): metadata-enhanced retrieval
+        improves mAP@5 by +29% over BM25.
+        """
+        if not chunk.frontmatter:
+            return 0.0
+
+        bonus = 0.0
+        fm = chunk.frontmatter
+
+        # Tag matching: boost if query terms appear in tags
+        tags = fm.get("tags", [])
+        if isinstance(tags, list):
+            tag_str = " ".join(str(t).lower() for t in tags)
+            query_words = query_lower.split()
+            matches = sum(1 for w in query_words if w in tag_str)
+            if matches > 0:
+                bonus += min(0.05, matches * 0.02)  # Cap at +0.05
+
+        # Status penalty for deprecated/archived
+        status = str(fm.get("status", "")).lower()
+        if status in ("deprecated", "archived"):
+            bonus -= 0.05
+        elif status == "caution":
+            bonus -= 0.02
+
+        # Maturity boost for proven entries
+        maturity = str(fm.get("maturity", "")).lower()
+        if maturity == "evergreen":
+            bonus += 0.03
+        elif maturity == "seedling":
+            bonus -= 0.01
+
+        return bonus
+
     def _fuse_scores(
         self,
         chunks: list[ContentChunk],
@@ -759,6 +800,7 @@ class ProjectManager:
         keyword_scores: np.ndarray,
         max_results: int,
         file_recency_map: dict[str, float] | None = None,
+        query_lower: str = "",
     ) -> list[QueryResult]:
         """Fuse semantic and keyword scores with ranking bonuses and return top results."""
         if len(chunks) == 0:
@@ -776,6 +818,8 @@ class ProjectManager:
             bonuses[i] += self._compute_recency_bonus(
                 chunk.source_path, file_recency_map
             )
+            # Metadata boosting for frontmatter-enriched chunks (Reference Library, etc.)
+            bonuses[i] += self._compute_metadata_bonus(chunk, query_lower)
 
         combined = (
             self.semantic_weight * sem + (1 - self.semantic_weight) * kw + bonuses
