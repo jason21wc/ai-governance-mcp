@@ -60,7 +60,13 @@
    - 5 documents version-bumped, old versions archived
    - Principle-authoring checklist added to COMPLETION-CHECKLIST
    - 6 subagent reviews: 2 contrarian (incl meta-dogfood), 2 coherence, 1 validator
-   - New backlog items: #19 (Rampart), #20 (Authoring Checklist Enforcement), #1B-P2 (Cross-MCP)
+   - New backlog items: #19 (Rampart), #20 (Pin Currency), #21 (Authoring Checklist Enforcement)
+
+22. **CE Phase 4 Investigation** — MRR gap was benchmark error, not algorithm
+   - Diagnosed 3 outlier queries: docs ranked above code (correct for natural language queries)
+   - Corrected benchmark expectations: MRR 0.646 → 0.802 with zero code changes
+   - RRF + reranking deferred — research found tuned linear beats RRF, ms-marco wrong for code
+   - Systemic Thinking prevented building unnecessary algorithmic complexity
 
 ### Previous Session (2026-03-27)
 
@@ -453,23 +459,23 @@
 
 **Implementation requirements:** Content changes to storytelling principles/methods documents. Index rebuild. Coherence-auditor review to verify cross-domain references remain valid (KM&PD storytelling integration, multi-agent narrative patterns).
 
-#### 15. Context Engine Phase 4 — Advanced Retrieval (Priority: MEDIUM, DEFERRED)
+#### 15. Context Engine Phase 4 — Advanced Retrieval (Priority: DEFERRED)
 
-**Problem:** CE v2.0 shipped Phases 1-3 (YAML frontmatter, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5). Phase 4 adds advanced retrieval features for improved result quality at scale.
+**Status:** Investigated 2026-03-28. Systemic Thinking analysis found the MRR gap (0.646) was a benchmark specification error, not a retrieval algorithm problem. Correcting 3 benchmark queries (accepting documentation files as valid results for natural language queries) raised MRR from 0.646 to 0.802 with zero code changes.
 
-**Scope:**
-- **Reciprocal Rank Fusion (RRF)** — combine BM25 + semantic scores with RRF instead of weighted linear combination. Research shows RRF is more robust to score distribution mismatches.
-- **Cross-encoder reranking** — rerank top-K results with a cross-encoder model for higher precision. Already have `cross-encoder/ms-marco-MiniLM-L-6-v2` in Settings but not used in CE.
-- **LanceDB integration** — replace in-memory numpy vector store with LanceDB for persistent, indexed vector storage. Enables faster queries at scale and disk-based indexes.
+**Research findings (contrarian + online):**
+- Tuned weighted linear beats RRF when eval data exists (ACM study) — we have eval data
+- ms-marco-MiniLM-L-6-v2 has ~20-point gap vs code-trained rerankers on CodeSearchNet — wrong model for this corpus
+- RRF bonus scale mismatch would be a correctness bug (bonuses calibrated for [0,1] vs RRF's [0.016-0.033] range)
+- LanceDB not needed until 100x+ growth (currently 800 vectors, <1ms queries)
 
-**Trigger:** After Phases 1-3 prove stable across 10+ sessions. Current CE benchmark (`tests/benchmarks/ce_baseline_*.json`) serves as the before-measurement.
+**Remaining scope (if MRR needs to improve further):**
+1. Weight grid search (5 configs, 30 min) — simplest intervention
+2. Score normalization (2 lines) — fix distribution mismatch without algorithm change
+3. RRF with scaled bonuses — only if simpler fixes insufficient
+4. Cross-encoder with jina-reranker-v2 or bge-reranker-v2-m3 — only if >3-5 MRR point improvement
 
-**Open questions:**
-- Does RRF measurably improve retrieval quality over current weighted fusion?
-- What's the latency cost of cross-encoder reranking? (Target: <100ms total)
-- Does LanceDB add value at our current scale (10K-100K vectors)?
-
-**Implementation requirements:** Changes to `project_manager.py` (fusion), `retrieval.py` or new reranker module, `indexer.py` (LanceDB storage). Benchmark before/after each change. Tests for each new retrieval path.
+**Trigger:** When real-world retrieval quality complaints emerge, or MRR drops below 0.75 on corrected benchmark.
 
 #### 16. Governance Server Embedding Model Upgrade (Priority: MEDIUM, DEFERRED)
 

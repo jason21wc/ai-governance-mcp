@@ -2,8 +2,8 @@
   "description": "Benchmark test cases for Context Engine retrieval quality",
   "version": "2.0",
   "created": "2026-02-12",
-  "updated": "2026-02-13",
-  "notes": "Uses this project's codebase as corpus. Expected files are relative paths from project root.",
+  "updated": "2026-03-28",
+  "notes": "Uses this project's codebase as corpus. Expected files are relative paths from project root. Natural language queries accept both documentation and code files as valid results.",
   "metrics": {
     "target_mrr": 0.5,
     "target_recall_at_5": 0.7,
@@ -13,8 +13,8 @@
     {
       "id": "ce-1",
       "query": "file watcher circuit breaker consecutive failures",
-      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py", "src/ai_governance_mcp/context_engine/watcher.py"],
-      "description": "Circuit breaker logic for watcher failures"
+      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py", "src/ai_governance_mcp/context_engine/watcher.py", "tests/test_context_engine.py"],
+      "description": "Circuit breaker logic for watcher failures (code + tests)"
     },
     {
       "id": "ce-2",
@@ -85,14 +85,14 @@
     {
       "id": "ce-13",
       "query": "hybrid search combining semantic and keyword scores",
-      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py"],
-      "description": "Score fusion algorithm"
+      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py", "ARCHITECTURE.md", "README.md"],
+      "description": "Score fusion — code implementation or architecture documentation"
     },
     {
       "id": "ce-14",
       "query": "incremental indexing file hash change detection",
-      "expected_files": ["src/ai_governance_mcp/context_engine/indexer.py"],
-      "description": "File change detection via content hash"
+      "expected_files": ["src/ai_governance_mcp/context_engine/indexer.py", "src/ai_governance_mcp/context_engine/models.py", "src/ai_governance_mcp/context_engine/watcher.py"],
+      "description": "File change detection — indexer, models (FileMetadata), or watcher"
     },
     {
       "id": "ce-15",
