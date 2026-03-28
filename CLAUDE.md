@@ -26,3 +26,7 @@ code-reviewer, test-generator, security-auditor, documentation-writer, orchestra
 Edit `documents/agents/` (canonical source) first, then copy to `.claude/agents/`. CI verifies byte-match.
 
 - `.claude/agents/` — Local agent installations (synced from `documents/agents/`)
+
+## Plan Mode
+
+For architecture decisions, use the plan template at `.claude/plan-template.md`. The template structure puts contrarian review, research verification, and simpler-alternatives evaluation BEFORE the recommended approach — making verification part of the generation flow, not an afterthought. (Per Systemic Thinking + autoregressive forward-continuation bias research.)
