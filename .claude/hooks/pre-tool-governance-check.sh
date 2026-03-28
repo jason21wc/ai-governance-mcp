@@ -87,7 +87,7 @@ fi
 # Scan transcript using shared scanner with recency window
 GOV_TOOL="${GOVERNANCE_TOOL_NAME:-mcp__ai-governance__evaluate_governance}"
 CE_TOOL="${CE_TOOL_NAME:-mcp__context-engine__query_project}"
-RECENCY_WINDOW="${GOVERNANCE_RECENCY_WINDOW:-200}"
+RECENCY_WINDOW="${GOVERNANCE_RECENCY_WINDOW:-500}"
 
 debug "Scanning transcript for $GOV_TOOL and $CE_TOOL (window=$RECENCY_WINDOW)"
 

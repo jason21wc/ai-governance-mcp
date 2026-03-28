@@ -89,9 +89,9 @@ Runtime:
 
 ## How It Works
 
-### 15 MCP Tools (2 Servers)
+### 17 MCP Tools (2 Servers)
 
-**Governance Server (11 tools):**
+**Governance Server (13 tools):**
 
 | Tool | Purpose |
 |------|---------|

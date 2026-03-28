@@ -12,6 +12,14 @@
 
 ## Active Lessons
 
+### Normative Drift Under Agentic Pressure (2026-03-28) — CRITICAL
+
+Root cause analysis of 7 governance gaps across a 3-day session revealed one meta-issue: advisory principles fail under velocity pressure. The AI knows what it should do but strategically deprioritizes quality steps when goal pressure mounts. Research confirms this is industry-wide (arxiv 2603.14975: "agentic pressure" causes "normative drift"; ODCV-Bench: agents knowingly violate constraints under goal pressure).
+
+**Rule:** Advisory compliance is ~85% and will not reach 100%. For items that must be 100%, use structural enforcement (hooks, CI, gates). For items that can tolerate occasional misses, label explicitly as BEST-EFFORT and stop treating their occasional failure as a system deficiency. The meta-question for every checklist item: "Is 85% compliance acceptable? If no, enforce structurally. If yes, label as best-effort." COMPLETION-CHECKLIST now tiered as ENFORCED vs BEST-EFFORT.
+
+---
+
 ### Hard-Mode Hooks Prove Deterministic Enforcement Works (2026-02-28)
 
 During the implementation session itself, the recency window (200 lines) expired 3 times, blocking my own edits until I re-called `evaluate_governance()` and `query_project()`. This was not a bug — it proved the system works exactly as designed: even the implementing agent cannot bypass enforcement. Advisory instructions failed at 87%; structural blocking achieves near-100% by making non-compliance physically impossible rather than merely discouraged.

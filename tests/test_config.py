@@ -457,3 +457,46 @@ class TestDomainConsistency:
             "File path mismatches between _default_domains() and domains.json:\n  "
             + "\n  ".join(mismatches)
         )
+
+
+class TestReadmePropagation:
+    """CI assertion: README metrics must match actual state.
+
+    Prevents the recurring "README stale" propagation gap. Promoted from
+    BEST-EFFORT to ENFORCED per root cause analysis: advisory propagation
+    checks failed in 4 consecutive sessions.
+    """
+
+    @pytest.mark.asyncio
+    async def test_readme_governance_tool_count(self):
+        """README governance tool count must match list_tools()."""
+        import re
+
+        from ai_governance_mcp.server import list_tools
+
+        tools = await list_tools()
+        actual_gov_count = len(tools)
+
+        readme_path = Path(__file__).parent.parent / "README.md"
+        if not readme_path.exists():
+            pytest.skip("README.md not found")
+
+        readme = readme_path.read_text()
+        # Match "Governance Server (N tools)" pattern
+        match = re.search(r"Governance Server\s*\((\d+)\s*tools?\)", readme)
+        if not match:
+            # Fallback: match "N MCP Tools" and subtract CE tools (4)
+            total_match = re.search(r"(\d+)\s+MCP\s+Tools", readme)
+            assert total_match, "README must contain tool count"
+            readme_total = int(total_match.group(1))
+            CE_TOOL_COUNT = (
+                4  # query_project, index_project, project_status, list_projects
+            )
+            readme_gov_count = readme_total - CE_TOOL_COUNT
+        else:
+            readme_gov_count = int(match.group(1))
+
+        assert readme_gov_count == actual_gov_count, (
+            f"README governance tool count ({readme_gov_count}) doesn't match "
+            f"list_tools() ({actual_gov_count}). Update README."
+        )

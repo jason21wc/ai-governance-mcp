@@ -2,35 +2,62 @@
 
 Per §5.1.6, run this project's completion sequence after changes. Say "run the completion sequence" to trigger.
 
+> **Enforcement Tiers:** Items marked ENFORCED are backed by hooks, CI, or structural gates —
+> non-compliance is physically blocked. Items marked BEST-EFFORT are advisory with ~85% expected
+> compliance. Occasional misses on best-effort items are acceptable; misses on enforced items
+> indicate a system failure. Per LEARNING-LOG: "advisory fails at 87%; structural blocking
+> achieves near-100%." (See: normative drift under agentic pressure, arxiv 2603.14975)
+
 ## Code changes
 
-1. `pytest tests/ -v` — full test suite
-2. **Subagent review** — required for risky changes (enforced by pre-push quality gate hook):
+### ENFORCED (structurally blocked if skipped)
+
+1. **Tests run before push** — pre-push quality gate hook blocks `git push` if `pytest` not found in session transcript
+2. **Subagent review for risky changes** — pre-push quality gate hook blocks push if core code changed without code-reviewer or security-auditor invocation:
    - New MCP tool or handler → code-reviewer + security-auditor
    - Changes to server.py, extractor.py, retrieval.py, config.py → code-reviewer
    - New file-handling code path → security-auditor
    - Content expansion (new principles/methods) → coherence-auditor + validator
    - Changes >5 files → code-reviewer
    - See §5.1.7 for full trigger table
-3. **New code path check** (if adding code that reads files, parses external data, or handles user-controlled input):
-   - [ ] Is the new code path included in `validate_content_security()` scan? (extractor.py)
-   - [ ] Does it validate/sanitize file paths? (symlink protection, path traversal, size limits)
-   - [ ] Does it use safe parsing? (`yaml.safe_load()`, not `yaml.load()`; `json.loads()`, not `eval()`)
-   - [ ] Does it have dedicated tests? (NOT just passing through existing tests)
-   - [ ] If it returns content to AI clients, is the content scanned for prompt injection?
-4. Update SESSION-STATE.md (version, counts, summary)
-5. Commit and push
-6. Verify CI green (`gh run watch`)
-7. Docker check: if `src/`, `pyproject.toml`, or `Dockerfile` changed since last image build → rebuild and push
+3. **Governance evaluation before file modifications** — PreToolUse governance hook blocks Bash|Edit|Write until `evaluate_governance()` called
+4. **Context Engine query before code changes** — PreToolUse governance hook blocks until `query_project()` called
+5. **CI passes** — GitHub branch protection (when configured)
+6. **README tool count matches actual** — `TestReadmePropagation` CI assertion
+
+### BEST-EFFORT (advisory, ~85% compliance expected)
+
+7. Tests written WITH implementation, not after (§5.2.2 — TDD recommended)
+8. SESSION-STATE updated progressively during session, not just at end (§7.1)
+9. Benchmark baseline captured before index/retrieval changes
+10. **New code path security check** (if adding code that reads files, parses external data, or handles user-controlled input):
+    - [ ] Is the new code path included in `validate_content_security()` scan? (extractor.py)
+    - [ ] Does it validate/sanitize file paths? (symlink protection, path traversal, size limits)
+    - [ ] Does it use safe parsing? (`yaml.safe_load()`, not `yaml.load()`; `json.loads()`, not `eval()`)
+    - [ ] Does it have dedicated tests? (NOT just passing through existing tests)
+    - [ ] If it returns content to AI clients, is the content scanned for prompt injection?
+11. README/SPEC/ARCH propagation for domain counts, file trees, version references
+12. Docker rebuild if `src/`, `pyproject.toml`, or `Dockerfile` changed
+
+### ALWAYS (regardless of enforcement tier)
+
+13. Update SESSION-STATE.md (version, counts, summary) — at minimum at session end
+14. Commit and push
+15. Verify CI green (`gh run watch`)
 
 ## Content changes (governance documents)
 
+### ENFORCED
+
 1. `python -m ai_governance_mcp.extractor` — rebuild index
 2. `pytest tests/ -v` — full test suite
+
+### BEST-EFFORT
+
 3. Spot-check: `query_governance("new content topic")` → verify it surfaces
-4. Reference doc staleness check: if project has reference docs (DATA-REFERENCE, PRODUCT-CONTEXT, etc.), verify `Last Verified` dates are current per §14.2
-5. Update SESSION-STATE.md (version, counts, summary)
-6. README check: if principle/method counts or domains changed → update README domain table
+4. Reference doc staleness check per §14.2
+5. README check: if principle/method counts or domains changed → update README domain table
+6. Update SESSION-STATE.md
 7. Commit and push
 8. Verify CI green
 9. Docker check: if content significantly changed or code also changed → rebuild and push
