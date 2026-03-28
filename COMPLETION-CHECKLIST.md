@@ -129,20 +129,14 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 
 ## Plan-mode architecture decisions
 
-> **Per Systemic Thinking (Constitution):** Before committing to an approach,
-> distinguish trigger from root cause. Don't build algorithmic complexity to
-> fix a measurement error, or add infrastructure for a problem that doesn't
-> exist in practice.
+> **Schema enforcement via template:** Advisory checklists are skipped ~15% of the time due to
+> autoregressive forward-continuation bias (LEARNING-LOG 2026-03-28). The plan template addresses
+> this structurally: required sections before the recommended approach make verification part of
+> the generation flow rather than an optional interruption.
 
-### BEST-EFFORT (advisory, ~85% — cannot be structurally enforced, plan mode is internal to conversation)
+For architecture decisions, use the plan template at **`.claude/plan-template.md`**. The template puts contrarian review, research verification, and simpler-alternatives evaluation BEFORE the recommended approach — making them part of the forward generation path, not afterthoughts.
 
-**Before ExitPlanMode for architecture decisions:**
-1. **Contrarian review:** Run contrarian-reviewer on the proposed approach before requesting approval. Challenge: "If we started fresh today, would we choose this?"
-2. **Research if novel:** If the plan introduces a new algorithm, model, or architectural pattern — do online research on current best practices before committing.
-3. **Verify assumptions:** If the plan depends on a library API, model capability, or performance characteristic — verify it exists and works before building on it.
-4. **Simpler alternatives:** Have you tried the simplest fix first? Weight tuning before algorithm replacement, normalization before fusion changes, benchmark correction before retrieval overhaul.
-
-**Note:** These steps were identified when CE Phase 4 planning skipped contrarian review and research, leading to a plan that would have built RRF + cross-encoder reranking to fix what turned out to be a benchmark specification error. The human-in-the-loop catching this IS the compensating control for the ~15% advisory miss rate.
+**Origin:** CE Phase 4 planning skipped contrarian review and research, leading to a plan that would have built RRF + cross-encoder reranking to fix a benchmark specification error. The contrarian then caught the original fix (rewriting 9 advisory sections) as itself being the Shifting the Burden pattern — better advisory language when the fix should be structural.
 
 ## Propagation awareness
 

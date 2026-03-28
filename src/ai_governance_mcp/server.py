@@ -558,11 +558,13 @@ Call `evaluate_governance(planned_action="your task")` before any action UNLESS 
 
 When in doubt, evaluate.
 
-**Act on assessment:**
+**Act on assessment (this is a routing decision, not a checkbox):**
 - PROCEED: Continue with the task
 - PROCEED_WITH_MODIFICATIONS: Apply required changes, then continue
 - ESCALATE: STOP. Inform user. Wait for explicit approval.
 - **S-Series = Absolute Veto**: If S-Series triggers, you MUST escalate regardless of other factors
+
+The assessment output determines your next action — it is not an acknowledgment before doing what you planned anyway.
 
 ### Required Actions
 1. **Evaluate before acting** — `evaluate_governance(planned_action="...")` for any action not on the skip list

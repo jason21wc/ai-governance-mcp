@@ -542,7 +542,7 @@ Constitutional amendment: added Systemic Thinking meta-principle to C-Series (47
 
 Added to COMPLETION-CHECKLIST: 4-item BEST-EFFORT checklist for plan-mode architecture decisions (contrarian review, research if novel, verify assumptions, simpler alternatives first). Includes the CE Phase 4 concrete failure case as the documented justification.
 
-#### 24. Verification-as-Workflow Reframing (Priority: HIGH)
+#### 24. Verification-as-Workflow Reframing — COMPLETE (2026-03-28)
 
 **Problem:** Research (Agent Drift arxiv 2601.04170, LLMs Get Lost arxiv 2505.06120, QualityFlow arxiv 2501.17167) confirms that advisory verification steps are structurally low-probability generations for autoregressive models. The framework currently treats reviews, contrarian checks, and research as "also do this" steps bolted onto the workflow. They should be reframed as the workflow itself — verification determines what happens next (control flow), not just whether output is good (checkpoint).
 
