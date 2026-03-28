@@ -504,13 +504,21 @@ Constitutional amendment: added Systemic Thinking meta-principle to C-Series (47
 
 **Implementation requirements:** `.rampart/policy.yaml` config file, documentation in methods. No code changes.
 
-#### 20. Principle Authoring Checklist Enforcement (Priority: LOW)
+#### 20. GitHub Actions Pin Currency Process (Priority: LOW)
 
-**Problem:** The meta-dogfood review of Backlog #18 found that "adding a principle" is a parameter-level fix unless accompanied by structural enforcement of the authoring process itself. Without a check that new principles go through Systemic Thinking analysis, the scatter pattern will recur.
+**Problem:** Session review found the Node.js 20→24 migration (Backlog #17) fixed 19 stale pins but created no process to prevent recurrence. Per Systemic Thinking: treated the symptom (stale pins) without addressing the structural cause (no automated currency mechanism).
 
-**What exists:** COMPLETION-CHECKLIST now has a "Principle changes" section with a 10-item authoring checklist (root cause analysis, existing coverage check, concrete failure case, level check, consolidation check, contrarian review, coherence audit, federal preemption cleanup, version propagation, index rebuild).
+**Options:**
+1. **Dependabot for Actions** — automated PRs when action versions update. GitHub-native, zero maintenance.
+2. **Quarterly manual audit** — human-triggered review of all SHA pins against latest releases. Simple but relies on memory.
 
-**What's missing:** The checklist is BEST-EFFORT (advisory). For structural enforcement, it would need a CI test or hook that verifies new principles were added through the checklist process. This is low priority because principle additions are rare (this was the first in months).
+**Trigger:** Next time an action EOL warning appears in CI logs.
+
+**Implementation requirements:** If Dependabot: enable in repo settings + `.github/dependabot.yml`. If manual: add to a quarterly review calendar.
+
+#### 21. Principle Authoring Checklist Enforcement (Priority: LOW)
+
+**Problem:** The meta-dogfood review of Backlog #18 found that "adding a principle" is a parameter-level fix unless accompanied by structural enforcement of the authoring process. The COMPLETION-CHECKLIST now has a 10-item principle-authoring checklist but it's BEST-EFFORT.
 
 **Trigger:** If principles start being added without the checklist process, convert to ENFORCED.
 
