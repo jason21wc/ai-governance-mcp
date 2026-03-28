@@ -420,7 +420,7 @@ Close and reopen Windsurf for the MCP server to load.
 
 Ask Cascade: *"Query governance for handling incomplete specifications"*
 
-You should see the 11 governance tools available (query_governance, evaluate_governance, etc.)
+You should see the 13 governance tools available (query_governance, evaluate_governance, etc.)
 
 > **Note:** Windsurf has a 100 tool limit across all MCPs. The governance server provides 11 tools.
 

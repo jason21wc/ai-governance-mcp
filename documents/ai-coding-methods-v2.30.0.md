@@ -6744,7 +6744,7 @@ Also read AGENTS.md for project context.
 
 ## Governance — ENFORCED BY HOOK
 [Hook enforcement details if applicable]
-- Framework: AI Coding Methods v2.29.0
+- Framework: AI Coding Methods v2.30.0
 - Mode: [Expedited/Standard/Enhanced]
 
 ## Debugging
@@ -7775,7 +7775,7 @@ CREATE POLICY "Users insert own documents" ON documents
 # Project: [Name]
 
 **Description:** [1-2 sentences]
-**Framework:** AI Coding Methods v2.29.0
+**Framework:** AI Coding Methods v2.30.0
 **Mode:** [Expedited/Standard/Enhanced]
 
 ## Memory Files
@@ -8162,7 +8162,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 ## Document Governance
 
-**Authority:** This document implements ai-coding-domain-principles.md (v2.3.5). Methods cannot contradict principles.
+**Authority:** This document implements ai-coding-domain-principles.md (v2.3.6). Methods cannot contradict principles.
 
 **Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.
 

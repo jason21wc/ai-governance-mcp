@@ -37,6 +37,7 @@ This framework uses a **US Legal System Analogy** to define hierarchy, stability
 - **Storytelling:** Creative writing and narrative development (character, world-building, voice, continuity)
 - **Multimodal RAG:** Retrieval and inline presentation of images with text responses
 - **UI/UX:** Interactive software interface design and development (visual hierarchy, accessibility, design systems, interaction patterns, platform conventions)
+- **Knowledge Management & People Development:** Organizational knowledge capture, abstraction, transfer, and people development (detailed KBs, extractions, training, procedures, competency tracking)
 
 **How Levels Derive from Each Other:**
 1. **S-Series (Bill of Rights):** Absolute constraints that CANNOT be overridden. Example: "Non-maleficence" — no domain rule can authorize harmful actions.

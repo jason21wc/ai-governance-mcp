@@ -8,7 +8,7 @@
 > For decisions/rationale → PROJECT-MEMORY.md
 > Avoid volatile metrics here (test counts, coverage %, dependency versions) — use canonical sources (`pytest`, `pytest --cov`, `pyproject.toml`).
 
-**Phase:** COMPLETE — 15 tools across 2 MCP servers
+**Phase:** COMPLETE — 17 tools across 2 MCP servers
 
 ---
 
@@ -199,7 +199,7 @@ AI CLIENT (Claude Code, Cursor, Gemini CLI, etc.)
 | **2: Hooks** | PreToolUse transcript scanning (.claude/hooks/) | Blocks Bash/Edit/Write without governance | Claude Code only (~100%) |
 | **3: Proxy** | stdio JSON-RPC interceptor (enforcement.py) | Blocks governance server action tools without governance | All clients (~100%) |
 
-**What Layer 3 does:** Any AI client (Cursor, Gemini CLI, etc.) connecting to the governance server through the proxy must call `evaluate_governance()` before using action tools (`scaffold_project`, `capture_reference`, `install_agent`, `uninstall_agent`). This works regardless of which AI model or IDE is used.
+**What Layer 3 does:** Any AI client (Cursor, Gemini CLI, etc.) connecting to the governance server through the proxy must call `evaluate_governance()` before using action tools (`scaffold_project`, `capture_reference`, `install_agent`, `uninstall_agent`, `log_feedback`, `log_governance_reasoning`). This works regardless of which AI model or IDE is used.
 
 **What Layer 3 does NOT do (Phase 2):** The proxy only wraps the governance MCP server. Tool calls to other MCP servers (GitHub, filesystem, etc.) are separate stdio connections that the proxy does not see. Cross-MCP enforcement — ensuring governance is called before using any MCP server's tools — requires either wrapping each server with the proxy, or a client-side solution like Rampart. See Backlog #1B Phase 2.
 
@@ -274,7 +274,7 @@ AI CLIENT (Claude Code, Cursor, Gemini CLI, etc.)
 | Category | Files | Purpose |
 |----------|-------|---------|
 | **Unit** | test_models, test_config, test_validator | Isolated component validation |
-| **Server** | test_server, test_server_integration | All 11 MCP tools, dispatcher routing |
+| **Server** | test_server, test_server_integration | All 13 MCP tools, dispatcher routing |
 | **Extractor** | test_extractor, test_extractor_integration | Parsing, embeddings, index build |
 | **Retrieval** | test_retrieval, test_retrieval_integration | Hybrid search, reranking, pipeline |
 | **Quality** | test_retrieval_quality | MRR/Recall benchmarks |

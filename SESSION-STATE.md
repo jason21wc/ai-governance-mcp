@@ -21,13 +21,13 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v2.6.0** (Constitution), **v3.14.0** (meta-methods), **v2.29.0** (ai-coding methods), **v2.3.5** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.15.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v2.7.0** (Constitution), **v3.14.1** (meta-methods), **v2.30.0** (ai-coding methods), **v2.3.6** (ai-coding principles), **v2.3.1** (multi-agent principles), **v2.15.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **163 principles + 621 methods + 4 references** (788 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
+| Index | **164 principles + 632 methods + 4 references** (800 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
@@ -522,7 +522,23 @@ Constitutional amendment: added Systemic Thinking meta-principle to C-Series (47
 
 **Implementation requirements:** If Dependabot: enable in repo settings + `.github/dependabot.yml`. If manual: add to a quarterly review calendar.
 
-#### 21. Principle Authoring Checklist Enforcement (Priority: LOW)
+#### 21. Principle Consolidation Pass (Priority: MEDIUM)
+
+**Problem:** Systemic Thinking review found the constitution has 47 principles — "small set of high-leverage meta-principles" vs reality. Some may be domain methods elevated to constitutional status. Framework grows by accretion with no retirement mechanism. 164 principles + 632 methods = 800 indexed items.
+
+**Scope:** Audit which constitutional principles have never been cited in a governance evaluation. Consider demoting, consolidating, or retiring principles that are redundant or domain-specific. Establish a retirement process for ineffective methods.
+
+**Trigger:** Next major session focused on framework quality.
+
+#### 22. Outcome Measurement Framework (Priority: MEDIUM)
+
+**Problem:** The framework claims to prevent governance drift but cannot demonstrate this. Compliance analytics measure call PRESENCE (was evaluate_governance called?) but not call QUALITY (did the cited principles actually influence the decision?). The claim is unfalsifiable without outcome measurement.
+
+**Scope:** Define 5-10 measurable AI behavior outcomes the framework should produce. Instrument them. Report periodically. Add/remove framework content based on what moves the metrics.
+
+**Trigger:** When the framework is used across multiple projects and the value proposition needs evidence.
+
+#### 23. Principle Authoring Checklist Enforcement (Priority: LOW)
 
 **Problem:** The meta-dogfood review of Backlog #18 found that "adding a principle" is a parameter-level fix unless accompanied by structural enforcement of the authoring process. The COMPLETION-CHECKLIST now has a 10-item principle-authoring checklist but it's BEST-EFFORT.
 
