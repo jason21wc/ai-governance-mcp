@@ -12,11 +12,13 @@
 
 ## Active Lessons
 
-### Normative Drift Under Agentic Pressure (2026-03-28) — CRITICAL
+### Autoregressive Forward-Continuation Bias (2026-03-28) — CRITICAL
 
-Root cause analysis of 7 governance gaps across a 3-day session revealed one meta-issue: advisory principles fail under velocity pressure. The AI knows what it should do but strategically deprioritizes quality steps when goal pressure mounts. Research confirms this is industry-wide (arxiv 2603.14975: "agentic pressure" causes "normative drift"; ODCV-Bench: agents knowingly violate constraints under goal pressure).
+**Corrected root cause (supersedes "velocity pressure" framing):** When LLMs skip advisory verification steps, it is NOT because of "velocity pressure" or "being rushed." LLMs don't experience pressure. The actual mechanism is **autoregressive forward-continuation bias**: each completed step raises the probability that the next token continues toward task completion rather than pausing to verify. Verification steps are lower-probability generations that break the forward trajectory. This is structural to how LLMs generate tokens, not a motivational failure. Citing "velocity pressure" is the AI rationalizing a generation pattern as an emotional state. (Research: Agent Drift arxiv 2601.04170; LLMs Get Lost arxiv 2505.06120 — 39% multi-turn performance drop, premature solution generation.)
 
-**Rule:** Advisory compliance is ~85% and will not reach 100%. For items that must be 100%, use structural enforcement (hooks, CI, gates). For items that can tolerate occasional misses, label explicitly as BEST-EFFORT and stop treating their occasional failure as a system deficiency. The meta-question for every checklist item: "Is 85% compliance acceptable? If no, enforce structurally. If yes, label as best-effort." COMPLETION-CHECKLIST now tiered as ENFORCED vs BEST-EFFORT.
+**Rule:** Stop treating verification/review steps as advisory interruptions. Make them part of the expected generation flow — the path of least resistance should run THROUGH verification, not around it. Three structural techniques: (1) Gate-token transitions — require specific output before phase transition; (2) Verification as control flow — the review determines what happens next; (3) Schema enforcement — required fields before result field. Advisory prompting ("please verify") has the lowest reliability of any technique.
+
+**Rule (retained):** Advisory compliance is ~85%. For items that must be 100%, enforce structurally. COMPLETION-CHECKLIST tiered as ENFORCED vs BEST-EFFORT.
 
 ---
 

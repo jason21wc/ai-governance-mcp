@@ -542,7 +542,23 @@ Constitutional amendment: added Systemic Thinking meta-principle to C-Series (47
 
 Added to COMPLETION-CHECKLIST: 4-item BEST-EFFORT checklist for plan-mode architecture decisions (contrarian review, research if novel, verify assumptions, simpler alternatives first). Includes the CE Phase 4 concrete failure case as the documented justification.
 
-#### 24. Principle Authoring Checklist Enforcement (Priority: LOW)
+#### 24. Verification-as-Workflow Reframing (Priority: HIGH)
+
+**Problem:** Research (Agent Drift arxiv 2601.04170, LLMs Get Lost arxiv 2505.06120, QualityFlow arxiv 2501.17167) confirms that advisory verification steps are structurally low-probability generations for autoregressive models. The framework currently treats reviews, contrarian checks, and research as "also do this" steps bolted onto the workflow. They should be reframed as the workflow itself — verification determines what happens next (control flow), not just whether output is good (checkpoint).
+
+**Root cause:** "Velocity pressure" was a rationalization. The actual mechanism is forward-continuation bias: each completed token raises the probability of the next token continuing forward. Verification breaks this trajectory and is thus naturally deprioritized. This is structural, not motivational.
+
+**Scope:** Reframe advisory steps across the framework from "interruptions" to "phase transitions":
+- COMPLETION-CHECKLIST: advisory items reframed as routing decisions ("contrarian review determines whether to proceed, revise, or escalate" vs "run contrarian review")
+- SERVER_INSTRUCTIONS: governance evaluation framed as the step that unlocks the next phase, not a separate check
+- Subagent reviews framed as control flow (review output determines next action) not checkpoints (review happens, then continue regardless)
+- Research techniques to apply: gate-token transitions, Chain-of-Verification prompting, verification-as-control-flow (QualityFlow pattern)
+
+**Trigger:** Next major framework methods update.
+
+**Implementation requirements:** Methods-level changes to how advisory steps are described. Potentially structural changes to how subagent reviews are integrated (review output as routing decision). LEARNING-LOG entry captures the root cause and research.
+
+#### 25. Principle Authoring Checklist Enforcement (Priority: LOW)
 
 **Problem:** The meta-dogfood review of Backlog #18 found that "adding a principle" is a parameter-level fix unless accompanied by structural enforcement of the authoring process. The COMPLETION-CHECKLIST now has a 10-item principle-authoring checklist but it's BEST-EFFORT.
 
