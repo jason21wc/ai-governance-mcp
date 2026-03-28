@@ -20,7 +20,7 @@
 | Metric | Value |
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
-| Context Engine | **v1.3.0** (read-only mode, watcher daemon, service installer, project_path parameter) |
+| Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
 | Content | **v2.6.0** (Constitution), **v3.14.0** (meta-methods), **v2.29.0** (ai-coding methods), **v2.3.5** (ai-coding principles), **v2.3.0** (multi-agent principles), **v2.15.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
@@ -82,6 +82,17 @@
 12. **Permission Configuration** — comprehensive .claude/settings.local.json allowlist
    - Reviewed by explore + security-auditor subagents for completeness and risk
    - docker push added to allowlist (L1 blast radius, own registry)
+
+13. **Context Engine v2.0** — 3 phases shipped
+   - Phase 1: YAML frontmatter parsing, metadata field on ContentChunk, metadata score boosting
+   - Phase 2: Heading breadcrumb enrichment, chunk overlap (>15 lines), parent heading tracking
+   - Phase 3: Embedding model upgrade BGE-small→nomic-embed-text-v1.5 (768d, 8K context)
+   - metadata_filter parameter added to query_project tool
+   - 18 dedicated Reference Library tests (test_reference_library.py)
+   - Deep research: QAM, Anthropic Contextual Retrieval, Vectara NAACL 2025, markdown-vault-mcp
+   - Contrarian reviewed: accepted benchmark baseline, overlap threshold, deferred char limit
+
+14. **Article evaluations** — OpenBrain (not relevant), RAG chunking (no gaps), Cloudflare Dynamic Workers (no gaps)
 
 ### Previous Session Items (2026-03-26)
 
