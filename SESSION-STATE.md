@@ -522,13 +522,43 @@ Constitutional amendment: added Systemic Thinking meta-principle to C-Series (47
 
 **Implementation requirements:** If Dependabot: enable in repo settings + `.github/dependabot.yml`. If manual: add to a quarterly review calendar.
 
-#### 21. Principle Consolidation Pass (Priority: MEDIUM)
+#### 21. Principle Consolidation Pass (Priority: HIGH — Analysis Complete, Ready to Execute)
 
-**Problem:** Systemic Thinking review found the constitution has 47 principles — "small set of high-leverage meta-principles" vs reality. Some may be domain methods elevated to constitutional status. Framework grows by accretion with no retirement mechanism. 164 principles + 632 methods = 800 indexed items.
+**Problem:** Constitutional test ("does this govern reasoning across ALL domains?") found 20 of 47 principles are questionable. The constitution claims "a small set of high-leverage meta-principles" but has grown by accretion to include domain-specific concepts and methods masquerading as principles.
 
-**Scope:** Audit which constitutional principles have never been cited in a governance evaluation. Consider demoting, consolidating, or retiring principles that are redundant or domain-specific. Establish a retirement process for ineffective methods.
+**Analysis complete (2026-03-28):** 20 principles categorized into 4 action buckets:
 
-**Trigger:** Next major session focused on framework quality.
+**Category 1 — Demote to domain principles (8):**
+- Role Specialization & Topology → multi-agent domain
+- Hybrid Interaction & RACI → multi-agent domain
+- Standardized Collaboration Protocols → multi-agent domain
+- Synchronization & Observability → multi-agent domain
+- Idempotency by Design → ai-coding domain
+- Atomic Task Decomposition → ai-coding domain
+- Goal-First Dependency Mapping → ai-coding domain
+- Structured Output Enforcement → ai-coding domain
+
+**Category 2 — Demote to methods (5):**
+- Progressive Inquiry Protocol → questioning method
+- Constraint-Based Prompting → prompt engineering technique
+- Iterative Planning and Delivery → project management method
+- Rich but Not Verbose Communication → style preference
+- Accessibility and Inclusiveness → operational guidance
+
+**Category 3 — Consolidate overlapping (4):**
+- Verifiable Outputs → merge into Verification Mechanisms Before Action
+- Incremental Validation → merge into Fail-Fast Validation
+- Continuous Learning (O-Series) → merge with Continuous Learning & Adaptation (G-Series)
+- Project Reference Persistence → merge into Single Source of Truth
+
+**Category 4 — Borderline, needs deeper analysis (3):**
+- Separation of Instructions and Data
+- Structured Organization with Clear Boundaries
+- Accessibility and Inclusiveness (also in Category 2 — decide: demote or keep with narrower scope)
+
+**Target:** 47 → ~27 constitutional principles. Apply principle-authoring checklist in reverse (same rigor to remove as to add). Run contrarian review before executing. Version bump to v3.0.0 (MAJOR — removing principles is breaking).
+
+**Implementation:** Dedicated session. Each demotion requires: moving content to the appropriate domain document, updating cross-references, version bumping affected files, index rebuild. Contrarian review on the full set before any changes.
 
 #### 22. Outcome Measurement Framework (Priority: MEDIUM)
 
