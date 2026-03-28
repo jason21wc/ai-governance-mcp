@@ -11,13 +11,13 @@
 
 | Package | Version | License | Purpose |
 |---------|---------|---------|---------|
-| mcp | 1.25.0 | MIT | MCP Python SDK (`mcp.server.Server`) |
+| mcp | 1.26.0 | MIT | MCP Python SDK (`mcp.server.Server`) |
 | pydantic | 2.11.9 | MIT | Data validation and schemas |
 | pydantic-settings | 2.11.0 | MIT | Settings management |
 | sentence-transformers | 5.2.0 | Apache 2.0 | Embedding generation and cross-encoder reranking |
 | rank-bm25 | 0.2.2 | Apache 2.0 | BM25 keyword search |
 | numpy | 1.26.4 | BSD-3-Clause | Vector operations |
-| requests | >=2.28.0 | Apache 2.0 | HTTP client (required by sentence-transformers) |
+| requests | >=2.33.0 | Apache 2.0 | HTTP client (required by sentence-transformers) |
 
 ## Context Engine Dependencies (Optional)
 
@@ -29,7 +29,7 @@
 | pymupdf | >=1.24.0 | AGPL-3.0 | PDF extraction (primary) |
 | pdfplumber | >=0.10.0 | MIT | PDF extraction (fallback) |
 | openpyxl | >=3.1.0 | MIT | Excel file parsing |
-| Pillow | >=10.0.0 | HPND | Image metadata extraction |
+| Pillow | >=12.1.1,<13 | HPND | Image metadata extraction |
 
 ## Dev Dependencies
 

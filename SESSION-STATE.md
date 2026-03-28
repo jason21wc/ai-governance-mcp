@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-03-25
+**Last Updated:** 2026-03-27
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -30,7 +30,7 @@
 | Index | **163 principles + 621 methods + 4 references** (788 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
-| CI | All green (3.10, 3.11, 3.12 + security + lint + content scan) |
+| CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
@@ -93,6 +93,18 @@
    - Contrarian reviewed: accepted benchmark baseline, overlap threshold, deferred char limit
 
 14. **Article evaluations** — OpenBrain (not relevant), RAG chunking (no gaps), Cloudflare Dynamic Workers (no gaps)
+
+15. **Governance Enforcement Improvements** — root cause analysis of compliance gaps
+   - COMPLETION-CHECKLIST: tiered ENFORCED (6) vs BEST-EFFORT (6) items
+   - TestReadmePropagation: CI assertion for README tool count
+   - Governance recency window: 200→500
+   - LEARNING-LOG: normative drift under agentic pressure (arxiv 2603.14975)
+
+16. **Dependency CVE Remediation** — 33→2 unfixable (conda-managed PyJWT, no-fix pygments)
+   - Direct deps: mcp 1.25→1.26, requests >=2.33.0, Pillow >=12.1.1
+   - Transitive: upgraded aiohttp, authlib, cryptography, starlette, python-multipart, filelock, flask, markdown, nbconvert, nltk, pyasn1, pynacl, pyopenssl, tornado, ujson, urllib3, werkzeug, wheel, virtualenv
+   - CI: pip-audit scoped to project deps only (not entire conda env)
+   - 969 tests passing after mcp 1.26 upgrade
 
 ### Previous Session Items (2026-03-26)
 
