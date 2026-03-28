@@ -127,6 +127,23 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 9. **Version propagation:** Bump version, rename file, update domains.json, update config.py, archive old version.
 10. **Index rebuild + spot-check:** `python -m ai_governance_mcp.extractor`, then verify the principle surfaces via `query_governance`.
 
+## Plan-mode architecture decisions
+
+> **Per Systemic Thinking (Constitution):** Before committing to an approach,
+> distinguish trigger from root cause. Don't build algorithmic complexity to
+> fix a measurement error, or add infrastructure for a problem that doesn't
+> exist in practice.
+
+### BEST-EFFORT (advisory, ~85% — cannot be structurally enforced, plan mode is internal to conversation)
+
+**Before ExitPlanMode for architecture decisions:**
+1. **Contrarian review:** Run contrarian-reviewer on the proposed approach before requesting approval. Challenge: "If we started fresh today, would we choose this?"
+2. **Research if novel:** If the plan introduces a new algorithm, model, or architectural pattern — do online research on current best practices before committing.
+3. **Verify assumptions:** If the plan depends on a library API, model capability, or performance characteristic — verify it exists and works before building on it.
+4. **Simpler alternatives:** Have you tried the simplest fix first? Weight tuning before algorithm replacement, normalization before fusion changes, benchmark correction before retrieval overhaul.
+
+**Note:** These steps were identified when CE Phase 4 planning skipped contrarian review and research, leading to a plan that would have built RRF + cross-encoder reranking to fix what turned out to be a benchmark specification error. The human-in-the-loop catching this IS the compensating control for the ~15% advisory miss rate.
+
 ## Propagation awareness
 
 When modifying shared project context, check whether changes need to propagate:

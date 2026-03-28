@@ -538,15 +538,9 @@ Constitutional amendment: added Systemic Thinking meta-principle to C-Series (47
 
 **Trigger:** When the framework is used across multiple projects and the value proposition needs evidence.
 
-#### 23. Plan-Mode Architecture Checklist (Priority: LOW)
+#### 23. Plan-Mode Architecture Checklist — COMPLETE (2026-03-28)
 
-**Problem:** During CE Phase 4 planning, the AI skipped contrarian review, online research, and model compatibility verification before requesting plan approval. These are advisory steps that get dropped under velocity pressure — the same normative drift pattern from the LEARNING-LOG. Claude Code has no "PrePlanApproval" hook event, so structural enforcement isn't possible.
-
-**Scope:** Add a plan-mode checklist to CLAUDE.md or COMPLETION-CHECKLIST for architecture decisions: contrarian review before ExitPlanMode, research if novel algorithm, verify assumptions. BEST-EFFORT (~85% compliance) — the human-in-the-loop catching misses is the compensating control.
-
-**Trigger:** Next time CLAUDE.md is updated for project context changes.
-
-**Implementation requirements:** Advisory note in CLAUDE.md or COMPLETION-CHECKLIST. No code changes. Cannot be structurally enforced — plan mode is internal to the conversation.
+Added to COMPLETION-CHECKLIST: 4-item BEST-EFFORT checklist for plan-mode architecture decisions (contrarian review, research if novel, verify assumptions, simpler alternatives first). Includes the CE Phase 4 concrete failure case as the documented justification.
 
 #### 24. Principle Authoring Checklist Enforcement (Priority: LOW)
 
