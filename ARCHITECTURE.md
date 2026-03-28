@@ -131,6 +131,7 @@ ai-governance-mcp/
 │   ├── test_config_generator.py      # Platform config generation
 │   ├── test_validator.py             # Principle ID validation, fuzzy matching
 │   ├── test_hooks.py                 # Hook enforcement tests
+│   ├── test_enforcement.py          # Layer 3 enforcement proxy tests
 │   ├── test_analyze_compliance.py    # Compliance analysis tests
 │   ├── test_context_engine.py        # Full context engine coverage
 │   ├── test_context_engine_quality.py # CE MRR/Recall benchmarks
@@ -156,6 +157,58 @@ ai-governance-mcp/
 | **Pydantic models** | Validation, IDE support, clean serialization |
 | **Append-only feedback** | Simple, no DB needed, enables future learning |
 | **Dependency pinning** | Core deps exact-pinned for reproducibility; optional deps range-pinned for compatibility (see pyproject.toml) |
+
+---
+
+## Governance Enforcement Architecture
+
+Three-layer enforcement stack ensuring governance compliance:
+
+```
+AI CLIENT (Claude Code, Cursor, Gemini CLI, etc.)
+    │
+    │         ┌─────────────────────────────────────────────────────┐
+    │ Layer 2 │ Claude Code hooks (.claude/hooks/) — Claude only    │
+    │         │ PreToolUse: blocks Bash|Edit|Write without gov call │
+    │         └─────────────────────────────────────────────────────┘
+    │
+    ├── ai-governance-mcp (via proxy) ◄── Layer 3 enforcement HERE
+    │       │
+    │       ▼
+    │   ┌─────────────────────────────────────────────────────────┐
+    │   │ ENFORCEMENT PROXY (enforcement.py)                      │
+    │   │ Intercepts JSON-RPC tools/call at stdio protocol level  │
+    │   │ Blocks action tools without evaluate_governance() call  │
+    │   │ Works with ANY AI client — Cursor, Gemini CLI, etc.     │
+    │   └───────────────┬─────────────────────────────────────────┘
+    │                   ▼
+    │   ┌─────────────────────────────────────────────────────────┐
+    │   │ GOVERNANCE MCP SERVER (server.py) — Layer 1 (advisory)  │
+    │   │ SERVER_INSTRUCTIONS + GOVERNANCE_REMINDER per response   │
+    │   │ evaluate_governance(): principle retrieval + assessment  │
+    │   └─────────────────────────────────────────────────────────┘
+    │
+    ├── github MCP server              ◄── NO enforcement (Phase 2)
+    ├── filesystem MCP server           ◄── NO enforcement (Phase 2)
+    └── other MCP servers               ◄── NO enforcement (Phase 2)
+```
+
+| Layer | Mechanism | What it enforces | Coverage |
+|-------|-----------|-----------------|----------|
+| **1: Advisory** | SERVER_INSTRUCTIONS + GOVERNANCE_REMINDER | Asks AI to call evaluate_governance() | All clients (~13% compliance) |
+| **2: Hooks** | PreToolUse transcript scanning (.claude/hooks/) | Blocks Bash/Edit/Write without governance | Claude Code only (~100%) |
+| **3: Proxy** | stdio JSON-RPC interceptor (enforcement.py) | Blocks governance server action tools without governance | All clients (~100%) |
+
+**What Layer 3 does:** Any AI client (Cursor, Gemini CLI, etc.) connecting to the governance server through the proxy must call `evaluate_governance()` before using action tools (`scaffold_project`, `capture_reference`, `install_agent`, `uninstall_agent`). This works regardless of which AI model or IDE is used.
+
+**What Layer 3 does NOT do (Phase 2):** The proxy only wraps the governance MCP server. Tool calls to other MCP servers (GitHub, filesystem, etc.) are separate stdio connections that the proxy does not see. Cross-MCP enforcement — ensuring governance is called before using any MCP server's tools — requires either wrapping each server with the proxy, or a client-side solution like Rampart. See Backlog #1B Phase 2.
+
+**Entry points:**
+- Direct: `ai-governance-mcp` (server only, Layer 1)
+- Enforced: `ai-governance-proxy` (proxy + server, Layers 1+3)
+- Claude Code: hooks provide Layer 2 regardless of entry point
+
+**Configuration:** `GOVERNANCE_ENFORCEMENT_ENABLED`, `GOVERNANCE_ENFORCEMENT_SOFT_MODE`, `GOVERNANCE_RECENCY_WINDOW` (shared with hooks)
 
 ---
 

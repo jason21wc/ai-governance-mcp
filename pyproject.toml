@@ -56,6 +56,7 @@ dev = [
 
 [project.scripts]
 ai-governance-mcp = "ai_governance_mcp.server:main"
+ai-governance-proxy = "ai_governance_mcp.enforcement:main"
 ai-governance-extract = "ai_governance_mcp.extractor:main"
 ai-context-engine = "ai_governance_mcp.context_engine.server:main"
 context-engine-watcher = "ai_governance_mcp.context_engine.watcher_daemon:main"

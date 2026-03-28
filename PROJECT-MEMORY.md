@@ -386,6 +386,19 @@ Expanded context for the most significant decisions. The condensed tables above 
 
 **Philosophy:** The goal is compliance-by-architecture, not compliance-by-instruction. Advisory instructions serve as the first line but will inevitably degrade in long sessions. Structural enforcement (hooks, proxies) provides a deterministic safety net. The system should work with any frontier model, not just Claude.
 
+### ADR-14: Layer 3 Enforcement — stdio Proxy over FastMCP Migration
+- **Status:** Accepted (2026-03-28)
+- **Context:** Backlog #1B required model-agnostic governance enforcement. Three approaches evaluated: (1) internal `call_tool` checks, (2) FastMCP middleware migration, (3) thin stdio JSON-RPC interceptor proxy.
+- **Contrarian finding (critical):** The original plan proposed internal `call_tool` checks on 4 already-gated tools — a scope reduction that dodged the hard problem. The contrarian-reviewer caught this by applying §7.10: "If you started fresh today, would this be your answer?" The answer was no. This led to plan revision.
+- **FastMCP middleware finding:** FastMCP v3.0 provides `on_call_tool` middleware hooks, but requires migrating from `mcp.server.Server` to FastMCP's own `FastMCP()` server class — a full rewrite of our 3000-line server.py. Not justified for this scope.
+- **Decision:** Thin stdio JSON-RPC interceptor proxy (`enforcement.py`). Zero new dependencies, works with any MCP server over stdio, reusable for Phase 2 cross-MCP enforcement.
+- **Key design choices:**
+  - Recency window counts tool calls (not transcript lines) — transport-agnostic
+  - Env vars mirror hooks for consistent user experience
+  - Unknown tools pass through (extensibility-safe)
+  - Error uses JSON-RPC `isError: true` result format (not JSON-RPC error code) for better AI client handling
+- **Meta-lesson:** Architecture decisions must be reviewed by contrarian-reviewer. Added to §5.1.7 Subagent Review Triggers.
+
 - **Consequences:** (+) Three enforcement vectors (advisory + structural + audit), (+) model-agnostic path via MCP proxy, (+) immediate low-effort option (Claude Code hooks), (-) Claude-specific hooks don't help other models, (-) MCP proxy adds infrastructure complexity.
 - **Sources:** anthropic.com/engineering/advanced-tool-use, arxiv.org/abs/2505.06120, research.trychroma.com/context-rot, arxiv.org/abs/2411.07037 (LIFBench), code.claude.com/docs/en/hooks, github.com/peg/rampart, latchagent.com, github.com/mcptrust/mcptrust
 

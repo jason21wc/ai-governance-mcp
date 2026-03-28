@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-03-27
+**Last Updated:** 2026-03-28
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -34,9 +34,29 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-27)
+## Session Summary (2026-03-28)
 
-### Completed This Session (continued from 2026-03-26)
+### Completed This Session
+
+17. **Dependency CVE Remediation** — 33→2 unfixable vulnerabilities
+   - Direct deps: mcp 1.25→1.26, requests >=2.33.0, Pillow >=12.1.1,<13
+   - 16 transitive deps upgraded, CI pip-audit scoped to project deps
+   - Security-auditor reviewed, 969 tests passing
+
+18. **Backlog Restructure** — 7 completed items collapsed, 4 new items (#14-17) added, all normalized
+
+19. **GitHub Actions Node.js 20→24 Migration** (Backlog #17) — 19 SHA pins updated across 3 workflows
+
+20. **Layer 3 Governance Enforcement** (Backlog #1B Phase 1) — IN PROGRESS
+   - stdio JSON-RPC interceptor proxy (enforcement.py)
+   - GovernanceEnforcer state machine + StdioProxy protocol handler
+   - 27 tests (unit + integration + coverage verification)
+   - ADR-14 in PROJECT-MEMORY.md (contrarian caught scope reduction)
+   - Architecture section in ARCHITECTURE.md
+   - New backlog items: #18 (Systemic Thinking Principle), #19 (Rampart Integration)
+   - Subagent reviews: code-reviewer + security-auditor (in progress)
+
+### Previous Session (2026-03-27)
 
 5. **Autonomous Experimentation Protocol** — multi-agent methods v2.14.0→v2.15.0
    - New §6.5: Autonomous Experimentation Protocol (Karpathy autoresearch pattern)
@@ -251,36 +271,33 @@
 
 ### Open Backlog
 
-#### 1B. MCP Proxy for Model-Agnostic Enforcement (Priority: MEDIUM)
+#### 1B. Model-Agnostic Governance Enforcement (Priority: MEDIUM) — Phase 1 COMPLETE (2026-03-28)
 
-**Problem:** Governance enforcement currently works only in Claude Code via hooks. Other AI clients (Cursor, Gemini CLI, etc.) get no enforcement — governance is advisory-only.
+**Phase 1 (COMPLETE):** stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance preconditions on the governance server's own action tools. Zero new dependencies, works with any MCP client. Entry point: `ai-governance-proxy`. ADR-14 in PROJECT-MEMORY.md.
 
-**Goal:** An MCP proxy that sits between ANY AI client and MCP servers, intercepting tool calls to enforce governance policies regardless of which AI model or IDE is used.
+**Phase 2 (OPEN):** Cross-MCP enforcement — enforcing governance before tool calls to OTHER MCP servers (GitHub, filesystem, etc.), not just the governance server.
 
-**Proxy candidates:**
-- **Latch** (latchagent.com) — open-source, Docker, natural language or rule-based policies
-- **MCPTrust** (github.com/mcptrust/mcptrust) — lockfile enforcement, drift detection, CEL policy
-- **FastMCP Middleware** — native framework middleware for request interception
+**Contrarian finding:** Original plan proposed internal call_tool checks on already-gated tools — caught by contrarian-reviewer as scope reduction that dodged the hard problem. Led to plan revision (ADR-14).
 
-**Target audiences (progressive):**
-1. **Personal** — Governance enforcement across Claude Code, Cursor, Gemini CLI. Proving ground for policy design.
-2. **Teams** — Shared governance policies across team members. Adds: centralized config, onboarding docs, policy-as-code.
-3. **Open-source consumers** — Easy enforcement for anyone using the framework. Adds: distribution, setup guide, sensible defaults.
+#### 1B-P2. Cross-MCP Governance Enforcement (Priority: MEDIUM)
+
+**Problem:** Phase 1 proxy only wraps the governance MCP server. When an AI client also has GitHub MCP, filesystem MCP, or other servers connected, tool calls to those servers bypass enforcement entirely. The AI can call destructive tools on other servers without ever calling `evaluate_governance()`.
+
+**Goal:** Ensure governance is evaluated before tool calls to ANY MCP server, not just the governance server.
+
+**Candidate approaches:**
+1. **Wrap each MCP server** with the same `ai-governance-proxy` — configure each server's client entry to route through the proxy. Requires per-server config changes but uses existing code.
+2. **Aggregator proxy** (MetaMCP, Lasso) — single proxy that routes to all MCP servers, with enforcement at the aggregation layer. One config change instead of per-server.
+3. **Client-side enforcement** (Rampart) — wraps the AI agent's shell/environment, catches everything regardless of which MCP server is called. Complementary to proxy approach.
 
 **Open questions:**
-- Which proxy tool best fits our architecture? (Requires hands-on evaluation)
-- What governance rules get enforced at proxy level vs. advisory level?
-- How does proxy enforcement interact with existing hooks? (Complementary or replacement?)
-- What's the configuration/policy format? (Natural language, CEL, custom DSL?)
+- Does the Phase 1 proxy work correctly when wrapping a non-governance MCP server? (Needs testing — the enforcer tracks `evaluate_governance` calls, but those go to the governance server, not the wrapped server)
+- How does the proxy learn that governance was called on a different server's connection?
+- Is a shared state store needed across proxy instances (one per MCP server)?
 
-**Evaluation criteria:**
-- Works with stdio MCP transport (our primary)
-- Open-source with active maintenance
-- Policy language expressive enough for our skip-list and enforcement rules
-- Minimal latency overhead on tool calls
-- Can be distributed as part of the framework package
+**Trigger:** When Jason actively uses non-Claude AI clients (Cursor, Gemini CLI) with multiple MCP servers in real projects.
 
-**Implementation requirements:** Research phase first — hands-on evaluation of each proxy candidate. Then: configuration, testing, documentation. Code changes likely minimal (proxy is external to MCP server).
+**Implementation requirements:** Research spike on cross-proxy state sharing, evaluate MetaMCP/Lasso aggregator approach, test proxy wrapping non-governance servers. May require architectural changes to how the proxy tracks governance state.
 
 #### 3. Quantized Vector Search (Priority: DEFERRED)
 
@@ -476,6 +493,24 @@
 #### 17. GitHub Actions Node.js 20 → 24 Migration — COMPLETE (2026-03-28)
 
 Updated 19 action SHA pins across 3 workflow files (ci.yml, docker-publish.yml, codeql.yml) to Node.js 24-compatible versions. All actions re-pinned to full commit SHAs per supply chain security practice.
+
+#### 18. Systemic Thinking Principle (Priority: LOW)
+
+**Problem:** No first-class principle for "prefer root causes over symptoms" / "systemic solutions over tactical fixes." The concept exists as scattered anti-patterns (§5.13 debugging table, Sequential Phase Dependencies "don't patch around gaps") but not elevated to a principle with formal derivation, failure modes, and success criteria.
+
+**Origin:** Identified during Backlog #1B planning when the contrarian-reviewer caught a scope reduction that treated symptoms (protecting 4 already-gated tools) instead of the root cause (model-agnostic enforcement gap).
+
+**Implementation requirements:** New principle in constitution or ai-coding domain. Formal derivation from meta-principles, failure modes, success criteria. Index rebuild.
+
+#### 19. Rampart Integration — Client-Side Enforcement (Priority: LOW, Usage-Driven)
+
+**Problem:** Layer 3 (proxy) enforces at the MCP protocol level. Rampart (github.com/peg/rampart) enforces at the shell/client level — complementary coverage. Ships with 40+ rules for credential theft, exfiltration, and destructive commands.
+
+**Scope:** Add `.rampart/policy.yaml` to the project with governance-specific deny rules. Document in ai-coding methods alongside Layer 3.
+
+**Trigger:** When using AI clients in environments where MCP proxy is not configured (e.g., quick one-off sessions, new machine setup).
+
+**Implementation requirements:** `.rampart/policy.yaml` config file, documentation in methods. No code changes.
 
 ## Links
 
