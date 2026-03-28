@@ -103,6 +103,30 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 20. `pytest tests/ -v` — full test suite (includes `TestDomainConsistency`)
 21. Update `SESSION-STATE.md` domain count
 
+## Principle changes (adding/modifying constitutional or domain principles)
+
+> **Per Systemic Thinking (Constitution):** Before adding a new principle, verify the frame.
+> A new principle is justified only when an actual behavioral gap exists that existing principles
+> and methods cannot cover. If the gap is discoverability (how principles relate to each other),
+> the fix is cross-references, not a new principle. If the gap is enforcement (principles exist
+> but aren't applied), the fix is hooks/enforcement, not more principles.
+
+### BEST-EFFORT (advisory)
+
+**Before writing the principle:**
+1. **Root cause analysis:** What failure triggered this? Is the failure caused by a missing principle, or by missing enforcement/integration of existing principles?
+2. **Existing coverage check:** Query `query_governance("the concept")` — does something already cover this? Check constitution, domain principles, AND methods.
+3. **Concrete failure case:** Name one specific past incident where existing principles failed and this new principle would have caught it. If you cannot, the gap may not exist.
+4. **Level check:** Should this be a constitutional meta-principle (all domains), a domain principle (one domain), or a method (procedure implementing existing principles)?
+5. **Consolidation check:** Can this be absorbed into an existing principle (adding a bullet, expanding a section) rather than creating a standalone entry?
+
+**After writing the principle:**
+6. **Contrarian review:** Mandatory for constitutional amendments. Apply the principle to its own creation — does it pass its own tests?
+7. **Coherence audit:** Template compliance, voice consistency, legal analogy fits framework pattern, no contradictions with existing principles.
+8. **Federal preemption cleanup:** If the new principle covers ground already partially stated in domain methods, add references up and trim duplication. Use Context Engine to find all scattered references.
+9. **Version propagation:** Bump version, rename file, update domains.json, update config.py, archive old version.
+10. **Index rebuild + spot-check:** `python -m ai_governance_mcp.extractor`, then verify the principle surfaces via `query_governance`.
+
 ## Propagation awareness
 
 When modifying shared project context, check whether changes need to propagate:

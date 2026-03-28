@@ -295,8 +295,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="constitution",
             display_name="Constitution",
-            principles_file="ai-interaction-principles-v2.6.0.md",
-            methods_file="ai-governance-methods-v3.14.0.md",
+            principles_file="ai-interaction-principles-v2.7.0.md",
+            methods_file="ai-governance-methods-v3.14.1.md",
             description=(
                 "Universal behavioral rules for AI interaction. Safety principles, "
                 "core behavioral guidelines, quality standards, operational rules, "
@@ -307,8 +307,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="ai-coding",
             display_name="AI Coding",
-            principles_file="ai-coding-domain-principles-v2.3.5.md",
-            methods_file="ai-coding-methods-v2.29.0.md",
+            principles_file="ai-coding-domain-principles-v2.3.6.md",
+            methods_file="ai-coding-methods-v2.30.0.md",
             description=(
                 "Software development with AI assistance. Code generation, debugging, "
                 "testing, refactoring, code review, pull requests, git workflows, "
@@ -319,7 +319,7 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="multi-agent",
             display_name="Multi-Agent",
-            principles_file="multi-agent-domain-principles-v2.3.0.md",
+            principles_file="multi-agent-domain-principles-v2.3.1.md",
             methods_file="multi-agent-methods-v2.15.0.md",
             description=(
                 "Multi-agent AI systems and orchestration. Agent coordination, "

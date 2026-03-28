@@ -47,14 +47,20 @@
 
 19. **GitHub Actions Node.js 20→24 Migration** (Backlog #17) — 19 SHA pins updated across 3 workflows
 
-20. **Layer 3 Governance Enforcement** (Backlog #1B Phase 1) — IN PROGRESS
+20. **Layer 3 Governance Enforcement** (Backlog #1B Phase 1)
    - stdio JSON-RPC interceptor proxy (enforcement.py)
    - GovernanceEnforcer state machine + StdioProxy protocol handler
-   - 27 tests (unit + integration + coverage verification)
+   - 29 tests, hardened from code-reviewer + security-auditor (8 fixes)
    - ADR-14 in PROJECT-MEMORY.md (contrarian caught scope reduction)
-   - Architecture section in ARCHITECTURE.md
-   - New backlog items: #18 (Systemic Thinking Principle), #19 (Rampart Integration)
-   - Subagent reviews: code-reviewer + security-auditor (in progress)
+   - Architecture section in ARCHITECTURE.md with 3-layer diagram
+
+21. **Systemic Thinking Constitutional Amendment** (Backlog #18)
+   - New C-Series meta-principle (#47) in constitution v2.7.0
+   - Federal preemption cleanup: 2 HIGH trims + 6 MEDIUM references across 5 documents
+   - 5 documents version-bumped, old versions archived
+   - Principle-authoring checklist added to COMPLETION-CHECKLIST
+   - 6 subagent reviews: 2 contrarian (incl meta-dogfood), 2 coherence, 1 validator
+   - New backlog items: #19 (Rampart), #20 (Authoring Checklist Enforcement), #1B-P2 (Cross-MCP)
 
 ### Previous Session (2026-03-27)
 
@@ -494,13 +500,9 @@
 
 Updated 19 action SHA pins across 3 workflow files (ci.yml, docker-publish.yml, codeql.yml) to Node.js 24-compatible versions. All actions re-pinned to full commit SHAs per supply chain security practice.
 
-#### 18. Systemic Thinking Principle (Priority: LOW)
+#### 18. Systemic Thinking Principle — COMPLETE (2026-03-28)
 
-**Problem:** No first-class principle for "prefer root causes over symptoms" / "systemic solutions over tactical fixes." The concept exists as scattered anti-patterns (§5.13 debugging table, Sequential Phase Dependencies "don't patch around gaps") but not elevated to a principle with formal derivation, failure modes, and success criteria.
-
-**Origin:** Identified during Backlog #1B planning when the contrarian-reviewer caught a scope reduction that treated symptoms (protecting 4 already-gated tools) instead of the root cause (model-agnostic enforcement gap).
-
-**Implementation requirements:** New principle in constitution or ai-coding domain. Formal derivation from meta-principles, failure modes, success criteria. Index rebuild.
+Constitutional amendment: added Systemic Thinking meta-principle to C-Series (47th principle). Federal preemption cleanup across 5 documents (2 HIGH trims, 6 MEDIUM references). Principle-authoring checklist added to COMPLETION-CHECKLIST. 6 subagent reviews (2 contrarian, 2 coherence, 1 validator, 1 meta-dogfood). ADR in Historical Amendments v2.7.0.
 
 #### 19. Rampart Integration — Client-Side Enforcement (Priority: LOW, Usage-Driven)
 
@@ -511,6 +513,16 @@ Updated 19 action SHA pins across 3 workflow files (ci.yml, docker-publish.yml, 
 **Trigger:** When using AI clients in environments where MCP proxy is not configured (e.g., quick one-off sessions, new machine setup).
 
 **Implementation requirements:** `.rampart/policy.yaml` config file, documentation in methods. No code changes.
+
+#### 20. Principle Authoring Checklist Enforcement (Priority: LOW)
+
+**Problem:** The meta-dogfood review of Backlog #18 found that "adding a principle" is a parameter-level fix unless accompanied by structural enforcement of the authoring process itself. Without a check that new principles go through Systemic Thinking analysis, the scatter pattern will recur.
+
+**What exists:** COMPLETION-CHECKLIST now has a "Principle changes" section with a 10-item authoring checklist (root cause analysis, existing coverage check, concrete failure case, level check, consolidation check, contrarian review, coherence audit, federal preemption cleanup, version propagation, index rebuild).
+
+**What's missing:** The checklist is BEST-EFFORT (advisory). For structural enforcement, it would need a CI test or hook that verifies new principles were added through the checklist process. This is low priority because principle additions are rare (this was the first in months).
+
+**Trigger:** If principles start being added without the checklist process, convert to ENFORCED.
 
 ## Links
 
