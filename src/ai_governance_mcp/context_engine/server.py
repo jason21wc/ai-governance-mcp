@@ -406,6 +406,16 @@ def create_server() -> tuple[Server, ProjectManager]:
                                 "Use when CWD is not the project (e.g., in Cowork VM)."
                             ),
                         },
+                        "metadata_filter": {
+                            "type": "string",
+                            "description": (
+                                "Filter results by YAML frontmatter metadata. "
+                                "Format: 'key:value' pairs separated by spaces. "
+                                "Example: 'status:current tags:testing domain:ai-coding'. "
+                                "Only chunks with matching frontmatter are returned."
+                            ),
+                            "maxLength": 200,
+                        },
                     },
                     "required": ["query"],
                 },
@@ -583,17 +593,56 @@ async def _handle_query_project(
     except (TypeError, ValueError):
         max_results = 10
 
+    # Parse metadata filter (e.g., "status:current tags:testing")
+    metadata_filter_str = str(arguments.get("metadata_filter", "") or "").strip()
+    metadata_filters: dict[str, str] = {}
+    if metadata_filter_str:
+        for pair in metadata_filter_str.split():
+            if ":" in pair:
+                key, value = pair.split(":", 1)
+                metadata_filters[key.strip().lower()] = value.strip().lower()
+
     # Resolve project path
     project_path = _resolve_project_path(arguments)
+
+    # Request extra results if filtering (filter reduces count)
+    query_max = max_results * 3 if metadata_filters else max_results
 
     # Run indexing/query in thread pool (CPU-bound)
     loop = asyncio.get_running_loop()
     result = await loop.run_in_executor(
         None,
         lambda: manager.query_project(
-            query=query, project_path=project_path, max_results=max_results
+            query=query, project_path=project_path, max_results=query_max
         ),
     )
+
+    # Apply metadata filter to results
+    if metadata_filters and result.results:
+        filtered = []
+        for qr in result.results:
+            fm = qr.chunk.frontmatter
+            if not fm:
+                continue  # Skip chunks without frontmatter when filter is active
+            match = True
+            for key, value in metadata_filters.items():
+                fm_value = fm.get(key)
+                if fm_value is None:
+                    match = False
+                    break
+                # Handle list values (tags)
+                if isinstance(fm_value, list):
+                    if not any(value in str(v).lower() for v in fm_value):
+                        match = False
+                        break
+                else:
+                    if value not in str(fm_value).lower():
+                        match = False
+                        break
+            if match:
+                filtered.append(qr)
+        result.results = filtered[:max_results]
+        result.total_results = len(result.results)
 
     if not result.results:
         # Differentiate: indexed-but-no-match vs truly-not-indexed
