@@ -79,10 +79,10 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 | Meta-Principle | What It Says | What AI Coding Needs |
 |----------------|--------------|----------------------|
 | Context Engineering | "Load necessary information to prevent hallucination" | **Threshold:** What constitutes "complete enough" for code generation? |
-| Documentation | "Capture decisions for future reference" | **Mechanism:** HOW to persist context across stateless sessions? |
-| Context Optimization | "Minimize context consumption" | **Constraint:** What to do when context OVERFLOWS despite optimization? |
+| Visible Reasoning & Traceability | "Capture decisions for future reference" | **Mechanism:** HOW to persist context across stateless sessions? |
+| Context Engineering | "Minimize context consumption" | **Constraint:** What to do when context OVERFLOWS despite optimization? |
 | Verification & Validation | "Validate outputs against requirements" | **Gate:** WHEN must validation occur, and what happens on failure? |
-| Security | "Comprehensive security testing" | **Standard:** What specific threshold for AI-generated code (40-45% baseline vulnerability rate)? |
+| Non-Maleficence, Privacy & Security | "Comprehensive security testing" | **Standard:** What specific threshold for AI-generated code (40-45% baseline vulnerability rate)? |
 
 These domain principles provide the **thresholds, mechanisms, constraints, gates, and standards** that make meta-principles actionable for AI coding specifically.
 
@@ -1640,7 +1640,7 @@ This framework derives from analysis of 80+ research sources (2025):
    - Does it govern HOW work flows or WHO decides? → **P-Series**
    - Does it define what OUTPUTS must achieve? → **Q-Series**
    - If it spans multiple concerns, place in the series of PRIMARY effect
-6. **Template Completion:** Write all 9 fields of the principle template
+6. **Template Completion:** Write all 10 fields of the principle template
 7. **Crosswalk Update:** Add entry to Meta ↔ Domain Crosswalk table
 8. **Validation:** Ensure no overlap with existing principles; if overlap exists, consider expanding existing principle instead
 
