@@ -56,7 +56,7 @@ The following are NOT governed by this document:
 
 ### Future Considerations
 
-- **Internationalization/localization (i18n/l10n)** — RTL layout, text expansion, string externalization, locale-aware formatting — flagged for v1.1.0. AI-generated UIs rarely account for text expansion (German text is ~30% longer than English), RTL layout requirements, or locale-specific date/number formats.
+- **Internationalization/localization (i18n/l10n)** — RTL layout, text expansion, string externalization, locale-aware formatting — flagged for future version. AI-generated UIs rarely account for text expansion (German text is ~30% longer than English), RTL layout requirements, or locale-specific date/number formats.
 
 ### Scope Boundary: UI/UX vs ai-coding §2.4/§2.5
 
@@ -103,8 +103,8 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 |-------------------|------------------------------|--------------------------------------------------|
 | "Bias Awareness & Fairness" (general) | WCAG 2.2 Level AA compliance, ARIA authoring patterns, focus management, touch target minimums, color contrast ratios | AI generates `<div role="button">` without `tabindex="0"` or keyboard handler. Constitution says "be accessible" but doesn't specify ARIA contract requirements. WebAIM data: pages with ARIA present average 41% more detected errors than those without. |
 | "Resource Efficiency & Waste Reduction" (general) | Platform-specific conventions (HIG vs Material vs Web), knowing WHEN to deviate | AI applies Material Design bottom navigation to an iPad app. Constitution says "use established solutions" but doesn't distinguish which platform's solutions apply. Apple HIG and Material Design give contradictory guidance for the same interaction pattern. |
-| "Structured Organization" (general) | Design token architecture, atomic design hierarchy, component naming conventions | AI generates `color: #3b82f6` in 5 different components instead of `var(--color-primary)`. Constitution says "organize clearly" but doesn't address design token indirection or cross-file visual consistency. GitClear 2025: 4x code clone growth with AI. |
-| "Verification Before Action" (general) | Accessibility auditing procedures, responsive breakpoint testing, cross-platform validation | AI generates a form that passes all code tests but has 3:1 contrast ratio (fails WCAG AA 4.5:1 minimum). Constitution says "verify" but doesn't specify visual/perceptual verification criteria. |
+| "Structural Foundations" (general) | Design token architecture, atomic design hierarchy, component naming conventions | AI generates `color: #3b82f6` in 5 different components instead of `var(--color-primary)`. Constitution says "organize clearly" but doesn't address design token indirection or cross-file visual consistency. GitClear 2025: 4x code clone growth with AI. |
+| "Verification & Validation" (general) | Accessibility auditing procedures, responsive breakpoint testing, cross-platform validation | AI generates a form that passes all code tests but has 3:1 contrast ratio (fails WCAG AA 4.5:1 minimum). Constitution says "verify" but doesn't specify visual/perceptual verification criteria. |
 | "Context Engineering" (general) | Understanding user viewport, device capabilities, platform conventions, existing design system | AI generates a desktop-first layout with 14px touch targets (Apple HIG minimum: 44pt). Constitution says "load context" but doesn't specify what UI context means. |
 | "Structural Foundations" (general) | Design token system before component implementation, spacing scale before layout | AI generates 15 different spacing values across components. Constitution says "build foundations first" but doesn't specify that the spacing scale IS a foundation. |
 
@@ -374,7 +374,7 @@ Interface layouts MUST be driven by content type, user tasks, and application do
 
 ### DS1: Design Token Architecture (The Indirection Statute)
 
-**Constitutional Basis:** Derived from `Structural Foundations` and `Structural Foundations`.
+**Constitutional Basis:** Derived from `Structural Foundations` and `Single Source of Truth`.
 
 **Why This Principle Matters**
 AI generates hard-coded values (`margin: 24px`, `color: #3b82f6`, `font-size: 14px`) instead of referencing design tokens (`var(--spacing-md)`, `var(--color-primary)`, `var(--font-size-sm)`) because each generation is context-independent — the AI doesn't see the project's token system across files. This produces the 4x code clone growth documented by GitClear (2025). Hard-coded values are impossible to maintain at scale: changing a brand color requires finding and updating every instance rather than changing one token.
@@ -713,7 +713,7 @@ All interactive elements on touch devices MUST meet WCAG 2.5.8 Level AA minimum 
 
 ### IX1: Interaction Feedback and State Communication (The Feedback Loop Statute)
 
-**Constitutional Basis:** Derived from `Visible Reasoning` and `Failure Recovery & Resilience`.
+**Constitutional Basis:** Derived from `Visible Reasoning & Traceability` and `Failure Recovery & Resilience`.
 
 **Why This Principle Matters**
 AI focuses on the "happy path" — generating the interface for when everything works correctly — and omits the states users encounter when things are in progress, have failed, or are empty. Real applications spend significant time in transitional states: loading, submitting, processing, failing, recovering. Users interpret silence as broken — if they click a button and nothing visually changes, they click again (and again), potentially triggering duplicate submissions or confusion.
@@ -754,7 +754,7 @@ Every user action that triggers a system response MUST provide immediate visual 
 
 ### IX2: Loading and Perceived Performance (The Progress Communication Statute)
 
-**Constitutional Basis:** Derived from `Visible Reasoning` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Visible Reasoning & Traceability` and `Context Engineering`.
 
 **Why This Principle Matters**
 AI generates complete page renders — the final state of a page with all data loaded — without considering the loading sequence. Real applications need to communicate progress during data fetching: skeleton screens show the page structure before data arrives, progress indicators show deterministic progress, and shimmer effects indicate indeterminate loading. Without these, users see blank pages, layout shifts when content finally loads (poor Cumulative Layout Shift scores), and perceived slowness even when actual load times are fast. Research shows that perceived performance matters more than actual performance — a 2-second load with a skeleton screen feels faster than a 1-second load with a blank flash (Doherty Threshold: systems should respond within 400ms to maintain user flow).
@@ -834,7 +834,7 @@ Every interactive element MUST provide clear visual signals that it is interacti
 
 ### IX4: Error Handling and Recovery (The Graceful Failure Statute)
 
-**Constitutional Basis:** Derived from `Failure Recovery & Resilience` and `Visible Reasoning`.
+**Constitutional Basis:** Derived from `Failure Recovery & Resilience` and `Visible Reasoning & Traceability`.
 
 **Why This Principle Matters**
 AI generates error handling that is either absent (no error states), generic ("Something went wrong"), or inconsistent (different error patterns in different parts of the app). Real applications need error handling that tells users what happened, whether it's their fault or a system issue, and what they can do about it. AI generates the success state and leaves error handling as an afterthought or omits it entirely.
@@ -1194,7 +1194,7 @@ This Domain Principles document establishes WHAT governance applies to UI/UX. Th
 - UX-F21 (Dark Pattern / Deceptive Design): Conversion-optimized deceptive patterns
 - Evidence base expanded: ISO/IEC 40500:2025, DTCG v2025.10, WCAG 2.5.8, MobileSoft 2025, Serezlic & Quijada 2025, FTC dark patterns
 - RD2 validation: WCAG 2.5.8 touch target thresholds added
-- i18n/l10n flagged for v1.1.0
+- i18n/l10n flagged for future version
 - Scope: Interactive software interfaces (web, desktop, mobile)
 - Cross-references: ai-coding §2.4/§2.5 for process gates
 - Domain classification: Type A (context-intensive)
