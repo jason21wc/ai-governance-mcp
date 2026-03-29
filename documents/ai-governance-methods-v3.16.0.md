@@ -2283,20 +2283,34 @@ Subagent reviews are mandatory, not optional. The KM&PD process validation run d
 | Phase | Subagent | Purpose | Required? |
 |-------|----------|---------|-----------|
 | Assessment (§9.8.5 review mode) | **contrarian-reviewer** | Independent disposition assessment. Catches overlap, shared failure modes, and borderline cases the primary assessor misses. | **MANDATORY** |
+| Assessment (§9.8.5 review mode) | **validator** | Structural defects in current state: stale citations, template non-compliance, failure mode code collisions. Findings inform the action list. | **MANDATORY** |
+| Assessment (§9.8.5 review mode) | **coherence-auditor** | Pre-existing issues: broken derivation chains, crosswalk mismatches, phantom references, count inconsistencies. Findings inform the action list. | **MANDATORY** |
 | After merges/demotions | **contrarian-reviewer** | Concept loss check on each merged principle ("did we lose any distinct concept?") | **MANDATORY** for merges |
-| After all changes | **coherence-auditor** | Stale references, count consistency, cross-file contradictions, crosswalk table accuracy | **MANDATORY** |
-| After all changes | **validator** | Explicit pass/fail against structural criteria (counts, template compliance, constitutional basis currency) | **MANDATORY** |
+| After all changes | **coherence-auditor** | Post-change verification: stale references from the changes themselves, updated counts, cross-file consistency | **MANDATORY** |
+| After all changes | **validator** | Post-change verification: explicit pass/fail against structural criteria for the final state | **MANDATORY** |
 | Constitutional-level rewrites | **voice-coach** | Tone/style consistency, elevator pitch quality, legal analogy coherence | Only for constitutional principles |
 | Code changes | **security-auditor** | Alias resolution safety, S-Series veto integrity, config file consistency | Only when code is modified |
 | Code changes | **code-reviewer** | Code quality, test coverage | Only when code is modified |
 
 **Minimum review battery for domain principle consolidation:**
-1. `contrarian-reviewer` on disposition table (before executing changes)
+1. All 3 mandatory agents on assessment (before executing changes) — contrarian for dispositions, validator for structural defects, coherence for pre-existing issues
 2. `contrarian-reviewer` on merged principles (after executing changes)
-3. `coherence-auditor` on final document state
-4. `validator` on final artifact against criteria
+3. `coherence-auditor` on final document state (post-change)
+4. `validator` on final artifact against criteria (post-change)
 
-**Process lesson (KM&PD v1.3.0):** The Admission Test alone is necessary but not sufficient. The contrarian-reviewer provides the independent judgment that prevents confirmation bias in the primary assessment. A primary assessor who authored or is familiar with the content will unconsciously rationalize KEEP dispositions. The contrarian breaks this pattern.
+**Why all 3 agents at assessment, not just contrarian:**
+
+Each agent catches a different class of issue. Running only the contrarian during assessment creates blind spots:
+
+| Agent | What It Catches at Assessment | Evidence |
+|-------|------------------------------|----------|
+| **contrarian-reviewer** | Conceptual overlap, wrong dispositions, shared failure modes, merge candidates | KM&PD: caught 2 shared FM codes at 100% KEEP. AI Coding: caught Idempotency/Production-Ready overlap. |
+| **validator** | Structural defects: stale citations, FM code collisions, template non-compliance, missing sections | AI Coding: found 5 stale constitutional citations and 5 FM code collisions during assessment. These were pre-existing, not caused by changes. |
+| **coherence-auditor** | Cross-file contradictions, broken derivation chains, crosswalk mismatches, phantom references | AI Coding: found 2 Dangerous broken derivation chains and crosswalk table incomplete vs body text. These informed 4 additional action items. |
+
+**Process lessons:**
+- **KM&PD v1.3.0:** Primary assessor rated 13/13 KEEP. Contrarian caught 3 issues → 13→10. Without contrarian, skip gate would have incorrectly passed.
+- **AI Coding v2.6.0:** Contrarian found 2 merges + 3 citation errors. Validator found 5 additional stale citations and structural defects. Coherence found 2 Dangerous broken chains + 8 Misleading issues. Combined: 12 action items from 3 agents vs. ~5 from contrarian alone. The 3-agent assessment produced 2.4x the findings.
 
 ---
 
