@@ -378,8 +378,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="kmpd",
             display_name="Knowledge Management & People Development",
-            principles_file="kmpd-domain-principles-v1.2.0.md",
-            methods_file="kmpd-methods-v1.1.0.md",
+            principles_file="kmpd-domain-principles-v1.3.0.md",
+            methods_file="kmpd-methods-v1.2.0.md",
             description=(
                 "Organizational knowledge capture, abstraction, transfer, and people "
                 "development with AI assistance. Detailed Knowledge Bases, single source "

@@ -1,12 +1,12 @@
-# Knowledge Management & People Development Methods v1.1.0
+# Knowledge Management & People Development Methods v1.2.0
 ## Operational Procedures for AI-Assisted Organizational Knowledge and Capability
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
-> This methods document provides HOW-TO procedures for implementing KM&PD domain principles. It is subordinate to the domain principles document (kmpd-domain-principles-v1.1.0.md), which establishes WHAT governance applies.
+> This methods document provides HOW-TO procedures for implementing KM&PD domain principles. It is subordinate to the domain principles document (kmpd-domain-principles-v1.3.0.md), which establishes WHAT governance applies.
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Status:** Active
-**Effective Date:** 2026-03-25
+**Effective Date:** 2026-03-29
 **Governance Level:** Methods (SOPs) — subordinate to KM&PD Domain Principles
 **Domain Classification:** Type B (proprietary)
 
@@ -21,7 +21,7 @@ Constitution (Meta-Principles)
 ```
 
 **Two Pillars:**
-- **Manage Process** → Sections 1-4 (Knowledge Architecture and Document Types)
+- **Manage Process** → Sections 1-4, 8 (Knowledge Architecture, Document Types, Scaffolded Complexity)
 - **Lead People** → Sections 5-7 (People Development, Assessment, Training Delivery)
 
 **Cross-Domain:**
@@ -184,7 +184,7 @@ When a user needs to update an existing Detailed KB because the process has chan
 
 **Importance: CRITICAL — The single source of truth for process knowledge**
 
-**Implements:** KA1 (Single Source Architecture), TL3 (Procedure Safety Completeness), QA1 (Regulatory Awareness), QA2 (Artifact Adoption Fitness), PD1 (Verification Guidance Responsibility), PD2 (Purpose-Driven Content Curation), PD3 (Scaffolded Complexity)
+**Implements:** KA1 (Single Source Architecture), QA1 (Safety & Compliance Completeness), QA2 (Artifact Adoption Fitness), PD1 (Verification Guidance Responsibility)
 
 ### 2.1 Design Principles for the Detailed Knowledge Base
 
@@ -273,7 +273,7 @@ Before finalizing any artifact, apply the adoption fitness checklist:
 
 **Importance: IMPORTANT — The practitioner's tool at the point of work**
 
-**Implements:** KA3 (Progressive Abstraction), TL1 (Audience-Appropriate Design), PD2 (Purpose-Driven Content Curation)
+**Implements:** KA3 (Progressive Abstraction), TL1 (Audience-Appropriate Design)
 
 ### 3.1 The Checklist Manifesto Principle
 
@@ -590,6 +590,49 @@ When building a knowledge management and people development system, the technica
 
 ---
 
+## 8 Scaffolded Complexity
+
+**Importance: IMPORTANT — Ensures knowledge content follows a learnable progression**
+
+**Implements:** KA1 (Single Source Architecture — scaffolded structure within the KB)
+
+> **Origin:** Demoted from PD3 (Scaffolded Complexity principle) in principles v1.3.0. The concept is procedural — it describes HOW to organize content, not WHAT governance applies. KA1 now includes a validation criterion for scaffolded complexity; this method provides the procedure.
+
+**Constitutional Basis:** `Structural Foundations` + `Atomic Task Decomposition`
+
+**Addresses:** KM-F1 (Information Dump) — undifferentiated walls of text without scaffolding
+
+### 8.1 The Scaffolding Procedure
+
+When organizing knowledge content (Detailed KBs, training materials, onboarding programs), structure by scaffolded complexity:
+
+1. **Identify the core workflow** — the 80% of daily work that covers the most common path
+2. **Start with foundations** — what does someone need to know FIRST to make sense of everything else?
+3. **Build progressively** — add common variations and branching procedures after core is established
+4. **Layer in advanced topics** — edge cases, exception handling, and complex scenarios come after the reader has a solid foundation
+5. **Ask the teaching question** — "If you were training a new person, what would you teach them first? What comes after that?" Use the answer to validate the structure.
+6. **Apply the MVP approach** — document core first, expand progressively. The reader can stop at any point and have a coherent (if incomplete) understanding.
+
+### 8.2 Scaffolding Validation
+
+After organizing content, verify:
+
+- [ ] Content begins with foundational concepts before advanced topics
+- [ ] Prerequisites are clearly stated before dependent content
+- [ ] The reader can stop at any point and have a coherent (if incomplete) understanding
+- [ ] The structure mirrors the natural learning path for the role
+
+### 8.3 When Content Arrives Out of Order
+
+When the user provides content in a non-scaffolded order (e.g., starting with edge cases before core workflow):
+
+1. Accept the content as-is — capture everything
+2. Propose a restructured order that follows the scaffolding procedure
+3. Confirm the restructured order with the user before reorganizing
+4. The user may have valid reasons for a different order — defer to their judgment if they explain why
+
+---
+
 ## Appendix A: Maturity Model Reference
 
 See principles document §Implementation Guidance for the full 6-level maturity model (Tribal → Ad Hoc → Structured → Extracted → Managed → Optimizing).
@@ -633,9 +676,10 @@ For quick routing of common scenarios to relevant methods:
 | "Getting buy-in from the team" | §7.4 (Implementation Context for Human Leaders), §7.3 (Best Practice Discovery) |
 | "Assessing organizational maturity" | §1.2 (Maturity Self-Assessment), Appendix A (Maturity Model Reference) |
 | "Making an artifact people will actually use" | §2.5 (Adoption Fitness Check), QA2 (Artifact Adoption Fitness), §3.1 (Checklist Manifesto) |
-| "Process involves safety or regulatory requirements" | §2.4 (Verification Recommendation), TL3 (Procedure Safety Completeness), QA1 (Regulatory Awareness) |
+| "Process involves safety or regulatory requirements" | §2.4 (Verification Recommendation), QA1 (Safety & Compliance Completeness) |
 | "Engaging narrative structure in knowledge content" | §2.1 (Detailed KB should tell a story), Storytelling domain A-Series (Audience), Storytelling domain ST-Series (Structure Principles) |
 | "Creating a troubleshooting guide or decision tree" | §3.4 (Other Extraction Types), §1.3 (KB Scaffold — Section 4: Troubleshooting) |
+| "Organizing content in learnable order" | §8.1 (The Scaffolding Procedure), §8.2 (Scaffolding Validation), §8.3 (When Content Arrives Out of Order) |
 
 ---
 
@@ -643,12 +687,13 @@ For quick routing of common scenarios to relevant methods:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.0 | 2026-03-29 | Added §8 Scaffolded Complexity (demoted from PD3 principle). Updated principle references: TL3+QA1 merged → QA1 (Safety & Compliance Completeness), PD2 merged into KA3. |
 | 1.1.0 | 2026-03-25 | Added Situation Index (17 routing entries). Added storytelling domain cross-reference in situation index. |
 | 1.0.0 | 2026-03-25 | Initial release. 7 sections covering both pillars (Manage Process: §1-§4, Lead People: §5-§7). Templates for Detailed KB, Quick Reference, Cross-Training Matrix, Job Description, Onboarding. TWI Job Instruction method. Kirkpatrick evaluation framework. Maturity model as reference. Implementation Context for Human Leaders as advisory appendix. |
 
 ---
 
-*Version 1.1.0*
-*Derived from: KM&PD Domain Principles v1.1.0, Constitution v2.6.0, AI Coding Methods v2.27.0*
+*Version 1.2.0*
+*Derived from: KM&PD Domain Principles v1.3.0, Constitution v2.6.0, AI Coding Methods v2.27.0*
 *Framework: Jason Collier's Knowledge Management & People Development Framework (novel synthesis)*
 *Domain Classification: Type B (proprietary — see framework owner for access)*
