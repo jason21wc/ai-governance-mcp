@@ -2100,19 +2100,18 @@ This part establishes the unified quality gate for all framework content — pri
 
 ---
 
-### 9.8.1 The Admission Test (7 Questions)
+### 9.8.1 The Admission Test (6 Questions)
 
-Seven binary questions ANY content must pass. The same questions apply when authoring (gate) and reviewing (audit). Content failing during review becomes a consolidation or removal candidate.
+Six binary questions ANY content must pass. The same questions apply when authoring (gate) and reviewing (audit). Content failing during review becomes a consolidation or removal candidate.
 
 | # | Question | What It Checks |
 |---|----------|----------------|
-| 1 | **Gap** — Does an actual behavioral gap exist that no existing content covers? | Prevents redundant content |
-| 2 | **Level** — Is this at the correct hierarchy level? (S-Series > Constitution > Domain Principles > Methods > Appendices, per Part 9.7.2) | Prevents misplaced content |
-| 3 | **Scope** — Does it govern a distinct scope not already covered at this level? | Prevents scope overlap |
-| 4 | **Derivation** — Does it properly derive from a higher-level element? (Domain principles from constitution, methods from principles, appendices from methods) | Ensures hierarchy integrity |
-| 5 | **Evidence** — Can you name a concrete failure case it prevents? | Prevents aspirational-only content |
-| 6 | **Cross-domain** — Does another domain already govern this concern? If yes, consider cross-referencing rather than duplicating. | Prevents cross-domain duplication |
-| 7 | **Correct home** — Is this scoped to the right domain? Not too broad (should be constitutional), not too narrow (should be an appendix)? | Prevents scope misassignment |
+| 1 | **Coverage** — Does an actual gap exist that no existing content covers — at this level, in this domain, or in any other domain? Check same level, adjacent levels, and peer domains. | Prevents redundant, overlapping, or cross-domain duplicate content |
+| 2 | **Placement** — Is this at the correct hierarchy level AND in the correct domain? Not too broad (should be constitutional), not too narrow (should be an appendix), not misassigned to the wrong domain. (Per Part 9.7.2) | Prevents misplaced or mis-scoped content |
+| 3 | **Derivation** — Does it properly derive from a higher-level element? (Domain principles from constitution, methods from principles, appendices from methods) | Ensures hierarchy integrity |
+| 4 | **Evidence** — Can you name a concrete failure case it prevents? | Prevents aspirational-only content |
+| 5 | **Enforceability** — Can compliance be observed, tested, or structurally enforced? If purely advisory, is the advisory overhead justified by the value it provides? | Prevents unenforceable governance surface area. Per LEARNING-LOG: advisory compliance ~85%, structural blocking ~100%. |
+| 6 | **Stability** — Will this content remain valid independent of current tooling, and for at least 2 major release cycles? | Prevents content that creates maintenance debt (per Part 8.3 constitutional stability test) |
 
 **Type-specific notes — what "evidence" (Question 5) means for each content type:**
 
@@ -2180,7 +2179,7 @@ Reference table — does NOT reproduce templates, points to canonical sources.
 
 **Universal checks (all content types):**
 
-- [ ] Passes Admission Test (§9.8.1) — all 7 questions answered YES
+- [ ] Passes Admission Test (§9.8.1) — all 6 questions answered YES
 - [ ] Passes Duplication Check (§9.8.2) — no existing coverage identified
 - [ ] Correct hierarchy level (Part 9.7.2)
 - [ ] Follows structural template for content type (§9.8.3)
@@ -2216,7 +2215,15 @@ The same criteria apply in both directions:
 
 **Authoring mode (creating new content):**
 
-Run §9.8.1 through §9.8.4 as a GATE before publishing. Content must pass all applicable checks. If it fails, revise or reconsider whether the content should exist.
+Run §9.8.1 through §9.8.4 as a GATE before publishing. Content that fails produces a disposition:
+
+| Disposition | When to Apply | Action |
+|---|---|---|
+| PROCEED | Passes all checks | Publish using the appropriate template (§9.8.3) |
+| REVISE SCOPE | Fails Coverage (Q1) — partial overlap with existing content | Narrow scope to the non-overlapping portion, or expand existing content instead |
+| ABSORB | Fails Coverage (Q1) — fully covered by existing content | Add the new concept as a bullet or subsection to the existing item. Do not create a new standalone entry. |
+| RE-LEVEL | Fails Placement (Q2) — content is at the wrong level or domain | Rewrite for the correct level/domain before publishing |
+| ABANDON | Fails Evidence (Q4) — no concrete failure case | Do not publish. The gap may not exist. Document the reasoning for future reference. |
 
 **Review mode (evaluating existing content):**
 
@@ -2238,14 +2245,20 @@ Run §9.8.1 through §9.8.4 as an AUDIT against existing content. Items failing 
 
 Before removing or merging ANY content:
 
-1. **List every distinct concept** the item contains — not just the title, but each specific idea, rule, or guidance it provides
-2. **Map each concept to its new home:**
+1. **List every distinct concept** the item contains at the *directive level* — not the title, but each specific rule, guidance, or behavioral requirement. A "concept" is any directive that, if removed, would change agent behavior in at least one concrete scenario. List at this level, not at the principle-title level.
+2. **Produce a concept mapping artifact** (table format for traceability):
+
+| Concept | Source (section/bullet) | New Home | Verification |
+|---------|------------------------|----------|--------------|
+| [directive] | [where it lives now] | [where it will live after] | [how to verify it's preserved] |
+
+3. **Map each concept to its new home:**
    - Absorbed into the merge target? — Verify the merged text explicitly preserves it
    - Covered by a higher-level principle? — Cite the specific bullet or section that covers it
    - Covered by a peer principle/method? — Cite with specific reference
-3. **If ANY concept has no identified home — do not proceed.** Either keep the item, or add the orphaned concept to an existing item first, THEN proceed with removal.
+4. **If ANY concept has no identified home — do not proceed.** Either keep the item, or add the orphaned concept to an existing item first, THEN proceed with removal.
 
-This prevents the error observed during constitutional consolidation: "Rich but Not Verbose Communication" was demoted as a "style guide" but its core concept (audience-appropriate communication) was not covered by any remaining principle. The demotion created a gap that required re-promotion.
+This prevents the error observed during constitutional consolidation: "Rich but Not Verbose Communication" was demoted as a "style guide" but its core concept (audience-appropriate communication) was not covered by any remaining principle. The demotion created a gap that required re-promotion as "Effective & Efficient Communication."
 
 ---
 

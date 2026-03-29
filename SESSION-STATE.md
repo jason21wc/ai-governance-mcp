@@ -603,6 +603,22 @@ Added to COMPLETION-CHECKLIST: 4-item BEST-EFFORT checklist for plan-mode archit
 
 **Implementation requirements:** Methods-level changes to how advisory steps are described. Potentially structural changes to how subagent reviews are integrated (review output as routing decision). LEARNING-LOG entry captures the root cause and research.
 
+#### 26. Part 9.8 Structural Enforcement (Priority: MEDIUM)
+
+**Problem:** Part 9.8 (Content Quality Framework) is entirely advisory. The project's own data shows advisory compliance ~85% vs structural blocking ~100%. The Admission Test could be enforced via a PreToolUse hook that checks whether 9.8.1 questions were answered before content modifications to governance documents.
+
+**Scope:** PreToolUse hook for Edit/Write on governance document files. Check transcript for evidence of Admission Test completion before allowing modifications.
+
+**Trigger:** If content is added that fails the Admission Test retrospectively (same pattern as the 47-principle bloat).
+
+#### 27. TITLE 8 / Part 9.8 Relationship Clarification (Priority: LOW)
+
+**Problem:** Parts 8.2-8.4 overlap with Part 9.8 (classification, constitutional threshold, overlap check). Neither explicitly supersedes the other. An agent following TITLE 8 linearly may use the older, less rigorous procedure and never reach Part 9.8.
+
+**Scope:** Either explicitly supersede Parts 8.2-8.4 with forward references to 9.8, or restructure the relationship so 9.8 is clearly the operational procedure and 8.2-8.4 are constitutional-specific supplements.
+
+**Trigger:** When an agent is observed following Parts 8.2-8.4 without reaching 9.8, or when TITLE 8 is next modified for any reason.
+
 #### 25. Principle Authoring Checklist Enforcement (Priority: LOW)
 
 **Problem:** The meta-dogfood review of Backlog #18 found that "adding a principle" is a parameter-level fix unless accompanied by structural enforcement of the authoring process. The COMPLETION-CHECKLIST now has a 10-item principle-authoring checklist but it's BEST-EFFORT.
