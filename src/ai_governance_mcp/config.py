@@ -331,7 +331,7 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="storytelling",
             display_name="Storytelling",
-            principles_file="storytelling-domain-principles-v1.2.0.md",
+            principles_file="storytelling-domain-principles-v1.3.0.md",
             methods_file="storytelling-methods-v1.1.1.md",
             description=(
                 "Creative writing and narrative craft. Story structure, character "
