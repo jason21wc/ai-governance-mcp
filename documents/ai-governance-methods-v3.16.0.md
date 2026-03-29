@@ -1023,7 +1023,7 @@ Governance documents follow a three-stage lifecycle. **All stages use `documents
 | **Archived** | Any | `documents/archive/` | No (removed) | No |
 
 **Draft → Published (`v0.x.x` → `v1.0.0`):**
-1. Content passes the **domain review checklist** (§9.5)
+1. Content passes the **Content Quality Framework** (§9.8.4)
 2. Document registered in `domains.json` (§5.1.3)
 3. Version bumped to `v1.0.0` in filename and header
 4. Index rebuilt (`python -m ai_governance_mcp.extractor`)
@@ -1966,7 +1966,7 @@ For clarifications, typo fixes, formatting:
 
 For new principles, expanded content, new methods:
 
-1. Follow validation checklist (Part 9.5)
+1. Follow Content Quality Framework (Part 9.8.4)
 2. Ensure constitutional alignment
 3. Update version (X.Y+1.0)
 4. Add entry to version history
@@ -2095,6 +2095,8 @@ When referencing across levels, use titles per Part 3.4.5:
 **Implements:** Systemic Thinking, Verification & Validation, Single Source of Truth
 
 This part establishes the unified quality gate for all framework content — principles, methods, and appendices — at any level (constitutional or domain). The same criteria apply whether authoring new content (gate) or reviewing existing content (audit).
+
+**Relationship to TITLE 8:** Parts 8.2-8.4 define the constitutional governance perspective on classification and overlap. This part provides the unified operational procedure applicable to all content types. For constitutional amendments specifically, also consult TITLE 8. Supersedes Part 9.5 (Validation Checklist), which covered principles only.
 
 ---
 
