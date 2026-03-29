@@ -1,4 +1,4 @@
-# Knowledge Management & People Development Domain Principles v1.1.0
+# Knowledge Management & People Development Domain Principles v1.2.0
 ## Federal Statutes for AI-Assisted Organizational Knowledge and Capability
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -180,7 +180,7 @@ Every process area MUST have exactly one Detailed Knowledge Base as its authorit
 
 ### KA2: Derivation Chain Integrity
 
-**Constitutional Basis:** Derived from `Single Source of Truth` and `Verification Mechanisms Before Action`.
+**Constitutional Basis:** Derived from `Single Source of Truth` and `Verification & Validation`.
 
 **Why This Principle Matters**
 The power of an integrated knowledge system comes from traceable lineage: the Detailed KB generates Cross-Training Matrix items, which map to Job Description responsibilities, which feed the Onboarding plan. If any link in this chain breaks — a Quick Reference contains steps not in the Detailed KB, or a Job Description lists responsibilities not tracked in the Cross-Training Matrix — the system produces contradictory artifacts that undermine trust. AI creates each artifact independently unless explicitly governed to maintain these connections.
@@ -225,7 +225,7 @@ Detailed KB major items → Cross-Training Matrix items → Job Description resp
 
 ### KA3: Progressive Abstraction
 
-**Constitutional Basis:** Derived from `Structured Organization with Clear Boundaries` and `Minimal Relevant Context (Context Curation)`.
+**Constitutional Basis:** Derived from `Structural Foundations` and `Context Engineering`.
 
 **Why This Principle Matters**
 A Detailed Knowledge Base with blow-by-blow instructions is useless to an experienced practitioner who just needs a reminder of the three steps most likely to be missed. Conversely, a Quick Reference is useless to a new hire who doesn't know what the software is called. AI generates at a single level of detail unless explicitly governed to calibrate for the audience and purpose. The result: bloated checklists that include obvious steps, or skeletal references that assume knowledge the reader doesn't have.
@@ -272,7 +272,7 @@ Detailed KB → Quick Ref / VWI / Job Instruction → SIPOC → Process Flow
 
 ### KA4: Empowerment Completeness
 
-**Constitutional Basis:** Derived from `Explicit Over Implicit` and `Verification Mechanisms Before Action`.
+**Constitutional Basis:** Derived from `Explicit Over Implicit` and `Verification & Validation`.
 
 **Why This Principle Matters**
 An employee is empowered when — and ONLY when — they have all five components: Tools, Knowledge, Responsibility, Accountability, and Authority (Luftig/BPE model). Organizations commonly provide some but not all. A cross-training matrix tracks Knowledge but ignores Authority. A job description defines Responsibility but has no Accountability mechanism. AI generating people development artifacts will reproduce these gaps unless explicitly governed to check all five components.
@@ -327,7 +327,7 @@ Above empowerment is **Engagement** (Personal Development, Team Development) —
 
 ### TL1: Audience-Appropriate Design
 
-**Constitutional Basis:** Derived from `Intent Discovery` and `Interaction Mode Adaptation`.
+**Constitutional Basis:** Derived from `Discovery Before Commitment` and `Interaction Mode Adaptation`.
 
 **Why This Principle Matters**
 AI generates content at a single level unless prompted to differentiate. A training module for an experienced engineer reads identically to one for a new hire. The Dreyfus model identifies five stages of skill acquisition (Novice → Advanced Beginner → Competent → Proficient → Expert), and each stage requires different content depth, different examples, and different assumptions about prerequisite knowledge.
@@ -374,7 +374,7 @@ All knowledge artifacts MUST be designed for a specific audience skill level. Th
 
 ### TL2: Learning Objective Alignment
 
-**Constitutional Basis:** Derived from `Measurable Success Criteria` and `Intent Discovery`.
+**Constitutional Basis:** Derived from `Verification & Validation` and `Discovery Before Commitment`.
 
 **Why This Principle Matters**
 AI generates content without stating what the learner should be able to DO after completing it. Training without objectives is activity without purpose — the organization invests time and resources but cannot measure whether the investment produced the intended capability. Bloom's Taxonomy provides the hierarchy: Remember → Understand → Apply → Analyze → Evaluate → Create. Most AI-generated training targets the lowest level (Remember/recall) when the actual need is Application or higher.
@@ -397,7 +397,7 @@ Every training artifact MUST include explicit learning objectives stating what t
 - [ ] Objectives are placed prominently at the beginning of the content
 
 **Human Interaction Points**
-- When learning objectives are unclear or unstated in the user's request — apply Intent Discovery to determine what the learner should be able to DO.
+- When learning objectives are unclear or unstated in the user's request — apply Discovery Before Commitment to determine what the learner should be able to DO.
 - When the appropriate Bloom's level is ambiguous — ask the user whether the goal is awareness (Remember/Understand) or independent capability (Apply and above).
 
 **Cross-References**
@@ -409,7 +409,7 @@ Every training artifact MUST include explicit learning objectives stating what t
 
 ### TL3: Procedure Safety Completeness
 
-**Constitutional Basis:** Derived from `Verification Mechanisms Before Action` and `Fail-Fast Validation`.
+**Constitutional Basis:** Derived from `Verification & Validation`.
 
 **Why This Principle Matters**
 AI documents the successful execution path and gives superficial treatment to what happens when things go wrong. In safety-critical processes, the exception handling IS the most important part of the documentation. A lockout/tagout procedure that omits the verification step, or a chemical handling procedure that skips the spill response, creates documentation that is worse than no documentation — it carries the authority of a formal procedure while being dangerously incomplete.
@@ -453,7 +453,7 @@ For any procedure involving safety, hazardous materials, regulatory compliance, 
 
 ### TL4: Assessment Validity
 
-**Constitutional Basis:** Derived from `Verification Mechanisms Before Action` and `Measurable Success Criteria`.
+**Constitutional Basis:** Derived from `Verification & Validation`.
 
 **Why This Principle Matters**
 AI defaults to quiz-style recall questions because they are the dominant pattern in training data. "What are the five steps of the process?" tests whether someone memorized a list, not whether they can actually perform the work. Bloom's Taxonomy distinguishes six cognitive levels — assessments should target the level appropriate to the training objective, not default to the lowest (Remember).
@@ -500,7 +500,7 @@ Assessments MUST test at the Bloom's level matching the learning objective. If t
 
 ### PD1: Verification Guidance Responsibility
 
-**Constitutional Basis:** Derived from `Verification Mechanisms Before Action` and `Technical Focus with Clear Escalation Boundaries`.
+**Constitutional Basis:** Derived from `Verification & Validation` and `Human-AI Authority & Accountability`.
 
 **Why This Principle Matters**
 AI generates professional-looking knowledge artifacts. The more professional the output looks, the more authority it carries — and the more dangerous it is if the content is wrong. The AI cannot validate content accuracy — it doesn't know if step 7 is correct, whether the regulatory reference is current, or whether the process described matches reality. But the user may assume that a well-formatted, detailed document is correct because it LOOKS authoritative.
@@ -547,7 +547,7 @@ The AI MUST guide users toward appropriate verification but MUST NOT claim to va
 
 ### PD2: Purpose-Driven Content Curation
 
-**Constitutional Basis:** Derived from `Minimal Relevant Context (Context Curation)` and `Resource Efficiency & Waste Reduction`.
+**Constitutional Basis:** Derived from `Context Engineering` and `Resource Efficiency & Waste Reduction`.
 
 **Why This Principle Matters**
 AI includes everything because it cannot distinguish what an audience needs from what is merely related. A Quick Reference with 47 items is not a Quick Reference — it's a Detailed KB with a misleading title. The Checklist Manifesto principle (Gawande 2009): focus on "killer items" — steps most dangerous to skip yet sometimes overlooked. Keep to 5-9 items per pause point. If everything is highlighted, nothing is highlighted.
@@ -585,7 +585,7 @@ Every element in a knowledge artifact MUST earn its place by serving a need the 
 
 ### PD3: Scaffolded Complexity
 
-**Constitutional Basis:** Derived from `Foundation-First Architecture` and `Atomic Task Decomposition`.
+**Constitutional Basis:** Derived from `Structural Foundations` and `Atomic Task Decomposition`.
 
 **Why This Principle Matters**
 AI generates content in the order it was prompted or in the order that seems logical to the model — which may not match the order someone would actually learn the work. A Detailed Knowledge Base that starts with edge cases before covering the core workflow, or a training program that teaches advanced topics before fundamentals, creates confusion and cognitive overload.
@@ -625,7 +625,7 @@ Knowledge content MUST be organized by scaffolded complexity: foundations first,
 
 ### QA1: Regulatory and Compliance Awareness
 
-**Constitutional Basis:** Derived from `Non-Maleficence & Privacy First` and `Verification Mechanisms Before Action`.
+**Constitutional Basis:** Derived from `Non-Maleficence, Privacy & Security` and `Verification & Validation`.
 
 **Why This Principle Matters**
 AI cannot know what it doesn't know about regulatory requirements. If a procedure involves OSHA-regulated activities, industry-specific compliance, or legal requirements, AI may generate procedures that omit legally required steps. This is S-Series-adjacent: documentation that carries the authority of a formal procedure while being dangerously incomplete creates real-world harm potential.
@@ -666,7 +666,7 @@ For any process area with regulatory, safety, or legal requirements:
 
 ### QA2: Artifact Adoption Fitness
 
-**Constitutional Basis:** Derived from `Resource Efficiency & Waste Reduction` and `Minimal Relevant Context (Context Curation)`.
+**Constitutional Basis:** Derived from `Resource Efficiency & Waste Reduction` and `Context Engineering`.
 
 **Why This Principle Matters**
 An artifact that is content-correct but harder to use than the informal alternative it replaces will not be adopted. A Quick Reference formatted as dense paragraphs loses to "just ask Bob." A Detailed KB with no visual hierarchy loses to tribal knowledge. AI generates text-heavy, paragraph-format output by default — technically correct but optimized for reading, not for doing. The result: artifacts that pass every content quality check but sit unused because the format creates more friction than it removes. Mayer's Multimedia Learning Principles demonstrate that cognitive load from poor format directly undermines knowledge transfer, regardless of content accuracy.
@@ -716,19 +716,19 @@ Every knowledge artifact MUST be designed to WIN the adoption competition agains
 |--------------------------|--------------------------|--------|
 | Single Source of Truth | Single Source Knowledge Architecture, Derivation Chain Integrity | KA |
 | Context Engineering | Single Source Knowledge Architecture (knowledge as structured context) | KA |
-| Verification Mechanisms Before Action | Derivation Chain Integrity, Assessment Validity, Verification Guidance, Regulatory Awareness | KA, TL, PD, QA |
+| Verification & Validation | Derivation Chain Integrity, Assessment Validity, Verification Guidance, Regulatory Awareness | KA, TL, PD, QA |
 | Explicit Over Implicit | Empowerment Completeness (all five components explicit) | KA |
-| Minimal Relevant Context | Progressive Abstraction, Purpose-Driven Content Curation | KA, PD |
-| Structured Organization with Clear Boundaries | Progressive Abstraction (continuous scale of detail) | KA |
-| Foundation-First Architecture | Scaffolded Complexity (foundations before advanced) | PD |
+| Context Engineering | Progressive Abstraction, Purpose-Driven Content Curation | KA, PD |
+| Structural Foundations | Progressive Abstraction (continuous scale of detail) | KA |
+| Structural Foundations | Scaffolded Complexity (foundations before advanced) | PD |
 | Atomic Task Decomposition | Scaffolded Complexity (progressive layers) | PD |
-| Measurable Success Criteria | Learning Objective Alignment, Assessment Validity | TL |
-| Intent Discovery | Audience-Appropriate Design, Learning Objective Alignment | TL |
+| Verification & Validation | Learning Objective Alignment, Assessment Validity | TL |
+| Discovery Before Commitment | Audience-Appropriate Design, Learning Objective Alignment | TL |
 | Interaction Mode Adaptation | Audience-Appropriate Design (calibrate to audience) | TL |
 | Resource Efficiency & Waste Reduction | Purpose-Driven Content Curation, Artifact Adoption Fitness | PD, QA |
-| Non-Maleficence & Privacy First | Regulatory and Compliance Awareness (S-Series adjacent) | QA |
-| Fail-Fast Validation | Procedure Safety Completeness | TL |
-| Technical Focus with Clear Escalation Boundaries | Verification Guidance Responsibility (AI guides, human validates) | PD |
+| Non-Maleficence, Privacy & Security | Regulatory and Compliance Awareness (S-Series adjacent) | QA |
+| Verification & Validation | Procedure Safety Completeness | TL |
+| Human-AI Authority & Accountability | Verification Guidance Responsibility (AI guides, human validates) | PD |
 
 ---
 
@@ -793,7 +793,10 @@ Check all five empowerment components:
 
 ## Changelog
 
-### v1.1.0 (Current)
+### v1.2.0 (Current)
+- **Constitutional principle reference consolidation (Phase 5).** Updated stale principle names throughout: Verification Mechanisms Before Action → Verification & Validation, Minimal Relevant Context → Context Engineering, Foundation-First Architecture → Structural Foundations, Intent Discovery → Discovery Before Commitment, Measurable Success Criteria → Verification & Validation, Fail-Fast Validation → Verification & Validation, Technical Focus with Clear Escalation Boundaries → Human-AI Authority & Accountability, Non-Maleficence & Privacy First → Non-Maleficence, Privacy & Security. Updated Constitutional Basis lines, crosswalk table, and inline references.
+
+### v1.1.0
 - Expanded cross-domain storytelling integration guidance: A-Series (Audience), ST-Series (Structure Principles), pacing/progressive revelation, explicit scope boundary with Storytelling domain
 
 ### v1.0.0

@@ -8,11 +8,11 @@
         "check": "Epistemic honesty: Are you stating uncertainty where it exists, or presenting a best guess as fact?"
       },
       {
-        "id": "meta-quality-visible-reasoning",
-        "check": "Accountable reasoning: Is your reasoning visible before output, and are sources cited? (+ meta-governance-transparent-reasoning-and-traceability)"
+        "id": "meta-quality-visible-reasoning-traceability",
+        "check": "Accountable reasoning: Is your reasoning visible before output, and are sources cited?"
       },
       {
-        "id": "meta-quality-verification-mechanisms-before-action",
+        "id": "meta-quality-verification-validation",
         "check": "Verification before action: Did you check preconditions and validate assumptions before proceeding?"
       }
     ],

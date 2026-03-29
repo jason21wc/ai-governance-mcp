@@ -21,22 +21,36 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v2.7.0** (Constitution), **v3.14.1** (meta-methods), **v2.30.0** (ai-coding methods), **v2.3.6** (ai-coding principles), **v2.3.1** (multi-agent principles), **v2.15.0** (multi-agent methods), **v1.1.2** (storytelling principles), **v1.1.1** (storytelling methods), **v2.1.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.0.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.1.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.15.0** (meta-methods), **v2.31.0** (ai-coding methods), **v2.5.0** (ai-coding principles), **v2.5.0** (multi-agent principles), **v2.16.0** (multi-agent methods), **v1.2.0** (storytelling principles), **v1.1.1** (storytelling methods), **v2.2.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.1.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.2.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **164 principles + 632 methods + 4 references** (800 total; see `tests/benchmarks/` for current totals; taxonomy: 37 codes) |
+| Index | **144 principles + 650 methods + 4 references** (798 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-28)
+## Session Summary (2026-03-29)
 
 ### Completed This Session
+
+23. **Constitutional Principle Consolidation v3.0.0** (Backlog #21) — MAJOR version
+   - Constitution: 47→22 principles, 6→5 series (MA-Series dissolved)
+   - 10-phase execution: alias infrastructure, 12 merges + 2 moves, 9 domain demotions, 6 methods demotions, MA dissolution, 178+ cross-reference cascade, polish/rewrite, code/infrastructure updates, dogfooding fixes, final validation
+   - Phase 5 agents updated all domain principle files (ai-coding v2.5.0, multi-agent v2.5.0, storytelling v1.2.0, multimodal-rag v2.2.0, ui-ux v1.1.0, kmpd v1.2.0) + methods files (governance v3.15.0, ai-coding v2.31.0, multi-agent v2.16.0)
+   - Alias infrastructure: `aliases` field on Principle model, alias resolution in retrieval
+   - "Effective & Efficient Communication" promoted back from methods to Q-Series (was incorrectly demoted as style guide)
+   - Discovery Before Commitment: proportionality signals moved to front of principle
+   - Dogfooding fixes: S-Series amendment gate, pre-push hook constitution trigger, accessibility clause in Bias Awareness
+   - Security auditor: 0 critical, 0 high. S-Series veto confirmed intact (uses series_code, not ID prefix)
+   - 6 subagent review rounds: contrarian (3), coherence (3), validator (1), voice-coach (1), security (1)
+   - 1026 tests passing, retrieval quality benchmarks stable (MRR 0.688, Recall 0.875)
+
+### Previous Session (2026-03-28)
 
 17. **Dependency CVE Remediation** — 33→2 unfixable vulnerabilities
    - Direct deps: mcp 1.25→1.26, requests >=2.33.0, Pillow >=12.1.1,<13
@@ -280,6 +294,7 @@
 | 5 | UI/UX Domain v1.0.0 | 2026-03-08 |
 | 8 | Subagent Output Framing (Advisory) | 2026-02-28 |
 | 9 | Tiered Principle Activation (Phases 0-1.5; Phase 2 cancelled) | 2026-03-01 |
+| 21 | Principle Consolidation Pass v3.0.0 (47→22 principles, MA dissolved) | 2026-03-29 |
 
 ### Open Backlog
 
@@ -522,7 +537,7 @@ Constitutional amendment: added Systemic Thinking meta-principle to C-Series (47
 
 **Implementation requirements:** If Dependabot: enable in repo settings + `.github/dependabot.yml`. If manual: add to a quarterly review calendar.
 
-#### 21. Principle Consolidation Pass (Priority: HIGH — Analysis Complete, Ready to Execute)
+#### 21. Principle Consolidation Pass — COMPLETE (2026-03-29)
 
 **Problem:** Constitutional test ("does this govern reasoning across ALL domains?") found 20 of 47 principles are questionable. The constitution claims "a small set of high-leverage meta-principles" but has grown by accretion to include domain-specific concepts and methods masquerading as principles.
 

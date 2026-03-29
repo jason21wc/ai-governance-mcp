@@ -1,7 +1,7 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.15.0
+**Version:** 2.16.0
 **Status:** Active
 **Effective Date:** 2026-03-26
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -600,7 +600,7 @@ IMPORTANT
 
 **Source:** Anthropic prompt engineering research, industry best practices 2025
 
-**Principle Basis:** Derives from Constitution's Structured Output Enforcement and Rich but Not Verbose Communication.
+**Principle Basis:** Derives from Constitution's Structured Output Enforcement and Resource Efficiency & Waste Reduction.
 
 **Best Practice 1: Positive Framing Over Negative Constraints**
 
@@ -719,7 +719,7 @@ IMPORTANT
 
 **Source:** Anthropic skill authoring best practices, iterative development patterns
 
-**Principle Basis:** Derives from Validation Independence (Q1) and Fail-Fast Validation.
+**Principle Basis:** Derives from Validation Independence (Q1) and Verification & Validation.
 
 **Validation Procedure:**
 

@@ -1,4 +1,4 @@
-# Storytelling Domain Principles Framework v1.1.2
+# Storytelling Domain Principles Framework v1.2.0
 ## Federal Statutes for AI-Assisted Narrative Communication
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -86,10 +86,10 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 | Meta-Principle | What It Says | What Storytelling Needs |
 |----------------|--------------|-------------------------|
 | Bias Awareness & Fairness | "Must not default to single cultural context" | **Framework:** WHICH alternative structures exist beyond Western defaults? |
-| Foundation-First Architecture | "Establish foundations before implementation" | **Discovery:** What does audience analysis look like for narrative? |
+| Structural Foundations | "Establish foundations before implementation" | **Discovery:** What does audience analysis look like for narrative? |
 | Visible Reasoning | "Articulate reasoning before output" | **Selection:** HOW to choose among competing frameworks for specific context? |
 | Context Engineering | "Load necessary information" | **Adaptation:** What context determines medium-specific optimization? |
-| Intent Preservation | "Why must pass to every agent" | **Voice:** HOW to preserve human voice when AI assists? |
+| Intent Preservation (multi-agent domain principle) | "Why must pass to every agent" | **Voice:** HOW to preserve human voice when AI assists? |
 
 These domain principles provide the **frameworks, discovery processes, selection criteria, and voice preservation mechanisms** that make meta-principles actionable for storytelling specifically.
 
@@ -846,7 +846,7 @@ Before proceeding, determine which mode serves the user better. Premature genera
 
 ### When AI Coaches Storytelling
 
-Apply **Progressive Inquiry Protocol** (Constitution `meta-core-progressive-inquiry-protocol`) adapted for narrative context:
+Apply **Discovery Before Commitment** (Constitution `meta-core-discovery-before-commitment`) adapted for narrative context:
 - Start with broad story questions ("What feeling do you want readers to have?")
 - Narrow based on responses ("What moment captures that feeling?")
 - Prune irrelevant branches, terminate when clarity achieved
@@ -919,7 +919,10 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ## Changelog
 
-### v1.1.2 (Current)
+### v1.2.0 (Current)
+- **Constitutional principle reference consolidation (Phase 5).** Updated stale principle names to match consolidated constitution: Foundation-First Architecture → Structural Foundations, Intent Preservation → annotated as multi-agent domain principle, Progressive Inquiry Protocol → Discovery Before Commitment.
+
+### v1.1.2
 - **Cross-domain audit remediation.** Fixed 3 stale methods cross-references: updated storytelling-methods filename from v1.1.0 to v1.1.1 in Out of Scope section, Relationship to Methods table, and v1.1.0 changelog entry.
 
 ### v1.1.1

@@ -103,6 +103,53 @@ class TestPrinciple:
         assert p.embedding_id == 42
 
 
+class TestPrincipleAliases:
+    """Test Principle aliases field for backward compatibility."""
+
+    def test_aliases_default_empty(self):
+        """Aliases should default to empty list."""
+        p = Principle(
+            id="meta-C1",
+            domain="constitution",
+            title="Test",
+            content="Content",
+            line_range=(1, 5),
+        )
+        assert p.aliases == []
+
+    def test_aliases_accepts_list(self):
+        """Should accept a list of former principle IDs."""
+        p = Principle(
+            id="meta-quality-verification-and-validation",
+            domain="constitution",
+            title="Verification & Validation",
+            content="Content",
+            line_range=(1, 10),
+            aliases=[
+                "meta-quality-verification-mechanisms-before-action",
+                "meta-quality-fail-fast-validation",
+                "meta-quality-verifiable-outputs",
+            ],
+        )
+        assert len(p.aliases) == 3
+        assert "meta-quality-fail-fast-validation" in p.aliases
+
+    def test_aliases_serialization(self):
+        """Aliases should round-trip through JSON serialization."""
+        p = Principle(
+            id="meta-core-structural-foundations",
+            domain="constitution",
+            title="Structural Foundations",
+            content="Content",
+            line_range=(1, 5),
+            aliases=["meta-core-foundation-first-architecture"],
+        )
+        data = p.model_dump()
+        assert data["aliases"] == ["meta-core-foundation-first-architecture"]
+        restored = Principle(**data)
+        assert restored.aliases == p.aliases
+
+
 class TestMethod:
     """Test Method model."""
 

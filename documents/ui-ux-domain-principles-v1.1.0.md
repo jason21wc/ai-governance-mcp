@@ -1,4 +1,4 @@
-# UI/UX Domain Principles Framework v1.0.0
+# UI/UX Domain Principles Framework v1.1.0
 ## Federal Statutes for AI Agents Building Interactive Software Interfaces
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -101,12 +101,12 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 
 | Constitution Says | But UI/UX Specifically Needs | Concrete Failure the Constitution Can't Prevent |
 |-------------------|------------------------------|--------------------------------------------------|
-| "Accessibility and Inclusiveness" (general) | WCAG 2.2 Level AA compliance, ARIA authoring patterns, focus management, touch target minimums, color contrast ratios | AI generates `<div role="button">` without `tabindex="0"` or keyboard handler. Constitution says "be accessible" but doesn't specify ARIA contract requirements. WebAIM data: pages with ARIA present average 41% more detected errors than those without. |
-| "Established Solutions First" (general) | Platform-specific conventions (HIG vs Material vs Web), knowing WHEN to deviate | AI applies Material Design bottom navigation to an iPad app. Constitution says "use established solutions" but doesn't distinguish which platform's solutions apply. Apple HIG and Material Design give contradictory guidance for the same interaction pattern. |
+| "Bias Awareness & Fairness" (general) | WCAG 2.2 Level AA compliance, ARIA authoring patterns, focus management, touch target minimums, color contrast ratios | AI generates `<div role="button">` without `tabindex="0"` or keyboard handler. Constitution says "be accessible" but doesn't specify ARIA contract requirements. WebAIM data: pages with ARIA present average 41% more detected errors than those without. |
+| "Resource Efficiency & Waste Reduction" (general) | Platform-specific conventions (HIG vs Material vs Web), knowing WHEN to deviate | AI applies Material Design bottom navigation to an iPad app. Constitution says "use established solutions" but doesn't distinguish which platform's solutions apply. Apple HIG and Material Design give contradictory guidance for the same interaction pattern. |
 | "Structured Organization" (general) | Design token architecture, atomic design hierarchy, component naming conventions | AI generates `color: #3b82f6` in 5 different components instead of `var(--color-primary)`. Constitution says "organize clearly" but doesn't address design token indirection or cross-file visual consistency. GitClear 2025: 4x code clone growth with AI. |
 | "Verification Before Action" (general) | Accessibility auditing procedures, responsive breakpoint testing, cross-platform validation | AI generates a form that passes all code tests but has 3:1 contrast ratio (fails WCAG AA 4.5:1 minimum). Constitution says "verify" but doesn't specify visual/perceptual verification criteria. |
 | "Context Engineering" (general) | Understanding user viewport, device capabilities, platform conventions, existing design system | AI generates a desktop-first layout with 14px touch targets (Apple HIG minimum: 44pt). Constitution says "load context" but doesn't specify what UI context means. |
-| "Foundation-First Architecture" (general) | Design token system before component implementation, spacing scale before layout | AI generates 15 different spacing values across components. Constitution says "build foundations first" but doesn't specify that the spacing scale IS a foundation. |
+| "Structural Foundations" (general) | Design token system before component implementation, spacing scale before layout | AI generates 15 different spacing values across components. Constitution says "build foundations first" but doesn't specify that the spacing scale IS a foundation. |
 
 ### Evidence Base
 
@@ -253,7 +253,7 @@ This framework organizes domain principles into six series that address differen
 
 ### VH1: Layout Composition and Visual Weight (The Focal Point Statute)
 
-**Constitutional Basis:** Derived from `Structured Organization with Clear Boundaries` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Structural Foundations` and `Context Engineering`.
 
 **Why This Principle Matters**
 Users scan interfaces in predictable patterns (F-pattern for text-heavy, Z-pattern for landing pages). Without deliberate visual hierarchy, every element competes equally for attention, forcing users to consciously parse the layout instead of being guided through it. AI generates flat layouts because it applies generic component patterns without compositional awareness — it doesn't reason about which element should be seen first, second, third.
@@ -293,7 +293,7 @@ Every interface layout MUST establish a clear visual hierarchy through deliberat
 
 ### VH2: Typography and Readability (The Legibility Statute)
 
-**Constitutional Basis:** Derived from `Accessibility and Inclusiveness` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Bias Awareness & Fairness` and `Context Engineering`.
 
 **Why This Principle Matters**
 Typography is the primary medium of interface communication — the majority of UI content is text. AI generates text blocks that prioritize information density over readability: excessive line lengths that force eye-tracking errors, insufficient contrast that strains vision, and font sizes optimized for fitting more content rather than comfortable reading. Research consistently shows that readability directly impacts comprehension, task completion, and user satisfaction.
@@ -374,7 +374,7 @@ Interface layouts MUST be driven by content type, user tasks, and application do
 
 ### DS1: Design Token Architecture (The Indirection Statute)
 
-**Constitutional Basis:** Derived from `Foundation-First Architecture` and `Structured Organization with Clear Boundaries`.
+**Constitutional Basis:** Derived from `Structural Foundations` and `Structural Foundations`.
 
 **Why This Principle Matters**
 AI generates hard-coded values (`margin: 24px`, `color: #3b82f6`, `font-size: 14px`) instead of referencing design tokens (`var(--spacing-md)`, `var(--color-primary)`, `var(--font-size-sm)`) because each generation is context-independent — the AI doesn't see the project's token system across files. This produces the 4x code clone growth documented by GitClear (2025). Hard-coded values are impossible to maintain at scale: changing a brand color requires finding and updating every instance rather than changing one token.
@@ -414,7 +414,7 @@ All visual properties — spacing, color, typography, shadows, border radii, bre
 
 ### DS2: Component Consistency (The Same-Function-Same-Appearance Statute)
 
-**Constitutional Basis:** Derived from `Structured Organization with Clear Boundaries` and `Established Solutions First`.
+**Constitutional Basis:** Derived from `Structural Foundations` and `Resource Efficiency & Waste Reduction`.
 
 **Why This Principle Matters**
 AI generates different visual treatments for the same function across views because each code generation is context-independent. A "Save" button that's blue with rounded corners on one page becomes green with square corners on another. A card component with 16px padding in one view uses 24px in another. This violates Jakob's Law — users expect consistent behavior from consistent-looking elements — and creates maintenance burden as each visual variant becomes a separate code path.
@@ -495,7 +495,7 @@ Before generating any UI code, the AI MUST discover the project's existing desig
 
 ### ACC1: Semantic Markup and ARIA Contracts (The Document Structure Statute)
 
-**Constitutional Basis:** Derived from `Accessibility and Inclusiveness` and `Foundation-First Architecture`.
+**Constitutional Basis:** Derived from `Bias Awareness & Fairness` and `Structural Foundations`.
 
 **Why This Principle Matters**
 AI generates visually correct but semantically empty markup — `<div>` and `<span>` elements with click handlers instead of `<button>`, custom dropdowns instead of `<select>`, and unlabeled form fields. Worse, when AI does attempt accessibility, it often misuses ARIA: adding `role="button"` to a `<div>` without keyboard handling, or using `aria-label` in contradiction to visible text. WebAIM's annual analysis consistently finds that pages with ARIA present have *more* accessibility errors (41% more) than pages without — because incorrect ARIA is worse than no ARIA. AI exacerbates this pattern because it pattern-matches ARIA attribute names without understanding the contracts they create.
@@ -537,7 +537,7 @@ All interactive interfaces MUST use semantic HTML as the foundation. Native HTML
 
 ### ACC2: Keyboard Navigation and Focus Management (The Keyboard Equity Statute)
 
-**Constitutional Basis:** Derived from `Accessibility and Inclusiveness` and `Verification Mechanisms Before Action`.
+**Constitutional Basis:** Derived from `Bias Awareness & Fairness` and `Verification & Validation`.
 
 **Why This Principle Matters**
 AI generates interfaces that are only usable with a mouse because keyboard interaction isn't part of visual output generation. Focus states are omitted or removed for "cleaner" aesthetics. Tab order follows DOM order, which may not match visual order in complex layouts. Modal dialogs don't trap focus, letting keyboard users tab into invisible background content. These failures make the interface completely unusable for keyboard-only users, screen reader users, and many users with motor disabilities.
@@ -579,7 +579,7 @@ Every interactive element MUST be reachable and operable via keyboard alone. Foc
 
 ### ACC3: Color and Contrast Compliance (The Perceivability Statute)
 
-**Constitutional Basis:** Derived from `Accessibility and Inclusiveness` and `Verification Mechanisms Before Action`.
+**Constitutional Basis:** Derived from `Bias Awareness & Fairness` and `Verification & Validation`.
 
 **Why This Principle Matters**
 AI uses color as the sole differentiator for information (red = error, green = success, no other indicator) and generates insufficient contrast ratios because it doesn't model color vision deficiencies. Approximately 8% of males and 0.5% of females have some form of color vision deficiency, with red-green (deuteranopia/protanopia) being the most common. AI-generated interfaces frequently fail WCAG AA contrast requirements because the AI optimizes for visual appeal over perceivability.
@@ -628,7 +628,7 @@ Color MUST NOT be the sole means of conveying information. Every use of color to
 
 ### RD1: Responsive Layout Strategy (The Viewport Adaptation Statute)
 
-**Constitutional Basis:** Derived from `Context Engineering` and `Verification Mechanisms Before Action`.
+**Constitutional Basis:** Derived from `Context Engineering` and `Verification & Validation`.
 
 **Why This Principle Matters**
 AI generates desktop-first layouts without considering how they adapt to smaller viewports. Content that fits in a 1440px-wide viewport overflows or becomes unreadable on a 375px mobile screen. Navigation designed for desktop (horizontal menu bars) becomes unusable on mobile without explicit responsive handling. AI lacks viewport-aware testing context — it generates for one viewport and doesn't model the adaptation needed for others.
@@ -669,7 +669,7 @@ All interface layouts MUST be responsive across the standard breakpoint spectrum
 
 ### RD2: Touch Target and Input Adaptation (The Mobile Interaction Statute)
 
-**Constitutional Basis:** Derived from `Accessibility and Inclusiveness` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Bias Awareness & Fairness` and `Context Engineering`.
 
 **Why This Principle Matters**
 AI generates interfaces with desktop-sized interactive elements (small checkboxes, compact button rows, inline links with minimal padding) that become impossible to accurately tap on touch devices. Apple HIG specifies 44x44pt minimum touch targets; Material Design specifies 48x48dp. AI doesn't model finger size or touch accuracy — it generates visually compact elements that are pixel-precise with a cursor but unusable with a finger.
@@ -875,7 +875,7 @@ Error states MUST be handled consistently across the application. Error messages
 
 ### IX5: Component Selection Appropriateness (The Right Tool Statute)
 
-**Constitutional Basis:** Derived from `Established Solutions First` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Resource Efficiency & Waste Reduction` and `Context Engineering`.
 
 **Why This Principle Matters**
 AI selects components by name matching rather than UX appropriateness. It generates a modal dialog because the prompt mentioned "dialog" even when a toast notification would suffice. It uses a data table for 3 items when a simple list would be clearer. It reaches for a dropdown select when radio buttons (2-5 options) would reduce cognitive load and interaction cost. This happens because AI matches component names to patterns in training data rather than evaluating the user's actual interaction needs.
@@ -915,7 +915,7 @@ Component selection MUST be driven by the interaction requirements, not by namin
 
 ### IX6: Form Design and Validation (The Data Entry Statute)
 
-**Constitutional Basis:** Derived from `Verification Mechanisms Before Action` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Verification & Validation` and `Context Engineering`.
 
 **Why This Principle Matters**
 Forms are the primary mechanism for user data input, and AI generates them with inconsistent patterns. Validation timing varies between fields in the same form. Error messages appear in different positions. Labels may be replaced with placeholder-only styling. Required fields may not be marked. These inconsistencies create cognitive overhead for users who must figure out a new interaction pattern for each form field.
@@ -957,7 +957,7 @@ Forms MUST follow consistent patterns within an application. All forms in an app
 
 ### IX7: Ethical Interaction Design (The Anti-Deception Statute)
 
-**Constitutional Basis:** Derived from `Transparent Reasoning and Traceability` and `Accessibility and Inclusiveness`.
+**Constitutional Basis:** Derived from `Visible Reasoning & Traceability` and `Bias Awareness & Fairness`.
 
 **Why This Principle Matters**
 AI generates interfaces optimized for conversion metrics because training data is saturated with growth-hacked, A/B-tested patterns designed to maximize clicks, sign-ups, and purchases — regardless of whether those actions serve the user. Confirmshaming ("No thanks, I don't want to save money"), misdirecting color emphasis (bright "Accept All" vs. muted "Manage Preferences"), pre-checked opt-ins, hidden costs revealed late in checkout, and roach motel flows (easy to enter, hard to exit) all appear in AI-generated UIs unless explicitly prompted to avoid them. This is not a hypothetical concern: Serezlic & Quijada (2025) found that AI-generated e-commerce interfaces reliably contain dark patterns when optimized for conversion. Regulatory enforcement is accelerating — FTC, EU Digital Services Act, CPRA, and the European Accessibility Act all create legal liability for deceptive design.
@@ -1009,7 +1009,7 @@ Interfaces MUST NOT use deceptive design patterns as categorized by the FTC: nag
 
 ### PL1: Platform Convention Compliance (The When-In-Rome Statute)
 
-**Constitutional Basis:** Derived from `Established Solutions First` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Resource Efficiency & Waste Reduction` and `Context Engineering`.
 
 **Why This Principle Matters**
 Users develop expectations based on their platform. iOS users expect swipe-to-delete, bottom tab navigation, and SF Symbols. Android users expect the Material Design bottom app bar, floating action buttons, and system back navigation. Web users expect underlined links, browser back button behavior, and standard keyboard shortcuts. AI applies web conventions universally because training data is web-dominant, producing interfaces that feel foreign on native platforms. Per Jakob's Law, users spend most of their time on other apps — they expect your app to work the way those other apps work.
@@ -1050,7 +1050,7 @@ Interfaces MUST respect the conventions of the target platform. For iOS: follow 
 
 ### PL2: Cross-Platform Adaptation (The Shared Language Statute)
 
-**Constitutional Basis:** Derived from `Structured Organization with Clear Boundaries` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Structural Foundations` and `Context Engineering`.
 
 **Why This Principle Matters**
 Cross-platform applications (React Native, Flutter, web apps used on mobile) face a tension between consistency across platforms and respecting each platform's conventions. AI either generates identical UI across all platforms (ignoring platform conventions) or generates platform-specific code without maintaining design consistency. The correct approach is a shared design language with platform-specific adaptations for navigation, interaction patterns, and system integration.
@@ -1093,19 +1093,19 @@ This table maps each constitutional principle to its UI/UX domain applications:
 
 | Constitutional Principle | UI/UX Application | Series |
 |--------------------------|-------------------|--------|
-| Accessibility and Inclusiveness | WCAG 2.2 compliance, keyboard navigation, screen reader support, color contrast, touch targets | ACC, RD |
-| Structured Organization with Clear Boundaries | Design token architecture, component consistency, visual grouping, layout structure | DS, VH |
-| Established Solutions First | Platform conventions (HIG, Material, Web), component selection appropriateness | PL, IX |
-| Foundation-First Architecture | Design tokens before components, spacing scale before layout, semantic HTML before ARIA | DS, ACC |
-| Verification Mechanisms Before Action | Responsive testing, accessibility auditing, contrast checking, cross-platform validation | Methods §3 |
+| Bias Awareness & Fairness | WCAG 2.2 compliance, keyboard navigation, screen reader support, color contrast, touch targets | ACC, RD |
+| Structural Foundations | Design token architecture, component consistency, visual grouping, layout structure | DS, VH |
+| Resource Efficiency & Waste Reduction | Platform conventions (HIG, Material, Web), component selection appropriateness | PL, IX |
+| Structural Foundations | Design tokens before components, spacing scale before layout, semantic HTML before ARIA | DS, ACC |
+| Verification & Validation | Responsive testing, accessibility auditing, contrast checking, cross-platform validation | Methods §3 |
 | Context Engineering | User viewport, device capabilities, platform conventions, existing design system discovery | DS, RD, PL |
 | Discovery Before Commitment | Design system discovery, component inventory, pattern recognition before generation | DS |
 | Visible Reasoning | Interaction feedback, loading states, state communication, error transparency | IX |
 | Failure Recovery & Resilience | Error handling, graceful degradation, recovery guidance, state preservation | IX |
 | Explicit Over Implicit | Affordances, discoverability, visible labels, clear interactive indicators | IX |
-| Transparent Reasoning and Traceability | Ethical interaction design, dark pattern prevention, symmetric friction | IX |
-| Measurable Success Criteria | WCAG AA compliance, contrast ratios, touch target sizes, CLS scores | All (validation criteria) |
-| Incremental Validation | Progressive review gates, per-component testing, responsive spot-checks | Methods §3 |
+| Visible Reasoning & Traceability | Ethical interaction design, dark pattern prevention, symmetric friction | IX |
+| Verification & Validation | WCAG AA compliance, contrast ratios, touch target sizes, CLS scores | All (validation criteria) |
+| Verification & Validation | Progressive review gates, per-component testing, responsive spot-checks | Methods §3 |
 
 ---
 
@@ -1181,7 +1181,10 @@ This Domain Principles document establishes WHAT governance applies to UI/UX. Th
 
 ## Changelog
 
-### v1.0.0 (Current)
+### v1.1.0 (Current)
+- **Constitutional principle reference consolidation (Phase 5).** Updated stale principle names throughout: Accessibility and Inclusiveness → Bias Awareness & Fairness, Foundation-First Architecture → Structural Foundations, Verification Mechanisms Before Action → Verification & Validation, Transparent Reasoning and Traceability → Visible Reasoning & Traceability, Measurable Success Criteria → Verification & Validation, Incremental Validation → Verification & Validation. Updated gap table, Constitutional Basis lines, and meta-principle crosswalk table.
+
+### v1.0.0
 - Initial release + Phase 6 external review enhancements
 - **Six series:** VH-Series (Visual Hierarchy), DS-Series (Design System), ACC-Series (Accessibility), RD-Series (Responsive Design), IX-Series (Interaction), PL-Series (Platform)
 - **Twenty principles:** VH1-VH3, DS1-DS3, ACC1-ACC3, RD1-RD2, IX1-IX7, PL1-PL2

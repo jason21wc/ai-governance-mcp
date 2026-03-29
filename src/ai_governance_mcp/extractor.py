@@ -1202,12 +1202,11 @@ class DocumentExtractor:
     # Restores apply_hierarchy() sorting and series_code == "S" detection
     # that broke when v1.5 removed numeric series headers (### S1. → ### Title).
     CATEGORY_SERIES_MAP: dict[tuple[str, str], str] = {
-        # Constitution — S/C/Q/O/MA/G
+        # Constitution — S/C/Q/O/G (MA-Series dissolved in v3.0.0)
         ("constitution", "safety"): "S",
         ("constitution", "core"): "C",
         ("constitution", "quality"): "Q",
         ("constitution", "operational"): "O",
-        ("constitution", "multi"): "MA",
         ("constitution", "governance"): "G",
         # AI-Coding — C/P/Q series
         ("ai-coding", "context"): "C",

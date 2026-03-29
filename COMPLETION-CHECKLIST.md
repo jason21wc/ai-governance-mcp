@@ -121,11 +121,12 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 5. **Consolidation check:** Can this be absorbed into an existing principle (adding a bullet, expanding a section) rather than creating a standalone entry?
 
 **After writing the principle:**
-6. **Contrarian review:** Mandatory for constitutional amendments. Apply the principle to its own creation — does it pass its own tests?
-7. **Coherence audit:** Template compliance, voice consistency, legal analogy fits framework pattern, no contradictions with existing principles.
-8. **Federal preemption cleanup:** If the new principle covers ground already partially stated in domain methods, add references up and trim duplication. Use Context Engine to find all scattered references.
-9. **Version propagation:** Bump version, rename file, update domains.json, update config.py, archive old version.
-10. **Index rebuild + spot-check:** `python -m ai_governance_mcp.extractor`, then verify the principle surfaces via `query_governance`.
+6. **S-Series compliance check:** Does the new/modified principle comply with all S-Series (safety) principles? Amendments that weaken safety constraints require heightened scrutiny: contrarian review + coherence audit + human sign-off.
+7. **Contrarian review:** Mandatory for constitutional amendments. Apply the principle to its own creation — does it pass its own tests?
+8. **Coherence audit:** Template compliance, voice consistency, legal analogy fits framework pattern, no contradictions with existing principles.
+9. **Federal preemption cleanup:** If the new principle covers ground already partially stated in domain methods, add references up and trim duplication. Use Context Engine to find all scattered references.
+10. **Version propagation:** Bump version, rename file, update domains.json, update config.py, archive old version.
+11. **Index rebuild + spot-check:** `python -m ai_governance_mcp.extractor`, then verify the principle surfaces via `query_governance`.
 
 ## Plan-mode architecture decisions
 

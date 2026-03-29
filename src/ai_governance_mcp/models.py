@@ -114,7 +114,7 @@ class Principle(BaseModel):
     series_code: Optional[str] = Field(
         None,
         description="Series identifier inferred from (domain, category). "
-        "Constitution: S/C/Q/O/MA/G. Domain-specific codes vary.",
+        "Constitution: S/C/Q/O/G (MA dissolved in v3.0.0). Domain-specific codes vary.",
     )
     number: Optional[int] = Field(
         None, description="Legacy principle number - deprecated"
@@ -126,6 +126,11 @@ class Principle(BaseModel):
     )
     metadata: PrincipleMetadata = Field(
         default_factory=PrincipleMetadata, description="Matching metadata"
+    )
+    aliases: list[str] = Field(
+        default_factory=list,
+        description="Former principle IDs that redirect to this principle "
+        "(for backward compatibility after consolidation/rename)",
     )
     embedding_id: Optional[int] = Field(None, description="Index into embeddings array")
 

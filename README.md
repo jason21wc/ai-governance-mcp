@@ -49,9 +49,9 @@ The framework has three layers:
 <!-- Verify counts: python -c "import json; d=json.load(open('index/global_index.json'))['domains']; [print(f'{k}: {len(v.get(\"principles\",[]))}p, {len(v.get(\"methods\",[]))}m') for k,v in d.items()]" -->
 | Domain | Principles | Methods | Coverage |
 |--------|------------|---------|----------|
-| **Constitution** | 46 | 165 | Universal AI behavior, safety, quality |
-| **AI Coding** | 12 | 218 | Software development, testing, deployment |
-| **Multi-Agent** | 18 | 48 | Agent orchestration, handoffs, autonomous operation |
+| **Constitution** | 22 | 192 | Universal AI behavior, safety, quality |
+| **AI Coding** | 14 | 218 | Software development, testing, deployment |
+| **Multi-Agent** | 22 | 48 | Agent orchestration, handoffs, autonomous operation |
 | **Storytelling** | 19 | 42 | Creative writing, narrative, voice preservation |
 | **Multimodal RAG** | 35 | 64 | Image retrieval, visual presentation, agentic retrieval |
 | **UI/UX** | 20 | 43 | Visual hierarchy, accessibility, interaction design |

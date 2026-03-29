@@ -1722,7 +1722,7 @@ class TestCategorySeriesMap:
     """Tests for CATEGORY_SERIES_MAP and series_code inference in _build_principle."""
 
     def test_map_has_all_constitution_categories(self):
-        """Constitution safety/core/quality/operational/multi/governance all mapped."""
+        """Constitution safety/core/quality/operational/governance all mapped (MA dissolved in v3.0.0)."""
         from ai_governance_mcp.extractor import DocumentExtractor
 
         m = DocumentExtractor.CATEGORY_SERIES_MAP
@@ -1730,8 +1730,9 @@ class TestCategorySeriesMap:
         assert m[("constitution", "core")] == "C"
         assert m[("constitution", "quality")] == "Q"
         assert m[("constitution", "operational")] == "O"
-        assert m[("constitution", "multi")] == "MA"
         assert m[("constitution", "governance")] == "G"
+        # MA-Series dissolved in v3.0.0 — multi-agent principles moved to domain
+        assert ("constitution", "multi") not in m
 
     def test_s_series_only_in_constitution(self):
         """S-Series must ONLY map from constitution safety, never another domain."""

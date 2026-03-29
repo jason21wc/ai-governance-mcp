@@ -517,6 +517,25 @@ Note: CE benchmark v2.0 uses this project's codebase as corpus with 16 queries (
 
 Not needed at current scale. Phased approach documented in ADR-14. Revisit when CE reaches 500K+ vectors.
 
+### ADR-15: Constitutional Principle Consolidation v3.0.0
+- **Status:** Accepted (2026-03-29)
+- **Context:** Constitution grew by accretion to 47 principles across 6 series. Constitutional test ("does this govern reasoning across ALL domains?") found 20+ principles were domain-specific, methods masquerading as principles, or redundant overlaps. The constitution claimed "a small set of high-leverage meta-principles" — with 47, this claim was false.
+
+**Decision:** Systematic consolidation: 47→22 principles, 6→5 series.
+- 12 merges within the constitution (facets of same concept combined)
+- 9 demotions to domain documents (multi-agent: 6, ai-coding: 2)
+- 5 demotions to governance methods TITLE 16 (procedural techniques)
+- 1 promotion back (Effective & Efficient Communication — incorrectly demoted as style guide)
+- MA-Series dissolved (all principles were multi-agent specific)
+- Alias infrastructure for backward compatibility (old IDs resolve to new)
+
+**Alternatives rejected:**
+1. Just rewrite shorter — doesn't fix redundancy or domain leakage
+2. Merge only obvious overlaps — leaves 43 principles, still violates "small set" claim
+3. Full restructure into new series — maximum risk, current legal analogy is sound
+
+**Outcome:** 22 principles, 5 series (S:3, C:6, Q:4, O:6, G:3). Retrieval quality stable (MRR 0.688, Recall 0.875). 1026 tests passing. 6 subagent review rounds with 0 critical/high findings.
+
 ### Future Considerations
 
 - Prompt Engineering domain (when created, move system prompt best practices from multi-agent)

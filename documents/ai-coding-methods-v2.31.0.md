@@ -1,7 +1,7 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.30.0
+**Version:** 2.31.0
 **Status:** Active
 **Effective Date:** 2026-03-26
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -829,7 +829,7 @@ Document transitions in State File with rationale.
 
 **Importance: 🔴 CRITICAL — Defines which project documents to create at each mode**
 
-**Implements:** Project Reference Persistence (Constitution), Context Engineering (Constitution)
+**Implements:** Context Engineering (Constitution)
 **Keywords:** **document kit tiering**, **minimum core memory**, **project instruction file pattern**
 
 ### 1.5.1 Core Memory Kit (All Modes Including Expedited)
@@ -4012,7 +4012,7 @@ Before shipping code that interacts with a stateful system, verify:
 **Importance: 🔴 CRITICAL — Prevents fix spirals and unverified fixes**
 
 **Implements:** Validation Gates (Domain), Testing Integration (Domain)
-**Constitutional Basis:** Verification Mechanisms, Fail-Fast Validation, Visible Reasoning
+**Constitutional Basis:** Verification & Validation, Visible Reasoning
 **Applies To:** Any fix attempt that has failed, any bug where root cause is unclear, any multi-layer failure
 
 ### 5.13.1 Purpose
@@ -5373,7 +5373,7 @@ File: `LEARNING-LOG.md` (project root)
 | [Name] | [Target location] | [Date] |
 ```
 
-**Entry quality standard:** Each entry must be self-contained, actionable, and concise. Apply *Rich but Not Verbose* — include the specific failure mode (what went wrong), the trigger condition (when it happens), and the corrective action (what to do instead). Exclude everything else: supporting evidence, implementation details, and verbose reasoning do not belong in the log. When in doubt, apply the Future Action Test (§7.3.1).
+**Entry quality standard:** Each entry must be self-contained, actionable, and concise. Apply *Resource Efficiency* (see also Methods Part 16.5: Communication Style) — include the specific failure mode (what went wrong), the trigger condition (when it happens), and the corrective action (what to do instead). Exclude everything else: supporting evidence, implementation details, and verbose reasoning do not belong in the log. When in doubt, apply the Future Action Test (§7.3.1).
 
 **Calibration example (well-formed):**
 > ### Transitive Dependency Drift in Docker (2026-02-02)
@@ -5970,7 +5970,7 @@ Reference Memory implementations must follow these security patterns:
 
 **Importance: 🟡 IMPORTANT — Captures cross-cutting project knowledge that no single file reveals**
 
-**Implements:** Project Reference Persistence (Constitution)
+**Implements:** Context Engineering (Constitution)
 **Applies to:** Coding projects exceeding ~50 files
 
 ### 7.10.1 Purpose
@@ -6669,7 +6669,7 @@ def generate_config(platform: str) -> dict:
 
 **Importance: 🟡 IMPORTANT — Ensures governance and compliance checks actually happen**
 
-**Implements:** Security, Privacy, and Compliance by Default (Constitution)
+**Implements:** Non-Maleficence, Privacy & Security (Constitution)
 **Applies To:** MCP server builders, AI-assisted workflows requiring **compliance verification**, **hook-based enforcement**, governance-critical applications. Extends §9.3.5 (Server Instructions) and §9.3.6 (Per-Response Reminders) with **structural enforcement** mechanisms.
 
 Advisory instructions alone are probabilistic — AI models skip compliance calls in long conversations, with many tools, or when confident they already know the answer. Multi-turn performance degrades ~39% on average (Microsoft Research, 2025). Structural enforcement is needed for reliable compliance in production workflows.
@@ -7887,7 +7887,7 @@ CLI-based AI tools auto-discover instruction files (CLAUDE.md, GEMINI.md, .curso
 
 This appendix defines a **self-documenting folder convention** (`_ai-context/`) that enables governance memory files in any folder-based AI environment. The convention follows the same three-memory-type model (§7.0.2: working, semantic, episodic) used throughout the framework.
 
-**Constitutional basis:** Project Reference Persistence (curated reference documents for cross-session continuity), Context Engineering (load relevant context before acting).
+**Constitutional basis:** Context Engineering (curated reference documents for cross-session continuity; load relevant context before acting).
 
 ### L.2 Folder Structure Convention
 
@@ -8109,6 +8109,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.31.0 | 2026-03-28 | PATCH: Updated stale constitutional principle references. "Verification Mechanisms" / "Fail-Fast Validation" → "Verification & Validation" (§5.13). "Security, Privacy, and Compliance by Default" → "Non-Maleficence, Privacy & Security" (§9.3.10). "Project Reference Persistence" consolidated into existing "Context Engineering" references (§1.5, §7.10, Appendix L). Version History unchanged (historical records). |
 | 2.29.0 | 2026-03-27 | **Quality Gate Enforcement:** (1) New §5.1.7 Subagent Review Triggers — change-type matrix determining when subagent reviews are required before commit/push (5 change types: new MCP tools, core pipeline, new file-handling paths, content expansion, broad changes >5 files). (2) §9.3.10 expanded from 4-Layer to 5-Layer Enforcement Stack: new Layer 5 Pre-Push Quality Gate — PreToolUse hook on `git push` with transcript scanning for test execution and subagent review invocations, risk-based triggers (core code + new src files), docs-only bypass, emergency override via `QUALITY_GATE_SKIP` env var. Design rationale: pre-push not pre-commit (irreversibility boundary), hard mode from day one. Cross-references §5.1.7 and COMPLETION-CHECKLIST. |
 | 2.28.0 | 2026-03-26 | **Permission Configuration:** New Appendix A.5 with 5 subsections: A.5.1 Permission Layering (user/project/project-local with precedence), A.5.2 Hook-Permission Interaction (hooks fire BEFORE permissions — governance enforcement safe), A.5.3 Day-to-Day Development Allowlist (recommended pre-approvals + governance-critical file exclusion hard rule), A.5.4 Autonomous Operation Permissions (cross-ref to multi-agent §6.5.2), A.5.5 Reviewing and Updating Permissions. Broadens permission guidance from autonomous-only (§6.5.2) to general Claude Code usage. |
 | 2.27.0 | 2026-03-26 | **Agentic Engineering Patterns Integration:** (1) §5.2.2 Red/green TDD elevated from equal alternative to RECOMMENDED pattern for AI-assisted development, citing research consensus (Willison 2026, GitHub Copilot TDD guide, TDAD arXiv 2026, DORA 2025). Added TDAD finding on providing specific test context. (2) §7.6.2 Session Start Procedure: added step 3 "Run existing tests" to establish known-good baseline before changes. (3) New §5.13.7 Code Comprehension via Linear Walkthrough — structured technique for understanding unfamiliar/agent-written code, combating cognitive debt, supporting Skill Preservation. (4) Situation Index +1 entry. |

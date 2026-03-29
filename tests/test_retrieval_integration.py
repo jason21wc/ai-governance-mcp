@@ -212,6 +212,93 @@ class TestGetPrincipleById:
                 assert principle is None
 
 
+class TestAliasResolution:
+    """Tests for principle alias resolution in get_principle_by_id()."""
+
+    def test_alias_resolves_to_canonical(
+        self,
+        test_settings,
+        mock_embedder,
+        mock_reranker,
+        mock_embeddings,
+        mock_domain_embeddings,
+    ):
+        """get_principle_by_id() should resolve an alias to the canonical principle."""
+        from ai_governance_mcp.models import (
+            DomainIndex,
+            GlobalIndex,
+            Principle,
+        )
+
+        # Create a principle with aliases (simulating post-consolidation state)
+        canonical = Principle(
+            id="meta-quality-verification-and-validation",
+            domain="constitution",
+            series_code="Q",
+            title="Verification & Validation",
+            content="Merged verification principle.",
+            line_range=(1, 10),
+            aliases=[
+                "meta-quality-verification-mechanisms-before-action",
+                "meta-quality-fail-fast-validation",
+                "meta-quality-verifiable-outputs",
+            ],
+            embedding_id=0,
+        )
+        domain_index = DomainIndex(
+            domain="constitution",
+            principles=[canonical],
+            methods=[],
+            last_extracted="2025-01-01T00:00:00Z",
+        )
+        global_index = GlobalIndex(
+            domains={"constitution": domain_index},
+            domain_configs=[],
+            created_at="2025-01-01T00:00:00Z",
+            version="1.0",
+            embedding_model="test",
+            embedding_dimensions=384,
+        )
+
+        # Save to disk
+        import json
+        import numpy as np
+
+        index_file = test_settings.index_path / "global_index.json"
+        with open(index_file, "w") as f:
+            json.dump(global_index.model_dump(), f)
+        np.save(test_settings.index_path / "content_embeddings.npy", mock_embeddings)
+        np.save(
+            test_settings.index_path / "domain_embeddings.npy", mock_domain_embeddings
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(test_settings)
+
+                # Canonical ID should work
+                result = engine.get_principle_by_id(
+                    "meta-quality-verification-and-validation"
+                )
+                assert result is not None
+                assert result.id == "meta-quality-verification-and-validation"
+
+                # Alias IDs should resolve to the same canonical principle
+                for alias in canonical.aliases:
+                    result = engine.get_principle_by_id(alias)
+                    assert result is not None, f"Alias '{alias}' did not resolve"
+                    assert result.id == "meta-quality-verification-and-validation"
+
+                # Non-existent ID should still return None
+                result = engine.get_principle_by_id("meta-nonexistent-principle")
+                assert result is None
+
+
 class TestListDomains:
     """Tests for list_domains() method."""
 
@@ -427,19 +514,21 @@ class TestRealIndexRetrieval:
             "Should not return constitution"
         )
 
-    def test_real_index_periodic_reevaluation_principle_exists(self, real_settings):
-        """Periodic Re-evaluation principle should exist and be retrievable by ID."""
+    def test_real_index_discovery_before_commitment_principle_exists(
+        self, real_settings
+    ):
+        """Discovery Before Commitment principle should exist (absorbed Periodic Re-evaluation in v3.0.0)."""
         from ai_governance_mcp.retrieval import RetrievalEngine
 
         engine = RetrievalEngine(real_settings)
 
-        # Get principle by ID
-        principle = engine.get_principle_by_id("meta-core-periodic-re-evaluation")
+        # Get principle by canonical ID
+        principle = engine.get_principle_by_id("meta-core-discovery-before-commitment")
 
         assert principle is not None, (
-            "Periodic Re-evaluation principle should be retrievable"
+            "Discovery Before Commitment principle should be retrievable"
         )
-        assert principle.title == "Periodic Re-evaluation"
+        assert "Discovery Before Commitment" in principle.title
         assert "anchor bias" in principle.content.lower()
         assert "milestone" in principle.content.lower()
 

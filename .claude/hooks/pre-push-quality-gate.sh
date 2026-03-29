@@ -77,7 +77,7 @@ if [ "$TESTS_RUN" = "false" ]; then
 fi
 
 # Check 2: Risky files changed without subagent review?
-RISKY_FILES=$(echo "$CHANGED_FILES" | grep -E '(server\.py|extractor\.py|retrieval\.py|config\.py)$' || true)
+RISKY_FILES=$(echo "$CHANGED_FILES" | grep -E '(server\.py|extractor\.py|retrieval\.py|config\.py|ai-interaction-principles-.*\.md)$' || true)
 NEW_SRC_FILES=$(git diff --diff-filter=A --name-only @{push}.. 2>/dev/null || git diff --diff-filter=A --name-only origin/main..HEAD 2>/dev/null || echo "")
 NEW_SRC_FILES=$(echo "$NEW_SRC_FILES" | grep -E '^src/' 2>/dev/null || true)
 

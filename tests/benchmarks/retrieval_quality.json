@@ -128,10 +128,10 @@
       },
       {
         "id": "principle-6",
-        "query": "periodic re-evaluation milestone checkpoint",
-        "expected_ids": ["meta-core-periodic-re-evaluation"],
-        "min_score": 0.5,
-        "description": "Periodic re-evaluation principle"
+        "query": "discovery before commitment exploration unknown requirements",
+        "expected_ids": ["meta-core-discovery-before-commitment"],
+        "min_score": 0.45,
+        "description": "Discovery before commitment principle"
       },
       {
         "id": "principle-7",

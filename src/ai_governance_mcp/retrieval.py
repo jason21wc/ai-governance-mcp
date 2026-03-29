@@ -55,8 +55,8 @@ class RetrievalEngine:
         "C": 1,  # Core
         "Q": 2,  # Quality
         "O": 3,  # Operational
-        "MA": 4,  # Meta-awareness
-        "G": 5,  # Governance
+        "G": 4,  # Governance
+        # MA-Series dissolved in v3.0.0 — multi-agent principles moved to domain
     }
 
     def __init__(self, settings: Settings):
@@ -848,7 +848,11 @@ class RetrievalEngine:
     # =========================================================================
 
     def get_principle_by_id(self, principle_id: str) -> Principle | None:
-        """Get a specific principle by its ID."""
+        """Get a specific principle by its ID.
+
+        Also resolves aliases: if principle_id matches a former ID stored
+        in a principle's aliases list, the canonical principle is returned.
+        """
         self._check_index_freshness()
         if not self.index:
             return None
@@ -857,6 +861,12 @@ class RetrievalEngine:
         for domain_index in self.index.domains.values():
             for principle in domain_index.principles:
                 if principle.id == principle_id:
+                    return principle
+
+        # Alias resolution: check if the ID matches a former principle ID
+        for domain_index in self.index.domains.values():
+            for principle in domain_index.principles:
+                if principle_id in principle.aliases:
                     return principle
 
         return None

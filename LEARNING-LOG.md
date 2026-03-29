@@ -22,6 +22,22 @@
 
 ---
 
+### Principle Count ≠ Governance Quality (2026-03-29)
+
+Consolidating the constitution from 47 to 22 principles left retrieval quality flat (MRR 0.688, Recall 0.875 — identical before and after). Reducing principle count eliminated redundancy and improved clarity, but didn't measurably improve retrieval. The real quality drivers are: (1) principle text quality (how well-written), (2) retrieval algorithm (embedding model, reranking), and (3) proportional application (knowing when to apply which principle).
+
+**Rule:** Principle consolidation is structural hygiene, not performance optimization. It makes the framework honest ("small set" claim now true) and maintainable, but don't expect retrieval metrics to move from content reorganization alone. Next gains require algorithm tuning or proportionality operationalization.
+
+---
+
+### Demotion Decisions Require Constitutional Coverage Verification (2026-03-29)
+
+"Rich but Not Verbose Communication" was demoted to methods as a "style guide" — but the underlying concept (calibrate communication to audience expertise and context) was not covered by any remaining constitutional principle. Resource Efficiency covers waste; Interaction Mode Adaptation covers task modes. Neither covers audience-appropriate communication. The demotion created a gap that required promoting it back as "Effective & Efficient Communication."
+
+**Rule:** Before demoting a principle, verify that every distinct concept it covers is either (a) absorbed into a remaining principle or (b) genuinely methods-level. The constitutional test ("governs all domains?") is necessary but not sufficient — also check "is this concept covered elsewhere?"
+
+---
+
 ### Hard-Mode Hooks Prove Deterministic Enforcement Works (2026-02-28)
 
 During the implementation session itself, the recency window (200 lines) expired 3 times, blocking my own edits until I re-called `evaluate_governance()` and `query_project()`. This was not a bug — it proved the system works exactly as designed: even the implementing agent cannot bypass enforcement. Advisory instructions failed at 87%; structural blocking achieves near-100% by making non-compliance physically impossible rather than merely discouraged.
