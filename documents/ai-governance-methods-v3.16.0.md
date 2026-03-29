@@ -2192,7 +2192,7 @@ Reference table — does NOT reproduce templates, points to canonical sources.
 - [ ] Constitutional Basis valid and current (for domain principles)
 - [ ] Failure Mode describes observable violations with detection criteria
 - [ ] S-Series compliance check (does not weaken safety constraints)
-- [ ] Contrarian review (mandatory for constitutional amendments, recommended for domain)
+- [ ] Contrarian review (mandatory — see §9.8.8 for subagent requirements)
 
 **Type-specific — Methods:**
 
@@ -2271,6 +2271,32 @@ When reviewing domains with structural features beyond standard principles:
 - **Failure mode taxonomy:** If the domain uses dedicated failure mode codes (MA-*, MR-*, etc.), update codes when merging or removing principles. Orphaned codes should be removed or reassigned.
 - **Series structure:** If a series drops to 0 or 1 principles after consolidation, evaluate whether the series should be absorbed into another or the remaining principle reassigned
 - **Peer domain interaction sections:** Some domains (multi-agent, ai-coding) have sections describing how they interact with other domains. Update these when changing principle names.
+
+---
+
+### 9.8.8 Required Subagent Reviews
+
+Subagent reviews are mandatory, not optional. The KM&PD process validation run demonstrated that a primary assessor rated all 13 principles as KEEP, while the contrarian-reviewer identified 2 shared failure mode codes and 1 method-masquerading-as-principle — resulting in 13→10 after corrections. Without the contrarian, the skip gate would have incorrectly passed the domain.
+
+**Required subagents by phase:**
+
+| Phase | Subagent | Purpose | Required? |
+|-------|----------|---------|-----------|
+| Assessment (§9.8.5 review mode) | **contrarian-reviewer** | Independent disposition assessment. Catches overlap, shared failure modes, and borderline cases the primary assessor misses. | **MANDATORY** |
+| After merges/demotions | **contrarian-reviewer** | Concept loss check on each merged principle ("did we lose any distinct concept?") | **MANDATORY** for merges |
+| After all changes | **coherence-auditor** | Stale references, count consistency, cross-file contradictions, crosswalk table accuracy | **MANDATORY** |
+| After all changes | **validator** | Explicit pass/fail against structural criteria (counts, template compliance, constitutional basis currency) | **MANDATORY** |
+| Constitutional-level rewrites | **voice-coach** | Tone/style consistency, elevator pitch quality, legal analogy coherence | Only for constitutional principles |
+| Code changes | **security-auditor** | Alias resolution safety, S-Series veto integrity, config file consistency | Only when code is modified |
+| Code changes | **code-reviewer** | Code quality, test coverage | Only when code is modified |
+
+**Minimum review battery for domain principle consolidation:**
+1. `contrarian-reviewer` on disposition table (before executing changes)
+2. `contrarian-reviewer` on merged principles (after executing changes)
+3. `coherence-auditor` on final document state
+4. `validator` on final artifact against criteria
+
+**Process lesson (KM&PD v1.3.0):** The Admission Test alone is necessary but not sufficient. The contrarian-reviewer provides the independent judgment that prevents confirmation bias in the primary assessment. A primary assessor who authored or is familiar with the content will unconsciously rationalize KEEP dispositions. The contrarian breaks this pattern.
 
 ---
 
