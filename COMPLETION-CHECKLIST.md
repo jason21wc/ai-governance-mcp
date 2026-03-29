@@ -113,12 +113,11 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 
 ### BEST-EFFORT (advisory)
 
-**Before writing the principle:**
-1. **Root cause analysis:** What failure triggered this? Is the failure caused by a missing principle, or by missing enforcement/integration of existing principles?
-2. **Existing coverage check:** Query `query_governance("the concept")` — does something already cover this? Check constitution, domain principles, AND methods.
-3. **Concrete failure case:** Name one specific past incident where existing principles failed and this new principle would have caught it. If you cannot, the gap may not exist.
-4. **Level check:** Should this be a constitutional meta-principle (all domains), a domain principle (one domain), or a method (procedure implementing existing principles)?
-5. **Consolidation check:** Can this be absorbed into an existing principle (adding a bullet, expanding a section) rather than creating a standalone entry?
+**Before writing the principle (see Part 9.8 Content Quality Framework for full procedure):**
+1. **Admission Test (§9.8.1):** Pass all 7 questions — gap, level, scope, derivation, evidence, cross-domain, correct home.
+2. **Duplication Check (§9.8.2):** Query `query_governance()` and `query_project()` — does something already cover this at any level?
+3. **Structural Requirements (§9.8.3):** Use the correct template for the content type.
+4. **Concept Loss Prevention (§9.8.6):** If modifying/removing existing content, verify every concept has a home.
 
 **After writing the principle:**
 6. **S-Series compliance check:** Does the new/modified principle comply with all S-Series (safety) principles? Amendments that weaken safety constraints require heightened scrutiny: contrarian review + coherence audit + human sign-off.

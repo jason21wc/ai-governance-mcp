@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.15.0
+**Version:** 3.16.0
 **Status:** Active
-**Effective Date:** 2026-03-26
+**Effective Date:** 2026-03-29
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -129,6 +129,10 @@ Load this document when:
 | Determining content level (hierarchy) | Part 9.7 | Level Classification Procedure |
 | Applying constitutional analogy | Part 9.7 | Constitutional Analogy Application |
 | Cross-level references | Part 9.7.5 | Cross-Level Reference Format |
+| Evaluating new content before publishing | Part 9.8 | Content Quality Framework (Authoring Gate) |
+| Reviewing existing content for consolidation | Part 9.8 | Content Quality Framework (Review/Audit) |
+| Checking for duplicate content | Part 9.8.2 | Duplication Check |
+| Content removal or merge | Part 9.8.6 | Concept Loss Prevention |
 | Model-specific guidance | Title 10 | Model-Specific Application |
 | Model capability comparison | Part 10.2 | Model Capability Matrix |
 | Claude-specific tactics | Appendix G | Claude (Anthropic) |
@@ -1913,6 +1917,8 @@ Every coding task must have a complete specification including: what to build, a
 
 ## Part 9.5: Validation Checklist
 
+**Note:** This checklist has been superseded by Part 9.8.4 (Unified Quality Checklist) which extends coverage to all content types. This section is retained for historical reference.
+
 **Importance: IMPORTANT - Quality gate for new domain content**
 
 Before publishing any new domain principle or method:
@@ -2079,6 +2085,177 @@ When referencing across levels, use titles per Part 3.4.5:
 | Appendix → Methods | "Applies [method] to [platform]" | "Applies context compression to Claude" |
 
 **Note:** Use titles, not principle IDs, for human-readable references. IDs are for machine retrieval.
+
+---
+
+## Part 9.8: Content Quality Framework
+
+**Importance: CRITICAL - Unified quality gate for all framework content**
+
+**Implements:** Systemic Thinking, Verification & Validation, Single Source of Truth
+
+This part establishes the unified quality gate for all framework content — principles, methods, and appendices — at any level (constitutional or domain). The same criteria apply whether authoring new content (gate) or reviewing existing content (audit).
+
+---
+
+### 9.8.1 The Admission Test (7 Questions)
+
+Seven binary questions ANY content must pass. The same questions apply when authoring (gate) and reviewing (audit). Content failing during review becomes a consolidation or removal candidate.
+
+| # | Question | What It Checks |
+|---|----------|----------------|
+| 1 | **Gap** — Does an actual behavioral gap exist that no existing content covers? | Prevents redundant content |
+| 2 | **Level** — Is this at the correct hierarchy level? (S-Series > Constitution > Domain Principles > Methods > Appendices, per Part 9.7.2) | Prevents misplaced content |
+| 3 | **Scope** — Does it govern a distinct scope not already covered at this level? | Prevents scope overlap |
+| 4 | **Derivation** — Does it properly derive from a higher-level element? (Domain principles from constitution, methods from principles, appendices from methods) | Ensures hierarchy integrity |
+| 5 | **Evidence** — Can you name a concrete failure case it prevents? | Prevents aspirational-only content |
+| 6 | **Cross-domain** — Does another domain already govern this concern? If yes, consider cross-referencing rather than duplicating. | Prevents cross-domain duplication |
+| 7 | **Correct home** — Is this scoped to the right domain? Not too broad (should be constitutional), not too narrow (should be an appendix)? | Prevents scope misassignment |
+
+**Type-specific notes — what "evidence" (Question 5) means for each content type:**
+
+| Content Type | Evidence Standard |
+|---|---|
+| Principles | Named failure mode with observable symptoms and detection criteria |
+| Methods | Procedural gap that caused rework, errors, or missed steps in practice |
+| Appendices | Platform-specific gotcha that methods cannot capture generically |
+
+---
+
+### 9.8.2 The Duplication Check
+
+Procedure for checking existing coverage before authoring, or for identifying redundancy during review.
+
+**Steps:**
+
+1. `query_governance("the concept")` — search existing principles across all domains
+2. `query_project("the concept")` — search existing implementations in code and docs
+3. Check all levels: constitution, domain principles, methods, appendices
+4. Apply the decision tree:
+
+```
+Existing content covers this concept?
+├── YES, fully → Do not create. Cross-reference existing content.
+├── YES, partially → Absorb into existing content (add bullet/subsection).
+├── NO, but related content exists → Create new, with cross-references.
+└── NO, nothing related → Create new.
+```
+
+**During review (existing content):** If the duplication check reveals overlap between existing items, produce a disposition:
+
+| Content Type | Disposition for Overlapping Items |
+|---|---|
+| Principles | Absorb by adding a bullet or subsection to the stronger principle |
+| Methods | Merge into an existing procedure section |
+| Appendices | Extend an existing platform section |
+
+---
+
+### 9.8.3 Structural Requirements by Content Type
+
+Reference table — does NOT reproduce templates, points to canonical sources.
+
+| Content Type | Template Reference | Key Requirements |
+|---|---|---|
+| Constitutional Principle | Part 9.4.0 (7 fields) | Elevator pitch, legal analogy, all 7 template fields, no Constitutional Basis (IS the constitution) |
+| Domain Principle | Part 9.4.1 (9 fields) | Constitutional Basis required, Failure Mode required, domain-specific guidance |
+| Method Section | Part 3.5.3 | Procedure + Validation, Importance tag, Implements reference to principles |
+| Appendix Section | See below | Platform-specific, references parent method, version/currency disclaimer |
+
+**Appendix minimal format** (since no formal template exists yet):
+
+- Title with platform/tool name
+- Parent method reference ("Implements Part X.Y for [platform]")
+- Platform-specific procedure
+- Platform-specific gotchas/caveats
+- Version/currency disclaimer
+
+---
+
+### 9.8.4 The Quality Checklist (Unified)
+
+**Note:** This checklist supersedes Part 9.5 (Validation Checklist) which covered principles only. Part 9.5 is retained as a historical reference; use this checklist for all content types.
+
+**Universal checks (all content types):**
+
+- [ ] Passes Admission Test (§9.8.1) — all 7 questions answered YES
+- [ ] Passes Duplication Check (§9.8.2) — no existing coverage identified
+- [ ] Correct hierarchy level (Part 9.7.2)
+- [ ] Follows structural template for content type (§9.8.3)
+- [ ] No contradiction with higher-level content (Supremacy Clause)
+- [ ] Cross-references use current principle/method names (v3.0.0+ for constitution)
+- [ ] Version history entry added
+
+**Type-specific — Principles:**
+
+- [ ] Constitutional Basis valid and current (for domain principles)
+- [ ] Failure Mode describes observable violations with detection criteria
+- [ ] S-Series compliance check (does not weaken safety constraints)
+- [ ] Contrarian review (mandatory for constitutional amendments, recommended for domain)
+
+**Type-specific — Methods:**
+
+- [ ] Implements identified principles (names them in header)
+- [ ] Procedure is sequential and testable
+- [ ] Importance tag present (CRITICAL / IMPORTANT / OPTIONAL)
+- [ ] Validation section has checkable criteria
+
+**Type-specific — Appendices:**
+
+- [ ] References the method section it platform-specializes
+- [ ] Contains only platform-specific content (no framework-level rules)
+- [ ] Version/currency disclaimer present
+
+---
+
+### 9.8.5 Applying the Framework: Authoring vs. Review
+
+The same criteria apply in both directions:
+
+**Authoring mode (creating new content):**
+
+Run §9.8.1 through §9.8.4 as a GATE before publishing. Content must pass all applicable checks. If it fails, revise or reconsider whether the content should exist.
+
+**Review mode (evaluating existing content):**
+
+Run §9.8.1 through §9.8.4 as an AUDIT against existing content. Items failing produce a disposition:
+
+| Disposition | When to Apply | Action |
+|---|---|---|
+| KEEP | Passes all checks | No change needed |
+| MERGE | Shares scope or failure mode with another item at the same level | Combine into one, preserving all distinct concepts. Add alias for removed ID. |
+| DEMOTE | Content is at the wrong level (e.g., a principle that's really a method) | Move to the correct level. Add alias. Add derivation citation. |
+| REMOVE | Duplicates higher-level content without adding value at this level | Remove after verifying concept coverage (§9.8.6). Add alias. |
+| REWRITE | Passes admission test but is unclear, poorly scoped, or confusing | Rewrite for clarity without changing scope |
+
+**Skip gate for domain review:** If a domain assessment (review mode) produces >90% KEEP dispositions with no MERGE candidates, document the clean assessment and move on. Not every domain needs full consolidation.
+
+---
+
+### 9.8.6 Concept Loss Prevention
+
+Before removing or merging ANY content:
+
+1. **List every distinct concept** the item contains — not just the title, but each specific idea, rule, or guidance it provides
+2. **Map each concept to its new home:**
+   - Absorbed into the merge target? — Verify the merged text explicitly preserves it
+   - Covered by a higher-level principle? — Cite the specific bullet or section that covers it
+   - Covered by a peer principle/method? — Cite with specific reference
+3. **If ANY concept has no identified home — do not proceed.** Either keep the item, or add the orphaned concept to an existing item first, THEN proceed with removal.
+
+This prevents the error observed during constitutional consolidation: "Rich but Not Verbose Communication" was demoted as a "style guide" but its core concept (audience-appropriate communication) was not covered by any remaining principle. The demotion created a gap that required re-promotion.
+
+---
+
+### 9.8.7 Domain-Specific Structural Considerations
+
+When reviewing domains with structural features beyond standard principles:
+
+- **Crosswalk tables:** Update after all merges/removals to reflect current principle names and mappings
+- **Maturity indicators:** When merging principles with different maturity levels (e.g., [VALIDATED] + [EMERGING]), the merged principle takes the LOWER maturity level unless the higher-maturity content dominates
+- **Failure mode taxonomy:** If the domain uses dedicated failure mode codes (MA-*, MR-*, etc.), update codes when merging or removing principles. Orphaned codes should be removed or reassigned.
+- **Series structure:** If a series drops to 0 or 1 principles after consolidation, evaluate whether the series should be absorbed into another or the remaining principle reassigned
+- **Peer domain interaction sections:** Some domains (multi-agent, ai-coding) have sections describing how they interact with other domains. Update these when changing principle names.
 
 ---
 
@@ -3849,6 +4026,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.16.0 | 2026-03-29 | MINOR: Added Part 9.8 (Content Quality Framework) — unified quality gate for all framework content (principles, methods, appendices) at any level (constitutional or domain), for both authoring new content and reviewing existing content. §9.8.1 Admission Test (7 binary questions). §9.8.2 Duplication Check procedure. §9.8.3 Structural Requirements by Content Type (reference table to canonical templates). §9.8.4 Unified Quality Checklist (supersedes Part 9.5 for principles-only). §9.8.5 Authoring vs. Review modes with disposition table (KEEP/MERGE/DEMOTE/REMOVE/REWRITE). §9.8.6 Concept Loss Prevention (mandatory before any removal or merge). §9.8.7 Domain-Specific Structural Considerations (crosswalk tables, maturity indicators, failure mode taxonomy, series structure, peer domain interactions). Added superseded note to Part 9.5. Added 4 Situation Index entries. Constitutional Basis: Systemic Thinking, Verification & Validation, Single Source of Truth. |
 | 3.15.0 | 2026-03-28 | MINOR: Added TITLE 16 (Demoted Constitutional Principles — Procedural Methods). Houses 6 principles demoted from Constitution during Phase 3 consolidation (v2.8.0). Parts 16.1-16.6: Reference Document Patterns (from Project Reference Persistence, cross-refs TITLE 14), Adaptive Questioning Technique (from Progressive Inquiry Protocol, cross-refs Part 7.9), Constraint-Based Prompting Technique, Iterative Planning Methodology, Communication Style Method, Cross-Domain Accessibility Standard. Each section includes Constitutional Basis citation, procedural steps, escalation triggers, and common pitfalls. |
 | 3.14.0 | 2026-03-26 | MINOR: Added TITLE 15 (Reference Library / Case Law). Defines curated precedent system for concrete reusable artifacts (code snippets, templates, configurations, vetted external references). Parts 15.1-15.7 covering concept and legal analogy, entry types (direct/reference), entry template (YAML frontmatter + markdown body), curation governance (three intake paths: auto-capture, staged suggestion, manual), maturity pipeline (seedling/budding/evergreen), KeyCite-style currency tracking (current/caution/deprecated/archived), classification system (faceted: domain + tags + relationship edges), directory structure and privacy, proportional application. Updated §9.3.1 Truth Source Hierarchy to include Reference Library as level 4. Operationalizes constitution principle Project Reference Persistence. Source: Willison (2026) "Agentic Engineering Patterns" + Zettelkasten methodology + legal precedent systems research. |
 | 3.13.0 | 2026-03-12 | MINOR: Added TITLE 14 (Project Reference Documents) with Parts 14.1-14.5. §14.1 Complexity Scaling Tiers — domain-specific complexity metrics and four-tier scaling model (None/Minimal/Standard/Mandatory External). §14.2 Staleness Management Protocol — freshness metadata format, detection procedure, domain-specific thresholds, refresh procedure, coherence-auditor integration. §14.3 Three-Tier Memory Mapping — generalizes storytelling Story Bible pattern to cross-domain Working/Semantic/Episodic memory architecture. §14.4 Agent Consumption — selective loading protocol, pre-action reference checks, post-action update triggers. §14.5 Domain Declaration Template — standard format for domains to declare their reference doc taxonomy. Implements new Constitution principle "Project Reference Persistence" (v2.5.0). Cross-referenced from ai-coding methods §7.10, storytelling methods §2. |
