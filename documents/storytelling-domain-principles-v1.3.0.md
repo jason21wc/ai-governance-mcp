@@ -210,7 +210,7 @@ This framework organizes domain principles into five series that address differe
 | Constitutional Principle | Storytelling Domain Application | Series |
 |--------------------------|----------------------------------|--------|
 | Discovery Before Commitment | Audience Discovery First (discovery gate before generation) | A |
-| Visible Reasoning & Traceability | Audience Discovery First (assumption surfacing), Specificity Over Abstraction (concrete over abstract), Transformation Arc (before-after clarity) | A, C, ST |
+| Visible Reasoning & Traceability | Audience Discovery First (assumption surfacing), Specificity Over Abstraction (concrete over abstract), Transformation Arc (before-after clarity), Perspective Selection (conscious POV reasoning), Persuasion-Manipulation Boundary (transparency in persuasion) | A, C, ST, E |
 | Bias Awareness & Fairness | Cultural-Aware Framework Selection (cultural bias detection, alternative frameworks), Accessibility by Design (cultural accessibility), Persuasion-Manipulation Boundary (fairness in persuasion) | ST, A, E |
 | Verification & Validation | Transformation Arc (earned change verification), Stakes and Consequence Clarity (stakes establishment) | ST |
 | Structural Foundations | Perspective Selection (POV as narrative foundation) | ST |
@@ -223,9 +223,9 @@ This framework organizes domain principles into five series that address differe
 **Cross-domain references:**
 - E1 (Human Voice Preservation) also references Intent Preservation from the Multi-Agent domain (voice as intent that must pass through AI assistance)
 
-**Domain-native principles** (no direct constitutional derivation):
+**Domain-native principles** (conceptually aligned with constitutional principles but not directly derived — listed in the crosswalk for discoverability but do not claim constitutional authority):
 - ST1: Framework as Tool, Not Law — aligned with Interaction Mode Adaptation
-- C2: Show-Tell Balance — aligned with Visible Reasoning
+- C2: Show-Tell Balance — aligned with Visible Reasoning & Traceability
 - C3: Pacing Variation — addresses ST-F10, ST-F12
 - C5: Dialogue Craft — addresses undifferentiated character voices
 - M1: Platform-First Optimization — aligned with Interaction Mode Adaptation
