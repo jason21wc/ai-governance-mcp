@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-03-29T18:15:16.991925",
+  "timestamp": "2026-03-29T20:14:43.739138",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
-    "method_mrr": 0.6694444444444444,
+    "method_mrr": 0.7111111111111111,
     "principle_mrr": 0.75,
-    "method_recall_at_10": 0.8333333333333334,
+    "method_recall_at_10": 0.9166666666666666,
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 44.3,
+    "model_load_time_ms": 45.3,
     "index_stats": {
-      "total_principles": 131,
+      "total_principles": 128,
       "total_methods": 663,
       "domains": [
         "constitution",
@@ -38,9 +38,9 @@
       "expected": [
         "coding-method-calibration-questions"
       ],
-      "rank": null,
-      "score": null,
-      "semantic_score": null
+      "rank": 2,
+      "score": 0.4269610047340393,
+      "semantic_score": 0.7116016745567322
     },
     "method-3": {
       "query": "session start procedure initialization",
@@ -48,7 +48,7 @@
         "coding-method-session-start-procedure"
       ],
       "rank": 1,
-      "score": 0.8704666224848525,
+      "score": 0.8702705038214706,
       "semantic_score": 0.7874093651771545
     },
     "method-4": {
@@ -57,7 +57,7 @@
         "meta-method-what-is-anchor-bias"
       ],
       "rank": 1,
-      "score": 0.7961044629622784,
+      "score": 0.797037416560678,
       "semantic_score": 0.6823557019233704
     },
     "method-5": {
@@ -75,7 +75,7 @@
         "multi-method-orchestration-pattern-selection"
       ],
       "rank": 2,
-      "score": 0.779869202086345,
+      "score": 0.7799875514446555,
       "semantic_score": 0.7572816610336304
     },
     "method-7": {
@@ -84,7 +84,7 @@
         "multi-method-advanced-model-considerations"
       ],
       "rank": 3,
-      "score": 0.7327556808125808,
+      "score": 0.7335652391153379,
       "semantic_score": 0.7591487169265747
     },
     "method-8": {
@@ -93,7 +93,7 @@
         "multi-method-governance-agent-pattern"
       ],
       "rank": 5,
-      "score": 0.5424019262308213,
+      "score": 0.5423137985142582,
       "semantic_score": 0.6937937140464783
     },
     "method-9": {
@@ -102,8 +102,8 @@
         "coding-method-mcp-server-vetting-procedure"
       ],
       "rank": 1,
-      "score": 0.8848330616950989,
-      "semantic_score": 0.8080551028251648
+      "score": 0.8848330259323121,
+      "semantic_score": 0.80805504322052
     },
     "method-10": {
       "query": "zero trust security patterns for web applications",
@@ -111,7 +111,7 @@
         "coding-method-zero-trust-design-principles"
       ],
       "rank": 1,
-      "score": 0.8476497953583988,
+      "score": 0.849177684350588,
       "semantic_score": 0.755804181098938
     },
     "method-11": {
@@ -140,7 +140,7 @@
         "meta-core-context-engineering"
       ],
       "rank": 1,
-      "score": 0.6792481323289145
+      "score": 0.6793236690303522
     },
     "principle-2": {
       "query": "incomplete specification unclear requirements",
@@ -164,7 +164,7 @@
         "coding-quality-testing-integration"
       ],
       "rank": 2,
-      "score": 0.8404830699927773
+      "score": 0.8425260933165025
     },
     "principle-5": {
       "query": "multi agent handoff protocol explicit",
@@ -180,7 +180,7 @@
         "meta-core-discovery-before-commitment"
       ],
       "rank": 1,
-      "score": 0.8860906260997641
+      "score": 0.8949359059333801
     },
     "principle-7": {
       "query": "fault tolerance graceful degradation multi-agent",

@@ -37,7 +37,7 @@ When responding with images, follow this sequence:
    - Each image placed after its introduction?
    - No orphan images?
    - Text complexity appropriate (P4, P5)?
-   - Alt text present for every image (P6)?
+   - Alt text present for every image (P5)?
    - Cross-modal consistency verified (V1)?
    - Claims attributed to sources (CT1)?
 ```
@@ -1006,7 +1006,7 @@ def multimodal_mrr(queries, retrieval_results, ground_truth):
 
 ### 6.3 Drift Detection
 
-**Purpose:** Procedures for implementing EV3 (Continuous Quality Monitoring). Detects quality degradation over time.
+**Purpose:** Procedures for implementing O2 (Continuous Monitoring & Observability). Detects quality degradation over time.
 
 **Applies To:** Production multimodal RAG systems.
 
@@ -1946,7 +1946,7 @@ When answering:
 2. Do not ask permission before showing images (P2)
 3. Select the single best image; add others only if they provide unique value per P3
 4. Use clear, accessible language (P4)
-5. Ensure all images have alt text descriptions (P6)
+5. Ensure all images have alt text descriptions (P5)
 6. Verify text descriptions match image content (V1)
 7. Cite sources for factual claims (CT1)
 8. If an image fails to load, provide complete text answer with failure note (F1, F2)
@@ -2126,7 +2126,7 @@ This methods document implements:
 | P3: Image Selection Criteria | §1.3, §1.4 |
 | P4: Readability Optimization | §1.5 |
 | P5: Audience Adaptation | §1.5 |
-| P6: Accessibility Compliance | §1.6 |
+| P5: Accessibility Compliance | §1.6 |
 | R1: Image-Text Collocation | §2.1, §2.4, §2.5 |
 | R2: Descriptive Context | §2.2, §2.5 |
 | R3: Retrieval Metadata | §2.2, §2.3, §2.5 |
@@ -2143,10 +2143,10 @@ This methods document implements:
 | V4: Cross-Modal Reasoning Chain Integrity | §5.5 |
 | EV1: Retrieval Quality Measurement | §6.1, §6.2 |
 | EV2: Answer Faithfulness Assessment | §6.1 |
-| EV3: Continuous Quality Monitoring | §6.3, §6.4 |
+| O2: Continuous Monitoring & Observability | §6.3, §6.4 |
 | CT1: Fragment-Level Source Attribution | §7.1 |
 | CT2: Spatial Attribution for Visual Content | §7.2 |
-| CT3: Citation Completeness | §7.3, §7.4 |
+| CT1: Fragment-Level Source Attribution (includes completeness) | §7.3, §7.4 |
 | SEC1: Multimodal Poisoning Defense | §8.1, §8.3 |
 | SEC2: Cross-Modal Input Validation | §8.2 |
 | DG1: Access Control for Multimodal KBs | §9.1, §9.2 |
