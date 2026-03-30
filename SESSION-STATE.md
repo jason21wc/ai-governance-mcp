@@ -68,6 +68,17 @@
    - 3-agent review battery at every domain (assessment + post-change = 6 reviews per domain)
    - 1026 tests passing throughout
 
+26. **S-Series False Positive Reduction** — Hybrid dual-signal escalation
+   - Root cause: flat 26-keyword set with OR logic treated "remove section" same as "steal credentials" (~87% false positive rate)
+   - Fix: hybrid approach — 11 critical keywords always escalate, 24 advisory keywords produce warnings only when semantic retrieval doesn't find S-Series principle
+   - Empirically validated: 8 dangerous queries tested against semantic path; 5/8 caught semantically, 3/8 need critical keywords
+   - Contrarian + security-auditor reviewed plan; initial tiered approach rejected for simpler dual-signal logic
+   - Expected: ~75% false positive reduction, 0% false negative increase
+
+27. **Session Meta-Review** — Governance compliance self-assessment
+   - Identified: ESCALATE false positives silently dismissed, log_governance_reasoning never called, early phases lacked 3-agent review
+   - Self-grade: B+ (structural compliance good, audit trail gaps)
+
 ### Previous Session (2026-03-28)
 
 17. **Dependency CVE Remediation** — 33→2 unfixable vulnerabilities

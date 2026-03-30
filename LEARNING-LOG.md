@@ -54,6 +54,22 @@ UI/UX passed the skip gate at 100% KEEP — every principle had a distinct failu
 
 ---
 
+### False Positives That Train You to Ignore Alerts Are Worse Than No Alerts (2026-03-29)
+
+The S-Series keyword scanner produced ~87% false positive rate during this session. Every "remove", "delete", "database", "security" in a content reorganization action triggered ESCALATE. The response: we silently dismissed every ESCALATE as a false positive without pausing for human review. This is the "boy who cried wolf" failure mode — the safety mechanism trained us to ignore it, which is worse than not having the mechanism at all.
+
+**Rule:** When a safety mechanism's false positive rate exceeds ~50%, the mechanism is net-negative. Fix the detection, don't just ignore the alerts. The fix: separate critical keywords (always escalate) from advisory keywords (warn only when semantic retrieval doesn't confirm). Test empirically before weakening ANY safety path — our initial "pure dual-signal" approach would have created 3 false negatives on genuinely dangerous actions.
+
+---
+
+### Empirically Validate Safety Assumptions Before Implementing (2026-03-29)
+
+The initial plan to reduce S-Series false positives assumed "the semantic retrieval path will catch everything the keywords catch." Empirical testing proved this wrong: 3 of 8 genuinely dangerous queries were NOT caught by semantic retrieval ("exfiltrate API tokens", "deploy to production without review", "drop production database"). Without testing, we would have shipped a safety regression.
+
+**Rule:** Before weakening any safety mechanism, test the alternative path empirically with real dangerous queries. "The other path will catch it" is an assumption, not a fact, until you measure it.
+
+---
+
 ### Demotion Decisions Require Constitutional Coverage Verification (2026-03-29)
 
 "Rich but Not Verbose Communication" was demoted to methods as a "style guide" — but the underlying concept (calibrate communication to audience expertise and context) was not covered by any remaining constitutional principle. Resource Efficiency covers waste; Interaction Mode Adaptation covers task modes. Neither covers audience-appropriate communication. The demotion created a gap that required promoting it back as "Effective & Efficient Communication."
