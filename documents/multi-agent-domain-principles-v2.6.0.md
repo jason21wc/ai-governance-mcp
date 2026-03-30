@@ -117,7 +117,7 @@ These domain principles provide the **decision frameworks, context engineering p
 
 ### Evidence Base
 
-This framework derives from analysis of 2024-2025 research including:
+This framework derives from analysis of 2024-2026 research including:
 
 **Multi-Agent Architecture Research:**
 - Anthropic Multi-Agent Research System: Opus lead + Sonnet sub-agents outperformed single Opus by 90.2%
@@ -403,7 +403,7 @@ Each agent receives a **context budget**—maximum tokens for specific context c
 **Constitutional Basis**
 
 - Context Engineering: "Structure, maintain, and update all relevant context"; "Curate the Active Context Window to include only specific information required for current atomic task"
-- Resource Efficiency: Context as "scarce, high-value resource"
+- Resource Efficiency & Waste Reduction: Context as "scarce, high-value resource"
 
 **Truth Sources**
 
@@ -586,7 +586,7 @@ A dedicated orchestrator agent manages workflow coordination, validation gates, 
 
 **Why This Principle Matters**
 
-In multi-agent systems, the original user goal can degrade through agent chains—the "telephone game" effect where each handoff loses fidelity to the original intent. The constitutional principle Intent Preservation requires that the "Why" be passed as an immutable context object to every agent, not just the specific task instructions. An agent cleaning data must know *why* it is cleaning it (e.g., for a medical diagnosis vs. a marketing report) to make the right micro-decisions. Without explicit intent propagation, downstream agents optimize for their local task at the expense of the global goal.
+In multi-agent systems, the original user goal can degrade through agent chains—the "telephone game" effect where each handoff loses fidelity to the original intent. The constitutional principle Context Engineering requires structuring and maintaining context across all task boundaries; for multi-agent systems, this means the original "Why" must be passed as an immutable context object to every agent, not just the specific task instructions. An agent cleaning data must know *why* it is cleaning it (e.g., for a medical diagnosis vs. a marketing report) to make the right micro-decisions. Without explicit intent propagation, downstream agents optimize for their local task at the expense of the global goal.
 
 **v2.0.0 Enhancement: Shared Assumptions Protocol**
 
@@ -1618,7 +1618,7 @@ Autonomous agents (AL-2 or AL-3) must implement drift monitoring:
 
 **4. Intent Drift Assessment**
 - Periodically re-evaluate: "Is this agent still serving its original purpose?"
-- Compare current behavior against the intent context object (per A5 Intent Propagation)
+- Compare current behavior against the intent context object (per Intent Propagation with Shared Assumptions)
 - If drift detected, demote autonomy level and recalibrate
 
 **Constitutional Basis**
@@ -1782,7 +1782,7 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 ## Appendix B: Evidence Base Summary
 
-This framework derives from analysis of 2024-2025 research sources:
+This framework derives from analysis of 2024-2026 research sources:
 
 **Multi-Agent Performance Research:**
 - Anthropic (2025): Multi-agent systems outperformed single Opus by 90.2%; token usage explains 80% of performance variance
