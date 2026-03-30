@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-29T17:09:27.737175",
+  "timestamp": "2026-03-29T18:15:16.991925",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
     "method_mrr": 0.6694444444444444,
@@ -8,10 +8,10 @@
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 46.8,
+    "model_load_time_ms": 44.3,
     "index_stats": {
-      "total_principles": 136,
-      "total_methods": 662,
+      "total_principles": 131,
+      "total_methods": 663,
       "domains": [
         "constitution",
         "ai-coding",
@@ -48,7 +48,7 @@
         "coding-method-session-start-procedure"
       ],
       "rank": 1,
-      "score": 0.8707485744181009,
+      "score": 0.8704666224848525,
       "semantic_score": 0.7874093651771545
     },
     "method-4": {
@@ -57,7 +57,7 @@
         "meta-method-what-is-anchor-bias"
       ],
       "rank": 1,
-      "score": 0.7954662648223865,
+      "score": 0.7961044629622784,
       "semantic_score": 0.6823557019233704
     },
     "method-5": {
@@ -75,7 +75,7 @@
         "multi-method-orchestration-pattern-selection"
       ],
       "rank": 2,
-      "score": 0.7809118181047806,
+      "score": 0.779869202086345,
       "semantic_score": 0.7572816610336304
     },
     "method-7": {
@@ -84,7 +84,7 @@
         "multi-method-advanced-model-considerations"
       ],
       "rank": 3,
-      "score": 0.73412459453225,
+      "score": 0.7327556808125808,
       "semantic_score": 0.7591487169265747
     },
     "method-8": {
@@ -93,7 +93,7 @@
         "multi-method-governance-agent-pattern"
       ],
       "rank": 5,
-      "score": 0.543200246231679,
+      "score": 0.5424019262308213,
       "semantic_score": 0.6937937140464783
     },
     "method-9": {
@@ -111,7 +111,7 @@
         "coding-method-zero-trust-design-principles"
       ],
       "rank": 1,
-      "score": 0.8476004974522418,
+      "score": 0.8476497953583988,
       "semantic_score": 0.755804181098938
     },
     "method-11": {
@@ -140,7 +140,7 @@
         "meta-core-context-engineering"
       ],
       "rank": 1,
-      "score": 0.6787080455716562
+      "score": 0.6792481323289145
     },
     "principle-2": {
       "query": "incomplete specification unclear requirements",
@@ -164,7 +164,7 @@
         "coding-quality-testing-integration"
       ],
       "rank": 2,
-      "score": 0.8409113133448207
+      "score": 0.8404830699927773
     },
     "principle-5": {
       "query": "multi agent handoff protocol explicit",
@@ -172,7 +172,7 @@
         "multi-reliability-explicit-handoff-protocol"
       ],
       "rank": 1,
-      "score": 0.8877402901649475
+      "score": 0.8995021700859069
     },
     "principle-6": {
       "query": "discovery before commitment exploration unknown requirements",
@@ -180,7 +180,7 @@
         "meta-core-discovery-before-commitment"
       ],
       "rank": 1,
-      "score": 0.8867001150303359
+      "score": 0.8860906260997641
     },
     "principle-7": {
       "query": "fault tolerance graceful degradation multi-agent",
@@ -188,7 +188,7 @@
         "multi-quality-fault-tolerance-and-graceful-degradation"
       ],
       "rank": 2,
-      "score": 0.8843487977981568
+      "score": 0.8989625811576843
     },
     "principle-8": {
       "query": "human AI collaboration model process",
