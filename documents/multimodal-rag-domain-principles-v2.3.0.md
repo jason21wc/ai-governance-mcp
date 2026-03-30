@@ -1,4 +1,4 @@
-# Multimodal RAG Domain Principles Framework v2.2.0
+# Multimodal RAG Domain Principles Framework v2.3.0
 ## Federal Statutes for AI Agents Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -100,7 +100,7 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 | Meta-Principle | What It Says | What Multimodal RAG Needs |
 |----------------|--------------|---------------------------|
 | Context Engineering | "Load necessary information" | **Selection:** WHICH image best answers this query at this step? |
-| Visible Reasoning | "Articulate reasoning before output" | **Presentation:** HOW to weave images naturally into text flow? |
+| Visible Reasoning & Traceability | "Articulate reasoning before output" | **Presentation:** HOW to weave images naturally into text flow? |
 | Context Engineering | "Only load what's necessary" | **Threshold:** When does an additional image ADD vs. DISTRACT? |
 | Failure Recovery & Resilience | "Handle failures appropriately" | **Fallback:** What specific information to provide when images fail? |
 | Structural Foundations | "Establish foundations before implementation" | **Structure:** HOW to organize reference documents for multimodal retrieval? |
@@ -220,7 +220,7 @@ This framework organizes domain principles into eleven series that address diffe
     * **Role:** Agent-Driven Retrieval Orchestration
     * **Function:** Governing HOW AI agents adaptively plan, decompose, execute, and evaluate retrieval operations. These principles address dynamic modality routing, query decomposition for overloaded multimodal queries, and self-reflective retrieval sufficiency evaluation.
 
-### The Thirty-Five Domain Principles
+### The Thirty-Two Domain Principles
 
 **P-Series: Presentation Principles** — *How AI presents images with text*
 
@@ -229,9 +229,8 @@ This framework organizes domain principles into eleven series that address diffe
 | P1: Inline Image Integration | MR-F1 (Image-Text Misalignment) |
 | P2: Natural Integration | MR-F2 (Permission-Asking Pattern) |
 | P3: Image Selection Criteria | MR-F3 (Visual Overwhelm), MR-F7 (Tangential Selection) |
-| P4: Readability Optimization | MR-F6 (Complexity Mismatch) |
-| P5: Audience Adaptation | MR-F6 (Complexity Mismatch) |
-| P6: Accessibility Compliance | MR-F9 (Missing Alt Text), MR-F20 (Inaccessible Visual Content) |
+| P4: Audience Adaptation | MR-F6 (Complexity Mismatch) |
+| P5: Accessibility Compliance | MR-F9 (Missing Alt Text), MR-F20 (Inaccessible Visual Content) |
 
 **R-Series: Reference Principles** — *How to structure source documents*
 
@@ -273,7 +272,6 @@ This framework organizes domain principles into eleven series that address diffe
 |-----------|-------------------------------|
 | EV1: Retrieval Quality Measurement | MR-F14 (Unmeasured Quality), MR-F23 (Retrieval-Limiting Caption) |
 | EV2: Answer Faithfulness Assessment | MR-F15 (Faithfulness Gap) |
-| EV3: Continuous Quality Monitoring | MR-F14 (Unmeasured Quality), MR-F22 (Silent Index Drift) |
 
 **CT-Series: Citation Principles** — *Source attribution and traceability*
 
@@ -281,7 +279,6 @@ This framework organizes domain principles into eleven series that address diffe
 |-----------|-------------------------------|
 | CT1: Fragment-Level Source Attribution | MR-F16 (Untraceable Claim) |
 | CT2: Spatial Attribution for Visual Content | MR-F17 (Vague Visual Reference) |
-| CT3: Citation Completeness | MR-F16 (Untraceable Claim) |
 
 **SEC-Series: Security Principles** — *Knowledge base protection*
 
@@ -302,7 +299,7 @@ This framework organizes domain principles into eleven series that address diffe
 | Principle | Primary Failure Mode Addressed |
 |-----------|-------------------------------|
 | O1: Index Version Management | MR-F22 (Silent Index Drift) |
-| O2: Operational Observability | MR-F22 (Silent Index Drift), MR-F14 (Unmeasured Quality) |
+| O2: Continuous Monitoring & Observability | MR-F22 (Silent Index Drift), MR-F14 (Unmeasured Quality) |
 
 **AG-Series: Agentic Retrieval Principles** — *Agent-driven retrieval orchestration*
 
@@ -411,63 +408,49 @@ Each additional image competes for attention and consumes cognitive capacity. Re
 
 ---
 
-### P4: Readability Optimization
+### P4: Audience Adaptation
+
+*Aliases: Readability Optimization (former P4), Audience Adaptation (former P5)*
 
 **Definition**
-Default text complexity to 9th-grade reading level with 15-20 word sentences and plain language. Adjust complexity based on audience and context, but maintain clarity as the primary goal.
+Infer audience from query context and available signals. Adjust both text complexity and image selection to match audience needs. When audience is uncertain, apply the default readability case (below) and offer to adjust.
+
+**Default Readability Case (When Audience Is Unknown)**
+When audience signals are absent or ambiguous, apply these defaults:
+- **Reading Level:** 9th-grade (Flesch-Kincaid reference)
+- **Sentence Length:** Target 15-20 words per sentence average
+- **Plain Language:** Avoid jargon unless audience requires it
+- **Image-Text Harmony:** Text complexity should match image complexity—the purpose of images is to simplify, and text should support that goal
 
 **How the AI Applies This Principle**
-- **Sentence Length:** Target 15-20 words per sentence average.
-- **Plain Language:** Avoid jargon unless audience requires it.
-- **9th-Grade Default:** Assume general audience unless context indicates otherwise.
-- **Image-Text Harmony:** Text complexity should match image complexity.
+- **Signal Reading:** Vocabulary in query, role mentioned, context clues.
+- **Bidirectional Adaptation:** Simplify for general audiences; use precision for experts.
+- **Image Matching:** Technical screenshots for technical users; annotated/simplified visuals for general users.
+- **Uncertainty Protocol:** When audience is unclear, use default readability case and invite calibration.
 
 **Constitutional Derivation**
-Derived from `Bias Awareness & Fairness`.
+Derived from `Interaction Mode Adaptation`, `Discovery Before Commitment`, and `Bias Awareness & Fairness`.
 
 **Why This Principle Matters**
-Complex text paired with instructional images creates cognitive overload. The purpose of images is to simplify—text should support that goal, not undermine it.
+The same image presented to different audiences may need different surrounding text. A network diagram with technical annotations serves engineers; the same diagram with simplified labels serves managers. Complex text paired with instructional images creates cognitive overload—text should support the clarity that images provide, not undermine it.
 
 **When Human Interaction Is Needed**
-- When audience expertise level is unclear.
+- When audience signals are contradictory.
+- When single response must serve multiple audience segments.
+- When audience expertise level is unclear and default readability feels wrong.
 - When technical precision conflicts with simplicity.
 
 **Common Pitfalls or Failure Modes**
+- **The One-Size-Fits-All:** Same response regardless of audience signals.
+- **The Condescending Simplification:** Oversimplifying for clearly expert audiences.
+- **The Expertise Projection:** Assuming audience matches AI's knowledge level.
 - **The Expert Assumption:** Writing at technical level regardless of audience.
 - **The Jargon Wall:** Using terminology that excludes non-experts.
 - **The Run-On Explanation:** Long sentences that lose readers before they reach the image.
 
 ---
 
-### P5: Audience Adaptation
-
-**Definition**
-Infer audience from query context and available signals. Adjust both text complexity and image selection to match audience needs. When uncertain, default to accessible (P4) and offer to adjust.
-
-**How the AI Applies This Principle**
-- **Signal Reading:** Vocabulary in query, role mentioned, context clues.
-- **Bidirectional Adaptation:** Simplify for general audiences; use precision for experts.
-- **Image Matching:** Technical screenshots for technical users; annotated/simplified visuals for general users.
-- **Uncertainty Protocol:** When audience is unclear, use accessible defaults and invite calibration.
-
-**Constitutional Derivation**
-Derived from `Interaction Mode Adaptation` and `Discovery Before Commitment`.
-
-**Why This Principle Matters**
-The same image presented to different audiences may need different surrounding text. A network diagram with technical annotations serves engineers; the same diagram with simplified labels serves managers.
-
-**When Human Interaction Is Needed**
-- When audience signals are contradictory.
-- When single response must serve multiple audience segments.
-
-**Common Pitfalls or Failure Modes**
-- **The One-Size-Fits-All:** Same response regardless of audience signals.
-- **The Condescending Simplification:** Oversimplifying for clearly expert audiences.
-- **The Expertise Projection:** Assuming audience matches AI's knowledge level.
-
----
-
-### P6: Accessibility Compliance
+### P5: Accessibility Compliance
 
 **Definition**
 All visual content presented in multimodal responses MUST meet WCAG 2.1 AA standards. This includes alt text for every image, sufficient color contrast in referenced diagrams, and text-based alternatives for information conveyed solely through visual means.
@@ -622,6 +605,7 @@ Combine multiple signals to determine image relevance: semantic similarity, cont
 ```
 final_score = semantic_similarity * 0.6 + content_type_match * 0.25 + recency * 0.1 + step_alignment * 0.05
 ```
+*Note: These weights are a recommended starting point, not a binding constraint. Tune weights based on domain-specific retrieval patterns. See multimodal-rag-methods for tuning guidance.*
 
 **How the AI Applies This Principle (When Advising on System Design)**
 - **Semantic Similarity:** Core embedding distance/similarity.
@@ -816,7 +800,7 @@ Before presenting a response that combines retrieved images with generated text,
 - **Cross-Source Reconciliation:** When multiple sources provide conflicting visual information, acknowledge the conflict per CoRe-MMRAG methodology.
 
 **Constitutional Derivation**
-Derived from `Visible Reasoning & Traceability` (verify before committing) and `Visible Reasoning & Traceability` (make reasoning auditable).
+Derived from `Visible Reasoning & Traceability` (make reasoning auditable) and `Verification & Validation` (verify before committing).
 
 **Why This Principle Matters**
 Cross-modal contradictions (MR-F11) are uniquely damaging because users trust the combination of text and image more than either alone. When text contradicts an image, users may follow the incorrect modality and take wrong actions.
@@ -872,7 +856,7 @@ Information retrieved from source documents MUST be presented faithfully. The AI
 - **Version Awareness:** When source documents have versions, cite the specific version used.
 
 **Constitutional Derivation**
-Derived from `Visible Reasoning & Traceability` and `Visible Reasoning & Traceability`.
+Derived from `Visible Reasoning & Traceability`.
 
 **Why This Principle Matters**
 Source distortion (MR-F13) can range from subtle rewording that changes meaning to outright fabrication attributed to a legitimate source. In contexts where users rely on retrieved information for decision-making, source fidelity is critical for trust and correctness.
@@ -900,7 +884,7 @@ When answering queries that require multi-hop reasoning across modalities (e.g.,
 - **Error Isolation:** When a multi-hop chain fails verification at hop N, report results up to hop N-1 as verified and clearly mark hop N onward as unverified.
 
 **Constitutional Derivation**
-Extends V1 (Cross-Modal Consistency Verification) to multi-hop chains. Derived from `Visible Reasoning & Traceability` (make reasoning steps auditable) and `Visible Reasoning & Traceability`.
+Extends V1 (Cross-Modal Consistency Verification) to multi-hop chains. Derived from `Visible Reasoning & Traceability` (make reasoning steps auditable) and `Verification & Validation` (verify each hop independently).
 
 **Why This Principle Matters**
 Multi-hop cross-modal reasoning is uniquely vulnerable to error amplification (MR-F24). A small misidentification in the first hop (e.g., confusing two similar components in an image) can cascade through subsequent hops, producing a final answer that appears internally consistent but is built on a faulty foundation. Research on MMhops-R1 demonstrates that even frontier models struggle with multi-hop multimodal reasoning, achieving significantly lower accuracy as hop count increases.
@@ -978,62 +962,44 @@ The faithfulness gap (MR-F15) is the primary quality risk in RAG systems. A resp
 
 ---
 
-### EV3: Continuous Quality Monitoring
-
-**Definition**
-Multimodal RAG quality MUST be monitored continuously, not just at deployment time. Systems should detect drift in retrieval quality, changes in query patterns, and degradation from index or model updates.
-
-**How the AI Applies This Principle (When Advising on System Design)**
-- **Drift Detection:** Compare rolling retrieval metrics against established baselines. Alert when metrics drop beyond a threshold.
-- **Query Pattern Tracking:** Monitor for shifts in query types that may indicate the benchmark set needs updating.
-- **A/B Comparison:** When changing models or weights, run parallel evaluation before committing changes.
-- **User Signal Integration:** Track implicit quality signals (follow-up queries suggesting first answer was insufficient, explicit negative feedback).
-
-**Constitutional Derivation**
-Derived from `Verification & Validation` and `Discovery Before Commitment`.
-
-**Why This Principle Matters**
-RAG systems degrade silently. Content gets stale, query patterns shift, and model updates change retrieval behavior. Without continuous monitoring, quality erosion accumulates until users lose trust (MR-F14, MR-F22).
-
-**When Human Interaction Is Needed**
-- When drift alerts fire and root cause analysis requires human judgment.
-- When setting threshold values for acceptable quality ranges.
-
-**Common Pitfalls or Failure Modes**
-- **The Set-and-Forget:** Deploying without ongoing quality monitoring.
-- **The Alert Fatigue:** Too many low-signal alerts that get ignored, masking real issues.
-- **The Lagging Indicator:** Detecting quality problems only after user complaints, not proactively.
-
----
-
 ## CT-Series: Citation Principles
 
 *Principles governing source attribution and traceability*
 
 ### CT1: Fragment-Level Source Attribution
 
+*Aliases: Citation Completeness (former CT3)*
+
 **Definition**
-Every factual claim in a multimodal RAG response SHOULD be attributable to a specific fragment of a retrieved source—not just the source document as a whole, but the specific passage, paragraph, or image region that supports the claim.
+Every factual claim in a multimodal RAG response SHOULD be attributable to a specific fragment of a retrieved source—not just the source document as a whole, but the specific passage, paragraph, or image region that supports the claim. Target: 100% attribution for all factual claims attributable to retrieved sources.
 
 **How the AI Applies This Principle**
 - **Inline Attribution:** When presenting facts from retrieved sources, indicate which source (and ideally which section) supports each claim.
 - **Granular References:** "According to [Document, Section 3.2]" rather than just "According to [Document]."
 - **Multi-Source Transparency:** When a response synthesizes from multiple sources, indicate which source supports which part.
+- **Completeness Check:** Before delivering a response, verify that all factual claims have source backing.
+- **Unsupported Claim Flagging:** If a claim cannot be sourced from retrieved content, either remove it, mark it as general knowledge, or explicitly note it as unsupported.
+- **Attribution Ratio Tracking:** Monitor the ratio of attributed to unattributed claims as a system-level quality metric. Use attribution coverage as a continuous quality indicator.
 
 **Constitutional Derivation**
 Derived from `Visible Reasoning & Traceability`.
 
 **Why This Principle Matters**
-Document-level attribution is insufficient for verification (MR-F16). If a response cites a 50-page manual, users cannot efficiently verify the claim. Fragment-level attribution enables rapid verification and builds trust.
+Document-level attribution is insufficient for verification (MR-F16). If a response cites a 50-page manual, users cannot efficiently verify the claim. Fragment-level attribution enables rapid verification and builds trust. Incomplete citation creates a trust gradient within a single response—some claims are verifiable and others are not, but users cannot tell which is which. Full citation at fragment-level granularity enables full verification.
 
 **When Human Interaction Is Needed**
 - When response format constraints limit attribution detail.
 - When multiple sources make the same claim and attribution is ambiguous.
+- When response contains legitimate general knowledge that doesn't require sourcing.
+- When citation density makes the response unreadable.
 
 **Common Pitfalls or Failure Modes**
 - **The Broad Citation:** Citing an entire document for a specific fact.
 - **The Missing Citation:** Presenting retrieved information without any source indication.
 - **The False Citation:** Attributing a claim to a source that doesn't actually contain it.
+- **The Partial Attribution:** Citing sources for some claims but not others in the same response.
+- **The Citation-Free Summary:** Synthesizing information from sources without any attribution.
+- **The Readability Trade-Off:** Citations make the response so cluttered that comprehension suffers.
 
 ---
 
@@ -1062,33 +1028,6 @@ Vague visual references ("as shown in the image") force users to scan the entire
 - **The Generic Reference:** "See the image above" without indicating what to look at.
 - **The Wrong Region:** Directing attention to the wrong part of the image.
 - **The Assumption of Familiarity:** Referencing UI elements by name without spatial context for users unfamiliar with the interface.
-
----
-
-### CT3: Citation Completeness
-
-**Definition**
-A multimodal RAG response MUST cite sources for all substantive claims. The proportion of cited vs. uncited claims serves as a quality indicator. Target: every factual claim attributable to a retrieved source should carry attribution.
-
-**How the AI Applies This Principle**
-- **Completeness Check:** Before delivering a response, verify that all factual claims have source backing.
-- **Unsupported Claim Flagging:** If a claim cannot be sourced from retrieved content, either remove it, mark it as general knowledge, or explicitly note it as unsupported.
-- **Attribution Ratio Tracking:** Monitor the ratio of attributed to unattributed claims as a system-level quality metric.
-
-**Constitutional Derivation**
-Derived from `Visible Reasoning & Traceability` and `Visible Reasoning & Traceability`.
-
-**Why This Principle Matters**
-Incomplete citation creates a trust gradient within a single response—some claims are verifiable and others are not, but users cannot tell which is which. Full citation enables full verification.
-
-**When Human Interaction Is Needed**
-- When response contains legitimate general knowledge that doesn't require sourcing.
-- When citation density makes the response unreadable.
-
-**Common Pitfalls or Failure Modes**
-- **The Partial Attribution:** Citing sources for some claims but not others in the same response.
-- **The Citation-Free Summary:** Synthesizing information from sources without any attribution.
-- **The Readability Trade-Off:** Citations make the response so cluttered that comprehension suffers.
 
 ---
 
@@ -1250,32 +1189,47 @@ Index rebuilds can silently change retrieval behavior. A model update that impro
 
 ---
 
-### O2: Operational Observability
+### O2: Continuous Monitoring & Observability
+
+*Aliases: Operational Observability (former O2), Continuous Quality Monitoring (former EV3)*
 
 **Definition**
-Multimodal RAG systems MUST expose operational metrics sufficient to diagnose issues, track trends, and alert on degradation. Key metrics include query latency, retrieval error rates, index freshness, and embedding generation throughput.
+Multimodal RAG systems MUST expose both operational and quality metrics sufficient to diagnose issues, track trends, detect drift, and alert on degradation — continuously, not just at deployment time.
 
 **How the AI Applies This Principle (When Advising on System Design)**
+
+*Operational Metrics:*
 - **Latency Tracking:** Monitor p50, p95, and p99 query latency. Alert when latency exceeds targets.
 - **Error Rate Monitoring:** Track retrieval failures, embedding generation failures, and response generation failures separately.
 - **Index Freshness:** Monitor time since last successful index update. Alert when content may be stale.
 - **Throughput Metrics:** Track queries per second, embeddings generated per minute, and index size over time.
 - **Cost Monitoring:** Track embedding generation costs, storage costs, and inference costs to detect unexpected spending.
 
+*Quality Metrics:*
+- **Drift Detection:** Compare rolling retrieval metrics against established baselines. Alert when metrics drop beyond a threshold.
+- **Query Pattern Tracking:** Monitor for shifts in query types that may indicate the benchmark set needs updating.
+- **A/B Comparison:** When changing models or weights, run parallel evaluation before committing changes.
+- **User Signal Integration:** Track implicit quality signals (follow-up queries suggesting first answer was insufficient, explicit negative feedback).
+
 **Constitutional Derivation**
 Derived from `Verification & Validation` and `Discovery Before Commitment`.
 
 **Why This Principle Matters**
-Without observability, operational problems manifest as quality degradation that is difficult to diagnose. A slow embedding endpoint, a stale index, or a spike in retrieval errors all affect the user experience but are invisible without monitoring.
+Without observability, operational problems manifest as quality degradation that is difficult to diagnose. A slow embedding endpoint, a stale index, or a spike in retrieval errors all affect the user experience but are invisible without monitoring. RAG systems degrade silently — content gets stale, query patterns shift, and model updates change retrieval behavior. Without continuous monitoring, quality erosion accumulates until users lose trust (MR-F14, MR-F22).
 
 **When Human Interaction Is Needed**
 - When setting alerting thresholds for different operational metrics.
 - When investigating anomalies flagged by monitoring.
+- When drift alerts fire and root cause analysis requires human judgment.
+- When setting threshold values for acceptable quality ranges.
 
 **Common Pitfalls or Failure Modes**
 - **The Black Box:** System runs but no one can see what's happening inside.
 - **The Overloaded Dashboard:** Too many metrics with no clear hierarchy of importance.
 - **The Missing Alert:** Metrics are collected but no alerting is configured for degradation.
+- **The Set-and-Forget:** Deploying without ongoing quality monitoring.
+- **The Alert Fatigue:** Too many low-signal alerts that get ignored, masking real issues.
+- **The Lagging Indicator:** Detecting quality problems only after user complaints, not proactively.
 
 ---
 
@@ -1382,9 +1336,9 @@ Without sufficiency evaluation, agentic retrieval either proceeds with inadequat
 4. **Placement Planning** — Determine where image belongs in response (P1)
 5. **Natural Integration** — Present without permission-asking (P2)
 6. **Selection Validation** — Verify unique value for additional images per P3
-7. **Accessibility Check** — Ensure alt text and text alternatives per P6
-8. **Text Calibration** — Match text complexity to audience (P4, P5)
-9. **Citation** — Attribute claims to specific source fragments (CT1, CT2, CT3)
+7. **Accessibility Check** — Ensure alt text and text alternatives per P5
+8. **Text Calibration** — Match text complexity to audience (P4)
+9. **Citation** — Attribute claims to specific source fragments (CT1, CT2)
 10. **Failure Handling** — If retrieval fails, apply F1 and F2
 
 ### When AI Advises on Document Structure
@@ -1405,7 +1359,7 @@ Apply **A-Series**, **AG-Series**, **SEC-Series**, **DG-Series**, and **O-Series
 - Design agentic retrieval with adaptive strategy and query decomposition (AG1, AG2, AG3)
 - Implement poisoning defense and input validation (SEC1, SEC2)
 - Design access control and lineage tracking (DG1, DG2)
-- Plan for index versioning and observability (O1, O2)
+- Plan for index versioning, observability, and continuous quality monitoring (O1, O2)
 - Consider platform-specific constraints (see Methods Appendix A)
 
 ### When AI Evaluates or Monitors Quality
@@ -1413,7 +1367,7 @@ Apply **A-Series**, **AG-Series**, **SEC-Series**, **DG-Series**, and **O-Series
 Apply **EV-Series** principles to establish measurement:
 - Define retrieval quality benchmarks (EV1)
 - Assess answer faithfulness (EV2)
-- Monitor for quality drift continuously (EV3)
+- Monitor for quality drift continuously (O2)
 
 ---
 
@@ -1425,7 +1379,7 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **multimodal-rag-methods-v2.1.1.md** | v2.1.0 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
+| **multimodal-rag-methods-v2.1.1.md** | v2.1.1 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
 
 **Methods document includes:**
 - Title 1: Presentation Patterns (image placement workflows, selection algorithms, accessibility checklist)
@@ -1447,7 +1401,19 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ## Changelog
 
-### v2.2.0 (Current)
+### v2.3.0 (Current)
+- **Principle consolidation: 35 → 32 principles.** Three merges reducing redundancy while preserving all guidance:
+  - **MERGE:** P4 (Readability Optimization) into P5 (Audience Adaptation) → new P4: Audience Adaptation. P4's readability defaults (9th grade, 15-20 words, plain language, Image-Text Harmony) become the "default readability case" subsection within P4. P6 renumbered to P5.
+  - **MERGE:** CT3 (Citation Completeness) into CT1 (Fragment-Level Source Attribution). CT3's completeness metrics (attribution ratio, coverage tracking, 100% attribution target) added to CT1.
+  - **MERGE:** EV3 (Continuous Quality Monitoring) + O2 (Operational Observability) → O2: Continuous Monitoring & Observability. Combines quality metrics (drift detection, query patterns, A/B testing, user signals) with operational metrics (latency, error rates, index freshness, throughput, cost).
+- **Hygiene fixes:**
+  - Fixed 4 duplicate derivation citations: V1 and V4 corrected to cite `Verification & Validation` as distinct second principle; V3 and CT3 (now in CT1) deduplicated to single `Visible Reasoning & Traceability` citation.
+  - A2: Added note that scoring formula weights (0.6/0.25/0.1/0.05) are a recommended starting point, not binding.
+  - Crosswalk table line: "Visible Reasoning" → "Visible Reasoning & Traceability".
+  - Methods version column: "v2.1.0" → "v2.1.1".
+  - Footer: Version 2.3.0, Constitution v3.0.0.
+
+### v2.2.0
 - **Constitutional principle reference consolidation (Phase 5).** Updated stale principle names in meta-principle crosswalk table: Minimal Relevant Context → Context Engineering, Foundation-First Architecture → Structural Foundations, Transparent Reasoning & Traceability → Visible Reasoning & Traceability, Measurable Success Criteria → Verification & Validation, Accessibility & Inclusiveness → Bias Awareness & Fairness.
 
 ### v2.1.0
@@ -1484,5 +1450,5 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ---
 
-*Version 2.1.0*
-*Derived from: AI Coding Domain Principles v2.3.2, Multi-Agent Domain Principles v2.1.1, Storytelling Domain Principles v1.1.2, Constitution v2.4.1*
+*Version 2.3.0*
+*Derived from: AI Coding Domain Principles v2.3.2, Multi-Agent Domain Principles v2.1.1, Storytelling Domain Principles v1.1.2, Constitution v3.0.0*

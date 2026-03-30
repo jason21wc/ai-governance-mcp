@@ -342,7 +342,7 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="multimodal-rag",
             display_name="Multimodal RAG",
-            principles_file="multimodal-rag-domain-principles-v2.2.0.md",
+            principles_file="multimodal-rag-domain-principles-v2.3.0.md",
             methods_file="multimodal-rag-methods-v2.1.1.md",
             description=(
                 "Multimodal retrieval-augmented generation. Image retrieval, "
