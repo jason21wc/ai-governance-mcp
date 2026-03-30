@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.15.0** (meta-methods), **v2.31.0** (ai-coding methods), **v2.5.0** (ai-coding principles), **v2.5.0** (multi-agent principles), **v2.16.0** (multi-agent methods), **v1.2.0** (storytelling principles), **v1.1.1** (storytelling methods), **v2.2.0** (multimodal-rag principles), **v2.1.1** (multimodal-rag methods), **v1.1.0** (ui-ux principles), **v1.0.0** (ui-ux methods), **v1.2.0** (kmpd principles), **v1.1.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.16.0** (meta-methods + Part 9.8), **v2.31.0** (ai-coding methods), **v2.6.0** (ai-coding principles — 12), **v2.6.0** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.3.0** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.3.0** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.1.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.3.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -49,6 +49,24 @@
    - Security auditor: 0 critical, 0 high. S-Series veto confirmed intact (uses series_code, not ID prefix)
    - 6 subagent review rounds: contrarian (3), coherence (3), validator (1), voice-coach (1), security (1)
    - 1026 tests passing, retrieval quality benchmarks stable (MRR 0.688, Recall 0.875)
+
+24. **Part 9.8 Content Quality Framework** — NEW governance method
+   - Universal quality gate for authoring AND reviewing all framework content (principles, methods, appendices)
+   - 6-question Admission Test, Duplication Check, Unified Quality Checklist, Concept Loss Prevention
+   - §9.8.8 Required Subagent Reviews: all 3 mandatory agents (contrarian, validator, coherence) at both assessment AND post-change phases
+   - Empirically validated: KM&PD primary assessor rated 100% KEEP, contrarian caught 3 issues → 13→10
+   - Supersedes Part 9.5 (Validation Checklist, principles-only)
+
+25. **Domain Principle Consolidation** — Applied Part 9.8 to all 6 domains
+   - KM&PD: 13→10 (2 merges, 1 demotion). TL3+QA1 shared failure mode, PD2 into KA3, PD3 to methods.
+   - AI Coding: 14→12 (2 merges). Idempotency→Production-Ready (shared C3), Established Solutions→Supply Chain (overlapping verification). 5 citation fixes, FM code collision fixed.
+   - Storytelling: 19→15 (4 merges, 1 rewrite). A2→ST2, C4→E2, M2+M3→M1 (all shared FM codes). A3 rewritten for storytelling-specific accessibility. Citation format overhaul (slug→title). Crosswalk table added.
+   - UI/UX: 20→20 (skip gate at 100% KEEP). Hygiene fixes only: stale names, truncated citations, DS1 duplicate basis.
+   - Multi-Agent: 22→17 (4 merges, 1 demotion). CFS+RST (shared MA-A1), RACI→Handoff, Read-Write→Orchestration, Blameless→Fault Tolerance. Standardized Collaboration→methods. Most complex domain — resolved Phase 2 integration debt.
+   - Multimodal RAG: 35→32 (3 merges). P4→P5 (shared MR-F6), CT3→CT1 (shared MR-F16), EV3+O2→combined monitoring (shared MR-F14/F22). Skip gate passed at 91.4%. Hygiene: 4 duplicate derivations fixed, footer updated.
+   - **Total across all domains: 170→128 principles (-25%)**
+   - 3-agent review battery at every domain (assessment + post-change = 6 reviews per domain)
+   - 1026 tests passing throughout
 
 ### Previous Session (2026-03-28)
 
@@ -624,6 +642,30 @@ Added to COMPLETION-CHECKLIST: 4-item BEST-EFFORT checklist for plan-mode archit
 **Problem:** The meta-dogfood review of Backlog #18 found that "adding a principle" is a parameter-level fix unless accompanied by structural enforcement of the authoring process. The COMPLETION-CHECKLIST now has a 10-item principle-authoring checklist but it's BEST-EFFORT.
 
 **Trigger:** If principles start being added without the checklist process, convert to ENFORCED.
+
+#### 28. Cross-Domain Template Consistency (Priority: LOW)
+
+**Problem:** Domains use different principle template structures (AI Coding: 9 fields, Multimodal RAG: ~5 fields), different section headings ("Constitutional Basis" vs "Constitutional Derivation"), and different derivation formula wording ("Research-Based" vs "Evidence-Based"). The framework preaches Structured Output Enforcement but doesn't fully practice it in its own documents.
+
+**Scope:** Audit all 6 domain documents against Part 9.8.3 template reference. Standardize section headings and field requirements.
+
+**Trigger:** When any domain document is next modified, or when a cross-domain coherence audit flags template inconsistency.
+
+#### 29. Part 9.8 Periodic Review Trigger (Priority: MEDIUM)
+
+**Problem:** Part 9.8 gates new content (authoring mode) and can review existing content (audit mode), but nothing compels periodic review. The same accretion pattern will recur without a scheduled cadence or quantitative trigger.
+
+**Options:** (1) Principle count threshold: when any domain exceeds 25 principles, mandatory review. (2) Calendar cadence: quarterly or semi-annual. (3) Version milestone: every major version bump triggers cross-domain audit.
+
+**Trigger:** When the framework is used across multiple projects and bloat patterns re-emerge.
+
+#### 30. Cross-Domain Overlap Audit (Priority: LOW)
+
+**Problem:** Each domain was reviewed independently. Concepts like "graceful degradation" and "accessibility" appear in multiple domains. These may be justified domain-specific applications or redundant. No systematic cross-domain overlap check was performed.
+
+**Scope:** Run Part 9.8.1 Q1 (Coverage) across domain boundaries. For each concept appearing in multiple domains, verify each instance adds domain-specific value.
+
+**Trigger:** When cross-domain principle queries return confusingly similar results from different domains.
 
 ## Links
 

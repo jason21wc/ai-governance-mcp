@@ -536,6 +536,21 @@ Not needed at current scale. Phased approach documented in ADR-14. Revisit when 
 
 **Outcome:** 22 principles, 5 series (S:3, C:6, Q:4, O:6, G:3). Retrieval quality stable (MRR 0.688, Recall 0.875). 1026 tests passing. 6 subagent review rounds with 0 critical/high findings.
 
+### ADR-16: Part 9.8 Content Quality Framework + Domain Consolidation
+- **Status:** Accepted (2026-03-29)
+- **Context:** After constitutional consolidation (ADR-15), the root cause was identified: lack of rigorous authoring criteria, not lack of review process. Applied the same rigor to all 6 domains.
+
+**Decision:** Formalized Part 9.8 as a universal quality gate, then applied it to every domain.
+- Part 9.8: 6-question Admission Test, Duplication Check, Quality Checklist, Concept Loss Prevention, Required Subagent Reviews (§9.8.8)
+- KM&PD: 13→10, AI Coding: 14→12, Storytelling: 19→15, UI/UX: 20→20 (skip gate), Multi-Agent: 22→17, Multimodal RAG: 35→32
+- Total: 170→128 principles (-25%)
+
+**Key process learnings codified in §9.8.8:**
+- All 3 mandatory agents (contrarian, validator, coherence) at BOTH assessment AND post-change phases
+- Contrarian alone produces ~40% of findings; 3-agent assessment produces 2.4x findings
+- Skip gate: >90% KEEP → document clean assessment and move on
+- Concept Loss Prevention: directive-level granularity with tabular artifact
+
 ### Future Considerations
 
 - Prompt Engineering domain (when created, move system prompt best practices from multi-agent)

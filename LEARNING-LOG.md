@@ -30,6 +30,30 @@ Consolidating the constitution from 47 to 22 principles left retrieval quality f
 
 ---
 
+### Three-Agent Assessment Battery Is Non-Negotiable (2026-03-29)
+
+Across 6 domain reviews, the 3-agent assessment battery (contrarian + validator + coherence) consistently outperformed any single agent. The contrarian catches conceptual overlap and wrong dispositions. The validator catches structural defects (stale citations, FM code collisions, template non-compliance). The coherence auditor catches cross-file contradictions and broken derivation chains. Running only the contrarian during KM&PD assessment would have rated 13/13 KEEP; adding all 3 caught 3 issues → 13→10.
+
+**Rule:** Never skip the 3-agent assessment. Each agent catches a different class of issue. Running only one creates blind spots that the others fill. The 2.4x finding multiplier (3 agents vs 1) is consistent across domains.
+
+---
+
+### Shared Failure Mode Codes Are the Primary Consolidation Signal (2026-03-29)
+
+In every domain where merges were warranted, the signal was shared failure mode codes — two principles claiming the same FM code as their primary concern. This was more reliable than subjective overlap assessment. KM&PD: TL3/QA1 shared KM-F2. AI Coding: Idempotency/Production-Ready shared C3. Storytelling: A2/ST2 shared ST-F1. Multi-Agent: CFS/RST shared MA-A1.
+
+**Rule:** When evaluating domain principles, check FM code uniqueness first. Two principles sharing a primary FM code is the strongest merge signal. Shared secondary codes (like Validation Gates sharing B2/B3 with other principles) are legitimate cross-references, not merge signals.
+
+---
+
+### Skip Gate Prevents Over-Consolidation (2026-03-29)
+
+UI/UX passed the skip gate at 100% KEEP — every principle had a distinct failure mode and added genuine domain value. The contrarian confirmed "the structural survey's claim of 'clean structure, each principle has distinct failure mode' is substantively correct." Without the skip gate, we would have wasted effort looking for problems that didn't exist.
+
+**Rule:** Apply the skip gate honestly. >90% KEEP with no MERGE candidates = stop. Not every domain needs consolidation. Consolidation for consolidation's sake violates Resource Efficiency.
+
+---
+
 ### Demotion Decisions Require Constitutional Coverage Verification (2026-03-29)
 
 "Rich but Not Verbose Communication" was demoted to methods as a "style guide" — but the underlying concept (calibrate communication to audience expertise and context) was not covered by any remaining constitutional principle. Resource Efficiency covers waste; Interaction Mode Adaptation covers task modes. Neither covers audience-appropriate communication. The demotion created a gap that required promoting it back as "Effective & Efficient Communication."
