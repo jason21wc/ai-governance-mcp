@@ -296,7 +296,7 @@ def _default_domains() -> list[DomainConfig]:
             name="constitution",
             display_name="Constitution",
             principles_file="ai-interaction-principles-v3.0.0.md",
-            methods_file="ai-governance-methods-v3.16.0.md",
+            methods_file="ai-governance-methods-v3.17.0.md",
             description=(
                 "Universal behavioral rules for AI interaction. Safety principles, "
                 "core behavioral guidelines, quality standards, operational rules, "
