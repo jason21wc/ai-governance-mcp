@@ -1,4 +1,4 @@
-# Multi-Agent Domain Principles Framework v2.5.0
+# Multi-Agent Domain Principles Framework v2.6.0
 ## Federal Statutes for Multi-Agent AI System Orchestration
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -53,13 +53,12 @@ This document governs multi-agent AI system design and orchestration:
 - Context isolation between agents
 - Orchestration coordination patterns (sequential, parallel, hierarchical)
 - Inter-agent communication and handoff protocols
-- Read-write division for parallel safety
+- Orchestration pattern selection including read-write classification
 - Validation independence (generator vs. critic separation)
 - State persistence across sessions and agent boundaries
 - Human-in-the-loop escalation for multi-agent decisions
 - Fault tolerance and graceful degradation
-- Autonomous operation governance (HITL removal criteria, blast radius, drift monitoring) [NEW in v2.2.0]
-
+- Autonomous operation governance (HITL removal criteria, blast radius, compensating controls, drift monitoring)
 ### Out of Scope (Handled Elsewhere)
 
 The following are NOT governed by this document:
@@ -105,15 +104,13 @@ When agents work in parallel without shared assumptions, they make implicit deci
 
 ### Why Meta-Principles Alone Are Insufficient
 
-The Constitution (Meta-Principles) establishes universal reasoning principles, including MA-Series principles for multi-agent coordination. However, multi-agent orchestration has domain-specific failure modes requiring domain-specific governance:
+The Constitution (Meta-Principles) establishes universal reasoning principles. However, multi-agent orchestration has domain-specific failure modes requiring domain-specific governance:
 
 | Source Principle | Level | What It Says | What Multi-Agent Systems Need |
 |------------------|-------|--------------|-------------------------------|
-| Resource Efficiency | Constitutional | "Minimum Effective Dose of complexity" | **When to specialize:** Decision framework for generalist vs. specialized agents |
-| Role Specialization & Topology | Domain (demoted) | "Separate distinct functions into specialized roles" | **Boundary:** What constitutes a "cognitive function"? When to specialize vs. combine? |
+| Resource Efficiency & Waste Reduction | Constitutional | "Minimum Effective Dose of complexity" | **When to specialize:** Decision framework for generalist vs. specialized agents |
 | Context Engineering | Constitutional | "Load necessary information to prevent hallucination" | **Full Discipline:** Not just load—write, select, compress, isolate as comprehensive practice |
-| Hybrid Interaction & RACI | Domain (demoted) | "Transitions maintain state and avoid rework" | **Protocol:** HOW to structure handoffs for stateless agents with isolated contexts? |
-| Standardized Collaboration Protocols | Domain (demoted) | "Established protocols govern interaction" | **Pattern:** WHICH orchestration pattern for which use case? Read-write division? |
+| Human-AI Authority & Accountability | Constitutional | "Clear role boundaries and authority delegation" | **Boundary:** What constitutes a "cognitive function"? When to specialize vs. combine? How to structure RACI at handoffs? |
 | Verification & Validation | Constitutional | "Validate outputs against requirements" | **Independence:** WHO validates when the producer agent cannot objectively self-assess? |
 
 These domain principles provide the **decision frameworks, context engineering practices, handoff protocols, and coordination patterns** that make constitutional and domain principles actionable for multi-agent orchestration specifically.
@@ -176,34 +173,33 @@ Multi-agent systems have specific failure modes that require dedicated preventio
 
 ## Framework Overview: The Five Principle Series
 
-This framework organizes domain principles into five series addressing different functional aspects of multi-agent AI orchestration. v2.0.0 added a Justification Series (J-Series) addressing when to use specialized agents. v2.2.0 adds an Autonomous Operation Series (AO-Series) addressing governance of agents operating without human-in-the-loop.
+This framework organizes domain principles into five series addressing different functional aspects of multi-agent AI orchestration.
 
 ### The Five Series
 
-1. **Justification Principles (J-Series)** — 1 principle [NEW in v2.0.0]
+1. **Justification Principles (J-Series)** — 1 principle
    * **Role:** Deployment Decision
    * **Function:** Determining when to use specialized agents vs. generalist approach. Ensures complexity is justified before introducing multi-agent overhead.
 
-2. **Architecture Principles (A-Series)** — 8 principles
+2. **Architecture Principles (A-Series)** — 5 principles
    * **Role:** Structural Foundation
-   * **Function:** Establishing how agents are organized, specialized, isolated, how context is engineered, how intent flows, and how agents interact through standardized protocols. These principles ensure agents have appropriate cognitive boundaries, independent context windows, clear coordination structures, explicit role topologies, and visibility to original goals.
+   * **Function:** Establishing how agents are organized, specialized, isolated, how context is engineered, and how intent flows. These principles ensure agents have appropriate cognitive boundaries, independent context windows, clear coordination structures, explicit role topologies, and visibility to original goals.
 
-3. **Coordination Principles (R-Series)** — 6 principles
+3. **Coordination Principles (R-Series)** — 4 principles
    * **Role:** Workflow Governance
-   * **Function:** Governing how agents communicate, delegate, hand off work, persist state, maintain visibility, handle read vs. write operations, broadcast status, and report errors. These principles establish orchestration patterns, handoff protocols, state management, observability, and error propagation prevention across agent boundaries.
+   * **Function:** Governing how agents communicate, delegate, hand off work, persist state, and maintain visibility. These principles establish orchestration patterns, handoff protocols, state management, and observability across agent boundaries.
 
 4. **Quality Principles (Q-Series)** — 3 principles
    * **Role:** Output Assurance
    * **Function:** Ensuring multi-agent outputs meet standards through independent validation, fault tolerance, and human oversight. These principles prevent confirmation bias, cascading failures, and quality degradation.
 
-5. **Autonomous Operation Principles (AO-Series)** — 4 principles [NEW in v2.2.0]
+5. **Autonomous Operation Principles (AO-Series)** — 4 principles
    * **Role:** Autonomous Governance
    * **Function:** Governing agent systems that operate without continuous human oversight — cron-scheduled agents, always-on workflows, external-facing autonomous actions. These principles establish blast radius classification, criteria for safe HITL removal, compensating controls, and drift monitoring for long-running autonomous systems.
 
 ---
 
-## Justification Principles (J-Series) [NEW in v2.0.0]
-
+## Justification Principles (J-Series)
 ### Justified Complexity
 
 **Maturity:** [VALIDATED] — Production deployment at Anthropic, Google, Cognition with published metrics
@@ -276,69 +272,88 @@ Before deploying specialized agents (whether individually, sequentially, or in p
 
 ## Architecture Principles (A-Series)
 
-### Cognitive Function Specialization
+### Agent Specialization & Topology
+
+*Aliases: Cognitive Function Specialization, Role Specialization & Topology*
 
 **Maturity:** [VALIDATED] — Anthropic, Google, enterprise deployments with published metrics
 
 **Failure Mode(s) Addressed:**
-- **MA-A1: Mixed Cognitive Functions → Output Degradation** — Agents assigned multiple cognitive functions experience internal conflicts, reducing output quality and coherence.
-  - *Detect via:* Agent system prompt contains multiple distinct reasoning patterns (e.g., "analyze AND create AND evaluate"); agent outputs show contradictory recommendations; agent hesitates between approaches within single response.
+- **MA-A1: Mixed Cognitive Functions → Output Degradation** — Agents assigned multiple cognitive functions experience internal conflicts, reducing output quality and coherence. Agents without distinct, non-overlapping scopes of authority experience role confusion, leading to governance gaps.
+  - *Detect via:* Agent system prompt contains multiple distinct reasoning patterns (e.g., "analyze AND create AND evaluate"); agent outputs show contradictory recommendations; multiple agents claiming responsibility for same task; agents performing work outside their defined scope.
 
 **Why This Principle Matters**
 
-In the domain framework, Role Specialization & Topology establishes that distinct functions require specialized roles. For multi-agent systems, this translates to a fundamental architectural decision: agent boundaries should align with cognitive functions, not workflow phases. An agent optimized for strategic thinking operates differently than one optimized for critical analysis or creative generation. Mixing cognitive functions in one agent creates internal conflicts and reduces output quality.
+Agent boundaries should align with cognitive functions, not workflow phases. An agent optimized for strategic thinking operates differently than one optimized for critical analysis or creative generation. Mixing cognitive functions in one agent creates internal conflicts and reduces output quality. Beyond cognitive alignment, every agent must have a distinct, non-overlapping Scope of Authority defined by its Topology (e.g., Specialist, Orchestrator, Reviewer). A "Jack-of-All-Trades" agent is forbidden in collaborative systems. Agents operate under the Principle of Least Privilege, accessing only the specific data slice needed for their role.
 
 **This principle applies even for single-agent workflows.** A generalist AI asked to "implement AND validate AND check governance" in one prompt will underperform compared to sequentially invoking specialized configurations for each function. Specialization creates a "modular personality"—same underlying model, different cognitive mode.
 
 **Domain Application (Binding Rule)**
 
-Each agent must be assigned a single cognitive function with clear domain boundaries. Cognitive functions are mental models or reasoning patterns (strategic analysis, creative synthesis, critical evaluation, research compilation, governance assessment, etc.), not workflow steps. An agent may participate in multiple workflow phases if they require the same cognitive function.
+Each agent must be assigned a single cognitive function with clear domain boundaries and a distinct topology role with explicit scope boundaries. Cognitive functions are mental models or reasoning patterns (strategic analysis, creative synthesis, critical evaluation, research compilation, governance assessment, etc.), not workflow steps. An agent may participate in multiple workflow phases if they require the same cognitive function. The system must maintain a readable topology map of which agent owns which domain.
 
 **What makes an agent "specialized":**
 - **System Prompt:** Defines "Who I Am" and "Who I Am NOT"
 - **Cognitive Function:** Specific reasoning pattern, not generic "be helpful"
-- **Context Scope:** Minimal relevant context for this function
+- **Topology Role:** Specialist, Orchestrator, or Reviewer — with explicit scope boundaries
+- **Context Scope:** Minimal relevant context for this function (Principle of Least Privilege)
 - **Tools:** Permissions appropriate to the function
 - **Output Format:** Structured output template
 - **Boundaries:** Explicit refusal of out-of-scope work
 
+**Topology and Authority:**
+- **Separation of Concerns:** The "Coder Agent" writes code but does not merge it. The "Reviewer Agent" merges code but does not write it.
+- **Data Scoping:** The "Reporter Agent" receives only the summary statistics, not the raw PII data, preventing data leakage.
+
 **Constitutional Basis**
 
-- Single Source of Truth: Each cognitive function has one authoritative agent
-
-**Peer Principles**
-
-- Role Specialization & Topology: Specialized roles for distinct functions; avoid cognitive function duplication across agents
+- Single Source of Truth: Each cognitive function has one authoritative agent; topology map as authoritative role assignment
+- Human-AI Authority & Accountability: Clear role boundaries and authority delegation
+- Structural Foundations: Architectural patterns for agent organization and boundaries
+- Context Engineering: Each agent receives only the context relevant to its role
 
 **Truth Sources**
 
 - Agent system prompt defining cognitive function and boundaries
 - Orchestrator documentation of agent-to-function mapping
+- Topology map maintained by orchestrator
 - Research demonstrating 70% cognitive load reduction with specialization
 - Google ADK (2025): Detailed cognitive function definitions improve output quality
+- Research on separation of powers and least privilege in multi-agent systems
 
 **How AI Applies This Principle**
 
 1. Before creating agents, identify distinct cognitive functions required for the task
 2. Map each cognitive function to exactly one agent
-3. Write agent system prompts that define the single cognitive function clearly
-4. Include "Who I Am NOT" section to establish boundaries
-5. Prohibit agents from making decisions outside their cognitive domain
-6. Flag cross-domain decisions for orchestrator routing or human escalation
+3. Define distinct, non-overlapping scope of authority for each agent
+4. Assign topology role (Specialist, Orchestrator, Reviewer) to every agent
+5. Create topology map showing which agent owns which domain
+6. Write agent system prompts that define the single cognitive function clearly
+7. Include "Who I Am NOT" section to establish boundaries
+8. Enforce Principle of Least Privilege — agents access only data needed for their role
+9. Prohibit agents from making decisions outside their cognitive domain
+10. Flag cross-domain decisions for orchestrator routing or human escalation
+11. Track and govern any dynamically spawned sub-agents
 
 **Success Criteria**
 
 - Each agent has exactly one defined cognitive function
+- Every agent has a defined, non-overlapping scope of authority
+- Topology map exists and is current
 - Agent outputs contain no decisions outside their cognitive domain
+- No agent performs work outside its defined scope
 - Cross-domain requirements route through orchestrator
 - Agent system prompts explicitly state what is IN and OUT of scope
 - Specialization applies whether agents run alone or together
+- All sub-agents tracked and governed by topology
 
 **Human Interaction Points**
 
 - Define cognitive function boundaries for novel task types
-- Resolve ambiguous cognitive domain assignments
+- Define initial topology and assign roles
+- Resolve ambiguous cognitive domain assignments ("Turf Wars")
 - Approve agent specialization strategy for new multi-agent systems
+- Approve topology changes for new agent additions
 
 **Common Pitfalls**
 
@@ -346,11 +361,15 @@ Each agent must be assigned a single cognitive function with clear domain bounda
 - **Phase Confusion:** Defining agents by workflow phase instead of cognitive function
 - **Boundary Creep:** Allowing agents to expand scope without explicit authorization
 - **Persona vs. Function:** Confusing simple role labels ("senior developer") with cognitive specialization
+- **The "Shadow IT":** Spawning temporary sub-agents that are not tracked or governed by the topology
+- **Scope Creep:** Agent gradually expanding its authority without explicit authorization
 
 **Configurable Defaults**
 
 - Maximum cognitive functions per agent: 1 (not configurable—this is the principle)
 - Agent count: Determined by distinct cognitive functions required (no fixed limit)
+- Topology map format: Configurable (table, graph, JSON)
+- Least privilege enforcement: Required (not configurable)
 
 ---
 
@@ -377,7 +396,7 @@ Multi-agent systems must implement all four context engineering strategies:
 | **Write** | Store context externally for retrieval | Memory stores, files, databases—not just in-window |
 | **Select** | Retrieve only relevant context | RAG, similarity search, filters—not full dumps |
 | **Compress** | Summarize at boundaries | LLM-driven summarization at agent handoffs |
-| **Isolate** | Scope each agent's window | Minimal relevant context per agent, not shared windows |
+| **Isolate** | Scope each agent's window | Minimal relevant context per agent, not shared windows (see Context Isolation Architecture) |
 
 Each agent receives a **context budget**—maximum tokens for specific context categories (task, history, reference). Exceeding budget triggers compression or selection refinement.
 
@@ -451,10 +470,6 @@ Each specialized agent must operate in a completely independent context window w
 
 - Context Engineering: Load necessary information—implies NOT loading unnecessary information; minimize context consumption—implies isolation prevents bloat
 
-**Peer Principles**
-
-- Hybrid Interaction & RACI: Transitions maintain state—implies state is transferred explicitly, not leaked
-
 **Truth Sources**
 
 - LangChain research: Subagent isolation saves 67% tokens vs. context accumulation
@@ -506,7 +521,7 @@ Each specialized agent must operate in a completely independent context window w
 
 **Why This Principle Matters**
 
-The domain principle Standardized Collaboration Protocols requires established protocols for agent interaction. In practice, this means a dedicated orchestrator must manage workflow, validation, and human interface WITHOUT executing domain-specific work. When an orchestrator also performs execution tasks, it becomes a "do everything" monolith that violates specialization and creates single points of failure. Separation of coordination from execution enables clear responsibility boundaries.
+Effective multi-agent coordination requires a dedicated orchestrator that manages workflow, validation, and human interface WITHOUT executing domain-specific work. When an orchestrator also performs execution tasks, it becomes a "do everything" monolith that violates specialization and creates single points of failure. Separation of coordination from execution enables clear responsibility boundaries.
 
 **Domain Application (Binding Rule)**
 
@@ -518,8 +533,7 @@ A dedicated orchestrator agent manages workflow coordination, validation gates, 
 
 **Peer Principles**
 
-- Standardized Collaboration Protocols: Established protocols govern interaction
-- Role Specialization & Topology: Orchestration is a distinct function from execution
+- Agent Specialization & Topology: Orchestration is a distinct cognitive function from execution
 
 **Truth Sources**
 
@@ -568,8 +582,7 @@ A dedicated orchestrator agent manages workflow coordination, validation gates, 
 **Failure Mode(s) Addressed:**
 - **MA-A4: Intent Degradation → Goal Misalignment** — Original user goal degrades through agent chains ("telephone game" effect), causing downstream agents to optimize for local tasks at expense of global objectives.
   - *Detect via:* Agent outputs technically correct but misaligned with user goal; downstream agents reinterpret task in ways that diverge from original intent; final output solves a different problem than requested; agents can't articulate the root user goal.
-- **MA-C1: Conflicting Assumptions → Integration Failure** — Parallel agents make implicit decisions that conflict, creating integration failures. [NEW in v2.0.0]
-  - *Detect via:* Parallel outputs are internally consistent but mutually incompatible; subagents made different stylistic/structural choices; integration requires significant rework.
+- **MA-C1: Conflicting Assumptions → Integration Failure** — Parallel agents make implicit decisions that conflict, creating integration failures.  - *Detect via:* Parallel outputs are internally consistent but mutually incompatible; subagents made different stylistic/structural choices; integration requires significant rework.
 
 **Why This Principle Matters**
 
@@ -598,14 +611,6 @@ Agents must verify their outputs serve the original intent AND align with shared
 - Single Source of Truth: Original intent is authoritative throughout workflow
 - Explicit Over Implicit: Intent and assumptions must be explicit, not inferred
 - Verification & Validation: Verify outputs serve the original intent before handoff
-
-**Peer Principles**
-
-- Intent Preservation (this document): The "Why" must be passed to every agent in the chain
-
-**Peer Principles**
-
-- Standardized Collaboration Protocols: Shared assumptions as contract between agents
 
 **Truth Sources**
 
@@ -648,7 +653,7 @@ Agents must verify their outputs serve the original intent AND align with shared
 - **Task Tunnel:** Agent optimizes its specific metric (shortest code) at expense of global goal (readability)
 - **Intent Erosion:** Each handoff summarizes away critical constraints
 - **Assumed Context:** Downstream agents "guess" at intent instead of receiving explicit object
-- **Parallel Drift:** Parallel agents make conflicting implicit decisions [NEW]
+- **Parallel Drift:** Parallel agents make conflicting implicit decisions
 
 **Configurable Defaults**
 
@@ -656,285 +661,14 @@ Agents must verify their outputs serve the original intent AND align with shared
 - Intent verification: Required before task completion
 - Shared Assumptions Document: Required before parallel execution (not configurable)
 
----
-
-### Role Specialization & Topology
-
-**Maturity:** [VALIDATED] — Production multi-agent systems with published specialization metrics
-
-**Failure Mode(s) Addressed:**
-- **MA-A1: Mixed Cognitive Functions → Output Degradation** — Agents without distinct, non-overlapping scopes of authority experience role confusion, leading to output quality degradation and governance gaps.
-  - *Detect via:* Multiple agents claiming responsibility for same task; agents performing work outside their defined scope; orchestrator doing execution work instead of delegating.
-
-**Why This Principle Matters**
-
-The constitutional principle Human-AI Authority & Accountability establishes clear role boundaries between humans and AI. For multi-agent systems, this extends to boundaries between agents themselves. Every agent must have a distinct, non-overlapping Scope of Authority defined by its Topology (e.g., Specialist, Orchestrator, Reviewer). A "Jack-of-All-Trades" agent is forbidden in collaborative systems. Agents operate under the Principle of Least Privilege, accessing only the specific data slice needed for their role.
-
-**Domain Application (Binding Rule)**
-
-Each agent must have a distinct topology role with explicit scope boundaries. The system must maintain a readable topology map of which agent owns which domain. Each agent must have a persistent system prompt defining "Who I Am" and "Who I Am Not."
-
-- **Separation of Concerns:** The "Coder Agent" writes code but does not merge it. The "Reviewer Agent" merges code but does not write it.
-- **Orchestration:** A designated "Manager Agent" maintains the state and assigns tasks but performs no execution work itself.
-- **Data Scoping:** The "Reporter Agent" receives only the summary statistics, not the raw PII data, preventing data leakage.
-
-**Constitutional Basis**
-
-- Human-AI Authority & Accountability: Clear role boundaries and authority delegation
-- Structural Foundations: Architectural patterns for agent organization and boundaries
-- Context Engineering: Each agent receives only the context relevant to its role
-- Single Source of Truth: Topology map as authoritative role assignment
-
-**Truth Sources**
-
-- Agent system prompts defining topology role and boundaries
-- Topology map maintained by orchestrator
-- Research on separation of powers and least privilege in multi-agent systems
-
-**How AI Applies This Principle**
-
-1. Define distinct, non-overlapping scope of authority for each agent
-2. Assign topology role (Specialist, Orchestrator, Reviewer) to every agent
-3. Create topology map showing which agent owns which domain
-4. Enforce Principle of Least Privilege — agents access only data needed for their role
-5. Prevent orchestrators from doing execution work (delegation only)
-6. Track and govern any dynamically spawned sub-agents
-
-**Success Criteria**
-
-- Every agent has a defined, non-overlapping scope of authority
-- Topology map exists and is current
-- No agent performs work outside its defined scope
-- Orchestrators delegate, never execute
-- All sub-agents tracked and governed by topology
-
-**Human Interaction Points**
-
-- Define initial topology and assign roles
-- Resolve "Turf Wars" where two agents claim responsibility for the same task
-- Approve topology changes for new agent additions
-
-**Common Pitfalls**
-
-- **The "Hero Agent":** An orchestrator that gets lazy and tries to do the work itself instead of delegating
-- **The "Shadow IT":** Spawning temporary sub-agents that are not tracked or governed by the topology
-- **Scope Creep:** Agent gradually expanding its authority without explicit authorization
-
-**Configurable Defaults**
-
-- Topology map format: Configurable (table, graph, JSON)
-- Least privilege enforcement: Required (not configurable)
-
----
-
-### Hybrid Interaction & RACI (Multi-Agent Mechanics)
-
-**Maturity:** [VALIDATED] — Production multi-agent systems with RACI-based coordination
-
-**Failure Mode(s) Addressed:**
-- **MA-R7: Gate Bypass → Rework Cascades** — Without explicit RACI assignments in multi-agent workflows, approval gates are bypassed and handoff responsibilities are unclear, causing rework cascades.
-  - *Detect via:* Agents executing sensitive tasks without approval; unclear responsibility assignment at handoff points; agents waiting for approvals from wrong agent; cascading rework from ungated transitions.
-
-**Why This Principle Matters**
-
-The constitutional principle Human-AI Authority & Accountability establishes universal RACI concepts — humans remain Accountable, AI is Responsible. For multi-agent systems, RACI mechanics become more complex: topology handoffs require explicit responsibility transfer, multi-agent approval gates must define which agent (or human) approves at each stage, and "One-Way Door" decisions in agent chains require explicit sign-off protocols.
-
-**Domain Application (Binding Rule)**
-
-Multi-agent workflows must define RACI assignments for every handoff and approval gate in the agent chain. High-impact actions ("One-Way Door" decisions) require explicit approval from the designated Accountable party (human or orchestrator). Agents must proactively broadcast milestone completion and status.
-
-- **Topology Handoffs:** When Agent A hands work to Agent B, responsibility transfer must be explicit — Agent A is no longer Responsible after validated handoff
-- **Multi-Agent Approval Gates:** Define which agent or human must approve at each workflow stage
-- **Status Broadcasting:** Agents proactively inform the human/orchestrator of milestone completion without waiting to be asked
-
-**Constitutional Basis**
-
-- Human-AI Authority & Accountability: Universal RACI framework and accountability chains
-- Verification & Validation: Approval gates validate work before progression
-- Context Engineering: RACI assignments propagated through handoff context
-
-**Truth Sources**
-
-- Workflow RACI matrices showing agent-to-responsibility mappings
-- Approval gate definitions with designated approvers
-- Handoff protocol documentation
-
-**How AI Applies This Principle**
-
-1. Define RACI assignments for every handoff point in multi-agent workflows
-2. Identify "One-Way Door" decisions requiring human Accountable sign-off
-3. Implement explicit responsibility transfer at topology handoffs
-4. Broadcast milestone completion proactively
-5. When confidence drops below threshold, shift from "Doer" to "Consultant"
-6. Log all approvals for audit trail
-
-**Success Criteria**
-
-- Every handoff has explicit RACI assignment
-- All "One-Way Door" decisions have approval gates
-- Responsibility transfers are explicit and logged
-- No agent executes sensitive tasks without proper approval
-- Audit trail complete for all approval events
-
-**Human Interaction Points**
-
-- Every time a "High Impact" action is queued in the agent chain
-- When an agent is stuck in a loop and needs a "Managerial Override"
-- When RACI status of a task is unknown — default to Ask
-
-**Common Pitfalls**
-
-- **The "Silent Actor":** Agent executing a sensitive task without informing the human (violating "Informed")
-- **The "Nag":** Asking for approval on trivial tasks (violating "Responsible")
-- **Orphaned Responsibility:** Handoff occurs but neither agent considers itself Responsible for the work
-- **Gate Amnesia:** Approval gates defined but not enforced during execution
-
-**Configurable Defaults**
-
-- Default RACI for unknown tasks: Pause and ask (not configurable)
-- Approval gate enforcement: Required for "One-Way Door" decisions (not configurable)
-
----
-
-### Standardized Collaboration Protocols
-
-**Maturity:** [VALIDATED] — Production multi-agent systems with structured inter-agent communication
-
-**Failure Mode(s) Addressed:**
-- **MA-C3: Context Mismanagement → Degraded Outputs** — When agents interact via natural language conversation rather than standardized contracts, information is lost, misinterpreted, or implicitly assumed, causing degraded outputs and integration failures.
-  - *Detect via:* Agents sending paragraphs of text instead of structured data; agents waiting indefinitely for responses; schema validation errors at handoff boundaries; implicit assumptions causing downstream failures.
-
-**Why This Principle Matters**
-
-The constitutional principle Context Engineering requires explicit, structured context management. For multi-agent systems, this means agents must interact via standardized "Contracts" (e.g., JSON schemas, Markdown headers) rather than natural language conversation. Implicit knowledge ("I thought you knew...") is forbidden between agents. All interactions must have defined timeouts to prevent deadlocks.
-
-**Domain Application (Binding Rule)**
-
-All inter-agent communication must use structured, schema-validated formats. Agent A outputs a structured object; Agent B requires schema validation before accepting it. Full "World State" is passed explicitly rather than assuming the next agent remembers conversation history. Every inter-agent call must include `max_retries` and `timeout` parameters.
-
-**Constitutional Basis**
-
-- Context Engineering: Structure context for reliable handoff between agents
-- Verification & Validation: Schema validation at every handoff boundary
-- Explicit Over Implicit: No implicit assumptions between agents
-
-**Truth Sources**
-
-- Inter-agent schema definitions (JSON Schema, structured Markdown)
-- Timeout and retry configuration per agent interaction
-- Deadlock detection patterns for inter-agent dependencies
-
-**How AI Applies This Principle**
-
-1. Define structured schemas for all inter-agent communication
-2. Validate incoming data against schema before processing
-3. Pass full "World State" explicitly at every handoff
-4. Include `max_retries` and `timeout` in every inter-agent call
-5. Version contracts to prevent breaking changes
-6. Detect and break deadlocks (Agent A waiting for Agent B waiting for Agent A)
-
-**Success Criteria**
-
-- All inter-agent communication uses structured, validated formats
-- No implicit knowledge transfer between agents
-- All inter-agent calls have timeout and retry parameters
-- Zero deadlock occurrences from missing timeout configuration
-- Contract schemas are versioned
-
-**Human Interaction Points**
-
-- Define initial schemas/contracts for new multi-agent workflows
-- When a "Schema Validation Error" occurs that agents cannot auto-resolve
-- When contract versioning requires breaking changes
-
-**Common Pitfalls**
-
-- **The "Chatty Kathy":** Agents sending paragraphs of text instead of structured data
-- **The "Infinite Wait":** Agent A waiting for Agent B, who is waiting for Agent A
-- **Schema Drift:** Contract schemas evolving without version tracking, causing silent failures
-
-**Configurable Defaults**
-
-- Default timeout: Configurable per agent type
-- Schema versioning: Required (not configurable)
-- Retry limit: Configurable with mandatory upper bound
 
 ---
 
 ## Coordination Principles (R-Series)
 
-### Read-Write Division
-
-**Maturity:** [VALIDATED] — LangChain, Cognition with published architectural guidance
-
-**Failure Mode(s) Addressed:**
-- **MA-C4: Conflicting Writes → Incoherent Outputs** — Parallel agents making write decisions create conflicts that cannot be reconciled, causing integration failures.
-  - *Detect via:* Parallel agents produce outputs that conflict; integration requires choosing between incompatible approaches; no single agent had authority over contested decisions.
-
-**Why This Principle Matters**
-
-The domain principles Role Specialization & Topology and Standardized Collaboration Protocols require clear boundaries and structured interaction. In multi-agent systems, a critical distinction exists between read operations (research, analysis, data gathering) and write operations (synthesis, decisions, final output). Read operations can safely parallelize—multiple agents gathering information don't conflict. Write operations compound complexity because "conflicting decisions carry bad results" (Cognition 2025).
-
-**Domain Application (Binding Rule)**
-
-**Parallelize read-heavy operations.** Research, analysis, data gathering, and information retrieval can run across multiple agents simultaneously. These agents produce findings, not decisions.
-
-**Serialize write-heavy operations.** Synthesis, final output generation, and decision-making must consolidate to a single agent with visibility into all read results. This agent has authority to make decisions; read agents do not.
-
-**Never parallelize writes without explicit conflict resolution protocol.** If multiple agents must make decisions in parallel, establish explicit boundaries (per Shared Assumptions) and conflict resolution mechanism BEFORE execution.
-
-**Constitutional Basis**
-
-- Single Source of Truth: One agent makes each decision
-
-**Peer Principles**
-
-- Role Specialization & Topology: Clear authority boundaries prevent conflict
-- Standardized Collaboration Protocols: Structured interaction, not implicit coordination
-
-**Truth Sources**
-
-- LangChain (2025): "Delegate research/gathering to multiple agents, consolidate synthesis to single agent"
-- Cognition (2025): "Actions carry implicit decisions, and conflicting decisions carry bad results"
-- Google ADK: Clear authority boundaries in agent delegation
-
-**How AI Applies This Principle**
-
-1. Classify subtasks as read (information gathering) or write (decision making)
-2. Design parallel workflows for read operations only
-3. Route all write operations to designated synthesis agent
-4. Synthesis agent receives all read results before producing output
-5. If parallel writes unavoidable, establish explicit boundaries + conflict resolution first
-6. Never allow implicit decision authority overlap
-
-**Success Criteria**
-
-- All parallelized tasks are read operations
-- Write operations serialize to single synthesis agent
-- No conflicting decisions from parallel agents
-- Clear authority boundaries documented before parallel execution
-
-**Human Interaction Points**
-
-- Classify ambiguous tasks as read or write
-- Approve parallel write arrangements with conflict resolution
-- Resolve write conflicts that agents cannot
-
-**Common Pitfalls**
-
-- **Implicit Write Authority:** Read agents making decisions "to be helpful"
-- **Parallel Synthesis:** Multiple agents writing final output simultaneously
-- **Authority Ambiguity:** Unclear who decides when agents disagree
-
-**Configurable Defaults**
-
-- Default parallelization: Read operations only
-- Write authority: Single agent per decision domain
-- Conflict resolution: Required before parallel writes (not configurable)
-
----
-
 ### Explicit Handoff Protocol
+
+*Aliases: Hybrid Interaction & RACI (Multi-Agent Mechanics)*
 
 **Maturity:** [VALIDATED] — Azilen, LangChain, enterprise patterns
 
@@ -943,10 +677,12 @@ The domain principles Role Specialization & Topology and Standardized Collaborat
   - *Detect via:* Receiving agent asks clarifying questions that sending agent already answered; downstream output missing constraints from upstream; agents make assumptions not supported by handoff data; natural language handoffs without structured fields.
 - **MA-R2: Missing Deadlock Prevention → Agent Gridlock** — Handoffs without timeouts or retry limits cause agents to wait indefinitely for each other.
   - *Detect via:* Agent response time exceeds 2x normal; circular dependency in agent wait chains; no timeout or retry configuration in handoff protocol; workflow stalls with no error or progress.
+- **MA-R7: Gate Bypass → Rework Cascades** — Without explicit RACI assignments in multi-agent workflows, approval gates are bypassed and handoff responsibilities are unclear, causing rework cascades.
+  - *Detect via:* Agents executing sensitive tasks without approval; unclear responsibility assignment at handoff points; agents waiting for approvals from wrong agent; cascading rework from ungated transitions.
 
 **Why This Principle Matters**
 
-The domain principle Hybrid Interaction & RACI requires that transitions maintain state and avoid rework. In multi-agent systems with isolated contexts, handoffs are the ONLY mechanism for transferring work between agents. Implicit or informal handoffs lose critical information and force downstream agents to guess or hallucinate context. Additionally, Standardized Collaboration Protocols requires structured contracts rather than conversational exchange—natural language is ambiguous; structured data is precise.
+In multi-agent systems with isolated contexts, handoffs are the ONLY mechanism for transferring work between agents. Implicit or informal handoffs lose critical information and force downstream agents to guess or hallucinate context. Agents must interact via structured contracts rather than conversational exchange — natural language is ambiguous; structured data is precise. Additionally, RACI mechanics at handoffs are critical: topology handoffs require explicit responsibility transfer, multi-agent approval gates must define which agent (or human) approves at each stage, and "One-Way Door" decisions in agent chains require explicit sign-off protocols.
 
 **v2.0.0 Enhancement: Handoff Pattern Taxonomy**
 
@@ -961,24 +697,31 @@ The handoff schema must specify which pattern is being used.
 
 **Domain Application (Binding Rule)**
 
-Every inter-agent transfer must follow an explicit handoff protocol that includes: task definition, relevant context, acceptance criteria, and constraints. Handoffs must use structured data formats, not conversational natural language. All handoffs must include deadlock prevention mechanisms (timeouts, retry limits). The receiving agent must have sufficient information to complete its task without accessing the sending agent's context.
+Every inter-agent transfer must follow an explicit handoff protocol that includes: task definition, relevant context, acceptance criteria, and constraints. Handoffs must use structured data formats, not conversational natural language. All handoffs must include deadlock prevention mechanisms (timeouts, retry limits). All inter-agent calls must include `max_retries` and `timeout` parameters. The receiving agent must have sufficient information to complete its task without accessing the sending agent's context.
+
+**RACI Assignment at Handoffs**
+
+Multi-agent workflows must define RACI assignments for every handoff and approval gate in the agent chain. High-impact actions ("One-Way Door" decisions) require explicit approval from the designated Accountable party (human or orchestrator).
+
+- **Topology Handoffs:** When Agent A hands work to Agent B, responsibility transfer must be explicit — Agent A is no longer Responsible after validated handoff
+- **Multi-Agent Approval Gates:** Define which agent or human must approve at each workflow stage
+- **Confidence-Based Role Shifting:** When confidence drops below threshold, agent shifts from "Doer" to "Consultant"
 
 **Constitutional Basis**
 
-- Context Engineering: Load necessary information to prevent hallucination
+- Context Engineering: Load necessary information to prevent hallucination; RACI assignments propagated through handoff context
 - Visible Reasoning & Traceability: Capture decisions for future reference
-
-**Peer Principles**
-
-- Hybrid Interaction & RACI: Transitions maintain state and avoid rework
-- Standardized Collaboration Protocols: Structured contracts, not natural language; deadlock prevention required
+- Explicit Over Implicit: No implicit assumptions between agents
+- Human-AI Authority & Accountability: Universal RACI framework and accountability chains
+- Verification & Validation: Schema validation at every handoff boundary; approval gates validate work before progression
 
 **Truth Sources**
 
 - Azilen Enterprise Patterns: Log every handoff between agents for traceability
 - LangChain: Handoff patterns with explicit state transfer
 - Google ADK (2025): Agents-as-Tools vs Agent-Transfer patterns
-- Standardized Collaboration Protocols: "All interactions must have defined timeouts to prevent deadlocks"
+- Workflow RACI matrices showing agent-to-responsibility mappings
+- Approval gate definitions with designated approvers
 
 **How AI Applies This Principle**
 
@@ -988,8 +731,11 @@ Every inter-agent transfer must follow an explicit handoff protocol that include
 4. Include: task definition, input context, acceptance criteria, constraints, relevant prior decisions
 5. Specify timeout and retry limits for every handoff to prevent deadlocks
 6. Validate handoff completeness and schema compliance before executing transfer
-7. Log all handoffs for traceability and debugging
-8. Receiving agent confirms understanding before proceeding
+7. Define RACI assignments for every handoff point
+8. Identify "One-Way Door" decisions requiring human Accountable sign-off
+9. Implement explicit responsibility transfer at topology handoffs
+10. Log all handoffs and approvals for traceability and debugging
+11. Receiving agent confirms understanding before proceeding
 
 **Success Criteria**
 
@@ -997,7 +743,11 @@ Every inter-agent transfer must follow an explicit handoff protocol that include
 - Every handoff follows defined structured schema
 - No conversational/prose handoffs between agents
 - Timeout and retry limits specified for all transfers
+- All inter-agent calls have timeout and retry parameters
 - Receiving agent can complete task without querying sending agent
+- Every handoff has explicit RACI assignment
+- All "One-Way Door" decisions have approval gates
+- Responsibility transfers are explicit and logged
 - Handoff log enables reconstruction of decision flow
 - No deadlocks (agents waiting indefinitely for each other)
 
@@ -1007,6 +757,8 @@ Every inter-agent transfer must follow an explicit handoff protocol that include
 - Review handoff logs when debugging multi-agent issues
 - Resolve schema validation failures that agents cannot auto-resolve
 - Approve handoff content for high-stakes transitions
+- Every time a "High Impact" action is queued in the agent chain
+- When RACI status of a task is unknown — default to Ask
 
 **Common Pitfalls**
 
@@ -1015,7 +767,9 @@ Every inter-agent transfer must follow an explicit handoff protocol that include
 - **Implicit References:** "Continue with the approach" without specifying which approach
 - **Missing Constraints:** Handoff includes task but not boundaries or acceptance criteria
 - **Infinite Wait:** Agent A waiting for Agent B, who is waiting for Agent A (deadlock)
-- **Pattern Mismatch:** Using Tools pattern when Transfer is needed, losing critical context [NEW]
+- **Pattern Mismatch:** Using Tools pattern when Transfer is needed, losing critical context
+- **Orphaned Responsibility:** Handoff occurs but neither agent considers itself Responsible for the work
+- **Gate Amnesia:** Approval gates defined but not enforced during execution
 
 **Configurable Defaults**
 
@@ -1023,22 +777,29 @@ Every inter-agent transfer must follow an explicit handoff protocol that include
 - Handoff format: Structured data (specific format in methods)
 - Timeout specification: Required (values configurable per task type)
 - Handoff logging: Required (format configurable per tool)
+- Default RACI for unknown tasks: Pause and ask (not configurable)
+- Approval gate enforcement: Required for "One-Way Door" decisions (not configurable)
+- Schema versioning: Required (not configurable)
 
 ---
 
 ### Orchestration Pattern Selection
+
+*Aliases: Read-Write Division*
 
 **Maturity:** [VALIDATED] — Cognition, Microsoft Azure, Databricks, LangChain
 
 **Failure Mode(s) Addressed:**
 - **MA-R3: Pattern Mismatch → Coordination Failure** — Wrong orchestration pattern causes bottlenecks (over-serialization) or errors (inappropriate parallelization of dependent tasks).
   - *Detect via:* Parallel agents wait for same resource; sequential tasks that could run in parallel; agent starts before its dependency completes; orchestration pattern not documented in workflow design.
+- **MA-C4: Conflicting Writes → Incoherent Outputs** — Parallel agents making write decisions create conflicts that cannot be reconciled, causing integration failures.
+  - *Detect via:* Parallel agents produce outputs that conflict; integration requires choosing between incompatible approaches; no single agent had authority over contested decisions.
 - **MA-R7: Gate Bypass → Rework Cascades** — Skipping validation gates causes downstream work based on unvalidated upstream outputs.
   - *Detect via:* Phase N+1 starts before Phase N validation completes; downstream agent receives input without validation status; failed upstream outputs consumed by downstream agents; no validation checkpoint between phases.
 
 **Why This Principle Matters**
 
-Different task types require different coordination patterns. Sequential patterns ensure dependencies are respected; parallel patterns maximize throughput; hierarchical patterns manage complexity. Applying the wrong orchestration pattern creates either unnecessary bottlenecks (over-serialization) or coordination failures (inappropriate parallelization).
+Different task types require different coordination patterns. Sequential patterns ensure dependencies are respected; parallel patterns maximize throughput; hierarchical patterns manage complexity. Applying the wrong orchestration pattern creates either unnecessary bottlenecks (over-serialization) or coordination failures (inappropriate parallelization). A critical input to pattern selection is the read-write classification of subtasks: read operations (research, analysis, data gathering) can safely parallelize, while write operations (synthesis, decisions, final output) compound complexity because "conflicting decisions carry bad results" (Cognition 2025).
 
 **v2.0.0 Enhancement: Linear-First Default**
 
@@ -1047,6 +808,11 @@ Cognition (2025) demonstrated that "a more reliable approach is a linear system 
 **Domain Application (Binding Rule)**
 
 **Default to Sequential pattern.** Linear execution is the safest default—each agent has full knowledge of prior work.
+
+**Read-Write Classification (binding):** Before selecting a parallel pattern, classify all subtasks:
+- **Read agents** produce findings, not decisions. Research, analysis, data gathering, and information retrieval can run across multiple agents simultaneously.
+- **Write agents** have decision authority. Synthesis, final output generation, and decision-making must consolidate to a single agent with visibility into all read results.
+- **Never parallelize writes without explicit conflict resolution protocol.** If multiple agents must make decisions in parallel, establish explicit boundaries (per Shared Assumptions) and conflict resolution mechanism BEFORE execution.
 
 **Parallel execution requires explicit validation:**
 1. Tasks confirmed as read-only OR write boundaries explicitly defined
@@ -1060,17 +826,16 @@ Select orchestration pattern based on task characteristics: use sequential for d
 - Discovery Before Commitment: Validate independence before parallel commitment
 - Risk Mitigation by Design: Prefer safer defaults (sequential)
 - Goal-First Dependency Mapping: Reason backward from goal to identify dependencies
-
-**Peer Principles**
-
-- Standardized Collaboration Protocols: Established protocols govern interaction
+- Single Source of Truth: One agent makes each decision
 
 **Truth Sources**
 
-- Cognition (2025): Linear systems more reliable, avoiding conflicting decisions
+- Cognition (2025): Linear systems more reliable, avoiding conflicting decisions; "Actions carry implicit decisions, and conflicting decisions carry bad results"
+- LangChain (2025): "Delegate research/gathering to multiple agents, consolidate synthesis to single agent"
 - Microsoft Azure: Sequential, concurrent, and group chat orchestration patterns
 - Databricks: Continuum from chains to single-agent to multi-agent
 - Confluent: Orchestrator-worker, hierarchical, blackboard, market-based patterns
+- Google ADK: Clear authority boundaries in agent delegation
 
 **Pattern Selection Decision Tree:**
 
@@ -1100,17 +865,22 @@ START: Can task be parallelized?
 
 1. **Default to Sequential** unless parallel requirements are validated
 2. Analyze task for dependencies between subtasks
-3. Classify subtasks as read vs. write (per Read-Write Division)
+3. Classify subtasks as read (information gathering) or write (decision making)
 4. If parallel desired, verify: independence confirmed + read-only OR write boundaries explicit
 5. If parallel with writes: establish Shared Assumptions first
-6. Select pattern: Sequential (default), Parallel (validated), Hierarchical (complex delegation)
-7. Configure orchestrator to enforce selected pattern
-8. For sequential patterns: Block Phase N+1 until Phase N validation passes
+6. Route all write operations to designated synthesis agent
+7. Select pattern: Sequential (default), Parallel (validated), Hierarchical (complex delegation)
+8. Configure orchestrator to enforce selected pattern
+9. For sequential patterns: Block Phase N+1 until Phase N validation passes
+10. Never allow implicit decision authority overlap
 
 **Success Criteria**
 
 - Sequential is default; parallel requires explicit justification
 - Pattern selection documented with rationale
+- All parallelized tasks are read operations OR have explicit write boundaries
+- Write operations serialize to single synthesis agent
+- No conflicting decisions from parallel agents
 - Parallel execution only for validated independent/bounded tasks
 - Dependent tasks execute sequentially with validation gates
 - No dependency violations (downstream before upstream)
@@ -1120,8 +890,10 @@ START: Can task be parallelized?
 
 - Approve parallel execution for workflows with write operations
 - Override automatic sequential selection when domain knowledge confirms independence
+- Classify ambiguous tasks as read or write
 - Define dependencies that may not be obvious from task description
 - Approve phase transitions in sequential workflows
+- Resolve write conflicts that agents cannot
 
 **Common Pitfalls**
 
@@ -1129,12 +901,18 @@ START: Can task be parallelized?
 - **Over-Serialization:** Sequential pattern for truly independent read tasks (wastes time)
 - **Unsafe Parallelization:** Parallel pattern for dependent or write tasks (produces errors)
 - **Implicit Independence:** Assuming tasks are independent without verification
+- **Implicit Write Authority:** Read agents making decisions "to be helpful"
+- **Parallel Synthesis:** Multiple agents writing final output simultaneously
+- **Authority Ambiguity:** Unclear who decides when agents disagree
 
 **Configurable Defaults**
 
 - Default pattern: Sequential (safest; parallel requires justification)
+- Default parallelization: Read operations only
+- Write authority: Single agent per decision domain
 - Dependency analysis: Required before parallel execution
 - Validation gates: Required between sequential phases
+- Conflict resolution: Required before parallel writes (not configurable)
 
 ---
 
@@ -1162,10 +940,6 @@ Multi-agent workflow state must be persisted to structured files that survive se
 
 - Visible Reasoning & Traceability: Capture decisions for future reference
 - Context Engineering: Load necessary information—includes prior session context
-
-**Peer Principles**
-
-- Hybrid Interaction & RACI: Transitions maintain state—includes cross-session transitions
 
 **Truth Sources**
 
@@ -1222,7 +996,7 @@ Multi-agent workflow state must be persisted to structured files that survive se
 
 **Why This Principle Matters**
 
-The peer principle Synchronization & Observability (now merged into this principle) requires that long-running agents proactively broadcast their status rather than operating as "black boxes" until completion — a "Heartbeat" or "Standup" mechanism. Without observability, the orchestrator cannot detect stalls, resource contention, or silent failures until they cascade into system-wide problems. Proactive status visibility enables rapid unblocking and dynamic re-planning.
+Long-running agents must proactively broadcast their status rather than operating as "black boxes" until completion — a "Heartbeat" or "Standup" mechanism. Without observability, the orchestrator cannot detect stalls, resource contention, or silent failures until they cascade into system-wide problems. Proactive status visibility enables rapid unblocking and dynamic re-planning.
 
 **Domain Application (Binding Rule)**
 
@@ -1240,12 +1014,10 @@ Long-running agents must proactively broadcast status (current task, progress, b
 
 **Peer Principles**
 
-- Synchronization & Observability (merged): Agents must implement heartbeat/standup mechanism
-- Blameless Error Reporting: Proactive reporting of blockers and issues
+- Fault Tolerance and Graceful Degradation: Proactive reporting of blockers and issues; blameless error reporting feeds observability
 
 **Truth Sources**
 
-- Synchronization & Observability (merged): "Long-running agents must proactively broadcast status at defined intervals"
 - Enterprise patterns: Real-time situational awareness for orchestrators
 - Azilen: Log every step in the process, create metrics for monitoring
 
@@ -1291,72 +1063,6 @@ Long-running agents must proactively broadcast status (current task, progress, b
 
 ---
 
-### Blameless Error Reporting (Multi-Agent Mechanics)
-
-**Maturity:** [VALIDATED] — Enterprise multi-agent systems with error propagation patterns
-
-**Failure Mode(s) Addressed:**
-- **MA-Q5: Silent Failures → Undetected Error Propagation** — Agent errors ignored or hidden; corrupted outputs flow downstream without detection. Without confidence scoring and stop-the-line protocols in multi-agent context, errors propagate silently through agent chains.
-  - *Detect via:* Downstream agent receives corrupted input without warning; agent produces output with low confidence but no flag; near-miss events not logged; errors discovered only at final output.
-
-**Why This Principle Matters**
-
-The constitutional principle Transparent Limitations establishes universal epistemic honesty — stating uncertainty, no silent failures, and accuracy-of-state priority. For multi-agent systems, additional mechanics are needed: confidence scoring on agent outputs so downstream agents and reviewers can calibrate scrutiny, stop-the-line protocols that halt the agent chain when errors exceed thresholds, and near-miss logging to capture events that almost caused failures for systemic improvement.
-
-**Domain Application (Binding Rule)**
-
-Agents must attach confidence indicators to outputs so reviewers and downstream agents can calibrate scrutiny. When an agent detects an error that could propagate downstream, it must trigger a stop-the-line protocol — halting the chain rather than passing corrupted data forward. Near-miss events (errors caught before propagation, unexpected behaviors, degraded confidence) must be logged for systemic analysis even when the immediate output is acceptable.
-
-**Constitutional Basis**
-
-- Transparent Limitations: Epistemic honesty, no silent failures, state accuracy
-- Verification & Validation: Validate outputs before propagation
-- Human-AI Authority & Accountability: Escalation when confidence is low
-
-**Truth Sources**
-
-- Agent confidence scoring models and calibration data
-- Stop-the-line protocol definitions per workflow
-- Near-miss event logs and systemic analysis reports
-
-**How AI Applies This Principle**
-
-1. Attach confidence score or indicator to every agent output
-2. When confidence drops below threshold, flag output for review before propagation
-3. Implement stop-the-line protocol: halt chain on errors that would propagate
-4. Log near-miss events even when output is acceptable
-5. Downstream agents check upstream confidence before processing
-6. Aggregate near-miss data for systemic improvement
-
-**Success Criteria**
-
-- All agent outputs include confidence indication
-- Stop-the-line triggered when errors would propagate (zero silent propagation)
-- Near-miss events logged and periodically reviewed
-- Downstream agents calibrate scrutiny based on upstream confidence
-- No corrupted data flows through agent chain undetected
-
-**Human Interaction Points**
-
-- Review near-miss logs for systemic patterns
-- Adjust confidence thresholds based on workflow criticality
-- When stop-the-line is triggered, decide whether to resume or restructure
-
-**Common Pitfalls**
-
-- **Confidence Theater:** Reporting high confidence without calibration, giving false assurance
-- **Silent Propagation:** Passing errors downstream without confidence warning
-- **Near-Miss Amnesia:** Not logging near-misses because "it worked out"
-- **Threshold Paralysis:** Confidence thresholds too low, causing constant stop-the-line interruptions
-
-**Configurable Defaults**
-
-- Confidence threshold for review: Configurable per workflow criticality
-- Stop-the-line enforcement: Required (not configurable)
-- Near-miss logging: Required (not configurable)
-
----
-
 ## Quality Principles (Q-Series)
 
 ### Validation Independence
@@ -1369,7 +1075,7 @@ Agents must attach confidence indicators to outputs so reviewers and downstream 
 
 **Why This Principle Matters**
 
-Agents cannot objectively validate their own work—confirmation bias causes self-assessment to skew positive regardless of actual quality. The constitutional principle Verification & Validation requires validation against requirements; for multi-agent systems, this means dedicating separate agents to validation with fresh context and explicit criteria. The Generator-Critic pattern separates creation from validation, ensuring independent quality assessment. Additionally, the domain principle Blameless Error Reporting requires that outputs include confidence indication so reviewers can calibrate their scrutiny.
+Agents cannot objectively validate their own work—confirmation bias causes self-assessment to skew positive regardless of actual quality. The constitutional principle Verification & Validation requires validation against requirements; for multi-agent systems, this means dedicating separate agents to validation with fresh context and explicit criteria. The Generator-Critic pattern separates creation from validation, ensuring independent quality assessment. Additionally, Fault Tolerance and Graceful Degradation (which includes blameless error reporting) requires that outputs include confidence indication so reviewers can calibrate their scrutiny.
 
 **Domain Application (Binding Rule)**
 
@@ -1381,14 +1087,13 @@ Validation must be performed by a dedicated agent separate from the agent that p
 
 **Peer Principles**
 
-- Role Specialization & Topology: Validation is a distinct cognitive function from generation
-- Blameless Error Reporting: Confidence scoring on critical outputs; accuracy over completion
+- Agent Specialization & Topology: Validation is a distinct cognitive function from generation
+- Fault Tolerance and Graceful Degradation: Confidence scoring on critical outputs; accuracy over completion
 
 **Truth Sources**
 
 - Google ADK: Generator-Critic pattern separates creation from validation
 - Enterprise patterns: Independent validation agents for quality assurance
-- Blameless Error Reporting: "Every critical output must be accompanied by a confidence score"
 - Research: Confirmation bias documented in self-assessment scenarios
 
 **How AI Applies This Principle**
@@ -1437,38 +1142,44 @@ Validation must be performed by a dedicated agent separate from the agent that p
 
 ### Fault Tolerance and Graceful Degradation
 
+*Aliases: Blameless Error Reporting (Multi-Agent Mechanics)*
+
 **Maturity:** [VALIDATED] — Microsoft Azure, Databricks, Azilen enterprise patterns
 
 **Failure Mode(s) Addressed:**
 - **MA-Q2: Cascading Failures → System-Wide Corruption** — Failures in one agent propagate through the network, corrupting outputs across the entire multi-agent workflow.
   - *Detect via:* Error in agent A appears in outputs of agents B, C, D; single failure causes multiple downstream rework; no circuit breaker triggers despite clear failure; failure impact expands rather than isolates.
 - **MA-Q5: Silent Failures → Undetected Error Propagation** — Agent errors ignored or hidden, causing corrupted outputs to flow downstream without detection.
-  - *Detect via:* Agent returns output despite encountering error condition; error logs empty despite observable failures; downstream agents receive corrupted input without warning; exception caught and suppressed without escalation.
+  - *Detect via:* Agent returns output despite encountering error condition; error logs empty despite observable failures; downstream agents receive corrupted input without warning; exception caught and suppressed without escalation; agent produces output with low confidence but no flag; near-miss events not logged.
 
 **Why This Principle Matters**
 
-Multi-agent systems have multiple failure points—any agent can fail, any handoff can corrupt, any context can overflow. Without explicit fault tolerance, a single failure cascades through the agent network, corrupting all downstream outputs. The constitutional principle Verification & Validation requires catching failures early; for multi-agent systems, this extends to isolating failures and degrading gracefully. Additionally, the domain principle Blameless Error Reporting establishes that any agent can "stop the line" when critical issues are detected—this authority must be preserved and respected.
+Multi-agent systems have multiple failure points—any agent can fail, any handoff can corrupt, any context can overflow. Without explicit fault tolerance, a single failure cascades through the agent network, corrupting all downstream outputs. The constitutional principle Verification & Validation requires catching failures early; for multi-agent systems, this extends to isolating failures and degrading gracefully. Additionally, the constitutional principle Transparent Limitations establishes universal epistemic honesty — for multi-agent systems, this requires confidence scoring on agent outputs so downstream agents and reviewers can calibrate scrutiny, stop-the-line protocols that halt the agent chain when errors exceed thresholds, and near-miss logging to capture events that almost caused failures for systemic improvement.
 
 **Domain Application (Binding Rule)**
 
 Multi-agent workflows must implement fault isolation and graceful degradation. Agent failures must not cascade to other agents. Failed operations must be retried, escalated, or gracefully degraded—never silently ignored or passed downstream. Any agent detecting a critical safety or logic flaw can halt the entire workflow ("stop the line") without penalty. The orchestrator detects failures and implements recovery or degradation protocols.
+
+**Blameless Error Reporting**
+
+Agents must attach confidence indicators to outputs so reviewers and downstream agents can calibrate scrutiny. When an agent detects an error that could propagate downstream, it must trigger a stop-the-line protocol — halting the chain rather than passing corrupted data forward. Near-miss events (errors caught before propagation, unexpected behaviors, degraded confidence) must be logged for systemic analysis even when the immediate output is acceptable. Reporting failure is success — the culture must reward transparency over completion.
 
 **Constitutional Basis**
 
 - Verification & Validation: Catch failures early and prevent propagation
 - Failure Recovery & Resilience: Explicit strategies for recovering from errors
 - Visible Reasoning & Traceability: Log all failures, near-misses, and recovery actions
-
-**Peer Principles**
-
-- Blameless Error Reporting: Any agent can halt workflow; reporting failure is success
+- Transparent Limitations: Epistemic honesty, no silent failures, state accuracy
+- Human-AI Authority & Accountability: Escalation when confidence is low
 
 **Truth Sources**
 
 - Microsoft Azure: Checkpoint features for recovery from interrupted orchestration
 - Databricks: Retry strategies, fallback logic, simpler fallback chains
 - Azilen: Fallback paths for resilience; if one agent fails, system remains functional
-- Blameless Error Reporting: "The 'Stop the Line' Cord: Any agent can halt the entire assembly line"
+- Agent confidence scoring models and calibration data
+- Stop-the-line protocol definitions per workflow
+- Near-miss event logs and systemic analysis reports
 
 **How AI Applies This Principle**
 
@@ -1477,8 +1188,12 @@ Multi-agent workflows must implement fault isolation and graceful degradation. A
 3. Define fallback: alternative agent, simplified approach, or graceful degradation
 4. Isolate failures: failed agent's outputs do not propagate to other agents
 5. Honor stop-the-line: any agent detecting critical flaw can halt workflow
-6. Log all failures and near-misses for system improvement
-7. Escalate unrecoverable failures to human with full context
+6. Attach confidence score or indicator to every agent output
+7. When confidence drops below threshold, flag output for review before propagation
+8. Log near-miss events even when output is acceptable
+9. Downstream agents check upstream confidence before processing
+10. Aggregate near-miss data for systemic improvement
+11. Escalate unrecoverable failures to human with full context
 
 **Success Criteria**
 
@@ -1488,7 +1203,10 @@ Multi-agent workflows must implement fault isolation and graceful degradation. A
 - Stop-the-line authority respected regardless of source agent
 - Unrecoverable failures escalate with actionable context
 - No silent failures or error propagation
-- Near-misses logged for system learning
+- All agent outputs include confidence indication
+- Stop-the-line triggered when errors would propagate (zero silent propagation)
+- Near-miss events logged and periodically reviewed
+- Downstream agents calibrate scrutiny based on upstream confidence
 
 **Human Interaction Points**
 
@@ -1497,6 +1215,8 @@ Multi-agent workflows must implement fault isolation and graceful degradation. A
 - Respond immediately to stop-the-line events
 - Approve retry/fallback strategies for high-stakes tasks
 - Review near-miss logs for systemic issues (per Systemic Thinking — patterns in near-misses reveal structural causes)
+- Adjust confidence thresholds based on workflow criticality
+- When stop-the-line is triggered, decide whether to resume or restructure
 
 **Common Pitfalls**
 
@@ -1506,6 +1226,9 @@ Multi-agent workflows must implement fault isolation and graceful degradation. A
 - **Missing Timeouts:** Agents hanging indefinitely without failure detection
 - **Penalized Reporting:** Agents pressured to "always return a result" instead of reporting failure
 - **Ignored Stop-the-Line:** Workflow continuing despite critical flaw detection
+- **Confidence Theater:** Reporting high confidence without calibration, giving false assurance
+- **Near-Miss Amnesia:** Not logging near-misses because "it worked out"
+- **Threshold Paralysis:** Confidence thresholds too low, causing constant stop-the-line interruptions
 
 **Configurable Defaults**
 
@@ -1513,7 +1236,8 @@ Multi-agent workflows must implement fault isolation and graceful degradation. A
 - Retry attempts: Defined limit with modification before escalation
 - Failure isolation: Required (failed agent outputs quarantined)
 - Stop-the-line authority: All agents (not configurable—this is the principle)
-- Near-miss logging: Required
+- Near-miss logging: Required (not configurable)
+- Confidence threshold for review: Configurable per workflow criticality
 
 ---
 
@@ -1539,14 +1263,13 @@ Multi-agent workflows must define explicit human approval points for: phase tran
 
 **Peer Principles**
 
-- Blameless Error Reporting (Stop the Line): Critical issues halt progression
-- Hybrid Interaction & RACI: Appropriate review of AI recommendations
+- Fault Tolerance and Graceful Degradation: Stop-the-line authority halts progression on critical issues
+- HITL Removal Criteria (AO2): When the goal is to *remove* HITL, AO2 governs the graduated autonomy assessment
 
 **Truth Sources**
 
 - Google ADK: Human-in-Loop for high-stakes decisions (irreversible, consequential)
 - Enterprise patterns: Approval gates for critical actions
-- Blameless Error Reporting: Stop-the-line authority for any agent
 
 **How AI Applies This Principle**
 
@@ -1584,8 +1307,7 @@ Multi-agent workflows must define explicit human approval points for: phase tran
 
 ---
 
-## Autonomous Operation Principles (AO-Series) [NEW in v2.2.0]
-
+## Autonomous Operation Principles (AO-Series)
 *Principles governing agent systems that operate without continuous human oversight*
 
 ### Action Blast Radius Classification
@@ -1633,8 +1355,8 @@ Pre-dispatch aggregate review checkpoint: Before dispatching concurrent agents w
 
 **Peer Principles**
 
-- Hybrid Interaction & RACI: Human remains Accountable for irreversible outcomes
-- Blameless Error Reporting: External failures must be immediately visible
+- Explicit Handoff Protocol: Human remains Accountable for irreversible outcomes (RACI)
+- Fault Tolerance and Graceful Degradation: External failures must be immediately visible
 
 **Truth Sources**
 
@@ -1777,7 +1499,7 @@ When human oversight is reduced or removed (per AO2 Graduated Autonomy), compens
 
 **Domain Application (Binding Rule)**
 
-For any agent operating at AL-2 or AL-3, the following compensating controls are **required** (not optional):
+For any agent operating at AL-2 or AL-3, the following compensating controls are **required** (not optional). See multi-agent-methods §6.3 for implementation checklists.
 
 **1. Circuit Breakers**
 - Define automatic pause triggers: error rate threshold, anomaly detection, output volume spike
@@ -1812,7 +1534,7 @@ For any agent operating at AL-2 or AL-3, the following compensating controls are
 
 **Peer Principles**
 
-- Blameless Error Reporting: Circuit breakers enable safe failure reporting
+- Fault Tolerance and Graceful Degradation: Circuit breakers enable safe failure reporting; blameless error culture supports compensating control effectiveness
 
 **Truth Sources**
 
@@ -1905,8 +1627,8 @@ Autonomous agents (AL-2 or AL-3) must implement drift monitoring:
 
 **Peer Principles**
 
-- Intent Preservation (this document): Ensure long-running agents maintain alignment with original goals
-- Synchronization & Observability (merged into Observability Protocol): Continuous monitoring of agent behavior
+- Intent Propagation with Shared Assumptions: Ensure long-running agents maintain alignment with original goals
+- Observability Protocol: Continuous monitoring of agent behavior feeds drift detection
 
 **Truth Sources**
 
@@ -1960,22 +1682,18 @@ Autonomous agents (AL-2 or AL-3) must implement drift monitoring:
 | Constitutional Principle | Multi-Agent Domain Application |
 |--------------------------|-------------------------------|
 | Resource Efficiency & Waste Reduction | Justified Complexity |
-| Context Engineering | Context Engineering Discipline, Context Isolation Architecture |
-| Intent Preservation | Intent Propagation with Shared Assumptions (merged) |
+| Single Source of Truth | Agent Specialization & Topology, Orchestration Pattern Selection |
+| Structural Foundations | Agent Specialization & Topology |
+| Context Engineering | Context Engineering Discipline, Context Isolation Architecture, Explicit Handoff Protocol |
 | Explicit Over Implicit | Intent Propagation with Shared Assumptions, Explicit Handoff Protocol |
 | Discovery Before Commitment | Justified Complexity, Orchestration Pattern Selection, HITL Removal Criteria |
-| Verification & Validation | Validation Independence, Fault Tolerance and Graceful Degradation |
+| Risk Mitigation by Design | Orchestration Pattern Selection |
+| Goal-First Dependency Mapping | Orchestration Pattern Selection |
+| Verification & Validation | Validation Independence, Fault Tolerance and Graceful Degradation, Compensating Controls |
 | Failure Recovery & Resilience | Fault Tolerance and Graceful Degradation |
-| Visible Reasoning & Traceability | State Persistence Protocol |
-| Human-AI Authority & Accountability | Human-in-the-Loop Protocol, Action Blast Radius Classification, HITL Removal Criteria |
-
-| Domain Principle (Peer) | Multi-Agent Domain Application |
-|--------------------------|-------------------------------|
-| Role Specialization & Topology | Cognitive Function Specialization, Read-Write Division |
-| Hybrid Interaction & RACI | Explicit Handoff Protocol, State Persistence Protocol |
-| Blameless Error Reporting | Validation Independence (confidence), Fault Tolerance (stop-the-line) |
-| Standardized Collaboration Protocols | Orchestrator Separation, Explicit Handoff, Orchestration Patterns, Read-Write Division |
-| Synchronization & Observability (merged) | Observability Protocol (merged), Autonomous Drift Monitoring |
+| Visible Reasoning & Traceability | State Persistence Protocol, Compensating Controls |
+| Transparent Limitations | Fault Tolerance and Graceful Degradation (blameless error reporting), Observability Protocol |
+| Human-AI Authority & Accountability | Agent Specialization & Topology, Explicit Handoff Protocol (RACI), Human-in-the-Loop Protocol, Action Blast Radius Classification, HITL Removal Criteria |
 
 ---
 
@@ -1984,8 +1702,8 @@ Autonomous agents (AL-2 or AL-3) must implement drift monitoring:
 When multi-agent systems perform coding tasks, both domain principles apply:
 
 **Multi-Agent Domain Governs:**
-- Agent architecture and specialization (Cognitive Function Specialization, Context Engineering Discipline, Context Isolation, Orchestrator Separation)
-- Coordination and handoffs between agents (Explicit Handoff, Orchestration Patterns, Read-Write Division, State Persistence)
+- Agent architecture and specialization (Agent Specialization & Topology, Context Engineering Discipline, Context Isolation, Orchestrator Separation)
+- Coordination and handoffs between agents (Explicit Handoff Protocol, Orchestration Pattern Selection, State Persistence)
 - Validation agent structure and independence (Validation Independence)
 - Fault handling across agent network (Fault Tolerance and Graceful Degradation)
 - Human approval gates for multi-agent workflow (Human-in-the-Loop Protocol)
@@ -2008,20 +1726,14 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 **Agent:** An AI instance with defined cognitive function, context window, and task scope operating as part of a multi-agent system. [v2.0.0: Can operate individually, sequentially, or in parallel with other agents]
 
-**Autonomy Level (AL):** Classification of human oversight for an agent: AL-0 (Supervised), AL-1 (Batch Approved), AL-2 (Monitored Autonomous), AL-3 (Fully Autonomous). Advancement requires documented criteria and compensating controls. [NEW in v2.2.0]
-
-**Blast Radius:** Classification of an agent action's scope and reversibility: L0 (Internal-Reversible), L1 (Internal-Irreversible), L2 (External-Reversible), L3 (External-Irreversible). Higher levels require stronger oversight. [NEW in v2.2.0]
-
-**Circuit Breaker:** Automatic pause mechanism that halts an autonomous agent when predefined thresholds are exceeded (error rate, anomaly detection, output volume). Restart requires human approval or cooldown period. [NEW in v2.2.0]
-
-**Compensating Controls:** Mechanisms that replace human judgment when HITL is removed: circuit breakers, content review gates, rate limiting, audit trails, and platform compliance checks. [NEW in v2.2.0]
-
+**Autonomy Level (AL):** Classification of human oversight for an agent: AL-0 (Supervised), AL-1 (Batch Approved), AL-2 (Monitored Autonomous), AL-3 (Fully Autonomous). Advancement requires documented criteria and compensating controls.
+**Blast Radius:** Classification of an agent action's scope and reversibility: L0 (Internal-Reversible), L1 (Internal-Irreversible), L2 (External-Reversible), L3 (External-Irreversible). Higher levels require stronger oversight.
+**Circuit Breaker:** Automatic pause mechanism that halts an autonomous agent when predefined thresholds are exceeded (error rate, anomaly detection, output volume). Restart requires human approval or cooldown period.
+**Compensating Controls:** Mechanisms that replace human judgment when HITL is removed: circuit breakers, content review gates, rate limiting, audit trails, and platform compliance checks.
 **Cognitive Function:** A mental model or reasoning pattern (strategic analysis, creative synthesis, critical evaluation, etc.) that defines an agent's specialized capability.
 
-**Compression:** LLM-driven summarization of context at agent boundaries, preserving decisions and artifacts while discarding deliberation. [NEW in v2.0.0]
-
-**Context Engineering:** The discipline of managing context through four strategies: Write (store externally), Select (retrieve relevant), Compress (summarize at boundaries), Isolate (scope per agent). [NEW in v2.0.0]
-
+**Compression:** LLM-driven summarization of context at agent boundaries, preserving decisions and artifacts while discarding deliberation.
+**Context Engineering:** The discipline of managing context through four strategies: Write (store externally), Select (retrieve relevant), Compress (summarize at boundaries), Isolate (scope per agent).
 **Context Isolation:** Architecture ensuring each agent operates in independent context windows without unintended information sharing.
 
 **Context Pollution:** When information from one domain inappropriately influences decisions in an unrelated domain, causing inconsistencies.
@@ -2032,20 +1744,15 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 **Handoff:** Explicit transfer of task, context, and criteria from one agent to another through structured protocol.
 
-**Handoff Pattern:** The type of context transfer—Agents-as-Tools (stateless, no history) or Agent-Transfer (stateful, full context). [NEW in v2.0.0]
-
-**Linear-First:** Default to sequential execution; parallel execution requires explicit justification and validation. [NEW in v2.0.0]
-
-**Modular Personality:** A specialized agent configuration (system prompt + tools + context scope) that creates distinct cognitive behavior from the same underlying model. [NEW in v2.0.0]
-
+**Handoff Pattern:** The type of context transfer—Agents-as-Tools (stateless, no history) or Agent-Transfer (stateful, full context).
+**Linear-First:** Default to sequential execution; parallel execution requires explicit justification and validation.
+**Modular Personality:** A specialized agent configuration (system prompt + tools + context scope) that creates distinct cognitive behavior from the same underlying model.
 **Orchestrator:** Dedicated agent managing workflow coordination, validation gates, and human interface without executing domain-specific work.
 
 **Orchestration Pattern:** The coordination structure for multi-agent work (sequential, parallel, hierarchical).
 
-**Read-Write Division:** Architectural principle that read operations (research, analysis) can parallelize safely, while write operations (synthesis, decisions) must serialize. [NEW in v2.0.0]
-
-**Shared Assumptions Document:** Pre-parallel execution agreement establishing intent, decisions made, conventions, and authority boundaries. [NEW in v2.0.0]
-
+**Read-Write Division:** Architectural principle that read operations (research, analysis) can parallelize safely, while write operations (synthesis, decisions) must serialize.
+**Shared Assumptions Document:** Pre-parallel execution agreement establishing intent, decisions made, conventions, and authority boundaries.
 **State Persistence:** Mechanisms ensuring workflow context, decisions, and progress survive session boundaries.
 
 **Validation Independence:** Requirement that validation be performed by agents separate from those producing the output.
@@ -2056,6 +1763,8 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.6.0 | 2026-03-29 | **MINOR: Principle Consolidation.** 22→17 principles. (1) MERGE: Cognitive Function Specialization + Role Specialization & Topology → **Agent Specialization & Topology** — unified cognitive function assignment with topology mapping and least privilege. (2) MERGE: Hybrid Interaction & RACI → absorbed into **Explicit Handoff Protocol** — RACI assignments are a handoff concern; added RACI subsection with responsibility transfer and approval gate mechanics. (3) MERGE: Read-Write Division → absorbed into **Orchestration Pattern Selection** — read-write classification is a binding rule within the pattern selection decision tree. (4) MERGE: Blameless Error Reporting → absorbed into **Fault Tolerance and Graceful Degradation** — blameless reporting (confidence scoring, stop-the-line, near-miss logging) is a fault tolerance mechanism. (5) DEMOTION: Standardized Collaboration Protocols → methods (procedural content: JSON schemas, timeouts, retry config moved to multi-agent-methods §3.9). Principle-level concept ("structured contracts, not conversation") already covered by Explicit Handoff Protocol. (6) FIXES: Removed Intent Preservation from crosswalk (previously demoted+merged). Fixed ghost self-references. Fixed stale MA-Series reference. Added 5 missing constitutional principles to crosswalk. Fixed duplicate Peer Principles header in Intent Propagation. Cross-references updated for merged principles. Removed stale [NEW in v2.x.0] tags. Fixed "Resource Efficiency" truncation. Updated Orchestrator Separation peer principles. A-Series 8→5, R-Series 6→4, Q-Series 3, AO-Series 4. Total 22→17. |
+| v2.5.0 | 2026-03-28 | **MINOR: Phase 5 Cross-Reference Updates.** Updated cross-references to reflect constitutional principle consolidation (Phase 5). No structural changes to multi-agent principles. |
 | v2.4.1 | 2026-03-28 | **PATCH: Consolidate redundant demoted principles.** (1) Merged Intent Preservation into Intent Propagation with Shared Assumptions — demoted principle was fully redundant (both address MA-A4); unique content (micro-decision examples, 5-level delegation criterion, summary preservation rule) absorbed. (2) Merged Synchronization & Observability (The "Standup") into Observability Protocol — demoted principle was near-identical (both address MA-R6); "Standup" metaphor, "Orchestrator Poll" concept, and periodic check-in examples absorbed. (3) Added Structural Foundations to Role Specialization & Topology constitutional basis. A-Series count 9→8, R-Series count 7→6. |
 | v2.4.0 | 2026-03-28 | **MINOR: Constitutional Principle Consolidation Phase 2.** Received 6 principles demoted from Constitution: (1) A-Series: Role Specialization & Topology, Hybrid Interaction & RACI (multi-agent mechanics), Intent Preservation (Voice of the Customer), Standardized Collaboration Protocols. (2) R-Series: Synchronization & Observability (The "Standup"), Blameless Error Reporting (multi-agent mechanics — confidence scoring, stop-the-line, near-miss logging). Universal concepts from Hybrid Interaction & RACI and Blameless Error Reporting were previously merged into constitutional principles Human-AI Authority & Accountability and Transparent Limitations respectively (Phase 1). A-Series count 5→9, R-Series count 5→7. |
 | v2.3.0 | 2026-03-12 | **MINOR: Orchestrator-Absent Pattern Gaps.** (1) Aggregate Blast Radius rules added to AO1: escalation table for N concurrent agents at same level (N≤3 individual level, N>3 treat as L(x+1), any concurrent L3 mandatory aggregate review), pre-dispatch aggregate review checkpoint. (2) New pitfall "The Isolation Blind Spot" added to Context Isolation Architecture (MA-A2): isolation prevents cross-agent awareness of overlapping changes in concurrent execution. (3) Context Isolation binding rule updated with orchestrator-absent topology qualifier. Catalyst: OpenAI Symphony framework analysis (queue-driven dispatch without orchestrator). |
@@ -2098,8 +1807,7 @@ This framework derives from analysis of 2024-2025 research sources:
 - Enterprise patterns: Fallback paths, resilience design
 - Retry strategies with modification before escalation
 
-**Autonomous Operation Research:** [NEW in v2.2.0]
-- CNBC (2026): "Silent failure at scale" — AI increases system complexity beyond human comprehension; autonomous systems fail silently
+**Autonomous Operation Research:**- CNBC (2026): "Silent failure at scale" — AI increases system complexity beyond human comprehension; autonomous systems fail silently
 - Help Net Security (2026): 80% of organizations report risky agent behaviors; shadow AI incidents cost $670K more than standard breaches; only 21% of executives have visibility into agent permissions
 - Strata (2026): <10% of companies can govern agents in production; 144 non-human identities per human employee; AI agent identity crisis
 - Singapore IMDA Framework (2026): Four-pillar agentic AI governance — risk assessment, human accountability, technical controls, end-user responsibility

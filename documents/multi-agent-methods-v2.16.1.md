@@ -1,9 +1,9 @@
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.16.0
+**Version:** 2.16.1
 **Status:** Active
-**Effective Date:** 2026-03-26
+**Effective Date:** 2026-03-29
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -33,7 +33,7 @@ This document defines operational procedures that implement the Multi-Agent Doma
 +---------------------------------------------------------------------+
 |  multi-agent-domain-principles.md (FEDERAL STATUTES)                |
 |  Domain Principles: Agent-specific binding law.                     |
-|  18 Principles: J1, A1-A5, R1-R5, Q1-Q3, AO1-AO4                   |
+|  17 Principles: J1, A1-A5, R1-R4, Q1-Q3, AO1-AO4                   |
 +---------------------------------------------------------------------+
                               |
                               v
@@ -117,6 +117,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Monitoring agent execution | §3.7 | Observability Protocol |
 | Production observability setup | §3.7.1 | Production Observability Patterns |
 | Configuring execution loops | §3.8 | ReAct Loop Configuration |
+| Defining inter-agent contracts | §3.9 | Standardized Collaboration Protocols |
 | Validating agent output | §4.1 | Validation Agent Deployment |
 | Need devil's advocate review | §4.2 | Contrarian Reviewer Pattern |
 | Need governance compliance check | §4.3 | Governance Agent Pattern |
@@ -173,12 +174,11 @@ JUSTIFY -----> INITIALIZE -----> DELEGATE -----> EXECUTE -----> VALIDATE -----> 
 | Domain Principle | Primary Title |
 |------------------|---------------|
 | Justified Complexity | Title 1 (Initialization) |
-| Cognitive Function Specialization | Title 2 (Agent Architecture) |
+| Agent Specialization & Topology | Title 2 (Agent Architecture) |
 | Context Engineering Discipline | Title 2 (Agent Architecture) |
 | Context Isolation Architecture | Title 2 (Agent Architecture) |
 | Orchestrator Separation Pattern | Title 2 (Agent Architecture) |
 | Intent Propagation / Shared Assumptions | Title 3 (Coordination) |
-| Read-Write Division | Title 3 (Coordination) |
 | Explicit Handoff Protocol | Title 3 (Coordination) |
 | Orchestration Pattern Selection | Title 3 (Coordination) |
 | State Persistence Protocol | Title 3 (Coordination) |
@@ -428,7 +428,7 @@ CRITICAL
    - Medium (3-4 agents): Orchestrator recommended
    - Complex (5+ agents): Hierarchical orchestration required
 
-4. **Perform Read-Write Analysis** (Per R2: Read-Write Division)
+4. **Perform Read-Write Analysis** (Per R2: Orchestration Pattern Selection — Read-Write Classification)
    - Identify read-heavy tasks (research, analysis, exploration)
    - Identify write-heavy tasks (synthesis, decisions, implementation)
    - Schedule read-heavy for parallel, write-heavy for sequential
@@ -494,7 +494,7 @@ IMPORTANT
 
 # TITLE 2: Agent Architecture
 
-**Implements:** A1 (Cognitive Function Specialization), A2 (Context Engineering Discipline), A3 (Context Isolation Architecture), A4 (Orchestrator Separation Pattern)
+**Implements:** A1 (Agent Specialization & Topology), A2 (Context Engineering Discipline), A3 (Context Isolation Architecture), A4 (Orchestrator Separation Pattern)
 
 ### 2.1 Subagent Definition Standard
 
@@ -1310,7 +1310,7 @@ IMPORTANT
 
 # TITLE 3: Workflow Coordination
 
-**Implements:** R1 (Read-Write Division), R2 (Explicit Handoff Protocol), R3 (Orchestration Pattern Selection), R4 (State Persistence), R5 (Observability), A5 (Intent Propagation / Shared Assumptions)
+**Implements:** R1 (Explicit Handoff Protocol), R2 (Orchestration Pattern Selection), R3 (State Persistence), R4 (Observability), A5 (Intent Propagation / Shared Assumptions)
 
 ### 3.1 Handoff Pattern Taxonomy
 
@@ -1581,7 +1581,7 @@ Before selecting Sequential/Parallel/Hierarchical patterns, determine whether th
 - **Dispatch Without Analysis:** Sending tasks to agents without checking for dependency overlap — isolation prevents agents from detecting conflicts that a dependency scan would catch (see "The Isolation Blind Spot" pitfall under Context Isolation Architecture, MA-A2)
 - **Individual-Only Review:** Reviewing each agent's PR in isolation without seeing the combined impact across all concurrent outputs
 
-**Cross-references:** Context Isolation Architecture (MA-A2), Read-Write Division (§3.3), Action Blast Radius Classification (AO1)
+**Cross-references:** Context Isolation Architecture (MA-A2), Orchestration Pattern Selection (§3.3, read-write classification), Action Blast Radius Classification (AO1)
 
 **Hierarchical Pattern:**
 
@@ -2187,6 +2187,87 @@ react_loop:
 | Complex reasoning | 10 | 0.8 | true |
 | Code generation | 5 | 0.85 | false |
 | Debugging | 20 | 0.75 | true |
+
+---
+
+### 3.9 Standardized Collaboration Protocols
+
+IMPORTANT
+
+**Purpose:** Operational procedures for structured inter-agent communication. Ensures agents interact via validated contracts rather than natural language conversation.
+
+**Source:** Demoted from domain principle (v2.6.0) — principle-level concept ("structured contracts, not conversation") is covered by Explicit Handoff Protocol. This section preserves the procedural implementation details.
+
+**Inter-Agent Communication Schema**
+
+All inter-agent communication must use structured, schema-validated formats. Agent A outputs a structured object; Agent B requires schema validation before accepting it.
+
+**JSON Schema Template for Agent Communication:**
+
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["task_id", "source_agent", "target_agent", "payload", "metadata"],
+  "properties": {
+    "task_id": { "type": "string", "description": "Unique identifier for the task" },
+    "source_agent": { "type": "string", "description": "Agent sending the message" },
+    "target_agent": { "type": "string", "description": "Agent receiving the message" },
+    "payload": {
+      "type": "object",
+      "required": ["task_definition", "context", "acceptance_criteria"],
+      "properties": {
+        "task_definition": { "type": "string" },
+        "context": { "type": "object" },
+        "acceptance_criteria": { "type": "array", "items": { "type": "string" } },
+        "constraints": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["timestamp", "timeout_ms", "max_retries"],
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time" },
+        "timeout_ms": { "type": "integer", "minimum": 1000 },
+        "max_retries": { "type": "integer", "minimum": 0, "maximum": 10 },
+        "contract_version": { "type": "string" }
+      }
+    }
+  }
+}
+```
+
+**Timeout and Retry Configuration**
+
+Every inter-agent call must include timeout and retry parameters:
+
+| Parameter | Purpose | Default | Notes |
+|-----------|---------|---------|-------|
+| `timeout_ms` | Maximum wait time for agent response | 120000 (2 min) | Adjust per task complexity |
+| `max_retries` | Retry attempts on failure | 2 | Must have mandatory upper bound |
+| `retry_backoff` | Delay between retries | Exponential (1s, 2s, 4s) | Prevents thundering herd |
+| `deadlock_detection` | Check for circular waits | Enabled | Agent A → B → A detection |
+
+**Contract Versioning**
+
+Inter-agent contracts must be versioned to prevent breaking changes:
+- Contracts use semantic versioning (major.minor.patch)
+- Breaking changes require major version bump
+- Receiving agents reject contracts with incompatible major versions
+- Contract changelog maintained for audit
+
+**Deadlock Detection**
+
+When inter-agent dependencies form cycles (Agent A waiting for Agent B, Agent B waiting for Agent A):
+1. Orchestrator maintains dependency graph of active agent waits
+2. Cycle detection runs on every new wait registration
+3. On cycle detection: break the deadlock by timing out the longest-waiting agent
+4. Log deadlock event for systemic analysis
+
+**Anti-Patterns:**
+- **The "Chatty Kathy":** Agents sending paragraphs of text instead of structured data — use structured schemas
+- **The "Infinite Wait":** Missing timeout configuration causing indefinite waits — always configure timeouts
+- **Schema Drift:** Contract schemas evolving without version tracking — always version contracts
 
 ---
 
@@ -4504,6 +4585,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.16.1 | 2026-03-29 | **PATCH: Principle Consolidation Alignment.** (1) New §3.9 Standardized Collaboration Protocols — procedural content demoted from domain principle: JSON schema templates, timeout/retry configuration, contract versioning, deadlock detection. (2) Updated governance hierarchy box (18→17 principles). (3) Updated Principle to Title Mapping (Cognitive Function Specialization → Agent Specialization & Topology, removed Read-Write Division as separate entry). (4) Updated Title 2/3 Implements lines. |
 | v2.15.0 | 2026-03-26 | **MINOR: Autonomous Experimentation Protocol.** New §6.5 operationalizing AO-Series for autonomous agent experimentation loops. §6.5.1 Research Protocol Document (program.md pattern) — structured template for defining autonomous agent objectives, scope, metrics, termination conditions. §6.5.2 Permission Configuration — three approaches for Claude Code autonomous operation (surgical allowlists recommended, programmatic launch, full bypass). §6.5.3 Experimentation Loop — standard modify→test→evaluate→decide cycle with "NEVER STOP" governance. §6.5.4 Results Logging — TSV audit trail format. Source: Karpathy (2026) "autoresearch". |
 | v2.14.0 | 2026-03-12 | **MINOR: Orchestrator-Absent Pattern Gaps.** (1) Decentralized Dispatch Variant added under Parallel Pattern (§3.3): orchestrator-absent topology with 4 required compensating controls (pre-dispatch dependency analysis, VCS-level conflict detection, post-hoc aggregate review, aggregate blast radius assessment), 2 anti-patterns (Dispatch Without Analysis, Individual-Only Review). (2) Continuous Queue Consumption protocol added to Task Ownership (§3.5): post-task completion gate, aggregate review checkpoint every N tasks, pool pause on CI/review failure, blast radius reassessment at checkpoints, orchestrator-absent escalation target. Implements AO1 aggregate blast radius rules from v2.3.0 domain principles. Catalyst: OpenAI Symphony framework analysis. |
 | v2.13.0 | 2026-03-09 | **MINOR: Autonomous Operation Governance.** New TITLE 6 with 4 sections: §6.1 Action Blast Radius Classification (L0-L3 decision tree, agent definition requirement), §6.2 Autonomy Level Assessment (AL-0 through AL-3 graduated progression, advancement prerequisites), §6.3 Compensating Controls Checklist (circuit breakers, content review gates, rate limiting, audit trail, platform compliance — all 5 required for AL-2+), §6.4 Drift Monitoring Procedures (baseline establishment, automated detection, feedback loop dampening, intent drift assessment). Updated governance hierarchy box (14→18 principles). Added 6 situation index entries. Implements AO1-AO4 principles from v2.2.0 domain principles. |
