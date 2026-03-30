@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.16.0** (meta-methods + Part 9.8), **v2.31.0** (ai-coding methods), **v2.6.0** (ai-coding principles — 12), **v2.6.0** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.3.0** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.3.0** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.1.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.3.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.17.0** (meta-methods + Part 9.8), **v2.31.0** (ai-coding methods), **v2.6.0** (ai-coding principles — 12), **v2.6.0** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.3.0** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.3.0** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.1.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.3.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -323,7 +323,11 @@
 | 5 | UI/UX Domain v1.0.0 | 2026-03-08 |
 | 8 | Subagent Output Framing (Advisory) | 2026-02-28 |
 | 9 | Tiered Principle Activation (Phases 0-1.5; Phase 2 cancelled) | 2026-03-01 |
+| 20 | GitHub Actions Pin Currency (Dependabot) | 2026-03-29 |
 | 21 | Principle Consolidation Pass v3.0.0 (47→22 principles, MA dissolved) | 2026-03-29 |
+| 27 | TITLE 8 / Part 9.8 Forward References (v3.17.0) | 2026-03-30 |
+| 28 | Cross-Domain Template Consistency Audit (7 inconsistencies, 4 structural) | 2026-03-29 |
+| 30 | Cross-Domain Overlap Audit (4 justified, 2 need cross-refs) | 2026-03-29 |
 
 ### Open Backlog
 
@@ -554,17 +558,9 @@ Constitutional amendment: added Systemic Thinking meta-principle to C-Series (47
 
 **Implementation requirements:** `.rampart/policy.yaml` config file, documentation in methods. No code changes.
 
-#### 20. GitHub Actions Pin Currency Process (Priority: LOW)
+#### 20. GitHub Actions Pin Currency Process — COMPLETE (2026-03-29)
 
-**Problem:** Session review found the Node.js 20→24 migration (Backlog #17) fixed 19 stale pins but created no process to prevent recurrence. Per Systemic Thinking: treated the symptom (stale pins) without addressing the structural cause (no automated currency mechanism).
-
-**Options:**
-1. **Dependabot for Actions** — automated PRs when action versions update. GitHub-native, zero maintenance.
-2. **Quarterly manual audit** — human-triggered review of all SHA pins against latest releases. Simple but relies on memory.
-
-**Trigger:** Next time an action EOL warning appears in CI logs.
-
-**Implementation requirements:** If Dependabot: enable in repo settings + `.github/dependabot.yml`. If manual: add to a quarterly review calendar.
+Dependabot for GitHub Actions ecosystem. `.github/dependabot.yml` created with weekly Monday schedule, grouped updates, PR limit 5. Pip ecosystem deferred (pyproject.toml uses loose pins; Dependabot PRs wouldn't be actionable). Settings updated to move `.github/*` from hard-deny to prompt-per-use.
 
 #### 21. Principle Consolidation Pass — COMPLETE (2026-03-29)
 
@@ -640,13 +636,9 @@ Added to COMPLETION-CHECKLIST: 4-item BEST-EFFORT checklist for plan-mode archit
 
 **Trigger:** If content is added that fails the Admission Test retrospectively (same pattern as the 47-principle bloat).
 
-#### 27. TITLE 8 / Part 9.8 Relationship Clarification (Priority: LOW)
+#### 27. TITLE 8 / Part 9.8 Relationship Clarification — COMPLETE (2026-03-29)
 
-**Problem:** Parts 8.2-8.4 overlap with Part 9.8 (classification, constitutional threshold, overlap check). Neither explicitly supersedes the other. An agent following TITLE 8 linearly may use the older, less rigorous procedure and never reach Part 9.8.
-
-**Scope:** Either explicitly supersede Parts 8.2-8.4 with forward references to 9.8, or restructure the relationship so 9.8 is clearly the operational procedure and 8.2-8.4 are constitutional-specific supplements.
-
-**Trigger:** When an agent is observed following Parts 8.2-8.4 without reaching 9.8, or when TITLE 8 is next modified for any reason.
+Added forward references from Parts 8.2, 8.3, 8.4 to Part 9.8. Clarified sequencing in Part 9.8: "Use Part 9.8 first for the unified workflow, then consult Parts 8.2-8.4 for constitutional-specific considerations." Version bump v3.17.0→v3.17.0. Updated domains.json, config.py. 1031 tests passing (1 pre-existing CE quality benchmark failure unrelated to changes).
 
 #### 25. Principle Authoring Checklist Enforcement (Priority: LOW)
 
@@ -654,13 +646,50 @@ Added to COMPLETION-CHECKLIST: 4-item BEST-EFFORT checklist for plan-mode archit
 
 **Trigger:** If principles start being added without the checklist process, convert to ENFORCED.
 
-#### 28. Cross-Domain Template Consistency (Priority: LOW)
+#### 28. Cross-Domain Template Consistency — COMPLETE (2026-03-29)
 
-**Problem:** Domains use different principle template structures (AI Coding: 9 fields, Multimodal RAG: ~5 fields), different section headings ("Constitutional Basis" vs "Constitutional Derivation"), and different derivation formula wording ("Research-Based" vs "Evidence-Based"). The framework preaches Structured Output Enforcement but doesn't fully practice it in its own documents.
+**Audit Completed:** 2026-03-29
 
-**Scope:** Audit all 6 domain documents against Part 9.8.3 template reference. Standardize section headings and field requirements.
+**Field Presence Matrix:**
 
-**Trigger:** When any domain document is next modified, or when a cross-domain coherence audit flags template inconsistency.
+| Section | Const | Code | MA | Story | MR | UI/UX | KM&PD |
+|---------|:-----:|:----:|:--:|:-----:|:--:|:-----:|:-----:|
+| System Instruction block | Y | Y | Y | Y | Y | Y | Y |
+| Status/Version | Y | Y | Y | Y | Y | Y | Y |
+| Hierarchy/Supremacy | Y | Y | Y | Y | Y | Y | Y |
+| Derivation Formula | - | Y | Y | Y | Y | Y | Y |
+| Scope (In/Out) | - | Y | Y | Y | Y | Y | Y |
+| Domain Context | Y* | Y | Y | Y | Y | Y | Y |
+| Evidence Base | Y | Y | Y | Y | Y | Y | Y |
+| Failure Mode Taxonomy | - | - | Y | Y | Y | Y | Y |
+| Framework Overview | Y | Y | - | Y | - | ~ | Y |
+| Domain Classification | - | - | - | - | - | Y | Y |
+| Truth Source Hierarchy | - | - | - | - | - | Y | Y |
+| Cross-Domain Dependencies | - | - | Y | - | - | - | Y |
+
+*Constitution uses "Design Philosophy" instead of "Domain Context" (appropriate — root doc, not derived)
+
+**Inconsistencies Found (7):**
+
+1. **Derivation formula wording:** AI Coding, Multi-Agent, Storytelling, Multimodal RAG use "Research-Based Prevention". UI/UX and KM&PD use "Evidence-Based Prevention". Recommend standardizing on "Evidence-Based" (more accurate).
+
+2. **Truth Source Hierarchy:** Only UI/UX (line 25) and KM&PD (line 25) include this field. Defines external reference priority (Constitution > Domain > Methods > External). Should be in all domain files.
+
+3. **Domain Classification:** Only UI/UX ("Type A context-intensive") and KM&PD ("Type B proprietary"). Useful metadata for AI agents selecting how to approach a domain. Should be in all domain files.
+
+4. **Cross-Domain Dependencies:** Only Multi-Agent ("Peer Domain Relationship" block) and KM&PD (storytelling cross-refs). Domains with known peer relationships should document them.
+
+5. **Failure Mode Taxonomy placement:** Constitution and AI Coding lack failure mode taxonomy in opening sections. Constitution omission is justified (root doc). AI Coding could benefit from adding one for consistency.
+
+6. **Series naming conventions:** Ad hoc across domains (C/P/Q-Series, ST-Series, ACC/DS/PL, KA-Series). No standard naming convention documented. Low impact — each domain's naming is internally consistent.
+
+7. **Framework Overview heading:** Inconsistent naming ("Framework Overview: The Five Principle Series" vs "KA-Series Principles" vs inline). Cosmetic.
+
+**Severity Assessment:**
+- Items 1-4: Structural (newer domains have fields older ones lack — template evolved over time)
+- Items 5-7: Cosmetic (no functional impact on governance retrieval)
+
+**Recommendation:** Batch template alignment into a single session when any domain file is next modified. Prioritize items 1-4 (structural). Items 5-7 are optional polish. Each change is a minor version bump to the affected domain file.
 
 #### 29. Part 9.8 Periodic Review Trigger (Priority: MEDIUM)
 
@@ -670,13 +699,26 @@ Added to COMPLETION-CHECKLIST: 4-item BEST-EFFORT checklist for plan-mode archit
 
 **Trigger:** When the framework is used across multiple projects and bloat patterns re-emerge.
 
-#### 30. Cross-Domain Overlap Audit (Priority: LOW)
+#### 30. Cross-Domain Overlap Audit — COMPLETE (2026-03-29)
 
-**Problem:** Each domain was reviewed independently. Concepts like "graceful degradation" and "accessibility" appear in multiple domains. These may be justified domain-specific applications or redundant. No systematic cross-domain overlap check was performed.
+**Audit Completed:** 2026-03-29
 
-**Scope:** Run Part 9.8.1 Q1 (Coverage) across domain boundaries. For each concept appearing in multiple domains, verify each instance adds domain-specific value.
+| Overlap Area | Domains | Principle IDs | Verdict | Action |
+|---|---|---|---|---|
+| Graceful Degradation | Multi-Agent, Multimodal RAG | MA-Q2, F1 | JUSTIFIED | None — different architectural layers (orchestration vs. data retrieval) |
+| Session Continuity | AI Coding, Multi-Agent | C3, AC2 | JUSTIFIED | Add mutual cross-references (one-way refs exist, need bidirectional) |
+| Accessibility | UI/UX, Multimodal RAG, Storytelling, KM&PD | ACC*, P5, A3, TL1 | NEEDS CROSS-REF | Four distinct specializations (technical/content/narrative/instructional), no mutual citations |
+| Audience Understanding | Storytelling, Multimodal RAG, KM&PD | A1, P4, TL1 | JUSTIFIED | None — cross-refs already exist (KM&PD→Storytelling explicit) |
+| Context Engineering | Constitution, Multi-Agent, AI Coding | C-Series meta, 4 strategies, C1/C2/C3 | JUSTIFIED | None — exemplary hierarchical overlap (meta→strategies→constraints) |
+| Voice/Authenticity | Storytelling, KM&PD | E1/E2, KA3 | NEEDS CROSS-REF | Add KM&PD TL1→Storytelling E1 for SME-authored instruction voice preservation |
 
-**Trigger:** When cross-domain principle queries return confusingly similar results from different domains.
+**Key findings:**
+- 4 of 6 overlaps are justified domain-specific applications of the same concept — no redundancy
+- 2 overlaps need cross-references added (Accessibility across 4 domains, Voice/Authenticity KM&PD→Storytelling)
+- Session Continuity has one-way references; should be made bidirectional
+- Context Engineering is the strongest example of proper hierarchical overlap governance
+
+**Follow-up work (if warranted):** Add ~6 cross-references across 4 domain principle files. Scope: content-only changes, minor version bumps, index rebuild. Could batch with #28 template standardization.
 
 ## Links
 
