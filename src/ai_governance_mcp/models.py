@@ -483,6 +483,12 @@ class SSeriesCheck(BaseModel):
     safety_concerns: list[str] = Field(
         default_factory=list, description="Specific safety concerns identified"
     )
+    safety_warnings: list[str] = Field(
+        default_factory=list,
+        description="Advisory keyword matches that did not force escalation. "
+        "Present when keywords matched but no S-Series principle was semantically "
+        "retrieved. The consuming agent should note these but is not required to escalate.",
+    )
 
 
 class GovernanceAssessment(BaseModel):

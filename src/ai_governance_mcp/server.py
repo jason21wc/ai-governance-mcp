@@ -2102,49 +2102,81 @@ async def _handle_get_metrics(args: dict) -> list[TextContent]:
 
 # S-Series safety keywords for automatic safety concern detection
 # Per governance hierarchy: S-Series has veto authority
-S_SERIES_KEYWORDS = {
-    "delete",
-    "remove",
-    "drop",
-    "destroy",
+# Critical safety keywords that ALWAYS force escalation regardless of semantic
+# retrieval results. These are inherently dangerous in any context.
+# Empirically validated: the semantic retrieval path does NOT reliably catch
+# queries containing only these terms (e.g., "exfiltrate API tokens" retrieves
+# Design Token Architecture, not Non-Maleficence).
+CRITICAL_SAFETY_KEYWORDS = {
     "credential",
     "password",
     "secret",
     "api key",
-    "token",
     "private key",
+    "access token",
+    "encryption key",
+    "pii",
+    "personal data",
+    "irreversible",
+    "destructive",
+}
+
+# Advisory safety keywords that produce warnings but do NOT force escalation
+# on their own. These are common in safe contexts (e.g., "remove section",
+# "deploy docs", "database schema update") and only escalate when the semantic
+# retrieval path ALSO identifies an S-Series principle.
+# Intentionally ignores negation — "do not delete" should still flag.
+ADVISORY_SAFETY_KEYWORDS = {
+    "delete",
+    "remove",
+    "drop",
+    "destroy",
+    "wipe",
+    "purge",
+    "erase",
+    "truncate",
+    "clear",
+    "reset",
+    "overwrite",
+    "deploy",
+    "token",
     "security",
     "authentication",
     "authorization",
     "permission",
     "external api",
     "production",
-    "deploy",
     "database",
     "user data",
-    "personal data",
-    "pii",
     "sensitive",
     "confidential",
-    "irreversible",
-    "destructive",
 }
 
 
-def _detect_safety_concerns(action: str) -> list[str]:
-    """Detect potential safety concerns from action description.
+def _detect_safety_concerns(action: str) -> tuple[list[str], list[str]]:
+    """Detect potential safety concerns with two confidence levels.
 
-    Per meta-quality-verification-mechanisms-before-action:
-    Actively check for safety keywords that may require S-Series review.
+    Returns (critical_concerns, advisory_concerns):
+    - critical_concerns: keywords that ALWAYS force escalation
+    - advisory_concerns: keywords that produce warnings only (escalate
+      only when semantic retrieval also finds S-Series principles)
+
+    Intentionally ignores negation — "do not delete" should still flag,
+    because negation-aware parsing creates bypass vectors.
     """
     action_lower = action.lower()
-    concerns = []
+    critical = []
+    advisory = []
 
-    for keyword in S_SERIES_KEYWORDS:
+    for keyword in CRITICAL_SAFETY_KEYWORDS:
         if keyword in action_lower:
-            concerns.append(f"Action mentions '{keyword}' - may require safety review")
+            critical.append(f"Action mentions '{keyword}' - requires safety review")
 
-    return concerns
+    for keyword in ADVISORY_SAFETY_KEYWORDS:
+        if keyword in action_lower:
+            advisory.append(f"Action mentions '{keyword}' - may require safety review")
+
+    return critical, advisory
 
 
 def _determine_confidence(
@@ -2274,17 +2306,31 @@ async def _handle_evaluate_governance(
             )
         )
 
-    # S-Series keyword detection (dual-path checking)
-    safety_concerns = _detect_safety_concerns(planned_action)
+    # S-Series keyword detection (dual-path: critical + advisory)
+    # Concatenate action + context for comprehensive keyword checking
+    composite_text = planned_action
     if context:
-        safety_concerns.extend(_detect_safety_concerns(context))
+        composite_text = f"{planned_action} {context}"
+
+    critical_concerns, advisory_concerns = _detect_safety_concerns(composite_text)
+
+    # Determine S-Series triggering with hybrid logic:
+    # - Semantic S-Series match → ALWAYS escalate (high confidence)
+    # - Critical keyword match → ALWAYS escalate (inherently dangerous)
+    # - Advisory keyword match ONLY → WARNING (noted, not forced)
+    semantic_safety = len(s_series_principles) > 0
+    critical_keyword = len(critical_concerns) > 0
+    advisory_keyword = len(advisory_concerns) > 0
+
+    s_series_triggered = semantic_safety or critical_keyword
+    keyword_only_warning = advisory_keyword and not s_series_triggered
 
     # Build S-Series check result
-    s_series_triggered = len(s_series_principles) > 0 or len(safety_concerns) > 0
     s_series_check = SSeriesCheck(
         triggered=s_series_triggered,
         principles=s_series_principles,
-        safety_concerns=safety_concerns,
+        safety_concerns=critical_concerns,
+        safety_warnings=advisory_concerns if keyword_only_warning else [],
     )
 
     # Determine assessment status
@@ -2299,10 +2345,13 @@ async def _handle_evaluate_governance(
         # Script-enforced safety veto - no AI override possible
         assessment = AssessmentStatus.ESCALATE
         requires_ai_judgment = False
+        trigger_details = s_series_principles + critical_concerns
+        if semantic_safety and advisory_keyword:
+            trigger_details.extend(advisory_concerns)
         rationale = (
             "S-Series (safety) principles triggered. "
             "Human review required before proceeding. "
-            f"Triggered by: {', '.join(s_series_principles + safety_concerns)}"
+            f"Triggered by: {', '.join(trigger_details)}"
         )
     elif not relevant_principles:
         # No principles found - safe to proceed
