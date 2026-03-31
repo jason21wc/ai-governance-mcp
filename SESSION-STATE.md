@@ -337,23 +337,20 @@
 
 ### Active (Implement Now/Soon)
 
-#### 14. Storytelling Domain 9-Field Template Fix (Priority: MEDIUM)
+#### 14. Storytelling 9-Field Template — MERGED INTO #31 (2026-03-30)
 
-**What:** Storytelling principles reference a 9-field character/scene template structure but domain content doesn't consistently use it. This is existing shipped work with a known inconsistency — fix it, don't wait.
-
-**Scope:** Review storytelling principles and methods documents. Migrate content to consistently use the 9-field template structure. Validate cross-references with KM&PD storytelling integration (A-Series, ST-Series).
-
-**Implementation:** Content changes to storytelling principles/methods. Index rebuild. Coherence-auditor review for cross-domain references.
+Investigation found the "9-field" refers to the domain principle template (Part 9.4.1), not a character/scene template. Storytelling principles are missing dedicated Failure Mode and Validation Criteria sections vs the canonical 9-field structure. This is the same cross-domain template inconsistency that #31 addresses — not a storytelling-specific problem. Absorbed into #31.
 
 #### 31. Cross-Domain Template Alignment (Priority: LOW)
 
-**What:** Backlog #28 audit found 7 template inconsistencies across domain principle files, 4 structural. Newer domains (UI/UX, KM&PD) have fields older domains lack. Template evolved but was never retroactively standardized.
+**What:** Backlog #28 audit found 7 template inconsistencies across domain principle files, 4 structural. Newer domains (UI/UX, KM&PD) have fields older domains lack. Template evolved but was never retroactively standardized. Also absorbs #14 (Storytelling 9-field gap — investigation found "9-field" refers to Part 9.4.1 domain principle template, not character templates).
 
 **Scope:** Add missing structural fields to 4-5 domain files:
 1. Standardize derivation formula wording → "Evidence-Based Prevention" (AI Coding, Multi-Agent, Storytelling, Multimodal RAG)
 2. Add Truth Source Hierarchy (use UI/UX + KM&PD pattern)
 3. Add Domain Classification (Type A/B)
 4. Add Cross-Domain Dependencies where peer relationships exist
+5. Align principle field structure to Part 9.4.1 — Storytelling principles missing dedicated Failure Mode and Validation Criteria sections; audit other domains for same gaps
 
 **Implementation:** Minor version bump per file, domains.json + config.py updates, index rebuild, tests.
 
