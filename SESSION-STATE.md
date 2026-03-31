@@ -484,6 +484,22 @@
 
 ---
 
+#### 36. Part 9.8 Coverage Gap — Reference Library Entries (Discussion)
+
+**What:** Part 9.8 (Content Quality Framework) covers principles, methods, and appendices — but NOT Reference Library entries (TITLE 15). The Reference Library was added in v3.14.0; Part 9.8 was added in v3.16.0 but didn't incorporate it. Two separate quality processes exist with no explicit relationship.
+
+**The gap:** §9.8.3 (Structural Requirements by Content Type) lists 4 content types: Constitutional Principles, Domain Principles, Methods, Appendices. Reference Library entries are missing. TITLE 15 has its own curation governance (Part 15.4: three intake paths, maturity pipeline, KeyCite currency tracking) but it's disconnected from the unified quality gate.
+
+**Discussion needed:** Two approaches:
+1. **Expand 9.8** — Add Reference Library as a 5th content type in §9.8.3. Point to TITLE 15's entry template (Part 15.3) and curation governance (Part 15.4). Apply the Admission Test and Duplication Check to Reference Library entries. This unifies all content types under one quality gate.
+2. **Cross-reference only** — Keep TITLE 15's curation governance as the authoritative process for Reference Library entries. Add a note in 9.8 acknowledging that Reference Library entries follow TITLE 15 instead. Simpler, but two parallel quality processes.
+
+**Root-cause consideration:** Per Single Source of Truth, one unified quality gate is better than two parallel ones. But Reference Library entries are structurally different from principles/methods (concrete artifacts vs governance rules). The Admission Test questions ("does this fill a gap?", "correct hierarchy level?") may not map cleanly to curated artifacts.
+
+**Outcome:** Either expand 9.8 or formalize the relationship between 9.8 and TITLE 15.
+
+---
+
 #### 35. Evaluate Stripe Projects CLI for Appendices (Discussion)
 
 **What:** Stripe Projects CLI (launched 2026-03-27, developer preview) lets developers and AI agents provision third-party services, manage credentials, and handle billing from the terminal. Evaluate whether it belongs in the ai-governance appendices as tool-specific guidance.
