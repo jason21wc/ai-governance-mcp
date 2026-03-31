@@ -56,9 +56,19 @@
    - New structure: Active (1) / Discussion (16) / Closed (3)
    - Closed: #3 (quantized vector search), #15 (CE Phase 4), #1B Phase 1 (complete)
    - Merged: #26 + #29 (content quality governance), #14 into #31 (template alignment)
-   - New items: #33 (defer vs fix now philosophy), #34 (Epistemic Integrity principle), #35 (Stripe Projects CLI evaluation), #36 (Part 9.8 Reference Library gap)
+   - New items: #33 (defer vs fix now), #34 (Epistemic Integrity), #35 (Stripe Projects CLI), #36 (Part 9.8 Reference Library gap), #37 (Domain Classification definition), #38 (version-in-filename evaluation)
    - Backlog philosophy defined: fix shipped work now, defer new capabilities, default new todos to discussion
    - Feedback memories saved: anticipatory work policy, todo philosophy
+
+31. **#31 Template Alignment — Planning complete, ready for execution**
+   - Root cause found: THREE competing principle templates in methods doc (Parts 3.5.1, 9.4, 9.4.1)
+   - Plan: consolidate templates → Part 3.5.1 as single canonical source with tiered fields (Required/Recommended/Optional)
+   - Restore "Definition" as separate field from "Domain Application" (contrarian catch)
+   - Domain Classification deferred to discussion (#37) — axes undefined
+   - Descoped principle-level restructuring (128 principles) — extractor is field-name agnostic
+   - Plan file: `.claude/plans/sleepy-shimmying-whistle.md`
+   - Reviewed by: contrarian-reviewer + coherence-auditor
+   - **Next session: execute Phase 1 (template consolidation) then Phase 2 (header standardization)**
 
 ### Previous Session (2026-03-29)
 
@@ -367,16 +377,26 @@
 
 Investigation found the "9-field" refers to the domain principle template (Part 9.4.1), not a character/scene template. Storytelling principles are missing dedicated Failure Mode and Validation Criteria sections vs the canonical 9-field structure. This is the same cross-domain template inconsistency that #31 addresses — not a storytelling-specific problem. Absorbed into #31.
 
-#### 31. Cross-Domain Template Alignment (Priority: LOW)
+#### 31. Cross-Domain Template Alignment — PLANNED, READY FOR EXECUTION
 
-**What:** Backlog #28 audit found 7 template inconsistencies across domain principle files, 4 structural. Newer domains (UI/UX, KM&PD) have fields older domains lack. Template evolved but was never retroactively standardized. Also absorbs #14 (Storytelling 9-field gap — investigation found "9-field" refers to Part 9.4.1 domain principle template, not character templates).
+**Plan file:** `.claude/plans/sleepy-shimmying-whistle.md` (contrarian + coherence reviewed)
 
-**Scope:** Add missing structural fields to 4-5 domain files:
-1. Standardize derivation formula wording → "Evidence-Based Prevention" (AI Coding, Multi-Agent, Storytelling, Multimodal RAG)
-2. Add Truth Source Hierarchy (use UI/UX + KM&PD pattern)
-3. Add Domain Classification (Type A/B)
-4. Add Cross-Domain Dependencies where peer relationships exist
-5. Align principle field structure to Part 9.4.1 — Storytelling principles missing dedicated Failure Mode and Validation Criteria sections; audit other domains for same gaps
+**Root cause (deeper than originally scoped):** THREE competing principle templates in governance methods (Parts 3.5.1, 9.4, 9.4.1). Domains can't comply when the standard itself is contradictory.
+
+**Phase 1 — Template consolidation** (governance methods v3.18.0):
+- Consolidate three templates → Part 3.5.1 as single canonical source
+- Add Required/Recommended/Optional field tiers + alias table
+- Restore "Definition" as separate field from "Domain Application"
+- Update all references (Situation Index, Part 9.5.1, §9.8.3)
+- Fix COMPLETION-CHECKLIST "7 questions" → "6 questions" drift
+
+**Phase 2 — Header standardization** (4 domain files):
+1. Derivation formula: "Research-Based" → "Evidence-Based" (4 files)
+2. Add Truth Source Hierarchy (4 files)
+3. Add Cross-Domain Dependencies sections (3-4 files)
+4. ~~Domain Classification~~ → deferred to #37 (axes undefined)
+
+**Descoped:** Principle-level restructuring (128 principles). Extractor is field-name agnostic. Template includes "Known Limitation" note + alias table for variant field names.
 
 **Implementation:** Minor version bump per file, domains.json + config.py updates, index rebuild, tests.
 
@@ -520,6 +540,25 @@ Investigation found the "9-field" refers to the domain principle template (Part 
 **Root-cause consideration:** Per Single Source of Truth, one unified quality gate is better than two parallel ones. But Reference Library entries are structurally different from principles/methods (concrete artifacts vs governance rules). The Admission Test questions ("does this fill a gap?", "correct hierarchy level?") may not map cleanly to curated artifacts.
 
 **Outcome:** Either expand 9.8 or formalize the relationship between 9.8 and TITLE 15.
+
+#### 37. Domain Classification System Definition (Discussion)
+
+**What:** UI/UX declares itself "Type A (context-intensive)" and KM&PD declares "Type B (proprietary)." The #31 plan proposed adding Domain Classification to 4 more domains but the contrarian reviewer found Type A and Type B are on different axes — Type A describes operational complexity, Type B describes access control. They're not mutually exclusive.
+
+**Discussion needed:** Define what the classification system actually means before propagating it. Options:
+1. Single axis with clear values (e.g., complexity: low/medium/high)
+2. Multi-axis system (complexity + access + tooling intensity)
+3. Drop it — if every public domain is "Type A," the classification carries no information
+
+**Origin:** Contrarian review of #31 plan (2026-03-30).
+
+#### 38. Version-in-Filename vs Version-in-Header (Discussion)
+
+**What:** Every governance document version bump requires: archive old file, rename file, update domains.json, update config.py, rebuild index. For 5 files, that's 30+ mechanical steps where any can be missed. The propagation tax is O(n) per bump across n references.
+
+**Discussion needed:** Evaluate whether version metadata should live inside the file (header `version:` field) while filenames stay stable (e.g., `ai-coding-domain-principles.md`). This would eliminate the archive/rename/domains.json/config.py cascade. Tradeoff: lose at-a-glance version identification in file listings.
+
+**Origin:** Contrarian review of #31 plan (2026-03-30). Systemic concern — affects every future version bump across the project.
 
 ---
 
