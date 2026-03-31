@@ -331,13 +331,178 @@
 
 ### Open Backlog
 
-#### 1B. Model-Agnostic Governance Enforcement (Priority: MEDIUM) — Phase 1 COMPLETE (2026-03-28)
+> **Backlog Philosophy (2026-03-30):** Items fall into three categories: (1) **Active** — fix now or implement soon, (2) **Deferred/Future — Discussion** — needs fleshing out before deciding to implement or drop, (3) **Closed** — done, dropped, or moved to reference. New user-requested items default to Discussion unless they emerge from implementation (e.g., template fixes discovered during audit). Existing shipped work with known issues gets fixed now — don't defer fixes to "next time we touch it." See also #33.
 
-**Phase 1 (COMPLETE):** stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance preconditions on the governance server's own action tools. Zero new dependencies, works with any MCP client. Entry point: `ai-governance-proxy`. ADR-14 in PROJECT-MEMORY.md.
+---
 
-**Phase 2 (OPEN):** Cross-MCP enforcement — enforcing governance before tool calls to OTHER MCP servers (GitHub, filesystem, etc.), not just the governance server.
+### Active (Implement Now/Soon)
 
-**Contrarian finding:** Original plan proposed internal call_tool checks on already-gated tools — caught by contrarian-reviewer as scope reduction that dodged the hard problem. Led to plan revision (ADR-14).
+#### 14. Storytelling Domain 9-Field Template Fix (Priority: MEDIUM)
+
+**What:** Storytelling principles reference a 9-field character/scene template structure but domain content doesn't consistently use it. This is existing shipped work with a known inconsistency — fix it, don't wait.
+
+**Scope:** Review storytelling principles and methods documents. Migrate content to consistently use the 9-field template structure. Validate cross-references with KM&PD storytelling integration (A-Series, ST-Series).
+
+**Implementation:** Content changes to storytelling principles/methods. Index rebuild. Coherence-auditor review for cross-domain references.
+
+#### 31. Cross-Domain Template Alignment (Priority: LOW)
+
+**What:** Backlog #28 audit found 7 template inconsistencies across domain principle files, 4 structural. Newer domains (UI/UX, KM&PD) have fields older domains lack. Template evolved but was never retroactively standardized.
+
+**Scope:** Add missing structural fields to 4-5 domain files:
+1. Standardize derivation formula wording → "Evidence-Based Prevention" (AI Coding, Multi-Agent, Storytelling, Multimodal RAG)
+2. Add Truth Source Hierarchy (use UI/UX + KM&PD pattern)
+3. Add Domain Classification (Type A/B)
+4. Add Cross-Domain Dependencies where peer relationships exist
+
+**Implementation:** Minor version bump per file, domains.json + config.py updates, index rebuild, tests.
+
+---
+
+### Deferred/Future — Discussion
+
+> Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
+
+#### 22. Governance Effectiveness Measurement (Discussion)
+
+**What:** The framework can measure whether `evaluate_governance` was *called* but not whether it *influenced decisions*. Can we measure the framework's actual effectiveness?
+
+**Discussion needed:** Explore what meaningful metrics look like. This isn't about creating a metric for metric's sake — it's about understanding whether governance adds value and how. Could be several smaller metrics tracking different effectiveness aspects. May conclude some aspects aren't measurable and that's fine.
+
+**Possible directions:** Track behavior-changing evaluations (PROCEED_WITH_MODIFICATIONS, ESCALATE), measure retrieval relevance scores over time, track principle citation frequency vs actual influence, qualitative session reviews.
+
+**Outcome:** Either define metrics worth implementing, or conclude the value is qualitative and close this item.
+
+#### 26+29. Content Quality Governance — Enforcement + Periodic Review (Discussion)
+
+**What (merged from #26 and #29):** Two related concerns about keeping framework content healthy over time:
+- **New content gate:** Part 9.8 Admission Test is advisory. Should it be structurally enforced?
+- **Existing content review:** Nothing forces periodic review. The 47→22 consolidation proved accretion happens silently.
+
+**Root-cause framing:** The real goal is *continuous content quality improvement* — both preventing bad content from entering (enforcement) and ensuring existing content stays relevant (review). These are two sides of the same problem: content quality governance.
+
+**Discussion needed:** What's the right structural mechanism? Options:
+1. CI assertion on principle count ceiling (e.g., 25 per domain) — structural, zero ongoing effort
+2. PreToolUse hook enforcing Admission Test before governance doc edits — per-edit enforcement
+3. Version-milestone trigger (every MAJOR bump triggers cross-domain audit)
+4. Combination approach
+
+**Outcome:** Define a unified content quality governance mechanism that handles both new and existing content.
+
+#### 16. Governance Retrieval Quality Assessment (Discussion)
+
+**What:** Governance server uses BGE-small (384d) while Context Engine uses nomic-embed (768d, better benchmarks). But we don't know if the current model is underperforming — users may not notice degraded retrieval quality.
+
+**Discussion needed:** Related to #22 (effectiveness measurement). How do we measure current retrieval quality for governance queries specifically? Is there a way to benchmark governance retrieval that would tell us if an upgrade is justified? Determine justification first, then implement if needed, drop if not — but with a way to measure effectiveness going forward.
+
+**Possible directions:** Governance-specific benchmark queries, MRR/Recall measurements on governance corpus, A/B comparison with nomic-embed on representative queries.
+
+**Outcome:** Either justify the upgrade with data and implement, or confirm current model is sufficient and close.
+
+#### 1B-P2. Cross-MCP Governance Enforcement (Discussion + Research)
+
+**What:** Phase 1 (enforcement on governance server's own tools) is complete. Phase 2 would enforce governance before tool calls to OTHER MCP servers (GitHub, filesystem, etc.).
+
+**Context:** Hooks already cover Bash/Edit/Write at ~100%. Contrarian review found MCP protocol isolation makes cross-MCP enforcement architecturally difficult. But the MCP ecosystem is evolving rapidly.
+
+**Discussion needed:** Online research into current MCP proxy/gateway patterns, Lasso MCP Gateway progress, Envoy AI Gateway, and whether the MCP protocol has evolved to support cross-server enforcement natively.
+
+**Outcome:** Either find a viable approach that justifies implementation, or confirm hooks are sufficient and close.
+
+#### 6. Visual Communication Domain (Discussion → Full Planning)
+
+**What:** Governance for non-coding visual artifacts: presentations, reports, infographics, print design. Separate from UI/UX (different failure modes, evidence bases, tooling). Tufte, Duarte, Reynolds evidence base.
+
+**Status:** Anticipatory — building this before active use so it's ready when needed.
+
+**Discussion needed:** Full planning process per COMPLETION-CHECKLIST domain creation. Scope candidate principles and methods, evidence base review, failure mode identification.
+
+#### 7. Security Content Currency Process (Discussion)
+
+**What:** AI security evolves fast. Our security content (§5.3-§5.11, security-auditor subagent) is comprehensive today but will go stale without a review mechanism.
+
+**Discussion needed:** Design a lightweight review process. Possible approach: quarterly online research of key security resources (maintain a log of sources reviewed + open search), compare against current security content, apply security-auditor subagent to projects near completion. Define what "key security resources" means (OWASP, NIST, major CVE databases, AI-specific threat reports).
+
+**Outcome:** Define the review process and resource list, then implement as a recurring practice.
+
+#### 19. Rampart Integration — Client-Side Enforcement (Discussion)
+
+**What:** Rampart provides shell-level security enforcement (credential theft, exfiltration, destructive commands). Complements MCP proxy and hooks — different root cause. Hooks enforce "did you consult governance?" (process gate); Rampart enforces "is this command safe?" (security gate). Defense-in-depth.
+
+**Discussion needed:** Evaluate whether the incremental security value justifies the setup for a single-developer Claude Code project. Research current Rampart capabilities and rule set.
+
+#### 13. Governance-Aware Output Compression (Discussion)
+
+**What:** Long Bash output wastes context window tokens. Build a PostToolUse hook that compresses verbose output while preserving governance/security lines and structured data.
+
+**Discussion needed:** Is this still relevant as context windows grow? Measure actual context consumption from Bash output. If >20% threshold is hit, define the compression approach (per §3.1.4 "build our own" mode to avoid third-party information intermediary risk per §5.6.8).
+
+#### 10. UI/UX Tool-Specific Integration Guides (Discussion)
+
+**What:** Write integration guides for AI-assisted design tools (Figma MCP, Storybook MCP, Axe MCP, Playwright MCP, etc.) as they're adopted. Research already done (candidate tools, risks, token costs documented in SESSION-STATE #10 archive).
+
+**Discussion needed:** Which tools are most likely to be adopted first? What format should integration guides take? Reference the existing research.
+
+#### 9P3. Tiered Principle Activation — Phase 3: Accountable Reasoning (Discussion)
+
+**What:** Phases 0-1.5 shipped, Phase 2 cancelled. Remaining question: should the accountable reasoning pattern (currently synthesized via tier config) become a formal principle?
+
+**Discussion needed:** Understand the original intent before deciding. The contrarian argues this contradicts the "fewer principles" lesson from consolidation. But the tier config synthesis may have limitations the user wants to explore.
+
+**Note:** Want to understand the original intent before closing. May close after discussion.
+
+#### 25. Principle Authoring Checklist Enforcement (Discussion)
+
+**What:** The principle-authoring checklist in COMPLETION-CHECKLIST is BEST-EFFORT (~85% compliance). Should it be converted to ENFORCED via hook?
+
+**Discussion needed:** Understand the tradeoff. Consolidation pass catches drift retroactively. Hook would prevent drift proactively but adds friction to an already-rare event (principle additions). What's the right level of enforcement for low-frequency, high-impact events?
+
+**Note:** Want to understand more before closing.
+
+#### 11. Autonomous Operations Domain (Discussion)
+
+**What:** Autonomous agent patterns (AO-Series, currently 4 principles in Multi-Agent) may eventually outgrow the multi-agent domain. This would create a dedicated domain for autonomous operation governance — financial compliance, regulatory frameworks, agent marketplace governance, cross-org federation.
+
+**Discussion needed:** Is this anticipatory need real? What would trigger the split? The Domain Creation Criteria (§5.1.0) already defines when to create domains, but the user wants to understand if the AO-Series trajectory warrants keeping this on the radar.
+
+#### 12. Operational / Deployment Runbook Domain (Discussion)
+
+**What:** Framework covers how AI produces code but not how AI handles deployment, infrastructure, and operations. 3 solid practices from viral "AI vibe coding security rules" analysis couldn't be placed in existing domains.
+
+**Discussion needed:** Is this a full domain or should the 3 orphaned practices just be filed in an appendix? Decision factors: are we using AI for deployment workflows? Is the gap growing? Domain vs standalone runbook vs appendix to AI Coding methods?
+
+#### 33. Define "Defer vs Fix Now" Philosophy (Discussion)
+
+**What:** AI tendency to say "do when files are next touched" can cause known issues to persist indefinitely due to session discontinuity and forgetting. Need clear criteria for when to defer vs fix immediately.
+
+**Discussion needed:** Define the boundary:
+- **Fix now:** Existing shipped work with known inconsistencies, broken references, template mismatches
+- **Defer:** New capabilities the user isn't actively considering
+- **Gray area:** Anticipatory work (user decides case-by-case)
+
+**Outcome:** Add clear guidance to CLAUDE.md or COMPLETION-CHECKLIST so AI applies this consistently.
+
+---
+
+### Closed / Reference
+
+#### 3. Quantized Vector Search — CLOSED (2026-03-30)
+
+Closed per backlog review. 800 vectors vs 500K trigger — structurally unreachable for a governance framework corpus. Phased approach documented in PROJECT-MEMORY.md > ADR-14 if ever needed.
+
+#### 15. Context Engine Phase 4 — CLOSED (2026-03-30)
+
+Investigation complete (2026-03-28). MRR gap was a benchmark specification error, not algorithm problem. Corrected MRR: 0.802. Remaining improvement options preserved as reference in PROJECT-MEMORY.md: (1) weight grid search, (2) score normalization, (3) RRF with scaled bonuses, (4) code-trained cross-encoder.
+
+#### 1B. Model-Agnostic Governance Enforcement — Phase 1 COMPLETE (2026-03-28)
+
+stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance preconditions on governance server's own action tools. Zero new dependencies, works with any MCP client. Entry point: `ai-governance-proxy`. ADR-14 in PROJECT-MEMORY.md. Phase 2 tracked as discussion item above.
+
+---
+
+### Historical Detail (pre-restructure backlog items, 2026-03-30)
+
+> The detailed descriptions below are from the pre-restructure backlog. Active items have been moved to the new structure above. These are preserved for context on decisions, contrarian findings, and implementation details.
 
 #### 1B-P2. Cross-MCP Governance Enforcement (Priority: DEFERRED)
 
