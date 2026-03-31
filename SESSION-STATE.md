@@ -691,6 +691,20 @@ Added forward references from Parts 8.2, 8.3, 8.4 to Part 9.8. Clarified sequenc
 
 **Recommendation:** Batch template alignment into a single session when any domain file is next modified. Prioritize items 1-4 (structural). Items 5-7 are optional polish. Each change is a minor version bump to the affected domain file.
 
+#### 31. Cross-Domain Template Alignment (Priority: LOW)
+
+**Problem:** Backlog #28 audit (2026-03-29) found 7 template inconsistencies across domain principle files, 4 structural. Newer domains (UI/UX, KM&PD) have fields (Truth Source Hierarchy, Domain Classification, Cross-Domain Dependencies) that older domains lack. Template evolved over time but was never retroactively standardized.
+
+**Scope:** Add missing structural fields to 4-5 domain files. Specific items:
+1. Standardize derivation formula wording → "Evidence-Based Prevention" (affects AI Coding, Multi-Agent, Storytelling, Multimodal RAG)
+2. Add Truth Source Hierarchy to AI Coding, Multi-Agent, Storytelling, Multimodal RAG (use UI/UX + KM&PD pattern)
+3. Add Domain Classification (Type A/B) to AI Coding, Multi-Agent, Storytelling, Multimodal RAG
+4. Add Cross-Domain Dependencies section where peer relationships exist
+
+**Implementation:** Minor version bump to each affected file, domains.json + config.py updates, index rebuild, tests. Batch all changes in one session. Items 5-7 from #28 audit (series naming, framework overview heading, evidence base structure) are cosmetic and optional.
+
+**Trigger:** When domain files are next modified for any other reason, or as a standalone cleanup session.
+
 #### 29. Part 9.8 Periodic Review Trigger (Priority: MEDIUM)
 
 **Problem:** Part 9.8 gates new content (authoring mode) and can review existing content (audit mode), but nothing compels periodic review. The same accretion pattern will recur without a scheduled cadence or quantitative trigger.
@@ -718,7 +732,7 @@ Added forward references from Parts 8.2, 8.3, 8.4 to Part 9.8. Clarified sequenc
 - Session Continuity has one-way references; should be made bidirectional
 - Context Engineering is the strongest example of proper hierarchical overlap governance
 
-**Follow-up work (if warranted):** Add ~6 cross-references across 4 domain principle files. Scope: content-only changes, minor version bumps, index rebuild. Could batch with #28 template standardization.
+**Follow-up work:** Cross-references COMPLETE (2026-03-30) — added 7 cross-refs across 6 domain files in commit `49fdbe3`. Template alignment tracked as backlog #31.
 
 ## Links
 
