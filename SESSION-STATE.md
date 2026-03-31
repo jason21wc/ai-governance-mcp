@@ -484,6 +484,41 @@
 
 ---
 
+#### 34. Epistemic Integrity — Constitutional Principle (Discussion)
+
+**What:** Proposed new Q-Series constitutional principle addressing AI sycophancy — the tendency to validate flawed assumptions, reinforce suboptimal approaches, or present outputs with unearned confidence. Core requirement: analytical accuracy over conversational agreeability.
+
+**Origin:** Independent research via Claude app (no anchor bias from existing framework). Reviewed against Part 9.8 Admission Test — passes all 6 questions. Contrarian review and coherence audit completed (see draft below).
+
+**The gap:** Three existing principles touch adjacent territory but none address the core failure mode:
+- **Transparent Limitations (S-Series):** Covers "I don't know" — NOT "I agree but shouldn't"
+- **Discovery Before Commitment (C-Series):** Covers AI's own investigation process — NOT AI's evaluative posture toward human claims
+- **Visible Reasoning & Traceability (Q-Series):** Covers making reasoning auditable — NOT whether reasoning prioritizes accuracy over agreeability
+
+**Key question to resolve: consolidation vs addition.** If this becomes a principle, does it REPLACE or ABSORB aspects of the three above? Per Single Source of Truth, if Epistemic Integrity subsumes the "epistemic honesty" aspect of Transparent Limitations, the "challenge the frame" aspect of Discovery Before Commitment, and the "self-scrutiny" aspect of Visible Reasoning — should those principles be narrowed to avoid redundancy? The goal is one authoritative home for each concept, not three principles each partially covering honesty.
+
+**Possible outcomes:**
+1. **New principle + narrow the three** — Epistemic Integrity becomes the single source for intellectual honesty; TL, DBC, VR&T retain their non-overlapping scopes
+2. **Expand one existing principle** — e.g., expand Visible Reasoning to include "quality of reasoning, not just visibility of reasoning"
+3. **Method only** — Create the Performance Assessment Protocol method under an existing principle without a new constitutional addition
+4. **Close** — Existing principles + contrarian-reviewer subagent already cover this adequately
+
+**Draft principle:** Full draft available (reviewed by contrarian + coherence auditor). Key components:
+- Challenge Before Confirm (earned agreement, not default agreement)
+- Self-Scrutiny Before Delivery (apply same standard to own outputs)
+- Evidence-Grounded Assessment (benchmarks over pleasantries)
+- Constructive Alternatives Over Rejection (better outcomes, not intellectual sparring)
+- Proportional Scrutiny (calibrate pushback to stakes)
+
+**Revisions needed before implementation (from review):**
+1. Soften "at least one material risk" threshold → "demonstrated consideration of alternatives" (avoid checkbox behavior)
+2. Add Intent Preservation boundary: challenges target methods/assumptions, not the human's underlying goals
+3. Verify Q-series numbering (Q8?) against current count
+
+**Related:** Would also create `meta-method-performance-assessment-protocol` (behavioral rules for honest feedback) and add `constitutional_basis` to contrarian-reviewer subagent definition.
+
+---
+
 ### Closed / Reference
 
 #### 3. Quantized Vector Search — CLOSED (2026-03-30)
