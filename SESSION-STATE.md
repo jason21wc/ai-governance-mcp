@@ -484,6 +484,33 @@
 
 ---
 
+#### 35. Evaluate Stripe Projects CLI for Appendices (Discussion)
+
+**What:** Stripe Projects CLI (launched 2026-03-27, developer preview) lets developers and AI agents provision third-party services, manage credentials, and handle billing from the terminal. Evaluate whether it belongs in the ai-governance appendices as tool-specific guidance.
+
+**Origin:** Claude.ai research conversation. Preliminary assessment produced WITHOUT governance tooling — treat as research input, not validated conclusions.
+
+**Why it matters for governance:** This tool lets AI agents trigger real financial transactions (paid-tier upgrades via Shared Payment Tokens) and provision infrastructure autonomously. That's squarely in AO-Series (autonomous operations) and S-Series (safety/security) territory.
+
+**Preliminary mapping (UNVALIDATED — needs `evaluate_governance()` and subagent review):**
+- `coding-method-agent-to-service-integration-patterns` — standardizes provisioning workflows
+- `coding-method-credential-isolation-and-secrets-management` — vault-based credential storage
+- `coding-method-service-identity-and-credential-lifecycle` — provider account association
+- `meta-safety-non-maleficence-privacy-security` (S-Series) — credential handling, financial action authority
+- `coding-process-established-solutions-first` — but developer preview maturity is a concern
+
+**Key governance concerns to resolve:**
+1. **Agent autonomy on financial actions.** Agents can select paid tiers triggering real charges. Which principles govern this? What HITL enforcement mechanism?
+2. **Maturity risk.** Developer preview, US/EU/UK/Canada only, expanding provider catalog. Does "Established Solutions First" apply to a tool this new?
+3. **Shared Payment Token security model.** Tokenized payment credentials passed to providers. Security-auditor evaluation needed.
+4. **Vendor dependency.** Does the framework endorse specific vendors or just document patterns?
+
+**Research sources:** Stripe docs (docs.stripe.com/projects), projects.dev, Stripe X announcement, HN discussion (47532148), Karpathy blog post that motivated it.
+
+**When discussed:** Run full governance evaluation, contrarian-reviewer (does it belong at all?), coherence-auditor (appendix fit), security-auditor (credential/payment model). Three possible outcomes: add now, add with conditions, or do not add.
+
+---
+
 #### 34. Epistemic Integrity — Constitutional Principle (Discussion)
 
 **What:** Proposed new Q-Series constitutional principle addressing AI sycophancy — the tendency to validate flawed assumptions, reinforce suboptimal approaches, or present outputs with unearned confidence. Core requirement: analytical accuracy over conversational agreeability.
