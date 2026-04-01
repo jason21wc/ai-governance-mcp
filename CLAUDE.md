@@ -27,6 +27,18 @@ Edit `documents/agents/` (canonical source) first, then copy to `.claude/agents/
 
 - `.claude/agents/` — Local agent installations (synced from `documents/agents/`)
 
+## Defer vs Fix Now
+
+When you discover issues during a task, **finish the user's requested task first**, then classify:
+
+| Category | Action | Examples |
+|----------|--------|----------|
+| **Fix (same session)** | Fix after completing the current task, before session end. Limit: ≤3 files, no cascading discovery. | Stale footer, broken cross-ref, missing version entry |
+| **Defer (with tracking)** | Add to SESSION-STATE discussion backlog with enough detail to reconstruct. | New capability, domain addition, architectural change |
+| **Ask the user** | Present what you found; let the user decide. | Anticipatory work, fixes touching >3 files, ambiguous scope |
+
+**Why this rule exists:** Forward-continuation bias makes "fix it later" the AI's path of least resistance. Session discontinuity means "later" often means "never." But unbounded "fix everything now" causes scope creep. This rule balances both failure modes: fix what's cheap and known, track what's not, never surprise the user with unsolicited large changes.
+
 ## Plan Mode
 
 For architecture decisions, use the plan template at `.claude/plan-template.md`. The template structure puts contrarian review, research verification, and simpler-alternatives evaluation BEFORE the recommended approach — making verification part of the generation flow, not an afterthought. (Per Systemic Thinking + autoregressive forward-continuation bias research.)

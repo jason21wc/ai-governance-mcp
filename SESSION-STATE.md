@@ -60,11 +60,12 @@
    - **Validation:** 1026 tests pass, index rebuilt (128 principles + 662 methods), governance query spot-check confirmed
    - **Pre-existing gaps flagged (not #31 scope):** UI/UX v1.2.0 + KM&PD v1.4.0 missing changelog entries and stale footers from session #29
 
-33. **Session Retrospective** — governance compliance self-review
+33. **Session Retrospective + #33 Defer vs Fix Now** — governance compliance self-review + philosophy codified
    - Logged governance reasoning trace (`gov-149fdb65ea80`) — was skipped during execution, corrected
    - Added #39 (test_compare_models pre-existing failure) to discussion backlog
    - Added #40 (completion checklist trivial-change escape hatch) to discussion backlog
-   - Backlog: Active (0) / Discussion (18) / Closed (4)
+   - #33 Defer vs Fix Now: codified in CLAUDE.md as decision table (Fix ≤3 files / Defer with tracking / Ask user). Contrarian-reviewed: added scope boundary, task-completion priority, and safe-deferral path. Addresses autoregressive forward-continuation bias + session discontinuity root causes.
+   - Backlog: Active (0) / Discussion (17) / Closed (5)
 
 ### Previous Session (2026-03-30)
 
@@ -511,19 +512,6 @@
 
 **Discussion needed:** Is this a full domain or should the 3 orphaned practices just be filed in an appendix? Decision factors: are we using AI for deployment workflows? Is the gap growing? Domain vs standalone runbook vs appendix to AI Coding methods?
 
-#### 33. Define "Defer vs Fix Now" Philosophy (Discussion)
-
-**What:** AI tendency to say "do when files are next touched" can cause known issues to persist indefinitely due to session discontinuity and forgetting. Need clear criteria for when to defer vs fix immediately.
-
-**Discussion needed:** Define the boundary:
-- **Fix now:** Existing shipped work with known inconsistencies, broken references, template mismatches
-- **Defer:** New capabilities the user isn't actively considering
-- **Gray area:** Anticipatory work (user decides case-by-case)
-
-**Outcome:** Add clear guidance to CLAUDE.md or COMPLETION-CHECKLIST so AI applies this consistently.
-
----
-
 #### 36. Part 9.8 Coverage Gap — Reference Library Entries (Discussion)
 
 **What:** Part 9.8 (Content Quality Framework) covers principles, methods, and appendices — but NOT Reference Library entries (TITLE 15). The Reference Library was added in v3.14.0; Part 9.8 was added in v3.16.0 but didn't incorporate it. Two separate quality processes exist with no explicit relationship.
@@ -650,6 +638,10 @@ Investigation complete (2026-03-28). MRR gap was a benchmark specification error
 #### 1B. Model-Agnostic Governance Enforcement — Phase 1 COMPLETE (2026-03-28)
 
 stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance preconditions on governance server's own action tools. Zero new dependencies, works with any MCP client. Entry point: `ai-governance-proxy`. ADR-14 in PROJECT-MEMORY.md. Phase 2 tracked as discussion item above.
+
+#### 33. Defer vs Fix Now Philosophy — COMPLETE (2026-03-31)
+
+Codified in CLAUDE.md as 3-category decision table: Fix (≤3 files, same session, after current task), Defer (with durable tracking in SESSION-STATE), Ask (>3 files, ambiguous scope, anticipatory). Contrarian-reviewed: added scope boundary, task-completion priority, safe-deferral path. Root cause: autoregressive forward-continuation bias + session discontinuity.
 
 #### 31. Cross-Domain Template Alignment — COMPLETE (2026-03-31)
 
