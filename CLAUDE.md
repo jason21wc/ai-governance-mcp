@@ -27,7 +27,7 @@ Edit `documents/agents/` (canonical source) first, then copy to `.claude/agents/
 
 - `.claude/agents/` — Local agent installations (synced from `documents/agents/`)
 
-## Defer vs Fix Now
+## Defer vs Fix Now (Implements governance methods Part 7.11)
 
 When you discover issues during a task, **finish the user's requested task first**, then classify:
 

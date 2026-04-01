@@ -1775,7 +1775,7 @@ After VALIDATE passes (§5.1.2), execute the **completion sequence** before star
 
 The **completion sequence** runs per-change. The **session end procedure** (§7.6.1) runs once when closing. At session end, §7.6.1 governs — it includes memory hygiene and handoff steps that the completion sequence does not cover. If the final change has already been through the completion sequence, skip the overlapping steps (doc updates, commit) in §7.6.1.
 
-> **Cross-references:** §5.1.2 (Implementation Cycle — insert after PASS), §5.2.6 (full test suite before task completion), §6.4.8 (Local-CI Validation Parity), §7.6.1 (Session End Procedure)
+> **Cross-references:** §5.1.2 (Implementation Cycle — insert after PASS), §5.2.6 (full test suite before task completion), §6.4.8 (Local-CI Validation Parity), §7.6.1 (Session End Procedure), Governance Methods Part 7.11 (Discovered Issue Triage — when discovered issues are unrelated to current task)
 > **Bold triggers:** **post-change checklist**, **completion sequence**, **after implementation steps**, **task completion gate**
 
 #### 5.1.7 Subagent Review Triggers

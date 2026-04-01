@@ -1,7 +1,7 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.18.0
+**Version:** 3.19.0
 **Status:** Active
 **Effective Date:** 2026-03-31
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -151,6 +151,7 @@ Load this document when:
 | Validating RAG outputs | Part 12.4 | RAG Triad Validation |
 | Domain-specific RAG | Part 12.5 | Domain-Specific Optimization |
 | RAG technique selection | Part 12.6 | RAG Technique Selection Guide |
+| Found issue unrelated to current task | Part 7.11 | Discovered Issue Triage |
 
 ---
 
@@ -1517,6 +1518,76 @@ When applying this protocol, document:
 5. **Rationale:** Why this decision was made
 
 This creates an audit trail for governance compliance and future learning.
+
+---
+
+## Part 7.11: Discovered Issue Triage
+
+**Importance: IMPORTANT — Prevents both silent issue loss and unbounded scope creep**
+
+**Implements:** Context Engineering, Verification & Validation
+
+**Applies To:** Any scenario where an AI agent discovers an issue unrelated to its current task. **Discovered issue triage**, **deferred fix tracking**, **scope boundary**, **incidental finding**, **fix now vs defer decision**.
+
+AI agents face a dual failure mode when discovering issues outside their current task. **Autoregressive forward-continuation bias** favors continuing the current task and silently dropping the finding. **Session discontinuity** means deferred issues not durably recorded are effectively lost. But fixing every discovered issue causes **unbounded scope creep**. This method provides a triage framework that projects can customize with their own thresholds.
+
+> **S-Series Override:** If the discovered issue is a safety or security concern (exposed credentials, active data loss, security vulnerability), escalate immediately per S-Series absolute veto. Do not defer. Do not wait for current task completion. This method governs non-safety findings only.
+
+### 7.11.1 Core Rule
+
+**Complete the user's requested task first.** Do not interrupt the current task to address a non-safety discovered issue. After the current task is complete (or at a natural pause point), classify findings.
+
+**Batch discovered issues** — collect findings during the task, present them together at a natural pause. One interruption with a recommended triage per item, not N separate interruptions.
+
+### 7.11.2 Triage Decision Framework
+
+| Category | Criteria | Action |
+|----------|----------|--------|
+| **Fix (same session)** | Contained (few files, no cascading), clearly wrong (not a judgment call), and does not open new discovery scope | Fix after completing current task, before session end |
+| **Defer (with tracking)** | Large, touches many files, requires architectural judgment, or risks cascading discovery | Record durably per §7.11.3, continue with current task |
+| **Note (informational)** | Not actionable now but may become relevant (deprecated dependency, style inconsistency, improvement opportunity) | Mention in session summary or handoff notes. No tracking ticket required. |
+| **Ask the user** | Scope is ambiguous, anticipatory rather than corrective, or uncertain which category applies | Present with your recommended category; let user decide |
+
+**When in doubt, choose "Ask the user."** The cost of asking is one exchange. The cost of guessing wrong is either lost work or scope creep.
+
+This method applies to issues the AI discovers autonomously. User-initiated requests, even if tangential to the current task, are new instructions — apply standard scope negotiation.
+
+### 7.11.3 Durable Deferral Requirements
+
+"I should fix that later" is not deferral — it is silent loss with extra steps. Durable deferral means:
+
+1. **Write it down** in the project's designated tracking location (issue tracker, session state backlog, or equivalent)
+2. **Include reconstruction context:** what is broken, where it is, and what a fix would look like
+3. **Do not rely on session memory** — assume the next session starts with zero context about this finding
+
+**Fallback:** If no project-specific tracking location is defined, present all deferred items to the user at session end as a summary list. Less durable than a tracked file, but better than silent loss.
+
+### 7.11.4 Scope Boundary Signals
+
+**Signals to fix now:**
+- One-line change in a file you already have open
+- Issue will cause a test failure that blocks your current task if left unfixed
+- Issue is in code you are actively modifying and leaving it creates inconsistency in your own output
+
+**Signals to defer:**
+- Fixing requires understanding code or content you have not examined this session
+- The fix touches more files than the original task did
+- You discover additional issues while scoping the fix (cascading discovery)
+- The "fix" is actually a new feature or enhancement, not a correction
+- You are unsure whether the current state is actually wrong
+
+**Cascading discovery limit:** Triage is a single-pass classification. If scoping a fix reveals additional issues, defer the entire cluster as one item rather than triaging each individually.
+
+### 7.11.5 Validation
+
+- [ ] Current task was completed (or reached a natural pause) before triaging
+- [ ] S-Series findings were escalated immediately, not deferred
+- [ ] Triage category was explicitly chosen with a one-sentence rationale
+- [ ] Deferred items were recorded durably with reconstruction context
+- [ ] No discovered issue was silently dropped without triage
+- [ ] Fixes performed in-session did not cascade into further unplanned discovery
+
+> **Cross-references:** ai-coding methods §5.1.6 (Post-Change Completion Sequence), §5.1.4 (Implementation Escalation — in-scope issues blocking your task), Part 7.5 (Post-Action Verification — verifying your own work)
 
 ---
 
@@ -4071,6 +4142,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.19.0 | 2026-03-31 | MINOR: Added Part 7.11 (Discovered Issue Triage). Decision framework for AI agents encountering issues unrelated to their current task — addresses dual failure modes of ignore-and-lose vs fix-and-scope-creep. Four-category triage (fix now / defer with tracking / note / ask the user) with S-Series override, scope boundary signals, durable deferral requirements, cascading discovery limit, and batch presentation. Added cross-reference from ai-coding methods §5.1.6. Added 1 Situation Index entry. Constitutional Basis: Context Engineering, Verification & Validation. |
 | 3.18.0 | 2026-03-31 | MINOR: Template alignment (#31). Consolidated three competing domain principle templates (Parts 3.5.1, 9.4, 9.4.1) into single canonical source at Part 3.5.1. Restored "Definition" as separate field from "Domain Application" (binding rule vs. implementation guidance). Added Required/Recommended/Optional field tiers. Added alias table for variant field names used by existing principles. Added "Known Limitation" note about extractor being field-name agnostic. Refactored Part 9.4.1 to redirect to Part 3.5.1. Updated §9.8.3, Part 9.5.1, and Situation Index references. Fixed COMPLETION-CHECKLIST "7 questions" → "6 questions" drift. |
 | 3.17.0 | 2026-03-29 | MINOR: Added Part 9.8 forward references from TITLE 8 constitutional governance procedures. Added cross-references between Part 8.2 (Classification of Ideas) and Part 9.8 (Content Quality Framework). |
 | 3.16.0 | 2026-03-29 | MINOR: Added Part 9.8 (Content Quality Framework) — unified quality gate for all framework content (principles, methods, appendices) at any level (constitutional or domain), for both authoring new content and reviewing existing content. §9.8.1 Admission Test (7 binary questions). §9.8.2 Duplication Check procedure. §9.8.3 Structural Requirements by Content Type (reference table to canonical templates). §9.8.4 Unified Quality Checklist (supersedes Part 9.5 for principles-only). §9.8.5 Authoring vs. Review modes with disposition table (KEEP/MERGE/DEMOTE/REMOVE/REWRITE). §9.8.6 Concept Loss Prevention (mandatory before any removal or merge). §9.8.7 Domain-Specific Structural Considerations (crosswalk tables, maturity indicators, failure mode taxonomy, series structure, peer domain interactions). Added superseded note to Part 9.5. Added 4 Situation Index entries. Constitutional Basis: Systemic Thinking, Verification & Validation, Single Source of Truth. |

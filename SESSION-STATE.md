@@ -21,13 +21,13 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.18.0** (meta-methods), **v2.31.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.19.0** (meta-methods), **v2.31.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **128 principles + 662 methods + 4 references** (794 total; see `tests/benchmarks/` for current totals) |
+| Index | **128 principles + 666 methods + 4 references** (798 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
@@ -65,6 +65,7 @@
    - Added #39 (test_compare_models pre-existing failure) to discussion backlog
    - Added #40 (completion checklist trivial-change escape hatch) to discussion backlog
    - #33 Defer vs Fix Now: codified in CLAUDE.md as decision table (Fix ≤3 files / Defer with tracking / Ask user). Contrarian-reviewed: added scope boundary, task-completion priority, and safe-deferral path. Addresses autoregressive forward-continuation bias + session discontinuity root causes.
+   - Part 7.11 (Discovered Issue Triage): promoted #33 to framework-level method in governance methods v3.19.0. 4-category triage (Fix/Defer/Note/Ask), S-Series override, durable deferral requirements, balanced scope signals, cascading discovery limit, batch presentation. Contrarian-reviewed. Cross-referenced from ai-coding §5.1.6. CLAUDE.md references Part 7.11.
    - Backlog: Active (0) / Discussion (17) / Closed (5)
 
 ### Previous Session (2026-03-30)
