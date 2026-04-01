@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.19.0** (meta-methods), **v2.31.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.19.0** (meta-methods), **v2.32.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -66,6 +66,15 @@
    - Added #40 (completion checklist trivial-change escape hatch) to discussion backlog
    - #33 Defer vs Fix Now: codified in CLAUDE.md as decision table (Fix ≤3 files / Defer with tracking / Ask user). Contrarian-reviewed: added scope boundary, task-completion priority, and safe-deferral path. Addresses autoregressive forward-continuation bias + session discontinuity root causes.
    - Part 7.11 (Discovered Issue Triage): promoted #33 to framework-level method in governance methods v3.19.0. 4-category triage (Fix/Defer/Note/Ask), S-Series override, durable deferral requirements, balanced scope signals, cascading discovery limit, batch presentation. Contrarian-reviewed. Cross-referenced from ai-coding §5.1.6. CLAUDE.md references Part 7.11.
+
+34. **Cross-Session Epistemic Hygiene** — 4 debugging governance gaps from external project
+   - Root cause: AI treats cached knowledge as fact; framework manages document staleness (Part 14.2) but not technical conclusion staleness
+   - **§5.13.2:** Prior Knowledge Audit — pre-diagnostic step with trigger conditions, structured audit template, 5-step differential for documented-pattern-fails. Scoped to protocol entry (§5.13.4 governs mid-protocol resets). Flows into Instrumentation-First (§5.13.3) when cause unclear.
+   - **§5.13.6:** 2 new anti-patterns (Stale Conclusion, Documented Pattern Bypass) + 2 checklist items
+   - **§5.1.7:** Auth/session/cookie runtime review trigger (content-based, flags for runtime verification)
+   - **Code-reviewer agent:** Runtime-sensitive patterns checklist item (flag, don't assert)
+   - 3-agent plan review: contrarian (moved from §5.13.4 to §5.13.2, expanded to 5-step, dropped A5), validator (6/6 PASS), coherence (3 findings addressed: scoping vs §5.13.4, ordering vs §5.13.3, trigger conditions for proportionality)
+   - ai-coding methods v2.32.0
    - Backlog: Active (0) / Discussion (17) / Closed (5)
 
 ### Previous Session (2026-03-30)

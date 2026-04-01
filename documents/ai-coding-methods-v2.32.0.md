@@ -1,9 +1,9 @@
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.31.0
+**Version:** 2.32.0
 **Status:** Active
-**Effective Date:** 2026-03-26
+**Effective Date:** 2026-03-31
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -153,6 +153,8 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Setting up repository security / branch protection | §6.4.10 | Repository Security Configuration |
 | Setting up CodeQL / semantic code analysis | §6.4.11 | Semantic Code Analysis Setup |
 | Need to understand unfamiliar code / onboarding | §5.13.7 | Code Comprehension via Linear Walkthrough |
+| Debugging with prior session context / stale conclusions | §5.13.2 | Prior Knowledge Audit |
+| Auth/session/cookie code needs review | §5.1.7 | Runtime-Sensitive Review Trigger |
 
 #### On Uncertainty
 
@@ -1791,6 +1793,7 @@ When changes match these patterns, invoke the corresponding subagent BEFORE comm
 | New file-handling code path | security-auditor | Per COMPLETION-CHECKLIST new code path checklist |
 | Content expansion (new principles/methods) | coherence-auditor + validator | Cross-reference integrity and template compliance |
 | Any changes >5 files | code-reviewer | Broad changes need fresh-context review |
+| Auth flows, session/cookie management, redirect chains *(content-based)* | code-reviewer (flag for runtime verification) | Async timing, event ordering, and cross-request state invisible to static review; recommend Playwright/instrumentation verification per §5.13.2 |
 
 *Source: LEARNING-LOG lessons — "Run Code Review + Coherence Audit After Content Expansions" (2026-02-21), "Multi-Pass Reviews Catch Different Issue Classes" (2026-01-04).*
 
@@ -4042,6 +4045,37 @@ Before ANY non-trivial fix attempt, produce this structured block:
 
 This is a **format requirement** — produce the block before writing any fix code. The block forces structured thinking and creates an audit trail.
 
+#### Prior Knowledge Audit
+
+**Trigger conditions** — perform this audit when ANY of:
+- You are resuming debugging from a prior session
+- You are applying a fix pattern, workaround, or conclusion from memory files or prior conversation
+- A documented/official solution pattern has already failed
+
+This audit operates at **protocol entry**. Once within the debugging protocol, the Context Reset Trigger (§5.13.4) governs when to discard hypotheses formed during the current session.
+
+```
+## Prior Knowledge Audit
+**What I believe about this problem:** [cached conclusions from prior sessions, memory entries, or earlier in this session]
+**Source and age:** [where/when each belief was formed — prior session? docs? assumption?]
+**Stack changes since then:** [has the framework, library, or runtime version changed?]
+**Beliefs flagged for re-verification:** [any conclusion from a prior session, >30 days old, or formed under debugging pressure]
+```
+
+**Prior session conclusions are hypotheses, not facts.** A conclusion formed under framework v15 may not hold under v16. A workaround discovered for library v0.7.x may be unnecessary in v0.8.0. Re-verify before relying on **cached technical knowledge**.
+
+**When a documented/official pattern fails**, the failure itself is the primary bug to investigate — not a reason to write a custom workaround. Before considering alternatives, run this **differential diagnosis**:
+
+1. **Am I calling it correctly?** — Compare your usage against current official docs, not memory
+2. **Has the API/library changed?** — Check changelogs between the version you learned on and the current version
+3. **Is my environment different?** — Config, middleware, build settings, runtime mode
+4. **Am I reading docs for the correct version?** — Docs sites often default to latest; your project may pin an older version
+5. **Is there a known bug in this library version?** — Check GitHub issues for your specific version
+
+If the differential reveals the cause (e.g., a documented breaking change), fix directly. If the cause remains unclear after the differential, proceed to Instrumentation-First (§5.13.3) to gather runtime evidence.
+
+Only after exhausting diagnosis should you consider a custom alternative — and even then, document WHY the official pattern fails with your evidence. Writing a workaround without this evidence violates Supply Chain & Solution Integrity (A5).
+
 #### Automation-First Evidence Gathering
 
 Before asking the user for information, AI must attempt to gather it programmatically. Tool-gathered evidence is preferred because AI gets raw data (not filtered through human description), can re-run the same check after fixing, and captures more detail.
@@ -4262,6 +4296,8 @@ When reporting a fix, use this format:
 | **Shotgun Debugging** | Change multiple things at once hoping something works | One change at a time, verify after each; revert if no improvement |
 | **Silent Exception Swallowing** | Broad catch blocks hide the real error | Specific exception handlers with logging; audit all `catch`/`except`/`EXCEPTION WHEN` blocks |
 | **Reasoning as Evidence** | "This should work because the logic is correct" | Execute and observe; use tools not thoughts |
+| **Stale Conclusion** | Applying a prior session's diagnosis or workaround without re-verifying under current conditions (different versions, config, or environment) | Prior Knowledge Audit (§5.13.2): flag beliefs from prior sessions; re-verify when stack has changed |
+| **Documented Pattern Bypass** | Official/documented pattern fails, AI writes custom workaround without investigating why it fails | 5-step differential (§5.13.2): falsify all five causes before writing custom code. The failure IS the bug. |
 
 #### Debugging Checklist
 
@@ -4271,6 +4307,8 @@ When reporting a fix, use this format:
 - [ ] At least 2 competing hypotheses identified
 - [ ] Falsification test defined for selected hypothesis
 - [ ] If browser-related: Playwright MCP or equivalent used for evidence
+- [ ] Prior Knowledge Audit completed — cached beliefs from prior sessions flagged and re-verified (when trigger conditions met)
+- [ ] If official pattern failed: 5-step differential completed before considering custom alternative
 
 **After fix (verification):**
 - [ ] Fix verified by objective evidence, not reasoning (§5.13.5)
@@ -8109,6 +8147,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.32.0 | 2026-03-31 | MINOR: Cross-session epistemic hygiene extensions to §5.13. (1) §5.13.2: Added Prior Knowledge Audit — pre-diagnostic step requiring agents to audit cached beliefs from prior sessions, flag stale conclusions, and re-verify when stack has changed. Added 5-step differential diagnosis for when documented/official patterns fail (Am I calling it correctly? Has API changed? Environment different? Reading correct version docs? Known bug?). (2) §5.13.6: Added 2 anti-patterns (Stale Conclusion, Documented Pattern Bypass) and 2 debugging checklist items. (3) §5.1.7: Added auth/session/cookie runtime review trigger (content-based, flags for runtime verification via Playwright/instrumentation). (4) Updated code-reviewer agent with runtime-sensitive patterns checklist item. Added 2 Situation Index entries. Root cause: AI agents treat cached technical conclusions as facts rather than hypotheses with confidence decay. Evidence: External debugging session (Next.js 16 + @supabase/ssr 0.8.0 cookie timing). Constitutional Basis: Transparent Limitations, Verification & Validation, Context Engineering. |
 | 2.31.0 | 2026-03-28 | PATCH: Updated stale constitutional principle references. "Verification Mechanisms" / "Fail-Fast Validation" → "Verification & Validation" (§5.13). "Security, Privacy, and Compliance by Default" → "Non-Maleficence, Privacy & Security" (§9.3.10). "Project Reference Persistence" consolidated into existing "Context Engineering" references (§1.5, §7.10, Appendix L). Version History unchanged (historical records). |
 | 2.29.0 | 2026-03-27 | **Quality Gate Enforcement:** (1) New §5.1.7 Subagent Review Triggers — change-type matrix determining when subagent reviews are required before commit/push (5 change types: new MCP tools, core pipeline, new file-handling paths, content expansion, broad changes >5 files). (2) §9.3.10 expanded from 4-Layer to 5-Layer Enforcement Stack: new Layer 5 Pre-Push Quality Gate — PreToolUse hook on `git push` with transcript scanning for test execution and subagent review invocations, risk-based triggers (core code + new src files), docs-only bypass, emergency override via `QUALITY_GATE_SKIP` env var. Design rationale: pre-push not pre-commit (irreversibility boundary), hard mode from day one. Cross-references §5.1.7 and COMPLETION-CHECKLIST. |
 | 2.28.0 | 2026-03-26 | **Permission Configuration:** New Appendix A.5 with 5 subsections: A.5.1 Permission Layering (user/project/project-local with precedence), A.5.2 Hook-Permission Interaction (hooks fire BEFORE permissions — governance enforcement safe), A.5.3 Day-to-Day Development Allowlist (recommended pre-approvals + governance-critical file exclusion hard rule), A.5.4 Autonomous Operation Permissions (cross-ref to multi-agent §6.5.2), A.5.5 Reviewing and Updating Permissions. Broadens permission guidance from autonomous-only (§6.5.2) to general Claude Code usage. |

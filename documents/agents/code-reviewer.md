@@ -87,6 +87,7 @@ Check in order:
 3. **Error Handling:** Are failure paths covered?
 4. **Edge Cases:** Boundary conditions, empty inputs, max values
 5. **Maintainability:** Readable, documented where needed, not over-engineered
+6. **Runtime-sensitive patterns (when flagged):** Auth flows, session/cookie management, redirect chains, event-driven callbacks — flag for runtime verification rather than asserting correctness from static reading. Recommend Playwright MCP or instrumentation to verify async timing and cross-request state.
 
 ### Step 3: Categorize Findings
 

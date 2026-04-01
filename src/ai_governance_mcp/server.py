@@ -891,7 +891,7 @@ AVAILABLE_AGENTS = {
 # For true integrity verification, see SECURITY.md "Planned" section for
 # cryptographic signing roadmap.
 AGENT_TEMPLATE_HASHES = {
-    "code-reviewer": "b9a26d4616dc8adcccf438ec215945a14f2028b4df06b5ac966e63233560bedc",
+    "code-reviewer": "8308bcc14a554b18d0e9bd8c5aa71428a7d1460c2320a5e6b8daa959b36079f5",
     "coherence-auditor": "b794e4d9c4abce7c946ac7ff4fc7bc01b226d248647d6f1aa8c4a153a7416307",
     "continuity-auditor": "076c4194b9c2afd530af54d05be4e30e37def8567bfa68e6c5bd032f80bda5da",
     "contrarian-reviewer": "a5e7bca361fe1f7e7849cf53d40456cdaa2570a2fe5aad9105b8a37f6dded6d4",
