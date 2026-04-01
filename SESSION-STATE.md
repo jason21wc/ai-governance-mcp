@@ -60,6 +60,12 @@
    - **Validation:** 1026 tests pass, index rebuilt (128 principles + 662 methods), governance query spot-check confirmed
    - **Pre-existing gaps flagged (not #31 scope):** UI/UX v1.2.0 + KM&PD v1.4.0 missing changelog entries and stale footers from session #29
 
+33. **Session Retrospective** — governance compliance self-review
+   - Logged governance reasoning trace (`gov-149fdb65ea80`) — was skipped during execution, corrected
+   - Added #39 (test_compare_models pre-existing failure) to discussion backlog
+   - Added #40 (completion checklist trivial-change escape hatch) to discussion backlog
+   - Backlog: Active (0) / Discussion (18) / Closed (4)
+
 ### Previous Session (2026-03-30)
 
 28. **Backlog Quick Cleanup** — 4 items completed
@@ -550,6 +556,22 @@
 **Discussion needed:** Evaluate whether version metadata should live inside the file (header `version:` field) while filenames stay stable (e.g., `ai-coding-domain-principles.md`). This would eliminate the archive/rename/domains.json/config.py cascade. Tradeoff: lose at-a-glance version identification in file listings.
 
 **Origin:** Contrarian review of #31 plan (2026-03-30). Systemic concern — affects every future version bump across the project.
+
+---
+
+#### 39. `test_compare_models` Pre-Existing Failure (Discussion — Bug)
+
+**What:** `tests/test_context_engine_quality.py::TestCompareModels::test_compare_models` fails with `TypeError: Object of type date is not JSON serializable`. The test indexes the project, then tries to serialize results containing `datetime.date` objects to JSON. Discovered 2026-03-31 during #31 validation — confirmed pre-existing (not caused by template alignment changes).
+
+**Discussion needed:** Is this a test bug (missing JSON serializer for dates) or a code bug (date objects leaking into serializable output)? Low priority since all other 1026 tests pass and this test is a model comparison benchmark, not a functional test.
+
+---
+
+#### 40. Completion Checklist Trivial-Change Escape Hatch (Discussion)
+
+**What:** COMPLETION-CHECKLIST requires code-reviewer for any config.py change. During #31, config.py changes were trivial filename string updates (e.g., `v2.7.0` → `v2.7.1`). Invoking code-reviewer for this would be pure ceremony — the validator already confirmed correctness.
+
+**Discussion needed:** Should the checklist have a "trivial change" qualifier? Options: (1) Add "substantive changes" qualifier to the trigger, (2) Keep as-is and accept occasional over-triggering, (3) Let the 3-agent battery substitute when it provides equivalent or better coverage. Risk of option 1: defining "trivial" is subjective and creates a loophole.
 
 ---
 
