@@ -1,4 +1,4 @@
-# AI Coding Domain Principles Framework v2.7.0
+# AI Coding Domain Principles Framework v2.7.1
 ## Federal Statutes for AI-Assisted Software Development
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -16,10 +16,13 @@
 > This framework assumes the AI agent has already loaded and internalized the **ai-interaction-principles.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of AI-assisted software development.
 >
 > **Derivation Formula:**
-> `[Failure Mode Cluster] + [Research-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
+> `[Failure Mode Cluster] + [Evidence-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
 >
 > **Supremacy Reminder:**
 > If conflict arises: **S-Series (Safety) > Meta-Principles > Domain Principles > Implementation Methods**
+>
+> **Truth Source Hierarchy:**
+> Constitution > AI Coding Domain Principles > AI Coding Methods > External References (OWASP, NIST, GitClear 2025, arxiv agent drift research)
 
 ---
 
@@ -45,6 +48,11 @@ The following are NOT governed by this document:
 - **Non-coding AI applications** → Other domain principle documents
 
 If a concern falls outside this scope, refer to the Constitution or appropriate organizational policies.
+
+### Cross-Domain Dependencies
+
+- **Multi-Agent domain (session state):** C3 (Session State Continuity) and Multi-Agent State Persistence Protocol address the same underlying problem — preserving context across interactions — at different scales. C3 governs single-session-chain state; Multi-Agent covers inter-agent coordination state.
+- **UI/UX domain (interface substance):** AI Coding Methods §2.4/§2.5 define process gates for UX work (when to do it). UI/UX domain defines substance (what good UX is). Both domains apply when AI generates interface code.
 
 ---
 
@@ -1570,6 +1578,8 @@ At EVERY phase boundary or significant checkpoint:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.7.1 | 2026-03-31 | PATCH: Template alignment (#31). "Research-Based" → "Evidence-Based" in derivation formula. Added Truth Source Hierarchy. Added Cross-Domain Dependencies section (Multi-Agent session state, UI/UX interface substance). |
+| v2.7.0 | 2026-03-30 | MINOR: Added cross-domain reference to C3 Session State Continuity ↔ Multi-Agent State Persistence Protocol (bidirectional). |
 | v2.6.0 | 2026-03-29 | **MINOR: Part 9.8 Domain Consolidation.** Merged Idempotency by Design into Production-Ready Standards (idempotency is a production-readiness dimension). Merged Established Solutions First into Supply Chain Integrity, renamed to "Supply Chain & Solution Integrity." Principle count 14→12 (P-Series 6→4, Q-Series unchanged at 5). Fixed constitutional citations: Human-AI Collaboration (removed stale multi-agent references), Workflow Integrity (added Separation of Instructions and Data), Supply Chain (replaced peer principle with constitutional basis), Security-First and Specification Completeness (canonical Non-Maleficence, Privacy & Security name). Added failure mode codes E1/E2 to Workflow Integrity, A5 to Supply Chain & Solution Integrity. Fixed "Quality Standards" phantom reference → Testing Integration. Updated crosswalk table to match principle body text. **Aliases:** "Idempotency by Design" → see Production-Ready Standards; "Established Solutions First" → see Supply Chain & Solution Integrity. |
 | v2.5.0 | 2026-03-28 | **MINOR: Constitutional Principle Consolidation Phase 5.** Updated stale constitutional principle references throughout Constitutional Basis sections and Meta ↔ Domain Crosswalk table. Key renames: "Verification Mechanisms" / "Fail-Fast Validation" / "Verifiable Outputs" / "Incremental Validation" / "Measurable Success Criteria" → "Verification & Validation", "Minimal Relevant Context" → "Context Engineering", "Foundation-First Architecture" → "Structural Foundations", "Transparent Reasoning and Traceability" → "Visible Reasoning & Traceability", "Security, Privacy, and Compliance by Default" → "Non-Maleficence, Privacy & Security", "Technical Focus with Clear Escalation Boundaries" / "Clear Roles and Accountability" → "Human-AI Authority & Accountability", "Constraint-Based Prompting" → "Explicit Over Implicit", "Iterative Planning and Delivery" → "Discovery Before Commitment". Version History unchanged (historical records). |
 | v2.4.0 | 2026-03-28 | **MINOR: Constitutional Principle Consolidation Phase 2.** Received 2 principles demoted from Constitution O-Series: Idempotency by Design and Established Solutions First (Precedent Rule). Added as P-Series (Process) principles. Principle count 12→14. |

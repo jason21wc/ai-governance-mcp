@@ -1,4 +1,4 @@
-# Storytelling Domain Principles Framework v1.4.0
+# Storytelling Domain Principles Framework v1.4.1
 ## Federal Statutes for AI-Assisted Narrative Communication
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -16,10 +16,13 @@
 > This framework assumes the AI agent has already loaded and internalized the **ai-interaction-principles.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of narrative communication.
 >
 > **Derivation Formula:**
-> `[Storytelling Failure Mode] + [Research-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
+> `[Storytelling Failure Mode] + [Evidence-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
 >
 > **Supremacy Reminder:**
 > If conflict arises: **S-Series (Safety) > Meta-Principles > Domain Principles > Implementation Methods**
+>
+> **Truth Source Hierarchy:**
+> Constitution > Storytelling Domain Principles > Storytelling Methods > External References (McKee Story, Duarte Resonate, Cialdini Influence, Hasson neural coupling research)
 >
 > **Note on Series Naming:**
 > This domain uses **ST-Series** for Structure principles to avoid collision with the Constitution's S-Series (Safety). The prefix "ST" denotes "STorytelling Structure."
@@ -49,6 +52,12 @@ The following are NOT governed by this document:
 - **Marketing strategy and business decisions** → Organization policies
 
 If a concern falls outside this scope, refer to the Constitution or appropriate organizational policies.
+
+### Cross-Domain Dependencies
+
+- **KM&PD domain (narrative engagement):** Knowledge bases should engage readers through narrative structure. Apply Storytelling A-Series (Audience) and ST-Series (Structure) principles when building KM&PD artifacts. Storytelling governs HOW to engage; KM&PD governs WHAT content to include.
+- **Multimodal RAG domain (accessibility):** A3 (Accessibility by Design) covers narrative-level accessibility (cognitive load, sensory diversity, cultural inclusion). For visual content accessibility (alt text, WCAG 2.1), see Multimodal RAG P5.
+- **UI/UX domain (accessibility):** For technical interface accessibility (WCAG 2.2, keyboard navigation, screen readers), see UI/UX ACC-Series.
 
 ---
 
@@ -872,7 +881,13 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ## Changelog
 
-### v1.3.0 (Current)
+### v1.4.1 (Current)
+- **Template alignment (#31).** "Research-Based" → "Evidence-Based" in derivation formula. Added Truth Source Hierarchy. Added Cross-Domain Dependencies section (KM&PD narrative engagement, Multimodal RAG and UI/UX accessibility).
+
+### v1.4.0
+- **Cross-domain references.** Added cross-domain reference to A3 Accessibility by Design ↔ UI/UX ACC-Series, Multimodal RAG P5, KM&PD TL1.
+
+### v1.3.0
 - **Principle consolidation: 19 → 15 principles (4 merges, 1 rewrite)**
   - **Merged A2 (Cultural Context Awareness) into ST2** — ST2 renamed to "Cultural-Aware Framework Selection"; absorbed A2's cultural context discovery steps and bias detection guidance. A-Series: 3 → 2.
   - **Merged C4 (Emotional Honesty) into E2** — E2 now includes emotional honesty checks (authenticity, vulnerability calibration, anti-manipulation stance). C-Series: 5 → 4.
@@ -933,5 +948,5 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ---
 
-*Version 1.3.0*
+*Version 1.4.1*
 *Derived from: AI Coding Domain Principles v2.2.1 (at time of creation), Multi-Agent Domain Principles v2.0.0 (at time of creation)*

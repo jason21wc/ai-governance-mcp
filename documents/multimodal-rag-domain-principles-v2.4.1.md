@@ -1,4 +1,4 @@
-# Multimodal RAG Domain Principles Framework v2.4.0
+# Multimodal RAG Domain Principles Framework v2.4.1
 ## Federal Statutes for AI Agents Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -16,10 +16,13 @@
 > This framework assumes the AI agent has already loaded and internalized the **ai-interaction-principles.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of multimodal retrieval and presentation.
 >
 > **Derivation Formula:**
-> `[Multimodal RAG Failure Mode] + [Research-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
+> `[Multimodal RAG Failure Mode] + [Evidence-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
 >
 > **Supremacy Reminder:**
 > If conflict arises: **S-Series (Safety) > Meta-Principles > Domain Principles > Implementation Methods**
+>
+> **Truth Source Hierarchy:**
+> Constitution > Multimodal RAG Domain Principles > Multimodal RAG Methods > External References (WCAG 2.1, Mayer Multimedia Learning, CLIP/SigLIP research, RAG Triad evaluation frameworks)
 
 ---
 
@@ -54,6 +57,12 @@ The following are NOT governed by this document:
 - **Platform-specific API implementation** — Methods documents (multimodal-rag-methods-v2.1.1.md)
 
 If a concern falls outside this scope, refer to the Constitution or appropriate organizational policies.
+
+### Cross-Domain Dependencies
+
+- **UI/UX domain (accessibility):** P5 (Accessibility Compliance) focuses on visual content accessibility (WCAG 2.1 AA, alt text, audio descriptions). For interactive interface accessibility, see UI/UX ACC-Series.
+- **Storytelling domain (accessibility):** For narrative-level accessibility (cognitive load, cultural dimensions) in knowledge bases that include storytelling-like content, see Storytelling A3 (Accessibility by Design).
+- **AI Coding domain (security):** SEC-Series covers multimodal-specific security (adversarial images, cross-modal injection). For general application security practices, see AI Coding domain.
 
 ---
 
@@ -1403,7 +1412,13 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ## Changelog
 
-### v2.3.0 (Current)
+### v2.4.1 (Current)
+- **Template alignment (#31).** "Research-Based" → "Evidence-Based" in derivation formula. Added Truth Source Hierarchy. Added Cross-Domain Dependencies section (UI/UX accessibility, Storytelling accessibility, AI Coding security).
+
+### v2.4.0
+- **Cross-domain references.** Added cross-domain reference to P5 Accessibility Compliance ↔ UI/UX ACC-Series, Storytelling A3, KM&PD TL1.
+
+### v2.3.0
 - **Principle consolidation: 35 → 32 principles.** Three merges reducing redundancy while preserving all guidance:
   - **MERGE:** P4 (Readability Optimization) into P5 (Audience Adaptation) → new P4: Audience Adaptation. P4's readability defaults (9th grade, 15-20 words, plain language, Image-Text Harmony) become the "default readability case" subsection within P4. P6 renumbered to P5.
   - **MERGE:** CT3 (Citation Completeness) into CT1 (Fragment-Level Source Attribution). CT3's completeness metrics (attribution ratio, coverage tracking, 100% attribution target) added to CT1.
@@ -1452,5 +1467,5 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ---
 
-*Version 2.3.0*
+*Version 2.4.1*
 *Derived from: AI Coding Domain Principles v2.3.2, Multi-Agent Domain Principles v2.1.1, Storytelling Domain Principles v1.1.2, Constitution v3.0.0*

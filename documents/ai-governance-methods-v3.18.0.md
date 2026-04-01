@@ -1,9 +1,9 @@
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.17.0
+**Version:** 3.18.0
 **Status:** Active
-**Effective Date:** 2026-03-29
+**Effective Date:** 2026-03-31
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -119,8 +119,8 @@ Load this document when:
 | Proposing framework changes | Title 8 | Constitutional Governance |
 | Checking if idea is principle vs method | Part 8.2 | Classification of Ideas |
 | Creating a new domain | Title 9 | Domain Authoring |
-| Using 9-Field template | Part 9.4 | 9-Field Template |
-| Formatting a new principle | Part 9.4.0-9.4.1 | Constitution vs Domain Templates |
+| Using domain principle template | Part 3.5.1 | Domain Principle Template (canonical) |
+| Constitution vs domain templates | Part 9.4.0 | Constitution vs Domain Templates |
 | Formatting a new method | Part 3.5.3 | Method Section Template |
 | Header level questions | Part 3.5.4 | Header Hierarchy |
 | Gathering requirements/preferences | Part 7.9 | Adaptive Questioning (Discovery Before Commitment) |
@@ -586,67 +586,91 @@ multimodal-rag:
 
 This section defines formatting conventions for domain principles and methods documents. Consistent formatting improves AI comprehension and human readability.
 
-### 3.5.1 Principle Template (10 Fields)
+### 3.5.1 Domain Principle Template
 
-Use this template when authoring domain principles. Fields are ordered for optimal AI consumption—motivation first, actionable guidance in middle, verification at end.
+**Canonical template for domain principles.** Part 9.4.1 redirects here. Constitution (meta) principles use a separate template (Part 9.4.0).
+
+Fields are ordered for optimal AI comprehension — motivation first, binding rule in the middle, verification at the end.
+
+> **Known Limitation:** The Context Engine extractor is field-name agnostic — it indexes content regardless of heading names. Existing principles using variant field names (see Alias Table below) continue to index and retrieve correctly. This template standardizes **new authoring**; it does not require retrofitting 128 existing principles.
+
+#### Template
 
 ```markdown
 ### [Principle Title] ([Legal Analogy])
 
-**Why This Principle Matters**
-[Rationale - AI needs to understand purpose first. 2-3 sentences explaining the problem this principle solves.]
+**Constitutional Basis:** Derived from **[Meta-Principle Name]** — [Brief explanation of derivation]
 
-**Constitutional Basis**
-- Derives from **[Meta-Principle Name]:** [Brief explanation of derivation]
-- Derives from **[Meta-Principle Name]:** [Brief explanation of derivation]
+**Why This Principle Matters**
+[2-3 sentences explaining the problem this principle prevents and why domain-specific guidance is needed beyond the constitution.]
 
 **Failure Mode(s)**
-- **[Code]: [Failure Name]** — [Description of what goes wrong when violated]
+[Code]: [Failure Name] — [Observable symptoms when violated. Include detection criteria.]
+
+**Definition**
+[The binding rule. Concise, authoritative statement of what this principle requires. This is the law — everything else is commentary.]
 
 **Domain Application**
-[The binding rule - THE core definition. What this principle requires in this specific domain context.]
+[Practical implementation guidance. How to apply the Definition in this specific domain context. Concrete steps, not abstract restatement.]
 
-**How AI Applies This Principle**
-1. [Specific actionable step]
-2. [Specific actionable step]
-3. [Specific actionable step]
-
-**Success Criteria**
-- ✅ [Verifiable outcome]
-- ✅ [Verifiable outcome]
-- ✅ [Measurable threshold] (configurable per project)
+**Validation Criteria**
+- [ ] [Verifiable outcome]
+- [ ] [Measurable threshold] (configurable per project)
 
 **Human Interaction Points**
-- ⚠️ [Escalation trigger]
-- ⚠️ [Escalation trigger]
+- [Escalation trigger — when to stop and involve a human]
 
 **Common Pitfalls**
-- **[Trap Name]:** [Description of anti-pattern]. *Prevention: [How to avoid]*
+- **[Trap Name]:** [Anti-pattern description]. *Prevention: [How to avoid]*
+
+**Cross-References**
+[Related principles within this domain or across domains. Reference by title, not series code.]
 
 **Truth Sources** (optional)
-- [Authoritative reference]
-- [Research citation with year]
+- [Authoritative reference with year]
 
 **Configurable Defaults** (optional)
 - [Parameter]: [Default value] ([rationale])
 ```
 
-### 3.5.2 Field Descriptions
+### 3.5.2 Field Reference
 
-| Field | Purpose | Required |
-|-------|---------|----------|
-| **Principle Title** | Descriptive name (auto-slugified for ID) | Yes |
+| Field | Purpose | Tier |
+|-------|---------|------|
+| **Principle Title** | Descriptive name (auto-slugified for ID) | Required |
 | **Legal Analogy** | Clarifying metaphor in parentheses | Recommended |
-| **Why This Principle Matters** | Rationale and motivation | Yes |
-| **Constitutional Basis** | Parent principle(s) enabling derivation | Yes |
-| **Failure Mode(s)** | Observable violations and consequences | Yes |
-| **Domain Application** | The binding rule statement | Yes |
-| **How AI Applies** | Specific, actionable implementation steps | Yes |
-| **Success Criteria** | Verifiable outcomes with ✅ prefix | Yes |
-| **Human Interaction Points** | Escalation triggers with ⚠️ prefix | Recommended |
+| **Constitutional Basis** | Parent principle(s) enabling derivation | Required |
+| **Why This Principle Matters** | Rationale — what problem this prevents | Required |
+| **Failure Mode(s)** | Observable violations with FM codes and detection criteria | Required |
+| **Definition** | The binding rule statement | Required |
+| **Domain Application** | Practical implementation guidance | Required |
+| **Validation Criteria** | Verifiable outcomes (checkbox format) | Required |
+| **Human Interaction Points** | Escalation triggers | Recommended |
 | **Common Pitfalls** | Anti-patterns with prevention guidance | Recommended |
-| **Truth Sources** | Grounding references and citations | Optional |
+| **Cross-References** | Related principles by title, within or across domains | Recommended |
+| **Truth Sources** | Research citations, authoritative references | Optional |
 | **Configurable Defaults** | Domain-specific tunable parameters | Optional |
+
+**Tier definitions:**
+- **Required:** Must be present in new principles. Absence is a quality checklist failure (§9.8.4).
+- **Recommended:** Should be present. Omission acceptable with brief justification in version history.
+- **Optional:** Include when the principle has relevant content for this field.
+
+#### Alias Table (Variant Field Names)
+
+This table applies when **reading existing principles** — it maps variant field names to their canonical equivalents. When **authoring new principles**, always use the canonical names from the template above with Definition and Domain Application as separate fields.
+
+Existing principles use variant field names that serve the same purpose. These are functionally equivalent and do **not** require retrofitting:
+
+| Canonical Name | Known Variants |
+|---|---|
+| **Definition** | "Domain Application" (when used as the binding rule rather than implementation guidance) |
+| **Domain Application** | "How AI Applies This Principle", "How the AI Applies", "Application" |
+| **Validation Criteria** | "Success Criteria" |
+| **Common Pitfalls** | "Pitfalls", "Common Pitfalls or Failure Modes" |
+| **Human Interaction Points** | "PO/Human Interaction", "When Human Interaction Is Needed" |
+| **Truth Sources** | "Evidence Base", "References" |
+| **Cross-References** | "Related Principles", "See Also" |
 
 ### 3.5.3 Method Section Template
 
@@ -1814,77 +1838,37 @@ Constitution (meta) principles and domain principles use **intentionally differe
 **Net Impact** — Expected outcomes
 ```
 
-#### Domain Principle Fields
+#### Domain Principle Fields (Summary — see Part 3.5.1 for canonical template)
 ```
 ### [Principle Title] ([Legal Analogy])
-**Failure Mode(s) Addressed** — What failure this prevents
-**Constitutional Basis** — Parent principles (Derives from)
-**Why Meta-Principles Alone Are Insufficient** — Why domain-specific rule needed
-**Domain Application** — How to apply in this domain
-**Truth Sources** — Authoritative references
-**How the AI Applies** — Operational guidance
-**Why It Matters** — Rationale
-**PO/Human Interaction** — Escalation points
-**Pitfalls** — Common mistakes
-**Success Criteria** — Verification
+**Constitutional Basis** — Parent principles (Required)
+**Why This Principle Matters** — Rationale (Required)
+**Failure Mode(s)** — What failure this prevents (Required)
+**Definition** — The binding rule (Required)
+**Domain Application** — Practical implementation guidance (Required)
+**Validation Criteria** — Verifiable outcomes (Required)
+**Human Interaction Points** — Escalation triggers (Recommended)
+**Common Pitfalls** — Anti-patterns with prevention (Recommended)
+**Cross-References** — Related principles (Recommended)
+**Truth Sources** — Authoritative references (Optional)
+**Configurable Defaults** — Tunable parameters (Optional)
 ```
 
 #### Why Different Templates?
 
 1. **Constitution = foundational law**: Focuses on universal behaviors, self-evident value
 2. **Domain = derived statute**: Must justify derivation, address specific failure modes
-3. **"Constitutional Basis" field**: Only domain principles need this—they derive authority from Constitution
-4. **"Failure Mode(s) Addressed" field**: Domain principles are created to prevent specific failures; Constitution principles define positive behaviors
+3. **"Constitutional Basis" field**: Only domain principles need this — they derive authority from Constitution
+4. **"Definition" vs "Domain Application"**: Domain principles separate the binding rule (Definition) from practical guidance (Domain Application); constitution principles combine these in a single Definition field
+5. **"Failure Mode(s)" field**: Domain principles are created to prevent specific failures; constitution principles define positive behaviors
 
-### 9.4.1 Domain Principle Template (9-Field)
+### 9.4.1 Domain Principle Template
 
-Use this template when authoring domain principles. All fields are required unless marked optional.
+**Canonical template:** See **Part 3.5.1** (Domain Principle Template) for the full template, field reference with Required/Recommended/Optional tiers, and alias table for variant field names.
 
-#### Template Structure
+This section previously contained a standalone 9-field template. It has been consolidated into Part 3.5.1 as the single source of truth for domain principle authoring. The consolidated template adds **Definition** as a separate field from **Domain Application** (the binding rule vs. practical implementation guidance) and introduces tiered field requirements.
 
-```markdown
-### [Principle Title] ([Legal Analogy])
-
-**Constitutional Basis:** [Parent principle(s) from Constitution]
-
-**Why This Principle Matters**
-[Rationale: What problem does this solve? Why is it essential for this domain?]
-
-**Failure Mode**
-[What goes wrong when this principle is violated? Observable symptoms.]
-
-**Definition**
-[Concise, actionable statement of the principle. This is the binding rule.]
-
-**Domain Application**
-[How to apply this principle in this specific domain. Concrete guidance.]
-
-**Validation Criteria**
-[How to verify this principle is being followed. Checkable criteria.]
-
-**Human Interaction Points**
-[When to escalate to human judgment. Specific triggers.]
-
-**Cross-References** (Optional)
-[Related principles within domain or across domains.]
-```
-
-### 9.4.2 Field Descriptions
-
-| Field | Purpose | Required |
-|-------|---------|----------|
-| **Principle Title** | Descriptive name (will be slugified for ID) | Yes |
-| **Legal Analogy** | Clarifying metaphor in parentheses | Recommended |
-| **Constitutional Basis** | Parent principle(s) enabling derivation | Yes |
-| **Why This Principle Matters** | Rationale and motivation | Yes |
-| **Failure Mode** | Observable violations and consequences | Yes |
-| **Definition** | The binding rule statement | Yes |
-| **Domain Application** | Practical implementation guidance | Yes |
-| **Validation Criteria** | How to verify compliance | Recommended |
-| **Human Interaction Points** | Escalation triggers | Recommended |
-| **Cross-References** | Related principles (by title) | Optional |
-
-### 9.4.3 Template Example
+### 9.4.2 Template Example
 
 ```markdown
 ### Specification Completeness (The Requirements Doctrine)
@@ -1894,7 +1878,7 @@ Use this template when authoring domain principles. All fields are required unle
 **Why This Principle Matters**
 Incomplete specifications cause rework, incorrect implementations, and wasted effort. In AI-assisted coding, the AI cannot read minds—it needs explicit, complete requirements to produce correct code.
 
-**Failure Mode**
+**Failure Mode(s)**
 When violated: Vague requirements lead to implementation guessing, multiple revision cycles, and features that don't match user intent. The AI fills gaps with assumptions that may be wrong.
 
 **Definition**
@@ -1931,7 +1915,7 @@ Before publishing any new domain principle or method:
 
 ### 9.5.1 Structural Validation
 
-- [ ] Uses 9-Field Template (Part 9.4) or appropriate methods format
+- [ ] Uses Domain Principle Template (Part 3.5.1) or appropriate methods format
 - [ ] Title is descriptive (no series codes)
 - [ ] All required fields present
 - [ ] Formatting consistent with existing documents
@@ -2165,7 +2149,7 @@ Reference table — does NOT reproduce templates, points to canonical sources.
 | Content Type | Template Reference | Key Requirements |
 |---|---|---|
 | Constitutional Principle | Part 9.4.0 (7 fields) | Elevator pitch, legal analogy, all 7 template fields, no Constitutional Basis (IS the constitution) |
-| Domain Principle | Part 9.4.1 (9 fields) | Constitutional Basis required, Failure Mode required, domain-specific guidance |
+| Domain Principle | Part 3.5.1 (tiered fields) | Constitutional Basis required, Definition required, Failure Mode required, domain-specific guidance |
 | Method Section | Part 3.5.3 | Procedure + Validation, Importance tag, Implements reference to principles |
 | Appendix Section | See below | Platform-specific, references parent method, version/currency disclaimer |
 
@@ -4087,6 +4071,8 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.18.0 | 2026-03-31 | MINOR: Template alignment (#31). Consolidated three competing domain principle templates (Parts 3.5.1, 9.4, 9.4.1) into single canonical source at Part 3.5.1. Restored "Definition" as separate field from "Domain Application" (binding rule vs. implementation guidance). Added Required/Recommended/Optional field tiers. Added alias table for variant field names used by existing principles. Added "Known Limitation" note about extractor being field-name agnostic. Refactored Part 9.4.1 to redirect to Part 3.5.1. Updated §9.8.3, Part 9.5.1, and Situation Index references. Fixed COMPLETION-CHECKLIST "7 questions" → "6 questions" drift. |
+| 3.17.0 | 2026-03-29 | MINOR: Added Part 9.8 forward references from TITLE 8 constitutional governance procedures. Added cross-references between Part 8.2 (Classification of Ideas) and Part 9.8 (Content Quality Framework). |
 | 3.16.0 | 2026-03-29 | MINOR: Added Part 9.8 (Content Quality Framework) — unified quality gate for all framework content (principles, methods, appendices) at any level (constitutional or domain), for both authoring new content and reviewing existing content. §9.8.1 Admission Test (7 binary questions). §9.8.2 Duplication Check procedure. §9.8.3 Structural Requirements by Content Type (reference table to canonical templates). §9.8.4 Unified Quality Checklist (supersedes Part 9.5 for principles-only). §9.8.5 Authoring vs. Review modes with disposition table (KEEP/MERGE/DEMOTE/REMOVE/REWRITE). §9.8.6 Concept Loss Prevention (mandatory before any removal or merge). §9.8.7 Domain-Specific Structural Considerations (crosswalk tables, maturity indicators, failure mode taxonomy, series structure, peer domain interactions). Added superseded note to Part 9.5. Added 4 Situation Index entries. Constitutional Basis: Systemic Thinking, Verification & Validation, Single Source of Truth. |
 | 3.15.0 | 2026-03-28 | MINOR: Added TITLE 16 (Demoted Constitutional Principles — Procedural Methods). Houses 6 principles demoted from Constitution during Phase 3 consolidation (v2.8.0). Parts 16.1-16.6: Reference Document Patterns (from Project Reference Persistence, cross-refs TITLE 14), Adaptive Questioning Technique (from Progressive Inquiry Protocol, cross-refs Part 7.9), Constraint-Based Prompting Technique, Iterative Planning Methodology, Communication Style Method, Cross-Domain Accessibility Standard. Each section includes Constitutional Basis citation, procedural steps, escalation triggers, and common pitfalls. |
 | 3.14.0 | 2026-03-26 | MINOR: Added TITLE 15 (Reference Library / Case Law). Defines curated precedent system for concrete reusable artifacts (code snippets, templates, configurations, vetted external references). Parts 15.1-15.7 covering concept and legal analogy, entry types (direct/reference), entry template (YAML frontmatter + markdown body), curation governance (three intake paths: auto-capture, staged suggestion, manual), maturity pipeline (seedling/budding/evergreen), KeyCite-style currency tracking (current/caution/deprecated/archived), classification system (faceted: domain + tags + relationship edges), directory structure and privacy, proportional application. Updated §9.3.1 Truth Source Hierarchy to include Reference Library as level 4. Operationalizes constitution principle Project Reference Persistence. Source: Willison (2026) "Agentic Engineering Patterns" + Zettelkasten methodology + legal precedent systems research. |

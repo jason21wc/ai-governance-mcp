@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-03-30
+**Last Updated:** 2026-03-31
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,22 +21,46 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.17.0** (meta-methods + Part 9.8), **v2.31.0** (ai-coding methods), **v2.7.0** (ai-coding principles — 12), **v2.7.0** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.0** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.0** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.18.0** (meta-methods), **v2.31.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
 | Tests | Run `pytest tests/ -v` for current count |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **128 principles + 663 methods + 4 references** (795 total; see `tests/benchmarks/` for current totals) |
+| Index | **128 principles + 662 methods + 4 references** (794 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-30)
+## Session Summary (2026-03-31)
 
 ### Completed This Session
+
+32. **#31 Template Alignment — EXECUTED**
+   - **Phase 1 — Template consolidation (governance methods v3.18.0):**
+     - Consolidated 3 competing templates (Parts 3.5.1, 9.4, 9.4.1) → single canonical source at Part 3.5.1
+     - Restored "Definition" as separate field from "Domain Application" (contrarian catch from planning session)
+     - Added Required/Recommended/Optional field tiers + alias table for variant field names
+     - Added "Known Limitation" note (extractor is field-name agnostic, no 128-principle retrofit needed)
+     - Refactored Part 9.4.1 → redirect to Part 3.5.1; updated Part 9.4.0 summary
+     - Updated all cross-references: §9.8.3, Part 9.5.1, Situation Index, COMPLETION-CHECKLIST ("7 questions" → "6 questions")
+     - Added missing v3.17.0 version history entry
+   - **Phase 2 — Header standardization (4 domain files → PATCH bumps):**
+     - "Research-Based" → "Evidence-Based" in derivation formula (ai-coding, multi-agent, storytelling, multimodal-rag)
+     - Added Truth Source Hierarchy to all 4 files (ui-ux + kmpd already had it)
+     - Added Cross-Domain Dependencies sections to ai-coding, storytelling, multimodal-rag (kmpd already had it; multi-agent has PEER DOMAIN RELATIONSHIP)
+   - **3-agent assessment battery (contrarian + validator + coherence):**
+     - Contrarian: alias table re-merge risk → fixed with "reading vs authoring" clarification
+     - Validator: all 7 criteria PASS
+     - Coherence: 4 stale footers caught (2 ours fixed, 2 pre-existing from session #29 flagged)
+     - Part 9.4.2 example "Failure Mode" → "Failure Mode(s)" fixed
+   - **Version bumps:** governance methods v3.18.0, ai-coding v2.7.1, multi-agent v2.7.1, storytelling v1.4.1, multimodal-rag v2.4.1
+   - **Validation:** 1026 tests pass, index rebuilt (128 principles + 662 methods), governance query spot-check confirmed
+   - **Pre-existing gaps flagged (not #31 scope):** UI/UX v1.2.0 + KM&PD v1.4.0 missing changelog entries and stale footers from session #29
+
+### Previous Session (2026-03-30)
 
 28. **Backlog Quick Cleanup** — 4 items completed
    - #20: Dependabot config for GitHub Actions (weekly, grouped, PR limit 5)
@@ -60,15 +84,7 @@
    - Backlog philosophy defined: fix shipped work now, defer new capabilities, default new todos to discussion
    - Feedback memories saved: anticipatory work policy, todo philosophy
 
-31. **#31 Template Alignment — Planning complete, ready for execution**
-   - Root cause found: THREE competing principle templates in methods doc (Parts 3.5.1, 9.4, 9.4.1)
-   - Plan: consolidate templates → Part 3.5.1 as single canonical source with tiered fields (Required/Recommended/Optional)
-   - Restore "Definition" as separate field from "Domain Application" (contrarian catch)
-   - Domain Classification deferred to discussion (#37) — axes undefined
-   - Descoped principle-level restructuring (128 principles) — extractor is field-name agnostic
-   - Plan file: `.claude/plans/sleepy-shimmying-whistle.md`
-   - Reviewed by: contrarian-reviewer + coherence-auditor
-   - **Next session: execute Phase 1 (template consolidation) then Phase 2 (header standardization)**
+31. **#31 Template Alignment — COMPLETE** (see session 32 above for details)
 
 ### Previous Session (2026-03-29)
 
@@ -373,32 +389,7 @@
 
 ### Active (Implement Now/Soon)
 
-#### 14. Storytelling 9-Field Template — MERGED INTO #31 (2026-03-30)
-
-Investigation found the "9-field" refers to the domain principle template (Part 9.4.1), not a character/scene template. Storytelling principles are missing dedicated Failure Mode and Validation Criteria sections vs the canonical 9-field structure. This is the same cross-domain template inconsistency that #31 addresses — not a storytelling-specific problem. Absorbed into #31.
-
-#### 31. Cross-Domain Template Alignment — PLANNED, READY FOR EXECUTION
-
-**Plan file:** `.claude/plans/sleepy-shimmying-whistle.md` (contrarian + coherence reviewed)
-
-**Root cause (deeper than originally scoped):** THREE competing principle templates in governance methods (Parts 3.5.1, 9.4, 9.4.1). Domains can't comply when the standard itself is contradictory.
-
-**Phase 1 — Template consolidation** (governance methods v3.18.0):
-- Consolidate three templates → Part 3.5.1 as single canonical source
-- Add Required/Recommended/Optional field tiers + alias table
-- Restore "Definition" as separate field from "Domain Application"
-- Update all references (Situation Index, Part 9.5.1, §9.8.3)
-- Fix COMPLETION-CHECKLIST "7 questions" → "6 questions" drift
-
-**Phase 2 — Header standardization** (4 domain files):
-1. Derivation formula: "Research-Based" → "Evidence-Based" (4 files)
-2. Add Truth Source Hierarchy (4 files)
-3. Add Cross-Domain Dependencies sections (3-4 files)
-4. ~~Domain Classification~~ → deferred to #37 (axes undefined)
-
-**Descoped:** Principle-level restructuring (128 principles). Extractor is field-name agnostic. Template includes "Known Limitation" note + alias table for variant field names.
-
-**Implementation:** Minor version bump per file, domains.json + config.py updates, index rebuild, tests.
+*No active items — all moved to Discussion or Closed.*
 
 ---
 
@@ -637,6 +628,10 @@ Investigation complete (2026-03-28). MRR gap was a benchmark specification error
 #### 1B. Model-Agnostic Governance Enforcement — Phase 1 COMPLETE (2026-03-28)
 
 stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance preconditions on governance server's own action tools. Zero new dependencies, works with any MCP client. Entry point: `ai-governance-proxy`. ADR-14 in PROJECT-MEMORY.md. Phase 2 tracked as discussion item above.
+
+#### 31. Cross-Domain Template Alignment — COMPLETE (2026-03-31)
+
+Consolidated 3 competing domain principle templates (Parts 3.5.1, 9.4, 9.4.1) → single canonical source at Part 3.5.1. Restored Definition as separate field from Domain Application. Added tiered fields (Required/Recommended/Optional) + alias table. Standardized 4 domain file headers (Evidence-Based, Truth Source Hierarchy, Cross-Domain Dependencies). 3-agent battery validated. governance methods v3.18.0, ai-coding v2.7.1, multi-agent v2.7.1, storytelling v1.4.1, multimodal-rag v2.4.1. #14 absorbed.
 
 ---
 

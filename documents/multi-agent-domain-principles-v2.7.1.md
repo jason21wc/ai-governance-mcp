@@ -1,4 +1,4 @@
-# Multi-Agent Domain Principles Framework v2.7.0
+# Multi-Agent Domain Principles Framework v2.7.1
 ## Federal Statutes for Multi-Agent AI System Orchestration
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -16,10 +16,13 @@
 > This framework assumes the AI agent has already loaded and internalized the **ai-interaction-principles.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of multi-agent AI orchestration.
 >
 > **Derivation Formula:**
-> `[Multi-Agent Failure Mode] + [Research-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
+> `[Multi-Agent Failure Mode] + [Evidence-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
 >
 > **Supremacy Reminder:**
 > If conflict arises: **S-Series (Safety) > Meta-Principles > Domain Principles > Implementation Methods**
+>
+> **Truth Source Hierarchy:**
+> Constitution > Multi-Agent Domain Principles > Multi-Agent Methods > External References (arxiv agent drift 2601.04170, LLMs Get Lost 2505.06120, MCP specification, Claude Agent SDK)
 >
 > **PEER DOMAIN RELATIONSHIP:**
 > This document is a peer to ai-coding-domain-principles.md, not subordinate. When multi-agent systems perform coding tasks:
@@ -1765,6 +1768,8 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.7.1 | 2026-03-31 | PATCH: Template alignment (#31). "Research-Based" → "Evidence-Based" in derivation formula. Added Truth Source Hierarchy. |
+| v2.7.0 | 2026-03-30 | MINOR: Added cross-domain reference to State Persistence Protocol ↔ AI Coding C3 Session State Continuity (bidirectional). |
 | v2.6.0 | 2026-03-29 | **MINOR: Principle Consolidation.** 22→17 principles. (1) MERGE: Cognitive Function Specialization + Role Specialization & Topology → **Agent Specialization & Topology** — unified cognitive function assignment with topology mapping and least privilege. (2) MERGE: Hybrid Interaction & RACI → absorbed into **Explicit Handoff Protocol** — RACI assignments are a handoff concern; added RACI subsection with responsibility transfer and approval gate mechanics. (3) MERGE: Read-Write Division → absorbed into **Orchestration Pattern Selection** — read-write classification is a binding rule within the pattern selection decision tree. (4) MERGE: Blameless Error Reporting → absorbed into **Fault Tolerance and Graceful Degradation** — blameless reporting (confidence scoring, stop-the-line, near-miss logging) is a fault tolerance mechanism. (5) DEMOTION: Standardized Collaboration Protocols → methods (procedural content: JSON schemas, timeouts, retry config moved to multi-agent-methods §3.9). Principle-level concept ("structured contracts, not conversation") already covered by Explicit Handoff Protocol. (6) FIXES: Removed Intent Preservation from crosswalk (previously demoted+merged). Fixed ghost self-references. Fixed stale MA-Series reference. Added 5 missing constitutional principles to crosswalk. Fixed duplicate Peer Principles header in Intent Propagation. Cross-references updated for merged principles. Removed stale [NEW in v2.x.0] tags. Fixed "Resource Efficiency" truncation. Updated Orchestrator Separation peer principles. A-Series 8→5, R-Series 6→4, Q-Series 3, AO-Series 4. Total 22→17. |
 | v2.5.0 | 2026-03-28 | **MINOR: Phase 5 Cross-Reference Updates.** Updated cross-references to reflect constitutional principle consolidation (Phase 5). No structural changes to multi-agent principles. |
 | v2.4.1 | 2026-03-28 | **PATCH: Consolidate redundant demoted principles.** (1) Merged Intent Preservation into Intent Propagation with Shared Assumptions — demoted principle was fully redundant (both address MA-A4); unique content (micro-decision examples, 5-level delegation criterion, summary preservation rule) absorbed. (2) Merged Synchronization & Observability (The "Standup") into Observability Protocol — demoted principle was near-identical (both address MA-R6); "Standup" metaphor, "Orchestrator Poll" concept, and periodic check-in examples absorbed. (3) Added Structural Foundations to Role Specialization & Topology constitutional basis. A-Series count 9→8, R-Series count 7→6. |
