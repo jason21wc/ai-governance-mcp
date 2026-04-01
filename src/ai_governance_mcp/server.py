@@ -3185,13 +3185,14 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
-    # Build file path
-    cwd = Path.cwd().resolve()
-    ref_dir = cwd / "reference-library" / domain
+    # Build file path — use project root (where documents/domains.json lives),
+    # not CWD. CWD may be a client project using this MCP server remotely.
+    project_root = _find_project_root().resolve()
+    ref_dir = project_root / "reference-library" / domain
     file_path = (ref_dir / f"{entry_id}.md").resolve()
 
     # Path validation
-    if not file_path.is_relative_to(cwd):
+    if not file_path.is_relative_to(project_root):
         error = ErrorResponse(
             error_code="PATH_TRAVERSAL",
             message="Invalid domain or ID — path traversal detected",
@@ -3280,6 +3281,17 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
             )
             return [TextContent(type="text", text=error.model_dump_json(indent=2))]
         file_path.write_text(content)
+        # Post-write verification — confirm the file actually landed on disk
+        if not file_path.is_file():
+            error = ErrorResponse(
+                error_code="WRITE_VERIFICATION_FAILED",
+                message=f"File write appeared to succeed but file not found at: {file_path}",
+                suggestions=[
+                    "Check filesystem permissions",
+                    "Check if path is on a read-only mount",
+                ],
+            )
+            return [TextContent(type="text", text=error.model_dump_json(indent=2))]
     except PermissionError as e:
         error = ErrorResponse(
             error_code="PERMISSION_ERROR",
@@ -3298,7 +3310,7 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
     output = {
         "status": "captured",
         "entry_id": entry_id,
-        "file_path": str(file_path.relative_to(cwd)),
+        "file_path": str(file_path.relative_to(project_root)),
         "domain": domain,
         "entry_type": entry_type,
         "maturity": maturity,

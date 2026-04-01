@@ -3210,6 +3210,9 @@ class TestCaptureReference:
         from ai_governance_mcp.server import _handle_capture_reference
 
         monkeypatch.chdir(tmp_path)
+        # Create marker so _find_project_root() resolves to tmp_path
+        (tmp_path / "documents").mkdir()
+        (tmp_path / "documents" / "domains.json").write_text("{}")
         result = await _handle_capture_reference(
             {
                 "id": "ref-ai-coding-test-pattern",
@@ -3246,6 +3249,8 @@ class TestCaptureReference:
         from ai_governance_mcp.server import _handle_capture_reference
 
         monkeypatch.chdir(tmp_path)
+        (tmp_path / "documents").mkdir(exist_ok=True)
+        (tmp_path / "documents" / "domains.json").write_text("{}")
         result = await _handle_capture_reference(
             {
                 "id": "ref-ai-coding-external-guide",
@@ -3277,6 +3282,8 @@ class TestCaptureReference:
         from ai_governance_mcp.server import _handle_capture_reference
 
         monkeypatch.chdir(tmp_path)
+        (tmp_path / "documents").mkdir(exist_ok=True)
+        (tmp_path / "documents" / "domains.json").write_text("{}")
         ref_dir = tmp_path / "reference-library" / "ai-coding"
         ref_dir.mkdir(parents=True)
         (ref_dir / "ref-ai-coding-existing.md").write_text("existing")
@@ -3300,6 +3307,8 @@ class TestCaptureReference:
         from ai_governance_mcp.server import _handle_capture_reference
 
         monkeypatch.chdir(tmp_path)
+        (tmp_path / "documents").mkdir(exist_ok=True)
+        (tmp_path / "documents" / "domains.json").write_text("{}")
         result = await _handle_capture_reference(
             {
                 "id": "bad-id-no-ref-prefix",
@@ -3319,6 +3328,8 @@ class TestCaptureReference:
         from ai_governance_mcp.server import _handle_capture_reference
 
         monkeypatch.chdir(tmp_path)
+        (tmp_path / "documents").mkdir(exist_ok=True)
+        (tmp_path / "documents" / "domains.json").write_text("{}")
         result = await _handle_capture_reference({"id": "ref-test"})
         response = json.loads(result[0].text.split("---")[0])
         assert response["error_code"] == "MISSING_REQUIRED_FIELDS"
