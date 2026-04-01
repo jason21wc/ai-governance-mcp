@@ -75,6 +75,16 @@
    - **Code-reviewer agent:** Runtime-sensitive patterns checklist item (flag, don't assert)
    - 3-agent plan review: contrarian (moved from §5.13.4 to §5.13.2, expanded to 5-step, dropped A5), validator (6/6 PASS), coherence (3 findings addressed: scoping vs §5.13.4, ordering vs §5.13.3, trigger conditions for proportionality)
    - ai-coding methods v2.32.0
+
+35. **capture_reference bug fix** — files not written to disk
+   - Root cause: handler used `Path.cwd()` then `_find_project_root()`, neither reads `AI_GOVERNANCE_DOCUMENTS_PATH` env var from MCP config. When server runs from client project, falls back to `~/.ai-governance/` or client CWD.
+   - Fix: use `_settings.documents_path.parent` (matches extractor, reads env vars). Added post-write verification + absolute_path/project_root in response for debugging.
+   - Cleaned stale copies from ai-expert project and ~/.ai-governance/ fallback.
+   - 5 reference library entries successfully captured from ai-expert session (9 total).
+
+36. **External framework evaluations** (logged to memory, not framework changes)
+   - Vercel "Agent Responsibly" (2026-03-30): validates executable guardrails approach. 2 minor gaps (Production Environment Blindness pitfall, 3-Question PR Checklist for human-AI interaction).
+   - CodeRabbit AI vs Human study (2025-12-17, 470 PRs): AI code 1.7x more issues, 2.74x security, 8x I/O. Validates framework, 1 minor gap (Clarity-Over-Efficiency pitfall). Metrics methodology applicable to Backlog #22.
    - Backlog: Active (0) / Discussion (17) / Closed (5)
 
 ### Previous Session (2026-03-30)
