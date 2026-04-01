@@ -3185,9 +3185,11 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
-    # Build file path — use project root (where documents/domains.json lives),
-    # not CWD. CWD may be a client project using this MCP server remotely.
-    project_root = _find_project_root().resolve()
+    # Build file path — use settings-derived path (same as extractor),
+    # not CWD or _find_project_root() directly. Settings respects
+    # AI_GOVERNANCE_DOCUMENTS_PATH env var overrides.
+    settings = _settings or load_settings()
+    project_root = settings.documents_path.parent.resolve()
     ref_dir = project_root / "reference-library" / domain
     file_path = (ref_dir / f"{entry_id}.md").resolve()
 
@@ -3204,7 +3206,7 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
     if file_path.is_file():
         error = ErrorResponse(
             error_code="ENTRY_EXISTS",
-            message=f"Reference entry already exists: {entry_id}",
+            message=f"Reference entry already exists: {entry_id} at {file_path}",
             suggestions=["Use a different ID", "Edit the existing file directly"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
@@ -3311,6 +3313,8 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
         "status": "captured",
         "entry_id": entry_id,
         "file_path": str(file_path.relative_to(project_root)),
+        "absolute_path": str(file_path),
+        "project_root": str(project_root),
         "domain": domain,
         "entry_type": entry_type,
         "maturity": maturity,
