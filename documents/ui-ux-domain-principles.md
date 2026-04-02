@@ -15,7 +15,6 @@ governance_level: "domain-principles"
 > * **Hierarchy:** These statutes must comply with the Constitution (ai-interaction-principles.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
 > * **Scope:** Interactive software interface design and implementation. Covers visual hierarchy, design systems, accessibility, responsive design, interaction patterns, and platform conventions.
 > * **Application:** Required for all AI-assisted interface development activities, whether AI is generating UI code, reviewing interfaces, or advising on design decisions.
-> * **Domain Classification:** Type A (context-intensive) — multi-session continuity, extensive methods, domain-specific vocabulary (design tokens, WCAG levels, HIG patterns), specialized tool integration (Figma MCP).
 >
 > **Action Directive:** When building or reviewing interactive interfaces, apply Constitutional principles (Meta-Principles) through the lens of these Domain Statutes, then derive appropriate Methods that satisfy both.
 >

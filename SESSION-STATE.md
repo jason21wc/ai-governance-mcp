@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.20.0** (meta-methods), **v2.32.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.21.0** (meta-methods), **v2.32.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1037 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -50,7 +50,17 @@
    - 3-agent review caught 4 code issues + 1 dangerous self-contradiction in §1.1.3 — all fixed
    - Tests: 1037 passing (+4 new)
    - Added backlog #47 (Plan Mode Enforcement Gap) from planning session observation
-   - Backlog: Active (0) / Discussion (23) / Closed (6)
+
+41. **#37 Remove Type A/Type B Domain Classification (Backlog #37)**
+   - Root cause: broken taxonomy — Type A (complexity) and Type B (access control) on different axes, only 2/7 domains used it, superseded by §9.1.2's 5-factor table
+   - Applied framework's own Part 9.8 Admission Test to evaluate: fails Q1 (gap already covered by §9.1.2), Q3 (no evidence/failure-mode basis)
+   - Removed §9.1.1 from governance methods, renamed Part 9.1 "Domain Types" → "Domain Complexity"
+   - Removed Type A label from UI/UX principles (current-state only, changelog preserved per §4.3.4)
+   - Replaced Type B with standalone "Access: Proprietary" note in KM&PD (concept preserved, taxonomy removed)
+   - §9.8.6 Concept Loss Prevention documented in v3.21.0 changelog
+   - 2 contrarian reviews: decision validation + execution plan review (4 findings: historical preservation, #31/#28 cross-refs, verification wording, concept loss documentation)
+   - Governance methods v3.20.0 → v3.21.0
+   - Backlog: Active (0) / Discussion (22) / Closed (8)
 
 ### Previous Session (2026-04-01)
 
@@ -581,16 +591,9 @@
 
 **Outcome:** Either expand 9.8 or formalize the relationship between 9.8 and TITLE 15.
 
-#### 37. Domain Classification System Definition (Discussion)
+#### 37. Domain Classification System Definition — CLOSED (2026-04-02)
 
-**What:** UI/UX declares itself "Type A (context-intensive)" and KM&PD declares "Type B (proprietary)." The #31 plan proposed adding Domain Classification to 4 more domains but the contrarian reviewer found Type A and Type B are on different axes — Type A describes operational complexity, Type B describes access control. They're not mutually exclusive.
-
-**Discussion needed:** Define what the classification system actually means before propagating it. Options:
-1. Single axis with clear values (e.g., complexity: low/medium/high)
-2. Multi-axis system (complexity + access + tooling intensity)
-3. Drop it — if every public domain is "Type A," the classification carries no information
-
-**Origin:** Contrarian review of #31 plan (2026-03-30).
+Removed Type A/Type B domain classification. Broken taxonomy (different axes), superseded by §9.1.2's 5-factor complexity table. KM&PD "proprietary" preserved as standalone access note. See session 41.
 
 #### 38. Version-in-Filename vs Version-in-Header — CLOSED (2026-04-02)
 
@@ -797,6 +800,10 @@ stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance precond
 #### 39. Date Serialization in CE Frontmatter — FIXED (2026-04-01)
 
 Systemic boundary fix: `yaml.safe_load` auto-parses dates as `datetime.date`; added recursive normalization in `DocumentConnector._extract_frontmatter()` at the parse boundary. Governance extractor had ad-hoc per-field handling; CE connector had none. Test covers flat/nested/list dates + `json.dumps` proof.
+
+#### 37. Domain Classification Removal — COMPLETE (2026-04-02)
+
+Removed broken Type A/Type B taxonomy (different axes, 2/7 adoption, superseded by §9.1.2). KM&PD "proprietary" preserved as standalone Access note. Governance methods v3.21.0. 2 contrarian reviews.
 
 #### 38. Version-in-Frontmatter Migration — COMPLETE (2026-04-02)
 
@@ -1152,7 +1159,7 @@ Added forward references from Parts 8.2, 8.3, 8.4 to Part 9.8. Clarified sequenc
 
 2. **Truth Source Hierarchy:** Only UI/UX (line 25) and KM&PD (line 25) include this field. Defines external reference priority (Constitution > Domain > Methods > External). Should be in all domain files.
 
-3. **Domain Classification:** Only UI/UX ("Type A context-intensive") and KM&PD ("Type B proprietary"). Useful metadata for AI agents selecting how to approach a domain. Should be in all domain files.
+3. **Domain Classification:** Only UI/UX ("Type A context-intensive") and KM&PD ("Type B proprietary"). ~~Should be in all domain files.~~ *Superseded by #37 — classification removed (2026-04-02). §9.1.2 covers complexity; KM&PD access note preserved standalone.*
 
 4. **Cross-Domain Dependencies:** Only Multi-Agent ("Peer Domain Relationship" block) and KM&PD (storytelling cross-refs). Domains with known peer relationships should document them.
 
@@ -1175,7 +1182,7 @@ Added forward references from Parts 8.2, 8.3, 8.4 to Part 9.8. Clarified sequenc
 **Scope:** Add missing structural fields to 4-5 domain files. Specific items:
 1. Standardize derivation formula wording → "Evidence-Based Prevention" (affects AI Coding, Multi-Agent, Storytelling, Multimodal RAG)
 2. Add Truth Source Hierarchy to AI Coding, Multi-Agent, Storytelling, Multimodal RAG (use UI/UX + KM&PD pattern)
-3. Add Domain Classification (Type A/B) to AI Coding, Multi-Agent, Storytelling, Multimodal RAG
+3. ~~Add Domain Classification (Type A/B) to AI Coding, Multi-Agent, Storytelling, Multimodal RAG~~ *Superseded by #37 — classification removed*
 4. Add Cross-Domain Dependencies section where peer relationships exist
 
 **Implementation:** Minor version bump to each affected file, domains.json + config.py updates, index rebuild, tests. Batch all changes in one session. Items 5-7 from #28 audit (series naming, framework overview heading, evidence base structure) are cosmetic and optional.

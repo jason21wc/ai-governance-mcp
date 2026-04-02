@@ -15,7 +15,7 @@ governance_level: "domain-principles"
 > * **Hierarchy:** These statutes must comply with the Constitution (ai-interaction-principles.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
 > * **Scope:** Organizational knowledge capture, abstraction, transfer, people readiness, and process standardization. Covers Detailed Knowledge Bases, purpose-driven extractions (Quick References, Visual Work Instructions, Troubleshooting Guides, SIPOCs, Process Flows), people development artifacts (Cross-Training Matrices, Job Descriptions, Onboarding), and training delivery.
 > * **Application:** Required for all AI-assisted knowledge management and people development activities, whether AI is generating documentation, creating training materials, building competency systems, or advising on organizational capability.
-> * **Domain Classification:** Type B (proprietary) — this domain contains proprietary intellectual property. See framework owner for access.
+> * **Access:** Proprietary — this domain contains proprietary intellectual property. See framework owner for access.
 >
 > **Action Directive:** When creating or reviewing knowledge management or people development artifacts, apply Constitutional principles (Meta-Principles) through the lens of these Domain Statutes, then derive appropriate Methods that satisfy both.
 >
@@ -731,4 +731,4 @@ Check all five empowerment components:
 *Version 1.3.0*
 *Derived from: Constitution v2.6.0, AI Coding Methods v2.27.0*
 *Framework: Jason Collier's Knowledge Management & People Development Framework (novel synthesis)*
-*Domain Classification: Type B (proprietary — see framework owner for access)*
+*Access: Proprietary — see framework owner for access*

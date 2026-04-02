@@ -1,7 +1,7 @@
 ---
-version: "3.20.0"
+version: "3.21.0"
 status: "active"
-effective_date: "2026-04-01"
+effective_date: "2026-04-02"
 domain: "constitution"
 governance_level: "constitution-methods"
 ---
@@ -9,9 +9,9 @@ governance_level: "constitution-methods"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.20.0
+**Version:** 3.21.0
 **Status:** Active
-**Effective Date:** 2026-04-01
+**Effective Date:** 2026-04-02
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -1816,21 +1816,9 @@ This title defines how to create new domain principles and methods, ensuring con
 
 ---
 
-## Part 9.1: Domain Types
+## Part 9.1: Domain Complexity
 
-**Importance: IMPORTANT - Understanding domain classification**
-
-### 9.1.1 Type A vs Type B Domains
-
-**Type A — "Context-Intensive" Domains:**
-- Require significant setup and ongoing context
-- Example: AI-Coding (needs codebase awareness, architecture understanding)
-- Characteristics: Multi-session continuity, extensive methods documentation
-
-**Type B — "Context-Lite" Domains:**
-- Require minimal ongoing context
-- Example: Simple Q&A, document summarization
-- Characteristics: Per-task context, minimal methods needed
+**Importance: IMPORTANT - Understanding domain complexity before creation**
 
 ### 9.1.2 Domain Complexity Assessment
 
@@ -4165,6 +4153,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.21.0 | 2026-04-02 | MINOR: Removed §9.1.1 Type A vs Type B domain classification (#37). Broken taxonomy: Type A (complexity) and Type B (access control) were on different axes, only 2/7 domains used it, and §9.1.2 Domain Complexity Assessment already covers complexity better. Renamed Part 9.1 "Domain Types" → "Domain Complexity." Removed Type A label from UI/UX principles, replaced Type B with standalone Access note in KM&PD. §9.8.6 Concept Loss Prevention: "context-intensive" covered by §9.1.2; "proprietary" preserved as standalone Access note in KM&PD. |
 | 3.20.0 | 2026-04-01 | MINOR: Version-in-frontmatter migration (#38). Replaced version-in-filename convention with YAML frontmatter metadata. Filenames are now stable identifiers (no version suffixes). Rewrote §2.1.1 Update Flow (11 steps → 9, no rename/archive steps). Rewrote §5.1.4 Document Lifecycle (3-stage → 2-stage, removed archive). Updated §5.1.3 domain creation template with frontmatter example. Updated §4.3.4 reference naming conventions. Deleted `documents/archive/` (57 files — git history is authoritative archive). Root cause: version metadata in file paths created O(n) propagation cascade on every version bump. |
 | 3.19.0 | 2026-03-31 | MINOR: Added Part 7.11 (Discovered Issue Triage). Decision framework for AI agents encountering issues unrelated to their current task — addresses dual failure modes of ignore-and-lose vs fix-and-scope-creep. Four-category triage (fix now / defer with tracking / note / ask the user) with S-Series override, scope boundary signals, durable deferral requirements, cascading discovery limit, and batch presentation. Added cross-reference from ai-coding methods §5.1.6. Added 1 Situation Index entry. Constitutional Basis: Context Engineering, Verification & Validation. |
 | 3.18.0 | 2026-03-31 | MINOR: Template alignment (#31). Consolidated three competing domain principle templates (Parts 3.5.1, 9.4, 9.4.1) into single canonical source at Part 3.5.1. Restored "Definition" as separate field from "Domain Application" (binding rule vs. implementation guidance). Added Required/Recommended/Optional field tiers. Added alias table for variant field names used by existing principles. Added "Known Limitation" note about extractor being field-name agnostic. Refactored Part 9.4.1 to redirect to Part 3.5.1. Updated §9.8.3, Part 9.5.1, and Situation Index references. Fixed COMPLETION-CHECKLIST "7 questions" → "6 questions" drift. |

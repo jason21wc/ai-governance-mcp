@@ -16,7 +16,7 @@ governance_level: "domain-methods"
 **Status:** Active
 **Effective Date:** 2026-03-29
 **Governance Level:** Methods (SOPs) — subordinate to KM&PD Domain Principles
-**Domain Classification:** Type B (proprietary)
+**Access:** Proprietary
 
 ---
 
@@ -704,4 +704,4 @@ For quick routing of common scenarios to relevant methods:
 *Version 1.2.0*
 *Derived from: KM&PD Domain Principles v1.3.0, Constitution v2.6.0, AI Coding Methods v2.27.0*
 *Framework: Jason Collier's Knowledge Management & People Development Framework (novel synthesis)*
-*Domain Classification: Type B (proprietary — see framework owner for access)*
+*Access: Proprietary — see framework owner for access*
