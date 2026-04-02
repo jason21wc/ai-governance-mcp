@@ -60,7 +60,13 @@
    - §9.8.6 Concept Loss Prevention documented in v3.21.0 changelog
    - 2 contrarian reviews: decision validation + execution plan review (4 findings: historical preservation, #31/#28 cross-refs, verification wording, concept loss documentation)
    - Governance methods v3.20.0 → v3.21.0
-   - Backlog: Active (0) / Discussion (22) / Closed (8)
+
+42. **#40 Completion Checklist Trivial-Change Escape Hatch — CLOSED**
+   - Root cause eliminated by #38: the trigger (version-bump string changes in config.py) no longer exists with stable filenames
+   - Pre-push hook config.py gate now only fires for substantive changes — escape hatch unnecessary
+   - Updated COMPLETION-CHECKLIST.md line 127 (stale version propagation step from #38)
+   - Updated #47 cross-reference (removed #40 mention)
+   - Backlog: Active (0) / Discussion (21) / Closed (9)
 
 ### Previous Session (2026-04-01)
 
@@ -609,11 +615,9 @@ Implemented as version-in-frontmatter migration. 15 files renamed to stable name
 
 ---
 
-#### 40. Completion Checklist Trivial-Change Escape Hatch (Discussion)
+#### 40. Completion Checklist Trivial-Change Escape Hatch — CLOSED (2026-04-02)
 
-**What:** COMPLETION-CHECKLIST requires code-reviewer for any config.py change. During #31, config.py changes were trivial filename string updates (e.g., `v2.7.0` → `v2.7.1`). Invoking code-reviewer for this would be pure ceremony — the validator already confirmed correctness.
-
-**Discussion needed:** Should the checklist have a "trivial change" qualifier? Options: (1) Add "substantive changes" qualifier to the trigger, (2) Keep as-is and accept occasional over-triggering, (3) Let the 3-agent battery substitute when it provides equivalent or better coverage. Risk of option 1: defining "trivial" is subjective and creates a loophole.
+Root cause eliminated by #38. The trigger was version-bump string changes in config.py. With stable filenames (no version in filename), config.py no longer changes during version bumps. The pre-push hook's config.py trigger now only fires for substantive changes (domain additions/removals/restructuring), which genuinely warrant code review.
 
 ---
 
@@ -775,7 +779,7 @@ Implemented as version-in-frontmatter migration. 15 files renamed to stable name
 1. **Can hooks enforce plan mode quality?** A PreToolUse hook on ExitPlanMode could check the transcript for contrarian-reviewer invocations, similar to how the governance hook checks for evaluate_governance(). Feasibility: ExitPlanMode is a tool call, so PreToolUse hooks should apply.
 2. **What else gets skipped in plan mode?** Beyond subagents: does the AI skip query_project() during planning? Skip reading critical files before designing? The root cause analysis should enumerate all plan-mode compliance gaps, not just subagents.
 3. **Is a memory sufficient?** A feedback memory was saved (2026-04-01). If it fixes the behavior in the next 2-3 planning sessions, structural enforcement may be unnecessary. If not, escalate to hook implementation.
-4. **Interaction with COMPLETION-CHECKLIST:** #25 (Principle Authoring Checklist Enforcement) and #40 (Trivial-Change Escape Hatch) address similar advisory-vs-structural tensions. Should these be consolidated into a single "advisory compliance enforcement" initiative?
+4. **Interaction with COMPLETION-CHECKLIST:** #25 (Principle Authoring Checklist Enforcement) addresses a similar advisory-vs-structural tension. Should these be consolidated?
 
 **Outcome:** Either (a) memory + template ordering proves sufficient (close after 2-3 successful planning sessions), (b) implement PreToolUse hook on ExitPlanMode, or (c) broader advisory compliance enforcement redesign.
 
@@ -800,6 +804,10 @@ stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance precond
 #### 39. Date Serialization in CE Frontmatter — FIXED (2026-04-01)
 
 Systemic boundary fix: `yaml.safe_load` auto-parses dates as `datetime.date`; added recursive normalization in `DocumentConnector._extract_frontmatter()` at the parse boundary. Governance extractor had ad-hoc per-field handling; CE connector had none. Test covers flat/nested/list dates + `json.dumps` proof.
+
+#### 40. Completion Checklist Trivial-Change Escape Hatch — CLOSED (2026-04-02)
+
+Root cause eliminated by #38. Version-bump string changes in config.py were the trigger; stable filenames mean config.py only changes for substantive reasons now.
 
 #### 37. Domain Classification Removal — COMPLETE (2026-04-02)
 
