@@ -415,12 +415,51 @@ class DocumentExtractor:
 
         return warnings
 
-    def validate_version_consistency(self) -> None:
-        """Validate that filename versions match header versions.
+    @staticmethod
+    def _parse_frontmatter(content: str) -> dict | None:
+        """Parse YAML frontmatter from document content.
 
-        Checks both principles and methods files for version consistency.
-        Extracts version from filename pattern (e.g., 'file-v2.5.0.md')
-        and compares to header version (e.g., '**Version:** 2.5.0').
+        Returns the frontmatter dict if valid, None otherwise.
+        Uses yaml.safe_load() exclusively for security.
+        Normalizes date values to ISO strings (per CE lesson on YAML date coercion).
+        """
+        fm_match = re.match(r"^---\n(.*?\n)---\n", content, re.DOTALL)
+        if not fm_match:
+            return None
+        try:
+            frontmatter = yaml.safe_load(fm_match.group(1))  # nosec B506
+        except yaml.YAMLError:
+            return None
+        if not isinstance(frontmatter, dict):
+            return None
+        # Normalize date/datetime to strings (yaml.safe_load auto-parses dates)
+        return DocumentExtractor._normalize_frontmatter_values(frontmatter)
+
+    @staticmethod
+    def _normalize_frontmatter_values(obj):
+        """Normalize YAML-parsed values to JSON-serializable types."""
+        from datetime import date as date_type
+        from datetime import datetime as datetime_type
+
+        if isinstance(obj, dict):
+            return {
+                k: DocumentExtractor._normalize_frontmatter_values(v)
+                for k, v in obj.items()
+            }
+        if isinstance(obj, list):
+            return [DocumentExtractor._normalize_frontmatter_values(v) for v in obj]
+        if isinstance(obj, datetime_type):
+            return obj.isoformat()
+        if isinstance(obj, date_type):
+            return obj.isoformat()
+        return obj
+
+    def validate_version_consistency(self) -> None:
+        """Validate document versions via YAML frontmatter.
+
+        Primary: reads version from YAML frontmatter.
+        Cross-check: if filename has version suffix, verifies it matches frontmatter.
+        Fallback: if no frontmatter, checks filename vs inline header (transition support).
 
         Raises:
             ExtractorConfigError: If any version mismatches are found.
@@ -448,8 +487,8 @@ class DocumentExtractor:
         if version_mismatches:
             mismatches_list = "\n".join(version_mismatches)
             raise ExtractorConfigError(
-                f"Version mismatches found (filename vs header):\n{mismatches_list}\n\n"
-                f"Update filename to match header version, or vice versa."
+                f"Version mismatches found:\n{mismatches_list}\n\n"
+                f"Update frontmatter version to match, or fix the inconsistency."
             )
 
     def _check_file_version(
@@ -459,30 +498,48 @@ class DocumentExtractor:
         file_type: str,
         mismatches: list[str],
     ) -> None:
-        """Check version consistency for a single file."""
-        # Extract version from filename (e.g., 'ai-coding-methods-v2.5.0.md' -> '2.5.0')
-        filename_match = re.search(r"-v(\d+\.\d+\.\d+)\.md$", filename)
-        if not filename_match:
-            return  # No version in filename, skip check
+        """Check version consistency for a single file.
 
-        filename_version = filename_match.group(1)
-
-        # Read file and extract header version
+        Priority: frontmatter > filename > inline header.
+        If frontmatter exists with version, it is the source of truth.
+        If filename has a version suffix, cross-check against frontmatter.
+        If no frontmatter, fall back to filename vs inline header (transition).
+        """
         file_path = self.settings.documents_path / filename
         if not file_path.exists():
             return  # File doesn't exist, will be caught by validate_domain_files
 
         content = file_path.read_text(encoding="utf-8")
+        frontmatter = self._parse_frontmatter(content)
 
-        # Look for version in header (e.g., '**Version:** 2.5.0' or 'Version: 2.5.0')
+        # Extract version from filename if present
+        filename_match = re.search(r"-v(\d+\.\d+(?:\.\d+)*)\.md$", filename)
+        filename_version = filename_match.group(1) if filename_match else None
+
+        # Primary path: frontmatter version
+        if frontmatter and "version" in frontmatter:
+            fm_version = str(frontmatter["version"])
+
+            # Cross-check: if filename also has version, they must match
+            if filename_version and filename_version != fm_version:
+                mismatches.append(
+                    f"  - {domain_name} {file_type}: '{filename}'\n"
+                    f"    Filename version: {filename_version}\n"
+                    f"    Frontmatter version: {fm_version}"
+                )
+            return
+
+        # Fallback: filename vs inline header (transition support)
+        if not filename_version:
+            return  # No version source available, skip
+
         header_match = re.search(
             r"\*?\*?Version:?\*?\*?\s*(\d+\.\d+\.\d+)", content[:2000]
         )
         if not header_match:
-            return  # No version in header, skip check
+            return  # No header version to compare
 
         header_version = header_match.group(1)
-
         if filename_version != header_version:
             mismatches.append(
                 f"  - {domain_name} {file_type}: '{filename}'\n"

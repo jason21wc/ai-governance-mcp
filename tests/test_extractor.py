@@ -925,15 +925,108 @@ class TestExtractorConfigError:
 class TestValidateVersionConsistency:
     """Tests for validate_version_consistency() version validation."""
 
-    def test_validate_version_consistency_passes_when_matching(
-        self, test_settings, tmp_path
-    ):
-        """Should not raise when filename version matches header version."""
+    def test_frontmatter_version_passes(self, test_settings, tmp_path):
+        """Should pass when frontmatter version is present (no filename version)."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
             from ai_governance_mcp.models import DomainConfig
 
-            # Create a file with matching versions
+            doc_file = tmp_path / "test-doc.md"
+            doc_file.write_text(
+                '---\nversion: "1.2.3"\nstatus: "active"\n---\n# Test\n\nContent here.'
+            )
+
+            test_settings.documents_path = tmp_path
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains = [
+                DomainConfig(
+                    name="test",
+                    display_name="Test",
+                    principles_file="test-doc.md",
+                    methods_file=None,
+                    description="Test domain",
+                    priority=0,
+                )
+            ]
+
+            # Should not raise - frontmatter version present
+            extractor.validate_version_consistency()
+
+    def test_frontmatter_version_matches_filename_version(
+        self, test_settings, tmp_path
+    ):
+        """Should pass when frontmatter version matches filename version."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            doc_file = tmp_path / "test-doc-v1.2.3.md"
+            doc_file.write_text(
+                '---\nversion: "1.2.3"\nstatus: "active"\n---\n'
+                "# Test\n\n**Version:** 1.2.3\n\nContent here."
+            )
+
+            test_settings.documents_path = tmp_path
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains = [
+                DomainConfig(
+                    name="test",
+                    display_name="Test",
+                    principles_file="test-doc-v1.2.3.md",
+                    methods_file=None,
+                    description="Test domain",
+                    priority=0,
+                )
+            ]
+
+            # Should not raise - both match
+            extractor.validate_version_consistency()
+
+    def test_frontmatter_version_mismatches_filename_version(
+        self, test_settings, tmp_path
+    ):
+        """Should raise when frontmatter version differs from filename version."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import (
+                DocumentExtractor,
+                ExtractorConfigError,
+            )
+            from ai_governance_mcp.models import DomainConfig
+
+            doc_file = tmp_path / "test-doc-v1.0.0.md"
+            doc_file.write_text(
+                '---\nversion: "2.0.0"\nstatus: "active"\n---\n# Test\n\nContent here.'
+            )
+
+            test_settings.documents_path = tmp_path
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains = [
+                DomainConfig(
+                    name="test-mismatch",
+                    display_name="Test Mismatch",
+                    principles_file="test-doc-v1.0.0.md",
+                    methods_file=None,
+                    description="Test domain",
+                    priority=0,
+                )
+            ]
+
+            with pytest.raises(ExtractorConfigError) as exc_info:
+                extractor.validate_version_consistency()
+
+            error_msg = str(exc_info.value)
+            assert "1.0.0" in error_msg  # Filename version
+            assert "2.0.0" in error_msg  # Frontmatter version
+            assert "test-mismatch" in error_msg
+
+    def test_fallback_filename_vs_header_without_frontmatter(
+        self, test_settings, tmp_path
+    ):
+        """Should fall back to filename vs header check when no frontmatter."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
             doc_file = tmp_path / "test-doc-v1.2.3.md"
             doc_file.write_text("# Test\n\n**Version:** 1.2.3\n\nContent here.")
 
@@ -950,13 +1043,11 @@ class TestValidateVersionConsistency:
                 )
             ]
 
-            # Should not raise - versions match
+            # Should not raise - fallback versions match
             extractor.validate_version_consistency()
 
-    def test_validate_version_consistency_raises_for_mismatch(
-        self, test_settings, tmp_path
-    ):
-        """Should raise ExtractorConfigError when versions don't match."""
+    def test_fallback_mismatch_without_frontmatter(self, test_settings, tmp_path):
+        """Should raise on filename/header mismatch when no frontmatter."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import (
                 DocumentExtractor,
@@ -964,7 +1055,6 @@ class TestValidateVersionConsistency:
             )
             from ai_governance_mcp.models import DomainConfig
 
-            # Create a file with mismatched versions
             doc_file = tmp_path / "test-doc-v1.0.0.md"
             doc_file.write_text("# Test\n\n**Version:** 2.0.0\n\nContent here.")
 
@@ -985,21 +1075,17 @@ class TestValidateVersionConsistency:
                 extractor.validate_version_consistency()
 
             error_msg = str(exc_info.value)
-            assert "1.0.0" in error_msg  # Filename version
-            assert "2.0.0" in error_msg  # Header version
-            assert "test-mismatch" in error_msg
+            assert "1.0.0" in error_msg
+            assert "2.0.0" in error_msg
 
-    def test_validate_version_consistency_skips_files_without_version_in_name(
-        self, test_settings, tmp_path
-    ):
-        """Should skip validation for files without version in filename."""
+    def test_skips_files_without_any_version_source(self, test_settings, tmp_path):
+        """Should skip validation for files without frontmatter or filename version."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
             from ai_governance_mcp.models import DomainConfig
 
-            # Create a file without version in name
             doc_file = tmp_path / "test-doc.md"
-            doc_file.write_text("# Test\n\n**Version:** 1.0.0\n\nContent here.")
+            doc_file.write_text("# Test\n\nNo version anywhere.\n\nContent.")
 
             test_settings.documents_path = tmp_path
             extractor = DocumentExtractor(test_settings)
@@ -1014,40 +1100,10 @@ class TestValidateVersionConsistency:
                 )
             ]
 
-            # Should not raise - no version in filename to compare
+            # Should not raise - no version source to compare
             extractor.validate_version_consistency()
 
-    def test_validate_version_consistency_skips_files_without_header_version(
-        self, test_settings, tmp_path
-    ):
-        """Should skip validation for files without version in header."""
-        with patch("sentence_transformers.SentenceTransformer"):
-            from ai_governance_mcp.extractor import DocumentExtractor
-            from ai_governance_mcp.models import DomainConfig
-
-            # Create a file with version in name but not in header
-            doc_file = tmp_path / "test-doc-v1.0.0.md"
-            doc_file.write_text("# Test\n\nNo version header here.\n\nContent.")
-
-            test_settings.documents_path = tmp_path
-            extractor = DocumentExtractor(test_settings)
-            extractor.domains = [
-                DomainConfig(
-                    name="test",
-                    display_name="Test",
-                    principles_file="test-doc-v1.0.0.md",
-                    methods_file=None,
-                    description="Test domain",
-                    priority=0,
-                )
-            ]
-
-            # Should not raise - no header version to compare
-            extractor.validate_version_consistency()
-
-    def test_validate_version_consistency_checks_both_principles_and_methods(
-        self, test_settings, tmp_path
-    ):
+    def test_checks_both_principles_and_methods(self, test_settings, tmp_path):
         """Should check version consistency for both file types."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import (
@@ -1056,12 +1112,13 @@ class TestValidateVersionConsistency:
             )
             from ai_governance_mcp.models import DomainConfig
 
-            # Create files with mismatched versions
-            principles_file = tmp_path / "principles-v1.0.0.md"
-            principles_file.write_text("# Principles\n\n**Version:** 1.0.0\n")
+            principles_file = tmp_path / "principles.md"
+            principles_file.write_text('---\nversion: "1.0.0"\n---\n# Principles\n')
 
             methods_file = tmp_path / "methods-v2.0.0.md"
-            methods_file.write_text("# Methods\n\n**Version:** 3.0.0\n")  # Mismatch!
+            methods_file.write_text(
+                '---\nversion: "3.0.0"\n---\n# Methods\n'
+            )  # Mismatch with filename!
 
             test_settings.documents_path = tmp_path
             extractor = DocumentExtractor(test_settings)
@@ -1069,7 +1126,7 @@ class TestValidateVersionConsistency:
                 DomainConfig(
                     name="test",
                     display_name="Test",
-                    principles_file="principles-v1.0.0.md",
+                    principles_file="principles.md",
                     methods_file="methods-v2.0.0.md",
                     description="Test domain",
                     priority=0,
@@ -1082,7 +1139,84 @@ class TestValidateVersionConsistency:
             error_msg = str(exc_info.value)
             assert "methods" in error_msg
             assert "2.0.0" in error_msg  # Filename version
-            assert "3.0.0" in error_msg  # Header version
+            assert "3.0.0" in error_msg  # Frontmatter version
+
+    def test_frontmatter_date_normalization(self, test_settings, tmp_path):
+        """Should normalize YAML date objects in frontmatter to strings."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            # Unquoted date will be parsed as datetime.date by yaml.safe_load
+            doc_file = tmp_path / "test-doc.md"
+            doc_file.write_text(
+                '---\nversion: "1.0.0"\neffective_date: 2026-03-30\n---\n'
+                "# Test\n\nContent."
+            )
+
+            test_settings.documents_path = tmp_path
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains = [
+                DomainConfig(
+                    name="test",
+                    display_name="Test",
+                    principles_file="test-doc.md",
+                    methods_file=None,
+                    description="Test domain",
+                    priority=0,
+                )
+            ]
+
+            # Should not raise - frontmatter parsed and dates normalized
+            extractor.validate_version_consistency()
+
+            # Verify normalization works
+            content = doc_file.read_text()
+            fm = extractor._parse_frontmatter(content)
+            assert fm is not None
+            assert isinstance(fm["effective_date"], str)
+            assert fm["effective_date"] == "2026-03-30"
+
+    def test_security_scanner_with_frontmatter(self, test_settings, tmp_path):
+        """Should not produce false positives from frontmatter content."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            doc_file = tmp_path / "test-principles.md"
+            doc_file.write_text(
+                '---\nversion: "1.0.0"\nstatus: "active"\n'
+                'effective_date: "2026-03-30"\ndomain: "ai-coding"\n'
+                'governance_level: "domain-principles"\n---\n'
+                "# Test Principles\n\n"
+                "#### Test Principle\n\n"
+                "**Failure Mode(s) Addressed:**\n"
+                "- **B1: Test Failure** — Test description.\n\n"
+                "**Constitutional Basis:**\n"
+                "- Derives from **Verification & Validation**\n"
+            )
+
+            test_settings.documents_path = tmp_path
+            extractor = DocumentExtractor(test_settings)
+            extractor.domains = [
+                DomainConfig(
+                    name="test",
+                    display_name="Test",
+                    principles_file="test-principles.md",
+                    methods_file=None,
+                    description="Test domain",
+                    priority=0,
+                )
+            ]
+
+            # Run content security scan - should produce no warnings from frontmatter
+            warnings = extractor.validate_content_security()
+            frontmatter_warnings = [
+                w
+                for w in warnings
+                if "version" in w.content.lower() or "frontmatter" in w.content.lower()
+            ]
+            assert len(frontmatter_warnings) == 0
 
 
 # =============================================================================
@@ -2025,13 +2159,13 @@ UX-F1: Inaccessible markup.
 All interfaces MUST use semantic HTML as the foundation.
 """
 
-        principles_file = docs_path / "ui-ux-domain-principles-v1.0.0.md"
+        principles_file = docs_path / "ui-ux-domain-principles.md"
         principles_file.write_text(content)
 
         domains_json = docs_path / "domains.json"
         domains_json.write_text(
             '{"ui-ux": {"name": "ui-ux", "display_name": "UI/UX", '
-            '"principles_file": "ui-ux-domain-principles-v1.0.0.md", '
+            '"principles_file": "ui-ux-domain-principles.md", '
             '"description": "UI/UX design", "priority": 15}}'
         )
 
@@ -2061,7 +2195,7 @@ All interfaces MUST use semantic HTML as the foundation.
                     {
                         "name": "ui-ux",
                         "display_name": "UI/UX",
-                        "principles_file": "ui-ux-domain-principles-v1.0.0.md",
+                        "principles_file": "ui-ux-domain-principles.md",
                         "methods_file": None,
                         "description": "UI/UX design",
                         "priority": 15,

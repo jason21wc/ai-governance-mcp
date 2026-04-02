@@ -2,56 +2,56 @@
   "constitution": {
     "name": "constitution",
     "display_name": "Constitution",
-    "principles_file": "ai-interaction-principles-v3.0.0.md",
-    "methods_file": "ai-governance-methods-v3.19.0.md",
+    "principles_file": "ai-interaction-principles.md",
+    "methods_file": "ai-governance-methods.md",
     "description": "Universal behavioral rules for AI interaction. Safety principles, core behavioral guidelines, quality standards, operational rules, growth mindset, and meta-awareness. Applies to all AI interactions.",
     "priority": 0
   },
   "ai-coding": {
     "name": "ai-coding",
     "display_name": "AI Coding",
-    "principles_file": "ai-coding-domain-principles-v2.7.1.md",
-    "methods_file": "ai-coding-methods-v2.32.0.md",
+    "principles_file": "ai-coding-domain-principles.md",
+    "methods_file": "ai-coding-methods.md",
     "description": "Software development with AI assistance. Code generation, debugging, unit testing, pytest, integration tests, refactoring, code review, pull requests, git workflows, CI/CD pipelines, API design, software architecture, Python programming, project structure, file organization, project cleanup, repository hygiene, gitignore, build configuration, linting, code quality, Docker containerization, MCP server development, deployment patterns, configuration validation, application security review, authentication security, OAuth PKCE, JWT security, session management, HTTP security headers, CORS configuration, error handling, error sanitization, cryptography, language-specific security patterns, API rate limiting, GraphQL security, data protection, PII handling, container security, thread safety, concurrency patterns, lock ordering, deadlock prevention, asyncio safety, daemon threads, atomic file writes, crash-safe persistence, corrupt file recovery, circuit breaker, graceful degradation, resource bounding, deserialization safety, dead code detection, code duplication, structured logging, production hardening, zero trust, MCP server vetting, tool poisoning defense, credential rotation, audit logging, secret rotation, assume breach, database interaction patterns, stateful system safety, SQL injection prevention, parameterized queries, connection pooling, N+1 query prevention, cursor pagination, schema migration safety, upsert patterns, check-then-act prevention, Postgres best practices, Supabase, Row Level Security, PgBouncer, database-enforced access control, CodeRabbit, AI code review, automated PR review, post-change completion, completion sequence, task completion, AI security scanning, AI vulnerability scanner, agent-to-service integration, cross-system authority, dynamically-discovered tools, WebMCP, agent-facing API design, confused deputy, credential blast radius, compliance enforcement, hook enforcement, enforcement stack, advisory vs structural enforcement, structured debugging protocol, fix spiral prevention, diagnostic block, instrumentation-first debugging, fix decay, debugging escalation, objective evidence verification, Playwright MCP, browser debugging, automation-first evidence gathering, and debugging anti-patterns.",
     "priority": 10
   },
   "multi-agent": {
     "name": "multi-agent",
     "display_name": "Multi-Agent",
-    "principles_file": "multi-agent-domain-principles-v2.7.1.md",
-    "methods_file": "multi-agent-methods-v2.16.1.md",
+    "principles_file": "multi-agent-domain-principles.md",
+    "methods_file": "multi-agent-methods.md",
     "description": "AI agent orchestration covering individual specialized agents, sequential agent composition, and parallel multi-agent coordination. Artifact type selection (method vs subagent), agent authoring, system prompt best practices, tool scoping, agent validation, cognitive functions, context engineering, handoff patterns, orchestration selection, read-write division, shared assumptions, compression procedures, memory distillation, production observability, ReAct loop configuration, agent evaluation framework (4-layer), production safety guardrails, governance compliance, task management, task dependencies, task lifecycle, task ownership, advanced model considerations for prompting strategies, autonomous operation governance, blast radius classification, HITL removal criteria, graduated autonomy levels, compensating controls for autonomous agents, circuit breakers, content review gates, rate limiting, audit trails, platform ToS compliance, FTC disclosure, autonomous drift monitoring, feedback loop detection, cron-scheduled agents, always-on agent workflows, external-facing agent actions, aggregate blast radius for concurrent agents, decentralized dispatch, orchestrator-absent topologies, queue-driven fan-out, continuous queue consumption, and isolation blindspot awareness.",
     "priority": 20
   },
   "storytelling": {
     "name": "storytelling",
     "display_name": "Storytelling",
-    "principles_file": "storytelling-domain-principles-v1.4.1.md",
-    "methods_file": "storytelling-methods-v1.1.1.md",
+    "principles_file": "storytelling-domain-principles.md",
+    "methods_file": "storytelling-methods.md",
     "description": "Creative writing and narrative development with AI assistance. Character development, world-building, plot structure, dialogue, voice consistency, character voice profiles, voice distinction, scene composition, pacing, emotional resonance, thematic depth, genre conventions, revision strategies, non-linear writing, fragment assembly, continuity management, plot consistency checks, coaching questions, and context tracking across long-form narratives. Covers fiction genres including fantasy, science fiction, romance, thriller, mystery, and horror. World-building elements: magic systems, settings, lore, backstory, mythology, rules of the world, fictional cultures. Narrative techniques: foreshadowing, tension, conflict, stakes, show dont tell, subtext, hooks, payoffs, story bible, character arcs, skill erosion prevention. Formats: novels, short stories, novellas, screenplays, series, flash fiction.",
     "priority": 30
   },
   "multimodal-rag": {
     "name": "multimodal-rag",
     "display_name": "Multimodal RAG",
-    "principles_file": "multimodal-rag-domain-principles-v2.4.1.md",
-    "methods_file": "multimodal-rag-methods-v2.1.1.md",
+    "principles_file": "multimodal-rag-domain-principles.md",
+    "methods_file": "multimodal-rag-methods.md",
     "description": "AI agents that retrieve and present images inline with text responses. Image placement, reference document structuring, multimodal retrieval architecture, graceful degradation, readability optimization, procedural documentation, screenshot presentation, inline visuals, image selection criteria, fallback behaviors, audience-adaptive communication, hallucination prevention, cross-modal consistency verification, visual scene graph checking, source fidelity validation, citation and source attribution, spatial attribution for visual content, multimodal evaluation metrics, retrieval quality measurement, answer faithfulness assessment, knowledge base security, multimodal poisoning defense, cross-modal input validation, accessibility compliance, WCAG 2.1 AA, alt text for visual content, audio descriptions, data governance, access control, data lineage and provenance, vector index version management, operational observability, vision-guided chunking, cross-modal reference linking, agentic retrieval, adaptive retrieval strategy, query decomposition, retrieval sufficiency evaluation, multi-hop reasoning, cross-modal reasoning chain, late interaction retrieval, document-as-image retrieval, ColPali, ColQwen2, knowledge graph integration, graph RAG, dynamic modality routing, and agent-driven retrieval.",
     "priority": 40
   },
   "ui-ux": {
     "name": "ui-ux",
     "display_name": "UI/UX",
-    "principles_file": "ui-ux-domain-principles-v1.2.0.md",
-    "methods_file": "ui-ux-methods-v1.0.0.md",
+    "principles_file": "ui-ux-domain-principles.md",
+    "methods_file": "ui-ux-methods.md",
     "description": "Interactive software interface design and development with AI assistance. Visual hierarchy, layout composition, spacing, typography, readability, design tokens, design system architecture, component consistency, component library governance, atomic design, CSS custom properties, Tailwind configuration, accessibility, WCAG 2.2 Level AA, ARIA authoring practices, semantic HTML, keyboard navigation, focus management, screen reader support, color contrast, color vision deficiency, responsive design, breakpoints, mobile-first CSS, touch targets, viewport adaptation, content stacking, interaction design, loading states, skeleton screens, progress indicators, error handling, form validation, affordances, discoverability, microinteractions, state management, platform conventions, Apple Human Interface Guidelines, HIG, Liquid Glass, Material Design 3, Material You, web platform standards, cross-platform adaptation, React Native, Flutter, Figma MCP, design token extraction, visual QA, component naming, design review gates, accessibility auditing, responsive testing, dark mode, and AI-generated UI anti-patterns.",
     "priority": 15
   },
   "kmpd": {
     "name": "kmpd",
     "display_name": "Knowledge Management & People Development",
-    "principles_file": "kmpd-domain-principles-v1.4.0.md",
-    "methods_file": "kmpd-methods-v1.2.0.md",
+    "principles_file": "kmpd-domain-principles.md",
+    "methods_file": "kmpd-methods.md",
     "description": "Organizational knowledge capture, abstraction, transfer, and people development with AI assistance. Detailed Knowledge Bases, single source of truth architecture, purpose-driven extractions (Quick References, checklists, visual work instructions, job instruction cards, troubleshooting guides, decision trees, SIPOCs, process flows), derivation chains, cross-training matrices, job descriptions, onboarding programs, empowerment assessment (Tools Knowledge Responsibility Accountability Authority), training delivery, learning objective alignment, Bloom's Taxonomy assessment design, Kirkpatrick effectiveness evaluation, TWI Job Instruction method, Checklist Manifesto design discipline, scaffolded complexity, audience-appropriate design, training value optimization, procedure safety completeness, regulatory compliance awareness, verification guidance, knowledge conflict prevention, maturity model assessment, standard operating procedures, SOPs, runbooks, process documentation, competency tracking, skills matrix, organizational capability.",
     "priority": 25
   }

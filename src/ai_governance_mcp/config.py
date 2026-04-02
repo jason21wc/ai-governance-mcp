@@ -295,8 +295,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="constitution",
             display_name="Constitution",
-            principles_file="ai-interaction-principles-v3.0.0.md",
-            methods_file="ai-governance-methods-v3.19.0.md",
+            principles_file="ai-interaction-principles.md",
+            methods_file="ai-governance-methods.md",
             description=(
                 "Universal behavioral rules for AI interaction. Safety principles, "
                 "core behavioral guidelines, quality standards, operational rules, "
@@ -307,8 +307,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="ai-coding",
             display_name="AI Coding",
-            principles_file="ai-coding-domain-principles-v2.7.1.md",
-            methods_file="ai-coding-methods-v2.32.0.md",
+            principles_file="ai-coding-domain-principles.md",
+            methods_file="ai-coding-methods.md",
             description=(
                 "Software development with AI assistance. Code generation, debugging, "
                 "testing, refactoring, code review, pull requests, git workflows, "
@@ -319,8 +319,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="multi-agent",
             display_name="Multi-Agent",
-            principles_file="multi-agent-domain-principles-v2.7.1.md",
-            methods_file="multi-agent-methods-v2.16.1.md",
+            principles_file="multi-agent-domain-principles.md",
+            methods_file="multi-agent-methods.md",
             description=(
                 "Multi-agent AI systems and orchestration. Agent coordination, "
                 "task delegation, handoffs, swarm intelligence, ensemble methods, "
@@ -331,8 +331,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="storytelling",
             display_name="Storytelling",
-            principles_file="storytelling-domain-principles-v1.4.1.md",
-            methods_file="storytelling-methods-v1.1.1.md",
+            principles_file="storytelling-domain-principles.md",
+            methods_file="storytelling-methods.md",
             description=(
                 "Creative writing and narrative craft. Story structure, character "
                 "development, voice preservation, dialogue, pacing, and revision."
@@ -342,8 +342,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="multimodal-rag",
             display_name="Multimodal RAG",
-            principles_file="multimodal-rag-domain-principles-v2.4.1.md",
-            methods_file="multimodal-rag-methods-v2.1.1.md",
+            principles_file="multimodal-rag-domain-principles.md",
+            methods_file="multimodal-rag-methods.md",
             description=(
                 "Multimodal retrieval-augmented generation. Image retrieval, "
                 "visual presentation, cross-modal search, document layout, "
@@ -358,8 +358,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="ui-ux",
             display_name="UI/UX",
-            principles_file="ui-ux-domain-principles-v1.2.0.md",
-            methods_file="ui-ux-methods-v1.0.0.md",
+            principles_file="ui-ux-domain-principles.md",
+            methods_file="ui-ux-methods.md",
             description=(
                 "Interactive software interface design and development with AI "
                 "assistance. Visual hierarchy, layout composition, spacing, typography, "
@@ -378,8 +378,8 @@ def _default_domains() -> list[DomainConfig]:
         DomainConfig(
             name="kmpd",
             display_name="Knowledge Management & People Development",
-            principles_file="kmpd-domain-principles-v1.4.0.md",
-            methods_file="kmpd-methods-v1.2.0.md",
+            principles_file="kmpd-domain-principles.md",
+            methods_file="kmpd-methods.md",
             description=(
                 "Organizational knowledge capture, abstraction, transfer, and people "
                 "development with AI assistance. Detailed Knowledge Bases, single source "
