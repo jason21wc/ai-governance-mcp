@@ -66,7 +66,14 @@
    - Pre-push hook config.py gate now only fires for substantive changes — escape hatch unnecessary
    - Updated COMPLETION-CHECKLIST.md line 127 (stale version propagation step from #38)
    - Updated #47 cross-reference (removed #40 mention)
-   - Backlog: Active (0) / Discussion (21) / Closed (9)
+   - Backlog: Active (0) / Discussion (20) / Closed (10)
+
+43. **#9P3 Tiered Principle Activation Phase 3 — CLOSED**
+   - Admission Test (§9.8.1): fails Q1 (gap covered by Visible Reasoning + tier config) and Q4 (duplication)
+   - Contrarian identified visibility-soundness gap: "visible reasoning" ≠ "sound reasoning" — but #34 (Epistemic Integrity) already tracks this
+   - Fixed misleading tiers.json label: "Accountable reasoning" → "Visible reasoning" (matches canonical principle name)
+   - Cross-referenced #34 as the carrier for reasoning quality concept
+   - Backlog: Active (0) / Discussion (20) / Closed (10)
 
 ### Previous Session (2026-04-01)
 
@@ -555,13 +562,11 @@
 
 **Discussion needed:** Which tools are most likely to be adopted first? What format should integration guides take? Reference the existing research.
 
-#### 9P3. Tiered Principle Activation — Phase 3: Accountable Reasoning (Discussion)
+#### 9P3. Tiered Principle Activation — Phase 3: Accountable Reasoning — CLOSED (2026-04-02)
 
-**What:** Phases 0-1.5 shipped, Phase 2 cancelled. Remaining question: should the accountable reasoning pattern (currently synthesized via tier config) become a formal principle?
+Closed after Admission Test evaluation (§9.8.1): fails Q1 (gap covered by existing Visible Reasoning principle + tier config) and Q4 (duplication). The "accountable reasoning" pattern works through tiers.json configuration — formalizing it as a principle would add a principle to describe what infrastructure already does. Contradicts 47→22 consolidation lesson.
 
-**Discussion needed:** Understand the original intent before deciding. The contrarian argues this contradicts the "fewer principles" lesson from consolidation. But the tier config synthesis may have limitations the user wants to explore.
-
-**Note:** Want to understand the original intent before closing. May close after discussion.
+**Concept preserved:** The visibility-soundness gap (visible reasoning ≠ sound reasoning) is real but tracked by #34 (Epistemic Integrity). The tiers.json floor check label was corrected from "Accountable reasoning" to "Visible reasoning" to match what it actually tests. If #34 is closed without shipping, the soundness gap needs re-evaluation.
 
 #### 25. Principle Authoring Checklist Enforcement (Discussion)
 
@@ -680,6 +685,8 @@ Root cause eliminated by #38. The trigger was version-bump string changes in con
 3. Verify Q-series numbering (Q8?) against current count
 
 **Related:** Would also create `meta-method-performance-assessment-protocol` (behavioral rules for honest feedback) and add `constitutional_basis` to contrarian-reviewer subagent definition.
+
+**Note (from #9P3 closure, 2026-04-02):** #9P3 closed — the "reasoning quality vs reasoning visibility" concept is now tracked here. Visible Reasoning (Q-Series) covers *visibility* of reasoning; this item covers *quality/soundness* of reasoning. If #34 is closed without shipping, the soundness gap needs re-evaluation.
 
 ---
 
@@ -805,6 +812,10 @@ stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance precond
 
 Systemic boundary fix: `yaml.safe_load` auto-parses dates as `datetime.date`; added recursive normalization in `DocumentConnector._extract_frontmatter()` at the parse boundary. Governance extractor had ad-hoc per-field handling; CE connector had none. Test covers flat/nested/list dates + `json.dumps` proof.
 
+#### 9P3. Tiered Principle Activation Phase 3 — CLOSED (2026-04-02)
+
+Admission Test failure (Q1 gap covered, Q4 duplication). Tier config already works. Visibility-soundness gap transferred to #34 (Epistemic Integrity). tiers.json label corrected: "Accountable reasoning" → "Visible reasoning."
+
 #### 40. Completion Checklist Trivial-Change Escape Hatch — CLOSED (2026-04-02)
 
 Root cause eliminated by #38. Version-bump string changes in config.py were the trigger; stable filenames mean config.py only changes for substantive reasons now.
@@ -906,15 +917,9 @@ Consolidated 3 competing domain principle templates (Parts 3.5.1, 9.4, 9.4.1) �
 
 **Implementation requirements:** Not a code change — methods-level practice. May result in: updated methods, new appendices, revised evidence base citations, updated security-auditor subagent.
 
-#### 9P3. Tiered Principle Activation — Phase 3: Accountable Reasoning (Priority: LOW, DEFERRED)
+#### 9P3. Tiered Principle Activation — Phase 3 — CLOSED (2026-04-02)
 
-**Problem:** Phases 0-1.5 shipped and Phase 2 was cancelled. Remaining: formal combined principle for accountable reasoning.
-
-**Scope:** After Phase 1 proves valuable over time, consider a formal combined principle that synthesizes the accountable reasoning pattern. Until then, tier config synthesizes both existing IDs.
-
-**Trigger:** When universal floor proves valuable across 20+ sessions and the pattern stabilizes.
-
-**Implementation requirements:** New principle in constitution, methods guidance, index rebuild.
+Closed. Admission Test failure + tier config already works. Visibility-soundness gap transferred to #34. See Discussion section for details.
 
 #### 10. UI/UX Tool-Specific Integration Guides (Priority: LOW, Usage-Driven)
 

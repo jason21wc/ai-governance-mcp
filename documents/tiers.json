@@ -10,7 +10,7 @@
       },
       {
         "id": "meta-quality-visible-reasoning-traceability",
-        "check": "Accountable reasoning: Is your reasoning visible before output, and are sources cited?"
+        "check": "Visible reasoning: Is your reasoning visible before output, and are sources cited?"
       },
       {
         "id": "meta-quality-verification-validation",
