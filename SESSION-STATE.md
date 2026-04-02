@@ -21,8 +21,8 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.19.0** (meta-methods), **v2.32.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
-| Tests | **1033 passing** (run `pytest tests/ -v` for current) |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.20.0** (meta-methods), **v2.32.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
+| Tests | **1037 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -34,9 +34,25 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-04-01)
+## Session Summary (2026-04-02)
 
 ### Completed This Session
+
+40. **#38 Version-in-Frontmatter Migration (Backlog #38)**
+   - Root cause: version metadata in file paths created O(n) propagation cascade (~30 steps per version bump)
+   - Structural fix: filenames handle identity, YAML frontmatter handles metadata
+   - Added YAML frontmatter (version, status, effective_date, domain, governance_level) to all 15 governance documents
+   - Renamed 15 files to stable names (stripped -vX.Y.Z suffixes)
+   - Updated domains.json, config.py _default_domains(), all cross-references
+   - Rewrote extractor._check_file_version() for frontmatter-primary validation
+   - Deleted documents/archive/ (57 files — git is the archive)
+   - Rewrote governance methods §1.1.3, §2.1.1, §5.1.4 for new convention (v3.20.0)
+   - 3-agent review caught 4 code issues + 1 dangerous self-contradiction in §1.1.3 — all fixed
+   - Tests: 1037 passing (+4 new)
+   - Added backlog #47 (Plan Mode Enforcement Gap) from planning session observation
+   - Backlog: Active (0) / Discussion (23) / Closed (6)
+
+### Previous Session (2026-04-01)
 
 37. **Hermes Agent Evaluation + Self-Improvement Backlog**
    - Thorough evaluation of NousResearch/hermes-agent comparing architecture, procedural memory, governance, feedback loops against ai-governance-mcp
@@ -53,7 +69,7 @@
    - Added `meta-core-systemic-thinking` to universal floor: "Root cause: Are you addressing the structural cause, or patching the visible symptom?"
    - Applied root cause analysis to the decision itself: reviewed all 12 constitutional principles against floor criteria. Systemic Thinking was the only always-relevant principle missing.
    - Added `_selection_criteria` field documenting what qualifies for floor: (1) constitutional, (2) applies to every action type, (3) failing to check can't be recovered later
-   - Backlog: Active (0) / Discussion (22) / Closed (6)
+   - Backlog: Active (0) / Discussion (22) / Closed (7)
 
 ### Previous Session (2026-03-31)
 
@@ -576,13 +592,9 @@
 
 **Origin:** Contrarian review of #31 plan (2026-03-30).
 
-#### 38. Version-in-Filename vs Version-in-Header (Discussion)
+#### 38. Version-in-Filename vs Version-in-Header — CLOSED (2026-04-02)
 
-**What:** Every governance document version bump requires: archive old file, rename file, update domains.json, update config.py, rebuild index. For 5 files, that's 30+ mechanical steps where any can be missed. The propagation tax is O(n) per bump across n references.
-
-**Discussion needed:** Evaluate whether version metadata should live inside the file (header `version:` field) while filenames stay stable (e.g., `ai-coding-domain-principles.md`). This would eliminate the archive/rename/domains.json/config.py cascade. Tradeoff: lose at-a-glance version identification in file listings.
-
-**Origin:** Contrarian review of #31 plan (2026-03-30). Systemic concern — affects every future version bump across the project.
+Implemented as version-in-frontmatter migration. 15 files renamed to stable names, YAML frontmatter added, archive deleted, extractor rewritten. Governance methods v3.20.0. Version bumps reduced from ~30 steps to 2 (edit frontmatter version + effective_date). See session 40.
 
 ---
 
@@ -748,6 +760,26 @@
 
 ---
 
+#### 47. Plan Mode Enforcement Gap (Discussion — Structural)
+
+**What:** During plan mode, the AI consistently skips required subagent reviews (contrarian, etc.) before presenting the plan for approval. The plan template puts "Contrarian Review Output" BEFORE "Recommended Approach" specifically to make verification part of the generation flow, but the AI treats it as a placeholder and defers to execution. User has observed this pattern "every time."
+
+**Root cause:** Autoregressive forward-continuation bias (LEARNING-LOG critical lesson). Once plan text is flowing, the path of least resistance is to keep writing toward ExitPlanMode rather than pausing to invoke a subagent. This is the same mechanism as skipping governance calls — the plan template's section ordering is advisory, not structural. Advisory compliance is ~85% (LEARNING-LOG); plan mode may be lower because there's no hook enforcement equivalent to the hard-mode governance/CE check.
+
+**Broader scope (root cause over symptoms):** This isn't just about subagents in plans. It's the general problem that plan mode has NO structural enforcement — no hooks check what happened before ExitPlanMode. The governance hard-mode hook blocks Bash/Edit/Write until evaluate_governance() + query_project() are called. Plan mode has no equivalent gate. Subagent skipping is the most visible symptom, but the root cause is that plan mode is entirely advisory.
+
+**Discussion needed:**
+1. **Can hooks enforce plan mode quality?** A PreToolUse hook on ExitPlanMode could check the transcript for contrarian-reviewer invocations, similar to how the governance hook checks for evaluate_governance(). Feasibility: ExitPlanMode is a tool call, so PreToolUse hooks should apply.
+2. **What else gets skipped in plan mode?** Beyond subagents: does the AI skip query_project() during planning? Skip reading critical files before designing? The root cause analysis should enumerate all plan-mode compliance gaps, not just subagents.
+3. **Is a memory sufficient?** A feedback memory was saved (2026-04-01). If it fixes the behavior in the next 2-3 planning sessions, structural enforcement may be unnecessary. If not, escalate to hook implementation.
+4. **Interaction with COMPLETION-CHECKLIST:** #25 (Principle Authoring Checklist Enforcement) and #40 (Trivial-Change Escape Hatch) address similar advisory-vs-structural tensions. Should these be consolidated into a single "advisory compliance enforcement" initiative?
+
+**Outcome:** Either (a) memory + template ordering proves sufficient (close after 2-3 successful planning sessions), (b) implement PreToolUse hook on ExitPlanMode, or (c) broader advisory compliance enforcement redesign.
+
+**Origin:** #38 planning session (2026-04-01). User caught missing contrarian review before ExitPlanMode.
+
+---
+
 ### Closed / Reference
 
 #### 3. Quantized Vector Search — CLOSED (2026-03-30)
@@ -765,6 +797,10 @@ stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance precond
 #### 39. Date Serialization in CE Frontmatter — FIXED (2026-04-01)
 
 Systemic boundary fix: `yaml.safe_load` auto-parses dates as `datetime.date`; added recursive normalization in `DocumentConnector._extract_frontmatter()` at the parse boundary. Governance extractor had ad-hoc per-field handling; CE connector had none. Test covers flat/nested/list dates + `json.dumps` proof.
+
+#### 38. Version-in-Frontmatter Migration — COMPLETE (2026-04-02)
+
+Filenames handle identity, YAML frontmatter handles version metadata. 15 files renamed to stable names, 57 archive files deleted (git is the archive), extractor rewritten for frontmatter-primary validation. Governance methods v3.20.0. Version bumps reduced from ~30 steps to 2. 3-agent review (code-reviewer, coherence-auditor, validator) caught 4 code issues + 1 dangerous self-contradiction — all fixed. 1037 tests passing (+4 new).
 
 #### 33. Defer vs Fix Now Philosophy — COMPLETE (2026-03-31)
 
