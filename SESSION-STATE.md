@@ -22,7 +22,7 @@
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
 | Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.19.0** (meta-methods), **v2.32.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions) |
-| Tests | Run `pytest tests/ -v` for current count |
+| Tests | **1033 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -34,9 +34,28 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-03-31)
+## Session Summary (2026-04-01)
 
 ### Completed This Session
+
+37. **Hermes Agent Evaluation + Self-Improvement Backlog**
+   - Thorough evaluation of NousResearch/hermes-agent comparing architecture, procedural memory, governance, feedback loops against ai-governance-mcp
+   - Added 6 backlog items (#41-46): auto-staging proposals, feedback loop analysis, progressive disclosure, auto-maturity proposals, content security scanning, conditional metadata
+   - Key finding: Hermes auto-creates skills (procedural memory) but with no quality gate; our reference library has better metadata model but no auto-capture. Items bridge this gap.
+
+38. **#39 Bug Fix — CE Date Serialization (Root Cause)**
+   - Root cause: `yaml.safe_load()` auto-parses bare dates as `datetime.date` — fails `json.dump()` downstream when chunks persisted to storage
+   - Systemic boundary fix: recursive `_normalize_frontmatter_values()` in `DocumentConnector._extract_frontmatter()` converts date/datetime to ISO strings
+   - Governance extractor had ad-hoc per-field handling (lines 780-786); CE connector had none — two parse boundaries, only one was guarded
+   - Test: `test_date_values_normalized_to_strings` covering flat/nested/list dates + `json.dumps` proof
+
+39. **Universal Floor — Systemic Thinking + Selection Criteria (tiers.json v1.2.0)**
+   - Added `meta-core-systemic-thinking` to universal floor: "Root cause: Are you addressing the structural cause, or patching the visible symptom?"
+   - Applied root cause analysis to the decision itself: reviewed all 12 constitutional principles against floor criteria. Systemic Thinking was the only always-relevant principle missing.
+   - Added `_selection_criteria` field documenting what qualifies for floor: (1) constitutional, (2) applies to every action type, (3) failing to check can't be recovered later
+   - Backlog: Active (0) / Discussion (22) / Closed (6)
+
+### Previous Session (2026-03-31)
 
 32. **#31 Template Alignment — EXECUTED**
    - **Phase 1 — Template consolidation (governance methods v3.18.0):**
@@ -567,11 +586,11 @@
 
 ---
 
-#### 39. `test_compare_models` Pre-Existing Failure (Discussion — Bug)
+#### 39. `test_compare_models` Date Serialization — FIXED (2026-04-01)
 
-**What:** `tests/test_context_engine_quality.py::TestCompareModels::test_compare_models` fails with `TypeError: Object of type date is not JSON serializable`. The test indexes the project, then tries to serialize results containing `datetime.date` objects to JSON. Discovered 2026-03-31 during #31 validation — confirmed pre-existing (not caused by template alignment changes).
+**Root cause:** Not a test bug — systemic boundary issue. `yaml.safe_load()` auto-parses bare dates (`2026-03-26`) as `datetime.date` objects. The Context Engine's `DocumentConnector._extract_frontmatter()` stored raw YAML output in the untyped `frontmatter: dict` field on `ContentChunk`. Downstream, `model_dump()` → `json.dump()` failed because `datetime.date` isn't JSON-serializable. The governance extractor had ad-hoc per-field `str()` conversion (lines 780-786) but the CE connector didn't.
 
-**Discussion needed:** Is this a test bug (missing JSON serializer for dates) or a code bug (date objects leaking into serializable output)? Low priority since all other 1026 tests pass and this test is a model comparison benchmark, not a functional test.
+**Fix:** Added `_normalize_frontmatter_values()` in `DocumentConnector` — recursive normalization of `datetime.date`/`datetime.datetime` to ISO strings at the YAML parse boundary. Boundary-level fix, not a symptom-level JSON encoder patch. Test added: `test_date_values_normalized_to_strings` covering flat, nested, and list date values + `json.dumps()` proof.
 
 ---
 
@@ -645,6 +664,90 @@
 
 ---
 
+#### 41. Reference Library Auto-Staging Proposals (Discussion — Self-Improvement)
+
+**What:** After sessions involving complex problem-solving (5+ tool calls, novel governance patterns, or trial-and-error workflows), the system proposes reference library entries to the `staging/` directory with `maturity: seedling`. Human reviews staging during completion sequence.
+
+**Why:** The reference library staging infrastructure exists (`staging/` directory, `_criteria.yaml` per domain, completion sequence prompt) but is dormant — `.gitkeep` placeholder, never activated. Hermes Agent's procedural memory (autonomous skill creation) demonstrates the value of automated capture, but their approach lacks quality gates. Our staging path provides the human gate that prevents noise while closing the capture gap.
+
+**What's involved:** (1) Define trigger criteria — what constitutes "worth capturing" (session complexity, novel pattern, user correction that changed approach), (2) Activate `_criteria.yaml` with per-domain capture rules, (3) Build the staging proposal mechanism (likely a new MCP tool or extension to completion sequence), (4) Define the staging review workflow.
+
+**Dependency:** None — staging infrastructure already exists.
+
+**Origin:** Hermes Agent evaluation (2026-04-01). Hermes auto-creates skills every 15 tool-calling iterations via background review agent. Our adaptation: auto-propose to staging with human gate, leveraging our richer metadata model (maturity, decay classes, KeyCite currency).
+
+---
+
+#### 42. Feedback Loop Analysis Tool (Discussion — Self-Improvement)
+
+**What:** New MCP tool (e.g., `analyze_feedback_loop()`) that reads existing log files (`feedback.jsonl`, `governance_reasoning.jsonl`, `governance_audit.jsonl`, `queries.jsonl`) and produces actionable proposals: dead principle detection, false positive pattern identification, retrieval gap reports, principle health scoring.
+
+**Why:** We log everything but never analyze the logs to improve the system. The feedback infrastructure exists and is underused (contrarian review finding). Closing the feedback loop is the core mechanism for self-improvement — the system surfaces what it's learned from its own evaluation history, proposing refinements rather than silently modifying itself.
+
+**What's involved:** (1) Define analysis queries (which patterns are actionable), (2) Implement log parsing and pattern detection, (3) Define output format (proposals with evidence, not automated changes), (4) Determine trigger — on-demand tool call vs. periodic analysis. Specific analyses: principles never retrieved in N days, S-Series triggers with >50% false positive rate, queries consistently returning <0.3 confidence, principles with high retrieval but low feedback scores.
+
+**Dependency:** Partially related to #22 (Governance Effectiveness Measurement) — this tool would provide concrete data for that discussion.
+
+**Origin:** Hermes Agent evaluation (2026-04-01). Hermes closes the loop via trajectory compression → model training. We can't fine-tune Claude, but we can close the loop by analyzing our own logs to surface improvement proposals.
+
+---
+
+#### 43. Progressive Disclosure for Reference Library (Discussion — Retrieval Efficiency)
+
+**What:** Currently, matched reference library entries return full content in evaluation results. Adopt a tiered retrieval model: Tier 1 (in evaluation results) shows ID, title, summary, maturity/status, confidence — as we do now. Tier 2 (on demand) provides full artifact content via a new `get_reference(id)` tool. Tier 3 (deep dive) includes related references, cross-references, principle links.
+
+**Why:** As the reference library grows, dumping full artifacts into every evaluation result will bloat context. Hermes's 3-tier progressive disclosure (skill index → `skill_view(name)` → linked files) keeps token cost low while making full content available when needed. Our current 9 entries are manageable; at 50+ this becomes a real problem.
+
+**What's involved:** (1) New `get_reference` MCP tool returning full artifact content by ID, (2) Modify evaluation output to show Tier 1 summaries only, (3) Optionally add Tier 3 with cross-reference expansion. Relatively straightforward — the data model already has `summary` fields and cross-reference metadata.
+
+**Dependency:** None — can implement independently.
+
+**Origin:** Hermes Agent evaluation (2026-04-01). Their skill_view progressive loading pattern adapted to our retrieval model.
+
+---
+
+#### 44. Auto-Maturity Proposals from Usage Data (Discussion — Self-Improvement)
+
+**What:** Automate maturity promotion proposals for reference library entries based on usage signals: seedling → budding (retrieved 3+ times with positive feedback), budding → evergreen (retrieved across 2+ projects, no negative feedback in 6+ months), any → caution/deprecated (not retrieved in N months based on decay_class).
+
+**Why:** The maturity pipeline (seedling → budding → evergreen) and KeyCite currency tracking exist but are entirely manual. Usage data from query logs and feedback could drive proposals. This makes the reference library self-curating — entries that prove useful get promoted, entries that go stale get flagged.
+
+**What's involved:** (1) Track per-reference retrieval counts and feedback scores (may need to enhance logging), (2) Define promotion/demotion thresholds per maturity level and decay class, (3) Surface proposals — likely as part of #42's analysis tool output rather than a separate mechanism.
+
+**Dependency:** Benefits from #42 (Feedback Loop Analysis) — the analysis tool would be the natural home for maturity proposals. Could also work standalone with simpler log parsing.
+
+**Origin:** Hermes Agent evaluation (2026-04-01). Hermes skills have no maturity tracking at all — all skills are equal weight. Our maturity model is better but currently manual. Automation closes the gap.
+
+---
+
+#### 45. Content Security Scanning for Staging Entries (Discussion — Security)
+
+**What:** Add content security scanning for reference library entries proposed to `staging/`, similar to Hermes's skills_guard (100+ threat patterns across categories: prompt injection, exfiltration, destructive commands, role hijacking, credential exposure, obfuscation).
+
+**Why:** If #41 (auto-staging) is implemented, AI-generated content enters the reference library pipeline without full human review at the capture stage. Content scanning provides defense in depth — catch prompt injection, embedded credentials, or destructive patterns before they land in staging. Currently `capture_reference` has path traversal protection and yaml.safe_load but no content-level threat scanning.
+
+**What's involved:** (1) Define threat pattern categories relevant to reference library content (prompt injection in artifacts, embedded secrets, destructive command patterns in code samples), (2) Implement scanning — could be regex-based like Hermes or leverage existing security-auditor subagent, (3) Integrate with capture_reference tool and staging workflow. Scope is narrower than Hermes's full skills_guard since our entries are markdown + code snippets, not executable scripts.
+
+**Dependency:** Becomes important when #41 (auto-staging) is implemented. Lower priority without it since manual capture already has human oversight.
+
+**Origin:** Hermes Agent evaluation (2026-04-01). Their skills_guard scans every skill write with 100+ patterns, rolls back on block. Our adaptation would be proportional to the actual threat surface.
+
+---
+
+#### 46. Stack/Platform Conditional Metadata for References (Discussion — Retrieval Quality)
+
+**What:** Add optional frontmatter fields to reference library entries indicating technology stack or platform requirements (e.g., `requires_stack: [nextjs, supabase]`, `applies_to: [typescript, javascript]`). Use these in retrieval to filter or de-rank entries irrelevant to the current project context.
+
+**Why:** A Next.js auth pattern is useless in a Python project. We already have domain routing; this adds stack-level filtering within a domain. As the reference library grows across multiple projects and tech stacks, retrieval precision depends on context-appropriate results. Hermes skills declare `requires_toolsets` and `platforms` for conditional activation — same concept applied to our retrieval model.
+
+**What's involved:** (1) Define frontmatter fields (stack, language, platform, framework), (2) Add to ReferenceEntry model and capture_reference validation, (3) Implement retrieval scoring adjustments (similar to existing maturity/status adjustments), (4) Determine how to detect current project context (from Context Engine index? from project files?). The metadata boosting infrastructure already exists in retrieval.py and project_manager.py.
+
+**Dependency:** None — can implement independently. Benefits from Context Engine project awareness for automatic context detection.
+
+**Origin:** Hermes Agent evaluation (2026-04-01). Their conditional activation metadata adapted to our retrieval-based model.
+
+---
+
 ### Closed / Reference
 
 #### 3. Quantized Vector Search — CLOSED (2026-03-30)
@@ -658,6 +761,10 @@ Investigation complete (2026-03-28). MRR gap was a benchmark specification error
 #### 1B. Model-Agnostic Governance Enforcement — Phase 1 COMPLETE (2026-03-28)
 
 stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance preconditions on governance server's own action tools. Zero new dependencies, works with any MCP client. Entry point: `ai-governance-proxy`. ADR-14 in PROJECT-MEMORY.md. Phase 2 tracked as discussion item above.
+
+#### 39. Date Serialization in CE Frontmatter — FIXED (2026-04-01)
+
+Systemic boundary fix: `yaml.safe_load` auto-parses dates as `datetime.date`; added recursive normalization in `DocumentConnector._extract_frontmatter()` at the parse boundary. Governance extractor had ad-hoc per-field handling; CE connector had none. Test covers flat/nested/list dates + `json.dumps` proof.
 
 #### 33. Defer vs Fix Now Philosophy — COMPLETE (2026-03-31)
 

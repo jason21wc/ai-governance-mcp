@@ -139,6 +139,43 @@ class TestDocumentConnectorFrontmatter:
         assert "[tags: testing]" in chunks[0].content
         assert "[tags: testing]" not in chunks[1].content
 
+    def test_date_values_normalized_to_strings(self, tmp_path):
+        """YAML date-like values (2026-03-26) must be strings, not datetime.date.
+
+        yaml.safe_load auto-parses bare dates as datetime.date objects.
+        These fail json.dump downstream when chunks are persisted to storage.
+        Normalization at the parse boundary prevents this systemic issue.
+        """
+        import json
+
+        entry = tmp_path / "dated.md"
+        entry.write_text(
+            "---\n"
+            "id: ref-dated\n"
+            "created: 2026-03-26\n"
+            "last_verified: 2026-03-26\n"
+            "nested:\n"
+            "  date_field: 2025-01-15\n"
+            "dates_list:\n"
+            "  - 2025-06-01\n"
+            "  - 2025-07-01\n"
+            "---\n\n"
+            "## Content\n\nBody.\n"
+        )
+
+        dc = DocumentConnector()
+        chunks = dc.parse(entry, tmp_path)
+
+        fm = chunks[0].frontmatter
+        assert isinstance(fm["created"], str)
+        assert fm["created"] == "2026-03-26"
+        assert isinstance(fm["last_verified"], str)
+        assert isinstance(fm["nested"]["date_field"], str)
+        assert all(isinstance(d, str) for d in fm["dates_list"])
+
+        # The whole point: frontmatter must survive json.dumps
+        json.dumps(fm)  # Would raise TypeError before fix
+
 
 class TestHeadingBreadcrumbs:
     """Tests for heading breadcrumb enrichment."""

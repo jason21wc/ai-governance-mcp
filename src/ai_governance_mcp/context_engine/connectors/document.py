@@ -5,6 +5,7 @@ Extracts YAML frontmatter metadata for structured retrieval.
 """
 
 import re
+from datetime import date, datetime
 from pathlib import Path
 
 import yaml  # nosec B506 — safe_load only
@@ -77,7 +78,29 @@ class DocumentConnector(BaseConnector):
             return None, content
         if not isinstance(frontmatter, dict):
             return None, content
+        frontmatter = DocumentConnector._normalize_frontmatter_values(frontmatter)
         return frontmatter, fm_match.group(2)
+
+    @staticmethod
+    def _normalize_frontmatter_values(obj):
+        """Normalize YAML-parsed values to JSON-serializable types.
+
+        yaml.safe_load converts date-like strings (2026-03-26) to
+        datetime.date objects, which fail json.dump downstream.
+        Normalize at the parse boundary, not the serialization layer.
+        """
+        if isinstance(obj, dict):
+            return {
+                k: DocumentConnector._normalize_frontmatter_values(v)
+                for k, v in obj.items()
+            }
+        if isinstance(obj, list):
+            return [DocumentConnector._normalize_frontmatter_values(v) for v in obj]
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        if isinstance(obj, date):
+            return obj.isoformat()
+        return obj
 
     @staticmethod
     def _frontmatter_summary(fm: dict) -> str:
