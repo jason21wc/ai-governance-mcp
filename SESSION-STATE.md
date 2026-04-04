@@ -38,6 +38,14 @@
 
 ### Completed This Session
 
+48. **Structured Q&A Default — Negative Examples for Freeform Conversation**
+   - **Root cause investigation:** Three hypotheses — (1) RLHF training bias (confirmed by research as well-documented phenomenon), (2) instruction not surfaced effectively (SERVER_INSTRUCTIONS ~13% compliance, context decay), (3) governance response priming (structured JSON from evaluate_governance primes structured thinking).
+   - **Fix 1:** Added negative example (WRONG/RIGHT contrast) to SERVER_INSTRUCTIONS conversation style section in server.py. WRONG example uses prose form, not numbered list, to avoid priming the anti-pattern.
+   - **Fix 2:** Added same negative example to CLAUDE.md conversation style section.
+   - **Dropped:** GOVERNANCE_REMINDER addition — contrarian correctly identified it mixes formatting preference with safety enforcement in premium real estate.
+   - **Testing plan:** Pre-implementation diagnostic (Test D: compare format before vs after governance calls). Post-implementation observation over 2-3 sessions with baseline ~60-70% structured, success threshold <30%. If no improvement, H3 (governance response priming) becomes primary investigation.
+   - **Research sources:** Ouyang et al. 2022, Bai et al. 2022, Perez et al. 2023, Liu et al. 2023 (Lost in the Middle), Anthropic prompting guide, Simon Willison, community consensus.
+
 47. **Document Generation Patterns (Part 9.4 + Reference Library)**
    - **Root cause:** Framework assumed "AI outputs" means "code." Web apps frequently produce document artifacts (Excel, PDF, Word) as primary products with zero governance coverage — no methods, no reference entries, no Situation Index entry, no routing keywords.
    - **Part 9.4** added under TITLE 9 (Deployment & Distribution): data/format separation architecture, template assets & branding, download serving patterns (decision tree: direct/streaming/pre-signed URL/background job), library selection quick reference (Python + Node.js with key gotchas), output validation.

@@ -17,6 +17,9 @@ After evaluating: cite principle IDs that influence your approach.
 
 Default to **freeform conversational Q&A** — not structured option lists or dropdowns. Ask questions as natural dialogue. Use structured options ONLY when converging on a bounded selection. For discovery, exploration, and understanding needs: open-ended conversation. (Progressive Inquiry Protocol §7.9)
 
+**WRONG:** "Would you like option A, option B, or option C? Let me know which works best"                                                                         
+**RIGHT:** "What are you trying to accomplish? Tell me about the problem."
+
 ## Subagents
 
 10 specialized agents in `.claude/agents/`. Read the agent file and apply its instructions when a task matches:

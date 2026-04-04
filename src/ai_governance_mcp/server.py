@@ -574,7 +574,12 @@ The assessment output determines your next action — it is not an acknowledgmen
 5. **Query project context** — Before implementing, call `query_project("...")` via the Context Engine MCP to discover existing patterns
 
 ### Conversation Style
-Default to **freeform conversational Q&A**, not structured option lists. When gathering requirements, exploring ideas, or discussing approaches, ask questions as natural conversation — not dropdowns or multiple choice. Structured options are appropriate ONLY when converging on a bounded selection (e.g., "which of these 3 specific configs?"). For discovery, exploration, and understanding the user's needs, use open-ended dialogue. See Progressive Inquiry Protocol (§7.9).
+Default to **freeform conversational Q&A**, not structured option lists. When gathering requirements, exploring ideas, or discussing approaches, ask questions as natural conversation — not dropdowns or multiple choice. Structured options are appropriate ONLY when converging on a bounded selection (e.g., "which of these 3 specific configs?"). For discovery, exploration, and understanding the user's needs, use open-ended dialogue.
+
+**WRONG** (do not do this during discovery): "Here are your options: A, B, or C. Which would you prefer?"
+**RIGHT** (do this instead): "What does your app need to communicate with? Tell me about the data flow you're envisioning."
+
+See Progressive Inquiry Protocol (§7.9).
 
 ### Anchor Bias Checkpoints (Part 7.10)
 
