@@ -903,7 +903,7 @@ AGENT_TEMPLATE_HASHES = {
     "documentation-writer": "e6776f70d71a8c8cd36ef5ce506ce832fd52b74dd7d459e6aabd4a183f7474cf",
     "orchestrator": "ad5f673ccc8dc4fd5e5f8fea0101e7e862955a2c223d0b29dc42f7f8f904a239",
     "security-auditor": "6bb7305172568a38473a9e47322a4b1c48d27d45c69f5cfd7b3b821bf91b9dbb",
-    "test-generator": "fdb571dafa27f63c9df88b43c4190083370c8c6faccf11dd6c1a580232c98c2a",
+    "test-generator": "033899e2db53f2b0cc86a0e3e452fa4f7d97559e1cfbc61fbf3a082df8e08608",
     "validator": "5268ed87ba50fd16729be9d2ed6db88458dec10e24ef6aa02e48ab06d7e958c4",
     "voice-coach": "d3ec3a1bde7cded67e816244c1ac9cab450eb6d9c204b9d7c4f552732522e179",
 }
