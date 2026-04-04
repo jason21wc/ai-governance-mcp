@@ -1,7 +1,7 @@
 ---
-version: "2.33.0"
+version: "2.34.0"
 status: "active"
-effective_date: "2026-04-02"
+effective_date: "2026-04-03"
 domain: "ai-coding"
 governance_level: "domain-methods"
 ---
@@ -9,9 +9,9 @@ governance_level: "domain-methods"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.33.0
+**Version:** 2.34.0
 **Status:** Active
-**Effective Date:** 2026-04-02
+**Effective Date:** 2026-04-03
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -163,6 +163,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Need to understand unfamiliar code / onboarding | §5.13.7 | Code Comprehension via Linear Walkthrough |
 | Debugging with prior session context / stale conclusions | §5.13.2 | Prior Knowledge Audit |
 | Auth/session/cookie code needs review | §5.1.7 | Runtime-Sensitive Review Trigger |
+| Generating downloadable documents (Excel, PDF, Word) | §9.4 | Document Generation Patterns |
 
 #### On Uncertainty
 
@@ -8162,10 +8163,96 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 ---
 
+## Part 9.4: Document Generation Patterns
+
+**Importance: IMPORTANT — Reliable document output from web applications**
+
+**Implements:** Structured Output Enforcement (Constitution), Supply Chain & Solution Integrity (Domain)
+
+Web applications frequently produce downloadable documents (Excel, PDF, Word, PowerPoint, CSV) as a primary product. This Part covers the architectural patterns that ensure stability, repeatability, and branding consistency when generating documents server-side.
+
+### 9.4.1 Architecture: Data/Format Separation
+
+The core pattern for all document generation in web apps:
+
+```
+Business Logic → Structured Data (dict/JSON) → Deterministic Builder → File → Delivery
+```
+
+AI or business logic produces structured data. A separate, deterministic function converts that data into the target format. They don't mix. This ensures:
+- **Testability** — test data logic and formatting independently
+- **Format portability** — same data → Excel OR PDF OR Word
+- **Reproducibility** — same input → identical output, every time
+
+**Anti-pattern:** AI generating formatting code inline with business logic. Template strings with embedded styling. Direct file manipulation in route handlers.
+
+### 9.4.2 Template Assets & Branding
+
+When documents need branding, template assets are project resources managed like code:
+
+```
+project/
+├── templates/
+│   ├── styles.py          # Colors, fonts, column widths — single source
+│   ├── logos/
+│   │   ├── logo-dark.png  # For light backgrounds
+│   │   └── logo-light.png # For dark backgrounds
+│   └── headers/           # Per-format header templates
+```
+
+**The rule:** Style definitions (colors, fonts, column widths) defined once in a centralized module, imported by all builders. If the app produces both Excel and PDF, shared style definitions ensure the same colors, same logo placement, same section ordering across formats.
+
+**Anti-pattern:** Hardcoded hex colors scattered across builder functions. Logo paths as string literals. Different styling constants per document type.
+
+### 9.4.3 Download Serving Patterns
+
+Decision tree for serving generated files from web apps:
+
+| Pattern | When to Use | Tradeoffs |
+|---------|------------|-----------|
+| **Direct serve (in-memory)** | Files <50MB, low concurrency | Simple; memory scales with concurrency × file size |
+| **Streaming** | Large files, memory-constrained | Low memory; library must support streaming API |
+| **Pre-signed URL (S3/R2)** | High concurrency, serverless, re-downloads | Offloads bandwidth; adds upload latency + CORS config |
+| **Background job + notify** | Generation >30s | Non-blocking; adds job queue complexity |
+
+**Common mistakes AI agents make:**
+- Writing to temp files without cleanup logic (race conditions under concurrency)
+- Using fixed filenames (concurrent request collision)
+- Missing `Content-Disposition: attachment` header (browser displays instead of downloading)
+- Pre-signed URLs without CORS configuration or lifecycle rules
+
+### 9.4.4 Library Selection Quick Reference
+
+Established libraries by format. Full gotchas and decision trees in Reference Library entries.
+
+| Format | Python | Node.js | Key Gotcha |
+|--------|--------|---------|------------|
+| Excel (.xlsx) | openpyxl | **ExcelJS** (not SheetJS CE) | SheetJS CE has limited styling support on write (Pro required for full styling) |
+| PDF (generate) | WeasyPrint (HTML→PDF) or ReportLab (programmatic) | PDFKit (programmatic) or Puppeteer (HTML→PDF) | jsPDF is browser-oriented (awkward server-side); pdf-lib excels at modification, limited for complex layout |
+| Word (.docx) | python-docx | docx (npm) | Import: `from docx import Document` not `from python_docx` |
+| PowerPoint (.pptx) | python-pptx | PptxGenJS | Deprecated property names in older AI training data |
+| CSV | csv (stdlib) | csv-stringify or papaparse | UTF-8 BOM prefix (`\ufeff`) needed for Excel on Windows to recognize Unicode |
+
+### 9.4.5 Output Validation
+
+Document generation can fail silently (wrong formulas, missing sheets, corrupt files). Every builder function should have a corresponding validation check:
+
+- **Excel:** Verify sheet names, row counts, formula cells exist. Formula-heavy workbooks: LibreOffice headless recalculation or xlcalc
+- **PDF:** Page count, file size > minimum threshold, parseable by PyMuPDF
+- **Word:** Section count, paragraph count, image presence
+- **CSV:** Row/column count, encoding verification
+
+**The rule:** Tests generate a document and validate its content, not just check that the function didn't throw.
+
+> **Bold triggers:** **document generation**, **file output**, **downloadable report**, **Excel generation**, **PDF generation**, **openpyxl**, **ExcelJS**, **WeasyPrint**, **ReportLab**, **branded document**, **template assets**, **download serving**
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.34.0 | 2026-04-03 | MINOR: Added Part 9.4 (Document Generation Patterns) under TITLE 9. Root cause: framework assumed "AI outputs" means "code" — web apps frequently produce document artifacts (Excel, PDF, Word) as primary products with zero governance coverage. Five subsections: §9.4.1 Data/Format Separation architecture (Structured Output Enforcement applied to document generation), §9.4.2 Template Assets & Branding (centralized style definitions, cross-format consistency), §9.4.3 Download Serving Patterns (decision tree: direct/streaming/pre-signed URL/background job), §9.4.4 Library Selection Quick Reference (Python + Node.js with key gotchas — SheetJS CE styling trap, jsPDF client-side only, pdf-lib manipulation only), §9.4.5 Output Validation (format-specific validation approaches, silent failure detection). Added Situation Index entry. Contrarian-reviewed: scoped down from TITLE 10 (5 Parts) to Part 9.4 (5 subsections) — document generation is output distribution under existing TITLE 9. Constitutional Basis: Structured Output Enforcement, Supply Chain & Solution Integrity. |
 | 2.33.0 | 2026-04-02 | MINOR: Added §3.1.5 Library-Specific Knowledge Sources — three-step guidance for reliable external library usage: (1) use documentation-freshness tools for current docs, (2) check Reference Library for known corrections, (3) capture new corrections when official docs prove wrong. Natural extension of §3.1.4 Technology Selection: select technology → validate knowledge sources. Cross-references governance methods TITLE 15 (Reference Library) and §5.13.2 (diagnostic procedure for when documented patterns fail). Prompted by Context7 Skill Wizard analysis + real Vercel doc-bug experience. Constitutional Basis: Context Engineering, Specification Completeness. |
 | 2.32.0 | 2026-03-31 | MINOR: Cross-session epistemic hygiene extensions to §5.13. (1) §5.13.2: Added Prior Knowledge Audit — pre-diagnostic step requiring agents to audit cached beliefs from prior sessions, flag stale conclusions, and re-verify when stack has changed. Added 5-step differential diagnosis for when documented/official patterns fail (Am I calling it correctly? Has API changed? Environment different? Reading correct version docs? Known bug?). (2) §5.13.6: Added 2 anti-patterns (Stale Conclusion, Documented Pattern Bypass) and 2 debugging checklist items. (3) §5.1.7: Added auth/session/cookie runtime review trigger (content-based, flags for runtime verification via Playwright/instrumentation). (4) Updated code-reviewer agent with runtime-sensitive patterns checklist item. Added 2 Situation Index entries. Root cause: AI agents treat cached technical conclusions as facts rather than hypotheses with confidence decay. Evidence: External debugging session (Next.js 16 + @supabase/ssr 0.8.0 cookie timing). Constitutional Basis: Transparent Limitations, Verification & Validation, Context Engineering. |
 | 2.31.0 | 2026-03-28 | PATCH: Updated stale constitutional principle references. "Verification Mechanisms" / "Fail-Fast Validation" → "Verification & Validation" (§5.13). "Security, Privacy, and Compliance by Default" → "Non-Maleficence, Privacy & Security" (§9.3.10). "Project Reference Persistence" consolidated into existing "Context Engineering" references (§1.5, §7.10, Appendix L). Version History unchanged (historical records). |

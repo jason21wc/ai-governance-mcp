@@ -21,13 +21,13 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.0** (meta-methods), **v2.33.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.0** (meta-methods), **v2.34.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1037 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **128 principles + 666 methods + 9 references** (803 total; see `tests/benchmarks/` for current totals) |
+| Index | **128 principles + 671 methods + 11 references** (810 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
@@ -37,6 +37,16 @@
 ## Session Summary (2026-04-03)
 
 ### Completed This Session
+
+47. **Document Generation Patterns (Part 9.4 + Reference Library)**
+   - **Root cause:** Framework assumed "AI outputs" means "code." Web apps frequently produce document artifacts (Excel, PDF, Word) as primary products with zero governance coverage — no methods, no reference entries, no Situation Index entry, no routing keywords.
+   - **Part 9.4** added under TITLE 9 (Deployment & Distribution): data/format separation architecture, template assets & branding, download serving patterns (decision tree: direct/streaming/pre-signed URL/background job), library selection quick reference (Python + Node.js with key gotchas), output validation.
+   - **2 Reference Library entries created:** `ref-ai-coding-python-pdf-generation` (WeasyPrint vs ReportLab + Docker deployment gotcha), `ref-ai-coding-web-app-file-downloads` (serving patterns with FastAPI/Next.js/Express examples).
+   - **2 Reference Library entries deferred:** Node.js Excel (SheetJS CE vs ExcelJS), Node.js PDF (PDFKit vs Puppeteer vs jsPDF vs pdf-lib). Create when a Node.js project needs them.
+   - **Routing:** Situation Index entry added. `domains.json` keywords updated for document generation terms.
+   - **Backlog #6 scope note:** Visual Communication stays scoped to visual design (Tufte/Duarte/Reynolds). Structured document production handled by Part 9.4.
+   - **Contrarian-reviewed:** Scoped down from TITLE 10 (5 Parts) to Part 9.4 (5 subsections). Deferred Node.js entries as anticipatory. Coherence-audited, validated.
+   - AI-coding methods v2.33.0 → v2.34.0.
 
 46. **Corrective & Cross-Cutting Change Guidance (Session Retrospective)**
    - **Root cause:** Framework quality gates assumed content changes are additive, but mature framework changes are increasingly corrective/editorial. Three symptoms from session 45.
@@ -566,6 +576,16 @@
 **Status:** Anticipatory — building this before active use so it's ready when needed.
 
 **Discussion needed:** Full planning process per COMPLETION-CHECKLIST domain creation. Scope candidate principles and methods, evidence base review, failure mode identification.
+
+**Scope note (2026-04-03):** Structured document production (Excel workbooks, data-heavy reports, financial spreadsheets) is handled by AI Coding Part 9.4 (Document Generation Patterns). Visual Communication stays scoped to visual design artifacts: presentations, infographics, print design — the Tufte/Duarte/Reynolds evidence base. The distinction: Part 9.4 covers *how to generate and serve document files reliably*; Visual Communication covers *how to design visually effective communication*.
+
+#### 48. Node.js Document Generation Reference Entries (Deferred)
+
+**What:** Two reference library entries for Node.js document generation gotchas: (1) `ref-ai-coding-node-excel-generation` — SheetJS CE vs ExcelJS styling trap, (2) `ref-ai-coding-node-pdf-generation` — PDFKit vs Puppeteer vs jsPDF vs pdf-lib decision tree.
+
+**When:** Create when a Node.js project needs formatted Excel output or PDF generation. AI agents frequently recommend wrong libraries for Node.js (SheetJS CE for styled output, jsPDF for server-side use).
+
+**Origin:** Session 47 document generation research (2026-04-03). Deferred per contrarian review — user primarily works in Python; Node.js entries are anticipatory until a concrete project needs them.
 
 #### 7. Security Content Currency Process (Discussion)
 
