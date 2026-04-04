@@ -8218,7 +8218,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-04T03:11:36.301955+00:00",
+      "last_extracted": "2026-04-04T03:24:04.167859+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -17314,11 +17314,11 @@
               "termination conditions"
             ],
             "purpose_keywords": [
-              "experimentation",
-              "autonomous-operation",
               "program-md",
+              "overnight-agents",
+              "experimentation",
               "research-protocol",
-              "overnight-agents"
+              "autonomous-operation"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -17361,11 +17361,11 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "integration-testing",
+              "tool-handlers",
               "testing",
-              "mcp",
+              "integration-testing",
               "asyncio",
-              "tool-handlers"
+              "mcp"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -17413,17 +17413,153 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "routing",
               "middleware",
-              "api-routes",
-              "auth",
               "supabase",
-              "nextjs"
+              "api-routes",
+              "routing",
+              "nextjs",
+              "auth"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
           "embedding_id": 464
+        },
+        {
+          "id": "ref-ai-coding-node-excel-generation",
+          "domain": "ai-coding",
+          "title": "Node.js Excel Generation: ExcelJS over SheetJS CE",
+          "summary": "ExcelJS is the correct choice for Node.js Excel generation with formatting. SheetJS Community Edition has limited styling support on write \u2014 Pro edition required for full styling.",
+          "content": "## Context\n\nAI agents frequently recommend SheetJS (npm package `xlsx`) for Node.js Excel generation because it has higher download counts and more training data presence (~36k GitHub stars). However, the free Community Edition has limited styling support on write \u2014 headers won't have background colors, text won't be bold, column widths won't auto-fit. The Pro edition supports full styling but is paid. ExcelJS (MIT license, ~15k stars) has full styling and streaming support for free.\n\nThis is the #1 library selection trap for Node.js Excel generation.\n\n## Artifact\n\n### Decision Tree\n\n```\nNeed to generate .xlsx in Node.js?\n\u251c\u2500\u2500 Need formatting (colors, bold, column widths, number formats)?\n\u2502   \u2514\u2500\u2500 ExcelJS \u2014 full styling, streaming, MIT license\n\u251c\u2500\u2500 Need to READ/PARSE existing Excel files?\n\u2502   \u2514\u2500\u2500 SheetJS CE \u2014 excellent for parsing, free\n\u251c\u2500\u2500 Simple data export, no formatting needed?\n\u2502   \u2514\u2500\u2500 Either works \u2014 SheetJS CE is fine for unstyled data dumps\n\u2514\u2500\u2500 Need both read and styled write?\n    \u2514\u2500\u2500 SheetJS for reading, ExcelJS for writing\n```\n\n### ExcelJS Styled Generation Example\n\n```javascript\nimport ExcelJS from 'exceljs'\n\nconst workbook = new ExcelJS.Workbook()\nconst sheet = workbook.addWorksheet('Report')\n\n// Header row with styling\nconst headerRow = sheet.addRow(['Name', 'Amount', 'Date'])\nheaderRow.eachCell((cell) => {\n  cell.fill = {\n    type: 'pattern',\n    pattern: 'solid',\n    fgColor: { argb: 'FF1F4E79' },  // Dark blue\n  }\n  cell.font = { color: { argb: 'FFFFFFFF' }, bold: true }\n})\n\n// Auto-fit column widths\nsheet.columns.forEach((column) => {\n  column.width = Math.max(12, column.header?.length + 2 || 12)\n})\n\n// Number formatting\nsheet.getColumn(2).numFmt = '$#,##0.00'\n\n// Write to buffer (for HTTP response)\nconst buffer = await workbook.xlsx.writeBuffer()\n```\n\n### Streaming for Large Files\n\n```javascript\n// ExcelJS streaming API for memory-efficient generation\nconst workbook = new ExcelJS.stream.xlsx.WorkbookWriter({\n  stream: res,  // Pipe directly to HTTP response\n})\nconst sheet = workbook.addWorksheet('Data')\n// ... add rows \u2014 each row is flushed to stream\nawait workbook.commit()\n```\n\n## Lessons Learned\n\n- SheetJS CE is excellent for **reading** Excel files \u2014 parsing is fully supported in the free edition. The limitation is specifically on **write styling**.\n- AI agents recommend SheetJS by default because it dominates npm download counts. Always verify the styling limitation when the task involves formatted output.\n- ExcelJS supports both in-memory (`writeBuffer()`) and streaming (`stream.xlsx.WorkbookWriter`) APIs. Use streaming for files with >10K rows.\n- ExcelJS handles formulas, conditional formatting, data validation, images, and merged cells \u2014 all in the free MIT-licensed package.\n\n## Do / Don't\n\n**Do:** Use ExcelJS for any Excel generation that needs formatting (styled headers, number formats, column widths, conditional formatting). Use SheetJS CE for reading/parsing Excel files.\n\n**Don't:** Use SheetJS CE for styled Excel generation unless you have the Pro license. Don't assume that higher npm download counts mean the library is better for your specific use case \u2014 SheetJS's downloads are inflated by its excellent read/parse capabilities.\n\n## Cross-References\n\n- Principles: meta-quality-structured-output-enforcement, coding-quality-supply-chain-solution-integrity\n- Methods: \u00a79.4 (Document Generation Patterns), \u00a79.4.4 (Library Selection Quick Reference)\n- See also: ref-ai-coding-web-app-file-downloads, ref-ai-coding-node-pdf-generation",
+          "tags": [
+            "excel",
+            "node",
+            "document-generation",
+            "library-selection",
+            "exceljs",
+            "sheetjs"
+          ],
+          "status": "current",
+          "maturity": "budding",
+          "entry_type": "direct",
+          "decay_class": "framework",
+          "created": "2026-04-03",
+          "last_verified": "2026-04-03",
+          "source": "Web research (pkgpulse.com, mfyz.com, npmtrends.com comparisons, 2025-2026). SheetJS CE limitation confirmed across multiple independent sources.",
+          "supersedes": [],
+          "superseded_by": null,
+          "related": [
+            "ref-ai-coding-web-app-file-downloads",
+            "ref-ai-coding-node-pdf-generation"
+          ],
+          "source_path": "reference-library/ai-coding/ref-ai-coding-node-excel-generation.md",
+          "metadata": {
+            "keywords": [
+              "node.js",
+              "excel",
+              "generation:",
+              "exceljs",
+              "over",
+              "sheetjs"
+            ],
+            "trigger_phrases": [
+              "reading",
+              "write styling",
+              "don't:"
+            ],
+            "purpose_keywords": [
+              "excel",
+              "library-selection",
+              "sheetjs",
+              "document-generation",
+              "exceljs",
+              "node"
+            ],
+            "applies_to": [],
+            "guideline_keywords": [
+              "decision",
+              "tree",
+              "exceljs",
+              "styled",
+              "generation",
+              "streaming",
+              "large",
+              "files"
+            ]
+          },
+          "embedding_id": 465
+        },
+        {
+          "id": "ref-ai-coding-node-pdf-generation",
+          "domain": "ai-coding",
+          "title": "Node.js PDF Generation: Library Decision Tree",
+          "summary": "Decision tree for Node.js PDF generation \u2014 PDFKit (programmatic server-side), Puppeteer (HTML-to-PDF), jsPDF (browser-oriented), pdf-lib (modification/manipulation). AI agents frequently confuse these four libraries.",
+          "content": "## Context\n\nNode.js PDF generation is the most fragmented document generation category. Four libraries serve fundamentally different purposes, but AI agents routinely confuse them \u2014 recommending jsPDF for server-side use (it's browser-oriented) or pdf-lib for generation from scratch (it excels at modification). This is the highest-value library selection guidance in the document generation space.\n\n## Artifact\n\n### Decision Tree\n\n```\nNeed PDF output in Node.js?\n\u251c\u2500\u2500 Building PDF programmatically from data (invoices, reports)?\n\u2502   \u2514\u2500\u2500 PDFKit \u2014 server-side, streaming, well-established\n\u2502       \u251c\u2500\u2500 Pros: streaming API, pipes to HTTP response, no native deps\n\u2502       \u2514\u2500\u2500 Cons: manual layout (no CSS), verbose for complex layouts\n\u2502\n\u251c\u2500\u2500 Converting HTML/CSS to PDF (existing web templates)?\n\u2502   \u2514\u2500\u2500 Puppeteer or Playwright \u2014 headless Chrome rendering\n\u2502       \u251c\u2500\u2500 Pros: pixel-perfect, uses your existing CSS, handles complex layouts\n\u2502       \u2514\u2500\u2500 Cons: needs Chrome binary (~300MB), high memory, slow cold start\n\u2502       \u2514\u2500\u2500 Note: Playwright is newer alternative with same approach\n\u2502\n\u251c\u2500\u2500 Modifying existing PDFs (fill forms, merge, stamp, add pages)?\n\u2502   \u2514\u2500\u2500 pdf-lib \u2014 works in browser AND Node, zero native deps\n\u2502       \u251c\u2500\u2500 Pros: pure JS, small bundle, great for form filling\n\u2502       \u2514\u2500\u2500 Cons: limited for complex generation from scratch\n\u2502\n\u251c\u2500\u2500 Client-side PDF in the browser?\n\u2502   \u2514\u2500\u2500 jsPDF \u2014 browser-native, uses html2canvas\n\u2502       \u251c\u2500\u2500 Pros: runs in browser, no server needed\n\u2502       \u2514\u2500\u2500 Cons: image-based output (no real text), blurry on zoom,\n\u2502       \u2502   poor text selection, NOT designed for server-side\n\u2502       \u2514\u2500\u2500 WARNING: AI agents frequently recommend this for server use\n\u2502\n\u2514\u2500\u2500 Need it serverless (Lambda, Vercel Functions)?\n    \u2514\u2500\u2500 PDFKit (no native deps) or pdf-lib (for modifications)\n    \u2514\u2500\u2500 NOT Puppeteer (Chrome binary doesn't fit in Lambda easily)\n```\n\n### PDFKit Server-Side Example\n\n```javascript\nimport PDFDocument from 'pdfkit'\n\nfunction generateInvoice(data) {\n  const doc = new PDFDocument()\n  const buffers = []\n\n  doc.on('data', (chunk) => buffers.push(chunk))\n\n  doc.fontSize(20).text('Invoice', { align: 'center' })\n  doc.moveDown()\n\n  // Table-like layout\n  data.lineItems.forEach((item) => {\n    doc.fontSize(10)\n       .text(item.description, 50, doc.y, { width: 300 })\n       .text(`$${item.amount.toFixed(2)}`, 400, doc.y - 12, { align: 'right' })\n  })\n\n  doc.end()\n\n  return new Promise((resolve) => {\n    doc.on('end', () => resolve(Buffer.concat(buffers)))\n  })\n}\n```\n\n### Puppeteer HTML-to-PDF Example\n\n```javascript\nimport puppeteer from 'puppeteer'\n\nasync function htmlToPdf(html) {\n  const browser = await puppeteer.launch({ headless: true })\n  const page = await browser.newPage()\n  await page.setContent(html, { waitUntil: 'networkidle0' })\n\n  const pdf = await page.pdf({\n    format: 'A4',\n    printBackground: true,  // Include CSS background colors\n    margin: { top: '1cm', bottom: '1cm', left: '1cm', right: '1cm' },\n  })\n\n  await browser.close()\n  return pdf  // Buffer\n}\n```\n\n### Quick Comparison\n\n| Library | Use Case | Server-Side | Browser | Native Deps | npm weekly |\n|---------|----------|-------------|---------|-------------|------------|\n| **PDFKit** | Generate from data | Yes (primary) | No | None | ~1M |\n| **Puppeteer** | HTML \u2192 PDF | Yes (primary) | No | Chrome | ~4M |\n| **pdf-lib** | Modify existing PDFs | Yes | Yes | None | ~1.5M |\n| **jsPDF** | Client-side generation | Awkward | Yes (primary) | None | ~1.5M |\n\n## Lessons Learned\n\n- **jsPDF is the #1 wrong recommendation.** AI agents see its high download count and recommend it for server-side Express/Next.js routes. It produces image-based PDFs via html2canvas \u2014 text is rasterized, not selectable, and blurry at non-native zoom levels.\n- **pdf-lib is for modification, not generation.** It can create pages and add text, but it has no layout engine. For anything beyond simple text placement, use PDFKit.\n- **Puppeteer needs Chrome in production.** This means ~300MB added to your Docker image or Lambda layer. For serverless, consider `@sparticuz/chromium` (optimized Chromium for Lambda) or switch to PDFKit.\n- **PDFKit streams naturally.** `doc.pipe(res)` sends PDF directly to the HTTP response \u2014 no buffering the entire file in memory. This is ideal for server-side generation.\n- **Playwright is a Puppeteer alternative** with the same HTML-to-PDF capability via `page.pdf()`. Choose based on which you already use for testing.\n\n## Do / Don't\n\n**Do:** Use PDFKit for programmatic server-side PDF generation (invoices, reports, data-driven documents). Use Puppeteer/Playwright when you have HTML/CSS templates you want to render as PDF. Use pdf-lib for filling forms, merging PDFs, or stamping watermarks.\n\n**Don't:** Use jsPDF for server-side PDF generation \u2014 it's browser-oriented and produces image-based output. Don't use Puppeteer in serverless without accounting for the Chrome binary size and cold start cost. Don't use pdf-lib as your primary generation library for complex layouts.\n\n## Cross-References\n\n- Principles: meta-quality-structured-output-enforcement, coding-quality-supply-chain-solution-integrity\n- Methods: \u00a79.4 (Document Generation Patterns), \u00a79.4.4 (Library Selection Quick Reference)\n- See also: ref-ai-coding-web-app-file-downloads, ref-ai-coding-python-pdf-generation, ref-ai-coding-node-excel-generation",
+          "tags": [
+            "pdf",
+            "node",
+            "document-generation",
+            "library-selection",
+            "pdfkit",
+            "puppeteer",
+            "jspdf",
+            "pdf-lib"
+          ],
+          "status": "current",
+          "maturity": "budding",
+          "entry_type": "direct",
+          "decay_class": "framework",
+          "created": "2026-04-03",
+          "last_verified": "2026-04-03",
+          "source": "Web research (nutrient.io, dev.to, pdfnoodle.com, pdfbolt.com comparisons, 2025-2026). Library confusion pattern confirmed across multiple AI agent interactions.",
+          "supersedes": [],
+          "superseded_by": null,
+          "related": [
+            "ref-ai-coding-web-app-file-downloads",
+            "ref-ai-coding-python-pdf-generation",
+            "ref-ai-coding-node-excel-generation"
+          ],
+          "source_path": "reference-library/ai-coding/ref-ai-coding-node-pdf-generation.md",
+          "metadata": {
+            "keywords": [
+              "node.js",
+              "generation:",
+              "library",
+              "decision",
+              "tree"
+            ],
+            "trigger_phrases": [
+              "pdfkit",
+              "puppeteer",
+              "pdf-lib",
+              "pdfkit streams naturally.",
+              "don't:"
+            ],
+            "purpose_keywords": [
+              "jspdf",
+              "puppeteer",
+              "library-selection",
+              "pdfkit",
+              "document-generation",
+              "pdf",
+              "pdf-lib",
+              "node"
+            ],
+            "applies_to": [],
+            "guideline_keywords": [
+              "decision",
+              "tree",
+              "pdfkit",
+              "server-side",
+              "example",
+              "puppeteer",
+              "html-to-pdf",
+              "example",
+              "quick",
+              "comparison"
+            ]
+          },
+          "embedding_id": 466
         },
         {
           "id": "ref-ai-coding-playwright-auth-setup-pattern",
@@ -17466,17 +17602,17 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "playwright",
-              "storage-state",
               "e2e-testing",
-              "auth",
+              "playwright",
               "supabase",
-              "nextjs"
+              "nextjs",
+              "auth",
+              "storage-state"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 465
+          "embedding_id": 467
         },
         {
           "id": "ref-ai-coding-pytest-fixture-patterns",
@@ -17519,16 +17655,16 @@
             ],
             "purpose_keywords": [
               "pytest",
+              "fixtures",
               "testing",
-              "mcp",
               "mocking",
-              "sentence-transformers",
-              "fixtures"
+              "mcp",
+              "sentence-transformers"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 466
+          "embedding_id": 468
         },
         {
           "id": "ref-ai-coding-python-pdf-generation",
@@ -17571,12 +17707,12 @@
             ],
             "purpose_keywords": [
               "python",
+              "weasyprint",
+              "library-selection",
               "reportlab",
               "document-generation",
-              "docker",
               "pdf",
-              "library-selection",
-              "weasyprint"
+              "docker"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -17589,7 +17725,7 @@
               "pattern"
             ]
           },
-          "embedding_id": 467
+          "embedding_id": 469
         },
         {
           "id": "ref-ai-coding-supabase-jwt-hook-ssr",
@@ -17630,16 +17766,16 @@
             ],
             "purpose_keywords": [
               "ssr",
-              "custom-claims",
-              "auth",
               "jwt",
               "supabase",
-              "nextjs"
+              "nextjs",
+              "auth",
+              "custom-claims"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 468
+          "embedding_id": 470
         },
         {
           "id": "ref-ai-coding-supabase-ssr-async-setall",
@@ -17681,17 +17817,17 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "pkce",
-              "nextjs",
-              "async",
-              "supabase",
               "cookies",
+              "async",
+              "pkce",
+              "supabase",
+              "nextjs",
               "auth-callback"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 469
+          "embedding_id": 471
         },
         {
           "id": "ref-ai-coding-vitest-hoisted-mocks",
@@ -17732,16 +17868,16 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "typescript",
-              "testing",
+              "vitest",
               "vi-mock",
+              "testing",
               "mocking",
-              "vitest"
+              "typescript"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 470
+          "embedding_id": 472
         },
         {
           "id": "ref-ai-coding-web-app-file-downloads",
@@ -17791,14 +17927,14 @@
               "don't:"
             ],
             "purpose_keywords": [
+              "s3",
+              "nextjs",
+              "document-generation",
+              "express",
+              "fastapi",
               "streaming",
               "file-download",
-              "web-app",
-              "express",
-              "s3",
-              "document-generation",
-              "fastapi",
-              "nextjs"
+              "web-app"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -17813,7 +17949,7 @@
               "types"
             ]
           },
-          "embedding_id": 471
+          "embedding_id": 473
         },
         {
           "id": "ref-ai-coding-willison-hoard-pattern",
@@ -17855,18 +17991,18 @@
               "willison's infrastructure for this:"
             ],
             "purpose_keywords": [
-              "knowledge-management",
               "reuse",
               "agent-productivity",
-              "patterns"
+              "patterns",
+              "knowledge-management"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 472
+          "embedding_id": 474
         }
       ],
-      "last_extracted": "2026-04-04T03:11:36.317024+00:00",
+      "last_extracted": "2026-04-04T03:24:04.185723+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -17909,7 +18045,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 473
+          "embedding_id": 475
         },
         {
           "id": "multi-architecture-agent-specialization-topology",
@@ -17950,7 +18086,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 474
+          "embedding_id": 476
         },
         {
           "id": "multi-architecture-context-engineering-discipline",
@@ -17991,7 +18127,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 475
+          "embedding_id": 477
         },
         {
           "id": "multi-architecture-context-isolation-architecture",
@@ -18031,7 +18167,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 476
+          "embedding_id": 478
         },
         {
           "id": "multi-architecture-orchestrator-separation-pattern",
@@ -18072,7 +18208,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 477
+          "embedding_id": 479
         },
         {
           "id": "multi-architecture-intent-propagation-with-shared-assumptions",
@@ -18115,7 +18251,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 478
+          "embedding_id": 480
         },
         {
           "id": "multi-reliability-explicit-handoff-protocol",
@@ -18156,7 +18292,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 479
+          "embedding_id": 481
         },
         {
           "id": "multi-reliability-orchestration-pattern-selection",
@@ -18197,7 +18333,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 480
+          "embedding_id": 482
         },
         {
           "id": "multi-reliability-state-persistence-protocol",
@@ -18238,7 +18374,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 481
+          "embedding_id": 483
         },
         {
           "id": "multi-reliability-observability-protocol",
@@ -18277,7 +18413,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 482
+          "embedding_id": 484
         },
         {
           "id": "multi-quality-validation-independence",
@@ -18316,7 +18452,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 483
+          "embedding_id": 485
         },
         {
           "id": "multi-quality-fault-tolerance-and-graceful-degradation",
@@ -18358,7 +18494,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 484
+          "embedding_id": 486
         },
         {
           "id": "multi-quality-human-in-the-loop-protocol",
@@ -18398,7 +18534,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 485
+          "embedding_id": 487
         },
         {
           "id": "multi-autonomous-action-blast-radius-classification",
@@ -18440,7 +18576,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 486
+          "embedding_id": 488
         },
         {
           "id": "multi-autonomous-hitl-removal-criteria",
@@ -18481,7 +18617,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 487
+          "embedding_id": 489
         },
         {
           "id": "multi-autonomous-compensating-controls-for-autonomous-operation",
@@ -18522,7 +18658,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 488
+          "embedding_id": 490
         },
         {
           "id": "multi-autonomous-autonomous-drift-monitoring",
@@ -18562,7 +18698,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 489
+          "embedding_id": 491
         }
       ],
       "methods": [
@@ -18614,7 +18750,7 @@
               "check"
             ]
           },
-          "embedding_id": 490
+          "embedding_id": 492
         },
         {
           "id": "multi-method-workflow-initialization-protocol",
@@ -18664,7 +18800,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 491
+          "embedding_id": 493
         },
         {
           "id": "multi-method-multi-tool-setup",
@@ -18707,7 +18843,7 @@
               "setup"
             ]
           },
-          "embedding_id": 492
+          "embedding_id": 494
         },
         {
           "id": "multi-method-subagent-definition-standard",
@@ -18766,7 +18902,7 @@
               "criteria"
             ]
           },
-          "embedding_id": 493
+          "embedding_id": 495
         },
         {
           "id": "multi-method-system-prompt-best-practices",
@@ -18816,7 +18952,7 @@
               "examples"
             ]
           },
-          "embedding_id": 494
+          "embedding_id": 496
         },
         {
           "id": "multi-method-tool-scoping-guidelines",
@@ -18867,7 +19003,7 @@
               "scoping"
             ]
           },
-          "embedding_id": 495
+          "embedding_id": 497
         },
         {
           "id": "multi-method-subagent-validation-checklist",
@@ -18921,7 +19057,7 @@
               "test"
             ]
           },
-          "embedding_id": 496
+          "embedding_id": 498
         },
         {
           "id": "multi-method-subagent-usage-in-practice",
@@ -18964,7 +19100,7 @@
               "usage"
             ]
           },
-          "embedding_id": 497
+          "embedding_id": 499
         },
         {
           "id": "multi-method-advanced-model-considerations",
@@ -19023,7 +19159,7 @@
               "model"
             ]
           },
-          "embedding_id": 498
+          "embedding_id": 500
         },
         {
           "id": "multi-method-agent-catalog",
@@ -19061,7 +19197,7 @@
               "catalog"
             ]
           },
-          "embedding_id": 499
+          "embedding_id": 501
         },
         {
           "id": "multi-method-orchestrator-agent",
@@ -19102,7 +19238,7 @@
               "criteria"
             ]
           },
-          "embedding_id": 500
+          "embedding_id": 502
         },
         {
           "id": "multi-method-specialist-agent-parameterized-template",
@@ -19147,7 +19283,7 @@
               "criteria"
             ]
           },
-          "embedding_id": 501
+          "embedding_id": 503
         },
         {
           "id": "multi-method-validator-agent",
@@ -19190,7 +19326,7 @@
               "observations"
             ]
           },
-          "embedding_id": 502
+          "embedding_id": 504
         },
         {
           "id": "multi-method-contrarian-reviewer-agent",
@@ -19233,7 +19369,7 @@
               "risks"
             ]
           },
-          "embedding_id": 503
+          "embedding_id": 505
         },
         {
           "id": "multi-method-session-closer-agent",
@@ -19278,7 +19414,7 @@
               "criteria"
             ]
           },
-          "embedding_id": 504
+          "embedding_id": 506
         },
         {
           "id": "multi-method-governance-agent-generic-pattern",
@@ -19325,7 +19461,7 @@
               "principles"
             ]
           },
-          "embedding_id": 505
+          "embedding_id": 507
         },
         {
           "id": "multi-method-context-isolation-verification",
@@ -19368,7 +19504,7 @@
               "verification"
             ]
           },
-          "embedding_id": 506
+          "embedding_id": 508
         },
         {
           "id": "multi-method-handoff-pattern-taxonomy",
@@ -19418,7 +19554,7 @@
               "taxonomy"
             ]
           },
-          "embedding_id": 507
+          "embedding_id": 509
         },
         {
           "id": "multi-method-handoff-protocol",
@@ -19476,7 +19612,7 @@
               "resolution"
             ]
           },
-          "embedding_id": 508
+          "embedding_id": 510
         },
         {
           "id": "multi-method-orchestration-pattern-selection",
@@ -19536,7 +19672,7 @@
               "orchestration"
             ]
           },
-          "embedding_id": 509
+          "embedding_id": 511
         },
         {
           "id": "multi-method-compression-procedures",
@@ -19594,7 +19730,7 @@
               "included"
             ]
           },
-          "embedding_id": 510
+          "embedding_id": 512
         },
         {
           "id": "multi-method-memory-distillation-procedure",
@@ -19652,7 +19788,7 @@
               "questions"
             ]
           },
-          "embedding_id": 511
+          "embedding_id": 513
         },
         {
           "id": "multi-method-state-persistence-protocol",
@@ -19701,7 +19837,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 512
+          "embedding_id": 514
         },
         {
           "id": "multi-method-session-closer-protocol",
@@ -19750,7 +19886,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 513
+          "embedding_id": 515
         },
         {
           "id": "multi-method-observability-protocol",
@@ -19795,7 +19931,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 514
+          "embedding_id": 516
         },
         {
           "id": "multi-method-production-observability-patterns",
@@ -19845,7 +19981,7 @@
               "observability"
             ]
           },
-          "embedding_id": 515
+          "embedding_id": 517
         },
         {
           "id": "multi-method-react-loop-configuration",
@@ -19895,7 +20031,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 516
+          "embedding_id": 518
         },
         {
           "id": "multi-method-standardized-collaboration-protocols",
@@ -19948,7 +20084,7 @@
               "protocols"
             ]
           },
-          "embedding_id": 517
+          "embedding_id": 519
         },
         {
           "id": "multi-method-validation-agent-deployment",
@@ -19995,7 +20131,7 @@
               "deployment"
             ]
           },
-          "embedding_id": 518
+          "embedding_id": 520
         },
         {
           "id": "multi-method-contrarian-reviewer-pattern",
@@ -20037,7 +20173,7 @@
               "pattern"
             ]
           },
-          "embedding_id": 519
+          "embedding_id": 521
         },
         {
           "id": "multi-method-governance-agent-pattern",
@@ -20082,7 +20218,7 @@
               "pattern"
             ]
           },
-          "embedding_id": 520
+          "embedding_id": 522
         },
         {
           "id": "multi-method-fault-tolerance-procedures",
@@ -20132,7 +20268,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 521
+          "embedding_id": 523
         },
         {
           "id": "multi-method-human-in-the-loop-gates",
@@ -20185,7 +20321,7 @@
               "proceed"
             ]
           },
-          "embedding_id": 522
+          "embedding_id": 524
         },
         {
           "id": "multi-method-governance-enforcement-architecture",
@@ -20246,7 +20382,7 @@
               "authorization"
             ]
           },
-          "embedding_id": 523
+          "embedding_id": 525
         },
         {
           "id": "multi-method-assessment-responsibility-layers",
@@ -20298,7 +20434,7 @@
               "responsibility"
             ]
           },
-          "embedding_id": 524
+          "embedding_id": 526
         },
         {
           "id": "multi-method-gateway-based-enforcement-platform-agnostic",
@@ -20348,7 +20484,7 @@
               "enforcement"
             ]
           },
-          "embedding_id": 525
+          "embedding_id": 527
         },
         {
           "id": "multi-method-hook-based-enforcement-client-side-deterministic",
@@ -20403,7 +20539,7 @@
               "enforcement"
             ]
           },
-          "embedding_id": 526
+          "embedding_id": 528
         },
         {
           "id": "multi-method-agent-evaluation-framework",
@@ -20461,7 +20597,7 @@
               "analysis"
             ]
           },
-          "embedding_id": 527
+          "embedding_id": 529
         },
         {
           "id": "multi-method-grader-types",
@@ -20509,7 +20645,7 @@
               "types"
             ]
           },
-          "embedding_id": 528
+          "embedding_id": 530
         },
         {
           "id": "multi-method-non-determinism-measurement",
@@ -20562,7 +20698,7 @@
               "assessment"
             ]
           },
-          "embedding_id": 529
+          "embedding_id": 531
         },
         {
           "id": "multi-method-capability-vs-regression-evals",
@@ -20614,7 +20750,7 @@
               "regression"
             ]
           },
-          "embedding_id": 530
+          "embedding_id": 532
         },
         {
           "id": "multi-method-grader-design-principles",
@@ -20667,7 +20803,7 @@
               "design"
             ]
           },
-          "embedding_id": 531
+          "embedding_id": 533
         },
         {
           "id": "multi-method-production-safety-guardrails",
@@ -20718,7 +20854,7 @@
               "guardrails"
             ]
           },
-          "embedding_id": 532
+          "embedding_id": 534
         },
         {
           "id": "multi-method-context-file-synchronization",
@@ -20768,7 +20904,7 @@
               "synchronization"
             ]
           },
-          "embedding_id": 533
+          "embedding_id": 535
         },
         {
           "id": "multi-method-multi-tool-workflow-patterns",
@@ -20827,7 +20963,7 @@
               "patterns"
             ]
           },
-          "embedding_id": 534
+          "embedding_id": 536
         },
         {
           "id": "multi-method-action-blast-radius-classification",
@@ -20887,7 +21023,7 @@
               "radius"
             ]
           },
-          "embedding_id": 535
+          "embedding_id": 537
         },
         {
           "id": "multi-method-autonomy-level-assessment",
@@ -20945,7 +21081,7 @@
               "assessment"
             ]
           },
-          "embedding_id": 536
+          "embedding_id": 538
         },
         {
           "id": "multi-method-compensating-controls-checklist",
@@ -20997,7 +21133,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 537
+          "embedding_id": 539
         },
         {
           "id": "multi-method-drift-monitoring-procedures",
@@ -21050,7 +21186,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 538
+          "embedding_id": 540
         },
         {
           "id": "multi-method-autonomous-experimentation-protocol",
@@ -21083,7 +21219,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 539
+          "embedding_id": 541
         },
         {
           "id": "multi-method-the-research-protocol-document-program-md-pattern",
@@ -21129,7 +21265,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 540
+          "embedding_id": 542
         },
         {
           "id": "multi-method-permission-configuration-for-autonomous-operation",
@@ -21165,7 +21301,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 541
+          "embedding_id": 543
         },
         {
           "id": "multi-method-the-experimentation-loop",
@@ -21196,7 +21332,7 @@
               "loop"
             ]
           },
-          "embedding_id": 542
+          "embedding_id": 544
         },
         {
           "id": "multi-method-results-logging",
@@ -21248,11 +21384,11 @@
               "behavior"
             ]
           },
-          "embedding_id": 543
+          "embedding_id": 545
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-04T03:11:36.326935+00:00",
+      "last_extracted": "2026-04-04T03:24:04.198603+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -21297,7 +21433,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 544
+          "embedding_id": 546
         },
         {
           "id": "stor-architecture-a3-accessibility-by-design",
@@ -21336,7 +21472,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 545
+          "embedding_id": 547
         },
         {
           "id": "stor-structure-st1-framework-as-tool-not-law",
@@ -21376,7 +21512,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 546
+          "embedding_id": 548
         },
         {
           "id": "stor-structure-st2-cultural-aware-framework-selection",
@@ -21418,7 +21554,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 547
+          "embedding_id": 549
         },
         {
           "id": "stor-structure-st3-transformation-arc",
@@ -21456,7 +21592,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 548
+          "embedding_id": 550
         },
         {
           "id": "stor-structure-st4-stakes-and-consequence-clarity",
@@ -21498,7 +21634,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 549
+          "embedding_id": 551
         },
         {
           "id": "stor-structure-st5-perspective-selection",
@@ -21538,7 +21674,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 550
+          "embedding_id": 552
         },
         {
           "id": "stor-context-c1-specificity-over-abstraction",
@@ -21579,7 +21715,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 551
+          "embedding_id": 553
         },
         {
           "id": "stor-context-c2-show-tell-balance",
@@ -21619,7 +21755,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 552
+          "embedding_id": 554
         },
         {
           "id": "stor-context-c3-pacing-variation",
@@ -21658,7 +21794,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 553
+          "embedding_id": 555
         },
         {
           "id": "stor-context-c5-dialogue-craft",
@@ -21697,7 +21833,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 554
+          "embedding_id": 556
         },
         {
           "id": "stor-medium-m1-platform-first-optimization",
@@ -21737,7 +21873,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 555
+          "embedding_id": 557
         },
         {
           "id": "stor-medium-m4-resolution-calibration",
@@ -21776,7 +21912,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 556
+          "embedding_id": 558
         },
         {
           "id": "stor-safety-e1-human-voice-preservation",
@@ -21817,7 +21953,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 557
+          "embedding_id": 559
         },
         {
           "id": "stor-safety-e2-persuasion-manipulation-boundary",
@@ -21857,7 +21993,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 558
+          "embedding_id": 560
         }
       ],
       "methods": [
@@ -21902,7 +22038,7 @@
               "math"
             ]
           },
-          "embedding_id": 559
+          "embedding_id": 561
         },
         {
           "id": "stor-method-the-story-bible-architecture",
@@ -21943,7 +22079,7 @@
               "tiers?"
             ]
           },
-          "embedding_id": 560
+          "embedding_id": 562
         },
         {
           "id": "stor-method-reference-items-to-track",
@@ -21997,7 +22133,7 @@
               "guide"
             ]
           },
-          "embedding_id": 561
+          "embedding_id": 563
         },
         {
           "id": "stor-method-story-bible-template",
@@ -22048,7 +22184,7 @@
               "(25k+"
             ]
           },
-          "embedding_id": 562
+          "embedding_id": 564
         },
         {
           "id": "stor-method-story-foundation-immutable",
@@ -22081,7 +22217,7 @@
               "stakes"
             ]
           },
-          "embedding_id": 563
+          "embedding_id": 565
         },
         {
           "id": "stor-method-characters",
@@ -22130,7 +22266,7 @@
               "sheets...]"
             ]
           },
-          "embedding_id": 564
+          "embedding_id": 566
         },
         {
           "id": "stor-method-world",
@@ -22170,7 +22306,7 @@
               "magic/technology/social]"
             ]
           },
-          "embedding_id": 565
+          "embedding_id": 567
         },
         {
           "id": "stor-method-plot-architecture",
@@ -22210,7 +22346,7 @@
               "(reader"
             ]
           },
-          "embedding_id": 566
+          "embedding_id": 568
         },
         {
           "id": "stor-method-style-guide",
@@ -22252,7 +22388,7 @@
               "conventions"
             ]
           },
-          "embedding_id": 567
+          "embedding_id": 569
         },
         {
           "id": "stor-method-timeline",
@@ -22285,7 +22421,7 @@
               "events"
             ]
           },
-          "embedding_id": 568
+          "embedding_id": 570
         },
         {
           "id": "stor-method-session-state-working-memory",
@@ -22341,7 +22477,7 @@
               "last"
             ]
           },
-          "embedding_id": 569
+          "embedding_id": 571
         },
         {
           "id": "stor-method-context-loading-protocol",
@@ -22383,7 +22519,7 @@
               "guideline"
             ]
           },
-          "embedding_id": 570
+          "embedding_id": 572
         },
         {
           "id": "stor-method-when-to-create-new-reference-items",
@@ -22432,7 +22568,7 @@
               "mid-project"
             ]
           },
-          "embedding_id": 571
+          "embedding_id": 573
         },
         {
           "id": "stor-method-platform-specific-adaptations",
@@ -22484,7 +22620,7 @@
               "(web"
             ]
           },
-          "embedding_id": 572
+          "embedding_id": 574
         },
         {
           "id": "stor-method-voice-preservation-integration",
@@ -22531,7 +22667,7 @@
               "change"
             ]
           },
-          "embedding_id": 573
+          "embedding_id": 575
         },
         {
           "id": "stor-method-recovery-protocol",
@@ -22577,7 +22713,7 @@
               "long"
             ]
           },
-          "embedding_id": 574
+          "embedding_id": 576
         },
         {
           "id": "stor-method-governance-integration",
@@ -22608,7 +22744,7 @@
               "sessions"
             ]
           },
-          "embedding_id": 575
+          "embedding_id": 577
         },
         {
           "id": "stor-method-auto-tracking-protocol",
@@ -22660,7 +22796,7 @@
               "auto-extraction"
             ]
           },
-          "embedding_id": 576
+          "embedding_id": 578
         },
         {
           "id": "stor-method-revision-management-protocol",
@@ -22714,7 +22850,7 @@
               "type"
             ]
           },
-          "embedding_id": 577
+          "embedding_id": 579
         },
         {
           "id": "stor-method-non-linear-writing-protocol",
@@ -22767,7 +22903,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 578
+          "embedding_id": 580
         },
         {
           "id": "stor-method-story-log-template",
@@ -22829,7 +22965,7 @@
               "threads"
             ]
           },
-          "embedding_id": 579
+          "embedding_id": 581
         },
         {
           "id": "stor-method-character-voice-profiles",
@@ -22864,7 +23000,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 580
+          "embedding_id": 582
         },
         {
           "id": "stor-method-voice-profile-components",
@@ -22902,7 +23038,7 @@
               "profile"
             ]
           },
-          "embedding_id": 581
+          "embedding_id": 583
         },
         {
           "id": "stor-method-voice-distinction-test",
@@ -22938,7 +23074,7 @@
               "distinction"
             ]
           },
-          "embedding_id": 582
+          "embedding_id": 584
         },
         {
           "id": "stor-method-voice-drift-detection",
@@ -22971,7 +23107,7 @@
               "drift"
             ]
           },
-          "embedding_id": 583
+          "embedding_id": 585
         },
         {
           "id": "stor-method-genre-conventions-guide",
@@ -23005,7 +23141,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 584
+          "embedding_id": 586
         },
         {
           "id": "stor-method-convention-reference",
@@ -23042,7 +23178,7 @@
               "reference"
             ]
           },
-          "embedding_id": 585
+          "embedding_id": 587
         },
         {
           "id": "stor-method-convention-decision-workflow",
@@ -23081,7 +23217,7 @@
               "decision"
             ]
           },
-          "embedding_id": 586
+          "embedding_id": 588
         },
         {
           "id": "stor-method-plot-consistency-checks",
@@ -23116,7 +23252,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 587
+          "embedding_id": 589
         },
         {
           "id": "stor-method-check-categories",
@@ -23151,7 +23287,7 @@
               "categories"
             ]
           },
-          "embedding_id": 588
+          "embedding_id": 590
         },
         {
           "id": "stor-method-character-knowledge-audit",
@@ -23182,7 +23318,7 @@
               "knowledge"
             ]
           },
-          "embedding_id": 589
+          "embedding_id": 591
         },
         {
           "id": "stor-method-timeline-verification",
@@ -23211,7 +23347,7 @@
               "verification"
             ]
           },
-          "embedding_id": 590
+          "embedding_id": 592
         },
         {
           "id": "stor-method-quick-consistency-scan",
@@ -23242,7 +23378,7 @@
               "consistency"
             ]
           },
-          "embedding_id": 591
+          "embedding_id": 593
         },
         {
           "id": "stor-method-coaching-question-taxonomy",
@@ -23275,7 +23411,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 592
+          "embedding_id": 594
         },
         {
           "id": "stor-method-question-categories",
@@ -23309,7 +23445,7 @@
               "categories"
             ]
           },
-          "embedding_id": 593
+          "embedding_id": 595
         },
         {
           "id": "stor-method-discovery-questions",
@@ -23338,7 +23474,7 @@
               "questions"
             ]
           },
-          "embedding_id": 594
+          "embedding_id": 596
         },
         {
           "id": "stor-method-character-questions",
@@ -23367,7 +23503,7 @@
               "questions"
             ]
           },
-          "embedding_id": 595
+          "embedding_id": 597
         },
         {
           "id": "stor-method-structure-questions",
@@ -23396,7 +23532,7 @@
               "questions"
             ]
           },
-          "embedding_id": 596
+          "embedding_id": 598
         },
         {
           "id": "stor-method-craft-questions",
@@ -23425,7 +23561,7 @@
               "questions"
             ]
           },
-          "embedding_id": 597
+          "embedding_id": 599
         },
         {
           "id": "stor-method-revision-questions",
@@ -23454,7 +23590,7 @@
               "questions"
             ]
           },
-          "embedding_id": 598
+          "embedding_id": 600
         },
         {
           "id": "stor-method-stuck-questions",
@@ -23483,7 +23619,7 @@
               "questions"
             ]
           },
-          "embedding_id": 599
+          "embedding_id": 601
         },
         {
           "id": "stor-method-progressive-inquiry-pattern",
@@ -23535,11 +23671,11 @@
               "best"
             ]
           },
-          "embedding_id": 600
+          "embedding_id": 602
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-04T03:11:36.329476+00:00",
+      "last_extracted": "2026-04-04T03:24:04.201403+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -23583,7 +23719,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 601
+          "embedding_id": 603
         },
         {
           "id": "mrag-presentation-p2-natural-integration",
@@ -23622,7 +23758,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 602
+          "embedding_id": 604
         },
         {
           "id": "mrag-presentation-p3-image-selection-criteria",
@@ -23663,7 +23799,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 603
+          "embedding_id": 605
         },
         {
           "id": "mrag-presentation-p4-audience-adaptation",
@@ -23702,7 +23838,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 604
+          "embedding_id": 606
         },
         {
           "id": "mrag-presentation-p5-accessibility-compliance",
@@ -23741,7 +23877,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 605
+          "embedding_id": 607
         },
         {
           "id": "mrag-reference-r1-image-text-collocation",
@@ -23781,7 +23917,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 606
+          "embedding_id": 608
         },
         {
           "id": "mrag-reference-r2-descriptive-context",
@@ -23820,7 +23956,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 607
+          "embedding_id": 609
         },
         {
           "id": "mrag-reference-r3-retrieval-metadata",
@@ -23858,7 +23994,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 608
+          "embedding_id": 610
         },
         {
           "id": "mrag-architecture-a1-unified-embedding-space",
@@ -23898,7 +24034,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 609
+          "embedding_id": 611
         },
         {
           "id": "mrag-architecture-a2-relevance-scoring",
@@ -23937,7 +24073,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 610
+          "embedding_id": 612
         },
         {
           "id": "mrag-architecture-a3-vision-guided-chunking",
@@ -23977,7 +24113,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 611
+          "embedding_id": 613
         },
         {
           "id": "mrag-architecture-a4-document-as-image-retrieval",
@@ -24017,7 +24153,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 612
+          "embedding_id": 614
         },
         {
           "id": "mrag-architecture-a5-knowledge-graph-integration",
@@ -24058,7 +24194,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 613
+          "embedding_id": 615
         },
         {
           "id": "mrag-fallback-f1-graceful-degradation",
@@ -24096,7 +24232,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 614
+          "embedding_id": 616
         },
         {
           "id": "mrag-fallback-f2-failure-transparency",
@@ -24135,7 +24271,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 615
+          "embedding_id": 617
         },
         {
           "id": "mrag-verification-v1-cross-modal-consistency-verification",
@@ -24175,7 +24311,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 616
+          "embedding_id": 618
         },
         {
           "id": "mrag-verification-v2-visual-scene-graph-checking",
@@ -24217,7 +24353,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 617
+          "embedding_id": 619
         },
         {
           "id": "mrag-verification-v3-source-fidelity",
@@ -24256,7 +24392,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 618
+          "embedding_id": 620
         },
         {
           "id": "mrag-verification-v4-cross-modal-reasoning-chain-integrity",
@@ -24298,7 +24434,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 619
+          "embedding_id": 621
         },
         {
           "id": "mrag-evaluation-ev1-retrieval-quality-measurement",
@@ -24340,7 +24476,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 620
+          "embedding_id": 622
         },
         {
           "id": "mrag-evaluation-ev2-answer-faithfulness-assessment",
@@ -24382,7 +24518,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 621
+          "embedding_id": 623
         },
         {
           "id": "mrag-citation-ct1-fragment-level-source-attribution",
@@ -24424,7 +24560,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 622
+          "embedding_id": 624
         },
         {
           "id": "mrag-citation-ct2-spatial-attribution-for-visual-content",
@@ -24467,7 +24603,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 623
+          "embedding_id": 625
         },
         {
           "id": "mrag-security-sec1-multimodal-poisoning-defense",
@@ -24509,7 +24645,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 624
+          "embedding_id": 626
         },
         {
           "id": "mrag-security-sec2-cross-modal-input-validation",
@@ -24551,7 +24687,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 625
+          "embedding_id": 627
         },
         {
           "id": "mrag-data-governance-dg1-access-control-for-multimodal-knowledge-bases",
@@ -24595,7 +24731,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 626
+          "embedding_id": 628
         },
         {
           "id": "mrag-data-governance-dg2-data-lineage-and-provenance",
@@ -24637,7 +24773,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 627
+          "embedding_id": 629
         },
         {
           "id": "mrag-operations-o1-index-version-management",
@@ -24678,7 +24814,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 628
+          "embedding_id": 630
         },
         {
           "id": "mrag-operations-o2-continuous-monitoring-observability",
@@ -24719,7 +24855,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 629
+          "embedding_id": 631
         },
         {
           "id": "mrag-agentic-retrieval-ag1-adaptive-retrieval-strategy",
@@ -24761,7 +24897,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 630
+          "embedding_id": 632
         },
         {
           "id": "mrag-agentic-retrieval-ag2-query-decomposition",
@@ -24801,7 +24937,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 631
+          "embedding_id": 633
         },
         {
           "id": "mrag-agentic-retrieval-ag3-retrieval-sufficiency-evaluation",
@@ -24843,7 +24979,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 632
+          "embedding_id": 634
         }
       ],
       "methods": [
@@ -24870,7 +25006,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 633
+          "embedding_id": 635
         },
         {
           "id": "mrag-method-image-placement-workflow",
@@ -24901,7 +25037,7 @@
               "workflow"
             ]
           },
-          "embedding_id": 634
+          "embedding_id": 636
         },
         {
           "id": "mrag-method-inline-placement-rules",
@@ -24932,7 +25068,7 @@
               "rules"
             ]
           },
-          "embedding_id": 635
+          "embedding_id": 637
         },
         {
           "id": "mrag-method-image-selection-algorithm-mayer-based",
@@ -24967,7 +25103,7 @@
               "algorithm"
             ]
           },
-          "embedding_id": 636
+          "embedding_id": 638
         },
         {
           "id": "mrag-method-content-type-matching",
@@ -24995,7 +25131,7 @@
               "matching"
             ]
           },
-          "embedding_id": 637
+          "embedding_id": 639
         },
         {
           "id": "mrag-method-readability-standards",
@@ -25026,7 +25162,7 @@
               "standards"
             ]
           },
-          "embedding_id": 638
+          "embedding_id": 640
         },
         {
           "id": "mrag-method-accessibility-implementation-checklist",
@@ -25090,7 +25226,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 639
+          "embedding_id": 641
         },
         {
           "id": "mrag-method-reference-document-structuring",
@@ -25117,7 +25253,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 640
+          "embedding_id": 642
         },
         {
           "id": "mrag-method-document-organization-template",
@@ -25148,7 +25284,7 @@
               "template"
             ]
           },
-          "embedding_id": 641
+          "embedding_id": 643
         },
         {
           "id": "mrag-method-image-description-requirements",
@@ -25183,7 +25319,7 @@
               "requirements"
             ]
           },
-          "embedding_id": 642
+          "embedding_id": 644
         },
         {
           "id": "mrag-method-metadata-schema",
@@ -25211,7 +25347,7 @@
               "schema"
             ]
           },
-          "embedding_id": 643
+          "embedding_id": 645
         },
         {
           "id": "mrag-method-collocation-verification-checklist",
@@ -25242,7 +25378,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 644
+          "embedding_id": 646
         },
         {
           "id": "mrag-method-content-ingestion-assistance-workflow",
@@ -25298,7 +25434,7 @@
               "validation"
             ]
           },
-          "embedding_id": 645
+          "embedding_id": 647
         },
         {
           "id": "mrag-method-retrieval-architecture",
@@ -25323,7 +25459,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 646
+          "embedding_id": 648
         },
         {
           "id": "mrag-method-four-layer-architecture",
@@ -25351,7 +25487,7 @@
               "architecture"
             ]
           },
-          "embedding_id": 647
+          "embedding_id": 649
         },
         {
           "id": "mrag-method-embedding-model-selection",
@@ -25388,7 +25524,7 @@
               "selection"
             ]
           },
-          "embedding_id": 648
+          "embedding_id": 650
         },
         {
           "id": "mrag-method-relevance-scoring-implementation",
@@ -25419,7 +25555,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 649
+          "embedding_id": 651
         },
         {
           "id": "mrag-method-chunk-strategy-for-multimodal-documents",
@@ -25454,7 +25590,7 @@
               "multimodal"
             ]
           },
-          "embedding_id": 650
+          "embedding_id": 652
         },
         {
           "id": "mrag-method-vision-guided-chunking-procedures",
@@ -25511,7 +25647,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 651
+          "embedding_id": 653
         },
         {
           "id": "mrag-method-cross-modal-reference-linking",
@@ -25569,7 +25705,7 @@
               "linking"
             ]
           },
-          "embedding_id": 652
+          "embedding_id": 654
         },
         {
           "id": "mrag-method-late-interaction-and-document-as-image-retrieval",
@@ -25630,7 +25766,7 @@
               "document-as-image"
             ]
           },
-          "embedding_id": 653
+          "embedding_id": 655
         },
         {
           "id": "mrag-method-graph-based-multimodal-retrieval",
@@ -25689,7 +25825,7 @@
               "retrieval"
             ]
           },
-          "embedding_id": 654
+          "embedding_id": 656
         },
         {
           "id": "mrag-method-failure-handling",
@@ -25714,7 +25850,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 655
+          "embedding_id": 657
         },
         {
           "id": "mrag-method-failure-classification",
@@ -25742,7 +25878,7 @@
               "classification"
             ]
           },
-          "embedding_id": 656
+          "embedding_id": 658
         },
         {
           "id": "mrag-method-graceful-degradation-procedure",
@@ -25773,7 +25909,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 657
+          "embedding_id": 659
         },
         {
           "id": "mrag-method-failure-note-templates",
@@ -25808,7 +25944,7 @@
               "templates"
             ]
           },
-          "embedding_id": 658
+          "embedding_id": 660
         },
         {
           "id": "mrag-method-failure-logging-schema",
@@ -25839,7 +25975,7 @@
               "schema"
             ]
           },
-          "embedding_id": 659
+          "embedding_id": 661
         },
         {
           "id": "mrag-method-verification-and-hallucination-prevention",
@@ -25866,7 +26002,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 660
+          "embedding_id": 662
         },
         {
           "id": "mrag-method-cross-modal-consistency-check",
@@ -25920,7 +26056,7 @@
               "check"
             ]
           },
-          "embedding_id": 661
+          "embedding_id": 663
         },
         {
           "id": "mrag-method-visual-scene-graph-validation",
@@ -25974,7 +26110,7 @@
               "graph"
             ]
           },
-          "embedding_id": 662
+          "embedding_id": 664
         },
         {
           "id": "mrag-method-modality-conflict-resolution",
@@ -26028,7 +26164,7 @@
               "resolution"
             ]
           },
-          "embedding_id": 663
+          "embedding_id": 665
         },
         {
           "id": "mrag-method-visual-textual-inconsistency-handling",
@@ -26069,7 +26205,7 @@
               "handling"
             ]
           },
-          "embedding_id": 664
+          "embedding_id": 666
         },
         {
           "id": "mrag-method-multi-hop-cross-modal-reasoning-verification",
@@ -26130,7 +26266,7 @@
               "reasoning"
             ]
           },
-          "embedding_id": 665
+          "embedding_id": 667
         },
         {
           "id": "mrag-method-evaluation-framework",
@@ -26155,7 +26291,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 666
+          "embedding_id": 668
         },
         {
           "id": "mrag-method-rag-check-6-metric-implementation",
@@ -26213,7 +26349,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 667
+          "embedding_id": 669
         },
         {
           "id": "mrag-method-multimodal-mrr-calculation",
@@ -26253,7 +26389,7 @@
               "calculation"
             ]
           },
-          "embedding_id": 668
+          "embedding_id": 670
         },
         {
           "id": "mrag-method-drift-detection",
@@ -26301,7 +26437,7 @@
               "detection"
             ]
           },
-          "embedding_id": 669
+          "embedding_id": 671
         },
         {
           "id": "mrag-method-benchmark-construction",
@@ -26340,7 +26476,7 @@
               "construction"
             ]
           },
-          "embedding_id": 670
+          "embedding_id": 672
         },
         {
           "id": "mrag-method-citation-and-attribution",
@@ -26365,7 +26501,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 671
+          "embedding_id": 673
         },
         {
           "id": "mrag-method-fragment-level-source-tracking",
@@ -26422,7 +26558,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 672
+          "embedding_id": 674
         },
         {
           "id": "mrag-method-visa-spatial-attribution",
@@ -26476,7 +26612,7 @@
               "attribution"
             ]
           },
-          "embedding_id": 673
+          "embedding_id": 675
         },
         {
           "id": "mrag-method-citation-formatting",
@@ -26515,7 +26651,7 @@
               "formatting"
             ]
           },
-          "embedding_id": 674
+          "embedding_id": 676
         },
         {
           "id": "mrag-method-citation-verification-checklist",
@@ -26546,7 +26682,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 675
+          "embedding_id": 677
         },
         {
           "id": "mrag-method-security-for-multimodal-knowledge-bases",
@@ -26575,7 +26711,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 676
+          "embedding_id": 678
         },
         {
           "id": "mrag-method-poisoning-attack-taxonomy",
@@ -26636,7 +26772,7 @@
               "taxonomy"
             ]
           },
-          "embedding_id": 677
+          "embedding_id": 679
         },
         {
           "id": "mrag-method-input-validation-pipeline",
@@ -26685,7 +26821,7 @@
               "pipeline"
             ]
           },
-          "embedding_id": 678
+          "embedding_id": 680
         },
         {
           "id": "mrag-method-defense-assessment-checklist",
@@ -26724,7 +26860,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 679
+          "embedding_id": 681
         },
         {
           "id": "mrag-method-cross-domain-security-reference",
@@ -26774,7 +26910,7 @@
               "reference"
             ]
           },
-          "embedding_id": 680
+          "embedding_id": 682
         },
         {
           "id": "mrag-method-data-governance",
@@ -26799,7 +26935,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 681
+          "embedding_id": 683
         },
         {
           "id": "mrag-method-rbac-configuration",
@@ -26849,7 +26985,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 682
+          "embedding_id": 684
         },
         {
           "id": "mrag-method-encryption-and-transit-security",
@@ -26890,7 +27026,7 @@
               "security"
             ]
           },
-          "embedding_id": 683
+          "embedding_id": 685
         },
         {
           "id": "mrag-method-audit-trail-schema",
@@ -26930,7 +27066,7 @@
               "schema"
             ]
           },
-          "embedding_id": 684
+          "embedding_id": 686
         },
         {
           "id": "mrag-method-data-lineage-tracking",
@@ -26971,7 +27107,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 685
+          "embedding_id": 687
         },
         {
           "id": "mrag-method-operational-management",
@@ -27018,7 +27154,7 @@
               "index"
             ]
           },
-          "embedding_id": 686
+          "embedding_id": 688
         },
         {
           "id": "mrag-method-embedding-model-lifecycle",
@@ -27060,7 +27196,7 @@
               "model"
             ]
           },
-          "embedding_id": 687
+          "embedding_id": 689
         },
         {
           "id": "mrag-method-prompt-template-versioning",
@@ -27100,7 +27236,7 @@
               "template"
             ]
           },
-          "embedding_id": 688
+          "embedding_id": 690
         },
         {
           "id": "mrag-method-cost-monitoring",
@@ -27144,7 +27280,7 @@
               "monitoring"
             ]
           },
-          "embedding_id": 689
+          "embedding_id": 691
         },
         {
           "id": "mrag-method-observability-dashboard",
@@ -27185,7 +27321,7 @@
               "dashboard"
             ]
           },
-          "embedding_id": 690
+          "embedding_id": 692
         },
         {
           "id": "mrag-method-agentic-retrieval-patterns",
@@ -27212,7 +27348,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 691
+          "embedding_id": 693
         },
         {
           "id": "mrag-method-adaptive-retrieval-loop-design",
@@ -27272,7 +27408,7 @@
               "retrieval"
             ]
           },
-          "embedding_id": 692
+          "embedding_id": 694
         },
         {
           "id": "mrag-method-query-decomposition-procedures",
@@ -27335,7 +27471,7 @@
               "decomposition"
             ]
           },
-          "embedding_id": 693
+          "embedding_id": 695
         },
         {
           "id": "mrag-method-retrieval-sufficiency-evaluation",
@@ -27390,7 +27526,7 @@
               "sufficiency"
             ]
           },
-          "embedding_id": 694
+          "embedding_id": 696
         },
         {
           "id": "mrag-method-agent-coordination-for-knowledge-synthesis",
@@ -27453,7 +27589,7 @@
               "coordination"
             ]
           },
-          "embedding_id": 695
+          "embedding_id": 697
         },
         {
           "id": "mrag-method-termination-and-fallback-controls",
@@ -27528,11 +27664,11 @@
               "multimodal"
             ]
           },
-          "embedding_id": 696
+          "embedding_id": 698
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-04T03:11:36.332901+00:00",
+      "last_extracted": "2026-04-04T03:24:04.205281+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -27585,7 +27721,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 697
+          "embedding_id": 699
         },
         {
           "id": "uiux-visual-hierarchy-vh2-typography-and-readability",
@@ -27631,7 +27767,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 698
+          "embedding_id": 700
         },
         {
           "id": "uiux-visual-hierarchy-vh3-design-intentionality",
@@ -27677,7 +27813,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 699
+          "embedding_id": 701
         },
         {
           "id": "uiux-design-system-ds1-design-token-architecture",
@@ -27725,7 +27861,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 700
+          "embedding_id": 702
         },
         {
           "id": "uiux-design-system-ds2-component-consistency",
@@ -27771,7 +27907,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 701
+          "embedding_id": 703
         },
         {
           "id": "uiux-design-system-ds3-design-system-discovery",
@@ -27819,7 +27955,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 702
+          "embedding_id": 704
         },
         {
           "id": "uiux-accessibility-acc1-semantic-markup-and-aria-contracts",
@@ -27868,7 +28004,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 703
+          "embedding_id": 705
         },
         {
           "id": "uiux-accessibility-acc2-keyboard-navigation-and-focus-management",
@@ -27917,7 +28053,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 704
+          "embedding_id": 706
         },
         {
           "id": "uiux-accessibility-acc3-color-and-contrast-compliance",
@@ -27965,7 +28101,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 705
+          "embedding_id": 707
         },
         {
           "id": "uiux-responsive-rd1-responsive-layout-strategy",
@@ -28012,7 +28148,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 706
+          "embedding_id": 708
         },
         {
           "id": "uiux-responsive-rd2-touch-target-and-input-adaptation",
@@ -28061,7 +28197,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 707
+          "embedding_id": 709
         },
         {
           "id": "uiux-interaction-ix1-interaction-feedback-and-state-communication",
@@ -28109,7 +28245,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 708
+          "embedding_id": 710
         },
         {
           "id": "uiux-interaction-ix2-loading-and-perceived-performance",
@@ -28157,7 +28293,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 709
+          "embedding_id": 711
         },
         {
           "id": "uiux-interaction-ix3-affordance-and-discoverability",
@@ -28203,7 +28339,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 710
+          "embedding_id": 712
         },
         {
           "id": "uiux-interaction-ix4-error-handling-and-recovery",
@@ -28251,7 +28387,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 711
+          "embedding_id": 713
         },
         {
           "id": "uiux-interaction-ix5-component-selection-appropriateness",
@@ -28299,7 +28435,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 712
+          "embedding_id": 714
         },
         {
           "id": "uiux-interaction-ix6-form-design-and-validation",
@@ -28347,7 +28483,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 713
+          "embedding_id": 715
         },
         {
           "id": "uiux-interaction-ix7-ethical-interaction-design",
@@ -28394,7 +28530,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 714
+          "embedding_id": 716
         },
         {
           "id": "uiux-platform-pl1-platform-convention-compliance",
@@ -28441,7 +28577,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 715
+          "embedding_id": 717
         },
         {
           "id": "uiux-platform-pl2-cross-platform-adaptation",
@@ -28488,7 +28624,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 716
+          "embedding_id": 718
         }
       ],
       "methods": [
@@ -28517,7 +28653,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 717
+          "embedding_id": 719
         },
         {
           "id": "uiux-method-pre-implementation-discovery-procedure",
@@ -28572,7 +28708,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 718
+          "embedding_id": 720
         },
         {
           "id": "uiux-method-design-handoff-processing",
@@ -28627,7 +28763,7 @@
               "processing"
             ]
           },
-          "embedding_id": 719
+          "embedding_id": 721
         },
         {
           "id": "uiux-method-visual-qa-procedure",
@@ -28672,7 +28808,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 720
+          "embedding_id": 722
         },
         {
           "id": "uiux-method-component-library-governance",
@@ -28701,7 +28837,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 721
+          "embedding_id": 723
         },
         {
           "id": "uiux-method-token-management-procedures",
@@ -28755,7 +28891,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 722
+          "embedding_id": 724
         },
         {
           "id": "uiux-method-atomic-design-implementation",
@@ -28811,7 +28947,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 723
+          "embedding_id": 725
         },
         {
           "id": "uiux-method-component-naming-conventions",
@@ -28860,7 +28996,7 @@
               "conventions"
             ]
           },
-          "embedding_id": 724
+          "embedding_id": 726
         },
         {
           "id": "uiux-method-design-system-gap-reporting",
@@ -28910,7 +29046,7 @@
               "reporting"
             ]
           },
-          "embedding_id": 725
+          "embedding_id": 727
         },
         {
           "id": "uiux-method-design-review-and-validation-gates",
@@ -28941,7 +29077,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 726
+          "embedding_id": 728
         },
         {
           "id": "uiux-method-pre-commit-ui-review-checklist",
@@ -28998,7 +29134,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 727
+          "embedding_id": 729
         },
         {
           "id": "uiux-method-accessibility-spot-check-procedure",
@@ -29045,7 +29181,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 728
+          "embedding_id": 730
         },
         {
           "id": "uiux-method-responsive-validation-matrix",
@@ -29099,7 +29235,7 @@
               "matrix"
             ]
           },
-          "embedding_id": 729
+          "embedding_id": 731
         },
         {
           "id": "uiux-method-component-consistency-audit",
@@ -29148,7 +29284,7 @@
               "audit"
             ]
           },
-          "embedding_id": 730
+          "embedding_id": 732
         },
         {
           "id": "uiux-method-dark-pattern-screening",
@@ -29201,7 +29337,7 @@
               "screening"
             ]
           },
-          "embedding_id": 731
+          "embedding_id": 733
         },
         {
           "id": "uiux-method-core-web-vitals-validation",
@@ -29254,7 +29390,7 @@
               "validation"
             ]
           },
-          "embedding_id": 732
+          "embedding_id": 734
         },
         {
           "id": "uiux-method-accessibility-testing-and-auditing",
@@ -29283,7 +29419,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 733
+          "embedding_id": 735
         },
         {
           "id": "uiux-method-wcag-2-2-level-aa-compliance-checklist",
@@ -29340,7 +29476,7 @@
               "compliance"
             ]
           },
-          "embedding_id": 734
+          "embedding_id": 736
         },
         {
           "id": "uiux-method-screen-reader-testing-procedure",
@@ -29387,7 +29523,7 @@
               "testing"
             ]
           },
-          "embedding_id": 735
+          "embedding_id": 737
         },
         {
           "id": "uiux-method-automated-accessibility-scanning",
@@ -29439,7 +29575,7 @@
               "scanning"
             ]
           },
-          "embedding_id": 736
+          "embedding_id": 738
         },
         {
           "id": "uiux-method-color-contrast-verification",
@@ -29488,7 +29624,7 @@
               "verification"
             ]
           },
-          "embedding_id": 737
+          "embedding_id": 739
         },
         {
           "id": "uiux-method-responsive-breakpoint-strategy",
@@ -29517,7 +29653,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 738
+          "embedding_id": 740
         },
         {
           "id": "uiux-method-breakpoint-definition-and-rationale",
@@ -29569,7 +29705,7 @@
               "rationale"
             ]
           },
-          "embedding_id": 739
+          "embedding_id": 741
         },
         {
           "id": "uiux-method-content-adaptation-patterns",
@@ -29621,7 +29757,7 @@
               "patterns"
             ]
           },
-          "embedding_id": 740
+          "embedding_id": 742
         },
         {
           "id": "uiux-method-touch-target-compliance-matrix",
@@ -29663,7 +29799,7 @@
               "compliance"
             ]
           },
-          "embedding_id": 741
+          "embedding_id": 743
         },
         {
           "id": "uiux-method-cross-platform-adaptation",
@@ -29690,7 +29826,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 742
+          "embedding_id": 744
         },
         {
           "id": "uiux-method-platform-convention-reference",
@@ -29744,7 +29880,7 @@
               "reference"
             ]
           },
-          "embedding_id": 743
+          "embedding_id": 745
         },
         {
           "id": "uiux-method-cross-platform-decision-matrix",
@@ -29798,7 +29934,7 @@
               "matrix"
             ]
           },
-          "embedding_id": 744
+          "embedding_id": 746
         },
         {
           "id": "uiux-method-platform-testing-checklist",
@@ -29844,7 +29980,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 745
+          "embedding_id": 747
         },
         {
           "id": "uiux-method-platform-convention-currency-verification",
@@ -29901,7 +30037,7 @@
               "currency"
             ]
           },
-          "embedding_id": 746
+          "embedding_id": 748
         },
         {
           "id": "uiux-method-design-system-documentation",
@@ -29930,7 +30066,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 747
+          "embedding_id": 749
         },
         {
           "id": "uiux-method-token-documentation-format",
@@ -29980,7 +30116,7 @@
               "format"
             ]
           },
-          "embedding_id": 748
+          "embedding_id": 750
         },
         {
           "id": "uiux-method-component-catalog-format",
@@ -30029,7 +30165,7 @@
               "rules"
             ]
           },
-          "embedding_id": 749
+          "embedding_id": 751
         },
         {
           "id": "uiux-method-pattern-library-maintenance",
@@ -30080,7 +30216,7 @@
               "maintenance"
             ]
           },
-          "embedding_id": 750
+          "embedding_id": 752
         },
         {
           "id": "uiux-method-ai-tooling-integration",
@@ -30107,7 +30243,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 751
+          "embedding_id": 753
         },
         {
           "id": "uiux-method-figma-mcp-integration",
@@ -30152,7 +30288,7 @@
               "integration"
             ]
           },
-          "embedding_id": 752
+          "embedding_id": 754
         },
         {
           "id": "uiux-method-design-token-extraction",
@@ -30204,7 +30340,7 @@
               "extraction"
             ]
           },
-          "embedding_id": 753
+          "embedding_id": 755
         },
         {
           "id": "uiux-method-screenshot-based-visual-qa",
@@ -30250,7 +30386,7 @@
               "visual"
             ]
           },
-          "embedding_id": 754
+          "embedding_id": 756
         },
         {
           "id": "uiux-method-ai-code-generation-guardrails",
@@ -30295,7 +30431,7 @@
               "guardrails"
             ]
           },
-          "embedding_id": 755
+          "embedding_id": 757
         },
         {
           "id": "uiux-method-ux-content-and-microcopy-governance",
@@ -30324,7 +30460,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 756
+          "embedding_id": 758
         },
         {
           "id": "uiux-method-voice-and-tone-consistency",
@@ -30376,7 +30512,7 @@
               "consistency"
             ]
           },
-          "embedding_id": 757
+          "embedding_id": 759
         },
         {
           "id": "uiux-method-error-message-patterns",
@@ -30430,7 +30566,7 @@
               "patterns"
             ]
           },
-          "embedding_id": 758
+          "embedding_id": 760
         },
         {
           "id": "uiux-method-microcopy-quality-standards",
@@ -30487,11 +30623,11 @@
               "(current)"
             ]
           },
-          "embedding_id": 759
+          "embedding_id": 761
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-04T03:11:36.336073+00:00",
+      "last_extracted": "2026-04-04T03:24:04.208759+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -30544,7 +30680,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 760
+          "embedding_id": 762
         },
         {
           "id": "kmpd-knowledge-architecture-ka2-derivation-chain-integrity",
@@ -30592,7 +30728,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 761
+          "embedding_id": 763
         },
         {
           "id": "kmpd-knowledge-architecture-ka3-progressive-abstraction",
@@ -30638,7 +30774,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 762
+          "embedding_id": 764
         },
         {
           "id": "kmpd-knowledge-architecture-ka4-empowerment-completeness",
@@ -30684,7 +30820,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 763
+          "embedding_id": 765
         },
         {
           "id": "kmpd-training-tl1-audience-appropriate-design",
@@ -30731,7 +30867,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 764
+          "embedding_id": 766
         },
         {
           "id": "kmpd-training-tl2-learning-objective-alignment",
@@ -30779,7 +30915,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 765
+          "embedding_id": 767
         },
         {
           "id": "kmpd-training-tl4-assessment-validity",
@@ -30824,7 +30960,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 766
+          "embedding_id": 768
         },
         {
           "id": "kmpd-people-development-pd1-verification-guidance-responsibility",
@@ -30872,7 +31008,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 767
+          "embedding_id": 769
         },
         {
           "id": "kmpd-quality-assurance-qa1-safety-compliance-completeness",
@@ -30920,7 +31056,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 768
+          "embedding_id": 770
         },
         {
           "id": "kmpd-quality-assurance-qa2-artifact-adoption-fitness",
@@ -30968,7 +31104,7 @@
             ]
           },
           "aliases": [],
-          "embedding_id": 769
+          "embedding_id": 771
         }
       ],
       "methods": [
@@ -31001,7 +31137,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 770
+          "embedding_id": 772
         },
         {
           "id": "kmpd-method-first-interaction-protocol",
@@ -31035,7 +31171,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 771
+          "embedding_id": 773
         },
         {
           "id": "kmpd-method-maturity-self-assessment",
@@ -31071,7 +31207,7 @@
               "self-assessment"
             ]
           },
-          "embedding_id": 772
+          "embedding_id": 774
         },
         {
           "id": "kmpd-method-detailed-knowledge-base-scaffold",
@@ -31109,7 +31245,7 @@
               "base"
             ]
           },
-          "embedding_id": 773
+          "embedding_id": 775
         },
         {
           "id": "kmpd-method-first-major-step",
@@ -31140,7 +31276,7 @@
               "step]"
             ]
           },
-          "embedding_id": 774
+          "embedding_id": 776
         },
         {
           "id": "kmpd-method-second-major-step",
@@ -31171,7 +31307,7 @@
               "step]"
             ]
           },
-          "embedding_id": 775
+          "embedding_id": 777
         },
         {
           "id": "kmpd-method-branch-scenario",
@@ -31202,7 +31338,7 @@
               "scenario]"
             ]
           },
-          "embedding_id": 776
+          "embedding_id": 778
         },
         {
           "id": "kmpd-method-derivation-chain-tracking",
@@ -31237,7 +31373,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 777
+          "embedding_id": 779
         },
         {
           "id": "kmpd-method-knowledge-conflict-prevention",
@@ -31271,7 +31407,7 @@
               "prevention"
             ]
           },
-          "embedding_id": 778
+          "embedding_id": 780
         },
         {
           "id": "kmpd-method-knowledge-base-update-procedure",
@@ -31311,7 +31447,7 @@
               "update"
             ]
           },
-          "embedding_id": 779
+          "embedding_id": 781
         },
         {
           "id": "kmpd-method-detailed-knowledge-base-authoring",
@@ -31342,7 +31478,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 780
+          "embedding_id": 782
         },
         {
           "id": "kmpd-method-design-principles-for-the-detailed-knowledge-base",
@@ -31381,7 +31517,7 @@
               "detailed"
             ]
           },
-          "embedding_id": 781
+          "embedding_id": 783
         },
         {
           "id": "kmpd-method-build-approach",
@@ -31414,7 +31550,7 @@
               "approach"
             ]
           },
-          "embedding_id": 782
+          "embedding_id": 784
         },
         {
           "id": "kmpd-method-step-writing-standards",
@@ -31451,7 +31587,7 @@
               "standards"
             ]
           },
-          "embedding_id": 783
+          "embedding_id": 785
         },
         {
           "id": "kmpd-method-verification-recommendation",
@@ -31489,7 +31625,7 @@
               "steps"
             ]
           },
-          "embedding_id": 784
+          "embedding_id": 786
         },
         {
           "id": "kmpd-method-adoption-fitness-check",
@@ -31528,7 +31664,7 @@
               "check"
             ]
           },
-          "embedding_id": 785
+          "embedding_id": 787
         },
         {
           "id": "kmpd-method-quick-reference-checklist-design",
@@ -31559,7 +31695,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 786
+          "embedding_id": 788
         },
         {
           "id": "kmpd-method-the-checklist-manifesto-principle",
@@ -31592,7 +31728,7 @@
               "principle"
             ]
           },
-          "embedding_id": 787
+          "embedding_id": 789
         },
         {
           "id": "kmpd-method-quick-reference-template",
@@ -31626,7 +31762,7 @@
               "template"
             ]
           },
-          "embedding_id": 788
+          "embedding_id": 790
         },
         {
           "id": "kmpd-method-visual-work-instructions",
@@ -31661,7 +31797,7 @@
               "instructions"
             ]
           },
-          "embedding_id": 789
+          "embedding_id": 791
         },
         {
           "id": "kmpd-method-other-extraction-types",
@@ -31697,7 +31833,7 @@
               "types"
             ]
           },
-          "embedding_id": 790
+          "embedding_id": 792
         },
         {
           "id": "kmpd-method-strategic-process-documentation",
@@ -31726,7 +31862,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 791
+          "embedding_id": 793
         },
         {
           "id": "kmpd-method-sipoc-creation",
@@ -31757,7 +31893,7 @@
               "creation"
             ]
           },
-          "embedding_id": 792
+          "embedding_id": 794
         },
         {
           "id": "kmpd-method-process-flow-mapping",
@@ -31791,7 +31927,7 @@
               "mapping"
             ]
           },
-          "embedding_id": 793
+          "embedding_id": 795
         },
         {
           "id": "kmpd-method-people-development-artifacts",
@@ -31820,7 +31956,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 794
+          "embedding_id": 796
         },
         {
           "id": "kmpd-method-cross-training-matrix",
@@ -31867,7 +32003,7 @@
               "matrix"
             ]
           },
-          "embedding_id": 795
+          "embedding_id": 797
         },
         {
           "id": "kmpd-method-job-description-derivation",
@@ -31898,7 +32034,7 @@
               "derivation"
             ]
           },
-          "embedding_id": 796
+          "embedding_id": 798
         },
         {
           "id": "kmpd-method-onboarding-program-design",
@@ -31934,7 +32070,7 @@
               "design"
             ]
           },
-          "embedding_id": 797
+          "embedding_id": 799
         },
         {
           "id": "kmpd-method-assessment-evaluation",
@@ -31961,7 +32097,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 798
+          "embedding_id": 800
         },
         {
           "id": "kmpd-method-assessment-design-by-bloom-s-level",
@@ -32000,7 +32136,7 @@
               "bloom's"
             ]
           },
-          "embedding_id": 799
+          "embedding_id": 801
         },
         {
           "id": "kmpd-method-training-effectiveness-evaluation-kirkpatrick",
@@ -32038,7 +32174,7 @@
               "evaluation"
             ]
           },
-          "embedding_id": 800
+          "embedding_id": 802
         },
         {
           "id": "kmpd-method-training-delivery-learning-levels",
@@ -32069,7 +32205,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 801
+          "embedding_id": 803
         },
         {
           "id": "kmpd-method-training-value-optimization",
@@ -32102,7 +32238,7 @@
               "optimization"
             ]
           },
-          "embedding_id": 802
+          "embedding_id": 804
         },
         {
           "id": "kmpd-method-twi-job-instruction-method",
@@ -32133,7 +32269,7 @@
               "method"
             ]
           },
-          "embedding_id": 803
+          "embedding_id": 805
         },
         {
           "id": "kmpd-method-best-practice-discovery-referenced-method",
@@ -32175,7 +32311,7 @@
               "discovery"
             ]
           },
-          "embedding_id": 804
+          "embedding_id": 806
         },
         {
           "id": "kmpd-method-implementation-context-for-human-leaders",
@@ -32215,7 +32351,7 @@
               "human"
             ]
           },
-          "embedding_id": 805
+          "embedding_id": 807
         },
         {
           "id": "kmpd-method-scaffolded-complexity",
@@ -32245,7 +32381,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 806
+          "embedding_id": 808
         },
         {
           "id": "kmpd-method-the-scaffolding-procedure",
@@ -32280,7 +32416,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 807
+          "embedding_id": 809
         },
         {
           "id": "kmpd-method-scaffolding-validation",
@@ -32308,7 +32444,7 @@
               "validation"
             ]
           },
-          "embedding_id": 808
+          "embedding_id": 810
         },
         {
           "id": "kmpd-method-when-content-arrives-out-of-order",
@@ -32350,11 +32486,11 @@
               "arrives"
             ]
           },
-          "embedding_id": 809
+          "embedding_id": 811
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-04T03:11:36.337990+00:00",
+      "last_extracted": "2026-04-04T03:24:04.210899+00:00",
       "version": "1.0"
     }
   },
@@ -32423,7 +32559,7 @@
       "embedding_id": 6
     }
   ],
-  "created_at": "2026-04-04T03:11:44.744519+00:00",
+  "created_at": "2026-04-04T03:24:31.291693+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384

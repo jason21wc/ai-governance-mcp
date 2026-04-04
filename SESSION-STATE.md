@@ -27,7 +27,7 @@
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **128 principles + 671 methods + 11 references** (810 total; see `tests/benchmarks/` for current totals) |
+| Index | **128 principles + 671 methods + 13 references** (812 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
@@ -42,7 +42,7 @@
    - **Root cause:** Framework assumed "AI outputs" means "code." Web apps frequently produce document artifacts (Excel, PDF, Word) as primary products with zero governance coverage — no methods, no reference entries, no Situation Index entry, no routing keywords.
    - **Part 9.4** added under TITLE 9 (Deployment & Distribution): data/format separation architecture, template assets & branding, download serving patterns (decision tree: direct/streaming/pre-signed URL/background job), library selection quick reference (Python + Node.js with key gotchas), output validation.
    - **2 Reference Library entries created:** `ref-ai-coding-python-pdf-generation` (WeasyPrint vs ReportLab + Docker deployment gotcha), `ref-ai-coding-web-app-file-downloads` (serving patterns with FastAPI/Next.js/Express examples).
-   - **2 Reference Library entries deferred:** Node.js Excel (SheetJS CE vs ExcelJS), Node.js PDF (PDFKit vs Puppeteer vs jsPDF vs pdf-lib). Create when a Node.js project needs them.
+   - **2 additional Reference Library entries created (#48):** `ref-ai-coding-node-excel-generation` (ExcelJS over SheetJS CE), `ref-ai-coding-node-pdf-generation` (PDFKit vs Puppeteer vs jsPDF vs pdf-lib decision tree). Research was already done; no reason to defer.
    - **Routing:** Situation Index entry added. `domains.json` keywords updated for document generation terms.
    - **Backlog #6 scope note:** Visual Communication stays scoped to visual design (Tufte/Duarte/Reynolds). Structured document production handled by Part 9.4.
    - **Contrarian-reviewed:** Scoped down from TITLE 10 (5 Parts) to Part 9.4 (5 subsections). Deferred Node.js entries as anticipatory. Coherence-audited, validated.
@@ -579,13 +579,9 @@
 
 **Scope note (2026-04-03):** Structured document production (Excel workbooks, data-heavy reports, financial spreadsheets) is handled by AI Coding Part 9.4 (Document Generation Patterns). Visual Communication stays scoped to visual design artifacts: presentations, infographics, print design — the Tufte/Duarte/Reynolds evidence base. The distinction: Part 9.4 covers *how to generate and serve document files reliably*; Visual Communication covers *how to design visually effective communication*.
 
-#### 48. Node.js Document Generation Reference Entries (Deferred)
+#### 48. Node.js Document Generation Reference Entries — CLOSED (2026-04-03)
 
-**What:** Two reference library entries for Node.js document generation gotchas: (1) `ref-ai-coding-node-excel-generation` — SheetJS CE vs ExcelJS styling trap, (2) `ref-ai-coding-node-pdf-generation` — PDFKit vs Puppeteer vs jsPDF vs pdf-lib decision tree.
-
-**When:** Create when a Node.js project needs formatted Excel output or PDF generation. AI agents frequently recommend wrong libraries for Node.js (SheetJS CE for styled output, jsPDF for server-side use).
-
-**Origin:** Session 47 document generation research (2026-04-03). Deferred per contrarian review — user primarily works in Python; Node.js entries are anticipatory until a concrete project needs them.
+Created both entries: `ref-ai-coding-node-excel-generation` (ExcelJS over SheetJS CE — styling trap, streaming API, decision tree) and `ref-ai-coding-node-pdf-generation` (PDFKit vs Puppeteer vs jsPDF vs pdf-lib — the most fragmented doc-gen category, jsPDF is #1 wrong recommendation). Research was already done; deferring created more tracking overhead than the 15-minute implementation. See session 47.
 
 #### 7. Security Content Currency Process (Discussion)
 
