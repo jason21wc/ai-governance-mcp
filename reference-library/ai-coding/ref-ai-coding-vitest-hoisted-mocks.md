@@ -11,6 +11,7 @@ last_verified: 2026-04-01
 maturity: budding
 decay_class: framework
 source: "Captured via capture_reference tool"
+related: [ref-ai-coding-pytest-fixture-patterns]
 ---
 
 ## Context
@@ -38,8 +39,14 @@ beforeEach(() => { vi.clearAllMocks() })
 - ALL mock variables inside vi.mock() must use vi.hoisted()
 - "Cannot read properties of undefined" inside vi.mock() is almost always this
 
+## Do / Don't
+
+**Do:** Use `vi.hoisted()` for all mock variables referenced inside `vi.mock()` factories. This co-hoists the variables with the mock declaration so they're defined when the factory runs.
+
+**Don't:** Declare mock variables in normal module scope and reference them inside `vi.mock()` factories — they will be `undefined` because `vi.mock()` is hoisted above all imports and variable declarations. The error "Cannot read properties of undefined" inside `vi.mock()` is almost always this.
+
 ## Cross-References
 
-- Principles: [relevant principle IDs]
-- Methods: [relevant method section refs]
-- See also: [related entry IDs]
+- Principles: coding-quality-testing-integration
+- Methods: §5.2 (Testing Integration)
+- See also: ref-ai-coding-pytest-fixture-patterns

@@ -30,3 +30,4 @@ suggestion_triggers:
   - "Pattern used in current session that resembles an existing library entry"
   - "Solution to a problem the user has asked about before"
   - "Working implementation of a technique referenced in governance methods"
+  - "Implementation reveals that official library documentation is wrong or incomplete"

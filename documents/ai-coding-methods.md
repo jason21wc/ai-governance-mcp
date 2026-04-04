@@ -1,7 +1,7 @@
 ---
-version: "2.32.0"
+version: "2.33.0"
 status: "active"
-effective_date: "2026-03-31"
+effective_date: "2026-04-02"
 domain: "ai-coding"
 governance_level: "domain-methods"
 ---
@@ -9,9 +9,9 @@ governance_level: "domain-methods"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.32.0
+**Version:** 2.33.0
 **Status:** Active
-**Effective Date:** 2026-03-31
+**Effective Date:** 2026-04-02
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -1352,6 +1352,17 @@ This framework is not tool-agnostic — it references specific tools and platfor
 
 > **Cross-references:** Appendix F (Tool Comparison Matrix), §5.6.5 (MCP Server Vetting Procedure), §5.6.8 (Third-Party Hook Vetting Procedure)
 > **Bold triggers:** **tool content model**, **when to add tool appendix**, **tool inclusion criteria**, **build vs adopt tool**
+
+### 3.1.5 Library-Specific Knowledge Sources
+
+When implementing with external libraries, two complementary **knowledge sources** reduce errors — especially when the human cannot review all generated code:
+
+1. **Current documentation** — Use **documentation-freshness tools** (e.g., Context7 MCP) to retrieve up-to-date official docs before implementing. Training data may not reflect recent API changes.
+2. **Known corrections** — Check the **Reference Library** for entries with Do/Don't sections relevant to the library. Official docs can be wrong or incomplete; the Reference Library captures **experiential corrections** — what was learned the hard way.
+3. **Capture new corrections** — When implementation reveals that official documentation is wrong or incomplete, capture the correction as a Reference Library entry (see governance methods TITLE 15, Part 15.3). Include the Do/Don't format showing what the docs say vs. what actually works.
+
+> **Applies To:** implementing with **external library**, using **third-party SDK**, following **official documentation**, **API integration**
+> **Cross-reference:** Governance methods TITLE 15 (Reference Library), §5.13.2 Diagnostic Block Requirement (includes differential diagnosis for when documented patterns fail at runtime)
 
 ---
 
@@ -8155,6 +8166,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.33.0 | 2026-04-02 | MINOR: Added §3.1.5 Library-Specific Knowledge Sources — three-step guidance for reliable external library usage: (1) use documentation-freshness tools for current docs, (2) check Reference Library for known corrections, (3) capture new corrections when official docs prove wrong. Natural extension of §3.1.4 Technology Selection: select technology → validate knowledge sources. Cross-references governance methods TITLE 15 (Reference Library) and §5.13.2 (diagnostic procedure for when documented patterns fail). Prompted by Context7 Skill Wizard analysis + real Vercel doc-bug experience. Constitutional Basis: Context Engineering, Specification Completeness. |
 | 2.32.0 | 2026-03-31 | MINOR: Cross-session epistemic hygiene extensions to §5.13. (1) §5.13.2: Added Prior Knowledge Audit — pre-diagnostic step requiring agents to audit cached beliefs from prior sessions, flag stale conclusions, and re-verify when stack has changed. Added 5-step differential diagnosis for when documented/official patterns fail (Am I calling it correctly? Has API changed? Environment different? Reading correct version docs? Known bug?). (2) §5.13.6: Added 2 anti-patterns (Stale Conclusion, Documented Pattern Bypass) and 2 debugging checklist items. (3) §5.1.7: Added auth/session/cookie runtime review trigger (content-based, flags for runtime verification via Playwright/instrumentation). (4) Updated code-reviewer agent with runtime-sensitive patterns checklist item. Added 2 Situation Index entries. Root cause: AI agents treat cached technical conclusions as facts rather than hypotheses with confidence decay. Evidence: External debugging session (Next.js 16 + @supabase/ssr 0.8.0 cookie timing). Constitutional Basis: Transparent Limitations, Verification & Validation, Context Engineering. |
 | 2.31.0 | 2026-03-28 | PATCH: Updated stale constitutional principle references. "Verification Mechanisms" / "Fail-Fast Validation" → "Verification & Validation" (§5.13). "Security, Privacy, and Compliance by Default" → "Non-Maleficence, Privacy & Security" (§9.3.10). "Project Reference Persistence" consolidated into existing "Context Engineering" references (§1.5, §7.10, Appendix L). Version History unchanged (historical records). |
 | 2.29.0 | 2026-03-27 | **Quality Gate Enforcement:** (1) New §5.1.7 Subagent Review Triggers — change-type matrix determining when subagent reviews are required before commit/push (5 change types: new MCP tools, core pipeline, new file-handling paths, content expansion, broad changes >5 files). (2) §9.3.10 expanded from 4-Layer to 5-Layer Enforcement Stack: new Layer 5 Pre-Push Quality Gate — PreToolUse hook on `git push` with transcript scanning for test execution and subagent review invocations, risk-based triggers (core code + new src files), docs-only bypass, emergency override via `QUALITY_GATE_SKIP` env var. Design rationale: pre-push not pre-commit (irreversibility boundary), hard mode from day one. Cross-references §5.1.7 and COMPLETION-CHECKLIST. |

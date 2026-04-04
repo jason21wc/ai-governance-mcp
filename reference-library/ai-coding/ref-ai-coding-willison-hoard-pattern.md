@@ -14,6 +14,7 @@ source: "Q&A session analyzing Willison's Agentic Engineering Patterns guide"
 external_url: "https://simonwillison.net/guides/agentic-engineering-patterns/hoard-things-you-know-how-to-do/"
 external_author: "Simon Willison"
 accessed_date: 2026-03-26
+related: [ref-ai-coding-autoresearch-pattern]
 ---
 
 ## Context

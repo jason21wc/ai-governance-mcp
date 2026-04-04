@@ -10,13 +10,13 @@ created: 2026-03-26
 last_verified: 2026-03-26
 maturity: evergreen
 decay_class: framework
-source: "ai-governance-mcp/tests/conftest.py — battle-tested across 964+ tests"
-related: [ref-ai-coding-mcp-server-testing]
+source: "ai-governance-mcp/tests/conftest.py — battle-tested across 1000+ tests"
+related: [ref-ai-coding-mcp-server-testing, ref-ai-coding-vitest-hoisted-mocks]
 ---
 
 ## Context
 
-When building an MCP server that uses sentence-transformers for semantic search, you need fixtures that mock the embedding model (to avoid downloading 90MB+ models in CI), provide sample governance data structures, and handle async test patterns. These patterns were developed through 960+ tests and multiple CI environments.
+When building an MCP server that uses sentence-transformers for semantic search, you need fixtures that mock the embedding model (to avoid downloading 90MB+ models in CI), provide sample governance data structures, and handle async test patterns. These patterns were developed through 1000+ tests and multiple CI environments.
 
 ## Artifact
 
@@ -66,6 +66,12 @@ async def test_tool_handler():
 - MCP tool handlers return `list[TextContent]` — parse `.text` as JSON for structured responses
 - Use `tmp_path` fixture for file-based tests to avoid polluting the real filesystem
 - Add `readonly=False` and `readonly_message=None` to mock managers that get serialized to JSON
+
+## Do / Don't
+
+**Do:** Mock `SentenceTransformer` at the import path where it's used: `patch("ai_governance_mcp.retrieval.SentenceTransformer")`. Use `np.random.rand(len(texts), 384)` with `side_effect` to return correct batch shapes matching your embedding model dimensions.
+
+**Don't:** Mock at the source module `patch("sentence_transformers.SentenceTransformer")` — models are lazy-loaded and the mock won't intercept the already-imported reference.
 
 ## Cross-References
 

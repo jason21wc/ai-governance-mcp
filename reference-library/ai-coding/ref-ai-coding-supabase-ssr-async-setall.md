@@ -11,6 +11,7 @@ last_verified: 2026-04-01
 maturity: budding
 decay_class: framework
 source: "Captured via capture_reference tool"
+related: [ref-ai-coding-supabase-jwt-hook-ssr, ref-ai-coding-nextjs-middleware-auth-exemptions]
 ---
 
 ## Context
@@ -20,7 +21,7 @@ Both cookies() and response.cookies.set() fail because setAll fires async. Fix: 
 ## Artifact
 
 let resolveSetAll: () => void
-const setAllPromise = new Promise&lt;void&gt;((resolve) => { resolveSetAll = resolve })
+const setAllPromise = new Promise<void>((resolve) => { resolveSetAll = resolve })
 
 const supabase = createServerClient(url, key, {
   cookies: {
@@ -36,7 +37,7 @@ const supabase = createServerClient(url, key, {
 
 const { error } = await supabase.auth.exchangeCodeForSession(code)
 if (!error) {
-  await Promise.race([setAllPromise, new Promise&lt;void&gt;(r => setTimeout(r, 5000))])
+  await Promise.race([setAllPromise, new Promise<void>(r => setTimeout(r, 5000))])
   return response
 }
 
@@ -46,8 +47,14 @@ if (!error) {
 - Promise.race with 5s timeout prevents hanging
 - Prior session's wrong diagnosis led to 3 wasted attempts — re-verify cached conclusions when stack versions change
 
+## Do / Don't
+
+**Do:** Wrap `setAll` in a Promise and await before returning the redirect response. `setAll` fires asynchronously via `onAuthStateChange` after `exchangeCodeForSession` resolves.
+
+**Don't:** Use the official Supabase SSR pattern that calls `cookies()` or `response.cookies.set()` directly in `setAll` — both fail silently on Next.js 16.1.3 + @supabase/ssr 0.8.0 because `setAll` executes after the response is already sent.
+
 ## Cross-References
 
-- Principles: [relevant principle IDs]
-- Methods: [relevant method section refs]
-- See also: [related entry IDs]
+- Principles: coding-context-specification-completeness, coding-quality-production-ready-standards
+- Methods: §3.1.5 (Library-Specific Knowledge Sources), §5.13.2 (Diagnostic Block Requirement)
+- See also: ref-ai-coding-supabase-jwt-hook-ssr

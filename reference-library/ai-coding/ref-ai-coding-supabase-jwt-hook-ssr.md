@@ -11,6 +11,7 @@ last_verified: 2026-04-01
 maturity: budding
 decay_class: framework
 source: "Captured via capture_reference tool"
+related: [ref-ai-coding-supabase-ssr-async-setall]
 ---
 
 ## Context
@@ -27,7 +28,7 @@ const getJwtClaims = cache(async () => {
     const payload = JSON.parse(
       Buffer.from(session.access_token.split('.')[1], 'base64url').toString()
     )
-    return payload.app_metadata as Record&lt;string, unknown&gt; | undefined
+    return payload.app_metadata as Record<string, unknown> | undefined
   } catch { return null }
 })
 
@@ -37,8 +38,14 @@ const getJwtClaims = cache(async () => {
 - React.cache() deduplicates across multiple helpers in the same request
 - This is the SSR equivalent of auth.jwt() in RLS policies
 
+## Do / Don't
+
+**Do:** Decode `session.access_token` directly to read JWT hook-injected custom claims. Use `Buffer.from(token.split('.')[1], 'base64url')`.
+
+**Don't:** Read `session.user.app_metadata` expecting JWT hook claims — returns database `app_metadata` only, not hook-injected claims. Fails silently (returns stale/empty data, no error).
+
 ## Cross-References
 
-- Principles: [relevant principle IDs]
-- Methods: [relevant method section refs]
-- See also: [related entry IDs]
+- Principles: coding-context-specification-completeness, coding-quality-production-ready-standards
+- Methods: §3.1.5 (Library-Specific Knowledge Sources), §5.13.2 (Diagnostic Block Requirement)
+- See also: ref-ai-coding-supabase-ssr-async-setall

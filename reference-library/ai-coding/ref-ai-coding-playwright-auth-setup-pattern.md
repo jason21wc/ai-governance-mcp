@@ -11,6 +11,7 @@ last_verified: 2026-04-01
 maturity: budding
 decay_class: framework
 source: "Captured via capture_reference tool"
+related: [ref-ai-coding-nextjs-middleware-auth-exemptions]
 ---
 
 ## Context
@@ -49,8 +50,14 @@ setup('authenticate', async ({ page }) => {
 - Use { exact: true } on getByRole to avoid strict mode violations
 - Split authenticated/unauthenticated projects
 
+## Do / Don't
+
+**Do:** Use `dotenv` to load `.env.local` — Playwright does not load Next.js environment files automatically. Use `{ exact: true }` on `getByRole` to avoid Playwright strict mode violations when multiple elements match.
+
+**Don't:** Assume `process.env` variables from `.env.local` are available in Playwright tests — they aren't. Don't use `getByRole('button', { name: 'Sign In' })` without `exact: true` if the page has multiple elements containing "Sign In" (e.g., heading + button).
+
 ## Cross-References
 
-- Principles: [relevant principle IDs]
-- Methods: [relevant method section refs]
-- See also: [related entry IDs]
+- Principles: coding-quality-testing-integration, coding-quality-production-ready-standards
+- Methods: §5.2 (Testing Integration)
+- See also: ref-ai-coding-nextjs-middleware-auth-exemptions

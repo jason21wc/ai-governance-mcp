@@ -1,7 +1,7 @@
 ---
-version: "3.21.0"
+version: "3.23.0"
 status: "active"
-effective_date: "2026-04-02"
+effective_date: "2026-04-03"
 domain: "constitution"
 governance_level: "constitution-methods"
 ---
@@ -9,9 +9,9 @@ governance_level: "constitution-methods"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.21.0
+**Version:** 3.23.0
 **Status:** Active
-**Effective Date:** 2026-04-02
+**Effective Date:** 2026-04-03
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -1882,6 +1882,8 @@ Each domain must establish its truth source hierarchy:
 4. **Reference Library:** Curated precedent — concrete artifacts that worked in practice (see TITLE 15)
 5. **External References:** Uncurated industry standards, tool documentation
 
+> **Relationship to §9.7.1:** This hierarchy defines truth-source precedence for conflict resolution (which source wins). Part 9.7.1 defines the content-classification hierarchy for authoring (what level to write at). They are complementary — 9.3.1 answers "which source is authoritative," 9.7.1 answers "where does new content belong."
+
 ### 9.3.2 Conflict Resolution
 
 When domain documentation conflicts:
@@ -2079,6 +2081,8 @@ The governance framework uses a 5-level hierarchy modeled on US legal structure:
 | 4 | CFR Regulations | Domain Methods | Evolving | Cold Start Kit, Phase Gates |
 | 5 | Agency SOPs | Tool/Model Appendices | Frequently Updated | Claude Extended Thinking, GPT Reasoning |
 
+> **Relationship to §9.3.1:** This hierarchy defines content classification for authoring (what level to write at). Part 9.3.1 defines the truth-source hierarchy for conflict resolution (which source wins when they disagree). They are complementary — 9.7.1 answers "where does new content belong," 9.3.1 answers "which source is authoritative." Note: 9.3.1 includes Reference Library (level 4) and External References (level 5), which map to curated artifacts and uncurated sources respectively — content types not represented in this authoring-focused table.
+
 ### 9.7.2 Level Classification Procedure
 
 When authoring new content, determine the correct level:
@@ -2162,19 +2166,21 @@ When referencing across levels, use titles per Part 3.4.5:
 
 ## Part 9.8: Content Quality Framework
 
-**Importance: CRITICAL - Unified quality gate for all framework content**
+**Importance: CRITICAL - Unified quality gate for all governance content**
 
 **Implements:** Systemic Thinking, Verification & Validation, Single Source of Truth
 
-This part establishes the unified quality gate for all framework content — principles, methods, and appendices — at any level (constitutional or domain). The same criteria apply whether authoring new content (gate) or reviewing existing content (audit).
+This part establishes the unified quality gate for all governance content — principles, methods, and appendices — at any level (constitutional or domain). The same criteria apply whether authoring new content (gate) or reviewing existing content (audit).
 
 **Relationship to TITLE 8:** This part is the primary operational procedure for all content quality decisions. Use Part 9.8 first for the unified workflow (Admission Test, Duplication Check, Structural Requirements). Then consult Parts 8.2-8.4 for constitutional-specific considerations: classification (8.2), the 80/20 threshold for constitutional vs. domain placement (8.3), and the legal-analogy framing of precedent (8.4). Parts 8.2-8.4 provide the constitutional governance perspective; this part provides the unified operational procedure applicable to all content types. Supersedes Part 9.5 (Validation Checklist), which covered principles only.
+
+**Relationship to TITLE 15:** Reference Library entries (case law) follow their own quality process at Part 15.4, optimized for curated artifacts rather than governance rules. Part 9.8's Admission Test and Duplication Check apply to governance-normative content (principles, methods, appendices); Part 15.4's curation governance applies to Reference Library entries.
 
 ---
 
 ### 9.8.1 The Admission Test (6 Questions)
 
-Six binary questions ANY content must pass. The same questions apply when authoring (gate) and reviewing (audit). Content failing during review becomes a consolidation or removal candidate.
+Six binary questions ANY new or substantially modified (see §9.8.5 bright-line test) content must pass. The same questions apply when authoring (gate) and reviewing (audit). Content failing during review becomes a consolidation or removal candidate. For editorial corrections (scope clarifications, navigational cross-references, factual accuracy fixes), see §9.8.5.
 
 | # | Question | What It Checks |
 |---|----------|----------------|
@@ -2287,7 +2293,11 @@ The same criteria apply in both directions:
 
 **Authoring mode (creating new content):**
 
-Run §9.8.1 through §9.8.4 as a GATE before publishing. Content that fails produces a disposition:
+Run §9.8.1 through §9.8.4 as a GATE before publishing.
+
+**Cross-TITLE scope check (advisory):** When new content uses broad scope language ("unified," "all," "framework-wide," "every"), verify each TITLE's existing coverage for the claimed scope: (1) grep the methods document for the scope term to find existing uses, (2) `query_governance()` for the claimed scope to surface related content. Add bidirectional cross-references where the new content's scope overlaps with established TITLE-level governance. Unchecked scope claims are how disconnected quality systems develop (see v3.22.1 root cause: Part 9.8 and TITLE 15).
+
+Content that fails produces a disposition:
 
 | Disposition | When to Apply | Action |
 |---|---|---|
@@ -2310,6 +2320,25 @@ Run §9.8.1 through §9.8.4 as an AUDIT against existing content. Items failing 
 | REWRITE | Passes admission test but is unclear, poorly scoped, or confusing | Rewrite for clarity without changing scope |
 
 **Skip gate for domain review:** If a domain assessment (review mode) produces >90% KEEP dispositions with no MERGE candidates, document the clean assessment and move on. Not every domain needs full consolidation.
+
+**Editorial corrections (not subject to Admission Test):**
+
+Not all changes to governance content are new content or content review. Editorial corrections — scope clarifications, navigational cross-references, factual accuracy fixes — follow PATCH procedure (§9.6.1) without the Admission Test.
+
+**Bright-line test:** If the change alters what the framework *requires*, *permits*, *prohibits*, or *how it detects violations*, the Admission Test applies regardless of version increment. If the change corrects how the framework *describes* its own scope or *navigates* between sections without changing behavioral requirements, it is editorial.
+
+**Cross-reference distinction:** Navigational cross-references (pointing agents to where existing rules live) are editorial. Cross-references that create new obligations to consult content the agent previously had no reason to check are substantive — they change agent behavior even though they add no new rules.
+
+Examples — clear editorial:
+- "all framework content" → "all governance content" (scope clarification, no behavioral change)
+- Adding "see §9.3.1 for truth-source precedence" (navigational — pointing to existing content)
+- Fixing a stale section reference from "§9.5" to "§9.8" (factual accuracy)
+
+Examples — clear NOT editorial:
+- Adding a new disposition row to the authoring table (new behavioral guidance)
+- Changing "OPTIONAL" importance tag to "CRITICAL" (alters enforcement expectations)
+- Adding a new example that demonstrates a scenario not previously illustrated (new behavioral guidance via example)
+- Rewording a failure mode's detection criteria to be narrower or broader (changes what agents flag as violations)
 
 ---
 
@@ -3690,10 +3719,11 @@ Each domain methods document should include a section following this structure:
 
 **Implements:** Single Source of Truth (Constitution), Resource Efficiency & Waste Reduction (Constitution). See also Part 16.1 (former Project Reference Persistence, demoted to method).
 **Applies to:** All domains that accumulate reusable artifacts (code, templates, configurations, external references)
+**Relationship to Part 9.8:** Part 9.8 (Content Quality Framework) governs governance-normative content — principles, methods, and appendices. Reference Library entries follow this title's curation governance (Part 15.4), which is optimized for curated artifacts with maturity tracking and currency signals.
 
 ## Part 15.1: Concept and Legal Analogy
 
-The Reference Library is the framework's **Case Law** — a curated collection of concrete, vetted artifacts that worked in practice, indexed for retrieval and recombination by AI agents.
+The Reference Library is the framework's **Case Law** — a curated collection of concrete, vetted artifacts that worked in practice, indexed for retrieval and recombination by AI agents. Entries also capture **experiential corrections** — cases where official documentation, tutorials, or authoritative sources proved wrong or incomplete during actual implementation. Documentation-freshness tools provide "what the docs say today"; the Reference Library provides "what we learned the docs got wrong." Both are needed: docs without corrections repeat known bugs; corrections without current docs drift from current APIs. See also ai-coding methods §3.1.5.
 
 **Constitutional analogy:**
 - **Constitution** → Framework constitution (meta-principles)
@@ -3786,6 +3816,12 @@ The actual code/template/config (direct entries) or curated summary (reference e
 ## Lessons Learned
 
 What worked, what didn't, edge cases, gotchas discovered in practice.
+
+## Do / Don't (optional — include when entry corrects documentation or captures non-obvious patterns)
+
+**Do:** [Correct approach with brief rationale]
+
+**Don't:** [Incorrect approach — what fails and why]
 
 ## Cross-References
 
@@ -4153,6 +4189,9 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.23.0 | 2026-04-03 | MINOR: Corrective & cross-cutting change guidance (session 45 retrospective). Root cause: framework quality gates assumed additive changes, but mature framework changes are increasingly corrective/editorial. (1) Added editorial correction scope note to §9.8.5 with bright-line test — changes that alter what the framework requires/permits/prohibits/detects need the Admission Test; scope clarifications, navigational cross-references, and factual accuracy fixes are editorial (PATCH without Admission Test). Includes navigational vs. substantive cross-reference distinction and classification examples for examples and failure modes. Contrarian-reviewed: tightened from original "wording improvements" (too generous) to three specific editorial categories. (2) Added cross-TITLE scope check to §9.8.5 authoring mode (advisory) — broad scope claims ("unified," "all") must verify each TITLE's existing coverage via grep + query_governance. Prevents disconnected quality systems (per v3.22.1 root cause). (3) Added bidirectional cross-references between §9.3.1 (truth-source hierarchy) and §9.7.1 (content-classification hierarchy) — complementary hierarchies that served different purposes without acknowledging each other. |
+| 3.22.1 | 2026-04-03 | PATCH: Part 9.8 scope clarification + TITLE 15 cross-references (#36). Root cause: 9.8 claimed "unified quality gate for all framework content" but only covered governance-normative content (principles, methods, appendices), leaving Reference Library entries (TITLE 15) with a disconnected quality system and zero cross-references. Fix: (1) Scope-clarified "all framework content" → "all governance content" in §9.8 header and opening paragraph. (2) Added "Relationship to TITLE 15" note to Part 9.8 routing agents to Part 15.4 for artifact quality governance. (3) Added "Relationship to Part 9.8" back-reference in TITLE 15 header. Contrarian-reviewed: confirmed expanding 9.8 to cover Reference Library would be a category error (Admission Test questions like Derivation and Enforceability don't apply to curated artifacts). Coherence-audited: resolved 2 of 3 misleading findings (scope overclaim, disconnected quality systems). |
+| 3.22.0 | 2026-04-02 | MINOR: Reference Library experiential corrections & Do/Don't format. (1) Part 15.1: Expanded role description to explicitly name **experiential corrections** as a knowledge type — entries that document where official docs proved wrong during implementation. Articulated complementary relationship with documentation-freshness tools. (2) Part 15.3.2: Added optional "Do / Don't" section to Markdown Body Specification between Lessons Learned and Cross-References — improves retrieval precision for anti-patterns. (3) Updated 2 existing entries (Supabase SSR async setAll, Supabase JWT hook SSR) to demonstrate Do/Don't format and fixed placeholder cross-references. (4) Added correction suggestion trigger to ai-coding `_criteria.yaml`. Prompted by Context7 Skill Wizard video analysis + real Vercel doc-bug experience. Contrarian-reviewed: scoped down from 4 infrastructure changes to proportional template improvements. |
 | 3.21.0 | 2026-04-02 | MINOR: Removed §9.1.1 Type A vs Type B domain classification (#37). Broken taxonomy: Type A (complexity) and Type B (access control) were on different axes, only 2/7 domains used it, and §9.1.2 Domain Complexity Assessment already covers complexity better. Renamed Part 9.1 "Domain Types" → "Domain Complexity." Removed Type A label from UI/UX principles, replaced Type B with standalone Access note in KM&PD. §9.8.6 Concept Loss Prevention: "context-intensive" covered by §9.1.2; "proprietary" preserved as standalone Access note in KM&PD. |
 | 3.20.0 | 2026-04-01 | MINOR: Version-in-frontmatter migration (#38). Replaced version-in-filename convention with YAML frontmatter metadata. Filenames are now stable identifiers (no version suffixes). Rewrote §2.1.1 Update Flow (11 steps → 9, no rename/archive steps). Rewrote §5.1.4 Document Lifecycle (3-stage → 2-stage, removed archive). Updated §5.1.3 domain creation template with frontmatter example. Updated §4.3.4 reference naming conventions. Deleted `documents/archive/` (57 files — git history is authoritative archive). Root cause: version metadata in file paths created O(n) propagation cascade on every version bump. |
 | 3.19.0 | 2026-03-31 | MINOR: Added Part 7.11 (Discovered Issue Triage). Decision framework for AI agents encountering issues unrelated to their current task — addresses dual failure modes of ignore-and-lose vs fix-and-scope-creep. Four-category triage (fix now / defer with tracking / note / ask the user) with S-Series override, scope boundary signals, durable deferral requirements, cascading discovery limit, and batch presentation. Added cross-reference from ai-coding methods §5.1.6. Added 1 Situation Index entry. Constitutional Basis: Context Engineering, Verification & Validation. |

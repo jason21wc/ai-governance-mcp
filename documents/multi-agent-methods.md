@@ -527,6 +527,8 @@ CRITICAL
 | model | Optional | Override default model if needed |
 | System Prompt | Yes | Detailed instructions (see structure below) |
 
+**Model tier selection:** When omitted or set to `inherit`, subagents use the parent conversation's model — this is the correct default for CLI-based workflows. For API-orchestrated multi-agent workflows where per-invocation cost matters, override with a specific tier (e.g., `sonnet`, `haiku`) matched to task complexity. Speed is also a factor: lighter models return results faster in interactive workflows. See governance methods §10.2.3 (Progressive Model Optimization Workflow) and §13.3 (Model Right-Sizing) for task complexity → model tier classification and A/B validation methodology.
+
 **Cognitive Function Taxonomy:**
 
 | Cognitive Function | Mental Model | Example Agents |

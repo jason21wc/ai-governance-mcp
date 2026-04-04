@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-03-31
+**Last Updated:** 2026-04-02
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,22 +21,53 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, nomic-embed-text-v1.5 768d, metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.21.0** (meta-methods), **v2.32.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.0** (meta-methods), **v2.33.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1037 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **128 principles + 666 methods + 4 references** (798 total; see `tests/benchmarks/` for current totals) |
+| Index | **128 principles + 666 methods + 9 references** (803 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-04-02)
+## Session Summary (2026-04-03)
 
 ### Completed This Session
+
+46. **Corrective & Cross-Cutting Change Guidance (Session Retrospective)**
+   - **Root cause:** Framework quality gates assumed content changes are additive, but mature framework changes are increasingly corrective/editorial. Three symptoms from session 45.
+   - **Edit 1:** Added editorial correction scope note to §9.8.5 with bright-line test — changes that alter requires/permits/prohibits/detects need the Admission Test; scope clarifications, navigational cross-references, and factual accuracy fixes are editorial (PATCH without Admission Test). Includes navigational vs. substantive cross-reference distinction.
+   - **Edit 2:** Added cross-TITLE scope check to §9.8.5 authoring mode (advisory) — broad scope claims must verify each TITLE's existing coverage via grep + query_governance.
+   - **Edit 3-4:** Added bidirectional cross-references between §9.3.1 (truth-source hierarchy) and §9.7.1 (content-classification hierarchy).
+   - **Edit 5 (coherence audit fix):** Added forward reference from §9.8.1 to §9.8.5 editorial exemption — "ANY content" → "ANY new or substantially modified content" with see-also for editorial corrections.
+   - **Contrarian-reviewed:** Tightened bright-line test from "requires/permits/prohibits" to include "detects violations." Removed "wording improvements" from editorial categories (too generous — agent self-evaluation escape hatch). Added navigational vs. substantive cross-reference distinction.
+   - Meta-methods v3.22.1 → v3.23.0. 1037 tests passing. Index rebuilt (803 items).
+
+45. **#36 Part 9.8 Scope Clarification + TITLE 15 Cross-References**
+   - **Root cause:** Part 9.8 (v3.16.0) claimed "unified quality gate for all framework content" but only covered governance-normative content. TITLE 15 (v3.14.0) had its own quality process with zero cross-references. Two disconnected quality systems from rapid development (2 versions apart, never reconciled).
+   - **Fix:** Scope-clarified "all framework content" → "all governance content" (header + opening paragraph). Added bidirectional cross-references: "Relationship to TITLE 15" in Part 9.8, "Relationship to Part 9.8" in TITLE 15 header.
+   - **NOT done (intentional):** Did not expand 9.8 to cover Reference Library — contrarian reviewer confirmed this would be a category error (Admission Test questions like Derivation/Enforceability don't apply to curated artifacts). TITLE 15's quality process (maturity pipeline, KeyCite currency, decay classes) is more appropriate for artifacts.
+   - **Subagent reviews:** 2 contrarian reviews (pre-plan + plan), 2 coherence audits (pre-change finding + post-change verification — all 5 checks PASS), governance evaluation (PROCEED).
+   - **Coherence auditor finding deferred:** 9.7.1 vs 9.3.1 hierarchy table inconsistency — separate root cause, not in scope.
+   - Meta-methods v3.22.0 → v3.22.1. 1037 tests passing. Index rebuilt (803 items).
+
+44. **Reference Library: Doc Corrections & Do/Don't Format**
+   - **Trigger:** Context7 Skill Wizard video analysis + user's real Vercel doc-bug experience
+   - **Root cause:** Reference Library lacked explicit structure for experiential corrections (where official docs are wrong); existing entries buried do/don't knowledge in prose
+   - **Contrarian-reviewed:** 2 contrarian reviews scoped initial 4-infrastructure-change proposal down to proportional template improvements. Rejected: new method section (premature from n=1), backlog #41 activation (wrong trigger criteria), `corrects_docs` boolean (dead metadata). Relocated §7.10.8 → §3.1.5 (wrong section home).
+   - **Changes:**
+     - Part 15.1: Expanded role description — named "experiential corrections" as knowledge type, articulated complementary relationship with doc-freshness tools
+     - Part 15.3.2: Added optional Do/Don't section to entry body template
+     - New §3.1.5 Library-Specific Knowledge Sources (ai-coding methods): current docs → known corrections → capture new corrections
+     - All 9 reference library entries brought to template compliance: 7 got Do/Don't sections, 6 got placeholder cross-references filled, 6 got `related:` frontmatter added/fixed, HTML entities fixed, stale test counts updated
+     - `_criteria.yaml`: New correction-specific suggestion trigger
+   - **Subagents used:** 2 contrarian reviews, 1 plan agent, 1 validator, 2 coherence auditors, 1 code reviewer, 1 explore agent
+   - **Versions:** governance methods v3.21.0 → v3.22.0, ai-coding methods v2.32.0 → v2.33.0
+   - **Tests:** 1037 passing (no code changes)
 
 40. **#38 Version-in-Frontmatter Migration (Backlog #38)**
    - Root cause: version metadata in file paths created O(n) propagation cascade (~30 steps per version bump)
@@ -588,19 +619,9 @@ Closed after Admission Test evaluation (§9.8.1): fails Q1 (gap covered by exist
 
 **Discussion needed:** Is this a full domain or should the 3 orphaned practices just be filed in an appendix? Decision factors: are we using AI for deployment workflows? Is the gap growing? Domain vs standalone runbook vs appendix to AI Coding methods?
 
-#### 36. Part 9.8 Coverage Gap — Reference Library Entries (Discussion)
+#### 36. Part 9.8 Scope Clarification + TITLE 15 Cross-References — CLOSED (2026-04-03)
 
-**What:** Part 9.8 (Content Quality Framework) covers principles, methods, and appendices — but NOT Reference Library entries (TITLE 15). The Reference Library was added in v3.14.0; Part 9.8 was added in v3.16.0 but didn't incorporate it. Two separate quality processes exist with no explicit relationship.
-
-**The gap:** §9.8.3 (Structural Requirements by Content Type) lists 4 content types: Constitutional Principles, Domain Principles, Methods, Appendices. Reference Library entries are missing. TITLE 15 has its own curation governance (Part 15.4: three intake paths, maturity pipeline, KeyCite currency tracking) but it's disconnected from the unified quality gate.
-
-**Discussion needed:** Two approaches:
-1. **Expand 9.8** — Add Reference Library as a 5th content type in §9.8.3. Point to TITLE 15's entry template (Part 15.3) and curation governance (Part 15.4). Apply the Admission Test and Duplication Check to Reference Library entries. This unifies all content types under one quality gate.
-2. **Cross-reference only** — Keep TITLE 15's curation governance as the authoritative process for Reference Library entries. Add a note in 9.8 acknowledging that Reference Library entries follow TITLE 15 instead. Simpler, but two parallel quality processes.
-
-**Root-cause consideration:** Per Single Source of Truth, one unified quality gate is better than two parallel ones. But Reference Library entries are structurally different from principles/methods (concrete artifacts vs governance rules). The Admission Test questions ("does this fill a gap?", "correct hierarchy level?") may not map cleanly to curated artifacts.
-
-**Outcome:** Either expand 9.8 or formalize the relationship between 9.8 and TITLE 15.
+Root cause was scope overclaim, not coverage gap. Part 9.8 said "all framework content" but only governed governance-normative content (principles, methods, appendices). Reference Library entries are curated artifacts, not governance rules — 9.8's Admission Test (Derivation, Enforceability) is a category error for code snippets. TITLE 15 already has richer quality governance (maturity pipeline, KeyCite currency, decay classes). Fix: scope-clarified "framework" → "governance" + bidirectional cross-references between 9.8 and TITLE 15. See session 45.
 
 #### 37. Domain Classification System Definition — CLOSED (2026-04-02)
 
