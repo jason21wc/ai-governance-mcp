@@ -525,6 +525,7 @@ Memory is finite; forgetting is fatal. *This corresponds to "Judicial Economy"�
 - **The "Middle Burial" Trap:** Placing critical specifications in the middle of context where attention is weakest. *Prevention: Critical info at start and end; summaries in middle.*
 - **The "Orphaned State" Trap:** Session state stored only in context—lost when context resets or overflows. *Prevention: Always externalize to CLAUDE.md or session files.*
 - **The "False Capacity" Trap:** Trusting large context window numbers (200K tokens) without understanding quality degradation begins much earlier. *Prevention: Treat 32K as effective limit for quality; beyond that, actively manage.*
+- **The "Lossy Compression" Trap:** Context compaction/summarization asymmetrically preserves confident assertions (including hallucinations baked in earlier) while losing nuanced reasoning, caveats, and conditional logic. The result: a compressed context that is more wrong, not less — because confident errors survive compression better than hedged correctness. *Prevention: Prefer session breaks with fresh context over in-session compaction. If summarizing, explicitly re-verify key facts and decisions against source files, not against the summary itself. Treat any compacted context as potentially poisoned until verified.*
 
 **Success Criteria:**
 - ✅ Token consumption tracked throughout sessions (at least awareness of approximate level)

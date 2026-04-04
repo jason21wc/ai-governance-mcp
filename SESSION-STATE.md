@@ -38,6 +38,13 @@
 
 ### Completed This Session
 
+52. **Lossy Compression Trap — Context Window Management**
+   - Added new pitfall to ai-coding-domain-principles.md Context Window Management section: "The Lossy Compression Trap" — context compaction asymmetrically preserves confident hallucinations while losing nuanced correctness.
+   - **Source:** Video evaluation (2026-04-04) — YouTube tutorial on Claude Code workflow. Speaker's "friends don't let friends compact" stance surfaced a failure mode our "context rot" taxonomy didn't name: degradation from lossy compression is mechanistically different from degradation from overflow.
+   - **Root cause insight:** Summarization algorithms (and LLM self-summarization) favor confident, simple assertions over hedged, conditional reasoning. When a hallucination was stated confidently 500 tokens ago, it survives compaction. When the correct nuanced answer was stated with caveats, the caveats are stripped.
+   - **Framework gap filled:** "Context rot" (A3 failure mode) covered degradation from overflow. This trap covers degradation from compression — a different mechanism with a different prevention (session breaks > compaction, re-verify against sources not summaries).
+   - **Video evaluation summary:** 7/10 concepts already covered by framework, 2 not relevant (tool preferences), 1 gap found (this trap). Framework is well-positioned.
+
 51. **Permission Configuration Best Practices (A.5.6 + A.5.7)**
    - **Root cause:** Framework treated permissions as one-time setup with no shared baseline. Every project started from scratch, permissions grew by accretion.
    - **7 changes to ai-coding-methods.md:** (1) A.5.6 Recommended Permission Architecture — layered model, three principles (deny credentials, ask governance files, allow read-only), baselines with JSON examples, accretion problem, never-allow list. (2) A.5.7 Platform-Specific Notes (Claude Code, Gemini, other MCP platforms). (3) A.5.3 hard rule amended — governance files denied at project-level, ask at user-level. (4) Accretion trigger added to A.5.5 (>50 entries). (5) D.6 Gemini permission configuration. (6) Cold Start Kit Scenario A post-scaffold note. (7) Situation Index entry.
