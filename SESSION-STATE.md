@@ -38,6 +38,19 @@
 
 ### Completed This Session
 
+50. **Code Reviewer Subagent Rewrite**
+   - **Root cause:** Agent was designed around defect detection (6-item checklist) when effective code review is about code improvement and maintainability (Google, Microsoft research). Covered ~60% of what a coding expert reviewer should check.
+   - **7 changes:** (1) Input contract — what invoking agent must/must not provide. (2) Keep read-only tools (no Bash — provide diff via contract). (3) Expanded checklist — 8 always-check items + 2 when-relevant, tiered. Added Performance (AI: 8x I/O), Test Quality (echo chamber detection), API Consistency, Dependency Hygiene. Merged Concurrency into Edge Cases, Duplication into Maintainability. (4) Fresh perspective checks — 4 explicit questions leveraging independent context. (5) AI failure patterns folded into checklist as indicators, not separate pass. (6) Severity redefined by impact (CRITICAL = data loss/security/system failure, not just security). (7) Strengthened "fresh context" framing with input contract (kept over "independent judgment" per contrarian).
+   - **Synced to:** `documents/agents/`, `.claude/agents/`, `~/.claude/agents/`. Hash updated in server.py.
+   - **Research:** Google code review guidelines, CodeRabbit AI vs Human study, Microsoft Bacchelli & Bird 2013, SonarQube/CodeClimate coverage analysis.
+   - **Contrarian-reviewed:** 6 challenges accepted (tiered checklist, no Bash, keep fresh context, fold AI patterns, explicit fallback, severity divergence noted). Coherence-audited, validated.
+
+49. **Global Subagent Availability**
+   - **Root cause:** Agents were project-local (`.claude/agents/`) when they should be user-level. Claude Code natively supports `~/.claude/agents/` with merge-with-override resolution (project overrides user).
+   - **Fix:** Copied all 10 agents from `documents/agents/` to `~/.claude/agents/`. Available in all projects immediately.
+   - **Bug found:** `install_agent(scope="project")` uses `Path.cwd()` which resolves to the MCP server's directory, not the calling project. Cross-project project-scope installation is silently broken. Tracked as backlog #50.
+   - **Contrarian-reviewed:** Original plan (modify install_agent tool) was REVISITED after cwd bug discovery. Simplified to native file copy.
+
 48. **Structured Q&A Default — Negative Examples for Freeform Conversation**
    - **Root cause investigation:** Three hypotheses — (1) RLHF training bias (confirmed by research as well-documented phenomenon), (2) instruction not surfaced effectively (SERVER_INSTRUCTIONS ~13% compliance, context decay), (3) governance response priming (structured JSON from evaluate_governance primes structured thinking).
    - **Fix 1:** Added negative example (WRONG/RIGHT contrast) to SERVER_INSTRUCTIONS conversation style section in server.py. WRONG example uses prose form, not numbered list, to avoid priming the anti-pattern.
@@ -590,6 +603,18 @@
 #### 48. Node.js Document Generation Reference Entries — CLOSED (2026-04-03)
 
 Created both entries: `ref-ai-coding-node-excel-generation` (ExcelJS over SheetJS CE — styling trap, streaming API, decision tree) and `ref-ai-coding-node-pdf-generation` (PDFKit vs Puppeteer vs jsPDF vs pdf-lib — the most fragmented doc-gen category, jsPDF is #1 wrong recommendation). Research was already done; deferring created more tracking overhead than the 15-minute implementation. See session 47.
+
+#### 50. `install_agent` cwd Bug — Project Scope Writes to Wrong Directory (Bug)
+
+**What:** `install_agent(scope="project")` uses `Path.cwd()` (server.py line 1148) to determine the target project directory. But `Path.cwd()` resolves to the MCP server's working directory (ai-governance-mcp), not the calling Claude Code session's project. Cross-project project-scope installation silently writes to the wrong location.
+
+**Impact:** Calling `install_agent(agent_name="contrarian-reviewer", scope="project")` from the ai-expert session writes the file to ai-governance-mcp's `.claude/agents/`, not ai-expert's.
+
+**Fix options:** (1) Add explicit `target_path` parameter to the tool, (2) detect the calling project's directory from MCP protocol context if available, (3) document the limitation and recommend `scope="user"` for cross-project use.
+
+**Workaround:** `scope="user"` works correctly (uses `Path.home()`, absolute path). Global agents in `~/.claude/agents/` bypass this issue entirely.
+
+**Origin:** Session 49 (2026-04-04). Discovered during contrarian review of global agent availability plan. Confirmed empirically: preview showed `install_path` pointing to ai-governance-mcp regardless of calling context.
 
 #### 49. Embedding Model Memory Sharing Across Processes (Discussion — Performance)
 
