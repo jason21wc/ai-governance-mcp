@@ -897,7 +897,7 @@ AVAILABLE_AGENTS = {
 # cryptographic signing roadmap.
 AGENT_TEMPLATE_HASHES = {
     "code-reviewer": "271980799e5dd654dda61be5e27efe164df9963214b342a9a006bb345b849975",
-    "coherence-auditor": "b794e4d9c4abce7c946ac7ff4fc7bc01b226d248647d6f1aa8c4a153a7416307",
+    "coherence-auditor": "189df35aba1521bafb46037e8b7183789b22831395a8f9576c82fca7cfc75580",
     "continuity-auditor": "076c4194b9c2afd530af54d05be4e30e37def8567bfa68e6c5bd032f80bda5da",
     "contrarian-reviewer": "67d42bdd15e9300fc544336bdb64990a631968edd535654bca6ec5bd2d44ce85",
     "documentation-writer": "e6776f70d71a8c8cd36ef5ce506ce832fd52b74dd7d459e6aabd4a183f7474cf",
