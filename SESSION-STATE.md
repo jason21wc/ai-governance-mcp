@@ -38,6 +38,12 @@
 
 ### Completed This Session
 
+58. **Documentation Writer Subagent Rewrite (Backlog #51, Agent 6 of 9)**
+   - **Root cause:** Agent was generic "write clearly" without the decision heuristics that separate good from great documentation — no Divio quadrant classification, no anti-padding discipline, no AI failure mode awareness, no audience-first protocol.
+   - **Key changes:** (1) Divio 4-quadrant classification (tutorial/how-to/reference/explanation) — required before writing, never blend. (2) Anti-padding discipline — banned filler words (simply, just, easily, comprehensive, robust), value test per sentence. (3) AI failure mode self-check — padding, signature parroting, fabricated examples, obvious-over-surprising, copy-paste test. (4) Input contract. (5) Documentation proportionality — match investment to interface stability. (6) Format-specific patterns expanded — README checklist, Python Google-style and TypeScript JSDoc with good/bad contrasts showing semantic value vs signature restatement. (7) Scope boundary with coherence-auditor.
+   - **Research:** Google Developer Documentation Style Guide, Divio/Diataxis documentation system, Microsoft Writing Style Guide, AI documentation failure modes research, README best practices, documentation-as-code principles.
+   - Synced to all three locations. Hash updated.
+
 57. **Coherence Auditor Subagent Rewrite (Backlog #51, Agent 5 of 9)**
    - **Root cause:** Agent was already the strongest — had tiered audits, 5-check protocol, severity classification. But lacked cross-file semantic checks (SSOT violations, terminology inconsistency, ripple analysis), input contract, severity calibration guidance, sampling honesty, and evidence standards.
    - **Key changes:** (1) Input contract — scope, tier, trigger. (2) Cross-file consistency checks elevated to Step 4: SSOT violation detection (references vs restatements), terminology consistency (same concept/different names), ripple analysis (change-triggered downstream checks), completeness parity (parallel docs missing elements). (3) Volatile facts inventory — build per-file list of hardcoded values with canonical sources. (4) Severity calibration guidance — same staleness type has different severity depending on context. (5) Evidence standard tightened — exact file:line and text, not "seems outdated." (6) Sampling honesty — state what was audited vs what exists. (7) Terminology inconsistency section in output format.
