@@ -38,6 +38,13 @@
 
 ### Completed This Session
 
+60. **Continuity Auditor + Voice Coach Subagent Rewrites (Backlog #51, Agents 8-9 of 9) — #51 COMPLETE**
+   - **Continuity auditor improvements:** (1) Knowledge ledger as core analytical technique — build per-character fact tracker (character, fact, source scene, how learned) before any checking. (2) Confidence tiers on all findings (high/medium/low) with presentation guidance. (3) Added checks: causal chain integrity, dangling threads, spatial consistency. (4) AI difficulty ratings per check (knowledge-state = hardest, object tracking = easiest). (5) Input contract. (6) Creative intent respect — flag with confidence, don't assert.
+   - **Voice coach improvements:** (1) Cover test elevated as highest-value capability. (2) AI-specific voice failure checklist: over-articulation, therapy-speak, emotional over-labeling, register uniformity, loss of silence, vocabulary flattening — with why each happens. (3) Multi-dimensional voice analysis table (diction, syntax, register, pragmatics, markers). (4) Confidence tiers with creative intent guidance. (5) Input contract. (6) "Less is more" for markers — flag both insufficient AND excessive density.
+   - **Research:** Professional continuity editing (TV writers' rooms, script supervisors), knowledge-state formal model, linguistics of idiolect/register/diction, voice convergence detection, AI creative writing failure modes.
+   - **Backlog #51 COMPLETE.** All 9 agents rewritten: code-reviewer, security-auditor, contrarian-reviewer, test-generator, validator, coherence-auditor, documentation-writer, orchestrator, continuity-auditor, voice-coach. (10 counting the code-reviewer done earlier in the session.)
+   - Synced to all three locations. Hashes updated.
+
 59. **Orchestrator Subagent Rewrite (Backlog #51, Agent 7 of 9)**
    - **Root cause:** Agent was governance-first (correct) but lacked task classification, delegation heuristics, conflict reconciliation, and specialist input contracts. Would over-delegate simple tasks and under-coordinate complex ones.
    - **Key changes:** (1) Orchestrator Separation Principle — explicit "you NEVER do domain work" with reasoning. (2) Task coupling classification — independent (parallel), sequential, tightly-coupled (don't split). (3) Effort scaling heuristics — simple=in-context, single-domain=1 agent, multi-concern=sequential, complex=parallel. (4) Delegation complexity floor — don't delegate when overhead exceeds value. (5) Specialist input contracts — what each agent needs when delegated to. (6) Shared assumptions brief for parallel delegation. (7) Conflict reconciliation protocol — when subagents contradict, check evidence strength, tiebreaker agent, or escalate. (8) Task classification in output format.
