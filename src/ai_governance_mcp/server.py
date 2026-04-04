@@ -904,7 +904,7 @@ AGENT_TEMPLATE_HASHES = {
     "orchestrator": "ad5f673ccc8dc4fd5e5f8fea0101e7e862955a2c223d0b29dc42f7f8f904a239",
     "security-auditor": "6bb7305172568a38473a9e47322a4b1c48d27d45c69f5cfd7b3b821bf91b9dbb",
     "test-generator": "033899e2db53f2b0cc86a0e3e452fa4f7d97559e1cfbc61fbf3a082df8e08608",
-    "validator": "5268ed87ba50fd16729be9d2ed6db88458dec10e24ef6aa02e48ab06d7e958c4",
+    "validator": "8712fce1b842da7f9c98aa7947fbe9d88019446922cb121416f93f670bdf2e32",
     "voice-coach": "d3ec3a1bde7cded67e816244c1ac9cab450eb6d9c204b9d7c4f552732522e179",
 }
 

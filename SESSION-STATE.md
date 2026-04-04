@@ -38,6 +38,12 @@
 
 ### Completed This Session
 
+56. **Validator Subagent Rewrite (Backlog #51, Agent 4 of 9)**
+   - **Root cause:** Agent was a simple pass/fail checker without meta-validation (evaluating criteria quality), evidence requirements (PASS without evidence = rubber stamp), or uncertainty handling (collapsing ambiguity into PASS).
+   - **Key changes:** (1) Meta-validation Step 0 — evaluate criteria themselves before checking artifact. Flag vague predicates, uncheckable items, missing negative criteria. (2) Three verdicts: PASS/FAIL/CANNOT DETERMINE (suppress uncertain-to-PASS collapse). (3) Evidence with every verdict — PASS explains what was found, not just "looks good." (4) Structural vs semantic classification — report separately for honest confidence. (5) Severity tiers: BLOCKER/WARNING/NOTE. (6) Anti-sycophancy framing — "your job is to find what's wrong, not certify what's right." (7) Checklist fatigue guard — batches of 5-7 for long checklists, extra skepticism on later items. (8) Substantive PASS reasoning — "PASS" alone is indistinguishable from rubber stamp. (9) Input contract. (10) Expanded scope boundaries with all sibling agents.
+   - **Research:** Gawande Checklist Manifesto, IEEE 1012 V&V, SOC2/ISO 27001 audit methodology, CodeRabbit/SonarQube quality gates, ATDD acceptance criteria structure.
+   - Synced to all three locations. Hash updated.
+
 55. **Test Generator Subagent Rewrite (Backlog #51, Agent 3 of 9)**
    - **Root cause:** Agent generated tests but lacked decision heuristics — no test-level selection (unit vs integration vs E2E), no echo chamber self-check, no test doubles strategy, no framework detection, no AI-specific bias correction for under-tested error paths.
    - **Key changes:** (1) Input contract — what to test, acceptance criteria, framework. (2) Test-level selection heuristic — classify by where value lives (logic=unit, wiring=integration, flow=E2E). Testing Trophy model. (3) Echo chamber self-check — "could a wrong implementation pass these tests?" #1 AI test failure mode. (4) Test doubles decision tree — real > fake > stub > mock, mock smell at >5 lines setup. (5) AI error-path bias correction — at least 1 error test per happy-path test. (6) Mutation mindset check — "what single-char change breaks correctness?" (7) Framework detection with idiomatic features (pytest fixtures, vitest vi.hoisted, playwright POM). (8) Property-based testing trigger for transformations/parsers. (9) Scope boundary with code-reviewer. (10) Parsimony principle (Beck) — don't over-test trivial code.
