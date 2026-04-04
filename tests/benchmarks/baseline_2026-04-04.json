@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-04T13:20:36.734701",
+  "timestamp": "2026-04-04T13:35:46.584683",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
     "method_mrr": 0.7111111111111111,
@@ -8,7 +8,7 @@
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 45.4,
+    "model_load_time_ms": 50.1,
     "index_stats": {
       "total_principles": 128,
       "total_methods": 671,
