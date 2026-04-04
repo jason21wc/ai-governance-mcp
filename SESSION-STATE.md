@@ -38,6 +38,13 @@
 
 ### Completed This Session
 
+53. **Security Auditor Subagent Rewrite (Backlog #51, Agent 1 of 9)**
+   - **Root cause:** Agent was a standalone OWASP checker when it should be a technology-aware audit orchestrator using the framework's own security methods (§5.7-§5.8, which are more comprehensive than the agent itself).
+   - **6 changes:** (1) Input contract — technology stack, trust boundaries, sensitive data, public vs internal. (2) Framework-routed checklist — 5 always-check + 7 when-relevant items referencing §5.7-§5.8 instead of standalone OWASP table. (3) Data-flow tracing protocol — enumerate inputs → trace to sinks → identify missing sanitization at trust boundaries. Core analytical technique replacing vague "adversarial mindset." (4) Prescribed Bash usage — dependency audit, secret scanning, config checks only. (5) Scope boundary with code-reviewer — code-reviewer catches security basics, security-auditor does deep systematic analysis. (6) Context-dependent severity calibration — same vulnerability class can span severities based on actual exploitability.
+   - **New coverage:** AI-generated code patterns (§5.3.5, 2.74x CodeRabbit finding), MCP/LLM tool security (§5.6.5, §9.3), language-specific patterns for JS/TS/Go/Rust (§5.8.2), database/RLS security (§5.8.5), container security (§5.8.6).
+   - **Research:** OWASP LLM Top 10 (2025), Agentic Top 10 (2026), Snyk 2026 (340% prompt injection surge), CodeRabbit study, NIST SSDF SP 800-218.
+   - Synced to `documents/agents/`, `.claude/agents/`, `~/.claude/agents/`. Hash updated.
+
 52. **Lossy Compression Trap — Context Window Management**
    - Added new pitfall to ai-coding-domain-principles.md Context Window Management section: "The Lossy Compression Trap" — context compaction asymmetrically preserves confident hallucinations while losing nuanced correctness.
    - **Source:** Video evaluation (2026-04-04) — YouTube tutorial on Claude Code workflow. Speaker's "friends don't let friends compact" stance surfaced a failure mode our "context rot" taxonomy didn't name: degradation from lossy compression is mechanistically different from degradation from overflow.
@@ -654,6 +661,24 @@ Created both entries: `ref-ai-coding-node-excel-generation` (ExcelJS over SheetJ
 9. voice-coach — storytelling-specific
 
 **Origin:** Session 50 code-reviewer rewrite (2026-04-04). The improvement was significant — expanded from 6 to 10 tiered checklist items, added input contract, AI failure pattern indicators, impact-based severity. Same methodology should apply to all agents.
+
+#### 53. Modular Domain Architecture (Discussion)
+
+**What:** Make ai-governance modular so users can spin up with just meta-principles and methods, or with meta + selected domains. Domains should be addable/removable without affecting the core framework.
+
+**Why:** Currently the framework ships as a monolith — all 7 domains are always loaded. A user building only Python web apps doesn't need Storytelling or Multimodal RAG domains. A user focused on content creation doesn't need AI Coding. Modular domains would let users start minimal (constitution + methods only) and add domains as their needs grow.
+
+**Root cause:** The framework was built by accretion — each domain was added as a new file, but the architecture assumes all domains are always present. The extractor, retrieval, and domains.json all treat the domain set as fixed.
+
+**Discussion needed:**
+1. Can `domains.json` be made user-configurable (enable/disable per domain)?
+2. How does the extractor handle missing domain files gracefully?
+3. Should tiers.json principle activation be domain-aware (only activate principles from enabled domains)?
+4. What's the minimum viable framework? Constitution + meta-methods + ai-coding? Just constitution + meta-methods?
+5. How do cross-domain references work when a referenced domain isn't loaded?
+6. Impact on retrieval quality — fewer domains = less noise in results?
+
+**Origin:** User request (2026-04-04). Anticipatory architecture improvement for adoption scalability.
 
 #### 49. Embedding Model Memory Sharing Across Processes (Discussion — Performance)
 
