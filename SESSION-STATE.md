@@ -38,6 +38,12 @@
 
 ### Completed This Session
 
+59. **Orchestrator Subagent Rewrite (Backlog #51, Agent 7 of 9)**
+   - **Root cause:** Agent was governance-first (correct) but lacked task classification, delegation heuristics, conflict reconciliation, and specialist input contracts. Would over-delegate simple tasks and under-coordinate complex ones.
+   - **Key changes:** (1) Orchestrator Separation Principle — explicit "you NEVER do domain work" with reasoning. (2) Task coupling classification — independent (parallel), sequential, tightly-coupled (don't split). (3) Effort scaling heuristics — simple=in-context, single-domain=1 agent, multi-concern=sequential, complex=parallel. (4) Delegation complexity floor — don't delegate when overhead exceeds value. (5) Specialist input contracts — what each agent needs when delegated to. (6) Shared assumptions brief for parallel delegation. (7) Conflict reconciliation protocol — when subagents contradict, check evidence strength, tiebreaker agent, or escalate. (8) Task classification in output format.
+   - **Research:** LangGraph/CrewAI/AutoGen patterns, UC Berkeley MAST taxonomy (79% failures are coordination), Anthropic research system, Cognition counter-position (context > parallelism for coupled tasks), Factory.ai context compression, DeepMind delegation paper.
+   - Synced to all three locations. Hash updated.
+
 58. **Documentation Writer Subagent Rewrite (Backlog #51, Agent 6 of 9)**
    - **Root cause:** Agent was generic "write clearly" without the decision heuristics that separate good from great documentation — no Divio quadrant classification, no anti-padding discipline, no AI failure mode awareness, no audience-first protocol.
    - **Key changes:** (1) Divio 4-quadrant classification (tutorial/how-to/reference/explanation) — required before writing, never blend. (2) Anti-padding discipline — banned filler words (simply, just, easily, comprehensive, robust), value test per sentence. (3) AI failure mode self-check — padding, signature parroting, fabricated examples, obvious-over-surprising, copy-paste test. (4) Input contract. (5) Documentation proportionality — match investment to interface stability. (6) Format-specific patterns expanded — README checklist, Python Google-style and TypeScript JSDoc with good/bad contrasts showing semantic value vs signature restatement. (7) Scope boundary with coherence-auditor.
