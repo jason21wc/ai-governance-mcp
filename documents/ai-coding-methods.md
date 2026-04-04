@@ -1,7 +1,7 @@
 ---
-version: "2.34.0"
+version: "2.35.0"
 status: "active"
-effective_date: "2026-04-03"
+effective_date: "2026-04-04"
 domain: "ai-coding"
 governance_level: "domain-methods"
 ---
@@ -9,9 +9,9 @@ governance_level: "domain-methods"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.34.0
+**Version:** 2.35.0
 **Status:** Active
-**Effective Date:** 2026-04-03
+**Effective Date:** 2026-04-04
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -164,6 +164,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Debugging with prior session context / stale conclusions | §5.13.2 | Prior Knowledge Audit |
 | Auth/session/cookie code needs review | §5.1.7 | Runtime-Sensitive Review Trigger |
 | Generating downloadable documents (Excel, PDF, Word) | §9.4 | Document Generation Patterns |
+| Setting up project permissions / allowlist | Appendix A.5.6 | Recommended Permission Architecture |
 
 #### On Uncertainty
 
@@ -258,6 +259,8 @@ Please:
 3. Create the initial project files per the kit tier
 4. Begin the Specify phase with discovery questions
 ```
+
+**After scaffolding:** Configure `.claude/settings.local.json` (or your platform's equivalent) with project-appropriate permissions. See Appendix A.5.6 for the recommended layered architecture and project-level templates.
 
 #### Scenario B: Resume Work — First Prompt
 
@@ -6963,13 +6966,13 @@ Use **allowlist thinking** (approve specific safe patterns) NOT denylist thinkin
 }
 ```
 
-**HARD RULE — governance-critical files are ALWAYS denied in allowlists:**
+**HARD RULE — governance-critical files are denied in project-level allowlists:**
 - `.claude/settings.json` — agent could modify its own enforcement hooks
 - `.claude/hooks/*` — agent could disable governance checks
 - `CLAUDE.md` — agent could change its own behavioral instructions
 - `.github/*` — agent could modify CI/CD pipeline
 
-Self-modification of governance enforcement is an S-Series (safety) concern. These files require explicit human approval for every edit.
+Self-modification of governance enforcement is an S-Series (safety) concern. At project-level, these files are **denied** (prevents agent self-modification of team rules committed to git). At user-level, these files may use **ask** to allow human-approved edits — the human sees and approves each modification. See A.5.6 for the recommended layered architecture.
 
 **Keep as MANUAL APPROVAL** (high blast radius per AO-1):
 - `git push` — external-facing, affects shared state
@@ -6999,8 +7002,99 @@ Re-evaluate permission configuration when:
 - A permission proves too broad (agent modified something unexpected)
 - Moving between development phases (prototyping → production hardening)
 - Onboarding new team members who will use the project's committed settings
+- Permission entry count exceeds 50 — signal of accretion. Review for one-shot artifacts (full commit messages, inline scripts, specific file paths) that should not have persisted. Approve per-use instead.
 
-**Cross-references:** §5.6.1 (Coding Tool Injection Defense), §5.6.3 (Destructive Action Prevention), §9.3.10 (Enforcement Stack), multi-agent methods §6.5.2 (Autonomous Operation Permissions)
+**Cross-references:** §5.6.1 (Coding Tool Injection Defense), §5.6.3 (Destructive Action Prevention), §9.3.10 (Enforcement Stack), multi-agent methods §6.5.2 (Autonomous Operation Permissions), A.5.6 (Recommended Permission Architecture)
+
+#### A.5.6 Recommended Permission Architecture
+
+**The layered model:**
+
+```
+User-level (~/.claude/settings.json or platform equivalent)
+├── deny: credentials (SSH, AWS, env files, Docker/K8s/npm tokens)
+├── ask: governance files (CLAUDE.md, settings, hooks), file-writing MCP tools
+└── allow: read-only git, MCP query tools, WebSearch, trusted doc domains
+
+Project-level (.claude/settings.local.json or platform equivalent)
+├── allow: mutating git, language tooling (npm/pytest/docker), project WebFetch domains
+└── deny: hooks (defense in depth)
+```
+
+**Principle:** User-level handles universal security boundaries and universal trusted tools. Project-level handles project-specific tooling and mutating operations. Read-only at user-level, write at project-level.
+
+**Three principles:**
+
+1. **Deny credentials** — SSH keys, API tokens, env files, cloud provider configs. These should never be read by an AI agent.
+2. **Ask for governance files** — CLAUDE.md, settings, hooks. The human approves each edit so the agent can't silently modify its own rules.
+3. **Allow read-only operations** — git status/diff/log, ls, web search. Safe in any context.
+
+**Recommended user-level baseline:**
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Read(~/.ssh/**)", "Read(~/.aws/credentials)", "Read(~/.gnupg/**)",
+      "Read(~/.netrc)", "Read(**/.env)", "Read(**/.env.*)",
+      "Read(~/.docker/config.json)", "Read(~/.kube/config)", "Read(~/.npmrc)"
+    ],
+    "ask": [
+      "Edit(CLAUDE.md)", "Write(CLAUDE.md)",
+      "Edit(.claude/settings.json)", "Write(.claude/settings.json)",
+      "Edit(.claude/settings.local.json)", "Write(.claude/settings.local.json)",
+      "Edit(.claude/hooks/*)", "Write(.claude/hooks/*)"
+    ],
+    "allow": [
+      "WebSearch",
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)",
+      "Bash(git show:*)", "Bash(git blame:*)",
+      "Bash(ls:*)", "Bash(lsof:*)"
+    ]
+  }
+}
+```
+
+**The deny list is not exhaustive.** Audit your home directory for credential files not listed here. Common additions include cloud provider configs (`~/.config/gcloud/`, `~/.azure/`), package manager tokens, and API key files.
+
+**MCP tool permissions:** Depend on which MCP servers are connected. Add governance, context engine, and documentation-freshness tools to user-level allow when those servers are always available.
+
+**Recommended project-level template (annotated example — adapt for your stack):**
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)", "Bash(pytest:*)", "Bash(pip install:*)",
+      "Bash(git add:*)", "Bash(git commit:*)", "Bash(git push:*)",
+      "Bash(git checkout:*)", "Bash(git branch:*)",
+      "Bash(docker build:*)", "Bash(docker run:*)"
+    ],
+    "deny": [
+      "Edit(.claude/hooks/*)", "Write(.claude/hooks/*)"
+    ]
+  }
+}
+```
+
+For your project, allow the specific build/test/deploy commands you actually use. The pattern is: `Bash(tool-name:*)` for each CLI tool in your workflow.
+
+**The accretion problem:** Permissions grow by "approve once, persist forever." One-shot commands (full commit messages, inline scripts, specific file paths) should not persist — approve per-use instead. Review project settings when entry count exceeds 50 (see A.5.5).
+
+**What should NEVER be user-level allow:**
+- Mutating git (`commit`, `push`, `reset`, `merge`) — blast radius across all repos
+- `WebFetch` without domain restriction — SSRF risk
+- File-writing MCP tools (`install_agent`, `capture_reference`) — use ask-level
+- `mv`, `cp`, `rm`, `chmod` — destructive across any path
+- `node -e`, `python -c` with wildcards — unrestricted code execution
+
+#### A.5.7 Platform-Specific Permission Notes
+
+**Claude Code:** Uses `~/.claude/settings.json` (user) + `.claude/settings.local.json` (project-personal, gitignored). The `.claude/settings.json` in the project root is for team-shared settings (committed to git). See A.5.1 for the three-tier precedence model.
+
+**Gemini CLI:** Uses `~/.gemini/settings.json` equivalent. See Appendix D.6 for Gemini-specific configuration. The layered permission philosophy is the same — user-level baseline + project-level additions.
+
+**Other AI platforms using MCP:** Platforms that connect to the ai-governance MCP server receive SERVER_INSTRUCTIONS with governance guidance. Permission configuration is platform-specific but the deny/ask/allow philosophy applies universally: deny credentials, ask for governance files, allow read-only operations.
 
 ---
 
@@ -7215,6 +7309,20 @@ Configure context engine alongside governance MCP in Gemini's MCP settings:
 ```
 
 See Appendix G for detailed context engine configuration options.
+
+#### D.6 Permission Configuration
+
+The layered permission philosophy from Appendix A.5.6 applies to Gemini CLI:
+
+- **User-level** (`~/.gemini/settings.json` or equivalent): deny credentials, ask for governance files, allow read-only operations
+- **Project-level** (project-local config): allow mutating git, language-specific tooling, project WebFetch domains
+
+The three principles are platform-agnostic:
+1. **Deny credentials** — SSH keys, API tokens, env files, cloud provider configs
+2. **Ask for governance files** — GEMINI.md, settings, hooks
+3. **Allow read-only operations** — git status/diff/log, ls, web search
+
+See A.5.6 for the full recommended baseline with JSON examples (adapt file paths for Gemini's configuration format).
 
 ---
 
@@ -8252,6 +8360,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.35.0 | 2026-04-04 | MINOR: Permission Configuration Best Practices. Root cause: framework treated permissions as one-time setup with no shared baseline — every project started from scratch, permissions grew by accretion. (1) Added A.5.6 Recommended Permission Architecture — layered model (user-level baseline + project-level additions), three principles (deny credentials, ask governance files, allow read-only), recommended baselines with annotated JSON examples, accretion problem documentation, never-allow-at-user-level list. (2) Added A.5.7 Platform-Specific Permission Notes — Claude Code, Gemini CLI, other MCP platforms. (3) Amended A.5.3 hard rule: governance files denied in project-level (prevents agent self-modification of team rules), ask at user-level (human approves each edit). Resolves contradiction with A.5.6's layered model. (4) Added accretion trigger to A.5.5 review list (entry count >50). (5) Added D.6 Gemini permission configuration with cross-reference to A.5.6. (6) Updated Cold Start Kit Scenario A with post-scaffold permission setup note. (7) Added Situation Index entry. Contrarian-reviewed: scoped from two templates to one annotated example, deny list framed as not-exhaustive, scaffold template modification dropped. Security-audited, coherence-audited, validated. |
 | 2.34.0 | 2026-04-03 | MINOR: Added Part 9.4 (Document Generation Patterns) under TITLE 9. Root cause: framework assumed "AI outputs" means "code" — web apps frequently produce document artifacts (Excel, PDF, Word) as primary products with zero governance coverage. Five subsections: §9.4.1 Data/Format Separation architecture (Structured Output Enforcement applied to document generation), §9.4.2 Template Assets & Branding (centralized style definitions, cross-format consistency), §9.4.3 Download Serving Patterns (decision tree: direct/streaming/pre-signed URL/background job), §9.4.4 Library Selection Quick Reference (Python + Node.js with key gotchas — SheetJS CE styling trap, jsPDF client-side only, pdf-lib manipulation only), §9.4.5 Output Validation (format-specific validation approaches, silent failure detection). Added Situation Index entry. Contrarian-reviewed: scoped down from TITLE 10 (5 Parts) to Part 9.4 (5 subsections) — document generation is output distribution under existing TITLE 9. Constitutional Basis: Structured Output Enforcement, Supply Chain & Solution Integrity. |
 | 2.33.0 | 2026-04-02 | MINOR: Added §3.1.5 Library-Specific Knowledge Sources — three-step guidance for reliable external library usage: (1) use documentation-freshness tools for current docs, (2) check Reference Library for known corrections, (3) capture new corrections when official docs prove wrong. Natural extension of §3.1.4 Technology Selection: select technology → validate knowledge sources. Cross-references governance methods TITLE 15 (Reference Library) and §5.13.2 (diagnostic procedure for when documented patterns fail). Prompted by Context7 Skill Wizard analysis + real Vercel doc-bug experience. Constitutional Basis: Context Engineering, Specification Completeness. |
 | 2.32.0 | 2026-03-31 | MINOR: Cross-session epistemic hygiene extensions to §5.13. (1) §5.13.2: Added Prior Knowledge Audit — pre-diagnostic step requiring agents to audit cached beliefs from prior sessions, flag stale conclusions, and re-verify when stack has changed. Added 5-step differential diagnosis for when documented/official patterns fail (Am I calling it correctly? Has API changed? Environment different? Reading correct version docs? Known bug?). (2) §5.13.6: Added 2 anti-patterns (Stale Conclusion, Documented Pattern Bypass) and 2 debugging checklist items. (3) §5.1.7: Added auth/session/cookie runtime review trigger (content-based, flags for runtime verification via Playwright/instrumentation). (4) Updated code-reviewer agent with runtime-sensitive patterns checklist item. Added 2 Situation Index entries. Root cause: AI agents treat cached technical conclusions as facts rather than hypotheses with confidence decay. Evidence: External debugging session (Next.js 16 + @supabase/ssr 0.8.0 cookie timing). Constitutional Basis: Transparent Limitations, Verification & Validation, Context Engineering. |

@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.0** (meta-methods), **v2.34.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.0** (meta-methods), **v2.35.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1037 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -37,6 +37,12 @@
 ## Session Summary (2026-04-03)
 
 ### Completed This Session
+
+51. **Permission Configuration Best Practices (A.5.6 + A.5.7)**
+   - **Root cause:** Framework treated permissions as one-time setup with no shared baseline. Every project started from scratch, permissions grew by accretion.
+   - **7 changes to ai-coding-methods.md:** (1) A.5.6 Recommended Permission Architecture — layered model, three principles (deny credentials, ask governance files, allow read-only), baselines with JSON examples, accretion problem, never-allow list. (2) A.5.7 Platform-Specific Notes (Claude Code, Gemini, other MCP platforms). (3) A.5.3 hard rule amended — governance files denied at project-level, ask at user-level. (4) Accretion trigger added to A.5.5 (>50 entries). (5) D.6 Gemini permission configuration. (6) Cold Start Kit Scenario A post-scaffold note. (7) Situation Index entry.
+   - **Contrarian-reviewed:** Scoped from two templates to one, deny list framed as not-exhaustive, scaffold template mod dropped. Security-audited (resolved A.5.3 contradiction). Coherence-audited.
+   - AI-coding methods v2.34.0 → v2.35.0.
 
 50. **Code Reviewer Subagent Rewrite**
    - **Root cause:** Agent was designed around defect detection (6-item checklist) when effective code review is about code improvement and maintainability (Google, Microsoft research). Covered ~60% of what a coding expert reviewer should check.
@@ -615,6 +621,32 @@ Created both entries: `ref-ai-coding-node-excel-generation` (ExcelJS over SheetJ
 **Workaround:** `scope="user"` works correctly (uses `Path.home()`, absolute path). Global agents in `~/.claude/agents/` bypass this issue entirely.
 
 **Origin:** Session 49 (2026-04-04). Discovered during contrarian review of global agent availability plan. Confirmed empirically: preview showed `install_path` pointing to ai-governance-mcp regardless of calling context.
+
+#### 51. Optimize All Remaining Subagents (Discussion)
+
+**What:** Apply the same research-backed improvement process used for the code-reviewer rewrite (session 50) to the remaining 9 subagents: coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach.
+
+**Process per agent (proven in session 50):**
+1. Research online best practices for the agent's domain (e.g., Google's security review guidelines for security-auditor, industry test strategy for test-generator)
+2. Run contrarian-reviewer on the current agent definition — challenge what's missing, what's generic, what's over/under-scoped
+3. Identify gaps using root cause thinking: is the agent optimized for the right cognitive function, or does it miss categories that matter?
+4. Rewrite with: expanded/tiered checklist, input contract (what must/must not be provided), fresh perspective checks where applicable, AI-specific failure pattern indicators, impact-based severity if applicable
+5. Follow ai-governance: evaluate_governance before changes, query_project for existing patterns, contrarian + coherence + validator review of the plan and final output
+6. Sync to all three locations: `documents/agents/`, `.claude/agents/`, `~/.claude/agents/`
+7. Update hash in `server.py` AGENT_TEMPLATE_HASHES
+
+**Priority order (by usage frequency and improvement potential):**
+1. security-auditor — high usage, may benefit from expanded threat model categories
+2. contrarian-reviewer — high usage, may benefit from structured challenge frameworks
+3. test-generator — medium usage, may benefit from AI-specific test quality patterns
+4. validator — medium usage, may benefit from richer criteria frameworks
+5. coherence-auditor — medium usage, may benefit from cross-file consistency patterns
+6. documentation-writer — lower usage, may benefit from audience-awareness
+7. orchestrator — specialized, may need governance-hook awareness updates
+8. continuity-auditor — storytelling-specific
+9. voice-coach — storytelling-specific
+
+**Origin:** Session 50 code-reviewer rewrite (2026-04-04). The improvement was significant — expanded from 6 to 10 tiered checklist items, added input contract, AI failure pattern indicators, impact-based severity. Same methodology should apply to all agents.
 
 #### 49. Embedding Model Memory Sharing Across Processes (Discussion — Performance)
 
