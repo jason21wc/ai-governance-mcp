@@ -1093,8 +1093,12 @@ def _is_within_allowed_scope(p: Path) -> bool:
     return any(p.is_relative_to(base) for base in allowed)
 
 
-async def _resolve_agent_project_path(arguments: dict) -> tuple[Path | None, bool]:
-    """Resolve project path for agent install/uninstall.
+async def _resolve_caller_project_path(arguments: dict) -> tuple[Path | None, bool]:
+    """Resolve the calling session's project path for file-writing tools.
+
+    Any MCP tool that writes files to the CALLER'S project (not the server's
+    own directory) must use this resolver instead of Path.cwd(). Path.cwd()
+    resolves to the MCP server's working directory, not the calling session's.
 
     Priority: MCP roots > arguments['project_path'] > AI_GOVERNANCE_MCP_PROJECT > CWD.
     Returns (resolved_path, used_cwd_fallback).
@@ -1655,6 +1659,14 @@ async def list_tools() -> list[Tool]:
                     "confirmed": {
                         "type": "boolean",
                         "description": "Set to true to create files after preview",
+                    },
+                    "project_path": {
+                        "type": "string",
+                        "description": (
+                            "Absolute path to the target project directory. "
+                            "Auto-detected from MCP roots if available; falls back to "
+                            "AI_GOVERNANCE_MCP_PROJECT env var, then CWD."
+                        ),
                     },
                 },
                 "required": [],
@@ -2676,7 +2688,7 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
     project_path = None
     used_cwd_fallback = False
     if scope == "project":
-        project_path, used_cwd_fallback = await _resolve_agent_project_path(args)
+        project_path, used_cwd_fallback = await _resolve_caller_project_path(args)
         if project_path is None:
             error = ErrorResponse(
                 error_code="INVALID_PROJECT_PATH",
@@ -2838,6 +2850,12 @@ EOF
                 "2. A supply chain attack (template was tampered with)\n\n"
                 "Use show_manual=true to review the content before installing."
             )
+        if used_cwd_fallback:
+            output["cwd_fallback_warning"] = (
+                "Using CWD as project directory (no MCP roots, project_path argument, "
+                "or AI_GOVERNANCE_MCP_PROJECT env var detected). "
+                "Verify install_path above is correct before confirming."
+            )
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     # Confirmed: perform installation
@@ -2924,7 +2942,7 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
     project_path = None
     used_cwd_fallback = False
     if scope == "project":
-        project_path, used_cwd_fallback = await _resolve_agent_project_path(args)
+        project_path, used_cwd_fallback = await _resolve_caller_project_path(args)
         if project_path is None:
             error = ErrorResponse(
                 error_code="INVALID_PROJECT_PATH",
@@ -3103,9 +3121,21 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
     Two-step flow: preview (no confirmed) → create (confirmed=true).
     Follows install_agent pattern for safety and UX consistency.
     """
-    project_name = str(args.get("project_name", "") or Path.cwd().name).strip()[:100]
+    # Resolve caller's project path (not server CWD)
+    project_path, used_cwd_fallback = await _resolve_caller_project_path(args)
+    if project_path is None:
+        error = ErrorResponse(
+            error_code="INVALID_PROJECT_PATH",
+            message="Specified project_path does not exist or is outside allowed scope",
+            suggestions=[
+                "Provide an absolute path to an existing directory within your home directory"
+            ],
+        )
+        return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    project_name = str(args.get("project_name", "") or project_path.name).strip()[:100]
     if not project_name:
-        project_name = Path.cwd().name
+        project_name = project_path.name
     # Escape curly braces to prevent str.format() injection
     safe_project_name = project_name.replace("{", "{{").replace("}", "}}")
     project_type = args.get("project_type", "code")
@@ -3137,7 +3167,7 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
 
     # Build file manifest
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    cwd = Path.cwd().resolve()
+    cwd = project_path.resolve()
 
     files = list(SCAFFOLD_CORE_FILES.get(project_type, []))
     if kit_tier == "standard":
@@ -3204,6 +3234,12 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
                 "2. Run install_agent(agent_name='orchestrator') for governance orchestration\n"
                 "3. Start working — the AI will read these files at session start"
             )
+        if used_cwd_fallback:
+            output["cwd_fallback_warning"] = (
+                "Using CWD as project directory (no MCP roots, project_path argument, "
+                "or AI_GOVERNANCE_MCP_PROJECT env var detected). "
+                "Verify file paths above are correct before confirming."
+            )
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     # Confirmed mode — create files
@@ -3259,6 +3295,13 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
             "3. Begin work — the AI will read these files at session start"
         ),
     }
+    if used_cwd_fallback:
+        output["cwd_fallback_warning"] = (
+            "Used CWD as project directory (no MCP roots, project_path argument, "
+            "or AI_GOVERNANCE_MCP_PROJECT env var detected). "
+            "If files were created in the wrong project, re-run with "
+            "project_path='/path/to/your/project'."
+        )
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 

@@ -1736,8 +1736,8 @@ class TestClaudeCodeDetection:
         assert _detect_claude_code_environment() is False
 
 
-class TestResolveAgentProjectPath:
-    """Tests for _resolve_agent_project_path (4-tier project path resolution)."""
+class TestResolveCallerProjectPath:
+    """Tests for _resolve_caller_project_path (4-tier project path resolution)."""
 
     def _set_mock_roots(self, monkeypatch, side_effect=None, roots=None):
         """Set up mock MCP request context via the ContextVar."""
@@ -1769,7 +1769,7 @@ class TestResolveAgentProjectPath:
         self._set_mock_roots(monkeypatch, side_effect=Exception("no roots"))
         monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
 
-        result_path, used_fallback = await server_module._resolve_agent_project_path(
+        result_path, used_fallback = await server_module._resolve_caller_project_path(
             {"project_path": str(tmp_path)}
         )
         assert result_path == tmp_path.resolve()
@@ -1783,7 +1783,9 @@ class TestResolveAgentProjectPath:
         self._set_mock_roots(monkeypatch, side_effect=Exception("no roots"))
         monkeypatch.setenv("AI_GOVERNANCE_MCP_PROJECT", str(tmp_path))
 
-        result_path, used_fallback = await server_module._resolve_agent_project_path({})
+        result_path, used_fallback = await server_module._resolve_caller_project_path(
+            {}
+        )
         assert result_path == tmp_path.resolve()
         assert used_fallback is False
 
@@ -1796,7 +1798,9 @@ class TestResolveAgentProjectPath:
         monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
         monkeypatch.chdir(tmp_path)
 
-        result_path, used_fallback = await server_module._resolve_agent_project_path({})
+        result_path, used_fallback = await server_module._resolve_caller_project_path(
+            {}
+        )
         assert result_path == Path.cwd()
         assert used_fallback is True
 
@@ -1808,7 +1812,7 @@ class TestResolveAgentProjectPath:
         self._set_mock_roots(monkeypatch, side_effect=Exception("no roots"))
         monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
 
-        result_path, used_fallback = await server_module._resolve_agent_project_path(
+        result_path, used_fallback = await server_module._resolve_caller_project_path(
             {"project_path": "/nonexistent/path/abc123"}
         )
         assert result_path is None
@@ -1826,7 +1830,7 @@ class TestResolveAgentProjectPath:
         # Also set env var — roots should win
         monkeypatch.setenv("AI_GOVERNANCE_MCP_PROJECT", "/some/other/path")
 
-        result_path, used_fallback = await server_module._resolve_agent_project_path(
+        result_path, used_fallback = await server_module._resolve_caller_project_path(
             {"project_path": "/another/path"}
         )
         assert result_path == tmp_path.resolve()
@@ -3449,6 +3453,93 @@ class TestScaffoldProject:
         assert (tmp_path / "_ai-context").is_dir()
         assert (tmp_path / "_ai-context" / "SESSION-STATE.md").is_file()
         assert (tmp_path / "_ai-context" / "README.md").is_file()
+
+
+class TestScaffoldProjectPath:
+    """Tests for scaffold_project with explicit project_path (cross-project scenario)."""
+
+    def _set_no_roots(self, monkeypatch):
+        """Set up mock MCP context with no roots support."""
+        from mcp.server.lowlevel.server import request_ctx
+
+        mock_session = Mock()
+        mock_session.list_roots = Mock(side_effect=Exception("no roots"))
+        mock_request_context = Mock()
+        mock_request_context.session = mock_session
+        request_ctx.set(mock_request_context)
+
+    @pytest.mark.asyncio
+    async def test_scaffold_uses_project_path_not_cwd(self, tmp_path, monkeypatch):
+        """scaffold_project with project_path should create files there, not CWD."""
+        import ai_governance_mcp.server as server_module
+
+        project_dir = tmp_path / "my_project"
+        project_dir.mkdir()
+
+        server_cwd = tmp_path / "server_dir"
+        server_cwd.mkdir()
+        monkeypatch.chdir(server_cwd)
+
+        self._set_no_roots(monkeypatch)
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+
+        result = await server_module._handle_scaffold_project(
+            {
+                "project_name": "test-project",
+                "confirmed": True,
+                "project_path": str(project_dir),
+            }
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "scaffolded"
+
+        # Files must be in project_dir, NOT in server_cwd
+        assert (project_dir / "SESSION-STATE.md").exists()
+        assert not (server_cwd / "SESSION-STATE.md").exists()
+
+    @pytest.mark.asyncio
+    async def test_scaffold_default_name_from_project_path(self, tmp_path, monkeypatch):
+        """scaffold_project should use project_path name as default, not CWD name."""
+        import ai_governance_mcp.server as server_module
+
+        project_dir = tmp_path / "cool-project"
+        project_dir.mkdir()
+
+        server_cwd = tmp_path / "server_dir"
+        server_cwd.mkdir()
+        monkeypatch.chdir(server_cwd)
+
+        self._set_no_roots(monkeypatch)
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+
+        result = await server_module._handle_scaffold_project(
+            {
+                "confirmed": True,
+                "project_path": str(project_dir),
+            }
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["project_name"] == "cool-project"
+        assert response["project_name"] != "server_dir"
+
+    @pytest.mark.asyncio
+    async def test_scaffold_rejects_invalid_project_path(self, tmp_path, monkeypatch):
+        """scaffold_project with invalid project_path should return error."""
+        import ai_governance_mcp.server as server_module
+
+        self._set_no_roots(monkeypatch)
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+
+        result = await server_module._handle_scaffold_project(
+            {
+                "project_path": "/nonexistent/path/abc123",
+            }
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["error_code"] == "INVALID_PROJECT_PATH"
 
 
 class TestCaptureReference:
