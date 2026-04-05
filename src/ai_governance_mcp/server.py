@@ -2984,6 +2984,12 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
                 "To confirm: Call uninstall_agent with confirmed=true"
             ),
         }
+        if used_cwd_fallback:
+            output["cwd_fallback_warning"] = (
+                "Using CWD as project directory (no MCP roots, project_path argument, "
+                "or AI_GOVERNANCE_MCP_PROJECT env var detected). "
+                "Verify install_path above is correct before confirming."
+            )
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     # Confirmed: perform uninstallation
