@@ -8235,7 +8235,13 @@ scaffold_project(project_name="Hotel Analysis", project_type="document", project
 ```
 When `project_type="document"`, creates `_ai-context/` inside the specified directory. Use `project_path` to specify the target directory explicitly — this is especially important in sandboxed environments (Cowork, Docker) where the MCP server's working directory may differ from the project.
 
-**Cowork note:** The MCP server runs inside the Cowork sandbox and shares the filesystem. Pass `project_path` pointing to the mounted workspace directory (e.g., `/sessions/.../mnt/Project Name`). The response includes `project_root` and `resolved_path` for each file so you can verify the correct location was used. If files report "already exists" unexpectedly, check the `resolved_path` to see what path was actually checked.
+**Cowork limitation:** The MCP server runs on the **host Mac**, not inside the Cowork sandbox VM. Sandbox paths (`/sessions/.../mnt/...`) don't exist on the host, so `project_path` pointing to a sandbox path will be rejected. Use `show_manual=true` instead:
+
+```
+scaffold_project(project_name="Hotel Analysis", project_type="document", show_manual=true)
+```
+
+This returns the file contents without writing them. The LLM in Cowork then creates the files using its own file-writing tools, which DO have access to the sandbox filesystem. This is the recommended approach for all sandboxed environments.
 
 This requires the MCP server to be configured first, so it supplements rather than replaces Paths A/B.
 

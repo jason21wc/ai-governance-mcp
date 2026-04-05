@@ -1695,6 +1695,15 @@ async def list_tools() -> list[Tool]:
                             "AI_GOVERNANCE_MCP_PROJECT env var, then CWD."
                         ),
                     },
+                    "show_manual": {
+                        "type": "boolean",
+                        "description": (
+                            "Set to true to get file contents for manual creation "
+                            "instead of writing files directly. Use in sandboxed "
+                            "environments (Cowork) where the MCP server cannot "
+                            "write to the project directory."
+                        ),
+                    },
                 },
                 "required": [],
             },
@@ -3154,26 +3163,32 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
     Two-step flow: preview (no confirmed) → create (confirmed=true).
     Follows install_agent pattern for safety and UX consistency.
     """
+    show_manual = args.get("show_manual", False)
+    project_type = args.get("project_type", "code")
+    kit_tier = args.get("kit_tier", "core")
+    confirmed = args.get("confirmed", False)
+
     # Resolve caller's project path (not server CWD)
     project_path, used_cwd_fallback = await _resolve_caller_project_path(args)
-    if project_path is None:
+    if project_path is None and not show_manual:
         error = ErrorResponse(
             error_code="INVALID_PROJECT_PATH",
             message="Specified project_path does not exist or is outside allowed scope",
             suggestions=[
-                "Provide an absolute path to an existing directory within your home directory"
+                "Provide an absolute path to an existing directory within your home directory",
+                "Use show_manual=true to get file contents for manual creation (recommended for Cowork/sandboxed environments)",
             ],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
-    project_name = str(args.get("project_name", "") or project_path.name).strip()[:100]
+    project_name = str(
+        args.get("project_name", "")
+        or (project_path.name if project_path else "my-project")
+    ).strip()[:100]
     if not project_name:
-        project_name = project_path.name
+        project_name = project_path.name if project_path else "my-project"
     # Escape curly braces to prevent str.format() injection
     safe_project_name = project_name.replace("{", "{{").replace("}", "}}")
-    project_type = args.get("project_type", "code")
-    kit_tier = args.get("kit_tier", "core")
-    confirmed = args.get("confirmed", False)
 
     # Validate parameters
     if project_type not in ("code", "document"):
@@ -3197,6 +3212,35 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
             ],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+    # show_manual mode — return file contents for manual creation
+    # Used in sandboxed environments (Cowork) where the MCP server
+    # cannot write to the project directory.
+    if show_manual:
+        date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        files = list(SCAFFOLD_CORE_FILES.get(project_type, []))
+        if kit_tier == "standard":
+            files.extend(SCAFFOLD_STANDARD_EXTRAS.get(project_type, []))
+
+        file_contents = []
+        for relative_path, template in files:
+            content = template.format(project_name=safe_project_name, date=date_str)
+            file_contents.append({"path": relative_path, "content": content})
+
+        output = {
+            "status": "manual_instructions",
+            "project_name": project_name,
+            "project_type": project_type,
+            "kit_tier": kit_tier,
+            "instructions": (
+                "Create these files in your project directory. "
+                "For document projects, all files go inside _ai-context/.\n\n"
+                "The 'files' array below contains the path and full content "
+                "for each file. Create them using your file-writing tools."
+            ),
+            "files": file_contents,
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     # Build file manifest
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")

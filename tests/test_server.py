@@ -3571,6 +3571,83 @@ class TestScaffoldProjectPath:
         response = json.loads(result[0].text.split("---")[0])
         assert response["error_code"] == "INVALID_PROJECT_PATH"
 
+    @pytest.mark.asyncio
+    async def test_scaffold_show_manual_returns_content(self, tmp_path, monkeypatch):
+        """show_manual=true should return file contents without writing."""
+        import ai_governance_mcp.server as server_module
+
+        self._set_no_roots(monkeypatch)
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+        monkeypatch.chdir(tmp_path)
+
+        result = await server_module._handle_scaffold_project(
+            {
+                "project_name": "test-manual",
+                "project_type": "document",
+                "kit_tier": "core",
+                "show_manual": True,
+            }
+        )
+
+        # show_manual content contains markdown --- separators in file content,
+        # so find the JSON object boundary instead of splitting on ---
+        text = result[0].text
+        json_end = text.rfind("}") + 1
+        response = json.loads(text[:json_end])
+        assert response["status"] == "manual_instructions"
+        assert response["project_name"] == "test-manual"
+        assert len(response["files"]) == 4
+        # Verify each file has path and content
+        for f in response["files"]:
+            assert "path" in f
+            assert "content" in f
+            assert f["content"]  # Non-empty
+        # Verify no files were written to disk
+        assert not (tmp_path / "_ai-context").exists()
+
+    @pytest.mark.asyncio
+    async def test_scaffold_show_manual_works_without_valid_path(self, monkeypatch):
+        """show_manual should work even when project_path is invalid."""
+        import ai_governance_mcp.server as server_module
+
+        self._set_no_roots(monkeypatch)
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+
+        result = await server_module._handle_scaffold_project(
+            {
+                "project_name": "sandbox-project",
+                "project_path": "/nonexistent/sandbox/path",
+                "project_type": "document",
+                "kit_tier": "core",
+                "show_manual": True,
+            }
+        )
+
+        text = result[0].text
+        json_end = text.rfind("}") + 1
+        response = json.loads(text[:json_end])
+        assert response["status"] == "manual_instructions"
+        assert response["project_name"] == "sandbox-project"
+        assert len(response["files"]) == 4
+
+    @pytest.mark.asyncio
+    async def test_scaffold_invalid_path_suggests_show_manual(self, monkeypatch):
+        """Invalid project_path error should suggest show_manual."""
+        import ai_governance_mcp.server as server_module
+
+        self._set_no_roots(monkeypatch)
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+
+        result = await server_module._handle_scaffold_project(
+            {
+                "project_path": "/nonexistent/sandbox/path",
+            }
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["error_code"] == "INVALID_PROJECT_PATH"
+        assert any("show_manual" in s for s in response["suggestions"])
+
 
 class TestCaptureReference:
     """Tests for capture_reference tool."""
