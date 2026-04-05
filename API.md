@@ -54,7 +54,7 @@ Run with: `python -m ai_governance_mcp.server`
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | `query` | string | Yes | The situation, task, or concern to get governance guidance for (1-10,000 chars) |
-| `domain` | string | No | Force a specific domain. One of: `constitution`, `ai-coding`, `multi-agent`, `storytelling`, `multimodal-rag`, `ui-ux` |
+| `domain` | string | No | Force a specific domain. One of: `constitution`, `ai-coding`, `multi-agent`, `storytelling`, `multimodal-rag`, `ui-ux`, `kmpd` |
 | `include_constitution` | boolean | No | Include constitution principles in response (default: `true`) |
 | `include_methods` | boolean | No | Include procedural methods in response (default: `true`) |
 | `max_results` | integer | No | Maximum principles per domain, 1-50 (default: `10`) |
@@ -218,7 +218,7 @@ Run with: `python -m ai_governance_mcp.server`
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `domain` | string | Yes | Domain name. One of: `constitution`, `ai-coding`, `multi-agent`, `storytelling`, `multimodal-rag`, `ui-ux` |
+| `domain` | string | Yes | Domain name. One of: `constitution`, `ai-coding`, `multi-agent`, `storytelling`, `multimodal-rag`, `ui-ux`, `kmpd` |
 
 **Returns:** JSON object with detailed domain information including all principles and methods in that domain.
 

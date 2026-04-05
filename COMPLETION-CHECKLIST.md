@@ -31,23 +31,23 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 
 ### BEST-EFFORT (advisory, ~85% compliance expected)
 
-7. Tests written WITH implementation, not after (§5.2.2 — TDD recommended)
-8. SESSION-STATE updated progressively during session, not just at end (§7.1)
-9. Benchmark baseline captured before index/retrieval changes
-10. **New code path security check** (if adding code that reads files, parses external data, or handles user-controlled input):
+9. Tests written WITH implementation, not after (§5.2.2 — TDD recommended)
+10. SESSION-STATE updated progressively during session, not just at end (§7.1)
+11. Benchmark baseline captured before index/retrieval changes
+12. **New code path security check** (if adding code that reads files, parses external data, or handles user-controlled input):
     - [ ] Is the new code path included in `validate_content_security()` scan? (extractor.py)
     - [ ] Does it validate/sanitize file paths? (symlink protection, path traversal, size limits)
     - [ ] Does it use safe parsing? (`yaml.safe_load()`, not `yaml.load()`; `json.loads()`, not `eval()`)
     - [ ] Does it have dedicated tests? (NOT just passing through existing tests)
     - [ ] If it returns content to AI clients, is the content scanned for prompt injection?
-11. README/SPEC/ARCH propagation for domain counts, file trees, version references
-12. Docker rebuild if `src/`, `pyproject.toml`, or `Dockerfile` changed
+13. README/SPEC/ARCH propagation for domain counts, file trees, version references
+14. Docker rebuild if `src/`, `pyproject.toml`, or `Dockerfile` changed
 
 ### ALWAYS (regardless of enforcement tier)
 
-13. Update SESSION-STATE.md (version, counts, summary) — at minimum at session end
-14. Commit and push
-15. Verify CI green (`gh run watch`)
+15. Update SESSION-STATE.md (version, counts, summary) — at minimum at session end
+16. Commit and push
+17. Verify CI green (`gh run watch`)
 
 ## Content changes (governance documents)
 
