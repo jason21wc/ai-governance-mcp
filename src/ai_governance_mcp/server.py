@@ -3231,9 +3231,11 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
             "project_name": project_name,
             "project_type": project_type,
             "kit_tier": kit_tier,
+            "project_root": str(cwd),
             "files": [
                 {
                     "path": f["relative_path"],
+                    "resolved_path": f["full_path"],
                     "action": f["action"],
                     "preview": f["content_preview"],
                 }
@@ -3272,7 +3274,13 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
     try:
         for f in manifest:
             if f["exists"]:
-                skipped.append({"path": f["relative_path"], "reason": "already exists"})
+                skipped.append(
+                    {
+                        "path": f["relative_path"],
+                        "resolved_path": f["full_path"],
+                        "reason": "already exists",
+                    }
+                )
                 continue
 
             full_path = Path(f["full_path"])
@@ -3308,6 +3316,7 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
         "project_name": project_name,
         "project_type": project_type,
         "kit_tier": kit_tier,
+        "project_root": str(cwd),
         "files_created": created,
         "files_skipped": skipped,
         "message": f"Successfully initialized governance memory for '{project_name}'.",

@@ -8227,13 +8227,17 @@ If the Cowork Project Instructions template (L.4) is already pasted, the AI will
 3. Create stub SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md (use §7.8.3 templates)
 4. Paste the Cowork Project Instructions template from L.4 into Cowork's GUI
 
-**Path C: MCP tool (future — aligns with Backlog #2 Part B)**
+**Path C: MCP tool (`scaffold_project`)**
 
-A future `scaffold_project` MCP tool could support:
+The `scaffold_project` MCP tool supports document projects:
 ```
-scaffold_project(project_name="Hotel Analysis", project_type="document")
+scaffold_project(project_name="Hotel Analysis", project_type="document", project_path="/path/to/folder")
 ```
-When `project_type="document"`, creates `_ai-context/` instead of root-level files. This requires the MCP server to be configured first, so it supplements rather than replaces Paths A/B.
+When `project_type="document"`, creates `_ai-context/` inside the specified directory. Use `project_path` to specify the target directory explicitly — this is especially important in sandboxed environments (Cowork, Docker) where the MCP server's working directory may differ from the project.
+
+**Cowork note:** The MCP server runs inside the Cowork sandbox and shares the filesystem. Pass `project_path` pointing to the mounted workspace directory (e.g., `/sessions/.../mnt/Project Name`). The response includes `project_root` and `resolved_path` for each file so you can verify the correct location was used. If files report "already exists" unexpectedly, check the `resolved_path` to see what path was actually checked.
+
+This requires the MCP server to be configured first, so it supplements rather than replaces Paths A/B.
 
 ### L.6 Non-Code Session State Variant
 
