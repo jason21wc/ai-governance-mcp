@@ -1106,13 +1106,33 @@ async def _resolve_caller_project_path(arguments: dict) -> tuple[Path | None, bo
     own directory) must use this resolver instead of Path.cwd(). Path.cwd()
     resolves to the MCP server's working directory, not the calling session's.
 
-    Priority: MCP roots > arguments['project_path'] > AI_GOVERNANCE_MCP_PROJECT > CWD.
+    Priority: arguments['project_path'] > MCP roots > AI_GOVERNANCE_MCP_PROJECT > CWD.
+    Explicit caller intent always wins over auto-detection. MCP roots may
+    point to platform-internal directories (e.g., Cowork uploads folder)
+    that differ from the user's actual project.
+
     Returns (resolved_path, used_cwd_fallback).
     Returns (None, False) if an explicit path is invalid or outside allowed scope.
     """
     global _cached_roots_path  # noqa: PLW0603
 
-    # Tier 1: MCP roots (protocol-level, invisible to caller)
+    # Tier 1: Explicit tool argument (caller intent — highest priority)
+    raw = arguments.get("project_path")
+    if raw and isinstance(raw, str):
+        p = Path(raw).resolve()
+        if not p.exists() or not p.is_dir():
+            logger.debug(
+                "project_path '%s' does not exist or is not a directory (resolved: %s)",
+                raw,
+                p,
+            )
+            return None, False
+        if not _is_within_allowed_scope(p):
+            logger.debug("project_path '%s' is outside allowed scope", p)
+            return None, False
+        return p, False
+
+    # Tier 2: MCP roots (protocol-level auto-detection)
     # Cached per-session to avoid 2s timeout on every call when client
     # doesn't support roots.
     if _cached_roots_path is None:
@@ -1140,16 +1160,6 @@ async def _resolve_caller_project_path(arguments: dict) -> tuple[Path | None, bo
 
     if isinstance(_cached_roots_path, Path):
         return _cached_roots_path, False
-
-    # Tier 2: Explicit tool argument
-    raw = arguments.get("project_path")
-    if raw and isinstance(raw, str):
-        p = Path(raw).resolve()
-        if not p.exists() or not p.is_dir():
-            return None, False
-        if not _is_within_allowed_scope(p):
-            return None, False
-        return p, False
 
     # Tier 3: Environment variable
     default = os.environ.get("AI_GOVERNANCE_MCP_PROJECT")
@@ -3207,6 +3217,13 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
 
         content = template.format(project_name=safe_project_name, date=date_str)
         exists = full_path.is_file()
+        if exists:
+            logger.info(
+                "scaffold_project: file exists at %s (parent exists: %s, parent is_dir: %s)",
+                full_path,
+                full_path.parent.exists(),
+                full_path.parent.is_dir(),
+            )
 
         manifest.append(
             {
@@ -3273,7 +3290,10 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
 
     try:
         for f in manifest:
-            if f["exists"]:
+            full_path = Path(f["full_path"])
+
+            # Re-verify existence at write time (don't trust cached manifest)
+            if full_path.is_file():
                 skipped.append(
                     {
                         "path": f["relative_path"],
@@ -3282,8 +3302,6 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
                     }
                 )
                 continue
-
-            full_path = Path(f["full_path"])
 
             # Symlink check before write
             if full_path.exists() and full_path.is_symlink():

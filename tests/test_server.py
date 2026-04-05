@@ -1823,19 +1823,41 @@ class TestResolveCallerProjectPath:
         assert used_fallback is False
 
     @pytest.mark.asyncio
-    async def test_mcp_roots_take_priority(self, tmp_path, monkeypatch):
-        """MCP roots should take priority over all other methods."""
+    async def test_explicit_path_wins_over_roots(self, tmp_path, monkeypatch):
+        """Explicit project_path argument should win over MCP roots."""
+        import ai_governance_mcp.server as server_module  # noqa: F811
+
+        # Set up roots pointing to a different directory
+        roots_dir = tmp_path / "roots_dir"
+        roots_dir.mkdir()
+        mock_root = Mock()
+        mock_root.uri = f"file://{roots_dir}"
+        self._set_mock_roots(monkeypatch, roots=[mock_root])
+
+        # Explicit project_path should win
+        explicit_dir = tmp_path / "explicit_dir"
+        explicit_dir.mkdir()
+
+        result_path, used_fallback = await server_module._resolve_caller_project_path(
+            {"project_path": str(explicit_dir)}
+        )
+        assert result_path == explicit_dir.resolve()
+        assert result_path != roots_dir.resolve()
+        assert used_fallback is False
+
+    @pytest.mark.asyncio
+    async def test_mcp_roots_used_when_no_explicit_path(self, tmp_path, monkeypatch):
+        """MCP roots should be used when no explicit project_path is provided."""
         import ai_governance_mcp.server as server_module  # noqa: F811
 
         mock_root = Mock()
         mock_root.uri = f"file://{tmp_path}"
         self._set_mock_roots(monkeypatch, roots=[mock_root])
 
-        # Also set env var — roots should win
         monkeypatch.setenv("AI_GOVERNANCE_MCP_PROJECT", "/some/other/path")
 
         result_path, used_fallback = await server_module._resolve_caller_project_path(
-            {"project_path": "/another/path"}
+            {}
         )
         assert result_path == tmp_path.resolve()
         assert used_fallback is False
