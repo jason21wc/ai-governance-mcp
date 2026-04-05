@@ -2321,6 +2321,15 @@ Run §9.8.1 through §9.8.4 as an AUDIT against existing content. Items failing 
 
 **Skip gate for domain review:** If a domain assessment (review mode) produces >90% KEEP dispositions with no MERGE candidates, document the clean assessment and move on. Not every domain needs full consolidation.
 
+**Enumeration verification (for unstructured external sources):**
+
+Structured sources (frameworks with numbered principles, research papers with findings lists) provide their own enumeration. Unstructured sources (videos, talks, blog posts, conversations) require the evaluator to construct the item list — and that extraction is inherently lossy. Before assessing coverage, enumerate all discrete items from the source using two passes with different lenses:
+
+1. **Concepts pass:** principles, mental models, workflows, methodologies, framings
+2. **Artifacts pass:** tools, plugins, configurations, concrete deliverables, code patterns
+
+State the total count explicitly: "*N items identified*" — separate from the coverage assessment. This makes the extraction step visible and challengeable. Clean arithmetic ("7/10 covered") creates false confidence if the denominator is wrong.
+
 **Method-level reflection (for external content evaluation):**
 
 When evaluating external content (videos, articles, frameworks, tools), the Admission Test correctly gates principle-level admission. But "covered at the principle level" does not mean "nothing to learn." After completing coverage assessment, ask one additional question for each concept marked as covered:

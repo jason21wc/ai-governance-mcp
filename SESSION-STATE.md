@@ -42,7 +42,8 @@
    - **Root cause:** The LEARNING-LOG "Start from Gaps, Not Borrowing" rule (from Atlas evaluation) was over-generalized — correctly scoped for principle-level admission but over-applied to method-level quality evaluation. Result: "7/10 covered" summaries filter out implementation-quality improvements.
    - **Fix (Deliverable 1):** (1) Added scope boundary to LEARNING-LOG rule distinguishing principle-level admission (Admission Test applies) from method-level improvement (content improvement, no Admission Test needed). (2) Added "Method-level reflection" prompt to Part 9.8 evaluation workflow — for each covered concept, ask whether the external implementation suggests a more concrete threshold, actionable workflow, or better packaging.
    - **Contrarian-reviewed:** Challenged 4 assumptions. Key finding: the Admission Test is fine (it already distinguishes levels via "at this level") — the blockage was evaluator behavior shaped by an over-generalized lesson, not a methodology gap. Rejected formal "quality comparison step" as scope creep that reopens intellectual generosity bias. Accepted targeted fixes instead.
-   - **Deliverable 2 captured:** Video re-analysis produced 3 backlog items (#54 Superpowers reference, #55 workflow codification, #56 context threshold + sub-agent framing) with full research context preserved.
+   - **Deliverable 2 captured:** Video re-analysis produced 4 backlog items (#54 Superpowers reference, #55 workflow codification, #56 context threshold + sub-agent framing, #57 tooling appendix — Warp, cc-status-line, Happy Engineering, Sequential Thinking) with full research context preserved.
+   - **Double-check finding:** Sequential Thinking MCP server was missed by both original and re-analysis — only caught by contrarian reviewer. Root cause: no enumeration verification step in Part 9.8 for unstructured sources. Fix: added two-pass extraction (concepts pass + artifacts pass) with explicit item count before coverage assessment. This is a recall problem (items not found) vs. the earlier precision problem (items found but not deeply analyzed).
 
 62. **Content Quality Structural Enforcement (Backlog #25) — CLOSED**
    - **Root cause analysis:** The principle authoring checklist is advisory (~85% compliance). A full PreToolUse hook was rejected — it can only enforce mechanical compliance (agent invocation) not substantive quality (Admission Test honesty), creating false confidence. The contrarian reviewer is the real quality gate.
@@ -1074,11 +1075,19 @@ Root cause eliminated by #38. The trigger was version-bump string changes in con
 - Alternative to Anthropic's Dispatch/remote pairing feature (user has had reliability issues with Dispatch)
 - Android, Apple, web app
 
+**Sequential Thinking MCP server:**
+- Chain-of-thought reasoning tool that forces step-by-step decomposition for Claude
+- Video recommends installing alongside Superpowers to "upgrade thinking powers"
+- Implements: `meta-core-systemic-thinking` (structured reasoning), plan-mode workflow principles
+- Install: `claude` → "please install sequential thinking MCP server"
+- Pairs with Superpowers — enhances brainstorming quality
+
 **Actions:**
 1. Evaluate each for Appendix A entry — recommended tooling section
 2. For cc-status-line: include the user's exact line 1/line 2 config from the video as a recommended setup
 3. For Happy Engineering: compare against Anthropic's Dispatch feature for reliability and governance compliance
-4. Batch all three as a single appendix update if approved
+4. For Sequential Thinking: evaluate whether it complements or conflicts with our plan-mode template approach
+5. Batch all as a single appendix update if approved
 
 **Origin:** Claude Code workflow video re-analysis (2026-04-05). Low priority — tooling recommendations, not framework changes.
 
