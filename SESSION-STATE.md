@@ -1051,6 +1051,37 @@ Root cause eliminated by #38. The trigger was version-bump string changes in con
 
 **Origin:** Claude Code workflow video re-analysis (2026-04-05). These are method-level improvements to existing content, not new principles — per §9.8.2 scope boundary.
 
+#### 57. Recommended Tooling Appendix Entries — Warp, cc-status-line, Happy Engineering (Discussion — from Video Re-Analysis)
+
+**What:** Three tools from the Claude Code workflow video that implement existing framework principles as concrete tooling. Candidates for ai-coding Appendix A entries.
+
+**Warp Terminal (warp.dev):**
+- AI-native terminal with side panel for viewing repo files alongside Claude Code conversation, split panes for multiple Claude instances, tabbed sessions
+- Implements: `multi-reliability-observability-protocol` (visibility into agent progress), human-in-the-loop review (see plans/specs/code in real-time while talking to Claude)
+- Key value: review generated plans and code without leaving the terminal — supports the "don't just click yes to everything" discipline the video emphasizes
+- Free, not sponsored
+
+**cc-status-line plugin (`npx cc-status-line@latest`):**
+- Adds real-time status bar: model name, context window %, session cost, session duration, git branch, work tree
+- Implements: `coding-context-context-window-management` (The Token Economy Act), `coding-method-context-monitoring`
+- Key value: makes context % visible without checking manually — directly enables the 50% threshold rule (backlog #56)
+- Pairs with #56 — the threshold is useless without a way to see it
+
+**Happy Engineering (happy.engineering):**
+- Free, open-source remote Claude Code terminal control from mobile
+- Unlike official Claude mobile app: runs on your actual machine, full access to all plugins (superpowers, context7, etc.) and local files
+- Implements: `multi-reliability-state-persistence-protocol` (session continuity), `multi-reliability-observability-protocol` (remote monitoring)
+- Alternative to Anthropic's Dispatch/remote pairing feature (user has had reliability issues with Dispatch)
+- Android, Apple, web app
+
+**Actions:**
+1. Evaluate each for Appendix A entry — recommended tooling section
+2. For cc-status-line: include the user's exact line 1/line 2 config from the video as a recommended setup
+3. For Happy Engineering: compare against Anthropic's Dispatch feature for reliability and governance compliance
+4. Batch all three as a single appendix update if approved
+
+**Origin:** Claude Code workflow video re-analysis (2026-04-05). Low priority — tooling recommendations, not framework changes.
+
 ---
 
 ### Closed / Reference
