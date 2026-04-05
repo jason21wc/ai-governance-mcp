@@ -38,6 +38,12 @@
 
 ### Completed This Session
 
+63. **External Content Evaluation Methodology Improvement**
+   - **Root cause:** The LEARNING-LOG "Start from Gaps, Not Borrowing" rule (from Atlas evaluation) was over-generalized — correctly scoped for principle-level admission but over-applied to method-level quality evaluation. Result: "7/10 covered" summaries filter out implementation-quality improvements.
+   - **Fix (Deliverable 1):** (1) Added scope boundary to LEARNING-LOG rule distinguishing principle-level admission (Admission Test applies) from method-level improvement (content improvement, no Admission Test needed). (2) Added "Method-level reflection" prompt to Part 9.8 evaluation workflow — for each covered concept, ask whether the external implementation suggests a more concrete threshold, actionable workflow, or better packaging.
+   - **Contrarian-reviewed:** Challenged 4 assumptions. Key finding: the Admission Test is fine (it already distinguishes levels via "at this level") — the blockage was evaluator behavior shaped by an over-generalized lesson, not a methodology gap. Rejected formal "quality comparison step" as scope creep that reopens intellectual generosity bias. Accepted targeted fixes instead.
+   - **Deliverable 2 captured:** Video re-analysis produced 3 backlog items (#54 Superpowers reference, #55 workflow codification, #56 context threshold + sub-agent framing) with full research context preserved.
+
 62. **Content Quality Structural Enforcement (Backlog #25) — CLOSED**
    - **Root cause analysis:** The principle authoring checklist is advisory (~85% compliance). A full PreToolUse hook was rejected — it can only enforce mechanical compliance (agent invocation) not substantive quality (Admission Test honesty), creating false confidence. The contrarian reviewer is the real quality gate.
    - **Three mechanisms implemented:** (1) Pre-push gate requires contrarian-reviewer, coherence-auditor, or validator for governance principle file changes (constitution + domain principles). (2) CI principle count ceiling (35/domain) catches accretion structurally — multimodal-rag at 32 triggers a warning. (3) Existing consolidation pass (Part 9.8.5) remains the systemic cleanup.
@@ -994,6 +1000,56 @@ Root cause eliminated by #38. The trigger was version-bump string changes in con
 **Outcome:** Either (a) memory + template ordering proves sufficient (close after 2-3 successful planning sessions), (b) implement PreToolUse hook on ExitPlanMode, or (c) broader advisory compliance enforcement redesign.
 
 **Origin:** #38 planning session (2026-04-01). User caught missing contrarian review before ExitPlanMode.
+
+#### 54. Superpowers Plugin — Reference Library Entry + Method Assessment (Discussion — from Video Re-Analysis)
+
+**What:** The Superpowers plugin (github.com/obra/superpowers, v4.3.0, 93K+ developers, Anthropic-endorsed) is a methodology-as-code framework implementing a brainstorm→write-plan→execute-plan pipeline using SKILL.md files. It packages several ai-governance principles (orchestration, context isolation, spec-driven development, sequential phase dependencies, atomic task decomposition) into three executable commands that enforce the workflow structurally.
+
+**Why it matters:** Our framework has the principles; Superpowers has the packaging. It implements our Sequential Phase Dependencies as *the only path available* rather than advisory guidance. Plans include "complete, runnable code for each task" — more concrete than our method-level guidance which stops at "decompose into atomic tasks." Sub-agents implement each task with two-stage review, matching our multi-agent architecture patterns.
+
+**Root concept:** This is the most significant third-party implementation of our multi-agent and ai-coding principles working together. Worth studying as a precedent case — not for what principles it covers (we already have those) but for how concretely it implements them.
+
+**Actions:**
+1. Create a Reference Library entry: what Superpowers implements from our framework, where its implementation is more concrete than our methods, patterns worth adopting
+2. Assess whether our ai-coding methods should have more concrete "plan format" guidance (Superpowers plans specify exact file paths, terminal commands, failing tests, and git commit messages for each task)
+3. Evaluate the brainstorm→write-plan→execute-plan pattern against our development sequence planning method for method-level improvements
+
+**Research done:** Builder.io blog, GitHub repo, Geeky Gadgets review, SAP Community guide, ddewhurst blog analysis. Key architecture: SKILL.md files with YAML frontmatter (trigger conditions, process, guardrails) — same pattern as our `.claude/agents/*.md` subagent definitions.
+
+**Origin:** Claude Code workflow video re-analysis (2026-04-05). Previously evaluated as "covered" — re-examined with method-level quality lens per §9.8.2 scope boundary.
+
+#### 55. Workflow Codification — Skills as Standardized Work (Discussion — from Video Re-Analysis)
+
+**What:** Claude Code skills (SKILL.md files) enable repeatable workflow codification — the discipline of identifying, designing, codifying, validating, and iterating AI-assisted workflows. The video's "creature-forge" example shows a user who identified a repeatable process, built a skill, ran it, got failures, iterated with feedback, and now has a reliable automated workflow. This is the PDCA cycle applied to AI workflows.
+
+**Why it matters:** The framework covers learning from failures (Continuous Learning & Adaptation) but not packaging successes into reusable workflows. Skills, n8n workflows, SOPs, work instructions, and subagent patterns are all implementations of the same root concept: standardized work.
+
+**Framework gap:** No formal guidance on WHEN to create a skill, HOW to design one well, or what governance should apply to skill creation. The `install_agent` mechanism is the closest analog but is scoped to governance agents, not general workflow templates.
+
+**Actions:**
+1. Add a method section in ai-coding Appendix A (Claude Code Configuration) covering: when to create a skill (repeatable process done 3+ times), skill design principles (self-contained, include error handling, reference governance), the iteration cycle (expect first run to fail, iterate with feedback)
+2. Cross-reference to existing `update-config` skill as an example
+3. Assess whether this warrants a broader "workflow codification" method or is adequately scoped as Claude Code-specific guidance
+4. Determine governance guidance for skill creation: should workflows reference governance principles? What review process?
+
+**Research done:** Official Claude Code skills docs (code.claude.com/docs/en/skills), claude-code-skill-factory GitHub, awesome-claude-code curated list, ProductTalk guide, batsov.com essential skills guide. Key feature: `disable-model-invocation: true` for workflows with side effects (/deploy, /send-slack-message).
+
+**Origin:** Claude Code workflow video re-analysis (2026-04-05).
+
+#### 56. Context Window Management — Concrete Threshold + Sub-Agent Framing (Discussion — from Video Re-Analysis)
+
+**What:** Two method-level improvements to existing Context Window Management content:
+
+1. **50% context threshold:** The video recommends starting a new session when context exceeds ~50%. Our framework has comprehensive theory but no concrete threshold. A configurable default (e.g., `context_warning_threshold = 50%`) would be more actionable than "monitor context usage."
+
+2. **Sub-agents as context management:** The video frames sub-agents primarily as a CONTEXT MANAGEMENT strategy ("they do it all in their own context window, so you never run into forgetting issues"), not just a specialization strategy. Our framework frames sub-agents for cognitive specialization. Both framings are valid — a cross-reference from Context Window Management to multi-agent Context Isolation Architecture would make this connection explicit.
+
+**Actions:**
+1. Add a configurable default to Context Window Management: `context_warning_threshold = 50%` with note about when higher/lower thresholds apply
+2. Add cross-reference: "For context-heavy tasks, consider sub-agent dispatch — see multi-agent Context Isolation Architecture"
+3. Mention cc-status-line plugin as a concrete tool for context monitoring
+
+**Origin:** Claude Code workflow video re-analysis (2026-04-05). These are method-level improvements to existing content, not new principles — per §9.8.2 scope boundary.
 
 ---
 

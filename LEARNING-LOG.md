@@ -108,6 +108,8 @@ Evaluated Atlas framework against our ai-coding domain. Initial framing was "wha
 
 **Rule:** When evaluating external frameworks, start from "does this reveal a gap in ours?" not "what can we incorporate?" Apply our own principle derivation test: what failure mode does it address? What evidence supports it? What constitutional basis? If it doesn't meet that bar, it doesn't belong — regardless of community popularity.
 
+**Scope boundary (2026-04-05):** This rule applies to **principle-level admission** decisions (should we add a new principle?). It does not apply to method-level implementation quality. When principle-level coverage is confirmed, separately ask: "Did the external implementation suggest a method-level improvement — a more concrete threshold, a more actionable workflow, a better packaging of the same idea?" Method improvements don't require the Admission Test — they're content improvements to existing items, not new admissions. Without this distinction, "7/10 covered" becomes a false-confidence summary that filters out implementation-quality improvements. (Origin: Claude Code workflow video re-analysis, 2026-04-05.)
+
 ---
 
 ### __file__-Based Paths Break in Docker Non-Editable Installs (2026-02-19)

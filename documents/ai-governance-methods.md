@@ -2321,6 +2321,18 @@ Run §9.8.1 through §9.8.4 as an AUDIT against existing content. Items failing 
 
 **Skip gate for domain review:** If a domain assessment (review mode) produces >90% KEEP dispositions with no MERGE candidates, document the clean assessment and move on. Not every domain needs full consolidation.
 
+**Method-level reflection (for external content evaluation):**
+
+When evaluating external content (videos, articles, frameworks, tools), the Admission Test correctly gates principle-level admission. But "covered at the principle level" does not mean "nothing to learn." After completing coverage assessment, ask one additional question for each concept marked as covered:
+
+> *"Did the external implementation suggest a **method-level improvement** — a more concrete threshold, a more actionable workflow, a better packaging of the same idea?"*
+
+Document findings as one of:
+- "Principle covered; **no method improvement** identified"
+- "Principle covered; **method improvement opportunity**: [description]"
+
+This prevents coverage-check summaries (e.g., "7/10 covered") from filtering out implementation-quality improvements. Method improvements don't require the Admission Test — they are content improvements to existing items, not new admissions. See LEARNING-LOG "External Framework Comparison" scope boundary.
+
 **Editorial corrections (not subject to Admission Test):**
 
 Not all changes to governance content are new content or content review. Editorial corrections — scope clarifications, navigational cross-references, factual accuracy fixes — follow PATCH procedure (§9.6.1) without the Admission Test.
