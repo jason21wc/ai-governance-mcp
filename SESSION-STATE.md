@@ -22,7 +22,7 @@
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
 | Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.0** (meta-methods), **v2.35.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1037 passing** (run `pytest tests/ -v` for current) |
+| Tests | **1049 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -34,9 +34,18 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-04-03)
+## Session Summary (2026-04-05)
 
 ### Completed This Session
+
+61. **Fix install_agent CWD Bug (Backlog #50) — COMPLETE**
+   - **Root cause:** Missing caller-context propagation. `Path.cwd()` in MCP server resolved to server's directory, not calling session's project. Context Engine had already solved this with `_resolve_project_path()`.
+   - **Fix:** 4-tier project path resolution: (1) MCP roots via `list_roots()`, (2) `project_path` tool argument, (3) `AI_GOVERNANCE_MCP_PROJECT` env var, (4) CWD fallback with warning. Applied to `install_agent`, `uninstall_agent`, and `_detect_claude_code_environment()`.
+   - **Security hardening:** `_is_within_allowed_scope()` path validation, `asyncio.wait_for` timeout on `list_roots()`, proper URI parsing via `urllib.parse.urlparse` + `unquote`.
+   - **3-agent review:** Code reviewer (PASS — 2H, 4M, 2L), security auditor (LOW RISK — 2M, 4L), coherence auditor (6 findings — 1 dangerous). All HIGH/DANGEROUS findings fixed in session.
+   - **Coherence fix:** API.md stale "only orchestrator" claim updated (was dangerous — 10 agents available).
+   - **Tests:** 12 new tests across 3 classes. 1049 total passing.
+   - **Deferred:** API.md tool count staleness (11→13, 15→17), missing scaffold_project/capture_reference docs — pre-existing, not from this fix.
 
 60. **Continuity Auditor + Voice Coach Subagent Rewrites (Backlog #51, Agents 8-9 of 9) — #51 COMPLETE**
    - **Continuity auditor improvements:** (1) Knowledge ledger as core analytical technique — build per-character fact tracker (character, fact, source scene, how learned) before any checking. (2) Confidence tiers on all findings (high/medium/low) with presentation guidance. (3) Added checks: causal chain integrity, dangling threads, spatial consistency. (4) AI difficulty ratings per check (knowledge-state = hardest, object tracking = easiest). (5) Input contract. (6) Creative intent respect — flag with confidence, don't assert.
@@ -667,17 +676,9 @@
 
 Created both entries: `ref-ai-coding-node-excel-generation` (ExcelJS over SheetJS CE — styling trap, streaming API, decision tree) and `ref-ai-coding-node-pdf-generation` (PDFKit vs Puppeteer vs jsPDF vs pdf-lib — the most fragmented doc-gen category, jsPDF is #1 wrong recommendation). Research was already done; deferring created more tracking overhead than the 15-minute implementation. See session 47.
 
-#### 50. `install_agent` cwd Bug — Project Scope Writes to Wrong Directory (Bug)
+#### 50. `install_agent` cwd Bug — FIXED (2026-04-05)
 
-**What:** `install_agent(scope="project")` uses `Path.cwd()` (server.py line 1148) to determine the target project directory. But `Path.cwd()` resolves to the MCP server's working directory (ai-governance-mcp), not the calling Claude Code session's project. Cross-project project-scope installation silently writes to the wrong location.
-
-**Impact:** Calling `install_agent(agent_name="contrarian-reviewer", scope="project")` from the ai-expert session writes the file to ai-governance-mcp's `.claude/agents/`, not ai-expert's.
-
-**Fix options:** (1) Add explicit `target_path` parameter to the tool, (2) detect the calling project's directory from MCP protocol context if available, (3) document the limitation and recommend `scope="user"` for cross-project use.
-
-**Workaround:** `scope="user"` works correctly (uses `Path.home()`, absolute path). Global agents in `~/.claude/agents/` bypass this issue entirely.
-
-**Origin:** Session 49 (2026-04-04). Discovered during contrarian review of global agent availability plan. Confirmed empirically: preview showed `install_path` pointing to ai-governance-mcp regardless of calling context.
+Root cause: missing caller-context propagation. `Path.cwd()` resolved to MCP server's directory, not calling session's project. Fix: 4-tier project path resolution (MCP roots > `project_path` tool argument > `AI_GOVERNANCE_MCP_PROJECT` env var > CWD with warning). Applied to both `install_agent` and `uninstall_agent`. Also fixed `_detect_claude_code_environment()` to accept explicit project path. 3-agent review (code-reviewer, security-auditor, coherence-auditor) completed; URI parsing hardened with `urllib.parse`, `list_roots()` timeout added. 12 new tests, 1049 total passing.
 
 #### 51. Optimize All Remaining Subagents (Discussion)
 

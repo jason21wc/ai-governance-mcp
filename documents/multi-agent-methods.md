@@ -4743,21 +4743,34 @@ model: inherit
 ### Implementation Pattern: Platform-Aware Agent Installation
 
 ```python
-def detect_claude_code_environment() -> bool:
-    """Check for Claude Code indicators."""
-    cwd = Path.cwd()
-    if (cwd / ".claude").is_dir():
+def detect_claude_code_environment(project_path: Path | None = None) -> bool:
+    """Check for Claude Code indicators.
+
+    Args:
+        project_path: Explicit project directory. Falls back to CWD.
+            Important: MCP servers run in their own process, so CWD may
+            differ from the calling session's project directory.
+    """
+    base = project_path if project_path is not None else Path.cwd()
+    if (base / ".claude").is_dir():
         return True
-    if (cwd / "CLAUDE.md").is_file():
+    if (base / "CLAUDE.md").is_file():
         return True
     # Check parent directories (up to 3 levels)
-    for parent in [cwd.parent, cwd.parent.parent, cwd.parent.parent.parent]:
+    current = base
+    for _ in range(3):
+        parent = current.parent
+        if parent == current:
+            break
         if (parent / ".claude").is_dir() or (parent / "CLAUDE.md").is_file():
             return True
+        current = parent
     return False
 
-# Usage in MCP tool
-if not detect_claude_code_environment():
+# Usage in MCP tool — resolve project path first
+# Priority: MCP roots > project_path arg > AI_GOVERNANCE_MCP_PROJECT env > CWD
+project_path = resolve_project_path(arguments)
+if not detect_claude_code_environment(project_path):
     return {"status": "not_applicable", "message": "Governance active via SERVER_INSTRUCTIONS"}
 ```
 

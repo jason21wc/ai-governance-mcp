@@ -1736,6 +1736,256 @@ class TestClaudeCodeDetection:
         assert _detect_claude_code_environment() is False
 
 
+class TestResolveAgentProjectPath:
+    """Tests for _resolve_agent_project_path (4-tier project path resolution)."""
+
+    def _set_mock_roots(self, monkeypatch, side_effect=None, roots=None):
+        """Set up mock MCP request context via the ContextVar."""
+        from mcp.server.lowlevel.server import request_ctx
+
+        mock_session = Mock()
+        if side_effect:
+            mock_session.list_roots = Mock(side_effect=side_effect)
+        elif roots is not None:
+
+            async def mock_list_roots():
+                result = Mock()
+                result.roots = roots
+                return result
+
+            mock_session.list_roots = mock_list_roots
+        else:
+            mock_session.list_roots = Mock(side_effect=Exception("no roots"))
+
+        mock_request_context = Mock()
+        mock_request_context.session = mock_session
+        request_ctx.set(mock_request_context)
+
+    @pytest.mark.asyncio
+    async def test_explicit_path_takes_priority(self, tmp_path, monkeypatch):
+        """Explicit project_path argument should take priority over CWD."""
+        import ai_governance_mcp.server as server_module  # noqa: F811
+
+        self._set_mock_roots(monkeypatch, side_effect=Exception("no roots"))
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+
+        result_path, used_fallback = await server_module._resolve_agent_project_path(
+            {"project_path": str(tmp_path)}
+        )
+        assert result_path == tmp_path.resolve()
+        assert used_fallback is False
+
+    @pytest.mark.asyncio
+    async def test_env_var_fallback(self, tmp_path, monkeypatch):
+        """AI_GOVERNANCE_MCP_PROJECT env var should be used when no arg provided."""
+        import ai_governance_mcp.server as server_module  # noqa: F811
+
+        self._set_mock_roots(monkeypatch, side_effect=Exception("no roots"))
+        monkeypatch.setenv("AI_GOVERNANCE_MCP_PROJECT", str(tmp_path))
+
+        result_path, used_fallback = await server_module._resolve_agent_project_path({})
+        assert result_path == tmp_path.resolve()
+        assert used_fallback is False
+
+    @pytest.mark.asyncio
+    async def test_cwd_fallback_with_warning(self, tmp_path, monkeypatch):
+        """CWD fallback should return the path with used_cwd_fallback=True."""
+        import ai_governance_mcp.server as server_module  # noqa: F811
+
+        self._set_mock_roots(monkeypatch, side_effect=Exception("no roots"))
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+        monkeypatch.chdir(tmp_path)
+
+        result_path, used_fallback = await server_module._resolve_agent_project_path({})
+        assert result_path == Path.cwd()
+        assert used_fallback is True
+
+    @pytest.mark.asyncio
+    async def test_rejects_nonexistent_path(self, monkeypatch):
+        """Non-existent project_path should return (None, False)."""
+        import ai_governance_mcp.server as server_module  # noqa: F811
+
+        self._set_mock_roots(monkeypatch, side_effect=Exception("no roots"))
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+
+        result_path, used_fallback = await server_module._resolve_agent_project_path(
+            {"project_path": "/nonexistent/path/abc123"}
+        )
+        assert result_path is None
+        assert used_fallback is False
+
+    @pytest.mark.asyncio
+    async def test_mcp_roots_take_priority(self, tmp_path, monkeypatch):
+        """MCP roots should take priority over all other methods."""
+        import ai_governance_mcp.server as server_module  # noqa: F811
+
+        mock_root = Mock()
+        mock_root.uri = f"file://{tmp_path}"
+        self._set_mock_roots(monkeypatch, roots=[mock_root])
+
+        # Also set env var — roots should win
+        monkeypatch.setenv("AI_GOVERNANCE_MCP_PROJECT", "/some/other/path")
+
+        result_path, used_fallback = await server_module._resolve_agent_project_path(
+            {"project_path": "/another/path"}
+        )
+        assert result_path == tmp_path.resolve()
+        assert used_fallback is False
+
+
+class TestInstallAgentProjectPath:
+    """Tests for install_agent with explicit project_path (cross-project scenario)."""
+
+    def _set_no_roots(self, monkeypatch):
+        """Set up mock MCP context with no roots support."""
+        from mcp.server.lowlevel.server import request_ctx
+
+        mock_session = Mock()
+        mock_session.list_roots = Mock(side_effect=Exception("no roots"))
+        mock_request_context = Mock()
+        mock_request_context.session = mock_session
+        request_ctx.set(mock_request_context)
+        # ContextVar token is scoped to this test's async context
+
+    @pytest.mark.asyncio
+    async def test_install_uses_project_path_not_cwd(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """install_agent with project_path should write to that path, not CWD."""
+        import ai_governance_mcp.server as server_module
+
+        project_dir = tmp_path / "my_project"
+        project_dir.mkdir()
+        (project_dir / ".claude").mkdir()
+
+        # CWD is NOT the project — this is the bug scenario
+        server_cwd = tmp_path / "server_dir"
+        server_cwd.mkdir()
+        monkeypatch.chdir(server_cwd)
+
+        self._set_no_roots(monkeypatch)
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {
+                "agent_name": "orchestrator",
+                "confirmed": True,
+                "project_path": str(project_dir),
+            }
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "installed"
+
+        # File must be in project_dir, NOT in server_cwd
+        assert (project_dir / ".claude" / "agents" / "orchestrator.md").exists()
+        assert not (server_cwd / ".claude" / "agents" / "orchestrator.md").exists()
+
+    @pytest.mark.asyncio
+    async def test_install_rejects_invalid_project_path(self, tmp_path, monkeypatch):
+        """install_agent with invalid project_path should return error."""
+        import ai_governance_mcp.server as server_module
+
+        self._set_no_roots(monkeypatch)
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+
+        result = await server_module._handle_install_agent(
+            {
+                "agent_name": "orchestrator",
+                "project_path": "/nonexistent/path/abc123",
+            }
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["error_code"] == "INVALID_PROJECT_PATH"
+
+    @pytest.mark.asyncio
+    async def test_uninstall_uses_project_path(self, tmp_path, monkeypatch):
+        """uninstall_agent with project_path should look in that path."""
+        import ai_governance_mcp.server as server_module
+
+        project_dir = tmp_path / "my_project"
+        agent_dir = project_dir / ".claude" / "agents"
+        agent_dir.mkdir(parents=True)
+        (agent_dir / "orchestrator.md").write_text("# Test agent")
+
+        server_cwd = tmp_path / "server_dir"
+        server_cwd.mkdir()
+        monkeypatch.chdir(server_cwd)
+
+        self._set_no_roots(monkeypatch)
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+
+        result = await server_module._handle_uninstall_agent(
+            {
+                "agent_name": "orchestrator",
+                "confirmed": True,
+                "project_path": str(project_dir),
+            }
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "uninstalled"
+        assert not (agent_dir / "orchestrator.md").exists()
+
+    @pytest.mark.asyncio
+    async def test_install_cwd_fallback_includes_warning(
+        self, tmp_path, monkeypatch, real_settings
+    ):
+        """install_agent with CWD fallback should include warning in response."""
+        import ai_governance_mcp.server as server_module
+
+        (tmp_path / ".claude").mkdir()
+        monkeypatch.chdir(tmp_path)
+
+        self._set_no_roots(monkeypatch)
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+        monkeypatch.setattr(server_module, "_settings", real_settings)
+
+        result = await server_module._handle_install_agent(
+            {"agent_name": "orchestrator", "confirmed": True}
+        )
+
+        response = json.loads(result[0].text.split("---")[0])
+        assert response["status"] == "installed"
+        assert "cwd_fallback_warning" in response
+
+
+class TestClaudeCodeDetectionWithProjectPath:
+    """Tests for _detect_claude_code_environment with explicit project_path."""
+
+    def test_detect_claude_with_explicit_project_path(self, tmp_path):
+        """Should detect Claude Code from project_path, not CWD."""
+        from ai_governance_mcp.server import _detect_claude_code_environment
+
+        project = tmp_path / "project"
+        project.mkdir()
+        (project / ".claude").mkdir()
+
+        # Don't chdir — pass project_path directly
+        assert _detect_claude_code_environment(project) is True
+
+    def test_detect_project_path_without_indicators(self, tmp_path):
+        """Should return False when project_path has no Claude indicators."""
+        from ai_governance_mcp.server import _detect_claude_code_environment
+
+        project = tmp_path / "plain_project"
+        project.mkdir()
+
+        assert _detect_claude_code_environment(project) is False
+
+    def test_detect_claude_md_via_project_path(self, tmp_path):
+        """Should detect CLAUDE.md via project_path."""
+        from ai_governance_mcp.server import _detect_claude_code_environment
+
+        project = tmp_path / "project"
+        project.mkdir()
+        (project / "CLAUDE.md").write_text("# Test")
+
+        assert _detect_claude_code_environment(project) is True
+
+
 # =============================================================================
 # Security Feature Tests (H4, M1, M4, M6)
 # =============================================================================

@@ -9,7 +9,9 @@ import os
 import re
 import signal
 import sys
+import tempfile
 import threading
+import urllib.parse
 import time
 from collections import deque
 from datetime import datetime, timezone
@@ -1077,17 +1079,85 @@ def _verify_template_hash(template_content: str, agent_name: str) -> tuple[bool,
     return actual_hash == expected_hash, actual_hash
 
 
-def _detect_claude_code_environment() -> bool:
+def _is_within_allowed_scope(p: Path) -> bool:
+    """Check if a resolved path is within allowed scope (home, CWD, or temp dirs)."""
+    home = Path.home().resolve()
+    cwd = Path.cwd().resolve()
+    tmp = Path(tempfile.gettempdir()).resolve()
+    allowed = [home, cwd, tmp]
+    # Also allow system /tmp explicitly (macOS symlinks it to /private/tmp,
+    # which differs from tempfile.gettempdir() user-specific temp dir)
+    system_tmp = Path("/tmp").resolve()  # nosec B108
+    if system_tmp != tmp:
+        allowed.append(system_tmp)
+    return any(p.is_relative_to(base) for base in allowed)
+
+
+async def _resolve_agent_project_path(arguments: dict) -> tuple[Path | None, bool]:
+    """Resolve project path for agent install/uninstall.
+
+    Priority: MCP roots > arguments['project_path'] > AI_GOVERNANCE_MCP_PROJECT > CWD.
+    Returns (resolved_path, used_cwd_fallback).
+    Returns (None, False) if an explicit path is invalid or outside allowed scope.
+    """
+    # Tier 1: MCP roots (protocol-level, invisible to caller)
+    try:
+        roots_result = await asyncio.wait_for(
+            server.request_context.session.list_roots(), timeout=2.0
+        )
+        if roots_result and roots_result.roots:
+            if len(roots_result.roots) > 1:
+                logger.debug(
+                    "Multiple MCP roots found (%d), using first: %s",
+                    len(roots_result.roots),
+                    roots_result.roots[0].uri,
+                )
+            parsed = urllib.parse.urlparse(str(roots_result.roots[0].uri))
+            if parsed.scheme == "file":
+                p = Path(urllib.parse.unquote(parsed.path)).resolve()
+                if p.exists() and p.is_dir() and _is_within_allowed_scope(p):
+                    return p, False
+    except Exception as e:
+        logger.debug("MCP list_roots() unavailable: %s", e)
+
+    # Tier 2: Explicit tool argument
+    raw = arguments.get("project_path")
+    if raw and isinstance(raw, str):
+        p = Path(raw).resolve()
+        if not p.exists() or not p.is_dir():
+            return None, False
+        if not _is_within_allowed_scope(p):
+            return None, False
+        return p, False
+
+    # Tier 3: Environment variable
+    default = os.environ.get("AI_GOVERNANCE_MCP_PROJECT")
+    if default:
+        p = Path(default).resolve()
+        if not p.exists() or not p.is_dir():
+            return None, False
+        if not _is_within_allowed_scope(p):
+            return None, False
+        return p, False
+
+    # Tier 4: CWD fallback (with warning flag)
+    return Path.cwd(), True
+
+
+def _detect_claude_code_environment(project_path: Path | None = None) -> bool:
     """Detect if we're running in a Claude Code environment.
 
     Checks for indicators that suggest Claude Code is the client:
-    1. Presence of .claude/ directory in current working directory
+    1. Presence of .claude/ directory in the project directory
     2. Presence of CLAUDE.md file
     3. Environment variable set by Claude Code
 
+    Args:
+        project_path: Explicit project directory to check. Falls back to CWD.
+
     Returns True if Claude Code environment is detected.
     """
-    cwd = Path.cwd()
+    cwd = project_path if project_path is not None else Path.cwd()
 
     # Check for .claude directory
     if (cwd / ".claude").is_dir():
@@ -1125,12 +1195,15 @@ def _get_agent_template_path(agent_name: str) -> Path | None:
     return None
 
 
-def _get_agent_install_path(agent_name: str, scope: str = "project") -> Path:
+def _get_agent_install_path(
+    agent_name: str, scope: str = "project", project_path: Path | None = None
+) -> Path:
     """Get the installation path for an agent.
 
     Args:
         agent_name: Name of the agent (e.g., 'orchestrator')
         scope: 'project' for .claude/agents/ or 'user' for ~/.claude/agents/
+        project_path: Explicit project directory for scope='project'. Falls back to CWD.
 
     Returns:
         Path where the agent file should be installed.
@@ -1145,7 +1218,11 @@ def _get_agent_install_path(agent_name: str, scope: str = "project") -> Path:
     if scope == "user":
         base_path = Path.home() / ".claude" / "agents"
     else:
-        base_path = Path.cwd() / ".claude" / "agents"
+        base_path = (
+            (project_path if project_path is not None else Path.cwd())
+            / ".claude"
+            / "agents"
+        )
 
     # C2 FIX: Path containment check prevents path traversal attacks
     final_path = (base_path / f"{agent_name}.md").resolve()
@@ -1426,6 +1503,14 @@ async def list_tools() -> list[Tool]:
                         "type": "boolean",
                         "description": "Set to true to get manual installation instructions instead",
                     },
+                    "project_path": {
+                        "type": "string",
+                        "description": (
+                            "Absolute path to the target project directory. "
+                            "Used when scope='project' and the MCP server's working directory "
+                            "differs from the target project. Auto-detected from MCP roots if available."
+                        ),
+                    },
                 },
                 "required": ["agent_name"],
             },
@@ -1454,6 +1539,14 @@ async def list_tools() -> list[Tool]:
                     "confirmed": {
                         "type": "boolean",
                         "description": "Set to true to confirm uninstallation",
+                    },
+                    "project_path": {
+                        "type": "string",
+                        "description": (
+                            "Absolute path to the target project directory. "
+                            "Used when scope='project' and the MCP server's working directory "
+                            "differs from the target project. Auto-detected from MCP roots if available."
+                        ),
                     },
                 },
                 "required": ["agent_name"],
@@ -2579,8 +2672,23 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
+    # Resolve project path for scope="project"
+    project_path = None
+    used_cwd_fallback = False
+    if scope == "project":
+        project_path, used_cwd_fallback = await _resolve_agent_project_path(args)
+        if project_path is None:
+            error = ErrorResponse(
+                error_code="INVALID_PROJECT_PATH",
+                message="Specified project_path does not exist or is outside allowed scope",
+                suggestions=[
+                    "Provide an absolute path to an existing directory within your home directory"
+                ],
+            )
+            return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
     # Check if Claude Code environment
-    is_claude = _detect_claude_code_environment()
+    is_claude = _detect_claude_code_environment(project_path)
 
     if not is_claude:
         # Non-Claude platform: provide agent content as reference material
@@ -2634,7 +2742,7 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
     expected_hash = AGENT_TEMPLATE_HASHES.get(agent_name)
 
     # Get install path
-    install_path = _get_agent_install_path(agent_name, scope)
+    install_path = _get_agent_install_path(agent_name, scope, project_path)
 
     # Check if already installed and if content differs
     # M2 FIX: Warn user before overwriting existing file with different content
@@ -2762,6 +2870,13 @@ EOF
             output["security_warning"] = (
                 "Installed with UNVERIFIED hash. Review the installed content."
             )
+        if used_cwd_fallback:
+            output["cwd_fallback_warning"] = (
+                "Used CWD as project directory (no MCP roots, project_path argument, "
+                "or AI_GOVERNANCE_MCP_PROJECT env var detected). "
+                "If the install landed in the wrong project, re-run with "
+                "project_path='/path/to/your/project'."
+            )
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     except PermissionError:
@@ -2805,8 +2920,23 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 
+    # Resolve project path for scope="project"
+    project_path = None
+    used_cwd_fallback = False
+    if scope == "project":
+        project_path, used_cwd_fallback = await _resolve_agent_project_path(args)
+        if project_path is None:
+            error = ErrorResponse(
+                error_code="INVALID_PROJECT_PATH",
+                message="Specified project_path does not exist or is outside allowed scope",
+                suggestions=[
+                    "Provide an absolute path to an existing directory within your home directory"
+                ],
+            )
+            return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
     # Get install path
-    install_path = _get_agent_install_path(agent_name, scope)
+    install_path = _get_agent_install_path(agent_name, scope, project_path)
 
     # Check if installed
     if not install_path.is_file():
@@ -2854,6 +2984,12 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
                 f"To reinstall: Use install_agent(agent_name='{agent_name}')"
             ),
         }
+        if used_cwd_fallback:
+            output["cwd_fallback_warning"] = (
+                "Used CWD as project directory (no MCP roots, project_path argument, "
+                "or AI_GOVERNANCE_MCP_PROJECT env var detected). "
+                "If the uninstall targeted the wrong project, verify manually."
+            )
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     except Exception as e:

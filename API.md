@@ -294,10 +294,11 @@ Run with: `python -m ai_governance_mcp.server`
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `agent_name` | string | Yes | Name of subagent to install. Currently only `"orchestrator"` is available |
+| `agent_name` | string | Yes | Name of subagent to install. Available agents listed in enum |
 | `scope` | string | No | Installation scope: `"project"` (`.claude/agents/`) or `"user"` (`~/.claude/agents/`). Default: `"project"` |
 | `confirmed` | boolean | No | Set to `true` to confirm installation after preview |
 | `show_manual` | boolean | No | Set to `true` to get manual installation instructions instead of automatic install |
+| `project_path` | string | No | Absolute path to the target project directory. Auto-detected from MCP roots if available; falls back to `AI_GOVERNANCE_MCP_PROJECT` env var, then CWD. Use when the MCP server's CWD differs from the target project. |
 
 **Returns:** Varies by state:
 
@@ -322,9 +323,10 @@ Run with: `python -m ai_governance_mcp.server`
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `agent_name` | string | Yes | Name of subagent to uninstall. Currently only `"orchestrator"` is available |
+| `agent_name` | string | Yes | Name of subagent to uninstall. Available agents listed in enum |
 | `scope` | string | No | Scope to uninstall from: `"project"` or `"user"`. Default: `"project"` |
 | `confirmed` | boolean | No | Set to `true` to confirm uninstallation |
+| `project_path` | string | No | Absolute path to the target project directory. Same resolution as `install_agent`. |
 
 **Returns:** Varies by state:
 
