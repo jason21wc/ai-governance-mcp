@@ -3288,13 +3288,22 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
             # Symlink check before write
             if full_path.exists() and full_path.is_symlink():
                 skipped.append(
-                    {"path": f["relative_path"], "reason": "symlink detected"}
+                    {
+                        "path": f["relative_path"],
+                        "resolved_path": f["full_path"],
+                        "reason": "symlink detected",
+                    }
                 )
                 continue
 
             full_path.parent.mkdir(parents=True, exist_ok=True)
             full_path.write_text(f["content"])
-            created.append(f["relative_path"])
+            created.append(
+                {
+                    "path": f["relative_path"],
+                    "resolved_path": f["full_path"],
+                }
+            )
 
     except PermissionError as e:
         error = ErrorResponse(
