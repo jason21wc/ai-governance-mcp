@@ -1741,7 +1741,11 @@ class TestResolveCallerProjectPath:
 
     def _set_mock_roots(self, monkeypatch, side_effect=None, roots=None):
         """Set up mock MCP request context via the ContextVar."""
+        import ai_governance_mcp.server as server_module
         from mcp.server.lowlevel.server import request_ctx
+
+        # Reset roots cache so each test gets a fresh lookup
+        server_module._cached_roots_path = None
 
         mock_session = Mock()
         if side_effect:
@@ -1842,8 +1846,10 @@ class TestInstallAgentProjectPath:
 
     def _set_no_roots(self, monkeypatch):
         """Set up mock MCP context with no roots support."""
+        import ai_governance_mcp.server as server_module
         from mcp.server.lowlevel.server import request_ctx
 
+        server_module._cached_roots_path = None
         mock_session = Mock()
         mock_session.list_roots = Mock(side_effect=Exception("no roots"))
         mock_request_context = Mock()
@@ -3460,8 +3466,10 @@ class TestScaffoldProjectPath:
 
     def _set_no_roots(self, monkeypatch):
         """Set up mock MCP context with no roots support."""
+        import ai_governance_mcp.server as server_module
         from mcp.server.lowlevel.server import request_ctx
 
+        server_module._cached_roots_path = None
         mock_session = Mock()
         mock_session.list_roots = Mock(side_effect=Exception("no roots"))
         mock_request_context = Mock()

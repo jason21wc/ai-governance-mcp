@@ -1093,6 +1093,12 @@ def _is_within_allowed_scope(p: Path) -> bool:
     return any(p.is_relative_to(base) for base in allowed)
 
 
+# Cache for MCP roots result — avoids 2s timeout on every tool call when
+# the client doesn't support roots (which is the common case today).
+# None = not yet checked, False = checked and unavailable, Path = resolved root.
+_cached_roots_path: Path | None | bool = None
+
+
 async def _resolve_caller_project_path(arguments: dict) -> tuple[Path | None, bool]:
     """Resolve the calling session's project path for file-writing tools.
 
@@ -1104,25 +1110,36 @@ async def _resolve_caller_project_path(arguments: dict) -> tuple[Path | None, bo
     Returns (resolved_path, used_cwd_fallback).
     Returns (None, False) if an explicit path is invalid or outside allowed scope.
     """
+    global _cached_roots_path  # noqa: PLW0603
+
     # Tier 1: MCP roots (protocol-level, invisible to caller)
-    try:
-        roots_result = await asyncio.wait_for(
-            server.request_context.session.list_roots(), timeout=2.0
-        )
-        if roots_result and roots_result.roots:
-            if len(roots_result.roots) > 1:
-                logger.debug(
-                    "Multiple MCP roots found (%d), using first: %s",
-                    len(roots_result.roots),
-                    roots_result.roots[0].uri,
-                )
-            parsed = urllib.parse.urlparse(str(roots_result.roots[0].uri))
-            if parsed.scheme == "file":
-                p = Path(urllib.parse.unquote(parsed.path)).resolve()
-                if p.exists() and p.is_dir() and _is_within_allowed_scope(p):
-                    return p, False
-    except Exception as e:
-        logger.debug("MCP list_roots() unavailable: %s", e)
+    # Cached per-session to avoid 2s timeout on every call when client
+    # doesn't support roots.
+    if _cached_roots_path is None:
+        try:
+            roots_result = await asyncio.wait_for(
+                server.request_context.session.list_roots(), timeout=2.0
+            )
+            if roots_result and roots_result.roots:
+                if len(roots_result.roots) > 1:
+                    logger.debug(
+                        "Multiple MCP roots found (%d), using first: %s",
+                        len(roots_result.roots),
+                        roots_result.roots[0].uri,
+                    )
+                parsed = urllib.parse.urlparse(str(roots_result.roots[0].uri))
+                if parsed.scheme == "file":
+                    p = Path(urllib.parse.unquote(parsed.path)).resolve()
+                    if p.exists() and p.is_dir() and _is_within_allowed_scope(p):
+                        _cached_roots_path = p
+            if _cached_roots_path is None:
+                _cached_roots_path = False  # Checked but no usable root
+        except Exception as e:
+            logger.debug("MCP list_roots() unavailable: %s", e)
+            _cached_roots_path = False  # Don't retry
+
+    if isinstance(_cached_roots_path, Path):
+        return _cached_roots_path, False
 
     # Tier 2: Explicit tool argument
     raw = arguments.get("project_path")
