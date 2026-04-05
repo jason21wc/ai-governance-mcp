@@ -500,3 +500,58 @@ class TestReadmePropagation:
             f"README governance tool count ({readme_gov_count}) doesn't match "
             f"list_tools() ({actual_gov_count}). Update README."
         )
+
+
+class TestPrincipleCountCeiling:
+    """CI assertion: no domain exceeds the principle count ceiling.
+
+    Catches principle accretion structurally at CI time. If a domain exceeds
+    the ceiling, a consolidation pass (Part 9.8.5) is needed before adding
+    more principles. Uses the real pre-built index — no mocking.
+
+    Closes Backlog #25 — structural enforcement over advisory checklist.
+    """
+
+    MAX_PRINCIPLES_PER_DOMAIN = 35
+    WARNING_THRESHOLD = 30
+
+    def test_no_domain_exceeds_ceiling(self):
+        """Each domain's principle count must be <= MAX_PRINCIPLES_PER_DOMAIN."""
+        index_path = Path(__file__).parent.parent / "index" / "global_index.json"
+        if not index_path.exists():
+            pytest.skip("Index not built — run extractor first")
+
+        with open(index_path) as f:
+            index_data = json.load(f)
+
+        domains = index_data.get("domains", {})
+        if not domains:
+            pytest.skip("No domains in index")
+
+        violations = []
+        warnings = []
+
+        for domain_name, domain_data in domains.items():
+            count = len(domain_data.get("principles", []))
+            if count > self.MAX_PRINCIPLES_PER_DOMAIN:
+                violations.append(
+                    f"{domain_name}: {count} principles "
+                    f"(ceiling: {self.MAX_PRINCIPLES_PER_DOMAIN})"
+                )
+            elif count >= self.WARNING_THRESHOLD:
+                warnings.append(
+                    f"{domain_name}: {count} principles "
+                    f"(approaching ceiling of {self.MAX_PRINCIPLES_PER_DOMAIN})"
+                )
+
+        if warnings:
+            print(
+                f"\n⚠️  Principle count warnings: {', '.join(warnings)}",
+                file=sys.stderr,
+            )
+
+        assert not violations, (
+            f"Domain(s) exceed principle count ceiling ({self.MAX_PRINCIPLES_PER_DOMAIN}). "
+            f"Run consolidation pass (Part 9.8.5) before adding more:\n  "
+            + "\n  ".join(violations)
+        )

@@ -10,6 +10,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+import pytest
+
 
 # Hook script paths
 PROJECT_DIR = Path(__file__).parent.parent
@@ -759,6 +761,51 @@ class TestPromptHookShortenedReminder:
             assert "enforced" in context.lower()
         finally:
             os.unlink(transcript_path)
+
+
+class TestGovernanceFileDetection:
+    """Tests for pre-push governance content file detection regex.
+
+    The pre-push quality gate uses grep -E to identify governance principle
+    files that require subagent review. This tests the regex pattern.
+    """
+
+    GOVERNANCE_REGEX = r"(ai-interaction-principles\.md|.*-domain-principles\.md)$"
+
+    @pytest.mark.parametrize(
+        "path,should_match",
+        [
+            # Should match — governance principle files
+            ("documents/ai-interaction-principles.md", True),
+            ("documents/ai-coding-domain-principles.md", True),
+            ("documents/multi-agent-domain-principles.md", True),
+            ("documents/storytelling-domain-principles.md", True),
+            ("documents/ui-ux-domain-principles.md", True),
+            ("documents/kmpd-domain-principles.md", True),
+            ("documents/multimodal-rag-domain-principles.md", True),
+            # Should NOT match — methods files (high frequency, exempt)
+            ("documents/ai-coding-methods.md", False),
+            ("documents/ai-governance-methods.md", False),
+            ("documents/multi-agent-methods.md", False),
+            # Should NOT match — other docs
+            ("SESSION-STATE.md", False),
+            ("README.md", False),
+            ("API.md", False),
+            ("COMPLETION-CHECKLIST.md", False),
+            # Should NOT match — code
+            ("src/ai_governance_mcp/server.py", False),
+            ("tests/test_server.py", False),
+        ],
+    )
+    def test_governance_regex_matches_correctly(self, path, should_match):
+        """Governance file regex should match principle files only."""
+        import re
+
+        matched = bool(re.search(self.GOVERNANCE_REGEX, path))
+        assert matched == should_match, (
+            f"{'Expected match' if should_match else 'Unexpected match'} "
+            f"for path: {path}"
+        )
 
 
 class TestPromptHookValidJSON:

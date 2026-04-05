@@ -38,6 +38,14 @@
 
 ### Completed This Session
 
+62. **Content Quality Structural Enforcement (Backlog #25) — CLOSED**
+   - **Root cause analysis:** The principle authoring checklist is advisory (~85% compliance). A full PreToolUse hook was rejected — it can only enforce mechanical compliance (agent invocation) not substantive quality (Admission Test honesty), creating false confidence. The contrarian reviewer is the real quality gate.
+   - **Three mechanisms implemented:** (1) Pre-push gate requires contrarian-reviewer, coherence-auditor, or validator for governance principle file changes (constitution + domain principles). (2) CI principle count ceiling (35/domain) catches accretion structurally — multimodal-rag at 32 triggers a warning. (3) Existing consolidation pass (Part 9.8.5) remains the systemic cleanup.
+   - **Also fixed:** Broken constitution regex in pre-push hook (`ai-interaction-principles-.*\.md` matched zero files).
+   - **Research:** Gawande Checklist Manifesto (automate the automatable), industry shift from checklists to continuous assurance, AI agent gateway patterns.
+   - **Reviews:** Contrarian review challenged 6 assumptions — accepted narrowing reviewers to governance-specific agents, simpler counting approach, excluding methods files.
+   - **Tests:** 17 new tests (1 ceiling + 16 regex parametrized). 1053+ total.
+
 61. **Fix Path.cwd() Bug Class — install_agent, uninstall_agent, scaffold_project (Backlog #50) — COMPLETE**
    - **Root cause:** Missing caller-context propagation. `Path.cwd()` in MCP server resolved to server's directory, not calling session's project. Context Engine had already solved this with `_resolve_project_path()`.
    - **Fix:** 4-tier project path resolution via `_resolve_caller_project_path()`: (1) MCP roots via `list_roots()` (cached per session), (2) `project_path` tool argument, (3) `AI_GOVERNANCE_MCP_PROJECT` env var, (4) CWD fallback with warning. Applied to `install_agent`, `uninstall_agent`, `scaffold_project`, and `_detect_claude_code_environment()`.
@@ -627,11 +635,11 @@
 
 **Outcome:** Either define metrics worth implementing, or conclude the value is qualitative and close this item.
 
-#### 26+29. Content Quality Governance — Enforcement + Periodic Review (Discussion)
+#### 26+29. Content Quality Governance — Enforcement + Periodic Review (Discussion — Partially Addressed)
 
 **What (merged from #26 and #29):** Two related concerns about keeping framework content healthy over time:
-- **New content gate:** Part 9.8 Admission Test is advisory. Should it be structurally enforced?
-- **Existing content review:** Nothing forces periodic review. The 47→22 consolidation proved accretion happens silently.
+- **New content gate:** ~~Part 9.8 Admission Test is advisory. Should it be structurally enforced?~~ **Addressed (2026-04-05):** Pre-push gate requires contrarian/coherence/validator review for principle file changes. CI ceiling (35/domain) catches accretion. See #25 closure.
+- **Existing content review:** Nothing forces periodic review. The 47→22 consolidation proved accretion happens silently. **Still open** — the CI ceiling catches runaway accretion, but doesn't trigger the full consolidation procedure. A version-milestone trigger (every MAJOR bump triggers cross-domain audit) is still worth discussing.
 
 **Root-cause framing:** The real goal is *continuous content quality improvement* — both preventing bad content from entering (enforcement) and ensuring existing content stays relevant (review). These are two sides of the same problem: content quality governance.
 
@@ -777,13 +785,9 @@ Closed after Admission Test evaluation (§9.8.1): fails Q1 (gap covered by exist
 
 **Concept preserved:** The visibility-soundness gap (visible reasoning ≠ sound reasoning) is real but tracked by #34 (Epistemic Integrity). The tiers.json floor check label was corrected from "Accountable reasoning" to "Visible reasoning" to match what it actually tests. If #34 is closed without shipping, the soundness gap needs re-evaluation.
 
-#### 25. Principle Authoring Checklist Enforcement (Discussion)
+#### 25. Principle Authoring Checklist Enforcement — CLOSED (2026-04-05)
 
-**What:** The principle-authoring checklist in COMPLETION-CHECKLIST is BEST-EFFORT (~85% compliance). Should it be converted to ENFORCED via hook?
-
-**Discussion needed:** Understand the tradeoff. Consolidation pass catches drift retroactively. Hook would prevent drift proactively but adds friction to an already-rare event (principle additions). What's the right level of enforcement for low-frequency, high-impact events?
-
-**Note:** Want to understand more before closing.
+Full hook enforcement rejected — partial enforcement of a 10-item checklist creates false confidence (hook can verify agent invocation but not Admission Test honesty). Instead: (1) pre-push quality gate now requires contrarian-reviewer, coherence-auditor, or validator for governance principle file changes, (2) CI principle count ceiling (35/domain) catches accretion structurally. The checklist remains advisory for substantive quality items; the contrarian reviewer is the real structural gate (catches Admission Test failures that no hook can verify). Consolidation pass (Part 9.8.5) remains the systemic cleanup. Contrarian review validated this approach — trigger condition had never fired.
 
 #### 11. Autonomous Operations Domain (Discussion)
 

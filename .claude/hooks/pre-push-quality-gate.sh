@@ -8,7 +8,8 @@
 # Checks:
 #   1. Tests run this session (pytest in transcript)
 #   2. Subagent review for risky changes (core code files or new src files)
-#   3. Escape hatch: docs-only changes skip review requirement
+#   3. Governance content review for principle file changes
+#   4. Escape hatch: docs-only changes skip review requirement (except governance)
 #
 # Environment variables:
 #   QUALITY_GATE_SKIP=true — Emergency skip (documented override, not silent bypass)
@@ -60,10 +61,15 @@ fi
 
 debug "Changed files: $(echo "$CHANGED_FILES" | tr '\n' ' ')"
 
+# Governance principle files require subagent review (contrarian/coherence/validator)
+GOVERNANCE_FILES=$(echo "$CHANGED_FILES" | grep -E '(ai-interaction-principles\.md|.*-domain-principles\.md)$' || true)
+debug "Governance files: $(echo "$GOVERNANCE_FILES" | tr '\n' ' ')"
+
 # Escape hatch: docs-only changes (only .md files, .json config, or benchmark files)
+# BUT governance principle files are NOT exempt — they require review
 NON_DOC_FILES=$(echo "$CHANGED_FILES" | grep -v -E '\.(md|json)$' | grep -v 'tests/benchmarks/' || true)
-if [ -z "$NON_DOC_FILES" ]; then
-    debug "Docs/config-only changes, skipping review requirement"
+if [ -z "$NON_DOC_FILES" ] && [ -z "$GOVERNANCE_FILES" ]; then
+    debug "Docs/config-only changes (no governance content), skipping review requirement"
     exit 0
 fi
 
@@ -77,7 +83,7 @@ if [ "$TESTS_RUN" = "false" ]; then
 fi
 
 # Check 2: Risky files changed without subagent review?
-RISKY_FILES=$(echo "$CHANGED_FILES" | grep -E '(server\.py|extractor\.py|retrieval\.py|config\.py|ai-interaction-principles-.*\.md)$' || true)
+RISKY_FILES=$(echo "$CHANGED_FILES" | grep -E '(server\.py|extractor\.py|retrieval\.py|config\.py)$' || true)
 NEW_SRC_FILES=$(git diff --diff-filter=A --name-only @{push}.. 2>/dev/null || git diff --diff-filter=A --name-only origin/main..HEAD 2>/dev/null || echo "")
 NEW_SRC_FILES=$(echo "$NEW_SRC_FILES" | grep -E '^src/' 2>/dev/null || true)
 
@@ -97,6 +103,22 @@ if [ -n "$RISKY_FILES" ] || [ -n "$NEW_SRC_FILES" ]; then
     debug "Review done: $REVIEW_DONE"
     if [ "$REVIEW_DONE" = "false" ]; then
         ISSUES="${ISSUES}Risky changes (core code or new src files) without subagent review. Run code-reviewer or security-auditor before pushing. "
+    fi
+fi
+
+# Check 3: Governance content files changed without governance subagent review?
+if [ -n "$GOVERNANCE_FILES" ]; then
+    GOV_REVIEW_DONE="false"
+    for PATTERN in "contrarian-reviewer" "contrarian_reviewer" "coherence-auditor" "coherence_auditor" "validator"; do
+        FOUND=$(python3 "$HOOK_DIR/scan_transcript.py" --pattern "$PATTERN" "$TRANSCRIPT" 2>/dev/null || echo "false")
+        if [ "$FOUND" = "true" ]; then
+            GOV_REVIEW_DONE="true"
+            break
+        fi
+    done
+    debug "Governance review done: $GOV_REVIEW_DONE"
+    if [ "$GOV_REVIEW_DONE" = "false" ]; then
+        ISSUES="${ISSUES}Governance principle files changed without subagent review. Run contrarian-reviewer, coherence-auditor, or validator before pushing. "
     fi
 fi
 

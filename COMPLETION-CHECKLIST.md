@@ -20,10 +20,14 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
    - Content expansion (new principles/methods) → coherence-auditor + validator
    - Changes >5 files → code-reviewer
    - See §5.1.7 for full trigger table
-3. **Governance evaluation before file modifications** — PreToolUse governance hook blocks Bash|Edit|Write until `evaluate_governance()` called
-4. **Context Engine query before code changes** — PreToolUse governance hook blocks until `query_project()` called
-5. **CI passes** — GitHub branch protection (when configured)
-6. **README tool count matches actual** — `TestReadmePropagation` CI assertion
+3. **Subagent review for governance content changes** — pre-push quality gate blocks push if governance principle files changed without contrarian-reviewer, coherence-auditor, or validator invocation:
+   - Constitution: `ai-interaction-principles.md`
+   - Domain principles: `*-domain-principles.md`
+4. **Principle count ceiling** — `TestPrincipleCountCeiling` CI assertion fails if any domain exceeds 35 principles (consolidation pass Part 9.8.5 required before adding more)
+5. **Governance evaluation before file modifications** — PreToolUse governance hook blocks Bash|Edit|Write until `evaluate_governance()` called
+6. **Context Engine query before code changes** — PreToolUse governance hook blocks until `query_project()` called
+7. **CI passes** — GitHub branch protection (when configured)
+8. **README tool count matches actual** — `TestReadmePropagation` CI assertion
 
 ### BEST-EFFORT (advisory, ~85% compliance expected)
 
@@ -110,6 +114,12 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 > and methods cannot cover. If the gap is discoverability (how principles relate to each other),
 > the fix is cross-references, not a new principle. If the gap is enforcement (principles exist
 > but aren't applied), the fix is hooks/enforcement, not more principles.
+
+> **Structural enforcement:** The pre-push quality gate requires subagent review
+> (contrarian-reviewer, coherence-auditor, or validator) for governance principle file
+> changes. The CI principle count ceiling (35/domain) catches accretion. The checklist
+> below remains BEST-EFFORT for *which* checks to run and *what* to verify, but pushing
+> principle changes without *any* review is now structurally blocked.
 
 ### BEST-EFFORT (advisory)
 
