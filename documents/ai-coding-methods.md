@@ -8186,6 +8186,8 @@ On session end:
 3. Record lessons in _ai-context/LEARNING-LOG.md
 
 If _ai-context/ does not exist, ask if I'd like to set up AI memory for this project.
+
+IMPORTANT: Before writing any files, verify the project folder is actually mounted (not just an empty sandbox path). If files aren't persisting between sessions, the folder may need to be re-mounted via request_cowork_directory.
 ```
 
 **For code projects (hybrid with root-level files):**
@@ -8242,6 +8244,8 @@ scaffold_project(project_name="Hotel Analysis", project_type="document", show_ma
 ```
 
 This returns the file contents without writing them. The LLM in Cowork then creates the files using its own file-writing tools, which DO have access to the sandbox filesystem. This is the recommended approach for all sandboxed environments.
+
+**Critical Cowork prerequisite — folder must be mounted:** A sandbox path existing (`/sessions/.../mnt/Project Name/`) does NOT mean the folder is connected to the real Mac directory. Until `request_cowork_directory` is called and the user selects the folder, the sandbox path is an empty directory — files written there do not persist and are lost when the session ends. Always verify the folder is mounted (via `request_cowork_directory`) before creating `_ai-context/` files or any other persistent content. If files aren't appearing on the Mac, the mount is likely missing.
 
 This requires the MCP server to be configured first, so it supplements rather than replaces Paths A/B.
 
