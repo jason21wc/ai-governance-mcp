@@ -1,6 +1,6 @@
 """MCP Server for AI Governance document retrieval.
 
-MCP server with 11 tools for hybrid retrieval of governance principles.
+MCP server with 13 tools for hybrid retrieval of governance principles.
 """
 
 import asyncio

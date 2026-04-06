@@ -1,8 +1,8 @@
 # API Reference
 
-The AI Governance MCP project exposes two MCP servers with a combined 15 tools. The **Governance Server** provides semantic retrieval of AI governance principles, pre-action evaluation, and compliance auditing. The **Context Engine Server** provides semantic search across project content for code and documentation discovery.
+The AI Governance MCP project exposes two MCP servers with a combined 17 tools. The **Governance Server** provides semantic retrieval of AI governance principles, pre-action evaluation, and compliance auditing. The **Context Engine Server** provides semantic search across project content for code and documentation discovery.
 
-## Governance Server (11 Tools)
+## Governance Server (13 Tools)
 
 Run with: `python -m ai_governance_mcp.server`
 

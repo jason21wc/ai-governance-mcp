@@ -623,6 +623,10 @@
 | 27 | TITLE 8 / Part 9.8 Forward References (v3.17.0) | 2026-03-30 |
 | 28 | Cross-Domain Template Consistency Audit (7 inconsistencies, 4 structural) | 2026-03-29 |
 | 30 | Cross-Domain Overlap Audit (4 justified, 2 need cross-refs) | 2026-03-29 |
+| 25 | Principle Authoring Checklist Enforcement → pre-push gate + CI ceiling | 2026-04-05 |
+| 48 | Node.js Document Generation Reference Entries | 2026-04-03 |
+| 50 | install_agent/scaffold_project CWD bug → 4-tier resolver + show_manual | 2026-04-05 |
+| 51 | Optimize All Remaining Subagents (9/9 rewritten) | 2026-04-04 |
 
 ### Open Backlog
 
@@ -696,39 +700,7 @@
 
 **Scope note (2026-04-03):** Structured document production (Excel workbooks, data-heavy reports, financial spreadsheets) is handled by AI Coding Part 9.4 (Document Generation Patterns). Visual Communication stays scoped to visual design artifacts: presentations, infographics, print design — the Tufte/Duarte/Reynolds evidence base. The distinction: Part 9.4 covers *how to generate and serve document files reliably*; Visual Communication covers *how to design visually effective communication*.
 
-#### 48. Node.js Document Generation Reference Entries — CLOSED (2026-04-03)
-
-Created both entries: `ref-ai-coding-node-excel-generation` (ExcelJS over SheetJS CE — styling trap, streaming API, decision tree) and `ref-ai-coding-node-pdf-generation` (PDFKit vs Puppeteer vs jsPDF vs pdf-lib — the most fragmented doc-gen category, jsPDF is #1 wrong recommendation). Research was already done; deferring created more tracking overhead than the 15-minute implementation. See session 47.
-
-#### 50. `install_agent` cwd Bug — FIXED (2026-04-05)
-
-Root cause: missing caller-context propagation. `Path.cwd()` resolved to MCP server's directory, not calling session's project. Fix: 4-tier project path resolution (MCP roots > `project_path` tool argument > `AI_GOVERNANCE_MCP_PROJECT` env var > CWD with warning). Applied to both `install_agent` and `uninstall_agent`. Also fixed `_detect_claude_code_environment()` to accept explicit project path. 3-agent review (code-reviewer, security-auditor, coherence-auditor) completed; URI parsing hardened with `urllib.parse`, `list_roots()` timeout added. 12 new tests, 1049 total passing.
-
-#### 51. Optimize All Remaining Subagents (Discussion)
-
-**What:** Apply the same research-backed improvement process used for the code-reviewer rewrite (session 50) to the remaining 9 subagents: coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach.
-
-**Process per agent (proven in session 50):**
-1. Research online best practices for the agent's domain (e.g., Google's security review guidelines for security-auditor, industry test strategy for test-generator)
-2. Run contrarian-reviewer on the current agent definition — challenge what's missing, what's generic, what's over/under-scoped
-3. Identify gaps using root cause thinking: is the agent optimized for the right cognitive function, or does it miss categories that matter?
-4. Rewrite with: expanded/tiered checklist, input contract (what must/must not be provided), fresh perspective checks where applicable, AI-specific failure pattern indicators, impact-based severity if applicable
-5. Follow ai-governance: evaluate_governance before changes, query_project for existing patterns, contrarian + coherence + validator review of the plan and final output
-6. Sync to all three locations: `documents/agents/`, `.claude/agents/`, `~/.claude/agents/`
-7. Update hash in `server.py` AGENT_TEMPLATE_HASHES
-
-**Priority order (by usage frequency and improvement potential):**
-1. security-auditor — high usage, may benefit from expanded threat model categories
-2. contrarian-reviewer — high usage, may benefit from structured challenge frameworks
-3. test-generator — medium usage, may benefit from AI-specific test quality patterns
-4. validator — medium usage, may benefit from richer criteria frameworks
-5. coherence-auditor — medium usage, may benefit from cross-file consistency patterns
-6. documentation-writer — lower usage, may benefit from audience-awareness
-7. orchestrator — specialized, may need governance-hook awareness updates
-8. continuity-auditor — storytelling-specific
-9. voice-coach — storytelling-specific
-
-**Origin:** Session 50 code-reviewer rewrite (2026-04-04). The improvement was significant — expanded from 6 to 10 tiered checklist items, added input contract, AI failure pattern indicators, impact-based severity. Same methodology should apply to all agents.
+#### 53. Modular Domain Architecture (Discussion)
 
 #### 53. Modular Domain Architecture (Discussion)
 
@@ -1102,6 +1074,18 @@ Root cause eliminated by #38. The trigger was version-bump string changes in con
 ---
 
 ### Closed / Reference
+
+#### 48. Node.js Document Generation Reference Entries — CLOSED (2026-04-03)
+
+Created `ref-ai-coding-node-excel-generation` and `ref-ai-coding-node-pdf-generation`. See session 47.
+
+#### 50. install_agent/scaffold_project CWD Bug — FIXED (2026-04-05)
+
+Root cause: missing caller-context propagation. Fix: `_resolve_caller_project_path()` with priority reorder (explicit arg > MCP roots > env var > CWD). Also added `show_manual` mode for sandboxed environments (Cowork), observability (resolved_path/project_root), cached MCP roots, URI parsing hardening. See session entries #61, #64.
+
+#### 51. Optimize All Remaining Subagents — COMPLETE (2026-04-04)
+
+All 10 agents rewritten with research-backed improvements: code-reviewer, security-auditor, contrarian-reviewer, test-generator, validator, coherence-auditor, documentation-writer, orchestrator, continuity-auditor, voice-coach. See session entries #53-60.
 
 #### 3. Quantized Vector Search — CLOSED (2026-03-30)
 

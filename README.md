@@ -827,7 +827,7 @@ ai-governance-mcp/
 │   ├── config.py            # Settings management
 │   ├── extractor.py         # Document parsing + embeddings
 │   ├── retrieval.py         # Hybrid search engine
-│   ├── server.py            # Governance MCP server + 11 tools
+│   ├── server.py            # Governance MCP server + 13 tools
 │   ├── config_generator.py  # Multi-platform MCP configs
 │   ├── validator.py         # Principle ID validation
 │   └── context_engine/      # Context Engine MCP server
