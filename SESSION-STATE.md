@@ -22,7 +22,7 @@
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
 | Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.0** (meta-methods), **v2.35.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1069 passing** (run `pytest tests/ -v` for current) |
+| Tests | **1073 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -37,6 +37,14 @@
 ## Session Summary (2026-04-05)
 
 ### Completed This Session
+
+64. **scaffold_project Cowork Fix — show_manual + Path Resolution + Mount Documentation**
+   - **Two independent root causes:** (1) MCP server runs on host Mac, sandbox paths don't exist on host — path resolution failed silently or resolved to wrong directory. (2) Cowork sandbox paths can exist without being mounted — files written to unmounted paths don't persist.
+   - **Code fixes:** Priority reorder (explicit arg > MCP roots), `show_manual=true` mode returns file contents so LLM creates files with its own sandbox-accessible tools, observability (resolved_path/project_root in responses), diagnostic logging.
+   - **Documentation:** Appendix L updated — corrected "runs inside sandbox" to "runs on host", documented show_manual workflow, added mount prerequisite warning to Cowork Project Instructions template.
+   - **Tested in Cowork:** Confirmed fix works — scaffold_project with show_manual returns content, LLM creates files in mounted workspace.
+   - **Reviews:** Contrarian review challenged architecture redesign proposal (don't write files at all) — correctly identified install_agent show_manual as proven pattern to copy. Code reviewer PASS.
+   - **Tests:** 3 new tests. 1073 total passing.
 
 63. **External Content Evaluation Methodology Improvement**
    - **Root cause:** The LEARNING-LOG "Start from Gaps, Not Borrowing" rule (from Atlas evaluation) was over-generalized — correctly scoped for principle-level admission but over-applied to method-level quality evaluation. Result: "7/10 covered" summaries filter out implementation-quality improvements.
