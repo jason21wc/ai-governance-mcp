@@ -342,6 +342,77 @@ Run with: `python -m ai_governance_mcp.server`
 
 ---
 
+### scaffold_project
+
+**Purpose:** Initialize governance memory files for a new project. Creates SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, and project instruction files. Two-step flow: call without `confirmed` for preview, then with `confirmed=true` to create files.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `project_name` | string | No | Project name, max 100 chars (defaults to directory name) |
+| `project_type` | string | No | `"code"` for repositories or `"document"` for folder-based projects. Default: `"code"` |
+| `kit_tier` | string | No | `"core"` (4 files) or `"standard"` (6 files, adds CLAUDE.md + checklist). Default: `"core"` |
+| `confirmed` | boolean | No | Set to `true` to create files after preview |
+| `project_path` | string | No | Absolute path to the target project directory. Auto-detected from MCP roots if available; falls back to `AI_GOVERNANCE_MCP_PROJECT` env var, then CWD. |
+| `show_manual` | boolean | No | Set to `true` to get file contents for manual creation. Use in sandboxed environments (Cowork) where the MCP server cannot write to the project directory. |
+
+**Returns:** Varies by state:
+
+- **Preview** (default, `confirmed` not set): Returns file list with actions (create/skip), project root, resolved paths, and options to confirm or cancel.
+- **Scaffolded** (`confirmed=true`): Returns status `"scaffolded"`, files created, files skipped, and project root.
+- **Manual** (`show_manual=true`): Returns file paths and full contents for the LLM to create manually. Works even when project_path is invalid.
+- **Error**: Returns error code (`INVALID_PROJECT_PATH`, `INVALID_PROJECT_TYPE`, `INVALID_KIT_TIER`) with suggestions.
+
+**Example:**
+
+```json
+{"name": "scaffold_project", "arguments": {"project_type": "code", "kit_tier": "standard", "confirmed": true}}
+```
+
+---
+
+### capture_reference
+
+**Purpose:** Create a new Reference Library entry. Generates a markdown file with YAML frontmatter in `reference-library/{domain}/`.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `id` | string | Yes | Unique entry ID: lowercase, hyphens allowed, must start with `ref-` (e.g., `ref-ai-coding-my-pattern`) |
+| `title` | string | Yes | Human-readable title (max 200 chars) |
+| `domain` | string | Yes | Domain this entry belongs to — lowercase alphanumeric with hyphens (e.g., `ai-coding`, `kmpd`) |
+| `tags` | array | Yes | Faceted tags, 1-10 strings |
+| `entry_type` | string | Yes | `"direct"` (artifact in library) or `"reference"` (pointer to external source) |
+| `artifact` | string | Yes | The actual code, template, config, or curated summary (max 10,000 chars) |
+| `summary` | string | No | One-line description for search (max 300 chars) |
+| `context` | string | No | When to use this and why it exists (max 2,000 chars) |
+| `lessons` | string | No | What worked, what didn't, edge cases (max 2,000 chars) |
+| `maturity` | string | No | `"seedling"`, `"budding"`, or `"evergreen"`. Default: `"seedling"` |
+| `external_url` | string | No | URL for reference entries (max 500 chars) |
+| `external_author` | string | No | Author for reference entries (max 100 chars) |
+
+**Returns:** Status `"captured"` with entry_id, file_path, domain, entry_type, maturity, and next_steps (rebuild index to make searchable). Files are created in the governance server's reference library, not in the calling project. Returns error `ENTRY_EXISTS` if an entry with that ID already exists.
+
+**Example:**
+
+```json
+{
+  "name": "capture_reference",
+  "arguments": {
+    "id": "ref-ai-coding-my-pattern",
+    "title": "My Reusable Pattern",
+    "domain": "ai-coding",
+    "tags": ["pattern", "reusable", "example"],
+    "entry_type": "direct",
+    "artifact": "## Pattern\n\nDescription of the reusable pattern..."
+  }
+}
+```
+
+---
+
 ## Context Engine Server (4 Tools)
 
 Run with: `python -m ai_governance_mcp.context_engine.server`
