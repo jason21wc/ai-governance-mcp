@@ -34,9 +34,21 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-04-05)
+## Session Summary (2026-04-06)
 
 ### Completed This Session
+
+65. **Security Content Currency Process (Backlog #7) — CLOSED**
+   - **Root cause:** Governance content (methods, principles, subagent definitions) had no staleness detection against external security standards (OWASP, MITRE ATLAS, NIST). Reference library had KeyCite currency (§15.4.4), project docs had §14.2, but governance methods had nothing.
+   - **Research:** AI security evolves fast — OWASP now has 3 Top 10 lists (LLM 2025, Agentic Dec 2025, MCP 2025), MITRE ATLAS updates monthly-quarterly (v5.3.0 added MCP cases Jan 2026), NIST has multiple parallel AI security tracks. 43% of public MCP implementations had command injection flaws.
+   - **Design:** Extended Part 14.2 (not new Part 9.9) per contrarian review — reuses existing staleness pattern, avoids 3-way fragmentation. Visible currency map table, 3-tier source monitoring (category-based), event-triggered review with 90-day fallback, coherence-auditor integration (advisory, honest about enforcement level).
+   - **Contrarian review:** REVISIT → accepted 5/6 challenges. Key: Part 14.2 extension vs new Part (~70% less surface area), visible table vs invisible HTML comments, event-triggered primary vs quarterly ceremony, category-based sources vs hardcoded names, connect gap detection to §9.6 Modification Protocol.
+   - **Inaugural review:** All security content current against OWASP LLM 2025, OWASP Agentic 2025, OWASP MCP 2025, MITRE ATLAS v5.3.0, NIST SP 800-207. No gaps found.
+   - **Files:** ai-governance-methods.md (§14.2.7, v3.23.1), coherence-auditor (currency map check), security-auditor (currency awareness), server.py (hashes). 1073 tests passing.
+
+## Session Summary (2026-04-05)
+
+### Completed This Session (2026-04-05)
 
 64. **scaffold_project Cowork Fix — show_manual + Path Resolution + Mount Documentation**
    - **Two independent root causes:** (1) MCP server runs on host Mac, sandbox paths don't exist on host — path resolution failed silently or resolved to wrong directory. (2) Cowork sandbox paths can exist without being mounted — files written to unmounted paths don't persist.
@@ -605,6 +617,14 @@
 
 *Previous session summaries pruned per §7.1.5 (session state is transient). Decisions and lessons routed to PROJECT-MEMORY.md and LEARNING-LOG.md. Full history available via `git log`.*
 
+## Security Currency Reviews
+
+#### Security Currency Review — 2026-04-06
+**Trigger:** Inaugural review (§14.2.7 implementation)
+**Sources checked:** OWASP LLM Top 10 (2025), OWASP Agentic Top 10 (2025/Dec), OWASP MCP Top 10 (2025), MITRE ATLAS (v5.3.0, Jan 2026), NIST SP 800-207, NIST AI 600-1, CWE Top 25 (2024)
+**Gaps found:** 0 | **Actions:** None — all content current. Framework already references OWASP Agentic (§5.11.6 ASI01-ASI09), OWASP MCP (§5.6.4), MITRE ATLAS. LLM08:2025 (Vector/Embedding Weaknesses) covered by SEC-Series in multimodal-rag domain.
+**Next trigger watch:** OWASP Agentic Top 10 v2 (new list, may update quickly), MITRE ATLAS v5.4+ (agent-focused techniques, Feb 2026), NIST COSAIS final publication
+
 ## Next Actions
 
 ### Completed Backlog Items
@@ -627,6 +647,7 @@
 | 48 | Node.js Document Generation Reference Entries | 2026-04-03 |
 | 50 | install_agent/scaffold_project CWD bug → 4-tier resolver + show_manual | 2026-04-05 |
 | 51 | Optimize All Remaining Subagents (9/9 rewritten) | 2026-04-04 |
+| 7 | Security Content Currency Process → §14.2.7 + source tiers + coherence-auditor integration | 2026-04-06 |
 
 ### Open Backlog
 
@@ -658,7 +679,7 @@
 
 **What (merged from #26 and #29):** Two related concerns about keeping framework content healthy over time:
 - **New content gate:** ~~Part 9.8 Admission Test is advisory. Should it be structurally enforced?~~ **Addressed (2026-04-05):** Pre-push gate requires contrarian/coherence/validator review for principle file changes. CI ceiling (35/domain) catches accretion. See #25 closure.
-- **Existing content review:** Nothing forces periodic review. The 47→22 consolidation proved accretion happens silently. **Still open** — the CI ceiling catches runaway accretion, but doesn't trigger the full consolidation procedure. A version-milestone trigger (every MAJOR bump triggers cross-domain audit) is still worth discussing.
+- **Existing content review:** ~~Nothing forces periodic review.~~ **Partially addressed (2026-04-06):** Security content now has §14.2.7 currency tracking (event-triggered review against OWASP/MITRE/NIST, coherence-auditor integration). **Still open for non-security content** — the CI ceiling catches runaway accretion, but doesn't trigger the full consolidation procedure. A version-milestone trigger (every MAJOR bump triggers cross-domain audit) is still worth discussing.
 
 **Root-cause framing:** The real goal is *continuous content quality improvement* — both preventing bad content from entering (enforcement) and ensuring existing content stays relevant (review). These are two sides of the same problem: content quality governance.
 
@@ -740,13 +761,9 @@
 
 **Origin:** Session 48 (2026-04-03). macOS low-memory warning with 2 concurrent sessions. Initial investigation incorrectly dismissed Activity Monitor's GB numbers as "just virtual memory" — 26 GB swap + macOS warning proved impact is real.
 
-#### 7. Security Content Currency Process (Discussion)
+#### 7. Security Content Currency Process — CLOSED (2026-04-06)
 
-**What:** AI security evolves fast. Our security content (§5.3-§5.11, security-auditor subagent) is comprehensive today but will go stale without a review mechanism.
-
-**Discussion needed:** Design a lightweight review process. Possible approach: quarterly online research of key security resources (maintain a log of sources reviewed + open search), compare against current security content, apply security-auditor subagent to projects near completion. Define what "key security resources" means (OWASP, NIST, major CVE databases, AI-specific threat reports).
-
-**Outcome:** Define the review process and resource list, then implement as a recurring practice.
+Implemented as §14.2.7 extension (not new Part 9.9) per contrarian review: reuses existing staleness management pattern, avoids 3-way fragmentation across TITLEs 9/14/15. Visible currency map table in Part 14.2, 3-tier source monitoring list (category-based with examples), event-triggered review with 90-day fallback, coherence-auditor integration for advisory staleness detection. Inaugural review completed 2026-04-06; all security content current against OWASP LLM 2025, OWASP Agentic 2025, OWASP MCP 2025, MITRE ATLAS v5.3.0, NIST SP 800-207. Governance methods v3.23.1.
 
 #### 19. Rampart Integration — Client-Side Enforcement (Discussion)
 
@@ -964,7 +981,7 @@ Root cause eliminated by #38. The trigger was version-bump string changes in con
 
 ---
 
-#### 47. Plan Mode Enforcement Gap (Discussion — Structural)
+#### 47. Plan Mode Enforcement Gap (Discussion — Structural, Phase 0 Active)
 
 **What:** During plan mode, the AI consistently skips required subagent reviews (contrarian, etc.) before presenting the plan for approval. The plan template puts "Contrarian Review Output" BEFORE "Recommended Approach" specifically to make verification part of the generation flow, but the AI treats it as a placeholder and defers to execution. User has observed this pattern "every time."
 
@@ -972,15 +989,66 @@ Root cause eliminated by #38. The trigger was version-bump string changes in con
 
 **Broader scope (root cause over symptoms):** This isn't just about subagents in plans. It's the general problem that plan mode has NO structural enforcement — no hooks check what happened before ExitPlanMode. The governance hard-mode hook blocks Bash/Edit/Write until evaluate_governance() + query_project() are called. Plan mode has no equivalent gate. Subagent skipping is the most visible symptom, but the root cause is that plan mode is entirely advisory.
 
-**Discussion needed:**
-1. **Can hooks enforce plan mode quality?** A PreToolUse hook on ExitPlanMode could check the transcript for contrarian-reviewer invocations, similar to how the governance hook checks for evaluate_governance(). Feasibility: ExitPlanMode is a tool call, so PreToolUse hooks should apply.
-2. **What else gets skipped in plan mode?** Beyond subagents: does the AI skip query_project() during planning? Skip reading critical files before designing? The root cause analysis should enumerate all plan-mode compliance gaps, not just subagents.
-3. **Is a memory sufficient?** A feedback memory was saved (2026-04-01). If it fixes the behavior in the next 2-3 planning sessions, structural enforcement may be unnecessary. If not, escalate to hook implementation.
-4. **Interaction with COMPLETION-CHECKLIST:** #25 (Principle Authoring Checklist Enforcement) addresses a similar advisory-vs-structural tension. Should these be consolidated?
-
-**Outcome:** Either (a) memory + template ordering proves sufficient (close after 2-3 successful planning sessions), (b) implement PreToolUse hook on ExitPlanMode, or (c) broader advisory compliance enforcement redesign.
-
 **Origin:** #38 planning session (2026-04-01). User caught missing contrarian review before ExitPlanMode.
+
+---
+
+**Full Analysis (2026-04-05):**
+
+Governance evaluation: PROCEED. Key methods: `multi-method-hook-based-enforcement-client-side-deterministic` ("Architecture beats hope"), `coding-method-checklist-failures` (advisory ~15% skip rate). Root cause check: `meta-core-systemic-thinking` — address structural cause, not symptom.
+
+**Research confirmed:** PreToolUse hooks CAN fire on `ExitPlanMode` (Claude Code docs: matcher is regex against tool names, ExitPlanMode is a tool). Infrastructure exists — `scan_transcript.py --pattern` mode already detects subagent invocations in the pre-push quality gate.
+
+**Contrarian review verdict: REVISIT (high confidence).** Key challenges accepted:
+
+1. **Memory hasn't been tested.** Saved 2026-04-01, but in all 12+ planning sessions since, user explicitly requested contrarian review. The "wait 2-3 sessions" criteria was never met. We'd be building a hook to fix a problem whose simpler solution is untested.
+
+2. **Plan mode has a human gate that file modification doesn't.** The governance hook prevents irreversible harm (file modification is immediate). A plan mode hook prevents the user from saying "run the contrarian reviewer" — a 5-second inconvenience. Different risk tiers justify different enforcement levels.
+
+3. **A hook enforces ceremony, not quality.** The AI could invoke contrarian-reviewer with minimal context to satisfy the hook, producing shallow "PROCEED" output. The governance hook works because its output (PROCEED/ESCALATE) structurally routes behavior. Contrarian review is advisory by nature — checkbox compliance is the likely failure mode.
+
+4. **False positives from session-scoped detection.** `scan_for_pattern` does raw string matching. A contrarian review invoked earlier in the session for a different task would satisfy the hook for an unrelated plan. Solving this needs plan-mode-aware scanning (detect EnterPlanMode, search only after) — significantly more complex.
+
+5. **"Contrarian review always required" doesn't survive reality.** The contrarian-reviewer's own deployment table says "Routine validation: No." Plan mode is reserved for non-trivial work, but some plans are focused tasks where contrarian review adds no value.
+
+**Proportionality assessment:** The governance hook's justification is preventing irreversible production changes. A plan mode hook's justification is preventing user inconvenience. The steel-manned alternative — "user catches it and asks for it" — is proportional because the human approval step already exists as a gate.
+
+---
+
+**Phased Escalation Plan:**
+
+**Phase 0 — Track Memory Effectiveness (CURRENT — no code changes)**
+Test whether the feedback memory (`feedback_plan_subagents.md`, saved 2026-04-01) is sufficient when not overridden by explicit user instructions.
+
+Success criteria: contrarian-reviewer invoked without user prompting in 2/3 sessions.
+- If successful → **Close #47.** Advisory + memory is sufficient.
+- If fails (0-1/3) → Escalate to Phase 1.
+
+**Phase 1 — Soft-Mode Nudge on ExitPlanMode (if Phase 0 fails)**
+`additionalContext` injection (reminder, not block). Proportional because plan mode has a human gate.
+- New file: `.claude/hooks/pre-plan-exit-check.sh` (~60 lines, follows existing patterns)
+- Modify: `.claude/settings.json` (add `ExitPlanMode` matcher)
+- Add: ~6 tests in `tests/test_hooks.py`
+- Uses: existing `scan_transcript.py --pattern` (no changes)
+- Patterns: `contrarian-reviewer`, `contrarian_reviewer`
+- Escape hatch: `PLAN_EXIT_SKIP=true`
+- Recency window: 300 lines (configurable via `PLAN_EXIT_RECENCY_WINDOW`)
+
+**Phase 2 — Hard-Mode Upgrade (if Phase 1 fails after 3 more sessions)**
+Flip default from soft to hard. Also add plan-mode-aware scanning (detect EnterPlanMode in transcript, only search after that point) to solve the false positive problem.
+
+---
+
+**Memory Effectiveness Test (started 2026-04-05):**
+User will NOT request contrarian review. AI should invoke it per feedback memory.
+
+| Session | Date | Task | Contrarian Invoked? | Prompted by User? | Notes |
+|---------|------|------|--------------------|--------------------|-------|
+| 1 | 2026-04-06 | #7 Security Content Currency Process | Yes | No | Invoked during plan mode before ExitPlanMode; accepted 5/6 challenges, revised plan from Part 9.9 → Part 14.2 extension |
+| 2 | | | | | |
+| 3 | | | | | |
+
+**Result:** Pending (need 3 sessions). Success = 2/3 unprompted. Failure → Phase 1.
 
 #### 54. Superpowers Plugin — Reference Library Entry + Method Assessment (Discussion — from Video Re-Analysis)
 
@@ -1181,32 +1249,9 @@ Consolidated 3 competing domain principle templates (Parts 3.5.1, 9.4, 9.4.1) �
 
 **Implementation requirements:** Domain config in `domains.json`, principle + methods documents, extractor support, index rebuild, tests. Standard domain creation process per COMPLETION-CHECKLIST.
 
-#### 7. Security Content Currency Process (Priority: LOW)
+#### 7. Security Content Currency Process — CLOSED (2026-04-06)
 
-**Problem:** AI security evolves rapidly — new tool categories, shifting attack patterns, standards updates. Our security content (§5.3-§5.11, security-auditor subagent, pre-release checklist) is comprehensive today but will go stale without a review cadence.
-
-**Scope — What gets reviewed:**
-- Methods coverage (§5.3 Security Validation, §5.6 AI Coding Tool Security, §5.7 Application Security Patterns, §5.8 Domain-Specific Security, §5.11 Zero Trust)
-- Security-auditor subagent definition and checklist
-- Pre-release security checklist in CLAUDE.md
-- Evidence base citations — are referenced sources still current?
-
-**Framework pattern for tool-specific content:**
-- **Generalized guidance** (tool-agnostic) → methods sections
-- **Specific tool guidance** (tools we actively use) → appendix or tool-specific subsection
-- Don't aim for comprehensive coverage — capture what we actively use
-
-**Inputs to monitor:**
-- New AI security tool categories and independent benchmarks (OWASP, NIST)
-- Emerging attack patterns (agent-specific threats, MCP-specific vulnerabilities)
-- Standards updates (OWASP Top 10 revisions, CWE/SANS updates)
-- Our own security-auditor findings across sessions (recurring gaps = content gap)
-
-**Current status of AI scanner question:** Claude Code Security launched 2026-02-20. Interim guidance in §5.3.3, §5.3.5, §6.4.9. Waiting for vendor-independent accuracy data.
-
-**Cadence:** TBD — quarterly review or event-triggered (major tool launch, OWASP update).
-
-**Implementation requirements:** Not a code change — methods-level practice. May result in: updated methods, new appendices, revised evidence base citations, updated security-auditor subagent.
+Implemented as §14.2.7 in ai-governance-methods.md (v3.23.1). See Discussion section and session summary for details.
 
 #### 9P3. Tiered Principle Activation — Phase 3 — CLOSED (2026-04-02)
 

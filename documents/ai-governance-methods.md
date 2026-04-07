@@ -1,7 +1,7 @@
 ---
-version: "3.23.0"
+version: "3.23.1"
 status: "active"
-effective_date: "2026-04-03"
+effective_date: "2026-04-05"
 domain: "constitution"
 governance_level: "constitution-methods"
 ---
@@ -9,9 +9,9 @@ governance_level: "constitution-methods"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.23.0
+**Version:** 3.23.1
 **Status:** Active
-**Effective Date:** 2026-04-03
+**Effective Date:** 2026-04-05
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -3619,6 +3619,63 @@ The coherence-auditor subagent extends its protocol to include reference doc fre
 - **New check:** "Is this reference doc entry still accurate per current source?" added to file-type-specific checks
 
 **Cross-reference:** Part 4.3 (Documentation Coherence Audit), coherence-auditor subagent
+
+### 14.2.7 Security Content Currency
+
+Governance methods that reference external security standards (OWASP, MITRE ATLAS, NIST) can silently drift from those standards as new versions, threat categories, and attack techniques emerge. Unlike project reference docs (§14.2.1–14.2.6), governance content staleness is invisible until an attack vector isn't caught — there is no failing test or broken build to surface the gap.
+
+This subsection extends the staleness management protocol to cover governance security content against external standards.
+
+#### Security Content Currency Map
+
+| Section | External Anchors | Priority | Threshold | Last Reviewed | Against |
+|---------|-----------------|----------|-----------|---------------|---------|
+| Part 5.3 Security Validation | OWASP LLM Top 10, CWE Top 25 | HIGH | 90 days | 2026-04-05 | OWASP LLM 2025, CWE 2024 |
+| Part 5.6 AI Coding Tool Security | OWASP MCP Top 10, MITRE ATLAS | HIGH | 90 days | 2026-04-05 | OWASP MCP 2025, ATLAS v5.3.0 |
+| Part 5.7 Application Security | OWASP Web Top 10 | MEDIUM | 180 days | 2026-04-05 | OWASP Web 2025 |
+| Part 5.8 Domain-Specific Security | Language/container advisories | MEDIUM | 180 days | 2026-04-05 | (per-language) |
+| Part 5.9 Concurrency Safety | Language runtime changes | LOW | 365 days | 2026-04-05 | (stable) |
+| Part 5.11 Zero Trust Patterns | NIST SP 800-207, OWASP Agentic Top 10 | HIGH | 90 days | 2026-04-05 | NIST 800-207, OWASP Agentic 2025 |
+| Part 5.12 Stateful Systems | Database security advisories | LOW | 365 days | 2026-04-05 | (stable) |
+| SEC-Series (multimodal RAG) | Multimodal poisoning research | MEDIUM | 180 days | 2026-04-05 | arxiv 2502.17832, 2504.02132 |
+| security-auditor subagent | Must reflect current methods | HIGH | 90 days | 2026-04-05 | (derived from methods) |
+
+#### Source Monitoring Tiers
+
+- **Tier 1 — Authoritative standards** (review on release): AI application security standards (OWASP LLM/Agentic/MCP Top 10), adversarial threat taxonomies (MITRE ATLAS), government AI security frameworks (NIST AI RMF, AI 600-1, COSAIS)
+- **Tier 2 — Threat intelligence** (scan during review): Independent AI security researchers (e.g., Simon Willison), MCP vulnerability databases (e.g., Vulnerable MCP Project), cloud provider security labs (e.g., Elastic Security Labs, Microsoft Cyber Pulse), AI security reports (e.g., Trend Micro State of AI Security)
+- **Tier 3 — General security news** (opportunistic): Security industry publications (e.g., Dark Reading, The Hacker News)
+
+Source list categories are stable; specific examples are snapshots updated during each review cycle.
+
+#### Review Triggers and Cadence
+
+**Event triggers (review within 2 weeks):**
+- New version of any Tier 1 source published
+- Major AI security incident affecting MCP, LLM applications, or agent architectures
+- Framework MAJOR version bump (per §9.8.5 cross-domain audit)
+- Security-auditor findings reveal recurring pattern not covered by current methods
+
+**Fallback:** If no trigger fires within 90 days, do a scheduled review.
+
+#### Review Procedure (AI-Assisted)
+
+1. **Source check** (~10 min) — Web search each Tier 1 source for latest version. Compare against "Against" column in the currency map. Flag deltas.
+2. **Threat scan** (~15 min) — For flagged Tier 1 sources + Tier 2 scan: identify new attack categories, techniques, or mitigations. Cross-reference against currency map sections.
+3. **Gap assessment** (~10 min) — For affected sections: `query_governance("the specific threat or technique")` to verify coverage level (full / partial / none).
+4. **Disposition** (~5 min) — Update currency map table (Last Reviewed, Against columns). For gaps: create backlog item per §9.6 Modification Protocol. For no gaps: record clean assessment and move on.
+
+**Currency Review Record** (append to SESSION-STATE.md under "Security Currency Reviews"):
+
+```markdown
+#### Security Currency Review — YYYY-MM-DD
+**Trigger:** [Event description] / Quarterly fallback
+**Sources checked:** [list with versions]
+**Gaps found:** [count] | **Actions:** [backlog items created, or "None — all content current"]
+**Next trigger watch:** [specific releases or events to monitor]
+```
+
+**Cross-reference:** Part 9.8 (Content Quality Framework), §15.4.4 (KeyCite currency for reference library entries)
 
 ---
 

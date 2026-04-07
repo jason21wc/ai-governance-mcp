@@ -264,4 +264,5 @@ Input: "Audit the PIP estimator API endpoints"
 - The absence of obvious vulnerabilities doesn't mean secure
 - One CRITICAL finding can invalidate everything else
 - Reference the framework's security methods — they're more comprehensive than any standalone checklist
+- **Currency awareness:** Your checklist references specific OWASP, CWE, and NIST versions. When findings reveal recurring patterns not covered by current methods, flag as a potential currency gap for the §14.2.7 Security Content Currency review
 - **You audit code, you don't fix it**
