@@ -28,26 +28,27 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 6. **Context Engine query before code changes** — PreToolUse governance hook blocks until `query_project()` called
 7. **CI passes** — GitHub branch protection (when configured)
 8. **README tool count matches actual** — `TestReadmePropagation` CI assertion
-
-### BEST-EFFORT (advisory, ~85% compliance expected)
-
-9. Tests written WITH implementation, not after (§5.2.2 — TDD recommended)
-10. SESSION-STATE updated progressively during session, not just at end (§7.1)
-11. Benchmark baseline captured before index/retrieval changes
-12. **New code path security check** (if adding code that reads files, parses external data, or handles user-controlled input):
+9. **New code path security check** (if adding code that reads files, parses external data, or handles user-controlled input) — enforced via pre-push requirement for security-auditor invocation on new src files:
     - [ ] Is the new code path included in `validate_content_security()` scan? (extractor.py)
     - [ ] Does it validate/sanitize file paths? (symlink protection, path traversal, size limits)
     - [ ] Does it use safe parsing? (`yaml.safe_load()`, not `yaml.load()`; `json.loads()`, not `eval()`)
     - [ ] Does it have dedicated tests? (NOT just passing through existing tests)
     - [ ] If it returns content to AI clients, is the content scanned for prompt injection?
-13. README/SPEC/ARCH propagation for domain counts, file trees, version references
-14. Docker rebuild if `src/`, `pyproject.toml`, or `Dockerfile` changed
+10. **Completion checklist consulted** — pre-push quality gate blocks push if COMPLETION-CHECKLIST.md was not read during the session. The meta-action of opening the checklist is ENFORCED; individual items within remain BEST-EFFORT (~85%)
+
+### BEST-EFFORT (advisory, ~85% compliance expected)
+
+11. Tests written WITH implementation, not after (§5.2.2 — TDD recommended)
+12. SESSION-STATE updated progressively during session, not just at end (§7.1)
+13. Benchmark baseline captured before index/retrieval changes
+14. README/SPEC/ARCH propagation for domain counts, file trees, version references
+15. Docker rebuild if `src/`, `pyproject.toml`, or `Dockerfile` changed
 
 ### ALWAYS (regardless of enforcement tier)
 
-15. Update SESSION-STATE.md (version, counts, summary) — at minimum at session end
-16. Commit and push
-17. Verify CI green (`gh run watch`)
+16. Update SESSION-STATE.md (version, counts, summary) — at minimum at session end
+17. Commit and push
+18. Verify CI green (`gh run watch`)
 
 ## Content changes (governance documents)
 
@@ -152,6 +153,7 @@ For architecture decisions, use the plan template at **`.claude/plan-template.md
 
 When modifying shared project context, check whether changes need to propagate:
 - **AGENTS.md** ↔ **CLAUDE.md**: shared content lives in AGENTS.md; Claude-specific content in CLAUDE.md. If you change project context (commands, structure, memory files), update AGENTS.md. If you change governance enforcement or subagent registry, update CLAUDE.md.
+- **PROJECT-MEMORY.md**: If architectural decisions, enforcement roadmap, or structural patterns changed, update the relevant sections. Check for stale "Phase X — future/deferred" descriptions that now describe implemented features.
 
 ## Documentation-only changes (memory files, README)
 

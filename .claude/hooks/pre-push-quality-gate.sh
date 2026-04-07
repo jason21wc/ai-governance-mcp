@@ -122,6 +122,20 @@ if [ -n "$GOVERNANCE_FILES" ]; then
     fi
 fi
 
+# Check 4: Was the completion checklist consulted this session?
+CHECKLIST_READ="false"
+for PATTERN in "COMPLETION-CHECKLIST" "completion sequence" "completion checklist"; do
+    FOUND=$(python3 "$HOOK_DIR/scan_transcript.py" --pattern "$PATTERN" "$TRANSCRIPT" 2>/dev/null || echo "false")
+    if [ "$FOUND" = "true" ]; then
+        CHECKLIST_READ="true"
+        break
+    fi
+done
+debug "Completion checklist consulted: $CHECKLIST_READ"
+if [ "$CHECKLIST_READ" = "false" ]; then
+    ISSUES="${ISSUES}Completion checklist not consulted. Read COMPLETION-CHECKLIST.md and verify applicable items before pushing. "
+fi
+
 # Report issues
 if [ -n "$ISSUES" ]; then
     debug "BLOCKING: $ISSUES"

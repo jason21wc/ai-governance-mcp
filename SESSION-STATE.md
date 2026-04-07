@@ -38,6 +38,12 @@
 
 ### Completed This Session
 
+71. **Completion Sequence Structural Enforcement — IMPLEMENTED**
+   - **Root cause (systemic thinking):** COMPLETION-CHECKLIST.md was never opened during #1B-P2 implementation. 3 rounds of user-requested "double checks" caught security vulnerabilities, doc drift, index staleness, test gaps — all covered by existing checklist. Meta-action failure (0% — never opened), not item-level compliance (85%).
+   - **Contrarian review:** Advisory-only rejected (own LEARNING-LOG says advisory is weakest intervention). #47 single-action precedent inapplicable to multi-step checklists.
+   - **Implementation:** (1) Pre-push hook Check 4 blocks push if COMPLETION-CHECKLIST not read, (2) Security checklist item 12 promoted to ENFORCED, (3) PROJECT-MEMORY added to propagation awareness, (4) LEARNING-LOG entry, (5) MEMORY.md step 5 added, (6) Effectiveness tracking table below.
+   - **Governance:** `coding-process-validation-gates` (Checkpoint Act), `coding-method-post-change-completion-sequence`, `meta-core-systemic-thinking`. PROCEED.
+
 70. **Backlog #47 Plan Mode Enforcement Gap — CLOSED (Phase 0 success)**
    - Memory effectiveness test: 3/3 sessions, contrarian review invoked unprompted every time. Advisory + feedback memory is sufficient. Phase 1 hook not needed.
 
@@ -669,6 +675,24 @@
 ### Active (Implement Now/Soon)
 
 *No active items — all in Discussion.*
+
+---
+
+### Effectiveness Tracking
+
+**Completion Checklist Consultation (started 2026-04-07):**
+Pre-push hook Check 4 now blocks push if COMPLETION-CHECKLIST.md was not read. Track actual effectiveness.
+
+| Session | Date | Task | Checklist Read? | Triggered by Hook? | Notes |
+|---------|------|------|----------------|-------------------|-------|
+| 1 | | | | | |
+| 2 | | | | | |
+| 3 | | | | | |
+| 4 | | | | | |
+| 5 | | | | | |
+
+**Escalation threshold:** If 2/5 sessions skip → escalate to include specific item verification in hook.
+**Success:** 4/5 consulted → close tracking, keep hook as-is.
 
 ---
 
