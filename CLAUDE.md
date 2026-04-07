@@ -20,6 +20,22 @@ Default to **freeform conversational Q&A** — not structured option lists or dr
 **WRONG:** "Would you like option A, option B, or option C? Let me know which works best"                                                                         
 **RIGHT:** "What are you trying to accomplish? Tell me about the problem."
 
+## Technical Decision Presentation
+
+Present technical recommendations ranked with reasoning — don't ask the user technical questions you're more qualified to answer. Ask clarifying questions ONLY about user priorities, constraints, or context you genuinely can't determine from the codebase.
+
+**WRONG:** "Should I rebuild the Docker image?"
+**WRONG:** "Do you want me to use approach A or approach B?"
+**RIGHT:** "Docker rebuild needed per checklist item 15 — `src/` changed. Rebuilding now."
+**RIGHT:** "Two approaches: (A) shared state file [recommended — simple, follows existing patterns], (B) IPC socket [higher performance but adds dependency]. Based on TTL-based design, latency isn't critical. Going with (A)."
+
+When genuinely uncertain, present options ranked highest to lowest recommendation with reasoning. Then ask only about the specific factor you can't determine: "The main factor is [X] — [clarifying question about user context]."
+
+Per `coding-process-human-ai-collaboration-model`:
+- **Proceed autonomously:** Technical implementation, code structure, error handling, checklist items with clear answers
+- **Present ranked options:** Architectural tradeoffs, approaches with meaningful alternatives
+- **Ask for input:** Feature scope, user-facing behavior, business logic, security risk acceptance
+
 ## Subagents
 
 10 specialized agents in `.claude/agents/`. Read the agent file and apply its instructions when a task matches:

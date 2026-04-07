@@ -38,6 +38,10 @@
 
 ### Completed This Session
 
+72. **Technical Decision Presentation — IMPLEMENTED**
+   - CLAUDE.md section added with WRONG/RIGHT anti-patterns. Feedback memory saved. Same approach as conversation style fix (~85% compliance via redundant surfaces).
+   - Per `coding-process-human-ai-collaboration-model` Decision Authority Matrix. Not hook-enforceable (can't detect question type in transcript grep).
+
 71. **Completion Sequence Structural Enforcement — IMPLEMENTED**
    - **Root cause (systemic thinking):** COMPLETION-CHECKLIST.md was never opened during #1B-P2 implementation. 3 rounds of user-requested "double checks" caught security vulnerabilities, doc drift, index staleness, test gaps — all covered by existing checklist. Meta-action failure (0% — never opened), not item-level compliance (85%).
    - **Contrarian review:** Advisory-only rejected (own LEARNING-LOG says advisory is weakest intervention). #47 single-action precedent inapplicable to multi-step checklists.
