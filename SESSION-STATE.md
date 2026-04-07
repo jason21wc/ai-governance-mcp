@@ -38,6 +38,15 @@
 
 ### Completed This Session
 
+66. **Backlog #26+29 Content Quality Governance — CLOSED**
+   - Both sub-items resolved by existing structural mechanisms (pre-push gate, CI ceiling, §14.2.7 for security, coherence-auditor, §9.8.5 on-demand). Version-milestone trigger rejected as disproportionate — non-security content lacks external standard anchors to drift from.
+
+67. **SESSION-STATE cleanup — remove closed/historical sections**
+   - **Root cause:** Working document accumulated historical state redundant with git history in 3 places: closed items in Discussion, Closed/Reference section, Historical Detail section (~430 lines total).
+   - Removed all closed backlog items, Completed Backlog Items table, Closed/Reference section, Historical Detail section.
+   - Added backlog philosophy guidance: "When an item is closed, remove it entirely. Git is the archive."
+   - Fixed: duplicate #53 header, stale #10 archive reference, stale "Closed" category references.
+
 65. **Security Content Currency Process (Backlog #7) — CLOSED**
    - **Root cause:** Governance content (methods, principles, subagent definitions) had no staleness detection against external security standards (OWASP, MITRE ATLAS, NIST). Reference library had KeyCite currency (§15.4.4), project docs had §14.2, but governance methods had nothing.
    - **Research:** AI security evolves fast — OWASP now has 3 Top 10 lists (LLM 2025, Agentic Dec 2025, MCP 2025), MITRE ATLAS updates monthly-quarterly (v5.3.0 added MCP cases Jan 2026), NIST has multiple parallel AI security tracks. 43% of public MCP implementations had command injection flaws.
@@ -627,37 +636,17 @@
 
 ## Next Actions
 
-### Completed Backlog Items
-
-| # | Item | Completed |
-|---|------|-----------|
-| 1A | Hook Improvements | 2026-02-28 |
-| 1C | Effectiveness Analytics | 2026-03-01 |
-| 2 | Project Initialization (scaffold_project) | 2026-03-27 |
-| 4 | KM&PD Domain v1.1.0 | 2026-03-25 |
-| 5 | UI/UX Domain v1.0.0 | 2026-03-08 |
-| 8 | Subagent Output Framing (Advisory) | 2026-02-28 |
-| 9 | Tiered Principle Activation (Phases 0-1.5; Phase 2 cancelled) | 2026-03-01 |
-| 20 | GitHub Actions Pin Currency (Dependabot) | 2026-03-29 |
-| 21 | Principle Consolidation Pass v3.0.0 (47→22 principles, MA dissolved) | 2026-03-29 |
-| 27 | TITLE 8 / Part 9.8 Forward References (v3.17.0) | 2026-03-30 |
-| 28 | Cross-Domain Template Consistency Audit (7 inconsistencies, 4 structural) | 2026-03-29 |
-| 30 | Cross-Domain Overlap Audit (4 justified, 2 need cross-refs) | 2026-03-29 |
-| 25 | Principle Authoring Checklist Enforcement → pre-push gate + CI ceiling | 2026-04-05 |
-| 48 | Node.js Document Generation Reference Entries | 2026-04-03 |
-| 50 | install_agent/scaffold_project CWD bug → 4-tier resolver + show_manual | 2026-04-05 |
-| 51 | Optimize All Remaining Subagents (9/9 rewritten) | 2026-04-04 |
-| 7 | Security Content Currency Process → §14.2.7 + source tiers + coherence-auditor integration | 2026-04-06 |
-
 ### Open Backlog
 
-> **Backlog Philosophy (2026-03-30):** Items fall into three categories: (1) **Active** — fix now or implement soon, (2) **Deferred/Future — Discussion** — needs fleshing out before deciding to implement or drop, (3) **Closed** — done, dropped, or moved to reference. New user-requested items default to Discussion unless they emerge from implementation (e.g., template fixes discovered during audit). Existing shipped work with known issues gets fixed now — don't defer fixes to "next time we touch it." See also #33.
+> **Backlog Philosophy (2026-03-30, updated 2026-04-06):** Items fall into two categories: (1) **Active** — fix now or implement soon, (2) **Deferred/Future — Discussion** — needs fleshing out before deciding to implement or drop. New user-requested items default to Discussion unless they emerge from implementation (e.g., template fixes discovered during audit). Existing shipped work with known issues gets fixed now — don't defer fixes to "next time we touch it." See also #33.
+>
+> **No closed/completed items in SESSION-STATE.** When an item is closed, remove it from this file entirely. Git commit history is the archive — commit messages document what was closed and why. Maintaining closed item lists, completed tables, or historical detail sections in a working document is redundant with version control and causes unbounded file growth. If you need closure context for a past item, use `git log --grep="backlog #N"` or search commit messages.
 
 ---
 
 ### Active (Implement Now/Soon)
 
-*No active items — all moved to Discussion or Closed.*
+*No active items — all in Discussion.*
 
 ---
 
@@ -674,22 +663,6 @@
 **Possible directions:** Track behavior-changing evaluations (PROCEED_WITH_MODIFICATIONS, ESCALATE), measure retrieval relevance scores over time, track principle citation frequency vs actual influence, qualitative session reviews.
 
 **Outcome:** Either define metrics worth implementing, or conclude the value is qualitative and close this item.
-
-#### 26+29. Content Quality Governance — Enforcement + Periodic Review (Discussion — Partially Addressed)
-
-**What (merged from #26 and #29):** Two related concerns about keeping framework content healthy over time:
-- **New content gate:** ~~Part 9.8 Admission Test is advisory. Should it be structurally enforced?~~ **Addressed (2026-04-05):** Pre-push gate requires contrarian/coherence/validator review for principle file changes. CI ceiling (35/domain) catches accretion. See #25 closure.
-- **Existing content review:** ~~Nothing forces periodic review.~~ **Partially addressed (2026-04-06):** Security content now has §14.2.7 currency tracking (event-triggered review against OWASP/MITRE/NIST, coherence-auditor integration). **Still open for non-security content** — the CI ceiling catches runaway accretion, but doesn't trigger the full consolidation procedure. A version-milestone trigger (every MAJOR bump triggers cross-domain audit) is still worth discussing.
-
-**Root-cause framing:** The real goal is *continuous content quality improvement* — both preventing bad content from entering (enforcement) and ensuring existing content stays relevant (review). These are two sides of the same problem: content quality governance.
-
-**Discussion needed:** What's the right structural mechanism? Options:
-1. CI assertion on principle count ceiling (e.g., 25 per domain) — structural, zero ongoing effort
-2. PreToolUse hook enforcing Admission Test before governance doc edits — per-edit enforcement
-3. Version-milestone trigger (every MAJOR bump triggers cross-domain audit)
-4. Combination approach
-
-**Outcome:** Define a unified content quality governance mechanism that handles both new and existing content.
 
 #### 16. Governance Retrieval Quality Assessment (Discussion)
 
@@ -720,8 +693,6 @@
 **Discussion needed:** Full planning process per COMPLETION-CHECKLIST domain creation. Scope candidate principles and methods, evidence base review, failure mode identification.
 
 **Scope note (2026-04-03):** Structured document production (Excel workbooks, data-heavy reports, financial spreadsheets) is handled by AI Coding Part 9.4 (Document Generation Patterns). Visual Communication stays scoped to visual design artifacts: presentations, infographics, print design — the Tufte/Duarte/Reynolds evidence base. The distinction: Part 9.4 covers *how to generate and serve document files reliably*; Visual Communication covers *how to design visually effective communication*.
-
-#### 53. Modular Domain Architecture (Discussion)
 
 #### 53. Modular Domain Architecture (Discussion)
 
@@ -761,10 +732,6 @@
 
 **Origin:** Session 48 (2026-04-03). macOS low-memory warning with 2 concurrent sessions. Initial investigation incorrectly dismissed Activity Monitor's GB numbers as "just virtual memory" — 26 GB swap + macOS warning proved impact is real.
 
-#### 7. Security Content Currency Process — CLOSED (2026-04-06)
-
-Implemented as §14.2.7 extension (not new Part 9.9) per contrarian review: reuses existing staleness management pattern, avoids 3-way fragmentation across TITLEs 9/14/15. Visible currency map table in Part 14.2, 3-tier source monitoring list (category-based with examples), event-triggered review with 90-day fallback, coherence-auditor integration for advisory staleness detection. Inaugural review completed 2026-04-06; all security content current against OWASP LLM 2025, OWASP Agentic 2025, OWASP MCP 2025, MITRE ATLAS v5.3.0, NIST SP 800-207. Governance methods v3.23.1.
-
 #### 19. Rampart Integration — Client-Side Enforcement (Discussion)
 
 **What:** Rampart provides shell-level security enforcement (credential theft, exfiltration, destructive commands). Complements MCP proxy and hooks — different root cause. Hooks enforce "did you consult governance?" (process gate); Rampart enforces "is this command safe?" (security gate). Defense-in-depth.
@@ -779,19 +746,9 @@ Implemented as §14.2.7 extension (not new Part 9.9) per contrarian review: reus
 
 #### 10. UI/UX Tool-Specific Integration Guides (Discussion)
 
-**What:** Write integration guides for AI-assisted design tools (Figma MCP, Storybook MCP, Axe MCP, Playwright MCP, etc.) as they're adopted. Research already done (candidate tools, risks, token costs documented in SESSION-STATE #10 archive).
+**What:** Write integration guides for AI-assisted design tools (Figma MCP, Storybook MCP, Axe MCP, Playwright MCP, etc.) as they're adopted. Research already done (candidate tools, risks, token costs documented in git history — search commits for "backlog #10").
 
 **Discussion needed:** Which tools are most likely to be adopted first? What format should integration guides take? Reference the existing research.
-
-#### 9P3. Tiered Principle Activation — Phase 3: Accountable Reasoning — CLOSED (2026-04-02)
-
-Closed after Admission Test evaluation (§9.8.1): fails Q1 (gap covered by existing Visible Reasoning principle + tier config) and Q4 (duplication). The "accountable reasoning" pattern works through tiers.json configuration — formalizing it as a principle would add a principle to describe what infrastructure already does. Contradicts 47→22 consolidation lesson.
-
-**Concept preserved:** The visibility-soundness gap (visible reasoning ≠ sound reasoning) is real but tracked by #34 (Epistemic Integrity). The tiers.json floor check label was corrected from "Accountable reasoning" to "Visible reasoning" to match what it actually tests. If #34 is closed without shipping, the soundness gap needs re-evaluation.
-
-#### 25. Principle Authoring Checklist Enforcement — CLOSED (2026-04-05)
-
-Full hook enforcement rejected — partial enforcement of a 10-item checklist creates false confidence (hook can verify agent invocation but not Admission Test honesty). Instead: (1) pre-push quality gate now requires contrarian-reviewer, coherence-auditor, or validator for governance principle file changes, (2) CI principle count ceiling (35/domain) catches accretion structurally. The checklist remains advisory for substantive quality items; the contrarian reviewer is the real structural gate (catches Admission Test failures that no hook can verify). Consolidation pass (Part 9.8.5) remains the systemic cleanup. Contrarian review validated this approach — trigger condition had never fired.
 
 #### 11. Autonomous Operations Domain (Discussion)
 
@@ -804,34 +761,6 @@ Full hook enforcement rejected — partial enforcement of a 10-item checklist cr
 **What:** Framework covers how AI produces code but not how AI handles deployment, infrastructure, and operations. 3 solid practices from viral "AI vibe coding security rules" analysis couldn't be placed in existing domains.
 
 **Discussion needed:** Is this a full domain or should the 3 orphaned practices just be filed in an appendix? Decision factors: are we using AI for deployment workflows? Is the gap growing? Domain vs standalone runbook vs appendix to AI Coding methods?
-
-#### 36. Part 9.8 Scope Clarification + TITLE 15 Cross-References — CLOSED (2026-04-03)
-
-Root cause was scope overclaim, not coverage gap. Part 9.8 said "all framework content" but only governed governance-normative content (principles, methods, appendices). Reference Library entries are curated artifacts, not governance rules — 9.8's Admission Test (Derivation, Enforceability) is a category error for code snippets. TITLE 15 already has richer quality governance (maturity pipeline, KeyCite currency, decay classes). Fix: scope-clarified "framework" → "governance" + bidirectional cross-references between 9.8 and TITLE 15. See session 45.
-
-#### 37. Domain Classification System Definition — CLOSED (2026-04-02)
-
-Removed Type A/Type B domain classification. Broken taxonomy (different axes), superseded by §9.1.2's 5-factor complexity table. KM&PD "proprietary" preserved as standalone access note. See session 41.
-
-#### 38. Version-in-Filename vs Version-in-Header — CLOSED (2026-04-02)
-
-Implemented as version-in-frontmatter migration. 15 files renamed to stable names, YAML frontmatter added, archive deleted, extractor rewritten. Governance methods v3.20.0. Version bumps reduced from ~30 steps to 2 (edit frontmatter version + effective_date). See session 40.
-
----
-
-#### 39. `test_compare_models` Date Serialization — FIXED (2026-04-01)
-
-**Root cause:** Not a test bug — systemic boundary issue. `yaml.safe_load()` auto-parses bare dates (`2026-03-26`) as `datetime.date` objects. The Context Engine's `DocumentConnector._extract_frontmatter()` stored raw YAML output in the untyped `frontmatter: dict` field on `ContentChunk`. Downstream, `model_dump()` → `json.dump()` failed because `datetime.date` isn't JSON-serializable. The governance extractor had ad-hoc per-field `str()` conversion (lines 780-786) but the CE connector didn't.
-
-**Fix:** Added `_normalize_frontmatter_values()` in `DocumentConnector` — recursive normalization of `datetime.date`/`datetime.datetime` to ISO strings at the YAML parse boundary. Boundary-level fix, not a symptom-level JSON encoder patch. Test added: `test_date_values_normalized_to_strings` covering flat, nested, and list date values + `json.dumps()` proof.
-
----
-
-#### 40. Completion Checklist Trivial-Change Escape Hatch — CLOSED (2026-04-02)
-
-Root cause eliminated by #38. The trigger was version-bump string changes in config.py. With stable filenames (no version in filename), config.py no longer changes during version bumps. The pre-push hook's config.py trigger now only fires for substantive changes (domain additions/removals/restructuring), which genuinely warrant code review.
-
----
 
 #### 35. Evaluate Stripe Projects CLI for Appendices (Discussion)
 
@@ -1138,434 +1067,6 @@ User will NOT request contrarian review. AI should invoke it per feedback memory
 5. Batch all as a single appendix update if approved
 
 **Origin:** Claude Code workflow video re-analysis (2026-04-05). Low priority — tooling recommendations, not framework changes.
-
----
-
-### Closed / Reference
-
-#### 48. Node.js Document Generation Reference Entries — CLOSED (2026-04-03)
-
-Created `ref-ai-coding-node-excel-generation` and `ref-ai-coding-node-pdf-generation`. See session 47.
-
-#### 50. install_agent/scaffold_project CWD Bug — FIXED (2026-04-05)
-
-Root cause: missing caller-context propagation. Fix: `_resolve_caller_project_path()` with priority reorder (explicit arg > MCP roots > env var > CWD). Also added `show_manual` mode for sandboxed environments (Cowork), observability (resolved_path/project_root), cached MCP roots, URI parsing hardening. See session entries #61, #64.
-
-#### 51. Optimize All Remaining Subagents — COMPLETE (2026-04-04)
-
-All 10 agents rewritten with research-backed improvements: code-reviewer, security-auditor, contrarian-reviewer, test-generator, validator, coherence-auditor, documentation-writer, orchestrator, continuity-auditor, voice-coach. See session entries #53-60.
-
-#### 3. Quantized Vector Search — CLOSED (2026-03-30)
-
-Closed per backlog review. 800 vectors vs 500K trigger — structurally unreachable for a governance framework corpus. Phased approach documented in PROJECT-MEMORY.md > ADR-14 if ever needed.
-
-#### 15. Context Engine Phase 4 — CLOSED (2026-03-30)
-
-Investigation complete (2026-03-28). MRR gap was a benchmark specification error, not algorithm problem. Corrected MRR: 0.802. Remaining improvement options preserved as reference in PROJECT-MEMORY.md: (1) weight grid search, (2) score normalization, (3) RRF with scaled bonuses, (4) code-trained cross-encoder.
-
-#### 1B. Model-Agnostic Governance Enforcement — Phase 1 COMPLETE (2026-03-28)
-
-stdio JSON-RPC interceptor proxy (`enforcement.py`). Enforces governance preconditions on governance server's own action tools. Zero new dependencies, works with any MCP client. Entry point: `ai-governance-proxy`. ADR-14 in PROJECT-MEMORY.md. Phase 2 tracked as discussion item above.
-
-#### 39. Date Serialization in CE Frontmatter — FIXED (2026-04-01)
-
-Systemic boundary fix: `yaml.safe_load` auto-parses dates as `datetime.date`; added recursive normalization in `DocumentConnector._extract_frontmatter()` at the parse boundary. Governance extractor had ad-hoc per-field handling; CE connector had none. Test covers flat/nested/list dates + `json.dumps` proof.
-
-#### 9P3. Tiered Principle Activation Phase 3 — CLOSED (2026-04-02)
-
-Admission Test failure (Q1 gap covered, Q4 duplication). Tier config already works. Visibility-soundness gap transferred to #34 (Epistemic Integrity). tiers.json label corrected: "Accountable reasoning" → "Visible reasoning."
-
-#### 40. Completion Checklist Trivial-Change Escape Hatch — CLOSED (2026-04-02)
-
-Root cause eliminated by #38. Version-bump string changes in config.py were the trigger; stable filenames mean config.py only changes for substantive reasons now.
-
-#### 37. Domain Classification Removal — COMPLETE (2026-04-02)
-
-Removed broken Type A/Type B taxonomy (different axes, 2/7 adoption, superseded by §9.1.2). KM&PD "proprietary" preserved as standalone Access note. Governance methods v3.21.0. 2 contrarian reviews.
-
-#### 38. Version-in-Frontmatter Migration — COMPLETE (2026-04-02)
-
-Filenames handle identity, YAML frontmatter handles version metadata. 15 files renamed to stable names, 57 archive files deleted (git is the archive), extractor rewritten for frontmatter-primary validation. Governance methods v3.20.0. Version bumps reduced from ~30 steps to 2. 3-agent review (code-reviewer, coherence-auditor, validator) caught 4 code issues + 1 dangerous self-contradiction — all fixed. 1037 tests passing (+4 new).
-
-#### 33. Defer vs Fix Now Philosophy — COMPLETE (2026-03-31)
-
-Codified in CLAUDE.md as 3-category decision table: Fix (≤3 files, same session, after current task), Defer (with durable tracking in SESSION-STATE), Ask (>3 files, ambiguous scope, anticipatory). Contrarian-reviewed: added scope boundary, task-completion priority, safe-deferral path. Root cause: autoregressive forward-continuation bias + session discontinuity.
-
-#### 31. Cross-Domain Template Alignment — COMPLETE (2026-03-31)
-
-Consolidated 3 competing domain principle templates (Parts 3.5.1, 9.4, 9.4.1) → single canonical source at Part 3.5.1. Restored Definition as separate field from Domain Application. Added tiered fields (Required/Recommended/Optional) + alias table. Standardized 4 domain file headers (Evidence-Based, Truth Source Hierarchy, Cross-Domain Dependencies). 3-agent battery validated. governance methods v3.18.0, ai-coding v2.7.1, multi-agent v2.7.1, storytelling v1.4.1, multimodal-rag v2.4.1. #14 absorbed.
-
----
-
-### Historical Detail (pre-restructure backlog items, 2026-03-30)
-
-> The detailed descriptions below are from the pre-restructure backlog. Active items have been moved to the new structure above. These are preserved for context on decisions, contrarian findings, and implementation details.
-
-#### 1B-P2. Cross-MCP Governance Enforcement (Priority: DEFERRED)
-
-**Status:** Deferred per Systemic Thinking analysis (2026-03-28). Contrarian review found:
-1. MCP stdio connections are fundamentally isolated (protocol-level architecture) — shared state is a workaround, not a structural fix
-2. Shared state files introduce race conditions, session identity problems, and security gaps
-3. Claude Code hooks (Layer 2) already cover Bash/Edit/Write at ~100% — the incremental value is small
-4. Better alternatives exist: expand Claude Code hooks for MCP tool names, or Rampart (#19) at the shell level
-
-**Trigger:** When Jason encounters a real situation where a non-Claude client calls a third-party MCP server's action tool without governance being evaluated, and the existing hooks don't catch it. Evidence of the gap in practice, not theoretical coverage concern.
-
-#### 3. Quantized Vector Search (Priority: DEFERRED)
-
-**Problem:** Brute-force vector search will become slow at scale.
-
-**Trigger conditions:** 500K+ vectors loaded, OR user-reported perceptible query latency (>100ms). Not hitting this today (10K-100K vectors, 1-5ms latency).
-
-**Phased approach:** Product quantization → scalar quantization → HNSW index progression. See PROJECT-MEMORY.md > Roadmap > Quantized Vector Search for full details.
-
-**Implementation requirements:** Changes to retrieval.py and indexer. Benchmark before/after. No urgency.
-
-#### 6. Visual Communication Domain (Priority: LOW)
-
-**Problem:** No governance for non-coding visual artifacts: presentations, documents, reports, infographics, print design. Separate from UI/UX because different failure mode clusters, evidence bases, and tooling.
-
-**Scope — Artifact types:** Presentations (slide decks, pitch decks), documents/reports, infographics/data visualizations, print design.
-
-**Principles (candidate areas):**
-- Narrative flow and story structure
-- Information density and cognitive load (Tufte's data-ink ratio)
-- Visual hierarchy for static layouts
-- Audience-appropriate design (executive vs. technical vs. public)
-- Brand consistency and style guide adherence
-- Data visualization integrity (no misleading charts)
-- Accessibility in documents (heading structure, alt text, contrast)
-
-**Methods (candidate areas):**
-- Slide deck composition workflow (outline → structure → design → review)
-- Presentation review and validation gates
-- Template and brand compliance checking
-- Data visualization best practices
-- Document accessibility auditing
-
-**Evidence base:** Tufte (data visualization), Duarte (presentation design), Reynolds (Presentation Zen), WCAG document accessibility, Cleveland & McGill (data viz research).
-
-**AI-specific failure modes:** Text-heavy slides, inconsistent styling, misleading visualizations, poor narrative structure, brand guideline violations.
-
-**Implementation requirements:** Domain config in `domains.json`, principle + methods documents, extractor support, index rebuild, tests. Standard domain creation process per COMPLETION-CHECKLIST.
-
-#### 7. Security Content Currency Process — CLOSED (2026-04-06)
-
-Implemented as §14.2.7 in ai-governance-methods.md (v3.23.1). See Discussion section and session summary for details.
-
-#### 9P3. Tiered Principle Activation — Phase 3 — CLOSED (2026-04-02)
-
-Closed. Admission Test failure + tier config already works. Visibility-soundness gap transferred to #34. See Discussion section for details.
-
-#### 10. UI/UX Tool-Specific Integration Guides (Priority: LOW, Usage-Driven)
-
-**Problem:** UI/UX domain methods §8 needs tool-specific appendices as tools are adopted.
-
-**Candidate tools (researched 2026-03-08, production-grade):**
-- **Figma Official MCP** — design context/tokens + rendered UI. Token cost: 600K+ for large designs.
-- **Storybook MCP** (official) — component manifests with metadata, variants, token bindings.
-- **Deque Axe MCP** (official) — accessibility auditing. Would make ACC1-ACC3 enforceable in-loop.
-- **Microsoft Playwright MCP** (official) — browser automation, screenshots. Enables RD1/RD2 responsive validation.
-- **Percy via BrowserStack MCP** — visual regression with AI review. 3x faster, 40% false positive reduction.
-- **Playwright-Lighthouse MCP** (community) — Lighthouse audits + Playwright. Maps to §3.6 Core Web Vitals.
-
-**Trigger:** When Jason adopts any of these tools in a real project.
-
-**Known risks:** Token cost (Figma 15x estimate gap), design data privacy through AI APIs, fidelity gaps, design system maturity prerequisite.
-
-**Implementation requirements:** Integration guide per tool with observed failure modes and token cost data. Content changes only.
-
-#### 11. Autonomous Operations Domain (Priority: FUTURE)
-
-**Problem:** Autonomous agent patterns may outgrow multi-agent AO-Series (currently 4 principles, 4 methods sections).
-
-**Trigger:** When autonomous operation governance needs exceed multi-agent's scope — e.g., financial compliance (SOX), industry-specific regulatory frameworks, agent marketplace governance, cross-organization federation, or AO-Series grows beyond 6-8 principles.
-
-**Candidate additions beyond current AO-Series:**
-- Financial governance and audit compliance (SOX, SOC 2)
-- Industry-specific regulatory frameworks (HIPAA, FINRA)
-- Agent marketplace and discovery governance
-- Cross-organization agent trust and federation
-- Agent lifecycle management (provisioning, retirement, succession)
-
-**Evidence to watch:** Regulatory frameworks specifically targeting autonomous AI agents. Current evidence base (CNBC, Strata, Singapore IMDA, UC Berkeley 2026) supports AO-Series but not yet a full domain.
-
-**Implementation requirements:** Standard domain creation process. Decision on scope first.
-
-#### 12. Operational / Deployment Runbook Domain (Priority: TBD)
-
-**Problem:** Our framework covers how AI produces code but scopes out infrastructure and operations. Analysis of 30 viral "AI vibe coding security rules" revealed 3 solid practices we couldn't place because they're operational concerns. Gap will grow as AI handles deployment, maintenance, and incident response.
-
-**Open question:** Do we need this? Decision factors:
-- Are we using AI for deployment/maintenance workflows?
-- Governance domain (principles + methods) vs. standalone runbook document?
-- Inside the ai-governance framework or separate project artifact?
-
-**Scope — Candidate sections:**
-- Deployment & Release (verification, rollback, migrations, feature flags, smoke tests)
-- Infrastructure Security (DDoS, TLS, firewalls, RBAC, email infra, secret rotation)
-- Monitoring & Observability (APM, errors, logs, tracing, alerting)
-- Incident Response & Recovery (detection, triage, mitigation, communication, PIR)
-- Backup & Disaster Recovery (frequency, validation, RTO/RPO, failover)
-- Ongoing Maintenance (patching, deps, certs, drift detection, capacity)
-- AI-Assisted Operations (anomaly detection, AI remediation with approval gates, confidence thresholds)
-- Compliance & Audit (GDPR/HIPAA/SOC2, audit trails, EU AI Act Aug 2026)
-- Cost Management (AI API costs, cloud waste detection, auto-scaling optimization)
-
-**Relationship to existing governance:**
-- Complements AI Coding domain (coding stops at "ready to deploy"; this picks up from there)
-- Connects to AO-Series (autonomous operations principles apply to operational AI agents)
-- Connects to S4 (Security, Privacy, Compliance by Default)
-- Overlaps with §5.11 (Zero Trust Production Deployment)
-
-**Implementation requirements:** Decision on format first. If domain: standard creation process. If standalone: simpler markdown document, not indexed by governance MCP.
-
-#### 13. Governance-Aware Output Compression (Priority: LOW)
-
-**Problem:** Long Bash output wastes context window tokens. External tools (e.g., RTK) fail §5.6.8 Third-Party Hook Vetting (information intermediary risk — could suppress security warnings or governance enforcement messages).
-
-**Approach:** PostToolUse hook (matcher: Bash) that compresses verbose output while preserving security-relevant lines, governance enforcement output, structured data, and first/last N lines with "[X lines compressed]" summary.
-
-**Trigger:** Context window pressure from terminal output becomes measurable (>20% of context consumed by Bash output). Not hitting this today.
-
-**Cross-references:** §5.6.8 (information intermediary warning), §9.3.10 (enforcement stack), §3.1.4 (Tool Content Model — "build our own" mode).
-
-**Implementation requirements:** PostToolUse hook script, tests, documentation. Fits "build our own" mode per §3.1.4.
-
-#### 14. Storytelling Domain 9-Field Template Migration (Priority: LOW)
-
-**Problem:** Storytelling principles reference a 9-field character/scene template structure but the domain content hasn't been migrated to fully use this format. Content migration needed to align principles with methods.
-
-**Scope:** Review storytelling principles and methods documents. Identify sections referencing the 9-field template. Migrate content to consistently use the template structure. Validate cross-references with KM&PD storytelling integration (A-Series, ST-Series).
-
-**Implementation requirements:** Content changes to storytelling principles/methods documents. Index rebuild. Coherence-auditor review to verify cross-domain references remain valid (KM&PD storytelling integration, multi-agent narrative patterns).
-
-#### 15. Context Engine Phase 4 — Advanced Retrieval (Priority: DEFERRED)
-
-**Status:** Investigated 2026-03-28. Systemic Thinking analysis found the MRR gap (0.646) was a benchmark specification error, not a retrieval algorithm problem. Correcting 3 benchmark queries (accepting documentation files as valid results for natural language queries) raised MRR from 0.646 to 0.802 with zero code changes.
-
-**Research findings (contrarian + online):**
-- Tuned weighted linear beats RRF when eval data exists (ACM study) — we have eval data
-- ms-marco-MiniLM-L-6-v2 has ~20-point gap vs code-trained rerankers on CodeSearchNet — wrong model for this corpus
-- RRF bonus scale mismatch would be a correctness bug (bonuses calibrated for [0,1] vs RRF's [0.016-0.033] range)
-- LanceDB not needed until 100x+ growth (currently 800 vectors, <1ms queries)
-
-**Remaining scope (if MRR needs to improve further):**
-1. Weight grid search (5 configs, 30 min) — simplest intervention
-2. Score normalization (2 lines) — fix distribution mismatch without algorithm change
-3. RRF with scaled bonuses — only if simpler fixes insufficient
-4. Cross-encoder with jina-reranker-v2 or bge-reranker-v2-m3 — only if >3-5 MRR point improvement
-
-**Trigger:** When real-world retrieval quality complaints emerge, or MRR drops below 0.75 on corrected benchmark.
-
-#### 16. Governance Server Embedding Model Upgrade (Priority: MEDIUM, DEFERRED)
-
-**Problem:** Governance server still uses BGE-small-en-v1.5 (384d) while Context Engine upgraded to nomic-embed-text-v1.5 (768d, 8K context, MTEB 86.2). Upgrading would improve semantic retrieval quality for governance queries.
-
-**Scope:** Upgrade `sentence-transformers` model in `extractor.py` and `retrieval.py` from `BAAI/bge-small-en-v1.5` to `nomic-embed-text-v1.5`. Requires full index rebuild since embedding dimensions change (384→768).
-
-**Open questions:**
-- Is the quality improvement measurable for governance queries specifically? (Governance documents are shorter and more structured than general code — BGE-small may be sufficient.)
-- What's the model download size and cold-start latency impact?
-- Should both servers (governance + CE) use the same model for consistency?
-
-**Trigger:** After CE Phase 4 stabilizes, or if governance retrieval quality issues are reported.
-
-**Implementation requirements:** Update `config.py` defaults (model name, dimensions), `extractor.py` (model loading), `retrieval.py` (ALLOWED_EMBEDDING_MODELS). Full index rebuild. Benchmark before/after with `tests/benchmarks/retrieval_quality.json`. Update SBOM.
-
-#### 17. GitHub Actions Node.js 20 → 24 Migration — COMPLETE (2026-03-28)
-
-Updated 19 action SHA pins across 3 workflow files (ci.yml, docker-publish.yml, codeql.yml) to Node.js 24-compatible versions. All actions re-pinned to full commit SHAs per supply chain security practice.
-
-#### 18. Systemic Thinking Principle — COMPLETE (2026-03-28)
-
-Constitutional amendment: added Systemic Thinking meta-principle to C-Series (47th principle). Federal preemption cleanup across 5 documents (2 HIGH trims, 6 MEDIUM references). Principle-authoring checklist added to COMPLETION-CHECKLIST. 6 subagent reviews (2 contrarian, 2 coherence, 1 validator, 1 meta-dogfood). ADR in Historical Amendments v2.7.0.
-
-#### 19. Rampart Integration — Client-Side Enforcement (Priority: LOW, Usage-Driven)
-
-**Problem:** Layer 3 (proxy) enforces at the MCP protocol level. Rampart (github.com/peg/rampart) enforces at the shell/client level — complementary coverage. Ships with 40+ rules for credential theft, exfiltration, and destructive commands.
-
-**Scope:** Add `.rampart/policy.yaml` to the project with governance-specific deny rules. Document in ai-coding methods alongside Layer 3.
-
-**Trigger:** When using AI clients in environments where MCP proxy is not configured (e.g., quick one-off sessions, new machine setup).
-
-**Implementation requirements:** `.rampart/policy.yaml` config file, documentation in methods. No code changes.
-
-#### 20. GitHub Actions Pin Currency Process — COMPLETE (2026-03-29)
-
-Dependabot for GitHub Actions ecosystem. `.github/dependabot.yml` created with weekly Monday schedule, grouped updates, PR limit 5. Pip ecosystem deferred (pyproject.toml uses loose pins; Dependabot PRs wouldn't be actionable). Settings updated to move `.github/*` from hard-deny to prompt-per-use.
-
-#### 21. Principle Consolidation Pass — COMPLETE (2026-03-29)
-
-**Problem:** Constitutional test ("does this govern reasoning across ALL domains?") found 20 of 47 principles are questionable. The constitution claims "a small set of high-leverage meta-principles" but has grown by accretion to include domain-specific concepts and methods masquerading as principles.
-
-**Analysis complete (2026-03-28):** 20 principles categorized into 4 action buckets:
-
-**Category 1 — Demote to domain principles (8):**
-- Role Specialization & Topology → multi-agent domain
-- Hybrid Interaction & RACI → multi-agent domain
-- Standardized Collaboration Protocols → multi-agent domain
-- Synchronization & Observability → multi-agent domain
-- Idempotency by Design → ai-coding domain
-- Atomic Task Decomposition → ai-coding domain
-- Goal-First Dependency Mapping → ai-coding domain
-- Structured Output Enforcement → ai-coding domain
-
-**Category 2 — Demote to methods (5):**
-- Progressive Inquiry Protocol → questioning method
-- Constraint-Based Prompting → prompt engineering technique
-- Iterative Planning and Delivery → project management method
-- Rich but Not Verbose Communication → style preference
-- Accessibility and Inclusiveness → operational guidance
-
-**Category 3 — Consolidate overlapping (4):**
-- Verifiable Outputs → merge into Verification Mechanisms Before Action
-- Incremental Validation → merge into Fail-Fast Validation
-- Continuous Learning (O-Series) → merge with Continuous Learning & Adaptation (G-Series)
-- Project Reference Persistence → merge into Single Source of Truth
-
-**Category 4 — Borderline, needs deeper analysis (3):**
-- Separation of Instructions and Data
-- Structured Organization with Clear Boundaries
-- Accessibility and Inclusiveness (also in Category 2 — decide: demote or keep with narrower scope)
-
-**Target:** 47 → ~27 constitutional principles. Apply principle-authoring checklist in reverse (same rigor to remove as to add). Run contrarian review before executing. Version bump to v3.0.0 (MAJOR — removing principles is breaking).
-
-**Implementation:** Dedicated session. Each demotion requires: moving content to the appropriate domain document, updating cross-references, version bumping affected files, index rebuild. Contrarian review on the full set before any changes.
-
-#### 22. Outcome Measurement Framework (Priority: MEDIUM)
-
-**Problem:** The framework claims to prevent governance drift but cannot demonstrate this. Compliance analytics measure call PRESENCE (was evaluate_governance called?) but not call QUALITY (did the cited principles actually influence the decision?). The claim is unfalsifiable without outcome measurement.
-
-**Scope:** Define 5-10 measurable AI behavior outcomes the framework should produce. Instrument them. Report periodically. Add/remove framework content based on what moves the metrics.
-
-**Trigger:** When the framework is used across multiple projects and the value proposition needs evidence.
-
-#### 23. Plan-Mode Architecture Checklist — COMPLETE (2026-03-28)
-
-Added to COMPLETION-CHECKLIST: 4-item BEST-EFFORT checklist for plan-mode architecture decisions (contrarian review, research if novel, verify assumptions, simpler alternatives first). Includes the CE Phase 4 concrete failure case as the documented justification.
-
-#### 24. Verification-as-Workflow Reframing — COMPLETE (2026-03-28)
-
-**Problem:** Research (Agent Drift arxiv 2601.04170, LLMs Get Lost arxiv 2505.06120, QualityFlow arxiv 2501.17167) confirms that advisory verification steps are structurally low-probability generations for autoregressive models. The framework currently treats reviews, contrarian checks, and research as "also do this" steps bolted onto the workflow. They should be reframed as the workflow itself — verification determines what happens next (control flow), not just whether output is good (checkpoint).
-
-**Root cause:** "Velocity pressure" was a rationalization. The actual mechanism is forward-continuation bias: each completed token raises the probability of the next token continuing forward. Verification breaks this trajectory and is thus naturally deprioritized. This is structural, not motivational.
-
-**Scope:** Reframe advisory steps across the framework from "interruptions" to "phase transitions":
-- COMPLETION-CHECKLIST: advisory items reframed as routing decisions ("contrarian review determines whether to proceed, revise, or escalate" vs "run contrarian review")
-- SERVER_INSTRUCTIONS: governance evaluation framed as the step that unlocks the next phase, not a separate check
-- Subagent reviews framed as control flow (review output determines next action) not checkpoints (review happens, then continue regardless)
-- Research techniques to apply: gate-token transitions, Chain-of-Verification prompting, verification-as-control-flow (QualityFlow pattern)
-
-**Trigger:** Next major framework methods update.
-
-**Implementation requirements:** Methods-level changes to how advisory steps are described. Potentially structural changes to how subagent reviews are integrated (review output as routing decision). LEARNING-LOG entry captures the root cause and research.
-
-#### 26. Part 9.8 Structural Enforcement (Priority: MEDIUM)
-
-**Problem:** Part 9.8 (Content Quality Framework) is entirely advisory. The project's own data shows advisory compliance ~85% vs structural blocking ~100%. The Admission Test could be enforced via a PreToolUse hook that checks whether 9.8.1 questions were answered before content modifications to governance documents.
-
-**Scope:** PreToolUse hook for Edit/Write on governance document files. Check transcript for evidence of Admission Test completion before allowing modifications.
-
-**Trigger:** If content is added that fails the Admission Test retrospectively (same pattern as the 47-principle bloat).
-
-#### 27. TITLE 8 / Part 9.8 Relationship Clarification — COMPLETE (2026-03-29)
-
-Added forward references from Parts 8.2, 8.3, 8.4 to Part 9.8. Clarified sequencing in Part 9.8: "Use Part 9.8 first for the unified workflow, then consult Parts 8.2-8.4 for constitutional-specific considerations." Version bump v3.17.0→v3.17.0. Updated domains.json, config.py. 1031 tests passing (1 pre-existing CE quality benchmark failure unrelated to changes).
-
-#### 25. Principle Authoring Checklist Enforcement (Priority: LOW)
-
-**Problem:** The meta-dogfood review of Backlog #18 found that "adding a principle" is a parameter-level fix unless accompanied by structural enforcement of the authoring process. The COMPLETION-CHECKLIST now has a 10-item principle-authoring checklist but it's BEST-EFFORT.
-
-**Trigger:** If principles start being added without the checklist process, convert to ENFORCED.
-
-#### 28. Cross-Domain Template Consistency — COMPLETE (2026-03-29)
-
-**Audit Completed:** 2026-03-29
-
-**Field Presence Matrix:**
-
-| Section | Const | Code | MA | Story | MR | UI/UX | KM&PD |
-|---------|:-----:|:----:|:--:|:-----:|:--:|:-----:|:-----:|
-| System Instruction block | Y | Y | Y | Y | Y | Y | Y |
-| Status/Version | Y | Y | Y | Y | Y | Y | Y |
-| Hierarchy/Supremacy | Y | Y | Y | Y | Y | Y | Y |
-| Derivation Formula | - | Y | Y | Y | Y | Y | Y |
-| Scope (In/Out) | - | Y | Y | Y | Y | Y | Y |
-| Domain Context | Y* | Y | Y | Y | Y | Y | Y |
-| Evidence Base | Y | Y | Y | Y | Y | Y | Y |
-| Failure Mode Taxonomy | - | - | Y | Y | Y | Y | Y |
-| Framework Overview | Y | Y | - | Y | - | ~ | Y |
-| Domain Classification | - | - | - | - | - | Y | Y |
-| Truth Source Hierarchy | - | - | - | - | - | Y | Y |
-| Cross-Domain Dependencies | - | - | Y | - | - | - | Y |
-
-*Constitution uses "Design Philosophy" instead of "Domain Context" (appropriate — root doc, not derived)
-
-**Inconsistencies Found (7):**
-
-1. **Derivation formula wording:** AI Coding, Multi-Agent, Storytelling, Multimodal RAG use "Research-Based Prevention". UI/UX and KM&PD use "Evidence-Based Prevention". Recommend standardizing on "Evidence-Based" (more accurate).
-
-2. **Truth Source Hierarchy:** Only UI/UX (line 25) and KM&PD (line 25) include this field. Defines external reference priority (Constitution > Domain > Methods > External). Should be in all domain files.
-
-3. **Domain Classification:** Only UI/UX ("Type A context-intensive") and KM&PD ("Type B proprietary"). ~~Should be in all domain files.~~ *Superseded by #37 — classification removed (2026-04-02). §9.1.2 covers complexity; KM&PD access note preserved standalone.*
-
-4. **Cross-Domain Dependencies:** Only Multi-Agent ("Peer Domain Relationship" block) and KM&PD (storytelling cross-refs). Domains with known peer relationships should document them.
-
-5. **Failure Mode Taxonomy placement:** Constitution and AI Coding lack failure mode taxonomy in opening sections. Constitution omission is justified (root doc). AI Coding could benefit from adding one for consistency.
-
-6. **Series naming conventions:** Ad hoc across domains (C/P/Q-Series, ST-Series, ACC/DS/PL, KA-Series). No standard naming convention documented. Low impact — each domain's naming is internally consistent.
-
-7. **Framework Overview heading:** Inconsistent naming ("Framework Overview: The Five Principle Series" vs "KA-Series Principles" vs inline). Cosmetic.
-
-**Severity Assessment:**
-- Items 1-4: Structural (newer domains have fields older ones lack — template evolved over time)
-- Items 5-7: Cosmetic (no functional impact on governance retrieval)
-
-**Recommendation:** Batch template alignment into a single session when any domain file is next modified. Prioritize items 1-4 (structural). Items 5-7 are optional polish. Each change is a minor version bump to the affected domain file.
-
-#### 31. Cross-Domain Template Alignment (Priority: LOW)
-
-**Problem:** Backlog #28 audit (2026-03-29) found 7 template inconsistencies across domain principle files, 4 structural. Newer domains (UI/UX, KM&PD) have fields (Truth Source Hierarchy, Domain Classification, Cross-Domain Dependencies) that older domains lack. Template evolved over time but was never retroactively standardized.
-
-**Scope:** Add missing structural fields to 4-5 domain files. Specific items:
-1. Standardize derivation formula wording → "Evidence-Based Prevention" (affects AI Coding, Multi-Agent, Storytelling, Multimodal RAG)
-2. Add Truth Source Hierarchy to AI Coding, Multi-Agent, Storytelling, Multimodal RAG (use UI/UX + KM&PD pattern)
-3. ~~Add Domain Classification (Type A/B) to AI Coding, Multi-Agent, Storytelling, Multimodal RAG~~ *Superseded by #37 — classification removed*
-4. Add Cross-Domain Dependencies section where peer relationships exist
-
-**Implementation:** Minor version bump to each affected file, domains.json + config.py updates, index rebuild, tests. Batch all changes in one session. Items 5-7 from #28 audit (series naming, framework overview heading, evidence base structure) are cosmetic and optional.
-
-**Trigger:** When domain files are next modified for any other reason, or as a standalone cleanup session.
-
-#### 29. Part 9.8 Periodic Review Trigger (Priority: MEDIUM)
-
-**Problem:** Part 9.8 gates new content (authoring mode) and can review existing content (audit mode), but nothing compels periodic review. The same accretion pattern will recur without a scheduled cadence or quantitative trigger.
-
-**Options:** (1) Principle count threshold: when any domain exceeds 25 principles, mandatory review. (2) Calendar cadence: quarterly or semi-annual. (3) Version milestone: every major version bump triggers cross-domain audit.
-
-**Trigger:** When the framework is used across multiple projects and bloat patterns re-emerge.
-
-#### 30. Cross-Domain Overlap Audit — COMPLETE (2026-03-29)
-
-**Audit Completed:** 2026-03-29
-
-| Overlap Area | Domains | Principle IDs | Verdict | Action |
-|---|---|---|---|---|
-| Graceful Degradation | Multi-Agent, Multimodal RAG | MA-Q2, F1 | JUSTIFIED | None — different architectural layers (orchestration vs. data retrieval) |
-| Session Continuity | AI Coding, Multi-Agent | C3, AC2 | JUSTIFIED | Add mutual cross-references (one-way refs exist, need bidirectional) |
-| Accessibility | UI/UX, Multimodal RAG, Storytelling, KM&PD | ACC*, P5, A3, TL1 | NEEDS CROSS-REF | Four distinct specializations (technical/content/narrative/instructional), no mutual citations |
-| Audience Understanding | Storytelling, Multimodal RAG, KM&PD | A1, P4, TL1 | JUSTIFIED | None — cross-refs already exist (KM&PD→Storytelling explicit) |
-| Context Engineering | Constitution, Multi-Agent, AI Coding | C-Series meta, 4 strategies, C1/C2/C3 | JUSTIFIED | None — exemplary hierarchical overlap (meta→strategies→constraints) |
-| Voice/Authenticity | Storytelling, KM&PD | E1/E2, KA3 | NEEDS CROSS-REF | Add KM&PD TL1→Storytelling E1 for SME-authored instruction voice preservation |
-
-**Key findings:**
-- 4 of 6 overlaps are justified domain-specific applications of the same concept — no redundancy
-- 2 overlaps need cross-references added (Accessibility across 4 domains, Voice/Authenticity KM&PD→Storytelling)
-- Session Continuity has one-way references; should be made bidirectional
-- Context Engineering is the strongest example of proper hierarchical overlap governance
-
-**Follow-up work:** Cross-references COMPLETE (2026-03-30) — added 7 cross-refs across 6 domain files in commit `49fdbe3`. Template alignment tracked as backlog #31.
 
 ## Links
 
