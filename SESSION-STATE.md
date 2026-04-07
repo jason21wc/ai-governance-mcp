@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-02
+**Last Updated:** 2026-04-07
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,13 +21,13 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.0** (meta-methods), **v2.35.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.16.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1073 passing** (run `pytest tests/ -v` for current) |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.0** (meta-methods), **v2.35.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
+| Tests | **1103 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **128 principles + 671 methods + 13 references** (812 total; see `tests/benchmarks/` for current totals) |
+| Index | **128 principles + 672 methods + 13 references** (813 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
@@ -37,6 +37,14 @@
 ## Session Summary (2026-04-07)
 
 ### Completed This Session
+
+69. **Backlog #1B-P2 Cross-MCP Governance Enforcement — IMPLEMENTED**
+   - **Research verdict:** Real gap, not AI over-caution. 30 CVEs in 60 days, real incidents (Supabase, Asana). Authorization (OAuth/HITL) != governance evaluation — orthogonal concerns no gateway addresses natively.
+   - **Contrarian review (HIGH confidence):** Rescoped from "build gateway product" to "make existing proxy configurable." enforcement.py was already a generic stdio proxy — Phase 2 = ~130 lines to make GovernanceEnforcer data-driven + shared state coordination.
+   - **Implementation:** `--govern-all`, `--config`, `--always-allow`, `--cross-mcp` CLI flags. Shared state file (`~/.ai-governance/enforcement-state.json`) for cross-process coordination. YAML config support. Example config for GitHub MCP.
+   - **Documentation:** §4.6.2 updated (2026 gateway table, auth vs governance distinction, fixed decision tree dead-end), SPECIFICATION.md scope updated, ARCHITECTURE.md diagram updated.
+   - **Tests:** 32 new tests (59 total in test_enforcement.py), 1103 total passing. Code review: PASS WITH NOTES, all HIGH items fixed. Validation: 6 subagent reviews (validator x2, coherence auditor, test validator, security auditor, extractor check), all findings addressed. Security hardening: future timestamp clamping (M5), non-overridable field denylist (H1). Index rebuilt (813 entries).
+   - **Governance:** `meta-core-systemic-thinking` (root cause: agents taking actions without governance consultation), `multi-method-gateway-based-enforcement-platform-agnostic`, `coding-method-mcp-compliance-enforcement-patterns`. PROCEED.
 
 68. **Backlog #56 Context Window Management — CLOSED (no changes)**
    - **Root cause analysis:** Premise was factually incorrect — "comprehensive theory but no concrete threshold" is wrong. Framework already has 4 concrete thresholds: 50% distillation (multi-agent-methods.md:1770), 60% prune (ai-coding-domain-principles.md:504), 80% offload (ai-coding-domain-principles.md:504), 32K hard limit (ai-coding-domain-principles.md:527). Sub-agent dispatch for context overflow already explicit in MA-J1 Justified Complexity. cc-status-line is tooling scoped to #57.
@@ -685,15 +693,6 @@
 
 **Outcome:** Either justify the upgrade with data and implement, or confirm current model is sufficient and close.
 
-#### 1B-P2. Cross-MCP Governance Enforcement (Discussion + Research)
-
-**What:** Phase 1 (enforcement on governance server's own tools) is complete. Phase 2 would enforce governance before tool calls to OTHER MCP servers (GitHub, filesystem, etc.).
-
-**Context:** Hooks already cover Bash/Edit/Write at ~100%. Contrarian review found MCP protocol isolation makes cross-MCP enforcement architecturally difficult. But the MCP ecosystem is evolving rapidly.
-
-**Discussion needed:** Online research into current MCP proxy/gateway patterns, Lasso MCP Gateway progress, Envoy AI Gateway, and whether the MCP protocol has evolved to support cross-server enforcement natively.
-
-**Outcome:** Either find a viable approach that justifies implementation, or confirm hooks are sufficient and close.
 
 #### 6. Visual Communication Domain (Discussion → Full Planning)
 
@@ -985,7 +984,7 @@ User will NOT request contrarian review. AI should invoke it per feedback memory
 | Session | Date | Task | Contrarian Invoked? | Prompted by User? | Notes |
 |---------|------|------|--------------------|--------------------|-------|
 | 1 | 2026-04-06 | #7 Security Content Currency Process | Yes | No | Invoked during plan mode before ExitPlanMode; accepted 5/6 challenges, revised plan from Part 9.9 → Part 14.2 extension |
-| 2 | | | | | |
+| 2 | 2026-04-07 | #56 Context Window Management evaluation | Yes | No | Invoked during plan mode before ExitPlanMode; accepted all 5 challenges, recommended closure with no changes |
 | 3 | | | | | |
 
 **Result:** Pending (need 3 sessions). Success = 2/3 unprompted. Failure → Phase 1.

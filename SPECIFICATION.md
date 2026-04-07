@@ -80,6 +80,7 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 - Project-level code and document indexing (Context Engine)
 - Docker-based distribution for cross-platform deployment
 - Multi-platform MCP client configuration generation
+- Server-side governance enforcement via proxy -- `ai-governance-proxy` wraps any MCP server (Phase 1: own tools, Phase 2: cross-MCP via `--govern-all` or `--config`)
 
 ### Out of Scope
 
@@ -87,7 +88,6 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 - **No authentication** (v1) -- No user auth, API keys, or access control
 - **No persistent storage beyond files** -- In-memory index loaded from JSON + NumPy at startup
 - **No multi-user scaling** (v1) -- Single-process, in-memory; vector DB deferred to future
-- **No server-side enforcement** -- Governance is advisory; true enforcement requires wrapper/gateway (deferred)
 - **No ARM64 Docker images** -- AMD64 only; Apple Silicon uses Rosetta 2
 
 ## Success Criteria

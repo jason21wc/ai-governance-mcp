@@ -172,7 +172,7 @@ AI CLIENT (Claude Code, Cursor, Gemini CLI, etc.)
     │         │ PreToolUse: blocks Bash|Edit|Write without gov call │
     │         └─────────────────────────────────────────────────────┘
     │
-    ├── ai-governance-mcp (via proxy) ◄── Layer 3 enforcement HERE
+    ├── ai-governance-mcp (via proxy) ◄── Layer 3 Phase 1
     │       │
     │       ▼
     │   ┌─────────────────────────────────────────────────────────┐
@@ -180,35 +180,48 @@ AI CLIENT (Claude Code, Cursor, Gemini CLI, etc.)
     │   │ Intercepts JSON-RPC tools/call at stdio protocol level  │
     │   │ Blocks action tools without evaluate_governance() call  │
     │   │ Works with ANY AI client — Cursor, Gemini CLI, etc.     │
-    │   └───────────────┬─────────────────────────────────────────┘
-    │                   ▼
+    │   │ Writes shared state on governance calls ──────────┐     │
+    │   └───────────────┬───────────────────────────────────│─────┘
+    │                   ▼                                   │
     │   ┌─────────────────────────────────────────────────────────┐
     │   │ GOVERNANCE MCP SERVER (server.py) — Layer 1 (advisory)  │
     │   │ SERVER_INSTRUCTIONS + GOVERNANCE_REMINDER per response   │
     │   │ evaluate_governance(): principle retrieval + assessment  │
     │   └─────────────────────────────────────────────────────────┘
-    │
-    ├── github MCP server              ◄── NO enforcement (Phase 2)
-    ├── filesystem MCP server           ◄── NO enforcement (Phase 2)
-    └── other MCP servers               ◄── NO enforcement (Phase 2)
+    │                                                       │
+    │                                  shared state file ◄──┘
+    │                              (~/.ai-governance/enforcement-state.json)
+    │                                         │
+    ├── github MCP (via proxy --govern-all) ◄─┤ Layer 3 Phase 2
+    ├── filesystem MCP (via proxy --config) ◄─┤ reads shared state
+    └── other MCP servers (via proxy)       ◄─┘
 ```
 
 | Layer | Mechanism | What it enforces | Coverage |
 |-------|-----------|-----------------|----------|
 | **1: Advisory** | SERVER_INSTRUCTIONS + GOVERNANCE_REMINDER | Asks AI to call evaluate_governance() | All clients (~13% compliance) |
 | **2: Hooks** | PreToolUse transcript scanning (.claude/hooks/) | Blocks Bash/Edit/Write without governance | Claude Code only (~100%) |
-| **3: Proxy** | stdio JSON-RPC interceptor (enforcement.py) | Blocks governance server action tools without governance | All clients (~100%) |
+| **3: Proxy (Phase 1)** | stdio JSON-RPC interceptor (enforcement.py) | Blocks governance server action tools without governance | All clients (~100%) |
+| **3: Proxy (Phase 2)** | Same proxy wrapping third-party servers | Blocks any MCP server's tools without governance | All clients (~100%) |
 
-**What Layer 3 does:** Any AI client (Cursor, Gemini CLI, etc.) connecting to the governance server through the proxy must call `evaluate_governance()` before using action tools (`scaffold_project`, `capture_reference`, `install_agent`, `uninstall_agent`, `log_feedback`, `log_governance_reasoning`). This works regardless of which AI model or IDE is used.
+**Phase 1 — Self-enforcement:** Any AI client connecting to the governance server through the proxy must call `evaluate_governance()` before using action tools (`scaffold_project`, `capture_reference`, `install_agent`, `uninstall_agent`, `log_feedback`, `log_governance_reasoning`). This works regardless of which AI model or IDE is used.
 
-**What Layer 3 does NOT do (Phase 2):** The proxy only wraps the governance MCP server. Tool calls to other MCP servers (GitHub, filesystem, etc.) are separate stdio connections that the proxy does not see. Cross-MCP enforcement — ensuring governance is called before using any MCP server's tools — requires either wrapping each server with the proxy, or a client-side solution like Rampart. See Backlog #1B Phase 2.
+**Phase 2 — Cross-MCP enforcement:** The same proxy wraps third-party MCP servers (GitHub, filesystem, etc.) to enforce governance before their state-modifying tools. Uses a shared state file for cross-process coordination — the governance proxy writes timestamps when `evaluate_governance()` is called, and cross-MCP proxy instances read them. See `examples/github-governance.yaml` for config format.
+
+```bash
+# Phase 2 usage:
+ai-governance-proxy --govern-all \
+    --always-allow "get_file_contents,list_issues,search_code" \
+    -- npx @modelcontextprotocol/server-github
+```
 
 **Entry points:**
 - Direct: `ai-governance-mcp` (server only, Layer 1)
 - Enforced: `ai-governance-proxy` (proxy + server, Layers 1+3)
+- Cross-MCP: `ai-governance-proxy --govern-all -- <server-cmd>` (Phase 2)
 - Claude Code: hooks provide Layer 2 regardless of entry point
 
-**Configuration:** `GOVERNANCE_ENFORCEMENT_ENABLED`, `GOVERNANCE_ENFORCEMENT_SOFT_MODE`, `GOVERNANCE_RECENCY_WINDOW` (shared with hooks)
+**Configuration:** `GOVERNANCE_ENFORCEMENT_ENABLED`, `GOVERNANCE_ENFORCEMENT_SOFT_MODE`, `GOVERNANCE_RECENCY_WINDOW`, `GOVERNANCE_STATE_FILE`, `GOVERNANCE_STATE_TTL`
 
 ---
 

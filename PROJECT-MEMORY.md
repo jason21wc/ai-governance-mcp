@@ -502,11 +502,13 @@ Note: CE benchmark v2.0 uses this project's codebase as corpus with 16 queries (
 - Recency heuristic: PreToolUse scans last ~500 transcript lines instead of full session. Catches task-boundary pivots in long sessions. One-line change (`collections.deque(f, maxlen=500)`).
 - Suppress UserPromptSubmit after governance established: add transcript check to inject hook, skip reminder when `evaluate_governance()` already called. Saves ~10K tokens/session.
 
-**Phase 2 — MCP Proxy for Model-Agnostic Enforcement (Near-term):**
-- Evaluate Latch (latchagent.com), MCPTrust (github.com/mcptrust/mcptrust), FastMCP Middleware
-- MCP proxy intercepts ALL tool calls regardless of which AI model is used
-- Could inject mandatory `evaluate_governance()` before forwarding to downstream servers
-- Docker-deployable, no cloud dependency
+**Phase 2 — Cross-MCP Proxy Enforcement (COMPLETE — 2026-04-07):**
+- ✓ `enforcement.py` extended: `--govern-all`, `--config`, `--always-allow` CLI flags
+- ✓ Shared state file (`~/.ai-governance/enforcement-state.json`) for cross-process coordination
+- ✓ YAML config support for fine-grained tool classification (see `examples/github-governance.yaml`)
+- ✓ Security hardening: future timestamp clamping, non-overridable field denylist, fail-closed error handling
+- ✓ 59 tests in test_enforcement.py (32 new for Phase 2)
+- ✓ §4.6.2 updated with auth vs governance distinction, 2026 gateway table, fixed decision tree
 
 **Phase 3 — CI/Audit Integration (When Phase 1 ships):**
 - Pre-commit hook calling `verify_governance_compliance()` to catch bypassed governance
@@ -554,7 +556,7 @@ Not needed at current scale. Phased approach documented in ADR-14. Revisit when 
 ### Future Considerations
 
 - Prompt Engineering domain (when created, move system prompt best practices from multi-agent)
-- ~~Gateway-Based Enforcement (§4.6.2)~~ → superseded by ADR-13 (structural enforcement roadmap)
+- ~~Gateway-Based Enforcement (§4.6.2)~~ → implemented as Phase 2 cross-MCP proxy enforcement (2026-04-07)
 - Vector DB migration (when scale requires) — see also ADR-14 Phase 3
 - ~~Prompt Engineering consolidation~~ → Title 11 in ai-governance-methods (done)
 - ~~RAG Optimization consolidation~~ → Title 12 in ai-governance-methods (done)

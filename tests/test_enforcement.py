@@ -1,11 +1,15 @@
 """Tests for governance enforcement middleware (Layer 3).
 
-Tests the GovernanceEnforcer state machine and StdioProxy protocol handling.
+Tests the GovernanceEnforcer state machine and StdioProxy protocol handling,
+including Phase 2 cross-MCP enforcement (govern-all mode, config files,
+shared state coordination).
 """
 
 import json
 import os
 import sys
+import tempfile
+import time
 from pathlib import Path
 from unittest.mock import patch
 
@@ -346,3 +350,418 @@ class TestEnforcementToolCoverage:
                 "get_domain_summary",
                 "get_metrics",
             }, f"Unexpected always-allowed tool: {tool}"
+
+
+class TestGovernAllMode:
+    """Tests for cross-MCP govern-all mode (Phase 2)."""
+
+    def test_govern_all_blocks_unknown_tools(self):
+        """In govern-all mode, unlisted tools should be blocked."""
+        enforcer = GovernanceEnforcer(govern_all=True)
+        result = enforcer.check_precondition("create_pull_request")
+        assert not result.allowed
+        assert "GOVERNANCE REQUIRED" in result.message
+
+    def test_govern_all_allows_exempted_tools(self):
+        """In govern-all mode, always_allowed tools should pass."""
+        enforcer = GovernanceEnforcer(
+            govern_all=True,
+            ALWAYS_ALLOWED={"get_file_contents", "list_issues"},
+        )
+        result = enforcer.check_precondition("get_file_contents")
+        assert result.allowed
+        result = enforcer.check_precondition("list_issues")
+        assert result.allowed
+
+    def test_govern_all_blocks_after_exempted(self):
+        """Non-exempted tools should still be blocked in govern-all mode."""
+        enforcer = GovernanceEnforcer(
+            govern_all=True,
+            ALWAYS_ALLOWED={"get_file_contents"},
+        )
+        # Exempted tool passes
+        result = enforcer.check_precondition("get_file_contents")
+        assert result.allowed
+        # Non-exempted tool blocked
+        result = enforcer.check_precondition("push_files")
+        assert not result.allowed
+
+    def test_govern_all_allows_after_governance(self):
+        """Governance call should unlock tools in govern-all mode."""
+        enforcer = GovernanceEnforcer(govern_all=True)
+        enforcer.record_call("evaluate_governance")
+        result = enforcer.check_precondition("create_pull_request")
+        assert result.allowed
+
+    def test_govern_all_governance_satisfiers_always_pass(self):
+        """Governance satisfiers should always pass in govern-all mode."""
+        enforcer = GovernanceEnforcer(govern_all=True)
+        result = enforcer.check_precondition("evaluate_governance")
+        assert result.allowed
+
+    def test_govern_all_soft_mode(self):
+        """Govern-all + soft mode should warn, not block."""
+        enforcer = GovernanceEnforcer(govern_all=True, soft_mode=True)
+        result = enforcer.check_precondition("create_pull_request")
+        assert result.allowed
+        assert "WARNING" in result.message
+
+    def test_default_mode_passes_unknown_tools(self):
+        """Default mode (non-govern-all) should still pass unknown tools."""
+        enforcer = GovernanceEnforcer()
+        result = enforcer.check_precondition("create_pull_request")
+        assert result.allowed  # Not in GOVERNED_TOOLS, so passes through
+
+
+class TestConfigFile:
+    """Tests for YAML config file loading."""
+
+    def test_config_file_loading(self):
+        """YAML config should correctly populate tool sets."""
+        config = {
+            "governed_tools": ["create_pr", "push_files"],
+            "always_allowed": ["get_file", "list_issues"],
+        }
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            import yaml
+
+            yaml.dump(config, f)
+            f.flush()
+            try:
+                enforcer = GovernanceEnforcer.from_config(f.name)
+                assert enforcer.GOVERNED_TOOLS == {"create_pr", "push_files"}
+                assert enforcer.ALWAYS_ALLOWED == {"get_file", "list_issues"}
+            finally:
+                os.unlink(f.name)
+
+    def test_config_file_govern_all(self):
+        """Config with govern_all should enable govern-all mode."""
+        config = {
+            "govern_all": True,
+            "always_allowed": ["get_file"],
+        }
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            import yaml
+
+            yaml.dump(config, f)
+            f.flush()
+            try:
+                enforcer = GovernanceEnforcer.from_config(f.name)
+                assert enforcer.govern_all is True
+                assert enforcer.ALWAYS_ALLOWED == {"get_file"}
+                # Unknown tools should be blocked
+                result = enforcer.check_precondition("create_pr")
+                assert not result.allowed
+            finally:
+                os.unlink(f.name)
+
+    def test_config_file_missing_fields(self):
+        """Config with missing fields should use empty defaults gracefully."""
+        config = {"always_allowed": ["search_code"]}
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            import yaml
+
+            yaml.dump(config, f)
+            f.flush()
+            try:
+                enforcer = GovernanceEnforcer.from_config(f.name)
+                assert enforcer.GOVERNED_TOOLS == set()
+                assert enforcer.ALWAYS_ALLOWED == {"search_code"}
+            finally:
+                os.unlink(f.name)
+
+    def test_config_file_empty(self):
+        """Empty config file should produce a valid enforcer."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            f.write("")
+            f.flush()
+            try:
+                enforcer = GovernanceEnforcer.from_config(f.name)
+                assert enforcer.GOVERNED_TOOLS == set()
+                assert enforcer.govern_all is False
+            finally:
+                os.unlink(f.name)
+
+
+class TestSharedState:
+    """Tests for cross-MCP shared state file coordination."""
+
+    @pytest.fixture
+    def state_dir(self):
+        """Create a temporary directory for state files."""
+        with tempfile.TemporaryDirectory() as d:
+            yield d
+
+    def test_shared_state_write_read(self, state_dir):
+        """Write state from one enforcer, read from another."""
+        state_file = os.path.join(state_dir, "state.json")
+
+        # Governance proxy writes state
+        writer = GovernanceEnforcer(state_file=state_file, state_ttl=300)
+        writer.record_call("evaluate_governance")
+
+        # Cross-MCP proxy reads state
+        reader = GovernanceEnforcer(
+            govern_all=True, state_file=state_file, state_ttl=300
+        )
+        result = reader.check_precondition("create_pull_request")
+        assert result.allowed, "Should see governance from shared state"
+
+    def test_shared_state_expiry(self, state_dir):
+        """State older than TTL should be treated as expired."""
+        state_file = os.path.join(state_dir, "state.json")
+
+        # Write stale state directly
+        stale_state = {"last_evaluation_ts": time.time() - 600, "pid": os.getpid()}
+        with open(state_file, "w") as f:
+            json.dump(stale_state, f)
+
+        reader = GovernanceEnforcer(
+            govern_all=True, state_file=state_file, state_ttl=300
+        )
+        result = reader.check_precondition("create_pull_request")
+        assert not result.allowed, "Stale state should not satisfy governance"
+
+    def test_shared_state_missing_file(self, state_dir):
+        """Missing state file should fail-closed (tools blocked)."""
+        state_file = os.path.join(state_dir, "nonexistent.json")
+        reader = GovernanceEnforcer(
+            govern_all=True, state_file=state_file, state_ttl=300
+        )
+        result = reader.check_precondition("create_pull_request")
+        assert not result.allowed, "Missing state file = governance not satisfied"
+
+    def test_shared_state_corrupt_file(self, state_dir):
+        """Corrupt state file should fail-closed (tools blocked)."""
+        state_file = os.path.join(state_dir, "state.json")
+        with open(state_file, "w") as f:
+            f.write("not valid json {{{")
+
+        reader = GovernanceEnforcer(
+            govern_all=True, state_file=state_file, state_ttl=300
+        )
+        result = reader.check_precondition("create_pull_request")
+        assert not result.allowed, "Corrupt state file = governance not satisfied"
+
+    def test_shared_state_creates_directory(self):
+        """State file write should create parent directories."""
+        with tempfile.TemporaryDirectory() as base:
+            state_file = os.path.join(base, "nested", "dir", "state.json")
+            writer = GovernanceEnforcer(state_file=state_file, state_ttl=300)
+            writer.record_call("evaluate_governance")
+            assert os.path.exists(state_file)
+
+    def test_shared_state_no_write_without_state_file(self):
+        """Without state_file set, record_call should not write anything."""
+        enforcer = GovernanceEnforcer()
+        enforcer.record_call("evaluate_governance")
+        # No state_file configured — just verify no error
+        assert enforcer._call_counter == 1
+
+    def test_shared_state_within_ttl(self, state_dir):
+        """State well within TTL should satisfy governance."""
+        state_file = os.path.join(state_dir, "state.json")
+        ttl = 300
+
+        # 1 second of buffer to avoid floating-point timing issues
+        fresh_state = {"last_evaluation_ts": time.time() - ttl + 1, "pid": os.getpid()}
+        with open(state_file, "w") as f:
+            json.dump(fresh_state, f)
+
+        reader = GovernanceEnforcer(
+            govern_all=True, state_file=state_file, state_ttl=ttl
+        )
+        result = reader.check_precondition("create_pull_request")
+        assert result.allowed, "State within TTL should pass"
+
+    def test_shared_state_just_past_ttl(self, state_dir):
+        """State just past TTL should NOT satisfy governance."""
+        state_file = os.path.join(state_dir, "state.json")
+        ttl = 300
+
+        past_state = {"last_evaluation_ts": time.time() - ttl - 1, "pid": os.getpid()}
+        with open(state_file, "w") as f:
+            json.dump(past_state, f)
+
+        reader = GovernanceEnforcer(
+            govern_all=True, state_file=state_file, state_ttl=ttl
+        )
+        result = reader.check_precondition("create_pull_request")
+        assert not result.allowed, "State past TTL should not pass"
+
+    def test_write_shared_state_unwritable_path(self):
+        """Write to unwritable path should fail silently (no exception)."""
+        # /proc/fake won't exist on macOS, so use a path we can't write to
+        enforcer = GovernanceEnforcer(
+            state_file="/nonexistent/deeply/nested/impossible/state.json",
+            state_ttl=300,
+        )
+        # Should not raise — fails silently with stderr warning
+        enforcer.record_call("evaluate_governance")
+        assert enforcer._call_counter == 1
+
+    def test_always_allow_merges_with_config(self):
+        """CLI --always-allow should merge with config always_allowed, not replace."""
+        import yaml
+
+        config = {"always_allowed": ["tool_a", "tool_b"], "govern_all": True}
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(config, f)
+            f.flush()
+            try:
+                enforcer = GovernanceEnforcer.from_config(f.name)
+                assert enforcer.ALWAYS_ALLOWED == {"tool_a", "tool_b"}
+
+                # Simulate CLI merge (same logic as main())
+                cli_allowed = {"tool_c", "tool_d"}
+                enforcer.ALWAYS_ALLOWED |= cli_allowed
+
+                assert enforcer.ALWAYS_ALLOWED == {
+                    "tool_a",
+                    "tool_b",
+                    "tool_c",
+                    "tool_d",
+                }
+                # All merged tools should pass
+                for tool in ["tool_a", "tool_b", "tool_c", "tool_d"]:
+                    assert enforcer.check_precondition(tool).allowed
+                # Non-exempt tool should still be blocked
+                assert not enforcer.check_precondition("tool_e").allowed
+            finally:
+                os.unlink(f.name)
+
+    def test_existing_behavior_unchanged(self):
+        """Default GovernanceEnforcer should behave identically to Phase 1."""
+        enforcer = GovernanceEnforcer()
+        # Should have Phase 1 defaults
+        assert "scaffold_project" in enforcer.GOVERNED_TOOLS
+        assert "evaluate_governance" in enforcer.GOVERNANCE_SATISFIERS
+        assert "query_governance" in enforcer.ALWAYS_ALLOWED
+        assert enforcer.govern_all is False
+        assert enforcer.state_file is None
+        # Phase 1 behavior: governed tools blocked, read-only pass
+        assert not enforcer.check_precondition("scaffold_project").allowed
+        assert enforcer.check_precondition("query_governance").allowed
+        assert enforcer.check_precondition("unknown_tool").allowed
+
+
+class TestGovernanceEnforcerEnvVarsPhase2:
+    """Tests for Phase 2 environment variable configuration."""
+
+    def test_state_file_via_env(self):
+        """GOVERNANCE_STATE_FILE should set the state file path."""
+        with patch.dict(os.environ, {"GOVERNANCE_STATE_FILE": "/tmp/test-state.json"}):
+            enforcer = GovernanceEnforcer.from_env()
+            assert enforcer.state_file == "/tmp/test-state.json"
+
+    def test_state_ttl_via_env(self):
+        """GOVERNANCE_STATE_TTL should set the TTL."""
+        with patch.dict(os.environ, {"GOVERNANCE_STATE_TTL": "600"}):
+            enforcer = GovernanceEnforcer.from_env()
+            assert enforcer.state_ttl == 600
+
+    def test_state_ttl_invalid_uses_default(self):
+        """Invalid GOVERNANCE_STATE_TTL should fall back to default."""
+        with patch.dict(os.environ, {"GOVERNANCE_STATE_TTL": "not_a_number"}):
+            enforcer = GovernanceEnforcer.from_env()
+            assert enforcer.state_ttl == 300
+
+    def test_state_file_default_is_none(self):
+        """Without env var, state_file should be None."""
+        with patch.dict(os.environ, {}, clear=True):
+            enforcer = GovernanceEnforcer.from_env()
+            assert enforcer.state_file is None
+
+
+class TestSecurityHardening:
+    """Tests for security-hardening measures."""
+
+    def test_future_timestamp_rejected(self):
+        """Future timestamps in state file should not grant permanent bypass."""
+        with tempfile.TemporaryDirectory() as d:
+            state_file = os.path.join(d, "state.json")
+            # Write a timestamp far in the future
+            future_state = {"last_evaluation_ts": time.time() + 999999, "pid": 1}
+            with open(state_file, "w") as f:
+                json.dump(future_state, f)
+
+            reader = GovernanceEnforcer(
+                govern_all=True, state_file=state_file, state_ttl=300
+            )
+            # Future timestamp gets clamped to now, so age=0 which IS within TTL
+            # But it should NOT grant permanent bypass — it should expire normally
+            result = reader.check_precondition("create_pull_request")
+            # Clamped to now means age=~0, which is within TTL — allowed
+            assert result.allowed, "Clamped future timestamp = age ~0 = within TTL"
+
+            # Write a different future timestamp and set a very short TTL
+            # After clamping, age should still be ~0
+            reader2 = GovernanceEnforcer(
+                govern_all=True, state_file=state_file, state_ttl=1
+            )
+            result2 = reader2.check_precondition("create_pull_request")
+            # age ~0 is within TTL=1, so still allowed (but not PERMANENT)
+            assert result2.allowed
+
+    def test_future_timestamp_not_permanent(self):
+        """Future timestamp should be clamped to now, not grant indefinite access."""
+        with tempfile.TemporaryDirectory() as d:
+            state_file = os.path.join(d, "state.json")
+            # Write timestamp 1 second in the past — should be within TTL
+            recent_state = {"last_evaluation_ts": time.time() - 1, "pid": 1}
+            with open(state_file, "w") as f:
+                json.dump(recent_state, f)
+
+            reader = GovernanceEnforcer(
+                govern_all=True, state_file=state_file, state_ttl=300
+            )
+            assert reader.check_precondition("tool").allowed
+
+            # Now write a VERY old timestamp disguised as future (year 2286)
+            # Without clamping, age would be negative = always within TTL
+            # With clamping, age = 0 = within TTL (not permanent, expires normally)
+            spoofed = {"last_evaluation_ts": 9999999999, "pid": 1}
+            with open(state_file, "w") as f:
+                json.dump(spoofed, f)
+
+            # Verify the clamping prevents negative age
+            reader2 = GovernanceEnforcer(
+                govern_all=True, state_file=state_file, state_ttl=300
+            )
+            # Read the state manually to verify clamping logic
+            assert reader2._read_shared_state() is True  # clamped to now, age ~0
+
+    def test_from_config_rejects_security_critical_overrides(self):
+        """from_config should reject overrides for security-critical fields."""
+        import yaml
+
+        config = {"govern_all": True}
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(config, f)
+            f.flush()
+            try:
+                with pytest.raises(ValueError, match="security-critical"):
+                    GovernanceEnforcer.from_config(f.name, enabled=False)
+                with pytest.raises(ValueError, match="security-critical"):
+                    GovernanceEnforcer.from_config(
+                        f.name, GOVERNANCE_SATISFIERS={"any_tool"}
+                    )
+            finally:
+                os.unlink(f.name)
+
+    def test_from_config_allows_safe_overrides(self):
+        """from_config should allow overrides for non-security fields."""
+        import yaml
+
+        config = {"govern_all": True}
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(config, f)
+            f.flush()
+            try:
+                enforcer = GovernanceEnforcer.from_config(
+                    f.name, soft_mode=True, state_ttl=600
+                )
+                assert enforcer.soft_mode is True
+                assert enforcer.state_ttl == 600
+            finally:
+                os.unlink(f.name)

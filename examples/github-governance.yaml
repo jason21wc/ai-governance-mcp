@@ -1,0 +1,59 @@
+# Governance enforcement config for GitHub MCP server
+#
+# Usage:
+#   ai-governance-proxy --config examples/github-governance.yaml \
+#       -- npx @modelcontextprotocol/server-github
+#
+# This configuration enforces governance evaluation before state-modifying
+# GitHub actions (creating PRs, pushing code, commenting) while allowing
+# read-only operations to pass through freely.
+#
+# Authorization (OAuth, HITL) answers "can this agent call this tool?"
+# Governance evaluation answers "should this action proceed given these principles?"
+# This proxy provides the governance layer. They are complementary, not redundant.
+
+governed_tools:
+  - create_pull_request
+  - create_and_submit_pull_request_review
+  - push_files
+  - create_or_update_file
+  - merge_pull_request
+  - create_issue
+  - add_issue_comment
+  - create_branch
+  - delete_file
+  - update_issue
+  - update_pull_request
+  - create_repository
+  - fork_repository
+  - create_pending_pull_request_review
+  - add_comment_to_pending_review
+  - submit_pending_pull_request_review
+
+always_allowed:
+  - get_file_contents
+  - list_issues
+  - list_pull_requests
+  - search_code
+  - search_issues
+  - search_pull_requests
+  - search_repositories
+  - search_users
+  - get_commit
+  - get_issue
+  - get_issue_comments
+  - list_branches
+  - list_commits
+  - list_tags
+  - list_releases
+  - get_me
+  - get_tag
+  - get_label
+  - list_label
+  - get_latest_release
+  - get_release_by_tag
+  - get_teams
+  - get_team_members
+  - pull_request_read
+  - list_issue_types
+  - list_sub_issues

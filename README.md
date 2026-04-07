@@ -955,10 +955,11 @@ safety check
   - [x] Content-based keyword extraction (via MethodMetadata: purpose_keywords, applies_to, guideline_keywords; legacy `keywords` field remains title-derived)
   - [x] Increase embedding text limit (1000/500 → 1500 chars)
   - [x] Add trigger_phrase support for methods (like principles have)
-- [ ] **Governance Proxy Mode** — Platform-agnostic enforcement via MCP gateway
-  - Wraps other MCP servers, enforces governance before forwarding requests
-  - Enables architectural enforcement for non-Claude platforms (OpenAI, Gemini, etc.)
-  - Integrates with Lasso MCP Gateway, Envoy AI Gateway, or custom proxy
+- [x] **Governance Proxy Mode** — Platform-agnostic enforcement via MCP proxy
+  - `ai-governance-proxy --govern-all` wraps any MCP server with governance enforcement
+  - Cross-MCP coordination via shared state file (`~/.ai-governance/enforcement-state.json`)
+  - YAML config support for fine-grained tool classification (see `examples/github-governance.yaml`)
+  - Enables architectural enforcement for non-Claude platforms (OpenAI, Gemini, Cursor, etc.)
   - See §4.6.2 in multi-agent-methods for pattern documentation
 - [ ] Multi-agent orchestration (specialized agents using this MCP)
 - [ ] Vector database for multi-user scaling

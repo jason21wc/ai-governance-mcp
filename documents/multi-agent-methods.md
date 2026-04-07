@@ -1,7 +1,7 @@
 ---
-version: "2.16.1"
+version: "2.17.0"
 status: "active"
-effective_date: "2026-03-29"
+effective_date: "2026-04-07"
 domain: "multi-agent"
 governance_level: "domain-methods"
 ---
@@ -2954,46 +2954,67 @@ Without Gateway (Hope-Based):          With Gateway (Architecture-Based):
 | 4. Execution | Only governance-approved requests reach the actual server |
 | 5. Logging | All requests logged for audit trail |
 
-**Available MCP Gateway Solutions (2025):**
+**Authorization vs Governance — An Important Distinction:**
+
+OAuth, HITL (human-in-the-loop) approval, and tool-level scopes answer: **"Can this agent call this tool?"** Governance evaluation answers: **"Should this action proceed given these principles?"** These are orthogonal concerns. A user clicking "approve" in Claude Code is an authorization check, not a governance check. OAuth 2.1 tool scopes (e.g., `mcp:github.create_pr`) control access but don't evaluate whether the action aligns with project principles, quality standards, or safety requirements. Both layers are necessary — authorization without governance permits harmful-but-authorized actions; governance without authorization permits evaluated-but-unauthorized ones.
+
+**Available MCP Gateway Solutions (2026):**
 
 | Gateway | Key Feature | Use Case |
 |---------|-------------|----------|
-| Lasso MCP Gateway | Plugin-based guardrails, PII detection | Security-focused orgs |
+| `ai-governance-proxy` | Governance evaluation enforcement, cross-MCP | Individual developers, small teams |
+| Lasso MCP Gateway | Plugin-based guardrails, PII detection, open source | Security-focused orgs |
+| Gravitee 4.10 | MCP proxy with per-tool ACLs, OpenFGA auth | Enterprise API management |
 | Envoy AI Gateway | Session-aware, leverages Envoy infra | Existing Envoy users |
-| IBM ContextForge | FastAPI-based, large-scale | Enterprise deployments |
-| Custom Governance Proxy | Wrap this MCP server as gatekeeper | Simple deployments |
+| Custom Integration | Call `evaluate_governance()` from any gateway plugin | Existing gateway infrastructure |
+
+**Cross-MCP Enforcement with `ai-governance-proxy`:**
+
+The governance proxy can wrap ANY MCP server, not just the governance server. In cross-MCP mode, it enforces that `evaluate_governance()` was called before allowing state-modifying tool calls on the wrapped server.
+
+```
+# Wrap GitHub MCP — govern all tools except read-only ones:
+ai-governance-proxy --govern-all \
+    --always-allow "get_file_contents,list_issues,search_code" \
+    -- npx @modelcontextprotocol/server-github
+
+# Or use a config file for fine-grained control:
+ai-governance-proxy --config github-governance.yaml \
+    -- npx @modelcontextprotocol/server-github
+```
+
+Cross-MCP coordination uses a shared state file (`~/.ai-governance/enforcement-state.json`). When `evaluate_governance()` is called on the governance server, the governance proxy writes a timestamp. Other proxy instances (wrapping GitHub, filesystem, etc.) read this file to verify governance was evaluated recently. See `examples/github-governance.yaml` for a complete config.
 
 **When to Use Gateway vs Subagent:**
 
-| Factor | Subagent (Claude Code) | Gateway |
-|--------|----------------------|---------|
-| Platform | Claude Code/Desktop only | Any MCP client |
-| Setup complexity | Low (drop file in folder) | Medium (deploy proxy) |
-| Enforcement | Client-managed | Server-managed |
-| Visibility | Agent visible in UI | Transparent to AI |
-| Enterprise | Single-user focus | Multi-user, centralized |
+| Factor | Subagent (Claude Code) | Governance Proxy | Enterprise Gateway |
+|--------|----------------------|------------------|--------------------|
+| Platform | Claude Code/Desktop only | Any MCP client | Any MCP client |
+| Setup complexity | Low (drop file in folder) | Low (one CLI flag) | Medium-High (deploy platform) |
+| Enforcement | Client-managed | Server-managed | Server-managed |
+| Visibility | Agent visible in UI | Transparent to AI | Transparent to AI |
+| Scope | Single user | Individual/small team | Multi-user, centralized |
 
 **Deployment Decision Matrix:**
 
 ```
 Does the AI client support hook events (PreToolUse, UserPromptSubmit)?
 ├── YES → Use hook-based enforcement (§4.6.3) + subagent pattern (§4.6)
-└── NO → Is this for Claude Code users only?
-         ├── YES → Use subagent pattern (§4.6, install_agent tool)
-         └── NO → Does organization have MCP gateway infrastructure?
-                  ├── YES → Integrate with existing gateway
-                  └── NO → Deploy governance proxy or use instruction-based fallback
+└── NO → Wrap MCP servers with ai-governance-proxy
+         ├── Simple: ai-governance-proxy --govern-all -- <server-command>
+         ├── Config: ai-governance-proxy --config <config.yaml> -- <server-command>
+         └── Enterprise: Integrate evaluate_governance() with existing gateway
 ```
 
 **Instruction-Based Fallback (Minimum Viable):**
 
-When gateway isn't feasible, layer defenses:
+When proxy or gateway isn't feasible, layer defenses:
 
 1. **SERVER_INSTRUCTIONS** — Injected at MCP init
 2. **Per-Response Reminder** — Appended to every tool response
 3. **Audit Log Review** — Periodic `verify_governance_compliance()` checks
 
-This provides guidance but not enforcement—the AI *can* bypass. For high-stakes environments, gateway architecture is recommended.
+This provides guidance but not enforcement—the AI *can* bypass. Advisory compliance degrades ~39% in multi-turn conversations. For high-stakes environments, proxy or gateway architecture is recommended.
 
 **Key Principle:**
 
