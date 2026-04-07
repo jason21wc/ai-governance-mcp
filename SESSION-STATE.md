@@ -38,6 +38,9 @@
 
 ### Completed This Session
 
+70. **Backlog #47 Plan Mode Enforcement Gap — CLOSED (Phase 0 success)**
+   - Memory effectiveness test: 3/3 sessions, contrarian review invoked unprompted every time. Advisory + feedback memory is sufficient. Phase 1 hook not needed.
+
 69. **Backlog #1B-P2 Cross-MCP Governance Enforcement — IMPLEMENTED**
    - **Research verdict:** Real gap, not AI over-caution. 30 CVEs in 60 days, real incidents (Supabase, Asana). Authorization (OAuth/HITL) != governance evaluation — orthogonal concerns no gateway addresses natively.
    - **Contrarian review (HIGH confidence):** Rescoped from "build gateway product" to "make existing proxy configurable." enforcement.py was already a generic stdio proxy — Phase 2 = ~130 lines to make GovernanceEnforcer data-driven + shared state coordination.
@@ -919,75 +922,6 @@
 **Origin:** Hermes Agent evaluation (2026-04-01). Their conditional activation metadata adapted to our retrieval-based model.
 
 ---
-
-#### 47. Plan Mode Enforcement Gap (Discussion — Structural, Phase 0 Active)
-
-**What:** During plan mode, the AI consistently skips required subagent reviews (contrarian, etc.) before presenting the plan for approval. The plan template puts "Contrarian Review Output" BEFORE "Recommended Approach" specifically to make verification part of the generation flow, but the AI treats it as a placeholder and defers to execution. User has observed this pattern "every time."
-
-**Root cause:** Autoregressive forward-continuation bias (LEARNING-LOG critical lesson). Once plan text is flowing, the path of least resistance is to keep writing toward ExitPlanMode rather than pausing to invoke a subagent. This is the same mechanism as skipping governance calls — the plan template's section ordering is advisory, not structural. Advisory compliance is ~85% (LEARNING-LOG); plan mode may be lower because there's no hook enforcement equivalent to the hard-mode governance/CE check.
-
-**Broader scope (root cause over symptoms):** This isn't just about subagents in plans. It's the general problem that plan mode has NO structural enforcement — no hooks check what happened before ExitPlanMode. The governance hard-mode hook blocks Bash/Edit/Write until evaluate_governance() + query_project() are called. Plan mode has no equivalent gate. Subagent skipping is the most visible symptom, but the root cause is that plan mode is entirely advisory.
-
-**Origin:** #38 planning session (2026-04-01). User caught missing contrarian review before ExitPlanMode.
-
----
-
-**Full Analysis (2026-04-05):**
-
-Governance evaluation: PROCEED. Key methods: `multi-method-hook-based-enforcement-client-side-deterministic` ("Architecture beats hope"), `coding-method-checklist-failures` (advisory ~15% skip rate). Root cause check: `meta-core-systemic-thinking` — address structural cause, not symptom.
-
-**Research confirmed:** PreToolUse hooks CAN fire on `ExitPlanMode` (Claude Code docs: matcher is regex against tool names, ExitPlanMode is a tool). Infrastructure exists — `scan_transcript.py --pattern` mode already detects subagent invocations in the pre-push quality gate.
-
-**Contrarian review verdict: REVISIT (high confidence).** Key challenges accepted:
-
-1. **Memory hasn't been tested.** Saved 2026-04-01, but in all 12+ planning sessions since, user explicitly requested contrarian review. The "wait 2-3 sessions" criteria was never met. We'd be building a hook to fix a problem whose simpler solution is untested.
-
-2. **Plan mode has a human gate that file modification doesn't.** The governance hook prevents irreversible harm (file modification is immediate). A plan mode hook prevents the user from saying "run the contrarian reviewer" — a 5-second inconvenience. Different risk tiers justify different enforcement levels.
-
-3. **A hook enforces ceremony, not quality.** The AI could invoke contrarian-reviewer with minimal context to satisfy the hook, producing shallow "PROCEED" output. The governance hook works because its output (PROCEED/ESCALATE) structurally routes behavior. Contrarian review is advisory by nature — checkbox compliance is the likely failure mode.
-
-4. **False positives from session-scoped detection.** `scan_for_pattern` does raw string matching. A contrarian review invoked earlier in the session for a different task would satisfy the hook for an unrelated plan. Solving this needs plan-mode-aware scanning (detect EnterPlanMode, search only after) — significantly more complex.
-
-5. **"Contrarian review always required" doesn't survive reality.** The contrarian-reviewer's own deployment table says "Routine validation: No." Plan mode is reserved for non-trivial work, but some plans are focused tasks where contrarian review adds no value.
-
-**Proportionality assessment:** The governance hook's justification is preventing irreversible production changes. A plan mode hook's justification is preventing user inconvenience. The steel-manned alternative — "user catches it and asks for it" — is proportional because the human approval step already exists as a gate.
-
----
-
-**Phased Escalation Plan:**
-
-**Phase 0 — Track Memory Effectiveness (CURRENT — no code changes)**
-Test whether the feedback memory (`feedback_plan_subagents.md`, saved 2026-04-01) is sufficient when not overridden by explicit user instructions.
-
-Success criteria: contrarian-reviewer invoked without user prompting in 2/3 sessions.
-- If successful → **Close #47.** Advisory + memory is sufficient.
-- If fails (0-1/3) → Escalate to Phase 1.
-
-**Phase 1 — Soft-Mode Nudge on ExitPlanMode (if Phase 0 fails)**
-`additionalContext` injection (reminder, not block). Proportional because plan mode has a human gate.
-- New file: `.claude/hooks/pre-plan-exit-check.sh` (~60 lines, follows existing patterns)
-- Modify: `.claude/settings.json` (add `ExitPlanMode` matcher)
-- Add: ~6 tests in `tests/test_hooks.py`
-- Uses: existing `scan_transcript.py --pattern` (no changes)
-- Patterns: `contrarian-reviewer`, `contrarian_reviewer`
-- Escape hatch: `PLAN_EXIT_SKIP=true`
-- Recency window: 300 lines (configurable via `PLAN_EXIT_RECENCY_WINDOW`)
-
-**Phase 2 — Hard-Mode Upgrade (if Phase 1 fails after 3 more sessions)**
-Flip default from soft to hard. Also add plan-mode-aware scanning (detect EnterPlanMode in transcript, only search after that point) to solve the false positive problem.
-
----
-
-**Memory Effectiveness Test (started 2026-04-05):**
-User will NOT request contrarian review. AI should invoke it per feedback memory.
-
-| Session | Date | Task | Contrarian Invoked? | Prompted by User? | Notes |
-|---------|------|------|--------------------|--------------------|-------|
-| 1 | 2026-04-06 | #7 Security Content Currency Process | Yes | No | Invoked during plan mode before ExitPlanMode; accepted 5/6 challenges, revised plan from Part 9.9 → Part 14.2 extension |
-| 2 | 2026-04-07 | #56 Context Window Management evaluation | Yes | No | Invoked during plan mode before ExitPlanMode; accepted all 5 challenges, recommended closure with no changes |
-| 3 | | | | | |
-
-**Result:** Pending (need 3 sessions). Success = 2/3 unprompted. Failure → Phase 1.
 
 #### 54. Superpowers Plugin — Reference Library Entry + Method Assessment (Discussion — from Video Re-Analysis)
 
