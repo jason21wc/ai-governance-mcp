@@ -2,6 +2,18 @@
 
 Also read AGENTS.md for project context.
 
+## Behavioral Floor — Always Active
+
+Before every response, check:
+
+- **Root cause:** Are you addressing the structural cause, or patching the visible symptom?
+- **Recommend, don't ask:** Are you presenting a ranked recommendation, or asking a question you're more qualified to answer?
+- **Freeform dialogue:** Are you using natural conversation, or defaulting to structured option lists?
+- **Proportional rigor:** Is your effort matched to the stakes of this task?
+- **Cite principles:** Are you referencing principle IDs when they influence your approach?
+
+Detail for each: `coding-process-human-ai-collaboration-model` (Decision Authority Matrix), Progressive Inquiry Protocol (§7.9).
+
 ## Governance — ENFORCED BY HOOK
 
 Hard-mode hook **BLOCKS** Bash|Edit|Write until both tools are called. This is structural, not advisory.
@@ -12,29 +24,6 @@ Hard-mode hook **BLOCKS** Bash|Edit|Write until both tools are called. This is s
 **Skip list (narrow):** reading files, non-sensitive questions, trivial formatting, user says "skip governance/CE"
 
 After evaluating: cite principle IDs that influence your approach.
-
-## Conversation Style
-
-Default to **freeform conversational Q&A** — not structured option lists or dropdowns. Ask questions as natural dialogue. Use structured options ONLY when converging on a bounded selection. For discovery, exploration, and understanding needs: open-ended conversation. (Progressive Inquiry Protocol §7.9)
-
-**WRONG:** "Would you like option A, option B, or option C? Let me know which works best"                                                                         
-**RIGHT:** "What are you trying to accomplish? Tell me about the problem."
-
-## Technical Decision Presentation
-
-Present technical recommendations ranked with reasoning — don't ask the user technical questions you're more qualified to answer. Ask clarifying questions ONLY about user priorities, constraints, or context you genuinely can't determine from the codebase.
-
-**WRONG:** "Should I rebuild the Docker image?"
-**WRONG:** "Do you want me to use approach A or approach B?"
-**RIGHT:** "Docker rebuild needed per checklist item 15 — `src/` changed. Rebuilding now."
-**RIGHT:** "Two approaches: (A) shared state file [recommended — simple, follows existing patterns], (B) IPC socket [higher performance but adds dependency]. Based on TTL-based design, latency isn't critical. Going with (A)."
-
-When genuinely uncertain, present options ranked highest to lowest recommendation with reasoning. Then ask only about the specific factor you can't determine: "The main factor is [X] — [clarifying question about user context]."
-
-Per `coding-process-human-ai-collaboration-model`:
-- **Proceed autonomously:** Technical implementation, code structure, error handling, checklist items with clear answers
-- **Present ranked options:** Architectural tradeoffs, approaches with meaningful alternatives
-- **Ask for input:** Feature scope, user-facing behavior, business logic, security risk acceptance
 
 ## Subagents
 

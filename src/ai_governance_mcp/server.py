@@ -202,6 +202,17 @@ def _build_universal_floor(tiers_config: dict) -> list[dict]:
             }
         )
 
+    # Behavioral floor — interaction-style directives (additive reinforcement)
+    behavioral = tiers_config.get("behavioral_floor", {})
+    for d in behavioral.get("directives", []):
+        items.append(
+            {
+                "type": "behavioral",
+                "id": d.get("id"),
+                "check": d.get("check", ""),
+            }
+        )
+
     return items
 
 

@@ -3008,6 +3008,56 @@ class TestTiersConfig:
         assert len(items) == 1
         assert items[0]["type"] == "principle"
 
+    def test_build_universal_floor_includes_behavioral(self):
+        """Should include behavioral_floor directives with type 'behavioral'."""
+        from ai_governance_mcp.server import _build_universal_floor
+
+        config = {
+            "universal_floor": {
+                "principles": [{"id": "p1", "check": "check1"}],
+                "methods": [],
+            },
+            "behavioral_floor": {
+                "directives": [
+                    {"id": "recommend-not-ask", "check": "Presenting recommendations?"},
+                    {"id": "freeform-dialogue", "check": "Using natural dialogue?"},
+                ]
+            },
+        }
+        items = _build_universal_floor(config)
+        assert len(items) == 3  # 1 principle + 2 behavioral
+        behavioral = [i for i in items if i["type"] == "behavioral"]
+        assert len(behavioral) == 2
+        assert behavioral[0]["id"] == "recommend-not-ask"
+        assert behavioral[1]["id"] == "freeform-dialogue"
+
+    def test_build_universal_floor_no_behavioral(self):
+        """Should work without behavioral_floor section (backward compatible)."""
+        from ai_governance_mcp.server import _build_universal_floor
+
+        config = {
+            "universal_floor": {
+                "principles": [{"id": "p1", "check": "check1"}],
+                "methods": [],
+                "subagent_check": {"check": "Would a subagent help?"},
+            }
+        }
+        items = _build_universal_floor(config)
+        assert len(items) == 2  # principle + subagent_check
+        types = {i["type"] for i in items}
+        assert "behavioral" not in types
+
+    def test_build_universal_floor_empty_behavioral(self):
+        """Should handle empty behavioral_floor directives list."""
+        from ai_governance_mcp.server import _build_universal_floor
+
+        config = {
+            "universal_floor": {"principles": [], "methods": []},
+            "behavioral_floor": {"directives": []},
+        }
+        items = _build_universal_floor(config)
+        assert items == []
+
 
 class TestUniversalFloorInEvaluateGovernance:
     """Tests for universal floor injection in evaluate_governance responses."""

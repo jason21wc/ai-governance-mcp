@@ -155,6 +155,25 @@ When modifying shared project context, check whether changes need to propagate:
 - **AGENTS.md** ↔ **CLAUDE.md**: shared content lives in AGENTS.md; Claude-specific content in CLAUDE.md. If you change project context (commands, structure, memory files), update AGENTS.md. If you change governance enforcement or subagent registry, update CLAUDE.md.
 - **PROJECT-MEMORY.md**: If architectural decisions, enforcement roadmap, or structural patterns changed, update the relevant sections. Check for stale "Phase X — future/deferred" descriptions that now describe implemented features.
 
+## Adding new persistent behavioral directives
+
+When you discover a new behavior the AI should consistently exhibit:
+
+1. **Save immediately** as feedback memory (staging — works now, evaluated later)
+
+2. **Classify:**
+   - **Always-active** (shapes every interaction) → Add to CLAUDE.md Behavioral Floor
+     - Selection test: "Would this apply even when answering a simple question with no file modifications?"
+     - If yes → behavioral floor. If no → situation-triggered.
+   - **Situation-triggered** (activated by context) → Add to the appropriate mechanism:
+     - Mechanical check → hook (pre-push, pre-tool)
+     - Multi-step process → completion checklist
+     - Specific task type → subagent trigger table (§5.1.7)
+
+3. **Reinforce (if always-active):** Also add to `documents/tiers.json` `behavioral_floor` for governance-call reinforcement
+
+4. **Retire staging:** After promotion, remove the feedback memory (or keep if the detailed narrative adds value beyond the compact check)
+
 ## Documentation-only changes (memory files, README)
 
 1. Update SESSION-STATE.md if applicable
