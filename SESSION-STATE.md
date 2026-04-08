@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None (ready for next task)
+- **Active Task:** None — next: Task Tools auto-approve evaluation (user request)
 
 ## Quick Reference
 
@@ -37,6 +37,10 @@
 ## Session Summary (2026-04-07)
 
 ### Completed This Session
+
+74. **Auto-Approve Governance + CE MCP Tools — settings.local.json updated**
+   - 13 tools added to allow list: all governance read-only tools, context engine tools, WebSearch. Eliminates ~20-30 manual approval prompts per session. Requires session restart.
+   - Kept blocked: scaffold_project, capture_reference, install_agent, uninstall_agent (create files). Edit/Write .claude/hooks/* (protect safety mechanisms).
 
 73. **Unified Behavioral Directive Architecture — IMPLEMENTED**
    - **Root cause:** Always-active directives scattered across 19 surfaces. No classification system. CLAUDE.md used verbose paragraphs when check-question format is more effective.
