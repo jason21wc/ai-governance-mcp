@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None — next: Behavioral regression check (from #77 plan verification step 6). Run 3-5 representative prompts in fresh session, verify few-shot examples improve target behaviors (recommendation not question, freeform not list, principle citation).
+- **Active Task:** #78 Governance Compliance Review — implementing COMPLIANCE-REVIEW.md
 
 ## Quick Reference
 
@@ -34,9 +34,16 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-04-07)
+## Session Summary (2026-04-08)
 
 ### Completed This Session
+
+78. **Governance Compliance Review Checklist — IMPLEMENTED**
+   - **Root cause:** No recurring mechanism to verify governance system health. Behavioral regression checks were ad-hoc (buried in plan steps). Per `meta-core-systemic-thinking`, the structural gap is "no verification loop" not "forgot one check."
+   - **Research:** Perplexity Deep Research (38 citations) + contrarian-reviewer subagent. NIST AI RMF, ISO 42001, EU AI Act all validate periodic review. Contrarian REVISIT verdict: cut 12 items to 7, eliminated AI self-assessment (sycophancy bias), focused on verification experiments as primary value.
+   - **Changes:** (1) COMPLIANCE-REVIEW.md created — 7 observable ongoing items, 3 behavioral canary prompts (user evaluates, not AI), 3 verification experiments (V-001 UBDA few-shot, V-002 checklist hook, V-003 startup reads), governance performance metrics landing zone, review log. (2) AGENTS.md updated — Memory Files table. (3) SESSION-STATE.md updated — Active backlog item #78 with first review due ~2026-04-20. (4) PROJECT-MEMORY.md updated — compliance review decision + governance metrics home.
+   - **Key design decisions:** Hybrid cadence (10-15 days + event triggers). User spot-check via canary prompts addresses sycophancy bias (Science 2026). Verification items expire to prevent checklist ossification. <15 min target per Gawande (5-9 items). No hooks — advisory proportional to 1-person project.
+   - **Governance:** `meta-governance-continuous-learning-adaptation`, `meta-quality-verification-validation`, `multi-quality-validation-independence`. PROCEED.
 
 77. **UBDA External Review Improvements — IMPLEMENTED**
    - **Three independent reviews:** Perplexity Deep Research (47 citations), Gemini 2.5 Flash, Perplexity meta-review of our plan. Architecture validated by all three. Causal model flagged as oversimplified.
@@ -706,7 +713,7 @@
 
 ### Active (Implement Now/Soon)
 
-*No active items — all in Discussion.*
+78. **Governance Compliance Review — first review due ~2026-04-20** (10-15 calendar days from creation). See COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification.
 
 ---
 
@@ -717,7 +724,7 @@ Pre-push hook Check 4 now blocks push if COMPLETION-CHECKLIST.md was not read. T
 
 | Session | Date | Task | Checklist Read? | Triggered by Hook? | Notes |
 |---------|------|------|----------------|-------------------|-------|
-| 1 | | | | | |
+| 1 | 2026-04-08 | #78 Compliance Review | Y | N | Read docs-only section before push |
 | 2 | | | | | |
 | 3 | | | | | |
 | 4 | | | | | |
@@ -732,7 +739,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 | Session | Date | SESSION-STATE | PROJECT-MEMORY | LEARNING-LOG | Changed Behavior? | Notes |
 |---------|------|:---:|:---:|:---:|:---:|-------|
 | 1 | 2026-04-07 | Y | N | N | — | Only read SESSION-STATE; missed 2/3 |
-| 2 | | | | | | |
+| 2 | 2026-04-08 | Y | N | N | — | Only read SESSION-STATE again |
 | 3 | | | | | | |
 | 4 | | | | | | |
 | 5 | | | | | | |

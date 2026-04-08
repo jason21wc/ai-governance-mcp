@@ -13,6 +13,7 @@
 | LEARNING-LOG.md | Lessons learned |
 | ARCHITECTURE.md | System design, data flow |
 | COMPLETION-CHECKLIST.md | Post-change steps (say "run the completion sequence") |
+| COMPLIANCE-REVIEW.md | Periodic governance health (say "run compliance review") |
 
 ## On Session Start
 
