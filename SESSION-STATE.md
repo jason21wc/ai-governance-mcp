@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** UBDA external review improvements — implemented, pending verification
+- **Active Task:** None — next: Behavioral regression check (from #77 plan verification step 6). Run 3-5 representative prompts in fresh session, verify few-shot examples improve target behaviors (recommendation not question, freeform not list, principle citation).
 
 ## Quick Reference
 
