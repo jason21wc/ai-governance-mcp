@@ -166,10 +166,10 @@ def _load_tiers_config() -> dict | None:
 
 
 def _build_universal_floor(tiers_config: dict) -> list[dict]:
-    """Build compact universal floor items from tiers config.
+    """Build compact floor items from tiers config (universal + behavioral).
 
     Returns a list of check items in compact format:
-    {"type": "principle"|"method"|"subagent_check", "id": str|null, "check": str}
+    {"type": "principle"|"method"|"subagent_check"|"behavioral", "id": str|null, "check": str}
     """
     floor_section = tiers_config.get("universal_floor", {})
     items: list[dict] = []

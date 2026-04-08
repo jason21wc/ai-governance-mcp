@@ -9,7 +9,8 @@
 #   1. Tests run this session (pytest in transcript)
 #   2. Subagent review for risky changes (core code files or new src files)
 #   3. Governance content review for principle file changes
-#   4. Escape hatch: docs-only changes skip review requirement (except governance)
+#   4. Completion checklist consulted (COMPLETION-CHECKLIST.md read)\
+#   Escape hatch: docs-only changes skip review requirement (except governance)
 #
 # Environment variables:
 #   QUALITY_GATE_SKIP=true — Emergency skip (documented override, not silent bypass)

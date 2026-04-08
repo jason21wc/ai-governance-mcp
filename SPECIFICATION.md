@@ -33,7 +33,7 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 
 ## Features
 
-### Governance Server (11 tools)
+### Governance Server (13 tools)
 
 - **Hybrid retrieval** -- BM25 keyword search + dense semantic vectors with weighted score fusion (60/40)
 - **Cross-encoder reranking** -- Top-20 candidates refined by cross-encoder model
@@ -46,6 +46,8 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 - **Domain exploration** (`list_domains`, `get_domain_summary`) -- Domain stats and summaries
 - **Quality tracking** (`log_feedback`, `get_metrics`) -- Feedback collection and analytics
 - **Subagent installation** (`install_agent`, `uninstall_agent`) -- Orchestrator agent for Claude Code
+- **Project scaffolding** (`scaffold_project`) -- Generate governance configuration for new projects
+- **Reference capture** (`capture_reference`) -- Create Reference Library entries from evaluated external sources
 
 ### Context Engine Server (4 tools)
 
