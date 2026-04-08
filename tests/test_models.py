@@ -807,12 +807,12 @@ class TestGovernanceAssessmentReasoningGuidance:
         assert assessment.reasoning_guidance is not None
         assert "log_governance_reasoning" in assessment.reasoning_guidance
 
-    def test_reasoning_guidance_mentions_structured_format(self):
-        """reasoning_guidance should reference structured format."""
+    def test_reasoning_guidance_mentions_auto_logged(self):
+        """reasoning_guidance should reference auto-logging."""
         assessment = GovernanceAssessment(
             action_reviewed="Test action",
             assessment=AssessmentStatus.PROCEED,
             confidence=ConfidenceLevel.HIGH,
             rationale="Test rationale",
         )
-        assert "structured format" in assessment.reasoning_guidance.lower()
+        assert "auto-logged" in assessment.reasoning_guidance.lower()

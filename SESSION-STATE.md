@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None — next: Task Tools auto-approve evaluation (user request)
+- **Active Task:** UBDA external review improvements — implemented, pending verification
 
 ## Quick Reference
 
@@ -37,6 +37,23 @@
 ## Session Summary (2026-04-07)
 
 ### Completed This Session
+
+77. **UBDA External Review Improvements — IMPLEMENTED**
+   - **Three independent reviews:** Perplexity Deep Research (47 citations), Gemini 2.5 Flash, Perplexity meta-review of our plan. Architecture validated by all three. Causal model flagged as oversimplified.
+   - **Key insight:** Framework already documented 3.5/5 degradation mechanisms — scattered without unified model. Fix was connecting existing knowledge, not discovering new mechanisms.
+   - **Changes:** (1) Few-shot WRONG/RIGHT examples in CLAUDE.md from real project failures, (2) reminder anchor at end of CLAUDE.md (recency bias, avoids competing representations per arxiv 2602.07338), (3) causal model corrected to 5-mechanism in LEARNING-LOG with mechanism→intervention mapping, (4) Surface 4 classification criteria updated with mechanism dimension in COMPLETION-CHECKLIST, (5) review findings captured in reference memory.
+   - **Deferred:** Session lifecycle automation, semantic compliance monitor, Agent Stability Index, context pollution automation, single-session intent alignment drift — all with revisit triggers.
+   - **Governance:** `meta-method-validation-protocol`, `coding-method-project-instruction-file-pattern`. PROCEED.
+
+76. **Close Advisory Governance Compliance Gaps — IMPLEMENTED**
+   - **Root cause:** Advisory behaviors skip under autoregressive forward-continuation bias. Existing #73 architecture (behavioral floor + tiers.json) handles this — gaps were an unused surface + a design improvement, not a new problem.
+   - **Contrarian review:** Hook proliferation risk accepted → zero new hooks. Auto-log replaces ceremony. Session startup deferred to measurement.
+   - **Changes:** (1) `evaluate_governance` auto-logs reasoning entry (server.py) — eliminates `log_governance_reasoning` compliance gap by design, (2) cite-principles added to tiers.json behavioral_floor — Layer 2 reinforcement using #73 architecture, (3) reasoning_guidance text updated to reflect auto-logging, (4) session startup compliance tracker added to effectiveness tracking.
+   - **Governance:** `multi-method-governance-enforcement-architecture`, `meta-method-validation-protocol`. PROCEED.
+   - tiers.json v1.3.0 → v1.4.0. 5 new tests, 1 updated.
+
+75. **Task Tools Auto-Approve — settings.local.json updated**
+   - 6 tools added to project allow list: TaskCreate, TaskGet, TaskList, TaskOutput, TaskStop, TaskUpdate. All internal conversation management with no external side effects. Follows same pattern as #74.
 
 74. **Auto-Approve Governance + CE MCP Tools — settings.local.json updated**
    - 13 tools added to allow list: all governance read-only tools, context engine tools, WebSearch. Eliminates ~20-30 manual approval prompts per session. Requires session restart.
@@ -709,6 +726,19 @@ Pre-push hook Check 4 now blocks push if COMPLETION-CHECKLIST.md was not read. T
 **Escalation threshold:** If 2/5 sessions skip → escalate to include specific item verification in hook.
 **Success:** 4/5 consulted → close tracking, keep hook as-is.
 
+**Session Startup Read Compliance (started 2026-04-07):**
+MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session start. Track whether all 3 are read and whether PROJECT-MEMORY/LEARNING-LOG reads change session behavior.
+
+| Session | Date | SESSION-STATE | PROJECT-MEMORY | LEARNING-LOG | Changed Behavior? | Notes |
+|---------|------|:---:|:---:|:---:|:---:|-------|
+| 1 | 2026-04-07 | Y | N | N | — | Only read SESSION-STATE; missed 2/3 |
+| 2 | | | | | | |
+| 3 | | | | | | |
+| 4 | | | | | | |
+| 5 | | | | | | |
+
+**Decision threshold:** If PROJECT-MEMORY or LEARNING-LOG reads change behavior <2/5 sessions → remove from required protocol (keep as optional). If ≥3/5 → add Layer 3 enforcement.
+
 ---
 
 ### Deferred/Future — Discussion
@@ -1035,6 +1065,30 @@ Pre-push hook Check 4 now blocks push if COMPLETION-CHECKLIST.md was not read. T
 5. Batch all as a single appendix update if approved
 
 **Origin:** Claude Code workflow video re-analysis (2026-04-05). Low priority — tooling recommendations, not framework changes.
+
+#### 58. Session Lifecycle Automation — Mid-Session Re-Injection (Discussion — from UBDA Review)
+
+**What:** Context degradation accelerates past critical thresholds. Thresholds exist (50/60/80/32K) but no automation triggers behavioral floor re-injection mid-session. UserPromptSubmit hook could check context utilization and re-inject.
+
+**Revisit trigger:** If measurement shows degradation despite few-shot improvement from #77.
+
+**Origin:** Perplexity Deep Research UBDA review (2026-04-07). Research: arxiv 2601.04170 (episodic memory consolidation — 51.9% drift reduction).
+
+#### 59. Single-Session Intent Alignment Drift (Discussion — from UBDA Review)
+
+**What:** Multi-agent immutability rules handle cross-agent intent preservation. But single-session intent drift within one agent's long task is a distinct failure mode (arxiv 2602.07338). User's progressive expression of intent diverges from model's interpretation over turns. Degradation is ~constant regardless of model size.
+
+**Revisit trigger:** If observed in measurement or if sessions regularly exceed 40+ turns on a single task.
+
+**Origin:** Perplexity Deep Research UBDA review (2026-04-07). Research: arxiv 2602.07338 (Liu et al., challenges Laban et al. framing).
+
+#### 60. Semantic Compliance Monitoring — Supervisor Agent (Discussion — from UBDA Review)
+
+**What:** Current measurement is binary (was evaluate_governance called? yes/no). A supervisor LLM checking semantic compliance after each governance call would detect "was this actually a recommendation or a question-disguised-as-recommendation?" NeMo Guardrails implements this as policy compliance rate metric.
+
+**Revisit trigger:** Productionization or multi-user deployment.
+
+**Origin:** Perplexity Deep Research + Gemini UBDA review (2026-04-07). Both flagged quality-of-compliance vs occurrence gap.
 
 ## Links
 

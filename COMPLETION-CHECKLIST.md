@@ -161,7 +161,9 @@ When you discover a new behavior the AI should consistently exhibit:
 
 1. **Save immediately** as feedback memory (staging — works now, evaluated later)
 
-2. **Classify:**
+2. **Identify degradation mechanism:** Which mechanism does this directive counter? (See LEARNING-LOG "Multi-Mechanism Context Degradation Model" for the 5-mechanism taxonomy.) This prevents local optimization — classifying based only on the observed failure rather than the underlying mechanism.
+
+3. **Classify:**
    - **Always-active** (shapes every interaction) → Add to CLAUDE.md Behavioral Floor
      - Selection test: "Would this apply even when answering a simple question with no file modifications?"
      - If yes → behavioral floor. If no → situation-triggered.
@@ -170,9 +172,9 @@ When you discover a new behavior the AI should consistently exhibit:
      - Multi-step process → completion checklist
      - Specific task type → subagent trigger table (§5.1.7)
 
-3. **Reinforce (if always-active):** Also add to `documents/tiers.json` `behavioral_floor` for governance-call reinforcement
+4. **Reinforce (if always-active):** Also add to `documents/tiers.json` `behavioral_floor` for governance-call reinforcement
 
-4. **Retire staging:** After promotion, remove the feedback memory (or keep if the detailed narrative adds value beyond the compact check)
+5. **Retire staging:** After promotion, remove the feedback memory (or keep if the detailed narrative adds value beyond the compact check)
 
 ## Documentation-only changes (memory files, README)
 

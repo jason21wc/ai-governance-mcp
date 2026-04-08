@@ -2581,6 +2581,42 @@ async def _handle_evaluate_governance(
     )
     await log_governance_audit_async(audit_entry)
 
+    # Auto-log reasoning trace (eliminates manual log_governance_reasoning compliance gap)
+    # Manual log_governance_reasoning remains available for richer per-principle analysis
+    auto_reasoning_entries = [
+        ReasoningEntry(
+            principle_id=rp.id,
+            status="EVALUATED",
+            reasoning=f"Surfaced by governance evaluation (score: {rp.score:.2f})",
+        )
+        for rp in relevant_principles
+    ]
+    for rm in relevant_methods:
+        auto_reasoning_entries.append(
+            ReasoningEntry(
+                principle_id=rm.id,
+                status="EVALUATED",
+                reasoning=f"Method surfaced (score: {rm.score:.2f}, "
+                f"confidence: {rm.confidence})",
+            )
+        )
+    auto_reasoning = GovernanceReasoningLog(
+        audit_id=governance_assessment.audit_id,
+        reasoning_entries=auto_reasoning_entries
+        if auto_reasoning_entries
+        else [
+            ReasoningEntry(
+                principle_id="none",
+                status="EVALUATED",
+                reasoning="No strongly relevant principles found for this action",
+            )
+        ],
+        final_decision=assessment.value,
+        modifications_applied=required_modifications or [],
+        auto_generated=True,
+    )
+    await log_reasoning_async(auto_reasoning)
+
     # Format output
     output = governance_assessment.model_dump()
     # Convert enums to strings for JSON serialization

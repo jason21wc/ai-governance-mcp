@@ -12,11 +12,21 @@
 
 ## Active Lessons
 
-### Autoregressive Forward-Continuation Bias (2026-03-28) — CRITICAL
+### Multi-Mechanism Context Degradation Model (2026-03-28, updated 2026-04-07) — CRITICAL
 
-**Corrected root cause (supersedes "velocity pressure" framing):** When LLMs skip advisory verification steps, it is NOT because of "velocity pressure" or "being rushed." LLMs don't experience pressure. The actual mechanism is **autoregressive forward-continuation bias**: each completed step raises the probability that the next token continues toward task completion rather than pausing to verify. Verification steps are lower-probability generations that break the forward trajectory. This is structural to how LLMs generate tokens, not a motivational failure. Citing "velocity pressure" is the AI rationalizing a generation pattern as an emotional state. (Research: Agent Drift arxiv 2601.04170; LLMs Get Lost arxiv 2505.06120 — 39% multi-turn performance drop, premature solution generation.)
+**Corrected framing (supersedes single-mechanism model):** When LLMs skip advisory verification steps, it is NOT a single-mechanism problem. Five distinct degradation mechanisms contribute, each requiring different interventions:
 
-**Rule:** Stop treating verification/review steps as advisory interruptions. Make them part of the expected generation flow — the path of least resistance should run THROUGH verification, not around it. Three structural techniques: (1) Gate-token transitions — require specific output before phase transition; (2) Verification as control flow — the review determines what happens next; (3) Schema enforcement — required fields before result field. Advisory prompting ("please verify") has the lowest reliability of any technique.
+| Mechanism | Description | Addressed by | Research |
+|-----------|-------------|-------------|----------|
+| **Autoregressive forward-continuation bias** | Each completed step raises probability of continuing to completion rather than pausing to verify. Structural to token generation. | Surface 1 (check-questions interrupt forward trajectory) + few-shot examples | Agent Drift arxiv 2601.04170 |
+| **Context position decay (lost-in-middle)** | U-shaped attention: high at start/end, low in middle. Instructions drift into neglect zone as context grows. | Surface 1 positioning (top of CLAUDE.md) + Surface 2 re-injection (recency at governance call) + reminder anchor (end of CLAUDE.md) | arxiv 2307.03172; arxiv 2508.05128 |
+| **Context window pollution** | Older, irrelevant interactions dilute signal-to-noise ratio. Quality degrades well before technical limit. | Principles (60/80/32K thresholds in ai-coding-principles:472-537) + multi-agent compression (§3.4) | Chroma context-rot research |
+| **Intent alignment gap** | Progressive mismatch between how users express intent and how models interpret it over turns. Degradation is ~constant regardless of model size. | Multi-agent immutability rules (multi-agent-methods:980-984). Gap: not named as degradation mode; no single-session coverage. | arxiv 2602.07338 (challenges Laban et al.) |
+| **Distributional shift** | Agent encounters inputs increasingly divergent from training distribution over extended sessions. | Behavioral drift monitoring (coherence auditor). Gap: data distribution shift not tracked. | Agent Drift arxiv 2601.04170 |
+
+**Why this matters:** The previous framing presented autoregressive bias as THE root cause. That's a useful simplification but creates a false ceiling — some degradation types (position decay, intent misalignment) require different interventions than structural gates. Each UBDA surface should know which mechanism it counters. (Validated by 3 independent external reviews, 2026-04-07.)
+
+**Rule (retained):** Stop treating verification/review steps as advisory interruptions. Make them part of the expected generation flow. Three structural techniques: (1) Gate-token transitions, (2) Verification as control flow, (3) Schema enforcement. Advisory prompting ("please verify") has the lowest reliability.
 
 **Rule (retained):** Advisory compliance is ~85%. For items that must be 100%, enforce structurally. COMPLETION-CHECKLIST tiered as ENFORCED vs BEST-EFFORT.
 

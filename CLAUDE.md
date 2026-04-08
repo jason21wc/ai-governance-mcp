@@ -7,10 +7,20 @@ Also read AGENTS.md for project context.
 Before every response, check:
 
 - **Root cause:** Are you addressing the structural cause, or patching the visible symptom?
+  - WRONG: Three rounds of "double-checking" caught issues the checklist already covered — the problem was never opening the checklist (#71)
+  - RIGHT: Enforce the meta-action (opening the checklist) rather than patching individual missed items
 - **Recommend, don't ask:** Are you presenting a ranked recommendation, or asking a question you're more qualified to answer?
+  - WRONG: "Would you like me to use hooks, advisory instructions, or a proxy for enforcement?"
+  - RIGHT: "I recommend hooks (highest reliability, proven in this project). Advisory alone achieves ~85%. Here's why."
 - **Freeform dialogue:** Are you using natural conversation, or defaulting to structured option lists?
+  - WRONG: "Option A: Add hooks. Option B: Use advisory. Option C: Build a proxy."
+  - RIGHT: Conversational prose exploring trade-offs, with a recommendation — not a menu
 - **Proportional rigor:** Is your effort matched to the stakes of this task?
+  - WRONG: Proposing new infrastructure (metadata field + Part section + backlog activation) for an n=1 user report (#44)
+  - RIGHT: Template improvement scoped to evidence — reject infrastructure that assumes the pattern will generalize
 - **Cite principles:** Are you referencing principle IDs when they influence your approach?
+  - WRONG: "This is a root-cause analysis problem" with no principle reference
+  - RIGHT: "Per `meta-core-systemic-thinking`, address the structural cause (autoregressive generation) not the symptom (skipped calls)"
 
 Detail for each: `coding-process-human-ai-collaboration-model` (Decision Authority Matrix), Progressive Inquiry Protocol (§7.9).
 
@@ -50,3 +60,7 @@ When you discover issues during a task, **finish the user's requested task first
 ## Plan Mode
 
 For architecture decisions, use the plan template at `.claude/plan-template.md`. The template structure puts contrarian review, research verification, and simpler-alternatives evaluation BEFORE the recommended approach — making verification part of the generation flow, not an afterthought. (Per Systemic Thinking + autoregressive forward-continuation bias research.)
+
+## Quick Recall — Behavioral Floor (see top of file)
+
+Root cause over symptoms. Recommend, don't ask. Freeform dialogue. Proportional rigor. Cite principle IDs.

@@ -3831,3 +3831,175 @@ class TestCaptureReference:
         result = await _handle_capture_reference({"id": "ref-test"})
         response = json.loads(result[0].text.split("---")[0])
         assert response["error_code"] == "MISSING_REQUIRED_FIELDS"
+
+
+class TestAutoLogGovernanceReasoning:
+    """Tests for automatic reasoning logging in evaluate_governance."""
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_auto_logs_reasoning(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should auto-log a reasoning entry."""
+        from ai_governance_mcp import server as server_module
+
+        server_module._reasoning_log.clear()
+        server_module._audit_log.clear()
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Add a new logging function"},
+                    )
+
+                    # Should have auto-logged a reasoning entry
+                    assert len(server_module._reasoning_log) == 1
+                    entry = server_module._reasoning_log[0]
+                    assert entry.auto_generated is True
+                    assert entry.final_decision in [
+                        "PROCEED",
+                        "PROCEED_WITH_MODIFICATIONS",
+                        "ESCALATE",
+                    ]
+                    assert len(entry.reasoning_entries) >= 1
+
+    @pytest.mark.asyncio
+    async def test_auto_log_audit_id_matches(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Auto-logged reasoning should share audit_id with audit entry."""
+        from ai_governance_mcp import server as server_module
+
+        server_module._reasoning_log.clear()
+        server_module._audit_log.clear()
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Test action for audit ID match"},
+                    )
+
+                    assert len(server_module._audit_log) == 1
+                    assert len(server_module._reasoning_log) == 1
+                    assert (
+                        server_module._audit_log[0].audit_id
+                        == server_module._reasoning_log[0].audit_id
+                    )
+
+    @pytest.mark.asyncio
+    async def test_manual_log_still_works_after_auto_log(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Manual log_governance_reasoning should still work alongside auto-log."""
+        from ai_governance_mcp import server as server_module
+
+        server_module._reasoning_log.clear()
+        server_module._audit_log.clear()
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Test action for manual log"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+                    audit_id = parsed["audit_id"]
+
+                    # Auto-log should exist
+                    assert len(server_module._reasoning_log) == 1
+                    assert server_module._reasoning_log[0].auto_generated is True
+
+                    # Manual log should also work
+                    await call_tool(
+                        "log_governance_reasoning",
+                        {
+                            "audit_id": audit_id,
+                            "reasoning": [
+                                {
+                                    "principle_id": "test-principle",
+                                    "status": "COMPLIES",
+                                    "reasoning": "Manual detailed analysis",
+                                }
+                            ],
+                            "final_decision": "PROCEED",
+                        },
+                    )
+
+                    # Both entries should exist
+                    assert len(server_module._reasoning_log) == 2
+                    assert server_module._reasoning_log[0].auto_generated is True
+                    assert server_module._reasoning_log[1].auto_generated is False
+
+
+class TestCitePrinciplesInBehavioralFloor:
+    """Tests for cite-principles directive in tiers.json behavioral_floor."""
+
+    def test_cite_principles_in_tiers_json(self):
+        """tiers.json should include cite-principles directive."""
+        tiers_path = Path(__file__).parent.parent / "documents" / "tiers.json"
+        with open(tiers_path) as f:
+            config = json.load(f)
+
+        directives = config["behavioral_floor"]["directives"]
+        ids = [d["id"] for d in directives]
+        assert "cite-principles" in ids
+
+    def test_build_universal_floor_includes_cite_principles(self):
+        """_build_universal_floor should include cite-principles behavioral directive."""
+        from ai_governance_mcp.server import _build_universal_floor
+
+        config = {
+            "universal_floor": {"principles": [], "methods": []},
+            "behavioral_floor": {
+                "directives": [
+                    {"id": "recommend-not-ask", "check": "Presenting recommendations?"},
+                    {"id": "freeform-dialogue", "check": "Using natural dialogue?"},
+                    {"id": "cite-principles", "check": "Referencing principle IDs?"},
+                ]
+            },
+        }
+        items = _build_universal_floor(config)
+        behavioral = [i for i in items if i["type"] == "behavioral"]
+        assert len(behavioral) == 3
+        assert behavioral[2]["id"] == "cite-principles"

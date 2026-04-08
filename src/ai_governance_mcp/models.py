@@ -552,9 +552,8 @@ class GovernanceAssessment(BaseModel):
     # Reasoning externalization guidance (for audit trail completeness)
     reasoning_guidance: str = Field(
         default=(
-            "After analyzing principles, document your reasoning using the structured format "
-            "(Governance Reasoning Protocol). Then call log_governance_reasoning() with this "
-            "assessment's audit_id to record your trace for audit trail completeness."
+            "Reasoning auto-logged with this assessment. For richer per-principle analysis, "
+            "optionally call log_governance_reasoning() with this assessment's audit_id."
         ),
         description="Guidance for externalizing governance reasoning to audit trail",
     )
@@ -637,7 +636,7 @@ class ReasoningEntry(BaseModel):
     )
     status: str = Field(
         ...,
-        description="Assessment status: COMPLIES, NEEDS_MODIFICATION, or VIOLATION",
+        description="Assessment status: COMPLIES, NEEDS_MODIFICATION, VIOLATION, or EVALUATED (auto-logged)",
         max_length=30,
     )
     reasoning: str = Field(
@@ -672,4 +671,8 @@ class GovernanceReasoningLog(BaseModel):
     modifications_applied: list[str] = Field(
         default_factory=list,
         description="List of modifications applied (if any)",
+    )
+    auto_generated: bool = Field(
+        default=False,
+        description="True when auto-logged by evaluate_governance, False when manually logged",
     )
