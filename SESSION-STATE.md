@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** #78 Governance Compliance Review — implementing COMPLIANCE-REVIEW.md
+- **Active Task:** None — next: check Discussion backlog for next priority, or first compliance review due ~2026-04-20
 
 ## Quick Reference
 
