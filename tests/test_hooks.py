@@ -705,6 +705,33 @@ class TestPromptHookSuppressesWhenCompliant:
             [
                 make_tool_use_entry("mcp__ai-governance__evaluate_governance"),
                 make_tool_use_entry("mcp__context-engine__query_project"),
+                # Startup reads — hook checks for PROJECT-MEMORY and LEARNING-LOG in early session
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": [
+                            {
+                                "type": "tool_use",
+                                "id": "r1",
+                                "name": "Read",
+                                "input": {"file_path": "PROJECT-MEMORY.md"},
+                            }
+                        ],
+                    }
+                },
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": [
+                            {
+                                "type": "tool_use",
+                                "id": "r2",
+                                "name": "Read",
+                                "input": {"file_path": "LEARNING-LOG.md"},
+                            }
+                        ],
+                    }
+                },
             ]
         )
         try:
