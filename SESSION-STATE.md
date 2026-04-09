@@ -710,15 +710,27 @@
 
 ### Open Backlog
 
-> **Backlog Philosophy (2026-03-30, updated 2026-04-06):** Items fall into two categories: (1) **Active** — fix now or implement soon, (2) **Deferred/Future — Discussion** — needs fleshing out before deciding to implement or drop. New user-requested items default to Discussion unless they emerge from implementation (e.g., template fixes discovered during audit). Existing shipped work with known issues gets fixed now — don't defer fixes to "next time we touch it." See also #33.
+> **Backlog Philosophy (2026-03-30, updated 2026-04-08):** Items fall into two categories: (1) **Active** — fix now or implement soon, (2) **Deferred/Future — Discussion** — needs fleshing out before deciding to implement or drop. New user-requested items default to Discussion unless they emerge from implementation (e.g., template fixes discovered during audit). Existing shipped work with known issues gets fixed now — don't defer fixes to "next time we touch it." See also #33.
 >
 > **No closed/completed items in SESSION-STATE.** When an item is closed, remove it from this file entirely. Git commit history is the archive — commit messages document what was closed and why. Maintaining closed item lists, completed tables, or historical detail sections in a working document is redundant with version control and causes unbounded file growth. If you need closure context for a past item, use `git log --grep="backlog #N"` or search commit messages.
+>
+> **Difficulty classification (D1-D3).** Every backlog item gets a difficulty tag. Per `meta-quality-verification-validation`, criteria must be observable, not subjective.
+>
+> | Level | Label | Definition | Observable Indicators |
+> |-------|-------|-----------|----------------------|
+> | **D1** | Single-session | Completable in one session without plan mode | Docs-only OR known pattern, no new infrastructure, no dependencies |
+> | **D2** | Multi-session | Requires plan mode OR spans multiple sessions | New tool/hook/section, moderate research, or depends on 1-2 other items |
+> | **D3** | Architecture | Plan mode + external review + broad changes | New domain, cross-cutting refactor, new service, heavy research |
+>
+> **Rules:** Default to D1 unless indicators push higher. Plan mode → at least D2. New domain or cross-cutting → D3. When uncertain, pick higher. Re-evaluate when starting work — tags are estimates, not commitments.
+>
+> **Type tags:** Fix, Improvement, New Capability, Docs, Maintenance. Ranked order: fixes first → improvements → new capabilities.
 
 ---
 
 ### Active (Implement Now/Soon)
 
-78. **Governance Compliance Review — first review due ~2026-04-20** (10-15 calendar days from creation). See COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification.
+78. **Governance Compliance Review — first review due ~2026-04-20** `D1 Maintenance` (10-15 calendar days from creation). See COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification.
 
 ---
 
@@ -757,7 +769,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
-#### 22. Governance Effectiveness Measurement (Discussion)
+#### 22. Governance Effectiveness Measurement (Discussion) `D1 Improvement`
 
 **What:** The framework can measure whether `evaluate_governance` was *called* but not whether it *influenced decisions*. Can we measure the framework's actual effectiveness?
 
@@ -767,7 +779,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Outcome:** Either define metrics worth implementing, or conclude the value is qualitative and close this item.
 
-#### 16. Governance Retrieval Quality Assessment (Discussion)
+#### 16. Governance Retrieval Quality Assessment (Discussion) `D2 Improvement`
 
 **What:** Governance server uses BGE-small (384d) while Context Engine uses nomic-embed (768d, better benchmarks). But we don't know if the current model is underperforming — users may not notice degraded retrieval quality.
 
@@ -778,7 +790,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 **Outcome:** Either justify the upgrade with data and implement, or confirm current model is sufficient and close.
 
 
-#### 6. Visual Communication Domain (Discussion → Full Planning)
+#### 6. Visual Communication Domain (Discussion → Full Planning) `D3 New Capability`
 
 **What:** Governance for non-coding visual artifacts: presentations, reports, infographics, print design. Separate from UI/UX (different failure modes, evidence bases, tooling). Tufte, Duarte, Reynolds evidence base.
 
@@ -788,7 +800,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Scope note (2026-04-03):** Structured document production (Excel workbooks, data-heavy reports, financial spreadsheets) is handled by AI Coding Part 9.4 (Document Generation Patterns). Visual Communication stays scoped to visual design artifacts: presentations, infographics, print design — the Tufte/Duarte/Reynolds evidence base. The distinction: Part 9.4 covers *how to generate and serve document files reliably*; Visual Communication covers *how to design visually effective communication*.
 
-#### 53. Modular Domain Architecture (Discussion)
+#### 53. Modular Domain Architecture (Discussion) `D3 New Capability`
 
 **What:** Make ai-governance modular so users can spin up with just meta-principles and methods, or with meta + selected domains. Domains should be addable/removable without affecting the core framework.
 
@@ -806,7 +818,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Origin:** User request (2026-04-04). Anticipatory architecture improvement for adoption scalability.
 
-#### 49. Embedding Model Memory Sharing Across Processes (Discussion — Performance)
+#### 49. Embedding Model Memory Sharing Across Processes (Discussion — Performance) `D3 Improvement`
 
 **What:** Each MCP server process (governance server, Context Engine server, CE watcher) loads its own copy of the same embedding model (BGE-small-en-v1.5) into memory independently. With 2 concurrent Claude Code sessions, this means 5 Python processes each loading the same model + PyTorch runtime — macOS charged ~27 GB across them and triggered a low-memory warning on a 64 GB machine. A 16 GB machine would be unusable with 2 sessions.
 
@@ -826,37 +838,37 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Origin:** Session 48 (2026-04-03). macOS low-memory warning with 2 concurrent sessions. Initial investigation incorrectly dismissed Activity Monitor's GB numbers as "just virtual memory" — 26 GB swap + macOS warning proved impact is real.
 
-#### 19. Rampart Integration — Client-Side Enforcement (Discussion)
+#### 19. Rampart Integration — Client-Side Enforcement (Discussion) `D1 New Capability`
 
 **What:** Rampart provides shell-level security enforcement (credential theft, exfiltration, destructive commands). Complements MCP proxy and hooks — different root cause. Hooks enforce "did you consult governance?" (process gate); Rampart enforces "is this command safe?" (security gate). Defense-in-depth.
 
 **Discussion needed:** Evaluate whether the incremental security value justifies the setup for a single-developer Claude Code project. Research current Rampart capabilities and rule set.
 
-#### 13. Governance-Aware Output Compression (Discussion)
+#### 13. Governance-Aware Output Compression (Discussion) `D1 Fix`
 
 **What:** Long Bash output wastes context window tokens. Build a PostToolUse hook that compresses verbose output while preserving governance/security lines and structured data.
 
 **Discussion needed:** Is this still relevant as context windows grow? Measure actual context consumption from Bash output. If >20% threshold is hit, define the compression approach (per §3.1.4 "build our own" mode to avoid third-party information intermediary risk per §5.6.8).
 
-#### 10. UI/UX Tool-Specific Integration Guides (Discussion)
+#### 10. UI/UX Tool-Specific Integration Guides (Discussion) `D1 New Capability`
 
 **What:** Write integration guides for AI-assisted design tools (Figma MCP, Storybook MCP, Axe MCP, Playwright MCP, etc.) as they're adopted. Research already done (candidate tools, risks, token costs documented in git history — search commits for "backlog #10").
 
 **Discussion needed:** Which tools are most likely to be adopted first? What format should integration guides take? Reference the existing research.
 
-#### 11. Autonomous Operations Domain (Discussion)
+#### 11. Autonomous Operations Domain (Discussion) `D3 New Capability`
 
 **What:** Autonomous agent patterns (AO-Series, currently 4 principles in Multi-Agent) may eventually outgrow the multi-agent domain. This would create a dedicated domain for autonomous operation governance — financial compliance, regulatory frameworks, agent marketplace governance, cross-org federation.
 
 **Discussion needed:** Is this anticipatory need real? What would trigger the split? The Domain Creation Criteria (§5.1.0) already defines when to create domains, but the user wants to understand if the AO-Series trajectory warrants keeping this on the radar.
 
-#### 12. Operational / Deployment Runbook Domain (Discussion)
+#### 12. Operational / Deployment Runbook Domain (Discussion) `D2 New Capability`
 
 **What:** Framework covers how AI produces code but not how AI handles deployment, infrastructure, and operations. 3 solid practices from viral "AI vibe coding security rules" analysis couldn't be placed in existing domains.
 
 **Discussion needed:** Is this a full domain or should the 3 orphaned practices just be filed in an appendix? Decision factors: are we using AI for deployment workflows? Is the gap growing? Domain vs standalone runbook vs appendix to AI Coding methods?
 
-#### 35. Evaluate Stripe Projects CLI for Appendices (Discussion)
+#### 35. Evaluate Stripe Projects CLI for Appendices (Discussion) `D1 New Capability`
 
 **What:** Stripe Projects CLI (launched 2026-03-27, developer preview) lets developers and AI agents provision third-party services, manage credentials, and handle billing from the terminal. Evaluate whether it belongs in the ai-governance appendices as tool-specific guidance.
 
@@ -883,7 +895,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 ---
 
-#### 79. Apple Mail MCP Server — Tool-Specific Governance Guidance (Discussion)
+#### 79. Apple Mail MCP Server — Tool-Specific Governance Guidance (Discussion) `D1 New Capability`
 
 **What:** Add governance guidance for the [apple-mail-mcp](https://github.com/s-morgan-jeffries/apple-mail-mcp) open-source MCP server (MIT license, pre-release). Enables AI to read, search, compose, send, and manage emails via Apple Mail.app on macOS. 14 exposed tools across read/search, compose/send, attachments, and organization.
 
@@ -902,7 +914,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 ---
 
-#### 34. Epistemic Integrity — Constitutional Principle (Discussion)
+#### 34. Epistemic Integrity — Constitutional Principle (Discussion) `D1 Improvement`
 
 **What:** Proposed new Q-Series constitutional principle addressing AI sycophancy — the tendency to validate flawed assumptions, reinforce suboptimal approaches, or present outputs with unearned confidence. Core requirement: analytical accuracy over conversational agreeability.
 
@@ -939,7 +951,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 ---
 
-#### 41. Reference Library Auto-Staging Proposals (Discussion — Self-Improvement)
+#### 41. Reference Library Auto-Staging Proposals (Discussion — Self-Improvement) `D2 Improvement`
 
 **What:** After sessions involving complex problem-solving (5+ tool calls, novel governance patterns, or trial-and-error workflows), the system proposes reference library entries to the `staging/` directory with `maturity: seedling`. Human reviews staging during completion sequence.
 
@@ -953,7 +965,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 ---
 
-#### 42. Feedback Loop Analysis Tool (Discussion — Self-Improvement)
+#### 42. Feedback Loop Analysis Tool (Discussion — Self-Improvement) `D2 Improvement`
 
 **What:** New MCP tool (e.g., `analyze_feedback_loop()`) that reads existing log files (`feedback.jsonl`, `governance_reasoning.jsonl`, `governance_audit.jsonl`, `queries.jsonl`) and produces actionable proposals: dead principle detection, false positive pattern identification, retrieval gap reports, principle health scoring.
 
@@ -967,7 +979,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 ---
 
-#### 43. Progressive Disclosure for Reference Library (Discussion — Retrieval Efficiency)
+#### 43. Progressive Disclosure for Reference Library (Discussion — Retrieval Efficiency) `D2 Improvement`
 
 **What:** Currently, matched reference library entries return full content in evaluation results. Adopt a tiered retrieval model: Tier 1 (in evaluation results) shows ID, title, summary, maturity/status, confidence — as we do now. Tier 2 (on demand) provides full artifact content via a new `get_reference(id)` tool. Tier 3 (deep dive) includes related references, cross-references, principle links.
 
@@ -981,7 +993,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 ---
 
-#### 44. Auto-Maturity Proposals from Usage Data (Discussion — Self-Improvement)
+#### 44. Auto-Maturity Proposals from Usage Data (Discussion — Self-Improvement) `D2 Improvement`
 
 **What:** Automate maturity promotion proposals for reference library entries based on usage signals: seedling → budding (retrieved 3+ times with positive feedback), budding → evergreen (retrieved across 2+ projects, no negative feedback in 6+ months), any → caution/deprecated (not retrieved in N months based on decay_class).
 
@@ -995,7 +1007,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 ---
 
-#### 45. Content Security Scanning for Staging Entries (Discussion — Security)
+#### 45. Content Security Scanning for Staging Entries (Discussion — Security) `D2 New Capability`
 
 **What:** Add content security scanning for reference library entries proposed to `staging/`, similar to Hermes's skills_guard (100+ threat patterns across categories: prompt injection, exfiltration, destructive commands, role hijacking, credential exposure, obfuscation).
 
@@ -1009,7 +1021,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 ---
 
-#### 46. Stack/Platform Conditional Metadata for References (Discussion — Retrieval Quality)
+#### 46. Stack/Platform Conditional Metadata for References (Discussion — Retrieval Quality) `D2 Improvement`
 
 **What:** Add optional frontmatter fields to reference library entries indicating technology stack or platform requirements (e.g., `requires_stack: [nextjs, supabase]`, `applies_to: [typescript, javascript]`). Use these in retrieval to filter or de-rank entries irrelevant to the current project context.
 
@@ -1023,7 +1035,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 ---
 
-#### 54. Superpowers Plugin — Reference Library Entry + Method Assessment (Discussion — from Video Re-Analysis)
+#### 54. Superpowers Plugin — Reference Library Entry + Method Assessment (Discussion — from Video Re-Analysis) `D1 Improvement`
 
 **What:** The Superpowers plugin (github.com/obra/superpowers, v4.3.0, 93K+ developers, Anthropic-endorsed) is a methodology-as-code framework implementing a brainstorm→write-plan→execute-plan pipeline using SKILL.md files. It packages several ai-governance principles (orchestration, context isolation, spec-driven development, sequential phase dependencies, atomic task decomposition) into three executable commands that enforce the workflow structurally.
 
@@ -1040,7 +1052,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Origin:** Claude Code workflow video re-analysis (2026-04-05). Previously evaluated as "covered" — re-examined with method-level quality lens per §9.8.2 scope boundary.
 
-#### 55. Workflow Codification — Skills as Standardized Work (Discussion — from Video Re-Analysis)
+#### 55. Workflow Codification — Skills as Standardized Work (Discussion — from Video Re-Analysis) `D1 Improvement`
 
 **What:** Claude Code skills (SKILL.md files) enable repeatable workflow codification — the discipline of identifying, designing, codifying, validating, and iterating AI-assisted workflows. The video's "creature-forge" example shows a user who identified a repeatable process, built a skill, ran it, got failures, iterated with feedback, and now has a reliable automated workflow. This is the PDCA cycle applied to AI workflows.
 
@@ -1058,7 +1070,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Origin:** Claude Code workflow video re-analysis (2026-04-05).
 
-#### 57. Recommended Tooling Appendix Entries — Warp, cc-status-line, Happy Engineering (Discussion — from Video Re-Analysis)
+#### 57. Recommended Tooling Appendix Entries — Warp, cc-status-line, Happy Engineering (Discussion — from Video Re-Analysis) `D1 Docs`
 
 **What:** Three tools from the Claude Code workflow video that implement existing framework principles as concrete tooling. Candidates for ai-coding Appendix A entries.
 
@@ -1097,7 +1109,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Origin:** Claude Code workflow video re-analysis (2026-04-05). Low priority — tooling recommendations, not framework changes.
 
-#### 58. Session Lifecycle Automation — Mid-Session Re-Injection (Discussion — from UBDA Review)
+#### 58. Session Lifecycle Automation — Mid-Session Re-Injection (Discussion — from UBDA Review) `D2 Improvement`
 
 **What:** Context degradation accelerates past critical thresholds. Thresholds exist (50/60/80/32K) but no automation triggers behavioral floor re-injection mid-session. UserPromptSubmit hook could check context utilization and re-inject.
 
@@ -1105,7 +1117,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Origin:** Perplexity Deep Research UBDA review (2026-04-07). Research: arxiv 2601.04170 (episodic memory consolidation — 51.9% drift reduction).
 
-#### 59. Single-Session Intent Alignment Drift (Discussion — from UBDA Review)
+#### 59. Single-Session Intent Alignment Drift (Discussion — from UBDA Review) `D2 Improvement`
 
 **What:** Multi-agent immutability rules handle cross-agent intent preservation. But single-session intent drift within one agent's long task is a distinct failure mode (arxiv 2602.07338). User's progressive expression of intent diverges from model's interpretation over turns. Degradation is ~constant regardless of model size.
 
@@ -1113,7 +1125,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Origin:** Perplexity Deep Research UBDA review (2026-04-07). Research: arxiv 2602.07338 (Liu et al., challenges Laban et al. framing).
 
-#### 60. Semantic Compliance Monitoring — Supervisor Agent (Discussion — from UBDA Review)
+#### 60. Semantic Compliance Monitoring — Supervisor Agent (Discussion — from UBDA Review) `D2 Improvement`
 
 **What:** Current measurement is binary (was evaluate_governance called? yes/no). A supervisor LLM checking semantic compliance after each governance call would detect "was this actually a recommendation or a question-disguised-as-recommendation?" NeMo Guardrails implements this as policy compliance rate metric.
 
