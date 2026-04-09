@@ -31,7 +31,7 @@ Hard-mode hook **BLOCKS** Bash|Edit|Write until both tools are called. This is s
 - `evaluate_governance(planned_action="...")` — required before any non-read action
 - `query_project(query="...")` — required before creating or modifying code/content
 
-**Skip list (narrow):** reading files, non-sensitive questions, trivial formatting, user says "skip governance/CE"
+**Skip list (narrow):** reading files, non-sensitive questions, trivial formatting, user says "skip governance/CE". Note: analysis tasks that determine what to change (propagation checks, audit reviews) are NOT read-only — they lead to writes. Call governance before analysis, not just before the write.
 
 After evaluating: cite principle IDs that influence your approach.
 

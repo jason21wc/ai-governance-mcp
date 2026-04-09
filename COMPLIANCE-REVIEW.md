@@ -237,6 +237,28 @@ User reviews the subagent's findings and confirms or challenges.
 
 ---
 
+### [V-004] Contrarian review compliance before ExitPlanMode — OPEN
+
+**Hypothesis:** Strengthened plan template gate text ("DO NOT populate Recommended Approach until contrarian section has content") reduces contrarian-skip failures.
+
+**Added:** 2026-04-08
+**Confirm/Refute by:** 3 sessions with plan mode from 2026-04-08
+
+**Process indicator:** Was contrarian-reviewer invoked before ExitPlanMode without user prompting? (Evaluated by **validator subagent** during compliance review, not self-reported — per `multi-quality-validation-independence`.)
+
+**Success:** 3/3 sessions invoke contrarian unprompted.
+**Failure:** 2+ sessions require user reminder → escalate to PreToolUse hook for ExitPlanMode.
+
+**Baseline:** This session: 2/4 plans needed user reminder (50% unprompted compliance).
+
+| Session | Date | Plans | Contrarian Unprompted? | Notes |
+|---------|------|-------|:---:|-------|
+| 1 (baseline) | 2026-04-08 | 4 | 2/4 (50%) | 2 skipped, user corrected both |
+| 2 | | | | |
+| 3 | | | | |
+
+---
+
 ## Review Log
 
 | # | Date | Trigger | Ongoing (pass/total) | Verifications Updated | Key Finding | Action |

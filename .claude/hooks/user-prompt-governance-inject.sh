@@ -50,8 +50,26 @@ if [ -n "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
     echo "[governance-hook] UserPromptSubmit scan result: $SCAN_RESULT" >&2
   fi
 
-  # If both found recently, suppress reminder (save tokens)
+  # If both found recently, check startup reads then decide
   if [ "$SCAN_RESULT" = "both" ]; then
+    # Check startup reads — only in first ~50 transcript lines (early session)
+    STARTUP_WINDOW=50
+    LINE_COUNT=$(wc -l < "$TRANSCRIPT_PATH" 2>/dev/null | tr -d ' ') || LINE_COUNT=9999
+    if [ "$LINE_COUNT" -le "$STARTUP_WINDOW" ]; then
+      PM_READ=$(python3 "$HOOK_DIR/scan_transcript.py" --pattern "PROJECT-MEMORY" "$TRANSCRIPT_PATH" "$STARTUP_WINDOW" 2>/dev/null) || PM_READ="false"
+      LL_READ=$(python3 "$HOOK_DIR/scan_transcript.py" --pattern "LEARNING-LOG" "$TRANSCRIPT_PATH" "$STARTUP_WINDOW" 2>/dev/null) || LL_READ="false"
+      if [ "$PM_READ" = "false" ] || [ "$LL_READ" = "false" ]; then
+        MISSING=""
+        [ "$PM_READ" = "false" ] && MISSING="PROJECT-MEMORY.md"
+        [ "$LL_READ" = "false" ] && MISSING="${MISSING:+$MISSING, }LEARNING-LOG.md"
+        python3 -c "
+import json, sys
+msg = sys.argv[1]
+sys.stdout.write(json.dumps({'additionalContext': msg}))
+" "STARTUP READS: You have not yet read $MISSING this session. Per AGENTS.md On Session Start, read all 3 memory files (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG) before proceeding." 2>/dev/null || true
+        exit 0
+      fi
+    fi
     exit 0
   fi
 fi

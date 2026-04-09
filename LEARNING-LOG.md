@@ -32,6 +32,26 @@
 
 ---
 
+### Contrarian Review Is Skipped Under Task Focus Despite Advisory Mechanisms (2026-04-08)
+
+AI attempted ExitPlanMode without contrarian review twice in one session, despite feedback memory (`feedback_plan_subagents.md`) explicitly stating "contrarian review is a GATE before ExitPlanMode." Both times required user correction. The plan template already had a Contrarian Review section — AI populated other sections and skipped it (forward-continuation bias). Advisory memory works for *remembering* the rule but not for *interrupting* the generation flow under cognitive load.
+
+**Rule:** Plan template gate text strengthened to say "DO NOT populate Recommended Approach until this section has content from actual subagent invocation." This makes contrarian part of the generation flow (structural) rather than a memory to recall (advisory). If this fails in 2+ of next 3 sessions → escalate to PreToolUse hook for ExitPlanMode.
+
+**Principle:** `meta-core-systemic-thinking` — advisory mechanisms degrade under cognitive load; structural positioning in the generation flow is the intervention.
+
+---
+
+### Analysis Tasks Are Not Read-Only (2026-04-08)
+
+AI performed a documentation propagation analysis (checking which files needed updating) without calling `evaluate_governance()` or `query_project()`. Categorized it as a "read" task because it involved reading files. But the analysis determined what to write — making it a pre-write task, not a read task. The existing PreToolUse hook caught the governance gap at write time, but the analysis itself was done without governance context or the coherence-auditor subagent. The subagent subsequently found 5 required updates that the manual grep missed.
+
+**Rule:** Analysis tasks that determine what to change are NOT read-only. Call governance before analysis, not just before the write. Skip list exempts "reading files" — not "analyzing what needs changing." Clarified in CLAUDE.md skip list (always-loaded surface).
+
+**Principle:** `meta-core-systemic-thinking` — the skip list exemption was being interpreted at the symptom level (I'm reading files) rather than the structural level (this analysis leads to writes).
+
+---
+
 ### Meta-Action Failure ≠ Item-Level Compliance (2026-04-07)
 
 Session shipped code after code-review but before consulting COMPLETION-CHECKLIST.md. Three user-requested "double checks" caught security vulnerabilities, documentation drift, index staleness, test gaps — all covered by the existing checklist. The checklist was never opened. This is a **meta-action failure** (0% — never opened), not an item-level miss (85% — opened but skipped some items). Advisory memory works for single actions (#47: contrarian review 3/3 unprompted). Multi-step checklists need structural nudging because the cognitive load of "identify applicable section → work through sub-items" is categorically higher than "call one subagent."

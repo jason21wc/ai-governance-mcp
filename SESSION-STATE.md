@@ -38,6 +38,16 @@
 
 ### Completed This Session
 
+81. **Session Compliance Audit → Systemic Interventions — IMPLEMENTED**
+   - Validator subagent audit: 64% structural, 67% semantic compliance. Root cause: advisory instructions degrade under cognitive load (same as ADR-13, #71).
+   - 3 structural fixes (none depend on broken LEARNING-LOG): (1) Plan template gate text strengthened for contrarian review, (2) CLAUDE.md skip list clarified — analysis ≠ read-only, (3) UserPromptSubmit hook enhanced — startup read check for PROJECT-MEMORY + LEARNING-LOG in first 50 transcript lines.
+   - V-004 added: contrarian compliance over 3 sessions (validator subagent evaluates).
+   - 2 LEARNING-LOG entries: contrarian-skip pattern + analysis-not-read-only.
+   - Governance: `meta-core-systemic-thinking`, `meta-governance-continuous-learning-adaptation`. Contrarian + validator reviewed plan (4 rounds of refinement).
+
+80. **Difficulty Classification (D1-D3) — IMPLEMENTED**
+   - 3-level scale added to Backlog Philosophy. All 20 items tagged with difficulty + type (Fix/Improvement/New Capability/Docs/Maintenance). Contrarian-reviewed: simplified from 4 to 3 levels, dropped unpredictable "files touched" anchor.
+
 79a. **Happy Engineering — Installed + Documented in Appendix F.1**
    - Installed via `npm i -g happy`. Documented in `ai-coding-methods.md` Appendix F.1 with 3-way comparison table (/remote-control vs Happy vs Dispatch), setup references, principle alignment (`multi-reliability-state-persistence-protocol`, `multi-reliability-observability-protocol`), and risk note.
    - SESSION-STATE #57 updated — Happy items complete, Warp/cc-status-line/Sequential Thinking still pending.

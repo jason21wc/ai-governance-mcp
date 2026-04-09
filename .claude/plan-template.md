@@ -4,8 +4,11 @@
 [Why this change is needed — problem, trigger, intended outcome]
 
 ## Contrarian Review Output
-[REQUIRED before finalizing approach. Run contrarian-reviewer on the proposed approach.
-Key challenges raised and how each was addressed or accepted:]
+[REQUIRED GATE — DO NOT populate "Recommended Approach" until this section has content
+from an actual contrarian-reviewer subagent invocation. This is not a placeholder to fill
+in later. Run the subagent NOW, before writing the approach.]
+
+Key challenges raised and how each was addressed or accepted:
 - Challenge 1: [challenge] → [resolution]
 - Challenge 2: [challenge] → [resolution]
 - If no challenges raised: document why the approach is straightforward enough that no fundamental issues exist.
