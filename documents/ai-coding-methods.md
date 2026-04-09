@@ -7443,6 +7443,30 @@ Files to upload to Project Knowledge:
 
 **Framework Compatibility:** All tools can implement the AI Coding Methods framework using their respective context management features. The memory file structure (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md) works across all tools.
 
+### F.1 Remote Access Tools
+
+Three options exist for controlling Claude Code remotely (from mobile, tablet, or another machine):
+
+| Feature | /remote-control | Happy Engineering | Dispatch |
+|---------|-----------------|-------------------|----------|
+| **Architecture** | Local execution, encrypted bridge to claude.ai | Local execution, E2E encrypted relay | Cloud execution on Anthropic infra |
+| **MCP Servers** | Full (local servers stay available) | Full (wraps local Claude Code) | Limited (cloud clone, no local MCP) |
+| **Mobile Apps** | Claude iOS/Android | Dedicated iOS/Android + web app | Claude iOS/Android |
+| **Voice Coding** | No | Yes | No |
+| **Parallel Sessions** | One at a time | Yes (per-project) | Yes (cloud workers) |
+| **Offline Queuing** | No (10-min network timeout) | Yes (async relay queue) | Yes (runs without your machine) |
+| **Pricing** | Included with Pro/Max/Team/Enterprise | Free, MIT open-source | Pro/Max subscription |
+| **Setup** | `/remote-control` (built-in) | `npm i -g happy && happy` | Built-in (Claude mobile app) |
+
+**When to use which:**
+- **/remote-control** — Quick, zero-setup remote access from Claude mobile app. Best for short tasks where you need to check on or continue a session.
+- **Happy Engineering** — When you need voice coding, parallel project sessions, or offline task queuing. Runs on your hardware; free. Docs: [happy.engineering/docs](https://happy.engineering/docs/).
+- **Dispatch** — When the task should run without your machine being on. Trades local MCP server access for full cloud independence.
+
+**Framework alignment:** Remote access tools implement `multi-reliability-state-persistence-protocol` (session continuity across devices) and `multi-reliability-observability-protocol` (remote monitoring of agent progress).
+
+**Risk note (Happy Engineering):** Pre-release, MIT open-source, 2 contributors. Communication routes through a third-party relay server (E2E encrypted, open-source crypto). Pin to a specific npm version in production workflows.
+
 ---
 
 ## Appendix G: Context Engine MCP Server Setup
