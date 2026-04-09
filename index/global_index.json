@@ -8276,7 +8276,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-09T03:23:52.832917+00:00",
+      "last_extracted": "2026-04-09T03:56:27.666946+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -17372,10 +17372,10 @@
               "termination conditions"
             ],
             "purpose_keywords": [
-              "program-md",
-              "autonomous-operation",
               "research-protocol",
               "experimentation",
+              "program-md",
+              "autonomous-operation",
               "overnight-agents"
             ],
             "applies_to": [],
@@ -17419,11 +17419,11 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
+              "asyncio",
+              "testing",
               "mcp",
               "integration-testing",
-              "asyncio",
-              "tool-handlers",
-              "testing"
+              "tool-handlers"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -17471,12 +17471,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "middleware",
-              "api-routes",
-              "supabase",
               "auth",
               "routing",
-              "nextjs"
+              "supabase",
+              "nextjs",
+              "api-routes",
+              "middleware"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -17526,12 +17526,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "library-selection",
-              "sheetjs",
               "node",
-              "excel",
+              "exceljs",
+              "library-selection",
               "document-generation",
-              "exceljs"
+              "sheetjs",
+              "excel"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -17594,14 +17594,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "library-selection",
-              "pdf-lib",
               "node",
-              "pdf",
               "puppeteer",
-              "jspdf",
               "pdfkit",
-              "document-generation"
+              "library-selection",
+              "document-generation",
+              "pdf",
+              "jspdf",
+              "pdf-lib"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -17660,12 +17660,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "supabase",
               "auth",
-              "storage-state",
-              "playwright",
+              "supabase",
+              "e2e-testing",
               "nextjs",
-              "e2e-testing"
+              "playwright",
+              "storage-state"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -17712,11 +17712,11 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "sentence-transformers",
-              "mcp",
-              "pytest",
               "fixtures",
+              "pytest",
               "testing",
+              "mcp",
+              "sentence-transformers",
               "mocking"
             ],
             "applies_to": [],
@@ -17765,12 +17765,12 @@
             ],
             "purpose_keywords": [
               "reportlab",
+              "docker",
               "library-selection",
               "python",
+              "document-generation",
               "pdf",
-              "weasyprint",
-              "docker",
-              "document-generation"
+              "weasyprint"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -17823,11 +17823,11 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "ssr",
-              "custom-claims",
-              "supabase",
               "auth",
+              "custom-claims",
               "jwt",
+              "supabase",
+              "ssr",
               "nextjs"
             ],
             "applies_to": [],
@@ -17876,11 +17876,11 @@
             ],
             "purpose_keywords": [
               "cookies",
-              "pkce",
-              "supabase",
               "auth-callback",
+              "supabase",
               "nextjs",
-              "async"
+              "async",
+              "pkce"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -17926,11 +17926,11 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "vi-mock",
               "typescript",
-              "vitest",
               "testing",
-              "mocking"
+              "vitest",
+              "mocking",
+              "vi-mock"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -17985,14 +17985,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "streaming",
               "fastapi",
-              "web-app",
-              "s3",
               "express",
+              "web-app",
               "nextjs",
-              "file-download",
-              "document-generation"
+              "document-generation",
+              "streaming",
+              "s3",
+              "file-download"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -18050,9 +18050,9 @@
             ],
             "purpose_keywords": [
               "patterns",
-              "knowledge-management",
               "agent-productivity",
-              "reuse"
+              "reuse",
+              "knowledge-management"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -18060,7 +18060,7 @@
           "embedding_id": 475
         }
       ],
-      "last_extracted": "2026-04-09T03:23:52.849450+00:00",
+      "last_extracted": "2026-04-09T03:56:27.684716+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -21446,7 +21446,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-09T03:23:52.860073+00:00",
+      "last_extracted": "2026-04-09T03:56:27.697635+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -23733,7 +23733,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-09T03:23:52.862635+00:00",
+      "last_extracted": "2026-04-09T03:56:27.700698+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -27726,7 +27726,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-09T03:23:52.866001+00:00",
+      "last_extracted": "2026-04-09T03:56:27.704433+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -30685,7 +30685,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-09T03:23:52.869111+00:00",
+      "last_extracted": "2026-04-09T03:56:27.707850+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -32548,7 +32548,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-04-09T03:23:52.870983+00:00",
+      "last_extracted": "2026-04-09T03:56:27.709912+00:00",
       "version": "1.0"
     }
   },
@@ -32617,7 +32617,7 @@
       "embedding_id": 6
     }
   ],
-  "created_at": "2026-04-09T03:24:01.562057+00:00",
+  "created_at": "2026-04-09T03:56:37.536662+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384
