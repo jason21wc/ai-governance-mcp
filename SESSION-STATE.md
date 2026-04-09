@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None — next: check Discussion backlog for next priority, or first compliance review due ~2026-04-20
+- **Active Task:** None — next: check Discussion backlog for next priority, or first compliance review due ~2026-04-20. V-004 (contrarian compliance) tracking starts next plan-mode session.
 
 ## Quick Reference
 
