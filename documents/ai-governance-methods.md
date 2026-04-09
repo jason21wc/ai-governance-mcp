@@ -882,6 +882,8 @@ After any framework update, validate:
 
 **If issues found:** Document the issue and resolution in LEARNING-LOG.md.
 
+**Project-specific operationalization:** For projects using the AI Coding Methods memory architecture, see `COMPLIANCE-REVIEW.md` which extends this generic health check with behavioral canary prompts, verification experiments, and effectiveness tracking.
+
 ---
 
 ## Part 4.3: Documentation Coherence Audit

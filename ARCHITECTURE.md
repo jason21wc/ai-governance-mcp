@@ -141,6 +141,7 @@ ai-governance-mcp/
 │
 ├── .claude/hooks/                     # Pre/post tool use hooks
 │
+├── COMPLIANCE-REVIEW.md        # Periodic governance health (say "run compliance review")
 ├── pyproject.toml
 └── README.md
 ```
@@ -352,6 +353,7 @@ How the project's memory files implement the cognitive memory architecture (ai-c
 | **Structural** | `ARCHITECTURE.md` (this file) | On demand (design questions) | System design, components, data flow |
 | **Charter** | `README.md` | On demand (scope questions) | Project purpose, public contract, scope boundaries |
 | **Procedural** | Methods documents in `documents/` | Via MCP retrieval | How to do things (governance, coding, multi-agent) |
+| **Operational** | `COMPLIANCE-REVIEW.md` | On demand (periodic review) | Governance system health checks, verification experiments |
 | **Reference** | Context Engine index | Via MCP query | Project content, semantically searchable |
 
 ### Loading Sequence
@@ -368,6 +370,7 @@ On Demand:
   6. README.md (does this feature fit the project scope?)
   7. query_governance() / get_principle() (what do the methods say?)
   8. query_project() (what code/content exists where?)
+  9. COMPLIANCE-REVIEW.md (is the governance system healthy?)
 ```
 
 ### Memory Consistency Rules

@@ -154,6 +154,7 @@ For architecture decisions, use the plan template at **`.claude/plan-template.md
 When modifying shared project context, check whether changes need to propagate:
 - **AGENTS.md** ↔ **CLAUDE.md**: shared content lives in AGENTS.md; Claude-specific content in CLAUDE.md. If you change project context (commands, structure, memory files), update AGENTS.md. If you change governance enforcement or subagent registry, update CLAUDE.md.
 - **PROJECT-MEMORY.md**: If architectural decisions, enforcement roadmap, or structural patterns changed, update the relevant sections. Check for stale "Phase X — future/deferred" descriptions that now describe implemented features.
+- **COMPLIANCE-REVIEW.md**: If hooks, behavioral floor (CLAUDE.md), or tiers.json changed, check whether ongoing checks or verification items need updating.
 
 ## Adding new persistent behavioral directives
 
