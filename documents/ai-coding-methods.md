@@ -1,7 +1,7 @@
 ---
-version: "2.35.0"
+version: "2.35.1"
 status: "active"
-effective_date: "2026-04-04"
+effective_date: "2026-04-09"
 domain: "ai-coding"
 governance_level: "domain-methods"
 ---
@@ -7445,6 +7445,8 @@ Files to upload to Project Knowledge:
 
 ### F.1 Remote Access Tools
 
+> **Keywords:** remote access, mobile coding, voice coding, Claude Code from phone, Happy Engineering, remote-control, Dispatch, remote terminal
+
 Three options exist for controlling Claude Code remotely (from mobile, tablet, or another machine):
 
 | Feature | /remote-control | Happy Engineering | Dispatch |
@@ -7456,16 +7458,21 @@ Three options exist for controlling Claude Code remotely (from mobile, tablet, o
 | **Parallel Sessions** | One at a time | Yes (per-project) | Yes (cloud workers) |
 | **Offline Queuing** | No (10-min network timeout) | Yes (async relay queue) | Yes (runs without your machine) |
 | **Pricing** | Included with Pro/Max/Team/Enterprise | Free, MIT open-source | Pro/Max subscription |
-| **Setup** | `/remote-control` (built-in) | `npm i -g happy && happy` | Built-in (Claude mobile app) |
+| **Setup** | `/remote-control` (built-in) | `npm i -g happy@1.1.4 && happy` | Built-in (Claude mobile app) |
+| **Maturity** | GA (built-in) | v1.1.4, MIT, 2 maintainers | GA (built-in) |
+
+*Comparison verified: April 2026*
 
 **When to use which:**
 - **/remote-control** — Quick, zero-setup remote access from Claude mobile app. Best for short tasks where you need to check on or continue a session.
 - **Happy Engineering** — When you need voice coding, parallel project sessions, or offline task queuing. Runs on your hardware; free. Docs: [happy.engineering/docs](https://happy.engineering/docs/).
 - **Dispatch** — When the task should run without your machine being on. Trades local MCP server access for full cloud independence.
 
-**Framework alignment:** Remote access tools implement `multi-reliability-state-persistence-protocol` (session continuity across devices) and `multi-reliability-observability-protocol` (remote monitoring of agent progress).
+**Prerequisites (Happy Engineering):** Requires Node.js and npm. Install a pinned version: `npm i -g happy@1.1.4 && happy` — the interactive setup wizard displays a QR code to pair with the mobile app. Source: [github.com/slopus/happy](https://github.com/slopus/happy).
 
-**Risk note (Happy Engineering):** Pre-release, MIT open-source, 2 contributors. Communication routes through a third-party relay server (E2E encrypted, open-source crypto). Pin to a specific npm version in production workflows.
+**Framework alignment:** Remote access tools implement `multi-reliability-state-persistence-protocol` (session continuity across devices) and `multi-reliability-observability-protocol` (remote monitoring of agent progress). Since Happy wraps local Claude Code, all MCP servers, hooks, CLAUDE.md, and SESSION-STATE.md work transparently — no additional configuration needed.
+
+**Risk note (Happy Engineering):** MIT open-source, 2 maintainers, rapid iteration (49 versions). Communication routes through a third-party relay server (E2E encrypted, open-source crypto). Pin to a specific npm version (e.g., `happy@1.1.4`) in production workflows.
 
 ---
 
@@ -8398,6 +8405,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.35.1 | 2026-04-09 | PATCH: Appendix F.1 (Remote Access Tools) — added prerequisites, version pin (happy@1.1.4), GitHub repo link, framework integration note, Maturity row, Keywords line, verification date. Root cause: 3-agent review found entry lacked practical detail for AI agent usability. |
 | 2.35.0 | 2026-04-04 | MINOR: Permission Configuration Best Practices. Root cause: framework treated permissions as one-time setup with no shared baseline — every project started from scratch, permissions grew by accretion. (1) Added A.5.6 Recommended Permission Architecture — layered model (user-level baseline + project-level additions), three principles (deny credentials, ask governance files, allow read-only), recommended baselines with annotated JSON examples, accretion problem documentation, never-allow-at-user-level list. (2) Added A.5.7 Platform-Specific Permission Notes — Claude Code, Gemini CLI, other MCP platforms. (3) Amended A.5.3 hard rule: governance files denied in project-level (prevents agent self-modification of team rules), ask at user-level (human approves each edit). Resolves contradiction with A.5.6's layered model. (4) Added accretion trigger to A.5.5 review list (entry count >50). (5) Added D.6 Gemini permission configuration with cross-reference to A.5.6. (6) Updated Cold Start Kit Scenario A with post-scaffold permission setup note. (7) Added Situation Index entry. Contrarian-reviewed: scoped from two templates to one annotated example, deny list framed as not-exhaustive, scaffold template modification dropped. Security-audited, coherence-audited, validated. |
 | 2.34.0 | 2026-04-03 | MINOR: Added Part 9.4 (Document Generation Patterns) under TITLE 9. Root cause: framework assumed "AI outputs" means "code" — web apps frequently produce document artifacts (Excel, PDF, Word) as primary products with zero governance coverage. Five subsections: §9.4.1 Data/Format Separation architecture (Structured Output Enforcement applied to document generation), §9.4.2 Template Assets & Branding (centralized style definitions, cross-format consistency), §9.4.3 Download Serving Patterns (decision tree: direct/streaming/pre-signed URL/background job), §9.4.4 Library Selection Quick Reference (Python + Node.js with key gotchas — SheetJS CE styling trap, jsPDF client-side only, pdf-lib manipulation only), §9.4.5 Output Validation (format-specific validation approaches, silent failure detection). Added Situation Index entry. Contrarian-reviewed: scoped down from TITLE 10 (5 Parts) to Part 9.4 (5 subsections) — document generation is output distribution under existing TITLE 9. Constitutional Basis: Structured Output Enforcement, Supply Chain & Solution Integrity. |
 | 2.33.0 | 2026-04-02 | MINOR: Added §3.1.5 Library-Specific Knowledge Sources — three-step guidance for reliable external library usage: (1) use documentation-freshness tools for current docs, (2) check Reference Library for known corrections, (3) capture new corrections when official docs prove wrong. Natural extension of §3.1.4 Technology Selection: select technology → validate knowledge sources. Cross-references governance methods TITLE 15 (Reference Library) and §5.13.2 (diagnostic procedure for when documented patterns fail). Prompted by Context7 Skill Wizard analysis + real Vercel doc-bug experience. Constitutional Basis: Context Engineering, Specification Completeness. |

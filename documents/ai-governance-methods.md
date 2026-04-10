@@ -1,7 +1,7 @@
 ---
-version: "3.23.1"
+version: "3.23.2"
 status: "active"
-effective_date: "2026-04-05"
+effective_date: "2026-04-09"
 domain: "constitution"
 governance_level: "constitution-methods"
 ---
@@ -9,7 +9,7 @@ governance_level: "constitution-methods"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.23.1
+**Version:** 3.23.2
 **Status:** Active
 **Effective Date:** 2026-04-05
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -2243,13 +2243,19 @@ Reference table — does NOT reproduce templates, points to canonical sources.
 | Method Section | Part 3.5.3 | Procedure + Validation, Importance tag, Implements reference to principles |
 | Appendix Section | See below | Platform-specific, references parent method, version/currency disclaimer |
 
-**Appendix minimal format** (since no formal template exists yet):
+**Appendix format:**
 
 - Title with platform/tool name
 - Parent method reference ("Implements Part X.Y for [platform]")
 - Platform-specific procedure
 - Platform-specific gotchas/caveats
 - Version/currency disclaimer
+
+For external/third-party tools, also include:
+- Prerequisites (runtime, OS, dependencies)
+- Source/verification links (repository, not just marketing docs)
+- Version pin and last-verified date
+- Framework integration note (do MCP servers, hooks, and memory files work through this tool?)
 
 ---
 
@@ -4269,6 +4275,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.23.2 | 2026-04-09 | PATCH: §9.8.3 appendix template — affirmed base format (removed "since no formal template exists yet" caveat), added external/third-party tool extension (prerequisites, source/verification links, version pin, framework integration note). Root cause: 3-agent review of F.1 (ai-coding-methods) revealed gaps traceable to template omissions. Proportional fix per contrarian review: base template unchanged, extension scoped to external tools only (n=1; full template redesign deferred to n>=3). |
 | 3.23.0 | 2026-04-03 | MINOR: Corrective & cross-cutting change guidance (session 45 retrospective). Root cause: framework quality gates assumed additive changes, but mature framework changes are increasingly corrective/editorial. (1) Added editorial correction scope note to §9.8.5 with bright-line test — changes that alter what the framework requires/permits/prohibits/detects need the Admission Test; scope clarifications, navigational cross-references, and factual accuracy fixes are editorial (PATCH without Admission Test). Includes navigational vs. substantive cross-reference distinction and classification examples for examples and failure modes. Contrarian-reviewed: tightened from original "wording improvements" (too generous) to three specific editorial categories. (2) Added cross-TITLE scope check to §9.8.5 authoring mode (advisory) — broad scope claims ("unified," "all") must verify each TITLE's existing coverage via grep + query_governance. Prevents disconnected quality systems (per v3.22.1 root cause). (3) Added bidirectional cross-references between §9.3.1 (truth-source hierarchy) and §9.7.1 (content-classification hierarchy) — complementary hierarchies that served different purposes without acknowledging each other. |
 | 3.22.1 | 2026-04-03 | PATCH: Part 9.8 scope clarification + TITLE 15 cross-references (#36). Root cause: 9.8 claimed "unified quality gate for all framework content" but only covered governance-normative content (principles, methods, appendices), leaving Reference Library entries (TITLE 15) with a disconnected quality system and zero cross-references. Fix: (1) Scope-clarified "all framework content" → "all governance content" in §9.8 header and opening paragraph. (2) Added "Relationship to TITLE 15" note to Part 9.8 routing agents to Part 15.4 for artifact quality governance. (3) Added "Relationship to Part 9.8" back-reference in TITLE 15 header. Contrarian-reviewed: confirmed expanding 9.8 to cover Reference Library would be a category error (Admission Test questions like Derivation and Enforceability don't apply to curated artifacts). Coherence-audited: resolved 2 of 3 misleading findings (scope overclaim, disconnected quality systems). |
 | 3.22.0 | 2026-04-02 | MINOR: Reference Library experiential corrections & Do/Don't format. (1) Part 15.1: Expanded role description to explicitly name **experiential corrections** as a knowledge type — entries that document where official docs proved wrong during implementation. Articulated complementary relationship with documentation-freshness tools. (2) Part 15.3.2: Added optional "Do / Don't" section to Markdown Body Specification between Lessons Learned and Cross-References — improves retrieval precision for anti-patterns. (3) Updated 2 existing entries (Supabase SSR async setAll, Supabase JWT hook SSR) to demonstrate Do/Don't format and fixed placeholder cross-references. (4) Added correction suggestion trigger to ai-coding `_criteria.yaml`. Prompted by Context7 Skill Wizard video analysis + real Vercel doc-bug experience. Contrarian-reviewed: scoped down from 4 infrastructure changes to proportional template improvements. |
