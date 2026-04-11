@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-10T22:14:05.561665",
+  "timestamp": "2026-04-11T17:45:23.449958",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "metrics": {
     "method_mrr": 0.7111111111111111,
@@ -8,7 +8,7 @@
     "principle_recall_at_10": 0.875
   },
   "system_metrics": {
-    "model_load_time_ms": 47.7,
+    "model_load_time_ms": 49.1,
     "index_stats": {
       "total_principles": 128,
       "total_methods": 672,
@@ -48,7 +48,7 @@
         "coding-method-session-start-procedure"
       ],
       "rank": 1,
-      "score": 0.8651074498288915,
+      "score": 0.8645770109786484,
       "semantic_score": 0.7874094247817993
     },
     "method-4": {
@@ -57,7 +57,7 @@
         "meta-method-what-is-anchor-bias"
       ],
       "rank": 1,
-      "score": 0.7954451331753081,
+      "score": 0.795445955025607,
       "semantic_score": 0.6823557019233704
     },
     "method-5": {
@@ -75,7 +75,7 @@
         "multi-method-orchestration-pattern-selection"
       ],
       "rank": 2,
-      "score": 0.7800216723878222,
+      "score": 0.7800516602184052,
       "semantic_score": 0.7572815418243408
     },
     "method-7": {
@@ -84,7 +84,7 @@
         "multi-method-advanced-model-considerations"
       ],
       "rank": 3,
-      "score": 0.7336316033661805,
+      "score": 0.7336316495795281,
       "semantic_score": 0.7591487169265747
     },
     "method-8": {
@@ -93,7 +93,7 @@
         "multi-method-governance-agent-pattern"
       ],
       "rank": 5,
-      "score": 0.5502294604866296,
+      "score": 0.5502297131318602,
       "semantic_score": 0.6937937140464783
     },
     "method-9": {
@@ -111,7 +111,7 @@
         "coding-method-zero-trust-design-principles"
       ],
       "rank": 1,
-      "score": 0.8475654732447608,
+      "score": 0.8475655967926636,
       "semantic_score": 0.755804181098938
     },
     "method-11": {
@@ -140,7 +140,7 @@
         "meta-core-context-engineering"
       ],
       "rank": 1,
-      "score": 0.6778528320559737
+      "score": 0.6778528803517552
     },
     "principle-2": {
       "query": "incomplete specification unclear requirements",
@@ -164,7 +164,7 @@
         "coding-quality-testing-integration"
       ],
       "rank": 2,
-      "score": 0.839368785015145
+      "score": 0.8392951310132606
     },
     "principle-5": {
       "query": "multi agent handoff protocol explicit",

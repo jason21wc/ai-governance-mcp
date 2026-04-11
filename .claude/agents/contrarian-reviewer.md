@@ -2,7 +2,7 @@
 name: contrarian-reviewer
 description: Devil's advocate for high-stakes decisions. Challenges assumptions, surfaces blind spots, and identifies overlooked risks before commitment.
 tools: Read, Grep, Glob, Bash
-model: inherit
+model: opus
 ---
 
 # Contrarian Reviewer

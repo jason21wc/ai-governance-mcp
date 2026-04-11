@@ -912,7 +912,7 @@ AGENT_TEMPLATE_HASHES = {
     "code-reviewer": "271980799e5dd654dda61be5e27efe164df9963214b342a9a006bb345b849975",
     "coherence-auditor": "b79a49bb314b5d56e618cbd1b28eb4346f8da14f91ac43839684f1ef28799074",
     "continuity-auditor": "2ce4369c52d4736f1e3945edf0c0f20d58b26f9195e85beaee1efeb249b05fda",
-    "contrarian-reviewer": "67d42bdd15e9300fc544336bdb64990a631968edd535654bca6ec5bd2d44ce85",
+    "contrarian-reviewer": "0c4f85596b3485521fd2dbae637ac023e9df63a68d0f80d2366eebf1dd8e5fe3",
     "documentation-writer": "13494a5a13681ed93f9b529b364f6855dffa8ddc2b61ee7595ebd86cf9b414c9",
     "orchestrator": "f7b7945e896bc8e333f7a71fe5f32972d4e5886ab05a4bf4d975974904ecc3c1",
     "security-auditor": "5fe3957bdf3d7990333b00727ab86e58e0e7999b672bf03646e9dd4ef5bbeaf3",

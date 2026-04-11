@@ -1,5 +1,7 @@
 # Governance Compliance Review
 
+> This checklist is a precursor to a structured workflow definition. It lives in `workflows/` as part of the AI-Optimized Project Structure standard.
+
 Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5: periodic review of whether the governance system itself is healthy.
 
 > **Trigger:** Say "run compliance review" to start. The AI reads this file, works through each section, and reports results. The user evaluates Item 5 (canary prompts).

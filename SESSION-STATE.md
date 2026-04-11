@@ -13,7 +13,7 @@
 
 - **Phase:** Plan (Constitutional Framework Alignment)
 - **Mode:** Standard
-- **Active Task:** Constitutional Framework Alignment — 7-phase plan complete and reviewed. Ready for Phase 0 implementation. Plan at `project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Context Engine circuit breaker race condition fixed (#89).
+- **Active Task:** Constitutional Framework Alignment — 7-phase plan complete and reviewed. Ready for Phase 0 implementation. Plan at `.claude/plans/project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Context Engine circuit breaker race condition fixed (#89).
 
 ## Quick Reference
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.2** (meta-methods), **v2.35.1** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
+| Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.2** (meta-methods), **v2.36.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1128 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -37,6 +37,14 @@
 ## Session Summary (2026-04-11)
 
 ### Completed This Session
+
+90. **AI-Optimized Project Structure Standard — IMPLEMENTED**
+   - **Trigger:** Root had 12+ markdown files with mixed purposes (AI memory, human docs, process checklists, tool config). User wanted generalized project organization template for all project types.
+   - **Key decisions:** (1) Keep code/document split per Appendix L (contrarian-reviewed — the split was intentionally designed). (2) `staging/` always present for temporary AI input. (3) `workflows/` for process checklists (precursor to future workflow definitions). (4) `documents/` standardized as default project content folder with image co-location per multimodal-RAG R1. (5) `docs/` available as ecosystem standard for human-facing docs. (6) `.claude/plans/` supports multiple plans with Status header lifecycle. (7) API.md, SBOM.md, ARCHITECTURE.md, SPECIFICATION.md classified as AI memory files (structural).
+   - **Changes:** Created `staging/` (with .gitkeep) and `workflows/`. Moved COMPLETION-CHECKLIST.md and COMPLIANCE-REVIEW.md to `workflows/` with header notes. Moved `project-constitutional-framework-alignment.md` to `.claude/plans/`. Updated cross-references in AGENTS.md, ARCHITECTURE.md, SESSION-STATE.md, PROJECT-MEMORY.md, MEMORY.md (external), ai-governance-methods.md, ai-coding-methods.md. Added L.8 AI-Optimized Project Structure Standard to Appendix L. Version bump ai-coding-methods v2.35.1 → v2.36.0.
+   - **Also:** Pinned contrarian-reviewer subagent to `model: opus` (adversarial reviews always use full reasoning power). Updated hash in server.py.
+   - **Governance:** PROCEED (`gov-578ab2229caf`). Key principles: `coding-process-atomic-task-decomposition`, `multi-architecture-agent-specialization-topology`, multimodal-RAG R1 (Image-Text Collocation).
+   - **Tests:** 1128 passing.
 
 89. **Context Engine Circuit Breaker Race Condition Fix — IMPLEMENTED**
    - **Trigger:** Context Engine `project_status` showed `watcher_status: circuit_broken` — auto-indexing disabled. User requested health check.
@@ -55,7 +63,7 @@
 88. **Constitutional Framework Alignment — PLAN COMPLETE**
    - **Trigger:** User wants to align ai-governance with US Constitutional governance pattern. Two reference docs: `AI_Governance_Detailed_Summary_v4.md` (intent engineering framing, Constitutional mapping), `US_Constitutional_Gap_Analysis.md` (8 missing concepts).
    - **Key decisions:** (1) Full structural alignment, not cosmetic. (2) Dual-layer IDs — slug IDs for machines + Constitutional citations (`Art. I, § 1`) for humans. (3) Title-based domain naming (`title-10-ai-coding.md`). (4) Pattern not analogy — adopt the governance framework pattern, express it for AI governance. (5) Five root purposes (Authority, Process, Protection, Relations, Continuity) in Declaration. (6) Preamble = interpretive context (not operative), enforced via Admission Test Question 0. (7) Storytelling principles apply to Declaration only (communication purpose), not operative governance. (8) Cross-domain numbering collisions fixed via Title-based section numbers.
-   - **Plan:** 7 phases (0-6), 5 review gates, ~16-23 hours. Phases 2 (Articles/Amendments) and 4 (file renames) are highest risk. Plan saved at `project-constitutional-framework-alignment.md`.
+   - **Plan:** 7 phases (0-6), 5 review gates, ~16-23 hours. Phases 2 (Articles/Amendments) and 4 (file renames) are highest risk. Plan saved at `.claude/plans/project-constitutional-framework-alignment.md`.
    - **8 Constitutional concepts disposition:** 4 additions (Elastic Clause, Unenumerated Rights as Amend. IV, Reserved Powers as Amend. V, Full Faith and Credit) + Admission Test Q0 + 2 surgical edits (Equal Protection sentence, Impeachment fast-path paragraph) + 2 clean cuts (Separation of Powers, Right to Petition — already structurally covered).
    - **Review battery:** 5 contrarian reviews (all HIGH confidence), 1 coherence audit (11 findings, all fixed), 1 validator pass (21/21 PASS). 13 execution-level fixes applied. 0 design-level issues found.
    - **Governance:** PROCEED (`gov-bc32cdf42a50`, `gov-8f560416bc52`, `gov-53ac23d94eeb`). Key principles: `meta-core-structural-foundations`, `meta-core-systemic-thinking`, `meta-method-breaking-changes-major`, `meta-method-framework-hierarchy-reference`.
@@ -807,7 +815,7 @@
 
 ### Active (Implement Now/Soon)
 
-78. **Governance Compliance Review — first review due ~2026-04-20** `D1 Maintenance` (10-15 calendar days from creation). See COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification.
+78. **Governance Compliance Review — first review due ~2026-04-20** `D1 Maintenance` (10-15 calendar days from creation). See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification.
 
 87. **Shared MCP Path Resolver — Structural Prevention for CWD Bug Class** `D1 Fix`
     - **What:** Extract a shared `resolve_project_path()` into a common module (e.g., `src/ai_governance_mcp/path_resolution.py`) that both the governance server and Context Engine import. One implementation, one set of tests, one place to fix.

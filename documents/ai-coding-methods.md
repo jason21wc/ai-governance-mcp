@@ -1,5 +1,5 @@
 ---
-version: "2.35.1"
+version: "2.36.0"
 status: "active"
 effective_date: "2026-04-09"
 domain: "ai-coding"
@@ -869,7 +869,7 @@ Standard mode adds documentation for production-grade work:
 |----------------|----------------|-----------|
 | ARCHITECTURE.md | Production work needs documented system design, tech stack, data flow | §7.5.2 |
 | SPECIFICATION.md | Formal requirements and acceptance criteria (SDD best practice) | §7.5.2 |
-| COMPLETION-CHECKLIST.md | Post-change verification prevents regressions in production code | §5.1.6 |
+| workflows/COMPLETION-CHECKLIST.md | Post-change verification prevents regressions in production code | §5.1.6 |
 
 **Total: 7 files** (4 core + 3 standard additions).
 
@@ -894,7 +894,7 @@ When transitioning between modes (see §1.4.4):
 
 | Transition | Document Action |
 |-----------|----------------|
-| EXPEDITED → STANDARD | Add ARCHITECTURE.md, SPECIFICATION.md, COMPLETION-CHECKLIST.md |
+| EXPEDITED → STANDARD | Add ARCHITECTURE.md, SPECIFICATION.md, workflows/COMPLETION-CHECKLIST.md |
 | STANDARD → ENHANCED | Evaluate §7.10 thresholds; add reference documents where complexity warrants |
 | ENHANCED → STANDARD | Evaluate which Enhanced-tier documents remain valuable; remove those that add overhead without benefit |
 | STANDARD → EXPEDITED | Core kit files persist (they're minimal overhead); Standard additions may be marked dormant but need not be deleted |
@@ -1813,7 +1813,7 @@ When changes match these patterns, invoke the corresponding subagent BEFORE comm
 |-------------|-------------------|-----------|
 | New MCP tool or handler | code-reviewer + security-auditor | New tools accept user input and return content to AI clients |
 | Changes to extractor/retrieval/server core | code-reviewer | Core pipeline changes affect all governance queries |
-| New file-handling code path | security-auditor | Per COMPLETION-CHECKLIST new code path checklist |
+| New file-handling code path | security-auditor | Per workflows/COMPLETION-CHECKLIST new code path checklist |
 | Content expansion (new principles/methods) | coherence-auditor + validator | Cross-reference integrity and template compliance |
 | Any changes >5 files | code-reviewer | Broad changes need fresh-context review |
 | Auth flows, session/cookie management, redirect chains *(content-based)* | code-reviewer (flag for runtime verification) | Async timing, event ordering, and cross-request state invisible to static review; recommend Playwright/instrumentation verification per §5.13.2 |
@@ -6772,7 +6772,7 @@ A PreToolUse hook on `git push` that verifies:
 
 **Design rationale:** Pre-push (not pre-commit) because commit is cheap/reversible; push is the irreversible boundary where harm occurs. Risk-based triggers (core code files + new src files) rather than file count. Per LEARNING-LOG: "advisory failed at 87%; structural blocking achieves near-100%."
 
-*Cross-references: §5.1.7 (Subagent Review Triggers), COMPLETION-CHECKLIST (New Code Path Security Checklist)*
+*Cross-references: §5.1.7 (Subagent Review Triggers), workflows/COMPLETION-CHECKLIST (New Code Path Security Checklist)*
 
 **Enforcement Design Heuristics:**
 - [ ] Start with Layer 1 (instructions) + Layer 2 (reminders) — measure compliance
@@ -8051,7 +8051,7 @@ For projects currently maintaining identical content in CLAUDE.md and GEMINI.md:
 | 3 | Refactor CLAUDE.md to overlay: add "Also read AGENTS.md", keep governance enforcement + Claude-specific content |
 | 4 | Refactor GEMINI.md to overlay: add "@./AGENTS.md" import, keep Gemini-specific content |
 | 5 | Verify: tool-specific files contain no duplicated shared content |
-| 6 | Add AGENTS.md to COMPLETION-CHECKLIST.md propagation awareness |
+| 6 | Add AGENTS.md to workflows/COMPLETION-CHECKLIST.md propagation awareness |
 
 **Rollback:** If AGENTS.md standard loses adoption, content lives in tool-specific files — removing AGENTS.md requires only moving its content back into each overlay file.
 
@@ -8314,6 +8314,88 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 
 > **Bold triggers:** **folder-based AI memory**, **Cowork memory setup**, **document folder AI**, **_ai-context convention**, **non-CLI project memory**
 
+### L.8 AI-Optimized Project Structure Standard
+
+**Purpose:** Define all recognized folder zones for AI-governed projects. This standard covers the complete project layout — not just memory files (L.2-L.7), but all folder categories a project may use.
+
+**Two project type layouts** depending on tool access pattern:
+- **Code projects:** CLI tools auto-discover root-level files (CLAUDE.md, AGENTS.md). AI memory files at root.
+- **Document projects:** Folder-based tools use `_ai-context/` as entry point. AI memory files inside `_ai-context/`.
+
+#### L.8.1 Folder Zones
+
+| Zone | Purpose | When Present |
+|------|---------|-------------|
+| Root (mandated) | CLAUDE.md, AGENTS.md, README.md, LICENSE, SECURITY.md — tools and platforms require these at root | Always (applicable files) |
+| Root (AI memory) | SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, and structural files (ARCHITECTURE.md, SPECIFICATION.md, API.md, SBOM.md) — cross-session context | Code projects |
+| Root (build/config) | pyproject.toml, Dockerfile, .gitignore, etc. — language/tool ecosystem conventions | Coding projects |
+| `_ai-context/` | Same AI memory files as root, but inside a folder (L.2-L.7) — for document projects where folder-based tools lack CLI auto-discovery | Document projects |
+| `.claude/` | Claude Code config: agents, hooks, settings, plans. Plans: multiple plan files can coexist; use `Status:` header for lifecycle (Draft → Approved → In Progress → Implemented); SESSION-STATE.md references pending plans | When using Claude Code |
+| `staging/` | Temporary content provided to AI for a specific effort — articles, research docs, external analyses. Expected to be emptied when effort completes. Git-tracked. **Always present** (with .gitkeep if empty) for discoverability | Always |
+| `workflows/` | Process checklists and future workflow definitions — procedural artifacts distinct from memory files | When project has processes |
+| `docs/` | Human-facing project documentation — ecosystem standard name (GitHub Pages serves from it). Not needed if all docs are AI memory. Projects with `documents/` may skip to avoid naming confusion | When project has human-only docs |
+| `examples/` | Example usage and sample configurations — reference material for both humans and AI | When project has examples |
+| `src/`, `tests/`, `scripts/` | Source code, tests, utility scripts — language ecosystem conventions | Coding projects |
+| Generated data | index/, logs/ — application output, not source content | When app generates persistent data |
+| `documents/` | Default name for project content — text, images, reference material. Images co-locate with supporting text (per multimodal-RAG R1: Image-Text Collocation). Projects may rename to fit content type | Always (name may vary) |
+
+#### L.8.2 Code Project Layout
+
+```
+project/
+├── CLAUDE.md                    # Tool config (root, mandated)
+├── AGENTS.md                    # Cross-tool AI standard (root, mandated)
+├── README.md                    # GitHub convention (root)
+├── LICENSE                      # Standard (root, if applicable)
+├── SECURITY.md                  # GitHub convention (root, if applicable)
+├── SESSION-STATE.md             # AI memory — working
+├── PROJECT-MEMORY.md            # AI memory — semantic
+├── LEARNING-LOG.md              # AI memory — episodic
+├── ARCHITECTURE.md              # AI memory — structural (if applicable)
+├── SPECIFICATION.md             # AI memory — structural (if applicable)
+├── API.md                       # AI memory — structural (if applicable)
+├── SBOM.md                      # AI memory — structural (if applicable)
+├── .claude/                     # Claude Code config
+│   ├── agents/                  # Agent definitions (installed)
+│   ├── hooks/                   # Hooks
+│   ├── plans/                   # Plan files (multiple can coexist)
+│   └── settings.json
+├── staging/                     # Temporary AI input (always present)
+├── workflows/                   # Process checklists (if applicable)
+├── docs/                        # Human-facing project docs (if applicable)
+├── examples/                    # Example usage (if applicable)
+├── src/                         # Source code
+├── tests/                       # Tests
+├── documents/                   # Project content (default name)
+└── [project-specific dirs]      # Additional content as needed
+```
+
+#### L.8.3 Document Project Layout
+
+```
+project/
+├── _ai-context/                 # AI session state & memory (L.2)
+│   ├── README.md                # Loader — read this first (L.3.1)
+│   ├── SESSION-STATE.md
+│   ├── PROJECT-MEMORY.md
+│   ├── LEARNING-LOG.md
+│   └── [structural files]
+├── staging/                     # Temporary AI input (always present)
+├── documents/                   # Project content (default name)
+├── [content folders]
+└── [content files]
+```
+
+#### L.8.4 Design Rationale
+
+1. **Code/document split preserved** — CLI tools auto-discover root-level files; folder-based tools use `_ai-context/` (L.2). Both serve the same purpose via different access patterns.
+2. **`staging/` always present** — Temporary AI input (articles, research) has no permanent home. `staging/` prevents root clutter from orphaned files. Always present with `.gitkeep` so the convention is discoverable.
+3. **`workflows/` separates process from memory** — Checklists define "do these steps in order" (procedural), distinct from memory files which store cross-session context.
+4. **`documents/` as default content folder** — Images co-locate with supporting text inside this folder (per multimodal-RAG R1: Image-Text Collocation — separating images from text breaks RAG chunking context). Projects with fundamentally different content (raw data, build assets) may add additional top-level folders.
+5. **`docs/` is the ecosystem standard** for human-facing documentation. GitHub Pages can serve from it. Projects with a `documents/` folder may skip `docs/` to avoid naming confusion.
+6. **`.claude/plans/` lifecycle** — Multiple plans coexist. Status header tracks lifecycle. SESSION-STATE.md references pending plans for cross-session discovery.
+7. **Only create folders with content** — except `staging/` which is always present for discoverability.
+
 ---
 
 ## Part 9.4: Document Generation Patterns
@@ -8405,6 +8487,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.36.0 | 2026-04-11 | MINOR: Added L.8 AI-Optimized Project Structure Standard. Defines all recognized folder zones for AI-governed projects: `staging/` (always-present temporary AI input), `workflows/` (process checklists, future workflow definitions), `documents/` (default project content folder with image co-location per multimodal-RAG R1), `docs/` (ecosystem standard for human-facing docs), `.claude/plans/` lifecycle (multi-plan coexistence, Status header tracking, SESSION-STATE discovery). Two complete layouts (code + document). Zone rules table with purpose and presence criteria. Moved COMPLETION-CHECKLIST.md and COMPLIANCE-REVIEW.md to `workflows/` in this project. Constitutional Basis: Context Engineering, multimodal-RAG R1 (Image-Text Collocation). Contrarian-reviewed: original proposal to unify on `_ai-context/` rejected — split was intentionally designed (Appendix L). |
 | 2.35.1 | 2026-04-09 | PATCH: Appendix F.1 (Remote Access Tools) — added prerequisites, version pin (happy@1.1.4), GitHub repo link, framework integration note, Maturity row, Keywords line, verification date. Root cause: 3-agent review found entry lacked practical detail for AI agent usability. |
 | 2.35.0 | 2026-04-04 | MINOR: Permission Configuration Best Practices. Root cause: framework treated permissions as one-time setup with no shared baseline — every project started from scratch, permissions grew by accretion. (1) Added A.5.6 Recommended Permission Architecture — layered model (user-level baseline + project-level additions), three principles (deny credentials, ask governance files, allow read-only), recommended baselines with annotated JSON examples, accretion problem documentation, never-allow-at-user-level list. (2) Added A.5.7 Platform-Specific Permission Notes — Claude Code, Gemini CLI, other MCP platforms. (3) Amended A.5.3 hard rule: governance files denied in project-level (prevents agent self-modification of team rules), ask at user-level (human approves each edit). Resolves contradiction with A.5.6's layered model. (4) Added accretion trigger to A.5.5 review list (entry count >50). (5) Added D.6 Gemini permission configuration with cross-reference to A.5.6. (6) Updated Cold Start Kit Scenario A with post-scaffold permission setup note. (7) Added Situation Index entry. Contrarian-reviewed: scoped from two templates to one annotated example, deny list framed as not-exhaustive, scaffold template modification dropped. Security-audited, coherence-audited, validated. |
 | 2.34.0 | 2026-04-03 | MINOR: Added Part 9.4 (Document Generation Patterns) under TITLE 9. Root cause: framework assumed "AI outputs" means "code" — web apps frequently produce document artifacts (Excel, PDF, Word) as primary products with zero governance coverage. Five subsections: §9.4.1 Data/Format Separation architecture (Structured Output Enforcement applied to document generation), §9.4.2 Template Assets & Branding (centralized style definitions, cross-format consistency), §9.4.3 Download Serving Patterns (decision tree: direct/streaming/pre-signed URL/background job), §9.4.4 Library Selection Quick Reference (Python + Node.js with key gotchas — SheetJS CE styling trap, jsPDF client-side only, pdf-lib manipulation only), §9.4.5 Output Validation (format-specific validation approaches, silent failure detection). Added Situation Index entry. Contrarian-reviewed: scoped down from TITLE 10 (5 Parts) to Part 9.4 (5 subsections) — document generation is output distribution under existing TITLE 9. Constitutional Basis: Structured Output Enforcement, Supply Chain & Solution Integrity. |

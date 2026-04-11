@@ -1,5 +1,7 @@
 # Post-Change Completion Checklist
 
+> This checklist is a precursor to a structured workflow definition. It lives in `workflows/` as part of the AI-Optimized Project Structure standard.
+
 Per §5.1.6, run this project's completion sequence after changes. Say "run the completion sequence" to trigger.
 
 > **Enforcement Tiers:** Items marked ENFORCED are backed by hooks, CI, or structural gates —
