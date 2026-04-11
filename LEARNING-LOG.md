@@ -150,6 +150,18 @@ Evaluated Atlas framework against our ai-coding domain. Initial framing was "wha
 
 ---
 
+### MCP Server Path.cwd() Is Unsafe as Unconditional Fallback (2026-04-10) — SECOND OCCURRENCE
+
+MCP servers run as separate host processes. `Path.cwd()` resolves to the SERVER's working directory, not the calling client's project. This caused bugs twice in 5 days: (1) governance server's `install_agent`/`scaffold_project` used `Path.cwd()` to find the caller's project → fixed with `_resolve_caller_project_path()` in #50. (2) Context Engine's `_resolve_project_path()` fell through to `Path.cwd()` unconditionally → when called from Claude.ai (where CWD is arbitrary), tried to auto-index a random directory → `[Errno 13] Permission denied`. The governance server's fix docstring explicitly warns "Any MCP tool that writes files to the CALLER'S project must use this resolver instead of Path.cwd()." The Context Engine, sitting in the same repo, was never updated.
+
+**Rule:** Never use `Path.cwd()` as an unconditional fallback in MCP tool handlers. Always validate CWD is a valid project (check for `.git`, `pyproject.toml`, etc.) before using it. When CWD is invalid, return an actionable error telling the AI to call `list_projects` and pass `project_path` explicitly.
+
+**Structural prevention needed:** The real fix is a shared resolver that both servers import — you can't have divergent implementations if there's only one. The LEARNING-LOG entry for `__file__` (below) didn't prevent this CWD bug. Documentation alone doesn't prevent code duplication bugs. Shared module + CI grep check for `Path.cwd()` in server files is the structural path. Tracked for future consolidation.
+
+**Principle:** `meta-core-systemic-thinking` — the root cause is code duplication (two servers independently implementing path resolution), not missing documentation.
+
+---
+
 ### __file__-Based Paths Break in Docker Non-Editable Installs (2026-02-19)
 
 `_validate_log_path()` used `Path(__file__).parent.parent.parent` to find project root. Inside Docker with `pip install .` (non-editable), `__file__` resolves to site-packages (`/usr/local/lib/...`), not `/app`. Log writes to `/app/logs/` were rejected as "outside boundaries." Meanwhile, `config.py` already had a CWD-based `_find_project_root()` that worked correctly.

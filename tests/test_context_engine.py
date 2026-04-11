@@ -5521,3 +5521,177 @@ class TestEnsureWatcher:
     def _index_lock_context(pm):
         """Helper to acquire _index_lock for _ensure_watcher calls."""
         return pm._index_lock
+
+
+# =============================================================================
+# Project Path Resolution Tests (CWD fallback validation)
+# =============================================================================
+
+
+class TestLooksLikeProject:
+    """Test _looks_like_project() project marker detection."""
+
+    def test_with_git_dir(self, tmp_path):
+        """Directory with .git is a project."""
+        from ai_governance_mcp.context_engine.server import _looks_like_project
+
+        (tmp_path / ".git").mkdir()
+        assert _looks_like_project(tmp_path) is True
+
+    def test_with_pyproject_toml(self, tmp_path):
+        """Directory with pyproject.toml is a project."""
+        from ai_governance_mcp.context_engine.server import _looks_like_project
+
+        (tmp_path / "pyproject.toml").touch()
+        assert _looks_like_project(tmp_path) is True
+
+    def test_with_package_json(self, tmp_path):
+        """Directory with package.json is a project."""
+        from ai_governance_mcp.context_engine.server import _looks_like_project
+
+        (tmp_path / "package.json").touch()
+        assert _looks_like_project(tmp_path) is True
+
+    def test_with_contextignore(self, tmp_path):
+        """Directory with .contextignore is a project (explicit opt-in)."""
+        from ai_governance_mcp.context_engine.server import _looks_like_project
+
+        (tmp_path / ".contextignore").touch()
+        assert _looks_like_project(tmp_path) is True
+
+    def test_empty_dir_not_project(self, tmp_path):
+        """Empty directory is not a project."""
+        from ai_governance_mcp.context_engine.server import _looks_like_project
+
+        assert _looks_like_project(tmp_path) is False
+
+    def test_dir_with_random_files_not_project(self, tmp_path):
+        """Directory with non-marker files is not a project."""
+        from ai_governance_mcp.context_engine.server import _looks_like_project
+
+        (tmp_path / "weakpass_edit").touch()
+        (tmp_path / "readme.txt").touch()
+        assert _looks_like_project(tmp_path) is False
+
+    def test_permission_error_returns_false(self, tmp_path):
+        """OSError during marker check returns False gracefully."""
+        from ai_governance_mcp.context_engine.server import _looks_like_project
+
+        # Path that doesn't exist — (path / marker).exists() won't raise,
+        # but a truly unreadable directory would
+        nonexistent = tmp_path / "nonexistent"
+        assert _looks_like_project(nonexistent) is False
+
+
+class TestResolveProjectPathCWDFallback:
+    """Test _resolve_project_path() CWD validation.
+
+    Regression tests for the CWD fallback bug: when called from Claude.ai,
+    Path.cwd() is the server's arbitrary working directory, not a project.
+    The resolver must validate CWD has project markers before using it.
+    See: backlog #50 (governance server), current fix (context engine).
+    """
+
+    def test_cwd_with_project_markers_returns_cwd(self, tmp_path):
+        """CWD with .git returns the path (CLI happy path)."""
+        from ai_governance_mcp.context_engine.server import _resolve_project_path
+
+        (tmp_path / ".git").mkdir()
+        with patch("ai_governance_mcp.context_engine.server.Path") as mock_path:
+            mock_path.cwd.return_value = tmp_path
+            mock_path.home.return_value = tmp_path.parent
+            # Allow Path(raw).resolve() to work for explicit paths
+            mock_path.side_effect = Path
+            result = _resolve_project_path({})
+        assert result == tmp_path
+
+    def test_cwd_without_markers_returns_none(self, tmp_path):
+        """CWD without project markers returns None (Claude.ai path)."""
+        from ai_governance_mcp.context_engine.server import _resolve_project_path
+
+        # tmp_path has no project markers
+        with patch("ai_governance_mcp.context_engine.server.Path") as mock_path:
+            mock_path.cwd.return_value = tmp_path
+            mock_path.home.return_value = tmp_path.parent
+            mock_path.side_effect = Path
+            result = _resolve_project_path({})
+        assert result is None
+
+    def test_explicit_project_path_bypasses_cwd(self, tmp_path):
+        """Explicit project_path argument is used regardless of CWD."""
+        from ai_governance_mcp.context_engine.server import _resolve_project_path
+
+        (tmp_path / ".git").mkdir()
+        result = _resolve_project_path({"project_path": str(tmp_path)})
+        assert result == tmp_path.resolve()
+
+    def test_env_var_bypasses_cwd(self, tmp_path):
+        """AI_CONTEXT_ENGINE_DEFAULT_PROJECT env var bypasses CWD."""
+        from ai_governance_mcp.context_engine.server import _resolve_project_path
+
+        (tmp_path / ".git").mkdir()
+        with patch.dict(
+            os.environ, {"AI_CONTEXT_ENGINE_DEFAULT_PROJECT": str(tmp_path)}
+        ):
+            result = _resolve_project_path({})
+        assert result == tmp_path.resolve()
+
+
+@pytest.mark.asyncio
+class TestHandlerNoneProjectPath:
+    """Test that handlers return actionable errors when project_path is None."""
+
+    async def test_query_project_no_resolved_path(self):
+        """query_project returns list_projects hint when no path resolved."""
+        import json
+
+        from ai_governance_mcp.context_engine.server import _handle_query_project
+
+        manager = MagicMock()
+        with patch(
+            "ai_governance_mcp.context_engine.server._resolve_project_path",
+            return_value=None,
+        ):
+            result = await _handle_query_project(manager, {"query": "test"})
+
+        text = result[0].text
+        data = json.loads(text)
+        assert "error" in data
+        assert "list_projects" in data["error"]
+
+    async def test_index_project_no_resolved_path(self):
+        """index_project returns error when no path resolved."""
+        import json
+
+        from ai_governance_mcp.context_engine.server import _handle_index_project
+
+        manager = MagicMock()
+        manager.readonly = False
+        with patch(
+            "ai_governance_mcp.context_engine.server._resolve_project_path",
+            return_value=None,
+        ):
+            result = await _handle_index_project(manager, {})
+
+        text = result[0].text
+        data = json.loads(text)
+        assert "error" in data
+        assert "list_projects" in data["hint"]
+
+    async def test_project_status_no_resolved_path(self):
+        """project_status returns error when no path resolved."""
+        import json
+
+        from ai_governance_mcp.context_engine.server import _handle_project_status
+
+        manager = MagicMock()
+        with patch(
+            "ai_governance_mcp.context_engine.server._resolve_project_path",
+            return_value=None,
+        ):
+            result = await _handle_project_status(manager, {})
+
+        text = result[0].text
+        data = json.loads(text)
+        assert "error" in data
+        assert "list_projects" in data["hint"]

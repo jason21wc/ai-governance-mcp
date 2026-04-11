@@ -179,6 +179,7 @@ In sandboxed environments (Cowork VM, Docker, CI), the server auto-detects read-
 - **First use:** The index is built automatically on first `query_project` call.
 - **Keep indexes fresh:** If `project_status` shows no daemon watcher, suggest: `context-engine-service install` (installs a background service that auto-updates indexes). The user only needs to do this once.
 - **Sandboxed clients (Cowork, Docker):** Use `project_path` parameter on tools to specify the project directory explicitly, since CWD may not match the project.
+- **Web clients (Claude.ai, etc.):** Always pass `project_path` explicitly. Call `list_projects` first to discover indexed projects. CWD auto-detection only works in CLI environments where CWD is the project.
 - **Stale index:** If `project_status` shows the index is hours old and no watcher is running, suggest either `index_project` (one-time refresh) or `context-engine-service install` (permanent fix).
 
 ### Companion: AI Governance MCP
@@ -402,8 +403,9 @@ def create_server() -> tuple[Server, ProjectManager]:
                             "type": "string",
                             "description": (
                                 "Absolute path to the project directory to query. "
-                                "Optional — defaults to current working directory. "
-                                "Use when CWD is not the project (e.g., in Cowork VM)."
+                                "Required for web clients (Claude.ai). "
+                                "Optional in CLI where CWD is the project. "
+                                "Call list_projects to discover paths."
                             ),
                         },
                         "metadata_filter": {
@@ -434,7 +436,9 @@ def create_server() -> tuple[Server, ProjectManager]:
                             "type": "string",
                             "description": (
                                 "Absolute path to the project directory to index. "
-                                "Optional — defaults to current working directory."
+                                "Required for web clients (Claude.ai). "
+                                "Optional in CLI where CWD is the project. "
+                                "Call list_projects to discover paths."
                             ),
                         },
                     },
@@ -462,7 +466,9 @@ def create_server() -> tuple[Server, ProjectManager]:
                             "type": "string",
                             "description": (
                                 "Absolute path to the project directory. "
-                                "Optional — defaults to current working directory."
+                                "Required for web clients (Claude.ai). "
+                                "Optional in CLI where CWD is the project. "
+                                "Call list_projects to discover paths."
                             ),
                         },
                     },
@@ -533,11 +539,49 @@ def _is_within_allowed_scope(p: Path) -> bool:
     return any(p.is_relative_to(base) for base in allowed)
 
 
+_PROJECT_MARKERS = {
+    ".git",
+    ".hg",
+    ".svn",
+    "pyproject.toml",
+    "setup.py",
+    "setup.cfg",
+    "package.json",
+    "Cargo.toml",
+    "go.mod",
+    "Makefile",
+    "CMakeLists.txt",
+    "pom.xml",
+    "build.gradle",
+    ".contextignore",
+}
+
+
+def _looks_like_project(path: Path) -> bool:
+    """Check if a directory looks like a project root (has common project markers).
+
+    MCP servers run as separate processes — Path.cwd() resolves to the SERVER's
+    working directory, not the calling client's project. This check prevents
+    auto-indexing arbitrary directories when CWD is used as fallback.
+    See also: governance server's _resolve_caller_project_path() for the same pattern.
+    """
+    try:
+        return any((path / marker).exists() for marker in _PROJECT_MARKERS)
+    except OSError:
+        return False
+
+
 def _resolve_project_path(arguments: dict) -> Path | None:
     """Resolve project path from tool arguments, env var, or CWD.
 
     Priority: arguments['project_path'] > AI_CONTEXT_ENGINE_DEFAULT_PROJECT > CWD.
-    Returns None if the resolved path doesn't exist or is outside allowed scope.
+    Returns None if the resolved path doesn't exist, is outside allowed scope,
+    or CWD doesn't look like a project directory.
+
+    Note: MCP servers run as separate processes — Path.cwd() is the SERVER's
+    working directory, not the calling client's project. When called from
+    Claude.ai or other web clients, CWD is arbitrary. We validate CWD has
+    project markers before using it as fallback.
     """
     raw = arguments.get("project_path")
     if raw and isinstance(raw, str):
@@ -564,7 +608,15 @@ def _resolve_project_path(arguments: dict) -> Path | None:
             return None
         return p
 
-    return Path.cwd()
+    cwd = Path.cwd()
+    if _looks_like_project(cwd):
+        return cwd
+    logger.info(
+        "CWD %s has no project markers — cannot use as fallback. "
+        "Pass project_path explicitly or call list_projects first.",
+        cwd,
+    )
+    return None
 
 
 async def _handle_query_project(
@@ -604,6 +656,22 @@ async def _handle_query_project(
 
     # Resolve project path
     project_path = _resolve_project_path(arguments)
+    if project_path is None:
+        return [
+            TextContent(
+                type="text",
+                text=json.dumps(
+                    {
+                        "error": "No project could be resolved. "
+                        "Call list_projects to see indexed projects, "
+                        "then pass project_path explicitly.",
+                        "hint": "query_project(query='...', "
+                        "project_path='/path/to/project')",
+                    },
+                    indent=2,
+                ),
+            )
+        ]
 
     # Request extra results if filtering (filter reduces count)
     query_max = max_results * 3 if metadata_filters else max_results
@@ -758,6 +826,21 @@ async def _handle_index_project(
         ]
 
     project_path = _resolve_project_path(arguments or {})
+    if project_path is None:
+        return [
+            TextContent(
+                type="text",
+                text=json.dumps(
+                    {
+                        "error": "No project could be resolved. "
+                        "Provide project_path explicitly.",
+                        "hint": "Use list_projects to see available projects, "
+                        "or pass an absolute path to the project directory.",
+                    },
+                    indent=2,
+                ),
+            )
+        ]
 
     loop = asyncio.get_running_loop()
     index = await loop.run_in_executor(
@@ -822,6 +905,22 @@ async def _handle_project_status(
 ) -> list[TextContent]:
     """Handle project_status tool call."""
     project_path = _resolve_project_path(arguments or {})
+    if project_path is None:
+        return [
+            TextContent(
+                type="text",
+                text=json.dumps(
+                    {
+                        "error": "No project could be resolved. "
+                        "Provide project_path explicitly.",
+                        "hint": "Use list_projects to see available projects, "
+                        "or pass an absolute path.",
+                    },
+                    indent=2,
+                ),
+            )
+        ]
+
     loop = asyncio.get_running_loop()
     status = await loop.run_in_executor(
         None, lambda: manager.get_project_status(project_path)
@@ -835,7 +934,7 @@ async def _handle_project_status(
                     {
                         "message": "Current project is not indexed. "
                         "Use index_project to create the index.",
-                        "project_path": str(Path.cwd()),
+                        "project_path": str(project_path),
                     },
                     indent=2,
                 ),

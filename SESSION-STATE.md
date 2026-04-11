@@ -22,7 +22,7 @@
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
 | Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.2** (meta-methods), **v2.35.1** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1111 passing** (run `pytest tests/ -v` for current) |
+| Tests | **1125 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -37,6 +37,14 @@
 ## Session Summary (2026-04-10)
 
 ### Completed This Session
+
+86. **Context Engine CWD Fallback Bug Fix — IMPLEMENTED**
+   - **Trigger:** `query_project` fails with `[Errno 13] Permission denied: 'weakpass_edit'` when called from Claude.ai without `project_path`. User-discovered diagnostic.
+   - **Root cause:** `_resolve_project_path()` fell through to `Path.cwd()` unconditionally. MCP server runs on host — CWD is arbitrary, not the caller's project. Same bug class as governance server #50 (fixed 2026-04-05), not propagated to Context Engine.
+   - **Fix:** (1) `_looks_like_project()` validates CWD has project markers before using as fallback. (2) Three handlers (`query_project`, `index_project`, `project_status`) return actionable errors with `list_projects` hint when no path resolves. (3) SERVER_INSTRUCTIONS + tool schema descriptions updated for web client guidance. (4) Fixed hardcoded `Path.cwd()` in project_status "not indexed" message.
+   - **Tests:** 14 new (7 marker detection, 4 resolver CWD fallback, 3 handler None-path). 1125 total passing.
+   - **Contrarian review (documentation approach):** REVISIT (HIGH confidence). "This isn't a documentation problem, it's a code duplication problem." Two servers implement path resolution independently. LEARNING-LOG entry added as rationale record. Shared resolver deferred as structural prevention (new backlog item #87).
+   - **Governance:** `meta-governance-continuous-learning-adaptation` (capture + learn from recurrence), `meta-core-systemic-thinking` (root cause = code duplication, not missing docs). PROCEED.
 
 84. **README Rewrite — Content Captured to Backlog**
    - User working on new README in Claude app with "intent engineering" framing. Draft content captured as Discussion item #84 to prevent session loss. 7 core components, governing philosophy, differentiator, open architecture.
@@ -776,6 +784,12 @@
 ### Active (Implement Now/Soon)
 
 78. **Governance Compliance Review — first review due ~2026-04-20** `D1 Maintenance` (10-15 calendar days from creation). See COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification.
+
+87. **Shared MCP Path Resolver — Structural Prevention for CWD Bug Class** `D1 Fix`
+    - **What:** Extract a shared `resolve_project_path()` into a common module (e.g., `src/ai_governance_mcp/path_resolution.py`) that both the governance server and Context Engine import. One implementation, one set of tests, one place to fix.
+    - **Why:** The CWD fallback bug occurred twice in 5 days (#50 governance server, #86 Context Engine) because two servers independently implement path resolution. The governance server has a 4-tier resolver (`_resolve_caller_project_path` with MCP roots, project_path arg, env var, validated CWD). The Context Engine has a weaker 3-tier version missing MCP roots support. Documentation didn't prevent recurrence — shared code would.
+    - **Also consider:** CI grep check for `Path.cwd()` in server files (flag any usage not in an approved context). This is the structural enforcement equivalent of the PreToolUse hook.
+    - **Origin:** Contrarian review of #86 documentation approach (2026-04-10). REVISIT verdict: "This isn't a documentation problem, it's a code duplication problem."
 
 ---
 
