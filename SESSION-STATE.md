@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-09
+**Last Updated:** 2026-04-10
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -13,7 +13,7 @@
 
 - **Phase:** Implement
 - **Mode:** Standard
-- **Active Task:** None — next: check Discussion backlog for next priority, or first compliance review due ~2026-04-20. V-004 (contrarian compliance) tracking starts next plan-mode session.
+- **Active Task:** None — user pivoting to two other tasks. Content Enhancer integration (#85) and workflow pattern (#55) paused for deeper discussion. Compliance review due ~2026-04-20. V-004 session 2 recorded (1/1 contrarian unprompted — 100%).
 
 ## Quick Reference
 
@@ -34,9 +34,23 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-04-09)
+## Session Summary (2026-04-10)
 
 ### Completed This Session
+
+84. **README Rewrite — Content Captured to Backlog**
+   - User working on new README in Claude app with "intent engineering" framing. Draft content captured as Discussion item #84 to prevent session loss. 7 core components, governing philosophy, differentiator, open architecture.
+
+85. **Content Enhancer Integration — Plan Mode Exploration → Workflow Pattern Discovery**
+   - **Trigger:** User wants Content Enhancer (standalone methodology at `~/Documents/Reference/AI/`) integrated into ai-governance.
+   - **Plan mode:** Initial proposal (TITLE 17) → contrarian REVISIT (HIGH confidence) → user reframed structurally.
+   - **Key insight:** The Content Enhancer may be an instance of a workflow pattern, not a standalone integration. Framework already has unlabeled workflows (Completion Sequence, Compliance Review, Session Protocols). #55 (Workflow Codification) may be the infrastructure layer; Content Enhancer the first concrete instance.
+   - **Open question:** What distinguishes a "workflow" from a "method"? Paused for deeper discussion before implementation.
+   - **Three paths remain:** (A) governance constraints only, (B) first instance of #55 workflow infrastructure, (C) hybrid from #55 discussion.
+   - Backlog #55 updated with cross-reference. New item #85 created with full exploration context.
+   - **Governance:** `meta-core-systemic-thinking` (user's reframing was more structural than initial placement analysis), `meta-core-context-engineering` (content preservation). PROCEED.
+
+### Previous Session (2026-04-09)
 
 82. **Happy Engineering Appendix F.1 Review + Appendix Template Fix — IMPLEMENTED**
    - **Trigger:** User-requested dogfooding review — did we follow our own templates when adding F.1?
@@ -774,7 +788,7 @@ Pre-push hook Check 4 now blocks push if COMPLETION-CHECKLIST.md was not read. T
 |---------|------|------|----------------|-------------------|-------|
 | 1 | 2026-04-08 | #78 Compliance Review | Y | N | Read docs-only section before push |
 | 2 | 2026-04-09 | #82 F.1 review + template fix | Y | N | Read content changes section, worked through items |
-| 3 | | | | | |
+| 3 | 2026-04-10 | #84 README capture, #85 Content Enhancer exploration | N/A | N/A | No code changes — backlog capture + plan mode only |
 | 4 | | | | | |
 | 5 | | | | | |
 
@@ -789,7 +803,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 | 1 | 2026-04-07 | Y | N | N | — | Only read SESSION-STATE; missed 2/3 |
 | 2 | 2026-04-08 | Y | N | N | — | Only read SESSION-STATE again |
 | 3 | 2026-04-09 | Y | Y | Y | Y | All 3 read. LEARNING-LOG informed governance compliance approach; PROJECT-MEMORY informed version bump conventions |
-| 4 | | | | | | |
+| 4 | 2026-04-10 | Y | N | Y | N | SESSION-STATE + LEARNING-LOG read. PROJECT-MEMORY too large (searched key sections). No behavior change — session was backlog capture + planning, not implementation |
 | 5 | | | | | | |
 
 **Decision threshold:** If PROJECT-MEMORY or LEARNING-LOG reads change behavior <2/5 sessions → remove from required protocol (keep as optional). If ≥3/5 → add Layer 3 enforcement.
@@ -1099,6 +1113,8 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Research done:** Official Claude Code skills docs (code.claude.com/docs/en/skills), claude-code-skill-factory GitHub, awesome-claude-code curated list, ProductTalk guide, batsov.com essential skills guide. Key feature: `disable-model-invocation: true` for workflows with side effects (/deploy, /send-slack-message).
 
+**Cross-reference (2026-04-10):** The Content Enhancer integration discussion (#84) surfaced a broader pattern. The framework already has multiple workflows (Completion Sequence, Compliance Review, Session Protocols, Domain Creation, Content Authoring) but no infrastructure for defining and governing workflows as a category. The Content Enhancer may be the first concrete instance of a codified workflow — making this item (#55) potentially the infrastructure layer and the Content Enhancer (#84) a specific workflow running on it. This reframing elevates #55 from "Claude Code skills guidance" to "workflow codification as a framework concept" — with skills being one implementation mechanism. Discussion needed: what distinguishes a "workflow" from a "method" in the framework? See #84 for full discussion context.
+
 **Origin:** Claude Code workflow video re-analysis (2026-04-05).
 
 #### 57. Recommended Tooling Appendix Entries — Warp, cc-status-line, Sequential Thinking (Discussion — from Video Re-Analysis) `D1 Docs`
@@ -1163,6 +1179,74 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 **Revisit trigger:** Productionization or multi-user deployment.
 
 **Origin:** Perplexity Deep Research + Gemini UBDA review (2026-04-07). Both flagged quality-of-compliance vs occurrence gap.
+
+#### 84. README Rewrite — Intent Engineering Framing (Discussion — In Progress in Claude App) `D1 Docs`
+
+**What:** New README for the ai-governance project, being drafted in a Claude app conversation. Frames the project as "intent engineering" infrastructure — encoding goals, constraints, quality standards, and decision-making boundaries so AI understands purpose, not just instructions.
+
+**Status:** Active draft in Claude app. Content below is a snapshot to prevent session loss.
+
+**Key framing:** The industry has moved through three phases: prompt engineering (how you phrase a request) → context engineering (what information AI has access to) → intent engineering (what must be achieved and how success is measured). This project operates at the third level.
+
+**7 core components identified in draft:**
+1. **Content Enhancer** (High-Fidelity Educational Content Enhancer 3.0) — processing engine for turning raw material into structured knowledge. Separates principles (immutable) from approaches (adaptable). Grounded in Mayer's multimedia learning, cognitive load theory, retrieval practice.
+2. **AI-Assisted Development Framework** — 5 core principles (specification prevents iteration, AI is implementation tool not architect, verify everything, quality accelerates delivery, production standards from start), 8-phase sequential process. Technology-agnostic.
+3. **Knowledge Domains** — each follows same structure (principles separated from approaches, evidence-based, cognitive load optimized). Anyone can create their own domains.
+4. **AI Instructions Layer** — system-level instructions: classification protocols, risk assessment, fidelity requirements, enhancement tags, QA checklists, confidence scoring.
+5. **Memory System** — persistent context across interactions: project-level (CLAUDE.md), domain-level (knowledge bases), interaction-level (working style/preferences/decisions).
+6. **Workflow & Compliance Layer** — sequential phase requirements, verification checkpoints (DO-CONFIRM checklists), quality gates, documentation standards.
+7. **Transparency and Attribution System** — tagging of original vs enhanced content, external research sourcing, reorganization tracking.
+
+**Governing philosophy:** Not making AI smarter — giving it judgment. The infrastructure acts as a filter for contradictory internet knowledge, telling AI what quality looks like and how to evaluate conflicting information.
+
+**Differentiator:** Most AI tools are destination-specific (guide toward a specific outcome). This infrastructure is destination-agnostic — upgrades how AI performs for whatever you're doing. "The GPS, the road kit, the reliability layer — not the route itself."
+
+**Open architecture:** Built-in instructions for others to create, change, and remove their own principles and standards.
+
+**Research context:** Claude app conversation explored "intent engineering" as a term and researched public usage of the concept.
+
+**Origin:** User-initiated README rewrite (2026-04-10). In progress — do not implement without further user direction.
+
+---
+
+#### 85. Content Enhancer Integration — Workflow Pattern Discovery (Discussion) `D2 Improvement`
+
+**What:** Integrate the High-Fidelity Educational Content Enhancer 3.0 into the ai-governance framework. The Content Enhancer is a methodology for transforming raw content (transcripts, lectures, notes, docs, research) into cognitively-optimized reference documents. It currently lives outside the repo as two standalone files.
+
+**Source files:** `~/Documents/Reference/AI/AI High-Fidelity Educational Content Enhancer/`
+- `high-fidelity-educational-content-nehancer-3.0-ai-instructions-prompt.md` — system prompt version (for Claude projects)
+- `high-fidelity-educational-content-nehancer-3.0-rag-optimized.md` — detailed spec for knowledge base ingestion
+
+**Content Enhancer architecture:**
+- **K-Store/A-Store separation** — principles (immutable, 100% fidelity) vs approaches (optimizable). Mirrors the framework's own principles/methods split.
+- **4-phase pipeline** — Strategic Analysis & Classification → Content Extraction & Organization → Cognitive Optimization → Enhancement Implementation
+- **Evidence base** — Mayer's 12 Multimedia Learning Principles, Cognitive Load Theory, Retrieval Practice, Universal Design for Learning
+- **Enhancement tagging** — [SOURCE], [ENHANCEMENT], [EXTERNAL_ENHANCEMENT], [REORGANIZED], [LEARNING_ENHANCEMENT], [CLARIFICATION_NEEDED]
+- **Confidence scoring** — 0.0-1.0 for all enhancements
+- **Content-type protocols** — video/audio transcripts, technical docs, academic/research
+- **Multi-layer QA** — fidelity verification, enhancement quality, learning science compliance
+- **Risk classification** — High (medical, legal, safety) / Medium (business, academic) / Low (general educational)
+
+**Plan mode exploration (2026-04-10) — three key findings:**
+
+1. **Initial proposal: TITLE 17 in ai-governance-methods.** Contrarian review returned REVISIT (HIGH confidence). The Content Enhancer is a production workflow, not governance. Full absorption would cause: (a) bloat — 250-400 lines in an already 4,642-line file, (b) atrophy — governance versioning overhead slows the Enhancer's independent evolution, (c) precedent — every methodology becomes a TITLE. Contrarian's steel-manned alternative: governance constraints only (~40-60 line Part 14.7 covering fidelity standards, enhancement tagging, QA criteria) + full methodology stays standalone with Reference Library entry + Context Engine indexing.
+
+2. **User reframed more structurally: "Is the Content Enhancer an instance of a pattern?"** The framework already has multiple workflows that aren't called workflows: Completion Sequence (COMPLETION-CHECKLIST.md), Compliance Review (COMPLIANCE-REVIEW.md), Session Start/End Protocols, Domain Creation (§5.1.0 + Part 9.8), Content Authoring (Part 9.8 + 3-agent battery). Backlog #55 (Workflow Codification) is about building infrastructure for codifying repeatable processes. The Content Enhancer may be a specific workflow running on a workflow infrastructure — #55 being the infrastructure, Content Enhancer being the first concrete instance.
+
+3. **Open question (needs discussion before implementation):** What distinguishes a "workflow" from a "method" in the framework? The completion sequence is a checklist. The compliance review is a guided audit. The Content Enhancer is a 4-phase pipeline. Are these the same kind of thing, or meaningfully different? This determines whether the Content Enhancer gets its own treatment or fits into a broader workflow pattern that also encompasses the existing workflows.
+
+**Three viable paths remain:**
+- **(A) Governance constraints only** — Part 14.7 + standalone reference + CE indexing. Simplest. Treats Content Enhancer as external tool with governance guardrails.
+- **(B) Content Enhancer as first instance of #55 workflow infrastructure** — Define what a "workflow" is in the framework first (#55), then the Content Enhancer becomes a specific workflow with a standard structure. More systemic but requires #55 to be resolved first.
+- **(C) Hybrid** — Something that emerges from deeper #55 discussion. The workflow/method distinction may clarify what the right container is.
+
+**Relationship to other items:**
+- **#55 (Workflow Codification)** — potential infrastructure layer; updated with cross-reference
+- **#84 (README)** — references Content Enhancer as "Component 1" of the broader AI infrastructure, but the README describes the system; this item is about integrating the Enhancer itself
+
+**Origin:** User-initiated (2026-04-10). Plan mode exploration completed but implementation paused for deeper workflow pattern discussion.
+
+---
 
 ## Links
 

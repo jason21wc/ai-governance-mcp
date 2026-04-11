@@ -254,7 +254,7 @@ User reviews the subagent's findings and confirms or challenges.
 | Session | Date | Plans | Contrarian Unprompted? | Notes |
 |---------|------|-------|:---:|-------|
 | 1 (baseline) | 2026-04-08 | 4 | 2/4 (50%) | 2 skipped, user corrected both |
-| 2 | | | | |
+| 2 | 2026-04-10 | 1 | 1/1 (100%) | Contrarian invoked before writing Recommended Approach, per template gate. REVISIT verdict accepted — plan revised. |
 | 3 | | | | |
 
 ---
