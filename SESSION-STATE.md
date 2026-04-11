@@ -13,7 +13,7 @@
 
 - **Phase:** Plan (Constitutional Framework Alignment)
 - **Mode:** Standard
-- **Active Task:** Constitutional Framework Alignment — 7-phase plan complete and reviewed. Ready for Phase 0 implementation. Plan at `project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20.
+- **Active Task:** Constitutional Framework Alignment — 7-phase plan complete and reviewed. Ready for Phase 0 implementation. Plan at `project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Context Engine circuit breaker race condition fixed (#89).
 
 ## Quick Reference
 
@@ -22,7 +22,7 @@
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
 | Content | **v3.0.0** (Constitution — 22 principles, 5 series), **v3.23.2** (meta-methods), **v2.35.1** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1125 passing** (run `pytest tests/ -v` for current) |
+| Tests | **1128 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -37,6 +37,20 @@
 ## Session Summary (2026-04-11)
 
 ### Completed This Session
+
+89. **Context Engine Circuit Breaker Race Condition Fix — IMPLEMENTED**
+   - **Trigger:** Context Engine `project_status` showed `watcher_status: circuit_broken` — auto-indexing disabled. User requested health check.
+   - **Root cause:** `_atomic_write_json` (filesystem.py) used deterministic temp filenames (e.g., `chunks.tmp`). When two callers — overlapping watcher flushes, daemon + MCP server, or watcher + manual reindex — ran concurrently, the first rename succeeded but the second got `ENOENT` (`.tmp` already moved). After 3 consecutive failures, the circuit breaker tripped permanently. Error logs confirmed: `[Errno 2] No such file or directory: '.../chunks.tmp' -> '.../chunks.json'` pattern across multiple projects.
+   - **Fix (two layers):**
+     - **Root cause (filesystem.py):** `_atomic_write_json` and `save_embeddings` now use `{pid}.{thread_id}` in temp filenames — concurrent callers (including cross-process) can't collide. Existing `_cleanup_tmp_files` glob (`*.tmp*`) handles new naming.
+     - **Defense-in-depth (watcher.py):** `_flush_lock` serializes `_do_flush` invocations — prevents redundant concurrent incremental updates. Non-blocking acquire with re-queue on contention. `try/finally` guarantees release.
+     - **Consistency fix (watcher.py):** Error re-queue changed from `_debounce_timer` to `_cooldown_timer` (pre-existing bug: `_debounce_timer` shared with normal debounce path, new file events could cancel the error retry).
+   - **Tests:** 3 new tests (concurrent flush re-queue, lock release on success, lock release on error). 1127 total passing (1 pre-existing contrarian-reviewer hash mismatch from other session).
+   - **Recovery:** Called `index_project` to reset circuit breaker — watcher back to `running`, index freshly built (4606 chunks).
+   - **Review battery:** code-reviewer (2 passes, PASS HIGH confidence), contrarian-reviewer (caught root cause was in `_atomic_write_json` not watcher — led to fixing the structural defect, not just the symptom).
+   - **Governance:** PROCEED (`gov-21a5e5fa2deb`). Key principles: `meta-core-systemic-thinking` (root cause: deterministic temp filenames, not concurrent flushes), `meta-core-context-engineering`, `coding-method-circuit-breaker-pattern`.
+   - **Deferred:** Circuit breaker auto-recovery (exponential backoff). Currently tripped state is permanent until manual reindex or server restart. Worth adding but out of scope for this fix.
+   - **Also explored (not implemented):** `documents/` → `content/` rename analysis. Contrarian review revealed `content` collides with the most-used field name in the codebase. User decided to keep `documents/`.
 
 88. **Constitutional Framework Alignment — PLAN COMPLETE**
    - **Trigger:** User wants to align ai-governance with US Constitutional governance pattern. Two reference docs: `AI_Governance_Detailed_Summary_v4.md` (intent engineering framing, Constitutional mapping), `US_Constitutional_Gap_Analysis.md` (8 missing concepts).
@@ -813,7 +827,7 @@ Pre-push hook Check 4 now blocks push if COMPLETION-CHECKLIST.md was not read. T
 | 1 | 2026-04-08 | #78 Compliance Review | Y | N | Read docs-only section before push |
 | 2 | 2026-04-09 | #82 F.1 review + template fix | Y | N | Read content changes section, worked through items |
 | 3 | 2026-04-10 | #84 README capture, #85 Content Enhancer exploration | N/A | N/A | No code changes — backlog capture + plan mode only |
-| 4 | | | | | |
+| 4 | 2026-04-11 | #89 CE circuit breaker fix | Y | N | Read code changes section, worked through items |
 | 5 | | | | | |
 
 **Escalation threshold:** If 2/5 sessions skip → escalate to include specific item verification in hook.
@@ -828,7 +842,7 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 | 2 | 2026-04-08 | Y | N | N | — | Only read SESSION-STATE again |
 | 3 | 2026-04-09 | Y | Y | Y | Y | All 3 read. LEARNING-LOG informed governance compliance approach; PROJECT-MEMORY informed version bump conventions |
 | 4 | 2026-04-10 | Y | N | Y | N | SESSION-STATE + LEARNING-LOG read. PROJECT-MEMORY too large (searched key sections). No behavior change — session was backlog capture + planning, not implementation |
-| 5 | | | | | | |
+| 5 | 2026-04-11 | Y | N | N | N | Read MEMORY.md (which links to SESSION-STATE). Did not read PROJECT-MEMORY or LEARNING-LOG — session was bug fix, not architecture |
 
 **Decision threshold:** If PROJECT-MEMORY or LEARNING-LOG reads change behavior <2/5 sessions → remove from required protocol (keep as optional). If ≥3/5 → add Layer 3 enforcement.
 
@@ -837,6 +851,14 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 ### Deferred/Future — Discussion
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
+
+#### 90. Context Engine Circuit Breaker Auto-Recovery (Discussion) `D1 Improvement`
+
+**What:** The circuit breaker in `project_manager.py` has no auto-recovery. After 3 consecutive watcher failures, auto-indexing is permanently disabled until a manual `index_project` call or server restart. A transient burst of rapid edits (e.g., `git checkout` of a large branch) can trip it.
+
+**Discussion needed:** Should the circuit breaker use exponential backoff with retry (e.g., 30s, 60s, 120s, then permanent trip)? This would make transient failures self-healing while still protecting against persistent failures. Trade-off: retries consume resources if the underlying issue is real (not transient).
+
+**Origin:** Contrarian review of #89 race condition fix (2026-04-11). Rated MEDIUM severity.
 
 #### 22. Governance Effectiveness Measurement (Discussion) `D1 Improvement`
 

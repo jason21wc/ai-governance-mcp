@@ -67,6 +67,7 @@ class FileWatcher:
         self._debounce_timer: threading.Timer | None = None
         self._cooldown_timer: threading.Timer | None = None
         self._lock = threading.Lock()
+        self._flush_lock = threading.Lock()  # Serializes _do_flush invocations
         self._running = threading.Event()
 
         # Track last completed re-index time for cooldown enforcement
@@ -189,22 +190,42 @@ class FileWatcher:
                 self._cooldown_timer = timer
             return
 
-        logger.info("Flushing %d file changes for re-indexing", len(changes))
-        try:
-            self.on_change(changes)
-            with self._lock:
-                self._last_index_time = time.time()
-        except Exception as e:
-            logger.error("Error in change callback: %s", e)
-            # Re-queue failed changes and schedule a retry timer
+        # Prevent concurrent flushes — overlapping incremental updates race on
+        # atomic file renames (.tmp → .json), causing ENOENT errors that trip
+        # the circuit breaker after 3 consecutive failures.
+        if not self._flush_lock.acquire(blocking=False):
+            logger.debug(
+                "Flush already in progress, re-queuing %d changes", len(changes)
+            )
             with self._lock:
                 self._pending_changes.update(changes)
-                if self._debounce_timer is not None:
-                    self._debounce_timer.cancel()
+                if self._cooldown_timer is not None:
+                    self._cooldown_timer.cancel()
                 timer = threading.Timer(self.cooldown_seconds, self._flush_changes)
                 timer.daemon = True
                 timer.start()
-                self._debounce_timer = timer
+                self._cooldown_timer = timer
+            return
+
+        try:
+            logger.info("Flushing %d file changes for re-indexing", len(changes))
+            try:
+                self.on_change(changes)
+                with self._lock:
+                    self._last_index_time = time.time()
+            except Exception as e:
+                logger.error("Error in change callback: %s", e)
+                # Re-queue failed changes and schedule a retry timer
+                with self._lock:
+                    self._pending_changes.update(changes)
+                    if self._cooldown_timer is not None:
+                        self._cooldown_timer.cancel()
+                    timer = threading.Timer(self.cooldown_seconds, self._flush_changes)
+                    timer.daemon = True
+                    timer.start()
+                    self._cooldown_timer = timer
+        finally:
+            self._flush_lock.release()
 
     def _flush_changes(self) -> None:
         """Flush pending changes to the callback."""

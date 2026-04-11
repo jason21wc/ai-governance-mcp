@@ -3261,8 +3261,94 @@ class TestWatcherCooldownRequeue:
         # Clean up: stop watcher and cancel any pending timer
         watcher._running.clear()
         with watcher._lock:
-            if watcher._debounce_timer is not None:
-                watcher._debounce_timer.cancel()
+            if watcher._cooldown_timer is not None:
+                watcher._cooldown_timer.cancel()
+
+
+class TestWatcherConcurrentFlushPrevention:
+    """Test that concurrent _do_flush calls are serialized to prevent race conditions.
+
+    Root cause: overlapping incremental updates race on atomic file renames
+    (.tmp → .json), causing ENOENT errors that trip the circuit breaker.
+    """
+
+    def test_concurrent_flush_requeues(self, tmp_path):
+        """Second flush while first is in progress should re-queue, not run."""
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        callback = Mock()
+        watcher = FileWatcher(
+            project_path=tmp_path,
+            on_change=callback,
+            cooldown_seconds=60.0,
+        )
+        watcher._running.set()
+        watcher._last_index_time = 0.0
+
+        # Simulate flush already in progress by holding the lock
+        watcher._flush_lock.acquire()
+        try:
+            changes = [tmp_path / "file1.py", tmp_path / "file2.py"]
+            watcher._do_flush(changes)
+
+            # Callback should NOT have been called (flush lock held)
+            callback.assert_not_called()
+
+            # Changes should be re-queued in pending
+            assert len(watcher._pending_changes) == 2
+            assert tmp_path / "file1.py" in watcher._pending_changes
+            assert tmp_path / "file2.py" in watcher._pending_changes
+        finally:
+            watcher._flush_lock.release()
+
+        # Clean up timer
+        watcher._running.clear()
+        with watcher._lock:
+            if watcher._cooldown_timer is not None:
+                watcher._cooldown_timer.cancel()
+
+    def test_flush_lock_released_on_success(self, tmp_path):
+        """Flush lock must be released after successful callback."""
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        callback = Mock()
+        watcher = FileWatcher(
+            project_path=tmp_path,
+            on_change=callback,
+            cooldown_seconds=60.0,
+        )
+        watcher._running.set()
+        watcher._last_index_time = 0.0
+
+        watcher._do_flush([tmp_path / "file1.py"])
+        callback.assert_called_once()
+
+        # Lock should be released — a second flush should succeed
+        assert not watcher._flush_lock.locked()
+
+    def test_flush_lock_released_on_error(self, tmp_path):
+        """Flush lock must be released even if callback raises."""
+        from ai_governance_mcp.context_engine.watcher import FileWatcher
+
+        callback = Mock(side_effect=RuntimeError("indexing failed"))
+        watcher = FileWatcher(
+            project_path=tmp_path,
+            on_change=callback,
+            cooldown_seconds=60.0,
+        )
+        watcher._running.set()
+        watcher._last_index_time = 0.0
+
+        watcher._do_flush([tmp_path / "file1.py"])
+
+        # Lock must be released even after error
+        assert not watcher._flush_lock.locked()
+
+        # Clean up timer
+        watcher._running.clear()
+        with watcher._lock:
+            if watcher._cooldown_timer is not None:
+                watcher._cooldown_timer.cancel()
 
 
 class TestListProjectsNarrowException:

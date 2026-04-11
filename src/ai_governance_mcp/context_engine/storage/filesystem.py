@@ -14,6 +14,7 @@ import logging
 import os
 import re
 import shutil
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -40,8 +41,13 @@ def _atomic_write_json(path: Path, data: Any, indent: int | None = None) -> None
 
     Prevents corruption if process crashes mid-write.
     Atomic on POSIX (rename is atomic within same filesystem).
+
+    Uses PID + thread ID in the temp filename to prevent concurrent callers
+    (including cross-process daemon + MCP server) from colliding on the same
+    temp file. Without this, two callers writing to chunks.tmp simultaneously
+    race on the rename, causing ENOENT errors.
     """
-    tmp_path = path.with_suffix(".tmp")
+    tmp_path = path.with_suffix(f".{os.getpid()}.{threading.get_ident()}.tmp")
     with open(tmp_path, "w") as f:
         json.dump(data, f, indent=indent)
         f.flush()
@@ -146,13 +152,17 @@ class FilesystemStorage(BaseStorage):
 
         Mirrors _atomic_write_json pattern to prevent corruption
         if the process is killed mid-write (e.g., Ctrl+C during indexing).
+
+        Uses PID + thread ID in temp filename for concurrency safety
+        (see _atomic_write_json docstring).
         """
         path = self._ensure_dir(project_id)
         final_path = path / "content_embeddings.npy"
         # np.save auto-appends .npy if missing, so use a .tmp base name
-        tmp_path = path / "content_embeddings.tmp"
+        suffix = f"{os.getpid()}.{threading.get_ident()}"
+        tmp_path = path / f"content_embeddings.{suffix}.tmp"
         np.save(tmp_path, embeddings)
-        # np.save creates content_embeddings.tmp.npy — rename to final path
+        # np.save creates content_embeddings.{suffix}.tmp.npy — rename to final
         actual_tmp = tmp_path.with_suffix(".tmp.npy")
         actual_tmp.replace(final_path)  # Atomic on POSIX
 
