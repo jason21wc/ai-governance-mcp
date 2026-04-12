@@ -258,18 +258,76 @@ These are built into Phase 1 drafting from the start (zero marginal cost), not a
 ### Phase 0: Preparation & Safety Net
 **Scope: Small | Risk: Minimal | ~1 hour**
 
-1. Create git tag `v1.8.0-pre-constitutional` on current state
-2. Copy current constitution + methods files to `documents/archive/` as reference:
-   - `documents/archive/ai-interaction-principles-v3.0.0.md`
-   - `documents/archive/ai-governance-methods-v3.23.2.md`
-3. Create migration tracking file: `documents/migration/constitutional-alignment.md`
-4. Document rationale in PROJECT-MEMORY.md
+**Revert strategy (contrarian-reviewed, HIGH confidence):** Work on main (trunk-based), not a feature branch. CI triggers on push to main — a branch would remove automatic CI from the highest-risk phases. The pre-work tag provides equivalent rollback. Gate-aligned tags (5 total) created only after full test suite passes.
+
+**Step 1: Verify clean baseline**
+```bash
+pytest tests/ -v --tb=short -m "not slow"   # Must be green
+git status                                    # Must be clean
+```
+Do not proceed if tests fail. Fix first.
+
+**Step 2: Tag the safety anchor**
+```bash
+git tag v1.8.0-pre-constitutional -m "Safety anchor before Constitutional restructuring"
+git push origin v1.8.0-pre-constitutional
+```
+Pushed to remote — from any state, `git reset --hard v1.8.0-pre-constitutional` returns to pre-restructuring.
+
+**Step 3: Archive reference copies**
+```bash
+mkdir -p documents/archive/
+cp documents/ai-interaction-principles.md documents/archive/ai-interaction-principles-v3.0.0.md
+cp documents/ai-governance-methods.md documents/archive/ai-governance-methods-v3.23.2.md
+```
+
+**Step 4: Create migration tracking file:** `documents/migration/constitutional-alignment.md`
+
+**Step 5: Document rationale in PROJECT-MEMORY.md**
+
+**Step 6: Commit Phase 0**
+```bash
+git add documents/archive/ documents/migration/ PROJECT-MEMORY.md
+git commit -m "refactor(phase-0): safety net — tag, archive, migration doc"
+```
+
+#### Gate Tag Protocol (applies to all subsequent phases)
+
+Tags are created **only** at review gates, **only** after the full test suite passes:
+
+| Gate | Tag | After Phase | Time at Risk | Revert Command |
+|------|-----|-------------|-------------|----------------|
+| — | `v1.8.0-pre-constitutional` | Pre-work | 0 | — |
+| Gate 1 | `const/gate-1` | Phase 1 | ~2-3 hrs | `git reset --hard v1.8.0-pre-constitutional` |
+| Gate 2 | `const/gate-2` | Phase 2 | ~4-6 hrs | `git reset --hard const/gate-1` |
+| Gate 3 | `const/gate-3` | Phase 3 | ~2-3 hrs | `git reset --hard const/gate-2` |
+| Gate 4 | `const/gate-4` | Phase 4 | ~4-5 hrs | `git reset --hard const/gate-3` |
+| Gate 5 | `const/gate-5` | Phase 6 | ~3-5 hrs | `git reset --hard const/gate-4` |
+
+```bash
+# Tag creation protocol (same for every gate):
+pytest tests/ -v --tb=short -m "not slow"  # 1. Full test suite must pass
+git tag const/gate-N                        # 2. Tag only if tests pass
+# 3. Present to user for review gate approval
+```
+
+#### Revert Cheat Sheet
+
+| Situation | Command |
+|-----------|---------|
+| Revert to any gate boundary | `git reset --hard const/gate-N` |
+| Abandon everything, back to pre-restructuring | `git reset --hard v1.8.0-pre-constitutional` |
+| Stash WIP to debug mid-phase | `git stash push -m "description"` |
+| See changes since last gate | `git diff const/gate-N` |
+| Nuclear: restore from remote | `git fetch origin && git reset --hard v1.8.0-pre-constitutional` |
+| Hotfix needed mid-restructuring | Commit at gate boundary, push fix, continue |
+| Index/embeddings corrupted | `rm -rf index/ && pytest tests/test_extractor.py -v` |
 
 **Files created/modified:**
 - `documents/archive/` (2 copied files)
 - `documents/migration/constitutional-alignment.md` (new)
 - `PROJECT-MEMORY.md` (append)
-- Git tag
+- Git tag (pushed to remote)
 
 **Test impact:** None.
 

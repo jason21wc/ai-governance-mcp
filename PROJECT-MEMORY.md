@@ -79,6 +79,7 @@
 |----------|------|---------|
 | AGENTS.md Overlay Pattern | 2026-03-17 | AGENTS.md holds shared project context (50 lines). CLAUDE.md is overlay with governance enforcement + subagent registry only. Governance hooks MUST stay in CLAUDE.md (safety-adjacent, cannot depend on "read another file" directive). ETH Zurich research: keep instruction files lean. |
 | Document Kit Tiering | 2026-03-17 | §1.5 defines 3 tiers: Core (4 files, all modes), Standard (+3), Enhanced (+evaluated per §7.10). Avoids file proliferation — Enhanced additions are advisory, not mandatory. |
+| Constitutional Framework Alignment | 2026-04-11 | Major restructuring: 14 document files renamed to Constitutional naming (constitution.md, rules-of-procedure.md, title-NN-*.md), headers restructured to Articles/Sections/Amendments, 4 new concepts added, dual-layer IDs (slug + Constitutional citation). 7 phases, 5 review gates, safety anchor at `v1.8.0-pre-constitutional`. Plan: `.claude/plans/project-constitutional-framework-alignment.md`. Revert: gate-aligned tags on main, contrarian-reviewed. |
 
 ### Multi-Agent Domain
 
