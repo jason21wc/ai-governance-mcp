@@ -12,6 +12,26 @@
 
 ## Active Lessons
 
+### Dogfooding Catches What Reviews Miss (2026-04-12)
+
+Applied the Admission Test to its own Q0 (Purpose Alignment). Q0 failed Q4 (Evidence — no concrete failure case). Three rounds of subagent review discussed Q0's value without applying the framework's own admission criteria to it. Only when explicitly prompted to "eat our own dogfood" did the failure become visible. Research then revealed the root cause: preambles are interpretive tiebreakers, not standalone filters — a well-established pattern across US constitutional law, EU treaty interpretation, and corporate governance.
+
+**Rule:** When evaluating framework content, apply the framework's own quality gates to the content itself. If a new principle/method/gate can't pass the Admission Test, it shouldn't exist regardless of how well-reasoned the design rationale sounds. "Dogfooding" is not just using the tools — it's applying the standards.
+
+**Principle:** `meta-quality-verification-validation` (define success criteria before execution — the Admission Test IS the success criteria for content admission).
+
+---
+
+### Metaphor-Driven Classification vs Operational Classification (2026-04-12)
+
+Classified Unenumerated Rights and Reserved Powers as S-Series (Bill of Rights) because the US 9th and 10th Amendments are in the Bill of Rights. Contrarian review identified the error: the ai-governance S-Series has different selection criteria than the US Bill of Rights. S-Series = "immutable safety guardrails that prevent user harm." These two principles prevent framework misinterpretation — governance-structural, not safety-critical. Following the metaphor instead of the operational criteria is the same "pattern not analogy" mistake the plan itself warns about.
+
+**Rule:** When the Constitutional pattern suggests a classification, verify against the operational criteria for that classification in THIS framework. The US Constitution is provenance and pedagogical anchor — it informs structure but doesn't determine classification. Ask "does this meet our criteria for X?" not "is this X in the US Constitution?"
+
+**Principle:** `meta-core-systemic-thinking` — the root cause was following the metaphor (symptom-level reasoning) instead of the operational criteria (structural-level reasoning).
+
+---
+
 ### Multi-Mechanism Context Degradation Model (2026-03-28, updated 2026-04-07) — CRITICAL
 
 **Corrected framing (supersedes single-mechanism model):** When LLMs skip advisory verification steps, it is NOT a single-mechanism problem. Five distinct degradation mechanisms contribute, each requiring different interventions:

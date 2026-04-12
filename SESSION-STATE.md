@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-11
+**Last Updated:** 2026-04-12
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Implementation (Constitutional Framework Alignment — Phase 1 complete, Phase 2 next)
+- **Phase:** Implementation (Constitutional Framework Alignment — Phases 0-3 complete, Phase 4 next)
 - **Mode:** Standard
-- **Active Task:** Constitutional Framework Alignment — Phase 0 (safety net) and Phase 1 (Declaration, Preamble, Framework Structure) complete. Gate 1 tagged (`const/gate-1`). Phase 2 (Articles/Amendments restructuring) is next — highest-risk phase, start in fresh session. Plan at `.claude/plans/project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20.
+- **Active Task:** Constitutional Framework Alignment — Phases 0-3 complete. Gates tagged: `const/gate-1` (Phase 1), `const/gate-2` (Phase 2), `const/gate-3` (Phase 3). **Phase 4 (file renames + domain restructuring) is next** — second highest-risk phase, start in fresh session. Plan at `.claude/plans/project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20.
 
 ## Quick Reference
 
@@ -21,22 +21,49 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.23.2** (meta-methods), **v2.36.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1128 passing** (run `pytest tests/ -v` for current) |
+| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.24.0** (meta-methods), **v2.36.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
+| Tests | **1145 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **128 principles + 672 methods + 13 references** (813 total; see `tests/benchmarks/` for current totals) |
+| Index | **130 principles + 674 methods + 13 references** (817 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-04-11)
+## Session Summary (2026-04-12)
 
 ### Completed This Session
+
+93. **Constitutional Framework Alignment — Phase 3 COMPLETE**
+   - **New principles:** Unenumerated Rights (Art. IV, § 4) and Reserved Powers (Art. IV, § 5) as G-Series. Originally drafted as S-Series Amendments IV-V, reclassified by contrarian review — S-Series = safety-critical harm prevention, these are governance-structural.
+   - **New methods:** Elastic Clause (Part 8.7) — derived authority for novel situations with 5-step procedure + overuse signal. Full Faith and Credit (Part 9.7.6) — cross-domain output recognition with fraud exception.
+   - **Surgical edits:** Equal Protection sentence (Part 9.7), Impeachment emergency fast-path (Part 9.6.3), Evidence question numbering fix (§9.8.1 "Question 5" → "Question 4").
+   - **Q0 removed (dogfooding result):** Admission Test Q0 (Purpose Alignment) failed its own Q4 (Evidence — no concrete failure case). Research confirmed preambles are interpretive tiebreakers, not standalone filters. Replaced with interpretive tiebreaker paragraph in §9.8.1. Admission Test stays at 6 questions.
+   - **Counts:** 22→24 principles, G:3→G:5, S:3 unchanged. Version: constitution v4.0.0→v4.1.0, methods v3.23.2→v3.24.0.
+   - **3-agent review battery (3 rounds):** All HIGH confidence, all PASS. Coherence auditor found 6 stale count references (all fixed). Contrarian caught S-Series misclassification + Q0 rubber-stamp problem.
+   - **Gate 3 tagged:** `const/gate-3`. Revert: `git reset --hard const/gate-2`.
+   - **Governance:** PROCEED (`gov-ffe9ae782b13`, `gov-6d5e2ca7301a`, `gov-8b26e03def61`, `gov-90f25de1e710`).
+   - **Tests:** 1145 passing.
+   - **Next:** Phase 4 (file renames + domain restructuring) — start in fresh session. Second highest-risk phase.
+
+92. **Constitutional Framework Alignment — Phase 2 COMPLETE**
+   - **Core structural change:** Reorganized constitution headers from descriptive naming to Constitutional structure. Article I-IV + Bill of Rights (Amendments). Section N: prefix for Article principles, Amendment N: for Bill of Rights.
+   - **Dual-mode extractor:** Handles both old and new document formats simultaneously. Title-stripping regex (colon-anchored lookahead per contrarian F2), Article/Amendment category mappings (longest-first ordering for substring collision prevention), constitutional_ref generation (Art. I, § 1 / Amend. I).
+   - **Technique stack:** Golden file snapshot (22-principle regression baseline), parallel document construction (v4.0.0 alongside v3.0.0), Expand-Migrate-Contract pattern (Fowler), transformation map, migration log.
+   - **constitutional_ref field:** Added to Principle and RelevantPrinciple models. Plumbed through query_governance, evaluate_governance, get_principle outputs.
+   - **46 new tests:** 22 parametrized title regression, category mapping, substring collision, 4 integration tests for constitutional_ref.
+   - **4 subagent reviews:** Contrarian (PROCEED WITH CAUTION, HIGH), code-reviewer (PASS, HIGH), coherence-auditor (1 ERROR: Article ordering — deferred as user decision, kept current order), validator (PASS WITH NOTES, HIGH). 7 of 9 findings fixed.
+   - **Framework Overview rewritten** to Article/Amendment language. Version bump v3.0.0→v4.0.0.
+   - **Gate 2 tagged:** `const/gate-2`. Revert: `git reset --hard const/gate-1`.
+   - **Governance:** PROCEED (`gov-74bcb12469b6`, `gov-8b26e03def61`).
+   - **Tests:** 1144 passing (after Phase 2, before Phase 3).
+   - **Deferred to Phase 5:** Article ordering non-sequential (I, III, II, IV — preserves original reading flow), old section names in Historical Amendments, missing v3.0.0 history entry (Q:3→Q:4).
+
+### Previous Session (2026-04-11)
 
 91. **Constitutional Framework Alignment — Phase 0 + Phase 1 COMPLETE**
    - **Phase 0 (Safety Net):** Tagged `v1.8.0-pre-constitutional` (pushed to remote). Archived constitution v3.0.0 and methods v3.23.2. Created migration tracker. Revert strategy designed (contrarian-reviewed, HIGH confidence): gate-aligned tags on main, not feature branch (contrarian: branch would remove CI from highest-risk phases).

@@ -1,9 +1,11 @@
 # Phase 2 Migration Log — Articles/Amendments Restructuring
 
 **Started:** 2026-04-12
+**Completed:** 2026-04-12
+**Gate tags:** `const/gate-2` (Phase 2), `const/gate-3` (Phase 3)
 **Gate tag (entry):** `const/gate-1`
-**Baseline tests:** 1098 passing
-**Baseline principles:** 22 (C:6, Q:4, O:6, G:3, S:3)
+**Baseline tests:** 1098 passing → **1145 passing** (final)
+**Baseline principles:** 22 (C:6, Q:4, O:6, G:3, S:3) → **24 (C:6, Q:4, O:6, G:5, S:3)** (final)
 
 ## Technique Stack
 
