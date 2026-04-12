@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Plan (Constitutional Framework Alignment)
+- **Phase:** Implementation (Constitutional Framework Alignment — Phase 1 complete, Phase 2 next)
 - **Mode:** Standard
-- **Active Task:** Constitutional Framework Alignment — 7-phase plan complete and reviewed. Ready for Phase 0 implementation. Plan at `.claude/plans/project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Context Engine circuit breaker race condition fixed (#89).
+- **Active Task:** Constitutional Framework Alignment — Phase 0 (safety net) and Phase 1 (Declaration, Preamble, Framework Structure) complete. Gate 1 tagged (`const/gate-1`). Phase 2 (Articles/Amendments restructuring) is next — highest-risk phase, start in fresh session. Plan at `.claude/plans/project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20.
 
 ## Quick Reference
 
@@ -37,6 +37,20 @@
 ## Session Summary (2026-04-11)
 
 ### Completed This Session
+
+91. **Constitutional Framework Alignment — Phase 0 + Phase 1 COMPLETE**
+   - **Phase 0 (Safety Net):** Tagged `v1.8.0-pre-constitutional` (pushed to remote). Archived constitution v3.0.0 and methods v3.23.2. Created migration tracker. Revert strategy designed (contrarian-reviewed, HIGH confidence): gate-aligned tags on main, not feature branch (contrarian: branch would remove CI from highest-risk phases).
+   - **Phase 1 (Declaration + Preamble + Framework Structure):**
+     - **Declaration:** User-authored personal narrative — experiential opening ("almost right, which is worse"), first-person journey through prompt→context→intent engineering, five root purposes, US Constitutional provenance ("Not as a metaphor. As an architecture.").
+     - **Preamble – Purpose Statement:** User-authored — flows from Declaration, weaves five root purposes into prose, validation clause ("Any content that contradicts them is invalid"), self-application commitment, bridge line ("Here's how it's built.").
+     - **Framework Structure:** Replaced old "Legal Analogy Interpretation Guide" (5-level numbered table) with named 7-layer hierarchy. Two-part table: contextual (non-operative) + operative hierarchy. Added Rules of Procedure and Case Law. Integrated SYSTEM INSTRUCTION as blockquote (contrarian required: preserve "SYSTEM INSTRUCTION FOR AI AGENTS" heading). Deleted Design Philosophy section (migrated "consolidated from 47" and "living document" to Framework Structure).
+     - **Extractor:** Defensive category mappings for 'declaration', 'preamble', 'framework structure'.
+   - **Subagent reviews:** 3 contrarian reviews (all HIGH confidence), 1 coherence audit (2 cross-file stale refs found → deferred to Phase 5), 1 validator (10/10 PASS on revert strategy).
+   - **Deferred to Phase 5:** ai-governance-methods.md Part 9.7.1 still says "5-level" (needs 7-layer), Part 9.7.4 Supremacy Clause missing "Rules of Procedure", domain methods preamble tables still 4-row.
+   - **Gate 1 tagged:** `const/gate-1`. Revert: `git reset --hard const/gate-1` (or `v1.8.0-pre-constitutional` for full rollback).
+   - **Governance:** PROCEED (`gov-946721ddcb74`, `gov-33056c7b8a06`, `gov-a844ec04701c`, `gov-d108a9d75d23`).
+   - **Tests:** 1098 passing (30 slow deselected). 128 principles (22 constitution) — all IDs preserved.
+   - **Next:** Phase 2 (Articles/Amendments restructuring) — start in fresh session. Highest-risk phase.
 
 90. **AI-Optimized Project Structure Standard — IMPLEMENTED**
    - **Trigger:** Root had 12+ markdown files with mixed purposes (AI memory, human docs, process checklists, tool config). User wanted generalized project organization template for all project types.
@@ -836,7 +850,7 @@ Pre-push hook Check 4 now blocks push if COMPLETION-CHECKLIST.md was not read. T
 | 2 | 2026-04-09 | #82 F.1 review + template fix | Y | N | Read content changes section, worked through items |
 | 3 | 2026-04-10 | #84 README capture, #85 Content Enhancer exploration | N/A | N/A | No code changes — backlog capture + plan mode only |
 | 4 | 2026-04-11 | #89 CE circuit breaker fix | Y | N | Read code changes section, worked through items |
-| 5 | | | | | |
+| 5 | 2026-04-11 | #91 Constitutional Alignment Phase 0+1 | Y | N | Read content changes + code changes sections at session end |
 
 **Escalation threshold:** If 2/5 sessions skip → escalate to include specific item verification in hook.
 **Success:** 4/5 consulted → close tracking, keep hook as-is.
@@ -850,9 +864,10 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 | 2 | 2026-04-08 | Y | N | N | — | Only read SESSION-STATE again |
 | 3 | 2026-04-09 | Y | Y | Y | Y | All 3 read. LEARNING-LOG informed governance compliance approach; PROJECT-MEMORY informed version bump conventions |
 | 4 | 2026-04-10 | Y | N | Y | N | SESSION-STATE + LEARNING-LOG read. PROJECT-MEMORY too large (searched key sections). No behavior change — session was backlog capture + planning, not implementation |
-| 5 | 2026-04-11 | Y | N | N | N | Read MEMORY.md (which links to SESSION-STATE). Did not read PROJECT-MEMORY or LEARNING-LOG — session was bug fix, not architecture |
+| 5 | 2026-04-11 | Y | Y | Y | Y | All 3 read at session start ("get up to speed from memory files"). LEARNING-LOG informed revert strategy design (multi-mechanism model, advisory compliance ~85%). PROJECT-MEMORY informed Constitutional Alignment plan review context. |
 
 **Decision threshold:** If PROJECT-MEMORY or LEARNING-LOG reads change behavior <2/5 sessions → remove from required protocol (keep as optional). If ≥3/5 → add Layer 3 enforcement.
+**Result (5/5 complete):** 3/5 sessions where PM/LL reads changed behavior (sessions 3, 5, and this one). Meets ≥3/5 threshold — consider Layer 3 enforcement.
 
 ---
 
