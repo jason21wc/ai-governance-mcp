@@ -1991,7 +1991,10 @@ def _format_retrieval_result(result) -> str:
         lines.append("## Constitution Principles")
         for sp in result.constitution_principles:
             p = sp.principle
-            lines.append(f"### [{sp.confidence.value.upper()}] {p.id}: {p.title}")
+            ref_prefix = f"[{p.constitutional_ref}] " if p.constitutional_ref else ""
+            lines.append(
+                f"### [{sp.confidence.value.upper()}] {ref_prefix}{p.id}: {p.title}"
+            )
             # Only show series if it exists (legacy format)
             series_info = f"Series: {p.series_code} | " if p.series_code else ""
             lines.append(
@@ -2090,6 +2093,7 @@ async def _handle_get_principle(
             "domain": principle.domain,
             "series": principle.series_code,  # May be None for new format
             "number": principle.number,
+            "constitutional_ref": principle.constitutional_ref,
             "title": principle.title,
             "content": principle.content,
             "line_range": principle.line_range,
@@ -2433,6 +2437,7 @@ async def _handle_evaluate_governance(
                 relevance=relevance,
                 score=score,
                 series_code=p.series_code,  # S, C, Q, O, G, MA
+                constitutional_ref=p.constitutional_ref,
                 domain=p.domain,  # Source domain for hierarchy
             )
         )

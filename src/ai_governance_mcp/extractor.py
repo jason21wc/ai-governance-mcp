@@ -226,6 +226,36 @@ class DocumentExtractor:
     Creates a GlobalIndex with embeddings for hybrid retrieval.
     """
 
+    # Strip "Section N:" or "Amendment N:" prefixes from principle headers.
+    # Anchored to colon delimiter to prevent over-matching on titles starting
+    # with Roman numeral characters (I, V, X, L, C). See contrarian review F2
+    # and TestConstitutionalTitleStripping for regression tests.
+    CONSTITUTIONAL_PREFIX_RE = re.compile(
+        r"^(?:Section\s+\d+|Amendment\s+(?:[IVXLC]+(?=\s*:)|\d+(?=\s*:)))\s*:\s*"
+    )
+
+    # Detect Article headers to track constitutional context during extraction.
+    # Matches: "Article I: ...", "Article II: ...", etc.
+    ARTICLE_HEADER_RE = re.compile(
+        r"^Article\s+([IVXLC]+)",
+        re.IGNORECASE,
+    )
+
+    # Roman numeral ↔ integer for constitutional citation generation
+    _ROMAN_TO_INT = {
+        "I": 1,
+        "II": 2,
+        "III": 3,
+        "IV": 4,
+        "V": 5,
+        "VI": 6,
+        "VII": 7,
+        "VIII": 8,
+        "IX": 9,
+        "X": 10,
+    }
+    _INT_TO_ROMAN = {v: k for k, v in _ROMAN_TO_INT.items()}
+
     def __init__(self, settings: Settings):
         self.settings = settings
         self.domains = load_domains_registry(settings)
@@ -978,6 +1008,17 @@ class DocumentExtractor:
             "declaration": "declaration",
             "preamble": "preamble",
             "framework structure": "framework-structure",
+            # Constitutional Article/Amendment mappings (Phase 2 — dual-mode)
+            # IMPORTANT: Longer Article names MUST come before shorter ones
+            # to prevent substring collisions ("article i" ⊂ "article ii/iii/iv")
+            "article iv": "governance",
+            "article iii": "quality",
+            "article ii": "operational",
+            "article i": "core",
+            "bill of rights": "safety",
+            # "historical amendments" must precede "amendment" (substring collision)
+            "historical amendments": "general",
+            "amendment": "safety",
             # Descriptive mapping (constitution and general)
             "core": "core",
             "architecture": "core",
@@ -1029,6 +1070,14 @@ class DocumentExtractor:
         current_principle = None
         current_section = "general"
 
+        # Constitutional context tracking (Phase 2 — dual-mode)
+        # Tracks the current Article and section counter for constitutional_ref generation.
+        # When parsing old-format docs, these stay None and principles get no ref.
+        current_article_roman: str | None = None  # e.g., "I", "II", "III", "IV"
+        current_section_num = 0  # Reset per Article, incremented per ### Section
+        current_amendment_num = 0  # Incremented per ### Amendment
+        in_bill_of_rights = False
+
         for i, line in enumerate(lines, 1):
             # Check for section headers
             # Allow ## headers always, and ### headers if they're series markers
@@ -1073,6 +1122,23 @@ class DocumentExtractor:
                     current_section = self._get_category_from_section(
                         section_match.group(1)
                     )
+                    # Track constitutional context for ref generation (Phase 2)
+                    article_match = self.ARTICLE_HEADER_RE.match(section_match.group(1))
+                    if article_match:
+                        current_article_roman = article_match.group(1).upper()
+                        current_section_num = 0  # Reset per Article
+                        in_bill_of_rights = False
+                    elif "bill of rights" in section_text:
+                        in_bill_of_rights = True
+                        current_article_roman = None
+                        current_amendment_num = 0
+                    else:
+                        # Not a tracked constitutional section (e.g., Historical
+                        # Amendments, Framework Overview) — reset context to
+                        # prevent stale state from producing wrong refs.
+                        in_bill_of_rights = False
+                        current_article_roman = None
+
                     if is_series_header:
                         continue  # Skip series headers from principle extraction
 
@@ -1107,7 +1173,14 @@ class DocumentExtractor:
             # Check for new-format principle headers
             new_match = new_header_pattern.match(line)
             if new_match:
-                title = new_match.group(1).strip()
+                raw_title = new_match.group(1).strip()
+
+                # Strip Constitutional prefixes (Phase 2 — dual-mode).
+                # "Section 1: Context Engineering" → "Context Engineering"
+                # "Amendment I: Non-Maleficence, Privacy & Security" → "Non-Maleficence, Privacy & Security"
+                # Old-format titles pass through unchanged (no prefix to strip).
+                title = self.CONSTITUTIONAL_PREFIX_RE.sub("", raw_title)
+                has_constitutional_prefix = raw_title != title
 
                 # Skip non-principle headers (like "When to Apply" etc.)
                 skip_keywords = [
@@ -1223,6 +1296,25 @@ class DocumentExtractor:
                         self._build_principle(current_principle, domain_prefix)
                     )
 
+                # Compute constitutional_ref if we're in a tracked Article or Bill of Rights.
+                # Note: Amendment numbering uses a sequential counter rather than
+                # parsing the Roman numeral from the header. This assumes amendments
+                # are numbered sequentially in the document. If amendments are ever
+                # reordered or non-sequential, switch to parsing from raw_title.
+                constitutional_ref = None
+                if has_constitutional_prefix:
+                    if in_bill_of_rights:
+                        current_amendment_num += 1
+                        roman = self._INT_TO_ROMAN.get(
+                            current_amendment_num, str(current_amendment_num)
+                        )
+                        constitutional_ref = f"Amend. {roman}"
+                    elif current_article_roman:
+                        current_section_num += 1
+                        constitutional_ref = (
+                            f"Art. {current_article_roman}, § {current_section_num}"
+                        )
+
                 # Start new principle (new format)
                 current_principle = {
                     "category": current_section,
@@ -1232,6 +1324,7 @@ class DocumentExtractor:
                     "end_line": None,
                     "content": "",
                     "series_code": None,
+                    "constitutional_ref": constitutional_ref,
                 }
 
         # Save last principle
@@ -1351,6 +1444,7 @@ class DocumentExtractor:
             content=data["content"],
             line_range=(data["start_line"], data["end_line"]),
             metadata=metadata,
+            constitutional_ref=data.get("constitutional_ref"),
             embedding_id=None,  # Set later after embedding
         )
 

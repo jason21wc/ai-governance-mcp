@@ -51,11 +51,11 @@ class RetrievalEngine:
     """Hybrid retrieval engine with BM25 + semantic search + reranking."""
 
     _CONSTITUTION_HIERARCHY: dict[str, int] = {
-        "S": 0,  # Safety - highest priority
-        "C": 1,  # Core
-        "Q": 2,  # Quality
-        "O": 3,  # Operational
-        "G": 4,  # Governance
+        "S": 0,  # Bill of Rights (Amendments) — immutable safety guardrails
+        "C": 1,  # Article I: Core Architecture (Legislative)
+        "Q": 2,  # Article III: Quality & Integrity (Judicial)
+        "O": 3,  # Article II: Operational Efficiency (Executive)
+        "G": 4,  # Article IV: Governance & Evolution (Administrative)
         # MA-Series dissolved in v3.0.0 — multi-agent principles moved to domain
     }
 

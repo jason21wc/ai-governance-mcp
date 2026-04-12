@@ -1,0 +1,188 @@
+{
+  "_meta": {
+    "description": "Golden baseline of constitution principles before Phase 2 restructuring",
+    "captured_at": "2026-04-12",
+    "gate_tag": "const/gate-1",
+    "source_file": "ai-interaction-principles.md",
+    "total_principles": 22,
+    "purpose": "Regression test — after refactoring, diff new extraction against this file. Any ID change = bug."
+  },
+  "principles": [
+    {
+      "id": "meta-core-context-engineering",
+      "title": "Context Engineering",
+      "series_code": "C",
+      "category": "core",
+      "new_header": "### Section 1: Context Engineering",
+      "constitutional_ref": "Art. I, § 1"
+    },
+    {
+      "id": "meta-core-single-source-of-truth",
+      "title": "Single Source of Truth",
+      "series_code": "C",
+      "category": "core",
+      "new_header": "### Section 2: Single Source of Truth",
+      "constitutional_ref": "Art. I, § 2"
+    },
+    {
+      "id": "meta-core-separation-of-instructions-and-data",
+      "title": "Separation of Instructions and Data",
+      "series_code": "C",
+      "category": "core",
+      "new_header": "### Section 3: Separation of Instructions and Data",
+      "constitutional_ref": "Art. I, § 3"
+    },
+    {
+      "id": "meta-core-structural-foundations",
+      "title": "Structural Foundations",
+      "series_code": "C",
+      "category": "core",
+      "new_header": "### Section 4: Structural Foundations",
+      "constitutional_ref": "Art. I, § 4"
+    },
+    {
+      "id": "meta-core-discovery-before-commitment",
+      "title": "Discovery Before Commitment",
+      "series_code": "C",
+      "category": "core",
+      "new_header": "### Section 5: Discovery Before Commitment",
+      "constitutional_ref": "Art. I, § 5"
+    },
+    {
+      "id": "meta-core-systemic-thinking",
+      "title": "Systemic Thinking",
+      "series_code": "C",
+      "category": "core",
+      "new_header": "### Section 6: Systemic Thinking",
+      "constitutional_ref": "Art. I, § 6"
+    },
+    {
+      "id": "meta-quality-verification-validation",
+      "title": "Verification & Validation",
+      "series_code": "Q",
+      "category": "quality",
+      "new_header": "### Section 1: Verification & Validation",
+      "constitutional_ref": "Art. III, § 1"
+    },
+    {
+      "id": "meta-quality-structured-output-enforcement",
+      "title": "Structured Output Enforcement",
+      "series_code": "Q",
+      "category": "quality",
+      "new_header": "### Section 2: Structured Output Enforcement",
+      "constitutional_ref": "Art. III, § 2"
+    },
+    {
+      "id": "meta-quality-visible-reasoning-traceability",
+      "title": "Visible Reasoning & Traceability",
+      "series_code": "Q",
+      "category": "quality",
+      "new_header": "### Section 3: Visible Reasoning & Traceability",
+      "constitutional_ref": "Art. III, § 3"
+    },
+    {
+      "id": "meta-quality-effective-efficient-communication",
+      "title": "Effective & Efficient Communication",
+      "series_code": "Q",
+      "category": "quality",
+      "new_header": "### Section 4: Effective & Efficient Communication",
+      "constitutional_ref": "Art. III, § 4"
+    },
+    {
+      "id": "meta-operational-atomic-task-decomposition",
+      "title": "Atomic Task Decomposition",
+      "series_code": "O",
+      "category": "operational",
+      "new_header": "### Section 1: Atomic Task Decomposition",
+      "constitutional_ref": "Art. II, § 1"
+    },
+    {
+      "id": "meta-operational-explicit-over-implicit",
+      "title": "Explicit Over Implicit",
+      "series_code": "O",
+      "category": "operational",
+      "new_header": "### Section 2: Explicit Over Implicit",
+      "constitutional_ref": "Art. II, § 2"
+    },
+    {
+      "id": "meta-operational-interaction-mode-adaptation",
+      "title": "Interaction Mode Adaptation",
+      "series_code": "O",
+      "category": "operational",
+      "new_header": "### Section 3: Interaction Mode Adaptation",
+      "constitutional_ref": "Art. II, § 3"
+    },
+    {
+      "id": "meta-operational-resource-efficiency-waste-reduction",
+      "title": "Resource Efficiency & Waste Reduction",
+      "series_code": "O",
+      "category": "operational",
+      "new_header": "### Section 4: Resource Efficiency & Waste Reduction",
+      "constitutional_ref": "Art. II, § 4"
+    },
+    {
+      "id": "meta-operational-goal-first-dependency-mapping",
+      "title": "Goal-First Dependency Mapping",
+      "series_code": "O",
+      "category": "operational",
+      "new_header": "### Section 5: Goal-First Dependency Mapping",
+      "constitutional_ref": "Art. II, § 5"
+    },
+    {
+      "id": "meta-operational-failure-recovery-resilience",
+      "title": "Failure Recovery & Resilience",
+      "series_code": "O",
+      "category": "operational",
+      "new_header": "### Section 6: Failure Recovery & Resilience",
+      "constitutional_ref": "Art. II, § 6"
+    },
+    {
+      "id": "meta-governance-risk-mitigation-by-design",
+      "title": "Risk Mitigation by Design",
+      "series_code": "G",
+      "category": "governance",
+      "new_header": "### Section 1: Risk Mitigation by Design",
+      "constitutional_ref": "Art. IV, § 1"
+    },
+    {
+      "id": "meta-governance-continuous-learning-adaptation",
+      "title": "Continuous Learning & Adaptation",
+      "series_code": "G",
+      "category": "governance",
+      "new_header": "### Section 2: Continuous Learning & Adaptation",
+      "constitutional_ref": "Art. IV, § 2"
+    },
+    {
+      "id": "meta-governance-human-ai-authority-accountability",
+      "title": "Human-AI Authority & Accountability",
+      "series_code": "G",
+      "category": "governance",
+      "new_header": "### Section 3: Human-AI Authority & Accountability",
+      "constitutional_ref": "Art. IV, § 3"
+    },
+    {
+      "id": "meta-safety-non-maleficence-privacy-security",
+      "title": "Non-Maleficence, Privacy & Security",
+      "series_code": "S",
+      "category": "safety",
+      "new_header": "### Amendment I: Non-Maleficence, Privacy & Security",
+      "constitutional_ref": "Amend. I"
+    },
+    {
+      "id": "meta-safety-bias-awareness-fairness",
+      "title": "Bias Awareness & Fairness",
+      "series_code": "S",
+      "category": "safety",
+      "new_header": "### Amendment II: Bias Awareness & Fairness",
+      "constitutional_ref": "Amend. II"
+    },
+    {
+      "id": "meta-safety-transparent-limitations",
+      "title": "Transparent Limitations",
+      "series_code": "S",
+      "category": "safety",
+      "new_header": "### Amendment III: Transparent Limitations",
+      "constitutional_ref": "Amend. III"
+    }
+  ]
+}

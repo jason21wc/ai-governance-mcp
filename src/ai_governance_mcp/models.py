@@ -132,6 +132,11 @@ class Principle(BaseModel):
         description="Former principle IDs that redirect to this principle "
         "(for backward compatibility after consolidation/rename)",
     )
+    constitutional_ref: Optional[str] = Field(
+        None,
+        description="Constitutional citation for human-readable cross-references "
+        "(e.g., 'Art. I, § 1', 'Amend. I', 'T.10, § 1')",
+    )
     embedding_id: Optional[int] = Field(None, description="Index into embeddings array")
 
 
@@ -435,6 +440,9 @@ class RelevantPrinciple(BaseModel):
     score: float = Field(..., ge=0.0, le=1.0, description="Retrieval relevance score")
     series_code: Optional[str] = Field(
         None, description="Series code (S, C, Q, O, G, MA) if applicable"
+    )
+    constitutional_ref: Optional[str] = Field(
+        None, description="Constitutional citation (e.g., 'Art. I, § 1')"
     )
     domain: str = Field(..., description="Source domain for hierarchy resolution")
 

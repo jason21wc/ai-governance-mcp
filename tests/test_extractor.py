@@ -2336,3 +2336,468 @@ class TestCategoryMappingSubstringCollisions:
                     f"Header '{header}' mapped to '{result}', expected '{expected}'. "
                     f"Check ordering in category_mapping dict."
                 )
+
+
+# =============================================================================
+# Constitutional Restructuring Tests (Phase 2)
+# =============================================================================
+
+
+class TestConstitutionalTitleStripping:
+    """Tests for title-stripping regex used in Phase 2 Constitutional restructuring.
+
+    The regex must strip 'Section N:' and 'Amendment N:' prefixes from principle
+    headers while preserving the exact title used for slug ID generation.
+    Every single constitution principle title is tested — if any title changes,
+    the corresponding slug ID would break.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _load_regex(self):
+        """Import the production regex — never duplicate it in tests."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            self.CONSTITUTIONAL_PREFIX_RE = DocumentExtractor.CONSTITUTIONAL_PREFIX_RE
+
+    @pytest.mark.parametrize(
+        "header_title,expected_clean_title",
+        [
+            # Article I: Core Architecture (C-Series) — 6 principles
+            ("Section 1: Context Engineering", "Context Engineering"),
+            ("Section 2: Single Source of Truth", "Single Source of Truth"),
+            (
+                "Section 3: Separation of Instructions and Data",
+                "Separation of Instructions and Data",
+            ),
+            ("Section 4: Structural Foundations", "Structural Foundations"),
+            ("Section 5: Discovery Before Commitment", "Discovery Before Commitment"),
+            ("Section 6: Systemic Thinking", "Systemic Thinking"),
+            # Article II: Operational Efficiency (O-Series) — 6 principles
+            ("Section 1: Atomic Task Decomposition", "Atomic Task Decomposition"),
+            ("Section 2: Explicit Over Implicit", "Explicit Over Implicit"),
+            ("Section 3: Interaction Mode Adaptation", "Interaction Mode Adaptation"),
+            (
+                "Section 4: Resource Efficiency & Waste Reduction",
+                "Resource Efficiency & Waste Reduction",
+            ),
+            (
+                "Section 5: Goal-First Dependency Mapping (Backward Chaining)",
+                "Goal-First Dependency Mapping (Backward Chaining)",
+            ),
+            (
+                "Section 6: Failure Recovery & Resilience",
+                "Failure Recovery & Resilience",
+            ),
+            # Article III: Quality & Integrity (Q-Series) — 4 principles
+            ("Section 1: Verification & Validation", "Verification & Validation"),
+            (
+                "Section 2: Structured Output Enforcement",
+                "Structured Output Enforcement",
+            ),
+            (
+                "Section 3: Visible Reasoning & Traceability",
+                "Visible Reasoning & Traceability",
+            ),
+            (
+                "Section 4: Effective & Efficient Communication",
+                "Effective & Efficient Communication",
+            ),
+            # Article IV: Governance & Evolution (G-Series) — 3 principles
+            ("Section 1: Risk Mitigation by Design", "Risk Mitigation by Design"),
+            (
+                "Section 2: Continuous Learning & Adaptation",
+                "Continuous Learning & Adaptation",
+            ),
+            (
+                "Section 3: Human-AI Authority & Accountability",
+                "Human-AI Authority & Accountability",
+            ),
+            # Bill of Rights (S-Series) — 3 amendments
+            (
+                "Amendment I: Non-Maleficence, Privacy & Security",
+                "Non-Maleficence, Privacy & Security",
+            ),
+            (
+                "Amendment II: Bias Awareness & Fairness (Equal Protection)",
+                "Bias Awareness & Fairness (Equal Protection)",
+            ),
+            ("Amendment III: Transparent Limitations", "Transparent Limitations"),
+        ],
+        ids=[
+            "C1-context-engineering",
+            "C2-single-source-of-truth",
+            "C3-separation-of-instructions-and-data",
+            "C4-structural-foundations",
+            "C5-discovery-before-commitment",
+            "C6-systemic-thinking",
+            "O1-atomic-task-decomposition",
+            "O2-explicit-over-implicit",
+            "O3-interaction-mode-adaptation",
+            "O4-resource-efficiency",
+            "O5-goal-first-dependency-mapping",
+            "O6-failure-recovery",
+            "Q1-verification-validation",
+            "Q2-structured-output-enforcement",
+            "Q3-visible-reasoning",
+            "Q4-effective-communication",
+            "G1-risk-mitigation",
+            "G2-continuous-learning",
+            "G3-human-ai-authority",
+            "S1-non-maleficence",
+            "S2-bias-awareness",
+            "S3-transparent-limitations",
+        ],
+    )
+    def test_strip_constitutional_prefix(self, header_title, expected_clean_title):
+        """Each of the 22 constitution principle titles must be preserved exactly."""
+        result = self.CONSTITUTIONAL_PREFIX_RE.sub("", header_title)
+        assert result == expected_clean_title, (
+            f"Title stripping changed the principle title!\n"
+            f"  Input:    '{header_title}'\n"
+            f"  Got:      '{result}'\n"
+            f"  Expected: '{expected_clean_title}'\n"
+            f"  This would change the slug ID and break downstream references."
+        )
+
+    @pytest.mark.parametrize(
+        "title",
+        [
+            # Titles that start with letters in Roman numeral charset (I, V, X, L, C)
+            # The regex must NOT consume these leading characters
+            "Interaction Mode Adaptation",
+            "Verification & Validation",
+            "Visible Reasoning & Traceability",
+            "Continuous Learning & Adaptation",
+            "Context Engineering",
+        ],
+        ids=[
+            "starts-with-I",
+            "starts-with-V-1",
+            "starts-with-V-2",
+            "starts-with-C-1",
+            "starts-with-C-2",
+        ],
+    )
+    def test_no_false_stripping_on_bare_titles(self, title):
+        """Titles without prefixes must pass through unchanged."""
+        result = self.CONSTITUTIONAL_PREFIX_RE.sub("", title)
+        assert result == title, (
+            f"Regex falsely stripped from bare title '{title}' → '{result}'"
+        )
+
+    def test_total_principle_count(self):
+        """Exactly 22 test cases in parametrize — one per constitution principle."""
+        # Count the parametrize entries above (must match golden baseline)
+        assert len(self.test_strip_constitutional_prefix.pytestmark[0].args[1]) == 22
+
+    @pytest.mark.parametrize(
+        "header_title,expected",
+        [
+            # Future-proofing: higher Roman numerals
+            ("Amendment IV: Unenumerated Rights", "Unenumerated Rights"),
+            ("Amendment V: Reserved Powers", "Reserved Powers"),
+            ("Amendment X: Future Amendment", "Future Amendment"),
+            # Arabic numeral sections beyond current count
+            ("Section 10: Future Section", "Future Section"),
+            ("Section 99: Far Future Section", "Far Future Section"),
+        ],
+    )
+    def test_strip_future_constitutional_prefixes(self, header_title, expected):
+        """Regex handles amendments and sections beyond the current count."""
+        result = self.CONSTITUTIONAL_PREFIX_RE.sub("", header_title)
+        assert result == expected
+
+
+class TestConstitutionalCategoryMapping:
+    """Tests for Article/Amendment-based category mapping in the extractor."""
+
+    @pytest.fixture
+    def extractor(self, test_settings):
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            return DocumentExtractor(test_settings)
+
+    def test_article_i_maps_to_core(self, extractor):
+        """After section_pattern strips trailing 'Principles?', text reaches this function."""
+        assert (
+            extractor._get_category_from_section(
+                "Article I: Core Architecture (Legislative Branch)"
+            )
+            == "core"
+        )
+
+    def test_article_ii_maps_to_operational(self, extractor):
+        assert (
+            extractor._get_category_from_section(
+                "Article II: Operational Efficiency (Executive Branch)"
+            )
+            == "operational"
+        )
+
+    def test_article_iii_maps_to_quality(self, extractor):
+        assert (
+            extractor._get_category_from_section(
+                "Article III: Quality & Integrity (Judicial Branch)"
+            )
+            == "quality"
+        )
+
+    def test_article_iv_maps_to_governance(self, extractor):
+        assert (
+            extractor._get_category_from_section(
+                "Article IV: Governance & Evolution (Administrative State)"
+            )
+            == "governance"
+        )
+
+    def test_bill_of_rights_maps_to_safety(self, extractor):
+        assert (
+            extractor._get_category_from_section("Bill of Rights (Amendments)")
+            == "safety"
+        )
+
+    def test_amendment_maps_to_safety(self, extractor):
+        assert extractor._get_category_from_section("Amendment I") == "safety"
+
+    def test_article_substring_collision_order(self, extractor):
+        """'article i' is a substring of 'article ii/iii/iv' — ordering prevents collision."""
+        # These must all resolve correctly despite substring overlap
+        assert (
+            extractor._get_category_from_section("Article IV: Governance")
+            == "governance"
+        )
+        assert extractor._get_category_from_section("Article III: Quality") == "quality"
+        assert (
+            extractor._get_category_from_section("Article II: Operational")
+            == "operational"
+        )
+        assert extractor._get_category_from_section("Article I: Core") == "core"
+
+    def test_old_format_still_works(self, extractor):
+        """Dual-mode: old descriptive headers must still map correctly.
+
+        Note: section_pattern strips trailing 'Principles?' before calling
+        _get_category_from_section, so we test with the stripped text.
+        """
+        assert extractor._get_category_from_section("Core Architecture") == "core"
+        assert (
+            extractor._get_category_from_section("Quality and Reliability") == "quality"
+        )
+        assert extractor._get_category_from_section("Operational") == "operational"
+        assert extractor._get_category_from_section("Governance") == "governance"
+        assert extractor._get_category_from_section("Safety & Ethics") == "safety"
+
+    def test_historical_amendments_not_safety(self, extractor):
+        """'Historical Amendments' section must NOT map to safety (substring collision)."""
+        assert (
+            extractor._get_category_from_section(
+                "Historical Amendments (Constitutional History)"
+            )
+            != "safety"
+        )
+
+
+class TestConstitutionalRefIntegration:
+    """Integration test: extract principles from v4.0.0-format document and verify
+    constitutional_ref values are correctly generated end-to-end."""
+
+    @pytest.fixture
+    def v4_fixture_content(self):
+        """Minimal v4.0.0-format constitution for integration testing."""
+        return """---
+version: "4.0.0"
+domain: "constitution"
+governance_level: "constitution"
+---
+
+# Test Constitution
+
+## Article I: Core Architecture (Legislative Branch)
+
+### Section 1: Context Engineering
+
+**Definition**
+Test definition for context engineering.
+
+### Section 2: Single Source of Truth
+
+**Definition**
+Test definition for single source of truth.
+
+## Article III: Quality & Integrity (Judicial Branch)
+
+### Section 1: Verification & Validation
+
+**Definition**
+Test definition for verification.
+
+## Article II: Operational Efficiency (Executive Branch)
+
+### Section 1: Atomic Task Decomposition
+
+**Definition**
+Test definition for atomic tasks.
+
+## Article IV: Governance & Evolution (Administrative State)
+
+### Section 1: Risk Mitigation by Design
+
+**Definition**
+Test definition for risk mitigation.
+
+## Bill of Rights (Amendments)
+
+### Amendment I: Non-Maleficence, Privacy & Security
+
+**Definition**
+Test definition for non-maleficence.
+
+### Amendment II: Bias Awareness & Fairness
+
+**Definition**
+Test definition for bias awareness.
+
+## Historical Amendments (Constitutional History)
+
+This section should NOT produce any principles or constitutional refs.
+"""
+
+    def test_constitutional_refs_generated(self, test_settings, v4_fixture_content):
+        """Principles extracted from v4 format have correct constitutional_ref values."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            # Write fixture
+            fixture_path = test_settings.documents_path / "test-constitution.md"
+            fixture_path.write_text(v4_fixture_content)
+
+            extractor = DocumentExtractor(test_settings)
+            domain_config = DomainConfig(
+                name="constitution",
+                display_name="Constitution",
+                principles_file="test-constitution.md",
+                description="Test",
+                priority=0,
+            )
+            principles = extractor._extract_principles(domain_config)
+
+            # Should extract 7 principles (not more — Historical section has none)
+            assert len(principles) == 7, (
+                f"Expected 7 principles, got {len(principles)}: "
+                f"{[p.title for p in principles]}"
+            )
+
+            # Verify constitutional refs
+            refs = {p.title: p.constitutional_ref for p in principles}
+            assert refs["Context Engineering"] == "Art. I, § 1"
+            assert refs["Single Source of Truth"] == "Art. I, § 2"
+            assert refs["Verification & Validation"] == "Art. III, § 1"
+            assert refs["Atomic Task Decomposition"] == "Art. II, § 1"
+            assert refs["Risk Mitigation by Design"] == "Art. IV, § 1"
+            assert refs["Non-Maleficence, Privacy & Security"] == "Amend. I"
+            assert refs["Bias Awareness & Fairness"] == "Amend. II"
+
+    def test_bias_awareness_amendment_ref(self, test_settings, v4_fixture_content):
+        """Second amendment gets Amend. II, not Amend. I."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            fixture_path = test_settings.documents_path / "test-constitution.md"
+            fixture_path.write_text(v4_fixture_content)
+
+            extractor = DocumentExtractor(test_settings)
+            domain_config = DomainConfig(
+                name="constitution",
+                display_name="Constitution",
+                principles_file="test-constitution.md",
+                description="Test",
+                priority=0,
+            )
+            principles = extractor._extract_principles(domain_config)
+            refs = {p.title: p.constitutional_ref for p in principles}
+            assert refs["Bias Awareness & Fairness"] == "Amend. II"
+
+    def test_section_counter_resets_per_article(
+        self, test_settings, v4_fixture_content
+    ):
+        """Section numbering restarts at 1 for each new Article."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            fixture_path = test_settings.documents_path / "test-constitution.md"
+            fixture_path.write_text(v4_fixture_content)
+
+            extractor = DocumentExtractor(test_settings)
+            domain_config = DomainConfig(
+                name="constitution",
+                display_name="Constitution",
+                principles_file="test-constitution.md",
+                description="Test",
+                priority=0,
+            )
+            principles = extractor._extract_principles(domain_config)
+            refs = {p.title: p.constitutional_ref for p in principles}
+
+            # Art. I has § 1, § 2
+            # Art. III has § 1 (not § 3)
+            # Art. II has § 1 (not § 4)
+            assert refs["Context Engineering"] == "Art. I, § 1"
+            assert refs["Single Source of Truth"] == "Art. I, § 2"
+            assert refs["Verification & Validation"] == "Art. III, § 1"
+            assert refs["Atomic Task Decomposition"] == "Art. II, § 1"
+
+    def test_old_format_no_constitutional_ref(self, test_settings):
+        """Old-format documents produce constitutional_ref = None for all principles."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+            from ai_governance_mcp.models import DomainConfig
+
+            old_content = """---
+version: "3.0.0"
+domain: "constitution"
+governance_level: "constitution"
+---
+
+# Test Constitution (Old Format)
+
+## Core Architecture Principles
+
+### Context Engineering
+
+**Definition**
+Test definition.
+
+### Single Source of Truth
+
+**Definition**
+Test definition.
+
+## Safety & Ethics Principles
+
+### Non-Maleficence, Privacy & Security
+
+**Definition**
+Test definition.
+"""
+            fixture_path = test_settings.documents_path / "test-old.md"
+            fixture_path.write_text(old_content)
+
+            extractor = DocumentExtractor(test_settings)
+            domain_config = DomainConfig(
+                name="constitution",
+                display_name="Constitution",
+                principles_file="test-old.md",
+                description="Test",
+                priority=0,
+            )
+            principles = extractor._extract_principles(domain_config)
+            for p in principles:
+                assert p.constitutional_ref is None, (
+                    f"Old-format principle '{p.title}' should have no constitutional_ref, "
+                    f"got '{p.constitutional_ref}'"
+                )
