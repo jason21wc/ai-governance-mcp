@@ -846,7 +846,11 @@ ai-governance-mcp/
 │       │   └── image.py     # Image metadata extraction
 │       └── storage/
 │           └── filesystem.py # Local filesystem storage
-├── documents/               # Governance documents
+├── documents/               # Governance documents (Constitutional naming)
+│   ├── constitution.md      # Meta-Principles (Articles I-V, Amendments)
+│   ├── rules-of-procedure.md # Meta-Methods (governance procedures)
+│   ├── title-NN-domain.md   # Domain principles (Federal Statutes)
+│   ├── title-NN-domain-cfr.md # Domain methods (Code of Federal Regs)
 │   └── domains.json         # Domain configurations
 ├── index/                   # Generated index + embeddings
 ├── logs/                    # Query + feedback logs
@@ -874,7 +878,7 @@ ai-governance-mcp/
 
 ## The Methodology
 
-This project follows the AI Coding Methods framework:
+This project follows the AI Coding framework (title-10-ai-coding-cfr):
 
 1. **SPECIFY** - Requirements discovery with Product Owner
 2. **PLAN** - Architecture and technology selection
@@ -977,7 +981,7 @@ The governance framework itself is the key innovation - the MCP server is its op
 
 ---
 
-*Built with the AI Governance Framework — Constitution, AI Coding Methods, Governance Methods, Multi-Agent Methods, Storytelling, Multimodal RAG, UI/UX, and Knowledge Management & People Development (see `documents/domains.json` for current versions)*
+*Built with the AI Governance Framework — Constitution, Rules of Procedure, Title 10 (AI Coding), Title 15 (UI/UX), Title 20 (Multi-Agent), Title 25 (KM&PD), Title 30 (Storytelling), Title 40 (Multimodal RAG) (see `documents/domains.json` for current versions)*
 
 ---
 

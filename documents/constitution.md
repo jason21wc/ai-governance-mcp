@@ -10,7 +10,7 @@ governance_level: "constitution"
 
 **Version:** 4.1.0
 **Status:** Active
-**Effective Date:** 2026-03-28
+**Effective Date:** 2026-04-12
 **Governance Level:** Constitution (Meta-Principles)
 
 ---

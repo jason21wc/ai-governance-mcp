@@ -43,29 +43,51 @@ Read and follow constitution.md as the governing constitution for all behavior.
 
 **Domain detection:** If task involves retrieving reference images, presenting visual materials inline with text responses, or procedural documentation with screenshots → Multimodal RAG jurisdiction applies.
 
+**UI/UX Domain** — When building or reviewing interactive software interfaces:
+1. Load **title-15-ui-ux.md** as binding domain law
+2. Load **title-15-ui-ux-cfr.md** for operational procedures
+
+**Domain detection:** If task involves UI design, accessibility, responsive layouts, design systems, component libraries, or visual hierarchy → UI/UX jurisdiction applies.
+
+**Knowledge Management & People Development Domain** — When creating organizational knowledge or training:
+1. Load **title-25-kmpd.md** as binding domain law
+2. Load **title-25-kmpd-cfr.md** for operational procedures
+
+**Domain detection:** If task involves knowledge bases, SOPs, training materials, cross-training matrices, job descriptions, or onboarding programs → KM&PD jurisdiction applies.
+
 **Note:** Domains can overlap. Multiple domains may apply simultaneously (e.g., AI Coding + Multi-Agent when agents perform coding tasks).
 </domain_activation>
 
 <methods_activation>
-When AI Coding domain is active:
+**AI Coding workflow** (when AI Coding domain is active):
 1. Check for **SESSION-STATE.md** in project root
 2. If exists: Load state, resume from documented position
 3. If new project: Execute Cold Start Kit (see Methods §Cold Start Kit)
 4. Follow 4-phase workflow: **Specify → Plan → Tasks → Implement**
 5. Create Gate Artifacts at each phase transition
+
+Other domains: Load the corresponding CFR document for operational procedures.
 </methods_activation>
 
 <first_response_protocol>
 Your first response in every conversation MUST begin with:
-"Framework active. Jurisdiction: [AI Coding | Multi-Agent | Storytelling | Multimodal RAG | Multiple | General]. Ready."
+"Framework active. Jurisdiction: [AI Coding | UI/UX | Multi-Agent | KM&PD | Storytelling | Multimodal RAG | Multiple | General]. Ready."
 
 If AI Coding jurisdiction:
 - State current phase (from SESSION-STATE.md) or "New Project"
 - State procedural mode if known (Expedited/Standard/Enhanced)
 
+If UI/UX jurisdiction:
+- State design system context if known
+- State accessibility requirements if known
+
 If Multi-Agent jurisdiction:
 - State orchestration pattern if known (Sequential/Parallel/Hierarchical)
 - State active agents from context files
+
+If KM&PD jurisdiction:
+- State pillar focus (Manage Process / Lead People)
+- State artifact type if known
 
 If Storytelling jurisdiction:
 - State mode if known (Generate/Coach)
@@ -109,9 +131,11 @@ Follow the Operational Application Protocol:
 ┌─────────────────────────────────────────────────────────────┐
 │  2. DOMAIN LAW (select applicable):                         │
 │     • title-10-ai-coding.md (12 principles)                 │
-│     • title-20-multi-agent.md (14 principles)               │
-│     • title-30-storytelling.md (19 principles)              │
-│     • title-40-multimodal-rag.md (12 principles)            │
+│     • title-15-ui-ux.md (20 principles)                     │
+│     • title-20-multi-agent.md (17 principles)               │
+│     • title-25-kmpd.md (10 principles)                      │
+│     • title-30-storytelling.md (15 principles)              │
+│     • title-40-multimodal-rag.md (32 principles)            │
 │     Defines WHAT must be achieved (outcomes, thresholds).   │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -119,7 +143,9 @@ Follow the Operational Application Protocol:
 ┌─────────────────────────────────────────────────────────────┐
 │  3. METHODS (matches domain):                               │
 │     • title-10-ai-coding-cfr.md                             │
+│     • title-15-ui-ux-cfr.md                                 │
 │     • title-20-multi-agent-cfr.md                           │
+│     • title-25-kmpd-cfr.md                                  │
 │     • title-30-storytelling-cfr.md                          │
 │     • title-40-multimodal-rag-cfr.md                        │
 │     Defines HOW to achieve outcomes (workflows, gates).     │
@@ -197,6 +223,10 @@ This loader is designed for use with:
 - title-20-multi-agent-cfr.md v2.17.0+
 - title-30-storytelling.md v1.4.1+
 - title-30-storytelling-cfr.md v1.1.1+
+- title-15-ui-ux.md v1.2.0+
+- title-15-ui-ux-cfr.md v1.0.0+
+- title-25-kmpd.md v1.4.0+
+- title-25-kmpd-cfr.md v1.2.0+
 - title-40-multimodal-rag.md v2.4.1+
 - title-40-multimodal-rag-cfr.md v2.1.1+
 </document_versions>

@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.35.0
+**Version:** 2.36.0
 **Status:** Active
-**Effective Date:** 2026-04-04
+**Effective Date:** 2026-04-09
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -7810,7 +7810,7 @@ A 16-item sweep checklist consolidating the most commonly-missed production hard
 
 **Importance: 🟢 OPTIONAL — Platform-specific tactical reference**
 
-**Governance Level:** Level 5 Appendix (Platform-Specific SOP)
+**Governance Level:** Agency SOP (Platform-Specific Appendix)
 
 This appendix captures the highest-impact Postgres and Supabase practices for AI-generated code. It supplements the general patterns in §5.12 (Stateful System Interaction) and §5.8.6 (AI-Generated Database Code) with platform-specific guidance.
 

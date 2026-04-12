@@ -2112,83 +2112,91 @@ This part provides procedures for applying the US Constitution analogy when auth
 
 ### 9.7.1 Framework Hierarchy Reference
 
-The governance framework uses a 5-level hierarchy modeled on US legal structure:
+The governance framework uses a 7-layer hierarchy modeled on US legal structure. See `constitution.md` Framework Structure for the authoritative definition.
 
-| Level | Legal Analogy | Framework Element | Stability | Example |
-|-------|---------------|-------------------|-----------|---------|
-| 1 | Bill of Rights | S-Series (Safety) | Immutable | Non-maleficence, Privacy Protection |
-| 2 | Constitution | Meta-Principles (C,Q,O,MA,G) | Very Stable | Context Engineering, Visible Reasoning |
-| 3 | Federal Statutes | Domain Principles | Stable | Test Before Claim (AI Coding) |
-| 4 | CFR Regulations | Domain Methods | Evolving | Cold Start Kit, Phase Gates |
-| 5 | Agency SOPs | Tool/Model Appendices | Frequently Updated | Claude Extended Thinking, GPT Reasoning |
+| Layer | Framework Element | Authority | Stability | Example |
+|-------|-------------------|-----------|-----------|---------|
+| Bill of Rights | S-Series (Safety Principles) | **Veto Power** | Immutable | Non-maleficence, Privacy Protection |
+| Constitution | Meta-Principles (C, Q, O, G Series) | **Foundation** | Very Stable | Context Engineering, Visible Reasoning |
+| Federal Statutes | Domain Principles (per domain) | **Context** | Stable | Test Before Claim (AI Coding) |
+| Rules of Procedure | Constitutional Methods (this document) | **Process** | Stable | Admission Test, Breaking Changes |
+| Federal Regulations | Domain Methods | **Execution** | Evolving | Cold Start Kit, Phase Gates |
+| Agency SOPs | Tool/Model Appendices | **Tactical** | Frequently Updated | Claude Extended Thinking, GPT Reasoning |
+| Case Law | Reference Library | **Precedent** | Accumulating | Curated artifacts from real application |
 
-> **Relationship to §9.3.1:** This hierarchy defines content classification for authoring (what level to write at). Part 9.3.1 defines the truth-source hierarchy for conflict resolution (which source wins when they disagree). They are complementary — 9.7.1 answers "where does new content belong," 9.3.1 answers "which source is authoritative." Note: 9.3.1 includes Reference Library (level 4) and External References (level 5), which map to curated artifacts and uncurated sources respectively — content types not represented in this authoring-focused table.
+> **Relationship to §9.3.1:** This hierarchy defines content classification for authoring (what level to write at). Part 9.3.1 defines the truth-source hierarchy for conflict resolution (which source wins when they disagree). They are complementary — 9.7.1 answers "where does new content belong," 9.3.1 answers "which source is authoritative."
 
 ### 9.7.2 Level Classification Procedure
 
-When authoring new content, determine the correct level:
+When authoring new content, determine the correct layer. See also the "Identifying Where New Content Belongs" flowchart in `constitution.md` Framework Structure.
 
 **Step 1: Safety Check**
 - Does it prevent harm or protect fundamental rights?
 - Is it an absolute constraint that CANNOT be overridden?
-- → YES to both: **Level 1 (S-Series)**
+- → YES to both: **Bill of Rights (S-Series Amendment)**
 
 **Step 2: Constitution Check**
 - Does it govern reasoning across ALL domains?
 - Is it tool-agnostic and stable over time?
-- → YES to both: **Level 2 (Meta-Principles)**
+- → YES to both: **Constitution (Meta-Principle in Articles I-IV)**
 
-**Step 3: Domain Check**
+**Step 3: Domain Principles Check**
 - Does it apply only within a specific field?
-- Does it derive from constitution for specific context?
-- → YES to both: **Level 3 (Domain Principles)**
+- Does it derive from Constitution for specific context?
+- → YES to both: **Federal Statute (Domain Principle in Title NN)**
 
 **Step 4: Methods Check**
 - Is it a procedure, workflow, or template?
 - Does it implement principles operationally?
-- → YES to both: **Level 4 (Domain Methods)**
+- → Constitutional scope: **Rules of Procedure (this document)**
+- → Domain scope: **Federal Regulations (Domain CFR)**
 
 **Step 5: Appendix Check**
 - Is it specific to a tool, CLI, or AI model?
 - Does it provide platform-specific tactics?
-- → YES to both: **Level 5 (Appendix/SOP)**
+- → YES to both: **Agency SOP (Tool/Model Appendix)**
+
+**Step 6: Precedent Check**
+- Is it a concrete artifact from real application?
+- Does it capture a reusable pattern or lesson?
+- → YES to both: **Case Law (Reference Library)**
 
 ### 9.7.3 Derivation Principle
 
-Lower levels MUST derive from higher levels:
+Lower layers MUST derive from higher layers:
 
 ```
-Constitution (Level 2)
+Constitution — Article III (Quality & Integrity)
     │
-    ├── "Visible Reasoning" principle
+    ├── "Verification & Validation" [Art. III, § 1]
     │       │
-    │       └── AI Coding (Level 3)
+    │       └── AI Coding (Title 10) — Federal Statute
     │               │
-    │               └── "Test Before Claim" principle
+    │               └── "Testing Integration" principle
     │                       │
-    │                       └── Methods (Level 4)
+    │                       └── Title 10 CFR — Federal Regulations
     │                               │
     │                               └── Testing Procedures, Coverage Requirements
     │
-    └── "Context Engineering" principle
+    └── "Context Engineering" [Art. I, § 1]
             │
-            └── Multi-Agent (Level 3)
+            └── Multi-Agent (Title 20) — Federal Statute
                     │
-                    └── "Shared Assumptions Protocol" principle
+                    └── "Context Engineering Discipline" principle
                             │
-                            └── Methods (Level 4)
+                            └── Title 20 CFR — Federal Regulations
                                     │
                                     └── Handoff Templates, Context Compression
 ```
 
 ### 9.7.4 Conflict Resolution (Supremacy Clause)
 
-When content at different levels conflicts:
+When content at different layers conflicts:
 
-1. **Higher level wins**: Bill of Rights > Constitution > Statutes > Regulations > SOPs
-2. **Document the conflict**: Note which higher-level principle overrides
-3. **Revise lower level**: Update the lower-level content to comply
-4. **No exceptions for S-Series**: Safety principles override ALL other guidance
+1. **Higher layer wins**: Bill of Rights (Amendments) > Constitution (Articles I-IV) > Federal Statutes (Titles) > Rules of Procedure > Federal Regulations (CFR) > Agency SOPs. Case Law informs but does not override any normative layer.
+2. **Document the conflict**: Note which higher-layer principle overrides
+3. **Revise lower layer**: Update the lower-layer content to comply
+4. **No exceptions for S-Series**: Safety principles (Bill of Rights) override ALL other guidance
 
 ### 9.7.5 Cross-Level References
 
@@ -2529,7 +2537,7 @@ While constitutional principles apply universally, their **application** may var
 
 ### 10.1.2 Relationship to Constitution
 
-Model-specific guidance is **Level 5 (Agency SOPs)** in the hierarchy:
+Model-specific guidance is **Agency SOPs** in the hierarchy:
 
 - **Does NOT override** any higher-level principles
 - **Adapts tactics** for effective principle application on specific platforms
@@ -2677,7 +2685,7 @@ These prompting patterns work across all major models:
 
 **Importance: IMPORTANT - Tactical methods for effective AI interaction**
 
-This title provides operational techniques for constructing effective prompts. These are **Level 5 (Agency SOPs)** — tactical implementations of constitutional principles.
+This title provides operational techniques for constructing effective prompts. These are **Agency SOPs** — tactical implementations of constitutional principles.
 
 **Relationship to Principles:**
 - **Visible Reasoning** → Chain-of-Thought techniques
@@ -4392,7 +4400,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 # APPENDICES: MODEL-SPECIFIC GUIDANCE
 
-The following appendices provide platform-specific tactics for applying the governance framework on different AI models. These are **Level 5 (Agency SOPs)** and do not override constitutional principles.
+The following appendices provide platform-specific tactics for applying the governance framework on different AI models. These are **Agency SOPs** and do not override constitutional principles.
 
 **Information Currency:** Model capabilities change frequently. Appendix G (Claude) verified February 2026; Appendices H-J last verified January 2026. For current model specifications, consult official provider documentation. Constitutional principles remain stable regardless of model changes.
 

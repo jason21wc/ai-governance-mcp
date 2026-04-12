@@ -105,7 +105,22 @@ ai-governance-mcp/
 │   ├── content_embeddings.npy # Principle/method embeddings (384-dim)
 │   └── domain_embeddings.npy  # Domain embeddings for routing (384-dim)
 │
-├── documents/                 # Source markdown docs
+├── documents/                 # Source markdown docs (Constitutional naming)
+│   ├── constitution.md        # Meta-Principles (Articles I-V, Amendments)
+│   ├── rules-of-procedure.md  # Meta-Methods (governance procedures)
+│   ├── title-10-ai-coding.md  # Domain principles (Federal Statutes)
+│   ├── title-10-ai-coding-cfr.md # Domain methods (Code of Federal Regs)
+│   ├── title-15-ui-ux.md      # ... (6 domains × 2 files = 12 domain docs)
+│   ├── title-15-ui-ux-cfr.md
+│   ├── title-20-multi-agent.md
+│   ├── title-20-multi-agent-cfr.md
+│   ├── title-25-kmpd.md
+│   ├── title-25-kmpd-cfr.md
+│   ├── title-30-storytelling.md
+│   ├── title-30-storytelling-cfr.md
+│   ├── title-40-multimodal-rag.md
+│   ├── title-40-multimodal-rag-cfr.md
+│   └── domains.json           # Domain configurations
 │
 ├── logs/
 │   ├── feedback.jsonl         # Retrieval feedback
@@ -344,7 +359,7 @@ See `pyproject.toml` for pinned versions.
 
 ## Context Engineering Strategy
 
-How the project's memory files implement the cognitive memory architecture (ai-coding methods §7.0).
+How the project's memory files implement the cognitive memory architecture (title-10-ai-coding-cfr §7.0).
 
 ### Memory Types and Loading
 
@@ -379,7 +394,7 @@ On Demand:
 ### Memory Consistency Rules
 
 - **Single Source of Truth**: Each fact has exactly one canonical location. Don't duplicate across files.
-- **Platform memory is a pointer**: Claude Code's auto memory (`~/.claude/.../MEMORY.md`) points to framework files, never duplicates their content (see Appendix G.5 in meta-methods).
+- **Platform memory is a pointer**: Claude Code's auto memory (`~/.claude/.../MEMORY.md`) points to framework files, never duplicates their content (see Appendix G.5 in rules-of-procedure).
 - **Lifecycle alignment**: Working memory is overwritten each session. Semantic memory accumulates. Episodic memory prunes when lessons graduate to methods.
 - **Distillation triggers**: SESSION-STATE >300 lines, PROJECT-MEMORY >800 lines, LEARNING-LOG ~200 lines trigger review (not hard ceilings).
 
@@ -387,7 +402,7 @@ On Demand:
 
 ## Failure Mode Mapping
 
-Known failure modes for the multi-agent and orchestration patterns used in this project (multi-agent methods §3.3).
+Known failure modes for the multi-agent and orchestration patterns used in this project (title-20-multi-agent-cfr §3.3).
 
 ### Orchestrator Failure Modes
 
@@ -420,7 +435,7 @@ Known failure modes for the multi-agent and orchestration patterns used in this 
 
 ## Proof-of-Concept Results
 
-Key technical decisions validated through prototyping and benchmarking (ai-coding methods §3.1.4).
+Key technical decisions validated through prototyping and benchmarking (title-10-ai-coding-cfr §3.1.4).
 
 ### Embedding Model Selection
 

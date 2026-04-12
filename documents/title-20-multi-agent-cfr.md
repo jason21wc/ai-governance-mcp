@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.16.1
+**Version:** 2.17.0
 **Status:** Active
-**Effective Date:** 2026-03-29
+**Effective Date:** 2026-04-07
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
