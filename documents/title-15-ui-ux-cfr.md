@@ -3,14 +3,14 @@ version: "1.0.0"
 status: "active"
 effective_date: "2026-03-08"
 domain: "ui-ux"
-governance_level: "domain-methods"
+governance_level: "federal-regulations"
 ---
 
 # UI/UX Methods v1.0.0
 ## Operational Procedures for Building Interactive Software Interfaces
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
-> This methods document provides HOW-TO procedures for implementing UI/UX domain principles. It is subordinate to the domain principles document (ui-ux-domain-principles.md), which establishes WHAT governance applies.
+> This methods document provides HOW-TO procedures for implementing UI/UX domain principles. It is subordinate to the domain principles document (title-15-ui-ux.md), which establishes WHAT governance applies.
 
 **Version:** 1.0.0
 **Status:** Active

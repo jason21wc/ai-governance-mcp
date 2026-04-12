@@ -3,7 +3,7 @@ version: "1.2.0"
 status: "active"
 effective_date: "2026-03-30"
 domain: "ui-ux"
-governance_level: "domain-principles"
+governance_level: "federal-statute"
 ---
 
 # UI/UX Domain Principles Framework v1.2.0
@@ -12,7 +12,7 @@ governance_level: "domain-principles"
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > **This document represents the FEDERAL STATUTES (Domain Principles) for the UI/UX jurisdiction.**
 > * **Status:** Domain-specific laws derived from the Constitution (Meta-Principles). These principles govern AI agents building interactive software interfaces — web sites, web apps, desktop apps, and mobile apps.
-> * **Hierarchy:** These statutes must comply with the Constitution (ai-interaction-principles.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
+> * **Hierarchy:** These statutes must comply with the Constitution (constitution.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
 > * **Scope:** Interactive software interface design and implementation. Covers visual hierarchy, design systems, accessibility, responsive design, interaction patterns, and platform conventions.
 > * **Application:** Required for all AI-assisted interface development activities, whether AI is generating UI code, reviewing interfaces, or advising on design decisions.
 >
@@ -21,7 +21,7 @@ governance_level: "domain-principles"
 > ---
 >
 > **RELATIONSHIP TO CONSTITUTIONAL LAW (Meta-Principles):**
-> This framework assumes the AI agent has already loaded and internalized the **ai-interaction-principles.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of interactive interface design and development.
+> This framework assumes the AI agent has already loaded and internalized the **constitution.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of interactive interface design and development.
 >
 > **Derivation Formula:**
 > `[UI/UX Failure Mode] + [Evidence-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
@@ -415,7 +415,7 @@ All visual properties — spacing, color, typography, shadows, border radii, bre
 **Cross-References**
 - DS2 (Component Consistency) — components should use tokens
 - DS3 (Design System Discovery) — discover existing tokens before generating
-- See also: ui-ux-methods §2 (Component Library Governance) for token management procedures
+- See also: title-15-ui-ux-cfr §2 (Component Library Governance) for token management procedures
 
 ---
 
@@ -1005,7 +1005,7 @@ Interfaces MUST NOT use deceptive design patterns as categorized by the FTC: nag
 - IX4 (Error Handling) — honest error messages, not error states that push upsells
 - IX6 (Form Design) — form patterns must not use pre-selection or hidden defaults
 - ACC1 (Semantic Markup) — deceptive patterns often correlate with poor markup (hidden elements, misleading labels)
-- See also: ui-ux-methods §3.5 (Dark Pattern Screening) — FTC 5-category checklist procedure
+- See also: title-15-ui-ux-cfr §3.5 (Dark Pattern Screening) — FTC 5-category checklist procedure
 - See also: FTC "Bringing Dark Patterns to Light" (2022), EU Digital Services Act, CPRA
 - See also: Storytelling domain — voice/tone consistency for microcopy overlaps with character voice principles
 
@@ -1121,7 +1121,7 @@ This table maps each constitutional principle to its UI/UX domain applications:
 
 | Source | Authority Level | Application |
 |--------|----------------|-------------|
-| **Constitution (ai-interaction-principles.md)** | Supreme | All domain principles derive from here |
+| **Constitution (constitution.md)** | Supreme | All domain principles derive from here |
 | **WCAG 2.2 / ISO/IEC 40500:2025** (W3C) | External Standard | Accessibility compliance requirements (Level AA). Adopted as international standard October 2025. |
 | **Apple Human Interface Guidelines** | External Reference | iOS, macOS, iPadOS, visionOS conventions |
 | **Material Design 3** (Google) | External Reference | Android, cross-platform conventions |
@@ -1172,7 +1172,7 @@ This Domain Principles document establishes WHAT governance applies to UI/UX. Th
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **ui-ux-methods.md** | v1.0.0 | Design-to-code workflow, component library governance, design review gates, accessibility testing, responsive breakpoint strategy, cross-platform adaptation, design system documentation, AI tooling integration |
+| **title-15-ui-ux-cfr.md** | v1.0.0 | Design-to-code workflow, component library governance, design review gates, accessibility testing, responsive breakpoint strategy, cross-platform adaptation, design system documentation, AI tooling integration |
 
 **Methods document includes:**
 - Section 1: Design-to-Code Workflow (Figma → implementation, design handoff, visual QA)

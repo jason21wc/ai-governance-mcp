@@ -1,0 +1,954 @@
+{
+  "phase": "phase4-pre",
+  "total_principles": 130,
+  "total_methods": 675,
+  "principles": [
+    {
+      "id": "meta-core-context-engineering",
+      "title": "Context Engineering",
+      "domain": "constitution",
+      "series_code": "C",
+      "constitutional_ref": "Art. I, \u00a7 1"
+    },
+    {
+      "id": "meta-core-single-source-of-truth",
+      "title": "Single Source of Truth",
+      "domain": "constitution",
+      "series_code": "C",
+      "constitutional_ref": "Art. I, \u00a7 2"
+    },
+    {
+      "id": "meta-core-separation-of-instructions-and-data",
+      "title": "Separation of Instructions and Data",
+      "domain": "constitution",
+      "series_code": "C",
+      "constitutional_ref": "Art. I, \u00a7 3"
+    },
+    {
+      "id": "meta-core-structural-foundations",
+      "title": "Structural Foundations",
+      "domain": "constitution",
+      "series_code": "C",
+      "constitutional_ref": "Art. I, \u00a7 4"
+    },
+    {
+      "id": "meta-core-discovery-before-commitment",
+      "title": "Discovery Before Commitment",
+      "domain": "constitution",
+      "series_code": "C",
+      "constitutional_ref": "Art. I, \u00a7 5"
+    },
+    {
+      "id": "meta-core-systemic-thinking",
+      "title": "Systemic Thinking",
+      "domain": "constitution",
+      "series_code": "C",
+      "constitutional_ref": "Art. I, \u00a7 6"
+    },
+    {
+      "id": "meta-quality-verification-validation",
+      "title": "Verification & Validation",
+      "domain": "constitution",
+      "series_code": "Q",
+      "constitutional_ref": "Art. III, \u00a7 1"
+    },
+    {
+      "id": "meta-quality-structured-output-enforcement",
+      "title": "Structured Output Enforcement",
+      "domain": "constitution",
+      "series_code": "Q",
+      "constitutional_ref": "Art. III, \u00a7 2"
+    },
+    {
+      "id": "meta-quality-visible-reasoning-traceability",
+      "title": "Visible Reasoning & Traceability",
+      "domain": "constitution",
+      "series_code": "Q",
+      "constitutional_ref": "Art. III, \u00a7 3"
+    },
+    {
+      "id": "meta-quality-effective-efficient-communication",
+      "title": "Effective & Efficient Communication",
+      "domain": "constitution",
+      "series_code": "Q",
+      "constitutional_ref": "Art. III, \u00a7 4"
+    },
+    {
+      "id": "meta-operational-atomic-task-decomposition",
+      "title": "Atomic Task Decomposition",
+      "domain": "constitution",
+      "series_code": "O",
+      "constitutional_ref": "Art. II, \u00a7 1"
+    },
+    {
+      "id": "meta-operational-explicit-over-implicit",
+      "title": "Explicit Over Implicit",
+      "domain": "constitution",
+      "series_code": "O",
+      "constitutional_ref": "Art. II, \u00a7 2"
+    },
+    {
+      "id": "meta-operational-interaction-mode-adaptation",
+      "title": "Interaction Mode Adaptation",
+      "domain": "constitution",
+      "series_code": "O",
+      "constitutional_ref": "Art. II, \u00a7 3"
+    },
+    {
+      "id": "meta-operational-resource-efficiency-waste-reduction",
+      "title": "Resource Efficiency & Waste Reduction",
+      "domain": "constitution",
+      "series_code": "O",
+      "constitutional_ref": "Art. II, \u00a7 4"
+    },
+    {
+      "id": "meta-operational-goal-first-dependency-mapping",
+      "title": "Goal-First Dependency Mapping",
+      "domain": "constitution",
+      "series_code": "O",
+      "constitutional_ref": "Art. II, \u00a7 5"
+    },
+    {
+      "id": "meta-operational-failure-recovery-resilience",
+      "title": "Failure Recovery & Resilience",
+      "domain": "constitution",
+      "series_code": "O",
+      "constitutional_ref": "Art. II, \u00a7 6"
+    },
+    {
+      "id": "meta-governance-risk-mitigation-by-design",
+      "title": "Risk Mitigation by Design",
+      "domain": "constitution",
+      "series_code": "G",
+      "constitutional_ref": "Art. IV, \u00a7 1"
+    },
+    {
+      "id": "meta-governance-continuous-learning-adaptation",
+      "title": "Continuous Learning & Adaptation",
+      "domain": "constitution",
+      "series_code": "G",
+      "constitutional_ref": "Art. IV, \u00a7 2"
+    },
+    {
+      "id": "meta-governance-human-ai-authority-accountability",
+      "title": "Human-AI Authority & Accountability",
+      "domain": "constitution",
+      "series_code": "G",
+      "constitutional_ref": "Art. IV, \u00a7 3"
+    },
+    {
+      "id": "meta-governance-unenumerated-rights",
+      "title": "Unenumerated Rights",
+      "domain": "constitution",
+      "series_code": "G",
+      "constitutional_ref": "Art. IV, \u00a7 4"
+    },
+    {
+      "id": "meta-governance-reserved-powers",
+      "title": "Reserved Powers",
+      "domain": "constitution",
+      "series_code": "G",
+      "constitutional_ref": "Art. IV, \u00a7 5"
+    },
+    {
+      "id": "meta-safety-non-maleficence-privacy-security",
+      "title": "Non-Maleficence, Privacy & Security",
+      "domain": "constitution",
+      "series_code": "S",
+      "constitutional_ref": "Amend. I"
+    },
+    {
+      "id": "meta-safety-bias-awareness-fairness",
+      "title": "Bias Awareness & Fairness",
+      "domain": "constitution",
+      "series_code": "S",
+      "constitutional_ref": "Amend. II"
+    },
+    {
+      "id": "meta-safety-transparent-limitations",
+      "title": "Transparent Limitations",
+      "domain": "constitution",
+      "series_code": "S",
+      "constitutional_ref": "Amend. III"
+    },
+    {
+      "id": "coding-context-specification-completeness",
+      "title": "Specification Completeness",
+      "domain": "ai-coding",
+      "series_code": "C",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-context-context-window-management",
+      "title": "Context Window Management",
+      "domain": "ai-coding",
+      "series_code": "C",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-context-session-state-continuity",
+      "title": "Session State Continuity",
+      "domain": "ai-coding",
+      "series_code": "C",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-process-sequential-phase-dependencies",
+      "title": "Sequential Phase Dependencies",
+      "domain": "ai-coding",
+      "series_code": "P",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-process-validation-gates",
+      "title": "Validation Gates",
+      "domain": "ai-coding",
+      "series_code": "P",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-process-atomic-task-decomposition",
+      "title": "Atomic Task Decomposition",
+      "domain": "ai-coding",
+      "series_code": "P",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-process-human-ai-collaboration-model",
+      "title": "Human-AI Collaboration Model",
+      "domain": "ai-coding",
+      "series_code": "P",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-quality-production-ready-standards",
+      "title": "Production-Ready Standards",
+      "domain": "ai-coding",
+      "series_code": "Q",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-quality-security-first-development",
+      "title": "Security-First Development",
+      "domain": "ai-coding",
+      "series_code": "Q",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-quality-testing-integration",
+      "title": "Testing Integration",
+      "domain": "ai-coding",
+      "series_code": "Q",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-quality-supply-chain-solution-integrity",
+      "title": "Supply Chain & Solution Integrity",
+      "domain": "ai-coding",
+      "series_code": "Q",
+      "constitutional_ref": null
+    },
+    {
+      "id": "coding-quality-workflow-integrity",
+      "title": "Workflow Integrity",
+      "domain": "ai-coding",
+      "series_code": "Q",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-general-justified-complexity",
+      "title": "Justified Complexity",
+      "domain": "multi-agent",
+      "series_code": null,
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-architecture-agent-specialization-topology",
+      "title": "Agent Specialization & Topology",
+      "domain": "multi-agent",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-architecture-context-engineering-discipline",
+      "title": "Context Engineering Discipline",
+      "domain": "multi-agent",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-architecture-context-isolation-architecture",
+      "title": "Context Isolation Architecture",
+      "domain": "multi-agent",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-architecture-orchestrator-separation-pattern",
+      "title": "Orchestrator Separation Pattern",
+      "domain": "multi-agent",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-architecture-intent-propagation-with-shared-assumptions",
+      "title": "Intent Propagation with Shared Assumptions",
+      "domain": "multi-agent",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-reliability-explicit-handoff-protocol",
+      "title": "Explicit Handoff Protocol",
+      "domain": "multi-agent",
+      "series_code": "R",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-reliability-orchestration-pattern-selection",
+      "title": "Orchestration Pattern Selection",
+      "domain": "multi-agent",
+      "series_code": "R",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-reliability-state-persistence-protocol",
+      "title": "State Persistence Protocol",
+      "domain": "multi-agent",
+      "series_code": "R",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-reliability-observability-protocol",
+      "title": "Observability Protocol",
+      "domain": "multi-agent",
+      "series_code": "R",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-quality-validation-independence",
+      "title": "Validation Independence",
+      "domain": "multi-agent",
+      "series_code": "Q",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-quality-fault-tolerance-and-graceful-degradation",
+      "title": "Fault Tolerance and Graceful Degradation",
+      "domain": "multi-agent",
+      "series_code": "Q",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-quality-human-in-the-loop-protocol",
+      "title": "Human-in-the-Loop Protocol",
+      "domain": "multi-agent",
+      "series_code": "Q",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-autonomous-action-blast-radius-classification",
+      "title": "Action Blast Radius Classification",
+      "domain": "multi-agent",
+      "series_code": "AO",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-autonomous-hitl-removal-criteria",
+      "title": "HITL Removal Criteria",
+      "domain": "multi-agent",
+      "series_code": "AO",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-autonomous-compensating-controls-for-autonomous-operation",
+      "title": "Compensating Controls for Autonomous Operation",
+      "domain": "multi-agent",
+      "series_code": "AO",
+      "constitutional_ref": null
+    },
+    {
+      "id": "multi-autonomous-autonomous-drift-monitoring",
+      "title": "Autonomous Drift Monitoring",
+      "domain": "multi-agent",
+      "series_code": "AO",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-architecture-a1-audience-discovery-first",
+      "title": "A1: Audience Discovery First",
+      "domain": "storytelling",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-architecture-a3-accessibility-by-design",
+      "title": "A3: Accessibility by Design",
+      "domain": "storytelling",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-structure-st1-framework-as-tool-not-law",
+      "title": "ST1: Framework as Tool, Not Law",
+      "domain": "storytelling",
+      "series_code": "ST",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-structure-st2-cultural-aware-framework-selection",
+      "title": "ST2: Cultural-Aware Framework Selection",
+      "domain": "storytelling",
+      "series_code": "ST",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-structure-st3-transformation-arc",
+      "title": "ST3: Transformation Arc",
+      "domain": "storytelling",
+      "series_code": "ST",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-structure-st4-stakes-and-consequence-clarity",
+      "title": "ST4: Stakes and Consequence Clarity",
+      "domain": "storytelling",
+      "series_code": "ST",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-structure-st5-perspective-selection",
+      "title": "ST5: Perspective Selection",
+      "domain": "storytelling",
+      "series_code": "ST",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-context-c1-specificity-over-abstraction",
+      "title": "C1: Specificity Over Abstraction",
+      "domain": "storytelling",
+      "series_code": "C",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-context-c2-show-tell-balance",
+      "title": "C2: Show-Tell Balance",
+      "domain": "storytelling",
+      "series_code": "C",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-context-c3-pacing-variation",
+      "title": "C3: Pacing Variation",
+      "domain": "storytelling",
+      "series_code": "C",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-context-c5-dialogue-craft",
+      "title": "C5: Dialogue Craft",
+      "domain": "storytelling",
+      "series_code": "C",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-medium-m1-platform-first-optimization",
+      "title": "M1: Platform-First Optimization",
+      "domain": "storytelling",
+      "series_code": "M",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-medium-m4-resolution-calibration",
+      "title": "M4: Resolution Calibration",
+      "domain": "storytelling",
+      "series_code": "M",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-safety-e1-human-voice-preservation",
+      "title": "E1: Human Voice Preservation",
+      "domain": "storytelling",
+      "series_code": "E",
+      "constitutional_ref": null
+    },
+    {
+      "id": "stor-safety-e2-persuasion-manipulation-boundary",
+      "title": "E2: Persuasion-Manipulation Boundary",
+      "domain": "storytelling",
+      "series_code": "E",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-presentation-p1-inline-image-integration",
+      "title": "P1: Inline Image Integration",
+      "domain": "multimodal-rag",
+      "series_code": "P",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-presentation-p2-natural-integration",
+      "title": "P2: Natural Integration",
+      "domain": "multimodal-rag",
+      "series_code": "P",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-presentation-p3-image-selection-criteria",
+      "title": "P3: Image Selection Criteria",
+      "domain": "multimodal-rag",
+      "series_code": "P",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-presentation-p4-audience-adaptation",
+      "title": "P4: Audience Adaptation",
+      "domain": "multimodal-rag",
+      "series_code": "P",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-presentation-p5-accessibility-compliance",
+      "title": "P5: Accessibility Compliance",
+      "domain": "multimodal-rag",
+      "series_code": "P",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-reference-r1-image-text-collocation",
+      "title": "R1: Image-Text Collocation",
+      "domain": "multimodal-rag",
+      "series_code": "R",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-reference-r2-descriptive-context",
+      "title": "R2: Descriptive Context",
+      "domain": "multimodal-rag",
+      "series_code": "R",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-reference-r3-retrieval-metadata",
+      "title": "R3: Retrieval Metadata",
+      "domain": "multimodal-rag",
+      "series_code": "R",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-architecture-a1-unified-embedding-space",
+      "title": "A1: Unified Embedding Space",
+      "domain": "multimodal-rag",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-architecture-a2-relevance-scoring",
+      "title": "A2: Relevance Scoring",
+      "domain": "multimodal-rag",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-architecture-a3-vision-guided-chunking",
+      "title": "A3: Vision-Guided Chunking",
+      "domain": "multimodal-rag",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-architecture-a4-document-as-image-retrieval",
+      "title": "A4: Document-as-Image Retrieval",
+      "domain": "multimodal-rag",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-architecture-a5-knowledge-graph-integration",
+      "title": "A5: Knowledge Graph Integration",
+      "domain": "multimodal-rag",
+      "series_code": "A",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-fallback-f1-graceful-degradation",
+      "title": "F1: Graceful Degradation",
+      "domain": "multimodal-rag",
+      "series_code": "F",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-fallback-f2-failure-transparency",
+      "title": "F2: Failure Transparency",
+      "domain": "multimodal-rag",
+      "series_code": "F",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-verification-v1-cross-modal-consistency-verification",
+      "title": "V1: Cross-Modal Consistency Verification",
+      "domain": "multimodal-rag",
+      "series_code": "V",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-verification-v2-visual-scene-graph-checking",
+      "title": "V2: Visual Scene Graph Checking",
+      "domain": "multimodal-rag",
+      "series_code": "V",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-verification-v3-source-fidelity",
+      "title": "V3: Source Fidelity",
+      "domain": "multimodal-rag",
+      "series_code": "V",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-verification-v4-cross-modal-reasoning-chain-integrity",
+      "title": "V4: Cross-Modal Reasoning Chain Integrity",
+      "domain": "multimodal-rag",
+      "series_code": "V",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-evaluation-ev1-retrieval-quality-measurement",
+      "title": "EV1: Retrieval Quality Measurement",
+      "domain": "multimodal-rag",
+      "series_code": "EV",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-evaluation-ev2-answer-faithfulness-assessment",
+      "title": "EV2: Answer Faithfulness Assessment",
+      "domain": "multimodal-rag",
+      "series_code": "EV",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-citation-ct1-fragment-level-source-attribution",
+      "title": "CT1: Fragment-Level Source Attribution",
+      "domain": "multimodal-rag",
+      "series_code": "CT",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-citation-ct2-spatial-attribution-for-visual-content",
+      "title": "CT2: Spatial Attribution for Visual Content",
+      "domain": "multimodal-rag",
+      "series_code": "CT",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-security-sec1-multimodal-poisoning-defense",
+      "title": "SEC1: Multimodal Poisoning Defense",
+      "domain": "multimodal-rag",
+      "series_code": "SEC",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-security-sec2-cross-modal-input-validation",
+      "title": "SEC2: Cross-Modal Input Validation",
+      "domain": "multimodal-rag",
+      "series_code": "SEC",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-data-governance-dg1-access-control-for-multimodal-knowledge-bases",
+      "title": "DG1: Access Control for Multimodal Knowledge Bases",
+      "domain": "multimodal-rag",
+      "series_code": "DG",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-data-governance-dg2-data-lineage-and-provenance",
+      "title": "DG2: Data Lineage and Provenance",
+      "domain": "multimodal-rag",
+      "series_code": "DG",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-operations-o1-index-version-management",
+      "title": "O1: Index Version Management",
+      "domain": "multimodal-rag",
+      "series_code": "O",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-operations-o2-continuous-monitoring-observability",
+      "title": "O2: Continuous Monitoring & Observability",
+      "domain": "multimodal-rag",
+      "series_code": "O",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-agentic-retrieval-ag1-adaptive-retrieval-strategy",
+      "title": "AG1: Adaptive Retrieval Strategy",
+      "domain": "multimodal-rag",
+      "series_code": "AG",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-agentic-retrieval-ag2-query-decomposition",
+      "title": "AG2: Query Decomposition",
+      "domain": "multimodal-rag",
+      "series_code": "AG",
+      "constitutional_ref": null
+    },
+    {
+      "id": "mrag-agentic-retrieval-ag3-retrieval-sufficiency-evaluation",
+      "title": "AG3: Retrieval Sufficiency Evaluation",
+      "domain": "multimodal-rag",
+      "series_code": "AG",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-visual-hierarchy-vh1-layout-composition-and-visual-weight",
+      "title": "VH1: Layout Composition and Visual Weight",
+      "domain": "ui-ux",
+      "series_code": "VH",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-visual-hierarchy-vh2-typography-and-readability",
+      "title": "VH2: Typography and Readability",
+      "domain": "ui-ux",
+      "series_code": "VH",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-visual-hierarchy-vh3-design-intentionality",
+      "title": "VH3: Design Intentionality",
+      "domain": "ui-ux",
+      "series_code": "VH",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-design-system-ds1-design-token-architecture",
+      "title": "DS1: Design Token Architecture",
+      "domain": "ui-ux",
+      "series_code": "DS",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-design-system-ds2-component-consistency",
+      "title": "DS2: Component Consistency",
+      "domain": "ui-ux",
+      "series_code": "DS",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-design-system-ds3-design-system-discovery",
+      "title": "DS3: Design System Discovery",
+      "domain": "ui-ux",
+      "series_code": "DS",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-accessibility-acc1-semantic-markup-and-aria-contracts",
+      "title": "ACC1: Semantic Markup and ARIA Contracts",
+      "domain": "ui-ux",
+      "series_code": "ACC",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-accessibility-acc2-keyboard-navigation-and-focus-management",
+      "title": "ACC2: Keyboard Navigation and Focus Management",
+      "domain": "ui-ux",
+      "series_code": "ACC",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-accessibility-acc3-color-and-contrast-compliance",
+      "title": "ACC3: Color and Contrast Compliance",
+      "domain": "ui-ux",
+      "series_code": "ACC",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-responsive-rd1-responsive-layout-strategy",
+      "title": "RD1: Responsive Layout Strategy",
+      "domain": "ui-ux",
+      "series_code": "RD",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-responsive-rd2-touch-target-and-input-adaptation",
+      "title": "RD2: Touch Target and Input Adaptation",
+      "domain": "ui-ux",
+      "series_code": "RD",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-interaction-ix1-interaction-feedback-and-state-communication",
+      "title": "IX1: Interaction Feedback and State Communication",
+      "domain": "ui-ux",
+      "series_code": "IX",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-interaction-ix2-loading-and-perceived-performance",
+      "title": "IX2: Loading and Perceived Performance",
+      "domain": "ui-ux",
+      "series_code": "IX",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-interaction-ix3-affordance-and-discoverability",
+      "title": "IX3: Affordance and Discoverability",
+      "domain": "ui-ux",
+      "series_code": "IX",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-interaction-ix4-error-handling-and-recovery",
+      "title": "IX4: Error Handling and Recovery",
+      "domain": "ui-ux",
+      "series_code": "IX",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-interaction-ix5-component-selection-appropriateness",
+      "title": "IX5: Component Selection Appropriateness",
+      "domain": "ui-ux",
+      "series_code": "IX",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-interaction-ix6-form-design-and-validation",
+      "title": "IX6: Form Design and Validation",
+      "domain": "ui-ux",
+      "series_code": "IX",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-interaction-ix7-ethical-interaction-design",
+      "title": "IX7: Ethical Interaction Design",
+      "domain": "ui-ux",
+      "series_code": "IX",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-platform-pl1-platform-convention-compliance",
+      "title": "PL1: Platform Convention Compliance",
+      "domain": "ui-ux",
+      "series_code": "PL",
+      "constitutional_ref": null
+    },
+    {
+      "id": "uiux-platform-pl2-cross-platform-adaptation",
+      "title": "PL2: Cross-Platform Adaptation",
+      "domain": "ui-ux",
+      "series_code": "PL",
+      "constitutional_ref": null
+    },
+    {
+      "id": "kmpd-knowledge-architecture-ka1-single-source-knowledge-architecture",
+      "title": "KA1: Single Source Knowledge Architecture",
+      "domain": "kmpd",
+      "series_code": "KA",
+      "constitutional_ref": null
+    },
+    {
+      "id": "kmpd-knowledge-architecture-ka2-derivation-chain-integrity",
+      "title": "KA2: Derivation Chain Integrity",
+      "domain": "kmpd",
+      "series_code": "KA",
+      "constitutional_ref": null
+    },
+    {
+      "id": "kmpd-knowledge-architecture-ka3-progressive-abstraction",
+      "title": "KA3: Progressive Abstraction",
+      "domain": "kmpd",
+      "series_code": "KA",
+      "constitutional_ref": null
+    },
+    {
+      "id": "kmpd-knowledge-architecture-ka4-empowerment-completeness",
+      "title": "KA4: Empowerment Completeness",
+      "domain": "kmpd",
+      "series_code": "KA",
+      "constitutional_ref": null
+    },
+    {
+      "id": "kmpd-training-tl1-audience-appropriate-design",
+      "title": "TL1: Audience-Appropriate Design",
+      "domain": "kmpd",
+      "series_code": "TL",
+      "constitutional_ref": null
+    },
+    {
+      "id": "kmpd-training-tl2-learning-objective-alignment",
+      "title": "TL2: Learning Objective Alignment",
+      "domain": "kmpd",
+      "series_code": "TL",
+      "constitutional_ref": null
+    },
+    {
+      "id": "kmpd-training-tl4-assessment-validity",
+      "title": "TL4: Assessment Validity",
+      "domain": "kmpd",
+      "series_code": "TL",
+      "constitutional_ref": null
+    },
+    {
+      "id": "kmpd-people-development-pd1-verification-guidance-responsibility",
+      "title": "PD1: Verification Guidance Responsibility",
+      "domain": "kmpd",
+      "series_code": "PD",
+      "constitutional_ref": null
+    },
+    {
+      "id": "kmpd-quality-assurance-qa1-safety-compliance-completeness",
+      "title": "QA1: Safety & Compliance Completeness",
+      "domain": "kmpd",
+      "series_code": "QA",
+      "constitutional_ref": null
+    },
+    {
+      "id": "kmpd-quality-assurance-qa2-artifact-adoption-fitness",
+      "title": "QA2: Artifact Adoption Fitness",
+      "domain": "kmpd",
+      "series_code": "QA",
+      "constitutional_ref": null
+    }
+  ],
+  "domains": {
+    "constitution": {
+      "principles_file": "ai-interaction-principles.md",
+      "methods_file": "ai-governance-methods.md",
+      "priority": 0
+    },
+    "ai-coding": {
+      "principles_file": "ai-coding-domain-principles.md",
+      "methods_file": "ai-coding-methods.md",
+      "priority": 10
+    },
+    "multi-agent": {
+      "principles_file": "multi-agent-domain-principles.md",
+      "methods_file": "multi-agent-methods.md",
+      "priority": 20
+    },
+    "storytelling": {
+      "principles_file": "storytelling-domain-principles.md",
+      "methods_file": "storytelling-methods.md",
+      "priority": 30
+    },
+    "multimodal-rag": {
+      "principles_file": "multimodal-rag-domain-principles.md",
+      "methods_file": "multimodal-rag-methods.md",
+      "priority": 40
+    },
+    "ui-ux": {
+      "principles_file": "ui-ux-domain-principles.md",
+      "methods_file": "ui-ux-methods.md",
+      "priority": 15
+    },
+    "kmpd": {
+      "principles_file": "kmpd-domain-principles.md",
+      "methods_file": "kmpd-methods.md",
+      "priority": 25
+    }
+  }
+}

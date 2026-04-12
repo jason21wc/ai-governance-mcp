@@ -960,7 +960,7 @@ safety check
   - Cross-MCP coordination via shared state file (`~/.ai-governance/enforcement-state.json`)
   - YAML config support for fine-grained tool classification (see `examples/github-governance.yaml`)
   - Enables architectural enforcement for non-Claude platforms (OpenAI, Gemini, Cursor, etc.)
-  - See §4.6.2 in multi-agent-methods for pattern documentation
+  - See §4.6.2 in title-20-multi-agent-cfr for pattern documentation
 - [ ] Multi-agent orchestration (specialized agents using this MCP)
 - [ ] Vector database for multi-user scaling
 - [ ] GraphRAG for relationship-aware retrieval

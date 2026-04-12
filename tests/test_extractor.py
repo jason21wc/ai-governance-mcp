@@ -1187,7 +1187,7 @@ class TestValidateVersionConsistency:
             doc_file.write_text(
                 '---\nversion: "1.0.0"\nstatus: "active"\n'
                 'effective_date: "2026-03-30"\ndomain: "ai-coding"\n'
-                'governance_level: "domain-principles"\n---\n'
+                'governance_level: "federal-statute"\n---\n'
                 "# Test Principles\n\n"
                 "#### Test Principle\n\n"
                 "**Failure Mode(s) Addressed:**\n"
@@ -2159,13 +2159,13 @@ UX-F1: Inaccessible markup.
 All interfaces MUST use semantic HTML as the foundation.
 """
 
-        principles_file = docs_path / "ui-ux-domain-principles.md"
+        principles_file = docs_path / "title-15-ui-ux.md"
         principles_file.write_text(content)
 
         domains_json = docs_path / "domains.json"
         domains_json.write_text(
             '{"ui-ux": {"name": "ui-ux", "display_name": "UI/UX", '
-            '"principles_file": "ui-ux-domain-principles.md", '
+            '"principles_file": "title-15-ui-ux.md", '
             '"description": "UI/UX design", "priority": 15}}'
         )
 
@@ -2195,7 +2195,7 @@ All interfaces MUST use semantic HTML as the foundation.
                     {
                         "name": "ui-ux",
                         "display_name": "UI/UX",
-                        "principles_file": "ui-ux-domain-principles.md",
+                        "principles_file": "title-15-ui-ux.md",
                         "methods_file": None,
                         "description": "UI/UX design",
                         "priority": 15,

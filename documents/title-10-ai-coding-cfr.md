@@ -3,7 +3,7 @@ version: "2.36.0"
 status: "active"
 effective_date: "2026-04-09"
 domain: "ai-coding"
-governance_level: "domain-methods"
+governance_level: "federal-regulations"
 ---
 
 # AI Coding Methods
@@ -24,29 +24,29 @@ This document defines operational procedures that implement the AI Coding Domain
 
 **Governance Hierarchy:**
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  ai-interaction-principles.md (CONSTITUTION)                │
-│  Meta-Principles: Universal behavioral rules. Immutable.    │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│  ai-coding-domain-principles.md (FEDERAL STATUTES)          │
-│  Domain Principles: AI coding-specific binding law.         │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│  THIS DOCUMENT: ai-coding-methods.md (CFR - REGULATIONS)    │
-│  Operational procedures implementing the principles above.  │
-│  HOW to comply. Updated more frequently than principles.    │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Tool-Specific Guides (AGENCY PROCEDURES)                   │
-│  Platform-specific execution. Separate documents.           │
-└─────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────┐
+│  constitution.md (CONSTITUTION)                                   │
+│  Meta-Principles: Universal behavioral rules. Immutable.          │
+└───────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌───────────────────────────────────────────────────────────────────┐
+│  title-10-ai-coding.md (FEDERAL STATUTES)                         │
+│  Domain Principles: AI coding-specific binding law.               │
+└───────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌───────────────────────────────────────────────────────────────────┐
+│  THIS DOCUMENT: title-10-ai-coding-cfr.md (CFR - REGULATIONS)    │
+│  Operational procedures implementing the principles above.        │
+│  HOW to comply. Updated more frequently than principles.          │
+└───────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌───────────────────────────────────────────────────────────────────┐
+│  Tool-Specific Guides (AGENCY PROCEDURES)                         │
+│  Platform-specific execution. Separate documents.                 │
+└───────────────────────────────────────────────────────────────────┘
 ```
 
 **Regulatory Authority:** These methods derive authority from Domain Principles. A method cannot contradict a principle. If conflict exists, the principle governs.
@@ -72,8 +72,8 @@ This document functions as the Code of Federal Regulations (CFR) in the US Legal
 
 | Legal Concept | Framework Equivalent | Purpose |
 |---------------|---------------------|---------|
-| Constitution | ai-interaction-principles.md | Foundational, universal, immutable |
-| Federal Statutes | ai-coding-domain-principles.md | Domain-specific binding law |
+| Constitution | constitution.md | Foundational, universal, immutable |
+| Federal Statutes | title-10-ai-coding.md | Domain-specific binding law |
 | **CFR (Regulations)** | **This document** | **Operational rules implementing statutes** |
 | Agency SOPs | Tool-specific guides | Platform-specific execution |
 
@@ -1157,7 +1157,7 @@ Before proceeding:
 - [ ] Accessibility requirements defined
 - [ ] Prototype validated with stakeholders
 
-> **Cross-reference:** For the *substance* of what good UX is — accessibility requirements, visual hierarchy, interaction patterns, platform conventions — see the **UI/UX Domain Principles** (ui-ux-domain-principles.md). This section covers *when* to do UX work; the UI/UX domain covers *what good UX is*.
+> **Cross-reference:** For the *substance* of what good UX is — accessibility requirements, visual hierarchy, interaction patterns, platform conventions — see the **UI/UX Domain Principles** (title-15-ui-ux.md). This section covers *when* to do UX work; the UI/UX domain covers *what good UX is*.
 
 ---
 
@@ -1202,7 +1202,7 @@ Before proceeding:
 - [ ] Accessibility verified
 - [ ] Stakeholder approval received
 
-> **Cross-reference:** For design system architecture, token management, component governance, and accessibility auditing procedures, see the **UI/UX Methods** (ui-ux-methods.md). This section covers *when* to create visual design specs; the UI/UX domain covers *how* to implement them correctly.
+> **Cross-reference:** For design system architecture, token management, component governance, and accessibility auditing procedures, see the **UI/UX Methods** (title-15-ui-ux-cfr.md). This section covers *when* to create visual design specs; the UI/UX domain covers *how* to implement them correctly.
 
 ---
 
@@ -7363,8 +7363,8 @@ When user says "framework check", confirm:
 ```
 
 Upload to Project Knowledge:
-- ai-coding-methods.md (this document)
-- ai-coding-domain-principles.md
+- title-10-ai-coding-cfr.md (this document)
+- title-10-ai-coding.md
 - Current PROJECT-MEMORY.md
 - Current LEARNING-LOG.md
 
@@ -8547,7 +8547,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 ## Document Governance
 
-**Authority:** This document implements ai-coding-domain-principles.md (v2.3.6). Methods cannot contradict principles.
+**Authority:** This document implements title-10-ai-coding.md (v2.3.6). Methods cannot contradict principles.
 
 **Updates:** Methods may be updated independently of principles. Version increments indicate significant procedural changes.
 

@@ -15,31 +15,31 @@ governance_level: "framework-activation"
 ---
 
 <primary_directive>
-Read and follow ai-interaction-principles.md as the governing constitution for all behavior.
+Read and follow constitution.md as the governing constitution for all behavior.
 </primary_directive>
 
 <domain_activation>
 **AI Coding Domain** — When working in AI-assisted software development:
-1. Load **ai-coding-domain-principles.md** as binding domain law (WHAT to achieve)
-2. Load **ai-coding-methods.md** for operational procedures (HOW to achieve it)
+1. Load **title-10-ai-coding.md** as binding domain law (WHAT to achieve)
+2. Load **title-10-ai-coding-cfr.md** for operational procedures (HOW to achieve it)
 
 **Domain detection:** If project contains code files, build configurations, or development specifications → AI Coding jurisdiction applies.
 
 **Multi-Agent Domain** — When orchestrating multi-agent workflows:
-1. Load **multi-agent-domain-principles.md** as binding domain law
-2. Load **multi-agent-methods.md** for operational procedures
+1. Load **title-20-multi-agent.md** as binding domain law
+2. Load **title-20-multi-agent-cfr.md** for operational procedures
 
 **Domain detection:** If task involves multiple AI agents, delegation patterns, or orchestration → Multi-Agent jurisdiction applies.
 
 **Storytelling Domain** — When assisting with narrative communication:
-1. Load **storytelling-domain-principles.md** as binding domain law
-2. Load **storytelling-methods.md** for operational procedures
+1. Load **title-30-storytelling.md** as binding domain law
+2. Load **title-30-storytelling-cfr.md** for operational procedures
 
 **Domain detection:** If task involves creative writing, narrative structure, character development, dialogue, storytelling coaching, or communication using narrative techniques → Storytelling jurisdiction applies.
 
 **Multimodal RAG Domain** — When retrieving and presenting images inline with text:
-1. Load **multimodal-rag-domain-principles.md** as binding domain law
-2. Load **multimodal-rag-methods.md** for operational procedures
+1. Load **title-40-multimodal-rag.md** as binding domain law
+2. Load **title-40-multimodal-rag-cfr.md** for operational procedures
 
 **Domain detection:** If task involves retrieving reference images, presenting visual materials inline with text responses, or procedural documentation with screenshots → Multimodal RAG jurisdiction applies.
 
@@ -100,7 +100,7 @@ Follow the Operational Application Protocol:
 <governance_hierarchy>
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  1. CONSTITUTION: ai-interaction-principles.md              │
+│  1. CONSTITUTION: constitution.md                           │
 │     Universal behavioral rules. Immutable. Always applies.  │
 │     Safety principles have supreme veto authority.          │
 └─────────────────────────────────────────────────────────────┘
@@ -108,20 +108,20 @@ Follow the Operational Application Protocol:
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  2. DOMAIN LAW (select applicable):                         │
-│     • ai-coding-domain-principles.md (12 principles)        │
-│     • multi-agent-domain-principles.md (14 principles)      │
-│     • storytelling-domain-principles.md (19 principles)     │
-│     • multimodal-rag-domain-principles.md (12 principles)   │
+│     • title-10-ai-coding.md (12 principles)                 │
+│     • title-20-multi-agent.md (14 principles)               │
+│     • title-30-storytelling.md (19 principles)              │
+│     • title-40-multimodal-rag.md (12 principles)            │
 │     Defines WHAT must be achieved (outcomes, thresholds).   │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  3. METHODS (matches domain):                               │
-│     • ai-coding-methods.md                                  │
-│     • multi-agent-methods.md                                │
-│     • storytelling-methods.md                               │
-│     • multimodal-rag-methods.md                             │
+│     • title-10-ai-coding-cfr.md                             │
+│     • title-20-multi-agent-cfr.md                           │
+│     • title-30-storytelling-cfr.md                          │
+│     • title-40-multimodal-rag-cfr.md                        │
 │     Defines HOW to achieve outcomes (workflows, gates).     │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -178,7 +178,7 @@ When AI Governance MCP server is available (check for `ai-governance` in MCP too
 
 **Benefits:** ~98% token savings, <100ms retrieval, smart domain routing.
 
-**Example:** Instead of loading full ai-coding-methods.md, query:
+**Example:** Instead of loading full title-10-ai-coding-cfr.md, query:
 ```
 query_governance("how to handle incomplete specifications")
 → Returns: Specification Completeness principle + relevant methods
@@ -189,14 +189,14 @@ query_governance("how to handle incomplete specifications")
 
 <document_versions>
 This loader is designed for use with:
-- ai-interaction-principles.md v2.1+
-- ai-governance-methods.md v3.2.0+
-- ai-coding-domain-principles.md v2.2.1+
-- ai-coding-methods.md v2.0.0+
-- multi-agent-domain-principles.md v2.0.0+
-- multi-agent-methods.md v2.5.0+
-- storytelling-domain-principles.md v1.0.0+
-- storytelling-methods.md v1.0.0+
-- multimodal-rag-domain-principles.md v1.0.0+
-- multimodal-rag-methods.md v1.0.0+
+- constitution.md v4.1.0+
+- rules-of-procedure.md v3.24.0+
+- title-10-ai-coding.md v2.7.1+
+- title-10-ai-coding-cfr.md v2.36.0+
+- title-20-multi-agent.md v2.7.1+
+- title-20-multi-agent-cfr.md v2.17.0+
+- title-30-storytelling.md v1.4.1+
+- title-30-storytelling-cfr.md v1.1.1+
+- title-40-multimodal-rag.md v2.4.1+
+- title-40-multimodal-rag-cfr.md v2.1.1+
 </document_versions>

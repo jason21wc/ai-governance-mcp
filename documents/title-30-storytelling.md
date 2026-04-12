@@ -3,7 +3,7 @@ version: "1.4.1"
 status: "active"
 effective_date: "2026-03-30"
 domain: "storytelling"
-governance_level: "domain-principles"
+governance_level: "federal-statute"
 ---
 
 # Storytelling Domain Principles Framework v1.4.1
@@ -12,7 +12,7 @@ governance_level: "domain-principles"
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > **This document represents the FEDERAL STATUTES (Domain Principles) for the Storytelling jurisdiction.**
 > * **Status:** Domain-specific laws derived from the Constitution (Meta-Principles). These principles govern AI-assisted storytelling, narrative creation, and communication across all mediums.
-> * **Hierarchy:** These statutes must comply with the Constitution (ai-interaction-principles.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
+> * **Hierarchy:** These statutes must comply with the Constitution (constitution.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
 > * **Scope:** Narrative communication using AI assistance—novels, social media, presentations, interpersonal communication, job interviews, and any context where storytelling principles enhance communication effectiveness.
 > * **Application:** Required for all AI-assisted storytelling activities, whether AI is generating content or coaching human storytellers.
 >
@@ -21,7 +21,7 @@ governance_level: "domain-principles"
 > ---
 >
 > **RELATIONSHIP TO CONSTITUTIONAL LAW (Meta-Principles):**
-> This framework assumes the AI agent has already loaded and internalized the **ai-interaction-principles.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of narrative communication.
+> This framework assumes the AI agent has already loaded and internalized the **constitution.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of narrative communication.
 >
 > **Derivation Formula:**
 > `[Storytelling Failure Mode] + [Evidence-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
@@ -55,7 +55,7 @@ This document governs AI-assisted storytelling activities:
 The following are NOT governed by this document:
 - **Factual accuracy of claims within stories** → Fact-checking, source verification
 - **Copyright and intellectual property** → Legal/compliance frameworks
-- **Platform-specific technical implementation** → Methods documents (storytelling-methods.md)
+- **Platform-specific technical implementation** → Methods documents (title-30-storytelling-cfr.md)
 - **General AI safety and alignment** → Constitution S-Series (Bill of Rights)
 - **Marketing strategy and business decisions** → Organization policies
 
@@ -865,7 +865,7 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **storytelling-methods.md** | v1.1.1 | Context engineering, character voice profiles, genre conventions, plot consistency, coaching questions |
+| **title-30-storytelling-cfr.md** | v1.1.1 | Context engineering, character voice profiles, genre conventions, plot consistency, coaching questions |
 
 **Context Management Method includes:**
 - Context thresholds (when Story Bibles become mandatory)

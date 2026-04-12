@@ -3,7 +3,7 @@ version: "2.17.0"
 status: "active"
 effective_date: "2026-04-07"
 domain: "multi-agent"
-governance_level: "domain-methods"
+governance_level: "federal-regulations"
 ---
 
 # Multi-Agent Methods
@@ -33,20 +33,20 @@ This document defines operational procedures that implement the Multi-Agent Doma
 **Governance Hierarchy:**
 ```
 +---------------------------------------------------------------------+
-|  ai-interaction-principles.md (CONSTITUTION)                        |
+|  constitution.md (CONSTITUTION)                                     |
 |  Meta-Principles: Universal behavioral rules. Immutable.            |
 +---------------------------------------------------------------------+
                               |
                               v
 +---------------------------------------------------------------------+
-|  multi-agent-domain-principles.md (FEDERAL STATUTES)                |
+|  title-20-multi-agent.md (FEDERAL STATUTES)                         |
 |  Domain Principles: Agent-specific binding law.                     |
 |  17 Principles: J1, A1-A5, R1-R4, Q1-Q3, AO1-AO4                   |
 +---------------------------------------------------------------------+
                               |
                               v
 +---------------------------------------------------------------------+
-|  THIS DOCUMENT: multi-agent-methods.md (CFR - REGULATIONS)          |
+|  THIS DOCUMENT: title-20-multi-agent-cfr.md (CFR - REGULATIONS)     |
 |  Operational procedures implementing the principles above.          |
 |  HOW to comply. Updated more frequently than principles.            |
 +---------------------------------------------------------------------+
@@ -79,8 +79,8 @@ This document uses importance tags to enable efficient partial loading:
 
 | Legal Concept | Framework Equivalent | Purpose |
 |---------------|---------------------|---------|
-| Constitution | ai-interaction-principles.md | Foundational, universal, immutable |
-| Federal Statutes | multi-agent-domain-principles.md | Domain-specific binding law |
+| Constitution | constitution.md | Foundational, universal, immutable |
+| Federal Statutes | title-20-multi-agent.md | Domain-specific binding law |
 | **CFR (Regulations)** | **This document** | **Operational rules implementing statutes** |
 | Agency SOPs | Tool appendices | Platform-specific execution |
 
@@ -215,7 +215,7 @@ GOAL: [1-2 sentences about the objective]
 COMPLEXITY: [Simple (1-2 agents) / Medium (3-4 agents) / Complex (5+ agents)]
 
 Before we begin:
-1. Confirm you've loaded the multi-agent-methods framework
+1. Confirm you've loaded the title-20-multi-agent-cfr framework
 2. Run the Justified Complexity Check (§1.1)
 3. If agents are justified, create context files
 4. Identify which agent roles are needed
@@ -2493,7 +2493,7 @@ CLOSED ──[failure threshold]──→ OPEN ──[recovery timeout]──→
 
 **Integration with retry protocol:** The 3-failure retry protocol above naturally maps to the circuit breaker threshold. After the third failure triggers human escalation, the circuit opens. The orchestrator marks the agent/component as circuit-broken and routes subsequent tasks to alternative agents or degraded paths until the breaker resets.
 
-> **Cross-reference:** For implementation patterns in non-agent contexts (file watchers, service calls), see ai-coding-methods §5.10.5.
+> **Cross-reference:** For implementation patterns in non-agent contexts (file watchers, service calls), see title-10-ai-coding-cfr §5.10.5.
 
 **Stop-the-Line Authority:**
 

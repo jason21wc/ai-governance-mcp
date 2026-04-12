@@ -797,23 +797,23 @@ class TestGovernanceFileDetection:
     files that require subagent review. This tests the regex pattern.
     """
 
-    GOVERNANCE_REGEX = r"(ai-interaction-principles\.md|.*-domain-principles\.md)$"
+    GOVERNANCE_REGEX = r"(constitution\.md|title-\d+-[a-z][-a-z]*(?<!-cfr)\.md)$"
 
     @pytest.mark.parametrize(
         "path,should_match",
         [
-            # Should match — governance principle files
-            ("documents/ai-interaction-principles.md", True),
-            ("documents/ai-coding-domain-principles.md", True),
-            ("documents/multi-agent-domain-principles.md", True),
-            ("documents/storytelling-domain-principles.md", True),
-            ("documents/ui-ux-domain-principles.md", True),
-            ("documents/kmpd-domain-principles.md", True),
-            ("documents/multimodal-rag-domain-principles.md", True),
-            # Should NOT match — methods files (high frequency, exempt)
-            ("documents/ai-coding-methods.md", False),
-            ("documents/ai-governance-methods.md", False),
-            ("documents/multi-agent-methods.md", False),
+            # Should match — governance principle files (Constitutional naming)
+            ("documents/constitution.md", True),
+            ("documents/title-10-ai-coding.md", True),
+            ("documents/title-20-multi-agent.md", True),
+            ("documents/title-30-storytelling.md", True),
+            ("documents/title-15-ui-ux.md", True),
+            ("documents/title-25-kmpd.md", True),
+            ("documents/title-40-multimodal-rag.md", True),
+            # Should NOT match — CFR/methods files (high frequency, exempt)
+            ("documents/title-10-ai-coding-cfr.md", False),
+            ("documents/rules-of-procedure.md", False),
+            ("documents/title-20-multi-agent-cfr.md", False),
             # Should NOT match — other docs
             ("SESSION-STATE.md", False),
             ("README.md", False),

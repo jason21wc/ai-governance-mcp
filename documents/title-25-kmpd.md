@@ -3,7 +3,7 @@ version: "1.4.0"
 status: "active"
 effective_date: "2026-03-30"
 domain: "kmpd"
-governance_level: "domain-principles"
+governance_level: "federal-statute"
 ---
 
 # Knowledge Management & People Development Domain Principles v1.4.0
@@ -12,7 +12,7 @@ governance_level: "domain-principles"
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > **This document represents the FEDERAL STATUTES (Domain Principles) for the Knowledge Management & People Development jurisdiction.**
 > * **Status:** Domain-specific laws derived from the Constitution (Meta-Principles). These principles govern AI agents creating, organizing, and maintaining organizational knowledge artifacts and people development systems.
-> * **Hierarchy:** These statutes must comply with the Constitution (ai-interaction-principles.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
+> * **Hierarchy:** These statutes must comply with the Constitution (constitution.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
 > * **Scope:** Organizational knowledge capture, abstraction, transfer, people readiness, and process standardization. Covers Detailed Knowledge Bases, purpose-driven extractions (Quick References, Visual Work Instructions, Troubleshooting Guides, SIPOCs, Process Flows), people development artifacts (Cross-Training Matrices, Job Descriptions, Onboarding), and training delivery.
 > * **Application:** Required for all AI-assisted knowledge management and people development activities, whether AI is generating documentation, creating training materials, building competency systems, or advising on organizational capability.
 > * **Access:** Proprietary — this domain contains proprietary intellectual property. See framework owner for access.
@@ -22,7 +22,7 @@ governance_level: "domain-principles"
 > ---
 >
 > **RELATIONSHIP TO CONSTITUTIONAL LAW (Meta-Principles):**
-> This framework assumes the AI agent has already loaded and internalized the **ai-interaction-principles.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of organizational knowledge management and people development.
+> This framework assumes the AI agent has already loaded and internalized the **constitution.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of organizational knowledge management and people development.
 >
 > **Derivation Formula:**
 > `[KM&PD Failure Mode] + [Evidence-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
@@ -683,7 +683,7 @@ Check all five empowerment components:
 
 | Source | Authority Level | Application |
 |--------|----------------|-------------|
-| **Constitution (ai-interaction-principles.md)** | Supreme | All domain principles derive from here |
+| **Constitution (constitution.md)** | Supreme | All domain principles derive from here |
 | **TWI Job Instruction (1940s, Toyota adaptation)** | External Standard | Procedural training methodology — 4-step method |
 | **Bloom's Taxonomy (Anderson & Krathwohl 2001)** | External Standard | Learning objective hierarchy and assessment alignment |
 | **Kirkpatrick's Four Levels (1959, updated 2016)** | External Standard | Training effectiveness evaluation framework |

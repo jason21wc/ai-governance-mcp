@@ -3,7 +3,7 @@ version: "3.24.0"
 status: "active"
 effective_date: "2026-04-12"
 domain: "constitution"
-governance_level: "constitution-methods"
+governance_level: "rules-of-procedure"
 ---
 
 # Governance Framework Methods
@@ -25,13 +25,13 @@ This document defines operational procedures for maintaining the AI Governance F
 **Governance Hierarchy:**
 ```
 +-------------------------------------------------------------+
-|  ai-interaction-principles.md (CONSTITUTION)                |
+|  constitution.md (CONSTITUTION)                             |
 |  Meta-Principles: Universal behavioral rules. Immutable.    |
 +-------------------------------------------------------------+
                               |
                               v
 +-------------------------------------------------------------+
-|  THIS DOCUMENT: governance-framework-methods.md             |
+|  THIS DOCUMENT: rules-of-procedure.md                       |
 |  Constitution Methods: HOW to maintain the framework.       |
 |  Procedures for versioning, indexing, and evolution.        |
 +-------------------------------------------------------------+
@@ -66,7 +66,7 @@ This document functions as Constitutional Amendments Procedure in the US Legal S
 
 | Legal Concept | Framework Equivalent | Purpose |
 |---------------|---------------------|---------|
-| Constitution | ai-interaction-principles.md | Foundational, universal, immutable |
+| Constitution | constitution.md | Foundational, universal, immutable |
 | **Amendment Process** | **This document** | **How to evolve the framework itself** |
 | Federal Statutes | Domain principles | Domain-specific binding law |
 | CFR (Regulations) | Domain methods | Operational rules implementing statutes |
@@ -219,7 +219,7 @@ v2.1.3
 
 ### 1.1.3 Version in Frontmatter
 
-Document filenames are stable identifiers (e.g., `ai-coding-methods.md`). Version metadata lives in YAML frontmatter at the top of each file:
+Document filenames are stable identifiers (e.g., `title-10-ai-coding-cfr.md`). Version metadata lives in YAML frontmatter at the top of each file:
 
 ```yaml
 ---
@@ -227,7 +227,7 @@ version: "2.32.0"
 status: "active"
 effective_date: "2026-03-31"
 domain: "ai-coding"
-governance_level: "domain-methods"
+governance_level: "federal-regulations"
 ---
 ```
 
@@ -787,7 +787,7 @@ Always specify language identifier for syntax highlighting:
 | Same document | Section name | "See Part 3.4" |
 | Same domain | Principle title | "per **Specification Completeness**" |
 | Cross-domain | Domain + title | "Constitution's **Context Engineering**" |
-| Document | Stable filename | `ai-coding-domain-principles.md` |
+| Document | Stable filename | `title-10-ai-coding.md` |
 
 For model name formatting conventions, see §10.1.4 Model Reference Conventions.
 
@@ -955,7 +955,7 @@ Once drift is detected (§4.3.3), remediate by classifying the drifted content's
 | Purpose | Definition | Example |
 |---------|-----------|---------|
 | **Pedagogical** | Teaches a concept; specifics aid understanding | "42 principles organized into 6 categories" in a framework overview |
-| **Operational** | Referenced during active work; must stay current | "See ai-governance-methods.md for procedures" |
+| **Operational** | Referenced during active work; must stay current | "See rules-of-procedure.md for procedures" |
 | **Historical** | Records a point-in-time snapshot; accuracy is archival | Version history entries, changelog rows |
 
 #### Remediation Strategy by Purpose
@@ -963,7 +963,7 @@ Once drift is detected (§4.3.3), remediate by classifying the drifted content's
 | Purpose | Strategy | Rationale |
 |---------|----------|-----------|
 | **Pedagogical** | Keep specifics + add authoritative pointer (e.g., "42 at the time of v2.0; see index for current count") | Specifics teach, but readers need a path to current truth. Pointer prevents future drift from becoming misleading. |
-| **Operational** | Use stable filename (e.g., "ai-governance-methods.md"). Since filenames no longer contain versions, all references are inherently stable. | Operational references survive version bumps without edits — filenames are stable identifiers, version metadata lives in YAML frontmatter. |
+| **Operational** | Use stable filename (e.g., "rules-of-procedure.md"). Since filenames no longer contain versions, all references are inherently stable. | Operational references survive version bumps without edits — filenames are stable identifiers, version metadata lives in YAML frontmatter. |
 | **Historical** | Keep exact values; never genericize | History is a frozen record. Changing "v2.0 added 42 principles" to "v2.0 added principles" destroys the historical record. |
 
 **Scope:** Classification is **per-finding, not per-file** — a single document may contain all three content purposes. Classify each drifted item individually.
@@ -1046,8 +1046,8 @@ To add a new domain:
   "new-domain": {
     "name": "new-domain",
     "display_name": "New Domain",
-    "principles_file": "new-domain-principles.md",
-    "methods_file": "new-domain-methods.md",
+    "principles_file": "title-NN-new-domain.md",
+    "methods_file": "title-NN-new-domain-cfr.md",
     "description": "Description used for semantic routing...",
     "priority": 30
   }
@@ -1062,7 +1062,7 @@ version: "1.0.0"
 status: "active"
 effective_date: "2026-04-01"
 domain: "new-domain"
-governance_level: "domain-principles"
+governance_level: "federal-statute"
 ---
 ```
 
@@ -1646,7 +1646,7 @@ For any new rule, classify it to determine its legal standing:
 
 | Classification | Description | Belongs In |
 |----------------|-------------|------------|
-| **Constitutional Amendment (Meta-Principle)** | A fundamental, immutable rule of behavior applicable across *all* domains | Constitution (ai-interaction-principles.md) |
+| **Constitutional Amendment (Meta-Principle)** | A fundamental, immutable rule of behavior applicable across *all* domains | Constitution (constitution.md) |
 | **Federal Statute (Domain Principle)** | A rule specific to a single domain (e.g., "Always use TypeScript for frontend") | Domain Principles documents |
 | **Regulation / SOP (Methodology)** | A specific tactic, workflow, or tool command | Methods documents |
 | **Case Outcome (Result)** | A benefit produced by applying the law, not a law itself | Do not document as a rule |
@@ -4380,7 +4380,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 ## Document Governance
 
-**Authority:** This document implements ai-interaction-principles.md. Methods cannot contradict constitutional principles.
+**Authority:** This document implements constitution.md. Methods cannot contradict constitutional principles.
 
 **Updates:** This document may be updated independently of domain methods. Version increments follow semantic versioning.
 

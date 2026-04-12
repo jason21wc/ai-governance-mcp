@@ -3,7 +3,7 @@ version: "2.7.1"
 status: "active"
 effective_date: "2026-03-30"
 domain: "multi-agent"
-governance_level: "domain-principles"
+governance_level: "federal-statute"
 ---
 
 # Multi-Agent Domain Principles Framework v2.7.1
@@ -12,7 +12,7 @@ governance_level: "domain-principles"
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > **This document represents the FEDERAL STATUTES (Domain Principles) for the Multi-Agent AI jurisdiction.**
 > *   **Status:** Domain-specific laws derived from the Constitution (Meta-Principles). These principles govern multi-agent AI system design, orchestration, and execution across all application domains.
-> *   **Hierarchy:** These statutes must comply with the Constitution (ai-interaction-principles.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
+> *   **Hierarchy:** These statutes must comply with the Constitution (constitution.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
 > *   **Scope:** Multi-agent AI systems where specialized agents collaborate to accomplish tasks. Applies to coding, research, content creation, analysis, and any domain benefiting from agent specialization and coordination.
 > *   **Application:** Required when deploying specialized agents for focused work—whether individually, sequentially, or in parallel.
 >
@@ -21,7 +21,7 @@ governance_level: "domain-principles"
 > ---
 >
 > **RELATIONSHIP TO CONSTITUTIONAL LAW (Meta-Principles):**
-> This framework assumes the AI agent has already loaded and internalized the **ai-interaction-principles.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of multi-agent AI orchestration.
+> This framework assumes the AI agent has already loaded and internalized the **constitution.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of multi-agent AI orchestration.
 >
 > **Derivation Formula:**
 > `[Multi-Agent Failure Mode] + [Evidence-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
@@ -33,7 +33,7 @@ governance_level: "domain-principles"
 > Constitution > Multi-Agent Domain Principles > Multi-Agent Methods > External References (arxiv agent drift 2601.04170, LLMs Get Lost 2505.06120, MCP specification, Claude Agent SDK)
 >
 > **PEER DOMAIN RELATIONSHIP:**
-> This document is a peer to ai-coding-domain-principles.md, not subordinate. When multi-agent systems perform coding tasks:
+> This document is a peer to title-10-ai-coding.md, not subordinate. When multi-agent systems perform coding tasks:
 > - Multi-Agent Domain governs orchestration, delegation, context isolation, and agent coordination
 > - AI Coding Domain governs code quality, specifications, security, and implementation standards
 > - Constitutional principles govern both and resolve conflicts
@@ -73,10 +73,10 @@ This document governs multi-agent AI system design and orchestration:
 ### Out of Scope (Handled Elsewhere)
 
 The following are NOT governed by this document:
-- **Code quality and implementation standards** → ai-coding-domain-principles.md
-- **Specification completeness for software** → ai-coding-domain-principles.md
+- **Code quality and implementation standards** → title-10-ai-coding.md
+- **Specification completeness for software** → title-10-ai-coding.md
 - **General AI safety and alignment** → Constitution S-Series (Bill of Rights)
-- **Specific tool configurations** → Methods documents (multi-agent-methods.md)
+- **Specific tool configurations** → Methods documents (title-20-multi-agent-cfr.md)
 - **Platform-specific implementations** → Tool appendices in Methods
 
 If a concern falls outside this scope, refer to the Constitution, AI Coding Domain Principles, or appropriate Methods documents.
@@ -1512,7 +1512,7 @@ When human oversight is reduced or removed (per AO2 Graduated Autonomy), compens
 
 **Domain Application (Binding Rule)**
 
-For any agent operating at AL-2 or AL-3, the following compensating controls are **required** (not optional). See multi-agent-methods §6.3 for implementation checklists.
+For any agent operating at AL-2 or AL-3, the following compensating controls are **required** (not optional). See title-20-multi-agent-cfr §6.3 for implementation checklists.
 
 **1. Circuit Breakers**
 - Define automatic pause triggers: error rate threshold, anomaly detection, output volume spike
@@ -1936,4 +1936,4 @@ As A2A matures, this framework may add specific principles for:
 
 **End of Document**
 
-[Methods document (multi-agent-methods.md) provides operational procedures implementing these principles]
+[Methods document (title-20-multi-agent-cfr.md) provides operational procedures implementing these principles]

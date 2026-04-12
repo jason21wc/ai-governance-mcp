@@ -3,14 +3,14 @@ version: "2.1.1"
 status: "active"
 effective_date: "2026-03-30"
 domain: "multimodal-rag"
-governance_level: "domain-methods"
+governance_level: "federal-regulations"
 ---
 
 # Multimodal RAG Methods v2.1.1
 ## Operational Procedures for Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
-> This methods document provides HOW-TO procedures for implementing multimodal RAG domain principles. It is subordinate to the domain principles document (multimodal-rag-domain-principles.md), which establishes WHAT governance applies.
+> This methods document provides HOW-TO procedures for implementing multimodal RAG domain principles. It is subordinate to the domain principles document (title-40-multimodal-rag.md), which establishes WHAT governance applies.
 
 ---
 
@@ -1297,12 +1297,12 @@ This section provides cross-references, not duplicate content. Each domain owns 
 |-----------------|----------------|-----------|
 | Adversarial image attacks on retrieval | **Multimodal RAG** (this document) | SEC1, section 8.1 |
 | Cross-modal input injection | **Multimodal RAG** (this document) | SEC2, section 8.2 |
-| Agent memory injection | **Multi-Agent** | multi-agent-methods, Title 4 (Agent Security) |
-| Tool poisoning defense | **Multi-Agent** | multi-agent-methods, section 4.6 |
-| Supply chain integrity | **AI-Coding** | ai-coding-methods, section 5.3.6 |
-| Application security patterns | **AI-Coding** | ai-coding-methods, sections 5.7-5.8 |
-| MCP server vetting | **AI-Coding** | ai-coding-methods, section 5.4 |
-| Content security scanning | **Constitution** | ai-governance-methods, Part 4.3 |
+| Agent memory injection | **Multi-Agent** | title-20-multi-agent-cfr, Title 4 (Agent Security) |
+| Tool poisoning defense | **Multi-Agent** | title-20-multi-agent-cfr, section 4.6 |
+| Supply chain integrity | **AI-Coding** | title-10-ai-coding-cfr, section 5.3.6 |
+| Application security patterns | **AI-Coding** | title-10-ai-coding-cfr, sections 5.7-5.8 |
+| MCP server vetting | **AI-Coding** | title-10-ai-coding-cfr, section 5.4 |
+| Content security scanning | **Constitution** | rules-of-procedure, Part 4.3 |
 
 **When to consult other domains:**
 - If the security concern involves agent behavior or tool calls -> Multi-Agent
@@ -1789,7 +1789,7 @@ from available sources:
 | **Specialist delegation** | Domain-specific sub-queries | Route to domain-expert agent (e.g., graph traversal agent for relationship queries) |
 
 **Cross-Reference to Multi-Agent Domain:**
-Agent coordination patterns here complement multi-agent orchestration principles (multi-agent-methods §1-§2). Key differences:
+Agent coordination patterns here complement multi-agent orchestration principles (title-20-multi-agent-cfr §1-§2). Key differences:
 - Multi-agent domain covers general agent coordination (any task)
 - This section covers retrieval-specific coordination (query planning, result merging, sufficiency evaluation)
 - Use multi-agent §3.3 (Task Dependencies) for dependency ordering between retrieval agents

@@ -3,7 +3,7 @@ version: "2.4.1"
 status: "active"
 effective_date: "2026-03-30"
 domain: "multimodal-rag"
-governance_level: "domain-principles"
+governance_level: "federal-statute"
 ---
 
 # Multimodal RAG Domain Principles Framework v2.4.1
@@ -12,7 +12,7 @@ governance_level: "domain-principles"
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > **This document represents the FEDERAL STATUTES (Domain Principles) for the Multimodal RAG jurisdiction.**
 > * **Status:** Domain-specific laws derived from the Constitution (Meta-Principles). These principles govern AI agents that retrieve and present images inline with text responses.
-> * **Hierarchy:** These statutes must comply with the Constitution (ai-interaction-principles.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
+> * **Hierarchy:** These statutes must comply with the Constitution (constitution.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
 > * **Scope:** Retrieval and presentation of existing images alongside text responses—procedural documentation, training materials, customer support, and any context where visual reference materials enhance communication effectiveness. Also covers verification, evaluation, citation, security, data governance, and operational management of multimodal knowledge bases.
 > * **Application:** Required for all AI-assisted multimodal retrieval activities, whether AI is generating responses with images or advising on reference document structure.
 >
@@ -21,7 +21,7 @@ governance_level: "domain-principles"
 > ---
 >
 > **RELATIONSHIP TO CONSTITUTIONAL LAW (Meta-Principles):**
-> This framework assumes the AI agent has already loaded and internalized the **ai-interaction-principles.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of multimodal retrieval and presentation.
+> This framework assumes the AI agent has already loaded and internalized the **constitution.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of multimodal retrieval and presentation.
 >
 > **Derivation Formula:**
 > `[Multimodal RAG Failure Mode] + [Evidence-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
@@ -60,9 +60,9 @@ The following are NOT governed by this document:
 - **Video retrieval** — Phase 2 consideration after static images
 - **General AI safety and alignment** — Constitution S-Series (Bill of Rights)
 - **Text-only RAG retrieval mechanics** — Governance Methods Title 12 (RAG Optimization Techniques)
-- **Agent memory injection attacks** — Multi-agent methods (multi-agent-methods, Title 4)
-- **General application security** — AI-coding methods (ai-coding-methods, Title 5)
-- **Platform-specific API implementation** — Methods documents (multimodal-rag-methods.md)
+- **Agent memory injection attacks** — Multi-agent methods (title-20-multi-agent-cfr, Title 4)
+- **General application security** — AI-coding methods (title-10-ai-coding-cfr, Title 5)
+- **Platform-specific API implementation** — Methods documents (title-40-multimodal-rag-cfr.md)
 
 If a concern falls outside this scope, refer to the Constitution or appropriate organizational policies.
 
@@ -624,7 +624,7 @@ Combine multiple signals to determine image relevance: semantic similarity, cont
 ```
 final_score = semantic_similarity * 0.6 + content_type_match * 0.25 + recency * 0.1 + step_alignment * 0.05
 ```
-*Note: These weights are a recommended starting point, not a binding constraint. Tune weights based on domain-specific retrieval patterns. See multimodal-rag-methods for tuning guidance.*
+*Note: These weights are a recommended starting point, not a binding constraint. Tune weights based on domain-specific retrieval patterns. See title-40-multimodal-rag-cfr for tuning guidance.*
 
 **How the AI Applies This Principle (When Advising on System Design)**
 - **Semantic Similarity:** Core embedding distance/similarity.
@@ -1055,8 +1055,8 @@ Vague visual references ("as shown in the image") force users to scan the entire
 *Principles governing knowledge base protection against multimodal-specific attacks*
 
 **Cross-Domain Note:** SEC-Series covers security threats unique to multimodal knowledge bases (adversarial images, cross-modal injection, poisoned embeddings). For broader security concerns:
-- **Agent memory injection and tool poisoning** — See multi-agent methods (multi-agent-methods, Title 4)
-- **Application security, supply chain integrity** — See AI-coding methods (ai-coding-methods, Title 5)
+- **Agent memory injection and tool poisoning** — See multi-agent methods (title-20-multi-agent-cfr, Title 4)
+- **Application security, supply chain integrity** — See AI-coding methods (title-10-ai-coding-cfr, Title 5)
 
 ### SEC1: Multimodal Poisoning Defense
 
@@ -1398,7 +1398,7 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **multimodal-rag-methods.md** | v2.1.1 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
+| **title-40-multimodal-rag-cfr.md** | v2.1.1 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
 
 **Methods document includes:**
 - Title 1: Presentation Patterns (image placement workflows, selection algorithms, accessibility checklist)

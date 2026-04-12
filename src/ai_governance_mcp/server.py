@@ -910,15 +910,15 @@ AVAILABLE_AGENTS = {
 # cryptographic signing roadmap.
 AGENT_TEMPLATE_HASHES = {
     "code-reviewer": "271980799e5dd654dda61be5e27efe164df9963214b342a9a006bb345b849975",
-    "coherence-auditor": "b79a49bb314b5d56e618cbd1b28eb4346f8da14f91ac43839684f1ef28799074",
-    "continuity-auditor": "2ce4369c52d4736f1e3945edf0c0f20d58b26f9195e85beaee1efeb249b05fda",
+    "coherence-auditor": "49a890717ce5e1e19b499ecf627f1dff82c32f6227490861b6da0432ece65931",
+    "continuity-auditor": "56d1780ea047e0d1a18af0c63071f85ad138e891a39ae636a4ffaef92075caa3",
     "contrarian-reviewer": "0c4f85596b3485521fd2dbae637ac023e9df63a68d0f80d2366eebf1dd8e5fe3",
     "documentation-writer": "13494a5a13681ed93f9b529b364f6855dffa8ddc2b61ee7595ebd86cf9b414c9",
     "orchestrator": "f7b7945e896bc8e333f7a71fe5f32972d4e5886ab05a4bf4d975974904ecc3c1",
     "security-auditor": "5fe3957bdf3d7990333b00727ab86e58e0e7999b672bf03646e9dd4ef5bbeaf3",
     "test-generator": "033899e2db53f2b0cc86a0e3e452fa4f7d97559e1cfbc61fbf3a082df8e08608",
     "validator": "8712fce1b842da7f9c98aa7947fbe9d88019446922cb121416f93f670bdf2e32",
-    "voice-coach": "38f9fe3ca1f123895ec2f8e861e28ffe92dbf3fe4de2877092878985c7051986",
+    "voice-coach": "7cb6ad17b46135d4f4eda82598c5cbb03238787eee67b86fa7644fe3755dc48b",
 }
 
 # Agent metadata: short descriptions, action summaries, and activation messages

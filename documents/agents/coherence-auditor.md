@@ -118,7 +118,7 @@ For each document in scope, apply all 5 generic checks from Part 4.3.3:
 | **Policy docs** | Implemented features list complete |
 | **Operational docs** | Commands runnable, tables current |
 | **Reference docs** | Freshness metadata present and current per §14.2, entries still accurate per source state, no stale entity relationships or outdated business rules |
-| **Governance security content** | Parse §14.2.7 Security Content Currency Map table. Flag rows where Last Reviewed date exceeds Threshold as **Misleading** severity (stale security guidance risks missed vulnerabilities). Cross-reference: `documents/ai-governance-methods.md` §14.2.7 |
+| **Governance security content** | Parse §14.2.7 Security Content Currency Map table. Flag rows where Last Reviewed date exceeds Threshold as **Misleading** severity (stale security guidance risks missed vulnerabilities). Cross-reference: `documents/rules-of-procedure.md` §14.2.7 |
 
 ### Step 4: Cross-File Consistency (Full Tier)
 

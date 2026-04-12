@@ -3,7 +3,7 @@ version: "1.1.1"
 status: "active"
 effective_date: "2026-02-08"
 domain: "storytelling"
-governance_level: "domain-methods"
+governance_level: "federal-regulations"
 ---
 
 # Storytelling Methods v1.1.1

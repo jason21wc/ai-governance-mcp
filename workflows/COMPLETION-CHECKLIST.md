@@ -23,8 +23,8 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
    - Changes >5 files → code-reviewer
    - See §5.1.7 for full trigger table
 3. **Subagent review for governance content changes** — pre-push quality gate blocks push if governance principle files changed without contrarian-reviewer, coherence-auditor, or validator invocation:
-   - Constitution: `ai-interaction-principles.md`
-   - Domain principles: `*-domain-principles.md`
+   - Constitution: `constitution.md`
+   - Domain principles: `title-*-*.md`
 4. **Principle count ceiling** — `TestPrincipleCountCeiling` CI assertion fails if any domain exceeds 35 principles (consolidation pass Part 9.8.5 required before adding more)
 5. **Governance evaluation before file modifications** — PreToolUse governance hook blocks Bash|Edit|Write until `evaluate_governance()` called
 6. **Context Engine query before code changes** — PreToolUse governance hook blocks until `query_project()` called

@@ -63,7 +63,7 @@ fi
 debug "Changed files: $(echo "$CHANGED_FILES" | tr '\n' ' ')"
 
 # Governance principle files require subagent review (contrarian/coherence/validator)
-GOVERNANCE_FILES=$(echo "$CHANGED_FILES" | grep -E '(ai-interaction-principles\.md|.*-domain-principles\.md)$' || true)
+GOVERNANCE_FILES=$(echo "$CHANGED_FILES" | grep -E '(constitution\.md|title-[0-9]+-[a-z][-a-z]*\.md)$' | grep -v '\-cfr\.md' || true)
 debug "Governance files: $(echo "$GOVERNANCE_FILES" | tr '\n' ' ')"
 
 # Escape hatch: docs-only changes (only .md files, .json config, or benchmark files)

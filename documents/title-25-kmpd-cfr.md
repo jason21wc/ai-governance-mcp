@@ -3,14 +3,14 @@ version: "1.2.0"
 status: "active"
 effective_date: "2026-03-29"
 domain: "kmpd"
-governance_level: "domain-methods"
+governance_level: "federal-regulations"
 ---
 
 # Knowledge Management & People Development Methods v1.2.0
 ## Operational Procedures for AI-Assisted Organizational Knowledge and Capability
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
-> This methods document provides HOW-TO procedures for implementing KM&PD domain principles. It is subordinate to the domain principles document (kmpd-domain-principles.md), which establishes WHAT governance applies.
+> This methods document provides HOW-TO procedures for implementing KM&PD domain principles. It is subordinate to the domain principles document (title-25-kmpd.md), which establishes WHAT governance applies.
 
 **Version:** 1.2.0
 **Status:** Active

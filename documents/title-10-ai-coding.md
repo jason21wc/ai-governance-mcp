@@ -3,7 +3,7 @@ version: "2.7.1"
 status: "active"
 effective_date: "2026-03-30"
 domain: "ai-coding"
-governance_level: "domain-principles"
+governance_level: "federal-statute"
 ---
 
 # AI Coding Domain Principles Framework v2.7.1
@@ -12,7 +12,7 @@ governance_level: "domain-principles"
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > **This document represents the FEDERAL STATUTES (Domain Principles) for the AI Coding jurisdiction.**
 > *   **Status:** Domain-specific laws derived from the Constitution (Meta-Principles). These principles govern AI-assisted software development specifically.
-> *   **Hierarchy:** These statutes must comply with the Constitution (ai-interaction-principles.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
+> *   **Hierarchy:** These statutes must comply with the Constitution (constitution.md). In case of conflict: **Bill of Rights (S-Series)** > **Constitution (Meta-Principles)** > **Domain Principles (This Document)** > **Methods/Tools (SOPs)**.
 > *   **Scope:** Software development using AI coding assistants (Claude Code, Cursor, Windsurf, etc.). Addresses unique challenges of AI code generation, context management, and production-ready development.
 > *   **Application:** Required for all AI-assisted software development activities. Does not override meta-principles but provides domain-specific interpretation and application.
 >
@@ -21,7 +21,7 @@ governance_level: "domain-principles"
 > ---
 >
 > **RELATIONSHIP TO CONSTITUTIONAL LAW (Meta-Principles):**
-> This framework assumes the AI agent has already loaded and internalized the **ai-interaction-principles.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of AI-assisted software development.
+> This framework assumes the AI agent has already loaded and internalized the **constitution.md** (Constitution). The principles in this document are **derived applications** of those meta-principles to the specific domain of AI-assisted software development.
 >
 > **Derivation Formula:**
 > `[Failure Mode Cluster] + [Evidence-Based Prevention] + [Constitutional Basis] = [Domain Principle]`
@@ -1543,7 +1543,7 @@ At EVERY phase boundary or significant checkpoint:
 
 **Domain Principles:** Jurisdiction-specific laws derived from Meta-Principles, governing a particular domain (e.g., software development). Equivalent to "Federal Statutes" in US Legal analogy.
 
-**Meta-Principles:** Universal reasoning principles applicable across all AI domains, defined in ai-interaction-principles.md. Equivalent to "Constitution" in US Legal analogy.
+**Meta-Principles:** Universal reasoning principles applicable across all AI domains, defined in constitution.md. Equivalent to "Constitution" in US Legal analogy.
 
 **Methods:** Specific implementation approaches, tools, commands, and procedures that satisfy Domain Principles. Equivalent to "Regulations/SOPs" in US Legal analogy. Methods are evolutionary; principles are stable.
 
