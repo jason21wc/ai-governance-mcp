@@ -77,7 +77,7 @@ This document is the supreme governance layer. It sits within a broader framewor
 | Layer | Location | Role |
 |---|---|---|
 | Declaration | This document | States why the framework exists — its philosophical foundation |
-| Preamble | This document | Condensed binding purposes — referenced by the Admission Test |
+| Preamble | This document | States the framework's binding purposes — interpretive context referenced by the Admission Test (Phase 3: Q0). The Preamble does not independently create rules, but its stated purposes constrain what valid content looks like. |
 
 **Operative Hierarchy** (override order — higher layers override lower when conflicts arise):
 
@@ -95,8 +95,10 @@ This document is the supreme governance layer. It sits within a broader framewor
 - **S-Series (Bill of Rights):** Absolute constraints that CANNOT be overridden. No domain rule can authorize harmful actions.
 - **Meta-Principles (Constitution):** Universal reasoning patterns. Example: "Context Engineering" applies whether coding, writing, or analyzing.
 - **Domain Principles (Statutes):** Apply meta-principles to specific contexts. Example: AI Coding's "Validation Gates" derives from Q-Series verification requirements.
+- **Rules of Procedure (Constitutional Methods):** How principles are applied, modified, and enforced. Example: The Admission Test gates new principle additions.
 - **Domain Methods (Regulations):** Procedural implementations. Example: "Cold Start Kit" procedures implement context engineering for new projects.
 - **Tool/Model Appendices (SOPs):** Platform-specific tactics. Example: Claude's extended thinking patterns.
+- **Case Law (Reference Library):** Precedent from real application. Informs future decisions but does not override normative layers above.
 
 **Identifying Where New Content Belongs:**
 - Does it prevent harm or protect rights? → **Bill of Rights (S-Series)**
@@ -107,7 +109,7 @@ This document is the supreme governance layer. It sits within a broader framewor
 
 **SUPREMACY CLAUSE:**
 If a conflict arises: **Bill of Rights** > **Constitution** > **Statutes** > **Rules of Procedure** > **Regulations** > **SOPs**.
-Lower layers MUST comply with all layers above. No domain rule, method, or appendix is valid if it contradicts a higher layer.
+Lower layers MUST comply with all layers above. No domain rule, method, or appendix is valid if it contradicts a higher layer. Case Law (Reference Library) informs interpretation but does not override any normative layer.
 
 This constitution was consolidated from an earlier 47-principle framework to eliminate redundancy and sharpen boundaries. It is a living document — evolved cautiously using the framework's own governance processes.
 
