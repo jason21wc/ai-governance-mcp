@@ -2423,6 +2423,9 @@ class TestConstitutionalTitleStripping:
                 "Bias Awareness & Fairness (Equal Protection)",
             ),
             ("Amendment III: Transparent Limitations", "Transparent Limitations"),
+            # Article IV: Governance — Phase 3 additions (reclassified from S-Series per contrarian review)
+            ("Section 4: Unenumerated Rights", "Unenumerated Rights"),
+            ("Section 5: Reserved Powers", "Reserved Powers"),
         ],
         ids=[
             "C1-context-engineering",
@@ -2447,10 +2450,12 @@ class TestConstitutionalTitleStripping:
             "S1-non-maleficence",
             "S2-bias-awareness",
             "S3-transparent-limitations",
+            "G4-unenumerated-rights",
+            "G5-reserved-powers",
         ],
     )
     def test_strip_constitutional_prefix(self, header_title, expected_clean_title):
-        """Each of the 22 constitution principle titles must be preserved exactly."""
+        """Each of the 24 constitution principle titles must be preserved exactly."""
         result = self.CONSTITUTIONAL_PREFIX_RE.sub("", header_title)
         assert result == expected_clean_title, (
             f"Title stripping changed the principle title!\n"
@@ -2487,17 +2492,16 @@ class TestConstitutionalTitleStripping:
         )
 
     def test_total_principle_count(self):
-        """Exactly 22 test cases in parametrize — one per constitution principle."""
+        """Exactly 24 test cases in parametrize — one per constitution principle."""
         # Count the parametrize entries above (must match golden baseline)
-        assert len(self.test_strip_constitutional_prefix.pytestmark[0].args[1]) == 22
+        assert len(self.test_strip_constitutional_prefix.pytestmark[0].args[1]) == 24
 
     @pytest.mark.parametrize(
         "header_title,expected",
         [
-            # Future-proofing: higher Roman numerals
-            ("Amendment IV: Unenumerated Rights", "Unenumerated Rights"),
-            ("Amendment V: Reserved Powers", "Reserved Powers"),
-            ("Amendment X: Future Amendment", "Future Amendment"),
+            # Future-proofing: Roman numerals beyond current amendments
+            ("Amendment VI: Future Amendment", "Future Amendment"),
+            ("Amendment X: Far Future Amendment", "Far Future Amendment"),
             # Arabic numeral sections beyond current count
             ("Section 10: Future Section", "Future Section"),
             ("Section 99: Far Future Section", "Far Future Section"),

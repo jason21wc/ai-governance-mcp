@@ -1,7 +1,7 @@
 ---
-version: "3.23.2"
+version: "3.24.0"
 status: "active"
-effective_date: "2026-04-09"
+effective_date: "2026-04-12"
 domain: "constitution"
 governance_level: "constitution-methods"
 ---
@@ -9,9 +9,9 @@ governance_level: "constitution-methods"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.23.2
+**Version:** 3.24.0
 **Status:** Active
-**Effective Date:** 2026-04-05
+**Effective Date:** 2026-04-12
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -1810,6 +1810,34 @@ To ensure clarity and operational utility, every principle in the Constitution f
 
 ---
 
+## Part 8.7: Elastic Clause (Derived Authority for Novel Situations)
+
+**Importance: IMPORTANT - Prevents governance gaps from blocking action**
+
+**Implements:** Unenumerated Rights (Art. IV, § 4), Systemic Thinking, Discovery Before Commitment
+
+**Applies To:** novel situations with no directly applicable principle, edge cases between domains, emerging technology patterns not yet codified
+
+When no existing principle directly governs a situation, the AI may derive guidance from the most analogous existing principle's **intent**, documenting the reasoning chain. This derivation must be flagged for human review.
+
+### 8.7.1 Elastic Clause Procedure
+
+1. **Identify the gap:** Confirm that no existing principle (constitutional or domain-level) directly addresses the situation. Use `query_governance()` and `query_project()` to verify.
+2. **Find the closest analogy:** Identify the principle whose **intent** (the "Why This Principle Matters" section) most closely aligns with the situation. Document which principle and why.
+3. **Derive guidance:** Apply the analogous principle's intent — not its literal operational guidance — to the novel situation. The derivation should be proportional: a small gap warrants light-touch derivation; a large gap warrants more careful reasoning.
+4. **Document the chain:** Record: (a) the situation, (b) the gap identified, (c) the analogous principle, (d) the derived guidance, and (e) the reasoning connecting them.
+5. **Flag for review:** Any action taken under derived authority must be flagged for human review. The human decides whether the derivation was sound and whether a new principle or method should be created to cover this situation going forward.
+
+### 8.7.2 Constraints on Derived Authority
+
+- Derived authority **cannot** override the Bill of Rights (Amendments I-III). Safety constraints are absolute, not derivable.
+- Derived authority **cannot** create new obligations — it can only extend existing obligations to analogous situations.
+- Derived authority is **temporary** — it applies to the current situation only. If the pattern recurs, it should be formalized through the Admission Test (Part 9.8.1).
+- The human retains full authority to reject any derivation.
+- **Overuse signal:** If the Elastic Clause is invoked more than twice in a single session, the AI should note this pattern and suggest formalizing the gap through the Admission Test (Part 9.8.1). Frequent elastic derivation in the same area suggests a missing principle or method.
+
+---
+
 # TITLE 9: DOMAIN AUTHORING
 
 **Importance: IMPORTANT - Procedures for creating and maintaining domains**
@@ -2063,6 +2091,15 @@ For restructuring, philosophy shifts, principle removal:
 7. Rebuild index
 8. Full test suite validation
 
+**Emergency Removal (Impeachment Fast-Path):** When a principle or method is demonstrating **active harm** — producing outcomes that violate the Bill of Rights, causing repeated failures in practice, or creating systemic degradation — the multi-step deprecation process above may be bypassed. Emergency removal requires:
+
+1. **Documented charges:** Specific evidence of active harm (not theoretical concern — observed failure with concrete impact).
+2. **Human authorization:** The human operator explicitly authorizes removal after reviewing the evidence. AI cannot self-authorize emergency removal.
+3. **Immediate removal:** The content is removed or disabled. Version bump follows MAJOR rules (X+1.0.0).
+4. **Post-removal audit:** Within the same session, document what was removed, why, what gap it leaves, and whether a replacement is needed. The audit prevents removal from creating a governance vacuum.
+
+This fast-path exists because the standard deprecation process (document → deprecate → observe → remove) assumes the content is merely outdated, not actively harmful. When content is causing harm, the observation period itself causes harm.
+
 ---
 
 ## Part 9.7: Constitutional Analogy Application
@@ -2070,6 +2107,8 @@ For restructuring, philosophy shifts, principle removal:
 **Importance: IMPORTANT - Applying the legal framework hierarchy**
 
 This part provides procedures for applying the US Constitution analogy when authoring, classifying, or maintaining framework content.
+
+**Equal Protection:** Constitutional principles and methods must apply equally across all domains. If a method cannot be applied to a domain without modification, the method may be domain-biased and should be evaluated for generality.
 
 ### 9.7.1 Framework Hierarchy Reference
 
@@ -2164,6 +2203,27 @@ When referencing across levels, use titles per Part 3.4.5:
 
 **Note:** Use titles, not principle IDs, for human-readable references. IDs are for machine retrieval.
 
+### 9.7.6 Full Faith and Credit (Cross-Domain Output Recognition)
+
+**Importance: IMPORTANT - Prevents redundant re-validation across domain boundaries**
+
+**Implements:** Reserved Powers (Art. IV, § 5), Resource Efficiency & Waste Reduction
+
+**Applies To:** cross-domain workflows, multi-domain projects, outputs consumed by a different domain than produced them
+
+Outputs validated under one domain's governance are recognized as valid inputs by other domains. Re-validation under a second domain's standards is **not required** unless the output falls within that domain's specific quality gates.
+
+**Procedure:**
+1. **Producer domain validates:** The domain that produces an output applies its own quality gates (domain principles, methods, Admission Test if applicable).
+2. **Consumer domain accepts:** When another domain consumes that output, it accepts the producer's validation without re-running its own quality checks on the same criteria.
+3. **Consumer-specific gates still apply:** If the consumer domain has quality gates specific to its own concerns (e.g., AI Coding's test coverage requirement for code, Storytelling's voice consistency for narrative), those additional gates apply. The consumer domain does not re-check what the producer already validated — it checks only what its own domain adds.
+
+**Example:** A multi-agent orchestration produces a project plan (validated under Multi-Agent domain methods). When AI Coding consumes that plan as input for implementation, it does not re-validate the plan against Multi-Agent principles — it trusts the producer's validation. It does apply its own AI Coding gates (Specification Completeness, Sequential Phase Dependencies) to the implementation work derived from the plan.
+
+**Constraint:** Full Faith and Credit does **not** apply when:
+- The consuming domain has reason to believe the producer's validation was incomplete or incorrect (the "fraud exception")
+- The output crosses the Constitution/domain boundary — Constitutional principles (Bill of Rights, Articles I-IV) always apply regardless of which domain produced the output
+
 ---
 
 ## Part 9.8: Content Quality Framework
@@ -2184,6 +2244,8 @@ This part establishes the unified quality gate for all governance content — pr
 
 Six binary questions ANY new or substantially modified (see §9.8.5 bright-line test) content must pass. The same questions apply when authoring (gate) and reviewing (audit). Content failing during review becomes a consolidation or removal candidate. For editorial corrections (scope clarifications, navigational cross-references, factual accuracy fixes), see §9.8.5.
 
+**Preamble as interpretive tiebreaker:** When any question below is borderline or ambiguous, resolve toward or against the content by asking: "Does this serve the Preamble's stated purposes (Authority, Process, Protection, Relations, Continuity)?" The Preamble does not independently filter — its purposes inform judgment on the six operative questions. This mirrors constitutional practice, where preambles resolve ambiguity in operative provisions rather than functioning as standalone tests.
+
 | # | Question | What It Checks |
 |---|----------|----------------|
 | 1 | **Coverage** — Does an actual gap exist that no existing content covers — at this level, in this domain, or in any other domain? Check same level, adjacent levels, and peer domains. | Prevents redundant, overlapping, or cross-domain duplicate content |
@@ -2193,7 +2255,7 @@ Six binary questions ANY new or substantially modified (see §9.8.5 bright-line 
 | 5 | **Enforceability** — Can compliance be observed, tested, or structurally enforced? If purely advisory, is the advisory overhead justified by the value it provides? | Prevents unenforceable governance surface area. Per LEARNING-LOG: advisory compliance ~85%, structural blocking ~100%. |
 | 6 | **Stability** — Will this content remain valid independent of current tooling, and for at least 2 major release cycles? | Prevents content that creates maintenance debt (per Part 8.3 constitutional stability test) |
 
-**Type-specific notes — what "evidence" (Question 5) means for each content type:**
+**Type-specific notes — what "evidence" (Question 4) means for each content type:**
 
 | Content Type | Evidence Standard |
 |---|---|

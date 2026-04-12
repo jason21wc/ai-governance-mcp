@@ -127,7 +127,7 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 ### BEST-EFFORT (advisory)
 
 **Before writing the principle (see Part 9.8 Content Quality Framework for full procedure):**
-1. **Admission Test (§9.8.1):** Pass all 6 questions — coverage, placement, derivation, evidence, enforceability, stability.
+1. **Admission Test (§9.8.1):** Pass all 6 questions — coverage, placement, derivation, evidence, enforceability, stability. (Preamble purposes serve as interpretive tiebreaker on borderline questions, not a standalone gate.)
 2. **Duplication Check (§9.8.2):** Query `query_governance()` and `query_project()` — does something already cover this at any level?
 3. **Structural Requirements (§9.8.3):** Use the correct template for the content type.
 4. **Concept Loss Prevention (§9.8.6):** If modifying/removing existing content, verify every concept has a home.
