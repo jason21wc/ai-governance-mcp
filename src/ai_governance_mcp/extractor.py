@@ -974,6 +974,10 @@ class DocumentExtractor:
             "e-series": "safety",
             "ethics principle": "safety",
             "audience principle": "architecture",
+            # Constitutional structural sections (no principles — defensive mapping)
+            "declaration": "declaration",
+            "preamble": "preamble",
+            "framework structure": "framework-structure",
             # Descriptive mapping (constitution and general)
             "core": "core",
             "architecture": "core",
