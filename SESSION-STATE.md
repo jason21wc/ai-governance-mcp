@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Implementation (Constitutional Framework Alignment — Phases 0-3 complete, Phase 4 next)
+- **Phase:** Implementation (Constitutional Framework Alignment — Phases 0-4 complete, Phase 5 next)
 - **Mode:** Standard
-- **Active Task:** Constitutional Framework Alignment — Phases 0-3 complete. Gates tagged: `const/gate-1` (Phase 1), `const/gate-2` (Phase 2), `const/gate-3` (Phase 3). **Phase 4 (file renames + domain restructuring) is next** — second highest-risk phase, start in fresh session. Plan at `.claude/plans/project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20.
+- **Active Task:** Constitutional Framework Alignment — Phases 0-4 complete. Gates tagged: `const/gate-1` (Phase 1), `const/gate-2` (Phase 2), `const/gate-3` (Phase 3), `const/gate-4` (Phase 4). **Phase 5 (cross-references, documentation & polish) is next** — low-risk phase, ~2-3 hours. Plan at `.claude/plans/project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20.
 
 ## Quick Reference
 
@@ -21,13 +21,13 @@
 |--------|-------|
 | Version | **v1.8.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.24.0** (meta-methods), **v2.36.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames are stable** — versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1145 passing** (run `pytest tests/ -v` for current) |
+| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.24.0** (meta-methods), **v2.36.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Tests | **1175 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **130 principles + 674 methods + 13 references** (817 total; see `tests/benchmarks/` for current totals) |
+| Index | **130 principles + 675 methods + 13 references** (818 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **4** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate) |
 | CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
@@ -37,6 +37,20 @@
 ## Session Summary (2026-04-12)
 
 ### Completed This Session
+
+94. **Constitutional Framework Alignment — Phase 4 COMPLETE**
+   - **14 files renamed** to Constitutional naming: `constitution.md`, `rules-of-procedure.md`, 6 `title-NN-domain.md` + 6 `title-NN-domain-cfr.md`. Git tracks all as renames (R099/R100) — blame history preserved.
+   - **`domains.json` + `config.py`** updated to new filenames. `governance_level` YAML frontmatter: `domain-principles`→`federal-statute`, `domain-methods`→`federal-regulations`, `constitution-methods`→`rules-of-procedure`.
+   - **Cross-references updated across 30 files:** preambles, hierarchy diagrams, subordination clauses, agent definitions (voice-coach, continuity-auditor, coherence-auditor), templates in rules-of-procedure, ai-instructions.md, COMPLETION-CHECKLIST, README.
+   - **Key finding — context engine catches what grep misses:** Initial grep found all `.md`-extension references. Context engine + extensionless grep found 17 additional references using old names without extension (e.g., `ai-coding-methods §5.3.6`, `storytelling-methods §15`). Root cause: file renames are a concept replacement problem, not a string replacement problem. Grep finds literal patterns; context engine finds semantic references.
+   - **Pre-push hook regex updated:** `.claude/hooks/pre-push-quality-gate.sh` line 66 — two-stage grep for new filename patterns (bash ERE doesn't support lookbehinds). Test regex at `test_hooks.py` uses Python lookbehind equivalent.
+   - **Technique stack:** Golden baseline (130p/675m), Expand-Migrate-Contract (Fowler), side-by-side diff verification, 4-agent review battery (contrarian HIGH, code-reviewer HIGH, coherence-auditor HIGH, validator HIGH).
+   - **Agent template hashes updated:** coherence-auditor, voice-coach, continuity-auditor (3 of 10).
+   - **Gate 4 tagged:** `const/gate-4`. Revert: `git reset --hard const/gate-3`.
+   - **Governance:** PROCEED (`gov-5edd3be84850`, `gov-32ee5170dd6d`, `gov-20cb64e8792a`, `gov-21e4e6faeadc`).
+   - **Tests:** 1175 passing (30 new from including previously-deselected slow tests).
+   - **Deferred to Phase 5:** Principle counts in ai-instructions.md (stale), missing UI/UX+KMPD from ai-instructions.md, body version mismatches in ai-coding-cfr/multi-agent-cfr, move v3/v4 parallel docs to archive, Article ordering (user decision), old section names in Historical Amendments.
+   - **Next:** Phase 5 (cross-references, documentation & polish) — low-risk, ~2-3 hours.
 
 93. **Constitutional Framework Alignment — Phase 3 COMPLETE**
    - **New principles:** Unenumerated Rights (Art. IV, § 4) and Reserved Powers (Art. IV, § 5) as G-Series. Originally drafted as S-Series Amendments IV-V, reclassified by contrarian review — S-Series = safety-critical harm prevention, these are governance-structural.

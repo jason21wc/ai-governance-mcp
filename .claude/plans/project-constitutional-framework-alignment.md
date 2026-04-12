@@ -2,7 +2,7 @@
 
 **Created:** 2026-04-10
 **Last Updated:** 2026-04-12
-**Status:** Phases 0-3 complete (gate-3 tagged). Phase 4 (file renames) next.
+**Status:** Phases 0-4 complete (gate-4 tagged). Phase 5 (cross-references & polish) next.
 **Reference docs:** `~/Downloads/AI_Governance_Detailed_Summary_v4.md`, `~/Downloads/US_Constitutional_Gap_Analysis.md`
 
 ## Context

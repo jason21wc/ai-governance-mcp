@@ -12,6 +12,16 @@
 
 ## Active Lessons
 
+### File Renames Are Concept Replacement, Not String Replacement (2026-04-12)
+
+During Phase 4 (14-file rename), initial grep for old filenames with `.md` extension found all literal filename references. But the context engine + extensionless grep found **17 additional operational references** that grep missed — cross-references using old document names without the file extension, paired with section numbers (e.g., `ai-coding-methods §5.3.6`, `storytelling-methods §15`, `multi-agent-methods, Title 4`). These are conceptual references to documents, not literal filenames. The pre-push hook regex was also missed because it contains a *pattern that matches* old filenames, not the filenames themselves.
+
+**Rule:** When renaming files, use the context engine as the PRIMARY discovery tool (semantic search finds conceptual references), grep as SECONDARY verification (literal patterns). Search for old names both with AND without file extensions. Also search for regex patterns that match old names (hooks, CI scripts). The root cause of missed references is treating renames as string replacement when they're concept replacement.
+
+**Principle:** `meta-core-systemic-thinking` — the root cause was the wrong mental model (filename strings vs. document concepts). The context engine operates at the concept level; grep operates at the string level. Both are needed, in that order.
+
+---
+
 ### Dogfooding Catches What Reviews Miss (2026-04-12)
 
 Applied the Admission Test to its own Q0 (Purpose Alignment). Q0 failed Q4 (Evidence — no concrete failure case). Three rounds of subagent review discussed Q0's value without applying the framework's own admission criteria to it. Only when explicitly prompted to "eat our own dogfood" did the failure become visible. Research then revealed the root cause: preambles are interpretive tiebreakers, not standalone filters — a well-established pattern across US constitutional law, EU treaty interpretation, and corporate governance.
