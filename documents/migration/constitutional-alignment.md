@@ -9,7 +9,7 @@
 | Phase | Description | Status | Gate Tag | Date |
 |-------|-------------|--------|----------|------|
 | 0 | Preparation & Safety Net | Complete | — | 2026-04-11 |
-| 1 | Declaration + Preamble + Framework Structure | Not started | `const/gate-1` | |
+| 1 | Declaration + Preamble + Framework Structure | Complete | `const/gate-1` | 2026-04-11 |
 | 2 | Articles + Amendments Structure | Not started | `const/gate-2` | |
 | 3 | Constitutional Concept Additions | Not started | `const/gate-3` | |
 | 4 | File Renames + Domain Restructuring | Not started | `const/gate-4` | |
