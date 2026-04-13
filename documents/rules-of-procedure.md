@@ -231,6 +231,8 @@ governance_level: "federal-regulations"
 ---
 ```
 
+**Frontmatter `governance_level` values:** `constitution`, `bill-of-rights`, `rules-of-procedure`, `federal-statute` (domain principles), `federal-regulations` (domain methods). Documents serving as framework tooling rather than governance content (e.g., activation loaders) may use descriptive values such as `framework-activation`.
+
 **Frontmatter `status` semantics:**
 - `draft` — **Pre-release.** Content is in development, not yet registered in `domains.json`, and not indexed.
 - `active` — **Published.** Registered in `domains.json`, indexed, and active.

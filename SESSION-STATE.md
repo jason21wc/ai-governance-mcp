@@ -933,20 +933,6 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
-#### ~~97. Docker Publish CI Fix — RESOLVED (2026-04-13)~~
-
-**Root cause:** Repo's `allowed_actions: "selected"` policy (with `verified_allowed: true`) blocked `peter-evans/dockerhub-description` — a third-party action from an unverified personal GitHub account. GitHub validates all actions before queuing any job, so this single blocked action caused `startup_failure` with zero jobs for the entire workflow. The Node.js 24 migration was a false correlation — the actual trigger was the `allowed_actions` setting tightening after v1.7.0.
-
-**Fix:** Removed `peter-evans/dockerhub-description` step entirely (supply chain hygiene — unnecessary third-party dependency from unverified individual). Workflow now uses only GitHub-owned and verified org actions. Manual dispatch confirmed workflow runs successfully.
-
-**Origin:** Discovered during Phase 6 completion checklist (2026-04-12). Fixed 2026-04-13.
-
-#### ~~98. Preamble Legal System Analogy Table Expansion — RESOLVED (2026-04-13)~~
-
-**Fix:** Standardized all 6 CFR preambles with the full 7-layer Legal System Analogy table (per constitution.md:84-92), each document's row bolded. Expanded 2 existing 4-row tables (ai-coding-cfr, multi-agent-cfr), added tables to 2 files with text-only hierarchies (ui-ux-cfr, kmpd-cfr), and added tables to 2 files with no hierarchy section (storytelling-cfr, multimodal-rag-cfr).
-
-**Origin:** Coherence audit during Phase 5 (findings #7, #8). Fixed 2026-04-13.
-
 #### 90. Context Engine Circuit Breaker Auto-Recovery (Discussion) `D1 Improvement`
 
 **What:** The circuit breaker in `project_manager.py` has no auto-recovery. After 3 consecutive watcher failures, auto-indexing is permanently disabled until a manual `index_project` call or server restart. A transient burst of rapid edits (e.g., `git checkout` of a large branch) can trip it.
@@ -1386,6 +1372,24 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 - **#84 (README)** — references Content Enhancer as "Component 1" of the broader AI infrastructure, but the README describes the system; this item is about integrating the Enhancer itself
 
 **Origin:** User-initiated (2026-04-10). Plan mode exploration completed but implementation paused for deeper workflow pattern discussion.
+
+#### 99. Quick Start Guide for External Adopters (Discussion) `D1 New Capability`
+
+**What:** The framework has no onboarding path between "install the MCP server" and "understand the full governance hierarchy." A Quick Start guide presenting the 5 most critical principles without requiring Constitutional naming knowledge would lower the adoption barrier.
+
+**Origin:** Contrarian review during v2.0.0 post-release audit (2026-04-13). Pairs with #53 (Modular Domain Architecture).
+
+#### 100. Legal System Analogy Embedding Impact Test (Discussion) `D1 Improvement`
+
+**What:** Each principle includes a Legal System Analogy paragraph (~15-20% of token budget) mapping it to US legal concepts. These legal terms may create embedding vectors biased toward legal rather than practical governance. Test hypothesis: run retrieval benchmark with and without analogy text. If MRR/Recall doesn't drop, extract analogy text from embedding content while preserving it in full documents.
+
+**Origin:** Contrarian review during v2.0.0 post-release audit (2026-04-13).
+
+#### 101. Template Divergence Documentation (Discussion) `D1 Docs`
+
+**What:** AI Coding and Multi-Agent use the full principle template (FM codes, Truth Sources, Success Criteria). Four other domains (Storytelling, UI/UX, KM&PD, Multimodal RAG) use variants (Validation Criteria, narrative Failure Mode, Constitutional Derivation, no Truth Sources). Document the accepted variants in rules-of-procedure.md's template section so future authors know both patterns are valid. Don't force uniformity — content quality matters more than field name consistency.
+
+**Origin:** Validator during v2.0.0 post-release audit (2026-04-13).
 
 ---
 
