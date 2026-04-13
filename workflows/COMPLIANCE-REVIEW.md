@@ -33,7 +33,22 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
-| | | | |
+| 1 | 2026-04-13 | PASS | All 4 hooks present, configured, not disabled |
+
+---
+
+### 1b. Enforcement mode active
+
+**How:** Verify governance hooks are running in hard mode (deny-by-default), not degraded to advisory via environment variables.
+
+**Check:** `echo $GOVERNANCE_SOFT_MODE $CE_SOFT_MODE $QUALITY_GATE_SKIP` — all should be empty or `false`.
+
+**Pass:** No soft-mode or skip variables set.
+**Fail:** Any variable is `true` — investigate why and unset unless there's a documented reason.
+
+| Review | Date | Result | Notes |
+|--------|------|--------|-------|
+| 1 | 2026-04-13 | PASS | No soft-mode env vars set |
 
 ---
 
@@ -46,7 +61,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
-| | | | |
+| 1 | 2026-04-13 | PASS | 5/5 sessions in both tables |
 
 ---
 
@@ -59,7 +74,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
-| | | | |
+| 1 | 2026-04-13 | PASS | All 3 behavioral directives aligned with CLAUDE.md |
 
 ---
 
@@ -72,7 +87,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
-| | | | |
+| 1 | 2026-04-13 | FAIL→FIXED | 5 entries >60 days. 1 graduated (CI extras→Gotcha #23), 4 marked ACTIVE |
 
 ---
 
@@ -124,7 +139,7 @@ User reviews the subagent's findings and confirms or challenges.
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
-| | | | |
+| 1 | 2026-04-13 | PARTIAL | Canary prompts deferred. Validator subagent: PASS WITH NOTES (6/9). FAIL on principle citation (4/9 evals had empty principles_consulted — retrieval quality issue, not behavioral). |
 
 ---
 
@@ -141,7 +156,7 @@ User reviews the subagent's findings and confirms or challenges.
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
-| | | | |
+| 1 | 2026-04-13 | PASS | #1 result, combined score 0.75, 141.7ms |
 
 ---
 
@@ -156,7 +171,7 @@ User reviews the subagent's findings and confirms or challenges.
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
-| | | | |
+| 1 | 2026-04-13 | FAIL→FIXED | Removed 3 CFR-violating allows (chmod, mv, docker push). Added 10 read-only allows. Added 8 deny rules per CFR A.5. |
 
 ---
 
@@ -257,7 +272,7 @@ User reviews the subagent's findings and confirms or challenges.
 |---------|------|-------|:---:|-------|
 | 1 (baseline) | 2026-04-08 | 4 | 2/4 (50%) | 2 skipped, user corrected both |
 | 2 | 2026-04-10 | 1 | 1/1 (100%) | Contrarian invoked before writing Recommended Approach, per template gate. REVISIT verdict accepted — plan revised. |
-| 3 | | | | |
+| 3 | 2026-04-13 | 2 | 1/2 (50%) | Plan 1 (audit fixes): contrarian invoked after user reminder. Plan 2 (compliance): contrarian invoked after user reminder. |
 
 ---
 
@@ -265,7 +280,7 @@ User reviews the subagent's findings and confirms or challenges.
 
 | # | Date | Trigger | Ongoing (pass/total) | Verifications Updated | Key Finding | Action |
 |---|------|---------|---------------------|----------------------|-------------|--------|
-| | | | | | | |
+| 1 | 2026-04-13 | Post-release audit (v2.0.0) | 6/7 (1b added) | V-004 session 3 | settings.local.json had 3 CFR-violating auto-accepts (chmod, mv, docker push). Deny list had 2/8 recommended entries. Enforcement-mode check missing. | Fixed all. Added Check 1b. 4-agent battery (security+contrarian+validator+coherence). |
 
 ---
 

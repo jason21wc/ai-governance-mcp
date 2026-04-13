@@ -242,7 +242,7 @@ Two test bugs: (1) `"nonexistent00"` has non-hex chars — hit project_id hex va
 
 ---
 
-### Guard-Then-Load Pattern: Don't Undo Your Own Safety Checks (2026-02-10)
+### Guard-Then-Load Pattern: Don't Undo Your Own Safety Checks (2026-02-10) — ACTIVE
 
 `_load_project` correctly discarded incompatible embeddings on model mismatch. Then immediately called `_load_search_indexes` which reloaded them unconditionally — undoing the safety check. Similarly, `get_principle_by_id` used a prefix→domain map where "multi" (multi-agent) and "mult" (multimodal-rag) collided because Python dict lookup stops at the first prefix match.
 
@@ -250,7 +250,7 @@ Two test bugs: (1) `"nonexistent00"` has non-hex chars — hit project_id hex va
 
 ---
 
-### Bold Text Drives Method Retrieval Surfacing (2026-02-07)
+### Bold Text Drives Method Retrieval Surfacing (2026-02-07) — ACTIVE
 
 New method sections get generic chunk titles from the extractor (e.g., "Purpose", "Trigger Conditions"). The extractor picks up **bold text** as `trigger_phrases` (max 4 words, >5 chars). Without bold key terms, method chunks won't surface for natural-language queries.
 
@@ -263,7 +263,7 @@ Three additional extraction traps discovered during Part 4.3 tuning:
 
 ---
 
-### CI Must Install All Test-Relevant Extras (2026-02-07)
+### CI Must Install All Test-Relevant Extras (2026-02-07) — GRADUATED to Gotcha #23
 
 CI installed `.[dev]` but context engine tests need `pathspec` (in `.[context-engine]` extras). All 200 CE tests failed with `ModuleNotFoundError`.
 
@@ -271,7 +271,7 @@ CI installed `.[dev]` but context engine tests need `pathspec` (in `.[context-en
 
 ---
 
-### Version History Entries Can Be Silently Dropped (2026-02-08)
+### Version History Entries Can Be Silently Dropped (2026-02-08) — ACTIVE
 
 Coherence audit found v3.7.0 missing from version history table and v3.7.0.1 orphaned at end of file. During edits, version history entries can be accidentally deleted or displaced without anyone noticing — the table is long and entries look similar.
 
@@ -279,7 +279,7 @@ Coherence audit found v3.7.0 missing from version history table and v3.7.0.1 orp
 
 ---
 
-### Cognitive Function Labels Must Be Distinct Across Agents (2026-02-08)
+### Cognitive Function Labels Must Be Distinct Across Agents (2026-02-08) — ACTIVE
 
 Validator and code-reviewer both initially used "Analytical validation" as cognitive function label. Contrarian reviewer caught the collision — identical labels undermine the distinctness argument. Renamed validator to "Checklist verification."
 
@@ -379,3 +379,4 @@ Second-pass contrarian review caught issues first-pass missed (S-Series penalty 
 | Standalone MCP config files | Redundant with CRITICAL lesson #24 | 2026-02-22 |
 | Code review + coherence audit after expansions | ai-coding methods §5.1.7 + §9.3.11 | 2026-03-27 |
 | Multi-pass reviews catch different issues | ai-coding methods §5.1.7 | 2026-03-27 |
+| CI must install all test-relevant extras | Gotcha #23 | 2026-04-13 |
