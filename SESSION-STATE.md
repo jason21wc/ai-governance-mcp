@@ -22,7 +22,7 @@
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
 | Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.25.0** (rules-of-procedure), **v2.36.0** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1175 passing** (run `pytest tests/ -v` for current) |
+| Tests | **1178 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -34,9 +34,22 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-04-12)
+## Session Summary (2026-04-13)
 
 ### Completed This Session
+
+97. **v2.0.0 Post-Release Audit — Full Framework Review**
+   - **6-agent review battery:** coherence-auditor, contrarian-reviewer, validator, code-reviewer, security-auditor, file-org explorer. ~630K tokens of analysis across 462 tool calls.
+   - **Commit A (doc propagation):** Fixed 4 version mismatches (rules-of-procedure, ai-instructions, kmpd footer, ui-ux footer). Updated README hierarchy (3-layer→7-layer), tool table (+2 missing), test trees (+2 files). Expanded ai-instructions hierarchy to 7-layer table. Fixed ARCHITECTURE stale claims, Dockerfile label, LEARNING-LOG old filenames. 9 files.
+   - **Commit B (code security):** Added fail-safe JSONL log rotation (3 new tests). Fixed scaffold_project symlink TOCTOU. Added enforcement proxy file permissions. Replaced string startswith with Path.is_relative_to(). Added _cached_roots_path to test fixture reset. 5 files.
+   - **Commit C (hook hardening):** Pre-push quality gate changed from fail-open to fail-closed. Replaced sed JSON escaping with python json.dumps. 1 file.
+   - **Commit D (benchmark gitignore):** Added gitignore rules for dated baselines. Removed 59 auto-generated files from tracking. 5 canonical files remain.
+   - **Discussion items resolved:** governance_level template note added (rules-of-procedure §1.1.3), principle redundancy closed (FM codes distinct), 3 backlog items added (#99 Quick Start, #100 Embedding test, #101 Template divergence), YAML title field closed (false finding — wrong template applied).
+   - **Compliance review #1:** 7 checks (6 PASS, 1b added). Check 1b: enforcement-mode verification (contrarian's highest-leverage finding). LEARNING-LOG: 1 graduated, 4 marked ACTIVE. Permission settings aligned with CFR A.5: removed chmod/mv/docker-push from auto-accept, added 10 read-only allows, added 8 deny rules.
+   - **Governance:** `gov-54b216ea1be0`, `gov-2f6d6b1a153d`, `gov-cf52ccd60ff5`, `gov-c1f053ed34ae`, `gov-3d767222205e`, `gov-373af487a999`, `gov-b60deb87d646`.
+   - **Tests:** 1178 passing (3 new — JSONL rotation).
+
+### Previous Session (2026-04-12)
 
 96. **Constitutional Framework Alignment — v2.0.0 RELEASED**
    - **Phase 6 (Verify, Version & Release):** Full test suite (1175 passed), index verified (130p/675m/13r = 818 total), constitutional refs spot-checked.
