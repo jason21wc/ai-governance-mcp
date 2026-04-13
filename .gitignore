@@ -48,6 +48,10 @@ htmlcov/
 # Logs
 logs/*.jsonl
 
+# Benchmark baselines (generated per-run, not canonical)
+tests/benchmarks/baseline_*.json
+tests/benchmarks/ce_baseline_*.json
+
 # Model cache (large, can be re-downloaded)
 .cache/
 
