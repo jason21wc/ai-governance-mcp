@@ -941,13 +941,11 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 **Origin:** Discovered during Phase 6 completion checklist (2026-04-12). Fixed 2026-04-13.
 
-#### 98. Preamble Legal System Analogy Table Expansion (Discussion) `D3 Polish`
+#### ~~98. Preamble Legal System Analogy Table Expansion — RESOLVED (2026-04-13)~~
 
-**What:** 3 CFR preambles have 4-row Legal System Analogy tables (should show 7-layer hierarchy per constitution.md). 4 other CFR files lack the table entirely. Inconsistency across 6 CFR preambles.
+**Fix:** Standardized all 6 CFR preambles with the full 7-layer Legal System Analogy table (per constitution.md:84-92), each document's row bolded. Expanded 2 existing 4-row tables (ai-coding-cfr, multi-agent-cfr), added tables to 2 files with text-only hierarchies (ui-ux-cfr, kmpd-cfr), and added tables to 2 files with no hierarchy section (storytelling-cfr, multimodal-rag-cfr).
 
-**Discussion needed:** Standardize on one format for all 6 CFR preambles — recommend the full 7-layer table with the current document's row bolded. Template design decision: should this be added to the §9.8.3 domain authoring template?
-
-**Origin:** Coherence audit during Phase 5 (findings #7, #8). Deferred as template design scope.
+**Origin:** Coherence audit during Phase 5 (findings #7, #8). Fixed 2026-04-13.
 
 #### 90. Context Engine Circuit Breaker Auto-Recovery (Discussion) `D1 Improvement`
 

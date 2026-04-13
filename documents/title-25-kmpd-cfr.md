@@ -36,6 +36,18 @@ Constitution (Meta-Principles)
 - For narrative engagement in knowledge content → Storytelling domain
 - For software process documentation → AI-Coding domain (process gates) + this domain (knowledge architecture)
 
+### Legal System Analogy
+
+| Legal Concept | Framework Equivalent | Purpose |
+|---------------|---------------------|---------|
+| Bill of Rights | S-Series (constitution.md) | Immutable safety guardrails with veto authority |
+| Constitution | Meta-Principles (constitution.md) | Universal reasoning laws |
+| Federal Statutes | title-25-kmpd.md | Domain-specific binding law |
+| Rules of Procedure | rules-of-procedure.md | How the framework evolves and maintains itself |
+| **Federal Regulations (CFR)** | **This document** | **Operational rules implementing statutes** |
+| Agency SOPs | Tool-specific guides | Platform-specific execution |
+| Case Law | Reference Library | Precedent from real application |
+
 ---
 
 ### Importance Tags Legend

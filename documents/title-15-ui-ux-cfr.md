@@ -31,6 +31,18 @@ Constitution (Meta-Principles)
 - For WHEN to do UX work → AI-Coding Methods §2.4 (UX Elaboration), §2.5 (Visual Design Specs)
 - For WHAT good UX is → UI/UX Domain Principles + This Document
 
+### Legal System Analogy
+
+| Legal Concept | Framework Equivalent | Purpose |
+|---------------|---------------------|---------|
+| Bill of Rights | S-Series (constitution.md) | Immutable safety guardrails with veto authority |
+| Constitution | Meta-Principles (constitution.md) | Universal reasoning laws |
+| Federal Statutes | title-15-ui-ux.md | Domain-specific binding law |
+| Rules of Procedure | rules-of-procedure.md | How the framework evolves and maintains itself |
+| **Federal Regulations (CFR)** | **This document** | **Operational rules implementing statutes** |
+| Agency SOPs | Tool-specific guides | Platform-specific execution |
+| Case Law | Reference Library | Precedent from real application |
+
 ---
 
 ### Importance Tags Legend

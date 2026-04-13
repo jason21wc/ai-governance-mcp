@@ -79,10 +79,13 @@ This document uses importance tags to enable efficient partial loading:
 
 | Legal Concept | Framework Equivalent | Purpose |
 |---------------|---------------------|---------|
-| Constitution | constitution.md | Foundational, universal, immutable |
+| Bill of Rights | S-Series (constitution.md) | Immutable safety guardrails with veto authority |
+| Constitution | Meta-Principles (constitution.md) | Universal reasoning laws |
 | Federal Statutes | title-20-multi-agent.md | Domain-specific binding law |
-| **CFR (Regulations)** | **This document** | **Operational rules implementing statutes** |
+| Rules of Procedure | rules-of-procedure.md | How the framework evolves and maintains itself |
+| **Federal Regulations (CFR)** | **This document** | **Operational rules implementing statutes** |
 | Agency SOPs | Tool appendices | Platform-specific execution |
+| Case Law | Reference Library | Precedent from real application |
 
 ---
 

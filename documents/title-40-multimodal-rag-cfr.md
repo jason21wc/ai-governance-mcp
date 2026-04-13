@@ -14,6 +14,20 @@ governance_level: "federal-regulations"
 
 ---
 
+### Legal System Analogy
+
+| Legal Concept | Framework Equivalent | Purpose |
+|---------------|---------------------|---------|
+| Bill of Rights | S-Series (constitution.md) | Immutable safety guardrails with veto authority |
+| Constitution | Meta-Principles (constitution.md) | Universal reasoning laws |
+| Federal Statutes | title-40-multimodal-rag.md | Domain-specific binding law |
+| Rules of Procedure | rules-of-procedure.md | How the framework evolves and maintains itself |
+| **Federal Regulations (CFR)** | **This document** | **Operational rules implementing statutes** |
+| Agency SOPs | Tool-specific guides | Platform-specific execution |
+| Case Law | Reference Library | Precedent from real application |
+
+---
+
 ## 1 Presentation Patterns
 
 ### 1.1 Image Placement Workflow
