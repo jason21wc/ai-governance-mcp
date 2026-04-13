@@ -922,7 +922,7 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 - **Added ST-F14: Character Drift** failure mode — character details changing subtly across long narratives without intention
 - **Added "The Dependency Creep"** to E1 failure modes
 - **Updated methods reference** to v1.1.0 with expanded coverage description
-- **Moved coaching playbook** from Planned Methods to Available (now in storytelling-methods-v1.1.1.md)
+- **Moved coaching playbook** from Planned Methods to Available (now in title-30-storytelling-cfr.md)
 
 ### v1.0.0
 - **Promoted to production** — moved from drafts/ to documents/

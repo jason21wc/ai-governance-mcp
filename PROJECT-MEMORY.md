@@ -497,15 +497,15 @@ Note: CE benchmark v2.0 uses this project's codebase as corpus with 16 queries (
 - ✓ `UserPromptSubmit` hook — governance reminder injection on every prompt
 - ✓ Evaluated hook types: chose command (shell scripts, ~10-50ms latency, deterministic)
 - ✓ Configured in `.claude/settings.json` (project-level, committable)
-- ✓ Documented as §4.6.3 in multi-agent-methods-v2.12.3.md
+- ✓ Documented as §4.6.3 in title-20-multi-agent-cfr.md
 - ✓ Soft enforcement (default) + hard mode via `GOVERNANCE_HARD_MODE=true`
 - ✓ Configurable tool name via `GOVERNANCE_TOOL_NAME` env var
 - ✓ Debug logging via `GOVERNANCE_HOOK_DEBUG=true`
 - ✓ Reviewed by contrarian, code-reviewer, and coherence-auditor
 
-**Phase 1b — Hook Improvements (Low priority, from contrarian review):**
-- Recency heuristic: PreToolUse scans last ~500 transcript lines instead of full session. Catches task-boundary pivots in long sessions. One-line change (`collections.deque(f, maxlen=500)`).
-- Suppress UserPromptSubmit after governance established: add transcript check to inject hook, skip reminder when `evaluate_governance()` already called. Saves ~10K tokens/session.
+**Phase 1b — Hook Improvements (COMPLETE — implemented as part of hard-mode enforcement 2026-02-28):**
+- ✓ Recency heuristic: PreToolUse scans last ~200 transcript lines (GOVERNANCE_RECENCY_WINDOW). Catches task-boundary pivots in long sessions.
+- ✓ Suppress UserPromptSubmit after governance established: inject hook is silent when both tools called recently. Saves ~128 tokens/prompt (~11K tokens/50-turn session).
 
 **Phase 2 — Cross-MCP Proxy Enforcement (COMPLETE — 2026-04-07):**
 - ✓ `enforcement.py` extended: `--govern-all`, `--config`, `--always-allow` CLI flags
@@ -515,7 +515,7 @@ Note: CE benchmark v2.0 uses this project's codebase as corpus with 16 queries (
 - ✓ 59 tests in test_enforcement.py (32 new for Phase 2)
 - ✓ §4.6.2 updated with auth vs governance distinction, 2026 gateway table, fixed decision tree
 
-**Phase 3 — CI/Audit Integration (When Phase 1 ships):**
+**Phase 3 — CI/Audit Integration (Prerequisite phases 1+2 complete):**
 - Pre-commit hook calling `verify_governance_compliance()` to catch bypassed governance
 - Governor (github.com/ulsc/governor) for security-auditing AI-generated code
 - Governance validation step in CI pipeline
