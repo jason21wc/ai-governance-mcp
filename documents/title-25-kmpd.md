@@ -728,7 +728,7 @@ Check all five empowerment components:
 
 ---
 
-*Version 1.3.0*
+*Version 1.4.0*
 *Derived from: Constitution v2.6.0, AI Coding Methods v2.27.0*
 *Framework: Jason Collier's Knowledge Management & People Development Framework (novel synthesis)*
 *Access: Proprietary — see framework owner for access*

@@ -9,7 +9,7 @@ governance_level: "rules-of-procedure"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.24.0
+**Version:** 3.25.0
 **Status:** Active
 **Effective Date:** 2026-04-12
 **Governance Level:** Constitution Methods (implements meta-principles)

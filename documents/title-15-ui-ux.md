@@ -1209,5 +1209,5 @@ This Domain Principles document establishes WHAT governance applies to UI/UX. Th
 
 ---
 
-*Version 1.0.0*
+*Version 1.2.0*
 *Derived from: Constitution v2.4.1, AI Coding Methods v2.18.0*

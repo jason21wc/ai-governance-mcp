@@ -39,10 +39,7 @@ Query: "help me develop my protagonist's character arc"
 
 **The Governance Framework**: Most people use AI as-is. This project implements a systematic governance framework that makes AI collaboration repeatable and production-ready - then operationalizes it through an MCP server.
 
-The framework has three layers:
-1. **Constitution** - Universal behavioral rules (safety, honesty, quality)
-2. **Domain Principles** - Context-specific guidance (coding, multi-agent, storytelling)
-3. **Methods** - Procedural workflows (Specify → Plan → Tasks → Implement)
+The framework uses a 7-layer governance hierarchy modeled on the US Constitutional system — from immutable Safety Principles (Bill of Rights) through Constitution, Domain Statutes, Rules of Procedure, Domain Regulations, Tool SOPs, to accumulating Case Law — where higher layers always override lower. See `documents/constitution.md` for the full operative hierarchy.
 
 ### Available Domains
 
@@ -106,6 +103,8 @@ Runtime:
 | `install_agent` | Install governance subagent (Claude Code only) |
 | `uninstall_agent` | Remove installed subagent |
 | `log_governance_reasoning` | Record per-principle reasoning traces for audit |
+| `scaffold_project` | Create governance memory files for new projects |
+| `capture_reference` | Create Reference Library entries from real application |
 
 **Context Engine Server (4 tools):**
 
@@ -868,11 +867,13 @@ ai-governance-mcp/
     ├── test_config_generator.py     # Platform configs
     ├── test_validator.py            # Principle validation
     ├── test_hooks.py                # Hook enforcement tests
+    ├── test_enforcement.py          # Layer 3 enforcement proxy tests
     ├── test_analyze_compliance.py   # Compliance analysis tests
     ├── test_context_engine.py       # Context engine tests
     ├── test_context_engine_quality.py # CE MRR/Recall benchmarks
     ├── test_watcher_daemon.py       # Watcher daemon tests
     ├── test_readonly.py             # Read-only mode tests
+    ├── test_reference_library.py    # Reference library tests
     └── test_service.py              # Platform service installer tests
 ```
 

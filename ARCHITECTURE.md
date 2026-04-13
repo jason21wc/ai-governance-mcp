@@ -152,6 +152,7 @@ ai-governance-mcp/
 │   ├── test_context_engine_quality.py # CE MRR/Recall benchmarks
 │   ├── test_watcher_daemon.py        # Watcher daemon tests
 │   ├── test_readonly.py              # Read-only mode tests
+│   ├── test_reference_library.py     # Reference library tests
 │   └── test_service.py               # Platform service installer tests
 │
 ├── .claude/hooks/                     # Pre/post tool use hooks
@@ -276,17 +277,17 @@ ai-governance-proxy --govern-all \
 
 ---
 
-## Security Architecture (v1)
+## Security Architecture
 
 | Aspect | Approach | Rationale |
 |--------|----------|-----------|
 | **Authentication** | None (v1) | Local use; future phase adds auth |
-| **Data access** | Read-only from index | No writes to source docs |
+| **Data access** | Read-only from index; `scaffold_project` and `capture_reference` write to project directory | Source docs read-only; project scaffolding writes to caller's CWD |
 | **Feedback logging** | Append-only, local file | No sensitive data stored |
 | **Network exposure** | Local stdio only (MCP) | No HTTP server in v1 |
 | **Dependencies** | Verified packages only | Per spec §11 |
 
-**Future phase** (multi-user): Add authentication layer, user isolation, rate limiting.
+**Future phase** (multi-user): Add authentication layer, user isolation. Rate limiting is implemented (token bucket algorithm).
 
 ---
 

@@ -8,7 +8,7 @@ governance_level: "framework-activation"
 
 # AI Governance Framework Activation
 
-**Version:** 2.5
+**Version:** 2.6
 **Purpose:** Loader document that activates the governance framework for AI sessions.
 **Updated:** 2026-02-09
 
@@ -120,45 +120,26 @@ Follow the Operational Application Protocol:
 </operational_requirements>
 
 <governance_hierarchy>
-```
-┌─────────────────────────────────────────────────────────────┐
-│  1. CONSTITUTION: constitution.md                           │
-│     Universal behavioral rules. Immutable. Always applies.  │
-│     Safety principles have supreme veto authority.          │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│  2. DOMAIN LAW (select applicable):                         │
-│     • title-10-ai-coding.md (12 principles)                 │
-│     • title-15-ui-ux.md (20 principles)                     │
-│     • title-20-multi-agent.md (17 principles)               │
-│     • title-25-kmpd.md (10 principles)                      │
-│     • title-30-storytelling.md (15 principles)              │
-│     • title-40-multimodal-rag.md (32 principles)            │
-│     Defines WHAT must be achieved (outcomes, thresholds).   │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│  3. METHODS (matches domain):                               │
-│     • title-10-ai-coding-cfr.md                             │
-│     • title-15-ui-ux-cfr.md                                 │
-│     • title-20-multi-agent-cfr.md                           │
-│     • title-25-kmpd-cfr.md                                  │
-│     • title-30-storytelling-cfr.md                          │
-│     • title-40-multimodal-rag-cfr.md                        │
-│     Defines HOW to achieve outcomes (workflows, gates).     │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│  4. TOOL CONFIGS: CLAUDE.md, GEMINI.md, project configs     │
-│     Platform-specific execution. Most evolutionary layer.   │
-└─────────────────────────────────────────────────────────────┘
-```
 
-**Supremacy Rule:** Higher levels override lower levels. If conflict: Constitution > Domain > Methods > Tools.
+| Layer | Framework Element | Authority |
+|---|---|---|
+| **Bill of Rights** | S-Series (Safety Principles) in constitution.md | **Veto Power** — overrides ALL other guidance |
+| **Constitution** | Meta-Principles (C, Q, O, G Series) in constitution.md | **Foundation** — domain-agnostic reasoning laws |
+| **Federal Statutes** | Domain Principles (title-NN-domain.md) | **Context** — derived from Constitution for specific fields |
+| **Rules of Procedure** | rules-of-procedure.md | **Process** — how principles are applied and maintained |
+| **Federal Regulations** | Domain Methods (title-NN-domain-cfr.md) | **Execution** — implementation details |
+| **Agency SOPs** | CLAUDE.md, GEMINI.md, project configs | **Tactical** — platform-specific guidance |
+| **Case Law** | Reference Library | **Precedent** — concrete artifacts from real application |
+
+**Domain Files** (select applicable for Federal Statutes + Federal Regulations):
+- title-10-ai-coding.md (12 principles) / title-10-ai-coding-cfr.md
+- title-15-ui-ux.md (20 principles) / title-15-ui-ux-cfr.md
+- title-20-multi-agent.md (17 principles) / title-20-multi-agent-cfr.md
+- title-25-kmpd.md (10 principles) / title-25-kmpd-cfr.md
+- title-30-storytelling.md (15 principles) / title-30-storytelling-cfr.md
+- title-40-multimodal-rag.md (32 principles) / title-40-multimodal-rag-cfr.md
+
+**Supremacy Rule:** Higher layers override lower. If conflict: **Bill of Rights** > **Constitution** > **Statutes** > **Rules of Procedure** > **Regulations** > **SOPs**. Case Law informs interpretation but does not override normative layers.
 </governance_hierarchy>
 
 <memory_architecture>
