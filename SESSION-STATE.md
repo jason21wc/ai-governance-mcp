@@ -933,15 +933,13 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
-#### 97. Docker Publish CI Fix (Discussion) `D2 Bug`
+#### ~~97. Docker Publish CI Fix — RESOLVED (2026-04-13)~~
 
-**What:** Docker Publish GitHub Actions workflow fails with `startup_failure` (zero jobs queued). Broken since the Node.js 24 migration (commit `2a13a82`, 2026-03-28). CI and CodeQL workflows pass on the same commit — only Docker Publish affected. All action SHAs resolve correctly. Manual `workflow_dispatch` also fails. Last successful Docker Publish was v1.7.0 (2026-02-07).
+**Root cause:** Repo's `allowed_actions: "selected"` policy (with `verified_allowed: true`) blocked `peter-evans/dockerhub-description` — a third-party action from an unverified personal GitHub account. GitHub validates all actions before queuing any job, so this single blocked action caused `startup_failure` with zero jobs for the entire workflow. The Node.js 24 migration was a false correlation — the actual trigger was the `allowed_actions` setting tightening after v1.7.0.
 
-**Discussion needed:** Root cause unclear. All 6 action SHAs verified resolvable against their correct repos. `permissions: {}` + job-level `permissions: contents: read` is identical to CI workflow (which works). Most likely: one of the Docker-specific actions (setup-qemu, setup-buildx, login, build-push) has a Node.js runtime incompatibility. Fix approach: bisect by reverting Docker actions to tag-based refs one at a time, or create a minimal diagnostic workflow.
+**Fix:** Removed `peter-evans/dockerhub-description` step entirely (supply chain hygiene — unnecessary third-party dependency from unverified individual). Workflow now uses only GitHub-owned and verified org actions. Manual dispatch confirmed workflow runs successfully.
 
-**Impact:** Docker image at v1.7.0 still works. Server installable via pip. Not blocking.
-
-**Origin:** Discovered during Phase 6 completion checklist (2026-04-12).
+**Origin:** Discovered during Phase 6 completion checklist (2026-04-12). Fixed 2026-04-13.
 
 #### 98. Preamble Legal System Analogy Table Expansion (Discussion) `D3 Polish`
 
