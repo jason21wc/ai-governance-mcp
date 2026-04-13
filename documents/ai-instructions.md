@@ -1,5 +1,5 @@
 ---
-version: "2.5"
+version: "2.6"
 status: "active"
 effective_date: "2026-02-09"
 domain: "meta"

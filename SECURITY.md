@@ -4,10 +4,10 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.8.x   | :white_check_mark: (server/package) |
-| < 1.8   | :x:                |
+| 2.0.x   | :white_check_mark: (server/package) |
+| < 2.0   | :x:                |
 
-> **Note:** ARCHITECTURE.md tracks its own document version (currently v1.8.0) separately from the package version in pyproject.toml (v1.8.0). Security support follows the package version.
+> **Note:** ARCHITECTURE.md tracks its own document version (currently v2.0.0) separately from the package version in pyproject.toml (v2.0.0). Security support follows the package version.
 
 ## Reporting a Vulnerability
 

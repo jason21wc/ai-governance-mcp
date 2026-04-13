@@ -1,7 +1,7 @@
 # AI Governance MCP — Architecture
 
-**Version:** 1.8.0
-**Date:** 2026-03-25
+**Version:** 2.0.0
+**Date:** 2026-04-12
 **Memory Type:** Structural (reference)
 
 > System design, component responsibilities, data flow.

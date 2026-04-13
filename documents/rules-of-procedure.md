@@ -1,5 +1,5 @@
 ---
-version: "3.24.0"
+version: "3.25.0"
 status: "active"
 effective_date: "2026-04-12"
 domain: "constitution"
