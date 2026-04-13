@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation complete — **v2.0.0 released** (Constitutional Framework Alignment)
 - **Mode:** Standard
-- **Active Task:** None — Constitutional Framework Alignment COMPLETE (all 7 phases, tagged `v2.0.0`). Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Docker Publish CI fix needed (deferred — pre-existing since Node.js 24 migration). Preamble Legal System Analogy table expansion deferred (6 files, template design scope).
+- **Active Task:** None. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Docker Publish CI fix needed (deferred — pre-existing since Node.js 24 migration). Preamble Legal System Analogy table expansion deferred (6 files, template design scope).
 
 ## Quick Reference
 
@@ -22,7 +22,7 @@
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
 | Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.25.0** (rules-of-procedure), **v2.36.0** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1178 passing** (run `pytest tests/ -v` for current) |
+| Tests | **1198 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -37,6 +37,15 @@
 ## Session Summary (2026-04-13)
 
 ### Completed This Session
+
+98. **Backlog #87 — Shared MCP Path Resolver + Post-v2.0.0 Hygiene**
+   - **Shared path resolver (`path_resolution.py`):** Extracted `is_within_allowed_scope`, `looks_like_project`, `PROJECT_MARKERS` into shared module. Both servers import from it. Governance Tier 4 CWD fallback fixed with marker + scope validation. project_manager.py CWD fallbacks hardened. Security: `is_within_allowed_scope` now resolves input defensively (CWE-59), scope check added to Tier 4 (CWE-22).
+   - **4-agent review battery:** code-reviewer (PASS WITH NOTES), security-auditor (2M fixed, 4L accepted), validator (17/18 PASS), contrarian (PROCEED WITH CHANGES). All findings addressed.
+   - **Pre-existing test isolation fix:** `_cached_roots_path` leaked between test classes, masking CWD fallback behavior. Added `_reset_roots_cache` autouse fixtures to 3 classes, `.git` markers to 17 tests.
+   - **Post-v2.0.0 hygiene:** Fixed old filenames in PROJECT-MEMORY.md and title-30-storytelling.md. Marked SPECIFICATION.md as frozen at v1.7.0. Updated Roadmap Phase 1b (COMPLETE) and Phase 3 trigger text.
+   - **Effectiveness tracking resolved:** V-002 (Checklist Hook) CONFIRMED — 4/4 sessions, keep hook. V-003 (Startup Reads) CONFIRMED — 3/5 behavior change, keep Layer 2 advisory, no Layer 3 escalation. Tables removed from SESSION-STATE, items moved to Retired in COMPLIANCE-REVIEW.md.
+   - **Governance:** `gov-b6a214e3f798`, `gov-5d96a0638990`, `gov-12dc96249d86`, `gov-789a74e3339a`.
+   - **Tests:** 1198 passing (20 new — 19 shared module + 1 CWD-without-markers).
 
 97. **v2.0.0 Post-Release Audit — Full Framework Review**
    - **6-agent review battery:** coherence-auditor, contrarian-reviewer, validator, code-reviewer, security-auditor, file-org explorer. ~630K tokens of analysis across 462 tool calls.
@@ -902,11 +911,6 @@
 
 78. **Governance Compliance Review — first review due ~2026-04-20** `D1 Maintenance` (10-15 calendar days from creation). See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification.
 
-87. **Shared MCP Path Resolver — Structural Prevention for CWD Bug Class** `D1 Fix`
-    - **What:** Extract a shared `resolve_project_path()` into a common module (e.g., `src/ai_governance_mcp/path_resolution.py`) that both the governance server and Context Engine import. One implementation, one set of tests, one place to fix.
-    - **Why:** The CWD fallback bug occurred twice in 5 days (#50 governance server, #86 Context Engine) because two servers independently implement path resolution. The governance server has a 4-tier resolver (`_resolve_caller_project_path` with MCP roots, project_path arg, env var, validated CWD). The Context Engine has a weaker 3-tier version missing MCP roots support. Documentation didn't prevent recurrence — shared code would.
-    - **Also consider:** CI grep check for `Path.cwd()` in server files (flag any usage not in an approved context). This is the structural enforcement equivalent of the PreToolUse hook.
-    - **Origin:** Contrarian review of #86 documentation approach (2026-04-10). REVISIT verdict: "This isn't a documentation problem, it's a code duplication problem."
 
 ---
 
