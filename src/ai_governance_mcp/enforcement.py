@@ -181,11 +181,12 @@ class GovernanceEnforcer:
 
         try:
             state_path = Path(self.state_file)
-            state_path.parent.mkdir(parents=True, exist_ok=True)
+            state_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
 
             # Atomic write: temp file + rename
             fd, tmp_path = tempfile.mkstemp(dir=str(state_path.parent), suffix=".tmp")
             try:
+                os.fchmod(fd, 0o600)
                 with os.fdopen(fd, "w") as f:
                     json.dump(state, f)
                 os.replace(tmp_path, str(state_path))

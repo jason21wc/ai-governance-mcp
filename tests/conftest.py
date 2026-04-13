@@ -557,6 +557,7 @@ def reset_server_state():
     server_module._metrics = None
     server_module._tiers_config = None
     server_module._tiers_loaded = False
+    server_module._cached_roots_path = None
 
     yield
 
@@ -566,6 +567,7 @@ def reset_server_state():
     server_module._metrics = None
     server_module._tiers_config = None
     server_module._tiers_loaded = False
+    server_module._cached_roots_path = None
 
 
 @pytest.fixture

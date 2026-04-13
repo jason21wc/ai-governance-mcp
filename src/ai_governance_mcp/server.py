@@ -255,6 +255,24 @@ def _validate_log_path(log_file: Path) -> None:
         )
 
 
+def _rotate_jsonl_if_needed(log_file: Path, max_bytes: int, backup_count: int) -> None:
+    """Rotate JSONL log file if it exceeds max_bytes. Fail-safe: rotation
+    errors fall back to unbounded append rather than crashing the write path."""
+    if max_bytes <= 0:
+        return
+    try:
+        if not log_file.exists() or log_file.stat().st_size < max_bytes:
+            return
+        for i in range(backup_count - 1, 0, -1):
+            src = log_file.with_suffix(f".jsonl.{i}")
+            dst = log_file.with_suffix(f".jsonl.{i + 1}")
+            if src.exists():
+                src.rename(dst)
+        log_file.rename(log_file.with_suffix(".jsonl.1"))
+    except OSError:
+        pass
+
+
 def _write_log_sync(log_file: Path, content: str) -> None:
     """Synchronous log write helper for use with asyncio.to_thread.
 
@@ -262,6 +280,10 @@ def _write_log_sync(log_file: Path, content: str) -> None:
     M1 FIX: Validates path before writing.
     """
     _validate_log_path(log_file)  # M1 FIX: Path containment check
+    if _settings:
+        _rotate_jsonl_if_needed(
+            log_file, _settings.log_max_bytes, _settings.log_backup_count
+        )
     fd = os.open(log_file, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
     with os.fdopen(fd, "a") as f:
         f.write(content)
@@ -3388,6 +3410,18 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
         for f in manifest:
             full_path = Path(f["full_path"])
 
+            # Symlink check FIRST (is_file() follows symlinks, so a symlink
+            # to an existing file would be skipped as "already exists")
+            if full_path.is_symlink():
+                skipped.append(
+                    {
+                        "path": f["relative_path"],
+                        "resolved_path": f["full_path"],
+                        "reason": "symlink detected",
+                    }
+                )
+                continue
+
             # Re-verify existence at write time (don't trust cached manifest)
             if full_path.is_file():
                 skipped.append(
@@ -3395,17 +3429,6 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
                         "path": f["relative_path"],
                         "resolved_path": f["full_path"],
                         "reason": "already exists",
-                    }
-                )
-                continue
-
-            # Symlink check before write
-            if full_path.exists() and full_path.is_symlink():
-                skipped.append(
-                    {
-                        "path": f["relative_path"],
-                        "resolved_path": f["full_path"],
-                        "reason": "symlink detected",
                     }
                 )
                 continue

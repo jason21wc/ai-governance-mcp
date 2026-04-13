@@ -161,6 +161,73 @@ class TestLogQuery:
         log_query(query_log)
 
 
+class TestJsonlLogRotation:
+    """Tests for JSONL log rotation in _write_log_sync."""
+
+    def test_rotation_triggers_at_max_bytes(
+        self, reset_server_state, test_settings, sample_query_log
+    ):
+        """Rotation should occur when log file exceeds max_bytes."""
+        import ai_governance_mcp.server as server_module
+
+        test_settings.log_max_bytes = 500
+        test_settings.log_backup_count = 3
+        server_module._settings = test_settings
+
+        from ai_governance_mcp.server import log_query
+
+        for _ in range(20):
+            log_query(sample_query_log)
+
+        log_file = test_settings.logs_path / "queries.jsonl"
+        backup1 = test_settings.logs_path / "queries.jsonl.1"
+
+        assert log_file.exists()
+        assert backup1.exists()
+
+    def test_writes_succeed_after_rotation(
+        self, reset_server_state, test_settings, sample_query_log
+    ):
+        """Writes must succeed after rotation occurs."""
+        import ai_governance_mcp.server as server_module
+
+        test_settings.log_max_bytes = 500
+        test_settings.log_backup_count = 2
+        server_module._settings = test_settings
+
+        from ai_governance_mcp.server import log_query
+
+        for _ in range(20):
+            log_query(sample_query_log)
+
+        log_file = test_settings.logs_path / "queries.jsonl"
+        assert log_file.exists()
+        content = log_file.read_text().strip()
+        assert len(content) > 0
+        for line in content.split("\n"):
+            parsed = json.loads(line)
+            assert parsed["query"] == "test query"
+
+    def test_rotation_disabled_when_max_bytes_zero(
+        self, reset_server_state, test_settings, sample_query_log
+    ):
+        """No rotation when log_max_bytes is 0 (disabled)."""
+        import ai_governance_mcp.server as server_module
+
+        test_settings.log_max_bytes = 0
+        server_module._settings = test_settings
+
+        from ai_governance_mcp.server import log_query
+
+        for _ in range(10):
+            log_query(sample_query_log)
+
+        log_file = test_settings.logs_path / "queries.jsonl"
+        backup1 = test_settings.logs_path / "queries.jsonl.1"
+        assert log_file.exists()
+        assert not backup1.exists()
+
+
 class TestLogFeedbackEntry:
     """Tests for log_feedback_entry() function."""
 

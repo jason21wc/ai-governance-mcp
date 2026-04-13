@@ -311,7 +311,7 @@ def _create_project_manager() -> ProjectManager:
         resolved = Path(index_path).resolve()
         # Validate custom path is under user home to prevent writing to system dirs
         home = Path.home().resolve()
-        if not str(resolved).startswith(str(home)):
+        if not resolved.is_relative_to(home):
             logger.warning(
                 "Custom index path %s is outside user home directory (%s). "
                 "Ignoring — using default path for safety.",
