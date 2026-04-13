@@ -2,7 +2,7 @@
 
 **Created:** 2026-04-10
 **Last Updated:** 2026-04-12
-**Status:** Phases 0-4 complete (gate-4 tagged). Phase 5 (cross-references & polish) next.
+**Status:** COMPLETE — All 7 phases done. Tagged `v2.0.0`. Released 2026-04-12.
 **Reference docs:** `~/Downloads/AI_Governance_Detailed_Summary_v4.md`, `~/Downloads/US_Constitutional_Gap_Analysis.md`
 
 ## Context

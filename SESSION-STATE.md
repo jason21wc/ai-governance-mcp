@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Implementation (Constitutional Framework Alignment — Phases 0-4 complete, Phase 5 next)
+- **Phase:** Implementation complete — **v2.0.0 released** (Constitutional Framework Alignment)
 - **Mode:** Standard
-- **Active Task:** Constitutional Framework Alignment — Phases 0-4 complete. Gates tagged: `const/gate-1` (Phase 1), `const/gate-2` (Phase 2), `const/gate-3` (Phase 3), `const/gate-4` (Phase 4). **Phase 5 (cross-references, documentation & polish) is next** — low-risk phase, ~2-3 hours. Plan at `.claude/plans/project-constitutional-framework-alignment.md`. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20.
+- **Active Task:** None — Constitutional Framework Alignment COMPLETE (all 7 phases, tagged `v2.0.0`). Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Docker Publish CI fix needed (deferred — pre-existing since Node.js 24 migration). Preamble Legal System Analogy table expansion deferred (6 files, template design scope).
 
 ## Quick Reference
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.24.0** (meta-methods), **v2.36.0** (ai-coding methods), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.5** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.25.0** (rules-of-procedure), **v2.36.0** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1175 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -37,6 +37,23 @@
 ## Session Summary (2026-04-12)
 
 ### Completed This Session
+
+96. **Constitutional Framework Alignment — v2.0.0 RELEASED**
+   - **Phase 6 (Verify, Version & Release):** Full test suite (1175 passed), index verified (130p/675m/13r = 818 total), constitutional refs spot-checked.
+   - **Version bumps:** server v1.8.0→v2.0.0, rules-of-procedure v3.24.0→v3.25.0, ai-instructions v2.5→v2.6, ARCHITECTURE v1.8.0→v2.0.0, SECURITY.md updated.
+   - **Migration tracker:** All 7 phases marked complete.
+   - **Tagged:** `v2.0.0`. Pushed to remote. CI + CodeQL green.
+   - **Governance:** PROCEED (`gov-e6a68bae1dcb`).
+
+95. **Constitutional Framework Alignment — Phase 5 COMPLETE**
+   - **Rules of Procedure §9.7.1-9.7.4:** 5-level numbered hierarchy → 7-layer named hierarchy (Bill of Rights, Constitution, Federal Statutes, Rules of Procedure, Federal Regulations, Agency SOPs, Case Law). "Level N" → Constitutional element names throughout.
+   - **ai-instructions.md:** Added UI/UX and KM&PD to domain_activation, hierarchy diagram (with correct principle counts: 12, 20, 17, 10, 15, 32), first_response_protocol, document_versions. Scoped methods_activation as AI-Coding-specific.
+   - **Fixes:** constitution.md effective date synced, 2 CFR body version mismatches fixed, "Level 5 (Agency SOPs)" → "Agency SOPs" in 4 locations, template examples in rules-of-procedure updated.
+   - **ARCHITECTURE.md + README.md:** Document structure listings expanded, conceptual references updated.
+   - **Archived:** Phase 2 parallel docs (v3.0.0 deleted, v4.0.0 → archive/).
+   - **Coherence audit:** 7 Misleading fixed, 7 Cosmetic accepted. Deferred: preamble Legal System Analogy table expansion (6 files, template design scope).
+   - **Governance:** PROCEED (`gov-1e5fc360ab8f`).
+   - **Tests:** 1175 passing.
 
 94. **Constitutional Framework Alignment — Phase 4 COMPLETE**
    - **14 files renamed** to Constitutional naming: `constitution.md`, `rules-of-procedure.md`, 6 `title-NN-domain.md` + 6 `title-NN-domain-cfr.md`. Git tracks all as renames (R099/R100) — blame history preserved.
@@ -915,6 +932,24 @@ MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session sta
 ### Deferred/Future — Discussion
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
+
+#### 97. Docker Publish CI Fix (Discussion) `D2 Bug`
+
+**What:** Docker Publish GitHub Actions workflow fails with `startup_failure` (zero jobs queued). Broken since the Node.js 24 migration (commit `2a13a82`, 2026-03-28). CI and CodeQL workflows pass on the same commit — only Docker Publish affected. All action SHAs resolve correctly. Manual `workflow_dispatch` also fails. Last successful Docker Publish was v1.7.0 (2026-02-07).
+
+**Discussion needed:** Root cause unclear. All 6 action SHAs verified resolvable against their correct repos. `permissions: {}` + job-level `permissions: contents: read` is identical to CI workflow (which works). Most likely: one of the Docker-specific actions (setup-qemu, setup-buildx, login, build-push) has a Node.js runtime incompatibility. Fix approach: bisect by reverting Docker actions to tag-based refs one at a time, or create a minimal diagnostic workflow.
+
+**Impact:** Docker image at v1.7.0 still works. Server installable via pip. Not blocking.
+
+**Origin:** Discovered during Phase 6 completion checklist (2026-04-12).
+
+#### 98. Preamble Legal System Analogy Table Expansion (Discussion) `D3 Polish`
+
+**What:** 3 CFR preambles have 4-row Legal System Analogy tables (should show 7-layer hierarchy per constitution.md). 4 other CFR files lack the table entirely. Inconsistency across 6 CFR preambles.
+
+**Discussion needed:** Standardize on one format for all 6 CFR preambles — recommend the full 7-layer table with the current document's row bolded. Template design decision: should this be added to the §9.8.3 domain authoring template?
+
+**Origin:** Coherence audit during Phase 5 (findings #7, #8). Deferred as template design scope.
 
 #### 90. Context Engine Circuit Breaker Auto-Recovery (Discussion) `D1 Improvement`
 
