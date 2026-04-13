@@ -47,8 +47,18 @@ fi
 # Get transcript path from hook input
 TRANSCRIPT=$(echo "$INPUT" | jq -r '.transcript_path // ""' 2>/dev/null || echo "")
 if [ -z "$TRANSCRIPT" ] || [ ! -f "$TRANSCRIPT" ]; then
-    debug "Transcript not available, fail-open"
-    exit 0  # Fail-open if transcript unavailable
+    debug "Transcript not available, fail-closed"
+    python3 -c "
+import json, sys
+sys.stdout.write(json.dumps({
+    'hookSpecificOutput': {
+        'hookEventName': 'PreToolUse',
+        'permissionDecision': 'deny',
+        'permissionDecisionReason': 'QUALITY GATE: Transcript unavailable — cannot verify pre-push checks. Set QUALITY_GATE_SKIP=true to override.'
+    }
+}))
+" 2>/dev/null || true
+    exit 0
 fi
 
 # Determine what files changed since last push
@@ -140,9 +150,17 @@ fi
 # Report issues
 if [ -n "$ISSUES" ]; then
     debug "BLOCKING: $ISSUES"
-    # Escape for JSON
-    ESCAPED_ISSUES=$(echo "$ISSUES" | sed 's/"/\\"/g' | tr '\n' ' ')
-    echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"QUALITY GATE: ${ESCAPED_ISSUES}\"}}"
+    python3 -c "
+import json, sys
+msg = sys.argv[1]
+sys.stdout.write(json.dumps({
+    'hookSpecificOutput': {
+        'hookEventName': 'PreToolUse',
+        'permissionDecision': 'deny',
+        'permissionDecisionReason': 'QUALITY GATE: ' + msg
+    }
+}))
+" "$ISSUES" 2>/dev/null || true
 else
     debug "All checks passed, allowing push"
 fi
