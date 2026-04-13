@@ -22,7 +22,6 @@ import os
 import re
 import signal
 import sys
-import tempfile
 import threading
 import time
 from pathlib import Path
@@ -31,6 +30,7 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
+from ..path_resolution import is_within_allowed_scope, looks_like_project
 from .project_manager import ProjectManager
 
 logger = logging.getLogger("ai_governance_mcp.context_engine.server")
@@ -525,50 +525,8 @@ def create_server() -> tuple[Server, ProjectManager]:
     return server, manager
 
 
-def _is_within_allowed_scope(p: Path) -> bool:
-    """Check if a resolved path is within allowed scope (home, CWD, or temp dirs)."""
-    home = Path.home().resolve()
-    cwd = Path.cwd().resolve()
-    tmp = Path(tempfile.gettempdir()).resolve()
-    allowed = [home, cwd, tmp]
-    # Also allow system /tmp explicitly (macOS symlinks it to /private/tmp,
-    # which differs from tempfile.gettempdir() user-specific temp dir)
-    system_tmp = Path("/tmp").resolve()  # nosec B108
-    if system_tmp != tmp:
-        allowed.append(system_tmp)
-    return any(p.is_relative_to(base) for base in allowed)
-
-
-_PROJECT_MARKERS = {
-    ".git",
-    ".hg",
-    ".svn",
-    "pyproject.toml",
-    "setup.py",
-    "setup.cfg",
-    "package.json",
-    "Cargo.toml",
-    "go.mod",
-    "Makefile",
-    "CMakeLists.txt",
-    "pom.xml",
-    "build.gradle",
-    ".contextignore",
-}
-
-
-def _looks_like_project(path: Path) -> bool:
-    """Check if a directory looks like a project root (has common project markers).
-
-    MCP servers run as separate processes — Path.cwd() resolves to the SERVER's
-    working directory, not the calling client's project. This check prevents
-    auto-indexing arbitrary directories when CWD is used as fallback.
-    See also: governance server's _resolve_caller_project_path() for the same pattern.
-    """
-    try:
-        return any((path / marker).exists() for marker in _PROJECT_MARKERS)
-    except OSError:
-        return False
+# _is_within_allowed_scope, _looks_like_project, and _PROJECT_MARKERS
+# are now in ..path_resolution (shared module). Imported at top of file.
 
 
 def _resolve_project_path(arguments: dict) -> Path | None:
@@ -589,7 +547,7 @@ def _resolve_project_path(arguments: dict) -> Path | None:
         if not p.exists() or not p.is_dir():
             logger.warning("Specified project_path does not exist: %s", p)
             return None
-        if not _is_within_allowed_scope(p):
+        if not is_within_allowed_scope(p):
             logger.warning(
                 "project_path %s is outside allowed scope (home, CWD, /tmp)", p
             )
@@ -601,7 +559,7 @@ def _resolve_project_path(arguments: dict) -> Path | None:
         p = Path(default).resolve()
         if not p.exists() or not p.is_dir():
             return None
-        if not _is_within_allowed_scope(p):
+        if not is_within_allowed_scope(p):
             logger.warning(
                 "AI_CONTEXT_ENGINE_DEFAULT_PROJECT %s is outside allowed scope", p
             )
@@ -609,7 +567,7 @@ def _resolve_project_path(arguments: dict) -> Path | None:
         return p
 
     cwd = Path.cwd()
-    if _looks_like_project(cwd):
+    if looks_like_project(cwd) and is_within_allowed_scope(cwd):
         return cwd
     logger.info(
         "CWD %s has no project markers — cannot use as fallback. "

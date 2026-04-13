@@ -14,6 +14,8 @@ from pathlib import Path
 import numpy as np
 from rank_bm25 import BM25Okapi
 
+from ..path_resolution import looks_like_project
+
 from .indexer import Indexer
 from .models import (
     ContentChunk,
@@ -182,7 +184,12 @@ class ProjectManager:
         start_time = time.time()
 
         if project_path is None:
-            project_path = Path.cwd()
+            cwd = Path.cwd()
+            if not looks_like_project(cwd):
+                raise ValueError(
+                    f"CWD {cwd} has no project markers. Pass project_path explicitly."
+                )
+            project_path = cwd
 
         project_id = FilesystemStorage.project_id_from_path(project_path)
 
@@ -356,7 +363,12 @@ class ProjectManager:
     ) -> ProjectStatus | None:
         """Get status of a specific project."""
         if project_path is None:
-            project_path = Path.cwd()
+            cwd = Path.cwd()
+            if not looks_like_project(cwd):
+                raise ValueError(
+                    f"CWD {cwd} has no project markers. Pass project_path explicitly."
+                )
+            project_path = cwd
 
         project_id = FilesystemStorage.project_id_from_path(project_path)
         metadata = self.storage.load_metadata(project_id)

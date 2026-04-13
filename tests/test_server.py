@@ -1588,6 +1588,7 @@ class TestInstallAgent:
         from ai_governance_mcp.server import _handle_install_agent
 
         # Set cwd to temp path with no Claude indicators
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
 
         result = await _handle_install_agent({"agent_name": "orchestrator"})
@@ -1624,6 +1625,7 @@ class TestInstallAgent:
         import ai_governance_mcp.server as server_module
 
         # Create Claude environment indicators
+        (tmp_path / ".git").mkdir()
         claude_dir = tmp_path / ".claude"
         claude_dir.mkdir()
         monkeypatch.chdir(tmp_path)
@@ -1650,6 +1652,7 @@ class TestInstallAgent:
         import ai_governance_mcp.server as server_module
 
         # Create Claude environment
+        (tmp_path / ".git").mkdir()
         claude_dir = tmp_path / ".claude"
         claude_dir.mkdir()
         monkeypatch.chdir(tmp_path)
@@ -1679,6 +1682,7 @@ class TestInstallAgent:
         import ai_governance_mcp.server as server_module
 
         # Create Claude environment
+        (tmp_path / ".git").mkdir()
         claude_dir = tmp_path / ".claude"
         claude_dir.mkdir()
         monkeypatch.chdir(tmp_path)
@@ -1709,6 +1713,7 @@ class TestUninstallAgent:
         """uninstall_agent should report when agent is not installed."""
         from ai_governance_mcp.server import _handle_uninstall_agent
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
 
         result = await _handle_uninstall_agent({"agent_name": "orchestrator"})
@@ -1736,6 +1741,7 @@ class TestUninstallAgent:
         from ai_governance_mcp.server import _handle_uninstall_agent
 
         # Create installed agent
+        (tmp_path / ".git").mkdir()
         agent_dir = tmp_path / ".claude" / "agents"
         agent_dir.mkdir(parents=True)
         agent_file = agent_dir / "orchestrator.md"
@@ -1755,6 +1761,7 @@ class TestUninstallAgent:
         from ai_governance_mcp.server import _handle_uninstall_agent
 
         # Create installed agent
+        (tmp_path / ".git").mkdir()
         agent_dir = tmp_path / ".claude" / "agents"
         agent_dir.mkdir(parents=True)
         agent_file = agent_dir / "orchestrator.md"
@@ -1862,7 +1869,23 @@ class TestResolveCallerProjectPath:
 
     @pytest.mark.asyncio
     async def test_cwd_fallback_with_warning(self, tmp_path, monkeypatch):
-        """CWD fallback should return the path with used_cwd_fallback=True."""
+        """CWD fallback should return the path with used_cwd_fallback=True when CWD has project markers."""
+        import ai_governance_mcp.server as server_module  # noqa: F811
+
+        self._set_mock_roots(monkeypatch, side_effect=Exception("no roots"))
+        monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
+        (tmp_path / ".git").mkdir()
+        monkeypatch.chdir(tmp_path)
+
+        result_path, used_fallback = await server_module._resolve_caller_project_path(
+            {}
+        )
+        assert result_path == Path.cwd()
+        assert used_fallback is True
+
+    @pytest.mark.asyncio
+    async def test_cwd_without_markers_returns_none(self, tmp_path, monkeypatch):
+        """CWD without project markers should return (None, False)."""
         import ai_governance_mcp.server as server_module  # noqa: F811
 
         self._set_mock_roots(monkeypatch, side_effect=Exception("no roots"))
@@ -1872,8 +1895,8 @@ class TestResolveCallerProjectPath:
         result_path, used_fallback = await server_module._resolve_caller_project_path(
             {}
         )
-        assert result_path == Path.cwd()
-        assert used_fallback is True
+        assert result_path is None
+        assert used_fallback is False
 
     @pytest.mark.asyncio
     async def test_rejects_nonexistent_path(self, monkeypatch):
@@ -2035,6 +2058,7 @@ class TestInstallAgentProjectPath:
         """install_agent with CWD fallback should include warning in response."""
         import ai_governance_mcp.server as server_module
 
+        (tmp_path / ".git").mkdir()
         (tmp_path / ".claude").mkdir()
         monkeypatch.chdir(tmp_path)
 
@@ -2297,6 +2321,14 @@ class TestValidateLogPath:
 class TestAgentOverwriteWarning:
     """Tests for M2 FIX: Agent overwrite content comparison."""
 
+    @pytest.fixture(autouse=True)
+    def _reset_roots_cache(self):
+        import ai_governance_mcp.server as server_module
+
+        server_module._cached_roots_path = None
+        yield
+        server_module._cached_roots_path = None
+
     @pytest.mark.asyncio
     async def test_install_agent_content_differs_when_different(
         self, tmp_path, monkeypatch, real_settings
@@ -2305,6 +2337,7 @@ class TestAgentOverwriteWarning:
         import ai_governance_mcp.server as server_module
 
         # Create Claude environment with existing agent file
+        (tmp_path / ".git").mkdir()
         claude_dir = tmp_path / ".claude"
         agents_dir = claude_dir / "agents"
         agents_dir.mkdir(parents=True)
@@ -2335,6 +2368,7 @@ class TestAgentOverwriteWarning:
         import ai_governance_mcp.server as server_module
 
         # Create Claude environment
+        (tmp_path / ".git").mkdir()
         claude_dir = tmp_path / ".claude"
         agents_dir = claude_dir / "agents"
         agents_dir.mkdir(parents=True)
@@ -2367,6 +2401,7 @@ class TestAgentOverwriteWarning:
         import ai_governance_mcp.server as server_module
 
         # Create Claude environment with no existing agent file
+        (tmp_path / ".git").mkdir()
         claude_dir = tmp_path / ".claude"
         claude_dir.mkdir()
 
@@ -2819,6 +2854,14 @@ class TestMultiAgentConsistency:
                 f"Hash exists for '{agent_name}' but it's not in AVAILABLE_AGENTS"
             )
 
+    @pytest.fixture(autouse=True)
+    def _reset_roots_cache(self):
+        import ai_governance_mcp.server as server_module
+
+        server_module._cached_roots_path = None
+        yield
+        server_module._cached_roots_path = None
+
     @pytest.mark.asyncio
     async def test_non_claude_response_includes_agent_content(
         self, tmp_path, monkeypatch, real_settings
@@ -2827,6 +2870,7 @@ class TestMultiAgentConsistency:
         import ai_governance_mcp.server as server_module
 
         # No .claude dir → non-Claude environment
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         # But need settings so template path resolves
         monkeypatch.setattr(server_module, "_settings", real_settings)
@@ -2850,6 +2894,7 @@ class TestMultiAgentConsistency:
         """install_agent preview should work for agents other than orchestrator."""
         import ai_governance_mcp.server as server_module
 
+        (tmp_path / ".git").mkdir()
         claude_dir = tmp_path / ".claude"
         claude_dir.mkdir()
         monkeypatch.chdir(tmp_path)
@@ -2876,6 +2921,7 @@ class TestMultiAgentConsistency:
         """install_agent confirmed should create files for non-orchestrator agents."""
         import ai_governance_mcp.server as server_module
 
+        (tmp_path / ".git").mkdir()
         claude_dir = tmp_path / ".claude"
         claude_dir.mkdir()
         monkeypatch.chdir(tmp_path)
@@ -3414,11 +3460,20 @@ class TestAoSeriesProductionIndex:
 class TestScaffoldProject:
     """Tests for scaffold_project tool."""
 
+    @pytest.fixture(autouse=True)
+    def _reset_roots_cache(self):
+        import ai_governance_mcp.server as server_module
+
+        server_module._cached_roots_path = None
+        yield
+        server_module._cached_roots_path = None
+
     @pytest.mark.asyncio
     async def test_preview_code_core(self, tmp_path, monkeypatch):
         """Preview mode for code/core should return 4-file manifest."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         result = await _handle_scaffold_project(
             {
@@ -3442,6 +3497,7 @@ class TestScaffoldProject:
         """Preview mode for code/standard should return 6-file manifest."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         result = await _handle_scaffold_project(
             {
@@ -3460,6 +3516,7 @@ class TestScaffoldProject:
         """Preview for document/core should use _ai-context/ paths."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         result = await _handle_scaffold_project(
             {
@@ -3477,6 +3534,7 @@ class TestScaffoldProject:
         """Confirmed mode should create all core files."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         result = await _handle_scaffold_project(
             {
@@ -3503,6 +3561,7 @@ class TestScaffoldProject:
         """Confirmed mode should skip files that already exist."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         # Pre-create one file
         (tmp_path / "SESSION-STATE.md").write_text("existing content")
@@ -3526,6 +3585,7 @@ class TestScaffoldProject:
         """Preview should warn when all files already exist."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         for name in [
             "SESSION-STATE.md",
@@ -3550,6 +3610,7 @@ class TestScaffoldProject:
         """Invalid project_type should return error."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         result = await _handle_scaffold_project({"project_type": "invalid"})
         response = json.loads(result[0].text.split("---")[0])
@@ -3560,6 +3621,7 @@ class TestScaffoldProject:
         """Invalid kit_tier should return error."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         result = await _handle_scaffold_project({"kit_tier": "premium"})
         response = json.loads(result[0].text.split("---")[0])
@@ -3570,6 +3632,7 @@ class TestScaffoldProject:
         """Omitting project_name should use CWD name."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         result = await _handle_scaffold_project(
             {
@@ -3585,6 +3648,7 @@ class TestScaffoldProject:
         """Document type should create _ai-context/ directory."""
         from ai_governance_mcp.server import _handle_scaffold_project
 
+        (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         result = await _handle_scaffold_project(
             {

@@ -5619,41 +5619,53 @@ class TestLooksLikeProject:
 
     def test_with_git_dir(self, tmp_path):
         """Directory with .git is a project."""
-        from ai_governance_mcp.context_engine.server import _looks_like_project
+        from ai_governance_mcp.path_resolution import (
+            looks_like_project as _looks_like_project,
+        )
 
         (tmp_path / ".git").mkdir()
         assert _looks_like_project(tmp_path) is True
 
     def test_with_pyproject_toml(self, tmp_path):
         """Directory with pyproject.toml is a project."""
-        from ai_governance_mcp.context_engine.server import _looks_like_project
+        from ai_governance_mcp.path_resolution import (
+            looks_like_project as _looks_like_project,
+        )
 
         (tmp_path / "pyproject.toml").touch()
         assert _looks_like_project(tmp_path) is True
 
     def test_with_package_json(self, tmp_path):
         """Directory with package.json is a project."""
-        from ai_governance_mcp.context_engine.server import _looks_like_project
+        from ai_governance_mcp.path_resolution import (
+            looks_like_project as _looks_like_project,
+        )
 
         (tmp_path / "package.json").touch()
         assert _looks_like_project(tmp_path) is True
 
     def test_with_contextignore(self, tmp_path):
         """Directory with .contextignore is a project (explicit opt-in)."""
-        from ai_governance_mcp.context_engine.server import _looks_like_project
+        from ai_governance_mcp.path_resolution import (
+            looks_like_project as _looks_like_project,
+        )
 
         (tmp_path / ".contextignore").touch()
         assert _looks_like_project(tmp_path) is True
 
     def test_empty_dir_not_project(self, tmp_path):
         """Empty directory is not a project."""
-        from ai_governance_mcp.context_engine.server import _looks_like_project
+        from ai_governance_mcp.path_resolution import (
+            looks_like_project as _looks_like_project,
+        )
 
         assert _looks_like_project(tmp_path) is False
 
     def test_dir_with_random_files_not_project(self, tmp_path):
         """Directory with non-marker files is not a project."""
-        from ai_governance_mcp.context_engine.server import _looks_like_project
+        from ai_governance_mcp.path_resolution import (
+            looks_like_project as _looks_like_project,
+        )
 
         (tmp_path / "weakpass_edit").touch()
         (tmp_path / "readme.txt").touch()
@@ -5661,7 +5673,9 @@ class TestLooksLikeProject:
 
     def test_permission_error_returns_false(self, tmp_path):
         """OSError during marker check returns False gracefully."""
-        from ai_governance_mcp.context_engine.server import _looks_like_project
+        from ai_governance_mcp.path_resolution import (
+            looks_like_project as _looks_like_project,
+        )
 
         # Path that doesn't exist — (path / marker).exists() won't raise,
         # but a truly unreadable directory would

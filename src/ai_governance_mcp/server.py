@@ -9,7 +9,6 @@ import os
 import re
 import signal
 import sys
-import tempfile
 import threading
 import urllib.parse
 import time
@@ -22,6 +21,7 @@ from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
 from . import __version__
+from .path_resolution import is_within_allowed_scope, looks_like_project
 from .config import (
     Settings,
     _find_project_root,
@@ -1112,20 +1112,6 @@ def _verify_template_hash(template_content: str, agent_name: str) -> tuple[bool,
     return actual_hash == expected_hash, actual_hash
 
 
-def _is_within_allowed_scope(p: Path) -> bool:
-    """Check if a resolved path is within allowed scope (home, CWD, or temp dirs)."""
-    home = Path.home().resolve()
-    cwd = Path.cwd().resolve()
-    tmp = Path(tempfile.gettempdir()).resolve()
-    allowed = [home, cwd, tmp]
-    # Also allow system /tmp explicitly (macOS symlinks it to /private/tmp,
-    # which differs from tempfile.gettempdir() user-specific temp dir)
-    system_tmp = Path("/tmp").resolve()  # nosec B108
-    if system_tmp != tmp:
-        allowed.append(system_tmp)
-    return any(p.is_relative_to(base) for base in allowed)
-
-
 # Cache for MCP roots result — avoids 2s timeout on every tool call when
 # the client doesn't support roots (which is the common case today).
 # None = not yet checked, False = checked and unavailable, Path = resolved root.
@@ -1160,7 +1146,7 @@ async def _resolve_caller_project_path(arguments: dict) -> tuple[Path | None, bo
                 p,
             )
             return None, False
-        if not _is_within_allowed_scope(p):
+        if not is_within_allowed_scope(p):
             logger.debug("project_path '%s' is outside allowed scope", p)
             return None, False
         return p, False
@@ -1183,7 +1169,7 @@ async def _resolve_caller_project_path(arguments: dict) -> tuple[Path | None, bo
                 parsed = urllib.parse.urlparse(str(roots_result.roots[0].uri))
                 if parsed.scheme == "file":
                     p = Path(urllib.parse.unquote(parsed.path)).resolve()
-                    if p.exists() and p.is_dir() and _is_within_allowed_scope(p):
+                    if p.exists() and p.is_dir() and is_within_allowed_scope(p):
                         _cached_roots_path = p
             if _cached_roots_path is None:
                 _cached_roots_path = False  # Checked but no usable root
@@ -1200,12 +1186,18 @@ async def _resolve_caller_project_path(arguments: dict) -> tuple[Path | None, bo
         p = Path(default).resolve()
         if not p.exists() or not p.is_dir():
             return None, False
-        if not _is_within_allowed_scope(p):
+        if not is_within_allowed_scope(p):
             return None, False
         return p, False
 
-    # Tier 4: CWD fallback (with warning flag)
-    return Path.cwd(), True
+    # Tier 4: CWD fallback — only when CWD looks like a project directory.
+    # MCP servers run as separate processes; CWD is the SERVER's directory,
+    # not the caller's project. Without marker validation, this returns
+    # arbitrary directories (bug #50, #86).
+    cwd = Path.cwd()
+    if looks_like_project(cwd) and is_within_allowed_scope(cwd):
+        return cwd, True  # Warning flag still set — callers show advisory
+    return None, False  # Not a recognizable project — force explicit path
 
 
 def _detect_claude_code_environment(project_path: Path | None = None) -> bool:
