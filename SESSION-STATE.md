@@ -255,7 +255,7 @@
 71. **Completion Sequence Structural Enforcement — IMPLEMENTED**
    - **Root cause (systemic thinking):** COMPLETION-CHECKLIST.md was never opened during #1B-P2 implementation. 3 rounds of user-requested "double checks" caught security vulnerabilities, doc drift, index staleness, test gaps — all covered by existing checklist. Meta-action failure (0% — never opened), not item-level compliance (85%).
    - **Contrarian review:** Advisory-only rejected (own LEARNING-LOG says advisory is weakest intervention). #47 single-action precedent inapplicable to multi-step checklists.
-   - **Implementation:** (1) Pre-push hook Check 4 blocks push if COMPLETION-CHECKLIST not read, (2) Security checklist item 12 promoted to ENFORCED, (3) PROJECT-MEMORY added to propagation awareness, (4) LEARNING-LOG entry, (5) MEMORY.md step 5 added, (6) Effectiveness tracking table below.
+   - **Implementation:** (1) Pre-push hook Check 4 blocks push if COMPLETION-CHECKLIST not read, (2) Security checklist item 12 promoted to ENFORCED, (3) PROJECT-MEMORY added to propagation awareness, (4) LEARNING-LOG entry, (5) MEMORY.md step 5 added, (6) Effectiveness tracking (V-002 CONFIRMED 2026-04-13, tables removed).
    - **Governance:** `coding-process-validation-gates` (Checkpoint Act), `coding-method-post-change-completion-sequence`, `meta-core-systemic-thinking`. PROCEED.
 
 70. **Backlog #47 Plan Mode Enforcement Gap — CLOSED (Phase 0 success)**
@@ -907,38 +907,6 @@
     - **Why:** The CWD fallback bug occurred twice in 5 days (#50 governance server, #86 Context Engine) because two servers independently implement path resolution. The governance server has a 4-tier resolver (`_resolve_caller_project_path` with MCP roots, project_path arg, env var, validated CWD). The Context Engine has a weaker 3-tier version missing MCP roots support. Documentation didn't prevent recurrence — shared code would.
     - **Also consider:** CI grep check for `Path.cwd()` in server files (flag any usage not in an approved context). This is the structural enforcement equivalent of the PreToolUse hook.
     - **Origin:** Contrarian review of #86 documentation approach (2026-04-10). REVISIT verdict: "This isn't a documentation problem, it's a code duplication problem."
-
----
-
-### Effectiveness Tracking
-
-**Completion Checklist Consultation (started 2026-04-07):**
-Pre-push hook Check 4 now blocks push if COMPLETION-CHECKLIST.md was not read. Track actual effectiveness.
-
-| Session | Date | Task | Checklist Read? | Triggered by Hook? | Notes |
-|---------|------|------|----------------|-------------------|-------|
-| 1 | 2026-04-08 | #78 Compliance Review | Y | N | Read docs-only section before push |
-| 2 | 2026-04-09 | #82 F.1 review + template fix | Y | N | Read content changes section, worked through items |
-| 3 | 2026-04-10 | #84 README capture, #85 Content Enhancer exploration | N/A | N/A | No code changes — backlog capture + plan mode only |
-| 4 | 2026-04-11 | #89 CE circuit breaker fix | Y | N | Read code changes section, worked through items |
-| 5 | 2026-04-11 | #91 Constitutional Alignment Phase 0+1 | Y | N | Read content changes + code changes sections at session end |
-
-**Escalation threshold:** If 2/5 sessions skip → escalate to include specific item verification in hook.
-**Success:** 4/5 consulted → close tracking, keep hook as-is.
-
-**Session Startup Read Compliance (started 2026-04-07):**
-MEMORY.md says read SESSION-STATE + PROJECT-MEMORY + LEARNING-LOG on session start. Track whether all 3 are read and whether PROJECT-MEMORY/LEARNING-LOG reads change session behavior.
-
-| Session | Date | SESSION-STATE | PROJECT-MEMORY | LEARNING-LOG | Changed Behavior? | Notes |
-|---------|------|:---:|:---:|:---:|:---:|-------|
-| 1 | 2026-04-07 | Y | N | N | — | Only read SESSION-STATE; missed 2/3 |
-| 2 | 2026-04-08 | Y | N | N | — | Only read SESSION-STATE again |
-| 3 | 2026-04-09 | Y | Y | Y | Y | All 3 read. LEARNING-LOG informed governance compliance approach; PROJECT-MEMORY informed version bump conventions |
-| 4 | 2026-04-10 | Y | N | Y | N | SESSION-STATE + LEARNING-LOG read. PROJECT-MEMORY too large (searched key sections). No behavior change — session was backlog capture + planning, not implementation |
-| 5 | 2026-04-11 | Y | Y | Y | Y | All 3 read at session start ("get up to speed from memory files"). LEARNING-LOG informed revert strategy design (multi-mechanism model, advisory compliance ~85%). PROJECT-MEMORY informed Constitutional Alignment plan review context. |
-
-**Decision threshold:** If PROJECT-MEMORY or LEARNING-LOG reads change behavior <2/5 sessions → remove from required protocol (keep as optional). If ≥3/5 → add Layer 3 enforcement.
-**Result (5/5 complete):** 3/5 sessions where PM/LL reads changed behavior (sessions 3, 5, and this one). Meets ≥3/5 threshold — consider Layer 3 enforcement.
 
 ---
 

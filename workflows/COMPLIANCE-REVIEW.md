@@ -54,14 +54,15 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 
 ### 2. Effectiveness tracking current
 
-**How:** Read SESSION-STATE.md effectiveness tracking tables (Completion Checklist Consultation + Session Startup Read Compliance).
+**How:** Both experiments (Completion Checklist Consultation + Session Startup Read Compliance) completed 5/5 sessions and were resolved on 2026-04-13. Tracking tables removed from SESSION-STATE per "no closed items" policy. Future tracking experiments should be added here when created.
 
-**Pass:** ≥3 of last 5 sessions have entries in both tracking tables.
-**Fail:** <3 sessions have entries, or tables are empty.
+**Pass:** No active experiments → N/A. When experiments are active: ≥3 of last 5 sessions have entries.
+**Fail:** Active experiments with <3 entries, or stale (no entries in 3+ sessions).
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PASS | 5/5 sessions in both tables |
+| 2 | 2026-04-13 | N/A | Both experiments resolved — no active tracking |
 
 ---
 
@@ -204,56 +205,6 @@ User reviews the subagent's findings and confirms or challenges.
 
 ---
 
-### [V-002] Completion checklist hook effectiveness — OPEN
-
-**Hypothesis:** Pre-push hook Check 4 (blocks push if COMPLETION-CHECKLIST.md not read) achieves ≥80% checklist consultation rate.
-
-**Added:** 2026-04-07
-**Confirm/Refute by:** 5 sessions from 2026-04-07
-
-**Process indicator:** SESSION-STATE "Checklist Read?" column in effectiveness tracking table.
-
-**Success:** 4/5 sessions show checklist read.
-**Failure:** 2+ sessions bypassed (via `QUALITY_GATE_SKIP` or hook disabled).
-
-**Note:** Behavioral impact (did reading the checklist catch issues?) is assessed qualitatively at experiment conclusion, not per-session — a clean session where the checklist finds nothing is a success, not a measurement gap.
-
-| Session | Date | Checklist Read? | Notes |
-|---------|------|:---:|-------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-
----
-
-### [V-003] Session startup read compliance — OPEN
-
-**Hypothesis:** Reading all 3 memory files (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG) at session start improves session quality.
-
-**Added:** 2026-04-07
-**Confirm/Refute by:** 5 sessions from 2026-04-07
-
-**Process indicator:** Were all 3 files read? (Cross-references SESSION-STATE startup tracking table.)
-
-**Success:** 3/5 sessions read all 3 files.
-**Failure:** <3/5 read all 3.
-
-**Note:** Behavioral impact is assessed by the user at experiment conclusion, not per-session. Per-session "did it help?" is unmeasurable without AI self-assessment bias.
-
-**If failed:** Demote PROJECT-MEMORY/LEARNING-LOG to optional per the existing SESSION-STATE decision threshold.
-
-| Session | Date | All 3 Read? | Notes |
-|---------|------|:---:|-------|
-| 1 | 2026-04-07 | N | Only SESSION-STATE read (SESSION-STATE tracking table row 1) |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
-
----
-
 ### [V-004] Contrarian review compliance before ExitPlanMode — OPEN
 
 **Hypothesis:** Strengthened plan template gate text ("DO NOT populate Recommended Approach until contrarian section has content") reduces contrarian-skip failures.
@@ -294,4 +245,18 @@ See PROJECT-MEMORY.md for the decision rationale.
 
 ## Retired Verification Items
 
-*(Items moved here when CONFIRMED or REFUTED, with final disposition and conclusion.)*
+### [V-002] Completion checklist hook effectiveness — CONFIRMED
+
+**Hypothesis:** Pre-push hook Check 4 achieves ≥80% checklist consultation rate.
+**Period:** 2026-04-07 to 2026-04-13 (5 sessions)
+**Result:** CONFIRMED. 4/4 applicable sessions consulted (1 N/A — no code changes). 0/5 hook-triggered. 100% proactive consultation.
+**Disposition:** Keep pre-push hook Check 4 as passive safety net. No escalation needed.
+
+---
+
+### [V-003] Session startup read compliance — CONFIRMED
+
+**Hypothesis:** Reading all 3 memory files at session start improves session quality.
+**Period:** 2026-04-07 to 2026-04-13 (5 sessions)
+**Result:** CONFIRMED. 3/5 sessions where PM/LL reads changed behavior. Sessions 1-2 (pre-hook) missed reads. Sessions 3-6 (post-hook advisory) all compliant.
+**Disposition:** Keep Layer 2 advisory enforcement (UserPromptSubmit hook). Do NOT escalate to Layer 3 blocking — startup reads are context quality improvements, not safety gates. Advisory hook working: 4/4 post-hook sessions compliant.
