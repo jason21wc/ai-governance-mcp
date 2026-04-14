@@ -1,5 +1,5 @@
 ---
-version: "3.26.2"
+version: "3.26.3"
 status: "active"
 effective_date: "2026-04-14"
 domain: "constitution"
@@ -9,7 +9,7 @@ governance_level: "rules-of-procedure"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.26.2
+**Version:** 3.26.3
 **Status:** Active
 **Effective Date:** 2026-04-14
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -223,7 +223,7 @@ v2.1.3
 
 ### 1.1.3 Version in Frontmatter
 
-**Applies To:** frontmatter `governance_level` values:; version, frontmatter
+**Applies To:** setting up YAML frontmatter for governance documents, choosing the correct governance_level and status values, ensuring version metadata is present and well-formed
 
 Document filenames are stable identifiers (e.g., `title-10-ai-coding-cfr.md`). Version metadata lives in YAML frontmatter at the top of each file:
 
@@ -484,7 +484,7 @@ All principles use slugified title-based IDs with namespace prefixes:
 
 ### 3.4.3 Category Mapping
 
-**Applies To:** constitution (section-based):; ai-coding (series-based):; category, mapping
+**Applies To:** mapping principles to their parent category during ID generation, determining which category a principle belongs to based on its section header in the source document
 
 Categories are derived from section headers in source documents:
 
@@ -510,7 +510,7 @@ Categories are derived from section headers in source documents:
 
 ### 3.4.4 Document Authoring Rules
 
-**Applies To:** principle indicators; failure mode; document, authoring, rules
+**Applies To:** writing or editing governance documents that contain principles, ensuring headers, indicators, and cross-references are structured for correct automatic ID extraction
 
 When writing governance documents, follow these rules to ensure proper ID generation:
 
@@ -695,7 +695,7 @@ Fields are ordered for optimal AI comprehension — motivation first, binding ru
 
 ### 3.5.2 Field Reference
 
-**Applies To:** principle title; legal analogy; constitutional basis; field, reference
+**Applies To:** authoring domain principle entries, deciding which fields to include and at what tier (required, recommended, optional) per the domain principle template
 
 | Field | Purpose | Tier |
 |-------|---------|------|
@@ -743,6 +743,8 @@ Methods are procedures (HOW), not principles (WHAT). Use this structure:
 
 **Importance: 🔴 CRITICAL | 🟡 IMPORTANT | 🟢 OPTIONAL — Brief description**
 
+**Implements:** [Principle name(s) this method operationalizes]
+
 [Purpose paragraph - when to use this method and what it accomplishes]
 
 **Applies To:** [Task contexts, problem types, and situations where this method is relevant. Use domain-specific vocabulary a querier would use. Avoid restating the method title — add the contexts that aren't obvious from the title alone.]
@@ -768,6 +770,7 @@ Methods are procedures (HOW), not principles (WHAT). Use this structure:
 |-------|------|---------|
 | **Section Number + Name** | Required | Header — title words are primary search terms |
 | **Importance** | Required | Priority classification (CRITICAL / IMPORTANT / OPTIONAL) |
+| **Implements** | Recommended | Parent principle(s) this method operationalizes — principle traceability |
 | **Purpose paragraph** | Required | When to use this method and what it accomplishes |
 | **Applies To** | Required | Task contexts and situations where this method is relevant — feeds retrieval discoverability and tells readers when to use the method |
 | **Procedure** | Required | Sequential numbered steps |
@@ -814,7 +817,7 @@ The `**Applies To:**` field serves two purposes: (1) retrieval discoverability �
 
 ### 3.5.5 Text Formatting Conventions
 
-**Applies To:** field labels; constitutional basis:; principle references; text, formatting, conventions
+**Applies To:** formatting inline text elements in governance documents — bold for field labels and principle names, italics for legal analogies and explanations, backticks for code, commands, and file paths
 
 | Element | Convention | Example |
 |---------|------------|---------|
@@ -879,7 +882,7 @@ Always specify language identifier for syntax highlighting:
 
 ### 3.5.10 Cross-Reference Format
 
-**Applies To:** specification completeness; context engineering; cross, reference, format
+**Applies To:** writing cross-references between governance documents or principles, choosing the correct reference format for same-document, same-domain, cross-domain, and file-level links
 
 | Reference Type | Format | Example |
 |----------------|--------|---------|
@@ -1013,7 +1016,7 @@ Documentation drift occurs because:
 
 ### 4.3.2 Trigger Conditions (Documentation Coherence Audit)
 
-**Applies To:** quick tier; full tier; trigger, conditions, documentation, coherence, audit
+**Applies To:** deciding when to run a coherence audit and at what depth — quick tier at session start for obvious staleness, full tier before releases or after structural changes
 
 | Tier | Trigger | What to Check |
 |------|---------|---------------|
@@ -1145,7 +1148,7 @@ To add a new domain:
 
 ### 5.1.2 Domain Document Requirements
 
-**Applies To:** principles document (required):; failure mode; domain, document, requirements
+**Applies To:** creating the required principles document and optional methods document for a new governance domain, ensuring they follow ID system rules and include proper principle indicators
 
 **Principles Document (Required):**
 - Follow ID system rules (Part 3.4) - use titles, not series codes
@@ -1191,7 +1194,7 @@ governance_level: "federal-statute"
 
 **Importance: IMPORTANT — Prevents ad-hoc folder structures**
 
-**Applies To:** draft → published:; document, lifecycle
+**Applies To:** moving a governance document from draft to published status, or deprecating an existing document — the two-stage lifecycle that uses frontmatter status to track document maturity
 
 Governance documents follow a two-stage lifecycle. **All documents use `documents/` as the single location** with stable filenames. Version metadata lives in YAML frontmatter, not filenames. Git history provides the authoritative version archive.
 
@@ -1229,7 +1232,7 @@ To deprecate a domain:
 
 ### 5.2.2 Deprecation Timeline
 
-**Applies To:** transition period:; deprecation, timeline
+**Applies To:** planning the timeline for a domain deprecation, from initial announcement through the transition period to final removal from domains.json
 
 - **Announcement:** Note deprecation in version history
 - **Transition Period:** 2-3 versions or 90 days
@@ -1265,7 +1268,7 @@ This title defines **how** the AI must apply the constitutional principles durin
 
 ### 7.1.1 When to Apply Which Principles
 
-**Applies To:** start with:; add for multi-agent:; add for high-risk:; apply, principles
+**Applies To:** quickly identifying which constitutional principles to load for a given task phase — starting a project, executing work, or validating outputs
 
 **Starting a new project/task? (Legislative Phase)**
 → **Start with:** Context Engineering, Single Source of Truth, Discovery Before Commitment
@@ -1282,7 +1285,7 @@ This title defines **how** the AI must apply the constitutional principles durin
 
 ### 7.1.2 Principle Decision Tree
 
-**Applies To:** jurisdiction check:; is this a new task?; principle, decision, tree
+**Applies To:** walking through a structured decision tree to select the right principles for any task — starting with domain jurisdiction, then branching by task type and risk level
 
 1. **Jurisdiction Check:** What domain are we in? (Load relevant "Statutes" / Domain Principles)
 2. **Is this a New Task?**
@@ -1412,7 +1415,7 @@ The AI should perform a brief internal constitutional check when:
 
 ### 7.6.2 Reaffirmation Process (Lightweight)
 
-**Applies To:** key principle:; reaffirmation, process, lightweight
+**Applies To:** performing a quick internal governance check during long conversations to counter principle drift, verifying that safety and core principles still guide the current work
 
 1. Mentally verify: Are Safety Principles still governing? Any concerns?
 2. Mentally verify: Am I following the relevant Core principles (Context Engineering, Discovery Before Commitment)?
@@ -1506,7 +1509,7 @@ Structure questions in three tiers:
 
 ### 7.9.2 Dependency Mapping
 
-**Applies To:** example dependency chain:; dependency, mapping
+**Applies To:** planning question order before a requirements-gathering conversation, mapping which questions depend on earlier answers so branches can be pruned or expanded adaptively
 
 Before asking questions, map dependencies:
 
@@ -1541,7 +1544,7 @@ Apply these rules during questioning:
 
 ### 7.9.4 Cognitive Load Limits
 
-**Applies To:** maximum active questions:; batch size:; sensitivity gradient:; cognitive, load, limits
+**Applies To:** preventing question fatigue during requirements gathering — enforcing batch sizes, consolidation checkpoints, and sensitivity ordering
 
 Prevent question fatigue:
 
@@ -1556,7 +1559,7 @@ Prevent question fatigue:
 
 ### 7.9.5 Consolidation Procedure
 
-**Applies To:** understanding summary:; assumptions made:; deferred topics:; consolidation, procedure
+**Applies To:** wrapping up a questioning phase by summarizing what was learned, stating assumptions, listing deferred topics, and confirming accuracy before proceeding
 
 When terminating questioning:
 
@@ -1578,7 +1581,7 @@ Does this accurately capture your requirements?
 
 ### 7.9.6 Anti-Pattern Detection
 
-**Applies To:** shallow foundation; infinite clarification; anti, pattern, detection
+**Applies To:** detecting and correcting common questioning failures — interrogation without pruning, skipping foundation questions, probing the same ambiguity repeatedly
 
 Avoid these questioning failures:
 
@@ -1613,7 +1616,7 @@ This protocol applies to any structured elicitation:
 
 ### 7.10.1 What Is Anchor Bias?
 
-**Applies To:** research finding:; anchor, bias
+**Applies To:** understanding how anchor bias degrades AI reasoning quality — over-weighting initial problem framing or early decisions within a session
 
 Anchor bias causes AI to over-weight initial information:
 - **User-sourced:** AI anchors to user's initial problem framing
@@ -1625,7 +1628,7 @@ Anchor bias causes AI to over-weight initial information:
 
 ### 7.10.2 Trigger Points (When to Re-evaluate)
 
-**Applies To:** end of planning phase; before significant implementation; unexpected complexity; trigger, points, evaluate
+**Applies To:** deciding when to pause and re-evaluate for anchor bias — at planning-phase ends, before major implementation effort, or when unexpected complexity surfaces
 
 Apply this protocol at these milestones:
 
@@ -1758,7 +1761,7 @@ This method applies to issues the AI discovers autonomously. User-initiated requ
 
 ### 7.11.4 Scope Boundary Signals
 
-**Applies To:** signals to fix now:; signals to defer:; cascading discovery limit:; scope, boundary, signals
+**Applies To:** deciding whether to fix discovered issues now or defer them — recognizing scope creep signals, applying the cascading discovery limit, and choosing the right triage category
 
 **Signals to fix now:**
 - One-line change in a file you already have open
@@ -2142,6 +2145,8 @@ Constitution (meta) principles and domain principles use **intentionally differe
 #### Constitution Principle Fields
 ```
 ### [Principle Name]
+> *[One-sentence elevator pitch — the core idea in plain language]*
+
 **Definition** — The binding rule
 **How the AI Applies This Principle** — Operational guidance
 **Why This Principle Matters** — Rationale
@@ -2576,7 +2581,7 @@ Reference table — does NOT reproduce templates, points to canonical sources.
 |---|---|---|
 | Constitutional Principle | Part 9.4.0 (7 fields) | Elevator pitch, legal analogy, all 7 template fields, no Constitutional Basis (IS the constitution) |
 | Domain Principle | Part 3.5.1 (tiered fields) | Constitutional Basis required, Definition required, Failure Mode required, domain-specific guidance |
-| Method Section | Part 3.5.3 (7 fields) | Procedure + Validation, Importance tag, Applies To (task contexts for discoverability), Implements reference to principles |
+| Method Section | Part 3.5.3 (8 fields) | Procedure + Validation, Importance tag, Applies To (task contexts for discoverability), Implements reference to principles |
 | Appendix Section | §9.8.3 template below | Governance Level tag, Implements reference, Applies To, Information Currency, platform-specific procedures |
 
 **Appendix template:**
@@ -2609,6 +2614,8 @@ For **external/third-party tools**, extend with these additional fields after `*
 **Version:** [Pinned version and last-verified date]
 **Framework Integration:** [Whether MCP servers, hooks, and memory files work through this tool]
 ```
+
+> **Known Limitation:** The formalized template standardizes **new appendix authoring**. Existing appendices using the previous format continue to function correctly. Backfill of existing appendices is tracked separately.
 
 ---
 
@@ -2754,7 +2761,7 @@ This prevents the error observed during constitutional consolidation: "Rich but 
 
 ### 9.8.7 Domain-Specific Structural Considerations
 
-**Applies To:** crosswalk tables:; maturity indicators:; failure mode taxonomy:; domain, specific, structural, considerations
+**Applies To:** evaluating domain-specific structural needs during content quality review — crosswalk tables for consolidation, maturity indicators, failure mode taxonomy, and peer domain interactions
 
 When reviewing domains with structural features beyond standard principles:
 
@@ -4036,7 +4043,7 @@ Reference documents that go stale are worse than no reference documents — they
 
 ### 14.2.2 Freshness Metadata
 
-**Applies To:** last verified:; verified against:; staleness threshold:; freshness, metadata
+**Applies To:** adding freshness tracking metadata to project reference documents — last-verified dates, staleness thresholds by document type, and source version anchors
 
 Every reference document must include freshness metadata in its header:
 
@@ -4091,7 +4098,7 @@ When staleness is detected:
 
 ### 14.2.6 Integration with Coherence Auditor
 
-**Applies To:** quick tier:; full tier:; new check:; integration, coherence, auditor
+**Applies To:** integrating reference document checks into the coherence auditor workflow — quick and full tier checks for reference document freshness and consistency
 
 The coherence-auditor subagent extends its protocol to include reference doc freshness:
 - **Quick tier:** Check `Last Verified` dates on all reference docs in scope
@@ -4189,7 +4196,7 @@ Generalize the storytelling domain's memory architecture into a cross-domain pat
 
 ### 14.3.4 Semantic Memory Is the Gap
 
-**Applies To:** key distinction:; semantic, memory, gap
+**Applies To:** understanding why a universal memory architecture requires domain-specific file naming — the semantic memory gap between generic file names and domain-appropriate reference documents
 
 Most domains already have Working memory (SESSION-STATE) and Episodic memory (LEARNING-LOG) well-defined. The gap is domain-specific Semantic memory — the Story Bible equivalent. Part 14.1 defines when this semantic layer is needed; domain methods define what it contains.
 
@@ -4333,7 +4340,7 @@ The actual artifact lives in the library. The entry IS the reusable material.
 **Examples:** A working pytest fixture pattern, a Docker multi-arch build configuration, a TWI Job Instruction Card template, a validated SIPOC example.
 
 ### 15.2.2 Reference Entry
-**Applies To:** when to use reference vs direct:; reference, entry
+**Applies To:** creating a reference library entry that points to an external source rather than containing the artifact directly — for authoritative content maintained by others
 
 A pointer to an external source with curated context, summary, and lessons. Like case law annotations: "for further treatment of this issue, see these sources."
 
@@ -4438,7 +4445,7 @@ What worked, what didn't, edge cases, gotchas discovered in practice.
 
 ### 15.4.2 Inclusion Criteria (what qualifies as precedent)
 
-**Applies To:** establishes a new pattern; source is authoritative and stable; exclusion criteria:; inclusion, criteria, qualifies, precedent
+**Applies To:** determining whether a potential reference library entry meets inclusion criteria — must establish a new reusable pattern from an authoritative and stable source, with clear exclusion of duplicates and non-precedent items
 
 Adapted from legal reportability criteria:
 - **Establishes a new pattern** not already in the library
@@ -4489,7 +4496,7 @@ Adapted from legal reportability criteria:
 
 ### 15.4.5 Bloat Prevention
 
-**Applies To:** zettelkasten atomicity:; periodic review:; content ownership:; bloat, prevention
+**Applies To:** maintaining reference library health — enforcing atomic entries, periodic review cadence, clear content ownership, and preventing library bloat through active curation
 
 - **Zettelkasten atomicity:** One reusable unit per entry. If an entry tries to cover multiple patterns, split it.
 - **Periodic review:** Entries with zero retrievals in 90 days are candidates for archival.
@@ -4791,6 +4798,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.26.3 | 2026-04-14 | PATCH: Final template audit fixes from coherence-auditor + best practices review. (1) Added elevator pitch blockquote to Constitution template (Part 9.4.0) — was listed in §9.8.3 requirements but missing from template code block. (2) Added `**Implements:**` as Recommended field to method template (Part 3.5.3, now 8 fields) — was required by §9.8.3 and §9.8.4 but missing from template. Updated field count references. (3) Added Known Limitation note to appendix template. (4) Rewrote ~70 remaining semicolon-pattern Applies To entries across rules-of-procedure.md and title-10-ai-coding-cfr.md. Best practices research validated Markdown+YAML as optimal format; no structural template changes needed. |
 | 3.26.2 | 2026-04-14 | PATCH: (1) Added cross-domain principle example (UI/UX ACC1: Semantic Markup) to Part 9.4.2 — demonstrates the domain principle template works across non-coding domains. (2) Formalized appendix template at §9.8.3 — converted bullet-point format guidance into proper code-block template with Governance Level, Implements, Applies To, Information Currency fields; added external/third-party tool extension template. (3) Updated §9.8.3 reference table to point to new appendix template. (4) Fixed stale script-generated Applies To entry on §9.8.3. |
 | 3.26.1 | 2026-04-14 | PATCH: Added "Writing Effective Applies To Entries" authoring guidance to Part 3.5.3. Codifies quality criteria, good/bad examples with rationale, and root cause insight from 3-agent quality audit of 648 entries. Key finding: keyword extraction from titles cannot produce quality entries — each requires content comprehension. Five validated criteria: domain-specific vocabulary, adds beyond title, task situations, natural phrasing, no filler. |
 | 3.26.0 | 2026-04-14 | MINOR: Method template expansion (Part 3.5.3). Root cause: method template prescribed 5 fields but the retrieval system parses `**Applies To:**` for BM25 + semantic scoring — template never mentioned this field. Only 21% of methods (142/675) included it organically. A/B benchmark confirmed +19-61% BM25 score improvements for methods with `Applies To` metadata. (1) Added `**Applies To:**` as Required field to Part 3.5.3 template (5→7 fields) with inline authoring guidance. (2) Added Field Reference table (§3.5.3.1 equivalent) documenting each field's tier and purpose. (3) Added Known Limitation note (same pattern as Part 3.5.1:615). (4) Updated §9.8.3 structural requirements table to include Applies To. Dual justification: human comprehension (readers know when to use a method) + retrieval quality (feeds MethodMetadata.applies_to for BM25/semantic scoring). Constitutional derivation: `meta-core-systemic-thinking`, `meta-quality-verification-validation`. Passed Admission Test 6/6. Two contrarian reviews completed. |

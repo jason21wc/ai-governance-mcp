@@ -5228,7 +5228,7 @@ logs/*.jsonl
 
 ### 6.5.6 Cleanup Triggers
 
-**Applies To:** when to perform cleanup:; cleanup, triggers
+**Applies To:** deciding when to run project cleanup — after feature completion, before releases, when file count exceeds thresholds, or during periodic maintenance reviews
 
 **When to perform cleanup:**
 
@@ -5242,7 +5242,7 @@ logs/*.jsonl
 
 ### 6.5.7 Cleanup Procedure
 
-**Applies To:** inventory current state:; classify files; cleanup, procedure
+**Applies To:** executing the step-by-step cleanup process — inventorying files, classifying by retention category, archiving or deleting, and verifying nothing needed was removed
 
 1. **Inventory current state:**
    ```bash
@@ -5299,7 +5299,7 @@ Before release or major milestone:
 
 **Implements:** Production-Ready Standards (Domain)
 
-**Applies To:** todo/fixme policy:; 90 days; dead, code, technical, debt
+**Applies To:** managing TODO and FIXME comments, removing dead code, and tracking technical debt — with a 90-day policy for resolving tracked items
 
 **TODO/FIXME Policy:**
 - Format: `TODO(owner): description — YYYY-MM-DD` or `FIXME(owner): description — YYYY-MM-DD`
@@ -5319,7 +5319,7 @@ Before release or major milestone:
 
 **Implements:** Production-Ready Standards (Domain)
 
-**Applies To:** when duplication is acceptable:; refactoring triggers:; code, duplication, detection
+**Applies To:** identifying when code duplication should be refactored vs when it is acceptable, recognizing refactoring triggers like 3+ identical blocks
 
 **When Duplication IS Acceptable:**
 - Test files (test readability > DRY)
@@ -5362,7 +5362,7 @@ AI has no persistent memory between sessions. The Memory Architecture creates ex
 
 **Importance: 🔴 CRITICAL — Core memory taxonomy aligned with AI agent research**
 
-**Applies To:** working memory; semantic memory; episodic memory; cognitive, memory, types
+**Applies To:** understanding the three cognitive memory types (working, semantic, episodic) and which project files implement each type
 
 Memory files map to cognitive memory types from the CoALA framework (Cognitive Architectures for Language Agents):
 
@@ -5383,7 +5383,7 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 
 ### 7.0.3 Memory Loading Strategy
 
-**Applies To:** on session start:; context efficiency:; complementary roles:; memory, loading, strategy
+**Applies To:** deciding which memory files to load at session start, balancing context efficiency with completeness, understanding how memory types complement each other
 
 **On session start:**
 1. Always load: `SESSION-STATE.md` (know where we are)
@@ -5401,7 +5401,7 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 
 ### 7.0.4 Memory Lifecycle Principles
 
-**Applies To:** core principle:; memory, lifecycle, principles
+**Applies To:** applying memory pruning and lifecycle rules — keeping memory files focused on reasoning rather than archival, routing content to the correct memory type
 
 **Core Principle:** *"Memory serves reasoning, not archival. Retain what informs future decisions; prune what only describes the past."*
 
@@ -5449,7 +5449,7 @@ Track current work state so any session (same AI, new AI, different tool) can re
 
 ### 7.1.2 Session State File Structure
 
-**Applies To:** last updated:; memory type:; session, state, file, structure
+**Applies To:** structuring SESSION-STATE.md with the correct sections — current position, quick reference metrics, active task, session summaries, and backlog
 
 File: `SESSION-STATE.md` (project root)
 
@@ -5505,7 +5505,7 @@ File: `SESSION-STATE.md` (project root)
 
 ### 7.1.3 Task Tracking Rationale
 
-**Applies To:** why tasks are inline:; task status values:; when to use github issues instead:; task, tracking, rationale
+**Applies To:** choosing between inline task tracking in SESSION-STATE.md vs GitHub Issues, understanding task status values and when each tracking approach is appropriate
 
 **Why tasks are inline:** Research on AI agent memory architecture shows that task decomposition "becomes part of the agent's state" during active work. Project-specific tasks (unlike reusable procedures) are ephemeral—created in Tasks phase, consumed in Implement phase, then cleared. Keeping them in SESSION-STATE (working memory) provides immediate access without cross-reference friction.
 
@@ -5532,7 +5532,7 @@ Update `SESSION-STATE.md` when:
 
 ### 7.1.5 Session State is Transient
 
-**Applies To:** session log lifecycle:; session, state, transient
+**Applies To:** understanding that SESSION-STATE is transient working memory — pruning old session summaries, avoiding unbounded growth, using git as the archive
 
 Session state captures the CURRENT moment. Historical information belongs in Project Memory or Learning Log. Keep session state minimal and actionable.
 
@@ -5552,7 +5552,7 @@ Preserve significant decisions, specifications, architecture, and phase gate sta
 
 ### 7.2.2 Project Memory File Structure
 
-**Applies To:** memory type:; project, memory, file, structure
+**Applies To:** structuring PROJECT-MEMORY.md with the correct sections — key decisions, architecture decision records, patterns, conventions, gotchas, and metrics
 
 File: `PROJECT-MEMORY.md` (project root)
 
@@ -5664,7 +5664,7 @@ Create `LEARNING-LOG.md` when the first lesson emerges — typically during impl
 
 ### 7.3.3 Learning Log File Structure
 
-**Applies To:** memory type:; learning, log, file, structure
+**Applies To:** structuring LEARNING-LOG.md with the correct format — entry rules, active lessons, graduated patterns table, and the 5-line-per-entry constraint
 
 File: `LEARNING-LOG.md` (project root)
 
@@ -5793,7 +5793,7 @@ Load these files for context:
 
 ### 7.4.4 Loader Best Practices
 
-**Applies To:** progressive disclosure; universally applicable; loader, best, practices
+**Applies To:** writing effective CLAUDE.md or equivalent loader files — progressive disclosure, minimal instructions, universally applicable content, and how to reference rather than duplicate information
 
 From [Anthropic Claude Code Best Practices](https://code.claude.com/docs/en/best-practices):
 
@@ -5898,7 +5898,7 @@ Reference source documents in the loader file (e.g., CLAUDE.md) using the Memory
 
 ### 7.6.1 Session End Procedure
 
-**Applies To:** complete atomic unit; update session-state.md; update project-memory.md; session, end, procedure
+**Applies To:** properly closing a coding session — completing the current atomic unit, updating session state, routing decisions to project memory, and preparing handoff context
 
 Before ending any session:
 
@@ -5920,7 +5920,7 @@ Before ending any session:
 
 ### 7.6.2 Session Start Procedure
 
-**Applies To:** load session-state.md; review next actions; run existing tests; session, start, procedure
+**Applies To:** starting a new coding session — loading session state, reviewing next actions, running existing tests to establish a baseline, and checking for stale context
 
 When starting a new session:
 
@@ -5976,7 +5976,7 @@ Execute recovery when:
 
 ### 7.7.2 Recovery Procedure
 
-**Applies To:** assess memory files:; verify code state:; reconcile discrepancies:; recovery, procedure
+**Applies To:** recovering from memory corruption or staleness — assessing memory file integrity, verifying code state matches documented state, and reconciling discrepancies
 
 1. **Assess memory files:**
    - Check SESSION-STATE.md timestamp
@@ -6046,7 +6046,7 @@ Execute in order:
 
 ### 7.8.3 File Creation Notes
 
-**Applies To:** learning-log.md stub template:; memory type:; file, creation, notes
+**Applies To:** creating initial memory files for a new project with the correct templates and frontmatter for each cognitive memory type
 
 | File | Guidance |
 |------|----------|
@@ -6082,7 +6082,7 @@ Execute in order:
 
 ### 7.8.4 Minimal Viable Initialization (Expedited Mode)
 
-**Applies To:** project repository root; folder-based variant:; minimal, viable, initialization, expedited, mode
+**Applies To:** bootstrapping a project with the minimum viable set of memory files in expedited mode, including the folder-based variant for non-CLI AI environments
 
 Create all files in the **project repository root** (see §7.8.2 File Location note). This is the §1.5.1 Core Memory Kit:
 
@@ -6134,7 +6134,7 @@ All projects benefit from Reference Memory. It becomes critical for projects exc
 
 ### 7.9.3 What Gets Indexed
 
-**Applies To:** `.contextignore` file:; gets, indexed
+**Applies To:** configuring which files the Context Engine indexes — using .contextignore and .gitignore patterns to exclude irrelevant content from semantic search
 
 All project files — code, documents, configurations, data files — excluding patterns specified in `.contextignore`. The index covers the raw project content itself, not the decisions or lessons about it (those belong in PROJECT-MEMORY and LEARNING-LOG respectively).
 
@@ -6165,7 +6165,7 @@ These defaults are prepended before any custom `.contextignore` or `.gitignore` 
 
 ### 7.9.4 Index Components
 
-**Applies To:** semantic embeddings; keyword index; file metadata; index, components
+**Applies To:** understanding what files compose the Context Engine index — semantic embeddings, keyword index, file metadata, and how they work together for hybrid search
 
 A Reference Memory index consists of:
 
@@ -6191,7 +6191,7 @@ A Reference Memory index consists of:
 
 ### 7.9.5 Indexing Modes
 
-**Applies To:** concurrency model:; indexing, modes
+**Applies To:** choosing between on-demand and realtime indexing modes for the Context Engine, understanding the concurrency model and file watcher behavior
 
 | Mode | Behavior | Default For | Use When |
 |------|----------|-------------|----------|
@@ -6208,7 +6208,7 @@ Mode is configurable per project via project configuration. Real-time mode watch
 
 ### 7.9.6 Source Connector Architecture
 
-**Applies To:** code connector:; source, connector, architecture
+**Applies To:** understanding how the Context Engine processes different file types — code connector (tree-sitter AST), document connector (markdown), PDF connector, and spreadsheet connector
 
 Connectors parse project content into indexable chunks appropriate for each content type. All connectors implement the `BaseConnector` interface:
 
@@ -6289,7 +6289,7 @@ combined = semantic_weight × semantic_scores + (1 - semantic_weight) × keyword
 
 ### 7.9.8 Integration with Workflow
 
-**Applies To:** during planning (title 2-3):; during implementation (title 5):; during review (title 6):; integration, workflow
+**Applies To:** using the Context Engine at each development phase — querying before creating files, checking for existing patterns during implementation, and verifying consistency during review
 
 **During Planning (Title 2-3):**
 - Query Reference Memory to understand existing codebase structure
@@ -6309,7 +6309,7 @@ combined = semantic_weight × semantic_scores + (1 - semantic_weight) × keyword
 
 ### 7.9.9 Security Requirements
 
-**Applies To:** no pickle serialization; path traversal prevention; input validation; security, requirements
+**Applies To:** understanding the Context Engine's security model — no pickle deserialization, path traversal prevention, hex-only project IDs, and model allowlists
 
 > **Note:** For general-purpose patterns underlying these Context Engine-specific implementations, see Part 5.9 (Concurrency Safety) and Part 5.10 (Production Resilience).
 
@@ -6376,7 +6376,7 @@ Define the coding domain's reference document taxonomy — the specific files th
 
 ### 7.10.3 Reference Document Taxonomy
 
-**Applies To:** entity relationships; business rules; reference, document, taxonomy
+**Applies To:** understanding what types of reference documents a project needs and how to classify them — entity relationships, business rules, API contracts, and domain knowledge
 
 #### Tier 1 (Essential) — DATA-REFERENCE.md
 
@@ -6411,7 +6411,7 @@ Captures strategic context for complex products where trade-off decisions benefi
 
 ### 7.10.4 Staleness Triggers
 
-**Applies To:** schema migration; major refactor; new api endpoint; staleness, triggers
+**Applies To:** detecting when reference documents need updating — after schema migrations, major refactors, new API endpoints, or dependency upgrades
 
 Reference docs should be re-verified when any of these events occur:
 
@@ -6427,7 +6427,7 @@ Reference docs should be re-verified when any of these events occur:
 
 ### 7.10.5 Template — DATA-REFERENCE.md (Tier 1)
 
-**Applies To:** last verified:; verified against:; template, data, reference, tier
+**Applies To:** creating a DATA-REFERENCE.md for projects with data models, schemas, or entity relationships that AI needs to understand during development
 
 ```markdown
 # Data Reference
@@ -6473,7 +6473,7 @@ Reference docs should be re-verified when any of these events occur:
 
 ### 7.10.6 Template — PRODUCT-CONTEXT.md (Tier 2)
 
-**Applies To:** last verified:; verified against:; template, product, context, tier
+**Applies To:** creating a PRODUCT-CONTEXT.md for projects where the AI needs ongoing access to business rules, user personas, or product decisions
 
 ```markdown
 # Product Context
@@ -6518,7 +6518,7 @@ Reference docs should be re-verified when any of these events occur:
 
 ### 7.10.7 Auto-Tracking Protocol
 
-**Applies To:** extraction triggers:; update procedure:; auto, tracking, protocol
+**Applies To:** configuring automatic extraction and update of reference document entries based on code changes — extraction triggers, update procedures, and verification steps
 
 Adapted from storytelling §11 (Story Bible auto-tracking). When AI assists with coding changes:
 
@@ -6554,7 +6554,7 @@ Define conditions that require human decision-making. Prevents both automation b
 
 ### 8.1.2 Mandatory Escalation
 
-**Applies To:** always escalate when:; mandatory, escalation
+**Applies To:** identifying situations that always require human decision — safety concerns, business-critical changes, legal or compliance implications, irreversible actions
 
 **Always escalate when:**
 
@@ -6571,7 +6571,7 @@ Define conditions that require human decision-making. Prevents both automation b
 
 ### 8.1.3 Judgment Escalation
 
-**Applies To:** consider escalating when:; judgment, escalation
+**Applies To:** recognizing ambiguous situations where escalation may be warranted — conflicting requirements, novel scenarios, high-stakes trade-offs without clear guidance
 
 **Consider escalating when:**
 
@@ -6584,7 +6584,7 @@ Define conditions that require human decision-making. Prevents both automation b
 
 ### 8.1.4 Non-Escalation
 
-**Applies To:** do not escalate for:; non, escalation
+**Applies To:** understanding what does NOT require escalation — routine implementation decisions, well-specified tasks, standard patterns with clear precedent
 
 **Do NOT escalate for:**
 - Routine implementation decisions
@@ -6655,7 +6655,7 @@ Optimize collaboration for single-person projects where one human serves all rol
 
 ### 8.3.2 Solo Mode Adjustments
 
-**Applies To:** reduced ceremony:; maintained rigor:; solo, mode, adjustments
+**Applies To:** adjusting governance ceremony for solo developer projects — reducing documentation overhead while maintaining quality rigor for testing, security, and validation
 
 **Reduced ceremony:**
 - Abbreviated decision presentations
@@ -6678,7 +6678,7 @@ Enter Solo Developer Mode when:
 
 ### 8.3.4 Solo Mode Workflow
 
-**Applies To:** ai coding tool security:; solo, mode, workflow
+**Applies To:** applying security practices in solo developer mode — AI coding tool security, credential management, and safe deployment practices without a separate security reviewer
 
 ```
 Standard: Specify → [PO Approval] → Plan → [PO Approval] → Tasks → [PO Approval] → Implement → [PO Approval]
@@ -6740,7 +6740,7 @@ def validate_config_at_startup():
 
 ### 9.1.3 Key Principles
 
-**Applies To:** fail fast; report all errors; actionable messages; key, principles
+**Applies To:** implementing error handling that fails fast, reports all errors with actionable messages, and avoids silent failures or generic catch-all handlers
 
 | Principle | Rationale |
 |-----------|-----------|
@@ -6763,7 +6763,7 @@ def validate_config_at_startup():
 
 ### 9.1.5 Anti-Pattern
 
-**Applies To:** don't do this:; anti, pattern
+**Applies To:** recognizing and avoiding common error handling anti-patterns — swallowing exceptions, generic catch-all blocks, logging without action, and returning null instead of throwing
 
 ❌ **Don't do this:**
 ```python
@@ -6826,7 +6826,7 @@ CMD ["python", "-m", "your_app"]
 
 ### 9.2.3 Security Hardening
 
-**Applies To:** non-root user; minimal base; no secrets in image; security, hardening
+**Applies To:** hardening Docker images for production — running as non-root user, using minimal base images, excluding secrets, and scanning for vulnerabilities
 
 | Practice | Implementation | Rationale |
 |----------|---------------|-----------|
@@ -6838,7 +6838,7 @@ CMD ["python", "-m", "your_app"]
 
 ### 9.2.4 ML-Specific Optimizations
 
-**Applies To:** cpu-only pytorch; pre-built indexes:; specific, optimizations
+**Applies To:** optimizing Docker images for ML workloads — CPU-only PyTorch installation, pre-built index inclusion, and model caching strategies
 
 **CPU-Only PyTorch** (saves ~1.8GB):
 ```dockerfile
@@ -6900,7 +6900,7 @@ Patterns specific to developing Model Context Protocol (MCP) servers for AI clie
 
 ### 9.3.2 MCP Architecture Constraints
 
-**Applies To:** stdio transport; synchronous i/o; per-process lifecycle; mcp, architecture, constraints
+**Applies To:** understanding the architectural constraints of MCP servers — stdio transport requires synchronous I/O, each server runs as a separate process, and lifecycle is tied to the client session
 
 | Constraint | Implication |
 |------------|-------------|
@@ -7022,7 +7022,7 @@ def append_reminder(response: dict) -> dict:
 
 ### 9.3.7 Docker for MCP Servers
 
-**Applies To:** key considerations:; docker, mcp, servers
+**Applies To:** containerizing MCP servers with Docker — handling stdio transport, embedding model dependencies, health checks, and multi-platform configuration
 
 **Key considerations:**
 - Must run with `-i` flag (interactive for stdin)
@@ -8783,7 +8783,7 @@ Web applications frequently produce downloadable documents (Excel, PDF, Word, Po
 
 ### 9.4.1 Architecture: Data/Format Separation
 
-**Applies To:** format portability; architecture, data, format, separation
+**Applies To:** designing document generation systems with clean separation between data and format — enabling format portability across PDF, Excel, Word, and CSV outputs
 
 The core pattern for all document generation in web apps:
 
@@ -8820,7 +8820,7 @@ project/
 
 ### 9.4.3 Download Serving Patterns
 
-**Applies To:** direct serve (in-memory); pre-signed url (s3/r2); download, serving, patterns
+**Applies To:** choosing the right download serving pattern — direct in-memory serve for small files, streaming for large files, pre-signed URLs for cloud storage, background jobs for generation-heavy workloads
 
 Decision tree for serving generated files from web apps:
 
@@ -8853,7 +8853,7 @@ Established libraries by format. Full gotchas and decision trees in Reference Li
 
 ### 9.4.5 Output Validation
 
-**Applies To:** bold triggers:; output, validation
+**Applies To:** validating generated document output — checking file integrity, content completeness, format compliance, and sanitizing user-provided data before inclusion in documents
 
 Document generation can fail silently (wrong formulas, missing sheets, corrupt files). Every builder function should have a corresponding validation check:
 
