@@ -1,7 +1,7 @@
 ---
-version: "3.25.0"
+version: "3.26.0"
 status: "active"
-effective_date: "2026-04-12"
+effective_date: "2026-04-14"
 domain: "constitution"
 governance_level: "rules-of-procedure"
 ---
@@ -9,9 +9,9 @@ governance_level: "rules-of-procedure"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.25.0
+**Version:** 3.26.0
 **Status:** Active
-**Effective Date:** 2026-04-12
+**Effective Date:** 2026-04-14
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -285,6 +285,8 @@ Changes to MCP index:
 ## Part 2.1: Update Procedure
 
 ### 2.1.1 Update Flow
+
+**Applies To:** any governance document edit (principles, methods, appendices), version bumping, propagating changes to SESSION-STATE and cross-references, post-change coherence audit triggers
 
 **Update → Validate → Finalize**
 
@@ -608,6 +610,8 @@ This section defines formatting conventions for domain principles and methods do
 
 ### 3.5.1 Domain Principle Template
 
+**Applies To:** authoring new domain principles, reviewing existing principles for template compliance, understanding field requirements and tiers, mapping variant field names to canonical names
+
 **Canonical template for domain principles.** Part 9.4.1 redirects here. Constitution (meta) principles use a separate template (Part 9.4.0).
 
 Fields are ordered for optimal AI comprehension — motivation first, binding rule in the middle, verification at the end.
@@ -703,6 +707,8 @@ Methods are procedures (HOW), not principles (WHAT). Use this structure:
 
 [Purpose paragraph - when to use this method and what it accomplishes]
 
+**Applies To:** [Task contexts, problem types, and situations where this method is relevant. Use domain-specific vocabulary a querier would use. Avoid restating the method title — add the contexts that aren't obvious from the title alone.]
+
 **Procedure**
 1. [Sequential step]
 2. [Sequential step]
@@ -717,6 +723,20 @@ Methods are procedures (HOW), not principles (WHAT). Use this structure:
 - [ ] [Checklist item to verify correct application]
 - [ ] [Checklist item to verify correct application]
 ```
+
+#### Field Reference
+
+| Field | Tier | Purpose |
+|-------|------|---------|
+| **Section Number + Name** | Required | Header — title words are primary search terms |
+| **Importance** | Required | Priority classification (CRITICAL / IMPORTANT / OPTIONAL) |
+| **Purpose paragraph** | Required | When to use this method and what it accomplishes |
+| **Applies To** | Required | Task contexts and situations where this method is relevant — feeds retrieval discoverability and tells readers when to use the method |
+| **Procedure** | Required | Sequential numbered steps |
+| **Template** | Optional | Code or configuration block when the method produces a structured artifact |
+| **Validation** | Required | Checkbox-format verification that the method was applied correctly |
+
+> **Known Limitation:** The expanded template standardizes **new method authoring**. Existing methods using the previous 5-field format continue to index and retrieve correctly — the retrieval system extracts `**Applies To:**` when present but does not require it. Backfill of existing methods is tracked separately and prioritized by content length (longer methods benefit most from explicit applicability context).
 
 ### 3.5.4 Header Hierarchy
 
@@ -837,6 +857,8 @@ When governance framework changes require updated AI guidance:
 
 ### 3.6.4 Platform Compatibility
 
+**Applies To:** deploying governance across different MCP clients, configuring governance for Claude Desktop vs Claude Code vs other platforms, understanding instruction injection mechanisms
+
 Server instructions use the MCP `instructions` parameter, which is:
 - Supported by Claude Desktop App, Claude Code CLI, and other MCP clients
 - Injected during server initialization
@@ -919,6 +941,8 @@ Documentation drift occurs because:
 
 ### 4.3.3 Per-File Review Protocol
 
+**Applies To:** coherence audits (quick and full tiers), pre-release document review, verifying document-level consistency after content changes, drift detection across governance files
+
 **Generic checks (apply to every document):**
 
 | # | Check | Test Applied | Severity if Failed |
@@ -985,6 +1009,8 @@ Once drift is detected (§4.3.3), remediate by classifying the drifted content's
 
 ### 4.3.5 Validation Protocol
 
+**Applies To:** post-coherence-audit remediation, implementing fixes from drift detection, validating corrections before publishing, multi-agent review coordination for document changes
+
 1. Draft proposed changes from review findings **using remediation patterns from §4.3.4**
 2. Send to **contrarian reviewer** + **validator** in parallel (per multi-agent domain's **Validation Independence** principle — author cannot objectively assess their own corrections)
 3. Synthesize feedback — accept valid challenges, resolve conflicts
@@ -1001,6 +1027,8 @@ Once drift is detected (§4.3.3), remediate by classifying the drifted content's
 ## Part 5.1: Adding New Domains
 
 ### 5.1.0 When to Create a Domain
+
+**Applies To:** evaluating whether a new content area warrants its own governance domain, distinguishing active practice from anticipatory governance, applying the domain creation criteria to proposed expansions
 
 A new governance domain is justified when AI-specific failure modes exist in a content area that constitutional principles alone cannot adequately address. Domains can be created based on any of these triggers:
 
@@ -1166,6 +1194,8 @@ This title defines **how** the AI must apply the constitutional principles durin
 
 ### 7.1.3 Immediate Escalation Triggers
 
+**Applies To:** any AI action touching safety, security, privacy, or organizational decisions; fail-fast recovery loops; detecting when AI scope exceeds technical focus
+
 **Escalate to Human IMMEDIATELY if:**
 - ⚠️ **Bill of Rights Violation (Non-Maleficence/Bias Awareness/Transparent Limitations):** Potential security breach, privacy leak, deception, or harm.
 - ⚠️ **Transparent Limitations "Stop-the-Line":** Critical safety issue detected by any agent (Check & Balance).
@@ -1210,6 +1240,8 @@ This review should be **quick and mental** for routine tasks, but **explicit and
 *Legal Analogy: This is "Judicial Review"—the court (AI) must verify that the proposed action is Constitutional before proceeding. An unconstitutional action is void ab initio (from the beginning).*
 
 ### 7.3.1 How to Apply the Principles (Standard Procedure)
+
+**Applies To:** starting a new task or project, planning implementation approach, making non-trivial decisions or trade-offs, multi-agent coordination, retrospective self-review
 
 These principles are operational constraints **(Constitutional Law)**, not optional suggestions.
 
@@ -1338,6 +1370,8 @@ Not every interaction requires full ceremonial procedure. Apply protocols propor
 This part operationalizes the Constitution's **Discovery Before Commitment** principle through adaptive questioning — using open-ended dialogue for exploration and structured options only when converging on bounded choices.
 
 ### 7.9.1 Question Architecture
+
+**Applies To:** gathering requirements from users, discovery conversations, progressive inquiry during specification, choosing between open-ended and structured question formats
 
 Structure questions in three tiers:
 
@@ -1528,6 +1562,8 @@ These prompts complement the contrarian reviewer's standard assumption-challengi
 
 ### 7.10.5 Common Pitfalls
 
+**Applies To:** mid-task decision evaluation, recognizing sunk cost bias, detecting reframe theater or confirmation-in-disguise during alternatives analysis
+
 | Pitfall | Description | Prevention |
 |---------|-------------|------------|
 | **Commitment Escalation** | Doubling down because effort invested | Evaluate on current merits; sunk costs are sunk |
@@ -1580,6 +1616,8 @@ AI agents face a dual failure mode when discovering issues outside their current
 This method applies to issues the AI discovers autonomously. User-initiated requests, even if tangential to the current task, are new instructions — apply standard scope negotiation.
 
 ### 7.11.3 Durable Deferral Requirements
+
+**Applies To:** discovered issues during implementation that are out of scope, tracking deferred work across session boundaries, preventing silent loss of findings when sessions end
 
 "I should fix that later" is not deferral — it is silent loss with extra steps. Durable deferral means:
 
@@ -1933,6 +1971,8 @@ When domain documentation conflicts:
 
 ### 9.4.0 Constitution vs Domain Templates
 
+**Applies To:** authoring constitutional principles, authoring domain principles, understanding why templates differ between hierarchy layers, choosing the correct template for new content
+
 Constitution (meta) principles and domain principles use **intentionally different templates** because they serve different purposes:
 
 | Aspect | Constitution Principles | Domain Principles |
@@ -1985,6 +2025,8 @@ Constitution (meta) principles and domain principles use **intentionally differe
 This section previously contained a standalone 9-field template. It has been consolidated into Part 3.5.1 as the single source of truth for domain principle authoring. The consolidated template adds **Definition** as a separate field from **Domain Application** (the binding rule vs. practical implementation guidance) and introduces tiered field requirements.
 
 ### 9.4.2 Template Example
+
+**Applies To:** understanding how to populate the domain principle template (Part 3.5.1), reviewing template compliance, onboarding new contributors to the principle authoring process
 
 ```markdown
 ### Specification Completeness (The Requirements Doctrine)
@@ -2081,6 +2123,8 @@ For new principles, expanded content, new methods:
 7. Test new content is searchable
 
 ### 9.6.3 Breaking Changes (MAJOR)
+
+**Applies To:** constitutional restructuring, principle removal or major reclassification, philosophy shifts, breaking backward compatibility of IDs or cross-references
 
 For restructuring, philosophy shifts, principle removal:
 
@@ -2252,6 +2296,8 @@ This part establishes the unified quality gate for all governance content — pr
 
 ### 9.8.1 The Admission Test (6 Questions)
 
+**Applies To:** proposing new principles or methods, evaluating external framework contributions, justifying content additions during domain expansion, reviewing whether existing content should be kept/merged/removed
+
 Six binary questions ANY new or substantially modified (see §9.8.5 bright-line test) content must pass. The same questions apply when authoring (gate) and reviewing (audit). Content failing during review becomes a consolidation or removal candidate. For editorial corrections (scope clarifications, navigational cross-references, factual accuracy fixes), see §9.8.5.
 
 **Preamble as interpretive tiebreaker:** When any question below is borderline or ambiguous, resolve toward or against the content by asking: "Does this serve the Preamble's stated purposes (Authority, Process, Protection, Relations, Continuity)?" The Preamble does not independently filter — its purposes inform judgment on the six operative questions. This mirrors constitutional practice, where preambles resolve ambiguity in operative provisions rather than functioning as standalone tests.
@@ -2312,7 +2358,7 @@ Reference table — does NOT reproduce templates, points to canonical sources.
 |---|---|---|
 | Constitutional Principle | Part 9.4.0 (7 fields) | Elevator pitch, legal analogy, all 7 template fields, no Constitutional Basis (IS the constitution) |
 | Domain Principle | Part 3.5.1 (tiered fields) | Constitutional Basis required, Definition required, Failure Mode required, domain-specific guidance |
-| Method Section | Part 3.5.3 | Procedure + Validation, Importance tag, Implements reference to principles |
+| Method Section | Part 3.5.3 (7 fields) | Procedure + Validation, Importance tag, Applies To (task contexts for discoverability), Implements reference to principles |
 | Appendix Section | See below | Platform-specific, references parent method, version/currency disclaimer |
 
 **Appendix format:**
@@ -2332,6 +2378,8 @@ For external/third-party tools, also include:
 ---
 
 ### 9.8.4 The Quality Checklist (Unified)
+
+**Applies To:** final quality verification before publishing any governance content, pre-release checks for principles/methods/appendices, validating both new authoring and existing content during reviews
 
 **Note:** This checklist supersedes Part 9.5 (Validation Checklist) which covered principles only. Part 9.5 is retained as a historical reference; use this checklist for all content types.
 
@@ -2355,6 +2403,7 @@ For external/third-party tools, also include:
 **Type-specific — Methods:**
 
 - [ ] Implements identified principles (names them in header)
+- [ ] Applies To field present with task contexts (Part 3.5.3)
 - [ ] Procedure is sequential and testable
 - [ ] Importance tag present (CRITICAL / IMPORTANT / OPTIONAL)
 - [ ] Validation section has checkable criteria
@@ -2368,6 +2417,8 @@ For external/third-party tools, also include:
 ---
 
 ### 9.8.5 Applying the Framework: Authoring vs. Review
+
+**Applies To:** creating new governance content (principles, methods, appendices), reviewing existing content during consolidation audits, evaluating external framework contributions, determining editorial vs substantive changes
 
 The same criteria apply in both directions:
 
@@ -2445,6 +2496,8 @@ Examples — clear NOT editorial:
 
 ### 9.8.6 Concept Loss Prevention
 
+**Applies To:** merging principles during consolidation, demoting principles to methods, removing content during audits, any change that eliminates or relocates governance directives
+
 Before removing or merging ANY content:
 
 1. **List every distinct concept** the item contains at the *directive level* — not the title, but each specific rule, guidance, or behavioral requirement. A "concept" is any directive that, if removed, would change agent behavior in at least one concrete scenario. List at this level, not at the principle-title level.
@@ -2477,6 +2530,8 @@ When reviewing domains with structural features beyond standard principles:
 ---
 
 ### 9.8.8 Required Subagent Reviews
+
+**Applies To:** domain principle consolidation, content quality audits, new principle authoring, constitutional amendments, merge/demotion decisions, post-change verification
 
 Subagent reviews are mandatory, not optional. The KM&PD process validation run demonstrated that a primary assessor rated all 13 principles as KEEP, while the contrarian-reviewer identified 2 shared failure mode codes and 1 method-masquerading-as-principle — resulting in 13→10 after corrections. Without the contrarian, the skip gate would have incorrectly passed the domain.
 
@@ -3702,6 +3757,8 @@ The coherence-auditor subagent extends its protocol to include reference doc fre
 
 ### 14.2.7 Security Content Currency
 
+**Applies To:** periodic security review of governance content, verifying alignment with OWASP/MITRE/NIST updates, detecting staleness in security method sections, event-triggered review after major external standard releases
+
 Governance methods that reference external security standards (OWASP, MITRE ATLAS, NIST) can silently drift from those standards as new versions, threat categories, and attack techniques emerge. Unlike project reference docs (§14.2.1–14.2.6), governance content staleness is invisible until an attack vector isn't caught — there is no failing test or broken build to surface the gap.
 
 This subsection extends the staleness management protocol to cover governance security content against external standards.
@@ -4347,6 +4404,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.26.0 | 2026-04-14 | MINOR: Method template expansion (Part 3.5.3). Root cause: method template prescribed 5 fields but the retrieval system parses `**Applies To:**` for BM25 + semantic scoring — template never mentioned this field. Only 21% of methods (142/675) included it organically. A/B benchmark confirmed +19-61% BM25 score improvements for methods with `Applies To` metadata. (1) Added `**Applies To:**` as Required field to Part 3.5.3 template (5→7 fields) with inline authoring guidance. (2) Added Field Reference table (§3.5.3.1 equivalent) documenting each field's tier and purpose. (3) Added Known Limitation note (same pattern as Part 3.5.1:615). (4) Updated §9.8.3 structural requirements table to include Applies To. Dual justification: human comprehension (readers know when to use a method) + retrieval quality (feeds MethodMetadata.applies_to for BM25/semantic scoring). Constitutional derivation: `meta-core-systemic-thinking`, `meta-quality-verification-validation`. Passed Admission Test 6/6. Two contrarian reviews completed. |
 | 3.23.2 | 2026-04-09 | PATCH: §9.8.3 appendix template — affirmed base format (removed "since no formal template exists yet" caveat), added external/third-party tool extension (prerequisites, source/verification links, version pin, framework integration note). Root cause: 3-agent review of F.1 (ai-coding-methods) revealed gaps traceable to template omissions. Proportional fix per contrarian review: base template unchanged, extension scoped to external tools only (n=1; full template redesign deferred to n>=3). |
 | 3.23.0 | 2026-04-03 | MINOR: Corrective & cross-cutting change guidance (session 45 retrospective). Root cause: framework quality gates assumed additive changes, but mature framework changes are increasingly corrective/editorial. (1) Added editorial correction scope note to §9.8.5 with bright-line test — changes that alter what the framework requires/permits/prohibits/detects need the Admission Test; scope clarifications, navigational cross-references, and factual accuracy fixes are editorial (PATCH without Admission Test). Includes navigational vs. substantive cross-reference distinction and classification examples for examples and failure modes. Contrarian-reviewed: tightened from original "wording improvements" (too generous) to three specific editorial categories. (2) Added cross-TITLE scope check to §9.8.5 authoring mode (advisory) — broad scope claims ("unified," "all") must verify each TITLE's existing coverage via grep + query_governance. Prevents disconnected quality systems (per v3.22.1 root cause). (3) Added bidirectional cross-references between §9.3.1 (truth-source hierarchy) and §9.7.1 (content-classification hierarchy) — complementary hierarchies that served different purposes without acknowledging each other. |
 | 3.22.1 | 2026-04-03 | PATCH: Part 9.8 scope clarification + TITLE 15 cross-references (#36). Root cause: 9.8 claimed "unified quality gate for all framework content" but only covered governance-normative content (principles, methods, appendices), leaving Reference Library entries (TITLE 15) with a disconnected quality system and zero cross-references. Fix: (1) Scope-clarified "all framework content" → "all governance content" in §9.8 header and opening paragraph. (2) Added "Relationship to TITLE 15" note to Part 9.8 routing agents to Part 15.4 for artifact quality governance. (3) Added "Relationship to Part 9.8" back-reference in TITLE 15 header. Contrarian-reviewed: confirmed expanding 9.8 to cover Reference Library would be a category error (Admission Test questions like Derivation and Enforceability don't apply to curated artifacts). Coherence-audited: resolved 2 of 3 misleading findings (scope overclaim, disconnected quality systems). |
