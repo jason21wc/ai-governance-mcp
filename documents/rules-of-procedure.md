@@ -199,7 +199,7 @@ Tool Config (CLAUDE.md) → ai-instructions → Constitution → Domain → Meth
 
 ### 1.1.1 Version Format
 
-**Applies To:** version, format
+**Applies To:** assigning version numbers to governance documents, understanding MAJOR.MINOR.PATCH semantics, determining which version component to increment after a change
 
 All governance documents use semantic versioning: `MAJOR.MINOR.PATCH`
 
@@ -213,7 +213,7 @@ v2.1.3
 
 ### 1.1.2 Version Increment Rules
 
-**Applies To:** version, increment, rules
+**Applies To:** deciding which version component to bump after a governance document change, classifying changes as PATCH (clarifications), MINOR (new content), or MAJOR (breaking changes)
 
 | Change Type | Increment | Examples |
 |-------------|-----------|----------|
@@ -248,7 +248,7 @@ See §5.1.4 for the full document lifecycle.
 
 ### 1.1.4 Cross-Reference Compatibility
 
-**Applies To:** cross, reference, compatibility
+**Applies To:** verifying that document updates do not break existing cross-references, post-edit validation of section links and document paths, ensuring referenced documents and sections still exist after changes
 
 When updating documents, verify cross-references remain valid:
 - [ ] Referenced documents still exist
@@ -263,7 +263,7 @@ When updating documents, verify cross-references remain valid:
 
 ### 1.2.1 Constitutional Changes (Principles)
 
-**Applies To:** constitutional, changes, principles
+**Applies To:** modifying principle documents, evaluating downstream impact of constitutional edits, changes that may alter philosophy or require MAJOR version bumps
 
 Changes to principle documents require:
 - Careful consideration of downstream effects
@@ -273,7 +273,7 @@ Changes to principle documents require:
 
 ### 1.2.2 Methods Changes
 
-**Applies To:** methods, changes
+**Applies To:** updating methods documents (procedures, appendices), determining version impact of methods edits, maintaining compatibility between methods and the principles they implement
 
 Changes to methods documents:
 - Can be updated more frequently
@@ -283,7 +283,7 @@ Changes to methods documents:
 
 ### 1.2.3 Index Changes
 
-**Applies To:** index, changes
+**Applies To:** any change that requires an MCP index rebuild, understanding that the index is a generated artifact without its own version number, post-document-edit index maintenance
 
 Changes to MCP index:
 - Rebuild required after document changes
@@ -332,7 +332,7 @@ Since v3.20.0, version metadata lives in YAML frontmatter, not filenames. Filena
 
 ### 2.1.2 Version Determination
 
-**Applies To:** version, determination
+**Applies To:** pre-edit triage to classify a governance change as PATCH, MINOR, or MAJOR before beginning work, ensuring the correct version component is bumped
 
 Before updating, determine change type per TITLE 1:
 - **PATCH** (0.0.X): Typo fixes, clarifications
@@ -347,7 +347,7 @@ Before updating, determine change type per TITLE 1:
 
 ### 2.2.1 domains.json Structure
 
-**Applies To:** domains, json, structure
+**Applies To:** configuring a domain entry in domains.json, understanding required fields (name, display_name, principles_file, methods_file, description, priority), setting domain routing priority
 
 ```json
 {
@@ -374,7 +374,7 @@ Before updating, determine change type per TITLE 1:
 
 ### 3.1.1 Index Components
 
-**Applies To:** index, components
+**Applies To:** understanding the MCP index architecture, knowing which files comprise the index (global_index.json, content_embeddings.npy, domain_embeddings.npy) and their roles in semantic retrieval
 
 The MCP index consists of:
 
@@ -386,7 +386,7 @@ The MCP index consists of:
 
 ### 3.1.2 Index Location
 
-**Applies To:** index, location
+**Applies To:** locating the MCP index directory, configuring a custom index path via the AI_GOVERNANCE_INDEX_PATH environment variable
 
 Default: `index/` directory in project root
 
@@ -408,7 +408,7 @@ Rebuild index when:
 
 ### 3.2.1 Standard Rebuild
 
-**Applies To:** standard, rebuild
+**Applies To:** rebuilding the MCP index after governance document changes, running the extractor and verifying the rebuilt index with a test query
 
 ```bash
 python -m ai_governance_mcp.extractor
@@ -440,7 +440,7 @@ python -m ai_governance_mcp.server --test "test query"
 
 ### 3.4.1 Problem Statement
 
-**Applies To:** problem, statement
+**Applies To:** understanding why numeric series IDs (S1, C1, Q1) were replaced with title-based IDs, diagnosing principle retrieval errors caused by ID ambiguity or hallucination
 
 Numeric series IDs (S1, C1, Q1, MA1) caused systematic AI failures:
 
@@ -549,7 +549,7 @@ When writing governance documents, follow these rules to ensure proper ID genera
 
 ### 3.4.5 Cross-Reference Format
 
-**Applies To:** same-domain references:; context engineering; incorrect formats:; cross, reference, format
+**Applies To:** formatting cross-references between governance documents — same-domain references by title, cross-domain references with domain qualifier, avoiding series codes or full IDs in human-readable text
 
 Reference other principles by title, not ID:
 
@@ -575,7 +575,7 @@ Reference other principles by title, not ID:
 
 ### 3.4.6 Method Identification
 
-**Applies To:** filtered sections:; method, identification
+**Applies To:** generating IDs for methods (simplified format vs principle IDs), understanding which document sections the extractor filters out during indexing
 
 Methods use a simplified format:
 
@@ -592,7 +592,7 @@ Methods use a simplified format:
 
 ### 3.4.7 ID System Verification
 
-**Applies To:** system, verification
+**Applies To:** verifying that principle and method IDs are generated correctly after document updates, running the extractor and inspecting output for ID format compliance
 
 After document updates, verify IDs are generated correctly:
 
@@ -778,7 +778,7 @@ Methods are procedures (HOW), not principles (WHAT). Use this structure:
 
 ### 3.5.4 Header Hierarchy
 
-**Applies To:** header, hierarchy
+**Applies To:** structuring governance documents with correct markdown heading levels, ensuring consistent header nesting (# for TITLEs, ## for Parts, ### for sections, #### for sub-procedures)
 
 | Level | Usage | Example |
 |-------|-------|---------|
@@ -802,7 +802,7 @@ Methods are procedures (HOW), not principles (WHAT). Use this structure:
 
 ### 3.5.6 List Conventions
 
-**Applies To:** list, conventions
+**Applies To:** choosing the correct list format in governance documents — numbered lists for sequential procedures, bulleted for non-sequential items, checkboxes for verification checklists, definition lists for field-value pairs
 
 | Type | When to Use | Format |
 |------|-------------|--------|
@@ -813,7 +813,7 @@ Methods are procedures (HOW), not principles (WHAT). Use this structure:
 
 ### 3.5.7 Emoji and Badge Conventions
 
-**Applies To:** emoji, badge, conventions
+**Applies To:** using status indicators and importance badges in governance documents, applying the correct emoji for CRITICAL/IMPORTANT/OPTIONAL importance tags, warning/escalation markers, and success/failure indicators
 
 | Symbol | Meaning | Usage Context |
 |--------|---------|---------------|
@@ -826,7 +826,7 @@ Methods are procedures (HOW), not principles (WHAT). Use this structure:
 
 ### 3.5.8 Code Block Conventions
 
-**Applies To:** code, block, conventions
+**Applies To:** formatting code examples in governance documents, selecting the correct language identifier for syntax highlighting (bash, python, yaml, json, markdown)
 
 Always specify language identifier for syntax highlighting:
 
@@ -840,7 +840,7 @@ Always specify language identifier for syntax highlighting:
 
 ### 3.5.9 Table Conventions
 
-**Applies To:** table, conventions
+**Applies To:** creating tables in governance documents for comparisons, decision matrices, field descriptions, and mappings — using pipe-separated format with header rows
 
 - Use pipe-separated format with header row
 - Align columns for readability (optional but recommended)
@@ -873,7 +873,7 @@ For model name formatting conventions, see §10.1.4 Model Reference Conventions.
 
 ### 3.6.1 Server Instructions
 
-**Applies To:** server, instructions
+**Applies To:** understanding how the MCP server injects behavioral instructions into AI clients during initialization, maintaining the SERVER_INSTRUCTIONS constant in server.py
 
 The MCP server provides behavioral instructions to AI clients during initialization. These instructions are injected into the AI's context when the server connects, ensuring consistent governance awareness across different AI platforms.
 
@@ -887,7 +887,7 @@ The MCP server provides behavioral instructions to AI clients during initializat
 
 ### 3.6.2 Instructions Content
 
-**Applies To:** instructions, content
+**Applies To:** authoring or reviewing the content of MCP server instructions — ensuring the overview, trigger conditions, hierarchy summary, behavioral constraints, and quick start examples are present
 
 Server instructions should include:
 
@@ -901,7 +901,7 @@ Server instructions should include:
 
 ### 3.6.3 Updating Server Instructions
 
-**Applies To:** updating, server, instructions
+**Applies To:** modifying SERVER_INSTRUCTIONS after governance framework changes, keeping instructions concise and behavior-focused, testing updated instructions across target AI platforms
 
 When governance framework changes require updated AI guidance:
 
@@ -1107,7 +1107,7 @@ The key test is not "have I already done this?" but "will AI-specific failure mo
 
 ### 5.1.1 New Domain Checklist
 
-**Applies To:** new, domain, checklist
+**Applies To:** step-by-step procedure for adding a new governance domain — creating principle/method documents, registering in domains.json, rebuilding the index, and validating routing
 
 To add a new domain:
 
@@ -1135,7 +1135,7 @@ To add a new domain:
 
 ### 5.1.3 domains.json Entry
 
-**Applies To:** domains, json, entry
+**Applies To:** creating a new entry in domains.json for a domain, including the JSON template with required fields and YAML frontmatter for new domain documents
 
 ```json
 {
@@ -1192,7 +1192,7 @@ Governance documents follow a two-stage lifecycle. **All documents use `document
 
 ### 5.2.1 Deprecation Procedure
 
-**Applies To:** deprecation, procedure
+**Applies To:** deprecating and eventually removing a governance domain — marking deprecated, lowering priority, maintaining historical access during transition, and final removal from domains.json
 
 To deprecate a domain:
 
@@ -1376,7 +1376,7 @@ Extended conversations cause principle drift—research shows >30% degradation i
 
 ### 7.6.1 Automatic Reaffirmation Triggers
 
-**Applies To:** automatic, reaffirmation, triggers
+**Applies To:** long conversations where principle compliance may drift, sessions exceeding 8-12 turns, detecting when governance context needs refreshing
 
 The AI should perform a brief internal constitutional check when:
 - Conversation exceeds 10 substantive exchanges
@@ -1503,7 +1503,7 @@ Q1: "Is this for internal use or external customers?" [Independent]
 
 ### 7.9.3 Adaptive Branching Rules
 
-**Applies To:** adaptive, branching, rules
+**Applies To:** mid-conversation question sequencing, deciding when to branch into follow-up questions vs consolidate, adapting question paths based on user responses
 
 Apply these rules during questioning:
 
@@ -1646,7 +1646,7 @@ Compare alternatives against current approach:
 
 ### 7.10.4 Integration with Contrarian Reviewer
 
-**Applies To:** integration, contrarian, reviewer
+**Applies To:** invoking the contrarian-reviewer subagent during mid-task re-evaluation, connecting anchor bias detection with independent adversarial review
 
 When deploying the `contrarian-reviewer` subagent, include these anchor-bias-specific prompts:
 
@@ -1671,7 +1671,7 @@ These prompts complement the contrarian reviewer's standard assumption-challengi
 
 ### 7.10.6 Documentation Requirements
 
-**Applies To:** documentation, requirements
+**Applies To:** recording anchor bias check results and re-evaluation decisions, documenting pivot-or-persist outcomes with reasoning for audit trail
 
 When applying this protocol, document:
 1. **Trigger:** What triggered the re-evaluation (phase transition, complexity, etc.)
@@ -1840,7 +1840,7 @@ Not all constraints carry equal weight. This section defines which elements of t
 
 ### 8.5.1 NEVER Override (Constitutional Rights)
 
-**Applies To:** violation response:; never, override, constitutional, rights
+**Applies To:** identifying immutable framework elements that no justification permits overriding — core meta-principles, safety principle supremacy, validation requirements, human escalation triggers, and context verification
 
 These elements are **immutable**. No justification permits violation. Attempting to override these breaks framework integrity and produces unconstitutional behavior.
 
@@ -1856,7 +1856,7 @@ These elements are **immutable**. No justification permits violation. Attempting
 
 ### 8.5.2 CAUTION — Strong Justification Required (Statutory Protections)
 
-**Applies To:** modification requirements:; caution, strong, justification, required, statutory
+**Applies To:** modifying statutory-level framework elements that require explicit justification — validation criteria, progressive disclosure thresholds, principle application sequences, traceability requirements, and enforcement mechanisms
 
 These elements **may** be modified, but only with explicit justification, documented rationale, and awareness of increased risk.
 
@@ -1876,7 +1876,7 @@ These elements **may** be modified, but only with explicit justification, docume
 
 ### 8.5.3 SAFE — With Documented Rationale (Regulatory Discretion)
 
-**Applies To:** implementation flexibility; documentation format:; safe, documented, rationale, regulatory, discretion
+**Applies To:** adapting flexible framework elements (output format, explanation depth, tool choices, terminology) with documented rationale — regulatory-level discretion where modifications are expected and appropriate
 
 These elements allow **implementation flexibility**. Modifications are expected and appropriate when context warrants, provided rationale is documented.
 
@@ -1898,7 +1898,7 @@ These elements allow **implementation flexibility**. Modifications are expected 
 
 ### 8.5.4 Override Decision Framework
 
-**Applies To:** override, decision, framework
+**Applies To:** evaluating modification requests against the three-tier override classification — deciding whether an element is NEVER (refuse), CAUTION (require justification), or SAFE (adapt freely)
 
 When evaluating whether to accept a modification request:
 
@@ -1919,7 +1919,7 @@ When evaluating whether to accept a modification request:
 
 ### 8.5.5 Override Examples
 
-**Applies To:** valid override (safe):; valid override (caution):; override, examples
+**Applies To:** seeing concrete examples of valid SAFE overrides, valid CAUTION overrides with risk documentation, and invalid NEVER override attempts with correct refusal responses
 
 **Valid Override (SAFE):**
 ```markdown
@@ -1954,7 +1954,7 @@ Any new principle must follow the **Standard Structure** defined below. If a can
 
 ### 8.6.1 Standard Structure for Principles (Legislative Format)
 
-**Applies To:** definition (the law):; how the ai applies this (execution):; why this matters (legislative intent):; standard, structure, principles, legislative, format
+**Applies To:** authoring new constitutional principles using the required legislative format — Definition, AI Application, Legislative Intent, Human Interaction, Enforcement, Common Pitfalls, and Net Impact sections
 
 To ensure clarity and operational utility, every principle in the Constitution follows a strict legislative format:
 
@@ -1980,7 +1980,7 @@ When no existing principle directly governs a situation, the AI may derive guida
 
 ### 8.7.1 Elastic Clause Procedure
 
-**Applies To:** identify the gap:; find the closest analogy:; elastic, clause, procedure
+**Applies To:** deriving governance guidance for novel situations by analogizing from existing principles — the step-by-step process of gap identification, analogy selection, proportional derivation, documentation, and human review flagging
 
 1. **Identify the gap:** Confirm that no existing principle (constitutional or domain-level) directly addresses the situation. Use `query_governance()` and `query_project()` to verify.
 2. **Find the closest analogy:** Identify the principle whose **intent** (the "Why This Principle Matters" section) most closely aligns with the situation. Document which principle and why.
@@ -1990,7 +1990,7 @@ When no existing principle directly governs a situation, the AI may derive guida
 
 ### 8.7.2 Constraints on Derived Authority
 
-**Applies To:** constraints, derived, authority
+**Applies To:** understanding the limits of elastic clause derivation — cannot override Bill of Rights, cannot create new obligations, applies only to the current situation, subject to human rejection, and overuse signals a missing principle
 
 - Derived authority **cannot** override the Bill of Rights (Amendments I-III). Safety constraints are absolute, not derivable.
 - Derived authority **cannot** create new obligations — it can only extend existing obligations to analogous situations.
@@ -2014,7 +2014,7 @@ This title defines how to create new domain principles and methods, ensuring con
 
 ### 9.1.2 Domain Complexity Assessment
 
-**Applies To:** domain, complexity, assessment
+**Applies To:** evaluating whether a proposed domain has sufficient complexity to warrant governance, assessing domain maturity before creating principle and method documents
 
 Before creating a domain, assess:
 
@@ -2034,7 +2034,7 @@ Before creating a domain, assess:
 
 ### 9.2.1 Constitutional Derivation
 
-**Applies To:** identify parent principles:; specify application:; add domain context:; constitutional, derivation
+**Applies To:** creating new domain principles that trace back to constitutional authority — identifying parent principles, specifying how they apply in a domain context, and documenting the derivation chain
 
 Every domain principle must derive from one or more constitutional principles:
 
@@ -2055,7 +2055,7 @@ Domain Principle: Specification Completeness (AI-Coding)
 
 ### 9.2.2 Derivation Validation
 
-**Applies To:** derivation, validation
+**Applies To:** validating that a new domain principle correctly traces to constitutional authority, does not contradict existing principles, and adds genuine domain-specific value
 
 Before finalizing a domain principle:
 
@@ -2072,7 +2072,7 @@ Before finalizing a domain principle:
 
 ### 9.3.1 Truth Source Hierarchy
 
-**Applies To:** domain principles:; domain methods:; truth, source, hierarchy
+**Applies To:** resolving conflicts between governance sources, understanding which document is authoritative when domain content disagrees — Constitution over domain principles over methods over reference library over external references
 
 Each domain must establish its truth source hierarchy:
 
@@ -2086,7 +2086,7 @@ Each domain must establish its truth source hierarchy:
 
 ### 9.3.2 Conflict Resolution
 
-**Applies To:** conflict, resolution
+**Applies To:** resolving contradictions within domain documentation — applying the precedence rules (constitution wins, principles over methods, explicit over implied, specific over general)
 
 When domain documentation conflicts:
 
@@ -2152,7 +2152,7 @@ Constitution (meta) principles and domain principles use **intentionally differe
 
 ### 9.4.1 Domain Principle Template
 
-**Applies To:** canonical template:; part 3.5.1; domain, principle, template
+**Applies To:** locating the canonical domain principle template for authoring — redirects to Part 3.5.1 as the single source of truth for field structure, required/recommended/optional tiers, and alias table
 
 **Canonical template:** See **Part 3.5.1** (Domain Principle Template) for the full template, field reference with Required/Recommended/Optional tiers, and alias table for variant field names.
 
@@ -2207,7 +2207,7 @@ Before publishing any new domain principle or method:
 
 ### 9.5.1 Structural Validation
 
-**Applies To:** structural, validation
+**Applies To:** pre-publish structural check for new domain principles or methods — verifying correct template usage, descriptive titles, required fields, and consistent formatting
 
 - [ ] Uses Domain Principle Template (Part 3.5.1) or appropriate methods format
 - [ ] Title is descriptive (no series codes)
@@ -2216,7 +2216,7 @@ Before publishing any new domain principle or method:
 
 ### 9.5.2 Content Validation
 
-**Applies To:** content, validation
+**Applies To:** pre-publish content check for domain principles — verifying constitutional basis validity, checking for contradictions, ensuring failure modes are observable and domain application is actionable
 
 - [ ] Constitutional Basis is valid (principle exists)
 - [ ] Does not contradict any constitutional principle
@@ -2226,7 +2226,7 @@ Before publishing any new domain principle or method:
 
 ### 9.5.3 Technical Validation
 
-**Applies To:** technical, validation
+**Applies To:** pre-publish technical check for domain content — verifying extractor compatibility (principle indicators present), ID uniqueness within the domain, version history updates, and successful index rebuild
 
 - [ ] Will extract correctly (has principle indicators)
 - [ ] ID will be unique within domain
@@ -2243,7 +2243,7 @@ Before publishing any new domain principle or method:
 
 ### 9.6.1 Minor Updates (PATCH)
 
-**Applies To:** minor, updates, patch
+**Applies To:** applying PATCH-level changes to domain content (typo fixes, clarifications, formatting), the lightweight update procedure that skips alignment review
 
 For clarifications, typo fixes, formatting:
 
@@ -2254,7 +2254,7 @@ For clarifications, typo fixes, formatting:
 
 ### 9.6.2 Content Updates (MINOR)
 
-**Applies To:** content, updates, minor
+**Applies To:** applying MINOR-level changes to domain content (new principles, expanded methods, new procedures), the full update procedure including constitutional alignment and searchability testing
 
 For new principles, expanded content, new methods:
 
@@ -2302,7 +2302,7 @@ This part provides procedures for applying the US Constitution analogy when auth
 
 ### 9.7.1 Framework Hierarchy Reference
 
-**Applies To:** veto power; framework, hierarchy, reference
+**Applies To:** understanding the 7-layer governance hierarchy (Bill of Rights through Case Law), determining which layer has authority in a conflict, and classifying new content into the correct layer
 
 The governance framework uses a 7-layer hierarchy modeled on US legal structure. See `constitution.md` Framework Structure for the authoritative definition.
 
@@ -2320,7 +2320,7 @@ The governance framework uses a 7-layer hierarchy modeled on US legal structure.
 
 ### 9.7.2 Level Classification Procedure
 
-**Applies To:** step 1: safety check; bill of rights (s-series amendment); step 2: constitution check; level, classification, procedure
+**Applies To:** classifying new governance content into the correct hierarchy layer — working through the 6-step procedure from safety check (Bill of Rights) through precedent check (Case Law) to find the right placement
 
 When authoring new content, determine the correct layer. See also the "Identifying Where New Content Belongs" flowchart in `constitution.md` Framework Structure.
 
@@ -2357,7 +2357,7 @@ When authoring new content, determine the correct layer. See also the "Identifyi
 
 ### 9.7.3 Derivation Principle
 
-**Applies To:** derivation, principle
+**Applies To:** understanding how lower governance layers derive authority from higher ones — tracing the chain from constitutional articles through domain principles to domain methods
 
 Lower layers MUST derive from higher layers:
 
@@ -2387,7 +2387,7 @@ Constitution — Article III (Quality & Integrity)
 
 ### 9.7.4 Conflict Resolution (Supremacy Clause)
 
-**Applies To:** higher layer wins; document the conflict; revise lower layer; conflict, resolution, supremacy, clause
+**Applies To:** resolving conflicts between governance content at different hierarchy layers — higher layer always wins, S-Series overrides everything, lower-layer content must be revised to comply
 
 When content at different layers conflicts:
 
@@ -2398,7 +2398,7 @@ When content at different layers conflicts:
 
 ### 9.7.5 Cross-Level References
 
-**Applies To:** context engineering; cross, level, references
+**Applies To:** formatting cross-level references between governance hierarchy layers — using title-based references with appropriate verbs (derives from, per, implements) depending on direction
 
 When referencing across levels, use titles per Part 3.4.5:
 
@@ -2477,7 +2477,7 @@ Six binary questions ANY new or substantially modified (see §9.8.5 bright-line 
 
 ### 9.8.2 The Duplication Check
 
-**Applies To:** duplication, check
+**Applies To:** verifying that proposed new content does not duplicate existing coverage before authoring, or identifying redundancy in existing content during reviews — using query_governance and query_project to search all levels
 
 Procedure for checking existing coverage before authoring, or for identifying redundancy during review.
 
@@ -2804,7 +2804,7 @@ When referencing AI models in governance documents, follow these conventions to 
 
 ### 10.2.1 Capability Comparison
 
-**Applies To:** capability, comparison
+**Applies To:** comparing AI model capabilities across vendors (context window, extended thinking, tool use, web search, citations, code execution), selecting a model based on feature requirements
 
 | Capability | Claude | GPT-4o | o1/o3 | Gemini | Perplexity |
 |------------|--------|--------|-------|--------|------------|
@@ -2817,7 +2817,7 @@ When referencing AI models in governance documents, follow these conventions to 
 
 ### 10.2.2 When to Choose Which Model
 
-**Applies To:** choose, model
+**Applies To:** selecting the right AI model for a specific task type — matching complex reasoning, fast iteration, large context, research, code generation, or multi-modal needs to the best-fit model
 
 | Task Type | Recommended | Rationale |
 |-----------|-------------|-----------|
@@ -2896,7 +2896,7 @@ These vary by model and are documented in appendices:
 
 ### 10.3.3 Baseline Prompting (Cross-Model)
 
-**Applies To:** baseline, prompting, cross, model
+**Applies To:** establishing foundational prompting patterns that work across all AI models before applying model-specific optimizations
 
 These prompting patterns work across all major models:
 
@@ -2930,7 +2930,7 @@ This title provides operational techniques for constructing effective prompts. T
 
 ### 11.1.1 Chain-of-Thought (CoT)
 
-**Applies To:** basic cot:; self-consistency cot:; chain, thought, cot
+**Applies To:** eliciting step-by-step reasoning from AI models, complex multi-step problems requiring explicit justification, using basic CoT or self-consistency CoT for mathematical, logical, or decision-making tasks
 
 **Purpose:** Improve complex reasoning by decomposing problems into steps.
 
@@ -2962,7 +2962,7 @@ Final Answer: [Based on consensus]
 
 ### 11.1.2 Tree of Thoughts (ToT)
 
-**Applies To:** tree, thoughts, tot
+**Applies To:** strategic decisions with multiple valid approaches, creative problem-solving where single-path reasoning may miss alternatives, exploring and comparing parallel reasoning branches
 
 **Purpose:** Explore multiple reasoning branches simultaneously.
 
@@ -3000,7 +3000,7 @@ Synthesis: Compare branches and identify optimal solution path.
 
 ### 11.1.3 Meta-Prompting
 
-**Applies To:** meta, prompting
+**Applies To:** novel or ambiguous tasks where the optimal approach is unclear, having the AI analyze the task type and select its own strategy before executing
 
 **Purpose:** AI analyzes task before executing to select optimal approach.
 
@@ -3022,7 +3022,7 @@ Then execute your chosen approach for: [task description]
 
 ### 11.1.4 Few-Shot Chain-of-Thought
 
-**Applies To:** research basis:; few, shot, chain, thought
+**Applies To:** multi-step reasoning tasks where zero-shot CoT underperforms, providing worked examples with explicit reasoning traces to improve model accuracy on arithmetic, commonsense, and symbolic reasoning
 
 **Purpose:** Improve reasoning quality by providing worked examples that include explicit reasoning chains, not just input/output pairs. Standard few-shot prompting shows examples of correct answers; few-shot CoT shows *how to arrive* at correct answers.
 
@@ -3073,7 +3073,7 @@ Standard few-shot is sufficient for pattern-matching tasks (classification, form
 
 ### 11.2.1 Chain-of-Verification (CoVe)
 
-**Applies To:** chain, verification, cove
+**Applies To:** preventing hallucination by verifying claims before finalizing output, drafting responses then systematically checking each factual claim against available sources
 
 **Purpose:** Verify claims before finalizing output.
 
@@ -3096,7 +3096,7 @@ Revised Response: [Updated with verification results, uncertainties acknowledged
 
 ### 11.2.2 Step-Back Prompting
 
-**Applies To:** step, back, prompting
+**Applies To:** grounding specific answers in foundational principles first, establishing underlying concepts before addressing detailed questions to reduce hallucination and improve reasoning quality
 
 **Purpose:** Establish foundational context before specific answers.
 
@@ -3114,7 +3114,7 @@ Now, applying these principles to the specific question:
 
 ### 11.2.3 Source Grounding Protocol
 
-**Applies To:** visible reasoning & traceability; attribution patterns:; source, grounding, protocol
+**Applies To:** tying AI claims to verifiable sources, implementing attribution patterns for documentation, code, user input, and search results, handling uncertainty when sources are unavailable
 
 **Purpose:** Tie claims to verifiable sources. (Implements **Visible Reasoning & Traceability**)
 
@@ -3144,7 +3144,7 @@ I cannot verify [specific claim] from available sources.
 
 ### 11.3.1 Instruction Placement
 
-**Applies To:** sandwich method; instruction, placement
+**Applies To:** preventing instruction loss in long contexts by placing critical instructions at both the start and end of a prompt, using the sandwich method for instruction-following models
 
 **Sandwich Method** (for instruction-following models):
 ```
@@ -3166,7 +3166,7 @@ Remember to:
 
 ### 11.3.2 Positive Instruction Framing
 
-**Applies To:** graduated model:; positive, instruction, framing
+**Applies To:** writing clearer AI instructions by framing them positively ("be concise" vs "don't be verbose"), using the graduated model to match framing style to violation severity — absolute negatives for safety, mixed for boundaries, positive for general guidance
 
 **Principle:** "Do X" is clearer than "Don't do Y"
 
@@ -3191,7 +3191,7 @@ Not all contexts benefit equally from positive framing. Use a graduated approach
 
 ### 11.3.3 Output Format Specification
 
-**Applies To:** template for structured output:; output, format, specification
+**Applies To:** specifying exact output structure in prompts (summary, analysis, recommendation, confidence), ensuring AI responses follow a consistent format for downstream consumption
 
 **Template for Structured Output:**
 ```
@@ -3218,7 +3218,7 @@ Provide your response in this exact format:
 
 ### 11.4.1 Prompt Scaffolding
 
-**Applies To:** prompt, scaffolding
+**Applies To:** wrapping user input in protective structure for production systems, separating system rules from user data to prevent prompt injection, treating user input as data rather than instructions
 
 **Purpose:** Wrap user input in protective structure.
 
@@ -3243,7 +3243,7 @@ Process the user input according to system rules.
 
 ### 11.4.2 Input Validation Patterns
 
-**Applies To:** before processing user input:; input, validation, patterns
+**Applies To:** validating user input before processing to detect instruction-like patterns, behavior override attempts, or out-of-scope requests — flagging suspicious input for review
 
 **Before Processing User Input:**
 ```
@@ -3257,7 +3257,7 @@ If any YES: Flag for review, do not execute blindly.
 
 ### 11.4.3 Multi-Turn Security
 
-**Applies To:** session continuity:; multi, turn, security
+**Applies To:** maintaining security across multi-turn conversations, validating that follow-up requests align with the original task and established constraints, preventing conversational drift attacks
 
 **Session Continuity:**
 ```
@@ -3280,7 +3280,7 @@ Validation: Does current request align with original task and constraints?
 
 ### 11.5.1 ReAct Structure
 
-**Applies To:** react, structure
+**Applies To:** complex tasks requiring interleaved reasoning and tool use, information-gathering workflows where each observation informs the next action
 
 **Purpose:** Interleave reasoning with actions for complex tasks.
 
@@ -3303,7 +3303,7 @@ Final Answer: [Synthesized solution based on observations]
 
 ### 11.5.2 When to Use ReAct
 
-**Applies To:** use, react
+**Applies To:** deciding whether to apply the ReAct pattern — use for multi-source information gathering and tool-calling tasks, skip for simple questions with known answers
 
 | Scenario | Use ReAct? |
 |----------|------------|
@@ -3320,7 +3320,7 @@ Final Answer: [Synthesized solution based on observations]
 
 ### 11.6.1 Decision Matrix
 
-**Applies To:** decision, matrix
+**Applies To:** selecting the right prompt engineering technique for a given task type — mapping complex reasoning, factual claims, novel problems, tool use, and security needs to the appropriate primary and secondary techniques
 
 | Task Type | Primary Technique | Secondary |
 |-----------|------------------|-----------|
@@ -3334,7 +3334,7 @@ Final Answer: [Synthesized solution based on observations]
 
 ### 11.6.2 Combining Techniques
 
-**Applies To:** combining, techniques
+**Applies To:** layering multiple prompt engineering techniques in a single prompt — combining sandwich method, meta-prompting, chain-of-thought, and verification for maximum effectiveness
 
 Techniques can be layered:
 ```
@@ -3357,7 +3357,7 @@ Model sampling parameters (temperature, top-p) control the randomness and divers
 
 ### 11.7.1 Temperature Ranges
 
-**Applies To:** temperature, ranges
+**Applies To:** setting temperature parameters for AI model generation — low (0.1-0.3) for factual/analytical tasks, medium (0.4-0.7) for balanced output, high (0.8-1.2) for creative exploration
 
 | Task Type | Range | Effect |
 |-----------|-------|--------|
@@ -3367,7 +3367,7 @@ Model sampling parameters (temperature, top-p) control the randomness and divers
 
 ### 11.7.2 Top-P (Nucleus Sampling) Ranges
 
-**Applies To:** top, nucleus, sampling, ranges
+**Applies To:** setting top-p (nucleus sampling) parameters — low (0.1-0.3) for focused vocabulary, medium (0.4-0.7) for balanced selection, high (0.8-0.95) for diverse expression
 
 | Task Type | Range | Effect |
 |-----------|-------|--------|
@@ -3406,7 +3406,7 @@ RAG systems retrieve relevant documents to ground AI responses in source materia
 
 ### 12.1.1 Chunking Strategy Hierarchy
 
-**Applies To:** chunking, strategy, hierarchy
+**Applies To:** selecting a document chunking strategy for RAG — from fixed-size (prototyping) through semantic and document-structure to agentic chunking (highest quality, highest cost)
 
 | Level | Strategy | Size | Performance | Use When |
 |-------|----------|------|-------------|----------|
@@ -3419,7 +3419,7 @@ RAG systems retrieve relevant documents to ground AI responses in source materia
 
 ### 12.1.2 Chunking Decision Guide
 
-**Applies To:** chunking, decision, guide
+**Applies To:** choosing the right chunking approach based on document characteristics — structured documents use document-structure chunking, semantically dense content uses semantic chunking, everything else uses recursive
 
 ```
 Does document have clear structure (headers, sections)?
@@ -3434,7 +3434,7 @@ Does document have clear structure (headers, sections)?
 
 ### 12.1.3 Overlap Strategy
 
-**Applies To:** default recommendation; overlap, strategy
+**Applies To:** configuring chunk overlap percentage for RAG retrieval — balancing context preservation against storage cost, with 15-20% as the default recommendation for most use cases
 
 | Overlap % | Trade-off | Recommended For |
 |-----------|-----------|-----------------|
@@ -3445,7 +3445,7 @@ Does document have clear structure (headers, sections)?
 
 ### 12.1.4 Query-Chunk Alignment
 
-**Applies To:** critical insight:; query, chunk, alignment
+**Applies To:** sizing chunks to match expected query lengths for optimal embedding similarity — short questions need smaller chunks, complex queries need larger ones
 
 **Critical insight:** Embedding similarity works best when query and chunk sizes are similar.
 
@@ -3463,7 +3463,7 @@ Does document have clear structure (headers, sections)?
 
 ### 12.2.1 Embedding Model Selection
 
-**Applies To:** embedding, model, selection
+**Applies To:** choosing an embedding model for RAG based on accuracy requirements, cost constraints, and deployment model (commercial API vs self-hosted)
 
 | Model | MTEB Score | Cost | Best For |
 |-------|------------|------|----------|
@@ -3474,7 +3474,7 @@ Does document have clear structure (headers, sections)?
 
 ### 12.2.2 Dimensionality Trade-offs
 
-**Applies To:** production default; dimensionality, trade, offs
+**Applies To:** choosing embedding dimensions — trading storage and latency against accuracy, with 512-768 as the production default for most applications
 
 | Dimensions | Storage | Latency | Accuracy | Recommendation |
 |------------|---------|---------|----------|----------------|
@@ -3485,7 +3485,7 @@ Does document have clear structure (headers, sections)?
 
 ### 12.2.3 Embedding Best Practices
 
-**Applies To:** batch processing:; embedding, best, practices
+**Applies To:** operational best practices for embedding workflows — batch processing for efficiency, caching embeddings, normalizing vectors, and storing chunk metadata alongside vectors
 
 - **Batch processing:** Embed documents in batches (100-1000) for efficiency
 - **Caching:** Cache embeddings; re-embed only on content change
@@ -3500,7 +3500,7 @@ Does document have clear structure (headers, sections)?
 
 ### 12.3.1 Retrieval Methods
 
-**Applies To:** retrieval, methods
+**Applies To:** understanding the three retrieval approaches (dense/semantic, sparse/BM25, learned sparse/SPLADE) and their respective strengths for meaning capture vs exact keyword matching
 
 | Method | Mechanism | Strengths | Weaknesses |
 |--------|-----------|-----------|------------|
@@ -3510,7 +3510,7 @@ Does document have clear structure (headers, sections)?
 
 ### 12.3.2 Hybrid Retrieval (Recommended)
 
-**Applies To:** hybrid, retrieval, recommended
+**Applies To:** implementing hybrid retrieval combining dense, sparse, and BM25 methods with Reciprocal Rank Fusion for production RAG systems
 
 Combine multiple methods with Reciprocal Rank Fusion:
 
@@ -3534,7 +3534,7 @@ Apply reranking model after initial retrieval:
 
 ### 12.3.4 Query Optimization
 
-**Applies To:** query, optimization
+**Applies To:** improving retrieval quality through query expansion (adding synonyms), query decomposition (breaking complex queries into sub-queries), and HyDE (embedding hypothetical answers)
 
 | Technique | Description | When to Use |
 |-----------|-------------|-------------|
@@ -3550,7 +3550,7 @@ Apply reranking model after initial retrieval:
 
 ### 12.4.1 RAG Triad Evaluation
 
-**Applies To:** rag, triad, evaluation
+**Applies To:** evaluating RAG system quality using the three core metrics — context relevance (retrieval quality), groundedness (hallucination prevention), and answer relevance (response quality)
 
 | Metric | Definition | Target | Measures |
 |--------|------------|--------|----------|
@@ -3560,7 +3560,7 @@ Apply reranking model after initial retrieval:
 
 ### 12.4.2 Quality Thresholds
 
-**Applies To:** quality, thresholds
+**Applies To:** setting and monitoring quality thresholds for RAG systems — hallucination rate, source grounding, confidence scoring, and retrieval precision targets with escalation actions when below threshold
 
 | Metric | Target | Action if Below |
 |--------|--------|-----------------|
@@ -3571,7 +3571,7 @@ Apply reranking model after initial retrieval:
 
 ### 12.4.3 Four-Layer Validation
 
-**Applies To:** four, layer, validation
+**Applies To:** implementing multi-layer RAG validation — token similarity for fast filtering, semantic similarity for deviation detection, LLM judge for complex reasoning, and structured grounding for source attribution
 
 | Layer | Method | Threshold | Purpose |
 |-------|--------|-----------|---------|
@@ -3582,7 +3582,7 @@ Apply reranking model after initial retrieval:
 
 ### 12.4.4 Confidence Scoring
 
-**Applies To:** confidence, scoring
+**Applies To:** computing composite confidence scores for RAG responses — weighting token confidence, grounding score, and consistency to determine autonomous vs human-flagged responses
 
 ```
 Confidence = (0.3 × token_confidence) +
@@ -3601,7 +3601,7 @@ Threshold: ≥ 0.85 for autonomous response
 
 ### 12.5.1 Domain Configuration Matrix
 
-**Applies To:** domain, configuration, matrix
+**Applies To:** configuring RAG parameters per content domain — tailoring chunk size, overlap, validation layers, and confidence thresholds to the specific accuracy and performance needs of technical, legal, medical, financial, or customer service content
 
 | Domain | Chunk Size | Overlap | Validation | Confidence |
 |--------|------------|---------|------------|------------|
@@ -3613,7 +3613,7 @@ Threshold: ≥ 0.85 for autonomous response
 
 ### 12.5.2 High-Accuracy Domains (Legal, Medical, Financial)
 
-**Applies To:** high, accuracy, domains, legal, medical
+**Applies To:** RAG configuration for regulated or high-stakes domains (legal, medical, financial) requiring mandatory source citation, all four validation layers, 0.95 confidence threshold, and expert review triggers
 
 Required controls:
 - Mandatory source citation for all claims
@@ -3624,7 +3624,7 @@ Required controls:
 
 ### 12.5.3 High-Volume Domains (Customer Service, Knowledge Base)
 
-**Applies To:** high, volume, domains, customer, service
+**Applies To:** RAG optimization for high-throughput domains (customer service, knowledge bases) prioritizing speed — semantic caching, reduced validation layers, response templates, batch processing, and model tier routing
 
 Optimization priorities:
 - Semantic caching for repeated queries
@@ -3643,7 +3643,7 @@ Optimization priorities:
 
 ### 12.6.1 Decision Matrix
 
-**Applies To:** speed priority; accuracy priority; decision, matrix
+**Applies To:** selecting the optimal RAG configuration based on your primary requirement — speed, accuracy, cost, document complexity, or regulatory compliance — with specific chunking, embedding, retrieval, and validation recommendations for each
 
 | Requirement | Chunking | Embedding | Retrieval | Validation |
 |-------------|----------|-----------|-----------|------------|
@@ -3655,7 +3655,7 @@ Optimization priorities:
 
 ### 12.6.2 Performance Improvement Reference
 
-**Applies To:** performance, improvement, reference
+**Applies To:** estimating the accuracy and cost impact of RAG optimization techniques — quantifying improvements from semantic chunking, hybrid retrieval, reranking, context enrichment, and multi-layer validation
 
 | Technique | Typical Improvement | Cost Impact |
 |-----------|---------------------|-------------|
@@ -3667,7 +3667,7 @@ Optimization priorities:
 
 ### 12.6.3 Quick Start Configuration
 
-**Applies To:** recommended production baseline:; constitutional basis:; quick, start, configuration
+**Applies To:** getting a production RAG system running quickly with sensible defaults — semantic chunking, text-embedding-3-large, hybrid retrieval with standard weights, and RAG Triad validation
 
 **Recommended production baseline:**
 - Chunking: Semantic, 400-600 tokens, 15% overlap
@@ -4004,7 +4004,7 @@ Each domain defines what "stale" means for its reference docs:
 
 ### 14.2.5 Refresh Procedure
 
-**Applies To:** refresh, procedure
+**Applies To:** updating stale reference documents when staleness triggers fire, verifying freshness metadata, reconciling reference docs with changed source data
 
 When staleness is detected:
 1. **Flag** — Notify user with specific stale sections identified
@@ -4092,7 +4092,7 @@ Generalize the storytelling domain's memory architecture into a cross-domain pat
 
 ### 14.3.2 Universal Memory Tiers
 
-**Applies To:** universal, memory, tiers
+**Applies To:** setting up memory architecture for any domain, understanding the working/semantic/episodic tier model and what content belongs at each tier
 
 | Memory Type | Cognitive Function | Content | Lifecycle |
 |-------------|-------------------|---------|-----------|
@@ -4102,7 +4102,7 @@ Generalize the storytelling domain's memory architecture into a cross-domain pat
 
 ### 14.3.3 Domain Memory File Mapping
 
-**Applies To:** domain, memory, file, mapping
+**Applies To:** choosing the correct filenames for memory files per domain (e.g., STORY-BIBLE.md vs DATA-REFERENCE.md), cross-domain memory architecture alignment
 
 | Memory Type | Storytelling | AI Coding | UI/UX | Multi-Agent | Multimodal-RAG |
 |-------------|-------------|-----------|-------|-------------|----------------|
@@ -4138,7 +4138,7 @@ Agents should NOT load entire reference documents by default. Instead:
 
 ### 14.4.3 Pre-Action Reference Check
 
-**Applies To:** pre, action, reference, check
+**Applies To:** before modifying domain entities (characters, data models, components, agents, pipelines), verifying planned changes against reference document content
 
 Before actions that modify domain entities (characters, data models, components, agents, pipelines), check:
 
@@ -4151,7 +4151,7 @@ Before actions that modify domain entities (characters, data models, components,
 
 ### 14.4.4 Post-Action Reference Update
 
-**Applies To:** post, action, reference, update
+**Applies To:** after creating new entities or modifying existing ones, checking whether reference documents need updating, maintaining freshness metadata
 
 After actions that create new entities or modify existing ones:
 1. Check if the change crosses a staleness trigger threshold
@@ -4249,7 +4249,7 @@ The Reference Library is the framework's **Case Law** — a curated collection o
 ## Part 15.2: Entry Types
 
 ### 15.2.1 Direct Entry
-**Applies To:** direct, entry
+**Applies To:** capturing reusable code snippets, configurations, templates, or patterns directly in the reference library as self-contained artifacts
 
 The actual artifact lives in the library. The entry IS the reusable material.
 
@@ -4270,7 +4270,7 @@ Each Reference Library entry is a markdown file with YAML frontmatter. The front
 
 ### 15.3.1 YAML Frontmatter Specification
 
-**Applies To:** yaml, frontmatter, specification
+**Applies To:** creating new reference library entries, populating required and recommended YAML frontmatter fields, understanding the metadata schema for library entries
 
 ```yaml
 ---
@@ -4305,7 +4305,7 @@ derived_from: null                          # Parent entry if refined
 
 ### 15.3.2 Markdown Body Specification
 
-**Applies To:** markdown, body, specification
+**Applies To:** writing the markdown body of reference library entries, structuring Context/Artifact/Lessons Learned/Do-Don't/Cross-References sections
 
 ```markdown
 ## Context
@@ -4337,7 +4337,7 @@ What worked, what didn't, edge cases, gotchas discovered in practice.
 
 ### 15.4.1 Three Intake Paths
 
-**Applies To:** three, intake, paths
+**Applies To:** deciding how a new reference library entry enters the system — auto-capture via rules, AI-proposed staging, or manual curation by the user
 
 **Path 1 — Auto-capture (rule-based, no-brainers):**
 - Domain-specific criteria stored in `_criteria.yaml` per library domain directory
@@ -4378,7 +4378,7 @@ Adapted from legal reportability criteria:
 
 ### 15.4.3 Maturity Pipeline (digital garden model)
 
-**Applies To:** maturity, pipeline, digital, garden, model
+**Applies To:** promoting reference library entries from seedling to budding to evergreen, determining when entries are ready for broader use, demoting stale entries
 
 | Maturity | Definition | Retrieval Weight | Promotion Criteria |
 |----------|-----------|-----------------|-------------------|
@@ -4515,7 +4515,7 @@ Projects exceeding domain-defined complexity thresholds require curated referenc
 
 ### 16.1.4 Common Pitfalls
 
-**Applies To:** common, pitfalls
+**Applies To:** avoiding common mistakes when creating and maintaining project reference documents — premature creation, content duplication, staleness, and misapplied domain taxonomies
 
 - Creating reference documents too early (overhead exceeds value for simple projects)
 - Duplicating information already visible in source files (reference docs should capture only cross-cutting knowledge)
@@ -4556,7 +4556,7 @@ See Part 7.9 for detailed procedural tables and templates.
 
 ### 16.2.4 Common Pitfalls
 
-**Applies To:** the "interrogation" trap:; the "shallow foundation" trap:; the "infinite clarification" trap:; common, pitfalls
+**Applies To:** avoiding failure modes during progressive questioning — interrogation-style exhaustive questioning, skipping foundational context, infinite clarification loops, failure to prune irrelevant branches, and defaulting to structured options during discovery
 
 - **The "Interrogation" Trap:** Asking all questions regardless of prior answers, overwhelming the user with irrelevant inquiries.
 - **The "Shallow Foundation" Trap:** Jumping to detailed questions before establishing strategic context, causing downstream rework.
@@ -4591,7 +4591,7 @@ Design prompts, tasks, and instructions with explicit constraints, requirements,
 
 ### 16.3.4 Common Pitfalls
 
-**Applies To:** common, pitfalls
+**Applies To:** avoiding failure modes when designing constraint-based prompts — vague specifications, implicit requirements, over-constraining, and neglecting to update constraints as context evolves
 
 - Vague or overly broad prompts that invite off-target or incomplete work
 - Implicit or undocumented constraints leading to misunderstandings
@@ -4626,7 +4626,7 @@ Plan, execute, and refine work in small, time-bounded iterations — allowing ra
 
 ### 16.4.4 Common Pitfalls
 
-**Applies To:** common, pitfalls
+**Applies To:** avoiding failure modes in iterative planning — oversized iterations, resistance to plan adjustment, skipping cycle-boundary validation, and insufficient traceability across iterations
 
 - Oversized or under-scoped iterations, leading to missed deadlines or superficial progress
 - Failing to adjust plans when feedback or objectives change
@@ -4661,7 +4661,7 @@ Communicate with sufficient detail, context, and actionable information for reli
 
 ### 16.5.4 Common Pitfalls
 
-**Applies To:** common, pitfalls
+**Applies To:** avoiding failure modes in AI communication style — verbosity that hides key information, under-detailed outputs missing rationale, audience-inappropriate messaging, and filler content displacing actionable signal
 
 - Overly verbose communication hiding key information or slowing decision cycles
 - Under-detailed outputs missing critical requirements, context, or rationale
@@ -4696,7 +4696,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 ### 16.6.4 Common Pitfalls
 
-**Applies To:** common, pitfalls
+**Applies To:** avoiding failure modes in cross-domain accessibility — missing alternative formats, undetected design bias, infrequent accessibility reviews, and treating inclusiveness as an optional afterthought rather than a design requirement
 
 - Accessible formats or features missing for some users or modalities
 - Overlooking design/content bias that excludes or confuses target groups

@@ -35,7 +35,7 @@ governance_level: "federal-regulations"
 
 ## 1 The Context Threshold Problem
 
-**Applies To:** context, threshold, problem
+**Applies To:** Any AI-assisted narrative project. Understanding effective context limits is foundational before choosing a memory strategy — determines whether you need a story bible, selective loading, or can work entirely in-context.
 
 ### Why This Method Exists
 
@@ -69,7 +69,7 @@ AI language models have **advertised** context windows of 100K-200K tokens, but 
 
 ## 2 The Story Bible Architecture
 
-**Applies To:** story, bible, architecture
+**Applies To:** Setting up reference material for any narrative project over 10K words. Defines the three-tier memory model (working memory, semantic memory, episodic memory) that all other methods in this document build on.
 
 ### Three-Tier Memory Model
 
@@ -104,7 +104,7 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 
 ## 3 Reference Items to Track
 
-**Applies To:** reference, items, track
+**Applies To:** Deciding what to put in a story bible — characters, settings, timelines, world rules, plot architecture, and style guides. Tiered by project length (mandatory items for 10K+ words, recommended for 25K+, optional for series).
 
 ### Tier 1: MANDATORY (Track for Any Project Over 10K Words)
 
@@ -180,7 +180,7 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 
 ## 4 Story Bible Template
 
-**Applies To:** story, bible, template
+**Applies To:** Starting a new narrative project and need a ready-to-use story bible structure. Provides a minimal template (10K-25K words) and a full template (25K+ words) with character sheets, world-building, plot architecture, and session state sections.
 
 ### Minimal Template (10K-25K Words)
 
@@ -242,7 +242,7 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 
 ## 1 Story Foundation (IMMUTABLE)
 
-**Applies To:** story, foundation, immutable
+**Applies To:** The immutable core of the full story bible template — premise, theme, core promise, and stakes. Established once and never revised without a major version change.
 
 ### Premise
 [One sentence: Who wants what, and what stands in the way?]
@@ -329,7 +329,7 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 
 ## 4 Plot Architecture
 
-**Applies To:** plot, architecture
+**Applies To:** The plot architecture section of the full story bible template — structure framework, key plot points, subplots, foreshadowing registry, promise/payoff ledger, and open reader questions.
 
 ### Structure
 - **Framework:** [Hero's Journey / Three-Act / Kishotenketsu / etc.]
@@ -376,7 +376,7 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 
 ## 5 Style Guide
 
-**Applies To:** style, guide
+**Applies To:** The style guide section of the full story bible template — narrative voice, tense, POV rules, formatting conventions, spelling choices, and genre convention decisions.
 
 ### Voice
 - **Tense:** [Past / Present]
@@ -423,7 +423,7 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 
 ## 7 Session State (Working Memory)
 
-**Applies To:** session, state, working, memory
+**Applies To:** The session state (working memory) section of the full story bible template. Updated at the start and end of every writing session to track current position, active tension, POV, character states, and unresolved threads.
 
 *Updated each session. Overwritten, not appended.*
 
@@ -467,7 +467,7 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 
 ## 5 Context Loading Protocol
 
-**Applies To:** context, loading, protocol
+**Applies To:** Every AI writing session where story bible material must be loaded into context. Specifies loading order (exploiting the U-shaped attention curve), selective loading rules, and token budgets to keep effective context under 15K tokens.
 
 ### The "Lost in the Middle" Mitigation
 
@@ -524,7 +524,7 @@ For optimal performance, keep loaded context under 15K tokens:
 
 ## 6 When to Create New Reference Items
 
-**Applies To:** create, new, reference, items
+**Applies To:** Mid-project decisions about whether a new character, location, or world element deserves a story bible entry. Provides four diagnostic tests (named entity, recurrence, consistency, relationship) and tiering criteria for entry depth.
 
 ### Decision Framework
 
@@ -568,7 +568,7 @@ When a new element emerges during writing:
 
 ## 7 Platform-Specific Adaptations
 
-**Applies To:** platform, specific, adaptations
+**Applies To:** Scaling the story bible approach to different project sizes — novels and series (full template), novelettes and novellas (minimal template), short stories and flash fiction (in-prompt notes only), social media, and serialized web fiction.
 
 ### Long-Form (Novels, Series)
 
@@ -607,7 +607,7 @@ When a new element emerges during writing:
 
 ## 8 Voice Preservation Integration
 
-**Applies To:** voice, preservation, integration
+**Applies To:** AI-assisted writing sessions where the human author has a distinct voice that must be preserved. Adds a Voice Fingerprint section to the story bible capturing authentic patterns, sample passages, and explicit boundaries on what AI may or must not change.
 
 When AI assists a human storyteller (vs. generating independently), add this section to Story Bible:
 
@@ -640,7 +640,7 @@ When AI assists a human storyteller (vs. generating independently), add this sec
 
 ## 9 Recovery Protocol
 
-**Applies To:** recovery, protocol
+**Applies To:** When things go wrong — story bible inconsistencies, context overflow mid-scene, or resuming a project after a long gap. Provides step-by-step recovery procedures for each failure mode.
 
 ### If Story Bible Becomes Inconsistent
 
@@ -673,7 +673,7 @@ When AI assists a human storyteller (vs. generating independently), add this sec
 
 ## 10 Governance Integration
 
-**Applies To:** governance, integration
+**Applies To:** Connecting storytelling methods to the broader governance framework. Maps each method to its implementing principle and specifies which principle series to query before different types of writing sessions (generation, editing, platform-specific, persuasive).
 
 ### Principle Mapping
 
@@ -699,7 +699,7 @@ Query governance for relevant storytelling principles based on current task:
 
 ## 11 Auto-Tracking Protocol
 
-**Applies To:** auto, tracking, protocol
+**Applies To:** Any project where manual story bible maintenance is impractical. Defines when the AI should automatically extract characters, locations, rules, and plot events from written text, and how to handle conflicts between new text and existing bible entries.
 
 ### Why Auto-Tracking?
 
@@ -803,7 +803,7 @@ Every session must end with this sequence:
 ## Session End Checklist
 
 ### 1. Session State Update
-**Applies To:** session, state, update
+**Applies To:** End of every writing session — captures current position, last line written, active POV, and character emotional states so the next session can resume seamlessly.
 
 - [ ] Current chapter/scene position
 - [ ] Last line written (exact quote)
@@ -812,7 +812,7 @@ Every session must end with this sequence:
 - [ ] Character emotional states (those in scene)
 
 ### 2. Entity Extraction Review
-**Applies To:** entity, extraction, review
+**Applies To:** End of every writing session — reviews whether new characters, locations, or world rules were introduced and ensures they are added to the story bible.
 
 - [ ] New characters introduced? → Add to Bible
 - [ ] New locations introduced? → Add to Bible
@@ -820,14 +820,14 @@ Every session must end with this sequence:
 - [ ] Existing entries need updates? → Update with changelog
 
 ### 3. Episodic Log Update
-**Applies To:** episodic, log, update
+**Applies To:** End of every writing session — records a compressed summary of what happened, key plot developments, and character changes for the episodic memory log.
 
 - [ ] One-paragraph summary of session events
 - [ ] Key plot developments noted
 - [ ] Character changes documented
 
 ### 4. Conflict Check
-**Applies To:** conflict, check
+**Applies To:** End of every writing session — catches contradictions between new text and existing story bible entries, timeline inconsistencies, or out-of-character behavior before they propagate.
 
 - [ ] Any contradictions with Bible entries?
 - [ ] Any timeline inconsistencies?
@@ -835,7 +835,7 @@ Every session must end with this sequence:
 → If yes to any: Flag for revision management
 
 ### 5. Next Session Prep
-**Applies To:** next, session, prep
+**Applies To:** End of every writing session — queues upcoming scenes, identifies which characters and bible sections to load next time, and notes unresolved questions to address.
 
 - [ ] What scenes are next?
 - [ ] Which characters need to be loaded?
@@ -846,7 +846,7 @@ Every session must end with this sequence:
 
 ## 12 Revision Management Protocol
 
-**Applies To:** revision, management, protocol
+**Applies To:** Any revision that changes established facts, events, or structure — from minor fact corrections (eye color) to major event retcons (moving a betrayal to an earlier chapter). Provides version control, blast-radius analysis, and conflict resolution procedures.
 
 ### The Revision Problem
 
@@ -1114,7 +1114,7 @@ When auto-tracking detects a conflict:
 
 ## 13 Non-Linear Writing Protocol
 
-**Applies To:** non, linear, writing, protocol
+**Applies To:** Writers who work out of order — writing scenes that inspire them regardless of chronological or narrative sequence, then assembling fragments later. Covers fragment tracking, dual-order management (narrative vs. chronological), assembly/stitching procedures, and cross-fragment continuity verification.
 
 ### The Inspiration-First Workflow
 
@@ -1762,7 +1762,7 @@ Maintaining **character voice distinction** across long narratives prevents the 
 
 ### 15.1 Voice Profile Components
 
-**Applies To:** vocabulary range; sentence structure; speech rhythm; voice, profile, components
+**Applies To:** Creating a voice profile for each significant speaking character — documenting vocabulary range, sentence structure, verbal tics, emotional tells, and sample dialogue lines to prevent all characters sounding alike.
 
 For each significant speaking character, document:
 
@@ -1777,7 +1777,7 @@ For each significant speaking character, document:
 
 ### 15.2 Voice Distinction Test
 
-**Applies To:** cover-the-attribution test; voice distinction; voice, distinction, test
+**Applies To:** Dialogue review and revision — the "cover-the-attribution test" where you strip character names and dialogue tags to verify each speaker is identifiable by voice alone. Use after writing dialogue-heavy scenes.
 
 The **cover-the-attribution test**: remove character names and dialogue tags from a conversation. Can you tell who is speaking from voice alone?
 
@@ -1796,7 +1796,7 @@ The **cover-the-attribution test**: remove character names and dialogue tags fro
 
 ### 15.3 Voice Drift Detection
 
-**Applies To:** converge toward the ai's default style; voice, drift, detection
+**Applies To:** Long AI-assisted narratives where character voices gradually converge toward the AI's default style. Compare early dialogue samples against recent output to detect and correct drift before it becomes entrenched.
 
 Over long narratives, characters' voices can **converge toward the AI's default style**. Check for drift by comparing:
 - Early dialogue samples vs. recent dialogue
@@ -1815,7 +1815,7 @@ Over long narratives, characters' voices can **converge toward the AI's default 
 
 ### 16.1 Convention Reference
 
-**Applies To:** convention, reference
+**Applies To:** Quick reference when establishing or verifying genre conventions — key expectations for romance, thriller, mystery, science fiction, fantasy, horror, and literary fiction.
 
 | Genre | Key Conventions | Reader Expectations |
 |-------|----------------|---------------------|
@@ -1829,7 +1829,7 @@ Over long narratives, characters' voices can **converge toward the AI's default 
 
 ### 16.2 Convention Decision Workflow
 
-**Applies To:** identify genre; list conventions; choose adherence; convention, decision, workflow
+**Applies To:** Early project planning when deciding which genre conventions to honor and which to intentionally subvert. Follows the trust-then-surprise pattern: establish genre trust before breaking conventions for impact.
 
 1. **Identify genre** — What genre(s) does this story belong to?
 2. **List conventions** — What does this genre's audience expect?
@@ -1850,7 +1850,7 @@ Systematic **plot hole detection** for long-form narratives where continuity err
 
 ### 17.1 Check Categories
 
-**Applies To:** character knowledge audit; timeline verification; rule compliance scan; check, categories
+**Applies To:** Overview of the five consistency check types — character knowledge audits, timeline verification, rule compliance scans, object tracking, and relationship continuity — with guidance on when to run each.
 
 | Check Type | What It Catches | When to Run |
 |-----------|-----------------|-------------|
@@ -1862,7 +1862,7 @@ Systematic **plot hole detection** for long-form narratives where continuity err
 
 ### 17.2 Character Knowledge Audit
 
-**Applies To:** character, knowledge, audit
+**Applies To:** After scenes where information is revealed to specific characters. Verifies no character acts on knowledge they should not yet possess — catches "author knowledge leaking" into character behavior.
 
 For each scene, verify:
 - Does every character only act on information they've been shown to possess?
@@ -1871,7 +1871,7 @@ For each scene, verify:
 
 ### 17.3 Timeline Verification
 
-**Applies To:** timeline, verification
+**Applies To:** After time jumps, at act breaks, or whenever temporal consistency is in question. Maps events to story days, verifies travel times are plausible, and checks that simultaneous events do not contradict each other.
 
 - Map events to story days/times
 - Verify travel times are plausible
@@ -1880,7 +1880,7 @@ For each scene, verify:
 
 ### 17.4 Quick Consistency Scan
 
-**Applies To:** quick, consistency, scan
+**Applies To:** A fast five-point checklist to run at every scene boundary — character locations, knowledge states, physical states, time/weather, and emotional continuity. Lightweight enough for routine use between scenes.
 
 A fast check to run at scene boundaries:
 - [ ] All characters present were established as being at this location
@@ -1899,7 +1899,7 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.1 Question Categories
 
-**Applies To:** question, categories
+**Applies To:** Overview of the six coaching question categories (discovery, character, structure, craft, revision, stuck) with guidance on when each category is most useful.
 
 | Category | Purpose | When to Use |
 |----------|---------|-------------|
@@ -1912,7 +1912,7 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.2 Discovery Questions
 
-**Applies To:** discovery, questions
+**Applies To:** Early-stage coaching when the writer has not yet found their story's core — unclear premise, unfocused theme, or no central scene in mind.
 
 - "What feeling do you want readers to have when they finish?"
 - "If you had to describe this story in one sentence to a friend, what would you say?"
@@ -1921,7 +1921,7 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.3 Character Questions
 
-**Applies To:** character, questions
+**Applies To:** Coaching sessions where characters feel flat, motivations are unclear, or the writer cannot articulate what drives their protagonist. Probes wants, wounds, lies believed, and hidden depths.
 
 - "What's the worst thing that could happen to this character? What would they sacrifice to prevent it?"
 - "What does this character believe about the world that isn't true?"
@@ -1930,7 +1930,7 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.4 Structure Questions
 
-**Applies To:** structure, questions
+**Applies To:** Coaching sessions where the plot feels stuck, pacing drags, or the writer is unsure whether a scene earns its place in the narrative. Probes scene goals, structural promises, and payoff delivery.
 
 - "What does your protagonist want in this scene, right now? What's stopping them?"
 - "What's the most surprising thing that happens in your story? Could readers glimpse it earlier?"
@@ -1939,7 +1939,7 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.5 Craft Questions
 
-**Applies To:** craft, questions
+**Applies To:** Coaching sessions focused on prose technique — weak dialogue, flat description, missing sensory detail, or scenes where the writer is telling emotions instead of showing them.
 
 - "Read this dialogue aloud — does it sound like how real people talk?"
 - "What does this setting smell like? Sound like? What's the temperature?"
@@ -1948,7 +1948,7 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.6 Revision Questions
 
-**Applies To:** revision, questions
+**Applies To:** Coaching sessions during the revision phase — identifying weak scenes, finding tell-not-show passages, spotting characters with indistinguishable voices, and locating where reader attention drops.
 
 - "What's the weakest scene in your draft? What makes it weak?"
 - "Are there scenes where you're telling the reader what to feel instead of showing them?"
@@ -1957,7 +1957,7 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.7 Stuck Questions
 
-**Applies To:** stuck, questions
+**Applies To:** Coaching sessions where the writer has hit a block — creative paralysis, decision fatigue, or loss of excitement. Redirects energy toward what excites them rather than forcing through the stuck point.
 
 - "What's the last thing you wrote that excited you?"
 - "What if the opposite happened? What if the character did the unexpected thing?"
@@ -1966,7 +1966,7 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.8 Progressive Inquiry Pattern
 
-**Applies To:** broad → narrow → probe → challenge; progressive, inquiry, pattern
+**Applies To:** Structuring a coaching conversation as a funnel — start with broad open exploration, narrow to a specific moment, probe for emotional depth, then challenge with a "what if" test. Terminate when the writer reaches clarity.
 
 Apply questions in a **broad → narrow → probe → challenge** sequence:
 

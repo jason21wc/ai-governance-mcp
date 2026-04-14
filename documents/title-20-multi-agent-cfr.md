@@ -300,7 +300,7 @@ Create this file as `claude.md`, `gemini.md`, AND `agents.md` in project root:
 
 ### 1.1 Justified Complexity Check
 
-**Applies To:** the 15x rule:; justified, complexity, check
+**Applies To:** Before deploying any multi-agent workflow, to determine whether the 15x token overhead is justified by genuine complexity — context window limits, parallelization gains, cognitive function mismatch, or quality requirements that a single generalist cannot meet.
 
 CRITICAL
 
@@ -418,7 +418,7 @@ When agents ARE deployed, document:
 
 ### 1.2 Workflow Initialization Protocol
 
-**Applies To:** capture original intent; workflow, initialization, protocol
+**Applies To:** The start of any multi-agent workflow — capturing the user's original intent, creating synchronized context files, assessing complexity, and selecting the orchestration pattern before any agents are deployed.
 
 CRITICAL
 
@@ -477,7 +477,7 @@ CRITICAL
 
 ### 1.3 Multi-Tool Setup
 
-**Applies To:** directory structure; multi, tool, setup
+**Applies To:** Setting up a project where multiple AI CLI tools (Claude Code, Gemini CLI, Codex CLI) operate on the same codebase with synchronized context files and shared state.
 
 IMPORTANT
 
@@ -515,7 +515,7 @@ IMPORTANT
 
 ### 2.1 Subagent Definition Standard
 
-**Applies To:** subagent, definition, standard
+**Applies To:** Creating or modifying any subagent definition file — ensuring every agent has a complete specification including name, cognitive function, tool permissions, system prompt, and verification criteria.
 
 CRITICAL
 
@@ -953,7 +953,7 @@ Before finalizing, confirm:
 
 ### 2.2 Agent Catalog
 
-**Applies To:** the six core agent patterns:; agent, catalog
+**Applies To:** Selecting or instantiating agent roles for a workflow — the six core patterns (orchestrator, researcher, coder, validator, contrarian reviewer, governance agent) serve as ready-to-deploy templates.
 
 CRITICAL
 
@@ -1309,7 +1309,7 @@ Evaluative judgment. I compare planned actions against authoritative principles 
 
 ### 2.3 Context Isolation Verification
 
-**Applies To:** verification checklist:; anti-patterns to avoid:; context, isolation, verification
+**Applies To:** After spawning any subagent, to verify that context isolation is intact — no inherited conversation history, no leaked generator reasoning, and all cross-agent references are explicit rather than implicit.
 
 IMPORTANT
 
@@ -1339,7 +1339,7 @@ IMPORTANT
 
 ### 3.1 Handoff Pattern Taxonomy
 
-**Applies To:** two fundamental patterns:; handoff, pattern, taxonomy
+**Applies To:** Deciding how context flows between agents at a handoff boundary — choosing between agents-as-tools (minimal context, stateless queries) and agent-transfer (full context, stateful workflow continuation).
 
 CRITICAL
 
@@ -1407,7 +1407,7 @@ Phase N                              Phase N+1
 
 ### 3.2 Handoff Protocol
 
-**Applies To:** shared assumptions document:; handoff, protocol
+**Applies To:** Every agent-to-agent handoff — structuring the context transfer to achieve zero information loss, including shared assumptions documents for parallel agents and compressed handoff packets for sequential workflows.
 
 CRITICAL
 
@@ -1500,7 +1500,7 @@ handoff:
 
 ### 3.3 Orchestration Pattern Selection
 
-**Applies To:** default: linear-first; pattern selection matrix:; orchestration, pattern, selection
+**Applies To:** Choosing the coordination topology for a multi-agent workflow — sequential, parallel, or hierarchical — based on task dependencies and read-write analysis. Defaults to sequential (linear-first) unless parallel independence is confirmed.
 
 CRITICAL
 
@@ -1542,7 +1542,7 @@ Before choosing parallel, categorize all tasks:
 
 #### Batch vs. Real-Time Orchestration
 
-**Applies To:** Choosing between real-time and batch API endpoints for orchestrated workflows. **Batch orchestration**, **real-time vs batch decision**, **async workload routing**.
+**Applies To:** Choosing between real-time and batch API endpoints for orchestrated workflows — routing by latency tolerance, task volume, and whether a user is waiting for a response.
 
 Before selecting Sequential/Parallel/Hierarchical patterns, determine whether the workload should use real-time or batch processing:
 
@@ -1590,7 +1590,7 @@ Before selecting Sequential/Parallel/Hierarchical patterns, determine whether th
 
 **Decentralized Dispatch Variant (Orchestrator-Absent):**
 
-**Applies To:** **decentralized dispatch**, **queue-driven fan-out**, **orchestrator-absent** topologies, **concurrent agent pool** systems
+**Applies To:** Orchestrator-absent topologies where a queue or scheduler dispatches tasks to an agent pool without runtime coordination — each agent works in an isolated branch and CI/PR review serves as the quality gate.
 
 ```
 [Queue/Scheduler] → Agent A → output (branch A)
@@ -1695,7 +1695,7 @@ Task C (blockedBy: [B])  ─┘
 
 ### 3.4 Compression Procedures
 
-**Applies To:** the compression imperative:; compression, procedures
+**Applies To:** Every agent boundary where context is transferred — compressing handoff packets, phase transition summaries, and parallel fan-in results to prevent context window degradation while preserving intent and key decisions.
 
 CRITICAL
 
@@ -1862,7 +1862,7 @@ After distillation, verify:
 
 ### 3.5 State Persistence Protocol
 
-**Applies To:** state.md template:; last updated:; state, persistence, protocol
+**Applies To:** Any multi-agent workflow that may span session boundaries — persisting workflow phase, agent statuses, completed handoffs, and next steps in STATE.md so a new session can resume without information loss.
 
 CRITICAL
 
@@ -1961,7 +1961,7 @@ When resuming a workflow with incomplete tasks:
 
 ### 3.6 Session Closer Protocol
 
-**Applies To:** session, closer, protocol
+**Applies To:** Ending any multi-agent work session — gathering session summaries, updating STATE.md, synchronizing context files across CLI tools, and committing changes so the next session can resume cleanly.
 
 IMPORTANT
 
@@ -2005,7 +2005,7 @@ IMPORTANT
 
 ### 3.7 Observability Protocol
 
-**Applies To:** status broadcast requirements:; status message format:; observability, protocol
+**Applies To:** Any agent task exceeding two minutes — broadcasting status updates at defined intervals, logging structured metrics (tokens, latency, cache hits), and triggering alerts when error rates or costs exceed thresholds.
 
 IMPORTANT
 
@@ -2133,7 +2133,7 @@ All production workflows MUST support point-in-time replay for debugging:
 
 ### 3.8 ReAct Loop Configuration
 
-**Applies To:** the react framework:; react, loop, configuration
+**Applies To:** Configuring the Reason-Act-Observe execution cycle for any agentic task — setting iteration limits, confidence thresholds, and timeout parameters to prevent runaway loops and ensure controlled termination.
 
 IMPORTANT
 
@@ -2233,7 +2233,7 @@ react_loop:
 
 ### 3.9 Standardized Collaboration Protocols
 
-**Applies To:** inter-agent communication schema; standardized, collaboration, protocols
+**Applies To:** Any inter-agent communication where agents exchange data — enforcing schema-validated structured contracts instead of natural language conversation, with versioned schemas and timeout configuration.
 
 IMPORTANT
 
@@ -2320,7 +2320,7 @@ When inter-agent dependencies form cycles (Agent A waiting for Agent B, Agent B 
 
 ### 4.1 Validation Agent Deployment
 
-**Applies To:** validation philosophy:; validation deployment checklist:; validation, agent, deployment
+**Applies To:** After any agent produces an output that must meet acceptance criteria — deploying a validator with fresh context, explicit criteria, and no access to the generator's reasoning to ensure independent quality assessment.
 
 CRITICAL
 
@@ -2383,7 +2383,7 @@ Include confidence: HIGH / MEDIUM / LOW with rationale.
 
 ### 4.2 Contrarian Reviewer Pattern
 
-**Applies To:** when to deploy contrarian reviewer:; contrarian, reviewer, pattern
+**Applies To:** High-stakes decisions, architectural choices, and complex plans where confirmation bias is a risk — deploying a fresh-context adversarial reviewer to surface blind spots, challenge assumptions, and find substantive flaws before commitment.
 
 IMPORTANT
 
@@ -2433,7 +2433,7 @@ Provide findings with actionable suggestions. Substantive concerns only.
 
 ### 4.3 Governance Agent Pattern
 
-**Applies To:** generic pattern:; governance check invocation:; governance, agent, pattern
+**Applies To:** Before any agent action that is not on the governance skip list — invoking a governance check (via MCP tool, pre-action hook, or manual review) to assess compliance with principles and enforce S-Series veto authority.
 
 IMPORTANT
 
@@ -2482,7 +2482,7 @@ S-Series (safety) principles have veto authority. If ANY S-Series principle is v
 
 ### 4.4 Fault Tolerance Procedures
 
-**Applies To:** failure detection:; retry protocol:; fault, tolerance, procedures
+**Applies To:** Handling agent failures (timeouts, error responses, invalid output, quality failures) without cascading to the entire workflow — detecting failures, applying retry logic with backoff, and escalating when retries are exhausted.
 
 CRITICAL
 
@@ -2588,7 +2588,7 @@ Near-miss triggers:
 
 ### 4.5 Human-in-the-Loop Gates
 
-**Applies To:** mandatory human gates:; human, loop, gates
+**Applies To:** Critical decision points that require human oversight — phase transitions, architectural decisions, irreversible actions, stop-the-line events, low-confidence validations, specification gaps, and S-Series safety violations.
 
 CRITICAL
 
@@ -2647,7 +2647,7 @@ All human decisions must be logged:
 
 ### 4.6 Governance Enforcement Architecture
 
-**Applies To:** governance, enforcement, architecture
+**Applies To:** Making governance checks structural rather than optional — implementing orchestrator-first patterns, MCP gateway proxies, or hook-based enforcement so that compliance is physically enforced through tool access control rather than relying on advisory instructions.
 
 CRITICAL
 
@@ -3069,7 +3069,7 @@ This provides guidance but not enforcement—the AI *can* bypass. Advisory compl
 
 IMPORTANT
 
-**Applies To:** Governance enforcement, compliance checking, structural validation, hook-based automation, client-side policy enforcement
+**Applies To:** Platforms with client-side hook support (e.g., Claude Code) where deterministic enforcement scripts intercept tool calls and prompts before they reach the AI — providing a lightweight alternative to gateway proxies that catches governance drift regardless of the model's judgment.
 
 **The Problem:**
 
@@ -3285,7 +3285,7 @@ Each layer catches failures the previous layer misses. Advisory works most of th
 
 ### 4.7 Agent Evaluation Framework
 
-**Applies To:** why validation alone is insufficient:; agent, evaluation, framework
+**Applies To:** Systematically measuring agent performance beyond one-off validation — evaluating component quality, decision-making trajectories, task outcomes, and multi-agent coordination metrics over time for optimization and regression detection.
 
 CRITICAL
 
@@ -3713,7 +3713,7 @@ Before deploying a new grader:
 
 ### 4.8 Production Safety Guardrails
 
-**Applies To:** the guardrail imperative:; production, safety, guardrails
+**Applies To:** Any agent deployed to production with significant autonomy — implementing multi-layer safety defenses including input guardrails (prompt injection, PII detection), output guardrails (hallucination checks, content filtering), and tool-use guardrails with S-Series veto integration.
 
 CRITICAL
 
@@ -3878,7 +3878,7 @@ S-Series (Safety) principles from the Constitution have veto authority. Guardrai
 
 ### 5.1 Context File Synchronization
 
-**Applies To:** the three context files:; sync protocol:; context, file, synchronization
+**Applies To:** Multi-CLI workflows where Claude Code, Gemini CLI, and Codex CLI operate on the same project — keeping their respective context files (claude.md, gemini.md, agents.md) byte-identical through a designate-primary, edit, copy, verify protocol.
 
 CRITICAL
 
@@ -3929,7 +3929,7 @@ Then load context and confirm ready state.
 
 ### 5.2 Multi-Tool Workflow Patterns
 
-**Applies To:** pattern: specialized tool selection; multi, tool, workflow, patterns
+**Applies To:** Coordinating tasks across multiple AI CLI tools — leveraging each tool's strengths (e.g., parallel research with different models, specialized tool selection by task type, sequential handoffs between CLIs).
 
 IMPORTANT
 
@@ -4207,7 +4207,7 @@ When agent output feeds back into agent input (e.g., research agent reads its ow
 
 **Implements:** AO-1 (Blast Radius Classification), AO-2 (HITL Removal Criteria), AO-3 (Compensating Controls), AO-4 (Autonomous Drift Monitoring)
 
-**Applies To:** research protocol; research architect; autonomous, experimentation, protocol
+**Applies To:** Agents running autonomous modify-test-evaluate-decide loops without continuous human supervision — structuring research protocols with scope constraints, evaluation metrics, time budgets, and keep/discard criteria so the human serves as research architect and the agent as research executor.
 
 Operationalizes the AO-Series for autonomous agent experimentation — agents running modify→test→evaluate→decide loops without continuous human supervision.
 

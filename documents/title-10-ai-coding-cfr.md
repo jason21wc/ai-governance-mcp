@@ -619,7 +619,7 @@ These methods apply to all AI-assisted software development activities within th
 
 ### 1.1.3 Relationship to Other Domains
 
-**Applies To:** relationship, domains
+**Applies To:** Projects spanning multiple domains where AI coding methods must coordinate with other governance areas
 
 When tasks span multiple domains:
 1. AI Coding Methods govern code-related activities
@@ -633,7 +633,7 @@ When tasks span multiple domains:
 
 ### 1.2.1 Workflow Terms
 
-**Applies To:** validation gate:; workflow, terms
+**Applies To:** Any context where workflow terminology is used — understanding phases, procedures, validation gates, and procedural modes
 
 **Phase:** A major stage of the development workflow. Four phases exist: Specify, Plan, Tasks, Implement.
 
@@ -645,7 +645,7 @@ When tasks span multiple domains:
 
 ### 1.2.2 Role Terms
 
-**Applies To:** product owner (po):; ai implementer:; solo developer mode:; role, terms
+**Applies To:** Any context where role responsibilities are referenced — clarifying who decides, who implements, and how solo developers operate
 
 **Product Owner (PO):** Human responsible for vision, requirements, prioritization, and validation. Makes all strategic decisions. Reviews significant AI recommendations.
 
@@ -655,7 +655,7 @@ When tasks span multiple domains:
 
 ### 1.2.3 Artifact Terms
 
-**Applies To:** state file:; artifact, terms
+**Applies To:** Any context referencing project artifacts — specifications, architecture documents, tasks, and state files
 
 **Specification:** Document defining WHAT to build—requirements, user stories, acceptance criteria, constraints.
 
@@ -667,7 +667,7 @@ When tasks span multiple domains:
 
 ### 1.2.4 Quality Terms
 
-**Applies To:** technical debt:; quality, terms
+**Applies To:** Any context where quality standards are discussed — understanding production-readiness thresholds, technical debt tracking, and validation criteria
 
 **Production-Ready:** Code that meets all Q-series principle thresholds: zero HIGH/CRITICAL vulnerabilities, ≥80% test coverage, verified dependencies, documented patterns.
 
@@ -687,7 +687,7 @@ Before applying phase procedures, calibrate the procedural mode to match project
 
 ### 1.3.2 Calibration Questions
 
-**Applies To:** question 1: novelty assessment; question 2: requirements certainty; calibration, questions
+**Applies To:** Project start or significant scope change — determining the right procedural mode by assessing novelty, requirements certainty, stakes, and longevity
 
 Execute this protocol at project start and when scope significantly changes:
 
@@ -729,7 +729,7 @@ Execute this protocol at project start and when scope significantly changes:
 
 ### 1.3.3 Mode Selection Matrix
 
-**Applies To:** canonical decision rule; mode, selection, matrix
+**Applies To:** Selecting the procedural mode after calibration questions are answered — the single source of truth for Expedited vs. Standard vs. Enhanced determination
 
 **Canonical Decision Rule** (one source of truth):
 
@@ -787,7 +787,7 @@ ELSE:
 
 ### 1.3.4 Mode Override
 
-**Applies To:** upgrade to enhanced:; downgrade to expedited:; mode, override
+**Applies To:** When the Product Owner needs to override the calculated procedural mode — upgrading for lower risk tolerance or downgrading under time pressure
 
 Product Owner may override the calculated mode:
 
@@ -802,7 +802,7 @@ Document mode selection and any override in the State File (Title 7).
 
 ### 1.4.1 EXPEDITED Mode
 
-**Applies To:** risk acceptance:; expedited, mode
+**Applies To:** High-certainty, low-stakes projects replicating known patterns — minimal discovery and planning overhead with higher tolerance for iteration
 
 **When to use:** High certainty, low stakes, replicating known patterns.
 
@@ -819,7 +819,7 @@ Document mode selection and any override in the State File (Title 7).
 
 ### 1.4.2 STANDARD Mode
 
-**Applies To:** risk acceptance:; standard, mode
+**Applies To:** Medium-certainty, moderate-stakes projects — the default mode for typical production work with balanced discovery and validation
 
 **When to use:** Medium certainty, moderate stakes, typical production work.
 
@@ -836,7 +836,7 @@ Document mode selection and any override in the State File (Title 7).
 
 ### 1.4.3 ENHANCED Mode
 
-**Applies To:** risk acceptance:; enhanced, mode
+**Applies To:** Low-certainty or high-stakes projects — novel problems, uncertain requirements, or critical systems requiring heavy upfront discovery and validation
 
 **When to use:** Low certainty OR high stakes. Novel problems, uncertain requirements, critical systems.
 
@@ -854,7 +854,7 @@ Document mode selection and any override in the State File (Title 7).
 
 ### 1.4.4 Mode Transitions
 
-**Applies To:** expedited → standard:; standard → enhanced:; enhanced → standard:; mode, transitions
+**Applies To:** Mid-project changes in complexity or risk — escalating when unexpected challenges emerge or de-escalating when uncertainty resolves
 
 Projects may transition between modes:
 
@@ -875,7 +875,7 @@ Document transitions in State File with rationale.
 
 ### 1.5.1 Core Memory Kit (All Modes Including Expedited)
 
-**Applies To:** core, memory, kit, modes, including
+**Applies To:** Every project regardless of procedural mode — the minimum set of memory and instruction files required for AI-assisted development
 
 Every project creates these 4 files regardless of procedural mode:
 
@@ -892,7 +892,7 @@ Every project creates these 4 files regardless of procedural mode:
 
 ### 1.5.2 Standard Kit (Core + 3 Files)
 
-**Applies To:** total: 7 files; standard, kit, core, files
+**Applies To:** Standard-mode projects requiring production-grade documentation — adds architecture, specification, and completion checklist to the core kit
 
 Standard mode adds documentation for production-grade work:
 
@@ -906,7 +906,7 @@ Standard mode adds documentation for production-grade work:
 
 ### 1.5.3 Enhanced Kit (Standard + Evaluated Additions)
 
-**Applies To:** total: 7+ files; enhanced, kit, standard, evaluated, additions
+**Applies To:** Enhanced-mode projects where complexity warrants additional reference documents beyond the standard kit — evaluated against threshold tables rather than mandated
 
 Enhanced mode does not mandate a fixed set of additional files. Instead, it triggers evaluation using the §7.10 reference document threshold table:
 
@@ -923,7 +923,7 @@ Enhanced mode does not mandate a fixed set of additional files. Instead, it trig
 
 ### 1.5.4 Kit Scaling Rules
 
-**Applies To:** kit, scaling, rules
+**Applies To:** Mode transitions that require adding or evaluating project documents — ensuring documentation scales with changing project rigor
 
 When transitioning between modes (see §1.4.4):
 
@@ -938,7 +938,7 @@ When transitioning between modes (see §1.4.4):
 
 ### 1.5.5 Project Instruction File Pattern
 
-**Applies To:** project instruction file pattern; cross-tool project instructions; project, instruction, file, pattern
+**Applies To:** Multi-tool AI projects needing consistent instructions across Claude Code, Gemini CLI, Cursor, Cowork, and other AI coding assistants
 
 **Keywords:** **project instruction file pattern**, **cross-tool project instructions**, **universal instruction file**
 
@@ -994,7 +994,7 @@ Discovery establishes shared understanding before specification writing. This pr
 
 ### 2.1.2 Discovery by Mode
 
-**Applies To:** expedited mode:; standard mode:; discovery, mode
+**Applies To:** The beginning of any project or scope change — scaling discovery effort from minimal (Expedited) to comprehensive (Enhanced) based on procedural mode
 
 **EXPEDITED Mode:**
 - [ ] Identify reference pattern or prior art
@@ -1021,7 +1021,7 @@ Discovery establishes shared understanding before specification writing. This pr
 
 ### 2.1.3 Discovery Outputs
 
-**Applies To:** problem statement:; success criteria:; discovery, outputs
+**Applies To:** Completing the discovery phase — verifying that minimum outputs (problem statement, success criteria, constraints, unknowns, risks) are documented
 
 At minimum, discovery produces:
 
@@ -1033,7 +1033,7 @@ At minimum, discovery produces:
 
 ### 2.1.4 Discovery Escalation
 
-**Applies To:** discovery, escalation
+**Applies To:** Discovery revealing that initial assumptions are wrong, constraints make goals infeasible, or risks exceed thresholds — triggering Product Owner involvement
 
 Escalate to Product Owner when:
 - Discovery reveals initial assumptions were significantly wrong
@@ -1051,7 +1051,7 @@ Specifications translate discovery findings into precise requirements that AI ca
 
 ### 2.2.2 Specification Components
 
-**Applies To:** required for all modes:; additional for standard mode:; specification, components
+**Applies To:** Writing specifications after discovery — defining required components (elevator pitch, features, acceptance criteria) scaled by procedural mode
 
 **Required for ALL modes:**
 
@@ -1083,7 +1083,7 @@ Specifications translate discovery findings into precise requirements that AI ca
 
 ### 2.2.3 Specification Quality Criteria
 
-**Applies To:** specification, quality, criteria
+**Applies To:** Reviewing a specification before the Plan phase gate — verifying completeness, consistency, testability, prioritization, and scope boundaries
 
 Before proceeding to Plan phase, specifications must meet:
 
@@ -1095,7 +1095,7 @@ Before proceeding to Plan phase, specifications must meet:
 
 ### 2.2.4 MVP Discipline
 
-**Applies To:** mvp, discipline
+**Applies To:** Any specification where feature scope risks exceeding what can be reasonably built — applying aggressive scope limitation to identify the minimum viable feature set
 
 > "Every feature you add in planning multiplies complexity during implementation."
 
@@ -1118,7 +1118,7 @@ Verify specification meets C1 requirements before proceeding to Plan phase. This
 
 ### 2.3.2 Completeness Checklist
 
-**Applies To:** expedited mode checklist:; standard mode checklist:; completeness, checklist
+**Applies To:** The Specify-to-Plan validation gate — verifying all specification components are present before proceeding, scaled by procedural mode
 
 **EXPEDITED Mode Checklist:**
 - [ ] Problem statement clear
@@ -1149,7 +1149,7 @@ All STANDARD items, plus:
 
 ### 2.3.3 Checklist Failures
 
-**Applies To:** checklist, failures
+**Applies To:** When the completeness checklist reveals missing or deficient specification items — iterating back through discovery or specification writing until the gate passes
 
 If checklist fails:
 1. Identify missing or deficient items
@@ -1184,7 +1184,7 @@ Apply UX Elaboration procedures when the project has a user-facing interface. Th
 
 ### 2.4.2 UX Elaboration Procedures
 
-**Applies To:** user flow mapping; interaction design; prototype development; elaboration, procedures
+**Applies To:** Enhanced-mode projects with user-facing interfaces — mapping user journeys, defining interaction patterns, and creating prototypes before implementation
 
 1. **User Flow Mapping**
    - Document primary user journeys
@@ -1206,7 +1206,7 @@ Apply UX Elaboration procedures when the project has a user-facing interface. Th
 
 ### 2.4.3 UX Validation Gate
 
-**Applies To:** ui/ux domain principles; validation, gate
+**Applies To:** UX elaboration gate before proceeding to implementation — verifying user flows, interactions, accessibility, and stakeholder-validated prototypes are complete
 
 Before proceeding:
 - [ ] User flows documented and approved
@@ -1232,7 +1232,7 @@ Apply Visual Design procedures when:
 
 ### 2.5.2 Visual Design Procedures
 
-**Applies To:** design system definition; visual mockups; design validation; visual, design, procedures
+**Applies To:** Brand-critical projects requiring visual consistency — defining design systems, creating visual mockups, and validating designs with stakeholders
 
 1. **Design System Definition**
    - Color palette specification
@@ -1254,7 +1254,7 @@ Apply Visual Design procedures when:
 
 ### 2.5.3 Visual Design Validation Gate
 
-**Applies To:** ui/ux methods; visual, design, validation, gate
+**Applies To:** Visual design gate before proceeding — verifying design system documentation, key screen designs, responsive behavior, and accessibility compliance
 
 Before proceeding:
 - [ ] Design system documented
@@ -1283,7 +1283,7 @@ Define the technical architecture that will implement the specification. Archite
 
 ### 3.1.2 Architecture by Mode
 
-**Applies To:** expedited mode:; standard mode:; architecture, mode
+**Applies To:** Defining technical architecture after specification is validated — scaling from proven pattern selection (Expedited) to full architecture evaluation with spikes (Enhanced)
 
 **EXPEDITED Mode:**
 - [ ] Select proven architecture pattern
@@ -1312,7 +1312,7 @@ Define the technical architecture that will implement the specification. Archite
 
 ### 3.1.3 Architecture Components
 
-**Applies To:** required for all modes:; additional for standard mode:; architecture, components
+**Applies To:** Documenting architecture decisions — defining technology stack, system structure, and data model at minimum, with security, observability, and scalability additions for higher modes
 
 **Required for ALL modes:**
 
@@ -1343,7 +1343,7 @@ Define the technical architecture that will implement the specification. Archite
 
 ### 3.1.4 Technology Selection Criteria
 
-**Applies To:** technology, selection, criteria
+**Applies To:** Choosing languages, frameworks, libraries, and services for a project — evaluating fitness, maturity, team fit, scalability, and cost while avoiding common AI recommendation pitfalls
 
 Technologies should be:
 - [ ] **Proven:** Mature ecosystem, good documentation
@@ -1445,7 +1445,7 @@ Translate architecture into implementation-ready technical plan. This bridges ar
 
 ### 3.2.2 Technical Plan Components
 
-**Applies To:** required for all modes:; additional for standard/enhanced modes:; technical, plan, components
+**Applies To:** Translating architecture into an implementation-ready plan — defining feature-to-technology mappings, development sequence, risks, and definition of done
 
 **Required for ALL modes:**
 
@@ -1468,7 +1468,7 @@ Translate architecture into implementation-ready technical plan. This bridges ar
 
 ### 3.2.3 Development Sequence Planning
 
-**Applies To:** development, sequence, planning
+**Applies To:** Ordering implementation work to respect dependencies, enable parallel effort, deliver value incrementally, and address highest-risk items early
 
 Sequence implementation to:
 1. Build foundation before features that depend on it
@@ -1480,7 +1480,7 @@ Document sequence with explicit dependencies.
 
 ### 3.2.4 Architecture Validation Gate
 
-**Applies To:** expedited mode:; standard mode:; architecture, validation, gate
+**Applies To:** The Plan-to-Tasks validation gate — verifying architecture decisions, security review, and development sequence are complete before task decomposition
 
 Before proceeding to Tasks phase:
 
@@ -1516,7 +1516,7 @@ Plan context window utilization to maintain AI effectiveness throughout implemen
 
 ### 3.3.2 Context Inventory
 
-**Applies To:** essential context; reference context; context, inventory
+**Applies To:** Planning context window usage before implementation — categorizing what must always be loaded, what to load on demand, and what to summarize
 
 Before implementation, identify:
 
@@ -1539,7 +1539,7 @@ Before implementation, identify:
 
 ### 3.3.3 Context Loading Plan
 
-**Applies To:** context, loading, plan
+**Applies To:** Each major implementation phase — determining which context to load in full, which to summarize, and estimating token budgets
 
 For each major implementation phase:
 - What essential context is required?
@@ -1549,7 +1549,7 @@ For each major implementation phase:
 
 ### 3.3.4 Context Monitoring
 
-**Applies To:** context, monitoring
+**Applies To:** During implementation — tracking context usage, pruning completed work, and managing the effective token limit to prevent context overflow
 
 During implementation:
 - Track estimated context usage
@@ -1559,7 +1559,7 @@ During implementation:
 
 ### 3.3.5 Persistent Codebase Analysis
 
-**Applies To:** discovered patterns:; cross-session continuity:; persistent, codebase, analysis
+**Applies To:** Projects with Reference Memory (semantic index) — using persistent codebase knowledge for context inventory, pattern discovery, and cross-session continuity
 
 When Reference Memory is available (§7.9), it serves as the persistent codebase understanding layer for context strategy:
 
@@ -1583,7 +1583,7 @@ Execute proof-of-concept when:
 
 ### 3.4.2 PoC Scope
 
-**Applies To:** poc, scope
+**Applies To:** Enhanced-mode projects where the core technical approach is unproven — scoping a minimal, time-boxed proof-of-concept to test specific hypotheses
 
 A proof-of-concept should:
 - Test specific technical hypotheses
@@ -1593,7 +1593,7 @@ A proof-of-concept should:
 
 ### 3.4.3 PoC Procedure
 
-**Applies To:** hypothesis statement:; success criteria:; poc, procedure
+**Applies To:** Executing a proof-of-concept — defining the hypothesis, success criteria, building the minimal test, and evaluating results
 
 1. **Hypothesis Statement:** What are we testing?
 2. **Success Criteria:** How do we know if it works?
@@ -1603,7 +1603,7 @@ A proof-of-concept should:
 
 ### 3.4.4 PoC Outcomes
 
-**Applies To:** poc, outcomes
+**Applies To:** After proof-of-concept evaluation — deciding whether to proceed, adapt the approach, or abandon the architecture based on results
 
 Based on PoC results:
 - **PROCEED:** Hypothesis validated, continue with architecture
@@ -1630,7 +1630,7 @@ Break planned work into atomic tasks that AI can effectively execute. Proper dec
 
 ### 4.1.2 Task Characteristics
 
-**Applies To:** task, characteristics
+**Applies To:** Every task created during decomposition — ensuring each unit of work is atomic, bounded (15 files or fewer), independently testable, traceable to a requirement, and estimable
 
 Every task MUST be:
 
@@ -1644,7 +1644,7 @@ Every task MUST be:
 
 ### 4.1.3 Decomposition by Mode
 
-**Applies To:** expedited mode:; standard mode:; enhanced mode:; decomposition, mode
+**Applies To:** Breaking planned work into tasks — scaling from standard breakdown (Expedited) to milestone-grouped tasks with learning checkpoints (Enhanced)
 
 **EXPEDITED Mode:**
 - Standard task breakdown
@@ -1666,7 +1666,7 @@ Every task MUST be:
 
 ### 4.1.4 Task Documentation
 
-**Applies To:** task, documentation
+**Applies To:** Recording each task with structured fields — requirement link, description, acceptance criteria, files affected, dependencies, and effort estimate
 
 Each task includes:
 
@@ -1691,7 +1691,7 @@ Verify tasks meet P3 requirements before implementation begins.
 
 ### 4.2.2 Size Checklist
 
-**Applies To:** size, checklist
+**Applies To:** Validating each task before implementation begins — checking file count limits, independent testability, coherence, explicit dependencies, and effort reasonability
 
 For each task:
 - [ ] Files affected ≤15?
@@ -1702,7 +1702,7 @@ For each task:
 
 ### 4.2.3 Oversized Task Remediation
 
-**Applies To:** identify natural boundaries:; create subtasks:; define integration task:; oversized, task, remediation
+**Applies To:** Tasks that exceed size thresholds (more than 15 files) — splitting into subtasks at natural boundaries while preserving integration coherence
 
 If a task exceeds thresholds:
 
@@ -1713,7 +1713,7 @@ If a task exceeds thresholds:
 
 ### 4.2.4 Validation Gate
 
-**Applies To:** validation, gate
+**Applies To:** The Tasks-to-Implement validation gate — verifying all tasks meet size requirements, have acceptance criteria, form a valid dependency graph, and cover all specification requirements
 
 Before proceeding to Implement phase:
 - [ ] All tasks meet size requirements
@@ -1732,7 +1732,7 @@ Identify task dependencies to enable proper sequencing and parallel execution.
 
 ### 4.3.2 Dependency Types
 
-**Applies To:** dependency, types
+**Applies To:** Mapping relationships between tasks — classifying hard, soft, resource, and integration dependencies to enable proper sequencing
 
 | Type | Description | Example |
 |------|-------------|---------|
@@ -1743,7 +1743,7 @@ Identify task dependencies to enable proper sequencing and parallel execution.
 
 ### 4.3.3 Dependency Documentation
 
-**Applies To:** dependency, documentation
+**Applies To:** Recording task dependencies as a graph or matrix — making execution order and blocking relationships explicit
 
 Create dependency graph or matrix:
 
@@ -1764,7 +1764,7 @@ Or:
 
 ### 4.3.4 Parallel Identification
 
-**Applies To:** parallel, identification
+**Applies To:** Identifying tasks with no hard dependencies or resource conflicts that can execute concurrently — improving implementation efficiency
 
 Identify tasks that can execute in parallel:
 - No hard dependencies between them
@@ -1791,7 +1791,7 @@ Execute tasks using the Write → Run → Validate cycle. This pattern ensures c
 
 ### 5.1.2 The Implementation Cycle
 
-**Applies To:** implementation, cycle
+**Applies To:** Every task during the Implement phase — executing the Write-Run-Validate loop with tests, security patterns, and dependency verification at each step
 
 For each task:
 
@@ -1840,7 +1840,7 @@ For each task:
 
 ### 5.1.3 Implementation Quality Standards
 
-**Applies To:** implementation, quality, standards
+**Applies To:** The WRITE phase of every implementation task — applying test coverage, security scanning, dependency verification, and input validation standards
 
 During WRITE phase, apply:
 
@@ -1854,7 +1854,7 @@ During WRITE phase, apply:
 
 ### 5.1.4 Implementation Escalation
 
-**Applies To:** implementation, escalation
+**Applies To:** Implementation blocked by specification gaps, security issues requiring architecture changes, dependency problems, or scope creep — triggering Product Owner involvement
 
 Escalate to Product Owner when:
 - Task cannot be completed as specified
@@ -1864,7 +1864,7 @@ Escalate to Product Owner when:
 
 ### 5.1.5 Rollback Strategy
 
-**Applies To:** rollback planning checklist:; identify rollback point:; define rollback trigger:; rollback, strategy
+**Applies To:** Every implementation plan before work begins — defining rollback points, triggers, revert procedures, and cost assessment to ensure recovery is possible if implementation fails
 
 Every implementation plan should include a rollback strategy before work begins. This ensures recovery is possible if implementation fails or produces unacceptable results.
 
@@ -1943,7 +1943,7 @@ Implement Q3 (Testing Integration) by writing tests alongside implementation.
 
 ### 5.2.2 Test-First or Test-With
 
-**Applies To:** operational detail:; specific test context; test, first, test
+**Applies To:** All implementation work — choosing between Test-First (TDD) and Test-With patterns for writing tests alongside code, with TDD recommended for AI-assisted development
 
 Two acceptable patterns:
 
@@ -1969,7 +1969,7 @@ Both patterns satisfy Q3. **Test-First is recommended** when features have clear
 
 ### 5.2.3 Test Types by Layer
 
-**Applies To:** test, types, layer
+**Applies To:** Determining which test types to write for each architectural layer — unit, integration, E2E, and manual testing responsibilities
 
 | Layer | Test Type | Responsibility |
 |-------|-----------|----------------|
@@ -1980,7 +1980,7 @@ Both patterns satisfy Q3. **Test-First is recommended** when features have clear
 
 ### 5.2.4 Coverage Verification
 
-**Applies To:** coverage, verification
+**Applies To:** Before marking any task complete — verifying unit and integration tests exist, coverage meets the 80% threshold, and all tests pass
 
 Before task completion:
 - [ ] Unit tests written for new functions
@@ -1990,7 +1990,7 @@ Before task completion:
 
 ### 5.2.5 Test Organization Patterns
 
-**Applies To:** test, organization, patterns
+**Applies To:** Projects with growing test suites — organizing test files, fixtures, markers, edge case coverage, mocking strategies, and parameterization patterns
 
 🟡 **IMPORTANT** — Patterns for organizing test suites at scale.
 
@@ -2214,9 +2214,7 @@ def mock_reranker():
 **Importance: 🔴 CRITICAL — Prevents silent regressions and over-escalation**
 
 **Implements:** Testing Integration (Domain), Validation Gates (Domain)
-**Applies To:** applies to:; autonomous test maintenance; autonomous, test, maintenance
-
-**Applies to:** All implementation work where AI runs and interprets test results
+**Applies To:** All implementation work where AI runs and interprets test results — classifying test failures, deciding between autonomous fixes and escalation, and enforcing iteration limits
 
 When tests fail during the Write → Run → Validate loop (§5.1.2), AI must decide whether to fix autonomously or escalate to the human. This section provides the decision framework.
 
@@ -2302,7 +2300,7 @@ This format gives the human enough context to make a decision without re-investi
 
 ### 5.2.7 Test Framework Selection & Progressive Strategy
 
-**Applies To:** applies to:; test, framework, selection, progressive, strategy
+**Applies To:** All projects establishing or extending a test suite — selecting test frameworks, configuring test infrastructure, and adopting test layers progressively
 
 🟡 **IMPORTANT** — Decision framework for test tooling and phased test adoption.
 
@@ -2461,7 +2459,7 @@ Implement Q2 (Security-First) by integrating security throughout implementation.
 
 ### 5.3.2 Security Checklist
 
-**Applies To:** input handling:; content signature; security, checklist
+**Applies To:** Every implementation task — checking input validation, authentication, authorization, data protection, and BaaS security before task completion
 
 Apply per task:
 
@@ -2490,7 +2488,7 @@ Apply per task:
 
 ### 5.3.3 Security Scanning
 
-**Applies To:** security, scanning
+**Applies To:** Projects with automated security tooling — running static analysis (SAST), dependency vulnerability scans, and secret detection with a zero HIGH/CRITICAL threshold
 
 When available, run automated security scanning:
 - Static analysis (SAST), including AI-contextual scanners where available
@@ -2503,7 +2501,7 @@ See §6.4.10 for repository-level enforcement of scan results (branch protection
 
 ### 5.3.4 Security Escalation
 
-**Applies To:** security, escalation
+**Applies To:** Security vulnerabilities that cannot be fixed within task scope, conflicts between security and functionality, or architecture changes required for security
 
 Escalate immediately when:
 - Vulnerability cannot be fixed within task scope
@@ -2628,7 +2626,7 @@ Implement Q4 (Supply Chain Integrity) by verifying all dependencies.
 
 ### 5.4.2 Verification Procedure
 
-**Applies To:** existence check:; popularity check:; maintenance check:; verification, procedure
+**Applies To:** Adding any new dependency to a project — verifying existence, popularity, maintenance health, security status, and license compatibility before installation
 
 For each new dependency:
 
@@ -2640,7 +2638,7 @@ For each new dependency:
 
 ### 5.4.3 Hallucination Prevention
 
-**Applies To:** if package cannot be verified:; slopsquatting risk:; hallucination, prevention
+**Applies To:** Any AI-recommended package — verifying package names match registries, functionality matches claims, and import statements match actual APIs to prevent hallucinated or slopsquatted dependencies
 
 AI-recommended packages require verification:
 
@@ -2655,7 +2653,7 @@ AI-recommended packages require verification:
 
 ### 5.4.4 Lock File Maintenance
 
-**Applies To:** lock, file, maintenance
+**Applies To:** Any project with package managers — committing lock files, verifying they update with changes, and reviewing lock file diffs in version control
 
 - Commit lock files (package-lock.json, yarn.lock, etc.)
 - Verify lock file updated with changes
@@ -2722,7 +2720,7 @@ Apply iteration protocol when:
 
 ### 5.5.2 Iteration Structure
 
-**Applies To:** iteration, structure
+**Applies To:** Enhanced-mode projects using milestone-based iteration — structuring work into build-validate-learn cycles with checkpoints between milestones
 
 ```
 MILESTONE 1
@@ -2743,7 +2741,7 @@ MILESTONE 2
 
 ### 5.5.3 Pivot Triggers
 
-**Applies To:** pivot, triggers
+**Applies To:** Mid-iteration decisions where learning invalidates assumptions, user feedback contradicts the specification, or technical approaches prove infeasible
 
 Consider pivoting when:
 - Learning invalidates core assumptions
@@ -2771,7 +2769,7 @@ AI coding tools (Claude Code, Cursor, Copilot, etc.) are themselves attack surfa
 
 ### 5.6.1 Coding Tool Injection Defense
 
-**Applies To:** known attack patterns:; indirect injection via repo content; mcp tool poisoning; coding, tool, injection, defense
+**Applies To:** Any AI coding environment processing untrusted content — defending against prompt injection via repo content, MCP tool poisoning, tool shadowing, and DNS exfiltration
 
 AI coding tools process untrusted content (repository files, PR comments, web pages) that may contain adversarial instructions. Per the Workflow Integrity principle, treat all repository content as DATA, not instructions.
 
@@ -2794,7 +2792,7 @@ AI coding tools process untrusted content (repository files, PR comments, web pa
 
 ### 5.6.2 Credential Isolation and Secrets Management
 
-**Applies To:** secrets sprawl; credential management rules:; pre-commit hooks; credential, isolation, secrets, management
+**Applies To:** Any project where AI tools may access credentials — enforcing secret isolation, pre-commit hooks, and credential rotation to prevent secrets sprawl
 
 AI coding tools must never have direct access to production credentials. AI tools amplify **secrets sprawl** — repositories with active AI coding assistants leak secrets at 40% higher rates (6.4% vs 4.6% baseline).
 
@@ -2812,7 +2810,7 @@ AI coding tools must never have direct access to production credentials. AI tool
 
 ### 5.6.3 Destructive Action Prevention
 
-**Applies To:** prevention rules:; destructive, action, prevention
+**Applies To:** Any environment where AI tools can modify persistent state — preventing accidental data deletion, file overwrites, and force pushes through environment separation and human approval gates
 
 AI coding tools can delete data, overwrite files, and execute arbitrary commands. The Replit incident (July 2025) demonstrated an AI agent deleting a production database, fabricating synthetic records to hide it, and misrepresenting its actions.
 
@@ -2825,7 +2823,7 @@ AI coding tools can delete data, overwrite files, and execute arbitrary commands
 
 ### 5.6.4 OWASP Security Framework Cross-Reference
 
-**Applies To:** owasp mcp top 10 (2025):; owasp, security, framework, cross, reference
+**Applies To:** Security reviews of AI-assisted development workflows — cross-referencing findings against OWASP LLM, Agentic, and MCP Top 10 frameworks to identify uncovered risk categories
 
 **When to use:** During security reviews of AI-assisted development workflows. Cross-reference your review findings against these frameworks to identify uncovered risk categories.
 
@@ -3509,7 +3507,7 @@ Concurrency bugs are among the hardest to reproduce and diagnose. They manifest 
 
 ### 5.9.2 Thread Safety Decision Matrix
 
-**Applies To:** rule of thumb:; thread, safety, decision, matrix
+**Applies To:** Choosing the right synchronization mechanism for concurrent code — matching mutexes, semaphores, async locks, and atomic operations to specific concurrency patterns
 
 | Mechanism | When to Use | Reentrant | Async-Safe | Python | Go | Java |
 |-----------|------------|-----------|------------|--------|-----|------|
@@ -3524,7 +3522,7 @@ Concurrency bugs are among the hardest to reproduce and diagnose. They manifest 
 
 ### 5.9.3 Double-Checked Locking
 
-**Applies To:** pattern (language-agnostic):; illustration (python):; double, checked, locking
+**Applies To:** Lazy-initialized singletons such as database connection pools, configuration loaders, or expensive service clients — avoiding redundant initialization without locking every access
 
 For lazy-initialized singletons (e.g., database connection pools, configuration loaders, expensive service clients), use double-checked locking to avoid redundant initialization without holding the lock on every access.
 
@@ -3555,7 +3553,7 @@ def get_client():
 
 ### 5.9.4 Lock Ordering & Deadlock Prevention
 
-**Applies To:** lock, ordering, deadlock, prevention
+**Applies To:** Code that acquires multiple locks simultaneously — enforcing consistent acquisition order and avoiding blocking I/O while holding locks to prevent deadlocks
 
 When multiple locks must be held simultaneously, always acquire in a consistent order across all code paths.
 
@@ -3569,7 +3567,7 @@ When multiple locks must be held simultaneously, always acquire in a consistent 
 
 ### 5.9.5 Async Safety
 
-**Applies To:** async, safety
+**Applies To:** Async code using event loops — preventing blocking the event loop with thread locks, properly offloading blocking I/O, and avoiding nested event loops
 
 | Rule | Rationale | Python |
 |------|-----------|--------|
@@ -3579,7 +3577,7 @@ When multiple locks must be held simultaneously, always acquire in a consistent 
 
 ### 5.9.6 Daemon Threads & Lifecycle
 
-**Applies To:** daemon, threads, lifecycle
+**Applies To:** Applications with background threads, timers, watchers, or pollers — managing lifecycle to prevent blocked process exit and post-stop callback execution
 
 Background threads (timers, watchers, pollers) require explicit lifecycle management to prevent blocked process exit and post-stop callbacks.
 
@@ -3593,7 +3591,7 @@ Background threads (timers, watchers, pollers) require explicit lifecycle manage
 
 ### 5.9.7 Concurrency Safety Checklist
 
-**Applies To:** concurrency, safety, checklist
+**Applies To:** Pre-ship review of any concurrent code — verifying lock protection, double-checked locking, consistent lock ordering, async lock usage, and daemon thread cleanup
 
 Before shipping concurrent code:
 - [ ] All shared mutable state protected by a lock (§5.9.2)
@@ -3619,7 +3617,7 @@ Patterns for software that survives real-world failures: power loss during write
 
 ### 5.10.2 Atomic Write Pattern
 
-**Applies To:** illustration (python):; atomic, write, pattern
+**Applies To:** Any code that writes files to disk — ensuring writes survive interruption (kill signals, power loss, disk full) without corrupting the target file
 
 File writes must survive interruption (kill signal, power loss, disk full) without corrupting the target file.
 
@@ -3655,7 +3653,7 @@ def atomic_write(target_path: Path, data: bytes) -> None:
 
 ### 5.10.3 Corrupt File Recovery
 
-**Applies To:** recovery strategy by file type:; corrupt, file, recovery
+**Applies To:** Any code that loads files from disk — handling corrupt configuration, index, cache, or user data files with appropriate recovery strategies per file type
 
 All file-loading code must handle corruption gracefully.
 
@@ -3671,7 +3669,7 @@ All file-loading code must handle corruption gracefully.
 
 ### 5.10.4 Orphaned Temp Cleanup
 
-**Applies To:** orphaned, temp, cleanup
+**Applies To:** Applications using the atomic write pattern — cleaning up orphaned temporary files from interrupted writes during initialization to prevent disk space waste
 
 Orphaned `.tmp` files from interrupted atomic writes accumulate over time and waste disk space.
 
@@ -3679,7 +3677,7 @@ Orphaned `.tmp` files from interrupted atomic writes accumulate over time and wa
 
 ### 5.10.5 Circuit Breaker Pattern
 
-**Applies To:** state machine:; state behavior:; circuit, breaker, pattern
+**Applies To:** Code calling external services or components that may fail — preventing cascading failures through fail-fast behavior and controlled recovery probing
 
 Prevents a failing component from consuming resources in an infinite error loop.
 
@@ -3703,7 +3701,7 @@ CLOSED ──[failure threshold]──→ OPEN ──[recovery timeout]──→
 
 ### 5.10.6 Graceful Degradation Strategies
 
-**Applies To:** graceful, degradation, strategies
+**Applies To:** Systems with component dependencies that may fail — degrading gracefully with cached data, rebuilt indexes, or fallback paths instead of crashing or returning silently wrong results
 
 When a component fails, degrade gracefully rather than crashing or returning silently wrong results.
 
@@ -3718,7 +3716,7 @@ When a component fails, degrade gracefully rather than crashing or returning sil
 
 ### 5.10.7 Resource Bounding
 
-**Applies To:** named constants pattern:; resource, bounding
+**Applies To:** Any code managing memory, I/O, rates, or collection sizes — capping resource consumption with named constants to prevent denial-of-service and production instability
 
 Unbounded resource consumption is a denial-of-service vector and a production stability risk.
 
@@ -3733,7 +3731,7 @@ Unbounded resource consumption is a denial-of-service vector and a production st
 
 ### 5.10.8 Deserialization Safety
 
-**Applies To:** deserialization, safety
+**Applies To:** Any code loading persisted data — avoiding unsafe deserialization formats (pickle, unsafe YAML, eval) that allow arbitrary code execution, using JSON with schema validation instead
 
 Never deserialize untrusted data using formats that support arbitrary code execution.
 
@@ -3754,7 +3752,7 @@ Never deserialize untrusted data using formats that support arbitrary code execu
 
 ### 5.10.9 Resilience Checklist
 
-**Applies To:** resilience, checklist
+**Applies To:** Pre-ship review of production software — verifying atomic writes, corruption handling, temp cleanup, circuit breakers, degradation strategies, resource bounds, and safe deserialization
 
 Before shipping production software:
 - [ ] All file writes use atomic write pattern (§5.10.2)
@@ -3776,7 +3774,7 @@ Before shipping production software:
 
 ### 5.11.1 Zero Trust Design Principles
 
-**Applies To:** four pillars:; assume breach; least privilege; zero, trust, design, principles
+**Applies To:** Designing security for production systems — applying the assume-breach, least-privilege, continuous-verification, and default-deny pillars to every access decision
 
 Zero trust is a security model that eliminates implicit trust. Every request is verified regardless of source — even requests from inside the network perimeter.
 
@@ -3797,7 +3795,7 @@ Zero trust is a security model that eliminates implicit trust. Every request is 
 
 ### 5.11.2 Service Identity and Credential Lifecycle
 
-**Applies To:** issue → use → rotate → revoke; api key management checklist:; scoped permissions; service, identity, credential, lifecycle
+**Applies To:** Any system using API keys, OAuth tokens, or service credentials — managing the full lifecycle from scoped issuance through rotation to revocation, with zero-downtime rotation patterns
 
 Every credential has a lifecycle: **Issue → Use → Rotate → Revoke**. Credentials without a documented lifecycle become permanent attack vectors.
 
@@ -3829,7 +3827,7 @@ When rotating a credential used by a running service, use the dual-key acceptanc
 
 ### 5.11.3 Production Audit Logging
 
-**Applies To:** structured log format:; production, audit, logging
+**Applies To:** Production systems requiring incident detection and response — implementing structured audit logging for authentication, authorization, data access, and configuration changes
 
 Audit logs are the foundation of incident detection and response. Without them, breaches go undetected and post-incident analysis is impossible.
 
@@ -3887,7 +3885,7 @@ You don't need a SIEM. A managed logging service with three alert rules covers 8
 
 ### 5.11.4 Secret Rotation Procedures
 
-**Applies To:** rotation frequency table:; secret, rotation, procedures
+**Applies To:** Any production system with secrets — documenting and testing rotation procedures for database credentials, API keys, JWT signing keys, and TLS certificates
 
 Every secret in production must have a documented rotation procedure. Untested rotation procedures fail during incidents.
 
@@ -3920,7 +3918,7 @@ Every secret in production must have a documented rotation procedure. Untested r
 
 ### 5.11.5 Behavioral Monitoring Patterns
 
-**Applies To:** small-team implementation:; behavioral, monitoring, patterns
+**Applies To:** Production systems where detection complements prevention — monitoring for authentication anomalies, API abuse, and data exfiltration to detect compromise or misuse
 
 Detection complements prevention. Even with strong access controls, monitor for anomalous behavior that indicates compromise or misuse.
 
@@ -4016,7 +4014,7 @@ This section covers securing AI features **in the apps you build** — not the A
 
 ### 5.12.1 Stateful Systems and AI Code Generation
 
-**Applies To:** capability vs. policy design note:; stateful, systems, code, generation
+**Applies To:** AI-generated code interacting with databases, caches, or queues — addressing naive read-decide-write races, unbounded queries, and chatty access patterns that pass functional tests but fail under production load
 
 AI-generated code frequently produces correct business logic but naive stateful system interactions — read-decide-write sequences that race under concurrency, unbounded queries that exhaust resources, and chatty access patterns that degrade performance. These patterns pass functional tests but fail under production load.
 
@@ -4208,7 +4206,7 @@ Schema migrations are **irreversible in production** — a bad migration can cor
 
 ### 5.12.9 Stateful System Interaction Checklist
 
-**Applies To:** atomic operations:; transaction scope:; lock ordering:; stateful, system, interaction, checklist
+**Applies To:** Pre-ship review of any code touching databases, caches, or queues — verifying atomic operations, transaction scope, lock ordering, batch access, pagination, connection management, and migration safety
 
 Before shipping code that interacts with a stateful system, verify:
 
@@ -4246,7 +4244,7 @@ Debugging is evidence-gathering, not code-changing. Code changes are the final s
 
 ### 5.13.2 Diagnostic Block Requirement
 
-**Applies To:** diagnostic, block, requirement
+**Applies To:** Before any non-trivial fix attempt — producing a structured block with symptom, evidence, competing hypotheses, and verification plan to force disciplined diagnosis
 
 Before ANY non-trivial fix attempt, produce this structured block:
 
@@ -4400,7 +4398,7 @@ Complementary to Playwright: Playwright launches clean sessions for reproducible
 
 ### 5.13.3 Instrumentation-First Protocol
 
-**Applies To:** cleanup requirement:; instrumentation, first, protocol
+**Applies To:** Debugging where root cause is not apparent from existing output — adding logging and tracing before attempting fixes, then removing debug instrumentation before shipping
 
 When root cause is NOT apparent from existing output: **add logging/tracing BEFORE attempting fixes.**
 
@@ -4419,7 +4417,7 @@ Instrumentation is cheap; wrong fixes are expensive. When in doubt, add logging 
 
 ### 5.13.4 Fix Decay Protocol
 
-**Applies To:** at attempt 3 (existing §5.2.6 cap):; debugging escalation report; fix, decay, protocol
+**Applies To:** Fix attempts reaching iteration limits — re-examining hypotheses at attempt 2, producing escalation reports at attempt 3, and triggering context resets when the same symptom recurs
 
 This section **extends** the iteration limits in §5.2.6 — it does not create parallel counters.
 
@@ -4473,7 +4471,7 @@ When escalating per §5.2.6 iteration limits, use this extended format:
 
 ### 5.13.5 Fix Verification with Objective Evidence
 
-**Applies To:** automated test passes; playwright mcp verification; log output; fix, verification, objective, evidence
+**Applies To:** Every completed fix — requiring objective evidence (test output, browser verification, log data, or database state) rather than reasoning about why the code change should work
 
 Every fix MUST be verified by objective evidence, not reasoning about the code change.
 
@@ -4508,7 +4506,7 @@ When reporting a fix, use this format:
 
 ### 5.13.6 Debugging Anti-Patterns & Checklist
 
-**Applies To:** fix-claim-fail spiral; symptom treatment; tunnel vision; debugging, anti, patterns, checklist
+**Applies To:** All debugging work — recognizing and avoiding common anti-patterns (fix-claim-fail spirals, symptom treatment, tunnel vision, shotgun debugging) and verifying compliance with the debugging protocol
 
 #### Anti-Patterns
 
@@ -4543,7 +4541,7 @@ When reporting a fix, use this format:
 
 ### 5.13.7 Code Comprehension via Linear Walkthrough
 
-**Applies To:** structured walkthrough; code, comprehension, via, linear, walkthrough
+**Applies To:** Entering unfamiliar code — onboarding, reviewing agent-generated code, or pre-debugging by having the AI produce a structured execution-path walkthrough before making changes
 
 When entering unfamiliar code — onboarding, post-agent-generation review, or pre-debugging — use the agent to build understanding before making changes.
 
@@ -4576,7 +4574,7 @@ Verify outputs meet technical requirements before proceeding. Technical validati
 
 ### 6.1.2 Validation by Phase
 
-**Applies To:** specify → plan gate:; plan → tasks gate:; tasks → implement gate:; validation, phase
+**Applies To:** Every phase transition — applying the appropriate validation gate checklist before moving from Specify to Plan, Plan to Tasks, or Tasks to Implement
 
 **Specify → Plan Gate:**
 - [ ] Specification complete (§2.3 checklist)
@@ -4605,7 +4603,7 @@ Verify outputs meet technical requirements before proceeding. Technical validati
 
 ### 6.1.3 Gate Failure Procedure
 
-**Applies To:** identify failure:; diagnose cause:; gate, failure, procedure
+**Applies To:** When any validation gate check fails — identifying, diagnosing, and remediating the failure before re-running validation
 
 When validation fails:
 
@@ -4627,7 +4625,7 @@ Verify outputs align with Product Owner's intent. Vision validation is human-per
 
 ### 6.2.2 Vision Validation Points
 
-**Applies To:** vision, validation, points
+**Applies To:** Significant project milestones requiring human judgment — requesting Product Owner review at phase completions, implementation milestones, and project completion
 
 Request Product Owner review at:
 - End of Specify phase (specification approval)
@@ -4638,7 +4636,7 @@ Request Product Owner review at:
 
 ### 6.2.3 Vision Validation Format
 
-**Applies To:** vision, validation, format
+**Applies To:** Presenting phase completion to the Product Owner — structuring the summary, key decisions, outputs, and approval request in a consistent format
 
 Present to Product Owner:
 
@@ -4656,7 +4654,7 @@ REQUEST: Approval to proceed / Feedback required
 
 ### 6.2.4 Vision Validation Outcomes
 
-**Applies To:** approved with comments; revision requested; vision, validation, outcomes
+**Applies To:** After Product Owner review — determining the correct action based on outcome (approved, approved with comments, revision requested, or rejected)
 
 | Outcome | Action |
 |---------|--------|
@@ -4677,7 +4675,7 @@ Formalize the transition between phases to ensure nothing is missed.
 
 ### 6.3.2 Transition Checklist
 
-**Applies To:** transition, checklist
+**Applies To:** Every phase transition — verifying work completion, validation passage, state file updates, and next-phase readiness before moving forward
 
 Before any phase transition:
 
@@ -4690,7 +4688,7 @@ Before any phase transition:
 
 ### 6.3.3 Transition Documentation
 
-**Applies To:** transition, documentation
+**Applies To:** Recording each phase transition — documenting the date, mode, outputs produced, and items carrying forward to the next phase
 
 At each transition, document:
 
@@ -4726,7 +4724,7 @@ Continuous Integration/Continuous Deployment (CI/CD) automates validation gates,
 
 ### 6.4.3 Minimum CI Pipeline
 
-**Applies To:** required jobs:; recommended additions:; minimum, pipeline
+**Applies To:** Setting up CI/CD for any production project — defining required jobs (test, lint, security) and recommended additions (build, coverage, type-check, AI review)
 
 Every production project should have automated validation:
 
@@ -4749,7 +4747,7 @@ Every production project should have automated validation:
 
 ### 6.4.4 GitHub Actions Template
 
-**Applies To:** supply chain hardening; github, actions, template
+**Applies To:** Projects using GitHub Actions for CI — a supply-chain-hardened template with pinned action SHAs, least-privilege permissions, and security scanning
 
 **Supply chain hardening** is applied throughout this template. See §6.4.6 for rationale.
 
@@ -4832,7 +4830,7 @@ jobs:
 
 ### 6.4.5 CI/CD Integration Points
 
-**Applies To:** with validation gates (§6.1):; with security validation (§5.3):; with testing integration (§5.2):; integration, points
+**Applies To:** Connecting CI/CD with the framework's validation gates, security scanning, and testing requirements — ensuring automated results feed into gate checklists and block progression on failure
 
 **With Validation Gates (§6.1):**
 - CI results become part of gate checklist
@@ -4851,7 +4849,7 @@ jobs:
 
 ### 6.4.6 CI/CD Best Practices
 
-**Applies To:** speed optimization:; full commit shas; best, practices
+**Applies To:** Optimizing and hardening CI/CD pipelines — caching, parallelization, SHA-pinned actions, supply chain attack prevention, and ML/AI project-specific considerations
 
 **Speed Optimization:**
 - Cache dependencies between runs
@@ -4920,7 +4918,7 @@ Before deploying CI/CD:
 
 ### 6.4.8 Local-CI Validation Parity
 
-**Applies To:** local-ci validation parity; implementation pattern:; local, validation, parity
+**Applies To:** Any project where local and CI validation should match — using a single shared validation script to eliminate "works on my machine" failures and CI surprises
 
 **Local-CI Validation Parity** — local validation should mirror CI validation. When the same checks run locally and in CI, failures are caught early (faster feedback) and CI surprises are eliminated. The pattern: one validation script that both developers and CI invoke.
 
@@ -5125,7 +5123,7 @@ Project hygiene prevents accumulation of obsolete files, maintains clear organiz
 
 ### 6.5.2 Standard Directory Structure
 
-**Applies To:** python projects:; standard, directory, structure
+**Applies To:** Organizing project files — standard directory layout with source code, tests, documentation, and generated files in their proper locations
 
 **Python Projects:**
 ```
@@ -5155,7 +5153,7 @@ project-root/
 
 ### 6.5.3 File Classification
 
-**Applies To:** file, classification
+**Applies To:** Classifying project files for cleanup — determining which files to delete, gitignore, archive, or keep based on category (generated, cache, IDE, historical, obsolete)
 
 | Category | Action | Examples |
 |----------|--------|----------|
@@ -5169,7 +5167,7 @@ project-root/
 
 ### 6.5.4 Essential .gitignore Entries
 
-**Applies To:** essential, gitignore, entries
+**Applies To:** setting up .gitignore for new projects, ensuring AI-generated files and sensitive data are excluded from version control
 
 ```gitignore
 # Python
@@ -5216,7 +5214,7 @@ logs/*.jsonl
 
 ### 6.5.5 Archive vs Delete Decision Matrix
 
-**Applies To:** archive, delete, decision, matrix
+**Applies To:** deciding whether to archive or delete files during cleanup, preserving files with historical value vs removing truly unused artifacts
 
 | Condition | Decision | Rationale |
 |-----------|----------|-----------|
@@ -5285,7 +5283,7 @@ logs/*.jsonl
 
 ### 6.5.8 Project Hygiene Checklist
 
-**Applies To:** project, hygiene, checklist
+**Applies To:** periodic project cleanup reviews, verifying repository organization, checking for stale files and unused dependencies
 
 Before release or major milestone:
 - [ ] No generated files committed (htmlcov, .coverage, __pycache__)
@@ -5523,7 +5521,7 @@ When using GitHub Issues, reference them in Active Task field: `Active Task: #42
 
 ### 7.1.4 Update Triggers
 
-**Applies To:** update, triggers
+**Applies To:** knowing when SESSION-STATE.md needs updating — task completion, blocker changes, scope shifts, or discovery of new information
 
 Update `SESSION-STATE.md` when:
 - Completing a task
@@ -5625,7 +5623,7 @@ File: `PROJECT-MEMORY.md` (project root)
 
 ### 7.2.3 Update Triggers
 
-**Applies To:** update, triggers
+**Applies To:** knowing when PROJECT-MEMORY.md needs updating — phase completions, architectural decisions, key configuration changes
 
 Update `PROJECT-MEMORY.md` when:
 - Completing a phase (specification, architecture, etc.)
@@ -5636,7 +5634,7 @@ Update `PROJECT-MEMORY.md` when:
 
 ### 7.2.4 Memory vs. Source Documents
 
-**Applies To:** memory, source, documents
+**Applies To:** understanding the boundary between memory files (summaries) and source documents (authoritative detail), preventing memory from duplicating what belongs in architecture docs or specs
 
 Project Memory is a SUMMARY, not a replacement for source documents:
 - Full specification lives in its own file
@@ -5660,7 +5658,7 @@ Capture **actionable lessons** from mistakes, surprises, and validated patterns 
 
 ### 7.3.2 Creation Timing
 
-**Applies To:** creation, timing
+**Applies To:** deciding when to create LEARNING-LOG.md for a project — trigger on first unexpected lesson, not at project start
 
 Create `LEARNING-LOG.md` when the first lesson emerges — typically during implementation when something unexpected happens (good or bad). Don't create it empty at project start.
 
@@ -5714,7 +5712,7 @@ This entry passes because: it states what went wrong (2 sentences), gives an act
 
 ### 7.3.4 Update Triggers
 
-**Applies To:** update, triggers
+**Applies To:** knowing when LEARNING-LOG.md needs a new entry — unexpected discoveries, behavioral lessons, patterns that should change future approach
 
 **Add** an entry when something unexpected changes how you would approach future work. Before writing, apply the Future Action Test (§7.3.1).
 
@@ -5726,7 +5724,7 @@ This entry passes because: it states what went wrong (2 sentences), gives an act
 
 ### 7.3.5 Learning Log Review
 
-**Applies To:** learning, log, review
+**Applies To:** before starting work similar to previous projects, checking whether past lessons apply to avoid repeating mistakes
 
 Before starting similar work:
 - Review relevant Learning Log entries
@@ -5735,7 +5733,7 @@ Before starting similar work:
 
 ### 7.3.6 Graduation to Procedural Memory
 
-**Applies To:** graduation, procedural, memory
+**Applies To:** promoting project-specific lessons into framework methods when a pattern generalizes beyond the originating project
 
 When a lesson becomes a general pattern (applies beyond this specific project):
 1. Document the pattern in the appropriate methods document
@@ -5756,7 +5754,7 @@ The Project Instructions File is the entry point that tells AI how to find conte
 
 ### 7.4.2 Tool Implementations
 
-**Applies To:** tool, implementations
+**Applies To:** configuring project instruction files for Claude Code, Gemini CLI, Codex CLI, Cursor, or other AI coding tools
 
 | Tool | File | Auto-loaded |
 |------|------|-------------|
@@ -5767,7 +5765,7 @@ The Project Instructions File is the entry point that tells AI how to find conte
 
 ### 7.4.3 Minimal Loader Template
 
-**Applies To:** minimal, loader, template
+**Applies To:** creating the initial CLAUDE.md or equivalent project instructions file, bootstrapping a new project with minimal viable AI context
 
 ```markdown
 # Project: [Name]
@@ -5839,7 +5837,7 @@ Projects may have specialized source documents beyond the core memory files. The
 
 ### 7.5.2 Common Patterns
 
-**Applies To:** common, patterns
+**Applies To:** understanding which source document types a project needs, mapping documents to their cognitive roles (reference, context, procedural)
 
 | Document | Cognitive Role | Question Answered |
 |----------|---------------|-------------------|
@@ -5858,7 +5856,7 @@ Projects may have specialized source documents beyond the core memory files. The
 
 ### 7.5.4 Registry Template
 
-**Applies To:** registry, template
+**Applies To:** projects with multiple specialized source documents that need a central registry in PROJECT-MEMORY.md for discoverability
 
 Add to PROJECT-MEMORY.md when the project has specialized source documents:
 
@@ -5874,7 +5872,7 @@ Add to PROJECT-MEMORY.md when the project has specialized source documents:
 
 ### 7.5.5 Project Instructions Integration
 
-**Applies To:** project, instructions, integration
+**Applies To:** connecting source documents to CLAUDE.md or equivalent loader file so AI loads the right references at session start
 
 Reference source documents in the loader file (e.g., CLAUDE.md) using the Memory table pattern:
 
@@ -5936,7 +5934,7 @@ When starting a new session:
 
 ### 7.6.3 Handoff Summary (for complex transitions)
 
-**Applies To:** handoff, summary, complex, transitions
+**Applies To:** transitioning work to a different AI tool, collaborator, or session where full context cannot be carried over
 
 When transitioning to different AI/tool/collaborator:
 
@@ -5968,7 +5966,7 @@ Immediate Priority:
 
 ### 7.7.1 Recovery Triggers
 
-**Applies To:** recovery, triggers
+**Applies To:** detecting when memory files are corrupted, stale, or inconsistent with the actual project state — triggering the recovery procedure
 
 Execute recovery when:
 - Session ended unexpectedly
@@ -6002,7 +6000,7 @@ Execute recovery when:
 
 ### 7.7.3 Recovery Documentation
 
-**Applies To:** recovery, documentation
+**Applies To:** documenting memory recovery incidents in the learning log so future sessions can avoid the same corruption patterns
 
 Add to LEARNING-LOG.md:
 
@@ -6026,7 +6024,7 @@ Single authoritative checklist for initializing new projects. Consolidates guida
 
 ### 7.8.2 Initialization Checklist
 
-**Applies To:** initialization, checklist
+**Applies To:** setting up governance memory files for a new project, cold-starting a repository with SESSION-STATE, PROJECT-MEMORY, and LEARNING-LOG
 
 **Keywords:** project initialization, new project, bootstrap, cold start, project setup, starting fresh
 
@@ -6097,7 +6095,7 @@ Create all files in the **project repository root** (see §7.8.2 File Location n
 
 ### 7.8.5 Cross-Reference Index
 
-**Applies To:** cross, reference, index
+**Applies To:** navigating between memory architecture sections, finding the right procedure for a specific memory file operation
 
 | Topic | Section |
 |-------|---------|
@@ -6257,7 +6255,7 @@ New connectors (e.g., for Jupyter notebooks, YAML configs, Protobuf) implement t
 
 ### 7.9.7 Query Interface
 
-**Applies To:** query, interface
+**Applies To:** searching project content via the Context Engine MCP server, using semantic and keyword queries to discover existing implementations and patterns
 
 Reference Memory exposes a query interface for searching project content:
 
@@ -6365,7 +6363,7 @@ Define the coding domain's reference document taxonomy — the specific files th
 
 ### 7.10.2 Complexity Thresholds
 
-**Applies To:** complexity, thresholds
+**Applies To:** determining how much reference documentation a project needs based on its size and complexity, scaling from minimal to full documentation tiers
 
 | Tier | File Count | Recommendation |
 |------|-----------|----------------|
@@ -6606,7 +6604,7 @@ When escalating, present decisions in format that enables informed human choice.
 
 ### 8.2.2 Decision Presentation Format
 
-**Applies To:** decision, presentation, format
+**Applies To:** presenting technical decisions to users with ranked recommendations, trade-off analysis, and clear reasoning rather than open-ended questions
 
 ```
 DECISION REQUIRED
@@ -6630,7 +6628,7 @@ Urgency: [How time-sensitive]
 
 ### 8.2.3 Presenting Uncertainty
 
-**Applies To:** presenting, uncertainty
+**Applies To:** communicating confidence levels when making recommendations, being explicit about what is certain vs uncertain vs unknown
 
 Be explicit about confidence:
 
@@ -6671,7 +6669,7 @@ Optimize collaboration for single-person projects where one human serves all rol
 
 ### 8.3.3 Solo Mode Triggers
 
-**Applies To:** solo, mode, triggers
+**Applies To:** detecting when a project has a single developer without a separate product owner, entering reduced-ceremony mode while maintaining quality rigor
 
 Enter Solo Developer Mode when:
 - Explicitly configured in project
@@ -6753,7 +6751,7 @@ def validate_config_at_startup():
 
 ### 9.1.4 Common Validation Points
 
-**Applies To:** common, validation, points
+**Applies To:** understanding where to add validation checks in production applications — user input boundaries, API responses, file operations, database queries, configuration loading
 
 | What | When | How |
 |------|------|-----|
@@ -6793,7 +6791,7 @@ Package applications for distribution to users who may not have development envi
 
 ### 9.2.2 Multi-Stage Build Pattern
 
-**Applies To:** multi, stage, build, pattern
+**Applies To:** Dockerizing applications with build-time dependencies (compilers, ML models) that should not be in the runtime image, reducing image size and attack surface
 
 **When to use:** Applications with build-time dependencies (compilers, ML model downloads) that aren't needed at runtime.
 
@@ -6872,7 +6870,7 @@ on:
 
 ### 9.2.6 .dockerignore Best Practices
 
-**Applies To:** dockerignore, best, practices
+**Applies To:** configuring .dockerignore to exclude test files, documentation, git history, and secrets from Docker build context
 
 ```dockerignore
 # Development files
@@ -6913,7 +6911,7 @@ Patterns specific to developing Model Context Protocol (MCP) servers for AI clie
 
 ### 9.3.3 stdout/stderr Discipline
 
-**Applies To:** stdout, stderr, discipline
+**Applies To:** MCP server development where stdout is reserved for JSON-RPC protocol messages and all logging must go to stderr
 
 **Critical:** MCP uses stdout for JSON-RPC communication. Any non-JSON output breaks the protocol.
 
@@ -6935,7 +6933,7 @@ print("Debug info")  # BREAKS MCP PROTOCOL
 
 ### 9.3.4 Graceful Shutdown Pattern
 
-**Applies To:** graceful, shutdown, pattern
+**Applies To:** implementing clean shutdown for MCP servers and stdio-based services where asyncio cancellation does not work with blocking reads
 
 **Problem:** stdio transport blocks on synchronous reads; asyncio cancellation doesn't work.
 
@@ -6970,7 +6968,7 @@ async def main():
 
 ### 9.3.5 Server Instructions Pattern
 
-**Applies To:** server, instructions, pattern
+**Applies To:** designing MCP server instructions that guide AI client behavior at connection time, setting governance context for all subsequent tool calls
 
 **Purpose:** Provide behavioral guidance to AI clients at connection time.
 
@@ -7001,7 +6999,7 @@ server = Server(
 
 ### 9.3.6 Per-Response Reminders
 
-**Applies To:** per, response, reminders
+**Applies To:** preventing governance drift in long MCP sessions by appending brief compliance reminders to every tool response
 
 **Problem:** Server instructions load once at connection; AI may drift over long conversations.
 
@@ -7038,7 +7036,7 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
 
 ### 9.3.8 Multi-Platform Configuration
 
-**Applies To:** multi, platform, configuration
+**Applies To:** generating consistent MCP server configurations for Claude Desktop, Claude Code, Gemini, and other AI platforms from a single source template
 
 When supporting multiple AI platforms, use a config generator:
 
@@ -8802,7 +8800,7 @@ AI or business logic produces structured data. A separate, deterministic functio
 
 ### 9.4.2 Template Assets & Branding
 
-**Applies To:** template, assets, branding
+**Applies To:** managing logos, fonts, headers, and other branding resources used in generated documents like PDFs, Excel reports, and Word files
 
 When documents need branding, template assets are project resources managed like code:
 
@@ -8841,7 +8839,7 @@ Decision tree for serving generated files from web apps:
 
 ### 9.4.4 Library Selection Quick Reference
 
-**Applies To:** library, selection, quick, reference
+**Applies To:** choosing the right Python or Node.js library for generating PDF, Excel, Word, or CSV documents — quick decision reference with key gotchas
 
 Established libraries by format. Full gotchas and decision trees in Reference Library entries.
 

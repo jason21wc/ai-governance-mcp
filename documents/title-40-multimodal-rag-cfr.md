@@ -30,11 +30,11 @@ governance_level: "federal-regulations"
 
 ## 1 Presentation Patterns
 
-**Applies To:** presentation, patterns
+**Applies To:** Building AI responses that include visual content alongside text, such as procedural walkthroughs, concept explanations, and troubleshooting guides in a multimodal RAG system.
 
 ### 1.1 Image Placement Workflow
 
-**Applies To:** image, placement, workflow
+**Applies To:** Generating any multimodal response that combines text with retrieved images, from initial query parsing through image selection, placement, and final verification.
 
 When responding with images, follow this sequence:
 
@@ -70,7 +70,7 @@ When responding with images, follow this sequence:
 
 ### 1.2 Inline Placement Rules
 
-**Applies To:** inline, placement, rules
+**Applies To:** Deciding where to insert images relative to text in a response, based on content type (procedural steps, concept explanations, troubleshooting, comparisons).
 
 | Content Type | Placement Rule | Example |
 |--------------|----------------|---------|
@@ -81,7 +81,7 @@ When responding with images, follow this sequence:
 
 ### 1.3 Image Selection Algorithm (Mayer-Based)
 
-**Applies To:** image, selection, algorithm, mayer, based
+**Applies To:** Scoring and ranking candidate images from a retrieval set to determine which visuals best support a given query, using Mayer's Multimedia Learning Theory as a selection filter.
 
 Based on Mayer's Multimedia Learning Theory principles. See P3 for rationale.
 
@@ -125,7 +125,7 @@ Input: Query Q, Candidate images I[], Current selection S[]
 
 ### 1.4 Content-Type Matching
 
-**Applies To:** content, type, matching
+**Applies To:** Mapping user query intent (procedural, conceptual, troubleshooting, navigation, comparison) to the most appropriate image type for retrieval results.
 
 | Query Intent | Preferred Image Type | Avoid |
 |--------------|---------------------|-------|
@@ -137,7 +137,7 @@ Input: Query Q, Candidate images I[], Current selection S[]
 
 ### 1.5 Readability Standards
 
-**Applies To:** default (9th-grade level):; audience signals to detect:; readability, standards
+**Applies To:** Calibrating text complexity in RAG responses based on audience detection signals, including default readability targets and adjustments for technical users.
 
 **Default (9th-grade level):**
 - Sentence length: 15-20 words average
@@ -194,11 +194,11 @@ When advising on content that includes video or animated sequences:
 
 ## 2 Reference Document Structuring
 
-**Applies To:** reference, document, structuring
+**Applies To:** Preparing and organizing source documents for ingestion into a multimodal knowledge base, including image descriptions, metadata schemas, and content quality verification.
 
 ### 2.1 Document Organization Template
 
-**Applies To:** document, organization, template
+**Applies To:** Creating new reference documents that pair instructional text with images, ensuring consistent structure with inline visuals, alt text, context descriptions, and metadata tags.
 
 ```markdown
 # [Procedure/Concept Name]
@@ -234,7 +234,7 @@ When advising on content that includes video or animated sequences:
 
 ### 2.2 Image Description Requirements
 
-**Applies To:** alt text (required):; context description (required):; metadata tags (required):; image, description, requirements
+**Applies To:** Writing the three required description layers for every image in a knowledge base: alt text for accessibility, context descriptions for retrieval optimization, and metadata tags for filtering.
 
 **Alt Text (Required):**
 - Describes WHAT the image shows
@@ -255,7 +255,7 @@ When advising on content that includes video or animated sequences:
 
 ### 2.3 Metadata Schema
 
-**Applies To:** metadata, schema
+**Applies To:** Defining and populating YAML metadata for images in a multimodal knowledge base, including alt text, context, tags, audience, and provenance fields.
 
 ```yaml
 image_metadata:
@@ -275,7 +275,7 @@ image_metadata:
 
 ### 2.4 Collocation Verification Checklist
 
-**Applies To:** collocation, verification, checklist
+**Applies To:** Pre-publication review of reference documents to verify that images are collocated with their related text, have complete descriptions, and follow consistent naming conventions.
 
 Before publishing reference documents:
 
@@ -289,7 +289,7 @@ Before publishing reference documents:
 
 ### 2.5 Content Ingestion Assistance Workflow
 
-**Applies To:** content ingestion assistance; identify content type; assess image quality; content, ingestion, assistance, workflow
+**Applies To:** AI agents assisting users who upload raw screenshots, images, or documentation for incorporation into a multimodal RAG knowledge base, from intake assessment through retrieval optimization.
 
 **Content Ingestion Assistance** procedure for AI agents assisting users with preparing multimodal content for RAG knowledge bases. Follow this workflow when a user uploads images, screenshots, or raw documentation and requests help incorporating them into a multimodal RAG system.
 
@@ -363,11 +363,11 @@ Optimize the prepared content for retrieval quality:
 
 ## 3 Retrieval Architecture
 
-**Applies To:** retrieval, architecture
+**Applies To:** Designing or configuring the end-to-end retrieval pipeline for a multimodal RAG system, including query processing, embedding, vector search, ranking, and response generation layers.
 
 ### 3.1 Four-Layer Architecture
 
-**Applies To:** four, layer, architecture
+**Applies To:** Understanding the structural layers of a multimodal retrieval pipeline: query processing, multimodal embedding, retrieval and ranking, and response generation.
 
 ```
 +------------------------------------------------------------+
@@ -396,7 +396,7 @@ Optimize the prepared content for retrieval quality:
 
 ### 3.2 Embedding Model Selection
 
-**Applies To:** embedding, model, selection
+**Applies To:** Choosing between embedding model families (ColPali, ColQwen2, CLIP, custom fine-tuned) for a multimodal retrieval system based on latency, storage, and image-type requirements.
 
 | Model Family | Strengths | Considerations |
 |--------------|-----------|----------------|
@@ -413,7 +413,7 @@ Optimize the prepared content for retrieval quality:
 
 ### 3.3 Relevance Scoring Implementation
 
-**Applies To:** relevance, scoring, implementation
+**Applies To:** Tuning semantic_weight, configuring BM25, choosing reranking thresholds for a multimodal retrieval pipeline.
 
 ```python
 def relevance_score(query, image, config):
@@ -463,7 +463,7 @@ def relevance_score(query, image, config):
 
 ### 3.4 Chunk Strategy for Multimodal Documents
 
-**Applies To:** key principles:; chunk, strategy, multimodal, documents
+**Applies To:** Indexing multimodal documents where images and text must stay together in the same chunk to preserve retrieval context and enable accurate image-text pairing.
 
 When indexing documents with images:
 
@@ -707,11 +707,11 @@ Input: Query Q, Knowledge Graph G, Vector Index V
 
 ## 4 Failure Handling
 
-**Applies To:** failure, handling
+**Applies To:** Any multimodal RAG response where image retrieval may fail due to format issues, network errors, missing files, or permission restrictions, requiring graceful degradation to text-only output.
 
 ### 4.1 Failure Classification
 
-**Applies To:** failure, classification
+**Applies To:** Categorizing image retrieval failures by type (format, size, network, missing, permission) to determine the appropriate user-facing message and fallback behavior.
 
 | Failure Type | Code | Cause | User-Facing Message |
 |--------------|------|-------|---------------------|
@@ -723,7 +723,7 @@ Input: Query Q, Knowledge Graph G, Vector Index V
 
 ### 4.2 Graceful Degradation Procedure
 
-**Applies To:** graceful, degradation, procedure
+**Applies To:** Generating a complete, useful text response when one or more images cannot be retrieved, including logging the failure and appending reference information for manual lookup.
 
 ```
 IF image_retrieval_fails:
@@ -746,7 +746,7 @@ IF image_retrieval_fails:
 
 ### 4.3 Failure Note Templates
 
-**Applies To:** single image failure:; multiple image failures:; failure, note, templates
+**Applies To:** Formatting user-facing failure notices when retrieved images cannot be displayed, with templates for single-image, multi-image, and critical failure scenarios.
 
 **Single Image Failure:**
 ```
@@ -778,7 +778,7 @@ Recommendation: This procedure is highly visual. Consider accessing the source d
 
 ### 4.4 Failure Logging Schema
 
-**Applies To:** failure, logging, schema
+**Applies To:** Recording structured failure events when image retrieval fails, capturing timestamp, error classification, fallback actions taken, and user notification status for operational monitoring.
 
 ```yaml
 failure_log:
@@ -796,7 +796,7 @@ failure_log:
 
 ## 5 Verification and Hallucination Prevention
 
-**Applies To:** verification, hallucination, prevention
+**Applies To:** Any multimodal RAG system generating responses that combine text with retrieved images, where claims about visual content must be verified against what images actually show to prevent hallucination.
 
 ### 5.1 Cross-Modal Consistency Check
 
@@ -901,7 +901,7 @@ When text source and image source provide conflicting information:
 
 ### 5.4 Visual-Textual Inconsistency Handling
 
-**Applies To:** visual, textual, inconsistency, handling
+**Applies To:** Detecting and resolving common mismatches between retrieved images and text, such as outdated screenshots, mismatched captions, step-numbering errors, and cropped images missing referenced elements.
 
 **Purpose:** Specific handling procedures for the most common inconsistency patterns.
 
@@ -996,7 +996,7 @@ Based on the available evidence:
 
 ## 6 Evaluation Framework
 
-**Applies To:** evaluation, framework
+**Applies To:** Measuring and monitoring the quality of a multimodal RAG system, including retrieval accuracy, answer faithfulness, hallucination rates, drift detection, and benchmark construction.
 
 ### 6.1 RAG-Check 6-Metric Implementation
 
@@ -1041,7 +1041,7 @@ Based on the available evidence:
 
 ### 6.2 Multimodal MRR Calculation
 
-**Applies To:** standard mrr; multimodal mrr; multimodal, mrr, calculation
+**Applies To:** Evaluating retrieval ranking quality in multimodal systems where relevance may come from text, images, or their combination, extending standard MRR to account for cross-modal matches.
 
 **Purpose:** Extending Mean Reciprocal Rank for multimodal retrieval contexts.
 
@@ -1120,7 +1120,7 @@ def multimodal_mrr(queries, retrieval_results, ground_truth):
 
 ### 6.4 Benchmark Construction
 
-**Applies To:** benchmark dataset requirements:; construction process:; benchmark, construction
+**Applies To:** Building and maintaining a ground-truth evaluation dataset for multimodal RAG, including query sampling, relevance annotation, expert validation, and versioning against content snapshots.
 
 **Purpose:** How to build and maintain a benchmark dataset for multimodal RAG evaluation.
 
@@ -1160,7 +1160,7 @@ def multimodal_mrr(queries, retrieval_results, ground_truth):
 
 ## 7 Citation and Attribution
 
-**Applies To:** citation, attribution
+**Applies To:** Any RAG response that incorporates retrieved content, requiring traceability from individual claims back to source documents, sections, or image regions.
 
 ### 7.1 Fragment-Level Source Tracking
 
@@ -1252,7 +1252,7 @@ Reference: "In the top-right quadrant of the screenshot..."
 
 ### 7.3 Citation Formatting
 
-**Applies To:** inline citation format:; multi-source citation format:; citation, formatting
+**Applies To:** Formatting inline, multi-source, and image-specific citations in multimodal RAG responses so users can trace each claim to its source document, section, or visual element.
 
 **Purpose:** Standard formatting for citations in multimodal RAG responses.
 
@@ -1281,7 +1281,7 @@ the Upgrade option [Source: Opera PMS v5.6, Actions Menu screenshot, captured
 
 ### 7.4 Citation Verification Checklist
 
-**Applies To:** citation, verification, checklist
+**Applies To:** Pre-delivery review of a RAG response to ensure every factual claim has an identified source, no false citations exist, and image references include spatial attribution.
 
 Before delivering a response, verify:
 
@@ -1296,7 +1296,7 @@ Before delivering a response, verify:
 
 ## 8 Security for Multimodal Knowledge Bases
 
-**Applies To:** security, multimodal, knowledge, bases
+**Applies To:** Protecting multimodal knowledge bases against adversarial attacks, including image poisoning, caption manipulation, cross-modal injection, and content integrity threats.
 
 ### 8.1 Poisoning Attack Taxonomy
 
@@ -1353,7 +1353,7 @@ STAGE 5: Provenance Verification
 
 ### 8.3 Defense Assessment Checklist
 
-**Applies To:** input validation active; embedding monitoring; caption integrity; defense, assessment, checklist
+**Applies To:** Periodic security audits of a multimodal knowledge base, verifying that input validation, embedding outlier detection, caption integrity, and metadata sanitization defenses are active and effective.
 
 **Periodic security assessment for multimodal knowledge bases:**
 
@@ -1391,7 +1391,7 @@ This section provides cross-references, not duplicate content. Each domain owns 
 
 ## 9 Data Governance
 
-**Applies To:** data, governance
+**Applies To:** Managing access control, encryption, audit logging, and data lineage for multimodal knowledge bases that serve users with different permission levels.
 
 ### 9.1 RBAC Configuration
 
@@ -1448,7 +1448,7 @@ rbac_config:
 
 ### 9.2 Encryption and Transit Security
 
-**Applies To:** encryption, transit, security
+**Applies To:** Ensuring visual content, embeddings, and index data are encrypted at rest and in transit, including protection against embedding inversion attacks that can reconstruct source content.
 
 **Purpose:** Ensuring visual content is protected at rest and in transit.
 
@@ -1465,7 +1465,7 @@ rbac_config:
 
 ### 9.3 Audit Trail Schema
 
-**Applies To:** audit, trail, schema
+**Applies To:** Logging all queries, retrieval results, and access decisions for compliance auditing, with retention policies for public and restricted content access records.
 
 **Purpose:** Audit logging requirements for access compliance.
 
@@ -1494,7 +1494,7 @@ audit_log_entry:
 
 ### 9.4 Data Lineage Tracking
 
-**Applies To:** lineage record schema:; data, lineage, tracking
+**Applies To:** Tracking the complete provenance chain for content in a multimodal knowledge base, from original source through every transformation (resize, embed, re-index) to current index state.
 
 **Purpose:** Procedures for implementing DG2 (Data Lineage and Provenance).
 
@@ -1541,7 +1541,7 @@ lineage_record:
 
 ## 10 Operational Management
 
-**Applies To:** operational, management
+**Applies To:** Day-to-day operation of a multimodal RAG system, including vector index versioning, embedding model transitions, prompt template management, cost monitoring, and observability dashboards.
 
 ### 10.1 Vector Index Versioning
 
@@ -1593,7 +1593,7 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 
 ### 10.2 Embedding Model Lifecycle
 
-**Applies To:** model change process:; embedding, model, lifecycle
+**Applies To:** Transitioning between embedding models (e.g., upgrading from CLIP to ColPali) without service disruption, including parallel embedding generation, metric comparison, and rollback capability.
 
 **Purpose:** Managing embedding model transitions without service disruption.
 
@@ -1627,7 +1627,7 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 
 ### 10.3 Prompt Template Versioning
 
-**Applies To:** version control requirements:; prompt, template, versioning
+**Applies To:** Managing changes to system prompts, query expansion prompts, and verification prompts used throughout the RAG pipeline, with version control and benchmark evaluation requirements.
 
 **Purpose:** Tracking changes to prompts used in the RAG pipeline.
 
@@ -1645,7 +1645,7 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 
 ### 10.4 Cost Monitoring
 
-**Applies To:** cost categories:; embedding generation; cost, monitoring
+**Applies To:** Tracking and controlling operational costs for embedding generation, vector storage, query inference, image storage, and model hosting in a multimodal RAG deployment.
 
 **Purpose:** Tracking operational costs for multimodal RAG systems.
 
@@ -1667,7 +1667,7 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 
 ### 10.5 Observability Dashboard
 
-**Applies To:** key metrics to display:; dashboard tiers:; observability, dashboard
+**Applies To:** Setting up monitoring dashboards for a multimodal RAG system, with tiered views for engineering (latency, errors), ML quality (faithfulness, MRR), and executive stakeholders (cost, SLA compliance).
 
 **Purpose:** Procedures for implementing O2 (Operational Observability).
 
@@ -1694,7 +1694,7 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 
 ## 11 Agentic Retrieval Patterns
 
-**Applies To:** agentic, retrieval, patterns
+**Applies To:** Multimodal RAG systems that use agent-driven retrieval loops, including adaptive strategy selection, query decomposition, sufficiency evaluation, and multi-agent coordination for knowledge synthesis.
 
 ### 11.1 Adaptive Retrieval Loop Design
 
