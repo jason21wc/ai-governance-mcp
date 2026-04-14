@@ -30,7 +30,11 @@ governance_level: "federal-regulations"
 
 ## 1 Presentation Patterns
 
+**Applies To:** presentation, patterns
+
 ### 1.1 Image Placement Workflow
+
+**Applies To:** image, placement, workflow
 
 When responding with images, follow this sequence:
 
@@ -66,6 +70,8 @@ When responding with images, follow this sequence:
 
 ### 1.2 Inline Placement Rules
 
+**Applies To:** inline, placement, rules
+
 | Content Type | Placement Rule | Example |
 |--------------|----------------|---------|
 | Procedural steps | Image after step instruction, before next step | "Click the Settings icon. [screenshot] Next, select..." |
@@ -74,6 +80,8 @@ When responding with images, follow this sequence:
 | Comparison | Images side-by-side or sequential with clear labels | "Before: [image1] After: [image2]" |
 
 ### 1.3 Image Selection Algorithm (Mayer-Based)
+
+**Applies To:** image, selection, algorithm, mayer, based
 
 Based on Mayer's Multimedia Learning Theory principles. See P3 for rationale.
 
@@ -117,6 +125,8 @@ Input: Query Q, Candidate images I[], Current selection S[]
 
 ### 1.4 Content-Type Matching
 
+**Applies To:** content, type, matching
+
 | Query Intent | Preferred Image Type | Avoid |
 |--------------|---------------------|-------|
 | "How do I..." (procedural) | UI screenshot, step-by-step | Conceptual diagrams |
@@ -126,6 +136,8 @@ Input: Query Q, Candidate images I[], Current selection S[]
 | "Compare..." | Side-by-side comparison | Single images |
 
 ### 1.5 Readability Standards
+
+**Applies To:** default (9th-grade level):; audience signals to detect:; readability, standards
 
 **Default (9th-grade level):**
 - Sentence length: 15-20 words average
@@ -182,7 +194,11 @@ When advising on content that includes video or animated sequences:
 
 ## 2 Reference Document Structuring
 
+**Applies To:** reference, document, structuring
+
 ### 2.1 Document Organization Template
+
+**Applies To:** document, organization, template
 
 ```markdown
 # [Procedure/Concept Name]
@@ -218,6 +234,8 @@ When advising on content that includes video or animated sequences:
 
 ### 2.2 Image Description Requirements
 
+**Applies To:** alt text (required):; context description (required):; metadata tags (required):; image, description, requirements
+
 **Alt Text (Required):**
 - Describes WHAT the image shows
 - Serves accessibility (screen readers)
@@ -237,6 +255,8 @@ When advising on content that includes video or animated sequences:
 
 ### 2.3 Metadata Schema
 
+**Applies To:** metadata, schema
+
 ```yaml
 image_metadata:
   file: "upgrade-step-2.png"
@@ -255,6 +275,8 @@ image_metadata:
 
 ### 2.4 Collocation Verification Checklist
 
+**Applies To:** collocation, verification, checklist
+
 Before publishing reference documents:
 
 - [ ] Every image appears within 2 paragraphs of its related text
@@ -266,6 +288,8 @@ Before publishing reference documents:
 - [ ] Consistent image naming convention throughout document
 
 ### 2.5 Content Ingestion Assistance Workflow
+
+**Applies To:** content ingestion assistance; identify content type; assess image quality; content, ingestion, assistance, workflow
 
 **Content Ingestion Assistance** procedure for AI agents assisting users with preparing multimodal content for RAG knowledge bases. Follow this workflow when a user uploads images, screenshots, or raw documentation and requests help incorporating them into a multimodal RAG system.
 
@@ -339,7 +363,11 @@ Optimize the prepared content for retrieval quality:
 
 ## 3 Retrieval Architecture
 
+**Applies To:** retrieval, architecture
+
 ### 3.1 Four-Layer Architecture
+
+**Applies To:** four, layer, architecture
 
 ```
 +------------------------------------------------------------+
@@ -368,6 +396,8 @@ Optimize the prepared content for retrieval quality:
 
 ### 3.2 Embedding Model Selection
 
+**Applies To:** embedding, model, selection
+
 | Model Family | Strengths | Considerations |
 |--------------|-----------|----------------|
 | **ColPali** | Late interaction, fine-grained matching | Newer, evolving ecosystem |
@@ -382,6 +412,8 @@ Optimize the prepared content for retrieval quality:
 4. Does the model handle your image types well? (screenshots, diagrams, photos)
 
 ### 3.3 Relevance Scoring Implementation
+
+**Applies To:** relevance, scoring, implementation
 
 ```python
 def relevance_score(query, image, config):
@@ -430,6 +462,8 @@ def relevance_score(query, image, config):
 ```
 
 ### 3.4 Chunk Strategy for Multimodal Documents
+
+**Applies To:** key principles:; chunk, strategy, multimodal, documents
 
 When indexing documents with images:
 
@@ -673,7 +707,11 @@ Input: Query Q, Knowledge Graph G, Vector Index V
 
 ## 4 Failure Handling
 
+**Applies To:** failure, handling
+
 ### 4.1 Failure Classification
+
+**Applies To:** failure, classification
 
 | Failure Type | Code | Cause | User-Facing Message |
 |--------------|------|-------|---------------------|
@@ -684,6 +722,8 @@ Input: Query Q, Knowledge Graph G, Vector Index V
 | Permission denied | `permission_denied` | Access control prevents retrieval | "Access to image not permitted" |
 
 ### 4.2 Graceful Degradation Procedure
+
+**Applies To:** graceful, degradation, procedure
 
 ```
 IF image_retrieval_fails:
@@ -705,6 +745,8 @@ IF image_retrieval_fails:
 ```
 
 ### 4.3 Failure Note Templates
+
+**Applies To:** single image failure:; multiple image failures:; failure, note, templates
 
 **Single Image Failure:**
 ```
@@ -736,6 +778,8 @@ Recommendation: This procedure is highly visual. Consider accessing the source d
 
 ### 4.4 Failure Logging Schema
 
+**Applies To:** failure, logging, schema
+
 ```yaml
 failure_log:
   timestamp: "2026-01-24T14:30:00Z"
@@ -751,6 +795,8 @@ failure_log:
 ---
 
 ## 5 Verification and Hallucination Prevention
+
+**Applies To:** verification, hallucination, prevention
 
 ### 5.1 Cross-Modal Consistency Check
 
@@ -855,6 +901,8 @@ When text source and image source provide conflicting information:
 
 ### 5.4 Visual-Textual Inconsistency Handling
 
+**Applies To:** visual, textual, inconsistency, handling
+
 **Purpose:** Specific handling procedures for the most common inconsistency patterns.
 
 | Inconsistency Pattern | Detection | Response Template |
@@ -948,6 +996,8 @@ Based on the available evidence:
 
 ## 6 Evaluation Framework
 
+**Applies To:** evaluation, framework
+
 ### 6.1 RAG-Check 6-Metric Implementation
 
 **Purpose:** Procedures for implementing EV1 (Retrieval Quality Measurement) and EV2 (Answer Faithfulness Assessment). Based on RAG-Check framework (arxiv 2501.03995).
@@ -990,6 +1040,8 @@ Based on the available evidence:
 ```
 
 ### 6.2 Multimodal MRR Calculation
+
+**Applies To:** standard mrr; multimodal mrr; multimodal, mrr, calculation
 
 **Purpose:** Extending Mean Reciprocal Rank for multimodal retrieval contexts.
 
@@ -1068,6 +1120,8 @@ def multimodal_mrr(queries, retrieval_results, ground_truth):
 
 ### 6.4 Benchmark Construction
 
+**Applies To:** benchmark dataset requirements:; construction process:; benchmark, construction
+
 **Purpose:** How to build and maintain a benchmark dataset for multimodal RAG evaluation.
 
 **Benchmark Dataset Requirements:**
@@ -1105,6 +1159,8 @@ def multimodal_mrr(queries, retrieval_results, ground_truth):
 ---
 
 ## 7 Citation and Attribution
+
+**Applies To:** citation, attribution
 
 ### 7.1 Fragment-Level Source Tracking
 
@@ -1196,6 +1252,8 @@ Reference: "In the top-right quadrant of the screenshot..."
 
 ### 7.3 Citation Formatting
 
+**Applies To:** inline citation format:; multi-source citation format:; citation, formatting
+
 **Purpose:** Standard formatting for citations in multimodal RAG responses.
 
 **Inline Citation Format:**
@@ -1223,6 +1281,8 @@ the Upgrade option [Source: Opera PMS v5.6, Actions Menu screenshot, captured
 
 ### 7.4 Citation Verification Checklist
 
+**Applies To:** citation, verification, checklist
+
 Before delivering a response, verify:
 
 - [ ] Every factual claim has an identified source
@@ -1235,6 +1295,8 @@ Before delivering a response, verify:
 ---
 
 ## 8 Security for Multimodal Knowledge Bases
+
+**Applies To:** security, multimodal, knowledge, bases
 
 ### 8.1 Poisoning Attack Taxonomy
 
@@ -1291,6 +1353,8 @@ STAGE 5: Provenance Verification
 
 ### 8.3 Defense Assessment Checklist
 
+**Applies To:** input validation active; embedding monitoring; caption integrity; defense, assessment, checklist
+
 **Periodic security assessment for multimodal knowledge bases:**
 
 - [ ] **Input validation active** — All ingestion paths run through section 8.2 pipeline
@@ -1326,6 +1390,8 @@ This section provides cross-references, not duplicate content. Each domain owns 
 ---
 
 ## 9 Data Governance
+
+**Applies To:** data, governance
 
 ### 9.1 RBAC Configuration
 
@@ -1382,6 +1448,8 @@ rbac_config:
 
 ### 9.2 Encryption and Transit Security
 
+**Applies To:** encryption, transit, security
+
 **Purpose:** Ensuring visual content is protected at rest and in transit.
 
 **Requirements:**
@@ -1396,6 +1464,8 @@ rbac_config:
 **Note:** Embeddings deserve the same protection as source content. Research has demonstrated that embeddings can be inverted to reconstruct original text (arxiv 2305.03010), making unprotected embeddings a data leakage vector.
 
 ### 9.3 Audit Trail Schema
+
+**Applies To:** audit, trail, schema
 
 **Purpose:** Audit logging requirements for access compliance.
 
@@ -1423,6 +1493,8 @@ audit_log_entry:
 - Audit logs must be append-only (no modification or deletion)
 
 ### 9.4 Data Lineage Tracking
+
+**Applies To:** lineage record schema:; data, lineage, tracking
 
 **Purpose:** Procedures for implementing DG2 (Data Lineage and Provenance).
 
@@ -1468,6 +1540,8 @@ lineage_record:
 ---
 
 ## 10 Operational Management
+
+**Applies To:** operational, management
 
 ### 10.1 Vector Index Versioning
 
@@ -1519,6 +1593,8 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 
 ### 10.2 Embedding Model Lifecycle
 
+**Applies To:** model change process:; embedding, model, lifecycle
+
 **Purpose:** Managing embedding model transitions without service disruption.
 
 **Model Change Process:**
@@ -1551,6 +1627,8 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 
 ### 10.3 Prompt Template Versioning
 
+**Applies To:** version control requirements:; prompt, template, versioning
+
 **Purpose:** Tracking changes to prompts used in the RAG pipeline.
 
 **What to Version:**
@@ -1566,6 +1644,8 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 - Rollback capability: previous prompt versions retained
 
 ### 10.4 Cost Monitoring
+
+**Applies To:** cost categories:; embedding generation; cost, monitoring
 
 **Purpose:** Tracking operational costs for multimodal RAG systems.
 
@@ -1586,6 +1666,8 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 - Identify optimization opportunities (compression, caching, batching)
 
 ### 10.5 Observability Dashboard
+
+**Applies To:** key metrics to display:; dashboard tiers:; observability, dashboard
 
 **Purpose:** Procedures for implementing O2 (Operational Observability).
 
@@ -1611,6 +1693,8 @@ Example: idx-v4.2_a1b2c3_d4e5f6_20260215
 ---
 
 ## 11 Agentic Retrieval Patterns
+
+**Applies To:** agentic, retrieval, patterns
 
 ### 11.1 Adaptive Retrieval Loop Design
 

@@ -35,6 +35,8 @@ governance_level: "federal-regulations"
 
 ## 1 The Context Threshold Problem
 
+**Applies To:** context, threshold, problem
+
 ### Why This Method Exists
 
 AI language models have **advertised** context windows of 100K-200K tokens, but **effective** context is much smaller. Research from Stanford and Meta AI ("Lost in the Middle," 2023) demonstrates:
@@ -66,6 +68,8 @@ AI language models have **advertised** context windows of 100K-200K tokens, but 
 ---
 
 ## 2 The Story Bible Architecture
+
+**Applies To:** story, bible, architecture
 
 ### Three-Tier Memory Model
 
@@ -99,6 +103,8 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 ---
 
 ## 3 Reference Items to Track
+
+**Applies To:** reference, items, track
 
 ### Tier 1: MANDATORY (Track for Any Project Over 10K Words)
 
@@ -174,6 +180,8 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 
 ## 4 Story Bible Template
 
+**Applies To:** story, bible, template
+
 ### Minimal Template (10K-25K Words)
 
 ```markdown
@@ -233,6 +241,8 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 ---
 
 ## 1 Story Foundation (IMMUTABLE)
+
+**Applies To:** story, foundation, immutable
 
 ### Premise
 [One sentence: Who wants what, and what stands in the way?]
@@ -319,6 +329,8 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 
 ## 4 Plot Architecture
 
+**Applies To:** plot, architecture
+
 ### Structure
 - **Framework:** [Hero's Journey / Three-Act / Kishotenketsu / etc.]
 - **Act Breakdown:** [Where act breaks fall]
@@ -363,6 +375,8 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 ---
 
 ## 5 Style Guide
+
+**Applies To:** style, guide
 
 ### Voice
 - **Tense:** [Past / Present]
@@ -409,6 +423,8 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 
 ## 7 Session State (Working Memory)
 
+**Applies To:** session, state, working, memory
+
 *Updated each session. Overwritten, not appended.*
 
 ### Current Position
@@ -450,6 +466,8 @@ Adapted from the AI Coding Methods memory architecture (which maps to cognitive 
 ---
 
 ## 5 Context Loading Protocol
+
+**Applies To:** context, loading, protocol
 
 ### The "Lost in the Middle" Mitigation
 
@@ -506,6 +524,8 @@ For optimal performance, keep loaded context under 15K tokens:
 
 ## 6 When to Create New Reference Items
 
+**Applies To:** create, new, reference, items
+
 ### Decision Framework
 
 Create a new reference entry when:
@@ -548,6 +568,8 @@ When a new element emerges during writing:
 
 ## 7 Platform-Specific Adaptations
 
+**Applies To:** platform, specific, adaptations
+
 ### Long-Form (Novels, Series)
 
 - Use **full Story Bible template**
@@ -585,6 +607,8 @@ When a new element emerges during writing:
 
 ## 8 Voice Preservation Integration
 
+**Applies To:** voice, preservation, integration
+
 When AI assists a human storyteller (vs. generating independently), add this section to Story Bible:
 
 ### Voice Fingerprint
@@ -615,6 +639,8 @@ When AI assists a human storyteller (vs. generating independently), add this sec
 ---
 
 ## 9 Recovery Protocol
+
+**Applies To:** recovery, protocol
 
 ### If Story Bible Becomes Inconsistent
 
@@ -647,6 +673,8 @@ When AI assists a human storyteller (vs. generating independently), add this sec
 
 ## 10 Governance Integration
 
+**Applies To:** governance, integration
+
 ### Principle Mapping
 
 This method implements:
@@ -670,6 +698,8 @@ Query governance for relevant storytelling principles based on current task:
 ---
 
 ## 11 Auto-Tracking Protocol
+
+**Applies To:** auto, tracking, protocol
 
 ### Why Auto-Tracking?
 
@@ -773,6 +803,8 @@ Every session must end with this sequence:
 ## Session End Checklist
 
 ### 1. Session State Update
+**Applies To:** session, state, update
+
 - [ ] Current chapter/scene position
 - [ ] Last line written (exact quote)
 - [ ] Active POV character
@@ -780,23 +812,31 @@ Every session must end with this sequence:
 - [ ] Character emotional states (those in scene)
 
 ### 2. Entity Extraction Review
+**Applies To:** entity, extraction, review
+
 - [ ] New characters introduced? → Add to Bible
 - [ ] New locations introduced? → Add to Bible
 - [ ] New rules established? → Add to Bible
 - [ ] Existing entries need updates? → Update with changelog
 
 ### 3. Episodic Log Update
+**Applies To:** episodic, log, update
+
 - [ ] One-paragraph summary of session events
 - [ ] Key plot developments noted
 - [ ] Character changes documented
 
 ### 4. Conflict Check
+**Applies To:** conflict, check
+
 - [ ] Any contradictions with Bible entries?
 - [ ] Any timeline inconsistencies?
 - [ ] Any character behavior OOC without explanation?
 → If yes to any: Flag for revision management
 
 ### 5. Next Session Prep
+**Applies To:** next, session, prep
+
 - [ ] What scenes are next?
 - [ ] Which characters need to be loaded?
 - [ ] Any unresolved questions to address?
@@ -805,6 +845,8 @@ Every session must end with this sequence:
 ---
 
 ## 12 Revision Management Protocol
+
+**Applies To:** revision, management, protocol
 
 ### The Revision Problem
 
@@ -1071,6 +1113,8 @@ When auto-tracking detects a conflict:
 ---
 
 ## 13 Non-Linear Writing Protocol
+
+**Applies To:** non, linear, writing, protocol
 
 ### The Inspiration-First Workflow
 
@@ -1718,6 +1762,8 @@ Maintaining **character voice distinction** across long narratives prevents the 
 
 ### 15.1 Voice Profile Components
 
+**Applies To:** vocabulary range; sentence structure; speech rhythm; voice, profile, components
+
 For each significant speaking character, document:
 
 | Component | What to Capture | Example |
@@ -1730,6 +1776,8 @@ For each significant speaking character, document:
 | **Dialogue Samples** | 3+ lines showing range | Calm, stressed, and with-specific-character examples |
 
 ### 15.2 Voice Distinction Test
+
+**Applies To:** cover-the-attribution test; voice distinction; voice, distinction, test
 
 The **cover-the-attribution test**: remove character names and dialogue tags from a conversation. Can you tell who is speaking from voice alone?
 
@@ -1748,6 +1796,8 @@ The **cover-the-attribution test**: remove character names and dialogue tags fro
 
 ### 15.3 Voice Drift Detection
 
+**Applies To:** converge toward the ai's default style; voice, drift, detection
+
 Over long narratives, characters' voices can **converge toward the AI's default style**. Check for drift by comparing:
 - Early dialogue samples vs. recent dialogue
 - Character voice profile vs. actual dialogue produced
@@ -1765,6 +1815,8 @@ Over long narratives, characters' voices can **converge toward the AI's default 
 
 ### 16.1 Convention Reference
 
+**Applies To:** convention, reference
+
 | Genre | Key Conventions | Reader Expectations |
 |-------|----------------|---------------------|
 | **Romance** | HEA/HFN ending, central love story, emotional beats | Satisfying romantic resolution; emotional payoff |
@@ -1776,6 +1828,8 @@ Over long narratives, characters' voices can **converge toward the AI's default 
 | **Literary** | Prose quality, thematic depth, character interiority | Beautiful language; meaningful exploration |
 
 ### 16.2 Convention Decision Workflow
+
+**Applies To:** identify genre; list conventions; choose adherence; convention, decision, workflow
 
 1. **Identify genre** — What genre(s) does this story belong to?
 2. **List conventions** — What does this genre's audience expect?
@@ -1796,6 +1850,8 @@ Systematic **plot hole detection** for long-form narratives where continuity err
 
 ### 17.1 Check Categories
 
+**Applies To:** character knowledge audit; timeline verification; rule compliance scan; check, categories
+
 | Check Type | What It Catches | When to Run |
 |-----------|-----------------|-------------|
 | **Character Knowledge Audit** | Characters acting on information they shouldn't have | After scenes where information is revealed |
@@ -1806,6 +1862,8 @@ Systematic **plot hole detection** for long-form narratives where continuity err
 
 ### 17.2 Character Knowledge Audit
 
+**Applies To:** character, knowledge, audit
+
 For each scene, verify:
 - Does every character only act on information they've been shown to possess?
 - If a character "knows" something, trace back to the scene where they learned it
@@ -1813,12 +1871,16 @@ For each scene, verify:
 
 ### 17.3 Timeline Verification
 
+**Applies To:** timeline, verification
+
 - Map events to story days/times
 - Verify travel times are plausible
 - Check that simultaneous events don't contradict
 - Ensure character aging is consistent
 
 ### 17.4 Quick Consistency Scan
+
+**Applies To:** quick, consistency, scan
 
 A fast check to run at scene boundaries:
 - [ ] All characters present were established as being at this location
@@ -1837,6 +1899,8 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.1 Question Categories
 
+**Applies To:** question, categories
+
 | Category | Purpose | When to Use |
 |----------|---------|-------------|
 | **Discovery** | Help writer find their story | Early stages, unclear direction |
@@ -1848,12 +1912,16 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.2 Discovery Questions
 
+**Applies To:** discovery, questions
+
 - "What feeling do you want readers to have when they finish?"
 - "If you had to describe this story in one sentence to a friend, what would you say?"
 - "What scene do you see most vividly? Start there."
 - "Who is this story really about, and what do they want more than anything?"
 
 ### 18.3 Character Questions
+
+**Applies To:** character, questions
 
 - "What's the worst thing that could happen to this character? What would they sacrifice to prevent it?"
 - "What does this character believe about the world that isn't true?"
@@ -1862,12 +1930,16 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.4 Structure Questions
 
+**Applies To:** structure, questions
+
 - "What does your protagonist want in this scene, right now? What's stopping them?"
 - "What's the most surprising thing that happens in your story? Could readers glimpse it earlier?"
 - "If you removed this scene entirely, what would the reader miss?"
 - "What promise did your opening make? How will your ending deliver on it?"
 
 ### 18.5 Craft Questions
+
+**Applies To:** craft, questions
 
 - "Read this dialogue aloud — does it sound like how real people talk?"
 - "What does this setting smell like? Sound like? What's the temperature?"
@@ -1876,6 +1948,8 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.6 Revision Questions
 
+**Applies To:** revision, questions
+
 - "What's the weakest scene in your draft? What makes it weak?"
 - "Are there scenes where you're telling the reader what to feel instead of showing them?"
 - "Which characters sound the same? How could their voices diverge?"
@@ -1883,12 +1957,16 @@ A structured taxonomy of **coaching questions for writers** organized by challen
 
 ### 18.7 Stuck Questions
 
+**Applies To:** stuck, questions
+
 - "What's the last thing you wrote that excited you?"
 - "What if the opposite happened? What if the character did the unexpected thing?"
 - "Skip ahead — write the next scene you're excited about, not the next scene in order"
 - "What would your favorite author do with this character in this situation?"
 
 ### 18.8 Progressive Inquiry Pattern
+
+**Applies To:** broad → narrow → probe → challenge; progressive, inquiry, pattern
 
 Apply questions in a **broad → narrow → probe → challenge** sequence:
 

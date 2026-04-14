@@ -300,6 +300,8 @@ Create this file as `claude.md`, `gemini.md`, AND `agents.md` in project root:
 
 ### 1.1 Justified Complexity Check
 
+**Applies To:** the 15x rule:; justified, complexity, check
+
 CRITICAL
 
 **Purpose:** Validate that agent deployment is warranted before incurring the overhead.
@@ -416,6 +418,8 @@ When agents ARE deployed, document:
 
 ### 1.2 Workflow Initialization Protocol
 
+**Applies To:** capture original intent; workflow, initialization, protocol
+
 CRITICAL
 
 **Purpose:** Establish the foundation for agent work before any agents are deployed.
@@ -473,6 +477,8 @@ CRITICAL
 
 ### 1.3 Multi-Tool Setup
 
+**Applies To:** directory structure; multi, tool, setup
+
 IMPORTANT
 
 **Purpose:** Configure multiple CLI tools to work on the same project with synchronized context.
@@ -508,6 +514,8 @@ IMPORTANT
 **Implements:** A1 (Agent Specialization & Topology), A2 (Context Engineering Discipline), A3 (Context Isolation Architecture), A4 (Orchestrator Separation Pattern)
 
 ### 2.1 Subagent Definition Standard
+
+**Applies To:** subagent, definition, standard
 
 CRITICAL
 
@@ -945,6 +953,8 @@ Before finalizing, confirm:
 
 ### 2.2 Agent Catalog
 
+**Applies To:** the six core agent patterns:; agent, catalog
+
 CRITICAL
 
 **Purpose:** Standard agent patterns ready for deployment. Use these as templates.
@@ -1299,6 +1309,8 @@ Evaluative judgment. I compare planned actions against authoritative principles 
 
 ### 2.3 Context Isolation Verification
 
+**Applies To:** verification checklist:; anti-patterns to avoid:; context, isolation, verification
+
 IMPORTANT
 
 **Purpose:** Ensure agents operate with independent context windows.
@@ -1326,6 +1338,8 @@ IMPORTANT
 **Implements:** R1 (Explicit Handoff Protocol), R2 (Orchestration Pattern Selection), R3 (State Persistence), R4 (Observability), A5 (Intent Propagation / Shared Assumptions)
 
 ### 3.1 Handoff Pattern Taxonomy
+
+**Applies To:** two fundamental patterns:; handoff, pattern, taxonomy
 
 CRITICAL
 
@@ -1392,6 +1406,8 @@ Phase N                              Phase N+1
 **Configuration:** `include_contents: true` (or use Shared Assumptions Document)
 
 ### 3.2 Handoff Protocol
+
+**Applies To:** shared assumptions document:; handoff, protocol
 
 CRITICAL
 
@@ -1483,6 +1499,8 @@ handoff:
 | Research task | 60 minutes | 1 |
 
 ### 3.3 Orchestration Pattern Selection
+
+**Applies To:** default: linear-first; pattern selection matrix:; orchestration, pattern, selection
 
 CRITICAL
 
@@ -1677,6 +1695,8 @@ Task C (blockedBy: [B])  ─┘
 
 ### 3.4 Compression Procedures
 
+**Applies To:** the compression imperative:; compression, procedures
+
 CRITICAL
 
 **Purpose:** Manage context size at agent boundaries to prevent degradation.
@@ -1842,6 +1862,8 @@ After distillation, verify:
 
 ### 3.5 State Persistence Protocol
 
+**Applies To:** state.md template:; last updated:; state, persistence, protocol
+
 CRITICAL
 
 **Purpose:** Ensure workflow state survives session boundaries.
@@ -1939,6 +1961,8 @@ When resuming a workflow with incomplete tasks:
 
 ### 3.6 Session Closer Protocol
 
+**Applies To:** session, closer, protocol
+
 IMPORTANT
 
 **Purpose:** Properly close sessions with state preserved and synced.
@@ -1980,6 +2004,8 @@ IMPORTANT
    ```
 
 ### 3.7 Observability Protocol
+
+**Applies To:** status broadcast requirements:; status message format:; observability, protocol
 
 IMPORTANT
 
@@ -2107,6 +2133,8 @@ All production workflows MUST support point-in-time replay for debugging:
 
 ### 3.8 ReAct Loop Configuration
 
+**Applies To:** the react framework:; react, loop, configuration
+
 IMPORTANT
 
 **Purpose:** Control the Reason→Act→Observe execution cycle in agentic workflows.
@@ -2205,6 +2233,8 @@ react_loop:
 
 ### 3.9 Standardized Collaboration Protocols
 
+**Applies To:** inter-agent communication schema; standardized, collaboration, protocols
+
 IMPORTANT
 
 **Purpose:** Operational procedures for structured inter-agent communication. Ensures agents interact via validated contracts rather than natural language conversation.
@@ -2290,6 +2320,8 @@ When inter-agent dependencies form cycles (Agent A waiting for Agent B, Agent B 
 
 ### 4.1 Validation Agent Deployment
 
+**Applies To:** validation philosophy:; validation deployment checklist:; validation, agent, deployment
+
 CRITICAL
 
 **Purpose:** Deploy validation with fresh context and explicit criteria.
@@ -2351,6 +2383,8 @@ Include confidence: HIGH / MEDIUM / LOW with rationale.
 
 ### 4.2 Contrarian Reviewer Pattern
 
+**Applies To:** when to deploy contrarian reviewer:; contrarian, reviewer, pattern
+
 IMPORTANT
 
 **Purpose:** Surface blind spots and challenge assumptions.
@@ -2399,6 +2433,8 @@ Provide findings with actionable suggestions. Substantive concerns only.
 
 ### 4.3 Governance Agent Pattern
 
+**Applies To:** generic pattern:; governance check invocation:; governance, agent, pattern
+
 IMPORTANT
 
 **Purpose:** Assess compliance with governance principles before action.
@@ -2445,6 +2481,8 @@ S-Series (safety) principles have veto authority. If ANY S-Series principle is v
 - Document the stop decision
 
 ### 4.4 Fault Tolerance Procedures
+
+**Applies To:** failure detection:; retry protocol:; fault, tolerance, procedures
 
 CRITICAL
 
@@ -2550,6 +2588,8 @@ Near-miss triggers:
 
 ### 4.5 Human-in-the-Loop Gates
 
+**Applies To:** mandatory human gates:; human, loop, gates
+
 CRITICAL
 
 **Purpose:** Ensure human oversight at critical decision points.
@@ -2606,6 +2646,8 @@ All human decisions must be logged:
 ```
 
 ### 4.6 Governance Enforcement Architecture
+
+**Applies To:** governance, enforcement, architecture
 
 CRITICAL
 
@@ -3243,6 +3285,8 @@ Each layer catches failures the previous layer misses. Advisory works most of th
 
 ### 4.7 Agent Evaluation Framework
 
+**Applies To:** why validation alone is insufficient:; agent, evaluation, framework
+
 CRITICAL
 
 **Purpose:** Systematically evaluate agent performance across multiple dimensions for continuous improvement.
@@ -3669,6 +3713,8 @@ Before deploying a new grader:
 
 ### 4.8 Production Safety Guardrails
 
+**Applies To:** the guardrail imperative:; production, safety, guardrails
+
 CRITICAL
 
 **Purpose:** Implement multi-layer safety defenses for production agent deployments.
@@ -3832,6 +3878,8 @@ S-Series (Safety) principles from the Constitution have veto authority. Guardrai
 
 ### 5.1 Context File Synchronization
 
+**Applies To:** the three context files:; sync protocol:; context, file, synchronization
+
 CRITICAL
 
 **Purpose:** Keep context identical across Claude Code, Gemini CLI, and Codex CLI.
@@ -3880,6 +3928,8 @@ Then load context and confirm ready state.
 ```
 
 ### 5.2 Multi-Tool Workflow Patterns
+
+**Applies To:** pattern: specialized tool selection; multi, tool, workflow, patterns
 
 IMPORTANT
 
@@ -4156,6 +4206,8 @@ When agent output feeds back into agent input (e.g., research agent reads its ow
 ### 6.5 Autonomous Experimentation Protocol
 
 **Implements:** AO-1 (Blast Radius Classification), AO-2 (HITL Removal Criteria), AO-3 (Compensating Controls), AO-4 (Autonomous Drift Monitoring)
+
+**Applies To:** research protocol; research architect; autonomous, experimentation, protocol
 
 Operationalizes the AO-Series for autonomous agent experimentation — agents running modify→test→evaluate→decide loops without continuous human supervision.
 
