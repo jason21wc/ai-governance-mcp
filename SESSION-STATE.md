@@ -38,6 +38,14 @@
 
 ### Completed This Session
 
+102. **Compliance Review #2 + Canary Evaluation Redesign**
+   - **Compliance review:** 7/7 checks passed (1 FAIL→FIXED: 3 LEARNING-LOG entries >60 days marked ACTIVE).
+   - **Canary prompts (a-c):** Run and evaluated. All 3 passed structural checks.
+   - **Canary evaluation redesign:** Replaced human evaluation with validator subagent evaluation. Root cause (per `meta-core-systemic-thinking`): original design assumed canary evaluation requires subjective human judgment — it doesn't. All 3 criteria are binary structural pattern checks (ranked recommendation? prose format? principle ID traceable to governance results?). Sycophancy concern applies to quality evaluation, not pattern detection. Validator subagent has more visibility into reasoning chains than human reading output. Human spot-checks reserved for unannounced organic reviews.
+   - **V-004 finding:** 3-session tracking window complete. Failure threshold met (2/3 sessions required user reminder for contrarian). Escalation to PreToolUse hook for ExitPlanMode deferred per user.
+   - **Governance:** `gov-428138c5b82d`.
+   - **Commits:** 2 (compliance review log + canary evaluation redesign).
+
 101. **Context Engine Tool Selection Improvement**
    - **Trigger:** User reported AI defaulting to Grep over query_project for semantic discovery.
    - **Root cause analysis:** Tool description didn't differentiate CE from Grep. Per `meta-core-systemic-thinking`, Problem A (tool never called) was already solved by hooks. Problem B (tool called but not preferred) was the real issue — tool utility perception, not enforcement.
