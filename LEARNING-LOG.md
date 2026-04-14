@@ -218,7 +218,7 @@ The CE had well-built tools but passive instructions ("Use these tools to discov
 
 ---
 
-### Tree-sitter Positional Children Are Fragile — Use Field Names (2026-02-13)
+### Tree-sitter Positional Children Are Fragile — Use Field Names (2026-02-13) — ACTIVE
 
 `_get_imported_names` used `node.children[1]` to skip the module path in `from X import Y`. This broke for relative imports (`from .bar import baz`) where the module node sits at a different index due to the `.` prefix. Fixed by using `node.child_by_field_name("module_name")` for identity comparison.
 
@@ -226,7 +226,7 @@ The CE had well-built tools but passive instructions ("Use these tools to discov
 
 ---
 
-### Environment-Aware Tests for Optional Dependencies (2026-02-12)
+### Environment-Aware Tests for Optional Dependencies (2026-02-12) — ACTIVE
 
 Tests for `_get_chunking_version()` failed because tree-sitter IS installed in dev but not CI. Hardcoded `"line-based-v1"` broke when the actual connector detected tree-sitter.
 
@@ -234,7 +234,7 @@ Tests for `_get_chunking_version()` failed because tree-sitter IS installed in d
 
 ---
 
-### Test Inputs Must Traverse the Full Validation Chain (2026-02-11)
+### Test Inputs Must Traverse the Full Validation Chain (2026-02-11) — ACTIVE
 
 Two test bugs: (1) `"nonexistent00"` has non-hex chars — hit project_id hex validation before reaching the "not found" path we intended to test. (2) `cooldown_seconds=0.0` caused infinite retry cascade — each failed callback re-queued and the 0s timer fired immediately, chaining endlessly and spamming logs.
 

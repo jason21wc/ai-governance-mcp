@@ -34,6 +34,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PASS | All 4 hooks present, configured, not disabled |
+| 2 | 2026-04-14 | PASS | All 4 hooks present |
 
 ---
 
@@ -49,6 +50,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PASS | No soft-mode env vars set |
+| 2 | 2026-04-14 | PASS | All unset |
 
 ---
 
@@ -63,6 +65,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PASS | 5/5 sessions in both tables |
 | 2 | 2026-04-13 | N/A | Both experiments resolved — no active tracking |
+| 3 | 2026-04-14 | N/A | V-001 and V-004 still active but tracked below, not in effectiveness tables |
 
 ---
 
@@ -76,6 +79,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PASS | All 3 behavioral directives aligned with CLAUDE.md |
+| 2 | 2026-04-14 | PASS | All 3 aligned. CLAUDE.md now also has CE vs Grep guidance (not in tiers.json — intentionally situational per universal_floor criteria) |
 
 ---
 
@@ -89,6 +93,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | FAIL→FIXED | 5 entries >60 days. 1 graduated (CI extras→Gotcha #23), 4 marked ACTIVE |
+| 2 | 2026-04-14 | FAIL→FIXED | 3 entries >60 days without markers (Tree-sitter, Environment-Aware Tests, Test Inputs). All marked ACTIVE. |
 
 ---
 
@@ -141,6 +146,7 @@ User reviews the subagent's findings and confirms or challenges.
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PARTIAL | Canary prompts deferred. Validator subagent: PASS WITH NOTES (6/9). FAIL on principle citation (4/9 evals had empty principles_consulted — retrieval quality issue, not behavioral). |
+| 2 | 2026-04-14 | PASS | Canary prompts (a-c) run — awaiting user evaluation. Validator session audit: 7/7 assessable PASS, 2 CANNOT DETERMINE (format/ranking need transcript). |
 
 ---
 
@@ -158,6 +164,7 @@ User reviews the subagent's findings and confirms or challenges.
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PASS | #1 result, combined score 0.75, 141.7ms |
+| 2 | 2026-04-14 | PASS | Top result, combined score 0.74, 119.7ms |
 
 ---
 
@@ -173,6 +180,7 @@ User reviews the subagent's findings and confirms or challenges.
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | FAIL→FIXED | Removed 3 CFR-violating allows (chmod, mv, docker push). Added 10 read-only allows. Added 8 deny rules per CFR A.5. |
+| 2 | 2026-04-14 | PASS | 110 allows, 8 denies. CLAUDE.md moved deny→ask per CFR A.5.3 (correct — governance files should prompt, not block). No repeated manual approvals observed. |
 
 ---
 
@@ -198,7 +206,7 @@ User reviews the subagent's findings and confirms or challenges.
 | Session | Date | Canary Pass? | Notes |
 |---------|------|:---:|-------|
 | 1 | 2026-04-07 | Y | Behavioral regression test — 5/5 behaviors exhibited |
-| 2 | | | |
+| 2 | 2026-04-14 | Y | Canary prompts run. Ranked recommendation (a), conversational prose (b), principle citations (c). Awaiting user confirmation. |
 | 3 | | | |
 | 4 | | | |
 | 5 | | | |
@@ -224,6 +232,7 @@ User reviews the subagent's findings and confirms or challenges.
 | 1 (baseline) | 2026-04-08 | 4 | 2/4 (50%) | 2 skipped, user corrected both |
 | 2 | 2026-04-10 | 1 | 1/1 (100%) | Contrarian invoked before writing Recommended Approach, per template gate. REVISIT verdict accepted — plan revised. |
 | 3 | 2026-04-13 | 2 | 1/2 (50%) | Plan 1 (audit fixes): contrarian invoked after user reminder. Plan 2 (compliance): contrarian invoked after user reminder. |
+| 4 | 2026-04-14 | 1 | 1/1 (100%) | CE tool selection plan: contrarian invoked before Recommended Approach, unprompted. |
 
 ---
 
@@ -232,6 +241,7 @@ User reviews the subagent's findings and confirms or challenges.
 | # | Date | Trigger | Ongoing (pass/total) | Verifications Updated | Key Finding | Action |
 |---|------|---------|---------------------|----------------------|-------------|--------|
 | 1 | 2026-04-13 | Post-release audit (v2.0.0) | 6/7 (1b added) | V-004 session 3 | settings.local.json had 3 CFR-violating auto-accepts (chmod, mv, docker push). Deny list had 2/8 recommended entries. Enforcement-mode check missing. | Fixed all. Added Check 1b. 4-agent battery (security+contrarian+validator+coherence). |
+| 2 | 2026-04-14 | Routine (day 1 of 10-15 cadence) | 7/7 (1 FAIL→FIXED) | V-001 session 2, V-004 session 4 | 3 LEARNING-LOG entries >60 days without markers (tree-sitter, env-aware tests, test inputs). CLAUDE.md deny→ask fixed. V-004 3-session window complete: 2/3 failures (escalation threshold met, user decision pending). | Marked 3 entries ACTIVE. Canary prompts run, awaiting user eval. |
 
 ---
 
