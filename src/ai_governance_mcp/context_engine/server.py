@@ -158,6 +158,18 @@ Call `query_project(query="...")` before creating or modifying code:
 - **When you hear** "where does X happen?", "do we already have Y?", "what pattern do we use for Z?"
 - **During planning** — build a context inventory of affected areas
 
+### Tool Selection — When query_project Shines
+
+`query_project` finds what you can't name precisely. Three scenarios where it outperforms keyword search:
+
+1. **Concept discovery:** You need to find how "path resolution" works, but implementations use `_resolve_project_path`, `_find_project_root`, `looks_like_project`, and `PROJECT_MARKERS` — four different names for related concepts. `query_project("path resolution patterns")` finds all of them semantically.
+
+2. **Before creating something new:** You're about to write a validation function. `query_project("existing validation patterns")` surfaces similar implementations you can reuse or extend — including ones in unexpected files you wouldn't think to grep.
+
+3. **Impact analysis:** You're renaming a concept. `query_project("old concept name")` finds references that use the concept without using the exact filename or string — cross-references, prose descriptions, semantic mentions that keyword search misses.
+
+`query_project` is strongest for discovery, conceptual search, and finding related patterns across naming variations.
+
 ### Required Behavior
 1. **Query before creating** — `query_project("existing [thing] implementation")`
 2. **Query before modifying** — `query_project("how does [component] work")`
@@ -374,10 +386,13 @@ def create_server() -> tuple[Server, ProjectManager]:
             Tool(
                 name="query_project",
                 description=(
-                    "Search project content using semantic and keyword matching. "
-                    "Returns ranked results with file paths and line numbers. "
-                    "Use for: finding code patterns, locating implementations, "
-                    "discovering related files, understanding project structure."
+                    "Search project content using semantic and keyword matching "
+                    "— finds conceptually related code, patterns, and "
+                    "documentation even when naming differs. Best for discovery: "
+                    "'what patterns exist for X?', 'do we already have Y?', "
+                    "'what files are affected by this concept?', "
+                    "'how does Z work across the codebase?'. "
+                    "Returns ranked results with file paths and line numbers."
                 ),
                 inputSchema={
                     "type": "object",

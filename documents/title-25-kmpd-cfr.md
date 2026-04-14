@@ -1,7 +1,7 @@
 ---
-version: "1.2.0"
+version: "1.2.1"
 status: "active"
-effective_date: "2026-03-29"
+effective_date: "2026-04-14"
 domain: "kmpd"
 governance_level: "federal-regulations"
 ---
@@ -12,7 +12,7 @@ governance_level: "federal-regulations"
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > This methods document provides HOW-TO procedures for implementing KM&PD domain principles. It is subordinate to the domain principles document (title-25-kmpd.md), which establishes WHAT governance applies.
 
-**Version:** 1.2.0
+**Version:** 1.2.1
 **Status:** Active
 **Effective Date:** 2026-03-29
 **Governance Level:** Methods (SOPs) — subordinate to KM&PD Domain Principles
@@ -765,13 +765,14 @@ For quick routing of common scenarios to relevant methods:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.2.1 | 2026-04-14 | PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. |
 | 1.2.0 | 2026-03-29 | Added §8 Scaffolded Complexity (demoted from PD3 principle). Updated principle references: TL3+QA1 merged → QA1 (Safety & Compliance Completeness), PD2 merged into KA3. |
 | 1.1.0 | 2026-03-25 | Added Situation Index (17 routing entries). Added storytelling domain cross-reference in situation index. |
 | 1.0.0 | 2026-03-25 | Initial release. 7 sections covering both pillars (Manage Process: §1-§4, Lead People: §5-§7). Templates for Detailed KB, Quick Reference, Cross-Training Matrix, Job Description, Onboarding. TWI Job Instruction method. Kirkpatrick evaluation framework. Maturity model as reference. Implementation Context for Human Leaders as advisory appendix. |
 
 ---
 
-*Version 1.2.0*
+*Version 1.2.1*
 *Derived from: KM&PD Domain Principles v1.3.0, Constitution v2.6.0, AI Coding Methods v2.27.0*
 *Framework: Jason Collier's Knowledge Management & People Development Framework (novel synthesis)*
 *Access: Proprietary — see framework owner for access*

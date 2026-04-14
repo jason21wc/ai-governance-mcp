@@ -35,6 +35,8 @@ Hard-mode hook **BLOCKS** Bash|Edit|Write until both tools are called. This is s
 
 After evaluating: cite principle IDs that influence your approach.
 
+**CE vs Grep:** Use `query_project` for semantic discovery (what exists? what's related? how does X work?). Use Grep/Glob for deterministic lookup (find this exact string, check this file, count occurrences). When creating new content or investigating unfamiliar areas, CE first.
+
 ## Subagents
 
 10 specialized agents in `.claude/agents/`. Read the agent file and apply its instructions when a task matches:

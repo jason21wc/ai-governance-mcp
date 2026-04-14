@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation complete — **v2.0.0 released** (Constitutional Framework Alignment)
 - **Mode:** Standard
-- **Active Task:** None. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Preamble Legal System Analogy table expansion deferred (6 files, template design scope).
+- **Active Task:** None. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Preamble Legal System Analogy table expansion deferred (6 files, template design scope). Template audit complete (v3.26.5).
 
 ## Quick Reference
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.26.3** (rules-of-procedure), **v2.36.0** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.0** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.1** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.1** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.0** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.0** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.26.5** (rules-of-procedure), **v2.36.1** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1198 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -37,6 +37,35 @@
 ## Session Summary (2026-04-14)
 
 ### Completed This Session
+
+101. **Context Engine Tool Selection Improvement**
+   - **Trigger:** User reported AI defaulting to Grep over query_project for semantic discovery.
+   - **Root cause analysis:** Tool description didn't differentiate CE from Grep. Per `meta-core-systemic-thinking`, Problem A (tool never called) was already solved by hooks. Problem B (tool called but not preferred) was the real issue — tool utility perception, not enforcement.
+   - **Research:** 3 parallel agents — MCP tool selection best practices (arxiv 2602.18914: +11.6% from clear descriptions), RAG-optimized instruction writing (IFScale: linear compliance decay per instruction), narrative framing (SoT outperforms rules).
+   - **Plan:** 5-surface proposal → contrarian PROCEED WITH CHANGES → reduced to 3 surfaces. Dropped tiers.json (fails universal_floor criteria) and AGENTS.md (read once, forgotten). Dropped per-edit CE reset (blocking loops) and window reduction (contradicts 200→500 expansion history).
+   - **Implemented (3 surfaces):**
+     1. Tool description rewrite (server.py) — positive framing emphasizing semantic discovery with scenario examples. Universal.
+     2. SERVER_INSTRUCTIONS "Tool Selection" section (server.py) — 3 narrative scenarios (concept discovery, pre-creation, impact analysis). Universal.
+     3. CLAUDE.md CE vs Grep decision criteria — 1 line. Claude-specific reinforcement.
+   - **Permissions fix:** CLAUDE.md moved from "deny" to "ask" in settings.local.json per CFR A.5.3.
+   - **Post-implementation audit:** Code-reviewer PASS (HIGH). Coherence-auditor: 1 Misleading fixed (negative framing → positive summary), 2 Cosmetic accepted.
+   - **Validator (plan):** 9/9 criteria PASS.
+   - **Contrarian reviews:** 2 rounds (pre-analysis + plan). Both PROCEED WITH CHANGES.
+   - **Governance:** `gov-99c22976df80`, `gov-aa29a46bfa7e`, `gov-1cd425aa6027`.
+   - **Tests:** 1198 passing.
+
+100. **Post-Template Audit + Template Quality Enhancement**
+   - **Trigger:** User requested double-check of template work from session 99.
+   - **Coherence audit (session 99 work):** 5 Misleading, 3 Cosmetic. All fixed: Implements field upgraded from Recommended to Required (contradiction with §9.8.4), Known Limitation updated to past tense, §9.8.3 "legal analogy" clarified, 14 keyword-fragment Applies To entries rewritten, `**Applies to:**` → `**Applies To:**` normalized (13 instances across 2 files).
+   - **Validator audit:** 86% pass rate on 72 sampled Applies To entries. 10 failing entries fixed: 6 in title-10 (Part 1.2 "Any context where X" anti-pattern), 2 in title-40 (terse entries), 1 in rules-of-procedure (bold keyword list).
+   - **Version bumps:** 6 domain files received PATCH bumps for the Applies To backfill (title-10 v2.36.1, title-15 v1.0.1, title-20 v2.17.1, title-25 v1.2.1, title-30 v1.1.2, title-40 v2.1.2).
+   - **Template quality enhancement:** Constitution principle template (Part 9.4.0) and appendix template (§9.8.3) enhanced to match method template (Part 3.5.3) quality standard. Added field reference tables with tiers, authoring guidance (3 guidelines each), good/bad examples, Known Limitation notes.
+   - **Contrarian review of enhancements:** PASS WITH CHANGES (HIGH confidence). Two findings addressed: (1) added note that all 3 Recommended constitution fields exist in 24/24 principles, (2) added Known Limitation note for consistency.
+   - **Second coherence audit (v3.26.5):** 1 Misleading, 2 Cosmetic. Fixed: "Why Different Templates?" point 4 stale claim about Definition field (both templates separate binding rule from guidance). Appendix Applies To added to §9.8.4 quality checklist.
+   - **SESSION-STATE hygiene:** Fixed stale nomic-embed reference in backlog #16. Memory files reviewed — all current, no obsolete content.
+   - **Governance:** `gov-6e0c044f3acc`, `gov-17756bf32611`, `gov-35804d456eaa`.
+   - **Tests:** 1198 passing.
+   - **Version:** rules-of-procedure v3.26.3 → v3.26.5 (2 PATCH).
 
 99. **Template Standardization — All 7 Hierarchy Layers**
    - **Trigger:** User requested review of all templates against AI best practices with optimization.
@@ -958,7 +987,7 @@
 
 #### 16. Governance Retrieval Quality Assessment (Discussion) `D2 Improvement`
 
-**What:** Governance server uses BGE-small (384d) while Context Engine uses nomic-embed (768d, better benchmarks). But we don't know if the current model is underperforming — users may not notice degraded retrieval quality.
+**What:** Both governance server and Context Engine use BGE-small-en-v1.5 (384d). We don't know if the current model is underperforming — users may not notice degraded retrieval quality. Better models exist (nomic-embed 768d, higher benchmarks) but upgrade hasn't been justified with data.
 
 **Discussion needed:** Related to #22 (effectiveness measurement). How do we measure current retrieval quality for governance queries specifically? Is there a way to benchmark governance retrieval that would tell us if an upgrade is justified? Determine justification first, then implement if needed, drop if not — but with a way to measure effectiveness going forward.
 

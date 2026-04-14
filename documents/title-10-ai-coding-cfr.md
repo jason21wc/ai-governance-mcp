@@ -1,7 +1,7 @@
 ---
-version: "2.36.0"
+version: "2.36.1"
 status: "active"
-effective_date: "2026-04-09"
+effective_date: "2026-04-14"
 domain: "ai-coding"
 governance_level: "federal-regulations"
 ---
@@ -9,7 +9,7 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.36.0
+**Version:** 2.36.1
 **Status:** Active
 **Effective Date:** 2026-04-09
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -619,7 +619,7 @@ These methods apply to all AI-assisted software development activities within th
 
 ### 1.1.3 Relationship to Other Domains
 
-**Applies To:** Projects spanning multiple domains where AI coding methods must coordinate with other governance areas
+**Applies To:** tasks spanning multiple domains (e.g., building a UI that requires both ai-coding and ui-ux governance) — determining which domain's methods govern which activities and how to resolve cross-domain conflicts
 
 When tasks span multiple domains:
 1. AI Coding Methods govern code-related activities
@@ -633,7 +633,7 @@ When tasks span multiple domains:
 
 ### 1.2.1 Workflow Terms
 
-**Applies To:** Any context where workflow terminology is used — understanding phases, procedures, validation gates, and procedural modes
+**Applies To:** onboarding to an AI-assisted coding project and needing to understand what "Expedited mode," "validation gate," or "Specify phase" means — reference glossary for workflow-specific terminology used throughout these methods
 
 **Phase:** A major stage of the development workflow. Four phases exist: Specify, Plan, Tasks, Implement.
 
@@ -645,7 +645,7 @@ When tasks span multiple domains:
 
 ### 1.2.2 Role Terms
 
-**Applies To:** Any context where role responsibilities are referenced — clarifying who decides, who implements, and how solo developers operate
+**Applies To:** clarifying role boundaries in an AI-assisted project — who makes strategic decisions (Product Owner), who executes approved plans (AI Implementer), and how Solo Developer Mode reduces ceremony while keeping validation gates
 
 **Product Owner (PO):** Human responsible for vision, requirements, prioritization, and validation. Makes all strategic decisions. Reviews significant AI recommendations.
 
@@ -655,7 +655,7 @@ When tasks span multiple domains:
 
 ### 1.2.3 Artifact Terms
 
-**Applies To:** Any context referencing project artifacts — specifications, architecture documents, tasks, and state files
+**Applies To:** understanding the distinction between project artifacts — when to create a specification (WHAT to build) vs. architecture document (HOW to build), what constitutes a task (atomic, ≤15 files), and what state files track (progress, decisions, context)
 
 **Specification:** Document defining WHAT to build—requirements, user stories, acceptance criteria, constraints.
 
@@ -667,7 +667,7 @@ When tasks span multiple domains:
 
 ### 1.2.4 Quality Terms
 
-**Applies To:** Any context where quality standards are discussed — understanding production-readiness thresholds, technical debt tracking, and validation criteria
+**Applies To:** understanding what "production-ready" means in this framework (zero HIGH/CRITICAL vulnerabilities, ≥80% coverage, verified deps), how technical debt should be tracked (explicit, approved by PO), and the distinction between technical and vision validation
 
 **Production-Ready:** Code that meets all Q-series principle thresholds: zero HIGH/CRITICAL vulnerabilities, ≥80% test coverage, verified dependencies, documented patterns.
 
@@ -2305,7 +2305,7 @@ This format gives the human enough context to make a decision without re-investi
 🟡 **IMPORTANT** — Decision framework for test tooling and phased test adoption.
 
 **Implements:** Testing Integration (Domain), Validation Gates (Domain)
-**Applies to:** All projects establishing or extending a test suite
+**Applies To:** All projects establishing or extending a test suite
 
 #### Framework Selection Criteria
 
@@ -4564,7 +4564,7 @@ When entering unfamiliar code — onboarding, post-agent-generation review, or p
 **Importance: 🔴 CRITICAL — Prevents downstream failures**
 
 **Implements:** Validation Gates (Domain)
-**Applies to:** All phase transitions and significant outputs
+**Applies To:** All phase transitions and significant outputs
 
 ## Part 6.1: Technical Validation Gates
 
@@ -5109,7 +5109,7 @@ jobs:
 **Importance: 🟡 IMPORTANT — Maintains codebase health over time**
 
 **Implements:** Testing Integration (Domain), Resource Efficiency & Waste Reduction (Meta)
-**Applies to:** All project phases, especially before releases and after major milestones
+**Applies To:** cleaning up obsolete files, debug artifacts, and repository clutter — especially before releases, after major milestones, or when onboarding reveals confusion about which files are current
 
 ### 6.5.1 Purpose
 
@@ -5346,7 +5346,7 @@ Before release or major milestone:
 **Importance: 🔴 CRITICAL — Enables context continuity across sessions**
 
 **Implements:** Session State Continuity (Domain), Context Window Management (Domain)
-**Applies to:** All sessions and project lifecycle
+**Applies To:** All sessions and project lifecycle
 
 ## Part 7.0: Memory System Overview
 
@@ -6351,7 +6351,7 @@ Reference Memory implementations must follow these security patterns:
 **Importance: 🟡 IMPORTANT — Captures cross-cutting project knowledge that no single file reveals**
 
 **Implements:** Context Engineering (Constitution)
-**Applies to:** Coding projects exceeding ~50 files
+**Applies To:** Coding projects exceeding ~50 files
 
 ### 7.10.1 Purpose
 
@@ -6544,7 +6544,7 @@ Adapted from storytelling §11 (Story Bible auto-tracking). When AI assists with
 **Importance: 🟡 IMPORTANT — Maintains human authority**
 
 **Implements:** Human-AI Collaboration Model (Domain), Workflow Integrity (Domain)
-**Applies to:** All human-AI interactions
+**Applies To:** All human-AI interactions
 
 ## Part 8.1: Escalation Triggers
 
@@ -7251,7 +7251,7 @@ See Appendix G for detailed context engine configuration options.
 
 ### A.5 Permission Configuration
 
-**Applies to:** Claude Code CLI only. Other tools (Gemini CLI, Cursor) have analogous systems — consult their documentation. See Appendix F for general tool comparison.
+**Applies To:** Claude Code CLI only. Other tools (Gemini CLI, Cursor) have analogous systems — consult their documentation. See Appendix F for general tool comparison.
 
 #### A.5.1 Permission Layering
 
@@ -8872,6 +8872,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.36.1 | 2026-04-14 | PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. Fixed 6 low-quality entries in Parts 1.1–1.2 and 6.5. Normalized `**Applies to:**` → `**Applies To:**` capitalization (7 instances). |
 | 2.36.0 | 2026-04-11 | MINOR: Added L.8 AI-Optimized Project Structure Standard. Defines all recognized folder zones for AI-governed projects: `staging/` (always-present temporary AI input), `workflows/` (process checklists, future workflow definitions), `documents/` (default project content folder with image co-location per multimodal-RAG R1), `docs/` (ecosystem standard for human-facing docs), `.claude/plans/` lifecycle (multi-plan coexistence, Status header tracking, SESSION-STATE discovery). Two complete layouts (code + document). Zone rules table with purpose and presence criteria. Moved COMPLETION-CHECKLIST.md and COMPLIANCE-REVIEW.md to `workflows/` in this project. Constitutional Basis: Context Engineering, multimodal-RAG R1 (Image-Text Collocation). Contrarian-reviewed: original proposal to unify on `_ai-context/` rejected — split was intentionally designed (Appendix L). |
 | 2.35.1 | 2026-04-09 | PATCH: Appendix F.1 (Remote Access Tools) — added prerequisites, version pin (happy@1.1.4), GitHub repo link, framework integration note, Maturity row, Keywords line, verification date. Root cause: 3-agent review found entry lacked practical detail for AI agent usability. |
 | 2.35.0 | 2026-04-04 | MINOR: Permission Configuration Best Practices. Root cause: framework treated permissions as one-time setup with no shared baseline — every project started from scratch, permissions grew by accretion. (1) Added A.5.6 Recommended Permission Architecture — layered model (user-level baseline + project-level additions), three principles (deny credentials, ask governance files, allow read-only), recommended baselines with annotated JSON examples, accretion problem documentation, never-allow-at-user-level list. (2) Added A.5.7 Platform-Specific Permission Notes — Claude Code, Gemini CLI, other MCP platforms. (3) Amended A.5.3 hard rule: governance files denied in project-level (prevents agent self-modification of team rules), ask at user-level (human approves each edit). Resolves contradiction with A.5.6's layered model. (4) Added accretion trigger to A.5.5 review list (entry count >50). (5) Added D.6 Gemini permission configuration with cross-reference to A.5.6. (6) Updated Cold Start Kit Scenario A with post-scaffold permission setup note. (7) Added Situation Index entry. Contrarian-reviewed: scoped from two templates to one annotated example, deny list framed as not-exhaustive, scaffold template modification dropped. Security-audited, coherence-audited, validated. |

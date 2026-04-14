@@ -1,7 +1,7 @@
 ---
-version: "1.1.1"
+version: "1.1.2"
 status: "active"
-effective_date: "2026-02-08"
+effective_date: "2026-04-14"
 domain: "storytelling"
 governance_level: "federal-regulations"
 ---
@@ -9,7 +9,7 @@ governance_level: "federal-regulations"
 # Storytelling Methods v1.1.1
 ## Narrative Persistence, Character Voice, Genre Conventions, and Coaching
 
-**Version:** 1.1.1
+**Version:** 1.1.2
 **Status:** Active
 **Effective Date:** 2026-02-08
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -1981,7 +1981,10 @@ Terminate when the writer has clarity. Do not continue questioning past the poin
 
 ## Changelog
 
-### v1.1.1 (Current)
+### v1.1.2 (Current)
+- **PATCH:** Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability.
+
+### v1.1.1
 - **Coherence audit remediation.** (1) Updated system instruction to reflect expanded scope (was context-window-only, now covers full storytelling methods). (2) Added Version/Status/Effective Date/Governance Level metadata block per methods template convention.
 
 ### v1.1.0
@@ -2076,5 +2079,5 @@ Terminate when the writer has clarity. Do not continue questioning past the poin
 
 ---
 
-*Version 1.1.1*
+*Version 1.1.2*
 *Companion to: Storytelling Domain Principles v1.1.2*

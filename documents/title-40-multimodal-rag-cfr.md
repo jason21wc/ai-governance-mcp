@@ -1,7 +1,7 @@
 ---
-version: "2.1.1"
+version: "2.1.2"
 status: "active"
-effective_date: "2026-03-30"
+effective_date: "2026-04-14"
 domain: "multimodal-rag"
 governance_level: "federal-regulations"
 ---
@@ -1082,7 +1082,7 @@ def multimodal_mrr(queries, retrieval_results, ground_truth):
 
 **Purpose:** Procedures for implementing O2 (Continuous Monitoring & Observability). Detects quality degradation over time.
 
-**Applies To:** Production multimodal RAG systems.
+**Applies To:** detecting quality degradation in production multimodal RAG systems over time — establishing baselines, monitoring retrieval accuracy and faithfulness metrics, and triggering re-evaluation when scores drop below thresholds
 
 **Monitoring Setup:**
 
@@ -1166,7 +1166,7 @@ def multimodal_mrr(queries, retrieval_results, ground_truth):
 
 **Purpose:** Procedures for implementing CT1 (Fragment-Level Source Attribution). Enables tracing every claim to a specific source passage.
 
-**Applies To:** Any response that incorporates information from retrieved sources.
+**Applies To:** implementing fragment-level source attribution in RAG responses — tracing individual claims back to specific document sections, chunk IDs, and image regions for verifiability
 
 **Attribution Workflow:**
 
@@ -2267,7 +2267,10 @@ This methods document implements:
 
 ## Changelog
 
-### v2.1.1 (Current)
+### v2.1.2 (Current)
+- **PATCH:** Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. Fixed 2 terse entries in §6.3 (Drift Detection) and §7.1 (Fragment-Level Source Tracking).
+
+### v2.1.1
 - **§2.5:** Content Ingestion Assistance Workflow — AI procedure for assisting users with preparing multimodal content for RAG knowledge bases (intake assessment, image analysis and text generation, document assembly, quality validation, retrieval optimization, batch processing)
 - Updated Governance Integration table: added §2.5 to R1, R2, R3, P1
 
@@ -2310,5 +2313,5 @@ This methods document implements:
 
 ---
 
-*Version 2.1.1*
+*Version 2.1.2*
 *Companion to: Multimodal RAG Domain Principles v2.1.0*

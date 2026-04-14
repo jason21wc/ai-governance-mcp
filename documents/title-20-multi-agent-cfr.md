@@ -1,7 +1,7 @@
 ---
-version: "2.17.0"
+version: "2.17.1"
 status: "active"
-effective_date: "2026-04-07"
+effective_date: "2026-04-14"
 domain: "multi-agent"
 governance_level: "federal-regulations"
 ---
@@ -9,7 +9,7 @@ governance_level: "federal-regulations"
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.17.0
+**Version:** 2.17.1
 **Status:** Active
 **Effective Date:** 2026-04-07
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -4671,6 +4671,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.17.1 | 2026-04-14 | **PATCH: Applies To metadata backfill.** Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. |
 | v2.16.1 | 2026-03-29 | **PATCH: Principle Consolidation Alignment.** (1) New §3.9 Standardized Collaboration Protocols — procedural content demoted from domain principle: JSON schema templates, timeout/retry configuration, contract versioning, deadlock detection. (2) Updated governance hierarchy box (18→17 principles). (3) Updated Principle to Title Mapping (Cognitive Function Specialization → Agent Specialization & Topology, removed Read-Write Division as separate entry). (4) Updated Title 2/3 Implements lines. |
 | v2.15.0 | 2026-03-26 | **MINOR: Autonomous Experimentation Protocol.** New §6.5 operationalizing AO-Series for autonomous agent experimentation loops. §6.5.1 Research Protocol Document (program.md pattern) — structured template for defining autonomous agent objectives, scope, metrics, termination conditions. §6.5.2 Permission Configuration — three approaches for Claude Code autonomous operation (surgical allowlists recommended, programmatic launch, full bypass). §6.5.3 Experimentation Loop — standard modify→test→evaluate→decide cycle with "NEVER STOP" governance. §6.5.4 Results Logging — TSV audit trail format. Source: Karpathy (2026) "autoresearch". |
 | v2.14.0 | 2026-03-12 | **MINOR: Orchestrator-Absent Pattern Gaps.** (1) Decentralized Dispatch Variant added under Parallel Pattern (§3.3): orchestrator-absent topology with 4 required compensating controls (pre-dispatch dependency analysis, VCS-level conflict detection, post-hoc aggregate review, aggregate blast radius assessment), 2 anti-patterns (Dispatch Without Analysis, Individual-Only Review). (2) Continuous Queue Consumption protocol added to Task Ownership (§3.5): post-task completion gate, aggregate review checkpoint every N tasks, pool pause on CI/review failure, blast radius reassessment at checkpoints, orchestrator-absent escalation target. Implements AO1 aggregate blast radius rules from v2.3.0 domain principles. Catalyst: OpenAI Symphony framework analysis. |

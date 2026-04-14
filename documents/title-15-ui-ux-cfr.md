@@ -1,7 +1,7 @@
 ---
-version: "1.0.0"
+version: "1.0.1"
 status: "active"
-effective_date: "2026-03-08"
+effective_date: "2026-04-14"
 domain: "ui-ux"
 governance_level: "federal-regulations"
 ---
@@ -12,7 +12,7 @@ governance_level: "federal-regulations"
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > This methods document provides HOW-TO procedures for implementing UI/UX domain principles. It is subordinate to the domain principles document (title-15-ui-ux.md), which establishes WHAT governance applies.
 
-**Version:** 1.0.0
+**Version:** 1.0.1
 **Status:** Active
 **Effective Date:** 2026-03-08
 **Governance Level:** Methods (SOPs) — subordinate to UI/UX Domain Principles
@@ -1302,7 +1302,10 @@ For quick routing of common scenarios to relevant methods:
 
 ## Changelog
 
-### v1.0.0 (Current)
+### v1.0.1 (Current)
+- PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability.
+
+### v1.0.0
 - Initial release + Phase 6 external review enhancements
 - 9 sections covering design-to-code workflow, component governance, review gates, accessibility testing, responsive strategy, cross-platform adaptation, design system documentation, AI tooling integration, and UX content/microcopy governance
 - §3.5 Dark Pattern Screening (FTC 5-category checklist, confirmshaming detection, forced continuity audit)
@@ -1313,6 +1316,6 @@ For quick routing of common scenarios to relevant methods:
 
 ---
 
-*Version 1.0.0*
+*Version 1.0.1*
 *Companion to: UI/UX Domain Principles v1.0.0*
 *Process gates: AI-Coding Methods §2.4, §2.5*

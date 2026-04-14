@@ -1,5 +1,5 @@
 ---
-version: "3.26.3"
+version: "3.26.5"
 status: "active"
 effective_date: "2026-04-14"
 domain: "constitution"
@@ -9,7 +9,7 @@ governance_level: "rules-of-procedure"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.26.3
+**Version:** 3.26.5
 **Status:** Active
 **Effective Date:** 2026-04-14
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -770,7 +770,7 @@ Methods are procedures (HOW), not principles (WHAT). Use this structure:
 |-------|------|---------|
 | **Section Number + Name** | Required | Header — title words are primary search terms |
 | **Importance** | Required | Priority classification (CRITICAL / IMPORTANT / OPTIONAL) |
-| **Implements** | Recommended | Parent principle(s) this method operationalizes — principle traceability |
+| **Implements** | Required | Parent principle(s) this method operationalizes — principle traceability |
 | **Purpose paragraph** | Required | When to use this method and what it accomplishes |
 | **Applies To** | Required | Task contexts and situations where this method is relevant — feeds retrieval discoverability and tells readers when to use the method |
 | **Procedure** | Required | Sequential numbered steps |
@@ -802,7 +802,7 @@ The `**Applies To:**` field serves two purposes: (1) retrieval discoverability �
 
 **The root cause of bad entries:** Keyword extraction from titles and bold text cannot produce quality Applies To content. Each entry requires understanding what the method does and when someone would need it — a content comprehension task, not a string manipulation task. When backfilling existing methods, read the method's purpose and procedure before writing the entry.
 
-> **Known Limitation:** The expanded template standardizes **new method authoring**. Existing methods using the previous 5-field format continue to index and retrieve correctly — the retrieval system extracts `**Applies To:**` when present but does not require it. Backfill of existing methods is tracked separately and prioritized by content length (longer methods benefit most from explicit applicability context).
+> **Known Limitation:** The expanded template standardizes **new method authoring**. Existing methods using the previous 5-field format continue to index and retrieve correctly — the retrieval system extracts `**Applies To:**` when present but does not require it. Backfill of existing methods was completed in v3.26.0 (648 entries across 7 files). Remaining automated-extraction entries were rewritten in v3.26.4.
 
 ### 3.5.4 Header Hierarchy
 
@@ -1643,7 +1643,7 @@ Apply this protocol at these milestones:
 
 ### 7.10.3 Re-evaluation Protocol (4 Steps)
 
-**Applies To:** step 1: reframe; step 2: generate alternatives; evaluation, protocol, steps
+**Applies To:** noticing that repeated attempts at a task keep failing, suspecting the current approach frame may be wrong, or when iterating past the third attempt without progress — reframe the problem without referencing the current solution
 
 **Step 1: Reframe**
 State the problem WITHOUT referencing the current approach.
@@ -1726,7 +1726,7 @@ AI agents face a dual failure mode when discovering issues outside their current
 
 ### 7.11.1 Core Rule
 
-**Applies To:** batch discovered issues; core, rule
+**Applies To:** any non-safety issue discovered while working on a different task — deciding whether to interrupt the current task or batch findings for triage after completion
 
 **Complete the user's requested task first.** Do not interrupt the current task to address a non-safety discovered issue. After the current task is complete (or at a natural pause point), classify findings.
 
@@ -1734,7 +1734,7 @@ AI agents face a dual failure mode when discovering issues outside their current
 
 ### 7.11.2 Triage Decision Framework
 
-**Applies To:** fix (same session); defer (with tracking); note (informational); triage, decision, framework
+**Applies To:** classifying discovered issues after the current task completes — deciding between fixing immediately (contained, clearly wrong), deferring with durable tracking (large, architectural), or noting for information only
 
 | Category | Criteria | Action |
 |----------|----------|--------|
@@ -2156,6 +2156,43 @@ Constitution (meta) principles and domain principles use **intentionally differe
 **Net Impact** — Expected outcomes
 ```
 
+#### Constitution Principle Field Reference
+
+| Field | Tier | Purpose |
+|-------|------|---------|
+| **Principle Name** | Required | Section header — title words are primary search terms |
+| **Elevator Pitch** | Required | One-sentence blockquote — the core idea in plain language for quick scanning |
+| **Definition** | Required | The binding rule — concise, authoritative statement of what this principle requires |
+| **How the AI Applies This Principle** | Required | Operational bullet points — concrete behaviors the AI should exhibit |
+| **Why This Principle Matters** | Required | Rationale — what goes wrong without this principle, legal analogy if applicable |
+| **When Human Interaction Is Needed** | Recommended | Escalation triggers — when to stop and involve a human |
+| **Operational Considerations** | Recommended | Implementation notes — practical deployment guidance |
+| **Common Pitfalls or Failure Modes** | Required | Named anti-patterns with observable symptoms |
+| **Net Impact** | Recommended | One italicized sentence — the expected outcome when the principle is followed |
+
+> **Note:** All three Recommended fields appear in every existing constitution principle (24/24). Omission would be unusual and should be justified in the version history entry. The Recommended tier preserves flexibility for future amendments that may not need all fields.
+
+#### Writing Effective Constitution Principles
+
+Constitution principles are **universal behavioral rules** — they must apply across all domains without domain-specific qualifiers. Three authoring guidelines:
+
+1. **Elevator pitch is the retrieval hook.** The blockquote is the first thing both humans and AI see. It should be self-contained enough to answer "should I read the full principle?" Write it as a standalone claim, not a teaser.
+
+2. **Definition is the law, everything else is commentary.** The Definition field should be readable on its own as a binding instruction. If you removed every other field, the Definition alone should tell an AI what to do. Practical guidance belongs in "How the AI Applies" — not in Definition.
+
+3. **Legal analogy goes in "Why This Principle Matters."** Embed the legal metaphor naturally in the rationale paragraph (e.g., "In the legal analogy, this combines the Discovery Phase with the rule of Relevance"). Don't create a separate field for it.
+
+**Examples:**
+
+| Quality | Elevator Pitch | Why |
+|---------|---------------|-----|
+| **Good** | "Structure, curate, and maintain all relevant context before acting — lost context is the leading cause of AI errors." | Standalone claim, specific failure it prevents, actionable |
+| **Good** | "Centralize authoritative knowledge in one canonical location to eliminate drift and duplication." | Concise, names the problem (drift, duplication), implies the action |
+| **Bad** | "This principle is about context." | Vague, not actionable, doesn't help retrieval |
+| **Bad** | "An important principle for AI systems." | Generic filler, applies to every principle |
+
+> **Known Limitation:** The enhanced template standardizes **new constitution principle authoring**. All 24 existing constitution principles already comply with this template — no retrofit is needed. The field reference and authoring guidance formalize existing practice.
+
 #### Domain Principle Fields (Summary — see Part 3.5.1 for canonical template)
 ```
 ### [Principle Title] ([Legal Analogy])
@@ -2177,7 +2214,7 @@ Constitution (meta) principles and domain principles use **intentionally differe
 1. **Constitution = foundational law**: Focuses on universal behaviors, self-evident value
 2. **Domain = derived statute**: Must justify derivation, address specific failure modes
 3. **"Constitutional Basis" field**: Only domain principles need this — they derive authority from Constitution
-4. **"Definition" vs "Domain Application"**: Domain principles separate the binding rule (Definition) from practical guidance (Domain Application); constitution principles combine these in a single Definition field
+4. **"Definition" + "How the AI Applies" vs "Definition" + "Domain Application"**: Both templates separate the binding rule from practical guidance, but use different field names. Constitution uses "How the AI Applies This Principle" (emphasizing AI agency); domain uses "Domain Application" (emphasizing contextual implementation). Domain principles additionally require "Validation Criteria" with checkable items.
 5. **"Failure Mode(s)" field**: Domain principles are created to prevent specific failures; constitution principles define positive behaviors
 
 ### 9.4.1 Domain Principle Template
@@ -2579,10 +2616,10 @@ Reference table — does NOT reproduce templates, points to canonical sources.
 
 | Content Type | Template Reference | Key Requirements |
 |---|---|---|
-| Constitutional Principle | Part 9.4.0 (7 fields) | Elevator pitch, legal analogy, all 7 template fields, no Constitutional Basis (IS the constitution) |
+| Constitutional Principle | Part 9.4.0 (9 tiered fields) | Elevator pitch, legal analogy (embedded in Why This Principle Matters), field reference table + authoring guidance, no Constitutional Basis (IS the constitution) |
 | Domain Principle | Part 3.5.1 (tiered fields) | Constitutional Basis required, Definition required, Failure Mode required, domain-specific guidance |
 | Method Section | Part 3.5.3 (8 fields) | Procedure + Validation, Importance tag, Applies To (task contexts for discoverability), Implements reference to principles |
-| Appendix Section | §9.8.3 template below | Governance Level tag, Implements reference, Applies To, Information Currency, platform-specific procedures |
+| Appendix Section | §9.8.3 (9 tiered fields) | Governance Level tag, Implements reference, Applies To, Information Currency, field reference table + authoring guidance, platform-specific procedures |
 
 **Appendix template:**
 
@@ -2614,6 +2651,39 @@ For **external/third-party tools**, extend with these additional fields after `*
 **Version:** [Pinned version and last-verified date]
 **Framework Integration:** [Whether MCP servers, hooks, and memory files work through this tool]
 ```
+
+#### Appendix Field Reference
+
+| Field | Tier | Purpose |
+|-------|------|---------|
+| **Appendix Letter + Name** | Required | Section header — identifies the platform or tool |
+| **Governance Level** | Required | Always "Agency SOP (Platform-Specific Appendix)" — positions content in hierarchy |
+| **Implements** | Required | Parent method reference — traces which method this appendix platform-specializes |
+| **Applies To** | Required | When this appendix is relevant — specific platform, tool version, or technology context |
+| **Information Currency** | Required | Last verified date and platform/tool version — appendices go stale faster than principles |
+| **Prerequisites** | Recommended (external tools) | Runtime, OS, and dependency requirements |
+| **Source** | Recommended (external tools) | Repository URL — not marketing page |
+| **Version** | Recommended (external tools) | Pinned version and last-verified date |
+| **Framework Integration** | Recommended (external tools) | Whether MCP servers, hooks, and memory files work through this tool |
+
+#### Writing Effective Appendix Content
+
+Appendices are **platform-specific adaptations** of methods — they contain only what varies by platform. Three authoring guidelines:
+
+1. **No framework-level rules.** If the guidance applies regardless of platform, it belongs in the method section, not the appendix. The §9.8.4 quality checklist enforces this: "Contains only platform-specific content (no framework-level rules)."
+
+2. **Information Currency is critical.** Appendices reference specific platform versions, API behaviors, and tool configurations that change frequently. Always include the verification date and what you verified against. An undated appendix is assumed stale.
+
+3. **Applies To should name specific products and versions.** Unlike method Applies To entries (which describe task situations), appendix Applies To entries should name the exact platform, version range, and tool context.
+
+**Examples:**
+
+| Quality | Applies To Entry | Why |
+|---------|-----------------|-----|
+| **Good** | "Claude Opus 4.6, Claude Sonnet 4.5, Claude Haiku 4.5; Claude Code CLI" | Names specific models and tool — reader immediately knows if this applies to them |
+| **Good** | "Gemini 2.0 Pro, Gemini 2.0 Flash, Gemini Ultra" | Specific model family and variants |
+| **Bad** | "AI tools" | Too vague — applies to everything |
+| **Bad** | "When using a CLI" | Doesn't name which CLI |
 
 > **Known Limitation:** The formalized template standardizes **new appendix authoring**. Existing appendices using the previous format continue to function correctly. Backfill of existing appendices is tracked separately.
 
@@ -2653,6 +2723,7 @@ For **external/third-party tools**, extend with these additional fields after `*
 **Type-specific — Appendices:**
 
 - [ ] References the method section it platform-specializes
+- [ ] Applies To names specific platforms and versions (§9.8.3)
 - [ ] Contains only platform-specific content (no framework-level rules)
 - [ ] Version/currency disclaimer present
 
@@ -2838,7 +2909,7 @@ While constitutional principles apply universally, their **application** may var
 
 ### 10.1.2 Relationship to Constitution
 
-**Applies To:** agency sops; adapts tactics; relationship, constitution
+**Applies To:** understanding how model-specific appendices relate to higher-level governance — confirming that appendix guidance adapts tactics but cannot override constitutional principles
 
 Model-specific guidance is **Agency SOPs** in the hierarchy:
 
@@ -2956,7 +3027,7 @@ When referencing AI models in governance documents, follow these conventions to 
 
 ### 10.3.1 Universal (Apply to ALL Models)
 
-**Applies To:** constitutional principles; governance hierarchy; escalation requirements; universal, apply, models
+**Applies To:** determining which governance requirements apply regardless of the AI model being used — constitutional principles, hierarchy, escalation, context engineering, and verification are universal across all platforms
 
 These apply regardless of which model is used:
 
@@ -2968,7 +3039,7 @@ These apply regardless of which model is used:
 
 ### 10.3.2 Model-Specific (See Appendices)
 
-**Applies To:** system prompt structure; extended thinking usage; tool calling patterns; model, specific, see, appendices
+**Applies To:** determining which governance requirements vary by AI model — system prompt formatting, extended thinking activation, and tool calling patterns are documented per-model in the appendices
 
 These vary by model and are documented in appendices:
 
@@ -3463,7 +3534,7 @@ Model sampling parameters (temperature, top-p) control the randomness and divers
 
 ### 11.7.3 When Parameter Tuning Matters
 
-**Applies To:** output consistency is critical; creative variation is desired; default settings produce poor results; parameter, tuning, matters
+**Applies To:** deciding whether to adjust temperature, top-p, or other generation parameters — parameter tuning has highest impact when output consistency is critical (structured extraction), creative variation is desired (brainstorming), or defaults produce poor results for a specific task
 
 Parameter tuning has the highest impact when:
 - **Output consistency is critical** (e.g., structured data extraction, classification) — lower temperature
@@ -3802,7 +3873,7 @@ Use prompt caching when the same content is sent repeatedly across requests. Cac
 
 ### 13.1.2 Cache Architecture Patterns
 
-**Applies To:** Structuring prompts for maximum cache effectiveness. **Static-first prompt design**, **cache control parameters**, **prompt structure optimization**, **auto caching**, **explicit caching**, **auto prompt caching**.
+**Applies To:** structuring prompts for maximum cache effectiveness — ordering content from most-stable to least-stable (system prompt, then reference docs, then conversation history, then latest turn) to maximize prefix cache hits across API calls
 
 **Static-First Prompt Structure:**
 
@@ -3989,7 +4060,7 @@ Classify tasks by the minimum model capability required for acceptable quality:
 **Importance: 🟡 IMPORTANT — Enables cross-domain project knowledge persistence**
 
 **Implements:** Context Engineering (Constitution), Single Source of Truth (Constitution). See also Part 16.1 (former Project Reference Persistence constitutional principle, demoted to method).
-**Applies to:** All domains with projects exceeding domain-defined complexity thresholds
+**Applies To:** All domains with projects exceeding domain-defined complexity thresholds
 
 ## Part 14.1: Complexity Scaling Tiers
 
@@ -3999,7 +4070,7 @@ Define when projects need external reference documents and at what level of deta
 
 ### 14.1.2 Tier Definitions
 
-**Applies To:** mandatory external; tier, definitions
+**Applies To:** determining which reference documentation tier a project requires based on complexity — from Tier 0 (no docs needed, in-context memory sufficient) through Tier 3 (mandatory external references to prevent errors)
 
 | Tier | Name | Trigger | Requirement |
 |------|------|---------|-------------|
@@ -4010,7 +4081,7 @@ Define when projects need external reference documents and at what level of deta
 
 ### 14.1.3 Domain Complexity Metrics
 
-**Applies To:** ai coding; domain, complexity, metrics
+**Applies To:** measuring project complexity to determine the appropriate documentation tier — each domain defines its own metric (word count for storytelling, file count for coding, component count for UI/UX) with tier thresholds
 
 Each domain defines its own complexity metric and tier thresholds. The metric must be objectively measurable, not subjective.
 
@@ -4024,7 +4095,7 @@ Each domain defines its own complexity metric and tier thresholds. The metric mu
 
 ### 14.1.4 Tier Assessment Protocol
 
-**Applies To:** don't force; tier, assessment, protocol
+**Applies To:** assessing a project's documentation needs at session start or when scope changes — measure the complexity metric, map to the tier, and recommend creation if reference docs are missing at the required tier
 
 1. **Measure** — Count the domain's complexity metric for the current project
 2. **Map** — Look up the corresponding tier in the domain's threshold table
@@ -4055,7 +4126,7 @@ Every reference document must include freshness metadata in its header:
 
 ### 14.2.3 Staleness Detection
 
-**Applies To:** session start; before relying on reference doc; staleness, detection
+**Applies To:** checking whether reference documents are still current — at session start (compare Last Verified date), before relying on reference doc content (check if source changed), and after project milestones (flag all docs for re-verification)
 
 AI should check freshness at these points:
 
@@ -4074,7 +4145,7 @@ AI should check freshness at these points:
 
 ### 14.2.4 Domain Staleness Thresholds
 
-**Applies To:** ai coding; domain, staleness, thresholds
+**Applies To:** configuring when reference documents should be flagged as potentially stale — each domain defines time thresholds (e.g., 30 days for coding) and event triggers (e.g., schema migration, character arc change) appropriate to its content change velocity
 
 Each domain defines what "stale" means for its reference docs:
 
@@ -4212,7 +4283,7 @@ Define how AI agents should load and use reference documents to avoid context wi
 
 ### 14.4.2 Selective Loading Protocol
 
-**Applies To:** query first; load targeted sections; cross-reference on conflict; selective, loading, protocol
+**Applies To:** loading reference documents into AI context without wasting the context window — query the context engine first, load only relevant sections, and cross-reference when a planned action might conflict with documented patterns
 
 Agents should NOT load entire reference documents by default. Instead:
 
@@ -4297,7 +4368,7 @@ Each domain methods document should include a section following this structure:
 **Importance: IMPORTANT — Enables curated precedent for agent retrieval and recombination**
 
 **Implements:** Single Source of Truth (Constitution), Resource Efficiency & Waste Reduction (Constitution). See also Part 16.1 (former Project Reference Persistence, demoted to method).
-**Applies to:** All domains that accumulate reusable artifacts (code, templates, configurations, external references)
+**Applies To:** All domains that accumulate reusable artifacts (code, templates, configurations, external references)
 **Relationship to Part 9.8:** Part 9.8 (Content Quality Framework) governs governance-normative content — principles, methods, and appendices. Reference Library entries follow this title's curation governance (Part 15.4), which is optimized for curated artifacts with maturity tracking and currency signals.
 
 ## Part 15.1: Concept and Legal Analogy
@@ -4472,7 +4543,7 @@ Adapted from legal reportability criteria:
 
 ### 15.4.4 Currency Tracking (KeyCite model)
 
-**Applies To:** status signals; currency, tracking, keycite, model
+**Applies To:** tracking whether reference library entries are still current, using status signals inspired by legal citation verification — green (current and recommended), yellow (caution, newer approach exists), red (deprecated, use superseded_by entry)
 
 **Status signals** — inspired by Westlaw KeyCite / LexisNexis Shepard's Citations:
 
@@ -4798,6 +4869,8 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.26.5 | 2026-04-14 | PATCH: Enhanced constitution principle template (Part 9.4.0) and appendix template (§9.8.3) to match method template quality standard. Added field reference tables with Required/Recommended tiers, authoring guidance (3 guidelines each), and good/bad examples for both templates. Updated §9.8.3 reference table field counts. Root cause: audit found method template (Part 3.5.3) set a quality bar the other templates didn't match. |
+| 3.26.4 | 2026-04-14 | PATCH: Post-template audit fixes from coherence-auditor + validator subagents. (1) Implements field upgraded from Recommended to Required in Part 3.5.3 Field Reference — resolves contradiction with §9.8.4 quality checklist which treated it as a gate. (2) Known Limitation updated to past tense (backfill completed in v3.26.0). (3) §9.8.3 "legal analogy" clarified as embedded in Why This Principle Matters body text. (4) Rewrote 14 surviving keyword-fragment Applies To entries in TITLEs 7–16. (5) Normalized `**Applies to:**` → `**Applies To:**` capitalization (6 instances). (6) Domain file version bumps for Applies To backfill (6 files). |
 | 3.26.3 | 2026-04-14 | PATCH: Final template audit fixes from coherence-auditor + best practices review. (1) Added elevator pitch blockquote to Constitution template (Part 9.4.0) — was listed in §9.8.3 requirements but missing from template code block. (2) Added `**Implements:**` as Recommended field to method template (Part 3.5.3, now 8 fields) — was required by §9.8.3 and §9.8.4 but missing from template. Updated field count references. (3) Added Known Limitation note to appendix template. (4) Rewrote ~70 remaining semicolon-pattern Applies To entries across rules-of-procedure.md and title-10-ai-coding-cfr.md. Best practices research validated Markdown+YAML as optimal format; no structural template changes needed. |
 | 3.26.2 | 2026-04-14 | PATCH: (1) Added cross-domain principle example (UI/UX ACC1: Semantic Markup) to Part 9.4.2 — demonstrates the domain principle template works across non-coding domains. (2) Formalized appendix template at §9.8.3 — converted bullet-point format guidance into proper code-block template with Governance Level, Implements, Applies To, Information Currency fields; added external/third-party tool extension template. (3) Updated §9.8.3 reference table to point to new appendix template. (4) Fixed stale script-generated Applies To entry on §9.8.3. |
 | 3.26.1 | 2026-04-14 | PATCH: Added "Writing Effective Applies To Entries" authoring guidance to Part 3.5.3. Codifies quality criteria, good/bad examples with rationale, and root cause insight from 3-agent quality audit of 648 entries. Key finding: keyword extraction from titles cannot produce quality entries — each requires content comprehension. Five validated criteria: domain-specific vocabulary, adds beyond title, task situations, natural phrasing, no filler. |
@@ -4865,7 +4938,7 @@ The following appendices provide platform-specific tactics for applying the gove
 
 ## Appendix G: Claude (Anthropic)
 
-**Applies to:** Claude Opus 4.6, Claude Sonnet 4.5, Claude Haiku 4.5; Claude Code CLI
+**Applies To:** Claude Opus 4.6, Claude Sonnet 4.5, Claude Haiku 4.5; Claude Code CLI
 
 ### G.1 Model Variants
 
@@ -5061,7 +5134,7 @@ Content below these thresholds will not be cached regardless of `cache_control` 
 
 ## Appendix H: GPT / ChatGPT (OpenAI)
 
-**Applies to:** GPT-4o, GPT-4o-mini, o1, o3
+**Applies To:** GPT-4o, GPT-4o-mini, o1, o3
 
 ### H.1 Model Variants
 
@@ -5098,7 +5171,7 @@ Content below these thresholds will not be cached regardless of `cache_control` 
 
 ## Appendix I: Gemini (Google)
 
-**Applies to:** Gemini 2.0 Pro, Gemini 2.0 Flash, Gemini Ultra
+**Applies To:** Gemini 2.0 Pro, Gemini 2.0 Flash, Gemini Ultra
 
 ### I.1 Model Variants
 
@@ -5135,7 +5208,7 @@ Content below these thresholds will not be cached regardless of `cache_control` 
 
 ## Appendix J: Perplexity
 
-**Applies to:** Perplexity default, Perplexity Pro
+**Applies To:** Perplexity default, Perplexity Pro
 
 ### J.1 Model Variants
 
