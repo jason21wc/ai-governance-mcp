@@ -61,6 +61,8 @@ Constitution (Meta-Principles)
 
 **Implements:** DS3 (Design System Discovery), VH1 (Layout Composition), DS1 (Design Token Architecture)
 
+**Applies To:** translating design files to code, pre-implementation design discovery, Figma-to-code workflow, extracting design tokens and layout specifications
+
 ### 1.1 Pre-Implementation Discovery Procedure
 
 **Purpose:** Ensure the AI agent understands the existing design context before generating any UI code.
@@ -160,6 +162,8 @@ Post-implementation **visual quality checklist**:
 **Importance: CRITICAL — Prevents design system drift across AI-generated code**
 
 **Implements:** DS1 (Design Token Architecture), DS2 (Component Consistency), DS3 (Design System Discovery)
+
+**Applies To:** managing design tokens and component libraries, preventing component duplication, maintaining design system consistency across AI-generated interfaces
 
 ### 2.1 Token Management Procedures
 
@@ -305,6 +309,8 @@ When a gap is found:
 **Importance: CRITICAL — Catches AI-generated UX failures before they reach users**
 
 **Implements:** All principles (validation criteria), ACC1-ACC3, RD1-RD2, PL1-PL2, IX7
+
+**Applies To:** pre-commit UI review, dark pattern screening, accessibility audits, Core Web Vitals validation, cross-browser testing checklists
 
 ### 3.1 Pre-Commit UI Review Checklist
 
@@ -543,6 +549,8 @@ grep -rn 'checked\|defaultChecked\|:checked' src/ | grep -vi 'required\|terms-of
 
 **Implements:** ACC1 (Semantic Markup), ACC2 (Keyboard Navigation), ACC3 (Color and Contrast)
 
+**Applies To:** WCAG 2.1 AA compliance testing, automated accessibility scanning with axe-core, keyboard navigation audits, color contrast verification, screen reader compatibility checks
+
 ### 4.1 WCAG 2.2 Level AA Compliance Checklist
 
 **Purpose:** Systematic **WCAG compliance verification** for AI-generated interfaces.
@@ -694,6 +702,8 @@ grep -rn 'checked\|defaultChecked\|:checked' src/ | grep -vi 'required\|terms-of
 
 **Implements:** RD1 (Responsive Layout Strategy), RD2 (Touch Target Adaptation)
 
+**Applies To:** defining mobile/tablet/desktop breakpoints, implementing responsive layouts, container queries, touch target sizing for mobile interfaces
+
 ### 5.1 Breakpoint Definition and Rationale
 
 **Purpose:** Establish **consistent breakpoint strategy** across the project.
@@ -785,6 +795,8 @@ grep -rn 'checked\|defaultChecked\|:checked' src/ | grep -vi 'required\|terms-of
 **Importance: IMPORTANT — Prevents platform convention violations**
 
 **Implements:** PL1 (Platform Convention Compliance), PL2 (Cross-Platform Adaptation)
+
+**Applies To:** adapting interfaces for iOS/Android/web platform conventions, Apple HIG and Material Design compliance, detecting outdated framework patterns, platform convention currency checks
 
 ### 6.1 Platform Convention Reference
 
@@ -908,6 +920,8 @@ Web:
 
 **Implements:** DS1 (Design Token Architecture), DS3 (Design System Discovery)
 
+**Applies To:** documenting design systems, creating component catalogs and token references, establishing design system contribution guidelines and deprecation workflows
+
 ### 7.1 Token Documentation Format
 
 **Purpose:** Document design tokens for **human and AI discoverability**.
@@ -1005,6 +1019,8 @@ Web:
 **Importance: OPTIONAL — Enhances design-to-code quality with specialized AI tools**
 
 **Implements:** DS3 (Design System Discovery), VH1 (Layout Composition)
+
+**Applies To:** evaluating and integrating AI design tools (Figma MCP, Storybook MCP, Axe MCP, Playwright), understanding tool governance requirements, token cost awareness for design tool APIs
 
 ### 8.1 Figma MCP Integration
 
@@ -1131,6 +1147,8 @@ grep -rn '<img[^>]*>' src/ | grep -v 'alt='
 **Importance: IMPORTANT — AI-generated microcopy is often generic, inconsistent, or tonally inappropriate**
 
 **Implements:** IX4 (Error Handling), IX7 (Ethical Interaction Design), VH2 (Typography and Readability)
+
+**Applies To:** writing button labels, form validation messages, empty states, onboarding copy, error messages, confirmation dialogs, and notification text in AI-generated interfaces
 
 ### 9.1 Voice and Tone Consistency
 

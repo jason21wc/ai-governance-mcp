@@ -68,6 +68,8 @@ Constitution (Meta-Principles)
 
 ### 1.1 First Interaction Protocol
 
+**Applies To:** first time a user asks for help with knowledge management, process documentation, training materials, or people development artifacts
+
 When a user first engages the KM&PD domain, determine scope:
 
 **Ask:** "Are you building a full knowledge management system for a process area, or do you need a specific artifact (checklist, SOP, training material)?"
@@ -76,6 +78,8 @@ When a user first engages the KM&PD domain, determine scope:
 - **Specific artifact** → Ask if a Detailed Knowledge Base exists as the source. If yes, derive from it. If no, flag the gap and proceed with the specific artifact while noting derivation is not possible.
 
 ### 1.2 Maturity Self-Assessment
+
+**Applies To:** scoping a knowledge management initiative, determining where to start with process documentation, routing users to the right methods based on organizational readiness
 
 Present the maturity model and ask the user to self-identify:
 
@@ -95,6 +99,8 @@ Present the maturity model and ask the user to self-identify:
 - Level 4-5 → Focus on specific gaps the user identifies
 
 ### 1.3 Detailed Knowledge Base Scaffold
+
+**Applies To:** building a new process knowledge base from scratch, structuring captured tribal knowledge, creating the initial table of contents for a process area
 
 When building a new Detailed KB, create the table of contents first (the "destination map"):
 
@@ -157,6 +163,8 @@ Derived Artifacts: [List Quick Refs, VWIs, etc. derived from this KB]
 
 ### 1.4 Derivation Chain Tracking
 
+**Applies To:** creating quick references, visual work instructions, or training materials derived from a detailed knowledge base; updating downstream artifacts when the source KB changes
+
 Every artifact derived from a Detailed KB must include:
 
 ```markdown
@@ -178,6 +186,8 @@ When updating a Detailed KB section, list all downstream artifacts that may need
 
 ### 1.5 Knowledge Conflict Prevention
 
+**Applies To:** creating documentation for processes that may already have existing SOPs, work instructions, or informal documentation; consolidating multiple knowledge sources
+
 Before creating new documentation for any process:
 
 1. **Ask:** "What documentation already exists for this process? Are there SOPs, work instructions, or training materials anywhere — even outdated ones?"
@@ -186,6 +196,8 @@ Before creating new documentation for any process:
 4. **Include in generated artifacts:** "This document supersedes: [list] as of [date]" when replacing existing documentation.
 
 ### 1.6 Knowledge Base Update Procedure
+
+**Applies To:** process changes requiring documentation updates, keeping knowledge bases current after workflow modifications, propagating changes through the derivation chain
 
 When a user needs to update an existing Detailed KB because the process has changed:
 
@@ -208,6 +220,8 @@ When a user needs to update an existing Detailed KB because the process has chan
 
 ### 2.1 Design Principles for the Detailed Knowledge Base
 
+**Applies To:** writing process documentation, structuring detailed knowledge bases, applying Lean and Six Sigma principles to documentation quality
+
 **Thorough ≠ Wordy.** Apply Lean and Six Sigma to the documentation itself:
 - **Lean (eliminate waste):** Don't write 50 words when 10 will do. Don't write a paragraph when a screenshot communicates better. Every word earns its place.
 - **Six Sigma (eliminate variability):** Write so it cannot be misinterpreted. Ambiguity in instructions IS a defect. Consistent structure, terminology, formatting throughout.
@@ -215,6 +229,8 @@ When a user needs to update an existing Detailed KB because the process has chan
 **The Detailed Knowledge Base should tell a story.** It takes the reader down the process path — foundations first, then building complexity. When done well, you engage the reader because you provide what they need in the most effective way. Cross-reference: apply Storytelling domain principles for narrative engagement.
 
 ### 2.2 Build Approach
+
+**Applies To:** starting a new detailed knowledge base, incorporating existing documentation and tribal knowledge, structuring the interview and observation process
 
 1. **Gather existing materials** — printed, digital, whatever exists. Fastest way to get up to speed before talking to practitioners.
 2. **Build initial draft** from existing materials. Structure per §1.3 template.
@@ -224,6 +240,8 @@ When a user needs to update an existing Detailed KB because the process has chan
 **AI assists with steps 1-2** (ingesting existing materials, structuring into the framework) **and step 4** (incorporating feedback). **Step 3 is inherently human** — you have to go watch.
 
 ### 2.3 Step Writing Standards
+
+**Applies To:** writing individual process steps in knowledge bases, deciding between text and visual formats, structuring step-key point-reason patterns
 
 Each step in the Detailed Knowledge Base follows a consistent format:
 
@@ -246,6 +264,8 @@ Each step in the Detailed Knowledge Base follows a consistent format:
 
 ### 2.4 Verification Recommendation
 
+**Applies To:** finalizing any generated knowledge artifact, adding validation disclaimers, recommending self-test/SME review/novice test verification steps
+
 Every Detailed Knowledge Base must end with a verification section:
 
 ```markdown
@@ -267,6 +287,8 @@ Treat as [Current State — Pending Validation] until verification is completed.
 ---
 
 ### 2.5 Adoption Fitness Check
+
+**Applies To:** evaluating whether a knowledge artifact will actually be used, matching document format to use context, preventing artifacts that add friction rather than reducing it
 
 Before finalizing any artifact, apply the adoption fitness checklist:
 
@@ -297,6 +319,8 @@ Before finalizing any artifact, apply the adoption fitness checklist:
 
 ### 3.1 The Checklist Manifesto Principle
 
+**Applies To:** designing checklists and quick references, determining what to include vs exclude, applying cognitive load limits to checklist length
+
 **Include only what gets missed. Exclude what practitioners already do.**
 
 Source: Atul Gawande, *The Checklist Manifesto* (2009). Focus on "killer items" — steps most dangerous to skip yet sometimes overlooked by experienced practitioners.
@@ -319,6 +343,8 @@ Source: Atul Gawande, *The Checklist Manifesto* (2009). Focus on "killer items" 
 - "Check for material holds BEFORE releasing the order" (step that gets skipped under time pressure)
 
 ### 3.2 Quick Reference Template
+
+**Applies To:** creating point-of-work reference cards, single-page job aids, laminated quick guides for workstation or field use
 
 ```markdown
 # [Process Name] — Quick Reference
@@ -346,6 +372,8 @@ Source: Atul Gawande, *The Checklist Manifesto* (2009). Focus on "killer items" 
 
 ### 3.3 Visual Work Instructions
 
+**Applies To:** documenting physical workstation tasks, screen-based procedures needing annotated screenshots, shop floor or field work requiring posted instructions
+
 For steps performed at a physical workstation or on a specific screen:
 
 **Format:** Photo/screenshot + numbered callouts + minimal text
@@ -360,6 +388,8 @@ For steps performed at a physical workstation or on a specific screen:
 - Laminate or protect if used in shop floor environments
 
 ### 3.4 Other Extraction Types
+
+**Applies To:** creating Job Instruction Cards for TWI training, troubleshooting guides with decision trees, SIPOC diagrams for strategic process views, process flow charts
 
 **Job Instruction Card (TWI format):**
 | Important Step | Key Point | Reason |
@@ -393,6 +423,8 @@ Box-and-arrow diagram showing process areas and their connections. Strategic vie
 
 ### 4.1 SIPOC Creation
 
+**Applies To:** management reviews needing process overview, cross-functional alignment discussions, new leader onboarding to process areas
+
 **When to create:** When stakeholders need to understand where a process fits without the operational detail. Useful for management reviews, cross-functional alignment, and new leader onboarding.
 
 **Procedure:**
@@ -402,6 +434,8 @@ Box-and-arrow diagram showing process areas and their connections. Strategic vie
 4. Map suppliers and customers (may be internal departments, external vendors, or systems)
 
 ### 4.2 Process Flow Mapping
+
+**Applies To:** visualizing connections between multiple process areas, creating swim lane diagrams for cross-functional workflows, strategic process overview for leadership
 
 **When to create:** When multiple processes connect and leadership needs to see the relationships.
 
@@ -420,6 +454,8 @@ Box-and-arrow diagram showing process areas and their connections. Strategic vie
 **Implements:** KA4 (Empowerment Completeness), KA2 (Derivation Chain Integrity)
 
 ### 5.1 Cross-Training Matrix
+
+**Applies To:** building team skill inventories, identifying training gaps, tracking employee progression through skill levels, workforce planning and succession
 
 **Purpose:** Track who knows what across the team. Derived from Detailed KB major sections.
 
@@ -451,6 +487,8 @@ Skill Key:
 
 ### 5.2 Job Description Derivation
 
+**Applies To:** writing or updating job descriptions, aligning role responsibilities with documented skills, connecting job requirements to the knowledge base and training matrix
+
 **Derivation:** Job Description responsibilities → Cross-Training Matrix skills → Detailed KB sections.
 
 **Template structure:**
@@ -477,6 +515,8 @@ Skill Key:
 
 ### 5.3 Onboarding Program Design
 
+**Applies To:** designing new employee onboarding plans, structuring training progression from orientation through proficiency, connecting onboarding activities to cross-training matrix skills
+
 **Structure onboarding around the three learning levels:**
 
 | Phase | Learning Level | Activities | Duration |
@@ -498,6 +538,8 @@ Skill Key:
 
 ### 6.1 Assessment Design by Bloom's Level
 
+**Applies To:** creating training assessments and quizzes, matching question types to learning objective levels, ensuring assessments test application rather than just recall
+
 | Objective Level | Question Types | Example |
 |----------------|---------------|---------|
 | **Remember** | Multiple choice, matching, fill-in | "What is the first step in creating a shop order?" |
@@ -510,6 +552,8 @@ Skill Key:
 **Rule:** Match assessment level to learning objective level. If the objective says "apply independently," the assessment must include Apply-level items, not just Remember.
 
 ### 6.2 Training Effectiveness Evaluation (Kirkpatrick)
+
+**Applies To:** measuring whether training programs achieved their goals, evaluating training ROI, choosing the appropriate evaluation level based on organizational capability
 
 | Level | What It Measures | How to Measure | When |
 |-------|-----------------|----------------|------|
@@ -530,6 +574,8 @@ Most organizations only measure Level 1 (satisfaction surveys). Measuring Level 
 
 ### 7.1 Training Value Optimization
 
+**Applies To:** choosing the right training delivery method, matching investment to return, avoiding over-training or under-training for different skill needs
+
 **Match the method to the return. Not maximum intensity for everything.**
 
 | Need | Method | Investment | Return |
@@ -544,6 +590,8 @@ Most organizations only measure Level 1 (satisfaction surveys). Measuring Level 
 - Same training intensity for everyone regardless of experience = disrespecting people's time
 
 ### 7.2 TWI Job Instruction Method
+
+**Applies To:** training someone on a hands-on operational task, structured skill transfer from experienced to novice practitioner, progressive 4-step teaching methodology
 
 The established method for training someone on a specific task. Four-step progressive transfer:
 
@@ -576,6 +624,8 @@ The established method for training someone on a specific task. Four-step progre
 
 ### 7.3 Best Practice Discovery (Referenced Method)
 
+**Applies To:** identifying the current best approach before documenting a process, comparing different practitioner methods, building standard work from multiple existing approaches
+
 **This is a process step, not a domain principle.**
 
 Before documenting a process, identify the current best practice:
@@ -589,6 +639,8 @@ Before documenting a process, identify the current best practice:
 **Reference:** Lean/Six Sigma improvement methodology. This domain does not govern the improvement methodology itself — only the documentation of its results.
 
 ### 7.4 Implementation Context for Human Leaders
+
+**Applies To:** rolling out knowledge management systems in an organization, gaining buy-in from practitioners, addressing resistance to process documentation, change management for KM&PD initiatives
 
 **This section provides change management guidance for humans implementing KM&PD systems. It is advisory context, not AI governance.**
 
@@ -624,6 +676,8 @@ When building a knowledge management and people development system, the technica
 
 ### 8.1 The Scaffolding Procedure
 
+**Applies To:** organizing knowledge content in learnable progression, structuring detailed KBs and training materials by complexity, applying foundation-first content architecture
+
 When organizing knowledge content (Detailed KBs, training materials, onboarding programs), structure by scaffolded complexity:
 
 1. **Identify the core workflow** — the 80% of daily work that covers the most common path
@@ -635,6 +689,8 @@ When organizing knowledge content (Detailed KBs, training materials, onboarding 
 
 ### 8.2 Scaffolding Validation
 
+**Applies To:** verifying that knowledge content follows a learnable progression, checking prerequisite ordering, validating that readers can stop at any point with coherent understanding
+
 After organizing content, verify:
 
 - [ ] Content begins with foundational concepts before advanced topics
@@ -643,6 +699,8 @@ After organizing content, verify:
 - [ ] The structure mirrors the natural learning path for the role
 
 ### 8.3 When Content Arrives Out of Order
+
+**Applies To:** processing user-provided content that arrives in non-logical order, restructuring edge-case-first content into foundation-first architecture, handling stream-of-consciousness knowledge capture
 
 When the user provides content in a non-scaffolded order (e.g., starting with edge cases before core workflow):
 
