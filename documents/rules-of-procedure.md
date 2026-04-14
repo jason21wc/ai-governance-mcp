@@ -1,5 +1,5 @@
 ---
-version: "3.26.0"
+version: "3.26.1"
 status: "active"
 effective_date: "2026-04-14"
 domain: "constitution"
@@ -9,7 +9,7 @@ governance_level: "rules-of-procedure"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.26.0
+**Version:** 3.26.1
 **Status:** Active
 **Effective Date:** 2026-04-14
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -773,6 +773,31 @@ Methods are procedures (HOW), not principles (WHAT). Use this structure:
 | **Procedure** | Required | Sequential numbered steps |
 | **Template** | Optional | Code or configuration block when the method produces a structured artifact |
 | **Validation** | Required | Checkbox-format verification that the method was applied correctly |
+
+#### Writing Effective Applies To Entries
+
+The `**Applies To:**` field serves two purposes: (1) retrieval discoverability — the text feeds BM25 keyword matching and semantic embedding, improving how well the method surfaces for relevant queries, and (2) human comprehension — readers scanning the document can quickly determine whether a method is relevant to their current task.
+
+**Quality criteria (validated by 3-agent audit across 648 entries):**
+
+1. **Domain-specific vocabulary** — Use words a querier would actually search for, not generic terms
+2. **Add beyond the title** — Describe contexts NOT obvious from the method title alone
+3. **Task situations** — Describe when/where/why to use the method, not abstract concepts
+4. **Natural phrasing** — Write descriptive phrases, not bare comma-separated keyword lists
+5. **No filler** — Avoid generic phrases like "general development", "various situations"
+
+**Examples:**
+
+| Quality | Entry | Why |
+|---------|-------|-----|
+| **Good** | "first time a user asks for help with knowledge management, process documentation, training materials, or people development artifacts" | Domain vocabulary, specific trigger situation, natural prose |
+| **Good** | "MCP server development where stdout is reserved for JSON-RPC protocol messages and all logging must go to stderr" | Specific technical context, explains the constraint that makes this method necessary |
+| **Good** | "deciding whether to deploy multi-agent workflows vs single-agent; applying the 15x token overhead rule before adding agents" | Task decision, domain terminology, references the key concept |
+| **Bad** | "version, format" | Bare keyword list — restates the title, adds no context, not natural prose |
+| **Bad** | "the 15x rule:; justified, complexity, check" | Semicolon-separated fragments from automated extraction — unreadable, no task context |
+| **Bad** | "when building software" | Generic filler — applies to everything, helps nobody find this specific method |
+
+**The root cause of bad entries:** Keyword extraction from titles and bold text cannot produce quality Applies To content. Each entry requires understanding what the method does and when someone would need it — a content comprehension task, not a string manipulation task. When backfilling existing methods, read the method's purpose and procedure before writing the entry.
 
 > **Known Limitation:** The expanded template standardizes **new method authoring**. Existing methods using the previous 5-field format continue to index and retrieve correctly — the retrieval system extracts `**Applies To:**` when present but does not require it. Backfill of existing methods is tracked separately and prioritized by content length (longer methods benefit most from explicit applicability context).
 
@@ -4714,6 +4739,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.26.1 | 2026-04-14 | PATCH: Added "Writing Effective Applies To Entries" authoring guidance to Part 3.5.3. Codifies quality criteria, good/bad examples with rationale, and root cause insight from 3-agent quality audit of 648 entries. Key finding: keyword extraction from titles cannot produce quality entries — each requires content comprehension. Five validated criteria: domain-specific vocabulary, adds beyond title, task situations, natural phrasing, no filler. |
 | 3.26.0 | 2026-04-14 | MINOR: Method template expansion (Part 3.5.3). Root cause: method template prescribed 5 fields but the retrieval system parses `**Applies To:**` for BM25 + semantic scoring — template never mentioned this field. Only 21% of methods (142/675) included it organically. A/B benchmark confirmed +19-61% BM25 score improvements for methods with `Applies To` metadata. (1) Added `**Applies To:**` as Required field to Part 3.5.3 template (5→7 fields) with inline authoring guidance. (2) Added Field Reference table (§3.5.3.1 equivalent) documenting each field's tier and purpose. (3) Added Known Limitation note (same pattern as Part 3.5.1:615). (4) Updated §9.8.3 structural requirements table to include Applies To. Dual justification: human comprehension (readers know when to use a method) + retrieval quality (feeds MethodMetadata.applies_to for BM25/semantic scoring). Constitutional derivation: `meta-core-systemic-thinking`, `meta-quality-verification-validation`. Passed Admission Test 6/6. Two contrarian reviews completed. |
 | 3.23.2 | 2026-04-09 | PATCH: §9.8.3 appendix template — affirmed base format (removed "since no formal template exists yet" caveat), added external/third-party tool extension (prerequisites, source/verification links, version pin, framework integration note). Root cause: 3-agent review of F.1 (ai-coding-methods) revealed gaps traceable to template omissions. Proportional fix per contrarian review: base template unchanged, extension scoped to external tools only (n=1; full template redesign deferred to n>=3). |
 | 3.23.0 | 2026-04-03 | MINOR: Corrective & cross-cutting change guidance (session 45 retrospective). Root cause: framework quality gates assumed additive changes, but mature framework changes are increasingly corrective/editorial. (1) Added editorial correction scope note to §9.8.5 with bright-line test — changes that alter what the framework requires/permits/prohibits/detects need the Admission Test; scope clarifications, navigational cross-references, and factual accuracy fixes are editorial (PATCH without Admission Test). Includes navigational vs. substantive cross-reference distinction and classification examples for examples and failure modes. Contrarian-reviewed: tightened from original "wording improvements" (too generous) to three specific editorial categories. (2) Added cross-TITLE scope check to §9.8.5 authoring mode (advisory) — broad scope claims ("unified," "all") must verify each TITLE's existing coverage via grep + query_governance. Prevents disconnected quality systems (per v3.22.1 root cause). (3) Added bidirectional cross-references between §9.3.1 (truth-source hierarchy) and §9.7.1 (content-classification hierarchy) — complementary hierarchies that served different purposes without acknowledging each other. |
