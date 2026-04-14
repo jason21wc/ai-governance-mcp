@@ -13,7 +13,7 @@
 
 - **Phase:** Implementation complete — **v2.0.0 released** (Constitutional Framework Alignment)
 - **Mode:** Standard
-- **Active Task:** None. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Docker Publish CI fix needed (deferred — pre-existing since Node.js 24 migration). Preamble Legal System Analogy table expansion deferred (6 files, template design scope).
+- **Active Task:** None. Content Enhancer integration (#85) and workflow pattern (#55) remain paused. Compliance review due ~2026-04-20. Preamble Legal System Analogy table expansion deferred (6 files, template design scope).
 
 ## Quick Reference
 
