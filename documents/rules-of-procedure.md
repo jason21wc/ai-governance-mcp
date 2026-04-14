@@ -1,5 +1,5 @@
 ---
-version: "3.26.1"
+version: "3.26.2"
 status: "active"
 effective_date: "2026-04-14"
 domain: "constitution"
@@ -9,7 +9,7 @@ governance_level: "rules-of-procedure"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.26.1
+**Version:** 3.26.2
 **Status:** Active
 **Effective Date:** 2026-04-14
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -2220,6 +2220,41 @@ Every coding task must have a complete specification including: what to build, a
 - Escalate when scope seems unreasonable for constraints
 ```
 
+#### Cross-Domain Example (UI/UX)
+
+The template works across all domains. This example from UI/UX demonstrates the same field structure applied to a non-coding domain:
+
+```markdown
+### ACC1: Semantic Markup and ARIA Contracts (The Document Structure Statute)
+
+**Constitutional Basis:** Derived from Bias Awareness & Fairness and Structural Foundations.
+
+**Why This Principle Matters**
+AI generates visually correct but semantically empty markup — <div> elements with click handlers instead of <button>, custom dropdowns instead of <select>, and unlabeled form fields. Incorrect ARIA is worse than no ARIA — pages with ARIA present have 41% more accessibility errors.
+
+**Failure Mode(s)**
+UX-F1 (Inaccessible Markup): AI generates <div onclick="..."> instead of <button>. Forms lack <label> associations. Custom components lack ARIA roles, states, and properties. Observable: screen readers cannot navigate; keyboard-only users cannot interact.
+
+**Definition**
+All interactive interfaces MUST use semantic HTML as the foundation. Native elements MUST be preferred over <div>/<span> with ARIA roles. When custom components require ARIA, the AI MUST implement the complete contract — role, states, properties, keyboard interaction, and focus management.
+
+**Domain Application**
+- Semantic element preference: <button> for actions, <a> for navigation, <input> for data entry
+- Landmark regions: every page needs <main>, <nav>, <header>, <footer>
+- Form associations: every <input> must have an associated <label>
+- ARIA completeness: if you add a role, implement ALL required states, keyboard handling, and focus management
+
+**Validation Criteria**
+- [ ] No <div>/<span> with onclick without role, tabindex, and keyboard handler
+- [ ] All form inputs have associated labels
+- [ ] All images have meaningful alt attributes
+- [ ] Any ARIA roles have complete implementation
+
+**Human Interaction Points**
+- When complex custom widgets require ARIA patterns not in WAI-ARIA Authoring Practices
+- When third-party component libraries have known accessibility issues
+```
+
 ---
 
 ## Part 9.5: Validation Checklist
@@ -2533,7 +2568,7 @@ Existing content covers this concept?
 
 ### 9.8.3 Structural Requirements by Content Type
 
-**Applies To:** appendix format:; structural, requirements, content, type
+**Applies To:** choosing the correct template for new governance content, verifying structural requirements during quality review, understanding what each content type requires
 
 Reference table — does NOT reproduce templates, points to canonical sources.
 
@@ -2542,21 +2577,38 @@ Reference table — does NOT reproduce templates, points to canonical sources.
 | Constitutional Principle | Part 9.4.0 (7 fields) | Elevator pitch, legal analogy, all 7 template fields, no Constitutional Basis (IS the constitution) |
 | Domain Principle | Part 3.5.1 (tiered fields) | Constitutional Basis required, Definition required, Failure Mode required, domain-specific guidance |
 | Method Section | Part 3.5.3 (7 fields) | Procedure + Validation, Importance tag, Applies To (task contexts for discoverability), Implements reference to principles |
-| Appendix Section | See below | Platform-specific, references parent method, version/currency disclaimer |
+| Appendix Section | §9.8.3 template below | Governance Level tag, Implements reference, Applies To, Information Currency, platform-specific procedures |
 
-**Appendix format:**
+**Appendix template:**
 
-- Title with platform/tool name
-- Parent method reference ("Implements Part X.Y for [platform]")
-- Platform-specific procedure
-- Platform-specific gotchas/caveats
-- Version/currency disclaimer
+```markdown
+## Appendix [Letter]: [Platform/Tool Name]
 
-For external/third-party tools, also include:
-- Prerequisites (runtime, OS, dependencies)
-- Source/verification links (repository, not just marketing docs)
-- Version pin and last-verified date
-- Framework integration note (do MCP servers, hooks, and memory files work through this tool?)
+**Governance Level:** Agency SOP (Platform-Specific Appendix)
+
+**Implements:** [Parent method reference, e.g., "Part X.Y for [platform]"]
+
+**Applies To:** [When this appendix is relevant — specific platform, tool version, or technology context]
+
+**Information Currency:** [Last verified date and against which version of the platform/tool]
+
+### [Letter].1 [Specific Procedure or Topic]
+
+[Platform-specific procedure content, gotchas, caveats]
+
+### [Letter].2 [Additional Topic]
+
+[Additional platform-specific content as needed]
+```
+
+For **external/third-party tools**, extend with these additional fields after `**Implements:**`:
+
+```markdown
+**Prerequisites:** [Runtime, OS, dependencies required]
+**Source:** [Repository URL, not just marketing page]
+**Version:** [Pinned version and last-verified date]
+**Framework Integration:** [Whether MCP servers, hooks, and memory files work through this tool]
+```
 
 ---
 
@@ -4739,6 +4791,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.26.2 | 2026-04-14 | PATCH: (1) Added cross-domain principle example (UI/UX ACC1: Semantic Markup) to Part 9.4.2 — demonstrates the domain principle template works across non-coding domains. (2) Formalized appendix template at §9.8.3 — converted bullet-point format guidance into proper code-block template with Governance Level, Implements, Applies To, Information Currency fields; added external/third-party tool extension template. (3) Updated §9.8.3 reference table to point to new appendix template. (4) Fixed stale script-generated Applies To entry on §9.8.3. |
 | 3.26.1 | 2026-04-14 | PATCH: Added "Writing Effective Applies To Entries" authoring guidance to Part 3.5.3. Codifies quality criteria, good/bad examples with rationale, and root cause insight from 3-agent quality audit of 648 entries. Key finding: keyword extraction from titles cannot produce quality entries — each requires content comprehension. Five validated criteria: domain-specific vocabulary, adds beyond title, task situations, natural phrasing, no filler. |
 | 3.26.0 | 2026-04-14 | MINOR: Method template expansion (Part 3.5.3). Root cause: method template prescribed 5 fields but the retrieval system parses `**Applies To:**` for BM25 + semantic scoring — template never mentioned this field. Only 21% of methods (142/675) included it organically. A/B benchmark confirmed +19-61% BM25 score improvements for methods with `Applies To` metadata. (1) Added `**Applies To:**` as Required field to Part 3.5.3 template (5→7 fields) with inline authoring guidance. (2) Added Field Reference table (§3.5.3.1 equivalent) documenting each field's tier and purpose. (3) Added Known Limitation note (same pattern as Part 3.5.1:615). (4) Updated §9.8.3 structural requirements table to include Applies To. Dual justification: human comprehension (readers know when to use a method) + retrieval quality (feeds MethodMetadata.applies_to for BM25/semantic scoring). Constitutional derivation: `meta-core-systemic-thinking`, `meta-quality-verification-validation`. Passed Admission Test 6/6. Two contrarian reviews completed. |
 | 3.23.2 | 2026-04-09 | PATCH: §9.8.3 appendix template — affirmed base format (removed "since no formal template exists yet" caveat), added external/third-party tool extension (prerequisites, source/verification links, version pin, framework integration note). Root cause: 3-agent review of F.1 (ai-coding-methods) revealed gaps traceable to template omissions. Proportional fix per contrarian review: base template unchanged, extension scoped to external tools only (n=1; full template redesign deferred to n>=3). |
