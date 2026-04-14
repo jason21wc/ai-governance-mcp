@@ -34,9 +34,29 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Session Summary (2026-04-13)
+## Session Summary (2026-04-14)
 
 ### Completed This Session
+
+99. **Template Standardization — All 7 Hierarchy Layers**
+   - **Trigger:** User requested review of all templates against AI best practices with optimization.
+   - **A/B benchmark (Step 0):** Compared `**Applies To:**` metadata addition vs BM25 code fix (subheader/bold extraction from full content). Applies To produced +19-61% BM25 score improvements on target methods. Code fix showed no impact — dropped. Tested both BM25 and semantic paths (0.6/0.4 hybrid weight).
+   - **Method template expanded (Part 3.5.3):** 5→8 fields. Added `**Applies To:**` (Required) and `**Implements:**` (Recommended). Added Field Reference table (8 rows). Added "Writing Effective Applies To Entries" authoring guidance with 5 validated quality criteria and good/bad examples. Added Known Limitation note. Updated §9.8.3 reference table and §9.8.4 quality checklist.
+   - **Constitution template fixed (Part 9.4.0):** Added elevator pitch blockquote (was listed in §9.8.3 requirements but missing from template code block).
+   - **Appendix template formalized (§9.8.3):** Converted bullet-point format guidance into proper code-block template with Governance Level, Implements, Applies To, Information Currency fields. Added external/third-party tool extension template. Added Known Limitation note. Updated §9.8.3 reference table.
+   - **Domain principle template enhanced (Part 9.4.2):** Added cross-domain example (UI/UX ACC1: Semantic Markup) alongside existing ai-coding example.
+   - **Applies To backfill — 648 entries across all 7 files:** Initial script-generated entries had 0% quality pass rate (bare keyword lists). Rewrote all entries with quality content via 5 parallel subagents + manual fixes. Three quality passes total: (1) initial backfill, (2) keyword list rewrite, (3) semicolon pattern rewrite.
+   - **3 validator audits:** 70+ entries sampled per audit against 5 quality criteria. Found 100% failure on script-generated entries, 100% pass on manually written.
+   - **2 contrarian reviews:** Stripped `Implements` from initial plan (zero retrieval value — later added back per coherence audit finding that §9.8.3/§9.8.4 require it). Dropped examples, scope-fill priorities. Added backfill strategy and benchmark gate.
+   - **1 coherence audit:** Found elevator pitch gap, Implements gap, appendix Known Limitation gap, stale Situation Index entry. All fixed except Situation Index (cosmetic, pre-existing, deferred).
+   - **Best practices research:** Confirmed Markdown+YAML as optimal format. 8-15 fields optimal for templates. Motivation-first ordering validated. Potential future enhancements: difficulty_level, deprecation_date, authority_override_level fields.
+   - **Admission Test 6/6:** Constitutional derivation: `meta-core-systemic-thinking`, `meta-quality-verification-validation`.
+   - **Governance:** `gov-3065d5d785c9`, `gov-b040e1eb8723`, `gov-a0589d64e0da`, `gov-8b9510630e6a`, `gov-6a575d5bcf25`, `gov-3b72bb704e15`, `gov-b6376efdd8f5`, `gov-dbc003ecea05`, `gov-5b8bede8a4d4`.
+   - **Tests:** 1198 passing. All 13 retrieval regression tests pass.
+   - **Version:** rules-of-procedure v3.25.0 → v3.26.3 (1 MINOR + 3 PATCH).
+   - **Commits:** 8 (59e44d0, d706328, 9ca4d48, 1228476, edd1834, f215e19, 0f8d3fc + completion checklist commit).
+
+### Previous Session (2026-04-13)
 
 98. **Backlog #87 — Shared MCP Path Resolver + Post-v2.0.0 Hygiene**
    - **Shared path resolver (`path_resolution.py`):** Extracted `is_within_allowed_scope`, `looks_like_project`, `PROJECT_MARKERS` into shared module. Both servers import from it. Governance Tier 4 CWD fallback fixed with marker + scope validation. project_manager.py CWD fallbacks hardened. Security: `is_within_allowed_scope` now resolves input defensively (CWE-59), scope check added to Tier 4 (CWE-22).
