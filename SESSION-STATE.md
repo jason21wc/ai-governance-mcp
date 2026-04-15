@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-14
+**Last Updated:** 2026-04-15
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.26.6** (rules-of-procedure), **v2.37.0** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.26.7** (rules-of-procedure), **v2.38.0** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1198 passing** (run `pytest tests/ -v` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -34,7 +34,14 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Last Session (2026-04-14)
+## Last Session (2026-04-15)
+
+104. **Prospective Memory + Platform Memory Boundary**
+   - **Prospective Memory (v2.38.0):** Added as 6th cognitive type in §7.0.2 taxonomy, mapped to BACKLOG.md. Root cause: prospective memory (intentions) was homeless, stored in working memory (SESSION-STATE), contributing to 1,441-line bloat. Corrected CoALA attribution ("extending" not "from"). Fixed 3 pre-existing stale references (§7.5.1 "CoALA 4-type", Appendix L.1 "three-type", PROJECT-MEMORY "Fifth"). Added Reference Memory row to Overview table.
+   - **Platform Memory Hands-Off (v3.26.7):** Evolved ADR-10 from "pointer only" to "hands off." Framework files are authoritative; LLM platform memory is the platform's concern. CLAUDE.md is the bridge. Rewrote Appendix G.5. Filled 2 gaps previously only in Claude Code memory: anticipatory backlog review rule (→ BACKLOG.md), dogfood subagent instruction (→ CLAUDE.md). Cleaned MEMORY.md to minimal bridge.
+   - **6-agent review battery:** 2 contrarian (PROCEED WITH REQUIRED CHANGES → all findings fixed), 2 coherence (7 findings → all fixed), 1 validator (6/7 PASS, 1 FAIL on CoALA attribution → fixed).
+   - **Governance:** `gov-b1edf6f3bf5c`, `gov-a1dc1aaeec8b`.
+   - **Tests:** 1198 passing.
 
 103. **Memory File Lifecycle Fix + Framework Propagation + Permission Architecture Rewrite**
    - **SESSION-STATE cleanup:** 1,441→54 lines. Backlog separated to BACKLOG.md (499 lines). Security Currency moved to COMPLIANCE-REVIEW.md.

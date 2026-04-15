@@ -373,7 +373,7 @@ How the project's memory files implement the cognitive memory architecture (titl
 | **Charter** | `README.md` | On demand (scope questions) | Project purpose, public contract, scope boundaries |
 | **Procedural** | Methods documents in `documents/` | Via MCP retrieval | How to do things (governance, coding, multi-agent) |
 | **Operational** | `workflows/COMPLIANCE-REVIEW.md` | On demand (periodic review) | Governance system health checks, verification experiments |
-| **Planning** | `BACKLOG.md` | On demand (deferred work) | Discussion items, deferred capabilities, future work |
+| **Prospective** | `BACKLOG.md` | On demand (deferred work) | Intentions to act, deferred capabilities, future work |
 | **Reference** | Context Engine index | Via MCP query | Project content, semantically searchable |
 
 ### Loading Sequence
@@ -397,7 +397,7 @@ On Demand:
 ### Memory Consistency Rules
 
 - **Single Source of Truth**: Each fact has exactly one canonical location. Don't duplicate across files.
-- **Platform memory is a pointer**: Claude Code's auto memory (`~/.claude/.../MEMORY.md`) points to framework files, never duplicates their content (see Appendix G.5 in rules-of-procedure).
+- **Platform memory is hands-off**: LLM platform memory (e.g., Claude Code's `~/.claude/.../MEMORY.md`) is the platform's concern, not ours. Framework files are authoritative. CLAUDE.md is the bridge. See Appendix G.5 in rules-of-procedure.
 - **Lifecycle alignment**: Working memory is overwritten each session. Semantic memory accumulates. Episodic memory prunes when lessons graduate to methods.
 - **Distillation triggers**: SESSION-STATE >300 lines, PROJECT-MEMORY >800 lines, LEARNING-LOG ~200 lines trigger review (not hard ceilings).
 

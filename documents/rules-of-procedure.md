@@ -1,7 +1,7 @@
 ---
-version: "3.26.6"
+version: "3.26.7"
 status: "active"
-effective_date: "2026-04-14"
+effective_date: "2026-04-15"
 domain: "constitution"
 governance_level: "rules-of-procedure"
 ---
@@ -4255,6 +4255,8 @@ Generalize the storytelling domain's memory architecture into a cross-domain pat
 | **Semantic** | "What do we know?" | Domain-specific facts, relationships, rules, conventions | Accumulates; prune when superseded |
 | **Episodic** | "What happened?" | Session summaries, lessons learned, decisions made | Graduate to methods when patterns emerge |
 
+**Note:** These three tiers are the domain-specific memory model. The full cognitive memory taxonomy (§7.0.2) includes three additional cross-cutting types: Procedural (methods docs), Prospective (BACKLOG — intentions to act), and Reference (Context Engine index).
+
 ### 14.3.3 Domain Memory File Mapping
 
 **Applies To:** choosing the correct filenames for memory files per domain (e.g., STORY-BIBLE.md vs DATA-REFERENCE.md), cross-domain memory architecture alignment
@@ -4869,6 +4871,8 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.26.7 | 2026-04-15 | PATCH: Rewrote Appendix G.5 from "pointer only" to "hands-off" platform memory policy. Framework files are authoritative; LLM platform memory is the platform's concern. CLAUDE.md is the bridge. Added §14.3.2 cross-reference note for Prospective Memory (3-tier domain model → 6-type full taxonomy). Root cause: session protocol was redundantly maintained in both CLAUDE.md/AGENTS.md and platform memory (MEMORY.md), creating a dual-system management burden with stale-anchor risk. Behavioral feedback was routing to platform memory instead of CLAUDE.md because no routing rule existed. ADR-10 evolved from "pointer only" (2026-02-07) to "hands off" (2026-04-15). Constitutional Basis: Single Source of Truth, Continuous Learning & Adaptation. |
+| 3.26.6 | 2026-04-14 | PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion. Content comprehension-based entries for retrieval discoverability. Added 675 Applies To entries across meta-methods and cross-domain methods. Normalized `**Applies to:**` → `**Applies To:**` capitalization. |
 | 3.26.5 | 2026-04-14 | PATCH: Enhanced constitution principle template (Part 9.4.0) and appendix template (§9.8.3) to match method template quality standard. Added field reference tables with Required/Recommended tiers, authoring guidance (3 guidelines each), and good/bad examples for both templates. Updated §9.8.3 reference table field counts. Root cause: audit found method template (Part 3.5.3) set a quality bar the other templates didn't match. |
 | 3.26.4 | 2026-04-14 | PATCH: Post-template audit fixes from coherence-auditor + validator subagents. (1) Implements field upgraded from Recommended to Required in Part 3.5.3 Field Reference — resolves contradiction with §9.8.4 quality checklist which treated it as a gate. (2) Known Limitation updated to past tense (backfill completed in v3.26.0). (3) §9.8.3 "legal analogy" clarified as embedded in Why This Principle Matters body text. (4) Rewrote 14 surviving keyword-fragment Applies To entries in TITLEs 7–16. (5) Normalized `**Applies to:**` → `**Applies To:**` capitalization (6 instances). (6) Domain file version bumps for Applies To backfill (6 files). |
 | 3.26.3 | 2026-04-14 | PATCH: Final template audit fixes from coherence-auditor + best practices review. (1) Added elevator pitch blockquote to Constitution template (Part 9.4.0) — was listed in §9.8.3 requirements but missing from template code block. (2) Added `**Implements:**` as Recommended field to method template (Part 3.5.3, now 8 fields) — was required by §9.8.3 and §9.8.4 but missing from template. Updated field count references. (3) Added Known Limitation note to appendix template. (4) Rewrote ~70 remaining semicolon-pattern Applies To entries across rules-of-procedure.md and title-10-ai-coding-cfr.md. Best practices research validated Markdown+YAML as optimal format; no structural template changes needed. |
@@ -4974,50 +4978,36 @@ The following appendices provide platform-specific tactics for applying the gove
 - **Verbosity**: May over-explain; request concise output when needed
 - **Deference**: May be overly cautious; clarify when autonomous action is appropriate
 
-### G.5 Claude Code Auto Memory
+### G.5 Platform-Native Memory (Hands Off)
 
-**Applies To:** projects using Claude Code CLI with the cognitive memory architecture (ai-coding §7.0)
+**Applies To:** projects using any LLM platform (Claude Code, Gemini CLI, Cursor, etc.) that has its own memory/persistence system alongside the framework's cognitive memory files (ai-coding §7.0)
 
-Claude Code provides a **platform-native auto memory** feature: a persistent file at `~/.claude/projects/*/memory/MEMORY.md` that is automatically injected into the system prompt at every conversation start. This creates a second persistence layer alongside the framework's cognitive memory files.
+LLM platforms may provide **platform-native memory** — persistent files automatically injected into the system prompt (e.g., Claude Code's `~/.claude/projects/*/memory/MEMORY.md`). This creates a second persistence layer alongside the framework's cognitive memory files.
+
+**The boundary rule: don't write to platform memory.** Let the platform manage its own memory natively. All behavioral instructions, session protocols, and project knowledge live in the framework's own files — primarily the project instructions file (CLAUDE.md) and the four cognitive memory files.
 
 **Relationship to Framework Memory:**
 
-| Layer | Source of Truth? | Loading | Scope |
-|-------|-----------------|---------|-------|
-| Framework files (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG) | **Yes** — authoritative | Explicit read at session start | Version-controlled, shared |
-| Claude Code auto memory (MEMORY.md) | **No** — pointer only | Auto-injected into system prompt | Local to developer, not in repo |
+| Layer | Source of Truth? | Who Manages It | Loading |
+|-------|-----------------|----------------|---------|
+| Framework files (CLAUDE.md, SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG, BACKLOG) | **Yes** — authoritative | The project (committed to git) | CLAUDE.md auto-loaded; others read at session start |
+| Platform memory (e.g., Claude Code MEMORY.md) | **No** — platform's concern | The platform natively | Auto-injected into system prompt |
 
-**Single Source of Truth Rule:** Framework memory files are the canonical source. Auto memory must NOT duplicate facts from them. Duplicated facts create **documentation drift** (§4.3) — when a metric changes in SESSION-STATE but not in MEMORY.md, they contradict each other.
+**Why hands-off:** Previously (ADR-10, v1), the recommendation was to write a "thin pointer" session protocol into platform memory. This was redundant — CLAUDE.md and AGENTS.md (both auto-loaded) already contain the session protocol. Managing platform memory created three problems: (1) maintenance burden of a second persistence layer, (2) stale-anchor risk when platform memory goes out of sync with framework files, (3) coupling the framework to a specific LLM's memory implementation.
 
-**What belongs in auto memory:**
+**The design principle:** Framework memory files work regardless of whether the LLM has its own memory system. If the platform has memory, the framework enhances it (additive). If the platform has no memory, the framework provides full capability. Behavioral corrections from the user go into CLAUDE.md (the always-loaded project instructions), not into platform memory.
 
-| Include | Exclude |
-|---------|---------|
-| Pointers to framework files ("Read SESSION-STATE.md first") | Test counts, version numbers, metrics (those live in SESSION-STATE) |
-| Session start protocol (which files to load, in what order) | Decisions and rationale (those live in PROJECT-MEMORY) |
-| Platform-specific quirks not appropriate for the shared repo | Lessons learned (those live in LEARNING-LOG) |
-| | Gotchas (those live in PROJECT-MEMORY Known Gotchas) |
+**What if the platform saves its own content?** That's fine — it's the platform's native behavior. The framework doesn't depend on it. If platform-saved content goes stale, it doesn't affect governance because the framework's files are authoritative. The project instructions file (CLAUDE.md) is the bridge between the platform and the framework.
 
-**Recommended auto memory template:**
+**Recommended platform memory content:**
 
 ```markdown
 # [Project Name] - Auto Memory
 
-> **Role:** Thin pointer to framework files. Do NOT duplicate facts here.
-> **Source of truth:** SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md
-
-## On Session Start
-
-1. Read `SESSION-STATE.md` — current position, quick reference, next actions
-2. Prune `SESSION-STATE.md` if >300 lines — remove old session summaries, route decisions to PROJECT-MEMORY.md and lessons to LEARNING-LOG.md. Per §7.0.4.
-3. Read `PROJECT-MEMORY.md` — decisions, gotchas, patterns
-4. Read `LEARNING-LOG.md` — active lessons (check before repeating mistakes)
-5. Follow project instructions file (CLAUDE.md)
+> This project uses its own memory system. See CLAUDE.md and AGENTS.md for project instructions and session protocol.
 ```
 
-**Platform vs. governance memory:** This auto memory template is for the platform's own memory system (e.g., Claude Code's `MEMORY.md` in `~/.claude/projects/*/memory/`). The governance files it references (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md) live in the **project repository root** — they are project artifacts, not entries in the platform's memory directory. The auto memory file simply points to them.
-
-**Why this matters:** Auto memory is loaded before the AI reads any files. If it contains stale facts, those stale facts anchor the AI's understanding before it encounters the current truth in framework files. Keeping auto memory minimal eliminates this anchoring risk.
+**Migration from pointer approach:** If your project previously used a session protocol in platform memory (per the earlier recommendation), move any behavioral instructions into CLAUDE.md and replace platform memory with the minimal template above. CLAUDE.md is auto-loaded with the same reliability as platform memory — there is no gap.
 
 ---
 

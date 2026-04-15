@@ -14,7 +14,7 @@
 
 ### Advisory Pruning Failed: Two Contributing Causes (2026-04-14)
 
-SESSION-STATE.md grew to 1,441 lines (4.8x the 300-line target) despite 3 pruning instructions in the CFR. Two contributing causes: (1) **Wrong surface** — pruning instructions lived only in the CFR, not on always-loaded surfaces (CLAUDE.md, AGENTS.md, MEMORY.md). (2) **Incomplete instruction** — Completion Checklist item 16 WAS visible every session but said "Update" not "Prune." The AI complied with what it saw: it updated without pruning. Pruning requires destructive judgment (what to keep, what to route, what to delete) — a harder behavior for advisory compliance than additive actions.
+SESSION-STATE.md grew to 1,441 lines (4.8x the 300-line target) despite 3 pruning instructions in the CFR. Two contributing causes: (1) **Wrong surface** — pruning instructions lived only in the CFR, not on always-loaded surfaces (CLAUDE.md, AGENTS.md). (2) **Incomplete instruction** — Completion Checklist item 16 WAS visible every session but said "Update" not "Prune." The AI complied with what it saw: it updated without pruning. Pruning requires destructive judgment (what to keep, what to route, what to delete) — a harder behavior for advisory compliance than additive actions.
 
 **Rule:** Lifecycle instructions requiring destructive judgment (prune, compact, archive) need both correct surface placement AND explicit action verbs. "Update" does not imply "prune." The fix addresses cause #1 (surface placement). V-005 in COMPLIANCE-REVIEW tracks whether cause #2 (advisory compliance for destructive actions) also needs structural enforcement.
 

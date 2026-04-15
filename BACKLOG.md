@@ -1,7 +1,7 @@
 # Backlog
 
-**Purpose:** Track discussion items and deferred work across sessions.
-**Lifecycle:** Items are added when discovered, closed when implemented or dropped. Git commit history is the archive for closed items (`git log --grep="backlog #N"`).
+**Memory Type:** Prospective (intentions)
+**Lifecycle:** Items are added when discovered, removed when implemented or abandoned. Git commit history is the archive for closed items (`git log --grep="backlog #N"`).
 
 > **Staleness rule (2026-04-14):** Discussion items with no activity for 90+ days are flagged for review during the next compliance review (workflows/COMPLIANCE-REVIEW.md Check 8). User decides: keep, close, or reframe.
 
@@ -9,7 +9,9 @@
 
 ### Open Backlog
 
-> **Backlog Philosophy (2026-03-30, updated 2026-04-08):** Items fall into two categories: (1) **Active** — fix now or implement soon, (2) **Deferred/Future — Discussion** — needs fleshing out before deciding to implement or drop. New user-requested items default to Discussion unless they emerge from implementation (e.g., template fixes discovered during audit). Existing shipped work with known issues gets fixed now — don't defer fixes to "next time we touch it." See also #33.
+> **Backlog Philosophy (2026-03-30, updated 2026-04-15):** Items fall into two categories: (1) **Active** — fix now or implement soon, (2) **Deferred/Future — Discussion** — needs fleshing out before deciding to implement or drop. New user-requested items default to Discussion unless they emerge from implementation (e.g., template fixes discovered during audit). Existing shipped work with known issues gets fixed now — don't defer fixes to "next time we touch it."
+>
+> **Anticipatory items are valid.** Not all backlog items need a triggered condition. Three valid reasons to keep an item: need it now (active problem), plan to use soon (near-future need), anticipate needing later (want it ready when the time comes). When reviewing the backlog, present items with summaries so the user can decide — don't assume items without fired triggers should be closed.
 >
 > **No closed/completed items in this file.** When an item is closed, remove it from this file entirely. Git commit history is the archive — commit messages document what was closed and why. Maintaining closed item lists, completed tables, or historical detail sections in a working document is redundant with version control and causes unbounded file growth. If you need closure context for a past item, use `git log --grep="backlog #N"` or search commit messages.
 >

@@ -82,7 +82,7 @@
 | Document Kit Tiering | 2026-03-17 | §1.5 defines 3 tiers: Core (4 files, all modes), Standard (+4), Enhanced (+evaluated per §7.10). Avoids file proliferation — Enhanced additions are advisory, not mandatory. |
 | Constitutional Framework Alignment | 2026-04-11 | Major restructuring: 14 document files renamed to Constitutional naming (constitution.md, rules-of-procedure.md, title-NN-*.md), headers restructured to Articles/Sections/Amendments, 4 new concepts added, dual-layer IDs (slug + Constitutional citation). 7 phases, 5 review gates, safety anchor at `v1.8.0-pre-constitutional`. Plan: `.claude/plans/project-constitutional-framework-alignment.md`. Revert: gate-aligned tags on main, contrarian-reviewed. |
 | S-Series Scope Boundary | 2026-04-12 | S-Series = safety-critical harm prevention (protects users from maleficence, bias, deception). Governance-structural principles (framework integrity, authority distribution) belong in G-Series even when inspired by US Bill of Rights amendments. The operational criteria for S-Series classification is "does this prevent user harm?" not "is this in the Bill of Rights?" Established when contrarian review reclassified Unenumerated Rights and Reserved Powers from S-Series to G-Series. |
-| Backlog Separation | 2026-04-14 | Backlog separated from SESSION-STATE.md into BACKLOG.md. Root cause: advisory pruning instructions in CFR (§7.0.4, §7.1.5, §7.6.1) invisible on always-loaded surfaces — SESSION-STATE grew to 1,441 lines (4.8x target). Backlog items are planning memory (persist across sessions, pre-decision), not working memory (transient). Fix: pruning instructions added to CLAUDE.md, AGENTS.md, MEMORY.md. Staleness review for discussion items added to COMPLIANCE-REVIEW.md Check 8. |
+| Backlog Separation | 2026-04-14 | Backlog separated from SESSION-STATE.md into BACKLOG.md. Root cause: advisory pruning instructions in CFR (§7.0.4, §7.1.5, §7.6.1) invisible on always-loaded surfaces — SESSION-STATE grew to 1,441 lines (4.8x target). Backlog items are prospective memory (intentions that persist across sessions), not working memory (transient). Fix: pruning instructions added to CLAUDE.md, AGENTS.md, MEMORY.md. Staleness review for discussion items added to COMPLIANCE-REVIEW.md Check 8. Prospective Memory formalized as 6th cognitive type in v2.38.0 (2026-04-15). |
 | Template Standardization | 2026-04-14 | All 5 authoring templates reviewed against AI best practices. Method template expanded 5→8 fields (added Applies To + Implements). Constitution template fixed (added elevator pitch). Appendix template formalized from bullets to code block. 648 Applies To entries added across all 7 files. A/B benchmark confirmed +19-61% BM25 score improvements. Best practices research validated Markdown+YAML as optimal format. Key lesson: script-generated content (keyword extraction) produces 0% quality — content comprehension required. Authoring guidance codified with 5 quality criteria. |
 | Preamble as Interpretive Tiebreaker | 2026-04-12 | Preambles resolve ambiguity, they don't filter content. Research confirmed across US constitutional law (Joseph Story's Commentaries, Jacobson v. Massachusetts), EU treaty interpretation (Liav Orgad), and corporate governance (Elizabeth Pollman). Q0 (Purpose Alignment) was removed from the Admission Test — failed its own Q4 (Evidence). The Preamble's five purposes inform borderline Admission Test decisions as a tiebreaker, not as a standalone gate. Derivation chain (Q3) is the structural enforcement mechanism for the Preamble. |
 
@@ -176,7 +176,7 @@
 
 | Decision | Date | Summary |
 |----------|------|---------|
-| Reference Memory Concept | 2026-02-02 | Fifth cognitive memory type: "what exists and where is it?" Complements Working/Semantic/Episodic/Procedural. |
+| Reference Memory Concept | 2026-02-02 | Cognitive memory type: "what exists and where is it?" Complements Working/Semantic/Episodic/Procedural/Prospective. See ADR-5 for full taxonomy. |
 | Shared Repo, Separate Entry | 2026-02-02 | Context engine lives in `src/ai_governance_mcp/context_engine/`. Separate MCP server entry point (`ai-context-engine`). |
 | One Server, Multi-Project | 2026-02-02 | Single MCP server manages per-project indexes. Auto-detects by working directory (hash of absolute path). |
 | Hybrid Search (reused) | 2026-02-02 | Same BM25 + semantic pattern as governance server. Configurable weight (default 0.7 semantic / 0.3 keyword; tuned from 0.6 on 2026-02-14). |
@@ -243,7 +243,7 @@ Expanded context for the most significant decisions. The condensed tables above 
 ### ADR-5: Cognitive Memory Architecture
 - **Status:** Accepted (2025-12-31), extended 2026-02-02 (Reference Memory)
 - **Context:** AI sessions are stateless. Needed external memory that maps to known cognitive science patterns. CoALA framework (Cognitive Architectures for Language Agents) provides taxonomy.
-- **Decision:** Four memory types mapped to files: Working (SESSION-STATE), Semantic (PROJECT-MEMORY), Episodic (LEARNING-LOG), Procedural (methods docs). Fifth type (Reference Memory via Context Engine) added 2026-02-02.
+- **Decision:** Six memory types mapped to files: Working (SESSION-STATE), Semantic (PROJECT-MEMORY), Episodic (LEARNING-LOG), Procedural (methods docs), Prospective (BACKLOG, added 2026-04-15), Reference (Context Engine, added 2026-02-02).
 - **Consequences:** (+) clear lifecycle per type (transient/accumulate/prune/evolve), (+) prevents "memory as archive" antipattern, (-) requires discipline to route content correctly, (-) new contributors must learn the taxonomy.
 
 ### ADR-6: Context Engine as Separate Server
@@ -279,11 +279,11 @@ Expanded context for the most significant decisions. The condensed tables above 
 - **TITLE 8 gap identified:** Framework lacks explicit criteria for when cross-level method references warrant elevation vs. when they're appropriate as-is. Deferred — current cross-references are sufficient.
 - **Review agents:** 4 exploration agents (source text, meta-methods structure, TITLE 8 rules), contrarian reviewer (PROCEED WITH CAUTION toward lightest-touch), validator (PASS 7/7 criteria).
 
-### ADR-10: Platform-Native Memory as Pointer Only
-- **Status:** Accepted (2026-02-07)
-- **Context:** Claude Code's auto memory (`MEMORY.md`) duplicated facts from SESSION-STATE, PROJECT-MEMORY, and LEARNING-LOG, violating Single Source of Truth. Stale facts in auto memory anchored AI understanding before it read framework files.
-- **Decision:** Auto memory contains only pointers to framework files. No duplicated facts. Formalized in Appendix G.5 of meta-methods.
-- **Consequences:** (+) eliminates drift between two persistence layers, (+) auto memory stays small (12 lines vs 28), (-) AI must read framework files to get context (can't rely on auto memory alone).
+### ADR-10: Platform-Native Memory — Hands Off
+- **Status:** Accepted (2026-02-07), evolved 2026-04-15 (hands-off)
+- **Context:** Claude Code's auto memory (`MEMORY.md`) duplicated facts from SESSION-STATE, PROJECT-MEMORY, and LEARNING-LOG, violating Single Source of Truth. Stale facts in auto memory anchored AI understanding before it read framework files. Phase 1 (2026-02-07): pointer-only approach. Phase 2 (2026-04-15): discovered that CLAUDE.md + AGENTS.md (both auto-loaded) already contain the session protocol, making the MEMORY.md pointer redundant. Additionally, behavioral feedback was routing to Claude Code memory instead of CLAUDE.md because no routing rule existed.
+- **Decision:** Don't write to platform-native memory files at all. CLAUDE.md is the bridge between the LLM platform and our framework. Framework memory files (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG, BACKLOG) are the source of truth. If the LLM has its own memory, ours enhances it. If it doesn't, ours provides full capability. Behavioral instructions go in CLAUDE.md, not platform memory. Formalized in Appendix G.5.
+- **Consequences:** (+) framework is fully LLM-agnostic, (+) eliminates dual-system management burden, (+) no stale-anchor risk from unmanaged platform memory, (-) platform memory may capture its own content that goes stale — accepted trade-off since we don't depend on it.
 
 ### ADR-12: Context Engine — Comparison with Augment Code and Industry Best Practices
 - **Status:** Accepted (2026-02-13), expanded 2026-02-16 (deep Augment Code research)

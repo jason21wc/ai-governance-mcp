@@ -33,6 +33,8 @@ Hard-mode hook **BLOCKS** Bash|Edit|Write until both tools are called. This is s
 
 **Skip list (narrow):** reading files, non-sensitive questions, trivial formatting, user says "skip governance/CE". Note: analysis tasks that determine what to change (propagation checks, audit reviews) are NOT read-only — they lead to writes. Call governance before analysis, not just before the write.
 
+**Eat your own dogfood:** Use governance tools AND subagents for your own analysis work — propagation checks, compliance audits, documentation reviews. The coherence-auditor catches cross-file drift that manual grep misses. The validator catches structural defects. Don't reserve subagents only for user-requested reviews.
+
 After evaluating: cite principle IDs that influence your approach.
 
 **CE vs Grep:** Use `query_project` for semantic discovery (what exists? what's related? how does X work?). Use Grep/Glob for deterministic lookup (find this exact string, check this file, count occurrences). When creating new content or investigating unfamiliar areas, CE first.

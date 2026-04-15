@@ -1,7 +1,7 @@
 ---
-version: "2.37.0"
+version: "2.38.0"
 status: "active"
-effective_date: "2026-04-14"
+effective_date: "2026-04-15"
 domain: "ai-coding"
 governance_level: "federal-regulations"
 ---
@@ -227,6 +227,8 @@ Memory files map to cognitive memory types from AI agent research:
 | **Semantic Memory** | `PROJECT-MEMORY.md` | Facts, decisions, gates | Accumulates, summarize periodically |
 | **Episodic Memory** | `LEARNING-LOG.md` | Events, lessons learned | Prune when internalized |
 | **Procedural Memory** | Methods documents | How to do things | Evolves with practice |
+| **Prospective Memory** | `BACKLOG.md` | Intentions to act, deferred work | Removed when done or abandoned |
+| **Reference Memory** | Context Engine index | Project content, searchable | Rebuilt as content changes |
 
 **Key Principle:** Memory serves reasoning, not archival. Retain what informs future decisions.
 
@@ -5363,9 +5365,9 @@ AI has no persistent memory between sessions. The Memory Architecture creates ex
 
 **Importance: 🔴 CRITICAL — Core memory taxonomy aligned with AI agent research**
 
-**Applies To:** understanding the five cognitive memory types (working, semantic, episodic, procedural, reference) and which project files implement each type
+**Applies To:** understanding the six cognitive memory types (working, semantic, episodic, procedural, prospective, reference) and which project files implement each type
 
-Memory files map to cognitive memory types from the CoALA framework (Cognitive Architectures for Language Agents):
+Memory files map to cognitive memory types, extending the CoALA framework (Cognitive Architectures for Language Agents) with additional types from cognitive science:
 
 | Cognitive Type | File | Purpose | Lifecycle |
 |----------------|------|---------|-----------|
@@ -5373,6 +5375,7 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 | **Semantic Memory** | `PROJECT-MEMORY.md` | Facts, decisions, gates, knowledge | Accumulates, periodically summarized |
 | **Episodic Memory** | `LEARNING-LOG.md` | Events, experiences, lessons | Pruned when internalized |
 | **Procedural Memory** | Methods documents | How to do things | Evolves with practice |
+| **Prospective Memory** | `BACKLOG.md` | Intentions to act, deferred work | Removed when done or abandoned |
 | **Reference Memory** | Context Engine index | Project content, semantically searchable | Rebuilt/updated as content changes |
 
 **Why cognitive framing matters:**
@@ -5380,6 +5383,7 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 - **Semantic memory** is facts — decisions don't expire, they get superseded
 - **Episodic memory** is experiences — valuable until the lesson becomes a pattern
 - **Procedural memory** is skills — when a lesson becomes a general practice, move it from LEARNING-LOG to methods
+- **Prospective memory** is intentions — future-oriented actions that persist until completed, abandoned, or superseded. Two subtypes: time-based ("review every 10 days") and event-based ("do X when Y happens")
 - **Reference memory** is content awareness — the index of what exists and where, enabling discovery without full file reads
 
 ### 7.0.3 Memory Loading Strategy
@@ -5398,7 +5402,7 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 - Summarize historical context rather than loading verbatim
 - Use Reference Memory for targeted retrieval instead of reading entire files — the index returns focused chunks relevant to the query
 
-**Complementary roles:** Reference Memory does not replace other memory types. Decisions still go in PROJECT-MEMORY. Lessons still go in LEARNING-LOG. Session state still goes in SESSION-STATE. Reference Memory indexes the raw project content itself — code, documents, configurations — enabling discovery of what exists and where it is.
+**Complementary roles:** Reference Memory does not replace other memory types. Decisions still go in PROJECT-MEMORY. Lessons still go in LEARNING-LOG. Session state still goes in SESSION-STATE. Deferred intentions still go in BACKLOG. Reference Memory indexes the raw project content itself — code, documents, configurations — enabling discovery of what exists and where it is.
 
 ### 7.0.4 Memory Lifecycle Principles
 
@@ -5411,6 +5415,7 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 | **Working** (SESSION-STATE) | Current session only | Every session start (overwrite) |
 | **Semantic** (PROJECT-MEMORY) | Active decisions, constraints | Decision is superseded or obsolete |
 | **Episodic** (LEARNING-LOG) | Lessons not yet patterns | Lesson internalized into procedures |
+| **Prospective** (BACKLOG) | Open intentions and deferred work | Item implemented, closed, or abandoned |
 
 **Anti-principle:** Never prune for size alone. If memory is too large, this indicates either:
 1. Too much detail (summarize instead of delete)
@@ -5505,7 +5510,7 @@ File: `SESSION-STATE.md` (project root)
 - **[Service]:** [URL]
 ```
 
-> **Backlog items:** For projects with persistent discussion backlogs, use a separate file (e.g., `BACKLOG.md`) rather than embedding in SESSION-STATE.md. Session state is transient working memory; backlogs are semantic memory that persists across sessions. Reference active backlog items in the Next Actions section.
+> **Backlog items:** For projects with persistent discussion backlogs, use a separate file (e.g., `BACKLOG.md`) rather than embedding in SESSION-STATE.md. Session state is transient working memory; backlogs are prospective memory (intentions to act) that persists across sessions. Reference active backlog items in the Next Actions section.
 
 ### 7.1.3 Task Tracking Rationale
 
@@ -5544,15 +5549,15 @@ Session state captures the CURRENT moment. Historical information belongs in Pro
 
 ### 7.1.6 Backlog File Structure
 
-**Applies To:** structuring BACKLOG.md for projects with persistent discussion items and deferred work — separating planning memory from transient session state to prevent working memory bloat
+**Applies To:** structuring BACKLOG.md for projects with persistent discussion items and deferred work — separating prospective memory (intentions) from transient working memory (session state) to prevent working memory bloat
 
 File: `BACKLOG.md` (project root). Create when a project accumulates discussion items worth tracking across sessions (typically by session 3-5).
 
 ```markdown
 # Backlog
 
-**Purpose:** Track discussion items and deferred work across sessions.
-**Lifecycle:** Items are added when discovered, closed when implemented or dropped. Git commit history is the archive for closed items (`git log --grep="backlog #N"`).
+**Memory Type:** Prospective (intentions)
+**Lifecycle:** Items are added when discovered, removed when implemented or abandoned. Git commit history is the archive for closed items (`git log --grep="backlog #N"`).
 
 > **Staleness rule:** Discussion items with no activity for 90+ days are flagged for review during the next compliance review. User decides: keep, close, or reframe.
 
@@ -5571,7 +5576,7 @@ File: `BACKLOG.md` (project root). Create when a project accumulates discussion 
 [Numbered items with: What, Why, Discussion needed, Origin]
 ```
 
-**Why a separate file:** Backlog items are **planning memory** — they persist across sessions and have no natural expiration event. SESSION-STATE.md is **working memory** — transient, pruned each session. Mixing the two causes unbounded growth in working memory (see §7.1.5). The backlog's lifecycle is governed by staleness review, not distillation triggers.
+**Why a separate file:** Backlog items are **prospective memory** — future-oriented intentions that persist across sessions until completed or abandoned. SESSION-STATE.md is **working memory** — transient, pruned each session. Mixing the two causes unbounded growth in working memory (see §7.1.5). The backlog's lifecycle is governed by staleness review, not distillation triggers.
 
 **Lifecycle rules:**
 - **Add items** when deferred work is discovered (per CLAUDE.md "Defer vs Fix Now" or equivalent project policy)
@@ -5872,7 +5877,7 @@ From [Anthropic Claude Code Best Practices](https://code.claude.com/docs/en/best
 
 Projects may have specialized source documents beyond the core memory files. These documents contain factual information (semantic memory content) but warrant explicit registration so AI knows when to consult them.
 
-**Key Distinction:** Source documents are *repositories of facts* — they don't represent different cognitive functions from the CoALA 4-type model. They're semantic memory stored in dedicated files for organizational clarity.
+**Key Distinction:** Source documents are *repositories of facts* — they don't represent different cognitive functions from the §7.0.2 cognitive memory taxonomy. They're semantic memory stored in dedicated files for organizational clarity.
 
 **Source Relevance Test:** A fact belongs in a source document if removing it would cause someone to make a mistake when modifying the system. Information that has a more authoritative canonical source (e.g., dependency versions in pyproject.toml, test counts from pytest, coverage percentages from pytest --cov) does not belong in source documents — it creates staleness that misleads future sessions. When removing such information, replace it with the command or pointer that produces it. This complements the §7.4.4 best practices test ("Would removing this cause Claude to make mistakes?"), which governs what the project instructions file includes; the Source Relevance Test governs what the source documents themselves contain.
 
@@ -6158,13 +6163,14 @@ Create all files in the **project repository root** (see §7.8.2 File Location n
 
 ### 7.9.1 Purpose
 
-Persistent semantic index of all project content enabling AI to locate and retrieve relevant information without manually reading files. Reference Memory answers the question **"what exists and where is it?"** — complementing the other four cognitive memory types.
+Persistent semantic index of all project content enabling AI to locate and retrieve relevant information without manually reading files. Reference Memory answers the question **"what exists and where is it?"** — complementing the other five cognitive memory types.
 
 **Relationship to other memory types:**
 - Working Memory (SESSION-STATE) answers "where are we?"
 - Semantic Memory (PROJECT-MEMORY) answers "what did we decide?"
 - Episodic Memory (LEARNING-LOG) answers "what did we learn?"
 - Procedural Memory (Methods) answers "how do we do things?"
+- Prospective Memory (BACKLOG) answers "what do we intend to do?"
 - **Reference Memory answers "what exists and where is it?"**
 
 ### 7.9.2 When to Use
@@ -8490,7 +8496,7 @@ These are unrelated. AGENTS.md configures the AI tool's behavior for the project
 
 CLI-based AI tools auto-discover instruction files (CLAUDE.md, GEMINI.md, .cursor/rules/). **Folder-based tools have no auto-discovery** — the AI can read all files in a folder but won't prioritize any unless instructed. Additionally, many folder-based projects are **non-code document folders** (investment analysis, research collections, school notes) that lack git repos, build systems, or CLAUDE.md conventions.
 
-This appendix defines a **self-documenting folder convention** (`_ai-context/`) that enables governance memory files in any folder-based AI environment. The convention follows the same three-memory-type model (§7.0.2: working, semantic, episodic) used throughout the framework.
+This appendix defines a **self-documenting folder convention** (`_ai-context/`) that enables governance memory files in any folder-based AI environment. The convention uses the three core memory types from §7.0.2 (working, semantic, episodic) — the domain-specific subset of the full six-type cognitive taxonomy.
 
 **Constitutional basis:** Context Engineering (curated reference documents for cross-session continuity; load relevant context before acting).
 
@@ -8906,6 +8912,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.38.0 | 2026-04-15 | MINOR: Added Prospective Memory as 6th cognitive type in §7.0.2 memory taxonomy. BACKLOG.md had no cognitive type — prospective memory (intentions to act) was stored in working memory (SESSION-STATE), contributing to bloat alongside pruning instruction visibility issues (see LEARNING-LOG). Prospective memory is the cognitive function of remembering future intentions (Einstein & McDaniel, 1990); two subtypes: time-based ("review every 10 days") and event-based ("do X when Y happens"). Corrected CoALA attribution to "extending the CoALA framework with additional types from cognitive science" (Prospective and Reference are not CoALA types). Fixed stale references: §7.5.1 "CoALA 4-type model" → §7.0.2 taxonomy, Appendix L.1 clarified as 3-type subset. Updated §7.0.2 table (5→6 types), §7.0.4 lifecycle table, §7.1.6 (planning→prospective), §7.9.1 (four→five other types), Memory Architecture Overview (+Reference row). Propagated to ARCHITECTURE.md, BACKLOG.md header, PROJECT-MEMORY.md (ADR-5 + Backlog Separation + Reference Memory entries), rules-of-procedure §14.3.2 (cross-reference note). Constitutional Basis: Continuous Learning & Adaptation, Systemic Thinking. |
 | 2.36.1 | 2026-04-14 | PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. Fixed 6 low-quality entries in Parts 1.1–1.2 and 6.5. Normalized `**Applies to:**` → `**Applies To:**` capitalization (7 instances). |
 | 2.36.0 | 2026-04-11 | MINOR: Added L.8 AI-Optimized Project Structure Standard. Defines all recognized folder zones for AI-governed projects: `staging/` (always-present temporary AI input), `workflows/` (process checklists, future workflow definitions), `documents/` (default project content folder with image co-location per multimodal-RAG R1), `docs/` (ecosystem standard for human-facing docs), `.claude/plans/` lifecycle (multi-plan coexistence, Status header tracking, SESSION-STATE discovery). Two complete layouts (code + document). Zone rules table with purpose and presence criteria. Moved COMPLETION-CHECKLIST.md and COMPLIANCE-REVIEW.md to `workflows/` in this project. Constitutional Basis: Context Engineering, multimodal-RAG R1 (Image-Text Collocation). Contrarian-reviewed: original proposal to unify on `_ai-context/` rejected — split was intentionally designed (Appendix L). |
 | 2.35.1 | 2026-04-09 | PATCH: Appendix F.1 (Remote Access Tools) — added prerequisites, version pin (happy@1.1.4), GitHub repo link, framework integration note, Maturity row, Keywords line, verification date. Root cause: 3-agent review found entry lacked practical detail for AI agent usability. |
