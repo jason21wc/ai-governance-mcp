@@ -40,10 +40,9 @@ MAX_TOTAL_CHUNKS = 100_000
 MAX_CHUNK_CONTENT_CHARS = 10_000
 
 # Maximum content length for embedding input (chars)
-# BGE-small handles ~512 tokens (~2048 chars); larger models can handle more
-MAX_EMBEDDING_INPUT_CHARS = (
-    6000  # Increased for nomic-embed-text-v1.5 (8K token context)
-)
+# BGE-small-en-v1.5 handles ~512 tokens (~2048 chars). Conservative ceiling to
+# accommodate larger models in the allowlist that can handle longer inputs.
+MAX_EMBEDDING_INPUT_CHARS = 6000
 
 # Batch size for embedding generation — limits peak memory
 EMBEDDING_BATCH_SIZE = 1000
@@ -104,8 +103,8 @@ class Indexer:
     def __init__(
         self,
         storage: BaseStorage,
-        embedding_model: str = "nomic-ai/nomic-embed-text-v1.5",
-        embedding_dimensions: int = 768,
+        embedding_model: str = "BAAI/bge-small-en-v1.5",
+        embedding_dimensions: int = 384,
         readonly: bool = False,
     ) -> None:
         self.storage = storage
