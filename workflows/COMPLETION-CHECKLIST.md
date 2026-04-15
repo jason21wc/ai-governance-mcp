@@ -48,7 +48,7 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 
 ### ALWAYS (regardless of enforcement tier)
 
-16. Update SESSION-STATE.md (version, counts, summary) — at minimum at session end
+16. Update and prune SESSION-STATE.md (version, counts, summary; remove old session summaries; target <300 lines per §7.0.4) — at minimum at session end
 17. Commit and push
 18. Verify CI green (`gh run watch`)
 
@@ -64,7 +64,7 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 3. Spot-check: `query_governance("new content topic")` → verify it surfaces
 4. Reference doc staleness check per §14.2
 5. README check: if principle/method counts or domains changed → update README domain table
-6. Update SESSION-STATE.md
+6. Update and prune SESSION-STATE.md (target <300 lines per §7.0.4)
 7. Commit and push
 8. Verify CI green
 9. Docker check: if content significantly changed or code also changed → rebuild and push

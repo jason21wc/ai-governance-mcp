@@ -168,7 +168,7 @@ Spawn a **validator subagent** to review the session's governance compliance. Th
 
 ### 7. Tool approval list review
 
-**How:** Reflect on recent sessions — which tools required manual approval? Which were denied? Review `settings.local.json` allow/deny lists.
+**How:** Reflect on recent sessions — which tools required manual approval? Which were denied? Review `~/.claude/settings.json` allow/deny/ask lists (user-level, single source of truth per A.5.6).
 
 **Pass:** No tool was manually approved ≥3 times across the review window without being added to the allow list, and no denied tool lacks a deny list entry if it keeps appearing.
 **Fail:** Repeated manual approvals (add to allow list) or repeated denials without deny list entry (add to deny list).
@@ -179,6 +179,21 @@ Spawn a **validator subagent** to review the session's governance compliance. Th
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | FAIL→FIXED | Removed 3 CFR-violating allows (chmod, mv, docker push). Added 10 read-only allows. Added 8 deny rules per CFR A.5. |
 | 2 | 2026-04-14 | PASS | 110 allows, 8 denies. CLAUDE.md moved deny→ask per CFR A.5.3 (correct — governance files should prompt, not block). No repeated manual approvals observed. |
+
+---
+
+### 8. Backlog staleness
+
+**How:** Review BACKLOG.md discussion items. Flag any item with no activity for 90+ days (check git log for last commit mentioning that item number).
+
+**Pass:** All discussion items either have activity within 90 days or have been reviewed and explicitly kept by the user.
+**Fail:** Stale items found — present to user for decision: keep, close, or reframe.
+
+**Why this matters:** Discussion items have no natural completion event. Without periodic staleness review, the backlog accumulates indefinitely (the same growth pattern that caused SESSION-STATE.md to reach 1,441 lines).
+
+| Review | Date | Result | Notes |
+|--------|------|--------|-------|
+| | | | |
 
 ---
 
@@ -234,12 +249,46 @@ Spawn a **validator subagent** to review the session's governance compliance. Th
 
 ---
 
+### [V-005] SESSION-STATE pruning compliance — OPEN
+
+**Hypothesis:** Advisory pruning instructions on always-loaded surfaces (CLAUDE.md, AGENTS.md, MEMORY.md) keep SESSION-STATE.md under 300 lines across sessions.
+
+**Added:** 2026-04-14
+**Confirm/Refute by:** 5 sessions from 2026-04-14
+
+**Process indicator:** `wc -l SESSION-STATE.md` at session end.
+
+**Success:** 5/5 sessions end with SESSION-STATE under 300 lines.
+**Failure:** 2+ sessions exceed 300 lines at session end → escalate to pre-push hook warning (not block) for SESSION-STATE line count.
+
+**Baseline:** This session: 54 lines (post-cleanup).
+
+| Session | Date | Lines | Under 300? | Notes |
+|---------|------|-------|:---:|-------|
+| 1 (baseline) | 2026-04-14 | 54 | Y | Post-cleanup. First session with pruning instructions on loaded surfaces. |
+| 2 | | | | |
+| 3 | | | | |
+| 4 | | | | |
+| 5 | | | | |
+
+---
+
 ## Review Log
 
 | # | Date | Trigger | Ongoing (pass/total) | Verifications Updated | Key Finding | Action |
 |---|------|---------|---------------------|----------------------|-------------|--------|
 | 1 | 2026-04-13 | Post-release audit (v2.0.0) | 6/7 (1b added) | V-004 session 3 | settings.local.json had 3 CFR-violating auto-accepts (chmod, mv, docker push). Deny list had 2/8 recommended entries. Enforcement-mode check missing. | Fixed all. Added Check 1b. 4-agent battery (security+contrarian+validator+coherence). |
 | 2 | 2026-04-14 | Routine (day 1 of 10-15 cadence) | 7/7 (1 FAIL→FIXED) | V-001 session 2, V-004 session 4 | 3 LEARNING-LOG entries >60 days without markers (tree-sitter, env-aware tests, test inputs). CLAUDE.md deny→ask fixed. V-004 3-session window complete: 2/3 failures (escalation threshold met, user decision pending). | Marked 3 entries ACTIVE. Canary prompts run, awaiting user eval. |
+
+---
+
+## Security Currency Reviews
+
+#### Security Currency Review — 2026-04-06
+**Trigger:** Inaugural review (§14.2.7 implementation)
+**Sources checked:** OWASP LLM Top 10 (2025), OWASP Agentic Top 10 (2025/Dec), OWASP MCP Top 10 (2025), MITRE ATLAS (v5.3.0, Jan 2026), NIST SP 800-207, NIST AI 600-1, CWE Top 25 (2024)
+**Gaps found:** 0 | **Actions:** None — all content current. Framework already references OWASP Agentic (§5.11.6 ASI01-ASI09), OWASP MCP (§5.6.4), MITRE ATLAS. LLM08:2025 (Vector/Embedding Weaknesses) covered by SEC-Series in multimodal-rag domain.
+**Next trigger watch:** OWASP Agentic Top 10 v2 (new list, may update quickly), MITRE ATLAS v5.4+ (agent-focused techniques, Feb 2026), NIST COSAIS final publication
 
 ---
 

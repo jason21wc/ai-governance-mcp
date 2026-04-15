@@ -9,6 +9,7 @@
 | File | Purpose |
 |------|---------|
 | SESSION-STATE.md | Current position, next actions |
+| BACKLOG.md | Discussion items and deferred work |
 | PROJECT-MEMORY.md | Decisions, constraints, gates |
 | LEARNING-LOG.md | Lessons learned |
 | ARCHITECTURE.md | System design, data flow |
@@ -18,9 +19,10 @@
 ## On Session Start
 
 1. Load SESSION-STATE.md for current position
-2. Follow Next Actions listed there
-3. Reference PROJECT-MEMORY.md for constraints and decisions
-4. Check LEARNING-LOG.md before repeating past mistakes
+2. Prune SESSION-STATE.md if >300 lines (remove old summaries, route decisions/lessons)
+3. Follow Next Actions listed there
+4. Reference PROJECT-MEMORY.md for constraints and decisions
+5. Check LEARNING-LOG.md before repeating past mistakes
 
 ## Key Commands
 

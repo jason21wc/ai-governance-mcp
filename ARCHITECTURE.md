@@ -373,6 +373,7 @@ How the project's memory files implement the cognitive memory architecture (titl
 | **Charter** | `README.md` | On demand (scope questions) | Project purpose, public contract, scope boundaries |
 | **Procedural** | Methods documents in `documents/` | Via MCP retrieval | How to do things (governance, coding, multi-agent) |
 | **Operational** | `workflows/COMPLIANCE-REVIEW.md` | On demand (periodic review) | Governance system health checks, verification experiments |
+| **Planning** | `BACKLOG.md` | On demand (deferred work) | Discussion items, deferred capabilities, future work |
 | **Reference** | Context Engine index | Via MCP query | Project content, semantically searchable |
 
 ### Loading Sequence
@@ -390,6 +391,7 @@ On Demand:
   7. query_governance() / get_principle() (what do the methods say?)
   8. query_project() (what code/content exists where?)
   9. workflows/COMPLIANCE-REVIEW.md (is the governance system healthy?)
+ 10. BACKLOG.md (what's deferred? what needs discussion?)
 ```
 
 ### Memory Consistency Rules

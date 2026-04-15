@@ -1,5 +1,5 @@
 ---
-version: "2.36.1"
+version: "2.37.0"
 status: "active"
 effective_date: "2026-04-14"
 domain: "ai-coding"
@@ -263,7 +263,7 @@ Please:
 4. Begin the Specify phase with discovery questions
 ```
 
-**After scaffolding:** Configure `.claude/settings.local.json` (or your platform's equivalent) with project-appropriate permissions. See Appendix A.5.6 for the recommended layered architecture and project-level templates.
+**After scaffolding:** Configure permissions per Appendix A.5.6. For solo developers, use `~/.claude/settings.json` (user-level, single source of truth). For teams, use `.claude/settings.local.json` for personal overrides to committed team settings.
 
 #### Scenario B: Resume Work — First Prompt
 
@@ -890,7 +890,7 @@ Every project creates these 4 files regardless of procedural mode:
 
 **Rationale:** §7.8.4 already requires the first 3 files. Adding the project instruction file aligns with the universal need for AI to have project context. These files map directly to the CoALA cognitive memory types (§7.0).
 
-### 1.5.2 Standard Kit (Core + 3 Files)
+### 1.5.2 Standard Kit (Core + 4 Files)
 
 **Applies To:** Standard-mode projects requiring production-grade documentation — adds architecture, specification, and completion checklist to the core kit
 
@@ -901,8 +901,9 @@ Standard mode adds documentation for production-grade work:
 | ARCHITECTURE.md | Production work needs documented system design, tech stack, data flow | §7.5.2 |
 | SPECIFICATION.md | Formal requirements and acceptance criteria (SDD best practice) | §7.5.2 |
 | workflows/COMPLETION-CHECKLIST.md | Post-change verification prevents regressions in production code | §5.1.6 |
+| BACKLOG.md | Discussion items and deferred work persist across sessions; separating from SESSION-STATE prevents working memory bloat | §7.1.6 |
 
-**Total: 7 files** (4 core + 3 standard additions).
+**Total: 8 files** (4 core + 4 standard additions).
 
 ### 1.5.3 Enhanced Kit (Standard + Evaluated Additions)
 
@@ -919,7 +920,7 @@ Enhanced mode does not mandate a fixed set of additional files. Instead, it trig
 
 **Rule:** Enhanced mode triggers the evaluation of whether additional documents are warranted — it does not mandate them all. The §7.10 complexity thresholds (file count: <50/50-200/200-500/500+) determine which documents add value. This avoids file proliferation where overhead exceeds benefit.
 
-**Total: 7+ files** (standard kit + additions as warranted by complexity).
+**Total: 8+ files** (standard kit + additions as warranted by complexity).
 
 ### 1.5.4 Kit Scaling Rules
 
@@ -929,7 +930,7 @@ When transitioning between modes (see §1.4.4):
 
 | Transition | Document Action |
 |-----------|----------------|
-| EXPEDITED → STANDARD | Add ARCHITECTURE.md, SPECIFICATION.md, workflows/COMPLETION-CHECKLIST.md |
+| EXPEDITED → STANDARD | Add ARCHITECTURE.md, SPECIFICATION.md, workflows/COMPLETION-CHECKLIST.md, BACKLOG.md (when discussion items emerge) |
 | STANDARD → ENHANCED | Evaluate §7.10 thresholds; add reference documents where complexity warrants |
 | ENHANCED → STANDARD | Evaluate which Enhanced-tier documents remain valuable; remove those that add overhead without benefit |
 | STANDARD → EXPEDITED | Core kit files persist (they're minimal overhead); Standard additions may be marked dormant but need not be deleted |
@@ -5362,7 +5363,7 @@ AI has no persistent memory between sessions. The Memory Architecture creates ex
 
 **Importance: 🔴 CRITICAL — Core memory taxonomy aligned with AI agent research**
 
-**Applies To:** understanding the three cognitive memory types (working, semantic, episodic) and which project files implement each type
+**Applies To:** understanding the five cognitive memory types (working, semantic, episodic, procedural, reference) and which project files implement each type
 
 Memory files map to cognitive memory types from the CoALA framework (Cognitive Architectures for Language Agents):
 
@@ -5426,12 +5427,13 @@ Memory files map to cognitive memory types from the CoALA framework (Cognitive A
 | LEARNING-LOG.md | Entry > 6 months | Graduate to methods, retain if still project-relevant and passing Future Action Test (§7.3.1), or delete |
 | LEARNING-LOG.md | > 200 lines | Review all entries against Future Action Test (§7.3.1); remove obsolete, graduated, or redundant entries. If all entries pass review, the file may legitimately exceed 200 lines — this is a quality review trigger, not a hard ceiling |
 | LEARNING-LOG.md | During distillation | Verify no entry duplicates content already in Gotcha table, PROJECT-MEMORY, or ARCHITECTURE.md |
+| BACKLOG.md | > 600 lines | Review discussion items: close resolved items, compress verbose descriptions, flag items >90 days inactive per COMPLIANCE-REVIEW Check 8. This is a review trigger, not a hard ceiling |
 | Source documents (ARCHITECTURE.md, etc.) | > 500 lines or before major releases | Apply Source Relevance Test (§7.5.1); remove information with more authoritative canonical sources, snapshot data, and duplicate content. This is a review trigger, not a hard ceiling |
 
 **Memory Health Check:**
 ```bash
-wc -l SESSION-STATE.md PROJECT-MEMORY.md LEARNING-LOG.md ARCHITECTURE.md
-# Targets: SESSION < 300, PROJECT < 800, LEARNING-LOG ~200, ARCHITECTURE ~500 (review triggers)
+wc -l SESSION-STATE.md PROJECT-MEMORY.md LEARNING-LOG.md ARCHITECTURE.md BACKLOG.md
+# Targets: SESSION < 300, PROJECT < 800, LEARNING-LOG ~200, ARCHITECTURE ~500, BACKLOG ~600 (review triggers)
 ```
 Run this check: session end, before releases, when files feel bloated.
 
@@ -5449,7 +5451,7 @@ Track current work state so any session (same AI, new AI, different tool) can re
 
 ### 7.1.2 Session State File Structure
 
-**Applies To:** structuring SESSION-STATE.md with the correct sections — current position, quick reference metrics, active task, session summaries, and backlog
+**Applies To:** structuring SESSION-STATE.md with the correct sections — current position, quick reference metrics, active task, session summaries, and next actions
 
 File: `SESSION-STATE.md` (project root)
 
@@ -5503,6 +5505,8 @@ File: `SESSION-STATE.md` (project root)
 - **[Service]:** [URL]
 ```
 
+> **Backlog items:** For projects with persistent discussion backlogs, use a separate file (e.g., `BACKLOG.md`) rather than embedding in SESSION-STATE.md. Session state is transient working memory; backlogs are semantic memory that persists across sessions. Reference active backlog items in the Next Actions section.
+
 ### 7.1.3 Task Tracking Rationale
 
 **Applies To:** choosing between inline task tracking in SESSION-STATE.md vs GitHub Issues, understanding task status values and when each tracking approach is appropriate
@@ -5537,6 +5541,43 @@ Update `SESSION-STATE.md` when:
 Session state captures the CURRENT moment. Historical information belongs in Project Memory or Learning Log. Keep session state minimal and actionable.
 
 **Session log lifecycle:** Refresh session state at each new session start — clear completed work and stale context, retaining only what helps the next session orient. If a session produced decisions or lessons worth preserving, route them to Project Memory or Learning Log before clearing.
+
+### 7.1.6 Backlog File Structure
+
+**Applies To:** structuring BACKLOG.md for projects with persistent discussion items and deferred work — separating planning memory from transient session state to prevent working memory bloat
+
+File: `BACKLOG.md` (project root). Create when a project accumulates discussion items worth tracking across sessions (typically by session 3-5).
+
+```markdown
+# Backlog
+
+**Purpose:** Track discussion items and deferred work across sessions.
+**Lifecycle:** Items are added when discovered, closed when implemented or dropped. Git commit history is the archive for closed items (`git log --grep="backlog #N"`).
+
+> **Staleness rule:** Discussion items with no activity for 90+ days are flagged for review during the next compliance review. User decides: keep, close, or reframe.
+
+---
+
+### Active (Implement Now/Soon)
+
+[Items with implementation commitment]
+
+---
+
+### Deferred/Future — Discussion
+
+> Items below need discussion before deciding to implement or drop.
+
+[Numbered items with: What, Why, Discussion needed, Origin]
+```
+
+**Why a separate file:** Backlog items are **planning memory** — they persist across sessions and have no natural expiration event. SESSION-STATE.md is **working memory** — transient, pruned each session. Mixing the two causes unbounded growth in working memory (see §7.1.5). The backlog's lifecycle is governed by staleness review, not distillation triggers.
+
+**Lifecycle rules:**
+- **Add items** when deferred work is discovered (per CLAUDE.md "Defer vs Fix Now" or equivalent project policy)
+- **Remove items** when implemented or explicitly closed — git history preserves closure context
+- **Review stale items** at periodic compliance reviews (90+ days with no activity)
+- No line count target — backlogs grow with ideas and shrink with decisions
 
 ---
 
@@ -5907,7 +5948,7 @@ Before ending any session:
 3. **Update PROJECT-MEMORY.md** if decisions were made
 4. **Update LEARNING-LOG.md** if insights emerged
 5. **Memory hygiene check:**
-   - Remove completed work from SESSION-STATE (keep only current state)
+   - Remove completed work and old session summaries from SESSION-STATE (keep only: current position, most recent session summary, next actions, quick reference). Target: <300 lines per §7.0.4. Route decisions to PROJECT-MEMORY.md, lessons to LEARNING-LOG.md before removing.
    - Mark graduated lessons in LEARNING-LOG
    - Check for superseded decisions in PROJECT-MEMORY
 6. **Pre-commit validation** (if governance/methods documents changed):
@@ -5925,12 +5966,13 @@ Before ending any session:
 When starting a new session:
 
 1. **Load SESSION-STATE.md** — Where are we?
-2. **Review Next Actions** — What should we do?
-3. **Run existing tests** (if applicable) — If the project has a test suite, run it before making changes. Establishes a known-good baseline, discovers regressions from external changes (dependency updates, environment drift), and prevents attribution errors where pre-existing failures get blamed on new work. Skip if no test suite exists or if Next Actions indicate a documentation-only session. (See §5.2)
-4. **Load relevant PROJECT-MEMORY.md sections** — What constraints apply?
-5. **Check LEARNING-LOG.md** — Any relevant lessons?
-6. **Quick coherence check** (advisory) — Check memory file dates, size thresholds per §7.0.4, obvious staleness (version mismatches, stale "Active Task"). Per meta-methods Part 4.3.2. Skip if session context is clearly current.
-7. **Confirm understanding** — Ask PO if unclear
+2. **Prune SESSION-STATE.md** — If >300 lines, remove old session summaries and stale context. Route decisions to PROJECT-MEMORY.md, lessons to LEARNING-LOG.md before removing. Per §7.0.4.
+3. **Review Next Actions** — What should we do?
+4. **Run existing tests** (if applicable) — If the project has a test suite, run it before making changes. Establishes a known-good baseline, discovers regressions from external changes (dependency updates, environment drift), and prevents attribution errors where pre-existing failures get blamed on new work. Skip if no test suite exists or if Next Actions indicate a documentation-only session. (See §5.2)
+5. **Load relevant PROJECT-MEMORY.md sections** — What constraints apply?
+6. **Check LEARNING-LOG.md** — Any relevant lessons?
+7. **Quick coherence check** (advisory) — Check memory file dates, size thresholds per §7.0.4, obvious staleness (version mismatches, stale "Active Task"). Per meta-methods Part 4.3.2. Skip if session context is clearly current.
+8. **Confirm understanding** — Ask PO if unclear
 
 ### 7.6.3 Handoff Summary (for complex transitions)
 
@@ -6053,6 +6095,7 @@ Execute in order:
 | SESSION-STATE.md | Create from Cold Start Kit template. Add Quick Reference and Links sections when project has stable metrics (see §7.1.2) |
 | LEARNING-LOG.md | Create stub with usage header (no entries yet). Entries added when lessons emerge per §7.3.2 |
 | README.md | Create at project inception as charter/scope document per §7.5.2. Apply Source Relevance Test (§7.5.1) — prefer dynamic references (CI badges, tool commands) over hardcoded counts for volatile metrics |
+| BACKLOG.md | Create when project accumulates discussion items worth tracking across sessions (typically session 3-5). Not needed at project inception. See §7.1.6 for template |
 | Detailed ARCHITECTURE.md | Create after Plan phase when technical decisions are made. Apply Source Relevance Test (§7.5.1) — focus on component relationships, data flow, and architectural decisions with rationale |
 
 **LEARNING-LOG.md stub template:**
@@ -7265,7 +7308,7 @@ Claude Code uses a layered settings system with clear precedence:
 
 **Precedence:** project-local > project-level > user-level. A project-local setting overrides both project-level and user-level for the same key.
 
-**Recommendation:** Keep governance hooks in project-level (committed, shared). Keep permission allowlists in project-local (personal, not committed) or user-level (global personal preference).
+**Recommendation:** Keep governance hooks in project-level (committed, shared). For solo developers, keep all permission allowlists in user-level — project-local should be empty (see A.5.6). For teams, project-local provides personal overrides to committed team settings.
 
 #### A.5.2 Hook-Permission Interaction
 
@@ -7296,66 +7339,43 @@ Use **allowlist thinking** (approve specific safe patterns) NOT denylist thinkin
 {
   "permissions": {
     "allow": [
-      "Read",
-      "Edit",
-      "Write",
-      "Bash(pytest*)",
-      "Bash(python -m pytest*)",
-      "Bash(python -c*)",
-      "Bash(python -m ai_governance_mcp*)",
-      "Bash(git status*)",
-      "Bash(git diff*)",
-      "Bash(git log*)",
-      "Bash(git add*)",
-      "Bash(git commit*)",
-      "Bash(git branch*)",
-      "Bash(git checkout*)",
-      "Bash(git stash*)",
-      "Bash(ruff*)",
-      "Bash(bandit*)",
-      "Bash(docker build*)",
-      "Bash(wc*)",
-      "Bash(ls*)",
-      "Bash(cat*)",
-      "Bash(head*)",
-      "Bash(tail*)",
-      "Bash(grep*)",
-      "Bash(find*)",
-      "Bash(sort*)",
-      "Bash(gh run*)",
-      "Bash(gh pr*)",
-      "WebSearch",
-      "WebFetch"
+      "Read", "Edit", "Write",
+      "Bash(pytest*)", "Bash(python -m pytest*)", "Bash(python -m ai_governance_mcp*)",
+      "Bash(git status*)", "Bash(git diff*)", "Bash(git log*)",
+      "Bash(git add*)", "Bash(git commit*)", "Bash(git branch*)", "Bash(git stash*)",
+      "Bash(ruff*)", "Bash(bandit*)", "Bash(docker build*)",
+      "Bash(wc*)", "Bash(ls*)", "Bash(cat*)", "Bash(head*)", "Bash(tail*)",
+      "Bash(grep*)", "Bash(find*)", "Bash(sort*)",
+      "Bash(gh run*)", "Bash(gh pr*)",
+      "WebSearch", "WebFetch"
     ],
-    "deny": [
-      "Edit(.claude/settings.json)",
-      "Write(.claude/settings.json)",
-      "Edit(.claude/hooks/*)",
-      "Write(.claude/hooks/*)",
-      "Edit(CLAUDE.md)",
-      "Write(CLAUDE.md)",
-      "Edit(.github/*)",
-      "Write(.github/*)"
+    "ask": [
+      "Edit(.claude/settings.json)", "Write(.claude/settings.json)",
+      "Edit(.claude/hooks/*)", "Write(.claude/hooks/*)",
+      "Edit(CLAUDE.md)", "Write(CLAUDE.md)",
+      "Edit(.github/*)", "Write(.github/*)"
     ]
   }
 }
 ```
 
-**HARD RULE — governance-critical files are denied in project-level allowlists:**
+**HARD RULE — governance-critical files use "ask" (human-in-the-loop), not "allow":**
 - `.claude/settings.json` — agent could modify its own enforcement hooks
 - `.claude/hooks/*` — agent could disable governance checks
 - `CLAUDE.md` — agent could change its own behavioral instructions
 - `.github/*` — agent could modify CI/CD pipeline
 
-Self-modification of governance enforcement is an S-Series (safety) concern. At project-level, these files are **denied** (prevents agent self-modification of team rules committed to git). At user-level, these files may use **ask** to allow human-approved edits — the human sees and approves each modification. See A.5.6 for the recommended layered architecture.
+Self-modification of governance enforcement is an S-Series (safety) concern. These files use **ask** — the human sees and approves each edit. For team projects with committed project-level settings, these files may use **deny** at the committed layer to prevent any agent modification of shared team rules. See A.5.6 for the recommended architecture.
 
-**Keep as MANUAL APPROVAL** (high blast radius per AO-1):
+**Keep as MANUAL APPROVAL** (high blast radius per AO-1 — approve per-use via session "always approve," do not persist):
 - `git push` — external-facing, affects shared state
+- `git checkout`, `git merge`, `git rebase` — can discard uncommitted work
 - `git reset --hard`, `rm`, `mv` — destructive / irreversible
 - `docker push` — external deployment
 - `pip install`, `npm install` — dependency changes (supply chain risk)
-- `curl`, `wget` — network access / data exfiltration risk
+- `curl`, `wget` — network access / data exfiltration risk (use WebFetch for governed access)
 - `chmod`, `chown` — permission escalation
+- `sed`, `awk` — can modify files in place via redirection
 - `npx`, `npm run` — arbitrary script execution
 
 #### A.5.4 Autonomous Operation Permissions
@@ -7377,34 +7397,42 @@ Re-evaluate permission configuration when:
 - A permission proves too broad (agent modified something unexpected)
 - Moving between development phases (prototyping → production hardening)
 - Onboarding new team members who will use the project's committed settings
-- Permission entry count exceeds 50 — signal of accretion. Review for one-shot artifacts (full commit messages, inline scripts, specific file paths) that should not have persisted. Approve per-use instead.
+- Permission entry count exceeds 50 — signal of accretion even in the single-file model (the recommended user-level baseline has ~40 entries; meaningful growth beyond that likely includes one-shot artifacts). Review for full commit messages, inline scripts, specific file paths that should not have persisted. Approve per-use instead.
 
 **Cross-references:** §5.6.1 (Coding Tool Injection Defense), §5.6.3 (Destructive Action Prevention), §9.3.10 (Enforcement Stack), multi-agent methods §6.5.2 (Autonomous Operation Permissions), A.5.6 (Recommended Permission Architecture)
 
 #### A.5.6 Recommended Permission Architecture
 
-**The layered model:**
+**Default: User-level as single source of truth.** For solo developers, all persistent permissions belong in the user-level file. Project-local (`settings.local.json`) should be empty — it adds a maintenance layer without security benefit when you're the only developer. Session-level "always approve" handles one-off commands that don't need to persist.
+
+**When to add a project-local layer:** Only in team scenarios where the committed project-level file (`.claude/settings.json`) has team-shared policies you need to personally override. For solo developers, this situation doesn't arise.
 
 ```
+Solo developer (recommended default):
 User-level (~/.claude/settings.json or platform equivalent)
-├── deny: credentials (SSH, AWS, env files, Docker/K8s/npm tokens)
-├── ask: governance files (CLAUDE.md, settings, hooks), file-writing MCP tools
-└── allow: read-only git, MCP query tools, WebSearch, trusted doc domains
+├── deny: credentials (SSH, AWS, env files, Docker/K8s/npm tokens), force push
+├── ask: governance files (CLAUDE.md, settings, hooks), externally-visible MCP actions, .github/*
+└── allow: read-only commands, dev tools, MCP query tools, WebSearch, mutating git (add/commit/stash/tag)
 
-Project-level (.claude/settings.local.json or platform equivalent)
-├── allow: mutating git, language tooling (npm/pytest/docker), project WebFetch domains
-└── deny: hooks (defense in depth)
+Project-local (.claude/settings.local.json or platform equivalent)
+└── empty (user-level covers everything; session "always approve" handles one-offs)
+
+Team scenario (when team-shared settings exist):
+User-level: deny credentials, ask governance files, allow read-only
+Project-level (.claude/settings.json, committed): hooks, team-shared deny rules
+Project-local (.claude/settings.local.json, gitignored): personal overrides to team settings
 ```
 
-**Principle:** User-level handles universal security boundaries and universal trusted tools. Project-level handles project-specific tooling and mutating operations. Read-only at user-level, write at project-level.
+**Why a single layer works for solo developers:** Project-local was designed for team scenarios — personal overrides to shared team settings. For a solo developer, there are no team settings to override. Maintaining two persistent permission lists creates confusion about where to add new entries and causes accretion in both files. The root cause of most permission friction is read-only operations missing from the always-active layer, not insufficient layering.
 
-**Three principles:**
+**Four principles:**
 
 1. **Deny credentials** — SSH keys, API tokens, env files, cloud provider configs. These should never be read by an AI agent.
-2. **Ask for governance files** — CLAUDE.md, settings, hooks. The human approves each edit so the agent can't silently modify its own rules.
-3. **Allow read-only operations** — git status/diff/log, ls, web search. Safe in any context.
+2. **Deny destructive git** — `git push --force`, `git push -f`. Irreversible history rewriting.
+3. **Ask for governance files and external actions** — CLAUDE.md, settings, hooks, .github/* (self-modification guard). Mutating GitHub MCP tools (create_issue, create_pr, add_comment) — externally visible. File-writing MCP tools (install_agent, capture_reference, scaffold_project) — modifies project structure.
+4. **Allow everything else you use routinely** — read-only git, shell utilities, dev tools, MCP query tools, web search, and mutating git operations that are local-only (add, commit, stash, tag).
 
-**Recommended user-level baseline:**
+**Recommended user-level baseline (solo developer):**
 
 ```json
 {
@@ -7412,19 +7440,35 @@ Project-level (.claude/settings.local.json or platform equivalent)
     "deny": [
       "Read(~/.ssh/**)", "Read(~/.aws/credentials)", "Read(~/.gnupg/**)",
       "Read(~/.netrc)", "Read(**/.env)", "Read(**/.env.*)",
-      "Read(~/.docker/config.json)", "Read(~/.kube/config)", "Read(~/.npmrc)"
+      "Read(~/.docker/config.json)", "Read(~/.kube/config)", "Read(~/.npmrc)",
+      "Bash(git push --force:*)", "Bash(git push -f:*)"
     ],
     "ask": [
       "Edit(CLAUDE.md)", "Write(CLAUDE.md)",
       "Edit(.claude/settings.json)", "Write(.claude/settings.json)",
       "Edit(.claude/settings.local.json)", "Write(.claude/settings.local.json)",
-      "Edit(.claude/hooks/*)", "Write(.claude/hooks/*)"
+      "Edit(.claude/hooks/*)", "Write(.claude/hooks/*)",
+      "Edit(.github/*)", "Write(.github/*)",
+      "mcp__ai-governance__install_agent",
+      "mcp__ai-governance__uninstall_agent",
+      "mcp__ai-governance__capture_reference",
+      "mcp__ai-governance__scaffold_project"
     ],
     "allow": [
-      "WebSearch",
+      "WebSearch", "WebFetch",
       "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)",
-      "Bash(git show:*)", "Bash(git blame:*)",
-      "Bash(ls:*)", "Bash(lsof:*)"
+      "Bash(git show:*)", "Bash(git blame:*)", "Bash(git rev-parse:*)",
+      "Bash(git describe:*)", "Bash(git ls-files:*)", "Bash(git branch:*)",
+      "Bash(git add:*)", "Bash(git commit:*)", "Bash(git stash:*)", "Bash(git tag:*)",
+      "Bash(ls:*)", "Bash(cat:*)", "Bash(head:*)", "Bash(tail:*)",
+      "Bash(wc:*)", "Bash(grep:*)", "Bash(find:*)", "Bash(sort:*)",
+      "Bash(diff:*)", "Bash(jq:*)", "Bash(xargs:*)", "Bash(lsof:*)",
+      "Bash(python:*)", "Bash(python3:*)", "Bash(pytest:*)",
+      "Bash(ruff:*)", "Bash(bandit:*)", "Bash(mypy:*)",
+      "Bash(pip show:*)", "Bash(pip freeze:*)", "Bash(pip list:*)", "Bash(pip-audit:*)",
+      "Bash(docker build:*)", "Bash(docker images:*)", "Bash(docker ps:*)",
+      "Bash(docker logs:*)", "Bash(docker inspect:*)", "Bash(docker run:*)",
+      "Bash(gh run:*)", "Bash(gh pr:*)", "Bash(gh issue:*)", "Bash(gh api:*)"
     ]
   }
 }
@@ -7432,36 +7476,24 @@ Project-level (.claude/settings.local.json or platform equivalent)
 
 **The deny list is not exhaustive.** Audit your home directory for credential files not listed here. Common additions include cloud provider configs (`~/.config/gcloud/`, `~/.azure/`), package manager tokens, and API key files.
 
-**MCP tool permissions:** Depend on which MCP servers are connected. Add governance, context engine, and documentation-freshness tools to user-level allow when those servers are always available.
+**MCP tool permissions:** Add governance, context engine, and documentation-freshness tools to user-level allow when those servers are always available. Add mutating MCP tools (GitHub create/update/delete, install_agent, scaffold_project) to ask-level — they're externally visible or modify project structure.
 
-**Recommended project-level template (annotated example — adapt for your stack):**
+**No domain-specific restrictions.** `WebFetch` and `WebSearch` are allowed without domain filtering. Domain restrictions add friction without meaningful security benefit for a developer working across many documentation sources. The governance hooks provide structural oversight regardless of permission settings (per A.5.2).
 
-```json
-{
-  "permissions": {
-    "allow": [
-      "Bash(python:*)", "Bash(pytest:*)", "Bash(pip install:*)",
-      "Bash(git add:*)", "Bash(git commit:*)", "Bash(git push:*)",
-      "Bash(git checkout:*)", "Bash(git branch:*)",
-      "Bash(docker build:*)", "Bash(docker run:*)"
-    ],
-    "deny": [
-      "Edit(.claude/hooks/*)", "Write(.claude/hooks/*)"
-    ]
-  }
-}
-```
+**Cross-repo caveat:** Governance hooks are project-specific — user-level permissions apply to all projects on your machine, including those without hooks installed. If you work across repos with different trust levels (personal projects, forked OSS, client repos), calibrate your user-level allow list for your lowest-trust repository, or use session "always approve" for operations you only trust in specific repos.
 
-For your project, allow the specific build/test/deploy commands you actually use. The pattern is: `Bash(tool-name:*)` for each CLI tool in your workflow.
+**Broad wildcards trade-off:** `Bash(python:*)` and `Bash(docker run:*)` permit arbitrary code execution and container operations. This is acceptable when you work primarily in governed repos with hooks, but these patterns have no per-repo safety net in repos without hooks. If this concerns you, narrow to specific invocations (e.g., `Bash(python -m pytest:*)`, `Bash(python -m <project>:*)`) or use session "always approve" for the broad patterns.
 
-**The accretion problem:** Permissions grow by "approve once, persist forever." One-shot commands (full commit messages, inline scripts, specific file paths) should not persist — approve per-use instead. Review project settings when entry count exceeds 50 (see A.5.5).
+**Keep as MANUAL APPROVAL** (approve per-use via session "always approve," not persisted):
+- `git push` — external-facing, affects shared state
+- `git checkout`, `git merge`, `git rebase`, `git reset` — can discard uncommitted work or rewrite history
+- `pip install`, `npm install` — supply chain risk (dependency changes)
+- `docker push` — external deployment
+- `curl`, `wget` — direct network access (use WebFetch instead for governed access)
+- `rm`, `mv`, `cp`, `chmod` — destructive or file-modifying across any path
+- `sed`, `awk` — can modify files in place via redirection
 
-**What should NEVER be user-level allow:**
-- Mutating git (`commit`, `push`, `reset`, `merge`) — blast radius across all repos
-- `WebFetch` without domain restriction — SSRF risk
-- File-writing MCP tools (`install_agent`, `capture_reference`) — use ask-level
-- `mv`, `cp`, `rm`, `chmod` — destructive across any path
-- `node -e`, `python -c` with wildcards — unrestricted code execution
+**The accretion problem:** Permissions grow by "approve once, persist forever." One-shot commands (full commit messages, inline scripts, specific file paths) should not persist — approve per-use instead. Review user-level settings when entry count exceeds 50 (see A.5.5).
 
 #### A.5.7 Platform-Specific Permission Notes
 
@@ -7687,15 +7719,16 @@ See Appendix G for detailed context engine configuration options.
 
 #### D.6 Permission Configuration
 
-The layered permission philosophy from Appendix A.5.6 applies to Gemini CLI:
+The permission philosophy from Appendix A.5.6 applies to Gemini CLI:
 
-- **User-level** (`~/.gemini/settings.json` or equivalent): deny credentials, ask for governance files, allow read-only operations
-- **Project-level** (project-local config): allow mutating git, language-specific tooling, project WebFetch domains
+- **User-level** (`~/.gemini/settings.json` or equivalent): the single source of truth for solo developers. Deny credentials, ask for governance files, allow everything you use routinely.
+- **Project-level**: only needed in team scenarios with shared settings to override.
 
-The three principles are platform-agnostic:
+The four principles are platform-agnostic:
 1. **Deny credentials** — SSH keys, API tokens, env files, cloud provider configs
-2. **Ask for governance files** — GEMINI.md, settings, hooks
-3. **Allow read-only operations** — git status/diff/log, ls, web search
+2. **Deny destructive git** — force push, irreversible history rewriting
+3. **Ask for governance files and external actions** — GEMINI.md, settings, hooks; mutating MCP tools
+4. **Allow everything else you use routinely** — read-only commands, dev tools, local-only git operations
 
 See A.5.6 for the full recommended baseline with JSON examples (adapt file paths for Gemini's configuration format).
 
@@ -8702,7 +8735,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 | Zone | Purpose | When Present |
 |------|---------|-------------|
 | Root (mandated) | CLAUDE.md, AGENTS.md, README.md, LICENSE, SECURITY.md — tools and platforms require these at root | Always (applicable files) |
-| Root (AI memory) | SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, and structural files (ARCHITECTURE.md, SPECIFICATION.md, API.md, SBOM.md) — cross-session context | Code projects |
+| Root (AI memory) | SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md, BACKLOG.md, and structural files (ARCHITECTURE.md, SPECIFICATION.md, API.md, SBOM.md) — cross-session context | Code projects |
 | Root (build/config) | pyproject.toml, Dockerfile, .gitignore, etc. — language/tool ecosystem conventions | Coding projects |
 | `_ai-context/` | Same AI memory files as root, but inside a folder (L.2-L.7) — for document projects where folder-based tools lack CLI auto-discovery | Document projects |
 | `.claude/` | Claude Code config: agents, hooks, settings, plans. Plans: multiple plan files can coexist; use `Status:` header for lifecycle (Draft → Approved → In Progress → Implemented); SESSION-STATE.md references pending plans | When using Claude Code |
@@ -8726,6 +8759,7 @@ project/
 ├── SESSION-STATE.md             # AI memory — working
 ├── PROJECT-MEMORY.md            # AI memory — semantic
 ├── LEARNING-LOG.md              # AI memory — episodic
+├── BACKLOG.md                   # AI memory — planning (if applicable)
 ├── ARCHITECTURE.md              # AI memory — structural (if applicable)
 ├── SPECIFICATION.md             # AI memory — structural (if applicable)
 ├── API.md                       # AI memory — structural (if applicable)

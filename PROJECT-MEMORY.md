@@ -79,9 +79,10 @@
 | Decision | Date | Summary |
 |----------|------|---------|
 | AGENTS.md Overlay Pattern | 2026-03-17 | AGENTS.md holds shared project context (50 lines). CLAUDE.md is overlay with governance enforcement + subagent registry only. Governance hooks MUST stay in CLAUDE.md (safety-adjacent, cannot depend on "read another file" directive). ETH Zurich research: keep instruction files lean. |
-| Document Kit Tiering | 2026-03-17 | §1.5 defines 3 tiers: Core (4 files, all modes), Standard (+3), Enhanced (+evaluated per §7.10). Avoids file proliferation — Enhanced additions are advisory, not mandatory. |
+| Document Kit Tiering | 2026-03-17 | §1.5 defines 3 tiers: Core (4 files, all modes), Standard (+4), Enhanced (+evaluated per §7.10). Avoids file proliferation — Enhanced additions are advisory, not mandatory. |
 | Constitutional Framework Alignment | 2026-04-11 | Major restructuring: 14 document files renamed to Constitutional naming (constitution.md, rules-of-procedure.md, title-NN-*.md), headers restructured to Articles/Sections/Amendments, 4 new concepts added, dual-layer IDs (slug + Constitutional citation). 7 phases, 5 review gates, safety anchor at `v1.8.0-pre-constitutional`. Plan: `.claude/plans/project-constitutional-framework-alignment.md`. Revert: gate-aligned tags on main, contrarian-reviewed. |
 | S-Series Scope Boundary | 2026-04-12 | S-Series = safety-critical harm prevention (protects users from maleficence, bias, deception). Governance-structural principles (framework integrity, authority distribution) belong in G-Series even when inspired by US Bill of Rights amendments. The operational criteria for S-Series classification is "does this prevent user harm?" not "is this in the Bill of Rights?" Established when contrarian review reclassified Unenumerated Rights and Reserved Powers from S-Series to G-Series. |
+| Backlog Separation | 2026-04-14 | Backlog separated from SESSION-STATE.md into BACKLOG.md. Root cause: advisory pruning instructions in CFR (§7.0.4, §7.1.5, §7.6.1) invisible on always-loaded surfaces — SESSION-STATE grew to 1,441 lines (4.8x target). Backlog items are planning memory (persist across sessions, pre-decision), not working memory (transient). Fix: pruning instructions added to CLAUDE.md, AGENTS.md, MEMORY.md. Staleness review for discussion items added to COMPLIANCE-REVIEW.md Check 8. |
 | Template Standardization | 2026-04-14 | All 5 authoring templates reviewed against AI best practices. Method template expanded 5→8 fields (added Applies To + Implements). Constitution template fixed (added elevator pitch). Appendix template formalized from bullets to code block. 648 Applies To entries added across all 7 files. A/B benchmark confirmed +19-61% BM25 score improvements. Best practices research validated Markdown+YAML as optimal format. Key lesson: script-generated content (keyword extraction) produces 0% quality — content comprehension required. Authoring guidance codified with 5 quality criteria. |
 | Preamble as Interpretive Tiebreaker | 2026-04-12 | Preambles resolve ambiguity, they don't filter content. Research confirmed across US constitutional law (Joseph Story's Commentaries, Jacobson v. Massachusetts), EU treaty interpretation (Liav Orgad), and corporate governance (Elizabeth Pollman). Q0 (Purpose Alignment) was removed from the Admission Test — failed its own Q4 (Evidence). The Preamble's five purposes inform borderline Admission Test decisions as a tiebreaker, not as a standalone gate. Derivation chain (Q3) is the structural enforcement mechanism for the Preamble. |
 
@@ -566,7 +567,7 @@ Not needed at current scale. Phased approach documented in ADR-14. Revisit when 
 - Vector DB migration (when scale requires) — see also ADR-14 Phase 3
 - ~~Prompt Engineering consolidation~~ → Title 11 in ai-governance-methods (done)
 - ~~RAG Optimization consolidation~~ → Title 12 in ai-governance-methods (done)
-- Governance-aware PR review (GitHub Action + Claude API + governance principles, ~$0.02-0.03/review with Haiku) — see SESSION-STATE Backlog #4 notes
+- Governance-aware PR review (GitHub Action + Claude API + governance principles, ~$0.02-0.03/review with Haiku) — see BACKLOG.md or `git log --grep="backlog #4"`
 
 ### Evidence Sources for Future Domain Updates
 
@@ -677,4 +678,5 @@ Per multi-agent methods §1.1, each subagent must justify its overhead vs. gener
 
 - **Architecture:** ARCHITECTURE.md — system design, component responsibilities, file maps
 - **Current State:** SESSION-STATE.md — working memory, next actions
+- **Backlog:** BACKLOG.md — discussion items and deferred work
 - **Lessons:** LEARNING-LOG.md — episodic memory, graduated patterns

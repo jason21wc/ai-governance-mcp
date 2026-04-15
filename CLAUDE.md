@@ -54,10 +54,18 @@ When you discover issues during a task, **finish the user's requested task first
 | Category | Action | Examples |
 |----------|--------|----------|
 | **Fix (same session)** | Fix after completing the current task, before session end. Limit: ≤3 files, no cascading discovery. | Stale footer, broken cross-ref, missing version entry |
-| **Defer (with tracking)** | Add to SESSION-STATE discussion backlog with enough detail to reconstruct. | New capability, domain addition, architectural change |
+| **Defer (with tracking)** | Add to BACKLOG.md discussion section with enough detail to reconstruct. | New capability, domain addition, architectural change |
 | **Ask the user** | Present what you found; let the user decide. | Anticipatory work, fixes touching >3 files, ambiguous scope |
 
 **Why this rule exists:** Forward-continuation bias makes "fix it later" the AI's path of least resistance. Session discontinuity means "later" often means "never." But unbounded "fix everything now" causes scope creep. This rule balances both failure modes: fix what's cheap and known, track what's not, never surprise the user with unsolicited large changes.
+
+## Session Lifecycle
+
+**At session start:** After reading SESSION-STATE.md, prune if needed: remove old session summaries (keep only most recent), clear stale context. Route decisions to PROJECT-MEMORY.md, lessons to LEARNING-LOG.md before removing. Target: <300 lines per §7.0.4.
+
+**At session end:** Update SESSION-STATE.md with current position and session summary. If >300 lines, apply §7.0.4 distillation before committing.
+
+**Backlog items:** Discussion and deferred items live in BACKLOG.md, not SESSION-STATE.md.
 
 ## Plan Mode
 

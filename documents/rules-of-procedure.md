@@ -1,5 +1,5 @@
 ---
-version: "3.26.5"
+version: "3.26.6"
 status: "active"
 effective_date: "2026-04-14"
 domain: "constitution"
@@ -5009,9 +5009,10 @@ Claude Code provides a **platform-native auto memory** feature: a persistent fil
 ## On Session Start
 
 1. Read `SESSION-STATE.md` — current position, quick reference, next actions
-2. Read `PROJECT-MEMORY.md` — decisions, gotchas, patterns
-3. Read `LEARNING-LOG.md` — active lessons (check before repeating mistakes)
-4. Follow project instructions file (CLAUDE.md)
+2. Prune `SESSION-STATE.md` if >300 lines — remove old session summaries, route decisions to PROJECT-MEMORY.md and lessons to LEARNING-LOG.md. Per §7.0.4.
+3. Read `PROJECT-MEMORY.md` — decisions, gotchas, patterns
+4. Read `LEARNING-LOG.md` — active lessons (check before repeating mistakes)
+5. Follow project instructions file (CLAUDE.md)
 ```
 
 **Platform vs. governance memory:** This auto memory template is for the platform's own memory system (e.g., Claude Code's `MEMORY.md` in `~/.claude/projects/*/memory/`). The governance files it references (SESSION-STATE.md, PROJECT-MEMORY.md, LEARNING-LOG.md) live in the **project repository root** — they are project artifacts, not entries in the platform's memory directory. The auto memory file simply points to them.

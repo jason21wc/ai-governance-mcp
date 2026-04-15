@@ -12,6 +12,16 @@
 
 ## Active Lessons
 
+### Advisory Pruning Failed: Two Contributing Causes (2026-04-14)
+
+SESSION-STATE.md grew to 1,441 lines (4.8x the 300-line target) despite 3 pruning instructions in the CFR. Two contributing causes: (1) **Wrong surface** — pruning instructions lived only in the CFR, not on always-loaded surfaces (CLAUDE.md, AGENTS.md, MEMORY.md). (2) **Incomplete instruction** — Completion Checklist item 16 WAS visible every session but said "Update" not "Prune." The AI complied with what it saw: it updated without pruning. Pruning requires destructive judgment (what to keep, what to route, what to delete) — a harder behavior for advisory compliance than additive actions.
+
+**Rule:** Lifecycle instructions requiring destructive judgment (prune, compact, archive) need both correct surface placement AND explicit action verbs. "Update" does not imply "prune." The fix addresses cause #1 (surface placement). V-005 in COMPLIANCE-REVIEW tracks whether cause #2 (advisory compliance for destructive actions) also needs structural enforcement.
+
+**Principle:** `meta-core-systemic-thinking` — two contributing causes, not one. The fix addresses the first; V-005 monitors whether the second requires escalation to hooks.
+
+---
+
 ### File Renames Are Concept Replacement, Not String Replacement (2026-04-12)
 
 During Phase 4 (14-file rename), initial grep for old filenames with `.md` extension found all literal filename references. But the context engine + extensionless grep found **17 additional operational references** that grep missed — cross-references using old document names without the file extension, paired with section numbers (e.g., `ai-coding-methods §5.3.6`, `storytelling-methods §15`, `multi-agent-methods, Title 4`). These are conceptual references to documents, not literal filenames. The pre-push hook regex was also missed because it contains a *pattern that matches* old filenames, not the filenames themselves.
