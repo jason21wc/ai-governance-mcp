@@ -63,7 +63,7 @@ When you discover issues during a task, **finish the user's requested task first
 
 ## Session Lifecycle
 
-**At session start:** After reading SESSION-STATE.md, prune if needed: remove old session summaries (keep only most recent), clear stale context. Route decisions to PROJECT-MEMORY.md, lessons to LEARNING-LOG.md before removing. Target: <300 lines per §7.0.4.
+**At session start:** Read all three memory files: SESSION-STATE.md (current position), PROJECT-MEMORY.md (constraints and decisions), LEARNING-LOG.md (mistakes to avoid). Then prune SESSION-STATE.md if >300 lines: remove old session summaries (keep only most recent), clear stale context, route decisions to PROJECT-MEMORY.md, lessons to LEARNING-LOG.md. Target: <300 lines per §7.0.4.
 
 **At session end:** Update SESSION-STATE.md with current position and session summary. If >300 lines, apply §7.0.4 distillation before committing.
 
