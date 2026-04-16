@@ -323,6 +323,9 @@ def run_daemon(
     else:
         target_uptime_seconds = None
 
+    # Prevent the daemon's own Indexer from using the socket (infinite loop)
+    os.environ["AI_CONTEXT_ENGINE_EMBED_SOCKET"] = "none"
+
     # Import here to avoid loading ML models at import time
     from .project_manager import ProjectManager
     from .storage.filesystem import FilesystemStorage

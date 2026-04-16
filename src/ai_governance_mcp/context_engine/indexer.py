@@ -127,9 +127,12 @@ class Indexer:
     def embedding_model(self):
         """Lazy-load the embedding model with safety enforcement.
 
+        Phase 2: tries EmbeddingClient (daemon socket) first. Falls back to
+        local SentenceTransformer when socket absent. The daemon itself sets
+        AI_CONTEXT_ENGINE_EMBED_SOCKET=none to prevent infinite self-loop.
+
         Thread-safe: uses a lock to prevent duplicate model loading when
-        concurrent queries race on a cold start. Uses safetensors format
-        (prevents pickle RCE) and blocks remote code execution.
+        concurrent queries race on a cold start.
         """
         if self._embedding_model is not None:
             return self._embedding_model
@@ -138,12 +141,31 @@ class Indexer:
             return None
 
         with self._model_lock:
-            # Double-check after acquiring lock
             if self._embedding_model is not None:
                 return self._embedding_model
 
             import os
 
+            # Phase 2: try IPC client first (socket file existence = fast-fail)
+            if (
+                os.environ.get("AI_CONTEXT_ENGINE_EMBED_SOCKET", "").strip().lower()
+                != "none"
+            ):
+                try:
+                    from ..embedding_ipc import DEFAULT_SOCKET_PATH, EmbeddingClient
+
+                    sock_path = os.environ.get(
+                        "AI_CONTEXT_ENGINE_EMBED_SOCKET", ""
+                    ).strip()
+                    check_path = sock_path if sock_path else str(DEFAULT_SOCKET_PATH)
+                    if os.path.exists(check_path) and EmbeddingClient.available():
+                        self._embedding_model = EmbeddingClient()
+                        logger.info("Using embedding server (IPC) for indexer")
+                        return self._embedding_model
+                except Exception as e:
+                    logger.debug("Indexer IPC client not available: %s", e)
+
+            # Fallback: local model
             try:
                 from sentence_transformers import SentenceTransformer
             except ImportError:
@@ -176,7 +198,7 @@ class Indexer:
                 )
 
             logger.info(
-                "Loading embedding model: %s (this may take a moment on first use)",
+                "Loading embedding model locally: %s (this may take a moment on first use)",
                 self.embedding_model_name,
             )
             self._embedding_model = SentenceTransformer(

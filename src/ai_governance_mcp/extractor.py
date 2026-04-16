@@ -58,12 +58,33 @@ class EmbeddingGenerator:
     def model(self):
         """Lazy load the embedding model.
 
-        Uses safetensors format (prevents pickle RCE) and blocks remote code execution.
+        Phase 2: tries EmbeddingClient (daemon socket) first. Falls back to
+        local SentenceTransformer when socket doesn't exist (Docker/CI/tests).
         """
         if self._model is None:
+            import os
+
+            if (
+                os.environ.get("AI_CONTEXT_ENGINE_EMBED_SOCKET", "").strip().lower()
+                != "none"
+            ):
+                try:
+                    from .embedding_ipc import DEFAULT_SOCKET_PATH, EmbeddingClient
+
+                    sock_path = os.environ.get(
+                        "AI_CONTEXT_ENGINE_EMBED_SOCKET", ""
+                    ).strip()
+                    check_path = sock_path if sock_path else str(DEFAULT_SOCKET_PATH)
+                    if os.path.exists(check_path) and EmbeddingClient.available():
+                        self._model = EmbeddingClient()
+                        logger.info("Using embedding server (IPC) for extractor")
+                        return self._model
+                except Exception as e:
+                    logger.debug("Extractor IPC client not available: %s", e)
+
             from sentence_transformers import SentenceTransformer
 
-            logger.info(f"Loading embedding model: {self.model_name}")
+            logger.info("Loading embedding model locally: %s", self.model_name)
             self._model = SentenceTransformer(
                 self.model_name,
                 trust_remote_code=False,
