@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Session-106 complete. Phase 0 **shipped** (commit `a86d571`). Phase 2 **planned and approved** (plan `jiggly-honking-cascade.md`, Path A activated). Implementation starts next session at Step 1 (`embedding_ipc.py`).
+- **Phase:** Session-106. Phase 0 **shipped** (commit `a86d571`). Phase 2 **shipped** Steps 1-5 (commits `07a1e54` through `ec4ea55`). Daemon socket live at `~/.context-engine/embed.sock`, IPC verified (encode + predict round-trip). Memory savings materialize on next Claude Code restart — current MCP servers are pre-Phase-2 processes.
 - **Mode:** Standard
-- **Active Task:** Phase 2 Step 1 — `embedding_ipc.py` (EmbeddingServer + EmbeddingClient + queue worker + tests). See plan file for full 6-step implementation order.
+- **Active Task:** Phase 2 Step 6 — measurement + MRR quality validation. Requires Claude Code restart so new MCP servers use the socket instead of loading torch locally.
 
 ## Quick Reference
 
@@ -22,7 +22,7 @@
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
 | Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.26.7** (rules-of-procedure), **v2.38.0** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1255 passing** (session-106: +64 Phase 0 tests on 1191 baseline; run `pytest tests/ -v -m "not slow"` for current) |
+| Tests | **1297 passing** (session-106: +106 total — Phase 0 +64, Phase 2 +42; run `pytest tests/ -v -m "not slow"` for current) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -73,10 +73,10 @@
 
 ## Next Actions
 
-**Immediate (next session — Phase 2 implementation):**
+**Immediate (next session — Phase 2 verification):**
 
-1. **Phase 2 Step 1: `embedding_ipc.py`** — EmbeddingServer (AF_UNIX socket, single-worker queue, JSON+base64 protocol) + EmbeddingClient (.encode/.predict matching SentenceTransformer/CrossEncoder signatures) + `test_embedding_ipc.py`. Security hardening: socket 0o600 permissions, input size limits, path containment. Est. 4-6h. Plan: `~/.claude/plans/jiggly-honking-cascade.md`.
-2. **Phase 2 Steps 2-6** — wire into daemon, governance server, CE server, add CrossEncoder to daemon, measure memory. Est. 12-17h over 1-2 additional sessions.
+1. **Phase 2 Step 6: measure memory + validate MRR.** Restart Claude Code so new MCP servers use the socket. Measure per-process phys_footprint: MCP servers must be <300 MB, total Python <4 GB. Run MRR quality benchmarks — must stay within 0.01 of baseline (0.694 methods, 0.688 principles). If either fails, investigate before declaring Phase 2 complete.
+2. **BACKLOG #49 status update** — mark Phase 2 shipped, update forcing-function triggers.
 3. **BACKLOG #91 [FIX-NOW] sub-items** (7 items deferred from session-105). Still valid. Can interleave or handle in a separate session.
 
 **Short-term:**

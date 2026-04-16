@@ -12,6 +12,26 @@
 
 ## Active Lessons
 
+### RSS Lies on macOS — Use phys_footprint (2026-04-16)
+
+Diagnosed a memory problem using `ps aux` RSS numbers (800 MB - 1 GB per process) and reported "5% of RAM, not a crisis." Activity Monitor showed 9 GB / 6 GB / 3-4 GB per process. The discrepancy is 5x. macOS `ps` RSS only counts pages currently resident in physical RAM. `vmmap -summary` reports `phys_footprint` which includes resident + compressed + swapped — the correct metric that Activity Monitor displays. For a long-running process with idle regions, RSS drastically understates the real committed memory.
+
+**Rule:** On macOS, always use `vmmap -summary $PID | grep "Physical footprint"` for memory analysis, never `ps aux` RSS. When reporting memory to a user who sees Activity Monitor numbers, use the same metric they see.
+
+**Principle:** `meta-safety-transparent-limitations` — presenting RSS as the footprint was factually wrong, not just imprecise. The 5x understatement led to a "not a crisis" conclusion that contradicted the user's direct observation.
+
+---
+
+### Forcing Functions Are Floors, Not Ceilings (2026-04-16)
+
+Phase 0's `PHASE2_TRIGGERED` forcing function was designed to prevent Phase 2 from being forgotten after Phase 0 removed the acute pain. The contrarian-reviewer interpreted it as a gate that should BLOCK Phase 2 until the measurement fired. The user correctly overrode: the forcing function's purpose was anti-procrastination (a floor — "don't forget"), not anti-eagerness (a ceiling — "don't start"). When the user has more information than the forcing function (Activity Monitor, 32 GB viability concern), the user's judgment supersedes the gate.
+
+**Rule:** When designing forcing functions, document whether they're floors or ceilings. A floor says "at minimum, do this by date X." A ceiling says "do not start until condition Y." The BACKLOG #49 forcing function was a floor masquerading as neutral, which the contrarian read as a ceiling.
+
+**Principle:** `meta-core-systemic-thinking` — the forcing function was designed to address a specific failure mode (forgetting). Applying it to a different failure mode (premature action) is a category error.
+
+---
+
 ### Session-End Deferral Bias (2026-04-15)
 
 At the end of session-105, I brainstormed 10 potential hook-hardening follow-ups and bulk-logged all 10 to `BACKLOG #91` without classifying each against the CLAUDE.md Defer-vs-Fix rule (`CLAUDE.md:52-63`, implementing `rules-of-procedure §7.11`). User audit revealed 7 of the 10 were clearly **fix-now** category (≤1 file, unambiguous scope, no cascading discovery — stale-cross-ref / missing-entry / docstring-fix class), 1 was ambiguous-scope ("ask the user"), only 2 were legitimately defer. I defaulted to bulk-defer as the path of least resistance: symmetric to forward-continuation bias but inverted — at session *start* the bias is "keep going past the stopping point"; at session *end* the bias is "log everything to backlog and wrap up instead of finishing the small fixes." Per §7.11.3 this violated Durable Deferral Requirements — "I should fix that later" IS "silent loss with extra steps" when the fix met fix-now criteria.
