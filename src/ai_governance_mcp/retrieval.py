@@ -79,11 +79,17 @@ class RetrievalEngine:
     def embedder(self):
         """Lazy-load embedding model for query encoding.
 
-        Uses safetensors format (prevents pickle RCE) and blocks remote code execution.
+        Phase 2: tries EmbeddingClient (daemon socket) first. Falls back to
+        local SentenceTransformer only if AI_CONTEXT_ENGINE_EMBED_SOCKET=none
+        (Docker/CI) or the import fails. The default path preserves the memory
+        guarantee: MCP servers never load torch when the daemon is available.
         """
         if self._embedder is None:
             with self._model_lock:
                 if self._embedder is None:  # Double-checked locking
+                    if self._try_embedding_client():
+                        return self._embedder
+                    # Fallback: local model (Docker, CI, daemon unavailable)
                     from sentence_transformers import SentenceTransformer
 
                     model_name = self.settings.embedding_model
@@ -92,7 +98,7 @@ class RetrievalEngine:
                             f"Embedding model '{model_name}' not in allowlist. "
                             f"Allowed: {sorted(ALLOWED_EMBEDDING_MODELS)}"
                         )
-                    logger.info(f"Loading embedding model: {model_name}")
+                    logger.info("Loading embedding model locally: %s", model_name)
                     self._embedder = SentenceTransformer(
                         model_name,
                         trust_remote_code=False,
@@ -102,10 +108,17 @@ class RetrievalEngine:
 
     @property
     def reranker(self):
-        """Lazy-load cross-encoder reranking model."""
+        """Lazy-load cross-encoder reranking model.
+
+        Phase 2: tries EmbeddingClient (daemon socket) first. Falls back to
+        local CrossEncoder only in Docker/CI mode.
+        """
         if self._reranker is None:
             with self._model_lock:
                 if self._reranker is None:  # Double-checked locking
+                    if self._try_reranker_client():
+                        return self._reranker
+                    # Fallback: local model
                     from sentence_transformers import CrossEncoder
 
                     model_name = self.settings.rerank_model
@@ -114,12 +127,70 @@ class RetrievalEngine:
                             f"Reranker model '{model_name}' not in allowlist. "
                             f"Allowed: {sorted(ALLOWED_RERANKER_MODELS)}"
                         )
-                    logger.info(f"Loading reranking model: {model_name}")
+                    logger.info("Loading reranking model locally: %s", model_name)
                     self._reranker = CrossEncoder(
                         model_name,
                         trust_remote_code=False,
                     )
         return self._reranker
+
+    def _try_embedding_client(self) -> bool:
+        """Try to connect to the daemon's embedding server for encode().
+
+        Returns True if client connected and set self._embedder. Returns False
+        if disabled, unavailable, or socket doesn't exist — caller falls back.
+        Checks socket file existence FIRST to avoid retry-backoff delay (~3s)
+        when the daemon isn't running.
+        """
+        import os
+
+        if (
+            os.environ.get("AI_CONTEXT_ENGINE_EMBED_SOCKET", "").strip().lower()
+            == "none"
+        ):
+            return False
+        try:
+            from .embedding_ipc import DEFAULT_SOCKET_PATH, EmbeddingClient
+
+            sock_path = os.environ.get("AI_CONTEXT_ENGINE_EMBED_SOCKET", "").strip()
+            check_path = sock_path if sock_path else str(DEFAULT_SOCKET_PATH)
+            if not os.path.exists(check_path):
+                return False
+            if EmbeddingClient.available():
+                self._embedder = EmbeddingClient()
+                logger.info("Using embedding server (IPC) for encoding")
+                return True
+        except Exception as e:
+            logger.debug("Embedding IPC client not available: %s", e)
+        return False
+
+    def _try_reranker_client(self) -> bool:
+        """Try to connect to the daemon's embedding server for predict().
+
+        Returns True if client connected and set self._reranker. Falls back
+        on any failure. Checks socket file first (same fast-fail pattern).
+        """
+        import os
+
+        if (
+            os.environ.get("AI_CONTEXT_ENGINE_EMBED_SOCKET", "").strip().lower()
+            == "none"
+        ):
+            return False
+        try:
+            from .embedding_ipc import DEFAULT_SOCKET_PATH, EmbeddingClient
+
+            sock_path = os.environ.get("AI_CONTEXT_ENGINE_EMBED_SOCKET", "").strip()
+            check_path = sock_path if sock_path else str(DEFAULT_SOCKET_PATH)
+            if not os.path.exists(check_path):
+                return False
+            if EmbeddingClient.available():
+                self._reranker = EmbeddingClient()
+                logger.info("Using embedding server (IPC) for reranking")
+                return True
+        except Exception as e:
+            logger.debug("Reranker IPC client not available: %s", e)
+        return False
 
     def _load_index(self) -> None:
         """Load global index and embeddings from disk.
@@ -403,8 +474,12 @@ class RetrievalEngine:
         if self.domain_embeddings is None or not self.index:
             return {}
 
-        # Encode query
-        query_embedding = self.embedder.encode([query])[0]
+        # Encode query — fall back to empty results if daemon unavailable
+        try:
+            query_embedding = self.embedder.encode([query])[0]
+        except (ConnectionError, RuntimeError) as e:
+            logger.warning("Domain routing unavailable (embedding failed): %s", e)
+            return {}
 
         # Calculate similarity with each domain
         scores = {}
@@ -466,8 +541,12 @@ class RetrievalEngine:
         if self.content_embeddings is None or not self.index:
             return []
 
-        # Encode query
-        query_embedding = self.embedder.encode([query])[0]
+        # Encode query — fall back to empty results if daemon unavailable
+        try:
+            query_embedding = self.embedder.encode([query])[0]
+        except (ConnectionError, RuntimeError) as e:
+            logger.warning("Semantic search unavailable (embedding failed): %s", e)
+            return []
 
         # Calculate similarities
         results = []
@@ -551,9 +630,15 @@ class RetrievalEngine:
             text = self._get_candidate_text(domain, item_type, local_idx)
             pairs.append((query, text))
 
-        # Score with cross-encoder
+        # Score with cross-encoder — skip reranking if daemon unavailable
         if pairs:
-            rerank_scores = self.reranker.predict(pairs)
+            try:
+                rerank_scores = self.reranker.predict(pairs)
+            except (ConnectionError, RuntimeError) as e:
+                logger.warning(
+                    "Reranking unavailable: %s — returning unranked results", e
+                )
+                return candidates
 
             # Combine with new scores
             reranked = []
