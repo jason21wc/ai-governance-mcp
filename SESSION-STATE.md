@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Session-106: Phase 0 memory reduction implementation in progress (plan `jiggly-honking-cascade.md`). Core code changes complete (service.py, watcher_daemon.py, measurement script, tests), BACKLOG + COMPLIANCE-REVIEW updated, docs synced. Pending: real install (Verification step 6), t=2h slope sample, commit decision.
+- **Phase:** Session-106 complete. Phase 0 **shipped** (commit `a86d571`). Phase 2 **planned and approved** (plan `jiggly-honking-cascade.md`, Path A activated). Implementation starts next session at Step 1 (`embedding_ipc.py`).
 - **Mode:** Standard
-- **Active Task:** Phase 0 ship — Verification steps 6-10.
+- **Active Task:** Phase 2 Step 1 — `embedding_ipc.py` (EmbeddingServer + EmbeddingClient + queue worker + tests). See plan file for full 6-step implementation order.
 
 ## Quick Reference
 
@@ -73,19 +73,17 @@
 
 ## Next Actions
 
-**Immediate (session-106 in-progress — ordered):**
+**Immediate (next session — Phase 2 implementation):**
 
-1. **Phase 0 Verification steps 6-10** — real install, heartbeat check, fresh-spawn measurement, accelerated restart test, crashloop-resistance test. Then 48h soak (step 10 is deferred to a future session). Plan file: `~/.claude/plans/jiggly-honking-cascade.md`.
-2. **t=2h slope sample** — capture `vmmap -summary` of PID 69457 to complete `baseline_slope_mb_per_h` computation. Expected ~2026-04-16T02:15:52Z.
-3. **Session-105 + session-106 uncommitted changes**: `git status -s` → commit decision. Includes all Phase 0 files + session-105 staged changes.
-4. **BACKLOG #91 [FIX-NOW] sub-items** (7 items deferred from session-105). Still valid, still ≤1-2 files each. Can interleave with step 1 or handle in next session.
-5. **BACKLOG #91 [ASK] sub-item 4** — plan file preservation policy. Unresolved from session-105. Non-blocking.
+1. **Phase 2 Step 1: `embedding_ipc.py`** — EmbeddingServer (AF_UNIX socket, single-worker queue, JSON+base64 protocol) + EmbeddingClient (.encode/.predict matching SentenceTransformer/CrossEncoder signatures) + `test_embedding_ipc.py`. Security hardening: socket 0o600 permissions, input size limits, path containment. Est. 4-6h. Plan: `~/.claude/plans/jiggly-honking-cascade.md`.
+2. **Phase 2 Steps 2-6** — wire into daemon, governance server, CE server, add CrossEncoder to daemon, measure memory. Est. 12-17h over 1-2 additional sessions.
+3. **BACKLOG #91 [FIX-NOW] sub-items** (7 items deferred from session-105). Still valid. Can interleave or handle in a separate session.
 
 **Short-term:**
-- **BACKLOG #78 (Compliance Review)** — next due ~2026-04-24 (10-day cadence). First exercise of Check 6b + new Check 6b.2 (Phase 0 outcome trigger).
-- **BACKLOG #91 [DEFER] sub-items 3 and 5** — hook timeout contract testing, real-runner integration test. Legitimate defer.
+- **BACKLOG #78 (Compliance Review)** — next due ~2026-04-24. First exercise of Check 6b + 6b.2 (Phase 0 outcome trigger).
+- **Phase 0 48h soak (Verification step 10)** — the daily measurement plist runs at 04:00. First automated data point expected 2026-04-16. Slope capture script (nohup PID 77563) may have completed — check `~/.context-engine/logs/phase0-baseline.txt`.
 
-**BACKLOG #49 design spike** — dormant until forcing function fires. Now has four triggers: deny log activity (≥3), capacity (6th torch process proposal), calendar (2026-06-15), and **Phase 0 outcome** (automated daily measurement via `com.ai-governance.context-engine-measure` launchd plist → `~/.context-engine/PHASE2_TRIGGERED` marker → Check 6b.2 in compliance review).
+**BACKLOG #49 status:** Phase 2 activated by user decision (Path A). Forcing function NOT overridden — it continues running (daily measurement plist stays active as ongoing monitoring even after Phase 2 ships).
 
 See BACKLOG.md for the full list of open items.
 
