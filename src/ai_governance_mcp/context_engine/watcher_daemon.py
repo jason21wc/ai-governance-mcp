@@ -47,6 +47,9 @@ JITTER_RANGE = 0.10  # ±10%
 IDLE_THRESHOLD_SECONDS = 300  # 5 min of no reindex activity = "idle"
 HARD_CAP_MULTIPLIER = 1.5  # elapsed >= 1.5 × target = force restart
 
+# Phase 2: reranker model for the embedding server
+DEFAULT_RERANK_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+
 
 def _get_base_path() -> Path:
     """Resolve base path from env var or default."""
@@ -161,7 +164,9 @@ def _remove_pid_file(base_path: Path) -> None:
         pass
 
 
-def _write_heartbeat(base_path: Path, projects_watched: int) -> None:
+def _write_heartbeat(
+    base_path: Path, projects_watched: int, embed_socket: str | None = None
+) -> None:
     """Write heartbeat file with daemon status."""
     heartbeat_path = base_path.parent / "watcher-heartbeat.json"
     data = {
@@ -169,6 +174,8 @@ def _write_heartbeat(base_path: Path, projects_watched: int) -> None:
         "alive_at": datetime.now(timezone.utc).isoformat(),
         "projects_watched": projects_watched,
     }
+    if embed_socket:
+        data["embed_socket"] = embed_socket
     try:
         heartbeat_path.write_text(json.dumps(data, indent=2))
     except OSError as e:
@@ -232,6 +239,7 @@ def _heartbeat_loop(
     heartbeat_interval: float,
     start_time: float,
     target_uptime_seconds: float | None,
+    embed_socket: str | None = None,
 ) -> None:
     """Background thread that writes heartbeat and enforces self-restart.
 
@@ -241,7 +249,7 @@ def _heartbeat_loop(
     """
     while not stop_event.wait(timeout=heartbeat_interval):
         count = len(getattr(manager, "_watchers", {}))
-        _write_heartbeat(base_path, count)
+        _write_heartbeat(base_path, count, embed_socket=embed_socket)
 
         if target_uptime_seconds is None:
             continue  # self-restart disabled
@@ -358,7 +366,65 @@ def run_daemon(
     # Write PID and initial heartbeat
     _write_pid_file(base_path)
     watcher_count = len(manager._watchers)
-    _write_heartbeat(base_path, watcher_count)
+
+    # Phase 2: start the embedding IPC server so MCP clients can call us
+    embed_server = None
+    embed_socket_str = None
+    try:
+        from ..embedding_ipc import EmbeddingServer
+
+        _reranker = None
+        _reranker_lock = threading.Lock()
+
+        def _get_reranker():
+            nonlocal _reranker
+            if _reranker is not None:
+                return _reranker
+            with _reranker_lock:
+                if _reranker is not None:
+                    return _reranker
+                from sentence_transformers import CrossEncoder
+
+                model_name = os.environ.get(
+                    "AI_GOVERNANCE_RERANK_MODEL", DEFAULT_RERANK_MODEL
+                )
+                from ..retrieval import ALLOWED_RERANKER_MODELS
+
+                if model_name not in ALLOWED_RERANKER_MODELS:
+                    logger.warning(
+                        "Reranker model %r not in allowlist, using default", model_name
+                    )
+                    model_name = DEFAULT_RERANK_MODEL
+                logger.info("Loading reranker model: %s", model_name)
+                _reranker = CrossEncoder(model_name, trust_remote_code=False)
+                return _reranker
+
+        def encode_fn(texts, normalize_embeddings=False):
+            return manager._indexer.embedding_model.encode(
+                texts,
+                normalize_embeddings=normalize_embeddings,
+                show_progress_bar=False,
+            )
+
+        def predict_fn(pairs):
+            return _get_reranker().predict(pairs)
+
+        embed_server = EmbeddingServer(
+            encode_fn=encode_fn,
+            predict_fn=predict_fn,
+            socket_path=base_path.parent / "embed.sock",
+        )
+        embed_server.start()
+        embed_socket_str = str(embed_server.socket_path)
+        logger.info("Embedding IPC server started: %s", embed_socket_str)
+    except Exception as e:
+        logger.warning(
+            "Embedding IPC server failed to start: %s (MCP clients will load models locally)",
+            e,
+        )
+        embed_server = None
+
+    _write_heartbeat(base_path, watcher_count, embed_socket=embed_socket_str)
 
     # Phase 0 startup log: explicit project count + self-restart config
     if target_uptime_seconds is not None:
@@ -401,6 +467,7 @@ def run_daemon(
             heartbeat_interval,
             start_time,
             target_uptime_seconds,
+            embed_socket_str,
         ),
         name="heartbeat",
         daemon=True,
@@ -412,6 +479,9 @@ def run_daemon(
         stop_event.wait()
     finally:
         logger.info("Stopping watchers...")
+        if embed_server is not None:
+            embed_server.shutdown()
+            logger.info("Embedding IPC server stopped")
         manager.shutdown()
         _remove_pid_file(base_path)
         _remove_heartbeat(base_path)

@@ -437,18 +437,18 @@ class TestClientRetry:
 
         server = EmbeddingServer(encode_fn=encode_fn, socket_path=sock_path)
         server.start()
-        time.sleep(0.1)
+        time.sleep(0.5)
 
         client = EmbeddingClient(socket_path=sock_path)
         r1 = client.encode(["before restart"])
         assert r1.shape == (1, 384)
 
-        # Restart server
+        # Restart server — longer sleeps for CI runners
         server.shutdown()
-        time.sleep(0.1)
+        time.sleep(0.5)
         server2 = EmbeddingServer(encode_fn=encode_fn, socket_path=sock_path)
         server2.start()
-        time.sleep(0.1)
+        time.sleep(0.5)
 
         r2 = client.encode(["after restart"])
         assert r2.shape == (1, 384)

@@ -678,3 +678,59 @@ class TestHeartbeatLoopSelfExit:
         assert any("below floor" in rec.message.lower() for rec in caplog.records), (
             "expected WARN about floor clamping"
         )
+
+
+# =============================================================================
+# Phase 2: Heartbeat with embed_socket field
+# =============================================================================
+
+
+class TestHeartbeatEmbedSocket:
+    """Test that heartbeat includes embed_socket when the server is running."""
+
+    def test_heartbeat_includes_socket_path(self, tmp_path):
+        base = tmp_path / "indexes"
+        base.mkdir()
+        _write_heartbeat(base, 1, embed_socket="/fake/path/embed.sock")
+        heartbeat_path = base.parent / "watcher-heartbeat.json"
+        data = json.loads(heartbeat_path.read_text())
+        assert data["embed_socket"] == "/fake/path/embed.sock"
+
+    def test_heartbeat_omits_socket_when_none(self, tmp_path):
+        base = tmp_path / "indexes"
+        base.mkdir()
+        _write_heartbeat(base, 1, embed_socket=None)
+        heartbeat_path = base.parent / "watcher-heartbeat.json"
+        data = json.loads(heartbeat_path.read_text())
+        assert "embed_socket" not in data
+
+    def test_heartbeat_loop_passes_socket_to_heartbeat(self, tmp_path):
+        """Verify _heartbeat_loop propagates embed_socket to _write_heartbeat."""
+        from ai_governance_mcp.context_engine.watcher_daemon import _heartbeat_loop
+
+        base = tmp_path / "indexes"
+        base.mkdir()
+        manager = MagicMock()
+        manager._watchers = {"w1": MagicMock()}
+        stop_event = threading.Event()
+
+        thread = threading.Thread(
+            target=_heartbeat_loop,
+            args=(
+                base,
+                manager,
+                stop_event,
+                0.1,
+                time.time(),
+                None,
+                "/tmp/embed.sock",
+            ),
+            daemon=True,
+        )
+        thread.start()
+        time.sleep(0.3)
+        heartbeat_path = base.parent / "watcher-heartbeat.json"
+        data = json.loads(heartbeat_path.read_text())
+        stop_event.set()
+        thread.join(timeout=1.0)
+        assert data["embed_socket"] == "/tmp/embed.sock"
