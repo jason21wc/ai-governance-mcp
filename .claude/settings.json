@@ -43,6 +43,16 @@
             "timeout": 15
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pre-test-oom-gate.sh",
+            "timeout": 10
+          }
+        ]
       }
     ]
   }

@@ -659,7 +659,7 @@ The AI should run these commands for you:
 claude mcp add ai-context-engine -- python -m ai_governance_mcp.context_engine.server
 
 # 2. Install background watcher (keeps indexes fresh automatically)
-context-engine-service install
+context-engine-service install --projects /path/to/your/project
 
 # 3. Verify it's running
 context-engine-service status
@@ -694,33 +694,43 @@ The watcher daemon keeps your indexes fresh automatically — even when no AI cl
 
 ```bash
 # Auto-detects your platform (macOS/Linux/Windows) and installs
-context-engine-service install
+context-engine-service install --projects /path/to/your/project
+
+# Watch multiple projects
+context-engine-service install --projects /path/project1 /path/project2
+
+# Customize self-restart interval (default: 12h, flushes PyTorch allocator cache)
+context-engine-service install --projects /path/project --max-uptime-hours 8
 
 # Verify
 context-engine-service status
 
 # Other commands
 context-engine-service logs        # Tail service logs
-context-engine-service uninstall   # Remove the service
+context-engine-service uninstall   # Remove the service (and measurement plist on macOS)
 ```
+
+The watcher self-restarts every ~12 hours (configurable) to flush the PyTorch CPU memory allocator cache. During the ~30-second restart window, file changes are not watched but are caught on the next heartbeat via mtime replay. File deletions during the window are not recovered until the next full reindex.
+
+> **Behavior change (Phase 0, 2026-04-15):** `install` without `--projects` now runs realtime-filtered project discovery instead of `--all`. Use explicit `--projects` (recommended) to make the plist the single source of truth for what this machine watches.
 
 | Platform | What it does |
 |----------|-------------|
-| macOS | Installs a LaunchAgent — auto-starts on login, auto-restarts on crash |
+| macOS | Installs a LaunchAgent — auto-starts on login, auto-restarts on crash. Also installs a daily measurement plist for Phase 0 memory monitoring. |
 | Linux | Installs a systemd user service — run `sudo loginctl enable-linger $USER` to persist after logout |
 | Windows | Creates a Task Scheduler entry — runs on logon |
 
 **Step 3 (Optional): Run the watcher manually** instead of as a service:
 
 ```bash
-# Watch all indexed projects
-context-engine-watcher --all
-
-# Watch specific projects
+# Watch specific projects (recommended)
 context-engine-watcher --projects /path/to/project1 /path/to/project2
 
+# Watch all indexed projects (legacy behavior, higher memory)
+context-engine-watcher --all
+
 # With log file (for background use)
-context-engine-watcher --all --log-file ~/.context-engine/logs/watcher.log &
+context-engine-watcher --projects /path/to/project --log-file ~/.context-engine/logs/watcher.log &
 ```
 
 #### Sandboxed Environments (Cowork, Docker, CI)

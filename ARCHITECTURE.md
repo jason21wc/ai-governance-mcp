@@ -580,6 +580,23 @@ file change  →  watchdog event  →  debounce (2s)  →  incremental_update()
                                                      cooldown (5s) before next re-index
 ```
 
+**Self-Restart Lifecycle (Phase 0 — plan jiggly-honking-cascade.md):**
+```
+daemon start  →  heartbeat loop (60s ticks)  →  uptime check each tick
+                                                        │
+               ┌────────── elapsed < target ────────────┤ → continue (no-op)
+               │                                        │
+               │   elapsed ≥ target AND idle ≥ 5min  ──→ stop_event.set()  →  clean exit (0)
+               │                                        │
+               │   elapsed ≥ target × 1.5 (hard cap) ──→ stop_event.set()  →  clean exit (0)
+               │                                        │
+               └────────────────────────────────────────┘
+                                                        │
+         launchd KeepAlive=true  →  respawn (ThrottleInterval 30s)  →  fresh process
+```
+
+The self-restart mechanism flushes the PyTorch CPU allocator cache, which accumulates monotonically in long-running processes (sentence-transformers issues #1795, #487). Default: 12h target with ±10% jitter, 1h floor, 5-min idle gate / 1.5× hard cap. During the ~30s respawn window, file changes are not watched but are caught on next heartbeat via mtime replay. File deletions during the window are not recovered until the next full reindex — a documented accepted trade-off.
+
 ### Security Features
 
 | Feature | Implementation | Location |

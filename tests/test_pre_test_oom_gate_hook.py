@@ -1,0 +1,444 @@
+"""Unit tests for .claude/hooks/pre-test-oom-gate.sh — the structural OOM gate.
+
+These tests shell out to the hook script with crafted stdin JSON payloads and
+assert that the permission decision (allow vs deny) matches expectations.
+
+The hook is documented at:
+  .claude/hooks/pre-test-oom-gate.sh
+  ~/.claude/plans/giggly-humming-starlight.md (plan)
+
+Test coverage — 23 tests across 10 classes, organized by the plan's decision
+matrix plus review-driven edge cases:
+
+Primary decision matrix (from plan Step 5):
+  1. `pytest tests/ -m "not slow"` with daemon running → allow (safe subset)
+  2. `pytest tests/` with daemon running (fresh heartbeat) → deny
+  3. `pytest tests/` with daemon-file-but-stale-heartbeat → allow (false-positive guard)
+  4. `pytest tests/` with daemon stopped and no other torch processes → allow
+  5. `pytest tests/<file>::<Class>` with daemon running → allow (targeted)
+  6. `PYTEST_ALLOW_HEAVY=1 pytest tests/` with daemon running → allow (semantic bypass)
+  7. `PYTEST_SKIP_OOM_GATE=1 pytest tests/` with daemon running → allow (structural bypass)
+  8. Non-pytest Bash command (`ls`, `git status`, etc.) → allow (no pattern match) — parametrized across 6 examples
+
+Review-driven additional coverage:
+  - Fail-closed on corrupt heartbeat JSON (security-auditor finding S2)
+  - Boundary: heartbeat exactly at 300s threshold → stale → allow
+  - Deny-log side effect written / allow-path does NOT touch log (forcing-function trigger)
+  - Inline env-var prefix for both bypass vars (`PYTEST_ALLOW_HEAVY=1 pytest ...`, `PYTEST_SKIP_OOM_GATE=1 pytest ...`)
+  - Chained commands (`cd ... && pytest tests/`) still detected
+  - `python -mpytest` no-space variant detected
+  - `python -m pytest` at end of string detected
+
+Expected collected count: 23 (10 test classes × varying counts; one parametrize
+with 6 cases bringing the visible total above the bare `def` count of 18).
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+import pytest
+
+HOOK_PATH = (
+    Path(__file__).resolve().parent.parent
+    / ".claude"
+    / "hooks"
+    / "pre-test-oom-gate.sh"
+)
+
+
+def run_hook(
+    command: str,
+    *,
+    env_overrides: dict[str, str] | None = None,
+    heartbeat_override: Path | None = None,
+    base_dir_override: Path | None = None,
+    skip_process_scan: bool = True,
+) -> tuple[int, dict | None]:
+    """Invoke the hook with a crafted tool_input payload.
+
+    By default, skips the real-system process scan via OOM_GATE_SKIP_PROCESS_SCAN=1
+    so that tests isolate the heartbeat-file signal from whatever torch-holding
+    processes happen to be running on the test machine. Pass skip_process_scan=False
+    to exercise the real process scan (only useful for the clean-environment case).
+
+    Returns (exit_code, parsed_response_dict_or_None).
+    """
+    payload = json.dumps({"tool_input": {"command": command}})
+
+    env = os.environ.copy()
+    env["OOM_GATE_DEBUG"] = "false"
+    # Important: strip inherited bypass env vars unless the test sets them.
+    env.pop("PYTEST_ALLOW_HEAVY", None)
+    env.pop("PYTEST_SKIP_OOM_GATE", None)
+    env.pop("OOM_GATE_SKIP_PROCESS_SCAN", None)
+
+    if skip_process_scan:
+        env["OOM_GATE_SKIP_PROCESS_SCAN"] = "1"
+
+    if base_dir_override is not None:
+        env["HOME"] = str(base_dir_override)
+
+    if env_overrides:
+        env.update(env_overrides)
+
+    result = subprocess.run(
+        ["bash", str(HOOK_PATH)],
+        input=payload,
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=10,
+    )
+
+    stdout = result.stdout.strip()
+    if not stdout:
+        return result.returncode, None
+    try:
+        return result.returncode, json.loads(stdout)
+    except json.JSONDecodeError:
+        return result.returncode, {"_raw": stdout}
+
+
+def make_fake_daemon_home(tmp_path: Path, *, heartbeat_age_seconds: int | None) -> Path:
+    """Create a fake ~/.context-engine with a heartbeat file of controllable age.
+
+    Returns the fake HOME path to override the hook's heartbeat lookup.
+    heartbeat_age_seconds=None means no heartbeat file exists (daemon stopped).
+    """
+    home = tmp_path / "fake_home"
+    ce_dir = home / ".context-engine"
+    ce_dir.mkdir(parents=True)
+
+    if heartbeat_age_seconds is not None:
+        alive_at = datetime.now(timezone.utc) - timedelta(seconds=heartbeat_age_seconds)
+        heartbeat = {
+            "pid": 99999,
+            "alive_at": alive_at.isoformat(),
+            "projects_watched": 0,
+        }
+        (ce_dir / "watcher-heartbeat.json").write_text(json.dumps(heartbeat))
+        (ce_dir / "watcher.pid").write_text("99999\n")
+
+    return home
+
+
+def is_deny(response: dict | None) -> bool:
+    if not response:
+        return False
+    hook_output = response.get("hookSpecificOutput", {})
+    return hook_output.get("permissionDecision") == "deny"
+
+
+def is_allow(response: dict | None, exit_code: int) -> bool:
+    """Allow means: exit 0 AND (no response OR response is additionalContext-only, not a deny)."""
+    if exit_code != 0:
+        return False
+    if response is None:
+        return True
+    hook_output = response.get("hookSpecificOutput", {})
+    decision = hook_output.get("permissionDecision")
+    return decision != "deny"
+
+
+# ---------------------------------------------------------------------------
+# Test cases — one per row in the plan's decision matrix
+# ---------------------------------------------------------------------------
+
+
+class TestSafeSubsetPatternsAllow:
+    """Invocations that should ALWAYS be allowed regardless of daemon state."""
+
+    def test_case_1_marker_not_slow_with_daemon_running(self, tmp_path):
+        """Case 1: `pytest tests/ -m "not slow"` with fresh daemon → allow."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook(
+            'pytest tests/ -v -m "not slow"', base_dir_override=home
+        )
+        assert is_allow(response, exit_code), (
+            f"Should allow safe subset, got {response}"
+        )
+
+    def test_case_5_targeted_class_with_daemon_running(self, tmp_path):
+        """Case 5: `pytest tests/test_fake.py::TestX` with fresh daemon → allow."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook(
+            "pytest tests/test_fake_module.py::TestFakeClass -v",
+            base_dir_override=home,
+        )
+        assert is_allow(response, exit_code), (
+            f"Should allow targeted selection, got {response}"
+        )
+
+    def test_targeted_single_file_with_daemon_running(self, tmp_path):
+        """Variant: targeted single file (without ::) with fresh daemon → allow.
+
+        Uses a fictional filename to decouple the test from the actual repo layout.
+        """
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook(
+            "pytest tests/test_fake_module.py -v", base_dir_override=home
+        )
+        assert is_allow(response, exit_code), (
+            f"Should allow single-file invocation, got {response}"
+        )
+
+
+class TestDangerousInvocationsBlock:
+    """Bare pytest tests/ with any risk signal → deny."""
+
+    def test_case_2_bare_pytest_with_fresh_daemon_heartbeat(self, tmp_path):
+        """Case 2: `pytest tests/` + fresh heartbeat → deny."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook("pytest tests/", base_dir_override=home)
+        assert is_deny(response), (
+            f"Should deny bare pytest with fresh daemon, got {response}"
+        )
+        reason = response["hookSpecificOutput"].get("permissionDecisionReason", "")
+        assert "OOM PREVENTION GATE" in reason
+        # Critical: deny message must lead with -m "not slow", not "kill the daemon".
+        # Per contrarian review #2 UX-trap finding (2026-04-15): if "kill the daemon"
+        # becomes the path of least resistance for future sessions, the OOM guarantee
+        # silently disappears. The deny message must actively discourage that default.
+        assert "not slow" in reason
+        reason_lc = reason.lower()
+        # Assert `not slow` appears BEFORE `last resort` (when both are present)
+        if "last resort" in reason_lc:
+            assert reason_lc.index("not slow") < reason_lc.index("last resort"), (
+                "Deny message must lead with safe subset, not daemon-stop as the fix"
+            )
+
+
+class TestStaleHeartbeatAllows:
+    """Case 3: PID file present but heartbeat stale (>5 min) → allow (crash guard).
+
+    Uses OOM_GATE_SKIP_PROCESS_SCAN=1 (the default in run_hook) to isolate the
+    heartbeat signal from the real-system process scan.
+    """
+
+    def test_case_3_stale_heartbeat_allows(self, tmp_path):
+        """Case 3: stale heartbeat (>300s) → daemon crashed → allow."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=600)
+        exit_code, response = run_hook("pytest tests/", base_dir_override=home)
+        assert is_allow(response, exit_code), (
+            f"Stale heartbeat should allow (daemon crashed), got {response}"
+        )
+
+    def test_heartbeat_exactly_at_threshold_is_allowed(self, tmp_path):
+        """Boundary: heartbeat age exactly at 300s → treated as stale → allow.
+
+        (The hook uses strict less-than: age < HEARTBEAT_MAX_AGE_SECONDS)
+        """
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=300)
+        exit_code, response = run_hook("pytest tests/", base_dir_override=home)
+        assert is_allow(response, exit_code), (
+            f"Heartbeat at exactly threshold (300s) should be treated as stale, got {response}"
+        )
+
+
+class TestCleanEnvironmentAllows:
+    """Case 4: daemon stopped + no torch processes → allow bare pytest tests/."""
+
+    def test_case_4_clean_environment_allows(self, tmp_path):
+        """Case 4: no heartbeat file, process scan isolated → allow."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=None)
+        exit_code, response = run_hook("pytest tests/", base_dir_override=home)
+        assert is_allow(response, exit_code), (
+            f"Clean environment (no heartbeat, no process scan) should allow, got {response}"
+        )
+
+
+class TestFailClosedOnCorruptHeartbeat:
+    """Negative case: corrupt heartbeat file → fail-closed (treat as alive → deny).
+
+    Per security-auditor finding S2 and code-reviewer finding #5, the hook should
+    fail-closed on parse errors, not silently allow.
+    """
+
+    def test_corrupt_heartbeat_json_fails_closed(self, tmp_path):
+        """Corrupt heartbeat JSON → assume daemon alive → deny bare pytest."""
+        home = tmp_path / "fake_home"
+        ce_dir = home / ".context-engine"
+        ce_dir.mkdir(parents=True)
+        (ce_dir / "watcher-heartbeat.json").write_text("{not valid json{{{")
+        (ce_dir / "watcher.pid").write_text("99999\n")
+
+        exit_code, response = run_hook("pytest tests/", base_dir_override=home)
+        assert is_deny(response), (
+            f"Corrupt heartbeat must fail-closed (treat as alive), got {response}"
+        )
+        reason = response["hookSpecificOutput"].get("permissionDecisionReason", "")
+        assert "unparseable" in reason or "fail-closed" in reason
+
+
+class TestBypassEnvVars:
+    """Cases 6 & 7: both bypass env vars → allow regardless of state."""
+
+    def test_case_6_allow_heavy_semantic_bypass(self, tmp_path):
+        """Case 6: PYTEST_ALLOW_HEAVY=1 + fresh daemon → allow."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook(
+            "pytest tests/",
+            env_overrides={"PYTEST_ALLOW_HEAVY": "1"},
+            base_dir_override=home,
+        )
+        assert is_allow(response, exit_code), (
+            f"ALLOW_HEAVY should bypass, got {response}"
+        )
+        # Should emit a warning additionalContext, not a deny
+        if response is not None:
+            ctx = response["hookSpecificOutput"].get("additionalContext", "")
+            assert "ALLOW_HEAVY" in ctx or "bypassed" in ctx.lower()
+
+    def test_case_7_skip_oom_gate_structural_bypass(self, tmp_path):
+        """Case 7: PYTEST_SKIP_OOM_GATE=1 + fresh daemon → allow."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook(
+            "pytest tests/",
+            env_overrides={"PYTEST_SKIP_OOM_GATE": "1"},
+            base_dir_override=home,
+        )
+        assert is_allow(response, exit_code), (
+            f"SKIP_OOM_GATE should bypass, got {response}"
+        )
+        if response is not None:
+            ctx = response["hookSpecificOutput"].get("additionalContext", "")
+            assert "STRUCTURALLY bypassed" in ctx or "SKIP_OOM_GATE" in ctx
+
+    def test_inline_allow_heavy_env_prefix(self, tmp_path):
+        """Variant: inline env prefix in command string `PYTEST_ALLOW_HEAVY=1 pytest tests/`."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook(
+            "PYTEST_ALLOW_HEAVY=1 pytest tests/", base_dir_override=home
+        )
+        assert is_allow(response, exit_code), (
+            f"Inline ALLOW_HEAVY prefix should bypass, got {response}"
+        )
+
+    def test_inline_skip_oom_gate_env_prefix(self, tmp_path):
+        """Variant: inline env prefix `PYTEST_SKIP_OOM_GATE=1 pytest tests/` → bypass.
+
+        Symmetric coverage with test_inline_allow_heavy_env_prefix per code-reviewer #11.
+        """
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook(
+            "PYTEST_SKIP_OOM_GATE=1 pytest tests/", base_dir_override=home
+        )
+        assert is_allow(response, exit_code), (
+            f"Inline SKIP_OOM_GATE prefix should bypass, got {response}"
+        )
+
+
+class TestNonPytestCommandsAllow:
+    """Case 8: non-pytest Bash commands should never match."""
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "ls -la",
+            "git status",
+            "cat README.md",
+            "echo pytest",  # word 'pytest' as an echo arg, not a command
+            "rg pytest",  # searching for the word, not running it
+            "grep -r 'pytest' docs/",
+        ],
+    )
+    def test_non_pytest_command_allowed(self, command, tmp_path):
+        """Non-pytest commands → allow regardless of daemon state."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook(command, base_dir_override=home)
+        assert is_allow(response, exit_code), (
+            f"Non-pytest command '{command}' should be allowed, got {response}"
+        )
+
+
+class TestChainedCommandsDetected:
+    """Sanity check: chained commands like `cd foo && pytest tests/` are detected."""
+
+    def test_chained_pytest_detected(self, tmp_path):
+        """`cd src && pytest tests/` with fresh daemon → should be evaluated (not short-circuited)."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook(
+            "cd /tmp && pytest tests/", base_dir_override=home
+        )
+        # With fresh daemon, this should be denied — verifies the chain detection works
+        assert is_deny(response), (
+            f"Chained pytest should be detected and denied with fresh daemon, got {response}"
+        )
+
+
+class TestDenyLogSideEffect:
+    """The deny log at ~/.context-engine/oom-gate-denies.log is the activity
+    trigger for the BACKLOG #49 forcing function. Verify it actually gets written.
+    """
+
+    def test_deny_writes_to_log_file(self, tmp_path):
+        """When the hook denies, it must append a line to oom-gate-denies.log."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        deny_log = home / ".context-engine" / "oom-gate-denies.log"
+        assert not deny_log.exists(), "precondition: log should not exist yet"
+
+        exit_code, response = run_hook("pytest tests/", base_dir_override=home)
+        assert is_deny(response)
+
+        assert deny_log.exists(), (
+            "Deny log must be written on every deny — this is the activity trigger "
+            "for the BACKLOG #49 forcing function"
+        )
+        log_content = deny_log.read_text()
+        assert "pytest tests/" in log_content, (
+            f"Deny log must record the offending command, got: {log_content!r}"
+        )
+        # Must have a timestamp prefix (ISO8601 UTC)
+        assert log_content[:4].isdigit(), (
+            f"Deny log lines must start with ISO8601 timestamp, got: {log_content!r}"
+        )
+
+    def test_allow_does_not_write_deny_log(self, tmp_path):
+        """Allow paths must NOT touch the deny log (otherwise false activity signal)."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        deny_log = home / ".context-engine" / "oom-gate-denies.log"
+
+        exit_code, response = run_hook(
+            'pytest tests/ -v -m "not slow"', base_dir_override=home
+        )
+        assert is_allow(response, exit_code)
+        assert not deny_log.exists(), (
+            "Allow paths must NOT write to the deny log — the count must only "
+            "reflect actual denies"
+        )
+
+
+class TestRegexEdgeCases:
+    """Regex edge cases from code-reviewer finding #2.
+
+    Note: bare `pytest` at end-of-string (no args, no trailing space) is an
+    accepted false-negative. It would fail pytest's own "no tests collected"
+    behavior anyway, and covering it required `|$` alternation that created
+    a worse false-positive class on `echo pytest` / `rg pytest`.
+    """
+
+    def test_python_m_pytest_no_space_after_m_detected(self, tmp_path):
+        """`python -mpytest tests/` (no space between -m and pytest) is detected."""
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook("python -mpytest tests/", base_dir_override=home)
+        assert is_deny(response), (
+            f"python -mpytest (no-space variant) should be detected, got {response}"
+        )
+
+    def test_python_m_pytest_at_end_of_string_detected(self, tmp_path):
+        """`python -m pytest` with no args at EOS is still detected.
+
+        The python -m branch retains `|$` because false-positive risk is lower:
+        `python -mpytest` / `python -m pytest` as a complete command is
+        unusual outside actual invocations.
+        """
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        exit_code, response = run_hook("python -m pytest", base_dir_override=home)
+        assert is_deny(response), (
+            f"python -m pytest at EOS should be detected, got {response}"
+        )

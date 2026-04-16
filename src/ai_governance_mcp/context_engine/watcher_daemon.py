@@ -9,15 +9,26 @@ Usage:
     context-engine-watcher --all        # Watch all indexed projects
     context-engine-watcher --projects /path/one /path/two
     context-engine-watcher --log-file /tmp/watcher.log
+
+Phase 0 (plan jiggly-honking-cascade.md):
+- Self-restart after AI_CONTEXT_ENGINE_WATCHER_MAX_UPTIME_HOURS (default 12h,
+  set to 0 to disable). Clean exit lets launchd KeepAlive respawn, which
+  flushes the PyTorch CPU allocator cache that never returns to the OS.
+- ±10% jitter on the target uptime, 1h floor, 1.5× hard cap.
+- Phase-aligned: restart fires when elapsed >= target AND
+  (idle >= 300s OR elapsed >= 1.5 × target). Idle measured via mtime of
+  metadata.json files across watched projects (updated on reindex).
 """
 
 import argparse
 import json
 import logging
 import os
+import random
 import signal
 import sys
 import threading
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -29,6 +40,13 @@ HEARTBEAT_INTERVAL = 60
 # Default base path for indexes
 DEFAULT_BASE_PATH = Path.home() / ".context-engine" / "indexes"
 
+# Phase 0: self-restart configuration
+DEFAULT_MAX_UPTIME_HOURS = 12
+MIN_MAX_UPTIME_SECONDS = 3600  # 1h floor — prevents typo-driven crashloop
+JITTER_RANGE = 0.10  # ±10%
+IDLE_THRESHOLD_SECONDS = 300  # 5 min of no reindex activity = "idle"
+HARD_CAP_MULTIPLIER = 1.5  # elapsed >= 1.5 × target = force restart
+
 
 def _get_base_path() -> Path:
     """Resolve base path from env var or default."""
@@ -36,6 +54,95 @@ def _get_base_path() -> Path:
     if custom:
         return Path(custom).resolve()
     return DEFAULT_BASE_PATH
+
+
+def _read_max_uptime_from_env() -> float | None:
+    """Parse AI_CONTEXT_ENGINE_WATCHER_MAX_UPTIME_HOURS from environment.
+
+    Returns seconds, None if unset/zero/invalid. None means "no self-restart"
+    (unbounded uptime — used for tests and explicit opt-out).
+    """
+    raw = os.environ.get("AI_CONTEXT_ENGINE_WATCHER_MAX_UPTIME_HOURS", "").strip()
+    if not raw:
+        return None
+    try:
+        hours = float(raw)
+    except ValueError:
+        logger.warning(
+            "Invalid AI_CONTEXT_ENGINE_WATCHER_MAX_UPTIME_HOURS=%r, ignoring", raw
+        )
+        return None
+    if hours <= 0:
+        return None
+    return hours * 3600.0
+
+
+def _apply_jitter_and_floor(max_uptime_seconds: float) -> float:
+    """Apply ±10% jitter and enforce 1h floor on uptime target.
+
+    Floor prevents a MAX_UPTIME_HOURS=0.01 typo from turning into a crashloop.
+    Jitter spreads restart windows across deployments so they don't flap in sync.
+    """
+    if max_uptime_seconds < MIN_MAX_UPTIME_SECONDS:
+        logger.warning(
+            "max_uptime_seconds=%.1f below floor (%ds); clamping to floor",
+            max_uptime_seconds,
+            MIN_MAX_UPTIME_SECONDS,
+        )
+        max_uptime_seconds = MIN_MAX_UPTIME_SECONDS
+    jitter = random.uniform(1.0 - JITTER_RANGE, 1.0 + JITTER_RANGE)
+    return max(max_uptime_seconds * jitter, float(MIN_MAX_UPTIME_SECONDS))
+
+
+def _get_last_activity_seconds_ago(base_path: Path) -> float:
+    """Seconds since the most recent metadata.json mtime across all projects.
+
+    Used as a proxy for watcher activity: if any project was reindexed in the
+    last N seconds, the user is probably active and we should defer restart.
+    Returns float('inf') if no metadata files exist.
+    """
+    if not base_path.exists():
+        return float("inf")
+    max_mtime = 0.0
+    try:
+        for project_dir in base_path.iterdir():
+            if not project_dir.is_dir():
+                continue
+            metadata_path = project_dir / "metadata.json"
+            if not metadata_path.exists():
+                continue
+            try:
+                mtime = metadata_path.stat().st_mtime
+                if mtime > max_mtime:
+                    max_mtime = mtime
+            except OSError:
+                continue
+    except OSError:
+        return float("inf")
+    if max_mtime == 0.0:
+        return float("inf")
+    return max(0.0, time.time() - max_mtime)
+
+
+def _should_restart_now(
+    elapsed_seconds: float,
+    target_uptime_seconds: float,
+    idle_seconds_ago: float,
+) -> bool:
+    """Phase-aligned restart gate.
+
+    Restart fires when EITHER:
+    - elapsed >= target AND idle >= IDLE_THRESHOLD_SECONDS (quiet-window), OR
+    - elapsed >= target × HARD_CAP_MULTIPLIER (hard cap, prevents indefinite defer)
+    """
+    if elapsed_seconds >= target_uptime_seconds * HARD_CAP_MULTIPLIER:
+        return True
+    if (
+        elapsed_seconds >= target_uptime_seconds
+        and idle_seconds_ago >= IDLE_THRESHOLD_SECONDS
+    ):
+        return True
+    return False
 
 
 def _write_pid_file(base_path: Path) -> Path:
@@ -122,17 +229,49 @@ def _heartbeat_loop(
     base_path: Path,
     manager,
     stop_event: threading.Event,
+    heartbeat_interval: float,
+    start_time: float,
+    target_uptime_seconds: float | None,
 ) -> None:
-    """Background thread that writes heartbeat periodically."""
-    while not stop_event.wait(timeout=HEARTBEAT_INTERVAL):
+    """Background thread that writes heartbeat and enforces self-restart.
+
+    Phase 0: checks uptime on each tick. When target_uptime_seconds is set
+    and the phase-alignment gate opens, sets stop_event to trigger clean exit.
+    launchd KeepAlive + ThrottleInterval respawns a fresh process.
+    """
+    while not stop_event.wait(timeout=heartbeat_interval):
         count = len(getattr(manager, "_watchers", {}))
         _write_heartbeat(base_path, count)
+
+        if target_uptime_seconds is None:
+            continue  # self-restart disabled
+
+        elapsed = time.time() - start_time
+        idle = _get_last_activity_seconds_ago(base_path)
+        if _should_restart_now(elapsed, target_uptime_seconds, idle):
+            reason = (
+                "hard-cap"
+                if elapsed >= target_uptime_seconds * HARD_CAP_MULTIPLIER
+                else "quiet-window"
+            )
+            logger.info(
+                "scheduled restart: elapsed=%.1fh target=%.1fh idle=%.0fs reason=%s "
+                "(see plan jiggly-honking-cascade.md)",
+                elapsed / 3600.0,
+                target_uptime_seconds / 3600.0,
+                idle,
+                reason,
+            )
+            stop_event.set()
+            return
 
 
 def run_daemon(
     project_paths: list[Path] | None = None,
     watch_all: bool = False,
     log_file: str | None = None,
+    max_uptime_seconds: float | None = None,
+    heartbeat_interval: float = HEARTBEAT_INTERVAL,
 ) -> None:
     """Run the watcher daemon.
 
@@ -140,6 +279,10 @@ def run_daemon(
         project_paths: Specific projects to watch. None = auto-discover.
         watch_all: If True, watch all indexed projects regardless of mode.
         log_file: Optional log file path. None = stderr.
+        max_uptime_seconds: Phase 0 self-restart. None = read env var. 0 or
+            negative = disabled. Otherwise jitter + floor applied.
+        heartbeat_interval: Seconds between heartbeat writes / uptime checks.
+            Production default is HEARTBEAT_INTERVAL (60s). Tests override.
     """
     # Setup logging
     log_level = os.environ.get("AI_CONTEXT_ENGINE_LOG_LEVEL", "INFO").upper()
@@ -161,6 +304,16 @@ def run_daemon(
         logger.error("Index directory does not exist: %s", base_path)
         logger.error("No projects to watch. Index a project first.")
         sys.exit(1)
+
+    # Phase 0: resolve max_uptime_seconds from arg OR env var
+    if max_uptime_seconds is None:
+        max_uptime_seconds = _read_max_uptime_from_env()
+    if max_uptime_seconds is not None and max_uptime_seconds > 0:
+        target_uptime_seconds: float | None = _apply_jitter_and_floor(
+            max_uptime_seconds
+        )
+    else:
+        target_uptime_seconds = None
 
     # Import here to avoid loading ML models at import time
     from .project_manager import ProjectManager
@@ -207,12 +360,24 @@ def run_daemon(
     watcher_count = len(manager._watchers)
     _write_heartbeat(base_path, watcher_count)
 
-    logger.info(
-        "Watcher daemon started (PID %d, watching %d project%s)",
-        os.getpid(),
-        watcher_count,
-        "s" if watcher_count != 1 else "",
-    )
+    # Phase 0 startup log: explicit project count + self-restart config
+    if target_uptime_seconds is not None:
+        logger.info(
+            "Phase 0: watcher daemon started (PID %d, watching %d project%s, "
+            "target_uptime=%.1fh with ±%d%% jitter, 5min idle / 1.5× hard-cap)",
+            os.getpid(),
+            watcher_count,
+            "s" if watcher_count != 1 else "",
+            target_uptime_seconds / 3600.0,
+            int(JITTER_RANGE * 100),
+        )
+    else:
+        logger.info(
+            "Watcher daemon started (PID %d, watching %d project%s, self-restart DISABLED)",
+            os.getpid(),
+            watcher_count,
+            "s" if watcher_count != 1 else "",
+        )
 
     # Graceful shutdown
     stop_event = threading.Event()
@@ -221,19 +386,28 @@ def run_daemon(
         logger.info("Received signal %d, shutting down...", signum)
         stop_event.set()
 
-    signal.signal(signal.SIGINT, _shutdown)
-    signal.signal(signal.SIGTERM, _shutdown)
+    if threading.current_thread() is threading.main_thread():
+        signal.signal(signal.SIGINT, _shutdown)
+        signal.signal(signal.SIGTERM, _shutdown)
 
-    # Start heartbeat thread
+    # Start heartbeat thread (also enforces Phase 0 self-restart)
+    start_time = time.time()
     heartbeat_thread = threading.Thread(
         target=_heartbeat_loop,
-        args=(base_path, manager, stop_event),
+        args=(
+            base_path,
+            manager,
+            stop_event,
+            heartbeat_interval,
+            start_time,
+            target_uptime_seconds,
+        ),
         name="heartbeat",
         daemon=True,
     )
     heartbeat_thread.start()
 
-    # Block until stop signal
+    # Block until stop signal (or self-restart triggers stop_event)
     try:
         stop_event.wait()
     finally:

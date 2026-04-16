@@ -57,7 +57,7 @@ ALLOWED_EMBEDDING_MODELS = {
     "sentence-transformers/all-MiniLM-L12-v2",
     "sentence-transformers/all-mpnet-base-v2",
     "jinaai/jina-embeddings-v2-small-en",
-    "nomic-ai/nomic-embed-text-v1.5",  # 768 dims, 8K context, MTEB 86.2
+    "nomic-ai/nomic-embed-text-v1.5",  # 768 dims — reserved for future eval; not a default recommendation (see commit b702296)
 }
 
 # Default ignore patterns (gitignore syntax via pathspec)

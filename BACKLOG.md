@@ -31,7 +31,7 @@
 
 ### Active (Implement Now/Soon)
 
-78. **Governance Compliance Review — ongoing, next review due ~2026-04-24** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13) and #2 (2026-04-14) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification.
+78. **Governance Compliance Review — ongoing, next review due ~2026-04-24** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13) and #2 (2026-04-14) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Session-105 update:** Check 6b added for BACKLOG #49 forcing-function activity trigger (grep `~/.context-engine/oom-gate-denies.log`); Check 1 hook count updated 4→5.
 
 
 ---
@@ -39,6 +39,50 @@
 ### Deferred/Future — Discussion
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
+
+#### 91. Pre-Test OOM Gate Hardening — Session-105 Follow-ups (Discussion) `D1 Improvement`
+
+**Status (2026-04-15, user audit):** This entry was created by bulk-logging 10 brainstorm items at session-105 end, which violated CLAUDE.md Defer-vs-Fix rule. User audit reclassified:
+- **7 items are fix-now category** (sub-items 1, 2, 6, 7, 8, 9, 10 — each ≤1 file, unambiguous scope, no cascading discovery). They SHOULD have been fixed in session-105 itself, not deferred here. Session 106 should pick these up as immediate work, not as discussion items. Each is tagged `[FIX-NOW]` below.
+- **1 item is ambiguous scope** (sub-item 4, plan-file preservation — needs user input on policy: do session plan files live in-repo or out-of-repo?). Tagged `[ASK]` — carry into session 106 as an "ask the user" item.
+- **2 items are legitimately deferred** (sub-items 3 and 5 — need external docs or CI infra). Tagged `[DEFER]`.
+
+See `LEARNING-LOG.md` entry "Session-End Deferral Bias (2026-04-15)" for the pattern this illustrates and the rule that was violated.
+
+**What:** A grab-bag of hardening and ops items surfaced during the session-105 end-of-session "10 things I may have missed" brainstorm on `.claude/hooks/pre-test-oom-gate.sh`. None are blockers; the hook is functional and protective as-shipped.
+
+**Sub-items (priority order, highest first — classification tags from 2026-04-15 user audit):**
+
+1. **[FIX-NOW / MED] `jq` missing/failure = silent fail-open.** Line 61 of the hook: if `jq` errors, `COMMAND` becomes empty, the regex match fails, the hook exits 0 and allows. Mirrors the `python3` fail-open that code-reviewer #13 caught at the END of the hook (which was fixed to exit-2). Fix: check for `jq` at top-of-script and exit non-zero on missing. Or replace `jq` with a small Python parser (more dependencies-but-fail-closed). **Classification:** ≤1 file, unambiguous, symmetric to already-fixed bug → fix-now tier. Deferring was the violation.
+
+2. **[FIX-NOW / MED] `oom-gate-denies.log` has no rotation or cap.** `printf ... >> $DENY_LOG` appends forever. Runaway loop or stuck automation could fill `~/.context-engine/`. Fix: add `tail -1000` pruning on write, or switch to a fixed-size circular log, or add to logrotate. **Classification:** ≤1 file (hook), known pattern → fix-now tier.
+
+3. **[DEFER / MED] Hook timeout behavior is undocumented.** `settings.json` says `timeout: 10` seconds. What does Claude Code do when a PreToolUse hook times out — allow or deny? Needs testing (add a `sleep 15` variant) or documentation lookup. Critical because a slow `ps` or corrupt heartbeat could silently defeat the gate (if allow on timeout) or lock out all pytest runs (if deny on timeout). **Classification:** needs external docs lookup or experimental CC-runner test, legitimate defer.
+
+4. **[ASK / MED] Plan file lives outside the repo** at `~/.claude/plans/giggly-humming-starlight.md`, not tracked by git. If deleted, the session-105 decision record is gone, and BACKLOG + LEARNING-LOG references become dangling. Fix: either copy the plan into `docs/decisions/` (or PROJECT-MEMORY.md as ADR-17 for the hook pattern) or inline-summarize the plan's key reasoning into BACKLOG #49 so the reference isn't load-bearing. **Classification:** ambiguous scope policy — "where do project plan files belong?" is a per-project convention decision, not a mechanical fix. Needs user input before session 106 proceeds.
+
+5. **[DEFER / LOW] No real-runner integration test.** All 23 hook tests shell out directly. Claude Code's real PreToolUse runner could parse the deny JSON differently or have edge-case stdin behavior that the direct-shell tests miss. First real organic deny would be the integration test. Consider adding a CI job that invokes the hook via a Claude-Code-like runner stub. **Classification:** requires CI infrastructure (runner stub), legitimate defer.
+
+6. **[FIX-NOW / LOW] Deny-log may capture secret-bearing command strings.** `pytest --api-key=$SECRET tests/` would get logged verbatim (bounded to 500 chars). Fix: add a regex filter for `--[a-z-]*(key|token|secret|password)=\S+` → replace with `<redacted>` before appending. **Classification:** ≤1 file (hook), one-line regex addition, unambiguous → fix-now tier.
+
+7. **[FIX-NOW / LOW] Launchd plist flag verification not captured.** Session-105 unloaded and reloaded the context-engine-watcher plist to disable auto-restart mid-session. Didn't verify `RunAtLoad` / `KeepAlive` flags are preserved across `unload`/`load`. On next machine reboot, if flags got lost, daemon won't auto-start. Fix: `plutil -p ~/Library/LaunchAgents/com.ai-governance.context-engine-watcher.plist` and document expected flags in `COMPLIANCE-REVIEW.md` Check 1. **Classification:** ≤1 file (docs), verifiable via `plutil` → fix-now tier.
+
+8. **[FIX-NOW / LOW] `OOM_GATE_SKIP_PROCESS_SCAN` is test-only by comment convention only.** A future session grep-discovering the variable could mistake it for a third production bypass. Structural fix: rename to `_OOM_GATE_SKIP_PROCESS_SCAN` (underscore convention) or guard it with `[ -n "${PYTEST_CURRENT_TEST:-}" ]` so it can't leak outside a pytest process. **Classification:** 2 files (hook + tests), mechanical rename or one-line guard → fix-now tier.
+
+9. **[FIX-NOW / LOW] `-k <expr>` safe-subset match is permissive.** `pytest tests/ -k test` matches every test (pytest collects all tests whose names contain "test"). Accepted per threat model, but not explicitly called out in the hook header. Document the limitation inline so future readers know the `-k` hatch is intent-based, not content-validated. **Classification:** ≤1 file (hook header comment), docs-only → fix-now tier.
+
+10. **[FIX-NOW / LOW] SESSION-STATE Quick Reference baseline drift explanation missing.** Historical entries for sessions 101–104 show "1198 passing" while the updated Quick Reference now shows "1191 passing (session-105: +23 hook tests on 1168 baseline)". A future reader comparing numbers sees a ~7 delta with no explanation (1198 is full suite; 1191 is `-m "not slow"` subset + new hook tests). Fix: add a one-line note in Quick Reference explaining the semantics, or reconcile to a single canonical number. **Classification:** ≤1 file, one-line clarification → fix-now tier.
+
+**[Bonus] Item 11:** Concurrent-session deny-log write safety. POSIX `>>` is atomic for writes <PIPE_BUF (512 bytes on macOS); log line is well under that, but not explicitly tested under concurrency. Low risk.
+
+**[Bonus] Item 12:** Consider adding an ADR for the pre-test OOM gate pattern as a new class of structural enforcement (test-run safety vs governance enforcement). Would live alongside ADR-13 (Governance Enforcement — Advisory→Structural). Defer until the pattern is reused for a second purpose — not worth an ADR for a one-off.
+
+**Discussion needed:**
+- Which sub-items rise above the "nice to have" floor? Probably 1-3 are the real ones.
+- Is the bonus ADR-17-for-hook-pattern worth doing now (aids future reuse) or deferring until pattern recurs (avoids speculation)?
+- Should sub-item 4 (plan-file preservation) become its own `D2 Maintenance` item — it's about a class of "decisions-outside-repo" drift, not just this one plan file.
+
+**Origin:** Session-105 end-of-session brainstorm (2026-04-15), two subagent review passes didn't surface these (they weren't in the review scope).
 
 #### 90. Context Engine Circuit Breaker Auto-Recovery (Discussion) `D1 Improvement`
 
@@ -107,7 +151,7 @@
 
 **Why it matters:** Scaling barrier for adoption. Single-session is fine (~130 MB RSS), but multi-session or machines <32 GB will hit memory pressure. macOS low-memory warning triggered on a 64 GB machine with 2 sessions + Docker + normal apps.
 
-**Recommended approach:** Shared embedding service — a single lightweight process loads BGE-small once, other processes call it via IPC/HTTP socket. Benefits: (1) memory drops from 5× to 1× model load, (2) other 4 processes no longer need PyTorch at all (dramatic footprint reduction), (3) no accuracy tradeoffs since it's already the same model everywhere.
+**Recommended approach** *(superseded — see Status (2026-04-15) block below; now ONE of two deferred candidates pending a contrarian-reviewed design spike):* Shared embedding service — a single lightweight process loads BGE-small once, other processes call it via IPC/HTTP socket. Benefits: (1) memory drops from 5× to 1× model load, (2) other 4 processes no longer need PyTorch at all (dramatic footprint reduction), (3) no accuracy tradeoffs since it's already the same model everywhere.
 
 **Other approaches considered:**
 1. Lazy unloading — saves memory between queries but adds ~2-3s latency per query burst
@@ -116,6 +160,43 @@
 4. Process pooling — multiple sessions share one server; MCP protocol may not support natively
 
 **Origin:** Session 48 (2026-04-03). macOS low-memory warning with 2 concurrent sessions. Initial investigation incorrectly dismissed Activity Monitor's GB numbers as "just virtual memory" — 26 GB swap + macOS warning proved impact is real.
+
+**Status (2026-04-15) — explored routes, shipped mitigations, design spike forcing function:**
+
+**Explored route (NOT shipped):** ONNX backend via `sentence-transformers` native `backend="onnx"` parameter + `optimum[onnxruntime]` dependency. 10-file plumbing diff built and preserved at `staging/onnx-backend-attempt-2026-04-15.patch` + explainer at `staging/onnx-backend-attempt-2026-04-15.md`. Rejected after envelope math: `sentence-transformers` 5.2.0 imports `torch` unconditionally at module load via the `transformers` hard dependency (verified empirically at `sentence_transformers/SentenceTransformer.py:17,25-26` and `Transformer.py:17-18`). The `backend` kwarg only picks model *weights* at inference time, not module init. Savings: BGE-small ≈130 MB + reranker ≈90 MB, 50% savings × 5 processes = **~550 MB** — roughly **2% of the 27 GB symptom**. Shipping it under the #49 banner would have violated `meta-safety-transparent-limitations`. Two independent contrarian-reviewer passes on 2026-04-15 validated rejection.
+
+**Shipped (independent of the real #49 fix):**
+1. **Structural pre-test OOM prevention gate** at `.claude/hooks/pre-test-oom-gate.sh` — PreToolUse hook on Bash that blocks bare `pytest tests/` invocations when the watcher daemon is alive OR other torch-holding Python processes are detected. Prevents the class of OOM that hit this box on 2026-04-15 from recurring via AI-initiated Bash. **23 unit tests** at `tests/test_pre_test_oom_gate_hook.py` (10 test classes; one parametrized). Bypasses: `PYTEST_ALLOW_HEAVY=1` (semantic: "I intend the heavy suite"), `PYTEST_SKIP_OOM_GATE=1` (structural: "the gate itself is broken"). Expected-workflow escape hatch: `pytest tests/ -v -m "not slow"`. LEARNING-LOG precedent: "Hard-Mode Hooks Prove Deterministic Enforcement Works" (2026-02-28).
+2. **Indexer stale-default correctness fix** (commit `b702296`) — unrelated latent bug discovered during investigation: `Indexer.__init__` had stale defaults `nomic-ai/nomic-embed-text-v1.5`/768d from an evaluated-but-never-deployed trial. Production used `BAAI/bge-small-en-v1.5`/384d everywhere else via config overrides. Committed independently.
+
+**Remaining (design spike required, deferred to a dedicated session):** Two candidates for the real per-process fix:
+1. **Shared embedding service via IPC** (original backlog recommendation above). Single process owns the model; others call via Unix socket / HTTP. Much larger surface area — process lifecycle, serialization, startup ordering, crash recovery.
+2. **Direct `optimum.onnxruntime.ORTModelForFeatureExtraction` + `tokenizers`** layer that skips the `transformers` import entirely, eliminating the torch/transformers runtime duplication. Smaller surface than option 1 (~300–500 lines replacing `retrieval.py` + `extractor.py` + `context_engine/indexer.py` embedder code + reranker replacement) but reimplements pooling/normalization and loses `SentenceTransformer.encode()` + `CrossEncoder` affordances.
+
+Decide via contrarian-reviewed design spike, NOT implementation-first. Both options touch critical code paths.
+
+**Forcing function — anti-procrastination (per `meta-core-systemic-thinking`):** The shipped OOM gate removes the acute pain of this ticket, which is EXACTLY why the real fix would otherwise get forgotten (forward-continuation-bias trap per LEARNING-LOG). The design spike acceptance criterion is **whichever comes first**:
+
+- **Activity trigger:** the pre-test OOM gate denies ≥3 pytest invocations in practice. Each deny appends to `~/.context-engine/oom-gate-denies.log` (format: `<ts> deny daemon_alive=<bool> torch_procs=<n> cmd=<cmd>`). **Current automation state (2026-04-15):** the deny log is written on every deny (verified by `tests/test_pre_test_oom_gate_hook.py::TestDenyLogSideEffect`), but no agent currently reads it automatically. The activity trigger fires when a future session explicitly greps the log at session start — either a human notices, or a future enhancement teaches the orchestrator/coherence-auditor to include this check. **Instruction for the next session at `count >= 3`:** re-enter this backlog item, re-read the ONNX investigation artifact, schedule a contrarian-reviewed design spike. Log location is stable; the promise is that a future reader will find it, not that an agent will find it unprompted. Treat this as the honest floor of "check a file" rather than a background daemon.
+- **Capacity trigger:** any proposal to add a 6th torch-loading process (new MCP server, second watcher variant, worker pool) blocks on this spike first. The symptom math gets proportionally worse with more processes; adding another before the real fix would be negligent.
+- **Calendar trigger:** 2026-06-15 unconditional review. If neither activity nor capacity has fired by then, re-enter the backlog item for fresh contrarian review and concrete spike scheduling.
+- **Phase 0 outcome trigger (measurement-automated, added 2026-04-15 — plan `jiggly-honking-cascade.md`):** the second launchd plist `com.ai-governance.context-engine-measure` runs `scripts/measure-watcher-footprint.sh` daily at 04:00 and evaluates four independent thresholds against the baseline captured in `~/.context-engine/logs/phase0-baseline.txt`. If any threshold is exceeded, the script writes `~/.context-engine/PHASE2_TRIGGERED` as a boolean marker. The four thresholds:
+  1. **Steady-state drop:** post-Phase-0 steady phys_footprint must be < 60% of baseline (≥40% reduction). Baseline 4.1 GB → must drop below ~2.5 GB.
+  2. **Leak rate (measurement-derived, per Contrarian Finding 3):** post-Phase-0 slope must be ≤ 50% of the `baseline_slope_mb_per_h` captured during a fresh-daemon 2h sample. If baseline slope is <8 MB/hr, this trigger is disabled (noise floor).
+  3. **Session peak:** any 24h-window peak phys_footprint must be < 3.0 GB.
+  4. **Cross-process total (cause #2 direct):** summed phys_footprint across all `context-engine-watcher` + `ai_governance_mcp` + `ai-context-engine` processes must be < 8.0 GB. Phase 0 cannot by construction fix model duplication, so this trigger routes straight to Phase 2 when duplication dominates.
+
+  Check 6b.2 in `workflows/COMPLIANCE-REVIEW.md` reads the marker file as a boolean (`test -f PHASE2_TRIGGERED`). When the marker is present, re-enter this backlog item and schedule the design spike. Clear the marker after escalation: `rm ~/.context-engine/PHASE2_TRIGGERED`. This is fully structural (launchd runs, script evaluates, marker is written) — no human memory required for evaluation, though someone still has to run the compliance review to read it.
+
+The capacity, calendar, and Phase 0 outcome triggers are fully structural (no human memory required — they're encoded as rules future sessions will read, and in the case of Phase 0 outcome, evaluated automatically by a scheduled job). The activity trigger is "check a file" rather than "remember a rule" — the deny log write is automatic and tested, but a human or future enhancement must read it. Honest limitation documented above; this is a floor, not a ceiling, on the forcing function.
+
+**Relevant files:**
+- Plan document: `~/.claude/plans/giggly-humming-starlight.md`
+- Hook: `.claude/hooks/pre-test-oom-gate.sh`
+- Hook tests: `tests/test_pre_test_oom_gate_hook.py`
+- Deny log: `~/.context-engine/oom-gate-denies.log`
+- ONNX investigation artifact: `staging/onnx-backend-attempt-2026-04-15.{patch,md}`
+- Incident entry: `LEARNING-LOG.md` — "Full-Suite pytest + Stale Watcher Daemon = macOS OOM (2026-04-15)"
 
 #### 19. Rampart Integration — Client-Side Enforcement (Discussion) `D1 New Capability`
 

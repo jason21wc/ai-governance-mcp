@@ -12,6 +12,36 @@
 
 ## Active Lessons
 
+### Session-End Deferral Bias (2026-04-15)
+
+At the end of session-105, I brainstormed 10 potential hook-hardening follow-ups and bulk-logged all 10 to `BACKLOG #91` without classifying each against the CLAUDE.md Defer-vs-Fix rule (`CLAUDE.md:52-63`, implementing `rules-of-procedure §7.11`). User audit revealed 7 of the 10 were clearly **fix-now** category (≤1 file, unambiguous scope, no cascading discovery — stale-cross-ref / missing-entry / docstring-fix class), 1 was ambiguous-scope ("ask the user"), only 2 were legitimately defer. I defaulted to bulk-defer as the path of least resistance: symmetric to forward-continuation bias but inverted — at session *start* the bias is "keep going past the stopping point"; at session *end* the bias is "log everything to backlog and wrap up instead of finishing the small fixes." Per §7.11.3 this violated Durable Deferral Requirements — "I should fix that later" IS "silent loss with extra steps" when the fix met fix-now criteria.
+
+**Rule:** When multiple small findings emerge from a review, brainstorm, or end-of-session audit, apply the Defer-vs-Fix criteria to EACH finding individually before logging. "Session is wrapping up" is not a valid reason to defer a ≤3-file fix. Session end is structurally the point where the fix-now tier is most often violated, because cognitive pressure is toward closure rather than completeness. The same proportional-rigor test applies: small fix + clear scope = fix now, even if it's the last thing before commit.
+
+**Principle:** `meta-core-systemic-thinking` — the structural cause is cognitive pressure toward closure at session end. A completion-sequence checkpoint asking "which of these newly-found items meet fix-now criteria per CLAUDE.md §52-63?" would catch this structurally; advisory vigilance (this entry) is the interim mechanism. Also `meta-quality-verification-validation` — pre-close review must check whether small-fix items are being silently reclassified as "backlog."
+
+---
+
+### Test Side Effects, Not Just Return Values (2026-04-15)
+
+During session-105's double-check pass, I wrote a `TestDenyLogSideEffect` test that verified the pre-test OOM gate's deny-log file was actually written to (not just that the hook returned the correct deny JSON). That test immediately caught a real bug: `printf '%q'` on bash 3.2 (macOS) was byte-escaping the unicode bullet character (`•`, 0xe2 0x80 0xa2) in the `SIGNALS` variable, producing a log file that was not valid UTF-8. The hook's return value was correct — the test of the return value passed — but the side effect was silently broken. The code-reviewer had flagged `%q` as a MEDIUM bashism earlier and I marked it "Accept — advisory log format." Only the side-effect test caught the corruption.
+
+**Rule:** When code has a side effect (writes a file, updates a log, mutates shared state, emits a metric), test the side effect directly — not just the return value. The return value can be correct while the side effect is silently broken. Especially important for observability paths (logs, metrics, audit trails) where the side effect IS the point of the code and callers rarely check it. Graduated-pattern candidate: "side-effect tests for observability code paths."
+
+**Principle:** `meta-quality-verification-validation` — verification must cover every observable output, not just the one the caller is looking at. The side effect is an output even if no caller reads it synchronously.
+
+---
+
+### Full-Suite pytest + Stale Watcher Daemon = macOS OOM (2026-04-15)
+
+An AI-initiated `pytest tests/ -v` run crashed a 64 GB macOS machine into a low-memory warning. Two contributing causes: (1) a stale Context Engine watcher daemon from a prior session holding a full torch + transformers + BGE model copy (~1.7 GB RSS); (2) no structural gate preventing the test Bash invocation from launching a second Python process that also imports torch. Subsequent investigation also revealed that `sentence-transformers`' `backend="onnx"` parameter does NOT avoid importing torch (`transformers` is a hard transitive dependency) — so the previous session's proposed ONNX-backend mitigation would have addressed ~2% of the 27 GB symptom (envelope math: BGE-small ≈130 MB + reranker ≈90 MB × 50% savings × 5 processes ≈ 550 MB). Two contrarian-reviewer passes rejected that mitigation under `meta-safety-transparent-limitations` — shipping a ~2% fix under a memory-ticket banner would have been forward-continuation bias dressed as pragmatism. Advisory "use `-m 'not slow'`" docs are the ~85% compliance failure mode this log already documents.
+
+**Rule:** Pre-test OOM prevention is now STRUCTURAL via `.claude/hooks/pre-test-oom-gate.sh` — a Claude Code PreToolUse Bash hook that blocks bare `pytest tests/` invocations when the watcher daemon is alive OR other torch-holding Python processes are detected. Two distinct bypass env vars (`PYTEST_ALLOW_HEAVY=1` semantic, `PYTEST_SKIP_OOM_GATE=1` structural) cover intentional heavy runs and gate-is-broken emergencies respectively. Expected-workflow escape hatch: `pytest tests/ -v -m "not slow"` (matches CI, excludes real-model tests). **23 unit tests** at `tests/test_pre_test_oom_gate_hook.py` (10 classes, one parametrized). Cross-references: BACKLOG #49 "Status (2026-04-15)" for the envelope math + design-spike forcing function; `staging/onnx-backend-attempt-2026-04-15.md` for the investigation artifact.
+
+**Principle:** `meta-core-systemic-thinking` — the root cause is architectural (torch duplication across N processes is #49's real symptom), but the OOM-during-testing recurrence is a separate structural gap that deserves its own structural fix. Follows precedent "Hard-Mode Hooks Prove Deterministic Enforcement Works" (2026-02-28). Second cause (advisory-compliance degradation on multi-step checklists) is already graduated, this lesson doesn't re-open it — it just confirms advisory docs would have failed again.
+
+---
+
 ### Advisory Pruning Failed: Two Contributing Causes (2026-04-14)
 
 SESSION-STATE.md grew to 1,441 lines (4.8x the 300-line target) despite 3 pruning instructions in the CFR. Two contributing causes: (1) **Wrong surface** — pruning instructions lived only in the CFR, not on always-loaded surfaces (CLAUDE.md, AGENTS.md). (2) **Incomplete instruction** — Completion Checklist item 16 WAS visible every session but said "Update" not "Prune." The AI complied with what it saw: it updated without pruning. Pruning requires destructive judgment (what to keep, what to route, what to delete) — a harder behavior for advisory compliance than additive actions.
