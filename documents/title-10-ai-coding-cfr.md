@@ -1,5 +1,5 @@
 ---
-version: "2.38.1"
+version: "2.38.2"
 status: "active"
 effective_date: "2026-04-17"
 domain: "ai-coding"
@@ -7890,6 +7890,16 @@ Three options exist for controlling Claude Code remotely (from mobile, tablet, o
 
 **Risk note (Happy Engineering):** MIT open-source, 2 maintainers, rapid iteration (49 versions). Communication routes through a third-party relay server (E2E encrypted, open-source crypto). Pin to a specific npm version (e.g., `happy@1.1.4`) in production workflows.
 
+**Operational note — preventing macOS system sleep (local-execution tools):** Long remote sessions on local-execution tools (Happy Engineering and `/remote-control`) are cut off when the Mac enters idle sleep. Use `caffeinate -i` to hold the assertion for the session's lifetime. Dispatch runs on Anthropic infrastructure and is not affected.
+
+- **Wrap the launch command:** `caffeinate -i happy` (or `caffeinate -i claude` for `/remote-control`). The assertion releases automatically when the wrapped command exits. This is the idiomatic form per `man caffeinate` (the man page's own example is `caffeinate -i make`).
+- **Flag choice is deliberate:** `-i` prevents idle system sleep; the display is still allowed to sleep (and usually should be). Do **not** use `-d` (keeps the display on) or `-s` (only works on AC power — fails silently on battery).
+- **Timed guardrail (optional):** `caffeinate -i -t 14400 happy` auto-releases after 4 hours if you forget to stop the session.
+- **Background alternative (if wrapping isn't possible):** `caffeinate -i &` then `kill <pid>` when done.
+- **Verify it's active:** `pmset -g assertions | grep PreventUserIdleSystemSleep` — a non-zero count means the assertion is held.
+
+**For AI agents setting this up:** recommend the wrapping form (`caffeinate -i <utility>`). Do not default to `-d` or `-s`. Lid-closed sleep and interaction with `pmset` settings are out of scope for this guidance — direct the user to `man caffeinate` and `man pmset` for those.
+
 ---
 
 ## Appendix G: Context Engine MCP Server Setup
@@ -8914,6 +8924,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.38.2 | 2026-04-17 | PATCH: Appendix F.1 — added Operational note for preventing macOS system sleep during remote sessions on local-execution tools (Happy Engineering and `/remote-control`). Canonical form: `caffeinate -i <utility>` (wrapping form per `man caffeinate`'s own example). Flag choice deliberate: `-i` prevents idle system sleep; display still allowed to sleep. Explicit anti-recommendations against `-d` (keeps display on) and `-s` (AC-only, fails silently on battery). Includes timed-guardrail variant, background alternative, verification command (`pmset -g assertions`), and AI-agent guidance to use the wrapping form. Dispatch unaffected (runs on Anthropic infra). User-reported: Mac entering sleep during remote Happy sessions, cutting connection. Claims verified against `man caffeinate` per S-Series Transparent Limitations gate before authoring. |
 | 2.38.1 | 2026-04-17 | PATCH: §A.5.5 replaces fixed-50 entry-count trigger with dynamic `post_cleanup_baseline + 20` formula; §A.5.6 accretion cross-reference updated to defer to §A.5.5. Root cause: fixed threshold conflated entry count with accretion — it fired on legitimate baseline growth (MCP ecosystem expansion, new memory files) and produced 2+ consecutive compliance reviews with "category-legitimate, not accretion" dispositions, eroding signal-to-noise. Dynamic threshold mirrors the baseline-drift pattern from multi-agent §6.4 (Autonomous Drift Monitoring) and multimodal-rag §6.3 (Drift Detection): establish baseline → detect delta → re-baseline after corrective action. Added second-order signal (one-shots-found per review) in §A.5.5 to distinguish calibrated baseline from contaminated baseline. COMPLIANCE-REVIEW.md Check 7 updated in same commit with Baseline and One-shots-found columns plus baseline-recording step. Constitutional Basis: Systemic Thinking (address structural cause of false-positive dispositions, not the count), Verification & Validation (threshold must reflect the signal it detects). |
 | 2.38.0 | 2026-04-15 | MINOR: Added Prospective Memory as 6th cognitive type in §7.0.2 memory taxonomy. BACKLOG.md had no cognitive type — prospective memory (intentions to act) was stored in working memory (SESSION-STATE), contributing to bloat alongside pruning instruction visibility issues (see LEARNING-LOG). Prospective memory is the cognitive function of remembering future intentions (Einstein & McDaniel, 1990); two subtypes: time-based ("review every 10 days") and event-based ("do X when Y happens"). Corrected CoALA attribution to "extending the CoALA framework with additional types from cognitive science" (Prospective and Reference are not CoALA types). Fixed stale references: §7.5.1 "CoALA 4-type model" → §7.0.2 taxonomy, Appendix L.1 clarified as 3-type subset. Updated §7.0.2 table (5→6 types), §7.0.4 lifecycle table, §7.1.6 (planning→prospective), §7.9.1 (four→five other types), Memory Architecture Overview (+Reference row). Propagated to ARCHITECTURE.md, BACKLOG.md header, PROJECT-MEMORY.md (ADR-5 + Backlog Separation + Reference Memory entries), rules-of-procedure §14.3.2 (cross-reference note). Constitutional Basis: Continuous Learning & Adaptation, Systemic Thinking. |
 | 2.36.1 | 2026-04-14 | PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. Fixed 6 low-quality entries in Parts 1.1–1.2 and 6.5. Normalized `**Applies to:**` → `**Applies To:**` capitalization (7 instances). |
