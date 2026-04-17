@@ -11,16 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Session-110 complete — 2 commits unpushed. CFR v2.38.1.
+- **Phase:** Session-110 complete. CFR v2.38.1 landed + Phase 2 soak passed.
 - **Mode:** Standard
 - **Active Task:** None.
-
-### ⚠️ Unpushed Commits (clear this section after `git push`)
-
-- `5c6ae84` — CFR v2.38.1 (dynamic A.5.5 threshold) + COMPLIANCE-REVIEW Check 7 + LEARNING-LOG
-- `fb15627` — session-110 close-out
-
-**Batch window open.** Before editing `documents/title-10-ai-coding-cfr.md` or `workflows/COMPLIANCE-REVIEW.md`: check this flag. If still unpushed, fold changes into commit `5c6ae84` via amend or fixup rather than creating a new version bump (v2.38.2 stacked on v2.38.1 minutes later is ugly in Version History). If already pushed, normal PATCH/MINOR bump applies.
 
 ## Quick Reference
 
@@ -43,15 +36,17 @@
 
 ## Last Session (2026-04-17)
 
-110. **Session-110: CFR v2.38.1 — Dynamic A.5.5 Threshold (1 commit)**
+110. **Session-110: CFR v2.38.1 — Dynamic A.5.5 Threshold + Phase 2 Soak (4 commits)**
    - **Problem:** Fixed 50-entry permission trigger fired on legitimate baseline growth (MCP ecosystem, new memory files) across 2+ reviews with "category-legitimate, not accretion" disposition. Symptom-level patch (prune to fit) would have masked the structural issue.
    - **Root cause (systemic reframe):** entry count is a proxy for accretion, not the signal itself. Proxies drift when the ecosystem grows. Fixed thresholds on moving references produce false positives until ignored.
    - **Fix (`5c6ae84`):** CFR §A.5.5 v2.38.1 replaces fixed-50 with `post_cleanup_baseline + 20`, reset after each cleanup. Design mirrors multi-agent §6.4 (Autonomous Drift Monitoring) + multimodal-rag §6.3 (Drift Detection). Added one-shots-found per review as second-order signal. §A.5.6 defers to §A.5.5 for single source of truth. COMPLIANCE-REVIEW.md Check 7 expanded with 6-step procedure + 4 new table columns (Current Count / Baseline / One-shots / Next Trigger).
-   - **Audit (pre-commit):** scanned `~/.claude/settings.json` (123 allow entries) per §A.5.6 one-shot definition — **0 one-shots found**. List is pattern-dominated; confirms the reframe is structural, not a patch.
+   - **Audit (pre-commit):** scanned `~/.claude/settings.json` (123 allow entries) per §A.5.6 one-shot definition — **0 one-shots found**. Also applied systemic-thinking pass ("over-specific → generalize") — nothing fit; every narrower pattern is intentionally narrower than its wildcard parent to exclude a dangerous sibling (`git push`, `pip install`, `docker push`, `gh auth login`). List is pattern-dominated and disciplined; confirms the reframe is structural, not a patch.
    - **Lessons:** LEARNING-LOG "Thresholds Are Signal Detectors, Not Count Gates" — rule for future threshold design (specify the signal, not the unit).
    - **First Baseline/Next Trigger:** recorded at next compliance review (~2026-04-27, Review #4), per v2.38.1 initial-adoption clause.
-   - **Governance:** `gov-e7a5904991cc` (PROCEED, no S-Series). Principles cited: `meta-core-systemic-thinking`, `meta-method-domain-staleness-thresholds`, `coding-method-cleanup-triggers`.
-   - **Plan:** `~/.claude/plans/should-we-create-a-vectorized-scott.md` (approved, executed).
+   - **Batch-window rule (`d342bdd` + auto-memory):** captured the anti-pattern of stacking version bumps on unpushed commits. Durable feedback rule persisted to `~/.claude/projects/.../memory/feedback_unpushed_version_bumps.md` (indexed in MEMORY.md, loads every turn).
+   - **Phase 2 soak:** PHASE2_TRIGGERED marker CLEAR. Most recent T1 fire (2026-04-17T02:07Z) self-resolved in 44 sec when sliding-window slope stabilized post-recalibration. No escalation. Observation: `phase0-measurements.log` hasn't written since 02:08Z — daily 04:00 PDT plist should have fired at least once since; verify at Review #4 Check 6b.
+   - **Governance:** `gov-e7a5904991cc` (plan + execution), `gov-00bfd4008438` (close-out + drift audit) — both PROCEED, no S-Series. Principles cited: `meta-core-systemic-thinking`, `meta-method-domain-staleness-thresholds`, `coding-method-cleanup-triggers`, `meta-method-documentation-drift-detection`, `coding-method-session-end-procedure`.
+   - **Plan:** `~/.claude/plans/should-we-create-a-vectorized-scott.md` (approved, executed, marked Complete).
 
 109. **Session-109: Session-108 Immediate Items Closed + Compliance Review #3 (8 commits)**
    - **#3+#4 (`00b1be8`):** Added `get_sentence_embedding_dimension()` to `EmbeddingClient` (server-side `dimension` op, lazy-cached via dummy encode probe); autouse conftest fixture sets `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` so a live daemon doesn't intercept `SentenceTransformer` mocks; made `_resolve_socket_path` treat `"none"` as unset. Unblocks extractor.py:106-108 dimensions call when daemon is running and restores ~20 previously-intercepted embedding-mock tests.
@@ -84,7 +79,7 @@
 **Short-term:**
 - **BACKLOG #78 (Compliance Review)** — next due ~2026-04-27 (10-15 days from Review #3 on 2026-04-17).
 - **CFR A.5.5 permissions prune** — `~/.claude/settings.json` has 123 allow entries. Per v2.38.1 dynamic threshold (`post_cleanup_baseline + 20`), the first Baseline and Next Trigger are recorded at the next compliance review (Check 7). Initial audit performed 2026-04-17 found 0 one-shots — list is pattern-dominated.
-- **Phase 2 soak** — daily measurement plist at 04:00 now calibrated for post-Phase-2 architecture. Review `~/.context-engine/logs/phase0-measurements.log` weekly for Trigger 4 cross-process drift.
+- **Phase 2 soak** — daily measurement plist at 04:00 now calibrated for post-Phase-2 architecture. Review `~/.context-engine/logs/phase0-measurements.log` weekly for Trigger 4 cross-process drift. **Session-110 check (2026-04-17):** marker clear, no escalation; but log hasn't written since 02:08Z — verify plist health at Review #4 Check 6b.
 
 **BACKLOG #49 status:** Phase 2 COMPLETE and verified. Phase 0 forcing functions retired/recalibrated in session-109.
 
