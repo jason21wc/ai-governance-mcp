@@ -220,18 +220,26 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 ### 7. Tool approval list review
 
-**How:** Reflect on recent sessions — which tools required manual approval? Which were denied? Review `~/.claude/settings.json` allow/deny/ask lists (user-level, single source of truth per A.5.6).
+**How:**
+1. Reflect on recent sessions — which tools required manual approval? Which were denied?
+2. Review `~/.claude/settings.json` allow/deny/ask lists (user-level, single source of truth per A.5.6).
+3. **Entry count vs. dynamic threshold:** compute current allow+deny+ask entry count. Compare against the `Next Trigger` value recorded at the previous review. If current count ≥ `Next Trigger`, perform the accretion audit in step 4; otherwise the list is within the tolerated growth band.
+4. **Accretion audit (when triggered or opportunistically):** scan the allow list for one-shot artifacts per CFR §A.5.6 definition — full commit-message literals, inline scripts (long string args, not `:*` wildcards), specific file paths, and any commands listed in §A.5.6's "Keep as MANUAL APPROVAL" list that have been persisted anyway. Remove confirmed one-shots.
+5. **Re-baseline:** if any cleanup was performed, record the post-cleanup entry count in the table below as the new `Baseline`. Compute `Next Trigger = Baseline + 20` per CFR §A.5.5. If no cleanup was performed, the prior Baseline and Next Trigger carry forward unchanged.
+6. **Record one-shots found:** report the count of one-shots removed (0 is a valid and healthy signal) so trend data accumulates across reviews.
 
-**Pass:** No tool was manually approved ≥3 times across the review window without being added to the allow list, and no denied tool lacks a deny list entry if it keeps appearing.
-**Fail:** Repeated manual approvals (add to allow list) or repeated denials without deny list entry (add to deny list).
+**Pass:** No tool was manually approved ≥3 times across the review window without being added to the allow list, no denied tool lacks a deny list entry if it keeps appearing, and either (a) current count < Next Trigger OR (b) current count ≥ Next Trigger and the accretion audit completed with Baseline recorded.
+**Fail:** Repeated manual approvals (add to allow list), repeated denials without deny list entry (add to deny list), or trigger fired without audit + re-baseline.
 
-**Why this matters:** Tasks #74 and #75 established the tool permission review pattern. Without periodic review, allow/deny lists drift from actual usage — creating unnecessary friction or missed safety boundaries.
+**Why this matters:** Tasks #74 and #75 established the tool permission review pattern. Without periodic review, allow/deny lists drift from actual usage — creating unnecessary friction or missed safety boundaries. The dynamic threshold (CFR §A.5.5 v2.38.1+) replaced a fixed 50-entry trigger that fired on legitimate baseline growth; recording `Baseline` and `One-shots found` per review provides the trend signal needed to distinguish calibrated growth from active accretion.
 
-| Review | Date | Result | Notes |
-|--------|------|--------|-------|
-| 1 | 2026-04-13 | FAIL→FIXED | Removed 3 CFR-violating allows (chmod, mv, docker push). Added 10 read-only allows. Added 8 deny rules per CFR A.5. |
-| 2 | 2026-04-14 | PASS | 110 allows, 8 denies. CLAUDE.md moved deny→ask per CFR A.5.3 (correct — governance files should prompt, not block). No repeated manual approvals observed. |
-| 3 | 2026-04-17 | PASS w/ NOTE | 123 allows (was 105 — added 10 memory-file Edit/Write rules + 8 read-only Bash utilities: sleep/stat/file/which/env/uname/du/tree). Entry count over CFR A.5.5 threshold of 50; additions are category-legitimate (memory files written every session, utility Bash were routine friction), not accretion. **Prune pass deferred to next review** — identify stale one-shot persistences. |
+**Second-order signal interpretation:** if two consecutive reviews both report `One-shots found = 0` (or ≤1), the baseline is genuinely pattern-dominated and the trigger is calibrated. If a review reports `One-shots found ≥ 5`, accretion is active even if the entry count was under trigger — flag for a targeted audit next review regardless of entry count.
+
+| Review | Date | Result | Current Count | Baseline | One-shots Found | Next Trigger | Notes |
+|--------|------|--------|---------------|----------|-----------------|--------------|-------|
+| 1 | 2026-04-13 | FAIL→FIXED | — | — | — | — | Removed 3 CFR-violating allows (chmod, mv, docker push). Added 10 read-only allows. Added 8 deny rules per CFR A.5. (Pre-dynamic-threshold.) |
+| 2 | 2026-04-14 | PASS | 110 allows, 8 denies | — | — | — | CLAUDE.md moved deny→ask per CFR A.5.3 (correct — governance files should prompt, not block). No repeated manual approvals observed. (Pre-dynamic-threshold.) |
+| 3 | 2026-04-17 | PASS w/ NOTE | 123 allows | — | — | — | 123 allows (was 105 — added 10 memory-file Edit/Write rules + 8 read-only Bash utilities: sleep/stat/file/which/env/uname/du/tree). Entry count over the prior fixed-50 threshold; additions are category-legitimate (memory files written every session, utility Bash were routine friction), not accretion. **Prune pass deferred to next review** — identify stale one-shot persistences. (Pre-dynamic-threshold disposition; trigger conclusion was the evidence motivating v2.38.1 redesign.) |
 
 ---
 

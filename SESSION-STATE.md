@@ -66,7 +66,7 @@
 
 **Short-term:**
 - **BACKLOG #78 (Compliance Review)** — next due ~2026-04-27 (10-15 days from Review #3 on 2026-04-17).
-- **CFR A.5.5 permissions prune** — `~/.claude/settings.json` has 123 entries, threshold 50. Review one-shot persistences during next compliance review per Check 7 deferral.
+- **CFR A.5.5 permissions prune** — `~/.claude/settings.json` has 123 allow entries. Per v2.38.1 dynamic threshold (`post_cleanup_baseline + 20`), the first Baseline and Next Trigger are recorded at the next compliance review (Check 7). Initial audit performed 2026-04-17 found 0 one-shots — list is pattern-dominated.
 - **Phase 2 soak** — daily measurement plist at 04:00 now calibrated for post-Phase-2 architecture. Review `~/.context-engine/logs/phase0-measurements.log` weekly for Trigger 4 cross-process drift.
 
 **BACKLOG #49 status:** Phase 2 COMPLETE and verified. Phase 0 forcing functions retired/recalibrated in session-109.

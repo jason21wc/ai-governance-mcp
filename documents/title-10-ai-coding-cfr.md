@@ -1,7 +1,7 @@
 ---
-version: "2.38.0"
+version: "2.38.1"
 status: "active"
-effective_date: "2026-04-15"
+effective_date: "2026-04-17"
 domain: "ai-coding"
 governance_level: "federal-regulations"
 ---
@@ -7403,9 +7403,11 @@ Re-evaluate permission configuration when:
 - A permission proves too broad (agent modified something unexpected)
 - Moving between development phases (prototyping → production hardening)
 - Onboarding new team members who will use the project's committed settings
-- Permission entry count exceeds 50 — signal of accretion even in the single-file model (the recommended user-level baseline has ~40 entries; meaningful growth beyond that likely includes one-shot artifacts). Review for full commit messages, inline scripts, specific file paths that should not have persisted. Approve per-use instead.
+- Permission entry count exceeds `post_cleanup_baseline + 20` — signal of accretion beyond the last-reviewed legitimate baseline. `post_cleanup_baseline` is the entry count recorded immediately after the most recent review that performed cleanup; the +20 headroom approximates one active session's worth of legitimate pattern additions before re-review is warranted. On initial adoption of this formula, `post_cleanup_baseline` is the count recorded at the first review after the formula ships. Review for one-shot artifacts (full commit messages, inline scripts, specific file paths that should not have persisted); approve per-use instead. Reset `post_cleanup_baseline` after each review that performs cleanup; if no cleanup occurred, the baseline and trigger carry forward unchanged.
 
-**Cross-references:** §5.6.1 (Coding Tool Injection Defense), §5.6.3 (Destructive Action Prevention), §9.3.10 (Enforcement Stack), multi-agent methods §6.5.2 (Autonomous Operation Permissions), A.5.6 (Recommended Permission Architecture)
+**Why dynamic, not fixed:** A fixed entry-count threshold conflates *count* with *accretion*. As the MCP ecosystem grows and new tools earn durable "always approve" status, the legitimate baseline grows with it — a static threshold fires on that legitimate growth and produces repeated "over threshold, not accretion" dispositions that erode signal-to-noise. The true signal is *one-shots persisted*, not entry count; entry count is a proxy. A baseline-relative threshold preserves detection of genuine accretion while absorbing legitimate baseline growth. This mirrors the baseline-drift-detection pattern used in multi-agent methods §6.4 (Autonomous Drift Monitoring) and multimodal-rag methods §6.3 (Drift Detection) — establish baseline, detect delta, re-baseline after corrective action. Reviewers should additionally track *one-shots found per review* as a second-order signal: consistent near-zero findings indicate the baseline is genuinely pattern-dominated; repeated findings of ≥5 indicate accretion is active even under the trigger and warrant baseline re-evaluation.
+
+**Cross-references:** §5.6.1 (Coding Tool Injection Defense), §5.6.3 (Destructive Action Prevention), §9.3.10 (Enforcement Stack), multi-agent methods §6.5.2 (Autonomous Operation Permissions), multi-agent methods §6.4 (Autonomous Drift Monitoring — baseline-drift precedent), A.5.6 (Recommended Permission Architecture)
 
 #### A.5.6 Recommended Permission Architecture
 
@@ -7499,7 +7501,7 @@ Project-local (.claude/settings.local.json, gitignored): personal overrides to t
 - `rm`, `mv`, `cp`, `chmod` — destructive or file-modifying across any path
 - `sed`, `awk` — can modify files in place via redirection
 
-**The accretion problem:** Permissions grow by "approve once, persist forever." One-shot commands (full commit messages, inline scripts, specific file paths) should not persist — approve per-use instead. Review user-level settings when entry count exceeds 50 (see A.5.5).
+**The accretion problem:** Permissions grow by "approve once, persist forever." One-shot commands (full commit messages, inline scripts, specific file paths) should not persist — approve per-use instead. Review user-level settings when entry count exceeds the dynamic threshold defined in §A.5.5 (`post_cleanup_baseline + 20`).
 
 #### A.5.7 Platform-Specific Permission Notes
 
@@ -8912,6 +8914,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.38.1 | 2026-04-17 | PATCH: §A.5.5 replaces fixed-50 entry-count trigger with dynamic `post_cleanup_baseline + 20` formula; §A.5.6 accretion cross-reference updated to defer to §A.5.5. Root cause: fixed threshold conflated entry count with accretion — it fired on legitimate baseline growth (MCP ecosystem expansion, new memory files) and produced 2+ consecutive compliance reviews with "category-legitimate, not accretion" dispositions, eroding signal-to-noise. Dynamic threshold mirrors the baseline-drift pattern from multi-agent §6.4 (Autonomous Drift Monitoring) and multimodal-rag §6.3 (Drift Detection): establish baseline → detect delta → re-baseline after corrective action. Added second-order signal (one-shots-found per review) in §A.5.5 to distinguish calibrated baseline from contaminated baseline. COMPLIANCE-REVIEW.md Check 7 updated in same commit with Baseline and One-shots-found columns plus baseline-recording step. Constitutional Basis: Systemic Thinking (address structural cause of false-positive dispositions, not the count), Verification & Validation (threshold must reflect the signal it detects). |
 | 2.38.0 | 2026-04-15 | MINOR: Added Prospective Memory as 6th cognitive type in §7.0.2 memory taxonomy. BACKLOG.md had no cognitive type — prospective memory (intentions to act) was stored in working memory (SESSION-STATE), contributing to bloat alongside pruning instruction visibility issues (see LEARNING-LOG). Prospective memory is the cognitive function of remembering future intentions (Einstein & McDaniel, 1990); two subtypes: time-based ("review every 10 days") and event-based ("do X when Y happens"). Corrected CoALA attribution to "extending the CoALA framework with additional types from cognitive science" (Prospective and Reference are not CoALA types). Fixed stale references: §7.5.1 "CoALA 4-type model" → §7.0.2 taxonomy, Appendix L.1 clarified as 3-type subset. Updated §7.0.2 table (5→6 types), §7.0.4 lifecycle table, §7.1.6 (planning→prospective), §7.9.1 (four→five other types), Memory Architecture Overview (+Reference row). Propagated to ARCHITECTURE.md, BACKLOG.md header, PROJECT-MEMORY.md (ADR-5 + Backlog Separation + Reference Memory entries), rules-of-procedure §14.3.2 (cross-reference note). Constitutional Basis: Continuous Learning & Adaptation, Systemic Thinking. |
 | 2.36.1 | 2026-04-14 | PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. Fixed 6 low-quality entries in Parts 1.1–1.2 and 6.5. Normalized `**Applies to:**` → `**Applies To:**` capitalization (7 instances). |
 | 2.36.0 | 2026-04-11 | MINOR: Added L.8 AI-Optimized Project Structure Standard. Defines all recognized folder zones for AI-governed projects: `staging/` (always-present temporary AI input), `workflows/` (process checklists, future workflow definitions), `documents/` (default project content folder with image co-location per multimodal-RAG R1), `docs/` (ecosystem standard for human-facing docs), `.claude/plans/` lifecycle (multi-plan coexistence, Status header tracking, SESSION-STATE discovery). Two complete layouts (code + document). Zone rules table with purpose and presence criteria. Moved COMPLETION-CHECKLIST.md and COMPLIANCE-REVIEW.md to `workflows/` in this project. Constitutional Basis: Context Engineering, multimodal-RAG R1 (Image-Text Collocation). Contrarian-reviewed: original proposal to unify on `_ai-context/` rejected — split was intentionally designed (Appendix L). |

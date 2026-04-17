@@ -12,6 +12,16 @@
 
 ## Active Lessons
 
+### Thresholds Are Signal Detectors, Not Count Gates (2026-04-17)
+
+CFR §A.5.5 set a fixed 50-entry trigger for permission-list review. Across two consecutive compliance reviews, it fired on legitimate growth (new MCP tools, new memory-file Edit/Write rules) with the same "category-legitimate, not accretion" disposition. The threshold was measuring the wrong thing: entry count is a proxy for accretion, but proxies drift as the ecosystem grows. Fix (v2.38.1): `post_cleanup_baseline + 20` — relative to the last-reviewed legitimate state, resets after each cleanup. Added one-shots-found as a second-order signal to distinguish calibrated baseline from contaminated baseline.
+
+**Rule:** When designing any numeric threshold, specify the signal it is meant to detect (not just the unit it counts). If the signal is drift from a moving reference (usage, baseline, ecosystem state), make the threshold relative to that reference and re-baseline after corrective action. Static thresholds on moving targets produce false positives that erode signal-to-noise until the threshold is ignored.
+
+**Principle:** `meta-core-systemic-thinking` — the recurring "over threshold, not accretion" disposition was a symptom that the threshold and the phenomenon had decoupled; fixing the count (pruning to get under 50) would have been a patch. Borrowed structural pattern: multi-agent §6.4 (Autonomous Drift Monitoring) + multimodal-rag §6.3 (Drift Detection) — both establish baseline, detect delta, re-baseline after intervention.
+
+---
+
 ### Matched Timeouts on Both Sides of an RPC Produce Environment-Dependent Flakes (2026-04-17)
 
 The IPC reconnect test was flaky on CI but passed locally because two independent 30s timers raced: the server handler's `result_event.wait(timeout=CONNECTION_TIMEOUT)` waiting for a worker that had already exited, and the client's `conn.settimeout(CONNECTION_TIMEOUT)` waiting for a response. On macOS the client's timer fired first (triggers reconnect → success). On Linux CI the handler's timer fired first (sends `{"error": "Worker timeout"}` → client raises RuntimeError). Both valid outcomes from the same code; scheduler-dependent which one "wins."
