@@ -30,7 +30,7 @@
 | Index | **130 principles + 676 methods + 13 references** (819 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **5** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM prevention gate) |
-| CI | All green (3.10, 3.11, 3.12 + security + lint + content scan); pip-audit scoped to project deps |
+| CI | **2 pre-existing failures** since session-106: (1) `test_embedding_ipc.py::TestClientRetry::test_client_reconnects_after_server_restart` — flaky worker timeout on CI (passes locally), all 3 Python versions; (2) security job — bandit exits 1 on `nosec` comments for lines without matching findings (warnings only, no real vulnerabilities). Lint + content scan green. |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
@@ -39,8 +39,9 @@
 108. **Session-108: Phase 2 Verified + OOM Gate Hardened**
    - **WS1 (Phase 2 Step 6 — verification):** Daemon alive (PID 93280), IPC socket healthy, all MCP servers confirmed using IPC ("Using embedding server (IPC)" in logs). Governance servers: **85 MB** phys_footprint (down from ~800 MB, ~715 MB saved per instance). Model load time: **80ms** (was ~9s, 112x improvement). MRR: method=0.646, principle=0.750 (pass all thresholds). Method MRR drop from 0.711 predates Phase 2 (content changes). CE servers: 552-683 MB (tree-sitter + index data, no torch).
    - **WS2 (BACKLOG #91 fix-now items):** 6 improvements to OOM gate hook (`7cd727f`): ERR trap (fail-closed), jq→python3 fallback, PYTEST_CURRENT_TEST guard, secret redaction, log rotation (100KB cap), -k docs. 7 new tests (30 total). All pass.
-   - **WS3 (housekeeping):** Updated SESSION-STATE, BACKLOG, PROJECT-MEMORY metrics.
-   - **Pre-existing test issue noted:** 20 embedding-mock tests fail when daemon is running (IPC client intercepts mock patches). Not a regression — track as new BACKLOG item alongside the extractor dimensions bug.
+   - **WS3 (housekeeping):** Updated SESSION-STATE, BACKLOG, PROJECT-MEMORY metrics. Cross-platform `stat` fix for log rotation on Linux CI (`1d73fd1`).
+   - **CI status:** 2 pre-existing failures identified (both present since session-106 push): (1) `test_client_reconnects_after_server_restart` flaky worker timeout on CI; (2) bandit `nosec` exit code 1. Neither from session-108 changes. Log rotation test was failing on Linux CI (`stat -f%z` macOS-only) — fixed with `stat -c%s` fallback.
+   - **Pre-existing test issue noted:** 20 embedding-mock tests fail when daemon is running locally (IPC client intercepts mock patches). CI doesn't have a daemon, so these pass there.
    - **Governance:** `gov-d33150d934df` (S-Series false positive on "secret" — keyword, no principles).
 
 107. **Plan-Only — Phase 2 Verification + OOM Gate Hardening** — Plan created at `~/.claude/plans/nifty-twirling-pike.md`. Contrarian found stale MRR baselines (0.694→0.711 actual), silent fallback risk, and extractor dimensions bug.
@@ -51,8 +52,11 @@
 
 **Immediate:**
 
-1. **Fix 20 embedding-mock test failures.** When daemon is running, `EmbeddingClient.available()` returns True, intercepting the `SentenceTransformer` mock patch. Tests need to either: (a) set `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` in test env, or (b) mock `EmbeddingClient.available` to return False. Track alongside extractor dimensions bug in BACKLOG.
-2. **Track extractor dimensions bug in BACKLOG.** `extractor.py:106-108` calls `get_sentence_embedding_dimension()` on `self.model` which could be an `EmbeddingClient` (no such method). Crashes index rebuilds when daemon is running.
+1. **Fix 2 pre-existing CI failures (since session-106):**
+   - `test_embedding_ipc.py::TestClientRetry::test_client_reconnects_after_server_restart` — flaky worker timeout on CI, all 3 Python versions. Passes locally. Likely a timing issue with mock encode function and CI resource constraints.
+   - Security job: bandit exits 1 on `nosec` comments placed on lines that don't trigger the suppressed finding. Fix: either remove stale `nosec` comments or adjust CI to `--exit-zero` for warnings-only.
+2. **Fix 20 embedding-mock test failures (local-only, when daemon running).** `EmbeddingClient.available()` returns True, intercepting `SentenceTransformer` mock patch. Fix: set `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` in test conftest, or mock `EmbeddingClient.available` to return False.
+3. **Fix extractor dimensions bug.** `extractor.py:106-108` calls `get_sentence_embedding_dimension()` on `self.model` which could be `EmbeddingClient` (no such method). Crashes index rebuilds when daemon running. Track in BACKLOG.
 
 **Short-term:**
 - **BACKLOG #78 (Compliance Review)** — next due ~2026-04-24.
