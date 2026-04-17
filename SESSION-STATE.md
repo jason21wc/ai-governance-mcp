@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-17 (session 109)
+**Last Updated:** 2026-04-17 (session 110)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,7 +11,7 @@
 
 ## Current Position
 
-- **Phase:** Session-109 complete — 8 commits pushed, CI green.
+- **Phase:** Session-110 complete — 1 commit (`5c6ae84`), unpushed. CFR v2.38.1.
 - **Mode:** Standard
 - **Active Task:** None.
 
@@ -35,6 +35,16 @@
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Last Session (2026-04-17)
+
+110. **Session-110: CFR v2.38.1 — Dynamic A.5.5 Threshold (1 commit)**
+   - **Problem:** Fixed 50-entry permission trigger fired on legitimate baseline growth (MCP ecosystem, new memory files) across 2+ reviews with "category-legitimate, not accretion" disposition. Symptom-level patch (prune to fit) would have masked the structural issue.
+   - **Root cause (systemic reframe):** entry count is a proxy for accretion, not the signal itself. Proxies drift when the ecosystem grows. Fixed thresholds on moving references produce false positives until ignored.
+   - **Fix (`5c6ae84`):** CFR §A.5.5 v2.38.1 replaces fixed-50 with `post_cleanup_baseline + 20`, reset after each cleanup. Design mirrors multi-agent §6.4 (Autonomous Drift Monitoring) + multimodal-rag §6.3 (Drift Detection). Added one-shots-found per review as second-order signal. §A.5.6 defers to §A.5.5 for single source of truth. COMPLIANCE-REVIEW.md Check 7 expanded with 6-step procedure + 4 new table columns (Current Count / Baseline / One-shots / Next Trigger).
+   - **Audit (pre-commit):** scanned `~/.claude/settings.json` (123 allow entries) per §A.5.6 one-shot definition — **0 one-shots found**. List is pattern-dominated; confirms the reframe is structural, not a patch.
+   - **Lessons:** LEARNING-LOG "Thresholds Are Signal Detectors, Not Count Gates" — rule for future threshold design (specify the signal, not the unit).
+   - **First Baseline/Next Trigger:** recorded at next compliance review (~2026-04-27, Review #4), per v2.38.1 initial-adoption clause.
+   - **Governance:** `gov-e7a5904991cc` (PROCEED, no S-Series). Principles cited: `meta-core-systemic-thinking`, `meta-method-domain-staleness-thresholds`, `coding-method-cleanup-triggers`.
+   - **Plan:** `~/.claude/plans/should-we-create-a-vectorized-scott.md` (approved, executed).
 
 109. **Session-109: Session-108 Immediate Items Closed + Compliance Review #3 (8 commits)**
    - **#3+#4 (`00b1be8`):** Added `get_sentence_embedding_dimension()` to `EmbeddingClient` (server-side `dimension` op, lazy-cached via dummy encode probe); autouse conftest fixture sets `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` so a live daemon doesn't intercept `SentenceTransformer` mocks; made `_resolve_socket_path` treat `"none"` as unset. Unblocks extractor.py:106-108 dimensions call when daemon is running and restores ~20 previously-intercepted embedding-mock tests.
