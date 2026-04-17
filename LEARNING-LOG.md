@@ -12,6 +12,34 @@
 
 ## Active Lessons
 
+### Matched Timeouts on Both Sides of an RPC Produce Environment-Dependent Flakes (2026-04-17)
+
+The IPC reconnect test was flaky on CI but passed locally because two independent 30s timers raced: the server handler's `result_event.wait(timeout=CONNECTION_TIMEOUT)` waiting for a worker that had already exited, and the client's `conn.settimeout(CONNECTION_TIMEOUT)` waiting for a response. On macOS the client's timer fired first (triggers reconnect → success). On Linux CI the handler's timer fired first (sends `{"error": "Worker timeout"}` → client raises RuntimeError). Both valid outcomes from the same code; scheduler-dependent which one "wins."
+
+**Rule:** When an RPC system has a timeout on both ends set to the same value, the winner is environment-dependent — macOS and Linux make different scheduling choices, and CI runners add further noise. Either (a) make the timeouts asymmetric with a clear "who detects the failure" contract, or (b) remove the race at its source (the test fix: close accepted conns on shutdown so handlers exit fast and the race never starts). Symmetric timeouts should be treated as a design smell in any IPC layer.
+
+**Principle:** `meta-core-systemic-thinking` — the test wasn't "flaky due to CI resource constraints" (the BACKLOG framing). It was a deterministic race that the structural fix (release accepted conns on shutdown) eliminates rather than papers over with retries or longer timeouts.
+
+---
+
+### Claude Code Hook Exit 1 = Fail-Open, Not Fail-Closed (2026-04-16)
+
+The OOM gate hook uses `set -euo pipefail`. If any unhandled command fails, bash exits with code 1. Claude Code treats exit 1 as a **non-blocking error that ALLOWS the action through** — only exit 2 blocks. This means `set -e` without an ERR trap makes a security hook fail-open on unexpected errors, the opposite of what a security gate intends. Timeouts also allow through.
+
+**Rule:** All security-relevant Claude Code hooks must include `trap 'exit 2' ERR` immediately after `set -euo pipefail`. This converts unhandled failures to deny (exit 2) instead of non-blocking allow (exit 1). Additionally, never use `exit 1` intentionally in a hook that needs to block — always `exit 2`. Source: Anthropic hooks reference (code.claude.com/docs/en/hooks).
+
+**Principle:** `meta-core-systemic-thinking` — the root cause is a mismatch between Unix convention (exit 1 = error = stop) and Claude Code convention (exit 1 = non-blocking = continue). Advisory knowledge of the convention isn't enough; the ERR trap makes it structural.
+
+---
+
+### MRR Baseline Numbers Recalled from Memory Were Wrong (2026-04-16)
+
+Session-107 planning used "0.694 methods, 0.688 principles" as Phase 2 verification targets — numbers from SESSION-STATE that originated in the 03-12 to 03-22 era. The contrarian reviewer caught it: actual stable baseline (04-01 through 04-13, 13 consecutive days) is **method_mrr=0.711, principle_mrr=0.750**. The 04-14 baseline shows method_mrr=0.646 (a 0.065 drop, predating Phase 2). Measuring against stale numbers would have produced a false pass/fail.
+
+**Rule:** Before using numeric baselines in verification criteria, read the actual baseline file (`tests/benchmarks/baseline_*.json`). Do not recall numbers from memory or SESSION-STATE — they go stale when content or test cases change. Per `meta-safety-transparent-limitations`: presenting recalled baselines as current values is factually wrong.
+
+---
+
 ### RSS Lies on macOS — Use phys_footprint (2026-04-16)
 
 Diagnosed a memory problem using `ps aux` RSS numbers (800 MB - 1 GB per process) and reported "5% of RAM, not a crisis." Activity Monitor showed 9 GB / 6 GB / 3-4 GB per process. The discrepancy is 5x. macOS `ps` RSS only counts pages currently resident in physical RAM. `vmmap -summary` reports `phys_footprint` which includes resident + compressed + swapped — the correct metric that Activity Monitor displays. For a long-running process with idle regions, RSS drastically understates the real committed memory.

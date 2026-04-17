@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-16 (session 108)
+**Last Updated:** 2026-04-17 (session 109)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Phase 2 COMPLETE. All 6 steps shipped and verified. BACKLOG #91 fix-now items shipped (`7cd727f`).
+- **Phase:** Session-108 Immediate items #1, #2, #3 all shipped. Pending push to main.
 - **Mode:** Standard
-- **Active Task:** None — session-108 complete.
+- **Active Task:** None — session-109 ready to push.
 
 ## Quick Reference
 
@@ -22,7 +22,7 @@
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
 | Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.26.7** (rules-of-procedure), **v2.38.0** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1284 passing** safe subset (`pytest tests/ -v -m "not slow"`); 20 embedding-mock tests fail when daemon is running (pre-existing — IPC client intercepts mock patches). Run `pytest tests/ -v` for full count. |
+| Tests | **1308 passing** safe subset (`pytest tests/ -v -m "not slow"`); embedding-mock tests no longer intercepted by daemon (autouse conftest fixture forces local path). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -30,11 +30,19 @@
 | Index | **130 principles + 676 methods + 13 references** (819 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **5** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM prevention gate) |
-| CI | **2 pre-existing failures** since session-106: (1) `test_embedding_ipc.py::TestClientRetry::test_client_reconnects_after_server_restart` — flaky worker timeout on CI (passes locally), all 3 Python versions; (2) security job — bandit exits 1 on `nosec` comments for lines without matching findings (warnings only, no real vulnerabilities). Lint + content scan green. |
+| CI | Both session-106 pre-existing failures fixed in session-109 (pending push): reconnect flake resolved by releasing accepted conns on shutdown; bandit exit-1 resolved by suppressing non-crypto B311 jitter and cleaning up unused B506 nosec on `yaml.safe_load()`. |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Last Session (2026-04-16)
+## Last Session (2026-04-17)
+
+109. **Session-109: Session-108 Immediate Items Closed (5 commits)**
+   - **#3+#4 (`00b1be8`):** Added `get_sentence_embedding_dimension()` to `EmbeddingClient` (server-side `dimension` op, lazy-cached via dummy encode probe); autouse conftest fixture sets `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` so a live daemon doesn't intercept `SentenceTransformer` mocks; made `_resolve_socket_path` treat `"none"` as unset. Unblocks extractor.py:106-108 dimensions call when daemon is running and restores ~20 previously-intercepted embedding-mock tests.
+   - **#2 (`1cf416d`):** Real bandit exit-1 cause was B311 `random.uniform` for daemon restart jitter (non-crypto) — added `# nosec B311`. Also cleaned up unused `# nosec B506` from `yaml.safe_load()` calls (B506 targets `yaml.load`, not `safe_load`); moved prose out of nosec lines so bandit doesn't tokenize it as test IDs.
+   - **#1 (`953a005`):** Reconnect test flake was NOT "CI resource constraints" — it was a deterministic race between two matched 30s timers (server handler's `result_event.wait` vs client's `conn.settimeout`). Fix: track accepted conns in `EmbeddingServer`, SHUT_RDWR them on shutdown so handlers exit recv promptly. Test runtime dropped 33.54s→3.53s.
+   - **Code review hardening (`0b3af90`, `7b6352d`):** Closed accept-race window (stop_event recheck under `_conns_lock`), split OSError/ValueError exception handling so non-shutdown errors are logged not swallowed, dropped assumption that `encode_fn` accepts `normalize_embeddings` kwarg, replaced hedge assertion with deterministic 1s spin-wait, documented autouse fixture opt-out pattern.
+   - **Net:** safe subset 1284→1308 (+24: 3 dimension tests, 1 regression test, +20 unblocked mock tests). Full test runtime ~70s→~41s (flake alone was 30s of every run).
+   - **Governance:** `gov-2c2519ada107` (PROCEED, no S-Series).
 
 108. **Session-108: Phase 2 Verified + OOM Gate Hardened**
    - **WS1 (Phase 2 Step 6 — verification):** Daemon alive (PID 93280), IPC socket healthy, all MCP servers confirmed using IPC ("Using embedding server (IPC)" in logs). Governance servers: **85 MB** phys_footprint (down from ~800 MB, ~715 MB saved per instance). Model load time: **80ms** (was ~9s, 112x improvement). MRR: method=0.646, principle=0.750 (pass all thresholds). Method MRR drop from 0.711 predates Phase 2 (content changes). CE servers: 552-683 MB (tree-sitter + index data, no torch).
@@ -52,11 +60,7 @@
 
 **Immediate:**
 
-1. **Fix 2 pre-existing CI failures (since session-106):**
-   - `test_embedding_ipc.py::TestClientRetry::test_client_reconnects_after_server_restart` — flaky worker timeout on CI, all 3 Python versions. Passes locally. Likely a timing issue with mock encode function and CI resource constraints.
-   - Security job: bandit exits 1 on `nosec` comments placed on lines that don't trigger the suppressed finding. Fix: either remove stale `nosec` comments or adjust CI to `--exit-zero` for warnings-only.
-2. **Fix 20 embedding-mock test failures (local-only, when daemon running).** `EmbeddingClient.available()` returns True, intercepting `SentenceTransformer` mock patch. Fix: set `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` in test conftest, or mock `EmbeddingClient.available` to return False.
-3. **Fix extractor dimensions bug.** `extractor.py:106-108` calls `get_sentence_embedding_dimension()` on `self.model` which could be `EmbeddingClient` (no such method). Crashes index rebuilds when daemon running. Track in BACKLOG.
+1. **Push session-109 commits to main + verify CI green.** Five commits pending: `00b1be8` → `1cf416d` → `953a005` → `0b3af90` → `7b6352d`. Expect both prior CI failures (reconnect flake + bandit exit-1) to resolve.
 
 **Short-term:**
 - **BACKLOG #78 (Compliance Review)** — next due ~2026-04-24.
