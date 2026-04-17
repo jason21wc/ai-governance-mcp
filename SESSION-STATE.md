@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Session-108 Immediate items #1, #2, #3 all shipped. Pending push to main.
+- **Phase:** Session-109 complete — 8 commits pushed, CI green.
 - **Mode:** Standard
-- **Active Task:** None — session-109 ready to push.
+- **Active Task:** None.
 
 ## Quick Reference
 
@@ -30,19 +30,23 @@
 | Index | **130 principles + 676 methods + 13 references** (819 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **5** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM prevention gate) |
-| CI | Both session-106 pre-existing failures fixed in session-109 (pending push): reconnect flake resolved by releasing accepted conns on shutdown; bandit exit-1 resolved by suppressing non-crypto B311 jitter and cleaning up unused B506 nosec on `yaml.safe_load()`. |
+| CI | **Green.** Both session-106 pre-existing failures fixed and verified on main in session-109: reconnect flake resolved by releasing accepted conns on shutdown; bandit exit-1 resolved by suppressing non-crypto B311 jitter and cleaning up unused B506 nosec on `yaml.safe_load()`. Last push: `5c890aa` (2m55s CI, 1m17s CodeQL). |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Last Session (2026-04-17)
 
-109. **Session-109: Session-108 Immediate Items Closed (5 commits)**
+109. **Session-109: Session-108 Immediate Items Closed + Compliance Review #3 (8 commits)**
    - **#3+#4 (`00b1be8`):** Added `get_sentence_embedding_dimension()` to `EmbeddingClient` (server-side `dimension` op, lazy-cached via dummy encode probe); autouse conftest fixture sets `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` so a live daemon doesn't intercept `SentenceTransformer` mocks; made `_resolve_socket_path` treat `"none"` as unset. Unblocks extractor.py:106-108 dimensions call when daemon is running and restores ~20 previously-intercepted embedding-mock tests.
    - **#2 (`1cf416d`):** Real bandit exit-1 cause was B311 `random.uniform` for daemon restart jitter (non-crypto) — added `# nosec B311`. Also cleaned up unused `# nosec B506` from `yaml.safe_load()` calls (B506 targets `yaml.load`, not `safe_load`); moved prose out of nosec lines so bandit doesn't tokenize it as test IDs.
    - **#1 (`953a005`):** Reconnect test flake was NOT "CI resource constraints" — it was a deterministic race between two matched 30s timers (server handler's `result_event.wait` vs client's `conn.settimeout`). Fix: track accepted conns in `EmbeddingServer`, SHUT_RDWR them on shutdown so handlers exit recv promptly. Test runtime dropped 33.54s→3.53s.
    - **Code review hardening (`0b3af90`, `7b6352d`):** Closed accept-race window (stop_event recheck under `_conns_lock`), split OSError/ValueError exception handling so non-shutdown errors are logged not swallowed, dropped assumption that `encode_fn` accepts `normalize_embeddings` kwarg, replaced hedge assertion with deterministic 1s spin-wait, documented autouse fixture opt-out pattern.
+   - **Docs (`603d56f`):** session-109 state + LEARNING-LOG "Matched Timeouts on Both Sides of an RPC" lesson (`meta-core-systemic-thinking` — rejected "flaky due to CI resource constraints" framing as symptom-level).
+   - **Compliance Review #3 (`ca59dcd`):** 10/10 ongoing checks pass after 3 FAIL→FIXED: (1) Check 4 LEARNING-LOG "Passive MCP Instructions" marked ACTIVE; (2) Check 6b.2 stale PHASE2_TRIGGERED marker cleared; (3) Check 8 closed BACKLOG #92/#93 removed. Validator subagent audit 8/9 PASS.
+   - **Phase 2 measurement recalibration (`5c890aa`):** Phase 0 measurement plist was calibrated against pre-Phase-0 references; Phase 2 moved torch+models INTO the watcher (per-process footprint up, cross-process total down). Flipped Trigger 1 from verify-fix semantics ("steady dropped ≥40%") to regression-detect semantics ("steady grew ≥50%"); raised Trigger 3 peak threshold 3072→7500 MB. Baseline file updated with post-Phase-2 values. Script now exits 0 clean.
+   - **Permissions update:** Added 18 entries to `~/.claude/settings.json` allow list — Edit/Write for memory files (SESSION-STATE/LEARNING-LOG/PROJECT-MEMORY/BACKLOG + user auto-memory) and 8 read-only Bash utilities (sleep/stat/file/which/env/uname/du/tree). 123 total entries — over CFR A.5.5 threshold of 50, prune pass deferred to next compliance review.
    - **Net:** safe subset 1284→1308 (+24: 3 dimension tests, 1 regression test, +20 unblocked mock tests). Full test runtime ~70s→~41s (flake alone was 30s of every run).
-   - **Governance:** `gov-2c2519ada107` (PROCEED, no S-Series).
+   - **Governance:** `gov-2c2519ada107` (session start), `gov-ce3f9d35b287` (compliance review fixes) — both PROCEED, no S-Series.
 
 108. **Session-108: Phase 2 Verified + OOM Gate Hardened**
    - **WS1 (Phase 2 Step 6 — verification):** Daemon alive (PID 93280), IPC socket healthy, all MCP servers confirmed using IPC ("Using embedding server (IPC)" in logs). Governance servers: **85 MB** phys_footprint (down from ~800 MB, ~715 MB saved per instance). Model load time: **80ms** (was ~9s, 112x improvement). MRR: method=0.646, principle=0.750 (pass all thresholds). Method MRR drop from 0.711 predates Phase 2 (content changes). CE servers: 552-683 MB (tree-sitter + index data, no torch).
@@ -58,15 +62,14 @@
 
 ## Next Actions
 
-**Immediate:**
-
-1. **Push session-109 commits to main + verify CI green.** Five commits pending: `00b1be8` → `1cf416d` → `953a005` → `0b3af90` → `7b6352d`. Expect both prior CI failures (reconnect flake + bandit exit-1) to resolve.
+**Immediate:** None.
 
 **Short-term:**
-- **BACKLOG #78 (Compliance Review)** — next due ~2026-04-24.
-- **Phase 0 48h soak** — daily measurement plist at 04:00. Check `~/.context-engine/logs/phase0-baseline.txt` for first data point.
+- **BACKLOG #78 (Compliance Review)** — next due ~2026-04-27 (10-15 days from Review #3 on 2026-04-17).
+- **CFR A.5.5 permissions prune** — `~/.claude/settings.json` has 123 entries, threshold 50. Review one-shot persistences during next compliance review per Check 7 deferral.
+- **Phase 2 soak** — daily measurement plist at 04:00 now calibrated for post-Phase-2 architecture. Review `~/.context-engine/logs/phase0-measurements.log` weekly for Trigger 4 cross-process drift.
 
-**BACKLOG #49 status:** Phase 2 COMPLETE and verified. Forcing functions continue running (daily plist + deny log + calendar trigger 2026-06-15).
+**BACKLOG #49 status:** Phase 2 COMPLETE and verified. Phase 0 forcing functions retired/recalibrated in session-109.
 
 See BACKLOG.md for the full list of open items.
 

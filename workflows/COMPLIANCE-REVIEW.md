@@ -319,7 +319,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 | Session | Date | Lines | Under 300? | Notes |
 |---------|------|-------|:---:|-------|
 | 1 (baseline) | 2026-04-14 | 54 | Y | Post-cleanup. First session with pruning instructions on loaded surfaces. |
-| 2 | | | | |
+| 2 | 2026-04-17 | 79 | Y | Session-109 end; grew 54→79 with session-109 entry + V-005 update, comfortably under target. |
 | 3 | | | | |
 | 4 | | | | |
 | 5 | | | | |
