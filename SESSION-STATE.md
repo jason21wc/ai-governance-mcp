@@ -11,9 +11,16 @@
 
 ## Current Position
 
-- **Phase:** Session-110 complete — 1 commit (`5c6ae84`), unpushed. CFR v2.38.1.
+- **Phase:** Session-110 complete — 2 commits unpushed. CFR v2.38.1.
 - **Mode:** Standard
 - **Active Task:** None.
+
+### ⚠️ Unpushed Commits (clear this section after `git push`)
+
+- `5c6ae84` — CFR v2.38.1 (dynamic A.5.5 threshold) + COMPLIANCE-REVIEW Check 7 + LEARNING-LOG
+- `fb15627` — session-110 close-out
+
+**Batch window open.** Before editing `documents/title-10-ai-coding-cfr.md` or `workflows/COMPLIANCE-REVIEW.md`: check this flag. If still unpushed, fold changes into commit `5c6ae84` via amend or fixup rather than creating a new version bump (v2.38.2 stacked on v2.38.1 minutes later is ugly in Version History). If already pushed, normal PATCH/MINOR bump applies.
 
 ## Quick Reference
 
