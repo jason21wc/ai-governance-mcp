@@ -31,7 +31,7 @@
 
 ### Active (Implement Now/Soon)
 
-78. **Governance Compliance Review — ongoing, next review due ~2026-04-24** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13) and #2 (2026-04-14) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Session-105 update:** Check 6b added for BACKLOG #49 forcing-function activity trigger (grep `~/.context-engine/oom-gate-denies.log`); Check 1 hook count updated 4→5.
+78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
 ---
 
@@ -596,13 +596,5 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 **Discussion needed:** Should scaffold_project create all Standard Kit files, or is it intentionally a "minimum viable" standard scaffolding? If the latter, document this in the tool description. If the former, add ARCHITECTURE.md, SPECIFICATION.md, and BACKLOG.md templates to `SCAFFOLD_STANDARD_EXTRAS` and update tests.
 
 **Origin:** Coherence audit during BACKLOG.md propagation (2026-04-14).
-
----
-
-#### 101. Template Divergence Documentation (Discussion) `D1 Docs`
-
-**What:** AI Coding and Multi-Agent use the full principle template (FM codes, Truth Sources, Success Criteria). Four other domains (Storytelling, UI/UX, KM&PD, Multimodal RAG) use variants (Validation Criteria, narrative Failure Mode, Constitutional Derivation, no Truth Sources). Document the accepted variants in rules-of-procedure.md's template section so future authors know both patterns are valid. Don't force uniformity — content quality matters more than field name consistency.
-
-**Origin:** Validator during v2.0.0 post-release audit (2026-04-13).
 
 ---
