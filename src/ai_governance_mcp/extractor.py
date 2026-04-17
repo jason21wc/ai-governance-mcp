@@ -21,7 +21,9 @@ from .config import (
     setup_logging,
     ensure_directories,
 )
-import yaml  # nosec B506 — safe_load only, never yaml.load
+
+# safe_load only, never yaml.load
+import yaml  # nosec B506
 
 from .models import (
     DomainConfig,
@@ -478,7 +480,7 @@ class DocumentExtractor:
         if not fm_match:
             return None
         try:
-            frontmatter = yaml.safe_load(fm_match.group(1))  # nosec B506
+            frontmatter = yaml.safe_load(fm_match.group(1))
         except yaml.YAMLError:
             return None
         if not isinstance(frontmatter, dict):
@@ -862,7 +864,7 @@ class DocumentExtractor:
         body = fm_match.group(2).strip()
 
         try:
-            frontmatter = yaml.safe_load(yaml_text)  # nosec B506
+            frontmatter = yaml.safe_load(yaml_text)
         except yaml.YAMLError as e:
             logger.warning(f"Invalid YAML in {file_path}: {e}")
             return None

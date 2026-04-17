@@ -93,7 +93,7 @@ def _apply_jitter_and_floor(max_uptime_seconds: float) -> float:
             MIN_MAX_UPTIME_SECONDS,
         )
         max_uptime_seconds = MIN_MAX_UPTIME_SECONDS
-    jitter = random.uniform(1.0 - JITTER_RANGE, 1.0 + JITTER_RANGE)
+    jitter = random.uniform(1.0 - JITTER_RANGE, 1.0 + JITTER_RANGE)  # nosec B311
     return max(max_uptime_seconds * jitter, float(MIN_MAX_UPTIME_SECONDS))
 
 

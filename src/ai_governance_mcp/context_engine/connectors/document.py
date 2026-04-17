@@ -8,7 +8,8 @@ import re
 from datetime import date, datetime
 from pathlib import Path
 
-import yaml  # nosec B506 — safe_load only
+# safe_load only
+import yaml  # nosec B506
 
 from .base import BaseConnector
 from ..models import ContentChunk, FileMetadata
@@ -73,7 +74,7 @@ class DocumentConnector(BaseConnector):
         if not fm_match:
             return None, content
         try:
-            frontmatter = yaml.safe_load(fm_match.group(1))  # nosec B506
+            frontmatter = yaml.safe_load(fm_match.group(1))
         except yaml.YAMLError:
             return None, content
         if not isinstance(frontmatter, dict):
