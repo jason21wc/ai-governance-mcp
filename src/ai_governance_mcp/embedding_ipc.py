@@ -277,7 +277,22 @@ class EmbeddingServer:
             try:
                 conn, _ = self._server_socket.accept()
                 conn.settimeout(CONNECTION_TIMEOUT)
+                # Register the conn before spawning the handler, but under
+                # the same lock that shutdown uses — otherwise shutdown can
+                # snapshot _active_conns between accept() returning and add(),
+                # leaving this conn unreachable for SHUT_RDWR. Recheck
+                # stop_event under the lock so a late arrival is released.
                 with self._conns_lock:
+                    if self._stop_event.is_set():
+                        try:
+                            conn.shutdown(socket.SHUT_RDWR)
+                        except OSError:
+                            pass
+                        try:
+                            conn.close()
+                        except OSError:
+                            pass
+                        break
                     self._active_conns.add(conn)
                 handler = threading.Thread(
                     target=self._handle_connection,
@@ -300,11 +315,13 @@ class EmbeddingServer:
                     request = _decode_message(conn)
                 except ConnectionError:
                     break
-                except (OSError, ValueError) as e:
-                    # OSError covers the SHUT_RDWR path triggered by shutdown;
-                    # ValueError covers malformed requests.
-                    if self._stop_event.is_set() or isinstance(e, OSError):
-                        break
+                except OSError as e:
+                    # Shutdown SHUT_RDWR is expected; anything else is a mid-
+                    # request network glitch we don't want to silently eat.
+                    if not self._stop_event.is_set():
+                        logger.debug("Connection error reading request: %s", e)
+                    break
+                except ValueError as e:
                     response = {"ok": False, "error": str(e)}
                     try:
                         conn.sendall(_encode_message(response))
@@ -379,7 +396,9 @@ class EmbeddingServer:
 
     def _handle_dimension(self) -> dict:
         if self._dimension_cache is None:
-            probe = self._encode_fn(["."], normalize_embeddings=False)
+            # Probe without normalize_embeddings — dimension is invariant
+            # and the kwarg is not part of the encode_fn contract.
+            probe = self._encode_fn(["."])
             self._dimension_cache = int(np.asarray(probe).shape[-1])
         return {"ok": True, "dimension": self._dimension_cache}
 

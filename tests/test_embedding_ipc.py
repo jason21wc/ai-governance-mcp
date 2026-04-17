@@ -475,12 +475,17 @@ class TestClientRetry:
         start = time.monotonic()
         server.shutdown()
         elapsed = time.monotonic() - start
-        # Without SHUT_RDWR the worker thread join could wait up to 5s,
-        # but the critical invariant is that no handler blocks 30s on a
-        # stale client send.
+        # Shutdown must not block for the 30s handler timeout or the 30s
+        # client recv timeout — both would indicate a handler is stuck.
         assert elapsed < 5.0, f"shutdown took {elapsed:.1f}s — handler stuck"
-        assert len(server._active_conns) == 0 or all(
-            c.fileno() == -1 for c in server._active_conns
+
+        # Handler thread's finally runs after SHUT_RDWR unblocks recv;
+        # it's not joined by shutdown, so allow it a brief moment.
+        deadline = time.monotonic() + 1.0
+        while server._active_conns and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert len(server._active_conns) == 0, (
+            f"handler did not release conn within 1s: {server._active_conns}"
         )
         client.close()
 
