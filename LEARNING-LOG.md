@@ -298,7 +298,7 @@ Research confirmed with hard data: AI models follow system prompt instructions 8
 
 ---
 
-### Passive MCP Instructions Don't Drive Tool Usage (2026-02-14)
+### Passive MCP Instructions Don't Drive Tool Usage (2026-02-14) — ACTIVE
 
 The CE had well-built tools but passive instructions ("Use these tools to discover what exists"). The governance server achieves automatic usage via deny-by-default skip lists, per-response reminders, and redundant instruction surfaces. Applying the same pattern to the CE — enforcement-oriented trigger phrases ("Before creating...", "Before modifying..."), a nudge in the governance reminder, and a Required Actions cross-reference — bridges the gap without creating a parallel skip-list hierarchy.
 

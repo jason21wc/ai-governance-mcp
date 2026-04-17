@@ -36,6 +36,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PASS | All 4 hooks present, configured, not disabled |
 | 2 | 2026-04-14 | PASS | All 4 hooks present |
+| 3 | 2026-04-17 | PASS | All 5 hooks present (pre-tool-governance-check, pre-push-quality-gate, pre-test-oom-gate, post-push-ci-check, user-prompt-governance-inject) |
 
 ---
 
@@ -52,6 +53,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PASS | No soft-mode env vars set |
 | 2 | 2026-04-14 | PASS | All unset |
+| 3 | 2026-04-17 | PASS | GOVERNANCE_SOFT_MODE, CE_SOFT_MODE, QUALITY_GATE_SKIP all empty |
 
 ---
 
@@ -67,6 +69,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | 1 | 2026-04-13 | PASS | 5/5 sessions in both tables |
 | 2 | 2026-04-13 | N/A | Both experiments resolved — no active tracking |
 | 3 | 2026-04-14 | N/A | V-001 and V-004 still active but tracked below, not in effectiveness tables |
+| 4 | 2026-04-17 | N/A | V-001/V-004/V-005 tracked in their own tables; no effectiveness-table experiments active |
 
 ---
 
@@ -81,6 +84,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PASS | All 3 behavioral directives aligned with CLAUDE.md |
 | 2 | 2026-04-14 | PASS | All 3 aligned. CLAUDE.md now also has CE vs Grep guidance (not in tiers.json — intentionally situational per universal_floor criteria) |
+| 3 | 2026-04-17 | PASS | All 3 tiers.json behavioral_floor directives (recommend-not-ask, freeform-dialogue, cite-principles) have CLAUDE.md Behavioral Floor counterparts |
 
 ---
 
@@ -95,6 +99,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | FAIL→FIXED | 5 entries >60 days. 1 graduated (CI extras→Gotcha #23), 4 marked ACTIVE |
 | 2 | 2026-04-14 | FAIL→FIXED | 3 entries >60 days without markers (Tree-sitter, Environment-Aware Tests, Test Inputs). All marked ACTIVE. |
+| 3 | 2026-04-17 | FAIL→FIXED | 1 entry >60 days without marker: "Passive MCP Instructions Don't Drive Tool Usage (2026-02-14)". Marked ACTIVE. |
 
 ---
 
@@ -146,6 +151,7 @@ Spawn a **validator subagent** to review the session's governance compliance. Th
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PARTIAL | Canary prompts deferred. Validator subagent: PASS WITH NOTES (6/9). FAIL on principle citation (4/9 evals had empty principles_consulted — retrieval quality issue, not behavioral). |
 | 2 | 2026-04-14 | PASS | Canary prompts (a-c) run — awaiting user evaluation. Validator session audit: 7/7 assessable PASS, 2 CANNOT DETERMINE (format/ranking need transcript). |
+| 3 | 2026-04-17 | PASS | Session audit (d) only — canary prompts (a-c) skipped for this execution-only session. Validator subagent: 8/9 PASS, 1 CANNOT DETERMINE (query_project audit IDs not logged in session-109 SESSION-STATE entry — hook enforced the call but trail absent). Session-level root-cause compliance exemplified by `953a005` (eliminated 30s race at source, explicitly rejected "CI resource constraints" framing). |
 
 ---
 
@@ -164,6 +170,7 @@ Spawn a **validator subagent** to review the session's governance compliance. Th
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | PASS | #1 result, combined score 0.75, 141.7ms |
 | 2 | 2026-04-14 | PASS | Top result, combined score 0.74, 119.7ms |
+| 3 | 2026-04-17 | PASS | Top result, combined score 0.74, 204.0ms |
 
 ---
 
@@ -185,6 +192,7 @@ wc -l ~/.context-engine/oom-gate-denies.log 2>/dev/null || echo "0 (no denies ye
 | Review | Date | Result | Line count | Notes |
 |--------|------|--------|------------|-------|
 | 1 | 2026-04-15 | PASS | 0 | Hook shipped session-105; no organic denies yet (only test-fixture writes in tmp dirs) |
+| 2 | 2026-04-17 | PASS | 1 | Single deny on 2026-04-16 02:02Z during a git-commit bash invocation (daemon alive + torch procs). Below 3-trigger escalation threshold. |
 
 ---
 
@@ -206,6 +214,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 | Review | Date | Result | Triggers Fired | Notes |
 |--------|------|--------|----------------|-------|
 | 1 | 2026-04-15 | N/A | n/a | Phase 0 shipping now; baseline captured; first measurement scheduled for next 04:00 |
+| 2 | 2026-04-17 | FIRED→CLEARED | T1 (steady 2867>2518), T3 (peak 3584>3072) | Trigger fired 2026-04-16 10:00Z measuring pre-Phase-2 state (steady_mb=2867, peak_mb=3584). Phase 2 IPC was shipped and verified later the same day (session-108: 85 MB phys_footprint per governance server, 715 MB saved per instance). Phase 2 IS the shared embedding service response. Marker cleared per escalation protocol. Remaining question: is Phase 2 sufficient, or is further reduction needed? Post-Phase-2 baseline should be captured to reset trigger thresholds. |
 
 ---
 
@@ -222,6 +231,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 |--------|------|--------|-------|
 | 1 | 2026-04-13 | FAIL→FIXED | Removed 3 CFR-violating allows (chmod, mv, docker push). Added 10 read-only allows. Added 8 deny rules per CFR A.5. |
 | 2 | 2026-04-14 | PASS | 110 allows, 8 denies. CLAUDE.md moved deny→ask per CFR A.5.3 (correct — governance files should prompt, not block). No repeated manual approvals observed. |
+| 3 | 2026-04-17 | PASS w/ NOTE | 123 allows (was 105 — added 10 memory-file Edit/Write rules + 8 read-only Bash utilities: sleep/stat/file/which/env/uname/du/tree). Entry count over CFR A.5.5 threshold of 50; additions are category-legitimate (memory files written every session, utility Bash were routine friction), not accretion. **Prune pass deferred to next review** — identify stale one-shot persistences. |
 
 ---
 
@@ -236,7 +246,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
-| | | | |
+| 1 | 2026-04-17 | FAIL→FIXED | Items #92 (CI failures) and #93 (Phase 2 IPC latent bugs) were closed by session-109 commits (`00b1be8`, `1cf416d`, `953a005`, `0b3af90`, `7b6352d`) but still present in BACKLOG.md, violating "no closed items" policy. Removed both. Remaining items: #78 (ongoing compliance review), #91 sub-items 3/4/5 (deferred OOM gate follow-ups), discussion items below. No 90+ day stale items. |
 
 ---
 
@@ -322,6 +332,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 |---|------|---------|---------------------|----------------------|-------------|--------|
 | 1 | 2026-04-13 | Post-release audit (v2.0.0) | 6/7 (1b added) | V-004 session 3 | settings.local.json had 3 CFR-violating auto-accepts (chmod, mv, docker push). Deny list had 2/8 recommended entries. Enforcement-mode check missing. | Fixed all. Added Check 1b. 4-agent battery (security+contrarian+validator+coherence). |
 | 2 | 2026-04-14 | Routine (day 1 of 10-15 cadence) | 7/7 (1 FAIL→FIXED) | V-001 session 2, V-004 session 4 | 3 LEARNING-LOG entries >60 days without markers (tree-sitter, env-aware tests, test inputs). CLAUDE.md deny→ask fixed. V-004 3-session window complete: 2/3 failures (escalation threshold met, user decision pending). | Marked 3 entries ACTIVE. Canary prompts run, awaiting user eval. |
+| 3 | 2026-04-17 | User-requested post-session-109 + permissions change trigger | 10/10 (3 FAIL→FIXED) | none (no canary/plan mode this session) | (1) Check 4: LEARNING-LOG "Passive MCP Instructions (2026-02-14)" >60d no marker → marked ACTIVE. (2) Check 6b.2: PHASE2_TRIGGERED fired measuring pre-Phase-2 state; Phase 2 IS the response, shipped+verified session-108 → marker cleared. (3) Check 8: BACKLOG #92/#93 closed by session-109 commits but still present → removed. Check 7 notes 123-entry approval list (over CFR A.5.5 threshold of 50) — category-legitimate additions, prune deferred. | All 3 FAIL items fixed inline. Validator subagent audit (Check 5d): 8/9 PASS, 1 CANNOT DETERMINE (query_project audit IDs not logged in session-109 summary). |
 
 ---
 

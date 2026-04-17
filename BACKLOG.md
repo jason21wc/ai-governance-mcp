@@ -33,16 +33,6 @@
 
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-24** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13) and #2 (2026-04-14) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Session-105 update:** Check 6b added for BACKLOG #49 forcing-function activity trigger (grep `~/.context-engine/oom-gate-denies.log`); Check 1 hook count updated 4→5.
 
-92. **Fix 2 pre-existing CI failures (since session-106)** `D1 Fix`
-    - **Test flake:** `test_embedding_ipc.py::TestClientRetry::test_client_reconnects_after_server_restart` — worker timeout on CI (all 3 Python versions), passes locally. Likely timing issue with mock encode function under CI resource constraints. Fix: increase timeout, add retry, or mark `@pytest.mark.flaky`.
-    - **Bandit nosec exit code:** bandit exits 1 when `nosec` comments appear on lines that don't trigger the suppressed finding (stale suppressions). Files: `document.py:76`, `service.py:373`, `extractor.py:481,865`. Fix: remove stale `nosec` comments or set `--exit-zero` for warnings-only in CI.
-    - **Origin:** First appeared in session-106 push (`24493881473`). Confirmed identical in session-108 push (`24541690605`).
-
-93. **Phase 2 IPC latent bugs — extractor dimensions + embedding mock interference** `D1 Fix`
-    - **Extractor dimensions:** `extractor.py:106-108` calls `get_sentence_embedding_dimension()` on `self.model` which could be `EmbeddingClient` (no such method). Crashes index rebuilds when daemon is running. Fix: add `dimensions` property to `EmbeddingClient` or guard the call with `hasattr`.
-    - **Embedding mock interference (local-only):** 20 tests fail when daemon is running because `EmbeddingClient.available()` returns True, intercepting `SentenceTransformer` mock patches. Tests pass on CI (no daemon). Fix: set `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` in test conftest or mock `EmbeddingClient.available` to return False.
-    - **Origin:** Discovered during session-107 contrarian review (extractor bug) and session-108 verification (mock interference).
-
 ---
 
 ### Deferred/Future — Discussion
