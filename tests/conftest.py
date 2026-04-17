@@ -48,6 +48,13 @@ def _disable_embedding_ipc(monkeypatch):
     returns True and intercepts SentenceTransformer mock patches. Setting
     AI_CONTEXT_ENGINE_EMBED_SOCKET=none mirrors the daemon's self-loop guard
     and ensures mocks apply. CI has no daemon, so this is a no-op there.
+
+    Opt-out: tests that need the real IPC path must override this fixture's
+    effect in their own `monkeypatch` scope — either
+    `monkeypatch.setenv("AI_CONTEXT_ENGINE_EMBED_SOCKET", "<real path>")`
+    or `monkeypatch.delenv("AI_CONTEXT_ENGINE_EMBED_SOCKET", raising=False)`.
+    (See test_embedding_ipc.py::test_env_var_outside_containment_rejected
+    for an example that overrides this fixture.)
     """
     monkeypatch.setenv("AI_CONTEXT_ENGINE_EMBED_SOCKET", "none")
 
