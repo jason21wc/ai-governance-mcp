@@ -57,7 +57,10 @@ def _resolve_socket_path(path: str | Path | None = None) -> Path:
     """
     if path is None:
         env = os.environ.get("AI_CONTEXT_ENGINE_EMBED_SOCKET", "").strip()
-        if env:
+        # "none" is a magic disable signal, not a path literal. Callers gate
+        # on it before instantiating the client; if they bypass, fall through
+        # to the default path rather than treating "none" as a filename.
+        if env and env.lower() != "none":
             path = Path(env).expanduser().resolve()
         else:
             path = DEFAULT_SOCKET_PATH
@@ -188,6 +191,7 @@ class EmbeddingServer:
         self._accept_thread: threading.Thread | None = None
         self._worker_thread: threading.Thread | None = None
         self._stop_event = threading.Event()
+        self._dimension_cache: int | None = None
 
     @property
     def socket_path(self) -> Path:
@@ -333,10 +337,18 @@ class EmbeddingServer:
             return self._handle_encode(request)
         elif op == "predict":
             return self._handle_predict(request)
+        elif op == "dimension":
+            return self._handle_dimension()
         elif op == "health":
             return {"ok": True, "status": "healthy"}
         else:
             return {"ok": False, "error": f"Unknown operation: {op}"}
+
+    def _handle_dimension(self) -> dict:
+        if self._dimension_cache is None:
+            probe = self._encode_fn(["."], normalize_embeddings=False)
+            self._dimension_cache = int(np.asarray(probe).shape[-1])
+        return {"ok": True, "dimension": self._dimension_cache}
 
     def _handle_encode(self, request: dict) -> dict:
         _validate_encode_request(request)
@@ -386,6 +398,7 @@ class EmbeddingClient:
         self._socket_path = _resolve_socket_path(socket_path)
         self._conn: socket.socket | None = None
         self._lock = threading.Lock()
+        self._dimension_cache: int | None = None
 
     def _connect(self) -> socket.socket:
         """Connect to the server with retry + backoff."""
@@ -496,6 +509,17 @@ class EmbeddingClient:
             return response.get("ok", False)
         except (ConnectionError, RuntimeError):
             return False
+
+    def get_sentence_embedding_dimension(self) -> int:
+        """Return the dimension of embeddings produced by the server's model.
+
+        Matches SentenceTransformer.get_sentence_embedding_dimension() so
+        EmbeddingClient is a drop-in replacement. Cached after first call.
+        """
+        if self._dimension_cache is None:
+            response = self._request({"op": "dimension"})
+            self._dimension_cache = int(response["dimension"])
+        return self._dimension_cache
 
     @classmethod
     def available(cls, socket_path: str | Path | None = None) -> bool:

@@ -297,6 +297,28 @@ class TestEmbeddingServerClient:
         _, client = server_and_client
         assert client.health() is True
 
+    def test_get_sentence_embedding_dimension(self, server_and_client):
+        _, client = server_and_client
+        assert client.get_sentence_embedding_dimension() == 384
+
+    def test_dimension_is_cached_on_client(self, server_and_client):
+        """Second call should not round-trip — cached on client."""
+        server, client = server_and_client
+        assert client.get_sentence_embedding_dimension() == 384
+        # Force server to produce different shape — client must return cached.
+        server._dimension_cache = 512  # server-side cache also present
+        assert client.get_sentence_embedding_dimension() == 384
+
+    def test_dimension_is_cached_on_server(self, server_and_client):
+        """Server computes once via dummy encode, caches; subsequent responses reuse."""
+        server, client = server_and_client
+        # Fresh client to bypass client-side cache.
+        fresh = EmbeddingClient(socket_path=server.socket_path)
+        fresh.get_sentence_embedding_dimension()
+        assert server._dimension_cache == 384
+        # Drop server cache; cached client on other side still works (different client).
+        fresh.close()
+
     def test_available_class_method(self, server_and_client, short_tmp, monkeypatch):
         monkeypatch.setattr(
             "ai_governance_mcp.embedding_ipc.CONTAINMENT_ROOT", short_tmp

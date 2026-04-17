@@ -36,6 +36,23 @@ from ai_governance_mcp.config import Settings
 
 
 # =============================================================================
+# Environment Fixtures
+# =============================================================================
+
+
+@pytest.fixture(autouse=True)
+def _disable_embedding_ipc(monkeypatch):
+    """Force local SentenceTransformer path in tests.
+
+    When a watcher daemon is running locally, EmbeddingClient.available()
+    returns True and intercepts SentenceTransformer mock patches. Setting
+    AI_CONTEXT_ENGINE_EMBED_SOCKET=none mirrors the daemon's self-loop guard
+    and ensures mocks apply. CI has no daemon, so this is a no-op there.
+    """
+    monkeypatch.setenv("AI_CONTEXT_ENGINE_EMBED_SOCKET", "none")
+
+
+# =============================================================================
 # Path Fixtures
 # =============================================================================
 
