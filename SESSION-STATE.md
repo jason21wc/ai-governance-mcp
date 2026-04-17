@@ -46,7 +46,7 @@
    - **Batch-window rule (`d342bdd` + auto-memory):** captured the anti-pattern of stacking version bumps on unpushed commits. Durable feedback rule persisted to `~/.claude/projects/.../memory/feedback_unpushed_version_bumps.md` (indexed in MEMORY.md, loads every turn).
    - **Phase 2 soak:** PHASE2_TRIGGERED marker CLEAR. Most recent T1 fire (2026-04-17T02:07Z) self-resolved in 44 sec when sliding-window slope stabilized post-recalibration. No escalation. Observation: `phase0-measurements.log` hasn't written since 02:08Z — daily 04:00 PDT plist should have fired at least once since; verify at Review #4 Check 6b.
    - **Governance:** `gov-e7a5904991cc` (plan + execution), `gov-00bfd4008438` (close-out + drift audit) — both PROCEED, no S-Series. Principles cited: `meta-core-systemic-thinking`, `meta-method-domain-staleness-thresholds`, `coding-method-cleanup-triggers`, `meta-method-documentation-drift-detection`, `coding-method-session-end-procedure`.
-   - **Plan:** `~/.claude/plans/should-we-create-a-vectorized-scott.md` (approved, executed, marked Complete).
+   - **Plan:** `should-we-create-a-vectorized-scott` (approved, executed, marked Complete). Load-bearing reasoning captured inline in this session summary per rules-of-procedure G.5.1.
 
 109. **Session-109: Session-108 Immediate Items Closed + Compliance Review #3 (8 commits)**
    - **#3+#4 (`00b1be8`):** Added `get_sentence_embedding_dimension()` to `EmbeddingClient` (server-side `dimension` op, lazy-cached via dummy encode probe); autouse conftest fixture sets `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` so a live daemon doesn't intercept `SentenceTransformer` mocks; made `_resolve_socket_path` treat `"none"` as unset. Unblocks extractor.py:106-108 dimensions call when daemon is running and restores ~20 previously-intercepted embedding-mock tests.
@@ -68,7 +68,7 @@
    - **Pre-existing test issue noted:** 20 embedding-mock tests fail when daemon is running locally (IPC client intercepts mock patches). CI doesn't have a daemon, so these pass there.
    - **Governance:** `gov-d33150d934df` (S-Series false positive on "secret" — keyword, no principles).
 
-107. **Plan-Only — Phase 2 Verification + OOM Gate Hardening** — Plan created at `~/.claude/plans/nifty-twirling-pike.md`. Contrarian found stale MRR baselines (0.694→0.711 actual), silent fallback risk, and extractor dimensions bug.
+107. **Plan-Only — Phase 2 Verification + OOM Gate Hardening** — `nifty-twirling-pike`. Contrarian found stale MRR baselines (0.694→0.711 actual), silent fallback risk, and extractor dimensions bug — all three fixes shipped in session-108 (commits `00b1be8`, `1cf416d`, `953a005`).
 
 *Sessions 101-106 pruned per §7.1.5. Decisions in PROJECT-MEMORY.md, lessons in LEARNING-LOG.md. Full history via `git log`.*
 

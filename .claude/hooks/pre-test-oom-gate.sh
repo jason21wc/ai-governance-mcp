@@ -36,8 +36,8 @@
 # explicit `-k` usage implies targeted selection intent by the AI.
 #
 # Author: Claude Opus 4.6 (1M context) + Jason Collier, 2026-04-15
-# Plan:   ~/.claude/plans/giggly-humming-starlight.md
-# Related: BACKLOG.md #49 (design spike — real fix deferred)
+# Design rationale: BACKLOG.md #49 (Status 2026-04-15 block) + LEARNING-LOG
+#   "Full-Suite pytest + Stale Watcher Daemon = macOS OOM (2026-04-15)"
 
 set -euo pipefail
 
@@ -332,7 +332,7 @@ On 2026-04-15 a similar invocation OOM'd a 64 GB macOS machine. The fix class:
   Last resort (not recommended): stop the daemon, then retry, then restart it.
   Prefer the marker filter above — it does the same job without the daemon-restart dance.
 
-This block is deliberate. Background: ~/.claude/plans/giggly-humming-starlight.md (plan), LEARNING-LOG.md (incident), backlog #49 (design spike for the real underlying fix)."
+This block is deliberate. Background: LEARNING-LOG.md (incident) and backlog #49 (design spike for the real underlying fix)."
 
 # Critical: if python3 fails to emit the deny JSON, we MUST NOT exit 0 —
 # that would silently allow the dangerous command through. Per code-reviewer
