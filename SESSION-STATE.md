@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-17 (session 111)
+**Last Updated:** 2026-04-17 (session 111 + follow-ons)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Session-111 complete. rules-of-procedure v3.26.8 landed (Alias Table extension + platform plan-file hands-off rule). Backlog sweep batch-closed #101 + #91.4.
+- **Phase:** Session-111 complete. Two governance changes (rules-of-procedure v3.26.8, CFR v2.38.2), BACKLOG cleanup, and a Happy Engineering operational upgrade.
 - **Mode:** Standard
-- **Active Task:** None.
+- **Active Task:** None. User restarting session under happy wrapper on v1.1.6 daemon.
 
 ## Quick Reference
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.26.8** (rules-of-procedure), **v2.38.1** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.26.8** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1308 passing** safe subset (`pytest tests/ -v -m "not slow"`); embedding-mock tests no longer intercepted by daemon (autouse conftest fixture forces local path). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -47,6 +47,12 @@
    - **Tests:** 1308/1308 safe subset PASS; 30/30 hook suite PASS.
    - **Governance:** `gov-697724a14e77` (initial exploration), `gov-bd7edb6ca3fd` (backlog analysis), `gov-d1432c9f4c70` (edit batch) — all PROCEED, no S-Series. Principles cited: `meta-core-systemic-thinking`, `meta-method-single-source-of-truth`, `meta-safety-transparent-limitations`, proportional rigor (meta-methods §7.8).
    - **Plan:** `proceed-create-a-plan-synthetic-moth` — reasoning captured in this summary per G.5.1.
+   - **Post-summary follow-ons (4 additional commits, same session):**
+     - **`ff025b7` — COMPLETION-CHECKLIST.md propagation:** one-bullet addition to "Documentation-only changes" section pointing at G.5.1 (plan-mode reasoning inline-promote at session end). Small propagation of the new rule to the session-end workflow surface.
+     - **`5a36a73` — BACKLOG cleanup:** refreshed #78's stale text (Reviews #1+#2+#3 complete now, next due 2026-04-27; marked recurring-by-design so "still Active" is understood structurally). Removed #101 entirely (shipped in `262c50c`). Real open count: 1 Active + 32 Discussion = 33.
+     - **`fa28506` — CFR v2.38.2:** Appendix F.1 operational note for `caffeinate -i` on local-execution remote tools (Happy Engineering + /remote-control). Documents the wrapping form, explicit anti-recommendations against `-d` (keeps display on) and `-s` (AC-only, fails silently on battery), verification via `pmset -g assertions`, AI-agent guidance. User-reported gap: Mac "going to sleep cutting me off" during Happy remote sessions; F.1 had zero sleep/caffeinate coverage. S-Series ESCALATE triggered (`meta-safety-transparent-limitations`, score 0.42) — forced verification of claims against `man caffeinate` before authoring; all claims confirmed, gate fulfilled its purpose. Claims-verified discipline is now a precedent for doc edits touching technical behaviors.
+   - **Out-of-repo operational work (Happy Engineering):** user reported iPhone happy app getting disconnected starting ~2026-04-16. Investigation ruled out sleep (`pmset -g log` showed 0 sleep events in 48 hours — TTY activity + `caffeinate -im` holding assertion forever). Real cause: relay-side socket disconnects (daemon log showed 21-30 sec timeouts to `wss://api.cluster-fluster.com` with auto-reconnect). Upgraded happy 1.1.4 → 1.1.6 (kill PID 18240, `npm install -g happy@1.1.6`, auto-spawned fresh daemon PID 92038). Pruned 338 MB stale log from dead PID 4602 (2026-04-09). `happy doctor` confirms healthy post-upgrade state (authenticated, machine registered, WebSocket connected). iPhone re-pairing pending user validation on next session start. **Latent risk noted:** `pmset -a sleep 1` (1-minute idle timeout) is aggressive — currently masked by caffeinate but if happy crashes mid-session, Mac sleeps in 60s. Recommended `sudo pmset -a sleep 10` as optional hardening, NOT executed (requires sudo + explicit OK). **Happy pinned version in CFR F.1 is still 1.1.4** — the "e.g." framing makes this an example not a mandate, but if user prefers the doc to reflect 1.1.6 it's a small patch bump.
+   - **Memory additions:** `feedback_freeform_over_askuser.md` saved. MEMORY.md index updated.
 
 110. **Session-110: CFR v2.38.1 — Dynamic A.5.5 Threshold + Phase 2 Soak (4 commits)**
    - **Problem:** Fixed 50-entry permission trigger fired on legitimate baseline growth (MCP ecosystem, new memory files) across 2+ reviews with "category-legitimate, not accretion" disposition. Symptom-level patch (prune to fit) would have masked the structural issue.
@@ -86,9 +92,11 @@
 
 ## Next Actions
 
-**Immediate:** None.
+**Immediate:** User validating happy 1.1.6 iPhone re-pairing on next session start. If pairing works, issue closed. If still disconnecting, file upstream at github.com/slopus/happy.
 
 **Short-term:**
+- **Optional hardening:** `sudo pmset -a sleep 10` (raise 1-min idle-sleep → 10-min as defense-in-depth if happy ever crashes without cleanup).
+- **Optional:** If happy 1.1.6 proves stable, update CFR F.1 version pin example `happy@1.1.4` → `happy@1.1.6` (small PATCH bump; version pin framing is "e.g." so not required).
 - **BACKLOG #78 (Compliance Review)** — next due ~2026-04-27 (10-15 days from Review #3 on 2026-04-17).
 - **CFR A.5.5 permissions prune** — `~/.claude/settings.json` has 123 allow entries. Per v2.38.1 dynamic threshold (`post_cleanup_baseline + 20`), the first Baseline and Next Trigger are recorded at the next compliance review (Check 7). Initial audit performed 2026-04-17 found 0 one-shots — list is pattern-dominated.
 - **Phase 2 soak** — daily measurement plist at 04:00 now calibrated for post-Phase-2 architecture. Review `~/.context-engine/logs/phase0-measurements.log` weekly for Trigger 4 cross-process drift. **Session-110 check (2026-04-17):** marker clear, no escalation; but log hasn't written since 02:08Z — verify plist health at Review #4 Check 6b.
