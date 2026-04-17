@@ -302,7 +302,7 @@ printf '%s deny daemon_alive=%s torch_procs=%d cmd=%s\n' \
 
 # Cap deny log at 100KB to prevent unbounded growth. Atomic via temp+mv.
 if [ -f "$DENY_LOG" ]; then
-    _log_size=$(stat -f%z "$DENY_LOG" 2>/dev/null || echo "0")
+    _log_size=$(stat -f%z "$DENY_LOG" 2>/dev/null || stat -c%s "$DENY_LOG" 2>/dev/null || echo "0")
     if [ "${_log_size}" -gt 102400 ] 2>/dev/null; then
         tail -n 500 "$DENY_LOG" > "${DENY_LOG}.tmp" && mv "${DENY_LOG}.tmp" "$DENY_LOG"
     fi
