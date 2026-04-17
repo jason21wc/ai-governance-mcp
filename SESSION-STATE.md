@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-17 (session 110)
+**Last Updated:** 2026-04-17 (session 111)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,7 +11,7 @@
 
 ## Current Position
 
-- **Phase:** Session-110 complete. CFR v2.38.1 landed + Phase 2 soak passed.
+- **Phase:** Session-111 complete. rules-of-procedure v3.26.8 landed (Alias Table extension + platform plan-file hands-off rule). Backlog sweep batch-closed #101 + #91.4.
 - **Mode:** Standard
 - **Active Task:** None.
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.26.7** (rules-of-procedure), **v2.38.0** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v4.1.0** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.26.8** (rules-of-procedure), **v2.38.1** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.1** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1308 passing** safe subset (`pytest tests/ -v -m "not slow"`); embedding-mock tests no longer intercepted by daemon (autouse conftest fixture forces local path). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -35,6 +35,18 @@
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Last Session (2026-04-17)
+
+111. **Session-111: Backlog sweep batch-close — rules-of-procedure v3.26.8 (#101 + #91.4) (2 commits)**
+   - **Problem:** User backlog-swept for D1 quick fixes. Two candidates surfaced: #101 Template Divergence Documentation and #91.4 Plan-file preservation. Original framings for both were unsafe after contrarian review.
+   - **Contrarian review (gov-697724a14e77 → plan `proceed-create-a-plan-synthetic-moth`):** rejected original #101 approach (soften "always use canonical" authoring rule) as creating unfalsifiable "coherent alternative" escape clause that conflicts with `meta-method-single-source-of-truth`. Rejected original #91.4 framing (fix-one-vs-fix-all binary) as hiding the real cause: absence of in-repo decision-record convention. Unbatched at commit level; bundled at file level per unpushed-version-bumps feedback.
+   - **User systemic reframe on #91.4:** instead of creating `docs/decisions/` and backfilling 3 plan files, treat platform-native plan files as session-scoped working memory (which they already are). Load-bearing reasoning promotes inline into BACKLOG/LEARNING-LOG/SESSION-STATE before session end. Scales across all future plans (20+/year) without new infrastructure. Matches existing G.5 "Hands Off" boundary pattern.
+   - **Fix (`262c50c`) — rules-of-procedure v3.26.8:** (1) Alias Table (Part 3.5.1) extended with 2 rows (`Constitutional Basis` ← "Constitutional Derivation"; `Failure Mode(s)` ← "Failure Mode" singular). Pure documentation of existing variants; canonical authoring rule unchanged. (2) Added Appendix G.5.1 extending hands-off boundary to platform plan files. Framework files must not cite `~/.claude/plans/*.md` as load-bearing; promote reasoning inline before session end. Root cause per `meta-core-systemic-thinking`: absent rule = dangling-reference-in-waiting every plan-mode session.
+   - **Fix (`d092869`) — reference cleanup + inline-promote:** dropped path references from BACKLOG #49 ("Relevant files" line + Phase 0 outcome trigger parenthetical), BACKLOG #91 sub-item 4 body + status block (marked DONE session-111), SESSION-STATE sessions 107 + 110, `pre-test-oom-gate.sh` (×2 comments), `tests/test_pre_test_oom_gate_hook.py` module docstring, `staging/onnx-backend-attempt-2026-04-15.md`. Added torch-runtime clarification to BACKLOG #49's ONNX paragraph explaining why weights-only swap hits only ~2% of the 27 GB symptom (~500 MB–1 GB × 5 = 2.5–5 GB torch runtime is the other ~98%). Structural test: `grep -rn "~/.claude/plans" .` now returns only the G.5.1 rule text itself.
+   - **Feedback memory saved:** `feedback_freeform_over_askuser.md` — user explicitly corrected ("You are not following ai-governance. Use free-form chat.") after AskUserQuestion misuse for convention decision. Rule: AskUserQuestion only for bounded mutually-exclusive selections; freeform prose + ranked recommendation is the default.
+   - **Lessons (implicit):** plan-file-preservation problem class is structurally resolved; any future plan-mode session's working memory is covered by the same rule without action.
+   - **Tests:** 1308/1308 safe subset PASS; 30/30 hook suite PASS.
+   - **Governance:** `gov-697724a14e77` (initial exploration), `gov-bd7edb6ca3fd` (backlog analysis), `gov-d1432c9f4c70` (edit batch) — all PROCEED, no S-Series. Principles cited: `meta-core-systemic-thinking`, `meta-method-single-source-of-truth`, `meta-safety-transparent-limitations`, proportional rigor (meta-methods §7.8).
+   - **Plan:** `proceed-create-a-plan-synthetic-moth` — reasoning captured in this summary per G.5.1.
 
 110. **Session-110: CFR v2.38.1 — Dynamic A.5.5 Threshold + Phase 2 Soak (4 commits)**
    - **Problem:** Fixed 50-entry permission trigger fired on legitimate baseline growth (MCP ecosystem, new memory files) across 2+ reviews with "category-legitimate, not accretion" disposition. Symptom-level patch (prune to fit) would have masked the structural issue.
