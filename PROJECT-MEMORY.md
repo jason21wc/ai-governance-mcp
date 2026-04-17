@@ -462,11 +462,12 @@ Systematic tracking of performance metrics. See also: ARCHITECTURE.md for test c
 
 | Metric | Current | Threshold | Rationale |
 |--------|---------|-----------|-----------|
-| Method MRR | 0.694 | ≥ 0.60 | Primary method discovery signal |
-| Principle MRR | 0.688 | ≥ 0.50 | Primary principle discovery signal |
+| Method MRR | 0.646 | ≥ 0.60 | Primary method discovery signal |
+| Principle MRR | 0.750 | ≥ 0.50 | Primary principle discovery signal |
 | Method Recall@10 | 0.833 | ≥ 0.75 | Breadth of relevant results |
 | Principle Recall@10 | 0.875 | ≥ 0.85 | Breadth of relevant results |
-| Model Load Time | ~9s | ≤ 15s | User experience bound |
+| Model Load Time | ~80ms (IPC) | ≤ 15s | User experience bound |
+| Gov Server Memory | ~85 MB (IPC) | < 300 MB | Phase 2 target (was ~800 MB pre-IPC) |
 
 **Context Engine** (baseline 2026-03-13, saved in `tests/benchmarks/ce_baseline_2026-03-13.json`):
 

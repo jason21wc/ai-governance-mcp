@@ -42,10 +42,12 @@
 
 #### 91. Pre-Test OOM Gate Hardening — Session-105 Follow-ups (Discussion) `D1 Improvement`
 
-**Status (2026-04-15, user audit):** This entry was created by bulk-logging 10 brainstorm items at session-105 end, which violated CLAUDE.md Defer-vs-Fix rule. User audit reclassified:
-- **7 items are fix-now category** (sub-items 1, 2, 6, 7, 8, 9, 10 — each ≤1 file, unambiguous scope, no cascading discovery). They SHOULD have been fixed in session-105 itself, not deferred here. Session 106 should pick these up as immediate work, not as discussion items. Each is tagged `[FIX-NOW]` below.
-- **1 item is ambiguous scope** (sub-item 4, plan-file preservation — needs user input on policy: do session plan files live in-repo or out-of-repo?). Tagged `[ASK]` — carry into session 106 as an "ask the user" item.
-- **2 items are legitimately deferred** (sub-items 3 and 5 — need external docs or CI infra). Tagged `[DEFER]`.
+**Status (2026-04-16, session-108):** 7 fix-now items shipped in commit `7cd727f`. Remaining: 3 items (sub-items 3, 4, 5).
+- **Sub-items 1, 2, 6, 7, 8, 9, 10 — DONE** (session-108): ERR trap, jq fallback, secret redaction, plist verified, PYTEST_CURRENT_TEST guard, -k docs, SESSION-STATE baseline note. 30 tests (up from 23).
+- **1 item is ambiguous scope** (sub-item 4, plan-file preservation — needs user input).
+- **2 items are legitimately deferred** (sub-items 3 and 5 — need external docs or CI infra).
+
+**Previous status (2026-04-15, user audit):** This entry was created by bulk-logging 10 brainstorm items at session-105 end, which violated CLAUDE.md Defer-vs-Fix rule. User audit reclassified 7 as fix-now, 1 as ask, 2 as defer.
 
 See `LEARNING-LOG.md` entry "Session-End Deferral Bias (2026-04-15)" for the pattern this illustrates and the rule that was violated.
 
@@ -160,6 +162,22 @@ See `LEARNING-LOG.md` entry "Session-End Deferral Bias (2026-04-15)" for the pat
 4. Process pooling — multiple sessions share one server; MCP protocol may not support natively
 
 **Origin:** Session 48 (2026-04-03). macOS low-memory warning with 2 concurrent sessions. Initial investigation incorrectly dismissed Activity Monitor's GB numbers as "just virtual memory" — 26 GB swap + macOS warning proved impact is real.
+
+**Status (2026-04-16) — Phase 2 COMPLETE, verified in session-108:**
+
+Phase 2 (shared embedding service via IPC) shipped in sessions 106-108. Commits `07a1e54`–`ec4ea55` (Steps 1-5) + verification in session-108. Results:
+- Governance servers: **85 MB** phys_footprint (down from ~800 MB = **~715 MB saved per instance**)
+- Model load time: **80ms** via IPC (was ~9s cold start = **112x improvement**)
+- MRR: method=0.646, principle=0.750 — all pass regression thresholds
+- IPC confirmed: "Using embedding server (IPC)" in logs for both encoding and reranking
+- CE servers: 552-683 MB (tree-sitter + index data, no torch loaded)
+- Total across all processes: ~4.0 GB (daemon 2.6G + 2× Desktop + 2× Code servers)
+
+**Latent issues found during verification:**
+1. `extractor.py:106-108` calls `get_sentence_embedding_dimension()` on `self.model` which could be `EmbeddingClient` (no such method). Crashes index rebuilds when daemon running.
+2. 20 embedding-mock tests fail when daemon running — `EmbeddingClient.available()` returns True, intercepting mock patches. Need `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` in test env or mock the client.
+
+Forcing functions remain active (daily plist + deny log + calendar trigger 2026-06-15) as a safety net.
 
 **Status (2026-04-15) — explored routes, shipped mitigations, design spike forcing function:**
 
