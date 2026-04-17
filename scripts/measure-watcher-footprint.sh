@@ -13,11 +13,18 @@
 #   2 = trigger fired (marker file written, Phase 2 activation required)
 #
 # Thresholds (measurement-derived per plan Change 3 and Contrarian Finding 3):
-#   Trigger 1: steady_mb > 0.6 × baseline_steady_mb
-#              (equivalently, post-Phase-0 didn't drop by ≥40%)
+#   Trigger 1: steady_mb > 1.5 × baseline_steady_mb
+#              (2026-04-17 recalibration: post-Phase-2 this detects regression
+#              against the equilibrium baseline, not compliance with a 40%
+#              drop from a pre-fix reference. Fires on ≥50% growth from the
+#              post-Phase-2 equilibrium captured in phase0-baseline.txt.)
 #   Trigger 2: measured_slope_mb_per_h > 0.5 × baseline_slope_mb_per_h
 #              (disabled if baseline_slope < 8 MB/h — noise floor)
-#   Trigger 3: peak_mb > 3072 (3.0 GB)
+#   Trigger 3: peak_mb > 7500 (7.3 GB — post-Phase-2 recalibration, 2026-04-17)
+#              Was 3072 (3.0 GB) pre-Phase-2. Watcher now hosts torch+models
+#              via the IPC embedding server, so single-process peak is
+#              structurally higher. Cross-process total (Trigger 4) is the
+#              architectural signal for Phase 2 sufficiency.
 #   Trigger 4: cross-process total phys > 8192 (8.0 GB)
 #
 # The baseline file at ~/.context-engine/logs/phase0-baseline.txt MUST exist
@@ -268,8 +275,8 @@ fi
 # 5. Evaluate triggers (all four are independent)
 TRIGGERS_FIRED=""
 
-# Trigger 1: steady-state drop must be ≥40% from baseline
-T1_THRESHOLD=$(python3 -c "print(int(${BASELINE_STEADY} * 0.6))")
+# Trigger 1: regression detection — steady grew ≥50% from post-Phase-2 baseline
+T1_THRESHOLD=$(python3 -c "print(int(${BASELINE_STEADY} * 1.5))")
 if [ "${STEADY_MB}" -gt "${T1_THRESHOLD}" ]; then
   TRIGGERS_FIRED="${TRIGGERS_FIRED}T1(steady=${STEADY_MB}>${T1_THRESHOLD}) "
 fi
@@ -286,9 +293,9 @@ if [ -n "${BASELINE_SLOPE}" ]; then
   fi
 fi
 
-# Trigger 3: session peak < 3 GB (3072 MB)
-if [ "${PEAK_MB}" -gt 3072 ]; then
-  TRIGGERS_FIRED="${TRIGGERS_FIRED}T3(peak=${PEAK_MB}>3072) "
+# Trigger 3: session peak < 7.3 GB (7500 MB, post-Phase-2 recalibration 2026-04-17)
+if [ "${PEAK_MB}" -gt 7500 ]; then
+  TRIGGERS_FIRED="${TRIGGERS_FIRED}T3(peak=${PEAK_MB}>7500) "
 fi
 
 # Trigger 4: cross-process total < 8 GB (8192 MB)
