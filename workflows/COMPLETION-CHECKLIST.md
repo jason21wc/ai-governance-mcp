@@ -182,4 +182,5 @@ When you discover a new behavior the AI should consistently exhibit:
 ## Documentation-only changes (memory files, README)
 
 1. Update SESSION-STATE.md if applicable
-2. Commit and push
+2. If plan-mode led to committed action, promote plan reasoning inline into BACKLOG / LEARNING-LOG / SESSION-STATE / PROJECT-MEMORY before session end (per rules-of-procedure Appendix G.5.1). Framework files must not cite `~/.claude/plans/*.md` paths as load-bearing — platform plan files are session-scoped working memory.
+3. Commit and push
