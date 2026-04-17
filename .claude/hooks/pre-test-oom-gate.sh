@@ -31,11 +31,21 @@
 #   PYTEST_SKIP_OOM_GATE=1  — Structural bypass: "The gate is broken, get out of my way."
 #   OOM_GATE_DEBUG=true     — Enable stderr debug logging
 #
+# Known limitation: `-k <expr>` accepts any expression without content
+# validation. `-k test` matches every test. Acceptable per threat model:
+# explicit `-k` usage implies targeted selection intent by the AI.
+#
 # Author: Claude Opus 4.6 (1M context) + Jason Collier, 2026-04-15
 # Plan:   ~/.claude/plans/giggly-humming-starlight.md
 # Related: BACKLOG.md #49 (design spike — real fix deferred)
 
 set -euo pipefail
+
+# Claude Code exit semantics: exit 0=allow, exit 2=deny, exit 1=non-blocking
+# allow. With set -e, unhandled failures exit 1 (fail-open). This trap converts
+# all unhandled errors to exit 2 (fail-closed), matching the security gate model.
+# See LEARNING-LOG "Claude Code Hook Exit 1 = Fail-Open, Not Fail-Closed".
+trap 'exit 2' ERR
 
 HEARTBEAT_PATH="${HOME}/.context-engine/watcher-heartbeat.json"
 DENY_LOG="${HOME}/.context-engine/oom-gate-denies.log"
@@ -50,8 +60,21 @@ debug() {
 # ---------------------------------------------------------------------------
 # Read stdin and short-circuit non-pytest commands
 # ---------------------------------------------------------------------------
+
+# JSON parsing: prefer jq, fall back to python3. If both missing, ERR trap
+# catches → exit 2 (fail-closed). Security gate must deny when input unparseable.
+if command -v jq >/dev/null 2>&1; then
+    _parse_command() { jq -r '.tool_input.command // ""' 2>/dev/null || echo ""; }
+else
+    debug "jq not found, using python3 JSON fallback"
+    _parse_command() {
+        python3 -c "import json,sys; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))" \
+            2>/dev/null || echo ""
+    }
+fi
+
 INPUT=$(cat)
-COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // ""' 2>/dev/null || echo "")
+COMMAND=$(echo "$INPUT" | _parse_command)
 
 if [ -z "$COMMAND" ]; then
     debug "no command in tool_input, allowing"
@@ -199,8 +222,8 @@ fi
 # production bypass — this is a test hook only, per code-reviewer finding #7.
 TORCH_PROC_COUNT=0
 TORCH_PROC_LIST=""
-if [ "${OOM_GATE_SKIP_PROCESS_SCAN:-}" = "1" ]; then
-    debug "process scan skipped (OOM_GATE_SKIP_PROCESS_SCAN=1, test-only)"
+if [ "${OOM_GATE_SKIP_PROCESS_SCAN:-}" = "1" ] && [ -n "${PYTEST_CURRENT_TEST:-}" ]; then
+    debug "process scan skipped (OOM_GATE_SKIP_PROCESS_SCAN=1 + PYTEST_CURRENT_TEST set)"
 else
     OTHER_TORCH_PROCS=$(ps -o pid=,command= -ax 2>/dev/null | \
         grep -E '(python|Python).*(ai_governance_mcp|ai-context-engine|context-engine-watcher|sentence_transformers)' | \
@@ -247,18 +270,43 @@ fi
 # silently disappears in future sessions.
 # ---------------------------------------------------------------------------
 
+# Redact potential secrets from the command before logging. Layered patterns:
+# 1. Specific token prefixes (OpenAI sk-, GitHub ghp_, AWS AKIA)
+# 2. Bearer tokens
+# 3. CLI flags (--api-key, --token, --secret, --password, --credential)
+# 4. Generic KEY=VALUE environment variable patterns
+# Trade-off: may redact legitimate args like --token-file=/path. Acceptable
+# for a diagnostic log where false-redaction > leaked-secret.
+redact_secrets() {
+    sed -E \
+        -e 's/(sk-[a-zA-Z0-9]{3})[a-zA-Z0-9_-]*/\1<redacted>/g' \
+        -e 's/(ghp_[a-zA-Z0-9]{4})[a-zA-Z0-9]*/\1<redacted>/g' \
+        -e 's/AKIA[A-Z0-9]{12,}/AKIA<redacted>/g' \
+        -e 's/(Bearer )[^ ]*/\1<redacted>/gI' \
+        -e 's/(--(api[_-]?key|token|secret|password|credential)[= ])[^ ]*/\1<redacted>/gI' \
+        -e 's/([A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL)=)[^ ]*/\1<redacted>/g'
+}
+
 # Record the deny for the #49 forcing-function activity trigger.
 # Use plain ASCII key=value format — avoid `printf %q` (bash 3.2 on macOS
 # byte-escapes non-ASCII characters, corrupting the unicode bullets in SIGNALS).
 # Fields: timestamp (ISO8601 UTC), daemon_alive flag, torch_proc_count,
 # and the command with newlines replaced by spaces for single-line logging.
 mkdir -p "$(dirname "$DENY_LOG")"
-DENY_LINE_CMD=$(printf '%s' "$COMMAND" | tr '\n\r' '  ' | head -c 500)
+DENY_LINE_CMD=$(printf '%s' "$COMMAND" | tr '\n\r' '  ' | redact_secrets | head -c 500)
 printf '%s deny daemon_alive=%s torch_procs=%d cmd=%s\n' \
     "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     "$DAEMON_ALIVE" \
     "$TORCH_PROC_COUNT" \
     "$DENY_LINE_CMD" >> "$DENY_LOG" 2>/dev/null || true
+
+# Cap deny log at 100KB to prevent unbounded growth. Atomic via temp+mv.
+if [ -f "$DENY_LOG" ]; then
+    _log_size=$(stat -f%z "$DENY_LOG" 2>/dev/null || echo "0")
+    if [ "${_log_size}" -gt 102400 ] 2>/dev/null; then
+        tail -n 500 "$DENY_LOG" > "${DENY_LOG}.tmp" && mv "${DENY_LOG}.tmp" "$DENY_LOG"
+    fi
+fi
 
 REASON="OOM PREVENTION GATE: bare full-suite pytest invocation blocked.
 
