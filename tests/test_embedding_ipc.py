@@ -448,6 +448,42 @@ class TestClientRetry:
         with pytest.raises(ConnectionError, match="Cannot connect"):
             client.encode(["test"])
 
+    def test_shutdown_closes_accepted_conns_fast(self, short_tmp, monkeypatch):
+        """Regression: shutdown must release handlers blocked on recv.
+
+        A client holding a stale persistent conn used to race two 30s
+        timers (handler's result_event.wait vs client's recv timeout),
+        producing flaky CI failures. Shutdown now SHUT_RDWRs accepted
+        conns so handlers exit promptly and clients see EOF immediately.
+        """
+        monkeypatch.setattr(
+            "ai_governance_mcp.embedding_ipc.CONTAINMENT_ROOT", short_tmp
+        )
+        sock_path = short_tmp / "s.sock"
+
+        server = EmbeddingServer(
+            encode_fn=lambda texts, **kw: np.zeros((len(texts), 384)),
+            socket_path=sock_path,
+        )
+        server.start()
+        time.sleep(0.1)
+
+        client = EmbeddingClient(socket_path=sock_path)
+        client.encode(["warmup"])  # establish persistent conn
+        assert len(server._active_conns) == 1
+
+        start = time.monotonic()
+        server.shutdown()
+        elapsed = time.monotonic() - start
+        # Without SHUT_RDWR the worker thread join could wait up to 5s,
+        # but the critical invariant is that no handler blocks 30s on a
+        # stale client send.
+        assert elapsed < 5.0, f"shutdown took {elapsed:.1f}s — handler stuck"
+        assert len(server._active_conns) == 0 or all(
+            c.fileno() == -1 for c in server._active_conns
+        )
+        client.close()
+
     def test_client_reconnects_after_server_restart(self, short_tmp, monkeypatch):
         monkeypatch.setattr(
             "ai_governance_mcp.embedding_ipc.CONTAINMENT_ROOT", short_tmp

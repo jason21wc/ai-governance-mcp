@@ -192,6 +192,14 @@ class EmbeddingServer:
         self._worker_thread: threading.Thread | None = None
         self._stop_event = threading.Event()
         self._dimension_cache: int | None = None
+        # Track accepted connections so shutdown can close them, releasing
+        # handler threads blocked in recv. Without this, a client reusing
+        # its persistent conn after the server shut down would deadlock:
+        # the handler queues work to a dead worker, times out at 30s, and
+        # sends a "Worker timeout" response — racing the client's own 30s
+        # recv timeout and causing flaky failures on CI.
+        self._active_conns: set[socket.socket] = set()
+        self._conns_lock = threading.Lock()
 
     @property
     def socket_path(self) -> Path:
@@ -238,6 +246,17 @@ class EmbeddingServer:
             except OSError:
                 pass
 
+        # Shut down accepted connections so handler threads unblock from
+        # recv and exit promptly. Without this, a client reusing a stale
+        # persistent conn after shutdown deadlocks the handler on a dead
+        # worker for 30s and races the client's own recv timeout.
+        with self._conns_lock:
+            for conn in list(self._active_conns):
+                try:
+                    conn.shutdown(socket.SHUT_RDWR)
+                except OSError:
+                    pass
+
         if self._accept_thread and self._accept_thread.is_alive():
             self._accept_thread.join(timeout=5.0)
         if self._worker_thread and self._worker_thread.is_alive():
@@ -258,6 +277,8 @@ class EmbeddingServer:
             try:
                 conn, _ = self._server_socket.accept()
                 conn.settimeout(CONNECTION_TIMEOUT)
+                with self._conns_lock:
+                    self._active_conns.add(conn)
                 handler = threading.Thread(
                     target=self._handle_connection,
                     args=(conn,),
@@ -279,12 +300,22 @@ class EmbeddingServer:
                     request = _decode_message(conn)
                 except ConnectionError:
                     break
-                except ValueError as e:
+                except (OSError, ValueError) as e:
+                    # OSError covers the SHUT_RDWR path triggered by shutdown;
+                    # ValueError covers malformed requests.
+                    if self._stop_event.is_set() or isinstance(e, OSError):
+                        break
                     response = {"ok": False, "error": str(e)}
                     try:
                         conn.sendall(_encode_message(response))
                     except OSError:
                         pass
+                    break
+
+                # Don't queue work if the server is shutting down — the worker
+                # may already be gone, which would cause a 30s handler timeout
+                # that races the client's own recv timeout.
+                if self._stop_event.is_set():
                     break
 
                 result_event = threading.Event()
@@ -305,6 +336,8 @@ class EmbeddingServer:
                 except OSError:
                     break
         finally:
+            with self._conns_lock:
+                self._active_conns.discard(conn)
             try:
                 conn.close()
             except OSError:
