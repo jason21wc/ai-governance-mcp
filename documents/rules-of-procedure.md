@@ -1,7 +1,7 @@
 ---
-version: "3.26.7"
+version: "3.26.8"
 status: "active"
-effective_date: "2026-04-15"
+effective_date: "2026-04-17"
 domain: "constitution"
 governance_level: "rules-of-procedure"
 ---
@@ -726,8 +726,10 @@ Existing principles use variant field names that serve the same purpose. These a
 
 | Canonical Name | Known Variants |
 |---|---|
+| **Constitutional Basis** | "Constitutional Derivation" |
 | **Definition** | "Domain Application" (when used as the binding rule rather than implementation guidance) |
 | **Domain Application** | "How AI Applies This Principle", "How the AI Applies", "Application" |
+| **Failure Mode(s)** | "Failure Mode" (singular) |
 | **Validation Criteria** | "Success Criteria" |
 | **Common Pitfalls** | "Pitfalls", "Common Pitfalls or Failure Modes" |
 | **Human Interaction Points** | "PO/Human Interaction", "When Human Interaction Is Needed" |
@@ -4871,6 +4873,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.26.8 | 2026-04-17 | PATCH: (1) Part 3.5.1 Alias Table — added 2 rows (`Constitutional Basis` ← "Constitutional Derivation"; `Failure Mode(s)` ← "Failure Mode" singular) documenting variants present in Multimodal RAG, Storytelling, UI/UX, KM&PD principle files. Pure documentation of existing variants; canonical authoring rule unchanged (backlog #101). (2) Added Appendix G.5.1 extending the "hands-off" boundary to platform-native plan files (`~/.claude/plans/*.md` and equivalents). Session-scoped working memory must not be referenced as load-bearing from framework files; load-bearing reasoning promotes inline into BACKLOG/LEARNING-LOG/SESSION-STATE/PROJECT-MEMORY before session end (backlog #91.4). Root cause per `meta-core-systemic-thinking`: absent rule created dangling-reference-in-waiting for every plan-mode session. Constitutional Basis: Single Source of Truth, Systemic Thinking. |
 | 3.26.7 | 2026-04-15 | PATCH: Rewrote Appendix G.5 from "pointer only" to "hands-off" platform memory policy. Framework files are authoritative; LLM platform memory is the platform's concern. CLAUDE.md is the bridge. Added §14.3.2 cross-reference note for Prospective Memory (3-tier domain model → 6-type full taxonomy). Root cause: session protocol was redundantly maintained in both CLAUDE.md/AGENTS.md and platform memory (MEMORY.md), creating a dual-system management burden with stale-anchor risk. Behavioral feedback was routing to platform memory instead of CLAUDE.md because no routing rule existed. ADR-10 evolved from "pointer only" (2026-02-07) to "hands off" (2026-04-15). Constitutional Basis: Single Source of Truth, Continuous Learning & Adaptation. |
 | 3.26.6 | 2026-04-14 | PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion. Content comprehension-based entries for retrieval discoverability. Added 675 Applies To entries across meta-methods and cross-domain methods. Normalized `**Applies to:**` → `**Applies To:**` capitalization. |
 | 3.26.5 | 2026-04-14 | PATCH: Enhanced constitution principle template (Part 9.4.0) and appendix template (§9.8.3) to match method template quality standard. Added field reference tables with Required/Recommended tiers, authoring guidance (3 guidelines each), and good/bad examples for both templates. Updated §9.8.3 reference table field counts. Root cause: audit found method template (Part 3.5.3) set a quality bar the other templates didn't match. |
@@ -5008,6 +5011,26 @@ LLM platforms may provide **platform-native memory** — persistent files automa
 ```
 
 **Migration from pointer approach:** If your project previously used a session protocol in platform memory (per the earlier recommendation), move any behavioral instructions into CLAUDE.md and replace platform memory with the minimal template above. CLAUDE.md is auto-loaded with the same reliability as platform memory — there is no gap.
+
+### G.5.1 Platform-Native Plan Files
+
+**Applies To:** Claude Code's `~/.claude/plans/*.md`, Cursor/Windsurf/equivalent planning artifacts, any working memory the platform creates during plan-mode or similar planning workflows
+
+Platform-native plan files are **session-scoped working memory** and fall under the same hands-off rule as platform memory. They are the platform's concern, not the framework's. The framework does not own, index, or version-control them; the platform may garbage-collect, relocate, or discard them between sessions or across machines.
+
+**The boundary rule for plan files:** Framework files (BACKLOG, LEARNING-LOG, SESSION-STATE, PROJECT-MEMORY, hook comments, test comments, staging artifacts) **must not reference platform plan-file paths as load-bearing citations.** Such references break silently when the platform cleans up scratch files, and the framework has no way to detect or repair the break.
+
+**Promotion rule:** When a plan-mode session leads to committed action (code ships, hook installs, backlog state changes), **promote the plan's load-bearing reasoning inline** into the correct framework file before session end:
+
+- Design rationale, trade-offs, rejected alternatives, envelope math → the relevant BACKLOG item body (if still open) or a LEARNING-LOG entry (if the decision is a durable lesson)
+- Session-specific context, rollback decisions → SESSION-STATE session summary
+- Constitutional/architectural decisions → PROJECT-MEMORY (ADR)
+
+The plan file remains ephemeral because its purpose is ephemeral (one planning session's working memory). Once the load-bearing content is in a durable home, deletion of the platform plan file is a non-event.
+
+**Acceptable plan-file references in framework files:** short-form archaeological markers in SESSION-STATE session summaries (e.g., `Plan: <name>` with no path) are acceptable for forensic traceability but must never be load-bearing — the decision record lives in the summary/BACKLOG/LEARNING-LOG text alongside the marker, not in the named-but-unlocated plan file.
+
+**Why structural:** without this rule, every plan-mode session creates a new dangling-reference-in-waiting. The cost of the rule is one session-end promotion step per plan that produced action; the cost of not having the rule is unbounded silent reference rot across the framework.
 
 ---
 
