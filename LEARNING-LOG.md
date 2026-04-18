@@ -12,6 +12,38 @@
 
 ## Active Lessons
 
+### Dual 300s Defaults — Same Cadence on Both Sides of a Connection (2026-04-18) — CORRECTS prior session-112 diagnosis
+
+Session-112 applied `server.requestTimeout = 0` to Happy's bundle under the hypothesis that Node's default 300000 ms server-side `requestTimeout` was killing the SSE stream. Session-113 verified the patch was on disk ~23h before the current wrapper process started, then observed drops STILL occurring at N × 300s on that patched wrapper. Real cause: **client-side undici `bodyTimeout`** (default 300000 ms) firing on an SSE stream the MCP SDK's `WebStandardStreamableHTTPServerTransport` never keeps alive (no heartbeat emission, grep-confirmed). Two 300s timers, opposite sides of the connection, identical observed cadence — we localized to the wrong one. Patch reverted 2026-04-18; bundles back to vanilla.
+
+**Rule:** When a client/server protocol has the same-valued default timeout on both sides (300000 ms is common — Node `http.Server.requestTimeout`, undici `bodyTimeout`, many HTTP proxies), observed cadence alone cannot disambiguate. File-level patch verification (`mtime < wrapper_start`) is necessary but not sufficient — it confirms the file was modified, not that the fix works. Always behaviorally verify post-activation: observe at least one full timeout interval on the patched process and confirm absence of the drop. If drops persist, the timer is elsewhere (other side of the connection, a different timer, or in library code).
+
+**Principle:** `meta-quality-verification-validation` — "did the patch change observable behavior?" is the only question that closes a fix-verification loop; file edit confirmation is not behavioral verification. Also `meta-safety-transparent-limitations` — the session-112 LEARNING-LOG entries below were written in advance of behavioral verification and were factually wrong about root cause. They are corrected here and in `staging/happy-requesttimeout-2026-04-17.md` (primary investigation record). Graduated-pattern candidate if a 3rd instance of same-value dual-timer mis-localization appears.
+
+---
+
+### Patching a File Does Not Patch the Running Process (2026-04-17)
+
+Applied `server.requestTimeout = 0` to Happy's on-disk bundle during session 112 to fix a verified 5-min MCP SSE drop. Restarted the Happy *daemon* to activate the patch. Drops continued. `lsof` showed the MCP port 60772 was hosted by the per-session `happy` *wrapper* process (PID 93357, parent chain `happy` CLI → `dist/index.mjs`), NOT the daemon (separate process tree entirely, PID 92038 → 99688). The wrapper had loaded the bundle into memory at its own startup, before the patch existed. Daemon restart was irrelevant — only ending the Claude Code session and re-invoking `happy` would reload the patched bundle.
+
+**Rule:** Before restarting "the" process to activate a file patch, verify *which* process hosts the code path under test. `lsof -nP -iTCP:<port>` and `ps -o pid,ppid,command` localize the actual owner. Restarting the wrong process produces a false-negative verification. Corollary: for an Node.js/Electron tool with a CLI wrapper + daemon split, the wrapper is almost always a long-lived parent of the current terminal session and cannot be restarted without ending that session.
+
+**Principle:** `meta-core-systemic-thinking` — the assumed causal chain (edit file → restart daemon → new code runs) had a hidden link (which process loads the file?) that wasn't verified before acting. Symptom-level thinking (drops continue → patch must not work) would have led to reverting the patch. Structural check (which PID owns the port?) revealed the patch is correct but the activation step was wrong. Graduated-pattern candidate after 2nd use.
+
+---
+
+### Localize an MCP Disconnect by Cross-Server Drop Comparison (2026-04-17)
+
+Observed recurring 5-min SSE drops on the Happy MCP transport. Initial instinct was to blame Claude Code CLI's transport layer. The structural diagnostic: counted "connection dropped" events across all 7 MCP servers wired into the same CLI (happy=888, every other server=0). Same CLI, same window → CLI ruled out, cause is happy-local. Verified further: Happy wraps `http.createServer()` with no `server.requestTimeout` override; Node 22 default is exactly 300000 ms (Slowloris mitigation). Matched drop cadence precisely.
+
+**Rule:** When a single tool exhibits a recurring timing-based failure through a shared client (MCP CLI, shell, proxy), count the same failure signature across siblings of that tool before blaming the client. If N=0 on siblings and N>>0 on suspect, the cause is local to suspect. Advisory "check logs" without this comparison has ~50% false-target rate on client-vs-server localization.
+
+**Principle:** `meta-core-systemic-thinking` — the symptom ("my session keeps dropping") is observed at the CLI, but the cause could live anywhere in the stack. Cross-sibling comparison is the structural diagnostic that localizes the cause in one shot instead of recursively chasing logs at each layer. Graduated-pattern candidate after 2nd use.
+
+**Correction (2026-04-18, session 113):** The cross-server drop count (happy=888, every other MCP=0) localized the cause to Happy *specifically*, but the siblings being compared (context-engine, ai-governance) are **stdio** transport — no HTTP, no SSE, no undici `bodyTimeout` exposure at all. The comparison actually proved "HTTP-SSE MCP transport without heartbeat has this issue on this CLI," NOT "Happy's application code has this issue." Refined rule: before trusting cross-sibling drop comparison for localization, confirm siblings share the same transport/IO path as the suspect. If only the suspect uses HTTP/SSE and siblings are stdio, N=0 on siblings cannot rule out the shared HTTP library (undici, MCP SDK transport); it can only rule out portions above the HTTP layer (CLI application logic). The localization still pointed correctly at "this transport path is problematic" — it just narrowed to Happy when Happy was merely the only instance of that path.
+
+---
+
 ### Thresholds Are Signal Detectors, Not Count Gates (2026-04-17)
 
 CFR §A.5.5 set a fixed 50-entry trigger for permission-list review. Across two consecutive compliance reviews, it fired on legitimate growth (new MCP tools, new memory-file Edit/Write rules) with the same "category-legitimate, not accretion" disposition. The threshold was measuring the wrong thing: entry count is a proxy for accretion, but proxies drift as the ecosystem grows. Fix (v2.38.1): `post_cleanup_baseline + 20` — relative to the last-reviewed legitimate state, resets after each cleanup. Added one-shots-found as a second-order signal to distinguish calibrated baseline from contaminated baseline.

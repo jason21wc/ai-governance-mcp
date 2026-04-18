@@ -33,6 +33,26 @@
 
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
+103. **File MCP SDK heartbeat request upstream (Happy 5-min disconnect follow-up)** `D2 New Capability`
+
+**Status (2026-04-18, session-113):** Session-112's `server.requestTimeout = 0` patch was **ineffective** — verified behaviorally against a fresh patched wrapper, drops still occurred at N × 300s. Session-112 diagnosis was wrong (patched the wrong timer). Bundles reverted to vanilla this session. No local workaround pending.
+
+**Revised root cause:** Client-side undici `bodyTimeout` (default 300000 ms) fires on an SSE stream that `@modelcontextprotocol/sdk@1.25.3`'s `WebStandardStreamableHTTPServerTransport` never keeps alive — grep of SDK source confirms zero heartbeat/setInterval/keepalive write. Full revised diagnosis + evidence + superseded session-112 record in `staging/happy-requesttimeout-2026-04-17.md`.
+
+**What:** File an upstream issue at `github.com/modelcontextprotocol/typescript-sdk` requesting a heartbeat option (e.g., `keepaliveMs: 25000`) on `WebStandardStreamableHTTPServerTransport` so servers can opt into periodic `:keepalive\n\n` SSE comment emissions. This prevents client-side undici `bodyTimeout` (and analogous 300s timers in other HTTP clients) from firing on idle streams. Cross-reference `github.com/slopus/happy` once the SDK side has a design direction — Happy's `startHappyServer` can then opt in.
+
+**Steps:**
+1. Draft issue text from the "Revised diagnosis (session 113)" section of `staging/happy-requesttimeout-2026-04-17.md`. Use `documentation-writer` subagent for tone.
+2. File at `github.com/modelcontextprotocol/typescript-sdk`. Cross-reference Claude Code issues [#3033](https://github.com/anthropics/claude-code/issues/3033), [#20335](https://github.com/anthropics/claude-code/issues/20335), [#18557](https://github.com/anthropics/claude-code/issues/18557) as adjacent reports.
+3. After SDK ships a heartbeat option: optionally file a follow-up issue at `github.com/slopus/happy` asking them to opt in. Or wait for Happy to track the SDK update organically.
+4. Once Happy's drops are gone in practice: close this item, archive the staging doc as historical reference (pattern: `onnx-backend-attempt-2026-04-15.md`).
+
+**Why D2 not D1:** Claude-code auto-reconnect survives the 300s drops (~1s reconnection). User impact is tool-registration churn (`TodoWrite` ↔ `Task*` swap), not session breakage. Not urgent. The user is free to sit on this until convenient.
+
+**Why not a local patch:** Happy hands the `res` object to the MCP SDK's transport, which owns all writes. Emitting a heartbeat from Happy's code requires monkey-patching the SDK or proxying the response — fragile, wiped on every `npm install -g happy@<version>`, and architecturally wrong. The fix lives upstream.
+
+**Origin:** session-112 (2026-04-17) investigation + session-113 (2026-04-18) revised diagnosis + patch revert. Primary record: `staging/happy-requesttimeout-2026-04-17.md`.
+
 ---
 
 ### Deferred/Future — Discussion

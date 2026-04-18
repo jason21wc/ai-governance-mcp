@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-17 (session 111 + follow-ons)
+**Last Updated:** 2026-04-18 (session 113 — Happy investigation closed)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Session-111 complete. Two governance changes (rules-of-procedure v3.26.8, CFR v2.38.2), BACKLOG cleanup, and a Happy Engineering operational upgrade.
+- **Phase:** Session-113 Happy MCP investigation CLOSED. Session-112's `server.requestTimeout = 0` bundle patch was ineffective (drops continued at N × 300s on patched wrapper). Real root cause identified: client-side undici `bodyTimeout` 300000 ms default + missing SSE heartbeat in `@modelcontextprotocol/sdk@1.25.3`. Both bundles reverted to vanilla. Full revised diagnosis in `staging/happy-requesttimeout-2026-04-17.md` (primary investigation record). LEARNING-LOG corrected. Future upstream filing → BACKLOG #103 (reframed as MCP SDK heartbeat request).
 - **Mode:** Standard
-- **Active Task:** None. User restarting session under happy wrapper on v1.1.6 daemon.
+- **Active Task:** None pending. Ready to start new work. User mentioned possible pivot to other projects.
 
 ## Quick Reference
 
@@ -34,7 +34,40 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Last Session (2026-04-17)
+## Last Session (2026-04-18)
+
+113. **Session-113: Happy MCP investigation CLOSED — session-112 diagnosis revised, patch reverted, returned to vanilla**
+   - **Problem state at start:** Session-112 had applied `server.requestTimeout = 0` to both Happy bundles and paused before behavioral verification. Patch was on disk but wrapper was pre-patch; verification required a fresh `happy` invocation.
+   - **Verification outcome:** Wrapper PID 4801 hosting port 52082 started ~23h AFTER patch mtime — patched bundle was loaded. But logs show drops **still occurring at N × 300s** (299s / 600s / 901s; 300s / 602s / 1054s) with `TypeError: terminated` (undici's abort error). Patch produced no behavioral change → session-112 root cause was wrong.
+   - **Revised diagnosis:** Real cause is **client-side** undici `bodyTimeout` (300000 ms default) firing on an SSE stream that `@modelcontextprotocol/sdk@1.25.3`'s `WebStandardStreamableHTTPServerTransport` never keeps alive — grep of SDK source confirms zero heartbeat/setInterval/keepalive write. Session-112 mis-localized because Node's `http.Server.requestTimeout` default and undici's `bodyTimeout` default are both 300000 ms — identical cadence on opposite sides of the connection. Cross-server drop comparison (happy=888, others=0) was also confounded: stdio siblings don't test HTTP-transport issues.
+   - **Action taken:** Reverted `server.requestTimeout = 0;` from both MJS (line 5622) and CJS (line 5643). Grep confirms no matches remain in `happy/dist/*`. Returned to vanilla per user direction ("no hacks").
+   - **Primary documentation venue:** `staging/happy-requesttimeout-2026-04-17.md` — header flipped to "Investigation closed," "Revised diagnosis (session 113)" section added at top, session-112's "Root cause" heading marked SUPERSEDED. Preserves session-112 investigation as historical record.
+   - **Memory corrections:** LEARNING-LOG — added new lesson "Dual 300s Defaults — Same Cadence on Both Sides of a Connection" (meta-quality-verification-validation, meta-safety-transparent-limitations); added correction block to "Localize an MCP Disconnect by Cross-Server Drop Comparison" clarifying stdio-vs-HTTP sibling mismatch. "Patching a File Does Not Patch the Running Process" still valid, no change.
+   - **BACKLOG #103 reframed:** from "file Happy upstream one-line patch" to "file MCP SDK heartbeat request at github.com/modelcontextprotocol/typescript-sdk, cross-reference slopus/happy." Draft diagnosis text ready in `staging/happy-requesttimeout-2026-04-17.md` for when user wants to file.
+   - **Architecturally-correct fix** (upstream, not us): `WebStandardStreamableHTTPServerTransport` gains a `keepaliveMs` option that periodically writes `:keepalive\n\n` (SSE comment) on idle streams. Happy opts in. Claude-code auto-reconnect already survives the drops; cost/benefit favors upstream path over local workarounds.
+   - **Governance:** `gov-5b74d0e1135a` (diagnostic lsof/stat), `gov-4764cf33d818` (tcpdump attempt — aborted, sudo interactive), `gov-e8a83ce303af` (revert + memory updates plan) — all PROCEED, no S-Series. Principles cited: `meta-core-systemic-thinking` (revised root cause), `meta-quality-verification-validation` (behavioral verification is the gate, not file mtime), `meta-safety-transparent-limitations` (transparent correction of session-112's wrong diagnosis), `meta-methods §7.8` (proportional rigor — chose Path 1/revert over Path 2/local heartbeat hack).
+   - **Subagents used:** none this session (diagnosis via direct code inspection + log grep).
+   - **Plan:** None — executed directly per user's "you are doing all the work" + "follow ai-governance and systemic thinking" instruction. Systemic reframe from "who sent FIN?" (tcpdump, still symptom-level) to "is there a server heartbeat at all?" (code inspection, structural) made the tcpdump attempt unnecessary.
+
+---
+
+## Previous Sessions
+
+112. **Session-112: Happy MCP 5-min disconnect — patch applied, verification deferred (DIAGNOSIS REVISED IN SESSION-113 — see above)**
+   - **Problem:** Happy's local MCP HTTP server drops its SSE stream every ~300s on idle, causing tool-call failures (`ExitPlanMode`, `Bash(date)` both failed with "Tool permission stream closed before response received" in this session) and tool-registration churn (`TodoWrite` ↔ `Task*` swap on reconnect).
+   - **Diagnosis (systemic-thinking applied):** Counted "connection dropped" events across 7 MCP servers on same Claude Code CLI — happy=888, every other server=0. Rules out CLI side. Verified `node -e` on Node 22.18.0: default `http.Server#requestTimeout` = 300000ms (Slowloris mitigation added in Node 18+). Located the pattern at `dist/index-DR7ZghBK.mjs:5602-5621` (+ CJS equivalent): bare `http.createServer()` wrapping `@modelcontextprotocol/sdk@1.25.3` `StreamableHTTPServerTransport` with no `requestTimeout` override. Pattern matches drop cadence exactly.
+   - **Patch (applied to both on-disk bundles):** One-line insert `server.requestTimeout = 0;` after `createServer()` definition. MJS at `dist/index-DR7ZghBK.mjs:5622`. CJS at `dist/index-DDeR3Cx8.cjs:5626`. Files outside repo in user NVM `node_modules` — wiped on next `npm install -g happy@<version>`.
+   - **Critical correction mid-execution:** Assumed restarting Happy daemon would activate the patch. It didn't — the MCP endpoint on port 60772 is hosted by the per-session `happy` wrapper process (PID 93357), NOT the daemon (PID 92038 → 99688 after restart). Verified via `lsof -nP -iTCP:60772`. Wrapper loaded the un-patched bundle at its own startup; patch activation requires ending this Claude Code session + fresh `happy` invocation. Drop observed post-daemon-restart at 05:39:13Z confirmed hypothesis-activation-was-wrong.
+   - **Subagents used:** `contrarian-reviewer` (agentId `ace22e8784b246d11`) — forced success-criterion upgrade (20-min idle + multi-hour mixed window vs one clean 10-min), removed `scripts/` scope-creep, reframed upstream as question-with-evidence not PR-ready diff. `security-auditor` (agentId `ac898d551ccaedf32`) — LOW risk verdict, confirmed no other timeouts (`headersTimeout`/`keepAliveTimeout`/`server.timeout`) defeat the patch, flagged not-to-patch the adjacent `startHookServer` 5s timer, recommended SDK-level SSE heartbeat as architecturally-correct upstream direction. Both subagent outputs preserved in conversation.
+   - **Pre-filing research (web):** No existing Happy-side issue for 5-min requestTimeout specifically. Adjacent reports filed against Claude Code: [#3033](https://github.com/anthropics/claude-code/issues/3033), [#20335](https://github.com/anthropics/claude-code/issues/20335), [#18557](https://github.com/anthropics/claude-code/issues/18557) — filers don't know the root cause is MCP-server-side. A good Happy issue will cross-reference these and provide the one-line fix.
+   - **Governance:** `gov-36ce550d764b` (BACKLOG #102 plan — superseded), `gov-c5de302ef98f` (Happy two-track plan — PROCEED, medium confidence), `gov-90f1f58a9867` (memory hand-off — PROCEED). No S-Series. Principles cited: `meta-core-systemic-thinking` (separate test from fix; cross-sibling drop comparison; wrapper-vs-daemon ancestry), `meta-safety-transparent-limitations` (local patch is not a fix; upstream is), `meta-quality-verification-validation` + `coding-method-fix-verification-with-objective-evidence` (multi-window criteria), proportional rigor (meta-methods §7.8).
+   - **Plan:** `swift-booping-hamming` — approved, executed through patch-apply, paused before verification. File previously held the BACKLOG #102 (scaffold_project Standard Kit) plan; that plan is preserved in conversation history and noted in the plan file's header for re-promotion when #102 is revisited.
+   - **Memory hand-off artifacts (written this session):**
+     - `staging/happy-requesttimeout-2026-04-17.md` — investigation artifact + resumption steps + monitor script.
+     - `LEARNING-LOG.md` — "Localize an MCP disconnect by cross-server drop comparison" (systemic diagnostic) and "Patching a file does not patch the running process" (new lesson this session).
+     - `BACKLOG.md` — new D1 Maintenance item #103 for the verification + upstream filing.
+     - This entry.
+   - **Resumption:** superseded — see session-113 entry above. Revised diagnosis and corrected memory files are the authoritative record now; this session-112 body is retained as history per additive-correction pattern.
 
 111. **Session-111: Backlog sweep batch-close — rules-of-procedure v3.26.8 (#101 + #91.4) (2 commits)**
    - **Problem:** User backlog-swept for D1 quick fixes. Two candidates surfaced: #101 Template Divergence Documentation and #91.4 Plan-file preservation. Original framings for both were unsafe after contrarian review.
@@ -92,14 +125,18 @@
 
 ## Next Actions
 
-**Immediate:** User validating happy 1.1.6 iPhone re-pairing on next session start. If pairing works, issue closed. If still disconnecting, file upstream at github.com/slopus/happy.
+**Immediate:** None. Happy investigation closed in session 113 — patch reverted, root cause revised, memory files corrected. Ready for new work.
 
-**Short-term:**
+**Happy follow-up (BACKLOG #103, no rush):**
+- When user wants to file upstream: draft an issue at `github.com/modelcontextprotocol/typescript-sdk` requesting a heartbeat option (e.g., `keepaliveMs`) on `WebStandardStreamableHTTPServerTransport`. Cross-reference `github.com/slopus/happy` with the pre-filing research captured in the session-112 entry (Claude Code issues [#3033](https://github.com/anthropics/claude-code/issues/3033), [#20335](https://github.com/anthropics/claude-code/issues/20335), [#18557](https://github.com/anthropics/claude-code/issues/18557)).
+- Full revised diagnosis + draft text source: `staging/happy-requesttimeout-2026-04-17.md` (primary investigation record).
+
+**Short-term (unchanged from session-112):**
 - **Optional hardening:** `sudo pmset -a sleep 10` (raise 1-min idle-sleep → 10-min as defense-in-depth if happy ever crashes without cleanup).
-- **Optional:** If happy 1.1.6 proves stable, update CFR F.1 version pin example `happy@1.1.4` → `happy@1.1.6` (small PATCH bump; version pin framing is "e.g." so not required).
+- **Optional:** If happy 1.1.6 proves stable, update CFR F.1 version pin example `happy@1.1.4` → `happy@1.1.6`.
 - **BACKLOG #78 (Compliance Review)** — next due ~2026-04-27 (10-15 days from Review #3 on 2026-04-17).
-- **CFR A.5.5 permissions prune** — `~/.claude/settings.json` has 123 allow entries. Per v2.38.1 dynamic threshold (`post_cleanup_baseline + 20`), the first Baseline and Next Trigger are recorded at the next compliance review (Check 7). Initial audit performed 2026-04-17 found 0 one-shots — list is pattern-dominated.
-- **Phase 2 soak** — daily measurement plist at 04:00 now calibrated for post-Phase-2 architecture. Review `~/.context-engine/logs/phase0-measurements.log` weekly for Trigger 4 cross-process drift. **Session-110 check (2026-04-17):** marker clear, no escalation; but log hasn't written since 02:08Z — verify plist health at Review #4 Check 6b.
+- **CFR A.5.5 permissions prune** — `~/.claude/settings.json` has 123 allow entries. Per v2.38.1 dynamic threshold (`post_cleanup_baseline + 20`), the first Baseline and Next Trigger are recorded at the next compliance review (Check 7).
+- **Phase 2 soak** — daily measurement plist at 04:00. Review `~/.context-engine/logs/phase0-measurements.log` weekly for Trigger 4 cross-process drift. Verify plist health at Review #4 Check 6b.
 
 **BACKLOG #49 status:** Phase 2 COMPLETE and verified. Phase 0 forcing functions retired/recalibrated in session-109.
 
