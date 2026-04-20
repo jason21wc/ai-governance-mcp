@@ -57,7 +57,7 @@ Query: "help me develop my protagonist's character arc"
 
 Most people use AI as-is. This project implements a systematic governance framework that is retrievable, auditable, and structurally enforceable at the moment of the AI's decision — then operationalizes it through an MCP server.
 
-The framework uses a 7-layer governance hierarchy modeled on the US Constitutional system: immutable Safety Principles (Bill of Rights), Constitution, Domain Statutes, Rules of Procedure, Domain Regulations, Tool SOPs, and accumulating Case Law. See [`documents/constitution.md`](documents/constitution.md) for the full operative hierarchy and the Declaration of founding intent.
+The framework uses a 7-layer governance hierarchy modeled on the US Constitutional system: immutable Safety Principles (Bill of Rights), Constitution, Domain Statutes, Rules of Procedure, Domain Regulations, Tool SOPs, and accumulating Secondary Authority (Reference Library). See [`documents/constitution.md`](documents/constitution.md) for the full operative hierarchy and the Declaration of founding intent.
 
 ### Available Domains
 

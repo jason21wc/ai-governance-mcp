@@ -12,6 +12,26 @@
 
 ## Active Lessons
 
+### Pre-Edit Battery Is Cheaper Than Post-Edit Rework for Constitutional Amendments (2026-04-19)
+
+Cohort 2 ran the 3-agent battery (contrarian-reviewer xhigh + coherence-auditor high + validator high) at BOTH plan-stage and post-edit-stage. Pre-edit battery surfaced three blockers: (1) contrarian steel-manned a Path-B alternative (de-duplicate-in-place) to the merge approach the v1 plan had adopted — pre-edit catch saved series-crossing + test breakage + cross-ref churn; (2) coherence found 7 propagation-list gaps (rules-of-procedure line misses, server.py:2052, README line 42 vs actual 60) — pre-edit catch meant the edit sweep was complete first pass; (3) contrarian flagged "Informative Only" as a downgrade — reworded to "Informative (non-overriding)" post-battery. Post-edit battery then caught one additional issue (§9.6.1 vs §9.6.3 citation) — surgical fix.
+
+**Rule:** For constitutional amendments (or any amendment-workflow change with wide propagation), run the 3-agent battery at plan-stage AND post-edit-stage. `coding-method-three-agent-assessment-battery` mandates post-edit; extending to pre-edit is defense-in-depth. Cost is proportional: plan-stage battery catches issues when the edit surface is zero and iteration is cheap; post-edit battery catches issues when the edit is done but before commit. Skipping pre-edit concentrates all catch-and-fix into post-edit, which costs more because the edit may need substantial rework.
+
+**Principle:** `meta-quality-verification-validation` extended to verification-before-edit, not just verification-of-edit. Also proportional rigor per `meta-methods §7.8`: the cost of a pre-edit battery (~30-50K tokens for 3 agents) is small compared to the cost of a post-edit re-work cycle on a 15-file propagation sweep. Graduated-pattern candidate after 2nd use.
+
+---
+
+### Structural Enforcement Is Cross-Cutting, Not a Hierarchy Row (2026-04-19)
+
+F-P1-02 flagged that the declared 7-layer hierarchy omits the mechanisms that bind (hooks, CI, subagents, scaffold, Admission Test). Swift-hopping-corbato plan initially proposed adding an 8th row. Pre-edit systemic-thinking reframe rejected that: normative layers answer "what is the rule?" — enforcement mechanisms answer "how is the rule made sticky?" These are different questions; a hierarchy that conflates them hides the answer to either. US Constitutional analog preserves this distinction: Judicial/Executive branches are *mechanisms applied to* the sources of law, not sources themselves. Framework v5.0.0 added a "Structural Enforcement (Cross-Cutting)" subsection instead of a row. Post-edit contrarian + coherence + validator all PASS on the cross-cutting framing.
+
+**Rule:** When a review flags "hierarchy missing X," check whether X is *content* (answers "what is the rule?") or *mechanism* (answers "how is it enforced?"). If mechanism, add a cross-cutting dimension, not a row. Conflating content with mechanism in one table hides the content-vs-mechanism distinction going forward. The "add a row" response is appropriate only when X is genuinely a new normative content layer.
+
+**Principle:** `meta-core-systemic-thinking` — fix the factoring, not just the symptom. Extends LEARNING-LOG 2026-04-18 "Declaration and Preamble Are Purpose Surfaces" pattern: before applying a reflex fix (add row / evidence-check), classify the element correctly first.
+
+---
+
 ### Verify Cited Files in Reviews (2026-04-18)
 
 During the 12-step self-review, `05-remediation-plan.md:R-01` cited `staging/benchmark_ab_test.py` as an "outcome-benchmark skeleton" ready to wire up. Subsequent plan-drafting read the file and found it is a **BM25 template-metadata A/B test** — retrieval-quality family (same as `tests/benchmarks/baseline_*.json`), not governed-vs-unguided output quality. The R-01 recommendation was factually wrong because the reviewer named a file without reading it. Step 10 post-hoc miss-check did not catch this either (it only cross-checked LEARNING-LOG / PROJECT-MEMORY / BACKLOG for contradictions, not file-citation accuracy).

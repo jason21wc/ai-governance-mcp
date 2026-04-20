@@ -1352,14 +1352,14 @@ This review should be **quick and mental** for routine tasks, but **explicit and
 These principles are operational constraints **(Constitutional Law)**, not optional suggestions.
 
 - **Constitutional Review (Start of Task):** At the start of any substantial task or project, explicitly identify which "Articles" (Principles) are most relevant (e.g., *Context Engineering, Single Source of Truth, Separation of Instructions for context; Verification & Validation, Structured Output for validation*) and use them to structure your plan.
-- **Citing Case Law (During Execution):** As you work, reference specific principles by name when making non-trivial decisions, trade-offs, or escalations (e.g., *"Applying Single Source of Truth and Verification & Validation: intent is ambiguous, so I must pause for clarification"*).
+- **Citing Principles (During Execution):** As you work, reference specific principles by name when making non-trivial decisions, trade-offs, or escalations (e.g., *"Applying Single Source of Truth and Verification & Validation: intent is ambiguous, so I must pause for clarification"*).
 - **Judicial Restraint (Planning):** Treat these principles as hard constraints. Do not knowingly propose a plan that violates them **(Unconstitutional Action)** without explicitly flagging the conflict and requesting a "Supreme Court" (Human) ruling.
 - **Appellate Review (Retrospectives):** During reviews, use the principles as a checklist to adjudicate your own outputs. Capture "unconstitutional" behaviors (gaps/failures) as candidates for methodology updates.
 - **Federal Alignment (Multi-Agent):** In multi-agent environments, ensure all agents are operating under this same "Federal Law," or explicitly document where local jurisdictions (specialized agent rules) differ.
 
 ---
 
-## Part 7.4: Citation Requirements (Citing Case Law)
+## Part 7.4: Citation Requirements (Citing Principles)
 
 **Importance: IMPORTANT - Creates traceability between decisions and governing law**
 
@@ -2406,7 +2406,7 @@ This part provides procedures for applying the US Constitution analogy when auth
 
 ### 9.7.1 Framework Hierarchy Reference
 
-**Applies To:** understanding the 7-layer governance hierarchy (Bill of Rights through Case Law), determining which layer has authority in a conflict, and classifying new content into the correct layer
+**Applies To:** understanding the 7-layer governance hierarchy (Bill of Rights through Secondary Authority), determining which layer has authority in a conflict, and classifying new content into the correct layer
 
 The governance framework uses a 7-layer hierarchy modeled on US legal structure. See `constitution.md` Framework Structure for the authoritative definition.
 
@@ -2418,13 +2418,13 @@ The governance framework uses a 7-layer hierarchy modeled on US legal structure.
 | Rules of Procedure | Constitutional Methods (this document) | **Process** | Stable | Admission Test, Breaking Changes |
 | Federal Regulations | Domain Methods | **Execution** | Evolving | Cold Start Kit, Phase Gates |
 | Agency SOPs | Tool/Model Appendices | **Tactical** | Frequently Updated | Claude Extended Thinking, GPT Reasoning |
-| Case Law | Reference Library | **Precedent** | Accumulating | Curated artifacts from real application |
+| Secondary Authority | Reference Library | **Informative** | Accumulating | Curated artifacts from real application |
 
 > **Relationship to §9.3.1:** This hierarchy defines content classification for authoring (what level to write at). Part 9.3.1 defines the truth-source hierarchy for conflict resolution (which source wins when they disagree). They are complementary — 9.7.1 answers "where does new content belong," 9.3.1 answers "which source is authoritative."
 
 ### 9.7.2 Level Classification Procedure
 
-**Applies To:** classifying new governance content into the correct hierarchy layer — working through the 6-step procedure from safety check (Bill of Rights) through precedent check (Case Law) to find the right placement
+**Applies To:** classifying new governance content into the correct hierarchy layer — working through the 6-step procedure from safety check (Bill of Rights) through precedent check (Secondary Authority) to find the right placement
 
 When authoring new content, determine the correct layer. See also the "Identifying Where New Content Belongs" flowchart in `constitution.md` Framework Structure.
 
@@ -2457,7 +2457,7 @@ When authoring new content, determine the correct layer. See also the "Identifyi
 **Step 6: Precedent Check**
 - Is it a concrete artifact from real application?
 - Does it capture a reusable pattern or lesson?
-- → YES to both: **Case Law (Reference Library)**
+- → YES to both: **Secondary Authority (Reference Library)**
 
 ### 9.7.3 Derivation Principle
 
@@ -2495,7 +2495,7 @@ Constitution — Article III (Quality & Integrity)
 
 When content at different layers conflicts:
 
-1. **Higher layer wins**: Bill of Rights (Amendments) > Constitution (Articles I-IV) > Federal Statutes (Titles) > Rules of Procedure > Federal Regulations (CFR) > Agency SOPs. Case Law informs but does not override any normative layer.
+1. **Higher layer wins**: Bill of Rights (Amendments) > Constitution (Articles I-IV) > Federal Statutes (Titles) > Rules of Procedure > Federal Regulations (CFR) > Agency SOPs. Secondary Authority informs but does not override any normative layer.
 2. **Document the conflict**: Note which higher-layer principle overrides
 3. **Revise lower layer**: Update the lower-layer content to comply
 4. **No exceptions for S-Series**: Safety principles (Bill of Rights) override ALL other guidance
@@ -4377,22 +4377,22 @@ Each domain methods document should include a section following this structure:
 
 ## Part 15.1: Concept and Legal Analogy
 
-The Reference Library is the framework's **Case Law** — a curated collection of concrete, vetted artifacts that worked in practice, indexed for retrieval and recombination by AI agents. Entries also capture **experiential corrections** — cases where official documentation, tutorials, or authoritative sources proved wrong or incomplete during actual implementation. Documentation-freshness tools provide "what the docs say today"; the Reference Library provides "what we learned the docs got wrong." Both are needed: docs without corrections repeat known bugs; corrections without current docs drift from current APIs. See also ai-coding methods §3.1.5.
+The Reference Library is the framework's **Secondary Authority** — a curated collection of concrete, vetted artifacts that worked in practice, indexed for retrieval and recombination by AI agents. Entries also capture **experiential corrections** — cases where official documentation, tutorials, or authoritative sources proved wrong or incomplete during actual implementation. Documentation-freshness tools provide "what the docs say today"; the Reference Library provides "what we learned the docs got wrong." Both are needed: docs without corrections repeat known bugs; corrections without current docs drift from current APIs. See also ai-coding methods §3.1.5.
 
 **Constitutional analogy:**
 - **Constitution** → Framework constitution (meta-principles)
 - **Federal Statutes** → Domain principles (binding rules)
 - **Code of Federal Regulations** → Domain methods (implementation procedures)
 - **Agency Technical Guidance** → Appendices (tool-specific guidance)
-- **Case Law / Legal Precedent** → **Reference Library** (curated artifacts from practice)
+- **Secondary Authority** (treatises, commentary, applied-case artifacts — informs interpretation, does not override) → **Reference Library**
 
-**What makes case law distinct from statutes:** Case law is *concrete* (an actual ruling about actual facts), *curated* (only published decisions become citable precedent), *combinable* (lawyers cite multiple precedents to build novel arguments), and *grows from practice* (every new case potentially becomes precedent). The Reference Library has the same properties: concrete artifacts, curated through governance, combinable by agents, growing from real work.
+**What makes secondary authority apt here:** secondary authority in legal usage is *concrete* (specific artifacts — applied patterns, worked examples, commentary), *curated* (only vetted entries are citable), *combinable* (multiple artifacts can be woven into a novel interpretation), and *grows from practice* (new applied cases become new entries). It is deliberately non-binding — it informs how to interpret the statutes and regulations above it, but cannot override them. The Reference Library has the same properties: concrete artifacts, curated through governance, combinable by agents, growing from real work, informative-but-not-overriding.
 
 **Truth Source Hierarchy** (extends §9.3.1):
 1. Constitution — always highest authority (immutable)
 2. Domain Principles — binding within domain
 3. Domain Methods — implementation guidance
-4. **Reference Library — curated precedent (case law)**
+4. **Reference Library — curated informative artifacts (secondary authority)**
 5. External References — uncurated industry standards, tool documentation
 
 **Distinction from TITLE 14 (Project Reference Documents):** TITLE 14 = per-project semantic memory ("your project's case file"). TITLE 15 = framework-level curated precedent ("the law library everyone cites"). A project's DATA-REFERENCE.md captures facts about *that* project. A Reference Library entry captures a reusable pattern applicable *across* projects.

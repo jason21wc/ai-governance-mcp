@@ -78,7 +78,7 @@ This document functions as the Code of Federal Regulations (CFR) in the US Legal
 | Rules of Procedure | rules-of-procedure.md | How the framework evolves and maintains itself |
 | **Federal Regulations (CFR)** | **This document** | **Operational rules implementing statutes** |
 | Agency SOPs | Tool-specific guides | Platform-specific execution |
-| Case Law | Reference Library | Precedent from real application |
+| Secondary Authority | Reference Library | Informative artifacts from real application |
 
 ---
 

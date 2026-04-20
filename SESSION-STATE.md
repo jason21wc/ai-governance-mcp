@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-19 (session 114 — README rewrite SHIPPED; Cohort 1 remnant tracked in BACKLOG #104)
+**Last Updated:** 2026-04-19 (session 115 — Cohort 2 Constitutional Amendments shipped; constitution.md v5.0.0)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Cohort 1 of `~/.claude/plans/swift-hopping-corbato.md` is FULLY CLOSED. Edits 1-2 resolved to "no edit" (Declaration/Preamble are purpose surfaces per LEARNING-LOG 2026-04-18). Edits 3-5 shipped via full README rewrite (live `README.md` now 461 lines, down from 1006). Edit 6 (server.py:888 runtime prose) shipped at end of session via BACKLOG #104. Edits 7-8 obsolete. Option B chosen at README merge: `documents/intent-engineering.md` link stripped from line 23 pending that file (user drafting separately in Claude app). The 3-agent battery + Cached Canyon remediation plan + coherence verification all complete.
+- **Phase:** Cohorts 1 and 2 of `~/.claude/plans/swift-hopping-corbato.md` both CLOSED. Constitution released at **v5.0.0** (effective 2026-04-19). Three amendments landed: Case Law → Secondary Authority (label rename across 20+ files with "(non-overriding)" guardrail), Structural Enforcement named as cross-cutting subsection (not a hierarchy row — cleaner content-vs-mechanism factoring), Risk Mitigation ↔ Non-Maleficence de-duplicated in place (Path B — preserves G-Series=5, principle count unchanged at 24). Pre-edit + post-edit 3-agent batteries both ran; post-edit verdicts: contrarian ACCEPT_WITH_REVISIONS (3 findings addressed surgically), coherence COHERENT, validator PASS_WITH_EVIDENCE_GAPS (§9.6.3 citation corrected post-battery). Test suite: 1307/1308 safe-subset pass (1 unrelated watcher-daemon flake).
 - **Mode:** Standard
-- **Active Task:** None blocking. Cohort 1 done end-to-end. Possible next moves: (a) launch Cohort 2 per swift-hopping-corbato plan (Constitutional amendments batch: hierarchy + Case Law + Risk-Mitigation merge, v5.0.0); (b) commit session's work; (c) reinstate intent-engineering.md link when that doc lands. User's call.
+- **Active Task:** None blocking. Cohorts 1 and 2 shipped. Possible next moves: (a) Cohort 3 (Content + Scaffold Self-Contradictions — F-P1-08 scaffold vs CFR Standard Kit, F-P2-13 Relations gap, F-C-01 metaphor-prevention rule, F-P2-05 Constitutional Basis normalize) per swift-hopping-corbato plan; (b) commit session's work; (c) reinstate intent-engineering.md link when that doc lands. User's call.
 
 ## Quick Reference
 
@@ -34,9 +34,23 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Last Session (2026-04-18)
+## Last Session (2026-04-19)
 
-114. **Session-114: Framework self-review → swift-hopping-corbato plan → Cohort 1 partial → README rewrite pivot (IN PROGRESS)**
+115. **Session-115: Cohort 2 Constitutional Amendments shipped (v5.0.0)**
+   - **Plan:** `~/.claude/plans/create-a-plan-following-cached-canyon.md` (v2, battery-refined). Companion v1 draft at `~/.claude/plans/cohort-2-constitutional-amendments.md` (superseded, retain as audit trail).
+   - **Three amendments applied:**
+     - **F-P1-05 Case Law → Secondary Authority** (label rename). Authority column: "Precedent" → "Informative (non-overriding)" after post-edit contrarian flagged "Informative" alone could read as soft-binding. Propagated across 15 files: constitution.md:92/101/112/802, README.md:60, ai-instructions.md:132/142, rules-of-procedure.md (9 spots), 6 CFR Legal System Analogy tables, server.py:2052. All historical records preserved (reviews/, archive/, SESSION-STATE/LEARNING-LOG/BACKLOG sessions 113-114, staging draft). Grep `Case Law` returns only allowed buckets.
+     - **F-P1-02 Structural Enforcement subsection** added after Operative Hierarchy table at constitution.md:114. Cross-cutting framing (NOT a new hierarchy row) per `meta-core-systemic-thinking` — normative content ≠ enforcement mechanism; US Constitutional analog preserves same distinction (Judicial/Executive branches are mechanisms, not sources of law). Mechanism table names 6 mechanisms with binding-strength labels. Validator confirmed each named mechanism exists.
+     - **F-P2-09 Risk Mit ↔ Non-Mal de-duplicated in place (Path B).** Chose Path B over Path A (merge) after contrarian steel-manned the alternative pre-edit. Path B preserves G-Series=5, avoids series crossing + test breakage (`tests/test_extractor.py` hard-codes the name + Art IV §1) + cross-ref churn (`rules-of-procedure.md §7.8`, `title-20-multi-agent.md`). Risk Mitigation trimmed to planning-time posture only; techniques (defense-in-depth, safe defaults, continuous monitoring) stay canonical in Non-Maleficence. Non-Mal gained cross-reference sentence + "Over-reliance on Single Defenses" failure mode. Principle count unchanged (24; C:6, O:6, Q:4, G:5, S:3).
+   - **Pre-edit + post-edit 3-agent batteries ran.** Pre-edit battery (Agent IDs `a950fa71`, `a8771678`, `a24c7f61`) surfaced Path B alternative, expanded propagation list, flagged "Informative Only" as downgrade. Post-edit battery (`ab2d93b3`, `a35f20e8`, `aa52478f`): contrarian ACCEPT_WITH_REVISIONS (fixes applied surgically), coherence COHERENT (zero drift), validator PASS_WITH_EVIDENCE_GAPS (§9.6.1 citation corrected to §9.6.3 post-battery). Validator also flagged body header at lines 11-13 (pre-existing lag pattern) — fixed in this session.
+   - **Version bump v4.1.0 → v5.0.0** per `rules-of-procedure.md §9.6.3` (Breaking Changes / MAJOR) — public-label surface broke backward-compat for downstream consumers indexing on "Case Law" string. Frontmatter + body header + Historical Amendments entry all aligned.
+   - **Extractor rebuilt.** Constitution: 24 principles, 206 methods. Both `risk-mitigation-by-design` and `non-maleficence-privacy-security` load cleanly with distinct content.
+   - **Tests:** 1307 passed / 1 failed (watcher-daemon heartbeat test — confirmed unrelated; passes in isolation, classic flake pattern). All Cohort-2-relevant tests (TestPrincipleCountCeiling, TestDomainConsistency, test_extractor full suite — 146 tests) PASS.
+   - **Methodology captures (in PROJECT-MEMORY + LEARNING-LOG):** structural enforcement as cross-cutting dimension (not a hierarchy row); pre-edit battery as defense-in-depth for constitutional amendments (catches issues cheaper than post-edit rework).
+   - **Governance trail:** `gov-9ee47594eec4` (plan eval — PROCEED, medium confidence). No S-Series. Principles cited: `meta-core-systemic-thinking`, `meta-method-single-source-of-truth`, `meta-safety-transparent-limitations`, `meta-methods §7.8`, PROJECT-MEMORY 2026-04-12 "S-Series Scope Boundary," LEARNING-LOG 2026-04-12 "Metaphor-Driven Classification," LEARNING-LOG 2026-03-29 "Demotion Decisions Require Constitutional Coverage Verification," `coding-method-three-agent-assessment-battery`.
+   - **Resumption:** no blocker. Cohort 2 done. Next moves: (a) Cohort 3 execution, (b) commit-and-pause, (c) reinstate `documents/intent-engineering.md` link when user drafts that document.
+
+114. **Session-114: Framework self-review → swift-hopping-corbato plan → Cohort 1 complete (README rewrite + server runtime prose)**
    - **12-step self-review complete.** 8 deliverables at `reviews/2026-04-18/` (1,967 lines): 00-executive-summary, 01-phase1-structural, 02-phase2 (content), 03-cross-cutting, 04-intent-engineering-synthesis, 05-remediation-plan, 06-compliance-audit, 99-appendix-inventory. 31 findings (1 Critical, 3 High, 11 Medium, 16 Low). Top 3 root causes: (C1) value-prop unfalsifiable, (C2) declared hierarchy omits enforcement mechanisms, (C3) longitudinal infrastructure under-built. 2/3 subagents used (contrarian-reviewer xhigh, coherence-auditor high); validator skipped. Compliance: PROCEED gate, PARTIAL close (tool-matching limitation — `verify_governance_compliance` reads `relevant_principles` not `universal_floor` or `log_governance_reasoning` traces).
    - **Plan approved: `~/.claude/plans/swift-hopping-corbato.md`.** Reorganizes 31 findings into 5 root-cause cohorts (per `meta-core-systemic-thinking`) with per-cohort agent batteries. Cohorts: (1) Resolve unfalsifiable value claim, (2) Constitutional amendments batch (hierarchy + Case Law + Risk-Mitigation merge), (3) Content + scaffold self-contradictions, (4) Longitudinal infrastructure (CHANGELOG + enabling_authority), (5) Cosmetic low-sev sweep. **Review correction recorded in plan:** `staging/benchmark_ab_test.py` is BM25 metadata A/B (retrieval-quality family), NOT an outcome-benchmark skeleton. R-01 in 05-remediation-plan.md is superseded; BACKLOG #22 remains pre-registered tracking for the actual outcome benchmark (still Discussion, option to "conclude value is qualitative and close").
    - **Cohort 1 execution (partial, 8-item scope narrowed twice):**
@@ -150,9 +164,9 @@
 ## Next Actions
 
 **Immediate (resume trigger for next session):**
-1. **Commit session work.** Substantial uncommitted changes: README rewrite shipped, server.py:888 runtime prose softened (BACKLOG #104), SESSION-STATE + LEARNING-LOG + PROJECT-MEMORY + BACKLOG + constitution.md all updated, staging draft in place. User has not yet requested commit — gated on that.
+1. **Commit Cohort 2 work.** Uncommitted: `constitution.md` v5.0.0 + 15 propagated files + `index/` rebuild + memory updates (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG, BACKLOG, swift-hopping-corbato). User gate before commit.
 2. **When user wants to reinstate intent-engineering link:** drop `documents/intent-engineering.md` into the repo (user is drafting in Claude app), then edit `README.md:23` to re-add the second sentence: *"For the full 5-layer treatment with definitions, see [`documents/intent-engineering.md`](documents/intent-engineering.md)."*
-3. **Decide Cohort 2 timing.** Constitutional amendments batch per swift-hopping-corbato plan (hierarchy-omits-enforcement + Case Law rename + Risk-Mitigation/Non-Maleficence merge — coordinated v5.0.0 bump). Proportional rigor says pause if session momentum is spent; pick up fresh.
+3. **Decide Cohort 3 timing.** Content + Scaffold Self-Contradictions batch per swift-hopping-corbato plan (F-P1-08 scaffold vs CFR Standard Kit sync, F-P2-13 Relations gap, F-C-01 metaphor-prevention Admission Test Q7, F-P2-05 Constitutional Basis vs Derivation terminology normalize).
 
 **Working artifacts:**
 - `reviews/2026-04-18/00-executive-summary.md` — framework self-review executive summary (31 findings).

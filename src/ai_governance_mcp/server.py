@@ -2049,7 +2049,7 @@ def _format_retrieval_result(result) -> str:
             lines.append(f"- **{m.id}:** {m.title} (confidence: {sm.confidence.value})")
         lines.append("")
 
-    # Reference Library (Case Law Precedent)
+    # Reference Library (Secondary Authority)
     if result.references:
         lines.append("## Relevant Precedent (Reference Library)")
         for sr in result.references:

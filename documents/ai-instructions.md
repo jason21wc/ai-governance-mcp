@@ -129,7 +129,7 @@ Follow the Operational Application Protocol:
 | **Rules of Procedure** | rules-of-procedure.md | **Process** — how principles are applied and maintained |
 | **Federal Regulations** | Domain Methods (title-NN-domain-cfr.md) | **Execution** — implementation details |
 | **Agency SOPs** | CLAUDE.md, GEMINI.md, project configs | **Tactical** — platform-specific guidance |
-| **Case Law** | Reference Library | **Precedent** — concrete artifacts from real application |
+| **Secondary Authority** | Reference Library | **Informative (non-overriding)** — concrete artifacts that inform interpretation |
 
 **Domain Files** (select applicable for Federal Statutes + Federal Regulations):
 - title-10-ai-coding.md (12 principles) / title-10-ai-coding-cfr.md
@@ -139,7 +139,7 @@ Follow the Operational Application Protocol:
 - title-30-storytelling.md (15 principles) / title-30-storytelling-cfr.md
 - title-40-multimodal-rag.md (32 principles) / title-40-multimodal-rag-cfr.md
 
-**Supremacy Rule:** Higher layers override lower. If conflict: **Bill of Rights** > **Constitution** > **Statutes** > **Rules of Procedure** > **Regulations** > **SOPs**. Case Law informs interpretation but does not override normative layers.
+**Supremacy Rule:** Higher layers override lower. If conflict: **Bill of Rights** > **Constitution** > **Statutes** > **Rules of Procedure** > **Regulations** > **SOPs**. Secondary Authority informs interpretation but does not override normative layers.
 </governance_hierarchy>
 
 <memory_architecture>
@@ -196,7 +196,7 @@ query_governance("how to handle incomplete specifications")
 
 <document_versions>
 This loader is designed for use with:
-- constitution.md v4.1.0+
+- constitution.md v5.0.0+
 - rules-of-procedure.md v3.24.0+
 - title-10-ai-coding.md v2.7.1+
 - title-10-ai-coding-cfr.md v2.36.0+

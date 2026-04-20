@@ -85,7 +85,7 @@ This document uses importance tags to enable efficient partial loading:
 | Rules of Procedure | rules-of-procedure.md | How the framework evolves and maintains itself |
 | **Federal Regulations (CFR)** | **This document** | **Operational rules implementing statutes** |
 | Agency SOPs | Tool appendices | Platform-specific execution |
-| Case Law | Reference Library | Precedent from real application |
+| Secondary Authority | Reference Library | Informative artifacts from real application |
 
 ---
 
