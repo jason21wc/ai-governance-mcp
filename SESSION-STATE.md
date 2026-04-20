@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-19 (session 117 — Cohort 4 Phase 4a shipped; constitution v5.0.3 + rules-of-procedure v3.27.2 + ai-instructions v2.7)
+**Last Updated:** 2026-04-19 (session 117 — Cohort 4 Phase 4a shipped + post-commit PATCH; constitution v5.0.4 + rules-of-procedure v3.27.2 + ai-instructions v2.7)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v5.0.3** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.2** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v5.0.4** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.2** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1308 passing** safe subset (`pytest tests/ -v -m "not slow"`); embedding-mock tests no longer intercepted by daemon (autouse conftest fixture forces local path). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -48,6 +48,7 @@
    - **Phase 4b deferred** (~6-8 hours across 6 CFR files). Backfill scope: 406 methods need `Implements:` field (49 of 455 already have it = 11% adoption). Recommended phasing: title-40 → 30 → 25 → 15 → 20 → 10. Not this session (quality-of-judgment reasons for 406 per-method principle-citation decisions).
    - **Meta-finding DEFERRED** per contrarian H1: "Self-Review Findings Often Over-Scope Remediation" lesson needs 3+ clean instances; Cohort 4 Phase 1 data wasn't clean (Explore-1 miscounted). Revisit after Cohort 5.
    - **Governance trail:** `gov-212f6fa8bd82` (plan eval), `gov-9a509771c252` (execution eval). Plan-stage battery agents: `aafc330dc1a68a310` (contrarian), `a7ed2fe1124998854` (coherence), `a60ec0db6aa70701c` (validator).
+   - **Post-commit double-check (Cohort 4 Phase 4a, post commit `64b458a`):** 3-agent battery (contrarian + coherence + validator) flagged (1) ai-instructions.md body-header/frontmatter drift — commit formalizing "frontmatter must match" rule itself had `**Version:** 2.6` / `**Updated:** 2026-02-09` in body while frontmatter was v2.7 (dogfood failure); (2) `<document_versions>` pins stale (rules-of-procedure v3.24.0+ → should reflect v3.27.2+ and constitution v5.0.0+ → v5.0.3+); (3) v2.8.0 amendment entry (constitution.md:1168) orphan future-tense "retained for Phase 4 dissolution" reads as current policy, contradicting v5.0.3 retroactive-dissolution entry; (4) COMPLETION-CHECKLIST.md duplicate "9." (two items numbered 9; Docker should be 11); (5) BACKLOG #105 authored without recommendation (violates "Recommend don't ask" behavioral floor); (6) swift-hopping-corbato.md Cohort 4 section not updated with Phase 4a DONE marker. All six fixed in follow-on PATCH. **Version bumps:** constitution v5.0.3 → v5.0.4 (PATCH — v2.8.0 cross-ref clarification); ai-instructions.md v2.7 body-header sync (no frontmatter bump — still v2.7; Changelog entry clarified). Pattern match: Cohort 2 v5.0.1 + Cohort 3 v5.0.2 post-commit PATCH precedent; post-commit batteries consistently find surface drift pre/post batteries miss by design.
    - **Resumption:** None blocking. Phase 4b or Cohort 5 next.
 
 116. **Session-116: Cohort 3 Content + Scaffold Self-Contradictions shipped**

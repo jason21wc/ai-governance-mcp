@@ -69,7 +69,7 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 8. Update and prune SESSION-STATE.md (target <300 lines per §7.0.4)
 9. Commit and push
 10. Verify CI green
-9. Docker check: if content significantly changed or code also changed → rebuild and push
+11. Docker check: if content significantly changed or code also changed → rebuild and push
 
 ## Domain changes (adding/removing/renaming domains)
 

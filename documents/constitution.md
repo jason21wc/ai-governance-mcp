@@ -1,5 +1,5 @@
 ---
-version: "5.0.3"
+version: "5.0.4"
 status: "active"
 effective_date: "2026-04-19"
 domain: "constitution"
@@ -8,7 +8,7 @@ governance_level: "constitution"
 
 # Principles Framework for AI Interaction
 
-**Version:** 5.0.3
+**Version:** 5.0.4
 **Status:** Active
 **Effective Date:** 2026-04-19
 **Governance Level:** Constitution (Meta-Principles)
@@ -1073,6 +1073,13 @@ A "confident wrong answer" is the most dangerous output an AI can provide. If ag
 
 **Usage Instruction for AI:** This section is a historical record ("Legislative History"). **It does not carry the force of law.** If any statement in this history log contradicts the active text of the Principles above, **ignore the history and follow the active text.**
 
+#### **v5.0.4 (April 2026) - Cohort 4 Phase 4a Post-Commit Cross-Reference Patch**
+
+*   **Clarification patch** per `rules-of-procedure.md §9.6.1` (cross-reference fix, no operative change).
+*   **Change:** v2.8.0 "Phase 2: Domain Demotions" bullet — line reading "MA-Series: Now empty (0 principles). Section header retained for Phase 4 dissolution." was accurate as-of v2.8.0 but read as present-tense to a modern reader, creating implicit conflict with the v5.0.3 retroactive dissolution entry (the v2.8.0 bullet said "retained for Phase 4 dissolution" while v5.0.3 documented that dissolution actually happened at v3.0.0). Appended bracketed cross-reference pointer: *"[Resolved at v5.0.3 per F-P2-17: dissolution completed retroactively; see v5.0.3 Historical Amendment entry…]"*. The original v2.8.0 language is preserved (historical record immutability); the pointer removes the implicit contradiction.
+*   **Post-commit double-check trail:** Cohort 4 Phase 4a shipped as commit `64b458a`. Three-agent post-commit battery (contrarian + coherence + validator) flagged the v2.8.0 orphan future-tense bullet as a high-confidence cross-reference gap requiring PATCH closure. Pattern matches Cohort 2 v5.0.1 + Cohort 3 v5.0.2 precedent: post-commit batteries consistently find surface drift that pre-edit + post-edit batteries miss by design.
+*   **Governance trail:** `gov-[post-patch-eval]` (Phase 4a post-commit PATCH execution). Prior trail: v5.0.3 entry's `gov-9a509771c252` (Phase 4a execution eval).
+
 #### **v5.0.3 (April 2026) - Amendment Record Gap Corrections (Cohort 4 Phase 4a, F-P2-14 + F-P2-17)**
 
 Two amendment-log gap corrections per the 2026-04-18 self-review. No operative change; corrections to the legislative-history record only.
@@ -1165,7 +1172,7 @@ Post-commit double-check (session-115, 3-agent pass) caught surface drift the v5
     *   **To Multi-Agent Domain (A-Series):** Role Specialization & Topology, Hybrid Interaction & RACI (multi-agent mechanics), Intent Preservation (Voice of the Customer), Standardized Collaboration Protocols.
     *   **To Multi-Agent Domain (R-Series):** Synchronization & Observability (The "Standup"), Blameless Error Reporting (multi-agent mechanics — confidence scoring, stop-the-line, near-miss logging).
     *   **To AI Coding Domain (P-Series):** Idempotency by Design, Established Solutions First (Precedent Rule).
-    *   **MA-Series:** Now empty (0 principles). Section header retained for Phase 4 dissolution.
+    *   **MA-Series:** Now empty (0 principles). Section header retained for Phase 4 dissolution. *[Resolved at v5.0.3 per F-P2-17: dissolution completed retroactively; see v5.0.3 Historical Amendment entry for "Amendment Record Gap Correction — MA-Series Formal Dissolution."]*
     *   **O-Series:** 9 → 7 (lost Idempotency and Established Solutions).
     *   **Result:** S:3, C:8, Q:3, O:7, MA:0, G:6 = 27 total principles.
 *   **Phase 1: Principle Consolidation (47 → 34)**

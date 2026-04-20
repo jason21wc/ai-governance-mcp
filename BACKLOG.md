@@ -57,9 +57,13 @@
 
 **What:** `documents/title-30-storytelling-cfr.md` has both `## Version History` (line 1028) and `## Changelog` (line 1982). Framework convention is one version-history section per document (naming varies: `Historical Amendments` / `Version History` / `Changelog` / `Appendix C: Version History` — per `rules-of-procedure §2.1.1` Notes). Duplicate sections create ambiguity about which is canonical.
 
-**Discussion needed:** Which section is canonical? Options:
-- **Keep `## Version History` (line 1028)** — matches pattern of title-10/20/25 CFRs which use "Version History" naming; fold any unique content from `## Changelog` into it; delete `## Changelog`.
-- **Keep `## Changelog` (line 1982)** — matches title-30 principles file (which uses `## Changelog`); fold `## Version History` content into it; delete `## Version History`.
+**Recommendation:** **Keep `## Version History` (line 1028); fold any unique content from `## Changelog` (line 1982) into it; delete the duplicate.** Rationale: the CFR family (title-10/20/25) is the correct sibling set for convention consistency — CFRs are operational-procedure documents and should share naming across the family. Aligning title-30-cfr with its CFR siblings trumps aligning with its own principles file (a different document type with its own convention drift that can be addressed separately if needed).
+
+**Options considered:**
+- **Keep `## Version History` (line 1028)** ← **recommended** — matches title-10/20/25 CFR family; fold unique content from `## Changelog` in; delete `## Changelog`.
+- Keep `## Changelog` (line 1982) — matches title-30 principles file; rejected: trades CFR-family alignment for intra-domain alignment, breaking the stronger CFR-sibling pattern.
+
+**Scope:** 1 file, ~1 hour (read both sections; fold delta into canonical; delete duplicate; PATCH bump title-30-cfr v1.1.2 → v1.1.3 if not already bumped by Phase 4b).
 
 **Origin:** Cohort 4 Phase 4a coherence-audit (2026-04-19, agent `a7ed2fe1124998854`) flagged this during the F-P1-06 changelog-convention verification pass. Deferred from Phase 4a as an explicit editorial decision rather than silent fix.
 
