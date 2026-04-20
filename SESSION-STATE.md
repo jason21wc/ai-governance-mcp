@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-19 (session 115 — Cohort 2 shipped as v5.0.0; post-commit double-check patch v5.0.1 applied)
+**Last Updated:** 2026-04-19 (session 116 — Cohort 3 shipped; rules-of-procedure v3.27.0 + title-40 v2.4.2 + scaffold sync)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,7 +11,7 @@
 
 ## Current Position
 
-- **Phase:** Cohorts 1 and 2 of `~/.claude/plans/swift-hopping-corbato.md` both CLOSED. Constitution released at **v5.0.1** (effective 2026-04-19). v5.0.0 shipped three amendments (Case Law → Secondary Authority label rename, Structural Enforcement cross-cutting subsection, Risk Mitigation ↔ Non-Maleficence Path B de-duplicate); v5.0.1 PATCH completed propagation after post-commit double-check with 3 fresh subagents caught surface drift: TITLE 15 heading still carried old label (BLOCKING); 6 CFR Authority cells missed the "(non-overriding)" guardrail that post-edit contrarian had added to constitution+ai-instructions only; same-file inconsistency in Truth Source Hierarchy; Structural Enforcement table under-enumerated mechanisms; Implements cross-ref in title-10 CFR under-anchored post-Risk-Mit-trim. Principle count unchanged (24; G:5). Tests: 1307/1308 safe-subset pass (1 unrelated flake).
+- **Phase:** Cohorts 1, 2, and 3 of `~/.claude/plans/swift-hopping-corbato.md` all CLOSED. Cohort 3 (session-116) shipped: **rules-of-procedure v3.26.8 → v3.27.0** (MINOR — added Admission Test Q7 "Semantic-Label Risk" + PASS/FAIL exemplars; 8 cross-ref sync from "6 Questions" → "7 Questions"; removed obsolete "Constitutional Basis ← Constitutional Derivation" alias row; fixed pre-existing body-vs-frontmatter version drift); **title-40-multimodal-rag v2.4.1 → v2.4.2** (PATCH — 32 "Constitutional Derivation" → "Constitutional Basis" normalization); **scaffold_project expanded** (server.py SCAFFOLD_STANDARD_EXTRAS + 3 new skeletal templates with "starter template" banners matching title-10-ai-coding-cfr.md §1.5.2 — ARCHITECTURE.md, SPECIFICATION.md, workflows/COMPLETION-CHECKLIST.md subdirectory, BACKLOG.md; 9-file Standard tier per §1.5.5 CLAUDE.md overlay); F-P2-13 Path B resolved via PROJECT-MEMORY + LEARNING-LOG entries (no constitutional amendment; Preamble purposes are class (b) interpretive tiebreakers, not principle-count targets). Pre-edit + post-edit 3-agent batteries both ran; post-edit battery found 2 CRITICAL stale "6 files" strings in user-facing tool description + error message — fixed before commit. BACKLOG #102 + #34 both closed. Principle count unchanged (24; G:5). Tests: 1308/1308 safe-subset pass.
 - **Mode:** Standard
 - **Active Task:** None blocking. Cohorts 1 and 2 shipped. Possible next moves: (a) Cohort 3 (Content + Scaffold Self-Contradictions — F-P1-08 scaffold vs CFR Standard Kit, F-P2-13 Relations gap, F-C-01 metaphor-prevention rule, F-P2-05 Constitutional Basis normalize) per swift-hopping-corbato plan; (b) commit session's work; (c) reinstate intent-engineering.md link when that doc lands. User's call.
 
@@ -35,6 +35,23 @@
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Last Session (2026-04-19)
+
+116. **Session-116: Cohort 3 Content + Scaffold Self-Contradictions shipped**
+   - **Plan:** `~/.claude/plans/cohort-3-content-scaffold-self-contradictions.md` (battery-refined v2). Parent plan `swift-hopping-corbato.md` Cohort 3 section also updated to Path B during plan refinement (eliminating pre-existing Path A drift flagged by coherence-auditor pre-edit battery).
+   - **Four findings addressed (D → C → A → B execution order for dogfood):**
+     - **Change D (F-P2-13 Path B)**: Relations purpose gap resolved via documentation-only. PROJECT-MEMORY "Preamble Purpose Coverage Is Distributed, Not Concentrated" + LEARNING-LOG "Review Protocol — Don't Count Principles Per Preamble Purpose." Root-cause reframe: the review applied operative-claim logic to a class (b) Preamble surface, same category error as F-P2-01 in Cohort 1. No constitutional amendment; principle count unchanged. BACKLOG #34 Epistemic Integrity closed as resolved-in-place (both F-P2-09 Cohort 2 Path B + F-P2-13 Cohort 3 Path B routes).
+     - **Change C (F-C-01 Admission Test Q7)**: Added Q7 Semantic-Label Risk at `rules-of-procedure.md §9.8.1` with 3 PASS + 2 FAIL exemplars. 8 cross-reference updates sync "6 Questions" → "7 Questions" across rules-of-procedure + COMPLETION-CHECKLIST + PROJECT-MEMORY + BACKLOG. Removed obsolete alias row (post-sweep). Fixed pre-existing body-vs-frontmatter version drift (3.26.5 line 12 + 3.26.8 line 2 → both v3.27.0). Version History entry appended. Q7 reflexively passes its own 7-question test.
+     - **Change A (F-P2-05 terminology sweep)**: title-40-multimodal-rag.md — 32 "Constitutional Derivation" → "Constitutional Basis." Grep verified clean. Frontmatter v2.4.1 → v2.4.2 + effective_date 2026-04-19. Q7 dogfood applied pre-sweep: "Constitutional Basis" passes Q7 (framework enforces derivation at §9.2.1 + Supremacy Clause).
+     - **Change B (F-P1-08 scaffold sync)**: Added 3 skeletal templates to server.py (SCAFFOLD_ARCHITECTURE + SCAFFOLD_SPECIFICATION + SCAFFOLD_BACKLOG, 20-40 lines each with "starter template — populate as your project matures" banners matching §1.5.4 kit-scaling spirit). SCAFFOLD_STANDARD_EXTRAS updated with correct `workflows/COMPLETION-CHECKLIST.md` subdirectory path. Test `test_preview_code_standard` assertion updated `== 6` → `== 9`. 2 user-facing "6 files" stale strings in tool description + error message fixed post-battery. BACKLOG #102 closed with §1.5.5 rationale.
+   - **Pre-edit + post-edit 3-agent batteries:**
+     - Pre-edit (agents `a559f324`, `a82d8375`, `ab25c5f7`): ACCEPT_WITH_REVISIONS / COHERENT_WITH_ADDITIONAL_EDITS / PASS_WITH_EVIDENCE_GAPS. Surfaced BLOCKER (scaffold path `workflows/` subdirectory), DANGEROUS (parent-plan Path A drift), Q0-precedent wording, version drift, 9 cross-reference surfaces, steel-man alternative for Change B. All addressed in v2 plan.
+     - Post-edit (agents `a1fd9b1e`, `adc4ddbe`, `a95f5716`): ACCEPT_WITH_REVISIONS (2 CRITICAL stale-string findings fixed) / COHERENT (zero drift) / PASS_WITH_EVIDENCE_GAPS (Q7 reflexive test 7/7 PASS).
+   - **Version bumps:** rules-of-procedure v3.26.8 → v3.27.0; title-40-multimodal-rag v2.4.1 → v2.4.2. NO constitutional bump (Path B preserves v5.0.1). pyproject not bumped (scaffold templates + tool description = docs/templates change, not versioned code).
+   - **Extractor rebuild:** 24 principles / 676 methods — unchanged.
+   - **Tests:** 1308/1308 pass. Scaffold tests 10/10.
+   - **Governance trail:** `gov-212f6fa8bd82` (plan eval — PROCEED, medium confidence). No S-Series. Principles cited: `meta-core-systemic-thinking`, `meta-method-single-source-of-truth`, `meta-methods §7.8`, `coding-method-three-agent-assessment-battery`, LEARNING-LOG 2026-04-12 "Metaphor-Driven Classification" (Q7 basis), LEARNING-LOG 2026-04-18 "Declaration and Preamble Are Purpose Surfaces" (F-P2-13 Path B basis), LEARNING-LOG 2026-04-19 "Pre-Edit Battery" (defense-in-depth).
+   - **Subagents used:** 6 total across session — contrarian-reviewer xhigh (pre + post), coherence-auditor high (pre + post), validator high (pre + post).
+   - **Resumption:** no blocker. Cohort 3 done. Next moves: (a) Cohort 4 (Longitudinal Infrastructure: CHANGELOG convention + enabling_authority + audit_id linkage + MA-Series dissolution record); (b) commit session work; (c) reinstate intent-engineering.md link when that doc lands.
 
 115. **Session-115: Cohort 2 Constitutional Amendments shipped (v5.0.0)**
    - **Plan:** `~/.claude/plans/create-a-plan-following-cached-canyon.md` (v2, battery-refined). Companion v1 draft at `~/.claude/plans/cohort-2-constitutional-amendments.md` (superseded, retain as audit trail).
@@ -164,9 +181,9 @@
 ## Next Actions
 
 **Immediate (resume trigger for next session):**
-1. **Commit Cohort 2 work.** Uncommitted: `constitution.md` v5.0.0 + 15 propagated files + `index/` rebuild + memory updates (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG, BACKLOG, swift-hopping-corbato). User gate before commit.
-2. **When user wants to reinstate intent-engineering link:** drop `documents/intent-engineering.md` into the repo (user is drafting in Claude app), then edit `README.md:23` to re-add the second sentence: *"For the full 5-layer treatment with definitions, see [`documents/intent-engineering.md`](documents/intent-engineering.md)."*
-3. **Decide Cohort 3 timing.** Content + Scaffold Self-Contradictions batch per swift-hopping-corbato plan (F-P1-08 scaffold vs CFR Standard Kit sync, F-P2-13 Relations gap, F-C-01 metaphor-prevention Admission Test Q7, F-P2-05 Constitutional Basis vs Derivation terminology normalize).
+1. **Commit Cohort 3 work.** Uncommitted: rules-of-procedure.md v3.27.0 + title-40 v2.4.2 + server.py (3 templates + 5-tuple STANDARD_EXTRAS + 2 description fixes) + tests/test_server.py + workflows/COMPLETION-CHECKLIST.md + PROJECT-MEMORY + LEARNING-LOG + BACKLOG (#102/#34 closures + quick-ref 7-questions update) + index rebuild + swift-hopping-corbato. User gate before commit.
+2. **When user wants to reinstate intent-engineering link:** drop `documents/intent-engineering.md` into the repo (user is drafting in Claude app), then edit `README.md:23` to re-add the second sentence.
+3. **Decide Cohort 4 timing.** Longitudinal Infrastructure batch per swift-hopping-corbato plan: F-P1-04 enabling_authority frontmatter field across 200+ CFR methods; F-P1-06 per-document CHANGELOG convention + backfill (10 docs); F-P2-06 amendment audit_id linkage; F-P2-14 Rich-but-Not-Verbose correction record; F-P2-17 MA-Series dissolution record. Wider scope than Cohort 3; phased execution possible.
 
 **Working artifacts:**
 - `reviews/2026-04-18/00-executive-summary.md` — framework self-review executive summary (31 findings).

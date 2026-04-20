@@ -12,6 +12,20 @@
 
 ## Active Lessons
 
+### Review Protocol — Don't Count Principles Per Preamble Purpose (2026-04-19)
+
+F-P2-13 in the 2026-04-18 self-review flagged "Relations purpose thinly operationalized — only 2 principles" as a Medium-severity finding. Cohort 3 planning rejected the framing: the review applied operative-claim logic (counting principles per purpose) to the Preamble, which is a class (b) interpretive-tiebreaker surface per LEARNING-LOG 2026-04-18 "Declaration and Preamble Are Purpose Surfaces." This is the same category error that produced F-P2-01 in Cohort 1 (evidence-checking an aspirational Declaration claim) — just at a different surface.
+
+**Rule:** Review methodology must not flag Preamble purpose under-coverage as a finding based on principle-count alone. Preamble purposes operationalize through distributed coverage — multiple domain principles, methods, and cross-references contribute to any given purpose. Counting dedicated principles per purpose measures the wrong thing. Flag Preamble purpose gaps as findings ONLY when actual governance decisions are failing on that purpose (evidence-gated, not count-gated). Example: if contested interpretations on cross-domain output recognition (Relations) keep producing conflicts the framework can't resolve, THAT'S evidence of a Relations gap worth filing. "Relations has only 2 principles" is not.
+
+**Rule corollary — F-P2-13 class for future reviews:** when a finding is "X purpose is thinly operationalized, add a principle," apply the textual-function classification gate first. If X is a Preamble purpose (class b), the finding must name a specific governance decision failure, not a count. Otherwise, it's reframed to "review methodology error" — same class as F-P2-01.
+
+**Principle:** `meta-core-systemic-thinking` — fix the review protocol, not the content. Extends LEARNING-LOG 2026-04-18 "Declaration and Preamble Are Purpose Surfaces" with the corollary that Preamble purposes don't have per-purpose principle-count quotas. Also `meta-safety-transparent-limitations` — this lesson is transparent about a review methodology error; the fix is documented, not silently absorbed.
+
+**BACKLOG #34 (Epistemic Integrity draft) disposition:** Parent plan swift-hopping-corbato bound F-P2-13 + F-P2-09 both to #34. Both resolved via Path B in Cohorts 2 and 3 respectively; neither produced an Epistemic Integrity gap requiring a new principle. #34 closes as resolved-in-place with cross-reference to the two Path B PROJECT-MEMORY entries.
+
+---
+
 ### Post-Commit Double-Check Catches Surface Drift Pre/Post Batteries Miss (2026-04-19)
 
 Cohort 2 v5.0.0 ran pre-edit + post-edit 3-agent batteries. Both passed. User requested an additional post-commit double-check with 3 more subagents. It found:

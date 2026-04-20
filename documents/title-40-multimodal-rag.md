@@ -1,12 +1,12 @@
 ---
-version: "2.4.1"
+version: "2.4.2"
 status: "active"
-effective_date: "2026-03-30"
+effective_date: "2026-04-19"
 domain: "multimodal-rag"
 governance_level: "federal-statute"
 ---
 
-# Multimodal RAG Domain Principles Framework v2.4.1
+# Multimodal RAG Domain Principles Framework v2.4.2
 ## Federal Statutes for AI Agents Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -342,7 +342,7 @@ Images MUST be placed at the exact step they support, woven into the instruction
 - **Concept Introduction First:** Never show an image before the concept it illustrates is introduced in text (prevents MR-F10).
 - **Flow Preservation:** Images should feel like a natural part of reading, not interruptions.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Context Engineering` and `Structured Output Enforcement`.
 
 **Why This Principle Matters**
@@ -369,7 +369,7 @@ AI MUST NOT ask permission before showing relevant images. Images should be pres
 - **Seamless Flow:** Present images as inherent parts of the answer, not optional additions.
 - **Declarative Framing:** "Here is the interface:" not "Would you like to see the interface?"
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing MR-F2 (Permission-Asking Pattern). Conceptually aligned with `Interaction Mode Adaptation` (adapting to instructional context).
 
 **Why This Principle Matters**
@@ -406,7 +406,7 @@ Select images using Mayer's Multimedia Learning principles. Each image must pass
 - **When Uncertain, Prefer Fewer:** Cognitive overload from redundant visuals hurts comprehension more than missing visuals.
 - **No Redundancy:** Avoid multiple images showing the same information from different angles (MR-F8).
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Context Engineering` and `Resource Efficiency & Waste Reduction`. Grounded in Mayer's Coherence Principle ("include only essential content directly linked to learning objectives") and Redundancy Principle ("people learn better when extraneous material is excluded").
 
 **Why This Principle Matters**
@@ -445,7 +445,7 @@ When audience signals are absent or ambiguous, apply these defaults:
 - **Image Matching:** Technical screenshots for technical users; annotated/simplified visuals for general users.
 - **Uncertainty Protocol:** When audience is unclear, use default readability case and invite calibration.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Interaction Mode Adaptation`, `Discovery Before Commitment`, and `Bias Awareness & Fairness`.
 
 **Why This Principle Matters**
@@ -478,7 +478,7 @@ All visual content presented in multimodal responses MUST meet WCAG 2.1 AA stand
 - **Color Independence:** Never rely solely on color to convey meaning in diagrams or annotations.
 - **Text Alternatives:** For complex visualizations (charts, graphs, diagrams), provide a text summary of key findings alongside the image.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Bias Awareness & Fairness`. Strengthened by DOJ 2026 mandate requiring digital accessibility compliance.
 
 **Why This Principle Matters**
@@ -513,7 +513,7 @@ In source documents, images MUST be placed immediately adjacent to the text they
 - **No Separation:** Avoid image galleries or appendices that separate images from context.
 - **Structural Consistency:** Same collocation pattern throughout document.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Context Engineering` applied to document design.
 
 **Why This Principle Matters**
@@ -540,7 +540,7 @@ Every image MUST have alt text describing what it shows AND contextual descripti
 - **Context (Why):** Explain what the image demonstrates and when to use it.
 - **Dual Purpose:** Alt text for screen readers and accessibility; context for retrieval relevance.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Bias Awareness & Fairness` and `Context Engineering`.
 
 **Why This Principle Matters**
@@ -567,7 +567,7 @@ Images MUST have tags or metadata linking them to specific procedural steps, con
 - **Concept Tags:** `rate-codes`, `room-assignment`, `billing`
 - **Use Case Tags:** `troubleshooting`, `new-employee`, `advanced`
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Context Engineering` and `Resource Efficiency & Waste Reduction` (using proven metadata patterns).
 
 **Why This Principle Matters**
@@ -598,7 +598,7 @@ Multimodal RAG systems SHOULD use embedding models that place text and images in
 - **Cross-Modal Retrieval:** System should retrieve relevant images directly from text queries.
 - **Late Interaction:** Consider architectures that enable fine-grained query-document matching.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing architectural foundations for effective multimodal retrieval.
 
 **Why This Principle Matters**
@@ -632,7 +632,7 @@ final_score = semantic_similarity * 0.6 + content_type_match * 0.25 + recency * 
 - **Recency:** For rapidly-changing UIs, prefer recent images.
 - **Step Alignment:** For procedural queries, match images to specific steps.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Visible Reasoning & Traceability` and `Verification & Validation`.
 
 **Why This Principle Matters**
@@ -660,7 +660,7 @@ When chunking multimodal documents for indexing, tables, charts, diagrams, and o
 - **Context Preservation:** Include surrounding text context (title, caption, preceding paragraph) in the same chunk as the visual element.
 - **Adaptive Chunk Size:** Allow larger chunks when needed to keep visual elements intact rather than enforcing rigid size limits.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing the unique chunking requirements of multimodal documents. Aligned with `Context Engineering` (maintaining contextual integrity).
 
 **Why This Principle Matters**
@@ -688,7 +688,7 @@ Systems SHOULD support a late interaction retrieval paradigm where document page
 - **Hybrid Pipeline:** Maintain both text-extraction-based and image-based retrieval pipelines. Route queries to the appropriate pipeline based on document type and query characteristics.
 - **Cost-Quality Tradeoff:** Document-as-image retrieval requires more storage (multi-vector per page) and compute (VLM inference). Apply to document collections where layout carries meaning; use text extraction for structurally simple documents.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing MR-F27 (Retrieval Paradigm Mismatch). Aligned with `Resource Efficiency & Waste Reduction` (choose the right tool for the document type).
 
 **Why This Principle Matters**
@@ -717,7 +717,7 @@ For complex knowledge bases where entities, relationships, and hierarchies span 
 - **Graph-Augmented Retrieval:** Use the knowledge graph to expand retrieval results: when a query matches entity A, also retrieve content about entities related to A via graph traversal.
 - **Incremental Maintenance:** Update the knowledge graph incrementally as new content is added, rather than rebuilding from scratch.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing complex multimodal knowledge bases. Aligned with `Context Engineering` (maintaining relationships between content) and `Structured Output Enforcement`.
 
 **Why This Principle Matters**
@@ -749,7 +749,7 @@ When image retrieval fails, provide a complete text-only response plus a note ab
 - **Explicit Acknowledgment:** Note that an image was intended but unavailable.
 - **Alternative Guidance:** Provide document reference for manual lookup if possible.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Failure Recovery & Resilience` from the Constitution.
 
 **Why This Principle Matters**
@@ -786,7 +786,7 @@ Reference: [document_name, page/section] for manual lookup
 - **Reference Pointers:** When possible, tell users where to find the image manually.
 - **Visibility:** Failure notes should be visible, not hidden in metadata.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Visible Reasoning & Traceability`.
 
 **Why This Principle Matters**
@@ -818,7 +818,7 @@ Before presenting a response that combines retrieved images with generated text,
 - **Explicit Uncertainty:** When visual details are ambiguous, state uncertainty rather than guess.
 - **Cross-Source Reconciliation:** When multiple sources provide conflicting visual information, acknowledge the conflict per CoRe-MMRAG methodology.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Visible Reasoning & Traceability` (make reasoning auditable) and `Verification & Validation` (verify before committing).
 
 **Why This Principle Matters**
@@ -846,7 +846,7 @@ When describing what an image shows, the AI MUST verify the presence, attributes
 - **Spatial Claims:** Before stating "the button is in the upper-right corner," verify the spatial position.
 - **Absence Acknowledgment:** If an expected element is not visible in the image, say so rather than assuming it exists.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing MR-F12 (Hallucinated Visual Description). Aligned with `Visible Reasoning & Traceability`.
 
 **Why This Principle Matters**
@@ -874,7 +874,7 @@ Information retrieved from source documents MUST be presented faithfully. The AI
 - **Omission Transparency:** If summarizing and omitting details, note that the response is a summary.
 - **Version Awareness:** When source documents have versions, cite the specific version used.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Visible Reasoning & Traceability`.
 
 **Why This Principle Matters**
@@ -902,7 +902,7 @@ When answering queries that require multi-hop reasoning across modalities (e.g.,
 - **Chain Provenance:** Maintain a reasoning trace that records: (1) the source modality and element for each hop, (2) the intermediate conclusion, and (3) the confidence level. This trace enables post-hoc verification and debugging.
 - **Error Isolation:** When a multi-hop chain fails verification at hop N, report results up to hop N-1 as verified and clearly mark hop N onward as unverified.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Extends V1 (Cross-Modal Consistency Verification) to multi-hop chains. Derived from `Visible Reasoning & Traceability` (make reasoning steps auditable) and `Verification & Validation` (verify each hop independently).
 
 **Why This Principle Matters**
@@ -936,7 +936,7 @@ Multimodal RAG systems MUST track retrieval quality using established metrics. A
 - **Content-Type Precision:** Measure whether the system returns the right type of visual content (screenshot vs. diagram vs. photo) for each query type.
 - **Regular Measurement:** Run benchmarks after index rebuilds, model changes, and weight adjustments.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Verification & Validation`.
 
 **Why This Principle Matters**
@@ -964,7 +964,7 @@ Systems MUST assess whether generated responses are faithful to retrieved source
 - **Faithfulness Score:** Calculate the ratio of supported claims to total claims per RAG-Check methodology.
 - **Ungrounded Claim Detection:** Flag claims that cannot be traced to any retrieved source.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Verification & Validation` and `Visible Reasoning & Traceability`.
 
 **Why This Principle Matters**
@@ -1000,7 +1000,7 @@ Every factual claim in a multimodal RAG response SHOULD be attributable to a spe
 - **Unsupported Claim Flagging:** If a claim cannot be sourced from retrieved content, either remove it, mark it as general knowledge, or explicitly note it as unsupported.
 - **Attribution Ratio Tracking:** Monitor the ratio of attributed to unattributed claims as a system-level quality metric. Use attribution coverage as a continuous quality indicator.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Visible Reasoning & Traceability`.
 
 **Why This Principle Matters**
@@ -1033,7 +1033,7 @@ When referencing specific elements within an image, the AI SHOULD identify the s
 - **VISA-Style Attribution:** When tooling supports it, use bounding box coordinates to pinpoint referenced regions within images.
 - **Multiple Element Clarity:** When referencing several parts of one image, describe the spatial relationship.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing MR-F17 (Vague Visual Reference). Based on VISA (Visual Information Spatial Attribution, arxiv 2412.14457) methodology.
 
 **Why This Principle Matters**
@@ -1070,7 +1070,7 @@ Multimodal knowledge bases MUST include defenses against adversarial content tha
 - **Multi-Signal Validation:** Do not rely solely on embedding similarity for retrieval; combine with metadata, recency, and source trust signals per A2.
 - **Periodic Audit:** Regularly sample knowledge base content for unexpected changes, anomalous entries, or poisoned captions.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing MR-F18 (Knowledge Base Poisoning). Informed by MM-PoisonRAG (arxiv 2502.17832) and single-image attack research (arxiv 2504.02132).
 
 **Why This Principle Matters**
@@ -1099,7 +1099,7 @@ All inputs to the multimodal RAG pipeline—text queries, images, metadata—MUS
 - **Pipeline Isolation:** Processing of different modalities should not allow one to influence the other's security checks.
 - **Injection Prevention:** Image metadata fields (EXIF, alt text in source documents) must be sanitized before being used in text processing pipelines.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing MR-F19 (Cross-Modal Injection). Extends general input validation to the multimodal context.
 
 **Why This Principle Matters**
@@ -1131,7 +1131,7 @@ Visual content in knowledge bases MUST respect access control policies. Users sh
 - **Metadata Filtering:** Apply access control filters to metadata queries, not just vector search.
 - **Audit Trail:** Log which users accessed which visual content, including query context.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing MR-F21 (Unauthorized Visual Access). Aligned with general data governance best practices.
 
 **Why This Principle Matters**
@@ -1159,7 +1159,7 @@ Every item in the multimodal knowledge base MUST have traceable lineage: where i
 - **Version History:** Maintain previous versions of items that are updated, enabling rollback.
 - **Provenance in Responses:** When citing retrieved content, include provenance metadata (source document, date, version).
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Visible Reasoning & Traceability`.
 
 **Why This Principle Matters**
@@ -1191,7 +1191,7 @@ Vector index rebuilds, embedding model changes, and knowledge base updates MUST 
 - **Rollback Capability:** Maintain the previous index version so that a failed deployment can be quickly reverted.
 - **Change Log:** Document what changed between index versions (new content, removed content, model changes, parameter changes).
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Domain-native principle addressing MR-F22 (Silent Index Drift). Aligned with `Resource Efficiency & Waste Reduction` (proven operational patterns).
 
 **Why This Principle Matters**
@@ -1230,7 +1230,7 @@ Multimodal RAG systems MUST expose both operational and quality metrics sufficie
 - **A/B Comparison:** When changing models or weights, run parallel evaluation before committing changes.
 - **User Signal Integration:** Track implicit quality signals (follow-up queries suggesting first answer was insufficient, explicit negative feedback).
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Verification & Validation` and `Discovery Before Commitment`.
 
 **Why This Principle Matters**
@@ -1267,7 +1267,7 @@ Multimodal RAG systems SHOULD support agent-driven retrieval that evaluates resu
 - **Strategy Selection:** Maintain a repertoire of retrieval strategies (single-pass, iterative refinement, decompose-and-merge, graph-augmented) and select based on query complexity signals.
 - **Feedback-Driven Adjustment:** Use retrieval result quality signals (relevance scores, coverage gaps, confidence levels) to adjust strategy mid-flight rather than committing to a single approach.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Discovery Before Commitment` (adapt approach based on evidence) and `Resource Efficiency & Waste Reduction` (don't over-retrieve when simple retrieval suffices).
 
 **Why This Principle Matters**
@@ -1296,7 +1296,7 @@ Complex multimodal queries that contain multiple intents, reference multiple mod
 - **Sub-Query Independence:** Each sub-query should be self-contained and independently retrievable. Add context from the parent query as needed to maintain semantic completeness.
 - **Result Recombination:** After retrieving results for each sub-query, synthesize a unified response that addresses the original compound query. Maintain attribution for which sub-query produced which result.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Discovery Before Commitment` (break complex problems into manageable parts) and `Structured Output Enforcement`.
 
 **Why This Principle Matters**
@@ -1326,7 +1326,7 @@ Agentic retrieval systems MUST evaluate whether retrieved results meet quality t
 - **Confidence Scoring:** Compute an aggregate confidence score for the retrieved result set. Below a configured threshold, trigger re-retrieval with adjusted parameters (broader query, different index, expanded scope).
 - **Termination Controls:** Set maximum retrieval iterations (default: 3) to prevent infinite loops (MR-F26). After max iterations, proceed with best available results and explicitly note coverage gaps.
 
-**Constitutional Derivation**
+**Constitutional Basis**
 Derived from `Failure Recovery & Resilience` (handle insufficient results gracefully) and `Verification & Validation` (define what "good enough" looks like).
 
 **Why This Principle Matters**

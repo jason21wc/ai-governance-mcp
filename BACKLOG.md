@@ -334,7 +334,7 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 
 **What:** Proposed new Q-Series constitutional principle addressing AI sycophancy — the tendency to validate flawed assumptions, reinforce suboptimal approaches, or present outputs with unearned confidence. Core requirement: analytical accuracy over conversational agreeability.
 
-**Origin:** Independent research via Claude app (no anchor bias from existing framework). Reviewed against Part 9.8 Admission Test — passes all 6 questions. Contrarian review and coherence audit completed (see draft below).
+**Origin:** Independent research via Claude app (no anchor bias from existing framework). Reviewed against Part 9.8 Admission Test — passes all 7 questions (v3.27.0+). Contrarian review and coherence audit completed (see draft below).
 
 **The gap:** Three existing principles touch adjacent territory but none address the core failure mode:
 - **Transparent Limitations (S-Series):** Covers "I don't know" — NOT "I agree but shouldn't"
@@ -364,6 +364,8 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 **Related:** Would also create `meta-method-performance-assessment-protocol` (behavioral rules for honest feedback) and add `constitutional_basis` to contrarian-reviewer subagent definition.
 
 **Note (from #9P3 closure, 2026-04-02):** #9P3 closed — the "reasoning quality vs reasoning visibility" concept is now tracked here. Visible Reasoning (Q-Series) covers *visibility* of reasoning; this item covers *quality/soundness* of reasoning. If #34 is closed without shipping, the soundness gap needs re-evaluation.
+
+**Disposition (2026-04-19, session-116 Cohort 3 close):** Parent swift-hopping-corbato plan bound F-P2-09 (Risk/Non-Mal redundancy) AND F-P2-13 (Relations gap) both to #34 as their Epistemic-Integrity-adjacent pre-registered tracking. Both resolved via Path B routes that preserved existing principle structure without adding Epistemic Integrity: F-P2-09 via Cohort 2 de-duplicate-in-place (v5.0.0); F-P2-13 via Cohort 3 documentation-only (Preamble-purpose-is-distributed-not-concentrated). See PROJECT-MEMORY "Preamble Purpose Coverage Is Distributed, Not Concentrated" (2026-04-19) + "Path B Over Path A for Risk Mit ↔ Non-Mal" (2026-04-19). Neither cohort produced a gap the existing content doesn't cover; no Epistemic Integrity principle needed. **#34 closed as resolved-in-place.** If a future review surfaces sycophancy/honesty gaps with fresh evidence, can be re-opened as a new entry (not re-open this one).
 
 ---
 
@@ -640,12 +642,12 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 
 **Origin:** Contrarian review during v2.0.0 post-release audit (2026-04-13).
 
-#### 102. scaffold_project Standard Kit Misalignment (Discussion) `D1 Fix`
+#### 102. scaffold_project Standard Kit Misalignment (DONE — SHIPPED Cohort 3, session-116) `D1 Fix`
 
-**What:** The `scaffold_project` tool creates 6 files for standard tier (core 4 + CLAUDE.md + COMPLETION-CHECKLIST.md), but CFR §1.5.2 defines Standard Kit as 8 files (core 4 + ARCHITECTURE.md + SPECIFICATION.md + COMPLETION-CHECKLIST.md + BACKLOG.md). The tool creates a different set than the CFR defines. Pre-existing misalignment — predates the BACKLOG.md addition.
+**What:** The `scaffold_project` tool created 6 files for standard tier (core 4 + CLAUDE.md + COMPLETION-CHECKLIST.md); `title-10-ai-coding-cfr.md §1.5.2` defines Standard Kit as 8 files (core 4 + ARCHITECTURE.md + SPECIFICATION.md + workflows/COMPLETION-CHECKLIST.md + BACKLOG.md).
 
-**Discussion needed:** Should scaffold_project create all Standard Kit files, or is it intentionally a "minimum viable" standard scaffolding? If the latter, document this in the tool description. If the former, add ARCHITECTURE.md, SPECIFICATION.md, and BACKLOG.md templates to `SCAFFOLD_STANDARD_EXTRAS` and update tests.
+**Status (2026-04-19, session-116): SHIPPED.** Cohort 3 Change B added 3 skeletal templates (`SCAFFOLD_ARCHITECTURE`, `SCAFFOLD_SPECIFICATION`, `SCAFFOLD_BACKLOG` — 20-40 lines each with explicit "starter template — populate as your project matures" banners) to `SCAFFOLD_STANDARD_EXTRAS["code"]`. Also corrected `COMPLETION-CHECKLIST.md` path to `workflows/COMPLETION-CHECKLIST.md` (subdirectory per §1.5.2 literal). Scaffold Standard = 9 files: 4 core + 5 extras (CLAUDE + ARCHITECTURE + SPECIFICATION + workflows/COMPLETION-CHECKLIST + BACKLOG). CLAUDE.md retained as tool-specific overlay per §1.5.5 (§1.5.3 "Standard Kit + additions as warranted" authorizes this). Test `tests/test_server.py::TestScaffoldProject::test_preview_code_standard` updated from `files_to_create == 6` to `== 9`.
 
-**Origin:** Coherence audit during BACKLOG.md propagation (2026-04-14).
+**Origin:** Coherence audit during BACKLOG.md propagation (2026-04-14); resolved in Cohort 3 per swift-hopping-corbato plan.
 
 ---

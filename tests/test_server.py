@@ -3494,7 +3494,13 @@ class TestScaffoldProject:
 
     @pytest.mark.asyncio
     async def test_preview_code_standard(self, tmp_path, monkeypatch):
-        """Preview mode for code/standard should return 6-file manifest."""
+        """Preview mode for code/standard should return 9-file manifest.
+
+        Standard tier = 4 core + 5 extras (CLAUDE + ARCHITECTURE + SPECIFICATION
+        + workflows/COMPLETION-CHECKLIST + BACKLOG). See server.py
+        SCAFFOLD_STANDARD_EXTRAS comment for sync to
+        title-10-ai-coding-cfr.md §1.5.2.
+        """
         from ai_governance_mcp.server import _handle_scaffold_project
 
         (tmp_path / ".git").mkdir()
@@ -3506,10 +3512,13 @@ class TestScaffoldProject:
             }
         )
         response = json.loads(result[0].text.split("---")[0])
-        assert response["files_to_create"] == 6
+        assert response["files_to_create"] == 9
         paths = [f["path"] for f in response["files"]]
         assert "CLAUDE.md" in paths
-        assert "COMPLETION-CHECKLIST.md" in paths
+        assert "ARCHITECTURE.md" in paths
+        assert "SPECIFICATION.md" in paths
+        assert "workflows/COMPLETION-CHECKLIST.md" in paths
+        assert "BACKLOG.md" in paths
 
     @pytest.mark.asyncio
     async def test_preview_document_core(self, tmp_path, monkeypatch):

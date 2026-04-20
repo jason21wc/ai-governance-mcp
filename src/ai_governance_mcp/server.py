@@ -843,6 +843,92 @@ SCAFFOLD_AI_CONTEXT_README = """# {project_name} — AI Context
 3. Check LEARNING-LOG.md for relevant lessons
 """
 
+SCAFFOLD_ARCHITECTURE = """# Architecture
+
+> **Starter template — populate as your project matures.**
+> Per `title-10-ai-coding-cfr.md §1.5.4` kit-scaling rules, architecture docs grow with the project. Start with rough shapes; refine as implementation reveals constraints.
+
+## Overview
+
+[One paragraph: what does this system do, at the highest level?]
+
+## System Structure
+
+[Major components or subsystems. Bullet list or small diagram.]
+
+## Component Responsibilities
+
+[For each component: what it owns, what it does not own.]
+
+## Data Flow
+
+[How data moves through the system at a high level.]
+
+## Dependencies
+
+[External libraries, services, APIs this system depends on.]
+
+## Security Architecture
+
+[Auth model, data access, network exposure, trust boundaries.]
+
+## Architecture Decisions
+
+[ADR-style entries: decision, rationale, consequences. Add as decisions are made.]
+"""
+
+SCAFFOLD_SPECIFICATION = """# Specification
+
+> **Starter template — populate as your project matures.**
+> Per `title-10-ai-coding-cfr.md §1.5.4` kit-scaling rules, specifications firm up as the problem is understood. Start with what you know; iterate.
+
+## Problem Statement
+
+[What problem does this system solve? Who has the problem?]
+
+## Features
+
+[Primary capabilities. Bullet list or numbered requirements.]
+
+## Scope
+
+**In scope:**
+- [Bounded capability 1]
+
+**Out of scope:**
+- [Explicit non-goal]
+
+## Success Criteria
+
+[How will you know this system is working as intended? Measurable where possible.]
+
+## Constraints
+
+[Technical, regulatory, resource, or time constraints.]
+
+## Assumptions
+
+[What are you assuming about environment, users, data that, if wrong, would invalidate this spec?]
+"""
+
+SCAFFOLD_BACKLOG = """# Backlog
+
+> **Starter template — populate as your project matures.**
+> This file tracks discussion items and deferred work. It is **NOT** session state — session state lives in `SESSION-STATE.md`. Prospective memory that persists across sessions lives here.
+
+## Active (Implement Now/Soon)
+
+[Items you've committed to implementing. None yet — add as they emerge.]
+
+## Deferred/Future — Discussion
+
+[Items under discussion; not committed to implementation. Flesh out intent, determine if you want to implement, define scope.]
+
+---
+
+*Per `rules-of-procedure §7.1.6`: items move Active ↔ Deferred as priorities shift. Shipped items are removed from this file (commit message + SESSION-STATE entry are the record).*
+"""
+
 SCAFFOLD_CORE_FILES = {
     "code": [
         ("SESSION-STATE.md", SCAFFOLD_SESSION_STATE),
@@ -858,10 +944,17 @@ SCAFFOLD_CORE_FILES = {
     ],
 }
 
+# Last synchronized to title-10-ai-coding-cfr.md §1.5.2 on 2026-04-19.
+# Scaffold emits 9 files at Standard tier (4 core + 5 extras: CLAUDE + ARCHITECTURE + SPECIFICATION + workflows/COMPLETION-CHECKLIST + BACKLOG).
+# CFR §1.5.2 mandates 8 (the 4 extras above minus CLAUDE.md); CLAUDE.md is a tool-specific overlay per §1.5.5 retained for Claude Code adopters.
+# Acceptable per §1.5.3 ("Standard Kit + additions as warranted").
 SCAFFOLD_STANDARD_EXTRAS = {
     "code": [
         ("CLAUDE.md", SCAFFOLD_CLAUDE_MD),
-        ("COMPLETION-CHECKLIST.md", SCAFFOLD_COMPLETION_CHECKLIST),
+        ("ARCHITECTURE.md", SCAFFOLD_ARCHITECTURE),
+        ("SPECIFICATION.md", SCAFFOLD_SPECIFICATION),
+        ("workflows/COMPLETION-CHECKLIST.md", SCAFFOLD_COMPLETION_CHECKLIST),
+        ("BACKLOG.md", SCAFFOLD_BACKLOG),
     ],
     "document": [],
 }
@@ -1705,7 +1798,7 @@ async def list_tools() -> list[Tool]:
                     },
                     "kit_tier": {
                         "type": "string",
-                        "description": "Kit tier: 'core' (4 files) or 'standard' (6 files, adds CLAUDE.md + checklist)",
+                        "description": "Kit tier: 'core' (4 files) or 'standard' (9 files; core + CLAUDE.md + ARCHITECTURE.md + SPECIFICATION.md + workflows/COMPLETION-CHECKLIST.md + BACKLOG.md, per title-10-ai-coding-cfr.md §1.5.2 + §1.5.5 tool overlay)",
                         "enum": ["core", "standard"],
                     },
                     "confirmed": {
@@ -3274,7 +3367,7 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
             message=f"Invalid kit_tier: '{kit_tier}'. Must be 'core' or 'standard'.",
             suggestions=[
                 "Use kit_tier='core' for 4 essential files",
-                "Use kit_tier='standard' for 6 files (adds CLAUDE.md + checklist)",
+                "Use kit_tier='standard' for 9 files (adds CLAUDE.md + ARCHITECTURE.md + SPECIFICATION.md + workflows/COMPLETION-CHECKLIST.md + BACKLOG.md)",
             ],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]

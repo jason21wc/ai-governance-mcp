@@ -1,7 +1,7 @@
 ---
-version: "3.26.8"
+version: "3.27.0"
 status: "active"
-effective_date: "2026-04-17"
+effective_date: "2026-04-19"
 domain: "constitution"
 governance_level: "rules-of-procedure"
 ---
@@ -9,9 +9,9 @@ governance_level: "rules-of-procedure"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.26.5
+**Version:** 3.27.0
 **Status:** Active
-**Effective Date:** 2026-04-14
+**Effective Date:** 2026-04-19
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -726,7 +726,6 @@ Existing principles use variant field names that serve the same purpose. These a
 
 | Canonical Name | Known Variants |
 |---|---|
-| **Constitutional Basis** | "Constitutional Derivation" |
 | **Definition** | "Domain Application" (when used as the binding rule rather than implementation guidance) |
 | **Domain Application** | "How AI Applies This Principle", "How the AI Applies", "Application" |
 | **Failure Mode(s)** | "Failure Mode" (singular) |
@@ -1827,7 +1826,7 @@ For any new rule, classify it to determine its legal standing:
 | **Regulation / SOP (Methodology)** | A specific tactic, workflow, or tool command | Methods documents |
 | **Case Outcome (Result)** | A benefit produced by applying the law, not a law itself | Do not document as a rule |
 
-> **See also:** Part 9.8 (Content Quality Framework) provides the unified operational procedure for all content types, including a 6-question Admission Test and Duplication Check. Use Part 9.8 as the primary authoring procedure; this classification informs which document to target.
+> **See also:** Part 9.8 (Content Quality Framework) provides the unified operational procedure for all content types, including a 7-question Admission Test and Duplication Check. Use Part 9.8 as the primary authoring procedure; this classification informs which document to target.
 
 ---
 
@@ -1843,7 +1842,7 @@ Apply a strict **High Court** standard to decide if a principle belongs in the C
 
 If a rule governs only a specific tool or workflow, it is a **Regulation**, not a **Constitutional Principle**. Keep the Constitution concise.
 
-> **See also:** Part 9.8.1 Question 6 (Stability) subsumes this threshold check as part of a comprehensive 6-question Admission Test. Use Part 9.8 for the full authoring procedure.
+> **See also:** Part 9.8.1 Question 6 (Stability) subsumes this threshold check as part of a comprehensive 7-question Admission Test. Use Part 9.8 for the full authoring procedure.
 
 ---
 
@@ -2552,13 +2551,13 @@ This part establishes the unified quality gate for all governance content — pr
 
 ---
 
-### 9.8.1 The Admission Test (6 Questions)
+### 9.8.1 The Admission Test (7 Questions)
 
 **Applies To:** proposing new principles or methods, evaluating external framework contributions, justifying content additions during domain expansion, reviewing whether existing content should be kept/merged/removed
 
-Six binary questions ANY new or substantially modified (see §9.8.5 bright-line test) content must pass. The same questions apply when authoring (gate) and reviewing (audit). Content failing during review becomes a consolidation or removal candidate. For editorial corrections (scope clarifications, navigational cross-references, factual accuracy fixes), see §9.8.5.
+Seven binary questions ANY new or substantially modified (see §9.8.5 bright-line test) content must pass. The same questions apply when authoring (gate) and reviewing (audit). Content failing during review becomes a consolidation or removal candidate. For editorial corrections (scope clarifications, navigational cross-references, factual accuracy fixes), see §9.8.5.
 
-**Preamble as interpretive tiebreaker:** When any question below is borderline or ambiguous, resolve toward or against the content by asking: "Does this serve the Preamble's stated purposes (Authority, Process, Protection, Relations, Continuity)?" The Preamble does not independently filter — its purposes inform judgment on the six operative questions. This mirrors constitutional practice, where preambles resolve ambiguity in operative provisions rather than functioning as standalone tests.
+**Preamble as interpretive tiebreaker:** When any question below is borderline or ambiguous, resolve toward or against the content by asking: "Does this serve the Preamble's stated purposes (Authority, Process, Protection, Relations, Continuity)?" The Preamble does not independently filter — its purposes inform judgment on the seven operative questions. This mirrors constitutional practice, where preambles resolve ambiguity in operative provisions rather than functioning as standalone tests.
 
 | # | Question | What It Checks |
 |---|----------|----------------|
@@ -2568,6 +2567,18 @@ Six binary questions ANY new or substantially modified (see §9.8.5 bright-line 
 | 4 | **Evidence** — Can you name a concrete failure case it prevents? | Prevents aspirational-only content |
 | 5 | **Enforceability** — Can compliance be observed, tested, or structurally enforced? If purely advisory, is the advisory overhead justified by the value it provides? | Prevents unenforceable governance surface area. Per LEARNING-LOG: advisory compliance ~85%, structural blocking ~100%. |
 | 6 | **Stability** — Will this content remain valid independent of current tooling, and for at least 2 major release cycles? | Prevents content that creates maintenance debt (per Part 8.3 constitutional stability test) |
+| 7 | **Semantic-Label Risk** — If the proposed name/label borrows from an outside pattern (US Constitutional, biological, military, legal, etc.), does the framework *enforce the semantic the label implies*? If the borrowed label carries weight the framework doesn't implement, rename, add a disclaimer clarifying the scope, or coin a new term. Borrowed labels must align with borrowed semantics. | Prevents metaphor-driven classification errors (per LEARNING-LOG 2026-04-12 "Metaphor-Driven Classification vs Operational Classification"). Catches F-P1-05-class label/operation mismatches pre-authoring. |
+
+**Q7 pass/fail exemplars** (calibrates reviewer judgment):
+
+PASS examples (label aligns with operation):
+- "Constitution" as top-level normative document → framework DOES enforce override-all via Supremacy Clause (`constitution.md:110-112`). PASS.
+- "Bill of Rights" for S-Series → framework DOES give S-Series veto authority. PASS.
+- "Secondary Authority" (post-v5.0.0 rename) → framework treats Reference Library as informative-but-non-overriding, matching legal definition of secondary authority. PASS.
+
+FAIL examples (label imports weight framework doesn't implement):
+- "Case Law" (pre-v5.0.0) → framework explicitly stripped override authority, while the label imported stare-decisis (binding precedent). FAIL. Fixed by rename to "Secondary Authority."
+- Hypothetical "Executive Order" for a subagent directive → if framework doesn't give it time-limited legal force with override of statutes, FAIL unless renamed or explicitly disclaimed.
 
 **Type-specific notes — what "evidence" (Question 4) means for each content type:**
 
@@ -2699,7 +2710,7 @@ Appendices are **platform-specific adaptations** of methods — they contain onl
 
 **Universal checks (all content types):**
 
-- [ ] Passes Admission Test (§9.8.1) — all 6 questions answered YES
+- [ ] Passes Admission Test (§9.8.1) — all 7 questions answered YES
 - [ ] Passes Duplication Check (§9.8.2) — no existing coverage identified
 - [ ] Correct hierarchy level (Part 9.7.2)
 - [ ] Follows structural template for content type (§9.8.3)
@@ -4873,6 +4884,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.27.0 | 2026-04-19 | MINOR: (1) Part 9.8.1 — added **Question 7: Semantic-Label Risk** to the Admission Test (6 → 7 Questions). Q7 asks whether a proposed name/label borrows from an outside pattern (US Constitutional, biological, military, legal) in a way the framework does not operationally implement, and requires rename, disclaimer, or term-coinage if so. Pass/fail exemplars included (PASS: Constitution, Bill of Rights, Secondary Authority; FAIL: Case Law pre-v5.0.0 — fixed by rename). Prevents F-P1-05-class errors at authoring gate. Evidence base: LEARNING-LOG 2026-04-12 "Metaphor-Driven Classification vs Operational Classification" + LEARNING-LOG 2026-04-18 "Declaration and Preamble Are Purpose Surfaces." Cross-reference sweep: all live "6 Questions" references updated to "7" (Part 9.8.1 heading + intro + tiebreaker clause; Part 8.2 classification see-also; Part 8.3 stability see-also; §9.8.4 quality checklist; COMPLETION-CHECKLIST.md; PROJECT-MEMORY.md quick-ref; BACKLOG.md live prose). Historical references preserved (constitution.md v4.1.0 amendment entry Q0 proposal-but-not-adopted record; archive + review files). (2) Part 3.5.1 Alias Table — removed `Constitutional Basis ← "Constitutional Derivation"` alias row. The v3.26.8 addition documented variant terminology in title-40-multimodal-rag; Cohort 3 (session-116) normalized 32 instances to canonical "Constitutional Basis," eliminating the content the alias row was tolerating. Future re-addition is easy if a new use case surfaces. (3) Frontmatter + body-header version drift fix: pre-existing mismatch (frontmatter 3.26.8 line 2 vs body 3.26.5 line 12) resolved by aligning both to v3.27.0 and effective_date 2026-04-19. Constitutional Basis: Single Source of Truth, Systemic Thinking, Verification & Validation (per meta-method-single-source-of-truth and LEARNING-LOG 2026-04-12 preventive-rule basis). |
 | 3.26.8 | 2026-04-17 | PATCH: (1) Part 3.5.1 Alias Table — added 2 rows (`Constitutional Basis` ← "Constitutional Derivation"; `Failure Mode(s)` ← "Failure Mode" singular) documenting variants present in Multimodal RAG, Storytelling, UI/UX, KM&PD principle files. Pure documentation of existing variants; canonical authoring rule unchanged (backlog #101). (2) Added Appendix G.5.1 extending the "hands-off" boundary to platform-native plan files (`~/.claude/plans/*.md` and equivalents). Session-scoped working memory must not be referenced as load-bearing from framework files; load-bearing reasoning promotes inline into BACKLOG/LEARNING-LOG/SESSION-STATE/PROJECT-MEMORY before session end (backlog #91.4). Root cause per `meta-core-systemic-thinking`: absent rule created dangling-reference-in-waiting for every plan-mode session. Constitutional Basis: Single Source of Truth, Systemic Thinking. |
 | 3.26.7 | 2026-04-15 | PATCH: Rewrote Appendix G.5 from "pointer only" to "hands-off" platform memory policy. Framework files are authoritative; LLM platform memory is the platform's concern. CLAUDE.md is the bridge. Added §14.3.2 cross-reference note for Prospective Memory (3-tier domain model → 6-type full taxonomy). Root cause: session protocol was redundantly maintained in both CLAUDE.md/AGENTS.md and platform memory (MEMORY.md), creating a dual-system management burden with stale-anchor risk. Behavioral feedback was routing to platform memory instead of CLAUDE.md because no routing rule existed. ADR-10 evolved from "pointer only" (2026-02-07) to "hands off" (2026-04-15). Constitutional Basis: Single Source of Truth, Continuous Learning & Adaptation. |
 | 3.26.6 | 2026-04-14 | PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion. Content comprehension-based entries for retrieval discoverability. Added 675 Applies To entries across meta-methods and cross-domain methods. Normalized `**Applies to:**` → `**Applies To:**` capitalization. |
