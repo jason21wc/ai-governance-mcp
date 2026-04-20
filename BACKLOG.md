@@ -33,6 +33,24 @@
 
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
+106. **Cohort 4 Phase 4b re-open — `Implements:` backfill across 6 CFR files (406 methods)** `D3 Deferred`
+
+**What:** Backfill of `**Implements:**` field was planned for 406 of 455 CFR methods (current coverage 10.8%; see `~/.claude/plans/create-a-plan-following-cached-canyon.md` v3). **Deferred** by pre-edit 3-agent battery analysis (2026-04-19, session-118). Not to be re-opened without meeting both prerequisites below.
+
+**Prerequisites for re-open:**
+1. **A consumer emerges** that loads `Implements:` — e.g., `MethodMetadata` gains structured `implements` field + extractor regex + `query_governance` surface that filters by parent principle; OR an external compliance audit requires machine-verifiable traceability.
+2. **Q7 remediation ships first** — current field name inherits from US CFR's `enabling_authority` (legally enforceable) while operational reality is free-text. FAILS `rules-of-procedure §9.8.1` Q7 (Semantic-Label Risk). Choose (a) rename `**Implements:**` → `**Traces To:**` across the 49 existing entries + new backfills, OR (b) add documentary disclaimer at each CFR's head stating the field is not machine-enforced.
+
+**Why deferred (not a short-term D2):** The battery REJECT was structural, not a scheduling issue. Extractor has never parsed the field (`src/ai_governance_mcp/extractor.py:1686-1699` parses `Applies To` only; grep confirmed zero `Implements:` references in tests). Executing 406 backfills before a consumer + Q7 remediation would cement both the coverage-ambiguity and the label/operation mismatch at scale. Phase 4a closed the substantive findings (F-P1-06, F-P2-06, F-P2-14, F-P2-17); F-P1-04 is re-severity'd to MEDIUM-at-most and recorded as "partial coverage retained; documentary-only."
+
+**Re-open workflow:**
+1. Verify both prerequisites met.
+2. Re-read battery findings in `~/.claude/plans/create-a-plan-following-cached-canyon.md` v3 — especially validator's structured spot-check predicates and coherence-auditor's corrected chunk-count arithmetic (Parts 5-6 = 109 methods; Parts 7-9 = 80 not 50-65).
+3. Run new pre-edit battery (context may have changed).
+4. Execute per fallback path in that plan file (6 sessions, not 5; Q7 remediation as HARD prereq; 10-per-CFR spot-check with 4-predicate criteria).
+
+**Origin:** Cohort 4 Phase 4b planning (session-118, 2026-04-19). Governance audit `gov-3e5998987962` (evaluate_governance PROCEED with no S-Series). Battery audit IDs: contrarian `a7e2b2716f06770cc`, coherence `ae0c4ea9057ea7dd7`, validator `a39dda1cd66beb441`.
+
 103. **File MCP SDK heartbeat request upstream (Happy 5-min disconnect follow-up)** `D2 New Capability`
 
 **Status (2026-04-18, session-113):** Session-112's `server.requestTimeout = 0` patch was **ineffective** — verified behaviorally against a fresh patched wrapper, drops still occurred at N × 300s. Session-112 diagnosis was wrong (patched the wrong timer). Bundles reverted to vanilla this session. No local workaround pending.
