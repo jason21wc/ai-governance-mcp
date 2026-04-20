@@ -2109,7 +2109,7 @@ Each domain must establish its truth source hierarchy:
 1. **Constitution:** Always highest authority (immutable)
 2. **Domain Principles:** Binding within domain
 3. **Domain Methods:** Implementation guidance
-4. **Reference Library:** Curated precedent — concrete artifacts that worked in practice (see TITLE 15)
+4. **Reference Library:** Informative (non-overriding) — curated artifacts that worked in practice (see TITLE 15)
 5. **External References:** Uncurated industry standards, tool documentation
 
 > **Relationship to §9.7.1:** This hierarchy defines truth-source precedence for conflict resolution (which source wins). Part 9.7.1 defines the content-classification hierarchy for authoring (what level to write at). They are complementary — 9.3.1 answers "which source is authoritative," 9.7.1 answers "where does new content belong."
@@ -4367,7 +4367,7 @@ Each domain methods document should include a section following this structure:
 
 ---
 
-# TITLE 15: REFERENCE LIBRARY (CASE LAW)
+# TITLE 15: REFERENCE LIBRARY (SECONDARY AUTHORITY)
 
 **Importance: IMPORTANT — Enables curated precedent for agent retrieval and recombination**
 

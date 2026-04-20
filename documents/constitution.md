@@ -1,5 +1,5 @@
 ---
-version: "5.0.0"
+version: "5.0.1"
 status: "active"
 effective_date: "2026-04-19"
 domain: "constitution"
@@ -8,7 +8,7 @@ governance_level: "constitution"
 
 # Principles Framework for AI Interaction
 
-**Version:** 5.0.0
+**Version:** 5.0.1
 **Status:** Active
 **Effective Date:** 2026-04-19
 **Governance Level:** Constitution (Meta-Principles)
@@ -113,14 +113,14 @@ Lower layers MUST comply with all layers above. No domain rule, method, or appen
 
 **Structural Enforcement (Cross-Cutting):**
 
-The Operative Hierarchy above names the normative layers — *what binds*. Structural enforcement names the mechanisms that make each layer actually stick in practice — *how it binds*. Enforcement is cross-cutting; it operates on multiple layers simultaneously rather than sitting at one layer:
+The Operative Hierarchy above names the normative layers — *what binds*. Structural enforcement names the principal mechanisms that make each layer actually stick in practice — *how it binds*. Enforcement is cross-cutting; it operates on multiple layers simultaneously rather than sitting at one layer. The table below lists principal mechanisms; `.claude/hooks/` contains the full hook set:
 
 | Enforcement Mechanism | Operates On | Binding Strength |
 |---|---|---|
-| PreToolUse hooks (`.claude/hooks/`) | Constitution, Rules of Procedure | Structural (blocks file-modifying actions until governance + CE consulted) |
-| Pre-push quality gate | Constitution, Rules of Procedure, Statutes | Structural (blocks push on untested/unreviewed changes) |
-| CI assertions (`TestDomainConsistency`, `TestPrincipleCountCeiling`, etc.) | Statutes, Methods, Rules of Procedure | Structural (blocks merge when invariants break) |
-| Subagents (`.claude/agents/`) | All layers, advisory + reinforcement | Advisory output; structural invocation on file-modifying actions via hooks |
+| Claude Code hooks (`.claude/hooks/` — PreToolUse, UserPromptSubmit, PostToolUse, pre-push, pre-test) | Constitution, Rules of Procedure, Statutes | Structural (blocks file-modifying actions until governance + CE consulted; blocks prompt submission when drift triggers; blocks push on test/lint failure; blocks pytest on OOM-risk patterns) |
+| CI workflows (`.github/workflows/` — `ci.yml`, `codeql.yml`) | Statutes, Methods, Rules of Procedure | Structural (blocks merge when framework invariants or security scans fail) |
+| CI assertions (`TestDomainConsistency`, `TestPrincipleCountCeiling`, `TestReadmePropagation`, etc. within the CI suite) | Statutes, Methods, Rules of Procedure | Structural (framework-specific invariants blocking merge) |
+| Subagents (`.claude/agents/`) | All layers, advisory + reinforcement | Advisory — subagent invocation is at AI discretion; hooks do not structurally require it |
 | `scaffold_project` MCP tool | Rules of Procedure (Document Kit Tiering) | Advisory at install-time (tool choice); output then subject to other mechanisms (hooks, CI) |
 | Admission Test (§9.8.1) | Constitution, Statutes | Procedural (gates new principle/method additions) |
 
@@ -1073,10 +1073,26 @@ A "confident wrong answer" is the most dangerous output an AI can provide. If ag
 
 **Usage Instruction for AI:** This section is a historical record ("Legislative History"). **It does not carry the force of law.** If any statement in this history log contradicts the active text of the Principles above, **ignore the history and follow the active text.**
 
+#### **v5.0.1 (April 2026) - Cohort 2 Propagation Completion + Clarity Patch**
+
+Post-commit double-check (session-115, 3-agent pass) caught surface drift the v5.0.0 propagation missed. Per `rules-of-procedure.md §9.6.1` PATCH workflow: clarifications + label propagation + table precision; no normative change.
+
+*   **H1 (BLOCKING):** `rules-of-procedure.md:4370` TITLE 15 heading — `REFERENCE LIBRARY (CASE LAW)` still carried the old label. Renamed to `REFERENCE LIBRARY (SECONDARY AUTHORITY)`. This was the v5.0.0 rename's single most-visible miss — root section heading for the entire Reference Library part; an external `grep "Case Law"` on normative content would have landed here first.
+*   **M1 (consistency):** 6 CFR Legal System Analogy tables (`title-10`, `-15`, `-20`, `-25`, `-30`, `-40`) updated Authority column from "Informative artifacts from real application" → "Informative (non-overriding) — artifacts from real application." Post-edit contrarian had added the `(non-overriding)` guardrail to constitution + ai-instructions; v5.0.0 missed applying the same fix to the 6 parallel CFR surfaces. Classic "fix the instance, miss the class."
+*   **M2 (internal consistency):** `rules-of-procedure.md:2112` Truth Source Hierarchy row 4 used pre-rename "Curated precedent" wording while §15.1 in the same file used new wording. Normalized to "Informative (non-overriding) — curated artifacts that worked in practice."
+*   **M4 (accuracy):** v5.0.0 history entry inflated propagation count ("20+ files"); actual is 11 normative files. Corrected both references in this amendment log.
+*   **H3 (completeness):** Structural Enforcement table at `constitution.md:114-125` expanded: PreToolUse hooks row broadened to cover all hook types (UserPromptSubmit, PostToolUse, pre-push, pre-test — distinct event triggers); new row for CI workflows (`ci.yml`, `codeql.yml`); clarifying note that table shows *principal* mechanisms, with full hook set in `.claude/hooks/`. Claim softened from "names the mechanisms" to "names the principal mechanisms."
+*   **H4 (cross-ref accuracy):** `title-10-ai-coding-cfr.md:6744` TITLE 9 Deployment `Implements:` line added Non-Maleficence as co-cite. Risk Mitigation's v5.0.0 trim moved defense-in-depth techniques to Non-Maleficence; deployment contexts use both the planning-time posture (Risk Mit) and execution-time defense (Non-Mal). Explicit dual-cite prevents under-anchoring.
+*   **L1 (wording):** Structural Enforcement subagents row — corrected "Advisory output; structural invocation on file-modifying actions via hooks" (misleading — hooks gate governance/CE consultation, not subagent invocation) to "Advisory — subagent invocation is at AI discretion; hooks do not structurally require it."
+
+**Governance trail:** `gov-46df51f4eb39` (post-commit double-check eval). Three subagents audited the v5.0.0 shipment in a focused double-check pass: coherence (files not in original propagation list), contrarian (internal consistency + hidden downstream consumers), validator (runtime verification). All three flagged H1 as blocking and the "Informative" surface drift as reintroducing the exact soft-binding risk the post-edit contrarian had caught — just in 6 different CFR files. This PATCH closes those gaps.
+
+**Pattern captured (LEARNING-LOG 2026-04-19):** "Post-Commit Double-Check Catches Surface Drift Pre/Post Batteries Miss" — the prior pre-edit + post-edit batteries were scoped to specific artifacts. A third focused pass targeting files OUTSIDE the plan's explicit inventory + cross-surface consistency (applied same as post-edit contrarian fix across all parallel surfaces, not just 2 of 8) found real gaps. For wide propagation changes, a post-commit cross-surface verification pass is worth the ~3 agents of cost.
+
 #### **v5.0.0 (April 2026) - Constitutional Amendments Batch (Cohort 2)**
 
 *   **"Case Law" → "Secondary Authority"** (label rename across framework)
-    *   **Change:** Renamed the seventh hierarchy layer from "Case Law" to "Secondary Authority" across 20+ files (constitution.md, rules-of-procedure.md, ai-instructions.md, README.md, server.py, 6 CFR Legal System Analogy tables). Authority column updated from "Precedent" to "Informative (non-overriding)" — post-edit contrarian review flagged that "Informative" alone could read as soft-binding in isolation from the Supremacy Clause; the parenthetical makes the non-override guardrail explicit on the line where readers encounter the label. "Informative Only" was earlier considered but dropped because the Reference Library still *actively shapes* interpretation.
+    *   **Change:** Renamed the seventh hierarchy layer from "Case Law" to "Secondary Authority" across 11 normative files (constitution.md, rules-of-procedure.md [9 locations incl. §7.4, §9.7.1, §9.3.1, Part 15.1, TITLE 15 heading], ai-instructions.md, README.md, server.py, 6 CFR Legal System Analogy tables). Authority column updated from "Precedent" to "Informative (non-overriding)" — post-edit contrarian review flagged that "Informative" alone could read as soft-binding in isolation from the Supremacy Clause; the parenthetical makes the non-override guardrail explicit on the line where readers encounter the label. "Informative Only" was earlier considered but dropped because the Reference Library still *actively shapes* interpretation.
     *   **Rationale:** F-P1-05 flagged a self-admitted label-operation mismatch — `constitution.md:101, 112` explicitly strip Reference Library of override authority, but "Case Law" imports stare-decisis semantics (binding precedent). Rename closes the mismatch at zero new infrastructure cost. Operation unchanged. Per LEARNING-LOG 2026-04-12 "Metaphor-Driven Classification," this is the preventive pattern for that class of error.
     *   **Backward compatibility:** Search for either term continues to return Reference Library content via Context Engine semantic retrieval.
 
@@ -1090,7 +1106,7 @@ A "confident wrong answer" is the most dangerous output an AI can provide. If ag
     *   **Principle count unchanged (24; G-Series 5).** The change is *relational* — both principles continue to exist, with cleaner division of labor.
     *   **Alternative considered + rejected:** Path A merge (delete Risk Mitigation; absorb into Non-Maleficence; 24→23 principles; series crossing G→S). Rejected per PROJECT-MEMORY 2026-04-12 "S-Series Scope Boundary" — Risk Mit's planning-time assessment posture is broader than S-Series's harm-prevention scope; merging would widen the S-Series boundary. Also avoids test breakage (`tests/test_extractor.py` hard-codes Risk Mitigation name and Article IV §1 placement) and cross-ref churn (`rules-of-procedure.md §7.8`, `title-20-multi-agent.md`).
 
-**Version bump rationale** per `rules-of-procedure.md §9.6.3` (Breaking Changes / MAJOR): public-facing labels changed (Case Law → Secondary Authority across 20+ files — breaks backward compatibility of the hierarchy-label cross-reference surface); Operative Hierarchy gains a named subsection; Bill of Rights (Non-Maleficence) content enriched. Operational behavior unchanged. v5.0.0 chosen over v4.2.0 because downstream consumers indexing on the "Case Law" string break on the rename — that's the MAJOR signal even though no normative rules change.
+**Version bump rationale** per `rules-of-procedure.md §9.6.3` (Breaking Changes / MAJOR): public-facing labels changed (Case Law → Secondary Authority across 11 normative files — breaks backward compatibility of the hierarchy-label cross-reference surface); Operative Hierarchy gains a named subsection; Bill of Rights (Non-Maleficence) content enriched. Operational behavior unchanged. v5.0.0 chosen over v4.2.0 because downstream consumers indexing on the "Case Law" string break on the rename — that's the MAJOR signal even though no normative rules change.
 
 **Governance trail:** `gov-9ee47594eec4` (plan evaluation — PROCEED, medium confidence). Pre-edit 3-agent battery (contrarian-reviewer xhigh `a950fa71`, coherence-auditor high `a8771678`, validator high `a24c7f61`) flagged blockers that this release resolves. Post-edit battery runs before commit.
 

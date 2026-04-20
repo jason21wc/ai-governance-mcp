@@ -46,7 +46,7 @@ Constitution (Meta-Principles)
 | Rules of Procedure | rules-of-procedure.md | How the framework evolves and maintains itself |
 | **Federal Regulations (CFR)** | **This document** | **Operational rules implementing statutes** |
 | Agency SOPs | Tool-specific guides | Platform-specific execution |
-| Secondary Authority | Reference Library | Informative artifacts from real application |
+| Secondary Authority | Reference Library | Informative (non-overriding) — artifacts from real application |
 
 ---
 

@@ -78,7 +78,7 @@ This document functions as the Code of Federal Regulations (CFR) in the US Legal
 | Rules of Procedure | rules-of-procedure.md | How the framework evolves and maintains itself |
 | **Federal Regulations (CFR)** | **This document** | **Operational rules implementing statutes** |
 | Agency SOPs | Tool-specific guides | Platform-specific execution |
-| Secondary Authority | Reference Library | Informative artifacts from real application |
+| Secondary Authority | Reference Library | Informative (non-overriding) — artifacts from real application |
 
 ---
 
@@ -6747,7 +6747,7 @@ Gates are combined but not eliminated.
 
 **Importance: 🟡 IMPORTANT — Load when deploying or distributing**
 
-**Implements:** Security-First Development (Domain), Risk Mitigation by Design (Meta)
+**Implements:** Security-First Development (Domain), Risk Mitigation by Design (Meta — planning-time posture), Non-Maleficence, Privacy & Security (Meta — execution-time defense-in-depth)
 
 ---
 

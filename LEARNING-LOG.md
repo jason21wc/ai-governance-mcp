@@ -12,6 +12,24 @@
 
 ## Active Lessons
 
+### Post-Commit Double-Check Catches Surface Drift Pre/Post Batteries Miss (2026-04-19)
+
+Cohort 2 v5.0.0 ran pre-edit + post-edit 3-agent batteries. Both passed. User requested an additional post-commit double-check with 3 more subagents. It found:
+
+- **H1 (BLOCKING):** `rules-of-procedure.md:4370` `TITLE 15: REFERENCE LIBRARY (CASE LAW)` — the root section heading still carried the old label. Both batteries missed because they audited the *inline prose* (lines 4380/4387/4395) without looking at the section's `#` heading.
+- **M1 (surface drift):** 6 CFR Legal System Analogy tables said "Informative artifacts from real application" — missing the `(non-overriding)` parenthetical that post-edit contrarian had added to constitution + ai-instructions for soft-binding protection. The fix was applied to 2 of 8 parallel surfaces. Batteries were scoped to specific named files, not "all parallel surfaces carrying the same claim."
+- **M2 (same-file inconsistency):** `rules-of-procedure.md:2112` Truth Source Hierarchy row used pre-rename "precedent" wording while §15.1 in the SAME file used new wording.
+
+**Rule:** For wide-propagation changes (label renames, claim updates with multiple surface instances), run a post-commit double-check whose specific brief is "audit surfaces NOT in the plan's propagation list + verify cross-surface consistency of any post-edit fixes." The double-check is 3 agents with distinct blind-spot coverage: (a) coherence on files outside original scope; (b) contrarian on internal consistency + hidden downstream consumers; (c) validator on runtime state. Different angle than pre/post-edit batteries, which are scoped to plan artifacts.
+
+**Rule corollary for post-edit fixes:** when a post-edit battery finding produces a fix (e.g., "add `(non-overriding)` to Authority column"), apply the fix to ALL parallel surfaces immediately, not just the one the agent flagged. Batteries flag instances; drift accumulates when fixes are applied instance-wise instead of class-wise. The grep that catches the instance will catch the class if you run it.
+
+**Principle:** `meta-method-single-source-of-truth` extended to "single-source-the-claim-text, not just the canonical source." Also `meta-core-systemic-thinking`: the root cause of M1 surface drift is that 8 parallel surfaces paraphrase the Authority text independently; a CI assertion that Authority-column strings match across the 6 CFR tables would prevent this class. Filed as BACKLOG candidate for structural remediation.
+
+**Also extends LEARNING-LOG 2026-04-18 "Verify Cited Files in Reviews":** the v5.0.0 commit message itself claimed "20+ files" — actual was 11. Rhetorical inflation by a factor of ~2×. Double-check caught it; pre/post batteries focused on content didn't.
+
+---
+
 ### Pre-Edit Battery Is Cheaper Than Post-Edit Rework for Constitutional Amendments (2026-04-19)
 
 Cohort 2 ran the 3-agent battery (contrarian-reviewer xhigh + coherence-auditor high + validator high) at BOTH plan-stage and post-edit-stage. Pre-edit battery surfaced three blockers: (1) contrarian steel-manned a Path-B alternative (de-duplicate-in-place) to the merge approach the v1 plan had adopted — pre-edit catch saved series-crossing + test breakage + cross-ref churn; (2) coherence found 7 propagation-list gaps (rules-of-procedure line misses, server.py:2052, README line 42 vs actual 60) — pre-edit catch meant the edit sweep was complete first pass; (3) contrarian flagged "Informative Only" as a downgrade — reworded to "Informative (non-overriding)" post-battery. Post-edit battery then caught one additional issue (§9.6.1 vs §9.6.3 citation) — surgical fix.

@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-19 (session 115 — Cohort 2 Constitutional Amendments shipped; constitution.md v5.0.0)
+**Last Updated:** 2026-04-19 (session 115 — Cohort 2 shipped as v5.0.0; post-commit double-check patch v5.0.1 applied)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,7 +11,7 @@
 
 ## Current Position
 
-- **Phase:** Cohorts 1 and 2 of `~/.claude/plans/swift-hopping-corbato.md` both CLOSED. Constitution released at **v5.0.0** (effective 2026-04-19). Three amendments landed: Case Law → Secondary Authority (label rename across 20+ files with "(non-overriding)" guardrail), Structural Enforcement named as cross-cutting subsection (not a hierarchy row — cleaner content-vs-mechanism factoring), Risk Mitigation ↔ Non-Maleficence de-duplicated in place (Path B — preserves G-Series=5, principle count unchanged at 24). Pre-edit + post-edit 3-agent batteries both ran; post-edit verdicts: contrarian ACCEPT_WITH_REVISIONS (3 findings addressed surgically), coherence COHERENT, validator PASS_WITH_EVIDENCE_GAPS (§9.6.3 citation corrected post-battery). Test suite: 1307/1308 safe-subset pass (1 unrelated watcher-daemon flake).
+- **Phase:** Cohorts 1 and 2 of `~/.claude/plans/swift-hopping-corbato.md` both CLOSED. Constitution released at **v5.0.1** (effective 2026-04-19). v5.0.0 shipped three amendments (Case Law → Secondary Authority label rename, Structural Enforcement cross-cutting subsection, Risk Mitigation ↔ Non-Maleficence Path B de-duplicate); v5.0.1 PATCH completed propagation after post-commit double-check with 3 fresh subagents caught surface drift: TITLE 15 heading still carried old label (BLOCKING); 6 CFR Authority cells missed the "(non-overriding)" guardrail that post-edit contrarian had added to constitution+ai-instructions only; same-file inconsistency in Truth Source Hierarchy; Structural Enforcement table under-enumerated mechanisms; Implements cross-ref in title-10 CFR under-anchored post-Risk-Mit-trim. Principle count unchanged (24; G:5). Tests: 1307/1308 safe-subset pass (1 unrelated flake).
 - **Mode:** Standard
 - **Active Task:** None blocking. Cohorts 1 and 2 shipped. Possible next moves: (a) Cohort 3 (Content + Scaffold Self-Contradictions — F-P1-08 scaffold vs CFR Standard Kit, F-P2-13 Relations gap, F-C-01 metaphor-prevention rule, F-P2-05 Constitutional Basis normalize) per swift-hopping-corbato plan; (b) commit session's work; (c) reinstate intent-engineering.md link when that doc lands. User's call.
 
