@@ -352,7 +352,7 @@ Run with: `python -m ai_governance_mcp.server`
 |------|------|----------|-------------|
 | `project_name` | string | No | Project name, max 100 chars (defaults to directory name) |
 | `project_type` | string | No | `"code"` for repositories or `"document"` for folder-based projects. Default: `"code"` |
-| `kit_tier` | string | No | `"core"` (4 files) or `"standard"` (6 files, adds CLAUDE.md + checklist). Default: `"core"` |
+| `kit_tier` | string | No | `"core"` (4 files) or `"standard"` (9 files; adds CLAUDE.md + ARCHITECTURE.md + SPECIFICATION.md + workflows/COMPLETION-CHECKLIST.md + BACKLOG.md per `title-10-ai-coding-cfr.md §1.5.2` + §1.5.5 tool overlay). Default: `"core"` |
 | `confirmed` | boolean | No | Set to `true` to create files after preview |
 | `project_path` | string | No | Absolute path to the target project directory. Auto-detected from MCP roots if available; falls back to `AI_GOVERNANCE_MCP_PROJECT` env var, then CWD. |
 | `show_manual` | boolean | No | Set to `true` to get file contents for manual creation. Use in sandboxed environments (Cowork) where the MCP server cannot write to the project directory. |

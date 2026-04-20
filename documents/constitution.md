@@ -1,5 +1,5 @@
 ---
-version: "5.0.1"
+version: "5.0.2"
 status: "active"
 effective_date: "2026-04-19"
 domain: "constitution"
@@ -8,7 +8,7 @@ governance_level: "constitution"
 
 # Principles Framework for AI Interaction
 
-**Version:** 5.0.1
+**Version:** 5.0.2
 **Status:** Active
 **Effective Date:** 2026-04-19
 **Governance Level:** Constitution (Meta-Principles)
@@ -1073,6 +1073,12 @@ A "confident wrong answer" is the most dangerous output an AI can provide. If ag
 
 **Usage Instruction for AI:** This section is a historical record ("Legislative History"). **It does not carry the force of law.** If any statement in this history log contradicts the active text of the Principles above, **ignore the history and follow the active text.**
 
+#### **v5.0.2 (April 2026) - Historical-Amendment Tense Fix (Cohort 3 post-commit double-check)**
+
+*   **Clarification patch** per `rules-of-procedure.md §9.6.1`.
+*   **Change:** Line 1120 v4.1.0 amendment entry "Admission Test **stays** at 6 questions" → "Admission Test **stayed** at 6 questions at v4.1.0 (expanded to 7 at rules-of-procedure v3.27.0 via separate amendment)." Tense-neutral "stays" read as current policy to a reader scanning constitution.md without version context — ambiguity caught by Cohort 3 post-commit contrarian review (H2). Fix anchors the v4.1.0 decision to its version moment and forward-references the v3.27.0 Q7 addition that expanded to 7 Questions. No operative change.
+*   **Post-commit double-check trail:** Agent `a424b71825301f25e` (contrarian-reviewer, Cohort 3 post-commit).
+
 #### **v5.0.1 (April 2026) - Cohort 2 Propagation Completion + Clarity Patch**
 
 Post-commit double-check (session-115, 3-agent pass) caught surface drift the v5.0.0 propagation missed. Per `rules-of-procedure.md §9.6.1` PATCH workflow: clarifications + label propagation + table precision; no normative change.
@@ -1117,7 +1123,7 @@ Post-commit double-check (session-115, 3-agent pass) caught surface drift the v5
     *   **G-Series:** 3 → 5 (added Unenumerated Rights, Reserved Powers).
     *   **Result:** S:3, C:6, Q:4, O:6, G:5 = 24 total principles.
 *   **Preamble as Interpretive Tiebreaker (Q0 Removal)**
-    *   **Change:** Admission Test stays at 6 questions. The Preamble's five purposes (Authority, Process, Protection, Relations, Continuity) serve as an interpretive tiebreaker when Admission Test questions are borderline — not as a standalone gate (Q0). Research confirmed: every legal tradition uses preambles for interpretation, not filtering.
+    *   **Change:** Admission Test stayed at 6 questions at v4.1.0 (expanded to 7 at rules-of-procedure v3.27.0 via separate amendment). The Preamble's five purposes (Authority, Process, Protection, Relations, Continuity) serve as an interpretive tiebreaker when Admission Test questions are borderline — not as a standalone gate (Q0). Research confirmed: every legal tradition uses preambles for interpretation, not filtering.
 *   **New Methods:** Elastic Clause (Part 8.7) — derived authority for novel situations. Full Faith and Credit (Part 9.7.6) — cross-domain output recognition.
 *   **Surgical Edits:** Equal Protection sentence (Part 9.7), Impeachment fast-path (Part 9.6.3), Evidence question numbering fix (§9.8.1).
 

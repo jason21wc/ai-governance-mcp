@@ -845,8 +845,8 @@ SCAFFOLD_AI_CONTEXT_README = """# {project_name} — AI Context
 
 SCAFFOLD_ARCHITECTURE = """# Architecture
 
-> **Starter template — populate as your project matures.**
-> Per `title-10-ai-coding-cfr.md §1.5.4` kit-scaling rules, architecture docs grow with the project. Start with rough shapes; refine as implementation reveals constraints.
+> **Starter template — populate as your project matures.** Leave bracketed placeholders until you have real content to add (do not auto-populate with hallucinated architecture — leaving placeholders visible is correct).
+> Start with rough shapes; refine as implementation reveals constraints. Per `title-10-ai-coding-cfr.md §1.5.3` (Enhanced Kit evaluation thresholds), consider promoting to `DATA-REFERENCE.md` / `PRODUCT-CONTEXT.md` as complexity grows.
 
 ## Overview
 
@@ -879,8 +879,8 @@ SCAFFOLD_ARCHITECTURE = """# Architecture
 
 SCAFFOLD_SPECIFICATION = """# Specification
 
-> **Starter template — populate as your project matures.**
-> Per `title-10-ai-coding-cfr.md §1.5.4` kit-scaling rules, specifications firm up as the problem is understood. Start with what you know; iterate.
+> **Starter template — populate as your project matures.** Leave bracketed placeholders until you have real content to add (do not auto-populate — leaving placeholders visible is correct).
+> Start with what you know; iterate as the problem is better understood. Specifications firm up through discovery.
 
 ## Problem Statement
 
@@ -913,7 +913,7 @@ SCAFFOLD_SPECIFICATION = """# Specification
 
 SCAFFOLD_BACKLOG = """# Backlog
 
-> **Starter template — populate as your project matures.**
+> **Starter template — populate as your project matures.** Leave bracketed placeholders until you have real items to add (do not auto-populate — leaving placeholders visible is correct).
 > This file tracks discussion items and deferred work. It is **NOT** session state — session state lives in `SESSION-STATE.md`. Prospective memory that persists across sessions lives here.
 
 ## Active (Implement Now/Soon)
@@ -926,7 +926,7 @@ SCAFFOLD_BACKLOG = """# Backlog
 
 ---
 
-*Per `rules-of-procedure §7.1.6`: items move Active ↔ Deferred as priorities shift. Shipped items are removed from this file (commit message + SESSION-STATE entry are the record).*
+*Convention: items move Active ↔ Deferred as priorities shift. Shipped items are removed from this file (commit message + SESSION-STATE entry are the record).*
 """
 
 SCAFFOLD_CORE_FILES = {
