@@ -211,3 +211,12 @@ This loader is designed for use with:
 - title-40-multimodal-rag.md v2.4.1+
 - title-40-multimodal-rag-cfr.md v2.1.1+
 </document_versions>
+
+---
+
+## Changelog
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 2.7 | 2026-04-19 | PATCH: Added this Changelog section (closes F-P1-06 gap flagged in 2026-04-18 self-review; ai-instructions.md was the only normative document lacking a version-history section per rules-of-procedure §2.1.1 Step 3). Bumped document-version pins in `<document_versions>` block to reflect constitution v5.0.0+ (post-Cohort-2) and rules-of-procedure v3.24.0+ (loader compatibility unchanged). Per Cohort 4 Phase 4a (session-117). |
+| 2.6 | 2026-04-12 | MINOR: Prior versions — pre-Changelog era; full history reconstructable via `git log documents/ai-instructions.md`. Snapshot recorded here as baseline when the Changelog section was introduced. |

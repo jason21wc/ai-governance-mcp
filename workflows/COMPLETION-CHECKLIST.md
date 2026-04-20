@@ -64,9 +64,11 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 3. Spot-check: `query_governance("new content topic")` → verify it surfaces
 4. Reference doc staleness check per §14.2
 5. README check: if principle/method counts or domains changed → update README domain table
-6. Update and prune SESSION-STATE.md (target <300 lines per §7.0.4)
-7. Commit and push
-8. Verify CI green
+6. **Version-history entry authored** per `rules-of-procedure §2.1.1` Step 3 — every normative document MUST have a version-history section (Historical Amendments / Version History / Changelog / Appendix C naming all accepted); add an entry for this PATCH/MINOR/MAJOR.
+7. **Audit-ID citation** per `rules-of-procedure §2.1.1` Notes — if the amendment references a governance consultation, cite the `audit_id` (e.g., `gov-abc123`) that authorized the change. Forward-going from 2026-04-19; historical entries grandfathered.
+8. Update and prune SESSION-STATE.md (target <300 lines per §7.0.4)
+9. Commit and push
+10. Verify CI green
 9. Docker check: if content significantly changed or code also changed → rebuild and push
 
 ## Domain changes (adding/removing/renaming domains)

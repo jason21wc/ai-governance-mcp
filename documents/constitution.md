@@ -1,5 +1,5 @@
 ---
-version: "5.0.2"
+version: "5.0.3"
 status: "active"
 effective_date: "2026-04-19"
 domain: "constitution"
@@ -8,7 +8,7 @@ governance_level: "constitution"
 
 # Principles Framework for AI Interaction
 
-**Version:** 5.0.2
+**Version:** 5.0.3
 **Status:** Active
 **Effective Date:** 2026-04-19
 **Governance Level:** Constitution (Meta-Principles)
@@ -1072,6 +1072,21 @@ A "confident wrong answer" is the most dangerous output an AI can provide. If ag
 ## Historical Amendments (Constitutional History)
 
 **Usage Instruction for AI:** This section is a historical record ("Legislative History"). **It does not carry the force of law.** If any statement in this history log contradicts the active text of the Principles above, **ignore the history and follow the active text.**
+
+#### **v5.0.3 (April 2026) - Amendment Record Gap Corrections (Cohort 4 Phase 4a, F-P2-14 + F-P2-17)**
+
+Two amendment-log gap corrections per the 2026-04-18 self-review. No operative change; corrections to the legislative-history record only.
+
+*   **F-P2-14 — Effective & Efficient Communication (Article I, §4) added during v3.0.0 Consolidation.**
+    *   **Change:** Documents the previously-unrecorded addition of the `Effective & Efficient Communication` principle during the v3.0.0 Constitutional Principle Consolidation. The v2.8.0 amendment entry (this document, v2.8.0 section) recorded the demotion of `Rich but Not Verbose Communication` to TITLE 16 Part 16.5 but did not record the promotion-back of `Effective & Efficient Communication` that accompanied the consolidation.
+    *   **Evidence:** Commit `8dd6d6e` / PR #21 (`feat: Constitutional principle consolidation v3.0.0`, 2026-03-29). Commit body line explicitly states: *"- 1 promotion back (Effective & Efficient Communication)"* — part of the 12 merges / 9 demotions / 5 demotions-to-methods / 1 promotion-back structure of the v3.0.0 consolidation.
+    *   **Why not recorded at v3.0.0:** The v3.0.0 consolidation involved 178+ cross-reference cascades across 10+ documents; the amendment-log entry at v2.8.0 / v3.0.0 focused on the demotion count narrative. The single promotion-back was mentioned in the commit body but not lifted into the in-document Historical Amendments record.
+    *   **Gap caught by F-P2-14** (2026-04-18 self-review); closed in v5.0.3.
+*   **F-P2-17 — MA-Series Formal Dissolution (recorded retroactively).**
+    *   **Change:** v2.8.0 entry stated "MA-Series: Now empty (0 principles). Section header retained for Phase 4 dissolution." Commit `8dd6d6e` (v3.0.0) actually dissolved MA-Series: *"- MA-Series dissolved — all principles were multi-agent specific"*. The dissolution happened at v3.0.0 but was not lifted from commit body into the in-document amendment record. v5.0.3 closes this gap: **MA-Series is formally dissolved as of v3.0.0 (2026-03-29); the 0-principle placeholder referenced at v2.8.0 was eliminated along with its section header during the v3.0.0 consolidation; no principles were reclassified from MA-Series during dissolution (series was already empty at v2.8.0 per its own record). MA-Series content migrated to the multi-agent domain per "all principles were multi-agent specific" commit-body rationale.**
+    *   **Coherence-audit (Cohort 4 planning, 2026-04-19, agent `a7ed2fe1124998854`) confirmed:** no live `## MA-Series` / `### MA-Series` section header exists in any normative document; the dissolution is structurally complete. Only amendment-record catch-up was missing.
+*   **Version-bump classification:** PATCH per `rules-of-procedure.md §9.6.1`. No operative content added, removed, or changed. Both entries correct the legislative-history record to match operational reality.
+*   **Governance trail:** `gov-9a509771c252` (Phase 4a execution eval). Prior battery trail in plan file `~/.claude/plans/create-a-plan-following-cached-canyon.md`: Phase 1 Explore agents `af…`/`a…`, pre-edit battery `aafc330dc1a68a310` (contrarian) / `a7ed2fe1124998854` (coherence) / `a60ec0db6aa70701c` (validator). Governance trail for source commit `8dd6d6e` (2026-03-29) is PR #21's review discussion (historical; no `gov-` audit IDs existed at that time).
 
 #### **v5.0.2 (April 2026) - Historical-Amendment Tense Fix (Cohort 3 post-commit double-check)**
 

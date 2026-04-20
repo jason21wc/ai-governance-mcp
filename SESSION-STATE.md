@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-19 (session 116 — Cohort 3 shipped; rules-of-procedure v3.27.0 + title-40 v2.4.2 + scaffold sync)
+**Last Updated:** 2026-04-19 (session 117 — Cohort 4 Phase 4a shipped; constitution v5.0.3 + rules-of-procedure v3.27.2 + ai-instructions v2.7)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -13,7 +13,7 @@
 
 - **Phase:** Cohorts 1, 2, and 3 of `~/.claude/plans/swift-hopping-corbato.md` all CLOSED. Cohort 3 (session-116) shipped: **rules-of-procedure v3.26.8 → v3.27.0** (MINOR — added Admission Test Q7 "Semantic-Label Risk" + PASS/FAIL exemplars; 8 cross-ref sync from "6 Questions" → "7 Questions"; removed obsolete "Constitutional Basis ← Constitutional Derivation" alias row; fixed pre-existing body-vs-frontmatter version drift); **title-40-multimodal-rag v2.4.1 → v2.4.2** (PATCH — 32 "Constitutional Derivation" → "Constitutional Basis" normalization); **scaffold_project expanded** (server.py SCAFFOLD_STANDARD_EXTRAS + 3 new skeletal templates with "starter template" banners matching title-10-ai-coding-cfr.md §1.5.2 — ARCHITECTURE.md, SPECIFICATION.md, workflows/COMPLETION-CHECKLIST.md subdirectory, BACKLOG.md; 9-file Standard tier per §1.5.5 CLAUDE.md overlay); F-P2-13 Path B resolved via PROJECT-MEMORY + LEARNING-LOG entries (no constitutional amendment; Preamble purposes are class (b) interpretive tiebreakers, not principle-count targets). Pre-edit + post-edit 3-agent batteries both ran; post-edit battery found 2 CRITICAL stale "6 files" strings in user-facing tool description + error message — fixed before commit. BACKLOG #102 + #34 both closed. Principle count unchanged (24; G:5). Tests: 1308/1308 safe-subset pass.
 - **Mode:** Standard
-- **Active Task:** None blocking. Cohorts 1, 2, 3 all shipped (plus v5.0.2 / v3.27.1 post-commit-double-check PATCH in same session fixing API.md stale count, SCAFFOLD_BACKLOG fabricated §7.1.6 cite, §1.5.4 template misattributions, Q7 enforceability tightening, constitution.md v4.1.0 tense fix). Possible next moves: (a) Cohort 4 (Longitudinal Infrastructure: CHANGELOG + enabling_authority + audit_id linkage + MA-Series dissolution) per swift-hopping-corbato plan; (b) commit session's work; (c) reinstate intent-engineering.md link when that doc lands. User's call.
+- **Active Task:** None blocking. Cohort 4 **Phase 4a** complete: F-P1-06 changelog gap closed (ai-instructions.md `## Changelog` + rules-of-procedure §2.1.1 Notes version-history rule); F-P2-06 audit_id citation rule formalized forward-going; F-P2-14 Effective & Efficient Communication amendment-record-gap closed with commit 8dd6d6e evidence; F-P2-17 MA-Series dissolution formally recorded (also per commit 8dd6d6e). Cohort 4 **Phase 4b** deferred to separate session (406 `Implements:` backfills across 6 CFR files, ~6-8 hours). Possible next moves: (a) Phase 4b (Change A backfill — best in focused session); (b) Cohort 5 (Cosmetic Sweep); (c) commit Phase 4a; (d) pause. User's call.
 
 ## Quick Reference
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v5.0.2** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.1** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.6** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v5.0.3** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.2** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1308 passing** safe subset (`pytest tests/ -v -m "not slow"`); embedding-mock tests no longer intercepted by daemon (autouse conftest fixture forces local path). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -35,6 +35,20 @@
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Last Session (2026-04-19)
+
+117. **Session-117: Cohort 4 Phase 4a shipped (Longitudinal Infrastructure — non-backfill portion)**
+   - **Plan:** `~/.claude/plans/create-a-plan-following-cached-canyon.md` (Cohort 4 battery-refined v2). Split into Phase 4a (this session) + Phase 4b (406 `Implements:` backfills, deferred).
+   - **Four Phase-4a changes (B → C → D → E):**
+     - **Change B (F-P1-06):** Added `## Changelog` to `ai-instructions.md` (the single normative doc lacking one per Phase-1 + battery verification — review's "10 docs" claim was over-scoped; 13 of 14 had changelogs in various formats). Formalized rule in `rules-of-procedure.md §2.1.1 Notes`: every normative doc MUST have version-history section; naming varies (Historical Amendments / Version History / Changelog / Appendix C all accepted). v2.6→v2.7 + v3.27.1→v3.27.2.
+     - **Change C (F-P2-06):** Formalized audit_id citation convention in `§2.1.1 Notes`. Forward-going; historical entries grandfathered. Convention was already observed in v5.0.x constitution amendments; this codifies.
+     - **Change D (F-P2-14):** Investigated commit **`8dd6d6e`** (v3.0.0 consolidation, PR #21, 2026-03-29). Commit body explicitly states "- 1 promotion back (Effective & Efficient Communication)." Added amendment-record-gap entry to constitution v5.0.3 documenting the previously-unrecorded v3.0.0 promotion-back. Rich-but-Not-Verbose demotion at v2.8.0 is cross-referenced.
+     - **Change E (F-P2-17):** Commit 8dd6d6e also stated "MA-Series dissolved — all principles were multi-agent specific." Added amendment-record-gap entry closing the silent dissolution — coherence-audit confirmed no live `## MA-Series` header exists. Bundled into v5.0.3 with Change D.
+   - **Also this session:** COMPLETION-CHECKLIST.md added 2 new content-change checklist items (version-history entry + audit_id citation enforcement); BACKLOG #105 added for title-30-cfr dual-changelog reconciliation (deferred as explicit editorial decision, not silent fix).
+   - **Pre-edit battery** (plan-stage, lesson from Cohort 2/3 defense-in-depth): contrarian-reviewer REJECTED v1 plan — Explore-1 method counts wrong (455 actual vs 168 claimed); title-15/25 DO have method sections; meta-finding premature. Plan rebuilt with corrected 455-method + 6-CFR scope and Phase 4a/4b split.
+   - **Phase 4b deferred** (~6-8 hours across 6 CFR files). Backfill scope: 406 methods need `Implements:` field (49 of 455 already have it = 11% adoption). Recommended phasing: title-40 → 30 → 25 → 15 → 20 → 10. Not this session (quality-of-judgment reasons for 406 per-method principle-citation decisions).
+   - **Meta-finding DEFERRED** per contrarian H1: "Self-Review Findings Often Over-Scope Remediation" lesson needs 3+ clean instances; Cohort 4 Phase 1 data wasn't clean (Explore-1 miscounted). Revisit after Cohort 5.
+   - **Governance trail:** `gov-212f6fa8bd82` (plan eval), `gov-9a509771c252` (execution eval). Plan-stage battery agents: `aafc330dc1a68a310` (contrarian), `a7ed2fe1124998854` (coherence), `a60ec0db6aa70701c` (validator).
+   - **Resumption:** None blocking. Phase 4b or Cohort 5 next.
 
 116. **Session-116: Cohort 3 Content + Scaffold Self-Contradictions shipped**
    - **Plan:** `~/.claude/plans/cohort-3-content-scaffold-self-contradictions.md` (battery-refined v2). Parent plan `swift-hopping-corbato.md` Cohort 3 section also updated to Path B during plan refinement (eliminating pre-existing Path A drift flagged by coherence-auditor pre-edit battery).
