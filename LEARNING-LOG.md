@@ -12,6 +12,26 @@
 
 ## Active Lessons
 
+### Verify Cited Files in Reviews (2026-04-18)
+
+During the 12-step self-review, `05-remediation-plan.md:R-01` cited `staging/benchmark_ab_test.py` as an "outcome-benchmark skeleton" ready to wire up. Subsequent plan-drafting read the file and found it is a **BM25 template-metadata A/B test** — retrieval-quality family (same as `tests/benchmarks/baseline_*.json`), not governed-vs-unguided output quality. The R-01 recommendation was factually wrong because the reviewer named a file without reading it. Step 10 post-hoc miss-check did not catch this either (it only cross-checked LEARNING-LOG / PROJECT-MEMORY / BACKLOG for contradictions, not file-citation accuracy).
+
+**Rule:** When a review cites a specific file as evidence or as a ready-to-use artifact, the miss-check protocol must include "read the cited file and verify it matches the claim." Name-matching alone is unreliable (`benchmark` matched the claim; the file's actual purpose did not). Add to Step 10 miss-check: for each cited artifact, confirm the claim matches the artifact's content, not just its filename.
+
+**Principle:** `meta-quality-verification-validation` — "cited file exists" is not "cited file says what I claim." Also `meta-safety-transparent-limitations`: a review that misidentifies evidence undermines its own recommendations and must log the correction transparently (captured in `~/.claude/plans/swift-hopping-corbato.md` Notes #4 and referenced here so future reviewers know the pattern).
+
+---
+
+### Declaration and Preamble Are Purpose Surfaces, Not Claim Surfaces (2026-04-18)
+
+During the Cohort 1 self-review remediation, F-P2-01 ("Declaration's value-proposition claim is unfalsifiable") was filed against `constitution.md:38` and triggered a battery of proposed edits. User review rejected the diagnosis: the Declaration's text ("I wanted what I think everyone who works with AI wants — consistent, reliable results") is a purpose statement in the author's voice, structurally analogous to the US Declaration of Independence. Purposes are not assertions. Evidence-checks and Admission Test Q4 do not apply. No edit needed. The same protection extends to the Preamble (`constitution.md:56-62`), which functions like the US Constitution Preamble — AI-first operative surface (invoked at Admission Test borderline decisions per `constitution.md:80`), human-second contextual reading. The Supreme Court analog — *Jacobson v. Massachusetts* uses the US Preamble as interpretive tiebreaker, not freestanding authority — already documented at PROJECT-MEMORY 2026-04-12 "Preamble as Interpretive Tiebreaker." F-P2-01's scope error: it applied an operative-claim evidence-check to both contextual surfaces, mistaking aspirational purpose for asserted outcome.
+
+**Rule:** Before running an evidence-check, Admission Test Q4, or falsifiability-pressure on any framework text, classify its textual function: (a) Declaration / aspirational purpose in human voice — purposes are not assertions; evidence-check does not apply; (b) Preamble / distilled binding purpose for AI interpretive use — same protection as (a); informs tiebreaker decisions but does not carry operative-claim weight; (c) README / runtime / CFR / product-facing declarative text — operative claim surface; evidence-check applies. Real F-P2-01-class problems live in (c). When Declaration or Preamble get pattern-matched into (c), the review has made a category error. Fix the review classification before fixing the text.
+
+**Principle:** `meta-core-systemic-thinking` — the root cause was misapplied check, not deficient Declaration. Extends LEARNING-LOG 2026-04-12 "Metaphor-Driven Classification" pattern: check *textual function* before applying *content tests*, just as that earlier lesson teaches to check *operational criteria* before applying *classification labels*. Also scopes `meta-safety-transparent-limitations`: purposes don't need measurement; claims do.
+
+---
+
 ### Dual 300s Defaults — Same Cadence on Both Sides of a Connection (2026-04-18) — CORRECTS prior session-112 diagnosis
 
 Session-112 applied `server.requestTimeout = 0` to Happy's bundle under the hypothesis that Node's default 300000 ms server-side `requestTimeout` was killing the SSE stream. Session-113 verified the patch was on disk ~23h before the current wrapper process started, then observed drops STILL occurring at N × 300s on that patched wrapper. Real cause: **client-side undici `bodyTimeout`** (default 300000 ms) firing on an SSE stream the MCP SDK's `WebStandardStreamableHTTPServerTransport` never keeps alive (no heartbeat emission, grep-confirmed). Two 300s timers, opposite sides of the connection, identical observed cadence — we localized to the wrong one. Patch reverted 2026-04-18; bundles back to vanilla.

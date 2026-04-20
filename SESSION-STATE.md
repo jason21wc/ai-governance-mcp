@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-18 (session 113 — Happy investigation closed)
+**Last Updated:** 2026-04-19 (session 114 — README rewrite SHIPPED; Cohort 1 remnant tracked in BACKLOG #104)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,9 +11,9 @@
 
 ## Current Position
 
-- **Phase:** Session-113 Happy MCP investigation CLOSED. Session-112's `server.requestTimeout = 0` bundle patch was ineffective (drops continued at N × 300s on patched wrapper). Real root cause identified: client-side undici `bodyTimeout` 300000 ms default + missing SSE heartbeat in `@modelcontextprotocol/sdk@1.25.3`. Both bundles reverted to vanilla. Full revised diagnosis in `staging/happy-requesttimeout-2026-04-17.md` (primary investigation record). LEARNING-LOG corrected. Future upstream filing → BACKLOG #103 (reframed as MCP SDK heartbeat request).
+- **Phase:** Cohort 1 of `~/.claude/plans/swift-hopping-corbato.md` is FULLY CLOSED. Edits 1-2 resolved to "no edit" (Declaration/Preamble are purpose surfaces per LEARNING-LOG 2026-04-18). Edits 3-5 shipped via full README rewrite (live `README.md` now 461 lines, down from 1006). Edit 6 (server.py:888 runtime prose) shipped at end of session via BACKLOG #104. Edits 7-8 obsolete. Option B chosen at README merge: `documents/intent-engineering.md` link stripped from line 23 pending that file (user drafting separately in Claude app). The 3-agent battery + Cached Canyon remediation plan + coherence verification all complete.
 - **Mode:** Standard
-- **Active Task:** None pending. Ready to start new work. User mentioned possible pivot to other projects.
+- **Active Task:** None blocking. Cohort 1 done end-to-end. Possible next moves: (a) launch Cohort 2 per swift-hopping-corbato plan (Constitutional amendments batch: hierarchy + Case Law + Risk-Mitigation merge, v5.0.0); (b) commit session's work; (c) reinstate intent-engineering.md link when that doc lands. User's call.
 
 ## Quick Reference
 
@@ -35,6 +35,30 @@
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Last Session (2026-04-18)
+
+114. **Session-114: Framework self-review → swift-hopping-corbato plan → Cohort 1 partial → README rewrite pivot (IN PROGRESS)**
+   - **12-step self-review complete.** 8 deliverables at `reviews/2026-04-18/` (1,967 lines): 00-executive-summary, 01-phase1-structural, 02-phase2 (content), 03-cross-cutting, 04-intent-engineering-synthesis, 05-remediation-plan, 06-compliance-audit, 99-appendix-inventory. 31 findings (1 Critical, 3 High, 11 Medium, 16 Low). Top 3 root causes: (C1) value-prop unfalsifiable, (C2) declared hierarchy omits enforcement mechanisms, (C3) longitudinal infrastructure under-built. 2/3 subagents used (contrarian-reviewer xhigh, coherence-auditor high); validator skipped. Compliance: PROCEED gate, PARTIAL close (tool-matching limitation — `verify_governance_compliance` reads `relevant_principles` not `universal_floor` or `log_governance_reasoning` traces).
+   - **Plan approved: `~/.claude/plans/swift-hopping-corbato.md`.** Reorganizes 31 findings into 5 root-cause cohorts (per `meta-core-systemic-thinking`) with per-cohort agent batteries. Cohorts: (1) Resolve unfalsifiable value claim, (2) Constitutional amendments batch (hierarchy + Case Law + Risk-Mitigation merge), (3) Content + scaffold self-contradictions, (4) Longitudinal infrastructure (CHANGELOG + enabling_authority), (5) Cosmetic low-sev sweep. **Review correction recorded in plan:** `staging/benchmark_ab_test.py` is BM25 metadata A/B (retrieval-quality family), NOT an outcome-benchmark skeleton. R-01 in 05-remediation-plan.md is superseded; BACKLOG #22 remains pre-registered tracking for the actual outcome benchmark (still Discussion, option to "conclude value is qualitative and close").
+   - **Cohort 1 execution (partial, 8-item scope narrowed twice):**
+     - Edit 1 (`constitution.md:38` Declaration) — **NO EDIT.** User rejected diagnosis: Declaration is aspirational purpose in author voice, structurally analogous to US Declaration of Independence. Purposes are not assertions; evidence-check does not apply.
+     - Edit 2 (`constitution.md:58` Preamble) — **NO EDIT.** Class (b) purpose surface per new textual-function methodology. Coherence concern (Preamble contradicting softened Declaration) moot because Declaration did not soften.
+     - Edit 3 (`README.md:5` tagline) — **APPLIED.** "queryable 'second brain' of encoded standards" (mechanism-descriptive, evidence-backed).
+     - Edit 4 (`README.md:40` Key Innovation) — **APPLIED.** "retrievable, auditable, and structurally enforceable at the moment of the AI's decision."
+     - Edit 5 (`README.md:988` About bullet) — **DEFERRED** into full README rewrite. Live README still says "for production-quality AI collaboration"; staging draft says "for retrievable, enforceable governance principles."
+     - Edit 6 (`src/ai_governance_mcp/server.py:888-889` runtime prose "ensuring consistent, high-quality AI collaboration every time") — **PENDING.** Tracked in BACKLOG as standalone Cohort-1 remnant. Runtime prose ships to every MCP client at `install_agent` time — class (c) claim surface; evidence-check applies.
+     - Edit 7 (BACKLOG #22 cross-ref) — **OBSOLETE.** Anchors don't exist after Edits 1-2 became no-edit.
+     - Edit 8 (`documents/ai-instructions.md:199` v4.1.0+ → v5.0.0+) — **OBSOLETE.** No constitution major bump.
+   - **Methodology captures applied this session:**
+     - `LEARNING-LOG.md` — new entry "Declaration and Preamble Are Purpose Surfaces, Not Claim Surfaces" at top of Active Lessons. Rule: before evidence-check or Admission Test Q4, classify textual function: (a) Declaration = aspirational purpose, human voice, no evidence-check; (b) Preamble = distilled purpose for AI interpretive use, tiebreaker weight only; (c) README/runtime/CFR/product-facing = operative claim surface, evidence-check applies.
+     - `constitution.md:79-80` — Contextual Layers table rows sharpened with textual-function clauses (belt-and-suspenders to the LEARNING-LOG rule — catches the reviewer at the doorway rather than relying on memory recall).
+   - **Pivot after Edit 4:** rather than continuing surgical patches for Edits 5-8, user elected full README rewrite. Anti-anchor-bias check against BACKLOG #84: rejected 2 of its 7-component breakdown (Content Enhancer not in repo; "Transparency and Attribution System" described functionality that doesn't exist). Kept from #84: intent-engineering three-phase framing (prompt → context → intent), "judgment not smartness," destination-agnostic positioning. Draft: `staging/readme-draft-v1.md` — new "Why this exists" section linking to `constitution.md` Declaration (no content duplication per `meta-method-single-source-of-truth`); condensed Quick Start 267→30 lines + 1 collapsible; Context Engine 125→25; Troubleshooting Q&A → 4 one-liners; "The Methodology" → "Dogfooding."
+   - **S-Series encounter and resolution:** `gov-a1a595a5fb93` (Cohort 1 start eval) triggered ESCALATE on `meta-safety-transparent-limitations` at score 0.44. Interpretation: semantic-relevance, not operational conflict (`compliance_evaluation.status = COMPLIANT`, `required_modifications = []`). User explicitly approved override. Pattern: S-Series principle retrieved as topically-relevant, not as blocker — candidate for graduated pattern library (see LEARNING-LOG 2026-03-29 "S-Series Keyword Trigger Produces False Positives" for adjacent lesson).
+   - **Governance:** `gov-9af8ad5addff` (Step 0 dogfood gate — PROCEED), `gov-a1a595a5fb93` (Cohort 1 S-Series escalation — user override), `gov-641570b4d189` (this memory-update plan — PROCEED). Principles cited: `meta-core-systemic-thinking` (reframed F-P2-01 from content-error to classification-error), `meta-method-single-source-of-truth` (README links to Constitution rather than duplicating), `meta-safety-transparent-limitations` (Declaration is purpose not claim — scope correction), `meta-method-atomic-task-decomposition` (cohort boundaries), `meta-methods §7.8` (proportional rigor — rejected 8-edit ceremony in favor of narrower scope after user pushback).
+   - **Subagents used:** 5 total across session — `contrarian-reviewer` xhigh (review Step 3 + Cohort 1 Declaration softening), `coherence-auditor` high (review Step 7 + declarative-surface drift inventory), `validator` high (Admission Test Q4 Cohort 1). Plus 3-agent battery plan for post-user-review: contrarian xhigh + coherence high + validator high on revised README draft.
+   - **Plan:** `~/.claude/plans/swift-hopping-corbato.md` — approved, Cohort 1 partially executed. Load-bearing reasoning promoted inline per §G.5.1: value-claim softening philosophy is captured in LEARNING-LOG + PROJECT-MEMORY; remaining cohort work is reconstructable from the plan file.
+   - **Session-114 later work (post-review resumption, 2026-04-19):** user approved staging draft; added 5-layer engineering stack in "Why this exists" (replacing 3-layer; adds retrieval + harness as distinct layers); added "Use via RAG (No MCP Server)" section with platform mapping + trade-off. 3-agent battery (contrarian xhigh, coherence high, validator high) ran in parallel on revised draft → Cached Canyon plan (`~/.claude/plans/create-a-plan-following-cached-canyon.md`) consolidated 14 surface findings into 4 root causes → 6 remediation edits applied → final coherence-auditor pass returned COHERENT, zero drift. Option B chosen: stripped `documents/intent-engineering.md` link from line 23 (user drafting that doc separately), merged live README via `cp staging/readme-draft-v1.md README.md`. Live `README.md` now 461 lines (54% reduction from 1006). BACKLOG #84 closed to SHIPPED. One structural lesson applied in-place: Results table column renamed "Achieved" → "Observed (approximate)" (structural framing fix preventing future unmeasured-numbers-as-measured laundering).
+   - **End-of-session additions:** BACKLOG #104 (server.py:888 runtime prose) shipped at end of session — replaced "ensuring consistent, high-quality AI collaboration every time" with "making the discipline of each function auditable rather than relying on ad-hoc prompting." Smoke-check confirmed server imports cleanly with 10 agents. Cohort 1 now fully closed.
+   - **Resumption:** no blocker. Plausible next moves: (a) Cohort 2 (Constitutional amendments batch: hierarchy + Case Law rename + Risk-Mitigation merge, v5.0.0); (b) commit session's work; (c) reinstate intent-engineering link when that doc lands. User's call.
 
 113. **Session-113: Happy MCP investigation CLOSED — session-112 diagnosis revised, patch reverted, returned to vanilla**
    - **Problem state at start:** Session-112 had applied `server.requestTimeout = 0` to both Happy bundles and paused before behavioral verification. Patch was on disk but wrapper was pre-patch; verification required a fresh `happy` invocation.
@@ -125,7 +149,16 @@
 
 ## Next Actions
 
-**Immediate:** None. Happy investigation closed in session 113 — patch reverted, root cause revised, memory files corrected. Ready for new work.
+**Immediate (resume trigger for next session):**
+1. **Commit session work.** Substantial uncommitted changes: README rewrite shipped, server.py:888 runtime prose softened (BACKLOG #104), SESSION-STATE + LEARNING-LOG + PROJECT-MEMORY + BACKLOG + constitution.md all updated, staging draft in place. User has not yet requested commit — gated on that.
+2. **When user wants to reinstate intent-engineering link:** drop `documents/intent-engineering.md` into the repo (user is drafting in Claude app), then edit `README.md:23` to re-add the second sentence: *"For the full 5-layer treatment with definitions, see [`documents/intent-engineering.md`](documents/intent-engineering.md)."*
+3. **Decide Cohort 2 timing.** Constitutional amendments batch per swift-hopping-corbato plan (hierarchy-omits-enforcement + Case Law rename + Risk-Mitigation/Non-Maleficence merge — coordinated v5.0.0 bump). Proportional rigor says pause if session momentum is spent; pick up fresh.
+
+**Working artifacts:**
+- `reviews/2026-04-18/00-executive-summary.md` — framework self-review executive summary (31 findings).
+- `~/.claude/plans/swift-hopping-corbato.md` — 5-cohort remediation plan.
+- `~/.claude/plans/create-a-plan-following-cached-canyon.md` — README remediation plan (complete, archival).
+- `staging/readme-draft-v1.md` — README rewrite draft source (now in sync with live README; retained as archival).
 
 **Happy follow-up (BACKLOG #103, no rush):**
 - When user wants to file upstream: draft an issue at `github.com/modelcontextprotocol/typescript-sdk` requesting a heartbeat option (e.g., `keepaliveMs`) on `WebStandardStreamableHTTPServerTransport`. Cross-reference `github.com/slopus/happy` with the pre-filing research captured in the session-112 entry (Claude Code issues [#3033](https://github.com/anthropics/claude-code/issues/3033), [#20335](https://github.com/anthropics/claude-code/issues/20335), [#18557](https://github.com/anthropics/claude-code/issues/18557)).

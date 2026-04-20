@@ -885,8 +885,8 @@ Without structured guidance, AI assistants can:
 - Apply inconsistent approaches across similar problems
 - Miss critical safety considerations
 
-Subagents make specialized behaviors automatic, not optional — ensuring consistent,
-high-quality AI collaboration every time.
+Subagents encode specialized cognitive functions with explicit protocols — making
+the discipline of each function auditable rather than relying on ad-hoc prompting.
 
 ### What Will Be Installed?
 

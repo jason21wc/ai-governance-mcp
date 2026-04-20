@@ -76,8 +76,8 @@ This document is the supreme governance layer. It sits within a broader framewor
 
 | Layer | Location | Role |
 |---|---|---|
-| Declaration | This document | States why the framework exists — its philosophical foundation |
-| Preamble | This document | States the framework's binding purposes — interpretive context that resolves ambiguity in the Admission Test (§9.8.1) when questions are borderline. The Preamble does not independently create rules or filter content, but its stated purposes inform judgment on operative governance decisions. |
+| Declaration | This document | States why the framework exists — its philosophical foundation. **Aspirational purpose statement in author voice; not a claim, not subject to evidence-check or Admission Test Q4.** |
+| Preamble | This document | States the framework's binding purposes — interpretive context that resolves ambiguity in the Admission Test (§9.8.1) when questions are borderline. The Preamble does not independently create rules or filter content, but its stated purposes inform judgment on operative governance decisions. **AI-first operative surface (invoked at tiebreaker decisions per the *Jacobson v. Massachusetts* pattern); human-second contextual reading. Purposes stated here are not subject to evidence-check.** |
 
 **Operative Hierarchy** (override order — higher layers override lower when conflicts arise):
 
