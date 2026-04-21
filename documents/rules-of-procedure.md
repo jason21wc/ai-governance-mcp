@@ -1,5 +1,5 @@
 ---
-version: "3.27.3"
+version: "3.27.4"
 status: "active"
 effective_date: "2026-04-20"
 domain: "constitution"
@@ -8,7 +8,7 @@ domain: "constitution"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.27.3
+**Version:** 3.27.4
 **Status:** Active
 **Effective Date:** 2026-04-20
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -236,7 +236,9 @@ governance_level: "federal-regulations"
 ---
 ```
 
-**Frontmatter `governance_level` values:** `constitution`, `bill-of-rights`, `rules-of-procedure`, `federal-statute` (domain principles), `federal-regulations` (domain methods). Documents serving as framework tooling rather than governance content (e.g., activation loaders) may use descriptive values such as `framework-activation`.
+**Frontmatter `governance_level` values:** `constitution`, `bill-of-rights`, `federal-statute` (domain principles), `federal-regulations` (domain methods). Documents serving as framework tooling rather than governance content (e.g., activation loaders) may use descriptive values such as `framework-activation`.
+
+> **Note on `rules-of-procedure` value (v3.27.4 clarification, F-C-05 follow-up):** The value `rules-of-procedure` was historically valid and used in `rules-of-procedure.md`'s own frontmatter. Removed from that file per F-C-05 (v3.27.3) after grep confirmed zero code consumers of the field. Retained here as a valid authoring value for any future document at the Rules-of-Procedure layer + for backward compatibility with archived docs (pre-v3.27.3 snapshots in `documents/archive/` will still declare it). No active document currently uses this value.
 
 **Frontmatter `status` semantics:**
 - `draft` — **Pre-release.** Content is in development, not yet registered in `domains.json`, and not indexed.
@@ -4887,6 +4889,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.27.4 | 2026-04-20 | PATCH: Cohort 5 post-commit double-check (sessions 5-1 + 5-2, commits `b0e14e4` + `bdafbc6`). Added clarifying note to §1.1.3 `governance_level` enum explaining that the `rules-of-procedure` value — listed as valid — is no longer used by any active document since F-C-05 removed it from `rules-of-procedure.md` itself. Retained as valid authoring value for future documents at that layer + archive backward-compat. Addresses coherence-auditor MISLEADING finding that the enum advertised a value with no active consumer. Governance trail: `gov-9ab4e2bca855`. Constitutional Basis: Single Source of Truth. |
 | 3.27.3 | 2026-04-20 | PATCH: Cohort 5 Session 5-2 (session-119) — two changes. (1) **Removed `governance_level: "rules-of-procedure"` frontmatter field** (F-C-05). Grep confirmed zero code consumers (`grep governance_level src/` → 0 matches; no retrieval pipeline, no test, no extractor reads the value). Field was documentary-only; deletion per §9.8.5 bright-line (editorial; changes *how the framework describes itself* without changing behavior). Domain entry in `domains.json` was never present — this cleans up an orphan metadata field. Frontmatter is now `version`/`status`/`effective_date`/`domain` only. (2) **Added §9.7.1 architectural note** (F-P1-03 disposition) documenting why "Rules of Procedure" is a single layer in this framework vs. distributed across US Constitutional branches (Supreme Court Rules + Congressional standing rules). No operative consequence; noted for architectural transparency. Governance trail: `gov-3e5998987962` (Cohort 5 plan eval carry-forward). Constitutional Basis: Single Source of Truth, Visible Reasoning & Traceability. |
 | 3.27.2 | 2026-04-19 | PATCH: Cohort 4 Phase 4a (session-117) — formalized two pre-existing cross-doc amendment-log conventions in §2.1.1 Notes block. (1) **Version-history section required**: every normative document must have a version-history section (naming varies by document convention — Historical Amendments / Version History / Changelog / Appendix C all accepted). Closes F-P1-06: `ai-instructions.md` was the only doc lacking one (now has `## Changelog` at bottom). §2.1.1 Step 3 "Add version history entry in document" pre-existed; this formalization documents the cross-doc scope. (2) **Audit-ID citation**: amendment entries that reference governance consultations must cite the `audit_id` (e.g., `gov-abc123`). Forward-going from 2026-04-19; historical entries grandfathered. Convention was already observed in v5.0.0/v5.0.1/v5.0.2 constitution amendments. Governance trail: `gov-9a509771c252` (Phase 4a execution eval). Constitutional Basis: Single Source of Truth, Visible Reasoning & Traceability. |
 | 3.27.1 | 2026-04-19 | PATCH: post-commit double-check remediation (session-116). (1) **Q7 enforceability tightened** — appended operational requirement to Q7 cell: reviewer must name the outside pattern borrowed from, the specific framework mechanism enforcing/failing to enforce the borrowed semantic, and the disposition (pass/rename/disclaim/coin). Bare "passes" is non-compliance. Addresses contrarian post-commit concern that Q7 text alone allowed rubber-stamp compliance (~85% advisory pattern). No change to Q7 intent; operationalizes the reviewer's checkable output. Per LEARNING-LOG 2026-04-19 "Post-Commit Double-Check Catches Surface Drift Pre/Post Batteries Miss." Constitutional Basis: Verification & Validation, Visible Reasoning & Traceability. |

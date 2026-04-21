@@ -2609,7 +2609,16 @@ class TestConstitutionalRefIntegration:
 
     @pytest.fixture
     def v4_fixture_content(self):
-        """Minimal v4.0.0-format constitution for integration testing."""
+        """Minimal v4.0.0-format constitution for integration testing.
+
+        Intentional legacy fixture — preserves the pre-v3.27.3 frontmatter
+        schema (including `governance_level: "constitution"`) to exercise
+        extractor parsing against the historical format. DO NOT update to
+        strip `governance_level` (F-C-05 removed the field from the live
+        `rules-of-procedure.md`, but the field remains a valid authoring
+        value per rules-of-procedure §1.1.3 v3.27.4 note; extractor must
+        still parse documents that declare it).
+        """
         return """---
 version: "4.0.0"
 domain: "constitution"

@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-20 (session 119 — **Cohort 5 CLOSED**: Sessions 5-1 + 5-2 shipped, 31 findings triaged + "100% remediated" milestone hit honestly)
+**Last Updated:** 2026-04-20 (session 119 — **Cohort 5 CLOSED + post-commit PATCH shipped**: ai-instructions v2.7.1 + rules-of-procedure v3.27.4 + API.md sync)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v5.0.6** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.3** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v5.0.6** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.4** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7.1** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1340 passing** safe subset (`pytest tests/ -v -m "not slow"`); embedding-mock tests no longer intercepted by daemon (autouse conftest fixture forces local path). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -57,6 +57,22 @@
    - **Tests:** 1340/1340 safe subset pass (1308 baseline + 4 parity + 28 domain-fit). Extractor: 24 constitution principles unchanged.
    - **Milestone hit:** 31 findings triaged + actioned-or-documented-with-rationale. 28 closed + 3 deferred-with-triggers. Cohorts 1-5 all CLOSED. Framework self-review loop complete.
    - **Resumption:** None blocking. Options: (a) post-commit double-check battery per Cohorts 2/3/4 pattern; (b) start Cohort 5 operational work (push, CI verify); (c) next-priority work (reference-library activation if desired, per F-P1-07 deferral BACKLOG items).
+
+119-post-commit. **Session-119 (post-commit PATCH): Cohort 5 post-commit double-check applied**
+   - **Task:** Ran post-commit 3-agent double-check battery on shipped commits `b0e14e4` (Session 5-1) + `bdafbc6` (Session 5-2), per Cohort 2/3/4 precedent.
+   - **Battery findings:**
+     - Contrarian (`a7853fd0138250f8d`): PROCEED WITH REQUIRED CHANGES — HIGH `API.md` install_agent schema stale (no `domain` param + missing output fields); HIGH `ai-instructions.md <document_versions>` pins lag; MEDIUM AGENT_TEMPLATE_HASHES adopter-migration; LOW README/SPECIFICATION skim.
+     - Coherence (`a56dcdc5b4e1dd6f3`): COHERENT_WITH_ADDITIONAL_EDITS — DANGEROUS ai-instructions pin stale (convergent); MISLEADING `rules-of-procedure §1.1.3` enum advertises `rules-of-procedure` value with no active consumer; MISLEADING test_extractor.py fixtures lack intent comment; Cosmetic F-P2-10 section-numbers verified clean.
+     - Validator (`a1d7c3ddfd90df79d`): FAIL — claimed BLOCKER "BACKLOG #105-#108 do not exist" was WRONG (grep-verified all four exist at lines 110/72/54/36). Dismissed. WARNING on plan disposition-label precision accepted as stylistic.
+   - **Convergent HIGH/DANGEROUS issues fixed this PATCH:**
+     - `documents/ai-instructions.md` v2.7 → v2.7.1: `<document_versions>` pins bumped `constitution.md v5.0.3+` → `v5.0.6+` and `rules-of-procedure.md v3.27.2+` → `v3.27.3+`. Changelog entry added.
+     - `API.md` install_agent section: added `domain` param row + documented `applicable_domains` + `domain_warning` output fields + non-Claude path surfacing per v5.0.6 patch.
+     - `documents/rules-of-procedure.md` v3.27.3 → v3.27.4: §1.1.3 enum gets clarifying note that `rules-of-procedure` value is retained as valid but no active document uses it post-F-C-05. Version History entry added.
+     - `tests/test_extractor.py:2610`: `v4_fixture_content` fixture docstring updated to flag `governance_level: "constitution"` as intentional legacy-format test input (not stale reference for cleanup).
+   - **Governance audit:** `gov-9ab4e2bca855` (post-commit PATCH execution eval).
+   - **Tests:** 1340/1340 safe subset still pass. Extractor: 24 constitution principles unchanged.
+   - **Pattern captured:** Cohort 5 post-commit battery continues the established pattern (Cohort 2 v5.0.1, Cohort 3 v5.0.2, Cohort 4 Phase 4a v5.0.4) — "post-commit batteries consistently find surface drift that pre-edit + post-edit batteries miss by design." The #1 drift this time: adopter-facing schema surfaces (API.md) + version pins (ai-instructions `<document_versions>`). Identical to Cohort 3 API.md:355 precedent.
+   - **Resumption:** None blocking. Cohort 5 closed + patched. Next: push + CI verify, or pause.
 
 119. **Session-119: Cohort 5 Session 5-1 shipped (constitution v5.0.5 editorial batch, 5 findings closed)**
    - **Task:** Cohort 5 Session 5-1 — Group A constitutional edits per plan v3 at `~/.claude/plans/create-a-plan-following-cached-canyon.md`.

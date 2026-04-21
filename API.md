@@ -299,13 +299,19 @@ Run with: `python -m ai_governance_mcp.server`
 | `confirmed` | boolean | No | Set to `true` to confirm installation after preview |
 | `show_manual` | boolean | No | Set to `true` to get manual installation instructions instead of automatic install |
 | `project_path` | string | No | Absolute path to the target project directory. Auto-detected from MCP roots if available; falls back to `AI_GOVERNANCE_MCP_PROJECT` env var, then CWD. Use when the MCP server's CWD differs from the target project. |
+| `domain` | string | No | Active governance domain for the target project (e.g., `"ai-coding"`, `"storytelling"`, `"multi-agent"`, `"ui-ux"`, `"kmpd"`, `"multimodal-rag"`). If provided AND the agent's `applicable_domains` frontmatter excludes this domain, a WARN message is included in the response (Phase-1: WARN + allow; installation proceeds regardless). Omit to skip domain-fit checking. Added v5.0.6 per F-C-04. |
 
-**Returns:** Varies by state:
+**Returns:** Varies by state. All Claude Code responses include:
 
-- **Preview** (default, `confirmed` not set): Returns explanation, action summary, install path, integrity hash check, and options to confirm, get manual instructions, or cancel.
-- **Installed** (`confirmed=true`): Returns status `"installed"`, install path, and integrity information.
+- **`applicable_domains`** (array of strings): The domains the agent declares itself for (from agent frontmatter). Values: domain keys from `domains.json` or `["*"]` for domain-agnostic agents. Added v5.0.6 per F-C-04.
+- **`domain_warning`** (string, optional): Present only when caller supplied `domain` AND it doesn't match the agent's `applicable_domains`. Human-readable warning; install proceeds regardless (Phase-1 WARN+allow). Added v5.0.6 per F-C-04.
+
+State-specific returns:
+
+- **Preview** (default, `confirmed` not set): Returns explanation, action summary (with `⚠️  DOMAIN NOTE:` prepended if `domain_warning` is present), install path, integrity hash check, `applicable_domains`, optional `domain_warning`, and options to confirm, get manual instructions, or cancel.
+- **Installed** (`confirmed=true`): Returns status `"installed"`, install path, integrity information, `applicable_domains`, and optional `domain_warning`.
 - **Manual** (`show_manual=true`): Returns step-by-step manual installation instructions with the full template content.
-- **Not applicable** (non-Claude Code environment): Returns guidance for using governance tools directly.
+- **Not applicable** (non-Claude Code environment): Returns guidance for using governance tools directly plus `applicable_domains` and optional `domain_warning` for the referenced agent (v5.0.6 patch — adopters on non-Claude platforms now see domain-fit metadata too).
 
 **Example:**
 
