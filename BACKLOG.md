@@ -33,6 +33,55 @@
 
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
+113. **Plan-stage pre-edit battery effectiveness pattern — "4-of-4 catches suggest first-draft plans are systematically under-rigored"** `D2 Discussion`
+
+**What:** Every pre-edit 3-agent battery run on a first-draft plan (Cohorts 2, 3, 4, 5) caught a major pivot:
+- Cohort 2 v1 → Path B alternative discovered (Risk Mit ↔ Non-Mal Path B vs Path A merge)
+- Cohort 3 v1 → F-P2-13 Path B (Preamble purpose-surface, not claim-surface)
+- Cohort 4 v1 → Phase 4b Q7 FAIL killed the whole phase's central work
+- Cohort 5 v1 → F-P2-02 Preamble location wrong, F-P2-03 Q7 FAIL, "100% milestone" framing dishonest
+
+**Contrarian's reframing (cross-cohort meta-review):** *"4-of-4 pre-edit batteries catching big pivots is not validation of 'run the battery' — it's evidence that **first-draft plans are systematically under-rigored**, and the battery is compensating. The fix is better first-draft plan quality, not more trust that the battery will catch it."*
+
+**Open questions:**
+1. Is there a checklist or rule we could add to the first-draft planning process that would catch the pattern of issues the battery consistently catches? (E.g., "always run Q7 on new labels," "always verify line anchors," "always spec schema edge cases.")
+2. Would splitting the plan-writing agent's scope (e.g., plan + adversarial self-critique before exit) reduce the rate?
+3. Is the 4-of-4 rate actually a problem — maybe plans SHOULD be drafts that get revised, and the battery is the right mechanism?
+4. Steel-man: plans → batteries → revised plans is a deliberate cheap-then-expensive design. Eliminating the first-draft/battery gap may trade "quick iteration with review" for "slow perfect first drafts" — worse overall.
+
+**Possible interventions (for discussion, not yet adopted):**
+- Add a "pre-battery self-checklist" to the plan template with items like: "Did you apply Q7 to any new labels?" "Did you verify all cited line anchors?" "Did you spec edge cases for new schema fields?"
+- Require plan-writing agent to invoke adversarial self-critique before exit (mirror contrarian in the drafting loop).
+- Accept the pattern as deliberate and document the "cheap draft, expensive battery" design choice explicitly.
+
+**Re-open prerequisites:**
+1. Evidence base N≥6 cohorts (we have 4; need 2 more to confirm pattern or see it drop).
+2. OR: an adopter reports a failed plan that the battery didn't catch (which would reframe the question to "batteries are also insufficient").
+
+**Why deferred (not D1 Fix):** Evidence base of 4 is suggestive but not conclusive per §7.8 proportional rigor. Implementing any intervention prematurely could degrade the current working pattern. Worth observation, not yet worth structural change.
+
+**Origin:** Cross-cohort meta-review (session-119, 2026-04-20, contrarian agent `afe0ecba1e867d95d`) arc-level observation. Filed per user follow-up request that all contrarian META findings become actionable BACKLOG items, not just prose in Historical Amendments.
+
+112. **Q7 comprehensive retroactive audit — remaining pre-Q7 US-legal labels** `D2 Discussion`
+
+**What:** Cross-cohort meta-remediation PATCH (v5.0.7) retroactively applied Q7 Semantic-Label Risk to 2 of ~6 pre-Q7 US-legal labels flagged by contrarian (Structural Enforcement, Secondary Authority — both PASS). Selective retroactive application creates new drift: some pre-Q7 labels Q7-checked, others not. A principled retroactive pass would cover all of them.
+
+**Labels still unchecked (not yet run through Q7):**
+1. **"Supremacy Clause"** (`constitution.md` Operative Hierarchy section) — enforcement mechanism = §9.3.1 Truth Source Hierarchy + §9.8.5 bright-line. Expected PASS.
+2. **"Elastic Clause"** (`rules-of-procedure §8.7`) — derived authority for novel situations. Enforcement mechanism = ? (may be Q7 FAIL — is this a specific operationalization, or aspirational prose?)
+3. **"Full Faith and Credit"** (`rules-of-procedure §9.7.6`) — cross-domain output recognition. Enforcement mechanism = retrieval engine crosses domains, but is that what the clause names? Partial/unclear.
+4. **"Jacobson v. Massachusetts pattern"** (cited in `constitution.md:80` Preamble classification) — Preamble as interpretive tiebreaker. Enforcement mechanism = Admission Test tiebreaker rule. Likely PASS.
+5. **"Bill of Rights" (generic label)** — S-Series naming. Partially covered by F-P2-04 Q7 PASS (Cohort 5 Session 5-2), but that PASS was narrowly scoped to S-Series US-Constitutional PROSE framing, not the "Bill of Rights" label itself.
+6. **"Impeachment fast-path"** (`rules-of-procedure §9.6.3`) — MAJOR version bump workflow. Enforcement mechanism = §9.6.3 text itself. Likely PASS.
+
+**Re-open prerequisites:**
+1. Sufficient session capacity for ~30-60 min focused Q7 pass on the 4-6 remaining labels.
+2. OR: a new finding that one of these labels had operational mismatch harm.
+
+**Why deferred (not D1 Fix):** Proportional rigor — contrarian flagged the pattern (selective retroactive) not specific labels beyond the two I addressed. Expected outcome is 4-5 PASSes + possibly 1 FAIL (Elastic Clause looks most at risk). Not urgent but worth completing so the framework can say "Q7 applied to all pre-Q7 US-legal labels" honestly rather than "applied to the 2 flagged by contrarian."
+
+**Origin:** User follow-up to cross-cohort meta-review (session-119, 2026-04-20): "Review your findings again and see if there are any other gaps." Systemic-thinking observation: if Q7 retroactive is a principle, it should be applied comprehensively, not selectively. Filed for eventual completion.
+
 111. **Post-edit review scope expansion — eliminate the "post-commit always finds something" pattern** `D2 Improvement`
 
 **What:** Every single cohort (2, 3, 4-Phase-4a, 5) produced a post-commit PATCH because the post-commit 3-agent battery consistently found drift the post-edit battery missed. 100% rate across 4 cohorts. The contrarian's cross-cohort meta-review reframed this: it's not "post-commit pattern works well" — it's "post-edit scope is structurally gapped." Same class of drift every time: adopter-facing surface propagation (API.md schemas, ai-instructions `<document_versions>` pins, parallel tables in title-* CFRs, user-facing prose in README/CLAUDE.md).
@@ -89,6 +138,8 @@
 - **BACKLOG #108** — F-C-04 Phase-2 `strict_domain_check` block-mode (prerequisites: observed adopter harm OR CI surface wants enforcement).
 - **BACKLOG #110** — F-P2-01 + R-01 priority-inversion retrospective (prerequisites: R-01 ships OR declared unmeasurable + retrospective on 28 closed findings).
 - **BACKLOG #111** — Post-edit review scope expansion (prerequisites: 2+ more cohorts of evidence OR adopter report of post-commit drift harm).
+- **BACKLOG #112** — Q7 comprehensive retroactive audit for remaining pre-Q7 US-legal labels (prerequisites: session capacity OR new finding of operational mismatch).
+- **BACKLOG #113** — Plan-stage battery effectiveness pattern (prerequisites: N≥6 cohorts of evidence OR adopter-reported plan failure).
 - **F-P2-03 accepted residual** — FM-code retrofit (Cohort 5, prerequisites: consumer + parser implementation).
 
 **Cadence:** every ~30 calendar days, OR whenever a session's work plausibly satisfies a trigger (e.g., reference-library consumer being built triggers #41/#43/#44/#46 re-read).
