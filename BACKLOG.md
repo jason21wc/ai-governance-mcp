@@ -232,22 +232,6 @@
 
 **Origin:** session-112 (2026-04-17) investigation + session-113 (2026-04-18) revised diagnosis + patch revert. Primary record: `staging/happy-requesttimeout-2026-04-17.md`.
 
-105. **title-30-storytelling-cfr.md duplicate changelog sections — reconcile `## Version History` vs `## Changelog`** `D1 Fix`
-
-**What:** `documents/title-30-storytelling-cfr.md` has both `## Version History` (line 1028) and `## Changelog` (line 1982). Framework convention is one version-history section per document (naming varies: `Historical Amendments` / `Version History` / `Changelog` / `Appendix C: Version History` — per `rules-of-procedure §2.1.1` Notes). Duplicate sections create ambiguity about which is canonical.
-
-**Recommendation:** **Keep `## Version History` (line 1028); fold any unique content from `## Changelog` (line 1982) into it; delete the duplicate.** Rationale: the CFR family (title-10/20/25) is the correct sibling set for convention consistency — CFRs are operational-procedure documents and should share naming across the family. Aligning title-30-cfr with its CFR siblings trumps aligning with its own principles file (a different document type with its own convention drift that can be addressed separately if needed).
-
-**Options considered:**
-- **Keep `## Version History` (line 1028)** ← **recommended** — matches title-10/20/25 CFR family; fold unique content from `## Changelog` in; delete `## Changelog`.
-- Keep `## Changelog` (line 1982) — matches title-30 principles file; rejected: trades CFR-family alignment for intra-domain alignment, breaking the stronger CFR-sibling pattern.
-
-**Scope:** 1 file, ~1 hour (read both sections; fold delta into canonical; delete duplicate; PATCH bump title-30-cfr v1.1.2 → v1.1.3 if not already bumped by Phase 4b).
-
-**Origin:** Cohort 4 Phase 4a coherence-audit (2026-04-19, agent `a7ed2fe1124998854`) flagged this during the F-P1-06 changelog-convention verification pass. Deferred from Phase 4a as an explicit editorial decision rather than silent fix.
-
----
-
 104. **Cohort 1 remnant — runtime prose softening at `src/ai_governance_mcp/server.py:888-889`** `D1 Docs` — DONE / SHIPPED
 
 **Status (2026-04-19, session-114): SHIPPED.** Applied replacement text per plan; smoke-check (`python -c "from ai_governance_mcp.server import AVAILABLE_AGENTS"`) confirms server imports cleanly with 10 agents registered. No test references to the old prose (grep confirmed clean outside BACKLOG + SESSION-STATE historical references). Cohort 1 of swift-hopping-corbato plan now fully closed: Edits 1-2 = no edit (purpose surfaces), Edits 3-5 shipped via full README rewrite, Edit 6 shipped here, Edits 7-8 obsolete.

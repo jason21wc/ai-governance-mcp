@@ -12,6 +12,43 @@
 
 ## Active Lessons
 
+### Heading-Based Audits Must Exclude Fenced Code Blocks (2026-04-20)
+
+BACKLOG #105 was filed by a Cohort 4 Phase 4a coherence-audit (agent `a7ed2fe1124998854`) claiming `documents/title-30-storytelling-cfr.md` had duplicate version-history sections: `## Version History` at line 1028 + `## Changelog` at line 1982. Planning investigation found line 1028 is *inside* a ` ```markdown ` fenced code block opened at line 1025 and closed at line 1067 — an instructional template showing storytelling users what their own `REVISION-LOG.md` should look like. It renders as literal code text, not an H2 heading. The only real version-history section is `## Changelog` at line 1982. No duplicate existed. BACKLOG #105 closed as grep false positive; no file edits to title-30 CFR. Pre-edit 3-agent battery (contrarian `a678ce147ad6419ec` ACCEPT, coherence `aebedd54bb439db7d` COHERENT_WITH_ADDITIONAL_EDITS, validator `a18405166291ce50d` PASS_WITH_NOTES) convergent on the false-positive call.
+
+**Rule:** Grep patterns like `^## Heading` will match inside ` ```markdown ` fenced blocks and produce false positives against documents that use fenced code as instructional template examples (CFRs with §12-style template sections, storytelling REVISION-LOG examples, etc.). Rendered markdown treats fenced content as literal text; source-layer grep conflates rendering and source.
+
+**How to apply:** Heading-level audits should (a) strip fenced blocks before grepping, (b) use a multi-line-aware markdown parser, OR (c) add manual fence-context verification before filing findings. Coherence-auditor and validator agent prompts should be amended to include a fence-check step for future audits. When a grep-based finding references a heading, planning gate must read ±10 lines around the hit to detect code-fence context before approving remediation.
+
+**Principle:** `meta-core-systemic-thinking` — fix the audit methodology (grep-over-source-layer), not the symptom (delete the "duplicate"). Also `meta-governance-continuous-learning-adaptation` (Art. IV §2) — capturing the methodology lesson so the same grep-fence pattern doesn't recur across future heading-level audits.
+
+---
+
+### Re-severity Review Findings Against Ground Truth Before Remediation Planning (2026-04-20) — GRADUATED from candidate (3 clean instances)
+
+Review findings with "load-bearing" programmatic-consumer framing often collapse when Ground Truth is checked. Autoregressive forward-continuation bias makes it cheap to escalate findings during review and expensive to de-escalate them during remediation. Ground-Truth check at the planning gate is the cheapest intervention point.
+
+**Three clean instances now on record:**
+
+1. **Session-117 Cohort 4 Phase 4a F-P1-04 scope collapse.** Review's "200+ new fields needed" → Ground Truth: field already exists; only partial backfill (49/455 = 11%) with no consumer. Phase 4a reframed; Phase 4b deferred.
+2. **Session-118 Cohort 4 Phase 4b F-P1-04 Q7 FAIL.** Planned 406-method `Implements:` backfill. Ground Truth: extractor (`src/ai_governance_mcp/extractor.py:1686-1699`) parses `Applies To` only — zero `Implements:` references in tests or code. F-P1-04 HIGH severity sized on presumed consumer that doesn't exist; collapses to MEDIUM-at-most. Deferred at BACKLOG #106 with Q7 remediation + consumer as hard prereqs.
+3. **Session-119/120 BACKLOG #105.** Claimed duplicate version-history sections in title-30 CFR. Ground Truth: one of the "duplicates" is inside a ` ```markdown ` fenced code block (instructional template); not a real H2. Closed as grep false positive with no edits.
+
+**Rule:** Before approving any plan to remediate a review finding, perform at least one of:
+- (a) Grep the codebase for the presumed consumer (extractor regex, test references, query surface, CI hook).
+- (b) Read the specific lines the finding references with full surrounding context (±10 lines minimum), not just grep snippets.
+- (c) Verify the field/section/signal is actually parsed or enforced by code or agent behavior.
+
+If Ground Truth contradicts the finding's framing, re-severity or close the finding *before* planning. Do not let severity rhetoric in the review text override the absence of operational evidence.
+
+**How to apply:** At planning-stage-gate for any review-derived remediation, add a "Ground Truth verification" step that explicitly names the presumed consumer and checks it exists. Make this step blocking: no plan exits drafting without it.
+
+**Principle:** `meta-core-systemic-thinking` — address presumed-consumer assumptions structurally, not after the remediation has consumed effort. Also `meta-safety-transparent-limitations` — re-severity based on evidence rather than carrying review framing forward unchecked. Also `meta-quality-verification-validation` — "finding severity claim" is not "operational evidence."
+
+**Graduation trigger met:** 3 clean instances in 3 sessions. Pattern is canonical. Propose integration into `workflows/COMPLETION-CHECKLIST.md` review-triage step (deferred — not this plan's scope).
+
+---
+
 ### Review Protocol — Don't Count Principles Per Preamble Purpose (2026-04-19)
 
 F-P2-13 in the 2026-04-18 self-review flagged "Relations purpose thinly operationalized — only 2 principles" as a Medium-severity finding. Cohort 3 planning rejected the framing: the review applied operative-claim logic (counting principles per purpose) to the Preamble, which is a class (b) interpretive-tiebreaker surface per LEARNING-LOG 2026-04-18 "Declaration and Preamble Are Purpose Surfaces." This is the same category error that produced F-P2-01 in Cohort 1 (evidence-checking an aspirational Declaration claim) — just at a different surface.
