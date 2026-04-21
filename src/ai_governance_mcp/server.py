@@ -1025,14 +1025,14 @@ AVAILABLE_AGENTS = {
 # cryptographic signing roadmap.
 AGENT_TEMPLATE_HASHES = {
     "code-reviewer": "0a480a1ca6f02a835c813bdb83d307b1f36578f3b4d87e630151ffedbc7806c0",
-    "coherence-auditor": "a8a29d5bb8ce3a1cc77c0d01ccf22c7b96bd8a6ee76f32820fc2413124683010",
+    "coherence-auditor": "82be506f1a958bf207bc1494f9b2d9981919df6bf4a085770181e83e5aa7d332",
     "continuity-auditor": "ecfb29ca75474fef63ca9a92779b5557fbade3f2b5e7d2712be8255047ce6a4d",
     "contrarian-reviewer": "147fd975e3effc643a848c38c123c2a1a817eea9befb36e8be369885c496e342",
     "documentation-writer": "c1f1e0d5617d10c6b61cb3fb8e7e436a9ffe18c06f629c2d1201f3da3d998ad0",
     "orchestrator": "4999542cd1c063a9486f33845eb0b433a3efeebeb7163ac8f4fb30af83d02b60",
     "security-auditor": "5c2217d0a3041ad8afee3b46ae8c66e9e375ebbb9059b7637421037609d0ad27",
     "test-generator": "fe8f991d382c627d25a20ff88ab15d485fe34075a9524fa1bac6654ba52c891e",
-    "validator": "e80fe2f68000cd28d3bc399f5fceca2f671813a02a483e7a3de9a1f801ca423b",
+    "validator": "4015ea6c86e5ed29db56f9bc5cefcf48bf2b92e65438156640644e7ebb016a03",
     "voice-coach": "3b634f624453c570783c90ea942432ac8557e355002a2797ebee831ba7b2a13a",
 }
 
