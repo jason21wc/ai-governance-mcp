@@ -33,6 +33,34 @@
 
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
+109. **Deferred-with-trigger cadence audit — re-read every ~30 days** `D1 Maintenance` (recurring — never "done")
+
+**What:** Several review findings across Cohorts 4-5 were deferred with "re-open when consumer emerges" triggers but no owner or cadence to check whether conditions are met. Without a watch-list, principled deferrals quietly calcify into silent abandonment. This item establishes a recurring cadence to audit the deferred items — mirrors BACKLOG #78's Governance Compliance Review pattern.
+
+**Deferred items tracked (as of 2026-04-20):**
+- **BACKLOG #41 / #43 / #44 / #46** — Reference library auto-staging, progressive disclosure, auto-maturity, stack metadata (tracked as F-P1-07 deferral from Cohort 5).
+- **BACKLOG #58 / #59 / #60** — UBDA adopter-drift review items (tracked as F-P2-07 deferral from Cohort 5).
+- **BACKLOG #106** — Cohort 4 Phase 4b `Implements:` backfill (F-P1-04, prerequisites: consumer + Q7 remediation).
+- **BACKLOG #107** — F-C-06 Tool/Model Appendix index (prerequisites: adopter-discoverability consumer OR appendix count >15).
+- **BACKLOG #108** — F-C-04 Phase-2 `strict_domain_check` block-mode (prerequisites: observed adopter harm OR CI surface wants enforcement).
+- **F-P2-03 accepted residual** — FM-code retrofit (Cohort 5, prerequisites: consumer + parser implementation).
+
+**Cadence:** every ~30 calendar days, OR whenever a session's work plausibly satisfies a trigger (e.g., reference-library consumer being built triggers #41/#43/#44/#46 re-read).
+
+**Audit procedure:**
+1. For each item, re-read the trigger prerequisites literally.
+2. Answer "still deferred?" in ≤1 sentence per item.
+3. If ANY trigger met: promote from `D3 Deferred` to `D2 New Capability` (or `D1 Fix` if urgent) and assign actual work.
+4. If no triggers met: record audit date inline ("Reviewed 2026-MM-DD — still deferred, no triggers fired.").
+5. Update this entry's inline audit log with results.
+
+**Why D1 Maintenance (recurring):** Same rationale as BACKLOG #78 — the item is "never done" because the cadence IS the value. Each audit costs ≤15 min but prevents ~10-hour rework cycles when a trigger was missed for months.
+
+**Origin:** Cross-cohort meta-review (session-119, 2026-04-20) contrarian finding (`afe0ecba1e867d95d`): "Re-open triggers on F-P1-04, F-P1-07, F-P2-07 are passive and will never fire on their own. 12 months from now, three deferrals quietly calcify into 'this is how it is.'" Absorbed as v5.0.7 Historical Amendment + this recurring audit.
+
+**Inline audit log:**
+- *2026-04-20 (initial filing, session-119):* All items listed above are in active deferral state. No triggers fired. Next audit due ~2026-05-20.
+
 108. **F-C-04 Phase-2 — install_agent `strict_domain_check` block-mode escalation** `D3 Deferred`
 
 **What:** Cohort 5 Session 5-2 shipped `install_agent` with Phase-1 WARN+allow domain-fit semantics (`applicable_domains` frontmatter + optional `domain` param on install_agent → warning if mismatch). The `_parse_applicable_domains` + `_check_domain_fit` helpers in `src/ai_governance_mcp/server.py` have a named escalation trigger `strict_domain_check` that is NOT currently wired to any input. This item tracks the Phase-2 escalation.

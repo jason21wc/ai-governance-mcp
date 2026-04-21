@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-20 (session 119 — **Cohort 5 CLOSED + post-commit PATCH shipped**: ai-instructions v2.7.1 + rules-of-procedure v3.27.4 + API.md sync)
+**Last Updated:** 2026-04-20 (session 119 — **Cross-cohort meta-review complete + meta-remediation PATCH**: constitution v5.0.7 + ai-instructions v2.7.2 + BACKLOG #109)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v5.0.6** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.4** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7.1** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v5.0.7** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.4** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7.2** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1340 passing** safe subset (`pytest tests/ -v -m "not slow"`); embedding-mock tests no longer intercepted by daemon (autouse conftest fixture forces local path). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -74,7 +74,28 @@
    - **Pattern captured:** Cohort 5 post-commit battery continues the established pattern (Cohort 2 v5.0.1, Cohort 3 v5.0.2, Cohort 4 Phase 4a v5.0.4) — "post-commit batteries consistently find surface drift that pre-edit + post-edit batteries miss by design." The #1 drift this time: adopter-facing schema surfaces (API.md) + version pins (ai-instructions `<document_versions>`). Identical to Cohort 3 API.md:355 precedent.
    - **Resumption:** None blocking. Cohort 5 closed + patched. Next: push + CI verify, or pause.
 
-119. **Session-119: Cohort 5 Session 5-1 shipped (constitution v5.0.5 editorial batch, 5 findings closed)**
+119-meta. **Session-119 (meta-review): Cross-cohort consistency review + meta-remediation PATCH**
+   - **Task:** 3-agent meta-review across all 5 cohorts (sessions 114-119) for systemic-thinking discipline and cross-cohort drift. Different scope from per-cohort post-commits: looks at arc-level decisions + consistency between cohorts.
+   - **Battery findings:**
+     - Contrarian (`afe0ecba1e867d95d`): ACCEPT_WITH_META_CONCERNS — 5 arc-level concerns: (1) F-P2-01 Critical closed by claim-softening, not R-01 measurement; (2) passive re-open triggers on 3 deferrals lack cadence audit; (3) Q7 never retroactively applied to pre-Q7 Cohort-2 labels; (4) 100% post-commit PATCH rate suggests post-edit scope is structurally gapped; (5) 28/31 closure count conflates structural vs editorial closures.
+     - Coherence (`a593b82d189eb502d`): COHERENT_WITH_ADDITIONAL_EDITS — 1 Misleading: ai-instructions pin for RoP still v3.27.3+ but just-shipped PATCH bumped to v3.27.4.
+     - Validator (`a5893686d3520523e`): PASS_WITH_EVIDENCE_GAPS — 1 BLOCKER: constitution.md:1126 v5.0.4 entry cites literal `gov-[post-patch-eval]` placeholder, never backfilled. Violates §2.1.1 audit_id rule that same Cohort 4 Phase 4a authored (dogfood failure).
+   - **Meta-remediation PATCH shipped (addresses 5 of the convergent findings):**
+     - **BLOCKER fix**: v5.0.4 placeholder → honest note explaining it was never backfilled, gov-ID unrecoverable from logs; correction documented at new v5.0.7 Historical Amendment entry.
+     - **HIGH fix**: ai-instructions.md v2.7.1 → v2.7.2 with pin bump (constitution v5.0.6+ → v5.0.7+, RoP v3.27.3+ → v3.27.4+).
+     - **HIGH fix**: Q7 retroactive application to "Structural Enforcement" (PASS — mechanisms exist) + "Secondary Authority" (PASS — hierarchy + §9.3.1 enforcement). Records added to Framework Structure Structural Enforcement section + v5.0.7 Historical Amendment.
+     - **MEDIUM fix**: BACKLOG #109 filed as recurring D1 Maintenance item (~30-day cadence audit of all deferred-with-trigger items: #41/#43/#44/#46, #58/#59/#60, #106, #107, #108, F-P2-03 residual). Mirrors BACKLOG #78 Governance Compliance Review pattern.
+     - **MEDIUM fix**: Closure Typology Breakdown added to review tracker §III header — 12 structural / 14 editorial / 1 residual / 3 deferred-with-trigger / 1 N/A. Honest framing per contrarian's "28/31 conflates types" concern.
+   - **Not addressed this PATCH (scope-too-large or tracked elsewhere):**
+     - F-P2-01 + R-01 priority inversion: BACKLOG #22 already tracks R-01 Outcome Benchmark; worth product-level retrospective, not constitution PATCH.
+     - Post-commit pattern structural gap: requires updating coherence-auditor agent scope + COMPLETION-CHECKLIST post-edit phase; Cohort 6 candidate.
+   - **Constitution v5.0.6 → v5.0.7** (PATCH per §9.8.5 — editorial clarifications + retroactive Q7 records + placeholder correction). **ai-instructions v2.7.1 → v2.7.2** (pin sync). Rules-of-procedure unchanged (v3.27.4).
+   - **Governance trail:** `gov-9ab4e2bca855` (carry-forward from Cohort 5 post-commit eval; meta-remediation is same review window).
+   - **Tests:** 1340/1340 safe subset pass. Extractor: 24 constitution principles unchanged.
+   - **Pattern captured for future:** Cross-cohort meta-review is a distinct activity from per-cohort post-commit. Per-cohort post-commits catch *within-cohort* drift (API.md staleness, version pin lag). Cross-cohort meta-review catches *arc-level* drift (placeholder audit_ids shipped across cohorts, Q7 not retroactively applied, closure-type conflation, passive-trigger calcification risk). Each should run at its own cadence — per-cohort post-commit is recurring (every cohort), cross-cohort meta-review is one-shot (at arc completion, e.g., "31-finding self-review closure").
+   - **Resumption:** None blocking. Framework self-review loop truly complete — arc-level remediation shipped. Next: push + CI verify, or pause.
+
+119-post-commit. **Session-119 (post-commit PATCH): Cohort 5 post-commit double-check applied**
    - **Task:** Cohort 5 Session 5-1 — Group A constitutional edits per plan v3 at `~/.claude/plans/create-a-plan-following-cached-canyon.md`.
    - **Plan refinement:** v1 → v2 (absorbed 3-agent battery) → v3 (absorbed verification battery). Milestone framing changed from "100% remediated" to "31 findings triaged + actioned-or-documented-with-rationale" per battery convergence.
    - **Five findings closed this session:**

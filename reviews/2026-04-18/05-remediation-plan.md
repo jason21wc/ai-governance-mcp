@@ -226,6 +226,23 @@
 
 **Cohort 5 milestone (2026-04-20):** 31 actionable findings triaged + actioned-or-documented-with-rationale. The matrix below has **32 rows** because F-P1-09 is listed for completeness as a synthesis/definitional row (not a fix-required finding; marked N/A). Final status column reflects post-Cohort-5 disposition.
 
+### Closure Typology Breakdown (added v5.0.7 per cross-cohort meta-review)
+
+The "28 closed" headline conflates structurally-different closure types. Honest breakdown:
+
+| Closure Type | Count | Description | Examples |
+|---|---|---|---|
+| **Structural change** | ~12 | Principle added/removed/renamed, schema change, code change, test added | F-P1-05 (Case Law rename), F-P2-09 (Risk Mit/Non-Mal dedup), F-P1-08 (scaffold expand), F-P2-15 (Article reorder), F-C-03 (parity test), F-C-04 (applicable_domains schema), F-C-05 (governance_level removal), F-C-01 (Q7 added) |
+| **Editorial (cross-reference / disposition record)** | ~14 | Prose clarification, cross-reference addition, Q7 PASS record documenting existing behavior, no schema/behavior change | F-P2-10/-12 (boundary cross-refs), F-P2-11 (Q2 KEEP rationale), F-P2-16 (trailing-clause rewrite), F-P2-02 (consent clause), F-P2-04 (Q7 PASS), F-P2-08 (harness rationale), F-P1-03 (architectural note), F-P2-14/-17 (amendment-record backfill), F-P1-06 (changelog formalization), F-P2-06 (audit_id rule), F-P2-13 (Preamble purpose-surface LEARNING-LOG), F-P1-02 (Structural Enforcement subsection), F-P2-05 (terminology sweep) |
+| **Accepted residual** | 1 | Finding acknowledged but not operationally closed; re-open trigger documented | F-P2-03 (FM-code retrofit, Q7 FAIL) |
+| **Deferred with trigger** | 3 | Finding scoped to future work with concrete re-open prerequisites | F-P1-04 (BACKLOG #106), F-P1-07 (BACKLOG #41/#43/#44/#46), F-P2-07 (BACKLOG #58/#59/#60) |
+| **N/A (synthesis row)** | 1 | Not a fix-required finding | F-P1-09 |
+| **Plus: 2 additional deferrals filed during Cohort 5** | — | F-C-06 → BACKLOG #107; F-C-04 Phase-2 → BACKLOG #108 | — |
+
+**Per contrarian meta-review (agent `afe0ecba1e867d95d`):** Editorial closures are real but different in kind from structural ones. Depth-reading 14 editorial closures shows the framework got more *legible* (clearer documentation, better cross-references, honest Q7 records) without necessarily getting more *capable*. Structural closures (12) are where capability changed. The distinction matters for assessing whether the review's "100% remediated"-style framings are earned.
+
+**Recurring audit:** BACKLOG #109 tracks deferred-with-trigger items on a ~30-day cadence to prevent passive-trigger calcification.
+
 | Finding | Remediation item(s) | Status | Final disposition |
 |---|---|---|---|
 | F-P1-01 | R-04 | Low-effort; recommended first-batch | **CLOSED** — Cohort 2 (Case Law → Secondary Authority rename) |

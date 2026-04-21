@@ -1,5 +1,5 @@
 ---
-version: "5.0.6"
+version: "5.0.7"
 status: "active"
 effective_date: "2026-04-20"
 domain: "constitution"
@@ -8,7 +8,7 @@ governance_level: "constitution"
 
 # Principles Framework for AI Interaction
 
-**Version:** 5.0.6
+**Version:** 5.0.7
 **Status:** Active
 **Effective Date:** 2026-04-20
 **Governance Level:** Constitution (Meta-Principles)
@@ -131,6 +131,11 @@ The Operative Hierarchy above names the normative layers — *what binds*. Struc
 **Why enforcement is not a hierarchy row:** normative layers answer "what is the rule?" — enforcement mechanisms answer "how is the rule made sticky?" They are different questions. A hierarchy that conflates them hides the answer to either. The US Constitutional analog preserves this distinction: the Judicial Branch interprets, the Executive Branch enforces, but neither is a *source* of law — they are mechanisms *applied to* the sources. This framework follows the same pattern: principles and methods are the sources; hooks, CI, and subagents are the mechanisms.
 
 Per LEARNING-LOG 2026-02-28 "Hard-Mode Hooks Prove Deterministic Enforcement Works," structural enforcement achieves near-100% compliance on the mechanism-action pair it covers; advisory enforcement achieves ~85%. Where compliance matters (governance consultation, file-modifying actions), the framework uses structural mechanisms. Where advisory is sufficient (subagent suggestions, completion-checklist items), the framework uses advisory mechanisms.
+
+> **Q7 Semantic-Label Risk — "Structural Enforcement" + "Secondary Authority" framing disposition (recorded v5.0.7, retroactive per F-meta-01):** Both labels were introduced in Cohort 2 (v5.0.0) before Q7 existed (Cohort 3, v3.27.0); retroactively applied now.
+>
+> - **"Structural Enforcement":** (a) Outside pattern = US Constitutional structural interpretation (separation of powers, checks and balances). (b) Enforcement mechanism = 5 hooks (`.claude/hooks/`) + CI workflows + subagents + scaffold + pre-push gates, classified by binding strength in the table above. (c) Disposition = **PASS**. Label names what the mechanisms operationally do — block or gate regardless of voluntary agent compliance.
+> - **"Secondary Authority":** (a) Outside pattern = US secondary authority (law review articles, treatises, Restatements — persuasive but non-binding). (b) Enforcement mechanism = Operative Hierarchy row 7 "Informative (non-overriding)" + `rules-of-procedure §9.3.1` Truth Source Hierarchy ranks it below all operative layers + conflict-resolution rule formalizes non-override. (c) Disposition = **PASS**. Semantics match: persuasive but non-binding.
 
 This constitution was consolidated from an earlier 47-principle framework to eliminate redundancy and sharpen boundaries. It is a living document — evolved cautiously using the framework's own governance processes.
 
@@ -1085,6 +1090,40 @@ A "confident wrong answer" is the most dangerous output an AI can provide. If ag
 
 **Usage Instruction for AI:** This section is a historical record ("Legislative History"). **It does not carry the force of law.** If any statement in this history log contradicts the active text of the Principles above, **ignore the history and follow the active text.**
 
+#### **v5.0.7 (April 2026) - Cross-cohort meta-review remediation**
+
+*   **Clarification + retroactive-audit patch** per `rules-of-procedure.md §9.6.1` / §9.8.5 bright-line (editorial; no behavioral change). Closes findings from the cross-cohort 3-agent meta-review run post-Cohort-5 that pressure-tested the entire 5-cohort arc (sessions 114-119) for systemic-thinking discipline and proportional-rigor application.
+
+**Findings closed this entry:**
+
+*   **Meta-validator BLOCKER — v5.0.4 placeholder audit_id.** v5.0.4 Historical Amendment shipped with literal `gov-[post-patch-eval]` placeholder that was never backfilled — violated the §2.1.1 audit_id citation rule that Cohort 4 Phase 4a itself authored at v3.27.2. Original gov- ID is unrecoverable from available logs. **Disposition:** added honest note to v5.0.4 entry explaining the placeholder, the defect, and this v5.0.7 correction. No fabrication of replacement ID.
+
+*   **Meta-contrarian HIGH — Q7 retroactive application to pre-Q7 labels.** Q7 (Semantic-Label Risk, `rules-of-procedure §9.8.1`) was added in v3.27.0 (Cohort 3). Cohort 2 introduced two metaphor-laden labels that predate Q7 and were never run through it: "Structural Enforcement" (v5.0.0) and "Secondary Authority" (v5.0.0 rename from Case Law). Applying Q7 reflexively now:
+
+    **"Secondary Authority" (v5.0.0 Case Law → Secondary Authority rename):**
+    - **(a) Outside pattern referenced:** US legal secondary authority (law review articles, treatises, Restatements) — persuasive but non-binding.
+    - **(b) Enforcement mechanism:** Framework has explicit enforcement. `constitution.md` Operative Hierarchy table row 7 labels authority "Informative (non-overriding)" — the "non-overriding" parenthetical is operative. `rules-of-procedure §9.3.1` Truth Source Hierarchy defines conflict-resolution: Secondary Authority ranks below all operative layers and cannot override them. `meta-method-truth-source-hierarchy` documents the binding relationship.
+    - **(c) Disposition:** **PASS.** The label's binding semantics match the outside pattern: persuasive but non-overriding. Enforcement mechanism (hierarchy row + conflict-resolution rule) operationalizes the semantics correctly.
+
+    **"Structural Enforcement" (v5.0.0 new subsection):**
+    - **(a) Outside pattern referenced:** US Constitutional "structural interpretation" (separation of powers, checks and balances) — mechanisms that bind without being explicit rules themselves.
+    - **(b) Enforcement mechanism:** Framework has concrete structural enforcement — 5 PreToolUse + PostToolUse hooks (`.claude/hooks/`) that block non-compliant actions; CI workflows (`ci.yml`, `codeql.yml`); subagents with advisory invocation; `scaffold_project` for adopter setup; pre-push quality gates. Each mechanism classified by binding strength in the constitution.md Structural Enforcement table.
+    - **(c) Disposition:** **PASS.** The label names what the mechanisms operationally do. Hook-based blocking, CI-level gating, and scaffold-level template enforcement all bind behavior structurally (i.e., without requiring the agent to read and comply voluntarily — the mechanism enforces regardless). Matches the outside pattern's "structural" meaning precisely.
+
+    Record added to Framework Structure Structural Enforcement section so future readers see the Q7 disposition without re-litigating.
+
+*   **Meta-contrarian MEDIUM — passive re-open triggers on deferred findings.** Cohort 4 Phase 4b (F-P1-04, BACKLOG #106) + Cohort 5 F-P1-07 (BACKLOG #41/43/44/46) + F-P2-07 (BACKLOG #58/59/60) + F-C-06 (BACKLOG #107) + F-C-04 Phase-2 (BACKLOG #108) all have "re-open when consumer emerges" triggers with no owner/cadence. Without a watch-list, principled deferrals calcify into silent abandonment. **Disposition:** filed BACKLOG #109 as recurring `D1 Maintenance` audit item (mirrors BACKLOG #78 Governance Compliance Review cadence model). Cadence: re-read every deferred item's trigger prerequisites every ~30 days, answer "still deferred?" in one line.
+
+*   **Meta-contrarian MEDIUM — closure typology.** "28/31 closed" headline conflates structural closures (principle changes, schema changes, test additions) with editorial closures (cross-reference prose, disposition records). **Disposition:** added Closure Typology Breakdown section to review tracker §III header so readers see the decomposition.
+
+**Not addressed this PATCH (tracked separately):**
+- **F-P2-01 + R-01 priority inversion** (contrarian META finding — arc did editorial work before shipping outcome benchmark): scope too large for PATCH; BACKLOG #22 already tracks R-01 Outcome Benchmark harness. Worth a product-level retrospective, not a constitution PATCH.
+- **Post-commit pattern as structural gap** (contrarian META finding — 100% post-commit PATCH rate suggests post-edit scope is systematically gapped): requires updating coherence-auditor agent's scope + COMPLETION-CHECKLIST post-edit phase. BACKLOG candidate for Cohort 6 or standalone post-mortem work, not a v5.0.7 PATCH.
+
+**Pre-edit battery** (this meta-review itself): contrarian `afe0ecba1e867d95d`, coherence `a593b82d189eb502d`, validator `a5893686d3520523e`. All three returned results consistent with this PATCH's scope.
+
+**Governance trail:** `gov-9ab4e2bca855` (Cohort 5 post-commit PATCH execution eval, carry-forward since this PATCH is the meta-remediation of the same cross-cohort review window).
+
 #### **v5.0.6 (April 2026) - Cohort 5 Session 5-2: Framework Structure additions + Q7 record + harness rationale**
 
 *   **Editorial additions + clarifications patch** per `rules-of-procedure §9.6.1`. **PATCH classification per §9.8.5 bright-line:** all changes document existing behavior or add navigational cross-references; no principle/method/amendment added, removed, or operatively changed. Editorial per §9.8.5 (changes to *how the framework describes its own scope* without changing behavioral requirements).
@@ -1123,7 +1162,7 @@ A "confident wrong answer" is the most dangerous output an AI can provide. If ag
 *   **Clarification patch** per `rules-of-procedure.md §9.6.1` (cross-reference fix, no operative change).
 *   **Change:** v2.8.0 "Phase 2: Domain Demotions" bullet — line reading "MA-Series: Now empty (0 principles). Section header retained for Phase 4 dissolution." was accurate as-of v2.8.0 but read as present-tense to a modern reader, creating implicit conflict with the v5.0.3 retroactive dissolution entry (the v2.8.0 bullet said "retained for Phase 4 dissolution" while v5.0.3 documented that dissolution actually happened at v3.0.0). Appended bracketed cross-reference pointer: *"[Resolved at v5.0.3 per F-P2-17: dissolution completed retroactively; see v5.0.3 Historical Amendment entry…]"*. The original v2.8.0 language is preserved (historical record immutability); the pointer removes the implicit contradiction.
 *   **Post-commit double-check trail:** Cohort 4 Phase 4a shipped as commit `64b458a`. Three-agent post-commit battery (contrarian + coherence + validator) flagged the v2.8.0 orphan future-tense bullet as a high-confidence cross-reference gap requiring PATCH closure. Pattern matches Cohort 2 v5.0.1 + Cohort 3 v5.0.2 precedent: post-commit batteries consistently find surface drift that pre-edit + post-edit batteries miss by design.
-*   **Governance trail:** `gov-[post-patch-eval]` (Phase 4a post-commit PATCH execution). Prior trail: v5.0.3 entry's `gov-9a509771c252` (Phase 4a execution eval).
+*   **Governance trail:** Phase 4a post-commit PATCH execution audit_id was authored as placeholder `gov-[post-patch-eval]` and never backfilled at ship time — a compliance defect caught by cross-cohort meta-review (session-119, 2026-04-20, validator agent `a5893686d3520523e`). The placeholder violates the §2.1.1 audit_id citation rule that Cohort 4 Phase 4a itself authored at v3.27.2. The actual gov- ID is unrecoverable from available session logs; noted here for honesty rather than fabricating a replacement. Correction documented at v5.0.7 Historical Amendment entry. Prior trail: v5.0.3 entry's `gov-9a509771c252` (Phase 4a execution eval).
 
 #### **v5.0.3 (April 2026) - Amendment Record Gap Corrections (Cohort 4 Phase 4a, F-P2-14 + F-P2-17)**
 
