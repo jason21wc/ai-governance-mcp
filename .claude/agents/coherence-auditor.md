@@ -125,6 +125,8 @@ For each document in scope, apply all 5 generic checks from Part 4.3.3:
 
 The highest-value coherence check — issues only visible when comparing documents:
 
+**Fenced-code exclusion for heading/section greps:** A grep hit on `^## …` can fall inside a ` ``` ` fenced block and render as literal text, not a heading. Before filing a heading-based finding, scan backward from the hit to the nearest unmatched fence delimiter; if an opener precedes without a closer, reclassify as non-finding. (Precedent: LEARNING-LOG 2026-04-20.)
+
 **SSOT violation detection:** Find the same fact stated differently in two places. Distinguish between:
 - **References** (pointing to the canonical source) — acceptable
 - **Restatements** (duplicating the fact) — violation-prone, flag if values differ

@@ -33,6 +33,22 @@
 
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
+114. **Integrate re-severity Ground-Truth rule into `workflows/COMPLETION-CHECKLIST.md` review-triage step** `D1 Docs`
+
+**What:** LEARNING-LOG 2026-04-20 Entry B graduated from candidate to canonical at 3 clean instances: *"Re-severity Review Findings Against Ground Truth Before Remediation Planning."* The graduated rule prescribes a Ground-Truth verification step at planning gate for any review-derived remediation (grep presumed consumer; read ±full surrounding context; verify field/section is parsed or enforced). The rule lives in LEARNING-LOG but is not yet wired into the operational `COMPLETION-CHECKLIST.md` review-triage path where it would actually fire.
+
+**Recommendation:** Add a review-triage checklist item under the Content-Changes tier: *"Before approving remediation for any review-derived finding, verify the finding's presumed consumer (extractor regex, test references, query surface, CI hook) exists via grep or read. If Ground Truth contradicts the finding's framing, re-severity or close before planning."* Reference LEARNING-LOG entry as rationale.
+
+**Scope:** 1 file, ~20 min. Docs-only; no code path.
+
+**Re-open prerequisites (trigger):**
+1. **Next review-methodology change** — any edit to `workflows/COMPLETION-CHECKLIST.md`, `workflows/COMPLIANCE-REVIEW.md`, or review-triage sections of `rules-of-procedure.md`. Fold in while scope is open.
+2. **OR:** Cohort-5+ plan drafting — any plan that cites review findings would benefit from the Ground-Truth step being mandated in the completion sequence.
+
+**Why D1 not fix-now:** This PATCH session already touches 7 files (agent prompts + syncs + LEARNING-LOG + SESSION-STATE + BACKLOG + commit). Adding an 8th surface (COMPLETION-CHECKLIST) would breach CLAUDE.md Defer-vs-Fix ≤3-files heuristic by a wide margin. Scope discipline per `meta-methods §7.8` proportional rigor.
+
+**Origin:** Post-commit contrarian double-check of `c52d491` (agent `aeb6cb93f9288dc13`, 2026-04-20) flagged LEARNING-LOG Entry B's "deferred — not this plan's scope" as a hanging expectation per BACKLOG #109 cadence-audit pattern. Filing per contrarian's explicit recommendation.
+
 113. **Plan-stage pre-edit battery effectiveness pattern — "4-of-4 catches suggest first-draft plans are systematically under-rigored"** `D2 Discussion`
 
 **What:** Every pre-edit 3-agent battery run on a first-draft plan (Cohorts 2, 3, 4, 5) caught a major pivot:

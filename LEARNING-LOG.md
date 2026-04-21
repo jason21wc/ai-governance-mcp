@@ -18,7 +18,7 @@ BACKLOG #105 was filed by a Cohort 4 Phase 4a coherence-audit (agent `a7ed2fe112
 
 **Rule:** Grep patterns like `^## Heading` will match inside ` ```markdown ` fenced blocks and produce false positives against documents that use fenced code as instructional template examples (CFRs with §12-style template sections, storytelling REVISION-LOG examples, etc.). Rendered markdown treats fenced content as literal text; source-layer grep conflates rendering and source.
 
-**How to apply:** Heading-level audits should (a) strip fenced blocks before grepping, (b) use a multi-line-aware markdown parser, OR (c) add manual fence-context verification before filing findings. Coherence-auditor and validator agent prompts should be amended to include a fence-check step for future audits. When a grep-based finding references a heading, planning gate must read ±10 lines around the hit to detect code-fence context before approving remediation.
+**How to apply:** Heading-level audits should (a) strip fenced blocks before grepping, (b) use a multi-line-aware markdown parser, OR (c) scan backward from each grep hit to the nearest unmatched ` ``` ` fence delimiter — if an opener precedes without a closer, the hit is inside a code block; reclassify as non-finding. Coherence-auditor and validator agent prompts were amended in this commit to include the fence-check step (see `documents/agents/coherence-auditor.md` Step 4 + `documents/agents/validator.md` Step 1 Classify cross-ref). Note: naive "±N lines" backscans are unsafe — real code fences can exceed N (the title-30 REVISION-LOG fence is 42 lines); scan to unmatched delimiter, not a fixed window.
 
 **Principle:** `meta-core-systemic-thinking` — fix the audit methodology (grep-over-source-layer), not the symptom (delete the "duplicate"). Also `meta-governance-continuous-learning-adaptation` (Art. IV §2) — capturing the methodology lesson so the same grep-fence pattern doesn't recur across future heading-level audits.
 
@@ -32,7 +32,7 @@ Review findings with "load-bearing" programmatic-consumer framing often collapse
 
 1. **Session-117 Cohort 4 Phase 4a F-P1-04 scope collapse.** Review's "200+ new fields needed" → Ground Truth: field already exists; only partial backfill (49/455 = 11%) with no consumer. Phase 4a reframed; Phase 4b deferred.
 2. **Session-118 Cohort 4 Phase 4b F-P1-04 Q7 FAIL.** Planned 406-method `Implements:` backfill. Ground Truth: extractor (`src/ai_governance_mcp/extractor.py:1686-1699`) parses `Applies To` only — zero `Implements:` references in tests or code. F-P1-04 HIGH severity sized on presumed consumer that doesn't exist; collapses to MEDIUM-at-most. Deferred at BACKLOG #106 with Q7 remediation + consumer as hard prereqs.
-3. **Session-119/120 BACKLOG #105.** Claimed duplicate version-history sections in title-30 CFR. Ground Truth: one of the "duplicates" is inside a ` ```markdown ` fenced code block (instructional template); not a real H2. Closed as grep false positive with no edits.
+3. **Session-119 BACKLOG #105.** Claimed duplicate version-history sections in title-30 CFR. Ground Truth: one of the "duplicates" is inside a ` ```markdown ` fenced code block (instructional template); not a real H2. Closed as grep false positive with no edits.
 
 **Rule:** Before approving any plan to remediate a review finding, perform at least one of:
 - (a) Grep the codebase for the presumed consumer (extractor regex, test references, query surface, CI hook).
@@ -45,7 +45,7 @@ If Ground Truth contradicts the finding's framing, re-severity or close the find
 
 **Principle:** `meta-core-systemic-thinking` — address presumed-consumer assumptions structurally, not after the remediation has consumed effort. Also `meta-safety-transparent-limitations` — re-severity based on evidence rather than carrying review framing forward unchecked. Also `meta-quality-verification-validation` — "finding severity claim" is not "operational evidence."
 
-**Graduation trigger met:** 3 clean instances in 3 sessions. Pattern is canonical. Propose integration into `workflows/COMPLETION-CHECKLIST.md` review-triage step (deferred — not this plan's scope).
+**Graduation trigger met:** 3 clean instances in 3 sessions. Pattern is canonical. Integration into `workflows/COMPLETION-CHECKLIST.md` review-triage step tracked at BACKLOG #114 (trigger: next review-methodology change OR Cohort-5+ plan drafting, whichever first).
 
 ---
 

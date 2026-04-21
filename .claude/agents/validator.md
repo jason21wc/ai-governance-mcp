@@ -110,6 +110,8 @@ For each criterion, classify the check type:
 | **SEMANTIC** | Content is correct, complete, consistent, useful | Medium | Catches quality problems |
 | **CROSS-REFERENCE** | References point to real targets, citations are valid | High | Catches staleness |
 
+If a criterion requires grep-based heading/section verification, exclude fenced-code hits (see coherence-auditor §4 "Fenced-code exclusion").
+
 Report structural and semantic results separately — "100% structural, 60% semantic" is far more honest than "80% overall."
 
 ### Step 2: Check Each Criterion with Evidence
