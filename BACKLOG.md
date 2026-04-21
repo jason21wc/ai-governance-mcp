@@ -33,6 +33,50 @@
 
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
+111. **Post-edit review scope expansion — eliminate the "post-commit always finds something" pattern** `D2 Improvement`
+
+**What:** Every single cohort (2, 3, 4-Phase-4a, 5) produced a post-commit PATCH because the post-commit 3-agent battery consistently found drift the post-edit battery missed. 100% rate across 4 cohorts. The contrarian's cross-cohort meta-review reframed this: it's not "post-commit pattern works well" — it's "post-edit scope is structurally gapped." Same class of drift every time: adopter-facing surface propagation (API.md schemas, ai-instructions `<document_versions>` pins, parallel tables in title-* CFRs, user-facing prose in README/CLAUDE.md).
+
+**The structural gap (contrarian finding):** post-edit coherence-auditor runs against the explicit edit inventory the plan declared. Files NOT in the plan's explicit inventory — adopter-facing docs, parallel surfaces, version pins — systematically fall outside post-edit scope. The gap is the plan's inventory, not the battery's execution.
+
+**Proposed fix (discussion needed before implementation):**
+1. Expand the coherence-auditor agent's default scope to explicitly include an "adopter-facing surfaces" checklist regardless of plan inventory: `README.md`, `CLAUDE.md`, `API.md`, `SECURITY.md`, `documents/ai-instructions.md` `<document_versions>` block, and parallel tables in title-* CFR files.
+2. Update `workflows/COMPLETION-CHECKLIST.md` Content-Changes tier: add "adopter-facing surface audit" item that runs before commit, not after.
+3. Update `documents/agents/coherence-auditor.md` scope guidance so every post-edit coherence audit covers these surfaces by default.
+4. Decision: Does this absorb the post-commit battery into post-edit scope (dropping the distinct post-commit pass), or does post-commit remain as a deliberate second look? Argue both.
+
+**Alternative (steel-manned):** accept the pattern as-is. Post-commit catches are cheap (1-PATCH commit per cohort). Trying to eliminate them via post-edit expansion may just shift the gap elsewhere — if the post-edit scope becomes too wide, it loses focus on the actual changes. "Two passes at different scopes" is arguably the right design, not a defect.
+
+**Re-open prerequisites:**
+1. At least 2 more cohorts of data (if Cohort 6 + 7 post-commit batteries find the *same class* of drift, the pattern is confirmed structural).
+2. OR: an adopter report of post-commit drift causing user-visible harm (not just cosmetic).
+
+**Why deferred (not D1 Fix):** The pattern is low-severity — post-commit PATCHes have consistently been small, shipped within same session. No adopter harm. Restructuring the post-edit scope requires careful design to avoid trading one gap for another. Evidence base (n=4) is suggestive but not yet conclusive per §7.8 proportional rigor.
+
+**Origin:** Cross-cohort meta-review (session-119, 2026-04-20, contrarian agent `afe0ecba1e867d95d`): *"The post-commit pattern is a structural gap, not a feature. 100% rate means post-edit scope is systematically gapped, not that the post-commit pattern is strong."*
+
+110. **F-P2-01 + R-01 priority-inversion retrospective — "critical finding closed by claim-softening, not measurement"** `D2 Discussion`
+
+**What:** The 2026-04-18 self-review identified **1 Critical finding** (F-P2-01): Declaration's value-proposition claim was unfalsifiable — framework measures *mechanism* (retrieval MRR, hook compliance) but Declaration claimed *outcome* (AI quality improvement). Cohort 1 closed F-P2-01 by rewriting the Declaration and README to make humbler claims (reframing the Declaration as a purpose statement, not a results claim). This closed the finding on the text side.
+
+**Contrarian's cross-cohort critique:** The *structural* fix for F-P2-01 is the outcome benchmark (tracked separately as BACKLOG #22 Governance Effectiveness Measurement — still in Discussion state). The arc shipped Cohorts 1-5 without R-01. Contrarian framing: *"A rational actor optimizing for framework defensibility would have shipped R-01 before Cohort 2 and let the data re-triage everything downstream. The arc inverted the priority — did the cheap, legible editorial work first and left the expensive, diagnostic work for 'Sprint 1' that hasn't started."*
+
+**Open questions:**
+1. Is the claim-softening closure sufficient (honest scope reduction = real fix) OR insufficient (we still owe the measurement)?
+2. Does BACKLOG #22's existing "Discussion" state cover the retrospective, or does F-P2-01 need its own standing item distinct from #22?
+3. If R-01 ships and shows no measurable framework effectiveness, how many of the 28 closed findings get retroactively re-severity'd? (Contrarian: "9 of 28 closed findings become retroactively questionable.")
+4. Is there a structural guardrail for "don't close Critical findings via claim-softening without also shipping the measurement that would validate the softening" — e.g., an Admission Test question or §9.8.1 addition?
+
+**Re-open prerequisites:**
+1. R-01 outcome benchmark ships (or is declared explicitly unmeasurable per BACKLOG #22 "may conclude some aspects aren't measurable" option), AND
+2. Retrospective conducted on whether any of the 28 closed findings need re-severity based on measurement results.
+
+**Why deferred (not D1 Fix):** This is a product-level retrospective, not a framework patch. Fixing requires either shipping R-01 (large work tracked at #22) or making a formal decision that measurement is out of scope. Both are multi-week commitments, not same-session fixes.
+
+**Origin:** Cross-cohort meta-review (session-119, 2026-04-20, contrarian agent `afe0ecba1e867d95d`): *"F-P2-01 (Critical) closed by claim-softening, not measurement. R-01 outcome benchmark still unshipped. Arc inverted priority."*
+
+**Relationship to BACKLOG #22:** Adjacent but distinct. #22 = "can we measure effectiveness?" (design question). This item = "did the arc's execution order respect the claim-verification relationship?" (retrospective question). Both need resolution before the self-review loop is fully trustworthy.
+
 109. **Deferred-with-trigger cadence audit — re-read every ~30 days** `D1 Maintenance` (recurring — never "done")
 
 **What:** Several review findings across Cohorts 4-5 were deferred with "re-open when consumer emerges" triggers but no owner or cadence to check whether conditions are met. Without a watch-list, principled deferrals quietly calcify into silent abandonment. This item establishes a recurring cadence to audit the deferred items — mirrors BACKLOG #78's Governance Compliance Review pattern.
@@ -43,6 +87,8 @@
 - **BACKLOG #106** — Cohort 4 Phase 4b `Implements:` backfill (F-P1-04, prerequisites: consumer + Q7 remediation).
 - **BACKLOG #107** — F-C-06 Tool/Model Appendix index (prerequisites: adopter-discoverability consumer OR appendix count >15).
 - **BACKLOG #108** — F-C-04 Phase-2 `strict_domain_check` block-mode (prerequisites: observed adopter harm OR CI surface wants enforcement).
+- **BACKLOG #110** — F-P2-01 + R-01 priority-inversion retrospective (prerequisites: R-01 ships OR declared unmeasurable + retrospective on 28 closed findings).
+- **BACKLOG #111** — Post-edit review scope expansion (prerequisites: 2+ more cohorts of evidence OR adopter report of post-commit drift harm).
 - **F-P2-03 accepted residual** — FM-code retrofit (Cohort 5, prerequisites: consumer + parser implementation).
 
 **Cadence:** every ~30 calendar days, OR whenever a session's work plausibly satisfies a trigger (e.g., reference-library consumer being built triggers #41/#43/#44/#46 re-read).
