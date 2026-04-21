@@ -157,7 +157,7 @@ class TestHierarchyFilter:
 
     def test_s_series_highest_priority(self):
         """S-Series should be sorted first."""
-        constitution_hierarchy = {"S": 0, "C": 1, "Q": 2, "O": 3, "MA": 4, "G": 5}
+        constitution_hierarchy = {"S": 0, "C": 1, "O": 2, "Q": 3, "MA": 4, "G": 5}
         series = ["Q", "S", "C"]
         sorted_series = sorted(series, key=lambda s: constitution_hierarchy.get(s, 99))
 
@@ -518,12 +518,17 @@ class TestHierarchyOrdering:
     """Tests for domain-aware series hierarchy ordering."""
 
     def test_constitution_hierarchy_has_all_codes(self):
-        """Constitution hierarchy should define S/C/Q/O/MA/G priorities."""
-        constitution_hierarchy = {"S": 0, "C": 1, "Q": 2, "O": 3, "MA": 4, "G": 5}
+        """Constitution hierarchy should define S/C/O/Q/MA/G priorities.
+
+        Order matches canonical Framework Overview Article sequence
+        (I=C, II=O, III=Q, IV=G) with S-Series (Bill of Rights) ranked first.
+        Updated v5.0.5 per F-P2-15 — prior O=3/Q=2 reflected drifted body order.
+        """
+        constitution_hierarchy = {"S": 0, "C": 1, "O": 2, "Q": 3, "MA": 4, "G": 5}
 
         assert constitution_hierarchy["S"] < constitution_hierarchy["C"]
-        assert constitution_hierarchy["C"] < constitution_hierarchy["Q"]
-        assert constitution_hierarchy["Q"] < constitution_hierarchy["O"]
+        assert constitution_hierarchy["C"] < constitution_hierarchy["O"]
+        assert constitution_hierarchy["O"] < constitution_hierarchy["Q"]
 
     def test_domain_principles_below_constitution(self):
         """Domain-level principles (hierarchy=10) should sort below constitution (0-5)."""

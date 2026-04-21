@@ -53,10 +53,14 @@ class RetrievalEngine:
     _CONSTITUTION_HIERARCHY: dict[str, int] = {
         "S": 0,  # Bill of Rights (Amendments) — immutable safety guardrails
         "C": 1,  # Article I: Core Architecture (Legislative)
-        "Q": 2,  # Article III: Quality & Integrity (Judicial)
-        "O": 3,  # Article II: Operational Efficiency (Executive)
+        "O": 2,  # Article II: Operational Efficiency (Executive)
+        "Q": 3,  # Article III: Quality & Integrity (Judicial)
         "G": 4,  # Article IV: Governance & Evolution (Administrative)
         # MA-Series dissolved in v3.0.0 — multi-agent principles moved to domain
+        # Order updated v5.0.5 per F-P2-15: priority now matches canonical
+        # Framework Overview order (I → II → III → IV), which constitution.md
+        # body order also matches post-reorder. Prior O=3/Q=2 reflected the
+        # drifted body order (I → III → II → IV) that v5.0.5 corrected.
     }
 
     def __init__(self, settings: Settings):

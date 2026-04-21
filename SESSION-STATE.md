@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-19 (session 118 — Cohort 4 CLOSED; Phase 4b deferred per battery Q7 FAIL; cohort 5 up next)
+**Last Updated:** 2026-04-20 (session 119 — Cohort 5 Session 5-1 shipped: constitution v5.0.5 editorial batch, 5 findings closed)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,7 +21,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v5.0.4** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.2** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v5.0.5** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.2** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1308 passing** safe subset (`pytest tests/ -v -m "not slow"`); embedding-mock tests no longer intercepted by daemon (autouse conftest fixture forces local path). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -34,7 +34,24 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Last Session (2026-04-19)
+## Last Session (2026-04-20)
+
+119. **Session-119: Cohort 5 Session 5-1 shipped (constitution v5.0.5 editorial batch, 5 findings closed)**
+   - **Task:** Cohort 5 Session 5-1 — Group A constitutional edits per plan v3 at `~/.claude/plans/create-a-plan-following-cached-canyon.md`.
+   - **Plan refinement:** v1 → v2 (absorbed 3-agent battery) → v3 (absorbed verification battery). Milestone framing changed from "100% remediated" to "31 findings triaged + actioned-or-documented-with-rationale" per battery convergence.
+   - **Five findings closed this session:**
+     - **F-P2-15** — Article II ↔ III body reorder. Canonical order now I→II→III→IV matching Framework Overview. Downstream: `src/ai_governance_mcp/retrieval.py:53-64` `_CONSTITUTION_HIERARCHY` updated (O=2, Q=3); `tests/test_retrieval.py:160` + `:527` hardcoded hierarchy dicts + assertions updated. `tests/test_extractor.py:2621-2640` fixture INTENTIONALLY preserved (regression guard for drifted-input robustness, independent of canonical order).
+     - **F-P2-16** — Trailing clause at line 163 rewritten from Multi-Agent-only callout to inclusive 6-domain reference with pointer to §Framework Structure table.
+     - **F-P2-10** — DBC (Art. I §5) ↔ Systemic Thinking (Art. I §6) boundary sharpened. Parallel cross-references added: "DBC = when + what, ST = how."
+     - **F-P2-12** — VR&T (Art. III §3) ↔ Explicit Over Implicit (Art. II §2) "surface assumptions" bullets cross-referenced (output-side vs input-side distinction).
+     - **F-P2-11** — GFDM KEEP with Q2 rationale per §9.8.1. Principle-level half PASSES (goal primacy universal); technique half acknowledged as illustrative. Peer consistency (Resource Efficiency, Failure Recovery) decisive. Inline 1-sentence note added to GFDM Operational Considerations; full Q2 disposition record in v5.0.5 Historical Amendments entry (trimmed runtime-visible text per post-edit contrarian R1).
+   - **Version bump:** constitution v5.0.4 → v5.0.5 (PATCH per `§9.8.5` bright-line — editorial reorg + clarifying cross-references; no principle/method/amendment added-removed-changed).
+   - **Pre-edit battery trail** (v1 → v2 → v3, 2× pass): contrarian agents `aeda233b774b1365b`/`aa57e9535cf8a444d`, coherence `af294cd35d81fdcf7`, validator agents `a772a5a9e12180cf5`/`a7442c17778936a5b`.
+   - **Post-edit battery** (Session 5-1 shipped state): contrarian `a92217c0e5b0c1172` ACCEPT_WITH_REVISIONS (R1 LOW fix applied); coherence `a86a53c86f83df092` COHERENT; validator `ae46874b50d13c7dc` PASS_WITH_EVIDENCE_GAPS (4 NOTES all optional/verified).
+   - **Governance trail:** `gov-3e5998987962` (plan eval — PROCEED); `gov-d34a35ac0a5a` (Session 5-1 execution eval — ESCALATE on keyword "delete" false-positive; user confirmed proceed).
+   - **Tests:** 1308/1308 safe subset PASS (before + after R1 trim).
+   - **Extractor:** 24 constitution principles / 206 methods (unchanged).
+   - **Resumption:** Cohort 5 Session 5-2 (Groups B+C+D+E: docs adds + F-C-04 install_agent filter + F-C-03 parity test + tracker updates) pending. ~2-2.5h estimated. 90-min checkpoint splits Group D to 5-3 if needed.
 
 118. **Session-118: Cohort 4 CLOSED — Phase 4b deferred per pre-edit battery Q7 FAIL**
    - **Task:** Plan Cohort 4 Phase 4b (`Implements:` field backfill across 406 of 455 CFR method sections in 6 files; prior estimate 10h/5 sessions).
