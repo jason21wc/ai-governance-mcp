@@ -3,6 +3,7 @@ name: voice-coach
 description: Character voice analyst. Compares dialogue against Character Voice Profiles to detect voice convergence, undifferentiated speech patterns, and drift from established character voices.
 tools: Read, Grep, Glob
 model: inherit
+applicable_domains: ["storytelling"]
 ---
 
 # Voice Coach

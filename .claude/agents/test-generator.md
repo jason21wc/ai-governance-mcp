@@ -3,6 +3,7 @@ name: test-generator
 description: Test creation specialist focused on coverage and behavior validation. Invoke when you need tests written for existing code or new functionality.
 tools: Read, Glob, Grep, Write, Bash
 model: inherit
+applicable_domains: ["ai-coding"]
 ---
 
 # Test Generator

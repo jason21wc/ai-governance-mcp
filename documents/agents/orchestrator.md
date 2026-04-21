@@ -3,6 +3,7 @@ name: orchestrator
 description: Governance-first coordinator. Ensures evaluate_governance() is called before any action unless it is a read-only operation, non-sensitive question, or trivial formatting change.
 tools: Read, Glob, Grep, Task, mcp__ai-governance__query_governance, mcp__ai-governance__evaluate_governance, mcp__ai-governance__get_principle, mcp__ai-governance__list_domains, mcp__ai-governance__verify_governance_compliance, mcp__context-engine__query_project, mcp__context-engine__project_status
 model: inherit
+applicable_domains: ["*"]
 ---
 
 # Orchestrator Agent

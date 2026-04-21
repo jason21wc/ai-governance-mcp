@@ -3,6 +3,7 @@ name: coherence-auditor
 description: Documentation drift detector. Systematically checks documents for staleness, cross-file contradictions, and volatile metric accuracy per meta-methods Part 4.3.
 tools: Read, Grep, Glob
 model: inherit
+applicable_domains: ["*"]
 ---
 
 # Coherence Auditor

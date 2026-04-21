@@ -3,6 +3,7 @@ name: security-auditor
 description: Security-focused code auditor specializing in vulnerability detection. Invoke for security reviews, especially before releases or when handling sensitive data/auth.
 tools: Read, Glob, Grep, Bash
 model: inherit
+applicable_domains: ["ai-coding"]
 ---
 
 # Security Auditor

@@ -224,40 +224,42 @@
 
 ## §III — Finding-ID coverage matrix
 
-| Finding | Remediation item(s) | Status |
-|---|---|---|
-| F-P1-01 | R-04 | Low-effort; recommended first-batch |
-| F-P1-02 | R-02 | Medium structural |
-| F-P1-03 | R-05 indirect (preventive); partial documentation in R-02 | Ambiguity noted; preventive fix via R-05 |
-| F-P1-04 | R-09 | High effort; high traceability value |
-| F-P1-05 | R-21 | Policy decision required |
-| F-P1-06 | R-08 | High effort longitudinal infrastructure |
-| F-P1-07 | R-18 + R-22 | Activate infrastructure + organic fill |
-| F-P1-08 | R-06 | Medium effort; self-contradiction closure |
-| F-P1-09 | (definitional; not a fix-required finding — synthesis uses both sets) | No-op |
-| F-P2-01 | R-01 | Critical; #1 priority |
-| F-P2-02 | R-19 | Low effort |
-| F-P2-03 | R-20 | Medium effort |
-| F-P2-04 | R-05 (preventive) | Preventive |
-| F-P2-05 | R-11 | Low effort |
-| F-P2-06 | R-08 partial | Longitudinal infrastructure |
-| F-P2-07 | (deferred — no specific R item) | Low priority |
-| F-P2-08 | R-14 | Low effort definitional |
-| F-P2-09 | R-03 | Medium structural |
-| F-P2-10 | R-17 | Medium effort boundary |
-| F-P2-11 | R-16 | Medium structural |
-| F-P2-12 | (included in R-17 style boundary work) | Bundle |
-| F-P2-13 | R-07 | Medium structural |
-| F-P2-14 | R-12 | Low effort record-correction |
-| F-P2-15 | R-10 | Low effort reorder |
-| F-P2-16 | R-15 | Very low effort |
-| F-P2-17 | R-12 | Low effort record-correction |
-| F-C-01 | R-05 | Preventive |
-| F-C-02 | R-01 | Same as F-P2-01 |
-| F-C-03 | R-06 partial + (add parity-test) | Adopter-parity |
-| F-C-04 | R-13 | Medium effort |
-| F-C-05 | (deferred — no specific R item) | Infrastructure cleanup |
-| F-C-06 | R-02 partial | Hierarchy amendment |
+**Cohort 5 milestone (2026-04-20):** 31 actionable findings triaged + actioned-or-documented-with-rationale. The matrix below has **32 rows** because F-P1-09 is listed for completeness as a synthesis/definitional row (not a fix-required finding; marked N/A). Final status column reflects post-Cohort-5 disposition.
+
+| Finding | Remediation item(s) | Status | Final disposition |
+|---|---|---|---|
+| F-P1-01 | R-04 | Low-effort; recommended first-batch | **CLOSED** — Cohort 2 (Case Law → Secondary Authority rename) |
+| F-P1-02 | R-02 | Medium structural | **CLOSED** — Cohort 2 (Structural Enforcement subsection added) |
+| F-P1-03 | R-05 indirect (preventive); partial documentation in R-02 | Ambiguity noted; preventive fix via R-05 | **CLOSED** — Cohort 5 Session 5-2 (architectural note at §9.7.1 documenting framework's single Rules-of-Procedure layer vs. US-Constitutional distribution) |
+| F-P1-04 | R-09 | High effort; high traceability value | **DEFERRED** — Cohort 4 Phase 4b tracked at BACKLOG #106 (re-open on consumer demand + Q7 remediation). Re-severity MEDIUM-at-most (extractor doesn't parse `Implements:`) |
+| F-P1-05 | R-21 | Policy decision required | **CLOSED** — Cohort 2 (Case Law rename to Secondary Authority + Q7 formalized Cohort 3) |
+| F-P1-06 | R-08 | High effort longitudinal infrastructure | **CLOSED** — Cohort 4 Phase 4a (ai-instructions.md Changelog; §2.1.1 version-history-required rule) |
+| F-P1-07 | R-18 + R-22 | Activate infrastructure + organic fill | **DEFERRED** — tracked at BACKLOG #41/#43/#44/#46 (auto-staging + progressive disclosure + auto-maturity + stack metadata). Reference library infrastructure is scaffolded but dormant; re-open on activation decision |
+| F-P1-08 | R-06 | Medium effort; self-contradiction closure | **CLOSED** — Cohort 3 (scaffold_project expanded: 3 new templates + BACKLOG.md + CLAUDE.md overlay) |
+| F-P1-09 | (definitional) | No-op | **N/A** — synthesis finding |
+| F-P2-01 | R-01 | Critical; #1 priority | **CLOSED** — Cohort 1 (README rewrite + Declaration/Preamble as purpose surfaces) |
+| F-P2-02 | R-19 | Low effort | **CLOSED** — Cohort 5 Session 5-2 (Adoption and Authority subsection in Framework Structure; consent via adopter activation, not Preamble self-authorization) |
+| F-P2-03 | R-20 | Medium effort | **ACCEPTED RESIDUAL** — Cohort 5 Session 5-2 (Q7 FAIL: FM-code retrofit on meta-principles would imply machine enforcement that doesn't exist; extractor doesn't parse codes. Re-open on consumer demand + parser implementation together) |
+| F-P2-04 | R-05 (preventive) | Preventive | **CLOSED via Q7 PASS** — Cohort 5 Session 5-2 (Q7 (a)(b)(c) record in Bill of Rights intro; framework has Absolute Veto matching outside pattern) |
+| F-P2-05 | R-11 | Low effort | **CLOSED** — Cohort 3 (32 "Constitutional Derivation" → "Constitutional Basis" normalization in title-40) |
+| F-P2-06 | R-08 partial | Longitudinal infrastructure | **CLOSED** — Cohort 4 Phase 4a (audit_id citation rule formalized in §2.1.1 Notes) |
+| F-P2-07 | (deferred — no specific R item) | Low priority | **DEFERRED** — tracked at BACKLOG #58/#59/#60 (UBDA adopter-drift work). No cross-session drift subagent built; re-open if measurement shows drift persists |
+| F-P2-08 | R-14 | Low effort definitional | **CLOSED** — Cohort 5 Session 5-2 (AI-Interaction Model note: 3-step Prompt→Context→Intent is canonical; 4-step "harness" proposal considered and not adopted because "harness" is operationally indistinct from Context Engineering) |
+| F-P2-09 | R-03 | Medium structural | **CLOSED** — Cohort 2 (Risk Mitigation ↔ Non-Maleficence Path B de-duplicated; principle count unchanged) |
+| F-P2-10 | R-17 | Medium effort boundary | **CLOSED** — Cohort 5 Session 5-1 (DBC ↔ Systemic Thinking boundary sharpened; parallel cross-references articulating "DBC = when+what, ST = how") |
+| F-P2-11 | R-16 | Medium structural | **CLOSED (KEEP with Q2 rationale)** — Cohort 5 Session 5-1 (GFDM retained in O-Series; Q2 BORDERLINE → KEEP per §7.8; inline rationale + full Q2 record in v5.0.5 Historical Amendments) |
+| F-P2-12 | (included in R-17 style boundary work) | Bundle | **CLOSED** — Cohort 5 Session 5-1 (VR&T ↔ EOI "surface assumptions" cross-references added clarifying output-side vs input-side) |
+| F-P2-13 | R-07 | Medium structural | **CLOSED** — Cohort 3 Path B (Preamble purposes recognized as interpretive tiebreakers, not principle-count targets; LEARNING-LOG entry) |
+| F-P2-14 | R-12 | Low effort record-correction | **CLOSED** — Cohort 4 Phase 4a (v5.0.3 amendment entry: Effective & Efficient Communication from commit 8dd6d6e / PR #21) |
+| F-P2-15 | R-10 | Low effort reorder | **CLOSED** — Cohort 5 Session 5-1 (Article II ↔ III body swap; retrieval.py _CONSTITUTION_HIERARCHY updated; tests updated; fixture preserved as intentional regression guard) |
+| F-P2-16 | R-15 | Very low effort | **CLOSED** — Cohort 5 Session 5-1 (trailing orphan Multi-Agent clause generalized to reference all 6 domain principle docs with pointer to Framework Structure table) |
+| F-P2-17 | R-12 | Low effort record-correction | **CLOSED** — Cohort 4 Phase 4a (v5.0.3 amendment entry: MA-Series formal dissolution, retroactive to v3.0.0) |
+| F-C-01 | R-05 | Preventive | **CLOSED** — Cohort 3 (Q7 Semantic-Label Risk added to Admission Test, rules-of-procedure v3.27.0) |
+| F-C-02 | R-01 | Same as F-P2-01 | **CLOSED** — bundled with F-P2-01 (Cohort 1) |
+| F-C-03 | R-06 partial + (add parity-test) | Adopter-parity | **CLOSED** — Cohort 5 Session 5-2 (new `tests/test_scaffold_parity.py` with 4 tests: bidirectional assertion, runtime-parse of CFR §1.5.2 Standard Kit; passes) |
+| F-C-04 | R-13 | Medium effort | **CLOSED (Phase-1)** — Cohort 5 Session 5-2 (`applicable_domains` frontmatter on all 10 agents; `install_agent` WARN+allow filter with named escalation trigger `strict_domain_check`; documented as deliberate Phase-1) |
+| F-C-05 | (deferred — no specific R item) | Infrastructure cleanup | **CLOSED** — Cohort 5 Session 5-2 (`governance_level` frontmatter removed from rules-of-procedure.md; grep confirmed zero code consumers) |
+| F-C-06 | R-02 partial | Hierarchy amendment | **DEFERRED** — Cohort 5 Session 5-2 (Situation Index covers *procedures*, not Tool/Model Appendices A-L; residual gap tracked at BACKLOG #107 with re-open criteria) |
 
 ## §IV — Recommended sequencing
 

@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-20 (session 119 — Cohort 5 Session 5-1 shipped: constitution v5.0.5 editorial batch, 5 findings closed)
+**Last Updated:** 2026-04-20 (session 119 — **Cohort 5 CLOSED**: Sessions 5-1 + 5-2 shipped, 31 findings triaged + "100% remediated" milestone hit honestly)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -21,8 +21,8 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v5.0.5** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.2** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1308 passing** safe subset (`pytest tests/ -v -m "not slow"`); embedding-mock tests no longer intercepted by daemon (autouse conftest fixture forces local path). Run `pytest tests/ -v` for full count. |
+| Content | **v5.0.6** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.3** (rules-of-procedure), **v2.38.2** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.7** (ai-instructions). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Tests | **1340 passing** safe subset (`pytest tests/ -v -m "not slow"`); embedding-mock tests no longer intercepted by daemon (autouse conftest fixture forces local path). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -35,6 +35,28 @@
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Last Session (2026-04-20)
+
+119-continued. **Session-119 (continued): Cohort 5 Session 5-2 shipped + Cohort 5 CLOSED**
+   - **Task:** Cohort 5 Session 5-2 (Groups B+C+D+E) per plan v3. Executed after Session 5-1 commit `b0e14e4`.
+   - **Plan-stage review:** ran pre-execution battery on Session 5-2 scope. Contrarian (`a4e0d1ac4078c4f68`) REJECT_AND_REPLAN with CRITICAL (F-P2-02 consent clause in Preamble violates classification) + HIGH (contrarian-skip defense thin). Coherence (`a235278fe5507f444`) READY. Validator (`a9da06c87377eff18`) PASS_WITH_EVIDENCE_GAPS (3 FAILs). Refinements applied pre-execution: F-P2-02 relocated to Framework Structure; F-C-04 edge cases spec'd; F-C-03 direction bidirectional + runtime-parse; contrarian restored to post-edit battery.
+   - **Seven findings closed this session:**
+     - **F-P2-02** — "Adoption and Authority" subsection added to Framework Structure (not Preamble; per F-P2-14 lesson). Authority flows from adopter consent via activation loader, not from framework self-declaration.
+     - **F-P2-04** — CLOSE via Q7 PASS. (a)(b)(c) disposition recorded in Bill of Rights intro: framework has Absolute Veto via `evaluate_governance` S-Series escalation matching outside pattern's binding semantics.
+     - **F-P2-08** — AI-Interaction Model note added: 3-step Prompt→Context→Intent canonical; 4-step "harness" proposal not adopted (harness operationally indistinct from Context Engineering).
+     - **F-P1-03** — Architectural note in `rules-of-procedure §9.7.1` documenting single Rules-of-Procedure layer vs. US-Constitutional distributed branches (no operative consequence; transparency note).
+     - **F-C-05** — `governance_level: "rules-of-procedure"` frontmatter removed (grep confirmed zero code consumers; field was documentary-only).
+     - **F-C-04** — `applicable_domains` schema on all 10 agents (both `documents/agents/` + `.claude/agents/` sync'd, AGENT_TEMPLATE_HASHES regenerated). `install_agent` tool gained optional `domain` param; Phase-1 WARN+allow with named escalation trigger `strict_domain_check` (BACKLOG #108 tracks Phase-2).
+     - **F-C-03** — `tests/test_scaffold_parity.py` (4 tests): runtime-parses CFR §1.5.2 Standard Kit; bidirectional assertion (scaffold = §1.5.2 + CLAUDE.md overlay).
+   - **Post-edit battery:**
+     - Coherence (`a759327eb41b29ad9`) COHERENT_WITH_ADDITIONAL_EDITS (1 Cosmetic: §III header count — fixed).
+     - Validator (`a8ddb822081557f9c`) PASS_WITH_EVIDENCE_GAPS (3 NOTEs: helper unit tests — fixed; hash byte-verification — tooling limit; shared audit_id — accepted).
+     - Contrarian (`ad83517b730258151`) ACCEPT_WITH_REVISIONS with **1 CRITICAL + 2 HIGH + 2 MEDIUM** — all fixed: (1) non-Claude path now surfaces `applicable_domains` + warning; (2) parser upgraded from regex to `yaml.safe_load` (handles block form, trailing comments, scalar string); (3) `tests/test_domain_fit.py` added with 28 tests; (4) BACKLOG #108 filed for strict_domain_check Phase-2; (5) `domain_warning` prepended to `action_summary` for UI prominence.
+   - **Deferrals recorded:** F-P1-04 (BACKLOG #106), F-P1-07 (BACKLOG #41/#43/#44/#46), F-P2-07 (BACKLOG #58/#59/#60), F-P2-03 accepted residual, F-C-06 (BACKLOG #107), F-C-04 Phase-2 (BACKLOG #108).
+   - **Version bumps:** constitution v5.0.5 → v5.0.6 (PATCH per §9.8.5); rules-of-procedure v3.27.2 → v3.27.3 (PATCH per §9.8.5).
+   - **Governance trail:** `gov-3e5998987962` (plan eval carry-forward); `gov-9bacb2496261` (Session 5-2 post-edit verification eval).
+   - **Tests:** 1340/1340 safe subset pass (1308 baseline + 4 parity + 28 domain-fit). Extractor: 24 constitution principles unchanged.
+   - **Milestone hit:** 31 findings triaged + actioned-or-documented-with-rationale. 28 closed + 3 deferred-with-triggers. Cohorts 1-5 all CLOSED. Framework self-review loop complete.
+   - **Resumption:** None blocking. Options: (a) post-commit double-check battery per Cohorts 2/3/4 pattern; (b) start Cohort 5 operational work (push, CI verify); (c) next-priority work (reference-library activation if desired, per F-P1-07 deferral BACKLOG items).
 
 119. **Session-119: Cohort 5 Session 5-1 shipped (constitution v5.0.5 editorial batch, 5 findings closed)**
    - **Task:** Cohort 5 Session 5-1 — Group A constitutional edits per plan v3 at `~/.claude/plans/create-a-plan-following-cached-canyon.md`.

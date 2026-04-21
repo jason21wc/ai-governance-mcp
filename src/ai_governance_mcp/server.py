@@ -1024,16 +1024,16 @@ AVAILABLE_AGENTS = {
 # For true integrity verification, see SECURITY.md "Planned" section for
 # cryptographic signing roadmap.
 AGENT_TEMPLATE_HASHES = {
-    "code-reviewer": "271980799e5dd654dda61be5e27efe164df9963214b342a9a006bb345b849975",
-    "coherence-auditor": "49a890717ce5e1e19b499ecf627f1dff82c32f6227490861b6da0432ece65931",
-    "continuity-auditor": "56d1780ea047e0d1a18af0c63071f85ad138e891a39ae636a4ffaef92075caa3",
-    "contrarian-reviewer": "0c4f85596b3485521fd2dbae637ac023e9df63a68d0f80d2366eebf1dd8e5fe3",
-    "documentation-writer": "13494a5a13681ed93f9b529b364f6855dffa8ddc2b61ee7595ebd86cf9b414c9",
-    "orchestrator": "f7b7945e896bc8e333f7a71fe5f32972d4e5886ab05a4bf4d975974904ecc3c1",
-    "security-auditor": "5fe3957bdf3d7990333b00727ab86e58e0e7999b672bf03646e9dd4ef5bbeaf3",
-    "test-generator": "033899e2db53f2b0cc86a0e3e452fa4f7d97559e1cfbc61fbf3a082df8e08608",
-    "validator": "8712fce1b842da7f9c98aa7947fbe9d88019446922cb121416f93f670bdf2e32",
-    "voice-coach": "7cb6ad17b46135d4f4eda82598c5cbb03238787eee67b86fa7644fe3755dc48b",
+    "code-reviewer": "0a480a1ca6f02a835c813bdb83d307b1f36578f3b4d87e630151ffedbc7806c0",
+    "coherence-auditor": "a8a29d5bb8ce3a1cc77c0d01ccf22c7b96bd8a6ee76f32820fc2413124683010",
+    "continuity-auditor": "ecfb29ca75474fef63ca9a92779b5557fbade3f2b5e7d2712be8255047ce6a4d",
+    "contrarian-reviewer": "147fd975e3effc643a848c38c123c2a1a817eea9befb36e8be369885c496e342",
+    "documentation-writer": "c1f1e0d5617d10c6b61cb3fb8e7e436a9ffe18c06f629c2d1201f3da3d998ad0",
+    "orchestrator": "4999542cd1c063a9486f33845eb0b433a3efeebeb7163ac8f4fb30af83d02b60",
+    "security-auditor": "5c2217d0a3041ad8afee3b46ae8c66e9e375ebbb9059b7637421037609d0ad27",
+    "test-generator": "fe8f991d382c627d25a20ff88ab15d485fe34075a9524fa1bac6654ba52c891e",
+    "validator": "e80fe2f68000cd28d3bc399f5fceca2f671813a02a483e7a3de9a1f801ca423b",
+    "voice-coach": "3b634f624453c570783c90ea942432ac8557e355002a2797ebee831ba7b2a13a",
 }
 
 # Agent metadata: short descriptions, action summaries, and activation messages
@@ -1203,6 +1203,94 @@ def _verify_template_hash(template_content: str, agent_name: str) -> tuple[bool,
         return True, actual_hash
 
     return actual_hash == expected_hash, actual_hash
+
+
+def _parse_applicable_domains(template_content: str) -> list[str]:
+    """Extract applicable_domains list from an agent template's YAML frontmatter.
+
+    F-C-04 Phase-1 implementation (v5.0.6). Uses yaml.safe_load for the
+    frontmatter so both inline flow form (`["*"]`) and block form
+    (`- "ai-coding"\n  - "ui-ux"`) are handled correctly, and trailing
+    comments on the list line are stripped by the YAML parser.
+
+    Returns:
+        List of domain keys the agent is marked for. Defaults to ["*"]
+        (domain-agnostic) when the field is absent — backward-compatible with
+        pre-v5.0.6 templates.
+
+    Edge-case behavior (Phase-1, v5.0.6):
+    - Missing field → ["*"] (treat as domain-agnostic; preserves prior behavior)
+    - Malformed YAML or parse failure → ["*"] (fail open; WARN+allow semantics)
+    - Empty list `[]` → ["*"] (treat as domain-agnostic per convention)
+    - Scalar string (e.g., `applicable_domains: ai-coding`) → wrap as
+      single-element list `["ai-coding"]` for ergonomic tolerance
+    - Block-form YAML list (hyphen-prefixed lines) → parsed correctly by yaml
+    - Trailing comment on list line → stripped by yaml
+    - Multiple overlapping domains (e.g., `["ai-coding", "ui-ux"]`) → list
+      preserved; _check_domain_fit treats project domain as match if any
+      overlap exists
+    - Invalid domain keys (typo/not in domains.json) → preserved as-is;
+      project-domain check simply won't match, triggering WARN. No validation
+      against domains.json at Phase-1 — defer strictness to escalation.
+    """
+    import re
+    import yaml
+
+    match = re.match(r"^---\n(.*?)\n---", template_content, re.DOTALL)
+    if not match:
+        return ["*"]
+    try:
+        fm = yaml.safe_load(match.group(1)) or {}
+    except yaml.YAMLError:
+        return ["*"]
+    if not isinstance(fm, dict):
+        return ["*"]
+    value = fm.get("applicable_domains")
+    if value is None:
+        return ["*"]
+    if isinstance(value, str):
+        # Scalar form: wrap single domain name as one-element list
+        return [value] if value else ["*"]
+    if not isinstance(value, list):
+        return ["*"]
+    # List form (flow or block): filter to non-empty strings
+    domains = [str(d) for d in value if isinstance(d, str) and d]
+    return domains if domains else ["*"]
+
+
+def _check_domain_fit(
+    agent_domains: list[str], project_domain: str | None
+) -> tuple[bool, str | None]:
+    """Check whether an agent applies to a project's active governance domain.
+
+    F-C-04 Phase-1 (v5.0.6): WARN + allow semantics. This function returns
+    (fits: bool, warning: str | None). Callers ALWAYS proceed with install;
+    the warning is surfaced in the output for visibility. Escalation to
+    block-mode requires a `strict_domain_check` flag (not implemented Phase-1).
+
+    Args:
+        agent_domains: List from _parse_applicable_domains() — agent's
+            declared applicable domains.
+        project_domain: Caller-supplied domain string or None when not
+            provided (in which case no check is performed).
+
+    Returns:
+        (fits, warning). `fits` is True when: (a) no project_domain given,
+        (b) agent declares ["*"], or (c) project_domain is in agent_domains.
+        `warning` is a human-readable message when fits is False, else None.
+    """
+    if project_domain is None or not agent_domains:
+        return True, None
+    if "*" in agent_domains:
+        return True, None
+    if project_domain in agent_domains:
+        return True, None
+    return False, (
+        f"Agent is marked for domain(s) {agent_domains}; project domain is "
+        f"'{project_domain}'. Proceeding anyway (Phase-1: WARN + allow). "
+        f"Review agent applicability before relying on it for domain-specific "
+        f"tasks."
+    )
 
 
 # Cache for MCP roots result — avoids 2s timeout on every tool call when
@@ -1658,6 +1746,16 @@ async def list_tools() -> list[Tool]:
                             "Absolute path to the target project directory. "
                             "Used when scope='project' and the MCP server's working directory "
                             "differs from the target project. Auto-detected from MCP roots if available."
+                        ),
+                    },
+                    "domain": {
+                        "type": "string",
+                        "description": (
+                            "Optional. Active governance domain for the target project "
+                            "(e.g., 'ai-coding', 'storytelling'). If provided AND the agent's "
+                            "applicable_domains frontmatter excludes this domain, a WARN message "
+                            "is included in the response (Phase-1: WARN + allow; installation "
+                            "proceeds regardless). Omit to skip domain-fit checking."
                         ),
                     },
                 },
@@ -2869,6 +2967,7 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
     scope = args.get("scope", "project")
     confirmed = args.get("confirmed", False)
     show_manual = args.get("show_manual", False)
+    project_domain = args.get("domain")  # F-C-04 Phase-1: optional domain fit check
 
     # Validate agent name
     if agent_name not in AVAILABLE_AGENTS:
@@ -2901,8 +3000,16 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
         # Non-Claude platform: provide agent content as reference material
         template_path = _get_agent_template_path(agent_name)
         agent_content = ""
+        agent_domains_nonclaude: list[str] = ["*"]
         if template_path:
             agent_content = template_path.read_text()
+            # F-C-04 Phase-1 (v5.0.6 patch): surface applicable_domains on
+            # non-Claude platforms too so adopters see domain-fit metadata
+            # before adapting the agent for their harness.
+            agent_domains_nonclaude = _parse_applicable_domains(agent_content)
+        _, domain_warning_nonclaude = _check_domain_fit(
+            agent_domains_nonclaude, project_domain
+        )
 
         output = {
             "status": "not_applicable",
@@ -2914,6 +3021,7 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
                 f"You can adapt this for your platform."
             ),
             "agent_content": agent_content,
+            "applicable_domains": agent_domains_nonclaude,
             "adaptation_guidance": (
                 "To use this agent definition on other platforms:\n"
                 "1. Extract the role and cognitive function from the content above\n"
@@ -2929,6 +3037,8 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
                 "4. S-Series principles have veto authority"
             ),
         }
+        if domain_warning_nonclaude:
+            output["domain_warning"] = domain_warning_nonclaude
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     # Get template path
@@ -2947,6 +3057,10 @@ async def _handle_install_agent(args: dict) -> list[TextContent]:
     # Verify template integrity
     hash_valid, actual_hash = _verify_template_hash(template_content, agent_name)
     expected_hash = AGENT_TEMPLATE_HASHES.get(agent_name)
+
+    # F-C-04 Phase-1 (v5.0.6): Domain-fit check (WARN + allow)
+    agent_domains = _parse_applicable_domains(template_content)
+    domain_fits, domain_warning = _check_domain_fit(agent_domains, project_domain)
 
     # Get install path
     install_path = _get_agent_install_path(agent_name, scope, project_path)
@@ -3024,10 +3138,11 @@ EOF
             },
             "explanation": SUBAGENT_EXPLANATION.strip(),
             "action_summary": (
-                f"Will {status} '{agent_name}' subagent for {scope_desc}.\n\n"
-                f"File: {install_path}\n\n"
-                f"This subagent will:\n"
-                f"{AGENT_METADATA.get(agent_name, {}).get('action_summary', 'Provide specialized agent behavior')}"
+                (f"⚠️  DOMAIN NOTE: {domain_warning}\n\n" if domain_warning else "")
+                + f"Will {status} '{agent_name}' subagent for {scope_desc}.\n\n"
+                + f"File: {install_path}\n\n"
+                + "This subagent will:\n"
+                + f"{AGENT_METADATA.get(agent_name, {}).get('action_summary', 'Provide specialized agent behavior')}"
             ),
             "options": {
                 "install": "Call install_agent with confirmed=true to install",
@@ -3051,6 +3166,10 @@ EOF
                 "or AI_GOVERNANCE_MCP_PROJECT env var detected). "
                 "Verify install_path above is correct before confirming."
             )
+        # F-C-04 Phase-1 (v5.0.6): surface domain-fit metadata + optional warning
+        output["applicable_domains"] = agent_domains
+        if domain_warning:
+            output["domain_warning"] = domain_warning
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     # Confirmed: perform installation
@@ -3090,6 +3209,10 @@ EOF
                 "If the install landed in the wrong project, re-run with "
                 "project_path='/path/to/your/project'."
             )
+        # F-C-04 Phase-1 (v5.0.6): surface domain-fit metadata on successful install
+        output["applicable_domains"] = agent_domains
+        if domain_warning:
+            output["domain_warning"] = domain_warning
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
     except PermissionError:

@@ -3,6 +3,7 @@ name: code-reviewer
 description: Fresh-context code review specialist. Invoke after writing or modifying code to get independent quality assessment against explicit criteria.
 tools: Read, Glob, Grep, LSP
 model: inherit
+applicable_domains: ["ai-coding", "ui-ux"]
 ---
 
 # Code Reviewer

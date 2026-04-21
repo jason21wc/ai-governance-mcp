@@ -1,5 +1,5 @@
 ---
-version: "5.0.5"
+version: "5.0.6"
 status: "active"
 effective_date: "2026-04-20"
 domain: "constitution"
@@ -8,7 +8,7 @@ governance_level: "constitution"
 
 # Principles Framework for AI Interaction
 
-**Version:** 5.0.5
+**Version:** 5.0.6
 **Status:** Active
 **Effective Date:** 2026-04-20
 **Governance Level:** Constitution (Meta-Principles)
@@ -90,6 +90,10 @@ This document is the supreme governance layer. It sits within a broader framewor
 | Federal Regulations | Domain Methods | **Execution** — implementation details | Evolving |
 | Agency SOPs | Tool/Model Appendices | **Tactical** — platform-specific guidance | Frequently Updated |
 | Secondary Authority | Reference Library | **Informative (non-overriding)** — concrete artifacts that inform interpretation | Accumulating |
+
+**Adoption and Authority.** This framework has no inherent authority over any project. Its rules take effect when (and only when) an adopter explicitly activates them — typically via `ai-instructions.md`, `CLAUDE.md`, or an equivalent loader document. By activating the framework in a project, the adopter grants it operative authority over that project's AI interactions for the scope the adopter defines. Outside activated projects, this document is descriptive, not prescriptive. Authority flows from adopter consent, not from the framework's own text — activation is the consent act. *(F-P2-02 disposition, v5.0.6: the Preamble's binding-purpose language is interpretive context per its classification above, not a self-authorizing contract; this subsection makes the granting relationship explicit so downstream readers understand where operative authority comes from.)*
+
+**AI-Interaction Model (3-step canonical).** The framework's canonical model for AI interaction is **Prompt → Context → Intent** (three stages, recounted in the Declaration above). The alternative 4-step proposal that inserts "Harness" between Context and Intent was considered and not adopted — "harness" as a distinct stage is operationally indistinct from Context Engineering's existing scope (retrieval + memory + reference documents, per `meta-core-context-engineering`). Adding it would duplicate rather than extend. *(F-P2-08 disposition, v5.0.6.)*
 
 **Derivation Chain:**
 - **S-Series (Bill of Rights):** Absolute constraints that CANNOT be overridden. No domain rule can authorize harmful actions.
@@ -954,6 +958,12 @@ Centralized governance that tries to cover every situation becomes either imposs
 
 Rules for how the AI protects the user, the data, and the integrity of the interaction. These are "Meta-Guardrails" that override all other principles—an efficient or creative output is never acceptable if it violates safety, privacy, or fundamental fairness.
 
+**Q7 Semantic-Label Risk — S-Series framing disposition (recorded v5.0.6 per F-P2-04):**
+
+- **(a) Outside pattern referenced:** US Bill of Rights idioms (Due Process, Equal Protection, Unreasonable Search, Perjury prevention, Whistleblower Protection) are used illustratively throughout S-Series amendments.
+- **(b) Enforcement mechanism:** This framework has an enforcement mechanism matching the outside pattern's binding semantics. S-Series principles carry **Absolute Veto authority** via `evaluate_governance` MCP escalation — an S-Series trigger forces `ESCALATE` regardless of other factors, and hard-mode hooks (where installed) structurally block non-compliant actions. Veto ≈ Judicial Strike-Down. See Framework Structure → Operative Hierarchy, row 1 ("Bill of Rights — Veto Power").
+- **(c) Disposition:** **PASS.** The framing is illustrative and operationally accurate — not metaphor-inheritance that overstates enforcement. Q7 (rules-of-procedure §9.8.1) is satisfied. Subsequent S-Series amendment authors MAY continue illustrative US-law framing without reclassification.
+
 ### Amendment I: Non-Maleficence, Privacy & Security
 > *Never compromise user safety, data privacy, or system security — these constraints override all other guidance.*
 
@@ -1074,6 +1084,23 @@ A "confident wrong answer" is the most dangerous output an AI can provide. If ag
 ## Historical Amendments (Constitutional History)
 
 **Usage Instruction for AI:** This section is a historical record ("Legislative History"). **It does not carry the force of law.** If any statement in this history log contradicts the active text of the Principles above, **ignore the history and follow the active text.**
+
+#### **v5.0.6 (April 2026) - Cohort 5 Session 5-2: Framework Structure additions + Q7 record + harness rationale**
+
+*   **Editorial additions + clarifications patch** per `rules-of-procedure §9.6.1`. **PATCH classification per §9.8.5 bright-line:** all changes document existing behavior or add navigational cross-references; no principle/method/amendment added, removed, or operatively changed. Editorial per §9.8.5 (changes to *how the framework describes its own scope* without changing behavioral requirements).
+
+**Findings closed this entry** (Cohort 5 Groups B + tracker start, plan v3):
+
+*   **F-P2-02 — Preamble self-authorizing question resolved via Framework Structure "Adoption and Authority" subsection.** Review finding was "Preamble grants authority to itself." Contrarian battery flagged that adding a consent clause *inside* the Preamble would violate the Preamble's own classification as "interpretive context that does not independently create rules" (line 80) — same F-P2-14 lesson about Preamble being a purpose surface, not a claim surface. Solution: added "Adoption and Authority" subsection to Framework Structure section (operative layer, where authority statements belong) that makes the adopter-consent relationship explicit. Preamble text unchanged. Authority now flows from adopter activation, not from the framework's self-declaration.
+*   **F-P2-04 — S-Series US-Constitutional prose framing CLOSED via Q7 PASS.** Review finding was "S-Series uses US-Constitutional illustrative prose; risk of future metaphor-driven misclassification." Applied `rules-of-procedure §9.8.1` Q7 (Semantic-Label Risk, formalized v3.27.0) reflexively: (a) outside pattern = US Bill of Rights idioms; (b) enforcement mechanism = Absolute Veto via `evaluate_governance` S-Series escalation + hard-mode hooks; (c) disposition = PASS (framework has enforcement matching outside pattern's binding semantics). Recorded Q7 PASS block in Bill of Rights intro so future S-Series authors see the disposition and don't re-litigate. Finding now CLOSED (not residual; enforcement exists and matches illustrative framing).
+*   **F-P2-08 — "Harness" term non-adoption documented in AI-Interaction Model note.** Review finding was "4-step Prompt→Context→Harness→Intent proposal; framework uses 3-step." Added brief Framework Structure note: canonical model is 3-step; 4-step proposal considered and not adopted because "harness" as a distinct stage is operationally indistinct from Context Engineering's existing scope (retrieval + memory + reference documents). Adding it would duplicate rather than extend.
+
+**Pre-edit battery** (Session 5-2 specific, in addition to plan-stage 2× battery from sessions 118/119):
+- Contrarian `a4e0d1ac4078c4f68` — REJECT_AND_REPLAN with 1 CRITICAL + 2 HIGH. CRITICAL (F-C-03 source-of-truth) was refuted by coherence (§1.5.2 exists at title-10-cfr.md:895-908). HIGH (F-P2-02 Preamble location) absorbed — consent clause relocated to Framework Structure. HIGH (contrarian-skip defense) absorbed — post-Group-D contrarian restored.
+- Coherence `a235278fe5507f444` — READY_WITH_TWO_MINOR. Both minor anchor clarifications resolved in execution.
+- Validator `a9da06c87377eff18` — PASS_WITH_EVIDENCE_GAPS, 3 FAIL + 5 NOTES. FAIL items (F-C-04 edge cases + F-C-03 direction + contrarian-skip) absorbed.
+
+**Governance trail:** `gov-3e5998987962` (Cohort 5 plan eval carry-forward); Session 5-2 dedicated eval batched with Group B initial edit (not re-queried for each editorial addition per `meta-methods §7.8` proportional rigor).
 
 #### **v5.0.5 (April 2026) - Cohort 5 Session 5-1: Constitution editorial batch**
 

@@ -1,17 +1,16 @@
 ---
-version: "3.27.2"
+version: "3.27.3"
 status: "active"
-effective_date: "2026-04-19"
+effective_date: "2026-04-20"
 domain: "constitution"
-governance_level: "rules-of-procedure"
 ---
 
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.27.2
+**Version:** 3.27.3
 **Status:** Active
-**Effective Date:** 2026-04-19
+**Effective Date:** 2026-04-20
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -2422,6 +2421,8 @@ The governance framework uses a 7-layer hierarchy modeled on US legal structure.
 | Secondary Authority | Reference Library | **Informative** | Accumulating | Curated artifacts from real application |
 
 > **Relationship to §9.3.1:** This hierarchy defines content classification for authoring (what level to write at). Part 9.3.1 defines the truth-source hierarchy for conflict resolution (which source wins when they disagree). They are complementary — 9.7.1 answers "where does new content belong," 9.3.1 answers "which source is authoritative."
+
+> **Architectural note — Rules of Procedure layer (F-P1-03 disposition, v3.27.3):** Unlike the US Constitution, which separates procedural rules into Supreme Court Rules and Congressional standing rules (distributed across branches), this framework consolidates procedural meta-rules into a single "Rules of Procedure" layer positioned between Federal Statutes and Federal Regulations. This structural variance from the outside pattern has no operative consequence — the hierarchy still resolves conflicts predictably and §9.3.1 still governs source authority. Noted for architectural transparency so future authors understand the divergence from the reference pattern was deliberate, not an oversight.
 
 ### 9.7.2 Level Classification Procedure
 
@@ -4886,6 +4887,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.27.3 | 2026-04-20 | PATCH: Cohort 5 Session 5-2 (session-119) — two changes. (1) **Removed `governance_level: "rules-of-procedure"` frontmatter field** (F-C-05). Grep confirmed zero code consumers (`grep governance_level src/` → 0 matches; no retrieval pipeline, no test, no extractor reads the value). Field was documentary-only; deletion per §9.8.5 bright-line (editorial; changes *how the framework describes itself* without changing behavior). Domain entry in `domains.json` was never present — this cleans up an orphan metadata field. Frontmatter is now `version`/`status`/`effective_date`/`domain` only. (2) **Added §9.7.1 architectural note** (F-P1-03 disposition) documenting why "Rules of Procedure" is a single layer in this framework vs. distributed across US Constitutional branches (Supreme Court Rules + Congressional standing rules). No operative consequence; noted for architectural transparency. Governance trail: `gov-3e5998987962` (Cohort 5 plan eval carry-forward). Constitutional Basis: Single Source of Truth, Visible Reasoning & Traceability. |
 | 3.27.2 | 2026-04-19 | PATCH: Cohort 4 Phase 4a (session-117) — formalized two pre-existing cross-doc amendment-log conventions in §2.1.1 Notes block. (1) **Version-history section required**: every normative document must have a version-history section (naming varies by document convention — Historical Amendments / Version History / Changelog / Appendix C all accepted). Closes F-P1-06: `ai-instructions.md` was the only doc lacking one (now has `## Changelog` at bottom). §2.1.1 Step 3 "Add version history entry in document" pre-existed; this formalization documents the cross-doc scope. (2) **Audit-ID citation**: amendment entries that reference governance consultations must cite the `audit_id` (e.g., `gov-abc123`). Forward-going from 2026-04-19; historical entries grandfathered. Convention was already observed in v5.0.0/v5.0.1/v5.0.2 constitution amendments. Governance trail: `gov-9a509771c252` (Phase 4a execution eval). Constitutional Basis: Single Source of Truth, Visible Reasoning & Traceability. |
 | 3.27.1 | 2026-04-19 | PATCH: post-commit double-check remediation (session-116). (1) **Q7 enforceability tightened** — appended operational requirement to Q7 cell: reviewer must name the outside pattern borrowed from, the specific framework mechanism enforcing/failing to enforce the borrowed semantic, and the disposition (pass/rename/disclaim/coin). Bare "passes" is non-compliance. Addresses contrarian post-commit concern that Q7 text alone allowed rubber-stamp compliance (~85% advisory pattern). No change to Q7 intent; operationalizes the reviewer's checkable output. Per LEARNING-LOG 2026-04-19 "Post-Commit Double-Check Catches Surface Drift Pre/Post Batteries Miss." Constitutional Basis: Verification & Validation, Visible Reasoning & Traceability. |
 | 3.27.0 | 2026-04-19 | MINOR: (1) Part 9.8.1 — added **Question 7: Semantic-Label Risk** to the Admission Test (6 → 7 Questions). Q7 asks whether a proposed name/label borrows from an outside pattern (US Constitutional, biological, military, legal) in a way the framework does not operationally implement, and requires rename, disclaimer, or term-coinage if so. Pass/fail exemplars included (PASS: Constitution, Bill of Rights, Secondary Authority; FAIL: Case Law pre-v5.0.0 — fixed by rename). Prevents F-P1-05-class errors at authoring gate. Evidence base: LEARNING-LOG 2026-04-12 "Metaphor-Driven Classification vs Operational Classification" + LEARNING-LOG 2026-04-18 "Declaration and Preamble Are Purpose Surfaces." Cross-reference sweep: all live "6 Questions" references updated to "7" (Part 9.8.1 heading + intro + tiebreaker clause; Part 8.2 classification see-also; Part 8.3 stability see-also; §9.8.4 quality checklist; COMPLETION-CHECKLIST.md; PROJECT-MEMORY.md quick-ref; BACKLOG.md live prose). Historical references preserved (constitution.md v4.1.0 amendment entry Q0 proposal-but-not-adopted record; archive + review files). (2) Part 3.5.1 Alias Table — removed `Constitutional Basis ← "Constitutional Derivation"` alias row. The v3.26.8 addition documented variant terminology in title-40-multimodal-rag; Cohort 3 (session-116) normalized 32 instances to canonical "Constitutional Basis," eliminating the content the alias row was tolerating. Future re-addition is easy if a new use case surfaces. (3) Frontmatter + body-header version drift fix: pre-existing mismatch (frontmatter 3.26.8 line 2 vs body 3.26.5 line 12) resolved by aligning both to v3.27.0 and effective_date 2026-04-19. Constitutional Basis: Single Source of Truth, Systemic Thinking, Verification & Validation (per meta-method-single-source-of-truth and LEARNING-LOG 2026-04-12 preventive-rule basis). |

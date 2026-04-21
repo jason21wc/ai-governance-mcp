@@ -3,6 +3,7 @@ name: continuity-auditor
 description: Narrative consistency verifier. Checks Story Bible against manuscript for character drift, timeline conflicts, world rule violations, and knowledge-state errors.
 tools: Read, Grep, Glob
 model: inherit
+applicable_domains: ["storytelling"]
 ---
 
 # Continuity Auditor

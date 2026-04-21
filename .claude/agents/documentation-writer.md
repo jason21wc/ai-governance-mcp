@@ -3,6 +3,7 @@ name: documentation-writer
 description: Documentation specialist for README files, docstrings, and technical writing. Invoke when documentation needs creation or updates.
 tools: Read, Glob, Grep, Write
 model: inherit
+applicable_domains: ["*"]
 ---
 
 # Documentation Writer

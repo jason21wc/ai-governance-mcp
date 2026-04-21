@@ -33,6 +33,42 @@
 
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
+108. **F-C-04 Phase-2 — install_agent `strict_domain_check` block-mode escalation** `D3 Deferred`
+
+**What:** Cohort 5 Session 5-2 shipped `install_agent` with Phase-1 WARN+allow domain-fit semantics (`applicable_domains` frontmatter + optional `domain` param on install_agent → warning if mismatch). The `_parse_applicable_domains` + `_check_domain_fit` helpers in `src/ai_governance_mcp/server.py` have a named escalation trigger `strict_domain_check` that is NOT currently wired to any input. This item tracks the Phase-2 escalation.
+
+**Re-open prerequisites:**
+1. **Observed adopter harm** — at least one credible report of a domain mismatch producing actually-wrong work (not just a wasted-context theoretical concern). Ideally 2-3 instances before promoting to block-mode.
+2. **Or: CI surface that wants to enforce** — a downstream consumer (e.g., project validation pipeline) requests block-mode as a hard gate.
+
+**Re-open workflow:**
+1. Add `strict_domain_check: bool = false` parameter to `install_agent` tool schema.
+2. When `strict_domain_check=True` AND `_check_domain_fit()` returns `fits=False`, raise error with structured code (not just a warning) and refuse to proceed with install.
+3. Update `test_domain_fit.py` with block-mode cases.
+4. Document in CLAUDE.md scaffold template + README adopter guidance.
+
+**Why deferred (not short-term D2):** Phase-1 (WARN+allow) matches the Low-severity framing of F-C-04. No adopter harm has been reported. Block-mode without evidence of harm would be ceremony — the same "build-it-before-consumer-exists" pattern that killed Cohort 4 Phase 4b `Implements:` backfill. Phase-1 is deliberate phased implementation with a named escalation path, not incomplete design.
+
+**Origin:** Cohort 5 Session 5-2 post-edit contrarian review (2026-04-20, session-119, agent `ad83517b730258151`). Contrarian MEDIUM finding: "escalation trigger floating in code comment only — file BACKLOG entry to prevent defer-it-later pattern." Filed per that recommendation.
+
+107. **F-C-06 Tool/Model Appendix index — adopter discoverability for Appendices A-L** `D3 Deferred`
+
+**What:** Tool/Model Appendices (A-L: Claude Code CLI config, prompt caching specs, Postgres/Supabase, permission architecture, production hardening, etc.) are embedded inside `documents/title-10-ai-coding-cfr.md` starting around line 7200+. No standalone index or discoverability mechanism exists. The Situation Index at `rules-of-procedure.md:92` and `title-10-ai-coding-cfr.md:104` fulfills entry-based discovery for *procedures*, but does NOT enumerate all Appendices. Adopters asking "how do I configure Claude Code CLI?" have no discoverable path without knowing to look inside §7200+.
+
+**Re-open prerequisites:**
+1. **A consumer emerges** that needs Appendix-level discovery — examples: (a) a retrieval pattern specifically queries "show all Tool Appendices for platform X"; (b) adopter rollout reveals friction with Appendix lookup; (c) Appendix count exceeds a practical threshold (e.g., >15 appendices) making embedded-in-CFR structure unwieldy.
+2. **Decision on index location** — dedicated `documents/appendix-index.md` artifact vs. a section added to `README.md` vs. a new §9.7.3 in rules-of-procedure. Depends on what the triggering consumer needs.
+
+**Why deferred (not short-term D2):** Current state is a low-severity gap. Situation Index fulfills most discovery needs (entry-based routing by task). Building a full Appendix index without a concrete consumer would be premature — risks the Phase 4b `Implements:` pattern (build-it-before-consumer-exists, end up with documentary-only artifact that nobody queries).
+
+**Re-open workflow:**
+1. Verify prerequisite (1) is met — a real consumer exists.
+2. Decide location per prerequisite (2).
+3. Build index + link from README + CLAUDE.md.
+4. Consider whether to extract Appendices out of CFR files entirely vs. index-only approach.
+
+**Origin:** Cohort 5 Session 5-2 planning (2026-04-20, session-119) — contrarian battery distinguished Situation Index (covers procedures) from Appendix discoverability (covers Tool/Model references); former ships, latter doesn't. Accepted as residual gap for Cohort 5 milestone. See `~/.claude/plans/create-a-plan-following-cached-canyon.md` v3.
+
 106. **Cohort 4 Phase 4b re-open — `Implements:` backfill across 6 CFR files (406 methods)** `D3 Deferred`
 
 **What:** Backfill of `**Implements:**` field was planned for 406 of 455 CFR methods (current coverage 10.8%; see `~/.claude/plans/create-a-plan-following-cached-canyon.md` v3). **Deferred** by pre-edit 3-agent battery analysis (2026-04-19, session-118). Not to be re-opened without meeting both prerequisites below.

@@ -3,6 +3,7 @@ name: validator
 description: Criteria-based quality validator for any artifact. Fresh context, explicit checklist, artifact-agnostic.
 tools: Read, Grep, Glob
 model: inherit
+applicable_domains: ["*"]
 ---
 
 # Validator
