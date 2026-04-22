@@ -457,6 +457,48 @@ class TestRegexEdgeCases:
 # ---------------------------------------------------------------------------
 
 
+class TestInternalPsTimeout:
+    """Internal `timeout 7 ps` guard: when the ps call hangs past 7s, the hook
+    must self-deny (exit 2) rather than let Claude Code's 10s SIGKILL fire
+    (which bypasses the ERR trap and is treated as fail-open).
+
+    Shipped session-121 (2026-04-21) per BACKLOG #91 sub-item 3 + LEARNING-LOG
+    "Bash ERR Trap Does Not Cover SIGKILL / Hook Timeout".
+    """
+
+    def test_ps_timeout_fails_closed(self, tmp_path):
+        """A fake `timeout` binary that always exits 124 (GNU timeout's
+        "command timed out" code) simulates ps hanging past the internal 7s
+        guard. The hook must exit 2 (deny), not let control fall through to
+        fail-open behavior.
+        """
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+
+        # Inject a fake `timeout` binary that returns 124 immediately.
+        fake_bin = tmp_path / "fake-bin"
+        fake_bin.mkdir()
+        fake_timeout = fake_bin / "timeout"
+        fake_timeout.write_text("#!/usr/bin/env bash\nexit 124\n")
+        fake_timeout.chmod(0o755)
+
+        # Put fake-bin FIRST so our `timeout` wins over any real one.
+        fake_path = f"{fake_bin}:/usr/bin:/bin"
+
+        # skip_process_scan=False to exercise the real process-scan branch
+        # (where the internal timeout wrapper lives).
+        exit_code, _response = run_hook(
+            "pytest tests/",
+            base_dir_override=home,
+            env_overrides={"PATH": fake_path},
+            skip_process_scan=False,
+        )
+
+        assert exit_code == 2, (
+            f"Hook must exit 2 (fail-closed) when internal ps timeout fires "
+            f"(exit 124 from `timeout` binary). Got exit {exit_code}."
+        )
+
+
 class TestFailClosedOnUnexpectedError:
     """The ERR trap converts unhandled errors to exit 2 (deny), not exit 1
     (non-blocking allow). This is the security-critical behavioral change.

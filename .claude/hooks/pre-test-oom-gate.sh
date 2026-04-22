@@ -45,6 +45,16 @@ set -euo pipefail
 # allow. With set -e, unhandled failures exit 1 (fail-open). This trap converts
 # all unhandled errors to exit 2 (fail-closed), matching the security gate model.
 # See LEARNING-LOG "Claude Code Hook Exit 1 = Fail-Open, Not Fail-Closed".
+#
+# Timeout semantics (SIGKILL bypasses the ERR trap): if this hook exceeds the
+# `timeout` configured in settings.json (currently 10s), Claude Code kills the
+# process via SIGKILL — which bash CANNOT trap — and treats the timeout as a
+# non-blocking allow (same as exit 1). Fail-closed is therefore conditional on
+# decision logic completing within the timeout window. Slow steps (notably
+# `ps -ax` under memory pressure, which is exactly when the gate is most needed)
+# are bounded with internal `timeout 7` guards below so the hook can self-deny
+# before the kill-switch fires. See LEARNING-LOG "Bash ERR Trap Does Not Cover
+# SIGKILL / Hook Timeout" (2026-04-21).
 trap 'exit 2' ERR
 
 HEARTBEAT_PATH="${HOME}/.context-engine/watcher-heartbeat.json"
@@ -225,7 +235,32 @@ TORCH_PROC_LIST=""
 if [ "${OOM_GATE_SKIP_PROCESS_SCAN:-}" = "1" ] && [ -n "${PYTEST_CURRENT_TEST:-}" ]; then
     debug "process scan skipped (OOM_GATE_SKIP_PROCESS_SCAN=1 + PYTEST_CURRENT_TEST set)"
 else
-    OTHER_TORCH_PROCS=$(ps -o pid=,command= -ax 2>/dev/null | \
+    # Bound the slowest step internally: if ps hangs past 7s, self-deny (exit 2)
+    # before Claude Code's 10s SIGKILL fires and is treated as fail-open.
+    # macOS lacks GNU `timeout` by default; fall back to coreutils `gtimeout`
+    # (from `brew install coreutils`) or to unguarded ps if neither is present.
+    _OOM_PS="ps"
+    if command -v timeout >/dev/null 2>&1; then
+        _OOM_PS="timeout 7 ps"
+    elif command -v gtimeout >/dev/null 2>&1; then
+        _OOM_PS="gtimeout 7 ps"
+    else
+        # Self-diagnosing fallback: the fail-open-on-timeout gap this mitigation
+        # was designed to close is OPEN on machines without a timeout binary.
+        # Surface the gap once per invocation so the user sees it in transcripts.
+        echo "[oom-gate] WARNING: no timeout/gtimeout binary found; ps is unguarded and the hook may fail-open under memory pressure. Install coreutils ('brew install coreutils' on macOS) to close the gap." >&2
+    fi
+    if _PS_OUTPUT=$($_OOM_PS -o pid=,command= -ax 2>/dev/null); then
+        :  # ps succeeded
+    else
+        _PS_RC=$?
+        if [ "$_PS_RC" = "124" ]; then
+            echo "[oom-gate] ps exceeded 7s internal timeout — failing closed (exit 2)" >&2
+            exit 2
+        fi
+        _PS_OUTPUT=""
+    fi
+    OTHER_TORCH_PROCS=$(echo "$_PS_OUTPUT" | \
         grep -E '(python|Python).*(ai_governance_mcp|ai-context-engine|context-engine-watcher|sentence_transformers)' | \
         grep -v 'grep' | \
         awk '{print $1}' | \
@@ -234,6 +269,10 @@ else
     if [ -n "$OTHER_TORCH_PROCS" ]; then
         # Filter out our own PID and parent (the hook's own bash + python3 processes)
         MY_PID=$$
+        # Single-PID lookup (much narrower scope than the -ax scan above); kernel
+        # process-table walk is bounded. Left unguarded deliberately to keep the
+        # control-flow simple. If memory-pressure evidence ever shows this stalls,
+        # wrap with $_OOM_PS using the same 124→exit-2 pattern as the scan above.
         MY_PPID=$(ps -o ppid= -p $$ 2>/dev/null | tr -d ' ' || echo "0")
         while IFS= read -r pid; do
             if [ -z "$pid" ]; then continue; fi

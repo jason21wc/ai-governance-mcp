@@ -12,6 +12,20 @@
 
 ## Active Lessons
 
+### Bash ERR Trap Does Not Cover SIGKILL / Hook Timeout (2026-04-21)
+
+BACKLOG #91 sub-item 3 asked what Claude Code does when a PreToolUse hook exceeds its configured `timeout` (10s in `.claude/settings.json` for the OOM-prevention gate). Official docs (code.claude.com/docs/en/hooks) confirm: **timeout is treated as non-blocking allow** (same semantics as `exit 1`), regardless of any ERR trap in the hook. Claude Code terminates the timed-out hook via SIGKILL, which bash CANNOT intercept — `trap ... ERR` only fires on command failures (errexit), not kernel-level process termination. Phase-1 research source quoted: *"For events that can block actions (like PreToolUse), a timeout is treated as a non-blocking error, so the tool call proceeds unless the hook actively returns a blocking decision before timing out."* Pre-edit 3-agent battery (Plan agent + contrarian) caught a correlation not obvious in the narrow "document semantics" framing: the gate's slowest step (`ps -ax`) runs slowest when the gate is MOST needed (memory pressure), so fail-open-on-timeout is positively correlated with the threat condition — making it a structural safety gap, not a theoretical concern.
+
+**Rule:** For safety-critical hooks, `trap 'exit 2' ERR` is necessary but NOT sufficient. Every slow decision step must be wrapped with an internal `timeout N` guard (N < platform-configured hook timeout) so the hook exits 2 deliberately before the platform's kill-switch can fire. Fail-closed on timeout is a property of the hook's internal structure, not the platform's enforcement.
+
+**How to apply:** For each slow step, wrap with `timeout $((HOOK_TIMEOUT - 3)) <command>`. On macOS without coreutils, fall back to `gtimeout` or unguarded (graceful degradation to pre-existing behavior). Detect timeout exit code (`124`) and convert to `exit 2` with a stderr diagnostic. Reference implementation: `.claude/hooks/pre-test-oom-gate.sh` (v2.38.3 update, session-121, 2026-04-21). CFR §9.3.10 Layer-3 hook-authoring guidance updated with this rule.
+
+**Principle:** `meta-core-systemic-thinking` — the structural fix is time-bounded decision logic inside the hook, not a trap that cannot fire on SIGKILL. Also `meta-quality-verification-validation` — behavioral research closed the "unknown semantics" gap with authoritative docs. Also `meta-safety-transparent-limitations` — CFR correction is transparent about fail-open-on-timeout rather than implying unconditional fail-closed.
+
+**Cross-ref:** LEARNING-LOG 2026-04-16 "Claude Code Hook Exit 1 = Fail-Open, Not Fail-Closed" covers the exit-code side of the same fail-open family. This entry covers the timeout side with a distinct actionable rule; neither alone captures the full fail-closed-conditional story. Cohort applies to all adopter-facing hook patterns, per §9.3.10 guidance.
+
+---
+
 ### Heading-Based Audits Must Exclude Fenced Code Blocks (2026-04-20)
 
 BACKLOG #105 was filed by a Cohort 4 Phase 4a coherence-audit (agent `a7ed2fe1124998854`) claiming `documents/title-30-storytelling-cfr.md` had duplicate version-history sections: `## Version History` at line 1028 + `## Changelog` at line 1982. Planning investigation found line 1028 is *inside* a ` ```markdown ` fenced code block opened at line 1025 and closed at line 1067 — an instructional template showing storytelling users what their own `REVISION-LOG.md` should look like. It renders as literal code text, not an H2 heading. The only real version-history section is `## Changelog` at line 1982. No duplicate existed. BACKLOG #105 closed as grep false positive; no file edits to title-30 CFR. Pre-edit 3-agent battery (contrarian `a678ce147ad6419ec` ACCEPT, coherence `aebedd54bb439db7d` COHERENT_WITH_ADDITIONAL_EDITS, validator `a18405166291ce50d` PASS_WITH_NOTES) convergent on the false-positive call.
