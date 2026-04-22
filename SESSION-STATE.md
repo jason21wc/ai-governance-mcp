@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-21 (session 121 — **BACKLOG #114 shipped (Ground-Truth rule → COMPLETION-CHECKLIST) + #90 closed via pre-edit battery (already mitigated + zero evidence); -2 backlog items net**)
+**Last Updated:** 2026-04-21 (session 121 — **BACKLOG #114 shipped (Ground-Truth rule → COMPLETION-CHECKLIST) + #90 closed via pre-edit battery + #103 closed at user direction (Happy disconnect no longer notable); -3 backlog items net**)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -49,7 +49,10 @@
    - **Dogfood moment (the real lesson this session proved):** Session-121 Task 2 is the first test of BACKLOG #114's structural promotion from episodic to operational. Sequence: (1) I shipped the Ground-Truth rule into COMPLETION-CHECKLIST at 23:54 UTC. (2) I immediately drafted a plan for #90 that violated the rule I'd just shipped — anchored on the backlog's "transient burst" framing without verifying the presumed failure mode actually occurs. (3) Pre-edit contrarian agent caught the violation. (4) Ground-Truth check (read `watcher.py:193-228` + grep for trip evidence) confirmed: already mitigated + zero evidence. Reinforces three prior lessons — Entry B itself (extended with a 4th data point, no new entry needed), "Pre-Edit Battery Is Cheaper Than Post-Edit Rework" (2026-04-19), "Hard-Mode Hooks Prove Deterministic Enforcement Works" (2026-02-28). **Key insight:** authoring a rule does not immunize against violating it; only structural enforcement (checklist + agent battery) does. Supports BACKLOG #114's premise that was the justification for filing it.
    - **Subagents used:** Explore (medium thoroughness, circuit breaker mapping, `ac4fe6027520892d6` equiv), Plan agent (design validation), contrarian-reviewer (devil's advocate, convergent HIGH finding).
    - **Scope discipline:** 4 file edits total across tasks (COMPLETION-CHECKLIST, BACKLOG ×2, SESSION-STATE ×2). No code path, no test impact, no version bump. Per CLAUDE.md Defer-vs-Fix ≤3-files heuristic per task; within budget.
-   - **BACKLOG state:** #114 removed (closed-shipped), #90 removed (closed-not-needed). Net -2 items. No new items filed.
+   - **Task 3 — BACKLOG #103 closed at user direction:** When surveying "quick and easy fixes," #103 (file MCP SDK heartbeat issue upstream) surfaced as a candidate. User recalled a CLI update having fixed the Happy 5-min disconnect; record check disagreed (session-113 diagnosis unchanged, no later fix-via-update entry, Claude-code auto-reconnect was always the mitigating factor). Surfaced the discrepancy + asked two clarifying questions (which CLI updated + whether tool-set churn is still visible). User directed: close #103; reopen if recurs.
+     - **Governance trail:** `gov-fd93e36d5cbe` (PROCEED, low confidence, no S-Series — "remove" keyword warning only).
+     - **Rationale for acceptance:** User's daily use is primary evidence. Either (a) a later update did silently fix it, (b) auto-reconnect renders it invisible enough to be a non-issue. Either way, filing an upstream issue against a problem that isn't user-visible has diminishing return. Upstream record remains discoverable via session-113 entry + `staging/happy-requesttimeout-2026-04-17.md` if symptoms recur.
+   - **BACKLOG state:** #114 removed (closed-shipped), #90 removed (closed-not-needed), #103 removed (closed-user-direction). Net -3 items. No new items filed.
    - **Resumption:** None blocking. Remaining priorities from top-4 survey: BACKLOG #22/#110 (Governance Effectiveness Measurement — single biggest open integrity question); #78 (Compliance Review #4, due ~2026-04-27); #42 Feedback Loop Analysis Tool (identified as highest-leverage missing functionality); #53 Modular Domain Architecture (adoption ceiling).
 
 120. **Session-120 (2026-04-21): BACKLOG #105 closure + agent fence-check amendment + hash regen — 3 commits pushed (`c52d491`, `8abef24`, `4730a9d`)**
@@ -255,10 +258,6 @@
 - `~/.claude/plans/swift-hopping-corbato.md` — 5-cohort remediation plan.
 - `~/.claude/plans/create-a-plan-following-cached-canyon.md` — README remediation plan (complete, archival).
 - `staging/readme-draft-v1.md` — README rewrite draft source (now in sync with live README; retained as archival).
-
-**Happy follow-up (BACKLOG #103, no rush):**
-- When user wants to file upstream: draft an issue at `github.com/modelcontextprotocol/typescript-sdk` requesting a heartbeat option (e.g., `keepaliveMs`) on `WebStandardStreamableHTTPServerTransport`. Cross-reference `github.com/slopus/happy` with the pre-filing research captured in the session-112 entry (Claude Code issues [#3033](https://github.com/anthropics/claude-code/issues/3033), [#20335](https://github.com/anthropics/claude-code/issues/20335), [#18557](https://github.com/anthropics/claude-code/issues/18557)).
-- Full revised diagnosis + draft text source: `staging/happy-requesttimeout-2026-04-17.md` (primary investigation record).
 
 **Short-term (unchanged from session-112):**
 - **Optional hardening:** `sudo pmset -a sleep 10` (raise 1-min idle-sleep → 10-min as defense-in-depth if happy ever crashes without cleanup).
