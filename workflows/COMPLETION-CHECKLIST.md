@@ -54,6 +54,17 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 
 ## Content changes (governance documents)
 
+### BEFORE PLANNING (review-triage)
+
+> Applies when the change is being done in response to a review finding (self-review, subagent review, external audit). Skip if the change is user-initiated or responding to a direct observation.
+
+0. **Ground-Truth verification** — Before approving remediation for any review-derived finding, verify the finding's presumed consumer actually exists. At least one of:
+   - (a) Grep the codebase for the presumed consumer (extractor regex, test references, query surface, CI hook).
+   - (b) Read the specific lines the finding references with ±10 lines surrounding context (not just grep snippets).
+   - (c) Verify the field/section/signal is actually parsed or enforced by code or agent behavior.
+
+   If Ground Truth contradicts the finding's framing, re-severity or close the finding **before** planning remediation. Do not let severity rhetoric in the review text override the absence of operational evidence. Rationale + 3 precedent instances: LEARNING-LOG 2026-04-20 "Re-severity Review Findings Against Ground Truth Before Remediation Planning."
+
 ### ENFORCED
 
 1. `python -m ai_governance_mcp.extractor` — rebuild index

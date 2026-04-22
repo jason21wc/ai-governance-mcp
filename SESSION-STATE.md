@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-21 (session 120 — **BACKLOG #105 closed as grep false positive + agent fence-check amendment + hash regen; 3 commits pushed** `cf75ccf..4730a9d`)
+**Last Updated:** 2026-04-21 (session 121 — **BACKLOG #114 shipped (Ground-Truth rule → COMPLETION-CHECKLIST) + #90 closed via pre-edit battery (already mitigated + zero evidence); -2 backlog items net**)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -35,6 +35,22 @@
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Last Session (2026-04-21)
+
+121. **Session-121 (2026-04-21): BACKLOG #114 shipped + #90 closed via Ground-Truth pre-edit battery — dogfood proof of Entry B's structural promotion**
+   - **Task 1 — BACKLOG #114 shipped:** Promote graduated LEARNING-LOG rule (2026-04-20 Entry B, "Re-severity Review Findings Against Ground Truth Before Remediation Planning") from episodic memory into operational checklist per BACKLOG #114. Prevents repeat of the 3-instance pattern (sessions 117, 118, 120) where review findings drove wasted remediation effort because presumed programmatic consumers didn't actually exist.
+     - **Edit:** Added new `BEFORE PLANNING (review-triage)` subsection at top of `workflows/COMPLETION-CHECKLIST.md` Content-Changes tier with one item — the Ground-Truth verification rule (grep presumed consumer / read ±10-line context / verify parse-or-enforce). Cross-references LEARNING-LOG entry as rationale. Item tagged "0" to signal pre-planning gate (runs before ENFORCED items 1-2).
+     - **Governance trail:** `gov-c17ad498750d` (PROCEED, medium confidence, no S-Series). Principle cited: `meta-governance-continuous-learning-adaptation` (Art. IV §2 — graduating a rule into the operational checklist makes it read-at-every-planning-gate rather than read-only-on-retrospective).
+   - **Task 2 — BACKLOG #90 closed (NOT implemented) after pre-edit 3-agent battery:** User selected #90 (Context Engine circuit breaker auto-recovery) as next work. Draft plan proposed exponential backoff (30s/60s/120s) before permanent trip. Pre-edit battery ran Plan agent + contrarian-reviewer in parallel.
+     - **Plan agent BLOCKERs:** (1) `_retry_watcher` called `_ensure_watcher(project_id)` but real signature is `_ensure_watcher(project_path, project_id)` — TypeError at recovery moment. (2) Plan said "no shutdown path found" but `shutdown()` exists at `project_manager.py:380` called from 3 sites.
+     - **Contrarian convergent finding (HIGH):** The motivating race is **already mitigated at a lower layer** — `src/ai_governance_mcp/context_engine/watcher.py:193-208` uses `_flush_lock.acquire(blocking=False)` + re-queue to serialize concurrent flushes (exact ENOENT class cited); `watcher.py:210-226` adds an exception-retry layer. The outer circuit breaker only fires if failures survive both. Zero production evidence of any trip ever occurring — grep across SESSION-STATE, LEARNING-LOG, BACKLOG, and session logs returns zero hits.
+     - **Outcome:** Close #90 without code change. Per LEARNING-LOG 2026-04-20 Entry B (just-canonicalized Ground-Truth rule) + `meta-methods §7.8` proportional rigor: evidence must precede remediation. ~60 LOC of timer-threading complexity for n=0 incidents fails the proportional-rigor check.
+     - **Re-open conditions (durable record — not re-filed as backlog item):** (1) Circuit-breaker trip observed in practice (log `"Stopping watcher for %s after %d consecutive failures"`), AND (2) triggering failure class not already handled by `watcher.py` `_flush_lock` or exception-retry path.
+     - **Governance trail:** `gov-7d265a9d3f51` (ESCALATE on S-Series keyword false-positive — keywords "remove"+"production" triggered `meta-safety-transparent-limitations` via score 0.44 semantic match; `compliance_evaluation` COMPLIANT, `safety_concerns` empty, `required_modifications` empty; user approved override explicitly). Pattern matches LEARNING-LOG 2026-03-29 "S-Series Keyword Trigger Produces False Positives" + session-114 `gov-a1a595a5fb93`.
+   - **Dogfood moment (the real lesson this session proved):** Session-121 Task 2 is the first test of BACKLOG #114's structural promotion from episodic to operational. Sequence: (1) I shipped the Ground-Truth rule into COMPLETION-CHECKLIST at 23:54 UTC. (2) I immediately drafted a plan for #90 that violated the rule I'd just shipped — anchored on the backlog's "transient burst" framing without verifying the presumed failure mode actually occurs. (3) Pre-edit contrarian agent caught the violation. (4) Ground-Truth check (read `watcher.py:193-228` + grep for trip evidence) confirmed: already mitigated + zero evidence. Reinforces three prior lessons — Entry B itself (extended with a 4th data point, no new entry needed), "Pre-Edit Battery Is Cheaper Than Post-Edit Rework" (2026-04-19), "Hard-Mode Hooks Prove Deterministic Enforcement Works" (2026-02-28). **Key insight:** authoring a rule does not immunize against violating it; only structural enforcement (checklist + agent battery) does. Supports BACKLOG #114's premise that was the justification for filing it.
+   - **Subagents used:** Explore (medium thoroughness, circuit breaker mapping, `ac4fe6027520892d6` equiv), Plan agent (design validation), contrarian-reviewer (devil's advocate, convergent HIGH finding).
+   - **Scope discipline:** 4 file edits total across tasks (COMPLETION-CHECKLIST, BACKLOG ×2, SESSION-STATE ×2). No code path, no test impact, no version bump. Per CLAUDE.md Defer-vs-Fix ≤3-files heuristic per task; within budget.
+   - **BACKLOG state:** #114 removed (closed-shipped), #90 removed (closed-not-needed). Net -2 items. No new items filed.
+   - **Resumption:** None blocking. Remaining priorities from top-4 survey: BACKLOG #22/#110 (Governance Effectiveness Measurement — single biggest open integrity question); #78 (Compliance Review #4, due ~2026-04-27); #42 Feedback Loop Analysis Tool (identified as highest-leverage missing functionality); #53 Modular Domain Architecture (adoption ceiling).
 
 120. **Session-120 (2026-04-21): BACKLOG #105 closure + agent fence-check amendment + hash regen — 3 commits pushed (`c52d491`, `8abef24`, `4730a9d`)**
    - **Task 1 — BACKLOG #105 closure (commit `c52d491`, plan `~/.claude/plans/proceed-with-a-plan-swirling-brook.md`):** User asked for an easy D1 fix. Backlog claimed duplicate version-history sections in `documents/title-30-storytelling-cfr.md` (`## Version History` at :1028 + `## Changelog` at :1982). Ground Truth: `:1028` is INSIDE a ```markdown fenced code block (opened :1025, closed :1067) — an instructional REVISION-LOG template for storytelling users, not a real H2. Only `## Changelog` at :1982 is canonical (6 entries, §2.1.1-compliant). Premise wrong; closed as grep false positive with **zero edits to title-30 CFR**. Answered user sub-question: title-15/40 do NOT need Changelog→Version History normalization (§2.1.1 Notes permits all four variants).
@@ -228,9 +244,8 @@
 ## Next Actions
 
 **Immediate (resume trigger for next session):**
-1. **None blocking.** All session-120 work pushed (`cf75ccf..4730a9d`); CI green (CodeQL + CI both success).
+1. **Session-121 in progress:** BACKLOG #114 shipped (Ground-Truth rule → COMPLETION-CHECKLIST Content-Changes tier, `BEFORE PLANNING (review-triage)` subsection). Next up: BACKLOG #22 / #110 (Governance Effectiveness Measurement — effectively the single biggest open integrity question).
 2. **Trigger-gated work waiting:**
-   - **BACKLOG #114** — COMPLETION-CHECKLIST Ground-Truth integration. Trigger: next review-methodology change OR Cohort-5+ plan drafting.
    - **BACKLOG #78** — Governance Compliance Review #4. Due ~2026-04-27 (10 days from Review #3 on 2026-04-17).
    - **BACKLOG #109** — Deferred-with-trigger cadence audit. Next due ~2026-05-20.
 3. **When user wants to reinstate intent-engineering link:** drop `documents/intent-engineering.md` into the repo, then edit `README.md:23` to re-add the second sentence.
