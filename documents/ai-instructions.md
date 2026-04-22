@@ -1,16 +1,16 @@
 ---
-version: "2.7.2"
+version: "2.7.3"
 status: "active"
-effective_date: "2026-04-20"
+effective_date: "2026-04-21"
 domain: "meta"
 governance_level: "framework-activation"
 ---
 
 # AI Governance Framework Activation
 
-**Version:** 2.7.2
+**Version:** 2.7.3
 **Purpose:** Loader document that activates the governance framework for AI sessions.
-**Updated:** 2026-04-20
+**Updated:** 2026-04-21
 
 ---
 
@@ -199,7 +199,7 @@ This loader is designed for use with:
 - constitution.md v5.0.7+
 - rules-of-procedure.md v3.27.4+
 - title-10-ai-coding.md v2.7.1+
-- title-10-ai-coding-cfr.md v2.36.0+
+- title-10-ai-coding-cfr.md v2.38.4+
 - title-20-multi-agent.md v2.7.1+
 - title-20-multi-agent-cfr.md v2.17.0+
 - title-30-storytelling.md v1.4.1+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.7.3 | 2026-04-21 | PATCH: Session-121 Task 5 post-commit double-check (coherence-auditor MISLEADING #1) — `<document_versions>` pin for `title-10-ai-coding-cfr.md` lagged three PATCH bumps (`v2.36.0+` pinned while shipped is `v2.38.4`). Bumped pin to `v2.38.4+` so adopters inherit the canonical fail-closed hook recipe shipped in §9.3.10. Governance trail: `gov-cb3074ca144b` (Task 5 execution eval). Pattern: same pin-lag class as v2.7.1/v2.7.2 — this is now a recurring post-commit drift category (adopter-facing surfaces outside the plan's explicit file list). New BACKLOG item filed to add body-header + pin sync to the CFR PATCH authoring template as the structural fix per `meta-core-systemic-thinking`. |
 | 2.7.2 | 2026-04-20 | PATCH: Cross-cohort meta-review remediation (coherence-auditor `a593b82d189eb502d` flagged `<document_versions>` pin for rules-of-procedure lagged post-commit PATCH bump to v3.27.4). Bumped `rules-of-procedure.md v3.27.3+` → `v3.27.4+` and `constitution.md v5.0.6+` → `v5.0.7+` (meta-remediation added v5.0.7 Historical Amendment entry). Governance trail: `gov-9ab4e2bca855` (Cohort 5 post-commit carry-forward). Pattern: identical to v2.7.1 pin-lag remediation two commits prior — reinforces contrarian arc-level finding that adopter-facing version pins are a consistent post-commit drift class. |
 | 2.7.1 | 2026-04-20 | PATCH: Cohort 5 post-commit double-check (sessions 5-1 + 5-2, commits `b0e14e4` + `bdafbc6`) found `<document_versions>` pins lagging shipped state. Bumped `constitution.md v5.0.3+` → `v5.0.6+` (Session 5-1 Article reorder v5.0.5 + Session 5-2 v5.0.6 additions) and `rules-of-procedure.md v3.27.2+` → `v3.27.3+` (Session 5-2 §1.1.3 enum + governance_level removal). Convergent HIGH/DANGEROUS finding per contrarian + coherence; same pattern as Cohort 4 Phase 4a post-commit PATCH where this same pin block lagged. Governance trail: `gov-9ab4e2bca855`. |
 | 2.7 | 2026-04-19 | PATCH: Added this Changelog section (closes F-P1-06 gap flagged in 2026-04-18 self-review; ai-instructions.md was the only normative document lacking a version-history section per rules-of-procedure §2.1.1 Step 3). Bumped document-version pins in `<document_versions>` block to reflect constitution v5.0.3+ (post-Cohort-4 Phase 4a) and rules-of-procedure v3.27.2+ (new §2.1.1 Notes rules: version-history required + audit_id citation). Per Cohort 4 Phase 4a (session-117). Post-commit double-check patch: synced body-header Version/Updated fields with frontmatter — commit formalizing the "frontmatter must match" rule had violated it (dogfood failure). |

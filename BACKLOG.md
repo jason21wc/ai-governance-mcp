@@ -31,6 +31,20 @@
 
 ### Active (Implement Now/Soon)
 
+115. **Add body-header + pin sync to CFR PATCH authoring template** `D1 Docs`
+
+**What:** Body-header version drift (e.g., `documents/title-10-ai-coding-cfr.md:12` was `**Version:** 2.36.1` while frontmatter was `v2.38.4`) has been a recurring post-commit finding across sessions 117, 119, 121 Task 4, 121 Task 5. Coherence auditor ruling (session-121 Task 5 post-commit, agent `a00a1df2db9dfdd88`): *"body-header staleness is a recurring class of drift. Rather than fix once, consider a PATCH-authoring checklist item."* Similarly, `<document_versions>` pin drift in `documents/ai-instructions.md` has repeated across v2.7.1, v2.7.2, v2.7.3 (sessions 119, 119, 121).
+
+**Structural fix proposal:** Add to `workflows/COMPLETION-CHECKLIST.md` "Content changes (governance documents)" tier a new checklist item: *"When bumping CFR frontmatter version, also update (a) body-header Version + Effective Date lines, (b) `ai-instructions.md <document_versions>` pin for that CFR, (c) SESSION-STATE Quick Reference content row. Verify all four surfaces move together before commit."*
+
+**Scope:** 1 file (`workflows/COMPLETION-CHECKLIST.md`), ~1 checklist item added. ~15 minutes.
+
+**Re-open trigger:** Next CFR PATCH/MINOR/MAJOR bump is the natural trigger — fold in while editing the CFR Version History to avoid stacking bumps (per user `feedback_unpushed_version_bumps` memory).
+
+**Why not fix-now (session-121):** Current session already amended commit `73e8d07` with two convergent propagation fixes; adding a third surface (COMPLETION-CHECKLIST meta-fix) is proportional-rigor territory — next PATCH is the natural fold-in.
+
+**Origin:** Session-121 Task 5 post-commit double-check convergent finding (contrarian `a21558a490dfcd8af` + coherence `a00a1df2db9dfdd88`). Recurring pattern observation per `meta-core-systemic-thinking`.
+
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
 113. **Plan-stage pre-edit battery effectiveness pattern — "4-of-4 catches suggest first-draft plans are systematically under-rigored"** `D2 Discussion`

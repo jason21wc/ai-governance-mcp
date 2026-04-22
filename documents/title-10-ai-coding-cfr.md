@@ -1,5 +1,5 @@
 ---
-version: "2.38.3"
+version: "2.38.4"
 status: "active"
 effective_date: "2026-04-21"
 domain: "ai-coding"
@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.36.1
+**Version:** 2.38.4
 **Status:** Active
-**Effective Date:** 2026-04-09
+**Effective Date:** 2026-04-21
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -7174,8 +7174,30 @@ Advisory instructions alone are probabilistic — AI models skip compliance call
 - **Session-level check:** one compliant call anywhere in transcript = pass. Avoids blocking edit-test-edit cycles. Known limitation: coarse granularity after task pivots — acceptable tradeoff vs false blocks
 - **Soft mode** (default): inject `additionalContext` reminder — AI is reminded, not blocked
 - **Fast pre-filter:** string match before JSON parse (skips ~99% of transcript lines)
-- **Fail behavior:** soft mode = fail-open (missing transcript = allow); hard mode = fail-closed on explicit `exit 2` (deny) returned **within the configured hook timeout**. Timeouts and `exit 1` paths remain fail-open per Claude Code hook semantics (SIGKILL on timeout bypasses bash `trap 'exit 2' ERR`). Hook authors must bound slow decision steps with internal `timeout N` guards (or an equivalent language-native deadline) so the hook self-denies before the platform's kill-switch fires. See `.claude/hooks/pre-test-oom-gate.sh` for a reference implementation and LEARNING-LOG "Bash ERR Trap Does Not Cover SIGKILL / Hook Timeout" (2026-04-21).
+- **Fail behavior:** soft mode = fail-open (missing transcript = allow); hard mode = fail-closed on explicit `exit 2` within the configured hook timeout. Timeouts and `exit 1` remain fail-open per Claude Code hook semantics. See "Hook Implementation Prerequisites & Fail-Closed Recipe" below for authoring guidance.
 - Combine multiple compliance checks in one hook (single transcript scan, adaptive output)
+
+**Hook Implementation Prerequisites & Fail-Closed Recipe:**
+
+*Platform Scope: applies to Claude Code PreToolUse hooks. Other hook-supporting platforms (Cursor, Windsurf, future MCP clients) may differ — verify timeout, exit-code, and signal semantics against the platform's hook lifecycle docs before porting.*
+
+Claude Code treats hook timeout as non-blocking allow (SIGKILL bypasses bash `trap ... ERR`), per LEARNING-LOG 2026-04-21 "Bash ERR Trap Does Not Cover SIGKILL / Hook Timeout". A hook that claims fail-closed must enforce the property *internally*; the platform does not. Recipe:
+
+1. **Initialize the trap.** `set -euo pipefail` + `trap 'exit 2' ERR` at the top. Catches unhandled command failures; does NOT catch SIGKILL.
+2. **Detect the platform timeout binary.** `command -v timeout` (Linux) / `command -v gtimeout` (macOS coreutils) / neither. Pattern: initialize a variable to the **unwrapped** command (e.g., `_CMD="ps"`), then conditionally **replace** with the wrapped form (e.g., `_CMD="timeout 7 ps"`) when a binary is found. This keeps downstream invocation uniform (`$_CMD -ax ...`) whether the wrapper is active or not.
+3. **Wrap slow decision steps.** Invoke the heaviest commands (e.g., `ps -ax`, network call, large file read) via the wrapped variable from step 2. Target inner duration: shorter than the platform timeout with margin for downstream logic. Typical: ~70% of platform timeout (e.g., 7s against Claude Code's 10s default).
+4. **Detect the timeout exit code.** Capture the exit code inside an `if var=$(cmd); then ...; else rc=$?; [detect 124]; fi` construct — this suppresses the ERR trap from firing before the 124 check runs (otherwise `set -e` + `trap ... ERR` would exit 2 before the diagnostic fires). GNU `timeout` returns 124 on expiry; convert to deliberate `exit 2` with a stderr diagnostic so the deny decision is visible in transcripts.
+5. **Self-diagnose when the timeout binary is absent.** If neither `timeout` nor `gtimeout` is found, emit a one-line stderr WARNING naming the missing prerequisite and the install command. Graceful degradation (unguarded) is acceptable; silent degradation is not.
+6. **Offer structured escape hatches.** Document at least one semantic bypass (intentional override, e.g., `PYTEST_ALLOW_HEAVY=1`) and one structural bypass (the gate itself is broken, e.g., `PYTEST_SKIP_OOM_GATE=1`). Hooks without escape hatches get commented out — worse than a documented bypass.
+
+**Platform prerequisites:**
+- **macOS:** `brew install coreutils` — provides `gtimeout` (coreutils utilities gain a `g` prefix).
+- **Linux:** GNU `timeout` typically pre-installed via coreutils; verify with `command -v timeout`.
+- **Windows/WSL:** *Untested.* Most WSL distributions ship coreutils; Git Bash on native Windows does not. Contribution welcome.
+
+**Reference implementation:** `.claude/hooks/pre-test-oom-gate.sh` (pattern established v2.38.3, 2026-04-21) — dogfoods the recipe end-to-end for pytest OOM prevention.
+
+**Testing pattern:** inject a fake `timeout` binary into PATH that exits 124; assert the hook exits 2 with the expected stderr diagnostic. Example: `tests/test_pre_test_oom_gate_hook.py::TestInternalPsTimeout::test_ps_timeout_fails_closed`. Pattern is language-independent (pytest + subprocess, shellspec, BATS, Go testing, etc.).
 
 **Layer 4: Hard Mode Blocking:**
 - Environment variable toggle (e.g., `GOVERNANCE_HARD_MODE=true`) — off by default
@@ -8924,6 +8946,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.38.4 | 2026-04-21 | PATCH: §9.3.10 Layer 3 extended with "Hook Implementation Prerequisites & Fail-Closed Recipe" sub-subsection canonicalizing the 6-step fail-closed authoring pattern (ERR trap, platform-detect timeout binary, wrap slow steps, detect exit 124, self-diagnose on missing binary, provide escape hatches). Platform prerequisites added (macOS `brew install coreutils`; Linux typically pre-installed; Windows/WSL marked untested). Line 7177 fail-behavior bullet collapsed from recipe restatement to pointer so the recipe has one canonical home. **Root cause:** session-121 Task 4 demonstrated that fail-closed hook authoring requires recipe-level guidance not reducible to a single bullet — SIGKILL-bypass asymmetry + platform binary dependency + self-diagnosing fallback + escape-hatch discipline are all load-bearing. The knowledge was scattered across LEARNING-LOG (lesson), hook code (example), and a compressed one-liner (§9.3.10:7177); external AI agents querying the framework via MCP would have to synthesize across surfaces. This PATCH consolidates the recipe into one retrievable location with pointers from the other sources, per `meta-method-single-source-of-truth`. Pre-edit 3-agent battery (Plan + contrarian + coherence) surfaced (a) `§9.8.5` citation drift (that rule lives in the constitution, not title-10 — dropped per Plan agent), (b) n=1 consumer concern (contrarian Ground-Truth challenge accepted in spirit via trimmed scope — 30 lines not 80+), (c) Title-20 `§4.6.3` overlap (retained current cross-ref model; retrieval engine handles discoverability per proportional rigor), (d) platform coverage honesty (Linux/Windows marked untested). **Constitutional Basis:** `meta-method-single-source-of-truth` (recipe has one canonical home; other surfaces point to it), `meta-core-systemic-thinking` (consolidate scattered knowledge, don't duplicate it), `meta-methods §7.8` (proportional rigor — ~30 lines of content, not 80+ with code blocks), `meta-safety-transparent-limitations` (explicit "untested" markers for unverified platforms). Gov audit: `gov-cb3074ca144b`. |
 | 2.38.3 | 2026-04-21 | PATCH: §9.3.10 Layer 3 fail-behavior corrected + hook-authoring guidance added. Previous text stated "hard mode = fail-closed" unqualified; corrected to "fail-closed on explicit `exit 2` returned within the configured hook timeout." Timeouts and `exit 1` remain fail-open per Claude Code hook semantics (verified against code.claude.com/docs/en/hooks, quoted: *"For events that can block actions (like PreToolUse), a timeout is treated as a non-blocking error, so the tool call proceeds unless the hook actively returns a blocking decision before timing out"*). Added hook-authoring guidance: bound slow decision steps with internal `timeout N` guards because SIGKILL bypasses bash `trap ... ERR`. **Root cause:** the framework's fail-closed claim inherited the "enforcement layer reliability" abstraction without accounting for the specific kernel-level process-termination semantics of the underlying Claude Code hook runner. Pre-edit battery contrarian-review surfaced the correlation risk (gate's `ps` call runs slowest under memory pressure — exactly when the gate is most needed) that made fail-open-on-timeout a structural gap, not a theoretical concern. Closes BACKLOG #91 sub-item 3 (hook timeout behavior undocumented — re-severity MED → HIGH-at-close pre-remediation → LOW-at-close post-remediation per LEARNING-LOG 2026-04-20 Entry B). **Constitutional Basis:** `meta-core-systemic-thinking` (time-bounded decision logic is structural fix; trap-that-can't-fire is symptomatic), `meta-quality-verification-validation` (behavioral research closed the "unknown semantics" gap with authoritative docs), `meta-safety-transparent-limitations` (transparent about conditional fail-closed rather than implying unconditional). Gov audit: `gov-ac6ef7b74f67`. |
 | 2.38.2 | 2026-04-17 | PATCH: Appendix F.1 — added Operational note for preventing macOS system sleep during remote sessions on local-execution tools (Happy Engineering and `/remote-control`). Canonical form: `caffeinate -i <utility>` (wrapping form per `man caffeinate`'s own example). Flag choice deliberate: `-i` prevents idle system sleep; display still allowed to sleep. Explicit anti-recommendations against `-d` (keeps display on) and `-s` (AC-only, fails silently on battery). Includes timed-guardrail variant, background alternative, verification command (`pmset -g assertions`), and AI-agent guidance to use the wrapping form. Dispatch unaffected (runs on Anthropic infra). User-reported: Mac entering sleep during remote Happy sessions, cutting connection. Claims verified against `man caffeinate` per S-Series Transparent Limitations gate before authoring. |
 | 2.38.1 | 2026-04-17 | PATCH: §A.5.5 replaces fixed-50 entry-count trigger with dynamic `post_cleanup_baseline + 20` formula; §A.5.6 accretion cross-reference updated to defer to §A.5.5. Root cause: fixed threshold conflated entry count with accretion — it fired on legitimate baseline growth (MCP ecosystem expansion, new memory files) and produced 2+ consecutive compliance reviews with "category-legitimate, not accretion" dispositions, eroding signal-to-noise. Dynamic threshold mirrors the baseline-drift pattern from multi-agent §6.4 (Autonomous Drift Monitoring) and multimodal-rag §6.3 (Drift Detection): establish baseline → detect delta → re-baseline after corrective action. Added second-order signal (one-shots-found per review) in §A.5.5 to distinguish calibrated baseline from contaminated baseline. COMPLIANCE-REVIEW.md Check 7 updated in same commit with Baseline and One-shots-found columns plus baseline-recording step. Constitutional Basis: Systemic Thinking (address structural cause of false-positive dispositions, not the count), Verification & Validation (threshold must reflect the signal it detects). |
