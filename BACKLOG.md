@@ -31,6 +31,32 @@
 
 ### Active (Implement Now/Soon)
 
+117. **Plans must include a plain-English summary for human review** `D1 Improvement`
+
+**What:** User feedback this session (2026-04-21): *"Moving forward I need an easy to read summary of the plan. Can you show the plan again with the clear summary at the end and I can determine if I will approve."* The pattern was effective — added a plain-English summary section at the end of the Task 4 plan, user could engage with material choices (scope trade-offs, what's NOT being done, what needs their decision) without wading through the technical detail (principle citations, pattern references, file-by-file edit lists). Task 5 proactively included the same section; worked the same way.
+
+**Problem:** Plans written in plan mode optimize for AI execution guidance — dense technical detail, principle IDs, pattern cross-references, file manifests. This serves execution but makes human review expensive. The human sits at the approval decision but has to extract the decision points from the execution detail. Without a consistent plain-English layer, users either ask for the summary (friction) or approve without full comprehension (risk).
+
+**Proposed approach (needs discussion to pick home):**
+- **Option A — Plan template only:** Extend `.claude/plan-template.md` with a mandatory "Plain-English Summary" section at end. Template enforcement is structural (plan-mode flow reads the template).
+- **Option B — Behavioral floor:** Add to CLAUDE.md Behavioral Floor a "plans MUST include a plain-English summary of what's changing, the one judgment call, and trade-offs." Ambient pressure, may not consistently trigger.
+- **Option C — Plan subagent:** Encode in `documents/agents/Plan.md` (if exists) or the equivalent. Only fires when Plan subagent is used.
+- **Option D — Combination:** SSOT in plan template; cross-ref from CLAUDE.md + Plan agent.
+
+**Summary content spec (for whichever home is chosen):**
+- What's changing (plain verbs, no jargon)
+- The one material decision the user is being asked to approve
+- The trade-off (why this over alternatives, in 1-2 sentences)
+- What's deliberately NOT being done (explicit non-goals)
+- Length: ~5-10 short paragraphs, enough to decide, not exhaustive
+- Placement: end of plan so AI execution context (file paths, patterns, principles) is on top, human scrolls to bottom
+
+**Why D1 Improvement:** Docs-only change once approach chosen. Scope ≤2 files depending on Option.
+
+**Re-open prerequisites:** None — ready to plan. User direction in this filing IS the consumer evidence per Ground-Truth rule.
+
+**Origin:** Session-121 user-requested pattern (2026-04-21 Task 4 review + Task 5 proactive application). Filed at user's explicit request 2026-04-22.
+
 116. **PreToolUse hook on ExitPlanMode enforces contrarian-reviewer invocation** `D2 New Capability`
 
 **What:** V-004 (Contrarian review compliance before ExitPlanMode) escalation threshold met at Governance Compliance Review #4 (2026-04-22). Evidence: 3 sessions across the 5-session measurement window required user reminder to invoke contrarian-reviewer before ExitPlanMode (baseline 2026-04-08 session 1, session 3 2026-04-13, session 5 2026-04-21 Task 4). Plan template gate text ("DO NOT populate Recommended Approach until contrarian section has content") is advisory and non-deterministic.
