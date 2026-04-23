@@ -1,7 +1,7 @@
 ---
-version: "2.38.4"
+version: "2.38.5"
 status: "active"
-effective_date: "2026-04-21"
+effective_date: "2026-04-23"
 domain: "ai-coding"
 governance_level: "federal-regulations"
 ---
@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.38.4
+**Version:** 2.38.5
 **Status:** Active
-**Effective Date:** 2026-04-21
+**Effective Date:** 2026-04-23
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -7159,7 +7159,7 @@ def generate_config(platform: str) -> dict:
 
 Advisory instructions alone are probabilistic — AI models skip compliance calls in long conversations, with many tools, or when confident they already know the answer. Multi-turn performance degrades ~39% on average (Microsoft Research, 2025). Structural enforcement is needed for reliable compliance in production workflows.
 
-**The 4-Layer Enforcement Stack:**
+**The 6-Layer Enforcement Stack:**
 
 | Layer | Mechanism | Reliability | Token Cost |
 |-------|-----------|-------------|------------|
@@ -7168,6 +7168,7 @@ Advisory instructions alone are probabilistic — AI models skip compliance call
 | 3. Structural Hooks | PreToolUse/UserPromptSubmit **transcript scanning** | High — deterministic, cannot be skipped | ~0 (runs outside context) |
 | 4. Hard Mode Blocking | Hook returns `permissionDecision: deny` | Maximum — blocks non-compliant actions | ~0 (runs outside context) |
 | **5. Pre-Push Quality Gate** | PreToolUse on `git push` — transcript scanning for tests + reviews | Maximum — blocks push without tests/reviews | Claude Code only |
+| **6. Pre-Plan-Approval Gate** | PreToolUse on `ExitPlanMode` — plan-scoped scan for contrarian-reviewer invocation | Maximum — blocks plan approval without contrarian review | Claude Code only (requires matching Claude Code harness support) |
 
 **Layer 3: Structural Hook Pattern:**
 - Scan transcript (JSONL) for required tool calls before allowing file-modifying operations (`Bash|Edit|Write`)
@@ -7195,7 +7196,9 @@ Claude Code treats hook timeout as non-blocking allow (SIGKILL bypasses bash `tr
 - **Linux:** GNU `timeout` typically pre-installed via coreutils; verify with `command -v timeout`.
 - **Windows/WSL:** *Untested.* Most WSL distributions ship coreutils; Git Bash on native Windows does not. Contribution welcome.
 
-**Reference implementation:** `.claude/hooks/pre-test-oom-gate.sh` (pattern established v2.38.3, 2026-04-21) — dogfoods the recipe end-to-end for pytest OOM prevention.
+**Reference implementations:**
+- `.claude/hooks/pre-test-oom-gate.sh` (pattern established v2.38.3, 2026-04-21) — dogfoods the recipe for pytest OOM prevention.
+- `.claude/hooks/pre-exit-plan-mode-gate.sh` (pattern applied v2.38.5, 2026-04-23) — second dogfood for plan-approval contrarian gating; demonstrates transcript-scanning hook + Behavioral-Floor pairing.
 
 **Testing pattern:** inject a fake `timeout` binary into PATH that exits 124; assert the hook exits 2 with the expected stderr diagnostic. Example: `tests/test_pre_test_oom_gate_hook.py::TestInternalPsTimeout::test_ps_timeout_fails_closed`. Pattern is language-independent (pytest + subprocess, shellspec, BATS, Go testing, etc.).
 
@@ -7220,13 +7223,29 @@ A PreToolUse hook on `git push` that verifies:
 
 *Cross-references: §5.1.7 (Subagent Review Triggers), workflows/COMPLETION-CHECKLIST (New Code Path Security Checklist)*
 
+**Layer 6: Pre-Plan-Approval Gate** (structural, blocks plan-mode exit)
+
+A PreToolUse hook on `ExitPlanMode` that verifies contrarian-reviewer was invoked for the current plan (plan-scoped anchor: scans for `Task` tool_use with `subagent_type == "contrarian-reviewer"` AFTER the most recent prior `ExitPlanMode` in the transcript; bootstrap-aware for first plan of session).
+
+**Configuration:** `.claude/settings.json` with PreToolUse matcher `"ExitPlanMode"`. Uses `scan_transcript.py --contrarian-after-last-plan` mode (tool_use parse, not substring match — defeats false-allows from file reads that mention contrarian-reviewer).
+
+**Emergency overrides:** `PLAN_CONTRARIAN_CONFIRMED=1` (semantic — "I did invoke contrarian, scanner missed it") + `PLAN_CONTRARIAN_SKIP_HOOK=1` (structural — "gate is broken"). Both audit-logged to `~/.context-engine/plan-contrarian-denies.log` with 100KB rotation cap.
+
+**Design rationale:** V-004 (session-108 to session-121) measured advisory-only compliance at 60% (3/5 sessions required user reminder). Hook enforces the invocation anchor at ExitPlanMode — the moment plan approval would ship. Pairs with CLAUDE.md Governance directive `contrarian-before-exit-plan` + `documents/tiers.json` behavioral_floor entry so the AI learns to invoke unprompted rather than be blocked. Per LEARNING-LOG 2026-02-28 "Hard-Mode Hooks Prove Deterministic Enforcement Works" + `meta-core-systemic-thinking`.
+
+*Cross-references: workflows/COMPLIANCE-REVIEW.md V-004 (closure) + V-006 (hook-denial-rate instrumentation), `.claude/plan-template.md` (Contrarian Review Output section the hook enforces).*
+
 **Enforcement Design Heuristics:**
 - [ ] Start with Layer 1 (instructions) + Layer 2 (reminders) — measure compliance
 - [ ] Add Layer 3 (hooks) when advisory compliance is inconsistent
 - [ ] Add Layer 4 (hard mode) only for environments requiring guaranteed compliance
+- [ ] Add Layer 5 (pre-push quality gate) when test/review compliance is inconsistent
+- [ ] Add Layer 6 (pre-plan-approval gate) when plan-mode contrarian compliance is inconsistent (V-004 pattern)
+- [ ] Pair every structural layer with a matching Behavioral Floor directive so the AI learns to comply unprompted, not just react to denies
 - [ ] Session-level checks balance reliability with workflow friction
 - [ ] Combine multiple compliance checks in one hook (single transcript scan, adaptive output)
 - [ ] Each system's hard mode should be independently configurable
+- [ ] Instrument hook-denial rate — it should trend toward zero as the paired directive internalizes
 
 > **Cross-references:** §9.3.5 (Server Instructions Pattern — Layer 1), §9.3.6 (Per-Response Reminders — Layer 2), §5.6.5 (MCP Server Vetting — complementary security concern)
 
@@ -8946,6 +8965,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.38.5 | 2026-04-23 | PATCH: §9.3.10 — added Layer 6 (Pre-Plan-Approval Gate) to Enforcement Stack table; renamed header "4-Layer" → "6-Layer" to reflect the existing (pre-this-PATCH) 5-layer reality plus new Layer 6. New `.claude/hooks/pre-exit-plan-mode-gate.sh` (session-122) enforces contrarian-reviewer invocation before ExitPlanMode, with plan-scoped scanner extension (`scan_transcript.py --contrarian-after-last-plan`), CLAUDE.md Behavioral Floor pairing, and `documents/tiers.json` behavioral_floor directive `contrarian-before-exit-plan`. Implements CFR §9.3.10 Hook Implementation Prerequisites Recipe canonicalized v2.38.4 — ERR trap, platform timeout detection (gtimeout fallback), self-diagnosing fallback, dual bypass envs (`PLAN_CONTRARIAN_CONFIRMED`=semantic, `PLAN_CONTRARIAN_SKIP_HOOK`=structural/audit-logged). Closes BACKLOG #116 + V-004 (REFUTED → ESCALATED → IMPLEMENTED). 17 unit tests (8 scanner + 9 hook contract). **Root cause:** V-004 Compliance Review #4 confirmed 3-session advisory-compliance failure (baseline + session 3 + session 121 Task 4 all required user reminder); plan template gate text insufficient. **Constitutional Basis:** `meta-core-systemic-thinking` (structural enforcement replaces advisory), `meta-quality-verification-validation` (plan-scoped anchor verifies current-plan contrarian, not stale prior-plan), `meta-safety-transparent-limitations` (Claude Code platform dependency explicit in Layer 6 row). Gov audit: `gov-94e385575297`. Pre-edit 3-agent battery (Plan + contrarian + coherence, session-122) surfaced and resolved 2 BLOCKERs + 4 HIGH findings before code written; post-edit + post-commit batteries will run per session-121 established pattern. |
 | 2.38.4 | 2026-04-21 | PATCH: §9.3.10 Layer 3 extended with "Hook Implementation Prerequisites & Fail-Closed Recipe" sub-subsection canonicalizing the 6-step fail-closed authoring pattern (ERR trap, platform-detect timeout binary, wrap slow steps, detect exit 124, self-diagnose on missing binary, provide escape hatches). Platform prerequisites added (macOS `brew install coreutils`; Linux typically pre-installed; Windows/WSL marked untested). Line 7177 fail-behavior bullet collapsed from recipe restatement to pointer so the recipe has one canonical home. **Root cause:** session-121 Task 4 demonstrated that fail-closed hook authoring requires recipe-level guidance not reducible to a single bullet — SIGKILL-bypass asymmetry + platform binary dependency + self-diagnosing fallback + escape-hatch discipline are all load-bearing. The knowledge was scattered across LEARNING-LOG (lesson), hook code (example), and a compressed one-liner (§9.3.10:7177); external AI agents querying the framework via MCP would have to synthesize across surfaces. This PATCH consolidates the recipe into one retrievable location with pointers from the other sources, per `meta-method-single-source-of-truth`. Pre-edit 3-agent battery (Plan + contrarian + coherence) surfaced (a) `§9.8.5` citation drift (that rule lives in the constitution, not title-10 — dropped per Plan agent), (b) n=1 consumer concern (contrarian Ground-Truth challenge accepted in spirit via trimmed scope — 30 lines not 80+), (c) Title-20 `§4.6.3` overlap (retained current cross-ref model; retrieval engine handles discoverability per proportional rigor), (d) platform coverage honesty (Linux/Windows marked untested). **Constitutional Basis:** `meta-method-single-source-of-truth` (recipe has one canonical home; other surfaces point to it), `meta-core-systemic-thinking` (consolidate scattered knowledge, don't duplicate it), `meta-methods §7.8` (proportional rigor — ~30 lines of content, not 80+ with code blocks), `meta-safety-transparent-limitations` (explicit "untested" markers for unverified platforms). Gov audit: `gov-cb3074ca144b`. |
 | 2.38.3 | 2026-04-21 | PATCH: §9.3.10 Layer 3 fail-behavior corrected + hook-authoring guidance added. Previous text stated "hard mode = fail-closed" unqualified; corrected to "fail-closed on explicit `exit 2` returned within the configured hook timeout." Timeouts and `exit 1` remain fail-open per Claude Code hook semantics (verified against code.claude.com/docs/en/hooks, quoted: *"For events that can block actions (like PreToolUse), a timeout is treated as a non-blocking error, so the tool call proceeds unless the hook actively returns a blocking decision before timing out"*). Added hook-authoring guidance: bound slow decision steps with internal `timeout N` guards because SIGKILL bypasses bash `trap ... ERR`. **Root cause:** the framework's fail-closed claim inherited the "enforcement layer reliability" abstraction without accounting for the specific kernel-level process-termination semantics of the underlying Claude Code hook runner. Pre-edit battery contrarian-review surfaced the correlation risk (gate's `ps` call runs slowest under memory pressure — exactly when the gate is most needed) that made fail-open-on-timeout a structural gap, not a theoretical concern. Closes BACKLOG #91 sub-item 3 (hook timeout behavior undocumented — re-severity MED → HIGH-at-close pre-remediation → LOW-at-close post-remediation per LEARNING-LOG 2026-04-20 Entry B). **Constitutional Basis:** `meta-core-systemic-thinking` (time-bounded decision logic is structural fix; trap-that-can't-fire is symptomatic), `meta-quality-verification-validation` (behavioral research closed the "unknown semantics" gap with authoritative docs), `meta-safety-transparent-limitations` (transparent about conditional fail-closed rather than implying unconditional). Gov audit: `gov-ac6ef7b74f67`. |
 | 2.38.2 | 2026-04-17 | PATCH: Appendix F.1 — added Operational note for preventing macOS system sleep during remote sessions on local-execution tools (Happy Engineering and `/remote-control`). Canonical form: `caffeinate -i <utility>` (wrapping form per `man caffeinate`'s own example). Flag choice deliberate: `-i` prevents idle system sleep; display still allowed to sleep. Explicit anti-recommendations against `-d` (keeps display on) and `-s` (AC-only, fails silently on battery). Includes timed-guardrail variant, background alternative, verification command (`pmset -g assertions`), and AI-agent guidance to use the wrapping form. Dispatch unaffected (runs on Anthropic infra). User-reported: Mac entering sleep during remote Happy sessions, cutting connection. Claims verified against `man caffeinate` per S-Series Transparent Limitations gate before authoring. |

@@ -298,7 +298,9 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 ---
 
-### [V-004] Contrarian review compliance before ExitPlanMode — OPEN
+### [V-004] Contrarian review compliance before ExitPlanMode — REFUTED → ESCALATED → IMPLEMENTED (2026-04-23)
+
+**Disposition:** Hypothesis REFUTED at Review #4 (2026-04-22): 3 sessions required user reminder (baseline, session 3, session 121) exceeding 2-session FAILURE threshold. Escalated to PreToolUse hook on ExitPlanMode per disposition. Hook shipped session-122 (2026-04-23, `.claude/hooks/pre-exit-plan-mode-gate.sh`) with CLAUDE.md Behavioral Floor + tiers.json pairing (contrarian-before-exit-plan directive). 17 unit tests cover scanner + hook contract. See BACKLOG #116 (closed) + LEARNING-LOG 2026-02-28 "Hard-Mode Hooks Prove Deterministic Enforcement Works." Retained below for audit trail.
 
 **Hypothesis:** Strengthened plan template gate text ("DO NOT populate Recommended Approach until contrarian section has content") reduces contrarian-skip failures.
 
@@ -319,6 +321,31 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 | 3 | 2026-04-13 | 2 | 1/2 (50%) | Plan 1 (audit fixes): contrarian invoked after user reminder. Plan 2 (compliance): contrarian invoked after user reminder. |
 | 4 | 2026-04-14 | 1 | 1/1 (100%) | CE tool selection plan: contrarian invoked before Recommended Approach, unprompted. |
 | 5 | 2026-04-21 (session-121) | 2 | 1/2 (50%) | Plan 1 (Task 4, BACKLOG #91 sub-item 3): ExitPlanMode called WITHOUT Plan+contrarian; user rejected with "Did you follow ai-governance... Did you take advantage of subagents" → contrarian invoked only after reminder. Plan 2 (Task 5, CFR §9.3.10 recipe): contrarian invoked unprompted as part of pre-edit 3-agent battery alongside Plan + coherence. **V-004 FAILURE THRESHOLD MET** (3 sessions with reminders required: baseline, session 3, session 121). Escalation path: PreToolUse hook on ExitPlanMode that requires contrarian-reviewer transcript match. Filed as BACKLOG #116. |
+
+---
+
+### [V-006] Pre-exit-plan-mode-gate hook-denial rate — OPEN
+
+**Hypothesis:** Hook denial rate trends toward zero over the next N sessions as the paired CLAUDE.md + tiers.json `contrarian-before-exit-plan` directive internalizes. If denials stay flat (e.g., ≥1 per plan-mode session), the directive is not changing AI behavior — the hook is the sole enforcement mechanism and the advisory layer is decorative.
+
+**Added:** 2026-04-23 (session-122 post-commit double-check)
+**Confirm/Refute by:** 10 sessions with ≥1 plan-mode invocation from 2026-04-23.
+
+**Process indicator:** Count of `deny` entries in `~/.context-engine/plan-contrarian-denies.log` per session (attribute via transcript session-id in log line). Normalized by number of plans attempted (deny-per-plan rate).
+
+**Success (directive works):** Denial rate ≤ 20% (1/5 plans) by session 10. Interpretable as "AI invokes contrarian unprompted 4/5 times, hook catches the missed one."
+**Failure (directive decorative):** Denial rate ≥ 40% after session 10 (2/5 plans or worse). Interpretable as "AI relies on hook deny as trigger, not CLAUDE.md directive." Escalation: strengthen the directive (more prominent placement, few-shot examples in plan-template, or move to a PreToolUse on `Write` to any plan file forcing contrarian first).
+
+**Baseline:** 2 deny entries on 2026-04-22 during session-122's own implementation (the hook caught itself during dogfood — which is actually positive evidence that the mechanism works, per post-commit contrarian `ac0e663f80114248d`). Clean measurement starts session-123.
+
+**Semantic-bypass signal:** `semantic-bypass` entries in the same log. If the AI routinely invokes `PLAN_CONTRARIAN_CONFIRMED=1` instead of actually invoking contrarian, the directive is also failing in a different way. Track separately.
+
+| Session | Date | Plans | Denies | Semantic-bypasses | Notes |
+|---------|------|-------|:---:|:---:|-------|
+| pre-baseline | 2026-04-22 | 1 (session-122 T3) | 2 | 0 | Dogfood: hook caught itself during implementation. Captured for context, not counted. |
+| 1 | | | | | |
+| 2 | | | | | |
+| 3 | | | | | |
 
 ---
 

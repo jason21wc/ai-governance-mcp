@@ -31,19 +31,55 @@
 
 ### Active (Implement Now/Soon)
 
-116. **PreToolUse hook on ExitPlanMode enforces contrarian-reviewer invocation** `D2 New Capability`
+120. **Subagent-chain contrarian detection test (nested Task invocations)** `D2 New Capability`
 
-**What:** V-004 (Contrarian review compliance before ExitPlanMode) escalation threshold met at Governance Compliance Review #4 (2026-04-22). Evidence: 3 sessions across the 5-session measurement window required user reminder to invoke contrarian-reviewer before ExitPlanMode (baseline 2026-04-08 session 1, session 3 2026-04-13, session 5 2026-04-21 Task 4). Plan template gate text ("DO NOT populate Recommended Approach until contrarian section has content") is advisory and non-deterministic.
+**What:** Scanner's `scan_contrarian_after_last_plan` matches `Task(subagent_type=contrarian-reviewer)` and direct-name forms. If a Plan agent internally delegates contrarian via its own nested `Task` call, the nested invocation SHOULD appear in the root transcript and be detected — but no test proves this. Post-commit contrarian MEDIUM finding (`ac0e663f80114248d`).
 
-**Prescribed escalation per V-004 disposition:** PreToolUse hook on ExitPlanMode that requires contrarian-reviewer transcript match before allowing plan approval. Similar structural-enforcement pattern to the pre-test-oom-gate hook (session-105) and pre-push-quality-gate hook (session-107).
+**Proposed fix:** Add test `TestContrarianAfterLastPlan::test_nested_task_contrarian_invocation_detected` — simulate a transcript where the outer tool_use is a Plan subagent call + an inner tool_use is the contrarian invocation. Verify scanner returns `allow`.
 
-**Scope sketch:** (1) new `.claude/hooks/pre-exit-plan-mode-contrarian-check.sh` or extension of existing pre-push-quality-gate; (2) scans transcript for `contrarian-reviewer` invocation after most recent plan-mode entry; (3) denies ExitPlanMode (exit 2) if absent; (4) documented bypass env var for contrarian-skip with rationale (e.g., `PLAN_CONTRARIAN_SKIP=true`); (5) unit tests following pre-test-oom-gate pattern (mock fake ExitPlanMode invocation; assert exit 2 when contrarian absent, exit 0 when present).
+**Scope:** 1 file (`tests/test_hooks.py`), 1 test (~20 lines). ~20 min.
 
-**Why D2 not D1:** Hook authoring with full ai-governance/systemic-thinking (pre-edit battery + contrarian review per LEARNING-LOG 2026-04-19 + CFR §9.3.10 Hook Implementation Prerequisites recipe) + unit tests. Estimated 1-2 sessions. Plan mode appropriate.
+**Re-open trigger:** Next time test_hooks.py is touched, OR any observed nested-Task pattern in actual sessions.
 
-**Re-open prerequisites:** None — threshold already met; ready to plan.
+**Origin:** Session-122 post-commit contrarian review (`ac0e663f80114248d`). Low-priority coverage gap; ship current 22 tests is acceptable per proportional rigor.
 
-**Origin:** Compliance Review #4 (2026-04-22), V-004 session 5 finding (session-121 Task 4 required user reminder). Convergent with CFR §9.3.10 Hook Implementation Prerequisites recipe canonicalized session-121 Task 5 — the recipe would be applied to the new hook.
+119. **Revised-plan-after-rejection heuristic — contrarian can be "stale" for revised plan** `D3 Improvement`
+
+**What:** Scanner's `scan_contrarian_after_last_plan` uses "most recent prior ExitPlanMode" as the anchor. If the user rejects a plan and the AI revises (iterating in plan mode), the prior contrarian invocation STILL SATISFIES the anchor — hook allows. But the revised plan was never pressure-tested. Post-commit contrarian HIGH finding (`ac0e663f80114248d`).
+
+**Design questions:**
+- What transcript signal indicates "user rejected + AI is revising vs. user approved + new plan"? Plan mode re-entry doesn't produce a distinct marker.
+- If we require contrarian after *any* user message containing rejection signals, what are those signals? "No", "revise", "that's not right", etc. — fragile and false-positive-prone.
+- Alternative: require contrarian within last K user turns before ExitPlanMode (scoped-tighter recency window). K=1 would force re-invocation after every user turn — too strict.
+- Alternative: require plan-file hash match (if plan content changed since last contrarian, require new contrarian). Needs plan-file hashing infrastructure.
+
+**Re-open prerequisites:**
+1. Observed case of revised-plan-without-fresh-contrarian producing actually-bad approval (not just theoretical).
+2. OR design session settles on a workable signal for plan-revision detection.
+
+**Why D3 not D2:** Requires design thought + potentially new infrastructure (plan-file hashing). Proportional rigor — defer until evidence the false-allow is actually occurring.
+
+**Origin:** Session-122 post-commit contrarian review (`ac0e663f80114248d`) HIGH finding. Documented risk for future reviewers.
+
+118. **Add "new hook authoring" item to `workflows/COMPLETION-CHECKLIST.md`** `D1 Docs`
+
+**What:** Post-edit coherence audit flagged, post-commit contrarian confirmed: `workflows/COMPLETION-CHECKLIST.md` has no meta-level guidance for authoring a new hook. Session-122 #116 actually touched **10 parallel surfaces**, not the ~6 originally estimated: hook script, scanner extension, `.claude/settings.json`, 2 test files, CLAUDE.md, tiers.json, CFR §9.3.10 row + narrative, ai-instructions pin + version, SESSION-STATE Quick Reference. Without a checklist item, next hook author will drop one or more propagations silently.
+
+**Proposed item (fold into next hook addition):** Under Content-Changes tier BEST-EFFORT, add: *"When adding a new `.claude/hooks/*.sh`: (1) register matcher in `.claude/settings.json`; (2) author test file(s) in `tests/` following pre-test-oom-gate pattern; (3) add row AND narrative prose block to CFR §9.3.10 Layered Enforcement Stack (not just the table); (4) if hook enforces a behavioral rule, add paired directive to CLAUDE.md Behavioral Floor + `documents/tiers.json` behavioral_floor.directives; (5) follow CFR §9.3.10 Hook Implementation Prerequisites recipe (ERR trap + platform timeout detection + escape hatches + self-diagnosing fallback); (6) if hook affects adopter-facing governance or takes >3 sessions to remediate, file a V-series verification item in `workflows/COMPLIANCE-REVIEW.md` measuring whether the enforcement changes behavior or just blocks it."*
+
+**Scope:** 1 file (`workflows/COMPLETION-CHECKLIST.md`), ~10 lines added. ~15 min. **Updated scope estimate per session-122 post-commit contrarian finding — original "~6 lines" underestimated by ~5x.**
+
+**Re-open trigger:** Next new hook addition is the natural fold-in. If no new hook is added in 90 days, deprioritize.
+
+**Why D1 not fix-now:** Session-122 already amended 14-file commit; adding meta-fix surface generalizes BEYOND #116.
+
+**Origin:** Session-122 pre-edit coherence audit (`a7889d9dd788336a6`) + post-commit contrarian scope correction (`ac0e663f80114248d`). Recurring pattern: #115 canonicalized CFR PATCH authoring; this is the hook-authoring analog per `meta-core-systemic-thinking`.
+
+**Re-open trigger:** Next new hook addition is the natural fold-in. If no new hook is added in 90 days, deprioritize.
+
+**Why D1 not fix-now:** Session-122 already touches 10+ surfaces for #116 proper; adding meta-fix surface (generalizes BEYOND #116) is proportional-rigor territory per `meta-methods §7.8` — next hook is the test-case for whether this meta-documentation is actually needed.
+
+**Origin:** Session-122 pre-edit coherence audit (`a7889d9dd788336a6`) on #116 design. Recurring pattern: #115 canonicalized CFR PATCH authoring; this is the hook-authoring analog per `meta-core-systemic-thinking`.
 
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 

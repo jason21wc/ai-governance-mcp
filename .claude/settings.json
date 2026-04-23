@@ -53,6 +53,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pre-exit-plan-mode-gate.sh",
+            "timeout": 10
+          }
+        ]
       }
     ]
   }

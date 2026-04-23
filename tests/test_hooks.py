@@ -292,6 +292,201 @@ class TestScannerModule:
 
 
 # ---------------------------------------------------------------------------
+# Scanner: --contrarian-after-last-plan mode
+# ---------------------------------------------------------------------------
+
+
+def make_task_entry(subagent_type: str) -> dict:
+    """Create a Task tool_use transcript entry with a given subagent_type."""
+    return {
+        "message": {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "tool_use",
+                    "id": "task-id",
+                    "name": "Task",
+                    "input": {
+                        "description": "test",
+                        "subagent_type": subagent_type,
+                        "prompt": "test",
+                    },
+                }
+            ],
+        }
+    }
+
+
+def make_exit_plan_entry() -> dict:
+    """Create an ExitPlanMode tool_use transcript entry."""
+    return {
+        "message": {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "tool_use",
+                    "id": "epm-id",
+                    "name": "ExitPlanMode",
+                    "input": {"plan": "test plan content"},
+                }
+            ],
+        }
+    }
+
+
+def make_tool_result_entry(text: str) -> dict:
+    """Create a tool_result entry containing arbitrary text.
+
+    Used to simulate file-read results whose content mentions 'contrarian-reviewer'
+    without being an actual Task invocation — verifies parse-based matching.
+    """
+    return {
+        "message": {
+            "role": "user",
+            "content": [{"type": "tool_result", "content": text}],
+        }
+    }
+
+
+def _run_contrarian_scan(transcript_path: str) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        [
+            "python3",
+            str(SCANNER),
+            "--contrarian-after-last-plan",
+            transcript_path,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+
+class TestContrarianAfterLastPlan:
+    """Tests for scan_contrarian_after_last_plan mode used by pre-exit-plan-mode-gate hook."""
+
+    def test_allow_when_contrarian_follows_prior_exit_plan(self):
+        """Contrarian Task tool_use after a prior ExitPlanMode → allow."""
+        transcript_path = create_transcript(
+            [
+                make_exit_plan_entry(),
+                make_task_entry("contrarian-reviewer"),
+            ]
+        )
+        try:
+            result = _run_contrarian_scan(transcript_path)
+            assert result.stdout.strip() == "allow"
+            assert result.returncode == 0
+        finally:
+            os.unlink(transcript_path)
+
+    def test_deny_when_prior_exit_plan_but_no_contrarian_after(self):
+        """Prior ExitPlanMode exists, no contrarian since → deny."""
+        transcript_path = create_transcript(
+            [
+                make_exit_plan_entry(),
+                make_filler_entry(),
+                make_filler_entry(),
+            ]
+        )
+        try:
+            result = _run_contrarian_scan(transcript_path)
+            assert result.stdout.strip() == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_bootstrap_when_no_prior_exit_plan(self):
+        """No ExitPlanMode in transcript → bootstrap (first plan of session)."""
+        transcript_path = create_transcript(
+            [
+                make_filler_entry(),
+                make_task_entry("some-other-subagent"),
+                make_filler_entry(),
+            ]
+        )
+        try:
+            result = _run_contrarian_scan(transcript_path)
+            assert result.stdout.strip() == "bootstrap"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_deny_when_contrarian_is_stale(self):
+        """Contrarian BEFORE the most recent ExitPlanMode → deny (stale for new plan)."""
+        transcript_path = create_transcript(
+            [
+                make_task_entry("contrarian-reviewer"),  # for plan 1
+                make_exit_plan_entry(),  # plan 1 approved
+                make_filler_entry(),  # plan 2 work, no contrarian
+            ]
+        )
+        try:
+            result = _run_contrarian_scan(transcript_path)
+            assert result.stdout.strip() == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_allow_with_underscore_variant(self):
+        """Subagent_type `contrarian_reviewer` (underscore) also counts."""
+        transcript_path = create_transcript(
+            [
+                make_exit_plan_entry(),
+                make_task_entry("contrarian_reviewer"),
+            ]
+        )
+        try:
+            result = _run_contrarian_scan(transcript_path)
+            assert result.stdout.strip() == "allow"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_deny_on_substring_false_match(self):
+        """Content mentioning 'contrarian-reviewer' (e.g., file read) but no tool_use → deny.
+
+        Guards against false-allows when the assistant reads BACKLOG.md or
+        LEARNING-LOG.md (which mention contrarian-reviewer) without actually
+        invoking the subagent.
+        """
+        transcript_path = create_transcript(
+            [
+                make_exit_plan_entry(),
+                make_tool_result_entry(
+                    "BACKLOG.md content: ... contrarian-reviewer was invoked "
+                    "in prior session ... contrarian-reviewer appears here "
+                    "multiple times ..."
+                ),
+            ]
+        )
+        try:
+            result = _run_contrarian_scan(transcript_path)
+            # Scanner must parse tool_use blocks, not substring match
+            assert result.stdout.strip() == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_error_when_transcript_missing(self):
+        """Non-existent transcript path → error (fail-closed signal for hook)."""
+        result = _run_contrarian_scan("/nonexistent/path/transcript.jsonl")
+        assert result.stdout.strip() == "error"
+        assert result.returncode == 0  # exit 0 always; decision in stdout
+
+    def test_corrupt_jsonl_skipped_gracefully(self):
+        """Corrupt JSONL lines are skipped; valid entries still evaluated."""
+        # Write a mix of valid and corrupt lines
+        fd, path = tempfile.mkstemp(suffix=".jsonl")
+        try:
+            with os.fdopen(fd, "w") as f:
+                f.write(json.dumps(make_exit_plan_entry()) + "\n")
+                f.write("{not valid json\n")
+                f.write("another {{{corrupt line\n")
+                f.write(json.dumps(make_task_entry("contrarian-reviewer")) + "\n")
+            result = _run_contrarian_scan(path)
+            # Valid entries yielded ExitPlanMode + contrarian after → allow
+            assert result.stdout.strip() == "allow"
+        finally:
+            os.unlink(path)
+
+
+# ---------------------------------------------------------------------------
 # PreToolUse Hook Tests — Hard Mode Default
 # ---------------------------------------------------------------------------
 

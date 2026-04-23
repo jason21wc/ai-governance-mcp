@@ -12,7 +12,15 @@ Usage (pattern mode):
     python3 scan_transcript.py --pattern <pattern> <transcript_path> [window_size]
     Output: true | false
 
-Exit code: always 0 (fail-open on errors)
+Usage (contrarian-after-last-plan mode, for pre-exit-plan-mode-gate hook):
+    python3 scan_transcript.py --contrarian-after-last-plan <transcript_path>
+    Output: one of: allow | deny | bootstrap | error
+      - allow: contrarian-reviewer tool_use found AFTER most recent prior ExitPlanMode
+      - deny: prior ExitPlanMode exists but no contrarian invocation follows it
+      - bootstrap: no prior ExitPlanMode in transcript (first plan of session)
+      - error: read/parse failure (hook should treat as deny, fail-closed)
+
+Exit code: always 0 (decision encoded in stdout; hook interprets)
 """
 
 import json
@@ -109,7 +117,91 @@ def scan_for_pattern(
     return False
 
 
+def scan_contrarian_after_last_plan(transcript_path: str) -> str:
+    """Check if contrarian-reviewer was invoked since the most recent prior ExitPlanMode.
+
+    Fires in support of the pre-exit-plan-mode-gate hook. The hook runs BEFORE
+    the current ExitPlanMode call, so the transcript contains PAST ExitPlanMode
+    entries but not the one about to fire.
+
+    Args:
+        transcript_path: Path to JSONL transcript file.
+
+    Returns:
+        "allow"     — contrarian-reviewer tool_use found AFTER most recent prior
+                      ExitPlanMode (or anywhere in bootstrap case).
+        "deny"      — prior ExitPlanMode exists but no contrarian invocation since.
+        "bootstrap" — no prior ExitPlanMode in transcript (first plan of session).
+        "error"     — read/parse failure (hook should treat as deny per fail-closed).
+    """
+    contrarian_names = ("contrarian-reviewer", "contrarian_reviewer")
+
+    try:
+        with open(transcript_path, "r") as f:
+            lines = f.readlines()
+    except Exception:
+        return "error"
+
+    # Pass 1: find index of most recent ExitPlanMode tool_use
+    last_exit_plan_idx = -1
+    for idx, line in enumerate(lines):
+        if "ExitPlanMode" not in line:
+            continue
+        try:
+            entry = json.loads(line)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        msg = entry.get("message", {})
+        if not isinstance(msg, dict):
+            continue
+        for block in msg.get("content", []):
+            if not isinstance(block, dict):
+                continue
+            if block.get("type") == "tool_use" and block.get("name") == "ExitPlanMode":
+                last_exit_plan_idx = idx
+
+    # Bootstrap case: no prior ExitPlanMode means this is the session's first plan.
+    if last_exit_plan_idx == -1:
+        return "bootstrap"
+
+    # Pass 2: search for contrarian Task tool_use AFTER the anchor.
+    # Scans from (anchor + 1) to EOF — never matches the anchor itself or earlier.
+    for line in lines[last_exit_plan_idx + 1 :]:
+        if "contrarian" not in line:  # fast pre-filter
+            continue
+        try:
+            entry = json.loads(line)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        msg = entry.get("message", {})
+        if not isinstance(msg, dict):
+            continue
+        for block in msg.get("content", []):
+            if not isinstance(block, dict):
+                continue
+            if block.get("type") != "tool_use":
+                continue
+            # Task subagent_type form (standard path)
+            if block.get("name") == "Task":
+                inp = block.get("input", {})
+                if isinstance(inp, dict):
+                    st = inp.get("subagent_type", "")
+                    if st in contrarian_names:
+                        return "allow"
+            # Direct-name form (MCP subagent or future variants)
+            elif block.get("name", "") in contrarian_names:
+                return "allow"
+
+    return "deny"
+
+
 if __name__ == "__main__":
+    # Contrarian-after-last-plan mode: --contrarian-after-last-plan <transcript>
+    if len(sys.argv) >= 3 and sys.argv[1] == "--contrarian-after-last-plan":
+        transcript = sys.argv[2]
+        print(scan_contrarian_after_last_plan(transcript))
+        sys.exit(0)
+
     # Pattern mode: --pattern <pattern> <transcript> [window]
     if len(sys.argv) >= 4 and sys.argv[1] == "--pattern":
         pattern = sys.argv[2]

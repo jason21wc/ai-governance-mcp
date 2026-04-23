@@ -30,6 +30,7 @@ Hard-mode hook **BLOCKS** Bash|Edit|Write until both tools are called. This is s
 
 - `evaluate_governance(planned_action="...")` — required before any non-read action
 - `query_project(query="...")` — required before creating or modifying code/content
+- `contrarian-reviewer` via Task subagent — required before `ExitPlanMode` (per pre-exit-plan-mode-gate hook, session-122). Invoke unprompted during plan-writing to pressure-test the approach BEFORE approval. Bypasses: `PLAN_CONTRARIAN_CONFIRMED=1` (semantic) + `PLAN_CONTRARIAN_SKIP_HOOK=1` (structural, audit-logged).
 
 **Skip list (narrow):** reading files, non-sensitive questions, trivial formatting, user says "skip governance/CE". Note: analysis tasks that determine what to change (propagation checks, audit reviews) are NOT read-only — they lead to writes. Call governance before analysis, not just before the write.
 
