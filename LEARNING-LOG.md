@@ -445,7 +445,7 @@ MCP servers run as separate host processes. `Path.cwd()` resolves to the SERVER'
 
 ---
 
-### __file__-Based Paths Break in Docker Non-Editable Installs (2026-02-19)
+### __file__-Based Paths Break in Docker Non-Editable Installs (2026-02-19) — ACTIVE
 
 `_validate_log_path()` used `Path(__file__).parent.parent.parent` to find project root. Inside Docker with `pip install .` (non-editable), `__file__` resolves to site-packages (`/usr/local/lib/...`), not `/app`. Log writes to `/app/logs/` were rejected as "outside boundaries." Meanwhile, `config.py` already had a CWD-based `_find_project_root()` that worked correctly.
 

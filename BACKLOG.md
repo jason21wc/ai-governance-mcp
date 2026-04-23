@@ -31,6 +31,20 @@
 
 ### Active (Implement Now/Soon)
 
+116. **PreToolUse hook on ExitPlanMode enforces contrarian-reviewer invocation** `D2 New Capability`
+
+**What:** V-004 (Contrarian review compliance before ExitPlanMode) escalation threshold met at Governance Compliance Review #4 (2026-04-22). Evidence: 3 sessions across the 5-session measurement window required user reminder to invoke contrarian-reviewer before ExitPlanMode (baseline 2026-04-08 session 1, session 3 2026-04-13, session 5 2026-04-21 Task 4). Plan template gate text ("DO NOT populate Recommended Approach until contrarian section has content") is advisory and non-deterministic.
+
+**Prescribed escalation per V-004 disposition:** PreToolUse hook on ExitPlanMode that requires contrarian-reviewer transcript match before allowing plan approval. Similar structural-enforcement pattern to the pre-test-oom-gate hook (session-105) and pre-push-quality-gate hook (session-107).
+
+**Scope sketch:** (1) new `.claude/hooks/pre-exit-plan-mode-contrarian-check.sh` or extension of existing pre-push-quality-gate; (2) scans transcript for `contrarian-reviewer` invocation after most recent plan-mode entry; (3) denies ExitPlanMode (exit 2) if absent; (4) documented bypass env var for contrarian-skip with rationale (e.g., `PLAN_CONTRARIAN_SKIP=true`); (5) unit tests following pre-test-oom-gate pattern (mock fake ExitPlanMode invocation; assert exit 2 when contrarian absent, exit 0 when present).
+
+**Why D2 not D1:** Hook authoring with full ai-governance/systemic-thinking (pre-edit battery + contrarian review per LEARNING-LOG 2026-04-19 + CFR §9.3.10 Hook Implementation Prerequisites recipe) + unit tests. Estimated 1-2 sessions. Plan mode appropriate.
+
+**Re-open prerequisites:** None — threshold already met; ready to plan.
+
+**Origin:** Compliance Review #4 (2026-04-22), V-004 session 5 finding (session-121 Task 4 required user reminder). Convergent with CFR §9.3.10 Hook Implementation Prerequisites recipe canonicalized session-121 Task 5 — the recipe would be applied to the new hook.
+
 115. **Add body-header + pin sync to CFR PATCH authoring template** `D1 Docs`
 
 **What:** Body-header version drift (e.g., `documents/title-10-ai-coding-cfr.md:12` was `**Version:** 2.36.1` while frontmatter was `v2.38.4`) has been a recurring post-commit finding across sessions 117, 119, 121 Task 4, 121 Task 5. Coherence auditor ruling (session-121 Task 5 post-commit, agent `a00a1df2db9dfdd88`): *"body-header staleness is a recurring class of drift. Rather than fix once, consider a PATCH-authoring checklist item."* Similarly, `<document_versions>` pin drift in `documents/ai-instructions.md` has repeated across v2.7.1, v2.7.2, v2.7.3 (sessions 119, 119, 121).
