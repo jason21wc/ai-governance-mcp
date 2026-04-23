@@ -76,11 +76,12 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 4. Reference doc staleness check per §14.2
 5. README check: if principle/method counts or domains changed → update README domain table
 6. **Version-history entry authored** per `rules-of-procedure §2.1.1` Step 3 — every normative document MUST have a version-history section (Historical Amendments / Version History / Changelog / Appendix C naming all accepted); add an entry for this PATCH/MINOR/MAJOR.
-7. **Audit-ID citation** per `rules-of-procedure §2.1.1` Notes — if the amendment references a governance consultation, cite the `audit_id` (e.g., `gov-abc123`) that authorized the change. Forward-going from 2026-04-19; historical entries grandfathered.
-8. Update and prune SESSION-STATE.md (target <300 lines per §7.0.4)
-9. Commit and push
-10. Verify CI green
-11. Docker check: if content significantly changed or code also changed → rebuild and push
+7. **Body-header + pin sync** — when bumping a CFR frontmatter `version`, update all four surfaces together before commit: (a) body-header `**Version:**` + `**Effective Date:**` lines in the same CFR, (b) `documents/ai-instructions.md` `<document_versions>` pin for that CFR (and bump `ai-instructions.md` PATCH version itself with Changelog entry), (c) `SESSION-STATE.md` Quick Reference Content row. Catches the recurring pin-lag / body-header drift class documented across ai-instructions Changelog v2.7.1/v2.7.2/v2.7.3. Verify with `grep -n "v2\.[0-9]" documents/<cfr> documents/ai-instructions.md SESSION-STATE.md` before commit.
+8. **Audit-ID citation** per `rules-of-procedure §2.1.1` Notes — if the amendment references a governance consultation, cite the `audit_id` (e.g., `gov-abc123`) that authorized the change. Forward-going from 2026-04-19; historical entries grandfathered.
+9. Update and prune SESSION-STATE.md (target <300 lines per §7.0.4)
+10. Commit and push
+11. Verify CI green
+12. Docker check: if content significantly changed or code also changed → rebuild and push
 
 ## Domain changes (adding/removing/renaming domains)
 

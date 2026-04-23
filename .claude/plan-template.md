@@ -30,3 +30,26 @@ Write "N/A — no novel elements, using established project patterns" if not app
 
 ## Files Modified
 [List of files to create/modify]
+
+## Plain-English Summary
+
+[REQUIRED — one of the last sections populated. This is the human's entry point for approval.
+Write for someone who wants to approve the right thing without parsing the technical detail
+above. Every plan gets this section; "small" plans get shorter summaries, not omitted ones.]
+
+- **What's changing (plain verbs, no jargon):** 1-2 short paragraphs. No principle IDs,
+  pattern names, or file-path manifests — those live in sections above.
+- **What you're being asked to approve:** the one material decision, stated as a yes/no
+  question or a recommendation the user can accept or redirect.
+- **Trade-off in one sentence:** why this approach over the simpler/smaller alternative
+  (or why we're doing it at all rather than deferring).
+- **What I'm deliberately NOT doing:** explicit non-goals — anything a reader might expect
+  that's out of scope, with a brief reason (usually proportional rigor, or deferred to
+  another backlog item).
+- **What you should know before approving:** honest limitations, scope-reality-check,
+  blast-radius note if relevant.
+
+Rationale: plans written in plan mode optimize for AI execution (principle IDs, pattern
+refs, file manifests). Dense for human review. Plain-English summary lets the user engage
+with material choices without wading through execution detail. Placement at end so AI
+execution context reads top-to-bottom; human scrolls to the summary for the decision.
