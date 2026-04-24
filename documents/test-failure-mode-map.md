@@ -52,6 +52,8 @@
 
 > pre-tool-governance-check hook must deny (exit 2) when evaluate_governance() AND query_project() are not both recently invoked in transcript — structural parallel to FM-HOOK-CONTRARIAN-REQUIRED but for the governance+CE gate.
 
+- `tests/test_hooks.py` → `TestPreToolDeniesBothMissing::test_pretool_denies_both_missing`
+- `tests/test_hooks.py` → `TestPreToolDeniesCEMissing::test_pretool_denies_ce_missing`
 - `tests/test_hooks.py` → `TestPreToolDeniesGovernanceMissing::test_pretool_denies_governance_missing`
 
 ### `FM-PROJECT-ID-PATH-TRAVERSAL`

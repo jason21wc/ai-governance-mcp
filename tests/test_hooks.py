@@ -575,6 +575,10 @@ class TestPreToolDeniesCEMissing:
     """Default hard mode blocks when CE query is missing."""
 
     def test_pretool_denies_ce_missing(self):
+        """Hard-mode hook denies when query_project() not in transcript.
+
+        Covers: FM-HOOK-GOVERNANCE-GATE-REQUIRED
+        """
         transcript_path = create_transcript(
             [
                 make_tool_use_entry("mcp__ai-governance__evaluate_governance"),
@@ -599,6 +603,10 @@ class TestPreToolDeniesBothMissing:
     """Default hard mode blocks when neither tool is found."""
 
     def test_pretool_denies_both_missing(self):
+        """Hard-mode hook denies when both evaluate_governance and query_project absent.
+
+        Covers: FM-HOOK-GOVERNANCE-GATE-REQUIRED
+        """
         transcript_path = create_transcript(
             [
                 make_tool_use_entry("some_other_tool"),
