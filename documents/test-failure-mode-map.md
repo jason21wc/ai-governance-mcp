@@ -2,7 +2,7 @@
 
 **AUTO-GENERATED.** Do not edit. Regenerate via `python3 scripts/generate-test-failure-map.py`.
 
-**Coverage reflects ANNOTATED tests only.** An empty cell does NOT mean "failure mode uncovered" — it means "no test carries a `Covers: <id>` annotation yet." Full annotation sweep deferred to BACKLOG #121; this map documents the state of the annotation convention, not the state of test coverage.
+**Coverage reflects ANNOTATED tests only.** An empty cell does NOT mean "failure mode uncovered" — it means "no test carries a `Covers: <id>` annotation yet." Full-suite annotation sweep was completed in BACKLOG #121 (closed session-124, 2026-04-24); this map documents the state of the annotation convention, not the state of test coverage. Note: parametrized tests count as 1 annotation per function definition; execution-instance count may be higher.
 
 **Freshness IS pre-commit-enforced** via the `regen-test-failure-mode-map` hook in `.pre-commit-config.yaml` (session-123 Commit F, BACKLOG #123 closed). The hook regenerates this map on any change to the registry, test files, or the generator itself, and fails the commit if the regenerated output differs from the staged version. If this map disagrees with the registry, trust the registry and re-stage after running the generator.
 
@@ -74,7 +74,7 @@
 
 - `tests/test_context_engine.py` → `TestListProjectsSymlinkExclusion::test_symlink_outside_storage_blocked_by_containment`
 - `tests/test_context_engine.py` → `TestProjectIdValidation::test_rejects_path_traversal`
-- `tests/test_context_engine.py` → `TestProjectIdValidation::test_rejects_traversal_taxonomy`
+- `tests/test_context_engine.py` → `TestProjectIdValidation::test_rejects_traversal_patterns`
 
 ### `FM-PROJECT-ID-SLASHES`
 

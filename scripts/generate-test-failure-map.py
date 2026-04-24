@@ -148,9 +148,11 @@ def format_map(
     lines.append(
         "**Coverage reflects ANNOTATED tests only.** An empty cell does NOT mean "
         '"failure mode uncovered" — it means "no test carries a `Covers: <id>` '
-        'annotation yet." Full annotation sweep deferred to BACKLOG #121; this '
-        "map documents the state of the annotation convention, not the state of "
-        "test coverage."
+        'annotation yet." Full-suite annotation sweep was completed in BACKLOG '
+        "#121 (closed session-124, 2026-04-24); this map documents the state of "
+        "the annotation convention, not the state of test coverage. Note: "
+        "parametrized tests count as 1 annotation per function definition; "
+        "execution-instance count may be higher."
     )
     lines.append("")
     lines.append(

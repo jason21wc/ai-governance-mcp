@@ -76,7 +76,7 @@ entries:
     scope: framework
     introduced: "2026-02-11"
     retired: "2026-04-24"
-    source: "LEARNING-LOG: Test Inputs Must Traverse the Full Validation Chain. Retired session-124: describes an anti-pattern discipline (don't bypass validation) with no binary-checkable mechanism — compliant tests just silently don't bypass, with no positive assertion to annotate. Lesson retained at LEARNING-LOG + TEST-AUTHORING-CHECKLIST step 6. See BACKLOG #131 for re-registration trigger (when a parametrized validation-stage test is written)."
+    source: "LEARNING-LOG: Test Inputs Must Traverse the Full Validation Chain. Retired session-124: describes an anti-pattern discipline (don't bypass validation) with no binary-checkable mechanism — compliant tests just silently don't bypass, with no positive assertion to annotate. Lesson retained at LEARNING-LOG 2026-02-11 + 2026-04-24 + TEST-AUTHORING-CHECKLIST step 6. Parametrized traversal-taxonomy test added 2026-04-24 (`tests/test_context_engine.py::test_rejects_traversal_patterns`) annotates against existing FM-PROJECT-ID-PATH-TRAVERSAL — re-registration of THIS FM not pursued because `_validate_project_id` is single-stage (no validation-chain ordering to assert)."
   - id: FM-TEST-ENVIRONMENT-AWARE
     description: "Tests that depend on optional dependencies (daemon, network, real ML model) must skip or mock cleanly — not hard-fail on CI."
     must_cover: false
@@ -101,7 +101,7 @@ entries:
     scope: framework
     introduced: "2025-12-27"
     retired: "2026-04-24"
-    source: "LEARNING-LOG: ML Model Mocking: Patch at Source. Retired session-124: (a) patch-location is a test-authoring convention, not a binary-checkable failure mode; compliant tests just use the correct patch location with no positive assertion verifying compliance. (b) FM name (AT-SOURCE) vs description (import-site) had internal contradiction that would require empirical verification to rewrite safely. Lesson retained at LEARNING-LOG 2025-12-27 + CFR §5.2.8 + test-generator agent prompt. See BACKLOG #130 for reference-library doc reconciliation."
+    source: "LEARNING-LOG: ML Model Mocking: Patch at Source. Retired session-124: (a) patch-location is a test-authoring convention, not a binary-checkable failure mode; compliant tests just use the correct patch location with no positive assertion verifying compliance. (b) FM name (AT-SOURCE) vs description (import-site) had internal contradiction that would require empirical verification to rewrite safely. Lesson retained at LEARNING-LOG 2025-12-27 + CFR §5.2.8 + test-generator agent prompt. Reference-library doc (`reference-library/ai-coding/ref-ai-coding-pytest-fixture-patterns.md`) reconciled 2026-04-24 to match CFR + LEARNING-LOG (patch at source library)."
   - id: FM-AUDIT-ID-FORMAT-INVARIANT
     description: "Governance audit IDs must have `gov-` prefix + 12 hex chars (16 total) and be unique across calls — contract consumed by `scripts/analyze_compliance.py` and external compliance tooling."
     must_cover: true
@@ -294,7 +294,7 @@ Covers: FM-HOOK-CONTRARIAN-REQUIRED, FM-HOOK-FAIL-CLOSED-EXIT-2
 
     **Additional filter (post-session-124 LEARNING-LOG 2026-04-24):** Before adding an advisory entry, ask *"what specific assertion would fail if this FM's invariant broke?"* If the answer is "any test that doesn't do X" (anti-pattern discipline), "fixing a known bug" (production limitation), or "tests that set up mocks this way" (authoring convention), the entry belongs in LEARNING-LOG / BACKLOG / reference-library, NOT the registry. Registry entries must be binary-checkable via a concrete assertion mechanism (file-exists, threshold, marker presence, ValueError raised).
 
-    **Grandfathered entries (pre-2026-04-24 advisory entries exempt from the gate):** After session-124 extension cleanup, only **2 entries** remain exempt: FM-TEST-ENVIRONMENT-AWARE (now annotated on `tests/test_retrieval_quality.py::test_method_mrr_threshold` via pytest.mark.slow+real_index) and FM-REGISTRY-RETIRED-ID-DEPRECATION (`placeholder: true`, dormant-until-triggered). Three other grandfathered entries were retired 2026-04-24 per the filter above: FM-TEST-FULL-VALIDATION-CHAIN (anti-pattern, see BACKLOG #131), FM-S-SERIES-KEYWORD-FALSE-POSITIVE (known limitation, see BACKLOG #129), FM-ML-MODEL-MOCK-AT-SOURCE (authoring convention, see BACKLOG #130). Four additional entries (FM-TEST-SIDE-EFFECTS, FM-TEST-ECHO-CHAMBER, FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED) were annotated during #121 sweep and no longer need grandfather protection.
+    **Grandfathered entries (pre-2026-04-24 advisory entries exempt from the gate):** After session-124 extension cleanup, only **2 entries** remain exempt: FM-TEST-ENVIRONMENT-AWARE (now annotated on `tests/test_retrieval_quality.py::test_method_mrr_threshold` via pytest.mark.slow+real_index) and FM-REGISTRY-RETIRED-ID-DEPRECATION (`placeholder: true`, dormant-until-triggered). Three other grandfathered entries were retired 2026-04-24 per the filter above: FM-TEST-FULL-VALIDATION-CHAIN (anti-pattern; lesson at LEARNING-LOG 2026-02-11 + 2026-04-24), FM-S-SERIES-KEYWORD-FALSE-POSITIVE (known limitation; see BACKLOG #129 for production-fix re-register trigger), FM-ML-MODEL-MOCK-AT-SOURCE (authoring convention; reference-library doc reconciled 2026-04-24). Three other pre-cutoff advisory entries (FM-TEST-SIDE-EFFECTS, FM-TEST-ECHO-CHAMBER, FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED) were annotated during the #121 sweep and no longer need grandfather protection.
 4. Run `python3 scripts/generate-test-failure-map.py` to regenerate `documents/test-failure-mode-map.md`.
 5. Commit registry + regenerated map + seed annotation(s) together.
 
@@ -313,7 +313,7 @@ Covers: FM-HOOK-CONTRARIAN-REQUIRED, FM-HOOK-FAIL-CLOSED-EXIT-2
 - Hook-enforcement invariants (fail-closed on exit 2, contrarian required, scanner tool coverage).
 - Registry-itself invariants (unknown-id-rejected, must-cover-has-annotation).
 
-Broader annotation sweep across the full suite is deferred to BACKLOG #121 — the derived map explicitly warns readers that empty cells reflect *un-annotated* tests, not *uncovered* failure modes.
+Full-suite annotation sweep was completed in BACKLOG #121 (closed session-124, 2026-04-24). The derived map's empty-cell semantics still apply going forward: empty = un-annotated, not uncovered.
 
 **Cross-references.**
 
