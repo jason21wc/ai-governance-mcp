@@ -88,7 +88,7 @@ CRITICAL findings require attention — "attention" means evaluation, not automa
 
 ## Test Creation Protocol
 
-When asked to write tests:
+When asked to write tests, pair this 6-step protocol with the author-time `workflows/TEST-AUTHORING-CHECKLIST.md` (9-step gate) and CFR §5.2 + §5.2.8 (Redundancy & Consolidation). Before writing, check `documents/failure-mode-registry.md` for an existing `FM-<id>` to cite in the test docstring via `Covers: FM-<id>`; if `must_cover: true` entries lack annotations, the lint in `tests/test_validator.py::TestFailureModeCoverage` will fail.
 
 ### Step 1: Detect Framework and Understand Target
 

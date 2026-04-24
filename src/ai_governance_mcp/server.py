@@ -1031,7 +1031,7 @@ AGENT_TEMPLATE_HASHES = {
     "documentation-writer": "c1f1e0d5617d10c6b61cb3fb8e7e436a9ffe18c06f629c2d1201f3da3d998ad0",
     "orchestrator": "4999542cd1c063a9486f33845eb0b433a3efeebeb7163ac8f4fb30af83d02b60",
     "security-auditor": "5c2217d0a3041ad8afee3b46ae8c66e9e375ebbb9059b7637421037609d0ad27",
-    "test-generator": "fe8f991d382c627d25a20ff88ab15d485fe34075a9524fa1bac6654ba52c891e",
+    "test-generator": "1d5683c2c3ef605555fadfc1a7729b4a4d4cb2e52843a36e6fe5defe0a245054",
     "validator": "4015ea6c86e5ed29db56f9bc5cefcf48bf2b92e65438156640644e7ebb016a03",
     "voice-coach": "3b634f624453c570783c90ea942432ac8557e355002a2797ebee831ba7b2a13a",
 }

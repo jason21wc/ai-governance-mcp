@@ -13,7 +13,7 @@
 
 - **Phase:** Cohorts 1, 2, 3, **and 4** of `~/.claude/plans/swift-hopping-corbato.md` all CLOSED. Cohort 4 closed session-118 (Phase 4a shipped session-117; Phase 4b deferred with battery Q7 FAIL rationale, tracked at BACKLOG #106). Cohort 3 (session-116) shipped: **rules-of-procedure v3.26.8 → v3.27.0** (MINOR — added Admission Test Q7 "Semantic-Label Risk" + PASS/FAIL exemplars; 8 cross-ref sync from "6 Questions" → "7 Questions"; removed obsolete "Constitutional Basis ← Constitutional Derivation" alias row; fixed pre-existing body-vs-frontmatter version drift); **title-40-multimodal-rag v2.4.1 → v2.4.2** (PATCH — 32 "Constitutional Derivation" → "Constitutional Basis" normalization); **scaffold_project expanded** (server.py SCAFFOLD_STANDARD_EXTRAS + 3 new skeletal templates with "starter template" banners matching title-10-ai-coding-cfr.md §1.5.2 — ARCHITECTURE.md, SPECIFICATION.md, workflows/COMPLETION-CHECKLIST.md subdirectory, BACKLOG.md; 9-file Standard tier per §1.5.5 CLAUDE.md overlay); F-P2-13 Path B resolved via PROJECT-MEMORY + LEARNING-LOG entries (no constitutional amendment; Preamble purposes are class (b) interpretive tiebreakers, not principle-count targets). Pre-edit + post-edit 3-agent batteries both ran; post-edit battery found 2 CRITICAL stale "6 files" strings in user-facing tool description + error message — fixed before commit. BACKLOG #102 + #34 both closed. Principle count unchanged (24; G:5). Tests: 1308/1308 safe-subset pass.
 - **Mode:** Standard
-- **Active Task:** Push stack (3 commits — `ba4592a` fixture consolidation + `82a72f8` registry+lint+checklist + pending Commit C CFR MINOR bump) awaiting user authorization. Post-ship 3-agent battery (coherence + validator + contrarian) queued. Next natural work after push: BACKLOG #121 full-annotation sweep, #122 Phase 3 grey-area sync review (8 cases), #78 compliance review (due ~2026-05-02), or user-directed.
+- **Active Task:** Push stack (4 commits local: `ba4592a` fixture consolidation + `82a72f8` registry+lint+checklist + `c22e35c` CFR §5.2.8 MINOR + pending Commit D post-battery fixes) awaiting user authorization. Post-ship 3-agent battery already ran pre-push and surfaced convergent fixes now in Commit D. Next work after push: BACKLOG #121 full-annotation sweep, #122 Phase 3 grey-area sync review (8 cases), #78 compliance review (due ~2026-05-02), or user-directed.
 
 ## Quick Reference
 
@@ -119,7 +119,7 @@
 ## Next Actions
 
 **Immediate (resume trigger for next session):**
-1. **Session-121 in progress:** BACKLOG #114 shipped (Ground-Truth rule → COMPLETION-CHECKLIST Content-Changes tier, `BEFORE PLANNING (review-triage)` subsection). Next up: BACKLOG #22 / #110 (Governance Effectiveness Measurement — effectively the single biggest open integrity question).
+1. **Session-123 in progress:** 4-commit stack local awaiting push (scanner Agent-tool fix already pushed `320851b`). Pre-push 3-agent battery completed (coherence + validator + contrarian); all actionable findings folded into Commit D. Resumption: `git push origin main` + CI watch, then BACKLOG #121 / #122 / #78 per user direction.
 2. **Trigger-gated work waiting:**
    - **BACKLOG #78** — Governance Compliance Review #4. Due ~2026-04-27 (10 days from Review #3 on 2026-04-17).
    - **BACKLOG #109** — Deferred-with-trigger cadence audit. Next due ~2026-05-20.

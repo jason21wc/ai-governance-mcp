@@ -201,7 +201,7 @@ This loader is designed for use with:
 - title-10-ai-coding.md v2.7.1+
 - title-10-ai-coding-cfr.md v2.39.0+
 - title-20-multi-agent.md v2.7.1+
-- title-20-multi-agent-cfr.md v2.17.0+
+- title-20-multi-agent-cfr.md v2.17.1+
 - title-30-storytelling.md v1.4.1+
 - title-30-storytelling-cfr.md v1.1.1+
 - title-15-ui-ux.md v1.2.0+

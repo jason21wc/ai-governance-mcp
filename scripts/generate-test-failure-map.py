@@ -77,7 +77,15 @@ def parse_covers(docstring: str) -> list[str]:
 
 
 def collect_annotations(tests_dir: Path) -> list[tuple[str, str, str, list[str]]]:
-    """Return list of (relative_file, classname_or_empty, test_name, [covered_ids])."""
+    """Return list of (relative_file, classname_or_empty, test_name, [covered_ids]).
+
+    Direct-iteration design (not ast.walk): iterates the tree top-down once per
+    file and tracks enclosing-class context explicitly. Avoids the O(N*M)
+    quadratic blow-up where the annotation sweep expands. Handles module-level
+    test functions + class-nested test methods; nested classes NOT traversed
+    (pytest collects them but they're uncommon in this codebase; add explicit
+    support if they appear).
+    """
     out: list[tuple[str, str, str, list[str]]] = []
     for path in iter_test_files(tests_dir):
         try:
@@ -85,21 +93,21 @@ def collect_annotations(tests_dir: Path) -> list[tuple[str, str, str, list[str]]
         except SyntaxError:
             continue
         rel = path.relative_to(repo_root()).as_posix()
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                if not node.name.startswith("test_"):
-                    continue
-                doc = ast.get_docstring(node) or ""
-                ids = parse_covers(doc)
-                if not ids:
-                    continue
-                # Walk up to find enclosing ClassDef (ast doesn't track parent by default).
-                classname = ""
-                for klass in ast.walk(tree):
-                    if isinstance(klass, ast.ClassDef) and node in ast.walk(klass):
-                        classname = klass.name
-                        break
-                out.append((rel, classname, node.name, ids))
+        for top in tree.body:
+            if isinstance(top, ast.ClassDef):
+                for method in top.body:
+                    if isinstance(
+                        method, (ast.FunctionDef, ast.AsyncFunctionDef)
+                    ) and method.name.startswith("test_"):
+                        ids = parse_covers(ast.get_docstring(method) or "")
+                        if ids:
+                            out.append((rel, top.name, method.name, ids))
+            elif isinstance(
+                top, (ast.FunctionDef, ast.AsyncFunctionDef)
+            ) and top.name.startswith("test_"):
+                ids = parse_covers(ast.get_docstring(top) or "")
+                if ids:
+                    out.append((rel, "", top.name, ids))
     return out
 
 

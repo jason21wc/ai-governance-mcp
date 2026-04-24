@@ -289,4 +289,10 @@ class TestFailureModeCoverage:
         for eid, entry in registry.items():
             assert entry.get("description"), f"{eid} missing description"
             assert "must_cover" in entry, f"{eid} missing must_cover field"
+            # Must be a real bool — YAML `"true"` (string) is truthy but silently
+            # wrong; explicit isinstance catches schema drift. (Per contrarian
+            # MEDIUM-5, session-123.)
+            assert isinstance(entry["must_cover"], bool), (
+                f"{eid} must_cover must be bool, got {type(entry['must_cover']).__name__}"
+            )
             assert entry.get("introduced"), f"{eid} missing introduced date"

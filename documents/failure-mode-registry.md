@@ -105,6 +105,8 @@ entries:
 
 **Why this exists.** Without a registry, `Covers:` annotations turn into pattern-matched theatre — two authors coin `FM-B2` and `fm-b2` for different concepts; a refactor splits `FM-B2` into `FM-B2a`/`FM-B2b` but annotations never update; a derived map aggregates typos as "distinct" coverage. The registry makes IDs a contract: unknown = test failure, retired = deprecation warning, must_cover without any annotation = test failure.
 
+**Known limitation (semantic theatre).** The registry closes *ID-typo theatre* and *missing-coverage theatre*. It does NOT close *semantic theatre* — a test annotated `Covers: FM-X` could assert something unrelated to `FM-X` and the lint won't notice, because the lint inspects docstrings not test bodies. The annotation is ultimately self-reported. Mitigation is human: when adding a `Covers:` annotation, verify the test body actually exercises the failure mode. Periodic sample audits of the derived map (walk random annotations, confirm the test's assertions match the registry description) catch drift. Automated body-inspection was considered and rejected — false-positive surface too broad; human sampling is cheaper and more accurate.
+
 **Schema.** Each entry in the YAML frontmatter `entries` list has:
 
 | Field | Required | Description |
@@ -160,7 +162,7 @@ Covers: FM-HOOK-CONTRARIAN-REQUIRED, FM-HOOK-FAIL-CLOSED-EXIT-2
 - Hook-enforcement invariants (fail-closed on exit 2, contrarian required, scanner tool coverage).
 - Registry-itself invariants (unknown-id-rejected, must-cover-has-annotation).
 
-Broader annotation sweep across the full 1,366-test suite is deferred to BACKLOG — the derived map explicitly warns readers that empty cells reflect *un-annotated* tests, not *uncovered* failure modes.
+Broader annotation sweep across the full suite is deferred to BACKLOG #121 — the derived map explicitly warns readers that empty cells reflect *un-annotated* tests, not *uncovered* failure modes.
 
 **Cross-references.**
 
