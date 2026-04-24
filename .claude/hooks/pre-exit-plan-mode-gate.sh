@@ -66,9 +66,13 @@ _audit_log() {
     mkdir -p "$(dirname "$DENY_LOG")" 2>/dev/null || return 0
     # Cap log at 100KB — rotate by tailing last 500 lines.
     if [ -f "$DENY_LOG" ]; then
+        # Portable byte-count via `wc -c`. `stat` differs macOS (-f %z) vs
+        # Linux (-c %s); `stat -f` on Linux queries the filesystem, not the
+        # file, and silently returns unexpected content — CI caught this on
+        # 2026-04-23. `wc -c` is POSIX and works identically on both.
         local size
-        size=$(stat -f %z "$DENY_LOG" 2>/dev/null || stat -c %s "$DENY_LOG" 2>/dev/null || echo 0)
-        if [ "$size" -gt 102400 ]; then
+        size=$(wc -c < "$DENY_LOG" 2>/dev/null | tr -d ' ' || echo 0)
+        if [ "${size:-0}" -gt 102400 ]; then
             tail -n 500 "$DENY_LOG" > "$DENY_LOG.tmp" 2>/dev/null && mv "$DENY_LOG.tmp" "$DENY_LOG" 2>/dev/null || true
         fi
     fi
