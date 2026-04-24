@@ -71,7 +71,10 @@ class TestEmbeddingGeneratorLazyLoad:
             assert generator._model is not None
 
     def test_model_property_returns_cached(self, mock_embedder):
-        """Model should be cached after first load."""
+        """Model should be cached after first load.
+
+        Covers: FM-EMBEDDING-LAZY-LOAD-SINGLE
+        """
         mock_st = Mock(return_value=mock_embedder)
 
         with patch("sentence_transformers.SentenceTransformer", mock_st):

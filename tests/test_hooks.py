@@ -413,6 +413,8 @@ class TestContrarianAfterLastPlan:
         Guards against false-allows when the assistant reads BACKLOG.md or
         LEARNING-LOG.md (which mention contrarian-reviewer) without actually
         invoking the subagent.
+
+        Covers: FM-SCANNER-SUBSTRING-FALSE-MATCH
         """
         transcript_path = create_transcript(
             [
@@ -459,6 +461,8 @@ class TestContrarianAfterLastPlan:
         Closes the gap that blocked session-123's first plan approval — Claude
         Code's Agent tool has the same input.subagent_type shape as Task but
         name='Agent'. Scanner must accept both tool names.
+
+        Covers: FM-HOOK-CONTRARIAN-SCANNER-TOOL-COVERAGE
         """
         transcript_path = create_transcript(
             [

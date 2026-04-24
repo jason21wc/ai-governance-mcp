@@ -620,7 +620,10 @@ class TestHandleLogFeedback:
 
     @pytest.mark.asyncio
     async def test_handle_log_feedback_invalid_rating_low(self, reset_server_state):
-        """log_feedback should reject rating below 1."""
+        """log_feedback should reject rating below 1.
+
+        Covers: FM-FEEDBACK-RATING-BOUNDS
+        """
         from ai_governance_mcp.server import _handle_log_feedback
 
         # Note: rating=0 is falsy in Python, so it triggers "required" check first

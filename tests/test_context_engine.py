@@ -204,10 +204,18 @@ class TestProjectIdValidation:
         _validate_project_id("f")
 
     def test_rejects_path_traversal(self):
+        """Project-id validator must reject `../` path-traversal attempts.
+
+        Covers: FM-PROJECT-ID-PATH-TRAVERSAL
+        """
         with pytest.raises(ValueError, match="hex characters only"):
             _validate_project_id("../../../etc/passwd")
 
     def test_rejects_slashes(self):
+        """Project-id validator must reject slashes that would break subdirectory mapping.
+
+        Covers: FM-PROJECT-ID-SLASHES
+        """
         with pytest.raises(ValueError, match="hex characters only"):
             _validate_project_id("abc/def")
 
@@ -879,6 +887,10 @@ class TestServerSecurity:
         assert _check_index_rate_limit() is True
 
     def test_rate_limiter_blocks_excess(self):
+        """Rate limiter must reject requests once per-window bound is hit.
+
+        Covers: FM-RATE-LIMITER-BLOCKS-EXCESS
+        """
         import ai_governance_mcp.context_engine.server as srv
 
         # Drain all tokens

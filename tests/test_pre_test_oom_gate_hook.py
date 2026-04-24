@@ -510,6 +510,8 @@ class TestFailClosedOnUnexpectedError:
 
         We keep /bin and /usr/bin in PATH (bash needs basic utils like cat,
         grep, etc.) but exclude the dirs containing jq and python3.
+
+        Covers: FM-HOOK-FAIL-CLOSED-EXIT-2
         """
         home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
         # Minimal PATH: bash builtins work, but jq/python3 are missing.

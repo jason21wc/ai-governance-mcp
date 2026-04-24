@@ -124,6 +124,10 @@ class TestDenyPath:
     """Hook emits deny when contrarian is missing."""
 
     def test_deny_when_prior_exit_plan_and_no_contrarian(self):
+        """Hook denies ExitPlanMode when contrarian-reviewer wasn't invoked for this plan.
+
+        Covers: FM-HOOK-CONTRARIAN-REQUIRED
+        """
         path = create_transcript([make_exit_plan_entry()])
         try:
             rc, response, _ = run_hook(path)
