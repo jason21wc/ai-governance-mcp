@@ -154,11 +154,14 @@ def format_map(
     )
     lines.append("")
     lines.append(
-        "**Freshness is NOT CI-enforced.** Regeneration depends on whoever "
-        "remembers to run `python3 scripts/generate-test-failure-map.py`. If "
-        "this map disagrees with `documents/failure-mode-registry.md`, trust "
-        "the registry and regenerate. A pre-commit / CI gate is tracked at "
-        "BACKLOG #123 for future structural enforcement."
+        "**Freshness IS pre-commit-enforced** via the "
+        "`regen-test-failure-mode-map` hook in `.pre-commit-config.yaml` "
+        "(session-123 Commit F, BACKLOG #123 closed). The hook regenerates "
+        "this map on any change to the registry, test files, or the "
+        "generator itself, and fails the commit if the regenerated output "
+        "differs from the staged version. If this map disagrees with the "
+        "registry, trust the registry and re-stage after running the "
+        "generator."
     )
     lines.append("")
     lines.append("**Source registry:** `documents/failure-mode-registry.md`")

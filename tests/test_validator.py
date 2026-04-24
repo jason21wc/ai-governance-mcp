@@ -444,17 +444,44 @@ class TestDemotionRationale:
             pytest.skip("not in a git repo — adopter context outside VCS")
 
     def test_registry_history_fully_available(self):
-        """Shallow-clone guard — raise (not skip) if git history truncated.
+        """Shallow-clone guard — raise (not skip) on ANY shallow repo.
+
+        Uses `git rev-parse --is-shallow-repository` to detect shallow clones
+        at ANY depth, not just depth<2. Per post-edit contrarian 2nd-pass
+        a2e12e533e8038e09 (session-123): earlier _EXPECTED_MIN_HISTORY=2
+        guard caught depth=1 but a depth=10 clone would return 10 commits
+        (passing the min-2 assertion) while still truncating the demotion
+        walk below — guarding presence, not completeness.
 
         Covers: FM-REGISTRY-MUST-COVER-HAS-ANNOTATION
         """
         self._require_git_and_registry()
+        # Completeness check: fail on ANY shallow clone.
+        try:
+            is_shallow = subprocess.run(
+                ["git", "rev-parse", "--is-shallow-repository"],
+                cwd=PROJECT_ROOT,
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pytest.skip("git rev-parse unavailable; repo probe failed")
+        if is_shallow.returncode == 0 and is_shallow.stdout.strip() == "true":
+            raise AssertionError(
+                "Repository is a shallow clone — git log will truncate the "
+                "demotion walk below this test and let demotions slip past. "
+                "For CI: set `fetch-depth: 0` on actions/checkout. For local "
+                "dev: run `git fetch --unshallow`. See .github/workflows/ci.yml."
+            )
+        # Belt-and-suspenders: also assert presence of at least N commits in
+        # case `--is-shallow-repository` reports false on a truncated history
+        # (unusual, but shallow detection varies by git version).
         commits = _git_log_registry()
         assert len(commits) >= _EXPECTED_MIN_HISTORY, (
             f"Registry git history has {len(commits)} commits; expected at "
-            f"least {_EXPECTED_MIN_HISTORY}. If running in CI, ensure "
-            f"actions/checkout uses fetch-depth: 0 — shallow clone defeats "
-            f"this test's purpose. See .github/workflows/ci.yml."
+            f"least {_EXPECTED_MIN_HISTORY}. Both shallow-detection and "
+            f"min-count checks disagree with current state — investigate."
         )
 
     def test_demotions_cite_rationale(self):
