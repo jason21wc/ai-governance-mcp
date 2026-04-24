@@ -20,6 +20,8 @@
 
 > Embedding model must lazy-load once and be cached thereafter — double-load would cost memory + risk non-atomic init under threading.
 
+- `tests/test_extractor.py` → `TestEmbeddingGeneratorInit::test_init_sets_model_name`
+- `tests/test_extractor.py` → `TestEmbeddingGeneratorLazyLoad::test_model_property_loads_on_access`
 - `tests/test_extractor.py` → `TestEmbeddingGeneratorLazyLoad::test_model_property_returns_cached`
 
 ### `FM-FEEDBACK-RATING-BOUNDS`

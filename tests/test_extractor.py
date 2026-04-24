@@ -24,7 +24,10 @@ class TestEmbeddingGeneratorInit:
     """Tests for EmbeddingGenerator initialization."""
 
     def test_init_sets_model_name(self):
-        """Should store model name without loading model."""
+        """Should store model name without loading model.
+
+        Covers: FM-EMBEDDING-LAZY-LOAD-SINGLE
+        """
         from ai_governance_mcp.extractor import EmbeddingGenerator
 
         generator = EmbeddingGenerator("BAAI/bge-base-en-v1.5")
@@ -52,7 +55,10 @@ class TestEmbeddingGeneratorLazyLoad:
     """Tests for EmbeddingGenerator lazy loading behavior."""
 
     def test_model_property_loads_on_access(self, mock_embedder):
-        """Model should be loaded on first access."""
+        """Model should be loaded on first access.
+
+        Covers: FM-EMBEDDING-LAZY-LOAD-SINGLE
+        """
         mock_st = Mock(return_value=mock_embedder)
 
         with patch("sentence_transformers.SentenceTransformer", mock_st):
