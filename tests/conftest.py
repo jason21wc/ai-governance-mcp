@@ -88,6 +88,24 @@ def test_settings(temp_dir):
 
 
 # =============================================================================
+# Storage Fixtures
+# =============================================================================
+
+
+@pytest.fixture
+def storage(tmp_path):
+    """FilesystemStorage backed by a per-test temp directory.
+
+    Consolidated from 4 byte-identical class-nested fixtures in
+    test_context_engine.py (session-123 Phase 2). Module-level scope here
+    means pytest auto-injects into any test method with a `storage` parameter.
+    """
+    from ai_governance_mcp.context_engine.storage.filesystem import FilesystemStorage
+
+    return FilesystemStorage(base_path=tmp_path / "indexes")
+
+
+# =============================================================================
 # Model Fixtures - Principles
 # =============================================================================
 

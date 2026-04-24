@@ -235,10 +235,6 @@ class TestProjectIdValidation:
 class TestFilesystemStorage:
     """Test FilesystemStorage with security features."""
 
-    @pytest.fixture
-    def storage(self, tmp_path):
-        return FilesystemStorage(base_path=tmp_path / "indexes")
-
     def test_default_base_path(self):
         with patch.object(Path, "home", return_value=Path("/mock/home")):
             with patch.object(Path, "mkdir"):
@@ -710,10 +706,6 @@ class TestIndexer:
 class TestProjectManager:
     """Test the ProjectManager query and score fusion."""
 
-    @pytest.fixture
-    def storage(self, tmp_path):
-        return FilesystemStorage(base_path=tmp_path / "indexes")
-
     def test_fuse_scores_weighted(self):
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
@@ -1160,10 +1152,6 @@ class TestFileWatcher:
 
 class TestProjectManagerLifecycle:
     """Test ProjectManager lifecycle operations: create, load, reindex, list."""
-
-    @pytest.fixture
-    def storage(self, tmp_path):
-        return FilesystemStorage(base_path=tmp_path / "indexes")
 
     @pytest.fixture
     def mock_indexer_pm(self, storage):
@@ -1762,10 +1750,6 @@ class TestIntegrationIndexQuery:
         )
         (proj / "data.csv").write_text("name,age\nAlice,30\nBob,25\n")
         return proj
-
-    @pytest.fixture
-    def storage(self, tmp_path):
-        return FilesystemStorage(base_path=tmp_path / "indexes")
 
     def test_index_and_query_pipeline(self, project_dir, storage):
         """Full pipeline: index a project, then query it."""

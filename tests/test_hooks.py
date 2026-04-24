@@ -12,24 +12,18 @@ from pathlib import Path
 
 import pytest
 
+from tests.hook_fixtures import (  # noqa: F401 — imported for use in tests
+    create_transcript,
+    make_exit_plan_entry,
+    make_task_entry,
+)
+
 
 # Hook script paths
 PROJECT_DIR = Path(__file__).parent.parent
 PRETOOL_HOOK = PROJECT_DIR / ".claude" / "hooks" / "pre-tool-governance-check.sh"
 PROMPT_HOOK = PROJECT_DIR / ".claude" / "hooks" / "user-prompt-governance-inject.sh"
 SCANNER = PROJECT_DIR / ".claude" / "hooks" / "scan_transcript.py"
-
-
-def create_transcript(entries: list[dict]) -> str:
-    """Create a temporary JSONL transcript file from entries.
-
-    Returns the path to the temporary file.
-    """
-    fd, path = tempfile.mkstemp(suffix=".jsonl")
-    with os.fdopen(fd, "w") as f:
-        for entry in entries:
-            f.write(json.dumps(entry) + "\n")
-    return path
 
 
 def make_tool_use_entry(tool_name: str) -> dict:
@@ -296,27 +290,6 @@ class TestScannerModule:
 # ---------------------------------------------------------------------------
 
 
-def make_task_entry(subagent_type: str) -> dict:
-    """Create a Task tool_use transcript entry with a given subagent_type."""
-    return {
-        "message": {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "tool_use",
-                    "id": "task-id",
-                    "name": "Task",
-                    "input": {
-                        "description": "test",
-                        "subagent_type": subagent_type,
-                        "prompt": "test",
-                    },
-                }
-            ],
-        }
-    }
-
-
 def make_agent_entry(subagent_type: str) -> dict:
     """Create an Agent tool_use transcript entry (Claude Code's Agent-tool variant of Task).
 
@@ -327,23 +300,6 @@ def make_agent_entry(subagent_type: str) -> dict:
     entry["message"]["content"][0]["name"] = "Agent"
     entry["message"]["content"][0]["id"] = "agent-id"
     return entry
-
-
-def make_exit_plan_entry() -> dict:
-    """Create an ExitPlanMode tool_use transcript entry."""
-    return {
-        "message": {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "tool_use",
-                    "id": "epm-id",
-                    "name": "ExitPlanMode",
-                    "input": {"plan": "test plan content"},
-                }
-            ],
-        }
-    }
 
 
 def make_tool_result_entry(text: str) -> dict:

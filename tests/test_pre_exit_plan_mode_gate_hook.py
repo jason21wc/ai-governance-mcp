@@ -11,59 +11,19 @@ import json
 import os
 import shutil
 import subprocess
-import tempfile
 from pathlib import Path
 
 import pytest
 
+from tests.hook_fixtures import (  # noqa: F401 — imported for use in tests
+    create_transcript,
+    make_exit_plan_entry,
+    make_task_entry,
+)
+
 
 PROJECT_DIR = Path(__file__).parent.parent
 HOOK_PATH = PROJECT_DIR / ".claude" / "hooks" / "pre-exit-plan-mode-gate.sh"
-
-
-def create_transcript(entries: list[dict]) -> str:
-    """Write JSONL transcript from entries; return path."""
-    fd, path = tempfile.mkstemp(suffix=".jsonl")
-    with os.fdopen(fd, "w") as f:
-        for entry in entries:
-            f.write(json.dumps(entry) + "\n")
-    return path
-
-
-def make_exit_plan_entry() -> dict:
-    return {
-        "message": {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "tool_use",
-                    "id": "epm",
-                    "name": "ExitPlanMode",
-                    "input": {"plan": "test"},
-                }
-            ],
-        }
-    }
-
-
-def make_task_entry(subagent_type: str) -> dict:
-    return {
-        "message": {
-            "role": "assistant",
-            "content": [
-                {
-                    "type": "tool_use",
-                    "id": "t1",
-                    "name": "Task",
-                    "input": {
-                        "description": "test",
-                        "subagent_type": subagent_type,
-                        "prompt": "test",
-                    },
-                }
-            ],
-        }
-    }
 
 
 def run_hook(
