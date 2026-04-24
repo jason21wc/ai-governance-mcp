@@ -38,7 +38,9 @@
 
 > Scanner must recognize contrarian-reviewer invocation via BOTH Task and Agent tools (Claude Code's native + Agent variants share input.subagent_type shape).
 
+- `tests/test_hooks.py` → `TestContrarianAfterLastPlan::test_allow_with_agent_tool_underscore_variant`
 - `tests/test_hooks.py` → `TestContrarianAfterLastPlan::test_allow_with_agent_tool_variant`
+- `tests/test_hooks.py` → `TestContrarianAfterLastPlan::test_deny_when_agent_tool_has_wrong_subagent_type`
 
 ### `FM-HOOK-FAIL-CLOSED-EXIT-2`
 

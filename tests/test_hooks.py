@@ -481,6 +481,8 @@ class TestContrarianAfterLastPlan:
 
         Locks the contract that the underscore alias works for Agent just like
         Task. Cheap insurance per contrarian MEDIUM-1, session-123.
+
+        Covers: FM-HOOK-CONTRARIAN-SCANNER-TOOL-COVERAGE
         """
         transcript_path = create_transcript(
             [
@@ -500,6 +502,8 @@ class TestContrarianAfterLastPlan:
         Symmetric negative test per contrarian HIGH-1, session-123: widening the
         name-check to ('Task', 'Agent') without this test would let a regression
         to unconditional-allow pass CI.
+
+        Covers: FM-HOOK-CONTRARIAN-SCANNER-TOOL-COVERAGE
         """
         transcript_path = create_transcript(
             [
