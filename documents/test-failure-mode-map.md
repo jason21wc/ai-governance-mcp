@@ -26,6 +26,8 @@
 
 > log_feedback must reject rating values outside 1..5 (bounds validation at the MCP boundary).
 
+- `tests/test_models.py` → `TestFeedback::test_rating_constraints`
+- `tests/test_server.py` → `TestHandleLogFeedback::test_handle_log_feedback_invalid_rating_high`
 - `tests/test_server.py` → `TestHandleLogFeedback::test_handle_log_feedback_invalid_rating_low`
 
 ### `FM-HOOK-CONTRARIAN-REQUIRED`

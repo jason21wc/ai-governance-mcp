@@ -225,7 +225,10 @@ class TestFeedback:
     """Test Feedback model."""
 
     def test_rating_constraints(self):
-        """Rating must be 1-5."""
+        """Rating must be 1-5 (Pydantic-layer enforcement of MCP boundary).
+
+        Covers: FM-FEEDBACK-RATING-BOUNDS
+        """
         with pytest.raises(ValidationError):
             Feedback(
                 query="test",
