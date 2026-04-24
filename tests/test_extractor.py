@@ -1745,7 +1745,10 @@ class TestMultimodalRagExtraction:
             assert "presentation" in p.id, f"Expected presentation category: {p.id}"
 
     def test_ev_series_not_verification(self, mrag_settings):
-        """EV-Series must be 'evaluation', not 'verification' (substring collision guard)."""
+        """EV-Series must be 'evaluation', not 'verification' (substring collision guard).
+
+        Covers: FM-SERIES-CODE-SUBSTRING-COLLISION
+        """
         principles = self._extract(mrag_settings)
         ev_series = [p for p in principles if "ev1" in p.id or "ev2" in p.id]
         assert len(ev_series) == 2
@@ -1754,7 +1757,10 @@ class TestMultimodalRagExtraction:
             assert "verification" not in p.id, f"EV-Series got verification: {p.id}"
 
     def test_sec_series_not_context(self, mrag_settings):
-        """SEC-Series must be 'security', not 'context' (substring collision guard)."""
+        """SEC-Series must be 'security', not 'context' (substring collision guard).
+
+        Covers: FM-SERIES-CODE-SUBSTRING-COLLISION
+        """
         principles = self._extract(mrag_settings)
         sec_series = [p for p in principles if "sec1" in p.id or "sec2" in p.id]
         assert len(sec_series) == 2

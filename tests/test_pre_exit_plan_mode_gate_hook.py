@@ -212,6 +212,10 @@ class TestFalseMatchGuard:
     NOT as a Task invocation → hook must deny (scanner parses tool_use, not substring)."""
 
     def test_deny_on_file_read_mentioning_contrarian(self):
+        """Tool-result mentioning 'contrarian-reviewer' is not tool_use → deny.
+
+        Covers: FM-SCANNER-SUBSTRING-FALSE-MATCH
+        """
         fake_read = {
             "message": {
                 "role": "user",

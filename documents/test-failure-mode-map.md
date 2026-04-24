@@ -15,6 +15,7 @@
 > Governance audit IDs must have `gov-` prefix + 12 hex chars (16 total) and be unique across calls — contract consumed by `scripts/analyze_compliance.py` and external compliance tooling.
 
 - `tests/test_models.py` → `TestAuditFunctions::test_generate_audit_id_format`
+- `tests/test_models.py` → `TestAuditFunctions::test_generate_audit_id_unique`
 
 ### `FM-EMBEDDING-LAZY-LOAD-SINGLE`
 
@@ -51,6 +52,7 @@
 > Hard-mode hooks must fail closed on exit 2 (not exit 1, which Claude Code treats as fail-open).
 
 - `tests/test_pre_test_oom_gate_hook.py` → `TestFailClosedOnUnexpectedError::test_err_trap_converts_failures_to_exit_2`
+- `tests/test_pre_test_oom_gate_hook.py` → `TestInternalPsTimeout::test_ps_timeout_fails_closed`
 
 ### `FM-HOOK-GOVERNANCE-GATE-REQUIRED`
 
@@ -77,6 +79,8 @@
 > RateLimiter must enforce per-window bounds — first N allowed, subsequent rejected until window rolls.
 
 - `tests/test_context_engine.py` → `TestServerSecurity::test_rate_limiter_blocks_excess`
+- `tests/test_server.py` → `TestRateLimiting::test_rate_limit_allows_initial_requests`
+- `tests/test_server.py` → `TestRateLimiting::test_rate_limit_exhaustion`
 
 ### `FM-REGISTRY-MUST-COVER-HAS-ANNOTATION`
 
@@ -96,12 +100,15 @@
 > Transcript scanner must parse tool_use blocks, not substring-match raw line content — guards against file reads that MENTION the target tool name without invoking it.
 
 - `tests/test_hooks.py` → `TestContrarianAfterLastPlan::test_deny_on_substring_false_match`
+- `tests/test_pre_exit_plan_mode_gate_hook.py` → `TestFalseMatchGuard::test_deny_on_file_read_mentioning_contrarian`
 
 ### `FM-SERIES-CODE-SUBSTRING-COLLISION`
 
 > `category_mapping` dict iteration must place longer keys before shorter keys when one is a substring of the other — `keyword in section_lower` matching otherwise misroutes (e.g., `ev-series` → `verification` instead of `evaluation`; `sec-series` → `context` instead of `security`).
 
 - `tests/test_extractor.py` → `TestCategoryMappingSubstringCollisions::test_no_substring_collisions_in_ordering`
+- `tests/test_extractor.py` → `TestMultimodalRagExtraction::test_ev_series_not_verification`
+- `tests/test_extractor.py` → `TestMultimodalRagExtraction::test_sec_series_not_context`
 
 ## Advisory Entries
 
@@ -109,7 +116,7 @@
 
 > Bash ERR trap does not cover SIGKILL (Claude Code hook-timeout mechanism) — hooks relying solely on ERR trap for fail-closed will fail-open on timeout.
 
-_No annotated tests yet._
+- `tests/test_pre_test_oom_gate_hook.py` → `TestInternalPsTimeout::test_ps_timeout_fails_closed`
 
 ### `FM-ML-MODEL-MOCK-AT-SOURCE`
 

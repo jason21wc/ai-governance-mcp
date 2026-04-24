@@ -2141,7 +2141,10 @@ class TestRateLimiting:
     """Tests for H4: Rate limiting (token bucket algorithm)."""
 
     def test_rate_limit_allows_initial_requests(self):
-        """Initial requests should be allowed."""
+        """Initial requests should be allowed (first N of token bucket).
+
+        Covers: FM-RATE-LIMITER-BLOCKS-EXCESS
+        """
         from ai_governance_mcp.server import _check_rate_limit
 
         # Reset rate limiter
@@ -2152,7 +2155,10 @@ class TestRateLimiting:
         assert _check_rate_limit() is True
 
     def test_rate_limit_exhaustion(self):
-        """Rapid requests should eventually be rate limited."""
+        """Rapid requests should eventually be rate limited (excess blocked).
+
+        Covers: FM-RATE-LIMITER-BLOCKS-EXCESS
+        """
         import ai_governance_mcp.server as server_module
         from ai_governance_mcp.server import _check_rate_limit
 

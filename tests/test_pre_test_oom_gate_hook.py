@@ -455,6 +455,8 @@ class TestInternalPsTimeout:
         "command timed out" code) simulates ps hanging past the internal 7s
         guard. The hook must exit 2 (deny), not let control fall through to
         fail-open behavior.
+
+        Covers: FM-HOOK-FAIL-CLOSED-EXIT-2, FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED
         """
         home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
 

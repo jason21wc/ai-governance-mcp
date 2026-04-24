@@ -318,7 +318,10 @@ class TestAuditFunctions:
         assert len(audit_id) == 16  # "gov-" + 12 hex chars
 
     def test_generate_audit_id_unique(self):
-        """Each audit ID should be unique."""
+        """Each audit ID should be unique across 100 generations.
+
+        Covers: FM-AUDIT-ID-FORMAT-INVARIANT
+        """
         ids = {generate_audit_id() for _ in range(100)}
         assert len(ids) == 100  # All unique
 
