@@ -176,33 +176,35 @@ def _parse_covers(docstring: str | None) -> list[str]:
 
 
 def _collect_annotations() -> list[tuple[str, str, list[str]]]:
-    """Return list of (relative_file, test_qualname, [covered_ids])."""
+    """Return list of (relative_file, test_qualname, [covered_ids]).
+
+    Iterates top-level nodes only (mirrors scripts/generate-test-failure-map.py
+    collect_annotations). Nested classes are NOT traversed — if the codebase
+    grows to use `class TestA: class WhenB:` patterns, extend both this and
+    the generator to avoid drift between lint and derived map.
+    """
     annotations: list[tuple[str, str, list[str]]] = []
     for path in sorted(TESTS_DIR.rglob("test_*.py")):
         try:
-            tree = ast.parse(path.read_text(), filename=str(path))
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         except SyntaxError:
             continue
         rel = path.relative_to(PROJECT_ROOT).as_posix()
-        for klass in ast.walk(tree):
-            if isinstance(klass, ast.ClassDef):
-                for method in klass.body:
+        for top in tree.body:
+            if isinstance(top, ast.ClassDef):
+                for method in top.body:
                     if isinstance(
                         method, (ast.FunctionDef, ast.AsyncFunctionDef)
                     ) and method.name.startswith("test_"):
                         ids = _parse_covers(ast.get_docstring(method))
                         if ids:
-                            annotations.append(
-                                (rel, f"{klass.name}::{method.name}", ids)
-                            )
-        # Module-level test functions (rare in this codebase).
-        for fn in tree.body:
-            if isinstance(
-                fn, (ast.FunctionDef, ast.AsyncFunctionDef)
-            ) and fn.name.startswith("test_"):
-                ids = _parse_covers(ast.get_docstring(fn))
+                            annotations.append((rel, f"{top.name}::{method.name}", ids))
+            elif isinstance(
+                top, (ast.FunctionDef, ast.AsyncFunctionDef)
+            ) and top.name.startswith("test_"):
+                ids = _parse_covers(ast.get_docstring(top))
                 if ids:
-                    annotations.append((rel, fn.name, ids))
+                    annotations.append((rel, top.name, ids))
     return annotations
 
 
@@ -265,23 +267,34 @@ class TestFailureModeCoverage:
         )
 
     def test_retired_ids_emit_warning_only(self, registry, annotations, recwarn):
-        """Annotations citing retired IDs produce deprecation warnings, not failures."""
+        """Annotations citing retired IDs produce deprecation warnings, not failures.
+
+        Counts actual retired-id citations and asserts a matching number of
+        DeprecationWarnings got raised. Without this assertion the test was
+        a log statement, not a test (per 2nd-pass code-reviewer MEDIUM-3,
+        session-123).
+        """
         retired = {eid for eid, e in registry.items() if e.get("retired")}
         if not retired:
             pytest.skip("no retired registry entries yet — nothing to test")
+        expected_citations = 0
+        import warnings
+
         for rel, qualname, ids in annotations:
             for eid in ids:
                 if eid in retired:
-                    import warnings
-
+                    expected_citations += 1
                     warnings.warn(
                         f"{rel}::{qualname} cites retired id {eid} "
                         f"(retired {registry[eid].get('retired')})",
                         DeprecationWarning,
                         stacklevel=1,
                     )
-        # Soft check — collect warnings but don't fail. Captures awareness surface.
-        # If a future pass wants to enforce migration, add: assert not recwarn.list
+        raised = [w for w in recwarn.list if issubclass(w.category, DeprecationWarning)]
+        assert len(raised) == expected_citations, (
+            f"expected {expected_citations} DeprecationWarnings for retired-id "
+            f"citations; got {len(raised)}"
+        )
 
     def test_registry_yaml_parses(self, registry):
         """Registry YAML frontmatter must be valid and contain entries."""

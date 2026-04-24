@@ -2,7 +2,9 @@
 
 **AUTO-GENERATED.** Do not edit. Regenerate via `python3 scripts/generate-test-failure-map.py`.
 
-**Coverage reflects ANNOTATED tests only.** An empty cell does NOT mean "failure mode uncovered" — it means "no test carries a `Covers: <id>` annotation yet." Full annotation sweep deferred to BACKLOG; this map documents the state of the annotation convention, not the state of test coverage.
+**Coverage reflects ANNOTATED tests only.** An empty cell does NOT mean "failure mode uncovered" — it means "no test carries a `Covers: <id>` annotation yet." Full annotation sweep deferred to BACKLOG #121; this map documents the state of the annotation convention, not the state of test coverage.
+
+**Freshness is NOT CI-enforced.** Regeneration depends on whoever remembers to run `python3 scripts/generate-test-failure-map.py`. If this map disagrees with `documents/failure-mode-registry.md`, trust the registry and regenerate. A pre-commit / CI gate is tracked at BACKLOG #123 for future structural enforcement.
 
 **Source registry:** `documents/failure-mode-registry.md`
 

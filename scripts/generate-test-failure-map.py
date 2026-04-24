@@ -148,17 +148,32 @@ def format_map(
     lines.append(
         "**Coverage reflects ANNOTATED tests only.** An empty cell does NOT mean "
         '"failure mode uncovered" — it means "no test carries a `Covers: <id>` '
-        'annotation yet." Full annotation sweep deferred to BACKLOG; this map '
-        "documents the state of the annotation convention, not the state of test "
-        "coverage."
+        'annotation yet." Full annotation sweep deferred to BACKLOG #121; this '
+        "map documents the state of the annotation convention, not the state of "
+        "test coverage."
+    )
+    lines.append("")
+    lines.append(
+        "**Freshness is NOT CI-enforced.** Regeneration depends on whoever "
+        "remembers to run `python3 scripts/generate-test-failure-map.py`. If "
+        "this map disagrees with `documents/failure-mode-registry.md`, trust "
+        "the registry and regenerate. A pre-commit / CI gate is tracked at "
+        "BACKLOG #123 for future structural enforcement."
     )
     lines.append("")
     lines.append("**Source registry:** `documents/failure-mode-registry.md`")
     lines.append("")
 
     # Split entries into must_cover and advisory for readability.
-    must_cover = [eid for eid, e in entries_by_id.items() if e.get("must_cover")]
-    advisory = [eid for eid, e in entries_by_id.items() if not e.get("must_cover")]
+    # Bool-strict to match TestFailureModeCoverage::test_registry_yaml_parses —
+    # if someone writes `must_cover: "true"` (string), the lint catches it but
+    # we also don't want this generator to silently classify it as must_cover.
+    must_cover = [
+        eid for eid, e in entries_by_id.items() if e.get("must_cover") is True
+    ]
+    advisory = [
+        eid for eid, e in entries_by_id.items() if e.get("must_cover") is not True
+    ]
     retired = [eid for eid, e in entries_by_id.items() if e.get("retired")]
 
     def write_section(title: str, ids: list[str]) -> None:

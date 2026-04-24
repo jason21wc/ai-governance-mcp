@@ -121,6 +121,8 @@ entries:
 
 **Must-cover discipline.** Only flag `must_cover: true` when (a) the failure mode has already caused production harm OR has a specific LEARNING-LOG incident, AND (b) at least one existing test covers it (so flipping the flag doesn't immediately break the lint). Flipping to `true` without coverage is a trap — file a BACKLOG item to add the test first, then flip.
 
+**Demotion discipline (`true` → `false`).** Because the `TestFailureModeCoverage::test_every_must_cover_entry_has_annotation` lint fails if a must_cover entry has no annotation, the path of least resistance when the lint reddens is to demote the flag. This would decay the registry's signal. Rule: any commit that flips an entry from `must_cover: true` to `must_cover: false` must include in its commit message either (a) rationale why the failure mode is no longer regression-critical, OR (b) a pointer to the BACKLOG item that will restore coverage. Reviewers should reject bare demotions. BACKLOG #124 tracks the future structural enforcement (either git-hook rationale-check or CFR §5.2.8 normative language).
+
 **Annotation format.** Tests cite entries in their docstring:
 
 ```python
@@ -131,7 +133,7 @@ def test_deny_on_substring_false_match(self):
     """
 ```
 
-Multiple IDs comma-separated:
+Multiple IDs comma-separated **on a single line** (the current scanner regex is single-line; multi-line continuation is NOT supported — it will silently truncate. Use one `Covers:` line per annotation; if the list grows unwieldy, split into two docstring paragraphs with separate `Covers:` lines — each line is captured additively):
 
 ```python
 """
