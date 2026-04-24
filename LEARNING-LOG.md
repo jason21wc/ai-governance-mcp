@@ -77,7 +77,7 @@ F-P2-13 in the 2026-04-18 self-review flagged "Relations purpose thinly operatio
 
 ---
 
-### Post-Commit Double-Check Catches Surface Drift Pre/Post Batteries Miss (2026-04-19)
+### Post-Commit Double-Check Catches Surface Drift Pre/Post Batteries Miss (2026-04-19, EXTENDED 2026-04-23 with mechanism + session-123 confirmation)
 
 Cohort 2 v5.0.0 ran pre-edit + post-edit 3-agent batteries. Both passed. User requested an additional post-commit double-check with 3 more subagents. It found:
 
@@ -92,6 +92,16 @@ Cohort 2 v5.0.0 ran pre-edit + post-edit 3-agent batteries. Both passed. User re
 **Principle:** `meta-method-single-source-of-truth` extended to "single-source-the-claim-text, not just the canonical source." Also `meta-core-systemic-thinking`: the root cause of M1 surface drift is that 8 parallel surfaces paraphrase the Authority text independently; a CI assertion that Authority-column strings match across the 6 CFR tables would prevent this class. Filed as BACKLOG candidate for structural remediation.
 
 **Also extends LEARNING-LOG 2026-04-18 "Verify Cited Files in Reviews":** the v5.0.0 commit message itself claimed "20+ files" — actual was 11. Rhetorical inflation by a factor of ~2×. Double-check caught it; pre/post batteries focused on content didn't.
+
+**2026-04-23 update — session-123 confirmation (4th instance) + MECHANISM IDENTIFIED.** Session-123 shipped Commit D (first-battery fixes) then Commit E (second-battery fixes); the second battery caught 2 HIGH (rot-immunity claim false, `must_cover` demotion ungated) + 4 MEDIUM the first battery missed despite a 10-minute gap. Internal pattern analysis across sessions 120/121/122/123 (~18 findings): 6 of ~10 dominant-category catches are cross-file propagation gaps (version pins, body-header drift, parallel-surface inconsistencies). Cross-referenced with external research (MIT 2025 position bias, ACM ICER 2025 rubric prompting, NeurIPS 2024 LLM-as-judge biases) confirms:
+
+- **The mechanism is SCOPE ASYMMETRY, not time-gap or fresh-eyes.** Pre-battery reads the plan's propagation list (whitelist). Post-battery reads the whole repo for instances of the claim/pin/label class (grep-for-class). 10-minute gap isn't doing the work; scope rotation + agent-type rotation are.
+- **Unavoidable residual ~10-20%** per LLM-as-judge literature (position bias, verbosity bias, same-model confabulation consensus); cannot drive post-battery catches to zero.
+- **Compressible portion ~80%** addressable via: (a) rebriefing pre-battery coherence-auditor with explicit grep-for-class step (shipped session-123 as structural fix — anti-whitelist rule in `documents/agents/coherence-auditor.md` Step 4); (b) closing recurring classes at source (BACKLOG #115 pin-sync checklist, #123 CI regen enforcement, #124 demotion rationale gate).
+
+**Graduated rule (session-123):** Pre-battery coherence-auditor prompt MUST include the anti-whitelist instruction — "the brief's file list is a starting point, NOT the scope; sweep the whole repo for every surface carrying this claim/pin/label class before concluding." Hash-locked via `TestMultiAgentConsistency::test_template_hashes_match_files` so the instruction can't silently regress.
+
+**Target metric:** compress pre→post HIGH/BLOCKER catch delta from current ~30-50% of total shipping effort to <10% within 3 sessions post-ship.
 
 ---
 

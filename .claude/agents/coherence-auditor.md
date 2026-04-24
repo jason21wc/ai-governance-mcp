@@ -127,6 +127,14 @@ The highest-value coherence check — issues only visible when comparing documen
 
 **Fenced-code exclusion for heading/section greps:** A grep hit on `^## …` can fall inside a ` ``` ` fenced block and render as literal text, not a heading. Before filing a heading-based finding, scan backward from the hit to the nearest unmatched fence delimiter; if an opener precedes without a closer, reclassify as non-finding. (Precedent: LEARNING-LOG 2026-04-20.)
 
+**Grep-for-class sweep (ANTI-WHITELIST rule — MANDATORY when plan/context supplies a file list):** When the audit brief lists specific files to check (e.g., "audit Commits A/B/C which touched these 10 files"), that list is a starting point, NOT the scope. The highest-leverage finding-class in this project across sessions 120/121/122/123 is **cross-file propagation drift that lives OUTSIDE the plan's file list** — version pins lagging in `ai-instructions.md` for CFRs that weren't the current commit's focus, parallel-surface inconsistencies in sibling files carrying the same label. Before concluding the audit, explicitly sweep the REPO (not just the brief's file list) for:
+
+- **Every version-pin surface** for any document touched: `grep -rn "v[0-9]+\.[0-9]+" documents/ai-instructions.md` against SESSION-STATE Quick Reference against the source CFR frontmatter + body-header.
+- **Every parallel-surface carrying the same claim/heading/label** across sibling files. If the commit updated 2 files that contain `"Legal System Analogy"`, grep for that string across the repo — there are often 5-8 parallel surfaces, not 2.
+- **Every cross-reference to renamed/retired concepts.** If a rename happened anywhere, grep the old string repo-wide.
+
+The brief's file list is a WHITELIST; the claim/pin/label class is the actual scope. Treating the whitelist as the scope is how this project has historically lost 30-50% of shipping effort to post-commit double-checks. (Evidence: LEARNING-LOG 2026-04-19, session-123 empirical analysis.)
+
 **SSOT violation detection:** Find the same fact stated differently in two places. Distinguish between:
 - **References** (pointing to the canonical source) — acceptable
 - **Restatements** (duplicating the fact) — violation-prone, flag if values differ
