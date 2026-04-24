@@ -224,6 +224,13 @@ entries:
     must_cover: false
     scope: framework
     introduced: "2026-04-23"
+    placeholder: true
+  - id: FM-REGISTRY-ADVISORY-SEED-AT-CREATION
+    description: "Every advisory registry entry introduced on or after 2026-04-24 must have at least one seeded `Covers:` annotation at creation time, unless explicitly marked `placeholder: true`. Structural gate replacing the prose-only seed-at-creation rule per session-124 contrarian HIGH-1 (organic-growth mechanism had 4-month track record of failing to retrofit advisory annotations)."
+    must_cover: true
+    scope: framework
+    introduced: "2026-04-24"
+    source: "session-124 battery-fix-2 per contrarian HIGH-1; BACKLOG #121"
   - id: FM-REGISTRY-MUST-COVER-HAS-ANNOTATION
     description: "Every registry entry with must_cover: true must have at least one test annotated with `Covers: <id>` — enforces that critical failure modes actually have coverage."
     must_cover: true
@@ -252,6 +259,7 @@ entries:
 | `source` | no | Provenance: LEARNING-LOG entry, BACKLOG item, principle reference, session log. |
 | `retired` | no | ISO date the entry was retired. Annotations citing a retired ID emit deprecation warnings, not failures. |
 | `supersedes` | no | ID(s) of prior entries this one replaces. Enables migration tracking. |
+| `placeholder` | no | `true` → entry is dormant-until-triggered (e.g., FM-REGISTRY-RETIRED-ID-DEPRECATION activates only once a registry entry is retired). Exempt from the seed-at-creation rule (step 3 below). Use sparingly — most FMs should have seed annotations at creation. |
 
 **Must-cover discipline.** Only flag `must_cover: true` when (a) the failure mode has already caused production harm OR has a specific LEARNING-LOG incident OR enforces a named security/SLA contract in code (e.g., path-traversal guard, rate-limit bound, authentication boundary), AND (b) at least one existing test covers it (so flipping the flag doesn't immediately break the lint). Flipping to `true` without coverage is a trap — file a BACKLOG item to add the test first, then flip. The "security/SLA contract" branch codifies pre-existing practice (FM-PROJECT-ID-PATH-TRAVERSAL cites "Security contract" as source without a LEARNING-LOG incident); use it for invariants that would be security/availability bugs if violated, not for preference-level contracts.
 
@@ -279,7 +287,7 @@ Covers: FM-HOOK-CONTRARIAN-REQUIRED, FM-HOOK-FAIL-CLOSED-EXIT-2
 
 1. Ensure the failure mode is real — has caused a regression, is named in LEARNING-LOG or BACKLOG, or encodes a security/SLA contract.
 2. Add an entry to the `entries:` YAML list above. Fill all required fields.
-3. **Seed at creation — MUST-cover AND advisory.** If `must_cover: true`, ensure at least one existing test is already annotated — run the lint to confirm. If `must_cover: false` (advisory), include at least one seeded `Covers:` annotation in the same commit anyway. This prevents the "file and forget" pattern that leaves advisory entries at zero annotations for months, radiating noise through the derived map. If you genuinely cannot find a test that covers the FM, file a BACKLOG item to write the test first, then add the registry entry — do not add an advisory entry with zero annotations expecting organic growth to fill the gap. (Codified 2026-04-24 session-124 per contrarian HIGH-1 on the #121 sweep — 4-month track record showed organic growth does not reliably retrofit existing-test annotations.)
+3. **Seed at creation — MUST-cover AND advisory (STRUCTURALLY ENFORCED for entries introduced ≥ 2026-04-24).** If `must_cover: true`, ensure at least one existing test is already annotated — `TestFailureModeCoverage::test_every_must_cover_entry_has_annotation` enforces this. If `must_cover: false` (advisory), include at least one seeded `Covers:` annotation in the same commit — `TestFailureModeCoverage::test_new_advisory_entries_have_annotation` enforces this for entries with `introduced ≥ 2026-04-24`. The structural gate replaces the prose-only rule that preceded it (session-123 through session-124 pre-extension): 4-month track record showed advisory entries filed without seeds stayed at zero annotations indefinitely. If you genuinely cannot find a test that covers the FM, either (a) file a BACKLOG item to write the test first, then add the registry entry, or (b) mark the entry `placeholder: true` (reserved for dormant-until-triggered FMs — use sparingly). **Grandfathered entries (pre-2026-04-24 advisory entries at zero annotations, exempt from the gate):** FM-TEST-SIDE-EFFECTS (now annotated, no longer exempt), FM-TEST-ENVIRONMENT-AWARE, FM-TEST-FULL-VALIDATION-CHAIN, FM-TEST-ECHO-CHAMBER (now annotated, no longer exempt), FM-S-SERIES-KEYWORD-FALSE-POSITIVE, FM-ML-MODEL-MOCK-AT-SOURCE, FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED (now annotated, no longer exempt), FM-REGISTRY-RETIRED-ID-DEPRECATION (placeholder). The 4 still-zero grandfathered entries (FM-TEST-ENVIRONMENT-AWARE, FM-TEST-FULL-VALIDATION-CHAIN, FM-S-SERIES-KEYWORD-FALSE-POSITIVE, FM-ML-MODEL-MOCK-AT-SOURCE) remain exempt pending future retrofit-or-retire decisions in a dedicated BACKLOG item — the gate applies prospectively only.
 4. Run `python3 scripts/generate-test-failure-map.py` to regenerate `documents/test-failure-mode-map.md`.
 5. Commit registry + regenerated map + seed annotation(s) together.
 

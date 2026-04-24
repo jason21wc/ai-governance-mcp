@@ -114,6 +114,12 @@
 - `tests/test_readonly.py` → `TestReadOnlyFilesystemStorage::test_save_file_manifest_raises`
 - `tests/test_readonly.py` → `TestReadOnlyFilesystemStorage::test_save_metadata_raises`
 
+### `FM-REGISTRY-ADVISORY-SEED-AT-CREATION`
+
+> Every advisory registry entry introduced on or after 2026-04-24 must have at least one seeded `Covers:` annotation at creation time, unless explicitly marked `placeholder: true`. Structural gate replacing the prose-only seed-at-creation rule per session-124 contrarian HIGH-1 (organic-growth mechanism had 4-month track record of failing to retrofit advisory annotations).
+
+- `tests/test_validator.py` → `TestFailureModeCoverage::test_new_advisory_entries_have_annotation`
+
 ### `FM-REGISTRY-MUST-COVER-HAS-ANNOTATION`
 
 > Every registry entry with must_cover: true must have at least one test annotated with `Covers: <id>` — enforces that critical failure modes actually have coverage.

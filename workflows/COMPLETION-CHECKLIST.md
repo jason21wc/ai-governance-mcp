@@ -40,7 +40,7 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 
 ### BEST-EFFORT (advisory, ~85% compliance expected)
 
-11. Tests written WITH implementation, not after (§5.2.2 — TDD recommended). Follow `workflows/TEST-AUTHORING-CHECKLIST.md` 9-step gate: name the failure mode → check `documents/failure-mode-registry.md` for existing entry → add `Covers: FM-<id>` to test docstring if applicable. Regenerate derived map (`python3 scripts/generate-test-failure-map.py`) if registry entries added/retired.
+11. Tests written WITH implementation, not after (§5.2.2 — TDD recommended). Follow `workflows/TEST-AUTHORING-CHECKLIST.md` — name the failure mode, check `documents/failure-mode-registry.md` for existing entry, add `Covers: FM-<id>` to test docstring if applicable. Regenerate derived map (`python3 scripts/generate-test-failure-map.py`) if registry entries added/retired. **When adding a NEW registry entry** (advisory or must_cover), include ≥1 seeded `Covers:` annotation in the same commit — enforced structurally by `TestFailureModeCoverage::test_new_advisory_entries_have_annotation` for advisory entries introduced ≥ 2026-04-24.
 12. SESSION-STATE updated progressively during session, not just at end (§7.1)
 13. Benchmark baseline captured before index/retrieval changes
 14. README/SPEC/ARCH propagation for domain counts, file trees, version references

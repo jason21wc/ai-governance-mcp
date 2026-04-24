@@ -296,6 +296,50 @@ class TestFailureModeCoverage:
             f"citations; got {len(raised)}"
         )
 
+    def test_new_advisory_entries_have_annotation(self, registry, annotations):
+        """Advisory entries introduced on or after 2026-04-24 must have ≥1
+        annotated test, unless marked `placeholder: true`.
+
+        Structural enforcement of the seed-at-creation rule per session-124
+        contrarian HIGH-1. The prose-only rule that preceded this (registry.md
+        step 3) had a 4-month track record of being violated — advisory
+        entries filed without seeds stayed at zero annotations indefinitely.
+
+        Pre-2026-04-24 entries are grandfathered (listed in registry.md
+        step 3). To exempt a new entry from this gate, add `placeholder: true`
+        to its YAML — reserved for dormant-until-triggered FMs.
+
+        Covers: FM-REGISTRY-ADVISORY-SEED-AT-CREATION
+        """
+        from datetime import date
+
+        cutoff = date(2026, 4, 24)
+        annotated_ids: set[str] = set()
+        for _, _, ids in annotations:
+            annotated_ids.update(ids)
+
+        missing: list[str] = []
+        for eid, entry in registry.items():
+            if entry.get("must_cover"):
+                continue  # handled by test_every_must_cover_entry_has_annotation
+            if entry.get("retired") or entry.get("placeholder"):
+                continue  # exempt
+            introduced_raw = entry.get("introduced", "")
+            try:
+                introduced = date.fromisoformat(str(introduced_raw))
+            except ValueError:
+                continue  # can't parse → grandfather
+            if introduced >= cutoff and eid not in annotated_ids:
+                missing.append(f"{eid} (introduced {introduced})")
+
+        assert not missing, (
+            "advisory entries introduced on or after 2026-04-24 must include "
+            "≥1 seeded `Covers:` annotation in the same commit. Either add "
+            "the annotation, mark the entry `placeholder: true` "
+            "(dormant-until-triggered), or move the FM to BACKLOG until a "
+            "test exists:\n  " + "\n  ".join(missing)
+        )
+
     def test_registry_yaml_parses(self, registry):
         """Registry YAML frontmatter must be valid and contain entries.
 
@@ -303,6 +347,7 @@ class TestFailureModeCoverage:
         - id (implicit via key), description, must_cover, scope, introduced
         - must_cover is a real bool (not string "true")
         - scope is a string in {"framework", "project"}
+        - placeholder (optional): bool — if present, must be real bool
         """
         assert registry, "registry has zero entries — check YAML frontmatter"
         valid_scopes = {"framework", "project"}
@@ -324,6 +369,11 @@ class TestFailureModeCoverage:
                 f"{eid} scope must be one of {valid_scopes}, got {entry['scope']!r}"
             )
             assert entry.get("introduced"), f"{eid} missing introduced date"
+            # placeholder is optional but must be bool when present
+            if "placeholder" in entry:
+                assert isinstance(entry["placeholder"], bool), (
+                    f"{eid} placeholder must be bool, got {type(entry['placeholder']).__name__}"
+                )
 
 
 # ---------------------------------------------------------------------------

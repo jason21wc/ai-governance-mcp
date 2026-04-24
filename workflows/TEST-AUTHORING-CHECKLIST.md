@@ -72,6 +72,8 @@ If this test covers a registry entry, add `Covers: FM-<id>` to the docstring (si
 
 Shortcut: if `must_cover: true` entries lack annotations, the lint fails — and the registry's demotion-discipline rule means you can't dodge it by flipping the flag.
 
+**When adding a new registry entry** (whether `must_cover: true` or `false`): include ≥1 seeded `Covers:` annotation in the same commit. Advisory entries introduced ≥ 2026-04-24 are structurally enforced by `TestFailureModeCoverage::test_new_advisory_entries_have_annotation` — prose-only rules failed for 4 months before this gate shipped. Exception: mark the entry `placeholder: true` if it's dormant-until-triggered (rare; currently only FM-REGISTRY-RETIRED-ID-DEPRECATION).
+
 ---
 
 ## 9. Before commit [NOVEL]
