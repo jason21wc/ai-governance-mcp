@@ -369,7 +369,10 @@ class TestDenyLogSideEffect:
     """
 
     def test_deny_writes_to_log_file(self, tmp_path):
-        """When the hook denies, it must append a line to oom-gate-denies.log."""
+        """When the hook denies, it must append a line to oom-gate-denies.log.
+
+        Covers: FM-TEST-SIDE-EFFECTS
+        """
         home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
         deny_log = home / ".context-engine" / "oom-gate-denies.log"
         assert not deny_log.exists(), "precondition: log should not exist yet"
@@ -391,7 +394,10 @@ class TestDenyLogSideEffect:
         )
 
     def test_allow_does_not_write_deny_log(self, tmp_path):
-        """Allow paths must NOT touch the deny log (otherwise false activity signal)."""
+        """Allow paths must NOT touch the deny log (otherwise false activity signal).
+
+        Covers: FM-TEST-SIDE-EFFECTS
+        """
         home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
         deny_log = home / ".context-engine" / "oom-gate-denies.log"
 

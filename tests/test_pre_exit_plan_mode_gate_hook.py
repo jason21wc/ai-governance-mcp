@@ -274,6 +274,10 @@ class TestAuditLog:
     Supports V-006 instrumentation (hook-denial rate trending to zero over sessions)."""
 
     def test_deny_writes_audit_entry(self, tmp_path):
+        """Deny path must write an audit-log entry with " deny " tag.
+
+        Covers: FM-TEST-SIDE-EFFECTS
+        """
         path = create_transcript([make_exit_plan_entry()])
         try:
             rc, response, _ = run_hook(path, env_overrides={"HOME": str(tmp_path)})
@@ -286,6 +290,10 @@ class TestAuditLog:
             os.unlink(path)
 
     def test_semantic_bypass_writes_audit_entry(self, tmp_path):
+        """Semantic-bypass path must write an audit entry with bypass tag.
+
+        Covers: FM-TEST-SIDE-EFFECTS
+        """
         path = create_transcript([make_exit_plan_entry()])
         try:
             rc, _, _ = run_hook(
@@ -311,6 +319,8 @@ class TestAuditLog:
         Mirrors pre-test-oom-gate.sh rotation pattern — prevents unbounded
         growth if bypass envs are left set in a shell rc (per post-commit
         security-audit MEDIUM finding).
+
+        Covers: FM-TEST-SIDE-EFFECTS
         """
         home = tmp_path
         ce_dir = home / ".context-engine"

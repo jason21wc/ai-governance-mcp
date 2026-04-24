@@ -158,5 +158,9 @@ _No annotated tests yet._
 
 > Observability tests must assert state changes / side effects, not just return values (a function can return success while failing to write its file).
 
-_No annotated tests yet._
+- `tests/test_pre_exit_plan_mode_gate_hook.py` → `TestAuditLog::test_deny_writes_audit_entry`
+- `tests/test_pre_exit_plan_mode_gate_hook.py` → `TestAuditLog::test_log_rotation_caps_at_100kb`
+- `tests/test_pre_exit_plan_mode_gate_hook.py` → `TestAuditLog::test_semantic_bypass_writes_audit_entry`
+- `tests/test_pre_test_oom_gate_hook.py` → `TestDenyLogSideEffect::test_allow_does_not_write_deny_log`
+- `tests/test_pre_test_oom_gate_hook.py` → `TestDenyLogSideEffect::test_deny_writes_to_log_file`
 
