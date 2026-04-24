@@ -317,6 +317,18 @@ def make_task_entry(subagent_type: str) -> dict:
     }
 
 
+def make_agent_entry(subagent_type: str) -> dict:
+    """Create an Agent tool_use transcript entry (Claude Code's Agent-tool variant of Task).
+
+    Same shape as make_task_entry but with name='Agent'. Added session-123 to
+    cover the Agent-tool invocation form alongside Task; scanner must accept both.
+    """
+    entry = make_task_entry(subagent_type)
+    entry["message"]["content"][0]["name"] = "Agent"
+    entry["message"]["content"][0]["id"] = "agent-id"
+    return entry
+
+
 def make_exit_plan_entry() -> dict:
     """Create an ExitPlanMode tool_use transcript entry."""
     return {
@@ -484,6 +496,62 @@ class TestContrarianAfterLastPlan:
             assert result.stdout.strip() == "allow"
         finally:
             os.unlink(path)
+
+    def test_allow_with_agent_tool_variant(self):
+        """Agent-tool contrarian invocation (same shape as Task, different name) → allow.
+
+        Closes the gap that blocked session-123's first plan approval — Claude
+        Code's Agent tool has the same input.subagent_type shape as Task but
+        name='Agent'. Scanner must accept both tool names.
+        """
+        transcript_path = create_transcript(
+            [
+                make_exit_plan_entry(),
+                make_agent_entry("contrarian-reviewer"),
+            ]
+        )
+        try:
+            result = _run_contrarian_scan(transcript_path)
+            assert result.stdout.strip() == "allow"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_allow_with_agent_tool_underscore_variant(self):
+        """Agent(subagent_type='contrarian_reviewer') underscore alias also counts.
+
+        Locks the contract that the underscore alias works for Agent just like
+        Task. Cheap insurance per contrarian MEDIUM-1, session-123.
+        """
+        transcript_path = create_transcript(
+            [
+                make_exit_plan_entry(),
+                make_agent_entry("contrarian_reviewer"),
+            ]
+        )
+        try:
+            result = _run_contrarian_scan(transcript_path)
+            assert result.stdout.strip() == "allow"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_deny_when_agent_tool_has_wrong_subagent_type(self):
+        """Agent tool after ExitPlanMode but with non-contrarian subagent_type → deny.
+
+        Symmetric negative test per contrarian HIGH-1, session-123: widening the
+        name-check to ('Task', 'Agent') without this test would let a regression
+        to unconditional-allow pass CI.
+        """
+        transcript_path = create_transcript(
+            [
+                make_exit_plan_entry(),
+                make_agent_entry("some-other-subagent"),
+            ]
+        )
+        try:
+            result = _run_contrarian_scan(transcript_path)
+            assert result.stdout.strip() == "deny"
+        finally:
+            os.unlink(transcript_path)
 
 
 # ---------------------------------------------------------------------------

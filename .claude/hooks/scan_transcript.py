@@ -164,7 +164,7 @@ def scan_contrarian_after_last_plan(transcript_path: str) -> str:
     if last_exit_plan_idx == -1:
         return "bootstrap"
 
-    # Pass 2: search for contrarian Task tool_use AFTER the anchor.
+    # Pass 2: search for contrarian Task/Agent tool_use AFTER the anchor.
     # Scans from (anchor + 1) to EOF — never matches the anchor itself or earlier.
     for line in lines[last_exit_plan_idx + 1 :]:
         if "contrarian" not in line:  # fast pre-filter
@@ -181,8 +181,13 @@ def scan_contrarian_after_last_plan(transcript_path: str) -> str:
                 continue
             if block.get("type") != "tool_use":
                 continue
-            # Task subagent_type form (standard path)
-            if block.get("name") == "Task":
+            # Task/Agent subagent_type form (Claude Code's Task + Agent tools
+            # share this shape: name=Task|Agent, input.subagent_type=<agent>).
+            # If a future Claude Code release adds a third subagent-invocation
+            # tool name, extend this tuple — or reconsider keying on
+            # input.subagent_type presence instead of enumerating names.
+            # (Per contrarian MEDIUM-2, session-123.)
+            if block.get("name") in ("Task", "Agent"):
                 inp = block.get("input", {})
                 if isinstance(inp, dict):
                     st = inp.get("subagent_type", "")
