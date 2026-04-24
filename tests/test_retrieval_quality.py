@@ -492,7 +492,7 @@ class TestRegressionThresholds:
     def test_method_mrr_threshold(self, real_settings):
         """REGRESSION: Method MRR must not drop below threshold.
 
-        Covers: FM-TEST-ECHO-CHAMBER
+        Covers: FM-TEST-ECHO-CHAMBER, FM-TEST-ENVIRONMENT-AWARE
         """
         from ai_governance_mcp.retrieval import RetrievalEngine
 

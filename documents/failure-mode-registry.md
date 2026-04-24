@@ -62,7 +62,8 @@ entries:
     must_cover: false
     scope: project
     introduced: "2026-02-22"
-    source: "LEARNING-LOG: S-Series Keyword Trigger Produces False Positives on Negations"
+    retired: "2026-04-24"
+    source: "LEARNING-LOG: S-Series Keyword Trigger Produces False Positives on Negations. Retired session-124: describes a KNOWN LIMITATION of the S-Series keyword scanner — not an enforced invariant. Asserting the fix would fail on current code. See BACKLOG #129 for re-registration trigger (when negation-context parsing ships)."
   - id: FM-TEST-SIDE-EFFECTS
     description: "Observability tests must assert state changes / side effects, not just return values (a function can return success while failing to write its file)."
     must_cover: false
@@ -74,7 +75,8 @@ entries:
     must_cover: false
     scope: framework
     introduced: "2026-02-11"
-    source: "LEARNING-LOG: Test Inputs Must Traverse the Full Validation Chain"
+    retired: "2026-04-24"
+    source: "LEARNING-LOG: Test Inputs Must Traverse the Full Validation Chain. Retired session-124: describes an anti-pattern discipline (don't bypass validation) with no binary-checkable mechanism — compliant tests just silently don't bypass, with no positive assertion to annotate. Lesson retained at LEARNING-LOG + TEST-AUTHORING-CHECKLIST step 6. See BACKLOG #131 for re-registration trigger (when a parametrized validation-stage test is written)."
   - id: FM-TEST-ENVIRONMENT-AWARE
     description: "Tests that depend on optional dependencies (daemon, network, real ML model) must skip or mock cleanly — not hard-fail on CI."
     must_cover: false
@@ -98,7 +100,8 @@ entries:
     must_cover: false
     scope: framework
     introduced: "2025-12-27"
-    source: "LEARNING-LOG: ML Model Mocking: Patch at Source"
+    retired: "2026-04-24"
+    source: "LEARNING-LOG: ML Model Mocking: Patch at Source. Retired session-124: (a) patch-location is a test-authoring convention, not a binary-checkable failure mode; compliant tests just use the correct patch location with no positive assertion verifying compliance. (b) FM name (AT-SOURCE) vs description (import-site) had internal contradiction that would require empirical verification to rewrite safely. Lesson retained at LEARNING-LOG 2025-12-27 + CFR §5.2.8 + test-generator agent prompt. See BACKLOG #130 for reference-library doc reconciliation."
   - id: FM-AUDIT-ID-FORMAT-INVARIANT
     description: "Governance audit IDs must have `gov-` prefix + 12 hex chars (16 total) and be unique across calls — contract consumed by `scripts/analyze_compliance.py` and external compliance tooling."
     must_cover: true
@@ -287,7 +290,11 @@ Covers: FM-HOOK-CONTRARIAN-REQUIRED, FM-HOOK-FAIL-CLOSED-EXIT-2
 
 1. Ensure the failure mode is real — has caused a regression, is named in LEARNING-LOG or BACKLOG, or encodes a security/SLA contract.
 2. Add an entry to the `entries:` YAML list above. Fill all required fields.
-3. **Seed at creation — MUST-cover AND advisory (STRUCTURALLY ENFORCED for entries introduced ≥ 2026-04-24).** If `must_cover: true`, ensure at least one existing test is already annotated — `TestFailureModeCoverage::test_every_must_cover_entry_has_annotation` enforces this. If `must_cover: false` (advisory), include at least one seeded `Covers:` annotation in the same commit — `TestFailureModeCoverage::test_new_advisory_entries_have_annotation` enforces this for entries with `introduced ≥ 2026-04-24`. The structural gate replaces the prose-only rule that preceded it (session-123 through session-124 pre-extension): 4-month track record showed advisory entries filed without seeds stayed at zero annotations indefinitely. If you genuinely cannot find a test that covers the FM, either (a) file a BACKLOG item to write the test first, then add the registry entry, or (b) mark the entry `placeholder: true` (reserved for dormant-until-triggered FMs — use sparingly). **Grandfathered entries (pre-2026-04-24 advisory entries at zero annotations, exempt from the gate):** FM-TEST-SIDE-EFFECTS (now annotated, no longer exempt), FM-TEST-ENVIRONMENT-AWARE, FM-TEST-FULL-VALIDATION-CHAIN, FM-TEST-ECHO-CHAMBER (now annotated, no longer exempt), FM-S-SERIES-KEYWORD-FALSE-POSITIVE, FM-ML-MODEL-MOCK-AT-SOURCE, FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED (now annotated, no longer exempt), FM-REGISTRY-RETIRED-ID-DEPRECATION (placeholder). The 4 still-zero grandfathered entries (FM-TEST-ENVIRONMENT-AWARE, FM-TEST-FULL-VALIDATION-CHAIN, FM-S-SERIES-KEYWORD-FALSE-POSITIVE, FM-ML-MODEL-MOCK-AT-SOURCE) remain exempt pending future retrofit-or-retire decisions in a dedicated BACKLOG item — the gate applies prospectively only.
+3. **Seed at creation — MUST-cover AND advisory (STRUCTURALLY ENFORCED for entries introduced ≥ 2026-04-24).** If `must_cover: true`, ensure at least one existing test is already annotated — `TestFailureModeCoverage::test_every_must_cover_entry_has_annotation` enforces this. If `must_cover: false` (advisory), include at least one seeded `Covers:` annotation in the same commit — `TestFailureModeCoverage::test_new_advisory_entries_have_annotation` enforces this for entries with `introduced ≥ 2026-04-24`. The structural gate replaces the prose-only rule that preceded it (session-123 through session-124 pre-extension): 4-month track record showed advisory entries filed without seeds stayed at zero annotations indefinitely. If you genuinely cannot find a test that covers the FM, either (a) file a BACKLOG item to write the test first, then add the registry entry, or (b) mark the entry `placeholder: true` (reserved for dormant-until-triggered FMs — use sparingly).
+
+    **Additional filter (post-session-124 LEARNING-LOG 2026-04-24):** Before adding an advisory entry, ask *"what specific assertion would fail if this FM's invariant broke?"* If the answer is "any test that doesn't do X" (anti-pattern discipline), "fixing a known bug" (production limitation), or "tests that set up mocks this way" (authoring convention), the entry belongs in LEARNING-LOG / BACKLOG / reference-library, NOT the registry. Registry entries must be binary-checkable via a concrete assertion mechanism (file-exists, threshold, marker presence, ValueError raised).
+
+    **Grandfathered entries (pre-2026-04-24 advisory entries exempt from the gate):** After session-124 extension cleanup, only **2 entries** remain exempt: FM-TEST-ENVIRONMENT-AWARE (now annotated on `tests/test_retrieval_quality.py::test_method_mrr_threshold` via pytest.mark.slow+real_index) and FM-REGISTRY-RETIRED-ID-DEPRECATION (`placeholder: true`, dormant-until-triggered). Three other grandfathered entries were retired 2026-04-24 per the filter above: FM-TEST-FULL-VALIDATION-CHAIN (anti-pattern, see BACKLOG #131), FM-S-SERIES-KEYWORD-FALSE-POSITIVE (known limitation, see BACKLOG #129), FM-ML-MODEL-MOCK-AT-SOURCE (authoring convention, see BACKLOG #130). Four additional entries (FM-TEST-SIDE-EFFECTS, FM-TEST-ECHO-CHAMBER, FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED) were annotated during #121 sweep and no longer need grandfather protection.
 4. Run `python3 scripts/generate-test-failure-map.py` to regenerate `documents/test-failure-mode-map.md`.
 5. Commit registry + regenerated map + seed annotation(s) together.
 

@@ -288,6 +288,68 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 131. Re-register FM-TEST-FULL-VALIDATION-CHAIN when a Parametrized Validation-Stage Test Exists `D1 Improvement`
+
+**Filed:** 2026-04-24 (session-124 extension, post-#121 grandfathered FM resolution).
+
+**What.** FM-TEST-FULL-VALIDATION-CHAIN was retired 2026-04-24 as an anti-pattern discipline not binary-checkable (LEARNING-LOG 2026-04-24: "registry entries must be binary-checkable via assertion presence"). The lesson remains in LEARNING-LOG 2026-02-11 + TEST-AUTHORING-CHECKLIST step 6.
+
+**Trigger.** When anyone adds a test that explicitly parametrizes inputs across validation stages and asserts the RIGHT stage fails — e.g., `@pytest.mark.parametrize(("bad_input", "expected_stage"), [("nonexistent00", "hex-validation"), ("a"*100, "length-validation"), ...])` in `tests/test_context_engine.py::TestProjectIdValidation` or similar.
+
+**Action.** (a) Re-introduce FM with new `introduced:` date + updated description reflecting the parametrized test pattern; (b) seed the new test as `Covers:` annotation; (c) the seed-at-creation lint gate will enforce ≥1 annotation automatically.
+
+**Done when.** Either a parametrized validation-stage test lands and re-registers the FM, OR 12 months pass without re-registration and we officially accept the lesson lives in LEARNING-LOG only.
+
+---
+
+#### 130. Reconcile Reference-Library ML-Mock Guidance with Registry + CFR + Test Practice `D1 Fix`
+
+**Filed:** 2026-04-24 (session-124 extension, post-#121 grandfathered FM resolution).
+
+**What.** `reference-library/ai-coding/ref-ai-coding-pytest-fixture-patterns.md` currently says: *"Do: Mock SentenceTransformer at the import path where it's used: `patch('ai_governance_mcp.retrieval.SentenceTransformer')`. Don't: Mock at the source module `patch('sentence_transformers.SentenceTransformer')` — models are lazy-loaded and the mock won't intercept."* This contradicts every other source:
+- LEARNING-LOG 2025-12-27 (ML Model Mocking: Patch at Source): patch at `sentence_transformers.SentenceTransformer`
+- `documents/title-10-ai-coding-cfr.md` §5.2.8: labels `patch("sentence_transformers.SentenceTransformer")` as the CORRECT pattern
+- All actual tests in the suite: patch at `sentence_transformers.SentenceTransformer` (source)
+
+FM-ML-MODEL-MOCK-AT-SOURCE was retired 2026-04-24 in part because resolving this contradiction required empirical verification contrarian C8 flagged as out-of-scope for #121.
+
+**Trigger.** (a) Before next ML-mock-related registry/CFR/reference-library edit, OR (b) when any developer asks "where should I patch for ML model mocking?"
+
+**Action.**
+1. Read all three sources (reference-library entry, LEARNING-LOG 2025-12-27, CFR §5.2.8) to confirm the contradiction.
+2. Optionally verify empirically: pick one passing ML-mock test, flip the patch target to the user-site path, observe whether it passes or fails.
+3. Update the outlier source. Likely fix: rewrite the reference-library Do/Don't to match CFR + LEARNING-LOG (patch at source for lazy-loaded models). If empirical verification reveals both positions are situationally correct (lazy-load → source; eager-load → user-site), write a nuanced guidance capturing both.
+
+**Done when.** All three sources agree on the correct patch location. Optional: re-register FM-ML-MODEL-MOCK-AT-SOURCE if a meta-test verifying patch-location correctness is added.
+
+---
+
+#### 129. Re-register FM-S-SERIES-KEYWORD-FALSE-POSITIVE after Negation-Context Parsing Ships `D2 Improvement`
+
+**Filed:** 2026-04-24 (session-124 extension, post-#121 grandfathered FM resolution).
+
+**What.** FM-S-SERIES-KEYWORD-FALSE-POSITIVE was retired 2026-04-24 as a known production limitation (not an enforced invariant): the S-Series keyword scanner currently triggers on keyword presence in negation contexts ("no security concerns") because it uses simple substring matching, not context-aware parsing. Asserting the fix would fail on current code. LEARNING-LOG 2026-02-22 retains the documented pattern; production re-trips logged session-111 + session-114 + session-121.
+
+**Trigger.** When `evaluate_governance` gains negation-context handling — e.g., a PR that:
+- Adds a negation parser to the S-Series keyword scanner (`src/ai_governance_mcp/server.py::CRITICAL_SAFETY_KEYWORDS` block), OR
+- Replaces keyword-match with LLM-based intent classification for S-Series detection, OR
+- Adds semantic-negation suppression via regex patterns on standard negators ("no ", "not ", "without ", etc.)
+
+**Action.**
+1. Write a test asserting the negation payload does NOT trigger S-Series match:
+   ```python
+   def test_s_series_does_not_trigger_on_negation_context(self):
+       """Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE"""
+       result = evaluate_governance(planned_action="No security implications — purely content expansion")
+       assert not result.s_series_check.triggered
+   ```
+2. Re-introduce FM in `documents/failure-mode-registry.md` with `introduced: <fix-date>`, `must_cover: true` (promoted from advisory — this would now be enforced), and seed the new test.
+3. Remove LEARNING-LOG 2026-02-22 entry's ACTIVE status and replace with retired/resolved marker + pointer to the re-registered FM.
+
+**Done when.** Production S-Series scanner handles negation context + test asserts this + FM re-registered.
+
+---
+
 #### 128. Advisory FM Candidates Deferred from #121 Phase 0 `D1 Improvement`
 
 **Filed:** 2026-04-24 (session-124, #121 Phase 0 blind-spot detection).

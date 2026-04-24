@@ -222,21 +222,9 @@
 
 - `tests/test_watcher_daemon.py` → `TestReadMaxUptimeFromEnv::test_zero_returns_none`
 
-### `FM-ML-MODEL-MOCK-AT-SOURCE`
-
-> Mock ML models at the import site (the module that uses them), not at the library root — patches at the wrong level silently miss.
-
-_No annotated tests yet._
-
 ### `FM-REGISTRY-RETIRED-ID-DEPRECATION`
 
 > TestFailureModeCoverage lint must emit a deprecation warning (not a hard failure) when tests cite a retired registry ID — gives migration window.
-
-_No annotated tests yet._
-
-### `FM-S-SERIES-KEYWORD-FALSE-POSITIVE`
-
-> Governance S-Series semantic match should not trigger on keyword presence in negation context (e.g. 'NOT removing production data').
 
 _No annotated tests yet._
 
@@ -251,13 +239,7 @@ _No annotated tests yet._
 
 > Tests that depend on optional dependencies (daemon, network, real ML model) must skip or mock cleanly — not hard-fail on CI.
 
-_No annotated tests yet._
-
-### `FM-TEST-FULL-VALIDATION-CHAIN`
-
-> Test inputs must traverse the full production validation chain — bypassing validation for convenience hides bugs in the validation path.
-
-_No annotated tests yet._
+- `tests/test_retrieval_quality.py` → `TestRegressionThresholds::test_method_mrr_threshold`
 
 ### `FM-TEST-SIDE-EFFECTS`
 
@@ -278,4 +260,24 @@ _No annotated tests yet._
 
 - `tests/test_context_engine.py` → `TestStartupWatchers::test_startup_watchers_handles_corrupt_metadata`
 - `tests/test_watcher_daemon.py` → `TestDiscoverProjects::test_discover_skips_corrupt_metadata`
+
+## Retired Entries
+
+### `FM-ML-MODEL-MOCK-AT-SOURCE` **[RETIRED]**
+
+> Mock ML models at the import site (the module that uses them), not at the library root — patches at the wrong level silently miss.
+
+_No annotated tests yet._
+
+### `FM-S-SERIES-KEYWORD-FALSE-POSITIVE` **[RETIRED]**
+
+> Governance S-Series semantic match should not trigger on keyword presence in negation context (e.g. 'NOT removing production data').
+
+_No annotated tests yet._
+
+### `FM-TEST-FULL-VALIDATION-CHAIN` **[RETIRED]**
+
+> Test inputs must traverse the full production validation chain — bypassing validation for convenience hides bugs in the validation path.
+
+_No annotated tests yet._
 
