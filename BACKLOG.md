@@ -288,24 +288,6 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
-#### 121. Full `Covers:` Annotation Sweep Across Un-Annotated Tests `D2 Capability`
-
-**Filed:** 2026-04-23 (session-123, Commit C of test-suite-optimization plan).
-
-**What.** The session-123 plan shipped the failure-mode registry (`documents/failure-mode-registry.md`, 19 entries) + `TestFailureModeCoverage` lint + 11 seeded `Covers:` annotations on tests tied to `must_cover: true` registry entries. The remaining ~1,355 tests are un-annotated; the derived map (`documents/test-failure-mode-map.md`) warns readers "empty cells ≠ uncovered, just un-annotated."
-
-**Why defer.** The v3 plan's round-2 MEDIUM-1 finding was explicit: seeding 20-30 annotations creates a misleading "2% coverage" impression; seeding <10 on must-cover only lets the lint carry the enforcement weight without implying full-suite coverage. Full sweep is legitimate follow-up work, not in-scope for the framework-shipping commit.
-
-**Scope.** Walk every `tests/test_*.py`. For each test function with a docstring: decide (a) does this test cover a registered failure mode? → add `Covers: FM-<id>`, (b) does this test cover a failure mode NOT in the registry? → either add a registry entry (if reusable) or skip (if test-local), (c) is this a pure fixture-self-test or tautology? → candidate for Phase 3 grey-area review or §5.2.8 consolidation-or-deletion.
-
-**Scale.** ~1,355 tests × ~30 seconds per test (docstring classification + lookup + potential registry add) = 11-12 hours of work. Breaks cleanly into files; can be done in ~5-10 batches of 150-300 tests each.
-
-**Trigger.** (a) user explicit ask, (b) dedicated sprint, (c) automated diff when a new must_cover entry is added without a paired annotation, (d) if `TestFailureModeCoverage::test_every_must_cover_entry_has_annotation` starts failing on legitimate gaps (would mean we added must_cover entries faster than we seeded annotations — lint is the forcing function).
-
-**Done when.** Registry entries that are genuinely covered by existing tests have `Covers:` annotations; registry entries that turn out to have zero coverage are either flipped to `must_cover: false` with a BACKLOG follow-up for new tests OR new tests are written.
-
----
-
 #### 128. Advisory FM Candidates Deferred from #121 Phase 0 `D1 Improvement`
 
 **Filed:** 2026-04-24 (session-124, #121 Phase 0 blind-spot detection).
