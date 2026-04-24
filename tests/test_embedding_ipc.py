@@ -203,6 +203,10 @@ class TestSocketPathSecurity:
         assert path.is_relative_to(ce_dir)
 
     def test_path_outside_containment_rejected(self):
+        """Socket path outside containment root must be rejected after resolve().
+
+        Covers: FM-IPC-SOCKET-PATH-SYMLINK-RESOLUTION
+        """
         with pytest.raises(ValueError, match="outside containment"):
             _resolve_socket_path(Path("/tmp/evil.sock"))
 
@@ -343,7 +347,10 @@ class TestEmbeddingServerClient:
             assert result.shape == (1, 384)
 
     def test_concurrent_requests(self, server_and_client):
-        """4 threads sending encode requests — queue serializes, no corruption."""
+        """4 threads sending encode requests — queue serializes, no corruption.
+
+        Covers: FM-IPC-CONCURRENT-QUEUE-SERIALIZATION
+        """
         _, client = server_and_client
         results = {}
         errors = []

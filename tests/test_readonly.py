@@ -70,26 +70,31 @@ class TestReadOnlyFilesystemStorage:
             storage.save_embeddings("abcdef1234567890", np.array([1.0]))
 
     def test_save_bm25_index_raises(self, tmp_path):
+        """Covers: FM-READONLY-WRITE-ESCAPE"""
         storage = ReadOnlyFilesystemStorage(base_path=tmp_path)
         with pytest.raises(ReadOnlyStorageError):
             storage.save_bm25_index("abcdef1234567890", {"corpus": []})
 
     def test_save_metadata_raises(self, tmp_path):
+        """Covers: FM-READONLY-WRITE-ESCAPE"""
         storage = ReadOnlyFilesystemStorage(base_path=tmp_path)
         with pytest.raises(ReadOnlyStorageError):
             storage.save_metadata("abcdef1234567890", {"key": "value"})
 
     def test_save_chunks_raises(self, tmp_path):
+        """Covers: FM-READONLY-WRITE-ESCAPE"""
         storage = ReadOnlyFilesystemStorage(base_path=tmp_path)
         with pytest.raises(ReadOnlyStorageError):
             storage.save_chunks("abcdef1234567890", [])
 
     def test_save_file_manifest_raises(self, tmp_path):
+        """Covers: FM-READONLY-WRITE-ESCAPE"""
         storage = ReadOnlyFilesystemStorage(base_path=tmp_path)
         with pytest.raises(ReadOnlyStorageError):
             storage.save_file_manifest("abcdef1234567890", {})
 
     def test_delete_project_raises(self, tmp_path):
+        """Covers: FM-READONLY-WRITE-ESCAPE"""
         storage = ReadOnlyFilesystemStorage(base_path=tmp_path)
         with pytest.raises(ReadOnlyStorageError):
             storage.delete_project("abcdef1234567890")
@@ -231,6 +236,7 @@ class TestIndexerReadonly:
             indexer.index_project(tmp_path, "abcdef1234567890")
 
     def test_incremental_update_raises_when_readonly(self, tmp_path):
+        """Covers: FM-READONLY-INDEX-BLOCKING"""
         from ai_governance_mcp.context_engine.indexer import Indexer
 
         storage = ReadOnlyFilesystemStorage(base_path=tmp_path)
@@ -258,6 +264,7 @@ class TestProjectManagerReadonly:
         assert manager.startup_watchers() == 0
 
     def test_reindex_project_raises(self, tmp_path):
+        """Covers: FM-READONLY-INDEX-BLOCKING"""
         storage = ReadOnlyFilesystemStorage(base_path=tmp_path)
         manager = self._make_manager(storage)
         with pytest.raises(RuntimeError, match="read-only mode"):

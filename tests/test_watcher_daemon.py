@@ -332,7 +332,10 @@ class TestReadMaxUptimeFromEnv:
             assert _read_max_uptime_from_env() is None
 
     def test_zero_returns_none(self):
-        """Zero means 'disabled' per plan Change 2."""
+        """Zero means 'disabled' per plan Change 2.
+
+        Covers: FM-MAX-UPTIME-ZERO-DISABLE-CONTRACT
+        """
         with patch.dict(
             os.environ, {"AI_CONTEXT_ENGINE_WATCHER_MAX_UPTIME_HOURS": "0"}
         ):
@@ -457,6 +460,10 @@ class TestLastActivitySecondsAgo:
         assert 990.0 <= result <= 1010.0
 
     def test_max_across_multiple_projects(self, tmp_path):
+        """Idle detection returns MOST RECENT activity time (max of mtimes).
+
+        Covers: FM-IDLE-DETECTION-MTIME-BOUNDARY
+        """
         base = tmp_path / "indexes"
         base.mkdir()
 
@@ -545,7 +552,10 @@ class TestHeartbeatLoopSelfExit:
         return fake
 
     def test_loop_sets_stop_event_when_hard_cap_fires(self, tmp_path):
-        """target=1s, elapsed=2s (via fake start_time in the past) → hard cap fires."""
+        """target=1s, elapsed=2s (via fake start_time in the past) → hard cap fires.
+
+        Covers: FM-HEARTBEAT-THREAD-RACE-CONDITION
+        """
         from ai_governance_mcp.context_engine.watcher_daemon import _heartbeat_loop
 
         base = tmp_path / "indexes"

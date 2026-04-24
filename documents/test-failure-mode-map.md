@@ -98,13 +98,20 @@
 
 > Indexer and ProjectManager must raise `RuntimeError` for index operations (`index_project`, `incremental_update`, `reindex_project`) when `readonly=True` — auto-indexing retry logic must not bypass the read-only constraint.
 
+- `tests/test_readonly.py` → `TestIndexerReadonly::test_incremental_update_raises_when_readonly`
 - `tests/test_readonly.py` → `TestIndexerReadonly::test_index_project_raises_when_readonly`
+- `tests/test_readonly.py` → `TestProjectManagerReadonly::test_reindex_project_raises`
 
 ### `FM-READONLY-WRITE-ESCAPE`
 
 > Write operations (save_embeddings/save_metadata/save_chunks/save_bm25_index/save_file_manifest/delete_project) must raise `ReadOnlyStorageError` when ReadOnlyFilesystemStorage is active — silent no-op or partial write is a contract violation that leaks reads masquerading as no-ops.
 
+- `tests/test_readonly.py` → `TestReadOnlyFilesystemStorage::test_delete_project_raises`
+- `tests/test_readonly.py` → `TestReadOnlyFilesystemStorage::test_save_bm25_index_raises`
+- `tests/test_readonly.py` → `TestReadOnlyFilesystemStorage::test_save_chunks_raises`
 - `tests/test_readonly.py` → `TestReadOnlyFilesystemStorage::test_save_embeddings_raises`
+- `tests/test_readonly.py` → `TestReadOnlyFilesystemStorage::test_save_file_manifest_raises`
+- `tests/test_readonly.py` → `TestReadOnlyFilesystemStorage::test_save_metadata_raises`
 
 ### `FM-REGISTRY-MUST-COVER-HAS-ANNOTATION`
 
@@ -158,7 +165,7 @@
 
 > `_heartbeat_loop` must execute each tick atomically with respect to `stop_event` checks — no gap where elapsed crosses `hard_cap` but thread misses `stop_event` until next iteration.
 
-_No annotated tests yet._
+- `tests/test_watcher_daemon.py` → `TestHeartbeatLoopSelfExit::test_loop_sets_stop_event_when_hard_cap_fires`
 
 ### `FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED`
 
@@ -170,13 +177,13 @@ _No annotated tests yet._
 
 > Idle-detection metadata scan must return the MOST RECENT activity time (max of mtimes, smallest seconds-ago) across all projects, not min/average — otherwise one stale project defers restart for the whole daemon.
 
-_No annotated tests yet._
+- `tests/test_watcher_daemon.py` → `TestLastActivitySecondsAgo::test_max_across_multiple_projects`
 
 ### `FM-IPC-CONCURRENT-QUEUE-SERIALIZATION`
 
 > Concurrent client requests on the shared server queue must not corrupt message boundaries or interleave payloads — length-prefix framing or equivalent is required under multi-threaded load.
 
-_No annotated tests yet._
+- `tests/test_embedding_ipc.py` → `TestEmbeddingServerClient::test_concurrent_requests`
 
 ### `FM-IPC-MESSAGE-LENGTH-PREFIX-INVARIANT`
 
@@ -200,13 +207,13 @@ _No annotated tests yet._
 
 > Socket path resolution must call `.resolve()` to canonicalize symlinks before containment check — unresolved intermediate paths allow symlink-based containment escapes (macOS `/tmp` → `/private/var/...` is the canonical test case).
 
-_No annotated tests yet._
+- `tests/test_embedding_ipc.py` → `TestSocketPathSecurity::test_path_outside_containment_rejected`
 
 ### `FM-MAX-UPTIME-ZERO-DISABLE-CONTRACT`
 
 > `max_uptime_seconds=0` (or unset) must disable watcher self-exit entirely, not default to a safety floor. Operators rely on this for maintenance windows / multi-phase deployments.
 
-_No annotated tests yet._
+- `tests/test_watcher_daemon.py` → `TestReadMaxUptimeFromEnv::test_zero_returns_none`
 
 ### `FM-ML-MODEL-MOCK-AT-SOURCE`
 
