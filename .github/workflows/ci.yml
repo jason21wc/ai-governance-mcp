@@ -23,6 +23,11 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           persist-credentials: false
+          # Full history required for TestDemotionRationale (walks git log
+          # of documents/failure-mode-registry.md). Shallow clone would let
+          # the demotion gate silently pass — see BACKLOG #124 + contrarian
+          # audit a51939a6fa61a7dad (session-123 planning).
+          fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6

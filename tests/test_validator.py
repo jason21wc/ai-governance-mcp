@@ -324,3 +324,177 @@ class TestFailureModeCoverage:
                 f"{eid} scope must be one of {valid_scopes}, got {entry['scope']!r}"
             )
             assert entry.get("introduced"), f"{eid} missing introduced date"
+
+
+# ---------------------------------------------------------------------------
+# Demotion rationale gate (TestDemotionRationale) — BACKLOG #124
+# ---------------------------------------------------------------------------
+
+import subprocess  # noqa: E402
+
+_RATIONALE_RE = re.compile(
+    r"[Dd]emotion rationale:|BACKLOG\s*#\d+|[Rr]etired|[Ss]upersedes"
+)
+# Number of commits we know have touched the registry as of shipping date.
+# Used by shallow-clone guard — if git log returns fewer than this, history
+# is truncated and the gate would silently pass. Update when registry
+# history grows significantly; under-count is safe (raises unnecessarily),
+# over-count is unsafe (hides truncation).
+_EXPECTED_MIN_HISTORY = 2
+
+
+def _git_log_registry(format_spec: str = "%H") -> list[str]:
+    """Run `git log --format=<spec> -- <registry>`. Return [] on any error."""
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "log",
+                f"--format={format_spec}",
+                "--",
+                str(REGISTRY_PATH.relative_to(PROJECT_ROOT)),
+            ],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return []
+    if result.returncode != 0:
+        return []
+    return [line for line in result.stdout.splitlines() if line.strip()]
+
+
+def _git_show_diff(commit_sha: str) -> str:
+    """Run `git show -p <sha> -- <registry>`. Return '' on error."""
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "show",
+                "-p",
+                commit_sha,
+                "--",
+                str(REGISTRY_PATH.relative_to(PROJECT_ROOT)),
+            ],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return ""
+    return result.stdout if result.returncode == 0 else ""
+
+
+def _commit_message(commit_sha: str) -> str:
+    try:
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%B", commit_sha],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return ""
+    return result.stdout if result.returncode == 0 else ""
+
+
+class TestDemotionRationale:
+    """Gate: must_cover: true → false demotion requires rationale in commit msg.
+
+    Walks git history of documents/failure-mode-registry.md, detects each
+    commit that flipped an entry from must_cover: true to must_cover: false,
+    and requires the commit message to contain rationale regex:
+        Demotion rationale: | BACKLOG #\\d+ | [Rr]etired | [Ss]upersedes
+
+    Per BACKLOG #124 + session-123 2nd-pass contrarian HIGH: without this
+    gate, the path of least resistance when `TestFailureModeCoverage::
+    test_every_must_cover_entry_has_annotation` reddens is to flip the flag.
+    One character, test passes. Registry signal decays.
+
+    Shallow-clone guard (per contrarian a51939a6fa61a7dad BLOCKER): CI
+    default checkout is depth=1; git log on shallow history returns
+    truncated results → gate silently passes. Test RAISES (not skips) if
+    history is below _EXPECTED_MIN_HISTORY commits; see `.github/workflows/
+    ci.yml` for the matching `fetch-depth: 0` configuration.
+
+    Legitimate skips (distinct from shallow-clone BLOCKER):
+      - Registry file doesn't exist (pre-v1.0.0 checkpoint or fresh scaffold)
+      - Not in a git repo (adopter test context outside git)
+    """
+
+    def _require_git_and_registry(self) -> None:
+        if not REGISTRY_PATH.exists():
+            pytest.skip("registry file does not exist — pre-v1.0.0 checkpoint?")
+        # Detect "not in a git repo" by probing git status
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--is-inside-work-tree"],
+                cwd=PROJECT_ROOT,
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            pytest.skip("git not available in this environment")
+        if result.returncode != 0 or result.stdout.strip() != "true":
+            pytest.skip("not in a git repo — adopter context outside VCS")
+
+    def test_registry_history_fully_available(self):
+        """Shallow-clone guard — raise (not skip) if git history truncated.
+
+        Covers: FM-REGISTRY-MUST-COVER-HAS-ANNOTATION
+        """
+        self._require_git_and_registry()
+        commits = _git_log_registry()
+        assert len(commits) >= _EXPECTED_MIN_HISTORY, (
+            f"Registry git history has {len(commits)} commits; expected at "
+            f"least {_EXPECTED_MIN_HISTORY}. If running in CI, ensure "
+            f"actions/checkout uses fetch-depth: 0 — shallow clone defeats "
+            f"this test's purpose. See .github/workflows/ci.yml."
+        )
+
+    def test_demotions_cite_rationale(self):
+        """Every must_cover: true→false flip in history must cite rationale.
+
+        Rationale regex: Demotion rationale: | BACKLOG #N | Retired | Supersedes
+        """
+        self._require_git_and_registry()
+        commits = _git_log_registry()
+        if len(commits) < _EXPECTED_MIN_HISTORY:
+            # Defense-in-depth — prior test asserts, but if that test is
+            # somehow skipped, also skip here rather than report a false OK.
+            pytest.skip("registry history truncated; shallow-clone guard asserts first")
+
+        violations: list[str] = []
+        for sha in commits:
+            diff = _git_show_diff(sha)
+            if not diff:
+                continue
+            # Detect `must_cover: true` → `must_cover: false` flip in this commit.
+            # Pattern in unified diff: `-    must_cover: true` followed soon by
+            # `+    must_cover: false` for the same entry. Simplest heuristic:
+            # presence of both removal + addition lines.
+            has_removed_true = "-    must_cover: true" in diff
+            has_added_false = "+    must_cover: false" in diff
+            if not (has_removed_true and has_added_false):
+                continue
+            # Flip detected — require rationale in commit message.
+            msg = _commit_message(sha)
+            if not _RATIONALE_RE.search(msg):
+                violations.append(
+                    f"{sha[:7]}: flips must_cover: true→false but commit "
+                    f"message lacks rationale (regex: "
+                    f"'Demotion rationale:|BACKLOG #N|Retired|Supersedes')"
+                )
+
+        assert not violations, (
+            "Must-cover demotion(s) lack rationale. Per registry demotion-"
+            "discipline rule: every `must_cover: true → false` flip must "
+            "include rationale in the commit message or a BACKLOG pointer. "
+            "Amend commits to add rationale, or reconsider the demotion:\n  "
+            + "\n  ".join(violations)
+        )

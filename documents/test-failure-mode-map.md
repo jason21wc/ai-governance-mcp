@@ -62,6 +62,7 @@
 
 > Every registry entry with must_cover: true must have at least one test annotated with `Covers: <id>` — enforces that critical failure modes actually have coverage.
 
+- `tests/test_validator.py` → `TestDemotionRationale::test_registry_history_fully_available`
 - `tests/test_validator.py` → `TestFailureModeCoverage::test_every_must_cover_entry_has_annotation`
 
 ### `FM-REGISTRY-UNKNOWN-ID-REJECTED`

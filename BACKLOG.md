@@ -331,18 +331,6 @@
 
 ---
 
-#### 124. Must-Cover Demotion Requires Rationale (Structural Enforcement) `D2 Capability`
-
-**Filed:** 2026-04-23 (session-123, post-commit 2nd-pass contrarian HIGH).
-
-**What.** When `TestFailureModeCoverage::test_every_must_cover_entry_has_annotation` reddens, the path of least resistance is to flip the entry from `must_cover: true` → `must_cover: false`. One character, test passes. This decays the registry's signal within months. Current mitigation is human: registry doc now includes demotion-discipline language requiring commit-message rationale or BACKLOG pointer. Structural enforcement deferred.
-
-**Options for structural fix.** (a) Git hook that diffs registry YAML on commit and requires regex-matched rationale in commit message when `must_cover: true` → `false`. (b) CI check in `tests/test_validator.py` that inspects the last 10 commits touching the registry and rejects demotions lacking rationale. (c) Normative language in CFR §5.2.8 + CODEOWNERS-backed PR review requirement.
-
-**Trigger.** First observed `true → false` demotion in the wild, OR structural review of registry integrity.
-
----
-
 #### 125-b. scaffold_project Framework Registry Seeding `D2 Capability`
 
 **Filed:** 2026-04-23 (session-123 Commit J follow-up).
