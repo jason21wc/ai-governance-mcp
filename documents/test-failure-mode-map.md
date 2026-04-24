@@ -74,6 +74,7 @@
 
 - `tests/test_context_engine.py` → `TestListProjectsSymlinkExclusion::test_symlink_outside_storage_blocked_by_containment`
 - `tests/test_context_engine.py` → `TestProjectIdValidation::test_rejects_path_traversal`
+- `tests/test_context_engine.py` → `TestProjectIdValidation::test_rejects_traversal_taxonomy`
 
 ### `FM-PROJECT-ID-SLASHES`
 

@@ -288,20 +288,6 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
-#### 131. Re-register FM-TEST-FULL-VALIDATION-CHAIN when a Parametrized Validation-Stage Test Exists `D1 Improvement`
-
-**Filed:** 2026-04-24 (session-124 extension, post-#121 grandfathered FM resolution).
-
-**What.** FM-TEST-FULL-VALIDATION-CHAIN was retired 2026-04-24 as an anti-pattern discipline not binary-checkable (LEARNING-LOG 2026-04-24: "registry entries must be binary-checkable via assertion presence"). The lesson remains in LEARNING-LOG 2026-02-11 + TEST-AUTHORING-CHECKLIST step 6.
-
-**Trigger.** When anyone adds a test that explicitly parametrizes inputs across validation stages and asserts the RIGHT stage fails — e.g., `@pytest.mark.parametrize(("bad_input", "expected_stage"), [("nonexistent00", "hex-validation"), ("a"*100, "length-validation"), ...])` in `tests/test_context_engine.py::TestProjectIdValidation` or similar.
-
-**Action.** (a) Re-introduce FM with new `introduced:` date + updated description reflecting the parametrized test pattern; (b) seed the new test as `Covers:` annotation; (c) the seed-at-creation lint gate will enforce ≥1 annotation automatically.
-
-**Done when.** Either a parametrized validation-stage test lands and re-registers the FM, OR 12 months pass without re-registration and we officially accept the lesson lives in LEARNING-LOG only.
-
----
-
 #### 129. Re-register FM-S-SERIES-KEYWORD-FALSE-POSITIVE after Negation-Context Parsing Ships `D2 Improvement`
 
 **Filed:** 2026-04-24 (session-124 extension, post-#121 grandfathered FM resolution).

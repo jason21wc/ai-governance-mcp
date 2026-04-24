@@ -211,6 +211,37 @@ class TestProjectIdValidation:
         with pytest.raises(ValueError, match="hex characters only"):
             _validate_project_id("../../../etc/passwd")
 
+    @pytest.mark.parametrize(
+        "bad_input",
+        [
+            ".",  # single dot (would pass a regex that just allowed dots)
+            "..",  # parent dir reference
+            "../",  # traversal opener
+            "..\\",  # Windows-style traversal
+            "../..",  # traversal repetition
+            "./a",  # explicit current-dir traversal
+            "a/..",  # embedded traversal
+            "a/../b",  # middle-of-string traversal
+            "~/foo",  # home-dir expansion attempt
+            "a b",  # space (separate class, but demonstrates regex breadth)
+        ],
+    )
+    def test_rejects_traversal_taxonomy(self, bad_input):
+        """Every path-traversal variant must raise ValueError from `_validate_project_id`.
+
+        Parametrized coverage of the traversal rejection taxonomy. Catches the
+        class of regression where the regex is accidentally loosened (e.g.,
+        allowing `.` to support sub-IDs, or `~` to support home-relative paths)
+        without noticing that specific traversal patterns now slip through.
+        The single-input `test_rejects_path_traversal` uses `"../../../etc/passwd"`
+        which still fails any regex containing `/` — so it wouldn't catch a
+        regex change like `^[0-9a-f.]{1,64}$`. This test does.
+
+        Covers: FM-PROJECT-ID-PATH-TRAVERSAL
+        """
+        with pytest.raises(ValueError, match="hex characters only"):
+            _validate_project_id(bad_input)
+
     def test_rejects_slashes(self):
         """Project-id validator must reject slashes that would break subdirectory mapping.
 
