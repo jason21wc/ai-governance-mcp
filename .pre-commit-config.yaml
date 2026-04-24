@@ -8,3 +8,15 @@ repos:
       - id: ruff
         name: ruff check
         args: [--fix, src/, tests/]
+  - repo: local
+    hooks:
+      - id: regen-test-failure-mode-map
+        name: regen test-failure-mode map
+        # Triggers when the registry OR any test file OR the generator itself
+        # changes. Regenerates the derived map; fails if committed file differs
+        # (author must re-stage). Closes BACKLOG #123 — plan v3 called the map
+        # "rot-immune" but regeneration was manual; this gate makes the claim true.
+        entry: bash -c 'python3 scripts/generate-test-failure-map.py && git diff --exit-code documents/test-failure-mode-map.md'
+        language: system
+        files: '^(documents/failure-mode-registry\.md|tests/.*\.py|scripts/generate-test-failure-map\.py)$'
+        pass_filenames: false
