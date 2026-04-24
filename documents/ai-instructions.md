@@ -1,5 +1,5 @@
 ---
-version: "2.7.4"
+version: "2.8.0"
 status: "active"
 effective_date: "2026-04-23"
 domain: "meta"
@@ -8,7 +8,7 @@ governance_level: "framework-activation"
 
 # AI Governance Framework Activation
 
-**Version:** 2.7.4
+**Version:** 2.8.0
 **Purpose:** Loader document that activates the governance framework for AI sessions.
 **Updated:** 2026-04-23
 
@@ -199,7 +199,7 @@ This loader is designed for use with:
 - constitution.md v5.0.7+
 - rules-of-procedure.md v3.27.4+
 - title-10-ai-coding.md v2.7.1+
-- title-10-ai-coding-cfr.md v2.38.5+
+- title-10-ai-coding-cfr.md v2.39.0+
 - title-20-multi-agent.md v2.7.1+
 - title-20-multi-agent-cfr.md v2.17.0+
 - title-30-storytelling.md v1.4.1+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.8.0 | 2026-04-23 | MINOR: Pin tracks title-10-ai-coding-cfr.md MINOR bump v2.38.5 → v2.39.0 (new §5.2.8 Redundancy & Consolidation, normative). Bumped `title-10-ai-coding-cfr.md v2.38.5+` → `v2.39.0+`. MINOR pin bump because the target is a MINOR bump (additive normative rule) — per round-2 contrarian HIGH-2 on the test-suite-optimization plan: semver consistency between pin and source, not PATCH-on-MINOR. New cross-referenced artifacts shipped with v2.39.0: `documents/failure-mode-registry.md` (SSOT for FM-* IDs cited by `Covers:` annotations), `documents/test-failure-mode-map.md` (auto-generated derived map), `scripts/generate-test-failure-map.py` (rot-immune generator), `workflows/TEST-AUTHORING-CHECKLIST.md` (author-time 9-step gate), `tests/test_validator.py::TestFailureModeCoverage` (lint with 4 tests: unknown-id-rejected, must-cover-has-annotation, retired-id-warning, yaml-parses). Governance trail: `gov-ab70d05c6ca7` (this commit). Pattern: MINOR-on-MINOR pin discipline canonicalized session-121 as pin-sync discipline (BACKLOG #115 → COMPLETION-CHECKLIST item #7). |
 | 2.7.4 | 2026-04-23 | PATCH: Session-122 #116 shipping — pin sync per new CFR §9.3.10 checklist item #7 canonicalized v2.38.4. Bumped `title-10-ai-coding-cfr.md v2.38.4+` → `v2.38.5+` (title-10 shipped Layer 6 Pre-Plan-Approval Gate + 17 unit tests + `.claude/hooks/pre-exit-plan-mode-gate.sh` + scanner extension + Behavioral Floor pairing in tiers.json). Governance trail: `gov-94e385575297` (Phase A-F execution eval). Pattern: same pin-sync discipline that BACKLOG #115 canonicalized — applied here on its first application post-canonicalization. |
 | 2.7.3 | 2026-04-21 | PATCH: Session-121 Task 5 post-commit double-check (coherence-auditor MISLEADING #1) — `<document_versions>` pin for `title-10-ai-coding-cfr.md` lagged three PATCH bumps (`v2.36.0+` pinned while shipped is `v2.38.4`). Bumped pin to `v2.38.4+` so adopters inherit the canonical fail-closed hook recipe shipped in §9.3.10. Governance trail: `gov-cb3074ca144b` (Task 5 execution eval). Pattern: same pin-lag class as v2.7.1/v2.7.2 — this is now a recurring post-commit drift category (adopter-facing surfaces outside the plan's explicit file list). New BACKLOG item filed to add body-header + pin sync to the CFR PATCH authoring template as the structural fix per `meta-core-systemic-thinking`. |
 | 2.7.2 | 2026-04-20 | PATCH: Cross-cohort meta-review remediation (coherence-auditor `a593b82d189eb502d` flagged `<document_versions>` pin for rules-of-procedure lagged post-commit PATCH bump to v3.27.4). Bumped `rules-of-procedure.md v3.27.3+` → `v3.27.4+` and `constitution.md v5.0.6+` → `v5.0.7+` (meta-remediation added v5.0.7 Historical Amendment entry). Governance trail: `gov-9ab4e2bca855` (Cohort 5 post-commit carry-forward). Pattern: identical to v2.7.1 pin-lag remediation two commits prior — reinforces contrarian arc-level finding that adopter-facing version pins are a consistent post-commit drift class. |

@@ -1,5 +1,5 @@
 ---
-version: "2.38.5"
+version: "2.39.0"
 status: "active"
 effective_date: "2026-04-23"
 domain: "ai-coding"
@@ -9,7 +9,7 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.38.5
+**Version:** 2.39.0
 **Status:** Active
 **Effective Date:** 2026-04-23
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -2451,6 +2451,40 @@ export default defineConfig({
 - `server-only` alias — The `server-only` package throws at import time in non-server contexts. An empty stub prevents this.
 - `@` alias — Matches `tsconfig.json` path alias so imports resolve correctly.
 - `setupFiles` — Runs before each test file. Sets env vars, global mocks for `next/*` modules.
+
+### 5.2.8 Redundancy & Consolidation
+
+**Principle.** Tests should catch *classes* of failure, not patch specific instances. When two tests assert the same behavior at the same level, one of them is either dead weight or evidence of accidental complexity that should be consolidated at the source.
+
+**When to consolidate:**
+
+- **Identical fixture helpers across files.** Verify with a literal body diff before merging; signature-match is not semantic-match. If bodies diverge in ANY way, the divergence is either intentional (keep both) or a bug (fix, then consolidate). Migrate to `tests/conftest.py` (pytest fixtures, DI-injected) or a sibling shared module like `tests/hook_fixtures.py` (plain helpers, explicit import).
+- **Same-behavior-same-level tests.** Multiple tests asserting the same contract at the same layer (e.g. three copies of "scanner returns allow when X"). Parameterize via `@pytest.mark.parametrize` and keep one test body.
+- **Parameterization explosions.** 5+ near-identical tests differing only in input values — `@pytest.mark.parametrize` with a list of `(input, expected)` pairs reduces the suite to one test body while preserving per-case failure signals.
+
+**When NOT to consolidate:**
+
+- **Layered coverage.** Unit tests (mocked deps) and integration tests (real deps) can look redundant but serve different purposes — unit catches regression against the algorithm, integration catches regression against the wire. Both are load-bearing; keep.
+- **Platform-specific variants.** macOS-specific vs Linux-specific behavior tests. Keep both with `@pytest.mark.skipif` guards.
+- **Contract tests that look meta.** A test asserting a Pydantic model's `Literal` enum rejects unknown values LOOKS like a fixture-self-test; it's actually a schema contract. If the failure surface is "a valid input is rejected" or "an invalid input is accepted," keep it.
+
+**The diff rule.** Signatures ≠ semantics. Before consolidating `helper_foo()` across two files, read both bodies. Identical bodies with cosmetic differences (variable names, id strings not asserted against, docstring wording) ARE safe to merge; diff-significant bodies are NOT.
+
+**Deletion protocol.** If a test is genuinely redundant:
+
+1. Confirm it's not the only source of coverage for a must-cover failure mode (`documents/failure-mode-registry.md` + `python3 scripts/generate-test-failure-map.py`).
+2. If annotated with `Covers: FM-*`, note in the commit message which IDs are now covered only by the surviving tests.
+3. Commit message explains WHY — "redundant with X::Y at same level," not just "cleanup."
+
+**Author-time prevention.** Redundancy regrows if authored without discipline. Pair consolidation work with `workflows/TEST-AUTHORING-CHECKLIST.md` so new tests go through fixture-check + level-check + `Covers:` annotation gates.
+
+**Cross-references:**
+
+- `documents/failure-mode-registry.md` — SSOT for failure-mode IDs cited in `Covers:` annotations.
+- `documents/test-failure-mode-map.md` — auto-generated derived map (rot-immune).
+- `workflows/TEST-AUTHORING-CHECKLIST.md` — 9-step author-time gate.
+- `tests/test_validator.py::TestFailureModeCoverage` — lint enforcement.
+- §5.2.1–5.2.7 above — canonical testing methods this rule extends.
 
 ---
 
@@ -8965,6 +8999,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.39.0 | 2026-04-23 | MINOR: New §5.2.8 Redundancy & Consolidation (normative). Establishes when to consolidate (identical fixture helpers after body-diff, same-behavior-same-level tests, parameterization explosions) vs when NOT to consolidate (layered unit+integration coverage, platform-specific variants, contract tests that look meta). Documents the diff rule (signatures ≠ semantics), deletion protocol (check `failure-mode-registry.md` + derived map before deleting), and author-time prevention via pair-with `workflows/TEST-AUTHORING-CHECKLIST.md`. **Root cause:** §5.2 had mature testing governance (7 subsections, ~470 lines) covering TDD, organization, fixtures, ML mocking, autonomous maintenance with escalation, framework selection — but no normative guidance on when to delete or consolidate. Autonomous maintenance is fix-or-escalate, not consolidate; without §5.2.8 redundancy regrows after every cleanup pass. Session-123 Phase 2 demonstrated: hook-test helpers were duplicated across 3 files, `storage()` fixture across 4 classes in `test_context_engine.py`, totaling ~52 LOC eliminable — gap was structural, not incidental. **Constitutional Basis:** `meta-method-single-source-of-truth` (consolidation is SSOT applied to test infrastructure), `meta-core-systemic-thinking` (close the structural gap that lets redundancy regrow, not patch individual duplications), `meta-methods §7.8` (proportional rigor — normative subsection ~30 lines, not a new Part), `coding-quality-testing-integration` Q3 (echo-chamber avoidance pairs with author-time checklist). Cross-references new `failure-mode-registry.md` + `TEST-AUTHORING-CHECKLIST.md` + `test_validator.py::TestFailureModeCoverage` lint. Plan v3 ran 2 rounds of contrarian review (audits `abde3dc5794b0c665` + `a008a9090c0144d76`) + 1 pre-commit review (audit `ac71250b7a6a8999d` for the pre-plan trivial fix). ai-instructions pin bumps v2.7.4 → v2.8.0 (MINOR pin tracks MINOR source). Body-header + effective-date synced per §115-canonicalized checklist item. |
 | 2.38.5 | 2026-04-23 | PATCH: §9.3.10 — added Layer 6 (Pre-Plan-Approval Gate) to Enforcement Stack table; renamed header "4-Layer" → "6-Layer" to reflect the existing (pre-this-PATCH) 5-layer reality plus new Layer 6. New `.claude/hooks/pre-exit-plan-mode-gate.sh` (session-122) enforces contrarian-reviewer invocation before ExitPlanMode, with plan-scoped scanner extension (`scan_transcript.py --contrarian-after-last-plan`), CLAUDE.md Behavioral Floor pairing, and `documents/tiers.json` behavioral_floor directive `contrarian-before-exit-plan`. Implements CFR §9.3.10 Hook Implementation Prerequisites Recipe canonicalized v2.38.4 — ERR trap, platform timeout detection (gtimeout fallback), self-diagnosing fallback, dual bypass envs (`PLAN_CONTRARIAN_CONFIRMED`=semantic, `PLAN_CONTRARIAN_SKIP_HOOK`=structural/audit-logged). Closes BACKLOG #116 + V-004 (REFUTED → ESCALATED → IMPLEMENTED). 17 unit tests (8 scanner + 9 hook contract). **Root cause:** V-004 Compliance Review #4 confirmed 3-session advisory-compliance failure (baseline + session 3 + session 121 Task 4 all required user reminder); plan template gate text insufficient. **Constitutional Basis:** `meta-core-systemic-thinking` (structural enforcement replaces advisory), `meta-quality-verification-validation` (plan-scoped anchor verifies current-plan contrarian, not stale prior-plan), `meta-safety-transparent-limitations` (Claude Code platform dependency explicit in Layer 6 row). Gov audit: `gov-94e385575297`. Pre-edit 3-agent battery (Plan + contrarian + coherence, session-122) surfaced and resolved 2 BLOCKERs + 4 HIGH findings before code written; post-edit + post-commit batteries will run per session-121 established pattern. |
 | 2.38.4 | 2026-04-21 | PATCH: §9.3.10 Layer 3 extended with "Hook Implementation Prerequisites & Fail-Closed Recipe" sub-subsection canonicalizing the 6-step fail-closed authoring pattern (ERR trap, platform-detect timeout binary, wrap slow steps, detect exit 124, self-diagnose on missing binary, provide escape hatches). Platform prerequisites added (macOS `brew install coreutils`; Linux typically pre-installed; Windows/WSL marked untested). Line 7177 fail-behavior bullet collapsed from recipe restatement to pointer so the recipe has one canonical home. **Root cause:** session-121 Task 4 demonstrated that fail-closed hook authoring requires recipe-level guidance not reducible to a single bullet — SIGKILL-bypass asymmetry + platform binary dependency + self-diagnosing fallback + escape-hatch discipline are all load-bearing. The knowledge was scattered across LEARNING-LOG (lesson), hook code (example), and a compressed one-liner (§9.3.10:7177); external AI agents querying the framework via MCP would have to synthesize across surfaces. This PATCH consolidates the recipe into one retrievable location with pointers from the other sources, per `meta-method-single-source-of-truth`. Pre-edit 3-agent battery (Plan + contrarian + coherence) surfaced (a) `§9.8.5` citation drift (that rule lives in the constitution, not title-10 — dropped per Plan agent), (b) n=1 consumer concern (contrarian Ground-Truth challenge accepted in spirit via trimmed scope — 30 lines not 80+), (c) Title-20 `§4.6.3` overlap (retained current cross-ref model; retrieval engine handles discoverability per proportional rigor), (d) platform coverage honesty (Linux/Windows marked untested). **Constitutional Basis:** `meta-method-single-source-of-truth` (recipe has one canonical home; other surfaces point to it), `meta-core-systemic-thinking` (consolidate scattered knowledge, don't duplicate it), `meta-methods §7.8` (proportional rigor — ~30 lines of content, not 80+ with code blocks), `meta-safety-transparent-limitations` (explicit "untested" markers for unverified platforms). Gov audit: `gov-cb3074ca144b`. |
 | 2.38.3 | 2026-04-21 | PATCH: §9.3.10 Layer 3 fail-behavior corrected + hook-authoring guidance added. Previous text stated "hard mode = fail-closed" unqualified; corrected to "fail-closed on explicit `exit 2` returned within the configured hook timeout." Timeouts and `exit 1` remain fail-open per Claude Code hook semantics (verified against code.claude.com/docs/en/hooks, quoted: *"For events that can block actions (like PreToolUse), a timeout is treated as a non-blocking error, so the tool call proceeds unless the hook actively returns a blocking decision before timing out"*). Added hook-authoring guidance: bound slow decision steps with internal `timeout N` guards because SIGKILL bypasses bash `trap ... ERR`. **Root cause:** the framework's fail-closed claim inherited the "enforcement layer reliability" abstraction without accounting for the specific kernel-level process-termination semantics of the underlying Claude Code hook runner. Pre-edit battery contrarian-review surfaced the correlation risk (gate's `ps` call runs slowest under memory pressure — exactly when the gate is most needed) that made fail-open-on-timeout a structural gap, not a theoretical concern. Closes BACKLOG #91 sub-item 3 (hook timeout behavior undocumented — re-severity MED → HIGH-at-close pre-remediation → LOW-at-close post-remediation per LEARNING-LOG 2026-04-20 Entry B). **Constitutional Basis:** `meta-core-systemic-thinking` (time-bounded decision logic is structural fix; trap-that-can't-fire is symptomatic), `meta-quality-verification-validation` (behavioral research closed the "unknown semantics" gap with authoritative docs), `meta-safety-transparent-limitations` (transparent about conditional fail-closed rather than implying unconditional). Gov audit: `gov-ac6ef7b74f67`. |

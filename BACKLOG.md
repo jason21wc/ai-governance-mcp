@@ -288,6 +288,49 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 121. Full `Covers:` Annotation Sweep Across Un-Annotated Tests `D2 Capability`
+
+**Filed:** 2026-04-23 (session-123, Commit C of test-suite-optimization plan).
+
+**What.** The session-123 plan shipped the failure-mode registry (`documents/failure-mode-registry.md`, 19 entries) + `TestFailureModeCoverage` lint + 11 seeded `Covers:` annotations on tests tied to `must_cover: true` registry entries. The remaining ~1,355 tests are un-annotated; the derived map (`documents/test-failure-mode-map.md`) warns readers "empty cells ≠ uncovered, just un-annotated."
+
+**Why defer.** The v3 plan's round-2 MEDIUM-1 finding was explicit: seeding 20-30 annotations creates a misleading "2% coverage" impression; seeding <10 on must-cover only lets the lint carry the enforcement weight without implying full-suite coverage. Full sweep is legitimate follow-up work, not in-scope for the framework-shipping commit.
+
+**Scope.** Walk every `tests/test_*.py`. For each test function with a docstring: decide (a) does this test cover a registered failure mode? → add `Covers: FM-<id>`, (b) does this test cover a failure mode NOT in the registry? → either add a registry entry (if reusable) or skip (if test-local), (c) is this a pure fixture-self-test or tautology? → candidate for Phase 3 grey-area review or §5.2.8 consolidation-or-deletion.
+
+**Scale.** ~1,355 tests × ~30 seconds per test (docstring classification + lookup + potential registry add) = 11-12 hours of work. Breaks cleanly into files; can be done in ~5-10 batches of 150-300 tests each.
+
+**Trigger.** (a) user explicit ask, (b) dedicated sprint, (c) automated diff when a new must_cover entry is added without a paired annotation, (d) if `TestFailureModeCoverage::test_every_must_cover_entry_has_annotation` starts failing on legitimate gaps (would mean we added must_cover entries faster than we seeded annotations — lint is the forcing function).
+
+**Done when.** Registry entries that are genuinely covered by existing tests have `Covers:` annotations; registry entries that turn out to have zero coverage are either flipped to `must_cover: false` with a BACKLOG follow-up for new tests OR new tests are written.
+
+---
+
+#### 122. Phase 3 Grey-Area Test Consolidation Review (Synchronous, 8 cases) `D2 Capability`
+
+**Filed:** 2026-04-23 (session-123, deferred from test-suite-optimization plan Phase 3).
+
+**What.** Phase 1 inventory (Explore subagents, session-123) enumerated exactly 8 grey-area consolidation candidates. Per plan's adaptive Phase 3 gate (>10 async, 4-10 sync, ≤3 skip): **synchronous case-by-case review** is the correct mode. Deferred out of Commit A/B/C because grey cases require user judgment calls (layered coverage intentional vs accidental; per-hook-scope inherent vs redundant; contract tests that look meta).
+
+**The 8 cases.**
+
+1. `TestProjectManager::test_fuse_scores_weighted` (unit, mocked) vs `TestRetrievalIntegration::test_retrieve_returns_result` (integration, real index) — score-fusion ranking.
+2. `TestProjectManager::test_bm25_search_tokenization` vs `TestRetrievalUnit::test_bm25_tokenization` — BM25 tokenization.
+3. `TestContrarian::test_allow_when_contrarian_follows_prior_exit_plan` (scanner-module test in test_hooks.py) vs `TestAllowPath::test_allow_when_contrarian_followed_prior_exit_plan` (hook-contract test in test_pre_exit_plan_mode_gate_hook.py) — scanner vs hook-usage distinction.
+4. `is_allow()` / `is_deny()` helpers in `test_pre_exit_plan_mode_gate_hook.py` vs parallel helpers in `test_pre_test_oom_gate_hook.py` — hook-decision parsing.
+5. `TestIndexer::test_build_bm25_index_tokenization` vs `TestProjectManager::test_fuse_scores_weighted` — BM25 write vs read path.
+6. `TestGetEngine` singleton tests vs `TestGetMetrics` singleton tests — singleton pattern.
+7. `TestPreToolHook::test_pretool_allows_when_both_present` vs `TestPromptHook::test_prompt_hook_silent_when_compliant` — hook output format.
+8. `TestDocumentConnector::test_parse_markdown` (unit) vs document-extractor integration test — parsing pipeline.
+
+**Why defer.** Each case is 5-15 minutes of user discussion. Batching them is more efficient than inlining into the framework commit. Phase 3 commit (commit D per plan) is explicitly conditional on user direction after review.
+
+**Trigger.** User says "let's go through the 8 grey-area cases" — synchronous walkthrough.
+
+**Done when.** Each of the 8 cases has a disposition recorded: KEEP (layered coverage / legitimate per-hook scope / contract test), CONSOLIDATE (parametrize / merge), or EXTRACT-TO-CONFTEST (helpers only).
+
+---
+
 #### 91. Pre-Test OOM Gate Hardening — Session-105 Follow-ups (Discussion) `D1 Improvement`
 
 **Status (2026-04-21, session-121):** 9 fix-now items shipped. Remaining: 1 item (sub-item 5).
