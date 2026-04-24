@@ -302,28 +302,6 @@
 
 ---
 
-#### 130. Reconcile Reference-Library ML-Mock Guidance with Registry + CFR + Test Practice `D1 Fix`
-
-**Filed:** 2026-04-24 (session-124 extension, post-#121 grandfathered FM resolution).
-
-**What.** `reference-library/ai-coding/ref-ai-coding-pytest-fixture-patterns.md` currently says: *"Do: Mock SentenceTransformer at the import path where it's used: `patch('ai_governance_mcp.retrieval.SentenceTransformer')`. Don't: Mock at the source module `patch('sentence_transformers.SentenceTransformer')` — models are lazy-loaded and the mock won't intercept."* This contradicts every other source:
-- LEARNING-LOG 2025-12-27 (ML Model Mocking: Patch at Source): patch at `sentence_transformers.SentenceTransformer`
-- `documents/title-10-ai-coding-cfr.md` §5.2.8: labels `patch("sentence_transformers.SentenceTransformer")` as the CORRECT pattern
-- All actual tests in the suite: patch at `sentence_transformers.SentenceTransformer` (source)
-
-FM-ML-MODEL-MOCK-AT-SOURCE was retired 2026-04-24 in part because resolving this contradiction required empirical verification contrarian C8 flagged as out-of-scope for #121.
-
-**Trigger.** (a) Before next ML-mock-related registry/CFR/reference-library edit, OR (b) when any developer asks "where should I patch for ML model mocking?"
-
-**Action.**
-1. Read all three sources (reference-library entry, LEARNING-LOG 2025-12-27, CFR §5.2.8) to confirm the contradiction.
-2. Optionally verify empirically: pick one passing ML-mock test, flip the patch target to the user-site path, observe whether it passes or fails.
-3. Update the outlier source. Likely fix: rewrite the reference-library Do/Don't to match CFR + LEARNING-LOG (patch at source for lazy-loaded models). If empirical verification reveals both positions are situationally correct (lazy-load → source; eager-load → user-site), write a nuanced guidance capturing both.
-
-**Done when.** All three sources agree on the correct patch location. Optional: re-register FM-ML-MODEL-MOCK-AT-SOURCE if a meta-test verifying patch-location correctness is added.
-
----
-
 #### 129. Re-register FM-S-SERIES-KEYWORD-FALSE-POSITIVE after Negation-Context Parsing Ships `D2 Improvement`
 
 **Filed:** 2026-04-24 (session-124 extension, post-#121 grandfathered FM resolution).

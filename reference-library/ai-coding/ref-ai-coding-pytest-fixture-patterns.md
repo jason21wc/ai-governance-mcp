@@ -7,7 +7,7 @@ status: current
 entry_type: direct
 summary: "Proven fixture patterns for testing MCP servers with sentence-transformers mocking and sample governance data"
 created: 2026-03-26
-last_verified: 2026-03-26
+last_verified: 2026-04-24
 maturity: evergreen
 decay_class: framework
 source: "ai-governance-mcp/tests/conftest.py — battle-tested across 1000+ tests"
@@ -21,11 +21,15 @@ When building an MCP server that uses sentence-transformers for semantic search,
 ## Artifact
 
 ```python
-# Mock SentenceTransformer to avoid model downloads in tests
+# Mock SentenceTransformer to avoid model downloads in tests.
+# Patch at the source library, NOT the user-site import path: for lazy-loaded
+# models (imported inside property accessors), the user module's namespace
+# doesn't have the name bound yet at patch time — only the source library
+# binding survives the lazy resolution.
 @pytest.fixture
 def mock_embedding_model():
     """Mock that returns deterministic embeddings."""
-    with patch("ai_governance_mcp.retrieval.SentenceTransformer") as mock_cls:
+    with patch("sentence_transformers.SentenceTransformer") as mock_cls:
         mock_model = MagicMock()
         mock_model.encode.return_value = np.random.rand(10, 384).astype(np.float32)
         mock_cls.return_value = mock_model
@@ -61,17 +65,17 @@ async def test_tool_handler():
 
 ## Lessons Learned
 
-- Always mock SentenceTransformer at the import path where it's used, not where it's defined
-- Use `np.random.rand()` with fixed dimensions matching your model (384 for all-MiniLM-L6-v2)
+- Always mock SentenceTransformer at the **source library** (`sentence_transformers.SentenceTransformer`), not at the user-site import path — lazy-loaded models defer the import to first-access, and the source library is where the binding gets resolved at call time
+- Use `np.random.rand()` with fixed dimensions matching your model (384 for BGE-small-en-v1.5 / all-MiniLM-L6-v2)
 - MCP tool handlers return `list[TextContent]` — parse `.text` as JSON for structured responses
 - Use `tmp_path` fixture for file-based tests to avoid polluting the real filesystem
 - Add `readonly=False` and `readonly_message=None` to mock managers that get serialized to JSON
 
 ## Do / Don't
 
-**Do:** Mock `SentenceTransformer` at the import path where it's used: `patch("ai_governance_mcp.retrieval.SentenceTransformer")`. Use `np.random.rand(len(texts), 384)` with `side_effect` to return correct batch shapes matching your embedding model dimensions.
+**Do:** Mock `SentenceTransformer` at the source library: `patch("sentence_transformers.SentenceTransformer")`. This is the correct pattern for lazy-loaded models — models are imported inside property accessors or first-use methods, so the user-site namespace doesn't hold the binding at patch time; only the source library does. Use `np.random.rand(len(texts), 384)` with `side_effect` to return correct batch shapes matching your embedding model dimensions. Confirmed across 1000+ tests in this project; authoritative references: `documents/title-10-ai-coding-cfr.md` §5.2.8 (CORRECT pattern block), LEARNING-LOG 2025-12-27.
 
-**Don't:** Mock at the source module `patch("sentence_transformers.SentenceTransformer")` — models are lazy-loaded and the mock won't intercept the already-imported reference.
+**Don't:** Mock at the user-site import path `patch("ai_governance_mcp.retrieval.SentenceTransformer")` for lazy-loaded models — the name isn't bound in the user module's namespace until first access, so the mock doesn't intercept. (Corrected 2026-04-24: earlier versions of this file had Do/Don't inverted; project tests + CFR + LEARNING-LOG all use source-library patching.)
 
 ## Cross-References
 
