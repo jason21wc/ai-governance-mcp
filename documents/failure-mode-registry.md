@@ -117,6 +117,102 @@ entries:
     scope: project
     introduced: "2026-04-24"
     source: "session-124 Phase 0 gap detection; BACKLOG #121; PROJECT-MEMORY Gotcha #33"
+  - id: FM-READONLY-WRITE-ESCAPE
+    description: "Write operations (save_embeddings/save_metadata/save_chunks/save_bm25_index/save_file_manifest/delete_project) must raise `ReadOnlyStorageError` when ReadOnlyFilesystemStorage is active — silent no-op or partial write is a contract violation that leaks reads masquerading as no-ops."
+    must_cover: true
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-READONLY-INDEX-BLOCKING
+    description: "Indexer and ProjectManager must raise `RuntimeError` for index operations (`index_project`, `incremental_update`, `reindex_project`) when `readonly=True` — auto-indexing retry logic must not bypass the read-only constraint."
+    must_cover: true
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-READONLY-CORRUPT-FILE-NO-UNLINK
+    description: "Read-only storage must NOT delete or repair corrupt index files on load failure — log warning, return None, leave the file on disk. Auto-unlink would violate no-side-effects contract and mask silent data corruption."
+    must_cover: true
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-STATE-EXPIRY-BOUNDARY-INCLUSIVE
+    description: "Cross-MCP governance state file must enforce strict TTL boundary: age=(TTL-1) accepts, age=(TTL+1) rejects. Off-by-one at the boundary is a classic security-adjacent bug class for time-based authorization."
+    must_cover: true
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-SHARED-STATE-MISSING-FILE-FAIL-CLOSED
+    description: "Missing or corrupt cross-MCP state file must fail-closed (block tools), not fail-open (default allow). Absence of state must never grant access — state file disappearance is a containment failure, not an implicit reset."
+    must_cover: true
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-CONFIG-SECURITY-CRITICAL-PARAMS-PROTECTED
+    description: "`GovernanceEnforcer.from_config()` must raise `ValueError` when external config attempts to override security-critical parameters (`enabled`, `GOVERNANCE_SATISFIERS`). Config-injection bypass prevention — external YAML must not be able to disable the gate."
+    must_cover: true
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-WATCHER-DAEMON-SYMLINK-ESCAPE
+    description: "Watcher daemon project discovery must filter symlinked directories to prevent escape from the index-storage base_path. Parallels FM-PROJECT-ID-PATH-TRAVERSAL for daemon-scan operations."
+    must_cover: true
+    scope: framework
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-WATCHER-CORRUPT-METADATA-RESILIENCE
+    description: "Project discovery must silently skip entries with malformed metadata.json (corrupt/truncated/invalid-JSON) — daemon must tolerate filesystem entropy without crashing or partial-parsing."
+    must_cover: false
+    scope: framework
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-HEARTBEAT-THREAD-RACE-CONDITION
+    description: "`_heartbeat_loop` must execute each tick atomically with respect to `stop_event` checks — no gap where elapsed crosses `hard_cap` but thread misses `stop_event` until next iteration."
+    must_cover: false
+    scope: framework
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-IDLE-DETECTION-MTIME-BOUNDARY
+    description: "Idle-detection metadata scan must return the MOST RECENT activity time (max of mtimes, smallest seconds-ago) across all projects, not min/average — otherwise one stale project defers restart for the whole daemon."
+    must_cover: false
+    scope: framework
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-MAX-UPTIME-ZERO-DISABLE-CONTRACT
+    description: "`max_uptime_seconds=0` (or unset) must disable watcher self-exit entirely, not default to a safety floor. Operators rely on this for maintenance windows / multi-phase deployments."
+    must_cover: false
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-IPC-SOCKET-PATH-SYMLINK-RESOLUTION
+    description: "Socket path resolution must call `.resolve()` to canonicalize symlinks before containment check — unresolved intermediate paths allow symlink-based containment escapes (macOS `/tmp` → `/private/var/...` is the canonical test case)."
+    must_cover: false
+    scope: framework
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-IPC-CONCURRENT-QUEUE-SERIALIZATION
+    description: "Concurrent client requests on the shared server queue must not corrupt message boundaries or interleave payloads — length-prefix framing or equivalent is required under multi-threaded load."
+    must_cover: false
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-IPC-SOCKET-OWNERSHIP-NOT-PRIVILEGED
+    description: "Unix domain socket must be created with mode 0600 (owner read-write only) — 0644 or world-readable permissions enable TOCTOU attacks and socket hijacking by other local processes."
+    must_cover: false
+    scope: framework
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-IPC-SHUTDOWN-RELEASES-BLOCKED-HANDLERS
+    description: "Server shutdown must call `SHUT_RDWR` on accepted connections (not just close the listen socket) — handlers blocked on `recv()` otherwise don't release, causing shutdown deadlock / leak / 30s CI flake."
+    must_cover: false
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
+  - id: FM-IPC-MESSAGE-LENGTH-PREFIX-INVARIANT
+    description: "Encoded IPC messages must have a 4-byte big-endian length prefix where `length == total_bytes - 4`, validated on decode. Silent mismatch causes message corruption under pipelining/concurrency."
+    must_cover: false
+    scope: framework
+    introduced: "2026-04-24"
+    source: "session-124 Phase 3 gap detection; BACKLOG #121"
   - id: FM-REGISTRY-UNKNOWN-ID-REJECTED
     description: "TestFailureModeCoverage lint must reject `Covers:` annotations with IDs not present in the registry — prevents typo drift (FM-X vs FM-x, FM-FOO vs FM-FOO-BAR)."
     must_cover: true

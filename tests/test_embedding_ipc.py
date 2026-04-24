@@ -52,6 +52,10 @@ class TestMessageSerialization:
     """Test length-prefixed JSON encoding/decoding."""
 
     def test_encode_decode_round_trip(self):
+        """4-byte big-endian length prefix must match total_bytes - 4.
+
+        Covers: FM-IPC-MESSAGE-LENGTH-PREFIX-INVARIANT
+        """
         original = {"op": "encode", "texts": ["hello", "world"], "normalize": True}
         encoded = _encode_message(original)
         # First 4 bytes are the length prefix
@@ -377,6 +381,10 @@ class TestSocketPermissions:
     """Test socket file permissions from security audit finding S1."""
 
     def test_socket_created_with_0600(self, short_tmp, monkeypatch):
+        """Unix socket must be created with mode 0600 (owner-only r/w).
+
+        Covers: FM-IPC-SOCKET-OWNERSHIP-NOT-PRIVILEGED
+        """
         monkeypatch.setattr(
             "ai_governance_mcp.embedding_ipc.CONTAINMENT_ROOT", short_tmp
         )
@@ -455,6 +463,8 @@ class TestClientRetry:
         timers (handler's result_event.wait vs client's recv timeout),
         producing flaky CI failures. Shutdown now SHUT_RDWRs accepted
         conns so handlers exit promptly and clients see EOF immediately.
+
+        Covers: FM-IPC-SHUTDOWN-RELEASES-BLOCKED-HANDLERS
         """
         monkeypatch.setattr(
             "ai_governance_mcp.embedding_ipc.CONTAINMENT_ROOT", short_tmp

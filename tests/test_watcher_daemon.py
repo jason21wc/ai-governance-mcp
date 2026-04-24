@@ -105,6 +105,10 @@ class TestDiscoverProjects:
         assert len(projects) == 0
 
     def test_discover_skips_corrupt_metadata(self, tmp_path):
+        """Corrupt metadata.json entries are silently skipped (no crash).
+
+        Covers: FM-WATCHER-CORRUPT-METADATA-RESILIENCE
+        """
         base = tmp_path / "indexes"
         project_dir = base / "abcdef1234567890"
         project_dir.mkdir(parents=True)
@@ -114,6 +118,10 @@ class TestDiscoverProjects:
         assert len(projects) == 0
 
     def test_discover_skips_symlinks(self, tmp_path):
+        """Symlinked directories must be filtered out of project discovery.
+
+        Covers: FM-WATCHER-DAEMON-SYMLINK-ESCAPE
+        """
         base = tmp_path / "indexes"
         base.mkdir()
         symlink_dir = base / "symlinked"

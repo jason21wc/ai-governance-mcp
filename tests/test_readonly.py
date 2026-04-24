@@ -61,6 +61,10 @@ class TestReadOnlyFilesystemStorage:
         assert tmp_file.exists()  # Should still exist
 
     def test_save_embeddings_raises(self, tmp_path):
+        """Write must raise ReadOnlyStorageError under read-only storage.
+
+        Covers: FM-READONLY-WRITE-ESCAPE
+        """
         storage = ReadOnlyFilesystemStorage(base_path=tmp_path)
         with pytest.raises(ReadOnlyStorageError, match="read-only mode"):
             storage.save_embeddings("abcdef1234567890", np.array([1.0]))
@@ -159,7 +163,10 @@ class TestReadOnlyFilesystemStorage:
         assert set(projects) == {"abcdef1234567890", "1234567890abcdef"}
 
     def test_corrupt_embeddings_logs_warning_no_unlink(self, tmp_path):
-        """Corrupt files should log warning but NOT be deleted in read-only mode."""
+        """Corrupt files should log warning but NOT be deleted in read-only mode.
+
+        Covers: FM-READONLY-CORRUPT-FILE-NO-UNLINK
+        """
         base = tmp_path / "indexes"
         project_dir = base / "abcdef1234567890"
         project_dir.mkdir(parents=True)
@@ -212,6 +219,10 @@ class TestIndexerReadonly:
         assert indexer.embedding_model is None
 
     def test_index_project_raises_when_readonly(self, tmp_path):
+        """Indexer.index_project must raise RuntimeError when readonly=True.
+
+        Covers: FM-READONLY-INDEX-BLOCKING
+        """
         from ai_governance_mcp.context_engine.indexer import Indexer
 
         storage = ReadOnlyFilesystemStorage(base_path=tmp_path)

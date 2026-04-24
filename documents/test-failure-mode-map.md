@@ -17,6 +17,12 @@
 - `tests/test_models.py` → `TestAuditFunctions::test_generate_audit_id_format`
 - `tests/test_models.py` → `TestAuditFunctions::test_generate_audit_id_unique`
 
+### `FM-CONFIG-SECURITY-CRITICAL-PARAMS-PROTECTED`
+
+> `GovernanceEnforcer.from_config()` must raise `ValueError` when external config attempts to override security-critical parameters (`enabled`, `GOVERNANCE_SATISFIERS`). Config-injection bypass prevention — external YAML must not be able to disable the gate.
+
+- `tests/test_enforcement.py` → `TestSecurityHardening::test_from_config_rejects_security_critical_overrides`
+
 ### `FM-EMBEDDING-LAZY-LOAD-SINGLE`
 
 > Embedding model must lazy-load once and be cached thereafter — double-load would cost memory + risk non-atomic init under threading.
@@ -82,6 +88,24 @@
 - `tests/test_server.py` → `TestRateLimiting::test_rate_limit_allows_initial_requests`
 - `tests/test_server.py` → `TestRateLimiting::test_rate_limit_exhaustion`
 
+### `FM-READONLY-CORRUPT-FILE-NO-UNLINK`
+
+> Read-only storage must NOT delete or repair corrupt index files on load failure — log warning, return None, leave the file on disk. Auto-unlink would violate no-side-effects contract and mask silent data corruption.
+
+- `tests/test_readonly.py` → `TestReadOnlyFilesystemStorage::test_corrupt_embeddings_logs_warning_no_unlink`
+
+### `FM-READONLY-INDEX-BLOCKING`
+
+> Indexer and ProjectManager must raise `RuntimeError` for index operations (`index_project`, `incremental_update`, `reindex_project`) when `readonly=True` — auto-indexing retry logic must not bypass the read-only constraint.
+
+- `tests/test_readonly.py` → `TestIndexerReadonly::test_index_project_raises_when_readonly`
+
+### `FM-READONLY-WRITE-ESCAPE`
+
+> Write operations (save_embeddings/save_metadata/save_chunks/save_bm25_index/save_file_manifest/delete_project) must raise `ReadOnlyStorageError` when ReadOnlyFilesystemStorage is active — silent no-op or partial write is a contract violation that leaks reads masquerading as no-ops.
+
+- `tests/test_readonly.py` → `TestReadOnlyFilesystemStorage::test_save_embeddings_raises`
+
 ### `FM-REGISTRY-MUST-COVER-HAS-ANNOTATION`
 
 > Every registry entry with must_cover: true must have at least one test annotated with `Covers: <id>` — enforces that critical failure modes actually have coverage.
@@ -110,13 +134,79 @@
 - `tests/test_extractor.py` → `TestMultimodalRagExtraction::test_ev_series_not_verification`
 - `tests/test_extractor.py` → `TestMultimodalRagExtraction::test_sec_series_not_context`
 
+### `FM-SHARED-STATE-MISSING-FILE-FAIL-CLOSED`
+
+> Missing or corrupt cross-MCP state file must fail-closed (block tools), not fail-open (default allow). Absence of state must never grant access — state file disappearance is a containment failure, not an implicit reset.
+
+- `tests/test_enforcement.py` → `TestSharedState::test_shared_state_missing_file`
+
+### `FM-STATE-EXPIRY-BOUNDARY-INCLUSIVE`
+
+> Cross-MCP governance state file must enforce strict TTL boundary: age=(TTL-1) accepts, age=(TTL+1) rejects. Off-by-one at the boundary is a classic security-adjacent bug class for time-based authorization.
+
+- `tests/test_enforcement.py` → `TestSharedState::test_shared_state_within_ttl`
+
+### `FM-WATCHER-DAEMON-SYMLINK-ESCAPE`
+
+> Watcher daemon project discovery must filter symlinked directories to prevent escape from the index-storage base_path. Parallels FM-PROJECT-ID-PATH-TRAVERSAL for daemon-scan operations.
+
+- `tests/test_watcher_daemon.py` → `TestDiscoverProjects::test_discover_skips_symlinks`
+
 ## Advisory Entries
+
+### `FM-HEARTBEAT-THREAD-RACE-CONDITION`
+
+> `_heartbeat_loop` must execute each tick atomically with respect to `stop_event` checks — no gap where elapsed crosses `hard_cap` but thread misses `stop_event` until next iteration.
+
+_No annotated tests yet._
 
 ### `FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED`
 
 > Bash ERR trap does not cover SIGKILL (Claude Code hook-timeout mechanism) — hooks relying solely on ERR trap for fail-closed will fail-open on timeout.
 
 - `tests/test_pre_test_oom_gate_hook.py` → `TestInternalPsTimeout::test_ps_timeout_fails_closed`
+
+### `FM-IDLE-DETECTION-MTIME-BOUNDARY`
+
+> Idle-detection metadata scan must return the MOST RECENT activity time (max of mtimes, smallest seconds-ago) across all projects, not min/average — otherwise one stale project defers restart for the whole daemon.
+
+_No annotated tests yet._
+
+### `FM-IPC-CONCURRENT-QUEUE-SERIALIZATION`
+
+> Concurrent client requests on the shared server queue must not corrupt message boundaries or interleave payloads — length-prefix framing or equivalent is required under multi-threaded load.
+
+_No annotated tests yet._
+
+### `FM-IPC-MESSAGE-LENGTH-PREFIX-INVARIANT`
+
+> Encoded IPC messages must have a 4-byte big-endian length prefix where `length == total_bytes - 4`, validated on decode. Silent mismatch causes message corruption under pipelining/concurrency.
+
+- `tests/test_embedding_ipc.py` → `TestMessageSerialization::test_encode_decode_round_trip`
+
+### `FM-IPC-SHUTDOWN-RELEASES-BLOCKED-HANDLERS`
+
+> Server shutdown must call `SHUT_RDWR` on accepted connections (not just close the listen socket) — handlers blocked on `recv()` otherwise don't release, causing shutdown deadlock / leak / 30s CI flake.
+
+- `tests/test_embedding_ipc.py` → `TestClientRetry::test_shutdown_closes_accepted_conns_fast`
+
+### `FM-IPC-SOCKET-OWNERSHIP-NOT-PRIVILEGED`
+
+> Unix domain socket must be created with mode 0600 (owner read-write only) — 0644 or world-readable permissions enable TOCTOU attacks and socket hijacking by other local processes.
+
+- `tests/test_embedding_ipc.py` → `TestSocketPermissions::test_socket_created_with_0600`
+
+### `FM-IPC-SOCKET-PATH-SYMLINK-RESOLUTION`
+
+> Socket path resolution must call `.resolve()` to canonicalize symlinks before containment check — unresolved intermediate paths allow symlink-based containment escapes (macOS `/tmp` → `/private/var/...` is the canonical test case).
+
+_No annotated tests yet._
+
+### `FM-MAX-UPTIME-ZERO-DISABLE-CONTRACT`
+
+> `max_uptime_seconds=0` (or unset) must disable watcher self-exit entirely, not default to a safety floor. Operators rely on this for maintenance windows / multi-phase deployments.
+
+_No annotated tests yet._
 
 ### `FM-ML-MODEL-MOCK-AT-SOURCE`
 
@@ -163,4 +253,10 @@ _No annotated tests yet._
 - `tests/test_pre_exit_plan_mode_gate_hook.py` → `TestAuditLog::test_semantic_bypass_writes_audit_entry`
 - `tests/test_pre_test_oom_gate_hook.py` → `TestDenyLogSideEffect::test_allow_does_not_write_deny_log`
 - `tests/test_pre_test_oom_gate_hook.py` → `TestDenyLogSideEffect::test_deny_writes_to_log_file`
+
+### `FM-WATCHER-CORRUPT-METADATA-RESILIENCE`
+
+> Project discovery must silently skip entries with malformed metadata.json (corrupt/truncated/invalid-JSON) — daemon must tolerate filesystem entropy without crashing or partial-parsing.
+
+- `tests/test_watcher_daemon.py` → `TestDiscoverProjects::test_discover_skips_corrupt_metadata`
 

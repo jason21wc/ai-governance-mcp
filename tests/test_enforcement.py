@@ -523,7 +523,10 @@ class TestSharedState:
         assert not result.allowed, "Stale state should not satisfy governance"
 
     def test_shared_state_missing_file(self, state_dir):
-        """Missing state file should fail-closed (tools blocked)."""
+        """Missing state file should fail-closed (tools blocked).
+
+        Covers: FM-SHARED-STATE-MISSING-FILE-FAIL-CLOSED
+        """
         state_file = os.path.join(state_dir, "nonexistent.json")
         reader = GovernanceEnforcer(
             govern_all=True, state_file=state_file, state_ttl=300
@@ -559,7 +562,10 @@ class TestSharedState:
         assert enforcer._call_counter == 1
 
     def test_shared_state_within_ttl(self, state_dir):
-        """State well within TTL should satisfy governance."""
+        """State well within TTL should satisfy governance.
+
+        Covers: FM-STATE-EXPIRY-BOUNDARY-INCLUSIVE
+        """
         state_file = os.path.join(state_dir, "state.json")
         ttl = 300
 
@@ -732,7 +738,10 @@ class TestSecurityHardening:
             assert reader2._read_shared_state() is True  # clamped to now, age ~0
 
     def test_from_config_rejects_security_critical_overrides(self):
-        """from_config should reject overrides for security-critical fields."""
+        """from_config should reject overrides for security-critical fields.
+
+        Covers: FM-CONFIG-SECURITY-CRITICAL-PARAMS-PROTECTED
+        """
         import yaml
 
         config = {"govern_all": True}
