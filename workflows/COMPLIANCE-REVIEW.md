@@ -26,10 +26,15 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 - `pre-tool-governance-check.sh` (PreToolUse — governance + CE enforcement)
 - `pre-push-quality-gate.sh` (PreToolUse — 4 pre-push checks)
 - `pre-test-oom-gate.sh` (PreToolUse — pytest OOM prevention, session-105)
+- `pre-exit-plan-mode-gate.sh` (PreToolUse — contrarian-reviewer enforcement before ExitPlanMode, session-122)
 - `post-push-ci-check.sh` (PostToolUse — CI monitoring)
 - `user-prompt-governance-inject.sh` (UserPromptSubmit — conditional governance reminder)
 
-**Pass:** All 5 present and not disabled.
+**Expected pre-commit hooks** (in `.pre-commit-config.yaml`):
+- `ruff-format` + `ruff` (style)
+- `regen-test-failure-mode-map` (session-123, BACKLOG #123 — derived-map freshness gate)
+
+**Pass:** All 6 Claude Code hooks present and not disabled; pre-commit hooks configured.
 **Fail:** Any hook missing or disabled — investigate immediately.
 
 | Review | Date | Result | Notes |
@@ -38,6 +43,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | 2 | 2026-04-14 | PASS | All 4 hooks present |
 | 3 | 2026-04-17 | PASS | All 5 hooks present (pre-tool-governance-check, pre-push-quality-gate, pre-test-oom-gate, post-push-ci-check, user-prompt-governance-inject) |
 | 4 | 2026-04-22 | PASS | All 5 hooks present (unchanged from Review #3; session-121 amended pre-test-oom-gate internals but file remains) |
+| — | 2026-04-23 | +1 | Session-122 shipped `pre-exit-plan-mode-gate.sh` (BACKLOG #116 / V-004); session-123 shipped `regen-test-failure-mode-map` pre-commit hook (BACKLOG #123). Hook inventory now 6 Claude Code + pre-commit local hook. Next compliance review verifies all present. |
 
 ---
 

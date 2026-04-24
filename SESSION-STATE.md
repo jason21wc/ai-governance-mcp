@@ -27,7 +27,7 @@
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **130 principles + 676 methods + 13 references** (819 total; see `tests/benchmarks/` for current totals) |
+| Index | **130 principles + 677 methods + 13 references** (820 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **6** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM prevention gate, **PreToolUse pre-exit-plan-mode gate** — session-122) |
 | CI | **Green.** Both session-106 pre-existing failures fixed and verified on main in session-109: reconnect flake resolved by releasing accepted conns on shutdown; bandit exit-1 resolved by suppressing non-crypto B311 jitter and cleaning up unused B506 nosec on `yaml.safe_load()`. Last push: `5c890aa` (2m55s CI, 1m17s CodeQL). |
