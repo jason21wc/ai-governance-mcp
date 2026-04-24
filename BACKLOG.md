@@ -343,15 +343,17 @@
 
 ---
 
-#### 125. Failure-Mode Registry Scaffold-Safety (Framework vs Project-Specific Split) `D2 Capability`
+#### 125-b. scaffold_project Framework Registry Seeding `D2 Capability`
 
-**Filed:** 2026-04-23 (session-123, post-commit 2nd-pass contrarian MEDIUM).
+**Filed:** 2026-04-23 (session-123 Commit J follow-up).
 
-**What.** v1.0.0 registry seeds 19 entries, some framework-universal (FM-TEST-SIDE-EFFECTS, FM-TEST-ECHO-CHAMBER, FM-REGISTRY-UNKNOWN-ID-REJECTED) and some project-specific (FM-HOOK-CONTRARIAN-REQUIRED, FM-SCANNER-SUBSTRING-FALSE-MATCH, FM-HOOK-FAIL-CLOSED-EXIT-2 — all tied to THIS project's hook infrastructure). When `scaffold_project` runs for a new adopter, copying this registry ships irrelevant project-specific IDs.
+**What.** #125 shipped Commit J adding `scope: framework | project` to all 19 registry entries + lint assertion. Classification: 8 framework-universal + 11 project-specific. Registry is now positioned for scaffold-safety but `scaffold_project` itself does NOT yet seed a registry file for new adopter projects.
 
-**Scope.** Separate `documents/failure-mode-registry.md` into: (a) framework-universal seed (ships with scaffold), (b) project-specific registry (lives in adopter project, can extend framework seed). Similar to the existing pattern where CFR is framework, CLAUDE.md is project.
+**Scope.** (a) Extend `src/ai_governance_mcp/server.py` SCAFFOLD_STANDARD_EXTRAS with a new template entry for `documents/failure-mode-registry.md` containing ONLY entries with `scope: framework`. (b) Adopter registry can then extend via their own entries with `scope: project`. (c) Lint in adopter project works as-is because `_load_registry_entries()` reads one YAML file.
 
-**Trigger.** Next `scaffold_project` feature addition OR external adopter feedback on registry bloat.
+**Design note.** Simplest approach: generate the framework-subset registry from the canonical one at scaffold time, not hardcode. Or: ship a small `documents/scaffold-templates/failure-mode-registry-framework-seed.md` that the canonical entries tag-sync to.
+
+**Trigger.** External adopter feedback on registry bloat OR next `scaffold_project` feature addition.
 
 ---
 

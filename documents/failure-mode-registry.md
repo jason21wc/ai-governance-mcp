@@ -9,92 +9,111 @@ entries:
   - id: FM-HOOK-FAIL-CLOSED-EXIT-2
     description: "Hard-mode hooks must fail closed on exit 2 (not exit 1, which Claude Code treats as fail-open)."
     must_cover: true
+    scope: project
     introduced: "2026-04-16"
     source: "LEARNING-LOG: Claude Code Hook Exit 1 = Fail-Open, Not Fail-Closed (2026-04-16)"
   - id: FM-HOOK-CONTRARIAN-REQUIRED
     description: "pre-exit-plan-mode-gate must deny when contrarian-reviewer was not invoked for the current plan."
     must_cover: true
+    scope: project
     introduced: "2026-04-22"
     source: "BACKLOG #116 / V-004 escalation; session-122"
   - id: FM-HOOK-CONTRARIAN-SCANNER-TOOL-COVERAGE
     description: "Scanner must recognize contrarian-reviewer invocation via BOTH Task and Agent tools (Claude Code's native + Agent variants share input.subagent_type shape)."
     must_cover: true
+    scope: project
     introduced: "2026-04-23"
     source: "session-123 dogfood — Agent-tool false-negative blocked valid plan"
   - id: FM-PROJECT-ID-PATH-TRAVERSAL
     description: "Project-id validation must reject path-traversal sequences (`../`, `..\\`, etc.) to prevent filesystem escape."
     must_cover: true
+    scope: project
     introduced: "2026-02-19"
     source: "Security contract — FilesystemStorage base_path"
   - id: FM-PROJECT-ID-SLASHES
     description: "Project-id validation must reject slashes and backslashes — accepted ids map to subdirectory names and slashes break that mapping."
     must_cover: true
+    scope: project
     introduced: "2026-02-19"
   - id: FM-RATE-LIMITER-BLOCKS-EXCESS
     description: "RateLimiter must enforce per-window bounds — first N allowed, subsequent rejected until window rolls."
     must_cover: true
+    scope: project
     introduced: "2026-03-15"
     source: "SLA contract for query endpoints"
   - id: FM-FEEDBACK-RATING-BOUNDS
     description: "log_feedback must reject rating values outside 1..5 (bounds validation at the MCP boundary)."
     must_cover: true
+    scope: project
     introduced: "2026-02-15"
   - id: FM-EMBEDDING-LAZY-LOAD-SINGLE
     description: "Embedding model must lazy-load once and be cached thereafter — double-load would cost memory + risk non-atomic init under threading."
     must_cover: true
+    scope: project
     introduced: "2026-02-12"
   - id: FM-SCANNER-SUBSTRING-FALSE-MATCH
     description: "Transcript scanner must parse tool_use blocks, not substring-match raw line content — guards against file reads that MENTION the target tool name without invoking it."
     must_cover: true
+    scope: project
     introduced: "2026-04-22"
     source: "session-122 contrarian finding; test_hooks.py::test_deny_on_substring_false_match"
   - id: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
     description: "Governance S-Series semantic match should not trigger on keyword presence in negation context (e.g. 'NOT removing production data')."
     must_cover: false
+    scope: project
     introduced: "2026-02-22"
     source: "LEARNING-LOG: S-Series Keyword Trigger Produces False Positives on Negations"
   - id: FM-TEST-SIDE-EFFECTS
     description: "Observability tests must assert state changes / side effects, not just return values (a function can return success while failing to write its file)."
     must_cover: false
+    scope: framework
     introduced: "2026-04-15"
     source: "LEARNING-LOG: Test Side Effects, Not Just Return Values"
   - id: FM-TEST-FULL-VALIDATION-CHAIN
     description: "Test inputs must traverse the full production validation chain — bypassing validation for convenience hides bugs in the validation path."
     must_cover: false
+    scope: framework
     introduced: "2026-02-11"
     source: "LEARNING-LOG: Test Inputs Must Traverse the Full Validation Chain"
   - id: FM-TEST-ENVIRONMENT-AWARE
     description: "Tests that depend on optional dependencies (daemon, network, real ML model) must skip or mock cleanly — not hard-fail on CI."
     must_cover: false
+    scope: framework
     introduced: "2026-02-12"
     source: "LEARNING-LOG: Environment-Aware Tests for Optional Dependencies"
   - id: FM-TEST-ECHO-CHAMBER
     description: "Tests must fail against a WRONG implementation, not just pass against the current one — tautological tests give false assurance."
     must_cover: false
+    scope: framework
     introduced: "2026-03-29"
     source: "Q3 principle + coding-quality-testing-integration"
   - id: FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED
     description: "Bash ERR trap does not cover SIGKILL (Claude Code hook-timeout mechanism) — hooks relying solely on ERR trap for fail-closed will fail-open on timeout."
     must_cover: false
+    scope: project
     introduced: "2026-04-21"
     source: "LEARNING-LOG: Bash ERR Trap Does Not Cover SIGKILL / Hook Timeout"
   - id: FM-ML-MODEL-MOCK-AT-SOURCE
     description: "Mock ML models at the import site (the module that uses them), not at the library root — patches at the wrong level silently miss."
     must_cover: false
+    scope: framework
     introduced: "2025-12-27"
     source: "LEARNING-LOG: ML Model Mocking: Patch at Source"
   - id: FM-REGISTRY-UNKNOWN-ID-REJECTED
     description: "TestFailureModeCoverage lint must reject `Covers:` annotations with IDs not present in the registry — prevents typo drift (FM-X vs FM-x, FM-FOO vs FM-FOO-BAR)."
     must_cover: true
+    scope: framework
     introduced: "2026-04-23"
     source: "v3 plan round-2 BLOCKER-2"
   - id: FM-REGISTRY-RETIRED-ID-DEPRECATION
     description: "TestFailureModeCoverage lint must emit a deprecation warning (not a hard failure) when tests cite a retired registry ID — gives migration window."
     must_cover: false
+    scope: framework
     introduced: "2026-04-23"
   - id: FM-REGISTRY-MUST-COVER-HAS-ANNOTATION
     description: "Every registry entry with must_cover: true must have at least one test annotated with `Covers: <id>` — enforces that critical failure modes actually have coverage."
     must_cover: true
+    scope: framework
     introduced: "2026-04-23"
     source: "v3 plan Phase 4"
 ---
@@ -114,6 +133,7 @@ entries:
 | `id` | yes | Uppercase identifier, `FM-` prefix. Treated as a contract — do not rename in-place; retire + introduce a new ID. |
 | `description` | yes | One-line English description of the failure mode. |
 | `must_cover` | yes | `true` → lint requires at least one test with `Covers: <this-id>`. `false` → advisory; annotations are accepted but not required. |
+| `scope` | yes | `framework` → universal rule that would apply to any project adopting this governance framework (anti-patterns, registry-internal invariants). `project` → specific to this project's surface (hooks, scanner, MCP tools, hosted endpoints). Positions the registry for future scaffold-safe seeding via BACKLOG #125-b — scaffold_project would copy only `framework`-scope entries to new adopter projects. |
 | `introduced` | yes | ISO date the entry was added. |
 | `source` | no | Provenance: LEARNING-LOG entry, BACKLOG item, principle reference, session log. |
 | `retired` | no | ISO date the entry was retired. Annotations citing a retired ID emit deprecation warnings, not failures. |

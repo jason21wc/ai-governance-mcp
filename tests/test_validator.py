@@ -297,8 +297,15 @@ class TestFailureModeCoverage:
         )
 
     def test_registry_yaml_parses(self, registry):
-        """Registry YAML frontmatter must be valid and contain entries."""
+        """Registry YAML frontmatter must be valid and contain entries.
+
+        Schema enforced:
+        - id (implicit via key), description, must_cover, scope, introduced
+        - must_cover is a real bool (not string "true")
+        - scope is a string in {"framework", "project"}
+        """
         assert registry, "registry has zero entries — check YAML frontmatter"
+        valid_scopes = {"framework", "project"}
         for eid, entry in registry.items():
             assert entry.get("description"), f"{eid} missing description"
             assert "must_cover" in entry, f"{eid} missing must_cover field"
@@ -307,5 +314,13 @@ class TestFailureModeCoverage:
             # MEDIUM-5, session-123.)
             assert isinstance(entry["must_cover"], bool), (
                 f"{eid} must_cover must be bool, got {type(entry['must_cover']).__name__}"
+            )
+            # scope positions registry for scaffold-safe seeding (BACKLOG #125).
+            assert "scope" in entry, f"{eid} missing scope field"
+            assert isinstance(entry["scope"], str), (
+                f"{eid} scope must be string, got {type(entry['scope']).__name__}"
+            )
+            assert entry["scope"] in valid_scopes, (
+                f"{eid} scope must be one of {valid_scopes}, got {entry['scope']!r}"
             )
             assert entry.get("introduced"), f"{eid} missing introduced date"
