@@ -490,7 +490,10 @@ class TestRegressionThresholds:
     MODEL_LOAD_TIME_THRESHOLD_MS = 15000  # 15 seconds max for cold start
 
     def test_method_mrr_threshold(self, real_settings):
-        """REGRESSION: Method MRR must not drop below threshold."""
+        """REGRESSION: Method MRR must not drop below threshold.
+
+        Covers: FM-TEST-ECHO-CHAMBER
+        """
         from ai_governance_mcp.retrieval import RetrievalEngine
 
         engine = RetrievalEngine(real_settings)

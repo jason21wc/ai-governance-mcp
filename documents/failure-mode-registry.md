@@ -279,9 +279,9 @@ Covers: FM-HOOK-CONTRARIAN-REQUIRED, FM-HOOK-FAIL-CLOSED-EXIT-2
 
 1. Ensure the failure mode is real — has caused a regression, is named in LEARNING-LOG or BACKLOG, or encodes a security/SLA contract.
 2. Add an entry to the `entries:` YAML list above. Fill all required fields.
-3. If `must_cover: true`, ensure at least one existing test is already annotated — run the lint to confirm.
+3. **Seed at creation — MUST-cover AND advisory.** If `must_cover: true`, ensure at least one existing test is already annotated — run the lint to confirm. If `must_cover: false` (advisory), include at least one seeded `Covers:` annotation in the same commit anyway. This prevents the "file and forget" pattern that leaves advisory entries at zero annotations for months, radiating noise through the derived map. If you genuinely cannot find a test that covers the FM, file a BACKLOG item to write the test first, then add the registry entry — do not add an advisory entry with zero annotations expecting organic growth to fill the gap. (Codified 2026-04-24 session-124 per contrarian HIGH-1 on the #121 sweep — 4-month track record showed organic growth does not reliably retrofit existing-test annotations.)
 4. Run `python3 scripts/generate-test-failure-map.py` to regenerate `documents/test-failure-mode-map.md`.
-5. Commit registry + regenerated map together.
+5. Commit registry + regenerated map + seed annotation(s) together.
 
 **Retiring an entry.**
 

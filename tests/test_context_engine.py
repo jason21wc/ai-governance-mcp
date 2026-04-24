@@ -2323,7 +2323,10 @@ class TestListProjectsSymlinkExclusion:
         assert sym_id not in projects
 
     def test_symlink_outside_storage_blocked_by_containment(self, tmp_path):
-        """delete_project rejects symlinks pointing outside storage via containment check."""
+        """delete_project rejects symlinks pointing outside storage via containment check.
+
+        Covers: FM-PROJECT-ID-PATH-TRAVERSAL
+        """
         storage_dir = tmp_path / "storage"
         storage_dir.mkdir()
         storage = FilesystemStorage(base_path=storage_dir)
@@ -5286,7 +5289,10 @@ class TestStartupWatchers:
         assert project_id not in pm._watcher_failures
 
     def test_startup_watchers_handles_corrupt_metadata(self, tmp_path):
-        """One corrupt project should not block others from starting."""
+        """One corrupt project should not block others from starting.
+
+        Covers: FM-WATCHER-CORRUPT-METADATA-RESILIENCE
+        """
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
         pm = ProjectManager(storage=Mock(), default_index_mode="realtime")

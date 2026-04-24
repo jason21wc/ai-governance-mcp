@@ -58,7 +58,10 @@ class TestExtractAll:
         sample_methods_md,
         sample_domains_json,
     ):
-        """extract_all() should save global_index.json to disk."""
+        """extract_all() should save global_index.json to disk.
+
+        Covers: FM-TEST-SIDE-EFFECTS
+        """
         mock_embedder = Mock()
         mock_embedder.encode = Mock(
             side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384)
@@ -88,7 +91,10 @@ class TestExtractAll:
         sample_methods_md,
         sample_domains_json,
     ):
-        """extract_all() should save content_embeddings.npy to disk."""
+        """extract_all() should save content_embeddings.npy to disk.
+
+        Covers: FM-TEST-SIDE-EFFECTS
+        """
         mock_embedder = Mock()
         mock_embedder.encode = Mock(
             side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384)

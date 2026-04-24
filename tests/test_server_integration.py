@@ -336,7 +336,10 @@ class TestMetricsAccumulation:
         mock_embedder,
         mock_reranker,
     ):
-        """Metrics should accumulate correctly across multiple queries."""
+        """Metrics should accumulate correctly across multiple queries.
+
+        Covers: FM-TEST-SIDE-EFFECTS
+        """
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 

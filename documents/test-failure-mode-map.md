@@ -72,6 +72,7 @@
 
 > Project-id validation must reject path-traversal sequences (`../`, `..\`, etc.) to prevent filesystem escape.
 
+- `tests/test_context_engine.py` → `TestListProjectsSymlinkExclusion::test_symlink_outside_storage_blocked_by_containment`
 - `tests/test_context_engine.py` → `TestProjectIdValidation::test_rejects_path_traversal`
 
 ### `FM-PROJECT-ID-SLASHES`
@@ -237,7 +238,8 @@ _No annotated tests yet._
 
 > Tests must fail against a WRONG implementation, not just pass against the current one — tautological tests give false assurance.
 
-_No annotated tests yet._
+- `tests/test_retrieval_quality.py` → `TestRegressionThresholds::test_method_mrr_threshold`
+- `tests/test_scaffold_parity.py` → `TestScaffoldParityWithCFR152::test_scaffold_parity_is_bidirectional`
 
 ### `FM-TEST-ENVIRONMENT-AWARE`
 
@@ -255,15 +257,19 @@ _No annotated tests yet._
 
 > Observability tests must assert state changes / side effects, not just return values (a function can return success while failing to write its file).
 
+- `tests/test_extractor_integration.py` → `TestExtractAll::test_extract_all_saves_content_embeddings`
+- `tests/test_extractor_integration.py` → `TestExtractAll::test_extract_all_saves_index_file`
 - `tests/test_pre_exit_plan_mode_gate_hook.py` → `TestAuditLog::test_deny_writes_audit_entry`
 - `tests/test_pre_exit_plan_mode_gate_hook.py` → `TestAuditLog::test_log_rotation_caps_at_100kb`
 - `tests/test_pre_exit_plan_mode_gate_hook.py` → `TestAuditLog::test_semantic_bypass_writes_audit_entry`
 - `tests/test_pre_test_oom_gate_hook.py` → `TestDenyLogSideEffect::test_allow_does_not_write_deny_log`
 - `tests/test_pre_test_oom_gate_hook.py` → `TestDenyLogSideEffect::test_deny_writes_to_log_file`
+- `tests/test_server_integration.py` → `TestMetricsAccumulation::test_metrics_accumulate_across_queries`
 
 ### `FM-WATCHER-CORRUPT-METADATA-RESILIENCE`
 
 > Project discovery must silently skip entries with malformed metadata.json (corrupt/truncated/invalid-JSON) — daemon must tolerate filesystem entropy without crashing or partial-parsing.
 
+- `tests/test_context_engine.py` → `TestStartupWatchers::test_startup_watchers_handles_corrupt_metadata`
 - `tests/test_watcher_daemon.py` → `TestDiscoverProjects::test_discover_skips_corrupt_metadata`
 

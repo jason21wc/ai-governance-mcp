@@ -130,6 +130,8 @@ class TestScaffoldParityWithCFR152:
         Equivalent to test_scaffold_covers_cfr_152_kit +
         test_scaffold_has_no_extra_files_beyond_overlay combined. Kept as a
         distinct test so a single assertion documents the full invariant.
+
+        Covers: FM-TEST-ECHO-CHAMBER
         """
         cfr_kit = set(_parse_standard_kit_files())
         scaffold = set(_scaffold_code_files())
