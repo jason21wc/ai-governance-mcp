@@ -355,18 +355,6 @@
 
 ---
 
-#### 126. Consolidate "How to Write a Test" Surfaces `D1 Documentation`
-
-**Filed:** 2026-04-23 (session-123, pre-push contrarian Finding #7 + 2nd-pass MEDIUM).
-
-**What.** Three overlapping "how do I write a test" surfaces now exist: CFR §5.2/§5.2.8 + `workflows/TEST-AUTHORING-CHECKLIST.md` (9 steps) + `.claude/agents/test-generator.md` (6-step protocol). Steps 1/3/4/5/6 of the checklist duplicate agent steps nearly verbatim; checklist adds real value in fixture scan, `Covers:` annotation, map regeneration. AI agents querying `query_governance("how do I write a test")` will surface three slightly-different canonical orders.
-
-**Fix.** Restructure `TEST-AUTHORING-CHECKLIST.md` as "Extensions to test-generator agent protocol" — lead with the 3 novel gates (fixture scan, annotation, map regen), cross-reference agent for the rest. OR consolidate into the agent file with the checklist becoming a thin quick-reference card.
-
-**Trigger.** First observed retrieval drift (AI agent surfaces conflicting advice) OR next checklist/agent update.
-
----
-
 #### 91. Pre-Test OOM Gate Hardening — Session-105 Follow-ups (Discussion) `D1 Improvement`
 
 **Status (2026-04-21, session-121):** 9 fix-now items shipped. Remaining: 1 item (sub-item 5).
