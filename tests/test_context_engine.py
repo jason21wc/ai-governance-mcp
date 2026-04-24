@@ -648,7 +648,15 @@ class TestIndexer:
         assert len(h1) == 64  # SHA-256 hex
 
     def test_build_bm25_index_tokenization(self):
-        """Verify BM25 tokenization uses word-boundary splitting."""
+        """Verify BM25 tokenization uses word-boundary splitting.
+
+        Layered coverage (WRITE path): paired with
+        `TestProjectManager::test_bm25_search_tokenization` (READ path).
+        This test asserts the INDEX-build path tokenizes the corpus
+        correctly; the project-manager test asserts the QUERY path
+        tokenizes inputs correctly. Distinct code paths; both required.
+        Per CFR §5.2.8 (BACKLOG #122 Case 5).
+        """
         from ai_governance_mcp.context_engine.indexer import Indexer
 
         indexer = Indexer(storage=Mock())
@@ -791,7 +799,16 @@ class TestProjectManager:
         assert results[0].combined_score > results[1].combined_score
 
     def test_bm25_search_tokenization(self):
-        """Verify BM25 query tokenization uses word-boundary splitting."""
+        """Verify BM25 query tokenization uses word-boundary splitting.
+
+        Layered coverage (READ path): paired with
+        `TestIndexer::test_build_bm25_index_tokenization` (WRITE path). This
+        test asserts `ProjectManager._bm25_search` tokenizes the QUERY
+        correctly; the indexer test asserts `Indexer._build_bm25_index`
+        tokenizes the CORPUS correctly. Distinct classes, distinct call
+        sites, distinct failure modes — kept per CFR §5.2.8 "when NOT to
+        consolidate: legitimate layered coverage" (BACKLOG #122 Case 5).
+        """
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
         pm = ProjectManager()

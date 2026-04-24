@@ -34,7 +34,18 @@ def extract_json_from_response(text: str) -> str:
 
 
 class TestGetEngine:
-    """Tests for get_engine() singleton."""
+    """Tests for get_engine() singleton.
+
+    Paired with `TestGetMetrics` for singleton-pattern coverage. Tests are
+    NOT parametrized together — despite the surface similarity, the mock
+    setup materially differs: `get_engine()` requires `test_settings`,
+    `saved_index`, and nested patches on `load_settings` +
+    `SentenceTransformer` + `CrossEncoder`; `get_metrics()` only requires
+    `reset_server_state`. Forcing a shared parametrize obscures intent
+    and adds conditional-patching complexity that hides per-service
+    setup. Kept as separate classes per CFR §5.2.8 "when NOT to
+    consolidate: contract tests that look meta" (BACKLOG #122 Case 6).
+    """
 
     def test_get_engine_creates_singleton(
         self, reset_server_state, test_settings, saved_index
@@ -67,7 +78,13 @@ class TestGetEngine:
 
 
 class TestGetMetrics:
-    """Tests for get_metrics() singleton."""
+    """Tests for get_metrics() singleton.
+
+    Paired with `TestGetEngine`; see that class's docstring for why these
+    are kept separate rather than parametrized. This class has the lighter
+    fixture surface (only `reset_server_state`), reflecting `get_metrics()`'s
+    simpler initialization path (no embedding/reranker loading).
+    """
 
     def test_get_metrics_creates_singleton(self, reset_server_state):
         """get_metrics() should create Metrics on first call."""

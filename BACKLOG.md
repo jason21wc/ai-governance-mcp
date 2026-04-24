@@ -306,28 +306,17 @@
 
 ---
 
-#### 122. Phase 3 Grey-Area Test Consolidation Review (Synchronous, 8 cases) `D2 Capability`
+#### 127. Document-Extractor Integration-Test Coverage Gap `D2 Capability`
 
-**Filed:** 2026-04-23 (session-123, deferred from test-suite-optimization plan Phase 3).
+**Filed:** 2026-04-23 (session-123 Commit L, BACKLOG #122 Case 8 deferral).
 
-**What.** Phase 1 inventory (Explore subagents, session-123) enumerated exactly 8 grey-area consolidation candidates. Per plan's adaptive Phase 3 gate (>10 async, 4-10 sync, ≤3 skip): **synchronous case-by-case review** is the correct mode. Deferred out of Commit A/B/C because grey cases require user judgment calls (layered coverage intentional vs accidental; per-hook-scope inherent vs redundant; contract tests that look meta).
+**What.** Phase 1 inventory for BACKLOG #122 Case 8 flagged `TestDocumentConnector::test_parse_markdown` (test_context_engine.py:437-ish) as a unit test with no paired integration test covering the end-to-end document-extractor parsing pipeline. Search for `test_extractor_integration.py` returns nothing — the file doesn't exist. Case 8 in #122 was disposed as "DEFER, don't fabricate a consolidation for a coverage gap."
 
-**The 8 cases.**
+**Scope.** Either (a) add a new integration test in `tests/test_extractor_integration.py` (or existing integration test file) exercising the full extractor pipeline on a realistic document — parse → chunk → classify → emit `ContentChunk`s with correct metadata; OR (b) decide the unit test IS sufficient coverage and document the decision in a test docstring.
 
-1. `TestProjectManager::test_fuse_scores_weighted` (unit, mocked) vs `TestRetrievalIntegration::test_retrieve_returns_result` (integration, real index) — score-fusion ranking.
-2. `TestProjectManager::test_bm25_search_tokenization` vs `TestRetrievalUnit::test_bm25_tokenization` — BM25 tokenization.
-3. `TestContrarian::test_allow_when_contrarian_follows_prior_exit_plan` (scanner-module test in test_hooks.py) vs `TestAllowPath::test_allow_when_contrarian_followed_prior_exit_plan` (hook-contract test in test_pre_exit_plan_mode_gate_hook.py) — scanner vs hook-usage distinction.
-4. `is_allow()` / `is_deny()` helpers in `test_pre_exit_plan_mode_gate_hook.py` vs parallel helpers in `test_pre_test_oom_gate_hook.py` — hook-decision parsing.
-5. `TestIndexer::test_build_bm25_index_tokenization` vs `TestProjectManager::test_fuse_scores_weighted` — BM25 write vs read path.
-6. `TestGetEngine` singleton tests vs `TestGetMetrics` singleton tests — singleton pattern.
-7. `TestPreToolHook::test_pretool_allows_when_both_present` vs `TestPromptHook::test_prompt_hook_silent_when_compliant` — hook output format.
-8. `TestDocumentConnector::test_parse_markdown` (unit) vs document-extractor integration test — parsing pipeline.
+**Trigger.** When adding new extractor features OR when extractor behavior changes semantically OR when triaging retrieval-quality regressions tied to parsing.
 
-**Why defer.** Each case is 5-15 minutes of user discussion. Batching them is more efficient than inlining into the framework commit. Phase 3 commit (commit D per plan) is explicitly conditional on user direction after review.
-
-**Trigger.** User says "let's go through the 8 grey-area cases" — synchronous walkthrough.
-
-**Done when.** Each of the 8 cases has a disposition recorded: KEEP (layered coverage / legitimate per-hook scope / contract test), CONSOLIDATE (parametrize / merge), or EXTRACT-TO-CONFTEST (helpers only).
+**Done when.** Either an integration test lands OR `TestDocumentConnector::test_parse_markdown` docstring explicitly documents why unit-level coverage is sufficient per CFR §5.2.3 (unit vs integration boundary).
 
 ---
 

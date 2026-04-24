@@ -17,6 +17,8 @@ import pytest
 
 from tests.hook_fixtures import (  # noqa: F401 — imported for use in tests
     create_transcript,
+    is_allow,
+    is_deny,
     make_exit_plan_entry,
     make_task_entry,
 )
@@ -69,21 +71,6 @@ def run_hook(
         return result.returncode, json.loads(stdout), result.stderr
     except json.JSONDecodeError:
         return result.returncode, {"_raw": stdout}, result.stderr
-
-
-def is_deny(response: dict | None) -> bool:
-    if not response:
-        return False
-    return response.get("hookSpecificOutput", {}).get("permissionDecision") == "deny"
-
-
-def is_allow(response: dict | None, exit_code: int) -> bool:
-    """Allow means exit 0 AND (no JSON output OR output isn't a deny)."""
-    if exit_code != 0:
-        return False
-    if response is None:
-        return True
-    return response.get("hookSpecificOutput", {}).get("permissionDecision") != "deny"
 
 
 # ---------------------------------------------------------------------------

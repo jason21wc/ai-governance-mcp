@@ -51,6 +51,8 @@ from pathlib import Path
 
 import pytest
 
+from tests.hook_fixtures import is_allow, is_deny  # noqa: F401 — used in tests
+
 HOOK_PATH = (
     Path(__file__).resolve().parent.parent
     / ".claude"
@@ -133,24 +135,6 @@ def make_fake_daemon_home(tmp_path: Path, *, heartbeat_age_seconds: int | None) 
         (ce_dir / "watcher.pid").write_text("99999\n")
 
     return home
-
-
-def is_deny(response: dict | None) -> bool:
-    if not response:
-        return False
-    hook_output = response.get("hookSpecificOutput", {})
-    return hook_output.get("permissionDecision") == "deny"
-
-
-def is_allow(response: dict | None, exit_code: int) -> bool:
-    """Allow means: exit 0 AND (no response OR response is additionalContext-only, not a deny)."""
-    if exit_code != 0:
-        return False
-    if response is None:
-        return True
-    hook_output = response.get("hookSpecificOutput", {})
-    decision = hook_output.get("permissionDecision")
-    return decision != "deny"
 
 
 # ---------------------------------------------------------------------------

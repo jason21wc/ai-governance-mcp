@@ -61,3 +61,33 @@ def make_exit_plan_entry() -> dict:
             ],
         }
     }
+
+
+# ---------------------------------------------------------------------------
+# Hook decision parsers — shared by test_pre_exit_plan_mode_gate_hook.py
+# and test_pre_test_oom_gate_hook.py. Consolidated session-123 Commit L
+# (BACKLOG #122 Case 4): both files had byte-equivalent `is_allow`/`is_deny`
+# with only stylistic differences (local-var extraction vs inline). Unified
+# here so the hook-decision contract is single-sourced.
+# ---------------------------------------------------------------------------
+
+
+def is_deny(response: dict | None) -> bool:
+    """True iff a hook JSON response carries permissionDecision=='deny'."""
+    if not response:
+        return False
+    return response.get("hookSpecificOutput", {}).get("permissionDecision") == "deny"
+
+
+def is_allow(response: dict | None, exit_code: int) -> bool:
+    """True iff exit 0 AND (no response OR response is not a deny).
+
+    Per Claude Code hook contract: `allow` is exit 0 with either no JSON
+    output or JSON output whose permissionDecision is anything other than
+    'deny' (e.g. 'ask', absent, or additionalContext-only responses).
+    """
+    if exit_code != 0:
+        return False
+    if response is None:
+        return True
+    return response.get("hookSpecificOutput", {}).get("permissionDecision") != "deny"

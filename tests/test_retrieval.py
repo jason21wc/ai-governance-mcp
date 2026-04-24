@@ -68,22 +68,6 @@ class TestDomainRouting:
         return engine
 
 
-class TestBM25Search:
-    """Tests for BM25 keyword search (T7)."""
-
-    def test_bm25_tokenization(self):
-        """Queries should be tokenized for BM25."""
-        query = "write code for testing"
-        tokens = query.lower().split()
-        assert tokens == ["write", "code", "for", "testing"]
-
-    def test_bm25_empty_query(self):
-        """Empty query should return empty results."""
-        query = ""
-        tokens = query.lower().split()
-        assert tokens == []  # Empty string splits to empty list
-
-
 class TestSemanticSearch:
     """Tests for semantic embedding search (T8)."""
 
