@@ -99,6 +99,24 @@ entries:
     scope: framework
     introduced: "2025-12-27"
     source: "LEARNING-LOG: ML Model Mocking: Patch at Source"
+  - id: FM-AUDIT-ID-FORMAT-INVARIANT
+    description: "Governance audit IDs must have `gov-` prefix + 12 hex chars (16 total) and be unique across calls — contract consumed by `scripts/analyze_compliance.py` and external compliance tooling."
+    must_cover: true
+    scope: framework
+    introduced: "2026-04-24"
+    source: "session-124 Phase 0 gap detection; BACKLOG #121"
+  - id: FM-HOOK-GOVERNANCE-GATE-REQUIRED
+    description: "pre-tool-governance-check hook must deny (exit 2) when evaluate_governance() AND query_project() are not both recently invoked in transcript — structural parallel to FM-HOOK-CONTRARIAN-REQUIRED but for the governance+CE gate."
+    must_cover: true
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 0 gap detection; BACKLOG #121"
+  - id: FM-SERIES-CODE-SUBSTRING-COLLISION
+    description: "`category_mapping` dict iteration must place longer keys before shorter keys when one is a substring of the other — `keyword in section_lower` matching otherwise misroutes (e.g., `ev-series` → `verification` instead of `evaluation`; `sec-series` → `context` instead of `security`)."
+    must_cover: true
+    scope: project
+    introduced: "2026-04-24"
+    source: "session-124 Phase 0 gap detection; BACKLOG #121; PROJECT-MEMORY Gotcha #33"
   - id: FM-REGISTRY-UNKNOWN-ID-REJECTED
     description: "TestFailureModeCoverage lint must reject `Covers:` annotations with IDs not present in the registry — prevents typo drift (FM-X vs FM-x, FM-FOO vs FM-FOO-BAR)."
     must_cover: true

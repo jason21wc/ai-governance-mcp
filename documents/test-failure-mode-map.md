@@ -10,6 +10,12 @@
 
 ## Must-Cover Entries
 
+### `FM-AUDIT-ID-FORMAT-INVARIANT`
+
+> Governance audit IDs must have `gov-` prefix + 12 hex chars (16 total) and be unique across calls — contract consumed by `scripts/analyze_compliance.py` and external compliance tooling.
+
+- `tests/test_models.py` → `TestAuditFunctions::test_generate_audit_id_format`
+
 ### `FM-EMBEDDING-LAZY-LOAD-SINGLE`
 
 > Embedding model must lazy-load once and be cached thereafter — double-load would cost memory + risk non-atomic init under threading.
@@ -39,6 +45,12 @@
 > Hard-mode hooks must fail closed on exit 2 (not exit 1, which Claude Code treats as fail-open).
 
 - `tests/test_pre_test_oom_gate_hook.py` → `TestFailClosedOnUnexpectedError::test_err_trap_converts_failures_to_exit_2`
+
+### `FM-HOOK-GOVERNANCE-GATE-REQUIRED`
+
+> pre-tool-governance-check hook must deny (exit 2) when evaluate_governance() AND query_project() are not both recently invoked in transcript — structural parallel to FM-HOOK-CONTRARIAN-REQUIRED but for the governance+CE gate.
+
+- `tests/test_hooks.py` → `TestPreToolDeniesGovernanceMissing::test_pretool_denies_governance_missing`
 
 ### `FM-PROJECT-ID-PATH-TRAVERSAL`
 
@@ -76,6 +88,12 @@
 > Transcript scanner must parse tool_use blocks, not substring-match raw line content — guards against file reads that MENTION the target tool name without invoking it.
 
 - `tests/test_hooks.py` → `TestContrarianAfterLastPlan::test_deny_on_substring_false_match`
+
+### `FM-SERIES-CODE-SUBSTRING-COLLISION`
+
+> `category_mapping` dict iteration must place longer keys before shorter keys when one is a substring of the other — `keyword in section_lower` matching otherwise misroutes (e.g., `ev-series` → `verification` instead of `evaluation`; `sec-series` → `context` instead of `security`).
+
+- `tests/test_extractor.py` → `TestCategoryMappingSubstringCollisions::test_no_substring_collisions_in_ordering`
 
 ## Advisory Entries
 

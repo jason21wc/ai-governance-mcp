@@ -306,7 +306,10 @@ class TestAuditFunctions:
     """Test audit helper functions."""
 
     def test_generate_audit_id_format(self):
-        """Audit ID should have gov- prefix and 12 hex chars."""
+        """Audit ID should have gov- prefix and 12 hex chars.
+
+        Covers: FM-AUDIT-ID-FORMAT-INVARIANT
+        """
         audit_id = generate_audit_id()
         assert audit_id.startswith("gov-")
         assert len(audit_id) == 16  # "gov-" + 12 hex chars

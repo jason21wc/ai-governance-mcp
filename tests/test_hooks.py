@@ -543,6 +543,10 @@ class TestPreToolDeniesGovernanceMissing:
     """Default hard mode blocks when governance is missing."""
 
     def test_pretool_denies_governance_missing(self):
+        """Hard-mode hook denies when evaluate_governance() not in transcript.
+
+        Covers: FM-HOOK-GOVERNANCE-GATE-REQUIRED
+        """
         transcript_path = create_transcript(
             [
                 make_tool_use_entry("mcp__context-engine__query_project"),

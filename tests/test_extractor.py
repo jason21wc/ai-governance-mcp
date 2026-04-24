@@ -2290,7 +2290,10 @@ class TestCategoryMappingSubstringCollisions:
 
     def test_no_substring_collisions_in_ordering(self):
         """For every pair of keys where one is a substring of the other,
-        the longer key MUST appear first in dict insertion order."""
+        the longer key MUST appear first in dict insertion order.
+
+        Covers: FM-SERIES-CODE-SUBSTRING-COLLISION
+        """
         from ai_governance_mcp.extractor import DocumentExtractor
 
         with patch("sentence_transformers.SentenceTransformer"):

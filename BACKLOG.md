@@ -306,6 +306,24 @@
 
 ---
 
+#### 128. Advisory FM Candidates Deferred from #121 Phase 0 `D1 Improvement`
+
+**Filed:** 2026-04-24 (session-124, #121 Phase 0 blind-spot detection).
+
+**What.** Phase 0 of the #121 sweep surfaced 5 registry gaps; 3 must_cover entries were added inline (FM-AUDIT-ID-FORMAT-INVARIANT, FM-HOOK-GOVERNANCE-GATE-REQUIRED, FM-SERIES-CODE-SUBSTRING-COLLISION) because their coverage was clear enough to annotate in the same sweep. 2 advisory candidates were deferred here because advisory FMs can grow organically via the TEST-AUTHORING-CHECKLIST retrofit workflow without urgency.
+
+**Candidates:**
+
+1. **FM-UNICODE-NORMALIZATION-PRE-PATTERN-MATCH** (advisory, scope: framework) — Zero-width / invisible chars must be stripped before security regex pattern matching. Known attacker class (unicode obfuscation). Covered by `tests/test_extractor.py::TestUnicodeNormalization::test_normalize_text_strips_invisible_chars` (line 1289) + siblings.
+
+2. **FM-EMBEDDING-MODEL-ALLOWLIST-AT-INIT** (advisory, scope: project) — Reject non-allowlisted embedding models at `__init__`, not at inference. Lazy-rejection leaks model load attempt. Covered by `tests/test_extractor.py::TestEmbeddingGeneratorInit::test_init_rejects_non_allowlisted_model` (line 35).
+
+**Trigger.** (a) Next session that touches `documents/failure-mode-registry.md` — fold in if scope permits; (b) first instance of either antipattern reappearing in review findings; (c) dedicated cleanup sprint.
+
+**Done when.** Both entries added to registry with `scope` field + one seeded annotation each (per registry.md line 142 discipline); derived map regenerated; this item removed from BACKLOG.
+
+---
+
 #### 127. Document-Extractor Integration-Test Coverage Gap `D2 Capability`
 
 **Filed:** 2026-04-23 (session-123 Commit L, BACKLOG #122 Case 8 deferral).
