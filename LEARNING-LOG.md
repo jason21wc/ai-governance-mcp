@@ -12,6 +12,20 @@
 
 ## Active Lessons
 
+### Verify Runtime Semantics Before Scoping a Test from BACKLOG Framing (2026-04-24)
+
+BACKLOG #120 proposed a test for "nested Task" contrarian detection — premised on the assumption that a Plan sub-agent's internal `Task(contrarian-reviewer)` invocation surfaces in the root transcript. Pre-edit Plan-agent + contrarian review on the closure plan revealed the premise is wrong: Claude Code root transcripts contain only the top-level `Task` tool_use block; sub-agent internal tool calls live in their own transcript files. The actually-observable variant — a top-level Plan Task followed by a top-level contrarian Task with intervening filler — exercises only the `"contrarian" not in line` pre-filter at `.claude/hooks/scan_transcript.py:170`, which is already covered by `test_deny_when_prior_exit_plan_but_no_contrarian_after` (filler-skipped → deny) + `test_corrupt_jsonl_skipped_gracefully` (corrupt-lines-skipped → allow). Synthesizing a new test would assert already-covered behavior — green-on-day-one noise that would pass even if a real-world regression occurred. #120 closed as invalid-framing 2026-04-24; closure deliverable is this entry, not a new test.
+
+**Rule:** Before scoping a test from a BACKLOG item, read the relevant runtime code (scanner, hook, parser) and identify the specific code path the test would exercise. If that path is already covered by ≥1 existing test, the new test is redundant — close the BACKLOG item via LEARNING-LOG (or by updating the original entry's framing) instead of synthesizing a passing-on-day-one assertion. Coverage gaps must be named at the line level, not the scenario level.
+
+**How to apply:** When triaging a "add a test for X" BACKLOG item, the planning step is (1) read the runtime code path, (2) name the single line / branch / failure mode the test would exercise, (3) grep existing tests for coverage of that line / branch / failure mode. If no unique uncovered line surfaces in step 2, escalate to scope review before writing the test.
+
+**Principle:** `meta-core-systemic-thinking` — close the item via the load-bearing lesson, not the ceremonial test. Also `meta-quality-verification-validation` — "the test exists" is not "the test asserts new behavior." Also extends LEARNING-LOG 2026-04-20 "Re-severity Review Findings Against Ground Truth Before Remediation Planning" — same Ground-Truth-before-execution discipline, applied to BACKLOG items rather than review findings.
+
+**Cross-ref:** `.claude/hooks/scan_transcript.py:120-200` (`scan_contrarian_after_last_plan` function — the runtime code whose semantics drove this re-scoping). `tests/test_hooks.py::TestContrarianAfterLastPlan` (existing test class — 11 tests covering 5 distinct scanner branches; #120's proposed test would have been a 12th asserting branch already covered by tests #2 + #8).
+
+---
+
 ### Registry Entries Must Be Binary-Checkable via Assertion Presence (2026-04-24)
 
 Session-124 BACKLOG #121 sweep surfaced 4 advisory FMs that stayed at zero annotations for 1-4 months even after the seed-at-creation lint gate shipped. Root cause: 3 of 4 describe anti-pattern disciplines ("don't bypass validation" — FM-TEST-FULL-VALIDATION-CHAIN), known production limitations ("S-Series scanner triggers on negations" — FM-S-SERIES-KEYWORD-FALSE-POSITIVE), or authoring conventions ("patch at source for lazy-loaded models" — FM-ML-MODEL-MOCK-AT-SOURCE). None are binary-checkable: compliant tests just silently don't do the bad thing, with no positive assertion to annotate. The 4th (FM-TEST-ENVIRONMENT-AWARE) DID have a concrete mechanism — `@pytest.mark.slow` presence — and was annotated successfully. Contrast: FM-TEST-SIDE-EFFECTS (file-exists assertion), FM-TEST-ECHO-CHAMBER (threshold assertion) — all binary-checkable, all annotated. The 3 non-annotatable FMs were retired 2026-04-24.

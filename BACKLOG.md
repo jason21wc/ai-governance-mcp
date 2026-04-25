@@ -31,18 +31,6 @@
 
 ### Active (Implement Now/Soon)
 
-120. **Subagent-chain contrarian detection test (nested Task invocations)** `D2 New Capability`
-
-**What:** Scanner's `scan_contrarian_after_last_plan` matches `Task(subagent_type=contrarian-reviewer)` and direct-name forms. If a Plan agent internally delegates contrarian via its own nested `Task` call, the nested invocation SHOULD appear in the root transcript and be detected — but no test proves this. Post-commit contrarian MEDIUM finding (`ac0e663f80114248d`).
-
-**Proposed fix:** Add test `TestContrarianAfterLastPlan::test_nested_task_contrarian_invocation_detected` — simulate a transcript where the outer tool_use is a Plan subagent call + an inner tool_use is the contrarian invocation. Verify scanner returns `allow`.
-
-**Scope:** 1 file (`tests/test_hooks.py`), 1 test (~20 lines). ~20 min.
-
-**Re-open trigger:** Next time test_hooks.py is touched, OR any observed nested-Task pattern in actual sessions.
-
-**Origin:** Session-122 post-commit contrarian review (`ac0e663f80114248d`). Low-priority coverage gap; ship current 22 tests is acceptable per proportional rigor.
-
 119. **Revised-plan-after-rejection heuristic — contrarian can be "stale" for revised plan** `D3 Improvement`
 
 **What:** Scanner's `scan_contrarian_after_last_plan` uses "most recent prior ExitPlanMode" as the anchor. If the user rejects a plan and the AI revises (iterating in plan mode), the prior contrarian invocation STILL SATISFIES the anchor — hook allows. But the revised plan was never pressure-tested. Post-commit contrarian HIGH finding (`ac0e663f80114248d`).
@@ -60,26 +48,6 @@
 **Why D3 not D2:** Requires design thought + potentially new infrastructure (plan-file hashing). Proportional rigor — defer until evidence the false-allow is actually occurring.
 
 **Origin:** Session-122 post-commit contrarian review (`ac0e663f80114248d`) HIGH finding. Documented risk for future reviewers.
-
-118. **Add "new hook authoring" item to `workflows/COMPLETION-CHECKLIST.md`** `D1 Docs`
-
-**What:** Post-edit coherence audit flagged, post-commit contrarian confirmed: `workflows/COMPLETION-CHECKLIST.md` has no meta-level guidance for authoring a new hook. Session-122 #116 actually touched **10 parallel surfaces**, not the ~6 originally estimated: hook script, scanner extension, `.claude/settings.json`, 2 test files, CLAUDE.md, tiers.json, CFR §9.3.10 row + narrative, ai-instructions pin + version, SESSION-STATE Quick Reference. Without a checklist item, next hook author will drop one or more propagations silently.
-
-**Proposed item (fold into next hook addition):** Under Content-Changes tier BEST-EFFORT, add: *"When adding a new `.claude/hooks/*.sh`: (1) register matcher in `.claude/settings.json`; (2) author test file(s) in `tests/` following pre-test-oom-gate pattern; (3) add row AND narrative prose block to CFR §9.3.10 Layered Enforcement Stack (not just the table); (4) if hook enforces a behavioral rule, add paired directive to CLAUDE.md Behavioral Floor + `documents/tiers.json` behavioral_floor.directives; (5) follow CFR §9.3.10 Hook Implementation Prerequisites recipe (ERR trap + platform timeout detection + escape hatches + self-diagnosing fallback); (6) if hook affects adopter-facing governance or takes >3 sessions to remediate, file a V-series verification item in `workflows/COMPLIANCE-REVIEW.md` measuring whether the enforcement changes behavior or just blocks it."*
-
-**Scope:** 1 file (`workflows/COMPLETION-CHECKLIST.md`), ~10 lines added. ~15 min. **Updated scope estimate per session-122 post-commit contrarian finding — original "~6 lines" underestimated by ~5x.**
-
-**Re-open trigger:** Next new hook addition is the natural fold-in. If no new hook is added in 90 days, deprioritize.
-
-**Why D1 not fix-now:** Session-122 already amended 14-file commit; adding meta-fix surface generalizes BEYOND #116.
-
-**Origin:** Session-122 pre-edit coherence audit (`a7889d9dd788336a6`) + post-commit contrarian scope correction (`ac0e663f80114248d`). Recurring pattern: #115 canonicalized CFR PATCH authoring; this is the hook-authoring analog per `meta-core-systemic-thinking`.
-
-**Re-open trigger:** Next new hook addition is the natural fold-in. If no new hook is added in 90 days, deprioritize.
-
-**Why D1 not fix-now:** Session-122 already touches 10+ surfaces for #116 proper; adding meta-fix surface (generalizes BEYOND #116) is proportional-rigor territory per `meta-methods §7.8` — next hook is the test-case for whether this meta-documentation is actually needed.
-
-**Origin:** Session-122 pre-edit coherence audit (`a7889d9dd788336a6`) on #116 design. Recurring pattern: #115 canonicalized CFR PATCH authoring; this is the hook-authoring analog per `meta-core-systemic-thinking`.
 
 78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
@@ -262,26 +230,6 @@
 
 **Origin:** Cohort 4 Phase 4b planning (session-118, 2026-04-19). Governance audit `gov-3e5998987962` (evaluate_governance PROCEED with no S-Series). Battery audit IDs: contrarian `a7e2b2716f06770cc`, coherence `ae0c4ea9057ea7dd7`, validator `a39dda1cd66beb441`.
 
-104. **Cohort 1 remnant — runtime prose softening at `src/ai_governance_mcp/server.py:888-889`** `D1 Docs` — DONE / SHIPPED
-
-**Status (2026-04-19, session-114): SHIPPED.** Applied replacement text per plan; smoke-check (`python -c "from ai_governance_mcp.server import AVAILABLE_AGENTS"`) confirms server imports cleanly with 10 agents registered. No test references to the old prose (grep confirmed clean outside BACKLOG + SESSION-STATE historical references). Cohort 1 of swift-hopping-corbato plan now fully closed: Edits 1-2 = no edit (purpose surfaces), Edits 3-5 shipped via full README rewrite, Edit 6 shipped here, Edits 7-8 obsolete.
-
-**What:** The `install_agent` subagent-install prose at `server.py:888-889` currently reads: *"Subagents make specialized behaviors automatic, not optional — ensuring consistent, high-quality AI collaboration every time."* This string is injected into every MCP client at `install_agent` time. It re-asserts the same unfalsifiable outcome claim that was softened out of the README — classic laundering pattern (remove the claim from one surface, leave it on another).
-
-**Proposed replacement:** *"Subagents encode specialized cognitive functions with explicit protocols — making the discipline of each function auditable rather than relying on ad-hoc prompting."*
-
-**Systemic check:** class (c) surface (runtime-injected product-facing prose) per LEARNING-LOG 2026-04-18 "Declaration and Preamble Are Purpose Surfaces, Not Claim Surfaces" — evidence-check applies. "Auditable" is evidence-backed (audit trail + `log_governance_reasoning` exist). No outcome-quality claim.
-
-**Steps:**
-1. After README rewrite lands, edit `server.py:888-889` with the proposed text (or user-revised variant).
-2. Verify via `grep -rn "consistent.*high-quality" src/` returns 0 matches outside test fixtures.
-3. No tests fail (string is prose, not behavior).
-4. Close this item with commit reference.
-
-**Why D1 not D2:** Runtime prose ships to every MCP client. If the README softens but the runtime does not, the framework contradicts itself at install-time. Same urgency as the README fix.
-
-**Origin:** session-114 swift-hopping-corbato Cohort 1 scope-expansion (coherence-auditor convergent finding with contrarian-reviewer during 3-agent battery on Declaration softening).
-
 ---
 
 ### Deferred/Future — Discussion
@@ -311,24 +259,6 @@
 3. Remove LEARNING-LOG 2026-02-22 entry's ACTIVE status and replace with retired/resolved marker + pointer to the re-registered FM.
 
 **Done when.** Production S-Series scanner handles negation context + test asserts this + FM re-registered.
-
----
-
-#### 128. Advisory FM Candidates Deferred from #121 Phase 0 `D1 Improvement`
-
-**Filed:** 2026-04-24 (session-124, #121 Phase 0 blind-spot detection).
-
-**What.** Phase 0 of the #121 sweep surfaced 5 registry gaps; 3 must_cover entries were added inline (FM-AUDIT-ID-FORMAT-INVARIANT, FM-HOOK-GOVERNANCE-GATE-REQUIRED, FM-SERIES-CODE-SUBSTRING-COLLISION) because their coverage was clear enough to annotate in the same sweep. 2 advisory candidates were deferred here because advisory FMs can grow organically via the TEST-AUTHORING-CHECKLIST retrofit workflow without urgency.
-
-**Candidates:**
-
-1. **FM-UNICODE-NORMALIZATION-PRE-PATTERN-MATCH** (advisory, scope: framework) — Zero-width / invisible chars must be stripped before security regex pattern matching. Known attacker class (unicode obfuscation). Covered by `tests/test_extractor.py::TestUnicodeNormalization::test_normalize_text_strips_invisible_chars` (line 1289) + siblings.
-
-2. **FM-EMBEDDING-MODEL-ALLOWLIST-AT-INIT** (advisory, scope: project) — Reject non-allowlisted embedding models at `__init__`, not at inference. Lazy-rejection leaks model load attempt. Covered by `tests/test_extractor.py::TestEmbeddingGeneratorInit::test_init_rejects_non_allowlisted_model` (line 35).
-
-**Trigger.** (a) Next session that touches `documents/failure-mode-registry.md` — fold in if scope permits; (b) first instance of either antipattern reappearing in review findings; (c) dedicated cleanup sprint.
-
-**Done when.** Both entries added to registry with `scope` field + one seeded annotation each (per registry.md line 142 discipline); derived map regenerated; this item removed from BACKLOG.
 
 ---
 
@@ -825,46 +755,6 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 
 **Origin:** Perplexity Deep Research + Gemini UBDA review (2026-04-07). Both flagged quality-of-compliance vs occurrence gap.
 
-#### 84. README Rewrite — Intent Engineering Framing (DONE — SHIPPED) `D1 Docs`
-
-**What:** Full rewrite of the ai-governance README. Frames the project as "intent engineering" infrastructure — encoding goals, constraints, quality standards, and decision-making boundaries so AI understands purpose, not just instructions.
-
-**Status (2026-04-19, session-114): SHIPPED.** Live `README.md` replaced with the revised rewrite (461 lines, ~54% reduction from 1006). 5-layer engineering stack (prompt → retrieval → context → harness → intent) + new "Use via RAG (No MCP Server)" section + mechanism-property framing throughout. Source of truth was `staging/readme-draft-v1.md` post-Cached-Canyon remediation. 3-agent battery (contrarian xhigh, coherence high, validator high) returned findings → consolidated into 4 root causes via `~/.claude/plans/create-a-plan-following-cached-canyon.md` → 6 remediation edits applied → final coherence-auditor pass returned COHERENT, no drift. Option B chosen at merge time: forward reference to `documents/intent-engineering.md` stripped pending that file's arrival (user drafting in Claude app); reinstate line 23 second sentence when ready.
-
-**Structural decisions captured** (see PROJECT-MEMORY "README Role — Extra-Constitutional Infrastructure" 2026-04-18):
-- README is NOT a §1 Federalist Papers analog.
-- README LINKS to Declaration and Preamble — does not paraphrase (SSOT).
-- Humans-first practical; AI-occasional.
-
-**Anti-anchor-bias findings on the original #84 component list** (applied during draft synthesis, load-bearing for future reviewers):
-- **Rejected:** "Content Enhancer" (#1) — lives at `~/Documents/Reference/AI/...` per BACKLOG #85, NOT in this repo. Cannot claim presence of what isn't present.
-- **Rejected:** "Transparency and Attribution System" (#7) — "enhancement tagging, external research sourcing" describes Content Enhancer functionality, not this repo's governance audit trail.
-- **Needed rewording:** "AI Instructions Layer" (#4) — "fidelity requirements, enhancement tags" is Content-Enhancer language; this repo has `ai-instructions.md` + `CLAUDE.md` with different content.
-- **Needed rewording:** "Workflow & Compliance Layer" (#6) — "sequential phase requirements" is Content-Enhancer language; this repo has `workflows/COMPLETION-CHECKLIST` + `COMPLIANCE-REVIEW` with governance focus.
-- **Kept:** intent-engineering three-phase framing (prompt → context → intent), "judgment not smartness," destination-agnostic positioning, knowledge-domains component, memory-system component, AI-assisted-development-framework component.
-
-**Key framing (kept):** The industry has moved through three phases — prompt engineering → context engineering → intent engineering. This project operates at the third level.
-
-**Governing philosophy (kept):** Not making AI smarter — giving it judgment. The infrastructure acts as a filter for contradictory internet knowledge, telling AI what quality looks like and how to evaluate conflicting information.
-
-**Differentiator (kept):** Most AI tools are destination-specific. This infrastructure is destination-agnostic — upgrades how AI performs for whatever you're doing. "The GPS, the road kit, the reliability layer — not the route itself."
-
-**Surgical edits already applied to live README** (session-114, not yet subsumed by rewrite landing):
-- `README.md:5` tagline → "queryable 'second brain' of encoded standards" (Edit 3).
-- `README.md:40` Key Innovation → "retrievable, auditable, and structurally enforceable at the moment of the AI's decision" (Edit 4).
-
-**Next steps:** user review → revision → 3-agent battery → replace live README → close this item.
-
-**Origin:** Claude app draft + session-114 mid-Cohort-1 pivot. Draft location: `staging/readme-draft-v1.md`.
-
-**Open architecture:** Built-in instructions for others to create, change, and remove their own principles and standards.
-
-**Research context:** Claude app conversation explored "intent engineering" as a term and researched public usage of the concept.
-
-**Origin:** User-initiated README rewrite (2026-04-10). In progress — do not implement without further user direction.
-
----
-
 #### 85. Content Enhancer Integration — Workflow Pattern Discovery (Discussion) `D2 Improvement`
 
 **What:** Integrate the High-Fidelity Educational Content Enhancer 3.0 into the ai-governance framework. The Content Enhancer is a methodology for transforming raw content (transcripts, lectures, notes, docs, research) into cognitively-optimized reference documents. It currently lives outside the repo as two standalone files.
@@ -914,12 +804,3 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 
 **Origin:** Contrarian review during v2.0.0 post-release audit (2026-04-13).
 
-#### 102. scaffold_project Standard Kit Misalignment (DONE — SHIPPED Cohort 3, session-116) `D1 Fix`
-
-**What:** The `scaffold_project` tool created 6 files for standard tier (core 4 + CLAUDE.md + COMPLETION-CHECKLIST.md); `title-10-ai-coding-cfr.md §1.5.2` defines Standard Kit as 8 files (core 4 + ARCHITECTURE.md + SPECIFICATION.md + workflows/COMPLETION-CHECKLIST.md + BACKLOG.md).
-
-**Status (2026-04-19, session-116): SHIPPED.** Cohort 3 Change B added 3 skeletal templates (`SCAFFOLD_ARCHITECTURE`, `SCAFFOLD_SPECIFICATION`, `SCAFFOLD_BACKLOG` — 20-40 lines each with explicit "starter template — populate as your project matures" banners) to `SCAFFOLD_STANDARD_EXTRAS["code"]`. Also corrected `COMPLETION-CHECKLIST.md` path to `workflows/COMPLETION-CHECKLIST.md` (subdirectory per §1.5.2 literal). Scaffold Standard = 9 files: 4 core + 5 extras (CLAUDE + ARCHITECTURE + SPECIFICATION + workflows/COMPLETION-CHECKLIST + BACKLOG). CLAUDE.md retained as tool-specific overlay per §1.5.5 (§1.5.3 "Standard Kit + additions as warranted" authorizes this). Test `tests/test_server.py::TestScaffoldProject::test_preview_code_standard` updated from `files_to_create == 6` to `== 9`.
-
-**Origin:** Coherence audit during BACKLOG.md propagation (2026-04-14); resolved in Cohort 3 per swift-hopping-corbato plan.
-
----
