@@ -1,5 +1,5 @@
 ---
-version: "2.8.2"
+version: "2.8.3"
 status: "active"
 effective_date: "2026-04-25"
 domain: "meta"
@@ -8,7 +8,7 @@ governance_level: "framework-activation"
 
 # AI Governance Framework Activation
 
-**Version:** 2.8.2
+**Version:** 2.8.3
 **Purpose:** Loader document that activates the governance framework for AI sessions.
 **Updated:** 2026-04-25
 
@@ -199,7 +199,7 @@ This loader is designed for use with:
 - constitution.md v5.0.7+
 - rules-of-procedure.md v3.28.0+
 - title-10-ai-coding.md v2.7.1+
-- title-10-ai-coding-cfr.md v2.40.0+
+- title-10-ai-coding-cfr.md v2.41.0+
 - title-20-multi-agent.md v2.7.1+
 - title-20-multi-agent-cfr.md v2.17.1+
 - title-30-storytelling.md v1.4.1+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.8.3 | 2026-04-25 | PATCH: Pin tracks title-10-ai-coding-cfr.md MINOR bump v2.40.0 → v2.41.0 (new §1.3.5 Brainstorming Method ENHANCED-mode-only — Socratic Q&A discovery + design-doc artifact + plan-mode hand-off; folded §4.1.2 Task Characteristics fix replacing time-based "Estimable" row with effort-shaped row pointing at plan-template + rules-of-procedure §7.12 — per plan `~/.claude/plans/federated-plotting-karp.md` Commit 4 of 8). Bumped `title-10-ai-coding-cfr.md v2.40.0+` → `v2.41.0+`. PATCH pin bump on MINOR target per current pin discipline (additive normative subsection; see BACKLOG #130 for the Changelog pin-discipline self-contradiction follow-up). Governance trail: `gov-5fb17ed70248`. |
 | 2.8.2 | 2026-04-25 | PATCH: Pin tracks title-10-ai-coding-cfr.md MINOR bump v2.39.0 → v2.40.0 (new §5.1.7.1 Sequenced Two-Stage Review under §5.1.7 Subagent Review Triggers, normative — codifies Stage 1 mutation candidates → Stage 2 coherence/validation sequencing per plan `~/.claude/plans/federated-plotting-karp.md` Commit 3 of 8). Bumped `title-10-ai-coding-cfr.md v2.39.0+` → `v2.40.0+`. PATCH pin bump on MINOR target because the source MINOR is additive (extends §5.1.7 trigger model with sequencing discipline; no breaking change to existing reviewer roles). Governance trail: `gov-dd439ba39014`. |
 | 2.8.1 | 2026-04-25 | PATCH: Pin tracks rules-of-procedure.md MINOR bump v3.27.4 → v3.28.0 (new §7.12 Effort-Not-Time Estimation + §7.13 BLUF-Pyramid Briefing, two new methods codifying behavioral floor additions per plan `~/.claude/plans/federated-plotting-karp.md` Commit 1). Bumped `rules-of-procedure.md v3.27.4+` → `v3.28.0+`. PATCH pin bump on MINOR target because the source MINOR is additive (no breaking change to existing methods); pin discipline allows PATCH per session-121 canonicalization (semver-consistent unless target is breaking). Governance trail: `gov-8e449341b2d3`. |
 | 2.8.0 | 2026-04-23 | MINOR: Pin tracks title-10-ai-coding-cfr.md MINOR bump v2.38.5 → v2.39.0 (new §5.2.8 Redundancy & Consolidation, normative). Bumped `title-10-ai-coding-cfr.md v2.38.5+` → `v2.39.0+`. MINOR pin bump because the target is a MINOR bump (additive normative rule) — per round-2 contrarian HIGH-2 on the test-suite-optimization plan: semver consistency between pin and source, not PATCH-on-MINOR. New cross-referenced artifacts shipped with v2.39.0: `documents/failure-mode-registry.md` (SSOT for FM-* IDs cited by `Covers:` annotations), `documents/test-failure-mode-map.md` (auto-generated derived map), `scripts/generate-test-failure-map.py` (rot-immune generator), `workflows/TEST-AUTHORING-CHECKLIST.md` (author-time 9-step gate), `tests/test_validator.py::TestFailureModeCoverage` (lint with 4 tests: unknown-id-rejected, must-cover-has-annotation, retired-id-warning, yaml-parses). Governance trail: `gov-ab70d05c6ca7` (this commit). Pattern: MINOR-on-MINOR pin discipline canonicalized session-121 as pin-sync discipline (BACKLOG #115 → COMPLETION-CHECKLIST item #7). |

@@ -236,6 +236,26 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 131. §7.12 retroactive sweep: residual time-units in CFR/methods estimates `D2 Docs`
+
+**Filed:** 2026-04-25 (session-126, coherence-auditor finding #2 from Commit 4 audit `a132b93302b156048`).
+
+**What.** Commit 1 (session-125) shipped rules-of-procedure §7.12 Effort-Not-Time discipline. Commit 4 (session-126) folded the §4.1.2 fix as the most-load-bearing surface. The auditor surfaced two residual instances in the same CFR:
+- `documents/title-10-ai-coding-cfr.md:1340`: §3.1.2 Architecture-mode STANDARD checklist `- [ ] Estimate: 2-8 hours`
+- `documents/title-10-ai-coding-cfr.md:1349`: §3.1.2 Architecture-mode ENHANCED checklist `- [ ] Estimate: 1-5 days`
+
+These are per-mode planning-effort heuristics. Arguably covered by §7.12's scope-boundary clause ("explicit user-request for time framing" / cadence guidance) — not a clear-cut violation. But the same time-language class.
+
+**Likely class extent.** A grep for `\b(hour|day|week|minute)\b` across `documents/*-cfr.md` + `meta-methods` likely surfaces 5-15 more instances in similar planning/calibration contexts.
+
+**Scope.** (a) grep all CFR + meta-methods for time-unit estimates in AI-facing planning contexts. (b) For each instance, decide: migrate to effort indicators (D1/D2/D3 + file count), explicitly tag as scope-excluded under §7.12.1 (calendar/cadence reference), or remove. (c) Update §7.12 with worked examples drawn from the migrated instances.
+
+**Trigger.** Next §7.12 calibration review OR external feedback on inconsistent time-vs-effort messaging.
+
+**Done when.** All AI-facing CFR estimates are either (a) effort indicators per §7.12 or (b) explicitly tagged as scope-excluded with rationale.
+
+---
+
 #### 130. ai-instructions Changelog: pin-discipline self-contradiction (MINOR-on-MINOR vs PATCH-on-MINOR) `D1 Docs`
 
 **Filed:** 2026-04-25 (session-126, coherence-auditor finding #5 from Commit 3 audit `a02fbba30a3a42f7d`).

@@ -1,5 +1,5 @@
 ---
-version: "2.40.0"
+version: "2.41.0"
 status: "active"
 effective_date: "2026-04-25"
 domain: "ai-coding"
@@ -9,7 +9,7 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.40.0
+**Version:** 2.41.0
 **Status:** Active
 **Effective Date:** 2026-04-25
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -167,6 +167,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Debugging with prior session context / stale conclusions | §5.13.2 | Prior Knowledge Audit |
 | Auth/session/cookie code needs review | §5.1.7 | Runtime-Sensitive Review Trigger |
 | Multiple subagents required for one change (sequencing) | §5.1.7.1 | Sequenced Two-Stage Review |
+| Project start, novel/uncertain/high-stakes (ENHANCED mode) | §1.3.5 | Brainstorming Method (Socratic Q&A + design doc) |
 | Generating downloadable documents (Excel, PDF, Word) | §9.4 | Document Generation Patterns |
 | Setting up project permissions / allowlist | Appendix A.5.6 | Recommended Permission Architecture |
 
@@ -798,6 +799,39 @@ Product Owner may override the calculated mode:
 - **Downgrade to EXPEDITED:** When time pressure justifies accepting more risk (must be explicit)
 
 Document mode selection and any override in the State File (Title 7).
+
+### 1.3.5 Brainstorming Method (ENHANCED Mode Only)
+
+**Applies To:** Project start when §1.3.3 calibrated to ENHANCED mode (novel OR LOW-certainty requirements OR HIGH stakes) — before plan-mode, before SPECIFICATION drafting. Skip for STANDARD/EXPEDITED.
+
+**Why this exists:** ENHANCED mode is triggered by uncertainty. Jumping directly from "we need X" to plan-mode anchors on the first frame the AI generates and skips Discovery — the pattern §C.5 (Discovery Before Commitment) explicitly warns against. Socratic Q&A surfaces unstated assumptions; the design-doc artifact captures decisions before they crystallize implicitly.
+
+**Protocol:**
+
+1. **Socratic Q&A pass (5-15 questions, freeform).** AI asks open-ended questions targeting:
+   - **Latent requirements** — what's so obvious to the user they won't mention it (data formats, integration points, error visibility, observability needs)
+   - **Implicit boundaries** — what's NOT in scope but a reader might assume (auth, multi-user, internationalization, retention)
+   - **Stakeholders besides the user** — who else sees this output, who else writes to this data
+   - **Failure modes the user hasn't named** — partial failure, scale ceiling, data corruption recovery, abandon-and-retry
+   - **The "if you stopped here" cliff** — what's the smallest version that delivers value; what cliff lies beyond MVP
+   - **Anti-goals** — what should this deliberately NOT do, and why
+
+   Use freeform conversational dialogue (per CLAUDE.md Behavioral Floor `freeform-dialogue`). Do NOT default to structured option lists; avoid the "Option A / Option B / Option C" interrogation pattern.
+
+2. **Design-doc artifact (one page, written, before plan-mode).** Capture in `documents/design/<project-name>.md` (or project's equivalent location):
+   - **What we're building** — 2-3 sentence summary
+   - **Why** — the actual problem this solves; the user's underlying need (often different from the stated request per `meta-core-discovery-before-commitment` "Question the frame")
+   - **Explicit non-goals** — what this deliberately does NOT do, with rationale
+   - **Open questions** — what's still uncertain (becomes the discovery list for plan-mode)
+   - **Design decisions** — choices made during Q&A with the alternatives that were considered and rejected
+
+3. **Hand-off to plan-mode.** Plan-mode (`.claude/plan-template.md`) reads the design doc as input. The Recommended Approach section's task entries (per §5.1.7.1 Stage-1 considerations and the action-atomicity rule in plan-template Section: Recommended Approach) target the design doc's What/Non-goals.
+
+**When to skip:** STANDARD mode (clear pattern, clear requirements, moderate stakes) and EXPEDITED mode (known pattern, low stakes) skip brainstorming and go directly to plan-mode or implementation. Brainstorming overhead is proportional to discovery cost, which is negligible when the pattern is well-understood.
+
+**Anti-pattern (the "compliance brainstorm"):** Running brainstorming because the calibration says ENHANCED, but pre-deciding what the design will be and using Q&A to validate the predetermined frame. Per `meta-core-discovery-before-commitment` "Discovery Theater" trap — going through the motions without updating plans based on findings. If 3+ Q&A rounds produce no design changes, either the project isn't actually ENHANCED-mode or the AI is anchoring.
+
+*Source: Superpowers v5.0.7 `brainstorming` skill — best-in-class per [browseract.com 2026 4-skills survey](https://www.browseract.com/blog/4-ai-agent-skills-that-actually-make-your-ai-smarter-in-2026). Aligns with `meta-core-discovery-before-commitment` "Question the frame" + Adaptive Questioning Technique (rules-of-procedure §16.2 / Progressive Inquiry Protocol §7.9). The design-doc artifact mirrors the SPECIFICATION pattern from §1.4 ENHANCED mode — extracted earlier in the workflow as a Discovery Gate output, not deferred to formal SPECIFICATION drafting.*
 
 ---
 
@@ -1634,7 +1668,7 @@ Break planned work into atomic tasks that AI can effectively execute. Proper dec
 
 ### 4.1.2 Task Characteristics
 
-**Applies To:** Every task created during decomposition — ensuring each unit of work is atomic, bounded (15 files or fewer), independently testable, traceable to a requirement, and estimable
+**Applies To:** Every task created during decomposition — ensuring each unit of work is atomic, bounded (15 files or fewer), independently testable, traceable to a requirement, and effort-shaped per `meta-method-effort-not-time-estimation` (rules-of-procedure §7.12)
 
 Every task MUST be:
 
@@ -1644,7 +1678,7 @@ Every task MUST be:
 | **Bounded** | ≤15 files affected | Count before starting |
 | **Testable** | Can be verified independently | Acceptance criteria defined |
 | **Traceable** | Links to specification requirement | Explicit reference |
-| **Estimable** | Reasonable effort prediction | Typically 1-4 hours |
+| **Effort-shaped** | Single-action category per `.claude/plan-template.md` Recommended Approach section (`{write failing test, run test, implement minimal code, refactor, verify}`) | Combined-action tasks must split. Effort indicators (D1/D2/D3, file count, surfaces) per rules-of-procedure §7.12 — no time estimates. |
 
 ### 4.1.3 Decomposition by Mode
 
@@ -1682,7 +1716,7 @@ Description: [What to build]
 Acceptance Criteria: [How to verify]
 Files Affected: [List, must be ≤15]
 Dependencies: [Prior tasks required]
-Estimated Effort: [Time range]
+Effort: [observable indicators per rules-of-procedure §7.12 — file count, surfaces, D1/D2/D3 tier; no time units]
 ```
 
 ---
@@ -1695,14 +1729,14 @@ Verify tasks meet P3 requirements before implementation begins.
 
 ### 4.2.2 Size Checklist
 
-**Applies To:** Validating each task before implementation begins — checking file count limits, independent testability, coherence, explicit dependencies, and effort reasonability
+**Applies To:** Validating each task before implementation begins — checking file count limits, independent testability, coherence, explicit dependencies, and effort indicators per rules-of-procedure §7.12
 
 For each task:
 - [ ] Files affected ≤15?
 - [ ] Can be tested independently?
 - [ ] Single coherent change?
 - [ ] Dependencies explicit?
-- [ ] Effort estimate reasonable?
+- [ ] Effort indicators present per rules-of-procedure §7.12 (no time units)?
 
 ### 4.2.3 Oversized Task Remediation
 
@@ -9021,6 +9055,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.41.0 | 2026-04-25 | MINOR: New §1.3.5 Brainstorming Method (ENHANCED mode only) — codifies Socratic Q&A discovery pattern + design-doc artifact at project start, proportional to §1.3.3 calibration mode (skip for STANDARD/EXPEDITED). Protocol: 5-15 freeform questions targeting latent requirements, implicit boundaries, non-user stakeholders, unnamed failure modes, MVP cliff, anti-goals; design doc at `documents/design/<project-name>.md` with What/Why/Non-goals/Open-questions/Design-decisions; hand-off to plan-mode (`.claude/plan-template.md`) Recommended Approach section per §5.1.7.1 Stage-1 + action-atomicity rule. "Compliance brainstorm" anti-pattern explicitly named (Discovery Theater per `meta-core-discovery-before-commitment`). Folded with this MINOR (PATCH-shape edit deferred from Commit 2 of plan): §4.1.2 Task Characteristics row "Estimable | Reasonable effort prediction | Typically 1-4 hours" replaced with "Effort-shaped" row pointing at plan-template Recommended Approach action categories + rules-of-procedure §7.12 (effort indicators, no time estimates). Aligns the framework's own decomposition guidance with §7.12 effort-not-time discipline shipped session-125 Commit 1. **Root cause:** §1.3 had calibration triggers for ENHANCED mode but no procedural method for *what to do* in ENHANCED mode beyond "more documentation." Brainstorming bridges calibration → SPECIFICATION; pre-this-MINOR, ENHANCED projects routinely skipped Discovery Gate per LEARNING-LOG anchor-bias pattern. Separately: §4.1.2 "Typically 1-4 hours" was a direct contradiction of §7.12 (shipped 2 sessions ago); folding the fix here keeps Commit 2's deferred cross-ref scope from re-opening. **Constitutional Basis:** `meta-core-discovery-before-commitment` (brainstorming IS the Discovery Gate operationalized; "Question the frame" + Socratic Q&A); `meta-method-adaptive-questioning` (§16.2 protocol applied at project start); `meta-method-effort-not-time-estimation` (§7.12 — §4.1.2 fold-in eliminates time-language contradiction); `meta-quality-effective-efficient-communication` (the rule itself follows BLUF — Why-this-exists / Protocol / When-to-skip / Anti-pattern); `coding-method-minimal-viable-initialization-expedited-mode` (this MINOR clarifies what the OPPOSITE end of calibration — ENHANCED — looks like procedurally). Source: Superpowers v5.0.7 `brainstorming` skill (best-in-class per browseract.com 2026 4-skills survey); `meta-core-discovery-before-commitment` Adaptive Questioning. ai-instructions PATCH bump v2.8.2 → v2.8.3 (pin update). Body-header + effective-date synced. Plan: `~/.claude/plans/federated-plotting-karp.md` Commit 4 of 8. Governance: `gov-5fb17ed70248`. Coherence-auditor invocation REQUIRED before push per §5.1.7 trigger table (content expansion: new principles/methods row). |
 | 2.40.0 | 2026-04-25 | MINOR: New §5.1.7.1 Sequenced Two-Stage Review (normative under §5.1.7 Subagent Review Triggers). Codifies the two-stage review pattern: Stage 1 mutation candidates (code-reviewer, security-auditor, contrarian-reviewer) MUST complete and have HIGH+ findings folded BEFORE Stage 2 coherence/validation reviewers (coherence-auditor, validator) run. Anti-pattern (parallel battery across stages) explicitly named — produces coherence findings against text Stage 1 will rewrite + duplicated Stage 2 effort. Exception clause for trivial PATCH-shape edits with documented confidence basis. **Root cause:** Sessions 120/121/122/123 all observed "post-battery catches what pre-battery missed" pattern (LEARNING-LOG 2026-04-19, scope-asymmetry mechanism identified session-123 Commit H). Pre-this-MINOR, the framework had §5.1.7 *triggers* (which agents to invoke when) but no *sequencing* discipline (in what order). Sequencing is structurally separate from triggering: a project with the right triggers can still waste budget if Stage 2 runs against pre-Stage-1 drafts. **Constitutional Basis:** `meta-core-systemic-thinking` (sequencing prevents review-the-wrong-thing class of waste, not per-incident cleanup); `meta-method-single-source-of-truth` (sequencing rule has one canonical home in §5.1.7.1 with cross-refs from agent files); `meta-quality-effective-efficient-communication` (the rule itself follows BLUF — Importance line first, table second, anti-pattern + exception explicit); `coding-method-subagent-review-triggers` (this MINOR extends, does not replace). Source: Superpowers v5.0.7 `subagent-driven-development` skill; LEARNING-LOG 2026-04-19 4-instance scope-asymmetry resolution. ai-instructions PATCH bump v2.8.1 → v2.8.2 (pin update). Body-header + effective-date synced per §115-canonicalized checklist item. Plan: `~/.claude/plans/federated-plotting-karp.md` Commit 3 of 8. Governance: `gov-dd439ba39014`. Coherence-auditor invocation REQUIRED before push per §5.1.7 trigger table (content expansion: new principles/methods row). |
 | 2.39.0 | 2026-04-23 | MINOR: New §5.2.8 Redundancy & Consolidation (normative). Establishes when to consolidate (identical fixture helpers after body-diff, same-behavior-same-level tests, parameterization explosions) vs when NOT to consolidate (layered unit+integration coverage, platform-specific variants, contract tests that look meta). Documents the diff rule (signatures ≠ semantics), deletion protocol (check `failure-mode-registry.md` + derived map before deleting), and author-time prevention via pair-with `workflows/TEST-AUTHORING-CHECKLIST.md`. **Root cause:** §5.2 had mature testing governance (7 subsections, ~470 lines) covering TDD, organization, fixtures, ML mocking, autonomous maintenance with escalation, framework selection — but no normative guidance on when to delete or consolidate. Autonomous maintenance is fix-or-escalate, not consolidate; without §5.2.8 redundancy regrows after every cleanup pass. Session-123 Phase 2 demonstrated: hook-test helpers were duplicated across 3 files, `storage()` fixture across 4 classes in `test_context_engine.py`, totaling ~52 LOC eliminable — gap was structural, not incidental. **Constitutional Basis:** `meta-method-single-source-of-truth` (consolidation is SSOT applied to test infrastructure), `meta-core-systemic-thinking` (close the structural gap that lets redundancy regrow, not patch individual duplications), `meta-methods §7.8` (proportional rigor — normative subsection ~30 lines, not a new Part), `coding-quality-testing-integration` Q3 (echo-chamber avoidance pairs with author-time checklist). Cross-references new `failure-mode-registry.md` + `TEST-AUTHORING-CHECKLIST.md` + `test_validator.py::TestFailureModeCoverage` lint. Plan v3 ran 2 rounds of contrarian review (audits `abde3dc5794b0c665` + `a008a9090c0144d76`) + 1 pre-commit review (audit `ac71250b7a6a8999d` for the pre-plan trivial fix). ai-instructions pin bumps v2.7.4 → v2.8.0 (MINOR pin tracks MINOR source). Body-header + effective-date synced per §115-canonicalized checklist item. |
 | 2.38.5 | 2026-04-23 | PATCH: §9.3.10 — added Layer 6 (Pre-Plan-Approval Gate) to Enforcement Stack table; renamed header "4-Layer" → "6-Layer" to reflect the existing (pre-this-PATCH) 5-layer reality plus new Layer 6. New `.claude/hooks/pre-exit-plan-mode-gate.sh` (session-122) enforces contrarian-reviewer invocation before ExitPlanMode, with plan-scoped scanner extension (`scan_transcript.py --contrarian-after-last-plan`), CLAUDE.md Behavioral Floor pairing, and `documents/tiers.json` behavioral_floor directive `contrarian-before-exit-plan`. Implements CFR §9.3.10 Hook Implementation Prerequisites Recipe canonicalized v2.38.4 — ERR trap, platform timeout detection (gtimeout fallback), self-diagnosing fallback, dual bypass envs (`PLAN_CONTRARIAN_CONFIRMED`=semantic, `PLAN_CONTRARIAN_SKIP_HOOK`=structural/audit-logged). Closes BACKLOG #116 + V-004 (REFUTED → ESCALATED → IMPLEMENTED). 17 unit tests (8 scanner + 9 hook contract). **Root cause:** V-004 Compliance Review #4 confirmed 3-session advisory-compliance failure (baseline + session 3 + session 121 Task 4 all required user reminder); plan template gate text insufficient. **Constitutional Basis:** `meta-core-systemic-thinking` (structural enforcement replaces advisory), `meta-quality-verification-validation` (plan-scoped anchor verifies current-plan contrarian, not stale prior-plan), `meta-safety-transparent-limitations` (Claude Code platform dependency explicit in Layer 6 row). Gov audit: `gov-94e385575297`. Pre-edit 3-agent battery (Plan + contrarian + coherence, session-122) surfaced and resolved 2 BLOCKERs + 4 HIGH findings before code written; post-edit + post-commit batteries will run per session-121 established pattern. |
