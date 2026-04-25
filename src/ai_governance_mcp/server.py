@@ -762,7 +762,7 @@ SCAFFOLD_LEARNING_LOG = """# Learning Log
 SCAFFOLD_AGENTS_MD = """# {project_name}
 
 **Description:** [Brief project description]
-**Framework:** AI Coding Methods v2.28.0
+**Framework:** AI Coding Methods (current version)
 **Mode:** Standard
 
 ## Session Start

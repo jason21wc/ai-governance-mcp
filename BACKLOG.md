@@ -236,27 +236,6 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
-#### 133. Stale framework-version pins in CFR scaffold templates (Appendix A.1 + K.2 + server.py SCAFFOLD_AGENTS_MD) `D1 Docs`
-
-**Filed:** 2026-04-25 (session-126, coherence-auditor finding #2 from Commit 12 audit `a2c2f2ad49d45d6cc`).
-
-**What.** Three template surfaces pin a stale framework version (`AI Coding Methods v2.30.0` — currently shipping v2.42.2):
-- `documents/title-10-ai-coding-cfr.md:7390` — Appendix A.1 CLAUDE.md template snippet
-- `documents/title-10-ai-coding-cfr.md:8559` — Appendix K.2 AGENTS.md template snippet
-- `src/ai_governance_mcp/server.py:765` — SCAFFOLD_AGENTS_MD f-string (separately flagged in Commit 7 post-ship audit `a02fbba30a3a42f7d`)
-
-The first two were stale at v2.30.0 before this session began. The third was at v2.28.0 per the Commit 7 audit. All three drift independently of CFR PATCH/MINOR bumps because they hardcode a literal version string.
-
-**Why this matters.** New projects scaffolded by `scaffold_project` MCP tool — or adopters copy-pasting the Appendix A.1/K.2 templates — get a 12-MINOR-stale framework version pin. Adopter confusion class.
-
-**Scope.** Two paths: (a) **Replace literal version with `vX.Y.Z` placeholder** + adopter instruction "set to current version per `documents/domains.json`" — rot-immune; OR (b) **Wire to runtime version** — make scaffold templates pull current version from `documents/domains.json` at scaffold time. Path (a) is D1 (3 files, ~5 line edits). Path (b) is D2 (requires extractor logic).
-
-**Trigger.** Next adopter feedback OR next CFR MAJOR bump (would make staleness more visible).
-
-**Done when.** Templates either use placeholders OR pull runtime version; no hardcoded stale pins.
-
----
-
 #### 131. §7.12 retroactive sweep: residual time-units in CFR/methods estimates `D2 Docs`
 
 **Filed:** 2026-04-25 (session-126, coherence-auditor finding #2 from Commit 4 audit `a132b93302b156048`).

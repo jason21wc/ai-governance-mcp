@@ -20,11 +20,11 @@
 - Commit 12 (`e6e7cca`) — BACKLOG #132 close: rules-of-procedure §7.12.1 5th exception added; title-10 §5.1.8 + COMPLETION-CHECKLIST 16a switched from "by analogy with" to direct verbatim citation; bundled ai-instructions PATCH-on-PATCH for both pins
 - Commit 13 (this) — §7.12.1 anti-example PATCH (closes battery 2's HIGH-leverage finding that 5th exception was open-textured + could absorb #131 violations); SESSION-STATE prune; ai-instructions v2.8.5 stale-note correction
 
-**Open BACKLOG items:** #131 (§7.12 retroactive sweep — guidance now sharpened by §7.12.1 anti-example shipped this commit), #133 (stale framework-version pins in CFR scaffold templates — file:line precision filed by Commit 12 audit), plus pre-existing #129/#127/#125-b/#91-sub5/#78.
+**Open BACKLOG items:** #131 (§7.12 retroactive sweep — guidance now sharpened by §7.12.1 anti-example shipped Commit 13), plus pre-existing #129/#127/#125-b/#91-sub5/#78. **#133 closed session-127** (placeholder-convention fix — `(current version)` from §7.4.3 applied to Appendix A.1 + K.2 + SCAFFOLD_AGENTS_MD).
 
-**Next session can pick up at:** BACKLOG #131 (§7.12 sweep, now ready per anti-example), #133, or user-directed.
+**Next session can pick up at:** BACKLOG #131 (§7.12 sweep, now ready per anti-example) or user-directed.
 
-**Behavioral changes active across all shipped commits (versions current as of v3.28.2 / v2.42.2 / v2.8.7):**
+**Behavioral changes active across all shipped commits (versions current as of v3.28.2 / v2.42.3 / v2.8.8):**
 - §7.12 Effort-Not-Time + §7.13 BLUF-Pyramid (Commit 1, codified rules-of-procedure §7.12 + §7.13; v3.28.2 added §7.12.1 5th exception with anti-example for planning-band estimates)
 - §5.1.7.1 Sequenced Two-Stage Review (v2.40 — Commit 3)
 - §1.3.5 Brainstorming Method ENHANCED-OR-no-precedent (v2.41 + v2.42.1 OR-clause widening — Commit 4 + 9)
@@ -73,7 +73,7 @@
 ## Current Position
 
 - **Phase:** Superpowers plan + 5-commit post-ship remediation arc COMPLETE. All 13 commits pushed to main; CI green on `e6e7cca` (last shipped + CI-confirmed; Commit 13 push pending this commit).
-- **Mode:** None blocking. Open BACKLOG: #131, #133 + pre-existing #129/#127/#125-b/#91-sub5/#78.
+- **Mode:** None blocking. Open BACKLOG: #131 + pre-existing #129/#127/#125-b/#91-sub5/#78.
 - **Active Task:** None active. Next session can pick up at #131 (§7.12 sweep, anti-example shipped this commit makes scope explicit) or user-directed.
 
 ## Quick Reference
@@ -82,7 +82,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v5.0.7** (Constitution — 24 principles), **v3.28.2** (rules-of-procedure — §7.12 + §7.13 + §7.12.1 5th exception with planning-band anti-example 2026-04-25), **v2.42.2** (title-10-ai-coding-cfr — v2.40 §5.1.7.1 + v2.41 §1.3.5 + v2.42 §5.1.8 + v2.42.1 PATCH strengthen + v2.42.2 PATCH direct §7.12.1 citation 2026-04-25), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.8.7** (ai-instructions — pin update for rules-of-procedure v3.28.2), **v1.6.0** (tiers.json — added effort-not-time + bluf-pyramid-briefing directives). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. |
+| Content | **v5.0.7** (Constitution — 24 principles), **v3.28.2** (rules-of-procedure — §7.12 + §7.13 + §7.12.1 5th exception with planning-band anti-example 2026-04-25), **v2.42.3** (title-10-ai-coding-cfr — v2.40 §5.1.7.1 + v2.41 §1.3.5 + v2.42 §5.1.8 + v2.42.1 PATCH strengthen + v2.42.2 PATCH direct §7.12.1 citation + v2.42.3 BACKLOG #133 close placeholder convention 2026-04-25), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.8.8** (ai-instructions — pin update for title-10 v2.42.3), **v1.6.0** (tiers.json — added effort-not-time + bluf-pyramid-briefing directives). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. |
 | Tests | **1395 passing + 0 skipped** safe subset (`pytest tests/ -m "not slow" -q`); session-126 added +14 tests in Commit 6 (TestPlanActionAtomicity 9 + TestTddTestExistence 5). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
