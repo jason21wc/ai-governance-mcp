@@ -236,6 +236,27 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 130. ai-instructions Changelog: pin-discipline self-contradiction (MINOR-on-MINOR vs PATCH-on-MINOR) `D1 Docs`
+
+**Filed:** 2026-04-25 (session-126, coherence-auditor finding #5 from Commit 3 audit `a02fbba30a3a42f7d`).
+
+**What.** `documents/ai-instructions.md` Changelog table contains two opposing pin-discipline rationales for the same scenario (pin tracking a MINOR target):
+- **v2.8.0 (line 222):** "MINOR pin bump because the target is a MINOR bump (additive normative rule) — per round-2 contrarian HIGH-2 on the test-suite-optimization plan: semver consistency between pin and source, not PATCH-on-MINOR."
+- **v2.8.1 (line 222 area):** "PATCH pin bump on MINOR target because the source MINOR is additive ... pin discipline allows PATCH per session-121 canonicalization (semver-consistent unless target is breaking)."
+- **v2.8.2 (line 221, this commit):** Same as v2.8.1.
+
+The two rationales contradict each other: v2.8.0 says PATCH-on-MINOR is *wrong*, v2.8.1+v2.8.2 say it's the *canonical* discipline. Both cite "session-121" as authority.
+
+**Why this matters.** Future AI sessions reading the Changelog as a pin-bump reference will get confused by which rule to follow. Risk: bump inconsistency at next pin-sync event.
+
+**Scope.** (a) Determine which rule is canonical (probably PATCH-on-MINOR per the more recent v2.8.1+ reasoning, since they cite a "session-121 canonicalization" that v2.8.0's rationale did not). (b) Add an addendum to the v2.8.0 entry: "Superseded by session-121 canonicalization — see v2.8.1 entry for current PATCH-on-MINOR rule." (c) Optionally codify the rule in `workflows/COMPLETION-CHECKLIST.md` or rules-of-procedure §7.x so it has one canonical home.
+
+**Trigger.** Next pin-sync event OR fold into a future ai-instructions edit.
+
+**Done when.** Changelog rationale is internally consistent OR a single canonical pin-discipline rule has one canonical home outside the Changelog.
+
+---
+
 #### 129. Re-register FM-S-SERIES-KEYWORD-FALSE-POSITIVE after Negation-Context Parsing Ships `D2 Improvement`
 
 **Filed:** 2026-04-24 (session-124 extension, post-#121 grandfathered FM resolution).

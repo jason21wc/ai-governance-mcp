@@ -1,7 +1,7 @@
 ---
-version: "2.39.0"
+version: "2.40.0"
 status: "active"
-effective_date: "2026-04-23"
+effective_date: "2026-04-25"
 domain: "ai-coding"
 governance_level: "federal-regulations"
 ---
@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.39.0
+**Version:** 2.40.0
 **Status:** Active
-**Effective Date:** 2026-04-23
+**Effective Date:** 2026-04-25
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -166,6 +166,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Need to understand unfamiliar code / onboarding | §5.13.7 | Code Comprehension via Linear Walkthrough |
 | Debugging with prior session context / stale conclusions | §5.13.2 | Prior Knowledge Audit |
 | Auth/session/cookie code needs review | §5.1.7 | Runtime-Sensitive Review Trigger |
+| Multiple subagents required for one change (sequencing) | §5.1.7.1 | Sequenced Two-Stage Review |
 | Generating downloadable documents (Excel, PDF, Word) | §9.4 | Document Generation Patterns |
 | Setting up project permissions / allowlist | Appendix A.5.6 | Recommended Permission Architecture |
 
@@ -1935,6 +1936,27 @@ When changes match these patterns, invoke the corresponding subagent BEFORE comm
 | Auth flows, session/cookie management, redirect chains *(content-based)* | code-reviewer (flag for runtime verification) | Async timing, event ordering, and cross-request state invisible to static review; recommend Playwright/instrumentation verification per §5.13.2 |
 
 *Source: LEARNING-LOG lessons — "Run Code Review + Coherence Audit After Content Expansions" (2026-02-21), "Multi-Pass Reviews Catch Different Issue Classes" (2026-01-04).*
+
+#### 5.1.7.1 Sequenced Two-Stage Review
+
+**Importance: IMPORTANT — Prevents downstream reviewers from auditing soon-to-be-restructured artifacts**
+
+**Applies To:** Multi-agent review batteries triggered by §5.1.7 — when both a code/content-mutating reviewer (code-reviewer, security-auditor, contrarian-reviewer) AND a coherence/validation reviewer (coherence-auditor, validator) are required for the same change.
+
+**Sequence:**
+
+| Stage | Reviewers | Why this stage | Output handling |
+|-------|-----------|---------------|-----------------|
+| **Stage 1 — Mutation candidates** | code-reviewer, security-auditor, contrarian-reviewer | Findings here typically RESTRUCTURE the artifact (refactor functions, rename APIs, rewrite paragraphs, drop/add sections) | Fold ALL HIGH+ findings BEFORE Stage 2 begins |
+| **Stage 2 — Coherence + validation** | coherence-auditor, validator | These check cross-file consistency, version-pin alignment, template compliance — properties that drift if Stage 1 restructures upstream | Run against the post-Stage-1 artifact, not the pre-Stage-1 draft |
+
+**Rule:** Stage 2 reviewers MUST receive the post-Stage-1 artifact. Running coherence-auditor on a draft that code-reviewer is about to restructure burns audit budget on prose that won't ship. The cost of re-running Stage 2 after a missed Stage 1 finding is 2× the budgeted invocation.
+
+**Anti-pattern (parallel battery):** Launching all 5 reviewers in parallel for speed produces (a) coherence findings against text that gets rewritten in Stage 1, and (b) duplicated effort when Stage 2 must re-run. Parallelism is appropriate WITHIN a stage, not across stages.
+
+**Exception (no-mutation expected):** If you have HIGH confidence Stage 1 will produce no restructuring findings (e.g., trivial PATCH-shape edit, single-line config change), you may collapse to a single parallel battery. Document the confidence basis when collapsing.
+
+*Source: Superpowers v5.0.7 `subagent-driven-development` skill — sequencing reviewers by their downstream impact on the artifact prevents review-the-wrong-thing waste. Reinforced by LEARNING-LOG 2026-04-19 (4-instance scope-asymmetry pattern resolved structurally in session-123 Commit H).*
 
 ---
 
@@ -8999,6 +9021,7 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.40.0 | 2026-04-25 | MINOR: New §5.1.7.1 Sequenced Two-Stage Review (normative under §5.1.7 Subagent Review Triggers). Codifies the two-stage review pattern: Stage 1 mutation candidates (code-reviewer, security-auditor, contrarian-reviewer) MUST complete and have HIGH+ findings folded BEFORE Stage 2 coherence/validation reviewers (coherence-auditor, validator) run. Anti-pattern (parallel battery across stages) explicitly named — produces coherence findings against text Stage 1 will rewrite + duplicated Stage 2 effort. Exception clause for trivial PATCH-shape edits with documented confidence basis. **Root cause:** Sessions 120/121/122/123 all observed "post-battery catches what pre-battery missed" pattern (LEARNING-LOG 2026-04-19, scope-asymmetry mechanism identified session-123 Commit H). Pre-this-MINOR, the framework had §5.1.7 *triggers* (which agents to invoke when) but no *sequencing* discipline (in what order). Sequencing is structurally separate from triggering: a project with the right triggers can still waste budget if Stage 2 runs against pre-Stage-1 drafts. **Constitutional Basis:** `meta-core-systemic-thinking` (sequencing prevents review-the-wrong-thing class of waste, not per-incident cleanup); `meta-method-single-source-of-truth` (sequencing rule has one canonical home in §5.1.7.1 with cross-refs from agent files); `meta-quality-effective-efficient-communication` (the rule itself follows BLUF — Importance line first, table second, anti-pattern + exception explicit); `coding-method-subagent-review-triggers` (this MINOR extends, does not replace). Source: Superpowers v5.0.7 `subagent-driven-development` skill; LEARNING-LOG 2026-04-19 4-instance scope-asymmetry resolution. ai-instructions PATCH bump v2.8.1 → v2.8.2 (pin update). Body-header + effective-date synced per §115-canonicalized checklist item. Plan: `~/.claude/plans/federated-plotting-karp.md` Commit 3 of 8. Governance: `gov-dd439ba39014`. Coherence-auditor invocation REQUIRED before push per §5.1.7 trigger table (content expansion: new principles/methods row). |
 | 2.39.0 | 2026-04-23 | MINOR: New §5.2.8 Redundancy & Consolidation (normative). Establishes when to consolidate (identical fixture helpers after body-diff, same-behavior-same-level tests, parameterization explosions) vs when NOT to consolidate (layered unit+integration coverage, platform-specific variants, contract tests that look meta). Documents the diff rule (signatures ≠ semantics), deletion protocol (check `failure-mode-registry.md` + derived map before deleting), and author-time prevention via pair-with `workflows/TEST-AUTHORING-CHECKLIST.md`. **Root cause:** §5.2 had mature testing governance (7 subsections, ~470 lines) covering TDD, organization, fixtures, ML mocking, autonomous maintenance with escalation, framework selection — but no normative guidance on when to delete or consolidate. Autonomous maintenance is fix-or-escalate, not consolidate; without §5.2.8 redundancy regrows after every cleanup pass. Session-123 Phase 2 demonstrated: hook-test helpers were duplicated across 3 files, `storage()` fixture across 4 classes in `test_context_engine.py`, totaling ~52 LOC eliminable — gap was structural, not incidental. **Constitutional Basis:** `meta-method-single-source-of-truth` (consolidation is SSOT applied to test infrastructure), `meta-core-systemic-thinking` (close the structural gap that lets redundancy regrow, not patch individual duplications), `meta-methods §7.8` (proportional rigor — normative subsection ~30 lines, not a new Part), `coding-quality-testing-integration` Q3 (echo-chamber avoidance pairs with author-time checklist). Cross-references new `failure-mode-registry.md` + `TEST-AUTHORING-CHECKLIST.md` + `test_validator.py::TestFailureModeCoverage` lint. Plan v3 ran 2 rounds of contrarian review (audits `abde3dc5794b0c665` + `a008a9090c0144d76`) + 1 pre-commit review (audit `ac71250b7a6a8999d` for the pre-plan trivial fix). ai-instructions pin bumps v2.7.4 → v2.8.0 (MINOR pin tracks MINOR source). Body-header + effective-date synced per §115-canonicalized checklist item. |
 | 2.38.5 | 2026-04-23 | PATCH: §9.3.10 — added Layer 6 (Pre-Plan-Approval Gate) to Enforcement Stack table; renamed header "4-Layer" → "6-Layer" to reflect the existing (pre-this-PATCH) 5-layer reality plus new Layer 6. New `.claude/hooks/pre-exit-plan-mode-gate.sh` (session-122) enforces contrarian-reviewer invocation before ExitPlanMode, with plan-scoped scanner extension (`scan_transcript.py --contrarian-after-last-plan`), CLAUDE.md Behavioral Floor pairing, and `documents/tiers.json` behavioral_floor directive `contrarian-before-exit-plan`. Implements CFR §9.3.10 Hook Implementation Prerequisites Recipe canonicalized v2.38.4 — ERR trap, platform timeout detection (gtimeout fallback), self-diagnosing fallback, dual bypass envs (`PLAN_CONTRARIAN_CONFIRMED`=semantic, `PLAN_CONTRARIAN_SKIP_HOOK`=structural/audit-logged). Closes BACKLOG #116 + V-004 (REFUTED → ESCALATED → IMPLEMENTED). 17 unit tests (8 scanner + 9 hook contract). **Root cause:** V-004 Compliance Review #4 confirmed 3-session advisory-compliance failure (baseline + session 3 + session 121 Task 4 all required user reminder); plan template gate text insufficient. **Constitutional Basis:** `meta-core-systemic-thinking` (structural enforcement replaces advisory), `meta-quality-verification-validation` (plan-scoped anchor verifies current-plan contrarian, not stale prior-plan), `meta-safety-transparent-limitations` (Claude Code platform dependency explicit in Layer 6 row). Gov audit: `gov-94e385575297`. Pre-edit 3-agent battery (Plan + contrarian + coherence, session-122) surfaced and resolved 2 BLOCKERs + 4 HIGH findings before code written; post-edit + post-commit batteries will run per session-121 established pattern. |
 | 2.38.4 | 2026-04-21 | PATCH: §9.3.10 Layer 3 extended with "Hook Implementation Prerequisites & Fail-Closed Recipe" sub-subsection canonicalizing the 6-step fail-closed authoring pattern (ERR trap, platform-detect timeout binary, wrap slow steps, detect exit 124, self-diagnose on missing binary, provide escape hatches). Platform prerequisites added (macOS `brew install coreutils`; Linux typically pre-installed; Windows/WSL marked untested). Line 7177 fail-behavior bullet collapsed from recipe restatement to pointer so the recipe has one canonical home. **Root cause:** session-121 Task 4 demonstrated that fail-closed hook authoring requires recipe-level guidance not reducible to a single bullet — SIGKILL-bypass asymmetry + platform binary dependency + self-diagnosing fallback + escape-hatch discipline are all load-bearing. The knowledge was scattered across LEARNING-LOG (lesson), hook code (example), and a compressed one-liner (§9.3.10:7177); external AI agents querying the framework via MCP would have to synthesize across surfaces. This PATCH consolidates the recipe into one retrievable location with pointers from the other sources, per `meta-method-single-source-of-truth`. Pre-edit 3-agent battery (Plan + contrarian + coherence) surfaced (a) `§9.8.5` citation drift (that rule lives in the constitution, not title-10 — dropped per Plan agent), (b) n=1 consumer concern (contrarian Ground-Truth challenge accepted in spirit via trimmed scope — 30 lines not 80+), (c) Title-20 `§4.6.3` overlap (retained current cross-ref model; retrieval engine handles discoverability per proportional rigor), (d) platform coverage honesty (Linux/Windows marked untested). **Constitutional Basis:** `meta-method-single-source-of-truth` (recipe has one canonical home; other surfaces point to it), `meta-core-systemic-thinking` (consolidate scattered knowledge, don't duplicate it), `meta-methods §7.8` (proportional rigor — ~30 lines of content, not 80+ with code blocks), `meta-safety-transparent-limitations` (explicit "untested" markers for unverified platforms). Gov audit: `gov-cb3074ca144b`. |
