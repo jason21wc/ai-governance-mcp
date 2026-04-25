@@ -23,7 +23,41 @@ Write "N/A — no novel elements, using established project patterns" if not app
 "None evaluated" is a signal to pause and evaluate before proceeding.]
 
 ## Recommended Approach
-[The implementation plan — populated AFTER the above sections contain content]
+[The implementation plan — populated AFTER the above sections contain content.
+
+**Action atomicity (REQUIRED):** Each task entry in this section MUST name a single
+action category from the closed set:
+
+- `write failing test` — author a test that asserts the new behavior; expected: RED
+- `run test` — execute test(s); record pass/fail
+- `implement minimal code` — smallest change that turns RED → GREEN
+- `refactor` — restructure without changing behavior; tests must stay GREEN
+- `verify` — read-only inspection (grep, file read, tool output check)
+
+A task that combines two categories (e.g., "implement and test") MUST be split. Vague
+verbs ("update X", "improve Y", "handle Z") are not action categories — replace with
+the specific category above.
+
+**Per-task structure (REQUIRED):** Every task entry includes both lines:
+
+- `**Files:**` — exhaustive file paths the task will create/modify (or `read-only` for verify tasks)
+- `**Verification:**` — the observable signal that proves the task is done (test name, grep pattern, command output)
+
+**Worked example:**
+
+```
+### Task 3 — write failing test for FM-EXAMPLE-FOO
+**Files:** tests/test_foo.py
+**Verification:** `pytest tests/test_foo.py::TestFoo::test_new_behavior -v` returns FAILED
+
+### Task 4 — implement minimal code to satisfy Task 3
+**Files:** src/foo.py
+**Verification:** Task 3's test now passes; no other tests broken (`pytest tests/ -m "not slow"`)
+```
+
+Why action-atomicity: vague tasks let mistakes hide in volume; one-action-per-step
+makes the plan reviewable, bisectable, and contrarian-auditable. Per Superpowers
+v5.0.7 `writing-plans` skill + TDAG (arxiv 2402.10178) + 2026 Agentic Coding Trends.]
 
 ## Verification
 [How to test the changes end-to-end]

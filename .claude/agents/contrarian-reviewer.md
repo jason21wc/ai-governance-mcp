@@ -149,6 +149,16 @@ Evaluate whether the decision PROCESS was sound, independent of whether the deci
 - Were alternatives rejected with reasoning, or just not considered?
 - Is this a good process that might produce a bad outcome (acceptable), or a bad process that got lucky (not acceptable)?
 
+### Step 7: Action Atomicity Check (plan-mode reviews only)
+
+When reviewing a plan-mode artifact (file matching `~/.claude/plans/*.md` or any document using `.claude/plan-template.md`), verify the Recommended Approach section's task entries comply with action atomicity:
+
+- Each task names a single action category from `{write failing test, run test, implement minimal code, refactor, verify}` — flag tasks that combine categories or use vague verbs ("update X", "improve Y", "handle Z")
+- Each task includes both `**Files:**` and `**Verification:**` lines — flag missing fields
+- Combined-action tasks ("implement and test", "refactor and verify") MUST be split — flag as REQUIRED CHANGE, not advisory
+
+Skip this step for non-plan reviews (architecture decisions without a plan file, ad-hoc design discussions). Plan-template compliance is itself advisory until the WARN-mode hook gate ships, but contrarian review is the highest-leverage moment to catch atomicity drift before approval.
+
 ## When to Deploy
 
 | Situation | Deploy? | Rationale |

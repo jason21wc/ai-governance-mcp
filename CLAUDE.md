@@ -82,6 +82,8 @@ When you discover issues during a task, **finish the user's requested task first
 
 For architecture decisions, use the plan template at `.claude/plan-template.md`. The template structure puts contrarian review, research verification, and simpler-alternatives evaluation BEFORE the recommended approach — making verification part of the generation flow, not an afterthought. (Per Systemic Thinking + autoregressive forward-continuation bias research.)
 
+**Action atomicity** (template Section: Recommended Approach): each task entry must name a single action category from `{write failing test, run test, implement minimal code, refactor, verify}` and include `**Files:**` + `**Verification:**` lines. Combined tasks ("implement and test") must split. Vague verbs ("update", "improve", "handle") are not action categories. Advisory until the WARN-mode hook gate ships; structural enforcement deferred per V-004 advisory→structural arc.
+
 ## Quick Recall — Behavioral Floor (see top of file)
 
 Root cause over symptoms. Recommend, don't ask. Freeform dialogue. Proportional rigor. Cite principle IDs. Effort-not-time. BLUF for user-facing briefs.
