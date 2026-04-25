@@ -56,8 +56,7 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 ### ALWAYS (regardless of enforcement tier)
 
 17. Update and prune SESSION-STATE.md (version, counts, summary; remove old session summaries; target <300 lines per §7.0.4) — at minimum at session end
-18. Commit and push
-19. Verify CI green (`gh run watch`)
+18. Run **Branch Completion** below — pick A / B / C / D / E based on whether work is complete and whether human review is required.
 
 ## Content changes (governance documents)
 
@@ -92,9 +91,8 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
    Catches the recurring pin-lag / body-header drift class documented across ai-instructions Changelog v2.7.1/v2.7.2/v2.7.3/v2.7.4. Verify with `grep -n "v2\.[0-9]" documents/<cfr> documents/ai-instructions.md SESSION-STATE.md` before commit — all four surfaces should show the new version.
 8. **Audit-ID citation** per `rules-of-procedure §2.1.1` Notes — if the amendment references a governance consultation, cite the `audit_id` (e.g., `gov-abc123`) that authorized the change. Forward-going from 2026-04-19; historical entries grandfathered.
 9. Update and prune SESSION-STATE.md (target <300 lines per §7.0.4)
-10. Commit and push
-11. Verify CI green
-12. Docker check: if content significantly changed or code also changed → rebuild and push
+10. Docker check: if content significantly changed or code also changed → rebuild and push
+11. Run **Branch Completion** below.
 
 ## Domain changes (adding/removing/renaming domains)
 
@@ -211,4 +209,80 @@ When you discover a new behavior the AI should consistently exhibit:
 
 1. Update SESSION-STATE.md if applicable
 2. If plan-mode led to committed action, promote plan reasoning inline into BACKLOG / LEARNING-LOG / SESSION-STATE / PROJECT-MEMORY before session end (per rules-of-procedure Appendix G.5.1). Framework files must not cite `~/.claude/plans/*.md` paths as load-bearing — platform plan files are session-scoped working memory.
-3. Commit and push
+3. Run **Branch Completion** below.
+
+## Branch Completion
+
+> Final stage for any work session: decide what happens to the branch you're on. The four options below are mutually exclusive — pick one, run its checklist, then stop. The decision tree exists because end-of-session ambiguity ("did we ship?", "is this PR-ready?", "should we keep going?") is the most common cause of incomplete handoffs.
+
+**Decision tree:**
+
+```
+Is the work complete (acceptance criteria met, tests green)?
+├─ YES → Is this branch the trunk (main/master)?
+│        ├─ YES → Option A: COMMIT-AND-PUSH (no merge needed)
+│        └─ NO  → Is human review required before this lands on trunk?
+│                 ├─ YES → Option B: OPEN PR
+│                 └─ NO  → Option C: MERGE (delete branch after)
+└─ NO  → Is the work salvageable (worth resuming next session)?
+         ├─ YES → Option D: KEEP OPEN (commit checkpoint, push, leave branch)
+         └─ NO  → Option E: DISCARD (commit nothing, clean up local, document why)
+```
+
+(Five options total — A and C collapse to one when the branch IS trunk.)
+
+### Option A — COMMIT-AND-PUSH (working on trunk, no merge needed)
+
+Use when working directly on `main`/`master` and the work is complete.
+
+- [ ] All change-type checklists above are satisfied for the work done (Code / Content / Domain / Principle / Plan-mode / Docs)
+- [ ] `git status` shows no unintended files staged (no `.env`, no credentials, no large binaries)
+- [ ] Commit message follows project convention (subject ≤72 chars; body explains the WHY)
+- [ ] `git push origin main` (or push branch and verify it lands on trunk)
+- [ ] `gh run watch` — verify CI green; if red, fix-forward in a follow-up commit OR `git revert` if regression class
+
+### Option B — OPEN PR (human review required before merge)
+
+Use when the branch needs review (CODEOWNERS, sensitive change, external collaborator).
+
+- [ ] All change-type checklists above are satisfied
+- [ ] `git push -u origin <branch>` — push the branch with upstream tracking
+- [ ] `gh pr create --title "<short>" --body "$(cat <<EOF...)"` — see CLAUDE.md / built-in PR template for full body convention. Include Summary + Test plan.
+- [ ] Self-review the diff in the PR view — would a reviewer be able to follow the change without asking 3 clarifying questions?
+- [ ] Tag reviewers if non-default reviewers are needed
+- [ ] Do NOT merge yourself unless explicitly authorized (Auto-merge respects branch protection)
+
+### Option C — MERGE (work complete on a feature branch, no review needed)
+
+Use when work is complete on a non-trunk branch and you have authority to merge directly.
+
+- [ ] All change-type checklists above are satisfied
+- [ ] `git push -u origin <branch>` — push branch
+- [ ] `gh run watch` — wait for CI green BEFORE merging (don't merge red)
+- [ ] Merge via `gh pr merge --squash --delete-branch` (or project's preferred merge style — squash/merge/rebase per repo convention)
+- [ ] Verify trunk CI green after merge (`git checkout main && git pull && gh run watch`)
+- [ ] Delete local branch (`git branch -d <branch>`)
+
+### Option D — KEEP OPEN (work continues next session)
+
+Use when work is incomplete but salvageable; commit a checkpoint so the next session can resume.
+
+- [ ] Tests pass for the partial work (no broken-state checkpoint pushed)
+- [ ] Commit message starts with `wip:` or `checkpoint:` so it's visible as not-shippable
+- [ ] `git push -u origin <branch>` — push the checkpoint
+- [ ] Update SESSION-STATE.md RESUMPTION block with: branch name, what's done, what's next, where the next session should pick up
+- [ ] Do NOT open a PR for a checkpoint commit (signals false readiness)
+
+### Option E — DISCARD (work didn't pan out)
+
+Use when the approach was wrong and won't be resumed; discard local work, document the lesson.
+
+- [ ] Add a LEARNING-LOG.md entry capturing what was tried + why it didn't work + what to do differently next time (≥1 paragraph; this is the value extracted from the failed attempt)
+- [ ] If any artifacts are worth keeping (notes, partial design docs), commit them to a separate `docs/abandoned-attempts/` location FIRST
+- [ ] `git stash drop` (if changes stashed) OR `git checkout . && git clean -fd` (if uncommitted) — destructive, confirm with user before running
+- [ ] If a feature branch exists with unmergeable work: `git push origin --delete <branch>` (destructive — confirm) OR rename to `abandoned/<branch>` and push (preserves history)
+- [ ] Update SESSION-STATE.md to remove the abandoned work from active state
+
+### Source
+
+Adopted from Superpowers v5.0.7 `finishing-a-development-branch` skill, with the 4-option decision tree (merge / PR / keep / discard) extended to 5 by splitting the "merge" option for trunk-direct work (Option A). The split makes the trunk vs feature-branch case explicit — most repos have both flows, and conflating them produces "merge" steps that don't apply on trunk. See also: [GitHub Agentic Workflows](https://github.blog/ai-and-ml/automate-repository-tasks-with-github-agentic-workflows/) (read-only default + human-approves-merge).
