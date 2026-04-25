@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-25 (session 126 — **resuming from session-125 handoff. Plan `~/.claude/plans/federated-plotting-karp.md`: Commits 2 (`ee93845`) + 3 (`075ef62`, title-10 v2.40) + 4 (`5535557`, title-10 v2.41) + 5 (`c9500ce`, Branch Completion) + 6 (`9eeeb01`, hook gates WARN-mode) shipped; MIDPOINT CHECKPOINT passed (no drift); Commit 7 (title-10 v2.42 §5.1.8 Mid-Execution Checkpoint Protocol + orchestrator agent + hash regen) in-flight. Commit 8 (INFLUENCES.md) remains.**)
+**Last Updated:** 2026-04-25 (session 126 — **Superpowers plan COMPLETE. All 8 commits shipped session-126 (`ee93845`, `075ef62`, `5535557`, `c9500ce`, `9eeeb01`, `07eb129`, + Commit 8 INFLUENCES.md). MIDPOINT CHECKPOINT passed between Commits 4 and 5 (no drift). 7 commits local to push.**)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -13,7 +13,7 @@
 
 **Active plan file:** `/Users/jasoncollier/.claude/plans/federated-plotting-karp.md`
 
-**Status:** Commits 1 + 1.5 shipped session-125 (`7e7ce95` + `b567032`, pushed to main). Commits 2-6 shipped session-126 (`ee93845`, `075ef62`, `5535557`, `c9500ce`, `9eeeb01`, local). MIDPOINT CHECKPOINT passed between Commits 4 and 5 (no drift). Commit 7 in-flight (title-10 v2.42 §5.1.8 + orchestrator agent + ai-instructions v2.8.4 + SESSION-STATE pin sync). Commit 8 remains.
+**Status:** All 8 commits shipped. Commits 1 + 1.5 session-125 (`7e7ce95` + `b567032`, pushed). Commits 2-7 session-126 (`ee93845`, `075ef62`, `5535557`, `c9500ce`, `9eeeb01`, `07eb129`, local). Commit 8 (INFLUENCES.md) in-flight session-126. 7 commits local awaiting push. MIDPOINT CHECKPOINT passed between Commits 4 and 5.
 
 **Why we paused:** This conversation grew long. Commits 2-8 include 2 MINOR CFR version bumps (commits 3 + 4 in plan), hook extensions (commit 6), and INFLUENCES.md authoring — high-blast-radius work that benefits from fresh context per `meta-safety-transparent-limitations` + LEARNING-LOG "Multi-Mechanism Context Degradation Model" (2026-03-28).
 
@@ -30,8 +30,9 @@
 5. ~~MIDPOINT CHECKPOINT~~ — **DONE** (session-126, between Commits 4 and 5). No drift; PROCEED to Commit 5.
 6. ~~Commit 5: Branch Completion stage~~ — **DONE** (`c9500ce`, session-126). 5-option decision tree (split MERGE into trunk-direct vs feature-branch).
 7. ~~Commit 6: Hook gates~~ — **DONE** (`9eeeb01`, session-126). scan_transcript.py extended (--plan-action-atomicity + --tdd-test-existence); pre-exit-plan-mode-gate + pre-push-quality-gate WARN-mode integration; 14 new tests; V-007 + V-008 in COMPLIANCE-REVIEW.md.
-8. ~~Commit 7: Mid-execution checkpoints — concept in title-10 §5.1.8; threshold in COMPLETION-CHECKLIST item 16a~~ — **IN-FLIGHT** (session-126, this commit). Title-10 v2.42 + orchestrator agent + AGENT_TEMPLATE_HASHES regen. **Coherence-auditor REQUIRED before push.**
-9. Commit 8: `/INFLUENCES.md` (NEW at repo root) — 4-category attribution schema; Superpowers v5.0.7 comparison table with `enforcement: advisory|structural` per row; #G "Considered and rejected" entry per HIGH-3 (title-20 §2.3 + §3.2 already cover).
+8. ~~Commit 7: Mid-execution checkpoints — concept in title-10 §5.1.8; threshold in COMPLETION-CHECKLIST item 16a~~ — **DONE** (`07eb129`, session-126). Coherence-auditor PROCEED_WITH_CHANGES; MISLEADING-1 + MISLEADING-2 folded inline; BACKLOG #132 filed for §7.12.1 5th-exception canonicalization.
+9. ~~Commit 8: `/INFLUENCES.md` (NEW at repo root)~~ — **DONE** (in-flight session-126). 8-pattern Superpowers attribution table + Other Influences table (10+ external sources).
+10. **PUSH** — 7 commits local awaiting `git push origin main`. Tests 1395 passing safe subset (no regression).
 
 **Decisions already made (don't re-deliberate):**
 - TDD enforcement: hook (not template) — pushed-time gate

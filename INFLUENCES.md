@@ -1,0 +1,70 @@
+# INFLUENCES
+
+This document tracks the external research, conventions, and projects that influenced this framework's process methods. The goal is honest attribution + a future-reader decision trace: when the AI Governance MCP framework adopted, modified, independently arrived at, or considered-and-rejected an idea from elsewhere, this is the canonical record of which.
+
+## Schema
+
+Each entry uses one of four attribution categories:
+
+- **Adopted** — the source's pattern was adopted in substantially the same form. Citation acknowledges the source; modifications (if any) are minor (terminology, framing).
+- **Inspired-by + modified per research** — the source's pattern motivated the work, but our implementation diverges materially based on additional research (TDAG, Multi-Agent Reflexion, etc.) or our framework's existing structural commitments.
+- **Independently-developed equivalent** — we developed our pattern before encountering the source's pattern, or the patterns address the same problem with materially different mechanics. Citation acknowledges convergent design; no derivation claim.
+- **Considered and rejected** — the source's pattern was evaluated and rejected, with documented rationale. Often: existing framework coverage already addresses the same concern; no need for redundant method.
+
+Each row also tags `enforcement: advisory | structural`:
+- **advisory** — pattern is documented in framework methods but compliance relies on AI/human follow-through (~85% ceiling per LEARNING-LOG 2026-04-15).
+- **structural** — pattern is enforced by hook, CI assertion, or other structural gate (~100% compliance once installed).
+
+When a pattern has both modes (advisory in one surface, structural in another), the row tags both.
+
+## Attribution Table — Superpowers (obra/superpowers)
+
+[Superpowers](https://github.com/obra/superpowers) is a Claude Code plugin published as a curated set of process skills (SKILL.md files with brainstorm → write-plan → execute-plan pipeline). The 8 patterns below were evaluated during the Superpowers-driven plan (`~/.claude/plans/federated-plotting-karp.md`, sessions 125-126) referencing version v5.0.7. Earlier evaluation at v4.3.0 is captured in BACKLOG #54 (cross-reference for prior context).
+
+| Pattern | Source | Our Surface | Attribution | Enforcement | Notes |
+|---------|--------|-------------|-------------|-------------|-------|
+| **A — Action atomicity** | Superpowers `writing-plans` skill | `.claude/plan-template.md` Recommended Approach section + CLAUDE.md Plan Mode + `documents/agents/contrarian-reviewer.md` Step 7 + `.claude/hooks/scan_transcript.py` `--plan-action-atomicity` | Inspired-by Superpowers; modified per TDAG (arxiv 2402.10178) | advisory (template + agent) + structural (WARN-mode hook gate, promotion to BLOCK event-driven per V-007) | Superpowers' skill prescribes one-action-per-step; our action categories are `{write failing test, run test, implement minimal code, refactor, verify}` derived from TDAG's contextual-test-selection findings. Closed set is ours; the discipline of single-category-per-task is theirs. |
+| **B — Sequenced two-stage review** | Superpowers `subagent-driven-development` skill | `documents/title-10-ai-coding-cfr.md` §5.1.7.1 Sequenced Two-Stage Review (v2.40.0) | Adopted from Superpowers | structural (normative method under §5.1.7 trigger table) | Stage 1 mutation candidates (code-reviewer, security-auditor, contrarian-reviewer) before Stage 2 coherence/validation reviewers. Anti-pattern (parallel battery across stages) explicitly named. Reinforced by our LEARNING-LOG 2026-04-19 4-instance scope-asymmetry pattern (independently observed before encountering Superpowers; convergent evidence). |
+| **C — Brainstorming method** | Superpowers `brainstorming` skill | `documents/title-10-ai-coding-cfr.md` §1.3.5 Brainstorming Method (ENHANCED Mode Only) (v2.41.0) | Inspired-by Superpowers; modified per `meta-core-discovery-before-commitment` Adaptive Questioning (rules-of-procedure §16.2/§7.9) | advisory (ENHANCED-mode-only normative method) | Superpowers' skill is unconditional; ours is gated by §1.3.3 calibration mode (ENHANCED only — skip for STANDARD/EXPEDITED) per proportional-rigor discipline (`meta-methods §7.8`). Design-doc artifact location (`documents/design/<project>.md`) and the 6-area Q&A targeting (latent requirements, implicit boundaries, non-user stakeholders, unnamed failure modes, MVP cliff, anti-goals) are our additions. |
+| **D — TDD enforcement** | Superpowers `test-driven-development` skill | `documents/title-10-ai-coding-cfr.md` §5.2.2 Test-First or Test-With (TDD recommended for AI-assisted development) + `.claude/hooks/scan_transcript.py` `--tdd-test-existence` + `.claude/hooks/pre-push-quality-gate.sh` Check 5 | Adopted from Superpowers + augmented per TDAD (arxiv 2603.17973) | advisory (§5.2.2 RECOMMENDED) + structural (WARN-mode pre-push hook for new src/*.py without paired tests; promotion to BLOCK event-driven per V-008) | Superpowers' skill is the workflow recommendation; TDAD's contextual-test-selection finding ("provide specific test context, not generic 'follow TDD'") informed our §5.2.2 operational detail. The hook's pair convention (src/<pkg>/<name>.py → tests/test_<name>.py) is project-specific. |
+| **E — Branch completion** | Superpowers `finishing-a-development-branch` skill | `workflows/COMPLETION-CHECKLIST.md` Branch Completion section | Adopted from Superpowers | advisory (BEST-EFFORT checklist) | Superpowers prescribes a 4-option decision tree (merge / PR / keep / discard); we ship 5 (split MERGE into A trunk-direct + C feature-branch) because conflating them produces "merge" steps that don't apply on trunk. Each option has its own checklist consolidating commit/push/CI items. Aligns with [GitHub Agentic Workflows](https://github.blog/ai-and-ml/automate-repository-tasks-with-github-agentic-workflows/) read-only-default + human-approves-merge convention. |
+| **F — Mid-execution checkpoints** | Superpowers `executing-plans` skill | `documents/title-10-ai-coding-cfr.md` §5.1.8 Mid-Execution Checkpoint Protocol (v2.42.0) + `workflows/COMPLETION-CHECKLIST.md` item 16a (threshold) + `documents/agents/orchestrator.md` checkpoint-discipline paragraph | Adopted from Superpowers + augmented per [Agent Drift](https://arxiv.org/abs/2601.04170) + [Multi-Agent Reflexion](https://arxiv.org/html/2512.20845v1) | advisory (§5.1.8 normative method, checkpoint compliance is BEST-EFFORT) + tunable (threshold values in checklist per SSOT pattern: principle in rulebook, tunable values in checklist) | Superpowers' skill is the phase-transition concept; Agent Drift research provided the empirical threshold (drift onset 73 ± 40 turns OR 35 minutes runtime); Multi-Agent Reflexion provided the optional external-evaluator subagent step. Our 5-step protocol (Pause / Re-read plan / Spot-check delivered-vs-planned / External-evaluator pass / Decide) and "checkpoint theater" anti-pattern naming are our additions. Self-applied: this plan's session-126 MIDPOINT CHECKPOINT was the rule's first invocation, on the plan that codifies it. |
+| **G — Parallel-agent isolation** | Superpowers `parallel-agent-isolation` (or equivalent) | (none) | **Considered and rejected** | n/a | Pattern was evaluated during plan v3 contrarian review (HIGH-3, 2026-04-25). Rationale: existing framework coverage at `documents/title-20-multi-agent-cfr.md` §2.3 Context Isolation Verification (lines 1310-1333) and §3.2 Handoff Protocol with Shared Assumptions Document (lines 1408-1469+) already prescribes the equivalent pattern. Adding a redundant method in title-10 would create cross-domain duplication (`meta-method-single-source-of-truth` violation). Cited title-20 sections are the canonical home; no additional method needed. |
+| **H — Systematic debugging** | Superpowers `systematic-debugging` (or equivalent) | `documents/title-10-ai-coding-cfr.md` Part 5.13 Structured Debugging Protocol (shipped v2.20.0, 2026-03-13) | Independently-developed equivalent | structural (Part 5.13 normative protocol with 6 subsections: Diagnostic Block / Instrumentation-First / Fix Decay / Fix Verification / Anti-Patterns / Code Comprehension) | Our Part 5.13 predates the Superpowers comparison (shipped session ~v2.20.0 in March 2026). It is materially stronger than Superpowers' debugging skill: 6 subsections including mandatory diagnostic-block-before-fix, instrumentation-first protocol, fix-decay (Oxford/McGill 2024 — 60-80% LLM debugging decay within 2-3 attempts), 4-level verification hierarchy, 6 named anti-patterns, escalation report template. Convergent design with Superpowers' skill on the core "evidence-before-fix" principle. |
+
+## Other Influences (Non-Superpowers)
+
+| Source | Our Surface | Attribution | Enforcement | Notes |
+|--------|-------------|-------------|-------------|-------|
+| Alaswad et al. "Hybrid Intelligence Effort" framework ([Frontiers AI 2026](https://www.frontiersin.org/journals/artificial-intelligence/articles/10.3389/frai.2026.1772418/full)) + Kahneman/Lovallo Reference-Class Forecasting ([PMI 2026](https://www.pmi.org/learning/library/nobel-project-management-reference-class-forecasting-8068)) | `documents/rules-of-procedure.md` §7.12 Effort-Not-Time Estimation | Adopted | advisory (behavioral floor) + structural (CLAUDE.md Behavioral Floor + tiers.json directive) | Effort dimensions (LLM Reasoning Complexity, Context Completeness, Code Transformation Scope, Iterative Cycles, Human Oversight Effort) + reference-class calibration (track empirical baselines, estimate from class average; 70-80% hit rate vs <20% inside-view). |
+| BLUF + Minto Pyramid Principle ([Animalz](https://www.animalz.co/blog/bottom-line-up-front), [BetterUp](https://www.betterup.com/blog/minto-pyramid)) + Hick's Law ([Laws of UX](https://lawsofux.com/hicks-law/)) | `documents/rules-of-procedure.md` §7.13 BLUF-Pyramid Briefing | Adopted | advisory (behavioral floor for user-facing decision briefs only — scope-excludes plan files, ADRs, spec docs, audit logs) | 4-5 sections max, 3-5 bullets per section, 10-20 words per bullet, 300-500 words for 1-pager / 800-1200 for 2-pager, 2-3 alternatives max (Hick's Law: choice paralysis at 4+), risk embedded per option. |
+| TDAG (arxiv 2402.10178) | Pattern A (Action atomicity) action categories | Inspired-by | advisory + structural | TDAG's task-decomposition findings shaped the closed-set action categories. |
+| TDAD (arxiv 2603.17973) | Pattern D (TDD enforcement) operational detail | Inspired-by | advisory + structural | "Provide agents with specific test context — which test files to run, expected test names — rather than generic 'follow TDD' instructions. 70% regression reduction with targeted context; can worsen results without it." Captured in §5.2.2. |
+| Agent Drift (arxiv 2601.04170) | Pattern F (Mid-execution checkpoints) threshold | Adopted | advisory (threshold value in COMPLETION-CHECKLIST item 16a) | Drift onset 73 ± 40 turns OR 35 minutes runtime; informed our >30 min runtime trigger. |
+| Multi-Agent Reflexion (arxiv 2512.20845) | Pattern F external-evaluator step | Adopted | advisory (Step 4 of §5.1.8 protocol, optional but recommended for HIGH-stakes plans) | LLM-as-judge re-reading original spec to combat AI's anchor on its in-progress narrative. |
+| US Constitutional naming convention | `documents/constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md` | Inspired-by + modified | structural (filename schema enforced by extractor + tests) | Constitution → Rules of Procedure → Titles (binding domain law) → CFRs (operational regulations). Explicit US analogy throughout the framework's hierarchy text. Modification: framework's Constitution can be amended by maintainer; US Constitution by Article V. |
+| AAIF / Linux Foundation AGENTS.md standard ([agents.md](https://agents.md/)) | `AGENTS.md` (this repo's) + Appendix K of title-10-cfr | Adopted | advisory | Cross-tool standard (60K+ repos); CLAUDE.md / GEMINI.md overlay on top. |
+| OWASP LLM Top 10 + Agentic Top 10 + MCP Top 10 | `documents/title-10-ai-coding-cfr.md` Part 5.6 (MCP security) + Part 5.8 (security review by domain) + Part 5.11 (zero trust application) | Adopted | structural (CodeQL CI + bandit + security-auditor subagent invocation gates) | Direct adoption of OWASP's classification + checklists, with our framework's structural gates wrapping them. |
+| Anthropic 2026 Agentic Coding Trends Report | Pattern A + Pattern F design context | Inspired-by | advisory | Drift mitigation + plan-action atomicity context. |
+
+## How to extend this document
+
+When evaluating a new external pattern (skill, research paper, convention, library):
+
+1. Determine the attribution category (Adopted / Inspired-by + modified / Independently-developed / Considered and rejected).
+2. Add a row to the appropriate table with: source, our surface (file + section), attribution, enforcement (advisory|structural|both), notes.
+3. If "Considered and rejected": cite the existing framework coverage that makes the addition redundant. The "rejected" attribution is information; future contributors should be able to see WHY we didn't adopt and reach the same conclusion if they evaluate again.
+4. If the pattern materializes as a new method or hook: cross-reference the framework version where it shipped (e.g., "shipped v2.42.0 §5.1.8").
+
+## Why this document exists
+
+The framework's authors actively comparison-shop external skill libraries, research papers, and conventions. Without an attribution record:
+- Future contributors don't know which patterns were considered, which adopted, which modified, which rejected.
+- Re-evaluation re-runs the same comparison work.
+- "Convergent design" claims are unverifiable without an audit trail.
+
+This document is the audit trail. It is updated whenever a new external influence shapes a framework method — alongside the same commit that ships the method.
+
+---
+
+*Last updated: 2026-04-25 (session-126, Commit 8 of Superpowers-driven plan `~/.claude/plans/federated-plotting-karp.md`).*
