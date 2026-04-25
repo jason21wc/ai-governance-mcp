@@ -72,7 +72,7 @@
 
 ## Current Position
 
-- **Phase:** Superpowers plan + 5-commit post-ship remediation arc COMPLETE. All 13 commits pushed to main; CI green on `e6e7cca` (last shipped + CI-confirmed; Commit 13 push pending this commit).
+- **Phase:** Superpowers plan + 5-commit post-ship remediation arc COMPLETE; session-126 close + BACKLOG #133 close shipped on main (Commits 13/14 + #133 close `6349a96`). CI green on `a7c8e2d` (last CI-confirmed); #133 close commit pending push.
 - **Mode:** None blocking. Open BACKLOG: #131 + pre-existing #129/#127/#125-b/#91-sub5/#78.
 - **Active Task:** None active. Next session can pick up at #131 (§7.12 sweep, anti-example shipped this commit makes scope explicit) or user-directed.
 
@@ -96,6 +96,9 @@
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
 ## Last Session (2026-04-25)
+
+> *Session-126 close (Commit 14 `a7c8e2d`) routed its summary to PROJECT-MEMORY.md + LEARNING-LOG.md per session-end protocol. Session-125 entry below is the most recent SESSION-STATE-resident summary. Full session-126 narrative: see PROJECT-MEMORY entry "Superpowers plan + 5-commit post-ship remediation arc" + LEARNING-LOG entries dated 2026-04-25.*
+
 
 125. **Session-125 (2026-04-25): Bundle A shipped + Superpowers-driven Commit 1 (Step 0 + Step 0.1) shipped. Plan paused at midpoint per context-degradation discipline.**
    - **Bundle A (3 commits, pushed to main):** `dd8a7b3` (FM-UNICODE-NORMALIZATION + FM-EMBEDDING-MODEL-ALLOWLIST registry seed; closes #128), `a84e628` (new-hook-authoring item under Code-Changes BEST-EFFORT; closes #118), `8940842` (close #120 as invalid-framing via LEARNING-LOG entry "Verify Runtime Semantics Before Scoping a Test from BACKLOG Framing" + prune 6 BACKLOG items: #84/#102/#104/#118/#120/#128). Plan: `~/.claude/plans/federated-plotting-karp.md` (was Bundle A original; harness reused name for next plan after exit/re-enter — see Note below). Tests: 1381 → 1381 passing (no test count change; #120 closed without new test per Ground-Truth re-scope).
