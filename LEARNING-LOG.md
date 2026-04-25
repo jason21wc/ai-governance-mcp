@@ -12,6 +12,34 @@
 
 ## Active Lessons
 
+### AI Time Estimates Miscalibrate 50-100×; Use Effort Indicators Instead (2026-04-25)
+
+User observation across multiple sessions: AI time estimates ("this will take 2-3 hours", "needs its own session", "M-tier ~30-60 min") routinely overrun ground truth by 50× to 100×. Pattern produces false-deferral — AI rationalizes putting off work because "it'll take too long," when ground-truth effort is actually small (file count low, no infrastructure, known patterns). Pre-edit Plan agent + contrarian-reviewer flagged my own plan v2 deferring 4 backlog items based on "M-tier" / "needs plan mode" reasoning that resolved to D1 (single-file extension of 234-line script) on inspection. Web research validates: Alaswad et al. "Toward LLM-aware software effort estimation" (Frontiers AI 2026) and Kahneman/Lovallo Reference-Class Forecasting (PMI 2026) both confirm AI/human inside-view estimation has <20% hit rate; observable-indicator + reference-class hybrid achieves 70-80%.
+
+**Rule:** AI must not estimate future work in time units. Use observable effort indicators (file count, infrastructure changes, dependency count, D1/D2/D3 tier, token budget). When sizing a backlog item or scoping a session, name the *shape* of effort (surfaces, complexity tier, discovery depth), never the *duration*. Calibrate by tracking actual effort dimensions across completed tasks of the same class; recalibrate after every N completions per Reference-Class Forecasting.
+
+**How to apply:** Before stating any time estimate, check: would this estimate be calendar/cadence (allowed), historical (allowed), timeout-value-in-code (allowed), or explicit user request (allowed)? If none, switch to effort indicators. Codified structurally as `meta-method-effort-not-time-estimation` (rules-of-procedure §7.12) + CLAUDE.md Behavioral Floor directive + tiers.json `behavioral_floor.directives` reinforcement + BACKLOG.md D1/D2/D3 cleanup (stripped time language).
+
+**Principle:** `meta-safety-transparent-limitations` — if I'm bad at calibrating something, honest behavior is refusing to estimate. `meta-core-systemic-thinking` — root cause is calibration error, not "try harder." Structural rule prevents recurrence; advisory ("be careful with time estimates") would hit ~85% ceiling.
+
+**Cross-ref:** rules-of-procedure §7.12 (canonical method); session-125 plan `~/.claude/plans/federated-plotting-karp.md` Commit 1 (`7e7ce95`); Alaswad et al. Frontiers AI 2026 Hybrid Intelligence Effort framework; Kahneman/Lovallo Reference-Class Forecasting (70-80% hit rate).
+
+---
+
+### Lead with BLUF for User-Facing Decision Briefs (2026-04-25)
+
+User pushback after multiple long technical responses: "I need an executive brief that tells me what you are suggesting without the extra technical jargon like you might give a manager. What does each thing do, why is that important, and what do you recommend if there are more than one option on the table and why." Pattern: AI defaults to information-dumping (long-form, exhaustive, recommendation buried in section 4 of 6). Web research validates BLUF (Bottom Line Up Front) + Minto Pyramid Principle as 2026 best-in-class for decision briefs to non-specialist managers. Empirical sweet spot: 4-5 sections, 3-5 bullets per, 10-20 words per bullet, 2-3 alternatives max (Hick's Law — 4+ creates choice paralysis), risk embedded per option (not as separate dump), 300-500 words for 1-pager / 800-1200 for 2-pager.
+
+**Rule:** When presenting a technical decision or analysis to a non-specialist technical manager, structure the response so the audience can decide effectively (understand the call) AND efficiently (no walls of text). Lead with 2-3 sentence BLUF stating the recommendation + key rationale. For each non-trivial option: state Why care / Impact / Risk / Recommendation+Source. Embed risk per option, not separately. Cap at 3 alternatives.
+
+**How to apply:** Codified as `meta-method-bluf-pyramid-briefing` (rules-of-procedure §7.13) + CLAUDE.md Behavioral Floor directive + tiers.json `behavioral_floor.directives` reinforcement. Scope boundary excludes internal technical artifacts (plan files, ADRs, spec documents, audit logs) — those follow their own templates.
+
+**Principle:** `meta-quality-effective-efficient-communication` (Article III §4) — operationalized as BLUF format. `meta-core-systemic-thinking` — fix the format structurally, not advisory "try to be concise."
+
+**Cross-ref:** rules-of-procedure §7.13 (canonical method); session-125 plan Commit 1 (`7e7ce95`); Animalz on BLUF; BetterUp on Minto Pyramid; Laws of UX on Hick's Law; HBR 2026 "Trendslop" research; ACM CHI 2026 LLM Cognitive Biases.
+
+---
+
 ### Verify Runtime Semantics Before Scoping a Test from BACKLOG Framing (2026-04-24)
 
 BACKLOG #120 proposed a test for "nested Task" contrarian detection — premised on the assumption that a Plan sub-agent's internal `Task(contrarian-reviewer)` invocation surfaces in the root transcript. Pre-edit Plan-agent + contrarian review on the closure plan revealed the premise is wrong: Claude Code root transcripts contain only the top-level `Task` tool_use block; sub-agent internal tool calls live in their own transcript files. The actually-observable variant — a top-level Plan Task followed by a top-level contrarian Task with intervening filler — exercises only the `"contrarian" not in line` pre-filter at `.claude/hooks/scan_transcript.py:170`, which is already covered by `test_deny_when_prior_exit_plan_but_no_contrarian_after` (filler-skipped → deny) + `test_corrupt_jsonl_skipped_gracefully` (corrupt-lines-skipped → allow). Synthesizing a new test would assert already-covered behavior — green-on-day-one noise that would pass even if a real-world regression occurred. #120 closed as invalid-framing 2026-04-24; closure deliverable is this entry, not a new test.

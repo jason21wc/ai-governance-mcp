@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-24 (session 124 — **BACKLOG #121 shipped (complete sweep + structural seed-at-creation gate + grandfathered-FM root-cause resolution + ref-lib doc reconciliation + parametrized traversal coverage). Registry 19 → 39 entries (22 must_cover, 14 advisory active, 3 retired). Annotations 12 → 69 across 67 tests. 16 commits local. #121/#130/#131 closed; #128/#129 filed.**)
+**Last Updated:** 2026-04-25 (session 125 — **Bundle A shipped (#84/#102/#104/#118/#120/#128 closed) + Superpowers-driven Commit 1 shipped (Step 0 effort-not-time + Step 0.1 BLUF-pyramid behavioral floor) + version propagation. Plan `~/.claude/plans/federated-plotting-karp.md` Commits 2-8 deferred for fresh-session resumption per context-degradation discipline.**)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -9,11 +9,47 @@
 
 ---
 
+## 🎯 RESUMPTION — Where to Pick Up (read this first)
+
+**Active plan file:** `/Users/jasoncollier/.claude/plans/federated-plotting-karp.md`
+
+**Status:** Commits 1 + 1.5 of 8 shipped this session (`7e7ce95` + `b567032`, pushed to main). Commits 2-8 remain.
+
+**Why we paused:** This conversation grew long. Commits 2-8 include 2 MINOR CFR version bumps (commits 3 + 4 in plan), hook extensions (commit 6), and INFLUENCES.md authoring — high-blast-radius work that benefits from fresh context per `meta-safety-transparent-limitations` + LEARNING-LOG "Multi-Mechanism Context Degradation Model" (2026-03-28).
+
+**Behavioral changes already active (shipped commits 1 + 1.5):**
+- AI must NOT estimate future work in time units (per new rules-of-procedure §7.12). Use observable effort indicators (file count, surfaces, D1/D2/D3, token budget). Scope boundary preserves calendar/cadence dates, audit-log durations, code timeouts, explicit user requests for time framing.
+- AI user-facing decision briefs follow BLUF + Minto Pyramid format (per new §7.13). 4-5 sections, 2-3 alternatives max, risk embedded per option, 300-500 / 800-1200 word budgets. Scope boundary excludes internal artifacts (plan files, ADRs, spec docs, audit logs).
+- BACKLOG.md D1/D2/D3 definitions stripped of time language ("single-session"/"multi-session" by definition; "1-4 hours" implications removed). Effort-shape indicators only.
+
+**Remaining commits (read plan file for full detail):**
+1. ~~Commit 1: Step 0 + Step 0.1~~ — **DONE** (`7e7ce95`)
+2. Commit 2: Plan-template action-atomicity prose — `.claude/plan-template.md` + CLAUDE.md + contrarian-reviewer agent + title-10 §4.1.2 cross-ref. Advisory ceiling acknowledged; structural gate filed in commit 6.
+3. Commit 3: Title-10 v2.40 MINOR — §5.1.7.1 sequenced two-stage code review. 4-surface propagation (CFR + ai-instructions + SESSION-STATE). **Coherence-auditor REQUIRED before push.**
+4. Commit 4: Title-10 v2.41 MINOR — §1.3.x brainstorming method. Same propagation pattern. **Coherence-auditor REQUIRED.**
+5. **MIDPOINT CHECKPOINT** (per plan MED-5 fold-in) — pause, re-read plan file, verify commits 1-4 delivered as intended before continuing.
+6. Commit 5: Branch Completion stage — `workflows/COMPLETION-CHECKLIST.md` 4-option decision (merge/PR/keep/discard).
+7. Commit 6: Hook gates — extends `scan_transcript.py` with action-atomicity + TDD-test-existence scans; integrates with pre-exit-plan-mode-gate + pre-push-quality-gate. WARN-mode initial; promotion trigger event-driven (next coherence-audit finding).
+8. Commit 7: Mid-execution checkpoints — concept in title-10 §5.1.x; threshold (`≥5 file changes OR >30 min runtime`) in COMPLETION-CHECKLIST per MED-4 split.
+9. Commit 8: `/INFLUENCES.md` (NEW at repo root) — 4-category attribution schema; Superpowers v5.0.7 comparison table with `enforcement: advisory|structural` per row; #G "Considered and rejected" entry per HIGH-3 (title-20 §2.3 + §3.2 already cover).
+
+**Decisions already made (don't re-deliberate):**
+- TDD enforcement: hook (not template) — pushed-time gate
+- Hook deployment: WARN-first, promote to BLOCK on first coherence-audit finding (event-driven trigger)
+- INFLUENCES.md location: repo root (NOT `documents/`)
+- 4 attribution categories (Adopted / Inspired-by + modified per research / Independently-developed equivalent / Considered and rejected)
+- Don't ship Pattern G — title-20 §2.3 + §3.2 already cover; document as "Considered and rejected"
+- Title-10 v2.40 + v2.41 split (one MINOR per new section, not bundled)
+
+**Governance trail:** `gov-9f960fac0d73` (plan eval); `gov-8e449341b2d3` (Commit 1 ship eval). Two contrarian-reviewer invocations on this plan: one on v1 draft, one on v3 (current).
+
+---
+
 ## Current Position
 
-- **Phase:** Cohorts 1, 2, 3, **and 4** of `~/.claude/plans/swift-hopping-corbato.md` all CLOSED. Cohort 4 closed session-118 (Phase 4a shipped session-117; Phase 4b deferred with battery Q7 FAIL rationale, tracked at BACKLOG #106). Cohort 3 (session-116) shipped: **rules-of-procedure v3.26.8 → v3.27.0** (MINOR — added Admission Test Q7 "Semantic-Label Risk" + PASS/FAIL exemplars; 8 cross-ref sync from "6 Questions" → "7 Questions"; removed obsolete "Constitutional Basis ← Constitutional Derivation" alias row; fixed pre-existing body-vs-frontmatter version drift); **title-40-multimodal-rag v2.4.1 → v2.4.2** (PATCH — 32 "Constitutional Derivation" → "Constitutional Basis" normalization); **scaffold_project expanded** (server.py SCAFFOLD_STANDARD_EXTRAS + 3 new skeletal templates with "starter template" banners matching title-10-ai-coding-cfr.md §1.5.2 — ARCHITECTURE.md, SPECIFICATION.md, workflows/COMPLETION-CHECKLIST.md subdirectory, BACKLOG.md; 9-file Standard tier per §1.5.5 CLAUDE.md overlay); F-P2-13 Path B resolved via PROJECT-MEMORY + LEARNING-LOG entries (no constitutional amendment; Preamble purposes are class (b) interpretive tiebreakers, not principle-count targets). Pre-edit + post-edit 3-agent batteries both ran; post-edit battery found 2 CRITICAL stale "6 files" strings in user-facing tool description + error message — fixed before commit. BACKLOG #102 + #34 both closed. Principle count unchanged (24; G:5). Tests: 1308/1308 safe-subset pass.
-- **Mode:** Standard
-- **Active Task:** Session-124 complete. 16 local commits awaiting push (`d0fb680..` through battery-fix-3). BACKLOG #121 closed via gap-detection-first sweep plan extended four times per user direction: (1) complete sweep of all 17 remaining un-annotated files, (2) grandfathered-FM root-cause resolution, (3) #130 + #131 fix-now (ref-lib reconciliation + parametrized traversal coverage), (4) battery-fix-3 (count corrections + orphan-ref cleanup + test split). **Final: registry 39 entries (22 must_cover, 14 advisory active, 3 retired 2026-04-24). Annotations 69 across 67 tests; 1381 passed, 0 skipped. All 22 must_cover FMs have ≥1 annotation; 13 of 14 active advisory FMs annotated; 1 placeholder (FM-REGISTRY-RETIRED-ID-DEPRECATION, dormant-until-triggered). No zero-annotated advisory entries remain.** Retired: FM-TEST-FULL-VALIDATION-CHAIN (anti-pattern), FM-S-SERIES-KEYWORD-FALSE-POSITIVE (known limitation, see #129 for production-fix re-register trigger), FM-ML-MODEL-MOCK-AT-SOURCE (authoring convention; reference-library doc reconciled 2026-04-24). Root cause codified in LEARNING-LOG 2026-04-24 + registry.md step 3 filter. Next: push + BACKLOG #127, #125-b, #128, #129, or user-directed.
+- **Phase:** Bundle A + Superpowers Commit 1 closed. Plan `~/.claude/plans/federated-plotting-karp.md` Commits 2-8 deferred for fresh session.
+- **Mode:** Handoff (paused mid-plan per context-degradation discipline)
+- **Active Task:** Resume Commit 2 in fresh session. See "RESUMPTION" section above for full detail.
 
 ## Quick Reference
 
@@ -21,7 +57,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v5.0.7** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.27.4** (rules-of-procedure), **v2.39.0** (title-10-ai-coding-cfr), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.8.0** (ai-instructions), **v1.5.0** (tiers.json). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v5.0.7** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.28.0** (rules-of-procedure — added §7.12 Effort-Not-Time + §7.13 BLUF-Pyramid 2026-04-25), **v2.39.0** (title-10-ai-coding-cfr — bumps to v2.40 + v2.41 pending in plan commits 3+4), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.8.1** (ai-instructions — pin update for rules-of-procedure v3.28.0), **v1.6.0** (tiers.json — added effort-not-time + bluf-pyramid-briefing directives). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1381 passing + 0 skipped** safe subset (`pytest tests/ -v -m "not slow"`); session-124 added +57 `Covers:` annotations (39 registry entries: 22 must_cover + 14 advisory active + 3 retired 2026-04-24; 69 total annotations across 67 tests) + 1 new lint test (test_new_advisory_entries_have_annotation) + 10 parametrized traversal-rejection instances + 3 parametrized non-hex-input instances + 1 retired-IDs test no longer skipped. Session-123 shipped +6 net tests. Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -34,7 +70,20 @@
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
-## Last Session (2026-04-24)
+## Last Session (2026-04-25)
+
+125. **Session-125 (2026-04-25): Bundle A shipped + Superpowers-driven Commit 1 (Step 0 + Step 0.1) shipped. Plan paused at midpoint per context-degradation discipline.**
+   - **Bundle A (3 commits, pushed to main):** `dd8a7b3` (FM-UNICODE-NORMALIZATION + FM-EMBEDDING-MODEL-ALLOWLIST registry seed; closes #128), `a84e628` (new-hook-authoring item under Code-Changes BEST-EFFORT; closes #118), `8940842` (close #120 as invalid-framing via LEARNING-LOG entry "Verify Runtime Semantics Before Scoping a Test from BACKLOG Framing" + prune 6 BACKLOG items: #84/#102/#104/#118/#120/#128). Plan: `~/.claude/plans/federated-plotting-karp.md` (was Bundle A original; harness reused name for next plan after exit/re-enter — see Note below). Tests: 1381 → 1381 passing (no test count change; #120 closed without new test per Ground-Truth re-scope).
+   - **Superpowers-driven plan (Commits 1 + 1.5 of 8 shipped, pushed to main):** Plan now at `~/.claude/plans/federated-plotting-karp.md` (overwrote Bundle A's content; harness assigned same path on plan-mode re-entry — see Note below). 3 parallel Explore agents researched our process inventory + Superpowers' 14 shipped skills + 2026 best-practice for effort estimation, technical-manager communication format, and mid-execution checkpoints. Plan agent + 2 contrarian-reviewer invocations hardened the design. Final scope: 8 commits.
+     - **Commit 1 (`7e7ce95`):** Step 0 (effort-not-time discipline per Alaswad et al. Hybrid Intelligence Effort + Kahneman/Lovallo Reference-Class Forecasting) + Step 0.1 (BLUF-Pyramid briefing format per Animalz/Minto/Hick's Law). Files: rules-of-procedure §7.12 + §7.13 (2 new methods), CLAUDE.md Behavioral Floor (2 new directives with scope boundaries), tiers.json v1.5.0 → v1.6.0 (2 new behavioral_floor.directives entries), BACKLOG.md D1/D2/D3 definition cleanup (stripped time language, pointed to §7.12).
+     - **Commit 1.5 (`b567032`):** Version-bump propagation. rules-of-procedure v3.27.4 → v3.28.0 (MINOR for §7.12 + §7.13 additions). ai-instructions v2.8.0 → v2.8.1 (PATCH pin update + Changelog entry). Frontmatter + body-header sync. Caught after Commit 1 — fix-now-tier per CLAUDE.md Defer-vs-Fix.
+   - **Plan PAUSED before commits 2-8** per Step 0.1 BLUF-discipline + `meta-safety-transparent-limitations`. Reason: 12-14 file surfaces remain across 7 commits including 2 MINOR CFR version bumps (commits 3 + 4) and hook extensions (commit 6) — high blast-radius work warrants fresh-session context per LEARNING-LOG "Multi-Mechanism Context Degradation Model" (2026-03-28). User explicitly chose pause-and-handoff option. **See "🎯 RESUMPTION" section above for resumption checklist + outstanding decisions.**
+   - **Governance trail:** `gov-9f960fac0d73` (plan eval, AI judgment required), `gov-8e449341b2d3` (Commit 1 ship eval).
+   - **Principles cited:** `meta-safety-transparent-limitations` (effort-not-time = epistemic honesty; pause-and-handoff = honest about context state); `meta-quality-effective-efficient-communication` (BLUF format operationalizes Article III §4); `meta-core-systemic-thinking` (root-cause fixes for deferral pattern + comm overhead); `meta-method-single-source-of-truth` (each rule has one canonical home + reinforcement surfaces).
+   - **Subagents used:** 3 parallel Explore agents (process inventory, Superpowers research, best-practice research) + 1 Plan agent (design validation) + 2 contrarian-reviewer invocations (v1 + v3 plan drafts). Total: 6 agent invocations.
+   - **BACKLOG state:** #84/#102/#104/#118/#120/#128 closed (Bundle A). No new BACKLOG items filed; plan-internal sequencing (commits 2-8) tracked in plan file, not BACKLOG.
+   - **Note on plan-file naming:** Both Bundle A and the Superpowers plan ended up at `~/.claude/plans/federated-plotting-karp.md` due to harness behavior on plan-mode re-entry. The Bundle A content is in git history (commit `8940842` referenced it); current file content is the Superpowers plan with Commits 2-8 remaining. Future sessions should read the file as-is for resumption guidance.
+   - **Resumption:** Read this Quick Reference + the "🎯 RESUMPTION" section above + the plan file, then start at Commit 2.
 
 124. **Session-124 (2026-04-24): BACKLOG #121 shipped — gap-detection-first Covers annotation sweep. Registry 19 → 38 FMs; annotations 12 → 59 across 58 tests. 5 local commits.**
    - **Plan:** `~/.claude/plans/remember-you-don-t-have-lucky-hopper.md` — gap-detection-first (not annotation-maximization). Contrarian-reviewed pre-ExitPlanMode (`aa53ca0c184ece951` PROCEED-WITH-REQUIRED-CHANGES; C1/C2/C3 folded). Frame: coverage truth + gap resolution > annotation count.
