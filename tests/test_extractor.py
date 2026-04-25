@@ -36,7 +36,10 @@ class TestEmbeddingGeneratorInit:
         assert generator._model is None  # Not loaded yet
 
     def test_init_rejects_non_allowlisted_model(self):
-        """Should reject models not in the allowlist."""
+        """Should reject models not in the allowlist.
+
+        Covers: FM-EMBEDDING-MODEL-ALLOWLIST-AT-INIT
+        """
         from ai_governance_mcp.extractor import EmbeddingGenerator
 
         with pytest.raises(ValueError, match="not in allowlist"):
@@ -1293,7 +1296,10 @@ class TestUnicodeNormalization:
     """Tests for Unicode NFKC normalization security feature."""
 
     def test_normalize_text_strips_invisible_chars(self):
-        """Should strip zero-width and invisible characters."""
+        """Should strip zero-width and invisible characters.
+
+        Covers: FM-UNICODE-NORMALIZATION-PRE-PATTERN-MATCH
+        """
         from ai_governance_mcp.extractor import normalize_text_for_security
 
         # Zero-width space (U+200B) between words

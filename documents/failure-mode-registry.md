@@ -240,6 +240,18 @@ entries:
     scope: framework
     introduced: "2026-04-23"
     source: "v3 plan Phase 4"
+  - id: FM-UNICODE-NORMALIZATION-PRE-PATTERN-MATCH
+    description: "Zero-width / invisible / NFKC-compatibility characters must be stripped before security regex pattern matching — unnormalized input enables unicode-obfuscation bypass of S-Series and similar gates."
+    must_cover: false
+    scope: framework
+    introduced: "2026-04-24"
+    source: "BACKLOG #128 / session-124 Phase 0 deferred advisory candidate"
+  - id: FM-EMBEDDING-MODEL-ALLOWLIST-AT-INIT
+    description: "Non-allowlisted embedding models must be rejected at `__init__` (eager validation), not at inference / first encode call. Lazy rejection wastes a model-load attempt and surfaces the failure far from its cause."
+    must_cover: false
+    scope: project
+    introduced: "2026-04-24"
+    source: "BACKLOG #128 / session-124 Phase 0 deferred advisory candidate"
 ---
 
 # Failure Mode Registry

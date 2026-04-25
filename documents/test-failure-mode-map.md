@@ -169,6 +169,12 @@
 
 ## Advisory Entries
 
+### `FM-EMBEDDING-MODEL-ALLOWLIST-AT-INIT`
+
+> Non-allowlisted embedding models must be rejected at `__init__` (eager validation), not at inference / first encode call. Lazy rejection wastes a model-load attempt and surfaces the failure far from its cause.
+
+- `tests/test_extractor.py` → `TestEmbeddingGeneratorInit::test_init_rejects_non_allowlisted_model`
+
 ### `FM-HEARTBEAT-THREAD-RACE-CONDITION`
 
 > `_heartbeat_loop` must execute each tick atomically with respect to `stop_event` checks — no gap where elapsed crosses `hard_cap` but thread misses `stop_event` until next iteration.
@@ -254,6 +260,12 @@ _No annotated tests yet._
 - `tests/test_pre_test_oom_gate_hook.py` → `TestDenyLogSideEffect::test_allow_does_not_write_deny_log`
 - `tests/test_pre_test_oom_gate_hook.py` → `TestDenyLogSideEffect::test_deny_writes_to_log_file`
 - `tests/test_server_integration.py` → `TestMetricsAccumulation::test_metrics_accumulate_across_queries`
+
+### `FM-UNICODE-NORMALIZATION-PRE-PATTERN-MATCH`
+
+> Zero-width / invisible / NFKC-compatibility characters must be stripped before security regex pattern matching — unnormalized input enables unicode-obfuscation bypass of S-Series and similar gates.
+
+- `tests/test_extractor.py` → `TestUnicodeNormalization::test_normalize_text_strips_invisible_chars`
 
 ### `FM-WATCHER-CORRUPT-METADATA-RESILIENCE`
 
