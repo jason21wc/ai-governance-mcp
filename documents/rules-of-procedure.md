@@ -1,16 +1,16 @@
 ---
-version: "3.27.4"
+version: "3.28.0"
 status: "active"
-effective_date: "2026-04-20"
+effective_date: "2026-04-25"
 domain: "constitution"
 ---
 
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.27.4
+**Version:** 3.28.0
 **Status:** Active
-**Effective Date:** 2026-04-20
+**Effective Date:** 2026-04-25
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -4993,6 +4993,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.28.0 | 2026-04-25 | MINOR: Added two new methods to TITLE 7 codifying behavioral floor additions per plan `~/.claude/plans/federated-plotting-karp.md` Commit 1. (1) **§7.12 Effort-Not-Time Estimation** — AI must not estimate future work in time units; uses observable effort indicators (file count, surfaces, D1/D2/D3, token budget) + Hybrid Intelligence Effort framework (Alaswad et al., Frontiers AI 2026) + Reference-Class Forecasting (Kahneman/Lovallo, PMI 2026; 70-80% empirical hit rate vs <20% inside-view). Empirical observation: AI time estimates routinely overrun ground truth 50-100×, driving false-deferral. Scope boundary preserves calendar/cadence dates, historical durations in audit logs, timeout values in code, and explicit user requests for time framing. (2) **§7.13 BLUF-Pyramid Briefing** — User-facing decision briefs lead with 2-3 sentence Bottom Line Up Front, present 2-3 alternatives max (Hick's Law), embed risk per option. 4-5 sections, 3-5 bullets, 10-20 words/bullet, 300-500 words for 1-pager / 800-1200 for 2-pager. Scope boundary excludes internal technical artifacts (plan files, ADRs, spec documents, audit logs). Sources: Animalz BLUF; BetterUp Minto Pyramid; Laws of UX Hick's Law; HBR 2026 Trendslop research; ACM CHI 2026 LLM Cognitive Biases. Paired with CLAUDE.md Behavioral Floor + tiers.json v1.5.0 → v1.6.0 directive entries + BACKLOG.md D1/D2/D3 definition cleanup (stripped time language). Governance trail: `gov-9f960fac0d73` (plan eval), `gov-8e449341b2d3` (commit eval). Constitutional Basis: meta-safety-transparent-limitations (epistemic honesty about AI calibration); meta-quality-effective-efficient-communication (Article III §4 — operationalized); meta-core-systemic-thinking (root-cause fixes for forward-continuation deferral pattern + comm overhead). |
 | 3.27.4 | 2026-04-20 | PATCH: Cohort 5 post-commit double-check (sessions 5-1 + 5-2, commits `b0e14e4` + `bdafbc6`). Added clarifying note to §1.1.3 `governance_level` enum explaining that the `rules-of-procedure` value — listed as valid — is no longer used by any active document since F-C-05 removed it from `rules-of-procedure.md` itself. Retained as valid authoring value for future documents at that layer + archive backward-compat. Addresses coherence-auditor MISLEADING finding that the enum advertised a value with no active consumer. Governance trail: `gov-9ab4e2bca855`. Constitutional Basis: Single Source of Truth. |
 | 3.27.3 | 2026-04-20 | PATCH: Cohort 5 Session 5-2 (session-119) — two changes. (1) **Removed `governance_level: "rules-of-procedure"` frontmatter field** (F-C-05). Grep confirmed zero code consumers (`grep governance_level src/` → 0 matches; no retrieval pipeline, no test, no extractor reads the value). Field was documentary-only; deletion per §9.8.5 bright-line (editorial; changes *how the framework describes itself* without changing behavior). Domain entry in `domains.json` was never present — this cleans up an orphan metadata field. Frontmatter is now `version`/`status`/`effective_date`/`domain` only. (2) **Added §9.7.1 architectural note** (F-P1-03 disposition) documenting why "Rules of Procedure" is a single layer in this framework vs. distributed across US Constitutional branches (Supreme Court Rules + Congressional standing rules). No operative consequence; noted for architectural transparency. Governance trail: `gov-3e5998987962` (Cohort 5 plan eval carry-forward). Constitutional Basis: Single Source of Truth, Visible Reasoning & Traceability. |
 | 3.27.2 | 2026-04-19 | PATCH: Cohort 4 Phase 4a (session-117) — formalized two pre-existing cross-doc amendment-log conventions in §2.1.1 Notes block. (1) **Version-history section required**: every normative document must have a version-history section (naming varies by document convention — Historical Amendments / Version History / Changelog / Appendix C all accepted). Closes F-P1-06: `ai-instructions.md` was the only doc lacking one (now has `## Changelog` at bottom). §2.1.1 Step 3 "Add version history entry in document" pre-existed; this formalization documents the cross-doc scope. (2) **Audit-ID citation**: amendment entries that reference governance consultations must cite the `audit_id` (e.g., `gov-abc123`). Forward-going from 2026-04-19; historical entries grandfathered. Convention was already observed in v5.0.0/v5.0.1/v5.0.2 constitution amendments. Governance trail: `gov-9a509771c252` (Phase 4a execution eval). Constitutional Basis: Single Source of Truth, Visible Reasoning & Traceability. |
