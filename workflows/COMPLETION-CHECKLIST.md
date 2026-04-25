@@ -45,12 +45,19 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 13. Benchmark baseline captured before index/retrieval changes
 14. README/SPEC/ARCH propagation for domain counts, file trees, version references
 15. Docker rebuild if `src/`, `pyproject.toml`, or `Dockerfile` changed
+16. **New hook authoring** — when adding a new `.claude/hooks/*.sh`:
+    1. Register matcher in `.claude/settings.json`.
+    2. Author test file(s) in `tests/` following `tests/test_pre_test_oom_gate_hook.py` pattern.
+    3. Add row AND narrative prose block to CFR §9.3.10 Layered Enforcement Stack (not just the table).
+    4. If the hook enforces a behavioral rule, add paired directive to CLAUDE.md Behavioral Floor + `documents/tiers.json` `behavioral_floor.directives`.
+    5. Follow CFR §9.3.10 Hook Implementation Prerequisites recipe (ERR trap + platform timeout detection + escape hatches + self-diagnosing fallback).
+    6. If the hook affects adopter-facing governance OR takes >3 sessions to remediate, file a V-series verification item in `workflows/COMPLIANCE-REVIEW.md` measuring whether the enforcement changes behavior or just blocks it.
 
 ### ALWAYS (regardless of enforcement tier)
 
-16. Update and prune SESSION-STATE.md (version, counts, summary; remove old session summaries; target <300 lines per §7.0.4) — at minimum at session end
-17. Commit and push
-18. Verify CI green (`gh run watch`)
+17. Update and prune SESSION-STATE.md (version, counts, summary; remove old session summaries; target <300 lines per §7.0.4) — at minimum at session end
+18. Commit and push
+19. Verify CI green (`gh run watch`)
 
 ## Content changes (governance documents)
 
