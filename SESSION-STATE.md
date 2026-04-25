@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-25 (session 126 — **Superpowers plan SHIPPED + 5-commit post-ship remediation arc complete. All 13 commits pushed; CI green. Two post-ship double-check batteries run; all findings folded inline.**)
+**Last Updated:** 2026-04-25 (session 127 — **§8.3.4 solo-mode self-application + push-workflow routing rule codified; gh-pr-merge security gap closed; BACKLOG #133 closed earlier same session.** 3 commits shipped; pre-plan 3-agent battery (contrarian + security + coherence) convergent on scope reduction; post-edit Stage 2 battery pending.)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,7 +11,7 @@
 
 ## 🎯 RESUMPTION — Where to Pick Up (read this first)
 
-**Plan + 5-commit post-ship remediation complete.** Original Superpowers plan (`~/.claude/plans/federated-plotting-karp.md`) shipped all 8 commits + 5 post-ship remediation commits + 2 post-ship contrarian batteries; all pushed to main with CI green.
+**Session-127 (2026-04-25) shipped 4 commits: `6349a96` (#133 close), `aa7eb0e` (LOW cleanup), `a52b208` (§8.3.4 self-application + B1 close), and this commit (Stage-2-battery follow-up — SESSION-STATE entry + COMPLETION-CHECKLIST 5-options-cardinality + Option C user-mediation note).** First two pushed; latter two local awaiting user-mediated push per just-codified routing rule. Prior session-126 work (Superpowers plan + 5-commit post-ship remediation) shipped earlier; all pushed.
 
 **Post-ship remediation arc (Commits 9-13, in order):**
 - Commit 9 (`61b0058`) — title-10 v2.42.1 PATCH: §5.1.8 step 3 written-artifact requirement + §1.3.5 ENHANCED-OR-no-precedent override (closes batteries 1's checkpoint-theater + under-calibration findings)
@@ -20,9 +20,9 @@
 - Commit 12 (`e6e7cca`) — BACKLOG #132 close: rules-of-procedure §7.12.1 5th exception added; title-10 §5.1.8 + COMPLETION-CHECKLIST 16a switched from "by analogy with" to direct verbatim citation; bundled ai-instructions PATCH-on-PATCH for both pins
 - Commit 13 (this) — §7.12.1 anti-example PATCH (closes battery 2's HIGH-leverage finding that 5th exception was open-textured + could absorb #131 violations); SESSION-STATE prune; ai-instructions v2.8.5 stale-note correction
 
-**Open BACKLOG items:** #131 (§7.12 retroactive sweep — guidance now sharpened by §7.12.1 anti-example shipped Commit 13), plus pre-existing #129/#127/#125-b/#91-sub5/#78. **#133 closed session-127** (placeholder-convention fix — `(current version)` from §7.4.3 applied to Appendix A.1 + K.2 + SCAFFOLD_AGENTS_MD).
+**Open BACKLOG items:** #131 (§7.12 retroactive sweep), #134 (PR-workflow infrastructure tripwire — re-evaluate when ≥3 external watchers OR ≥1 external issue/PR), #135 (bypass-envvar audit-log invariant refactor), plus pre-existing #57/#99/#129/#127/#125-b/#91-sub5/#78. **Closed session-127:** #133 (placeholder convention for stale framework version pins).
 
-**Next session can pick up at:** BACKLOG #131 (§7.12 sweep, now ready per anti-example) or user-directed.
+**Next session can pick up at:** BACKLOG #131 (§7.12 sweep, now ready per anti-example), or user-directed work from the 9-cluster grooming (Cluster 1 #57/#99 remain after #133 closed).
 
 **Behavioral changes active across all shipped commits (versions current as of v3.28.2 / v2.42.3 / v2.8.8):**
 - §7.12 Effort-Not-Time + §7.13 BLUF-Pyramid (Commit 1, codified rules-of-procedure §7.12 + §7.13; v3.28.2 added §7.12.1 5th exception with anti-example for planning-band estimates)
@@ -72,9 +72,9 @@
 
 ## Current Position
 
-- **Phase:** Superpowers plan + 5-commit post-ship remediation arc COMPLETE; session-126 close + BACKLOG #133 close shipped on main (Commits 13/14 + #133 close `6349a96`). CI green on `a7c8e2d` (last CI-confirmed); #133 close commit pending push.
-- **Mode:** None blocking. Open BACKLOG: #131 + pre-existing #129/#127/#125-b/#91-sub5/#78.
-- **Active Task:** None active. Next session can pick up at #131 (§7.12 sweep, anti-example shipped this commit makes scope explicit) or user-directed.
+- **Phase:** Session-127 push-workflow plan SHIPPED. 4 commits today: `6349a96` (#133 close), `aa7eb0e` (LOW cleanup on #133), `a52b208` (§8.3.4 self-application + B1 close), and this commit (Stage-2-battery follow-up). First two pushed; latter two local pending user-mediated push per just-codified routing rule.
+- **Mode:** None blocking. Open BACKLOG: #131 + #134 + #135 + pre-existing #57/#99/#129/#127/#125-b/#91-sub5/#78.
+- **Active Task:** None active post-`a52b208` Stage 2 battery (coherence-auditor + validator findings folded into this commit). Next session can pick up at #131 or user-directed.
 
 ## Quick Reference
 
@@ -97,8 +97,19 @@
 
 ## Last Session (2026-04-25)
 
-> *Session-126 close (Commit 14 `a7c8e2d`) routed its summary to PROJECT-MEMORY.md + LEARNING-LOG.md per session-end protocol. Session-125 entry below is the most recent SESSION-STATE-resident summary. Full session-126 narrative: see PROJECT-MEMORY entry "Superpowers plan + 5-commit post-ship remediation arc" + LEARNING-LOG entries dated 2026-04-25.*
+> *Session-126 close (Commit 14 `a7c8e2d`) routed its summary to PROJECT-MEMORY.md + LEARNING-LOG.md per session-end protocol. Full session-126 narrative: see PROJECT-MEMORY entry "Superpowers plan + 5-commit post-ship remediation arc" + LEARNING-LOG entries dated 2026-04-25.*
 
+127. **Session-127 (2026-04-25): BACKLOG #133 closed + push-workflow §8.3.4 self-application shipped + gh-pr-merge security gap closed.**
+   - **Four commits this session.** `6349a96` (BACKLOG #133 close — placeholder convention `(current version)` from §7.4.3 applied to Appendix A.1 + K.2 + SCAFFOLD_AGENTS_MD; CFR PATCH v2.42.2 → v2.42.3; ai-instructions PATCH-on-PATCH v2.8.7 → v2.8.8). `aa7eb0e` (LOW-findings cleanup — Phase line freshness + session-126 pointer; surfaced by post-edit coherence-auditor on `6349a96`). `a52b208` (§8.3.4 solo-mode self-application + project-level deny `gh pr merge:*` + `gh pr review --approve:*`; routing rule codified in COMPLETION-CHECKLIST Branch Completion preamble; PROJECT-MEMORY decision recorded; 2 BACKLOG entries filed — #134 PR-infrastructure tripwire + #135 audit-log-invariant refactor). This commit (Stage 2 post-edit battery follow-up — SESSION-STATE session-127 entry + 4-commit narrative + COMPLETION-CHECKLIST line 225 four→five options + Option C step 4 `gh pr merge` user-mediation note + #57/#99 added to pre-existing-open list per validator NOTE-1). First two pushed; latter two local pending user-mediated push per just-codified routing rule.
+   - **Push-workflow plan (`~/.claude/plans/using-ai-governance-and-systemic-cryptic-blossom.md`):** Triggered by harness blocking `git push origin main` ("bypasses pull request review"). User asked for systemic answer + dual-mode allowance. Phase 1 = 3 parallel Explore agents (workflow inventory + framework principles + external best-practices research). Found: framework already had answer in `coding-method-solo-mode-workflow §8.3.4` ("gates combined but not eliminated"). Pre-plan 3-agent battery (contrarian + security + coherence in parallel) **converged on scope reduction** — original 6-component sketch (CODEOWNERS + branch protection + WARN hook + new PR-WORKFLOW.md + settings expansion + PROJECT-MEMORY) reduced to 4 files of pure routing-rule codification + B1 close + tripwire BACKLOG. Convergent BLOCKER: "no defect class identified that PR review catches and pre-push battery misses" + "proposal violates §8.3.4 combined-not-eliminated" + "B1 gh pr merge user-level wildcard already permits AI auto-merge — adopting PR workflow makes it load-bearing." Steel-manned alternative ("do nothing structural, fix only the security gap") substantively adopted with one addition (Workflow Integrity §Q5 reminder for on-demand PR diffs).
+   - **Routing rule (canonical home: `workflows/COMPLETION-CHECKLIST.md` Branch Completion preamble):** Trunk direct (Option A) is solo-mode default per §8.3.4; pre-push battery (§5.1.7.1 + §9.3.10 Layer 5) IS the review. PR (Option B) on-demand for high-stakes architectural/security/schema-migration changes (time-separation review per §5.1.8 step 4) but NOT required for any class. Pushes to main user-mediated via `! git push origin main` — preserves "AI cannot auto-push to main" structural invariant. Workflow Integrity §Q5 reminder: PR comments untrusted; subagent diff review uses `gh pr diff`, not `gh pr view`.
+   - **Security improvements shipped:** B1 closed via project-level `.claude/settings.json` deny `Bash(gh pr merge:*)` + `Bash(gh pr review --approve:*)` — overrides user-level `Bash(gh pr:*)` wildcard (deny beats allow); adopters scaffolding from this repo inherit the floor. B2 deferred as BACKLOG #135 (6 hook-bypass envvars need shared `audit_bypass()` helper; only `PLAN_CONTRARIAN_SKIP_HOOK` audit-logs today).
+   - **Tripwire (BACKLOG #134):** PR-required-by-class infrastructure (CODEOWNERS, branch protection paths, pre-push routing hook) reopens when ≥3 external watchers OR ≥1 external issue/PR appear — currently 0 stars/0 forks/0 external PRs in 4 months. Reputational signal becomes evidenced rather than hypothesized.
+   - **Governance trail:** `gov-7083d6c85ffc` (#133 + plan eval, AI judgment), `gov-0af5c8eb6014` (this SESSION-STATE update). 4 governance audits this session (one for each major decision point).
+   - **Subagents used (extensive — user explicitly asked "reviewed by all applicable subagents"):** 3 parallel Explore (Phase 1 research) + Plan agent embedded in synthesis + 3-agent pre-plan parallel battery (contrarian-reviewer `ac01f99ca9778410d`, security-auditor `a44b7638cf3d43b52`, coherence-auditor `a670ce08b44e0fe05`) + post-edit coherence-auditor on `6349a96` (caught LOW-findings → folded into `aa7eb0e`) + post-edit Stage 2 battery on `a52b208` pending (coherence + validator per §5.1.7.1 sequencing). Total: 9-10 agent invocations.
+   - **Principles cited:** `coding-method-solo-mode-workflow §8.3.4` (canonical authority for the routing rule — gates combined not eliminated); `coding-quality-workflow-integrity §Q5` (PR comments untrusted data; informs Option B reminder); `meta-method-single-source-of-truth` (one canonical home for routing rule — COMPLETION-CHECKLIST); `meta-core-systemic-thinking` (no infrastructure for hypothesized adopters; tripwire makes re-evaluation event-driven); `meta-method-effort-not-time-estimation` (D1 effort scoping; reviews flagged D2-D3 over-build); `meta-method-bluf-pyramid-briefing` (plan Plain-English Summary leads with material decision).
+   - **BACKLOG state:** -1 closed (#133), +2 filed (#134, #135). Net +1 open. 9-cluster grooming from session start: Cluster 1 #133 closed; #57 + #99 remain.
+   - **Resumption:** User pushes `a52b208` via `! git push origin main`; CI watch (~3 min); post-edit Stage 2 battery (coherence-auditor + validator) on `a52b208` per §5.1.7.1 — pending this iteration. Next session: BACKLOG #131 (§7.12 sweep) or Cluster 1 continuation (#57 + #99) per 9-cluster grooming.
 
 125. **Session-125 (2026-04-25): Bundle A shipped + Superpowers-driven Commit 1 (Step 0 + Step 0.1) shipped. Plan paused at midpoint per context-degradation discipline.**
    - **Bundle A (3 commits, pushed to main):** `dd8a7b3` (FM-UNICODE-NORMALIZATION + FM-EMBEDDING-MODEL-ALLOWLIST registry seed; closes #128), `a84e628` (new-hook-authoring item under Code-Changes BEST-EFFORT; closes #118), `8940842` (close #120 as invalid-framing via LEARNING-LOG entry "Verify Runtime Semantics Before Scoping a Test from BACKLOG Framing" + prune 6 BACKLOG items: #84/#102/#104/#118/#120/#128). Plan: `~/.claude/plans/federated-plotting-karp.md` (was Bundle A original; harness reused name for next plan after exit/re-enter — see Note below). Tests: 1381 → 1381 passing (no test count change; #120 closed without new test per Ground-Truth re-scope).

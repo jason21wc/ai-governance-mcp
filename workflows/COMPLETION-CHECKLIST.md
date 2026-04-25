@@ -222,7 +222,7 @@ When you discover a new behavior the AI should consistently exhibit:
 
 ## Branch Completion
 
-> Final stage for any work session: decide what happens to the branch you're on. The four options below are mutually exclusive — pick one, run its checklist, then stop. The decision tree exists because end-of-session ambiguity ("did we ship?", "is this PR-ready?", "should we keep going?") is the most common cause of incomplete handoffs.
+> Final stage for any work session: decide what happens to the branch you're on. The five options below are mutually exclusive — pick one, run its checklist, then stop. The decision tree exists because end-of-session ambiguity ("did we ship?", "is this PR-ready?", "should we keep going?") is the most common cause of incomplete handoffs.
 
 **Routing rule (per `coding-method-solo-mode-workflow` §8.3.4 — Solo Mode: combined gates, not eliminated):**
 
@@ -283,7 +283,7 @@ Use when work is complete on a non-trunk branch and you have authority to merge 
 - [ ] All change-type checklists above are satisfied
 - [ ] `git push -u origin <branch>` — push branch
 - [ ] `gh run watch` — wait for CI green BEFORE merging (don't merge red)
-- [ ] Merge via `gh pr merge --squash --delete-branch` (or project's preferred merge style — squash/merge/rebase per repo convention)
+- [ ] Merge via `! gh pr merge --squash --delete-branch` (user-mediated — `Bash(gh pr merge:*)` is denied at project level per Branch Completion preamble; AI cannot run this. Use shell-prefix `!` or run from your shell. Project's preferred merge style — squash/merge/rebase — per repo convention.)
 - [ ] Verify trunk CI green after merge (`git checkout main && git pull && gh run watch`)
 - [ ] Delete local branch (`git branch -d <branch>`)
 
