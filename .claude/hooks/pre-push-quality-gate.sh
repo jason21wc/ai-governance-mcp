@@ -159,6 +159,7 @@ if [ "${TDD_TEST_EXISTENCE_SKIP:-}" != "1" ] && [ -n "$NEW_SRC_FILES" ]; then
         TDD_FINDINGS=$(printf '%s\n' "$NEW_SRC_FILES" | python3 "$HOOK_DIR/scan_transcript.py" --tdd-test-existence - 2>&1 >/dev/null || true)
         echo "[tdd-test-existence] WARN — new src files lack paired test files (advisory; bypass with TDD_TEST_EXISTENCE_SKIP=1):" >&2
         echo "$TDD_FINDINGS" >&2
+        echo "[tdd-test-existence] If this WARN later turns out to pre-figure a real defect (the unpaired src file shipped a regression paired tests would have caught), file the trigger event in V-008 row of workflows/COMPLIANCE-REVIEW.md — closes the event-driven WARN→BLOCK promotion loop without depending on human memory." >&2
     fi
 fi
 

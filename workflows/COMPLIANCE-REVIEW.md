@@ -366,6 +366,8 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 **Promotion trigger (event-driven, no count required):** When a plan ships that subsequently produces a defect coherence-auditor would have caught had the WARN-mode plan-atomicity finding been a BLOCK, promote `_warn_action_atomicity` from WARN to deny. Mechanism: track in this section's table the session/finding-ID where the trigger fires.
 
+**In-band reminder mechanism (per post-ship contrarian battery, audit `a62e96c04a3f91721`):** The WARN message itself includes a pointer to V-007 ("if this WARN ever pre-figures a real bug, file the trigger event in V-007 row of `workflows/COMPLIANCE-REVIEW.md`") so the trigger isn't dependent on humans remembering this V-series exists. Closes the human-memory failure mode the contrarian flagged: "event-driven trigger has the same human-memory problem as count-based, just hidden behind 'event-driven' framing." The in-band reminder makes the trigger structurally visible at the moment the WARN fires.
+
 **Bypass:** `PLAN_ACTION_ATOMICITY_SKIP=1` (un-audited; non-load-bearing while WARN-only). Add audit-logging if/when promoted to BLOCK.
 
 **Baseline:** First WARN scan ships session-126 with this hook integration. Plan `~/.claude/plans/federated-plotting-karp.md` (current session) is the dogfood test — if `_warn_action_atomicity` fires on this plan's own task entries, document below.
@@ -387,6 +389,8 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 **Process indicator:** Count of stderr `[tdd-test-existence] WARN` lines emitted by `pre-push-quality-gate.sh` per push that touches `src/*.py`. Source: terminal stderr capture during `git push` (or hook debug log).
 
 **Promotion trigger (event-driven, no count required):** When a regression ships that paired tests would have caught and the WARN scan flagged the missing pair pre-push, promote from WARN to deny. Mechanism: track in this section's table the regression session-ID.
+
+**In-band reminder mechanism (per post-ship contrarian battery, audit `a62e96c04a3f91721`):** The WARN message itself includes a pointer to V-008 ("if this WARN ever pre-figures a real bug, file the trigger event in V-008 row of `workflows/COMPLIANCE-REVIEW.md`") so the trigger isn't dependent on humans remembering this V-series exists. Same rationale as V-007 above — closes the human-memory failure mode in the event-driven trigger framing.
 
 **Bypass:** `TDD_TEST_EXISTENCE_SKIP=1` (un-audited; non-load-bearing while WARN-only).
 

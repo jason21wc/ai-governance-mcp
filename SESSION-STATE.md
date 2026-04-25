@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-25 (session 126 — **Superpowers plan COMPLETE. All 8 commits shipped session-126 (`ee93845`, `075ef62`, `5535557`, `c9500ce`, `9eeeb01`, `07eb129`, + Commit 8 INFLUENCES.md). MIDPOINT CHECKPOINT passed between Commits 4 and 5 (no drift). 7 commits local to push.**)
+**Last Updated:** 2026-04-25 (session 126 — **Superpowers plan SHIPPED + post-ship remediation underway. 8-commit plan + Commit 9 (v2.42.1 PATCH) pushed; Commit 10 (process artifacts) in-flight; #130 + #132 deferred to next batch per user direction.**)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,38 +11,48 @@
 
 ## 🎯 RESUMPTION — Where to Pick Up (read this first)
 
-**Active plan file:** `/Users/jasoncollier/.claude/plans/federated-plotting-karp.md`
+**Plan complete + post-ship remediation in progress.** Original Superpowers plan (`~/.claude/plans/federated-plotting-karp.md`) shipped all 8 commits to main. Post-ship contrarian battery (audit `a62e96c04a3f91721`) returned PROCEED WITH REQUIRED CHANGES, HIGH confidence — surfacing 2 HIGH-leverage findings (checkpoint theater, fabricated-authority chain) + 2 lower-leverage findings (§1.3.5 under-calibration, V-series human-memory gap). Commit 9 (`61b0058`, title-10 v2.42.1 PATCH) shipped session-126 closing the §5.1.8 + §1.3.5 findings. Commit 10 in-flight closing V-series + Pattern G + post-hoc MIDPOINT artifact. **Next batch:** address BACKLOG #130 (pin-discipline self-contradiction) + #132 (§7.12.1 5th exception canonicalization) per user direction "fix everything other than #130 and #132 first, then we will fix those next."
 
-**Status:** All 8 commits shipped. Commits 1 + 1.5 session-125 (`7e7ce95` + `b567032`, pushed). Commits 2-7 session-126 (`ee93845`, `075ef62`, `5535557`, `c9500ce`, `9eeeb01`, `07eb129`, local). Commit 8 (INFLUENCES.md) in-flight session-126. 7 commits local awaiting push. MIDPOINT CHECKPOINT passed between Commits 4 and 5.
-
-**Why we paused:** This conversation grew long. Commits 2-8 include 2 MINOR CFR version bumps (commits 3 + 4 in plan), hook extensions (commit 6), and INFLUENCES.md authoring — high-blast-radius work that benefits from fresh context per `meta-safety-transparent-limitations` + LEARNING-LOG "Multi-Mechanism Context Degradation Model" (2026-03-28).
-
-**Behavioral changes already active (shipped commits 1 + 1.5):**
-- AI must NOT estimate future work in time units (per new rules-of-procedure §7.12). Use observable effort indicators (file count, surfaces, D1/D2/D3, token budget). Scope boundary preserves calendar/cadence dates, audit-log durations, code timeouts, explicit user requests for time framing.
-- AI user-facing decision briefs follow BLUF + Minto Pyramid format (per new §7.13). 4-5 sections, 2-3 alternatives max, risk embedded per option, 300-500 / 800-1200 word budgets. Scope boundary excludes internal artifacts (plan files, ADRs, spec docs, audit logs).
-- BACKLOG.md D1/D2/D3 definitions stripped of time language ("single-session"/"multi-session" by definition; "1-4 hours" implications removed). Effort-shape indicators only.
-
-**Remaining commits (read plan file for full detail):**
-1. ~~Commit 1: Step 0 + Step 0.1~~ — **DONE** (`7e7ce95`)
-2. ~~Commit 2: Plan-template action-atomicity prose~~ — **DONE** (`ee93845`, session-126). Title-10 §4.1.2 cross-ref deferred to Commit 4 per plan literal text "folded with commit 4 MINOR bump".
-3. ~~Commit 3: Title-10 v2.40 MINOR — §5.1.7.1 sequenced two-stage code review~~ — **DONE** (`075ef62`, session-126). 4-surface propagation done (CFR + ai-instructions + SESSION-STATE + Situation Index). Coherence-auditor PROCEED_WITH_CHANGES; findings #1, #2, #3 folded; #5 filed to BACKLOG #130.
-4. ~~Commit 4: Title-10 v2.41 MINOR — §1.3.5 Brainstorming Method + §4.1.2 effort-shaped fold-in~~ — **DONE** (`5535557`, session-126).
-5. ~~MIDPOINT CHECKPOINT~~ — **DONE** (session-126, between Commits 4 and 5). No drift; PROCEED to Commit 5.
-6. ~~Commit 5: Branch Completion stage~~ — **DONE** (`c9500ce`, session-126). 5-option decision tree (split MERGE into trunk-direct vs feature-branch).
-7. ~~Commit 6: Hook gates~~ — **DONE** (`9eeeb01`, session-126). scan_transcript.py extended (--plan-action-atomicity + --tdd-test-existence); pre-exit-plan-mode-gate + pre-push-quality-gate WARN-mode integration; 14 new tests; V-007 + V-008 in COMPLIANCE-REVIEW.md.
-8. ~~Commit 7: Mid-execution checkpoints — concept in title-10 §5.1.8; threshold in COMPLETION-CHECKLIST item 16a~~ — **DONE** (`07eb129`, session-126). Coherence-auditor PROCEED_WITH_CHANGES; MISLEADING-1 + MISLEADING-2 folded inline; BACKLOG #132 filed for §7.12.1 5th-exception canonicalization.
-9. ~~Commit 8: `/INFLUENCES.md` (NEW at repo root)~~ — **DONE** (in-flight session-126). 8-pattern Superpowers attribution table + Other Influences table (10+ external sources).
-10. **PUSH** — 7 commits local awaiting `git push origin main`. Tests 1395 passing safe subset (no regression).
+**Behavioral changes active across all shipped commits:**
+- §7.12 Effort-Not-Time + §7.13 BLUF-Pyramid (sessions-125 Commit 1)
+- §5.1.7.1 Sequenced Two-Stage Review (v2.40)
+- §1.3.5 Brainstorming Method ENHANCED-OR-no-precedent (v2.41 + v2.42.1 OR-clause widening)
+- COMPLETION-CHECKLIST Branch Completion 5-option decision tree (Commit 5)
+- Hook gates `--plan-action-atomicity` + `--tdd-test-existence` WARN-mode (Commit 6)
+- §5.1.8 Mid-Execution Checkpoint Protocol with v2.42.1 step 3 written-artifact REQUIRED (Commit 7 + 9)
+- INFLUENCES.md attribution scaffold at repo root (Commit 8)
 
 **Decisions already made (don't re-deliberate):**
 - TDD enforcement: hook (not template) — pushed-time gate
-- Hook deployment: WARN-first, promote to BLOCK on first coherence-audit finding (event-driven trigger)
+- Hook deployment: WARN-first, promote to BLOCK on first coherence-audit finding (event-driven; in-band reminder per Commit 10)
 - INFLUENCES.md location: repo root (NOT `documents/`)
-- 4 attribution categories (Adopted / Inspired-by + modified per research / Independently-developed equivalent / Considered and rejected)
-- Don't ship Pattern G — title-20 §2.3 + §3.2 already cover; document as "Considered and rejected"
-- Title-10 v2.40 + v2.41 split (one MINOR per new section, not bundled)
+- 4 attribution categories
+- §1.3.5 ENHANCED-OR-no-precedent widening (v2.42.1)
+- §5.1.8 step 3 REQUIRES written artifact (v2.42.1) — bare assertions = checkpoint did not happen
 
-**Governance trail:** `gov-9f960fac0d73` (plan eval); `gov-8e449341b2d3` (Commit 1 ship eval). Two contrarian-reviewer invocations on this plan: one on v1 draft, one on v3 (current).
+**Governance trail:** `gov-9f960fac0d73` (original plan), `gov-71c1d6662fa7` (Commit 9 v2.42.1 PATCH), `gov-6c38e05ddaab` (Commit 10 process artifacts). Three contrarian-reviewer invocations on this plan: v1 draft, v3 (final), post-ship.
+
+---
+
+## Post-Hoc MIDPOINT CHECKPOINT Artifact (per §5.1.8 v2.42.1 step 3)
+
+> **Honest provenance:** This table was written POST-SHIP, not at the actual midpoint between Commits 4 and 5. The midpoint checkpoint as performed was a single-line "no drift, PROCEED" assertion — exactly the "checkpoint theater" anti-pattern §5.1.8 names. The post-ship contrarian battery (audit `a62e96c04a3f91721`) caught this. v2.42.1 PATCH (Commit 9) strengthened §5.1.8 step 3 to REQUIRE a written table going forward. This retroactive artifact is documentation of the failure mode + corrective action, NOT a claim that the checkpoint happened this way. Per `meta-safety-transparent-limitations`.
+
+| Commit | Plan promised (per `federated-plotting-karp.md` Recommended Approach) | Actually shipped | Drift classification |
+|---|---|---|---|
+| 1 (`7e7ce95`, session-125) | Step 0 + 0.1 in rules-of-procedure §7.12 + §7.13, CLAUDE.md Behavioral Floor (2 directives), tiers.json (2 entries), BACKLOG D1/D2/D3 definition cleanup | Same | NONE |
+| 1.5 (`b567032`, session-125) | Version-bump propagation: rules-of-procedure v3.27.4 → v3.28.0, ai-instructions v2.8.0 → v2.8.1 | Same | NONE |
+| 2 (`ee93845`) | plan-template + CLAUDE.md + contrarian-reviewer (both copies) + AGENT_TEMPLATE_HASHES regen + title-10 §4.1.2 cross-ref | plan-template + CLAUDE.md + 2× contrarian-reviewer + hash regen. **§4.1.2 cross-ref deferred to Commit 4** per plan literal text "folded with commit 4 MINOR bump" | DEFERRAL (documented in commit message; intentional per plan ambiguity resolution) |
+| 3 (`075ef62`) | Title-10 v2.40 MINOR §5.1.7.1 + 4-surface propagation + coherence-auditor REQUIRED | Same. Coherence-auditor PROCEED_WITH_CHANGES, findings #1/#2/#3 folded; #5 filed to BACKLOG #130 | EXPANSION (Situation Index row added per coherence finding #3 — adopter-discoverability) |
+| 4 (`5535557`) | Title-10 v2.41 MINOR §1.3.5 + 4-surface propagation + coherence-auditor REQUIRED. §4.1.2 cross-ref folded per Commit 2 deferral | Same. PLUS §4.1.4 + §4.2.2 time-language stragglers stripped (coherence finding MISLEADING-1, blast radius of §4.1.2 fold-in) | EXPANSION (3 surfaces beyond plan list: §4.1.4 template + §4.2.2 checklist + Situation Index — all blast radius of §4.1.2 fold-in; documented in commit message) |
+
+**Decision (post-hoc):** All 4 commits shipped substantively as planned. The 3 EXPANSION classifications were all coherence-audit-driven (auditor surfaced + folded) and within blast-radius of named plan files (§4.1.x) or directly serving plan goals (Situation Index discoverability). The 1 DEFERRAL was an intentional ambiguity resolution (plan said "folded with commit 4"; deferred §4.1.2 cross-ref to Commit 4 as documented).
+
+**What a real midpoint checkpoint would have additionally caught (per post-ship contrarian battery):**
+- Commit 7's §5.1.8 by-analogy citation of §7.12.1 depends on a 5th exception that doesn't exist in §7.12.1 → BACKLOG #132 should have been opened BEFORE Commit 7 ship, with the rules-of-procedure PATCH sequenced first (steel-manned alternative).
+- Commit 7's §5.1.8 protocol shipped without a structural gate against "checkpoint theater" — the rule could be performed as theater of itself → v2.42.1 PATCH (Commit 9) corrects this; would have been visible at midpoint as "the rule we're shipping has an obvious self-application gap."
+
+**Promotion criterion (per §5.1.8 v2.42.1 step 4):** Step 4 external-evaluator pass is REQUIRED when step 3 flags drift. The post-ship contrarian battery WAS the external-evaluator pass for this plan (just performed post-ship rather than at midpoint). It surfaced 2 HIGH-leverage drift findings that this artifact now captures. Future plans must run external-evaluator AT midpoint when drift signals appear, not after ship.
 
 ---
 

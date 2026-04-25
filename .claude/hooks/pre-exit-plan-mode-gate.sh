@@ -243,6 +243,7 @@ except Exception:
         warn)
             echo "[plan-action-atomicity] WARN — Recommended Approach section has action-atomicity issues (advisory; bypass with PLAN_ACTION_ATOMICITY_SKIP=1):" >&2
             echo "$atom_stderr" >&2
+            echo "[plan-action-atomicity] If this WARN later turns out to pre-figure a real defect (the planned task did mask a mistake), file the trigger event in V-007 row of workflows/COMPLIANCE-REVIEW.md — closes the event-driven WARN→BLOCK promotion loop without depending on human memory." >&2
             ;;
         pass|skip|error|"")
             debug "action-atomicity status: $atom_stdout"
