@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-25 (session 126 — **Superpowers plan SHIPPED + post-ship remediation underway. 8-commit plan + Commit 9 (v2.42.1 PATCH) pushed; Commit 10 (process artifacts) in-flight; #130 + #132 deferred to next batch per user direction.**)
+**Last Updated:** 2026-04-25 (session 126 — **Superpowers plan SHIPPED + 5-commit post-ship remediation arc complete. All 13 commits pushed; CI green. Two post-ship double-check batteries run; all findings folded inline.**)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,26 +11,40 @@
 
 ## 🎯 RESUMPTION — Where to Pick Up (read this first)
 
-**Plan complete + post-ship remediation in progress.** Original Superpowers plan (`~/.claude/plans/federated-plotting-karp.md`) shipped all 8 commits to main. Post-ship contrarian battery (audit `a62e96c04a3f91721`) returned PROCEED WITH REQUIRED CHANGES, HIGH confidence — surfacing 2 HIGH-leverage findings (checkpoint theater, fabricated-authority chain) + 2 lower-leverage findings (§1.3.5 under-calibration, V-series human-memory gap). Commit 9 (`61b0058`, title-10 v2.42.1 PATCH) shipped session-126 closing the §5.1.8 + §1.3.5 findings. Commit 10 in-flight closing V-series + Pattern G + post-hoc MIDPOINT artifact. **Next batch:** address BACKLOG #130 (pin-discipline self-contradiction) + #132 (§7.12.1 5th exception canonicalization) per user direction "fix everything other than #130 and #132 first, then we will fix those next."
+**Plan + 5-commit post-ship remediation complete.** Original Superpowers plan (`~/.claude/plans/federated-plotting-karp.md`) shipped all 8 commits + 5 post-ship remediation commits + 2 post-ship contrarian batteries; all pushed to main with CI green.
 
-**Behavioral changes active across all shipped commits:**
-- §7.12 Effort-Not-Time + §7.13 BLUF-Pyramid (sessions-125 Commit 1)
-- §5.1.7.1 Sequenced Two-Stage Review (v2.40)
-- §1.3.5 Brainstorming Method ENHANCED-OR-no-precedent (v2.41 + v2.42.1 OR-clause widening)
+**Post-ship remediation arc (Commits 9-13, in order):**
+- Commit 9 (`61b0058`) — title-10 v2.42.1 PATCH: §5.1.8 step 3 written-artifact requirement + §1.3.5 ENHANCED-OR-no-precedent override (closes batteries 1's checkpoint-theater + under-calibration findings)
+- Commit 10 (`c7f017e`) — SESSION-STATE prune + post-hoc MIDPOINT artifact + V-007/V-008 in-band reminder + INFLUENCES.md Pattern G strengthen (closes battery 1's V-series human-memory + Pattern G coverage findings)
+- Commit 11 (`4762962`) — BACKLOG #130 close: codified MINOR-on-MINOR / PATCH-on-PATCH pin-discipline rule in COMPLETION-CHECKLIST item 7c (canonical home); v2.8.1 [CORRECTION] note on the v2.8.1-v2.8.4 fabricated-authority chain
+- Commit 12 (`e6e7cca`) — BACKLOG #132 close: rules-of-procedure §7.12.1 5th exception added; title-10 §5.1.8 + COMPLETION-CHECKLIST 16a switched from "by analogy with" to direct verbatim citation; bundled ai-instructions PATCH-on-PATCH for both pins
+- Commit 13 (this) — §7.12.1 anti-example PATCH (closes battery 2's HIGH-leverage finding that 5th exception was open-textured + could absorb #131 violations); SESSION-STATE prune; ai-instructions v2.8.5 stale-note correction
+
+**Open BACKLOG items:** #131 (§7.12 retroactive sweep — guidance now sharpened by §7.12.1 anti-example shipped this commit), #133 (stale framework-version pins in CFR scaffold templates — file:line precision filed by Commit 12 audit), plus pre-existing #129/#127/#125-b/#91-sub5/#78.
+
+**Next session can pick up at:** BACKLOG #131 (§7.12 sweep, now ready per anti-example), #133, or user-directed.
+
+**Behavioral changes active across all shipped commits (versions current as of v3.28.2 / v2.42.2 / v2.8.7):**
+- §7.12 Effort-Not-Time + §7.13 BLUF-Pyramid (Commit 1, codified rules-of-procedure §7.12 + §7.13; v3.28.2 added §7.12.1 5th exception with anti-example for planning-band estimates)
+- §5.1.7.1 Sequenced Two-Stage Review (v2.40 — Commit 3)
+- §1.3.5 Brainstorming Method ENHANCED-OR-no-precedent (v2.41 + v2.42.1 OR-clause widening — Commit 4 + 9)
 - COMPLETION-CHECKLIST Branch Completion 5-option decision tree (Commit 5)
-- Hook gates `--plan-action-atomicity` + `--tdd-test-existence` WARN-mode (Commit 6)
-- §5.1.8 Mid-Execution Checkpoint Protocol with v2.42.1 step 3 written-artifact REQUIRED (Commit 7 + 9)
-- INFLUENCES.md attribution scaffold at repo root (Commit 8)
+- Hook gates `--plan-action-atomicity` + `--tdd-test-existence` WARN-mode (Commit 6) — V-007/V-008 in-band reminder shipped Commit 10
+- §5.1.8 Mid-Execution Checkpoint Protocol (v2.42 — Commit 7) with v2.42.1 step 3 written-artifact REQUIRED (Commit 9) + v2.42.2 direct §7.12.1 citation (Commit 12)
+- INFLUENCES.md attribution scaffold at repo root (Commit 8) + Pattern G failure-mode equivalence strengthen (Commit 10)
+- COMPLETION-CHECKLIST item 7c canonical pin-discipline rule MINOR-on-MINOR / PATCH-on-PATCH / MAJOR-on-MAJOR (Commit 11)
 
 **Decisions already made (don't re-deliberate):**
+- Pin discipline: MINOR-on-MINOR / PATCH-on-PATCH / MAJOR-on-MAJOR; pin-lag-remediation exception is PATCH (canonical home: COMPLETION-CHECKLIST 7c)
 - TDD enforcement: hook (not template) — pushed-time gate
-- Hook deployment: WARN-first, promote to BLOCK on first coherence-audit finding (event-driven; in-band reminder per Commit 10)
-- INFLUENCES.md location: repo root (NOT `documents/`)
-- 4 attribution categories
+- Hook deployment: WARN-first, promote to BLOCK on first coherence-audit finding (event-driven; in-band reminder shipped Commit 10)
+- INFLUENCES.md location: repo root
 - §1.3.5 ENHANCED-OR-no-precedent widening (v2.42.1)
 - §5.1.8 step 3 REQUIRES written artifact (v2.42.1) — bare assertions = checkpoint did not happen
+- §7.12.1 5th exception covers research-anchored trigger thresholds; planning-band estimates explicitly NOT covered (v3.28.2 anti-example)
+- v2.8.1-v2.8.4 ai-instructions Changelog entries are documented misbumps (PATCH-on-MINOR) — kept in place per no-destructive-history-rewrite; canonical rule applies forward
 
-**Governance trail:** `gov-9f960fac0d73` (original plan), `gov-71c1d6662fa7` (Commit 9 v2.42.1 PATCH), `gov-6c38e05ddaab` (Commit 10 process artifacts). Three contrarian-reviewer invocations on this plan: v1 draft, v3 (final), post-ship.
+**Governance trail (this arc):** `gov-9f960fac0d73` (original plan); `gov-71c1d6662fa7` (Commit 9); `gov-6c38e05ddaab` (Commit 10); `gov-adbf247c0f44` (Commits 11-12); `gov-0d9f7303cbd5` (Commit 13). Five contrarian-reviewer invocations on this work: v1 draft, v3 final, post-ship batch 1, post-ship batch 2, plus coherence-auditor on Commits 3/4/7/9/12 + validator twice + INFLUENCES.md.
 
 ---
 
@@ -58,9 +72,9 @@
 
 ## Current Position
 
-- **Phase:** Bundle A + Superpowers Commit 1 closed. Plan `~/.claude/plans/federated-plotting-karp.md` Commits 2-8 deferred for fresh session.
-- **Mode:** Handoff (paused mid-plan per context-degradation discipline)
-- **Active Task:** Resume Commit 2 in fresh session. See "RESUMPTION" section above for full detail.
+- **Phase:** Superpowers plan + 5-commit post-ship remediation arc COMPLETE. All 13 commits pushed to main; CI green on `e6e7cca` (last shipped + CI-confirmed; Commit 13 push pending this commit).
+- **Mode:** None blocking. Open BACKLOG: #131, #133 + pre-existing #129/#127/#125-b/#91-sub5/#78.
+- **Active Task:** None active. Next session can pick up at #131 (§7.12 sweep, anti-example shipped this commit makes scope explicit) or user-directed.
 
 ## Quick Reference
 
@@ -68,8 +82,8 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v5.0.7** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.28.1** (rules-of-procedure — §7.12 + §7.13 + §7.12.1 5th exception for research-anchored operational thresholds 2026-04-25), **v2.42.2** (title-10-ai-coding-cfr — v2.40 §5.1.7.1 + v2.41 §1.3.5 + v2.42 §5.1.8 + v2.42.1 PATCH strengthen + v2.42.2 PATCH §5.1.8 direct §7.12.1 citation 2026-04-25), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.8.6** (ai-instructions — bundled pin update for rules-of-procedure v3.28.1 + title-10-ai-coding-cfr v2.42.2), **v1.6.0** (tiers.json — added effort-not-time + bluf-pyramid-briefing directives). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
-| Tests | **1381 passing + 0 skipped** safe subset (`pytest tests/ -v -m "not slow"`); session-124 added +57 `Covers:` annotations (39 registry entries: 22 must_cover + 14 advisory active + 3 retired 2026-04-24; 69 total annotations across 67 tests) + 1 new lint test (test_new_advisory_entries_have_annotation) + 10 parametrized traversal-rejection instances + 3 parametrized non-hex-input instances + 1 retired-IDs test no longer skipped. Session-123 shipped +6 net tests. Run `pytest tests/ -v` for full count. |
+| Content | **v5.0.7** (Constitution — 24 principles), **v3.28.2** (rules-of-procedure — §7.12 + §7.13 + §7.12.1 5th exception with planning-band anti-example 2026-04-25), **v2.42.2** (title-10-ai-coding-cfr — v2.40 §5.1.7.1 + v2.41 §1.3.5 + v2.42 §5.1.8 + v2.42.1 PATCH strengthen + v2.42.2 PATCH direct §7.12.1 citation 2026-04-25), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.8.7** (ai-instructions — pin update for rules-of-procedure v3.28.2), **v1.6.0** (tiers.json — added effort-not-time + bluf-pyramid-briefing directives). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. |
+| Tests | **1395 passing + 0 skipped** safe subset (`pytest tests/ -m "not slow" -q`); session-126 added +14 tests in Commit 6 (TestPlanActionAtomicity 9 + TestTddTestExistence 5). Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |

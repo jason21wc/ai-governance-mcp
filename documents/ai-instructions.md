@@ -1,5 +1,5 @@
 ---
-version: "2.8.6"
+version: "2.8.7"
 status: "active"
 effective_date: "2026-04-25"
 domain: "meta"
@@ -8,7 +8,7 @@ governance_level: "framework-activation"
 
 # AI Governance Framework Activation
 
-**Version:** 2.8.6
+**Version:** 2.8.7
 **Purpose:** Loader document that activates the governance framework for AI sessions.
 **Updated:** 2026-04-25
 
@@ -197,7 +197,7 @@ query_governance("how to handle incomplete specifications")
 <document_versions>
 This loader is designed for use with:
 - constitution.md v5.0.7+
-- rules-of-procedure.md v3.28.1+
+- rules-of-procedure.md v3.28.2+
 - title-10-ai-coding.md v2.7.1+
 - title-10-ai-coding-cfr.md v2.42.2+
 - title-20-multi-agent.md v2.7.1+
@@ -218,8 +218,9 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.8.7 | 2026-04-25 | PATCH: Pin tracks rules-of-procedure.md PATCH bump v3.28.1 → v3.28.2 (scope clarification to §7.12.1 5th exception — added explicit anti-example for planning-band time estimates + distinguishing test, per post-ship contrarian battery `abd327fd5e8174348` HIGH-leverage finding). Bumped `rules-of-procedure.md v3.28.1+` → `v3.28.2+`. PATCH-on-PATCH per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). No title-10-cfr re-bump needed: §5.1.8's verbatim quote of the 5th exception is the v3.28.1 form (no anti-example), which is correct because §5.1.8's case is exactly the type of research-anchored threshold the exception covers (process-trigger, not planning-band — anti-example doesn't apply); citation already includes "(canonicalized v3.28.1)" provenance stamp. Governance: `gov-0d9f7303cbd5`. |
 | 2.8.6 | 2026-04-25 | PATCH: Two pin updates bundled (both PATCH-on-PATCH per canonical pin-discipline rule codified BACKLOG #130 close, COMPLETION-CHECKLIST item 7c). (1) `rules-of-procedure.md v3.28.0+` → `v3.28.1+` (closes BACKLOG #132 — added 5th explicit exception to §7.12.1 Scope for "Research-anchored operational thresholds" — runtime/turn/iteration values from empirical research used as process gates, not effort estimates). (2) `title-10-ai-coding-cfr.md v2.42.1+` → `v2.42.2+` (citation chain closure: §5.1.8 + COMPLETION-CHECKLIST 16a switched from "by analogy with §7.12.1" to direct citation of the now-canonicalized 5th exception). Both bumps PATCH-on-PATCH per canonical rule (single-bullet additive subsection in rules-of-procedure; citation update only in title-10 — no normative change to existing rules). Governance: `gov-adbf247c0f44`. |
-| 2.8.5 | 2026-04-25 | PATCH: Pin tracks title-10-ai-coding-cfr.md PATCH bump v2.42.0 → v2.42.1 (process-integrity strengthening per post-ship contrarian battery audit `a62e96c04a3f91721` — §5.1.8 step 3 written-artifact requirement closes checkpoint-theater meta-loop; §1.3.5 ENHANCED-OR-no-precedent override closes AI-under-calibration anchor-bias gap). Bumped `title-10-ai-coding-cfr.md v2.42.0+` → `v2.42.1+`. PATCH pin bump on PATCH target — both source and pin are PATCH (rule semantics strengthened, no breaking change to existing protocol structure). NOTE: BACKLOG #130 (pin-discipline self-contradiction in this Changelog itself) explicitly DEFERRED to next batch per user direction; this entry uses the same PATCH-on-PATCH framing as v2.8.1+ entries until #130 ships. Governance trail: `gov-71c1d6662fa7`. |
+| 2.8.5 | 2026-04-25 | PATCH: Pin tracks title-10-ai-coding-cfr.md PATCH bump v2.42.0 → v2.42.1 (process-integrity strengthening per post-ship contrarian battery audit `a62e96c04a3f91721` — §5.1.8 step 3 written-artifact requirement closes checkpoint-theater meta-loop; §1.3.5 ENHANCED-OR-no-precedent override closes AI-under-calibration anchor-bias gap). Bumped `title-10-ai-coding-cfr.md v2.42.0+` → `v2.42.1+`. PATCH pin bump on PATCH target — both source and pin are PATCH (rule semantics strengthened, no breaking change to existing protocol structure). **[NOTE 2026-04-25 per BACKLOG #130 close (commit `4762962`)]:** v2.8.5 is correctly PATCH-on-PATCH per the canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c) — title-10 source was PATCH (v2.42.0 → v2.42.1), so PATCH pin is correct. Unlike the v2.8.1-v2.8.4 misbumps (which were PATCH-on-MINOR), v2.8.5 was always correct under the canonical rule; the previous "until #130 ships" note was struck since the canonical rule is now codified. Governance trail: `gov-71c1d6662fa7`. |
 | 2.8.4 | 2026-04-25 | PATCH: Pin tracks title-10-ai-coding-cfr.md MINOR bump v2.41.0 → v2.42.0 (new §5.1.8 Mid-Execution Checkpoint Protocol — bridges pre/post-action gate gap for long-running plans; concept in title-10, tunable threshold in `workflows/COMPLETION-CHECKLIST.md` per SSOT pattern; orchestrator agent + .claude copy + AGENT_TEMPLATE_HASHES regenerated to reflect mid-execution checkpoint discipline addition — per plan `~/.claude/plans/federated-plotting-karp.md` Commit 7 of 8). Bumped `title-10-ai-coding-cfr.md v2.41.0+` → `v2.42.0+`. PATCH pin bump on MINOR target per current pin discipline (BACKLOG #130 tracks the discipline self-contradiction follow-up). Governance trail: `gov-b95156c01466`. |
 | 2.8.3 | 2026-04-25 | PATCH: Pin tracks title-10-ai-coding-cfr.md MINOR bump v2.40.0 → v2.41.0 (new §1.3.5 Brainstorming Method ENHANCED-mode-only — Socratic Q&A discovery + design-doc artifact + plan-mode hand-off; folded §4.1.2 Task Characteristics fix replacing time-based "Estimable" row with effort-shaped row pointing at plan-template + rules-of-procedure §7.12 — per plan `~/.claude/plans/federated-plotting-karp.md` Commit 4 of 8). Bumped `title-10-ai-coding-cfr.md v2.40.0+` → `v2.41.0+`. PATCH pin bump on MINOR target per current pin discipline (additive normative subsection; see BACKLOG #130 for the Changelog pin-discipline self-contradiction follow-up). Governance trail: `gov-5fb17ed70248`. |
 | 2.8.2 | 2026-04-25 | PATCH: Pin tracks title-10-ai-coding-cfr.md MINOR bump v2.39.0 → v2.40.0 (new §5.1.7.1 Sequenced Two-Stage Review under §5.1.7 Subagent Review Triggers, normative — codifies Stage 1 mutation candidates → Stage 2 coherence/validation sequencing per plan `~/.claude/plans/federated-plotting-karp.md` Commit 3 of 8). Bumped `title-10-ai-coding-cfr.md v2.39.0+` → `v2.40.0+`. PATCH pin bump on MINOR target because the source MINOR is additive (extends §5.1.7 trigger model with sequencing discipline; no breaking change to existing reviewer roles). Governance trail: `gov-dd439ba39014`. |
