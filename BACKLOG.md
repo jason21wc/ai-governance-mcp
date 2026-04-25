@@ -236,6 +236,52 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 134. PR-workflow infrastructure (CODEOWNERS, branch protection paths, pre-push routing hook) — tripwire-triggered `D2 New Capability`
+
+**Filed:** 2026-04-25 (session-127, post-§8.3.4-self-application plan; convergent finding from contrarian + security-auditor + coherence-auditor pre-plan reviews).
+
+**What.** A potential future workflow change: introduce a *required* PR class for high-blast-radius paths (src/**, constitution.md normative, title-NN-*.md MINOR/MAJOR, hooks, agents, scaffold templates, .github/workflows). Implementation would include CODEOWNERS, branch-protection paths-required-PR rules, optionally a pre-push routing-aware advisory hook, and a `workflows/PR-WORKFLOW.md` doc.
+
+**Why deferred (not implemented in session-127).** Three independent reviews converged: this repo is single-maintainer, has 0 stars/forks/external PRs in 4 months, and the pre-push battery (§5.1.7.1 + §9.3.10 Layer 5) already discharges the review value PR would add. Adopting PR-required-by-class today would (1) violate `coding-method-solo-mode-workflow §8.3.4` "gates combined but not eliminated" by re-separating gates, (2) add real CI latency with no defect-class delta, (3) expand the prompt-injection surface (PR comments are untrusted per `coding-quality-workflow-integrity §Q5`), and (4) build infrastructure for a hypothesized adopter audience that doesn't yet exist.
+
+**Trigger conditions (re-evaluate when ANY fires):**
+- ≥3 external watchers OR ≥1 external issue/PR on `jason21wc/ai-governance-mcp` (reputational signal becomes evidenced, not hypothesized)
+- A documented incident where the pre-push battery missed a defect that PR review would have caught (defect-class delta becomes named, not theoretical)
+- A high-stakes architectural change where the maintainer wants time-separation review per §5.1.8 step 4 (one-off; can use PR on-demand without filing here)
+
+**Re-evaluation guidance.** When a trigger fires, revisit the contrarian/security/coherence reviews from session-127 (audit IDs below). The framework principles haven't changed; the *context* has. Specifically: if external adopters appear, "reputational signal" calculus flips; if the pre-push battery is observed missing a defect class, the PR-as-Stage-3 framing becomes justified.
+
+**Origin:** Session-127 push-workflow plan (2026-04-25) `~/.claude/plans/using-ai-governance-and-systemic-cryptic-blossom.md`. Review trail: contrarian-reviewer audit `ac01f99ca9778410d`, security-auditor `a44b7638cf3d43b52`, coherence-auditor `a670ce08b44e0fe05`. Governance: `gov-7083d6c85ffc` (plan-mode evaluation, PROCEED).
+
+**Done when.** PR workflow infrastructure shipped IF a trigger fires; otherwise this entry remains open as a permanent tripwire and is closed only when the maintainer affirmatively decides to maintain solo-mode-only indefinitely (e.g., archive-mode for the repo).
+
+---
+
+#### 135. Bypass-envvar audit-log invariant — refactor 6 hook bypasses to shared `audit_bypass()` helper `D2 Improvement`
+
+**Filed:** 2026-04-25 (session-127, security-auditor B2 finding from §8.3.4-self-application plan review).
+
+**What.** Six envvars currently bypass hooks; only one (`PLAN_CONTRARIAN_SKIP_HOOK=1`) writes to a deny-log. The others (`QUALITY_GATE_SKIP=true`, `PLAN_CONTRARIAN_CONFIRMED=1`, `GOVERNANCE_SOFT_MODE=true`, `CE_SOFT_MODE=true`, `TDD_TEST_EXISTENCE_SKIP=1`) bypass silently. Cumulative bypass surface lacks observability — the maintainer (or a prompt-injected AI) can quietly disable enforcement without auditable evidence.
+
+**Structural fix per `meta-core-systemic-thinking`.** Replace per-hook bypass logging with a shared `audit_bypass()` helper that writes a single canonical log line (timestamp, hook, env var, reason) for every bypass invocation across the 6 envvars. Pattern: `audit_bypass "$0" "QUALITY_GATE_SKIP" "user override at line N"` → appends to `~/.claude/hook-bypass-audit.log` with rotation.
+
+**Why deferred from session-127.** Independent of the §8.3.4-self-application plan; affects 3 hook files (`pre-push-quality-gate.sh`, `pre-tool-governance-check.sh`, `pre-exit-plan-mode-gate.sh`) plus a new `lib/audit-bypass.sh` helper. D2 effort with its own scope, test surface, and propagation to title-10 §9.3.10 hook-authoring guidance.
+
+**Scope (when implemented).**
+1. Create `.claude/hooks/lib/audit-bypass.sh` with the shared helper function
+2. Migrate `QUALITY_GATE_SKIP`, `GOVERNANCE_SOFT_MODE`, `CE_SOFT_MODE`, `TDD_TEST_EXISTENCE_SKIP`, `PLAN_CONTRARIAN_CONFIRMED` to use it
+3. `PLAN_CONTRARIAN_SKIP_HOOK` already audit-logs; refactor to use the shared helper for consistency
+4. Add a periodic V-series item in COMPLIANCE-REVIEW.md: "audit-log entries within last 30 days" — surface frequency, drift, anomalous patterns
+5. Update §9.3.10 hook-authoring guidance: new hooks with bypass envvars MUST use `audit_bypass()`
+
+**Trigger.** Next hook addition (would be the 7th hook with a bypass) OR Compliance Review #5 / #6 finding evidence of silent bypass.
+
+**Origin:** Session-127 push-workflow plan security review. Audit ID: `a44b7638cf3d43b52` (security-auditor B2 BLOCKER for the original 6-component proposal; downgraded to BACKLOG when the plan scope was reduced). Governance: `gov-7083d6c85ffc`.
+
+**Done when.** All 6 bypasses use shared helper + canonical log entries + V-series item active in COMPLIANCE-REVIEW.md.
+
+---
+
 #### 131. §7.12 retroactive sweep: residual time-units in CFR/methods estimates `D2 Docs`
 
 **Filed:** 2026-04-25 (session-126, coherence-auditor finding #2 from Commit 4 audit `a132b93302b156048`).
