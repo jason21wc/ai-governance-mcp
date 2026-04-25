@@ -12,6 +12,48 @@
 
 ## Active Lessons
 
+### Codified Rules Need Structural Anti-Theater Gates Against AI Self-Application (2026-04-25)
+
+Session-126 shipped §5.1.8 Mid-Execution Checkpoint Protocol (title-10 v2.42.0) explicitly naming "checkpoint theater" as an anti-pattern: re-reading the plan and declaring "no drift" without a delivered-vs-planned table. **On the rule's first invocation — by us, on the plan that codifies it — we performed exactly this anti-pattern.** The session-126 MIDPOINT CHECKPOINT entry was a single line: "DONE (session-126, between Commits 4 and 5). No drift; PROCEED to Commit 5." Post-ship contrarian battery (audit `a62e96c04a3f91721`) caught it. v2.42.1 PATCH (Commit 9) shipped the structural fix: §5.1.8 step 3 now REQUIRES a written delivered-vs-planned table; bare "no drift" assertions = "checkpoint did not happen." Step 4 external-evaluator pass promoted from optional to REQUIRED-when-step-3-flags-drift.
+
+**Rule:** When codifying a rule whose anti-pattern is named, ship a structural gate that prevents the AI from performing the anti-pattern itself — not just an advisory naming. The author of the rule is the most-anchored party; "do not theater" without an artifact requirement collapses to vibes-on-first-use. Rules that name an anti-pattern but rely on the author noticing they're doing it = ~85% advisory ceiling, with the author specifically below that ceiling per anchor bias.
+
+**How to apply:** Before approving a rule that names an anti-pattern, ask: "What's the structural artifact that proves the rule was followed (not just claimed)?" If the answer is "the author's good faith," ship a structural requirement (written table, named output file, lint check). Pair with a self-application check: would the author's first invocation produce the artifact, or would they short-circuit to assertion? If the latter, the rule is theater-prone.
+
+**Principle:** `meta-core-systemic-thinking` (close the structural loop, not patch per-incident); `meta-quality-verification-validation` (written artifact = verifiable; bare assertion = unverifiable); `coding-process-validation-gates` ("validation requires evidence, not just declaration"); `meta-safety-transparent-limitations` (admit AI authors are anchored on their own rules' first use).
+
+**Cross-ref:** title-10-cfr §5.1.8 step 3 v2.42.1; SESSION-STATE.md "Post-Hoc MIDPOINT CHECKPOINT Artifact" section (the dogfood: writes the artifact §5.1.8 just made REQUIRED, with honest provenance disclaimer); plan `~/.claude/plans/federated-plotting-karp.md` Commit 9 (`61b0058`); post-ship contrarian audit `a62e96c04a3f91721`.
+
+---
+
+### AI-Fabricated Authority Chains in Changelog Precedents (2026-04-25)
+
+Session-126 BACKLOG #130 investigation: ai-instructions Changelog entries v2.8.1, v2.8.2, v2.8.3, v2.8.4 cited "session-121 canonicalization" as authority for PATCH-on-MINOR pin-discipline rule. Investigation (`git log` + commit reads) found: **session-121 actually canonicalized pin-sync MECHANICS** (BACKLOG #115 → COMPLETION-CHECKLIST item #7 body-header + pin sync), **not** semver direction. The semver-direction authority was round-2 contrarian HIGH-2 on test-suite-optimization plan (commit `c22e35c`), prescribing **MINOR-on-MINOR**. v2.8.0 entry bundled BOTH citations correctly; v2.8.1 author misread the bundle and cited the wrong authority for the wrong rule. v2.8.2-v2.8.4 inherited the misread, propagating the fabricated chain. v2.8.5 was correct (PATCH-on-PATCH, target was PATCH source) but for unrelated reasons. Each entry's author was reverse-engineering "what's the right pin discipline?" from prior Changelog precedents instead of from a canonical home.
+
+**Rule:** Codify rules in canonical homes (a binding document section), not in Changelog precedents. A Changelog rationalization that cites another Changelog entry as authority is structurally dependent on the authoring sessions reading that entry correctly — and AI authors routinely misread bundled citations. When you find yourself writing "per [session-X canonicalization]" in a Changelog rationale, stop and ask: "where is the canonical rule? if it's not in a binding section, codify it there first, then cite the section."
+
+**How to apply:** Before relying on a Changelog precedent for a future bump's rationale, locate the binding-section citation that precedent cites. If the precedent cites only other Changelog entries (or "session-X" without an audit-trailed authority), the chain may be fabricated — investigate the original commit + audit trail. Mitigation shipped: COMPLETION-CHECKLIST item 7c is now the canonical home for pin-discipline semver-direction rule; v2.8.6+ entries cite item 7c directly, not Changelog precedent.
+
+**Principle:** `meta-method-single-source-of-truth` (rule has ONE canonical home; precedents reference it, not each other); `meta-quality-visible-reasoning-traceability` (citation must trace to an audit-trailed source, not "vibes from prior entries"); `meta-core-systemic-thinking` (the structural fix is canonical-home, not per-Changelog-entry correction).
+
+**Cross-ref:** workflows/COMPLETION-CHECKLIST.md item 7c (canonical home, post-Commit 11); ai-instructions.md Changelog v2.8.1 [CORRECTION] note (the inline acknowledgment of the misread chain); BACKLOG #130 (closed Commit 11 `4762962`); commit `c22e35c` (the real round-2 contrarian HIGH-2 authority for MINOR-on-MINOR); plan `~/.claude/plans/federated-plotting-karp.md`.
+
+---
+
+### Open-Textured Exception Clauses Absorb Violations They Should Repel (2026-04-25)
+
+Session-126 §7.12.1 v3.28.1 added a 5th exception "Research-anchored operational thresholds" so title-10 §5.1.8's `>30 min runtime` Agent Drift trigger could cite it directly (closes the by-analogy citation chain). Post-ship contrarian battery (audit `abd327fd5e8174348`) flagged the new exception text as **open-textured**: distinguishing terms ("process gate vs effort estimate", "the AI is producing") didn't draw a sharp line. Risk: when BACKLOG #131 sweep starts, an author could classify §3.1.2's `Estimate: 2-8 hours` as "research-anchored mode-selection process gate" and tag it scope-excluded under the new exception. **The exception just made #131 potentially unactionable.** v3.28.2 PATCH (Commit 13) shipped the structural fix: explicit anti-example (planning bands NOT covered) + distinguishing test (covered = external-paper citation with verbatim threshold value AND functions as automated trigger).
+
+**Rule:** Tight scope carve-outs in rule clauses need (a) a positive example demonstrating coverage, (b) an explicit anti-example demonstrating non-coverage from the most-likely-confused class, AND (c) a distinguishing test that names the discriminating feature. Open-textured exceptions absorb exactly the violations they should repel — adopters reading the principle name + positive example without an anti-example default to "broad scope" interpretations.
+
+**How to apply:** When authoring an exception/carve-out clause, before shipping ask: "What's the most-likely-confused class of OTHER rules that adopters might try to fit under this exception?" Name that class explicitly as anti-example. Add a 2-condition distinguishing test (e.g., "covered requires X AND Y; either alone is not enough"). Pre-edit contrarian-reviewer should check exception clauses for "what would an adopter wrongly include?"
+
+**Principle:** `meta-method-single-source-of-truth` (boundary has one canonical home with anti-example, not adopter interpretation); `meta-quality-visible-reasoning-traceability` (distinguishing test makes the boundary verifiable); `meta-core-systemic-thinking` (close the structural ambiguity BEFORE downstream consumers inherit it, not patch case-by-case).
+
+**Cross-ref:** rules-of-procedure §7.12.1 5th exception (v3.28.2 with anti-example + distinguishing test); BACKLOG #132 (closed Commit 12 `e6e7cca`); post-ship contrarian audit `abd327fd5e8174348`; plan Commit 13.
+
+---
+
 ### AI Time Estimates Miscalibrate 50-100×; Use Effort Indicators Instead (2026-04-25)
 
 User observation across multiple sessions: AI time estimates ("this will take 2-3 hours", "needs its own session", "M-tier ~30-60 min") routinely overrun ground truth by 50× to 100×. Pattern produces false-deferral — AI rationalizes putting off work because "it'll take too long," when ground-truth effort is actually small (file count low, no infrastructure, known patterns). Pre-edit Plan agent + contrarian-reviewer flagged my own plan v2 deferring 4 backlog items based on "M-tier" / "needs plan mode" reasoning that resolved to D1 (single-file extension of 234-line script) on inspection. Web research validates: Alaswad et al. "Toward LLM-aware software effort estimation" (Frontiers AI 2026) and Kahneman/Lovallo Reference-Class Forecasting (PMI 2026) both confirm AI/human inside-view estimation has <20% hit rate; observable-indicator + reference-class hybrid achieves 70-80%.
@@ -125,7 +167,7 @@ F-P2-13 in the 2026-04-18 self-review flagged "Relations purpose thinly operatio
 
 ---
 
-### Post-Commit Double-Check Catches Surface Drift Pre/Post Batteries Miss (2026-04-19, EXTENDED 2026-04-23 with mechanism + session-123 confirmation)
+### Post-Commit Double-Check Catches Surface Drift Pre/Post Batteries Miss (2026-04-19, EXTENDED 2026-04-23 with mechanism + session-123 confirmation, EXTENDED 2026-04-25 with session-126 5th instance + meta-pattern observation)
 
 Cohort 2 v5.0.0 ran pre-edit + post-edit 3-agent batteries. Both passed. User requested an additional post-commit double-check with 3 more subagents. It found:
 
@@ -150,6 +192,12 @@ Cohort 2 v5.0.0 ran pre-edit + post-edit 3-agent batteries. Both passed. User re
 **Graduated rule (session-123):** Pre-battery coherence-auditor prompt MUST include the anti-whitelist instruction — "the brief's file list is a starting point, NOT the scope; sweep the whole repo for every surface carrying this claim/pin/label class before concluding." Hash-locked via `TestMultiAgentConsistency::test_template_hashes_match_files` so the instruction can't silently regress.
 
 **Target metric:** compress pre→post HIGH/BLOCKER catch delta from current ~30-50% of total shipping effort to <10% within 3 sessions post-ship.
+
+**2026-04-25 update — session-126 5th instance + META-PATTERN.** Session-126 ran TWO post-ship contrarian batteries on the Superpowers plan + remediation arc; combined they caught 14 distinct findings that the pre-push batteries (also 3-agent, also fresh-context per commit) missed. Battery 1 (after Commits 2-8) found: checkpoint theater on the rule that codifies it (HIGH), fabricated-authority chain across 4 Changelog entries (HIGH), §1.3.5 ENHANCED-only under-calibration risk, V-007/V-008 human-memory failure mode, Pattern G missing failure-mode equivalence, SESSION-STATE staleness. Battery 2 (after remediation Commits 9-12) found: open-textured §7.12.1 5th exception (HIGH), 3 SESSION-STATE narrative-stale findings, ai-instructions v2.8.5 stale "until #130 ships" note, test-count baseline drift. The pre-push coherence-auditor on each individual commit ran Step 4 anti-whitelist sweep correctly; it caught the cross-file propagation drift IN-COMMIT. What it could NOT catch: the META-CLASS findings that emerge only when looking at the work in aggregate (does the rule apply to itself? does the chain of citations trace back to real authority? does the new exception accidentally absorb its own anti-pattern's class?). **The post-ship double-check's load-bearing role isn't catching what pre-push missed in the same scope; it's catching what is invisible at the per-commit scope but visible at the arc scope.**
+
+**Refined rule (session-126):** Post-ship double-check on a multi-commit arc isn't redundant with per-commit pre-push batteries — it's checking a different scope. Per-commit pre-push checks "did this commit ship correctly per its plan?" Arc-level post-ship checks "do the shipped commits, considered together, exhibit a class of drift that no individual commit's review could see?" Both are required for rule-codification arcs (where the work IS the rules' first invocation). Schedule arc-level reviews after natural batch boundaries (plan close, 5-commit threshold, anti-pattern shipped that the work itself might exhibit).
+
+**Cross-ref:** post-ship audits `a62e96c04a3f91721` (battery 1), `aa9558e699a8fd3d3` + `a44d19b0be2f3107c` + `abd327fd5e8174348` (battery 2); session-126 plan + remediation Commits 9-13.
 
 ---
 
