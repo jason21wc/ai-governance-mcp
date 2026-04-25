@@ -92,10 +92,12 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 7. **CFR version bump — four-surface sync** — when bumping a CFR frontmatter `version`, update all four surfaces together before commit:
    - (a) body-header `**Version:**` + `**Effective Date:**` lines in the same CFR
    - (b) `documents/ai-instructions.md` `<document_versions>` pin for that CFR
-   - (c) `documents/ai-instructions.md` frontmatter + body header + Changelog entry (pin update triggers ai-instructions PATCH bump)
+   - (c) `documents/ai-instructions.md` frontmatter + body header + Changelog entry — **pin semver direction MUST MATCH source semver direction**: MINOR-on-MINOR, PATCH-on-PATCH, MAJOR-on-MAJOR. Per round-2 contrarian HIGH-2 on test-suite-optimization plan (commit `c22e35c`, 2026-04-23): "semver consistency between pin and source, not PATCH-on-MINOR." **Exception:** pin-lag remediation (pin update for an unchanged source target — fixing a drift) is PATCH regardless of source version, since no new normative content is being introduced.
    - (d) `SESSION-STATE.md` Quick Reference Content row
 
    Catches the recurring pin-lag / body-header drift class documented across ai-instructions Changelog v2.7.1/v2.7.2/v2.7.3/v2.7.4. Verify with `grep -n "v2\.[0-9]" documents/<cfr> documents/ai-instructions.md SESSION-STATE.md` before commit — all four surfaces should show the new version.
+
+   **Why the explicit semver-direction rule (added 2026-04-25 per BACKLOG #130 close):** ai-instructions Changelog entries v2.8.1 through v2.8.4 cited "session-121 canonicalization" as authority for the OPPOSITE rule (PATCH-on-MINOR). Investigation found "session-121 canonicalization" actually refers to the pin-sync MECHANICS (BACKLOG #115 → checklist item #7 above), NOT the semver direction. The semver-direction authority is the round-2 contrarian HIGH-2 cited in v2.8.0 + commit `c22e35c`, which prescribes MINOR-on-MINOR. Without an explicit canonical home for the semver-direction rule, future sessions had to reverse-engineer intent from inconsistent Changelog rationales — exactly what BACKLOG #130 warned. This bullet (c) is now the canonical home; cite it, not Changelog precedent.
 8. **Audit-ID citation** per `rules-of-procedure §2.1.1` Notes — if the amendment references a governance consultation, cite the `audit_id` (e.g., `gov-abc123`) that authorized the change. Forward-going from 2026-04-19; historical entries grandfathered.
 9. Update and prune SESSION-STATE.md (target <300 lines per §7.0.4)
 10. Docker check: if content significantly changed or code also changed → rebuild and push
