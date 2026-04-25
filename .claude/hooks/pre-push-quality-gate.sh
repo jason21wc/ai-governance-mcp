@@ -147,6 +147,21 @@ if [ "$CHECKLIST_READ" = "false" ]; then
     ISSUES="${ISSUES}Completion checklist not consulted. Read COMPLETION-CHECKLIST.md and verify applicable items before pushing. "
 fi
 
+# Check 5 (WARN-only, Commit 6 of Superpowers plan): TDD test-existence
+# scan for new src/*.py files. Surfaces unpaired src files on stderr; does
+# NOT add to ISSUES (no block). Promotion to BLOCK is event-driven (V-008
+# in COMPLIANCE-REVIEW.md): "promote to BLOCK after first coherence-audit
+# finding flags WARN-mode pattern actually firing on real code." Bypass
+# via TDD_TEST_EXISTENCE_SKIP=1.
+if [ "${TDD_TEST_EXISTENCE_SKIP:-}" != "1" ] && [ -n "$NEW_SRC_FILES" ]; then
+    TDD_OUT=$(printf '%s\n' "$NEW_SRC_FILES" | python3 "$HOOK_DIR/scan_transcript.py" --tdd-test-existence - 2>/dev/null || echo "error")
+    if [ "$TDD_OUT" = "warn" ]; then
+        TDD_FINDINGS=$(printf '%s\n' "$NEW_SRC_FILES" | python3 "$HOOK_DIR/scan_transcript.py" --tdd-test-existence - 2>&1 >/dev/null || true)
+        echo "[tdd-test-existence] WARN — new src files lack paired test files (advisory; bypass with TDD_TEST_EXISTENCE_SKIP=1):" >&2
+        echo "$TDD_FINDINGS" >&2
+    fi
+fi
+
 # Report issues
 if [ -n "$ISSUES" ]; then
     debug "BLOCKING: $ISSUES"

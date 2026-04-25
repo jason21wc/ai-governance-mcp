@@ -519,6 +519,197 @@ class TestContrarianAfterLastPlan:
 
 
 # ---------------------------------------------------------------------------
+# Plan-Action-Atomicity Scanner Tests (Commit 6 of Superpowers plan)
+# ---------------------------------------------------------------------------
+
+
+def _run_atomicity_scan_stdin(plan_text: str) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["python3", str(SCANNER), "--plan-action-atomicity", "-"],
+        input=plan_text,
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+
+class TestPlanActionAtomicity:
+    """Tests for scan_plan_action_atomicity used by pre-exit-plan-mode-gate WARN integration."""
+
+    def test_pass_when_all_tasks_atomic(self):
+        """All tasks name single category + have Files/Verification → pass."""
+        plan = """# Test Plan
+
+## Recommended Approach
+
+### Task 1 — write failing test for new behavior
+**Files:** tests/test_foo.py
+**Verification:** `pytest tests/test_foo.py::test_new -v` returns FAILED
+
+### Task 2 — implement minimal code to satisfy Task 1
+**Files:** src/foo.py
+**Verification:** Task 1's test passes
+"""
+        result = _run_atomicity_scan_stdin(plan)
+        assert result.stdout.strip() == "pass"
+
+    def test_warn_on_combined_action_in_title(self):
+        """Title containing two action categories → warn (combined-action signal)."""
+        plan = """## Recommended Approach
+
+### Task 1 — implement minimal code and run test for X
+**Files:** src/x.py
+**Verification:** `pytest`
+"""
+        result = _run_atomicity_scan_stdin(plan)
+        assert result.stdout.strip() == "warn"
+        # combined-action message includes both categories
+        assert "combines" in result.stderr or "implement minimal code" in result.stderr
+
+    def test_warn_on_vague_verb_in_title(self):
+        """Title with vague verb (no category) → warn with vague-verb message."""
+        plan = """## Recommended Approach
+
+### Task 1 — update X module to handle Y
+**Files:** src/x.py
+**Verification:** `pytest`
+"""
+        result = _run_atomicity_scan_stdin(plan)
+        assert result.stdout.strip() == "warn"
+        assert "vague verb" in result.stderr or "update" in result.stderr
+
+    def test_warn_on_missing_files_line(self):
+        """Task missing **Files:** line → warn."""
+        plan = """## Recommended Approach
+
+### Task 1 — write failing test for new behavior
+**Verification:** `pytest tests/test_foo.py -v`
+"""
+        result = _run_atomicity_scan_stdin(plan)
+        assert result.stdout.strip() == "warn"
+        assert "Files:" in result.stderr
+
+    def test_warn_on_missing_verification_line(self):
+        """Task missing **Verification:** line → warn."""
+        plan = """## Recommended Approach
+
+### Task 1 — write failing test for new behavior
+**Files:** tests/test_foo.py
+"""
+        result = _run_atomicity_scan_stdin(plan)
+        assert result.stdout.strip() == "warn"
+        assert "Verification:" in result.stderr
+
+    def test_skip_when_no_recommended_approach_section(self):
+        """Plan with no Recommended Approach heading → skip (out of scope)."""
+        plan = """# Just Some Notes
+
+## Context
+Some prose, no plan structure.
+"""
+        result = _run_atomicity_scan_stdin(plan)
+        assert result.stdout.strip() == "skip"
+
+    def test_skip_when_recommended_approach_has_no_task_entries(self):
+        """Recommended Approach section without ### Task headings → skip (free-form prose plan)."""
+        plan = """## Recommended Approach
+
+We're going to refactor the whole system. Trust me.
+
+## Verification
+Run all tests.
+"""
+        result = _run_atomicity_scan_stdin(plan)
+        assert result.stdout.strip() == "skip"
+
+    def test_pass_with_commit_style_entries(self):
+        """Plan using ### Commit instead of ### Task is also accepted."""
+        plan = """## Recommended Approach
+
+### Commit 1 — write failing test for X
+**Files:** tests/test_x.py
+**Verification:** `pytest tests/test_x.py -v` FAILED
+
+### Commit 2 — implement minimal code
+**Files:** src/x.py
+**Verification:** `pytest tests/test_x.py -v` PASSED
+"""
+        result = _run_atomicity_scan_stdin(plan)
+        assert result.stdout.strip() == "pass"
+
+    def test_error_on_empty_input(self):
+        """Empty stdin → error (signals bad input to caller)."""
+        result = _run_atomicity_scan_stdin("")
+        assert result.stdout.strip() == "error"
+
+
+# ---------------------------------------------------------------------------
+# TDD-Test-Existence Scanner Tests (Commit 6 of Superpowers plan)
+# ---------------------------------------------------------------------------
+
+
+def _run_tdd_scan_stdin(
+    file_list: str, cwd: str | None = None
+) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["python3", str(SCANNER), "--tdd-test-existence", "-"],
+        input=file_list,
+        capture_output=True,
+        text=True,
+        cwd=cwd or str(PROJECT_DIR),
+        timeout=10,
+    )
+
+
+class TestTddTestExistence:
+    """Tests for scan_tdd_test_existence used by pre-push-quality-gate WARN integration."""
+
+    def test_pass_when_all_src_files_have_test_pairs(self, tmp_path):
+        """Every new src/*.py has paired tests/test_*.py → pass."""
+        # Set up minimal repo layout
+        (tmp_path / "src" / "ai_governance_mcp").mkdir(parents=True)
+        (tmp_path / "tests").mkdir()
+        (tmp_path / "src" / "ai_governance_mcp" / "foo.py").write_text("# stub")
+        (tmp_path / "tests" / "test_foo.py").write_text("# test stub")
+        result = _run_tdd_scan_stdin(
+            "src/ai_governance_mcp/foo.py\n", cwd=str(tmp_path)
+        )
+        assert result.stdout.strip() == "pass"
+
+    def test_warn_when_src_file_missing_test_pair(self, tmp_path):
+        """New src/*.py without paired tests/test_*.py → warn."""
+        (tmp_path / "src" / "ai_governance_mcp").mkdir(parents=True)
+        (tmp_path / "tests").mkdir()
+        (tmp_path / "src" / "ai_governance_mcp" / "orphan.py").write_text("# stub")
+        # NOT creating tests/test_orphan.py
+        result = _run_tdd_scan_stdin(
+            "src/ai_governance_mcp/orphan.py\n", cwd=str(tmp_path)
+        )
+        assert result.stdout.strip() == "warn"
+        assert "orphan" in result.stderr
+        assert "test_orphan.py" in result.stderr
+
+    def test_skip_when_no_src_py_files(self):
+        """File list with no src/*.py entries → skip (out of scope)."""
+        result = _run_tdd_scan_stdin(
+            "documents/foo.md\nworkflows/bar.md\n.claude/hooks/baz.sh\n"
+        )
+        assert result.stdout.strip() == "skip"
+
+    def test_skip_when_only_init_files_in_src(self, tmp_path):
+        """Only __init__.py changes don't trigger TDD scan (boilerplate, not behavior)."""
+        result = _run_tdd_scan_stdin(
+            "src/ai_governance_mcp/__init__.py\n", cwd=str(tmp_path)
+        )
+        assert result.stdout.strip() == "skip"
+
+    def test_skip_on_empty_input(self):
+        """Empty stdin → skip (no files to evaluate)."""
+        result = _run_tdd_scan_stdin("")
+        assert result.stdout.strip() == "skip"
+
+
+# ---------------------------------------------------------------------------
 # PreToolUse Hook Tests — Hard Mode Default
 # ---------------------------------------------------------------------------
 

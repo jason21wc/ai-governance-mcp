@@ -201,12 +201,64 @@ fi
 
 debug "scanner result: $SCAN_OUTPUT"
 
+# ---------------------------------------------------------------------------
+# Action-atomicity WARN-mode integration (Commit 6 of Superpowers plan)
+# ---------------------------------------------------------------------------
+# After the contrarian gate passes (allow/bootstrap), additionally scan the
+# plan text for action-atomicity violations per plan-template Recommended
+# Approach section. This is WARN-only — surfaces findings on stderr but does
+# not block. Promotion to BLOCK is event-driven (V-007 in COMPLIANCE-REVIEW.md):
+# "promote to BLOCK after first coherence-audit finding flags WARN-mode pattern
+# actually firing on real code." Bypass via PLAN_ACTION_ATOMICITY_SKIP=1.
+_warn_action_atomicity() {
+    if [ "${PLAN_ACTION_ATOMICITY_SKIP:-}" = "1" ]; then
+        debug "action-atomicity WARN scan skipped (PLAN_ACTION_ATOMICITY_SKIP=1)"
+        return 0
+    fi
+    # Extract the plan text from the hook payload's tool_input.plan field.
+    local plan_text
+    if command -v jq >/dev/null 2>&1; then
+        plan_text=$(echo "$INPUT" | jq -r '.tool_input.plan // ""' 2>/dev/null || echo "")
+    else
+        plan_text=$(python3 -c "
+import json, sys
+try:
+    d = json.loads(sys.stdin.read())
+    print(d.get('tool_input', {}).get('plan', ''))
+except Exception:
+    print('')
+" <<<"$INPUT" 2>/dev/null || echo "")
+    fi
+    if [ -z "$plan_text" ]; then
+        debug "action-atomicity: no tool_input.plan in payload — skip"
+        return 0
+    fi
+    local atom_status
+    atom_status=$(printf '%s' "$plan_text" | $_TIMEOUT_CMD python3 "$SCANNER" --plan-action-atomicity - 2>&1 >/dev/null && true || true)
+    # Re-run capturing stdout for status, stderr for findings (separately).
+    local atom_stdout atom_stderr
+    atom_stdout=$(printf '%s' "$plan_text" | $_TIMEOUT_CMD python3 "$SCANNER" --plan-action-atomicity - 2>/dev/null || echo "error")
+    atom_stderr=$(printf '%s' "$plan_text" | $_TIMEOUT_CMD python3 "$SCANNER" --plan-action-atomicity - 2>&1 >/dev/null || true)
+    case "$atom_stdout" in
+        warn)
+            echo "[plan-action-atomicity] WARN — Recommended Approach section has action-atomicity issues (advisory; bypass with PLAN_ACTION_ATOMICITY_SKIP=1):" >&2
+            echo "$atom_stderr" >&2
+            ;;
+        pass|skip|error|"")
+            debug "action-atomicity status: $atom_stdout"
+            ;;
+    esac
+    return 0
+}
+
 case "$SCAN_OUTPUT" in
     allow)
+        _warn_action_atomicity
         emit_allow "contrarian-reviewer invoked for current plan"
         ;;
     bootstrap)
         echo "[plan-contrarian-gate] bootstrap: no prior ExitPlanMode in transcript — allowing (first plan of session)" >&2
+        _warn_action_atomicity
         emit_allow "bootstrap case"
         ;;
     deny)

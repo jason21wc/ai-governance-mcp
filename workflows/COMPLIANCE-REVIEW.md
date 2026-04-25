@@ -355,6 +355,50 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 ---
 
+### [V-007] Plan-action-atomicity WARN-mode firing rate — OPEN
+
+**Hypothesis:** Plans approved via ExitPlanMode comply with the action-atomicity rule (plan-template Recommended Approach section, shipped Commit 2 of Superpowers plan). The WARN-mode hook gate (Commit 6 of same plan) catches violations advisory-only.
+
+**Added:** 2026-04-25 (session-126, Commit 6 of Superpowers plan)
+**Confirm/Refute by:** Event-driven — promote to BLOCK on first coherence-audit finding flagging WARN-mode pattern actually firing on real code (per plan HIGH-2 fold).
+
+**Process indicator:** Count of stderr `[plan-action-atomicity] WARN` lines emitted by `pre-exit-plan-mode-gate.sh` per plan-mode session. Source: terminal stderr capture during ExitPlanMode (or hook debug log if instrumented).
+
+**Promotion trigger (event-driven, no count required):** When a plan ships that subsequently produces a defect coherence-auditor would have caught had the WARN-mode plan-atomicity finding been a BLOCK, promote `_warn_action_atomicity` from WARN to deny. Mechanism: track in this section's table the session/finding-ID where the trigger fires.
+
+**Bypass:** `PLAN_ACTION_ATOMICITY_SKIP=1` (un-audited; non-load-bearing while WARN-only). Add audit-logging if/when promoted to BLOCK.
+
+**Baseline:** First WARN scan ships session-126 with this hook integration. Plan `~/.claude/plans/federated-plotting-karp.md` (current session) is the dogfood test — if `_warn_action_atomicity` fires on this plan's own task entries, document below.
+
+| Session | Date | Plans | WARN fires | Promoted? | Notes |
+|---------|------|-------|:---:|:---:|-------|
+| 126 (baseline) | 2026-04-25 | 0 (no plan-mode this session post-Commit 6) | 0 | N | First instrumentation. |
+| | | | | | |
+
+---
+
+### [V-008] TDD test-existence WARN-mode firing rate — OPEN
+
+**Hypothesis:** New `src/*.py` files ship with paired `tests/test_*.py` files in the same change. The WARN-mode pre-push hook gate (Commit 6 of Superpowers plan) catches missing pairs advisory-only.
+
+**Added:** 2026-04-25 (session-126, Commit 6 of Superpowers plan)
+**Confirm/Refute by:** Event-driven — promote to BLOCK on first coherence-audit finding (or production defect) where missing test pair on a new src file caused a regression that paired tests would have caught.
+
+**Process indicator:** Count of stderr `[tdd-test-existence] WARN` lines emitted by `pre-push-quality-gate.sh` per push that touches `src/*.py`. Source: terminal stderr capture during `git push` (or hook debug log).
+
+**Promotion trigger (event-driven, no count required):** When a regression ships that paired tests would have caught and the WARN scan flagged the missing pair pre-push, promote from WARN to deny. Mechanism: track in this section's table the regression session-ID.
+
+**Bypass:** `TDD_TEST_EXISTENCE_SKIP=1` (un-audited; non-load-bearing while WARN-only).
+
+**Baseline:** First WARN scan ships session-126 with this hook integration. No new src files in this commit (scanner self-test is in `tests/test_hooks.py::TestTddTestExistence`, not a real src addition).
+
+| Session | Date | Pushes with new src/*.py | WARN fires | Promoted? | Notes |
+|---------|------|-------|:---:|:---:|-------|
+| 126 (baseline) | 2026-04-25 | 0 | 0 | N | First instrumentation. Scanner integration only; no src additions. |
+| | | | | | |
+
+---
+
 ### [V-005] SESSION-STATE pruning compliance — OPEN
 
 **Hypothesis:** Advisory pruning instructions on always-loaded surfaces (CLAUDE.md, AGENTS.md, MEMORY.md) keep SESSION-STATE.md under 300 lines across sessions.
