@@ -15,15 +15,15 @@
 >
 > **No closed/completed items in this file.** When an item is closed, remove it from this file entirely. Git commit history is the archive — commit messages document what was closed and why. Maintaining closed item lists, completed tables, or historical detail sections in a working document is redundant with version control and causes unbounded file growth. If you need closure context for a past item, use `git log --grep="backlog #N"` or search commit messages.
 >
-> **Difficulty classification (D1-D3).** Every backlog item gets a difficulty tag. Per `meta-quality-verification-validation`, criteria must be observable, not subjective.
+> **Difficulty classification (D1-D3).** Every backlog item gets a difficulty tag. Per `meta-quality-verification-validation` and `meta-method-effort-not-time-estimation` (rules-of-procedure §7.12), criteria must be observable, not time-based or subjective.
 >
 > | Level | Label | Definition | Observable Indicators |
 > |-------|-------|-----------|----------------------|
-> | **D1** | Single-session | Completable in one session without plan mode | Docs-only OR known pattern, no new infrastructure, no dependencies |
-> | **D2** | Multi-session | Requires plan mode OR spans multiple sessions | New tool/hook/section, moderate research, or depends on 1-2 other items |
-> | **D3** | Architecture | Plan mode + external review + broad changes | New domain, cross-cutting refactor, new service, heavy research |
+> | **D1** | Low complexity | No plan mode required | Docs-only OR known pattern; no new infrastructure; no dependencies |
+> | **D2** | Moderate complexity | Plan mode required | New tool/hook/section; moderate research; depends on 1-2 other items |
+> | **D3** | High complexity | Plan mode + external review + broad changes | New domain; cross-cutting refactor; new service; heavy research |
 >
-> **Rules:** Default to D1 unless indicators push higher. Plan mode → at least D2. New domain or cross-cutting → D3. When uncertain, pick higher. Re-evaluate when starting work — tags are estimates, not commitments.
+> **Rules:** Default to D1 unless indicators push higher. Plan mode required → at least D2. New domain or cross-cutting refactor → D3. When uncertain, pick higher. Re-evaluate when starting work — tags reflect observable effort indicators, not time. **Do not size backlog items by hours, minutes, or "session count"** — those are time-units the AI miscalibrates by 50-100×.
 >
 > **Type tags:** Fix, Improvement, New Capability, Docs, Maintenance. Ranked order: fixes first → improvements → new capabilities.
 

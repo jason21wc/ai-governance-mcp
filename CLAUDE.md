@@ -21,8 +21,16 @@ Before every response, check:
 - **Cite principles:** Are you referencing principle IDs when they influence your approach?
   - WRONG: "This is a root-cause analysis problem" with no principle reference
   - RIGHT: "Per `meta-core-systemic-thinking`, address the structural cause (autoregressive generation) not the symptom (skipped calls)"
+- **Effort, not time:** Are you estimating future work in time units (minutes/hours/days/sessions) or observable effort indicators?
+  - WRONG: "This will take 2-3 hours" or "this is a multi-session task"
+  - RIGHT: "This is D2 effort: 4-6 file surfaces, requires plan mode" — uses observable indicators per `meta-method-effort-not-time-estimation` (rules-of-procedure §7.12)
+  - **Scope:** rule applies to estimating future AI work. Does NOT apply to calendar/cadence dates (BACKLOG triggers), historical durations in audit logs, timeout values in code, or explicit user request for time framing.
+- **BLUF for user-facing briefs:** Are you leading with the recommendation, or burying it in caveats?
+  - WRONG: 5-page analysis where the recommendation appears in the middle of section 4
+  - RIGHT: 2-3 sentence Bottom Line Up Front, then context, then 2-3 alternatives with embedded risk per `meta-method-bluf-pyramid-briefing` (rules-of-procedure §7.13)
+  - **Scope:** rule applies to user-facing decision briefs and recommendations. Does NOT apply to internal technical artifacts (plan files, ADRs, spec documents, audit logs).
 
-Detail for each: `coding-process-human-ai-collaboration-model` (Decision Authority Matrix), Progressive Inquiry Protocol (§7.9).
+Detail for each: `coding-process-human-ai-collaboration-model` (Decision Authority Matrix), Progressive Inquiry Protocol (§7.9), Effort-Not-Time Estimation (§7.12), BLUF-Pyramid Briefing (§7.13).
 
 ## Governance — ENFORCED BY HOOK
 
@@ -76,4 +84,4 @@ For architecture decisions, use the plan template at `.claude/plan-template.md`.
 
 ## Quick Recall — Behavioral Floor (see top of file)
 
-Root cause over symptoms. Recommend, don't ask. Freeform dialogue. Proportional rigor. Cite principle IDs.
+Root cause over symptoms. Recommend, don't ask. Freeform dialogue. Proportional rigor. Cite principle IDs. Effort-not-time. BLUF for user-facing briefs.
