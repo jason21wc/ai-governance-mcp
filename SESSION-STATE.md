@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-25 (session 126 — **resuming from session-125 handoff. Plan `~/.claude/plans/federated-plotting-karp.md`: Commits 2 (`ee93845`, action-atomicity prose) + 3 (`075ef62`, title-10 v2.40 §5.1.7.1 Sequenced Two-Stage Review) shipped; Commit 4 (title-10 v2.41 §1.3.5 Brainstorming Method + §4.1.2 effort-shaped fold-in) in-flight. Commits 5-8 remain after MIDPOINT CHECKPOINT.**)
+**Last Updated:** 2026-04-25 (session 126 — **resuming from session-125 handoff. Plan `~/.claude/plans/federated-plotting-karp.md`: Commits 2 (`ee93845`) + 3 (`075ef62`, title-10 v2.40) + 4 (`5535557`, title-10 v2.41) + 5 (`c9500ce`, Branch Completion) + 6 (`9eeeb01`, hook gates WARN-mode) shipped; MIDPOINT CHECKPOINT passed (no drift); Commit 7 (title-10 v2.42 §5.1.8 Mid-Execution Checkpoint Protocol + orchestrator agent + hash regen) in-flight. Commit 8 (INFLUENCES.md) remains.**)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -13,7 +13,7 @@
 
 **Active plan file:** `/Users/jasoncollier/.claude/plans/federated-plotting-karp.md`
 
-**Status:** Commits 1 + 1.5 shipped session-125 (`7e7ce95` + `b567032`, pushed to main). Commits 2 + 3 shipped session-126 (`ee93845`, `075ef62`, local). Commit 4 in-flight session-126 (title-10 v2.41 + §4.1.2 effort-shaped fold-in + ai-instructions v2.8.3 + SESSION-STATE pin sync). Commits 5-8 remain after MIDPOINT CHECKPOINT.
+**Status:** Commits 1 + 1.5 shipped session-125 (`7e7ce95` + `b567032`, pushed to main). Commits 2-6 shipped session-126 (`ee93845`, `075ef62`, `5535557`, `c9500ce`, `9eeeb01`, local). MIDPOINT CHECKPOINT passed between Commits 4 and 5 (no drift). Commit 7 in-flight (title-10 v2.42 §5.1.8 + orchestrator agent + ai-instructions v2.8.4 + SESSION-STATE pin sync). Commit 8 remains.
 
 **Why we paused:** This conversation grew long. Commits 2-8 include 2 MINOR CFR version bumps (commits 3 + 4 in plan), hook extensions (commit 6), and INFLUENCES.md authoring — high-blast-radius work that benefits from fresh context per `meta-safety-transparent-limitations` + LEARNING-LOG "Multi-Mechanism Context Degradation Model" (2026-03-28).
 
@@ -26,11 +26,11 @@
 1. ~~Commit 1: Step 0 + Step 0.1~~ — **DONE** (`7e7ce95`)
 2. ~~Commit 2: Plan-template action-atomicity prose~~ — **DONE** (`ee93845`, session-126). Title-10 §4.1.2 cross-ref deferred to Commit 4 per plan literal text "folded with commit 4 MINOR bump".
 3. ~~Commit 3: Title-10 v2.40 MINOR — §5.1.7.1 sequenced two-stage code review~~ — **DONE** (`075ef62`, session-126). 4-surface propagation done (CFR + ai-instructions + SESSION-STATE + Situation Index). Coherence-auditor PROCEED_WITH_CHANGES; findings #1, #2, #3 folded; #5 filed to BACKLOG #130.
-4. ~~Commit 4: Title-10 v2.41 MINOR — §1.3.5 Brainstorming Method + §4.1.2 effort-shaped fold-in~~ — **IN-FLIGHT** (session-126). Folded §4.1.2 "Typically 1-4 hours" → effort-shaped row pointing at plan-template + §7.12 (was contradiction with Commit 1). **Coherence-auditor REQUIRED before push.**
-5. **MIDPOINT CHECKPOINT** (per plan MED-5 fold-in) — pause, re-read plan file, verify commits 1-4 delivered as intended before continuing.
-6. Commit 5: Branch Completion stage — `workflows/COMPLETION-CHECKLIST.md` 4-option decision (merge/PR/keep/discard).
-7. Commit 6: Hook gates — extends `scan_transcript.py` with action-atomicity + TDD-test-existence scans; integrates with pre-exit-plan-mode-gate + pre-push-quality-gate. WARN-mode initial; promotion trigger event-driven (next coherence-audit finding).
-8. Commit 7: Mid-execution checkpoints — concept in title-10 §5.1.x; threshold (`≥5 file changes OR >30 min runtime`) in COMPLETION-CHECKLIST per MED-4 split.
+4. ~~Commit 4: Title-10 v2.41 MINOR — §1.3.5 Brainstorming Method + §4.1.2 effort-shaped fold-in~~ — **DONE** (`5535557`, session-126).
+5. ~~MIDPOINT CHECKPOINT~~ — **DONE** (session-126, between Commits 4 and 5). No drift; PROCEED to Commit 5.
+6. ~~Commit 5: Branch Completion stage~~ — **DONE** (`c9500ce`, session-126). 5-option decision tree (split MERGE into trunk-direct vs feature-branch).
+7. ~~Commit 6: Hook gates~~ — **DONE** (`9eeeb01`, session-126). scan_transcript.py extended (--plan-action-atomicity + --tdd-test-existence); pre-exit-plan-mode-gate + pre-push-quality-gate WARN-mode integration; 14 new tests; V-007 + V-008 in COMPLIANCE-REVIEW.md.
+8. ~~Commit 7: Mid-execution checkpoints — concept in title-10 §5.1.8; threshold in COMPLETION-CHECKLIST item 16a~~ — **IN-FLIGHT** (session-126, this commit). Title-10 v2.42 + orchestrator agent + AGENT_TEMPLATE_HASHES regen. **Coherence-auditor REQUIRED before push.**
 9. Commit 8: `/INFLUENCES.md` (NEW at repo root) — 4-category attribution schema; Superpowers v5.0.7 comparison table with `enforcement: advisory|structural` per row; #G "Considered and rejected" entry per HIGH-3 (title-20 §2.3 + §3.2 already cover).
 
 **Decisions already made (don't re-deliberate):**
@@ -57,13 +57,13 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v5.0.7** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.28.0** (rules-of-procedure — added §7.12 Effort-Not-Time + §7.13 BLUF-Pyramid 2026-04-25), **v2.41.0** (title-10-ai-coding-cfr — added §5.1.7.1 Sequenced Two-Stage Review v2.40 + §1.3.5 Brainstorming Method v2.41 + §4.1.2 effort-shaped fold-in 2026-04-25), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.8.3** (ai-instructions — pin update for title-10-ai-coding-cfr v2.41.0), **v1.6.0** (tiers.json — added effort-not-time + bluf-pyramid-briefing directives). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
+| Content | **v5.0.7** (Constitution — 24 principles: C:6, O:6, Q:4, G:5, S:3), **v3.28.0** (rules-of-procedure — added §7.12 Effort-Not-Time + §7.13 BLUF-Pyramid 2026-04-25), **v2.42.0** (title-10-ai-coding-cfr — v2.40 §5.1.7.1 + v2.41 §1.3.5 + v2.42 §5.1.8 Mid-Execution Checkpoint Protocol 2026-04-25), **v2.7.1** (ai-coding principles — 12), **v2.7.1** (multi-agent principles — 17), **v2.17.1** (multi-agent methods), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.2** (multimodal-rag methods), **v1.2.0** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.0** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.8.4** (ai-instructions — pin update for title-10-ai-coding-cfr v2.42.0), **v1.6.0** (tiers.json — added effort-not-time + bluf-pyramid-briefing directives). **Filenames renamed to Constitutional naming** (Phase 4): `constitution.md`, `rules-of-procedure.md`, `title-NN-*.md`, `title-NN-*-cfr.md`. Versions in YAML frontmatter (since v3.20.0). |
 | Tests | **1381 passing + 0 skipped** safe subset (`pytest tests/ -v -m "not slow"`); session-124 added +57 `Covers:` annotations (39 registry entries: 22 must_cover + 14 advisory active + 3 retired 2026-04-24; 69 total annotations across 67 tests) + 1 new lint test (test_new_advisory_entries_have_annotation) + 10 parametrized traversal-rejection instances + 3 parametrized non-hex-input instances + 1 retired-IDs test no longer skipped. Session-123 shipped +6 net tests. Run `pytest tests/ -v` for full count. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **130 principles + 687 methods + 13 references** (830 total; see `tests/benchmarks/` for current totals) |
+| Index | **130 principles + 688 methods + 13 references** (831 total; see `tests/benchmarks/` for current totals) |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **6** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM prevention gate, **PreToolUse pre-exit-plan-mode gate** — session-122) |
 | CI | **Green.** Both session-106 pre-existing failures fixed and verified on main in session-109: reconnect flake resolved by releasing accepted conns on shutdown; bandit exit-1 resolved by suppressing non-crypto B311 jitter and cleaning up unused B506 nosec on `yaml.safe_load()`. Last push: `5c890aa` (2m55s CI, 1m17s CodeQL). |

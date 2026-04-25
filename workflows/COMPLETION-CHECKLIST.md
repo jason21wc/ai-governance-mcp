@@ -53,6 +53,13 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
     5. Follow CFR §9.3.10 Hook Implementation Prerequisites recipe (ERR trap + platform timeout detection + escape hatches + self-diagnosing fallback).
     6. If the hook affects adopter-facing governance OR takes >3 sessions to remediate, file a V-series verification item in `workflows/COMPLIANCE-REVIEW.md` measuring whether the enforcement changes behavior or just blocks it.
 
+16a. **Mid-execution checkpoint** (per CFR §5.1.8 Mid-Execution Checkpoint Protocol) — when a plan exceeds the operational threshold below, run the 5-step protocol at the natural midpoint before continuing:
+    - **Threshold:** ≥5 file changes OR runtime >30 minutes OR multi-phase plan structure (whichever fires first).
+    - **Protocol:** Pause at task boundary → Re-read plan end-to-end → Spot-check delivered-vs-planned per task (table form, not vibes) → Optional external-evaluator subagent pass → Decide continue/re-plan/abort.
+    - **Threshold rationale:** File-count is the primary observable trigger (per §7.12 effort-not-time discipline). Runtime is a research-anchored secondary trigger (Agent Drift onset = 35 minutes per arxiv 2601.04170); by analogy with §7.12.1's scope-exclusion for non-estimate operational values (e.g., code timeouts), this runtime threshold is an operational gate, not an effort estimate the AI is producing. Multi-phase plan structure fires regardless of file count.
+    - **Anti-pattern:** "Checkpoint theater" — re-reading the plan and declaring "no drift" without the delivered-vs-planned table. CFR §5.1.8 names this explicitly per `meta-core-discovery-before-commitment` Discovery Theater trap.
+    - **Tunable:** This threshold is the operational tuning surface for §5.1.8. Adjust based on observed drift rate (Agent Drift research baseline: 73 ± 40 turns); currently set to ≥5 files as the cost-vs-benefit calibration point per [Hick's Law](https://lawsofux.com/hicks-law/) (tighter thresholds → checkpoint fatigue; looser → drift compounds).
+
 ### ALWAYS (regardless of enforcement tier)
 
 17. Update and prune SESSION-STATE.md (version, counts, summary; remove old session summaries; target <300 lines per §7.0.4) — at minimum at session end

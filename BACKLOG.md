@@ -236,6 +236,24 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 132. Canonicalize §7.12.1 5th exception: research-anchored operational thresholds `D1 Docs`
+
+**Filed:** 2026-04-25 (session-126, coherence-auditor finding MISLEADING-2 from Commit 7 audit `a4d86812f3eae6a90`).
+
+**What.** Commit 7 of Superpowers plan introduced §5.1.8 Mid-Execution Checkpoint Protocol with a runtime threshold (>30 min, Agent Drift research-anchored). The §5.1.8 + COMPLETION-CHECKLIST 16a justifications cite §7.12.1's scope-exclusions but use "by analogy with" language because §7.12.1 (rules-of-procedure §7.12.1 "Scope") currently enumerates only 4 exceptions: (1) calendar/cadence with explicit dates, (2) historical durations in audit logs, (3) timeout values in code, (4) explicit user request for time framing.
+
+The §5.1.8 runtime threshold doesn't cleanly fit any of these — it's an operational gate value derived from external research (Agent Drift arxiv 2601.04170), used as a process trigger, not an AI-produced effort estimate.
+
+**Scope.** Add a 5th explicit exception to `rules-of-procedure.md` §7.12.1: "Research-anchored operational thresholds — runtime/turn/iteration values derived from empirical research (e.g., Agent Drift onset, circuit-breaker windows, debounce intervals, drift-detection windows) used as process gates, not effort estimates." Bump rules-of-procedure to v3.28.1 (PATCH); ai-instructions pin update PATCH bump.
+
+After canonicalization: §5.1.8 (title-10) + COMPLETION-CHECKLIST 16a can replace "by analogy with" language with direct §7.12.1 citation. PATCH bump on title-10-cfr at the same time, OR fold into next title-10 PATCH.
+
+**Trigger.** Next §7.12 update event OR external feedback OR adopter ambiguity.
+
+**Done when.** §7.12.1 has 5 enumerated exceptions including research-anchored operational thresholds; §5.1.8 + COMPLETION-CHECKLIST 16a updated to direct citation.
+
+---
+
 #### 131. §7.12 retroactive sweep: residual time-units in CFR/methods estimates `D2 Docs`
 
 **Filed:** 2026-04-25 (session-126, coherence-auditor finding #2 from Commit 4 audit `a132b93302b156048`).

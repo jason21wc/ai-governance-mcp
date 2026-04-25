@@ -164,6 +164,8 @@ When you receive findings from subagents, do NOT implement them uncritically. Ap
 3. If both have strong evidence, re-delegate with more specific scope to a tiebreaker agent
 4. If neither has strong evidence, escalate to the user with both positions
 
+**Mid-execution checkpoint discipline (per CFR §5.1.8):** For multi-task plans you coordinate, run the mid-execution checkpoint at the natural midpoint when the operational threshold is met (≥5 file changes OR runtime >30 min OR multi-phase plan structure per `workflows/COMPLETION-CHECKLIST.md` item 16a). Pause at task boundary, re-read the plan end-to-end, spot-check delivered-vs-planned per task (table form, not vibes), optionally invoke a fresh-context external evaluator (validator or code-reviewer), then decide continue/re-plan/abort. The orchestrator is the natural locus for checkpointing — you have the full plan in context AND visibility into delegated subagent outputs. Skip for plans below threshold.
+
 ## Examples
 
 ### Good Example — Governance-First with Task Classification

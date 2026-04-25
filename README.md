@@ -65,7 +65,7 @@ The framework uses a 7-layer governance hierarchy modeled on the US Constitution
 | Domain | Principles | Methods | Coverage |
 |--------|------------|---------|----------|
 | **Constitution** | 24 | 214 | Universal AI behavior, safety, quality |
-| **AI Coding** | 12 | 230 | Software development, testing, deployment |
+| **AI Coding** | 12 | 231 | Software development, testing, deployment |
 | **Multi-Agent** | 17 | 54 | Agent orchestration, handoffs, autonomous operation |
 | **Storytelling** | 15 | 42 | Creative writing, narrative, voice preservation |
 | **Multimodal RAG** | 32 | 64 | Image retrieval, visual presentation, agentic retrieval |
