@@ -1,0 +1,296 @@
+diff --git a/pyproject.toml b/pyproject.toml
+index c113158..fe09e96 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -29,6 +29,7 @@ dependencies = [
+     "sentence-transformers==5.2.0",
+     "rank-bm25==0.2.2",
+     "numpy==1.26.4",
++    "optimum[onnxruntime]>=1.24.0",  # ONNX Runtime inference backend — lighter than PyTorch for embedding
+     "requests>=2.33.0",  # Required by sentence-transformers but not declared as of huggingface-hub>=1.0
+     "pyyaml>=6.0",  # YAML frontmatter parsing for reference library entries
+ ]
+diff --git a/src/ai_governance_mcp/config.py b/src/ai_governance_mcp/config.py
+index 7bb09a5..a326a7b 100644
+--- a/src/ai_governance_mcp/config.py
++++ b/src/ai_governance_mcp/config.py
+@@ -106,6 +106,10 @@ class Settings(BaseSettings):
+         default=384,
+         description="Embedding vector dimensions (must match model)",
+     )
++    embedding_backend: str = Field(
++        default="onnx",
++        description="Inference backend: 'onnx' (lighter, recommended) or 'torch'",
++    )
+ 
+     # Reranking model
+     rerank_model: str = Field(
+diff --git a/src/ai_governance_mcp/context_engine/indexer.py b/src/ai_governance_mcp/context_engine/indexer.py
+index 7e08a42..3611088 100644
+--- a/src/ai_governance_mcp/context_engine/indexer.py
++++ b/src/ai_governance_mcp/context_engine/indexer.py
+@@ -42,7 +42,7 @@ MAX_CHUNK_CONTENT_CHARS = 10_000
+ # Maximum content length for embedding input (chars)
+ # BGE-small handles ~512 tokens (~2048 chars); larger models can handle more
+ MAX_EMBEDDING_INPUT_CHARS = (
+-    6000  # Increased for nomic-embed-text-v1.5 (8K token context)
++    6000  # Conservative limit; BGE-small handles ~512 tokens, larger models more
+ )
+ 
+ # Batch size for embedding generation — limits peak memory
+@@ -104,14 +104,16 @@ class Indexer:
+     def __init__(
+         self,
+         storage: BaseStorage,
+-        embedding_model: str = "nomic-ai/nomic-embed-text-v1.5",
+-        embedding_dimensions: int = 768,
++        embedding_model: str = "BAAI/bge-small-en-v1.5",
++        embedding_dimensions: int = 384,
+         readonly: bool = False,
++        backend: str = "onnx",
+     ) -> None:
+         self.storage = storage
+         self.embedding_model_name = embedding_model
+         self.embedding_dimensions = embedding_dimensions
+         self.readonly = readonly
++        self.backend = backend
+         self._embedding_model = None
+         self._model_lock = threading.Lock()  # Thread-safe lazy model loading
+ 
+@@ -176,14 +178,19 @@ class Indexer:
+                     self.embedding_model_name,
+                 )
+ 
++            model_kwargs = (
++                {} if self.backend == "onnx" else {"use_safetensors": True}
++            )
+             logger.info(
+-                "Loading embedding model: %s (this may take a moment on first use)",
++                "Loading embedding model: %s (backend=%s, this may take a moment on first use)",
+                 self.embedding_model_name,
++                self.backend,
+             )
+             self._embedding_model = SentenceTransformer(
+                 self.embedding_model_name,
+                 trust_remote_code=False,
+-                model_kwargs={"use_safetensors": True},
++                backend=self.backend,
++                model_kwargs=model_kwargs,
+             )
+             logger.info("Embedding model loaded successfully")
+         return self._embedding_model
+diff --git a/src/ai_governance_mcp/context_engine/project_manager.py b/src/ai_governance_mcp/context_engine/project_manager.py
+index 4c9f8b6..66b6c36 100644
+--- a/src/ai_governance_mcp/context_engine/project_manager.py
++++ b/src/ai_governance_mcp/context_engine/project_manager.py
+@@ -82,6 +82,7 @@ class ProjectManager:
+         semantic_weight: float = 0.7,
+         default_index_mode: IndexMode = "ondemand",
+         readonly: bool = False,
++        backend: str = "onnx",
+     ) -> None:
+         self.storage = storage or FilesystemStorage()
+         self.embedding_model_name = embedding_model
+@@ -89,12 +90,14 @@ class ProjectManager:
+         self.semantic_weight = semantic_weight
+         self.default_index_mode: IndexMode = default_index_mode
+         self.readonly = readonly
++        self.backend = backend
+ 
+         self._indexer = Indexer(
+             storage=self.storage,
+             embedding_model=embedding_model,
+             embedding_dimensions=embedding_dimensions,
+             readonly=readonly,
++            backend=backend,
+         )
+         self._watchers: dict[str, FileWatcher] = {}
+         self._loaded_indexes: dict[str, ProjectIndex] = {}
+diff --git a/src/ai_governance_mcp/context_engine/server.py b/src/ai_governance_mcp/context_engine/server.py
+index 19b2f6a..cfa9c56 100644
+--- a/src/ai_governance_mcp/context_engine/server.py
++++ b/src/ai_governance_mcp/context_engine/server.py
+@@ -284,6 +284,7 @@ def _create_project_manager() -> ProjectManager:
+     Environment variables:
+         AI_CONTEXT_ENGINE_EMBEDDING_MODEL: Model name (default: BAAI/bge-small-en-v1.5)
+         AI_CONTEXT_ENGINE_EMBEDDING_DIMENSIONS: Integer dimensions (default: 384)
++        AI_CONTEXT_ENGINE_EMBEDDING_BACKEND: 'onnx' (default, lighter) or 'torch'
+         AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT: Float 0.0-1.0 (default: 0.7)
+         AI_CONTEXT_ENGINE_INDEX_PATH: Custom index storage path (default: ~/.context-engine/indexes/)
+         AI_CONTEXT_ENGINE_INDEX_MODE: 'ondemand' (default) or 'realtime' (enables file watcher)
+@@ -292,6 +293,9 @@ def _create_project_manager() -> ProjectManager:
+     embedding_model = os.environ.get(
+         "AI_CONTEXT_ENGINE_EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5"
+     )
++    embedding_backend = os.environ.get(
++        "AI_CONTEXT_ENGINE_EMBEDDING_BACKEND", "onnx"
++    )
+ 
+     try:
+         embedding_dimensions = int(
+@@ -372,6 +376,7 @@ def _create_project_manager() -> ProjectManager:
+         semantic_weight=semantic_weight,
+         default_index_mode=default_index_mode,
+         readonly=readonly,
++        backend=embedding_backend,
+     )
+ 
+ 
+diff --git a/src/ai_governance_mcp/context_engine/watcher_daemon.py b/src/ai_governance_mcp/context_engine/watcher_daemon.py
+index 32869f5..cec73bd 100644
+--- a/src/ai_governance_mcp/context_engine/watcher_daemon.py
++++ b/src/ai_governance_mcp/context_engine/watcher_daemon.py
+@@ -166,10 +166,14 @@ def run_daemon(
+     from .project_manager import ProjectManager
+     from .storage.filesystem import FilesystemStorage
+ 
++    embedding_backend = os.environ.get(
++        "AI_CONTEXT_ENGINE_EMBEDDING_BACKEND", "onnx"
++    )
+     storage = FilesystemStorage(base_path=base_path)
+     manager = ProjectManager(
+         storage=storage,
+         default_index_mode="realtime",
++        backend=embedding_backend,
+     )
+ 
+     # Determine which projects to watch
+diff --git a/src/ai_governance_mcp/extractor.py b/src/ai_governance_mcp/extractor.py
+index b5898d6..fcf6907 100644
+--- a/src/ai_governance_mcp/extractor.py
++++ b/src/ai_governance_mcp/extractor.py
+@@ -43,7 +43,9 @@ class EmbeddingGenerator:
+     Lazy-loads the model to avoid import overhead when not needed.
+     """
+ 
+-    def __init__(self, model_name: str = "BAAI/bge-small-en-v1.5"):
++    def __init__(
++        self, model_name: str = "BAAI/bge-small-en-v1.5", backend: str = "onnx"
++    ):
+         from .retrieval import ALLOWED_EMBEDDING_MODELS
+ 
+         if model_name not in ALLOWED_EMBEDDING_MODELS:
+@@ -52,6 +54,7 @@ class EmbeddingGenerator:
+                 f"Allowed: {sorted(ALLOWED_EMBEDDING_MODELS)}"
+             )
+         self.model_name = model_name
++        self.backend = backend
+         self._model = None
+ 
+     @property
+@@ -63,11 +66,19 @@ class EmbeddingGenerator:
+         if self._model is None:
+             from sentence_transformers import SentenceTransformer
+ 
+-            logger.info(f"Loading embedding model: {self.model_name}")
++            model_kwargs = (
++                {} if self.backend == "onnx" else {"use_safetensors": True}
++            )
++            logger.info(
++                "Loading embedding model: %s (backend=%s)",
++                self.model_name,
++                self.backend,
++            )
+             self._model = SentenceTransformer(
+                 self.model_name,
+                 trust_remote_code=False,
+-                model_kwargs={"use_safetensors": True},
++                backend=self.backend,
++                model_kwargs=model_kwargs,
+             )
+         return self._model
+ 
+@@ -259,7 +270,9 @@ class DocumentExtractor:
+     def __init__(self, settings: Settings):
+         self.settings = settings
+         self.domains = load_domains_registry(settings)
+-        self.embedder = EmbeddingGenerator(settings.embedding_model)
++        self.embedder = EmbeddingGenerator(
++            settings.embedding_model, backend=settings.embedding_backend
++        )
+ 
+     def validate_domain_files(self) -> None:
+         """Pre-flight validation: ensure all configured files exist.
+diff --git a/src/ai_governance_mcp/retrieval.py b/src/ai_governance_mcp/retrieval.py
+index 45f477d..e7cc465 100644
+--- a/src/ai_governance_mcp/retrieval.py
++++ b/src/ai_governance_mcp/retrieval.py
+@@ -92,11 +92,20 @@ class RetrievalEngine:
+                             f"Embedding model '{model_name}' not in allowlist. "
+                             f"Allowed: {sorted(ALLOWED_EMBEDDING_MODELS)}"
+                         )
+-                    logger.info(f"Loading embedding model: {model_name}")
++                    backend = self.settings.embedding_backend
++                    model_kwargs = (
++                        {} if backend == "onnx" else {"use_safetensors": True}
++                    )
++                    logger.info(
++                        "Loading embedding model: %s (backend=%s)",
++                        model_name,
++                        backend,
++                    )
+                     self._embedder = SentenceTransformer(
+                         model_name,
+                         trust_remote_code=False,
+-                        model_kwargs={"use_safetensors": True},
++                        backend=backend,
++                        model_kwargs=model_kwargs,
+                     )
+         return self._embedder
+ 
+@@ -114,10 +123,16 @@ class RetrievalEngine:
+                             f"Reranker model '{model_name}' not in allowlist. "
+                             f"Allowed: {sorted(ALLOWED_RERANKER_MODELS)}"
+                         )
+-                    logger.info(f"Loading reranking model: {model_name}")
++                    backend = self.settings.embedding_backend
++                    logger.info(
++                        "Loading reranking model: %s (backend=%s)",
++                        model_name,
++                        backend,
++                    )
+                     self._reranker = CrossEncoder(
+                         model_name,
+                         trust_remote_code=False,
++                        backend=backend,
+                     )
+         return self._reranker
+ 
+diff --git a/tests/test_context_engine.py b/tests/test_context_engine.py
+index 19eb4cb..f598997 100644
+--- a/tests/test_context_engine.py
++++ b/tests/test_context_engine.py
+@@ -2522,7 +2522,8 @@ class TestModelAllowlist:
+             mock_st.assert_called_once_with(
+                 "BAAI/bge-small-en-v1.5",
+                 trust_remote_code=False,
+-                model_kwargs={"use_safetensors": True},
++                backend="onnx",
++                model_kwargs={},
+             )
+             assert model is not None
+ 
+@@ -2543,7 +2544,8 @@ class TestModelAllowlist:
+             mock_st.assert_called_once_with(
+                 "custom-org/custom-model",
+                 trust_remote_code=False,
+-                model_kwargs={"use_safetensors": True},
++                backend="onnx",
++                model_kwargs={},
+             )
+             assert model is not None
+ 
+diff --git a/tests/test_extractor.py b/tests/test_extractor.py
+index 77da996..bcc1eaa 100644
+--- a/tests/test_extractor.py
++++ b/tests/test_extractor.py
+@@ -66,7 +66,8 @@ class TestEmbeddingGeneratorLazyLoad:
+             mock_st.assert_called_once_with(
+                 "BAAI/bge-small-en-v1.5",
+                 trust_remote_code=False,
+-                model_kwargs={"use_safetensors": True},
++                backend="onnx",
++                model_kwargs={},
+             )
+             assert generator._model is not None
+ 
