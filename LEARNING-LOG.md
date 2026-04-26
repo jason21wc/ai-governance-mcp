@@ -12,6 +12,20 @@
 
 ## Active Lessons
 
+### Don't Generalize Case-Specific Deviations as New Defaults (2026-04-26)
+
+Session-133 v3.30.0 ai-instructions pin draft attempted PATCH-on-MINOR justified via "v2.9.1's alias-preserved subset pattern" — except v2.9.1 deviated for a MAJOR rename where alias preservation made the cross-doc effect non-breaking, while v3.30.0 is a *tightening* (Close newly required = v3.29.0-form briefs FAIL v3.30.0 validation, not subset). Contrarian HIGH-2 (`a8648ee322443f496`) caught the cargo-cult: case-specific deviations remain case-specific; the canonical MINOR-on-MINOR rule (BACKLOG #130 close, COMPLETION-CHECKLIST item 7c) re-applies until explicitly re-canonicalized. Re-bumped v2.9.2 → v2.10.0 + struck "subset" framing from both v3.30.0 and v2.10.0 changelog entries.
+
+**Rule:** A precedent's deviation rationale is scope-bounded to that case. Don't treat one deviation as license for the next; confirm the canonical rule still applies on the *current* case's facts. The wrong question is "did someone deviate before?" The right question is "does the case-specific reason for the prior deviation apply HERE?"
+
+**How to apply:** When citing a prior deviation as rationale for a current bump, name the prior case's specific justification and verify it applies to the present case. If it doesn't, follow the canonical rule and document why the prior deviation's reason doesn't transfer. Recursive application of `meta-core-systemic-thinking`: "address the structural cause" (the canonical rule) rather than "patch per-incident" (cite-the-deviation). Pair-watches with the 2026-04-25 entry "AI-Fabricated Authority Chains" — that entry is about misreading bundled citations; this entry is about over-generalizing valid case-specific reads.
+
+**Principle:** `meta-core-systemic-thinking` (root cause is the rule, not the precedent); `meta-method-single-source-of-truth` (canonical home > Changelog precedent — same lesson 2026-04-25 entry shipped, applied here at the application layer not the citation layer); `coding-method-defer-vs-fix-now` (caught and folded inline before commit, not deferred).
+
+**Cross-ref:** rules-of-procedure v3.30.0 + ai-instructions v2.10.0 changelog entries (the corrected versions); contrarian audit `a8648ee322443f496` HIGH-2; commit `75e75b9`; LEARNING-LOG 2026-04-25 "AI-Fabricated Authority Chains in Changelog Precedents" (parent rule about canonical-home discipline).
+
+---
+
 ### Generalize Existing Principle Before Minting a New One (2026-04-26)
 
 User proposed adding "Elegance Equation" as a new constitutional meta-principle. Initial contrarian-reviewer flagged 5 of 7 Admission Test FAILs and recommended decline. Continued dialogue surfaced that the contrarian (and I) had treated `meta-quality-effective-efficient-communication` as encoding the same concept generalized — but it was explicitly **scoped to communication only**. The user's actual gap was scope (rule doesn't bind on code/plans/reports), not concept. Reframe: not a new principle, but rename + rescope the existing one to "Effective & Efficient Outputs" with form-specific cross-references. Plus the Elegance Equation as a method (§16.7) for the comparison case. Result: principle count stays flat (ADR-15 alignment), real failure mode addressed, alias preserves backwards compat.
