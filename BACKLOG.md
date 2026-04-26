@@ -31,6 +31,31 @@
 
 ### Active (Implement Now/Soon)
 
+137. **PHASE2_TRIGGERED 7-day monitor close-out — due ~2026-05-03** `D1 Maintenance`
+
+**Filed:** 2026-04-25 (Compliance Review #5 follow-up to commit `b31eab1`).
+
+**What.** Compliance Review #5 found the `~/.context-engine/PHASE2_TRIGGERED` marker FIRED on 2026-04-25 (T1+T3+T4, cross-process total 11.5 GB vs. post-Phase-2 baseline 5.8 GB). Marker NOT cleared; under 7-day monitor through 2026-05-02. This item is the calendar-anchored close-out so the monitor decision doesn't get forgotten.
+
+**When to act:** any session on or after 2026-05-03. (User-deferred from agent-scheduling option to a BACKLOG reminder per Group 1 close conversation.)
+
+**Procedure (full context: BACKLOG #49 "Status (2026-04-25)" block + workflows/COMPLIANCE-REVIEW.md Check 6b.2 row 4):**
+
+1. Read `~/.context-engine/logs/phase0-measurements.log` — extract the 7 daily readings dated 2026-04-26 through 2026-05-02. Daily plist `com.ai-governance.context-engine-measure` runs `scripts/measure-watcher-footprint.sh` at 04:00 local.
+2. For each reading: record steady_mb, peak_mb, cross_process_total_mb, and which (if any) of T1/T2/T3/T4 fired. Thresholds: T1 = 1.5 × baseline_steady_mb (= 8700 with current 5800 baseline); T3 = 7500; T4 = 8192. Baseline file: `~/.context-engine/logs/phase0-baseline.txt`.
+3. Check `test -f ~/.context-engine/PHASE2_TRIGGERED` — present (still firing) or cleared (re-fired and re-fired-clear, or someone cleared manually).
+4. Decision tree:
+   - **(a) T1 stayed clear ≥6/7 days AND 2026-04-25 was the only fire** → workload variance confirmed. `rm ~/.context-engine/PHASE2_TRIGGERED` + append "Status (2026-05-03) — 7-day monitor CLEAR, marker cleared, workload-variance confirmed" block to BACKLOG #49 + append closeout row to COMPLIANCE-REVIEW.md Check 6b.2 (flag whether this is a Review #6 row or a Review #5 close-out row — Review #6 cadence is independently due ~2026-05-05–05-10).
+   - **(b) T1 fired again on any day in window** → do NOT clear marker. Escalate to cause (c) regression investigation per #49 action plan: per-process torch-loading audit (`lsof -p <pid> | grep -i torch` for each context-engine/governance pid), schedule contrarian-reviewed design spike for shared embedding service v2.
+   - **(c) T2 or T3 or T4 fired but T1 did not** → ambiguous; surface to user with measurements for direction.
+5. Close this BACKLOG entry once the close-out commit ships. (`git log --grep="backlog #137"` is the archive per "no closed items" rule.)
+
+**Done when:** marker decision recorded in BACKLOG #49 + COMPLIANCE-REVIEW.md, this entry removed.
+
+**Why D1 Maintenance:** Single-file decision with read-and-decide pattern, well-defined procedure, no plan mode required.
+
+---
+
 119. **Revised-plan-after-rejection heuristic — contrarian can be "stale" for revised plan** `D3 Improvement`
 
 **What:** Scanner's `scan_contrarian_after_last_plan` uses "most recent prior ExitPlanMode" as the anchor. If the user rejects a plan and the AI revises (iterating in plan mode), the prior contrarian invocation STILL SATISFIES the anchor — hook allows. But the revised plan was never pressure-tested. Post-commit contrarian HIGH finding (`ac0e663f80114248d`).
