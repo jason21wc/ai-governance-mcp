@@ -1,5 +1,5 @@
 ---
-version: "2.42.3"
+version: "2.43.0"
 status: "active"
 effective_date: "2026-04-25"
 domain: "ai-coding"
@@ -9,7 +9,7 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.42.3
+**Version:** 2.43.0
 **Status:** Active
 **Effective Date:** 2026-04-25
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -1597,6 +1597,8 @@ During implementation:
 - Prune completed work from active context
 - Summarize and offload historical context
 - Alert when approaching 32K token effective limit
+
+**Status Bar Plugin (Recommended):** Surface the metrics above — context window %, model name, session duration, current branch — in the host environment's persistent UI rather than checking them on demand. The capability (always-visible context telemetry) is the framework's recommendation, not any specific tool: visibility is what makes the 60% prune / 80% offload / 32K hard-limit thresholds above operationalizable in real time, and the right implementation depends on the host environment. Adopters should pick a maintained statusline plugin whose configuration surface matches their workflow. Search keywords for current implementations: *Claude Code statusline plugin*, *context window status bar*, *statusline.command*; representative npm packages as of 2026-04 include `ccsp` (Claude Code Statusline Pro), `@cometix/ccline` (CCometixLine, Rust binary), and `@hwwwww/pulse`. Implements: `coding-context-context-window-management` (The Token Economy Act — sets the 60%/80% proactive-monitoring thresholds operationalized here); pairs with `coding-method-context-monitoring`.
 
 ### 3.3.5 Persistent Codebase Analysis
 
@@ -7454,7 +7456,7 @@ Configure both governance and context engine MCP servers in `.claude/settings.js
 }
 ```
 
-See Appendix G for detailed context engine configuration options.
+See Appendix G for detailed context engine configuration options. For optional third-party MCP servers the framework recommends (e.g., Sequential Thinking for in-flight reasoning decomposition), see Appendix M.
 
 ### A.5 Permission Configuration
 
@@ -9078,10 +9080,63 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 
 ---
 
+## Appendix M: Optional Ecosystem Tools
+
+**Importance: 🟢 OPTIONAL — Adopt selectively when the framework value is clear**
+
+This appendix collects third-party tools whose *framework value* (the principle they help operationalize) is strong enough to recommend, but whose specifics — pricing, install path, config schema — change too quickly to live in the body of the methods document. Each entry captures **why we care, how we want to use it, and the AI-relevant gotchas** an agent needs to know. Vendor-resolvable details (full feature lists, current pricing, config syntax) are deliberately deferred to the linked sources so adopters and AI agents look them up at point-of-use rather than reading a stale snapshot here.
+
+For tools that compete *inside* a category — where the framework recommends comparing alternatives — see Appendix F. This appendix is for tools that occupy a slot largely without category-internal competition for the framework value we recommend them for.
+
+---
+
+### M.1 Warp Terminal
+
+**Governance Level:** Agency SOP (Platform-Specific Appendix)
+**Implements:** `multi-reliability-observability-protocol` (Title 20 — agent visibility); `coding-process-human-ai-collaboration-model` (review-before-approve discipline).
+**Applies To:** Local terminal environment when the AI agent runs in a CLI host (Claude Code CLI, Gemini CLI, plain shell). macOS / Linux / Windows; Warp 0.2024.x or later as of 2026-04.
+**Information Currency:** 2026-04-25 (verify free-vs-paid boundary at adoption — vendor surface changes quarterly).
+**Source:** [warp.dev](https://www.warp.dev); pricing tiers at [warp.dev/pricing](https://www.warp.dev/pricing).
+
+**Why we recommend it.** Warp's *terminal UI* (split panes, side panel for repo files, tabbed sessions, command blocks) wraps Claude Code in a substantially better review surface — adopters can see plan output, edited files, and diff context alongside the conversation without leaving the terminal. That UI is the framework value: it materially supports the review-before-approve discipline `coding-process-human-ai-collaboration-model` requires for AI-generated work, and the multi-pane view supports the visibility-into-agent-progress requirement of `multi-reliability-observability-protocol`. The framework recommendation is for *Warp's terminal UI*, not Warp's own LLM/agent features.
+
+**What an AI agent needs to know.**
+
+- The free tier is sufficient for everything above. Warp's paid tiers buy Warp's own AI/agent products (Warp Agent, hosted LLM access), which are *separate* from a Claude Code session and *not* the reason this framework recommends Warp.
+- Inside Warp, Claude Code (or any other CLI agent) runs as a normal subprocess — governance hooks, MCP servers, `.claude/` settings, and the project's enforcement stack all apply unchanged.
+- Do **not** mix Warp's own agent and a governed Claude Code session over the same terminal flow without thinking through dual-loop dynamics: when two agents act on the same surface, the audit trail blurs and reviewer sign-off semantics break (which agent did what, under whose governance?).
+
+**Framework Integration.** Use Warp as the host terminal for any local CLI agent session; no framework configuration changes required. Pairs naturally with the Status Bar Plugin recommendation in §3.3.4 (always-visible context-window telemetry inside the better terminal UI).
+
+---
+
+### M.2 Sequential Thinking MCP Server
+
+**Governance Level:** Agency SOP (Platform-Specific Appendix)
+**Implements:** `meta-core-systemic-thinking` (structured decomposition surfaced as a first-class artifact); `meta-core-discovery-before-commitment` (in-flight reasoning when the rigor of Plan Mode would be over-applied).
+**Applies To:** AI agents using MCP tooling (Claude Code, Claude Desktop, any MCP client). Reference implementation maintained by Anthropic at `modelcontextprotocol/servers/src/sequentialthinking`; current as of 2026-04.
+**Information Currency:** 2026-04-25 (verify the current install path and package name at the source link before adopting — official-server packaging has evolved).
+**Source:** [modelcontextprotocol/servers — sequentialthinking](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking) (Anthropic-official reference MCP server).
+
+**Why we recommend it.** Sequential Thinking exposes a `sequentialthinking` MCP tool that lets the agent decompose a problem into explicit numbered thoughts with branch/revision support — making chain-of-thought a *first-class artifact* the user can read, the auditor can replay, and the model can revise mid-stream, rather than self-narration the agent silently generates and discards. This fills a real gap between the framework's existing reasoning gates: `.claude/plan-template.md` is for *bounded architecture decisions* (Plan Mode entry + contrarian-reviewer gate), and §5.13 Diagnostic Block is for *failed-twice debugging* — neither covers ad-hoc, in-flight decomposition during ordinary D1/D2 implementation work. Sequential Thinking lives in that gap.
+
+**Verdict on plan-mode interaction (the question BACKLOG #57 raised): *complements, does not conflict*.** Plan Mode's value is the contrarian + research-verification + simpler-alternatives structure baked into the plan template — that remains required for D2/D3 architecture work and is structurally enforced by the pre-exit-plan-mode-gate hook (§9.3.10 Layer 6). Sequential Thinking's value is step-by-step decomposition *during* implementation, where invoking the full plan template would be over-rigored per `meta-method-proportional-application` (§7.8). Use Sequential Thinking when you need to think out loud through a multi-step implementation; use Plan Mode when you need a *reviewed artifact* before approving an architecture decision. The two answer different questions at different rigor tiers — the framework keeps both.
+
+**What an AI agent needs to know.**
+
+- Sequential Thinking is *advisory reasoning support*, **not** a governance gate. Calling it does **not** satisfy `evaluate_governance()`, the contrarian-before-ExitPlanMode requirement, or any other §9.3.10 enforcement layer. The Behavioral Floor + governance hooks still apply.
+- Output is verbose (one thought per tool call); for short tasks the token cost of decomposition can exceed the benefit. Default to using it on genuinely multi-step decomposition, not single-step questions.
+- The official package name and install path have shifted in past releases; resolve the *current* install via the source link rather than hard-coding a package name in CLAUDE.md or AGENTS.md scaffold templates (same rot-immune pattern as §7.4.3 placeholder convention).
+
+**Framework Integration.** Add to `.claude/settings.json` `mcpServers` block alongside `ai-governance` and `context-engine` (see Appendix A.4 for the configuration shape). Pairs conceptually with `meta-core-systemic-thinking` (the principle this surfaces) and §5.13 Diagnostic Block (where the same "decompose this" impulse is structurally enforced for failed-twice debugging). Adopters who keep CLAUDE.md lean per `meta-method-single-source-of-truth` should configure Sequential Thinking once at the project level and let it be discovered via MCP rather than re-instructing the agent in prose.
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.43.0 | 2026-04-25 | MINOR: BACKLOG #57 close — added §3.3.4 Status Bar Plugin (Recommended) sub-paragraph + new Appendix M (Optional Ecosystem Tools) with M.1 Warp Terminal and M.2 Sequential Thinking MCP Server, plus Appendix A.4 cross-reference to M.2. **§3.3.4 augmentation** frames status-bar plugins as a *capability* (always-visible context-window telemetry) rather than recommending a specific tool — current-as-of-2026-04 implementations (`ccsp`, `@cometix/ccline`, `@hwwwww/pulse`) listed as starting points; adopters pick the tool whose maintainer cadence and config surface fit their workflow. Operationalizes the existing 60%/80%/32K proactive-monitoring thresholds in `coding-context-context-window-management` (canonical home: `title-10-ai-coding.md` Context Window Management principle, lines ~504-505) by closing the visibility prerequisite — the thresholds are unactionable without persistent telemetry. **Appendix M** is the framework's first canonical home for adopter-facing third-party tool recommendations whose specifics rot too quickly to absorb into method bodies; entries capture **why we care, how we want to use it, and the AI-relevant gotchas** per user direction (session-128) rather than reproducing vendor-resolvable detail. M.1 Warp Terminal: the framework value is the *terminal UI as a review surface* (split panes, side panel for repo files, command blocks) supporting `coding-process-human-ai-collaboration-model` review-before-approve discipline and `multi-reliability-observability-protocol` agent-visibility — Warp's paid LLM/agent products are explicitly NOT the reason we recommend it. M.2 Sequential Thinking MCP Server (Anthropic-official reference implementation): fills the gap between Plan Mode (bounded architecture decisions, structurally enforced by the pre-exit-plan-mode-gate hook §9.3.10 Layer 6) and §5.13 Diagnostic Block (failed-twice debugging) — covers ad-hoc in-flight decomposition during ordinary D1/D2 implementation. Verdict shipped inline in M.2 body: *complements, does not conflict* with Plan Mode (different rigor tiers, different questions). **Root cause:** Pre-this-MINOR, the framework had no canonical home for "best-of-best" or single-implementation third-party tool recommendations whose value is the principle-slot they occupy, not category-internal competition. Appendix F is comparison-among-alternatives (Happy / Dispatch / `/remote-control` for remote access; multi-tool comparison required); Appendix G is dedicated context-engine MCP setup (single-tool deep config, framework-internal). Neither structurally fit Warp's category-of-one terminal-UI value or Sequential Thinking's Anthropic-official-reference best-of-best slot. Appendix M closes that structural gap and sets the pattern for future ecosystem additions. **Constitutional Basis:** `meta-method-single-source-of-truth` (one canonical home for ecosystem-tool recommendations); `meta-core-systemic-thinking` (capability framing for §3.3.4 — framework owns the principle, adopters pick the implementation; structural fix vs naming a tool that may rot); `meta-methods §7.8` proportional rigor (augmentation pattern for §3.3.4 + new Appendix M with no renumbering of §3.3.5; matches session-127 §8.3.4 augmentation precedent); `meta-method-effort-not-time-estimation` per LEARNING-LOG 2026-04-25 (defer-to-evaluate pattern was applied to Sequential Thinking mid-session and rejected by user — verdict shipped inline rather than backlogged; new feedback memory `feedback_decide_dont_defer.md` codifies the rule for future sessions). Closes BACKLOG #57 (Warp + cc-statusline + Sequential Thinking — Happy Engineering already shipped Appendix F.1 2026-04-08; the 4-tool residual is now zero). New BACKLOG item filed for retroactive §9.8.3 field backfill across pre-existing appendices (F.1, A.5, K, etc. predate the §9.8.3 field reference and lack discrete Governance-Level / Implements / Applies-To-with-version / Information-Currency fields — out of scope for #57; tracked separately per defer-vs-fix-now §7.11). ai-instructions MINOR bump v2.8.8 → v2.9.0 (MINOR-on-MINOR per canonical pin-discipline rule, COMPLETION-CHECKLIST item 7c). Body-header + effective-date synced. Plan: session-128 freeze-recovery (no plan file — D1 docs, trunk direct per session-127 §8.3.4 routing). Governance: `gov-3116c50bb6e7`. Coherence-auditor + validator invocation REQUIRED before push per §5.1.7 trigger table (content expansion: new method content + new appendix). |
 | 2.42.3 | 2026-04-25 | PATCH: BACKLOG #133 close — replaced literal stale framework version pins (`AI Coding Methods v2.30.0`) in three template surfaces with the established `(current version)` placeholder convention from §7.4.3 Minimal Loader Template. Surfaces fixed: Appendix A.1 CLAUDE.md template (`:7390`), Appendix K.2 AGENTS.md template (`:8559`), and `src/ai_governance_mcp/server.py:765` SCAFFOLD_AGENTS_MD f-string (was `v2.28.0`, 14 MINOR stale). Rot-immune: placeholder requires no version-bump propagation. **Root cause:** Template authors hard-coded literal version strings rather than reusing the `(current version)` placeholder pattern §7.4.3 already established. Each MINOR/PATCH bump silently aged the templates; new adopters scaffolding via `scaffold_project` MCP tool received 12-14 MINOR-stale framework pins. Single-source-of-truth violation: §7.4.3 had the convention, three other surfaces re-invented their own (with literals). **Constitutional Basis:** `meta-method-single-source-of-truth` (one canonical placeholder convention — §7.4.3 — now applied uniformly across all template surfaces); `meta-core-systemic-thinking` (rot-immune placeholder is structural fix; periodic version-pin updates would be symptomatic). ai-instructions PATCH bump v2.8.7 → v2.8.8 (pin update per canonical PATCH-on-PATCH rule, COMPLETION-CHECKLIST item 7c). Body-header + effective-date synced. Filed by session-126 coherence-auditor finding #2 (audit `a2c2f2ad49d45d6cc`). Governance: `gov-7083d6c85ffc`. |
 | 2.42.2 | 2026-04-25 | PATCH: §5.1.8 + §5.1.7 area citation chain closure per BACKLOG #132 close (commit pending). §5.1.8 "Note on the operational threshold's time component" replaced "by analogy with rules-of-procedure §7.12.1's existing scope-exclusion category" with direct citation of the now-canonicalized 5th exception (rules-of-procedure §7.12.1, shipped v3.28.1 same session). COMPLETION-CHECKLIST item 16a Threshold Rationale received the same direct-citation update. Closes the citation chain that v2.42.0 left open: §5.1.8 cited §7.12.1 for an exception that didn't exist in §7.12.1; v3.28.1 added it; this PATCH closes the loop by switching to direct citation. **Constitutional Basis:** `meta-method-single-source-of-truth` (citation now points at the actual rule; no by-analogy hop), `meta-quality-visible-reasoning-traceability` (adopters following the cite find the cited text). PATCH-on-PATCH: title-10 PATCH (citation update, no normative change to §5.1.8 protocol itself) → ai-instructions PATCH (per canonical pin-discipline rule codified BACKLOG #130 close). Governance: `gov-adbf247c0f44`. |
 | 2.42.1 | 2026-04-25 | PATCH: Process-integrity strengthening per post-ship contrarian battery (audit `a62e96c04a3f91721`, session-126). **§5.1.8 step 3** strengthened to REQUIRE a written delivered-vs-planned table committed to SESSION-STATE/plan file/checkpoint-artifact — bare "no drift, PROCEED" assertions now structurally classified as "checkpoint did not happen" (the very anti-pattern §5.1.8 names). Step 4 promoted from "optional" to REQUIRED when step 3's table flags ANY drift (provides confirmation that "no drift" is genuine, not anchored). **§1.3.5 Brainstorming Method** gate widened from ENHANCED-mode-only to ENHANCED-mode-OR-no-precedent (`query_project("similar implementation in this project")` returns no strong matches triggers brainstorming regardless of calibrated mode). Closes the AI-under-calibration class where novel work is anchored as STANDARD and brainstorming therefore never fires. **Root cause:** Post-ship contrarian battery surfaced two HIGH-leverage findings: (1) the MIDPOINT CHECKPOINT shipped session-126 was performed as a single-line "no drift" assertion — the rule that codifies §5.1.8 violated the rule on its first invocation; (2) §1.3.5's ENHANCED-only gate fires near-zero given LEARNING-LOG's documented AI under-calibration of ENHANCED. Both are meta-loop closures: the rules now structurally prevent their own most-likely failure modes. **Constitutional Basis:** `meta-core-systemic-thinking` (close the structural loop where each rule could be performed as theater of itself); `meta-quality-verification-validation` (written artifact = structural verification gate, not advisory); `coding-process-validation-gates` ("validation requires evidence, not just declaration" — §5.1.8 step 3 now has evidence requirement); `meta-core-discovery-before-commitment` (§1.3.5 OR-clause closes the under-calibration anchor-bias gap); `coding-quality-production-ready-standards` (rule shipped without its own anti-theater gate = technical debt; this PATCH retires it). ai-instructions PATCH bump v2.8.4 → v2.8.5 (pin update). Body-header + effective-date synced. BACKLOG #130 (pin-discipline self-contradiction) and #132 (§7.12.1 5th exception) explicitly DEFERRED to next batch per user direction; this PATCH addresses only the non-#130/#132 contrarian findings. Governance: `gov-71c1d6662fa7`. Coherence-auditor invocation REQUIRED per §5.1.7 trigger table. |

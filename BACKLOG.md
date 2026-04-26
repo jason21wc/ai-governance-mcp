@@ -758,44 +758,24 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 
 **Origin:** Claude Code workflow video re-analysis (2026-04-05).
 
-#### 57. Recommended Tooling Appendix Entries — Warp, cc-status-line, Sequential Thinking (Discussion — from Video Re-Analysis) `D1 Docs`
+#### 136. Retroactive §9.8.3 Field Backfill Across Pre-§9.8.3 Appendices `D2 Maintenance`
 
-**What:** Four tools from the Claude Code workflow video that implement existing framework principles as concrete tooling. Happy Engineering documented in Appendix F.1 (2026-04-08). Three remaining candidates for ai-coding appendix entries.
+**What:** `rules-of-procedure.md` §9.8.3 (Appendix Field Reference) defines the required field set for platform/tool appendices — *Appendix Letter + Name, Governance Level, Implements (parent-method reference), Applies To (platform + version), Information Currency (verification date), Source, Framework Integration*. §9.8.3 itself notes that backfill is tracked separately, but no BACKLOG item existed until now. Pre-§9.8.3 appendices in `title-10-ai-coding-cfr.md` (Appendix A subsections, Appendix F Tool Comparison, Appendix H Production Hardening, Appendix I Postgres/Supabase, Appendix K AGENTS.md, Appendix L Folder-Based AI Environment) were authored before the field reference and lack discrete §9.8.3 fields — they're discoverable today, but don't structurally support adopter and AI-agent retrieval the way the new appendices do (M.1 Warp, M.2 Sequential Thinking — both shipped session-128 — plus F.1 Happy Engineering and Appendix G Context Engine, which already conform).
 
-**Warp Terminal (warp.dev):**
-- AI-native terminal with side panel for viewing repo files alongside Claude Code conversation, split panes for multiple Claude instances, tabbed sessions
-- Implements: `multi-reliability-observability-protocol` (visibility into agent progress), human-in-the-loop review (see plans/specs/code in real-time while talking to Claude)
-- Key value: review generated plans and code without leaving the terminal — supports the "don't just click yes to everything" discipline the video emphasizes
-- Free, not sponsored
+**Why this exists:** Filed by session-128 (BACKLOG #57 close, 2026-04-25) per defer-vs-fix-now rule (§7.11). The audit itself is multi-appendix with cascading discovery (>3 files, judgment per subsection on whether each field applies), out of scope for the #57 single-purpose addition. Backfill is real maintenance debt — without it, §9.8.3's "structural retrievability" guarantee is patchily applied across the appendix surface and the new Appendix M sets a precedent that older appendices visibly fail to match.
 
-**cc-status-line plugin (`npx cc-status-line@latest`):**
-- Adds real-time status bar: model name, context window %, session cost, session duration, git branch, work tree
-- Implements: `coding-context-context-window-management` (The Token Economy Act), `coding-method-context-monitoring`
-- Key value: makes context % visible without checking manually — directly enables the 50% threshold rule (backlog #56)
-- Pairs with #56 — the threshold is useless without a way to see it
+**Scope:**
 
-**Happy Engineering (happy.engineering):**
-- Free, open-source remote Claude Code terminal control from mobile
-- Unlike official Claude mobile app: runs on your actual machine, full access to all plugins (superpowers, context7, etc.) and local files
-- Implements: `multi-reliability-state-persistence-protocol` (session continuity), `multi-reliability-observability-protocol` (remote monitoring)
-- Alternative to Anthropic's Dispatch/remote pairing feature (user has had reliability issues with Dispatch)
-- iOS/Android + web app
+1. **Audit** existing appendices in `title-10-ai-coding-cfr.md` (A, B, C, D, E, F, H, I, J, K, L) against §9.8.3 field reference. Output: per-subsection field-presence matrix.
+2. **Decide** per missing field: backfill in place, document why the field doesn't apply (e.g., Appendix A.5 Permission Configuration is project-internal config, not a platform/tool — likely a different field set), or escalate the field reference itself if the canonical schema needs broadening.
+3. **Sweep** other CFR files (`title-15-ui-ux-cfr.md`, `title-20-multi-agent-cfr.md`, `title-25-kmpd-cfr.md`, `title-30-storytelling-cfr.md`, `title-40-multimodal-rag-cfr.md`) for same-class appendices.
+4. **Output:** PATCH-shape edit per CFR file (no normative changes — fields are descriptive); Changelog row per file noting "Retroactive §9.8.3 field backfill — *N* appendix subsections." Pin propagation through `ai-instructions.md` follows canonical PATCH-on-PATCH rule (COMPLETION-CHECKLIST item 7c).
 
-**Sequential Thinking MCP server:**
-- Chain-of-thought reasoning tool that forces step-by-step decomposition for Claude
-- Video recommends installing alongside Superpowers to "upgrade thinking powers"
-- Implements: `meta-core-systemic-thinking` (structured reasoning), plan-mode workflow principles
-- Install: `claude` → "please install sequential thinking MCP server"
-- Pairs with Superpowers — enhances brainstorming quality
+**Re-open prerequisites:** None — runnable now; deferred from session-128 only because the cascading scope conflicts with #57's atomic-shape close.
 
-**Actions:**
-1. ~~Evaluate each for Appendix A entry — recommended tooling section~~ → Happy Engineering documented in Appendix F.1 (2026-04-08)
-2. For cc-status-line: include the user's exact line 1/line 2 config from the video as a recommended setup
-3. ~~For Happy Engineering: compare against Anthropic's Dispatch feature for reliability and governance compliance~~ → Done: 3-way comparison table (/remote-control vs Happy vs Dispatch) in Appendix F.1
-4. For Sequential Thinking: evaluate whether it complements or conflicts with our plan-mode template approach
-5. Remaining: Warp, cc-status-line, Sequential Thinking still need evaluation
+**Why D2 not D1:** Multi-file audit, moderate per-appendix judgment (which fields apply, which don't, whether the field reference itself needs broadening for non-platform-tool cases like permission configuration), proportional-rigor decision on whether to also backfill the optional Examples/Cross-References fields §9.8.3 lists. Pure docs work but >3 surfaces with per-surface discovery gating subsequent surfaces — fits D2's "moderate research; depends on coordinated decisions" indicators.
 
-**Origin:** Claude Code workflow video re-analysis (2026-04-05). Low priority — tooling recommendations, not framework changes.
+**Origin:** session-128 BACKLOG #57 close (2026-04-25). Surfaced during the Appendix M placement decision: drafting M.1/M.2 to §9.8.3 spec made the gap visible (older appendices sit alongside the new entries with visibly missing fields). Filed structurally rather than letting the next session rediscover it from a coherence-auditor flag.
 
 #### 58. Session Lifecycle Automation — Mid-Session Re-Injection (Discussion — from UBDA Review) `D2 Improvement`
 
