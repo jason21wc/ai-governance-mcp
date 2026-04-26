@@ -12,6 +12,20 @@
 
 ## Active Lessons
 
+### Verify Source-of-Truth Files Before Anchoring on Review Notes (2026-04-25)
+
+During Compliance Review #5 (Check 6b.2), the PHASE2_TRIGGERED marker had FIRED — cross-process total 11.5 GB vs. session-108 verified 4.0 GB. My initial cause-analysis claimed the baseline was still pre-Phase-2 (citing Review #4's note "Post-Phase-2 baseline capture still pending — deferred structural task"). I drafted a "rebase the baseline" recommendation and the user approved it ("Go with your recommendation"). **Then** I read `~/.context-engine/logs/phase0-baseline.txt` directly to do the rebase — and the file said: "POST-PHASE-2 BASELINE (2026-04-17, watcher at 9h49m uptime, pre-12h-restart) ... baseline_steady_mb=5800 ... # Trigger 3 (script constant) updated from 3072→7500." The recalibration HAD shipped (between Review #3 and Review #4). Review #4's "still pending" note staled out — the action shipped, the row didn't get updated. My recommendation was about to act on a wrong premise.
+
+Caught the error before action; corrected the row + #49 status block + revised the recommendation (workload-variance hypothesis + 7-day monitor) before commit.
+
+**Rule:** When a review note or status table claims an action is "deferred" or "pending," verify against the source-of-truth file (the actual config / baseline / measurement file the action would have written to) before anchoring on the note. Related-document notes can describe future intent but stale once the action ships if no one updates the note. The SOT file is the truth.
+
+**Operational corollary:** when an automated forcing function fires (PHASE2_TRIGGERED, deny logs, etc.), read the underlying mechanism's SOT files BEFORE building a cause-and-action analysis around what other docs say about the mechanism's state. The mechanism's own state is authoritative.
+
+**Why structural, not just personal:** review tables are a known stale-by-design artifact (they snapshot a moment + don't have CI-enforced freshness). Multiple docs encode the same underlying state. When they disagree, prefer the SOT. This is `meta-method-single-source-of-truth` applied to verification: there's one canonical home for "is this baseline calibrated?" — the baseline file. Everything else is a pointer.
+
+---
+
 ### Auto-Defer to BACKLOG Is the AI's Default Failure Mode for Hard Calls (2026-04-25)
 
 Session-128 mid-stream user pushback: *"No on sequential thinking defer. This is a bad habit of yours putting things off. This is not that hard."* Pattern: when given a multi-part judgment call (a/b/c question with the user's framing already supplied), AI reflexively classified one item — Sequential Thinking MCP placement — as "needs separate evaluation, file as BACKLOG" even though user had already supplied the deciding frame (80/20 + named precedent + "you're the AI-governance expert"). Defer-to-BACKLOG was presented internally as proportional rigor; was actually forward-continuation bias dressed up. Fix shipped inline (M.2 Sequential Thinking with verdict in body — *complements, does not conflict* with Plan Mode — NOT a follow-up BACKLOG to-evaluate item).

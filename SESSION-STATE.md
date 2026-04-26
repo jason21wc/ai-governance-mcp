@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-26 (session 129 close — **BACKLOG #99 shipped clean (commit `c4cb7a9`, CI + CodeQL green on first; 6/6 jobs pass in 3m03s). README.md "First Five: Day-One Essentials from the Universal Floor" section added; BACKLOG.md #99 entry removed; SESSION-STATE.md self-update.** Stage 2 battery: coherence-auditor 1 HIGH + 3 MEDIUM + 1 LOW + cosmetic all folded; validator 7/7 PASS_WITH_NOTES (1 NOTE folded). No version bump. No PROJECT-MEMORY / LEARNING-LOG entries — session was clean execution of existing patterns; no novel decisions or lessons per proportional-rigor §7.8.)
+**Last Updated:** 2026-04-26 (session-130 close — **2 commits pushed (`b31eab1`, `e23de12`); CI + CodeQL green on both.** Group 1 of prioritized backlog brief: Compliance Review #5 + BACKLOG #109 cadence audit + V-001 retirement + PHASE2_TRIGGERED 7-day monitor open + BACKLOG #137 reminder filed. **Critical:** PHASE2_TRIGGERED marker FIRED 2026-04-25 (T1+T3+T4, 11.5 GB cross-process total — one spike, current snapshot 6.0 GB; workload-variance hypothesis); marker NOT cleared, under 7-day monitor through 2026-05-02. Stage 2 battery: coherence-auditor 1 MEDIUM + 3 cosmetic + 1 anti-whitelist drift folded; validator PASS_WITH_NOTES. 1 LEARNING-LOG entry added (PHASE2 baseline-misread lesson). Honest-error-disclosure: initial PHASE2 cause analysis had wrong premise — caught via discovery-before-action when reading the SOT file directly.)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -11,70 +11,25 @@
 
 ## 🎯 RESUMPTION — Where to Pick Up (read this first)
 
-**Session-127 (2026-04-25) shipped 4 commits: `6349a96` (#133 close), `aa7eb0e` (LOW cleanup), `a52b208` (§8.3.4 self-application + B1 close), and this commit (Stage-2-battery follow-up — SESSION-STATE entry + COMPLETION-CHECKLIST 5-options-cardinality + Option C user-mediation note).** First two pushed; latter two local awaiting user-mediated push per just-codified routing rule. Prior session-126 work (Superpowers plan + 5-commit post-ship remediation) shipped earlier; all pushed.
+**Session-130 (2026-04-25) shipped 2 commits, both pushed (CI + CodeQL green on both):**
+- `b31eab1` — Compliance Review #5 + BACKLOG #109 cadence audit + V-001 retirement + PHASE2_TRIGGERED 7-day monitor open
+- `e23de12` — BACKLOG #137 reminder filed (PHASE2 monitor close-out, calendar-anchored due ~2026-05-03)
 
-**Post-ship remediation arc (Commits 9-13, in order):**
-- Commit 9 (`61b0058`) — title-10 v2.42.1 PATCH: §5.1.8 step 3 written-artifact requirement + §1.3.5 ENHANCED-OR-no-precedent override (closes batteries 1's checkpoint-theater + under-calibration findings)
-- Commit 10 (`c7f017e`) — SESSION-STATE prune + post-hoc MIDPOINT artifact + V-007/V-008 in-band reminder + INFLUENCES.md Pattern G strengthen (closes battery 1's V-series human-memory + Pattern G coverage findings)
-- Commit 11 (`4762962`) — BACKLOG #130 close: codified MINOR-on-MINOR / PATCH-on-PATCH pin-discipline rule in COMPLETION-CHECKLIST item 7c (canonical home); v2.8.1 [CORRECTION] note on the v2.8.1-v2.8.4 fabricated-authority chain
-- Commit 12 (`e6e7cca`) — BACKLOG #132 close: rules-of-procedure §7.12.1 5th exception added; title-10 §5.1.8 + COMPLETION-CHECKLIST 16a switched from "by analogy with" to direct verbatim citation; bundled ai-instructions PATCH-on-PATCH for both pins
-- Commit 13 (this) — §7.12.1 anti-example PATCH (closes battery 2's HIGH-leverage finding that 5th exception was open-textured + could absorb #131 violations); SESSION-STATE prune; ai-instructions v2.8.5 stale-note correction
+**🚨 Critical state for next session:** `~/.context-engine/PHASE2_TRIGGERED` marker FIRED 2026-04-25 10:00:01Z (T1+T3+T4: steady=9420, peak=10752, cross_process_total=11544 MB — 11.5 GB total vs. session-108 verified 4.0 GB). Marker NOT cleared; under 7-day monitor through 2026-05-02. Initial cause analysis was wrong (claimed pre-Phase-2 baseline; SOT file showed it was already recalibrated 2026-04-17) — caught and corrected before action. Workload-variance is the strongest hypothesis pending re-test (current `ps` snapshot: 6.0 GB, healthy). Full analysis in `BACKLOG.md` `#49` "Status (2026-04-25)" block. **BACKLOG #137 is the calendar-anchored close-out reminder — read on or after 2026-05-03.**
 
-**Open BACKLOG items:** #131 (§7.12 retroactive sweep), #134 (PR-workflow infrastructure tripwire — re-evaluate when ≥3 external watchers OR ≥1 external issue/PR), #135 (bypass-envvar audit-log invariant refactor), **#136 (§9.8.3 retroactive appendix backfill — filed session-128)**, plus pre-existing #129/#127/#125-b/#91-sub5/#78. **Closed session-127:** #133 (placeholder convention). **Closed session-128:** #57 (recommended-tooling appendix entries — Warp / status-bar / Sequential Thinking). **Closed session-129:** #99 (Quick Start guide — README "First Five" section added).
+**Open BACKLOG (post-session-130):** #137 (PHASE2 monitor close-out, due ~2026-05-03), #131 (§7.12 sweep), #134 (PR-workflow tripwire), #135 (bypass-envvar refactor), #136 (§9.8.3 backfill), pre-existing #129/#127/#125-b/#91-sub5/#78 (Compliance Review #6 next due ~2026-05-05–05-10). **Stale #34 entry surfaced** (says "closed as resolved-in-place" but still in BACKLOG.md — fold into next coherence sweep).
 
-**Next session can pick up at:** #131 (§7.12 sweep), #134, #135, #136, or user-directed work.
+**Closed session-130:** V-001 (canary arm replaced by session-audit 5d via validator subagent — n=3 deferral pattern + better-independence). 4 LEARNING-LOG entries marked ACTIVE (Code Review Advisory, Multi-Path Methods, Version Validator Blind Spots, Specification Documents).
 
-**Behavioral changes active across all shipped commits (versions current as of v3.28.2 / v2.42.3 / v2.8.8):**
-- §7.12 Effort-Not-Time + §7.13 BLUF-Pyramid (Commit 1, codified rules-of-procedure §7.12 + §7.13; v3.28.2 added §7.12.1 5th exception with anti-example for planning-band estimates)
-- §5.1.7.1 Sequenced Two-Stage Review (v2.40 — Commit 3)
-- §1.3.5 Brainstorming Method ENHANCED-OR-no-precedent (v2.41 + v2.42.1 OR-clause widening — Commit 4 + 9)
-- COMPLETION-CHECKLIST Branch Completion 5-option decision tree (Commit 5)
-- Hook gates `--plan-action-atomicity` + `--tdd-test-existence` WARN-mode (Commit 6) — V-007/V-008 in-band reminder shipped Commit 10
-- §5.1.8 Mid-Execution Checkpoint Protocol (v2.42 — Commit 7) with v2.42.1 step 3 written-artifact REQUIRED (Commit 9) + v2.42.2 direct §7.12.1 citation (Commit 12)
-- INFLUENCES.md attribution scaffold at repo root (Commit 8) + Pattern G failure-mode equivalence strengthen (Commit 10)
-- COMPLETION-CHECKLIST item 7c canonical pin-discipline rule MINOR-on-MINOR / PATCH-on-PATCH / MAJOR-on-MAJOR (Commit 11)
-
-**Decisions already made (don't re-deliberate):**
-- Pin discipline: MINOR-on-MINOR / PATCH-on-PATCH / MAJOR-on-MAJOR; pin-lag-remediation exception is PATCH (canonical home: COMPLETION-CHECKLIST 7c)
-- TDD enforcement: hook (not template) — pushed-time gate
-- Hook deployment: WARN-first, promote to BLOCK on first coherence-audit finding (event-driven; in-band reminder shipped Commit 10)
-- INFLUENCES.md location: repo root
-- §1.3.5 ENHANCED-OR-no-precedent widening (v2.42.1)
-- §5.1.8 step 3 REQUIRES written artifact (v2.42.1) — bare assertions = checkpoint did not happen
-- §7.12.1 5th exception covers research-anchored trigger thresholds; planning-band estimates explicitly NOT covered (v3.28.2 anti-example)
-- v2.8.1-v2.8.4 ai-instructions Changelog entries are documented misbumps (PATCH-on-MINOR) — kept in place per no-destructive-history-rewrite; canonical rule applies forward
-
-**Governance trail (this arc):** `gov-9f960fac0d73` (original plan); `gov-71c1d6662fa7` (Commit 9); `gov-6c38e05ddaab` (Commit 10); `gov-adbf247c0f44` (Commits 11-12); `gov-0d9f7303cbd5` (Commit 13). Five contrarian-reviewer invocations on this work: v1 draft, v3 final, post-ship batch 1, post-ship batch 2, plus coherence-auditor on Commits 3/4/7/9/12 + validator twice + INFLUENCES.md.
-
----
-
-## Post-Hoc MIDPOINT CHECKPOINT Artifact (per §5.1.8 v2.42.1 step 3)
-
-> **Honest provenance:** This table was written POST-SHIP, not at the actual midpoint between Commits 4 and 5. The midpoint checkpoint as performed was a single-line "no drift, PROCEED" assertion — exactly the "checkpoint theater" anti-pattern §5.1.8 names. The post-ship contrarian battery (audit `a62e96c04a3f91721`) caught this. v2.42.1 PATCH (Commit 9) strengthened §5.1.8 step 3 to REQUIRE a written table going forward. This retroactive artifact is documentation of the failure mode + corrective action, NOT a claim that the checkpoint happened this way. Per `meta-safety-transparent-limitations`.
-
-| Commit | Plan promised (per `federated-plotting-karp.md` Recommended Approach) | Actually shipped | Drift classification |
-|---|---|---|---|
-| 1 (`7e7ce95`, session-125) | Step 0 + 0.1 in rules-of-procedure §7.12 + §7.13, CLAUDE.md Behavioral Floor (2 directives), tiers.json (2 entries), BACKLOG D1/D2/D3 definition cleanup | Same | NONE |
-| 1.5 (`b567032`, session-125) | Version-bump propagation: rules-of-procedure v3.27.4 → v3.28.0, ai-instructions v2.8.0 → v2.8.1 | Same | NONE |
-| 2 (`ee93845`) | plan-template + CLAUDE.md + contrarian-reviewer (both copies) + AGENT_TEMPLATE_HASHES regen + title-10 §4.1.2 cross-ref | plan-template + CLAUDE.md + 2× contrarian-reviewer + hash regen. **§4.1.2 cross-ref deferred to Commit 4** per plan literal text "folded with commit 4 MINOR bump" | DEFERRAL (documented in commit message; intentional per plan ambiguity resolution) |
-| 3 (`075ef62`) | Title-10 v2.40 MINOR §5.1.7.1 + 4-surface propagation + coherence-auditor REQUIRED | Same. Coherence-auditor PROCEED_WITH_CHANGES, findings #1/#2/#3 folded; #5 filed to BACKLOG #130 | EXPANSION (Situation Index row added per coherence finding #3 — adopter-discoverability) |
-| 4 (`5535557`) | Title-10 v2.41 MINOR §1.3.5 + 4-surface propagation + coherence-auditor REQUIRED. §4.1.2 cross-ref folded per Commit 2 deferral | Same. PLUS §4.1.4 + §4.2.2 time-language stragglers stripped (coherence finding MISLEADING-1, blast radius of §4.1.2 fold-in) | EXPANSION (3 surfaces beyond plan list: §4.1.4 template + §4.2.2 checklist + Situation Index — all blast radius of §4.1.2 fold-in; documented in commit message) |
-
-**Decision (post-hoc):** All 4 commits shipped substantively as planned. The 3 EXPANSION classifications were all coherence-audit-driven (auditor surfaced + folded) and within blast-radius of named plan files (§4.1.x) or directly serving plan goals (Situation Index discoverability). The 1 DEFERRAL was an intentional ambiguity resolution (plan said "folded with commit 4"; deferred §4.1.2 cross-ref to Commit 4 as documented).
-
-**What a real midpoint checkpoint would have additionally caught (per post-ship contrarian battery):**
-- Commit 7's §5.1.8 by-analogy citation of §7.12.1 depends on a 5th exception that doesn't exist in §7.12.1 → BACKLOG #132 should have been opened BEFORE Commit 7 ship, with the rules-of-procedure PATCH sequenced first (steel-manned alternative).
-- Commit 7's §5.1.8 protocol shipped without a structural gate against "checkpoint theater" — the rule could be performed as theater of itself → v2.42.1 PATCH (Commit 9) corrects this; would have been visible at midpoint as "the rule we're shipping has an obvious self-application gap."
-
-**Promotion criterion (per §5.1.8 v2.42.1 step 4):** Step 4 external-evaluator pass is REQUIRED when step 3 flags drift. The post-ship contrarian battery WAS the external-evaluator pass for this plan (just performed post-ship rather than at midpoint). It surfaced 2 HIGH-leverage drift findings that this artifact now captures. Future plans must run external-evaluator AT midpoint when drift signals appear, not after ship.
+**Versions unchanged this session** (D1 docs maintenance only — no bumps). Versions current as of v3.28.2 / v2.43.0 / v2.9.0 (rules-of-procedure / title-10 / ai-instructions).
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-129 closed clean. One commit this session: `c4cb7a9` (BACKLOG #99 close — README "First Five: Day-One Essentials from the Universal Floor" section + #99 removed + SESSION-STATE update). Pushed; CI + CodeQL green on first (6/6 jobs in 3m03s).
-- **Mode:** None blocking. Open BACKLOG (post-#99 close): #131 + #134 + #135 + #136 + pre-existing #129/#127/#125-b/#91-sub5/#78.
-- **Active Task:** None. Next session can pick up at #131 (§7.12 retroactive sweep), #134, #135, #136, or user-directed.
+- **Phase:** Session-130 closed clean. 2 commits this session: `b31eab1` (Compliance Review #5 + #109 audit + V-001 retire + PHASE2 monitor open) + `e23de12` (BACKLOG #137 reminder). Both pushed; CI + CodeQL green on both.
+- **Mode:** PHASE2_TRIGGERED 7-day monitor active through 2026-05-02 (BACKLOG #137 close-out due ~2026-05-03). Marker preserved on disk. No other blockers.
+- **Active Task:** None. Next session: BACKLOG #137 close-out (read on or after 2026-05-03) → #131 / #134 / #135 / #136 / Compliance Review #6 (due ~2026-05-05–05-10) / user-directed.
 
 ## Quick Reference
 
@@ -98,6 +53,23 @@
 ## Last Session (2026-04-25)
 
 > *Session-126 close (Commit 14 `a7c8e2d`) routed its summary to PROJECT-MEMORY.md + LEARNING-LOG.md per session-end protocol. Full session-126 narrative: see PROJECT-MEMORY entry "Superpowers plan + 5-commit post-ship remediation arc" + LEARNING-LOG entries dated 2026-04-25.*
+
+130. **Session-130 (2026-04-25): Group 1 of prioritized backlog brief executed inline — Compliance Review #5 + BACKLOG #109 cadence audit + V-001 retirement + PHASE2_TRIGGERED 7-day monitor opened + BACKLOG #137 reminder filed. 2 commits pushed (b31eab1, e23de12); CI + CodeQL green.**
+   - **Frame:** User asked for backlog grouped by importance, then "do group 1" (BACKLOG #78 compliance review + #109 cadence audit, both time-cued). BLUF-format brief delivered first, then execution.
+   - **Compliance Review #5 (BACKLOG #78, ~2 days pre-due 2026-04-27):** 8 ongoing checks PASS / FAIL→FIXED / FIRED / PASS_WITH_NOTES. Full row updates in `workflows/COMPLIANCE-REVIEW.md`. Critical: **Check 6b.2 PHASE2_TRIGGERED marker FIRED 2026-04-25 10:00:01Z** (T1 steady=9420>8700, T3 peak=10752>7500, T4 cross_process_total=11544>8192 — all post-Phase-2 thresholds; baseline IS post-Phase-2 per `~/.context-engine/logs/phase0-baseline.txt` recalibrated 2026-04-17). Initial cause analysis claimed stale pre-Phase-2 baseline; **caught and corrected before action**. Daily-measurement-log trend (last 8 readings) ranged 2.3–7.5 GB total; today's spike is 1.5× prior week peak. Current `ps` snapshot during review = 6.0 GB (healthy range). **Strongest hypothesis: workload variance** (peak-concurrent-session moment caught by 04:00 measurement). Marker NOT cleared per `meta-core-systemic-thinking` anti-shortcut rule; under 7-day monitor through 2026-05-02. Close-out procedure filed as BACKLOG #137.
+   - **Check 4 (LEARNING-LOG staleness):** 4 entries marked ACTIVE — Code Review Advisory Framing (2026-02-28), Multi-Path Methods (2026-02-28), Version Validator Blind Spots (2026-02-21), Specification Documents Are Not Validated Requirements (2025-12-24). 5 other pre-cutoff entries PASS by reference within 30 days.
+   - **Check 5d (session audit):** Validator subagent `aa10d58aa10c18565` PASS_WITH_NOTES (5/6 structural + 3/3 pattern + 1 N/A). Recurring related finding from Review #4 — startup-read auditability gap, n=2 instances (MEMORY.md auto-summary substituted for >25k-token PROJECT-MEMORY/LEARNING-LOG).
+   - **V-001 RETIRED:** canary-prompt arm formally replaced by session-audit (Item 5d via validator subagent) per n=3 deferral pattern + `multi-quality-validation-independence` (validator has independence + transcript visibility canary lacks). Few-shot examples in CLAUDE.md remain in place; process indicator binary still satisfied.
+   - **BACKLOG #109 cadence audit (run inline 25 days pre-due as Group 1 close):** 0/14 deferred-item triggers fired across #41/#43/#44/#46, #58/#59/#60, #106-#113, F-P2-03 residual. Per-item snapshot recorded inline; next audit due ~2026-05-25.
+   - **Anti-whitelist drift fix (coherence-auditor `a6a18209e1f23344d`):** BACKLOG #107 still said "(A-L)" — session-128 added Appendix M making count = 13. Folded "(A-L)" → "(A-M)" + appendix-count-13 trigger update.
+   - **Stage 2 battery results:** coherence-auditor PROCEED_WITH_CHANGES (1 MEDIUM Check 7 second-order signal phrasing + 3 cosmetic + 1 anti-whitelist drift), all folded inline. Validator `a37223cecfaaa907d` PASS_WITH_NOTES (4/4 structural + 3/3 semantic + 1/1 cross-ref). NOTE 1: Check 2 row labeling "Review 6" vs others "Review 5" (pre-existing per-check vs overall-numbering inconsistency, not introduced this commit).
+   - **BACKLOG #137 filed (D1 Maintenance, due ~2026-05-03):** PHASE2 7-day monitor close-out reminder. User declined remote/local cron scheduling (remote can't access local files; local cron requires CronCreate setup) and chose calendar-reminder-via-BACKLOG instead. Item placed at top of Active section so it surfaces at next session start. Procedure includes full decision tree (clear / escalate / ambiguous) with pointers to BACKLOG #49 status block + COMPLIANCE-REVIEW.md Check 6b.2 row 4.
+   - **Routing class:** D1 docs maintenance, trunk direct per session-127 §8.3.4 routing rule. No version bumps. No CFR / domain content touched.
+   - **Subagents used:** validator ×2 (Check 5d session audit + Stage 2 final), coherence-auditor ×1 (Stage 2 first pass). Sequential per session-128 discipline (no stacked parallel agents on a single edit class).
+   - **Governance trail:** `gov-3a11e9d6bf93` (session-start eval — PROCEED low-confidence, no S-Series); `gov-9c38038267be` (BACKLOG #137 filing — PROCEED low-confidence, no S-Series).
+   - **Principles cited:** `meta-quality-verification-validation` (compliance review IS the verification gate; PHASE2 7-day monitor over auto-clear preserves evidence); `meta-core-systemic-thinking` (anti-shortcut rule — don't clear marker by removing evidence); `meta-methods §7.8` proportional rigor (V-001 retirement when canary deferred 3× — measurement vehicle superseded); `multi-quality-validation-independence` (validator subagent = stronger independence than canary self-check); `meta-safety-transparent-limitations` (honest-error-disclosure on PHASE2 baseline misread — caught and corrected before action); `coding-method-backlog-file-structure` (BACKLOG #137 placement convention); `meta-method-effort-not-time-estimation §7.12.1 5th exception` (calendar/cadence dates explicitly in-scope; "due ~2026-05-03" is reminder, not effort estimate).
+   - **LEARNING-LOG entry added:** "Verify Source-of-Truth Files Before Anchoring on Review Notes (2026-04-25)" — captures the PHASE2 baseline-misread lesson (Review #4 said "still pending" but baseline file showed action already shipped 2026-04-17; SOT file is the truth, related-doc notes can stale).
+   - **Resumption:** Read BACKLOG #137 on or after 2026-05-03 for PHASE2 monitor close-out procedure. Compliance Review #6 cadence (~2026-05-05–05-10) and #109 next audit (~2026-05-25) are the next time-cued items.
 
 129. **Session-129 (2026-04-25): BACKLOG #99 closed — README "First Five: Day-One Essentials from the Universal Floor" section added (Cluster 1 residual, paired with #53/#57).**
    - **Frame applied per user-directed start:** Per `feedback_decide_dont_defer` (saved session-128) — when user supplies the frame ("start working on backlog #99"), ship the call inline rather than re-deliberate the Discussion-tier framing. BLUF-format recommendation presented before drafting.
@@ -282,7 +254,7 @@
 - **CFR A.5.5 permissions prune** — `~/.claude/settings.json` has 123 allow entries. Per v2.38.1 dynamic threshold (`post_cleanup_baseline + 20`), the first Baseline and Next Trigger are recorded at the next compliance review (Check 7).
 - **Phase 2 soak** — daily measurement plist at 04:00. Review `~/.context-engine/logs/phase0-measurements.log` weekly for Trigger 4 cross-process drift. Verify plist health at Review #4 Check 6b.
 
-**BACKLOG #49 status:** Phase 2 COMPLETE and verified. Phase 0 forcing functions retired/recalibrated in session-109.
+**BACKLOG #49 status:** Phase 2 shipped + verified session-108; baseline recalibrated to post-Phase-2 values session-109. **PHASE2_TRIGGERED marker FIRED 2026-04-25** (one spike, T1+T3+T4) — under 7-day monitor through 2026-05-02 per BACKLOG #137 close-out procedure. Forcing functions remain active (daily plist + deny log + calendar trigger 2026-06-15) and are doing their job — today's fire IS the forcing function in action.
 
 See BACKLOG.md for the full list of open items.
 
