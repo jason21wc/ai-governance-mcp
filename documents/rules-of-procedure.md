@@ -1,16 +1,16 @@
 ---
-version: "3.29.0"
+version: "3.30.0"
 status: "active"
-effective_date: "2026-04-25"
+effective_date: "2026-04-26"
 domain: "constitution"
 ---
 
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.29.0
+**Version:** 3.30.0
 **Status:** Active
-**Effective Date:** 2026-04-25
+**Effective Date:** 2026-04-26
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -1842,9 +1842,11 @@ Per Kahneman & Lovallo Reference-Class Forecasting (PMI 2026; 70-80% empirical h
 
 ## Part 7.13: BLUF-Pyramid Briefing (Decision-Brief Format for Non-Specialist Audience)
 
-**Importance: 🟡 IMPORTANT — Reduces decision friction; preserves epistemic honesty**
+**Importance: 🟡 IMPORTANT — Reduces decision friction; preserves epistemic honesty; counters AI's autoregressive lead-burying default**
 
 When presenting a technical decision or analysis to a non-specialist technical manager (high-level understanding, not deep specialist), structure the response so the audience can decide effectively (understand the call) AND efficiently (no walls of text).
+
+The method combines two canonical disciplines: **BLUF** (Bottom Line Up Front — military-canonical placement rule, AR 25-50) and **Minto's Pyramid Principle** (SCQA scaffold, MECE alternatives, single-governing-thought roll-up). The name "BLUF-Pyramid" reflects this combination: BLUF gives placement; Pyramid gives the supporting structure.
 
 ### 7.13.1 Scope
 
@@ -1852,13 +1854,16 @@ When presenting a technical decision or analysis to a non-specialist technical m
 
 **Does NOT apply to:** Internal technical artifacts (plan files, ADRs, specification documents, audit logs) — those follow their own templates with appropriate detail.
 
-### 7.13.2 Required Structure
+### 7.13.2 Required Structure (SCQA-Anchored, Answer-First)
 
-1. **BLUF (Bottom Line Up Front)** — 2-3 sentences, lead with the recommendation + key rationale
-2. **Context** — why this matters now
-3. **Options/Recommendation** — 2-3 alternatives MAX (Hick's Law: 4+ creates choice paralysis); each with embedded risk
-4. **Risk** — top items if user doesn't pay attention closely
-5. **Optional appendix** — sources, deeper detail, references
+Every brief follows the SCQA scaffold (Situation → Complication → Question → Answer), with Answer-first placement (BLUF). The required sections, in order:
+
+1. **BLUF — the Answer** (2-3 sentences, opens the brief). Lead with the recommendation as a verb-based directive ("Recommend X", "Ship X now", "Hold pending Y") + one-sentence rationale. NEVER a topic statement ("This memo discusses X", "Here is the analysis of Y") — that is a false BLUF and violates §7.13.5.
+2. **Situation & Complication** (the Why-Now). State what is true today (Situation) + what changed or threatens (Complication). Together these answer the implicit Question that the BLUF resolves. Keep tight — the SCQA scaffold supports the BLUF, it does not delay it. (The phrase "Why-Now" is a parenthetical gloss for readers; the canonical section heading is **Situation & Complication**.)
+3. **Options / Recommendation — the Supporting Argument**. 2-3 alternatives MAX (Hick's Law: 4+ creates choice paralysis). Alternatives must be **MECE** — Mutually Exclusive (no overlap; not three flavors of the same thing) and Collectively Exhaustive (cover the realistic decision space within the chosen frame, including the do-nothing baseline if applicable). Each option, and the section as a whole, rolls up to a single governing thought (Minto's vertical-logic rule: every grouping summarizes to one assertion).
+4. **Risk — Embedded, Not Dumped**. Top items per option, not as a separate wall. Keep per-option so trade-offs are visible at the point of decision.
+5. **Close — Restate the Recommendation** (one sentence). State the recommendation in the open (BLUF) AND in the close. Repetition is a feature, not redundancy: it pins the call against the surrounding context (Brief Lab consensus on state-in-open-and-close).
+6. **Optional appendix** — sources, deeper detail, references. May be omitted.
 
 ### 7.13.3 Per-Item Format (within Options/Recommendation)
 
@@ -1868,14 +1873,19 @@ For each non-trivial decision item:
 - **Risk** — what breaks if we skip or pick wrong
 - **Recommendation + source** — what to do, where the answer came from
 
+**Single-governing-thought rule.** The bullets within an option must roll up to one assertion. If they argue toward two different conclusions, split into two options or remove one. The brief itself has one governing thought (the BLUF); each section's roll-up answers to that thought (Minto's pyramid: parents summarize their children).
+
 ### 7.13.4 Constraints (Research-Derived Sweet Spot)
 
-- 4-5 sections max (BLUF + Context + Options + Risk + Optional Appendix)
+- 5-6 sections (BLUF + Situation & Complication + Options + Risk + Close, plus optional Appendix)
 - 3-5 bullets per section
 - 10-20 words per bullet
 - 300-500 words for 1-pager; 800-1200 for 2-pager
 - 2-3 alternatives max (Hick's Law)
 - Risk embedded per option, not as a separate dump
+- Close is one sentence, not a paragraph — restating discipline, not summary
+
+> Constraints are independent ceilings, not multiplied. The word budget is the binding constraint when sections × bullets × words/bullet would exceed it (e.g., 6 × 5 × 20 = 600 words overshoots the 1-pager budget; trim per-section bullet count or per-bullet length until the brief fits 300-500 words). Mid-density configurations (3-4 bullets × 12-15 words) sit comfortably inside the 1-pager budget.
 
 ### 7.13.5 Failure Modes to Avoid
 
@@ -1883,19 +1893,33 @@ For each non-trivial decision item:
 - **False precision in risk language** — "99.5% confidence" or unanchored "LOW/MEDIUM/HIGH" without scenario clarity
 - **Sycophantic agreement masquerading as recommendation** — softening disagreement to please; explicit alternatives defeat this
 - **Hidden recommendations buried in caveats** — state the recommendation plainly in BLUF
+- **False BLUF (most-cited external failure)** — opening with a topic statement ("This memo discusses X", "Here is an analysis of Y") instead of a verb-based recommendation. The opening must commit to a call, not announce an agenda.
+- **MECE failure** — three "alternatives" that are three flavors of the same thing (e.g., "Adopt React / Adopt React + Next.js / Adopt React + Remix" — all three adopt React; the actual decision is the meta-framework, with React held constant). **Parameter-axis test:** if alternatives differ only on a single continuous parameter (timing, size, scope, version) and the underlying choice is constant, restate them as one option with a parameter range. The MECE failure shows up as the inability to construct a sharp "pick exactly one" criterion.
+- **Single-governing-thought failure** — a section whose bullets argue toward two conclusions. Roll up to one or split into two options.
+- **No-close drift** — reader reaches the end of the brief and has to scroll back to find the recommendation. The Close prevents this.
 
 ### 7.13.6 Validation
 
-- [ ] First 2-3 sentences contain the recommendation + key rationale
-- [ ] No more than 3 alternatives presented
-- [ ] Risk surfaced per-option, not in a separate wall
-- [ ] Section count within 4-5
-- [ ] Total word count within 1-pager (300-500) or 2-pager (800-1200) budget
-- [ ] No buried recommendations, no false precision, no information dumping
+- [ ] **Open**: First 2-3 sentences contain the recommendation + key rationale, expressed as a verb-based directive (false-BLUF check — no topic statements like "This memo discusses…").
+- [ ] **SCQA scaffold present**: Situation + Complication identifiable in the Situation & Complication section (not just a "Background" dump that narrates history — present-tense, decision-relevant, no chronology longer than 2 sentences).
+- [ ] **MECE check on options**: alternatives differ in kind, not in detail; no two collapse to the same thing under restatement.
+- [ ] **Single governing thought per section**: each section's bullets roll up to one assertion that supports the BLUF (parents summarize children).
+- [ ] **Risk surfaced per-option**, not in a separate wall.
+- [ ] **Close present**: recommendation restated in one sentence at the end (open-and-close discipline).
+- [ ] **No more than 3 alternatives** presented.
+- [ ] **Section count** within 5-6 (4-5 if Appendix omitted).
+- [ ] **Total word count** within 1-pager (300-500) or 2-pager (800-1200) budget.
+- [ ] **No buried recommendations, no false precision, no information dumping.**
 
-> **Cross-references:** `meta-quality-effective-efficient-outputs` (Article III §4 — calibrate for effectiveness AND efficiency; renamed and rescoped from `meta-quality-effective-efficient-communication` in v6.0.0; alias preserved so legacy ID resolves to the rescoped principle that now governs all output forms, not just communication); `coding-process-human-ai-collaboration-model` (Decision Authority Matrix — option-presentation protocol)
+### 7.13.7 Why BLUF Matters for AI Output (Anti-LLM-Default Framing)
 
-> **Sources:** Animalz on BLUF; BetterUp on Minto Pyramid; Laws of UX on Hick's Law; HBR 2026 "Trendslop" research; ACM CHI 2026 on Cognitive Biases in LLM Responses
+LLMs default to **autoregressive lead-burying**: a model generating left-to-right tends to warm up with context, hedges, and qualifications before reaching the call — because each next-token prediction is locally fluent without commitment. The BLUF rule is a structural counter-discipline: it forces the recommendation into the position the model is *least* inclined to put it.
+
+Treat §7.13 as a forward-continuation countermeasure, not just a formatting preference. The same root-cause logic applies as `meta-core-systemic-thinking`: address the structural cause (the autoregressive default) by enforcing placement, not by exhortation to "be more direct." Most violations are not the model's failure to know the recommendation — they are the model's default narrative shape leaking through.
+
+> **Cross-references:** `meta-quality-effective-efficient-outputs` (Article III §4 — calibrate for effectiveness AND efficiency; renamed and rescoped from `meta-quality-effective-efficient-communication` in v6.0.0; alias preserved so legacy ID resolves to the rescoped principle that now governs all output forms, not just communication); `meta-core-systemic-thinking` (BLUF as anti-autoregressive structural counter-discipline, not exhortation); `coding-process-human-ai-collaboration-model` (Decision Authority Matrix — option-presentation protocol)
+
+> **Sources:** AR 25-50 *Preparing and Managing Correspondence* (US Army, military-canonical BLUF placement rule); Minto, B. *The Pyramid Principle: Logic in Writing and Thinking* (SCQA, MECE, single-governing-thought, vertical/horizontal logic); The Brief Lab *3 Rules: Writing for Washington* (2-3 sentence BLUF, state-in-open-and-close); EKU *Written Reports and Verbal Briefings* Ch. 11 (2-3 sentence consensus); McKinsey alumni / ManagementConsulted on Minto/MECE practitioner application; Skywork / Product Mindset Newsletter (June 2025, AI-specific anti-LLM-default framing); Animalz / BetterUp on BLUF practice (popular synthesis); Laws of UX on Hick's Law; HBR 2026 "Trendslop" research; ACM CHI 2026 on Cognitive Biases in LLM Responses
 
 ---
 
@@ -5057,6 +5081,7 @@ Collier, J. (2026). *The Elegance Equation: A Multiplicative Framework for Evalu
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.30.0 | 2026-04-26 | MINOR: Expanded Part 7.13 BLUF-Pyramid Briefing to close 6 gaps surfaced by external best-practice research (BACKLOG #139, session-132 research / session-133 implementation). The method was named "BLUF-Pyramid" but shipped only the BLUF half; this MINOR bump delivers the Pyramid (Minto) half. Six additions, all internal to §7.13: (1) **SCQA scaffold opening** — §7.13.2 reframed as "SCQA-Anchored, Answer-First" (Situation → Complication → Question → Answer with BLUF as the Answer); canonical heading for the Why-Now section is "Situation & Complication" with "Why-Now" as parenthetical gloss. (2) **MECE check on options** — §7.13.2/§7.13.5/§7.13.6 require alternatives to be Mutually Exclusive (no overlap; not three flavors of the same thing) and Collectively Exhaustive (cover the realistic decision space, including do-nothing baseline if applicable). §7.13.5 carries the parameter-axis test: if alternatives differ only on one continuous parameter (timing/size/scope/version) with the underlying choice constant, they are one option in disguise. (3) **Single-governing-thought rule** — §7.13.3/§7.13.5/§7.13.6 codify Minto's vertical-logic rule: every section/option rolls up to one assertion that supports the BLUF (parents summarize children). (4) **Repetition rule** — new required §7.13.2 item 5 "Close" (one-sentence restatement at the end), validated via §7.13.6 Close-present checkbox; §7.13.5 No-close-drift failure mode. (5) **False-BLUF detector** — §7.13.5/§7.13.6 require verb-based directives ("Recommend X", "Ship X now", "Hold pending Y"), reject topic-statement openings ("This memo discusses X", "Here is the analysis of Y"). (6) **AI-specific anti-LLM-default framing** — new §7.13.7 ("Why BLUF Matters for AI Output") frames BLUF as structural counter-discipline against autoregressive lead-burying, citing `meta-core-systemic-thinking` (root-cause discipline: enforce placement, don't exhort directness). Constraints (§7.13.4) updated 4-5 → 5-6 sections to accommodate Close + clarifying note that constraints are independent ceilings (the word budget binds when sections × bullets × words/bullet would exceed it). Sources line replaced with primary-source citations (AR 25-50 *Preparing and Managing Correspondence*, Minto's *Pyramid Principle*, The Brief Lab *3 Rules: Writing for Washington*, EKU Ch. 11, McKinsey/ManagementConsulted) + retained popular synthesis (Animalz, BetterUp, Laws of UX, HBR, ACM CHI) as secondary. Cross-references gain `meta-core-systemic-thinking`. **Q7 (Semantic-Label Risk) disposition** per §9.8.1 operational template (a)/(b)/(c) for new sub-section labels: **(i) "SCQA-Anchored, Answer-First"** — (a) outside pattern: Minto Pyramid Principle's SCQA scaffold + military BLUF placement rule; (b) framework mechanism: §7.13.2 enforces SCQA ordering structurally with §7.13.6 checkbox 2 mechanically applicable; (c) **PASS** — label aligns with operation (scaffold + placement). **(ii) "Anti-LLM-Default Framing"** — (a) coined term, no outside legal/aesthetic/biological/military metaphor borrowed; (b) framework mechanism: §7.13.7 doesn't enforce directly — it interprets §7.13.2/.5/.6 placement rules as anti-autoregressive root-cause discipline (operations live in those sections, framing is interpretive); (c) **PASS** — coined-term disposition; label names the function (counter-discipline against autoregressive lead-burying), not aesthetic puffery. **Cross-doc ripple:** ai-instructions MINOR bump v2.9.1 → v2.10.0 (pin update, MINOR-on-MINOR per canonical pin-discipline rule per BACKLOG #130 close, commit `4762962`, COMPLETION-CHECKLIST item 7c — initial draft attempted PATCH-on-MINOR justified by "subset" framing; that framing was struck per session-133 contrarian HIGH-2 finding because Close is a newly required section, so v3.29.0-form briefs without Close fail v3.30.0 validation — this is a tightening, not a subset, and MINOR-on-MINOR is the canonical bump for a tightening). CLAUDE.md Behavioral Floor + tiers.json `bluf-pyramid-briefing` directive unchanged — both operate at the abstraction level "lead with recommendation, 2-3 alternatives, embedded risk per option" which still holds (new sub-rules ride along under the §7.13 reference; universal-floor granularity is correct because SCQA/MECE/false-BLUF are decision-brief-specific, not universal-action checks per `tiers.json` floor selection criteria). Per `rules-of-procedure §9.8.5` bright-line: expansion of existing method's scope = MINOR (additive sub-rules + tightening of validation criteria, no removal of existing rules; backwards-not-strict-subset due to new required Close section and false-BLUF rejection). **Constitutional Basis:** `meta-quality-effective-efficient-outputs` (parent principle, joint quality discipline); `meta-core-systemic-thinking` (autoregressive lead-burying = structural cause, BLUF placement = root-cause fix; same principle invoked for the contrarian re-bump call — "address the structural cause" applied recursively to the canonical pin-discipline rule itself); `meta-method-the-duplication-check` (generalize-existing branch — method name promised more than spec delivered, same lesson as session-131 v6.0.0 rename). D1 Maintenance trunk-direct (no plan mode per BACKLOG #139 D1 classification — single-file content edit with pre-researched 6-gap delta and primary-source citations). Pre-edit battery: contrarian-reviewer (`a8648ee322443f496` APPROVE_WITH_CHANGES, 2 HIGH + 1 MEDIUM + 4 LOW; HIGH-1 and HIGH-2 folded inline, MEDIUM-1 MECE example sharpened with React/Next.js/Remix + parameter-axis test, LOW-4 Q7 expansion folded). Post-edit battery: validator (`a9000d3a2ed566287` APPROVE 6/6 PASS, 2 NOTEs folded — header rename + word-budget independent-ceilings note); coherence-auditor (`a9a34d35c2b13f0ab` APPROVE_WITH_FIXES, 1 HIGH BACKLOG #139 removal folded, 2 MEDIUM SESSION-STATE drifts deferred to session-close commit per session-131 precedent, 2 LOW historical-record cosmetic items deferred). BACKLOG #139 removed in this commit. Governance: `gov-447eddc883ba` (research, session-132), `gov-5839fdf4195e` (rewrite execution, session-133). |
 | 3.29.0 | 2026-04-26 | MINOR: Added Part 16.7 "Solution Comparison via Effectiveness × Efficiency Product" method — operationalizes the comparison-among-alternatives arm of constitution v6.0.0 `meta-quality-effective-efficient-outputs`. Procedure: state purpose explicitly, choose effectiveness/efficiency measures (oriented higher-is-better), compute multiplicative joint product P = E × Eff, rank by P, sanity-check against zero-out and balance-bias. Boundary conditions documented (safety-critical sufficiency gate, single-candidate non-applicability, nonlinear rescaling degrades to ordinal confidence, asymmetric loss). Q7 disposition for method title: PASS — operational language with no aesthetic-philosophical baggage; label aligns with multiplicative product comparison operation. Concurrent updates: §16.5 Constitutional Basis citation updated to new principle ID with alias note; §7.13 cross-reference updated with rename note. Reference: `ref-ai-coding-collier-elegance-equation` (Collier 2026 working paper). **Constitutional Basis:** `meta-quality-effective-efficient-outputs` (parent principle); `meta-quality-verification-validation` (effectiveness side); `meta-operational-resource-efficiency-waste-reduction` (efficiency side). Per `rules-of-procedure §9.8.5` bright-line: new method = MINOR (additive method, no normative change to existing methods). Plan: `~/.claude/plans/this-is-back-and-tidy-crescent.md`. PROJECT-MEMORY.md ADR-17. ai-instructions PATCH bump v2.9.0 → v2.9.1 (pin update). Governance: `gov-64ecfb9372df`, `gov-e38a3fa7488c`, `gov-05de0fadc801`. Pre-edit battery: contrarian-reviewer (APPROVE_WITH_REQUIRED_CHANGES, 8 modifications baked in pre-ExitPlanMode). Post-edit battery: coherence-auditor (APPROVE_WITH_FIXES, 2 HIGH closed by v6.0.0 Historical Amendment + Q7 disposition); validator (APPROVE_WITH_FIXES, 6 PASS + 1 MARGINAL→PASS after enforcement-delegation sentence added to principle's Operational Considerations). |
 | 3.28.2 | 2026-04-25 | PATCH: Scope clarification to §7.12.1 5th exception (Research-anchored operational thresholds) — added explicit anti-example and distinguishing test. Anti-example: title-10-cfr §3.1.2 `Estimate: 2-8 hours` and `Estimate: 1-5 days` Architecture-mode planning bands are NOT covered by the exception (they are estimation guidance, not externally-anchored trigger thresholds). Distinguishing test: covered thresholds need (a) specific external-paper citation with verbatim threshold value AND (b) function as automated trigger / process gate, not as planning band for AI to estimate against. **Root cause:** Post-ship contrarian battery (audit `abd327fd5e8174348`, 2026-04-25) flagged the v3.28.1 5th exception as open-textured: distinguishing terms ("process gate vs effort estimate", "the AI is producing") didn't draw a sharp line, risking absorbing BACKLOG #131's flagged §3.1.2 / §1.4.x time-estimate violations under the exception umbrella when #131 sweep starts. The §7.12.1 5th exception's intended scope was always research-anchored trigger thresholds (§5.1.8 case), not planning bands; this PATCH makes that boundary explicit before #131 execution. **Constitutional Basis:** `meta-method-single-source-of-truth` (the boundary now has one canonical home, not adopter-interpreted from open text), `meta-quality-visible-reasoning-traceability` (distinguishing test makes the boundary verifiable, not just intuitive), `meta-core-systemic-thinking` (close the structural gap in scope-clarification before #131 inherits the ambiguity, not patch each #131 sweep decision case-by-case). PATCH-on-PATCH per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c, codified BACKLOG #130 close commit `4762962`): single-bullet additive scope clarification, no normative change to §7.12.1's existing 5 exceptions structure. ai-instructions PATCH bump v2.8.6 → v2.8.7 (PATCH-on-PATCH). Governance: `gov-0d9f7303cbd5`. |
 | 3.28.1 | 2026-04-25 | PATCH: Added 5th explicit exception to §7.12.1 Scope (Effort-Not-Time Estimation) for "Research-anchored operational thresholds — runtime/turn/iteration values derived from empirical research used as process gates rather than effort estimates the AI is producing." Closes BACKLOG #132. **Root cause:** title-10-cfr §5.1.8 (v2.42.0+) cited §7.12.1 "by analogy with" because the runtime threshold (>30 min, Agent Drift research-anchored) didn't cleanly fit the existing 4 exceptions. Adopters reading §5.1.8's by-analogy citation could not find the cited text in §7.12.1. This PATCH canonicalizes the carve-out so §5.1.8 + COMPLETION-CHECKLIST 16a can replace "by analogy with" with direct citation. **Constitutional Basis:** `meta-method-single-source-of-truth` (5th exception now has canonical home in §7.12.1; downstream rules cite directly), `meta-quality-visible-reasoning-traceability` (closes the citation chain — what §5.1.8 cites, §7.12.1 actually says), `meta-core-systemic-thinking` (canonicalize the rule, don't perpetuate citation drift). Per BACKLOG #130 close (commit `4762962`) the canonical pin-discipline rule is MINOR-on-MINOR / PATCH-on-PATCH; this is a single-bullet additive subsection (no new method), so PATCH on rules-of-procedure → PATCH on ai-instructions. Governance: `gov-adbf247c0f44`. |
