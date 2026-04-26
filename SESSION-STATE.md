@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-25 (session 129 in flight — **BACKLOG #99 close pending commit. README.md "First Five: Day-One Essentials from the Universal Floor" section added (31 lines, between Quick Start and Use via RAG); BACKLOG.md #99 entry removed; SESSION-STATE.md self-update.** Stage 2 battery: coherence-auditor 1 HIGH + 3 MEDIUM + 1 LOW + cosmetic all folded; validator 7/7 PASS_WITH_NOTES (1 NOTE folded). No version bump (README not pinned). User-mediated push pending per session-127 routing rule.)
+**Last Updated:** 2026-04-26 (session 129 close — **BACKLOG #99 shipped clean (commit `c4cb7a9`, CI + CodeQL green on first; 6/6 jobs pass in 3m03s). README.md "First Five: Day-One Essentials from the Universal Floor" section added; BACKLOG.md #99 entry removed; SESSION-STATE.md self-update.** Stage 2 battery: coherence-auditor 1 HIGH + 3 MEDIUM + 1 LOW + cosmetic all folded; validator 7/7 PASS_WITH_NOTES (1 NOTE folded). No version bump. No PROJECT-MEMORY / LEARNING-LOG entries — session was clean execution of existing patterns; no novel decisions or lessons per proportional-rigor §7.8.)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -72,9 +72,9 @@
 
 ## Current Position
 
-- **Phase:** Session-129 in flight. Working-tree changes pending commit: README.md "First Five: Day-One Essentials" section added (closes BACKLOG #99) + BACKLOG.md #99 entry removed + SESSION-STATE.md self-update. Stage 2 battery (coherence-auditor + validator) running.
+- **Phase:** Session-129 closed clean. One commit this session: `c4cb7a9` (BACKLOG #99 close — README "First Five: Day-One Essentials from the Universal Floor" section + #99 removed + SESSION-STATE update). Pushed; CI + CodeQL green on first (6/6 jobs in 3m03s).
 - **Mode:** None blocking. Open BACKLOG (post-#99 close): #131 + #134 + #135 + #136 + pre-existing #129/#127/#125-b/#91-sub5/#78.
-- **Active Task:** Stage 2 post-edit battery on session-129 working-tree changes; commit + user-mediated push pending.
+- **Active Task:** None. Next session can pick up at #131 (§7.12 retroactive sweep), #134, #135, #136, or user-directed.
 
 ## Quick Reference
 
