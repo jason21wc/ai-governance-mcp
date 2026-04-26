@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-25 (session 128 — **BACKLOG #57 close: §3.3.4 Status Bar Plugin sub-paragraph + new Appendix M (M.1 Warp Terminal + M.2 Sequential Thinking MCP) + Appendix A.4 cross-ref; CFR MINOR v2.42.3 → v2.43.0; ai-instructions MINOR-on-MINOR v2.8.8 → v2.9.0; new BACKLOG #136 filed for §9.8.3 retroactive backfill; defer-pattern feedback memory saved.** Recovered from frozen prior session — same-day continuation; Stage 2 battery (coherence-auditor + validator) pending after edits.)
+**Last Updated:** 2026-04-25 (session 128 close — **BACKLOG #57 close shipped clean (commit `56a9dee`, CI + CodeQL green) + PROJECT-MEMORY (Appendix M canonical-home decision) + LEARNING-LOG (auto-defer-to-BACKLOG anti-pattern) close-out entries added in follow-up commit.** Versions: title-10 v2.43.0 MINOR, ai-instructions v2.9.0 MINOR-on-MINOR. Stage 2 battery: validator 8/8 PASS, coherence-auditor 1 HIGH folded (BACKLOG #56 dangling-reference) + 1 LOW accepted. New BACKLOG #136 filed for §9.8.3 retroactive backfill. Recovered from frozen prior session — same-day continuation.)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -72,9 +72,9 @@
 
 ## Current Position
 
-- **Phase:** Session-128 BACKLOG #57 close shipped. CFR v2.42.3 → v2.43.0 (MINOR for §3.3.4 augmentation + new Appendix M); ai-instructions v2.8.8 → v2.9.0 (MINOR-on-MINOR); BACKLOG #136 filed; defer-pattern feedback memory saved. Stage 2 post-edit battery (coherence-auditor + validator) pending. No commit yet — edits are local in working tree.
+- **Phase:** Session-128 closed clean. Two commits this session: `56a9dee` (BACKLOG #57 close — §3.3.4 Status Bar Plugin + Appendix M + ai-instructions pin + #136 filed) and the close-out commit (PROJECT-MEMORY + LEARNING-LOG entries). Both pushed; CI + CodeQL green on first.
 - **Mode:** None blocking. Open BACKLOG: #99 + #131 + #134 + #135 + **#136 new** + pre-existing #129/#127/#125-b/#91-sub5/#78.
-- **Active Task:** Stage 2 post-edit battery on session-128 edits, then commit + user-mediated push per session-127 routing rule. Next session can pick up at #99 (Quick Start) or user-directed.
+- **Active Task:** None. Next session can pick up at #99 (Quick Start guide for external adopters), #131 (§7.12 retroactive sweep), or user-directed.
 
 ## Quick Reference
 

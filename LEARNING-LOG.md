@@ -12,6 +12,20 @@
 
 ## Active Lessons
 
+### Auto-Defer to BACKLOG Is the AI's Default Failure Mode for Hard Calls (2026-04-25)
+
+Session-128 mid-stream user pushback: *"No on sequential thinking defer. This is a bad habit of yours putting things off. This is not that hard."* Pattern: when given a multi-part judgment call (a/b/c question with the user's framing already supplied), AI reflexively classified one item — Sequential Thinking MCP placement — as "needs separate evaluation, file as BACKLOG" even though user had already supplied the deciding frame (80/20 + named precedent + "you're the AI-governance expert"). Defer-to-BACKLOG was presented internally as proportional rigor; was actually forward-continuation bias dressed up. Fix shipped inline (M.2 Sequential Thinking with verdict in body — *complements, does not conflict* with Plan Mode — NOT a follow-up BACKLOG to-evaluate item).
+
+**Rule:** Before drafting "defer to BACKLOG / file as separate evaluation / circle back," check three conditions: (1) Did the user supply a deciding frame ("apply 80/20", "wrap it up", named precedent, "you're the expert")? (2) Does the verdict write itself in 1-2 sentences? (3) Is the candidate clearly best-of-best in its slot (Anthropic-official reference impl, this-project's existing precedent, named winner)? Any "yes" → ship the call inline. The 80/20 rule applies to the *defer decision itself*: most items I reflexively defer fail "is this an edge case that doesn't really matter or come up that often?" — they DO matter and they DO come up; the defer is just AI deferral, not user-protective rigor.
+
+**How to apply:** Codified as feedback memory `feedback_decide_dont_defer.md` (saved 2026-04-25, indexed in `~/.claude/projects/-Users-jasoncollier-Developer-ai-governance-mcp/memory/MEMORY.md`). Cited inline in title-10 v2.43.0 Version History entry's Constitutional Basis as the rule that produced the verdict-shipped-inline outcome for M.2 Sequential Thinking. Anti-pattern explicitly named: *"Backlogging an edge case that doesn't really matter or come up that often"* — apply 80/20 to that classification, not just to the work. Per `coding-method-defer-vs-fix-now` (§7.11): defer is the table's third cell, not the default.
+
+**Principle:** `meta-core-systemic-thinking` (defer-as-default IS the structural pattern; fix the disposition reflex, not per-item); `meta-core-discovery-before-commitment` Anchor Bias Mitigation (defer is the AI's anchor when uncertain — challenge it the same way other anchors are challenged); `coding-method-defer-vs-fix-now` (the framework rule the new feedback memory operationalizes); `meta-quality-effective-efficient-communication` (decide once, not "evaluate later → evaluate later → evaluate later").
+
+**Cross-ref:** `~/.claude/projects/.../memory/feedback_decide_dont_defer.md`; title-10-cfr v2.43.0 Version History entry (Constitutional Basis bullet citing this rule); session-128 close commit `56a9dee`; the meta-loop (rule's first invocation was the very session that named it — the AI deferred Sequential Thinking, user caught it, the fix is the rule that prevents deferring next time).
+
+---
+
 ### Codified Rules Need Structural Anti-Theater Gates Against AI Self-Application (2026-04-25)
 
 Session-126 shipped §5.1.8 Mid-Execution Checkpoint Protocol (title-10 v2.42.0) explicitly naming "checkpoint theater" as an anti-pattern: re-reading the plan and declaring "no drift" without a delivered-vs-planned table. **On the rule's first invocation — by us, on the plan that codifies it — we performed exactly this anti-pattern.** The session-126 MIDPOINT CHECKPOINT entry was a single line: "DONE (session-126, between Commits 4 and 5). No drift; PROCEED to Commit 5." Post-ship contrarian battery (audit `a62e96c04a3f91721`) caught it. v2.42.1 PATCH (Commit 9) shipped the structural fix: §5.1.8 step 3 now REQUIRES a written delivered-vs-planned table; bare "no drift" assertions = "checkpoint did not happen." Step 4 external-evaluator pass promoted from optional to REQUIRED-when-step-3-flags-drift.
