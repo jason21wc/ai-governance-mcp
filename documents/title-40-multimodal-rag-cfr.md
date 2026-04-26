@@ -1,12 +1,12 @@
 ---
-version: "2.1.2"
+version: "2.1.3"
 status: "active"
-effective_date: "2026-04-14"
+effective_date: "2026-04-26"
 domain: "multimodal-rag"
 governance_level: "federal-regulations"
 ---
 
-# Multimodal RAG Methods v2.1.1
+# Multimodal RAG Methods v2.1.3
 ## Operational Procedures for Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -1974,6 +1974,18 @@ generate_response(results, coverage_notes=assess_gaps(results, query))
 
 ## Appendix A: Claude-Specific Implementation
 
+**Governance Level:** Agency SOP (Platform-Specific Appendix)
+
+**Implements:** Part 4 (Multimodal Retrieval / Vision) for Claude API
+
+**Applies To:** Claude API (current model family — Opus, Sonnet, Haiku); supports inline images (PNG, JPEG, GIF, WebP) via base64 or URL
+
+**Information Currency:** Verified 2026-04-26 against current Claude API + SDKs
+
+**Source:** https://docs.anthropic.com/en/docs/build-with-claude/vision
+
+**Framework Integration:** Yes — vision input works alongside MCP tools, Claude API streaming, and multi-modal context management. SDKs: `anthropic` (Python) and `@anthropic-ai/sdk` (Node.js / TypeScript).
+
 ### A.1 Vision Capabilities
 
 Claude supports inline images in conversations when:
@@ -2267,7 +2279,10 @@ This methods document implements:
 
 ## Changelog
 
-### v2.1.2 (Current)
+### v2.1.3 (Current)
+- **PATCH: BACKLOG #136 close — §9.8.3 field backfill on Appendix A (Claude-Specific Implementation).** Added required §9.8.3 fields: Governance Level, Implements (Part 4 Multimodal Retrieval / Vision for Claude API), Applies To (Claude API current model family + supported image formats), Information Currency (verified 2026-04-26), Source (Anthropic vision docs), Framework Integration (vision input + MCP tools + SDKs). Out-of-§9.8.3-scope appendices NOT modified: B (Infrastructure Landscape — vendor/solution survey), C (Research References — bibliography). No normative change — §9.8.3 fields are descriptive metadata for adopter discoverability. Body-header pre-existing drift (`Multimodal RAG Methods v2.1.1` despite frontmatter v2.1.2) corrected to v2.1.3 along the way. ai-instructions PATCH-on-PATCH pin sync v2.10.1 → v2.10.2 per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). Same commit applies parallel §9.8.3 backfill in title-10-ai-coding-cfr v2.43.1 → v2.43.2 (5 appendices) and title-20-multi-agent-cfr v2.17.1 → v2.17.2 (3 appendices). Governance: `gov-21ee559d88f0`.
+
+### v2.1.2
 - **PATCH:** Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. Fixed 2 terse entries in §6.3 (Drift Detection) and §7.1 (Fragment-Level Source Tracking).
 
 ### v2.1.1
@@ -2313,5 +2328,5 @@ This methods document implements:
 
 ---
 
-*Version 2.1.2*
+*Version 2.1.3*
 *Companion to: Multimodal RAG Domain Principles v2.1.0*

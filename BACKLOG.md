@@ -822,25 +822,6 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 
 **Origin:** Claude Code workflow video re-analysis (2026-04-05).
 
-#### 136. Retroactive §9.8.3 Field Backfill Across Pre-§9.8.3 Appendices `D2 Maintenance`
-
-**What:** `rules-of-procedure.md` §9.8.3 (Appendix Field Reference) defines the required field set for platform/tool appendices — *Appendix Letter + Name, Governance Level, Implements (parent-method reference), Applies To (platform + version), Information Currency (verification date), Source, Framework Integration*. §9.8.3 itself notes that backfill is tracked separately, but no BACKLOG item existed until now. Pre-§9.8.3 appendices in `title-10-ai-coding-cfr.md` (Appendix A subsections, Appendix F Tool Comparison, Appendix H Production Hardening, Appendix I Postgres/Supabase, Appendix K AGENTS.md, Appendix L Folder-Based AI Environment) were authored before the field reference and lack discrete §9.8.3 fields — they're discoverable today, but don't structurally support adopter and AI-agent retrieval the way the new appendices do (M.1 Warp, M.2 Sequential Thinking — both shipped session-128 — plus F.1 Happy Engineering and Appendix G Context Engine, which already conform).
-
-**Why this exists:** Filed by session-128 (BACKLOG #57 close, 2026-04-25) per defer-vs-fix-now rule (§7.11). The audit itself is multi-appendix with cascading discovery (>3 files, judgment per subsection on whether each field applies), out of scope for the #57 single-purpose addition. Backfill is real maintenance debt — without it, §9.8.3's "structural retrievability" guarantee is patchily applied across the appendix surface and the new Appendix M sets a precedent that older appendices visibly fail to match.
-
-**Scope:**
-
-1. **Audit** existing appendices in `title-10-ai-coding-cfr.md` (A, B, C, D, E, F, H, I, J, K, L) against §9.8.3 field reference. Output: per-subsection field-presence matrix.
-2. **Decide** per missing field: backfill in place, document why the field doesn't apply (e.g., Appendix A.5 Permission Configuration is project-internal config, not a platform/tool — likely a different field set), or escalate the field reference itself if the canonical schema needs broadening.
-3. **Sweep** other CFR files (`title-15-ui-ux-cfr.md`, `title-20-multi-agent-cfr.md`, `title-25-kmpd-cfr.md`, `title-30-storytelling-cfr.md`, `title-40-multimodal-rag-cfr.md`) for same-class appendices.
-4. **Output:** PATCH-shape edit per CFR file (no normative changes — fields are descriptive); Changelog row per file noting "Retroactive §9.8.3 field backfill — *N* appendix subsections." Pin propagation through `ai-instructions.md` follows canonical PATCH-on-PATCH rule (COMPLETION-CHECKLIST item 7c).
-
-**Re-open prerequisites:** None — runnable now; deferred from session-128 only because the cascading scope conflicts with #57's atomic-shape close.
-
-**Why D2 not D1:** Multi-file audit, moderate per-appendix judgment (which fields apply, which don't, whether the field reference itself needs broadening for non-platform-tool cases like permission configuration), proportional-rigor decision on whether to also backfill the optional Examples/Cross-References fields §9.8.3 lists. Pure docs work but >3 surfaces with per-surface discovery gating subsequent surfaces — fits D2's "moderate research; depends on coordinated decisions" indicators.
-
-**Origin:** session-128 BACKLOG #57 close (2026-04-25). Surfaced during the Appendix M placement decision: drafting M.1/M.2 to §9.8.3 spec made the gap visible (older appendices sit alongside the new entries with visibly missing fields). Filed structurally rather than letting the next session rediscover it from a coherence-auditor flag.
-
 #### 58. Session Lifecycle Automation — Mid-Session Re-Injection (Discussion — from UBDA Review) `D2 Improvement`
 
 **What:** Context degradation accelerates past critical thresholds. Thresholds exist (50/60/80/32K) but no automation triggers behavioral floor re-injection mid-session. UserPromptSubmit hook could check context utilization and re-inject.

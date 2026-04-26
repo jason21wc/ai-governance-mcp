@@ -1,7 +1,7 @@
 ---
-version: "2.17.1"
+version: "2.17.2"
 status: "active"
-effective_date: "2026-04-14"
+effective_date: "2026-04-26"
 domain: "multi-agent"
 governance_level: "federal-regulations"
 ---
@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.17.1
+**Version:** 2.17.2
 **Status:** Active
-**Effective Date:** 2026-04-07
+**Effective Date:** 2026-04-26
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -4398,6 +4398,18 @@ e4f5g6h	1.098	3.8GB	discard	replaced Muon optimizer with pure AdamW	2026-03-26T2
 
 OPTIONAL — Load when using Claude Code
 
+**Governance Level:** Agency SOP (Platform-Specific Appendix)
+
+**Implements:** Part 2.0 (Subagent Authoring) and Part 3.6 (Session Closer Protocol) for Claude Code CLI agent mechanics
+
+**Applies To:** Claude Code CLI v2.0+; project directory with `.claude/agents/`
+
+**Information Currency:** Verified 2026-04-26 against Claude Code CLI v2.0+
+
+**Source:** https://docs.claude.com/en/docs/claude-code
+
+**Framework Integration:** Yes — agent creation via `/agents`, invocation via Task tool with `subagent_type=...`, explicit `@agent:name` syntax, and Task subagent results visible in main session.
+
 ### Agent Creation
 
 ```bash
@@ -4601,6 +4613,18 @@ Claude Code binary contains TeammateTool infrastructure for swarm coordination. 
 
 OPTIONAL — Load when using Gemini CLI
 
+**Governance Level:** Agency SOP (Platform-Specific Appendix)
+
+**Implements:** Part 2.0 (Subagent Authoring) for Gemini CLI agent mechanics
+
+**Applies To:** Gemini CLI v1.0+; macOS / Linux / Windows
+
+**Information Currency:** Verified 2026-04-26 against Gemini CLI v1.0+
+
+**Source:** https://github.com/google-gemini/gemini-cli
+
+**Framework Integration:** Yes — MCP server support, hierarchical context loading, `/init` command for `GEMINI.md` creation, `/memory` commands for context management.
+
 ### Installation
 
 ```bash
@@ -4640,6 +4664,18 @@ Useful for: Agent invoking Gemini for specific tasks
 
 OPTIONAL — Load when using Codex CLI
 
+**Governance Level:** Agency SOP (Platform-Specific Appendix)
+
+**Implements:** Part 2.0 (Subagent Authoring) for OpenAI Codex CLI mechanics
+
+**Applies To:** OpenAI Codex CLI (`@openai/codex` npm package); uses `agents.md` convention (cross-tool with AGENTS.md / Appendix K of title-10)
+
+**Information Currency:** Verified 2026-04-26 against current `@openai/codex`
+
+**Source:** https://github.com/openai/codex (or current OpenAI repository)
+
+**Framework Integration:** Partial — uses AGENTS.md for project context (sync with CLAUDE.md / GEMINI.md per AAIF cross-tool standard); no dedicated agent-installation mechanism comparable to Claude Code's `/agents`.
+
 ### Installation
 
 ```bash
@@ -4671,6 +4707,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.17.2 | 2026-04-26 | **PATCH: BACKLOG #136 close — §9.8.3 field backfill on 3 platform-specific appendices.** Added required §9.8.3 fields (Governance Level, Implements, Applies To, Information Currency, Source, Framework Integration) to Appendix A (Claude Code CLI Specifics), Appendix B (Gemini CLI Specifics), and Appendix C (Codex CLI Specifics). Out-of-§9.8.3-scope appendices NOT modified: D (Version History — changelog content type), E (Evidence Base — bibliography content type), F (Cross-Platform Agent Support — meta-comparison/survey, not single-platform procedure). No normative change — §9.8.3 fields are descriptive metadata for adopter discoverability. Pre-existing body-header/effective-date drift (frontmatter `2026-04-14` vs body header `2026-04-07`) corrected to `2026-04-26` along the way. ai-instructions PATCH-on-PATCH pin sync v2.10.1 → v2.10.2 per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). Same commit applies parallel §9.8.3 backfill in title-10-ai-coding-cfr v2.43.1 → v2.43.2 (5 appendices) and title-40-multimodal-rag-cfr v2.1.2 → v2.1.3 (1 appendix). Governance: `gov-21ee559d88f0`. |
 | v2.17.1 | 2026-04-14 | **PATCH: Applies To metadata backfill.** Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. |
 | v2.16.1 | 2026-03-29 | **PATCH: Principle Consolidation Alignment.** (1) New §3.9 Standardized Collaboration Protocols — procedural content demoted from domain principle: JSON schema templates, timeout/retry configuration, contract versioning, deadlock detection. (2) Updated governance hierarchy box (18→17 principles). (3) Updated Principle to Title Mapping (Cognitive Function Specialization → Agent Specialization & Topology, removed Read-Write Division as separate entry). (4) Updated Title 2/3 Implements lines. |
 | v2.15.0 | 2026-03-26 | **MINOR: Autonomous Experimentation Protocol.** New §6.5 operationalizing AO-Series for autonomous agent experimentation loops. §6.5.1 Research Protocol Document (program.md pattern) — structured template for defining autonomous agent objectives, scope, metrics, termination conditions. §6.5.2 Permission Configuration — three approaches for Claude Code autonomous operation (surgical allowlists recommended, programmatic launch, full bypass). §6.5.3 Experimentation Loop — standard modify→test→evaluate→decide cycle with "NEVER STOP" governance. §6.5.4 Results Logging — TSV audit trail format. Source: Karpathy (2026) "autoresearch". |
