@@ -20,7 +20,7 @@
 - **Compliance Review #6 cadence** — due ~2026-05-05–05-10 (10-15 days from Review #5 on 2026-04-25 per BACKLOG #78 standing item).
 - **v6.0.0 cohort coherence note:** if a future session needs to add a domain crosswalk row that the v6.0.0 rename carved out (storytelling, multimodal-rag), revisit the §2.9 carve-out rationale in `~/.claude/plans/this-is-back-and-tidy-crescent.md` — narrative density / existing-principle coverage were the named reasons. Don't add a row reflexively.
 
-**Open BACKLOG (post-session-133):** #137 (PHASE2 monitor close-out, due ~2026-05-03), #131 (§7.12 sweep), #134 (PR-workflow tripwire), #135 (bypass-envvar refactor), #136 (§9.8.3 backfill), pre-existing #129/#127/#125-b/#91-sub5/#78 (Compliance Review #6 next due ~2026-05-05–05-10). #138 (CE coverage gap for rename ops, D1 advisory) was NOT actually filed to BACKLOG.md in session-131 despite SESSION-STATE narrative claim — file-vs-narrative drift discovered session-133; reconciled by treating it as not-filed (no observed adopter harm; can re-file when next rename-class operation surfaces it).
+**Open BACKLOG (post-session-133):** #140 (push-to-main permission investigation, D2 — user-led back-and-forth queued), #137 (PHASE2 monitor close-out, due ~2026-05-03), #131 (§7.12 sweep), #134 (PR-workflow tripwire), #135 (bypass-envvar refactor), #136 (§9.8.3 backfill), pre-existing #129/#127/#125-b/#91-sub5/#78 (Compliance Review #6 next due ~2026-05-05–05-10). #138 (CE coverage gap for rename ops, D1 advisory) was NOT actually filed to BACKLOG.md in session-131 despite SESSION-STATE narrative claim — file-vs-narrative drift discovered session-133; reconciled by treating it as not-filed (no observed adopter harm; can re-file when next rename-class operation surfaces it).
 
 **Closed session-133:** #139 (BLUF-Pyramid §7.13 expansion shipped). Auto-memory NOT updated (project-specific findings live in commit message + Version History entries, not auto-memory per "What NOT to save in memory" rule).
 
@@ -97,6 +97,7 @@
 **Immediate (resume trigger for next session):**
 1. **Session-133 in progress** — content commit `75e75b9` to trunk, not yet pushed. Resumption: `! git push origin main` (user-mediated per session-127 §8.3.4 routing rule) → CI watch (~3 min) → done.
 2. **Trigger-gated work waiting:**
+   - **BACKLOG #140** — Push-to-main permission investigation. User-led back-and-forth, no calendar trigger; runs whenever user opens the thread. Per session-133 close direction.
    - **BACKLOG #137** — PHASE2_TRIGGERED 7-day monitor close-out. Due ~2026-05-03 (7 days from session-133).
    - **BACKLOG #78** — Governance Compliance Review #6. Due ~2026-05-05–05-10 (10-15 days from Review #5 on 2026-04-25).
    - **BACKLOG #109** — Deferred-with-trigger cadence audit. Next due ~2026-05-25.
