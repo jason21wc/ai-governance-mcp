@@ -175,6 +175,7 @@
 
 **Inline audit log:**
 - *2026-04-20 (initial filing, session-119):* All items listed above are in active deferral state. No triggers fired. Next audit due ~2026-05-20.
+- *2026-04-25 (Compliance Review #5, run inline as Group 1 of prioritized backlog brief — 25 days early per cadence-can-be-paired-with-related-work):* Re-read trigger prerequisites for all 14 deferred items + F-P2-03 residual. **0/14 triggers fired.** Per-item: #41/#43/#44/#46 — no consumer built, no logs-analysis tool, no project-context detection consumer; #58/#59/#60 — no degradation measurement, no productionization/multi-user, no >40-turn single-session observation; #106 — no `Implements:` consumer + no Q7 remediation; #107 — current title-10 appendix count is 13 (A through M, verified via `grep '^## Appendix'` on title-10) under >15 trigger + no consumer reports lookup friction; #108 — no adopter harm reported on `strict_domain_check`; #110 — R-01 outcome benchmark not shipped (pre-req for retrospective); #111 — n=4 cohorts (need n≥6, no adopter report); #112 — no operational-mismatch finding, no session capacity allocated; #113 — n=4 cohorts (need n≥6, no adopter plan failure); F-P2-03 residual — no FM-code parser implemented. Next audit due ~2026-05-25.
 
 108. **F-C-04 Phase-2 — install_agent `strict_domain_check` block-mode escalation** `D3 Deferred`
 
@@ -196,13 +197,13 @@
 
 107. **F-C-06 Tool/Model Appendix index — adopter discoverability for Appendices A-L** `D3 Deferred`
 
-**What:** Tool/Model Appendices (A-L: Claude Code CLI config, prompt caching specs, Postgres/Supabase, permission architecture, production hardening, etc.) are embedded inside `documents/title-10-ai-coding-cfr.md` starting around line 7200+. No standalone index or discoverability mechanism exists. The Situation Index at `rules-of-procedure.md:92` and `title-10-ai-coding-cfr.md:104` fulfills entry-based discovery for *procedures*, but does NOT enumerate all Appendices. Adopters asking "how do I configure Claude Code CLI?" have no discoverable path without knowing to look inside §7200+.
+**What:** Tool/Model Appendices (A-M: Claude Code CLI config, prompt caching specs, Postgres/Supabase, permission architecture, production hardening, ecosystem tools, etc.) are embedded inside `documents/title-10-ai-coding-cfr.md` starting around line 7377+. No standalone index or discoverability mechanism exists. The Situation Index at `rules-of-procedure.md:92` and `title-10-ai-coding-cfr.md:104` fulfills entry-based discovery for *procedures*, but does NOT enumerate all Appendices. Adopters asking "how do I configure Claude Code CLI?" have no discoverable path without knowing to look inside §7200+.
 
 **Re-open prerequisites:**
 1. **A consumer emerges** that needs Appendix-level discovery — examples: (a) a retrieval pattern specifically queries "show all Tool Appendices for platform X"; (b) adopter rollout reveals friction with Appendix lookup; (c) Appendix count exceeds a practical threshold (e.g., >15 appendices) making embedded-in-CFR structure unwieldy.
 2. **Decision on index location** — dedicated `documents/appendix-index.md` artifact vs. a section added to `README.md` vs. a new §9.7.3 in rules-of-procedure. Depends on what the triggering consumer needs.
 
-**Why deferred (not short-term D2):** Current state is a low-severity gap. Situation Index fulfills most discovery needs (entry-based routing by task). Building a full Appendix index without a concrete consumer would be premature — risks the Phase 4b `Implements:` pattern (build-it-before-consumer-exists, end up with documentary-only artifact that nobody queries).
+**Why deferred (not short-term D2):** Current state is a low-severity gap. Situation Index fulfills most discovery needs (entry-based routing by task). Building a full Appendix index without a concrete consumer would be premature — risks the Phase 4b `Implements:` pattern (build-it-before-consumer-exists, end up with documentary-only artifact that nobody queries). **Trigger update (2026-04-25):** title-10 appendix count is now 13 (A through M, contiguous; M added session-128) per `grep '^## Appendix' documents/title-10-ai-coding-cfr.md`. Below the >15 trigger threshold; trigger remains unfired.
 
 **Re-open workflow:**
 1. Verify prerequisite (1) is met — a real consumer exists.
@@ -469,6 +470,40 @@ See `LEARNING-LOG.md` entry "Session-End Deferral Bias (2026-04-15)" for the pat
 4. Process pooling — multiple sessions share one server; MCP protocol may not support natively
 
 **Origin:** Session 48 (2026-04-03). macOS low-memory warning with 2 concurrent sessions. Initial investigation incorrectly dismissed Activity Monitor's GB numbers as "just virtual memory" — 26 GB swap + macOS warning proved impact is real.
+
+**Status (2026-04-25) — PHASE2_TRIGGERED FIRED, under 7-day monitoring (corrected post-coherence-audit):**
+
+Compliance Review #5 (Check 6b.2, 2026-04-25) found `~/.context-engine/PHASE2_TRIGGERED` marker present, fired 2026-04-25 10:00:01Z. Triggers fired: T1 (steady_mb=9420 > 1.5×5800=8700 = ≥50% growth above post-Phase-2 equilibrium), T3 (peak_mb=10752 > 7500 post-Phase-2 cap), T4 (cross_process_total_mb=11544 > 8192 combined cap). Measured slope = 6948.2 MB/h over 5.88h uptime. T2 leak-rate trigger disabled per noise-floor rule (baseline_slope_mb_per_h=0).
+
+**Initial-draft correction (caught before action):** First-pass analysis claimed baseline was still pre-Phase-2 and proposed rebasing it as the cheapest test. That was wrong. Reading `~/.context-engine/logs/phase0-baseline.txt` directly confirmed: **baseline was already recalibrated 2026-04-17** (session-109) to post-Phase-2 values (`baseline_steady_mb=5800`, `baseline_peak_mb=6700`, with T3 raised 3072→7500 in `scripts/measure-watcher-footprint.sh`). Recalibration shipped between Compliance Review #3 (which flagged the action item) and Review #4 (whose row staled-out by saying "still pending"). The 9420/10752/11544 measurements really do represent ≥50% growth above the post-Phase-2 equilibrium — this is a real signal.
+
+**Daily measurement-log trend (`~/.context-engine/logs/phase0-measurements.log`, last 8 readings):**
+
+| Date | steady (MB) | peak (MB) | total (MB) | Triggers |
+|------|-------------|-----------|------------|----------|
+| 2026-04-17 | 5939 | 6860 | 7184 | (initial post-Phase-2 cal) |
+| 2026-04-18 | 5427 | 6348 | 6731 | clean |
+| 2026-04-19 | 1536 | 1638 | 2829 | clean |
+| 2026-04-20 | 6041 | 7372 | 7484 | clean |
+| 2026-04-21 | 3788 | 4812 | 4593 | clean |
+| 2026-04-22 | 152 | 152 | 2313 | clean |
+| 2026-04-23 | 146 | 147 | 2377 | clean |
+| 2026-04-24 | 1638 | 1843 | 3682 | clean |
+| **2026-04-25** | **9420** | **10752** | **11544** | **T1+T3+T4** |
+
+Today's spike is 1.5× the prior week peak (cross-process total). **Snapshot taken during this review (~04:30Z) via `ps aux` shows current cross-process total = 6.0 GB**, already back inside healthy post-Phase-2 range (5 ai-context-engine processes 4.6 GB + watcher 1.1 GB + 5 governance procs 0.4 GB).
+
+**Revised cause analysis:**
+1. ~~**Stale baseline thresholds.**~~ ELIMINATED. Baseline IS post-Phase-2 (5800/6700, recalibrated 2026-04-17).
+2. **Workload variance.** **STRONGEST HYPOTHESIS.** Daily 04:00 measurement caught a peak-concurrent-session moment (e.g., 2× Claude Code + 2× Claude Desktop + index-rebuild + multiple query batches overlapping). Week range was 2.3–7.5 GB; today's 11.5 GB spike is plausible for transient peak overlap before the 12h self-restart flush. Current snapshot 6.0 GB consistent with healthy state.
+3. **Phase 2 regression.** Unlikely but not refuted by a single spike — would need 2+ T1 fires within a short window or a process found loading torch when it shouldn't (e.g., IPC client crash → silent fallback to in-process load).
+
+**Marker NOT cleared** — preserves measurement evidence for the 7-day re-test per `meta-core-systemic-thinking` (do not remove obstacle by removing evidence) + `meta-quality-verification-validation` (one spike is not a confirmed signal; need re-test to distinguish workload variance from regression).
+
+**Action plan (current recommendation):**
+- (a) **Monitor next 7 daily measurements** (2026-04-26 through 2026-05-02). If T1 stays clear (steady_mb < 8700) on ≥6/7 days, **clear marker as workload-variance confirmed** + record outcome here.
+- (b) **If T1 re-fires within 7 days**, escalate to cause (3) regression investigation: run `ps aux | grep -iE '(governance|context-engine|embedding)'` at the moment of fire (cron-augment the measurement script) + per-process torch-loading audit via `lsof -p <pid> | grep -i torch` to confirm whether any process is loading torch outside the embedding daemon. Schedule contrarian-reviewed design spike if regression confirmed.
+- (c) **Original spike option preserved**: if (3) confirmed, schedule shared embedding service v2 OR direct optimum + tokenizers rewrite per the original Status (2026-04-15) deferred spike.
 
 **Status (2026-04-16) — Phase 2 COMPLETE, verified in session-108:**
 

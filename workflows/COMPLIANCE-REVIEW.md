@@ -44,6 +44,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | 3 | 2026-04-17 | PASS | All 5 hooks present (pre-tool-governance-check, pre-push-quality-gate, pre-test-oom-gate, post-push-ci-check, user-prompt-governance-inject) |
 | 4 | 2026-04-22 | PASS | All 5 hooks present (unchanged from Review #3; session-121 amended pre-test-oom-gate internals but file remains) |
 | — | 2026-04-23 | +1 | Session-122 shipped `pre-exit-plan-mode-gate.sh` (BACKLOG #116 / V-004); session-123 shipped `regen-test-failure-mode-map` pre-commit hook (BACKLOG #123). Hook inventory now 6 Claude Code + pre-commit local hook. Next compliance review verifies all present. |
+| 5 | 2026-04-25 | PASS | All 6 Claude Code hooks present (pre-tool-governance-check, pre-push-quality-gate, pre-test-oom-gate, pre-exit-plan-mode-gate, post-push-ci-check, user-prompt-governance-inject) + scan_transcript.py helper. Pre-commit hooks: ruff-format, ruff, regen-test-failure-mode-map. Inventory unchanged from Review #4 plus session-122/123 additions. |
 
 ---
 
@@ -62,6 +63,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | 2 | 2026-04-14 | PASS | All unset |
 | 3 | 2026-04-17 | PASS | GOVERNANCE_SOFT_MODE, CE_SOFT_MODE, QUALITY_GATE_SKIP all empty |
 | 4 | 2026-04-22 | PASS | All three vars empty |
+| 5 | 2026-04-25 | PASS | GOVERNANCE_SOFT_MODE, CE_SOFT_MODE, QUALITY_GATE_SKIP all empty |
 
 ---
 
@@ -79,6 +81,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | 3 | 2026-04-14 | N/A | V-001 and V-004 still active but tracked below, not in effectiveness tables |
 | 4 | 2026-04-17 | N/A | V-001/V-004/V-005 tracked in their own tables; no effectiveness-table experiments active |
 | 5 | 2026-04-22 | N/A | Unchanged — V-001/V-004/V-005 tracked separately; no new effectiveness-table experiments |
+| 6 | 2026-04-25 | N/A | Unchanged — V-001/V-005/V-006/V-007/V-008 tracked in their own tables; no new effectiveness-table experiments. (V-004 retired 2026-04-23 to hook enforcement.) |
 
 ---
 
@@ -95,6 +98,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | 2 | 2026-04-14 | PASS | All 3 aligned. CLAUDE.md now also has CE vs Grep guidance (not in tiers.json — intentionally situational per universal_floor criteria) |
 | 3 | 2026-04-17 | PASS | All 3 tiers.json behavioral_floor directives (recommend-not-ask, freeform-dialogue, cite-principles) have CLAUDE.md Behavioral Floor counterparts |
 | 4 | 2026-04-22 | PASS | Python-script check confirmed all 3 directives (recommend-not-ask, freeform-dialogue, cite-principles) present in CLAUDE.md; no alignment drift |
+| 5 | 2026-04-25 | PASS | tiers.json behavioral_floor.directives now lists 6 (recommend-not-ask, freeform-dialogue, cite-principles, contrarian-before-exit-plan, effort-not-time, bluf-pyramid-briefing). 5/6 have CLAUDE.md Behavioral Floor counterparts (Recommend/Freeform/Cite/Effort/BLUF); contrarian-before-exit-plan lives in CLAUDE.md "Governance — ENFORCED BY HOOK" section per its structural-enforcement nature (not a behavioral nudge). CLAUDE.md additionally lists Root cause + Proportional rigor as Floor directives — these are universal-principle wrappers, not separate behavioral identifiers in tiers.json. No alignment drift. |
 
 ---
 
@@ -111,6 +115,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | 2 | 2026-04-14 | FAIL→FIXED | 3 entries >60 days without markers (Tree-sitter, Environment-Aware Tests, Test Inputs). All marked ACTIVE. |
 | 3 | 2026-04-17 | FAIL→FIXED | 1 entry >60 days without marker: "Passive MCP Instructions Don't Drive Tool Usage (2026-02-14)". Marked ACTIVE. |
 | 4 | 2026-04-22 | FAIL→FIXED | 1 entry >60 days without marker: "__file__-Based Paths Break in Docker Non-Editable Installs (2026-02-19)". Marked ACTIVE. Borderline entries (2026-02-21/22 at exactly 60-61 days) reviewed but under threshold. |
+| 5 | 2026-04-25 | FAIL→FIXED | 60-day cutoff = 2026-02-25. 4 entries had no graduation/active marker AND no recent reference: "Code Review Advisory Framing (2026-02-28)", "Multi-Path Methods Must Handle All Paths Uniformly (2026-02-28)", "Version Validator Has Blind Spots (2026-02-21)", "Specification Documents Are Not Validated Requirements (2025-12-24, retains CRITICAL)". All 4 marked ACTIVE. 5 other pre-cutoff entries PASS by reference within 30 days: Hard-Mode Hooks 2026-02-28 (cited COMPLIANCE-REVIEW V-004 disposition + SESSION-STATE session-121 + BACKLOG OOM-gate entry); External Framework Comparison 2026-02-28 (rules-of-procedure scope-boundary citation 2026-04-05); S-Series Keyword False Positives 2026-02-22 (BACKLOG #129 filed 2026-04-24 + reviews/2026-04-18); ML Model Mocking 2025-12-27 (FM-registry retirement note session-124); Claude Desktop and CLI 2026-01-04 (PROJECT-MEMORY reference). Already-marked entries (Advisory Governance — PARTIALLY GRADUATED, Multi-Pass Reviews — GRADUATED to §5.1.7, etc.) skipped. |
 
 ---
 
@@ -164,6 +169,7 @@ Spawn a **validator subagent** to review the session's governance compliance. Th
 | 2 | 2026-04-14 | PASS | Canary prompts (a-c) run — awaiting user evaluation. Validator session audit: 7/7 assessable PASS, 2 CANNOT DETERMINE (format/ranking need transcript). |
 | 3 | 2026-04-17 | PASS | Session audit (d) only — canary prompts (a-c) skipped for this execution-only session. Validator subagent: 8/9 PASS, 1 CANNOT DETERMINE (query_project audit IDs not logged in session-109 SESSION-STATE entry — hook enforced the call but trail absent). Session-level root-cause compliance exemplified by `953a005` (eliminated 30s race at source, explicitly rejected "CI resource constraints" framing). |
 | 4 | 2026-04-22 | PASS_WITH_NOTES | Session audit (d) only — canary prompts (a-c) deferred per Review #3 execution-only precedent. Validator subagent (`ac3e3195bb908b329`): 6/6 semantic checks PASS, 2/3 structural PASS, 1 CANNOT DETERMINE (session-start read not explicitly logged in session-121 entry — protocol followed per CLAUDE.md but not auditable from artifact). 2 NOTEs: (1) session-start read instrumentation; (2) Task 3 (#103 closure) cites `gov-fd93e36d5cbe` but no explicit `meta-methods §7.8` principle ID — strict reading of cite-principles directive. Neither blocks acceptance. All 5 Tasks' known-answer questions verified independently. Dogfood-moment-as-evidence on SESSION-STATE line 49 (authoring-rule-does-not-immunize-against-violation) exemplifies root-cause thinking. |
+| 5 | 2026-04-25 | PASS_WITH_NOTES | Session audit (d) only — canary (a-c) deferred per Review #3/#4 execution-only precedent. Validator subagent (`aa10d58aa10c18565`, triggered by BACKLOG #78 / `gov-3a11e9d6bf93`): 5/6 structural PASS + 1 PARTIAL (startup-file-reads check — MEMORY.md auto-summary substituted for >25k-token PROJECT-MEMORY/LEARNING-LOG; **related** finding from Review #4), 3/3 pattern PASS, 1 N/A (contrarian-review-before-plan-approvals check — no plan mode, auto mode active). 2 NOTEs: (1) **recurring related finding — startup-read auditability gap (n=2 instances).** Review #4: read protocol followed but unauditable from session artifact. Review #5: read substituted by MEMORY.md auto-summary due to source-file size exceeding context budget. Both instances are gaps in the same audit class; consider codifying MEMORY.md summary as acceptable proxy when source files exceed context budget OR instrument startup-read logging. (2) query_project gate not behaviorally exercised at audit time — first true write was the COMPLIANCE-REVIEW row this audit produced (gate would have blocked otherwise). |
 
 ---
 
@@ -184,6 +190,7 @@ Spawn a **validator subagent** to review the session's governance compliance. Th
 | 2 | 2026-04-14 | PASS | Top result, combined score 0.74, 119.7ms |
 | 3 | 2026-04-17 | PASS | Top result, combined score 0.74, 204.0ms |
 | 4 | 2026-04-22 | PASS | Top constitution result, combined score 0.74, BM25=0.66/Semantic=0.79. Retrieval time 9432.7ms — unusually high; may reflect cold-start on session's first query. No action unless persistent across sessions. |
+| 5 | 2026-04-25 | PASS | Top constitution result was meta-operational-interaction-mode-adaptation (combined 0.83, BM25=1.00/Semantic=0.72) — also relevant. Expected meta-quality-verification-validation returned at #2 (combined 0.74, BM25=0.66/Semantic=0.79). Retrieval 156.2ms (Review #4's 9432ms cold-start was non-recurring). Within top-5 spec. |
 
 ---
 
@@ -207,6 +214,7 @@ wc -l ~/.context-engine/oom-gate-denies.log 2>/dev/null || echo "0 (no denies ye
 | 1 | 2026-04-15 | PASS | 0 | Hook shipped session-105; no organic denies yet (only test-fixture writes in tmp dirs) |
 | 2 | 2026-04-17 | PASS | 1 | Single deny on 2026-04-16 02:02Z during a git-commit bash invocation (daemon alive + torch procs). Below 3-trigger escalation threshold. |
 | 3 | 2026-04-22 | PASS | 2 | +1 deny since Review #2 (total 2). Below 3-trigger escalation threshold. BACKLOG #49 Phase 2 already shipped (session-108, 715 MB saved per instance); activity trigger inactive — hook working as gate. |
+| 4 | 2026-04-25 | PASS | 2 | No new denies since Review #3 (total still 2; most recent 2026-04-21T03:08Z). Below 3-trigger escalation threshold. |
 
 ---
 
@@ -230,6 +238,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 | 1 | 2026-04-15 | N/A | n/a | Phase 0 shipping now; baseline captured; first measurement scheduled for next 04:00 |
 | 2 | 2026-04-17 | FIRED→CLEARED | T1 (steady 2867>2518), T3 (peak 3584>3072) | Trigger fired 2026-04-16 10:00Z measuring pre-Phase-2 state (steady_mb=2867, peak_mb=3584). Phase 2 IPC was shipped and verified later the same day (session-108: 85 MB phys_footprint per governance server, 715 MB saved per instance). Phase 2 IS the shared embedding service response. Marker cleared per escalation protocol. Remaining question: is Phase 2 sufficient, or is further reduction needed? Post-Phase-2 baseline should be captured to reset trigger thresholds. |
 | 3 | 2026-04-22 | PASS (clear) | n/a | Marker absent. 5 days post-Phase-2-verification; no re-fire. Post-Phase-2 baseline capture still pending (deferred structural task — would reset triggers to current shipped state). |
+| 4 | 2026-04-25 | **FIRED** (monitoring; pending 7-day re-test) | T1 (steady=9420>8700), T3 (peak=10752>7500), T4 (cross_process_total=11544>8192) | Marker fired 2026-04-25 10:00:01Z. steady_mb=9420, peak_mb=10752, uptime_h=5.88, cross_process_total_mb=11544 (11.5 GB), measured_slope_mb_per_h=6948.2 (T2 disabled per noise-floor rule). **Correction (post-coherence-audit revision):** Initial draft of this row claimed baseline was still pre-Phase-2 — that was wrong. The baseline was recalibrated 2026-04-17 to post-Phase-2 values (`baseline_steady_mb=5800`, `baseline_peak_mb=6700`, T3 raised 3072→7500) per session-109. Cause (a) stale-baseline ELIMINATED. Daily measurement-log trend (2026-04-17 to 2026-04-24) shows steady-state range 152–6041 MB and cross-process total 2.3–7.5 GB across the week — all clean. Today's 04:00 reading is 1.5× the prior week peak. Snapshot taken during this review (~04:30Z) shows current cross-process total = 6.0 GB, already back inside healthy post-Phase-2 range. **Strongest hypothesis: cause (b) workload variance** — daily 04:00 measurement caught a peak-concurrent-session moment (multiple Claude Code + Desktop instances + index activity). Cause (c) Phase 2 regression unlikely but not refuted by a single spike. **Marker NOT cleared** per `meta-core-systemic-thinking` anti-shortcut rule + `meta-quality-verification-validation` (preserve evidence for the 7-day re-test). **Action**: monitor next 7 daily measurements; if T1 stays clear, clear marker as workload-variance confirmed; if T1 re-fires within 7 days, escalate to cause (c) regression investigation (`ps`/`psutil` per-process torch-loading audit). BACKLOG #49 status block updated with corrected analysis and 7-day-monitor plan. |
 
 ---
 
@@ -256,6 +265,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 | 2 | 2026-04-14 | PASS | 110 allows, 8 denies | — | — | — | CLAUDE.md moved deny→ask per CFR A.5.3 (correct — governance files should prompt, not block). No repeated manual approvals observed. (Pre-dynamic-threshold.) |
 | 3 | 2026-04-17 | PASS w/ NOTE | 123 allows | — | — | — | 123 allows (was 105 — added 10 memory-file Edit/Write rules + 8 read-only Bash utilities: sleep/stat/file/which/env/uname/du/tree). Entry count over the prior fixed-50 threshold; additions are category-legitimate (memory files written every session, utility Bash were routine friction), not accretion. **Prune pass deferred to next review** — identify stale one-shot persistences. (Pre-dynamic-threshold disposition; trigger conclusion was the evidence motivating v2.38.1 redesign.) |
 | 4 | 2026-04-22 | PASS (Baseline established) | 123 allows | **123** | **0** | **143** | First review under CFR §A.5.5 v2.38.1 dynamic threshold. Deferred prune from Review #3 executed via Python one-shot scan (length >120 chars, specific-path patterns) — **0 one-shots found**. Current count 123 matches Review #3 (no drift). Recording Baseline=123 and Next Trigger=143 (123+20) per v2.38.1. 11 deny + 35 ask unchanged. Second-order signal: one-shots=0 → baseline is pattern-dominated (calibrated, not accretion). |
+| 5 | 2026-04-25 | PASS (no drift) | 123 allows / 11 deny / 35 ask | 123 (carry forward) | n/a (audit not triggered) | 143 | Current count 123 unchanged from Review #4 Baseline. Below Next Trigger=143; accretion audit not required this cycle per v2.38.1. Review #4 reported one-shots=0; Review #5 had zero net drift (no audit required). Second-order signal *"two consecutive reviews with One-shots Found = 0"* (line 260 rule) is **pending** — needs one more `0` measurement when audit next runs at Next Trigger=143 to formally confirm baseline is pattern-dominated. Honest framing per Review #5 coherence-audit Finding #1. Dynamic threshold operating as designed in the interim. |
 
 ---
 
@@ -272,6 +282,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 |--------|------|--------|-------|
 | 1 | 2026-04-17 | FAIL→FIXED | Items #92 (CI failures) and #93 (Phase 2 IPC latent bugs) were closed by session-109 commits (`00b1be8`, `1cf416d`, `953a005`, `0b3af90`, `7b6352d`) but still present in BACKLOG.md, violating "no closed items" policy. Removed both. Remaining items: #78 (ongoing compliance review), #91 sub-items 3/4/5 (deferred OOM gate follow-ups), discussion items below. No 90+ day stale items. |
 | 2 | 2026-04-22 | PASS | Session-121 closed #114/#90/#103/#91-sub3 inline (per "no closed items" policy). 90-day cutoff = 2026-01-22; oldest active Discussion items (#6/#10-13/#16/#19/#22/#99/#100 etc.) all had activity in last ~30 days via plan-mode or priority surveys. No items crossed 90-day threshold since Review #1 five days ago. |
+| 3 | 2026-04-25 | PASS_WITH_NOTE | 90-day cutoff = 2026-01-25. Spot-checked oldest Discussion items #6/#10-13/#16/#19/#22/#100 via `git log --since=2026-01-25 --grep="#N"` — all have activity within 90 days (commits range 2026-04-13 to 2026-04-25). #41/#44 active (filed 2026-04-01). #43/#46 had no `--grep="#N"` hits since 2026-01-25 but are 24 days old (filed 2026-04-01, auto-pass). **NOTE — drift to surface**: BACKLOG #34 entry contains disposition "**#34 closed as resolved-in-place**" (2026-04-19, session-116 Cohort 3 close) but the entry remains in BACKLOG.md. Violates "no closed items in this file" rule. Cheap delete; flagged for next coherence sweep or fold into Group 2 (drift sweep cluster). Not blocking this review. |
 
 ---
 
@@ -279,28 +290,31 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 > Verification items are time-bound experiments tracking whether recently-introduced mechanisms are working. Each has success/failure criteria and an expiration date. When confirmed or refuted, items move to Retired with a disposition.
 
-### [V-001] UBDA few-shot examples improve behavioral floor compliance — OPEN
+### [V-001] UBDA few-shot examples improve behavioral floor compliance — RETIRED → REPLACED-BY-SESSION-AUDIT (2026-04-25)
 
-**Hypothesis:** The WRONG/RIGHT examples added to CLAUDE.md in task #77 reduce instances of option-list presentation, question-instead-of-recommendation, and missing principle citations.
+**Disposition:** RETIRED at Compliance Review #5 (2026-04-25). Canary-prompt measurement vehicle (Item 5a-c) replaced by session-audit (Item 5d) via validator subagent per `meta-method-proportional-rigor` and `multi-quality-validation-independence`. Few-shot examples in CLAUDE.md remain in place — the process indicator (binary "examples present") is structurally satisfied. The behavioral question ("do the examples reduce failure modes?") is now measured by validator subagent during session audit (4 consecutive reviews — #2/#3/#4/#5 — returned PASS or PASS_WITH_NOTES on the relevant pattern checks: option-list use, ranked recommendations, principle citations). Retained below for audit trail.
 
-**Added:** 2026-04-07
-**Confirm/Refute by:** 5 sessions from 2026-04-07
+**Rationale for retirement (n=3 deferral + structural superiority of session audit):**
+- Canary prompts deferred 3 consecutive reviews (#3/#4/#5) per execution-only precedent.
+- Canary prompts have a known structural limitation per Item 5 itself: *"The AI knows it's being tested — canary results represent best-case behavior, not typical."*
+- Session-audit via validator subagent measures the same behaviors against actual session output, not synthetic prompts. Independence guarantee per `multi-quality-validation-independence` is stronger.
+- Retaining the canary measurement arm without running it generates audit-table noise (3 deferral rows in 3 reviews) without adding signal.
 
-**Process indicator:** CLAUDE.md contains few-shot examples (binary — present or not).
-**Behavioral indicator:** Canary prompt results from Item 5 (0 violations = session pass).
+**Hypothesis (preserved for audit trail):** The WRONG/RIGHT examples added to CLAUDE.md in task #77 reduce instances of option-list presentation, question-instead-of-recommendation, and missing principle citations.
 
-**Success:** 4/5 sessions pass canary prompts.
-**Failure:** 2+ sessions show the same failure modes that existed pre-#77 (option lists, questions-not-recommendations, missing citations). If failed, the few-shot examples are insufficient and need a different intervention (e.g., hook enforcement, tiers.json expansion).
+**Added:** 2026-04-07 | **Retired:** 2026-04-25 (Compliance Review #5)
 
-**Limitation:** No pre-intervention baseline — examples were already deployed before measurement began. This 5-session window establishes the baseline for future comparisons.
+**Process indicator:** CLAUDE.md contains few-shot examples (binary — present or not). **Status: still satisfied.**
+**Behavioral indicator (retired):** Canary prompt results from Item 5 (0 violations = session pass).
+**Behavioral indicator (replacement):** Session-audit via validator subagent (Item 5d) — pattern checks 5, 6, 7 cover the same behavioral surfaces.
 
 | Session | Date | Canary Pass? | Notes |
 |---------|------|:---:|-------|
 | 1 | 2026-04-07 | Y | Behavioral regression test — 5/5 behaviors exhibited |
 | 2 | 2026-04-14 | Y | Canary prompts run. Ranked recommendation (a), conversational prose (b), principle citations (c). Awaiting user confirmation. |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
+| 3-5 | n/a | RETIRED | Canary arm retired before reaching 5-session window. Session-audit (5d) PASS/PASS_WITH_NOTES across Reviews #2/#3/#4/#5 functions as the replacement measurement; no session-audit failure on the relevant pattern checks observed. |
+
+**Future restoration trigger:** If session-audit (5d) ever fails on a pattern check that canary prompts would have caught (option-list format, missing citation, unranked options) AND the validator subagent cannot diagnose source, re-instate canary measurement as supplementary diagnostic. Track here.
 
 ---
 
@@ -349,7 +363,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 | Session | Date | Plans | Denies | Semantic-bypasses | Notes |
 |---------|------|-------|:---:|:---:|-------|
 | pre-baseline | 2026-04-22 | 1 (session-122 T3) | 2 | 0 | Dogfood: hook caught itself during implementation. Captured for context, not counted. |
-| 1 | | | | | |
+| 1 | 2026-04-25 | 0 (auto-mode this session, no plan mode) | 0 | 0 | First post-baseline session entry. Log filtering for real-session attribution (excluding test-fixture entries with `transcript=/var/folders/` or `<none>` paths) returned 0 real denies since 2026-04-25. Test-fixture writes from hook test runs do continue to land in the log; consider adding a test-mode marker to allow filtering. |
 | 2 | | | | | |
 | 3 | | | | | |
 
@@ -422,8 +436,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 | 1 (baseline) | 2026-04-14 | 54 | Y | Post-cleanup. First session with pruning instructions on loaded surfaces. |
 | 2 | 2026-04-17 | 79 | Y | Session-109 end; grew 54→79 with session-109 entry + V-005 update, comfortably under target. |
 | 3 | 2026-04-22 | 283 | Y | Session-121 end (pre-prune). 4 tasks shipped: #114 + #90 closure + #103 closure + #91 sub-item 3 + CFR §9.3.10 recipe. Comfortably under 300. V-005 confirmed at N=3 sessions. 2 more to confirm hypothesis. |
-| 3 | | | | |
-| 4 | | | | |
+| 4 | 2026-04-25 | 292 | Y | Session-130 mid-review reading. Approaching threshold; this compliance review row-update arc adds ~10 additional lines via SESSION-STATE entry → final close-state will likely be ~310 absent prune. §7.0.4 prune required at session-end before commit. |
 | 5 | | | | |
 
 ---
@@ -436,6 +449,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 | 2 | 2026-04-14 | Routine (day 1 of 10-15 cadence) | 7/7 (1 FAIL→FIXED) | V-001 session 2, V-004 session 4 | 3 LEARNING-LOG entries >60 days without markers (tree-sitter, env-aware tests, test inputs). CLAUDE.md deny→ask fixed. V-004 3-session window complete: 2/3 failures (escalation threshold met, user decision pending). | Marked 3 entries ACTIVE. Canary prompts run, awaiting user eval. |
 | 3 | 2026-04-17 | User-requested post-session-109 + permissions change trigger | 10/10 (3 FAIL→FIXED) | none (no canary/plan mode this session) | (1) Check 4: LEARNING-LOG "Passive MCP Instructions (2026-02-14)" >60d no marker → marked ACTIVE. (2) Check 6b.2: PHASE2_TRIGGERED fired measuring pre-Phase-2 state; Phase 2 IS the response, shipped+verified session-108 → marker cleared. (3) Check 8: BACKLOG #92/#93 closed by session-109 commits but still present → removed. Check 7 notes 123-entry approval list (over CFR A.5.5 threshold of 50) — category-legitimate additions, prune deferred. | All 3 FAIL items fixed inline. Validator subagent audit (Check 5d): 8/9 PASS, 1 CANNOT DETERMINE (query_project audit IDs not logged in session-109 summary). |
 | 4 | 2026-04-22 | Session-121 hook-modification event trigger + cadence (5 days post-#3) | 10/10 (1 FAIL→FIXED Check 4; 1 V-004 escalation → BACKLOG #116) | V-005 session 3 (283 lines PASS); V-004 session 5 (1/2 threshold met → escalation) | (1) Check 4: LEARNING-LOG "__file__-Based Paths (2026-02-19)" >60d no marker → marked ACTIVE. (2) V-004 failure threshold met (3 sessions with reminders): session 121 Task 4 required user reminder before contrarian invoked → BACKLOG #116 filed for PreToolUse hook on ExitPlanMode. (3) Check 7 first review under v2.38.1 dynamic threshold: Baseline=123, Next Trigger=143, one-shots-found=0 (baseline calibrated). (4) Check 6b: 2 denies (+1 since #3), below threshold. | Validator subagent (`ac3e3195bb908b329`): PASS_WITH_NOTES on session-121 audit (2 NOTEs: session-start read instrumentation, Task 3 missing explicit meta- cite). Canary prompts (a-c) deferred per #3 precedent (execution-only review). |
+| 5 | 2026-04-25 | BACKLOG #78 cadence (~2 days pre-due 2026-04-27) | 9/10 PASS + 1 FIRED Check 6b.2 (under 7-day monitoring) + 1 FAIL→FIXED Check 4 + 1 PASS_WITH_NOTE Check 8 | V-001 RETIRED (replaced by session-audit, see Retired section); V-005 sess 4 (292 PASS but approaching 300); V-006 sess 1 (0 real denies, baseline) | (1) **PHASE2_TRIGGERED marker FIRED 2026-04-25 10:00:01Z** — T1+T3+T4 (steady=9420, peak=10752, cross_process_total=11544 MB). Initial-draft cause analysis claimed stale pre-Phase-2 baseline; **caught and corrected before action**: baseline was already recalibrated to post-Phase-2 values 2026-04-17 (session-109). Real signal of ≥50% growth above post-Phase-2 equilibrium. Daily-measurement-log trend (2026-04-17 to 2026-04-24) ranged 152-6041 MB steady / 2.3-7.5 GB total — all clean; today's spike is 1.5× prior week peak. `ps` snapshot during this review shows current cross-process total = 6.0 GB, back inside healthy range. Strongest hypothesis: workload variance (peak-concurrent-session moment caught by 04:00 measurement). Cause (c) regression unlikely but not refuted by single spike. **Marker NOT cleared**; under 7-day monitoring (2026-04-26 through 2026-05-02) per `meta-quality-verification-validation`. (2) Check 4: 4 LEARNING-LOG entries marked ACTIVE (Code Review Advisory, Multi-Path Methods, Version Validator Blind Spots, Specification Documents). (3) Check 8 NOTE: BACKLOG #34 disposition says "closed as resolved-in-place" but entry still in BACKLOG.md — surfaced for next coherence sweep. (4) BACKLOG #109 deferred-trigger audit run inline same session: 0/14 triggers fired (audit log entry recorded). (5) V-001 retired: canary-prompt arm replaced by session-audit (Item 5d via validator subagent) per n=3 deferral pattern + better-independence rationale. | **7-day monitor in progress for PHASE2_TRIGGERED**; if T1 stays clear ≥6/7 days, clear marker; if re-fires, escalate to (c) regression investigation per #49 status block. Stage 2 battery (coherence + validator) post-edit. Validator subagent `aa10d58aa10c18565` Check 5d: PASS_WITH_NOTES (recurring related finding from Review #4 — startup-read auditability gap, n=2 instances). Honest-error-disclosure: initial PHASE2 cause analysis had factually wrong premise (claimed baseline pre-Phase-2 when it was already recalibrated 2026-04-17) — caught via discovery-before-action when reading the baseline file directly; corrected the row + #49 status block before commit per `meta-safety-transparent-limitations`. |
 
 ---
 

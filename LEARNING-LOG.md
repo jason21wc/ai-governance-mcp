@@ -527,7 +527,7 @@ During the implementation session itself, the recency window (200 lines) expired
 
 ---
 
-### Code Review Advisory Framing Prevents Both Rubber-Stamping and Dismissal (2026-02-28)
+### Code Review Advisory Framing Prevents Both Rubber-Stamping and Dismissal (2026-02-28) — ACTIVE
 
 Applied the new advisory framing to evaluate the code-reviewer's findings on our own changes. Of 6 findings: accepted 2 (H1 ValueError fix, H2 mixed mode tests — genuine gaps), rejected 2 (M2 CLAUDE.md pointers — intentional removal, M4 debug inconsistency — acceptable). Ratio: 33% accept, 33% reject, 33% not applicable. The structured evaluation table forced explicit reasoning for each decision rather than blanket acceptance.
 
@@ -535,7 +535,7 @@ Applied the new advisory framing to evaluate the code-reviewer's findings on our
 
 ---
 
-### Multi-Path Methods Must Handle All Paths Uniformly (2026-02-28)
+### Multi-Path Methods Must Handle All Paths Uniformly (2026-02-28) — ACTIVE
 
 `get_or_create_index()` had 3 code paths but only path #3 (create new) started the watcher. Path #2 (load from storage) — the boot-time path — silently skipped it. Bug persisted across multiple sessions because manual `reindex_project()` (which has its own watcher start) always masked it. Similarly, `query_project()`'s lazy-reload path after LRU eviction had no watcher start.
 
@@ -676,7 +676,7 @@ After a 6-principle multimodal-RAG expansion, code review found 3 code issues (m
 
 ---
 
-### Version Validator Has Blind Spots — Title and Footer Not Checked (2026-02-21)
+### Version Validator Has Blind Spots — Title and Footer Not Checked (2026-02-21) — ACTIVE
 
 `validate_version_consistency()` only searches `content[:2000]` for the pattern `Version:? X.Y.Z`. Document titles (e.g., `# Framework v2.0.0`) use a different format that the regex doesn't match. Footers (e.g., `*Version 2.0.0*`) are beyond the 2000-char window. Both went stale when content was updated to v2.1.0 in-place without renaming files.
 
@@ -684,7 +684,7 @@ After a 6-principle multimodal-RAG expansion, code review found 3 code issues (m
 
 ---
 
-### Specification Documents Are Not Validated Requirements (2025-12-24) — CRITICAL
+### Specification Documents Are Not Validated Requirements (2025-12-24) — CRITICAL — ACTIVE
 
 Implemented full server based on spec that said "~5% miss rate with keyword matching." PO review revealed this was unacceptable. Spec became a constraint instead of a starting point.
 
