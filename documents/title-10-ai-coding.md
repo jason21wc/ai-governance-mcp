@@ -1,12 +1,12 @@
 ---
-version: "2.7.1"
+version: "2.7.2"
 status: "active"
-effective_date: "2026-03-30"
+effective_date: "2026-04-26"
 domain: "ai-coding"
 governance_level: "federal-statute"
 ---
 
-# AI Coding Domain Principles Framework v2.7.1
+# AI Coding Domain Principles Framework v2.7.2
 ## Federal Statutes for AI-Assisted Software Development
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -204,7 +204,7 @@ This table maps each domain principle to its Constitutional basis and evidence f
 | **Validation Gates** | B1/B2/B3/C2: Skipped validation | Verification & Validation, Failure Recovery & Resilience | Gate criteria, test results, security scans |
 | **Atomic Task Decomposition** | C1: Large chunks resist review | Atomic Task Decomposition, Discovery Before Commitment, Verification & Validation | Task definitions, file counts, test coverage |
 | **Human-AI Collaboration** | D1/D2: AI makes product decisions; automation bias | Human-AI Authority & Accountability | Decision logs, escalation records, review acceptance criteria |
-| **Production-Ready Standards** | C3: Technical debt from velocity; state corruption on retry | Non-Maleficence, Privacy & Security, Verification & Validation, Explicit Over Implicit, Resource Efficiency & Waste Reduction, Failure Recovery & Resilience | Production checklists, code standards, API standards, database constraints |
+| **Production-Ready Standards** | C3: Technical debt from velocity; state corruption on retry | Non-Maleficence, Privacy & Security, Verification & Validation, Explicit Over Implicit, Resource Efficiency & Waste Reduction, Failure Recovery & Resilience, Effective & Efficient Outputs (code-form discipline) | Production checklists, code standards, API standards, database constraints |
 | **Security-First Development** | B3: 45% vulnerability rate | Non-Maleficence, Privacy & Security, Verification & Validation | Security scan results, vulnerability databases |
 | **Testing Integration** | B2: Inadequate test coverage | Verification & Validation | Test results, coverage reports |
 | **Supply Chain & Solution Integrity** | A4/A5: Hallucinated dependencies, slopsquatting; unnecessary custom code | Non-Maleficence, Privacy & Security, Context Engineering, Resource Efficiency & Waste Reduction, Verification & Validation | Package registries (npm, PyPI, crates.io), SBOMs, standard libraries |
@@ -1587,6 +1587,7 @@ At EVERY phase boundary or significant checkpoint:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.7.2 | 2026-04-26 | PATCH: Constitutional rename propagation. Updated Meta ↔ Domain Crosswalk row for `Production-Ready Standards` to add `Effective & Efficient Outputs (code-form discipline)` to its Constitutional Basis list, reflecting the constitution v6.0.0 rename of `meta-quality-effective-efficient-communication` → `meta-quality-effective-efficient-outputs` (rescoped from communication-only to all output forms). The new principle declares `coding-quality-production-ready-standards` as its ai-coding domain instantiation; this PATCH closes the bidirectional citation. Cross-ref: constitution.md v6.0.0 Historical Amendment; `~/.claude/plans/this-is-back-and-tidy-crescent.md`; PROJECT-MEMORY.md ADR-17. Governance: `gov-e38a3fa7488c` (plan eval), `gov-05de0fadc801` (verification eval). |
 | v2.7.1 | 2026-03-31 | PATCH: Template alignment (#31). "Research-Based" → "Evidence-Based" in derivation formula. Added Truth Source Hierarchy. Added Cross-Domain Dependencies section (Multi-Agent session state, UI/UX interface substance). |
 | v2.7.0 | 2026-03-30 | MINOR: Added cross-domain reference to C3 Session State Continuity ↔ Multi-Agent State Persistence Protocol (bidirectional). |
 | v2.6.0 | 2026-03-29 | **MINOR: Part 9.8 Domain Consolidation.** Merged Idempotency by Design into Production-Ready Standards (idempotency is a production-readiness dimension). Merged Established Solutions First into Supply Chain Integrity, renamed to "Supply Chain & Solution Integrity." Principle count 14→12 (P-Series 6→4, Q-Series unchanged at 5). Fixed constitutional citations: Human-AI Collaboration (removed stale multi-agent references), Workflow Integrity (added Separation of Instructions and Data), Supply Chain (replaced peer principle with constitutional basis), Security-First and Specification Completeness (canonical Non-Maleficence, Privacy & Security name). Added failure mode codes E1/E2 to Workflow Integrity, A5 to Supply Chain & Solution Integrity. Fixed "Quality Standards" phantom reference → Testing Integration. Updated crosswalk table to match principle body text. **Aliases:** "Idempotency by Design" → see Production-Ready Standards; "Established Solutions First" → see Supply Chain & Solution Integrity. |

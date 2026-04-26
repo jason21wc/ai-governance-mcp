@@ -1,12 +1,12 @@
 ---
-version: "1.2.0"
+version: "1.2.1"
 status: "active"
-effective_date: "2026-03-30"
+effective_date: "2026-04-26"
 domain: "ui-ux"
 governance_level: "federal-statute"
 ---
 
-# UI/UX Domain Principles Framework v1.2.0
+# UI/UX Domain Principles Framework v1.2.1
 ## Federal Statutes for AI Agents Building Interactive Software Interfaces
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -1114,6 +1114,7 @@ This table maps each constitutional principle to its UI/UX domain applications:
 | Visible Reasoning & Traceability | Ethical interaction design, dark pattern prevention, symmetric friction | IX |
 | Verification & Validation | WCAG AA compliance, contrast ratios, touch target sizes, CLS scores | All (validation criteria) |
 | Verification & Validation | Progressive review gates, per-component testing, responsive spot-checks | Methods §3 |
+| Effective & Efficient Outputs | Form-specific discipline for AI-generated UI specifications, design rationales, microcopy, error messages, and instruction text — communication-form discipline applies; cross-ref IX1 (Interaction Feedback) for state communication outputs | All series (output discipline) |
 
 ---
 
@@ -1189,7 +1190,10 @@ This Domain Principles document establishes WHAT governance applies to UI/UX. Th
 
 ## Changelog
 
-### v1.1.0 (Current)
+### v1.2.1 (Current)
+- PATCH: Constitutional rename propagation. Added `Effective & Efficient Outputs` row to the Meta-Principle ↔ Domain Crosswalk table, mapping the renamed/rescoped constitution v6.0.0 principle (formerly `meta-quality-effective-efficient-communication`) to UI/UX form-specific discipline for AI-generated UI specifications, design rationales, microcopy, error messages, and instruction text — communication-form discipline applies; cross-ref IX1 (Interaction Feedback) for state communication outputs. Cross-ref: constitution.md v6.0.0 Historical Amendment; `~/.claude/plans/this-is-back-and-tidy-crescent.md`; PROJECT-MEMORY.md ADR-17. Governance: `gov-e38a3fa7488c`, `gov-05de0fadc801`.
+
+### v1.1.0
 - **Constitutional principle reference consolidation (Phase 5).** Updated stale principle names throughout: Accessibility and Inclusiveness → Bias Awareness & Fairness, Foundation-First Architecture → Structural Foundations, Verification Mechanisms Before Action → Verification & Validation, Transparent Reasoning and Traceability → Visible Reasoning & Traceability, Measurable Success Criteria → Verification & Validation, Incremental Validation → Verification & Validation. Updated gap table, Constitutional Basis lines, and meta-principle crosswalk table.
 
 ### v1.0.0

@@ -1,5 +1,5 @@
 ---
-version: "3.28.2"
+version: "3.29.0"
 status: "active"
 effective_date: "2026-04-25"
 domain: "constitution"
@@ -8,7 +8,7 @@ domain: "constitution"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.28.2
+**Version:** 3.29.0
 **Status:** Active
 **Effective Date:** 2026-04-25
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -1893,7 +1893,7 @@ For each non-trivial decision item:
 - [ ] Total word count within 1-pager (300-500) or 2-pager (800-1200) budget
 - [ ] No buried recommendations, no false precision, no information dumping
 
-> **Cross-references:** `meta-quality-effective-efficient-communication` (Article III §4 — calibrate for effectiveness AND efficiency); `coding-process-human-ai-collaboration-model` (Decision Authority Matrix — option-presentation protocol)
+> **Cross-references:** `meta-quality-effective-efficient-outputs` (Article III §4 — calibrate for effectiveness AND efficiency; renamed and rescoped from `meta-quality-effective-efficient-communication` in v6.0.0; alias preserved so legacy ID resolves to the rescoped principle that now governs all output forms, not just communication); `coding-process-human-ai-collaboration-model` (Decision Authority Matrix — option-presentation protocol)
 
 > **Sources:** Animalz on BLUF; BetterUp on Minto Pyramid; Laws of UX on Hick's Law; HBR 2026 "Trendslop" research; ACM CHI 2026 on Cognitive Biases in LLM Responses
 
@@ -4918,9 +4918,9 @@ Plan, execute, and refine work in small, time-bounded iterations — allowing ra
 
 ## Part 16.5: Communication Style Method
 
-**Constitutional Basis:** Effective & Efficient Communication (Q-Series)
+**Constitutional Basis:** Effective & Efficient Outputs (Q-Series, Art. III §4) — communication form-specific implementation
 
-**Implements:** Constitutional principle "Effective & Efficient Communication" (restored from former "Rich but Not Verbose Communication" in v3.0.0)
+**Implements:** Constitutional principle "Effective & Efficient Outputs" (renamed and rescoped in v5.0.0 from former "Effective & Efficient Communication"; alias `meta-quality-effective-efficient-communication` preserved for backwards-compatible retrieval. The principle was previously restored from former "Rich but Not Verbose Communication" in v3.0.0.)
 
 ### 16.5.1 Purpose
 
@@ -4986,6 +4986,69 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 ---
 
+## Part 16.7: Solution Comparison via Effectiveness × Efficiency Product
+
+**Constitutional Basis:** Effective & Efficient Outputs (Q-Series, Art. III §4); secondary refs to Verification & Validation (effectiveness side) and Resource Efficiency & Waste Reduction (efficiency side)
+
+**Implements:** Constitutional principle "Effective & Efficient Outputs" — the comparison-among-alternatives operational arm. When two or more candidate solutions exist for the same purpose and the AI must rank rather than satisfice, this method codifies the multiplicative joint-quality ranking procedure.
+
+**Importance: IMPORTANT** — operational procedure for ranked recommendation per behavioral floor "Recommend, don't ask"
+
+**Applies To:** comparing two or more candidate solutions, designs, plans, or implementations against the same purpose, when the AI must rank rather than satisfice — code alternatives, plan alternatives, architecture alternatives, report-format alternatives. Does not apply to single-candidate cases (use the principle's iteration backstop instead) or to satisficing-against-threshold contexts (use Verification & Validation success criteria).
+
+### 16.7.1 Purpose
+
+Operationalize ranked-recommendation behavior on a defined joint-quality dimension. Existing principles (Resource Efficiency, Verification & Validation) threshold satisfactorily but do not rank — both can be passed by lopsided solutions. This method ranks solutions that all pass thresholds, structurally rejecting lopsided choices in favor of balanced ones via a multiplicative joint product with a zero-out property.
+
+### 16.7.2 Procedure
+
+1. **State purpose explicitly.** Joint quality is relative to a defined purpose; record the purpose statement before measurement. The same physical solution can score differently under different stated purposes (e.g., a Rube Goldberg machine scores low under "crack an egg" and high under "entertain an audience").
+2. **Choose effectiveness measure.** Domain-appropriate metric capturing how well the solution accomplishes its purpose (yield rate, test pass rate, requirements coverage, accuracy, goal attainment). Orient higher-is-better.
+3. **Choose efficiency measure.** Domain-appropriate metric capturing resource utilization (cost per unit, runtime, tokens, code size, complexity score, cycle time). Orient higher-is-better — invert if needed (e.g., 1/runtime, units per hour, inverse of complexity).
+4. **Compute joint product** for each candidate: P = Effectiveness × Efficiency.
+5. **Rank by P.** The candidate with the highest joint product is the recommended solution.
+6. **Sanity check against zero-out.** Any candidate with E=0 or Eff=0 should drop to zero. If a zero on either dimension does not produce a zero product, the measurement scale is wrong — recheck orientation and rescale.
+7. **Sanity check against balance bias.** If two candidates score equal P, prefer the more balanced (e.g., 7×8=56 over 14×4=56), per the rectangular-area geometry of multiplicative product. Lopsided solutions that tie on product lose to balanced ones.
+
+### 16.7.3 Validation
+
+Flag for human review when:
+- Candidates score equal P after balance-bias sanity check
+- The purpose statement was ambiguous or contested
+- Ordinal-scale measurement is unavoidable (Likert, qualitative ratings) — the framework is unreliable for close-margin ordinal comparisons; gross-direction confidence only
+- Safety-critical context where minimum-effectiveness sufficiency gate must be applied before comparison
+
+### 16.7.4 Boundary Conditions
+
+- **Safety-critical domains:** Apply minimum-effectiveness sufficiency gate before comparison — only candidates meeting threshold enter the ranking. The method then operates among qualifying solutions, where it adds the most value.
+- **Single-candidate cases:** This method does not apply. Use the principle's iteration backstop (apply form-specific discipline + accessible quality signals as second-pass review).
+- **Nonlinear rescaling:** The relative comparison property holds under linear rescaling. Nonlinear transformations (logarithm, exponential) preserve rank order but distort magnitude — degrade confidence to ordinal-level.
+- **Asymmetric loss:** The classic Taguchi loss assumes symmetric quadratic loss around nominal. Many real-world effectiveness measures exhibit asymmetric loss; the continuous effectiveness function should reflect the actual cost structure rather than assuming symmetry. This does not invalidate the method; it specifies the required functional form.
+- **Measure directionality discipline:** All measures must be oriented in the same direction (higher = better) before multiplication. This is a measurement-system design discipline, not a structural flaw in the method.
+
+### 16.7.5 When to Escalate
+
+- Escalate when measurement choice is contested or when ordinal data is the only available input for a consequential comparison.
+- Escalate when balance-bias sanity check produces a different ranking than human judgment — investigate which is right.
+
+### 16.7.6 Common Pitfalls
+
+**Applies To:** avoiding failure modes in joint-product comparison — measure misorientation, ordinal-scale overconfidence, ignoring zero-out sanity check, conflating purpose statements
+
+- Mixing higher-is-better and lower-is-better measures without inversion (silent direction error)
+- Treating ordinal Likert results as continuous, producing false-precision rankings
+- Skipping the zero-out sanity check; lopsided solutions slipping through with deceptive products
+- Comparing solutions against different purpose statements without surfacing the divergence
+- Applying the method to single-candidate cases (use iteration backstop instead)
+
+### 16.7.7 Reference
+
+Collier, J. (2026). *The Elegance Equation: A Multiplicative Framework for Evaluating Solution Quality.* Working Paper, April 2026. See `ref-ai-coding-collier-elegance-equation` in the Reference Library.
+
+**Q7 (Semantic-Label Risk) disposition for method title:** "Solution Comparison via Effectiveness × Efficiency Product" — operational language; no aesthetic, legal, biological, or military metaphor borrowed; label aligns with the actual operation (multiplicative product comparison). PASS.
+
+---
+
 # TITLE 16 END
 
 ---
@@ -4994,6 +5057,7 @@ Design all systems, processes, and outputs for accessibility, usability, and inc
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.29.0 | 2026-04-26 | MINOR: Added Part 16.7 "Solution Comparison via Effectiveness × Efficiency Product" method — operationalizes the comparison-among-alternatives arm of constitution v6.0.0 `meta-quality-effective-efficient-outputs`. Procedure: state purpose explicitly, choose effectiveness/efficiency measures (oriented higher-is-better), compute multiplicative joint product P = E × Eff, rank by P, sanity-check against zero-out and balance-bias. Boundary conditions documented (safety-critical sufficiency gate, single-candidate non-applicability, nonlinear rescaling degrades to ordinal confidence, asymmetric loss). Q7 disposition for method title: PASS — operational language with no aesthetic-philosophical baggage; label aligns with multiplicative product comparison operation. Concurrent updates: §16.5 Constitutional Basis citation updated to new principle ID with alias note; §7.13 cross-reference updated with rename note. Reference: `ref-ai-coding-collier-elegance-equation` (Collier 2026 working paper). **Constitutional Basis:** `meta-quality-effective-efficient-outputs` (parent principle); `meta-quality-verification-validation` (effectiveness side); `meta-operational-resource-efficiency-waste-reduction` (efficiency side). Per `rules-of-procedure §9.8.5` bright-line: new method = MINOR (additive method, no normative change to existing methods). Plan: `~/.claude/plans/this-is-back-and-tidy-crescent.md`. PROJECT-MEMORY.md ADR-17. ai-instructions PATCH bump v2.9.0 → v2.9.1 (pin update). Governance: `gov-64ecfb9372df`, `gov-e38a3fa7488c`, `gov-05de0fadc801`. Pre-edit battery: contrarian-reviewer (APPROVE_WITH_REQUIRED_CHANGES, 8 modifications baked in pre-ExitPlanMode). Post-edit battery: coherence-auditor (APPROVE_WITH_FIXES, 2 HIGH closed by v6.0.0 Historical Amendment + Q7 disposition); validator (APPROVE_WITH_FIXES, 6 PASS + 1 MARGINAL→PASS after enforcement-delegation sentence added to principle's Operational Considerations). |
 | 3.28.2 | 2026-04-25 | PATCH: Scope clarification to §7.12.1 5th exception (Research-anchored operational thresholds) — added explicit anti-example and distinguishing test. Anti-example: title-10-cfr §3.1.2 `Estimate: 2-8 hours` and `Estimate: 1-5 days` Architecture-mode planning bands are NOT covered by the exception (they are estimation guidance, not externally-anchored trigger thresholds). Distinguishing test: covered thresholds need (a) specific external-paper citation with verbatim threshold value AND (b) function as automated trigger / process gate, not as planning band for AI to estimate against. **Root cause:** Post-ship contrarian battery (audit `abd327fd5e8174348`, 2026-04-25) flagged the v3.28.1 5th exception as open-textured: distinguishing terms ("process gate vs effort estimate", "the AI is producing") didn't draw a sharp line, risking absorbing BACKLOG #131's flagged §3.1.2 / §1.4.x time-estimate violations under the exception umbrella when #131 sweep starts. The §7.12.1 5th exception's intended scope was always research-anchored trigger thresholds (§5.1.8 case), not planning bands; this PATCH makes that boundary explicit before #131 execution. **Constitutional Basis:** `meta-method-single-source-of-truth` (the boundary now has one canonical home, not adopter-interpreted from open text), `meta-quality-visible-reasoning-traceability` (distinguishing test makes the boundary verifiable, not just intuitive), `meta-core-systemic-thinking` (close the structural gap in scope-clarification before #131 inherits the ambiguity, not patch each #131 sweep decision case-by-case). PATCH-on-PATCH per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c, codified BACKLOG #130 close commit `4762962`): single-bullet additive scope clarification, no normative change to §7.12.1's existing 5 exceptions structure. ai-instructions PATCH bump v2.8.6 → v2.8.7 (PATCH-on-PATCH). Governance: `gov-0d9f7303cbd5`. |
 | 3.28.1 | 2026-04-25 | PATCH: Added 5th explicit exception to §7.12.1 Scope (Effort-Not-Time Estimation) for "Research-anchored operational thresholds — runtime/turn/iteration values derived from empirical research used as process gates rather than effort estimates the AI is producing." Closes BACKLOG #132. **Root cause:** title-10-cfr §5.1.8 (v2.42.0+) cited §7.12.1 "by analogy with" because the runtime threshold (>30 min, Agent Drift research-anchored) didn't cleanly fit the existing 4 exceptions. Adopters reading §5.1.8's by-analogy citation could not find the cited text in §7.12.1. This PATCH canonicalizes the carve-out so §5.1.8 + COMPLETION-CHECKLIST 16a can replace "by analogy with" with direct citation. **Constitutional Basis:** `meta-method-single-source-of-truth` (5th exception now has canonical home in §7.12.1; downstream rules cite directly), `meta-quality-visible-reasoning-traceability` (closes the citation chain — what §5.1.8 cites, §7.12.1 actually says), `meta-core-systemic-thinking` (canonicalize the rule, don't perpetuate citation drift). Per BACKLOG #130 close (commit `4762962`) the canonical pin-discipline rule is MINOR-on-MINOR / PATCH-on-PATCH; this is a single-bullet additive subsection (no new method), so PATCH on rules-of-procedure → PATCH on ai-instructions. Governance: `gov-adbf247c0f44`. |
 | 3.28.0 | 2026-04-25 | MINOR: Added two new methods to TITLE 7 codifying behavioral floor additions per plan `~/.claude/plans/federated-plotting-karp.md` Commit 1. (1) **§7.12 Effort-Not-Time Estimation** — AI must not estimate future work in time units; uses observable effort indicators (file count, surfaces, D1/D2/D3, token budget) + Hybrid Intelligence Effort framework (Alaswad et al., Frontiers AI 2026) + Reference-Class Forecasting (Kahneman/Lovallo, PMI 2026; 70-80% empirical hit rate vs <20% inside-view). Empirical observation: AI time estimates routinely overrun ground truth 50-100×, driving false-deferral. Scope boundary preserves calendar/cadence dates, historical durations in audit logs, timeout values in code, and explicit user requests for time framing. (2) **§7.13 BLUF-Pyramid Briefing** — User-facing decision briefs lead with 2-3 sentence Bottom Line Up Front, present 2-3 alternatives max (Hick's Law), embed risk per option. 4-5 sections, 3-5 bullets, 10-20 words/bullet, 300-500 words for 1-pager / 800-1200 for 2-pager. Scope boundary excludes internal technical artifacts (plan files, ADRs, spec documents, audit logs). Sources: Animalz BLUF; BetterUp Minto Pyramid; Laws of UX Hick's Law; HBR 2026 Trendslop research; ACM CHI 2026 LLM Cognitive Biases. Paired with CLAUDE.md Behavioral Floor + tiers.json v1.5.0 → v1.6.0 directive entries + BACKLOG.md D1/D2/D3 definition cleanup (stripped time language). Governance trail: `gov-9f960fac0d73` (plan eval), `gov-8e449341b2d3` (commit eval). Constitutional Basis: meta-safety-transparent-limitations (epistemic honesty about AI calibration); meta-quality-effective-efficient-communication (Article III §4 — operationalized); meta-core-systemic-thinking (root-cause fixes for forward-continuation deferral pattern + comm overhead). |

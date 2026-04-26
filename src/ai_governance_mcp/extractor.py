@@ -1458,6 +1458,8 @@ class DocumentExtractor:
             principle_id, category, data["title"], data["content"]
         )
 
+        principle_aliases = self._parse_principle_aliases(data["content"])
+
         return Principle(
             id=principle_id,
             domain=data["domain"],
@@ -1468,8 +1470,43 @@ class DocumentExtractor:
             line_range=(data["start_line"], data["end_line"]),
             metadata=metadata,
             constitutional_ref=data.get("constitutional_ref"),
+            aliases=principle_aliases,
             embedding_id=None,  # Set later after embedding
         )
+
+    def _parse_principle_aliases(self, content: str) -> list[str]:
+        """Parse `**Aliases:**` lines from a principle's body to populate
+        Principle.aliases for backwards-compatible ID retrieval after a rename.
+
+        Recognized markdown forms (case-insensitive on `Aliases:`):
+            **Aliases:** former ID `meta-old-id` (renamed in v5.0.0; ...).
+            **Aliases:** `meta-old-1`, `meta-old-2`
+            **Aliases:** meta-old-id
+
+        Extracts every backticked code-span identifier on the Aliases line and
+        any bare `meta-*` / `coding-*` / `multi-*` / domain-prefixed token. If
+        no `**Aliases:**` line is found, returns []. Multiple Aliases lines are
+        all consumed (concatenated). Per the v5.0.0 rename plan
+        (~/.claude/plans/this-is-back-and-tidy-crescent.md §5).
+        """
+        aliases: list[str] = []
+        # Match lines starting with **Aliases:** (case-insensitive on the label)
+        alias_line_re = re.compile(
+            r"^\s*\*\*Aliases:\*\*\s*(.+?)\s*$",
+            re.IGNORECASE | re.MULTILINE,
+        )
+        # Identifier shapes used by this framework: kebab-case slugs starting
+        # with a domain prefix. Examples: meta-quality-..., coding-process-...,
+        # multi-general-..., uiux-design-system-..., kmpd-quality-assurance-...
+        ident_re = re.compile(r"`([a-z][a-z0-9-]+-[a-z0-9-]+)`")
+
+        for match in alias_line_re.finditer(content):
+            line_body = match.group(1)
+            for ident_match in ident_re.finditer(line_body):
+                ident = ident_match.group(1)
+                if ident not in aliases:
+                    aliases.append(ident)
+        return aliases
 
     def _generate_metadata(
         self, principle_id: str, category: str, title: str, content: str

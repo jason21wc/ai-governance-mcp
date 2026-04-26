@@ -135,7 +135,7 @@ Title numbers derive from existing `domains.json` priority field (ai-coding=10, 
 ### Section 1: Verification & Validation
 ### Section 2: Structured Output Enforcement
 ### Section 3: Visible Reasoning & Traceability
-### Section 4: Effective & Efficient Communication
+### Section 4: Effective & Efficient Outputs
 
 ## Article IV: Governance & Evolution (Administrative State) — G-Series
 ### Section 1: Risk Mitigation by Design

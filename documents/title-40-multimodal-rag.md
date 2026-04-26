@@ -1420,7 +1420,10 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ## Changelog
 
-### v2.4.1 (Current)
+### v2.4.2 (Current)
+- PATCH: Constitutional rename note (upstream change at constitution v5.0.0). Constitutional principle `meta-quality-effective-efficient-communication` renamed and rescoped to `meta-quality-effective-efficient-outputs` — generalized from communication-only to all AI output forms. Alias preserved (`meta-quality-effective-efficient-communication` resolves to new principle for backwards-compatible retrieval). **No crosswalk row added in this domain** per scope carve-out: existing multimodal-rag principles (Presentation, Citation, Evaluation series) already cover the joint-quality discipline for retrieval outputs; adding a parallel crosswalk row would duplicate without sharpening. Precedent for this changelog-only treatment: v1.0.1 entry below (Graceful Degradation phantom-ID rename). Constitutional Basis: Single Source of Truth (alias mechanism preserves canonical retrieval), Visible Reasoning & Traceability (rename surfaced in version history).
+
+### v2.4.1
 - **Template alignment (#31).** "Research-Based" → "Evidence-Based" in derivation formula. Added Truth Source Hierarchy. Added Cross-Domain Dependencies section (UI/UX accessibility, Storytelling accessibility, AI Coding security).
 
 ### v2.4.0

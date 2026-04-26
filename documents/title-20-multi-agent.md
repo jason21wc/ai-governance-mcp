@@ -1,12 +1,12 @@
 ---
-version: "2.7.1"
+version: "2.7.2"
 status: "active"
-effective_date: "2026-03-30"
+effective_date: "2026-04-26"
 domain: "multi-agent"
 governance_level: "federal-statute"
 ---
 
-# Multi-Agent Domain Principles Framework v2.7.1
+# Multi-Agent Domain Principles Framework v2.7.2
 ## Federal Statutes for Multi-Agent AI System Orchestration
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -1707,6 +1707,7 @@ Autonomous agents (AL-2 or AL-3) must implement drift monitoring:
 | Visible Reasoning & Traceability | State Persistence Protocol, Compensating Controls |
 | Transparent Limitations | Fault Tolerance and Graceful Degradation (blameless error reporting), Observability Protocol |
 | Human-AI Authority & Accountability | Agent Specialization & Topology, Explicit Handoff Protocol (RACI), Human-in-the-Loop Protocol, Action Blast Radius Classification, HITL Removal Criteria |
+| Effective & Efficient Outputs | Inter-agent communication maximally structured and dense (machines don't need narrative flow); human-facing communication calibrated to the human; agent-generated artifacts (plans, reports, summaries) follow form-specific discipline; Explicit Handoff Protocol packages handoffs to satisfy joint-quality structure |
 
 ---
 
@@ -1776,6 +1777,7 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.7.2 | 2026-04-26 | PATCH: Constitutional rename propagation. Added `Effective & Efficient Outputs` row to the Meta ↔ Domain Crosswalk table, mapping the renamed/rescoped constitution v6.0.0 principle (formerly `meta-quality-effective-efficient-communication`) to multi-agent applications: inter-agent communication maximally structured and dense; human-facing communication calibrated; agent-generated artifacts (plans, reports, summaries) follow form-specific discipline; Explicit Handoff Protocol packages handoffs to satisfy joint-quality structure. Cross-ref: constitution.md v6.0.0 Historical Amendment; `~/.claude/plans/this-is-back-and-tidy-crescent.md`; PROJECT-MEMORY.md ADR-17. Governance: `gov-e38a3fa7488c`, `gov-05de0fadc801`. |
 | v2.7.1 | 2026-03-31 | PATCH: Template alignment (#31). "Research-Based" → "Evidence-Based" in derivation formula. Added Truth Source Hierarchy. |
 | v2.7.0 | 2026-03-30 | MINOR: Added cross-domain reference to State Persistence Protocol ↔ AI Coding C3 Session State Continuity (bidirectional). |
 | v2.6.0 | 2026-03-29 | **MINOR: Principle Consolidation.** 22→17 principles. (1) MERGE: Cognitive Function Specialization + Role Specialization & Topology → **Agent Specialization & Topology** — unified cognitive function assignment with topology mapping and least privilege. (2) MERGE: Hybrid Interaction & RACI → absorbed into **Explicit Handoff Protocol** — RACI assignments are a handoff concern; added RACI subsection with responsibility transfer and approval gate mechanics. (3) MERGE: Read-Write Division → absorbed into **Orchestration Pattern Selection** — read-write classification is a binding rule within the pattern selection decision tree. (4) MERGE: Blameless Error Reporting → absorbed into **Fault Tolerance and Graceful Degradation** — blameless reporting (confidence scoring, stop-the-line, near-miss logging) is a fault tolerance mechanism. (5) DEMOTION: Standardized Collaboration Protocols → methods (procedural content: JSON schemas, timeouts, retry config moved to multi-agent-methods §3.9). Principle-level concept ("structured contracts, not conversation") already covered by Explicit Handoff Protocol. (6) FIXES: Removed Intent Preservation from crosswalk (previously demoted+merged). Fixed ghost self-references. Fixed stale MA-Series reference. Added 5 missing constitutional principles to crosswalk. Fixed duplicate Peer Principles header in Intent Propagation. Cross-references updated for merged principles. Removed stale [NEW in v2.x.0] tags. Fixed "Resource Efficiency" truncation. Updated Orchestrator Separation peer principles. A-Series 8→5, R-Series 6→4, Q-Series 3, AO-Series 4. Total 22→17. |

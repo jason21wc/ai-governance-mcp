@@ -1,12 +1,12 @@
 ---
-version: "1.4.0"
+version: "1.4.1"
 status: "active"
-effective_date: "2026-03-30"
+effective_date: "2026-04-26"
 domain: "kmpd"
 governance_level: "federal-statute"
 ---
 
-# Knowledge Management & People Development Domain Principles v1.4.0
+# Knowledge Management & People Development Domain Principles v1.4.1
 ## Federal Statutes for AI-Assisted Organizational Knowledge and Capability
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -638,6 +638,7 @@ Every knowledge artifact MUST be designed to WIN the adoption competition agains
 | Resource Efficiency & Waste Reduction | Progressive Abstraction (purpose-driven curation), Artifact Adoption Fitness | KA, QA |
 | Non-Maleficence, Privacy & Security | Safety & Compliance Completeness (S-Series adjacent) | QA |
 | Human-AI Authority & Accountability | Verification Guidance Responsibility (AI guides, human validates) | PD |
+| Effective & Efficient Outputs | Knowledge artifacts must follow form-appropriate discipline (BLUF for summaries, scaffolded structure for Detailed KB, audience-calibrated framing for Quick References); Artifact Adoption Fitness (QA2) is the kmpd instantiation of joint-quality discipline | KA, QA |
 
 ---
 
@@ -699,7 +700,10 @@ Check all five empowerment components:
 
 ## Changelog
 
-### v1.3.0 (Current)
+### v1.4.1 (Current)
+- PATCH: Constitutional rename propagation. Added `Effective & Efficient Outputs` row to the Meta-Principle ↔ Domain Crosswalk table, mapping the renamed/rescoped constitution v6.0.0 principle (formerly `meta-quality-effective-efficient-communication`) to kmpd applications: knowledge artifacts must follow form-appropriate discipline (BLUF for summaries, scaffolded structure for Detailed KB, audience-calibrated framing for Quick References); Artifact Adoption Fitness (QA2) is the kmpd instantiation of joint-quality discipline. Cross-ref: constitution.md v6.0.0 Historical Amendment; `~/.claude/plans/this-is-back-and-tidy-crescent.md`; PROJECT-MEMORY.md ADR-17. Governance: `gov-e38a3fa7488c`, `gov-05de0fadc801`.
+
+### v1.3.0
 - **Part 9.8 domain consolidation: 13 → 10 principles.** Three changes:
   - **Merge TL3 + QA1 → QA1 (Safety & Compliance Completeness):** Combined Procedure Safety Completeness and Regulatory/Compliance Awareness into a single principle covering KM-F2 (Safety/Compliance Omission) comprehensively. All safety concepts (lockout/tagout, exception handling, SME review) and regulatory concepts (OSHA/EPA/FDA cross-references, structural disclaimer) preserved. TL-Series: 4 → 3.
   - **Merge PD2 → KA3 (Progressive Abstraction):** Absorbed Purpose-Driven Content Curation into Progressive Abstraction. Added Checklist Manifesto "killer items" test, < 15 items criterion, and KM-F7 (Bloated Reference) as secondary failure mode. PD-Series: 3 → 2 (then 1 after PD3 demotion).

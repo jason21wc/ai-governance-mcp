@@ -12,6 +12,22 @@
 
 ## Active Lessons
 
+### Generalize Existing Principle Before Minting a New One (2026-04-26)
+
+User proposed adding "Elegance Equation" as a new constitutional meta-principle. Initial contrarian-reviewer flagged 5 of 7 Admission Test FAILs and recommended decline. Continued dialogue surfaced that the contrarian (and I) had treated `meta-quality-effective-efficient-communication` as encoding the same concept generalized — but it was explicitly **scoped to communication only**. The user's actual gap was scope (rule doesn't bind on code/plans/reports), not concept. Reframe: not a new principle, but rename + rescope the existing one to "Effective & Efficient Outputs" with form-specific cross-references. Plus the Elegance Equation as a method (§16.7) for the comparison case. Result: principle count stays flat (ADR-15 alignment), real failure mode addressed, alias preserves backwards compat.
+
+**Rule:** When a user proposes a new principle, run the Duplication Check decision tree first (`meta-method-the-duplication-check`). The "YES, partially → absorb / generalize existing" branch is structurally cleaner than minting parallel content. Test specifically: does an existing principle encode the *concept* but with artificial scope? If yes, generalize. The right question for the Admission Test Q1 (Coverage) is "does an existing rule BIND on this case?" — not "does an existing rule mention this concept?" Concept-mention without binding is a coverage gap.
+
+**How to apply:** Before approving any new constitutional principle, list every existing principle that mentions the concept. For each, check whether its operational guidance binds on the proposed case. If a near-fit exists with artificial scope, propose rescoping (with alias-preserved rename) before proposing addition. The contrarian-reviewer is most useful when given the principle/method split as a hypothesis to pressure-test — running it on the original "add as principle" framing produced a FAIL but missed the rescope alternative.
+
+**Q7 lesson within this lesson:** The user's proposed label was "Elegance Equation." Q7 (Semantic-Label Risk) flagged it (aesthetic-philosophical baggage the multiplicative formula doesn't enforce). The fix wasn't to drop the work — it was to rename the *method* to operational language ("Solution Comparison via Effectiveness × Efficiency Product") while preserving the source paper as a Reference Library citation. Q7 is a label question, not a content question; rename solves it without losing the contribution.
+
+**Principle:** `meta-method-the-duplication-check` (decision tree governs this); `meta-core-systemic-thinking` (root cause was scope-of-binding gap, not missing-concept gap); `meta-quality-effective-efficient-outputs` (the renamed/rescoped principle this lesson produced); ADR-15 (consolidation philosophy preserved).
+
+**Cross-ref:** `~/.claude/plans/this-is-back-and-tidy-crescent.md` (the plan that shipped this); v5.0.0 constitution amendment; rules-of-procedure §16.7 (the method downstream); `reference-library/ai-coding/ref-ai-coding-collier-elegance-equation.md` (paper citation); contrarian-reviewer's `APPROVE_WITH_REQUIRED_CHANGES` verdict (8 modifications baked into plan before ship).
+
+---
+
 ### Verify Source-of-Truth Files Before Anchoring on Review Notes (2026-04-25)
 
 During Compliance Review #5 (Check 6b.2), the PHASE2_TRIGGERED marker had FIRED — cross-process total 11.5 GB vs. session-108 verified 4.0 GB. My initial cause-analysis claimed the baseline was still pre-Phase-2 (citing Review #4's note "Post-Phase-2 baseline capture still pending — deferred structural task"). I drafted a "rebase the baseline" recommendation and the user approved it ("Go with your recommendation"). **Then** I read `~/.context-engine/logs/phase0-baseline.txt` directly to do the rebase — and the file said: "POST-PHASE-2 BASELINE (2026-04-17, watcher at 9h49m uptime, pre-12h-restart) ... baseline_steady_mb=5800 ... # Trigger 3 (script constant) updated from 3072→7500." The recalibration HAD shipped (between Review #3 and Review #4). Review #4's "still pending" note staled out — the action shipped, the row didn't get updated. My recommendation was about to act on a wrong premise.

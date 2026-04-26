@@ -478,6 +478,81 @@ class TestGenerateMetadata:
             assert "engineering" in metadata.aliases
 
 
+class TestParsePrincipleAliases:
+    """Tests for _parse_principle_aliases() — markdown-to-Principle.aliases parser
+    added in v5.0.0 to support backwards-compatible ID retrieval after a rename.
+    Per ~/.claude/plans/this-is-back-and-tidy-crescent.md §5."""
+
+    def test_parses_single_alias_with_prose_context(
+        self, test_settings, sample_domains_json
+    ):
+        """Should extract a single backticked ID from a prose Aliases line."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor(test_settings)
+            content = (
+                "**Aliases:** former ID `meta-quality-effective-efficient-communication` "
+                "(renamed and rescoped from communication-only to all output forms in v5.0.0)."
+            )
+            aliases = extractor._parse_principle_aliases(content)
+            assert aliases == ["meta-quality-effective-efficient-communication"]
+
+    def test_parses_multiple_aliases_comma_separated(
+        self, test_settings, sample_domains_json
+    ):
+        """Should extract multiple backticked IDs from a comma-separated list."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor(test_settings)
+            content = "**Aliases:** `meta-old-one`, `meta-old-two`, `coding-old-three`"
+            aliases = extractor._parse_principle_aliases(content)
+            assert aliases == ["meta-old-one", "meta-old-two", "coding-old-three"]
+
+    def test_returns_empty_when_no_aliases_line(
+        self, test_settings, sample_domains_json
+    ):
+        """Should return empty list when no **Aliases:** line is present."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor(test_settings)
+            content = "**Definition** A principle without any aliases declared."
+            aliases = extractor._parse_principle_aliases(content)
+            assert aliases == []
+
+    def test_deduplicates_repeated_aliases(self, test_settings, sample_domains_json):
+        """Should deduplicate repeated alias IDs across multiple Aliases lines."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor(test_settings)
+            content = (
+                "**Aliases:** `meta-old-one`, `meta-old-two`\n\n"
+                "Some prose.\n\n"
+                "**Aliases:** `meta-old-one` (also)"
+            )
+            aliases = extractor._parse_principle_aliases(content)
+            assert aliases == ["meta-old-one", "meta-old-two"]
+
+    def test_ignores_backticks_outside_aliases_line(
+        self, test_settings, sample_domains_json
+    ):
+        """Should not treat code-spans on non-Aliases lines as aliases."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor(test_settings)
+            content = (
+                "**Definition**\n"
+                "Cross-references `meta-other-principle` for context.\n\n"
+                "**Aliases:** `meta-the-real-alias`"
+            )
+            aliases = extractor._parse_principle_aliases(content)
+            assert aliases == ["meta-the-real-alias"]
+
+
 class TestExtractPhrases:
     """Tests for _extract_phrases() method."""
 

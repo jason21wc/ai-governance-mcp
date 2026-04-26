@@ -129,6 +129,7 @@
 - **Change-risk:** Very Low
 - **Dependencies:** None
 - **What:** Add correction-entry to v2.8.0 noting "Rich but Not Verbose" demotion was insufficient and required Effective & Efficient Communication promotion. Add entry narrating MA-Series dissolution in a v4.x entry.
+- **Status (2026-04-26):** R-12 is **NOT addressed** by the v5.0.0 rename of `meta-quality-effective-efficient-communication` → `meta-quality-effective-efficient-outputs`. The two are orthogonal: R-12 concerns historical-record correction (v2.8.0 amendment narrative + MA-Series dissolution narrative); the v5.0.0 rename is current scope expansion. R-12 remains open as a separate item. Per the contrarian-reviewer pre-ExitPlanMode pressure-test on `~/.claude/plans/this-is-back-and-tidy-crescent.md` (2026-04-26), claiming subsumption was incorrect; carved out explicitly here to prevent false-closure of R-12 in the tracker.
 
 ### R-13 — Add domain-applicability metadata to subagents; filter `install_agent` by project domain
 

@@ -196,19 +196,19 @@ query_governance("how to handle incomplete specifications")
 
 <document_versions>
 This loader is designed for use with:
-- constitution.md v5.0.7+
-- rules-of-procedure.md v3.28.2+
-- title-10-ai-coding.md v2.7.1+
+- constitution.md v6.0.0+
+- rules-of-procedure.md v3.29.0+
+- title-10-ai-coding.md v2.7.2+
 - title-10-ai-coding-cfr.md v2.43.0+
-- title-20-multi-agent.md v2.7.1+
+- title-20-multi-agent.md v2.7.2+
 - title-20-multi-agent-cfr.md v2.17.1+
 - title-30-storytelling.md v1.4.1+
 - title-30-storytelling-cfr.md v1.1.1+
-- title-15-ui-ux.md v1.2.0+
+- title-15-ui-ux.md v1.2.1+
 - title-15-ui-ux-cfr.md v1.0.0+
-- title-25-kmpd.md v1.4.0+
+- title-25-kmpd.md v1.4.1+
 - title-25-kmpd-cfr.md v1.2.0+
-- title-40-multimodal-rag.md v2.4.1+
+- title-40-multimodal-rag.md v2.4.2+
 - title-40-multimodal-rag-cfr.md v2.1.1+
 </document_versions>
 
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.9.1 | 2026-04-26 | PATCH: Pin tracks coordinated v6.0.0 governance rename — constitution.md v5.0.7 → v6.0.0 (MAJOR: rename and rescope of Art. III §4 from "Effective & Efficient Communication" to "Effective & Efficient Outputs"), rules-of-procedure.md v3.28.2 → v3.29.0 (MINOR: new §16.7 Solution Comparison via Effectiveness × Efficiency Product method), and 4 domain title PATCHes (title-10 v2.7.2, title-15 v1.2.1, title-20 v2.7.2, title-25 v1.4.1 — crosswalk row additions for the renamed principle), plus title-40 v2.4.1 → v2.4.2 (changelog-only entry per scope carve-out, no crosswalk row). Pin bump is PATCH because the cross-doc effect on adopters is alias-preserved (pre-v6.0.0 ID `meta-quality-effective-efficient-communication` resolves to the rescoped principle via the new extractor `_parse_principle_aliases` mechanism); no breaking change to retrieval. Plan: `~/.claude/plans/this-is-back-and-tidy-crescent.md`. PROJECT-MEMORY.md ADR-17. Governance: `gov-64ecfb9372df`, `gov-e38a3fa7488c`, `gov-05de0fadc801`. |
 | 2.9.0 | 2026-04-25 | MINOR: Pin tracks title-10-ai-coding-cfr.md MINOR bump v2.42.3 → v2.43.0 (BACKLOG #57 close — new §3.3.4 Status Bar Plugin sub-paragraph + new Appendix M Optional Ecosystem Tools with M.1 Warp Terminal and M.2 Sequential Thinking MCP Server + Appendix A.4 cross-reference to M.2). Bumped `title-10-ai-coding-cfr.md v2.42.3+` → `v2.43.0+`. MINOR-on-MINOR per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c) — title-10 source is MINOR (additive normative method content: new sub-paragraph in §3.3.4 + new Appendix M; no breaking change to existing protocol structure or numbering). Body-header + effective-date synced per §115-canonicalized checklist item. Governance: `gov-3116c50bb6e7`. |
 | 2.8.8 | 2026-04-25 | PATCH: Pin tracks title-10-ai-coding-cfr.md PATCH bump v2.42.2 → v2.42.3 (BACKLOG #133 close — replaced literal stale `AI Coding Methods v2.30.0` framework pins in three template surfaces with the established `(current version)` placeholder convention from §7.4.3 Minimal Loader Template; rot-immune fix). Bumped `title-10-ai-coding-cfr.md v2.42.2+` → `v2.42.3+`. PATCH-on-PATCH per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). Surfaces fixed: title-10 Appendix A.1 (`:7390`), Appendix K.2 (`:8559`), and `src/ai_governance_mcp/server.py:765` SCAFFOLD_AGENTS_MD (was `v2.28.0`, 14 MINOR stale). Governance: `gov-7083d6c85ffc`. |
 | 2.8.7 | 2026-04-25 | PATCH: Pin tracks rules-of-procedure.md PATCH bump v3.28.1 → v3.28.2 (scope clarification to §7.12.1 5th exception — added explicit anti-example for planning-band time estimates + distinguishing test, per post-ship contrarian battery `abd327fd5e8174348` HIGH-leverage finding). Bumped `rules-of-procedure.md v3.28.1+` → `v3.28.2+`. PATCH-on-PATCH per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). No title-10-cfr re-bump needed: §5.1.8's verbatim quote of the 5th exception is the v3.28.1 form (no anti-example), which is correct because §5.1.8's case is exactly the type of research-anchored threshold the exception covers (process-trigger, not planning-band — anti-example doesn't apply); citation already includes "(canonicalized v3.28.1)" provenance stamp. Governance: `gov-0d9f7303cbd5`. |

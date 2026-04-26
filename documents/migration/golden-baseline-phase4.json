@@ -67,11 +67,12 @@
       "constitutional_ref": "Art. III, \u00a7 3"
     },
     {
-      "id": "meta-quality-effective-efficient-communication",
-      "title": "Effective & Efficient Communication",
+      "id": "meta-quality-effective-efficient-outputs",
+      "title": "Effective & Efficient Outputs",
       "domain": "constitution",
       "series_code": "Q",
-      "constitutional_ref": "Art. III, \u00a7 4"
+      "constitutional_ref": "Art. III, \u00a7 4",
+      "aliases": ["meta-quality-effective-efficient-communication"]
     },
     {
       "id": "meta-operational-atomic-task-decomposition",

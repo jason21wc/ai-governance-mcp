@@ -298,6 +298,94 @@ class TestAliasResolution:
                 result = engine.get_principle_by_id("meta-nonexistent-principle")
                 assert result is None
 
+    def test_effective_efficient_communication_alias_resolves_to_outputs(
+        self,
+        test_settings,
+        mock_embedder,
+        mock_reranker,
+        mock_embeddings,
+        mock_domain_embeddings,
+    ):
+        """v5.0.0 rename regression: meta-quality-effective-efficient-communication
+        must resolve to meta-quality-effective-efficient-outputs (Art. III §4 rename
+        from communication-only to all output forms; ADR-17, plan
+        ~/.claude/plans/this-is-back-and-tidy-crescent.md)."""
+        from ai_governance_mcp.models import (
+            DomainIndex,
+            GlobalIndex,
+            Principle,
+        )
+
+        canonical = Principle(
+            id="meta-quality-effective-efficient-outputs",
+            domain="constitution",
+            series_code="Q",
+            title="Effective & Efficient Outputs",
+            content=(
+                "Every AI output must be jointly effective and efficient. "
+                "Joint quality is produced by applying form-appropriate "
+                "discipline during creation; iteration is a backstop, not "
+                "the primary mechanism."
+            ),
+            line_range=(741, 779),
+            aliases=["meta-quality-effective-efficient-communication"],
+            embedding_id=0,
+        )
+        domain_index = DomainIndex(
+            domain="constitution",
+            principles=[canonical],
+            methods=[],
+            last_extracted="2026-04-26T00:00:00Z",
+        )
+        global_index = GlobalIndex(
+            domains={"constitution": domain_index},
+            domain_configs=[],
+            created_at="2026-04-26T00:00:00Z",
+            version="5.0.0",
+            embedding_model="test",
+            embedding_dimensions=384,
+        )
+
+        import json
+        import numpy as np
+
+        index_file = test_settings.index_path / "global_index.json"
+        with open(index_file, "w") as f:
+            json.dump(global_index.model_dump(), f)
+        np.save(test_settings.index_path / "content_embeddings.npy", mock_embeddings)
+        np.save(
+            test_settings.index_path / "domain_embeddings.npy", mock_domain_embeddings
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(test_settings)
+
+                # New canonical ID must work
+                result = engine.get_principle_by_id(
+                    "meta-quality-effective-efficient-outputs"
+                )
+                assert result is not None
+                assert result.id == "meta-quality-effective-efficient-outputs"
+                assert result.title == "Effective & Efficient Outputs"
+
+                # Old ID must resolve to new canonical via alias
+                result = engine.get_principle_by_id(
+                    "meta-quality-effective-efficient-communication"
+                )
+                assert result is not None, (
+                    "Pre-v5.0.0 ID must resolve to renamed principle via "
+                    "Principle.aliases — alias preservation is a backwards-"
+                    "compatibility guarantee for existing audit logs and "
+                    "cross-references."
+                )
+                assert result.id == "meta-quality-effective-efficient-outputs"
+
 
 class TestListDomains:
     """Tests for list_domains() method."""
