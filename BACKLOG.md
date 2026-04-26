@@ -838,12 +838,6 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 
 **Origin:** User-initiated (2026-04-10). Plan mode exploration completed but implementation paused for deeper workflow pattern discussion.
 
-#### 99. Quick Start Guide for External Adopters (Discussion) `D1 New Capability`
-
-**What:** The framework has no onboarding path between "install the MCP server" and "understand the full governance hierarchy." A Quick Start guide presenting the 5 most critical principles without requiring Constitutional naming knowledge would lower the adoption barrier.
-
-**Origin:** Contrarian review during v2.0.0 post-release audit (2026-04-13). Pairs with #53 (Modular Domain Architecture).
-
 #### 100. Legal System Analogy Embedding Impact Test (Discussion) `D1 Improvement`
 
 **What:** Each principle includes a Legal System Analogy paragraph (~15-20% of token budget) mapping it to US legal concepts. These legal terms may create embedding vectors biased toward legal rather than practical governance. Test hypothesis: run retrieval benchmark with and without analogy text. If MRR/Recall doesn't drop, extract analogy text from embedding content while preserving it in full documents.

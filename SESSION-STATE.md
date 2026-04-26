@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-04-25 (session 128 close — **BACKLOG #57 close shipped clean (commit `56a9dee`, CI + CodeQL green) + PROJECT-MEMORY (Appendix M canonical-home decision) + LEARNING-LOG (auto-defer-to-BACKLOG anti-pattern) close-out entries added in follow-up commit.** Versions: title-10 v2.43.0 MINOR, ai-instructions v2.9.0 MINOR-on-MINOR. Stage 2 battery: validator 8/8 PASS, coherence-auditor 1 HIGH folded (BACKLOG #56 dangling-reference) + 1 LOW accepted. New BACKLOG #136 filed for §9.8.3 retroactive backfill. Recovered from frozen prior session — same-day continuation.)
+**Last Updated:** 2026-04-25 (session 129 in flight — **BACKLOG #99 close pending commit. README.md "First Five: Day-One Essentials from the Universal Floor" section added (31 lines, between Quick Start and Use via RAG); BACKLOG.md #99 entry removed; SESSION-STATE.md self-update.** Stage 2 battery: coherence-auditor 1 HIGH + 3 MEDIUM + 1 LOW + cosmetic all folded; validator 7/7 PASS_WITH_NOTES (1 NOTE folded). No version bump (README not pinned). User-mediated push pending per session-127 routing rule.)
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
 
@@ -20,9 +20,9 @@
 - Commit 12 (`e6e7cca`) — BACKLOG #132 close: rules-of-procedure §7.12.1 5th exception added; title-10 §5.1.8 + COMPLETION-CHECKLIST 16a switched from "by analogy with" to direct verbatim citation; bundled ai-instructions PATCH-on-PATCH for both pins
 - Commit 13 (this) — §7.12.1 anti-example PATCH (closes battery 2's HIGH-leverage finding that 5th exception was open-textured + could absorb #131 violations); SESSION-STATE prune; ai-instructions v2.8.5 stale-note correction
 
-**Open BACKLOG items:** #131 (§7.12 retroactive sweep), #134 (PR-workflow infrastructure tripwire — re-evaluate when ≥3 external watchers OR ≥1 external issue/PR), #135 (bypass-envvar audit-log invariant refactor), **#136 (§9.8.3 retroactive appendix backfill — filed session-128)**, plus pre-existing #99/#129/#127/#125-b/#91-sub5/#78. **Closed session-127:** #133 (placeholder convention). **Closed session-128:** #57 (recommended-tooling appendix entries — Warp / status-bar / Sequential Thinking).
+**Open BACKLOG items:** #131 (§7.12 retroactive sweep), #134 (PR-workflow infrastructure tripwire — re-evaluate when ≥3 external watchers OR ≥1 external issue/PR), #135 (bypass-envvar audit-log invariant refactor), **#136 (§9.8.3 retroactive appendix backfill — filed session-128)**, plus pre-existing #129/#127/#125-b/#91-sub5/#78. **Closed session-127:** #133 (placeholder convention). **Closed session-128:** #57 (recommended-tooling appendix entries — Warp / status-bar / Sequential Thinking). **Closed session-129:** #99 (Quick Start guide — README "First Five" section added).
 
-**Next session can pick up at:** BACKLOG #99 (Quick Start guide — Cluster 1 residual after #57 closed), #131 (§7.12 sweep), or user-directed work.
+**Next session can pick up at:** #131 (§7.12 sweep), #134, #135, #136, or user-directed work.
 
 **Behavioral changes active across all shipped commits (versions current as of v3.28.2 / v2.42.3 / v2.8.8):**
 - §7.12 Effort-Not-Time + §7.13 BLUF-Pyramid (Commit 1, codified rules-of-procedure §7.12 + §7.13; v3.28.2 added §7.12.1 5th exception with anti-example for planning-band estimates)
@@ -72,9 +72,9 @@
 
 ## Current Position
 
-- **Phase:** Session-128 closed clean. Two commits this session: `56a9dee` (BACKLOG #57 close — §3.3.4 Status Bar Plugin + Appendix M + ai-instructions pin + #136 filed) and the close-out commit (PROJECT-MEMORY + LEARNING-LOG entries). Both pushed; CI + CodeQL green on first.
-- **Mode:** None blocking. Open BACKLOG: #99 + #131 + #134 + #135 + **#136 new** + pre-existing #129/#127/#125-b/#91-sub5/#78.
-- **Active Task:** None. Next session can pick up at #99 (Quick Start guide for external adopters), #131 (§7.12 retroactive sweep), or user-directed.
+- **Phase:** Session-129 in flight. Working-tree changes pending commit: README.md "First Five: Day-One Essentials" section added (closes BACKLOG #99) + BACKLOG.md #99 entry removed + SESSION-STATE.md self-update. Stage 2 battery (coherence-auditor + validator) running.
+- **Mode:** None blocking. Open BACKLOG (post-#99 close): #131 + #134 + #135 + #136 + pre-existing #129/#127/#125-b/#91-sub5/#78.
+- **Active Task:** Stage 2 post-edit battery on session-129 working-tree changes; commit + user-mediated push pending.
 
 ## Quick Reference
 
@@ -98,6 +98,17 @@
 ## Last Session (2026-04-25)
 
 > *Session-126 close (Commit 14 `a7c8e2d`) routed its summary to PROJECT-MEMORY.md + LEARNING-LOG.md per session-end protocol. Full session-126 narrative: see PROJECT-MEMORY entry "Superpowers plan + 5-commit post-ship remediation arc" + LEARNING-LOG entries dated 2026-04-25.*
+
+129. **Session-129 (2026-04-25): BACKLOG #99 closed — README "First Five: Day-One Essentials from the Universal Floor" section added (Cluster 1 residual, paired with #53/#57).**
+   - **Frame applied per user-directed start:** Per `feedback_decide_dont_defer` (saved session-128) — when user supplies the frame ("start working on backlog #99"), ship the call inline rather than re-deliberate the Discussion-tier framing. BLUF-format recommendation presented before drafting.
+   - **Approach (don't invent a parallel list):** Per `meta-method-single-source-of-truth`, mirror what the runtime already declares as `universal_floor` in `documents/tiers.json` rather than fabricate a "5 most critical principles" list. The session-start `evaluate_governance` call returned the floor structure (4 principles + 5 methods + 1 subagent_check); the README section names 5 of those items as day-one essentials and points readers to `tiers.json` as SSOT for the full floor. Original draft said "five rules that hold" — coherence-auditor flagged as cardinality misstatement (HIGH); reframed to "five day-one essentials drawn from a broader universal floor."
+   - **Edit shipped (single working-tree change set, not yet committed):** README.md +31 lines new H2 section between Quick Start and Use via RAG (5-row table: Epistemic honesty / Visible reasoning / Verification before action / Root cause over symptoms / Proportional rigor — plain-English glosses + canonical IDs; example `get_principle` and `query_governance` calls; 5 sample queries to run on day one). BACKLOG.md #99 entry removed (6 lines deleted, items 100+ retain stable IDs). SESSION-STATE.md self-update lines 23, 75-77 (open-list + Phase + Mode + Active Task reflect #99 closure).
+   - **Stage 2 battery results:** coherence-auditor PROCEED_WITH_CHANGES (1 HIGH cardinality + 3 MEDIUM + 1 LOW + cosmetic — all 5 actionable findings folded inline before validator). validator PASS_WITH_NOTES (7/7 criteria pass: origin-fidelity, factual accuracy, no drift, placement, discoverability, stable-IDs, session-end protocol). 1 NOTE folded (retrieval-tool clarification one-liner); 1 NOTE accepted as-is (query-then-evaluate ordering teaches retrieval-first which mirrors `meta-quality-verification-validation` itself).
+   - **Routing class:** D1 docs, trunk direct per session-127 §8.3.4 routing rule. No version bump (README is not pinned by ai-instructions). No CFR / domain content touched.
+   - **Subagents used:** coherence-auditor `a6f5bad28e2569937` (anti-whitelist sweep caught 4 SESSION-STATE #99 surfaces beyond diffed files — exactly the cross-file propagation drift class LEARNING-LOG 2026-04-19 names); validator `aecae778fde8d69ca` (criteria-based 7-point check). Sequential per session-128 discipline note (no stacked parallel agents).
+   - **Governance trail:** `gov-91f364ea92ea` (session-start eval — PROCEED low confidence, no S-Series; auto-logged).
+   - **Principles cited:** `meta-method-single-source-of-truth` (mirror `tiers.json`-declared floor, don't invent parallel "5 critical" list); `meta-methods §7.8` proportional rigor (single-file edit, additive, no propagation, no version bump); `meta-quality-verification-validation` (Stage 2 battery is the verification gate for D1 docs); `meta-safety-transparent-limitations` (cardinality disclosure — README explicitly states the full floor is broader than the 5 shown); `coding-method-defer-vs-fix-now` (the rule the user-feedback memory operationalizes — fix #99 inline rather than re-deliberate the Discussion item).
+   - **Resumption:** Commit pending; user-mediated push per session-127 routing rule (`! git push origin main`). Open BACKLOG post-#99 close: #131 (§7.12 sweep), #134 (PR-workflow tripwire), #135 (bypass-envvar refactor), #136 (§9.8.3 backfill), pre-existing #129/#127/#125-b/#91-sub5/#78.
 
 128. **Session-128 (2026-04-25): BACKLOG #57 closed (recommended-tooling appendix entries) + new BACKLOG #136 filed (§9.8.3 retroactive backfill) + defer-pattern feedback memory saved.**
    - **Recovery context:** prior session froze mid-execution (after assistant declared "executing now" on the recommendations for a/b/c). User asked to pick up + avoid the freeze cause. Discipline this session: targeted Reads with explicit offsets (no full-file reads on 9k-line CFR), one MCP-heavy call per turn (no stacked governance + subagent + grep), Edit (diff-shape) over Write, Stage-2 battery agents run sequentially after edits with scoped prompts.

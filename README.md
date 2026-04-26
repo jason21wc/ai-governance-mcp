@@ -238,6 +238,37 @@ Windsurf supports MCP through Cascade. Config file: `~/.codeium/windsurf/mcp_con
 
 </details>
 
+## First Five: Day-One Essentials from the Universal Floor
+
+Every `evaluate_governance` call returns a **universal floor** — items that hold regardless of whether the AI is writing code, drafting a story, or building a RAG pipeline. The full floor (defined in [`documents/tiers.json`](documents/tiers.json)) has four constitutional principles, five method references, and a subagent-applicability check. The five below are the *day-one essentials* — the smallest set that gets an external adopter productive without first learning Constitutional naming or the 7-layer hierarchy.
+
+| Rule | What it asks of the AI | Canonical reference |
+|------|------------------------|---------------------|
+| **Epistemic honesty** | When uncertain, say so. Never present a best guess as fact. Reporting "I cannot do this confidently" is a successful outcome. | principle: `meta-safety-transparent-limitations` |
+| **Visible reasoning** | Show your work. Cite sources for factual claims. Make assumptions explicit before producing the output. | principle: `meta-quality-visible-reasoning-traceability` |
+| **Verification before action** | Define what "done" looks like before starting. Validate in small increments. Fail fast. | principle: `meta-quality-verification-validation` |
+| **Root cause over symptoms** | Distinguish what triggered a problem from what structurally enables it. Fix the latter, not the former. | principle: `meta-core-systemic-thinking` |
+| **Proportional rigor** | Match procedural ceremony to stakes. Simple tasks get simple checks; high-stakes work gets full protocol. | method: `rules-of-procedure §7.8` |
+
+Use `get_principle` for principle IDs; methods like §7.8 are reachable through `query_governance`:
+
+```
+get_principle("meta-core-systemic-thinking")
+query_governance("proportional rigor")
+```
+
+**Sample queries to run on day one** (each surfaces additional floor items beyond the table above — e.g., the second query exercises the testing-integration method):
+
+```
+query_governance("how do I handle incomplete specifications")
+query_governance("when should I write tests")
+query_governance("how to do a security review")
+query_governance("refactoring approach for legacy code")
+evaluate_governance(planned_action="ship a new feature to production")
+```
+
+Once these feel natural, the full hierarchy in [`documents/constitution.md`](documents/constitution.md) becomes navigable rather than imposing — you'll already recognize the principles you're being asked to extend.
+
 ## Use via RAG (No MCP Server)
 
 If you already have a RAG infrastructure or want to use the governance content in a non-MCP environment (ChatGPT Custom GPT, Claude Projects, Perplexity Spaces, NotebookLM, OpenAI Assistants, custom bots), you can load the `documents/` folder directly as a knowledge source — no server, no hooks, no installation.
