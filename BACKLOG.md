@@ -286,44 +286,6 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
-#### 138. Context-engine coverage gap for principle rename operations — document or extend indexing `D1 Improvement`
-
-**Filed:** 2026-04-26 (session covering ADR-17 / v5.0.0 constitutional rename — `~/.claude/plans/this-is-back-and-tidy-crescent.md`).
-
-**What.** During the v5.0.0 rename of `meta-quality-effective-efficient-communication` → `meta-quality-effective-efficient-outputs`, the Explore-agent reconnaissance confirmed `mcp__context-engine__query_project` excels at semantic discovery (finding conceptually-related material under different names) but **misses exact ID strings in JSON files (e.g., golden baselines), version-history prose in changelogs, and audit-trail entries**. Grep found ~158 hits where context-engine returned ~50; the divergence was concentrated in JSON ID strings, changelog prose, and SESSION-STATE/LEARNING-LOG history entries. For comprehensive rename impact analysis, both tools were required. CLAUDE.md currently advises "CE first" for semantic discovery and "Grep for deterministic lookup" but does NOT explicitly document this dual-tool requirement for rename operations.
-
-**Why deferred.** The workaround (use both tools) is established and effective. The gap is documentation, not capability — and the workflow for rename operations is rare enough that codifying it has lower leverage than other BACKLOG items.
-
-**Two implementation paths:**
-1. **Document the dual-tool requirement** in `workflows/COMPLETION-CHECKLIST.md` under a "Principle rename" subsection, naming context-engine + grep + golden-baseline + alias-test as the four-step verification.
-2. **Extend context-engine indexing** to include changelog/version-history blocks and JSON ID fields, making it a single-tool sweep. Higher effort, durable improvement.
-
-**Severity:** low / advisory. Documentation path is sufficient absent volume of rename operations.
-
-**Cross-ref:** ADR-17 (PROJECT-MEMORY.md); v5.0.0 plan `~/.claude/plans/this-is-back-and-tidy-crescent.md` §9 item 1.
-
----
-
-#### 137. Workflow checklist verification for principle rename procedure `D1 Docs`
-
-**Filed:** 2026-04-26 (session covering ADR-17 / v5.0.0).
-
-**What.** `workflows/COMPLETION-CHECKLIST.md` should have an explicit "principle rename" subsection that names the discrete steps:
-1. Add `Principle.aliases=[...]` on the new principle (constitutional markdown + golden baseline JSON)
-2. Update Meta-Principle ↔ Domain crosswalk rows in applicable domain titles (with carve-out reasoning if any are skipped)
-3. Update human-readable name strings in cross-referencing documents (aliases resolve IDs, NOT prose)
-4. Update golden-baseline-phase4.json with new ID + aliases field
-5. Run alias resolution regression test (`tests/test_retrieval_integration.py::TestAliasResolution`)
-6. Run benchmark `retrieval_quality.json` MRR/Recall (per ADR-16 baseline ≥ 0.688 / 0.875)
-7. Index regeneration via `python -m ai_governance_mcp.indexer`
-8. Document in PROJECT-MEMORY.md as ADR; in LEARNING-LOG.md as lesson
-
-**Why deferred.** The v5.0.0 rename proceeded by reading the Graceful Degradation precedent (title-40 v1.0.1 changelog) and inferring the steps. Codifying them prevents the next maintainer (or AI) from missing a step. D1 effort.
-
-**Cross-ref:** v5.0.0 plan `~/.claude/plans/this-is-back-and-tidy-crescent.md` §9 item 2.
-
----
-
 #### 134. PR-workflow infrastructure (CODEOWNERS, branch protection paths, pre-push routing hook) — tripwire-triggered `D2 New Capability`
 
 **Filed:** 2026-04-25 (session-127, post-§8.3.4-self-application plan; convergent finding from contrarian + security-auditor + coherence-auditor pre-plan reviews).

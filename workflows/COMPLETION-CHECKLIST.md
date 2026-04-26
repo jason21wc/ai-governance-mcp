@@ -175,6 +175,63 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 10. **Version propagation:** Update `version` and `effective_date` in YAML frontmatter. Add version history entry.
 11. **Index rebuild + spot-check:** `python -m ai_governance_mcp.extractor`, then verify the principle surfaces via `query_governance`.
 
+## Principle rename (renaming an existing principle)
+
+*This procedure is the rename-specific variant of "Principle changes" above. Use this when changing a principle's ID; use "Principle changes" when adding new content or modifying existing content without an ID change.*
+
+> **Renames change principle IDs.** Downstream consumers keyed on IDs (`tiers.json`, benchmarks, audit logs, cross-document references) break unless the old ID resolves to the new principle. Always preserve backwards compatibility via the `**Aliases:**` mechanism.
+> **Precedent (n=1 actual rename):** Constitution v6.0.0 (`meta-quality-effective-efficient-communication` → `meta-quality-effective-efficient-outputs`, MAJOR — see ADR-17 in PROJECT-MEMORY.md). Distinct adjacent precedent — title-40 v1.0.1 — was a **phantom-citation correction** (stale citations TO non-existent IDs were pointed at the actually-canonical IDs); no entity was renamed and no alias was added. v1.0.1 is the precedent for the PATCH "fix dangling citation" case below, not for the alias-bearing rename case.
+
+> **Tool requirement:** Renames are an **exception** to CLAUDE.md's general CE-vs-grep selection rule. Comprehensive rename impact analysis requires BOTH context-engine AND grep, not either-or. Context-engine excels at semantic discovery but misses exact ID strings in JSON files, version-history prose in changelogs, and audit-trail entries. Grep finds the deterministic strings context-engine indexes imperfectly. The v6.0.0 rename observed ~50 hits via context-engine vs ~158 via grep — the gap was concentrated in JSON IDs, changelog prose, and SESSION-STATE/LEARNING-LOG history.
+
+> **Steps marked ⚠️ NON-NEGOTIABLE** produce breaking changes if skipped — they are the alias mechanism and its regression test. Other steps are BEST-EFFORT (~85% compliance expected).
+
+### Scope check (do this first)
+
+0. **Apply §9.8.1 Admission Test before reaching for rename.** Per ADR-17 precedent: rename + rescope passed Admission Test where "add new principle" failed 5 of 7 questions. If a new principle is being proposed, evaluate whether rescoping/renaming an existing principle covers the gap. Document the alternatives evaluated in the rename plan / version-history entry.
+
+### Reconnaissance (do this before editing)
+
+1. **Dual-tool impact sweep** — find every reference to the old ID before editing:
+   - [ ] `query_project("<old principle name or concept>")` — surfaces conceptual references via context-engine
+   - [ ] `grep -rn "<old-id>" documents/ src/ tests/ workflows/ *.md .claude/` — surfaces exact-string references; also sweep `~/.claude/plans/` if accessible (historical plan files often reference old names)
+   - [ ] Reconcile both result sets — sites appearing only in grep are typically JSON IDs, changelog blocks, or history entries that context-engine doesn't index well
+   - [ ] Expect to update **test assertions** that use the old ID as a string literal — alias resolution does not help hard-coded string comparisons
+
+### Update sequence
+
+2. ⚠️ **Add `**Aliases:**` line** on the renamed principle in its constitutional/domain markdown (`documents/constitution.md` or `documents/title-NN-*.md`). Form: ``**Aliases:** former ID `<old-id>` (renamed in vX.Y.Z; <reason>).`` Parsed by `extractor.py::_parse_principle_aliases` at index time. **This is the single mechanism that preserves backwards compatibility — skipping it produces a breaking change with no rollback path.**
+3. **Update Meta-Principle ↔ Domain crosswalk rows** in applicable domain titles. Document carve-out reasoning in the version-history entry if a domain is intentionally skipped.
+4. ⚠️ **Update human-readable name strings** in cross-referencing documents (CLAUDE.md, AGENTS.md, README.md, BACKLOG, SESSION-STATE, LEARNING-LOG, plan files). Aliases resolve IDs only — prose name references must be updated by hand or surface coherence drifts.
+5. **Update `documents/tiers.json` + benchmark queries** if they reference the old ID.
+
+### Verification
+
+6. ⚠️ **Add a rename-specific regression test** to `tests/test_retrieval_integration.py::TestAliasResolution`: a `test_<old_id_slug>_alias_resolves_to_<new_id_slug>` method that constructs the renamed `Principle` inline and asserts `engine.get_principle_by_id(<old_id>) == canonical_principle`. Running `TestAliasResolution` alone tests the resolution mechanism, not your specific rename — the existing test fixtures use unrelated principle IDs.
+7. **Run the alias regression suite** — `pytest tests/test_retrieval_integration.py::TestAliasResolution -v` must pass (including the new rename-specific test from step 6).
+8. **Index regeneration** — `python -m ai_governance_mcp.extractor`.
+9. **Spot-check via `query_governance(<old-name>)`** — the renamed principle should surface via the alias.
+10. **Retrieval benchmark** — MRR/Recall should meet ADR-16 baseline target (≥ 0.688 MRR / 0.875 Recall). Note: stricter than the `tests/test_retrieval_quality.py` CI floor (0.60 method-MRR / 0.50 principle-MRR); ADR-16 is the achieved baseline, CI is the regression floor.
+
+### Documentation & version bump
+
+11. **Author version-history entry** in the renamed principle's source document (Constitution / domain title) per Content changes item 6 (§2.1.1). The entry must name the old ID, new ID, alias preservation, and rationale.
+12. **Document in PROJECT-MEMORY.md** as a numbered ADR entry: motivation, alternatives evaluated (per step 0), what changed, what stayed, alias preservation strategy, downstream consumer impact.
+13. **Document in LEARNING-LOG.md** if the rename surfaced a generalizable pattern (scope-of-binding gap, label/operational mismatch, etc.).
+14. **Version bump per §9.6.3 (Breaking Changes)** — rename versioning is case-dependent:
+    - **MAJOR** — ID-changing rename with downstream consumers (e.g., constitution v6.0.0; alias preserves retrieval but the ID-change is a breaking interface signal to pin consumers)
+    - **PATCH** — Phantom-citation / dangling-reference fix (e.g., title-40 v1.0.1 — stale citations pointing at non-existent IDs `meta-operational-graceful-degradation` and `meta-governance-resource-efficiency` were corrected to the actually-canonical IDs. No alias added because no entity was renamed; only the citing document's authoring error was fixed.)
+    - **PATCH** — Human-readable name only, ID unchanged (cosmetic)
+
+    Cascading PATCHes apply to cross-referencing CFRs that update name strings only (no normative change). Pin propagation through `documents/ai-instructions.md` per canonical PATCH-on-PATCH / MINOR-on-MINOR / MAJOR-on-MAJOR rule (Content changes item 7c).
+
+### Cross-references
+
+- See §9.6.3 (Breaking Changes versioning), §9.8.1 (Admission Test), §2.1.1 (version-history requirements).
+- Code: `extractor.py::_parse_principle_aliases`, `retrieval.py::get_principle_by_id`. Tests: `TestParsePrincipleAliases`, `TestAliasResolution`.
+- Origin: BACKLOG #137 + #138 (filed 2026-04-26, closed in the commit that introduced this section). ADR-17 in PROJECT-MEMORY.md.
+- **Last validated against:** Constitution v6.0.0 rename (2026-04-26, alias-bearing MAJOR) + title-40 v1.0.1 phantom-citation correction (PATCH, no alias). Re-validate this section if `extractor.py` / `retrieval.py` alias mechanism evolves.
+
 ## Plan-mode architecture decisions
 
 > **Schema enforcement via template:** Advisory checklists are skipped ~15% of the time due to
