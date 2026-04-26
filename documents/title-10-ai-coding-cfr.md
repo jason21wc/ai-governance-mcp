@@ -1,7 +1,7 @@
 ---
-version: "2.43.0"
+version: "2.43.1"
 status: "active"
-effective_date: "2026-04-25"
+effective_date: "2026-04-26"
 domain: "ai-coding"
 governance_level: "federal-regulations"
 ---
@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.43.0
+**Version:** 2.43.1
 **Status:** Active
-**Effective Date:** 2026-04-25
+**Effective Date:** 2026-04-26
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -1041,7 +1041,7 @@ Discovery establishes shared understanding before specification writing. This pr
 - [ ] Identify reference pattern or prior art
 - [ ] Confirm applicability to current context
 - [ ] Note any adaptations required
-- [ ] Estimate: 10-30 minutes
+- [ ] Effort: D1 (single reference pattern, ≤3 surfaces, no cascading discovery)
 
 **STANDARD Mode:**
 - [ ] Problem statement clarification
@@ -1049,7 +1049,7 @@ Discovery establishes shared understanding before specification writing. This pr
 - [ ] Success criteria definition
 - [ ] Constraint identification
 - [ ] Prior art research
-- [ ] Estimate: 1-4 hours depending on scope
+- [ ] Effort: D1-D2 (problem statement, persona, success criteria, constraints, prior-art research; scope per surface count)
 
 **ENHANCED Mode:**
 - [ ] All STANDARD activities, plus:
@@ -1058,7 +1058,7 @@ Discovery establishes shared understanding before specification writing. This pr
 - [ ] Technical feasibility exploration
 - [ ] Prototype or proof-of-concept
 - [ ] Unknown-unknown hunting (explicitly seek gaps)
-- [ ] Estimate: 1-5 days depending on novelty
+- [ ] Effort: D2-D3 (interviews/feedback, competitive analysis, feasibility, prototype, unknown-unknown hunting; multi-component, plan-mode candidate)
 
 ### 2.1.3 Discovery Outputs
 
@@ -1331,7 +1331,7 @@ Define the technical architecture that will implement the specification. Archite
 - [ ] Confirm pattern fits requirements
 - [ ] Document any adaptations
 - [ ] Identify technology stack
-- [ ] Estimate: 30-60 minutes
+- [ ] Effort: D1 (proven pattern, ≤3 architecture surfaces)
 
 **STANDARD Mode:**
 - [ ] Evaluate architecture alternatives
@@ -1340,7 +1340,7 @@ Define the technical architecture that will implement the specification. Archite
 - [ ] Specify integration patterns
 - [ ] Plan data model
 - [ ] Address security architecture
-- [ ] Estimate: 2-8 hours
+- [ ] Effort: D2 (alternatives evaluation, ADRs, integration patterns, data model, security architecture)
 
 **ENHANCED Mode:**
 - [ ] All STANDARD activities, plus:
@@ -1349,7 +1349,7 @@ Define the technical architecture that will implement the specification. Archite
 - [ ] Scalability analysis
 - [ ] Failure mode analysis
 - [ ] External architecture review (if applicable)
-- [ ] Estimate: 1-5 days
+- [ ] Effort: D3 (technical spike, performance modeling, scalability analysis, failure modes, external review; multi-phase plan-mode required)
 
 ### 3.1.3 Architecture Components
 
@@ -9136,6 +9136,7 @@ For tools that compete *inside* a category — where the framework recommends co
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.43.1 | 2026-04-26 | PATCH: BACKLOG #131 sweep close — migrated 6 planning-band time-unit estimates in §2.1.2 (Discovery EXPEDITED/STANDARD/ENHANCED) and §3.1.2 (Architecture EXPEDITED/STANDARD/ENHANCED) from `Estimate: <time-band>` to `Effort: <D-tier + structural drivers>` per `meta-method-effort-not-time-estimation` §7.12.2 effort indicators (rules-of-procedure). Each migration names the structural drivers — file/component count, ADR work, integration patterns, multi-phase plan-mode requirement — in observable terms the AI can verify post-hoc rather than estimate against. **No normative change** — bringing existing checklist content into compliance with the §7.12 rule that shipped rules-of-procedure v3.28.0 (session-125). Anti-pattern explicitly named in §7.12.1 anti-example was THIS file's §3.1.2 estimates; rules-of-procedure v3.30.1 (same commit) updates the anti-example to remove the now-stale specific line citations and adds a worked migration example to §7.12.2. Also kept (out of §7.12 scope per scope-boundary clause): `§3.4.2 PoC scope` "Be time-boxed (hours to days, not weeks)" — operational PoC scope constraint, not AI-effort estimate; `constitution.md §C-Series Operational Considerations` "A one-hour task needs minutes of discovery; a six-month project needs weeks" — proportion principle using time as magnitude proxy, not AI estimating own work. ai-instructions PATCH-on-PATCH pin sync v2.10.0 → v2.10.1 per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). **Constitutional Basis:** `meta-method-effort-not-time-estimation` (compliance with rule shipped v3.28.0); `meta-core-systemic-thinking` (root cause = time-band miscalibration drives false-deferral; structural fix = rule + anti-example + worked example + sweep, not per-instance review); `meta-quality-effective-efficient-outputs` (effort indicators are post-hoc verifiable; time bands are not). Pre-edit contrarian skipped per proportional rigor (mechanical migration with BACKLOG-pre-specified target). Post-edit battery: validator + coherence-auditor (audit IDs in same-commit rules-of-procedure entry). Governance: `gov-21ee559d88f0`. |
 | 2.43.0 | 2026-04-25 | MINOR: BACKLOG #57 close — added §3.3.4 Status Bar Plugin (Recommended) sub-paragraph + new Appendix M (Optional Ecosystem Tools) with M.1 Warp Terminal and M.2 Sequential Thinking MCP Server, plus Appendix A.4 cross-reference to M.2. **§3.3.4 augmentation** frames status-bar plugins as a *capability* (always-visible context-window telemetry) rather than recommending a specific tool — current-as-of-2026-04 implementations (`ccsp`, `@cometix/ccline`, `@hwwwww/pulse`) listed as starting points; adopters pick the tool whose maintainer cadence and config surface fit their workflow. Operationalizes the existing 60%/80%/32K proactive-monitoring thresholds in `coding-context-context-window-management` (canonical home: `title-10-ai-coding.md` Context Window Management principle, lines ~504-505) by closing the visibility prerequisite — the thresholds are unactionable without persistent telemetry. **Appendix M** is the framework's first canonical home for adopter-facing third-party tool recommendations whose specifics rot too quickly to absorb into method bodies; entries capture **why we care, how we want to use it, and the AI-relevant gotchas** per user direction (session-128) rather than reproducing vendor-resolvable detail. M.1 Warp Terminal: the framework value is the *terminal UI as a review surface* (split panes, side panel for repo files, command blocks) supporting `coding-process-human-ai-collaboration-model` review-before-approve discipline and `multi-reliability-observability-protocol` agent-visibility — Warp's paid LLM/agent products are explicitly NOT the reason we recommend it. M.2 Sequential Thinking MCP Server (Anthropic-official reference implementation): fills the gap between Plan Mode (bounded architecture decisions, structurally enforced by the pre-exit-plan-mode-gate hook §9.3.10 Layer 6) and §5.13 Diagnostic Block (failed-twice debugging) — covers ad-hoc in-flight decomposition during ordinary D1/D2 implementation. Verdict shipped inline in M.2 body: *complements, does not conflict* with Plan Mode (different rigor tiers, different questions). **Root cause:** Pre-this-MINOR, the framework had no canonical home for "best-of-best" or single-implementation third-party tool recommendations whose value is the principle-slot they occupy, not category-internal competition. Appendix F is comparison-among-alternatives (Happy / Dispatch / `/remote-control` for remote access; multi-tool comparison required); Appendix G is dedicated context-engine MCP setup (single-tool deep config, framework-internal). Neither structurally fit Warp's category-of-one terminal-UI value or Sequential Thinking's Anthropic-official-reference best-of-best slot. Appendix M closes that structural gap and sets the pattern for future ecosystem additions. **Constitutional Basis:** `meta-method-single-source-of-truth` (one canonical home for ecosystem-tool recommendations); `meta-core-systemic-thinking` (capability framing for §3.3.4 — framework owns the principle, adopters pick the implementation; structural fix vs naming a tool that may rot); `meta-methods §7.8` proportional rigor (augmentation pattern for §3.3.4 + new Appendix M with no renumbering of §3.3.5; matches session-127 §8.3.4 augmentation precedent); `meta-method-effort-not-time-estimation` per LEARNING-LOG 2026-04-25 (defer-to-evaluate pattern was applied to Sequential Thinking mid-session and rejected by user — verdict shipped inline rather than backlogged; new feedback memory `feedback_decide_dont_defer.md` codifies the rule for future sessions). Closes BACKLOG #57 (Warp + cc-statusline + Sequential Thinking — Happy Engineering already shipped Appendix F.1 2026-04-08; the 4-tool residual is now zero). New BACKLOG item filed for retroactive §9.8.3 field backfill across pre-existing appendices (F.1, A.5, K, etc. predate the §9.8.3 field reference and lack discrete Governance-Level / Implements / Applies-To-with-version / Information-Currency fields — out of scope for #57; tracked separately per defer-vs-fix-now §7.11). ai-instructions MINOR bump v2.8.8 → v2.9.0 (MINOR-on-MINOR per canonical pin-discipline rule, COMPLETION-CHECKLIST item 7c). Body-header + effective-date synced. Plan: session-128 freeze-recovery (no plan file — D1 docs, trunk direct per session-127 §8.3.4 routing). Governance: `gov-3116c50bb6e7`. Coherence-auditor + validator invocation REQUIRED before push per §5.1.7 trigger table (content expansion: new method content + new appendix). |
 | 2.42.3 | 2026-04-25 | PATCH: BACKLOG #133 close — replaced literal stale framework version pins (`AI Coding Methods v2.30.0`) in three template surfaces with the established `(current version)` placeholder convention from §7.4.3 Minimal Loader Template. Surfaces fixed: Appendix A.1 CLAUDE.md template (`:7390`), Appendix K.2 AGENTS.md template (`:8559`), and `src/ai_governance_mcp/server.py:765` SCAFFOLD_AGENTS_MD f-string (was `v2.28.0`, 14 MINOR stale). Rot-immune: placeholder requires no version-bump propagation. **Root cause:** Template authors hard-coded literal version strings rather than reusing the `(current version)` placeholder pattern §7.4.3 already established. Each MINOR/PATCH bump silently aged the templates; new adopters scaffolding via `scaffold_project` MCP tool received 12-14 MINOR-stale framework pins. Single-source-of-truth violation: §7.4.3 had the convention, three other surfaces re-invented their own (with literals). **Constitutional Basis:** `meta-method-single-source-of-truth` (one canonical placeholder convention — §7.4.3 — now applied uniformly across all template surfaces); `meta-core-systemic-thinking` (rot-immune placeholder is structural fix; periodic version-pin updates would be symptomatic). ai-instructions PATCH bump v2.8.7 → v2.8.8 (pin update per canonical PATCH-on-PATCH rule, COMPLETION-CHECKLIST item 7c). Body-header + effective-date synced. Filed by session-126 coherence-auditor finding #2 (audit `a2c2f2ad49d45d6cc`). Governance: `gov-7083d6c85ffc`. |
 | 2.42.2 | 2026-04-25 | PATCH: §5.1.8 + §5.1.7 area citation chain closure per BACKLOG #132 close (commit pending). §5.1.8 "Note on the operational threshold's time component" replaced "by analogy with rules-of-procedure §7.12.1's existing scope-exclusion category" with direct citation of the now-canonicalized 5th exception (rules-of-procedure §7.12.1, shipped v3.28.1 same session). COMPLETION-CHECKLIST item 16a Threshold Rationale received the same direct-citation update. Closes the citation chain that v2.42.0 left open: §5.1.8 cited §7.12.1 for an exception that didn't exist in §7.12.1; v3.28.1 added it; this PATCH closes the loop by switching to direct citation. **Constitutional Basis:** `meta-method-single-source-of-truth` (citation now points at the actual rule; no by-analogy hop), `meta-quality-visible-reasoning-traceability` (adopters following the cite find the cited text). PATCH-on-PATCH: title-10 PATCH (citation update, no normative change to §5.1.8 protocol itself) → ai-instructions PATCH (per canonical pin-discipline rule codified BACKLOG #130 close). Governance: `gov-adbf247c0f44`. |

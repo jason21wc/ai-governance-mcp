@@ -1,5 +1,5 @@
 ---
-version: "2.10.0"
+version: "2.10.1"
 status: "active"
 effective_date: "2026-04-26"
 domain: "meta"
@@ -8,7 +8,7 @@ governance_level: "framework-activation"
 
 # AI Governance Framework Activation
 
-**Version:** 2.10.0
+**Version:** 2.10.1
 **Purpose:** Loader document that activates the governance framework for AI sessions.
 **Updated:** 2026-04-26
 
@@ -197,9 +197,9 @@ query_governance("how to handle incomplete specifications")
 <document_versions>
 This loader is designed for use with:
 - constitution.md v6.0.0+
-- rules-of-procedure.md v3.30.0+
+- rules-of-procedure.md v3.30.1+
 - title-10-ai-coding.md v2.7.2+
-- title-10-ai-coding-cfr.md v2.43.0+
+- title-10-ai-coding-cfr.md v2.43.1+
 - title-20-multi-agent.md v2.7.2+
 - title-20-multi-agent-cfr.md v2.17.1+
 - title-30-storytelling.md v1.4.1+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.10.1 | 2026-04-26 | PATCH: Pin tracks coordinated PATCH bumps from BACKLOG #131 sweep — `rules-of-procedure.md v3.30.0 → v3.30.1` (§7.12 worked migration example added + anti-example genericized) + `title-10-ai-coding-cfr.md v2.43.0 → v2.43.1` (6 planning-band time-unit estimates migrated to effort indicators in §2.1.2 + §3.1.2, bringing existing checklist content into compliance with §7.12 rule shipped v3.28.0). Bumped `rules-of-procedure.md v3.30.0+` → `v3.30.1+` and `title-10-ai-coding-cfr.md v2.43.0+` → `v2.43.1+`. **PATCH-on-PATCH per canonical pin-discipline rule** (BACKLOG #130 close, COMPLETION-CHECKLIST item 7c). Both source bumps are PATCH because: (rules-of-procedure) descriptive addition of one worked example + drift-fix on existing anti-example, no new rule; (title-10) compliance migration with no normative change. CLAUDE.md Behavioral Floor "Effort, not time" + tiers.json `effort-not-time` directive both unchanged — they operate at the rule-abstraction level the new worked example illustrates. Body-header v2.10.0 → v2.10.1 + frontmatter version + Updated date all synced per §2.1.1 Step 3 + COMPLETION-CHECKLIST item 7c (a)/(b)/(c). Governance: `gov-21ee559d88f0`. |
 | 2.10.0 | 2026-04-26 | MINOR: Pin tracks rules-of-procedure.md MINOR bump v3.29.0 → v3.30.0 (BACKLOG #139 close — expanded Part 7.13 BLUF-Pyramid Briefing to close 6 gaps vs. Minto / AR 25-50 / Brief Lab consensus: SCQA opening scaffold, MECE check on options, single-governing-thought roll-up rule, repetition rule via new required "Close" section, false-BLUF detector requiring verb-based directives, and new §7.13.7 AI-specific anti-LLM-default framing). Bumped `rules-of-procedure.md v3.29.0+` → `v3.30.0+`. **MINOR-on-MINOR per canonical pin-discipline rule** (BACKLOG #130 close, commit `4762962`, COMPLETION-CHECKLIST item 7c, codified from contrarian round-2 HIGH-2 in v2.8.0 entry). Source rules-of-procedure went MINOR; pin direction matches source direction. **Note on framing:** v3.30.0 is *additive but tightening* — the new required Close section and false-BLUF rejection mean v3.29.0-form briefs without a Close or with topic-statement openings would FAIL v3.30.0 validation. This is not a strict subset relationship; it is a tightening, and MINOR is the canonical bump for a tightening. Earlier rationale that referenced "v2.9.1 alias-preserved subset pattern" was rejected per session-133 contrarian-reviewer HIGH-2 (`a8648ee322443f496`) which flagged the framing as cargo-culting v2.9.1's deviation — the v2.8.1-v2.8.4 family of justifications #130 ruled out are structurally identical. Body-header v2.9.0 → v2.10.0 corrects session-131 (`0bd0a9b`) frontmatter lag along the way: changelog already had v2.9.1 row dated 2026-04-26 but body-header still showed v2.9.0 (recurrence of the v2.7 dogfood failure on §2.1.1 Step 3 frontmatter-must-match rule); jumping v2.9.0 → v2.10.0 directly fixes the lag. CLAUDE.md Behavioral Floor "BLUF for user-facing briefs" + tiers.json `bluf-pyramid-briefing` directive both unchanged — they operate at the abstraction level the new sub-rules ride along under via the §7.13 reference (universal-floor granularity is correct: SCQA/MECE/false-BLUF are decision-brief-specific, not universal-action checks). Governance: `gov-5839fdf4195e`. |
 | 2.9.1 | 2026-04-26 | PATCH: Pin tracks coordinated v6.0.0 governance rename — constitution.md v5.0.7 → v6.0.0 (MAJOR: rename and rescope of Art. III §4 from "Effective & Efficient Communication" to "Effective & Efficient Outputs"), rules-of-procedure.md v3.28.2 → v3.29.0 (MINOR: new §16.7 Solution Comparison via Effectiveness × Efficiency Product method), and 4 domain title PATCHes (title-10 v2.7.2, title-15 v1.2.1, title-20 v2.7.2, title-25 v1.4.1 — crosswalk row additions for the renamed principle), plus title-40 v2.4.1 → v2.4.2 (changelog-only entry per scope carve-out, no crosswalk row). Pin bump is PATCH because the cross-doc effect on adopters is alias-preserved (pre-v6.0.0 ID `meta-quality-effective-efficient-communication` resolves to the rescoped principle via the new extractor `_parse_principle_aliases` mechanism); no breaking change to retrieval. Plan: `~/.claude/plans/this-is-back-and-tidy-crescent.md`. PROJECT-MEMORY.md ADR-17. Governance: `gov-64ecfb9372df`, `gov-e38a3fa7488c`, `gov-05de0fadc801`. |
 | 2.9.0 | 2026-04-25 | MINOR: Pin tracks title-10-ai-coding-cfr.md MINOR bump v2.42.3 → v2.43.0 (BACKLOG #57 close — new §3.3.4 Status Bar Plugin sub-paragraph + new Appendix M Optional Ecosystem Tools with M.1 Warp Terminal and M.2 Sequential Thinking MCP Server + Appendix A.4 cross-reference to M.2). Bumped `title-10-ai-coding-cfr.md v2.42.3+` → `v2.43.0+`. MINOR-on-MINOR per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c) — title-10 source is MINOR (additive normative method content: new sub-paragraph in §3.3.4 + new Appendix M; no breaking change to existing protocol structure or numbering). Body-header + effective-date synced per §115-canonicalized checklist item. Governance: `gov-3116c50bb6e7`. |
