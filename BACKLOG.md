@@ -262,24 +262,6 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
-#### 141. §7.12 sweep extension — principle-file residuals (title-10-ai-coding.md:825) `D1 Maintenance`
-
-**Filed:** 2026-04-26 (session-134, contrarian-reviewer audit `a1ccaaaa68e2ee1a9` HIGH-1 on Group B pre-push double-check).
-
-**What.** BACKLOG #131 (closed in commit `32ff553`) swept time-unit estimates from `documents/title-10-ai-coding-cfr.md` §2.1.2 + §3.1.2 — done-when text was "all AI-facing CFR estimates." Domain-principle file `documents/title-10-ai-coding.md:825` contains: `If >15 files OR >2 hours focused work: STOP and decompose further` — this IS a §7.12 violation (AI is being told to estimate against a time threshold) but lives in a *principles* file (not CFR), so #131's named scope didn't include it.
-
-**Scope.** (a) Migrate the §825 estimate to §7.12-compliant form, e.g., `If >15 files OR plan exceeds D2 effort tier per §7.12.2: STOP and decompose further`. (b) Sweep all 6 domain-principle files (`title-10/15/20/25/30/40-*.md`, NOT the `*-cfr.md` files which #131 already covered) with `grep -nE '\b(hours?|days?|weeks?|minutes?|months?)\b' documents/title-*-*.md | grep -v cfr` — triage each instance per §7.12 scope-boundary clause. (c) Per-file PATCH bumps + ai-instructions PATCH-on-PATCH pin sync. (d) Optional: tighten §7.12.1 anti-example "historical context" parenthetical to name the broader sweep across both CFR and principles classes once complete.
-
-**Why D1 (not D2):** Single named violation + pattern-anchored sweep with bounded discovery. Mechanical migration with §7.12.2 worked example as template. Trunk-direct, no plan mode.
-
-**Trigger.** Next §7.12 calibration review OR external feedback OR opportunistic when next touching one of the 6 principle files.
-
-**Done when.** §825 migrated + at least the 6 principle files swept-or-explicitly-cleared (§825 + N) AND §7.12.1 anti-example optionally extended to cover the principles class.
-
-**Cross-ref:** BACKLOG #131 close commit `32ff553`; rules-of-procedure §7.12.1 anti-example + §7.12.2 worked example; contrarian audit `a1ccaaaa68e2ee1a9` HIGH-1 finding.
-
----
-
 #### 142. §9.8.3 "Known Limitation" footnote post-#136 update `D1 Docs`
 
 **Filed:** 2026-04-26 (session-134, coherence-auditor finding `acfefeb7664963885` MEDIUM-3 from BACKLOG #136 close + contrarian `a1ccaaaa68e2ee1a9` MEDIUM-2 reaffirmation on Group B double-check).

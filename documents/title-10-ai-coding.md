@@ -1,12 +1,12 @@
 ---
-version: "2.7.2"
+version: "2.7.3"
 status: "active"
 effective_date: "2026-04-26"
 domain: "ai-coding"
 governance_level: "federal-statute"
 ---
 
-# AI Coding Domain Principles Framework v2.7.2
+# AI Coding Domain Principles Framework v2.7.3
 ## Federal Statutes for AI-Assisted Software Development
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -822,7 +822,7 @@ Development work must be decomposed into atomic tasks that: affect ≤15 files, 
 **How AI Applies This Principle:**
 - **Task Sizing Assessment (Before Starting Implementation):**
   1. Estimate number of files task will affect
-  2. If >15 files OR >2 hours focused work: STOP and decompose further
+  2. If >15 files OR plan exceeds D2 effort tier per `meta-method-effort-not-time-estimation` (rules-of-procedure §7.12.2): STOP and decompose further
   3. If task description contains multiple "and"s: likely multiple tasks
 - **Independence Check:** Can this task be completed without modifying unrelated systems? If NO, decompose into independent subtasks with explicit interfaces.
 - **Acceptance Criteria Verification:** Each atomic task MUST have explicit, testable acceptance criteria. If criteria unclear or missing, flag for specification clarification—do not invent criteria.
@@ -1587,6 +1587,7 @@ At EVERY phase boundary or significant checkpoint:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.7.3 | 2026-04-26 | PATCH: BACKLOG #141 close — §7.12 sweep extension to principle-file class. Migrated `Atomic Task Decomposition` principle's "How AI Applies This Principle" Task Sizing Assessment item 2 from `>2 hours focused work` (time-unit estimate, §7.12 violation) to `plan exceeds D2 effort tier per meta-method-effort-not-time-estimation (rules-of-procedure §7.12.2)`. Brings the principles-class file class into compliance with §7.12 rule shipped v3.28.0; mirrors session-134 BACKLOG #131 close which swept the CFR-class equivalent (`title-10-ai-coding-cfr.md` §2.1.2 + §3.1.2). **Sweep result for the 6 principle files** (title-10/15/20/25/30/40-*.md, non-cfr): only this single line is an AI-effort estimate. All other time-unit references in those files are descriptive prose (e.g., "AI generates thousands of lines in minutes" at title-10:83 / :996 / :1051; "sessions can span hours" at title-10:483; "human developers retain project knowledge across days and weeks" at title-10:80), real-world domain content (rate limits + retention periods + throughput metrics at title-20:1528 / :1535 / :1596 and title-40:1224), example narratives in failure-mode illustrations (title-25:69 / :169 / :182 / :245 / :589; title-30:508), or operational characteristics of agent types (title-20:180 long-running agents; title-20:1018 example status log; title-20:1611 cron-scheduled agents) — none fall within §7.12 scope per the scope-boundary clause (§7.12 governs *AI estimating future work*; descriptive prose, real-world rate/retention values, narrative examples, and operational descriptions are out of scope). Filed by contrarian audit `a1ccaaaa68e2ee1a9` HIGH-1 during session-134 Group B pre-push double-check. PATCH (not MINOR) because compliance migration with no normative change to principle behavior. Cross-ref: BACKLOG #131 close commit `32ff553`; rules-of-procedure §7.12.1 anti-example + §7.12.2 worked example. Governance: `gov-a8c7e0faed4e`. |
 | v2.7.2 | 2026-04-26 | PATCH: Constitutional rename propagation. Updated Meta ↔ Domain Crosswalk row for `Production-Ready Standards` to add `Effective & Efficient Outputs (code-form discipline)` to its Constitutional Basis list, reflecting the constitution v6.0.0 rename of `meta-quality-effective-efficient-communication` → `meta-quality-effective-efficient-outputs` (rescoped from communication-only to all output forms). The new principle declares `coding-quality-production-ready-standards` as its ai-coding domain instantiation; this PATCH closes the bidirectional citation. Cross-ref: constitution.md v6.0.0 Historical Amendment; `~/.claude/plans/this-is-back-and-tidy-crescent.md`; PROJECT-MEMORY.md ADR-17. Governance: `gov-e38a3fa7488c` (plan eval), `gov-05de0fadc801` (verification eval). |
 | v2.7.1 | 2026-03-31 | PATCH: Template alignment (#31). "Research-Based" → "Evidence-Based" in derivation formula. Added Truth Source Hierarchy. Added Cross-Domain Dependencies section (Multi-Agent session state, UI/UX interface substance). |
 | v2.7.0 | 2026-03-30 | MINOR: Added cross-domain reference to C3 Session State Continuity ↔ Multi-Agent State Persistence Protocol (bidirectional). |
