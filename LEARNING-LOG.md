@@ -38,7 +38,7 @@ User proposed adding "Elegance Equation" as a new constitutional meta-principle.
 
 **Principle:** `meta-method-the-duplication-check` (decision tree governs this); `meta-core-systemic-thinking` (root cause was scope-of-binding gap, not missing-concept gap); `meta-quality-effective-efficient-outputs` (the renamed/rescoped principle this lesson produced); ADR-15 (consolidation philosophy preserved).
 
-**Cross-ref:** `~/.claude/plans/this-is-back-and-tidy-crescent.md` (the plan that shipped this); v5.0.0 constitution amendment; rules-of-procedure §16.7 (the method downstream); `reference-library/ai-coding/ref-ai-coding-collier-elegance-equation.md` (paper citation); contrarian-reviewer's `APPROVE_WITH_REQUIRED_CHANGES` verdict (8 modifications baked into plan before ship).
+**Cross-ref:** `~/.claude/plans/this-is-back-and-tidy-crescent.md` (the plan that shipped this); v6.0.0 constitution amendment (originally planned and audit-logged as v5.0.0; bumped to v6.0.0 per pre-ExitPlanMode contrarian — see ADR-17); rules-of-procedure §16.7 (the method downstream); `reference-library/ai-coding/ref-ai-coding-collier-elegance-equation.md` (paper citation); contrarian-reviewer's `APPROVE_WITH_REQUIRED_CHANGES` verdict (8 modifications baked into plan before ship).
 
 ---
 
