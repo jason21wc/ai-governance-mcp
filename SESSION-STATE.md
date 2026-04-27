@@ -13,26 +13,27 @@
 
 ## 🎯 RESUMPTION — Where to Pick Up (read this first)
 
-**Session-135 (2026-04-26) shipped BACKLOG #141 clean — single trunk-direct commit closing the §7.12 sweep extension to principle-file class.** No blocking decisions. PHASE2 monitor still active through 2026-05-02 (BACKLOG #137 close-out due ~2026-05-03 — next time-cued item).
+**Session-135 (2026-04-26) shipped BACKLOG #141 + #142 clean — 3 trunk-direct commits (#141 close + close-out fold-in + #142 close).** No blocking decisions. PHASE2 monitor still active through 2026-05-02 (BACKLOG #137 close-out due ~2026-05-03 — next time-cued item).
 
 **🟢 ACTION ON RESUME:** Ask user what to work on, or surface time-cued items below. No carry-over decision from session-135. Per amended §8.3.4 (shipped `f1ecd08` session-134), AI may run `git push origin main` on explicit user authorization.
 
 **🚨 Critical state for next session:**
-- **Session-135 work** pending push: 2 commits — (1) `2e4533c` closing #141 (title-10-ai-coding.md v2.7.3 + ai-instructions v2.10.3 + BACKLOG.md #141 removed + SESSION-STATE update); (2) close-out fold-in (title-10 v2.7.3 → v2.7.4 migration-form harmonization + ai-instructions v2.10.3 → v2.10.4 PATCH-on-PATCH + Quick Reference drift fix per pre-push double-check coherence-auditor `a790c199f2364cd50` HIGH-1 + contrarian `a7f6f57bc2ef0d5c1` MEDIUM-1). Awaiting user push instruction.
+- **Session-135 work** pending push: 3 commits — (1) `2e4533c` closing #141 (title-10-ai-coding.md v2.7.3 + ai-instructions v2.10.3 + BACKLOG.md #141 removed); (2) `c3b8e59` close-out fold-in (title-10 v2.7.3 → v2.7.4 migration-form harmonization + ai-instructions v2.10.3 → v2.10.4 PATCH-on-PATCH + Quick Reference drift fix per pre-push double-check); (3) #142 close (rules-of-procedure v3.30.1 → v3.30.2 §9.8.3 footnote update + ai-instructions v2.10.4 → v2.10.5 PATCH-on-PATCH + BACKLOG.md #142 removed). Awaiting user push instruction.
 - **All session-134 work previously pushed** through `f1ecd08`: Group B sweep (#137d, #138, #131, #136 closures via 3f7a726/32ff553/3fb7528/239f7d1) + §8.3.4 amendment closing #140 (`f1ecd08`, AI-direct push validating new policy).
 - **PHASE2 monitor still open** — `~/.context-engine/PHASE2_TRIGGERED` marker FIRED 2026-04-25 10:00:01Z (T1+T3+T4, 11.5 GB cross-process total). Marker NOT cleared; under 7-day monitor through 2026-05-02. **BACKLOG #137 is the calendar-anchored close-out reminder — read on or after 2026-05-03** (full analysis in BACKLOG.md `#49` "Status (2026-04-25)" block + COMPLIANCE-REVIEW.md Check 6b.2).
 - **Compliance Review #6 cadence** — due ~2026-05-05–05-10 (10-15 days from Review #5 on 2026-04-25 per BACKLOG #78 standing item).
 - **v6.0.0 cohort coherence note:** if a future session needs to add a domain crosswalk row that the v6.0.0 rename carved out (storytelling, multimodal-rag), revisit the §2.9 carve-out rationale in `~/.claude/plans/this-is-back-and-tidy-crescent.md` — narrative density / existing-principle coverage were the named reasons. Don't add a row reflexively.
 
-**Open BACKLOG (post-session-135):** #137 (PHASE2 monitor close-out, due ~2026-05-03), #142 (§9.8.3 footnote update, D1 — fold into next rules-of-procedure touch), #134 (PR-workflow tripwire), #135 (bypass-envvar refactor), pre-existing #129/#127/#125-b/#91-sub5/#78 (Compliance Review #6 next due ~2026-05-05–05-10). #141 closed session-135.
+**Open BACKLOG (post-session-135):** #137 (PHASE2 monitor close-out, due ~2026-05-03), #134 (PR-workflow tripwire), #135 (bypass-envvar refactor), pre-existing #129/#127/#125-b/#91-sub5/#78 (Compliance Review #6 next due ~2026-05-05–05-10). #141 + #142 closed session-135.
 
-**Closed session-135:** #141 (§7.12 sweep extension — title-10-ai-coding.md:825 migrated; sweep across 6 principle files confirmed this was the single residual, all other time-unit hits cleared as descriptive prose / real-world operational facts / example narratives / agent-type operational characteristics).
+**Closed session-135:** #141 (§7.12 sweep extension — title-10-ai-coding.md:825 migrated; sweep across 6 principle files confirmed this was the single residual, all other time-unit hits cleared as descriptive prose / real-world operational facts / example narratives / agent-type operational characteristics) + #142 (§9.8.3 "Known Limitation" footnote drift fix — rules-of-procedure.md:2842 updated to reflect post-#136 reality with 9 backfilled appendices enumerated).
 
 **Closed session-134:** #137d (Workflow checklist for principle rename), #138 (CE coverage gap for rename ops — was actually in BACKLOG.md when session-134 started despite session-133 narrative claim; SOT-verified before close), #131 (§7.12 sweep — title-10-cfr §2.1.2 + §3.1.2 only; principles-file residual flagged as new #141), #136 (§9.8.3 retroactive backfill on 9 platform appendices). Auto-memory NOT updated (project-specific findings live in commit messages + Version History entries, not auto-memory per "What NOT to save in memory" rule).
 
 **Versions bumped this session (135):**
-- title-10-ai-coding.md `v2.7.2` → **`v2.7.4` (PATCH × 2)** — v2.7.3 §7.12 sweep extension closing #141 (line 825 migrated; commit `2e4533c`); v2.7.4 pre-push migration-form harmonization to inline-driver form per §7.12.2 worked-example + CFR-class precedent (commit `32ff553`) — caught by pre-push contrarian audit `a7f6f57bc2ef0d5c1` MEDIUM-1 before push
-- ai-instructions.md `v2.10.2` → **`v2.10.4` (PATCH × 2 PATCH-on-PATCH)** — pin syncs per BACKLOG #130 canonical rule
+- title-10-ai-coding.md `v2.7.2` → **`v2.7.4` (PATCH × 2)** — v2.7.3 §7.12 sweep extension closing #141 (line 825 migrated; commit `2e4533c`); v2.7.4 pre-push migration-form harmonization to inline-driver form per §7.12.2 worked-example + CFR-class precedent (commit `32ff553` + close-out fold-in `c3b8e59`)
+- rules-of-procedure.md `v3.30.1` → **`v3.30.2` (PATCH)** — §9.8.3 "Known Limitation" footnote drift fix closing #142 (line 2842)
+- ai-instructions.md `v2.10.2` → **`v2.10.5` (PATCH × 3 PATCH-on-PATCH)** — pin syncs per BACKLOG #130 canonical rule (#141 + harmonization + #142)
 
 **Versions bumped session-134 (prior):**
 - rules-of-procedure.md `v3.30.0` → **`v3.30.1` (PATCH)** — §7.12.2 worked migration example added + §7.12.1 anti-example genericized
@@ -57,7 +58,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.0.0** (YAML frontmatter parsing, metadata boosting, heading breadcrumbs, chunk overlap, BAAI/bge-small-en-v1.5 384d (same model as governance server), metadata_filter, read-only mode, watcher daemon, service installer, project_path parameter) |
-| Content | **v6.0.0** (Constitution — 24 principles), **v3.30.1** (rules-of-procedure — §7.12.2 worked migration example added 2026-04-26, §7.12.1 anti-example genericized; v3.30.0 §7.13 BLUF-Pyramid expansion preserved), **v2.43.2** (title-10-ai-coding-cfr — §7.12 estimate migration v2.43.1 + §9.8.3 backfill on 5 platform appendices v2.43.2), **v2.7.4** (ai-coding principles — 12; #141 close 2026-04-26 v2.7.3 + pre-push migration-form harmonization v2.7.4), **v2.7.2** (multi-agent principles — 17), **v2.17.2** (multi-agent methods — §9.8.3 backfill on 3 platform appendices), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods — §9.8.3 backfill on Appendix A), **v1.2.1** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.1** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.10.4** (ai-instructions — PATCH × 4 pin syncs across session-134 Group B Commits 2 + 3 + session-135 #141 close + pre-push harmonization, all PATCH-on-PATCH per canonical rule), **v1.6.0** (tiers.json). |
+| Content | **v6.0.0** (Constitution — 24 principles), **v3.30.2** (rules-of-procedure — §9.8.3 "Known Limitation" footnote updated 2026-04-26 per #142 close; v3.30.1 §7.12.2 worked migration example + §7.12.1 anti-example preserved; v3.30.0 §7.13 BLUF-Pyramid expansion preserved), **v2.43.2** (title-10-ai-coding-cfr — §7.12 estimate migration v2.43.1 + §9.8.3 backfill on 5 platform appendices v2.43.2), **v2.7.4** (ai-coding principles — 12; #141 close 2026-04-26 v2.7.3 + pre-push migration-form harmonization v2.7.4), **v2.7.2** (multi-agent principles — 17), **v2.17.2** (multi-agent methods — §9.8.3 backfill on 3 platform appendices), **v1.4.1** (storytelling principles — 15), **v1.1.2** (storytelling methods), **v2.4.2** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods — §9.8.3 backfill on Appendix A), **v1.2.1** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.1** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v2.10.5** (ai-instructions — PATCH × 5 pin syncs across session-134 Group B Commits 2 + 3 + session-135 #141 close + pre-push harmonization + #142 close, all PATCH-on-PATCH per canonical rule), **v1.6.0** (tiers.json). |
 | Tests | **1401 passing + 0 skipped** safe subset (`pytest tests/ -m "not slow" -q`) as of session-131 close. Run `pytest tests/ -v` for full count. Session-134 was content-only (markdown × 4 commits); no test re-run. |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
@@ -81,8 +82,9 @@
    - **Routing class:** D1 governance-content edit, trunk-direct (no plan mode), per #141 BACKLOG entry.
    - **Governance trail:** `gov-a8c7e0faed4e` (covers the close edit).
    - **Principles cited:** `meta-method-effort-not-time-estimation` (the rule under which #825 was migrated); `meta-quality-verification-validation` (mechanical re-grep before commit fixed the count drift); `meta-method-the-duplication-check` (close-modify class — same canonical home as the CFR sweep #131 used); `coding-process-atomic-task-decomposition` (the principle whose "How AI Applies" item was migrated; both CFR §4.1.2 and the now-aligned principle reference §7.12 as canonical anchor).
-   - **Pre-push double-check (close-out fold-in):** Fresh contrarian (`a7f6f57bc2ef0d5c1`) APPROVE_WITH_CHANGES — MEDIUM-1 surfaced migration-form deviation from §7.12.2 worked-example pattern + CFR-class precedent (commit `32ff553`); 2e4533c used §-anchor lookup form, but the canonical pattern is inline-driver. Folded inline. MEDIUM-2 (title-20:1018 borderline classification under-articulated) + LOW-1/2/3 (count gloss + PATCH judgment + skip rationale) accepted as informational. Fresh coherence-auditor (`a790c199f2364cd50`) APPROVE_WITH_FIXES — HIGH-1 surfaced SESSION-STATE.md:60 Quick Reference drift (`v2.7.2` for ai-coding principles + `v2.10.2` for ai-instructions both stale); folded into this update. Title-10 v2.7.3 → v2.7.4 PATCH (form harmonization, no semantic change); ai-instructions v2.10.3 → v2.10.4 PATCH-on-PATCH pin sync.
-   - **BACKLOG state:** -#141 closed-shipped. Net -1.
+   - **Pre-push double-check (close-out fold-in `c3b8e59`):** Fresh contrarian (`a7f6f57bc2ef0d5c1`) APPROVE_WITH_CHANGES — MEDIUM-1 surfaced migration-form deviation from §7.12.2 worked-example pattern + CFR-class precedent (commit `32ff553`); 2e4533c used §-anchor lookup form, but the canonical pattern is inline-driver. Folded inline. MEDIUM-2 (title-20:1018 borderline classification under-articulated) + LOW-1/2/3 (count gloss + PATCH judgment + skip rationale) accepted as informational. Fresh coherence-auditor (`a790c199f2364cd50`) APPROVE_WITH_FIXES — HIGH-1 surfaced SESSION-STATE.md:60 Quick Reference drift (`v2.7.2` for ai-coding principles + `v2.10.2` for ai-instructions both stale); folded into this update. Title-10 v2.7.3 → v2.7.4 PATCH (form harmonization, no semantic change); ai-instructions v2.10.3 → v2.10.4 PATCH-on-PATCH pin sync.
+   - **#142 close (commit forthcoming):** §9.8.3 "Known Limitation" footnote (rules-of-procedure.md:2842) updated to reflect post-#136 reality. Pre-#142 prose was future-tense planning ("backfill is tracked separately"); post-#142 prose enumerates the 9 backfilled appendices and clarifies out-of-scope retention rationale. Source from BACKLOG #142 proposed prose verbatim. rules-of-procedure v3.30.1 → v3.30.2 PATCH; ai-instructions v2.10.4 → v2.10.5 PATCH-on-PATCH.
+   - **BACKLOG state:** -#141, -#142 closed-shipped. Net -2.
    - **Resumption:** None blocking. Awaiting user push instruction. Time-cued items unchanged: BACKLOG #137 (~2026-05-03) → Compliance Review #6 (~2026-05-05–05-10) → BACKLOG #109 deferred-cadence audit (~2026-05-25).
 
 134. **Session-134 (2026-04-26): BACKLOG Group B sweep shipped — 3 trunk-direct commits closing #137d + #138 + #131 + #136, plus close-out commit folding pre-push double-check findings + filing 2 new BACKLOG items (#141, #142).**
@@ -135,14 +137,17 @@
 ## Next Actions
 
 **Immediate (resume trigger for next session):**
-1. **All session-134 work pushed.** No carry-over commits. Last push `f1ecd08` (§8.3.4 amendment, AI-direct via Bash tool — first validation of amended policy). 0 ahead of origin.
+1. **Session-135 work pending push.** 3 commits ahead of origin: `2e4533c` (#141 close), `c3b8e59` (close-out fold-in), and #142 close (forthcoming). Awaiting user push instruction. Last push `f1ecd08` (session-134 §8.3.4 amendment).
 2. **Trigger-gated work waiting:**
-   - **BACKLOG #140** — Push-to-main permission investigation. User-led back-and-forth, no calendar trigger; runs whenever user opens the thread.
    - **BACKLOG #137** — PHASE2_TRIGGERED 7-day monitor close-out. Due ~2026-05-03.
-   - **BACKLOG #142** — §9.8.3 footnote update. Fold into next rules-of-procedure touch (no calendar trigger).
-   - **BACKLOG #141** — §7.12 sweep extension to principle files. Opportunistic when next touching one of the 6 principle files OR within 30 days.
    - **BACKLOG #78** — Governance Compliance Review #6. Due ~2026-05-05–05-10.
    - **BACKLOG #109** — Deferred-with-trigger cadence audit. Next due ~2026-05-25.
+   - **BACKLOG #134** — PR-workflow tripwire. Trigger: ≥3 external watchers or documented pre-push-battery defect-class miss.
+   - **BACKLOG #135** — Bypass-envvar audit-log invariant refactor. Trigger: next hook addition (7th hook with bypass) or Compliance Review #5/#6 silent-bypass evidence.
+   - **BACKLOG #129** — Re-register FM-S-SERIES-KEYWORD-FALSE-POSITIVE. Trigger: negation-context parser ships to `evaluate_governance` S-Series scanner.
+   - **BACKLOG #127** — Document-Extractor integration test. Trigger: next extractor feature or behavior change.
+   - **BACKLOG #125-b** — scaffold_project framework registry seeding. Trigger: external adopter feedback or next scaffold_project feature.
+   - **BACKLOG #91-sub5** — Pre-Test OOM gate hardening sub-item 5. Trigger: CI infra availability for real-runner integration test.
 
 **Working artifacts:**
 - `~/.claude/plans/this-is-back-and-tidy-crescent.md` — session-131 v6.0.0 rename plan (retained for audit reference; session-133 §7.13 expansion shipped without plan mode per BACKLOG #139 D1 classification).

@@ -1,5 +1,5 @@
 ---
-version: "2.10.4"
+version: "2.10.5"
 status: "active"
 effective_date: "2026-04-26"
 domain: "meta"
@@ -8,7 +8,7 @@ governance_level: "framework-activation"
 
 # AI Governance Framework Activation
 
-**Version:** 2.10.4
+**Version:** 2.10.5
 **Purpose:** Loader document that activates the governance framework for AI sessions.
 **Updated:** 2026-04-26
 
@@ -197,7 +197,7 @@ query_governance("how to handle incomplete specifications")
 <document_versions>
 This loader is designed for use with:
 - constitution.md v6.0.0+
-- rules-of-procedure.md v3.30.1+
+- rules-of-procedure.md v3.30.2+
 - title-10-ai-coding.md v2.7.4+
 - title-10-ai-coding-cfr.md v2.43.2+
 - title-20-multi-agent.md v2.7.2+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.10.5 | 2026-04-26 | PATCH: Pin tracks PATCH bump from BACKLOG #142 close — `rules-of-procedure.md v3.30.1 → v3.30.2` (§9.8.3 "Known Limitation" footnote at line 2842 updated to reflect post-#136 reality: backfill across 9 platform-specific appendices completed 2026-04-26, footnote now enumerates the 9 appendices explicitly and clarifies out-of-scope retention rationale). Bumped `rules-of-procedure.md v3.30.1+` → `v3.30.2+`. **PATCH-on-PATCH per canonical pin-discipline rule** (BACKLOG #130 close, COMPLETION-CHECKLIST item 7c). Source bump is PATCH because single-paragraph drift fix on existing footnote — schema itself unchanged, rule itself unchanged. CLAUDE.md Behavioral Floor + tiers.json directives both unchanged — this PATCH operates entirely below the rule-abstraction level (the §9.8.3 schema was always the rule; the footnote was the descriptive metadata about backfill status). Body-header v2.10.4 → v2.10.5 + frontmatter version + Updated date all synced per §2.1.1 Step 3 + COMPLETION-CHECKLIST item 7c (a)/(b)/(c). Governance: `gov-9f9aaed15df5`. |
 | 2.10.4 | 2026-04-26 | PATCH: Pin tracks PATCH bump from session-135 pre-push harmonization — `title-10-ai-coding.md v2.7.3 → v2.7.4` (migration form on §825 harmonized with §7.12.2 worked-example pattern + CFR-class precedent commit `32ff553`: `plan exceeds D2 effort tier per meta-method-effort-not-time-estimation (rules-of-procedure §7.12.2)` → `plan exceeds D2 (new tool/hook/section, moderate research, plan mode required) per meta-method-effort-not-time-estimation`). Bumped `title-10-ai-coding.md v2.7.3+` → `v2.7.4+`. **PATCH-on-PATCH per canonical pin-discipline rule** (BACKLOG #130 close, COMPLETION-CHECKLIST item 7c). Source bump is PATCH because pure form harmonization with no semantic change. Filed by pre-push contrarian audit `a7f6f57bc2ef0d5c1` MEDIUM-1 on the in-flight session-135 commit `2e4533c` — caught before push to avoid the "consistent post-commit drift class" pattern (LEARNING-LOG 2026-04-20) where post-commit drift gets harmonized in a follow-up PATCH days later. CLAUDE.md Behavioral Floor "Effort, not time" + tiers.json `effort-not-time` directive both unchanged. Body-header v2.10.3 → v2.10.4 + frontmatter version + Updated date all synced per §2.1.1 Step 3 + COMPLETION-CHECKLIST item 7c (a)/(b)/(c). Governance: `gov-a8c7e0faed4e` (same audit_id as v2.10.3 — same task arc). |
 | 2.10.3 | 2026-04-26 | PATCH: Pin tracks PATCH bump from BACKLOG #141 close — `title-10-ai-coding.md v2.7.2 → v2.7.3` (§7.12 sweep extension to principle-file class: migrated `Atomic Task Decomposition` Task Sizing Assessment item 2 from `>2 hours focused work` to `plan exceeds D2 effort tier per meta-method-effort-not-time-estimation §7.12.2`). Sweep across the 6 domain-principle files (title-10/15/20/25/30/40-*.md, non-cfr) confirmed this is the single residual; all other time-unit references are descriptive prose, real-world operational facts (rate limits, retention periods, throughput metrics), example narratives in failure-mode illustrations, or operational characteristics of agent types — none fall within §7.12 scope. File:line citations enumerated in `title-10-ai-coding.md` v2.7.3 changelog row for spot-check verifiability. Bumped `title-10-ai-coding.md v2.7.2+` → `v2.7.3+`. **PATCH-on-PATCH per canonical pin-discipline rule** (BACKLOG #130 close, COMPLETION-CHECKLIST item 7c). Source bump is PATCH because compliance migration with no normative change to principle behavior — mirrors v2.10.1 PATCH-on-PATCH rationale for the CFR-class sweep (BACKLOG #131). CLAUDE.md Behavioral Floor "Effort, not time" + tiers.json `effort-not-time` directive both unchanged — this completes the compliance migration that v2.10.1 began on the CFR side. Body-header v2.10.2 → v2.10.3 + frontmatter version + Updated date all synced per §2.1.1 Step 3 + COMPLETION-CHECKLIST item 7c (a)/(b)/(c). Governance: `gov-a8c7e0faed4e`. |
 | 2.10.2 | 2026-04-26 | PATCH: Pin tracks coordinated PATCH bumps from BACKLOG #136 close (§9.8.3 field backfill across 3 CFR files): `title-10-ai-coding-cfr.md v2.43.1 → v2.43.2` (5 platform-specific appendices: A Claude Code, D Gemini CLI, E Claude App, I Postgres/Supabase, K AGENTS.md), `title-20-multi-agent-cfr.md v2.17.1 → v2.17.2` (3 platform-specific appendices: A Claude Code, B Gemini CLI, C Codex CLI), `title-40-multimodal-rag-cfr.md v2.1.2 → v2.1.3` (1 platform-specific appendix: A Claude vision). Bumped `title-10-ai-coding-cfr.md v2.43.1+` → `v2.43.2+`, `title-20-multi-agent-cfr.md v2.17.1+` → `v2.17.2+`, `title-40-multimodal-rag-cfr.md v2.1.1+` → `v2.1.3+` (latter also corrects a pre-existing pin lag at v2.1.1 — actual source was v2.1.2 since 2026-04-14; both lag and new bump folded into one pin update). **PATCH-on-PATCH per canonical pin-discipline rule** (BACKLOG #130 close, COMPLETION-CHECKLIST item 7c). All 3 source bumps are PATCH because §9.8.3 fields are descriptive metadata for adopter discoverability — no normative change to appendix procedural content. Body-header v2.10.1 → v2.10.2 + frontmatter version + Updated date all synced per §2.1.1 Step 3 + COMPLETION-CHECKLIST item 7c (a)/(b)/(c). Governance: `gov-21ee559d88f0`. |

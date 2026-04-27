@@ -262,29 +262,6 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
-#### 142. §9.8.3 "Known Limitation" footnote post-#136 update `D1 Docs`
-
-**Filed:** 2026-04-26 (session-134, coherence-auditor finding `acfefeb7664963885` MEDIUM-3 from BACKLOG #136 close + contrarian `a1ccaaaa68e2ee1a9` MEDIUM-2 reaffirmation on Group B double-check).
-
-**What.** rules-of-procedure §9.8.3 line ~2842 currently says: *"**Known Limitation:** The formalized template standardizes new appendix authoring. Existing appendices using the previous format continue to function correctly. Backfill of existing appendices is tracked separately."* After BACKLOG #136 close (commit `3fb7528`), in-scope (platform-specific) appendix backfill is materially complete — 9 appendices across title-10 + title-20 + title-40-cfr. The footnote is now stale-leaning and could mislead future adopters into thinking schema compliance is still TODO.
-
-**Scope.** Update the footnote to reflect current state, preserving accuracy about residual scope (out-of-scope appendices in title-25/30 + framework-internal appendices in title-10 intentionally retain prior format — schema-broadening for non-platform appendix types remains an open design question, not a TODO).
-
-**Proposed prose:**
-> **Known Limitation:** The formalized template standardizes **new appendix authoring** for platform-specific appendices. Backfill across in-scope (platform-specific) appendices completed 2026-04-26 per BACKLOG #136 close (9 appendices: title-10 A/D/E/I/K + title-20 A/B/C + title-40-cfr A). Out-of-scope appendices (framework-internal templates, checklists, bibliographies, meta-comparison surveys, evidence-base pointers) intentionally retain prior format — schema-broadening for non-platform appendix types deferred (no consumer pain observed yet).
-
-**Why D1 (not D2):** Single-paragraph drift fix in one file. PATCH-on-PATCH cascade through ai-instructions but the rule mechanically applies (no judgment required).
-
-**Trigger.** Next time rules-of-procedure.md is bumped for any reason — fold this in opportunistically. OR within 30 days if no other rules-of-procedure touch surfaces.
-
-**Done when.** Footnote prose updated + rules-of-procedure PATCH bump + ai-instructions PATCH-on-PATCH pin sync.
-
-**Why deferred (not folded into #136 close commit):** Folding a §9.8.3 prose update into commit `3fb7528` would have required an additional rules-of-procedure PATCH (v3.30.1 → v3.30.2) and ai-instructions PATCH (v2.10.2 → v2.10.3) on top of the 4 version bumps already in flight, expanding the commit's blast radius without a proportional gain. Filing as standalone #142 keeps the cascade bounded; next rules-of-procedure touch absorbs this for free.
-
-**Cross-ref:** BACKLOG #136 close commit `3fb7528`; coherence-auditor `acfefeb7664963885` MEDIUM-3; contrarian `a1ccaaaa68e2ee1a9` MEDIUM-2.
-
----
-
 #### 134. PR-workflow infrastructure (CODEOWNERS, branch protection paths, pre-push routing hook) — tripwire-triggered `D2 New Capability`
 
 **Filed:** 2026-04-25 (session-127, post-§8.3.4-self-application plan; convergent finding from contrarian + security-auditor + coherence-auditor pre-plan reviews).
