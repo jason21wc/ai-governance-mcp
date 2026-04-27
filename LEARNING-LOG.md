@@ -12,6 +12,22 @@
 
 ## Active Lessons
 
+### Update SESSION-STATE Once, Post-Arc — Interleaved Updates Generate Drift Cascades (2026-04-26)
+
+Session-135 shipped 3 work commits (#141 close + harmonization fold-in + #142 close) but interleaved SESSION-STATE.md updates within each commit. Result: 2 successive narrative-drift fix commits (`641d4ac`, `4f25af6`) needed to repair count-claim drift ("3 commits" stale post-fix-commit), "forthcoming" framing stale post-`e71b708`, and last-push hash drift (`f1ecd08` → actual `b23cdab`). Each fix-commit only caught some drift; the next had to fix what the prior missed, because each interleaved SESSION-STATE update describes the state at THAT moment but cannot anticipate subsequent commits. Final shape: 5 commits ahead of origin (3 work + 2 narrative-drift fold-ins) for what should have been a 4-commit arc (3 work + 1 SESSION-STATE update). Cumulative-arc pre-push double-check (`aed69b709923a091b` contrarian + `a20b052b70e903339` coherence) caught the first wave; final pre-push double-check (`a62ae4a357cb78cc4` contrarian + `a5911082fc45e6e94` coherence) caught the second wave including the pre-existing `f1ecd08` last-push drift inherited from session-134.
+
+**Rule:** When closing a multi-commit session arc, update SESSION-STATE.md ONCE in a final commit AFTER all work commits ship. Each work commit edits BACKLOG.md (item removal), version bumps, content edits — but NOT SESSION-STATE.md. Pre-push double-check then verifies the SESSION-STATE narrative against actual git log.
+
+**How to apply:** For multi-commit arcs (≥2 work commits): (1) Ship work commits without touching SESSION-STATE.md. (2) After the last work commit lands, do ONE final SESSION-STATE update commit naming all work-commit hashes + their cumulative effects. (3) Pre-push double-check the SESSION-STATE narrative against `git log origin/main..HEAD`. For single-commit arcs (D1 trunk-direct), the existing pattern of folding SESSION-STATE into the same commit remains correct — no interleaving exposure.
+
+**Why this prevents recurrence:** SESSION-STATE is descriptive of the arc, not part of the arc. Updating it during the arc means describing a partial state. Updating it after the arc means describing a complete state. The structural cause of session-135's 5-commit shape was treating SESSION-STATE as part of every work commit; the structural fix is recognizing it as a post-arc summary that requires the arc to be complete before authoring.
+
+**Principle:** `meta-quality-verification-validation` (verify before claim — the "claim" here is "the arc looks like X" which can only be verified post-arc); `meta-method-single-source-of-truth` (git log is the SOT for what shipped; SESSION-STATE narrative must match SOT, which can only happen post-shipping); `meta-core-systemic-thinking` (structural cause = interleaved-update timing; structural fix = post-arc-only update timing).
+
+**Cross-ref:** Session-135 commits `2e4533c` / `c3b8e59` / `e71b708` / `641d4ac` / `4f25af6`; cumulative-arc + final pre-push double-checks. Pair-watches with the 2026-04-26 "Agent Convergence Doesn't Validate Premises" entry — same root-cause discipline applied at the workflow-timing layer rather than the factual-claim layer.
+
+---
+
 ### Agent Convergence Doesn't Validate Premises — §8.3.4 Discovered Factual Error (2026-04-26)
 
 Session-127 had triple-agent convergence (contrarian + security-auditor + coherence-auditor) on the §8.3.4 routing rule, including the assertion "AI cannot auto-push to main is a structural invariant; the harness default-branch-protection block stays in place." Session-134 BACKLOG #140 investigation revealed the harness block doesn't exist as a hard mechanism — what we observed was Layer 1 (Claude-the-model conservative on policy) + Layer 2 (project's pre-push hook) + Layer 3 (this same document reinforcing Layer 1) circularly self-validating. The session-127 *conclusion* was correct (don't add PR-required-by-class for solo work) but the *premise* was false. Three reviewers agreed on the conclusion without catching the premise — **agent convergence does not validate premises**. The §8.3.4 amendment (commit `f1ecd08`) re-derived the conclusion from the corrected premise; conclusion held independently via the four-reason rationale (combined-gate rule, no defect-class delta, prompt-injection surface, hypothesized-adopter overreach), but the structural-safety claim shifted from "harness block" (false) to "pre-push hook with 7 gates + 4-layer defense-in-depth" (true).
