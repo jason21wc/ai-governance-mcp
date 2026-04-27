@@ -568,12 +568,6 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 
 **Discussion needed:** Evaluate whether the incremental security value justifies the setup for a single-developer Claude Code project. Research current Rampart capabilities and rule set.
 
-#### 13. Governance-Aware Output Compression (Discussion) `D1 Fix`
-
-**What:** Long Bash output wastes context window tokens. Build a PostToolUse hook that compresses verbose output while preserving governance/security lines and structured data.
-
-**Discussion needed:** Is this still relevant as context windows grow? Measure actual context consumption from Bash output. If >20% threshold is hit, define the compression approach (per §3.1.4 "build our own" mode to avoid third-party information intermediary risk per §5.6.8).
-
 #### 10. UI/UX Tool-Specific Integration Guides (Discussion) `D1 New Capability`
 
 **What:** Write integration guides for AI-assisted design tools (Figma MCP, Storybook MCP, Axe MCP, Playwright MCP, etc.) as they're adopted. Research already done (candidate tools, risks, token costs documented in git history — search commits for "backlog #10").
