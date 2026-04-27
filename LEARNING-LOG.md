@@ -12,6 +12,20 @@
 
 ## Active Lessons
 
+### Agent Convergence Doesn't Validate Premises — §8.3.4 Discovered Factual Error (2026-04-26)
+
+Session-127 had triple-agent convergence (contrarian + security-auditor + coherence-auditor) on the §8.3.4 routing rule, including the assertion "AI cannot auto-push to main is a structural invariant; the harness default-branch-protection block stays in place." Session-134 BACKLOG #140 investigation revealed the harness block doesn't exist as a hard mechanism — what we observed was Layer 1 (Claude-the-model conservative on policy) + Layer 2 (project's pre-push hook) + Layer 3 (this same document reinforcing Layer 1) circularly self-validating. The session-127 *conclusion* was correct (don't add PR-required-by-class for solo work) but the *premise* was false. Three reviewers agreed on the conclusion without catching the premise — **agent convergence does not validate premises**. The §8.3.4 amendment (commit `f1ecd08`) re-derived the conclusion from the corrected premise; conclusion held independently via the four-reason rationale (combined-gate rule, no defect-class delta, prompt-injection surface, hypothesized-adopter overreach), but the structural-safety claim shifted from "harness block" (false) to "pre-push hook with 7 gates + 4-layer defense-in-depth" (true).
+
+**Rule:** When multiple subagents converge on a recommendation, validate that the convergence is on the *same true premise*, not on different agents accepting the same false premise. Three different reviews can produce three "APPROVE" verdicts on a wrong-because-built-on-fiction conclusion. Treat factual claims in source material (especially "structural invariant" or "X cannot happen because Y enforces it") as load-bearing — verify them empirically before letting them ride along on agent agreement.
+
+**How to apply:** When writing a plan or amendment, identify which factual claims in the cited source are load-bearing for the conclusion. For each, ask: "Have we verified this claim empirically, or are we trusting it because session-N said so?" If the latter, run a verification step — read the underlying mechanism (settings.json schema, hook source, harness behavior across sessions). Cross-session diagnostics are gold for this: a different Claude session in a different project with different settings will exercise different code paths and surface what's actually load-bearing. Pair-watches with the 2026-04-25 entry "Verify Source-of-Truth Files Before Anchoring on Review Notes" — same lesson at the document layer, this entry extends it to the mechanism layer.
+
+**Principle:** `meta-core-systemic-thinking` (root cause discipline — false premise is structural cause, not just per-finding noise); `meta-quality-verification-validation` (verify before action; review-note convergence is not verification); `meta-safety-transparent-limitations` (epistemic honesty about what's verified vs assumed).
+
+**Cross-ref:** PROJECT-MEMORY.md ADR §8.3.4 amendment 2026-04-26; commit `f1ecd08`; pre-edit contrarian audit `adf19d07b51fc2f3b` (named the "agent convergence does not validate premises" insight directly); BACKLOG #140 close commit; cross-session diagnostics from stats4roi-python project (different settings.json + no project hook = empirical refutation of the harness-block claim).
+
+---
+
 ### Don't Generalize Case-Specific Deviations as New Defaults (2026-04-26)
 
 Session-133 v3.30.0 ai-instructions pin draft attempted PATCH-on-MINOR justified via "v2.9.1's alias-preserved subset pattern" — except v2.9.1 deviated for a MAJOR rename where alias preservation made the cross-doc effect non-breaking, while v3.30.0 is a *tightening* (Close newly required = v3.29.0-form briefs FAIL v3.30.0 validation, not subset). Contrarian HIGH-2 (`a8648ee322443f496`) caught the cargo-cult: case-specific deviations remain case-specific; the canonical MINOR-on-MINOR rule (BACKLOG #130 close, COMPLETION-CHECKLIST item 7c) re-applies until explicitly re-canonicalized. Re-bumped v2.9.2 → v2.10.0 + struck "subset" framing from both v3.30.0 and v2.10.0 changelog entries.

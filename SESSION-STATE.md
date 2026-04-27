@@ -13,10 +13,10 @@
 
 **Session-134 (2026-04-26) shipped Group B clean — 4 BACKLOG items closed (#137d, #138, #131, #136) across 3 trunk-direct commits + close-out commit folding contrarian/coherence findings + 2 new BACKLOG items filed (#141, #142). 4 commits ahead of origin/main.** No blocking decisions. PHASE2 monitor still active through 2026-05-02 (BACKLOG #137 close-out due ~2026-05-03 — next time-cued item).
 
-**🟢 ACTION ON RESUME:** §8.3.4 amendment commit (BACKLOG #140 close) uncommitted/local; ready to commit + push. Per amended §8.3.4 (this commit), AI may run `git push origin main` on explicit user authorization (`push`, `ship`, `push all`); pre-push hook gates structurally. User-mediated `! git push origin main` remains available as fallback. Otherwise surface time-cued items below.
+**🟢 ACTION ON RESUME:** Ask user what to work on, or surface time-cued items below. No carry-over decision from session-134. Per amended §8.3.4 (shipped `f1ecd08` 2026-04-26), AI may run `git push origin main` on explicit user authorization (`push`, `ship`, `push all`); pre-push hook gates structurally. User-mediated `! git push origin main` remains available as fallback for cases where AI is conservative or hook blocks.
 
 **🚨 Critical state for next session:**
-- **Group B already pushed** (`239f7d1` includes commits `3f7a726`, `32ff553`, `3fb7528`, session-134 close-out). **§8.3.4 amendment commit pending** (BACKLOG #140 close + 5 contrarian-required hook/settings/doc changes). Push per amended §8.3.4 — AI may push on explicit user authorization, hook gates structurally; `!`-prefix fallback available.
+- **All session-134 work pushed** through `f1ecd08`: Group B sweep (#137d, #138, #131, #136 closures via 3f7a726/32ff553/3fb7528/239f7d1) + §8.3.4 amendment closing #140 (`f1ecd08`, AI-direct push validating new policy). 0 commits ahead of origin post-amendment.
 - **PHASE2 monitor still open** — `~/.context-engine/PHASE2_TRIGGERED` marker FIRED 2026-04-25 10:00:01Z (T1+T3+T4, 11.5 GB cross-process total). Marker NOT cleared; under 7-day monitor through 2026-05-02. **BACKLOG #137 is the calendar-anchored close-out reminder — read on or after 2026-05-03** (full analysis in BACKLOG.md `#49` "Status (2026-04-25)" block + COMPLIANCE-REVIEW.md Check 6b.2).
 - **Compliance Review #6 cadence** — due ~2026-05-05–05-10 (10-15 days from Review #5 on 2026-04-25 per BACKLOG #78 standing item).
 - **v6.0.0 cohort coherence note:** if a future session needs to add a domain crosswalk row that the v6.0.0 rename carved out (storytelling, multimodal-rag), revisit the §2.9 carve-out rationale in `~/.claude/plans/this-is-back-and-tidy-crescent.md` — narrative density / existing-principle coverage were the named reasons. Don't add a row reflexively.
@@ -38,7 +38,7 @@
 
 ## Current Position
 
-- **Phase:** Session-134 closed. Group B sweep + close-out pushed (`239f7d1`). §8.3.4 amendment closing BACKLOG #140 commit pending; push per amended §8.3.4 (AI on explicit authorization, hook-gated; `!`-prefix fallback available).
+- **Phase:** Session-134 closed clean. All work pushed through `f1ecd08`. Group B sweep (#137d/#138/#131/#136) + §8.3.4 amendment closing #140 + 2 new BACKLOG fills (#141/#142). Eat-own-dogfood validation: AI-direct push via Bash tool succeeded post-amendment.
 - **Mode:** PHASE2_TRIGGERED 7-day monitor still active through 2026-05-02 (BACKLOG #137 close-out due ~2026-05-03). Marker preserved on disk.
 - **Active Task:** None blocking. Time-cued items: BACKLOG #137 (~2026-05-03) → Compliance Review #6 (~2026-05-05–05-10) → BACKLOG #109 deferred-cadence audit (~2026-05-25) → user-directed.
 
@@ -57,7 +57,7 @@
 | Index | **130 principles + 689 methods + 14 references** (833 total post-session-131; session-133 internal expansion of one method, no index totals change). |
 | Subagents | **10** — all installable via `install_agent` (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Hooks | **6** (PostToolUse CI check, UserPromptSubmit conditional governance+CE inject, PreToolUse hard-mode governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM prevention gate, PreToolUse pre-exit-plan-mode gate) |
-| CI | **Green.** Last push: `239f7d1` (session-134 Group B close-out, pushed via `!`-prefix). Session-134 §8.3.4 amendment commit pending (BACKLOG #140 close), awaiting push per amended §8.3.4 (AI-direct on explicit authorization, hook-gated). |
+| CI | **Green.** Last push: `f1ecd08` (session-134 §8.3.4 amendment closing BACKLOG #140; AI-direct push via Bash tool — first validation of amended policy). Earlier in session: `239f7d1` (Group B close-out, `!`-prefix). |
 | CE Benchmark | See `tests/benchmarks/ce_baseline_*.json` for current values (v2.0, 16 queries, semantic_weight=0.7) |
 | CE Chunking | **tree-sitter-v2** (import-enriched) |
 
@@ -113,7 +113,7 @@
 ## Next Actions
 
 **Immediate (resume trigger for next session):**
-1. **§8.3.4 amendment commit ready to push** — BACKLOG #140 close (single commit closing the amendment work). Group B (4 commits ending `239f7d1`) already pushed earlier this session. Resumption: AI may run `git push origin main` on explicit user authorization per amended §8.3.4 (this commit's amendment); user-mediated `! git push origin main` remains available as fallback. → CI watch (~3 min) → done.
+1. **All session-134 work pushed.** No carry-over commits. Last push `f1ecd08` (§8.3.4 amendment, AI-direct via Bash tool — first validation of amended policy). 0 ahead of origin.
 2. **Trigger-gated work waiting:**
    - **BACKLOG #140** — Push-to-main permission investigation. User-led back-and-forth, no calendar trigger; runs whenever user opens the thread.
    - **BACKLOG #137** — PHASE2_TRIGGERED 7-day monitor close-out. Due ~2026-05-03.
