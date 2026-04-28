@@ -1,16 +1,16 @@
 ---
-version: "2.11.0"
+version: "2.11.1"
 status: "active"
-effective_date: "2026-04-27"
+effective_date: "2026-04-28"
 domain: "meta"
 governance_level: "framework-activation"
 ---
 
 # AI Governance Framework Activation
 
-**Version:** 2.11.0
+**Version:** 2.11.1
 **Purpose:** Loader document that activates the governance framework for AI sessions.
-**Updated:** 2026-04-27
+**Updated:** 2026-04-28
 
 ---
 
@@ -196,7 +196,7 @@ query_governance("how to handle incomplete specifications")
 
 <document_versions>
 This loader is designed for use with:
-- constitution.md v6.0.0+
+- constitution.md v6.0.1+
 - rules-of-procedure.md v3.31.0+
 - title-10-ai-coding.md v2.7.4+
 - title-10-ai-coding-cfr.md v2.43.2+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.11.1 | 2026-04-28 | PATCH: constitution.md pin update v6.0.0+ → v6.0.1+ for BACKLOG #100 Commit 2 of 4-arc (SSOT designation note at constitution.md:84-92 Operative Hierarchy + removal of 3 misplaced principle-level analogies at lines 397/608/1025). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Per-instance wisdom-check confirmed no irreplaceable wisdom before removal (anchor-bias warning honored). Constitutional Basis: `meta-method-single-source-of-truth` (canonical translation table designated). Governance: `gov-08a1271476d3` (parent execution). |
 | 2.11.0 | 2026-04-27 | MINOR: rules-of-procedure pin update v3.30.2+ → v3.31.0+ for BACKLOG #100 spec layer (new §9.7.7 Constitutional Analogy Register + new §9.8.9 Legal System Analogy Authoring). MINOR-on-MINOR per BACKLOG #130 canonical pin-discipline rule (RoP MINOR source = ai-instructions MINOR consequence). Governance trail: `gov-3a7f9c645742` (round 1 design eval), `gov-08a1271476d3` (execution eval). Constitutional Basis: `meta-method-single-source-of-truth` (pin currency for adopters), `meta-core-systemic-thinking` (canonical pin-discipline rule applied recursively). |
 | 2.10.5 | 2026-04-26 | PATCH: Pin tracks PATCH bump from BACKLOG #142 close — `rules-of-procedure.md v3.30.1 → v3.30.2` (§9.8.3 "Known Limitation" footnote at line 2842 updated to reflect post-#136 reality: backfill across 9 platform-specific appendices completed 2026-04-26, footnote now enumerates the 9 appendices explicitly and clarifies out-of-scope retention rationale). Bumped `rules-of-procedure.md v3.30.1+` → `v3.30.2+`. **PATCH-on-PATCH per canonical pin-discipline rule** (BACKLOG #130 close, COMPLETION-CHECKLIST item 7c). Source bump is PATCH because single-paragraph drift fix on existing footnote — schema itself unchanged, rule itself unchanged. CLAUDE.md Behavioral Floor + tiers.json directives both unchanged — this PATCH operates entirely below the rule-abstraction level (the §9.8.3 schema was always the rule; the footnote was the descriptive metadata about backfill status). Body-header v2.10.4 → v2.10.5 + frontmatter version + Updated date all synced per §2.1.1 Step 3 + COMPLETION-CHECKLIST item 7c (a)/(b)/(c). Governance: `gov-9f9aaed15df5`. |
 | 2.10.4 | 2026-04-26 | PATCH: Pin tracks PATCH bump from session-135 pre-push harmonization — `title-10-ai-coding.md v2.7.3 → v2.7.4` (migration form on §825 harmonized with §7.12.2 worked-example pattern + CFR-class precedent commit `32ff553`: `plan exceeds D2 effort tier per meta-method-effort-not-time-estimation (rules-of-procedure §7.12.2)` → `plan exceeds D2 (new tool/hook/section, moderate research, plan mode required) per meta-method-effort-not-time-estimation`). Bumped `title-10-ai-coding.md v2.7.3+` → `v2.7.4+`. **PATCH-on-PATCH per canonical pin-discipline rule** (BACKLOG #130 close, COMPLETION-CHECKLIST item 7c). Source bump is PATCH because pure form harmonization with no semantic change. Filed by pre-push contrarian audit `a7f6f57bc2ef0d5c1` MEDIUM-1 on the in-flight session-135 commit `2e4533c` — caught before push to avoid the "consistent post-commit drift class" pattern (LEARNING-LOG 2026-04-20) where post-commit drift gets harmonized in a follow-up PATCH days later. CLAUDE.md Behavioral Floor "Effort, not time" + tiers.json `effort-not-time` directive both unchanged. Body-header v2.10.3 → v2.10.4 + frontmatter version + Updated date all synced per §2.1.1 Step 3 + COMPLETION-CHECKLIST item 7c (a)/(b)/(c). Governance: `gov-a8c7e0faed4e` (same audit_id as v2.10.3 — same task arc). |
