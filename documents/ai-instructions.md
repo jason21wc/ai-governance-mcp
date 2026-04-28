@@ -1,5 +1,5 @@
 ---
-version: "2.11.2"
+version: "2.11.3"
 status: "active"
 effective_date: "2026-04-28"
 domain: "meta"
@@ -8,7 +8,7 @@ governance_level: "framework-activation"
 
 # AI Governance Framework Activation
 
-**Version:** 2.11.2
+**Version:** 2.11.3
 **Purpose:** Loader document that activates the governance framework for AI sessions.
 **Updated:** 2026-04-28
 
@@ -197,7 +197,7 @@ query_governance("how to handle incomplete specifications")
 <document_versions>
 This loader is designed for use with:
 - constitution.md v6.0.1+
-- rules-of-procedure.md v3.31.0+
+- rules-of-procedure.md v3.31.1+
 - title-10-ai-coding.md v2.7.5+
 - title-10-ai-coding-cfr.md v2.43.2+
 - title-20-multi-agent.md v2.7.2+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.11.3 | 2026-04-28 | PATCH: rules-of-procedure.md pin update v3.31.0+ → v3.31.1+ for BACKLOG #100 Commit 4 close-out (line-citation drift fix in §9.7.7 register + §9.8.9 placement targets + §9.8.1 Q7 PASS exemplar). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Drift caught by final coherence-auditor pass (`a6649bf7aee986477`) — citations shifted +2 lines after Commit 2's SSOT note + analogy removals; corrections aligned to actual file headers. Constitutional Basis: `meta-method-single-source-of-truth`, `meta-quality-verification-validation`. Governance: `gov-08a1271476d3` (parent execution). |
 | 2.11.2 | 2026-04-28 | PATCH: title-10-ai-coding.md pin update v2.7.4+ → v2.7.5+ for BACKLOG #100 Commit 3 of 4-arc (removal of 12 misplaced principle-level analogies per §9.8.9 eligibility rule). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Per-instance wisdom-check confirmed no irreplaceable wisdom in any of the 12 blocks (anchor-bias warning honored). Constitutional Basis: `meta-method-single-source-of-truth` (canonical home for analogies). Governance: `gov-08a1271476d3` (parent execution). |
 | 2.11.1 | 2026-04-28 | PATCH: constitution.md pin update v6.0.0+ → v6.0.1+ for BACKLOG #100 Commit 2 of 4-arc (SSOT designation note at constitution.md:84-92 Operative Hierarchy + removal of 3 misplaced principle-level analogies at lines 397/608/1025). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Per-instance wisdom-check confirmed no irreplaceable wisdom before removal (anchor-bias warning honored). Constitutional Basis: `meta-method-single-source-of-truth` (canonical translation table designated). Governance: `gov-08a1271476d3` (parent execution). |
 | 2.11.0 | 2026-04-27 | MINOR: rules-of-procedure pin update v3.30.2+ → v3.31.0+ for BACKLOG #100 spec layer (new §9.7.7 Constitutional Analogy Register + new §9.8.9 Legal System Analogy Authoring). MINOR-on-MINOR per BACKLOG #130 canonical pin-discipline rule (RoP MINOR source = ai-instructions MINOR consequence). Governance trail: `gov-3a7f9c645742` (round 1 design eval), `gov-08a1271476d3` (execution eval). Constitutional Basis: `meta-method-single-source-of-truth` (pin currency for adopters), `meta-core-systemic-thinking` (canonical pin-discipline rule applied recursively). |
