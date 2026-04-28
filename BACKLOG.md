@@ -308,6 +308,42 @@
 
 ---
 
+#### 143. OOM-gate command-line-substring false-positive — start-of-token anchor needed `D2 Improvement`
+
+**Filed:** 2026-04-27 (session-136, observed during BACKLOG #13 close commit `ca7cd9f`).
+
+**What.** `.claude/hooks/pre-test-oom-gate.sh` matches the literal substring `pytest tests/` (and related patterns) anywhere in the Bash `command` field, without distinguishing executable-position tokens from string contents. Two observed false-positive cases this session:
+1. **Commit-message body trigger.** `git commit -m "$(cat <<EOF ... pytest tests/ ... EOF)"` fires the gate because the commit message body — passed via heredoc on the command line — contains the literal substring. The Bash command is a `git commit`, not a pytest invocation, but the matcher cannot tell.
+2. **Grep-argument trigger.** Contrarian-reviewer agent (`a40fb47c436c9fec8`) ran a grep with the literal substring during BACKLOG #13 pressure-test review and tripped the same false-positive.
+
+**Workaround currently in use.** Write commit message to a tempfile via the Write tool, commit via `git commit -F <file>`. Reliable but adds friction. Documented in SESSION-STATE.md "ACTION ON RESUME" block as of session-136.
+
+**Structural fix per `meta-core-systemic-thinking`:** anchor the match to start-of-sub-command position. `pytest` is only a trigger when it appears at the start of the command, or after `&&`, `;`, `|`. A commit-message body, a grep argument, a docs-string reference, or any non-executable substring no longer false-triggers.
+
+**Approaches (for design discussion, plan-mode required):**
+1. **Token-anchor regex:** require `(^|&&|;|\|)\s*pytest\s` rather than substring match. Cleanest; covers chained commands like `cd repo && pytest tests/`.
+2. **Stop-word skip:** if command starts with `git commit`, `grep`, `echo`, `printf`, `cat`, `Write`-equivalents, skip detection. Easier to reason about but less general; new false-positive classes may emerge.
+3. **Sub-command parse:** Bash word-split + check first token of each `&&`-separated segment. Most robust; highest test surface.
+
+Approach 1 is the recommended starting point per minimum-surface principle, but the design spike should evaluate whether 1 alone covers all observed and plausible false-positive classes.
+
+**Trigger.** n=2 currently observed. Promote to **fix-now** when EITHER:
+- A third false-positive is observed in production (n≥3), OR
+- A single session arc trips the false-positive twice (already happened — session-136 had both the contrarian grep AND the commit message), OR
+- A new hook is being added that would inherit the same matcher pattern (cluster the fix with the new addition).
+
+**Done when.**
+1. New test cases for both observed false-positives (commit-message-body, grep-argument) PASS without firing the gate.
+2. The original 23 unit tests in `tests/test_pre_test_oom_gate_hook.py` continue to PASS.
+3. New test cases for chained heavy invocations (`cd /path && pytest tests/`) DO fire the gate.
+4. Hook-authoring guidance in CFR §9.3.10 updated to document the start-of-token anchor pattern as the canonical structural matcher.
+
+**Why D2 not D1:** modifies live hook + must add new test cases without regressing the existing 23 tests + structural matcher change has its own failure surface (could let real heavy invocations through if anchor is wrong). Plan mode warranted with pre-edit contrarian battery.
+
+**Origin:** Session-136 (2026-04-27) BACKLOG #13 close — false-positive fired on `git commit`-class invocation when message body contained literal `pytest tests/` substring (commit `ca7cd9f`). Earlier observation by contrarian-reviewer `a40fb47c436c9fec8` during #13 pressure-test review (grep with same substring). Governance: `gov-64a922ca58d3` (parent #13 audit).
+
+---
+
 #### 129. Re-register FM-S-SERIES-KEYWORD-FALSE-POSITIVE after Negation-Context Parsing Ships `D2 Improvement`
 
 **Filed:** 2026-04-24 (session-124 extension, post-#121 grandfathered FM resolution).
