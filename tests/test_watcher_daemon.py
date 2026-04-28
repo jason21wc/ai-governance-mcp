@@ -723,8 +723,18 @@ class TestHeartbeatEmbedSocket:
         assert "embed_socket" not in data
 
     def test_heartbeat_loop_passes_socket_to_heartbeat(self, tmp_path):
-        """Verify _heartbeat_loop propagates embed_socket to _write_heartbeat."""
-        from ai_governance_mcp.context_engine.watcher_daemon import _heartbeat_loop
+        """Verify _heartbeat_loop propagates embed_socket to _write_heartbeat.
+
+        Asserts the propagation contract directly via mock — no thread, no
+        filesystem, no race. Per LEARNING-LOG 2026-04-17 ("Matched Timeouts on
+        Both Sides of an RPC Produce Environment-Dependent Flakes") and
+        `meta-core-systemic-thinking`: remove the race at its source rather
+        than papering over with retries or longer sleeps. Prior version spawned
+        a real thread + slept 0.3s + read JSON from disk, which raced against
+        the thread's first write on slow CI runners (FAILED on commit e81e7ea
+        2026-04-28: JSONDecodeError on empty heartbeat file).
+        """
+        from ai_governance_mcp.context_engine import watcher_daemon
 
         base = tmp_path / "indexes"
         base.mkdir()
@@ -732,23 +742,21 @@ class TestHeartbeatEmbedSocket:
         manager._watchers = {"w1": MagicMock()}
         stop_event = threading.Event()
 
-        thread = threading.Thread(
-            target=_heartbeat_loop,
-            args=(
+        def capture_and_stop(*args, **kwargs):
+            stop_event.set()
+
+        with patch.object(
+            watcher_daemon, "_write_heartbeat", side_effect=capture_and_stop
+        ) as mock_write:
+            watcher_daemon._heartbeat_loop(
                 base,
                 manager,
                 stop_event,
-                0.1,
+                0.01,
                 time.time(),
                 None,
                 "/tmp/embed.sock",
-            ),
-            daemon=True,
-        )
-        thread.start()
-        time.sleep(0.3)
-        heartbeat_path = base.parent / "watcher-heartbeat.json"
-        data = json.loads(heartbeat_path.read_text())
-        stop_event.set()
-        thread.join(timeout=1.0)
-        assert data["embed_socket"] == "/tmp/embed.sock"
+            )
+
+        assert mock_write.called
+        assert mock_write.call_args.kwargs.get("embed_socket") == "/tmp/embed.sock"
