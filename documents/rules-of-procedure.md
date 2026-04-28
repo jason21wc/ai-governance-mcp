@@ -1,16 +1,16 @@
 ---
-version: "3.30.2"
+version: "3.31.0"
 status: "active"
-effective_date: "2026-04-26"
+effective_date: "2026-04-27"
 domain: "constitution"
 ---
 
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.30.2
+**Version:** 3.31.0
 **Status:** Active
-**Effective Date:** 2026-04-26
+**Effective Date:** 2026-04-27
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -2542,6 +2542,8 @@ This part provides procedures for applying the US Constitution analogy when auth
 
 **Equal Protection:** Constitutional principles and methods must apply equally across all domains. If a method cannot be applied to a domain without modification, the method may be domain-biased and should be evaluated for generality.
 
+**Q7 disposition for new structural-component analogies:** Analogies authored at framework-structure-level surfaces (per §9.8.9) require Q7 disposition recorded inline — naming (a) the outside pattern borrowed, (b) the framework mechanism enforcing/failing to enforce the borrowed semantic, (c) the disposition (PASS / RENAME / DISCLAIMER / NEW TERM) — per F-P2-04 precedent at `constitution.md:1000-1004`. The forward Q7 test at §9.8.1 still applies for label-class checks; §9.8.9 governs the reverse Q7 application (we attach a borrowed legal label to our own concept).
+
 ### 9.7.1 Framework Hierarchy Reference
 
 **Applies To:** understanding the 7-layer governance hierarchy (Bill of Rights through Secondary Authority), determining which layer has authority in a conflict, and classifying new content into the correct layer
@@ -2675,6 +2677,67 @@ Outputs validated under one domain's governance are recognized as valid inputs b
 **Constraint:** Full Faith and Credit does **not** apply when:
 - The consuming domain has reason to believe the producer's validation was incomplete or incorrect (the "fraud exception")
 - The output crosses the Constitution/domain boundary — Constitutional principles (Bill of Rights, Articles I-IV) always apply regardless of which domain produced the output
+
+---
+
+### 9.7.7 Constitutional Analogy Register
+
+**Importance: IMPORTANT - Living catalog of structural correspondences between ai-governance and US Constitution**
+
+**Implements:** Single Source of Truth, Continuous Learning & Adaptation, Visible Reasoning & Traceability
+
+**Applies To:** ongoing inventory of which US Constitutional / legal components ai-governance has borrowed (and where), which it has considered and rejected (with history), and which remain candidates for future adoption.
+
+**Function.** Two ongoing roles: (1) **gap-surfacing audit** — what could we adopt and what would trigger adoption; (2) **restructure portability** — analogy discipline survives future framework reorganizations.
+
+**Status values (three-state):**
+- `borrowed → location` — currently used; cite where (file + section/line)
+- `not-borrowed (never considered)` — not evaluated for fit yet
+- `considered-and-rejected (cite history)` — evaluated, found unfit, with history recorded (commit + LEARNING-LOG)
+
+**Trigger taxonomy** (each not-borrowed entry must have at least one):
+1. **Event-anchored (primary):** observable framework event surfacing need (e.g., "when a new Article header is added", "when two domains' adopter-facing principles conflict")
+2. **Calendar backstop:** every 3rd Compliance Review (~45 days) — catches non-event drift
+3. **Consumer-anchored:** specific external request (e.g., "when an adopter reports the framework lacks a mechanism this component provides")
+
+Pure passive triggers ("when it becomes useful") are insufficient — they reproduce the BACKLOG #109 staleness pattern.
+
+**Anti-completionism rule.** Not-borrowed entries record fit-evaluation outcomes — they are NOT a backlog of pending work. An entry transitions from "not-borrowed" → "borrowed" ONLY when a fired trigger surfaces an ai-governance need. The Q7 gate at §9.8.1 enforces this structurally: a transition must name the framework mechanism that enforces the borrowed semantic. Without a mechanism, Q7 fails by definition. The register must never drive authoring; analogies originate from framework need, not register entries that look fillable.
+
+**Maintenance discipline.** Inherits cadence from `workflows/COMPLIANCE-REVIEW.md` Check 9 ("Constitutional Analogy Register integrity"). Each Compliance Review produces a date-stamped audit-log entry directly below the table, mirroring BACKLOG #109's inline-audit-log pattern (`BACKLOG.md:201-203`). Audit logs must be appended even when no triggers fire — passive review with logged output is what prevents staleness.
+
+**Obsolescence path.** If 4 consecutive Compliance Reviews record 0 trigger activity AND framework evolution has shifted away from governance-architectural concerns, propose archiving the register at the next MAJOR. Dead infrastructure is harder to remove than to maintain — name the obsolescence path now.
+
+**Register:**
+
+| Component | Status | Rationale + Trigger |
+|-----------|--------|---------------------|
+| Constitution | borrowed → `constitution.md` (top + §84-92 Operative Hierarchy SSOT) | Foundational charter; Supremacy Clause enforced at `constitution.md:114-116`. |
+| Bill of Rights | borrowed → `constitution.md:996` (S-Series header) | Veto authority via S-Series structural blocking. F-P2-04 Q7 PASS at `constitution.md:1000-1004`. |
+| Federal Statutes | borrowed → Operative Hierarchy (`constitution.md:84-92`) | Domain principles play this role; binding under Constitutional supremacy. |
+| Federal Regulations | borrowed → Operative Hierarchy | CFR-level methods play this role; derive from domain principles per §9.7.3. |
+| Agency SOPs | borrowed → Operative Hierarchy | Sub-domain procedures play this role. |
+| Secondary Authority | borrowed → Operative Hierarchy + RoP §15.1 | Reference Library; informative-but-non-overriding. Renamed from "Case Law" v5.0.0 (see Stare Decisis below). |
+| Articles I-IV (Branches) | borrowed → `constitution.md:175/422/627/814` | Legislative/Executive/Judicial/Administrative branch structure mapped to C/O/Q/G-Series. |
+| Supremacy Clause | borrowed → RoP §9.7.4 | Higher-layer-wins conflict resolution. |
+| Full Faith and Credit | borrowed → RoP §9.7.6 | Cross-domain output recognition. |
+| Equal Protection | borrowed → RoP §9.7 intro (line 2543) | Per-domain method generality. |
+| Stare Decisis | considered-and-rejected → RoP §9.8.1 Q7 FAIL exemplars (line ~2783-2785) | Pre-v5.0.0 "Case Law" label imported binding-precedent semantics; framework explicitly stripped override authority. Renamed to "Secondary Authority" v5.0.0. |
+| Privileges & Immunities | not-borrowed (never considered) | Cross-domain output recognition currently covered by Full Faith and Credit (§9.7.6); P&I would duplicate. **Trigger (event):** non-FF&C cross-domain rights gap surfaces. **Calendar backstop:** every 3rd Compliance Review. |
+| Habeas Corpus | not-borrowed (never considered) | No detention-analog — hooks block before harm rather than reverse it after. **Trigger (event):** future principle introduces "rapidly halt or reverse a hooked enforcement action." **Calendar backstop:** every 3rd Compliance Review. |
+| Bill of Attainder | not-borrowed (never considered) | No retroactive-policy-invalidation discipline currently. **Trigger (event):** version-bump retroactively invalidates content authored under prior version. **Calendar backstop:** every 3rd Compliance Review. |
+| Ex Post Facto | not-borrowed (never considered) | Same conceptual cluster as Bill of Attainder; framework currently treats version bumps as forward-only with grandfathering at ADR boundaries. **Trigger (event):** retroactive-policy-invalidation event. **Calendar backstop:** every 3rd Compliance Review. |
+| Commerce Clause | not-borrowed (PARTIAL via §9.7.6) | Cross-domain output reconciliation partially handled by Full Faith and Credit; full Commerce-Clause borrowing not invoked. **Trigger (event):** cross-domain reconciliation requires more than recognition. **Calendar backstop:** every 3rd Compliance Review. |
+| Pre-emption Doctrine | not-borrowed (never considered) | Framework uses Supremacy Clause + Reserved Powers (Art. IV §5). **Trigger (event):** domain principle conflicts with constitutional principle in an area Supremacy Clause doesn't cleanly resolve. **Calendar backstop:** every 3rd Compliance Review. |
+| 14th Amendment Due Process specifically | not-borrowed (never considered, distinct from generic due-process) | Generic due-process language appears in some prior analogies; specific 14th-Amendment incorporation doctrine has no framework analog. **Trigger (event):** state-vs-federal-style cross-jurisdictional rights claim arises (none expected at framework's current scope). **Calendar backstop:** every 3rd Compliance Review. |
+
+**Audit log:**
+- *2026-04-27 (initial filing, session-136):* Register established. 10 borrowed + 1 considered-and-rejected + 7 not-borrowed entries. No triggers fired. Next audit at Compliance Review #6 (~2026-05-05–05-10).
+
+**Cross-references.**
+- §9.8.1 Q7 PASS/FAIL exemplars table (`rules-of-procedure.md:2776-2785`) — proto-register material; mutually informative.
+- §9.8.9 Legal System Analogy Authoring — writing prompt for new analogy blocks.
+- F-P2-04 Q7 PASS block at `constitution.md:1000-1004` — exemplar Q7 disposition format.
 
 ---
 
@@ -3037,6 +3100,63 @@ Each agent catches a different class of issue. Running only the contrarian durin
 **Process lessons:**
 - **KM&PD v1.3.0:** Primary assessor rated 13/13 KEEP. Contrarian caught 3 issues → 13→10. Without contrarian, skip gate would have incorrectly passed.
 - **AI Coding v2.6.0:** Contrarian found 2 merges + 3 citation errors. Validator found 5 additional stale citations and structural defects. Coherence found 2 Dangerous broken chains + 8 Misleading issues. Combined: 12 action items from 3 agents vs. ~5 from contrarian alone. The 3-agent assessment produced 2.4x the findings.
+
+---
+
+### 9.8.9 Legal System Analogy Authoring
+
+**Importance: IMPORTANT - Calibrates structural correspondence between framework and US Constitutional architecture**
+
+**Implements:** Single Source of Truth, Visible Reasoning & Traceability, Verification & Validation
+
+**Applies To:** authoring or revising italicized "Legal System Analogy" blocks at framework-structure-level surfaces.
+
+**Eligible placement targets:**
+1. Top of `documents/constitution.md`
+2. Articles I-IV headers (`constitution.md:175/422/627/814`)
+3. Bill of Rights header (`constitution.md:996`)
+4. Top of `documents/rules-of-procedure.md`
+5. Blueprint sections within RoP — authoring guidance for: domain principles, methods, appendices, library-refs
+
+**Ineligible:** domain titles (title-10/15/20/25/30/40), individual principles, individual methods, individual appendix entries, individual library-refs. Per-instance analogies duplicate the Operative Hierarchy SSOT (`constitution.md:84-92`).
+
+**Function.** Each Legal System Analogy is a typed pointer establishing structural correspondence between an ai-governance framework component and a US Constitutional / legal concept. The analogy piggybacks on training-distribution knowledge: the AI/reader knows the US legal concept; the analogy asserts "this framework component plays the same structural role." Downstream decisions follow: placement (same slot → same neighbors), precedence (same role → same authority level), scope check (same role → same breadth), amendment discipline (Constitutional-level → MAJOR-bump pattern), conflict resolution (Constitutional supremacy → meta-principles override CFR-level methods).
+
+**Three-component form (in order):**
+1. **Constitutional concept named** — in quotes, e.g., "Judicial Economy", "Bill of Rights", "Federal Rules of Civil Procedure"
+2. **Correspondence claim** — what structural role this framework component plays
+3. **Brief structural reason** — even for mainstream concepts (consistency floor; reader knowledge of US Constitution is normally distributed, so even canonical concepts get a one-sentence gloss)
+
+**Length spec:** Floor 2 sentences. Ceiling 4 sentences OR 60 words, whichever first.
+
+**Format:** Italicized paragraph immediately below the section header it describes.
+
+**Q7-reverse verifiability test (self-contained):** *"A reader equipped with the analogy's one-sentence structural reason can verify the correspondence."* The analogy must supply enough context that verification does not depend on prior legal knowledge. If two reviewers disagree on Q7-reverse verifiability, treat as FAIL and rewrite.
+
+**Structural-separation rule.** The italicized analogy block does ONLY structural-correspondence work. Mechanism content (failure modes, prescriptions, "how to apply") belongs in the un-italicized intro of the section the analogy sits under. Italicized block answers *what role does this play*; un-italicized answers *what does this do*.
+
+**Q7 disposition requirement.** Every analogy records inline (a) the outside pattern being borrowed, (b) the framework mechanism that enforces or fails to enforce the borrowed semantic, (c) the disposition (PASS / RENAME / DISCLAIMER / NEW TERM). Per F-P2-04 precedent at `constitution.md:1000-1004`. Bare "passes" without these three is non-compliance.
+
+**ABSTAIN exit ramp (bidirectional).** Abstain at authoring time if the analogy cannot satisfy the spec without strain — better silence than forced metaphor. Abstain at borrowing time: do not move a §9.7.7 register entry from "not-borrowed" → "borrowed" without an ai-governance need surfacing first (anti-completionism; see §9.7.7).
+
+**Anti-patterns (forbidden in analogy blocks):**
+
+| # | Anti-pattern | Why forbidden |
+|---|--------------|---------------|
+| 1 | Case law citations | Imports legal-procedure detail unrelated to structural role |
+| 2 | Jurisdictional nuance (state vs federal) | Doesn't map to ai-governance structure |
+| 3 | Multi-paragraph elaboration | Violates length cap; usually mechanism content masquerading as analogy |
+| 4 | Lawyer humor or advocacy-toned framing | Voice asymmetry; signals advocacy posture instead of structural-correspondence prose |
+| 5 | Stretched correspondence | Only thematic resemblance; specific structural elements don't map. Cross-ref §9.8.1 Q7. |
+| 6 | Mechanism-as-analogy bleed | Failure-mode prose or prescriptions inside the italicized block (move to un-italicized intro) |
+| 7 | Voice asymmetry | Analogy reads like a different author from surrounding prose |
+| 8 | Sibling-section ambiguity | Analogy doesn't distinguish this section from a peer (Article I vs Article II) |
+| 9 | Declaration contradiction | Importing semantics the Declaration (`constitution.md:18-52`) explicitly disclaims |
+| 10 | Forced legal mapping | Analogy at a structural component that isn't genuinely Constitutional in shape (e.g., a purely mechanical procedure) |
+| 11 | Header-itself-analogy double-up | Section header parenthetical already names the analog (e.g., "Article I: ... (Legislative Branch)"); separate prose-form analogy below would restate |
+| 12 | Register-driven authoring | Authoring an analogy because a §9.7.7 register entry says "not-borrowed yet" — analogies must originate from ai-governance need, not register completion |
+
+**See also:** §9.7.7 Constitutional Analogy Register (catalog of borrowed/not-borrowed/considered-and-rejected components); §9.8.1 Q7 Semantic-Label Risk (the forward gate; this method is its reverse application).
 
 ---
 
@@ -5088,6 +5208,7 @@ Collier, J. (2026). *The Elegance Equation: A Multiplicative Framework for Evalu
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.31.0 | 2026-04-27 | MINOR: BACKLOG #100 spec layer — added two new sections governing the Legal System Analogy device. **§9.7.7 Constitutional Analogy Register** (~50 lines): living three-column table cataloging which US Constitutional components are `borrowed → location` (10 initial entries: Constitution, Bill of Rights, Federal Statutes/Regulations/SOPs, Secondary Authority, Articles I-IV Branches, Supremacy Clause, Full Faith and Credit, Equal Protection), `considered-and-rejected (cite history)` (1: Stare Decisis — pre-v5.0.0 "Case Law" rejected and renamed to "Secondary Authority"), and `not-borrowed (never considered)` (7: Privileges & Immunities, Habeas Corpus, Bill of Attainder, Ex Post Facto, Commerce Clause [partial via §9.7.6], Pre-emption Doctrine, 14th Amendment Due Process specifically). Three-class trigger taxonomy required per not-borrowed entry: event-anchored (primary), calendar backstop (every 3rd Compliance Review), consumer-anchored. Anti-completionism rule + Q7 gate at §9.8.1 enforce "register documents fit-evaluation outcomes, not pending work." Maintenance discipline inherits from `workflows/COMPLIANCE-REVIEW.md` Check 9 (mirrors BACKLOG #109 inline-audit-log pattern). Obsolescence path: 4 consecutive 0-trigger reviews + governance-architectural drift → archive at next MAJOR. **§9.8.9 Legal System Analogy Authoring** (~60 lines): writing prompt for new analogy blocks at framework-structure-level surfaces. Eligibility rule (5 placement targets: constitution top, Articles I-IV headers, Bill of Rights header, RoP top, RoP blueprint sections); ineligible: domain titles, individual principles/methods/appendices/library-refs (which inherit structural correspondence from Operative Hierarchy at constitution.md:84-92). 3-component form (concept named + correspondence claim + brief structural reason). Length spec: floor 2 sentences, ceiling 4 sentences OR 60 words. Q7-reverse verifiability test (self-contained — does not depend on prior legal knowledge). Structural-separation rule (italicized = analogy only; un-italicized = mechanism). Q7 disposition requirement per F-P2-04 precedent (`constitution.md:1000-1004`). Bidirectional ABSTAIN exit ramp (forced metaphor at authoring; register-driven authoring at borrowing). 12-item anti-pattern table including the new completionism-mitigation pattern. **§9.7 intro** gains a Q7-disposition-for-new-structural-component-analogies bullet pointing at §9.8.9 + F-P2-04 precedent. **Q7 (Semantic-Label Risk) disposition for new section labels:** (i) "Constitutional Analogy Register" — (a) outside pattern: `coding-method-backlog-file-structure` cadence-audit pattern + BACKLOG #109 inline-audit-log scaffold; (b) framework mechanism: §9.7.7 maintenance discipline + Compliance Review Check 9 + Q7 gate at §9.8.1 (enforces non-borrowed→borrowed transitions structurally); (c) **PASS** — "Register" names the operational artifact (mutable rows tracking state changes), distinct from documentation. (ii) "Legal System Analogy Authoring" — (a) outside pattern: §9.8.1 Q7 Semantic-Label Risk applied in reverse (we attach a borrowed label to our own concept); (b) framework mechanism: §9.8.9's 3-component form + Q7-reverse test + Q7 disposition requirement + ABSTAIN ramp + 12-item anti-pattern table; (c) **PASS** — coined-term disposition; "Authoring" names the writing function. **Cross-doc ripple:** ai-instructions MINOR bump v2.10.5 → v2.11.0 (pin update, MINOR-on-MINOR per BACKLOG #130 canonical pin-discipline rule). Constitution.md SSOT-designation note + cleanup of 15 misplaced principle-level analogies (3 in constitution + 12 in title-10) deferred to follow-up commits per Defer-vs-Fix-Now proportional rigor. New COMPLIANCE-REVIEW Check 9 added in same commit. Per `rules-of-procedure §9.8.5` bright-line: two new sections + new Q7 disposition pattern + new Compliance Review Check = MINOR (additive surface area, no normative change to existing methods). **Constitutional Basis:** `meta-quality-effective-efficient-outputs` (parent — joint quality discipline applied to analogy device); `meta-method-single-source-of-truth` (Operative Hierarchy SSOT designation; register as single home for borrow-status); `meta-core-systemic-thinking` (root-cause shift across 3 in-session reframings: retrieval-bias symptom → per-principle authoring spec → framework-structure-level register); `meta-method-the-duplication-check` (3-round subagent battery; second-round "no spec needed" steel-man rejected by user's gap-surfacing + restructure-portability arguments). Plan: `~/.claude/plans/give-me-the-brief-kind-wozniak.md`. Pre-edit battery: 3 contrarian rounds + 2 validator rounds at design level; pre-edit contrarian on draft text skipped per proportional rigor (3-round design pressure-test sufficient; draft is mechanical translation). Post-edit battery: validator + coherence-auditor (audit IDs to be appended after batteries run). Governance: `gov-3a7f9c645742` (round 1), `gov-08a1271476d3` (execution). |
 | 3.30.2 | 2026-04-26 | PATCH: BACKLOG #142 close — §9.8.3 "Known Limitation" footnote (line 2842) updated to reflect post-#136 reality. Pre-#142 prose said "Existing appendices using the previous format continue to function correctly. Backfill of existing appendices is tracked separately" — accurate at 2026-04-04 (when §9.8.3 schema was introduced) but stale-leaning post-2026-04-26 BACKLOG #136 close (commit `3fb7528`) which materially completed in-scope (platform-specific) appendix backfill across 9 appendices in 3 CFR files. Footnote now names the 9 backfilled appendices explicitly (`title-10-ai-coding-cfr.md` A/D/E/I/K + `title-20-multi-agent-cfr.md` A/B/C + `title-40-multimodal-rag-cfr.md` A) and clarifies that out-of-scope appendices (framework-internal templates, checklists, bibliographies, meta-comparison surveys, evidence-base pointers) intentionally retain prior format with schema-broadening for non-platform appendix types deferred. Filed by session-134 coherence-auditor `acfefeb7664963885` MEDIUM-3 (BACKLOG #136 close-out review) + session-134 contrarian `a1ccaaaa68e2ee1a9` MEDIUM-2 reaffirmation (Group B pre-push double-check) → BACKLOG #142. **No new rule** — single-paragraph drift fix on existing footnote; the schema itself is unchanged. ai-instructions PATCH-on-PATCH pin sync v2.10.4 → v2.10.5 per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). **Constitutional Basis:** `meta-method-single-source-of-truth` (footnote is the SOT for §9.8.3 schema-compliance status; staleness in the SOT misleads adopters); `meta-quality-verification-validation` (post-#136 reality should be verifiable from the footnote itself rather than requiring adopters to navigate to BACKLOG #136 commit history); `meta-core-systemic-thinking` (root cause = footnote was authored in the future-tense planning frame ("backfill is tracked separately"); structural fix = update to past-tense factual frame naming the 9 backfilled appendices). Pre-edit contrarian skipped per proportional rigor (mechanical drift fix with BACKLOG-pre-specified target prose). Post-edit battery: validator + coherence-auditor (audit IDs in same-commit close-out). Governance: `gov-9f9aaed15df5`. |
 | 3.30.1 | 2026-04-26 | PATCH: BACKLOG #131 sweep — §7.12 worked migration example added + anti-example genericized. **§7.12.2** gains a "Worked migration example" sub-block (between effort-indicator list and §7.12.3) showing before/after for an Architecture STANDARD checklist entry: `Estimate: 2-8 hours` → `Effort: D2 (alternatives evaluation, ADRs, integration patterns, data model, security architecture)`. Names the principle that "After" form names structural drivers verifiable post-hoc; "Before" form was a planning band that systematically miscalibrated. **§7.12.1 anti-example** updated to remove specific title-10-cfr §3.1.2 line citations (now-stale post-sweep) — kept the abstract pattern (`Estimate: 2-8 hours` mode-checklist style) + added historical-context parenthetical pointing at title-10-cfr §2.1.2 + §3.1.2 migration date. **No new rule** — descriptive addition + drift-fix on existing anti-example. Source migrations applied to title-10-ai-coding-cfr.md v2.43.0 → v2.43.1 in same commit (6 estimate items in §2.1.2 EXPEDITED/STANDARD/ENHANCED + §3.1.2 EXPEDITED/STANDARD/ENHANCED). ai-instructions PATCH-on-PATCH pin sync v2.10.0 → v2.10.1 per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). **Constitutional Basis:** `meta-method-effort-not-time-estimation` (the rule this PATCH operationalizes via worked example); `meta-core-systemic-thinking` (worked example = root-cause discipline — show the migration pattern, don't exhort migration; same root-cause-vs-symptom logic as §7.13 anti-LLM-default framing); `meta-quality-effective-efficient-outputs` (one example > zero examples; efficient because mechanical, effective because pattern-transferable). Pre-edit contrarian skipped per proportional rigor (mechanical content addition with BACKLOG-pre-specified target — the worked example shape was specified by #131 step (c) "Update §7.12 with worked examples drawn from the migrated instances"). Post-edit battery: validator + coherence-auditor on the title-10 sweep + this entry (audit IDs to be appended after batteries run). Governance: `gov-21ee559d88f0`. |
 | 3.30.0 | 2026-04-26 | MINOR: Expanded Part 7.13 BLUF-Pyramid Briefing to close 6 gaps surfaced by external best-practice research (BACKLOG #139, session-132 research / session-133 implementation). The method was named "BLUF-Pyramid" but shipped only the BLUF half; this MINOR bump delivers the Pyramid (Minto) half. Six additions, all internal to §7.13: (1) **SCQA scaffold opening** — §7.13.2 reframed as "SCQA-Anchored, Answer-First" (Situation → Complication → Question → Answer with BLUF as the Answer); canonical heading for the Why-Now section is "Situation & Complication" with "Why-Now" as parenthetical gloss. (2) **MECE check on options** — §7.13.2/§7.13.5/§7.13.6 require alternatives to be Mutually Exclusive (no overlap; not three flavors of the same thing) and Collectively Exhaustive (cover the realistic decision space, including do-nothing baseline if applicable). §7.13.5 carries the parameter-axis test: if alternatives differ only on one continuous parameter (timing/size/scope/version) with the underlying choice constant, they are one option in disguise. (3) **Single-governing-thought rule** — §7.13.3/§7.13.5/§7.13.6 codify Minto's vertical-logic rule: every section/option rolls up to one assertion that supports the BLUF (parents summarize children). (4) **Repetition rule** — new required §7.13.2 item 5 "Close" (one-sentence restatement at the end), validated via §7.13.6 Close-present checkbox; §7.13.5 No-close-drift failure mode. (5) **False-BLUF detector** — §7.13.5/§7.13.6 require verb-based directives ("Recommend X", "Ship X now", "Hold pending Y"), reject topic-statement openings ("This memo discusses X", "Here is the analysis of Y"). (6) **AI-specific anti-LLM-default framing** — new §7.13.7 ("Why BLUF Matters for AI Output") frames BLUF as structural counter-discipline against autoregressive lead-burying, citing `meta-core-systemic-thinking` (root-cause discipline: enforce placement, don't exhort directness). Constraints (§7.13.4) updated 4-5 → 5-6 sections to accommodate Close + clarifying note that constraints are independent ceilings (the word budget binds when sections × bullets × words/bullet would exceed it). Sources line replaced with primary-source citations (AR 25-50 *Preparing and Managing Correspondence*, Minto's *Pyramid Principle*, The Brief Lab *3 Rules: Writing for Washington*, EKU Ch. 11, McKinsey/ManagementConsulted) + retained popular synthesis (Animalz, BetterUp, Laws of UX, HBR, ACM CHI) as secondary. Cross-references gain `meta-core-systemic-thinking`. **Q7 (Semantic-Label Risk) disposition** per §9.8.1 operational template (a)/(b)/(c) for new sub-section labels: **(i) "SCQA-Anchored, Answer-First"** — (a) outside pattern: Minto Pyramid Principle's SCQA scaffold + military BLUF placement rule; (b) framework mechanism: §7.13.2 enforces SCQA ordering structurally with §7.13.6 checkbox 2 mechanically applicable; (c) **PASS** — label aligns with operation (scaffold + placement). **(ii) "Anti-LLM-Default Framing"** — (a) coined term, no outside legal/aesthetic/biological/military metaphor borrowed; (b) framework mechanism: §7.13.7 doesn't enforce directly — it interprets §7.13.2/.5/.6 placement rules as anti-autoregressive root-cause discipline (operations live in those sections, framing is interpretive); (c) **PASS** — coined-term disposition; label names the function (counter-discipline against autoregressive lead-burying), not aesthetic puffery. **Cross-doc ripple:** ai-instructions MINOR bump v2.9.1 → v2.10.0 (pin update, MINOR-on-MINOR per canonical pin-discipline rule per BACKLOG #130 close, commit `4762962`, COMPLETION-CHECKLIST item 7c — initial draft attempted PATCH-on-MINOR justified by "subset" framing; that framing was struck per session-133 contrarian HIGH-2 finding because Close is a newly required section, so v3.29.0-form briefs without Close fail v3.30.0 validation — this is a tightening, not a subset, and MINOR-on-MINOR is the canonical bump for a tightening). CLAUDE.md Behavioral Floor + tiers.json `bluf-pyramid-briefing` directive unchanged — both operate at the abstraction level "lead with recommendation, 2-3 alternatives, embedded risk per option" which still holds (new sub-rules ride along under the §7.13 reference; universal-floor granularity is correct because SCQA/MECE/false-BLUF are decision-brief-specific, not universal-action checks per `tiers.json` floor selection criteria). Per `rules-of-procedure §9.8.5` bright-line: expansion of existing method's scope = MINOR (additive sub-rules + tightening of validation criteria, no removal of existing rules; backwards-not-strict-subset due to new required Close section and false-BLUF rejection). **Constitutional Basis:** `meta-quality-effective-efficient-outputs` (parent principle, joint quality discipline); `meta-core-systemic-thinking` (autoregressive lead-burying = structural cause, BLUF placement = root-cause fix; same principle invoked for the contrarian re-bump call — "address the structural cause" applied recursively to the canonical pin-discipline rule itself); `meta-method-the-duplication-check` (generalize-existing branch — method name promised more than spec delivered, same lesson as session-131 v6.0.0 rename). D1 Maintenance trunk-direct (no plan mode per BACKLOG #139 D1 classification — single-file content edit with pre-researched 6-gap delta and primary-source citations). Pre-edit battery: contrarian-reviewer (`a8648ee322443f496` APPROVE_WITH_CHANGES, 2 HIGH + 1 MEDIUM + 4 LOW; HIGH-1 and HIGH-2 folded inline, MEDIUM-1 MECE example sharpened with React/Next.js/Remix + parameter-axis test, LOW-4 Q7 expansion folded). Post-edit battery: validator (`a9000d3a2ed566287` APPROVE 6/6 PASS, 2 NOTEs folded — header rename + word-budget independent-ceilings note); coherence-auditor (`a9a34d35c2b13f0ab` APPROVE_WITH_FIXES, 1 HIGH BACKLOG #139 removal folded, 2 MEDIUM SESSION-STATE drifts deferred to session-close commit per session-131 precedent, 2 LOW historical-record cosmetic items deferred). BACKLOG #139 removed in this commit. Governance: `gov-447eddc883ba` (research, session-132), `gov-5839fdf4195e` (rewrite execution, session-133). |

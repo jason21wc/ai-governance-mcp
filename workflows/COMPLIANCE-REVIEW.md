@@ -286,6 +286,21 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 ---
 
+### 9. Constitutional Analogy Register integrity
+
+**How:** Read `documents/rules-of-procedure.md` §9.7.7 (Constitutional Analogy Register). For each `borrowed → location` entry, verify the cited location still contains the analogy reference (grep for the entry's named concept at the cited file:section). For each `not-borrowed (never considered)` entry, re-evaluate whether the trigger has fired since the last audit (event-anchored, calendar backstop every 3rd review, or consumer-anchored). For each `considered-and-rejected (cite history)` entry, verify the rejection history citation still resolves. Append a date-stamped audit-log entry directly below the register table even when no triggers fired (passive review with logged output prevents staleness — mirrors BACKLOG #109 inline-audit-log pattern).
+
+**Pass:** All borrowed entries cite live locations; all not-borrowed entries' triggers have been re-evaluated; all considered-and-rejected citations resolve; audit-log entry appended for this review.
+**Fail:** Any borrowed entry's cited location is stale or empty; any not-borrowed entry's trigger missed re-evaluation; rejection history citation broken; no audit-log entry added.
+
+**Obsolescence path** (from §9.7.7): if 4 consecutive Compliance Reviews record 0 trigger activity AND framework evolution has shifted away from governance-architectural concerns, propose archiving the register at the next MAJOR.
+
+| Review | Date | Result | Notes |
+|--------|------|--------|-------|
+| 6 | TBD ~2026-05-05 | TBD | First review including Check 9 (added 2026-04-27 with §9.7.7 register filing — session-137). |
+
+---
+
 ## Active Verification Items
 
 > Verification items are time-bound experiments tracking whether recently-introduced mechanisms are working. Each has success/failure criteria and an expiration date. When confirmed or refuted, items move to Retired with a disposition.
