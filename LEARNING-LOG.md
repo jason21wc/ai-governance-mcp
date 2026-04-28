@@ -12,6 +12,22 @@
 
 ## Active Lessons
 
+### Apply Newly-Shipped Specs to Host Files in Same Arc (2026-04-28)
+
+Session-137 BACKLOG #100 arc shipped §9.8.9 (Legal System Analogy Authoring) in Commit 1 — the spec declared method-level surfaces ineligible for italicized analogy blocks. Subsequent commits cleaned up 15 misplaced principle-level analogies in constitution + title-10. User then requested a thorough double-check audit. Two parallel subagents (contrarian `a7a951cb33f490ada` + coherence-auditor `aa443ab0670fe55a8`) caught what 5+ prior subagent rounds missed: rules-of-procedure.md itself (the spec's host file) contained 6 method-level "Legal Analogy:" blocks at §7.2/7.3/7.4.4/7.5/7.7/7.8. The §7.4.4 block invoked "Stare Decisis" as a positive structural analogy, **directly contradicting §9.7.7 register's `considered-and-rejected` classification of the same concept** — the framework asserted X at one location and not-X at another. Pre-shipping batteries didn't catch this because they scanned the diff (the new §9.8.9 spec section), not the host file's pre-existing content. Compliance Review #6 would have caught it. Commit 5 (`8957179`) folded all 5 audit findings into a PATCH.
+
+**Rule:** When an arc ships a NEW spec defining what content is or isn't allowed in some class of surface, **grep the spec's own host file for instances of the now-disallowed pattern as part of the spec-shipping commit**, not as deferred follow-up. Treat host-file self-application as part of the spec-shipping work, not a separate cleanup task.
+
+**How to apply:** During spec authoring for ineligibility/eligibility/anti-pattern rules, before committing the new spec section, run: `grep -nE '<pattern-the-spec-disallows>' <host-file>`. If the host file contains instances of the now-disallowed pattern, fold the cleanup into the same commit (per Defer-vs-Fix-Now: ≤3 files, no cascading discovery, known fix). Do NOT defer to a separate "spec-application" commit — the gap between spec-ship and spec-apply is exactly the window in which internal contradictions silently survive subagent batteries.
+
+**Why this prevents recurrence:** Pre-shipping batteries (contrarian, validator, coherence-auditor) primarily scan the diff — the new content being introduced. They are less likely to detect pre-existing host-file content that becomes newly non-compliant under the spec being introduced in the same diff. Post-shipping, that gap closes (subsequent audits scan the file, not the diff). The structural cause is treating spec-creation and spec-application as separate tasks; the structural fix is recognizing them as the same task at ship time.
+
+**Principle:** `meta-core-systemic-thinking` (root cause = task decomposition mistake — spec-ship and spec-apply are the same task, not two tasks); `meta-method-single-source-of-truth` (one canonical home; host file shouldn't contradict the spec it hosts); `meta-quality-verification-validation` (post-arc audit caught what pre-ship batteries missed; closing the gap requires self-grep at ship time).
+
+**Cross-ref:** Session-137 commit `8957179` (Commit 5 post-arc remediation); paired with the 2026-04-26 "Update SESSION-STATE Once, Post-Arc" lesson — both are *task-decomposition* failures where treating one logical task as two created drift between the parts.
+
+---
+
 ### Update SESSION-STATE Once, Post-Arc — Interleaved Updates Generate Drift Cascades (2026-04-26)
 
 Session-135 shipped 3 work commits (#141 close + harmonization fold-in + #142 close) but interleaved SESSION-STATE.md updates within each commit. Result: 2 successive narrative-drift fix commits (`641d4ac`, `4f25af6`) needed to repair count-claim drift ("3 commits" stale post-fix-commit), "forthcoming" framing stale post-`e71b708`, and last-push hash drift (`f1ecd08` → actual `b23cdab`). Each fix-commit only caught some drift; the next had to fix what the prior missed, because each interleaved SESSION-STATE update describes the state at THAT moment but cannot anticipate subsequent commits. Final shape: 5 commits ahead of origin (3 work + 2 narrative-drift fold-ins) for what should have been a 4-commit arc (3 work + 1 SESSION-STATE update). Cumulative-arc pre-push double-check (`aed69b709923a091b` contrarian + `a20b052b70e903339` coherence) caught the first wave; final pre-push double-check (`a62ae4a357cb78cc4` contrarian + `a5911082fc45e6e94` coherence) caught the second wave including the pre-existing `f1ecd08` last-push drift inherited from session-134.
