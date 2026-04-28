@@ -113,7 +113,7 @@
 1. **"Supremacy Clause"** (`constitution.md` Operative Hierarchy section) — enforcement mechanism = §9.3.1 Truth Source Hierarchy + §9.8.5 bright-line. Expected PASS.
 2. **"Elastic Clause"** (`rules-of-procedure §8.7`) — derived authority for novel situations. Enforcement mechanism = ? (may be Q7 FAIL — is this a specific operationalization, or aspirational prose?)
 3. **"Full Faith and Credit"** (`rules-of-procedure §9.7.6`) — cross-domain output recognition. Enforcement mechanism = retrieval engine crosses domains, but is that what the clause names? Partial/unclear.
-4. **"Jacobson v. Massachusetts pattern"** (cited in `constitution.md:80` Preamble classification) — Preamble as interpretive tiebreaker. Enforcement mechanism = Admission Test tiebreaker rule. Likely PASS.
+4. **"Jacobson v. Massachusetts pattern"** (cited in `constitution.md` §Framework Structure, Contextual Layers — Preamble row) — Preamble as interpretive tiebreaker. Enforcement mechanism = Admission Test tiebreaker rule. Likely PASS.
 5. **"Bill of Rights" (generic label)** — S-Series naming. Partially covered by F-P2-04 Q7 PASS (Cohort 5 Session 5-2), but that PASS was narrowly scoped to S-Series US-Constitutional PROSE framing, not the "Bill of Rights" label itself.
 6. **"Impeachment fast-path"** (`rules-of-procedure §9.6.3`) — MAJOR version bump workflow. Enforcement mechanism = §9.6.3 text itself. Likely PASS.
 
@@ -222,7 +222,7 @@
 
 107. **F-C-06 Tool/Model Appendix index — adopter discoverability for Appendices A-L** `D3 Deferred`
 
-**What:** Tool/Model Appendices (A-M: Claude Code CLI config, prompt caching specs, Postgres/Supabase, permission architecture, production hardening, ecosystem tools, etc.) are embedded inside `documents/title-10-ai-coding-cfr.md` starting around line 7377+. No standalone index or discoverability mechanism exists. The Situation Index at `rules-of-procedure.md:92` and `title-10-ai-coding-cfr.md:104` fulfills entry-based discovery for *procedures*, but does NOT enumerate all Appendices. Adopters asking "how do I configure Claude Code CLI?" have no discoverable path without knowing to look inside §7200+.
+**What:** Tool/Model Appendices (A-M: Claude Code CLI config, prompt caching specs, Postgres/Supabase, permission architecture, production hardening, ecosystem tools, etc.) are embedded inside `documents/title-10-ai-coding-cfr.md` starting around line 7377+. No standalone index or discoverability mechanism exists. The Situation Index in `rules-of-procedure.md` and `title-10-ai-coding-cfr.md` fulfills entry-based discovery for *procedures*, but does NOT enumerate all Appendices. Adopters asking "how do I configure Claude Code CLI?" have no discoverable path without knowing to look inside §7200+.
 
 **Re-open prerequisites:**
 1. **A consumer emerges** that needs Appendix-level discovery — examples: (a) a retrieval pattern specifically queries "show all Tool Appendices for platform X"; (b) adopter rollout reveals friction with Appendix lookup; (c) Appendix count exceeds a practical threshold (e.g., >15 appendices) making embedded-in-CFR structure unwieldy.
@@ -305,34 +305,6 @@
 **Origin:** Session-127 push-workflow plan security review. Audit ID: `a44b7638cf3d43b52` (security-auditor B2 BLOCKER for the original 6-component proposal; downgraded to BACKLOG when the plan scope was reduced). Governance: `gov-7083d6c85ffc`.
 
 **Done when.** All 6 bypasses use shared helper + canonical log entries + V-series item active in COMPLIANCE-REVIEW.md.
-
----
-
-#### 144. Citation-anchor drift CI check — line-number citations across documents/ verified against header patterns `D2 New Capability`
-
-**Filed:** 2026-04-28 (session-137 Commit 6, post-arc remediation per double-check audit MEDIUM-2 finding).
-
-**What.** A CI check that parses `\.md:\d+` line-number citations across `documents/` and verifies each cited line matches a header/named-block pattern in the cited file. Catches the entire line-citation drift class structurally on every PR — the failure mode that hit BACKLOG #100 arc twice (Commit 1 cited correct lines pre-Commit-2; Commit 2 SSOT note + analogy removals shifted the constitution.md headers by +2; Commit 4 fold-in had to correct Articles I-IV `:175/422/627/814` → `:177/424/629/816`, Bill of Rights `:996` → `:998`, Supremacy `:114-116` → `:116-118`, F-P2-04 PASS block `:1000-1004` → `:1002-1006`).
-
-**Why this is a CI check class.** The drift recurred *despite* LEARNING-LOG 2026-04-25 "Verify Source-of-Truth Files Before Anchoring on Review Notes" being in the corpus. The lesson alone is insufficient — drift hit twice in the same arc. Per `meta-core-systemic-thinking`: structural cause is line-number anchors over section anchors; the citation-discipline guidance shipped at `rules-of-procedure §9.8.9` Citation Discipline subsection (v3.31.3) is documentation; CI is enforcement.
-
-**Implementation sketch (~30 lines Python or bash):**
-1. Find all citations matching `(\w+\.md):(\d+)(?:-(\d+))?` across `documents/`, `BACKLOG.md`, `SESSION-STATE.md`, `LEARNING-LOG.md`, `PROJECT-MEMORY.md`, `workflows/`.
-2. For each `(file, line)` pair: open the file, read the cited line(s).
-3. If the cited line matches a header pattern (`^#+ `, `^\*\*[A-Z]`, `^### `) or named-block pattern (`^\| .+ \|`, `^\*Legal Analogy:` etc.), PASS.
-4. If the cited line is mid-paragraph, FAIL with the actual cited line content + suggestion to use section-anchor form.
-
-**Edge cases to handle:**
-- Citations to specific blocks within sections (e.g., `:1002-1006` for F-P2-04 Q7 PASS block — the start line should be a recognizable block boundary; intermediate lines in the range can be mid-paragraph).
-- Citations in archived files (`documents/archive/*`) should be excluded — archives are forward-only-frozen.
-- Citations in `*-msg.txt` temp files should be excluded.
-- Citations like `constitution.md:1135` in v6.0.1 amendment self-reference — point to a specific bullet inside an entry, not a header. Allow when the cited line starts with `*   ` or `**` patterns (intentional structured-content citations).
-
-**Trigger.** Either: a third instance of line-citation drift recurring in any future arc OR an adopter requests stricter cross-doc reference validation OR a maintenance commit that touches >5 cross-doc citations (consolidating the check is then proportional).
-
-**Done when.** CI check ships in `.github/workflows/ci.yml` or `.pre-commit-config.yaml`, fires on every PR, catches the drift class on a synthetic test case (intentional bad citation), passes on real corpus.
-
-**Origin:** Session-137 BACKLOG #100 post-arc remediation (Commit 6, `~/.claude/plans/give-me-the-brief-kind-wozniak.md`). Audit IDs: contrarian `a7a951cb33f490ada` MEDIUM-2 (recommended this CI check as the right structural defense; section-anchor scheme as alternative considered but rejected because constitution.md headers don't have stable anchor IDs).
 
 ---
 

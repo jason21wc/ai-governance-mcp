@@ -20,3 +20,11 @@ repos:
         language: system
         files: '^(documents/failure-mode-registry\.md|tests/.*\.py|scripts/generate-test-failure-map\.py)$'
         pass_filenames: false
+      - id: citation-form-check
+        name: citation form check (§9.8.9)
+        # Rejects bare `<file>.md:<line-number>` citations per §9.8.9 Citation
+        # Discipline. Closes BACKLOG #144 — structural prevention of the
+        # line-citation drift class that hit BACKLOG #100 arc twice.
+        entry: python3 scripts/check-citations.py
+        language: system
+        pass_filenames: false

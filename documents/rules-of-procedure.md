@@ -2530,13 +2530,13 @@ This part provides procedures for applying the US Constitution analogy when auth
 
 **Equal Protection:** Constitutional principles and methods must apply equally across all domains. If a method cannot be applied to a domain without modification, the method may be domain-biased and should be evaluated for generality.
 
-**Q7 disposition for new structural-component analogies:** Analogies authored at framework-structure-level surfaces (per §9.8.9) require Q7 disposition recorded inline — naming (a) the outside pattern borrowed, (b) the framework mechanism enforcing/failing to enforce the borrowed semantic, (c) the disposition (PASS / RENAME / DISCLAIMER / NEW TERM) — per F-P2-04 precedent at `constitution.md:1002-1006`. The forward Q7 test at §9.8.1 still applies for label-class checks; §9.8.9 governs the reverse Q7 application (we attach a borrowed legal label to our own concept).
+**Q7 disposition for new structural-component analogies:** Analogies authored at framework-structure-level surfaces (per §9.8.9) require Q7 disposition recorded inline — naming (a) the outside pattern borrowed, (b) the framework mechanism enforcing/failing to enforce the borrowed semantic, (c) the disposition (PASS / RENAME / DISCLAIMER / NEW TERM) — per F-P2-04 precedent at `constitution.md` §Bill of Rights (F-P2-04 Q7 PASS block). The forward Q7 test at §9.8.1 still applies for label-class checks; §9.8.9 governs the reverse Q7 application (we attach a borrowed legal label to our own concept).
 
 ### 9.7.1 Framework Hierarchy Reference
 
 **Applies To:** understanding the 7-layer governance hierarchy (Bill of Rights through Secondary Authority), determining which layer has authority in a conflict, and classifying new content into the correct layer
 
-The governance framework uses a 7-layer hierarchy modeled on US legal structure. See `constitution.md` Framework Structure (lines 84-92 Operative Hierarchy) for the authoritative definition. **Authoring note (per v3.31.2 SSOT compliance):** edits to layer names, authority levels, or stability descriptors must originate at `constitution.md:84-92` (designated SSOT v6.0.1, 2026-04-28 — see `documents/constitution.md:94`). The table below is a derived restatement preserving the canonical structure plus a navigational Example column; if the two diverge, `constitution.md` is canonical and this table re-syncs from it, not the other way.
+The governance framework uses a 7-layer hierarchy modeled on US legal structure. See `constitution.md` §Framework Structure (Operative Hierarchy table) for the authoritative definition. **Authoring note (per v3.31.2 SSOT compliance):** edits to layer names, authority levels, or stability descriptors must originate at `constitution.md` §Framework Structure (Operative Hierarchy table — designated SSOT v6.0.1, 2026-04-28 per the SSOT note immediately below the table). The table below is a derived restatement preserving the canonical structure plus a navigational Example column; if the two diverge, `constitution.md` is canonical and this table re-syncs from it, not the other way.
 
 | Layer | Framework Element | Authority | Stability | Example |
 |-------|-------------------|-----------|-----------|---------|
@@ -2698,7 +2698,7 @@ Pure passive triggers ("when it becomes useful") are insufficient — they repro
 2. **One-way state transitions with history.** A `borrowed → considered-and-rejected` move (or vice versa) MUST record the rejection/adoption history per the `(cite history)` requirement before the transition lands. Entries cannot oscillate between states without new evidence; once rejection/adoption history is logged, re-entry requires citation of new evidence, not re-litigation of the prior history.
 3. **No empty rationale.** Every entry MUST have a non-empty rationale + trigger column. A row with only a status and no rationale fails self-validation. Borrowed entries' rationale = where + why borrowed; not-borrowed = why not + when re-evaluate; considered-and-rejected = why rejected + history pointer.
 
-**Maintenance discipline.** Inherits cadence from `workflows/COMPLIANCE-REVIEW.md` Check 9 ("Constitutional Analogy Register integrity"). Each Compliance Review produces a date-stamped audit-log entry directly below the table, mirroring BACKLOG #109's inline-audit-log pattern (`BACKLOG.md:201-203`). Audit logs must be appended even when no triggers fire — passive review with logged output is what prevents staleness.
+**Maintenance discipline.** Inherits cadence from `workflows/COMPLIANCE-REVIEW.md` Check 9 ("Constitutional Analogy Register integrity"). Each Compliance Review produces a date-stamped audit-log entry directly below the table, mirroring BACKLOG #109's inline-audit-log pattern. Audit logs must be appended even when no triggers fire — passive review with logged output is what prevents staleness.
 
 **Obsolescence path.** If 4 consecutive Compliance Reviews record 0 trigger activity AND framework evolution has shifted away from governance-architectural concerns, propose archiving the register at the next MAJOR. Dead infrastructure is harder to remove than to maintain — name the obsolescence path now.
 
@@ -2706,14 +2706,14 @@ Pure passive triggers ("when it becomes useful") are insufficient — they repro
 
 | Component | Status | Rationale + Trigger |
 |-----------|--------|---------------------|
-| Constitution | borrowed → `constitution.md` (top + §84-92 Operative Hierarchy SSOT) | Foundational charter; Supremacy Clause enforced at `constitution.md:116-118`. |
-| Bill of Rights | borrowed → `constitution.md:998` (S-Series header) | Veto authority via S-Series structural blocking. F-P2-04 Q7 PASS at `constitution.md:1002-1006`. |
-| Federal Statutes | borrowed → Operative Hierarchy (`constitution.md:84-92`) | Domain principles play this role; binding under Constitutional supremacy. |
+| Constitution | borrowed → `constitution.md` (top + §Framework Structure Operative Hierarchy SSOT) | Foundational charter; Supremacy Clause enforced at `constitution.md` §Framework Structure (Supremacy Clause). |
+| Bill of Rights | borrowed → `constitution.md` §Bill of Rights (S-Series header) | Veto authority via S-Series structural blocking. F-P2-04 Q7 PASS block in §Bill of Rights. |
+| Federal Statutes | borrowed → §Framework Structure Operative Hierarchy table | Domain principles play this role; binding under Constitutional supremacy. |
 | Rules of Procedure | borrowed → Operative Hierarchy + RoP §9.7.1 architectural note (line 2563); "Federal Rules of Civil Procedure" example invoked at §9.8.9 | Constitutional Methods layer; consolidates US distributed Supreme Court Rules + Congressional standing rules into single layer per F-P1-03 disposition (v3.27.3); structural divergence from US pattern documented as deliberate. |
 | Federal Regulations | borrowed → Operative Hierarchy | CFR-level methods play this role; derive from domain principles per §9.7.3. |
 | Agency SOPs | borrowed → Operative Hierarchy | Sub-domain procedures play this role. |
 | Secondary Authority | borrowed → Operative Hierarchy + RoP §15.1 | Reference Library; informative-but-non-overriding. Renamed from "Case Law" v5.0.0 (see Stare Decisis below). |
-| Articles I-IV (Branches) | borrowed → `constitution.md:177/424/629/816` | Legislative/Executive/Judicial/Administrative branch structure mapped to C/O/Q/G-Series. |
+| Articles I-IV (Branches) | borrowed → `constitution.md` §Article I / §Article II / §Article III / §Article IV | Legislative/Executive/Judicial/Administrative branch structure mapped to C/O/Q/G-Series. |
 | Supremacy Clause | borrowed → RoP §9.7.4 | Higher-layer-wins conflict resolution. |
 | Full Faith and Credit | borrowed → RoP §9.7.6 | Cross-domain output recognition. |
 | Equal Protection | borrowed → RoP §9.7 intro (line 2543) | Per-domain method generality. |
@@ -2730,9 +2730,9 @@ Pure passive triggers ("when it becomes useful") are insufficient — they repro
 - *2026-04-27 (initial filing, session-136):* Register established. 10 borrowed + 1 considered-and-rejected + 7 not-borrowed entries. No triggers fired. Next audit at Compliance Review #6 (~2026-05-05–05-10).
 
 **Cross-references.**
-- §9.8.1 Q7 PASS/FAIL exemplars table (`rules-of-procedure.md:2776-2785`) — proto-register material; mutually informative.
+- §9.8.1 (Q7 PASS/FAIL exemplars table) — proto-register material; mutually informative.
 - §9.8.9 Legal System Analogy Authoring — writing prompt for new analogy blocks.
-- F-P2-04 Q7 PASS block at `constitution.md:1002-1006` — exemplar Q7 disposition format.
+- F-P2-04 Q7 PASS block in `constitution.md` §Bill of Rights — exemplar Q7 disposition format.
 
 ---
 
@@ -2771,7 +2771,7 @@ Seven binary questions ANY new or substantially modified (see §9.8.5 bright-lin
 **Q7 pass/fail exemplars** (calibrates reviewer judgment):
 
 PASS examples (label aligns with operation):
-- "Constitution" as top-level normative document → framework DOES enforce override-all via Supremacy Clause (`constitution.md:116-118`). PASS.
+- "Constitution" as top-level normative document → framework DOES enforce override-all via Supremacy Clause (`constitution.md` §Framework Structure, Supremacy Clause). PASS.
 - "Bill of Rights" for S-Series → framework DOES give S-Series veto authority. PASS.
 - "Secondary Authority" (post-v5.0.0 rename) → framework treats Reference Library as informative-but-non-overriding, matching legal definition of secondary authority. PASS.
 
@@ -3108,12 +3108,12 @@ Each agent catches a different class of issue. Running only the contrarian durin
 
 **Eligible placement targets:**
 1. Top of `documents/constitution.md`
-2. Articles I-IV headers (`constitution.md:177/424/629/816`)
-3. Bill of Rights header (`constitution.md:998`)
+2. Articles I-IV headers (`constitution.md` §Article I / §Article II / §Article III / §Article IV)
+3. Bill of Rights header (`constitution.md` §Bill of Rights)
 4. Top of `documents/rules-of-procedure.md`
 5. Blueprint sections within RoP — authoring guidance for: domain principles, methods, appendices, library-refs
 
-**Ineligible:** domain titles (title-10/15/20/25/30/40), individual principles, individual methods, individual appendix entries, individual library-refs. Per-instance analogies duplicate the Operative Hierarchy SSOT (`constitution.md:84-92`).
+**Ineligible:** domain titles (title-10/15/20/25/30/40), individual principles, individual methods, individual appendix entries, individual library-refs. Per-instance analogies duplicate the Operative Hierarchy SSOT (`constitution.md` §Framework Structure, Operative Hierarchy table).
 
 **Function.** Each Legal System Analogy is a typed pointer establishing structural correspondence between an ai-governance framework component and a US Constitutional / legal concept. The analogy piggybacks on training-distribution knowledge: the AI/reader knows the US legal concept; the analogy asserts "this framework component plays the same structural role." Downstream decisions follow: placement (same slot → same neighbors), precedence (same role → same authority level), scope check (same role → same breadth), amendment discipline (Constitutional-level → MAJOR-bump pattern), conflict resolution (Constitutional supremacy → meta-principles override CFR-level methods).
 
@@ -3130,7 +3130,7 @@ Each agent catches a different class of issue. Running only the contrarian durin
 
 **Structural-separation rule.** The italicized analogy block does ONLY structural-correspondence work. Mechanism content (failure modes, prescriptions, "how to apply") belongs in the un-italicized intro of the section the analogy sits under. Italicized block answers *what role does this play*; un-italicized answers *what does this do*.
 
-**Q7 disposition requirement.** Every analogy records inline (a) the outside pattern being borrowed, (b) the framework mechanism that enforces or fails to enforce the borrowed semantic, (c) the disposition (PASS / RENAME / DISCLAIMER / NEW TERM). Per F-P2-04 precedent at `constitution.md:1002-1006`. Bare "passes" without these three is non-compliance.
+**Q7 disposition requirement.** Every analogy records inline (a) the outside pattern being borrowed, (b) the framework mechanism that enforces or fails to enforce the borrowed semantic, (c) the disposition (PASS / RENAME / DISCLAIMER / NEW TERM). Per F-P2-04 precedent at `constitution.md` §Bill of Rights (F-P2-04 Q7 PASS block). Bare "passes" without these three is non-compliance.
 
 **ABSTAIN exit ramp (bidirectional).** Abstain at authoring time if the analogy cannot satisfy the spec without strain — better silence than forced metaphor. Abstain at borrowing time: do not move a §9.7.7 register entry from "not-borrowed" → "borrowed" without an ai-governance need surfacing first (anti-completionism; see §9.7.7).
 
@@ -3146,7 +3146,7 @@ Each agent catches a different class of issue. Running only the contrarian durin
 | 6 | Mechanism-as-analogy bleed | Failure-mode prose or prescriptions inside the italicized block (move to un-italicized intro) |
 | 7 | Voice asymmetry | Analogy reads like a different author from surrounding prose |
 | 8 | Sibling-section ambiguity | Analogy doesn't distinguish this section from a peer (Article I vs Article II) |
-| 9 | Declaration contradiction | Importing semantics the Declaration (`constitution.md:18-52`) explicitly disclaims |
+| 9 | Declaration contradiction | Importing semantics the Declaration (`constitution.md` §Declaration) explicitly disclaims |
 | 10 | Forced legal mapping | Analogy at a structural component that isn't genuinely Constitutional in shape (e.g., a purely mechanical procedure) |
 | 11 | Header-itself-analogy double-up | Section header parenthetical already names the analog (e.g., "Article I: ... (Legislative Branch)"); separate prose-form analogy below would restate |
 | 12 | Register-driven authoring | Authoring an analogy because a §9.7.7 register entry says "not-borrowed yet" — analogies must originate from ai-governance need, not register completion |
