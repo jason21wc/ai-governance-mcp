@@ -308,6 +308,35 @@
 
 ---
 
+#### 145. Citation-form check hardening — deferred follow-ups from BACKLOG #144 post-arc double-check `D3 Improvement`
+
+**Filed:** 2026-04-28 (session-138, post-arc 3-subagent double-check on `6b01279` BACKLOG #144 close).
+
+**What.** Four hardening items deferred from the BACKLOG #144 post-arc double-check. The shipped `scripts/check-citations.py` closes the bare-`<file>.md:<line>` form drift sub-class, but the audit (code-reviewer `a42881796ff38122a` + coherence-auditor `af8ab67d276e2e1bd` + contrarian-reviewer `ac656b377843aadd6`) surfaced four hardening items below their "fix-now" threshold per `coding-method-defer-vs-fix-now`:
+
+1. **Fenced-code-block exclusion.** Script's regex `[a-zA-Z0-9_-]+\.md:[0-9]+(?:[-/][0-9]+)*` matches inside ` ``` ` fences. Today's corpus has no false-positive instances (script exits 0), but a future content addition with example code blocks demonstrating the deprecated form (e.g., LEARNING-LOG entries quoting a bare `<filename>.md:<N>` form as a *negative example*) would self-trigger. Fix: add fence-tracker to `scan_file` mirroring the heading-depth pattern (~5 lines + 1-2 tests). Code-reviewer HIGH-1.
+
+2. **§-anchor accuracy verification.** Migrated citations like `constitution.md §Bill of Rights (F-P2-04 Q7 PASS block)` are text-anchored but the script does NOT verify the §-anchor names a real heading in the cited file. Wrong-§-anchor citations slip past silently. Fix: extract `§<heading-text>` patterns and verify heading exists in target file. Contrarian HIGH-1.
+
+3. **Hostile-heading false-exclusion.** `is_excluded_heading` does substring match: `'version history' in heading.lower()`. A heading like `## Pre-existing Issues — Version History Notes` would auto-exclude its (potentially-normative) section. No live offender; trap is loaded for future content. Fix: exact-match exclusion list, or restrict to leading/trailing token. Contrarian MEDIUM.
+
+4. **Test edge-case gaps.** Missing tests for: empty file, file without trailing newline, citation-on-heading-line, citation in fenced code block, allowlist with BOM/whitespace, nested heading interactions. Cosmetic hardening; existing 14 tests cover the contract. Code-reviewer MEDIUM-1.
+
+**Trigger.** Promote to fix-now when ANY of:
+- First observed false-positive in production (item 1 — fenced code) OR
+- First observed wrong-§-anchor citation surviving review (item 2) OR
+- First normative section adopts a heading containing an exclusion substring (item 3) OR
+- A real bug in any of items 1-3 that would have been caught by the missing tests (item 4) OR
+- A maintenance commit that touches `scripts/check-citations.py` for any other reason (cluster the fixes).
+
+**Done when.** All 4 items addressed (or individually closed-with-rationale if scope discovery reveals one is moot). Each fix accompanied by tests covering the failure mode.
+
+**Why D3 not D2:** The shipped check is correct on the current corpus; these are robustness/coverage improvements, not bug fixes. Per proportional rigor: hardening for *theoretical* failure modes risks scope creep. Hold until a real-world trigger fires.
+
+**Origin:** Session-138 post-arc double-check on `6b01279` (BACKLOG #144 close). Audit IDs: code-reviewer `a42881796ff38122a` (HIGH-1 fenced-code, MEDIUM-1 test gaps), contrarian `ac656b377843aadd6` (HIGH-1 §-anchor accuracy, MEDIUM hostile-heading). Governance: `gov-d745dd6f8f9b` (double-check audit).
+
+---
+
 #### 143. OOM-gate command-line-substring false-positive — start-of-token anchor needed `D2 Improvement`
 
 **Filed:** 2026-04-27 (session-136, observed during BACKLOG #13 close commit `ca7cd9f`).

@@ -297,7 +297,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
-| 6 | TBD ~2026-05-05 | TBD | First review including Check 9 (added 2026-04-27 with §9.7.7 register filing — session-137). |
+| 6 | TBD ~2026-05-05 | TBD | First review including Check 9 (added 2026-04-28 with §9.7.7 register filing — session-137). |
 
 ---
 

@@ -80,12 +80,16 @@ def load_allowlist(allowlist_path: Path) -> set[str]:
 
     Format: `<citation> | <reason> | <session>` per line. Comments (`#`) and
     blank lines are skipped. If the file is missing, returns an empty set.
+    Non-UTF8 bytes are replaced rather than raising — robustness against
+    accidental BOM / latin-1 paste / binary content in the allowlist file.
     """
     if not allowlist_path.exists():
         return set()
 
     permitted: set[str] = set()
-    for raw_line in allowlist_path.read_text().splitlines():
+    for raw_line in allowlist_path.read_text(
+        encoding="utf-8", errors="replace"
+    ).splitlines():
         stripped = raw_line.strip()
         if not stripped or stripped.startswith("#"):
             continue
@@ -126,7 +130,9 @@ def scan_file(path: Path) -> list[tuple[int, str]]:
     violations: list[tuple[int, str]] = []
     excluded_depth: int | None = None
 
-    for idx, line in enumerate(path.read_text().splitlines(), start=1):
+    for idx, line in enumerate(
+        path.read_text(encoding="utf-8", errors="replace").splitlines(), start=1
+    ):
         heading_match = HEADING_PATTERN.match(line)
         if heading_match:
             depth = len(heading_match.group(1))
