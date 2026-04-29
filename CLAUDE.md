@@ -48,6 +48,8 @@ After evaluating: cite principle IDs that influence your approach.
 
 **CE vs Grep:** Use `query_project` for semantic discovery (what exists? what's related? how does X work?). Use Grep/Glob for deterministic lookup (find this exact string, check this file, count occurrences). When creating new content or investigating unfamiliar areas, CE first.
 
+**Known hook workaround — OOM-gate FP on `pytest` in commit messages:** When a `git commit` message body contains `pytest` inside a quoted region (heredoc body or alternation argument), the OOM gate (`pre-test-oom-gate.sh`) false-positives because its token-anchored matcher cannot distinguish executable position from quoted-region content. Write the message to a tempfile via the Write tool and commit via `git commit -F <messagefile>`. Tracked as BACKLOG #143 (deferred — asymmetric cost: hook modification risks TP-regression vs. low workaround friction).
+
 ## Subagents
 
 10 specialized agents in `.claude/agents/`. Read the agent file and apply its instructions when a task matches:

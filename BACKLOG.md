@@ -262,6 +262,40 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 146. BACKLOG taxonomy — split tripwires and cadences from discrete projects `D2 Improvement`
+
+**Filed:** 2026-04-29 (session-139, user observation during BACKLOG #143 refile work).
+
+**What.** BACKLOG.md currently mixes three lifecycle-distinct artifact types in one file:
+
+1. **Projects** — discrete tasks with start and end (close on completion). Examples: #53 Modular Domain Architecture, #22 Governance Effectiveness Measurement, #6 Visual Communication Domain, closed-and-archived items (#100, #144 etc.).
+2. **Tripwires** — conditional re-evaluations; watch indefinitely; close on event-trigger OR accepted-residual decision. Examples: #134 PR-workflow infrastructure, #143 OOM-gate quoted-region FP (refiled session-139), #129 FM-S-SERIES re-register, #145 citation-form check hardening, #119 revised-plan contrarian heuristic, #112 Q7 retroactive audit, #113 plan-stage battery effectiveness, #110/#111 post-edit / R-01 retrospective items, #108 strict_domain_check Phase 2, #107 Tool/Model Appendix index, #106 Implements: backfill, #58/#59/#60 UBDA review items, #41/#43/#44/#45/#46 reference library improvements. ~15 entries by current count.
+3. **Cadences/calendar items** — recurring on schedule (never "done") OR one-shot calendar-anchored. Examples: #78 Compliance Review (10-15 day cadence), #109 deferred-cadence audit (~30 day cadence), #137 PHASE2 monitor close-out (one-shot, due ~2026-05-03). ~3 entries by current count.
+
+**User's structural observation (verbatim):** *"Backlog should be discrete (like projects) tasks that have a start and an end. If we need warnings or continuous monitoring to make sure things work, we need a proper location for that."*
+
+**Why this matters per `meta-core-systemic-thinking`:** storing three semantically-different artifact types as one violates SSOT-of-kind at the taxonomy level. Concrete friction observed session-139 when ranking top-10 BACKLOG items: tripwires and projects landed in the same ranked list, requiring per-item lifecycle classification before prioritization. That work belongs in the file structure, not in every consumer.
+
+**Adjacent context (from CE query, surfaced session-139):** the project already maps memory files to cognitive memory types (PROJECT-MEMORY ADR-5 + title-10 §7.0.2, CoALA framework). Current taxonomy: Working → SESSION-STATE, Semantic → PROJECT-MEMORY, Episodic → LEARNING-LOG, Procedural → workflows/*, Prospective → BACKLOG, Reference → reference library. Question for discussion: are tripwires "prospective with conditional fire" (still BACKLOG, but a sub-type) or different cognitive class? Are cadences "procedural" (recurring how-to) and therefore belong in workflows/* with only a pointer in BACKLOG?
+
+**Discussion needed:**
+1. **Destination for tripwires.** Options: (a) new top-level `WATCH-LIST.md` file at repo root; (b) new `## Tripwires` section in BACKLOG.md (one file, two sections); (c) keep in BACKLOG with explicit `Tripwire` type tag (tag-only solution); (d) move to PROJECT-MEMORY as standing rules. Each has different trade-offs in discoverability, CoALA-taxonomy coherence, and migration cost.
+2. **Destination for cadences.** Cadence items (#78, #109) fire on schedule, not on event. Options: (a) `CADENCES.md` separate file; (b) folded into `workflows/COMPLIANCE-REVIEW.md` as the cadence canonical home; (c) keep in BACKLOG with `Cadence` type tag.
+3. **Tag-only vs. file-split.** Cheaper alternative to physical separation: add `Tripwire` / `Cadence` / `Project` type tag (alongside current Fix/Improvement/etc.) and let consumers filter. Smaller surface; loses physical separation goal but addresses prioritization friction.
+4. **Migration scope and pacing.** ~15 tripwire-class + ~3 cadence-class entries. Bulk migration (one D2 arc) vs. as-touched migration (defers risk of inconsistent state during transition). Bulk is cleaner; as-touched amortizes effort.
+
+**Why D2 not D1.** Touches BACKLOG philosophy block, ~18 existing entries, possibly CLAUDE.md/AGENTS.md cross-refs and coherence with PROJECT-MEMORY ADR-5 cognitive-taxonomy framing. Plan mode required with pre-edit contrarian battery on the chosen destination structure (especially: does the split increase or decrease coherence with the existing CoALA-aligned memory taxonomy?).
+
+**Done when.**
+1. Decision made on destination structure (file split vs. tag-only vs. hybrid) with rationale tied to cognitive-taxonomy coherence.
+2. Migration executed for current tripwire and cadence entries.
+3. BACKLOG philosophy block (top of file) updated to define the project / tripwire / cadence taxonomy and where each lives.
+4. CLAUDE.md, AGENTS.md, and any workflow files updated where they reference BACKLOG-as-single-list.
+
+**Origin.** Session-139 (2026-04-29) user observation during BACKLOG #143 refile: the asymmetric-cost-driven decision to keep #143 deferred-but-watched surfaced that #143 isn't a project at all — it's a tripwire. User generalized: same applies to #134 and others. Filed per direct user instruction. Governance: `gov-a2d2b84d5b99`.
+
+---
+
 #### 134. PR-workflow infrastructure (CODEOWNERS, branch protection paths, pre-push routing hook) — tripwire-triggered `D2 New Capability`
 
 **Filed:** 2026-04-25 (session-127, post-§8.3.4-self-application plan; convergent finding from contrarian + security-auditor + coherence-auditor pre-plan reviews).
@@ -337,39 +371,26 @@
 
 ---
 
-#### 143. OOM-gate command-line-substring false-positive — start-of-token anchor needed `D2 Improvement`
+#### 143. OOM-gate quoted-region false-positive — bash-aware lexing of command line needed `D2 Improvement`
 
-**Filed:** 2026-04-27 (session-136, observed during BACKLOG #13 close commit `ca7cd9f`).
+**Filed:** 2026-04-27 (session-136). **Refiled:** 2026-04-29 (session-139, after deny-log analysis revealed the original entry mischaracterized the matcher and contrarian-reviewer rejected the proposed safelist fix).
 
-**What.** `.claude/hooks/pre-test-oom-gate.sh` matches the literal substring `pytest tests/` (and related patterns) anywhere in the Bash `command` field, without distinguishing executable-position tokens from string contents. Two observed false-positive cases this session:
-1. **Commit-message body trigger.** `git commit -m "$(cat <<EOF ... pytest tests/ ... EOF)"` fires the gate because the commit message body — passed via heredoc on the command line — contains the literal substring. The Bash command is a `git commit`, not a pytest invocation, but the matcher cannot tell.
-2. **Grep-argument trigger.** Contrarian-reviewer agent (`a40fb47c436c9fec8`) ran a grep with the literal substring during BACKLOG #13 pressure-test review and tripped the same false-positive.
+**What.** `.claude/hooks/pre-test-oom-gate.sh:111` uses a token-anchored regex `(^|[[:space:]]|&&|;|\|)[[:space:]]*(pytest[[:space:]]|python[23]?[[:space:]]+-m[[:space:]]*pytest...)` against the raw Bash `command` string. The regex correctly identifies `pytest` at command-position when the input is plain shell, but cannot distinguish executable-position tokens from string content inside quoted regions: heredoc bodies (`git commit -m "$(cat <<'EOF' ... pytest tests/ ... EOF)"`), grep regex alternations (`grep "OOM\|pytest tests"`), and equivalent string-handling commands (echo/printf/sed/awk arguments).
 
-**Workaround currently in use.** Write commit message to a tempfile via the Write tool, commit via `git commit -F <file>`. Reliable but adds friction. Documented in SESSION-STATE.md "ACTION ON RESUME" block as of session-136.
+**Why the original entry was wrong.** The 2026-04-27 filing claimed the matcher used "literal substring match" and proposed token-anchoring as the fix. But the matcher was already token-anchored at filing time — a `meta-quality-verification-validation` failure at filing (claim made without reading the source). The structural defect is the level *above* token anchoring: distinguishing executable position from quoted-region content requires bash-aware lexing, not a different regex pre-char class. The `n=3` instance trigger was set against a defect description that doesn't match the source — discarded; this refiling describes the actual defect.
 
-**Structural fix per `meta-core-systemic-thinking`:** anchor the match to start-of-sub-command position. `pytest` is only a trigger when it appears at the start of the command, or after `&&`, `;`, `|`. A commit-message body, a grep argument, a docs-string reference, or any non-executable substring no longer false-triggers.
+**Empirical evidence (deny log `~/.context-engine/oom-gate-denies.log`, 2026-04-15 → 2026-04-28):** 6 total denies — 4 false-positives (3× `git commit -m` heredoc bodies, 1× `grep -n` alternation) + 2 true-positives (bare `pytest tests/`, `python3 -m pytest -q`). FP rate 67%. All 4 FP classes route around with `git commit -F <file>` workaround (now codified in CLAUDE.md).
 
-**Approaches (for design discussion, plan-mode required):**
-1. **Token-anchor regex:** require `(^|&&|;|\|)\s*pytest\s` rather than substring match. Cleanest; covers chained commands like `cd repo && pytest tests/`.
-2. **Stop-word skip:** if command starts with `git commit`, `grep`, `echo`, `printf`, `cat`, `Write`-equivalents, skip detection. Easier to reason about but less general; new false-positive classes may emerge.
-3. **Sub-command parse:** Bash word-split + check first token of each `&&`-separated segment. Most robust; highest test surface.
+**Why deferred (not fix-now).** Asymmetric cost analysis per `meta-core-systemic-thinking`: 1 FP costs ~5s (workaround re-issue, AI pays); 1 missed TP costs an OOM (LEARNING-LOG 2026-04-15, 64 GB macOS hard-down). Hook modification carries TP-regression risk — contrarian-reviewer (audit `afc82b55943658e7b`, 2026-04-29) rejected the proposed first-token safelist guard because commit messages routinely contain `&&` in body prose ("fixed X && Y"), which would re-fire the FP on heredoc bodies. The honest structural fix requires bash-lexing of quoted regions (Approach 3 in the original entry) — its own D2+ effort with an independent failure surface.
 
-Approach 1 is the recommended starting point per minimum-surface principle, but the design spike should evaluate whether 1 alone covers all observed and plausible false-positive classes.
+**Trigger to revisit (replaces n=3 instance count).** Promote when ANY of:
+1. **Workaround friction signal** — a session arc where `git commit -F <file>` workaround fails or causes data loss (e.g., heredoc + `-F` flag interaction), OR
+2. **Real-world miss** — an OOM event where the gate should have fired but did not (TP-regression evidence, the asymmetric cost the deferral protects against), OR
+3. **Bash-lexing infrastructure already available** — a bash AST library or shell-parser added to the hook toolchain for unrelated reasons, making Approach 3 cheap to layer on.
 
-**Trigger.** n=2 currently observed. Promote to **fix-now** when EITHER:
-- A third false-positive is observed in production (n≥3), OR
-- A single session arc trips the false-positive twice (already happened — session-136 had both the contrarian grep AND the commit message), OR
-- A new hook is being added that would inherit the same matcher pattern (cluster the fix with the new addition).
+**Done when.** EITHER (a) bash-aware quoted-region lexing shipped with new tests covering all 4 observed FP classes + 2 existing TPs preserved + CFR §9.3.10 documents the lexing pattern as canonical hook-authoring guidance; OR (b) closed-as-accepted-residual after extended observation window confirms workaround friction stays at current low level.
 
-**Done when.**
-1. New test cases for both observed false-positives (commit-message-body, grep-argument) PASS without firing the gate.
-2. The original 23 unit tests in `tests/test_pre_test_oom_gate_hook.py` continue to PASS.
-3. New test cases for chained heavy invocations (`cd /path && pytest tests/`) DO fire the gate.
-4. Hook-authoring guidance in CFR §9.3.10 updated to document the start-of-token anchor pattern as the canonical structural matcher.
-
-**Why D2 not D1:** modifies live hook + must add new test cases without regressing the existing 23 tests + structural matcher change has its own failure surface (could let real heavy invocations through if anchor is wrong). Plan mode warranted with pre-edit contrarian battery.
-
-**Origin:** Session-136 (2026-04-27) BACKLOG #13 close — false-positive fired on `git commit`-class invocation when message body contained literal `pytest tests/` substring (commit `ca7cd9f`). Earlier observation by contrarian-reviewer `a40fb47c436c9fec8` during #13 pressure-test review (grep with same substring). Governance: `gov-64a922ca58d3` (parent #13 audit).
+**Origin.** Session-136 (2026-04-27) initial filing during BACKLOG #13 close, governance `gov-64a922ca58d3`. Session-139 (2026-04-29) refiling after deny-log analysis (6-entry FP/TP breakdown above) + contrarian-reviewer pressure-test (`afc82b55943658e7b`) that rejected the proposed safelist fix on heredoc-with-`&&` regression. Governance: `gov-00f2b0349243`.
 
 ---
 
