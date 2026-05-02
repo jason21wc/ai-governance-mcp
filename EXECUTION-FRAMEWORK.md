@@ -75,13 +75,13 @@ User reframe (verbatim): *"The best analogy I have is what we are doing is like 
 
 **Caveat acknowledged.** Computer architecture has clean separation enforced by physics; software systems have leaky abstractions. The metaphor is a thinking tool, not a literal architecture. Per `meta-quality-explicit-over-implicit`: surface the leakiness rather than pretending it doesn't exist.
 
-### 2.5 The F-P2-08 conflation (resolved, do not let future contrarians re-invoke)
+### 2.5 The F-P2-08 disposition (reversed in constitution v7.0.0)
 
-Three contrarian-reviewer rounds (audits `a59c1dad9e3a2d3da`, `aa9bf233b1fb0bc18`, `ae1e98cf36382abd3`) flagged `constitution.md:98` (F-P2-08 disposition, v5.0.6) which rejected adding "Harness" as a 4th stage of the **3-step AI Interaction Model** (Prompt→Context→Intent).
+**Historical context.** Three contrarian-reviewer rounds (audits `a59c1dad9e3a2d3da`, `aa9bf233b1fb0bc18`, `ae1e98cf36382abd3`) flagged `constitution.md:98` (F-P2-08 disposition, v5.0.6) which rejected adding "Harness" as a 4th stage of the 3-step AI Interaction Model (Prompt→Context→Intent). This section previously defended F-P2-08 as a "category error" — arguing the interaction model and engineering stack were different abstractions on purpose.
 
-**This is a category error when applied here.** F-P2-08 is about the **interaction model** (how AI processes a single inference). The README:9-22 5-layer stack is the **engineering stack** (the disciplines required to build AI systems). Different abstractions on purpose. The Execution Framework concerns the engineering stack, not the interaction model.
+**Superseded.** Session-143 analysis (3 Explore agents, 2 contrarian rounds, coherence audit) determined that the "different abstractions" defense was anchor bias: the session-140 AI fabricated a "single inference" vs "disciplines" distinction the constitution never stated, then used procedural language to suppress re-examination. The F-P2-08 disposition evaluated a narrower 4-step proposal that predated the 5-layer model; its rationale that "harness is operationally indistinct from Context Engineering" was incorrect. Constitution v7.0.0 reversed F-P2-08 and adopted the 5-layer engineering stack (Prompt → Retrieval → Context → Harness → Intent) as canonical. See `documents/constitution.md` Historical Amendments v7.0.0 entry for full rationale.
 
-When future contrarians invoke F-P2-08 in this conversation, that critique should be discounted *for this purpose only*. The substantive critiques (Rule of Three, retroactive grouping, phantom failure mode, source-codification risk, deferral pattern) survive on their own merits.
+The substantive critiques from the contrarian rounds (Rule of Three, retroactive grouping, phantom failure mode, source-codification risk, deferral pattern) remain valid on their own merits and are unaffected by the F-P2-08 reversal.
 
 ---
 
@@ -571,7 +571,7 @@ After three rounds, contrarian flagged forward-continuation bias. The 3-function
 
 - Article: `/Users/jasoncollier/Downloads/AI Stuff Currently Working/anatomy_of_an_agent_harness_v2.md` (Pachaar 2026)
 - README 5-layer stack: `README.md:9-22`
-- F-P2-08 disposition (do not conflate with this discussion): `documents/constitution.md:98`
+- F-P2-08 disposition (reversed in constitution v7.0.0; see Historical Amendments): `documents/constitution.md:98`
 - Enforcement-is-cross-cutting (decisive for Bucket 6/7 separation): `documents/constitution.md:120-133`
 - Cognitive memory taxonomy: `PROJECT-MEMORY.md` ADR-5
 - "Adoption and Authority" subsection (Bucket 7 Authority & adoption sub-bucket): `documents/constitution.md:96`

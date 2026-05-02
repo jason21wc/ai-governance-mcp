@@ -1,16 +1,16 @@
 ---
-version: "2.11.6"
+version: "3.0.0"
 status: "active"
-effective_date: "2026-05-01"
+effective_date: "2026-05-02"
 domain: "meta"
 governance_level: "framework-activation"
 ---
 
 # AI Governance Framework Activation
 
-**Version:** 2.11.6
+**Version:** 3.0.0
 **Purpose:** Loader document that activates the governance framework for AI sessions.
-**Updated:** 2026-05-01
+**Updated:** 2026-05-02
 
 ---
 
@@ -196,7 +196,7 @@ query_governance("how to handle incomplete specifications")
 
 <document_versions>
 This loader is designed for use with:
-- constitution.md v6.0.1+
+- constitution.md v7.0.0+
 - rules-of-procedure.md v3.31.3+
 - title-10-ai-coding.md v2.7.5+
 - title-10-ai-coding-cfr.md v2.43.2+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.0.0 | 2026-05-02 | MAJOR: constitution.md pin update v6.0.1+ → v7.0.0+ for BACKLOG #151 (F-P2-08 reversal — 5-layer engineering stack adopted as canonical model, replacing 3-step AI Interaction Model). MAJOR-on-MAJOR per BACKLOG #130 canonical pin-discipline rule (constitution MAJOR source = ai-instructions MAJOR consequence). Constitutional change: "AI-Interaction Model (3-step canonical)" subsection replaced with "AI Engineering Stack (5-layer canonical)" — Prompt → Retrieval → Context → Harness → Intent. README §"Why this exists" designated as SSOT for layer definitions. v5.0.6 F-P2-08 disposition reversed with documented rationale (narrower 4-step proposal evaluated, harness operationally distinct from Context Engineering). New Historical Amendment entry v7.0.0 supersedes v5.0.6 entry (preserved immutable). Constitutional Basis: `meta-core-systemic-thinking` (structural cause = constitution carries factually-wrong disposition about an abstraction it has evolved past), `meta-core-context-engineering` (principle scope spans both retrieval and context assembly — broader than any single 5-layer layer), `meta-quality-verification-validation` (3 Explore agents + 2 contrarian rounds + coherence audit verified evidence). Governance: `gov-225dda764f95`. |
 | 2.11.6 | 2026-05-01 | PATCH: rules-of-procedure.md pin update v3.31.3+ → v3.31.4+ for BACKLOG #147 post-double-check fold-in remediation (new §7.8.1 "Reactive vs Proactive Work-Class Distinction" canonical method-level home + cross-refs from CLAUDE.md Behavioral Floor + contrarian-reviewer Boundaries/Step-0.5 + tiers.json proportional-rigor directive). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Driven by post-edit subagent battery on prior commit `0911534` (validator APPROVE + coherence-auditor 1 HIGH + 2 MEDIUM + 2 LOW + contrarian-reviewer 2 HIGH + 2 MEDIUM PROCEED_WITH_CAUTION) finding the original #147 close left three half-statements without canonical home. Constitutional Basis: `meta-method-single-source-of-truth`, `meta-core-systemic-thinking`, `meta-quality-explicit-over-implicit`, `meta-quality-verification-validation`. Governance: `gov-e1c50d38e20f` (this remediation), `gov-20dcbdd98f9e` (parent #147 close). |
 | 2.11.5 | 2026-04-28 | PATCH: rules-of-procedure.md pin update v3.31.2+ → v3.31.3+ for BACKLOG #100 Commit 6 (deferred LOW + MEDIUM findings addressed: §9.7.7 register-integrity rules + §9.8.9 citation-discipline subsection + BACKLOG #144 filed for CI check D2 follow-up). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Per user directive "we shouldn't be deferring low findings" — applied per CLAUDE.md Defer-vs-Fix-Now (≤3 files, no cascading discovery, known fixes). Constitutional Basis: `meta-method-single-source-of-truth`, `meta-quality-verification-validation`, `meta-core-systemic-thinking`. Governance: `gov-fd820e2fd260` (parent post-arc remediation arc). |
 | 2.11.4 | 2026-04-28 | PATCH: rules-of-procedure.md pin update v3.31.1+ → v3.31.2+ for BACKLOG #100 post-arc remediation (apply §9.8.9 spec to host file: 6 method-level analogies removed; add Rules of Procedure register row; fix Stare Decisis citation; fix 2 stale F-P2-04 narrative surfaces; add §9.7.1 SSOT cross-reference). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Findings caught by post-arc double-check audit (contrarian `a7a951cb33f490ada` + coherence-auditor `aa443ab0670fe55a8`) — internal self-consistency gap that prior batteries missed (arc shipped spec without applying to host file). Constitutional Basis: `meta-method-single-source-of-truth`, `meta-quality-verification-validation`, `meta-core-systemic-thinking`. Governance: `gov-fd820e2fd260`. |

@@ -1,16 +1,16 @@
 ---
-version: "6.0.1"
+version: "7.0.0"
 status: "active"
-effective_date: "2026-04-28"
+effective_date: "2026-05-02"
 domain: "constitution"
 governance_level: "constitution"
 ---
 
 # Principles Framework for AI Interaction
 
-**Version:** 6.0.1
+**Version:** 7.0.0
 **Status:** Active
-**Effective Date:** 2026-04-28
+**Effective Date:** 2026-05-02
 **Governance Level:** Constitution (Meta-Principles)
 
 ---
@@ -25,11 +25,13 @@ When I saw that clearly, I knew the answer wasn't trying to make AI smarter. I n
 
 My journey started with prompt engineering, thinking that if only I gave it the right words, the right structure, the right tricks, I'd get better responses. It worked... sort of... for single interactions. But you can't prompt your way to consistent quality. I found myself copying and pasting an ever-growing list of reminders into every conversation just to get it to do things I'd already told it to do.
 
-Then I learned about context engineering... giving AI better information through memory, retrieval, and reference documents. Better context, better reasoning. This was a real improvement... except when it completely missed the point. I could give AI all the right information and it would give me a polished, confident answer to a question I wasn't asking.
+Then I discovered retrieval engineering... grounding AI in information it wasn't trained on through vector stores, reference documents, and search. Instead of hoping the model remembered something relevant, I could point it at real information. This was better, but dumping documents into a conversation isn't the same as giving AI the right information at the right time.
 
-That's when I realized the problem wasn't what I was saying to AI or what it knew. The problem was that it had no sense of what I was actually trying to achieve.
+That's when I learned about context engineering... dynamically assembling memory, tool outputs, conversation history, and reference material into each interaction. Not just having the right information available, but curating what the model actually sees. Better context, better reasoning. A real improvement... except when AI completely missed the point. I could give it all the right information and it would give me a polished, confident answer to a question I wasn't asking.
 
-Then I discovered intent engineering... and everything clicked. Intent engineering isn't about what you say to AI or what AI knows. It's about baking in what you're actually trying to achieve... your goals, your standards, your constraints, your definition of "done"... directly into the system so AI understands purpose, not just instructions.
+Then came harness engineering... building the operational structure around the model. Orchestration, guardrails, approval gates, feedback loops. The system became more reliable, more observable, more controlled. But it was all mechanical. I was building walls and guardrails without telling the system what it was actually trying to achieve.
+
+That's when I discovered intent engineering... and everything clicked. Intent engineering isn't about what you say to AI or what AI knows or even how you structure the system around it. It's about baking in what you're actually trying to achieve... your goals, your standards, your constraints, your definition of "done"... directly into the system so AI understands purpose, not just instructions.
 
 The difference is simple. An instruction says "write this document." Intent says "produce a document that meets these standards, follows this process, applies these quality checks... and here's how I'll know it worked."
 
@@ -95,7 +97,7 @@ This document is the supreme governance layer. It sits within a broader framewor
 
 **Adoption and Authority.** This framework has no inherent authority over any project. Its rules take effect when (and only when) an adopter explicitly activates them — typically via `ai-instructions.md`, `CLAUDE.md`, or an equivalent loader document. By activating the framework in a project, the adopter grants it operative authority over that project's AI interactions for the scope the adopter defines. Outside activated projects, this document is descriptive, not prescriptive. Authority flows from adopter consent, not from the framework's own text — activation is the consent act. *(F-P2-02 disposition, v5.0.6: the Preamble's binding-purpose language is interpretive context per its classification above, not a self-authorizing contract; this subsection makes the granting relationship explicit so downstream readers understand where operative authority comes from.)*
 
-**AI-Interaction Model (3-step canonical).** The framework's canonical model for AI interaction is **Prompt → Context → Intent** (three stages, recounted in the Declaration above). The alternative 4-step proposal that inserts "Harness" between Context and Intent was considered and not adopted — "harness" as a distinct stage is operationally indistinct from Context Engineering's existing scope (retrieval + memory + reference documents, per `meta-core-context-engineering`). Adding it would duplicate rather than extend. *(F-P2-08 disposition, v5.0.6.)*
+**AI Engineering Stack (5-layer canonical).** The framework's canonical model for AI engineering is a five-layer stack: **Prompt → Retrieval → Context → Harness → Intent**. The first four form a structural stack — each layer contains the ones below it. Intent engineering runs across all of them as a cross-cutting concern, defining what the system is ultimately trying to accomplish. See README §"Why this exists" for layer definitions (SSOT). *(v7.0.0 — reverses F-P2-08 disposition, v5.0.6. The v5.0.6 disposition evaluated a narrower 4-step proposal that predated the 5-layer model; its rationale that "harness" is operationally indistinct from Context Engineering was incorrect — the framework practices retrieval, context assembly, and harness engineering as distinct disciplines. The Declaration narrates the five-stage journey that led to this understanding — from prompt engineering through retrieval, context, and harness engineering to the intent engineering breakthrough.)*
 
 **Derivation Chain:**
 - **S-Series (Bill of Rights):** Absolute constraints that CANNOT be overridden. No domain rule can authorize harmful actions.
@@ -1125,6 +1127,14 @@ A "confident wrong answer" is the most dangerous output an AI can provide. If ag
 ## Historical Amendments (Constitutional History)
 
 **Usage Instruction for AI:** This section is a historical record ("Legislative History"). **It does not carry the force of law.** If any statement in this history log contradicts the active text of the Principles above, **ignore the history and follow the active text.**
+
+#### **v7.0.0 (May 2026) - 5-layer engineering stack adopted as canonical model (BACKLOG #151, F-P2-08 reversal)**
+
+*   **MAJOR: F-P2-08 disposition reversed.** The v5.0.6 disposition declared the 3-step AI Interaction Model (Prompt → Context → Intent) canonical and rejected adding "Harness" as a 4th stage. That disposition evaluated a narrower 4-step proposal that predated the 5-layer engineering stack. The v5.0.6 rationale — that harness is "operationally indistinct from Context Engineering's existing scope" — was incorrect: the framework practices retrieval engineering (Context Engine semantic indexing), context assembly (context window curation), and harness engineering (hooks, subagents, approval gates, observability) as distinct disciplines, as defined in README §"Why this exists" since v5.0.6+1 day.
+*   **Framework Structure subsection rewritten:** "AI-Interaction Model (3-step canonical)" replaced with "AI Engineering Stack (5-layer canonical)" — Prompt → Retrieval → Context → Harness → Intent. README §"Why this exists" designated as SSOT for layer definitions (per Operative Hierarchy SSOT precedent at line 94). Intent engineering described as cross-cutting (runs across all four structural layers), not sequential-final.
+*   **Analysis basis (session-143):** 3 Explore agents verified: (a) the 3-step model was structurally isolated — zero principles, rules-of-procedure sections, domain documents, or methods reference it; (b) the "single inference" vs "disciplines" distinction in EXECUTION-FRAMEWORK.md §2.5 was fabricated by the AI — the constitution never says the 3-step model is about a single inference; the Declaration describes a system-building journey; (c) the F-P2-08 disposition was a remediation-phase timing artifact — README added "harness engineering" as a real layer on 2026-04-19, constitution rejected "harness" on 2026-04-20. Two contrarian-reviewer rounds (Opus 4.6: `a5e4acfb9b1578509`, `a781cd39bb3f3eaf7`) confirmed the evolution thesis is "substantially correct on the engineering merits." Coherence-auditor (`aabb4d268a7f87151`) confirmed zero cascading impact on rules-of-procedure or domain documents.
+*   **v5.0.6 Historical Amendment entry preserved** (immutable per project precedent). This entry supersedes.
+*   **Governance trail:** `gov-225dda764f95`. Plan: `~/.claude/plans/i-purposefully-am-using-smooth-orbit.md`.
 
 #### **v6.0.1 (April 2026) - SSOT designation + 3 misplaced principle-level analogies removed (BACKLOG #100 Commit 2 of 4-arc)**
 
