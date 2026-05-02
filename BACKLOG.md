@@ -262,6 +262,34 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 149. Contrarian-reviewer over-generation tendency — quota or precedence mechanism `D2 Discussion`
+
+**Filed:** 2026-05-01 (session-142, contrarian-reviewer post-edit double-check on BACKLOG #147 fold-in).
+
+**What.** Contrarian-reviewer subagent invocation `afac4381fd32e8721` raised a meta-observation while pressure-testing the BACKLOG #147 fix: session-140's Execution Framework brainstorm produced **five challenge tracks in a single contrarian arc** (F-P2-08 invocation, Rule of Three, retroactive grouping, phantom failure mode, proactive-vs-reactive bias). Only one (proactive-vs-reactive) produced an actionable BACKLOG entry. The other four were either category errors, anchor-bias-driven, or mild observations.
+
+**Hypothesis.** The contrarian-reviewer agent may have an over-generation tendency: rather than identifying the highest-leverage concern (its stated cognitive function — "Depth over breadth — one deeply investigated concern beats five shallow ones"), it generates a list of five concerns and lets the consuming context pick. This contradicts the agent's own "Bad Example — Formulaic Contrarianism" rules (*"Table-filling: 5 mild concerns instead of investigating the 1 that matters"*) but the agent itself doesn't enforce a quota or precedence mechanism on the way out.
+
+**Why D2 Discussion (not D1 Fix).** N=1 evidence base. Session-140 was an unusually broad architectural brainstorm where multiple challenge tracks were arguably appropriate. Acting on n=1 by adding a quota/precedence mechanism to the agent definition would itself be over-investment per the proactive-stakes-match test (BACKLOG #147 / `rules-of-procedure §7.8.1`) — anticipated stakes are unclear from one observation. Ironic to file a fix-now item against the contrarian here for a behavior that may not generalize.
+
+**Possible interventions (for discussion, not yet adopted).**
+
+1. **Top-1 enforcement** — modify `documents/agents/contrarian-reviewer.md` Output Format to require a *single* "Highest-Leverage Concern" field above the multi-finding tables, with an explicit instruction that the multi-finding section is OPTIONAL and SHOULD be empty unless 2+ concerns genuinely meet the depth-over-breadth threshold.
+2. **Precedence ranking** — require findings to be ordered by leverage with explicit numeric weight, so consuming agents/users can see the contrarian's own ranking rather than treating each finding as independently actionable.
+3. **Self-audit quota** — add a Step 8 "Quota Check" to the Review Protocol asking "Did I generate >2 findings? If so, what is the depth-over-breadth justification for each?"
+4. **Steel-man the alternative** — accept current behavior as deliberate redundancy. The consuming context (parent agent or user) can always filter; better to over-generate and filter than under-generate and miss. This may be the right design.
+
+**Re-open prerequisites:**
+1. Evidence base N≥2 multi-challenge contrarian arcs where the filed-bias is one symptom of a broader over-generation pattern (not just one symptom of one bias).
+2. OR: post-#147 contrarian invocation produces ≥4 findings on a clearly-scoped narrow review (where breadth is anomalous to the work scope).
+3. OR: user/adopter reports that contrarian-reviewer findings are systematically being treated as formulaic / dismissable.
+
+**Origin.** Contrarian-reviewer audit `afac4381fd32e8721` MEDIUM finding raised during BACKLOG #147 post-edit double-check pressure test (session-142). Per the new `rules-of-procedure §7.8.1` rule: anticipatory items are valid; this is a "anticipate needing later" item. Filed per CLAUDE.md "Defer (with tracking)" rather than acted on now because n=1 + ironic-self-application risk (acting on contrarian's over-generation observation by adding more contrarian protocol = potentially proving the bias).
+
+**Why D2 Discussion (not Fix or Improvement):** Open question whether the pattern is real, and the right intervention is unclear (4 alternatives above). Plan-mode required if/when re-opened. Not D3 because it's a single-file agent definition change; no new infrastructure.
+
+---
+
 #### 148. Execution Framework — design discussion in-flight (working file at repo root) `D2 Improvement`
 
 **Filed:** 2026-04-29 (session-139), continuing 2026-04-30 (session-140).
@@ -442,8 +470,8 @@
 
 **Diagnostic notes — additional production-trigger observations (additions help inform the fix when this work begins):**
 
-- **Session-142 (2026-05-01) trigger** — keyword `"remove"` in the `planned_action` description ("Remove BACKLOG #147 entry from BACKLOG.md per 'no closed items' rule") triggered ESCALATE with `s_series_check.triggered = true` and rationale: *"Action mentions 'remove' — may require safety review."* Substantive context: benign housekeeping (BACKLOG-entry close per documented "no closed items" rule). User explicitly bypassed via documented reason; commit `<hash-pending>` is the audit trail. **Suggests a SECOND failure mode beyond the negation-context one filed 2026-04-24:** the scanner appears to flag *destructive-action verbs* (`remove`, plausibly `delete`, `destroy`, `drop`, `wipe`, etc.) in the `planned_action` field without parsing intent or target. Counterintuitively, the principle returned in `s_series_check.principles` was `meta-safety-transparent-limitations` — a **meta-safety** principle about epistemic honesty ("state uncertainty where it exists"), *not* an S-Series tier-1 safety principle. So the FP may be **two-layered**: (a) keyword-without-context match on action verbs, AND (b) misclassification of `meta-safety-*` principles as S-Series-vetoing instead of universal-floor advisory.
-- **When fix work begins (#129 next):** scope decision — is the negation-context parsing fix (the original trigger of this entry) the same surface as action-verb-without-target parsing, or are they two distinct fixes? Both want intent-aware classification rather than substring match, suggesting one shared fix surface. Separately, the `meta-safety-*` → S-Series misclassification may live in `tiers.json` or the universal-floor → S-Series promotion logic and is potentially independent of the keyword scanner. Worth scoping early so the PR doesn't grow mid-flight.
+- **Session-142 (2026-05-01) trigger** — keyword `"remove"` in the `planned_action` description ("Remove BACKLOG #147 entry from BACKLOG.md per 'no closed items' rule") triggered ESCALATE with `s_series_check.triggered = true` and rationale: *"Action mentions 'remove' — may require safety review."* Substantive context: benign housekeeping (BACKLOG-entry close per documented "no closed items" rule). User explicitly bypassed via documented reason; commit `0911534` is the audit trail. **Suggests a SECOND failure mode beyond the negation-context one filed 2026-04-24:** the scanner appears to flag *destructive-action verbs* (`remove`, plausibly `delete`, `destroy`, `drop`, `wipe`, etc.) in the `planned_action` field without parsing intent or target. The fix surface for this differs from negation-context handling — both want intent-aware classification rather than substring match, but the input shape differs (negation modifies a present keyword vs. an action verb that needs a benign-target signal). They may share one fix or split into two; worth scoping early.
+- **Correction to earlier session-142 hypothesis** — an initial draft of this note hypothesized a *second layer* to the FP, claiming `meta-safety-transparent-limitations` was being misclassified as S-Series when "actually" a meta-safety principle. Coherence audit (`a8730552c214c010f`) corrected the record: per `documents/constitution.md` §"Framework Overview: The Constitutional Structure", Transparent Limitations is one of the three **S-Series Bill of Rights Amendments** (alongside Non-Maleficence and Bias Awareness). Per `rules-of-procedure §3.4.2`/`§3.4.3`, the `meta-safety-` ID prefix is the slugifier output for the constitution's `safety` category — i.e., S-Series is exactly what `meta-safety-*` IDs name. The scanner returning a Bill of Rights principle for `s_series_check.triggered = true` is **expected behavior, not misclassification**. Retracting the misclassification hypothesis: the genuine new FP path is single-layered — destructive-action-verb keyword match without intent/target parsing. The principle-ID return value is correct; the trigger gate is what's overly broad.
 - **Cumulative production re-trips:** session-111 + session-114 + session-121 (negation-context, original) + session-142 (action-verb, new). Pattern is now n=4 across distinct trigger paths.
 
 **Done when.** Production S-Series scanner handles negation context + test asserts this + FM re-registered.

@@ -1,16 +1,16 @@
 ---
-version: "2.11.5"
+version: "2.11.6"
 status: "active"
-effective_date: "2026-04-28"
+effective_date: "2026-05-01"
 domain: "meta"
 governance_level: "framework-activation"
 ---
 
 # AI Governance Framework Activation
 
-**Version:** 2.11.5
+**Version:** 2.11.6
 **Purpose:** Loader document that activates the governance framework for AI sessions.
-**Updated:** 2026-04-28
+**Updated:** 2026-05-01
 
 ---
 
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.11.6 | 2026-05-01 | PATCH: rules-of-procedure.md pin update v3.31.3+ → v3.31.4+ for BACKLOG #147 post-double-check fold-in remediation (new §7.8.1 "Reactive vs Proactive Work-Class Distinction" canonical method-level home + cross-refs from CLAUDE.md Behavioral Floor + contrarian-reviewer Boundaries/Step-0.5 + tiers.json proportional-rigor directive). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Driven by post-edit subagent battery on prior commit `0911534` (validator APPROVE + coherence-auditor 1 HIGH + 2 MEDIUM + 2 LOW + contrarian-reviewer 2 HIGH + 2 MEDIUM PROCEED_WITH_CAUTION) finding the original #147 close left three half-statements without canonical home. Constitutional Basis: `meta-method-single-source-of-truth`, `meta-core-systemic-thinking`, `meta-quality-explicit-over-implicit`, `meta-quality-verification-validation`. Governance: `gov-e1c50d38e20f` (this remediation), `gov-20dcbdd98f9e` (parent #147 close). |
 | 2.11.5 | 2026-04-28 | PATCH: rules-of-procedure.md pin update v3.31.2+ → v3.31.3+ for BACKLOG #100 Commit 6 (deferred LOW + MEDIUM findings addressed: §9.7.7 register-integrity rules + §9.8.9 citation-discipline subsection + BACKLOG #144 filed for CI check D2 follow-up). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Per user directive "we shouldn't be deferring low findings" — applied per CLAUDE.md Defer-vs-Fix-Now (≤3 files, no cascading discovery, known fixes). Constitutional Basis: `meta-method-single-source-of-truth`, `meta-quality-verification-validation`, `meta-core-systemic-thinking`. Governance: `gov-fd820e2fd260` (parent post-arc remediation arc). |
 | 2.11.4 | 2026-04-28 | PATCH: rules-of-procedure.md pin update v3.31.1+ → v3.31.2+ for BACKLOG #100 post-arc remediation (apply §9.8.9 spec to host file: 6 method-level analogies removed; add Rules of Procedure register row; fix Stare Decisis citation; fix 2 stale F-P2-04 narrative surfaces; add §9.7.1 SSOT cross-reference). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Findings caught by post-arc double-check audit (contrarian `a7a951cb33f490ada` + coherence-auditor `aa443ab0670fe55a8`) — internal self-consistency gap that prior batteries missed (arc shipped spec without applying to host file). Constitutional Basis: `meta-method-single-source-of-truth`, `meta-quality-verification-validation`, `meta-core-systemic-thinking`. Governance: `gov-fd820e2fd260`. |
 | 2.11.3 | 2026-04-28 | PATCH: rules-of-procedure.md pin update v3.31.0+ → v3.31.1+ for BACKLOG #100 Commit 4 close-out (line-citation drift fix in §9.7.7 register + §9.8.9 placement targets + §9.8.1 Q7 PASS exemplar). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Drift caught by final coherence-auditor pass (`a6649bf7aee986477`) — citations shifted +2 lines after Commit 2's SSOT note + analogy removals; corrections aligned to actual file headers. Constitutional Basis: `meta-method-single-source-of-truth`, `meta-quality-verification-validation`. Governance: `gov-08a1271476d3` (parent execution). |

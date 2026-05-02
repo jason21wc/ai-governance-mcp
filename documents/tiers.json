@@ -1,6 +1,6 @@
 {
   "_comment": "Tiered Governance Principle Activation — universal floor items prepended to every evaluate_governance response. Compact anti-pattern checks, not full principle text. See plan: Phase 1 of Tiered Principle Activation.",
-  "_version": "1.6.0",
+  "_version": "1.7.0",
   "_selection_criteria": "A principle belongs in the universal floor if and only if: (1) it is a constitutional principle (not domain-specific), (2) it applies to EVERY action type regardless of domain or context, and (3) failing to check it cannot be recovered by later retrieval — the check must happen before the action, not after. Situational principles (relevant only to certain action types, complexity levels, or phases) belong in retrieval, not the floor. Review this criteria when adding or removing floor items.",
   "universal_floor": {
     "principles": [
@@ -78,6 +78,10 @@
       {
         "id": "bluf-pyramid-briefing",
         "check": "User-facing decision brief: Are you leading with the recommendation in the first 2-3 sentences (BLUF), with 2-3 alternatives max and risk embedded per option? Per rules-of-procedure §7.13. Scope: applies to user-facing decision briefs; does NOT apply to internal technical artifacts (plan files, ADRs, spec documents, audit logs)."
+      },
+      {
+        "id": "proportional-rigor",
+        "check": "Proportional rigor: Is your effort matched to the stakes of this task? Per rules-of-procedure §7.8 Progressive Application. Anticipatory work is valid even without observed harm — the stakes-match test is a sizing heuristic for HOW MUCH work, not a gate on WHETHER work is valid (BACKLOG.md philosophy block: 'Anticipatory items are valid'). Demanding 'concrete instance of harm' before validating proactive/preventive/improvement work misapplies the rule. Origin: BACKLOG #147 filed session-140."
       }
     ]
   }
