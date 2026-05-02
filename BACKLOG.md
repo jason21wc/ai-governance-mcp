@@ -262,6 +262,69 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 151. Engineering-stack 5-layer vs Interaction-model 3-step reconciliation — F-P2-08 scope decision pending `D2 Discussion`
+
+**Filed:** 2026-05-01 (session-142, after user-flagged stale-reference cleanup request).
+
+**What.** The framework currently carries TWO different abstractions of the AI engineering surface, and they're not cross-referenced or reconciled:
+
+1. **3-step AI Interaction Model** (Prompt → Context → Intent) — `documents/constitution.md` line 98 (F-P2-08 disposition, v5.0.6). Describes how AI processes a single inference.
+2. **5-layer engineering stack** (Prompt + Retrieval + Context + Harness + Intent) — `README.md` §"Why this exists". Describes the disciplines required to build AI systems.
+
+User noted the 3-step model in constitution.md as a "stale reference" wanting refactor to 5. AI surfaced that F-P2-08 explicitly considered and **rejected** adding "Harness" as a 4th stage of the interaction model — so the choice is substantive, not editorial cleanup.
+
+**Discovery findings (session-142, verbatim):**
+
+Reference locations carrying the 3-step interaction model:
+- `documents/constitution.md` line 98 — F-P2-08 disposition (v5.0.6) text: *"The framework's canonical model for AI interaction is **Prompt → Context → Intent** (three stages, recounted in the Declaration above). The alternative 4-step proposal that inserts 'Harness' between Context and Intent was considered and not adopted — 'harness' as a distinct stage is operationally indistinct from Context Engineering's existing scope (retrieval + memory + reference documents, per `meta-core-context-engineering`). Adding it would duplicate rather than extend."*
+- `documents/constitution.md` line 1219 — Historical Amendments entry recording F-P2-08 disposition.
+- `.claude/plans/project-constitutional-framework-alignment.md` (older plan, archived) — Declaration block: `(prompt → context → intent engineering; from v4 document)`.
+
+Reference locations carrying the 5-layer engineering stack:
+- `README.md` §"Why this exists" — canonical home.
+- `staging/readme-draft-v1.md` — historical README draft, same content.
+- `EXECUTION-FRAMEWORK.md` §2.2 (working file) — cites the 5-layer stack from README.
+- `EXECUTION-FRAMEWORK.md` §2.5 (working file, session-140) — explicit analysis distinguishing the two abstractions: *"F-P2-08 is about the **interaction model** (how AI processes a single inference). The README:9-22 5-layer stack is the **engineering stack** (the disciplines required to build AI systems). Different abstractions on purpose."*
+
+Recognized-gap trail:
+- `reviews/2026-04-18/02-phase2-content.md` §XI flagged that `grep -ci "harness" documents/constitution.md documents/rules-of-procedure.md documents/ai-instructions.md CLAUDE.md README.md` returns 0 — i.e., "harness" never appears in framework body text. Reviewer: *"The framework articulates a 3-step progression (`prompt → context → intent`), and the README 5-layer stack is not invoked in framework text."*
+
+Unrelated "3-stage/3-layer" hits (verified out-of-scope, do not touch):
+- `documents/rules-of-procedure.md` retrieval-architecture row (Complex documents → 3-layer) — about retrieval pipeline.
+- `documents/rules-of-procedure.md` Multimodal-RAG pipeline-stage complexity calibration row (3-5 stages threshold).
+- `documents/rules-of-procedure.md` Version History entry for v3.20.0 (Document Lifecycle 3-stage → 2-stage) — historical change record.
+
+**Three scope options (the actual decision):**
+
+**Option A — Constitutional refactor (reverse F-P2-08).** Replace the 3-step interaction model with the 5-layer engineering stack as the canonical framework model. `constitution.md` line 98 + Declaration + line 1219 Historical Amendment all rewrite. **MAJOR** bump (constitution.md v6.0.1 → v7.0.0) since F-P2-08 explicitly considered and rejected this — overturning a recorded disposition is a constitutional change. ai-instructions MAJOR-on-MAJOR pin sync. Likely cascades into rules-of-procedure / multiple title-NN files. New Historical Amendment entry documenting the F-P2-08 reversal with rationale. Plan-mode required + contrarian-reviewer pre-ExitPlanMode.
+
+**Option B — Add 5-layer engineering stack as peer concept (recommended).** Keep the 3-step interaction model intact (F-P2-08 preserved), add the 5-layer engineering stack to constitution.md as a parallel abstraction. Add a new short subsection under §"Framework Structure" (or similar) explaining when to use which: 3-step for single-inference processing, 5-layer for system-building disciplines. Cross-reference both. Resolves the `reviews/2026-04-18` §XI finding (harness now appears in framework body text). **MINOR** bump (constitution.md v6.0.1 → v6.1.0). ai-instructions MINOR-on-MINOR pin sync. Plan-mode recommended (D2) with contrarian to pressure-test the peer-concept framing.
+
+**Option C — Scope-limited fix.** Constitution.md is correctly describing the 3-step interaction model — leave as-is. Only update other places that *should* be invoking the 5-layer engineering stack but currently aren't. Likely no constitutional surface changes. May not even apply if no such places are found. D1 trunk-direct or no-op.
+
+**AI recommendation:** **Option B.** Per session-140 EXECUTION-FRAMEWORK.md §2.5 analysis, the two are different abstractions on purpose — Option A collapses a deliberate constitutional choice. Option C may not address what user noticed (harness is a real engineering discipline that ai-governance practices via Context Engine + hooks + subagents but doesn't acknowledge in framework text). Option B preserves both abstractions, resolves the recognized gap, and avoids overturning F-P2-08. User may disagree — they may genuinely view the 3-step model as obsolete.
+
+**Re-open prerequisites:**
+
+User reads this entry cold + EXECUTION-FRAMEWORK.md §2.5 + constitution.md line 98 + README.md §"Why this exists", then selects scope:
+- If Option A → D2 plan-mode, MAJOR constitutional change, plan-time contrarian-reviewer required.
+- If Option B → D2 plan-mode, MINOR additive change, plan-time contrarian-reviewer recommended.
+- If Option C → D1 trunk-direct, audit existing places that should invoke 5-layer view.
+
+**Pickup discipline (read these in order before resuming):**
+
+1. This entry (full).
+2. `EXECUTION-FRAMEWORK.md` §2.5 "The F-P2-08 conflation (resolved, do not let future contrarians re-invoke)" — written session-140 to prevent re-litigation; relevant context for the scope decision.
+3. `documents/constitution.md` line 98 (F-P2-08 disposition body) and line 1219 (Historical Amendments entry).
+4. `README.md` §"Why this exists" (5-layer engineering stack canonical home).
+5. `reviews/2026-04-18/02-phase2-content.md` §XI (Phase-2 review finding that flagged the gap).
+
+**Done when.** User selects scope option (A / B / C); refactor work ships under that scope's routing class; this entry removed per "no closed items" rule.
+
+**Origin.** Session-142 (2026-05-01) user request "address stale reference… refactor and clean all that up to the five stages." Discovery + classification done in same turn before user authorized capture-and-defer. Governance: `gov-92d7cb24ed70` (discovery audit).
+
+---
+
 #### 150. Semantic-retrieval false-positive — `meta-safety-transparent-limitations` matches housekeeping actions `D2 Discussion`
 
 **Filed:** 2026-05-01 (session-142, carrying forward diagnostic notes from BACKLOG #129 close).
