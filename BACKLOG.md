@@ -285,46 +285,6 @@
 
 ---
 
-#### 147. Proactive-vs-reactive work bias — AI demands observed harm before validating proactive/preventive/improvement work `D1 Fix`
-
-**Filed:** 2026-04-30 (session-140, user observation during Execution Framework brainstorm).
-
-**What.** A recurring pattern in AI assistant + contrarian-reviewer behavior: when the user proposes proactive work (improvements, preventive measures, anticipatory infrastructure, design discipline), the AI demands a cited instance of observed harm as justification. If none can be cited, the AI marks the work as "solving a phantom problem" and recommends deferral or rejection. This filter is mis-applied — proactive work is valid even without observed harm.
-
-**User direction (verbatim, session-140):** *"Your assumption is that the only reason to look at something like this is to fix a problem, but you are missing the side where we take actions to proactively prevent problems or just make improvements. We don't need a problem to justify this kind of work."*
-
-**What ai-governance principle/method is being misapplied.** The bias appears to come from over-broad application of:
-
-1. **`meta-quality-proportional-rigor` (Methods §7.8 Proportional Application).** "Match rigor to stakes" gets misread as "no observed problem = no stakes = no work justified." But proactive work has stakes (preventing future problems, improving capability, architectural coherence). Proportional rigor calibrates depth within work that's been justified; it doesn't justify-or-reject the work itself.
-
-2. **`CLAUDE.md` Behavioral Floor "Proportional rigor" example case.** The example reads: *"WRONG: Proposing new infrastructure (metadata field + Part section + backlog activation) for an n=1 user report (#44). RIGHT: Template improvement scoped to evidence — reject infrastructure that assumes the pattern will generalize."* This anti-pattern is being over-generalized: AI applies it not just to "n=1 user report" cases but to ALL proactive/preventive/improvement work, regardless of whether the work is anticipatory by design.
-
-3. **BACKLOG.md philosophy block (top of file) explicitly states the correct rule:** *"Anticipatory items are valid. Not all backlog items need a triggered condition. Three valid reasons to keep an item: need it now (active problem), plan to use soon (near-future need), anticipate needing later (want it ready when the time comes)."* The AI is violating its own framework's stated rule.
-
-4. **`contrarian-reviewer` agent's "concrete instance test" / "phantom problem" filter.** Useful as a debugging filter ("are you over-engineering for hypothetical edge cases?"); harmful when applied to anticipatory/improvement work where lack of observed instance is the POINT (we're trying to prevent the instance from occurring).
-
-**Pattern observed in this session.** Two contrarian rounds (`a59c1dad9e3a2d3da`, `aa9bf233b1fb0bc18`) and the assistant's own analysis both demanded "concrete instance of subsystem-design inconsistency causing harm" before validating the Execution Framework brainstorm. User had to explicitly correct the framing. This was n=3 in one session arc.
-
-**Proposed fix (scope to be detailed in plan mode).**
-
-1. **Update `CLAUDE.md` Behavioral Floor "Proportional rigor" entry** to explicitly note that "no observed harm" does NOT invalidate proactive/preventive/improvement work — the test is whether the work matches stakes, not whether stakes have already manifested as harm.
-
-2. **Update `documents/agents/contrarian-reviewer.md`** to scope the "concrete instance test" / "phantom problem" filter to debugging-class work only. For proactive/improvement-class work, the filter should ask "does the proposed work match the anticipated stakes?" not "has harm been observed?"
-
-3. **Cross-reference the BACKLOG philosophy block's "Anticipatory items are valid"** rule from CLAUDE.md so the rule is visible at the behavioral-floor decision point, not just at the BACKLOG-philosophy point.
-
-4. **Optional:** consider adding a method to `rules-of-procedure.md` distinguishing reactive-class work (problem observed → fix) from proactive-class work (anticipated risk or improvement opportunity → preventive measure or capability addition). Could clarify when "concrete instance" demand is appropriate vs. inappropriate.
-
-**Done when.**
-- Behavioral Floor + contrarian agent definition + cross-references explicitly recognize proactive/preventive/improvement work as a valid work class without observed-harm justification
-- Future contrarian reviews applied to anticipatory work do not demand "concrete instance" as a pass/fail criterion
-- The BACKLOG philosophy block's "Anticipatory items are valid" rule is reachable from the AI's pre-action behavioral checks, not buried in BACKLOG-only context
-
-**Why D1 Fix (not D2 Improvement).** Single-pattern misapplication; ≤3 file edits (CLAUDE.md + agent definition + possibly one cross-ref); known fix; structural issue identified. Per CLAUDE.md "Fix (same session)" criteria. Tagged `Fix` rather than `Improvement` because the framework's stated rule (BACKLOG philosophy) is being violated by AI behavior — the fix restores compliance with an existing rule, not adds new capability.
-
-**Origin.** Session-140 (2026-04-30) Execution Framework brainstorm. User pushed back on the assistant + contrarian both demanding observed-harm justification for proactive/preventive/improvement work. Filed per direct user instruction. Governance: `gov-5ba8aa3ff93b`.
-
----
 
 #### 146. BACKLOG taxonomy — split tripwires and cadences from discrete projects `D2 Improvement`
 
@@ -479,6 +439,12 @@
    ```
 2. Re-introduce FM in `documents/failure-mode-registry.md` with `introduced: <fix-date>`, `must_cover: true` (promoted from advisory — this would now be enforced), and seed the new test.
 3. Remove LEARNING-LOG 2026-02-22 entry's ACTIVE status and replace with retired/resolved marker + pointer to the re-registered FM.
+
+**Diagnostic notes — additional production-trigger observations (additions help inform the fix when this work begins):**
+
+- **Session-142 (2026-05-01) trigger** — keyword `"remove"` in the `planned_action` description ("Remove BACKLOG #147 entry from BACKLOG.md per 'no closed items' rule") triggered ESCALATE with `s_series_check.triggered = true` and rationale: *"Action mentions 'remove' — may require safety review."* Substantive context: benign housekeeping (BACKLOG-entry close per documented "no closed items" rule). User explicitly bypassed via documented reason; commit `<hash-pending>` is the audit trail. **Suggests a SECOND failure mode beyond the negation-context one filed 2026-04-24:** the scanner appears to flag *destructive-action verbs* (`remove`, plausibly `delete`, `destroy`, `drop`, `wipe`, etc.) in the `planned_action` field without parsing intent or target. Counterintuitively, the principle returned in `s_series_check.principles` was `meta-safety-transparent-limitations` — a **meta-safety** principle about epistemic honesty ("state uncertainty where it exists"), *not* an S-Series tier-1 safety principle. So the FP may be **two-layered**: (a) keyword-without-context match on action verbs, AND (b) misclassification of `meta-safety-*` principles as S-Series-vetoing instead of universal-floor advisory.
+- **When fix work begins (#129 next):** scope decision — is the negation-context parsing fix (the original trigger of this entry) the same surface as action-verb-without-target parsing, or are they two distinct fixes? Both want intent-aware classification rather than substring match, suggesting one shared fix surface. Separately, the `meta-safety-*` → S-Series misclassification may live in `tiers.json` or the universal-floor → S-Series promotion logic and is potentially independent of the keyword scanner. Worth scoping early so the PR doesn't grow mid-flight.
+- **Cumulative production re-trips:** session-111 + session-114 + session-121 (negation-context, original) + session-142 (action-verb, new). Pattern is now n=4 across distinct trigger paths.
 
 **Done when.** Production S-Series scanner handles negation context + test asserts this + FM re-registered.
 

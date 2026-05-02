@@ -18,6 +18,7 @@ Before every response, check:
 - **Proportional rigor:** Is your effort matched to the stakes of this task?
   - WRONG: Proposing new infrastructure (metadata field + Part section + backlog activation) for an n=1 user report (#44)
   - RIGHT: Template improvement scoped to evidence — reject infrastructure that assumes the pattern will generalize
+  - **Anticipatory work is valid even without observed harm.** "Solving a phantom problem" is the wrong filter for proactive/preventive/improvement-class work — the test is whether the work matches *anticipated* stakes, not whether stakes have already manifested as harm. Per BACKLOG.md philosophy block: *"Anticipatory items are valid. Three valid reasons: need it now (active problem), plan to use soon (near-future need), anticipate needing later (want it ready when the time comes)."* Demanding "concrete instance of harm" before validating anticipatory work misapplies proportional-rigor and contradicts the framework's own stated rule. (Origin: BACKLOG #147 filed session-140 after pattern observed n=3 in one arc.)
 - **Cite principles:** Are you referencing principle IDs when they influence your approach?
   - WRONG: "This is a root-cause analysis problem" with no principle reference
   - RIGHT: "Per `meta-core-systemic-thinking`, address the structural cause (autoregressive generation) not the symptom (skipped calls)"
