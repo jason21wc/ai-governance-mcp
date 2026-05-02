@@ -58,12 +58,11 @@ entries:
     introduced: "2026-04-22"
     source: "session-122 contrarian finding; test_hooks.py::test_deny_on_substring_false_match"
   - id: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
-    description: "Governance S-Series semantic match should not trigger on keyword presence in negation context (e.g. 'NOT removing production data')."
-    must_cover: false
+    description: "Governance S-Series CRITICAL keyword scanner must demote matches when (a) every sentence containing the keyword also contains a safe-context leader phrase (negation, meta-description, governance-prose idiom, temporal-distancing) AND (b) no imperative-action verb appears anywhere in the action. Sentence-boundary regex must include em-dash, en-dash, semicolon, and newline (not just `[.!?]`). Field-bridging guard: per-field calls to `_detect_safety_concerns` (planned_action / context / concerns separately) prevent leaders in one field from covering keywords in another. Imperative + safe-context re-escalates (bypass guard). Imperative-verb list and CRITICAL keyword list co-evolve — adding to either should audit whether the other needs extension."
+    must_cover: true
     scope: project
     introduced: "2026-02-22"
-    retired: "2026-04-24"
-    source: "LEARNING-LOG: S-Series Keyword Trigger Produces False Positives on Negations. Retired session-124: describes a KNOWN LIMITATION of the S-Series keyword scanner — not an enforced invariant. Asserting the fix would fail on current code. See BACKLOG #129 for re-registration trigger (when negation-context parsing ships)."
+    source: "BACKLOG #129 closed 2026-05-01 by sentence-level safe-context allowlist (server.py::_is_keyword_in_safe_context). Covers Paths A+C; Path B (semantic retrieval FP for meta-safety-transparent-limitations on housekeeping actions) tracked separately as new BACKLOG entry — distinct fix surface (retrieval scoring, not keyword scanner)."
   - id: FM-TEST-SIDE-EFFECTS
     description: "Observability tests must assert state changes / side effects, not just return values (a function can return success while failing to write its file)."
     must_cover: false
@@ -306,7 +305,7 @@ Covers: FM-HOOK-CONTRARIAN-REQUIRED, FM-HOOK-FAIL-CLOSED-EXIT-2
 
     **Additional filter (post-session-124 LEARNING-LOG 2026-04-24):** Before adding an advisory entry, ask *"what specific assertion would fail if this FM's invariant broke?"* If the answer is "any test that doesn't do X" (anti-pattern discipline), "fixing a known bug" (production limitation), or "tests that set up mocks this way" (authoring convention), the entry belongs in LEARNING-LOG / BACKLOG / reference-library, NOT the registry. Registry entries must be binary-checkable via a concrete assertion mechanism (file-exists, threshold, marker presence, ValueError raised).
 
-    **Grandfathered entries (pre-2026-04-24 advisory entries exempt from the gate):** After session-124 extension cleanup, only **2 entries** remain exempt: FM-TEST-ENVIRONMENT-AWARE (now annotated on `tests/test_retrieval_quality.py::test_method_mrr_threshold` via pytest.mark.slow+real_index) and FM-REGISTRY-RETIRED-ID-DEPRECATION (`placeholder: true`, dormant-until-triggered). Three other grandfathered entries were retired 2026-04-24 per the filter above: FM-TEST-FULL-VALIDATION-CHAIN (anti-pattern; lesson at LEARNING-LOG 2026-02-11 + 2026-04-24), FM-S-SERIES-KEYWORD-FALSE-POSITIVE (known limitation; see BACKLOG #129 for production-fix re-register trigger), FM-ML-MODEL-MOCK-AT-SOURCE (authoring convention; reference-library doc reconciled 2026-04-24). Three other pre-cutoff advisory entries (FM-TEST-SIDE-EFFECTS, FM-TEST-ECHO-CHAMBER, FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED) were annotated during the #121 sweep and no longer need grandfather protection.
+    **Grandfathered entries (pre-2026-04-24 advisory entries exempt from the gate):** After session-124 extension cleanup, only **2 entries** remain exempt: FM-TEST-ENVIRONMENT-AWARE (now annotated on `tests/test_retrieval_quality.py::test_method_mrr_threshold` via pytest.mark.slow+real_index) and FM-REGISTRY-RETIRED-ID-DEPRECATION (`placeholder: true`, dormant-until-triggered). Three other grandfathered entries were retired 2026-04-24 per the filter above: FM-TEST-FULL-VALIDATION-CHAIN (anti-pattern; lesson at LEARNING-LOG 2026-02-11 + 2026-04-24), FM-S-SERIES-KEYWORD-FALSE-POSITIVE (re-registered 2026-05-01 with `must_cover: true` after BACKLOG #129 close — sentence-level safe-context allowlist shipped), FM-ML-MODEL-MOCK-AT-SOURCE (authoring convention; reference-library doc reconciled 2026-04-24). Three other pre-cutoff advisory entries (FM-TEST-SIDE-EFFECTS, FM-TEST-ECHO-CHAMBER, FM-HOOK-SIGKILL-TIMEOUT-NOT-COVERED) were annotated during the #121 sweep and no longer need grandfather protection.
 4. Run `python3 scripts/generate-test-failure-map.py` to regenerate `documents/test-failure-mode-map.md`.
 5. Commit registry + regenerated map + seed annotation(s) together.
 

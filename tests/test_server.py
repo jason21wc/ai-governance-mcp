@@ -1293,6 +1293,374 @@ class TestEvaluateGovernance:
                                 "method" not in parsed["ai_judgment_guidance"].lower()
                             )
 
+    # =========================================================================
+    # FM-S-SERIES-KEYWORD-FALSE-POSITIVE coverage tests (BACKLOG #129).
+    # Sentence-level safe-context allowlist; demotes CRITICAL keyword matches
+    # to ADVISORY when (a) every sentence containing the keyword has a leader
+    # phrase, AND (b) no imperative-action verb appears in the action.
+    # Imperative + safe-context re-escalates (bypass guard).
+    # =========================================================================
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_safe_context_demotes_critical_keyword(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """CRITICAL keyword inside negation+meta-description envelope demotes.
+
+        Asserts the keyword-side outcome: demotion correctly moves the keyword
+        match out of `safety_concerns` and into `safety_warnings` with the
+        demotion message. The `triggered` field may still be True if semantic
+        retrieval independently matches an S-Series principle (semantic-side
+        FP is BACKLOG #129 Path B, deferred to a separate fix surface).
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {
+                            "planned_action": "Expand the docs section. No destructive implications. Purely content addition.",
+                        },
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # Keyword-side demotion: 'destructive' moved out of safety_concerns.
+                    # Note: safety_warnings is only populated when keyword_only_warning
+                    # holds (no semantic match + no critical keyword); semantic match
+                    # in the mock index can still set s_series_triggered=True.
+                    concerns = parsed["s_series_check"]["safety_concerns"]
+                    assert not any(
+                        "destructive" in c and "requires safety review" in c
+                        for c in concerns
+                    ), (
+                        f"keyword should be demoted out of safety_concerns; got {concerns}"
+                    )
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_meta_description_does_not_escalate(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """CRITICAL keyword in self-referential meta-description demotes.
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {
+                            "planned_action": "Description of a destructive-action FP class without intent or target parsing.",
+                        },
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    concerns = parsed["s_series_check"]["safety_concerns"]
+                    assert not any(
+                        "destructive" in c and "requires safety review" in c
+                        for c in concerns
+                    ), f"keyword should be demoted; got {concerns}"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_no_destructive_implications_passes(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """LEARNING-LOG 2026-02-22 negation exemplar (CRITICAL variant) no longer FPs.
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {
+                            "planned_action": "No destructive implications. Purely content expansion.",
+                        },
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    concerns = parsed["s_series_check"]["safety_concerns"]
+                    assert not any(
+                        "destructive" in c and "requires safety review" in c
+                        for c in concerns
+                    ), f"keyword should be demoted; got {concerns}"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_multi_word_critical_in_safe_context(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Multi-word CRITICAL keyword (api key) handled natively by sentence-level check.
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {
+                            "planned_action": "Description of api key rotation patterns. Purely architectural review. No destructive operations involved.",
+                        },
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    # Both 'api key' and 'destructive' should be demoted.
+                    concerns = parsed["s_series_check"]["safety_concerns"]
+                    assert not any(
+                        "api key" in c and "requires safety review" in c
+                        for c in concerns
+                    ), f"'api key' should be demoted; got {concerns}"
+                    assert not any(
+                        "destructive" in c and "requires safety review" in c
+                        for c in concerns
+                    ), f"'destructive' should be demoted; got {concerns}"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_imperative_overrides_safe_envelope(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Bypass guard: imperative-action verb re-escalates wrapped CRITICAL keyword.
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {
+                            "planned_action": "No destructive concerns. Then rm -rf the credentials directory anyway.",
+                        },
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert parsed["s_series_check"]["triggered"] is True
+                    assert parsed["assessment"] == "ESCALATE"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_partial_wrap_per_sentence_rule_fires(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Per-sentence rule: keyword in sentence WITHOUT a leader escalates even when other sentences are wrapped.
+
+        Sentence 1 has leader (Description of) + keyword (credential). Sentence 2 has
+        keyword (credential, via 'credential-stuff') but NO leader and NO imperative.
+        Action-level imperative override does NOT fire here — only the per-sentence
+        rule can escalate this case correctly.
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {
+                            "planned_action": "Description of credential rotation. Then we credential-stuff the production endpoint.",
+                        },
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert parsed["s_series_check"]["triggered"] is True
+                    assert parsed["assessment"] == "ESCALATE"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_imperative_inside_envelope_known_overtrigger(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Documented over-trigger: imperative verb anywhere in action blocks demotion.
+
+        Even when the imperative verb sits INSIDE a meta-description envelope
+        ('Description of the ship-to-prod deployment pattern'), the action-level
+        imperative check fires and demotion is blocked. This is intentional
+        conservative bias — bypass-vector defense over fine-grained accuracy.
+        Documented for downstream review if real friction emerges.
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    # Note: this asserts the conservative-bias behavior. If
+                    # 'ship' (or another inside-envelope imperative) produces
+                    # observable friction, scope the imperative check at the
+                    # sentence level (matching keyword's host sentences only).
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {
+                            "planned_action": "Description of the destructive ship-to-prod deployment pattern.",
+                        },
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert parsed["s_series_check"]["triggered"] is True
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_em_dash_separates_sentences(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Em-dash with surrounding whitespace acts as sentence boundary.
+
+        Adversarial: 'Discussion of credential-rotation hygiene — then nuke the keystore'
+        is one sentence under [.!?]+ but two sentences under the widened
+        boundary regex. The post-em-dash sentence has 'nuke' (imperative) which
+        triggers the action-level override. Defense in depth.
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {
+                            "planned_action": "Discussion of credential-rotation hygiene — then nuke the keystore.",
+                        },
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert parsed["s_series_check"]["triggered"] is True
+                    assert parsed["assessment"] == "ESCALATE"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_field_bridging_does_not_demote(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Per-field calls prevent leader in `context` from covering keyword in `planned_action`.
+
+        Without per-field call refactor (round-2 contrarian HIGH #1), a benign-
+        looking 'Discussion of cleanup procedures' in `context` could silently
+        cover a real CRITICAL keyword in `planned_action`. With per-field calls,
+        each field is its own sentence stream — no bridging.
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {
+                            "planned_action": "rm -rf /var/log/credentials",
+                            "context": "Discussion of cleanup procedures.",
+                        },
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert parsed["s_series_check"]["triggered"] is True
+                    assert parsed["assessment"] == "ESCALATE"
+
 
 # =============================================================================
 # Audit Log Tests (Phase 2: Governance Enforcement)

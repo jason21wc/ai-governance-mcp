@@ -1027,7 +1027,7 @@ AGENT_TEMPLATE_HASHES = {
     "code-reviewer": "0a480a1ca6f02a835c813bdb83d307b1f36578f3b4d87e630151ffedbc7806c0",
     "coherence-auditor": "f02c9d7bb642d8cb07a0e422ac86e8eae4ae10d37e89d869bef66096ef80a4c8",
     "continuity-auditor": "ecfb29ca75474fef63ca9a92779b5557fbade3f2b5e7d2712be8255047ce6a4d",
-    "contrarian-reviewer": "bb5344dded01d719025d3e155c6b53a83f43acc290679442c360e818fc67f5a3",
+    "contrarian-reviewer": "7d243e0ca4f5eb6af8c55225dbc764712e9ab4603c31a6012ecafba3ed7d7afe",
     "documentation-writer": "c1f1e0d5617d10c6b61cb3fb8e7e436a9ffe18c06f629c2d1201f3da3d998ad0",
     "orchestrator": "be9eab6fb5d4c844723d2af4d36ac4761341bf2d2cdf3dff5e9167f1732b9611",
     "security-auditor": "5c2217d0a3041ad8afee3b46ae8c66e9e375ebbb9059b7637421037609d0ad27",
@@ -2519,6 +2519,68 @@ ADVISORY_SAFETY_KEYWORDS = {
 }
 
 
+# Safe-context leader phrases. When a sentence contains BOTH a CRITICAL keyword
+# AND at least one of these leaders AND no imperative-action verb appears
+# anywhere in the action, the keyword match is demoted from CRITICAL to ADVISORY.
+# Default-match: any keyword in a sentence WITHOUT a leader still escalates.
+# See FM-S-SERIES-KEYWORD-FALSE-POSITIVE re-registered 2026-05-01 (BACKLOG #129).
+_SAFE_CONTEXT_LEADERS = re.compile(
+    r"\b("
+    r"no|without|purely|"
+    r"describing|description\s+of|class\s+of|category\s+of|"
+    r"example\s+of|meta-?description\s+of|kind\s+of|"
+    r"documents?|catalogs?|tracks?|enumerates?|references?|notes?|records?|"
+    r"prior|previous|historical|past|former|hypothetical|theoretical|"
+    r"discussion\s+of|review\s+of|audit\s+of"
+    r")\b",
+    re.IGNORECASE,
+)
+
+# When ANY of these verbs appears in the action, even a sentence-wrapped CRITICAL
+# keyword re-escalates. Closes the bypass vector "say 'no destructive concerns'
+# and then rm -rf production".
+_IMPERATIVE_ACTION_VERBS = re.compile(
+    r"\b("
+    r"ship|deploy|delete|drop|truncate|wipe|rm|erase|purge|"
+    r"execute|run|apply|merge|push|force|force-push|"
+    r"override|bypass|disable|kill|"
+    # Round-2 contrarian fold (closure problem): destructive verbs missed initially.
+    r"nuke|format|chmod|chown|sudo|flush|revoke|terminate|expire|unset|mv"
+    r")\b",
+    re.IGNORECASE,
+)
+
+# Splits action into sentences. Bare hyphens are NOT boundaries (would split
+# "double-check" / "follow-up"). Em-dash and en-dash require surrounding
+# whitespace. Round-2 fold: widened from r"[.!?]+" to include em-dash/en-dash/
+# semicolon/newline so adversarial run-on phrasings cannot escape sentence-level
+# safe-context check.
+_SENTENCE_BOUNDARY = re.compile(r"[.!?;\n]+|\s[—–]\s")
+
+
+def _is_keyword_in_safe_context(action_lower: str, keyword: str) -> bool:
+    """True iff EVERY sentence containing `keyword` also contains a safe-context leader.
+
+    Sentence-level granularity (vs. position-span envelope-coverage) handles
+    multi-word keywords natively and is robust to leader-before-keyword OR
+    leader-after-keyword phrasings. Default-deny: any sentence with the keyword
+    but no leader means we treat the action as unsafe.
+
+    Note: case-insensitive substring match for the keyword (mirrors the existing
+    CRITICAL/ADVISORY scan semantics — does NOT add word boundaries, since the
+    existing scan accepts plurals like "credentials" matching "credential").
+    """
+    sentences = _SENTENCE_BOUNDARY.split(action_lower)
+    keyword_lower = keyword.lower()
+    saw_keyword_anywhere = False
+    for sentence in sentences:
+        if keyword_lower in sentence:
+            saw_keyword_anywhere = True
+            if not _SAFE_CONTEXT_LEADERS.search(sentence):
+                return False  # Keyword in a sentence with no leader → unsafe
+    return saw_keyword_anywhere
+
+
 def _detect_safety_concerns(action: str) -> tuple[list[str], list[str]]:
     """Detect potential safety concerns with two confidence levels.
 
@@ -2527,12 +2589,19 @@ def _detect_safety_concerns(action: str) -> tuple[list[str], list[str]]:
     - advisory_concerns: keywords that produce warnings only (escalate
       only when semantic retrieval also finds S-Series principles)
 
-    Intentionally ignores negation — "do not delete" should still flag,
-    because negation-aware parsing creates bypass vectors.
+    Negation handling: this function DOES NOT parse negation directly
+    ("not delete" still flags), because negation parsing creates bypass
+    vectors. Instead, a closed allowlist of safe-context leader phrases
+    demotes CRITICAL → ADVISORY when ALL of these hold:
+      (a) every sentence containing the keyword also contains a leader, AND
+      (b) no imperative-action verb appears anywhere in the action.
+    Demotion preserves the audit trail via the resulting advisory message
+    while removing the false positive. See FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+    (re-registered 2026-05-01 / BACKLOG #129).
     """
     action_lower = action.lower()
-    critical = []
-    advisory = []
+    critical: list[str] = []
+    advisory: list[str] = []
 
     for keyword in CRITICAL_SAFETY_KEYWORDS:
         if keyword in action_lower:
@@ -2541,6 +2610,21 @@ def _detect_safety_concerns(action: str) -> tuple[list[str], list[str]]:
     for keyword in ADVISORY_SAFETY_KEYWORDS:
         if keyword in action_lower:
             advisory.append(f"Action mentions '{keyword}' - may require safety review")
+
+    # Demotion pass: CRITICAL keywords appearing only inside safe-context
+    # sentences AND not paired with an imperative-action verb get demoted.
+    if critical:
+        imperative_present = bool(_IMPERATIVE_ACTION_VERBS.search(action_lower))
+        remaining_critical: list[str] = []
+        for msg in critical:
+            kw = msg.split("'")[1]
+            if not imperative_present and _is_keyword_in_safe_context(action_lower, kw):
+                advisory.append(
+                    f"Action mentions '{kw}' in safe context - advisory only"
+                )
+            else:
+                remaining_critical.append(msg)
+        critical = remaining_critical
 
     return critical, advisory
 
@@ -2673,13 +2757,23 @@ async def _handle_evaluate_governance(
             )
         )
 
-    # S-Series keyword detection (dual-path: critical + advisory)
-    # Concatenate action + context for comprehensive keyword checking
-    composite_text = planned_action
-    if context:
-        composite_text = f"{planned_action} {context}"
-
-    critical_concerns, advisory_concerns = _detect_safety_concerns(composite_text)
+    # S-Series keyword detection (dual-path: critical + advisory).
+    # Per-field calls (NOT joined composite) so safe-context leaders in `context`
+    # do not silently cover CRITICAL keywords in `planned_action`. Per BACKLOG
+    # #129 round-2 contrarian audit a044f06182de62945 HIGH #1.
+    critical_concerns: list[str] = []
+    advisory_concerns: list[str] = []
+    for field_text in (planned_action, context or "", concerns or ""):
+        if not field_text:
+            continue
+        field_critical, field_advisory = _detect_safety_concerns(field_text)
+        critical_concerns.extend(field_critical)
+        advisory_concerns.extend(field_advisory)
+    # Round-3 contrarian fold (audit acac60285fe89885d MEDIUM): same keyword
+    # present in multiple fields would otherwise emit duplicate identical
+    # messages, degrading audit-trail signal. Order-preserving dedup.
+    critical_concerns = list(dict.fromkeys(critical_concerns))
+    advisory_concerns = list(dict.fromkeys(advisory_concerns))
 
     # Determine S-Series triggering with hybrid logic:
     # - Semantic S-Series match → ALWAYS escalate (high confidence)

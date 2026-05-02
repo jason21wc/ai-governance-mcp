@@ -262,6 +262,55 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 150. Semantic-retrieval false-positive — `meta-safety-transparent-limitations` matches housekeeping actions `D2 Discussion`
+
+**Filed:** 2026-05-01 (session-142, carrying forward diagnostic notes from BACKLOG #129 close).
+
+**What.** `evaluate_governance` semantic retrieval returns `s_series_check.principles=["meta-safety-transparent-limitations"]` for benign housekeeping actions whose text contains rule-citation language (e.g., `"per X rule"`, `"per 'no closed items' rule"`). The principle is genuinely an S-Series Bill of Rights Amendment per `documents/constitution.md` §"Framework Overview: The Constitutional Structure" + `rules-of-procedure §3.4.2/§3.4.3` (the `meta-safety-` ID prefix IS the S-Series slugifier output) — so the scanner returning a Bill of Rights principle for `s_series_check.triggered = true` is **expected behavior**, not misclassification. The FP is a relevance-threshold issue: housekeeping action text shouldn't semantically rank `meta-safety-transparent-limitations` highly enough to S-Series-promote.
+
+**Distinct from BACKLOG #129 (closed 2026-05-01, keyword scanner FP):** different fix surface — retrieval scoring / S-Series-promotion gate, not the keyword scanner. The just-shipped sentence-level safe-context allowlist in `_detect_safety_concerns` does NOT address Path B; verified during plan #129 contrarian review (`a9b708b023588ef2f`) that the keyword-scanner fix does NOT coincidentally suppress Path B (the session-142 repro string does not contain a sentence-level safe-context leader from the allowlist).
+
+## Reproduction (carried from #129)
+
+**Session-142 (2026-05-01) trigger** — `evaluate_governance(planned_action="Ship BACKLOG #147 ... Remove BACKLOG #147 entry from BACKLOG.md per 'no closed items' rule")` returned ESCALATE with `s_series_check.principles=["meta-safety-transparent-limitations"]` and `safety_concerns=["Action mentions 'remove' — may require safety review"]`. The keyword `"remove"` is in ADVISORY, not CRITICAL. ADVISORY alone wouldn't escalate. But semantic retrieval ALSO returned Transparent Limitations (an S-Series Bill of Rights principle).
+
+**Cumulative semantic re-trips:** n=1 (session-142). Watching for additional instances to confirm whether this generalizes or remains an isolated case.
+
+## Verification during plan #129 (2026-05-01)
+
+Verified during BACKLOG #129 plan review (subagent: coherence-auditor `a8730552c214c010f`, contrarian-reviewer `afac4381fd32e8721`) that `meta-safety-transparent-limitations` is genuinely an S-Series Bill of Rights Amendment per `constitution.md` §Framework Overview + `RoP §3.4.2/§3.4.3` — semantic retrieval is functioning as designed; the FP is a relevance-threshold issue, not a misclassification. Verified during plan #129 contrarian review round 1 (`a9b708b023588ef2f`) that the keyword-scanner fix does NOT coincidentally suppress Path B: the session-142 repro string does not contain any sentence-level safe-context leader from the allowlist; semantic-retrieval surface remains observably triggered post-fix (regression-locked by `test_evaluate_governance_field_bridging_does_not_demote` which uses similar text).
+
+## Hypothesis
+
+Rule-citation language ("per X rule", "per 'no closed items' rule") embeds near transparency/honesty content in the BGE-small embedding space. The semantic retrieval scoring threshold for S-Series-promotion is currently sensitive enough that this matches `meta-safety-transparent-limitations` (which itself is about epistemic honesty / "state uncertainty where it exists"). Investigation needed:
+- What's the actual cosine similarity between rule-citation phrasings and Transparent Limitations content?
+- Where is the S-Series-promotion threshold? Is it tunable?
+- Are there false-positives on OTHER S-Series principles (Non-Maleficence, Bias Awareness) that we just haven't observed yet?
+
+## Possible interventions (for discussion)
+
+1. **Threshold tuning** — raise the S-Series-promotion score threshold so weak semantic matches don't promote. Risk: tunes false-negatives on real S-Series content if threshold is too aggressive.
+2. **Two-stage S-Series promotion** — semantic match alone is "tentative S-Series"; promote to vetoing only when at least one other signal (CRITICAL keyword OR multiple S-Series principles in top-K) corroborates.
+3. **Action-class classifier** — separate fast classifier (housekeeping vs. operational vs. authoring vs. destructive) gates whether semantic retrieval can promote to S-Series. Risk: classifier itself becomes a fix surface.
+4. **Embedding-time corpus augmentation** — add anti-pattern documents to retrieval corpus that explicitly distance Transparent Limitations from rule-citation language. Risk: hard to scope without false-negatives.
+
+## Trigger to act
+
+ANY of:
+1. Same FP class observed n≥2 in production (currently n=1 — session-142).
+2. Retrieval-quality benchmark work (`tests/benchmarks/`) lands a related improvement.
+3. User-directed prioritization (e.g., adopter feedback on FP friction).
+
+## Done when
+
+S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent-limitations` (and similar floor S-Series principles) from triggering on benign housekeeping actions, AND a regression test in `tests/test_server.py::TestEvaluateGovernance` asserts the session-142 repro string no longer ESCALATEs, AND this entry is removed per "no closed items" rule.
+
+**Why D2 Discussion (not D1 Fix):** scope unclear (4 alternatives above), evidence base n=1, fix surface different from #129. Plan mode required if/when re-opened.
+
+**Origin.** Session-142 (2026-05-01) governance evaluation during BACKLOG #147 close authoring. Filed during BACKLOG #129 close as the Path-B-out-of-scope follow-up. Governance: `gov-08d77289210e` (BACKLOG #129 implementation arc).
+
+---
+
 #### 149. Contrarian-reviewer over-generation tendency — quota or precedence mechanism `D2 Discussion`
 
 **Filed:** 2026-05-01 (session-142, contrarian-reviewer post-edit double-check on BACKLOG #147 fold-in).
@@ -446,37 +495,6 @@
 
 ---
 
-#### 129. Re-register FM-S-SERIES-KEYWORD-FALSE-POSITIVE after Negation-Context Parsing Ships `D2 Improvement`
-
-**Filed:** 2026-04-24 (session-124 extension, post-#121 grandfathered FM resolution).
-
-**What.** FM-S-SERIES-KEYWORD-FALSE-POSITIVE was retired 2026-04-24 as a known production limitation (not an enforced invariant): the S-Series keyword scanner currently triggers on keyword presence in negation contexts ("no security concerns") because it uses simple substring matching, not context-aware parsing. Asserting the fix would fail on current code. LEARNING-LOG 2026-02-22 retains the documented pattern; production re-trips logged session-111 + session-114 + session-121.
-
-**Trigger.** When `evaluate_governance` gains negation-context handling — e.g., a PR that:
-- Adds a negation parser to the S-Series keyword scanner (`src/ai_governance_mcp/server.py::CRITICAL_SAFETY_KEYWORDS` block), OR
-- Replaces keyword-match with LLM-based intent classification for S-Series detection, OR
-- Adds semantic-negation suppression via regex patterns on standard negators ("no ", "not ", "without ", etc.)
-
-**Action.**
-1. Write a test asserting the negation payload does NOT trigger S-Series match:
-   ```python
-   def test_s_series_does_not_trigger_on_negation_context(self):
-       """Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE"""
-       result = evaluate_governance(planned_action="No security implications — purely content expansion")
-       assert not result.s_series_check.triggered
-   ```
-2. Re-introduce FM in `documents/failure-mode-registry.md` with `introduced: <fix-date>`, `must_cover: true` (promoted from advisory — this would now be enforced), and seed the new test.
-3. Remove LEARNING-LOG 2026-02-22 entry's ACTIVE status and replace with retired/resolved marker + pointer to the re-registered FM.
-
-**Diagnostic notes — additional production-trigger observations (additions help inform the fix when this work begins):**
-
-- **Session-142 (2026-05-01) trigger** — keyword `"remove"` in the `planned_action` description ("Remove BACKLOG #147 entry from BACKLOG.md per 'no closed items' rule") triggered ESCALATE with `s_series_check.triggered = true` and rationale: *"Action mentions 'remove' — may require safety review."* Substantive context: benign housekeeping (BACKLOG-entry close per documented "no closed items" rule). User explicitly bypassed via documented reason; commit `0911534` is the audit trail. **Suggests a SECOND failure mode beyond the negation-context one filed 2026-04-24:** the scanner appears to flag *destructive-action verbs* (`remove`, plausibly `delete`, `destroy`, `drop`, `wipe`, etc.) in the `planned_action` field without parsing intent or target. The fix surface for this differs from negation-context handling — both want intent-aware classification rather than substring match, but the input shape differs (negation modifies a present keyword vs. an action verb that needs a benign-target signal). They may share one fix or split into two; worth scoping early.
-- **Correction to earlier session-142 hypothesis** — an initial draft of this note hypothesized a *second layer* to the FP, claiming `meta-safety-transparent-limitations` was being misclassified as S-Series when "actually" a meta-safety principle. Coherence audit (`a8730552c214c010f`) corrected the record: per `documents/constitution.md` §"Framework Overview: The Constitutional Structure", Transparent Limitations is one of the three **S-Series Bill of Rights Amendments** (alongside Non-Maleficence and Bias Awareness). Per `rules-of-procedure §3.4.2`/`§3.4.3`, the `meta-safety-` ID prefix is the slugifier output for the constitution's `safety` category — i.e., S-Series is exactly what `meta-safety-*` IDs name. The scanner returning a Bill of Rights principle for `s_series_check.triggered = true` is **expected behavior, not misclassification**. Retracting the misclassification hypothesis: the genuine new FP path is single-layered — destructive-action-verb keyword match without intent/target parsing. The principle-ID return value is correct; the trigger gate is what's overly broad.
-- **Cumulative production re-trips:** session-111 + session-114 + session-121 (negation-context, original) + session-142 (action-verb, new). Pattern is now n=4 across distinct trigger paths.
-
-**Done when.** Production S-Series scanner handles negation context + test asserts this + FM re-registered.
-
----
 
 #### 127. Document-Extractor Integration-Test Coverage Gap `D2 Capability`
 

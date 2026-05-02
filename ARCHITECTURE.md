@@ -412,7 +412,7 @@ Known failure modes for the multi-agent and orchestration patterns used in this 
 | Failure Mode | Cause | Detection | Mitigation |
 |--------------|-------|-----------|------------|
 | **Governance bypass** | Orchestrator skip-list too broad; action not evaluated | `verify_governance_compliance()` returns NON_COMPLIANT | Narrow skip-list; default to evaluate when in doubt |
-| **False ESCALATE** | S-Series keyword scan triggers on benign terms (e.g., "security fix") | Review `principles` array in assessment — keywords triggered but no real violation | Check principle content, not just keywords; document in Gotcha #12 |
+| **False ESCALATE** | S-Series keyword scan triggers on benign terms (e.g., "security fix") | Review `principles` array in assessment — keywords triggered but no real violation | CRITICAL/ADVISORY tiering filters most cases; sentence-level safe-context allowlist (per FM-S-SERIES-KEYWORD-FALSE-POSITIVE re-registered 2026-05-01) demotes envelope matches when no imperative-action verb is present; imperative verbs override demotion to defend bypass vector. Path B (semantic retrieval FP for housekeeping actions) remains tracked separately. |
 | **Stale index** | Server caches index at startup; index rebuilt but server not restarted | Queries return outdated or missing results | Auto-reload: server checks index mtime on each query and reloads when changed. No restart needed. |
 | **Context overflow** | Long conversation exceeds context window; governance instructions lost | AI stops calling `evaluate_governance()`; responses drift from framework | Per-response reminder (~30 tokens) appended to every tool response |
 

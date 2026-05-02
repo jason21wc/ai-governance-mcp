@@ -134,6 +134,20 @@
 
 - `tests/test_validator.py` → `TestFailureModeCoverage::test_every_covers_id_exists_in_registry`
 
+### `FM-S-SERIES-KEYWORD-FALSE-POSITIVE`
+
+> Governance S-Series CRITICAL keyword scanner must demote matches when (a) every sentence containing the keyword also contains a safe-context leader phrase (negation, meta-description, governance-prose idiom, temporal-distancing) AND (b) no imperative-action verb appears anywhere in the action. Sentence-boundary regex must include em-dash, en-dash, semicolon, and newline (not just `[.!?]`). Field-bridging guard: per-field calls to `_detect_safety_concerns` (planned_action / context / concerns separately) prevent leaders in one field from covering keywords in another. Imperative + safe-context re-escalates (bypass guard). Imperative-verb list and CRITICAL keyword list co-evolve — adding to either should audit whether the other needs extension.
+
+- `tests/test_server.py` → `TestEvaluateGovernance::test_evaluate_governance_em_dash_separates_sentences`
+- `tests/test_server.py` → `TestEvaluateGovernance::test_evaluate_governance_field_bridging_does_not_demote`
+- `tests/test_server.py` → `TestEvaluateGovernance::test_evaluate_governance_imperative_inside_envelope_known_overtrigger`
+- `tests/test_server.py` → `TestEvaluateGovernance::test_evaluate_governance_imperative_overrides_safe_envelope`
+- `tests/test_server.py` → `TestEvaluateGovernance::test_evaluate_governance_meta_description_does_not_escalate`
+- `tests/test_server.py` → `TestEvaluateGovernance::test_evaluate_governance_multi_word_critical_in_safe_context`
+- `tests/test_server.py` → `TestEvaluateGovernance::test_evaluate_governance_no_destructive_implications_passes`
+- `tests/test_server.py` → `TestEvaluateGovernance::test_evaluate_governance_partial_wrap_per_sentence_rule_fires`
+- `tests/test_server.py` → `TestEvaluateGovernance::test_evaluate_governance_safe_context_demotes_critical_keyword`
+
 ### `FM-SCANNER-SUBSTRING-FALSE-MATCH`
 
 > Transcript scanner must parse tool_use blocks, not substring-match raw line content — guards against file reads that MENTION the target tool name without invoking it.
@@ -279,12 +293,6 @@ _No annotated tests yet._
 ### `FM-ML-MODEL-MOCK-AT-SOURCE` **[RETIRED]**
 
 > Mock ML models at the import site (the module that uses them), not at the library root — patches at the wrong level silently miss.
-
-_No annotated tests yet._
-
-### `FM-S-SERIES-KEYWORD-FALSE-POSITIVE` **[RETIRED]**
-
-> Governance S-Series semantic match should not trigger on keyword presence in negation context (e.g. 'NOT removing production data').
 
 _No annotated tests yet._
 
