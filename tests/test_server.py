@@ -1621,6 +1621,91 @@ class TestEvaluateGovernance:
                     assert parsed["s_series_check"]["triggered"] is True
                     assert parsed["assessment"] == "ESCALATE"
 
+    def test_imperative_action_verbs_covers_common_mutations(self):
+        """`_IMPERATIVE_ACTION_VERBS` must cover common mutation/disclosure verbs.
+
+        Defends silent-FN class: a CRITICAL keyword wrapped in a safe-context
+        sentence (no imperative verb in that sentence) but paired with a
+        destructive action elsewhere in the action string. Per FM-S-SERIES
+        co-evolution rule (registry description) — failure here forces
+        deliberate audit when imperative list drifts.
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        from ai_governance_mcp.server import _IMPERATIVE_ACTION_VERBS
+
+        required_verbs = (
+            "ship",
+            "deploy",
+            "delete",
+            "drop",
+            "truncate",
+            "wipe",
+            "rm",
+            "erase",
+            "purge",
+            "kill",
+            "nuke",
+            "format",
+            "chmod",
+            "sudo",
+            "flush",
+            "revoke",
+            "terminate",
+            "rotate",
+            "replace",
+            "migrate",
+            "modify",
+            "restart",
+            "restore",
+            "clone",
+            "expose",
+            "leak",
+            "dump",
+        )
+        for verb in required_verbs:
+            assert _IMPERATIVE_ACTION_VERBS.search(verb), (
+                f"common mutation/disclosure verb {verb!r} missing from "
+                f"_IMPERATIVE_ACTION_VERBS — drift risks silent FN per "
+                f"BACKLOG #129 post-arc contrarian audit a8e2e0926f756db45 HIGH #1"
+            )
+
+    def test_critical_safety_keywords_pinned_for_co_evolution(self):
+        """Pin CRITICAL keyword set so growth forces imperative-list audit.
+
+        When this test fails, the author MUST audit `_IMPERATIVE_ACTION_VERBS`
+        for newly-needed mutation/disclosure verbs paired with the new CRITICAL
+        keyword, then update both `expected_critical` here AND the imperative
+        list in `server.py`. Per FM-S-SERIES co-evolution rule.
+
+        Covers: FM-S-SERIES-KEYWORD-FALSE-POSITIVE
+        """
+        from ai_governance_mcp.server import CRITICAL_SAFETY_KEYWORDS
+
+        expected_critical = frozenset(
+            {
+                "credential",
+                "password",
+                "secret",
+                "api key",
+                "private key",
+                "access token",
+                "encryption key",
+                "pii",
+                "personal data",
+                "irreversible",
+                "destructive",
+            }
+        )
+        actual = frozenset(CRITICAL_SAFETY_KEYWORDS)
+        assert actual == expected_critical, (
+            f"CRITICAL_SAFETY_KEYWORDS changed (added: {actual - expected_critical}, "
+            f"removed: {expected_critical - actual}). Audit `_IMPERATIVE_ACTION_VERBS` "
+            f"for newly-needed verbs paired with the change, then update both "
+            f"expected_critical in this test AND the imperative list in server.py. "
+            f"FM-S-SERIES co-evolution rule (registry description)."
+        )
+
     @pytest.mark.asyncio
     async def test_evaluate_governance_field_bridging_does_not_demote(
         self,

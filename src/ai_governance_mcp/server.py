@@ -2545,7 +2545,12 @@ _IMPERATIVE_ACTION_VERBS = re.compile(
     r"execute|run|apply|merge|push|force|force-push|"
     r"override|bypass|disable|kill|"
     # Round-2 contrarian fold (closure problem): destructive verbs missed initially.
-    r"nuke|format|chmod|chown|sudo|flush|revoke|terminate|expire|unset|mv"
+    r"nuke|format|chmod|chown|sudo|flush|revoke|terminate|expire|unset|mv|"
+    # Post-arc contrarian audit a8e2e0926f756db45 HIGH #1 (mutation/disclosure
+    # verbs missing — would silently FN on adversarial actions like "Description
+    # of credential management — rotate the production secret now"):
+    r"rotate|replace|migrate|modify|restart|restore|clone|copy|move|"
+    r"expose|leak|dump"
     r")\b",
     re.IGNORECASE,
 )
@@ -2603,9 +2608,17 @@ def _detect_safety_concerns(action: str) -> tuple[list[str], list[str]]:
     critical: list[str] = []
     advisory: list[str] = []
 
+    # Track (keyword, message) pairs for the demotion pass to avoid round-tripping
+    # the keyword through string-parse — `msg.split("'")[1]` would crash on any
+    # future keyword containing an apostrophe (e.g., "don't") or break under
+    # localization. Per BACKLOG #129 post-arc contrarian audit a8e2e0926f756db45
+    # HIGH #2.
+    critical_kw_msgs: list[tuple[str, str]] = []
     for keyword in CRITICAL_SAFETY_KEYWORDS:
         if keyword in action_lower:
-            critical.append(f"Action mentions '{keyword}' - requires safety review")
+            critical_kw_msgs.append(
+                (keyword, f"Action mentions '{keyword}' - requires safety review")
+            )
 
     for keyword in ADVISORY_SAFETY_KEYWORDS:
         if keyword in action_lower:
@@ -2613,18 +2626,15 @@ def _detect_safety_concerns(action: str) -> tuple[list[str], list[str]]:
 
     # Demotion pass: CRITICAL keywords appearing only inside safe-context
     # sentences AND not paired with an imperative-action verb get demoted.
-    if critical:
+    if critical_kw_msgs:
         imperative_present = bool(_IMPERATIVE_ACTION_VERBS.search(action_lower))
-        remaining_critical: list[str] = []
-        for msg in critical:
-            kw = msg.split("'")[1]
+        for kw, msg in critical_kw_msgs:
             if not imperative_present and _is_keyword_in_safe_context(action_lower, kw):
                 advisory.append(
                     f"Action mentions '{kw}' in safe context - advisory only"
                 )
             else:
-                remaining_critical.append(msg)
-        critical = remaining_critical
+                critical.append(msg)
 
     return critical, advisory
 
