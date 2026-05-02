@@ -1670,6 +1670,25 @@ class TestEvaluateGovernance:
                 f"BACKLOG #129 post-arc contrarian audit a8e2e0926f756db45 HIGH #1"
             )
 
+        # Word-boundary regression guard (per code-reviewer audit
+        # a5c776ac67944436a MEDIUM #2): the imperative regex MUST use `\b...\b`
+        # anchors so verbs don't accidentally match inside larger words. If a
+        # future maintainer replaced `\b(...)\b` with `(...)`, the positive
+        # assertions above would still pass but these negative cases would
+        # fail — forcing the boundary discipline back in.
+        non_verb_substrings = (
+            "exposed",  # contains 'expose' as prefix
+            "restoration",  # contains 'restore' as prefix
+            "deployment",  # contains 'deploy' as prefix
+            "modifying",  # contains 'modify' as prefix
+        )
+        for word in non_verb_substrings:
+            assert not _IMPERATIVE_ACTION_VERBS.fullmatch(word), (
+                f"_IMPERATIVE_ACTION_VERBS word-boundary discipline broken: "
+                f"{word!r} matches via fullmatch — boundary-anchored regex would "
+                f"reject it. A maintainer dropped \\b...\\b anchors."
+            )
+
     def test_critical_safety_keywords_pinned_for_co_evolution(self):
         """Pin CRITICAL keyword set so growth forces imperative-list audit.
 
