@@ -262,6 +262,70 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
+#### 148. Execution Framework — design discussion in-flight (working file at repo root) `D2 Improvement`
+
+**Filed:** 2026-04-29 (session-139), continuing 2026-04-30 (session-140).
+
+**What.** Active design discussion to define an "Execution Framework" method for ai-governance: a meta-method describing the major conceptual components (buckets) any system following ai-governance's structure needs in place for intent engineering to actually function. Trigger source: external article *"The Anatomy of an Agent Harness"* (Pachaar, April 2026). Working framing: ai-governance is itself an "intent harness" — the scaffolding that makes principles enforceable rather than advisory. Goal: identify the components so we can evaluate "is there a better implementation available for this slot?" (architectural coherence + component-swap discipline).
+
+**Primary content lives in `EXECUTION-FRAMEWORK.md` at repo root** (not in this BACKLOG entry). That file captures: full conversation reasoning (no compression), the body/skeleton metaphor (initial), the custom-computer metaphor (primary, session-140), 3-function root view (candidate, not yet examined dedicated), 8-bucket component view v0.1-draft, sub-bucket method-level descriptions, principle/method/appendix mapping (with caveats), 4-layer portability story (CPU/motherboard/standards/drivers), bucket-6/7 boundary per `constitution.md` §Structural Enforcement (Cross-Cutting), hardware-vs-software quality dimension, storage location options, all 9 coaching questions with status, 3 contrarian rounds and their findings, what we explicitly chose NOT to do, 12 open questions for pickup.
+
+**Why D2 not D3.** Likely D2 (plan-mode required) when ready to ship — the method is mostly architectural documentation, not new infrastructure. Could rise to D3 if storage decision lands as multi-layer placement (principles + methods + appendices co-located across multiple files).
+
+**Status.** v0.1-draft — first complete pass of bucket model recorded. Empirical testing deferred until workflows/skills design begins (the natural trigger). Several open questions remain unresolved (see `EXECUTION-FRAMEWORK.md` §11). Not ready for plan mode yet.
+
+**Trigger to advance.** ANY of:
+1. Workflows/skills feature work begins → use bucket model as design checklist; if it helps, codify; if it surprises us, iterate the model first.
+2. A decision on `EXECUTION-FRAMEWORK.md` §11 open questions converges enough that the v0.1-draft can be promoted to v1.0.
+3. Storage location decision (§7 of working file) becomes a blocker for another piece of work that needs it.
+
+**Done when.** Either (a) the Execution Framework method ships in its decided storage location with all v0.1-draft caveats resolved, OR (b) closed-as-deferred-permanently after extended discussion concludes the framework doesn't need this codified.
+
+**Origin.** Session-139 (2026-04-29) external article review brainstorm. Session-140 (2026-04-30) refinement to computer-architecture metaphor + 8-bucket v0.1-draft + bucket-6/7 boundary clarification + hardware-vs-software dimension + bucket renaming. Governance: `gov-1ce1278cc85e`, `gov-a2d2b84d5b99`, `gov-5ba8aa3ff93b`, `gov-266235bbac6e`, `gov-9452d3f7e513`. See `EXECUTION-FRAMEWORK.md` for full reasoning trail and pickup discipline.
+
+---
+
+#### 147. Proactive-vs-reactive work bias — AI demands observed harm before validating proactive/preventive/improvement work `D1 Fix`
+
+**Filed:** 2026-04-30 (session-140, user observation during Execution Framework brainstorm).
+
+**What.** A recurring pattern in AI assistant + contrarian-reviewer behavior: when the user proposes proactive work (improvements, preventive measures, anticipatory infrastructure, design discipline), the AI demands a cited instance of observed harm as justification. If none can be cited, the AI marks the work as "solving a phantom problem" and recommends deferral or rejection. This filter is mis-applied — proactive work is valid even without observed harm.
+
+**User direction (verbatim, session-140):** *"Your assumption is that the only reason to look at something like this is to fix a problem, but you are missing the side where we take actions to proactively prevent problems or just make improvements. We don't need a problem to justify this kind of work."*
+
+**What ai-governance principle/method is being misapplied.** The bias appears to come from over-broad application of:
+
+1. **`meta-quality-proportional-rigor` (Methods §7.8 Proportional Application).** "Match rigor to stakes" gets misread as "no observed problem = no stakes = no work justified." But proactive work has stakes (preventing future problems, improving capability, architectural coherence). Proportional rigor calibrates depth within work that's been justified; it doesn't justify-or-reject the work itself.
+
+2. **`CLAUDE.md` Behavioral Floor "Proportional rigor" example case.** The example reads: *"WRONG: Proposing new infrastructure (metadata field + Part section + backlog activation) for an n=1 user report (#44). RIGHT: Template improvement scoped to evidence — reject infrastructure that assumes the pattern will generalize."* This anti-pattern is being over-generalized: AI applies it not just to "n=1 user report" cases but to ALL proactive/preventive/improvement work, regardless of whether the work is anticipatory by design.
+
+3. **BACKLOG.md philosophy block (top of file) explicitly states the correct rule:** *"Anticipatory items are valid. Not all backlog items need a triggered condition. Three valid reasons to keep an item: need it now (active problem), plan to use soon (near-future need), anticipate needing later (want it ready when the time comes)."* The AI is violating its own framework's stated rule.
+
+4. **`contrarian-reviewer` agent's "concrete instance test" / "phantom problem" filter.** Useful as a debugging filter ("are you over-engineering for hypothetical edge cases?"); harmful when applied to anticipatory/improvement work where lack of observed instance is the POINT (we're trying to prevent the instance from occurring).
+
+**Pattern observed in this session.** Two contrarian rounds (`a59c1dad9e3a2d3da`, `aa9bf233b1fb0bc18`) and the assistant's own analysis both demanded "concrete instance of subsystem-design inconsistency causing harm" before validating the Execution Framework brainstorm. User had to explicitly correct the framing. This was n=3 in one session arc.
+
+**Proposed fix (scope to be detailed in plan mode).**
+
+1. **Update `CLAUDE.md` Behavioral Floor "Proportional rigor" entry** to explicitly note that "no observed harm" does NOT invalidate proactive/preventive/improvement work — the test is whether the work matches stakes, not whether stakes have already manifested as harm.
+
+2. **Update `documents/agents/contrarian-reviewer.md`** to scope the "concrete instance test" / "phantom problem" filter to debugging-class work only. For proactive/improvement-class work, the filter should ask "does the proposed work match the anticipated stakes?" not "has harm been observed?"
+
+3. **Cross-reference the BACKLOG philosophy block's "Anticipatory items are valid"** rule from CLAUDE.md so the rule is visible at the behavioral-floor decision point, not just at the BACKLOG-philosophy point.
+
+4. **Optional:** consider adding a method to `rules-of-procedure.md` distinguishing reactive-class work (problem observed → fix) from proactive-class work (anticipated risk or improvement opportunity → preventive measure or capability addition). Could clarify when "concrete instance" demand is appropriate vs. inappropriate.
+
+**Done when.**
+- Behavioral Floor + contrarian agent definition + cross-references explicitly recognize proactive/preventive/improvement work as a valid work class without observed-harm justification
+- Future contrarian reviews applied to anticipatory work do not demand "concrete instance" as a pass/fail criterion
+- The BACKLOG philosophy block's "Anticipatory items are valid" rule is reachable from the AI's pre-action behavioral checks, not buried in BACKLOG-only context
+
+**Why D1 Fix (not D2 Improvement).** Single-pattern misapplication; ≤3 file edits (CLAUDE.md + agent definition + possibly one cross-ref); known fix; structural issue identified. Per CLAUDE.md "Fix (same session)" criteria. Tagged `Fix` rather than `Improvement` because the framework's stated rule (BACKLOG philosophy) is being violated by AI behavior — the fix restores compliance with an existing rule, not adds new capability.
+
+**Origin.** Session-140 (2026-04-30) Execution Framework brainstorm. User pushed back on the assistant + contrarian both demanding observed-harm justification for proactive/preventive/improvement work. Filed per direct user instruction. Governance: `gov-5ba8aa3ff93b`.
+
+---
+
 #### 146. BACKLOG taxonomy — split tripwires and cadences from discrete projects `D2 Improvement`
 
 **Filed:** 2026-04-29 (session-139, user observation during BACKLOG #143 refile work).
