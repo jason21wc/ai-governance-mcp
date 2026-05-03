@@ -136,7 +136,7 @@ Run with: `python -m ai_governance_mcp.server`
   "arguments": {
     "audit_id": "gov-a1b2c3d4e5f6",
     "reasoning": [
-      {"principle_id": "meta-core-context-engineering", "status": "COMPLIES", "reasoning": "Action follows context engineering guidelines"}
+      {"principle_id": "meta-core-informational-readiness", "status": "COMPLIES", "reasoning": "Action follows context engineering guidelines"}
     ],
     "final_decision": "PROCEED"
   }
@@ -153,7 +153,7 @@ Run with: `python -m ai_governance_mcp.server`
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `principle_id` | string | Yes | The principle or method ID (1-100 chars). Examples: `meta-core-context-engineering`, `coding-quality-testing`, `meta-method-header-hierarchy` |
+| `principle_id` | string | Yes | The principle or method ID (1-100 chars). Examples: `meta-core-informational-readiness`, `coding-quality-testing`, `meta-method-header-hierarchy` |
 
 **Returns (principle):**
 
@@ -184,7 +184,7 @@ Run with: `python -m ai_governance_mcp.server`
 **Example:**
 
 ```json
-{"name": "get_principle", "arguments": {"principle_id": "meta-core-context-engineering"}}
+{"name": "get_principle", "arguments": {"principle_id": "meta-core-informational-readiness"}}
 ```
 
 ---

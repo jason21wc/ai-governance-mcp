@@ -239,16 +239,6 @@
 
 > Items below need discussion to flesh out intent, determine if we want to implement, and define scope. Not committed to implementation.
 
-#### 152. `meta-core-context-engineering` principle scope review — alignment with 5-layer engineering stack `D2 Discussion`
-
-**Filed:** 2026-05-02 (session-143, user request during BACKLOG #151 execution).
-
-**What.** With the 5-layer engineering stack now adopted as canonical (constitution v7.0.0, BACKLOG #151), the `meta-core-context-engineering` principle (Article I, Section 1) should be reviewed against the more mature understanding of the engineering layers. The principle's scope currently covers both retrieval and context assembly broadly — the name "Context Engineering" predates the 5-layer taxonomy where "context engineering" is specifically layer 3 (context assembly), distinct from layer 2 (retrieval engineering) and layer 4 (harness engineering). Questions to address: (1) Does the principle's scope need narrowing, expanding, or explicit disambiguation? (2) Should the principle body acknowledge the 5-layer stack's layer definitions to prevent future AI agents from unconsciously narrowing the principle's governance scope to match only layer 3? (3) Is the principle's coverage of retrieval activities still appropriate, or should retrieval engineering have its own principle? Per contrarian-reviewer finding (session-143, `a781cd39bb3f3eaf7`): the name collision between the principle and layer 3 is the most likely source of future confusion.
-
-**Done when.** Principle body reviewed, scope decision documented, any edits shipped. Constitution PATCH if scope unchanged (disambiguation only) or MINOR if scope restructured.
-
-**Origin.** Session-143 user direction during BACKLOG #151 execution. Related: contrarian finding #1 recommended a one-sentence disambiguation; user preferred a dedicated review.
-
 ---
 
 #### 150. Semantic-retrieval false-positive — `meta-safety-transparent-limitations` matches housekeeping actions `D2 Discussion`

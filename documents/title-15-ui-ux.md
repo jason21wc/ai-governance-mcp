@@ -1,7 +1,7 @@
 ---
-version: "1.2.1"
+version: "1.2.2"
 status: "active"
-effective_date: "2026-04-26"
+effective_date: "2026-05-03"
 domain: "ui-ux"
 governance_level: "federal-statute"
 ---
@@ -112,7 +112,7 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 | "Resource Efficiency & Waste Reduction" (general) | Platform-specific conventions (HIG vs Material vs Web), knowing WHEN to deviate | AI applies Material Design bottom navigation to an iPad app. Constitution says "use established solutions" but doesn't distinguish which platform's solutions apply. Apple HIG and Material Design give contradictory guidance for the same interaction pattern. |
 | "Structural Foundations" (general) | Design token architecture, atomic design hierarchy, component naming conventions | AI generates `color: #3b82f6` in 5 different components instead of `var(--color-primary)`. Constitution says "organize clearly" but doesn't address design token indirection or cross-file visual consistency. GitClear 2025: 4x code clone growth with AI. |
 | "Verification & Validation" (general) | Accessibility auditing procedures, responsive breakpoint testing, cross-platform validation | AI generates a form that passes all code tests but has 3:1 contrast ratio (fails WCAG AA 4.5:1 minimum). Constitution says "verify" but doesn't specify visual/perceptual verification criteria. |
-| "Context Engineering" (general) | Understanding user viewport, device capabilities, platform conventions, existing design system | AI generates a desktop-first layout with 14px touch targets (Apple HIG minimum: 44pt). Constitution says "load context" but doesn't specify what UI context means. |
+| "Informational Readiness" (general) | Understanding user viewport, device capabilities, platform conventions, existing design system | AI generates a desktop-first layout with 14px touch targets (Apple HIG minimum: 44pt). Constitution says "verify informational readiness" but doesn't specify what UI context means. |
 | "Structural Foundations" (general) | Design token system before component implementation, spacing scale before layout | AI generates 15 different spacing values across components. Constitution says "build foundations first" but doesn't specify that the spacing scale IS a foundation. |
 
 ### Evidence Base
@@ -260,7 +260,7 @@ This framework organizes domain principles into six series that address differen
 
 ### VH1: Layout Composition and Visual Weight (The Focal Point Statute)
 
-**Constitutional Basis:** Derived from `Structural Foundations` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Structural Foundations` and `Informational Readiness`.
 
 **Why This Principle Matters**
 Users scan interfaces in predictable patterns (F-pattern for text-heavy, Z-pattern for landing pages). Without deliberate visual hierarchy, every element competes equally for attention, forcing users to consciously parse the layout instead of being guided through it. AI generates flat layouts because it applies generic component patterns without compositional awareness — it doesn't reason about which element should be seen first, second, third.
@@ -300,7 +300,7 @@ Every interface layout MUST establish a clear visual hierarchy through deliberat
 
 ### VH2: Typography and Readability (The Legibility Statute)
 
-**Constitutional Basis:** Derived from `Bias Awareness & Fairness` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Bias Awareness & Fairness` and `Informational Readiness`.
 
 **Why This Principle Matters**
 Typography is the primary medium of interface communication — the majority of UI content is text. AI generates text blocks that prioritize information density over readability: excessive line lengths that force eye-tracking errors, insufficient contrast that strains vision, and font sizes optimized for fitting more content rather than comfortable reading. Research consistently shows that readability directly impacts comprehension, task completion, and user satisfaction.
@@ -341,7 +341,7 @@ All interface text MUST meet evidence-based readability thresholds. Body text MU
 
 ### VH3: Design Intentionality (The Anti-Template Statute)
 
-**Constitutional Basis:** Derived from `Context Engineering` and `Discovery Before Commitment`.
+**Constitutional Basis:** Derived from `Informational Readiness` and `Discovery Before Commitment`.
 
 **Why This Principle Matters**
 AI defaults to generic, template-driven layouts because training data is dominated by common UI libraries. The result is "synthetic genericism" — 75% of firms adopting GenAI tools produce interfaces that look identical. Card grids, hero sections with gradient overlays, and Bootstrap-standard layouts appear regardless of whether they serve the application's actual user needs. Design intentionality means choosing layout patterns because they serve the content and user tasks, not because they're the most common patterns in training data.
@@ -459,7 +459,7 @@ Elements that serve the same function MUST have the same visual treatment across
 
 ### DS3: Design System Discovery (The Context-First Statute)
 
-**Constitutional Basis:** Derived from `Context Engineering` and `Discovery Before Commitment`.
+**Constitutional Basis:** Derived from `Informational Readiness` and `Discovery Before Commitment`.
 
 **Why This Principle Matters**
 Each AI generation is context-independent — the AI lacks awareness of existing design tokens, component libraries, and visual patterns established elsewhere in the project. This is the root cause of UX-F5 (Design System Drift): the AI generates new styles because it never looked for existing ones. The fix is not better generation — it's better context loading. The AI must discover the project's design system before writing any UI code.
@@ -636,7 +636,7 @@ Color MUST NOT be the sole means of conveying information. Every use of color to
 
 ### RD1: Responsive Layout Strategy (The Viewport Adaptation Statute)
 
-**Constitutional Basis:** Derived from `Context Engineering` and `Verification & Validation`.
+**Constitutional Basis:** Derived from `Informational Readiness` and `Verification & Validation`.
 
 **Why This Principle Matters**
 AI generates desktop-first layouts without considering how they adapt to smaller viewports. Content that fits in a 1440px-wide viewport overflows or becomes unreadable on a 375px mobile screen. Navigation designed for desktop (horizontal menu bars) becomes unusable on mobile without explicit responsive handling. AI lacks viewport-aware testing context — it generates for one viewport and doesn't model the adaptation needed for others.
@@ -677,7 +677,7 @@ All interface layouts MUST be responsive across the standard breakpoint spectrum
 
 ### RD2: Touch Target and Input Adaptation (The Mobile Interaction Statute)
 
-**Constitutional Basis:** Derived from `Bias Awareness & Fairness` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Bias Awareness & Fairness` and `Informational Readiness`.
 
 **Why This Principle Matters**
 AI generates interfaces with desktop-sized interactive elements (small checkboxes, compact button rows, inline links with minimal padding) that become impossible to accurately tap on touch devices. Apple HIG specifies 44x44pt minimum touch targets; Material Design specifies 48x48dp. AI doesn't model finger size or touch accuracy — it generates visually compact elements that are pixel-precise with a cursor but unusable with a finger.
@@ -762,7 +762,7 @@ Every user action that triggers a system response MUST provide immediate visual 
 
 ### IX2: Loading and Perceived Performance (The Progress Communication Statute)
 
-**Constitutional Basis:** Derived from `Visible Reasoning & Traceability` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Visible Reasoning & Traceability` and `Informational Readiness`.
 
 **Why This Principle Matters**
 AI generates complete page renders — the final state of a page with all data loaded — without considering the loading sequence. Real applications need to communicate progress during data fetching: skeleton screens show the page structure before data arrives, progress indicators show deterministic progress, and shimmer effects indicate indeterminate loading. Without these, users see blank pages, layout shifts when content finally loads (poor Cumulative Layout Shift scores), and perceived slowness even when actual load times are fast. Research shows that perceived performance matters more than actual performance — a 2-second load with a skeleton screen feels faster than a 1-second load with a blank flash (Doherty Threshold: systems should respond within 400ms to maintain user flow).
@@ -802,7 +802,7 @@ Interfaces MUST communicate loading progress rather than showing blank states. S
 
 ### IX3: Affordance and Discoverability (The Clickability Statute)
 
-**Constitutional Basis:** Derived from `Explicit Over Implicit` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Explicit Over Implicit` and `Informational Readiness`.
 
 **Why This Principle Matters**
 AI generates clickable elements that lack visual affordance — flat text links indistinguishable from body text, icon-only buttons without labels or tooltips, and interactive cards without visual cues that they're clickable. The AI generates what looks clean and minimal, but minimalism without affordance creates mystery meat navigation — users can't click what they can't identify as interactive. Don Norman's principle of signifiers: the design must signal what actions are possible and how to perform them.
@@ -883,7 +883,7 @@ Error states MUST be handled consistently across the application. Error messages
 
 ### IX5: Component Selection Appropriateness (The Right Tool Statute)
 
-**Constitutional Basis:** Derived from `Resource Efficiency & Waste Reduction` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Resource Efficiency & Waste Reduction` and `Informational Readiness`.
 
 **Why This Principle Matters**
 AI selects components by name matching rather than UX appropriateness. It generates a modal dialog because the prompt mentioned "dialog" even when a toast notification would suffice. It uses a data table for 3 items when a simple list would be clearer. It reaches for a dropdown select when radio buttons (2-5 options) would reduce cognitive load and interaction cost. This happens because AI matches component names to patterns in training data rather than evaluating the user's actual interaction needs.
@@ -923,7 +923,7 @@ Component selection MUST be driven by the interaction requirements, not by namin
 
 ### IX6: Form Design and Validation (The Data Entry Statute)
 
-**Constitutional Basis:** Derived from `Verification & Validation` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Verification & Validation` and `Informational Readiness`.
 
 **Why This Principle Matters**
 Forms are the primary mechanism for user data input, and AI generates them with inconsistent patterns. Validation timing varies between fields in the same form. Error messages appear in different positions. Labels may be replaced with placeholder-only styling. Required fields may not be marked. These inconsistencies create cognitive overhead for users who must figure out a new interaction pattern for each form field.
@@ -1017,7 +1017,7 @@ Interfaces MUST NOT use deceptive design patterns as categorized by the FTC: nag
 
 ### PL1: Platform Convention Compliance (The When-In-Rome Statute)
 
-**Constitutional Basis:** Derived from `Resource Efficiency & Waste Reduction` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Resource Efficiency & Waste Reduction` and `Informational Readiness`.
 
 **Why This Principle Matters**
 Users develop expectations based on their platform. iOS users expect swipe-to-delete, bottom tab navigation, and SF Symbols. Android users expect the Material Design bottom app bar, floating action buttons, and system back navigation. Web users expect underlined links, browser back button behavior, and standard keyboard shortcuts. AI applies web conventions universally because training data is web-dominant, producing interfaces that feel foreign on native platforms. Per Jakob's Law, users spend most of their time on other apps — they expect your app to work the way those other apps work.
@@ -1058,7 +1058,7 @@ Interfaces MUST respect the conventions of the target platform. For iOS: follow 
 
 ### PL2: Cross-Platform Adaptation (The Shared Language Statute)
 
-**Constitutional Basis:** Derived from `Structural Foundations` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Structural Foundations` and `Informational Readiness`.
 
 **Why This Principle Matters**
 Cross-platform applications (React Native, Flutter, web apps used on mobile) face a tension between consistency across platforms and respecting each platform's conventions. AI either generates identical UI across all platforms (ignoring platform conventions) or generates platform-specific code without maintaining design consistency. The correct approach is a shared design language with platform-specific adaptations for navigation, interaction patterns, and system integration.
@@ -1106,7 +1106,7 @@ This table maps each constitutional principle to its UI/UX domain applications:
 | Resource Efficiency & Waste Reduction | Platform conventions (HIG, Material, Web), component selection appropriateness | PL, IX |
 | Structural Foundations | Design tokens before components, spacing scale before layout, semantic HTML before ARIA | DS, ACC |
 | Verification & Validation | Responsive testing, accessibility auditing, contrast checking, cross-platform validation | Methods §3 |
-| Context Engineering | User viewport, device capabilities, platform conventions, existing design system discovery | DS, RD, PL |
+| Informational Readiness | User viewport, device capabilities, platform conventions, existing design system discovery | DS, RD, PL |
 | Discovery Before Commitment | Design system discovery, component inventory, pattern recognition before generation | DS |
 | Visible Reasoning | Interaction feedback, loading states, state communication, error transparency | IX |
 | Failure Recovery & Resilience | Error handling, graceful degradation, recovery guidance, state preservation | IX |
@@ -1190,7 +1190,10 @@ This Domain Principles document establishes WHAT governance applies to UI/UX. Th
 
 ## Changelog
 
-### v1.2.1 (Current)
+### v1.2.2 (Current)
+- PATCH: Constitutional rename propagation (BACKLOG #152). Updated crosswalk table, Constitutional Basis lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`.
+
+### v1.2.1
 - PATCH: Constitutional rename propagation. Added `Effective & Efficient Outputs` row to the Meta-Principle ↔ Domain Crosswalk table, mapping the renamed/rescoped constitution v6.0.0 principle (formerly `meta-quality-effective-efficient-communication`) to UI/UX form-specific discipline for AI-generated UI specifications, design rationales, microcopy, error messages, and instruction text — communication-form discipline applies; cross-ref IX1 (Interaction Feedback) for state communication outputs. Cross-ref: constitution.md v6.0.0 Historical Amendment; `~/.claude/plans/this-is-back-and-tidy-crescent.md`; PROJECT-MEMORY.md ADR-17. Governance: `gov-e38a3fa7488c`, `gov-05de0fadc801`.
 
 ### v1.1.0

@@ -386,6 +386,88 @@ class TestAliasResolution:
                 )
                 assert result.id == "meta-quality-effective-efficient-outputs"
 
+    def test_context_engineering_alias_resolves_to_informational_readiness(
+        self,
+        test_settings,
+        mock_embedder,
+        mock_reranker,
+        mock_embeddings,
+        mock_domain_embeddings,
+    ):
+        """v8.0.0 rename regression: meta-core-context-engineering must resolve
+        to meta-core-informational-readiness (Art. I §1 rename — principle scope
+        unchanged, name changed to eliminate collision with layer 3 "Context
+        Engineering" after 5-layer taxonomy adoption in v7.0.0)."""
+        from ai_governance_mcp.models import (
+            DomainIndex,
+            GlobalIndex,
+            Principle,
+        )
+
+        canonical = Principle(
+            id="meta-core-informational-readiness",
+            domain="constitution",
+            series_code="C",
+            title="Informational Readiness",
+            content=(
+                "Before acting, verify that you possess information sufficient "
+                "in scope, currency, and relevance for the action at hand."
+            ),
+            line_range=(181, 220),
+            aliases=["meta-core-context-engineering"],
+            embedding_id=0,
+        )
+        domain_index = DomainIndex(
+            domain="constitution",
+            principles=[canonical],
+            methods=[],
+            last_extracted="2026-05-03T00:00:00Z",
+        )
+        global_index = GlobalIndex(
+            domains={"constitution": domain_index},
+            domain_configs=[],
+            created_at="2026-05-03T00:00:00Z",
+            version="8.0.0",
+            embedding_model="test",
+            embedding_dimensions=384,
+        )
+
+        import json
+        import numpy as np
+
+        index_file = test_settings.index_path / "global_index.json"
+        with open(index_file, "w") as f:
+            json.dump(global_index.model_dump(), f)
+        np.save(test_settings.index_path / "content_embeddings.npy", mock_embeddings)
+        np.save(
+            test_settings.index_path / "domain_embeddings.npy", mock_domain_embeddings
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            with patch("sentence_transformers.CrossEncoder", mock_ce):
+                from ai_governance_mcp.retrieval import RetrievalEngine
+
+                engine = RetrievalEngine(test_settings)
+
+                # New canonical ID must work
+                result = engine.get_principle_by_id("meta-core-informational-readiness")
+                assert result is not None
+                assert result.id == "meta-core-informational-readiness"
+                assert result.title == "Informational Readiness"
+
+                # Old ID must resolve to new canonical via alias
+                result = engine.get_principle_by_id("meta-core-context-engineering")
+                assert result is not None, (
+                    "Pre-v8.0.0 ID must resolve to renamed principle via "
+                    "Principle.aliases — alias preservation is a backwards-"
+                    "compatibility guarantee for existing audit logs and "
+                    "cross-references."
+                )
+                assert result.id == "meta-core-informational-readiness"
+
 
 class TestListDomains:
     """Tests for list_domains() method."""

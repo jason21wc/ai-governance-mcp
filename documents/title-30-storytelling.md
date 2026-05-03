@@ -1,7 +1,7 @@
 ---
-version: "1.4.1"
+version: "1.4.2"
 status: "active"
-effective_date: "2026-03-30"
+effective_date: "2026-05-03"
 domain: "storytelling"
 governance_level: "federal-statute"
 ---
@@ -105,7 +105,7 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 | Bias Awareness & Fairness | "Must not default to single cultural context" | **Framework:** WHICH alternative structures exist beyond Western defaults? |
 | Structural Foundations | "Establish foundations before implementation" | **Discovery:** What does audience analysis look like for narrative? |
 | Visible Reasoning | "Articulate reasoning before output" | **Selection:** HOW to choose among competing frameworks for specific context? |
-| Context Engineering | "Load necessary information" | **Adaptation:** What context determines medium-specific optimization? |
+| Informational Readiness | "Load necessary information" | **Adaptation:** What context determines medium-specific optimization? |
 | Intent Preservation (multi-agent domain principle) | "Why must pass to every agent" | **Voice:** HOW to preserve human voice when AI assists? |
 
 These domain principles provide the **frameworks, discovery processes, selection criteria, and voice preservation mechanisms** that make meta-principles actionable for storytelling specifically.
@@ -232,7 +232,7 @@ This framework organizes domain principles into five series that address differe
 | Verification & Validation | Transformation Arc (earned change verification), Stakes and Consequence Clarity (stakes establishment) | ST |
 | Structural Foundations | Perspective Selection (POV as narrative foundation) | ST |
 | Interaction Mode Adaptation | Framework as Tool, Not Law (matching approach to context), Platform-First Optimization (adapting to platform) | ST, M |
-| Context Engineering | Platform-First Optimization (platform constraint mapping) | M |
+| Informational Readiness | Platform-First Optimization (platform constraint mapping) | M |
 | Non-Maleficence, Privacy & Security | Persuasion-Manipulation Boundary (ethical persuasion enforcement), Human Voice Preservation (preventing voice replacement) | E |
 | Structured Output Enforcement | Platform-First Optimization (format-native thinking) | M |
 | Human-AI Authority & Accountability | Human Voice Preservation (augmentation over replacement) | E |
@@ -889,7 +889,10 @@ This Domain Principles document establishes WHAT governance applies to AI-assist
 
 ## Changelog
 
-### v1.4.1 (Current)
+### v1.4.2 (Current)
+- PATCH: Constitutional rename propagation (BACKLOG #152). Updated crosswalk table: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`.
+
+### v1.4.1
 - **Template alignment (#31).** "Research-Based" → "Evidence-Based" in derivation formula. Added Truth Source Hierarchy. Added Cross-Domain Dependencies section (KM&PD narrative engagement, Multimodal RAG and UI/UX accessibility).
 
 ### v1.4.0

@@ -1,7 +1,7 @@
 ---
-version: "2.7.5"
+version: "2.7.6"
 status: "active"
-effective_date: "2026-04-28"
+effective_date: "2026-05-03"
 domain: "ai-coding"
 governance_level: "federal-statute"
 ---
@@ -94,9 +94,9 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 
 | Meta-Principle | What It Says | What AI Coding Needs |
 |----------------|--------------|----------------------|
-| Context Engineering | "Load necessary information to prevent hallucination" | **Threshold:** What constitutes "complete enough" for code generation? |
+| Informational Readiness | "Load necessary information to prevent hallucination" | **Threshold:** What constitutes "complete enough" for code generation? |
 | Visible Reasoning & Traceability | "Capture decisions for future reference" | **Mechanism:** HOW to persist context across stateless sessions? |
-| Context Engineering | "Minimize context consumption" | **Constraint:** What to do when context OVERFLOWS despite optimization? |
+| Informational Readiness | "Minimize context consumption" | **Constraint:** What to do when context OVERFLOWS despite optimization? |
 | Verification & Validation | "Validate outputs against requirements" | **Gate:** WHEN must validation occur, and what happens on failure? |
 | Non-Maleficence, Privacy & Security | "Comprehensive security testing" | **Standard:** What specific threshold for AI-generated code (40-45% baseline vulnerability rate)? |
 
@@ -176,7 +176,7 @@ P-series mandates *that* verification happens; Q-series defines *what passing me
 |---------|--------|---------|
 | Within this document | Principle title | "Per Specification Completeness, specs must be complete" |
 | Cross-document reference | Full principle name | "Per Domain Principle Specification Completeness..." |
-| Linking to Meta-Principles | Full name with source | "Derives from Meta-Principle Context Engineering" |
+| Linking to Meta-Principles | Full name with source | "Derives from Meta-Principle Informational Readiness" |
 
 **Note:** Series codes (C, P, Q) are used for document organization only, not as principle identifiers. Reference principles by their titles.
 
@@ -197,9 +197,9 @@ This table maps each domain principle to its Constitutional basis and evidence f
 
 | Domain Principle | Failure Mode Cluster | Constitutional Basis | Primary Truth Sources |
 |------------------|---------------------|---------------------|----------------------|
-| **Specification Completeness** | A1: Hallucination from incomplete specs | Context Engineering, Explicit Over Implicit, Verification & Validation, Non-Maleficence, Privacy & Security | Technical specs, requirements docs, acceptance criteria |
-| **Context Window Management** | A3: Context overflow, "context rot" | Context Engineering, Single Source of Truth | Token limits, session metrics, quality indicators |
-| **Session State Continuity** | A2: Context loss between sessions | Context Engineering, Visible Reasoning & Traceability, Single Source of Truth | State files (CLAUDE.md), session logs, decision records |
+| **Specification Completeness** | A1: Hallucination from incomplete specs | Informational Readiness, Explicit Over Implicit, Verification & Validation, Non-Maleficence, Privacy & Security | Technical specs, requirements docs, acceptance criteria |
+| **Context Window Management** | A3: Context overflow, "context rot" | Informational Readiness, Single Source of Truth | Token limits, session metrics, quality indicators |
+| **Session State Continuity** | A2: Context loss between sessions | Informational Readiness, Visible Reasoning & Traceability, Single Source of Truth | State files (CLAUDE.md), session logs, decision records |
 | **Sequential Phase Dependencies** | C2: Implementation before architecture | Structural Foundations, Discovery Before Commitment, Verification & Validation, Goal-First Dependency Mapping | Phase definitions, completion criteria, architecture docs |
 | **Validation Gates** | B1/B2/B3/C2: Skipped validation | Verification & Validation, Failure Recovery & Resilience | Gate criteria, test results, security scans |
 | **Atomic Task Decomposition** | C1: Large chunks resist review | Atomic Task Decomposition, Discovery Before Commitment, Verification & Validation | Task definitions, file counts, test coverage |
@@ -207,8 +207,8 @@ This table maps each domain principle to its Constitutional basis and evidence f
 | **Production-Ready Standards** | C3: Technical debt from velocity; state corruption on retry | Non-Maleficence, Privacy & Security, Verification & Validation, Explicit Over Implicit, Resource Efficiency & Waste Reduction, Failure Recovery & Resilience, Effective & Efficient Outputs (code-form discipline) | Production checklists, code standards, API standards, database constraints |
 | **Security-First Development** | B3: 45% vulnerability rate | Non-Maleficence, Privacy & Security, Verification & Validation | Security scan results, vulnerability databases |
 | **Testing Integration** | B2: Inadequate test coverage | Verification & Validation | Test results, coverage reports |
-| **Supply Chain & Solution Integrity** | A4/A5: Hallucinated dependencies, slopsquatting; unnecessary custom code | Non-Maleficence, Privacy & Security, Context Engineering, Resource Efficiency & Waste Reduction, Verification & Validation | Package registries (npm, PyPI, crates.io), SBOMs, standard libraries |
-| **Workflow Integrity** | E1/E2: Prompt injection, workflow manipulation | Non-Maleficence, Privacy & Security, Separation of Instructions and Data, Context Engineering | Trusted instruction sources, context validation |
+| **Supply Chain & Solution Integrity** | A4/A5: Hallucinated dependencies, slopsquatting; unnecessary custom code | Non-Maleficence, Privacy & Security, Informational Readiness, Resource Efficiency & Waste Reduction, Verification & Validation | Package registries (npm, PyPI, crates.io), SBOMs, standard libraries |
+| **Workflow Integrity** | E1/E2: Prompt injection, workflow manipulation | Non-Maleficence, Privacy & Security, Separation of Instructions and Data, Informational Readiness | Trusted instruction sources, context validation |
 
 ---
 
@@ -394,13 +394,13 @@ This document is a living artifact. It should be evolved cautiously—adding, mo
 - **A1: Incomplete Specifications → Hallucination** — AI fills specification gaps with plausible but incorrect implementations based on probabilistic pattern matching rather than actual requirements.
 
 **Constitutional Basis:**
-- Derives from **Context Engineering:** Load necessary information to prevent hallucination—specifications are the primary context for code generation
+- Derives from **Informational Readiness:** Load necessary information to prevent hallucination—specifications are the primary context for code generation
 - Derives from **Explicit Over Implicit:** All goals, constraints, and requirements must be explicitly stated before execution
 - Derives from **Verification & Validation:** Output must match requirements—impossible without complete requirements to match against
 - Derives from **Non-Maleficence, Privacy & Security:** Incomplete specs lead to hallucinations that cause downstream harm (security vulnerabilities, rework, user-facing bugs)
 
 **Why Meta-Principles Alone Are Insufficient:**
-Meta-Principle Context Engineering states "load necessary information to prevent hallucination" but doesn't define what constitutes **"complete enough"** for AI code generation specifically. Traditional development tolerates specification ambiguity because human developers can make reasonable contextual judgments. AI coding assistants cannot—they generate plausible outputs regardless of specification quality. This domain principle establishes the completeness threshold: AI must have explicit guidance for ALL user-facing behavior, business logic, validation rules, error handling, and edge cases before generating code.
+Meta-Principle Informational Readiness states "verify that you possess information sufficient in scope, currency, and relevance" but doesn't define what constitutes **"complete enough"** for AI code generation specifically. Traditional development tolerates specification ambiguity because human developers can make reasonable contextual judgments. AI coding assistants cannot—they generate plausible outputs regardless of specification quality. This domain principle establishes the completeness threshold: AI must have explicit guidance for ALL user-facing behavior, business logic, validation rules, error handling, and edge cases before generating code.
 
 **Domain Application:**
 In AI-assisted software development, specifications must explicitly define all user-facing behavior, business logic, error handling, edge cases, and acceptance criteria **before any code generation begins**. "Complete" means the AI can implement the feature without making any product-level decisions—if the AI must choose between approaches without explicit guidance, the specification is incomplete.
@@ -475,12 +475,12 @@ Garbage in, garbage out—but confidently. AI cannot implement correctly without
 - **A3: Context Window Overflow → Quality Degradation** — Performance degrades as context approaches limits ("context rot"), characterized by hallucinations, contradictions, and loss of earlier decisions.
 
 **Constitutional Basis:**
-- Derives from **Context Engineering:** Minimize context consumption while maintaining effectiveness
-- Derives from **Context Engineering:** Load only necessary information—strategic selection, not exhaustive loading
+- Derives from **Informational Readiness:** Minimize context consumption while maintaining effectiveness
+- Derives from **Informational Readiness:** Load only necessary information—strategic selection, not exhaustive loading
 - Derives from **Single Source of Truth:** Keep information current, accessible, and retrievable from external storage
 
 **Why Meta-Principles Alone Are Insufficient:**
-Meta-Principle Context Engineering states "minimize context consumption" but doesn't address what happens when context **overflows despite optimization**—a scenario unique to AI coding where sessions can span hours and touch hundreds of files. Traditional development has no equivalent constraint. This domain principle establishes: (1) proactive monitoring thresholds, (2) prioritization hierarchies for what stays vs. what goes, and (3) recovery protocols when overflow occurs.
+Meta-Principle Informational Readiness states "curate what you bring to bear, filtering noise" but doesn't address what happens when context **overflows despite optimization**—a scenario unique to AI coding where sessions can span hours and touch hundreds of files. Traditional development has no equivalent constraint. This domain principle establishes: (1) proactive monitoring thresholds, (2) prioritization hierarchies for what stays vs. what goes, and (3) recovery protocols when overflow occurs.
 
 **Domain Application:**
 AI coding assistants operate within finite context windows (typically 100K-200K tokens). Despite large theoretical limits, research shows performance degrades significantly around 32K tokens due to the "lost in the middle" phenomenon. Effective development requires strategic context management: loading essential information while keeping less-critical details in external, retrievable storage. Context overflow causes information loss, hallucinations, contradicting earlier decisions, and degraded code quality.
@@ -543,7 +543,7 @@ Memory is finite; forgetting is fatal. When context overflows, AI doesn't gracef
 - **A2: Context Loss Between Sessions → Inconsistent Outputs** — AI "forgets" decisions, architecture, and progress between sessions, causing redundant work and contradictory implementations.
 
 **Constitutional Basis:**
-- Derives from **Context Engineering:** Maintain necessary information across interactions—sessions are just interaction boundaries
+- Derives from **Informational Readiness:** Maintain necessary information across interactions—sessions are just interaction boundaries
 - Derives from **Visible Reasoning & Traceability:** Capture decisions and rationale for future reference
 - Derives from **Single Source of Truth:** Centralized state management prevents conflicting sources
 
@@ -1244,7 +1244,7 @@ Tests are evidence; evidence must be contemporaneous. Tests written alongside im
 
 **Constitutional Basis:**
 - Derives from **Non-Maleficence, Privacy & Security:** Security includes dependency security
-- Derives from **Context Engineering:** Dependencies must be grounded in truth (registries), not hallucinated
+- Derives from **Informational Readiness:** Dependencies must be grounded in truth (registries), not hallucinated
 - Derives from **Resource Efficiency & Waste Reduction:** Minimize waste by leveraging existing, tested solutions instead of building custom ones
 - Derives from **Verification & Validation:** Verify that referenced libraries and APIs actually exist before including them
 
@@ -1333,7 +1333,7 @@ Trust but verify—AI recommendations are not verified by default. AI hallucinat
 **Constitutional Basis:**
 - Derives from **Non-Maleficence, Privacy & Security:** AI must not be manipulated into unsafe actions; security includes protection of the AI workflow itself
 - Derives from **Separation of Instructions and Data:** Distinguish trusted instructions from untrusted data inputs to prevent injection attacks
-- Derives from **Context Engineering:** Context must come from trusted sources
+- Derives from **Informational Readiness:** Context must come from trusted sources
 
 **Why Meta-Principles Alone Are Insufficient:**
 Meta-Principle Non-Maleficence, Privacy & Security establishes safety boundaries but doesn't address the **unique vulnerability of AI coding assistants to prompt injection via development artifacts**. Traditional security protects code outputs; AI coding also requires protecting the AI process itself from manipulation. Repository content, PR comments, documentation, and even web pages can contain adversarial instructions that cause AI to behave unexpectedly. This domain principle establishes: (1) what sources are trusted, (2) how to handle untrusted inputs, and (3) detection of manipulation attempts.
@@ -1587,6 +1587,7 @@ At EVERY phase boundary or significant checkpoint:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.7.6 | 2026-05-03 | PATCH: Constitutional rename propagation (BACKLOG #152). Updated crosswalk table, Constitutional Basis lines, and "Derives from" lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`. |
 | v2.7.5 | 2026-04-28 | PATCH: BACKLOG #100 Commit 3 of 4-arc — removed 12 misplaced principle-level italicized "Legal System Analogy" blocks per `rules-of-procedure §9.8.9` eligibility rule (analogies belong at framework-structure-level surfaces only, not at individual principles). Per-instance wisdom check confirmed no irreplaceable wisdom in any of the 12 blocks — each was decorative legal-flavored prose wrapping the principle's actual mechanism content; removing the analogy sentence preserved the un-italicized mechanism prose intact. Removed analogies (with brief structural note for archive purposes): (1) `Specification Completeness → "Evidentiary Standard"` (line 445); (2) `Context Window Management → "Judicial Economy"` (line 514); (3) `Session State Continuity → "Stare Decisis"` (line 592 — note: "Stare Decisis" is `considered-and-rejected` in the §9.7.7 register since Pre-v5.0.0 framework explicitly rejected stare-decisis semantics by renaming Case Law → Secondary Authority; this title-10 use was a redundant invocation of a framework-rejected concept); (4) `Sequential Phase Dependencies → "Procedural Due Process"` (line 669); (5) `Phase Gates → "Appellate Review"` (line 755); (6) `Atomic Task Decomposition → "Severability"` (line 834); (7) `Human-AI Collaboration Model → "Separation of Powers"` (line 952 — note: Articles I-IV Branches are already at the §9.7.7 register `borrowed` row; this title-10 use was duplicative); (8) `Quality Integration → "Building Codes"` (line 1051); (9) `Security-First Defaults → "Strict Liability"` (line 1133); (10) `Testing Integration → "Chain of Custody"` (line 1214); (11) `Hallucination Verification → "Authentication of Evidence"` (line 1300); (12) `Untrusted Input Handling → "Fruit of the Poisonous Tree"` (line 1385). Mechanism content preserved in all 12 cases by un-italicizing the surrounding prose. **No new rule** — removal-only PATCH applying §9.8.9 eligibility rule shipped in v3.31.0 (Commit 1) + Constitution SSOT designation shipped in v6.0.1 (Commit 2). Per anchor-bias instruction: existing analogies are not preserved just because they exist. **ai-instructions PATCH-on-PATCH pin sync** v2.11.1 → v2.11.2 per BACKLOG #130 canonical pin-discipline rule. **Constitutional Basis:** `meta-quality-effective-efficient-outputs` (right-sized form per §9.8.9 spec); `meta-method-single-source-of-truth` (one canonical home for analogies; this PATCH eliminates 12 secondary homes); `meta-core-systemic-thinking` (root-cause cleanup applying the spec, not patching individual blocks); `coding-method-defer-vs-fix-now` (per-instance wisdom check before bulk removal). Governance: `gov-08a1271476d3` (parent #100 execution). |
 | v2.7.4 | 2026-04-26 | PATCH: Pre-push harmonization of v2.7.3 migration form to match §7.12.2 worked-example pattern + CFR-class precedent (commit `32ff553`). v2.7.3 used the §-anchor lookup form `plan exceeds D2 effort tier per meta-method-effort-not-time-estimation (rules-of-procedure §7.12.2)`; v2.7.4 uses the inline-driver form `plan exceeds D2 (new tool/hook/section, moderate research, plan mode required) per meta-method-effort-not-time-estimation` — drivers per BACKLOG.md:23 canonical D2 definition. **Why harmonize:** §7.12.2 worked example demonstrates inline-driver form (`Effort: D2 (alternatives evaluation, ADRs, integration patterns, data model, security architecture)`), and the 6 CFR-class migrations from BACKLOG #131 close (commit `32ff553`) all used inline-driver form. Filed by pre-push contrarian audit `a7f6f57bc2ef0d5c1` MEDIUM-1 on session-135 commit `2e4533c` — flagged before push to avoid the "consistent post-commit drift class" pattern (LEARNING-LOG 2026-04-20). **Constitutional Basis:** `meta-method-the-duplication-check` (consistency-with-precedent: same migration class should produce same migration form); `meta-core-systemic-thinking` (preventing predictable future harmonization PATCH is the structural fix; per-instance form deviation is the symptom). PATCH because pure form-harmonization with no semantic change. ai-instructions PATCH-on-PATCH pin sync v2.10.3 → v2.10.4. Governance: `gov-a8c7e0faed4e` (same audit_id as v2.7.3 — same task arc). |
 | v2.7.3 | 2026-04-26 | PATCH: BACKLOG #141 close — §7.12 sweep extension to principle-file class. Migrated `Atomic Task Decomposition` principle's "How AI Applies This Principle" Task Sizing Assessment item 2 from `>2 hours focused work` (time-unit estimate, §7.12 violation) to `plan exceeds D2 effort tier per meta-method-effort-not-time-estimation (rules-of-procedure §7.12.2)`. Brings the principles-class file class into compliance with §7.12 rule shipped v3.28.0; mirrors session-134 BACKLOG #131 close which swept the CFR-class equivalent (`title-10-ai-coding-cfr.md` §2.1.2 + §3.1.2). **Sweep result for the 6 principle files** (title-10/15/20/25/30/40-*.md, non-cfr): only this single line is an AI-effort estimate. All other time-unit references in those files are descriptive prose (e.g., "AI generates thousands of lines in minutes" at title-10:83 / :996 / :1051; "sessions can span hours" at title-10:483; "human developers retain project knowledge across days and weeks" at title-10:80), real-world domain content (rate limits + retention periods + throughput metrics at title-20:1528 / :1535 / :1596 and title-40:1224), example narratives in failure-mode illustrations (title-25:69 / :169 / :182 / :245 / :589; title-30:508), or operational characteristics of agent types (title-20:180 long-running agents; title-20:1018 example status log; title-20:1611 cron-scheduled agents) — none fall within §7.12 scope per the scope-boundary clause (§7.12 governs *AI estimating future work*; descriptive prose, real-world rate/retention values, narrative examples, and operational descriptions are out of scope). Filed by contrarian audit `a1ccaaaa68e2ee1a9` HIGH-1 during session-134 Group B pre-push double-check. PATCH (not MINOR) because compliance migration with no normative change to principle behavior. Cross-ref: BACKLOG #131 close commit `32ff553`; rules-of-procedure §7.12.1 anti-example + §7.12.2 worked example. Governance: `gov-a8c7e0faed4e`. |

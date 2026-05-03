@@ -93,10 +93,10 @@
     "principles": [
       {
         "id": "principle-1",
-        "query": "context engineering specification gathering",
-        "expected_ids": ["meta-core-context-engineering"],
+        "query": "informational readiness context completeness before acting",
+        "expected_ids": ["meta-core-informational-readiness"],
         "min_score": 0.5,
-        "description": "Context engineering principle"
+        "description": "Informational Readiness principle (formerly Context Engineering)"
       },
       {
         "id": "principle-2",

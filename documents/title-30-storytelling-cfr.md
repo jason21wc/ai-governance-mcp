@@ -1,7 +1,7 @@
 ---
-version: "1.1.2"
+version: "1.1.3"
 status: "active"
-effective_date: "2026-04-14"
+effective_date: "2026-05-03"
 domain: "storytelling"
 governance_level: "federal-regulations"
 ---
@@ -9,13 +9,13 @@ governance_level: "federal-regulations"
 # Storytelling Methods v1.1.1
 ## Narrative Persistence, Character Voice, Genre Conventions, and Coaching
 
-**Version:** 1.1.2
+**Version:** 1.1.3
 **Status:** Active
-**Effective Date:** 2026-02-08
+**Effective Date:** 2026-05-03
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
-> This methods document provides HOW-TO procedures for implementing storytelling domain principles, including narrative persistence, character voice management, genre conventions, plot consistency, and coaching workflows. It implements the constitutional principle `meta-core-context-engineering` for the storytelling domain.
+> This methods document provides HOW-TO procedures for implementing storytelling domain principles, including narrative persistence, character voice management, genre conventions, plot consistency, and coaching workflows. It implements the constitutional principle `meta-core-informational-readiness` for the storytelling domain.
 
 ---
 
@@ -681,7 +681,7 @@ This method implements:
 
 | Principle | How Implemented |
 |-----------|-----------------|
-| `meta-core-context-engineering` | Three-tier memory architecture |
+| `meta-core-informational-readiness` | Three-tier memory architecture |
 | `meta-operational-minimal-relevant-context` | Selective loading protocol |
 | `coding-context-context-window-management` | Token budgets, overflow recovery |
 | `multi-architecture-context-engineering-discipline` | Write/Select/Compress/Isolate strategies |
@@ -1981,7 +1981,10 @@ Terminate when the writer has clarity. Do not continue questioning past the poin
 
 ## Changelog
 
-### v1.1.2 (Current)
+### v1.1.3 (Current)
+- PATCH: Constitutional rename propagation (BACKLOG #152). Updated 2 principle ID references: `meta-core-context-engineering` → `meta-core-informational-readiness` (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`.
+
+### v1.1.2
 - **PATCH:** Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability.
 
 ### v1.1.1

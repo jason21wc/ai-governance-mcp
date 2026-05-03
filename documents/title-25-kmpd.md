@@ -1,7 +1,7 @@
 ---
-version: "1.4.1"
+version: "1.4.2"
 status: "active"
-effective_date: "2026-04-26"
+effective_date: "2026-05-03"
 domain: "kmpd"
 governance_level: "federal-statute"
 ---
@@ -151,7 +151,7 @@ Knowledge management and people development have specific failure modes requirin
 
 ### KA1: Single Source Knowledge Architecture
 
-**Constitutional Basis:** Derived from `Single Source of Truth` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Single Source of Truth` and `Informational Readiness`.
 
 **Why This Principle Matters**
 AI generates each artifact independently — a Quick Reference on Tuesday has no awareness of the Detailed Knowledge Base created Monday. Without a single-source architecture, organizations accumulate contradictory documentation: one SOP says step 3 is "verify with supervisor," another says "proceed autonomously." When AI generates without source-awareness, it accelerates this fragmentation because it produces professional-looking content that carries implicit authority.
@@ -234,7 +234,7 @@ Detailed KB major items → Cross-Training Matrix items → Job Description resp
 
 ### KA3: Progressive Abstraction
 
-**Constitutional Basis:** Derived from `Structural Foundations` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Structural Foundations` and `Informational Readiness`.
 
 **Why This Principle Matters**
 A Detailed Knowledge Base with blow-by-blow instructions is useless to an experienced practitioner who just needs a reminder of the three steps most likely to be missed. Conversely, a Quick Reference is useless to a new hire who doesn't know what the software is called. AI generates at a single level of detail unless explicitly governed to calibrate for the audience and purpose. The result: bloated checklists that include obvious steps, or skeletal references that assume knowledge the reader doesn't have. AI also includes everything because it cannot distinguish what an audience needs from what is merely related — every element must earn its place by serving a need the audience cannot reliably meet without it.
@@ -580,7 +580,7 @@ For any procedure involving safety, hazardous materials, regulatory compliance, 
 
 ### QA2: Artifact Adoption Fitness
 
-**Constitutional Basis:** Derived from `Resource Efficiency & Waste Reduction` and `Context Engineering`.
+**Constitutional Basis:** Derived from `Resource Efficiency & Waste Reduction` and `Informational Readiness`.
 
 **Why This Principle Matters**
 An artifact that is content-correct but harder to use than the informal alternative it replaces will not be adopted. A Quick Reference formatted as dense paragraphs loses to "just ask Bob." A Detailed KB with no visual hierarchy loses to tribal knowledge. AI generates text-heavy, paragraph-format output by default — technically correct but optimized for reading, not for doing. The result: artifacts that pass every content quality check but sit unused because the format creates more friction than it removes. Mayer's Multimedia Learning Principles demonstrate that cognitive load from poor format directly undermines knowledge transfer, regardless of content accuracy.
@@ -628,7 +628,7 @@ Every knowledge artifact MUST be designed to WIN the adoption competition agains
 | Constitutional Principle | KM&PD Domain Application | Series |
 |--------------------------|--------------------------|--------|
 | Single Source of Truth | Single Source Knowledge Architecture, Derivation Chain Integrity | KA |
-| Context Engineering | Single Source Knowledge Architecture (knowledge as structured context), Progressive Abstraction (purpose-driven curation) | KA |
+| Informational Readiness | Single Source Knowledge Architecture (knowledge as structured context), Progressive Abstraction (purpose-driven curation) | KA |
 | Verification & Validation | Derivation Chain Integrity, Assessment Validity, Verification Guidance, Safety & Compliance Completeness | KA, TL, PD, QA |
 | Explicit Over Implicit | Empowerment Completeness (all five components explicit) | KA |
 | Structural Foundations | Progressive Abstraction (continuous scale of detail; scaffolded complexity) | KA |
@@ -700,7 +700,10 @@ Check all five empowerment components:
 
 ## Changelog
 
-### v1.4.1 (Current)
+### v1.4.2 (Current)
+- PATCH: Constitutional rename propagation (BACKLOG #152). Updated crosswalk table, Constitutional Basis lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`.
+
+### v1.4.1
 - PATCH: Constitutional rename propagation. Added `Effective & Efficient Outputs` row to the Meta-Principle ↔ Domain Crosswalk table, mapping the renamed/rescoped constitution v6.0.0 principle (formerly `meta-quality-effective-efficient-communication`) to kmpd applications: knowledge artifacts must follow form-appropriate discipline (BLUF for summaries, scaffolded structure for Detailed KB, audience-calibrated framing for Quick References); Artifact Adoption Fitness (QA2) is the kmpd instantiation of joint-quality discipline. Cross-ref: constitution.md v6.0.0 Historical Amendment; `~/.claude/plans/this-is-back-and-tidy-crescent.md`; PROJECT-MEMORY.md ADR-17. Governance: `gov-e38a3fa7488c`, `gov-05de0fadc801`.
 
 ### v1.3.0

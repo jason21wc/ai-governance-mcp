@@ -1,7 +1,7 @@
 ---
-version: "2.17.2"
+version: "2.17.3"
 status: "active"
-effective_date: "2026-04-26"
+effective_date: "2026-05-03"
 domain: "multi-agent"
 governance_level: "federal-regulations"
 ---
@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.17.2
+**Version:** 2.17.3
 **Status:** Active
-**Effective Date:** 2026-04-26
+**Effective Date:** 2026-05-03
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -592,7 +592,7 @@ You are a [cognitive function] specialist. Your role is to [specific mental mode
 ### Governance Compliance
 This agent operates within the AI Governance Framework hierarchy:
 - **S-Series (Safety):** Veto authority — I will STOP and escalate if safety principles are triggered
-- **Constitution:** I follow meta-principles (Context Engineering, Visible Reasoning, etc.)
+- **Constitution:** I follow meta-principles (Informational Readiness, Visible Reasoning, etc.)
 - **Domain:** I apply [relevant domain] principles and methods
 - **Judgment:** When uncertain, I query governance before proceeding
 
@@ -4707,6 +4707,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.17.3 | 2026-05-03 | PATCH: Constitutional rename propagation (BACKLOG #152). Updated 1 prose-name reference: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`. |
 | v2.17.2 | 2026-04-26 | **PATCH: BACKLOG #136 close — §9.8.3 field backfill on 3 platform-specific appendices.** Added required §9.8.3 fields (Governance Level, Implements, Applies To, Information Currency, Source, Framework Integration) to Appendix A (Claude Code CLI Specifics), Appendix B (Gemini CLI Specifics), and Appendix C (Codex CLI Specifics). Out-of-§9.8.3-scope appendices NOT modified: D (Version History — changelog content type), E (Evidence Base — bibliography content type), F (Cross-Platform Agent Support — meta-comparison/survey, not single-platform procedure). No normative change — §9.8.3 fields are descriptive metadata for adopter discoverability. Pre-existing body-header/effective-date drift (frontmatter `2026-04-14` vs body header `2026-04-07`) corrected to `2026-04-26` along the way. ai-instructions PATCH-on-PATCH pin sync v2.10.1 → v2.10.2 per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). Same commit applies parallel §9.8.3 backfill in title-10-ai-coding-cfr v2.43.1 → v2.43.2 (5 appendices) and title-40-multimodal-rag-cfr v2.1.2 → v2.1.3 (1 appendix). Governance: `gov-21ee559d88f0`. |
 | v2.17.1 | 2026-04-14 | **PATCH: Applies To metadata backfill.** Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. |
 | v2.16.1 | 2026-03-29 | **PATCH: Principle Consolidation Alignment.** (1) New §3.9 Standardized Collaboration Protocols — procedural content demoted from domain principle: JSON schema templates, timeout/retry configuration, contract versioning, deadlock detection. (2) Updated governance hierarchy box (18→17 principles). (3) Updated Principle to Title Mapping (Cognitive Function Specialization → Agent Specialization & Topology, removed Read-Write Division as separate entry). (4) Updated Title 2/3 Implements lines. |

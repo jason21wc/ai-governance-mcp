@@ -1,7 +1,7 @@
 ---
-version: "2.7.2"
+version: "2.7.3"
 status: "active"
-effective_date: "2026-04-26"
+effective_date: "2026-05-03"
 domain: "multi-agent"
 governance_level: "federal-statute"
 ---
@@ -120,7 +120,7 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 | Source Principle | Level | What It Says | What Multi-Agent Systems Need |
 |------------------|-------|--------------|-------------------------------|
 | Resource Efficiency & Waste Reduction | Constitutional | "Minimum Effective Dose of complexity" | **When to specialize:** Decision framework for generalist vs. specialized agents |
-| Context Engineering | Constitutional | "Load necessary information to prevent hallucination" | **Full Discipline:** Not just load—write, select, compress, isolate as comprehensive practice |
+| Informational Readiness | Constitutional | "Verify information sufficient in scope, currency, and relevance" | **Full Discipline:** Not just load—write, select, compress, isolate as comprehensive practice |
 | Human-AI Authority & Accountability | Constitutional | "Clear role boundaries and authority delegation" | **Boundary:** What constitutes a "cognitive function"? When to specialize vs. combine? How to structure RACI at handoffs? |
 | Verification & Validation | Constitutional | "Validate outputs against requirements" | **Independence:** WHO validates when the producer agent cannot objectively self-assess? |
 
@@ -321,7 +321,7 @@ Each agent must be assigned a single cognitive function with clear domain bounda
 - Single Source of Truth: Each cognitive function has one authoritative agent; topology map as authoritative role assignment
 - Human-AI Authority & Accountability: Clear role boundaries and authority delegation
 - Structural Foundations: Architectural patterns for agent organization and boundaries
-- Context Engineering: Each agent receives only the context relevant to its role
+- Informational Readiness: Each agent receives only the context relevant to its role
 
 **Truth Sources**
 
@@ -394,7 +394,7 @@ Each agent must be assigned a single cognitive function with clear domain bounda
 
 **Why This Principle Matters**
 
-The constitutional principle Context Engineering requires structuring, maintaining, and updating context across tasks. For multi-agent systems, this becomes a comprehensive discipline with four distinct strategies. "A focused 300-token context often outperforms an unfocused 113,000-token context" (Vellum 2025). Context is not just about having information available—it's about the right information at the right time for each agent.
+The constitutional principle Informational Readiness requires verifying information sufficiency in scope, currency, and relevance before acting. For multi-agent systems, this becomes a comprehensive discipline with four distinct strategies. "A focused 300-token context often outperforms an unfocused 113,000-token context" (Vellum 2025). Context is not just about having information available—it's about the right information at the right time for each agent.
 
 Context Engineering improvements gain exponential value in multi-agent systems—small enhancements per agent compound significantly as agent count increases (Microsoft 2025).
 
@@ -413,7 +413,7 @@ Each agent receives a **context budget**—maximum tokens for specific context c
 
 **Constitutional Basis**
 
-- Context Engineering: "Structure, maintain, and update all relevant context"; "Curate the Active Context Window to include only specific information required for current atomic task"
+- Informational Readiness: "Verify information sufficient in scope, currency, and relevance"; "Curate what you bring to bear, filtering noise while retaining the ability to widen scope"
 - Resource Efficiency & Waste Reduction: Context as "scarce, high-value resource"
 
 **Truth Sources**
@@ -471,7 +471,7 @@ Each agent receives a **context budget**—maximum tokens for specific context c
 
 **Why This Principle Matters**
 
-Context pollution—where information from one domain inappropriately influences another—is the primary cause of structural inconsistencies in multi-agent outputs. When agents share context windows or leak information between domains, errors compound rather than isolate. The constitutional principle Context Engineering requires loading necessary information; for multi-agent systems, this means loading ONLY relevant information to EACH agent, preventing cross-contamination.
+Context pollution—where information from one domain inappropriately influences another—is the primary cause of structural inconsistencies in multi-agent outputs. When agents share context windows or leak information between domains, errors compound rather than isolate. The constitutional principle Informational Readiness requires verifying information sufficiency and relevance before acting; for multi-agent systems, this means loading ONLY relevant information to EACH agent, preventing cross-contamination.
 
 **Domain Application (Binding Rule)**
 
@@ -479,7 +479,7 @@ Each specialized agent must operate in a completely independent context window w
 
 **Constitutional Basis**
 
-- Context Engineering: Load necessary information—implies NOT loading unnecessary information; minimize context consumption—implies isolation prevents bloat
+- Informational Readiness: Verify information sufficiency and relevance—implies NOT loading unnecessary information; curate what you bring to bear—implies isolation prevents bloat
 
 **Truth Sources**
 
@@ -597,7 +597,7 @@ A dedicated orchestrator agent manages workflow coordination, validation gates, 
 
 **Why This Principle Matters**
 
-In multi-agent systems, the original user goal can degrade through agent chains—the "telephone game" effect where each handoff loses fidelity to the original intent. The constitutional principle Context Engineering requires structuring and maintaining context across all task boundaries; for multi-agent systems, this means the original "Why" must be passed as an immutable context object to every agent, not just the specific task instructions. An agent cleaning data must know *why* it is cleaning it (e.g., for a medical diagnosis vs. a marketing report) to make the right micro-decisions. Without explicit intent propagation, downstream agents optimize for their local task at the expense of the global goal.
+In multi-agent systems, the original user goal can degrade through agent chains—the "telephone game" effect where each handoff loses fidelity to the original intent. The constitutional principle Informational Readiness requires persisting essential context across all task boundaries; for multi-agent systems, this means the original "Why" must be passed as an immutable context object to every agent, not just the specific task instructions. An agent cleaning data must know *why* it is cleaning it (e.g., for a medical diagnosis vs. a marketing report) to make the right micro-decisions. Without explicit intent propagation, downstream agents optimize for their local task at the expense of the global goal.
 
 **v2.0.0 Enhancement: Shared Assumptions Protocol**
 
@@ -618,7 +618,7 @@ Agents must verify their outputs serve the original intent AND align with shared
 
 **Constitutional Basis**
 
-- Context Engineering: Structure and maintain context across all task boundaries
+- Informational Readiness: Persist essential context across all task boundaries
 - Single Source of Truth: Original intent is authoritative throughout workflow
 - Explicit Over Implicit: Intent and assumptions must be explicit, not inferred
 - Verification & Validation: Verify outputs serve the original intent before handoff
@@ -720,7 +720,7 @@ Multi-agent workflows must define RACI assignments for every handoff and approva
 
 **Constitutional Basis**
 
-- Context Engineering: Load necessary information to prevent hallucination; RACI assignments propagated through handoff context
+- Informational Readiness: Verify information sufficiency before acting; RACI assignments propagated through handoff context
 - Visible Reasoning & Traceability: Capture decisions for future reference
 - Explicit Over Implicit: No implicit assumptions between agents
 - Human-AI Authority & Accountability: Universal RACI framework and accountability chains
@@ -950,7 +950,7 @@ Multi-agent workflow state must be persisted to structured files that survive se
 **Constitutional Basis**
 
 - Visible Reasoning & Traceability: Capture decisions for future reference
-- Context Engineering: Load necessary information—includes prior session context
+- Informational Readiness: Verify information sufficiency—includes prior session context
 
 **Truth Sources**
 
@@ -1023,7 +1023,7 @@ Long-running agents must proactively broadcast status (current task, progress, b
 
 - Verification & Validation: Ongoing validation of work in progress; detect problems early through visibility
 - Transparent Limitations: Proactive reporting of blockers and limitations
-- Context Engineering: Status information as essential orchestration context
+- Informational Readiness: Status information as essential orchestration context
 
 **Peer Principles**
 
@@ -1697,7 +1697,7 @@ Autonomous agents (AL-2 or AL-3) must implement drift monitoring:
 | Resource Efficiency & Waste Reduction | Justified Complexity |
 | Single Source of Truth | Agent Specialization & Topology, Orchestration Pattern Selection |
 | Structural Foundations | Agent Specialization & Topology |
-| Context Engineering | Context Engineering Discipline, Context Isolation Architecture, Explicit Handoff Protocol |
+| Informational Readiness | Context Engineering Discipline, Context Isolation Architecture, Explicit Handoff Protocol |
 | Explicit Over Implicit | Intent Propagation with Shared Assumptions, Explicit Handoff Protocol |
 | Discovery Before Commitment | Justified Complexity, Orchestration Pattern Selection, HITL Removal Criteria |
 | Risk Mitigation by Design | Orchestration Pattern Selection |
@@ -1777,6 +1777,7 @@ If principles conflict, apply Constitutional Supremacy Clause: S-Series > Meta-P
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.7.3 | 2026-05-03 | PATCH: Constitutional rename propagation (BACKLOG #152). Updated crosswalk table, Constitutional Basis lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Domain principle "Context Engineering Discipline" (A-Series) unchanged — it refers to layer 3 technique. Governance: `gov-d05cd633fc20`. |
 | v2.7.2 | 2026-04-26 | PATCH: Constitutional rename propagation. Added `Effective & Efficient Outputs` row to the Meta ↔ Domain Crosswalk table, mapping the renamed/rescoped constitution v6.0.0 principle (formerly `meta-quality-effective-efficient-communication`) to multi-agent applications: inter-agent communication maximally structured and dense; human-facing communication calibrated; agent-generated artifacts (plans, reports, summaries) follow form-specific discipline; Explicit Handoff Protocol packages handoffs to satisfy joint-quality structure. Cross-ref: constitution.md v6.0.0 Historical Amendment; `~/.claude/plans/this-is-back-and-tidy-crescent.md`; PROJECT-MEMORY.md ADR-17. Governance: `gov-e38a3fa7488c`, `gov-05de0fadc801`. |
 | v2.7.1 | 2026-03-31 | PATCH: Template alignment (#31). "Research-Based" → "Evidence-Based" in derivation formula. Added Truth Source Hierarchy. |
 | v2.7.0 | 2026-03-30 | MINOR: Added cross-domain reference to State Persistence Protocol ↔ AI Coding C3 Session State Continuity (bidirectional). |

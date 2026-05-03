@@ -107,7 +107,7 @@ Grouping the article's 12 by underlying *function*:
 
 | Root function | ai-governance principles that govern it |
 |---|---|
-| Information Flow | `meta-core-context-engineering`, `meta-method-single-source-of-truth`, `meta-quality-explicit-over-implicit`, `coding-context-context-window-management`, `coding-context-session-state-continuity` |
+| Information Flow | `meta-core-informational-readiness`, `meta-method-single-source-of-truth`, `meta-quality-explicit-over-implicit`, `coding-context-context-window-management`, `coding-context-session-state-continuity` |
 | Control Flow | `coding-process-discovery-before-commitment`, `coding-process-goal-first-dependency-mapping`, `coding-process-atomic-task-decomposition`, `multi-architecture-orchestration-pattern-selection`, `multi-coordination-state-persistence-protocol` |
 | Quality Gates | `meta-quality-verification-validation`, `meta-operational-failure-recovery-resilience`, `meta-quality-visible-reasoning-traceability`, `meta-safety-non-maleficence-privacy-security` (S-Series), `coding-quality-validation-gates`, `multi-quality-fault-tolerance-and-graceful-degradation` |
 
@@ -419,7 +419,7 @@ The answer may not be "one method in rules-of-procedure" but "principles where p
 
 ### 8.2 Q2 — Subtraction test (ANSWERED partially)
 
-**Question:** If `meta-core-context-engineering`, `coding-quality-validation-gates`, `multi-architecture-orchestration-pattern-selection`, `coding-process-session-state-continuity` were removed, what would Execution Framework still cover?
+**Question:** If `meta-core-informational-readiness`, `coding-quality-validation-gates`, `multi-architecture-orchestration-pattern-selection`, `coding-process-session-state-continuity` were removed, what would Execution Framework still cover?
 
 **Status (session-140):** answered implicitly via the 3-function root reduction. The 3-function layer adds genuinely new meta-organizational structure that doesn't exist in those principles. The 8-bucket layer is largely re-arrangement (some buckets ARE those principles in new vocabulary; some — like Compute, Lifecycle — are partially new framing).
 

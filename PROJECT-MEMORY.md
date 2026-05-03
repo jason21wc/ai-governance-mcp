@@ -595,6 +595,21 @@ Not needed at current scale. Phased approach documented in ADR-14. Revisit when 
 
 **Cross-ref:** `~/.claude/plans/this-is-back-and-tidy-crescent.md`; LEARNING-LOG entry "Generalize Existing Principle Before Minting a New One" (2026-04-26); rules-of-procedure §16.7; `reference-library/ai-coding/ref-ai-coding-collier-elegance-equation.md`; constitution v6.0.0 amendment (Art. III §4 rename + rescope; originally planned as v5.0.0, bumped to v6.0.0 per contrarian); 4 domain title crosswalk additions (title-10/15/20/25); title-40 changelog v2.4.2 (rename note, no crosswalk row).
 
+### ADR-18: Constitutional Principle Rename + Reframe (Informational Readiness)
+- **Status:** Accepted (2026-05-03)
+- **Context:** Constitution v7.0.0 adopted the 5-layer engineering stack where "Context Engineering" specifically means layer 3 (dynamic context assembly). The constitutional meta-principle `meta-core-context-engineering` (Art. I §1) predates the taxonomy and governs layers 2-4 collectively (retrieval, assembly, persistence). The naming collision creates a governance scope narrowing risk: future agents unconsciously narrow the principle's scope to only layer 3. Additionally, the principle body read as procedural implementation guidance rather than a universal reasoning pattern (the constitutional role of meta-principles per the Derivation Chain).
+
+**Decision:** Rename `meta-core-context-engineering` → `meta-core-informational-readiness`. Reframe from procedural guidance ("Explicitly load and review all prior and parallel context...") to a universal reasoning obligation ("Before acting, verify that you possess information sufficient in scope, currency, and relevance"). Preserve backward compatibility via `Principle.aliases=["meta-core-context-engineering"]`. Constitution MAJOR bump (v7.0.0 → v8.0.0) per ADR-17 precedent (ID-changing rename with downstream consumers).
+
+**Alternatives evaluated:**
+1. Disambiguation sentence only (PATCH) — insufficient; principle body still reads procedural, and the name collision remains at the ID level
+2. Heading-only rename, ID preserved (PATCH) — eliminates 90% of propagation cost but creates permanent ID/heading mismatch; aliases already handle ID→name disconnects but this normalizes the disconnect as a design choice. User rejected.
+3. Full rename + reframe (this approach) — cleanest long-term state; highest execution cost (80+ file touches). User selected.
+
+**Outcome:** Principle count stays flat. Art. I §1 now reads as a reasoning obligation ("Am I informationally ready to act?") rather than implementation guidance ("load all context, persist updates, use checkpoints"). Scope unchanged — governs layers 2-4 of the 5-layer engineering stack. Alias preserves backward compatibility for old-ID queries, audit logs, and cross-references. 1427 tests pass. New alias regression test added.
+
+**Cross-ref:** `~/.claude/plans/create-a-plan-to-enumerated-hejlsberg.md`; constitution v8.0.0 amendment (Art. I §1 rename + reframe); ai-instructions v4.0.0 (pin update); contrarian `aab157aa58b78ba36` (PROCEED WITH MODIFICATIONS, HIGH confidence); governance `gov-466045fd5dbd`.
+
 ### Future Considerations
 
 - Prompt Engineering domain (when created, move system prompt best practices from multi-agent)

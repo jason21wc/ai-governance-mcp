@@ -657,11 +657,11 @@ class TestReasoningEntry:
     def test_valid_reasoning_entry(self):
         """ReasoningEntry should accept valid data."""
         entry = ReasoningEntry(
-            principle_id="meta-core-context-engineering",
+            principle_id="meta-core-informational-readiness",
             status="COMPLIES",
             reasoning="The action follows established patterns.",
         )
-        assert entry.principle_id == "meta-core-context-engineering"
+        assert entry.principle_id == "meta-core-informational-readiness"
         assert entry.status == "COMPLIES"
         assert "established patterns" in entry.reasoning
 

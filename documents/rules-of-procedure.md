@@ -1,5 +1,5 @@
 ---
-version: "3.31.4"
+version: "3.31.5"
 status: "active"
 effective_date: "2026-05-01"
 domain: "constitution"
@@ -8,9 +8,9 @@ domain: "constitution"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.31.4
+**Version:** 3.31.5
 **Status:** Active
-**Effective Date:** 2026-05-01
+**Effective Date:** 2026-05-03
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -471,7 +471,7 @@ All principles use slugified title-based IDs with namespace prefixes:
 | Domain | Category | Title | Generated ID |
 |--------|----------|-------|--------------|
 | Constitution | safety | Non-Maleficence | `meta-safety-non-maleficence` |
-| Constitution | core | Context Engineering | `meta-core-context-engineering` |
+| Constitution | core | Informational Readiness | `meta-core-informational-readiness` |
 | AI-Coding | context | Specification Completeness | `coding-context-specification-completeness` |
 | AI-Coding | process | Validation Gates | `coding-process-validation-gates` |
 | Multi-Agent | core | Cognitive Function Specialization | `multi-core-cognitive-function-specialization` |
@@ -533,21 +533,21 @@ When writing governance documents, follow these rules to ensure proper ID genera
 - `**Constitutional Basis**` - Domain format (derivation)
 
 **DON'T:**
-- Add series codes to principle headers (~~`### C1. Context Engineering`~~)
+- Add series codes to principle headers (~~`### C1. Informational Readiness`~~)
 - Use numeric IDs in cross-references (~~`See C1`~~)
 - Create principles without indicator sections (they won't be extracted)
 - Use duplicate titles within a domain (creates ID collision, second overwrites first)
 
 **Correct header format:**
 ```markdown
-### Context Engineering
+### Informational Readiness
 **Definition**
 [principle content...]
 ```
 
 **Incorrect header format:**
 ```markdown
-### C1. Context Engineering  ← Series code will be stripped
+### C1. Informational Readiness  ← Series code will be stripped
 ```
 
 ### 3.4.5 Cross-Reference Format
@@ -563,15 +563,15 @@ Reference other principles by title, not ID:
 
 **Cross-domain references (domain docs → Constitution):**
 ```markdown
-- Derives from **Context Engineering** (Constitution)
+- Derives from **Informational Readiness** (Constitution)
 - Constitutional Basis: Verification & Validation
 ```
 
 **Incorrect formats:**
 ```markdown
-- Derives from **C1 (Context Engineering)**  ← Uses code
+- Derives from **C1 (Informational Readiness)**  ← Uses code
 - See also: meta-Q1, coding-C3  ← Uses IDs
-- Based on meta-core-context-engineering  ← Uses full ID
+- Based on meta-core-informational-readiness  ← Uses full ID
 ```
 
 *Note: Cross-references are for human readers. The retrieval system uses semantic search, not link resolution.*
@@ -618,7 +618,7 @@ for domain, data in idx['domains'].items():
 **Expected output:**
 ```
 constitution:
-  meta-core-context-engineering
+  meta-core-informational-readiness
   meta-core-single-source-of-truth
   meta-core-separation-of-instructions-and-data
 ai-coding:
@@ -826,7 +826,7 @@ The `**Applies To:**` field serves two purposes: (1) retrieval discoverability �
 | Element | Convention | Example |
 |---------|------------|---------|
 | **Field labels** | Bold with colon | `**Constitutional Basis:**` |
-| **Principle references** | Bold in prose | `**Context Engineering**` |
+| **Principle references** | Bold in prose | `**Informational Readiness**` |
 | **Legal analogies** | Italics | *The Evidentiary Standard* |
 | **Inline explanations** | Italics | *implies isolation prevents bloat* |
 | **Code/commands** | Backticks | `ruff format --check` |
@@ -892,7 +892,7 @@ Always specify language identifier for syntax highlighting:
 |----------------|--------|---------|
 | Same document | Section name | "See Part 3.4" |
 | Same domain | Principle title | "per **Specification Completeness**" |
-| Cross-domain | Domain + title | "Constitution's **Context Engineering**" |
+| Cross-domain | Domain + title | "Constitution's **Informational Readiness**" |
 | Document | Stable filename | `title-10-ai-coding.md` |
 
 For model name formatting conventions, see §10.1.4 Model Reference Conventions.
@@ -1004,7 +1004,7 @@ After any framework update, validate:
 
 **Importance: IMPORTANT — Operationalizes drift prevention**
 
-**Constitutional Basis:** Context Engineering (prevent drift), Single Source of Truth (regularly audit), Periodic Re-evaluation (reassess at milestones)
+**Constitutional Basis:** Informational Readiness (prevent drift), Single Source of Truth (regularly audit), Periodic Re-evaluation (reassess at milestones)
 
 ### 4.3.1 Documentation Drift Detection
 
@@ -1275,14 +1275,14 @@ This title defines **how** the AI must apply the constitutional principles durin
 **Applies To:** quickly identifying which constitutional principles to load for a given task phase — starting a project, executing work, or validating outputs
 
 **Starting a new project/task? (Legislative Phase)**
-→ **Start with:** Context Engineering, Single Source of Truth, Discovery Before Commitment
+→ **Start with:** Informational Readiness, Single Source of Truth, Discovery Before Commitment
 → **Add for multi-agent:** Role Specialization, Standardized Protocols
 → **Add for high-risk:** Non-Maleficence, Bias Awareness, Risk Mitigation
 
 **Executing/implementing? (Executive Phase)**
 → **Creating output:** Verification & Validation, Structured Output
 → **Hit an error:** Verification & Validation, Failure Recovery
-→ **Optimizing:** Context Engineering, Resource Efficiency
+→ **Optimizing:** Informational Readiness, Resource Efficiency
 
 **Validating outputs? (Judicial Phase)**
 → **Apply:** Verification & Validation
@@ -1293,12 +1293,12 @@ This title defines **how** the AI must apply the constitutional principles durin
 
 1. **Jurisdiction Check:** What domain are we in? (Load relevant "Statutes" / Domain Principles)
 2. **Is this a New Task?**
-   - **YES** → Load Context Engineering, Single Source of Truth, Discovery Before Commitment
+   - **YES** → Load Informational Readiness, Single Source of Truth, Discovery Before Commitment
        - *High-risk?* → Check Non-Maleficence, Bias Awareness, Risk Mitigation
    - **NO (Executing)** →
        - *Creating content?* → Verification & Validation, Structured Output
        - *Encountered error?* → Verification & Validation, Failure Recovery, Continuous Learning (Governance)
-       - *Performance issue?* → Context Engineering, Resource Efficiency
+       - *Performance issue?* → Informational Readiness, Resource Efficiency
 
 ### 7.1.3 Immediate Escalation Triggers
 
@@ -1335,7 +1335,7 @@ Before actions that are NOT on the governance skip-list—creating outputs, prov
 
 | Check | Principle | Question |
 |-------|-----------|----------|
-| ☐ | **Context Engineering** | Is sufficient context loaded to prevent hallucination? |
+| ☐ | **Informational Readiness** | Is sufficient context loaded to prevent hallucination? |
 | ☐ | **Structural Foundations** | Are architectural foundations established before implementation? |
 | ☐ | **Discovery Before Commitment** | Have unknown unknowns been explored before committing? |
 | ☐ | **Goal-First Dependency Mapping** | Have I reasoned backward from goal to identify dependencies? |
@@ -1349,7 +1349,7 @@ This review should be **quick and mental** for routine tasks, but **explicit and
 
 These principles are operational constraints **(Constitutional Law)**, not optional suggestions.
 
-- **Constitutional Review (Start of Task):** At the start of any substantial task or project, explicitly identify which "Articles" (Principles) are most relevant (e.g., *Context Engineering, Single Source of Truth, Separation of Instructions for context; Verification & Validation, Structured Output for validation*) and use them to structure your plan.
+- **Constitutional Review (Start of Task):** At the start of any substantial task or project, explicitly identify which "Articles" (Principles) are most relevant (e.g., *Informational Readiness, Single Source of Truth, Separation of Instructions for context; Verification & Validation, Structured Output for validation*) and use them to structure your plan.
 - **Citing Principles (During Execution):** As you work, reference specific principles by name when making non-trivial decisions, trade-offs, or escalations (e.g., *"Applying Single Source of Truth and Verification & Validation: intent is ambiguous, so I must pause for clarification"*).
 - **Judicial Restraint (Planning):** Treat these principles as hard constraints. Do not knowingly propose a plan that violates them **(Unconstitutional Action)** without explicitly flagging the conflict and requesting a "Supreme Court" (Human) ruling.
 - **Appellate Review (Retrospectives):** During reviews, use the principles as a checklist to adjudicate your own outputs. Capture "unconstitutional" behaviors (gaps/failures) as candidates for methodology updates.
@@ -1414,8 +1414,8 @@ The AI should perform a brief internal constitutional check when:
 **Applies To:** performing a quick internal governance check during long conversations to counter principle drift, verifying that safety and core principles still guide the current work
 
 1. Mentally verify: Are Safety Principles still governing? Any concerns?
-2. Mentally verify: Am I following the relevant Core principles (Context Engineering, Discovery Before Commitment)?
-3. If any drift detected: Self-correct and optionally cite the reaffirmation (e.g., "Reaffirming Context Engineering: verifying context before proceeding")
+2. Mentally verify: Am I following the relevant Core principles (Informational Readiness, Discovery Before Commitment)?
+3. If any drift detected: Self-correct and optionally cite the reaffirmation (e.g., "Reaffirming Informational Readiness: verifying context before proceeding")
 
 **Key Principle:** Reaffirmation should be quick and mostly internal. Visible citation is optional unless drift was detected and corrected, or unless the task is high-stakes. The goal is maintaining alignment, not creating overhead.
 
@@ -1431,7 +1431,7 @@ The following behaviors constitute "Contempt of Court"—violations of constitut
 
 - Begin implementation without Structural Foundations and Discovery Before Commitment compliance
 - Skip Pre-Action Protocol because work "seems simple"
-- Provide lengthy outputs without verifying Context Engineering sufficiency
+- Provide lengthy outputs without verifying Informational Readiness sufficiency
 - Claim lack of information without first exhausting available sources
 - Make product-level decisions during implementation (VCP1 violation in coding domain)
 
@@ -1725,7 +1725,7 @@ This creates an audit trail for governance compliance and future learning.
 
 **Importance: IMPORTANT — Prevents both silent issue loss and unbounded scope creep**
 
-**Implements:** Context Engineering, Verification & Validation
+**Implements:** Informational Readiness, Verification & Validation
 
 **Applies To:** Any scenario where an AI agent discovers an issue unrelated to its current task. **Discovered issue triage**, **deferred fix tracking**, **scope boundary**, **incidental finding**, **fix now vs defer decision**.
 
@@ -2098,14 +2098,14 @@ When evaluating whether to accept a modification request:
 ```markdown
 <!-- OVERRIDE: Using bullet points instead of prose
      RATIONALE: User explicitly requested list format for scanning
-     PRINCIPLES PRESERVED: Context Engineering, Verification & Validation, all Safety principles -->
+     PRINCIPLES PRESERVED: Informational Readiness, Verification & Validation, all Safety principles -->
 ```
 
 **Valid Override (CAUTION):**
 ```markdown
 <!-- OVERRIDE: Reducing validation depth for simple factual query
      RATIONALE: Query is low-stakes, single-fact retrieval; full protocol disproportionate
-     PRINCIPLES PRESERVED: Context Engineering (verified context), Verification & Validation (proportional validation)
+     PRINCIPLES PRESERVED: Informational Readiness (verified context), Verification & Validation (proportional validation)
      RISK ACKNOWLEDGED: Reduced scrutiny; appropriate for query complexity -->
 ```
 
@@ -2218,12 +2218,12 @@ Every domain principle must derive from one or more constitutional principles:
 
 **Example Derivation:**
 ```
-Constitutional Principle: Context Engineering
+Constitutional Principle: Informational Readiness
     ↓
 Domain Principle: Specification Completeness (AI-Coding)
-    - Applies Context Engineering to software requirements
+    - Applies Informational Readiness to software requirements
     - Adds domain-specific fields (acceptance criteria, dependencies)
-    - Constitutional Basis: Context Engineering
+    - Constitutional Basis: Informational Readiness
 ```
 
 ### 9.2.2 Derivation Validation
@@ -2377,7 +2377,7 @@ This section previously contained a standalone 9-field template. It has been con
 ```markdown
 ### Specification Completeness (The Requirements Doctrine)
 
-**Constitutional Basis:** Context Engineering, Single Source of Truth
+**Constitutional Basis:** Informational Readiness, Single Source of Truth
 
 **Why This Principle Matters**
 Incomplete specifications cause rework, incorrect implementations, and wasted effort. In AI-assisted coding, the AI cannot read minds—it needs explicit, complete requirements to produce correct code.
@@ -2558,7 +2558,7 @@ The governance framework uses a 7-layer hierarchy modeled on US legal structure.
 | Layer | Framework Element | Authority | Stability | Example |
 |-------|-------------------|-----------|-----------|---------|
 | Bill of Rights | S-Series (Safety Principles) | **Veto Power** | Immutable | Non-maleficence, Privacy Protection |
-| Constitution | Meta-Principles (C, Q, O, G Series) | **Foundation** | Very Stable | Context Engineering, Visible Reasoning |
+| Constitution | Meta-Principles (C, Q, O, G Series) | **Foundation** | Very Stable | Informational Readiness, Visible Reasoning |
 | Federal Statutes | Domain Principles (per domain) | **Context** | Stable | Test Before Claim (AI Coding) |
 | Rules of Procedure | Constitutional Methods (this document) | **Process** | Stable | Admission Test, Breaking Changes |
 | Federal Regulations | Domain Methods | **Execution** | Evolving | Cold Start Kit, Phase Gates |
@@ -2625,7 +2625,7 @@ Constitution — Article III (Quality & Integrity)
     │                               │
     │                               └── Testing Procedures, Coverage Requirements
     │
-    └── "Context Engineering" [Art. I, § 1]
+    └── "Informational Readiness" [Art. I, § 1]
             │
             └── Multi-Agent (Title 20) — Federal Statute
                     │
@@ -2655,7 +2655,7 @@ When referencing across levels, use titles per Part 3.4.5:
 
 | Reference Type | Format | Example |
 |---------------|--------|---------|
-| Constitution → Domain | "Derives from **[Title]** (Constitution)" | "Derives from **Context Engineering** (Constitution)" |
+| Constitution → Domain | "Derives from **[Title]** (Constitution)" | "Derives from **Informational Readiness** (Constitution)" |
 | Domain → Constitution | "Per **[Title]**" | "Per **Visible Reasoning**" |
 | Methods → Principles | "Implements **[Title]**" | "Implements **Test Before Claim**" |
 | Appendix → Methods | "Applies [method] to [platform]" | "Applies context compression to Claude" |
@@ -3845,7 +3845,7 @@ For most instruction-following tasks, model defaults (typically temperature ~0.7
 
 RAG systems retrieve relevant documents to ground AI responses in source material. These techniques optimize chunking, embedding, retrieval, and validation for accuracy and performance.
 
-**Principle Basis:** Derives from Constitution's Visible Reasoning & Traceability (source attribution), Context Engineering (retrieval filtering), and Structural Foundations (document prioritization).
+**Principle Basis:** Derives from Constitution's Visible Reasoning & Traceability (source attribution), Informational Readiness (retrieval filtering), and Structural Foundations (document prioritization).
 
 ---
 
@@ -4353,7 +4353,7 @@ Classify tasks by the minimum model capability required for acceptable quality:
 
 **Importance: 🟡 IMPORTANT — Enables cross-domain project knowledge persistence**
 
-**Implements:** Context Engineering (Constitution), Single Source of Truth (Constitution). See also Part 16.1 (former Project Reference Persistence constitutional principle, demoted to method).
+**Implements:** Informational Readiness (Constitution), Single Source of Truth (Constitution). See also Part 16.1 (former Project Reference Persistence constitutional principle, demoted to method).
 **Applies To:** All domains with projects exceeding domain-defined complexity thresholds
 
 ## Part 14.1: Complexity Scaling Tiers
@@ -4941,7 +4941,7 @@ These sections contain procedural and technique-level guidance that was previous
 
 ## Part 16.1: Reference Document Patterns
 
-**Constitutional Basis:** Context Engineering, Single Source of Truth
+**Constitutional Basis:** Informational Readiness, Single Source of Truth
 
 **Implements:** Former constitutional principle "Project Reference Persistence" (C-Series)
 
@@ -5228,6 +5228,7 @@ Collier, J. (2026). *The Elegance Equation: A Multiplicative Framework for Evalu
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.31.5 | 2026-05-03 | PATCH: Constitutional rename propagation (BACKLOG #152). Updated ~23 prose-name references, format examples, decision trees, and Constitutional Basis lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Left: changelog entries (historical), `multi-architecture-context-engineering-discipline` domain principle title (layer 3 technique). Governance: `gov-d05cd633fc20`, `gov-97a116b020b2`. |
 | 3.31.4 | 2026-05-01 | PATCH: BACKLOG #147 post-double-check fold-in remediation. Added new §7.8.1 "Reactive vs Proactive Work-Class Distinction" — canonical method-level home for the rule that proactive/preventive/improvement work does not require justification by observed harm; the "phantom problem" anti-pattern applies to debugging-class work only; the stakes-match test is a sizing heuristic, not a validity gate. Includes asymmetric-default-when-ambiguous rule (default to proactive-class). Cross-referenced from CLAUDE.md Behavioral Floor "Proportional rigor" sub-bullet, `documents/agents/contrarian-reviewer.md` §Boundaries "Work-class awareness" + Step 0.5 "Work-Class Identification" (hot path), and `documents/tiers.json` `behavioral_floor.directives.proportional-rigor` (new entry, tiers.json v1.6.0 → v1.7.0). **No rule change** — codifies as method-level SSOT what was previously implicit in BACKLOG.md philosophy block + scattered across CLAUDE.md sub-bullet text + contrarian-reviewer Boundaries paragraph (per coherence-auditor finding that the original #147 close left three half-statements without a canonical home). Driven by post-edit subagent battery on prior commit `0911534` — coherence-auditor `a8730552c214c010f` HIGH-1 (tiers.json `proportional-rigor` directive missing) + MEDIUM-1 (§7.8 silent on proactive/reactive distinction); contrarian-reviewer `afac4381fd32e8721` HIGH-1 (self-classification gate unguarded — closed by asymmetric-default rule) + HIGH-2 (softer encoding than user verbatim — closed by reframing stakes-match as sizing heuristic) + MEDIUM (activation gap — closed by Step 0.5 placement before Step 1 Pre-Mortem in agent Review Protocol). Per `rules-of-procedure §9.8.5` bright-line: new sub-section codifying existing rule with cross-refs = PATCH (clarification of existing scope, no normative addition). ai-instructions PATCH-on-PATCH pin sync v2.11.5 → v2.11.6 per BACKLOG #130 canonical pin-discipline. **Constitutional Basis:** `meta-core-systemic-thinking` (root cause = rule-citation absence at canonical method-level home; structural fix = canonical SSOT with cross-refs); `meta-method-single-source-of-truth` (one canonical home + cross-refs); `meta-quality-explicit-over-implicit` (BACKLOG philosophy rule made explicit at proportional-rigor's operative scope); `meta-quality-verification-validation` (post-edit subagent battery on shipped fix found incompleteness; folded same-arc per session-138 post-arc remediation precedent). Audit IDs: validator `af3ba14ff949fd2d0` APPROVE; coherence-auditor `a8730552c214c010f` 1 HIGH + 2 MEDIUM + 2 LOW; contrarian-reviewer `afac4381fd32e8721` 2 HIGH + 2 MEDIUM PROCEED_WITH_CAUTION. Governance: `gov-20dcbdd98f9e` (parent #147 close), `gov-e1c50d38e20f` (this remediation). |
 | 3.31.3 | 2026-04-28 | PATCH: BACKLOG #100 Commit 6 — addressed deferred LOW + MEDIUM findings from post-arc double-check audit (per user directive "we shouldn't be deferring low findings"). Three additions: (1) **§9.7.7 Register integrity rules (3-item self-validation list)** — trigger taxonomy required for not-borrowed entries (fail Compliance Review Check 9 if missing all three classes); one-way state transitions with history (no oscillation between borrowed/considered-and-rejected without new evidence; prior history doesn't permit re-litigation); no empty rationale (every row must have non-empty rationale + trigger column). Closes contrarian LOW-2 (anti-pattern table sufficiency) — these are register-integrity rules belonging in §9.7.7 self-validation, not §9.8.9 anti-patterns. (2) **§9.8.9 Citation discipline subsection (4-item)** — prefer section anchors (`§X.Y.Z`) over line numbers (`filename:N`); hybrid form (`§X.Y.Z (line N)`) for specific blocks within sections; line-only citations are drift-vulnerable + verify against SOT on each major file edit; CI check candidate filed as BACKLOG #144 for D2 follow-up. Closes contrarian MEDIUM-2 (structural defense against line-citation drift) at the documentation/discipline layer; structural enforcement (CI check) deferred to BACKLOG #144 with proper trigger conditions. (3) **BACKLOG #144 filed** — citation-anchor drift CI check, D2 New Capability, ~30 lines Python or bash, with edge cases enumerated (archive exclusion, temp-file exclusion, structured-content citation allowance). **No rule change** — pure register-integrity + citation-discipline + BACKLOG-entry filing applying findings from post-arc double-check audit. ai-instructions PATCH-on-PATCH pin sync v2.11.4 → v2.11.5 per BACKLOG #130 canonical pin-discipline. **Constitutional Basis:** `meta-method-single-source-of-truth` (citation discipline = stable anchors over drift-vulnerable line numbers); `meta-quality-verification-validation` (register-integrity rules = self-validation gates); `meta-core-systemic-thinking` (root cause of drift recurrence = LEARNING-LOG lesson alone insufficient; structural fix = enforced citation discipline + future CI check). Audit IDs: contrarian `a7a951cb33f490ada` (LOW-2 + MEDIUM-2), coherence-auditor `aa443ab0670fe55a8` (LOW-1 SESSION-STATE narrative stitch fixed in same commit). Governance: `gov-fd820e2fd260` (parent post-arc remediation arc). |
 | 3.31.2 | 2026-04-28 | PATCH: BACKLOG #100 post-arc remediation per double-check audit (contrarian `a7a951cb33f490ada` HIGH-1/2/3 + coherence-auditor `aa443ab0670fe55a8` MEDIUM-1/2/3). **Apply §9.8.9 spec to its host file (HIGH-1):** removed 6 method-level "Legal Analogy:" italic blocks at §7.2 line 1326 (Oath of Office), §7.3 line 1348 (Judicial Review), §7.4.4 line 1383 (Stare Decisis — directly contradicted §9.7.7 register's `considered-and-rejected` classification), §7.5 line 1399 (Verdict and Opinion), §7.7 line 1453 (Rules of Procedure as inline analogy), §7.8 line 1470 (Small claims vs Supreme Court). §9.8.9 declares method-level surfaces ineligible for italicized analogy blocks; the arc's spec was therefore not self-applied to its own host file. Per-instance wisdom check confirmed all 6 are standalone italic blocks with wisdom captured in surrounding method prose; removal preserves all operational guidance. **Add Rules of Procedure register row (HIGH-2):** §9.7.7 register was missing the "Rules of Procedure" layer (7-of-7 minus 1) — added as `borrowed → Operative Hierarchy + RoP §9.7.1 architectural note (line 2563)` with note that this layer consolidates US distributed Supreme Court Rules + Congressional standing rules per F-P1-03 disposition (v3.27.3). **Fix Stare Decisis target citation (HIGH-3):** §9.7.7 register row was citing "lines 2783-2785" as the FAIL exemplar location, but Stare Decisis is named only inside the explanatory clause of the Case Law FAIL bullet at line 2784, not as a discrete bullet; updated to point at line 2784 specifically + cross-reference v5.0.0 rename history per `(cite history)` requirement. **Fix 2 stale F-P2-04 narrative surfaces (MEDIUM-1/2):** constitution.md:1135 v6.0.1 amendment self-reference + this file's v3.31.0 changelog narrative both still cited `:1000-1004` for the F-P2-04 PASS block — same +2 line drift the v3.31.1 fold-in corrected at canonical citation sites but missed in narrative/historical-record context. Both updated to `:1002-1006` (v3.31.0 row updated with explicit "citation corrected in v3.31.1 close-out fold-in" note for audit trail). **Add §9.7.1 SSOT cross-reference note (MEDIUM-3):** §9.7.1 hierarchy table both cross-references AND restates the canonical Operative Hierarchy at constitution.md:84-92 (the new SSOT designation says other locations cross-reference rather than restate). Added authoring note at §9.7.1 intro: edits originate at constitution.md:84-92 SSOT; this table is derived restatement preserving canonical structure plus a navigational Example column; if the two diverge, constitution.md is canonical. **No rule change** — pure cleanup applying freshly-shipped §9.8.9 spec + register coverage gap close + citation drift fix + SSOT compliance note. ai-instructions PATCH-on-PATCH pin sync v2.11.3 → v2.11.4 per BACKLOG #130 canonical pin-discipline. **Constitutional Basis:** `meta-method-single-source-of-truth` (apply spec to host file; one canonical home for analogies; explicit SSOT cross-reference); `meta-quality-verification-validation` (post-arc double-check caught what prior batteries missed); `meta-core-systemic-thinking` (root cause = arc shipped spec without applying to host file; structural fix = self-application to close internal contradiction at §7.4.4 vs §9.7.7); `coding-method-defer-vs-fix-now` (per-instance wisdom check + fix-now class for ≤3 files / no cascading discovery). Audit IDs: contrarian `a7a951cb33f490ada`, coherence-auditor `aa443ab0670fe55a8`. Governance: `gov-fd820e2fd260` (post-arc remediation). |
@@ -5344,7 +5345,7 @@ The following appendices provide platform-specific tactics for applying the gove
 | Governance activation | Include framework hierarchy in system prompt |
 | S-Series enforcement | "You MUST refuse actions that trigger Safety principles" |
 | Visible reasoning | Request "thinking" block before conclusions |
-| Citation format | Use principle IDs in responses: `(per meta-core-context-engineering)` |
+| Citation format | Use principle IDs in responses: `(per meta-core-informational-readiness)` |
 | Escalation | "When uncertain about governance, ask before proceeding" |
 
 ### G.4 Known Limitations

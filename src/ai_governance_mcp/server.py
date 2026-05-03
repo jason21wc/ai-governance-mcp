@@ -1025,8 +1025,8 @@ AVAILABLE_AGENTS = {
 # cryptographic signing roadmap.
 AGENT_TEMPLATE_HASHES = {
     "code-reviewer": "0a480a1ca6f02a835c813bdb83d307b1f36578f3b4d87e630151ffedbc7806c0",
-    "coherence-auditor": "f02c9d7bb642d8cb07a0e422ac86e8eae4ae10d37e89d869bef66096ef80a4c8",
-    "continuity-auditor": "ecfb29ca75474fef63ca9a92779b5557fbade3f2b5e7d2712be8255047ce6a4d",
+    "coherence-auditor": "51bd1f2608347d5a134d658715fdb912108bf307492cc338ded2b92ad9b5664b",
+    "continuity-auditor": "217a9057bc03cc932d95d6038d1020a9be07cfd35a2ab61a71c66d40968ef76f",
     "contrarian-reviewer": "7d243e0ca4f5eb6af8c55225dbc764712e9ab4603c31a6012ecafba3ed7d7afe",
     "documentation-writer": "c1f1e0d5617d10c6b61cb3fb8e7e436a9ffe18c06f629c2d1201f3da3d998ad0",
     "orchestrator": "be9eab6fb5d4c844723d2af4d36ac4761341bf2d2cdf3dff5e9167f1732b9611",
@@ -1538,14 +1538,14 @@ async def list_tools() -> list[Tool]:
             description=(
                 "Get the full content of a specific governance principle by ID. "
                 "Use after query_governance to get complete principle text. "
-                "IDs follow pattern: meta-core-context-engineering, coding-quality-testing, etc."
+                "IDs follow pattern: meta-core-informational-readiness, coding-quality-testing, etc."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "principle_id": {
                         "type": "string",
-                        "description": "The principle ID (e.g., 'meta-core-context-engineering', 'coding-quality-testing')",
+                        "description": "The principle ID (e.g., 'meta-core-informational-readiness', 'coding-quality-testing')",
                         "maxLength": 100,  # M5 FIX
                         "minLength": 1,  # M5 FIX
                     },
@@ -2325,7 +2325,7 @@ async def _handle_get_principle(
         message=f"Principle '{principle_id}' not found",
         suggestions=[
             "Use list_domains to see available domains",
-            "Check ID format: meta-core-context-engineering, coding-quality-testing",
+            "Check ID format: meta-core-informational-readiness, coding-quality-testing",
         ],
     )
     return [TextContent(type="text", text=error.model_dump_json(indent=2))]

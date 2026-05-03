@@ -1,7 +1,7 @@
 ---
-version: "2.4.2"
+version: "2.4.3"
 status: "active"
-effective_date: "2026-04-19"
+effective_date: "2026-05-03"
 domain: "multimodal-rag"
 governance_level: "federal-statute"
 ---
@@ -116,9 +116,9 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 
 | Meta-Principle | What It Says | What Multimodal RAG Needs |
 |----------------|--------------|---------------------------|
-| Context Engineering | "Load necessary information" | **Selection:** WHICH image best answers this query at this step? |
+| Informational Readiness | "Load necessary information" | **Selection:** WHICH image best answers this query at this step? |
 | Visible Reasoning & Traceability | "Articulate reasoning before output" | **Presentation:** HOW to weave images naturally into text flow? |
-| Context Engineering | "Only load what's necessary" | **Threshold:** When does an additional image ADD vs. DISTRACT? |
+| Informational Readiness | "Only load what's necessary" | **Threshold:** When does an additional image ADD vs. DISTRACT? |
 | Failure Recovery & Resilience | "Handle failures appropriately" | **Fallback:** What specific information to provide when images fail? |
 | Structural Foundations | "Establish foundations before implementation" | **Structure:** HOW to organize reference documents for multimodal retrieval? |
 | Visible Reasoning & Traceability | "Make reasoning auditable" | **Citation:** HOW to attribute each claim to specific source fragments? |
@@ -343,7 +343,7 @@ Images MUST be placed at the exact step they support, woven into the instruction
 - **Flow Preservation:** Images should feel like a natural part of reading, not interruptions.
 
 **Constitutional Basis**
-Derived from `Context Engineering` and `Structured Output Enforcement`.
+Derived from `Informational Readiness` and `Structured Output Enforcement`.
 
 **Why This Principle Matters**
 Images placed at wrong positions create cognitive dissonance. Research in instructional design consistently shows that proximity between text and related visuals improves comprehension and retention.
@@ -407,7 +407,7 @@ Select images using Mayer's Multimedia Learning principles. Each image must pass
 - **No Redundancy:** Avoid multiple images showing the same information from different angles (MR-F8).
 
 **Constitutional Basis**
-Derived from `Context Engineering` and `Resource Efficiency & Waste Reduction`. Grounded in Mayer's Coherence Principle ("include only essential content directly linked to learning objectives") and Redundancy Principle ("people learn better when extraneous material is excluded").
+Derived from `Informational Readiness` and `Resource Efficiency & Waste Reduction`. Grounded in Mayer's Coherence Principle ("include only essential content directly linked to learning objectives") and Redundancy Principle ("people learn better when extraneous material is excluded").
 
 **Why This Principle Matters**
 Each additional image competes for attention and consumes cognitive capacity. Research shows that redundant visuals create extraneous cognitive load that interferes with learning. The goal is maximum clarity with minimum visual noise.
@@ -514,7 +514,7 @@ In source documents, images MUST be placed immediately adjacent to the text they
 - **Structural Consistency:** Same collocation pattern throughout document.
 
 **Constitutional Basis**
-Derived from `Context Engineering` applied to document design.
+Derived from `Informational Readiness` applied to document design.
 
 **Why This Principle Matters**
 Retrieval systems chunk documents. If images are separated from their context, chunks containing images may lack the text needed to understand when to retrieve them.
@@ -541,7 +541,7 @@ Every image MUST have alt text describing what it shows AND contextual descripti
 - **Dual Purpose:** Alt text for screen readers and accessibility; context for retrieval relevance.
 
 **Constitutional Basis**
-Derived from `Bias Awareness & Fairness` and `Context Engineering`.
+Derived from `Bias Awareness & Fairness` and `Informational Readiness`.
 
 **Why This Principle Matters**
 Images without descriptions are invisible to retrieval systems and inaccessible to users with visual impairments. Descriptions bridge the semantic gap between visual content and text queries.
@@ -568,7 +568,7 @@ Images MUST have tags or metadata linking them to specific procedural steps, con
 - **Use Case Tags:** `troubleshooting`, `new-employee`, `advanced`
 
 **Constitutional Basis**
-Derived from `Context Engineering` and `Resource Efficiency & Waste Reduction` (using proven metadata patterns).
+Derived from `Informational Readiness` and `Resource Efficiency & Waste Reduction` (using proven metadata patterns).
 
 **Why This Principle Matters**
 Semantic embedding alone may not distinguish between images of similar content used for different purposes. Metadata provides explicit signals that improve retrieval precision.
@@ -661,7 +661,7 @@ When chunking multimodal documents for indexing, tables, charts, diagrams, and o
 - **Adaptive Chunk Size:** Allow larger chunks when needed to keep visual elements intact rather than enforcing rigid size limits.
 
 **Constitutional Basis**
-Domain-native principle addressing the unique chunking requirements of multimodal documents. Aligned with `Context Engineering` (maintaining contextual integrity).
+Domain-native principle addressing the unique chunking requirements of multimodal documents. Aligned with `Informational Readiness` (maintaining contextual integrity).
 
 **Why This Principle Matters**
 Standard text-based chunking splits documents at fixed token counts, frequently breaking tables mid-row or separating diagrams from captions. This destroys the semantic relationship between visual elements and their context, making retrieval unreliable. Vision-guided chunking (arxiv 2506.16035) demonstrates that preserving visual units as complete chunks significantly improves retrieval accuracy.
@@ -718,7 +718,7 @@ For complex knowledge bases where entities, relationships, and hierarchies span 
 - **Incremental Maintenance:** Update the knowledge graph incrementally as new content is added, rather than rebuilding from scratch.
 
 **Constitutional Basis**
-Domain-native principle addressing complex multimodal knowledge bases. Aligned with `Context Engineering` (maintaining relationships between content) and `Structured Output Enforcement`.
+Domain-native principle addressing complex multimodal knowledge bases. Aligned with `Informational Readiness` (maintaining relationships between content) and `Structured Output Enforcement`.
 
 **Why This Principle Matters**
 Vector similarity search finds content that looks similar to the query but cannot follow structural relationships. When a user asks about a component that spans multiple documents, diagrams, and specifications, vector search may find some relevant chunks but miss structurally related content. Knowledge graph integration (RAG-Anything) enables traversal from one piece of knowledge to related pieces across modalities, improving answer completeness for complex queries.
@@ -1420,7 +1420,10 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ## Changelog
 
-### v2.4.2 (Current)
+### v2.4.3 (Current)
+- PATCH: Constitutional rename propagation (BACKLOG #152). Updated crosswalk table, "Derived from" and "Aligned with" lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`.
+
+### v2.4.2
 - PATCH: Constitutional rename note (upstream change at constitution v6.0.0). Constitutional principle `meta-quality-effective-efficient-communication` renamed and rescoped to `meta-quality-effective-efficient-outputs` — generalized from communication-only to all AI output forms. Alias preserved (`meta-quality-effective-efficient-communication` resolves to new principle for backwards-compatible retrieval). **No crosswalk row added in this domain** per scope carve-out: existing multimodal-rag principles (Presentation, Citation, Evaluation series) already cover the joint-quality discipline for retrieval outputs; adding a parallel crosswalk row would duplicate without sharpening. Precedent for this changelog-only treatment: v1.0.1 entry below (phantom-citation correction — note that v1.0.1 was a citation fix, not a rename; this v2.4.2 IS a rename and adds an alias). Constitutional Basis: Single Source of Truth (alias mechanism preserves canonical retrieval), Visible Reasoning & Traceability (rename surfaced in version history).
 
 ### v2.4.1

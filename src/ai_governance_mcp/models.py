@@ -106,7 +106,7 @@ class Principle(BaseModel):
     """
 
     id: str = Field(
-        ..., description="Unique identifier, e.g., 'meta-core-context-engineering'"
+        ..., description="Unique identifier, e.g., 'meta-core-informational-readiness'"
     )
     domain: str = Field(
         ..., description="Domain name: 'constitution', 'ai-coding', 'multi-agent'"
