@@ -303,6 +303,21 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 ---
 
+### 10. GitHub Actions storage budget
+
+**How:** Run `gh api repos/jason21wc/ai-governance-mcp/actions/cache/usage --jq '.active_caches_size_in_bytes'` and check Actions billing via `gh api /orgs/{org}/settings/billing/actions` or the GitHub billing page. Free tier limit: 0.5 GB.
+
+**Pass:** Total cache + artifact storage < 400 MB (80% of 0.5 GB free tier). No cache entries exist (pip caching removed 2026-05-03 per `meta-core-systemic-thinking` — caching was the cause of CI blockage, not the cure).
+**Fail:** Any cache entries re-introduced without explicit budget analysis, OR artifact storage approaching limit.
+
+**Why this matters:** On the free tier (0.5 GB), a single pip cache entry (1+ GB with PyTorch) exceeds the limit and blocks all CI. Pip caching was removed structurally (session-144, 2026-05-03) because the math is unfixable at this tier — CPU-only torch alone is ~800 MB. This check catches accidental re-introduction (e.g., via Dependabot PR adding a cache step, or a new workflow with caching).
+
+| Review | Date | Result | Cache Size | Notes |
+|--------|------|--------|------------|-------|
+| 6 | TBD ~2026-05-05 | TBD | — | First review including Check 10. Pip cache removed this session; verify 0 cache entries and CI runs successfully without cache. |
+
+---
+
 ## Active Verification Items
 
 > Verification items are time-bound experiments tracking whether recently-introduced mechanisms are working. Each has success/failure criteria and an expiration date. When confirmed or refuted, items move to Retired with a disposition.
