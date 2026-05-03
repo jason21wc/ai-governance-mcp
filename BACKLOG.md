@@ -31,29 +31,6 @@
 
 ### Active (Implement Now/Soon)
 
-137. **PHASE2_TRIGGERED 7-day monitor close-out — due ~2026-05-03** `D1 Maintenance`
-
-**Filed:** 2026-04-25 (Compliance Review #5 follow-up to commit `b31eab1`).
-
-**What.** Compliance Review #5 found the `~/.context-engine/PHASE2_TRIGGERED` marker FIRED on 2026-04-25 (T1+T3+T4, cross-process total 11.5 GB vs. post-Phase-2 baseline 5.8 GB). Marker NOT cleared; under 7-day monitor through 2026-05-02. This item is the calendar-anchored close-out so the monitor decision doesn't get forgotten.
-
-**When to act:** any session on or after 2026-05-03. (User-deferred from agent-scheduling option to a BACKLOG reminder per Group 1 close conversation.)
-
-**Procedure (full context: BACKLOG #49 "Status (2026-04-25)" block + workflows/COMPLIANCE-REVIEW.md Check 6b.2 row 4):**
-
-1. Read `~/.context-engine/logs/phase0-measurements.log` — extract the 7 daily readings dated 2026-04-26 through 2026-05-02. Daily plist `com.ai-governance.context-engine-measure` runs `scripts/measure-watcher-footprint.sh` at 04:00 local.
-2. For each reading: record steady_mb, peak_mb, cross_process_total_mb, and which (if any) of T1/T2/T3/T4 fired. Thresholds: T1 = 1.5 × baseline_steady_mb (= 8700 with current 5800 baseline); T3 = 7500; T4 = 8192. Baseline file: `~/.context-engine/logs/phase0-baseline.txt`.
-3. Check `test -f ~/.context-engine/PHASE2_TRIGGERED` — present (still firing) or cleared (re-fired and re-fired-clear, or someone cleared manually).
-4. Decision tree:
-   - **(a) T1 stayed clear ≥6/7 days AND 2026-04-25 was the only fire** → workload variance confirmed. `rm ~/.context-engine/PHASE2_TRIGGERED` + append "Status (2026-05-03) — 7-day monitor CLEAR, marker cleared, workload-variance confirmed" block to BACKLOG #49 + append closeout row to COMPLIANCE-REVIEW.md Check 6b.2 (flag whether this is a Review #6 row or a Review #5 close-out row — Review #6 cadence is independently due ~2026-05-05–05-10).
-   - **(b) T1 fired again on any day in window** → do NOT clear marker. Escalate to cause (c) regression investigation per #49 action plan: per-process torch-loading audit (`lsof -p <pid> | grep -i torch` for each context-engine/governance pid), schedule contrarian-reviewed design spike for shared embedding service v2.
-   - **(c) T2 or T3 or T4 fired but T1 did not** → ambiguous; surface to user with measurements for direction.
-5. Close this BACKLOG entry once the close-out commit ships. (`git log --grep="backlog #137"` is the archive per "no closed items" rule.)
-
-**Done when:** marker decision recorded in BACKLOG #49 + COMPLIANCE-REVIEW.md, this entry removed.
-
-**Why D1 Maintenance:** Single-file decision with read-and-decide pattern, well-defined procedure, no plan mode required.
-
 ---
 
 119. **Revised-plan-after-rejection heuristic — contrarian can be "stale" for revised plan** `D3 Improvement`
@@ -383,7 +360,7 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 1. **Projects** — discrete tasks with start and end (close on completion). Examples: #53 Modular Domain Architecture, #22 Governance Effectiveness Measurement, #6 Visual Communication Domain, closed-and-archived items (#100, #144 etc.).
 2. **Tripwires** — conditional re-evaluations; watch indefinitely; close on event-trigger OR accepted-residual decision. Examples: #134 PR-workflow infrastructure, #143 OOM-gate quoted-region FP (refiled session-139), #145 citation-form check hardening, #119 revised-plan contrarian heuristic, #112 Q7 retroactive audit, #113 plan-stage battery effectiveness, #110/#111 post-edit / R-01 retrospective items, #108 strict_domain_check Phase 2, #107 Tool/Model Appendix index, #106 Implements: backfill, #58/#59/#60 UBDA review items, #41/#43/#44/#45/#46 reference library improvements. ~15 entries by current count.
-3. **Cadences/calendar items** — recurring on schedule (never "done") OR one-shot calendar-anchored. Examples: #78 Compliance Review (10-15 day cadence), #109 deferred-cadence audit (~30 day cadence), #137 PHASE2 monitor close-out (one-shot, due ~2026-05-03). ~3 entries by current count.
+3. **Cadences/calendar items** — recurring on schedule (never "done") OR one-shot calendar-anchored. Examples: #78 Compliance Review (10-15 day cadence), #109 deferred-cadence audit (~30 day cadence). ~2 entries by current count.
 
 **User's structural observation (verbatim):** *"Backlog should be discrete (like projects) tasks that have a start and an end. If we need warnings or continuous monitoring to make sure things work, we need a proper location for that."*
 
@@ -683,6 +660,24 @@ Today's spike is 1.5× the prior week peak (cross-process total). **Snapshot tak
 - (a) **Monitor next 7 daily measurements** (2026-04-26 through 2026-05-02). If T1 stays clear (steady_mb < 8700) on ≥6/7 days, **clear marker as workload-variance confirmed** + record outcome here.
 - (b) **If T1 re-fires within 7 days**, escalate to cause (3) regression investigation: run `ps aux | grep -iE '(governance|context-engine|embedding)'` at the moment of fire (cron-augment the measurement script) + per-process torch-loading audit via `lsof -p <pid> | grep -i torch` to confirm whether any process is loading torch outside the embedding daemon. Schedule contrarian-reviewed design spike if regression confirmed.
 - (c) **Original spike option preserved**: if (3) confirmed, schedule shared embedding service v2 OR direct optimum + tokenizers rewrite per the original Status (2026-04-15) deferred spike.
+
+**Status (2026-05-02) — 7-day monitor CLEAR, marker cleared, workload-variance confirmed:**
+
+7-day monitor window (2026-04-26 through 2026-05-02) completed per BACKLOG #137 close-out procedure. T1 (primary steady-state regression indicator, threshold 8700 MB) fired **0 of 7 days** — clean the entire window. T3/T4 fired on 2 of 7 days (path (c) in decision tree — ambiguous case surfaced to user per procedure):
+
+| Date | steady (MB) | peak (MB) | total (MB) | Triggers |
+|------|-------------|-----------|------------|----------|
+| 2026-04-26 | 4812 | 5632 | 8416 | T4 |
+| 2026-04-27 | 3686 | 4505 | 4340 | clean |
+| 2026-04-28 | 8192 | 9113 | 10203 | T3+T4 |
+| 2026-04-29 | 1536 | 1536 | 3552 | clean |
+| 2026-04-30 | 1536 | 2150 | 3463 | clean |
+| 2026-05-01 | 154 | 154 | 1490 | clean |
+| 2026-05-02 | 148 | 148 | 2179 | clean |
+
+Pattern: episodic spikes correlating with heavy concurrent sessions (multiple Claude Code + Desktop instances), followed by 4 consecutive clean days with final 2 near-idle (148-154 MB steady). The 04-28 spike (steady=8192, peak=9113, total=10203) matches the same workload-variance profile as the original 04-25 fire — high concurrent usage at measurement time, not a leak or architectural regression. T1 clean across entire window confirms steady-state memory is within post-Phase-2 equilibrium.
+
+**Decision:** User reviewed measurements and confirmed workload-variance hypothesis. `~/.context-engine/PHASE2_TRIGGERED` marker cleared 2026-05-02. Ongoing daily measurement plist continues — marker will re-fire automatically if thresholds are exceeded again. Per BACKLOG #137 close-out procedure, COMPLIANCE-REVIEW.md Check 6b.2 row 5 recorded. Governance: `gov-912600878510`.
 
 **Status (2026-04-16) — Phase 2 COMPLETE, verified in session-108:**
 
