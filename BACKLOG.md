@@ -51,7 +51,7 @@
 
 **Origin:** Session-122 post-commit contrarian review (`ac0e663f80114248d`) HIGH finding. Documented risk for future reviewers.
 
-78. **Governance Compliance Review — ongoing, next review due ~2026-04-27** `D1 Maintenance` (every 10-15 calendar days). Reviews #1 (2026-04-13), #2 (2026-04-14), and #3 (2026-04-17) complete. See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
+78. **Governance Compliance Review — ongoing, next review due ~2026-05-13** `D1 Maintenance` (every 10-15 calendar days). Reviews #1-6 complete (most recent: 2026-05-03). See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
 
 113. **Plan-stage pre-edit battery effectiveness pattern — "4-of-4 catches suggest first-draft plans are systematically under-rigored"** `D2 Discussion`
 
@@ -798,45 +798,6 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 **Architecture:** Python FastMCP → AppleScript bridge → Apple Mail.app. Local only, no credentials stored, audit logging included.
 
 **When discussed:** Run governance evaluation, consider whether #35 + #79 + #10 indicate a "Tool Integration Governance" appendix or domain pattern. Security-auditor review of the AppleScript bridge.
-
----
-
-#### 34. Epistemic Integrity — Constitutional Principle (Discussion) `D1 Improvement`
-
-**What:** Proposed new Q-Series constitutional principle addressing AI sycophancy — the tendency to validate flawed assumptions, reinforce suboptimal approaches, or present outputs with unearned confidence. Core requirement: analytical accuracy over conversational agreeability.
-
-**Origin:** Independent research via Claude app (no anchor bias from existing framework). Reviewed against Part 9.8 Admission Test — passes all 7 questions (v3.27.0+). Contrarian review and coherence audit completed (see draft below).
-
-**The gap:** Three existing principles touch adjacent territory but none address the core failure mode:
-- **Transparent Limitations (S-Series):** Covers "I don't know" — NOT "I agree but shouldn't"
-- **Discovery Before Commitment (C-Series):** Covers AI's own investigation process — NOT AI's evaluative posture toward human claims
-- **Visible Reasoning & Traceability (Q-Series):** Covers making reasoning auditable — NOT whether reasoning prioritizes accuracy over agreeability
-
-**Key question to resolve: consolidation vs addition.** If this becomes a principle, does it REPLACE or ABSORB aspects of the three above? Per Single Source of Truth, if Epistemic Integrity subsumes the "epistemic honesty" aspect of Transparent Limitations, the "challenge the frame" aspect of Discovery Before Commitment, and the "self-scrutiny" aspect of Visible Reasoning — should those principles be narrowed to avoid redundancy? The goal is one authoritative home for each concept, not three principles each partially covering honesty.
-
-**Possible outcomes:**
-1. **New principle + narrow the three** — Epistemic Integrity becomes the single source for intellectual honesty; TL, DBC, VR&T retain their non-overlapping scopes
-2. **Expand one existing principle** — e.g., expand Visible Reasoning to include "quality of reasoning, not just visibility of reasoning"
-3. **Method only** — Create the Performance Assessment Protocol method under an existing principle without a new constitutional addition
-4. **Close** — Existing principles + contrarian-reviewer subagent already cover this adequately
-
-**Draft principle:** Full draft available (reviewed by contrarian + coherence auditor). Key components:
-- Challenge Before Confirm (earned agreement, not default agreement)
-- Self-Scrutiny Before Delivery (apply same standard to own outputs)
-- Evidence-Grounded Assessment (benchmarks over pleasantries)
-- Constructive Alternatives Over Rejection (better outcomes, not intellectual sparring)
-- Proportional Scrutiny (calibrate pushback to stakes)
-
-**Revisions needed before implementation (from review):**
-1. Soften "at least one material risk" threshold → "demonstrated consideration of alternatives" (avoid checkbox behavior)
-2. Add Intent Preservation boundary: challenges target methods/assumptions, not the human's underlying goals
-3. Verify Q-series numbering (Q8?) against current count
-
-**Related:** Would also create `meta-method-performance-assessment-protocol` (behavioral rules for honest feedback) and add `constitutional_basis` to contrarian-reviewer subagent definition.
-
-**Note (from #9P3 closure, 2026-04-02):** #9P3 closed — the "reasoning quality vs reasoning visibility" concept is now tracked here. Visible Reasoning (Q-Series) covers *visibility* of reasoning; this item covers *quality/soundness* of reasoning. If #34 is closed without shipping, the soundness gap needs re-evaluation.
-
-**Disposition (2026-04-19, session-116 Cohort 3 close):** Parent swift-hopping-corbato plan bound F-P2-09 (Risk/Non-Mal redundancy) AND F-P2-13 (Relations gap) both to #34 as their Epistemic-Integrity-adjacent pre-registered tracking. Both resolved via Path B routes that preserved existing principle structure without adding Epistemic Integrity: F-P2-09 via Cohort 2 de-duplicate-in-place (v5.0.0); F-P2-13 via Cohort 3 documentation-only (Preamble-purpose-is-distributed-not-concentrated). See PROJECT-MEMORY "Preamble Purpose Coverage Is Distributed, Not Concentrated" (2026-04-19) + "Path B Over Path A for Risk Mit ↔ Non-Mal" (2026-04-19). Neither cohort produced a gap the existing content doesn't cover; no Epistemic Integrity principle needed. **#34 closed as resolved-in-place.** If a future review surfaces sycophancy/honesty gaps with fresh evidence, can be re-opened as a new entry (not re-open this one).
 
 ---
 
