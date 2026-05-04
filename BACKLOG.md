@@ -416,9 +416,11 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 **Trigger.** Next hook addition (would be the 7th hook with a bypass) OR Compliance Review #5 / #6 finding evidence of silent bypass.
 
+**Trigger fired:** 2026-05-03 (session-140). `pre-tool-content-security.sh` shipped with `CONTENT_SECURITY_SKIP=1` bypass — 7th hook, 7th bypass envvar. This item is now eligible for implementation.
+
 **Origin:** Session-127 push-workflow plan security review. Audit ID: `a44b7638cf3d43b52` (security-auditor B2 BLOCKER for the original 6-component proposal; downgraded to BACKLOG when the plan scope was reduced). Governance: `gov-7083d6c85ffc`.
 
-**Done when.** All 6 bypasses use shared helper + canonical log entries + V-series item active in COMPLIANCE-REVIEW.md.
+**Done when.** All 7 bypasses use shared helper + canonical log entries + V-series item active in COMPLIANCE-REVIEW.md.
 
 ---
 
@@ -676,11 +678,27 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 - ONNX investigation artifact: `staging/onnx-backend-attempt-2026-04-15.{patch,md}`
 - Incident entry: `LEARNING-LOG.md` — "Full-Suite pytest + Stale Watcher Daemon = macOS OOM (2026-04-15)"
 
-#### 19. Rampart Integration — Client-Side Enforcement (Discussion) `D1 New Capability`
+#### 19. Content-Level Security Enforcement — partial-close + Rampart tripwire `D2 Improvement`
 
-**What:** Rampart provides shell-level security enforcement (credential theft, exfiltration, destructive commands). Complements MCP proxy and hooks — different root cause. Hooks enforce "did you consult governance?" (process gate); Rampart enforces "is this command safe?" (security gate). Defense-in-depth.
+**Shipped (2026-05-03, session-143).** Two-layer credential-access gate:
+- **Layer 1 (Read deny rules):** Already present in user-level `~/.claude/settings.json` — blocks `Read(~/.ssh/**)`, `Read(~/.aws/credentials)`, `Read(~/.gnupg/**)`, `Read(~/.netrc)`, `Read(**/.env)`, `Read(**/.env.*)`, `Read(~/.docker/config.json)`, `Read(~/.kube/config)`, `Read(~/.npmrc)`.
+- **Layer 2 (Custom hook):** `.claude/hooks/pre-tool-content-security.sh` — blocks Bash commands accessing the same credential paths (cat, head, cp, scp, curl, base64, etc.) plus bare directory references (tar ~/.ssh, ls ~/.aws). 44 tests in `tests/test_content_security_hook.py`. Positioned after governance hooks in PreToolUse array.
 
-**Discussion needed:** Evaluate whether the incremental security value justifies the setup for a single-developer Claude Code project. Research current Rampart capabilities and rule set.
+**Gap addressed:** Claude Code can read files outside the project directory without prompting. `~/.ssh/id_rsa` and `~/.aws/credentials` were accessible via both the Read tool and Bash commands. Layer 1 + Layer 2 close both paths.
+
+**Known limitation:** Path traversal bypass (e.g., `cat /tmp/../../home/user/.ssh/id_rsa`) evades string-matching. Fixing requires path canonicalization (realpath), significant scope expansion. Acceptable for defense-in-depth: the threat model is naive AI access, not adversarial evasion of its own hooks.
+
+**Not shipped (deferred to Rampart tripwire):** Path canonicalization, network exfiltration filtering, output secret scanning, comprehensive OWASP coverage. Contrarian review (`a3c863d49f04b447d`, REVISIT verdict) correctly identified full Rampart integration as disproportionate to current attack surface (zero credential files in repo, zero outbound network calls, public code, single developer).
+
+**Rampart tripwire — reopen when ANY fires:**
+1. Project adds credential files (`.env`, API keys, service accounts)
+2. External contributors appear (≥1 external issue/PR)
+3. Rampart reaches 1.0 with broader adoption (500+ stars, multiple contributing orgs)
+4. A credential leak occurs that Layer 1+2 would not have caught
+
+**Rampart landscape (as of 2026-05-03):** github.com/peg/rampart v0.9.22, Apache 2.0, Go binary, 67 stars, 777 commits. Native Claude Code PreToolUse integration. Alternatives: Microsoft Agent Governance Toolkit (OWASP-complete), Meta LlamaFirewall (guardrail framework).
+
+**Origin:** Session-48 (2026-04-04) original filing. Session-143 (2026-05-03) research + contrarian review + proportional implementation. Plan: `~/.claude/plans/review-with-subagents-to-sorted-bear.md`. Governance: `gov-20465bfec14a`.
 
 #### 10. UI/UX Tool-Specific Integration Guides (Discussion) `D1 New Capability`
 

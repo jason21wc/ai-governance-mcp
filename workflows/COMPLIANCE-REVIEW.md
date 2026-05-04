@@ -20,12 +20,13 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 
 ### 1. Hook integrity
 
-**How:** Verify 5 hook files exist in `.claude/hooks/` and none are disabled in `settings.json` or `settings.local.json`.
+**How:** Verify 7 hook files exist in `.claude/hooks/` and none are disabled in `settings.json` or `settings.local.json`.
 
 **Expected hooks:**
 - `pre-tool-governance-check.sh` (PreToolUse — governance + CE enforcement)
 - `pre-push-quality-gate.sh` (PreToolUse — 4 pre-push checks)
 - `pre-test-oom-gate.sh` (PreToolUse — pytest OOM prevention, session-105)
+- `pre-tool-content-security.sh` (PreToolUse — credential path gate, session-140, BACKLOG #19)
 - `pre-exit-plan-mode-gate.sh` (PreToolUse — contrarian-reviewer enforcement before ExitPlanMode, session-122)
 - `post-push-ci-check.sh` (PostToolUse — CI monitoring)
 - `user-prompt-governance-inject.sh` (UserPromptSubmit — conditional governance reminder)
@@ -34,7 +35,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 - `ruff-format` + `ruff` (style)
 - `regen-test-failure-mode-map` (session-123, BACKLOG #123 — derived-map freshness gate)
 
-**Pass:** All 6 Claude Code hooks present and not disabled; pre-commit hooks configured.
+**Pass:** All 7 Claude Code hooks present and not disabled; pre-commit hooks configured.
 **Fail:** Any hook missing or disabled — investigate immediately.
 
 | Review | Date | Result | Notes |
@@ -45,7 +46,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | 4 | 2026-04-22 | PASS | All 5 hooks present (unchanged from Review #3; session-121 amended pre-test-oom-gate internals but file remains) |
 | — | 2026-04-23 | +1 | Session-122 shipped `pre-exit-plan-mode-gate.sh` (BACKLOG #116 / V-004); session-123 shipped `regen-test-failure-mode-map` pre-commit hook (BACKLOG #123). Hook inventory now 6 Claude Code + pre-commit local hook. Next compliance review verifies all present. |
 | 5 | 2026-04-25 | PASS | All 6 Claude Code hooks present (pre-tool-governance-check, pre-push-quality-gate, pre-test-oom-gate, pre-exit-plan-mode-gate, post-push-ci-check, user-prompt-governance-inject) + scan_transcript.py helper. Pre-commit hooks: ruff-format, ruff, regen-test-failure-mode-map. Inventory unchanged from Review #4 plus session-122/123 additions. |
-| 6 | 2026-05-03 | PASS | All 6 Claude Code hooks present + scan_transcript.py helper. Pre-commit hooks: ruff-format, ruff, regen-test-failure-mode-map, citation-form-check (NEW — added session-138, BACKLOG #144). No hooks disabled in settings.json. |
+| 6 | 2026-05-03 | PASS | All 7 Claude Code hooks present (pre-tool-content-security.sh NEW — session-140, BACKLOG #19) + scan_transcript.py helper. Pre-commit hooks: ruff-format, ruff, regen-test-failure-mode-map, citation-form-check. No hooks disabled in settings.json. |
 
 ---
 
@@ -53,10 +54,10 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 
 **How:** Verify governance hooks are running in hard mode (deny-by-default), not degraded to advisory via environment variables.
 
-**Check:** `echo $GOVERNANCE_SOFT_MODE $CE_SOFT_MODE $QUALITY_GATE_SKIP` — all should be empty or `false`.
+**Check:** `echo $GOVERNANCE_SOFT_MODE $CE_SOFT_MODE $QUALITY_GATE_SKIP $CONTENT_SECURITY_SKIP` — all should be empty or `false`.
 
 **Pass:** No soft-mode or skip variables set.
-**Fail:** Any variable is `true` — investigate why and unset unless there's a documented reason.
+**Fail:** Any variable is `true`/`1` — investigate why and unset unless there's a documented reason.
 
 | Review | Date | Result | Notes |
 |--------|------|--------|-------|
@@ -65,7 +66,7 @@ Per `meta-governance-continuous-learning-adaptation` and NIST AI RMF GOVERN 1.5:
 | 3 | 2026-04-17 | PASS | GOVERNANCE_SOFT_MODE, CE_SOFT_MODE, QUALITY_GATE_SKIP all empty |
 | 4 | 2026-04-22 | PASS | All three vars empty |
 | 5 | 2026-04-25 | PASS | GOVERNANCE_SOFT_MODE, CE_SOFT_MODE, QUALITY_GATE_SKIP all empty |
-| 6 | 2026-05-03 | PASS | All three vars empty |
+| 6 | 2026-05-03 | PASS | All four vars empty (GOVERNANCE_SOFT_MODE, CE_SOFT_MODE, QUALITY_GATE_SKIP, CONTENT_SECURITY_SKIP) |
 
 ---
 
