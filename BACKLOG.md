@@ -144,23 +144,22 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 148. Execution Framework — operationalization (Phases 1-3 complete, Phase 4 pending) `D3 Improvement`
+#### 148. ~~Execution Framework — operationalization~~ CLOSED `D3 Improvement`
 
-**Filed:** 2026-04-29 (session-139). **Advanced:** 2026-05-03 (session-145, plan execution).
+**Filed:** 2026-04-29 (session-139). **Closed:** 2026-05-03 (session-145). All 4 phases complete.
 
-**What.** Operationalize the Execution Framework: create skills infrastructure, operational home for recurring items, restructure working document into permanent blueprint, configure scheduling/automation. 4-phase D3 plan: Empirical Instantiation → Foundation → Blueprint → Automation.
+**What was delivered:**
+- **Phase 1:** First skill (`.claude/skills/compliance-review/SKILL.md`), 8-bucket model empirically validated (§2.3), decision matrix (§3.7).
+- **Phase 2:** `OPERATIONS.md` (7th memory type), 2 cadences + 12 tripwires + V-series migrated, 5 effectiveness metrics (M-001–M-005), context retention policy (§7).
+- **Phase 3:** `EXECUTION-FRAMEWORK.md` restructured chronological→thematic (v1.0.0). §6 Memory Interface Contracts added. Coherence-auditor PASS (4/4).
+- **Phase 4:** Scheduling mechanism assessment (CronCreate session-local, cloud routines remote), 3 scheduled operations defined (SO-001–SO-003), session-end automation deferred (no on-session-end hook), gap analysis updated.
 
-**Primary content lives in `EXECUTION-FRAMEWORK.md` at repo root.** Restructured 2026-05-03 from chronological brainstorm (§1-§16) to thematic blueprint (§1-§15): root view, component view, architecture analogies, system map, interface assessment, memory interface contracts, context retention policy, portability model, gap analysis, decision log, open questions, design history, references, version history. Coherence-auditor PASS on nuance preservation (4/4 criteria).
+**Remaining open items** (not blockers — tracked elsewhere):
+- Storage location decision: EXECUTION-FRAMEWORK.md §11 item 1.
+- Full scheduling automation: blocked by mechanism constraints (§7.2), tracked in OPERATIONS.md SO-001–SO-003.
+- OPERATIONS.md documentation quality: BACKLOG #154.
 
-**Phase status:**
-- **Phase 1 (Empirical Instantiation):** COMPLETE. First skill (`.claude/skills/compliance-review/SKILL.md`) created. 8-bucket model empirically validated (§2.3). Decision matrix documented (§3.7).
-- **Phase 2 (Foundation):** COMPLETE. `OPERATIONS.md` created (7th memory type). 2 cadences, 12 tripwires, V-series registry migrated from BACKLOG. 5 effectiveness metrics defined (M-001–M-005). Context retention priority policy added (§7). BACKLOG philosophy block updated.
-- **Phase 3 (Blueprint):** COMPLETE. `EXECUTION-FRAMEWORK.md` restructured to thematic. Memory interface contracts added (§6). Coherence-auditor verified.
-- **Phase 4 (Automation):** PENDING. Assess `/schedule` capabilities, define scheduled operations, configure at least one, session-end approach, gap analysis update.
-
-**Done when.** Phase 4 tasks complete: scheduled operations defined in OPERATIONS.md, at least one configured, gap analysis updated.
-
-**Origin.** Session-139 (2026-04-29) external article. Session-140 (2026-04-30) computer-architecture metaphor + v0.1-draft. Session-145 (2026-05-03) plan execution Phases 1-3. Governance: `gov-1ce1278cc85e`, `gov-a2d2b84d5b99`, `gov-5ba8aa3ff93b`, `gov-266235bbac6e`, `gov-9452d3f7e513`, `gov-4282d90a079e`. See `EXECUTION-FRAMEWORK.md` §12 for full design history.
+**Origin.** Sessions 139–145. Governance: `gov-1ce1278cc85e`, `gov-a2d2b84d5b99`, `gov-5ba8aa3ff93b`, `gov-266235bbac6e`, `gov-9452d3f7e513`, `gov-4282d90a079e`, `gov-96960cffeec6`. See `EXECUTION-FRAMEWORK.md` §12 for design history.
 
 ---
 

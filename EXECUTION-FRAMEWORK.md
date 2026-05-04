@@ -555,7 +555,18 @@ When the host (Claude Code) compresses prior messages to stay within context lim
 - **SESSION-STATE pruning (§7.0.4):** Manual distillation when file exceeds 300 lines. Route decisions to PROJECT-MEMORY (P1), lessons to LEARNING-LOG (P1), remove old summaries (P3→P4).
 - **Memory-file routing:** CLAUDE.md session lifecycle directs which files to load at session start (P0-P1) vs. consult on demand (P2-P3).
 
-**What this policy does NOT do:** It does not control Claude Code's internal compaction algorithm (that's host-level, not user-configurable). It provides a shared vocabulary for prioritization decisions when humans or AI agents prune memory files, and a reference for future automation (Phase 4 session-end skill).
+**What this policy does NOT do:** It does not control Claude Code's internal compaction algorithm (that's host-level, not user-configurable). It provides a shared vocabulary for prioritization decisions when humans or AI agents prune memory files, and a reference for future automation when session-end hooks become available.
+
+### 7.2 Session-end automation assessment (Phase 4 finding)
+
+**The hard problem:** Claude Code has no `on-session-end` hook event. Session-end detection cannot be automated — neither CronCreate (fires on idle, not on exit) nor cloud routines (remote, periodic) can observe that a local session is ending.
+
+**Current compensating controls:**
+1. **Session-start pruning** (CLAUDE.md § Session Lifecycle): catches what the prior session missed by pruning stale SESSION-STATE content on next load.
+2. **Session Closer Protocol** (`multi-method-session-closer-protocol`): defines what the operator should request at session end — manually invoked.
+3. **Context retention priorities** (§7.1): define what to preserve, providing a rubric for both manual updates and future automation.
+
+**When this changes:** If Claude Code adds an `on-session-end` hook event (analogous to `PreToolUse`/`PostToolUse`), configure it to trigger automatic SESSION-STATE.md update. Until then, the session-start compensating control is adequate — the cost of one stale session summary is low, and the pruning protocol recovers it. See OPERATIONS.md SO-003 for operational tracking.
 
 ---
 
@@ -656,8 +667,8 @@ The answer may not be "one method in rules-of-procedure" but "principles where p
 |---|---|---|---|
 | **Stateful firewall** | Deep inspection, threat patterns, I/O sanitization | Hooks = basic packet filtering. Rampart = stateful firewall. | Tripwired (OPERATIONS.md T-019). Deferred upgrade, not missing link. |
 | **Resource monitor / power management** | Tracks resource consumption, provides telemetry | No token/API/context utilization tracking. OOM gate prevents catastrophe but no normal-operation observability. | **Genuine gap.** BACKLOG #58 adjacent but scoped to re-injection, not telemetry. |
-| **Scheduler / clock** | Automated time-based operations | Cadences now tracked in OPERATIONS.md. Host `/schedule` and `/loop` exist but framework doesn't own. | **Partial gap.** Phase 4 addresses scheduling. |
-| **Virtual memory manager** | Page replacement policy, eviction priority | Host handles compaction; no framework say in eviction. Context retention policy defined (§7). SESSION-STATE pruning is manual. | **Partially addressed** by §7. Full automation deferred. |
+| **Scheduler / clock** | Automated time-based operations | Cadences tracked in OPERATIONS.md. 3 scheduled operations defined (SO-001–SO-003). CronCreate demonstrated but session-only (7-day expiry). Cloud routines available but lack local MCP access. | **Partially closed (Phase 4, 2026-05-03).** Operations defined; full automation blocked by mechanism constraints (§7.2). |
+| **Virtual memory manager** | Page replacement policy, eviction priority | Host handles compaction; no framework say in eviction. Context retention policy defined (§7.1). Session-end automation assessed (§7.2) — deferred pending on-session-end hook. | **Partially addressed** by §7. Full automation deferred. |
 | **Diagnostic / debug port** | Real-time decision debugging | governance_audit.jsonl is post-hoc. No step-through of governance decisions. | **Minor gap.** Current audit trail adequate for most use. |
 | **Application programs** | User-invocable software | First skill shipped: `compliance-review`. `.claude/skills/` created. | **Closed (Phase 1, 2026-05-03).** Decision matrix documented in §3.7. |
 
@@ -693,6 +704,8 @@ All decisions reached across the Execution Framework arc. A reader can scan this
 | **OS kernel coupling is by design** — constitution + RoP tight integration is architectural coherence, not a defect | Confirmed (2026-05-03) |
 | **Complete analogy-to-project map** — see §4 | Adopted (2026-05-03) |
 | **Document transformation:** this file restructured from chronological brainstorm to permanent thematic blueprint | Completed (2026-05-03, session-145) |
+| **Scheduling mechanism assessment:** CronCreate is session-local (7-day expiry); cloud routines lack local MCP access. Neither fully automates 10+ day cadences. | Assessed (2026-05-03, session-145). Documented in §7.2 and OPERATIONS.md SO-001–SO-003. |
+| **Session-end automation deferred** — no on-session-end hook exists. Session-start pruning is the compensating control. | Deferred (2026-05-03). See §7.2. |
 
 ---
 
@@ -1073,3 +1086,4 @@ Use the article as **evidence catalog and pattern source**, not as authoritative
 | 2026-04-30 | v0.1 | Computer metaphor adopted. 8-bucket model v0.1-draft. 3 contrarian rounds. | 140 |
 | 2026-05-03 | v0.2 | Fresh-eyes analysis. Interface boundaries insight. 4-function root. Complete system map. Gap analysis. | 145 |
 | 2026-05-03 | v1.0.0 | Restructured from chronological brainstorm to permanent thematic blueprint. Added §6 Memory Interface Contracts, §7 Context Retention Policy. All content preserved; format transformation only. | 145 |
+| 2026-05-03 | v1.1.0 | Phase 4: Added §7.2 session-end automation assessment. Updated §9 gap analysis (Scheduler partially closed, VM manager updated). Decision log entries for scheduling constraints. | 145 |

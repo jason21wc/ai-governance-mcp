@@ -224,9 +224,40 @@
 
 ## Scheduled Operations
 
-> Automated or semi-automated tasks on defined cadences. Mechanism: Claude Code `/schedule` (cron-based remote agents), `/loop` (recurring prompts), or hook-triggered.
+> Automated or semi-automated tasks on defined cadences. Three available mechanisms, each with constraints:
+>
+> | Mechanism | Where it runs | MCP access | Hooks | Lifetime | Best for |
+> |-----------|--------------|------------|-------|----------|----------|
+> | **CronCreate** (session-local) | Current REPL, fires when idle | Yes (local servers) | Yes | 7-day auto-expiry (recurring) | Within-session reminders, periodic checks during active work |
+> | **Cloud routines** (claude.ai/code/routines) | Remote clone from GitHub | Connected connectors only | No | Persistent | Repo-only tasks not needing local MCP |
+> | **Hooks** (`.claude/settings.json`) | Local, on tool invocation | No (pre/post tool) | N/A | Permanent | Enforcement gates, pre-commit checks |
+>
+> **Current constraint:** This project's governance and context-engine MCP servers are local processes. Cloud routines cannot call them. CronCreate can, but expires after 7 days. Consequence: cadences longer than 7 days (C-078 at 10-15 days, C-109 at 30 days) cannot be fully automated with current mechanisms. The session-start protocol in CLAUDE.md is the primary enforcement point.
 
-*(Operations defined in Phase 4.)*
+### SO-001. Compliance review staleness check
+
+**Mechanism:** Session-start protocol (CLAUDE.md § Session Lifecycle) + `/compliance-review` skill.
+**Cadence:** Every 10-15 calendar days (per C-078).
+**Current trigger:** Manual — operator says "run compliance review" or invokes `/compliance-review`.
+**Automation status:** Semi-automated. The compliance-review skill (`.claude/skills/compliance-review/SKILL.md`) automates execution once invoked. Full automation blocked by: (a) local MCP server dependency prevents cloud routines, (b) 7-day CronCreate expiry is shorter than the 10-day cadence. The skill's staleness check (`git log --since` injection) surfaces overdue reviews when invoked.
+**Demonstrated:** CronCreate job configured (daily 09:23, staleness check via `git log --grep`). Confirmed session-only — `durable: true` parameter not honored. Job expires with session or after 7 days. Demonstrates the mechanism but does not replace manual invocation for the 10-15 day cadence.
+**Proposed improvement:** When CronCreate gains persistence beyond 7 days OR cloud routines gain local MCP forwarding, configure automated invocation.
+
+### SO-002. Deferred-cadence audit reminder
+
+**Mechanism:** Session-start protocol + C-109 inline audit log.
+**Cadence:** ~30 calendar days (per C-109).
+**Current trigger:** Manual — during session-start review of OPERATIONS.md, operator checks C-109 "Next audit due" date.
+**Automation status:** Manual. 30-day cadence far exceeds CronCreate's 7-day expiry. Cloud routines could run the audit (grep-based, no MCP dependency) but would need push access to update the inline audit log.
+**Proposed improvement:** File as cloud routine candidate when the project has a GitHub remote with push access configured for routines.
+
+### SO-003. Session-end memory update
+
+**Mechanism:** Session Closer Protocol (`multi-method-session-closer-protocol`).
+**Cadence:** Every session.
+**Current trigger:** Manual — operator says "update session state" or session naturally ends.
+**Automation status:** Manual. Session-end detection is the hard problem — Claude Code has no "on-exit" hook. CronCreate could set a periodic reminder during active sessions, but the operator must still initiate the update. The `/loop` mechanism with `<<autonomous-loop-dynamic>>` could theoretically poll for idle-then-close, but this is fragile and not recommended.
+**Proposed improvement:** If Claude Code adds an `on-session-end` hook event, configure automatic SESSION-STATE.md update. Until then, the session-start pruning protocol (CLAUDE.md § Session Lifecycle) is the compensating control — it catches what the prior session missed.
 
 ---
 
@@ -235,3 +266,4 @@
 | Date | Change | Session |
 |------|--------|---------|
 | 2026-05-03 | Created. Scaffold with 5 sections. Cadences, tripwires, V-series migrated from BACKLOG.md. | 145 |
+| 2026-05-03 | Scheduled Operations populated (SO-001–SO-003). Mechanism constraint table added. | 145 |
