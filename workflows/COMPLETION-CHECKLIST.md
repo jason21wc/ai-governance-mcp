@@ -290,7 +290,7 @@ PR (Option B) is available **on-demand** when the maintainer wants:
 - Diff-visibility surface for adopter-facing changes once external reviewers exist
 - A documented review trail for security-critical or schema/migration work
 
-PR is NOT required for any class of changes in solo mode. Trigger to revisit: ≥3 external watchers OR ≥1 external issue/PR (see BACKLOG #134).
+PR is NOT required for any class of changes in solo mode. Trigger to revisit: ≥3 external watchers OR ≥1 external issue/PR (see OPERATIONS.md T-134).
 
 **Push policy (amended 2026-04-26 per BACKLOG #140):** AI may push **to main** on **explicit user authorization** subject to the pre-push quality gate hook (`pre-push-quality-gate.sh`). The hook is the structural safety — it blocks force-push, requires tests/reviews/checklist for risky/governance changes, requires explicit acknowledgment for multi-commit pushes, and runs a high-precision diff secret-scan (AWS / OpenAI / Anthropic / GitHub keys, JWT, PEM private keys). Defense-in-depth via GitHub branch protection + CI status checks. **Allow-rule scope is trunk-only:** non-main branch pushes (Options B and D feature-branch workflows) prompt for confirmation per the repo's solo-mode-trunk-default. User-mediated `! git push origin main` remains available as fallback when AI is conservative or hook would block legitimate work.
 

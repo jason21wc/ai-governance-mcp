@@ -9,7 +9,13 @@
 
 ### Open Backlog
 
-> **Backlog Philosophy (2026-03-30, updated 2026-04-15):** Items fall into two categories: (1) **Active** — fix now or implement soon, (2) **Deferred/Future — Discussion** — needs fleshing out before deciding to implement or drop. New user-requested items default to Discussion unless they emerge from implementation (e.g., template fixes discovered during audit). Existing shipped work with known issues gets fixed now — don't defer fixes to "next time we touch it."
+> **Backlog Philosophy (2026-03-30, updated 2026-05-03):** This file holds **discrete projects** — work with a start and an end. Items fall into two categories: (1) **Active** — fix now or implement soon, (2) **Deferred/Future — Discussion** — needs fleshing out before deciding to implement or drop. New user-requested items default to Discussion unless they emerge from implementation (e.g., template fixes discovered during audit). Existing shipped work with known issues gets fixed now — don't defer fixes to "next time we touch it."
+>
+> **Taxonomy (2026-05-03).** The project maintains two files for forward-looking work, distinguished by lifecycle:
+> - **BACKLOG.md (this file)** — **Projects.** Discrete tasks with start and end. Close on completion or abandonment. Git history is the archive.
+> - **OPERATIONS.md** — **Operational items.** Indefinite-lifecycle recurring commitments: cadences (periodic reviews), tripwires (conditional re-evaluations), verification experiments (time-bound hypothesis tests), effectiveness metrics (system health indicators), scheduled operations (automated tasks). These are never "done" — their recurrence is the point.
+>
+> When a tripwire fires and creates discrete work, that work comes here as a project. When a project reveals a need for ongoing monitoring, the monitoring item goes to OPERATIONS.md. Items with "Moved to OPERATIONS.md" redirect stubs were migrated from this file — git history preserves their original content.
 >
 > **Anticipatory items are valid.** Not all backlog items need a triggered condition. Three valid reasons to keep an item: need it now (active problem), plan to use soon (near-future need), anticipate needing later (want it ready when the time comes). When reviewing the backlog, present items with summaries so the user can decide — don't assume items without fired triggers should be closed.
 >
@@ -33,205 +39,25 @@
 
 ---
 
-119. **Revised-plan-after-rejection heuristic — contrarian can be "stale" for revised plan** `D3 Improvement`
+119. **Moved to OPERATIONS.md** → T-119 (Revised-plan-after-rejection heuristic tripwire).
 
-**What:** Scanner's `scan_contrarian_after_last_plan` uses "most recent prior ExitPlanMode" as the anchor. If the user rejects a plan and the AI revises (iterating in plan mode), the prior contrarian invocation STILL SATISFIES the anchor — hook allows. But the revised plan was never pressure-tested. Post-commit contrarian HIGH finding (`ac0e663f80114248d`).
+78. **Moved to OPERATIONS.md** → C-078 (Governance Compliance Review cadence).
 
-**Design questions:**
-- What transcript signal indicates "user rejected + AI is revising vs. user approved + new plan"? Plan mode re-entry doesn't produce a distinct marker.
-- If we require contrarian after *any* user message containing rejection signals, what are those signals? "No", "revise", "that's not right", etc. — fragile and false-positive-prone.
-- Alternative: require contrarian within last K user turns before ExitPlanMode (scoped-tighter recency window). K=1 would force re-invocation after every user turn — too strict.
-- Alternative: require plan-file hash match (if plan content changed since last contrarian, require new contrarian). Needs plan-file hashing infrastructure.
+113. **Moved to OPERATIONS.md** → T-113 (Plan-stage pre-edit battery effectiveness tripwire).
 
-**Re-open prerequisites:**
-1. Observed case of revised-plan-without-fresh-contrarian producing actually-bad approval (not just theoretical).
-2. OR design session settles on a workable signal for plan-revision detection.
+112. **Moved to OPERATIONS.md** → T-112 (Q7 retroactive audit — remaining pre-Q7 US-legal labels tripwire).
 
-**Why D3 not D2:** Requires design thought + potentially new infrastructure (plan-file hashing). Proportional rigor — defer until evidence the false-allow is actually occurring.
+111. **Moved to OPERATIONS.md** → T-111 (Post-edit review scope expansion tripwire).
 
-**Origin:** Session-122 post-commit contrarian review (`ac0e663f80114248d`) HIGH finding. Documented risk for future reviewers.
+110. **Moved to OPERATIONS.md** → T-110 (F-P2-01 + R-01 priority-inversion retrospective tripwire).
 
-78. **Governance Compliance Review — ongoing, next review due ~2026-05-13** `D1 Maintenance` (every 10-15 calendar days). Reviews #1-6 complete (most recent: 2026-05-03). See workflows/COMPLIANCE-REVIEW.md. Event triggers: hook/CLAUDE.md/tiers.json modification. **Recurring item by design** — never "done"; the cadence is the point. Structural: `D1 Maintenance` item that remains Active permanently.
+109. **Moved to OPERATIONS.md** → C-109 (Deferred-with-trigger cadence audit).
 
-113. **Plan-stage pre-edit battery effectiveness pattern — "4-of-4 catches suggest first-draft plans are systematically under-rigored"** `D2 Discussion`
+108. **Moved to OPERATIONS.md** → T-108 (strict_domain_check block-mode escalation tripwire).
 
-**What:** Every pre-edit 3-agent battery run on a first-draft plan (Cohorts 2, 3, 4, 5) caught a major pivot:
-- Cohort 2 v1 → Path B alternative discovered (Risk Mit ↔ Non-Mal Path B vs Path A merge)
-- Cohort 3 v1 → F-P2-13 Path B (Preamble purpose-surface, not claim-surface)
-- Cohort 4 v1 → Phase 4b Q7 FAIL killed the whole phase's central work
-- Cohort 5 v1 → F-P2-02 Preamble location wrong, F-P2-03 Q7 FAIL, "100% milestone" framing dishonest
+107. **Moved to OPERATIONS.md** → T-107 (Tool/Model Appendix index tripwire).
 
-**Contrarian's reframing (cross-cohort meta-review):** *"4-of-4 pre-edit batteries catching big pivots is not validation of 'run the battery' — it's evidence that **first-draft plans are systematically under-rigored**, and the battery is compensating. The fix is better first-draft plan quality, not more trust that the battery will catch it."*
-
-**Open questions:**
-1. Is there a checklist or rule we could add to the first-draft planning process that would catch the pattern of issues the battery consistently catches? (E.g., "always run Q7 on new labels," "always verify line anchors," "always spec schema edge cases.")
-2. Would splitting the plan-writing agent's scope (e.g., plan + adversarial self-critique before exit) reduce the rate?
-3. Is the 4-of-4 rate actually a problem — maybe plans SHOULD be drafts that get revised, and the battery is the right mechanism?
-4. Steel-man: plans → batteries → revised plans is a deliberate cheap-then-expensive design. Eliminating the first-draft/battery gap may trade "quick iteration with review" for "slow perfect first drafts" — worse overall.
-
-**Possible interventions (for discussion, not yet adopted):**
-- Add a "pre-battery self-checklist" to the plan template with items like: "Did you apply Q7 to any new labels?" "Did you verify all cited line anchors?" "Did you spec edge cases for new schema fields?"
-- Require plan-writing agent to invoke adversarial self-critique before exit (mirror contrarian in the drafting loop).
-- Accept the pattern as deliberate and document the "cheap draft, expensive battery" design choice explicitly.
-
-**Re-open prerequisites:**
-1. Evidence base N≥6 cohorts (we have 4; need 2 more to confirm pattern or see it drop).
-2. OR: an adopter reports a failed plan that the battery didn't catch (which would reframe the question to "batteries are also insufficient").
-
-**Why deferred (not D1 Fix):** Evidence base of 4 is suggestive but not conclusive per §7.8 proportional rigor. Implementing any intervention prematurely could degrade the current working pattern. Worth observation, not yet worth structural change.
-
-**Origin:** Cross-cohort meta-review (session-119, 2026-04-20, contrarian agent `afe0ecba1e867d95d`) arc-level observation. Filed per user follow-up request that all contrarian META findings become actionable BACKLOG items, not just prose in Historical Amendments.
-
-112. **Q7 comprehensive retroactive audit — remaining pre-Q7 US-legal labels** `D2 Discussion`
-
-**What:** Cross-cohort meta-remediation PATCH (v5.0.7) retroactively applied Q7 Semantic-Label Risk to 2 of ~6 pre-Q7 US-legal labels flagged by contrarian (Structural Enforcement, Secondary Authority — both PASS). Selective retroactive application creates new drift: some pre-Q7 labels Q7-checked, others not. A principled retroactive pass would cover all of them.
-
-**Labels still unchecked (not yet run through Q7):**
-1. **"Supremacy Clause"** (`constitution.md` Operative Hierarchy section) — enforcement mechanism = §9.3.1 Truth Source Hierarchy + §9.8.5 bright-line. Expected PASS.
-2. **"Elastic Clause"** (`rules-of-procedure §8.7`) — derived authority for novel situations. Enforcement mechanism = ? (may be Q7 FAIL — is this a specific operationalization, or aspirational prose?)
-3. **"Full Faith and Credit"** (`rules-of-procedure §9.7.6`) — cross-domain output recognition. Enforcement mechanism = retrieval engine crosses domains, but is that what the clause names? Partial/unclear.
-4. **"Jacobson v. Massachusetts pattern"** (cited in `constitution.md` §Framework Structure, Contextual Layers — Preamble row) — Preamble as interpretive tiebreaker. Enforcement mechanism = Admission Test tiebreaker rule. Likely PASS.
-5. **"Bill of Rights" (generic label)** — S-Series naming. Partially covered by F-P2-04 Q7 PASS (Cohort 5 Session 5-2), but that PASS was narrowly scoped to S-Series US-Constitutional PROSE framing, not the "Bill of Rights" label itself.
-6. **"Impeachment fast-path"** (`rules-of-procedure §9.6.3`) — MAJOR version bump workflow. Enforcement mechanism = §9.6.3 text itself. Likely PASS.
-
-**Re-open prerequisites:**
-1. Sufficient session capacity for ~30-60 min focused Q7 pass on the 4-6 remaining labels.
-2. OR: a new finding that one of these labels had operational mismatch harm.
-
-**Why deferred (not D1 Fix):** Proportional rigor — contrarian flagged the pattern (selective retroactive) not specific labels beyond the two I addressed. Expected outcome is 4-5 PASSes + possibly 1 FAIL (Elastic Clause looks most at risk). Not urgent but worth completing so the framework can say "Q7 applied to all pre-Q7 US-legal labels" honestly rather than "applied to the 2 flagged by contrarian."
-
-**Origin:** User follow-up to cross-cohort meta-review (session-119, 2026-04-20): "Review your findings again and see if there are any other gaps." Systemic-thinking observation: if Q7 retroactive is a principle, it should be applied comprehensively, not selectively. Filed for eventual completion.
-
-111. **Post-edit review scope expansion — eliminate the "post-commit always finds something" pattern** `D2 Improvement`
-
-**What:** Every single cohort (2, 3, 4-Phase-4a, 5) produced a post-commit PATCH because the post-commit 3-agent battery consistently found drift the post-edit battery missed. 100% rate across 4 cohorts. The contrarian's cross-cohort meta-review reframed this: it's not "post-commit pattern works well" — it's "post-edit scope is structurally gapped." Same class of drift every time: adopter-facing surface propagation (API.md schemas, ai-instructions `<document_versions>` pins, parallel tables in title-* CFRs, user-facing prose in README/CLAUDE.md).
-
-**The structural gap (contrarian finding):** post-edit coherence-auditor runs against the explicit edit inventory the plan declared. Files NOT in the plan's explicit inventory — adopter-facing docs, parallel surfaces, version pins — systematically fall outside post-edit scope. The gap is the plan's inventory, not the battery's execution.
-
-**Proposed fix (discussion needed before implementation):**
-1. Expand the coherence-auditor agent's default scope to explicitly include an "adopter-facing surfaces" checklist regardless of plan inventory: `README.md`, `CLAUDE.md`, `API.md`, `SECURITY.md`, `documents/ai-instructions.md` `<document_versions>` block, and parallel tables in title-* CFR files.
-2. Update `workflows/COMPLETION-CHECKLIST.md` Content-Changes tier: add "adopter-facing surface audit" item that runs before commit, not after.
-3. Update `documents/agents/coherence-auditor.md` scope guidance so every post-edit coherence audit covers these surfaces by default.
-4. Decision: Does this absorb the post-commit battery into post-edit scope (dropping the distinct post-commit pass), or does post-commit remain as a deliberate second look? Argue both.
-
-**Alternative (steel-manned):** accept the pattern as-is. Post-commit catches are cheap (1-PATCH commit per cohort). Trying to eliminate them via post-edit expansion may just shift the gap elsewhere — if the post-edit scope becomes too wide, it loses focus on the actual changes. "Two passes at different scopes" is arguably the right design, not a defect.
-
-**Re-open prerequisites:**
-1. At least 2 more cohorts of data (if Cohort 6 + 7 post-commit batteries find the *same class* of drift, the pattern is confirmed structural).
-2. OR: an adopter report of post-commit drift causing user-visible harm (not just cosmetic).
-
-**Why deferred (not D1 Fix):** The pattern is low-severity — post-commit PATCHes have consistently been small, shipped within same session. No adopter harm. Restructuring the post-edit scope requires careful design to avoid trading one gap for another. Evidence base (n=4) is suggestive but not yet conclusive per §7.8 proportional rigor.
-
-**Origin:** Cross-cohort meta-review (session-119, 2026-04-20, contrarian agent `afe0ecba1e867d95d`): *"The post-commit pattern is a structural gap, not a feature. 100% rate means post-edit scope is systematically gapped, not that the post-commit pattern is strong."*
-
-110. **F-P2-01 + R-01 priority-inversion retrospective — "critical finding closed by claim-softening, not measurement"** `D2 Discussion`
-
-**What:** The 2026-04-18 self-review identified **1 Critical finding** (F-P2-01): Declaration's value-proposition claim was unfalsifiable — framework measures *mechanism* (retrieval MRR, hook compliance) but Declaration claimed *outcome* (AI quality improvement). Cohort 1 closed F-P2-01 by rewriting the Declaration and README to make humbler claims (reframing the Declaration as a purpose statement, not a results claim). This closed the finding on the text side.
-
-**Contrarian's cross-cohort critique:** The *structural* fix for F-P2-01 is the outcome benchmark (tracked separately as BACKLOG #22 Governance Effectiveness Measurement — still in Discussion state). The arc shipped Cohorts 1-5 without R-01. Contrarian framing: *"A rational actor optimizing for framework defensibility would have shipped R-01 before Cohort 2 and let the data re-triage everything downstream. The arc inverted the priority — did the cheap, legible editorial work first and left the expensive, diagnostic work for 'Sprint 1' that hasn't started."*
-
-**Open questions:**
-1. Is the claim-softening closure sufficient (honest scope reduction = real fix) OR insufficient (we still owe the measurement)?
-2. Does BACKLOG #22's existing "Discussion" state cover the retrospective, or does F-P2-01 need its own standing item distinct from #22?
-3. If R-01 ships and shows no measurable framework effectiveness, how many of the 28 closed findings get retroactively re-severity'd? (Contrarian: "9 of 28 closed findings become retroactively questionable.")
-4. Is there a structural guardrail for "don't close Critical findings via claim-softening without also shipping the measurement that would validate the softening" — e.g., an Admission Test question or §9.8.1 addition?
-
-**Re-open prerequisites:**
-1. R-01 outcome benchmark ships (or is declared explicitly unmeasurable per BACKLOG #22 "may conclude some aspects aren't measurable" option), AND
-2. Retrospective conducted on whether any of the 28 closed findings need re-severity based on measurement results.
-
-**Why deferred (not D1 Fix):** This is a product-level retrospective, not a framework patch. Fixing requires either shipping R-01 (large work tracked at #22) or making a formal decision that measurement is out of scope. Both are multi-week commitments, not same-session fixes.
-
-**Origin:** Cross-cohort meta-review (session-119, 2026-04-20, contrarian agent `afe0ecba1e867d95d`): *"F-P2-01 (Critical) closed by claim-softening, not measurement. R-01 outcome benchmark still unshipped. Arc inverted priority."*
-
-**Relationship to BACKLOG #22:** Adjacent but distinct. #22 = "can we measure effectiveness?" (design question). This item = "did the arc's execution order respect the claim-verification relationship?" (retrospective question). Both need resolution before the self-review loop is fully trustworthy.
-
-109. **Deferred-with-trigger cadence audit — re-read every ~30 days** `D1 Maintenance` (recurring — never "done")
-
-**What:** Several review findings across Cohorts 4-5 were deferred with "re-open when consumer emerges" triggers but no owner or cadence to check whether conditions are met. Without a watch-list, principled deferrals quietly calcify into silent abandonment. This item establishes a recurring cadence to audit the deferred items — mirrors BACKLOG #78's Governance Compliance Review pattern.
-
-**Deferred items tracked (as of 2026-04-20):**
-- **BACKLOG #41 / #43 / #44 / #46** — Reference library auto-staging, progressive disclosure, auto-maturity, stack metadata (tracked as F-P1-07 deferral from Cohort 5).
-- **BACKLOG #58 / #59 / #60** — UBDA adopter-drift review items (tracked as F-P2-07 deferral from Cohort 5).
-- **BACKLOG #106** — Cohort 4 Phase 4b `Implements:` backfill (F-P1-04, prerequisites: consumer + Q7 remediation).
-- **BACKLOG #107** — F-C-06 Tool/Model Appendix index (prerequisites: adopter-discoverability consumer OR appendix count >15).
-- **BACKLOG #108** — F-C-04 Phase-2 `strict_domain_check` block-mode (prerequisites: observed adopter harm OR CI surface wants enforcement).
-- **BACKLOG #110** — F-P2-01 + R-01 priority-inversion retrospective (prerequisites: R-01 ships OR declared unmeasurable + retrospective on 28 closed findings).
-- **BACKLOG #111** — Post-edit review scope expansion (prerequisites: 2+ more cohorts of evidence OR adopter report of post-commit drift harm).
-- **BACKLOG #112** — Q7 comprehensive retroactive audit for remaining pre-Q7 US-legal labels (prerequisites: session capacity OR new finding of operational mismatch).
-- **BACKLOG #113** — Plan-stage battery effectiveness pattern (prerequisites: N≥6 cohorts of evidence OR adopter-reported plan failure).
-- **F-P2-03 accepted residual** — FM-code retrofit (Cohort 5, prerequisites: consumer + parser implementation).
-
-**Cadence:** every ~30 calendar days, OR whenever a session's work plausibly satisfies a trigger (e.g., reference-library consumer being built triggers #41/#43/#44/#46 re-read).
-
-**Audit procedure:**
-1. For each item, re-read the trigger prerequisites literally.
-2. Answer "still deferred?" in ≤1 sentence per item.
-3. If ANY trigger met: promote from `D3 Deferred` to `D2 New Capability` (or `D1 Fix` if urgent) and assign actual work.
-4. If no triggers met: record audit date inline ("Reviewed 2026-MM-DD — still deferred, no triggers fired.").
-5. Update this entry's inline audit log with results.
-
-**Why D1 Maintenance (recurring):** Same rationale as BACKLOG #78 — the item is "never done" because the cadence IS the value. Each audit costs ≤15 min but prevents ~10-hour rework cycles when a trigger was missed for months.
-
-**Origin:** Cross-cohort meta-review (session-119, 2026-04-20) contrarian finding (`afe0ecba1e867d95d`): "Re-open triggers on F-P1-04, F-P1-07, F-P2-07 are passive and will never fire on their own. 12 months from now, three deferrals quietly calcify into 'this is how it is.'" Absorbed as v5.0.7 Historical Amendment + this recurring audit.
-
-**Inline audit log:**
-- *2026-04-20 (initial filing, session-119):* All items listed above are in active deferral state. No triggers fired. Next audit due ~2026-05-20.
-- *2026-04-25 (Compliance Review #5, run inline as Group 1 of prioritized backlog brief — 25 days early per cadence-can-be-paired-with-related-work):* Re-read trigger prerequisites for all 14 deferred items + F-P2-03 residual. **0/14 triggers fired.** Per-item: #41/#43/#44/#46 — no consumer built, no logs-analysis tool, no project-context detection consumer; #58/#59/#60 — no degradation measurement, no productionization/multi-user, no >40-turn single-session observation; #106 — no `Implements:` consumer + no Q7 remediation; #107 — current title-10 appendix count is 13 (A through M, verified via `grep '^## Appendix'` on title-10) under >15 trigger + no consumer reports lookup friction; #108 — no adopter harm reported on `strict_domain_check`; #110 — R-01 outcome benchmark not shipped (pre-req for retrospective); #111 — n=4 cohorts (need n≥6, no adopter report); #112 — no operational-mismatch finding, no session capacity allocated; #113 — n=4 cohorts (need n≥6, no adopter plan failure); F-P2-03 residual — no FM-code parser implemented. Next audit due ~2026-05-25.
-
-108. **F-C-04 Phase-2 — install_agent `strict_domain_check` block-mode escalation** `D3 Deferred`
-
-**What:** Cohort 5 Session 5-2 shipped `install_agent` with Phase-1 WARN+allow domain-fit semantics (`applicable_domains` frontmatter + optional `domain` param on install_agent → warning if mismatch). The `_parse_applicable_domains` + `_check_domain_fit` helpers in `src/ai_governance_mcp/server.py` have a named escalation trigger `strict_domain_check` that is NOT currently wired to any input. This item tracks the Phase-2 escalation.
-
-**Re-open prerequisites:**
-1. **Observed adopter harm** — at least one credible report of a domain mismatch producing actually-wrong work (not just a wasted-context theoretical concern). Ideally 2-3 instances before promoting to block-mode.
-2. **Or: CI surface that wants to enforce** — a downstream consumer (e.g., project validation pipeline) requests block-mode as a hard gate.
-
-**Re-open workflow:**
-1. Add `strict_domain_check: bool = false` parameter to `install_agent` tool schema.
-2. When `strict_domain_check=True` AND `_check_domain_fit()` returns `fits=False`, raise error with structured code (not just a warning) and refuse to proceed with install.
-3. Update `test_domain_fit.py` with block-mode cases.
-4. Document in CLAUDE.md scaffold template + README adopter guidance.
-
-**Why deferred (not short-term D2):** Phase-1 (WARN+allow) matches the Low-severity framing of F-C-04. No adopter harm has been reported. Block-mode without evidence of harm would be ceremony — the same "build-it-before-consumer-exists" pattern that killed Cohort 4 Phase 4b `Implements:` backfill. Phase-1 is deliberate phased implementation with a named escalation path, not incomplete design.
-
-**Origin:** Cohort 5 Session 5-2 post-edit contrarian review (2026-04-20, session-119, agent `ad83517b730258151`). Contrarian MEDIUM finding: "escalation trigger floating in code comment only — file BACKLOG entry to prevent defer-it-later pattern." Filed per that recommendation.
-
-107. **F-C-06 Tool/Model Appendix index — adopter discoverability for Appendices A-L** `D3 Deferred`
-
-**What:** Tool/Model Appendices (A-M: Claude Code CLI config, prompt caching specs, Postgres/Supabase, permission architecture, production hardening, ecosystem tools, etc.) are embedded inside `documents/title-10-ai-coding-cfr.md` starting around line 7377+. No standalone index or discoverability mechanism exists. The Situation Index in `rules-of-procedure.md` and `title-10-ai-coding-cfr.md` fulfills entry-based discovery for *procedures*, but does NOT enumerate all Appendices. Adopters asking "how do I configure Claude Code CLI?" have no discoverable path without knowing to look inside §7200+.
-
-**Re-open prerequisites:**
-1. **A consumer emerges** that needs Appendix-level discovery — examples: (a) a retrieval pattern specifically queries "show all Tool Appendices for platform X"; (b) adopter rollout reveals friction with Appendix lookup; (c) Appendix count exceeds a practical threshold (e.g., >15 appendices) making embedded-in-CFR structure unwieldy.
-2. **Decision on index location** — dedicated `documents/appendix-index.md` artifact vs. a section added to `README.md` vs. a new §9.7.3 in rules-of-procedure. Depends on what the triggering consumer needs.
-
-**Why deferred (not short-term D2):** Current state is a low-severity gap. Situation Index fulfills most discovery needs (entry-based routing by task). Building a full Appendix index without a concrete consumer would be premature — risks the Phase 4b `Implements:` pattern (build-it-before-consumer-exists, end up with documentary-only artifact that nobody queries). **Trigger update (2026-04-25):** title-10 appendix count is now 13 (A through M, contiguous; M added session-128) per `grep '^## Appendix' documents/title-10-ai-coding-cfr.md`. Below the >15 trigger threshold; trigger remains unfired.
-
-**Re-open workflow:**
-1. Verify prerequisite (1) is met — a real consumer exists.
-2. Decide location per prerequisite (2).
-3. Build index + link from README + CLAUDE.md.
-4. Consider whether to extract Appendices out of CFR files entirely vs. index-only approach.
-
-**Origin:** Cohort 5 Session 5-2 planning (2026-04-20, session-119) — contrarian battery distinguished Situation Index (covers procedures) from Appendix discoverability (covers Tool/Model references); former ships, latter doesn't. Accepted as residual gap for Cohort 5 milestone. See `~/.claude/plans/create-a-plan-following-cached-canyon.md` v3.
-
-106. **Cohort 4 Phase 4b re-open — `Implements:` backfill across 6 CFR files (406 methods)** `D3 Deferred`
-
-**What:** Backfill of `**Implements:**` field was planned for 406 of 455 CFR methods (current coverage 10.8%; see `~/.claude/plans/create-a-plan-following-cached-canyon.md` v3). **Deferred** by pre-edit 3-agent battery analysis (2026-04-19, session-118). Not to be re-opened without meeting both prerequisites below.
-
-**Prerequisites for re-open:**
-1. **A consumer emerges** that loads `Implements:` — e.g., `MethodMetadata` gains structured `implements` field + extractor regex + `query_governance` surface that filters by parent principle; OR an external compliance audit requires machine-verifiable traceability.
-2. **Q7 remediation ships first** — current field name inherits from US CFR's `enabling_authority` (legally enforceable) while operational reality is free-text. FAILS `rules-of-procedure §9.8.1` Q7 (Semantic-Label Risk). Choose (a) rename `**Implements:**` → `**Traces To:**` across the 49 existing entries + new backfills, OR (b) add documentary disclaimer at each CFR's head stating the field is not machine-enforced.
-
-**Why deferred (not a short-term D2):** The battery REJECT was structural, not a scheduling issue. Extractor has never parsed the field (`src/ai_governance_mcp/extractor.py:1686-1699` parses `Applies To` only; grep confirmed zero `Implements:` references in tests). Executing 406 backfills before a consumer + Q7 remediation would cement both the coverage-ambiguity and the label/operation mismatch at scale. Phase 4a closed the substantive findings (F-P1-06, F-P2-06, F-P2-14, F-P2-17); F-P1-04 is re-severity'd to MEDIUM-at-most and recorded as "partial coverage retained; documentary-only."
-
-**Re-open workflow:**
-1. Verify both prerequisites met.
-2. Re-read battery findings in `~/.claude/plans/create-a-plan-following-cached-canyon.md` v3 — especially validator's structured spot-check predicates and coherence-auditor's corrected chunk-count arithmetic (Parts 5-6 = 109 methods; Parts 7-9 = 80 not 50-65).
-3. Run new pre-edit battery (context may have changed).
-4. Execute per fallback path in that plan file (6 sessions, not 5; Q7 remediation as HARD prereq; 10-per-CFR spot-check with 4-predicate criteria).
-
-**Origin:** Cohort 4 Phase 4b planning (session-118, 2026-04-19). Governance audit `gov-3e5998987962` (evaluate_governance PROCEED with no S-Series). Battery audit IDs: contrarian `a7e2b2716f06770cc`, coherence `ae0c4ea9057ea7dd7`, validator `a39dda1cd66beb441`.
+106. **Moved to OPERATIONS.md** → T-106 (Implements: backfill tripwire).
 
 ---
 
@@ -341,59 +167,33 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
+#### 154. OPERATIONS.md documentation quality pass `D1 Docs`
 
-#### 146. BACKLOG taxonomy — split tripwires and cadences from discrete projects `D2 Improvement`
+**Filed:** 2026-05-03 (session-145, user request during Execution Framework plan Phase 2 execution).
 
-**Filed:** 2026-04-29 (session-139, user observation during BACKLOG #143 refile work).
+**What.** Ensure OPERATIONS.md is well-documented: clear section descriptions, consistent formatting across all entries, cross-references verified, and the file's role in the project's memory taxonomy is explained for future readers and adopters. Review each section (Cadences, Tripwires, Verification Experiments, Effectiveness Metrics, Scheduled Operations) for completeness and clarity. Verify that every entry has consistent fields (trigger conditions, origin, inline audit log where applicable).
 
-**What.** BACKLOG.md currently mixes three lifecycle-distinct artifact types in one file:
+**Done when.** OPERATIONS.md passes a documentation review — all sections have clear preamble blockquotes, all entries have consistent structure, and a reader unfamiliar with the project can understand the file's purpose and navigate to any item's canonical procedure.
 
-1. **Projects** — discrete tasks with start and end (close on completion). Examples: #53 Modular Domain Architecture, #22 Governance Effectiveness Measurement, #6 Visual Communication Domain, closed-and-archived items (#100, #144 etc.).
-2. **Tripwires** — conditional re-evaluations; watch indefinitely; close on event-trigger OR accepted-residual decision. Examples: #134 PR-workflow infrastructure, #143 OOM-gate quoted-region FP (refiled session-139), #145 citation-form check hardening, #119 revised-plan contrarian heuristic, #112 Q7 retroactive audit, #113 plan-stage battery effectiveness, #110/#111 post-edit / R-01 retrospective items, #108 strict_domain_check Phase 2, #107 Tool/Model Appendix index, #106 Implements: backfill, #58/#59/#60 UBDA review items, #41/#43/#44/#45/#46 reference library improvements. ~15 entries by current count.
-3. **Cadences/calendar items** — recurring on schedule (never "done") OR one-shot calendar-anchored. Examples: #78 Compliance Review (10-15 day cadence), #109 deferred-cadence audit (~30 day cadence). ~2 entries by current count.
-
-**User's structural observation (verbatim):** *"Backlog should be discrete (like projects) tasks that have a start and an end. If we need warnings or continuous monitoring to make sure things work, we need a proper location for that."*
-
-**Why this matters per `meta-core-systemic-thinking`:** storing three semantically-different artifact types as one violates SSOT-of-kind at the taxonomy level. Concrete friction observed session-139 when ranking top-10 BACKLOG items: tripwires and projects landed in the same ranked list, requiring per-item lifecycle classification before prioritization. That work belongs in the file structure, not in every consumer.
-
-**Adjacent context (from CE query, surfaced session-139):** the project already maps memory files to cognitive memory types (PROJECT-MEMORY ADR-5 + title-10 §7.0.2, CoALA framework). Current taxonomy: Working → SESSION-STATE, Semantic → PROJECT-MEMORY, Episodic → LEARNING-LOG, Procedural → workflows/*, Prospective → BACKLOG, Reference → reference library. Question for discussion: are tripwires "prospective with conditional fire" (still BACKLOG, but a sub-type) or different cognitive class? Are cadences "procedural" (recurring how-to) and therefore belong in workflows/* with only a pointer in BACKLOG?
-
-**Discussion needed:**
-1. **Destination for tripwires.** Options: (a) new top-level `WATCH-LIST.md` file at repo root; (b) new `## Tripwires` section in BACKLOG.md (one file, two sections); (c) keep in BACKLOG with explicit `Tripwire` type tag (tag-only solution); (d) move to PROJECT-MEMORY as standing rules. Each has different trade-offs in discoverability, CoALA-taxonomy coherence, and migration cost.
-2. **Destination for cadences.** Cadence items (#78, #109) fire on schedule, not on event. Options: (a) `CADENCES.md` separate file; (b) folded into `workflows/COMPLIANCE-REVIEW.md` as the cadence canonical home; (c) keep in BACKLOG with `Cadence` type tag.
-3. **Tag-only vs. file-split.** Cheaper alternative to physical separation: add `Tripwire` / `Cadence` / `Project` type tag (alongside current Fix/Improvement/etc.) and let consumers filter. Smaller surface; loses physical separation goal but addresses prioritization friction.
-4. **Migration scope and pacing.** ~15 tripwire-class + ~3 cadence-class entries. Bulk migration (one D2 arc) vs. as-touched migration (defers risk of inconsistent state during transition). Bulk is cleaner; as-touched amortizes effort.
-
-**Why D2 not D1.** Touches BACKLOG philosophy block, ~18 existing entries, possibly CLAUDE.md/AGENTS.md cross-refs and coherence with PROJECT-MEMORY ADR-5 cognitive-taxonomy framing. Plan mode required with pre-edit contrarian battery on the chosen destination structure (especially: does the split increase or decrease coherence with the existing CoALA-aligned memory taxonomy?).
-
-**Done when.**
-1. Decision made on destination structure (file split vs. tag-only vs. hybrid) with rationale tied to cognitive-taxonomy coherence.
-2. Migration executed for current tripwire and cadence entries.
-3. BACKLOG philosophy block (top of file) updated to define the project / tripwire / cadence taxonomy and where each lives.
-4. CLAUDE.md, AGENTS.md, and any workflow files updated where they reference BACKLOG-as-single-list.
-
-**Origin.** Session-139 (2026-04-29) user observation during BACKLOG #143 refile: the asymmetric-cost-driven decision to keep #143 deferred-but-watched surfaced that #143 isn't a project at all — it's a tripwire. User generalized: same applies to #134 and others. Filed per direct user instruction. Governance: `gov-a2d2b84d5b99`.
+**Origin.** User request during session-145 Phase 2 execution.
 
 ---
 
-#### 134. PR-workflow infrastructure (CODEOWNERS, branch protection paths, pre-push routing hook) — tripwire-triggered `D2 New Capability`
+#### 153. Effectiveness metrics analysis script `D1 New Capability`
 
-**Filed:** 2026-04-25 (session-127, post-§8.3.4-self-application plan; convergent finding from contrarian + security-auditor + coherence-auditor pre-plan reviews).
+**Filed:** 2026-05-03 (session-145, Execution Framework plan Phase 2 Task 2.5).
 
-**What.** A potential future workflow change: introduce a *required* PR class for high-blast-radius paths (src/**, constitution.md normative, title-NN-*.md MINOR/MAJOR, hooks, agents, scaffold templates, .github/workflows). Implementation would include CODEOWNERS, branch-protection paths-required-PR rules, optionally a pre-push routing-aware advisory hook, and a `workflows/PR-WORKFLOW.md` doc.
+**What.** `scripts/analyze-governance-metrics.py` — automated computation of the 5 effectiveness metrics defined in OPERATIONS.md (M-001 through M-005). Currently, metrics are evaluated manually during compliance reviews. The script would parse session transcripts and hook logs to compute governance influence rate, principle citation frequency, retrieval relevance trend, S-Series trip rate, and hook denial rate.
 
-**Why deferred (not implemented in session-127).** Three independent reviews converged: this repo is single-maintainer, has 0 stars/forks/external PRs in 4 months, and the pre-push battery (§5.1.7.1 + §9.3.10 Layer 5) already discharges the review value PR would add. Adopting PR-required-by-class today would (1) violate `coding-method-solo-mode-workflow §8.3.4` "gates combined but not eliminated" by re-separating gates, (2) add real CI latency with no defect-class delta, (3) expand the prompt-injection surface (PR comments are untrusted per `coding-quality-workflow-integrity §Q5`), and (4) build infrastructure for a hypothesized adopter audience that doesn't yet exist.
+**Trigger.** Implement when data volume warrants trend analysis: n>1000 `evaluate_governance` audit entries across sessions, OR when manual metric computation during compliance review takes >10 minutes.
 
-**Trigger conditions (re-evaluate when ANY fires):**
-- ≥3 external watchers OR ≥1 external issue/PR on `jason21wc/ai-governance-mcp` (reputational signal becomes evidenced, not hypothesized)
-- A documented incident where the pre-push battery missed a defect that PR review would have caught (defect-class delta becomes named, not theoretical)
-- A high-stakes architectural change where the maintainer wants time-separation review per §5.1.8 step 4 (one-off; can use PR on-demand without filing here)
+**Done when.** Script exists at `scripts/analyze-governance-metrics.py`, computes all 5 OPERATIONS.md metrics, outputs a summary table consumable by compliance review.
 
-**Re-evaluation guidance.** When a trigger fires, revisit the contrarian/security/coherence reviews from session-127 (audit IDs below). The framework principles haven't changed; the *context* has. Specifically: if external adopters appear, "reputational signal" calculus flips; if the pre-push battery is observed missing a defect class, the PR-as-Stage-3 framing becomes justified.
+**Origin.** Plan Phase 2 Task 2.5 deferral per contrarian finding: "Defer metrics script until data volume warrants it" (~200-500 audit entries currently, premature for trend analysis).
 
-**Origin:** Session-127 push-workflow plan (2026-04-25) `~/.claude/plans/using-ai-governance-and-systemic-cryptic-blossom.md`. Review trail: contrarian-reviewer audit `ac01f99ca9778410d`, security-auditor `a44b7638cf3d43b52`, coherence-auditor `a670ce08b44e0fe05`. Governance: `gov-7083d6c85ffc` (plan-mode evaluation, PROCEED).
+---
 
-**Done when.** PR workflow infrastructure shipped IF a trigger fires; otherwise this entry remains open as a permanent tripwire and is closed only when the maintainer affirmatively decides to maintain solo-mode-only indefinitely (e.g., archive-mode for the repo).
+#### 134. **Moved to OPERATIONS.md** → T-134 (PR-workflow infrastructure tripwire).
 
 ---
 
@@ -424,55 +224,11 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 145. Citation-form check hardening — deferred follow-ups from BACKLOG #144 post-arc double-check `D3 Improvement`
-
-**Filed:** 2026-04-28 (session-138, post-arc 3-subagent double-check on `6b01279` BACKLOG #144 close).
-
-**What.** Four hardening items deferred from the BACKLOG #144 post-arc double-check. The shipped `scripts/check-citations.py` closes the bare-`<file>.md:<line>` form drift sub-class, but the audit (code-reviewer `a42881796ff38122a` + coherence-auditor `af8ab67d276e2e1bd` + contrarian-reviewer `ac656b377843aadd6`) surfaced four hardening items below their "fix-now" threshold per `coding-method-defer-vs-fix-now`:
-
-1. **Fenced-code-block exclusion.** Script's regex `[a-zA-Z0-9_-]+\.md:[0-9]+(?:[-/][0-9]+)*` matches inside ` ``` ` fences. Today's corpus has no false-positive instances (script exits 0), but a future content addition with example code blocks demonstrating the deprecated form (e.g., LEARNING-LOG entries quoting a bare `<filename>.md:<N>` form as a *negative example*) would self-trigger. Fix: add fence-tracker to `scan_file` mirroring the heading-depth pattern (~5 lines + 1-2 tests). Code-reviewer HIGH-1.
-
-2. **§-anchor accuracy verification.** Migrated citations like `constitution.md §Bill of Rights (F-P2-04 Q7 PASS block)` are text-anchored but the script does NOT verify the §-anchor names a real heading in the cited file. Wrong-§-anchor citations slip past silently. Fix: extract `§<heading-text>` patterns and verify heading exists in target file. Contrarian HIGH-1.
-
-3. **Hostile-heading false-exclusion.** `is_excluded_heading` does substring match: `'version history' in heading.lower()`. A heading like `## Pre-existing Issues — Version History Notes` would auto-exclude its (potentially-normative) section. No live offender; trap is loaded for future content. Fix: exact-match exclusion list, or restrict to leading/trailing token. Contrarian MEDIUM.
-
-4. **Test edge-case gaps.** Missing tests for: empty file, file without trailing newline, citation-on-heading-line, citation in fenced code block, allowlist with BOM/whitespace, nested heading interactions. Cosmetic hardening; existing 14 tests cover the contract. Code-reviewer MEDIUM-1.
-
-**Trigger.** Promote to fix-now when ANY of:
-- First observed false-positive in production (item 1 — fenced code) OR
-- First observed wrong-§-anchor citation surviving review (item 2) OR
-- First normative section adopts a heading containing an exclusion substring (item 3) OR
-- A real bug in any of items 1-3 that would have been caught by the missing tests (item 4) OR
-- A maintenance commit that touches `scripts/check-citations.py` for any other reason (cluster the fixes).
-
-**Done when.** All 4 items addressed (or individually closed-with-rationale if scope discovery reveals one is moot). Each fix accompanied by tests covering the failure mode.
-
-**Why D3 not D2:** The shipped check is correct on the current corpus; these are robustness/coverage improvements, not bug fixes. Per proportional rigor: hardening for *theoretical* failure modes risks scope creep. Hold until a real-world trigger fires.
-
-**Origin:** Session-138 post-arc double-check on `6b01279` (BACKLOG #144 close). Audit IDs: code-reviewer `a42881796ff38122a` (HIGH-1 fenced-code, MEDIUM-1 test gaps), contrarian `ac656b377843aadd6` (HIGH-1 §-anchor accuracy, MEDIUM hostile-heading). Governance: `gov-d745dd6f8f9b` (double-check audit).
+#### 145. **Moved to OPERATIONS.md** → T-145 (Citation-form check hardening tripwire).
 
 ---
 
-#### 143. OOM-gate quoted-region false-positive — bash-aware lexing of command line needed `D2 Improvement`
-
-**Filed:** 2026-04-27 (session-136). **Refiled:** 2026-04-29 (session-139, after deny-log analysis revealed the original entry mischaracterized the matcher and contrarian-reviewer rejected the proposed safelist fix).
-
-**What.** `.claude/hooks/pre-test-oom-gate.sh:111` uses a token-anchored regex `(^|[[:space:]]|&&|;|\|)[[:space:]]*(pytest[[:space:]]|python[23]?[[:space:]]+-m[[:space:]]*pytest...)` against the raw Bash `command` string. The regex correctly identifies `pytest` at command-position when the input is plain shell, but cannot distinguish executable-position tokens from string content inside quoted regions: heredoc bodies (`git commit -m "$(cat <<'EOF' ... pytest tests/ ... EOF)"`), grep regex alternations (`grep "OOM\|pytest tests"`), and equivalent string-handling commands (echo/printf/sed/awk arguments).
-
-**Why the original entry was wrong.** The 2026-04-27 filing claimed the matcher used "literal substring match" and proposed token-anchoring as the fix. But the matcher was already token-anchored at filing time — a `meta-quality-verification-validation` failure at filing (claim made without reading the source). The structural defect is the level *above* token anchoring: distinguishing executable position from quoted-region content requires bash-aware lexing, not a different regex pre-char class. The `n=3` instance trigger was set against a defect description that doesn't match the source — discarded; this refiling describes the actual defect.
-
-**Empirical evidence (deny log `~/.context-engine/oom-gate-denies.log`, 2026-04-15 → 2026-04-28):** 6 total denies — 4 false-positives (3× `git commit -m` heredoc bodies, 1× `grep -n` alternation) + 2 true-positives (bare `pytest tests/`, `python3 -m pytest -q`). FP rate 67%. All 4 FP classes route around with `git commit -F <file>` workaround (now codified in CLAUDE.md).
-
-**Why deferred (not fix-now).** Asymmetric cost analysis per `meta-core-systemic-thinking`: 1 FP costs ~5s (workaround re-issue, AI pays); 1 missed TP costs an OOM (LEARNING-LOG 2026-04-15, 64 GB macOS hard-down). Hook modification carries TP-regression risk — contrarian-reviewer (audit `afc82b55943658e7b`, 2026-04-29) rejected the proposed first-token safelist guard because commit messages routinely contain `&&` in body prose ("fixed X && Y"), which would re-fire the FP on heredoc bodies. The honest structural fix requires bash-lexing of quoted regions (Approach 3 in the original entry) — its own D2+ effort with an independent failure surface.
-
-**Trigger to revisit (replaces n=3 instance count).** Promote when ANY of:
-1. **Workaround friction signal** — a session arc where `git commit -F <file>` workaround fails or causes data loss (e.g., heredoc + `-F` flag interaction), OR
-2. **Real-world miss** — an OOM event where the gate should have fired but did not (TP-regression evidence, the asymmetric cost the deferral protects against), OR
-3. **Bash-lexing infrastructure already available** — a bash AST library or shell-parser added to the hook toolchain for unrelated reasons, making Approach 3 cheap to layer on.
-
-**Done when.** EITHER (a) bash-aware quoted-region lexing shipped with new tests covering all 4 observed FP classes + 2 existing TPs preserved + CFR §9.3.10 documents the lexing pattern as canonical hook-authoring guidance; OR (b) closed-as-accepted-residual after extended observation window confirms workaround friction stays at current low level.
-
-**Origin.** Session-136 (2026-04-27) initial filing during BACKLOG #13 close, governance `gov-64a922ca58d3`. Session-139 (2026-04-29) refiling after deny-log analysis (6-entry FP/TP breakdown above) + contrarian-reviewer pressure-test (`afc82b55943658e7b`) that rejected the proposed safelist fix on heredoc-with-`&&` regression. Governance: `gov-00f2b0349243`.
+#### 143. **Moved to OPERATIONS.md** → T-143 (OOM-gate quoted-region false-positive tripwire).
 
 ---
 
@@ -678,7 +434,7 @@ The capacity, calendar, and Phase 0 outcome triggers are fully structural (no hu
 - ONNX investigation artifact: `staging/onnx-backend-attempt-2026-04-15.{patch,md}`
 - Incident entry: `LEARNING-LOG.md` — "Full-Suite pytest + Stale Watcher Daemon = macOS OOM (2026-04-15)"
 
-#### 19. Content-Level Security Enforcement — partial-close + Rampart tripwire `D2 Improvement`
+#### 19. Content-Level Security Enforcement — partial-close `D2 Improvement` *(Rampart tripwire portion → OPERATIONS.md T-019)*
 
 **Shipped (2026-05-03, session-143).** Two-layer credential-access gate:
 - **Layer 1 (Read deny rules):** Already present in user-level `~/.claude/settings.json` — blocks `Read(~/.ssh/**)`, `Read(~/.aws/credentials)`, `Read(~/.gnupg/**)`, `Read(~/.netrc)`, `Read(**/.env)`, `Read(**/.env.*)`, `Read(~/.docker/config.json)`, `Read(~/.kube/config)`, `Read(~/.npmrc)`.

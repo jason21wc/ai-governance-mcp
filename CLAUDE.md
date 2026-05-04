@@ -51,7 +51,7 @@ After evaluating: cite principle IDs that influence your approach.
 
 **CE vs Grep:** Use `query_project` for semantic discovery (what exists? what's related? how does X work?). Use Grep/Glob for deterministic lookup (find this exact string, check this file, count occurrences). When creating new content or investigating unfamiliar areas, CE first.
 
-**Known hook workaround — OOM-gate FP on `pytest` in commit messages:** When a `git commit` message body contains `pytest` inside a quoted region (heredoc body or alternation argument), the OOM gate (`pre-test-oom-gate.sh`) false-positives because its token-anchored matcher cannot distinguish executable position from quoted-region content. Write the message to a tempfile via the Write tool and commit via `git commit -F <messagefile>`. Tracked as BACKLOG #143 (deferred — asymmetric cost: hook modification risks TP-regression vs. low workaround friction).
+**Known hook workaround — OOM-gate FP on `pytest` in commit messages:** When a `git commit` message body contains `pytest` inside a quoted region (heredoc body or alternation argument), the OOM gate (`pre-test-oom-gate.sh`) false-positives because its token-anchored matcher cannot distinguish executable position from quoted-region content. Write the message to a tempfile via the Write tool and commit via `git commit -F <messagefile>`. Tracked as OPERATIONS.md T-143 (deferred — asymmetric cost: hook modification risks TP-regression vs. low workaround friction).
 
 ## Subagents
 
@@ -62,6 +62,7 @@ code-reviewer, test-generator, security-auditor, documentation-writer, orchestra
 Edit `documents/agents/` (canonical source) first, then copy to `.claude/agents/`. CI verifies byte-match.
 
 - `.claude/agents/` — Local agent installations (synced from `documents/agents/`)
+- `.claude/skills/` — Project skills (invoke via `/skill-name`). Decision matrix for skill vs hook vs subagent vs workflow: EXECUTION-FRAMEWORK.md §15.2.7.
 
 ## Defer vs Fix Now (Implements governance methods Part 7.11)
 
@@ -77,7 +78,7 @@ When you discover issues during a task, **finish the user's requested task first
 
 ## Session Lifecycle
 
-**At session start:** Read all three memory files: SESSION-STATE.md (current position), PROJECT-MEMORY.md (constraints and decisions), LEARNING-LOG.md (mistakes to avoid). Then prune SESSION-STATE.md if >300 lines: remove old session summaries (keep only most recent), clear stale context, route decisions to PROJECT-MEMORY.md, lessons to LEARNING-LOG.md. Target: <300 lines per §7.0.4.
+**At session start:** Read all three memory files: SESSION-STATE.md (current position), PROJECT-MEMORY.md (constraints and decisions), LEARNING-LOG.md (mistakes to avoid). Then prune SESSION-STATE.md if >300 lines: remove old session summaries (keep only most recent), clear stale context, route decisions to PROJECT-MEMORY.md, lessons to LEARNING-LOG.md. Target: <300 lines per §7.0.4. Context retention priority policy: EXECUTION-FRAMEWORK.md §14.
 
 **At session end:** Update SESSION-STATE.md with current position and session summary. If >300 lines, apply §7.0.4 distillation before committing.
 

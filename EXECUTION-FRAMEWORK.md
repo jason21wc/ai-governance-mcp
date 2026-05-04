@@ -1,10 +1,10 @@
 # Execution Framework — Working Document
 
-**Version:** v0.1-draft (8-bucket layer); 3-function root view present but not yet examined or locked
-**Type:** Active brainstorm / pre-plan working document (this is reasoning capture, not a permanent framework artifact)
+**Version:** v0.2-draft (8-bucket layer + 4-function root + complete project map); interface boundaries insight applied
+**Type:** Active brainstorm → evolving into permanent blueprint (format transformation to structured document planned — see §16)
 **Started:** 2026-04-29 (session-139)
-**Last updated:** 2026-04-30 (session-140 mid-arc, v0.1 mark applied)
-**Status:** Discussion phase — first-draft bucket model recorded; empirical testing deferred until workflows/skills design begins
+**Last updated:** 2026-05-03 (fresh-eyes analysis — interface boundaries insight, 4-function root adopted, complete analogy-to-project map, gap analysis, modularization assessment)
+**Status:** Map complete — transitioning from discussion phase to implementation planning. Document format transformation to permanent blueprint pending (goes into implementation plan).
 **Trigger source:** External article — Akshay Pachaar, *"The Anatomy of an Agent Harness"* (April 6, 2026), at `/Users/jasoncollier/Downloads/AI Stuff Currently Working/anatomy_of_an_agent_harness_v2.md`
 **Purpose:** Capture full-nuance reasoning. Summary loses too much context; this file preserves alternatives considered, contrarian rounds, dead-ends, and open questions so a plan can be drafted later from real ground truth, not a compressed gloss. **A future reader opening this file cold should be able to pick up exactly where the conversation left off.**
 
@@ -27,6 +27,18 @@
 | **Storage location:** ai-governance docs vs project files | **Pending** — leaning multi-layer (principles where principles live; methods where methods live; appendices where appendices live) per §6's mapping |
 | **Schema:** Whether the article's 12 components are root or symptom-level | **Resolved (session-140):** symptom-level. 3 functions are root. 8 buckets are component layer. |
 | **Trigger to ship:** What upcoming decision warrants codifying this? | **Pending** — Q5 of coaching questions (§8) |
+| **Interface boundaries are the actionable insight for modularization** — buckets describe WHAT; interfaces determine WHETHER things are swappable | Adopted (2026-05-03) |
+| **4-function root view:** Information Flow / Control Flow / Quality Gates / Authority | Adopted (2026-05-03); extends 3-function candidate |
+| **BIOS/bootloader distinction:** CLAUDE.md + AGENTS.md are host-specific bootloader, not part of the OS | Adopted (2026-05-03) |
+| **MCP is the system bus** — standardized interconnect, not just a tool | Adopted (2026-05-03) |
+| **Hooks are the interrupt controller (PIC/APIC)** — not just "quality gates" | Adopted (2026-05-03) |
+| **Subagents are heterogeneous coprocessors** — verification, adversarial, production, coordination, domain-specific | Adopted (2026-05-03) |
+| **Domains are workload modules, CFRs are drivers** | Adopted (2026-05-03) |
+| **Skills are application programs** — bridge between workflows (manuals) and hooks (automatic) | Adopted (2026-05-03) |
+| **Git as filesystem is correct** for current use case (single-developer, document-shaped state) | Confirmed (2026-05-03) |
+| **OS kernel coupling is by design** — constitution + RoP tight integration is architectural coherence, not a defect | Confirmed (2026-05-03) |
+| **Complete analogy-to-project map** — see §15.4 | Adopted (2026-05-03) |
+| **Document transformation:** this file to become permanent blueprint with structured formatting like other governance docs | Planned (2026-05-03) — goes into implementation plan |
 
 ---
 
@@ -701,10 +713,398 @@ Use the article as **evidence catalog and pattern source**, not as authoritative
 
 ---
 
-## 14. Maintenance notes
+## 14. Context Retention Priority Policy
 
-- This file is **working memory for an in-flight design conversation**, not a permanent framework artifact. When the conversation resolves into either (a) a plan to codify the Execution Framework method or (b) a decision to drop the idea, this file should be retired or moved to the appropriate permanent home.
+**Added:** 2026-05-03 (Phase 2 Task 2.6).
+
+When the host (Claude Code) compresses prior messages to stay within context limits, not all memory content has equal priority. This policy defines which information should be preserved longest and which can be evicted earliest, guiding both automatic host compaction and manual SESSION-STATE pruning (§7.0.4).
+
+| Priority | Level | Content Type | Retention Rule |
+|----------|-------|-------------|----------------|
+| P0 | Never evict | CLAUDE.md, AGENTS.md, active plan file, hook definitions | Always loaded by host. Not subject to compaction. |
+| P1 | Preserve across full session | SESSION-STATE current position, PROJECT-MEMORY active decisions, LEARNING-LOG recent entries (<60 days), OPERATIONS.md active tripwire/cadence state | Load at session start per CLAUDE.md session lifecycle. Re-read if context approaches limits. |
+| P2 | Preserve during active task | Plan tasks in progress, verification criteria for current phase, governance evaluation results for current arc | May be summarized between arcs but must be recoverable from files. |
+| P3 | Summarize when space-constrained | Prior session summaries in SESSION-STATE, completed task details, historical audit IDs | Distill to one-line pointers during §7.0.4 pruning. Full content recoverable via `git log`. |
+| P4 | Archive (evict first) | LEARNING-LOG entries >60 days, closed BACKLOG item details, old session summaries (>3 sessions back), EXECUTION-FRAMEWORK working discussion sections | Remove from active memory files. Recoverable from git history. |
+
+**Existing mechanisms that implement this policy:**
+- **Host compaction:** Claude Code automatically compresses prior messages as context approaches limits. P0 content is exempt (loaded via system instructions). P1-P4 content in conversation history is subject to compaction in reverse priority order.
+- **SESSION-STATE pruning (§7.0.4):** Manual distillation when file exceeds 300 lines. Route decisions to PROJECT-MEMORY (P1), lessons to LEARNING-LOG (P1), remove old summaries (P3→P4).
+- **Memory-file routing:** CLAUDE.md session lifecycle directs which files to load at session start (P0-P1) vs. consult on demand (P2-P3).
+
+**What this policy does NOT do:** It does not control Claude Code's internal compaction algorithm (that's host-level, not user-configurable). It provides a shared vocabulary for prioritization decisions when humans or AI agents prune memory files, and a reference for future automation (Phase 4 session-end skill).
+
+---
+
+## 15. Fresh-eyes analysis (2026-05-03)
+
+**Context:** User brought Opus 4.6 for a fresh-eyes review of the entire Execution Framework, noting that Opus 4.7 (prior sessions) "was too literal and missed a lot of connections." Goal: identify improvements, missed connections, and produce a complete analogy-to-project map. User confirmed: the purpose is modularization — each major component should be swappable independently, like going from monolithic to object-oriented design.
+
+### 15.1 The interface boundaries insight
+
+The 8-bucket taxonomy is useful for *thinking about* the system, but the thing that actually matters for modularization is **interface boundaries**. A computer component is swappable not because someone drew a nice taxonomy of it — it's swappable because there's a standardized interface between it and everything else. PCIe, SATA, USB, DIMM slots. The slot shape is the contract.
+
+The project already has this in some places and not others:
+
+- **Context Engine** is the exemplar — `BaseStorage` (abstract class at `context_engine/storage/base.py`) and `BaseConnector` (abstract class at `context_engine/connectors/base.py`) define explicit interfaces. You could swap filesystem storage for a database by implementing `BaseStorage`. You could add PDF parsing by implementing `BaseConnector`. The MCP tool contracts (`query_project`, `index_project`) are the external interface. That's a fully modular component.
+
+- **Memory files** (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG, BACKLOG) are the opposite — they're referenced by hardcoded paths throughout CLAUDE.md and AGENTS.md, with implicit contracts (what fields exist, what format they use, what operations are valid). If you wanted to swap memory to a database, you'd have to rewrite every reference.
+
+**The key reframe:** the 8 buckets describe WHAT the system has. Interface boundaries describe WHETHER those things are swappable. Both views are needed — the buckets for architectural reasoning, the interface assessment for modularization work.
+
+User confirmed (2026-05-03): "100% agree."
+
+### 15.2 Refined analogies — corrections and additions
+
+The following refine or add to the bucket model's computer analogies. Each captures a connection the prior sessions' analysis missed or mapped too literally.
+
+#### 15.2.1 BIOS/bootloader — CLAUDE.md, AGENTS.md, ai-instructions.md
+
+CLAUDE.md and AGENTS.md are NOT part of the OS — they're the **BIOS/bootloader**. They fire before anything else, loading the OS into the system. The OS is the governance framework itself (constitution, domains, methods).
+
+This distinction matters for modularization: if you moved to a different host (Cursor, Windsurf, GPT), you'd rewrite the BIOS (CLAUDE.md equivalent) but the OS (governance docs) would port unchanged. The BIOS is the one thing that's truly host-specific.
+
+Mapping:
+- `CLAUDE.md` = simplified bootloader for the current host (Claude Code)
+- `AGENTS.md` = POST (Power-On Self-Test) checklist — what memory exists, startup sequence, what to check
+- `documents/ai-instructions.md` = full BIOS ROM — the reference implementation of what any bootloader should do
+- `.claude/settings.json` + `settings.local.json` = BIOS settings / CMOS — persistent configuration controlling bootloader behavior
+
+User confirmed (2026-05-03): "excellent analogy" — the OS ports unchanged, the BIOS is rewritten per platform (or developed ahead of time as a driver for adopters, or noted for AI to know this piece would need to be built if someone were to use the framework in a different system).
+
+#### 15.2.2 System bus — MCP protocol
+
+MCP is more fundamental than a tool in the Action Layer (Bucket 4). It's the **system bus** — the standardized interface that lets components talk to each other regardless of implementation. The governance server exposes tools via MCP. The Context Engine exposes tools via MCP. Claude Code consumes them via MCP. External tools can connect via MCP. That's PCIe — a standardized interconnect.
+
+The *tools themselves* (query_governance, evaluate_governance) are the *devices on the bus*. The bus is the protocol. This distinction matters because the bus is what makes everything else swappable — as long as the new component speaks MCP, it plugs in.
+
+User note (2026-05-03): there's a push toward APIs as an alternative bus type. The analogy holds — just a different bus standard (like PCIe vs USB vs Thunderbolt). Research pending on latest developments.
+
+#### 15.2.3 Interrupt controller — hooks
+
+The hooks in `.claude/hooks/` fire on specific events (PreToolUse, PostToolUse, UserPromptSubmit, PrePush) and can halt execution. That's an **interrupt controller (PIC/APIC)** — hardware interrupts that preempt normal execution. Some are maskable (e.g., `CONTENT_SECURITY_SKIP=1`), some are effectively non-maskable (governance check has no practical bypass in normal operation).
+
+Current hook inventory (8 hooks + Rampart tripwired):
+- `pre-tool-governance-check.sh` — governance consultation enforcement
+- `pre-tool-content-security.sh` — credential path access blocking (Layer 2)
+- `pre-exit-plan-mode-gate.sh` — contrarian review before plan approval
+- `pre-push-quality-gate.sh` — test/lint before push
+- `pre-test-oom-gate.sh` — OOM-risk pattern detection before pytest
+- `post-push-ci-check.sh` — CI status after push
+- `user-prompt-governance-inject.sh` — governance context injection on prompt submit
+- `scan_transcript.py` — transcript scanning
+- **Rampart** (tripwired, BACKLOG #19) — agent firewall with YAML policy, native Claude Code PreToolUse integration. When adopted, adds stateful inspection layer (currently basic packet filtering via hooks).
+
+Calling hooks "quality gates" undersells the architectural role. They're the mechanism that gives enforcement its teeth — the programmable interrupt controller between devices and the CPU.
+
+#### 15.2.4 Heterogeneous coprocessors — subagents
+
+The 10 subagents have different roles that the existing Bucket 6 (Verification & Quality) placement underrepresents:
+
+| Coprocessor type | Subagents | Computer analog |
+|---|---|---|
+| **Verification coprocessors** | code-reviewer, security-auditor, validator, coherence-auditor | Error-checking hardware (ECC, parity) |
+| **Adversarial coprocessor** | contrarian-reviewer | TPM — independent validation at a different trust level |
+| **Production coprocessors** | documentation-writer, test-generator | GPU — specialized for a workload type, produces output |
+| **Coordination coprocessor** | orchestrator | DMA controller — manages data flow without CPU intervention |
+| **Domain-specific coprocessors** | voice-coach, continuity-auditor | DSP — specialized signal processing for a domain |
+
+Lumping them all in "verification" misses that some produce output, some verify output, and some coordinate. They're a heterogeneous compute cluster.
+
+#### 15.2.5 Filesystem — git repository
+
+Git is the filesystem — where everything persists. Every component stores state in git: governance docs, memory files, hooks, agents, source code, tests. The git commit is the filesystem's fsync — the moment state becomes durable.
+
+Key directory mappings:
+- `.claude/` = dotfile config directory (like `~/.config/`)
+- `documents/` = `/etc` (system configuration) + `/usr/lib` (shared libraries)
+- `src/` = `/usr/local/lib` (locally built packages)
+- `index/` = filesystem cache (pre-computed data for fast access)
+- `staging/` = `/tmp` or build staging area
+- `tests/` = test fixtures
+
+**Why this is the right choice for the current use case:** Git gives versioning (every state is recoverable), branching (parallel work), diffing (see exactly what changed), blame (who changed what), and distributed backup — all for free. The AI session model (one conversation at a time) maps naturally to git's single-writer model. You'd only hit walls with concurrent multi-user writes, real-time updates, or structured queries — none of which are current requirements.
+
+User confirmed (2026-05-03): good with git as filesystem given the assessment.
+
+#### 15.2.6 Workload modules and drivers — domains and CFRs
+
+Domains are **workload modules** — specialized operating modes. When your computer runs a game, it uses the graphics subsystem. When it plays music, it uses the audio subsystem. When ai-governance handles coding, it loads the coding workload module.
+
+- `title-NN-*.md` (domain principles) = the **workload module** — what rules and capabilities apply for this type of work
+- `title-NN-*-cfr.md` (domain regulations) = the **driver** — the operational procedures that make the governance OS work with this specific workload type on specific platforms
+
+This pattern is already modular — adding a new domain means adding a new module+driver pair without modifying the kernel. Each pair:
+- Derives from the core kernel (constitution + rules-of-procedure)
+- Has its own specialized rules (domain principles)
+- Has its own operational procedures (CFR)
+- Can be added or removed independently
+
+Current workload modules: ai-coding (title-10), UI/UX (title-15), multi-agent (title-20), KM&PD (title-25), storytelling (title-30), multimodal-RAG (title-40).
+
+#### 15.2.7 Application programs — skills
+
+Skills (`.claude/skills/*/SKILL.md`) are **application programs** — user-invocable instruction sequences that load into the main processor (Claude's context) when triggered via `/skill-name`. They bridge the gap between workflows (manuals someone follows) and hooks (automatic interrupt handlers).
+
+Key distinctions in the computer analogy:
+- **Skills** = application programs (Word, Photoshop). Invoked by user, run in main context, full memory access. Use for repeatable workflows and on-demand reference material. Can inject dynamic content at invocation (run `git diff` and include output).
+- **Subagents** = coprocessors. Isolated context, specialized workload, return summary. Use for independent analysis where isolation is the feature.
+- **Hooks** = interrupt handlers. Fire automatically on events, can halt execution. Use for enforcement that can't be forgotten.
+- **Workflows** (`workflows/*.md`) = runbooks/manuals. Describe steps but don't execute them. Use for documented procedures.
+
+Skills live in `.claude/skills/my-skill/SKILL.md` — project-specific (checked into git) or personal (`~/.claude/skills/`). The directory name becomes the slash command.
+
+**Current status:** First skill shipped (2026-05-03): `.claude/skills/compliance-review/SKILL.md` — orchestrates the 12-check governance compliance review. Validates the application-program model: skill reads workflow definitions from `workflows/COMPLIANCE-REVIEW.md` (the runbook), spawns validator subagent (coprocessor) for Check 5d, operates under hook enforcement (interrupt controller). BACKLOG #55 discusses broader workflow codification.
+
+**Decision matrix — when to use which mechanism:**
+
+| Need | Mechanism | Why |
+|------|-----------|-----|
+| Repeatable on-demand workflow with dynamic context | **Skill** | Loads into main context, can inject live data (`!`git diff``), user controls timing |
+| Independent analysis where isolation prevents bias | **Subagent** | Fresh context = independence (`multi-quality-validation-independence`). No access to session state. |
+| Enforcement that must never be forgotten | **Hook** | Fires automatically on tool events. Structural > advisory (LEARNING-LOG: "advisory fails at 87%"). |
+| Documented procedure a human or AI follows step-by-step | **Workflow** | Reference material. Doesn't execute — describes how to execute. |
+| Automatic response to external events on a schedule | **Scheduled agent** | Cron-triggered via `/schedule`. No user prompt needed. For cadence-driven operations. |
+
+Selection test: "What happens if the human forgets to invoke this?" If forgetting is dangerous → hook. If forgetting delays a cadence → scheduled agent. If forgetting wastes effort but isn't dangerous → skill (user invokes when ready). If the procedure changes frequently → workflow (easy to update, no code).
+
+#### 15.2.8 Package repository — reference library
+
+The reference library is secondary authority — non-binding patterns accumulated from practice. That's **npm/apt/brew** — a growing catalog of community patterns you can draw on but aren't required to use. Non-authoritative (packages don't override the kernel), accumulates over time, informs practice without mandating it.
+
+Supporting files as registry metadata:
+- `documents/domains.json` + `tiers.json` = device registry / ACPI tables — machine-readable manifests of what workload modules and capability tiers exist
+
+### 15.3 4-function root view — Authority added
+
+The 3-function root view (§3.2) was held as a candidate with an open question about whether a 4th dimension was needed. Fresh-eyes analysis: **Authority is a distinct root function.**
+
+Information Flow / Control Flow / Quality Gates doesn't capture the permission model. Who can do what? The S-Series veto, the hook permission system, the "Adoption and Authority" subsection in the constitution, the 7-layer hierarchy's supremacy clause — these aren't quality gates (they don't check *correctness*), they're *authority* gates (they check *permission*).
+
+In computer architecture, this is the **privilege ring model** (ring 0 = kernel, ring 3 = user) or the **MMU** (memory management unit that enforces which memory each process can access). The governance framework has a clear authority hierarchy (Bill of Rights > Constitution > Statutes > ...) that functions exactly like privilege rings.
+
+**Updated 4-function root view:**
+
+| Root function | Article components it groups | ai-governance principles | Computer analog |
+|---|---|---|---|
+| **Information Flow** | Tools, Memory, Context Mgmt, Prompt Construction, Output Parsing, State Mgmt | `meta-core-informational-readiness`, `meta-method-single-source-of-truth`, `meta-quality-explicit-over-implicit` | Data bus, memory subsystem |
+| **Control Flow** | Orchestration Loop, Subagent Orchestration, Lifecycle Mgmt | `coding-process-discovery-before-commitment`, `coding-process-atomic-task-decomposition`, `multi-architecture-orchestration-pattern-selection` | CPU scheduler, process management |
+| **Quality Gates** | Error Handling, Guardrails & Safety, Verification Loops | `meta-quality-verification-validation`, `meta-operational-failure-recovery-resilience`, `meta-quality-visible-reasoning-traceability` | Error checking, watchdog, test fixtures |
+| **Authority** | Permission systems, hierarchy resolution, adoption/activation, S-Series veto | `meta-safety-non-maleficence-privacy-security` (S-Series), `meta-governance-human-ai-authority`, `meta-governance-reserved-powers-unenumerated-rights` | Privilege rings, MMU, access control |
+
+**Mapping between 4 functions and 8 buckets:**
+
+| Root function (4) | Component buckets |
+|---|---|
+| Information Flow | Memory + Retrieval + Action Layer (Buckets 2, 3, 4) |
+| Control Flow | Orchestration + Lifecycle (Buckets 5, 8) |
+| Quality Gates | Verification & Quality (Bucket 6) |
+| Authority | Cross-cutting — operates on Buckets 6 and 7 jointly; S-Series veto cross-cuts all |
+| (Substrate) | Inference Engine (Bucket 1) — substrate, not a function we orchestrate |
+| (Container) | Governance Policy (Bucket 7) — defines what Authority enforces and Quality Gates verify |
+
+**Why Authority is distinct from Quality Gates:** Quality Gates check *correctness* ("is this output right?"). Authority checks *permission* ("is this actor allowed to do this?"). A correct action by an unauthorized actor should still be blocked. A privileged actor making an incorrect choice should be caught by Quality Gates. They're independent dimensions. Per `meta-core-systemic-thinking`: conflating them hides the answer to both.
+
+User confirmed (2026-05-03): good with Authority as 4th function as long as it aligns with ai-governance and fits systemic thinking. The privilege ring / MMU mapping and the correctness-vs-permission distinction satisfy both conditions.
+
+### 15.4 Complete analogy-to-project map
+
+Maps every identified project component to its computer analog. Organized by role, with interface type assessment for modularization readiness.
+
+#### 15.4.1 Core system
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **CPU** | LLM (the processor) | Claude Opus 4.6/4.7 via Anthropic API | Host harness API. Swappable if drivers (appendices) updated. |
+| **OS Kernel** | Core governance framework | `documents/constitution.md` (v8.0.0) + `documents/rules-of-procedure.md` | 7-layer hierarchy, supremacy clause, derivation chain. **Coupled by design** — tight integration is architectural coherence, not a defect. |
+| **Kernel interrupt handlers (NMI)** | S-Series (Bill of Rights) | 3 amendments in `constitution.md` | Veto authority, immutable. Part of kernel — not independently swappable by design. |
+| **System libraries** | Meta-methods | `rules-of-procedure.md` methods | Referenced by ID. Swappable if contract (method ID, inputs, outputs) preserved. |
+
+#### 15.4.2 BIOS / boot subsystem
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **BIOS / Bootloader** | Session initialization | `CLAUDE.md` (simplified for Claude Code) | **Host-specific** — rewrite per platform, OS stays. |
+| **POST checklist** | Agent configuration | `AGENTS.md` | Startup sequence, memory manifest. Host-specific. |
+| **BIOS ROM** | Full boot reference | `documents/ai-instructions.md` | Reference implementation for any host. |
+| **BIOS settings (CMOS)** | Settings files | `.claude/settings.json` + `.claude/settings.local.json` | Persistent bootloader config (permissions, hooks, allowed tools). |
+
+#### 15.4.3 System bus and interconnect
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **System bus (PCIe)** | MCP protocol | FastMCP server protocol (JSON-RPC over stdio) | Standardized — any MCP client can connect. **The bus makes everything swappable.** |
+| **Devices on bus** | MCP tools | `server.py` tools + CE tools | JSON schema per tool. Swappable if schema preserved. |
+
+#### 15.4.4 Memory subsystem (Bucket 2)
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **CPU registers / program counter** | Working memory | `SESSION-STATE.md` | **Implicit contract** — hardcoded paths, format is convention. Phase 2 candidate for explicit interface. |
+| **Hard disk (persistent)** | Semantic memory | `PROJECT-MEMORY.md` | **Implicit contract.** Phase 2 candidate. |
+| **Event journal** | Episodic memory | `LEARNING-LOG.md` | **Implicit contract.** Phase 2 candidate. |
+| **Job queue / task scheduler** | Prospective memory | `BACKLOG.md` | **Implicit contract.** Phase 2 candidate. |
+
+#### 15.4.5 Retrieval subsystem (Bucket 3)
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **Memory controller / DMA** | Context Engine | `src/.../context_engine/` (separate MCP server) | `BaseStorage` + `BaseConnector` abstractions + MCP tools. **Exemplar of modular design.** |
+| **Filesystem cache** | Pre-built index | `index/` (global_index.json + embeddings) | Rebuilt by extractor. Swappable — extractor regenerates from source. |
+| **Filesystem monitor** | Watcher daemon | `context_engine/watcher.py` + `watcher_daemon.py` | Auto-updates index on file changes. DMA-like. |
+
+#### 15.4.6 Action layer (Bucket 4)
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **Device firmware** | Governance MCP server | `server.py` + `retrieval.py` + `enforcement.py` | MCP tool schema contracts. Modular — internals can change if contracts preserved. |
+| **Offline compiler** | Index builder | `extractor.py` | Parses docs → index. Runs offline. |
+| **Type system** | Data schemas | `models.py` (Pydantic) | Internal data contract. |
+
+#### 15.4.7 Orchestration + Lifecycle (Buckets 5 & 8)
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **CPU scheduler** | Host harness orchestration | Claude Code ReAct loop | Host-provided. We influence via hooks/skills, don't own. |
+| **Coprocessors (heterogeneous)** | Subagents | `.claude/agents/` (10, canonical: `documents/agents/`) | Task delegation, return summary. Modular — add/remove independently. |
+| **Application programs** | Skills | `.claude/skills/` (1: compliance-review) | User-invocable instruction sequences. Decision matrix in §15.2.7. |
+| **Runbooks / stored procedures** | Workflows | `workflows/` (3 checklists) | Human-triggered. Modular — standalone. |
+| **Design review template** | Plan template | `.claude/plan-template.md` | Template for plan mode. Standalone. |
+
+#### 15.4.8 Verification & Quality (Bucket 6)
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **Interrupt controller (PIC/APIC)** | Hook system | `.claude/hooks/` (8 scripts + Rampart tripwired) | Event → exit code. Modular — each standalone. |
+| **Watchdog timer** | CI workflows | `.github/workflows/` | Merge-blocking. Modular. |
+| **Test bench** | Test suite | `tests/` + `tests/benchmarks/` | pytest. Modular. |
+| **Utility programs** | Analysis scripts | `scripts/` | CLI tools. Standalone. |
+| **Audit logger** | Governance audit log | `governance_audit.jsonl` + deny logs | Append-only structured log. |
+
+#### 15.4.9 Governance Policy (Bucket 7)
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **OS kernel** (restated) | Constitution + RoP | `documents/constitution.md` + `rules-of-procedure.md` | **Coupled by design** — tight integration IS coherence. |
+| **Workload modules** | Domain principles | `documents/title-NN-*.md` (6 domains) | Derives from kernel. Modular — add/remove without kernel changes. |
+| **Drivers** | Domain regulations (CFR) | `documents/title-NN-*-cfr.md` (6 files) | Translates OS rules to domain-specific ops. Paired with module. |
+| **Device registry (ACPI)** | Manifests | `documents/domains.json` + `tiers.json` | Machine-readable catalog of installed modules + tiers. |
+| **Errata / known bugs** | Failure mode registry | `failure-mode-registry.md` + `test-failure-mode-map.md` | Documented failure modes with mitigations + test coverage. |
+| **Package repository** | Reference library | `reference-library/` (staging infra exists) | Non-binding patterns. Additive, no dependencies. |
+
+#### 15.4.10 Documentation and meta
+
+| Computer Component | Project Equivalent | File |
+|---|---|---|
+| **System schematic** | Architecture doc | `ARCHITECTURE.md` |
+| **Hardware spec sheet** | Specification | `SPECIFICATION.md` |
+| **Protocol spec** | API docs | `API.md` |
+| **Bill of materials** | Software BOM | `SBOM.md` |
+| **Security spec** | Security docs | `SECURITY.md` |
+| **Design references** | Influences catalog | `INFLUENCES.md` |
+| **Product manual** | README | `README.md` |
+| **Build configuration** | Project config | `pyproject.toml` |
+| **Portable system image** | Container | `Dockerfile` |
+| **Build staging** | Staging area | `staging/` |
+| **System blueprint** | This document | `EXECUTION-FRAMEWORK.md` |
+
+### 15.5 Gap analysis — computer components with no project equivalent
+
+| Missing Component | What It Does | Project Gap | Status |
+|---|---|---|---|
+| **Stateful firewall** | Deep inspection, threat patterns, I/O sanitization | Hooks = basic packet filtering. Rampart = stateful firewall. | Tripwired (BACKLOG #19). Deferred upgrade, not missing link. |
+| **Resource monitor / power management** | Tracks resource consumption, provides telemetry | No token/API/context utilization tracking. OOM gate prevents catastrophe but no normal-operation observability. | **Genuine gap.** BACKLOG #58 adjacent but scoped to re-injection, not telemetry. |
+| **Scheduler / clock** | Automated time-based operations | Cadences manually tracked. No cron equivalent. Host `/schedule` and `/loop` exist but framework doesn't own. | **Partial gap.** BACKLOG #146 recognizes cadences differ from projects. |
+| **Virtual memory manager** | Page replacement policy, eviction priority | Host handles compaction; no framework say in eviction. SESSION-STATE pruning is manual swap. | **Partial gap.** Could define retention priority policy. |
+| **Diagnostic / debug port** | Real-time decision debugging | governance_audit.jsonl is post-hoc. No step-through of governance decisions. | **Minor gap.** Current audit trail adequate for most use. |
+| **Application programs** | User-invocable software | First skill shipped: `compliance-review`. `.claude/skills/` created. | **Closed (Phase 1, 2026-05-03).** Decision matrix documented in §15.2.7. |
+
+### 15.6 Modularization assessment
+
+Per the interface boundaries insight (§15.1), current state by modularization readiness:
+
+#### 15.6.1 Already modular — explicit interfaces, ready to swap
+
+These components have defined interface contracts and can be replaced independently:
+
+- **Context Engine** — `BaseStorage` + `BaseConnector` abstract classes + MCP tool contracts. The exemplar. If every component looked like this, the modularization goal would be met.
+- **Hooks** — standalone scripts, exit-code interface (0=allow, 1=block), event-type routing. Add/remove/replace independently.
+- **Subagents** — standalone markdown definitions, Task tool delegation interface. Add/remove/replace independently.
+- **Domain workload modules + drivers** — paired title/CFR files, derive from kernel. Add new domain without kernel changes.
+- **MCP tools** — JSON schema contracts. Swap internal implementation if schema preserved.
+- **CI workflows** — independent workflow files, merge-blocking interface.
+- **Reference library** — non-binding, additive, no dependencies.
+- **Workflows** — standalone procedure files, manually triggered.
+- **Test suite** — pytest, independent test files.
+- **Scripts** — standalone CLI tools.
+
+#### 15.6.2 Implicit interface — phase 2 modularization candidates
+
+These components work but have implicit contracts that would need to be made explicit for true swappability:
+
+- **Memory files** (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG, BACKLOG) — every consumer knows the file paths and formats, but there's no abstract interface. The "contract" is scattered across CLAUDE.md, AGENTS.md, and session protocols. **Phase 2:** define what operations each memory type supports (read, write, search, prune, append) and put that contract somewhere explicit — the equivalent of what `BaseStorage` does for the Context Engine. This would enable swapping markdown files for a database, MCP server, or any other backend that implements the interface.
+- **BIOS/bootloader** (CLAUDE.md, AGENTS.md) — the boot sequence is documented but not abstracted. Porting to a new host requires manual rewriting. **Phase 2:** extract a portable boot specification that any host's BIOS can implement.
+- **Index format** (global_index.json + embeddings) — rebuilt by extractor, consumed by retrieval. Format is implicit. Swapping embedding model requires rebuilding, but format contract isn't documented. Lower priority — extractor abstracts this already.
+
+#### 15.6.3 Coupled by design — deliberate tight integration
+
+These components are tightly coupled AND SHOULD BE. Like a real kernel, tight integration is what makes the system coherent. Modularizing them would be like going from a monolithic kernel to a microkernel — a valid architectural choice but a fundamental redesign, not a component swap.
+
+- **Constitution + Rules of Procedure** — the governance hierarchy, supremacy clause, and derivation chain are the tight coupling. Every domain derives from the constitution. Every method references the hierarchy. This is BY DESIGN — constitutional coherence requires it. Loosening would undermine the framework's authority model.
+- **S-Series + enforcement mechanisms** — the Bill of Rights has veto authority specifically because it's tightly coupled to the enforcement layer. If you could "swap" the S-Series, you'd undermine the safety guarantee. This is the TPM equivalent — not meant to be removable.
+- **The 7-layer hierarchy itself** — the override order (Bill of Rights > Constitution > Statutes > RoP > Regulations > SOPs > Secondary Authority) is the architectural invariant. It's not a component; it's the bus topology. Changing it changes the system's fundamental behavior.
+
+**Why this coupling is correct per `meta-core-structural-foundations`:** The OS kernel SHOULD have "single responsibilities, explicit boundaries, and minimal coupling" *between its subsystems* — but the kernel itself is a cohesive unit. The constitution's internal structure (Articles, Bill of Rights, Preamble) has clear boundaries between subsystems while maintaining tight coherence as a whole. This is the same pattern as a well-designed kernel: drivers are loosely coupled, but the scheduler + memory manager + IPC are tightly integrated because they must be.
+
+### 15.7 Updated status of §11 open questions
+
+| §11 Item | Previous Status | Updated Status (2026-05-03) |
+|---|---|---|
+| 1. Storage location | Pending — multi-layer leaning | **Still pending.** Document transformation may resolve — if blueprint becomes permanent project file, the question changes. |
+| 2. 3-function root conversation | Not yet happened | **Resolved.** 4-function root adopted: Information Flow, Control Flow, Quality Gates, Authority. See §15.3. |
+| 3. Trigger to ship | Pending | **Partially resolved.** Map demonstrates independent value — doesn't need workflows/skills as prerequisite. Document transformation should happen before final codification. |
+| 4. Q9 dependency direction | Pending | **Resolved.** Map IS useful independent of workflows/skills. Method worth codifying on own merits. Workflows/skills = one empirical test, not prerequisite. |
+| 5. Article's role | Pending | **Unchanged.** Reference library entry + cited inline as example. |
+| 6. Subtraction test | Partially answered | **Unchanged.** |
+| 7. Bucket 3 sub-bucket split | Defer until empirical | **Unchanged.** |
+| 8. Bucket 5 sub-bucket split | Defer until empirical | **Unchanged.** |
+| 9. Adoption/Authority placement | Pending | **Partially resolved.** Authority is now a root function (§15.3). "Adoption" specifically is a Lifecycle event (Bucket 8) — the activation moment where a governance OS gains authority over a project. |
+| 10. Hardware-vs-software formal grounding | General knowledge | **Unchanged.** |
+| 11. Bucket renaming | In progress | **Unchanged.** |
+| 12. Substrate-level safety classification | In Bucket 1 | **Confirmed.** Substrate-level safety is internal to the CPU per hardware-vs-software dimension. |
+
+### 15.8 Empirical assessment — compliance-review skill vs 8-bucket model (2026-05-03)
+
+Per §4.1: "the model should be empirically tested when workflows/skills design begins." The compliance-review skill (`.claude/skills/compliance-review/SKILL.md`) is the first instantiation. Assessment:
+
+| Bucket | How the Skill Touches It | Interaction Type |
+|--------|--------------------------|-----------------|
+| **1 — Inference Engine** | Skill loads into main LLM context (application program running on CPU) | Direct — skill IS a program on the inference engine |
+| **2 — Memory** | Reads COMPLIANCE-REVIEW.md review history, checks SESSION-STATE (V-005), reads LEARNING-LOG (Check 4), references BACKLOG (Check 8) | Heavy consumer — reads from 4 memory surfaces |
+| **3 — Retrieval** | Check 6 runs `query_governance()` canary — tests retrieval system health | Direct test of retrieval pipeline |
+| **4 — Action Layer** | Tests MCP server (Check 6 canary), governance tool calls during execution | Indirect — exercises the action layer, doesn't modify it |
+| **5 — Orchestration** | Skill IS an orchestration mechanism: coordinates 12-check workflow, spawns validator subagent (Check 5d), uses dynamic content injection | The skill lives here — it is the application program |
+| **6 — Verification & Quality** | The entire compliance review IS a verification activity. Checks hook integrity (1), enforcement mode (1b), audit logs (6b) | The skill's PURPOSE is this bucket — cross-cutting quality gate |
+| **7 — Governance Policy** | Checks tiers.json/CLAUDE.md alignment (Check 3), constitutional register integrity (Check 9) | Validates governance policy surfaces are coherent |
+| **8 — Lifecycle** | Review has cadence lifecycle (10-15 days). V-series experiments track behavioral evolution. Review log captures longitudinal data. | Lifecycle management of the review process itself |
+
+**Assessment: Model held.** All 8 buckets are distinct and the skill interacts with each in a characteristically different way. No bucket felt redundant, misplaced, or missing.
+
+**Key finding — Bucket 5/6 boundary:** The skill (Bucket 5, orchestration tool) executes verification checks (Bucket 6, verification activity). This confirms the bucket separation is about the component's *nature* (what it is), not its *consumer* (who uses it). The compliance-review skill is an orchestration mechanism; the checks it runs are verification activities. A skill that runs analytics would be a Bucket 5 component exercising Bucket 3 retrieval — same pattern.
+
+**Open questions updated:**
+- §11 item 7 (Bucket 3 sub-bucket split): No signal from this test — skill's retrieval interaction is a single canary query, not enough to assess sub-bucket structure.
+- §11 item 8 (Bucket 5 sub-bucket split): Mild signal — the skill acts as both "orchestration" (sequencing the 12 checks) and "application program" (user-invokable workflow). These are distinguishable roles within Bucket 5. A future sub-bucket split between "orchestration mechanisms" (plan mode, host harness) and "application programs" (skills) may be warranted as more skills are created.
+
+**Conclusion:** No bucket adjustments needed for Phase 2 (OPERATIONS.md). The 8-bucket model maps cleanly to the first real instantiation.
+
+---
+
+## 16. Maintenance notes
+
+- **Planned transformation (2026-05-03):** This file is transitioning from a working brainstorm into a **permanent blueprint / memory file** for the project. The format should be updated to match the structured formatting of other well-structured governance documents (frontmatter, versioned sections, clear organization). All nuance, reasoning, analogies, and the complete mapping must be preserved — the transformation is about format, not content reduction. This transformation goes into the implementation plan as a D2 task.
+- ~~This file is working memory for an in-flight design conversation, not a permanent framework artifact.~~ (Superseded by planned transformation above.)
 - Per `meta-method-single-source-of-truth`: when content from this file lands in `rules-of-procedure.md` (or wherever), the canonical home is there, and this file becomes archive material.
 - Per session-140 user direction: **do not summarize or compress this file's content** during routine SESSION-STATE updates — the nuance is the point.
 - **Pickup discipline:** a future reader (human or AI) opening this file cold should be able to resume exactly where the conversation left off. If you find yourself unable to do that, the file has lost necessary context and should be enriched, not compressed.
-- **Bucket layer is v0.1-draft.** Treat it as such — propose changes, flag conflations, surface gaps. The 3-function root view has not yet been examined as its own conversation; when it is, expect possible revision (additional dimensions, different decomposition).
+- **Bucket layer is v0.1-draft.** Treat it as such — propose changes, flag conflations, surface gaps. The root view was extended from 3-function to 4-function (Authority added) in §15.3 (2026-05-03). The 8-bucket component layer remains v0.1-draft pending empirical instantiation.

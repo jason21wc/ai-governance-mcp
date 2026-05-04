@@ -9,7 +9,8 @@
 | File | Purpose |
 |------|---------|
 | SESSION-STATE.md | Current position, next actions |
-| BACKLOG.md | Discussion items and deferred work |
+| BACKLOG.md | Discrete projects (start, work, finish) |
+| OPERATIONS.md | Recurring operational commitments (cadences, tripwires, metrics) |
 | PROJECT-MEMORY.md | Decisions, constraints, gates |
 | LEARNING-LOG.md | Lessons learned |
 | ARCHITECTURE.md | System design, data flow |
@@ -41,6 +42,7 @@ docker run -i --rm ai-governance-mcp    # Run container
 - `src/ai_governance_mcp/context_engine/` — Context Engine MCP (4 tools)
 - `documents/` — Governance content (indexed)
 - `documents/agents/` — Canonical agent templates (edit here first, then sync to `.claude/agents/`)
+- `.claude/skills/` — Project skills (invoke via `/skill-name`)
 - `index/` — Generated embeddings
 - `tests/` — Test suite
 
