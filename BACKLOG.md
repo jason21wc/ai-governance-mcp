@@ -144,26 +144,23 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 148. Execution Framework — design discussion in-flight (working file at repo root) `D2 Improvement`
+#### 148. Execution Framework — operationalization (Phases 1-3 complete, Phase 4 pending) `D3 Improvement`
 
-**Filed:** 2026-04-29 (session-139), continuing 2026-04-30 (session-140).
+**Filed:** 2026-04-29 (session-139). **Advanced:** 2026-05-03 (session-145, plan execution).
 
-**What.** Active design discussion to define an "Execution Framework" method for ai-governance: a meta-method describing the major conceptual components (buckets) any system following ai-governance's structure needs in place for intent engineering to actually function. Trigger source: external article *"The Anatomy of an Agent Harness"* (Pachaar, April 2026). Working framing: ai-governance is itself an "intent harness" — the scaffolding that makes principles enforceable rather than advisory. Goal: identify the components so we can evaluate "is there a better implementation available for this slot?" (architectural coherence + component-swap discipline).
+**What.** Operationalize the Execution Framework: create skills infrastructure, operational home for recurring items, restructure working document into permanent blueprint, configure scheduling/automation. 4-phase D3 plan: Empirical Instantiation → Foundation → Blueprint → Automation.
 
-**Primary content lives in `EXECUTION-FRAMEWORK.md` at repo root** (not in this BACKLOG entry). That file captures: full conversation reasoning (no compression), the body/skeleton metaphor (initial), the custom-computer metaphor (primary, session-140), 3-function root view (candidate, not yet examined dedicated), 8-bucket component view v0.1-draft, sub-bucket method-level descriptions, principle/method/appendix mapping (with caveats), 4-layer portability story (CPU/motherboard/standards/drivers), bucket-6/7 boundary per `constitution.md` §Structural Enforcement (Cross-Cutting), hardware-vs-software quality dimension, storage location options, all 9 coaching questions with status, 3 contrarian rounds and their findings, what we explicitly chose NOT to do, 12 open questions for pickup.
+**Primary content lives in `EXECUTION-FRAMEWORK.md` at repo root.** Restructured 2026-05-03 from chronological brainstorm (§1-§16) to thematic blueprint (§1-§15): root view, component view, architecture analogies, system map, interface assessment, memory interface contracts, context retention policy, portability model, gap analysis, decision log, open questions, design history, references, version history. Coherence-auditor PASS on nuance preservation (4/4 criteria).
 
-**Why D2 not D3.** Likely D2 (plan-mode required) when ready to ship — the method is mostly architectural documentation, not new infrastructure. Could rise to D3 if storage decision lands as multi-layer placement (principles + methods + appendices co-located across multiple files).
+**Phase status:**
+- **Phase 1 (Empirical Instantiation):** COMPLETE. First skill (`.claude/skills/compliance-review/SKILL.md`) created. 8-bucket model empirically validated (§2.3). Decision matrix documented (§3.7).
+- **Phase 2 (Foundation):** COMPLETE. `OPERATIONS.md` created (7th memory type). 2 cadences, 12 tripwires, V-series registry migrated from BACKLOG. 5 effectiveness metrics defined (M-001–M-005). Context retention priority policy added (§7). BACKLOG philosophy block updated.
+- **Phase 3 (Blueprint):** COMPLETE. `EXECUTION-FRAMEWORK.md` restructured to thematic. Memory interface contracts added (§6). Coherence-auditor verified.
+- **Phase 4 (Automation):** PENDING. Assess `/schedule` capabilities, define scheduled operations, configure at least one, session-end approach, gap analysis update.
 
-**Status.** v0.1-draft — first complete pass of bucket model recorded. Empirical testing deferred until workflows/skills design begins (the natural trigger). Several open questions remain unresolved (see `EXECUTION-FRAMEWORK.md` §11). Not ready for plan mode yet.
+**Done when.** Phase 4 tasks complete: scheduled operations defined in OPERATIONS.md, at least one configured, gap analysis updated.
 
-**Trigger to advance.** ANY of:
-1. Workflows/skills feature work begins → use bucket model as design checklist; if it helps, codify; if it surprises us, iterate the model first.
-2. A decision on `EXECUTION-FRAMEWORK.md` §11 open questions converges enough that the v0.1-draft can be promoted to v1.0.
-3. Storage location decision (§7 of working file) becomes a blocker for another piece of work that needs it.
-
-**Done when.** Either (a) the Execution Framework method ships in its decided storage location with all v0.1-draft caveats resolved, OR (b) closed-as-deferred-permanently after extended discussion concludes the framework doesn't need this codified.
-
-**Origin.** Session-139 (2026-04-29) external article review brainstorm. Session-140 (2026-04-30) refinement to computer-architecture metaphor + 8-bucket v0.1-draft + bucket-6/7 boundary clarification + hardware-vs-software dimension + bucket renaming. Governance: `gov-1ce1278cc85e`, `gov-a2d2b84d5b99`, `gov-5ba8aa3ff93b`, `gov-266235bbac6e`, `gov-9452d3f7e513`. See `EXECUTION-FRAMEWORK.md` for full reasoning trail and pickup discipline.
+**Origin.** Session-139 (2026-04-29) external article. Session-140 (2026-04-30) computer-architecture metaphor + v0.1-draft. Session-145 (2026-05-03) plan execution Phases 1-3. Governance: `gov-1ce1278cc85e`, `gov-a2d2b84d5b99`, `gov-5ba8aa3ff93b`, `gov-266235bbac6e`, `gov-9452d3f7e513`, `gov-4282d90a079e`. See `EXECUTION-FRAMEWORK.md` §12 for full design history.
 
 ---
 
