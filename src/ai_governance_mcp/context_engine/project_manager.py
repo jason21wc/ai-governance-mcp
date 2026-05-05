@@ -11,6 +11,7 @@ import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Literal
 import numpy as np
 from rank_bm25 import BM25Okapi
 
@@ -63,6 +64,9 @@ MIN_CHUNK_BODY_CHARS = 30
 MMR_SIMILARITY_THRESHOLD = 0.85
 MMR_LAMBDA = 0.7
 
+# RRF fusion constant (Cormack et al., 2009)
+RRF_K = 60
+
 
 def _build_bm25(corpus: list[list[str]]) -> BM25Okapi | None:
     """Build a BM25 index from a tokenized corpus, with empty-corpus guard.
@@ -95,6 +99,7 @@ class ProjectManager:
         default_index_mode: IndexMode = "ondemand",
         readonly: bool = False,
         reranking: bool = True,
+        fusion_method: Literal["linear", "rrf"] = "linear",
     ) -> None:
         self.storage = storage or FilesystemStorage()
         self.embedding_model_name = embedding_model
@@ -103,6 +108,7 @@ class ProjectManager:
         self.default_index_mode: IndexMode = default_index_mode
         self.readonly = readonly
         self.reranking = reranking
+        self.fusion_method = fusion_method
 
         self._indexer = Indexer(
             storage=self.storage,
@@ -952,6 +958,51 @@ class ProjectManager:
 
         return selected
 
+    def _compute_bonuses(
+        self,
+        chunks: list[ContentChunk],
+        file_recency_map: dict[str, float] | None,
+        query_lower: str,
+    ) -> np.ndarray:
+        """Compute per-chunk bonuses (file type, recency, metadata)."""
+        n = len(chunks)
+        bonuses = np.zeros(n)
+        for i, chunk in enumerate(chunks):
+            file_type = self._classify_file_type(chunk.source_path)
+            bonuses[i] = FILE_TYPE_BONUSES.get(file_type, 0.0)
+            bonuses[i] += self._compute_recency_bonus(
+                chunk.source_path, file_recency_map
+            )
+            bonuses[i] += self._compute_metadata_bonus(chunk, query_lower)
+        return bonuses
+
+    @staticmethod
+    def _combine_linear(
+        sem: np.ndarray, kw: np.ndarray, bonuses: np.ndarray, semantic_weight: float
+    ) -> np.ndarray:
+        """Linear weighted fusion: w*sem + (1-w)*kw + bonuses, clipped to [0,1]."""
+        combined = semantic_weight * sem + (1 - semantic_weight) * kw + bonuses
+        return np.clip(combined, 0.0, 1.0)
+
+    @staticmethod
+    def _combine_rrf(
+        sem: np.ndarray, kw: np.ndarray, bonuses: np.ndarray
+    ) -> np.ndarray:
+        """Reciprocal Rank Fusion with min-max normalized bonuses."""
+        n = len(sem)
+        sem_ranks = np.argsort(np.argsort(-sem)) + 1
+        kw_ranks = np.argsort(np.argsort(-kw)) + 1
+        rrf_raw = 1.0 / (RRF_K + sem_ranks) + 1.0 / (RRF_K + kw_ranks)
+
+        rrf_min, rrf_max = rrf_raw.min(), rrf_raw.max()
+        if rrf_max - rrf_min > 1e-10:
+            rrf_norm = (rrf_raw - rrf_min) / (rrf_max - rrf_min)
+        else:
+            rrf_norm = np.full(n, 0.5)
+
+        combined = rrf_norm + bonuses
+        return np.clip(combined, 0.0, 1.0)
+
     def _fuse_scores(
         self,
         chunks: list[ContentChunk],
@@ -971,23 +1022,13 @@ class ProjectManager:
         sem = semantic_scores if len(semantic_scores) == n else np.zeros(n)
         kw = keyword_scores if len(keyword_scores) == n else np.zeros(n)
 
-        # Compute per-chunk bonuses
-        bonuses = np.zeros(n)
-        for i, chunk in enumerate(chunks):
-            file_type = self._classify_file_type(chunk.source_path)
-            bonuses[i] = FILE_TYPE_BONUSES.get(file_type, 0.0)
-            bonuses[i] += self._compute_recency_bonus(
-                chunk.source_path, file_recency_map
-            )
-            # Metadata boosting for frontmatter-enriched chunks (Reference Library, etc.)
-            bonuses[i] += self._compute_metadata_bonus(chunk, query_lower)
+        bonuses = self._compute_bonuses(chunks, file_recency_map, query_lower)
 
-        combined = (
-            self.semantic_weight * sem + (1 - self.semantic_weight) * kw + bonuses
-        )
-        combined = np.clip(combined, 0.0, 1.0)
+        if self.fusion_method == "rrf":
+            combined = self._combine_rrf(sem, kw, bonuses)
+        else:
+            combined = self._combine_linear(sem, kw, bonuses, self.semantic_weight)
 
-        # Fetch all non-zero candidates; dedup will reduce to max_results
         top_indices = np.argsort(combined)[::-1]
 
         results = []
@@ -1010,7 +1051,6 @@ class ProjectManager:
             chunk_indices.append(int(idx))
 
         # Cross-encoder reranking (when IPC daemon available)
-        # Build index map before reranking so we can reorder chunk_indices to match
         result_to_chunk_idx = {id(r): ci for r, ci in zip(results, chunk_indices)}
         results = self._rerank_results(query_lower, results)
         chunk_indices = [result_to_chunk_idx[id(r)] for r in results]

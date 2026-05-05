@@ -5196,6 +5196,69 @@ class TestRankingSignals:
             f"Expected at least one diverse chunk in top 3, got: {result_contents[:3]}"
         )
 
+    def test_rrf_fusion_differs_from_linear(self):
+        """RRF produces different ordering when rankers disagree on top-1."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.7, reranking=False, fusion_method="rrf")
+        chunks = [
+            self._make_chunk("src/a.py", "semantic dominant but keyword worst"),
+            self._make_chunk("src/b.py", "keyword dominant but semantic worst"),
+            self._make_chunk("src/c.py", "consistent moderate in both rankers"),
+            self._make_chunk("src/d.py", "low in both rankers"),
+        ]
+        # a: sem_rank=1, kw_rank=4 (polarized toward semantic)
+        # b: sem_rank=4, kw_rank=1 (polarized toward keyword)
+        # c: sem_rank=2, kw_rank=2 (consistent)
+        # d: sem_rank=3, kw_rank=3 (consistent but lower)
+        # Linear (0.7 sem + 0.3 kw): a wins (0.716 vs c=0.52)
+        # RRF: c wins (rank 2+2 beats rank 1+4 due to harmonic properties)
+        sem = np.array([0.99, 0.10, 0.50, 0.30])
+        kw = np.array([0.01, 0.99, 0.50, 0.30])
+
+        results_rrf = pm._fuse_scores(chunks, sem, kw, max_results=4)
+
+        pm_linear = ProjectManager(
+            semantic_weight=0.7, reranking=False, fusion_method="linear"
+        )
+        results_linear = pm_linear._fuse_scores(chunks, sem, kw, max_results=4)
+
+        rrf_order = [r.chunk.source_path for r in results_rrf]
+        linear_order = [r.chunk.source_path for r in results_linear]
+
+        # RRF favors c (consistent rank 2 in both rankers)
+        assert results_rrf[0].chunk.source_path == "src/c.py", (
+            f"Expected RRF top-1 to be c.py (consistent ranker), got {rrf_order}"
+        )
+        # Linear favors a (semantic weight 0.7 dominates)
+        assert results_linear[0].chunk.source_path == "src/a.py", (
+            f"Expected linear top-1 to be a.py (semantic dominant), got {linear_order}"
+        )
+
+    def test_rrf_with_bonuses_preserves_bonus_effect(self):
+        """RRF + min-max normalization still allows bonuses to influence ranking."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.7, reranking=False, fusion_method="rrf")
+        chunks = [
+            self._make_chunk("src/a.py", "implementation code clearly best"),
+            self._make_chunk("tests/test_a.py", "test code a moderate rank"),
+            self._make_chunk("src/b.py", "implementation code b moderate rank"),
+            self._make_chunk("src/c.py", "implementation code lowest rank"),
+        ]
+        # b and c have tied RRF (symmetric rank swap: sem=2/kw=3 vs sem=3/kw=2)
+        # Bonus should tip: test_a.py (-0.02) drops below src/b.py (+0.02)
+        sem = np.array([0.90, 0.80, 0.70, 0.50])
+        kw = np.array([0.90, 0.70, 0.80, 0.50])
+        results = pm._fuse_scores(chunks, sem, kw, max_results=4)
+        result_paths = [r.chunk.source_path for r in results]
+        test_idx = result_paths.index("tests/test_a.py")
+        src_b_idx = result_paths.index("src/b.py")
+        assert src_b_idx < test_idx, (
+            f"Expected source file to rank above test file (bonus effect), "
+            f"got {result_paths}"
+        )
+
     def test_no_bonuses_when_no_recency_map(self):
         """Without a recency map, only file-type bonuses apply."""
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
