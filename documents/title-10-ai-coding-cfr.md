@@ -9152,17 +9152,50 @@ For tools that compete *inside* a category — where the framework recommends co
 
 **Governance Level:** Agency SOP (Platform-Specific Appendix)
 **Implements:** `multi-reliability-observability-protocol` (Title 20 — agent visibility); `coding-process-human-ai-collaboration-model` (review-before-approve discipline).
-**Applies To:** Local terminal environment when the AI agent runs in a CLI host (Claude Code CLI, Gemini CLI, plain shell). macOS / Linux / Windows; Warp 0.2024.x or later as of 2026-04.
-**Information Currency:** 2026-04-25 (verify free-vs-paid boundary at adoption — vendor surface changes quarterly).
-**Source:** [warp.dev](https://www.warp.dev); pricing tiers at [warp.dev/pricing](https://www.warp.dev/pricing).
+**Applies To:** Local terminal environment when the AI agent runs in a CLI host (Claude Code CLI, Gemini CLI, plain shell). macOS 10.14+ / Linux (x64, ARM64) / Windows 10+.
+**Information Currency:** 2026-05-04 (verify free-vs-paid boundary at adoption — vendor surface changes quarterly).
+**Source:** [warp.dev](https://www.warp.dev); docs at [docs.warp.dev](https://docs.warp.dev); pricing at [warp.dev/pricing](https://www.warp.dev/pricing).
 
-**Why we recommend it.** Warp's *terminal UI* (split panes, side panel for repo files, tabbed sessions, command blocks) wraps Claude Code in a substantially better review surface — adopters can see plan output, edited files, and diff context alongside the conversation without leaving the terminal. That UI is the framework value: it materially supports the review-before-approve discipline `coding-process-human-ai-collaboration-model` requires for AI-generated work, and the multi-pane view supports the visibility-into-agent-progress requirement of `multi-reliability-observability-protocol`. The framework recommendation is for *Warp's terminal UI*, not Warp's own LLM/agent features.
+**Why we recommend it.** Warp's terminal UI wraps Claude Code in a materially better review surface — block-based output, split panes, vertical tabs with agent status, and a code review panel let adopters see plan output, diffs, and conversation alongside each other without leaving the terminal. This supports the review-before-approve discipline of `coding-process-human-ai-collaboration-model` and the visibility requirement of `multi-reliability-observability-protocol`. The framework recommendation is for *Warp's terminal UI*, not Warp's own LLM/agent features.
 
-**What an AI agent needs to know.**
+**What the free tier provides.** The free tier covers all features below. Warp's paid tiers buy Warp's own AI/agent products (Warp Agent, hosted LLM access) — *separate* from Claude Code and *not* the reason this framework recommends Warp. Warp's terminal client is open-source (AGPL v3).
 
-- The free tier is sufficient for everything above. Warp's paid tiers buy Warp's own AI/agent products (Warp Agent, hosted LLM access), which are *separate* from a Claude Code session and *not* the reason this framework recommends Warp.
-- Inside Warp, Claude Code (or any other CLI agent) runs as a normal subprocess — governance hooks, MCP servers, `.claude/` settings, and the project's enforcement stack all apply unchanged.
-- Do **not** mix Warp's own agent and a governed Claude Code session over the same terminal flow without thinking through dual-loop dynamics: when two agents act on the same surface, the audit trail blurs and reviewer sign-off semantics break (which agent did what, under whose governance?).
+#### M.1.1 Recommended Setup
+
+1. **Install Warp** from [warp.dev](https://www.warp.dev) (macOS, Linux, Windows).
+2. **Launch Claude Code** inside Warp (`claude` in any Warp tab). Warp auto-detects agent sessions and surfaces integrated controls — no manual configuration.
+3. **Enable Rich Input auto-open:** Settings → Agents → Third-party CLI agents → enable *"Auto open Rich Input when a coding agent session starts"* and confirm `claude` is mapped to Claude Code. This opens the Rich Input editor automatically on every Claude Code session.
+4. **Install the notification plugin** (first-run prompt or manual):
+   ```
+   /plugin marketplace add warpdotdev/claude-code-warp
+   /plugin install warp@claude-code-warp
+   ```
+   Requires `jq`. Restart Claude Code or run `/reload-plugins` after install. Source: [warpdotdev/claude-code-warp](https://github.com/warpdotdev/claude-code-warp).
+
+#### M.1.2 Key Features for AI Agent Workflows
+
+**Rich Input Editor** (`Ctrl+G` or click the Rich Input toggle at the bottom of the pane).
+Claude Code is a TUI that owns the terminal input area — Warp's normal click-to-edit Modern Input Editor does not apply inside TUI apps. Rich Input solves this by opening a separate text-editor pane where you compose prompts to Claude Code with full IDE-style editing:
+- Click anywhere to position cursor; click-and-drag to select; type to replace.
+- Multi-line composition with `Shift+Enter` (useful for pasting plans, error logs, code blocks).
+- Attach images, open file explorer, trigger voice transcription (`fn` key), or open the code review panel — all from the Rich Input toolbar.
+- **Permission prompts:** Rich Input auto-closes when Claude Code shows a permission dialog (Accept / Accept Always / Deny) and reopens after you respond — controlled by `auto_toggle_composer` (default: `true`) in Warp's `[agents.third_party]` settings. If Rich Input stays open, permission keys still work: `Y`/`Enter` to accept, `N`/`Escape` to deny, `Left`/`Right` or `Tab` to switch options. Close Rich Input first (`Ctrl+G`) if `Shift+Tab` (cycle permission modes) is captured.
+
+**Block-based output.** Every command + its output is a discrete, selectable, copyable unit with exit code, duration, and timestamp. Copy a failed command's full output (including metadata) and paste it directly into Claude Code as context — the block IS the unit of copy.
+
+**Code Review Panel** (`Cmd+Shift++`). Visual diffs across all files Claude Code has modified, with inline commenting. Comments submitted from the review panel are sent directly to the agent session.
+
+**Notification plugin.** In-app + desktop alerts when Claude Code needs input (command approval, code review, error). Displays current Git branch alongside agent status. Uses OSC 777 escape sequences with structured JSON payloads — hooks into Claude Code's `Stop`, `Notification`, `PermissionRequest`, `UserPromptSubmit`, and `PostToolUse` events.
+
+**Vertical tabs.** Multiple parallel Claude Code sessions, each showing agent status, Git branch, and workflow metadata at a glance.
+
+**Modern Input Editor** (applies to normal terminal usage outside TUI apps). Click anywhere in the command line, click-and-drag to select, double-click to Smart-Select file paths/URLs/IPs as a unit, multi-line editing with `Shift+Enter`. Toggle to Classic Input (Settings → Appearance → Input → Shell PS1) if preferred.
+
+#### M.1.3 What an AI Agent Needs to Know
+
+- Inside Warp, Claude Code runs as a normal subprocess — governance hooks, MCP servers, `.claude/` settings, and the project's enforcement stack all apply unchanged.
+- Do **not** mix Warp's own agent (Agent Mode, toggled via `Cmd+I` / `Ctrl+I`) and a governed Claude Code session over the same terminal flow. When two agents act on the same surface, the audit trail blurs and reviewer sign-off semantics break (which agent did what, under whose governance?).
+- Warp's natural language auto-detection in Classic Input mode runs locally (no data transmitted until Enter in Agent Mode), but can false-positive on prompts intended for Claude Code. If using Classic Input, add false-positive commands to the denylist or disable auto-detection.
 
 **Framework Integration.** Use Warp as the host terminal for any local CLI agent session; no framework configuration changes required. Pairs naturally with the Status Bar Plugin recommendation in §3.3.4 (always-visible context-window telemetry inside the better terminal UI).
 
