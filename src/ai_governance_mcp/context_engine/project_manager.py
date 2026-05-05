@@ -1031,6 +1031,9 @@ class ProjectManager:
 
         top_indices = np.argsort(combined)[::-1]
 
+        # Build candidate pool — cap at 50 to bound downstream O(n²) operations
+        # (reranking uses top-20, MMR is greedy O(n²), dedup further reduces)
+        candidate_cap = max(50, max_results * 5)
         results = []
         chunk_indices = []
         for idx in top_indices:
@@ -1049,6 +1052,8 @@ class ProjectManager:
                 )
             )
             chunk_indices.append(int(idx))
+            if len(results) >= candidate_cap:
+                break
 
         # Cross-encoder reranking (when IPC daemon available)
         result_to_chunk_idx = {id(r): ci for r, ci in zip(results, chunk_indices)}
