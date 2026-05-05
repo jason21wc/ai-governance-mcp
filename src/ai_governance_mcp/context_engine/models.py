@@ -126,9 +126,9 @@ class QueryResult(BaseModel):
     )
     boost_score: float = Field(
         0.0,
-        ge=-0.05,
-        le=0.05,
-        description="File-type + recency bonus applied before clamping",
+        ge=-0.10,
+        le=0.12,
+        description="Combined bonus (file-type + recency + metadata) applied before clamping",
     )
 
 

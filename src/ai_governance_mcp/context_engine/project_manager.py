@@ -281,6 +281,7 @@ class ProjectManager:
                 max_results,
                 file_recency_map=file_recency_map,
                 query_lower=query.lower(),
+                query=query,
                 max_chunks_per_source=max_chunks_per_source,
                 project_id=project_id,
             )
@@ -884,7 +885,7 @@ class ProjectManager:
         body_chars = sum(
             len(line)
             for line in lines
-            if not line.startswith("[") and not line.startswith("#")
+            if not line.lstrip().startswith("[") and not line.lstrip().startswith("#")
         )
         return body_chars >= MIN_CHUNK_BODY_CHARS
 
@@ -1011,6 +1012,7 @@ class ProjectManager:
         max_results: int,
         file_recency_map: dict[str, float] | None = None,
         query_lower: str = "",
+        query: str = "",
         max_chunks_per_source: int = 3,
         project_id: str | None = None,
     ) -> list[QueryResult]:
@@ -1048,7 +1050,7 @@ class ProjectManager:
                     semantic_score=float(min(sem[idx], 1.0)),
                     keyword_score=float(min(kw[idx], 1.0)),
                     combined_score=float(combined[idx]),
-                    boost_score=float(np.clip(bonuses[idx], -0.05, 0.05)),
+                    boost_score=float(bonuses[idx]),
                 )
             )
             chunk_indices.append(int(idx))
@@ -1057,7 +1059,7 @@ class ProjectManager:
 
         # Cross-encoder reranking (when IPC daemon available)
         result_to_chunk_idx = {id(r): ci for r, ci in zip(results, chunk_indices)}
-        results = self._rerank_results(query_lower, results)
+        results = self._rerank_results(query or query_lower, results)
         chunk_indices = [result_to_chunk_idx[id(r)] for r in results]
 
         # MMR diversity (adaptive — only penalizes high-similarity results)
