@@ -24,6 +24,7 @@
 3. Follow Next Actions listed there
 4. Reference PROJECT-MEMORY.md for constraints and decisions
 5. Check LEARNING-LOG.md before repeating past mistakes
+6. Check OPERATIONS.md for active cadence due dates and tripwire triggers
 
 ## Key Commands
 

@@ -1,6 +1,6 @@
 ---
 title: Execution Framework
-version: v1.0.0
+version: v1.1.0
 type: Permanent blueprint — system architecture reference
 memory_type: Architectural
 started: 2026-04-29 (session-139)
@@ -57,7 +57,7 @@ When to switch between views:
 - Move to the **8-bucket view** when comparing implementations, evaluating swaps, or auditing component-level coverage
 - The root view answers *what must be true*; the bucket view answers *what specifically does it*
 
-**Evolution:** Extended from 3-function (Information Flow / Control Flow / Quality Gates) to 4-function on 2026-05-03. The 3-function candidate was held across all session-140 bucket-layer iteration rounds as "not locked" (user note). The 4th function was identified during fresh-eyes analysis when reviewing the permission model — S-Series veto, hook permissions, constitutional hierarchy don't fit Quality Gates (they check permission, not correctness). See §12.8 for the full analysis context.
+**Evolution:** Extended from 3-function (Information Flow / Control Flow / Quality Gates) to 4-function on 2026-05-03. The 3-function candidate was held across all session-140 bucket-layer iteration rounds as "not locked" (user note). The 4th function was identified during fresh-eyes analysis when reviewing the permission model — S-Series veto, hook permissions, constitutional hierarchy don't fit Quality Gates (they check permission, not correctness). See §12.7 for the full analysis context.
 
 ---
 
