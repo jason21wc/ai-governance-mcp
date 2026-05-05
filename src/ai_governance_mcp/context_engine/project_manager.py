@@ -56,6 +56,13 @@ RECENCY_STALE_PENALTY = -0.01
 RERANK_TOP_K = 20
 RERANK_MAX_CONTENT_CHARS = 500
 
+# Chunk quality threshold (document-only)
+MIN_CHUNK_BODY_CHARS = 30
+
+# MMR diversity constants
+MMR_SIMILARITY_THRESHOLD = 0.85
+MMR_LAMBDA = 0.7
+
 
 def _build_bm25(corpus: list[list[str]]) -> BM25Okapi | None:
     """Build a BM25 index from a tokenized corpus, with empty-corpus guard.
@@ -269,6 +276,7 @@ class ProjectManager:
                 file_recency_map=file_recency_map,
                 query_lower=query.lower(),
                 max_chunks_per_source=max_chunks_per_source,
+                project_id=project_id,
             )
 
         elapsed_ms = (time.time() - start_time) * 1000
@@ -857,6 +865,93 @@ class ProjectManager:
 
         return bonus
 
+    @staticmethod
+    def _has_body_content(chunk: ContentChunk) -> bool:
+        """Check if a document chunk has meaningful body content.
+
+        Returns False for heading-only stubs (breadcrumb + heading, no body).
+        Always returns True for non-document chunks.
+        """
+        if chunk.content_type != "document":
+            return True
+        lines = chunk.content.strip().split("\n")
+        body_chars = sum(
+            len(line)
+            for line in lines
+            if not line.startswith("[") and not line.startswith("#")
+        )
+        return body_chars >= MIN_CHUNK_BODY_CHARS
+
+    def _apply_mmr(
+        self,
+        results: list[QueryResult],
+        chunk_indices: list[int],
+        project_id: str | None,
+    ) -> list[QueryResult]:
+        """Apply adaptive MMR diversity to results.
+
+        Greedy selection: at each step, pick the candidate that maximizes
+        MMR = λ·score - (1-λ)·max_sim_to_selected. Only applies the penalty
+        when max_sim exceeds MMR_SIMILARITY_THRESHOLD — narrow-intent queries
+        where results are naturally diverse are unaffected.
+        """
+        if project_id is None or len(results) <= 1:
+            return results
+
+        embeddings = self._loaded_embeddings.get(project_id)
+        if embeddings is None or len(embeddings) == 0:
+            return results
+
+        selected: list[QueryResult] = [results[0]]
+        selected_emb_indices: list[int] = [chunk_indices[0]]
+        remaining = list(range(1, len(results)))
+
+        while remaining:
+            best_idx = -1
+            best_mmr_score = -float("inf")
+
+            for i in remaining:
+                emb_idx = chunk_indices[i] if i < len(chunk_indices) else -1
+                if emb_idx < 0 or emb_idx >= len(embeddings):
+                    mmr_score = results[i].combined_score
+                else:
+                    candidate_emb = embeddings[emb_idx]
+                    max_sim = 0.0
+                    for sel_idx in selected_emb_indices:
+                        if sel_idx >= len(embeddings):
+                            continue
+                        sim = float(
+                            np.dot(candidate_emb, embeddings[sel_idx])
+                            / (
+                                np.linalg.norm(candidate_emb)
+                                * np.linalg.norm(embeddings[sel_idx])
+                                + 1e-10
+                            )
+                        )
+                        max_sim = max(max_sim, sim)
+
+                    if max_sim > MMR_SIMILARITY_THRESHOLD:
+                        mmr_score = (
+                            MMR_LAMBDA * results[i].combined_score
+                            - (1 - MMR_LAMBDA) * max_sim
+                        )
+                    else:
+                        mmr_score = results[i].combined_score
+
+                if mmr_score > best_mmr_score:
+                    best_mmr_score = mmr_score
+                    best_idx = i
+
+            if best_idx < 0:
+                break
+            selected.append(results[best_idx])
+            emb_idx = chunk_indices[best_idx] if best_idx < len(chunk_indices) else -1
+            if emb_idx >= 0:
+                selected_emb_indices.append(emb_idx)
+            remaining.remove(best_idx)
+
+        return selected
+
     def _fuse_scores(
         self,
         chunks: list[ContentChunk],
@@ -866,6 +961,7 @@ class ProjectManager:
         file_recency_map: dict[str, float] | None = None,
         query_lower: str = "",
         max_chunks_per_source: int = 3,
+        project_id: str | None = None,
     ) -> list[QueryResult]:
         """Fuse semantic and keyword scores with ranking bonuses and return top results."""
         if len(chunks) == 0:
@@ -895,21 +991,32 @@ class ProjectManager:
         top_indices = np.argsort(combined)[::-1]
 
         results = []
+        chunk_indices = []
         for idx in top_indices:
             if combined[idx] <= 0:
                 break
+            chunk = chunks[idx]
+            if not self._has_body_content(chunk):
+                continue
             results.append(
                 QueryResult(
-                    chunk=chunks[idx],
+                    chunk=chunk,
                     semantic_score=float(min(sem[idx], 1.0)),
                     keyword_score=float(min(kw[idx], 1.0)),
                     combined_score=float(combined[idx]),
                     boost_score=float(np.clip(bonuses[idx], -0.05, 0.05)),
                 )
             )
+            chunk_indices.append(int(idx))
 
         # Cross-encoder reranking (when IPC daemon available)
+        # Build index map before reranking so we can reorder chunk_indices to match
+        result_to_chunk_idx = {id(r): ci for r, ci in zip(results, chunk_indices)}
         results = self._rerank_results(query_lower, results)
+        chunk_indices = [result_to_chunk_idx[id(r)] for r in results]
+
+        # MMR diversity (adaptive — only penalizes high-similarity results)
+        results = self._apply_mmr(results, chunk_indices, project_id)
 
         # Per-file deduplication
         results = self._deduplicate_per_file(

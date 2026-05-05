@@ -5097,6 +5097,105 @@ class TestRankingSignals:
         assert results[1].chunk.content == "chunk B"
         assert results[2].chunk.content == "chunk C"
 
+    def test_short_document_chunks_filtered(self):
+        """Document chunks with only heading/breadcrumb content are filtered."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.5, reranking=False)
+        # Heading-only chunk (breadcrumb + heading, no body content)
+        heading_only = ContentChunk(
+            content="[file.md > Section]\n## Section",
+            source_path="file.md",
+            start_line=1,
+            end_line=2,
+            content_type="document",
+            heading="Section",
+        )
+        # Chunk with actual content
+        content_chunk = ContentChunk(
+            content="[file.md > Other]\n## Other\nThis has real content that a user would find useful.",
+            source_path="file.md",
+            start_line=10,
+            end_line=15,
+            content_type="document",
+            heading="Other",
+        )
+        # Code chunk below threshold should NOT be filtered
+        code_chunk = ContentChunk(
+            content="def f(): pass",
+            source_path="src/main.py",
+            start_line=1,
+            end_line=1,
+            content_type="code",
+        )
+        chunks = [heading_only, content_chunk, code_chunk]
+        sem = np.array([0.9, 0.7, 0.6])
+        kw = np.array([0.9, 0.7, 0.6])
+        results = pm._fuse_scores(chunks, sem, kw, max_results=10)
+        result_contents = [r.chunk.content for r in results]
+        # Heading-only doc chunk should be filtered out
+        assert heading_only.content not in result_contents
+        # Content chunk and code chunk should remain
+        assert content_chunk.content in result_contents
+        assert code_chunk.content in result_contents
+
+    def test_mmr_diversity_reduces_redundancy(self):
+        """MMR penalizes near-duplicate results when similarity is high."""
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.5, reranking=False)
+        # 3 nearly identical chunks + 2 diverse ones
+        chunks = [
+            self._make_chunk(
+                "src/a.py", "implementation of path resolution using markers"
+            ),
+            self._make_chunk(
+                "src/b.py", "implementation of path resolution using markers v2"
+            ),
+            self._make_chunk(
+                "src/c.py", "implementation of path resolution using markers v3"
+            ),
+            self._make_chunk("src/d.py", "completely different topic about testing"),
+            self._make_chunk("src/e.py", "another unrelated topic about configuration"),
+        ]
+        # All score high on BM25+semantic
+        sem = np.array([0.95, 0.93, 0.91, 0.70, 0.65])
+        kw = np.array([0.95, 0.93, 0.91, 0.70, 0.65])
+
+        # Mock embeddings to simulate high similarity between chunks 0-2
+        # and low similarity with chunks 3-4
+        mock_embeddings = np.array(
+            [
+                [1.0, 0.0, 0.0],  # chunk 0
+                [0.98, 0.1, 0.0],  # chunk 1 (very similar to 0)
+                [0.97, 0.15, 0.0],  # chunk 2 (very similar to 0 and 1)
+                [0.0, 1.0, 0.0],  # chunk 3 (different)
+                [0.0, 0.0, 1.0],  # chunk 4 (different)
+            ]
+        )
+        # Normalize
+        norms = np.linalg.norm(mock_embeddings, axis=1, keepdims=True)
+        mock_embeddings = mock_embeddings / norms
+
+        # Inject mock embeddings for the project
+        project_id = "test_project"
+        pm._loaded_embeddings[project_id] = mock_embeddings
+
+        results = pm._fuse_scores(chunks, sem, kw, max_results=5, project_id=project_id)
+        # With MMR: diverse chunks (d, e) should rank higher than they would
+        # without MMR, because redundant chunks (b, c) get penalized
+        result_contents = [r.chunk.content for r in results]
+        # First result is always the highest-scoring
+        assert results[0].chunk.content == chunks[0].content
+        # At least one of the diverse chunks should appear in top 3
+        diverse_in_top3 = any(
+            r.chunk.content in (chunks[3].content, chunks[4].content)
+            for r in results[:3]
+        )
+        assert diverse_in_top3, (
+            f"Expected at least one diverse chunk in top 3, got: {result_contents[:3]}"
+        )
+
     def test_no_bonuses_when_no_recency_map(self):
         """Without a recency map, only file-type bonuses apply."""
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
