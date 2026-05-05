@@ -1,6 +1,6 @@
 # ONNX Embedding Backend — Investigation Artifact (2026-04-15)
 
-**Status:** Not shipped. Preserved as reference for the reopened backlog #49 design spike.
+**Status:** Not shipped. Preserved as historical investigation artifact. BACKLOG #49 closed session-147 — shared IPC service shipped as the production solution.
 
 ## What this is
 
@@ -44,21 +44,18 @@ These were left over from a "nomic-embed evaluated but never deployed" trial (se
 
 ## How to use this artifact
 
-**If you're a future session investigating #49:**
-1. Read `BACKLOG.md` entry #49 first for the current status and the design-spike forcing function.
-2. Read `LEARNING-LOG.md` for "Full-Suite pytest + Stale Watcher Daemon = macOS OOM (2026-04-15)".
-3. Read this file for the ONNX-route investigation summary.
-4. **Do not `git apply` this patch.** It was deliberately not shipped. If the design spike concludes that a different approach is needed, write that from scratch — don't resurrect this.
-5. If you want to verify the envelope math yourself: `python -c "import sentence_transformers; print(sentence_transformers.__file__)"` → read `SentenceTransformer.py:17,25-26` and `Transformer.py:17-18` to confirm torch is imported unconditionally.
+**If you're a future session encountering memory regression:**
+1. Read `OPERATIONS.md` T-049 for the current tripwire and calendar review date.
+2. Read `BACKLOG.md` entry #49 (CLOSED) for the summary of what shipped.
+3. Read `LEARNING-LOG.md` for "Full-Suite pytest + Stale Watcher Daemon = macOS OOM (2026-04-15)".
+4. Read this file for the ONNX-route investigation summary (rejected approach).
+5. **Do not `git apply` this patch.** It was deliberately not shipped. The shared IPC service (Phase 2) was the production solution.
+6. If you want to verify the envelope math yourself: `python -c "import sentence_transformers; print(sentence_transformers.__file__)"` → read `SentenceTransformer.py:17,25-26` and `Transformer.py:17-18` to confirm torch is imported unconditionally.
 
 **If you're investigating a different question and wondering "why is there an ONNX patch here":**
 The short answer: it's an investigation artifact, not abandoned work. The reasoning is in this file and in the plan document. Do not feel obligated to "finish" it.
 
-## Alternatives that ARE open
+## Alternatives considered (resolved)
 
-From the plan file (the two leading candidates for the real #49 fix, deferred to a dedicated design spike):
-
-1. **Shared embedding service via IPC** (original backlog #49 recommendation) — single process owns the model, other processes call via Unix socket / HTTP. Much larger surface area (process lifecycle, serialization, startup ordering, crash recovery), but actually eliminates the duplication.
-2. **Direct `optimum.onnxruntime.ORTModelForFeatureExtraction` + `tokenizers`** — skips the `transformers` import entirely by reimplementing pooling, normalization, and the cross-encoder path without sentence-transformers as a middleman. Smaller surface than option 1 but requires ~300–500 lines of replacement code.
-
-Neither is this session's work. Both require contrarian-reviewed design before implementation.
+1. **Shared embedding service via IPC** — shipped as Phase 2 (sessions 106-108). Single daemon loads BGE-small-en-v1.5 once; all other processes call via `EmbeddingClient` over Unix socket. Governance servers 800 MB → 85 MB. This is the production solution.
+2. **Direct `optimum.onnxruntime.ORTModelForFeatureExtraction` + `tokenizers`** — not pursued. The IPC approach solved the problem without reimplementing the embedding pipeline.

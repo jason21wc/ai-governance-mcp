@@ -152,6 +152,14 @@
 
 ---
 
+### T-049. Embedding memory — calendar review
+
+**Trigger conditions:** (1) 2026-06-15 unconditional review date, (2) PHASE2_TRIGGERED marker re-fires (`~/.context-engine/PHASE2_TRIGGERED`), (3) proposal to add a 6th torch-loading process.
+**What:** BACKLOG #49 closed with Phase 2 IPC service shipped and verified. Daily measurement plist (`com.ai-governance.context-engine-measure`) and OOM gate hook continue running independently. This tripwire preserves the calendar review forcing function from the closed backlog entry: if no automated trigger fires by 2026-06-15, review current memory measurements and confirm the shared embedding architecture remains healthy.
+**Origin:** BACKLOG #49 close (session-147, 2026-05-04). Calendar trigger migrated from BACKLOG to OPERATIONS on close.
+
+---
+
 ### T-019. Rampart agent firewall adoption
 
 **Trigger conditions:** (1) Project adds credential files, (2) external contributors appear (≥1 issue/PR), (3) Rampart reaches 1.0 with broad adoption, (4) credential leak Layer 1+2 would not have caught.

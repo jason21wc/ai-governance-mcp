@@ -202,7 +202,7 @@ Spawn a **validator subagent** to review the session's governance compliance. Th
 
 ---
 
-### 6b. Pre-test OOM gate activity trigger (BACKLOG #49 forcing function)
+### 6b. Pre-test OOM gate activity trigger (BACKLOG #49 — CLOSED; monitoring continues)
 
 **How:** Check the deny log at `~/.context-engine/oom-gate-denies.log` for entries since the last compliance review:
 
@@ -210,12 +210,12 @@ Spawn a **validator subagent** to review the session's governance compliance. Th
 wc -l ~/.context-engine/oom-gate-denies.log 2>/dev/null || echo "0 (no denies yet)"
 ```
 
-**Context:** The pre-test OOM prevention gate (shipped session-105) writes one line to this log on every deny. BACKLOG #49 documents a three-trigger forcing function for the real-fix design spike; this check is the "activity trigger" — if the hook has blocked ≥3 pytest invocations since the last review, the backlog item escalates from "discussion" to "active" and the design spike must be scheduled.
+**Context:** The pre-test OOM prevention gate (shipped session-105) writes one line to this log on every deny. BACKLOG #49 closed session-147 — Phase 2 IPC service shipped and verified (governance servers 800→85 MB). The OOM gate hook remains as structural protection. Known FP pattern: 7/8 deny log entries are T-143 quoted-region false positives (git commit messages/grep patterns containing `pytest`), not real OOM prevention. Calendar review tripwire at OPERATIONS.md T-049.
 
-**Pass:** Line count < 3 since last review's line count.
-**Fail / escalate:** Line count ≥ 3 → re-enter BACKLOG.md #49, schedule contrarian-reviewed design spike for shared embedding service OR direct `optimum + tokenizers` rewrite. Record the escalation in SESSION-STATE and PROJECT-MEMORY.
+**Pass:** No new real (non-FP) denies since last review.
+**Fail / escalate:** Sustained real denies → investigate per OPERATIONS.md T-049.
 
-**Why this matters:** Without this wired check, the activity trigger is promissory — the deny log is written but nothing reads it. The hook silently removes OOM pressure (the symptom) without forcing the real fix (the root cause). This check is the structural wiring that keeps the forcing function honest. Per `meta-core-systemic-thinking` — the hook fixes the symptom class; this check is what guarantees the root cause gets addressed eventually.
+**Why this matters:** The OOM gate prevents acute memory pressure during test runs. With Phase 2 shipped, the gate fires rarely and primarily on FPs. This check confirms the structural protection remains functional.
 
 | Review | Date | Result | Line count | Notes |
 |--------|------|--------|------------|-------|
@@ -227,7 +227,7 @@ wc -l ~/.context-engine/oom-gate-denies.log 2>/dev/null || echo "0 (no denies ye
 
 ---
 
-### 6b.2. Phase 0 watcher memory outcome (BACKLOG #49 Phase 0 trigger)
+### 6b.2. Phase 0 watcher memory outcome (BACKLOG #49 — CLOSED; automated monitoring continues)
 
 **How:** Check the marker file written by the daily measurement plist:
 
@@ -235,12 +235,12 @@ wc -l ~/.context-engine/oom-gate-denies.log 2>/dev/null || echo "0 (no denies ye
 test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 ```
 
-**Context:** Plan `jiggly-honking-cascade.md` (session-106) shipped two structural fixes for context engine watcher memory: explicit `--projects` scope reduction in the installer, and periodic self-restart to flush the PyTorch CPU allocator cache. Whether this is *sufficient* or whether BACKLOG #49's shared-embedding service is still needed is answered by measurement. The second launchd plist `com.ai-governance.context-engine-measure` runs `scripts/measure-watcher-footprint.sh` daily at 04:00 local time. The script evaluates four independent thresholds against the baseline captured in `~/.context-engine/logs/phase0-baseline.txt` (see BACKLOG #49 Phase 0 outcome trigger for threshold definitions). On any threshold exceed, the script writes `~/.context-engine/PHASE2_TRIGGERED` as a boolean marker.
+**Context:** BACKLOG #49 closed session-147 with Phase 2 IPC service shipped and verified. The daily measurement plist (`com.ai-governance.context-engine-measure`) continues running at 04:00, evaluating four thresholds against the baseline in `~/.context-engine/logs/phase0-baseline.txt`. On any threshold exceed, the script writes `~/.context-engine/PHASE2_TRIGGERED` as a boolean marker. Calendar review tripwire: OPERATIONS.md T-049 (2026-06-15).
 
 **Pass:** marker file absent (`test -f` returns non-zero).
-**Fail / escalate:** marker file present → read its contents (which trigger fired, with measured values), re-enter BACKLOG.md #49, schedule contrarian-reviewed design spike for shared embedding service OR direct `optimum + tokenizers` rewrite. Clear the marker after escalation: `rm ~/.context-engine/PHASE2_TRIGGERED`.
+**Fail / escalate:** marker file present → investigate per OPERATIONS.md T-049. Read measurement log (`~/.context-engine/logs/phase0-measurements.log`) for trend. Clear marker after investigation: `rm ~/.context-engine/PHASE2_TRIGGERED`.
 
-**Why this matters:** Without this check, the Phase 0 fix is "ship and forget" — the pre-Phase-0 pain is removed, which per LEARNING-LOG is exactly when the *real* fix gets forgotten (forward-continuation bias). This check is the structural wiring between automated measurement and the BACKLOG #49 escalation path. The marker file is the single boolean read — the measurement and threshold evaluation are automated, so the reviewer's only job is to look at the file. Per `meta-core-systemic-thinking`: Phase 0 addresses causes #1 (allocator accumulation via restart) and #3 (scope reduction). Cause #2 (model duplication across processes) is NOT fixed by Phase 0 and can ONLY be diagnosed by cross-process measurement (Trigger 4). This check is how cause #2 gets noticed.
+**Why this matters:** The daily measurement plist is fully automated and runs independently of BACKLOG #49's status. This check reads its output. If the marker fires, it signals either a regression in the Phase 2 IPC architecture or a new memory pressure source — both warrant investigation.
 
 | Review | Date | Result | Triggers Fired | Notes |
 |--------|------|--------|----------------|-------|

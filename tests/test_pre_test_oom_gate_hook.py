@@ -5,7 +5,7 @@ assert that the permission decision (allow vs deny) matches expectations.
 
 The hook is documented at:
   .claude/hooks/pre-test-oom-gate.sh
-  BACKLOG.md #49 (Status 2026-04-15 block — design rationale)
+  BACKLOG.md #49 (CLOSED — design rationale in git history)
 
 Test coverage — 30 tests across 16 classes, organized by the plan's decision
 matrix plus review-driven edge cases and session-108 hardening:

@@ -36,7 +36,7 @@
 # explicit `-k` usage implies targeted selection intent by the AI.
 #
 # Author: Claude Opus 4.6 (1M context) + Jason Collier, 2026-04-15
-# Design rationale: BACKLOG.md #49 (Status 2026-04-15 block) + LEARNING-LOG
+# Design rationale: BACKLOG.md #49 (CLOSED) + LEARNING-LOG
 #   "Full-Suite pytest + Stale Watcher Daemon = macOS OOM (2026-04-15)"
 
 set -euo pipefail
@@ -326,7 +326,7 @@ redact_secrets() {
         -e 's/([A-Z_]*(KEY|TOKEN|SECRET|PASSWORD|CREDENTIAL)=)[^ ]*/\1<redacted>/g'
 }
 
-# Record the deny for the #49 forcing-function activity trigger.
+# Record the deny for the OOM gate monitoring log (COMPLIANCE-REVIEW.md Check 6b).
 # Use plain ASCII key=value format — avoid `printf %q` (bash 3.2 on macOS
 # byte-escapes non-ASCII characters, corrupting the unicode bullets in SIGNALS).
 # Fields: timestamp (ISO8601 UTC), daemon_alive flag, torch_proc_count,

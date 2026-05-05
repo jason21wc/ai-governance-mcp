@@ -331,9 +331,9 @@ fi
   echo "baseline_steady_mb=${BASELINE_STEADY}"
   echo "baseline_slope_mb_per_h=${BASELINE_SLOPE:-n/a}"
   echo ""
-  echo "ACTION: re-enter BACKLOG.md #49, schedule contrarian-reviewed design spike"
-  echo "        for shared embedding service OR direct optimum+tokenizers rewrite."
-  echo "        Clear this file after escalation: rm ${TRIGGER_MARKER}"
+  echo "ACTION: investigate per OPERATIONS.md T-049 (embedding memory calendar review)."
+  echo "        BACKLOG #49 closed — Phase 2 IPC service shipped."
+  echo "        Clear this file after investigation: rm ${TRIGGER_MARKER}"
 } > "${TRIGGER_MARKER}"
 
 echo "  triggers FIRED: ${TRIGGERS_FIRED}"

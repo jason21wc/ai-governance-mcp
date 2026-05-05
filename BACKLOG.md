@@ -306,129 +306,21 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 **Origin:** User request (2026-04-04). Anticipatory architecture improvement for adoption scalability.
 
-#### 49. Embedding Model Memory Sharing Across Processes (Discussion — Performance) `D3 Improvement`
+#### 49. ~~Embedding Model Memory Sharing Across Processes~~ CLOSED `D3 Improvement`
 
-**What:** Each MCP server process (governance server, Context Engine server, CE watcher) loads its own copy of the same embedding model (BGE-small-en-v1.5) into memory independently. With 2 concurrent Claude Code sessions, this means 5 Python processes each loading the same model + PyTorch runtime — macOS charged ~27 GB across them and triggered a low-memory warning on a 64 GB machine. A 16 GB machine would be unusable with 2 sessions.
+**Filed:** 2026-04-03 (session-48). **Closed:** 2026-05-04 (session-147).
 
-**Root cause:** The MCP protocol runs each server as an isolated process with no shared memory mechanism. All 5 processes use the same model (BGE-small, confirmed via metadata.json), but each loads its own copy + its own PyTorch runtime. The duplication is purely architectural — no technical reason these can't share.
+**What was delivered:**
+- **Phase 0 (session-106):** Watcher `--projects PATH` scoping, 12h self-restart cycle to flush PyTorch allocator cache.
+- **Phase 2 (sessions 106-108):** Shared embedding service via Unix socket IPC. Single daemon loads BGE-small-en-v1.5 once; all other processes call via `EmbeddingClient`. Governance servers 800 MB → 85 MB (715 MB saved per instance). Model load 9s → 80ms (112× improvement). MRR regression-clean.
+- **OOM gate:** `.claude/hooks/pre-test-oom-gate.sh` — blocks bare `pytest tests/` when daemon alive or torch processes detected. 23 tests.
+- **7-day monitor (2026-04-26–05-02):** T1 clean 7/7 days. Episodic T3/T4 spikes confirmed as workload variance, not regression. Marker cleared 2026-05-02.
 
-**Key finding:** Both governance server and Context Engine already use the same model (BGE-small-en-v1.5, 384d). SESSION-STATE previously documented CE as using nomic-embed — that was stale; nomic-embed was evaluated but never deployed. This simplifies the fix: one model, one process, all consumers call it.
+**Forcing functions preserved post-close:** Daily measurement plist (automated, `com.ai-governance.context-engine-measure`), OOM gate hook (structural), capacity trigger (any 6th torch process blocks on review), PHASE2_TRIGGERED marker auto-fires on threshold breach. Calendar review → OPERATIONS.md T-049. OOM deny log note: 7/8 entries are T-143 quoted-region FPs (git commit messages containing `pytest`), not real OOM prevention.
 
-**Why it matters:** Scaling barrier for adoption. Single-session is fine (~130 MB RSS), but multi-session or machines <32 GB will hit memory pressure. macOS low-memory warning triggered on a 64 GB machine with 2 sessions + Docker + normal apps.
+**Origin.** Sessions 48–108, 137, 142, 147. Governance: `gov-75c065040e20` (close). Full investigation history in git: `git log --grep="backlog #49"`.
 
-**Recommended approach** *(superseded — see Status (2026-04-15) block below; now ONE of two deferred candidates pending a contrarian-reviewed design spike):* Shared embedding service — a single lightweight process loads BGE-small once, other processes call it via IPC/HTTP socket. Benefits: (1) memory drops from 5× to 1× model load, (2) other 4 processes no longer need PyTorch at all (dramatic footprint reduction), (3) no accuracy tradeoffs since it's already the same model everywhere.
-
-**Other approaches considered:**
-1. Lazy unloading — saves memory between queries but adds ~2-3s latency per query burst
-2. Smaller model — all-MiniLM-L6-v2 (23 MB) but lower quality; evaluated and rejected (2026-02-14, MRR 0.569 vs BGE 0.627)
-3. Single unified MCP server — merge governance + CE into one process; breaking architectural change
-4. Process pooling — multiple sessions share one server; MCP protocol may not support natively
-
-**Origin:** Session 48 (2026-04-03). macOS low-memory warning with 2 concurrent sessions. Initial investigation incorrectly dismissed Activity Monitor's GB numbers as "just virtual memory" — 26 GB swap + macOS warning proved impact is real.
-
-**Status (2026-04-25) — PHASE2_TRIGGERED FIRED, under 7-day monitoring (corrected post-coherence-audit):**
-
-Compliance Review #5 (Check 6b.2, 2026-04-25) found `~/.context-engine/PHASE2_TRIGGERED` marker present, fired 2026-04-25 10:00:01Z. Triggers fired: T1 (steady_mb=9420 > 1.5×5800=8700 = ≥50% growth above post-Phase-2 equilibrium), T3 (peak_mb=10752 > 7500 post-Phase-2 cap), T4 (cross_process_total_mb=11544 > 8192 combined cap). Measured slope = 6948.2 MB/h over 5.88h uptime. T2 leak-rate trigger disabled per noise-floor rule (baseline_slope_mb_per_h=0).
-
-**Initial-draft correction (caught before action):** First-pass analysis claimed baseline was still pre-Phase-2 and proposed rebasing it as the cheapest test. That was wrong. Reading `~/.context-engine/logs/phase0-baseline.txt` directly confirmed: **baseline was already recalibrated 2026-04-17** (session-109) to post-Phase-2 values (`baseline_steady_mb=5800`, `baseline_peak_mb=6700`, with T3 raised 3072→7500 in `scripts/measure-watcher-footprint.sh`). Recalibration shipped between Compliance Review #3 (which flagged the action item) and Review #4 (whose row staled-out by saying "still pending"). The 9420/10752/11544 measurements really do represent ≥50% growth above the post-Phase-2 equilibrium — this is a real signal.
-
-**Daily measurement-log trend (`~/.context-engine/logs/phase0-measurements.log`, last 8 readings):**
-
-| Date | steady (MB) | peak (MB) | total (MB) | Triggers |
-|------|-------------|-----------|------------|----------|
-| 2026-04-17 | 5939 | 6860 | 7184 | (initial post-Phase-2 cal) |
-| 2026-04-18 | 5427 | 6348 | 6731 | clean |
-| 2026-04-19 | 1536 | 1638 | 2829 | clean |
-| 2026-04-20 | 6041 | 7372 | 7484 | clean |
-| 2026-04-21 | 3788 | 4812 | 4593 | clean |
-| 2026-04-22 | 152 | 152 | 2313 | clean |
-| 2026-04-23 | 146 | 147 | 2377 | clean |
-| 2026-04-24 | 1638 | 1843 | 3682 | clean |
-| **2026-04-25** | **9420** | **10752** | **11544** | **T1+T3+T4** |
-
-Today's spike is 1.5× the prior week peak (cross-process total). **Snapshot taken during this review (~04:30Z) via `ps aux` shows current cross-process total = 6.0 GB**, already back inside healthy post-Phase-2 range (5 ai-context-engine processes 4.6 GB + watcher 1.1 GB + 5 governance procs 0.4 GB).
-
-**Revised cause analysis:**
-1. ~~**Stale baseline thresholds.**~~ ELIMINATED. Baseline IS post-Phase-2 (5800/6700, recalibrated 2026-04-17).
-2. **Workload variance.** **STRONGEST HYPOTHESIS.** Daily 04:00 measurement caught a peak-concurrent-session moment (e.g., 2× Claude Code + 2× Claude Desktop + index-rebuild + multiple query batches overlapping). Week range was 2.3–7.5 GB; today's 11.5 GB spike is plausible for transient peak overlap before the 12h self-restart flush. Current snapshot 6.0 GB consistent with healthy state.
-3. **Phase 2 regression.** Unlikely but not refuted by a single spike — would need 2+ T1 fires within a short window or a process found loading torch when it shouldn't (e.g., IPC client crash → silent fallback to in-process load).
-
-**Marker NOT cleared** — preserves measurement evidence for the 7-day re-test per `meta-core-systemic-thinking` (do not remove obstacle by removing evidence) + `meta-quality-verification-validation` (one spike is not a confirmed signal; need re-test to distinguish workload variance from regression).
-
-**Action plan (current recommendation):**
-- (a) **Monitor next 7 daily measurements** (2026-04-26 through 2026-05-02). If T1 stays clear (steady_mb < 8700) on ≥6/7 days, **clear marker as workload-variance confirmed** + record outcome here.
-- (b) **If T1 re-fires within 7 days**, escalate to cause (3) regression investigation: run `ps aux | grep -iE '(governance|context-engine|embedding)'` at the moment of fire (cron-augment the measurement script) + per-process torch-loading audit via `lsof -p <pid> | grep -i torch` to confirm whether any process is loading torch outside the embedding daemon. Schedule contrarian-reviewed design spike if regression confirmed.
-- (c) **Original spike option preserved**: if (3) confirmed, schedule shared embedding service v2 OR direct optimum + tokenizers rewrite per the original Status (2026-04-15) deferred spike.
-
-**Status (2026-05-02) — 7-day monitor CLEAR, marker cleared, workload-variance confirmed:**
-
-7-day monitor window (2026-04-26 through 2026-05-02) completed per BACKLOG #137 close-out procedure. T1 (primary steady-state regression indicator, threshold 8700 MB) fired **0 of 7 days** — clean the entire window. T3/T4 fired on 2 of 7 days (path (c) in decision tree — ambiguous case surfaced to user per procedure):
-
-| Date | steady (MB) | peak (MB) | total (MB) | Triggers |
-|------|-------------|-----------|------------|----------|
-| 2026-04-26 | 4812 | 5632 | 8416 | T4 |
-| 2026-04-27 | 3686 | 4505 | 4340 | clean |
-| 2026-04-28 | 8192 | 9113 | 10203 | T3+T4 |
-| 2026-04-29 | 1536 | 1536 | 3552 | clean |
-| 2026-04-30 | 1536 | 2150 | 3463 | clean |
-| 2026-05-01 | 154 | 154 | 1490 | clean |
-| 2026-05-02 | 148 | 148 | 2179 | clean |
-
-Pattern: episodic spikes correlating with heavy concurrent sessions (multiple Claude Code + Desktop instances), followed by 4 consecutive clean days with final 2 near-idle (148-154 MB steady). The 04-28 spike (steady=8192, peak=9113, total=10203) matches the same workload-variance profile as the original 04-25 fire — high concurrent usage at measurement time, not a leak or architectural regression. T1 clean across entire window confirms steady-state memory is within post-Phase-2 equilibrium.
-
-**Decision:** User reviewed measurements and confirmed workload-variance hypothesis. `~/.context-engine/PHASE2_TRIGGERED` marker cleared 2026-05-02. Ongoing daily measurement plist continues — marker will re-fire automatically if thresholds are exceeded again. Per BACKLOG #137 close-out procedure, COMPLIANCE-REVIEW.md Check 6b.2 row 5 recorded. Governance: `gov-912600878510`.
-
-**Status (2026-04-16) — Phase 2 COMPLETE, verified in session-108:**
-
-Phase 2 (shared embedding service via IPC) shipped in sessions 106-108. Commits `07a1e54`–`ec4ea55` (Steps 1-5) + verification in session-108. Results:
-- Governance servers: **85 MB** phys_footprint (down from ~800 MB = **~715 MB saved per instance**)
-- Model load time: **80ms** via IPC (was ~9s cold start = **112x improvement**)
-- MRR: method=0.646, principle=0.750 — all pass regression thresholds
-- IPC confirmed: "Using embedding server (IPC)" in logs for both encoding and reranking
-- CE servers: 552-683 MB (tree-sitter + index data, no torch loaded)
-- Total across all processes: ~4.0 GB (daemon 2.6G + 2× Desktop + 2× Code servers)
-
-**Latent issues found during verification:**
-1. `extractor.py:106-108` calls `get_sentence_embedding_dimension()` on `self.model` which could be `EmbeddingClient` (no such method). Crashes index rebuilds when daemon running.
-2. 20 embedding-mock tests fail when daemon running — `EmbeddingClient.available()` returns True, intercepting mock patches. Need `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` in test env or mock the client.
-
-Forcing functions remain active (daily plist + deny log + calendar trigger 2026-06-15) as a safety net.
-
-**Status (2026-04-15) — explored routes, shipped mitigations, design spike forcing function:**
-
-**Explored route (NOT shipped):** ONNX backend via `sentence-transformers` native `backend="onnx"` parameter + `optimum[onnxruntime]` dependency. 10-file plumbing diff built and preserved at `staging/onnx-backend-attempt-2026-04-15.patch` + explainer at `staging/onnx-backend-attempt-2026-04-15.md`. Rejected after envelope math: `sentence-transformers` 5.2.0 imports `torch` unconditionally at module load via the `transformers` hard dependency (verified empirically at `sentence_transformers/SentenceTransformer.py:17,25-26` and `Transformer.py:17-18`). The `backend` kwarg only picks model *weights* at inference time, not module init. Savings: BGE-small ≈130 MB + reranker ≈90 MB, 50% savings × 5 processes = **~550 MB** — roughly **2% of the 27 GB symptom**. The other ~98% is torch/transformers runtime duplication (~500 MB–1 GB × 5 processes = 2.5–5 GB per ONNX investigation), which a weights-only swap cannot address — this is why the real fix must eliminate the runtime duplication (Remaining candidates below), not just the weight duplication. Shipping ONNX under the #49 banner would have violated `meta-safety-transparent-limitations`. Two independent contrarian-reviewer passes on 2026-04-15 validated rejection.
-
-**Shipped (independent of the real #49 fix):**
-1. **Structural pre-test OOM prevention gate** at `.claude/hooks/pre-test-oom-gate.sh` — PreToolUse hook on Bash that blocks bare `pytest tests/` invocations when the watcher daemon is alive OR other torch-holding Python processes are detected. Prevents the class of OOM that hit this box on 2026-04-15 from recurring via AI-initiated Bash. **23 unit tests** at `tests/test_pre_test_oom_gate_hook.py` (10 test classes; one parametrized). Bypasses: `PYTEST_ALLOW_HEAVY=1` (semantic: "I intend the heavy suite"), `PYTEST_SKIP_OOM_GATE=1` (structural: "the gate itself is broken"). Expected-workflow escape hatch: `pytest tests/ -v -m "not slow"`. LEARNING-LOG precedent: "Hard-Mode Hooks Prove Deterministic Enforcement Works" (2026-02-28).
-2. **Indexer stale-default correctness fix** (commit `b702296`) — unrelated latent bug discovered during investigation: `Indexer.__init__` had stale defaults `nomic-ai/nomic-embed-text-v1.5`/768d from an evaluated-but-never-deployed trial. Production used `BAAI/bge-small-en-v1.5`/384d everywhere else via config overrides. Committed independently.
-
-**Remaining (design spike required, deferred to a dedicated session):** Two candidates for the real per-process fix:
-1. **Shared embedding service via IPC** (original backlog recommendation above). Single process owns the model; others call via Unix socket / HTTP. Much larger surface area — process lifecycle, serialization, startup ordering, crash recovery.
-2. **Direct `optimum.onnxruntime.ORTModelForFeatureExtraction` + `tokenizers`** layer that skips the `transformers` import entirely, eliminating the torch/transformers runtime duplication. Smaller surface than option 1 (~300–500 lines replacing `retrieval.py` + `extractor.py` + `context_engine/indexer.py` embedder code + reranker replacement) but reimplements pooling/normalization and loses `SentenceTransformer.encode()` + `CrossEncoder` affordances.
-
-Decide via contrarian-reviewed design spike, NOT implementation-first. Both options touch critical code paths.
-
-**Forcing function — anti-procrastination (per `meta-core-systemic-thinking`):** The shipped OOM gate removes the acute pain of this ticket, which is EXACTLY why the real fix would otherwise get forgotten (forward-continuation-bias trap per LEARNING-LOG). The design spike acceptance criterion is **whichever comes first**:
-
-- **Activity trigger:** the pre-test OOM gate denies ≥3 pytest invocations in practice. Each deny appends to `~/.context-engine/oom-gate-denies.log` (format: `<ts> deny daemon_alive=<bool> torch_procs=<n> cmd=<cmd>`). **Current automation state (2026-04-15):** the deny log is written on every deny (verified by `tests/test_pre_test_oom_gate_hook.py::TestDenyLogSideEffect`), but no agent currently reads it automatically. The activity trigger fires when a future session explicitly greps the log at session start — either a human notices, or a future enhancement teaches the orchestrator/coherence-auditor to include this check. **Instruction for the next session at `count >= 3`:** re-enter this backlog item, re-read the ONNX investigation artifact, schedule a contrarian-reviewed design spike. Log location is stable; the promise is that a future reader will find it, not that an agent will find it unprompted. Treat this as the honest floor of "check a file" rather than a background daemon.
-- **Capacity trigger:** any proposal to add a 6th torch-loading process (new MCP server, second watcher variant, worker pool) blocks on this spike first. The symptom math gets proportionally worse with more processes; adding another before the real fix would be negligent.
-- **Calendar trigger:** 2026-06-15 unconditional review. If neither activity nor capacity has fired by then, re-enter the backlog item for fresh contrarian review and concrete spike scheduling.
-- **Phase 0 outcome trigger (measurement-automated, added 2026-04-15):** the second launchd plist `com.ai-governance.context-engine-measure` runs `scripts/measure-watcher-footprint.sh` daily at 04:00 and evaluates four independent thresholds against the baseline captured in `~/.context-engine/logs/phase0-baseline.txt`. If any threshold is exceeded, the script writes `~/.context-engine/PHASE2_TRIGGERED` as a boolean marker. The four thresholds:
-  1. **Steady-state drop:** post-Phase-0 steady phys_footprint must be < 60% of baseline (≥40% reduction). Baseline 4.1 GB → must drop below ~2.5 GB.
-  2. **Leak rate (measurement-derived, per Contrarian Finding 3):** post-Phase-0 slope must be ≤ 50% of the `baseline_slope_mb_per_h` captured during a fresh-daemon 2h sample. If baseline slope is <8 MB/hr, this trigger is disabled (noise floor).
-  3. **Session peak:** any 24h-window peak phys_footprint must be < 3.0 GB.
-  4. **Cross-process total (cause #2 direct):** summed phys_footprint across all `context-engine-watcher` + `ai_governance_mcp` + `ai-context-engine` processes must be < 8.0 GB. Phase 0 cannot by construction fix model duplication, so this trigger routes straight to Phase 2 when duplication dominates.
-
-  Check 6b.2 in `workflows/COMPLIANCE-REVIEW.md` reads the marker file as a boolean (`test -f PHASE2_TRIGGERED`). When the marker is present, re-enter this backlog item and schedule the design spike. Clear the marker after escalation: `rm ~/.context-engine/PHASE2_TRIGGERED`. This is fully structural (launchd runs, script evaluates, marker is written) — no human memory required for evaluation, though someone still has to run the compliance review to read it.
-
-The capacity, calendar, and Phase 0 outcome triggers are fully structural (no human memory required — they're encoded as rules future sessions will read, and in the case of Phase 0 outcome, evaluated automatically by a scheduled job). The activity trigger is "check a file" rather than "remember a rule" — the deny log write is automatic and tested, but a human or future enhancement must read it. Honest limitation documented above; this is a floor, not a ceiling, on the forcing function.
-
-**Relevant files:**
-- Hook: `.claude/hooks/pre-test-oom-gate.sh`
-- Hook tests: `tests/test_pre_test_oom_gate_hook.py`
-- Deny log: `~/.context-engine/oom-gate-denies.log`
-- ONNX investigation artifact: `staging/onnx-backend-attempt-2026-04-15.{patch,md}`
-- Incident entry: `LEARNING-LOG.md` — "Full-Suite pytest + Stale Watcher Daemon = macOS OOM (2026-04-15)"
+---
 
 #### 19. Content-Level Security Enforcement — partial-close `D2 Improvement` *(Rampart tripwire portion → OPERATIONS.md T-019)*
 
