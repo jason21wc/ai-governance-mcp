@@ -774,7 +774,7 @@ class TestProjectManager:
     def test_fuse_scores_weighted(self):
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
-        pm = ProjectManager(semantic_weight=0.6)
+        pm = ProjectManager(semantic_weight=0.6, reranking=False)
         chunks = [
             ContentChunk(
                 content="test",
@@ -802,7 +802,7 @@ class TestProjectManager:
     def test_fuse_scores_max_results(self):
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
-        pm = ProjectManager(semantic_weight=0.5)
+        pm = ProjectManager(semantic_weight=0.5, reranking=False)
         chunks = [
             ContentChunk(
                 content=f"chunk {i}",
@@ -821,7 +821,7 @@ class TestProjectManager:
     def test_fuse_scores_skips_zero(self):
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
-        pm = ProjectManager(semantic_weight=0.5)
+        pm = ProjectManager(semantic_weight=0.5, reranking=False)
         chunks = [
             ContentChunk(
                 content="relevant",
@@ -4936,7 +4936,7 @@ class TestRankingSignals:
     def test_bonuses_are_additive(self):
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
-        pm = ProjectManager(semantic_weight=0.5)
+        pm = ProjectManager(semantic_weight=0.5, reranking=False)
         chunks = [
             self._make_chunk("src/main.py"),  # source → +0.02
         ]
@@ -4949,7 +4949,7 @@ class TestRankingSignals:
     def test_combined_score_clamped_to_unit(self):
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
-        pm = ProjectManager(semantic_weight=0.6)
+        pm = ProjectManager(semantic_weight=0.6, reranking=False)
         chunks = [
             self._make_chunk("src/main.py"),
         ]
@@ -4962,7 +4962,7 @@ class TestRankingSignals:
     def test_dedup_caps_chunks_per_file(self):
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
-        pm = ProjectManager(semantic_weight=0.5)
+        pm = ProjectManager(semantic_weight=0.5, reranking=False)
         # Four chunks from the same file, one from another
         chunks = [
             self._make_chunk("src/main.py", "highest"),
@@ -4983,7 +4983,7 @@ class TestRankingSignals:
     def test_dedup_strict_mode_cap_1(self):
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
-        pm = ProjectManager(semantic_weight=0.5)
+        pm = ProjectManager(semantic_weight=0.5, reranking=False)
         chunks = [
             self._make_chunk("src/main.py", "high relevance"),
             self._make_chunk("src/main.py", "low relevance"),
@@ -5003,7 +5003,7 @@ class TestRankingSignals:
     def test_dedup_custom_cap(self):
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
-        pm = ProjectManager(semantic_weight=0.5)
+        pm = ProjectManager(semantic_weight=0.5, reranking=False)
         chunks = [
             self._make_chunk("src/main.py", "first"),
             self._make_chunk("src/main.py", "second"),
@@ -5036,11 +5036,72 @@ class TestRankingSignals:
         deduped = ProjectManager._deduplicate_per_file(results, max_per_file=5)
         assert len(deduped) == 5
 
+    def test_reranking_improves_ordering(self):
+        """Cross-encoder reranking reorders results when IPC is available."""
+        from unittest.mock import patch, MagicMock
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.5, reranking=True)
+        chunks = [
+            self._make_chunk("src/a.py", "chunk A"),
+            self._make_chunk("src/b.py", "chunk B"),
+            self._make_chunk("src/c.py", "chunk C"),
+            self._make_chunk("src/d.py", "chunk D"),
+            self._make_chunk("src/e.py", "chunk E"),
+        ]
+        # Semantic+BM25 fusion produces order A > B > C > D > E
+        sem = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
+        kw = np.array([0.9, 0.8, 0.7, 0.6, 0.5])
+
+        # Mock: cross-encoder says C is actually the best result
+        mock_client = MagicMock()
+        mock_client.predict.return_value = np.array([0.1, 0.3, 2.5, -0.5, -1.0])
+
+        with patch(
+            "ai_governance_mcp.context_engine.project_manager.EmbeddingClient",
+            return_value=mock_client,
+        ):
+            with patch(
+                "ai_governance_mcp.context_engine.project_manager.EmbeddingClient.available",
+                return_value=True,
+            ):
+                results = pm._fuse_scores(chunks, sem, kw, max_results=10)
+
+        # After reranking, C should be first (highest rerank score after sigmoid)
+        assert results[0].chunk.content == "chunk C"
+        # B should be second (0.3 logit → higher sigmoid than A's 0.1)
+        assert results[1].chunk.content == "chunk B"
+
+    def test_reranking_skipped_when_unavailable(self):
+        """When IPC daemon is unavailable, results return un-reranked."""
+        from unittest.mock import patch
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.5, reranking=True)
+        chunks = [
+            self._make_chunk("src/a.py", "chunk A"),
+            self._make_chunk("src/b.py", "chunk B"),
+            self._make_chunk("src/c.py", "chunk C"),
+        ]
+        sem = np.array([0.9, 0.7, 0.5])
+        kw = np.array([0.9, 0.7, 0.5])
+
+        with patch(
+            "ai_governance_mcp.context_engine.project_manager.EmbeddingClient.available",
+            return_value=False,
+        ):
+            results = pm._fuse_scores(chunks, sem, kw, max_results=10)
+
+        # Original ordering preserved (no reranking applied)
+        assert results[0].chunk.content == "chunk A"
+        assert results[1].chunk.content == "chunk B"
+        assert results[2].chunk.content == "chunk C"
+
     def test_no_bonuses_when_no_recency_map(self):
         """Without a recency map, only file-type bonuses apply."""
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
-        pm = ProjectManager(semantic_weight=0.5)
+        pm = ProjectManager(semantic_weight=0.5, reranking=False)
         chunks = [
             self._make_chunk("README.md"),  # other → 0.0 type bonus
         ]

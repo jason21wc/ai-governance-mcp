@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 from rank_bm25 import BM25Okapi
 
+from ..embedding_ipc import EmbeddingClient
 from ..path_resolution import looks_like_project
 
 from .indexer import Indexer
@@ -51,6 +52,10 @@ RECENCY_STALE_DAYS = 90
 RECENCY_RECENT_BONUS = 0.01
 RECENCY_STALE_PENALTY = -0.01
 
+# Cross-encoder reranking constants
+RERANK_TOP_K = 20
+RERANK_MAX_CONTENT_CHARS = 500
+
 
 def _build_bm25(corpus: list[list[str]]) -> BM25Okapi | None:
     """Build a BM25 index from a tokenized corpus, with empty-corpus guard.
@@ -82,6 +87,7 @@ class ProjectManager:
         semantic_weight: float = 0.7,
         default_index_mode: IndexMode = "ondemand",
         readonly: bool = False,
+        reranking: bool = True,
     ) -> None:
         self.storage = storage or FilesystemStorage()
         self.embedding_model_name = embedding_model
@@ -89,6 +95,7 @@ class ProjectManager:
         self.semantic_weight = semantic_weight
         self.default_index_mode: IndexMode = default_index_mode
         self.readonly = readonly
+        self.reranking = reranking
 
         self._indexer = Indexer(
             storage=self.storage,
@@ -774,6 +781,42 @@ class ProjectManager:
                 deduped.append(r)
         return deduped
 
+    def _rerank_results(
+        self, query: str, results: list[QueryResult], max_rerank: int = RERANK_TOP_K
+    ) -> list[QueryResult]:
+        """Rerank top results using cross-encoder via IPC daemon.
+
+        Falls back gracefully (returns original order) when daemon is
+        unavailable. Per AG1: start with lightweight retrieval, escalate
+        when the reranker is available.
+        """
+        if not self.reranking or len(results) <= 1:
+            return results
+
+        if not EmbeddingClient.available():
+            return results
+
+        top = results[:max_rerank]
+        rest = results[max_rerank:]
+
+        pairs = [[query, r.chunk.content[:RERANK_MAX_CONTENT_CHARS]] for r in top]
+        try:
+            client = EmbeddingClient()
+            scores = client.predict(pairs)
+            client.close()
+        except (ConnectionError, RuntimeError, OSError) as e:
+            logger.warning("Reranking unavailable: %s — returning unranked results", e)
+            return results
+
+        # Sigmoid normalize raw logits to [0, 1]
+        rerank_scores = 1.0 / (1.0 + np.exp(-scores))
+
+        # Re-sort top candidates by rerank score
+        ranked_pairs = sorted(zip(top, rerank_scores), key=lambda x: -x[1])
+        reranked = [r for r, _ in ranked_pairs]
+
+        return reranked + rest
+
     @staticmethod
     def _compute_metadata_bonus(chunk: ContentChunk, query_lower: str) -> float:
         """Compute score bonus based on YAML frontmatter metadata.
@@ -864,6 +907,9 @@ class ProjectManager:
                     boost_score=float(np.clip(bonuses[idx], -0.05, 0.05)),
                 )
             )
+
+        # Cross-encoder reranking (when IPC daemon available)
+        results = self._rerank_results(query_lower, results)
 
         # Per-file deduplication
         results = self._deduplicate_per_file(
