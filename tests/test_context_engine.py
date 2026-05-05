@@ -4959,11 +4959,31 @@ class TestRankingSignals:
         # 0.6 * 1.0 + 0.4 * 1.0 + 0.02 = 1.02 → clamped to 1.0
         assert results[0].combined_score <= 1.0
 
-    def test_dedup_keeps_highest_per_file(self):
+    def test_dedup_caps_chunks_per_file(self):
         from ai_governance_mcp.context_engine.project_manager import ProjectManager
 
         pm = ProjectManager(semantic_weight=0.5)
-        # Two chunks from the same file
+        # Four chunks from the same file, one from another
+        chunks = [
+            self._make_chunk("src/main.py", "highest"),
+            self._make_chunk("src/main.py", "second"),
+            self._make_chunk("src/main.py", "third"),
+            self._make_chunk("src/main.py", "fourth"),
+            self._make_chunk("src/other.py", "other file"),
+        ]
+        sem = np.array([0.9, 0.7, 0.5, 0.3, 0.6])
+        kw = np.array([0.8, 0.6, 0.4, 0.2, 0.5])
+        results = pm._fuse_scores(chunks, sem, kw, max_results=10)
+        main_results = [r for r in results if r.chunk.source_path == "src/main.py"]
+        assert len(main_results) == 3
+        assert main_results[0].chunk.content == "highest"
+        assert main_results[2].chunk.content == "third"
+        assert len(results) == 4
+
+    def test_dedup_strict_mode_cap_1(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.5)
         chunks = [
             self._make_chunk("src/main.py", "high relevance"),
             self._make_chunk("src/main.py", "low relevance"),
@@ -4971,14 +4991,50 @@ class TestRankingSignals:
         ]
         sem = np.array([0.9, 0.3, 0.5])
         kw = np.array([0.8, 0.2, 0.4])
-        results = pm._fuse_scores(chunks, sem, kw, max_results=10)
-        # Dedup: only 2 unique files
+        results = pm._fuse_scores(
+            chunks, sem, kw, max_results=10, max_chunks_per_source=1
+        )
         result_paths = [r.chunk.source_path for r in results]
         assert len(result_paths) == 2
         assert len(set(result_paths)) == 2
-        # The higher-scored main.py chunk survives
         main_result = next(r for r in results if r.chunk.source_path == "src/main.py")
         assert main_result.chunk.content == "high relevance"
+
+    def test_dedup_custom_cap(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.5)
+        chunks = [
+            self._make_chunk("src/main.py", "first"),
+            self._make_chunk("src/main.py", "second"),
+            self._make_chunk("src/main.py", "third"),
+        ]
+        sem = np.array([0.9, 0.7, 0.5])
+        kw = np.array([0.8, 0.6, 0.4])
+        results = pm._fuse_scores(
+            chunks, sem, kw, max_results=10, max_chunks_per_source=2
+        )
+        assert len(results) == 2
+        assert results[0].chunk.content == "first"
+        assert results[1].chunk.content == "second"
+
+    def test_deduplicate_per_file_static(self):
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        results = [
+            QueryResult(
+                chunk=self._make_chunk("a.py", f"a{i}"),
+                combined_score=round(1.0 - i * 0.1, 1),
+            )
+            for i in range(5)
+        ]
+        deduped = ProjectManager._deduplicate_per_file(results)
+        assert len(deduped) == 3
+        deduped = ProjectManager._deduplicate_per_file(results, max_per_file=1)
+        assert len(deduped) == 1
+        assert deduped[0].chunk.content == "a0"
+        deduped = ProjectManager._deduplicate_per_file(results, max_per_file=5)
+        assert len(deduped) == 5
 
     def test_no_bonuses_when_no_recency_map(self):
         """Without a recency map, only file-type bonuses apply."""

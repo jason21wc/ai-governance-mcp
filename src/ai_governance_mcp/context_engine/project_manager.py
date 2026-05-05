@@ -170,6 +170,7 @@ class ProjectManager:
         query: str,
         project_path: Path | None = None,
         max_results: int = 10,
+        max_chunks_per_source: int = 3,
     ) -> ProjectQueryResult:
         """Query a project's content using hybrid search.
 
@@ -177,6 +178,7 @@ class ProjectManager:
             query: Natural language query or keyword search.
             project_path: Project to query. Defaults to current working directory.
             max_results: Maximum number of results to return.
+            max_chunks_per_source: Maximum chunks per source file (default 3).
 
         Returns:
             Ranked query results with content chunks and scores.
@@ -259,6 +261,7 @@ class ProjectManager:
                 max_results,
                 file_recency_map=file_recency_map,
                 query_lower=query.lower(),
+                max_chunks_per_source=max_chunks_per_source,
             )
 
         elapsed_ms = (time.time() - start_time) * 1000
@@ -754,14 +757,20 @@ class ProjectManager:
         return recency_map
 
     @staticmethod
-    def _deduplicate_per_file(results: list[QueryResult]) -> list[QueryResult]:
-        """Keep only the highest-scoring chunk per source file."""
-        seen_files: set[str] = set()
+    def _deduplicate_per_file(
+        results: list[QueryResult], max_per_file: int = 3
+    ) -> list[QueryResult]:
+        """Keep up to max_per_file highest-scoring chunks per source file.
+
+        Results must be pre-sorted by descending combined_score.
+        """
+        file_counts: dict[str, int] = {}
         deduped: list[QueryResult] = []
         for r in results:
             path = r.chunk.source_path
-            if path not in seen_files:
-                seen_files.add(path)
+            count = file_counts.get(path, 0)
+            if count < max_per_file:
+                file_counts[path] = count + 1
                 deduped.append(r)
         return deduped
 
@@ -813,6 +822,7 @@ class ProjectManager:
         max_results: int,
         file_recency_map: dict[str, float] | None = None,
         query_lower: str = "",
+        max_chunks_per_source: int = 3,
     ) -> list[QueryResult]:
         """Fuse semantic and keyword scores with ranking bonuses and return top results."""
         if len(chunks) == 0:
@@ -856,7 +866,9 @@ class ProjectManager:
             )
 
         # Per-file deduplication
-        results = self._deduplicate_per_file(results)
+        results = self._deduplicate_per_file(
+            results, max_per_file=max_chunks_per_source
+        )
 
         return results[:max_results]
 
