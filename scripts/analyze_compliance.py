@@ -28,7 +28,7 @@ CE_TOOL = "mcp__context-engine__query_project"
 FILE_MODIFYING_TOOLS = {"Bash", "Edit", "Write", "NotebookEdit"}
 RECENCY_WINDOW = 200
 
-BUCKET_RANGES = {
+SESSION_LENGTH_RANGES = {
     "trivial": (0, 0),
     "short": (1, 10),
     "medium": (11, 50),
@@ -37,11 +37,11 @@ BUCKET_RANGES = {
 }
 
 
-def _classify_bucket(file_mod_calls: int) -> str:
-    """Classify session into a length bucket based on file modification count."""
-    for bucket, (lo, hi) in BUCKET_RANGES.items():
+def _classify_session_length(file_mod_calls: int) -> str:
+    """Classify session into a length category based on file modification count."""
+    for category, (lo, hi) in SESSION_LENGTH_RANGES.items():
         if lo <= file_mod_calls <= hi:
-            return bucket
+            return category
     return "very_long"  # unreachable for non-negative inputs; defensive fallback
 
 
@@ -96,7 +96,7 @@ def analyze_transcript(
     """Analyze a single transcript for compliance.
 
     Returns dict with core fields (gov_calls, ce_calls, file_mod_calls, etc.)
-    plus enhanced fields (gov_gaps, ce_gaps, gap rates, proximity, bucket, quality).
+    plus enhanced fields (gov_gaps, ce_gaps, gap rates, proximity, session_length, quality).
     """
     gov_calls = 0
     ce_calls = 0
@@ -179,8 +179,8 @@ def analyze_transcript(
     avg_gov_proximity = _compute_avg_proximity(file_mod_positions, gov_positions)
     avg_ce_proximity = _compute_avg_proximity(file_mod_positions, ce_positions)
 
-    # Session bucket
-    session_bucket = _classify_bucket(file_mod_calls)
+    # Session length category
+    session_length = _classify_session_length(file_mod_calls)
 
     # Compliance quality
     compliance_quality = _classify_quality(
@@ -215,7 +215,7 @@ def analyze_transcript(
         "combined_gap_rate": combined_gap_rate,
         "avg_gov_proximity": avg_gov_proximity,
         "avg_ce_proximity": avg_ce_proximity,
-        "session_bucket": session_bucket,
+        "session_length": session_length,
         "compliance_quality": compliance_quality,
         "enforcement_era": enforcement_era,
     }
@@ -242,15 +242,15 @@ def _compute_aggregates(results: list[dict]) -> dict:
     ]
     median_gap_rate = statistics.median(session_gap_rates) if session_gap_rates else 0.0
 
-    # By bucket
-    by_bucket = {}
-    for bucket in BUCKET_RANGES:
-        bucket_sessions = [r for r in valid if r.get("session_bucket") == bucket]
-        bucket_mods = sum(r["file_mod_calls"] for r in bucket_sessions)
-        bucket_gaps = sum(len(r["gaps"]) for r in bucket_sessions)
-        by_bucket[bucket] = {
-            "count": len(bucket_sessions),
-            "gap_rate": round(bucket_gaps / bucket_mods, 4) if bucket_mods else 0.0,
+    # By session length
+    by_session_length = {}
+    for length_cat in SESSION_LENGTH_RANGES:
+        length_sessions = [r for r in valid if r.get("session_length") == length_cat]
+        length_mods = sum(r["file_mod_calls"] for r in length_sessions)
+        length_gaps = sum(len(r["gaps"]) for r in length_sessions)
+        by_session_length[length_cat] = {
+            "count": len(length_sessions),
+            "gap_rate": round(length_gaps / length_mods, 4) if length_mods else 0.0,
         }
 
     # By compliance quality
@@ -276,7 +276,7 @@ def _compute_aggregates(results: list[dict]) -> dict:
         "total_gaps": total_gaps,
         "total_gov_gaps": total_gov_gaps,
         "total_ce_gaps": total_ce_gaps,
-        "by_bucket": by_bucket,
+        "by_session_length": by_session_length,
         "by_compliance_quality": by_quality,
     }
 
@@ -327,20 +327,20 @@ def print_report(results: list[dict]) -> None:
 
     print()
     print("BREAKDOWN BY SESSION LENGTH")
-    bucket_labels = {
+    length_labels = {
         "trivial": "Trivial (0 mods)",
         "short": "Short (1-10 mods)",
         "medium": "Medium (11-50)",
         "long": "Long (51-100)",
         "very_long": "Very long (101+)",
     }
-    for bucket, label in bucket_labels.items():
-        info = agg["by_bucket"][bucket]
+    for length_cat, label in length_labels.items():
+        info = agg["by_session_length"][length_cat]
         if info["count"] == 0:
             print(f"  {label:<22} {info['count']:>3} sessions")
         else:
             rate_str = (
-                f"gap_rate: {info['gap_rate']:.2f}" if bucket != "trivial" else ""
+                f"gap_rate: {info['gap_rate']:.2f}" if length_cat != "trivial" else ""
             )
             print(f"  {label:<22} {info['count']:>3} sessions  {rate_str}")
 
@@ -402,7 +402,7 @@ def save_baseline(
                 "combined_gap_rate": r.get("combined_gap_rate", 0.0),
                 "gov_gap_rate": r.get("gov_gap_rate", 0.0),
                 "ce_gap_rate": r.get("ce_gap_rate", 0.0),
-                "session_bucket": r.get("session_bucket", "unknown"),
+                "session_length": r.get("session_length", "unknown"),
                 "compliance_quality": r.get("compliance_quality", "unknown"),
                 "enforcement_era": r.get("enforcement_era", "unknown"),
                 "avg_gov_proximity": r.get("avg_gov_proximity"),
@@ -511,20 +511,20 @@ def compare_baselines(path_a: Path, path_b: Path) -> None:
     )
 
     # By session length
-    bkt_a = agg_a.get("by_bucket", {})
-    bkt_b = agg_b.get("by_bucket", {})
+    bkt_a = agg_a.get("by_session_length", {}) or agg_a.get("by_bucket", {})
+    bkt_b = agg_b.get("by_session_length", {}) or agg_b.get("by_bucket", {})
     if bkt_a or bkt_b:
         print()
         print("BY SESSION LENGTH:")
-        bucket_labels = {
+        length_labels = {
             "short": "Short (1-10)",
             "medium": "Medium (11-50)",
             "long": "Long (51-100)",
             "very_long": "Very long (101+)",
         }
-        for bucket, label in bucket_labels.items():
-            ba = bkt_a.get(bucket, {}).get("gap_rate")
-            bb = bkt_b.get(bucket, {}).get("gap_rate")
+        for length_cat, label in length_labels.items():
+            ba = bkt_a.get(length_cat, {}).get("gap_rate")
+            bb = bkt_b.get(length_cat, {}).get("gap_rate")
             print(
                 f"  {label + ':':<22} {_fmt_pct(ba):>8} -> {_fmt_pct(bb):>8}  {_fmt_delta(ba, bb):>10}"
             )
@@ -536,7 +536,7 @@ def compare_baselines(path_a: Path, path_b: Path) -> None:
             "Gov/CE split not available in 'before' baseline (merged gap_count only)."
         )
     if not bkt_a and bkt_b:
-        notes.append("Session buckets not available in 'before' baseline.")
+        notes.append("Session length breakdown not available in 'before' baseline.")
     if notes:
         print()
         for note in notes:

@@ -12,7 +12,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from analyze_compliance import (
     RECENCY_WINDOW,
-    _classify_bucket,
+    _classify_session_length,
     _classify_quality,
     _compute_aggregates,
     _compute_avg_proximity,
@@ -199,10 +199,10 @@ class TestGapDetection:
         assert len(result["gaps"]) == 1
 
 
-# --- Session buckets ---
+# --- Session length categories ---
 
 
-class TestSessionBuckets:
+class TestSessionLengthCategories:
     @pytest.mark.parametrize(
         "mods, expected",
         [
@@ -217,8 +217,8 @@ class TestSessionBuckets:
             (500, "very_long"),
         ],
     )
-    def test_bucket_boundaries(self, mods, expected):
-        assert _classify_bucket(mods) == expected
+    def test_session_length_boundaries(self, mods, expected):
+        assert _classify_session_length(mods) == expected
 
 
 # --- Compliance quality ---
@@ -378,7 +378,7 @@ class TestAggregates:
             "combined_gap_rate": 0.0,
             "avg_gov_proximity": None,
             "avg_ce_proximity": None,
-            "session_bucket": "trivial",
+            "session_length": "trivial",
             "compliance_quality": "high",
             "enforcement_era": "unknown",
         }
@@ -391,35 +391,35 @@ class TestAggregates:
                 file_mod_calls=10,
                 gaps=[1, 2, 3],
                 combined_gap_rate=0.3,
-                session_bucket="short",
+                session_length="short",
                 compliance_quality="high",
             ),
             self._make_result(
                 file_mod_calls=10,
                 gaps=[1, 2, 3, 4, 5, 6, 7, 8, 9],
                 combined_gap_rate=0.9,
-                session_bucket="short",
+                session_length="short",
                 compliance_quality="low",
             ),
             self._make_result(
                 file_mod_calls=10,
                 gaps=[1, 2, 3, 4, 5],
                 combined_gap_rate=0.5,
-                session_bucket="short",
+                session_length="short",
                 compliance_quality="moderate",
             ),
         ]
         agg = _compute_aggregates(results)
         assert agg["median_gap_rate"] == 0.5  # median of [0.3, 0.9, 0.5] = 0.5
 
-    def test_by_bucket(self):
+    def test_by_session_length(self):
         results = [
             self._make_result(
                 file_mod_calls=5,
                 gaps=[1, 2],
                 gov_gaps=[1, 2],
                 ce_gaps=[1, 2],
-                session_bucket="short",
+                session_length="short",
                 combined_gap_rate=0.4,
             ),
             self._make_result(
@@ -427,14 +427,14 @@ class TestAggregates:
                 gaps=list(range(15)),
                 gov_gaps=list(range(15)),
                 ce_gaps=list(range(15)),
-                session_bucket="medium",
+                session_length="medium",
                 combined_gap_rate=0.75,
             ),
         ]
         agg = _compute_aggregates(results)
-        assert agg["by_bucket"]["short"]["count"] == 1
-        assert agg["by_bucket"]["medium"]["count"] == 1
-        assert agg["by_bucket"]["trivial"]["count"] == 0
+        assert agg["by_session_length"]["short"]["count"] == 1
+        assert agg["by_session_length"]["medium"]["count"] == 1
+        assert agg["by_session_length"]["trivial"]["count"] == 0
 
     def test_errors_excluded(self):
         results = [
@@ -452,7 +452,7 @@ class TestAggregates:
                 gaps=[1, 2, 3],
                 gov_gaps=[1, 2],
                 ce_gaps=[1, 2, 3],
-                session_bucket="short",
+                session_length="short",
             ),
         ]
         agg = _compute_aggregates(results)
@@ -484,7 +484,7 @@ class TestBaseline:
                 "combined_gap_rate": 0.6,
                 "avg_gov_proximity": 3.0,
                 "avg_ce_proximity": 4.0,
-                "session_bucket": "short",
+                "session_length": "short",
                 "compliance_quality": "moderate",
                 "enforcement_era": "post",
             }
