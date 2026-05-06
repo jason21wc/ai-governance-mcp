@@ -64,6 +64,14 @@
 >
 > **When a trigger fires:** Record the firing date and evidence in the tripwire entry. If the triggered work is discrete (implement, fix, design spike), file it as a BACKLOG project. The tripwire entry remains here if the trigger can re-fire; close it if the condition is permanently resolved.
 
+### T-149. CE-first compliance measurement (Phase 2 activation gate)
+
+**Trigger conditions:** (1) CE-vs-grep ratio for discovery queries stays below 85% after 3-5 sessions with Phase 1 advisory changes deployed, OR (2) user reports persistent grep-over-CE behavior despite Phase 1 improvements.
+**What:** Phase 1 of CE-First Search plan shipped tool description ("Default search tool"), SERVER_INSTRUCTIONS ("When to Use Grep Instead"), and CLAUDE.md ("Search default: CE first") improvements. Phase 2 (Grep/Glob PreToolUse advisory hook) activates ONLY if Phase 1 proves insufficient. Measurement: observe CE-vs-grep usage in session transcripts. If ≥85% CE compliance, Phase 2 is unnecessary.
+**Origin:** Session-149 (2026-05-05). CE-First Search plan, contrarian Challenge 1 (measurement gate between phases).
+
+---
+
 ### T-119. Revised-plan-after-rejection heuristic
 
 **Trigger conditions:** (1) Observed case of revised-plan-without-fresh-contrarian producing actually-bad approval, OR (2) design session settles on workable plan-revision detection signal.

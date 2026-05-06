@@ -49,7 +49,7 @@ Hard-mode hook **BLOCKS** Bash|Edit|Write until both tools are called. This is s
 
 After evaluating: cite principle IDs that influence your approach.
 
-**CE vs Grep:** Use `query_project` for semantic discovery (what exists? what's related? how does X work?). Use Grep/Glob for deterministic lookup (find this exact string, check this file, count occurrences). When creating new content or investigating unfamiliar areas, CE first.
+**Search default: CE first.** Use `query_project` as your default search tool for all discovery, investigation, and "what exists?" queries. It finds what you cannot name precisely — concept discovery, pattern search, impact analysis. Use Grep/Glob ONLY for: exact-string lookup in a known file, regex patterns, counting occurrences, or verifying a specific line number. If you're writing a multi-word grep or searching recursively without a specific file target, use CE instead.
 
 **Known hook workaround — OOM-gate FP on `pytest` in commit messages:** When a `git commit` message body contains `pytest` inside a quoted region (heredoc body or alternation argument), the OOM gate (`pre-test-oom-gate.sh`) false-positives because its token-anchored matcher cannot distinguish executable position from quoted-region content. Write the message to a tempfile via the Write tool and commit via `git commit -F <messagefile>`. Tracked as OPERATIONS.md T-143 (deferred — asymmetric cost: hook modification risks TP-regression vs. low workaround friction).
 

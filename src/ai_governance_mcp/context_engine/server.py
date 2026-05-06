@@ -4,7 +4,7 @@ Separate entry point from the governance MCP server. Provides tools
 for querying and managing project content indexes via MCP protocol.
 
 Tools exposed:
-- query_project: Semantic + keyword search across project content
+- query_project: Default search tool — semantic + keyword search across project content
 - index_project: Trigger manual re-index of current project
 - list_projects: Show all indexed projects
 - project_status: Index stats for current project
@@ -170,6 +170,16 @@ Call `query_project(query="...")` before creating or modifying code:
 
 `query_project` is strongest for discovery, conceptual search, and finding related patterns across naming variations.
 
+### When to Use Grep Instead
+
+Use Grep/Glob **only** when:
+- You need an **exact string match** in a known file (e.g., `grep "def my_function" server.py`)
+- You need **regex patterns** (e.g., `grep -E "import\\s+(os|sys)"`)
+- You need to **count occurrences** (e.g., `grep -c "TODO"`)
+- You need to **verify a specific line number** in a known file
+
+For everything else — concept discovery, pattern exploration, "where does X happen?", "do we already have Y?" — use `query_project`. It is the default search tool: it combines semantic understanding with keyword matching and finds related code even when naming differs.
+
 ### Required Behavior
 1. **Query before creating** — `query_project("existing [thing] implementation")`
 2. **Query before modifying** — `query_project("how does [component] work")`
@@ -182,7 +192,7 @@ In sandboxed environments (Cowork VM, Docker, CI), the server auto-detects read-
 ### Tools
 | Tool | Purpose |
 |------|---------|
-| `query_project` | Search project content by meaning or keyword |
+| `query_project` | Default search tool — semantic + keyword search across project content |
 | `index_project` | Trigger re-index of current project |
 | `list_projects` | Show all indexed projects |
 | `project_status` | Index stats for current project |
@@ -386,12 +396,14 @@ def create_server() -> tuple[Server, ProjectManager]:
             Tool(
                 name="query_project",
                 description=(
-                    "Search project content using semantic and keyword matching "
-                    "— finds conceptually related code, patterns, and "
-                    "documentation even when naming differs. Best for discovery: "
-                    "'what patterns exist for X?', 'do we already have Y?', "
-                    "'what files are affected by this concept?', "
-                    "'how does Z work across the codebase?'. "
+                    "Default search tool — search source code, documentation, "
+                    "tests, and configuration using semantic + keyword matching. "
+                    "Finds conceptually related code and patterns even when "
+                    "naming differs. Preferred over Grep for discovery, "
+                    "exploration, and 'does X exist?' queries. "
+                    "Use Grep only for exact-string lookup in a known file, "
+                    "regex patterns, counting occurrences, or verifying "
+                    "a specific line number. "
                     "Returns ranked results with file paths and line numbers."
                 ),
                 inputSchema={
