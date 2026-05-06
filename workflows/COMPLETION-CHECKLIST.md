@@ -86,6 +86,7 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 ### BEST-EFFORT
 
 3. Spot-check: `query_governance("new content topic")` → verify it surfaces
+3a. **Context Engine rebuild** — call `index_project` (via MCP) after content changes so semantic search surfaces new/modified content. The governance extractor (item 1) rebuilds the principle/method index; this rebuilds the full-text semantic search index used by `query_project`.
 4. Reference doc staleness check per §14.2
 5. README check: if principle/method counts or domains changed → update README domain table
 6. **Version-history entry authored** per `rules-of-procedure §2.1.1` Step 3 — every normative document MUST have a version-history section (Historical Amendments / Version History / Changelog / Appendix C naming all accepted); add an entry for this PATCH/MINOR/MAJOR.
