@@ -12,15 +12,16 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-149 (2026-05-05) shipped CE-First Search Phase 1** — tool description, SERVER_INSTRUCTIONS, and CLAUDE.md advisory improvements to make CE the default search tool. Double-checked by 3 subagents (code-reviewer, coherence-auditor, validator) — 4 issues found and fixed (exception list alignment, stale Tools table, module docstring, piping-output bullet). Phase 2 (Grep/Glob advisory hook) is conditional on Phase 1 measurement (<85% CE compliance after 3-5 sessions).
+**Session-149 (2026-05-05) shipped CE-First Search Phase 1** + **Compliance Review #7** (12/12 PASS, V-005 CONFIRMED). Double-checked by 3 subagents (code-reviewer, coherence-auditor, validator) — 4 issues found and fixed. Phase 2 (Grep/Glob advisory hook) conditional on T-149 measurement.
 
-**ACTION ON RESUME (session-150):** **No blocking items.** Time-cued items: **Compliance Review #7** (~2026-05-13) → **C-109 deferred-cadence audit** (~2026-05-25) → **T-049 calendar review** (2026-06-15). **T-149 CE-first compliance measurement** — observe CE-vs-grep ratio for 3-5 sessions before activating Phase 2.
+**ACTION ON RESUME (session-150):** **No blocking items.** Time-cued items: **Compliance Review #8** (~2026-05-15) → **C-109 deferred-cadence audit** (~2026-05-25) → **T-049 calendar review** (2026-06-15). **T-149 CE-first compliance measurement** — observe CE-vs-grep ratio for 3-5 sessions before activating Phase 2.
 
 **Critical state for next session:**
 - **Commits ahead of origin:** 0 (after this push).
 - **CE-First advisory changes active NOW** — tool descriptions and CLAUDE.md loaded at session start, SERVER_INSTRUCTIONS appended to every CE response. No restart needed.
 - **Tests:** 1481 passing (non-slow subset) + 30 deselected slow.
-- **Compliance Review #7** — due ~2026-05-13.
+- **Compliance Review #8** — due ~2026-05-15.
+- **V-005 CONFIRMED** (session pruning advisory works — 5/5 under 300 lines). Move to Retired in COMPLIANCE-REVIEW.md.
 - **Deferred documentation propagation:** API.md, README.md, title-10-ai-coding-cfr.md still use old `query_project` description text. Cosmetic — no behavioral impact.
 
 **Open BACKLOG (post-session-149):** Same as session-148 plus deferred doc propagation (cosmetic). See BACKLOG.md for full list.
@@ -29,9 +30,9 @@
 
 ## Current Position
 
-- **Phase:** Session-149 (2026-05-05) — CE-First Search Phase 1 shipped. Phase 2 conditional on measurement.
+- **Phase:** Session-149 (2026-05-05) — CE-First Search Phase 1 shipped + Compliance Review #7 completed. Phase 2 conditional on measurement.
 - **Mode:** Normal operation. No active monitors.
-- **Active Task:** None. Next time-cued: Compliance Review #7 (~2026-05-13).
+- **Active Task:** None. Next time-cued: Compliance Review #8 (~2026-05-15).
 
 ## Quick Reference
 
@@ -63,8 +64,9 @@
    - **CLAUDE.md:** Replaced "CE vs Grep" with "Search default: CE first" directive.
    - **Double-check:** 3 subagents (code-reviewer, coherence-auditor, validator) found 4 issues — all fixed: exception list mismatch across 3 surfaces, stale Tools table, module docstring, vague "piping output" bullet.
    - **Phase 2 (Grep/Glob advisory hook):** Conditional on T-149 tripwire. Plan designed, contrarian-reviewed (3 IMPORTANT findings adopted: measurement gate, heuristic precision, advisory fatigue risk).
-   - **Files modified:** context_engine/server.py, CLAUDE.md.
-   - **Governance:** `gov-1dcce9b35ff5`.
+   - **Compliance Review #7:** 12/12 PASS (1 PASS_WITH_NOTES — startup-read token-limit, n=3 recurring). V-005 CONFIRMED (5/5 under 300). V-006 sessions 2-4 recorded (3 denies in sessions 2-3, 0 in session 4). OOM gate +3 TPs (total 9).
+   - **Files modified:** context_engine/server.py, CLAUDE.md, COMPLIANCE-REVIEW.md, OPERATIONS.md, rules-of-procedure.md §9.7.7.
+   - **Governance:** `gov-1dcce9b35ff5`, `gov-f9dc791e90fd`.
 
 ---
 
@@ -83,7 +85,7 @@
 ## Next Actions
 
 **Time-cued:**
-1. **Compliance Review #7** — due ~2026-05-13 (10-15 days from Review #6 on 2026-05-03). Invoke `/compliance-review`.
+1. **Compliance Review #8** — due ~2026-05-15 (10-15 days from Review #7 on 2026-05-05). Invoke `/compliance-review`.
 2. **C-109 deferred-cadence audit** — due ~2026-05-25. See OPERATIONS.md.
 
 **Ready-to-work (user-directed):**

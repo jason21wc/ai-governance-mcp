@@ -2746,6 +2746,7 @@ Pure passive triggers ("when it becomes useful") are insufficient — they repro
 **Audit log:**
 - *2026-04-27 (initial filing, session-136):* Register established. 10 borrowed + 1 considered-and-rejected + 7 not-borrowed entries. No triggers fired. Next audit at Compliance Review #6 (~2026-05-05–05-10).
 - *2026-05-03 (Compliance Review #6):* Spot-checked 3 borrowed entries (Bill of Rights, Supremacy Clause, Stare Decisis rejection) — all cited locations verified live. Re-read 7 not-borrowed trigger prerequisites — 0/7 event triggers fired. Calendar backstop (every 3rd review) not yet due (fires Review #9). No state transitions. Register stable. Next audit at Review #9 (~2026-06-15) for calendar backstop; sooner if event trigger fires.
+- *2026-05-05 (Compliance Review #7):* Spot-checked 3 different borrowed entries (Federal Statutes → constitution.md §Operative Hierarchy table, Articles I-IV → constitution.md §Article I/II/III/IV headers, Equal Protection → RoP §9.7 intro). All cited locations verified live. Re-read 7 not-borrowed trigger prerequisites — 0/7 event triggers fired. Calendar backstop fires Review #9. No state transitions. Register stable.
 
 **Cross-references.**
 - §9.8.1 (Q7 PASS/FAIL exemplars table) — proto-register material; mutually informative.

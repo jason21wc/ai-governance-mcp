@@ -19,8 +19,8 @@
 
 **Cadence:** Every 10-15 calendar days. Event triggers: hook/CLAUDE.md/tiers.json modification.
 **Procedure:** `workflows/COMPLIANCE-REVIEW.md` (12 checks). Invoke via `/compliance-review` skill.
-**Reviews completed:** #1-6 (most recent: 2026-05-03).
-**Next review due:** ~2026-05-13.
+**Reviews completed:** #1-7 (most recent: 2026-05-05).
+**Next review due:** ~2026-05-15.
 **Origin:** BACKLOG #78 (migrated 2026-05-03).
 
 ---
@@ -183,7 +183,7 @@
 
 | ID | Name | Status | Defined In | Added |
 |----|------|--------|------------|-------|
-| V-005 | SESSION-STATE pruning compliance | OPEN | `workflows/COMPLIANCE-REVIEW.md` | 2026-04-14 |
+| V-005 | SESSION-STATE pruning compliance | **CONFIRMED** | `workflows/COMPLIANCE-REVIEW.md` | 2026-04-14 |
 | V-006 | Pre-exit-plan-mode-gate hook-denial rate | OPEN | `workflows/COMPLIANCE-REVIEW.md` | 2026-04-23 |
 | V-007 | Plan-action-atomicity WARN-mode firing rate | OPEN | `workflows/COMPLIANCE-REVIEW.md` | 2026-04-25 |
 | V-008 | TDD test-existence WARN-mode firing rate | OPEN | `workflows/COMPLIANCE-REVIEW.md` | 2026-04-25 |
