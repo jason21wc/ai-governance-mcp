@@ -1,12 +1,12 @@
 ---
-version: "2.7.6"
+version: "2.8.0"
 status: "active"
 effective_date: "2026-05-03"
 domain: "ai-coding"
 governance_level: "federal-statute"
 ---
 
-# AI Coding Domain Principles Framework v2.7.5
+# AI Coding Domain Principles Framework v2.8.0
 ## Federal Statutes for AI-Assisted Software Development
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -80,13 +80,37 @@ AI assistants operate within token limits (typically 100K-200K tokens). As sessi
 Unlike human developers who retain project knowledge across days and weeks, AI sessions are stateless. Without explicit state management, each session starts fresh, losing architectural decisions, coding patterns, and project context established in prior sessions.
 
 **4. Velocity-Quality Tension**
-AI can generate thousands of lines of code in minutes—far faster than human review capacity. This velocity amplifies both productivity and risk: a single flawed pattern propagates across an entire codebase before detection. The 10x spike in security findings (Dec 2024 → June 2025) correlates directly with AI coding adoption.
+AI can generate thousands of lines of code in minutes—far faster than human review capacity. This velocity amplifies both productivity and risk: a single flawed pattern propagates across an entire codebase before detection. The 10x spike in security findings (Dec 2024 → June 2025) correlates directly with AI coding adoption. (See **The Engineering Productivity Paradox** below for empirical measurement of this tension at scale.)
 
 **5. Hallucinated Dependencies**
 AI recommends packages that don't exist at alarming rates: 21.7% for open-source models, 5.2% for commercial models. Over 200,000 unique hallucinated package names have been identified, creating a new attack vector called "slopsquatting."
 
 **6. Workflow Manipulation Vulnerability**
 AI coding assistants process untrusted inputs (repo content, PR comments, documentation, web pages) that may contain adversarial instructions. Unlike traditional security (protecting code outputs), this concerns protecting the AI assistant itself from manipulation that could cause unsafe actions.
+
+### The Engineering Productivity Paradox
+
+AI coding tools deliver measurable velocity gains — but without governance, those gains dissipate into debt, complexity, and incident burden within weeks. This is not speculative; it is the most empirically measured phenomenon in AI-assisted development:
+
+**Quantified Evidence (2025-2026):**
+
+| Metric | Finding | Source |
+|--------|---------|--------|
+| Code Issues | AI-generated PRs contain **1.7x more issues** than human-written code | SonarSource 2025 |
+| Technical Debt | **30-41% increase** in tech debt density in AI-heavy codebases | Agile Pain Relief 2025, SonarSource 2025 |
+| Code Complexity | **39% increase** in cyclomatic complexity in AI-generated modules | SonarSource 2025 |
+| Change Failure Rate | **30% increase** in deployment failures correlated with AI adoption | Exceeds.ai 2026 |
+| Incident Rate | **23.5% more incidents per PR** in AI-assisted workflows | Exceeds.ai 2026 |
+| Debugging Time | **67% increase** in time spent debugging AI-generated code | Agile Pain Relief 2025 |
+| Velocity Dissipation | Initial 3-5x productivity gains **fully erode within 2 months** without governance | Faros AI 2026 |
+
+**The Tactical Tornado Pattern:** Ousterhout (2018) identified "tactical programming" — prioritizing speed over design — as the primary source of software complexity. AI coding tools are "akin to tactical tornadoes" (industry consensus 2025-2026): they optimize for immediate output velocity without structural awareness. Each generated function is locally correct but globally uncoordinated — creating the exact complexity accumulation that Ousterhout warned consumes 10-20x the original "saved" time.
+
+**The 10-20% Design Investment:** Ousterhout's empirical finding — investing 10-20% of development time in upfront design yields net productivity gains over any horizon longer than 2 weeks. This investment is MORE critical with AI tools, not less: the velocity multiplier amplifies the cost of poor design proportionally. A human writing 100 lines/day with bad architecture creates debt slowly; an AI writing 2,000 lines/day with bad architecture creates a crisis in days.
+
+**The 20-40% Reality:** MIT Technology Review (Dec 2025) found that coding — the phase AI accelerates most — constitutes only 20-40% of software engineering effort. The remaining 60-80% (design, review, debugging, integration, maintenance) is where debt manifests. Accelerating the 20-40% while degrading the 60-80% produces net negative productivity — the paradox.
+
+**Implication for Governance:** These findings establish that AI coding governance is not optional overhead — it is the mechanism that preserves the velocity gains. Without proportional governance (design gates, type constraints, context engineering, lifecycle classification), AI-assisted development reliably produces worse outcomes than unassisted development within 8 weeks. The principles and methods in this title exist to solve this specific, measured problem.
 
 ### Why Meta-Principles Alone Are Insufficient
 
@@ -133,7 +157,7 @@ This framework organizes domain principles into three series that address differ
    * **Role:** Output Standards
    * **Function:** Setting requirements that all outputs must meet. These principles define production-ready standards, security requirements, testing integration, dependency integrity, and workflow protection. Without quality principles, AI velocity produces technical debt and security vulnerabilities.
 
-### The Twelve Domain Principles
+### The Fifteen Domain Principles
 
 **C-Series: Context Principles** — *What AI needs to know*
 
@@ -142,6 +166,7 @@ This framework organizes domain principles into three series that address differ
 | Specification Completeness | Hallucination from incomplete specs |
 | Context Window Management | Quality degradation from overflow |
 | Session State Continuity | Context loss between sessions |
+| Context Engineering Discipline | Context drift → deprecated pattern generation |
 
 **P-Series: Process Principles** — *How work flows and who decides*
 
@@ -151,6 +176,8 @@ This framework organizes domain principles into three series that address differ
 | Validation Gates | Skipped validation, phase bypass |
 | Atomic Task Decomposition | Large chunks resist review/debug |
 | Human-AI Collaboration Model | AI makes product decisions; automation bias |
+| Design-Architecture Supremacy | Unconstrained generation → velocity-quality inversion |
+| Lifecycle-Proportional Governance | Lifecycle governance mismatch → waste or risk |
 
 **Q-Series: Quality Principles** — *What outputs must achieve*
 
@@ -209,6 +236,9 @@ This table maps each domain principle to its Constitutional basis and evidence f
 | **Testing Integration** | B2: Inadequate test coverage | Verification & Validation | Test results, coverage reports |
 | **Supply Chain & Solution Integrity** | A4/A5: Hallucinated dependencies, slopsquatting; unnecessary custom code | Non-Maleficence, Privacy & Security, Informational Readiness, Resource Efficiency & Waste Reduction, Verification & Validation | Package registries (npm, PyPI, crates.io), SBOMs, standard libraries |
 | **Workflow Integrity** | E1/E2: Prompt injection, workflow manipulation | Non-Maleficence, Privacy & Security, Separation of Instructions and Data, Informational Readiness | Trusted instruction sources, context validation |
+| **Context Engineering Discipline** | A6: Context drift → deprecated pattern generation | Informational Readiness, Single Source of Truth, Continuous Learning & Adaptation, Visible Reasoning & Traceability | Context files (CLAUDE.md, AGENTS.md), coding standards, architecture docs |
+| **Design-Architecture Supremacy** | C4: Unconstrained generation → velocity-quality inversion | Structural Foundations, Discovery Before Commitment, Verification & Validation, Explicit Over Implicit | Type definitions, interface contracts, architecture decision records |
+| **Lifecycle-Proportional Governance** | F1: Lifecycle governance mismatch → waste or risk | Risk Mitigation by Design, Resource Efficiency & Waste Reduction, Discovery Before Commitment, Human-AI Authority & Accountability | Lifecycle classification declarations, transition trigger criteria |
 
 ---
 
@@ -269,12 +299,15 @@ This document is a living artifact. It should be evolved cautiously—adding, mo
 → **Specification Completeness:** Are specs complete enough to code without guessing?
 → **Context Window Management:** Is context size under control?
 → **Session State Continuity:** Will next session have needed context?
+→ **Context Engineering Discipline:** Are persistent context artifacts current and structured?
 
 **Need to govern process? (P-Series)**
 → **Sequential Phase Dependencies:** Are prerequisite phases complete?
 → **Validation Gates:** Has current phase passed validation?
 → **Atomic Task Decomposition:** Is task small enough to review/test?
 → **Human-AI Collaboration:** Is this a technical or product decision? Is human review required?
+→ **Design-Architecture Supremacy:** Were types, interfaces, and constraints defined before implementation?
+→ **Lifecycle-Proportional Governance:** Is governance rigor matched to lifecycle classification?
 
 **Need to verify quality? (Q-Series)**
 → **Production-Ready Standards:** Is this deployable, not just functional? Are operations idempotent?
@@ -323,6 +356,7 @@ This document is a living artifact. It should be evolved cautiously—adding, mo
 | Specification Completeness | "Can I implement without guessing product decisions?" |
 | Context Window Management | "Am I approaching context limits?" |
 | Session State Continuity | "Will the next session have needed context?" |
+| Context Engineering Discipline | "Are persistent context artifacts current and structured?" |
 
 **P-Series: Process**
 | Principle | Key Question |
@@ -331,6 +365,8 @@ This document is a living artifact. It should be evolved cautiously—adding, mo
 | Validation Gates | "Has current phase passed validation?" |
 | Atomic Task Decomposition | "Is this task small enough to review/test?" |
 | Human-AI Collaboration | "Is this a technical or product decision? Should a human review this?" |
+| Design-Architecture Supremacy | "Were types, interfaces, and constraints defined before implementation?" |
+| Lifecycle-Proportional Governance | "Is governance rigor matched to lifecycle classification?" |
 
 **Q-Series: Quality**
 | Principle | Key Question |
@@ -343,7 +379,7 @@ This document is a living artifact. It should be evolved cautiously—adding, mo
 
 ---
 
-## The Twelve Domain Principles
+## The Fifteen Domain Principles
 
 ### Template Structure for Each Principle:
 
@@ -439,6 +475,7 @@ If ANY item lacks explicit documentation, specification is incomplete.
 - **Explicit Flagging:** When gaps detected, state: *"Specification incomplete for [specific area]. Without explicit requirements, proceeding would risk hallucination. Request Product Owner clarification on: [specific questions]."*
 - **No Assumptions:** NEVER invent requirements. If specification says "implement user authentication" without defining the specific authentication flow, password requirements, session management, etc.—flag as incomplete, do not assume OAuth2 or any other pattern.
 - **Document Clarifications:** When Product Owner provides clarification, document it in specifications before implementing. Verbal clarifications become written requirements.
+- **Context-as-Specification Awareness:** Project-level context artifacts (CLAUDE.md, architecture docs, coding standards) ARE specifications for AI coding — they define constraints, conventions, and boundaries just as surely as feature requirements define behavior. When context artifacts exist, treat them as authoritative specification sources. When they conflict with per-task instructions, flag the conflict. Three foundational files provide 60-70% of specification value for convention adherence (Packmind 2025): coding standards, architecture overview, development workflow. See Context Engineering Discipline (C-Series) for the discipline of creating and maintaining these specification-level artifacts. Context interfaces (Fowler/Bockeler 2023) — explicit contracts about what context is needed and where it lives — serve as specification mechanisms for AI coding interactions.
 - **Partial Implementation Prohibited:** Do not implement "what's clear" while waiting for clarification on unclear parts—this creates integration problems and encourages scope creep.
 
 **Why This Principle Matters:**
@@ -614,6 +651,74 @@ Amnesia defeats expertise. AI sessions have no inherent memory; without explicit
 - ✅ Zero contradictory decisions due to forgotten prior reasoning
 
 **Cross-Domain Reference:** For multi-agent orchestration use cases where multiple agents share session state, see Multi-Agent domain State Persistence Protocol. C3 covers single-session-chain state; the Multi-Agent principle covers inter-agent coordination state across orchestrated workflows.
+
+---
+
+#### Context Engineering Discipline (The Living Documentation Act)
+
+**Failure Mode(s) Addressed:**
+- **A6: Context Drift → Deprecated Pattern Generation** — Context artifacts (CLAUDE.md, coding standards, architecture docs) become stale; AI loads outdated context and generates code using deprecated patterns, removed APIs, or superseded decisions. Unlike A1 (missing specs) or A2 (session loss), A6 concerns persistent artifacts that EXIST but contain WRONG information.
+
+**Constitutional Basis:**
+- Derives from **Informational Readiness:** "Verify information sufficient in scope, currency, and relevance" — context artifacts must be current, not merely present
+- Derives from **Single Source of Truth:** Context artifacts must be canonical; stale duplicates violate SSOT
+- Derives from **Continuous Learning & Adaptation:** Artifacts must evolve with the codebase; static context degrades
+- Derives from **Visible Reasoning & Traceability:** Context artifacts make coding standards auditable and verifiable
+
+**Why Meta-Principles Alone Are Insufficient:**
+Informational Readiness says "load necessary information" but does not specify WHAT persistent artifacts must exist, WHO creates them, HOW they are structured, or WHEN they become stale. AI coding requires a discipline of context artifact engineering — creating, structuring, and maintaining the persistent files that shape every AI interaction. Context quality bounds output quality more than prompt quality (LangChain 2025: 57% of teams cite context quality as primary blocker to reliable AI coding).
+
+**Domain Application:**
+Context Engineering Discipline requires that:
+1. Persistent context artifacts exist for every project where AI assists development
+2. Three foundational files provide 60-70% of context value (Packmind 2025): coding standards, architecture overview, development workflow
+3. Context artifacts are treated as living documents with explicit ownership and update triggers
+4. AI verifies context artifact currency at session start and flags drift indicators
+5. Human engineers (especially seniors) create and maintain context artifacts — this IS their highest-leverage contribution in AI-assisted workflows
+6. Context interfaces (Fowler/Bockeler 2023) — explicit contracts between humans and AI about what context is needed and where it lives — are defined per project
+
+**Truth Sources:**
+- Context files: CLAUDE.md, AGENTS.md, ARCHITECTURE.md, coding standards documents
+- Architecture documentation: system design, data models, API contracts
+- Decision records: ADRs, PROJECT-MEMORY, LEARNING-LOG
+- Framework conventions: established patterns in the existing codebase
+
+**How AI Applies This Principle:**
+- Verify context artifact existence at session start: CLAUDE.md (or equivalent), architecture overview, coding standards
+- Flag context drift indicators: references to removed files, deprecated API patterns, version mismatches between context and code
+- When context artifacts conflict with observed codebase patterns, flag the discrepancy rather than silently following either
+- Treat context files as authoritative for conventions, but verify specific claims (file paths, function names) against current state
+- When creating new patterns not covered by context artifacts, propose context artifact updates as part of the deliverable
+- Prioritize context artifact quality: a well-structured CLAUDE.md prevents more bugs than any amount of per-task prompting
+
+**Why This Principle Matters:**
+The teams shipping reliable AI-generated code are not those with clever prompts — they are those who mastered what information their agents see, when they see it, and how it is structured (Faros AI 2026). *Just as a legislative aide's effectiveness depends on which briefing documents are on their desk — not how artfully you phrase your request — AI coding quality is determined by context architecture, not prompt engineering.* When deciding whether to invest time in prompt refinement or context artifact improvement, choose context every time.
+
+**When Product Owner Interaction Is Needed:**
+- Determining which conventions are authoritative vs. aspirational (context artifacts should reflect reality, not wishes)
+- Resolving conflicts between documented standards and pragmatic exceptions
+- Prioritizing context artifact creation vs. feature delivery (context IS delivery infrastructure)
+- Approving context artifact retirement when standards genuinely change
+- Deciding context artifact scope when multiple teams share a codebase
+
+**Common Pitfalls or Failure Modes:**
+- **The "Write Once" Trap:** Creating context artifacts at project start and never updating them. *Prevention: Update triggers tied to architectural changes, dependency updates, and convention shifts.*
+- **The "Prompt Over Context" Trap:** Investing in elaborate per-task prompts while context artifacts rot. *Prevention: Per-task prompting should be minimal when context artifacts are healthy; excessive prompting signals context debt.*
+- **The "Kitchen Sink" Trap:** Stuffing everything into CLAUDE.md until it exceeds useful context window allocation. *Prevention: Tier context by frequency of need; foundational (always loaded) vs. referenced (loaded on demand).*
+- **The "Copy-Paste Convention" Trap:** Duplicating conventions across multiple files, creating SSOT violations when one copy updates. *Prevention: Single canonical location per convention; other files reference, not replicate.*
+- **The "Implicit Knowledge" Trap:** Senior engineers carrying conventions in their heads instead of externalizing to context artifacts. *Prevention: If you've explained a convention twice verbally, it belongs in a context file.*
+
+**Success Criteria:**
+- ✅ Three foundational context artifacts exist: coding standards, architecture overview, development workflow
+- ✅ Context artifacts have explicit ownership (who updates) and update triggers (when to update)
+- ✅ Context drift detection runs at session start — stale references flagged before work begins
+- ✅ Zero instances of AI generating code using patterns deprecated in context artifacts
+- ✅ New architectural decisions propagate to context artifacts within the same session they're made
+- ✅ Context file token consumption stays within 15% of available context window (configurable threshold)
+
+**Boundary with Context Window Management:** CWM governs how AI manages its finite token window WITHIN a session — what to load, when to compress, how to prioritize. CED governs what PERSISTENT ARTIFACTS exist for AI to load in the first place. CWM is the consumer; CED is the producer.
+
+**Boundary with Specification Completeness:** SC governs per-feature specification quality — are requirements complete enough to implement THIS feature? CED governs project-level persistent context architecture — do the RIGHT FILES exist with the RIGHT INFORMATION for any feature?
 
 ---
 
@@ -927,6 +1032,23 @@ AI serves as primary executor implementing technical tasks, while Product Owner 
   * **When this matters most:** Learning new frameworks/libraries, onboarding to unfamiliar codebases, safety-critical domains where independent competence is required.
   * *Evidence: Shen & Tamkin (2026) "How AI Impacts Skill Formation" arXiv:2601.20245; Macnamara et al. (2024) "Does using AI accelerate skill decay?" Cognitive Research: Principles and Implications; MIT Media Lab EEG study showing reduced neural connectivity during AI-assisted writing; Willison (2026) "Agentic Engineering Patterns" (cognitive debt concept).*
 
+- **Senior-Engineer-as-Multiplier (Role Evolution):**
+  AI fundamentally reshapes the senior engineer's role from "best individual contributor" to "force multiplier through context and architecture." Harvard Business School (2025): junior developers using AI with poor context saw 9-10% DECREASE in code quality. Gartner (2025): optimal team composition shifting toward 60% senior / 30% mid / 10% junior (inverted from traditional pyramid). The determining factor is not whether AI writes the code — it is whether the CONTEXT enabling that generation was engineered by someone who understands the system.
+  * **The multiplier channel:** Senior engineers create the context artifacts (CLAUDE.md, architecture docs, coding standards, type definitions) that make AI effective for the ENTIRE team — this is higher-leverage than any individual feature contribution
+  * **"Design It Twice" pattern:** AI makes the second draft near-free. Senior engineers generate two structural approaches, compare trade-offs explicitly, and select based on maintenance trajectory — a form of design exploration impossible at human-only speed
+  * **Architecture ownership:** Senior engineers own interface definitions and system boundaries; AI implements within those constraints. The constraint quality determines output quality.
+  * **Review evolution:** AI code review shifts from "find bugs" (AI does this faster) to "evaluate architectural coherence" and "verify constraint satisfaction" — senior judgment applied at the structural level
+  * *Evidence: Harvard Business School (2025) AI productivity study; Gartner (2025) workforce composition forecast; Security Boulevard (2025) force-multiplier analysis; LeadDev survey (2025) 54% of seniors report role shift toward architecture and mentoring; WEF (2026) Future of Jobs Report.*
+
+**Decision Authority Matrix — Architecture Ownership Extension:**
+
+| Decision Type | Authority | AI Role |
+|--------------|-----------|---------|
+| System boundaries and interfaces | Senior engineer / architect | Proposes options, implements chosen design |
+| Context artifact creation/update | Senior engineer (primary), any team member (secondary) | Flags staleness, proposes updates, never self-authors without review |
+| Lifecycle classification | Product Owner / Tech Lead | Recommends classification with evidence, never self-classifies |
+| Type system and constraint design | Senior engineer | Generates candidates, validates against existing contracts |
+
 **Solo Developer Mode:**
 
 When the developer IS the Product Owner (common in solo development or small teams), the collaboration model adapts:
@@ -975,6 +1097,144 @@ Execution without authority is tyranny; authority without execution is paralysis
 - ✅ <10% of escalations deemed "should have proceeded autonomously" (not over-escalating)
 - ✅ <5% of autonomous decisions required PO correction (not under-escalating)
 - ✅ All assumptions documented and reviewable
+
+---
+
+#### Design-Architecture Supremacy (The Blueprint Act)
+
+**Failure Mode(s) Addressed:**
+- **C4: Unconstrained Generation → Velocity-Quality Inversion** — No type definitions, interface contracts, or architectural constraints channeling AI generation. AI generates "plausible" code at high velocity that is structurally unsound. Without constraint channels, velocity INVERTS quality: faster generation produces worse outcomes than slower, constrained generation.
+- **C2: Implementation Before Architecture** (shared with Sequential Phase Dependencies — SPD governs THAT phases happen in order; DAS governs WHAT architecture must contain for AI coding quality specifically)
+
+**Constitutional Basis:**
+- Derives from **Structural Foundations:** "Establish architectural foundations before implementing" — architecture constrains generation
+- Derives from **Discovery Before Commitment:** "Explore before committing" — design phase IS the exploration phase
+- Derives from **Verification & Validation:** Types provide compile-time verification before runtime
+- Derives from **Explicit Over Implicit:** Types and interfaces make constraints visible and enforceable
+
+**Why Meta-Principles Alone Are Insufficient:**
+Structural Foundations says "establish architectural foundations" but does not specify WHAT those foundations must contain for AI-constrained development, HOW type systems serve as generation constraint mechanisms, or WHAT the investment threshold is for design time. AI coding uniquely requires explicit constraint artifacts (types, interfaces, contracts) because AI lacks the implicit architectural intuition that experienced developers carry — it needs EXTERNAL constraints to channel generation toward structural soundness.
+
+**Domain Application:**
+Design-Architecture Supremacy requires that:
+1. Interface definitions, type contracts, and architectural constraints are established BEFORE implementation begins
+2. The three-step sequence is followed: DEFINE (interface comments/types) → TEST (failing tests from contracts) → IMPLEMENT (satisfy tests)
+3. A minimum 10-20% of development time is invested in upfront design (Ousterhout's empirical finding — yields net productivity over any horizon >2 weeks)
+4. Type systems are used as constraint mechanisms: TypeScript strict mode, Python type annotations with mypy, Go vet+staticcheck — types prevent vulnerability classes at compile time
+5. Deep module architecture is preferred: simple interfaces with rich implementations maximize token efficiency (AI only needs the function signature and docstring to use a well-designed module)
+6. "Design It Twice" is applied: AI makes second-draft generation near-free; comparing two structural approaches generates insight that a single draft cannot
+
+**Truth Sources:**
+- Type definitions: TypeScript interfaces, Python type annotations, Go struct definitions
+- Interface contracts: API specifications, function signatures with doc comments, protocol definitions
+- Architecture decision records: documented design choices with rationale
+- Test contracts: failing test suites that define expected behavior before implementation exists
+
+**How AI Applies This Principle:**
+- Before implementing any module, verify that type definitions and interface contracts exist — if absent, create them first
+- Generate types and interfaces as the FIRST artifact, not as afterthought documentation
+- Apply "Design It Twice": generate two structural approaches, compare trade-offs, select the one with simpler interfaces and deeper implementations
+- Use strict type configurations: TypeScript `strict: true`, Python `mypy --strict`, Go `vet` + `staticcheck` — zero `any` types in public APIs
+- Prefer deep modules (rich behavior behind simple interfaces) over shallow modules (many small functions with complex call graphs) — deep modules are more token-efficient to use and harder to misuse
+- When generating code without type constraints, STOP and escalate — unconstrained generation is the primary mechanism of C4 failure mode
+- Verify commit ordering: interface/type definitions should appear in commits BEFORE their implementations
+
+**Why This Principle Matters:**
+AI coding tools are "akin to tactical tornadoes" (Ousterhout framing, industry consensus 2025-2026) — they optimize for immediate velocity without structural awareness. The 10-20% design investment is the empirically validated countermeasure: it channels velocity through architectural constraints that prevent the complexity accumulation consuming 10-20x the "saved" time. *Just as building codes exist because speed of construction without structural engineering produces buildings that collapse — design-architecture supremacy exists because speed of generation without type constraints produces code that collapses under maintenance.* When choosing between generating code faster and designing interfaces first, choose interfaces.
+
+**When Product Owner Interaction Is Needed:**
+- Architecture-level decisions that affect system boundaries or team interfaces
+- Choosing between competing architectural approaches when trade-offs are non-technical (cost, timeline, team capacity)
+- Determining acceptable design investment when under deadline pressure (the 10-20% is a default; some situations warrant ENHANCED investment)
+- Deciding whether to accept technical debt consciously (with LPG lifecycle classification) vs. requiring full architectural design
+
+**Common Pitfalls or Failure Modes:**
+- **The "Fast Forward" Anti-Pattern:** Jumping to implementation without defining interfaces. AI generates code that works in isolation but cannot integrate. *Prevention: No implementation commit without a preceding interface/type commit.*
+- **The "Retroactive Contract" Anti-Pattern:** Writing types AFTER implementation to satisfy linting, producing types that describe what was built rather than constraining what should be built. *Prevention: Types written BEFORE implementation; failing tests validate types.*
+- **The "Moving Target" Anti-Pattern:** Changing interfaces during implementation to accommodate implementation convenience, producing contracts that serve the code rather than the design. *Prevention: Interface changes require explicit design decision, not silent accommodation.*
+- **The "Shallow Module Explosion" Trap:** AI generates many small, thin functions instead of few deep modules — maximizing surface area and call-graph complexity. *Prevention: Evaluate depth ratio; prefer fewer functions with richer behavior.*
+- **The "Type Theater" Trap:** Adding types without strictness enforcement — `any` types, disabled checks, overly permissive generics that provide no actual constraint. *Prevention: Zero `any` in public APIs; strict mode mandatory.*
+
+**Success Criteria:**
+- ✅ Type definitions and interface contracts exist BEFORE implementation for every module
+- ✅ Strict type checking enabled with zero suppression in public APIs (no `any`, no `# type: ignore` on interfaces)
+- ✅ Design investment visibly exceeds 10% of development effort (measurable via commit history: design commits precede implementation)
+- ✅ Commit history demonstrates DEFINE → TEST → IMPLEMENT ordering
+- ✅ Deep module preference: public API surface area decreases or stays stable as functionality grows
+- ✅ "Design It Twice" applied for any module with >3 consumers or >500 lines of implementation
+
+**Boundary with Sequential Phase Dependencies (SPD):** SPD = gate mechanism (THAT phases happen in order — design before implementation, testing before deployment). DAS = gate criteria (WHAT architecture must contain for AI coding quality: types, interfaces, constraint artifacts). Operational decision tree: "Did design happen before implementation?" → SPD. "Does the design contain types, interfaces, and constraint artifacts?" → DAS. "What specific sequence of artifacts do I produce?" → CFR §2.6.
+
+---
+
+#### Lifecycle-Proportional Governance (The Graduated Oversight Act)
+
+**Failure Mode(s) Addressed:**
+- **F1: Lifecycle Governance Mismatch → Waste or Risk** — Wrong governance level applied to code's actual lifecycle stage. Over-governance of prototypes creates waste (full production rigor on throwaway spikes). Under-governance of production creates risk (prototype-level oversight on user-facing systems). The asymmetry: under-governance risk far outweighs over-governance waste — when uncertain, default UP.
+
+**Constitutional Basis:**
+- Derives from **Risk Mitigation by Design:** "Proactively identify risks" — lifecycle classification IS risk identification
+- Derives from **Resource Efficiency & Waste Reduction:** Over-governing prototypes wastes effort; under-governing production wastes MORE via incident costs
+- Derives from **Discovery Before Commitment:** The prototype→production transition IS the commitment boundary
+- Derives from **Human-AI Authority & Accountability:** Human determines lifecycle classification — AI cannot autonomously downgrade governance
+
+**Why Meta-Principles Alone Are Insufficient:**
+Risk Mitigation says "proactively identify risks" but does not specify that CODE ITSELF has a lifecycle classification that determines governance level, that "vibe code" (code no one understands) is effectively legacy code requiring full governance regardless of age, or that transition between lifecycle stages requires explicit gates. Without lifecycle-proportional governance, teams apply either too much governance (killing prototype velocity) or too little (allowing prototype-quality code into production — the mechanism behind the Engineering Productivity Paradox's 3-5x velocity dissipation).
+
+**Domain Application:**
+Lifecycle-Proportional Governance requires that:
+1. All code is explicitly classified into one of three lifecycle stages:
+   - **PROTOTYPE:** Minimal governance. Acceptable for throwaway spikes, solo tools, exploratory code with <30 day intended lifespan.
+   - **INTERNAL:** Standard governance. Team codebases, internal tools, shared libraries used within the organization.
+   - **PRODUCTION:** Full governance. User-facing systems, security-sensitive code, code with external consumers.
+2. Classification is a HUMAN decision — AI cannot autonomously determine "this is just a prototype, skip governance"
+3. When lifecycle classification is absent or ambiguous, DEFAULT TO HIGHER governance level
+4. Transition triggers activate mandatory review: moves to team repo, crosses 20K LOC, first external user, handles sensitive data, >90 days alive
+5. "Vibe code" (code generated without understanding, Karpathy 2025) is classified as PROTOTYPE regardless of its actual deployment context — if no one understands it, it cannot be maintained, and must be either comprehended (reclassified) or discarded
+6. The 20-40K LOC threshold marks empirically observed context fragmentation — beyond this boundary, no single AI session can hold the full codebase in context, making architectural coherence impossible without explicit governance
+
+**Truth Sources:**
+- Lifecycle classification declarations: explicit statement in project documentation
+- Transition trigger criteria: objective indicators (LOC count, user count, team size, deployment target)
+- Governance level requirements: per-lifecycle quality gates and review requirements
+- Code comprehension indicators: can any team member explain the code's purpose and mechanism?
+
+**How AI Applies This Principle:**
+- At project/feature start, verify lifecycle classification exists — if absent, flag and recommend classification before proceeding
+- Apply governance rigor matching the declared lifecycle: PROTOTYPE allows rapid iteration with minimal gates; PRODUCTION requires full DAS compliance, testing integration, security review
+- Monitor transition indicators: LOC growth, deployment target changes, team size expansion, user-facing feature addition
+- When transition indicators fire, flag for human review — do NOT silently continue with current governance level
+- Never autonomously downgrade lifecycle classification (e.g., treating production code as prototype to skip validation)
+- When generating code without lifecycle classification context, default to INTERNAL governance level
+
+**Why This Principle Matters:**
+The Engineering Productivity Paradox's core mechanism is governance mismatch: teams apply prototype-level oversight to production-destined code, then spend 3-5x the "saved" time on debugging, incidents, and retrofitting (Faros AI 2026). Karpathy himself declared "vibe coding" passé by February 2026 — even its originator acknowledged that code no one understands becomes unmaintainable legacy from day one. *Just as zoning laws exist because a factory next to a school creates unacceptable externalities regardless of how efficiently it was built — lifecycle governance exists because prototype-quality code in production creates externalities (incidents, security vulnerabilities, maintenance burden) regardless of how quickly it was generated.* When choosing between faster generation and appropriate governance, match governance to lifecycle.
+
+**When Product Owner Interaction Is Needed:**
+- Initial lifecycle classification for any new project or major feature
+- Reclassification decisions when transition triggers fire (especially PROTOTYPE → INTERNAL or INTERNAL → PRODUCTION)
+- Deciding whether to accept permanent PROTOTYPE classification (acceptable when all 4 conditions met: solo user, <30 day lifespan, no sensitive data, disposable)
+- Resolving disagreements about lifecycle stage when indicators are ambiguous
+- Approving reduced governance for time-critical production work (must be explicit, logged, and time-bounded)
+
+**Common Pitfalls or Failure Modes:**
+- **The "Immortal Prototype" Anti-Pattern:** Code classified as PROTOTYPE that is never reclassified despite growing in scope, users, and criticality. *Prevention: 90-day mandatory lifecycle review; transition triggers auto-flag.*
+- **The "Stealth Promotion" Anti-Pattern:** Prototype code silently deployed to production without governance upgrade — typically via "it works, just ship it." *Prevention: Deployment target change is a transition trigger; governance review mandatory before environment promotion.*
+- **The "Vibe Code Freeze" Anti-Pattern:** AI-generated code that no one understands is left running in production because "it works." *Prevention: Comprehension test — if no team member can explain the logic, classify as PROTOTYPE regardless of deployment context and schedule understanding or replacement.*
+- **The "Governance Theater" Trap:** Applying full PRODUCTION governance to genuinely disposable prototypes, killing exploration velocity. *Prevention: Lifecycle classification is real; PROTOTYPE classification with legitimate conditions (solo, <30 days, disposable, no sensitive data) genuinely reduces governance requirements.*
+- **The "AI Knows Best" Trap:** AI autonomously decides code is "just a prototype" to skip governance steps. *Prevention: Classification is ALWAYS a human decision; AI can recommend but never self-classify.*
+
+**Success Criteria:**
+- ✅ Every project/feature has explicit lifecycle classification documented before implementation begins
+- ✅ Governance rigor matches declared lifecycle: PROTOTYPE = minimal, INTERNAL = standard, PRODUCTION = full
+- ✅ Transition triggers monitored and flagged when conditions change (LOC, users, deployment target, team size, data sensitivity)
+- ✅ Zero instances of PROTOTYPE-classified code deployed to production without reclassification review
+- ✅ Default governance level applied when classification is absent or ambiguous (INTERNAL minimum)
+- ✅ All lifecycle classifications are human-approved — AI-suggested classifications logged but not self-actioned
+
+**Boundary with Production-Ready Standards (PRS):** PRS defines what "production-ready" MEANS (the target state — quality criteria, standards, gates). LPG defines WHEN PRS applies (only to production-lifecycle code) and the TRANSITION GATE that activates full PRS compliance. PRS without LPG over-governs; LPG without PRS under-specifies.
+
+**Boundary with Validation Gates (VG):** VG defines gate mechanics (THAT validation occurs, WHEN it occurs, WHAT happens on failure). LPG defines a specific gate TYPE (lifecycle transition gate) and varies gate RIGOR by lifecycle classification.
 
 ---
 
@@ -1046,6 +1306,11 @@ Production requirements (security, testing, performance, monitoring, error handl
   * Include production-ready configuration (environment management, feature flags)
   * Instrument logging and monitoring hooks
   * Configure error tracking (Sentry, etc.) integration points
+- **AI-Specific Quality Investment (The 10-20% Design Rule):**
+  * Invest minimum 10-20% of development effort in upfront design — this yields net productivity gains over any horizon >2 weeks (Ousterhout 2018)
+  * AI amplifies design debt proportionally to velocity: 2,000 lines/day with bad architecture creates crises that 100 lines/day would not
+  * Prefer deep module architecture: simple interfaces with rich implementations (token-efficient, harder to misuse, easier to maintain)
+  * Flag AI complexity indicators: cyclomatic complexity growth >39% from baseline, duplication ratio >15%, type coverage decline
 
 **Why This Principle Matters:**
 Velocity without quality is just faster failure. AI can generate thousands of lines in minutes; if quality isn't integrated from the start, massive technical debt accumulates before anyone notices. Retrofitting is always more expensive than building correctly.
@@ -1057,7 +1322,7 @@ Velocity without quality is just faster failure. AI can generate thousands of li
 - ⚠️ Risk acceptance decision for security findings below CRITICAL threshold
 
 **Common Pitfalls or Failure Modes:**
-- **The "Prototype Mentality" Trap:** Treating AI code as draft requiring cleanup later. It never gets cleaned up; it goes to production. *Prevention: No such thing as "draft"—all code is production code.*
+- **The "Prototype Mentality" Trap:** Treating PRODUCTION-lifecycle code as draft requiring cleanup later — it never gets cleaned up; it goes to production as-is. For code explicitly classified as PROTOTYPE per Lifecycle-Proportional Governance, reduced quality gates are appropriate when the classification is explicit, human-approved, and reviewed at transition triggers (see CFR §6.7). The trap persists when lifecycle classification is absent or implicit. *Prevention: Require explicit lifecycle classification; default to PRODUCTION governance when classification is missing.*
 - **The "Security Last" Trap:** "Make it work first, secure it later." Later never comes; or comes after breach. *Prevention: Security from line one.*
 - **The "Test Debt" Trap:** Accumulating untested code planning to "add tests later." Test debt compounds; coverage never catches up. *Prevention: Tests WITH implementation, coverage threshold enforced.*
 - **The "Performance Surprise" Trap:** Discovering performance issues in production. Users find them first. *Prevention: Performance benchmarks defined upfront; validated before deployment.*
@@ -1295,6 +1560,12 @@ All dependencies recommended or generated by AI must be verified against authori
 - **SBOM Generation:**
   * Maintain Software Bill of Materials for all dependencies
   * Track dependency versions for vulnerability monitoring
+- **AI Attribution & Provenance Tracking:**
+  * Maintain commit-level attribution for AI-generated code (Co-Authored-By tags, PR labels, or equivalent provenance markers)
+  * AI-generated code should have AI-specific acceptance criteria beyond human-written code: type coverage verification, deep module preference for dependencies, explicit constraint satisfaction
+  * Prompt transparency: when AI generates implementations based on specific context or instructions, the governing context should be traceable (which CLAUDE.md, which architecture doc, which spec)
+  * For deep module preference in dependencies: when choosing between packages, prefer those with simpler interfaces and richer implementations (fewer functions to learn, more behavior per function call)
+  * *Evidence: TFiR (2025): only 50% of organizations have formal AI guardrails for generated code attribution and provenance tracking.*
 
 **Why This Principle Matters:**
 Trust but verify—AI recommendations are not verified by default. AI hallucinates package names at alarming rates; attackers now register malicious packages with these hallucinated names ("slopsquatting"). One unverified installation can compromise the entire system.
@@ -1579,6 +1850,22 @@ At EVERY phase boundary or significant checkpoint:
 
 **Truth Sources:** Authoritative documentation and systems that constitute objective truth: specifications, architecture docs, code standards, test requirements, production constraints, existing codebase, package registries, trusted instruction sources.
 
+**Deep Module:** Module with a simple interface (few parameters, clear contract) but rich implementation (substantial behavior behind the interface). Preferred in AI coding because: (1) simpler interfaces require fewer tokens to use correctly, (2) fewer interfaces mean less surface area for misuse, (3) richer implementations encapsulate complexity rather than distributing it. Contrast with "shallow module" — many small functions with complex call graphs. (Parnas 1972, Ousterhout 2018.)
+
+**Context Drift:** Condition where persistent context artifacts (CLAUDE.md, coding standards, architecture docs) contain information that no longer reflects the codebase's actual state — deprecated patterns, removed APIs, or superseded decisions. Unlike stale documentation (which is merely wrong), context drift actively GENERATES incorrect code because AI loads the stale context as authoritative instruction.
+
+**Lifecycle Classification:** Explicit categorization of code into PROTOTYPE (minimal governance), INTERNAL (standard governance), or PRODUCTION (full governance). Determines which quality gates apply, what coverage is required, and what review depth is needed. Classification is always a human decision; AI can recommend but never self-classify.
+
+**Velocity-Quality Inversion:** The counterintuitive phenomenon where faster code generation produces WORSE outcomes than slower generation — because speed without design constraints amplifies structural defects proportionally. The mechanism behind the Engineering Productivity Paradox's 3-5x velocity dissipation finding.
+
+**Tactical Tornado:** Developer (or AI tool) that prioritizes immediate output velocity over structural soundness. Each generated function is locally correct but globally uncoordinated, creating complexity that consumes 10-20x the original "saved" time. Named by Ousterhout (2018), applied to AI tools by industry consensus (2025-2026).
+
+**Context Engineering:** The discipline of creating, structuring, and maintaining persistent artifacts that shape AI interactions — determining what information agents see, when they see it, and how it is structured. Distinguished from prompt engineering (per-interaction optimization) by its focus on persistent, project-level artifacts. Named by Karpathy and Lutke (2025).
+
+**Context Interface:** Explicit contract between humans and AI about what context is needed and where it lives — a specification mechanism for AI coding interactions. Concept from Fowler/Bockeler (2023), applied to AI coding context architecture.
+
+**Design Investment:** The 10-20% of development effort invested in upfront design (interface definitions, type contracts, architectural decisions) before implementation begins. Ousterhout's empirical finding: yields net productivity gains over any horizon longer than 2 weeks. MORE critical with AI tools because the velocity multiplier amplifies design debt proportionally.
+
 ---
 
 ## Appendix C: Version History & Evidence Base
@@ -1587,6 +1874,7 @@ At EVERY phase boundary or significant checkpoint:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.8.0 | 2026-05-05 | **MINOR: AI Coding Design Philosophy Integration.** Added 3 new principles (12→15): Context Engineering Discipline (C-Series), Design-Architecture Supremacy (P-Series), Lifecycle-Proportional Governance (P-Series). Added 3 new failure modes: A6 (Context Drift → Deprecated Patterns), C4 (Unconstrained Generation → Velocity-Quality Inversion), F1 (Lifecycle Governance Mismatch). Added Engineering Productivity Paradox preamble section (7 quantified findings, tactical tornado framing, 10-20% design investment). Extended existing principles: PRS (AI-specific quality investment, LPG reconciliation of Prototype Mentality Trap), HAC (Senior-Engineer-as-Multiplier, architecture ownership Decision Authority Matrix extension), SCS (AI Attribution & Provenance), SC (Context-as-Specification awareness). Updated Framework Overview (Fifteen Domain Principles), crosswalk table (+3 rows), Quick Reference Card (+3 entries). Sources: SonarSource 2025, Agile Pain Relief 2025, Exceeds.ai 2026, Faros AI 2026, MIT Technology Review 2025, Packmind 2025, LangChain 2025, Ousterhout 2018, Fowler/Bockeler 2023, Harvard Business School 2025, Gartner 2025, Karpathy 2025-2026. Constitutional Basis: `meta-core-systemic-thinking`, `meta-method-derivation-principle`, `meta-method-domain-principle-template`. Governance: `gov-07287670fb01`. |
 | v2.7.6 | 2026-05-03 | PATCH: Constitutional rename propagation (BACKLOG #152). Updated crosswalk table, Constitutional Basis lines, and "Derives from" lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`. |
 | v2.7.5 | 2026-04-28 | PATCH: BACKLOG #100 Commit 3 of 4-arc — removed 12 misplaced principle-level italicized "Legal System Analogy" blocks per `rules-of-procedure §9.8.9` eligibility rule (analogies belong at framework-structure-level surfaces only, not at individual principles). Per-instance wisdom check confirmed no irreplaceable wisdom in any of the 12 blocks — each was decorative legal-flavored prose wrapping the principle's actual mechanism content; removing the analogy sentence preserved the un-italicized mechanism prose intact. Removed analogies (with brief structural note for archive purposes): (1) `Specification Completeness → "Evidentiary Standard"` (line 445); (2) `Context Window Management → "Judicial Economy"` (line 514); (3) `Session State Continuity → "Stare Decisis"` (line 592 — note: "Stare Decisis" is `considered-and-rejected` in the §9.7.7 register since Pre-v5.0.0 framework explicitly rejected stare-decisis semantics by renaming Case Law → Secondary Authority; this title-10 use was a redundant invocation of a framework-rejected concept); (4) `Sequential Phase Dependencies → "Procedural Due Process"` (line 669); (5) `Phase Gates → "Appellate Review"` (line 755); (6) `Atomic Task Decomposition → "Severability"` (line 834); (7) `Human-AI Collaboration Model → "Separation of Powers"` (line 952 — note: Articles I-IV Branches are already at the §9.7.7 register `borrowed` row; this title-10 use was duplicative); (8) `Quality Integration → "Building Codes"` (line 1051); (9) `Security-First Defaults → "Strict Liability"` (line 1133); (10) `Testing Integration → "Chain of Custody"` (line 1214); (11) `Hallucination Verification → "Authentication of Evidence"` (line 1300); (12) `Untrusted Input Handling → "Fruit of the Poisonous Tree"` (line 1385). Mechanism content preserved in all 12 cases by un-italicizing the surrounding prose. **No new rule** — removal-only PATCH applying §9.8.9 eligibility rule shipped in v3.31.0 (Commit 1) + Constitution SSOT designation shipped in v6.0.1 (Commit 2). Per anchor-bias instruction: existing analogies are not preserved just because they exist. **ai-instructions PATCH-on-PATCH pin sync** v2.11.1 → v2.11.2 per BACKLOG #130 canonical pin-discipline rule. **Constitutional Basis:** `meta-quality-effective-efficient-outputs` (right-sized form per §9.8.9 spec); `meta-method-single-source-of-truth` (one canonical home for analogies; this PATCH eliminates 12 secondary homes); `meta-core-systemic-thinking` (root-cause cleanup applying the spec, not patching individual blocks); `coding-method-defer-vs-fix-now` (per-instance wisdom check before bulk removal). Governance: `gov-08a1271476d3` (parent #100 execution). |
 | v2.7.4 | 2026-04-26 | PATCH: Pre-push harmonization of v2.7.3 migration form to match §7.12.2 worked-example pattern + CFR-class precedent (commit `32ff553`). v2.7.3 used the §-anchor lookup form `plan exceeds D2 effort tier per meta-method-effort-not-time-estimation (rules-of-procedure §7.12.2)`; v2.7.4 uses the inline-driver form `plan exceeds D2 (new tool/hook/section, moderate research, plan mode required) per meta-method-effort-not-time-estimation` — drivers per BACKLOG.md:23 canonical D2 definition. **Why harmonize:** §7.12.2 worked example demonstrates inline-driver form (`Effort: D2 (alternatives evaluation, ADRs, integration patterns, data model, security architecture)`), and the 6 CFR-class migrations from BACKLOG #131 close (commit `32ff553`) all used inline-driver form. Filed by pre-push contrarian audit `a7f6f57bc2ef0d5c1` MEDIUM-1 on session-135 commit `2e4533c` — flagged before push to avoid the "consistent post-commit drift class" pattern (LEARNING-LOG 2026-04-20). **Constitutional Basis:** `meta-method-the-duplication-check` (consistency-with-precedent: same migration class should produce same migration form); `meta-core-systemic-thinking` (preventing predictable future harmonization PATCH is the structural fix; per-instance form deviation is the symptom). PATCH because pure form-harmonization with no semantic change. ai-instructions PATCH-on-PATCH pin sync v2.10.3 → v2.10.4. Governance: `gov-a8c7e0faed4e` (same audit_id as v2.7.3 — same task arc). |

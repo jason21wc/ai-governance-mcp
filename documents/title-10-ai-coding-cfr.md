@@ -1,5 +1,5 @@
 ---
-version: "2.43.3"
+version: "2.44.0"
 status: "active"
 effective_date: "2026-05-03"
 domain: "ai-coding"
@@ -9,7 +9,7 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.43.3
+**Version:** 2.44.0
 **Status:** Active
 **Effective Date:** 2026-05-03
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -171,6 +171,15 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Project start, novel/uncertain/high-stakes (ENHANCED mode) | §1.3.5 | Brainstorming Method (Socratic Q&A + design doc) |
 | Generating downloadable documents (Excel, PDF, Word) | §9.4 | Document Generation Patterns |
 | Setting up project permissions / allowlist | Appendix A.5.6 | Recommended Permission Architecture |
+| Need lifecycle classification for project | §1.3.6 | Lifecycle Classification |
+| Prototype becoming production / transition review | §6.7 | Prototype-to-Production Transition Gate |
+| Design-first workflow / types before implementation | §2.6 | Design-First Implementation Sequence |
+| Type system setup / strict mode configuration | §3.1.6 | Type-First Development Pattern |
+| Context files seem stale / drift detection | §3.3.6 | Context Drift Detection and Prevention |
+| Choosing which context files to create | §1.5.6 | Context Value Tiering |
+| Codebase complexity growing / health metrics | §6.6 | AI Complexity Risk Monitoring |
+| Multi-agent review chain (sequential stages) | §5.1.7.2 | Multi-Agent Validation Chain |
+| Code crossed 20K+ LOC threshold | §6.6.4 | Context Fragmentation Protocol |
 
 #### On Uncertainty
 
@@ -836,6 +845,38 @@ Document mode selection and any override in the State File (Title 7).
 
 *Source: Superpowers v5.0.7 `brainstorming` skill — best-in-class per [browseract.com 2026 4-skills survey](https://www.browseract.com/blog/4-ai-agent-skills-that-actually-make-your-ai-smarter-in-2026). Aligns with `meta-core-discovery-before-commitment` "Question the frame" + Adaptive Questioning Technique (rules-of-procedure §16.2 / Progressive Inquiry Protocol §7.9). The design-doc artifact mirrors the SPECIFICATION pattern from §1.4 ENHANCED mode — extracted earlier in the workflow as a Discovery Gate output, not deferred to formal SPECIFICATION drafting.*
 
+### 1.3.6 Lifecycle Classification
+
+**Purpose:** Formalize the output of calibration questions Q3 (Stakes) and Q4 (Longevity) into a single lifecycle classification that determines quality thresholds independently of procedural mode.
+
+**Relationship to §1.3.3:** The Mode Selection Matrix determines procedural rigor (EXPEDITED/STANDARD/ENHANCED). Lifecycle Classification determines quality standards and governance depth. These axes are orthogonal: an ENHANCED-mode prototype (novel spike needing careful discovery) and an EXPEDITED-mode production system (known-pattern hotfix) are both valid combinations. Q3+Q4 answers produce a Lifecycle Classification which determines quality thresholds (per Lifecycle-Proportional Governance) independently of mode selection.
+
+**Classification Table:**
+
+| Lifecycle Stage | Governance Level | Quality Gates | Typical Characteristics |
+|----------------|-----------------|---------------|------------------------|
+| **PROTOTYPE** | Minimal | Basic linting, manual smoke test | Solo user, <30 day lifespan, throwaway spike, no sensitive data, disposable |
+| **INTERNAL** | Standard | CI pipeline, code review, test suite | Team codebase, internal tool, shared library, >1 contributor |
+| **PRODUCTION** | Full | Full CI/CD, security review, load testing, monitoring, SLA | User-facing, external consumers, sensitive data, regulatory requirements |
+
+**Classification Protocol:**
+1. At project/feature start, explicitly declare lifecycle classification based on Q3+Q4 answers
+2. Document classification in project configuration (CLAUDE.md, PROJECT-MEMORY, or equivalent)
+3. When classification is undeclared or ambiguous, default to INTERNAL (never assume PROTOTYPE)
+4. Review classification at every transition trigger
+
+**Transition Triggers (any activates mandatory review):**
+- Code moves from personal to team repository
+- LOC count crosses 20K (soft) or 40K (hard) threshold
+- First external user or customer gains access
+- Code begins handling sensitive data (PII, credentials, financial)
+- Deployment target changes (local → staging → production)
+- Project age exceeds 90 days without explicit PROTOTYPE reconfirmation
+- Team size grows beyond original developer
+
+**Mode↔Lifecycle Orthogonality:**
+Mode (EXPEDITED/STANDARD/ENHANCED) governs procedural rigor within a session — how much discovery, how many review rounds, how formal the specification. Lifecycle (PROTOTYPE/INTERNAL/PRODUCTION) governs quality standards and transition gates — what quality gates apply, what coverage is required, what security review is needed. These dimensions are independent: you can do ENHANCED-mode work on a PROTOTYPE (when the spike is novel and needs careful exploration) or EXPEDITED-mode work on PRODUCTION (when applying a known-pattern hotfix to a critical system).
+
 ---
 
 ## Part 1.4: Procedural Mode Definitions
@@ -1016,6 +1057,42 @@ _ai-context/README.md (folder-based tools — Cowork, ChatGPT, etc.)
 3. **At Expedited with single tool** — the tool-specific file alone suffices; AGENTS.md adds value when using multiple tools or when other contributors use different AI tools
 
 See Appendix K for templates, migration guide, and naming disambiguation. See Appendix L for folder-based tool setup (`_ai-context/` convention for Cowork, ChatGPT Desktop, etc.).
+
+### 1.5.6 Context Value Tiering
+
+**Importance: 🟡 IMPORTANT — Maximizes context ROI for AI coding**
+
+**Implements:** Context Engineering Discipline (Domain)
+
+**The 60-70% Rule:** Three foundational context files provide 60-70% of context value for AI coding quality (Packmind 2025). Beyond these three, returns diminish rapidly. Prioritize creating and maintaining these before adding supplementary context.
+
+**Tier 1: Foundational (Always-Loaded, 60-70% of value)**
+
+| File | Purpose | Maps To |
+|------|---------|---------|
+| Coding Standards | Conventions, patterns, style rules, naming, architectural patterns | CLAUDE.md / `.cursor/rules` / AGENTS.md behavioral section |
+| Architecture Overview | System boundaries, data flow, component relationships, technology choices | ARCHITECTURE.md / ADRs / system design doc |
+| Development Workflow | How work flows, what tools are used, what gates exist, how to test/deploy | CLAUDE.md workflow section / CI config / CONTRIBUTING.md |
+
+**Tier 2: Supplementary (Loaded on demand, 20-30% of value)**
+
+| File | Purpose | Load When |
+|------|---------|-----------|
+| Decision Records | Why choices were made, alternatives rejected | Modifying existing architecture, understanding constraints |
+| Domain Glossary | Business terms, domain concepts, ubiquitous language | New feature in unfamiliar domain area |
+| Test Strategy | What to test, coverage expectations, test patterns | Writing or modifying tests |
+| Security Policy | Auth patterns, data handling rules, threat model | Touching auth, data handling, or external APIs |
+
+**Tier 3: Reference (Loaded rarely, <10% of value)**
+
+| File | Purpose | Load When |
+|------|---------|-----------|
+| Historical Context | Past incidents, postmortems, migration notes | Investigating recurring issues |
+| Team Conventions | Meeting cadence, PR process, communication norms | Onboarding, cross-team work |
+
+**Diminishing Returns Principle:** Adding context beyond Tier 1 has decreasing marginal value and increasing token cost. If Tier 1 is healthy and current, most AI coding tasks will succeed without loading Tier 2/3. Invest time in keeping Tier 1 excellent rather than expanding into lower tiers.
+
+**Token Budget Guideline:** Tier 1 context should consume ≤15% of available context window. If it exceeds this, the context files are too large — split into always-loaded summary + on-demand detail sections.
 
 ---
 
@@ -1306,6 +1383,67 @@ Before proceeding:
 
 > **Cross-reference:** For design system architecture, token management, component governance, and accessibility auditing procedures, see the **UI/UX Methods** (title-15-ui-ux-cfr.md). This section covers *when* to create visual design specs; the UI/UX domain covers *how* to implement them correctly.
 
+## Part 2.6: Design-First Implementation Sequence
+
+**Importance: 🔴 CRITICAL — Structural prevention of velocity-quality inversion**
+
+**Implements:** Design-Architecture Supremacy (Domain)
+**Pre-condition:** Architecture defined (§3.1) or module scope identified
+**Verification:** Commit history demonstrates DEFINE → TEST → IMPLEMENT ordering
+
+### 2.6.1 The Three-Step Sequence
+
+All implementation work follows this ordering discipline:
+
+**Step 1: DEFINE — Interface Comments and Type Contracts**
+- Write interface definitions (function signatures, type annotations, API contracts) as the FIRST artifact
+- Include doc comments explaining the interface's contract: what it accepts, what it returns, what invariants it maintains
+- For modules: define the public API surface (exported functions, types, constants) before any implementation
+- For APIs: define request/response schemas, error codes, and authentication requirements before handlers
+
+**Step 2: TEST — Failing Tests from Contracts**
+- Write tests that exercise the interface contracts defined in Step 1
+- Tests MUST fail at this stage (no implementation exists yet) — a passing test before implementation means the test is wrong
+- Test coverage targets: happy path, error cases, edge cases, contract boundary conditions
+- Integration tests for inter-module contracts
+
+**Step 3: IMPLEMENT — Satisfy Tests**
+- Write minimal implementation code that satisfies the failing tests from Step 2
+- Implementation is constrained by the interface contracts from Step 1 — any deviation requires returning to Step 1
+- Refactoring occurs AFTER tests pass, not during initial implementation
+
+### 2.6.2 Verification Protocol
+
+Commit history must demonstrate ordering:
+1. Interface/type commit (Step 1) precedes test commit (Step 2)
+2. Test commit (Step 2) precedes implementation commit (Step 3)
+3. Tests are in failing state between Step 2 and Step 3 commits
+
+For single-commit workflows (EXPEDITED mode): the commit diff must show types/interfaces defined first (top of file or separate type file), tests present, then implementation. The ordering is logical even if temporally compressed.
+
+### 2.6.3 Anti-Patterns
+
+**The "Fast Forward" Anti-Pattern:**
+Jumping directly to implementation. AI generates working code without interface definitions or test contracts. The code functions but cannot integrate, cannot be independently tested, and accumulates hidden coupling.
+- Detection: Implementation commits with no preceding interface/type definitions
+- Prevention: Pre-commit hook or review check for interface artifact existence
+
+**The "Retroactive Contract" Anti-Pattern:**
+Writing types AFTER implementation to satisfy linting or CI requirements. Types describe what was accidentally built rather than constraining what should be built — they provide no design value.
+- Detection: Type definitions match implementation exactly (no abstraction, no constraint beyond what exists)
+- Prevention: Types must be committed BEFORE implementation; any type change post-implementation requires design review
+
+**The "Moving Target" Anti-Pattern:**
+Changing interfaces during implementation to accommodate implementation convenience. Contracts serve the code rather than the design — defeating the purpose of design-first development.
+- Detection: Interface definition changes in the same commit as implementation changes
+- Prevention: Interface changes require explicit design decision (separate commit with rationale)
+
+### 2.6.4 Cross-References
+
+- §5.1.2: Pre-condition check verifies §2.6 artifacts exist before implementation proceeds
+- §5.2.2: Architecture-scale TDD applies §2.6 at the integration level
+- §3.1: Architecture Definition produces the high-level contracts that §2.6 decomposes into module-level interfaces
+
 ---
 
 # TITLE 3: PLAN PROCEDURES
@@ -1476,6 +1614,50 @@ When implementing with external libraries, two complementary **knowledge sources
 > **Applies To:** implementing with **external library**, using **third-party SDK**, following **official documentation**, **API integration**
 > **Cross-reference:** Governance methods TITLE 15 (Reference Library), §5.13.2 Diagnostic Block Requirement (includes differential diagnosis for when documented patterns fail at runtime)
 
+### 3.1.6 Type-First Development Pattern
+
+**Importance: 🟡 IMPORTANT — Constraint mechanism for AI generation quality**
+
+**Implements:** Design-Architecture Supremacy (Domain)
+**Conditional On:** §3.1.3 selects a typed language stack (TypeScript, Python with type annotations, Go, Rust, Java, C#)
+
+**Principle:** Types are AI constraint mechanisms — they prevent entire classes of bugs at compile time, BEFORE the code executes. In AI-assisted development, type systems serve as guardrails that channel generation toward structural correctness.
+
+**Type-First Workflow:**
+1. Define types/interfaces for the module's public API before writing implementation
+2. Configure strict mode for the project's type system
+3. Validate type coverage as part of CI (type-check gate in pipeline)
+4. Treat type errors as build failures — never suppress in public APIs
+
+**Strict Mode Configurations:**
+
+| Language | Configuration | Key Settings |
+|----------|--------------|--------------|
+| TypeScript | `tsconfig.json` | `strict: true`, `noUncheckedIndexedAccess: true`, `exactOptionalPropertyTypes: true` |
+| Python | `mypy.ini` or `pyproject.toml` | `strict = true`, `disallow_any_generics = true`, `warn_return_any = true` |
+| Go | Built-in | `go vet` + `staticcheck` (both in CI), explicit error handling |
+| Rust | Built-in | Default strict; `#[deny(clippy::all)]` for additional linting |
+
+**Type-Completeness Validation Gate:**
+- Zero `any` types in public API signatures (TypeScript)
+- Zero `# type: ignore` on interface boundaries (Python)
+- 95% type coverage for new code (measured by tooling: `type-coverage` for TS, `mypy --strict` for Python)
+- All function parameters and return types explicitly annotated in public modules
+
+**Types as Constraint Mechanism:**
+- Type checker prevents bugs before execution — each type annotation is a compile-time assertion
+- Generic types enforce structural patterns (e.g., `Result<T, E>` forces error handling)
+- Interface types constrain AI generation: AI cannot produce code that violates the type contract without triggering a build failure
+- Discriminated unions prevent invalid state: `type State = Loading | Success<T> | Error<E>` makes impossible states unrepresentable
+
+**When Types Are Insufficient:**
+Types prevent structural errors but not logical errors. Complement with:
+- Runtime validation at system boundaries (user input, external API responses)
+- Property-based testing for invariant verification
+- Contract assertions for complex business rules
+
+> **Cross-reference:** §2.6 (Design-First Sequence — types are Step 1 artifacts), §6.4.3 (CI Pipeline — type-check as build gate)
+
 ---
 
 ## Part 3.2: Technical Planning
@@ -1609,6 +1791,45 @@ When Reference Memory is available (§7.9), it serves as the persistent codebase
 - **During planning:** Query Reference Memory to build the context inventory (§3.3.2) rather than manually reading files. The index returns focused chunks (~6K tokens) instead of requiring full file reads (~600K tokens for a large project).
 - **Discovered patterns:** When Reference Memory queries reveal architectural patterns or structural conventions, record these in PROJECT-MEMORY. The index provides ongoing structural awareness; PROJECT-MEMORY preserves the *interpretation* of that structure.
 - **Cross-session continuity:** The Reference Memory index survives session resets. Even if SESSION-STATE is lost, the project's structural knowledge persists in the index, enabling faster re-orientation.
+
+### 3.3.6 Context Drift Detection and Prevention
+
+**Importance: 🔴 CRITICAL — Prevents deprecated pattern generation**
+
+**Implements:** Context Engineering Discipline (Domain)
+**Trigger:** Session start, post-architectural-change, post-dependency-update
+
+**Context Drift** occurs when persistent context artifacts (CLAUDE.md, architecture docs, coding standards) contain information that no longer reflects the codebase's actual state. AI loading stale context generates code using deprecated patterns, removed APIs, or superseded decisions — the A6 failure mode.
+
+**Drift Detection Checklist (Session Start):**
+
+| Check | Detection Method | Drift Indicator |
+|-------|-----------------|-----------------|
+| File references | Verify paths mentioned in context files exist | Referenced file missing or renamed |
+| API patterns | Compare context-documented patterns against current imports/usage | Pattern in context not found in recent code |
+| Version references | Check version numbers in context against package.json/pyproject.toml | Version mismatch >1 minor version |
+| Dependency references | Verify mentioned packages still in dependency tree | Package removed or replaced |
+| Convention alignment | Spot-check 3 recent files against documented conventions | >2 deviations from documented convention |
+
+**Drift Remediation Protocol:**
+
+| Drift Count | Action | Rationale |
+|-------------|--------|-----------|
+| 1 indicator | Fix inline during current task | Low overhead, prevents accumulation |
+| 2 indicators | Fix inline + flag for broader review | Pattern may indicate systemic drift |
+| 3+ indicators | Create dedicated context refresh task | Systemic drift requires focused attention |
+
+**Structural Prevention (integrate into existing workflows):**
+
+1. **Post-Change Completion Sequence (§5.1.6):** Add context file currency check — after any architectural change, verify affected context files still accurate
+2. **Session End Protocol (§7.6.1):** If architectural decisions were made during session, verify they propagated to context artifacts before session close
+3. **Dependency Update:** After any package version bump or dependency swap, check context files for references to old patterns
+4. **Convention Change:** When team agrees on new convention, update context files IN THE SAME COMMIT as the first code implementing the new convention
+
+**Anti-Pattern: "Context Debt Accumulation"**
+Deferring context updates because "it still works" — the context file is wrong but AI happens to produce correct output due to other signals. The drift compounds silently until a session loads ONLY the stale context (no other corrective signals available) and generates deprecated code.
+
+> **Cross-reference:** §1.5.6 (Context Value Tiering — which files matter most), §7.6.1 (Session End — context propagation check), §5.1.6 (Post-Change Completion — context currency verification)
 
 ---
 
@@ -1952,6 +2173,8 @@ After VALIDATE passes (§5.1.2), execute the **completion sequence** before star
 
 **Project-specific steps** (Docker rebuild, index rebuild commands, deployment) belong in the project instructions file, not this framework. Define them alongside the table above.
 
+**Context File Currency Check (per §3.3.6):** After any architectural change, convention modification, or dependency update — verify that affected context files (CLAUDE.md, ARCHITECTURE.md, coding standards) still reflect reality. If the change introduced a new pattern or deprecated an old one, update the relevant context artifact in the same commit.
+
 #### Relationship to Session End (§7.6.1)
 
 The **completion sequence** runs per-change. The **session end procedure** (§7.6.1) runs once when closing. At session end, §7.6.1 governs — it includes memory hygiene and handoff steps that the completion sequence does not cover. If the final change has already been through the completion sequence, skip the overlapping steps (doc updates, commit) in §7.6.1.
@@ -1996,6 +2219,43 @@ When changes match these patterns, invoke the corresponding subagent BEFORE comm
 **Exception (no-mutation expected):** If you have HIGH confidence Stage 1 will produce no restructuring findings (e.g., trivial PATCH-shape edit, single-line config change), you may collapse to a single parallel battery. Document the confidence basis when collapsing.
 
 *Source: Superpowers v5.0.7 `subagent-driven-development` skill — sequencing reviewers by their downstream impact on the artifact prevents review-the-wrong-thing waste. Reinforced by LEARNING-LOG 2026-04-19 (4-instance scope-asymmetry pattern resolved structurally in session-123 Commit H).*
+
+#### 5.1.7.2 Multi-Agent Validation Chain
+
+**Importance: 🟡 IMPORTANT — Systematic multi-perspective quality assurance**
+
+**Implements:** Design-Architecture Supremacy (Domain), Production-Ready Standards (Domain)
+**Applies To:** PRODUCTION lifecycle code with >3 file changes, architectural modifications, or new module creation
+
+**Chain vs. Battery:**
+- **Battery** (§5.1.7.1): Multiple reviewers examining the same artifact for different concerns (parallel within stage). Output: list of findings to address.
+- **Chain**: Sequential stages where each stage's output feeds the next stage's input. Output: progressively refined artifact.
+
+**Four-Stage Validation Chain:**
+
+| Stage | Role | Subagent(s) | Input | Output |
+|-------|------|-------------|-------|--------|
+| 1. Generate | Produce initial implementation | orchestrator (primary agent) | Specification + architecture contracts | Draft implementation |
+| 2. Critique | Challenge assumptions, surface risks | contrarian-reviewer + code-reviewer | Draft implementation + original spec | Findings list + risk assessment |
+| 3. Test | Verify correctness and coverage | test-generator | Revised implementation + findings | Test suite + coverage report |
+| 4. Validate | Confirm cross-file coherence and standards | validator + coherence-auditor | Final implementation + tests | Pass/fail + coherence findings |
+
+**When Full Chain Required:**
+- New module with >500 LOC
+- Architectural change affecting >3 modules
+- Security-sensitive code (auth, crypto, data handling)
+- Code crossing the 20K LOC context fragmentation boundary
+
+**When Partial Chain Acceptable:**
+- Stages 2+4 only: Bug fixes in well-tested modules (skip Generate/Test — code exists, tests exist)
+- Stages 1+3 only: New utility functions with clear contracts (skip Critique/Validate — low risk, isolated)
+- Stage 2 only: Design review before implementation begins (critique the design, not code)
+
+**Chain Execution Protocol:**
+1. Each stage completes fully before the next begins (no parallel cross-stage execution)
+2. Stage 2 findings above MEDIUM severity must be addressed before Stage 3
+3. Stage 4 failure requires returning to Stage 1 or 2 depending on finding type (structural → Stage 1; coherence → Stage 2)
+4. Document chain execution in commit message or PR description (which stages ran, key findings at each)
 
 #### 5.1.8 Mid-Execution Checkpoint Protocol
 
@@ -5460,6 +5720,129 @@ Before release or major milestone:
 4. Add tests for the helper if it encapsulates business logic
 
 **Anti-pattern:** 4+ methods with identical bodies differing only in a parameter that could be passed as an argument.
+
+## Part 6.6: AI Complexity Risk Monitoring
+
+**Importance: 🔴 CRITICAL — Early warning system for velocity-quality inversion**
+
+**Implements:** Design-Architecture Supremacy (Domain), Lifecycle-Proportional Governance (Domain)
+**Applies To:** All INTERNAL and PRODUCTION lifecycle projects
+**Cadence:** Monthly health check (or at every transition trigger per §1.3.6)
+
+### 6.6.1 Research-Validated Threshold Table
+
+These indicators are derived from empirical research on AI-assisted codebases (SonarSource 2025, Exceeds.ai 2026, Faros AI 2026). When indicators breach thresholds, governance response escalates.
+
+| # | Indicator | Soft Threshold (Monitor) | Hard Threshold (Act) | Governance Response |
+|---|-----------|-------------------------|---------------------|-------------------|
+| 1 | Code issues per PR | >1.2x baseline | >1.7x baseline | Escalate to design review; enforce §2.6 |
+| 2 | Technical debt density | >15% increase from baseline | >30% increase | Halt new features; allocate debt reduction sprint |
+| 3 | Cyclomatic complexity (new modules) | >25% above project average | >39% above average | Require refactoring before merge; deep module review |
+| 4 | Change failure rate | >15% increase | >30% increase | Escalate to architecture review; verify test coverage |
+| 5 | Incident rate per PR | >12% increase | >23.5% increase | Review validation gates; add integration test requirements |
+| 6 | Debugging time ratio | >33% increase | >67% increase | Invoke structured debugging protocol (§5.13); review code comprehension |
+| 7 | Type coverage decline | Below 90% | Below 80% | Block merges until type coverage restored; review §3.1.6 compliance |
+
+### 6.6.2 Baseline Establishment Protocol
+
+1. Before AI-assisted development begins (or at project start), establish baseline measurements for all 7 indicators
+2. Record baselines in PROJECT-MEMORY with date and measurement method
+3. Baselines are per-project — do not use cross-project averages
+4. Re-baseline after major architectural changes (>30% of codebase modified)
+
+### 6.6.3 Monthly Health Check Procedure
+
+1. Measure all 7 indicators against established baselines
+2. Classify each: GREEN (below soft) / YELLOW (soft breached) / RED (hard breached)
+3. For YELLOW: document in session notes, monitor trend (improving/worsening/stable)
+4. For RED: escalate per governance response column; create remediation task
+
+### 6.6.4 Context Fragmentation Protocol
+
+The 20-40K LOC threshold marks empirically observed context fragmentation — the boundary beyond which no single AI session can hold meaningful representation of the full codebase:
+
+| LOC Range | Classification | Governance Implication |
+|-----------|---------------|----------------------|
+| <20K | Single-context viable | Full project fits in context; architectural coherence achievable per-session |
+| 20K-40K | Fragmentation zone | Architectural coherence requires explicit context strategy (§3.3); module boundaries critical |
+| >40K | Multi-context required | No single session maintains full awareness; mandatory modular architecture, explicit interface contracts between modules, architecture documentation as coordination mechanism |
+
+**Transition Response (crossing 20K):**
+- Review and strengthen module boundaries
+- Ensure all inter-module contracts are explicitly typed (§3.1.6)
+- Verify architecture documentation covers all module relationships
+- Consider lifecycle reclassification review (§1.3.6)
+
+### 6.6.5 Velocity Dissipation Pattern
+
+The characteristic pattern of ungoverned AI-assisted development (Faros AI 2026):
+
+```
+Week 1-2:  ████████████████████ 3-5x velocity (honeymoon)
+Week 3-4:  ████████████████     2-3x velocity (debt accumulating silently)
+Week 5-6:  ████████████         1.5-2x velocity (debugging consuming gains)
+Week 7-8:  ████████             1x velocity (parity with unassisted — all gains consumed by debt)
+Week 9+:   ████                 <1x velocity (net negative — more time fixing than building)
+```
+
+**Prevention mapping:**
+- Week 1-2 honeymoon → enforce §2.6 (design-first) from day 1, not after problems appear
+- Week 3-4 silent accumulation → monthly health check (§6.6.3) catches indicators before they compound
+- Week 5-6 debugging growth → structured debugging protocol (§5.13) + type constraint enforcement (§3.1.6)
+- Week 7+ collapse → lifecycle review (§1.3.6) + potential architecture reset
+
+## Part 6.7: Prototype-to-Production Transition Gate
+
+**Importance: 🔴 CRITICAL — Prevents stealth promotion of ungoverned code**
+
+**Implements:** Lifecycle-Proportional Governance (Domain)
+**Applies To:** Any code transitioning from PROTOTYPE to INTERNAL or PRODUCTION lifecycle
+**Foundation:** Appendix H (Production Hardening Checklist) provides the technical checklist; this section adds lifecycle-transition-specific requirements
+
+### 6.7.1 Transition Triggers
+
+Any of the following conditions activates mandatory transition review:
+
+1. Code moves from personal to team/shared repository
+2. LOC count crosses 20K threshold
+3. First external user or customer gains access
+4. Code begins handling sensitive data (PII, credentials, financial)
+5. Deployment target changes from local/dev to staging/production
+6. Project age exceeds 90 days without explicit PROTOTYPE reconfirmation
+7. Team size grows beyond original solo developer
+
+### 6.7.2 Transition Procedure
+
+1. **Declare:** Explicitly state proposed new lifecycle classification with evidence (which trigger fired)
+2. **Gap-Analyze:** Compare current state against target lifecycle's governance requirements (use Appendix H as foundation for PRODUCTION transitions)
+3. **Harden:** Address gaps identified in step 2. Lifecycle-transition-specific additions beyond Appendix H:
+   - Update lifecycle declaration in project documentation
+   - Create retroactive §2.6 contracts for any modules that lack interface definitions
+   - Establish/update context files per §1.5.6 value tiering (Tier 1 files mandatory for INTERNAL+)
+   - Verify type coverage meets §3.1.6 thresholds for target lifecycle
+   - Document architectural decisions made during PROTOTYPE phase that now need formal ADRs
+4. **Validate:** Run full validation suite appropriate to new lifecycle level
+5. **Approve:** Human approval required — AI cannot autonomously approve lifecycle transitions
+
+### 6.7.3 When PROTOTYPE Is Permanently Acceptable
+
+PROTOTYPE classification can remain permanent when ALL four conditions are met:
+1. Solo user (no other consumers of the code)
+2. Intended lifespan <30 days (with explicit expiration date documented)
+3. No sensitive data handling (no PII, credentials, financial data)
+4. Disposable (can be deleted without business impact)
+
+If any condition becomes false, transition review activates immediately.
+
+### 6.7.4 Anti-Patterns
+
+**The "Immortal Prototype":** Code classified as PROTOTYPE that lives beyond 90 days without reclassification. The 90-day trigger exists specifically to catch this — PROTOTYPE is not a permanent classification for long-lived code.
+
+**The "Stealth Promotion":** PROTOTYPE code deployed to production via "it works, just ship it" reasoning. Detection: deployment target change without corresponding lifecycle review. Prevention: deployment pipeline checks for lifecycle classification mismatch.
+
+**The "Vibe Code Freeze":** AI-generated code that no one understands running in production because "it works and we're afraid to touch it." This is the highest-risk state — code that cannot be maintained, debugged, or safely modified. Prevention: comprehension test — if no team member can explain the code's mechanism, classify as PROTOTYPE regardless of deployment context.
+
+> **Cross-reference:** §1.3.6 (Lifecycle Classification definitions and triggers), Appendix H (Production Hardening Checklist — technical foundation for transition hardening)
 
 ---
 
@@ -9227,6 +9610,7 @@ Claude Code is a TUI that owns the terminal input area — Warp's normal click-t
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.44.0 | 2026-05-05 | **MINOR: AI Coding Design Philosophy — Methods Integration.** Added 8 new sections implementing 3 new principles (Design-Architecture Supremacy, Context Engineering Discipline, Lifecycle-Proportional Governance): §1.3.6 Lifecycle Classification (orthogonal to mode selection, transition triggers, classification table), §1.5.6 Context Value Tiering (60-70% rule, 3-tier model), §2.6 Design-First Implementation Sequence (DEFINE→TEST→IMPLEMENT, anti-patterns), §3.1.6 Type-First Development Pattern (strict mode configs, type-completeness gate), §3.3.6 Context Drift Detection and Prevention (5-item checklist, remediation protocol), §5.1.7.2 Multi-Agent Validation Chain (4-stage chain, partial chain guidance), §6.6 AI Complexity Risk Monitoring (7-indicator threshold table, velocity dissipation pattern, context fragmentation protocol), §6.7 Prototype-to-Production Transition Gate (7 triggers, transition procedure, anti-patterns). Cross-references: §5.1.6 context currency check added. Situation Index: +9 entries. Governance: `gov-07287670fb01`. |
 | 2.43.3 | 2026-05-03 | PATCH: Constitutional rename propagation (BACKLOG #152). Updated 3 "Implements" / "Constitutional basis" lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Changelog entries (historical) preserved. Governance: `gov-d05cd633fc20`. |
 | 2.43.2 | 2026-04-26 | PATCH: BACKLOG #136 close — retroactive §9.8.3 field backfill across 5 in-scope platform-specific appendices (A Claude Code CLI, D Gemini CLI, E Claude App & Chrome Extension, I Postgres/Supabase, K AGENTS.md Cross-Tool Configuration). Each gains §9.8.3 required fields (Governance Level, Implements, Applies To, Information Currency, Source) plus Framework Integration. Appendix I already had Governance Level; the other four required fields added. **Out-of-§9.8.3-scope appendices NOT modified** (per §9.8.3's "platform-specific adaptations of methods" definition): B (Memory File Templates — internal framework templates), C (Checklist Quick Reference — consolidated framework reference), F (Tool Comparison Quick Reference — meta-comparison, not single-platform), G (Context Engine MCP Server Setup — framework-internal MCP server in THIS repo, parallel to H Production Hardening Checklist; not a third-party platform adaptation), H (Production Hardening Checklist — framework checklist), J (Reserved/archived placeholder), L (Folder-Based AI Environment — environment pattern, not platform-specific procedure). M (Optional Ecosystem Tools, M.1 Warp + M.2 Sequential Thinking) already conforms per session-128 ship — its sub-sections each carry the §9.8.3 field block. (Earlier framing of G as "already conforms" was inaccurate — corrected here per coherence-auditor finding `acfefeb7664963885` HIGH-1: G has no §9.8.3 field block at the appendix top-level. The accurate classification is framework-internal-out-of-scope, not conforming.) **No normative change** — §9.8.3 fields are descriptive metadata for adopter discoverability and information-currency tracking; the appendix procedural content is unchanged. ai-instructions PATCH-on-PATCH pin sync v2.10.1 → v2.10.2 per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). **Constitutional Basis:** `meta-method-single-source-of-truth` (§9.8.3 is the canonical schema; backfill brings legacy appendices into alignment); `meta-quality-effective-efficient-outputs` (Information Currency field provides post-hoc verifiability adopters need to gauge content staleness); `meta-method-the-duplication-check` (out-of-scope appendices NOT force-fitted — schema-broadening for non-platform appendix types deferred per BACKLOG entry's "or escalate the field reference itself" option). Pre-edit Explore agent (audit-only) built per-appendix field-presence matrix; main-context applied judgment on platform-specific vs framework-internal classification. Post-edit battery: validator + coherence-auditor on the 3-CFR sweep. Governance: `gov-21ee559d88f0`. |
 | 2.43.1 | 2026-04-26 | PATCH: BACKLOG #131 sweep close — migrated 6 planning-band time-unit estimates in §2.1.2 (Discovery EXPEDITED/STANDARD/ENHANCED) and §3.1.2 (Architecture EXPEDITED/STANDARD/ENHANCED) from `Estimate: <time-band>` to `Effort: <D-tier + structural drivers>` per `meta-method-effort-not-time-estimation` §7.12.2 effort indicators (rules-of-procedure). Each migration names the structural drivers — file/component count, ADR work, integration patterns, multi-phase plan-mode requirement — in observable terms the AI can verify post-hoc rather than estimate against. **No normative change** — bringing existing checklist content into compliance with the §7.12 rule that shipped rules-of-procedure v3.28.0 (session-125). Anti-pattern explicitly named in §7.12.1 anti-example was THIS file's §3.1.2 estimates; rules-of-procedure v3.30.1 (same commit) updates the anti-example to remove the now-stale specific line citations and adds a worked migration example to §7.12.2. Also kept (out of §7.12 scope per scope-boundary clause): `§3.4.2 PoC scope` "Be time-boxed (hours to days, not weeks)" — operational PoC scope constraint, not AI-effort estimate; `constitution.md §C-Series Operational Considerations` "A one-hour task needs minutes of discovery; a six-month project needs weeks" — proportion principle using time as magnitude proxy, not AI estimating own work. ai-instructions PATCH-on-PATCH pin sync v2.10.0 → v2.10.1 per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). **Constitutional Basis:** `meta-method-effort-not-time-estimation` (compliance with rule shipped v3.28.0); `meta-core-systemic-thinking` (root cause = time-band miscalibration drives false-deferral; structural fix = rule + anti-example + worked example + sweep, not per-instance review); `meta-quality-effective-efficient-outputs` (effort indicators are post-hoc verifiable; time bands are not). Pre-edit contrarian skipped per proportional rigor (mechanical migration with BACKLOG-pre-specified target). Post-edit battery: validator + coherence-auditor (audit IDs in same-commit rules-of-procedure entry). Governance: `gov-21ee559d88f0`. |
