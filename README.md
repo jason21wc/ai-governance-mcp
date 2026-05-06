@@ -355,7 +355,7 @@ export AI_GOVERNANCE_SEMANTIC_WEIGHT=0.6
 ```bash
 export AI_CONTEXT_ENGINE_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
 export AI_CONTEXT_ENGINE_EMBEDDING_DIMENSIONS=384
-export AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT=0.6
+export AI_CONTEXT_ENGINE_SEMANTIC_WEIGHT=0.7
 export AI_CONTEXT_ENGINE_INDEX_PATH=~/.context-engine/indexes
 export AI_CONTEXT_ENGINE_INDEX_MODE=realtime    # 'ondemand' or 'realtime' (file watcher)
 export AI_CONTEXT_ENGINE_READONLY=auto          # 'true', 'false', or 'auto' (sandbox detection)

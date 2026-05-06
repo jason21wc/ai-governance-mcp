@@ -1,9 +1,9 @@
 {
   "description": "Benchmark test cases for Context Engine retrieval quality",
-  "version": "2.0",
+  "version": "3.0",
   "created": "2026-02-12",
-  "updated": "2026-03-28",
-  "notes": "Uses this project's codebase as corpus. Expected files are relative paths from project root. Natural language queries accept both documentation and code files as valid results.",
+  "updated": "2026-05-05",
+  "notes": "Uses this project's codebase as corpus. Expected files are relative paths from project root. Natural language queries accept both documentation and code files as valid results. v3.0: expanded from 16 to 35 queries covering governance server, documentation, cross-file concepts, EXECUTION-FRAMEWORK, and scripts.",
   "metrics": {
     "target_mrr": 0.5,
     "target_recall_at_5": 0.7,
@@ -105,6 +105,120 @@
       "query": "project status index size watcher health",
       "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py", "src/ai_governance_mcp/context_engine/server.py"],
       "description": "Project status reporting across code and docs"
+    },
+    {
+      "id": "ce-17",
+      "query": "cross-encoder reranking results after score fusion",
+      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py", "src/ai_governance_mcp/retrieval.py"],
+      "description": "Cross-encoder reranking implementation in CE and governance retrieval"
+    },
+    {
+      "id": "ce-18",
+      "query": "IPC socket embedding daemon communication protocol",
+      "expected_files": ["src/ai_governance_mcp/embedding_ipc.py", "src/ai_governance_mcp/context_engine/watcher_daemon.py"],
+      "description": "IPC embedding service: client, daemon, socket protocol"
+    },
+    {
+      "id": "ce-19",
+      "query": "governance principle domain routing semantic similarity",
+      "expected_files": ["src/ai_governance_mcp/retrieval.py"],
+      "description": "Domain routing stage in governance retrieval pipeline"
+    },
+    {
+      "id": "ce-20",
+      "query": "project root detection markers path resolution",
+      "expected_files": ["src/ai_governance_mcp/path_resolution.py"],
+      "description": "Path resolution: PROJECT_MARKERS, looks_like_project, root detection"
+    },
+    {
+      "id": "ce-21",
+      "query": "constitutional amendment ratification process",
+      "expected_files": ["documents/constitution.md"],
+      "description": "Governance constitution amendment procedures (pure document retrieval)"
+    },
+    {
+      "id": "ce-22",
+      "query": "EXECUTION-FRAMEWORK bucket model eight automation tiers",
+      "expected_files": ["EXECUTION-FRAMEWORK.md"],
+      "description": "8-bucket model with automation tiers (B1-B8)"
+    },
+    {
+      "id": "ce-23",
+      "query": "S-series safety principles absolute veto escalation",
+      "expected_files": ["documents/rules-of-procedure.md", "documents/constitution.md"],
+      "description": "S-series safety principles that trigger mandatory escalation"
+    },
+    {
+      "id": "ce-24",
+      "query": "MCP tool input validation schema error response",
+      "expected_files": ["src/ai_governance_mcp/server.py", "src/ai_governance_mcp/context_engine/server.py"],
+      "description": "Tool input validation and error handling in both MCP servers"
+    },
+    {
+      "id": "ce-25",
+      "query": "YAML frontmatter metadata parsing document connector",
+      "expected_files": ["src/ai_governance_mcp/context_engine/connectors/document.py"],
+      "description": "Frontmatter extraction for metadata-enhanced retrieval"
+    },
+    {
+      "id": "ce-26",
+      "query": "enforcement advisory versus structural compliance checking",
+      "expected_files": ["src/ai_governance_mcp/enforcement.py"],
+      "description": "Enforcement module: advisory vs structural compliance modes"
+    },
+    {
+      "id": "ce-27",
+      "query": "progressive application maturity gate principle activation",
+      "expected_files": ["documents/rules-of-procedure.md"],
+      "description": "Progressive application (§7.8) for principle maturity gating"
+    },
+    {
+      "id": "ce-28",
+      "query": "config generator CLAUDE.md agent installation output",
+      "expected_files": ["src/ai_governance_mcp/config_generator.py"],
+      "description": "Config generator for CLAUDE.md and agent config output"
+    },
+    {
+      "id": "ce-29",
+      "query": "embedding model benchmark MRR recall evaluation script",
+      "expected_files": ["scripts/evaluate_embeddings.py"],
+      "description": "Benchmark script for embedding model quality evaluation"
+    },
+    {
+      "id": "ce-30",
+      "query": "install agent scaffold project MCP tool registration",
+      "expected_files": ["src/ai_governance_mcp/server.py"],
+      "description": "Agent installation and project scaffolding MCP tools"
+    },
+    {
+      "id": "ce-31",
+      "query": "reference library entry categorization tags domain",
+      "expected_files": ["reference-library/ai-coding/ref-ai-coding-mcp-server-testing.md", "reference-library/ai-coding/ref-ai-coding-pytest-fixture-patterns.md"],
+      "description": "Reference library entries with frontmatter tags and domain categorization"
+    },
+    {
+      "id": "ce-32",
+      "query": "MMR maximal marginal relevance diversity enforcement",
+      "expected_files": ["src/ai_governance_mcp/context_engine/project_manager.py"],
+      "description": "MMR diversity algorithm in CE retrieval pipeline"
+    },
+    {
+      "id": "ce-33",
+      "query": "watcher daemon process lifecycle health monitoring",
+      "expected_files": ["src/ai_governance_mcp/context_engine/watcher_daemon.py"],
+      "description": "Daemon process management: start, stop, health checks"
+    },
+    {
+      "id": "ce-34",
+      "query": "how does evaluate_governance assess a planned action",
+      "expected_files": ["src/ai_governance_mcp/server.py", "src/ai_governance_mcp/retrieval.py"],
+      "description": "Semantic query about governance evaluation flow (cross-file concept)"
+    },
+    {
+      "id": "ce-35",
+      "query": "multi-agent collaboration principles coordination protocols",
+      "expected_files": ["documents/title-20-multi-agent.md", "documents/title-20-multi-agent-cfr.md"],
+      "description": "Multi-agent domain: principles and cross-file references"
     }
   ]
 }

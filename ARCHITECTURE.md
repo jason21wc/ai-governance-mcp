@@ -538,7 +538,7 @@ A second MCP server providing semantic search across project content. Complement
 | Component | What It Does | Why Separate |
 |-----------|--------------|--------------|
 | **server.py** | 4 MCP tools, input validation, rate limiting, error sanitization | Entry point, security boundary |
-| **project_manager.py** | Multi-project lifecycle, hybrid search (semantic + BM25), score fusion | Core query logic, thread-safe |
+| **project_manager.py** | Multi-project lifecycle, hybrid search (semantic + BM25), score fusion, cross-encoder reranking, MMR diversity, per-file dedup | Core query logic, thread-safe |
 | **indexer.py** | File discovery, connector orchestration, embedding generation, BM25 build | Indexing pipeline, heavy compute |
 | **watcher.py** | File system monitoring, debounced change callbacks (2s), post-index cooldown (5s), circuit breaker (3 failures) | Real-time updates, decoupled |
 | **connectors/** | Content-type-specific parsing (code, doc, PDF, spreadsheet, image) | Pluggable, independently testable |
@@ -565,7 +565,13 @@ AI query  →  server.py (validate)  →  project_manager.query_project()
                  │                          │
                  └──────────┬───────────────┘
                             ▼
-                     _fuse_scores()  →  ranked QueryResult[]
+                     _fuse_scores()  (linear or RRF fusion + metadata bonuses)
+                            ▼
+                     _rerank_results()  (cross-encoder via IPC, graceful fallback)
+                            ▼
+                     _apply_mmr()  (adaptive diversity, threshold 0.85)
+                            ▼
+                     _deduplicate_per_file()  →  ranked QueryResult[]
 ```
 
 **Real-time Update (file watcher — opt-in via `AI_CONTEXT_ENGINE_INDEX_MODE=realtime`):**
@@ -632,7 +638,7 @@ The self-restart mechanism flushes the PyTorch CPU allocator cache, which accumu
 | **Corrupt metadata recovery** | Pydantic validation failure → fallback to minimal empty ProjectIndex | project_manager.py |
 | **Orphan tmp cleanup** | On startup, removes .tmp files left by crashed atomic writes | storage/filesystem.py |
 | **Embedding model mismatch** | Warn on load if stored model differs from configured model | project_manager.py |
-| **Embedding model allowlist** | 6 vetted models; custom requires `AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true` | indexer.py |
+| **Embedding model allowlist** | 8 vetted models; custom requires `AI_CONTEXT_ENGINE_ALLOW_CUSTOM_MODELS=true` | indexer.py |
 | **Chunk limits** | MAX_TOTAL_CHUNKS (100K), MAX_CHUNK_CONTENT_CHARS (10K), EMBEDDING_BATCH_SIZE (1K) | indexer.py |
 | **Cosine similarity clamping** | `np.clip(..., 0.0, 1.0)` prevents float32 overflow past Pydantic bounds | project_manager.py |
 

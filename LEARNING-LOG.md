@@ -28,6 +28,16 @@ Session-138 picked up BACKLOG #144 as filed: a *detector* for bare `<file>.md:<l
 
 ---
 
+### IPC Daemon Silently Intercepts Model Loading in Benchmarks (2026-05-05)
+
+Session-148 Phase 4 (embedding model evaluation) produced identical MRR/R@5/R@10 for all three candidate models — a result that was technically impossible. Root cause: the IPC embedding daemon intercepts model loading in the indexer's lazy-load path (checks socket existence before falling back to local `SentenceTransformer`). All three evaluation runs used the daemon's single loaded model (BGE-small) regardless of which model was requested.
+
+**Rule:** When benchmarking embedding models, set `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` to force local model loading. The `evaluate_embeddings.py` script now does this automatically. More broadly: when comparing alternatives against a shared-resource architecture, verify the alternatives are actually being isolated — shared caches, singletons, and IPC services can silently eliminate the variation you're trying to measure.
+
+**How to apply:** Before trusting A/B benchmark results, check that per-model dimensions match expectations (BGE-small=384, BGE-base=768). Identical dimensions across models of different architectures is a signal that model loading was intercepted.
+
+---
+
 ### Apply Newly-Shipped Specs to Host Files in Same Arc (2026-04-28)
 
 Session-137 BACKLOG #100 arc shipped §9.8.9 (Legal System Analogy Authoring) in Commit 1 — the spec declared method-level surfaces ineligible for italicized analogy blocks. Subsequent commits cleaned up 15 misplaced principle-level analogies in constitution + title-10. User then requested a thorough double-check audit. Two parallel subagents (contrarian `a7a951cb33f490ada` + coherence-auditor `aa443ab0670fe55a8`) caught what 5+ prior subagent rounds missed: rules-of-procedure.md itself (the spec's host file) contained 6 method-level "Legal Analogy:" blocks at §7.2/7.3/7.4.4/7.5/7.7/7.8. The §7.4.4 block invoked "Stare Decisis" as a positive structural analogy, **directly contradicting §9.7.7 register's `considered-and-rejected` classification of the same concept** — the framework asserted X at one location and not-X at another. Pre-shipping batteries didn't catch this because they scanned the diff (the new §9.8.9 spec section), not the host file's pre-existing content. Compliance Review #6 would have caught it. Commit 5 (`8957179`) folded all 5 audit findings into a PATCH.

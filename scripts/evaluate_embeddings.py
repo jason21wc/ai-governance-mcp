@@ -33,7 +33,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 DEFAULT_CANDIDATES = [
     "BAAI/bge-small-en-v1.5",
     "BAAI/bge-base-en-v1.5",
-    "sentence-transformers/all-mpnet-base-v2",
+    "nomic-ai/nomic-embed-text-v1.5",
 ]
 
 WEIGHT_SWEEP_RANGE = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8]
@@ -67,10 +67,19 @@ def calculate_recall_at_k(found_counts, k=10):
     return total_found / total_expected if total_expected > 0 else 0.0
 
 
-def evaluate_model(model_name, project_root, benchmark, semantic_weight=0.6):
+def evaluate_model(
+    model_name, project_root, benchmark, semantic_weight=0.7, reranking=False
+):
     """Evaluate a single model against benchmark queries."""
+    import os
+
     from ai_governance_mcp.context_engine.project_manager import ProjectManager
     from ai_governance_mcp.context_engine.storage.filesystem import FilesystemStorage
+
+    # Force local model loading — IPC daemon uses a single model and would
+    # silently produce identical results for all candidates
+    old_socket = os.environ.get("AI_CONTEXT_ENGINE_EMBED_SOCKET")
+    os.environ["AI_CONTEXT_ENGINE_EMBED_SOCKET"] = "none"
 
     # Use temporary storage to avoid polluting real index
     tmp_dir = tempfile.mkdtemp(prefix="ce_eval_")
@@ -84,6 +93,7 @@ def evaluate_model(model_name, project_root, benchmark, semantic_weight=0.6):
             embedding_model=model_name,
             embedding_dimensions=384,  # Will be corrected below
             semantic_weight=semantic_weight,
+            reranking=reranking,
         )
 
         # Detect actual dimensions from loaded model
@@ -140,18 +150,28 @@ def evaluate_model(model_name, project_root, benchmark, semantic_weight=0.6):
             "recall_at_5": round(recall_5, 3),
             "recall_at_10": round(recall_10, 3),
             "semantic_weight": semantic_weight,
+            "reranking": reranking,
             "individual_ranks": ranks,
         }
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
+        if old_socket is not None:
+            os.environ["AI_CONTEXT_ENGINE_EMBED_SOCKET"] = old_socket
+        else:
+            os.environ.pop("AI_CONTEXT_ENGINE_EMBED_SOCKET", None)
 
 
 def print_comparison_table(results):
     """Print a formatted comparison table."""
-    print("\n" + "=" * 90)
+    rerank_label = "ON" if results and results[0].get("reranking") else "OFF"
+    print(f"\n  Reranking: {rerank_label}")
+    print("=" * 90)
     print(f"{'Model':<40} {'Dims':>5} {'Load(s)':>8} {'MRR':>6} {'R@5':>6} {'R@10':>6}")
     print("-" * 90)
     for r in results:
+        if r.get("status") == "EXCLUDED":
+            print(f"{r['model']:<40}  EXCLUDED: {r.get('reason', 'unknown')[:40]}")
+            continue
         print(
             f"{r['model']:<40} {r['dimensions']:>5} "
             f"{r['load_time_s']:>8.2f} {r['mrr']:>6.3f} "
@@ -186,6 +206,11 @@ def main():
         action="store_true",
         help="Grid search semantic_weight with current model",
     )
+    parser.add_argument(
+        "--reranking",
+        action="store_true",
+        help="Enable cross-encoder reranking (requires IPC daemon)",
+    )
     args = parser.parse_args()
 
     project_root = Path(__file__).parent.parent
@@ -204,19 +229,29 @@ def main():
                 project_root,
                 benchmark,
                 semantic_weight=weight,
+                reranking=args.reranking,
             )
             results.append(r)
         print_weight_sweep_table(results)
     else:
-        print(f"\nEvaluating {len(args.models)} models...")
+        print(
+            f"\nEvaluating {len(args.models)} models "
+            f"(reranking={'ON' if args.reranking else 'OFF'})..."
+        )
         results = []
         for model in args.models:
             print(f"\n  Evaluating: {model}")
-            r = evaluate_model(model, project_root, benchmark)
-            results.append(r)
-            print(
-                f"    MRR={r['mrr']:.3f}, R@5={r['recall_at_5']:.3f}, R@10={r['recall_at_10']:.3f}"
-            )
+            try:
+                r = evaluate_model(
+                    model, project_root, benchmark, reranking=args.reranking
+                )
+                results.append(r)
+                print(
+                    f"    MRR={r['mrr']:.3f}, R@5={r['recall_at_5']:.3f}, R@10={r['recall_at_10']:.3f}"
+                )
+            except Exception as e:
+                print(f"    FAILED: {e}")
+                results.append({"model": model, "status": "EXCLUDED", "reason": str(e)})
 
         print_comparison_table(results)
 

@@ -5097,6 +5097,34 @@ class TestRankingSignals:
         assert results[1].chunk.content == "chunk B"
         assert results[2].chunk.content == "chunk C"
 
+    def test_reranking_fallback_on_predict_exception(self):
+        """When IPC predict() raises, results return un-reranked."""
+        from unittest.mock import MagicMock, patch
+        from ai_governance_mcp.context_engine.project_manager import ProjectManager
+
+        pm = ProjectManager(semantic_weight=0.5, reranking=True)
+        chunks = [
+            self._make_chunk("src/a.py", "chunk A"),
+            self._make_chunk("src/b.py", "chunk B"),
+            self._make_chunk("src/c.py", "chunk C"),
+        ]
+        sem = np.array([0.9, 0.7, 0.5])
+        kw = np.array([0.9, 0.7, 0.5])
+
+        mock_client = MagicMock()
+        mock_client.available.return_value = True
+        mock_client.predict.side_effect = ConnectionError("daemon gone")
+
+        with patch(
+            "ai_governance_mcp.context_engine.project_manager.EmbeddingClient",
+            return_value=mock_client,
+        ):
+            results = pm._fuse_scores(chunks, sem, kw, max_results=10)
+
+        assert results[0].chunk.content == "chunk A"
+        assert results[1].chunk.content == "chunk B"
+        assert results[2].chunk.content == "chunk C"
+
     def test_short_document_chunks_filtered(self):
         """Document chunks with only heading/breadcrumb content are filtered."""
         from ai_governance_mcp.context_engine.project_manager import ProjectManager

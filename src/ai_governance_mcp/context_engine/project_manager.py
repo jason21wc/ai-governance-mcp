@@ -885,7 +885,12 @@ class ProjectManager:
         body_chars = sum(
             len(line)
             for line in lines
-            if not line.lstrip().startswith("[") and not line.lstrip().startswith("#")
+            if not line.lstrip().startswith("#")
+            and not (
+                line.lstrip().startswith("[")
+                and ">" in line
+                and line.rstrip().endswith("]")
+            )
         )
         return body_chars >= MIN_CHUNK_BODY_CHARS
 
