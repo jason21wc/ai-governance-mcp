@@ -240,7 +240,7 @@ Windsurf supports MCP through Cascade. Config file: `~/.codeium/windsurf/mcp_con
 
 ## First Five: Day-One Essentials from the Universal Floor
 
-Every `evaluate_governance` call returns a **universal floor** — items that hold regardless of whether the AI is writing code, drafting a story, or building a RAG pipeline. The full floor (defined in [`documents/tiers.json`](documents/tiers.json)) has four constitutional principles, five method references, and a subagent-applicability check. The five below are the *day-one essentials* — the smallest set that gets an external adopter productive without first learning Constitutional naming or the 7-layer hierarchy.
+Every `evaluate_governance` call returns a **universal floor** — items that hold regardless of whether the AI is writing code, drafting a story, or building a RAG pipeline. The full floor (defined in [`documents/tiers.json`](documents/tiers.json)) has four constitutional principles, six method references, and a subagent-applicability check. The five below are the *day-one essentials* — the smallest set that gets an external adopter productive without first learning Constitutional naming or the 7-layer hierarchy.
 
 | Rule | What it asks of the AI | Canonical reference |
 |------|------------------------|---------------------|
