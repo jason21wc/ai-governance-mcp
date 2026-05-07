@@ -12,6 +12,26 @@
 
 ## Active Lessons
 
+### BASH_COMMAND Is a Reserved Variable — Never Use It for Application State (2026-05-07)
+
+Session-152 named a shell variable `BASH_COMMAND` to hold the Bash command extracted from hook input JSON. Bash automatically overwrites this built-in with the currently-executing command on every simple command execution, so the variable silently held the debug line itself instead of the extracted command. All downstream logic (read-only detection) received the wrong value. Fixed by renaming to `TOOL_CMD`.
+
+**Rule:** Never use `BASH_COMMAND`, `BASH_SOURCE`, `BASH_LINENO`, `BASH_REMATCH`, `FUNCNAME`, `LINENO`, `RANDOM`, `SECONDS`, `PIPESTATUS`, or other Bash special variables for application state. These are managed by the shell and will be overwritten silently. Use descriptive application-specific names (e.g., `TOOL_CMD` instead of `BASH_COMMAND`).
+
+**How to apply:** When writing shell scripts that extract values from JSON input, name variables after their semantic role (`TOOL_CMD`, `TOOL_NAME`, `HOOK_INPUT`), not after what they contain (`BASH_COMMAND`, `SHELL_CMD`). If unsure whether a name is reserved, check `man bash` under "Shell Variables."
+
+---
+
+### Behavioral Compliance ≠ Structural Compliance — Hook Enforcement Has a Blind Spot (2026-05-07)
+
+Session-152's 10-agent governance test proved that 100% behavioral compliance (all subagents called `evaluate_governance` + `query_project` unprompted) can coexist with 100% structural denial (all blocked by hook). The hook verified compliance against the wrong file (parent transcript vs subagent transcript). This is not a scanner bug — the scanner works correctly on the file it's given. It's a routing gap: the hook input provides only `transcript_path` (parent's), with no `agentId` or subagent indicator.
+
+**Rule:** When testing enforcement mechanisms, verify that the mechanism can observe the behavior it's supposed to enforce. A correct enforcement algorithm applied to the wrong data produces false negatives (under-enforcement) or false positives (over-enforcement) that look like algorithm bugs but are data-routing bugs.
+
+**How to apply:** Before claiming an enforcement mechanism "works," trace the data path: what file/source does the enforcer read? Does that source contain the events the enforcer needs to see? For hooks specifically: does `transcript_path` point to the transcript where the relevant tool calls actually appear?
+
+---
+
 ### Pressure-Test the BACKLOG Entry's Framing, Not Just the Implementation Plan (2026-04-28)
 
 Session-138 picked up BACKLOG #144 as filed: a *detector* for bare `<file>.md:<line>` citations that checks each cited line against a stable-anchor pattern set. Plan v1 absorbed that framing and proposed ~150 lines of detection code + ~250 lines of test fixtures + a maintained anchor-pattern set. Contrarian-reviewer (run against plan v1 before ExitPlanMode per project hook) surfaced that the *framing itself* was wrong: the detector defends a citation form §9.8.9 v3.31.3 already recommends against, has fundamental coverage gaps (English-prose `(line N)` bypasses any `\.md:\d+` regex; range end-drift slips past start-line check; the 6-pattern anchor set is necessarily incomplete), and at 28 verified live citations the migration alternative (forbid the form + rewrite to §-anchor) is smaller AND ends the failure class. Plan v2 pivoted: **Forbid + Migrate** instead of Detect. Final shape: ~140 lines script + 14 tests + 21 live citation migrations + CI + pre-commit. The detector approach moved to "Simpler Alternatives Evaluated" as the rejected option. Result: structural prevention rather than leaky detection of a deprecated pattern.

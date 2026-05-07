@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-06 (session-151 close — Domain Floor Injection shipped). Governance: `gov-80ea5ab17f38`, `gov-2fd0001c885d`.
+**Last Updated:** 2026-05-07 (session-152 close — Read-Only Bash Allowlist shipped).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,25 +12,26 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-151 (2026-05-06) shipped Domain Floor Injection** — DAS promoted to universal floor (irrecoverable-if-missed), new `_build_domain_floor()` mechanism ships CED+LPG as guaranteed delivery when ai-coding domain detected. 12 new tests (9 unit + 3 integration + CI validation). 1493 tests pass. tiers.json v1.9.0.
+**Session-152 (2026-05-07) shipped Read-Only Bash Allowlist** — governance hook now skips provably read-only Bash commands (`git log`, `ls`, `grep`, etc.), unblocking read-only subagents (contrarian-reviewer, security-auditor). 19 new tests. 1512 tests pass. FM-HOOK-SUBAGENT-TRANSCRIPT-ISOLATION registered. T-152 tripwire added.
 
-**ACTION ON RESUME (session-152):** **No blocking items.** Time-cued items: **Compliance Review #8** (~2026-05-15) → **C-109 deferred-cadence audit** (~2026-05-25) → **T-049 calendar review** (2026-06-15). **T-149 CE-first compliance measurement** — observe CE-vs-grep ratio for 3-5 sessions before activating Phase 2.
+**ACTION ON RESUME (session-153):** **No blocking items.** Time-cued items: **Compliance Review #8** (~2026-05-15) → **C-109 deferred-cadence audit** (~2026-05-25) → **T-049 calendar review** (2026-06-15). **T-149 CE-first compliance measurement** — observe CE-vs-grep ratio for 3-5 sessions before activating Phase 2.
 
 **Critical state for next session:**
-- **Commits ahead of origin:** 3 (unpushed).
+- **Commits ahead of origin:** 0 (clean push).
+- **Read-only Bash allowlist active NOW** — `git log`, `ls`, `grep`, etc. skip governance enforcement.
 - **DAS in universal floor NOW** — every `evaluate_governance` includes design-first check.
 - **Domain floor active NOW** — ai-coding detection triggers CED+LPG guaranteed delivery.
-- **Tests:** 1493 passing (non-slow subset).
+- **Tests:** 1512 passing (non-slow subset).
 - **Compliance Review #8** — due ~2026-05-15.
 - **V-005 CONFIRMED** (session pruning advisory works — 5/5 under 300 lines). Move to Retired in COMPLIANCE-REVIEW.md.
 
-**Open BACKLOG (post-session-151):** Same as session-150. See BACKLOG.md for full list.
+**Open BACKLOG (post-session-152):** Same as session-151. See BACKLOG.md for full list.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-151 (2026-05-06) — Domain Floor Injection shipped.
+- **Phase:** Session-152 (2026-05-07) — Read-Only Bash Allowlist shipped.
 - **Mode:** Normal operation. No active monitors.
 - **Active Task:** None. Next time-cued: Compliance Review #8 (~2026-05-15).
 
@@ -42,8 +43,8 @@
 | Context Engine | **v2.1.0** (reranking, MMR diversity, RRF opt-in, chunk quality filter, candidate pool cap, per-file dedup configurable cap=3, expanded 35-query benchmark) |
 | Content | **v8.0.0** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0), **v3.31.5** (rules-of-procedure), **v2.44.0** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.1** (ai-instructions), **v1.9.0** (tiers.json). |
 | Execution Framework | **v1.1.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, thematic structure) |
-| OPERATIONS.md | **v1** (2 cadences, 14 tripwires, 4 V-series, 5 metrics, 3 scheduled operations) |
-| Tests | **1493 passing** (non-slow subset) |
+| OPERATIONS.md | **v1** (2 cadences, 15 tripwires, 4 V-series, 5 metrics, 3 scheduled operations) |
+| Tests | **1512 passing** (non-slow subset) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **17 MCP tools** (13 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -52,24 +53,27 @@
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **1** (`compliance-review` — invoke via `/compliance-review`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | **Green.** Last push: session-150. Session-151: 3 commits unpushed. |
+| CI | **Green.** Last push: session-152. All commits pushed. |
 
 ---
 
-## Last Session (2026-05-06)
+## Last Session (2026-05-07)
 
-151. **Session-151 (2026-05-06): Domain Floor Injection shipped.**
-   - **DAS universal promotion:** `coding-process-design-architecture-supremacy` added to `universal_floor.methods` — guaranteed delivery in every `evaluate_governance` response. Irrecoverable-if-missed criterion, testing-integration precedent. Selection criteria updated with exception clause.
-   - **Domain floor mechanism:** New `_build_domain_floor()` function + injection point. Activates domain-specific floor items when `route_domains()` detects the domain. Separate from universal (conditional vs unconditional), `domain_principle`/`domain_method` types with provenance tracking, intentional no-dedup with retrieval.
-   - **ai-coding floor:** CED (Context Engineering Discipline) + LPG (Lifecycle-Proportional Governance) as guaranteed delivery when ai-coding domain active.
-   - **Tests:** 12 new (9 unit + 3 integration + CI validation extension). 1493 total passing.
-   - **Research:** OPA hierarchical merge, P2T framework, Azure AI Search pinned results. Contrarian-reviewed.
-   - **Files modified:** tiers.json, server.py, test_server.py, README.md.
-   - **Governance:** `gov-80ea5ab17f38`, `gov-2fd0001c885d`.
+152. **Session-152 (2026-05-07): Read-Only Bash Allowlist shipped.**
+   - **10-agent governance effectiveness test:** Spawned 10 identical subagents with a simple coding task to test whether DAS/CED/LPG principles influence behavior without explicit instruction. Result: 10/10 behavioral compliance (all called `evaluate_governance` + `query_project` unprompted), but 10/10 hook-denied.
+   - **Root cause:** Subagent MCP calls recorded in subagent transcript (`subagents/agent-<id>.jsonl`), not parent. Governance hook scans only parent transcript. Scanner logic correct; wrong file scanned.
+   - **Contrarian review:** Rejected recency-based heuristic (parent enforcement regression). Adopted deterministic read-only Bash command allowlist (zero enforcement regression, independently valuable).
+   - **Read-only Bash allowlist:** Conservative check in `pre-tool-governance-check.sh` — rejects chaining (`&&`, `||`, `;`), redirects (`>`, `>>`), requires all pipe segments to match known-safe command list. `READONLY_BASH_SKIP=true` to disable.
+   - **Residual limitation:** Mutation subagents (test-generator, documentation-writer) remain blocked. Tracked as T-152 tripwire.
+   - **Tests:** 19 new (1512 total passing).
+   - **Files modified:** pre-tool-governance-check.sh, test_hooks.py, failure-mode-registry.md, test-failure-mode-map.md, CLAUDE.md, OPERATIONS.md.
+   - **Bug fixed:** `BASH_COMMAND` reserved variable collision — Bash built-in auto-overwrites; renamed to `TOOL_CMD`.
 
 ---
 
 ## Previous Sessions
+
+*Session-151 (2026-05-06) shipped Domain Floor Injection — DAS universal floor, `_build_domain_floor()` mechanism, CED+LPG ai-coding floor, tiers.json v1.9.0, 1493 tests.*
 
 *Session-150 (2026-05-05) shipped AI Coding Design Philosophy Integration — 3 new principles (CED, DAS, LPG), 8 CFR methods, preamble, 4 principle extensions.*
 
@@ -99,12 +103,13 @@
 
 **Trigger-gated (tracked in OPERATIONS.md):**
 - **T-149** — CE-first compliance measurement (3-5 sessions, <85% activates Phase 2 hook)
+- **T-152** — Subagent transcript isolation — upstream fix (Claude Code agentId in hook input)
 - See OPERATIONS.md Tripwires section for T-019, T-049, T-106–T-113, T-119, T-134, T-143, T-145.
 - See OPERATIONS.md Cadences section for C-078, C-109.
 
 **Working artifacts:**
+- `~/.claude/plans/no-create-the-plan-unified-octopus.md` — session-152 Read-Only Bash Allowlist plan (COMPLETE).
 - `~/.claude/plans/do-online-research-and-reflective-rabbit.md` — session-151 Domain Floor Injection plan (COMPLETE).
-- `~/.claude/plans/lazy-juggling-russell.md` — session-150 Design Philosophy Integration plan (COMPLETE).
 - `~/.claude/plans/i-told-claude-app-rosy-rivest.md` — session-149 CE-First Search plan (Phase 1 shipped, Phase 2 conditional).
 
 See BACKLOG.md for the full list of open items.
