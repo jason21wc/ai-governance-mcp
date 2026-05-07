@@ -168,6 +168,14 @@
 
 ---
 
+### T-152. Subagent transcript isolation — upstream fix
+
+**Trigger conditions:** (1) Claude Code hook input includes `agentId` or subagent transcript path, OR (2) subagent MCP calls surfaced in parent transcript, OR (3) Claude Code docs announce a mechanism for hooks to distinguish parent vs subagent context.
+**What:** `pre-tool-governance-check.sh` uses a read-only Bash command allowlist to let read-only subagents (contrarian-reviewer, security-auditor) bypass governance enforcement. Mutation subagents (test-generator, documentation-writer) remain blocked. When upstream fix ships: scan subagent transcript directly for full enforcement. Related env var: `READONLY_BASH_SKIP=true`.
+**Origin:** Session-152 (2026-05-07). Empirical proof: 10/10 subagents CLAUDE.md-compliant but hook-denied due to transcript isolation.
+
+---
+
 ### T-019. Rampart agent firewall adoption
 
 **Trigger conditions:** (1) Project adds credential files, (2) external contributors appear (≥1 issue/PR), (3) Rampart reaches 1.0 with broad adoption, (4) credential leak Layer 1+2 would not have caught.

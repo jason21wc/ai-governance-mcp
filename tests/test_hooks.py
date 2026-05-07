@@ -1123,6 +1123,296 @@ class TestPreToolMalformedTranscript:
 
 
 # ---------------------------------------------------------------------------
+# Read-Only Bash Allowlist Tests (pre-tool-governance-check.sh)
+# ---------------------------------------------------------------------------
+
+
+class TestPreToolReadOnlyBashAllowlist:
+    """Read-only Bash commands skip governance check; write commands still require it."""
+
+    def _hook_input(
+        self, transcript_path: str, tool_name: str = "Bash", command: str = ""
+    ) -> str:
+        payload = {"transcript_path": transcript_path, "tool_name": tool_name}
+        if command:
+            payload["tool_input"] = {"command": command}
+        return json.dumps(payload)
+
+    def test_readonly_git_log_allows_without_governance(self):
+        """git log is read-only — should allow even without governance calls.
+
+        Covers: FM-HOOK-SUBAGENT-TRANSCRIPT-ISOLATION
+        """
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="git log --oneline -10"),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == "" or "deny" not in result.stdout
+        finally:
+            os.unlink(transcript_path)
+
+    def test_readonly_ls_allows_without_governance(self):
+        """ls is read-only — should allow without governance."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="ls -la /tmp"),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == "" or "deny" not in result.stdout
+        finally:
+            os.unlink(transcript_path)
+
+    def test_readonly_find_allows_without_governance(self):
+        """find is read-only — should allow without governance."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command='find . -name "*.py"'),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == "" or "deny" not in result.stdout
+        finally:
+            os.unlink(transcript_path)
+
+    def test_readonly_grep_allows_without_governance(self):
+        """grep is read-only — should allow without governance."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="grep -r 'pattern' src/"),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == "" or "deny" not in result.stdout
+        finally:
+            os.unlink(transcript_path)
+
+    def test_readonly_piped_command_allows(self):
+        """Piped read-only commands should allow."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(
+                    transcript_path, command="git log --oneline | head -20"
+                ),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == "" or "deny" not in result.stdout
+        finally:
+            os.unlink(transcript_path)
+
+    def test_write_git_commit_still_requires_governance(self):
+        """git commit is a mutation — should deny without governance."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command='git commit -m "test"'),
+            )
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_write_rm_still_requires_governance(self):
+        """rm is a mutation — should deny without governance."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="rm -rf /tmp/test"),
+            )
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_compound_command_still_requires_governance(self):
+        """Commands with && chaining are not read-only — should deny."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="git log && rm file"),
+            )
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_redirect_still_requires_governance(self):
+        """Commands with output redirects are not read-only — should deny."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="git log > output.txt"),
+            )
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_edit_tool_still_requires_governance(self):
+        """Edit tool (non-Bash) should still require governance."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            hook_input = json.dumps(
+                {
+                    "transcript_path": transcript_path,
+                    "tool_name": "Edit",
+                    "tool_input": {
+                        "file_path": "/tmp/test.py",
+                        "old_string": "a",
+                        "new_string": "b",
+                    },
+                }
+            )
+            result = run_hook(PRETOOL_HOOK, hook_input)
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_write_tool_still_requires_governance(self):
+        """Write tool (non-Bash) should still require governance."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            hook_input = json.dumps(
+                {
+                    "transcript_path": transcript_path,
+                    "tool_name": "Write",
+                    "tool_input": {"file_path": "/tmp/test.py", "content": "hello"},
+                }
+            )
+            result = run_hook(PRETOOL_HOOK, hook_input)
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_readonly_bash_with_governance_still_allows(self):
+        """Read-only Bash with governance calls: should allow (happy path)."""
+        transcript_path = create_transcript(
+            [
+                make_tool_use_entry("mcp__ai-governance__evaluate_governance"),
+                make_tool_use_entry("mcp__context-engine__query_project"),
+            ]
+        )
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="git log --oneline"),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == ""
+        finally:
+            os.unlink(transcript_path)
+
+    def test_readonly_bash_skip_env_var(self):
+        """READONLY_BASH_SKIP=true disables the allowlist — read-only Bash denied."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="git log --oneline"),
+                env_overrides={"READONLY_BASH_SKIP": "true"},
+            )
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_semicolon_chaining_requires_governance(self):
+        """Commands with ; chaining are not read-only — should deny."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="git log; rm file"),
+            )
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_or_chaining_requires_governance(self):
+        """Commands with || chaining are not read-only — should deny."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="git log || echo fallback"),
+            )
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_git_status_allows(self):
+        """git status is read-only — should allow."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="git status"),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == "" or "deny" not in result.stdout
+        finally:
+            os.unlink(transcript_path)
+
+    def test_wc_allows(self):
+        """wc is read-only — should allow."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command="wc -l src/server.py"),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == "" or "deny" not in result.stdout
+        finally:
+            os.unlink(transcript_path)
+
+    def test_python3_requires_governance(self):
+        """python3 is ambiguous — should require governance."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(transcript_path, command='python3 -c "print(1)"'),
+            )
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+    def test_no_tool_input_falls_through(self):
+        """Bash call without tool_input.command falls through to normal check."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            hook_input = json.dumps(
+                {
+                    "transcript_path": transcript_path,
+                    "tool_name": "Bash",
+                }
+            )
+            result = run_hook(PRETOOL_HOOK, hook_input)
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
+
+# ---------------------------------------------------------------------------
 # UserPromptSubmit Hook Tests
 # ---------------------------------------------------------------------------
 

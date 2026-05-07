@@ -113,6 +113,12 @@ entries:
     scope: project
     introduced: "2026-04-24"
     source: "session-124 Phase 0 gap detection; BACKLOG #121"
+  - id: FM-HOOK-SUBAGENT-TRANSCRIPT-ISOLATION
+    description: "Governance hook reads parent transcript; subagent MCP calls live in separate files. Read-only Bash allowlist solves read-only subagents (contrarian-reviewer, security-auditor). Mutation subagents (test-generator, documentation-writer) remain blocked until upstream fix (Claude Code agentId in hook input)."
+    must_cover: false
+    scope: project
+    introduced: "2026-05-07"
+    source: "session-152 empirical proof: 10/10 subagents governance-compliant but hook-denied due to transcript isolation."
   - id: FM-SERIES-CODE-SUBSTRING-COLLISION
     description: "`category_mapping` dict iteration must place longer keys before shorter keys when one is a substring of the other — `keyword in section_lower` matching otherwise misroutes (e.g., `ev-series` → `verification` instead of `evaluation`; `sec-series` → `context` instead of `security`)."
     must_cover: true

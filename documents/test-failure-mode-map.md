@@ -203,6 +203,12 @@
 
 - `tests/test_pre_test_oom_gate_hook.py` → `TestInternalPsTimeout::test_ps_timeout_fails_closed`
 
+### `FM-HOOK-SUBAGENT-TRANSCRIPT-ISOLATION`
+
+> Governance hook reads parent transcript; subagent MCP calls live in separate files. Read-only Bash allowlist solves read-only subagents (contrarian-reviewer, security-auditor). Mutation subagents (test-generator, documentation-writer) remain blocked until upstream fix (Claude Code agentId in hook input).
+
+- `tests/test_hooks.py` → `TestPreToolReadOnlyBashAllowlist::test_readonly_git_log_allows_without_governance`
+
 ### `FM-IDLE-DETECTION-MTIME-BOUNDARY`
 
 > Idle-detection metadata scan must return the MOST RECENT activity time (max of mtimes, smallest seconds-ago) across all projects, not min/average — otherwise one stale project defers restart for the whole daemon.

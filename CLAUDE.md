@@ -53,6 +53,8 @@ After evaluating: cite principle IDs that influence your approach.
 
 **Known hook workaround — OOM-gate FP on `pytest` in commit messages:** When a `git commit` message body contains `pytest` inside a quoted region (heredoc body or alternation argument), the OOM gate (`pre-test-oom-gate.sh`) false-positives because its token-anchored matcher cannot distinguish executable position from quoted-region content. Write the message to a tempfile via the Write tool and commit via `git commit -F <messagefile>`. Tracked as OPERATIONS.md T-143 (deferred — asymmetric cost: hook modification risks TP-regression vs. low workaround friction).
 
+**Known hook limitation — subagent transcript isolation:** When subagents call `evaluate_governance` and `query_project`, those calls are recorded in the subagent's transcript, not the parent's. The governance hook scans only the parent transcript, so subagent compliance is invisible to enforcement. A read-only Bash command allowlist (`git log`, `ls`, `grep`, etc.) lets read-only subagents (contrarian-reviewer, security-auditor) bypass governance enforcement for provably safe commands. Mutation subagents (test-generator, documentation-writer) remain blocked until Claude Code adds agent context to hook input. Disable the allowlist with `READONLY_BASH_SKIP=true`. Tracked as OPERATIONS.md T-152.
+
 ## Subagents
 
 10 specialized agents in `.claude/agents/`. Read the agent file and apply its instructions when a task matches:

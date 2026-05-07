@@ -17,6 +17,7 @@
 #   GOVERNANCE_TOOL_NAME=...     — Override governance tool name (default: mcp__ai-governance__evaluate_governance)
 #   CE_TOOL_NAME=...             — Override CE tool name (default: mcp__context-engine__query_project)
 #   GOVERNANCE_HOOK_DEBUG=true   — Enable stderr debug logging
+#   READONLY_BASH_SKIP=true      — Disable read-only Bash allowlist (require governance for all Bash)
 #
 # Exit 0 always when outputting JSON. Fail-closed on errors (hard mode default).
 
@@ -46,6 +47,84 @@ import json, sys
 data = json.loads(sys.stdin.read())
 print(data.get('transcript_path', ''))
 " <<< "$INPUT" 2>/dev/null) || true
+fi
+
+# ---------------------------------------------------------------------------
+# Read-only Bash command allowlist
+# Per governance skip list: "reading files" doesn't require governance.
+# Provably read-only Bash commands (no redirects, no chaining, all segments
+# match a known safe command list) skip the governance check entirely.
+# Disable with READONLY_BASH_SKIP=true.
+# ---------------------------------------------------------------------------
+
+TOOL_NAME=""
+TOOL_CMD=""
+if command -v jq &>/dev/null; then
+  TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // ""' 2>/dev/null) || true
+  if [ "$TOOL_NAME" = "Bash" ]; then
+    TOOL_CMD=$(echo "$INPUT" | jq -r '.tool_input.command // ""' 2>/dev/null) || true
+  fi
+else
+  TOOL_NAME=$(python3 -c "
+import json, sys
+data = json.loads(sys.stdin.read())
+print(data.get('tool_name', ''))
+" <<< "$INPUT" 2>/dev/null) || true
+  if [ "$TOOL_NAME" = "Bash" ]; then
+    TOOL_CMD=$(python3 -c "
+import json, sys
+data = json.loads(sys.stdin.read())
+print(data.get('tool_input', {}).get('command', ''))
+" <<< "$INPUT" 2>/dev/null) || true
+  fi
+fi
+
+if [ "$TOOL_NAME" = "Bash" ] && [ -n "$TOOL_CMD" ] && [ "${READONLY_BASH_SKIP:-false}" != "true" ]; then
+  IS_READONLY=$(python3 -c "
+import re, sys
+cmd = sys.argv[1]
+# Chaining operators make the command non-read-only
+if re.search(r'&&|\|\||;', cmd):
+    print('false')
+    sys.exit(0)
+# Strip safe stderr redirections before checking for output redirects
+cleaned = re.sub(r'2>[>&][^ ]*', '', cmd)
+if re.search(r'>>', cleaned) or re.search(r'>', cleaned):
+    print('false')
+    sys.exit(0)
+# Split on pipe and check each segment
+READONLY_CMDS = {
+    'ls', 'find', 'grep', 'egrep', 'fgrep', 'wc', 'head', 'tail', 'cat',
+    'file', 'stat', 'which', 'pwd', 'tree', 'du', 'df', 'diff', 'sort',
+    'uniq', 'comm', 'jq', 'column', 'basename', 'dirname', 'realpath',
+    'readlink', 'sha256sum', 'md5',
+}
+GIT_READONLY = {
+    'log', 'blame', 'diff', 'show', 'status', 'branch', 'remote', 'tag',
+    'rev-parse', 'ls-files', 'ls-tree', 'name-rev', 'shortlog', 'describe',
+    'for-each-ref', 'stash',
+}
+for segment in cmd.split('|'):
+    parts = segment.strip().split()
+    if not parts:
+        print('false')
+        sys.exit(0)
+    base = parts[0].rsplit('/', 1)[-1]
+    if base == 'git':
+        subcmd = parts[1] if len(parts) > 1 else ''
+        if subcmd not in GIT_READONLY:
+            print('false')
+            sys.exit(0)
+    elif base not in READONLY_CMDS:
+        print('false')
+        sys.exit(0)
+print('true')
+" "$TOOL_CMD" 2>/dev/null) || IS_READONLY="false"
+
+  if [ "$IS_READONLY" = "true" ]; then
+    debug "Read-only Bash command — governance check skipped"
+    exit 0
+  fi
 fi
 
 # Determine enforcement mode
