@@ -11268,7 +11268,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-06T05:41:06.869905+00:00",
+      "last_extracted": "2026-05-07T01:36:36.942814+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -23510,11 +23510,11 @@
               "termination conditions"
             ],
             "purpose_keywords": [
-              "research-protocol",
+              "program-md",
               "experimentation",
+              "research-protocol",
               "autonomous-operation",
-              "overnight-agents",
-              "program-md"
+              "overnight-agents"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -23566,13 +23566,13 @@
               "constitutional principle:"
             ],
             "purpose_keywords": [
-              "ranking",
-              "solution-comparison",
-              "joint-quality",
-              "efficiency",
+              "elegance",
               "effectiveness",
+              "ranking",
               "multiplicative",
-              "elegance"
+              "solution-comparison",
+              "efficiency",
+              "joint-quality"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -23615,11 +23615,11 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "integration-testing",
-              "tool-handlers",
-              "asyncio",
               "mcp",
-              "testing"
+              "tool-handlers",
+              "integration-testing",
+              "testing",
+              "asyncio"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -23667,12 +23667,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "api-routes",
               "nextjs",
+              "api-routes",
+              "routing",
               "auth",
-              "middleware",
               "supabase",
-              "routing"
+              "middleware"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -23722,12 +23722,12 @@
               "don't:"
             ],
             "purpose_keywords": [
+              "sheetjs",
+              "excel",
               "document-generation",
               "library-selection",
               "node",
-              "excel",
-              "exceljs",
-              "sheetjs"
+              "exceljs"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -23790,13 +23790,13 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "document-generation",
-              "pdf-lib",
               "pdfkit",
-              "jspdf",
-              "pdf",
               "puppeteer",
+              "pdf-lib",
+              "jspdf",
+              "document-generation",
               "library-selection",
+              "pdf",
               "node"
             ],
             "applies_to": [],
@@ -23856,12 +23856,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "playwright",
               "nextjs",
-              "e2e-testing",
               "auth",
               "supabase",
-              "storage-state"
+              "e2e-testing",
+              "storage-state",
+              "playwright"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -23909,12 +23909,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "sentence-transformers",
-              "mocking",
-              "pytest",
-              "fixtures",
               "mcp",
-              "testing"
+              "pytest",
+              "mocking",
+              "testing",
+              "fixtures",
+              "sentence-transformers"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -23961,13 +23961,13 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "document-generation",
-              "python",
-              "docker",
-              "pdf",
-              "library-selection",
+              "weasyprint",
               "reportlab",
-              "weasyprint"
+              "docker",
+              "python",
+              "document-generation",
+              "library-selection",
+              "pdf"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -24020,10 +24020,10 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "custom-claims",
               "nextjs",
-              "ssr",
               "jwt",
+              "custom-claims",
+              "ssr",
               "auth",
               "supabase"
             ],
@@ -24072,12 +24072,12 @@
               "don't:"
             ],
             "purpose_keywords": [
+              "nextjs",
               "cookies",
               "async",
-              "nextjs",
-              "auth-callback",
+              "pkce",
               "supabase",
-              "pkce"
+              "auth-callback"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -24123,11 +24123,11 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "vitest",
               "mocking",
+              "testing",
               "typescript",
-              "vi-mock",
-              "testing"
+              "vitest",
+              "vi-mock"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -24182,14 +24182,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "fastapi",
-              "file-download",
-              "document-generation",
               "nextjs",
-              "s3",
+              "file-download",
               "streaming",
-              "express",
-              "web-app"
+              "fastapi",
+              "web-app",
+              "document-generation",
+              "s3",
+              "express"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -24246,10 +24246,10 @@
               "willison's infrastructure for this:"
             ],
             "purpose_keywords": [
-              "reuse",
-              "knowledge-management",
               "patterns",
-              "agent-productivity"
+              "reuse",
+              "agent-productivity",
+              "knowledge-management"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -24257,7 +24257,7 @@
           "embedding_id": 524
         }
       ],
-      "last_extracted": "2026-05-06T05:41:06.897297+00:00",
+      "last_extracted": "2026-05-07T01:36:36.971359+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -27945,7 +27945,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-06T05:41:06.903033+00:00",
+      "last_extracted": "2026-05-07T01:36:36.977054+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -30656,7 +30656,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-06T05:41:06.906365+00:00",
+      "last_extracted": "2026-05-07T01:36:36.980066+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -35209,7 +35209,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-06T05:41:06.910645+00:00",
+      "last_extracted": "2026-05-07T01:36:36.984542+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -38298,7 +38298,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-06T05:41:06.914493+00:00",
+      "last_extracted": "2026-05-07T01:36:36.988734+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -40521,7 +40521,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-06T05:41:06.917083+00:00",
+      "last_extracted": "2026-05-07T01:36:36.991157+00:00",
       "version": "1.0"
     }
   },
@@ -40590,7 +40590,7 @@
       "embedding_id": 6
     }
   ],
-  "created_at": "2026-05-06T05:41:12.389121+00:00",
+  "created_at": "2026-05-07T01:36:42.317719+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384
