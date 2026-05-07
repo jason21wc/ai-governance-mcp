@@ -3673,6 +3673,163 @@ class TestTiersConfig:
         assert items == []
 
 
+class TestDomainFloor:
+    """Tests for _build_domain_floor domain-specific floor injection."""
+
+    def test_build_domain_floor_single_domain(self):
+        """Should return items for a single detected domain."""
+        from ai_governance_mcp.server import _build_domain_floor
+
+        config = {
+            "domain_floors": {
+                "ai-coding": {
+                    "principles": [
+                        {"id": "coding-context-ced", "check": "CED check"},
+                        {"id": "coding-process-lpg", "check": "LPG check"},
+                    ],
+                    "methods": [],
+                }
+            }
+        }
+        items = _build_domain_floor(config, ["ai-coding"])
+        assert len(items) == 2
+        assert all(i["type"] == "domain_principle" for i in items)
+        assert all(i["domain"] == "ai-coding" for i in items)
+        assert items[0]["id"] == "coding-context-ced"
+        assert items[1]["id"] == "coding-process-lpg"
+
+    def test_build_domain_floor_no_domains_detected(self):
+        """Should return empty list when no domains detected."""
+        from ai_governance_mcp.server import _build_domain_floor
+
+        config = {
+            "domain_floors": {
+                "ai-coding": {
+                    "principles": [{"id": "test", "check": "test"}],
+                    "methods": [],
+                }
+            }
+        }
+        items = _build_domain_floor(config, [])
+        assert items == []
+
+    def test_build_domain_floor_domain_not_in_config(self):
+        """Should return empty list when detected domain has no floor config."""
+        from ai_governance_mcp.server import _build_domain_floor
+
+        config = {
+            "domain_floors": {
+                "ai-coding": {
+                    "principles": [{"id": "test", "check": "test"}],
+                    "methods": [],
+                }
+            }
+        }
+        items = _build_domain_floor(config, ["storytelling"])
+        assert items == []
+
+    def test_build_domain_floor_multiple_domains(self):
+        """Should return items from all detected domains that have floors."""
+        from ai_governance_mcp.server import _build_domain_floor
+
+        config = {
+            "domain_floors": {
+                "ai-coding": {
+                    "principles": [
+                        {"id": "coding-1", "check": "check 1"},
+                        {"id": "coding-2", "check": "check 2"},
+                    ],
+                    "methods": [],
+                },
+                "storytelling": {
+                    "principles": [{"id": "story-1", "check": "check 3"}],
+                    "methods": [],
+                },
+            }
+        }
+        items = _build_domain_floor(config, ["ai-coding", "storytelling"])
+        assert len(items) == 3
+        ai_items = [i for i in items if i["domain"] == "ai-coding"]
+        story_items = [i for i in items if i["domain"] == "storytelling"]
+        assert len(ai_items) == 2
+        assert len(story_items) == 1
+
+    def test_build_domain_floor_no_domain_floors_section(self):
+        """Should return empty list when tiers config has no domain_floors key."""
+        from ai_governance_mcp.server import _build_domain_floor
+
+        config = {"universal_floor": {"principles": [], "methods": []}}
+        items = _build_domain_floor(config, ["ai-coding"])
+        assert items == []
+
+    def test_build_domain_floor_empty_domain(self):
+        """Should return empty list when domain floor has empty arrays."""
+        from ai_governance_mcp.server import _build_domain_floor
+
+        config = {"domain_floors": {"ai-coding": {"principles": [], "methods": []}}}
+        items = _build_domain_floor(config, ["ai-coding"])
+        assert items == []
+
+    def test_build_domain_floor_with_methods(self):
+        """Should handle domain floor methods with ref field."""
+        from ai_governance_mcp.server import _build_domain_floor
+
+        config = {
+            "domain_floors": {
+                "ai-coding": {
+                    "principles": [],
+                    "methods": [
+                        {
+                            "ref": "ai-coding §2.6",
+                            "id": "coding-method-design-first",
+                            "check": "Design-first check",
+                        }
+                    ],
+                }
+            }
+        }
+        items = _build_domain_floor(config, ["ai-coding"])
+        assert len(items) == 1
+        assert items[0]["type"] == "domain_method"
+        assert items[0]["ref"] == "ai-coding §2.6"
+        assert items[0]["id"] == "coding-method-design-first"
+        assert items[0]["domain"] == "ai-coding"
+
+    def test_build_domain_floor_includes_domain_field(self):
+        """Every returned item must have a domain field."""
+        from ai_governance_mcp.server import _build_domain_floor
+
+        config = {
+            "domain_floors": {
+                "ai-coding": {
+                    "principles": [{"id": "p1", "check": "c1"}],
+                    "methods": [{"id": "m1", "check": "c2"}],
+                }
+            }
+        }
+        items = _build_domain_floor(config, ["ai-coding"])
+        assert len(items) == 2
+        assert all("domain" in i for i in items)
+        assert all(i["domain"] == "ai-coding" for i in items)
+
+    def test_build_domain_floor_skips_selection_criteria_string(self):
+        """Should skip _selection_criteria string key in domain_floors."""
+        from ai_governance_mcp.server import _build_domain_floor
+
+        config = {
+            "domain_floors": {
+                "_selection_criteria": "A string, not a dict",
+                "ai-coding": {
+                    "principles": [{"id": "p1", "check": "c1"}],
+                    "methods": [],
+                },
+            }
+        }
+        items = _build_domain_floor(config, ["ai-coding", "_selection_criteria"])
+        assert len(items) == 1
+        assert items[0]["domain"] == "ai-coding"
+
+
 class TestUniversalFloorInEvaluateGovernance:
     """Tests for universal floor injection in evaluate_governance responses."""
 
@@ -3810,6 +3967,178 @@ class TestUniversalFloorInEvaluateGovernance:
                     assert "relevant_principles" in parsed
 
 
+class TestDomainFloorInEvaluateGovernance:
+    """Tests for domain floor injection in evaluate_governance responses."""
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_includes_domain_floor(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should include domain_floor when domain is detected."""
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text(
+            json.dumps(
+                {
+                    "universal_floor": {
+                        "principles": [
+                            {
+                                "id": "meta-safety-transparent-limitations",
+                                "check": "Epistemic check",
+                            }
+                        ],
+                        "methods": [],
+                    },
+                    "domain_floors": {
+                        "ai-coding": {
+                            "principles": [{"id": "test-ced", "check": "CED check"}],
+                            "methods": [],
+                        }
+                    },
+                }
+            )
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Add a new helper function"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert "universal_floor" in parsed
+                    # Domain floor appears if ai-coding domain was detected
+                    if parsed.get("domain_floor"):
+                        assert any(
+                            i["id"] == "test-ced" for i in parsed["domain_floor"]
+                        )
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_no_domain_floor_without_detection(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should omit domain_floor when no matching domain detected."""
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text(
+            json.dumps(
+                {
+                    "universal_floor": {
+                        "principles": [
+                            {
+                                "id": "meta-core-systemic-thinking",
+                                "check": "Root cause check",
+                            }
+                        ],
+                        "methods": [],
+                    },
+                    "domain_floors": {
+                        "nonexistent-domain-xyz": {
+                            "principles": [{"id": "should-not-appear", "check": "c"}],
+                            "methods": [],
+                        }
+                    },
+                }
+            )
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Add a new helper function"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert "universal_floor" in parsed
+                    domain_floor = parsed.get("domain_floor", [])
+                    assert not any(
+                        i.get("id") == "should-not-appear" for i in domain_floor
+                    )
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_domain_floor_separate_from_max_results(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """domain_floor items should not reduce relevant_principles count."""
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text(
+            json.dumps(
+                {
+                    "universal_floor": {
+                        "principles": [
+                            {
+                                "id": "meta-safety-transparent-limitations",
+                                "check": "c",
+                            }
+                        ],
+                        "methods": [],
+                    },
+                    "domain_floors": {
+                        "ai-coding": {
+                            "principles": [
+                                {"id": "df-1", "check": "c1"},
+                                {"id": "df-2", "check": "c2"},
+                            ],
+                            "methods": [],
+                        }
+                    },
+                }
+            )
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Refactor database module"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    if "domain_floor" in parsed:
+                        assert len(parsed["domain_floor"]) == 2
+
+                    assert "relevant_principles" in parsed
+
+
 class TestTiersPrincipleIdValidation:
     """CI validation: all principle IDs in tiers.json must exist in the index."""
 
@@ -3847,6 +4176,19 @@ class TestTiersPrincipleIdValidation:
             mid = m.get("id")
             if mid and mid not in all_ids:
                 missing.append(mid)
+
+        # Validate domain floor IDs
+        for domain_name, domain_floor in tiers.get("domain_floors", {}).items():
+            if not isinstance(domain_floor, dict):
+                continue
+            for p in domain_floor.get("principles", []):
+                pid = p.get("id")
+                if pid and pid not in all_ids:
+                    missing.append(f"{pid} (domain_floor:{domain_name})")
+            for m in domain_floor.get("methods", []):
+                mid = m.get("id")
+                if mid and mid not in all_ids:
+                    missing.append(f"{mid} (domain_floor:{domain_name})")
 
         assert not missing, (
             f"tiers.json references IDs not in index: {missing}. "

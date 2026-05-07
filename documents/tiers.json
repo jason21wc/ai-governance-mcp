@@ -1,6 +1,6 @@
 {
   "_comment": "Tiered Governance Principle Activation — universal floor items prepended to every evaluate_governance response. Compact anti-pattern checks, not full principle text. See plan: Phase 1 of Tiered Principle Activation.",
-  "_version": "1.8.0",
+  "_version": "1.9.0",
   "_selection_criteria": "A principle belongs in the universal floor if and only if: (1) it is a constitutional principle (not domain-specific), (2) it applies to EVERY action type regardless of domain or context, and (3) failing to check it cannot be recovered by later retrieval — the check must happen before the action, not after. Exception: a domain-specific principle may be promoted when it meets criteria (2) and (3) and missing it is structurally irrecoverable (precedent: coding-quality-testing-integration, coding-process-design-architecture-supremacy). Situational principles (relevant only to certain action types, complexity levels, or phases) belong in retrieval, not the floor. Review this criteria when adding or removing floor items.",
   "universal_floor": {
     "principles": [
@@ -89,5 +89,21 @@
         "check": "Proportional rigor: Is your effort matched to the stakes of this task? Per rules-of-procedure §7.8 Progressive Application. Anticipatory work is valid even without observed harm — the stakes-match test is a sizing heuristic for HOW MUCH work, not a gate on WHETHER work is valid (BACKLOG.md philosophy block: 'Anticipatory items are valid'). Demanding 'concrete instance of harm' before validating proactive/preventive/improvement work misapplies the rule. Origin: BACKLOG #147 filed session-140."
       }
     ]
+  },
+  "domain_floors": {
+    "_selection_criteria": "A principle belongs in a domain floor if: (1) it is specific to that domain, (2) it applies to most actions within that domain, and (3) it is valuable enough to guarantee delivery when the domain is active, but does not meet the universal floor's irrecoverable-if-missed criterion. Domain floors activate when the domain is detected by the retrieval router.",
+    "ai-coding": {
+      "principles": [
+        {
+          "id": "coding-context-context-engineering-discipline",
+          "check": "Context hygiene: Are persistent context artifacts (CLAUDE.md, architecture docs, coding standards) current and structured, or drifting stale? (coding-context-context-engineering-discipline)"
+        },
+        {
+          "id": "coding-process-lifecycle-proportional-governance",
+          "check": "Lifecycle match: Is governance rigor proportional to the code's lifecycle stage (prototype vs production vs legacy)? (coding-process-lifecycle-proportional-governance)"
+        }
+      ],
+      "methods": []
+    }
   }
 }

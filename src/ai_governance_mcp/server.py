@@ -216,6 +216,45 @@ def _build_universal_floor(tiers_config: dict) -> list[dict]:
     return items
 
 
+def _build_domain_floor(tiers_config: dict, domains_detected: list[str]) -> list[dict]:
+    """Build domain-specific floor items activated by domain detection.
+
+    Returns items only for detected domains that have floor entries in tiers config.
+    """
+    domain_floors = tiers_config.get("domain_floors", {})
+    if not domain_floors:
+        return []
+
+    items: list[dict] = []
+    for domain_name in domains_detected:
+        floor = domain_floors.get(domain_name)
+        if not isinstance(floor, dict):
+            continue
+
+        for p in floor.get("principles", []):
+            items.append(
+                {
+                    "type": "domain_principle",
+                    "id": p.get("id"),
+                    "check": p.get("check", ""),
+                    "domain": domain_name,
+                }
+            )
+
+        for m in floor.get("methods", []):
+            item: dict = {
+                "type": "domain_method",
+                "id": m.get("id"),
+                "check": m.get("check", ""),
+                "domain": domain_name,
+            }
+            if m.get("ref"):
+                item["ref"] = m["ref"]
+            items.append(item)
+
+    return items
+
+
 def _validate_log_path(log_file: Path) -> None:
     """Validate log file path is within expected boundaries.
 
@@ -2943,6 +2982,10 @@ async def _handle_evaluate_governance(
     tiers_config = _load_tiers_config()
     if tiers_config:
         output["universal_floor"] = _build_universal_floor(tiers_config)
+        # Inject domain floor (Tier 1.5) — activated by domain detection
+        domain_floor = _build_domain_floor(tiers_config, result.domains_detected)
+        if domain_floor:
+            output["domain_floor"] = domain_floor
 
     # Record governance overhead metrics (thread-safe via lock)
     governance_time_ms = (time.time() - governance_start_time) * 1000
