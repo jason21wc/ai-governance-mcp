@@ -389,7 +389,7 @@ ai-governance-mcp/
 │   ├── agents/              # Installed subagents
 │   └── hooks/               # Enforcement hooks (PreToolUse, UserPromptSubmit, pre-push)
 ├── index/                   # Generated index + embeddings
-└── tests/                   # ~1300 tests across governance + context engine
+└── tests/                   # ~1500 tests across governance + context engine
 ```
 
 ## Dogfooding
