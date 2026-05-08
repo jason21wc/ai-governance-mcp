@@ -1555,6 +1555,136 @@ class TestGovernanceFileDetection:
         )
 
 
+class TestBypassAuditLog:
+    """All bypass envvars in pre-tool-governance-check.sh write to unified audit log."""
+
+    def test_governance_soft_mode_writes_audit(self, tmp_path):
+        transcript_path = create_transcript(
+            [make_tool_use_entry("mcp__context-engine__query_project")]
+        )
+        try:
+            hook_input = json.dumps({"transcript_path": transcript_path})
+            run_hook(
+                PRETOOL_HOOK,
+                hook_input,
+                env_overrides={
+                    "GOVERNANCE_SOFT_MODE": "true",
+                    "HOME": str(tmp_path),
+                },
+            )
+            log_file = tmp_path / ".claude" / "hook-bypass-audit.log"
+            assert log_file.exists(), (
+                "GOVERNANCE_SOFT_MODE should write to bypass audit log"
+            )
+            content = log_file.read_text()
+            assert "pre-tool-governance-check" in content
+            assert "GOVERNANCE_SOFT_MODE=true" in content
+        finally:
+            os.unlink(transcript_path)
+
+    def test_ce_soft_mode_writes_audit(self, tmp_path):
+        transcript_path = create_transcript(
+            [make_tool_use_entry("mcp__ai-governance__evaluate_governance")]
+        )
+        try:
+            hook_input = json.dumps({"transcript_path": transcript_path})
+            run_hook(
+                PRETOOL_HOOK,
+                hook_input,
+                env_overrides={
+                    "CE_SOFT_MODE": "true",
+                    "HOME": str(tmp_path),
+                },
+            )
+            log_file = tmp_path / ".claude" / "hook-bypass-audit.log"
+            assert log_file.exists(), "CE_SOFT_MODE should write to bypass audit log"
+            content = log_file.read_text()
+            assert "CE_SOFT_MODE=true" in content
+        finally:
+            os.unlink(transcript_path)
+
+    def test_quality_gate_skip_writes_audit(self, tmp_path):
+        quality_gate = PROJECT_DIR / ".claude" / "hooks" / "pre-push-quality-gate.sh"
+        hook_input = json.dumps(
+            {
+                "tool_input": {"command": "git push origin main"},
+            }
+        )
+        result = run_hook(
+            quality_gate,
+            hook_input,
+            env_overrides={
+                "QUALITY_GATE_SKIP": "true",
+                "HOME": str(tmp_path),
+            },
+        )
+        assert result.returncode == 0
+        log_file = tmp_path / ".claude" / "hook-bypass-audit.log"
+        assert log_file.exists(), "QUALITY_GATE_SKIP should write to bypass audit log"
+        content = log_file.read_text()
+        assert "pre-push-quality-gate" in content
+        assert "QUALITY_GATE_SKIP=true" in content
+
+    def test_content_security_skip_writes_audit(self, tmp_path):
+        content_security = (
+            PROJECT_DIR / ".claude" / "hooks" / "pre-tool-content-security.sh"
+        )
+        hook_input = json.dumps(
+            {
+                "tool_name": "Bash",
+                "tool_input": {"command": "cat ~/.ssh/id_rsa"},
+            }
+        )
+        result = run_hook(
+            content_security,
+            hook_input,
+            env_overrides={
+                "CONTENT_SECURITY_SKIP": "1",
+                "HOME": str(tmp_path),
+            },
+        )
+        assert result.returncode == 0
+        log_file = tmp_path / ".claude" / "hook-bypass-audit.log"
+        assert log_file.exists(), (
+            "CONTENT_SECURITY_SKIP should write to bypass audit log"
+        )
+        content = log_file.read_text()
+        assert "pre-tool-content-security" in content
+        assert "CONTENT_SECURITY_SKIP=1" in content
+
+    def test_audit_log_rotation(self, tmp_path):
+        """Unified bypass audit log rotates at 100KB."""
+        claude_dir = tmp_path / ".claude"
+        claude_dir.mkdir(parents=True)
+        log_file = claude_dir / "hook-bypass-audit.log"
+        filler_line = "x" * 59 + "\n"
+        log_file.write_text(filler_line * 2000)
+        initial_size = log_file.stat().st_size
+        assert initial_size > 100_000
+
+        content_security = (
+            PROJECT_DIR / ".claude" / "hooks" / "pre-tool-content-security.sh"
+        )
+        hook_input = json.dumps(
+            {
+                "tool_name": "Bash",
+                "tool_input": {"command": "cat ~/.ssh/id_rsa"},
+            }
+        )
+        run_hook(
+            content_security,
+            hook_input,
+            env_overrides={
+                "CONTENT_SECURITY_SKIP": "1",
+                "HOME": str(tmp_path),
+            },
+        )
+        final_size = log_file.stat().st_size
+        assert final_size < initial_size, (
+            f"log should have been rotated; initial={initial_size}, final={final_size}"
+        )
+
+
 class TestPromptHookValidJSON:
     """UserPromptSubmit hook always outputs valid JSON (or nothing)."""
 

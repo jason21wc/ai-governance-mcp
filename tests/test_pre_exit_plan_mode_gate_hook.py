@@ -344,6 +344,50 @@ class TestAuditLog:
             os.unlink(path)
 
 
+class TestUnifiedBypassAuditLog:
+    """Bypass envvars also write to the unified bypass audit log (~/.claude/hook-bypass-audit.log)."""
+
+    def test_semantic_bypass_writes_unified_audit(self, tmp_path):
+        path = create_transcript([make_exit_plan_entry()])
+        try:
+            run_hook(
+                path,
+                env_overrides={
+                    "PLAN_CONTRARIAN_CONFIRMED": "1",
+                    "HOME": str(tmp_path),
+                },
+            )
+            log_file = tmp_path / ".claude" / "hook-bypass-audit.log"
+            assert log_file.exists(), (
+                "semantic bypass should write to unified audit log"
+            )
+            content = log_file.read_text()
+            assert "pre-exit-plan-mode-gate" in content
+            assert "PLAN_CONTRARIAN_CONFIRMED=1" in content
+        finally:
+            os.unlink(path)
+
+    def test_structural_bypass_writes_unified_audit(self, tmp_path):
+        path = create_transcript([make_exit_plan_entry()])
+        try:
+            run_hook(
+                path,
+                env_overrides={
+                    "PLAN_CONTRARIAN_SKIP_HOOK": "1",
+                    "HOME": str(tmp_path),
+                },
+            )
+            log_file = tmp_path / ".claude" / "hook-bypass-audit.log"
+            assert log_file.exists(), (
+                "structural bypass should write to unified audit log"
+            )
+            content = log_file.read_text()
+            assert "pre-exit-plan-mode-gate" in content
+            assert "PLAN_CONTRARIAN_SKIP_HOOK=1" in content
+        finally:
+            os.unlink(path)
+
+
 class TestTimeoutBinaryFallback:
     """If neither `timeout` nor `gtimeout` is in PATH, hook logs a WARNING
     to stderr and runs scanner unguarded (graceful degradation per

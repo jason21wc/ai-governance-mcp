@@ -49,6 +49,7 @@ set -euo pipefail
 trap 'exit 2' ERR
 
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HOOK_DIR/lib/audit-bypass.sh"
 SCANNER="$HOOK_DIR/scan_transcript.py"
 DENY_LOG="${HOME}/.context-engine/plan-contrarian-denies.log"
 
@@ -140,17 +141,15 @@ debug "transcript_path=$TRANSCRIPT"
 # ---------------------------------------------------------------------------
 
 if [ "${PLAN_CONTRARIAN_CONFIRMED:-}" = "1" ]; then
-    # Semantic bypass: "I invoked contrarian; scanner missed it." Audit-logged symmetrically
-    # with structural bypass (per post-commit contrarian review) so usage-as-muscle-memory
-    # is visible in the same log.
     _audit_log "semantic-bypass"
+    audit_bypass "pre-exit-plan-mode-gate" "PLAN_CONTRARIAN_CONFIRMED=1" "semantic-bypass"
     echo "[plan-contrarian-gate] SEMANTIC BYPASS: PLAN_CONTRARIAN_CONFIRMED=1 (user confirmed contrarian invoked) — logged to $DENY_LOG" >&2
     emit_allow "semantic bypass"
 fi
 
 if [ "${PLAN_CONTRARIAN_SKIP_HOOK:-}" = "1" ]; then
-    # Structural bypass: hook itself is broken.
     _audit_log "structural-bypass"
+    audit_bypass "pre-exit-plan-mode-gate" "PLAN_CONTRARIAN_SKIP_HOOK=1" "structural-bypass"
     echo "[plan-contrarian-gate] STRUCTURAL BYPASS: PLAN_CONTRARIAN_SKIP_HOOK=1 — gate treated as broken, logged to $DENY_LOG" >&2
     emit_allow "structural bypass"
 fi

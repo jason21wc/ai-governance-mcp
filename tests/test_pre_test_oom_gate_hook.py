@@ -325,6 +325,38 @@ class TestBypassEnvVars:
         )
 
 
+class TestBypassAuditLog:
+    """OOM gate bypass envvars write to unified bypass audit log."""
+
+    def test_allow_heavy_writes_audit(self, tmp_path):
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        run_hook(
+            "pytest tests/",
+            env_overrides={"PYTEST_ALLOW_HEAVY": "1"},
+            base_dir_override=home,
+        )
+        log_file = home / ".claude" / "hook-bypass-audit.log"
+        assert log_file.exists(), "PYTEST_ALLOW_HEAVY should write to bypass audit log"
+        content = log_file.read_text()
+        assert "pre-test-oom-gate" in content
+        assert "PYTEST_ALLOW_HEAVY=1" in content
+
+    def test_skip_oom_gate_writes_audit(self, tmp_path):
+        home = make_fake_daemon_home(tmp_path, heartbeat_age_seconds=30)
+        run_hook(
+            "pytest tests/",
+            env_overrides={"PYTEST_SKIP_OOM_GATE": "1"},
+            base_dir_override=home,
+        )
+        log_file = home / ".claude" / "hook-bypass-audit.log"
+        assert log_file.exists(), (
+            "PYTEST_SKIP_OOM_GATE should write to bypass audit log"
+        )
+        content = log_file.read_text()
+        assert "pre-test-oom-gate" in content
+        assert "PYTEST_SKIP_OOM_GATE=1" in content
+
+
 class TestNonPytestCommandsAllow:
     """Case 8: non-pytest Bash commands should never match."""
 

@@ -29,6 +29,7 @@
 set -euo pipefail
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/lib/audit-bypass.sh"
 
 debug() {
   if [ "${QUALITY_GATE_DEBUG:-false}" = "true" ]; then
@@ -70,6 +71,7 @@ fi
 
 # Emergency skip
 if [ "${QUALITY_GATE_SKIP:-false}" = "true" ]; then
+    audit_bypass "pre-push-quality-gate" "QUALITY_GATE_SKIP=true" "emergency-skip"
     echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"⚠️ QUALITY GATE SKIPPED via QUALITY_GATE_SKIP=true"}}'
     exit 0
 fi
@@ -255,6 +257,9 @@ fi
 # in COMPLIANCE-REVIEW.md): "promote to BLOCK after first coherence-audit
 # finding flags WARN-mode pattern actually firing on real code." Bypass
 # via TDD_TEST_EXISTENCE_SKIP=1.
+if [ "${TDD_TEST_EXISTENCE_SKIP:-}" = "1" ] && [ -n "$NEW_SRC_FILES" ]; then
+    audit_bypass "pre-push-quality-gate" "TDD_TEST_EXISTENCE_SKIP=1" "advisory-skip"
+fi
 if [ "${TDD_TEST_EXISTENCE_SKIP:-}" != "1" ] && [ -n "$NEW_SRC_FILES" ]; then
     TDD_OUT=$(printf '%s\n' "$NEW_SRC_FILES" | python3 "$HOOK_DIR/scan_transcript.py" --tdd-test-existence - 2>/dev/null || echo "error")
     if [ "$TDD_OUT" = "warn" ]; then

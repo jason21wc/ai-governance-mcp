@@ -57,6 +57,9 @@ set -euo pipefail
 # SIGKILL / Hook Timeout" (2026-04-21).
 trap 'exit 2' ERR
 
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/lib/audit-bypass.sh"
+
 HEARTBEAT_PATH="${HOME}/.context-engine/watcher-heartbeat.json"
 DENY_LOG="${HOME}/.context-engine/oom-gate-denies.log"
 HEARTBEAT_MAX_AGE_SECONDS=300  # 5 minutes — matches _read_daemon_heartbeat semantics
@@ -122,12 +125,14 @@ debug "pytest command detected: $COMMAND"
 # AND the hook's own environment (`PYTEST_ALLOW_HEAVY=1` exported in shell).
 if [ "${PYTEST_SKIP_OOM_GATE:-}" = "1" ] || echo "$COMMAND" | grep -qE '(^|[[:space:]])PYTEST_SKIP_OOM_GATE=1[[:space:]]'; then
     debug "PYTEST_SKIP_OOM_GATE bypass triggered"
+    audit_bypass "pre-test-oom-gate" "PYTEST_SKIP_OOM_GATE=1" "structural-bypass"
     echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"⚠️ OOM gate STRUCTURALLY bypassed via PYTEST_SKIP_OOM_GATE=1. Use this only if the gate itself is broken. If you meant '"'"'I want the heavy suite,'"'"' use PYTEST_ALLOW_HEAVY=1 instead."}}'
     exit 0
 fi
 
 if [ "${PYTEST_ALLOW_HEAVY:-}" = "1" ] || echo "$COMMAND" | grep -qE '(^|[[:space:]])PYTEST_ALLOW_HEAVY=1[[:space:]]'; then
     debug "PYTEST_ALLOW_HEAVY bypass triggered"
+    audit_bypass "pre-test-oom-gate" "PYTEST_ALLOW_HEAVY=1" "semantic-bypass"
     echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"⚠️ OOM gate bypassed via PYTEST_ALLOW_HEAVY=1. Intentional heavy-suite run. Ensure no other Claude Code sessions or MCP processes are holding torch."}}'
     exit 0
 fi

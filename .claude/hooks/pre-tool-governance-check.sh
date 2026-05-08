@@ -24,6 +24,7 @@
 set -euo pipefail
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/lib/audit-bypass.sh"
 
 debug() {
   if [ "${GOVERNANCE_HOOK_DEBUG:-false}" = "true" ]; then
@@ -139,6 +140,13 @@ if [ "${GOVERNANCE_HARD_MODE:-}" = "false" ]; then
 fi
 if [ "${CE_HARD_MODE:-}" = "false" ]; then
   CE_SOFT="true"
+fi
+
+if [ "$GOV_SOFT" = "true" ]; then
+  audit_bypass "pre-tool-governance-check" "GOVERNANCE_SOFT_MODE=true" "soft-mode"
+fi
+if [ "$CE_SOFT" = "true" ]; then
+  audit_bypass "pre-tool-governance-check" "CE_SOFT_MODE=true" "soft-mode"
 fi
 
 # Handle missing/unreadable transcript

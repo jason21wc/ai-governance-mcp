@@ -19,6 +19,9 @@
 
 set -euo pipefail
 
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/lib/audit-bypass.sh"
+
 # Fail-closed: unhandled errors → exit 2 (deny)
 trap 'exit 2' ERR
 
@@ -47,6 +50,7 @@ fi
 # ---------------------------------------------------------------------------
 
 if [ "${CONTENT_SECURITY_SKIP:-}" = "1" ]; then
+    audit_bypass "pre-tool-content-security" "CONTENT_SECURITY_SKIP=1" "full-bypass"
     echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","additionalContext":"⚠️ Content security gate bypassed via CONTENT_SECURITY_SKIP=1. Credential path access allowed."}}'
     exit 0
 fi

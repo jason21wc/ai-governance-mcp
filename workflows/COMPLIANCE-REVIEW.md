@@ -465,7 +465,7 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 **In-band reminder mechanism (per post-ship contrarian battery, audit `a62e96c04a3f91721`):** The WARN message itself includes a pointer to V-008 ("if this WARN ever pre-figures a real bug, file the trigger event in V-008 row of `workflows/COMPLIANCE-REVIEW.md`") so the trigger isn't dependent on humans remembering this V-series exists. Same rationale as V-007 above — closes the human-memory failure mode in the event-driven trigger framing.
 
-**Bypass:** `TDD_TEST_EXISTENCE_SKIP=1` (un-audited; non-load-bearing while WARN-only).
+**Bypass:** `TDD_TEST_EXISTENCE_SKIP=1` (audit-logged via shared `audit_bypass()` helper as of session-153 / BACKLOG #135).
 
 **Baseline:** First WARN scan ships session-126 with this hook integration. No new src files in this commit (scanner self-test is in `tests/test_hooks.py::TestTddTestExistence`, not a real src addition).
 
@@ -473,6 +473,27 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 |---------|------|-------|:---:|:---:|-------|
 | 126 (baseline) | 2026-04-25 | 0 | 0 | N | First instrumentation. Scanner integration only; no src additions. |
 | | | | | | |
+
+---
+
+### [V-009] Bypass audit-log coverage — OPEN
+
+**Hypothesis:** All 9 hook bypass envvars write to the unified audit log (`~/.claude/hook-bypass-audit.log`) via the shared `audit_bypass()` helper.
+
+**Added:** 2026-05-07 (session-153, BACKLOG #135)
+**Confirm/Refute by:** First compliance review after session-153 (Review #8). Check: `grep -c audit_bypass .claude/hooks/*.sh` = 5 files (all hooks with bypass envvars). All 9 envvars covered by tests in `tests/test_hooks.py::TestBypassAuditLog`, `test_pre_exit_plan_mode_gate_hook.py::TestUnifiedBypassAuditLog`, `test_pre_test_oom_gate_hook.py::TestBypassAuditLog`, `test_content_security_hook.py::TestBypass::test_bypass_writes_audit_log`.
+
+**Process indicator:** All bypass envvar activations produce a line in `~/.claude/hook-bypass-audit.log` with format `TIMESTAMP HOOK_NAME ENVVAR REASON`.
+
+**Success:** 9/9 bypass envvars audit-logged (verified by test suite). No silent bypasses remain.
+**Failure:** Any bypass envvar that does not produce a log entry when activated.
+
+**Bypass envvar inventory (9 total across 5 hooks):**
+- `pre-push-quality-gate.sh`: QUALITY_GATE_SKIP, TDD_TEST_EXISTENCE_SKIP
+- `pre-test-oom-gate.sh`: PYTEST_SKIP_OOM_GATE, PYTEST_ALLOW_HEAVY
+- `pre-tool-content-security.sh`: CONTENT_SECURITY_SKIP
+- `pre-tool-governance-check.sh`: GOVERNANCE_SOFT_MODE, CE_SOFT_MODE
+- `pre-exit-plan-mode-gate.sh`: PLAN_CONTRARIAN_CONFIRMED, PLAN_CONTRARIAN_SKIP_HOOK
 
 ---
 

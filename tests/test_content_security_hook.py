@@ -247,6 +247,22 @@ class TestBypass:
         ctx = resp.get("hookSpecificOutput", {}).get("additionalContext", "")
         assert "bypass" in ctx.lower() or "CONTENT_SECURITY_SKIP" in ctx
 
+    def test_bypass_writes_audit_log(self, tmp_path) -> None:
+        run_hook(
+            "cat ~/.ssh/id_rsa",
+            env_overrides={
+                "CONTENT_SECURITY_SKIP": "1",
+                "HOME": str(tmp_path),
+            },
+        )
+        log_file = tmp_path / ".claude" / "hook-bypass-audit.log"
+        assert log_file.exists(), (
+            "CONTENT_SECURITY_SKIP should write to bypass audit log"
+        )
+        content = log_file.read_text()
+        assert "pre-tool-content-security" in content
+        assert "CONTENT_SECURITY_SKIP=1" in content
+
 
 # ---------------------------------------------------------------------------
 # Edge cases
