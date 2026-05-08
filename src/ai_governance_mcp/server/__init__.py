@@ -9,10 +9,8 @@ import os
 import re
 import signal
 import sys
-import threading
-import urllib.parse
 import time
-from collections import deque
+import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -23,9 +21,8 @@ from mcp.types import TextContent, Tool
 from .. import __version__
 from ..path_resolution import is_within_allowed_scope, looks_like_project
 from ..config import (
-    Settings,
-    _find_project_root,
-    ensure_directories,
+    Settings as Settings,
+    _find_project_root as _find_project_root,
     load_settings,
     setup_logging,
 )
@@ -39,7 +36,7 @@ from ..models import (
     GovernanceAssessment,
     GovernanceAuditLog,
     GovernanceReasoningLog,
-    Metrics,
+    Metrics as Metrics,
     QueryLog,
     ReasoningEntry,
     RelevantMethod,
@@ -54,541 +51,57 @@ from ._constants import (
     ADVISORY_SAFETY_KEYWORDS,
     AGENT_METADATA,
     AGENT_TEMPLATE_HASHES,
-    AUDIT_LOG_MAX_SIZE,
+    AUDIT_LOG_MAX_SIZE as AUDIT_LOG_MAX_SIZE,
     AVAILABLE_AGENTS,
     CRITICAL_SAFETY_KEYWORDS,
     GOVERNANCE_REMINDER,
-    MAX_LOG_CONTENT_LENGTH,
+    MAX_LOG_CONTENT_LENGTH as MAX_LOG_CONTENT_LENGTH,
     MAX_QUERY_LENGTH,
     MAX_RELEVANT_METHODS,
-    RATE_LIMIT_REFILL_RATE,
-    RATE_LIMIT_TOKENS,
+    RATE_LIMIT_TOKENS as RATE_LIMIT_TOKENS,
     SCAFFOLD_CORE_FILES,
     SCAFFOLD_STANDARD_EXTRAS,
-    SECRET_PATTERNS,
     SERVER_INSTRUCTIONS,
     SUBAGENT_EXPLANATION,
     _IMPERATIVE_ACTION_VERBS,
     _SAFE_CONTEXT_LEADERS,
     _SENTENCE_BOUNDARY,
 )
+from . import _state
+from ._logging import (
+    _audit_log as _audit_log,
+    _flush_all_logs,
+    _reasoning_log as _reasoning_log,
+    _validate_log_path as _validate_log_path,
+    _write_log_sync as _write_log_sync,
+    get_audit_log as get_audit_log,
+    get_reasoning_log as get_reasoning_log,
+    log_feedback_async,
+    log_feedback_entry as log_feedback_entry,
+    log_governance_audit as log_governance_audit,
+    log_governance_audit_async,
+    log_query as log_query,
+    log_query_async,
+    log_reasoning_async,
+    log_reasoning_sync as log_reasoning_sync,
+)
+from ._security import (
+    ServerInstructionsSecurityError as ServerInstructionsSecurityError,
+    _check_rate_limit,
+    _rate_limit_lock,
+    _sanitize_error_message,
+    _sanitize_for_logging,
+    _validate_server_instructions as _validate_server_instructions,
+)
+from ._state import (  # noqa: E402
+    _build_domain_floor,
+    _build_universal_floor,
+    _load_tiers_config,
+    get_engine,
+    get_metrics,
+)
 
 logger = setup_logging()
-
-
-class ServerInstructionsSecurityError(Exception):
-    """Raised when SERVER_INSTRUCTIONS contains suspicious patterns.
-
-    This is a critical security check - if SERVER_INSTRUCTIONS is compromised,
-    ALL AI clients consuming this server would be affected.
-    """
-
-    pass
-
-
-# Critical patterns that should NEVER appear in SERVER_INSTRUCTIONS
-# These patterns are more targeted than general document scanning because
-# SERVER_INSTRUCTIONS is a controlled, hand-written block.
-_CRITICAL_INSTRUCTION_PATTERNS = {
-    "prompt_injection": re.compile(
-        # Patterns must appear at start of sentence or after punctuation
-        r"(?:^|[.!?]\s+)ignore\s+(?:previous|prior|above)\s+instructions|"
-        r"(?:^|[.!?]\s+)you\s+are\s+now\s+|"
-        r"(?:^|[.!?]\s+)disregard\s+(?:all|previous)|"
-        r"(?:^|[.!?]\s+)forget\s+(?:everything|all|previous)|"
-        r"(?:^|\*\s+)new\s+instructions:",
-        re.IGNORECASE | re.MULTILINE,
-    ),
-    "hidden_instruction": re.compile(
-        r"<!--[^>]*(?:instruction|execute|ignore|override)[^>]*-->",
-        re.IGNORECASE,
-    ),
-}
-
-
-def _validate_server_instructions(instructions: str) -> None:
-    """Validate SERVER_INSTRUCTIONS contains no critical security patterns.
-
-    This is called at module load time to ensure the instruction block
-    that gets sent to ALL AI clients is clean.
-
-    Args:
-        instructions: The SERVER_INSTRUCTIONS string to validate
-
-    Raises:
-        ServerInstructionsSecurityError: If critical patterns are detected
-    """
-    for pattern_name, pattern in _CRITICAL_INSTRUCTION_PATTERNS.items():
-        matches = pattern.findall(instructions)
-        if matches:
-            raise ServerInstructionsSecurityError(
-                f"CRITICAL: SERVER_INSTRUCTIONS contains {pattern_name} pattern!\n"
-                f"Match: {matches[0][:50]}...\n"
-                f"This would compromise ALL AI clients. Blocking server start."
-            )
-
-
-# Global state
-_settings: Settings | None = None
-_engine: RetrievalEngine | None = None
-_metrics: Metrics | None = None
-_tiers_config: dict | None = None
-_tiers_loaded: bool = False
-
-
-def get_engine() -> RetrievalEngine:
-    """Get or create the retrieval engine."""
-    global _settings, _engine, _metrics
-    if _engine is None:
-        _settings = load_settings()
-        ensure_directories(_settings)
-        _engine = RetrievalEngine(_settings)
-        _metrics = Metrics()
-    return _engine
-
-
-def get_metrics() -> Metrics:
-    """Get metrics instance."""
-    global _metrics
-    if _metrics is None:
-        _metrics = Metrics()
-    return _metrics
-
-
-def _load_tiers_config() -> dict | None:
-    """Load tiers.json configuration for universal floor injection.
-
-    Returns the parsed config, or None if the file doesn't exist.
-    Cached in module-level _tiers_config after first load.
-    Uses _tiers_loaded flag to distinguish "never attempted" from "absent/failed".
-    """
-    global _tiers_config, _tiers_loaded
-    if _tiers_loaded:
-        return _tiers_config
-
-    # Look for tiers.json in documents directory
-    settings = _settings or load_settings()
-    tiers_path = settings.documents_path / "tiers.json"
-    if not tiers_path.exists():
-        logger.debug(
-            "tiers.json not found at %s — universal floor disabled", tiers_path
-        )
-        _tiers_loaded = True
-        return None
-
-    try:
-        with open(tiers_path) as f:
-            _tiers_config = json.load(f)
-        logger.info("Loaded tiers config from %s", tiers_path)
-        _tiers_loaded = True
-        return _tiers_config
-    except (json.JSONDecodeError, OSError) as e:
-        logger.warning("Failed to load tiers.json: %s", e)
-        _tiers_loaded = True
-        return None
-
-
-def _build_universal_floor(tiers_config: dict) -> list[dict]:
-    """Build compact floor items from tiers config (universal + behavioral).
-
-    Returns a list of check items in compact format:
-    {"type": "principle"|"method"|"subagent_check"|"behavioral", "id": str|null, "check": str}
-    """
-    floor_section = tiers_config.get("universal_floor", {})
-    items: list[dict] = []
-
-    for p in floor_section.get("principles", []):
-        items.append(
-            {
-                "type": "principle",
-                "id": p.get("id"),
-                "check": p.get("check", ""),
-            }
-        )
-
-    for m in floor_section.get("methods", []):
-        items.append(
-            {
-                "type": "method",
-                "ref": m.get("ref"),
-                "id": m.get("id"),
-                "check": m.get("check", ""),
-            }
-        )
-
-    subagent = floor_section.get("subagent_check")
-    if subagent:
-        items.append(
-            {
-                "type": "subagent_check",
-                "check": subagent.get("check", ""),
-            }
-        )
-
-    # Behavioral floor — interaction-style directives (additive reinforcement)
-    behavioral = tiers_config.get("behavioral_floor", {})
-    for d in behavioral.get("directives", []):
-        items.append(
-            {
-                "type": "behavioral",
-                "id": d.get("id"),
-                "check": d.get("check", ""),
-            }
-        )
-
-    return items
-
-
-def _build_domain_floor(tiers_config: dict, domains_detected: list[str]) -> list[dict]:
-    """Build domain-specific floor items activated by domain detection.
-
-    Returns items only for detected domains that have floor entries in tiers config.
-    """
-    domain_floors = tiers_config.get("domain_floors", {})
-    if not domain_floors:
-        return []
-
-    items: list[dict] = []
-    for domain_name in domains_detected:
-        floor = domain_floors.get(domain_name)
-        if not isinstance(floor, dict):
-            continue
-
-        for p in floor.get("principles", []):
-            items.append(
-                {
-                    "type": "domain_principle",
-                    "id": p.get("id"),
-                    "check": p.get("check", ""),
-                    "domain": domain_name,
-                }
-            )
-
-        for m in floor.get("methods", []):
-            item: dict = {
-                "type": "domain_method",
-                "id": m.get("id"),
-                "check": m.get("check", ""),
-                "domain": domain_name,
-            }
-            if m.get("ref"):
-                item["ref"] = m["ref"]
-            items.append(item)
-
-    return items
-
-
-def _validate_log_path(log_file: Path) -> None:
-    """Validate log file path is within expected boundaries.
-
-    M1 FIX: Prevents arbitrary file writes via manipulated log path env vars.
-
-    Args:
-        log_file: The log file path to validate.
-
-    Raises:
-        ValueError: If path contains traversal sequences or is outside expected bounds.
-    """
-    import tempfile
-
-    # Check for path traversal sequences in the raw path string
-    path_str = str(log_file)
-    if ".." in path_str:
-        raise ValueError("Path traversal sequence detected in log path")
-
-    # Resolve to absolute path for containment check
-    resolved = log_file.resolve()
-
-    # Log files must be within project root, CWD, user home, or system temp directory
-    # (covers default logs/ dir, user-configured paths, Docker /app, and test environments)
-    project_root = _find_project_root().resolve()
-    cwd = Path.cwd().resolve()
-    home_dir = Path.home().resolve()
-    temp_dir = Path(tempfile.gettempdir()).resolve()
-
-    is_in_project = resolved.is_relative_to(project_root)
-    is_in_cwd = resolved.is_relative_to(cwd)
-    is_in_home = resolved.is_relative_to(home_dir)
-    is_in_temp = resolved.is_relative_to(temp_dir)
-
-    if not (is_in_project or is_in_cwd or is_in_home or is_in_temp):
-        raise ValueError(
-            f"Log path must be within project root, CWD, home, or temp directory: {resolved}"
-        )
-
-
-def _rotate_jsonl_if_needed(log_file: Path, max_bytes: int, backup_count: int) -> None:
-    """Rotate JSONL log file if it exceeds max_bytes. Fail-safe: rotation
-    errors fall back to unbounded append rather than crashing the write path."""
-    if max_bytes <= 0:
-        return
-    try:
-        if not log_file.exists() or log_file.stat().st_size < max_bytes:
-            return
-        for i in range(backup_count - 1, 0, -1):
-            src = log_file.with_suffix(f".jsonl.{i}")
-            dst = log_file.with_suffix(f".jsonl.{i + 1}")
-            if src.exists():
-                src.rename(dst)
-        log_file.rename(log_file.with_suffix(".jsonl.1"))
-    except OSError:
-        pass
-
-
-def _write_log_sync(log_file: Path, content: str) -> None:
-    """Synchronous log write helper for use with asyncio.to_thread.
-
-    H2 FIX: Isolated sync function enables non-blocking async wrapper.
-    M1 FIX: Validates path before writing.
-    """
-    _validate_log_path(log_file)  # M1 FIX: Path containment check
-    if _settings:
-        _rotate_jsonl_if_needed(
-            log_file, _settings.log_max_bytes, _settings.log_backup_count
-        )
-    fd = os.open(log_file, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
-    with os.fdopen(fd, "a") as f:
-        f.write(content)
-        f.flush()  # H3 FIX: Explicit flush reduces data loss on shutdown
-        os.fsync(f.fileno())  # Ensure OS buffers are written to disk
-
-
-async def log_query_async(query_log: QueryLog) -> None:
-    """Log query for analytics (async, non-blocking).
-
-    H2 FIX: Uses asyncio.to_thread to avoid blocking the event loop.
-    """
-    global _settings
-    if _settings:
-        log_file = _settings.logs_path / "queries.jsonl"
-        content = query_log.model_dump_json() + "\n"
-        await asyncio.to_thread(_write_log_sync, log_file, content)
-
-
-def log_query(query_log: QueryLog) -> None:
-    """Log query for analytics (sync fallback for non-async contexts)."""
-    global _settings
-    if _settings:
-        log_file = _settings.logs_path / "queries.jsonl"
-        _write_log_sync(log_file, query_log.model_dump_json() + "\n")
-
-
-async def log_feedback_async(feedback: Feedback) -> None:
-    """Log feedback for future improvement (async, non-blocking).
-
-    H2 FIX: Uses asyncio.to_thread to avoid blocking the event loop.
-    """
-    global _settings
-    if _settings:
-        log_file = _settings.logs_path / "feedback.jsonl"
-        content = feedback.model_dump_json() + "\n"
-        await asyncio.to_thread(_write_log_sync, log_file, content)
-
-
-def log_feedback_entry(feedback: Feedback) -> None:
-    """Log feedback for future improvement (sync fallback)."""
-    global _settings
-    if _settings:
-        log_file = _settings.logs_path / "feedback.jsonl"
-        _write_log_sync(log_file, feedback.model_dump_json() + "\n")
-
-
-_rate_limit_tokens = RATE_LIMIT_TOKENS
-_rate_limit_last_refill = time.time()
-_rate_limit_lock = threading.Lock()
-
-
-def _check_rate_limit() -> bool:
-    """Check if request is within rate limit using token bucket algorithm.
-
-    H4 FIX: Prevents DoS by limiting request rate.
-    Thread-safe via _rate_limit_lock (defense-in-depth for run_in_executor).
-
-    Returns:
-        True if request is allowed, False if rate limited.
-    """
-    global _rate_limit_tokens, _rate_limit_last_refill
-
-    with _rate_limit_lock:
-        now = time.time()
-        elapsed = now - _rate_limit_last_refill
-        _rate_limit_last_refill = now
-
-        # Refill tokens based on elapsed time
-        _rate_limit_tokens = min(
-            RATE_LIMIT_TOKENS, _rate_limit_tokens + (elapsed * RATE_LIMIT_REFILL_RATE)
-        )
-
-        # Check if we have tokens available
-        if _rate_limit_tokens >= 1:
-            _rate_limit_tokens -= 1
-            return True
-        return False
-
-
-def _sanitize_for_logging(content: str) -> str:
-    """Sanitize content before logging to prevent sensitive data exposure.
-
-    M1 FIX: Truncates long content.
-    M4 FIX: Redacts potential secrets.
-
-    Args:
-        content: The content to sanitize.
-
-    Returns:
-        Sanitized content safe for logging.
-    """
-    if not content:
-        return content
-
-    # M4: Redact potential secrets
-    sanitized = content
-    for pattern, replacement in SECRET_PATTERNS:
-        sanitized = pattern.sub(replacement, sanitized)
-
-    # M1: Truncate if too long
-    if len(sanitized) > MAX_LOG_CONTENT_LENGTH:
-        sanitized = sanitized[:MAX_LOG_CONTENT_LENGTH] + "...[TRUNCATED]"
-
-    return sanitized
-
-
-def _sanitize_error_message(error: Exception) -> str:
-    """Sanitize error message to prevent information leakage.
-
-    M6 FIX: Removes internal paths and sensitive information from error messages.
-    M3 FIX: More aggressive sanitization for production deployments.
-
-    Args:
-        error: The exception to sanitize.
-
-    Returns:
-        Sanitized error message safe for external display.
-    """
-    message = str(error)
-
-    # Remove absolute paths (keep only filename)
-    # Pattern matches /path/to/file.py or C:\path\to\file.py
-    message = re.sub(
-        r'(?:[A-Za-z]:)?(?:[/\\][^/\\:*?"<>|\s]+)+[/\\]([^/\\:*?"<>|\s]+)',
-        r"\1",
-        message,
-    )
-
-    # Remove line numbers from tracebacks
-    message = re.sub(r", line \d+", "", message)
-
-    # Remove memory addresses
-    message = re.sub(r"0x[0-9a-fA-F]+", "0x***", message)
-
-    # M3 FIX: Additional sanitization patterns
-
-    # Remove Python module paths (e.g., "foo.bar.baz.function")
-    message = re.sub(r"\b[A-Za-z_]\w*(?:\.[A-Za-z_]\w*){2,}\b", "[module]", message)
-
-    # Remove function references in tracebacks (e.g., "in function_name")
-    message = re.sub(r"\bin\s+\w+\s*\(", "in [func](", message)
-
-    # Remove stack frame references (e.g., "File 'filename.py'" in tracebacks)
-    # Only match when quotes are present (traceback format), not general "File" usage
-    message = re.sub(r'File\s+["\'][^"\']+["\']', "File [redacted]", message)
-
-    # Remove internal exception chains
-    message = re.sub(
-        r"(?:During handling of|The above exception was)",
-        "[exception chain]",
-        message,
-    )
-
-    # Truncate very long messages (could contain embedded data)
-    max_error_length = 500
-    if len(message) > max_error_length:
-        message = message[:max_error_length] + "...[truncated]"
-
-    return message
-
-
-# Governance audit log storage (in-memory for verification lookups)
-# Per §4.6 Governance Enforcement Architecture: enables post-action verification
-# C1 FIX: Bounded deque prevents unbounded memory growth in long sessions
-
-_audit_log: deque[GovernanceAuditLog] = deque(maxlen=AUDIT_LOG_MAX_SIZE)
-
-
-async def log_governance_audit_async(audit_entry: GovernanceAuditLog) -> None:
-    """Log governance assessment for audit trail (async, non-blocking).
-
-    Per §4.6 Audit Trail Requirements: Every evaluate_governance() call
-    generates an audit record for pattern analysis and bypass detection.
-
-    H2 FIX: Uses asyncio.to_thread to avoid blocking the event loop.
-    """
-    global _settings, _audit_log
-
-    # Keep in-memory for verification lookups
-    _audit_log.append(audit_entry)
-
-    # Persist to file (non-blocking)
-    if _settings:
-        log_file = _settings.logs_path / "governance_audit.jsonl"
-        content = audit_entry.model_dump_json() + "\n"
-        await asyncio.to_thread(_write_log_sync, log_file, content)
-
-
-def log_governance_audit(audit_entry: GovernanceAuditLog) -> None:
-    """Log governance assessment for audit trail (sync fallback)."""
-    global _settings, _audit_log
-
-    # Keep in-memory for verification lookups
-    _audit_log.append(audit_entry)
-
-    # Persist to file
-    if _settings:
-        log_file = _settings.logs_path / "governance_audit.jsonl"
-        _write_log_sync(log_file, audit_entry.model_dump_json() + "\n")
-
-
-def get_audit_log() -> list[GovernanceAuditLog]:
-    """Get the in-memory audit log for verification."""
-    return list(_audit_log)
-
-
-# Governance reasoning log storage (linked to audit entries by audit_id)
-# Part of Governance Reasoning Externalization feature
-_reasoning_log: deque[GovernanceReasoningLog] = deque(maxlen=AUDIT_LOG_MAX_SIZE)
-
-
-async def log_reasoning_async(entry: GovernanceReasoningLog) -> None:
-    """Log governance reasoning trace asynchronously.
-
-    Links to existing audit entry via audit_id.
-    Part of Governance Reasoning Externalization feature.
-    """
-    global _reasoning_log, _settings
-    _reasoning_log.append(entry)
-    logger.debug("Logged reasoning for audit %s", entry.audit_id)
-
-    # Persist to file (non-blocking)
-    if _settings:
-        log_file = _settings.logs_path / "governance_reasoning.jsonl"
-        content = entry.model_dump_json() + "\n"
-        await asyncio.to_thread(_write_log_sync, log_file, content)
-
-
-def log_reasoning_sync(entry: GovernanceReasoningLog) -> None:
-    """Log governance reasoning trace synchronously (fallback)."""
-    global _reasoning_log, _settings
-    _reasoning_log.append(entry)
-
-    if _settings:
-        log_file = _settings.logs_path / "governance_reasoning.jsonl"
-        _write_log_sync(log_file, entry.model_dump_json() + "\n")
-
-
-def get_reasoning_log() -> list[GovernanceReasoningLog]:
-    """Get the in-memory reasoning log for inspection."""
-    return list(_reasoning_log)
-
 
 _validate_server_instructions(SERVER_INSTRUCTIONS)
 
@@ -833,11 +346,10 @@ def _get_agent_template_path(agent_name: str) -> Path | None:
 
     Agent templates are stored in documents/agents/ within the package.
     """
-    global _settings
-    if _settings is None:
-        _settings = load_settings()
+    if _state._settings is None:
+        _state._settings = load_settings()
 
-    template_path = _settings.documents_path / "agents" / f"{agent_name}.md"
+    template_path = _state._settings.documents_path / "agents" / f"{agent_name}.md"
     if template_path.is_file():
         return template_path
     return None
@@ -3180,7 +2692,7 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
     # Build file path — use settings-derived path (same as extractor),
     # not CWD or _find_project_root() directly. Settings respects
     # AI_GOVERNANCE_DOCUMENTS_PATH env var overrides.
-    settings = _settings or load_settings()
+    settings = _state._settings or load_settings()
     project_root = settings.documents_path.parent.resolve()
     ref_dir = project_root / "reference-library" / domain
     file_path = (ref_dir / f"{entry_id}.md").resolve()
@@ -3320,31 +2832,6 @@ async def _handle_capture_reference(args: dict) -> list[TextContent]:
     return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 
-def _flush_all_logs() -> None:
-    """Flush all log files to ensure data is persisted before exit.
-
-    H3 FIX: Called before os._exit() to reduce data loss on shutdown.
-    """
-    global _settings
-    if _settings:
-        log_files = [
-            "queries.jsonl",
-            "feedback.jsonl",
-            "governance_audit.jsonl",
-            "governance_reasoning.jsonl",
-        ]
-        for log_name in log_files:
-            log_file = _settings.logs_path / log_name
-            try:
-                if log_file.exists():
-                    # Open and close with flush to ensure OS buffers are written
-                    with open(log_file, "a") as f:
-                        f.flush()
-                        os.fsync(f.fileno())
-            except Exception as e:
-                logger.warning(f"Failed to flush {log_name}: {e}")
-
-
 async def run_server():
     """Run the MCP server with graceful shutdown handling."""
 
@@ -3354,10 +2841,10 @@ async def run_server():
     get_engine()
 
     # Log resolved paths to help users verify configuration
-    if _settings:
-        logger.info(f"Documents path: {_settings.documents_path}")
-        logger.info(f"Index path: {_settings.index_path}")
-        index_file = _settings.index_path / "global_index.json"
+    if _state._settings:
+        logger.info(f"Documents path: {_state._settings.documents_path}")
+        logger.info(f"Index path: {_state._settings.index_path}")
+        index_file = _state._settings.index_path / "global_index.json"
         if index_file.exists():
             logger.info(f"Index loaded: {index_file}")
         else:

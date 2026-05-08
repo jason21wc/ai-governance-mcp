@@ -127,7 +127,7 @@ class TestLogQuery:
         """log_query() should append QueryLog as JSONL."""
         import ai_governance_mcp.server as server_module
 
-        server_module._settings = test_settings
+        server_module._state._settings = test_settings
 
         from ai_governance_mcp.server import log_query
 
@@ -149,7 +149,7 @@ class TestLogQuery:
         """log_query() should append multiple entries."""
         import ai_governance_mcp.server as server_module
 
-        server_module._settings = test_settings
+        server_module._state._settings = test_settings
 
         from ai_governance_mcp.server import log_query
 
@@ -166,7 +166,7 @@ class TestLogQuery:
         from ai_governance_mcp.server import log_query
         from ai_governance_mcp.models import QueryLog
 
-        server_module._settings = None
+        server_module._state._settings = None
 
         query_log = QueryLog(
             timestamp=datetime.now(timezone.utc).isoformat(),
@@ -189,7 +189,7 @@ class TestJsonlLogRotation:
 
         test_settings.log_max_bytes = 500
         test_settings.log_backup_count = 3
-        server_module._settings = test_settings
+        server_module._state._settings = test_settings
 
         from ai_governance_mcp.server import log_query
 
@@ -210,7 +210,7 @@ class TestJsonlLogRotation:
 
         test_settings.log_max_bytes = 500
         test_settings.log_backup_count = 2
-        server_module._settings = test_settings
+        server_module._state._settings = test_settings
 
         from ai_governance_mcp.server import log_query
 
@@ -232,7 +232,7 @@ class TestJsonlLogRotation:
         import ai_governance_mcp.server as server_module
 
         test_settings.log_max_bytes = 0
-        server_module._settings = test_settings
+        server_module._state._settings = test_settings
 
         from ai_governance_mcp.server import log_query
 
@@ -254,7 +254,7 @@ class TestLogFeedbackEntry:
         """log_feedback_entry() should append Feedback as JSONL."""
         import ai_governance_mcp.server as server_module
 
-        server_module._settings = test_settings
+        server_module._state._settings = test_settings
 
         from ai_governance_mcp.server import log_feedback_entry
 
@@ -274,7 +274,7 @@ class TestLogFeedbackEntry:
         import ai_governance_mcp.server as server_module
         from ai_governance_mcp.server import log_feedback_entry
 
-        server_module._settings = None
+        server_module._state._settings = None
 
         # Should not raise
         log_feedback_entry(sample_feedback)
@@ -324,8 +324,8 @@ class TestHandleQueryGovernance:
         """query_governance should update metrics after query."""
         import ai_governance_mcp.server as server_module
 
-        server_module._settings = test_settings
-        server_module._metrics = None
+        server_module._state._settings = test_settings
+        server_module._state._metrics = None
 
         from ai_governance_mcp.server import _handle_query_governance, get_metrics
 
@@ -345,8 +345,8 @@ class TestHandleQueryGovernance:
         """query_governance should increment s_series_trigger_count when triggered."""
         import ai_governance_mcp.server as server_module
 
-        server_module._settings = test_settings
-        server_module._metrics = None
+        server_module._state._settings = test_settings
+        server_module._state._metrics = None
 
         from ai_governance_mcp.server import _handle_query_governance, get_metrics
 
@@ -367,8 +367,8 @@ class TestHandleQueryGovernance:
         """query_governance should log query to file."""
         import ai_governance_mcp.server as server_module
 
-        server_module._settings = test_settings
-        server_module._metrics = None
+        server_module._state._settings = test_settings
+        server_module._state._metrics = None
 
         from ai_governance_mcp.server import _handle_query_governance
 
@@ -603,8 +603,8 @@ class TestHandleLogFeedback:
         """log_feedback should log and update metrics."""
         import ai_governance_mcp.server as server_module
 
-        server_module._settings = test_settings
-        server_module._metrics = None
+        server_module._state._settings = test_settings
+        server_module._state._metrics = None
 
         from ai_governance_mcp.server import _handle_log_feedback, get_metrics
 
@@ -680,8 +680,8 @@ class TestHandleLogFeedback:
         """log_feedback should calculate rolling average rating."""
         import ai_governance_mcp.server as server_module
 
-        server_module._settings = test_settings
-        server_module._metrics = None
+        server_module._state._settings = test_settings
+        server_module._state._metrics = None
 
         from ai_governance_mcp.server import _handle_log_feedback, get_metrics
 
@@ -736,7 +736,7 @@ class TestHandleGetMetrics:
             feedback_count=10,
             avg_feedback_rating=4.2,
         )
-        server_module._metrics = metrics
+        server_module._state._metrics = metrics
 
         from ai_governance_mcp.server import _handle_get_metrics
 
@@ -1779,9 +1779,9 @@ class TestGovernanceAuditLog:
         """Reset audit log before each test."""
         from ai_governance_mcp import server
 
-        server._audit_log = []
+        server._audit_log.clear()
         yield
-        server._audit_log = []
+        server._audit_log.clear()
 
     @pytest.mark.asyncio
     async def test_evaluate_governance_logs_audit(
@@ -1858,9 +1858,9 @@ class TestVerifyGovernanceCompliance:
         """Reset audit log before each test."""
         from ai_governance_mcp import server
 
-        server._audit_log = []
+        server._audit_log.clear()
         yield
-        server._audit_log = []
+        server._audit_log.clear()
 
     @pytest.mark.asyncio
     async def test_verify_returns_non_compliant_when_no_audit(
@@ -2126,7 +2126,7 @@ class TestInstallAgent:
         monkeypatch.chdir(tmp_path)
 
         # Set up settings to point to real documents path (has agent templates)
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {"agent_name": "orchestrator"}
@@ -2153,7 +2153,7 @@ class TestInstallAgent:
         monkeypatch.chdir(tmp_path)
 
         # Set up settings to point to real documents path
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {"agent_name": "orchestrator", "show_manual": True}
@@ -2183,7 +2183,7 @@ class TestInstallAgent:
         monkeypatch.chdir(tmp_path)
 
         # Set up settings to point to real documents path
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {"agent_name": "orchestrator", "confirmed": True}
@@ -2482,7 +2482,7 @@ class TestInstallAgentProjectPath:
 
         self._set_no_roots(monkeypatch)
         monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {
@@ -2559,7 +2559,7 @@ class TestInstallAgentProjectPath:
 
         self._set_no_roots(monkeypatch)
         monkeypatch.delenv("AI_GOVERNANCE_MCP_PROJECT", raising=False)
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {"agent_name": "orchestrator", "confirmed": True}
@@ -2622,7 +2622,7 @@ class TestRateLimiting:
         # Reset rate limiter
         import ai_governance_mcp.server as server_module
 
-        server_module._rate_limit_tokens = server_module.RATE_LIMIT_TOKENS
+        server_module._security._rate_limit_tokens = server_module.RATE_LIMIT_TOKENS
 
         assert _check_rate_limit() is True
 
@@ -2635,12 +2635,12 @@ class TestRateLimiting:
         from ai_governance_mcp.server import _check_rate_limit
 
         # Exhaust the token bucket
-        server_module._rate_limit_tokens = 1
+        server_module._security._rate_limit_tokens = 1
         assert _check_rate_limit() is True  # Uses last token
         assert _check_rate_limit() is False  # No tokens left
 
         # Reset for other tests
-        server_module._rate_limit_tokens = server_module.RATE_LIMIT_TOKENS
+        server_module._security._rate_limit_tokens = server_module.RATE_LIMIT_TOKENS
 
 
 class TestSecretsDetection:
@@ -2848,7 +2848,7 @@ class TestAgentOverwriteWarning:
         existing_file.write_text("# Old custom content\nThis is different.")
 
         monkeypatch.chdir(tmp_path)
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {"agent_name": "orchestrator"}
@@ -2882,7 +2882,7 @@ class TestAgentOverwriteWarning:
         existing_file.write_text(template_content)
 
         monkeypatch.chdir(tmp_path)
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {"agent_name": "orchestrator"}
@@ -2907,7 +2907,7 @@ class TestAgentOverwriteWarning:
         claude_dir.mkdir()
 
         monkeypatch.chdir(tmp_path)
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {"agent_name": "orchestrator"}
@@ -3374,7 +3374,7 @@ class TestMultiAgentConsistency:
         (tmp_path / ".git").mkdir()
         monkeypatch.chdir(tmp_path)
         # But need settings so template path resolves
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {"agent_name": "code-reviewer"}
@@ -3399,7 +3399,7 @@ class TestMultiAgentConsistency:
         claude_dir = tmp_path / ".claude"
         claude_dir.mkdir()
         monkeypatch.chdir(tmp_path)
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {"agent_name": "security-auditor"}
@@ -3426,7 +3426,7 @@ class TestMultiAgentConsistency:
         claude_dir = tmp_path / ".claude"
         claude_dir.mkdir()
         monkeypatch.chdir(tmp_path)
-        monkeypatch.setattr(server_module, "_settings", real_settings)
+        monkeypatch.setattr(server_module._state, "_settings", real_settings)
 
         result = await server_module._handle_install_agent(
             {"agent_name": "code-reviewer", "confirmed": True}
@@ -3536,8 +3536,8 @@ class TestTiersConfig:
             )
         )
 
-        srv._settings = test_settings
-        srv._tiers_config = None  # Reset cache
+        srv._state._settings = test_settings
+        srv._state._tiers_config = None  # Reset cache
 
         config = srv._load_tiers_config()
         assert config is not None
@@ -3548,8 +3548,8 @@ class TestTiersConfig:
         """Should return None when tiers.json doesn't exist."""
         import ai_governance_mcp.server as srv
 
-        srv._settings = test_settings
-        srv._tiers_config = None
+        srv._state._settings = test_settings
+        srv._state._tiers_config = None
 
         config = srv._load_tiers_config()
         assert config is None
@@ -3561,8 +3561,8 @@ class TestTiersConfig:
         tiers_path = test_settings.documents_path / "tiers.json"
         tiers_path.write_text(json.dumps({"universal_floor": {"principles": []}}))
 
-        srv._settings = test_settings
-        srv._tiers_config = None
+        srv._state._settings = test_settings
+        srv._state._tiers_config = None
 
         config1 = srv._load_tiers_config()
         config2 = srv._load_tiers_config()
@@ -3575,8 +3575,8 @@ class TestTiersConfig:
         tiers_path = test_settings.documents_path / "tiers.json"
         tiers_path.write_text("not valid json{{{")
 
-        srv._settings = test_settings
-        srv._tiers_config = None
+        srv._state._settings = test_settings
+        srv._state._tiers_config = None
 
         config = srv._load_tiers_config()
         assert config is None
