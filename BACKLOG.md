@@ -67,6 +67,42 @@
 
 ---
 
+#### 155. M-001 investigation — zero PROCEED_WITH_MODIFICATIONS `D2 Discussion`
+
+**Filed:** 2026-05-08 (session-154, feedback loop analysis finding).
+
+**What.** M-001 shows 845 PROCEED, 179 ESCALATE, 0 PROCEED_WITH_MODIFICATIONS across 1024 evaluations. Governance is binary — either nothing triggers or safety trips ESCALATE. Non-safety principles (quality, process, collaboration) are retrieved but never change behavior. Two hypotheses: (1) the evaluation template doesn't make it easy to express "proceed but adjust X," or (2) non-safety principles genuinely don't apply to the actions being evaluated.
+
+**Investigation.** Sample 10-20 audit+reasoning entry pairs where non-safety principles were retrieved with medium/high confidence but the outcome was PROCEED. Check whether any should have been PROCEED_WITH_MODIFICATIONS.
+
+**Done when.** Root cause identified. Either the evaluation template needs adjustment (D1 fix), or the behavior is expected and this item closes with documentation.
+
+---
+
+#### 156. Retrieval gap — "project initialization" and "validation before action" `D1 Improvement`
+
+**Filed:** 2026-05-08 (session-154, feedback loop analysis finding).
+
+**What.** Two query patterns consistently return low confidence: "project initialization" (4 occurrences, avg 0.20) and "which principle governs validation before action?" (9 occurrences, avg 0.20). These are legitimate governance queries that existing principles cover but the retrieval engine can't match.
+
+**Fix.** Add keywords to existing principles that cover these concepts. `scaffold_project` relates to project initialization; `meta-quality-verification-validation` or `coding-process-validation-gates` relates to validation before action. Keyword updates in the document frontmatter.
+
+**Done when.** Re-running the queries returns medium or high confidence results.
+
+---
+
+#### 157. feedback.jsonl workflow integration — log_feedback never called `D1 Improvement`
+
+**Filed:** 2026-05-08 (session-154, feedback loop analysis finding).
+
+**What.** The `log_feedback` MCP tool exists but has never been called (0 entries in feedback.jsonl). Feedback-dependent analyses in `analyze_feedback_loop` report `insufficient_data`. The tool exists; no workflow prompts its use.
+
+**Fix options.** (1) Add a "rate this result" step to compliance review workflow. (2) Add session-end protocol step to log feedback on governance evaluations that influenced decisions. (3) Integrate into the governance hook — after PROCEED_WITH_MODIFICATIONS or ESCALATE, prompt for feedback. Option 1 is lowest friction.
+
+**Done when.** feedback.jsonl accumulates entries organically through normal workflow usage.
+
+---
+
 #### 150. Semantic-retrieval false-positive — `meta-safety-transparent-limitations` matches housekeeping actions `D2 Discussion`
 
 **Filed:** 2026-05-01 (session-142, carrying forward diagnostic notes from BACKLOG #129 close).
