@@ -44,6 +44,29 @@ class TestEnums:
         assert ConfidenceLevel.LOW == "low"
 
 
+class TestAssessmentStatusReview:
+    """Tests for AssessmentStatus.REVIEW enum member (#155)."""
+
+    def test_review_enum_exists(self):
+        """AssessmentStatus should have REVIEW member with value 'REVIEW'."""
+        assert AssessmentStatus.REVIEW == "REVIEW"
+        assert AssessmentStatus.REVIEW.value == "REVIEW"
+
+    def test_pwm_enum_removed(self):
+        """PROCEED_WITH_MODIFICATIONS should no longer exist."""
+        assert not hasattr(AssessmentStatus, "PROCEED_WITH_MODIFICATIONS")
+
+    def test_review_count_in_overhead_metrics(self):
+        """GovernanceOverheadMetrics should have review_count field."""
+        from ai_governance_mcp.models import GovernanceOverheadMetrics
+
+        metrics = GovernanceOverheadMetrics()
+        assert hasattr(metrics, "review_count")
+        assert metrics.review_count == 0
+        metrics.record_evaluation(10.0, "REVIEW")
+        assert metrics.review_count == 1
+
+
 class TestPrincipleMetadata:
     """Test PrincipleMetadata model."""
 
@@ -767,7 +790,7 @@ class TestGovernanceReasoningLog:
                     reasoning="Added validation.",
                 )
             ],
-            final_decision="PROCEED_WITH_MODIFICATIONS",
+            final_decision="REVIEW",
             modifications_applied=[
                 "Added input length validation",
                 "Sanitized user input",

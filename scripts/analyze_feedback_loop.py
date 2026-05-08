@@ -81,19 +81,37 @@ CONFIDENCE_SCORES = {"high": 1.0, "medium": 0.5, "low": 0.2}
 def compute_m001_influence_rate(audit_entries: list[dict]) -> dict:
     """M-001: Governance Influence Rate.
 
-    Fraction of evaluations returning PROCEED_WITH_MODIFICATIONS or ESCALATE.
+    Fraction of evaluations where governance engaged with the decision:
+    REVIEW + ESCALATE + retroactive PROCEED-with-principles.
+
+    Methodology v2 (2026-05-08): REVIEW status added. Old PROCEED entries
+    with non-empty principles_consulted are retroactively classified as
+    influenced. Pre-v2 logs used PROCEED for both "nothing found" and
+    "principles found" — the retroactive classification corrects this.
     """
     if not audit_entries:
         return {"value": None, "total": 0, "breakdown": {}, "insufficient_data": True}
 
     counts = Counter(e.get("assessment", "UNKNOWN") for e in audit_entries)
     total = len(audit_entries)
-    influenced = counts.get("PROCEED_WITH_MODIFICATIONS", 0) + counts.get("ESCALATE", 0)
+
+    # Count explicit REVIEW + backward-compat PROCEED_WITH_MODIFICATIONS + ESCALATE
+    influenced = (
+        counts.get("REVIEW", 0)
+        + counts.get("PROCEED_WITH_MODIFICATIONS", 0)
+        + counts.get("ESCALATE", 0)
+    )
+
+    # Retroactive: old PROCEED entries with principles_consulted are governance-engaged
+    for entry in audit_entries:
+        if entry.get("assessment") == "PROCEED" and entry.get("principles_consulted"):
+            influenced += 1
 
     return {
         "value": influenced / total,
         "total": total,
         "breakdown": dict(counts),
+        "methodology_version": 2,
         "insufficient_data": False,
     }
 

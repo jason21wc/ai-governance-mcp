@@ -67,27 +67,19 @@
 
 ---
 
-#### 155. M-001 investigation — zero PROCEED_WITH_MODIFICATIONS `D2 Discussion`
+#### 155. ~~M-001 investigation — zero PROCEED_WITH_MODIFICATIONS~~ `CLOSED`
 
-**Filed:** 2026-05-08 (session-154, feedback loop analysis finding).
+**Filed:** 2026-05-08 (session-154). **Closed:** 2026-05-08 (session-154).
 
-**What.** M-001 shows 845 PROCEED, 179 ESCALATE, 0 PROCEED_WITH_MODIFICATIONS across 1024 evaluations. Governance is binary — either nothing triggers or safety trips ESCALATE. Non-safety principles (quality, process, collaboration) are retrieved but never change behavior. Two hypotheses: (1) the evaluation template doesn't make it easy to express "proceed but adjust X," or (2) non-safety principles genuinely don't apply to the actions being evaluated.
-
-**Investigation.** Sample 10-20 audit+reasoning entry pairs where non-safety principles were retrieved with medium/high confidence but the outcome was PROCEED. Check whether any should have been PROCEED_WITH_MODIFICATIONS.
-
-**Done when.** Root cause identified. Either the evaluation template needs adjustment (D1 fix), or the behavior is expected and this item closes with documentation.
+Root cause: the server is a retrieval engine, not a reasoning engine — it couldn't produce PWM because it can't reason about modifications. Fix: renamed PROCEED_WITH_MODIFICATIONS → REVIEW in AssessmentStatus. Server now returns REVIEW when relevant principles are surfaced (previously collapsed into PROCEED). M-001 updated to count REVIEW + ESCALATE + retroactive PROCEED-with-principles as governance engagement. Methodology v2 with backward compat for old log entries.
 
 ---
 
-#### 156. Retrieval gap — "project initialization" and "validation before action" `D1 Improvement`
+#### 156. ~~Retrieval gap — "project initialization" and "validation before action"~~ `CLOSED`
 
-**Filed:** 2026-05-08 (session-154, feedback loop analysis finding).
+**Filed:** 2026-05-08 (session-154). **Closed:** 2026-05-08 (session-154).
 
-**What.** Two query patterns consistently return low confidence: "project initialization" (4 occurrences, avg 0.20) and "which principle governs validation before action?" (9 occurrences, avg 0.20). These are legitimate governance queries that existing principles cover but the retrieval engine can't match.
-
-**Fix.** Add keywords to existing principles that cover these concepts. `scaffold_project` relates to project initialization; `meta-quality-verification-validation` or `coding-process-validation-gates` relates to validation before action. Keyword updates in the document frontmatter.
-
-**Done when.** Re-running the queries returns medium or high confidence results.
+Three-layer systemic fix: BM25 content window 1000→3000 chars (82% of principle content was invisible), trigger phrase cap 10→20, `top_confidence` fixed to consider all result types (not just constitution_principles[0]), ConfidenceLevel `max()` ordering bug fixed (string enum alphabetical sort returned "medium" over "high"). Constitution v8.0.1: added "project initialization" and "validate before action" to operational considerations.
 
 ---
 
@@ -97,9 +89,23 @@
 
 **What.** The `log_feedback` MCP tool exists but has never been called (0 entries in feedback.jsonl). Feedback-dependent analyses in `analyze_feedback_loop` report `insufficient_data`. The tool exists; no workflow prompts its use.
 
-**Fix options.** (1) Add a "rate this result" step to compliance review workflow. (2) Add session-end protocol step to log feedback on governance evaluations that influenced decisions. (3) Integrate into the governance hook — after PROCEED_WITH_MODIFICATIONS or ESCALATE, prompt for feedback. Option 1 is lowest friction.
+**Fix options.** (1) Add a "rate this result" step to compliance review workflow. (2) Add session-end protocol step to log feedback on governance evaluations that influenced decisions. (3) Integrate into the governance hook — after REVIEW or ESCALATE, prompt for feedback. Option 1 is lowest friction.
 
 **Done when.** feedback.jsonl accumulates entries organically through normal workflow usage.
+
+---
+
+#### 158. REVIEW alarm fatigue — monitor agent habituation to ~51% REVIEW rate `D2 Discussion`
+
+**Filed:** 2026-05-08 (session-154, contrarian advisory from #155 REVIEW rename).
+
+**What.** REVIEW fires when any principles are surfaced (~51% of evaluations based on current log data). If agents habituate and stop reading surfaced principles, the signal is dead — governance becomes theater. The rename from PROCEED_WITH_MODIFICATIONS → REVIEW was correct (matches server capability), but the high fire rate creates habituation risk that didn't exist when PWM was permanently zero.
+
+**Diagnostic.** Track ratio of agent-authored `log_governance_reasoning` entries to auto-generated ones for REVIEW assessments. Agent-authored entries indicate the agent actually read principles and reasoned about them. If <5% of REVIEW evaluations produce agent-authored reasoning entries after 30 days of operation, the signal has been tuned out.
+
+**Mitigation options (if diagnostic confirms habituation).** (1) Score threshold — only surface REVIEW when `best_score ≥ 0.5` (highest-relevance results only). (2) Principle count gate — REVIEW only when ≥2 principles returned (single-principle matches are often low-relevance). (3) Tiered signaling — REVIEW vs REVIEW_STRONG based on confidence. Option 1 is simplest.
+
+**Done when.** Either diagnostic shows healthy engagement (>15% agent-authored reasoning for REVIEW) OR mitigation shipped and re-measured.
 
 ---
 

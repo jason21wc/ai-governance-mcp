@@ -224,9 +224,9 @@
 
 ### M-001. Governance Influence Rate
 
-**What:** Fraction of `evaluate_governance` calls that return PROCEED_WITH_MODIFICATIONS or ESCALATE (i.e., governance actually changed the planned action, not just rubber-stamped it).
-**Data source:** `evaluate_governance` response `recommendation` field across session transcripts.
-**Computation:** `count(PROCEED_WITH_MODIFICATIONS + ESCALATE) / count(all evaluations)` per review period.
+**What:** Fraction of `evaluate_governance` calls where governance engaged with the decision: REVIEW (principles surfaced) or ESCALATE (safety block).
+**Data source:** `evaluate_governance` response assessment field + `principles_consulted` in audit logs.
+**Computation:** `count(REVIEW + ESCALATE + retroactive PROCEED-with-principles) / count(all evaluations)` per review period. Methodology v2 (2026-05-08): REVIEW status added; old PROCEED entries with non-empty `principles_consulted` retroactively classified as engaged.
 **Baseline:** Not yet established. First compliance review after n≥50 evaluations sets baseline.
 **Review cadence:** Every compliance review (C-078).
 

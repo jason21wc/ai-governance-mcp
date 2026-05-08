@@ -67,7 +67,7 @@ class TestEvaluateGovernance:
                     # Assessment should be one of the valid statuses
                     assert parsed["assessment"] in [
                         "PROCEED",
-                        "PROCEED_WITH_MODIFICATIONS",
+                        "REVIEW",
                         "ESCALATE",
                     ]
 
@@ -274,6 +274,39 @@ class TestEvaluateGovernance:
                     ):
                         assert parsed["requires_ai_judgment"] is True
                         assert parsed["ai_judgment_guidance"] is not None
+
+    @pytest.mark.asyncio
+    async def test_evaluate_returns_review_when_principles_found(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should return REVIEW (not PROCEED) when principles are found (#155)."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Refactor the code structure"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    if (
+                        parsed["relevant_principles"]
+                        and not parsed["s_series_check"]["triggered"]
+                    ):
+                        assert parsed["assessment"] == "REVIEW"
 
     @pytest.mark.asyncio
     async def test_evaluate_governance_escalate_does_not_require_ai_judgment(
@@ -1101,7 +1134,7 @@ class TestLogGovernanceReasoning:
                         "reasoning": "Should add input validation.",
                     },
                 ],
-                "final_decision": "PROCEED_WITH_MODIFICATIONS",
+                "final_decision": "REVIEW",
                 "modifications_applied": ["Added input validation"],
             }
         )
@@ -1110,7 +1143,7 @@ class TestLogGovernanceReasoning:
         assert parsed["status"] == "logged"
         assert parsed["audit_id"] == audit_id
         assert parsed["entries_logged"] == 2
-        assert parsed["final_decision"] == "PROCEED_WITH_MODIFICATIONS"
+        assert parsed["final_decision"] == "REVIEW"
         assert parsed["modifications_count"] == 1
 
         # Verify reasoning log contains the entry
@@ -1118,7 +1151,53 @@ class TestLogGovernanceReasoning:
         assert len(reasoning_log) == 1
         assert reasoning_log[0].audit_id == audit_id
         assert len(reasoning_log[0].reasoning_entries) == 2
-        assert reasoning_log[0].final_decision == "PROCEED_WITH_MODIFICATIONS"
+        assert reasoning_log[0].final_decision == "REVIEW"
+
+    @pytest.mark.asyncio
+    async def test_log_reasoning_review_decision(self, reset_server_state):
+        """log_governance_reasoning should accept REVIEW as final_decision (#155)."""
+        from ai_governance_mcp.server import (
+            _handle_log_governance_reasoning,
+            get_reasoning_log,
+            log_governance_audit,
+        )
+        from ai_governance_mcp.models import (
+            GovernanceAuditLog,
+            AssessmentStatus,
+            ConfidenceLevel,
+        )
+
+        audit_id = "gov-review12345"
+        audit_entry = GovernanceAuditLog(
+            audit_id=audit_id,
+            timestamp="2026-01-01T00:00:00Z",
+            action="Test review decision",
+            assessment=AssessmentStatus.REVIEW,
+            confidence=ConfidenceLevel.HIGH,
+        )
+        log_governance_audit(audit_entry)
+
+        result = await _handle_log_governance_reasoning(
+            {
+                "audit_id": audit_id,
+                "reasoning": [
+                    {
+                        "principle_id": "meta-C1",
+                        "status": "COMPLIES",
+                        "reasoning": "Reviewed principle and adjusted approach.",
+                    },
+                ],
+                "final_decision": "REVIEW",
+                "modifications_applied": ["Adjusted approach per principle guidance"],
+            }
+        )
+
+        parsed = json.loads(extract_json_from_response(result[0].text))
+        assert parsed["status"] == "logged"
+        assert parsed["final_decision"] == "REVIEW"
+
+        reasoning_log = get_reasoning_log()
+        assert reasoning_log[-1].final_decision == "REVIEW"
 
     @pytest.mark.asyncio
     async def test_log_reasoning_sanitizes_input(self, reset_server_state):
@@ -1955,7 +2034,7 @@ class TestAutoLogGovernanceReasoning:
                     assert entry.auto_generated is True
                     assert entry.final_decision in [
                         "PROCEED",
-                        "PROCEED_WITH_MODIFICATIONS",
+                        "REVIEW",
                         "ESCALATE",
                     ]
                     assert len(entry.reasoning_entries) >= 1

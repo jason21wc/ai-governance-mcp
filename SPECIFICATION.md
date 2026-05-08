@@ -38,7 +38,7 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 - **Hybrid retrieval** -- BM25 keyword search + dense semantic vectors with weighted score fusion (60/40)
 - **Cross-encoder reranking** -- Top-20 candidates refined by cross-encoder model
 - **Smart domain routing** -- Query embedding similarity identifies relevant knowledge domains
-- **Pre-action compliance** (`evaluate_governance`) -- Returns PROCEED / PROCEED_WITH_MODIFICATIONS / ESCALATE
+- **Pre-action compliance** (`evaluate_governance`) -- Returns PROCEED / REVIEW / ESCALATE
 - **Post-action audit** (`verify_governance_compliance`) -- Returns COMPLIANT / NON_COMPLIANT / PARTIAL
 - **S-Series safety enforcement** -- Deterministic keyword detection; S-Series violations force ESCALATE
 - **Governance reasoning audit trail** (`log_governance_reasoning`) -- Per-principle reasoning traces

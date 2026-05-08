@@ -2712,9 +2712,9 @@ The `evaluate_governance()` tool returns one of three statuses:
 
 | Status | Meaning | Required Action |
 |--------|---------|-----------------|
-| PROCEED | No governance concerns | Delegate to specialist |
-| PROCEED_WITH_MODIFICATIONS | Concerns addressable | Apply modifications, then delegate |
-| ESCALATE | Blocking concerns | HALT execution, request human review |
+| PROCEED | No relevant principles found | Delegate to specialist |
+| REVIEW | Relevant principles surfaced | Read principles, adjust if conflicts, then delegate |
+| ESCALATE | S-Series safety triggered | HALT execution, request human review |
 
 ESCALATE is blocking — work stops until human approves.
 
@@ -2822,7 +2822,7 @@ the appropriate tools (Edit, Write, Bash).
 Before delegating governed actions:
 1. Call evaluate_governance() with the planned action
 2. If PROCEED: Delegate with governance context
-3. If PROCEED_WITH_MODIFICATIONS: Apply modifications to delegation prompt
+3. If REVIEW: Read surfaced principles, adjust delegation if conflicts, then delegate
 4. If ESCALATE: HALT and request human review
 
 ### What Counts as Significant
@@ -2863,28 +2863,23 @@ This architecture extends existing patterns:
 
 **The Problem:**
 
-A governance tool like `evaluate_governance()` can return three assessments:
-- PROCEED — No concerns
-- PROCEED_WITH_MODIFICATIONS — Concerns addressable with changes
-- ESCALATE — Blocking concerns requiring human review
+A governance tool like `evaluate_governance()` returns three assessments:
+- PROCEED — No relevant governance principles found
+- REVIEW — Relevant principles surfaced; agent should read and apply
+- ESCALATE — S-Series safety triggered; blocking, requires human review
 
-Generating PROCEED_WITH_MODIFICATIONS requires nuanced reasoning:
-- Detecting conflicts between the action and retrieved principles
-- Understanding which modifications would resolve the conflict
-- Generating specific, contextual recommendations
-
-Scripts excel at deterministic tasks but cannot reason about nuance. AIs excel at reasoning but may be inconsistent or miss safety-critical patterns.
+The script layer determines PROCEED vs. REVIEW based on whether relevant principles were retrieved. The AI layer reads surfaced principles and determines whether its planned action needs adjustment. Scripts excel at deterministic tasks (retrieval, safety detection); AIs excel at reasoning about principle applicability.
 
 **Solution — Hybrid Responsibility Layers:**
 
 | Layer | Responsibility | Why This Layer |
 |-------|---------------|----------------|
-| **Script** | S-Series keyword detection | Deterministic, non-negotiable safety |
-| **Script** | Principle retrieval + ranking | Fast, consistent semantic search |
+| **Script** | S-Series keyword detection → ESCALATE | Deterministic, non-negotiable safety |
+| **Script** | Principle retrieval + ranking → REVIEW or PROCEED | Fast, consistent semantic search |
 | **Script** | Structured data output | Reliable format for AI consumption |
-| **AI** | Principle conflict analysis | Requires reasoning about context |
-| **AI** | Modification generation | Context-aware recommendations |
-| **AI** | Final assessment (PROCEED/MODIFY) | Nuanced judgment call |
+| **AI** | Read surfaced principles, assess compliance | Requires reasoning about context |
+| **AI** | Determine modifications if conflicts exist | Context-aware recommendations |
+| **AI** | Log reasoning via `log_governance_reasoning()` | Audit trail of judgment |
 
 **S-Series Remains Script-Enforced:**
 
@@ -2907,10 +2902,10 @@ For non-S-Series situations, the AI receives:
 - Action context
 
 The AI then:
-1. Reads each principle's requirements
-2. Assesses whether the action complies
-3. Identifies conflicts and generates modifications
-4. Determines PROCEED or PROCEED_WITH_MODIFICATIONS
+1. Reads each surfaced principle's requirements
+2. Assesses whether the planned action complies
+3. If conflicts exist, adjusts the action
+4. Logs reasoning via `log_governance_reasoning()` with final_decision (PROCEED, REVIEW, or ESCALATE)
 
 **Model Capability Considerations:**
 

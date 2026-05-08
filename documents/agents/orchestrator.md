@@ -90,7 +90,7 @@ Skip only for: trivial changes to already-understood files, memory file edits, o
 | Assessment | Action |
 |------------|--------|
 | **PROCEED** | Classify task complexity, then delegate or continue |
-| **PROCEED_WITH_MODIFICATIONS** | Apply the required modifications to the delegation brief, then delegate |
+| **REVIEW** | Read surfaced principles. If action conflicts, adjust delegation brief. Log reasoning via `log_governance_reasoning()`. Then delegate. |
 | **ESCALATE** | STOP. Inform user. Wait for explicit approval before continuing |
 
 ### Step 3: Classify Task and Determine Delegation Strategy
@@ -232,7 +232,7 @@ After evaluation, report:
 ## Governance Assessment
 
 **Action:** [what was evaluated]
-**Assessment:** [PROCEED / PROCEED_WITH_MODIFICATIONS / ESCALATE]
+**Assessment:** [PROCEED / REVIEW / ESCALATE]
 **Confidence:** [HIGH / MEDIUM / LOW]
 **Key Principles:** [list principle IDs that apply]
 **Task Classification:** [simple/single-domain/multi-concern/complex]

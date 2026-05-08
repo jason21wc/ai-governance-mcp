@@ -25,7 +25,7 @@ Run with: `python -m ai_governance_mcp.server`
 | `audit_id` | string | Unique identifier for tracking (format: `gov-{12 hex chars}`) |
 | `timestamp` | string | ISO timestamp of the assessment |
 | `action_reviewed` | string | The planned action that was assessed |
-| `assessment` | string | `PROCEED`, `PROCEED_WITH_MODIFICATIONS`, or `ESCALATE` |
+| `assessment` | string | `PROCEED`, `REVIEW`, or `ESCALATE` |
 | `confidence` | string | `high`, `medium`, or `low` |
 | `relevant_principles` | array | Principles relevant to the action, each with `id`, `title`, `content`, `relevance`, `score`, `series_code`, `domain` |
 | `relevant_methods` | array | Procedural methods relevant to the action (up to 5), each with `id`, `title`, `domain`, `score`, `confidence` |
@@ -114,7 +114,7 @@ Run with: `python -m ai_governance_mcp.server`
 |------|------|----------|-------------|
 | `audit_id` | string | Yes | Audit ID from `evaluate_governance` response (format: `gov-{12 hex chars}`) |
 | `reasoning` | array | Yes | Per-principle reasoning entries (max 20 items). Each entry requires `principle_id` (string), `status` (`COMPLIES`, `NEEDS_MODIFICATION`, or `VIOLATION`), and `reasoning` (string, max 1,000 chars) |
-| `final_decision` | string | Yes | `PROCEED`, `PROCEED_WITH_MODIFICATIONS`, or `ESCALATE` |
+| `final_decision` | string | Yes | `PROCEED`, `REVIEW`, or `ESCALATE` |
 | `modifications_applied` | array of strings | No | List of modifications applied, if any (max 10 items, each max 500 chars) |
 
 **Returns:**
@@ -276,7 +276,7 @@ Run with: `python -m ai_governance_mcp.server`
 | `confidence_distribution` | object | Counts by confidence level (`high`, `medium`, `low`) |
 | `feedback_count` | integer | Total feedback entries received |
 | `avg_feedback_rating` | float or null | Average feedback rating (1-5) |
-| `governance_overhead` | object | Contains `governance_evaluations`, `avg_governance_time_ms`, `total_governance_time_ms`, and `assessment_breakdown` (counts of proceed, proceed_with_modifications, escalate) |
+| `governance_overhead` | object | Contains `governance_evaluations`, `avg_governance_time_ms`, `total_governance_time_ms`, and `assessment_breakdown` (counts of proceed, review, escalate) |
 
 **Example:**
 

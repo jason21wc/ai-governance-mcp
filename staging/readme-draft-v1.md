@@ -133,7 +133,7 @@ Runtime:
 
 **Governance enforcement:**
 
-- `evaluate_governance` evaluates planned actions against principles BEFORE execution, auto-detects S-Series (safety) concerns, and returns PROCEED, PROCEED_WITH_MODIFICATIONS, or ESCALATE. S-Series violations force ESCALATE with human review. Every call logs an `audit_id`.
+- `evaluate_governance` evaluates planned actions against principles BEFORE execution, auto-detects S-Series (safety) concerns, and returns PROCEED, REVIEW, or ESCALATE. REVIEW means relevant principles were surfaced — read and apply them. S-Series violations force ESCALATE with human review. Every call logs an `audit_id`.
 - `verify_governance_compliance` checks whether governance was consulted for a completed action — catches bypassed checks after the fact.
 - `log_governance_reasoning` captures per-principle reasoning traces for the audit trail.
 

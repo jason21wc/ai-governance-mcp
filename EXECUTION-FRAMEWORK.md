@@ -167,7 +167,7 @@ Catching problems and verifying correctness. **Stays SEPARATE from Bucket 7** pe
 | Pre-action gates | Block before damage | 8 hard-mode hooks (PreToolUse blocking, etc.) |
 | Post-action verification | Catch errors after | Subagent battery (validator, contrarian-reviewer, coherence-auditor) |
 | Hard stops | Absolute veto | S-Series ESCALATE |
-| Soft modifications | Adjust before proceeding | PROCEED_WITH_MODIFICATIONS |
+| Principle review | Read principles, adjust if needed | REVIEW |
 | Audit trail | What happened and why | governance_audit.jsonl, deny logs |
 | Static correctness checks | Tests, linters, type checkers | pytest, ruff, mypy |
 

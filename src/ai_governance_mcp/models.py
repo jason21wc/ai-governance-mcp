@@ -38,9 +38,9 @@ class ConfidenceLevel(str, Enum):
 class AssessmentStatus(str, Enum):
     """Governance assessment outcome status."""
 
-    PROCEED = "PROCEED"  # Action complies with governance
-    PROCEED_WITH_MODIFICATIONS = "PROCEED_WITH_MODIFICATIONS"  # Needs changes
-    ESCALATE = "ESCALATE"  # Human review required
+    PROCEED = "PROCEED"  # No relevant governance principles found
+    REVIEW = "REVIEW"  # Principles surfaced, agent should read and apply
+    ESCALATE = "ESCALATE"  # Human review required (S-Series)
 
 
 class ComplianceStatus(str, Enum):
@@ -371,7 +371,7 @@ class GovernanceOverheadMetrics(BaseModel):
     # Decision metrics
     escalation_count: int = 0  # ESCALATE assessments
     proceed_count: int = 0  # PROCEED assessments
-    proceed_with_modifications_count: int = 0  # PROCEED_WITH_MODIFICATIONS
+    review_count: int = 0  # REVIEW
 
     def record_evaluation(self, time_ms: float, assessment: str) -> None:
         """Record a governance evaluation."""
@@ -383,8 +383,8 @@ class GovernanceOverheadMetrics(BaseModel):
 
         if assessment == "ESCALATE":
             self.escalation_count += 1
-        elif assessment == "PROCEED_WITH_MODIFICATIONS":
-            self.proceed_with_modifications_count += 1
+        elif assessment == "REVIEW":
+            self.review_count += 1
         else:  # PROCEED
             self.proceed_count += 1
 
@@ -503,8 +503,8 @@ class GovernanceAssessment(BaseModel):
     """Complete governance assessment for a planned action.
 
     Per multi-method-governance-agent-pattern (§4.3) and §4.6 Governance Enforcement:
-    - PROCEED: Action complies with governance
-    - PROCEED_WITH_MODIFICATIONS: Apply modifications, then execute
+    - PROCEED: No relevant governance principles found
+    - REVIEW: Relevant principles surfaced — read them, adjust if conflicts exist
     - ESCALATE: Human review required (automatic if S-Series triggered)
 
     Audit fields (§4.6 Audit Trail Requirements):
@@ -617,7 +617,7 @@ class GovernanceAuditLog(BaseModel):
         default=False, description="Whether S-Series safety principles were triggered"
     )
     modifications: Optional[list[str]] = Field(
-        None, description="Required modifications if PROCEED_WITH_MODIFICATIONS"
+        None, description="Required modifications if REVIEW"
     )
     escalation_reason: Optional[str] = Field(
         None, description="Reason for escalation if ESCALATE"
@@ -673,7 +673,7 @@ class GovernanceReasoningLog(BaseModel):
     )
     final_decision: str = Field(
         ...,
-        description="Final decision: PROCEED, PROCEED_WITH_MODIFICATIONS, or ESCALATE",
+        description="Final decision: PROCEED, REVIEW, or ESCALATE",
         max_length=30,
     )
     modifications_applied: list[str] = Field(

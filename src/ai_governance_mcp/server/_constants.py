@@ -63,7 +63,7 @@ When in doubt, evaluate.
 
 **Act on assessment (this is a routing decision, not a checkbox):**
 - PROCEED: Continue with the task
-- PROCEED_WITH_MODIFICATIONS: Apply required changes, then continue
+- REVIEW: Relevant principles found — read them, adjust if conflicts exist, then continue
 - ESCALATE: STOP. Inform user. Wait for explicit approval.
 - **S-Series = Absolute Veto**: If S-Series triggers, you MUST escalate regardless of other factors
 
@@ -470,7 +470,7 @@ AGENT_TEMPLATE_HASHES = {
     "continuity-auditor": "217a9057bc03cc932d95d6038d1020a9be07cfd35a2ab61a71c66d40968ef76f",
     "contrarian-reviewer": "7d243e0ca4f5eb6af8c55225dbc764712e9ab4603c31a6012ecafba3ed7d7afe",
     "documentation-writer": "c1f1e0d5617d10c6b61cb3fb8e7e436a9ffe18c06f629c2d1201f3da3d998ad0",
-    "orchestrator": "be9eab6fb5d4c844723d2af4d36ac4761341bf2d2cdf3dff5e9167f1732b9611",
+    "orchestrator": "3cb7572daf8d244902671085761d8b22e3fc5c34f27b87b638d0d1cd1126d557",
     "security-auditor": "5c2217d0a3041ad8afee3b46ae8c66e9e375ebbb9059b7637421037609d0ad27",
     "test-generator": "1d5683c2c3ef605555fadfc1a7729b4a4d4cb2e52843a36e6fe5defe0a245054",
     "validator": "4015ea6c86e5ed29db56f9bc5cefcf48bf2b92e65438156640644e7ebb016a03",

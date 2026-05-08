@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-08 (session-154 — feedback loop analysis tool shipped).
+**Last Updated:** 2026-05-08 (session-154 — feedback loop analysis + #156 retrieval fix + #155 REVIEW rename shipped).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,26 +12,27 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-154 (2026-05-08) shipped Feedback Loop Analysis** — hybrid architecture: `scripts/analyze_feedback_loop.py` (computation) + `analyze_feedback_loop` MCP tool #14 (thin reader). Closes #42, #22, #153; partial-close #44. Initial production run: M-001=17.5%, M-003=0.255 (stable), M-004=17.5%. 12 dead principles, 42 FP patterns, 2 retrieval gaps, 56 recommendations. Cadence C-155 added. 1567 tests pass.
+**Session-154 (2026-05-08) shipped Feedback Loop Analysis + #156 retrieval fix.** Hybrid architecture: `scripts/analyze_feedback_loop.py` + `analyze_feedback_loop` MCP tool #14. Closes #42, #22, #153, #156; partial-close #44. #156 systemic fix: BM25 window 1000→3000 chars, trigger phrase cap 10→20, `top_confidence` considers all result types, ConfidenceLevel `max()` ordering bug fixed. Constitution v8.0.1.
 
-**ACTION ON RESUME (session-155):** Three new findings-backlog items (#155, #156, #157) filed from analysis results — ready for triage. Time-cued items: **Compliance Review #8** (~2026-05-15) → **C-109 deferred-cadence audit** (~2026-05-25). **T-149 CE-first compliance measurement** — observe CE-vs-grep ratio for 3-5 sessions before activating Phase 2.
+**ACTION ON RESUME (session-155):** One remaining findings-backlog item (#157) from analysis results. Time-cued items: **Compliance Review #8** (~2026-05-15) → **C-109 deferred-cadence audit** (~2026-05-25). **T-149 CE-first compliance measurement** — observe CE-vs-grep ratio for 3-5 sessions before activating Phase 2. Monitor REVIEW alarm fatigue per contrarian advisory.
 
 **Critical state for next session:**
-- **Commits ahead of origin:** 1 (unpushed: `a1b1fdf`).
+- **Commits ahead of origin:** 1 (unpushed: #155 REVIEW rename).
+- **Assessment vocabulary changed:** PROCEED_WITH_MODIFICATIONS → REVIEW. Server now returns REVIEW when principles are surfaced.
+- **M-001 methodology v2** — counts REVIEW + ESCALATE + retroactive PROCEED-with-principles.
 - **analyze_feedback_loop MCP tool active NOW** — tool #14, reads `logs/feedback_loop_analysis.json`.
 - **C-155 cadence active NOW** — re-run analysis every 20-30 days or before compliance review.
-- **New backlog findings:** #155 (M-001 zero PWM), #156 (retrieval gaps), #157 (feedback.jsonl workflow).
-- **Also committed:** handler files missed in session-153 (agents.py, governance.py, retrieval.py, handlers/__init__.py).
-- **Tests:** 1567 passing (non-slow subset).
+- **Remaining backlog findings:** #157 (feedback.jsonl workflow).
+- **Tests:** 1576 passing (non-slow subset).
 - **Compliance Review #8** — due ~2026-05-15.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-154 (2026-05-08) — feedback loop analysis shipped, findings filed.
+- **Phase:** Session-154 (2026-05-08) — feedback loop analysis + #156 + #155 shipped.
 - **Mode:** Normal operation. No active monitors.
-- **Active Task:** Analysis findings triage (#155, #156, #157).
+- **Active Task:** Remaining findings triage (#157 only).
 
 ## Quick Reference
 
@@ -39,10 +40,10 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.1.0** (reranking, MMR diversity, RRF opt-in, chunk quality filter, candidate pool cap, per-file dedup configurable cap=3, expanded 35-query benchmark) |
-| Content | **v8.0.0** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0), **v3.31.5** (rules-of-procedure), **v2.44.0** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.1** (ai-instructions), **v1.9.0** (tiers.json). |
+| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.44.0** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.1** (ai-instructions), **v1.9.0** (tiers.json). |
 | Execution Framework | **v1.1.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, thematic structure) |
 | OPERATIONS.md | **v1** (3 cadences, 15 tripwires, 4 V-series, 5 metrics, 3 scheduled operations) |
-| Tests | **1567 passing** (non-slow subset) |
+| Tests | **1576 passing** (non-slow subset) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **18 MCP tools** (14 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -51,7 +52,7 @@
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **1** (`compliance-review` — invoke via `/compliance-review`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | **Green.** Last push: session-153. 1 commit unpushed. |
+| CI | **Green.** Last push: session-154. All pushed. |
 
 ---
 
@@ -89,8 +90,6 @@
 3. **C-155 feedback loop analysis** — next run due ~2026-06-07. See OPERATIONS.md.
 
 **Ready-to-work (user-directed):**
-- **#155** — M-001 investigation: zero PROCEED_WITH_MODIFICATIONS (D2 Discussion)
-- **#156** — Retrieval gap keyword fixes (D1 Improvement)
 - **#157** — feedback.jsonl workflow integration (D1 Improvement)
 - **#44** — Reference logging in QueryLog for maturity proposals (D1 follow-up)
 - **CE-First Phase 2** — Grep/Glob advisory hook (D2, conditional on T-149 measurement)

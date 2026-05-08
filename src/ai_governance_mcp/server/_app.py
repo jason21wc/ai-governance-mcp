@@ -239,7 +239,7 @@ async def list_tools() -> list[Tool]:
             description=(
                 "Evaluate a planned action against governance principles BEFORE execution. "
                 "Call this before any action that is not a read-only operation, non-sensitive question, or trivial formatting change. "
-                "Returns compliance assessment with PROCEED, PROCEED_WITH_MODIFICATIONS, or ESCALATE. "
+                "Returns compliance assessment with PROCEED, REVIEW, or ESCALATE. "
                 "S-Series (safety) principles have veto authority - will force ESCALATE if triggered."
             ),
             inputSchema={
@@ -443,7 +443,7 @@ async def list_tools() -> list[Tool]:
                         "description": "Your final governance decision",
                         "enum": [
                             "PROCEED",
-                            "PROCEED_WITH_MODIFICATIONS",
+                            "REVIEW",
                             "ESCALATE",
                         ],
                     },

@@ -424,7 +424,7 @@ class TestGovernanceAuditLog:
                     # Assessment should be captured
                     assert audit_log[0].assessment in [
                         AssessmentStatus.PROCEED,
-                        AssessmentStatus.PROCEED_WITH_MODIFICATIONS,
+                        AssessmentStatus.REVIEW,
                         AssessmentStatus.ESCALATE,
                     ]
 

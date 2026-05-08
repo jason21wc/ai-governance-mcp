@@ -294,13 +294,13 @@ async def _handle_evaluate_governance(
             "Action may proceed but consider querying with more specific terms."
         )
     else:
-        assessment = AssessmentStatus.PROCEED
+        assessment = AssessmentStatus.REVIEW
         requires_ai_judgment = True
         ai_judgment_guidance = (
-            "Review each principle's content against the planned action. "
-            "If the action conflicts with principle requirements and modifications can resolve it, "
-            "communicate PROCEED_WITH_MODIFICATIONS with the specific changes needed. "
-            "If the action fully complies with all principles, confirm PROCEED."
+            "Governance principles were surfaced. Read each principle's content against "
+            "your planned action. If conflicts exist and modifications can resolve them, "
+            "apply them and log via log_governance_reasoning() with final_decision=REVIEW. "
+            "If fully compliant, confirm PROCEED."
         )
         if relevant_methods:
             ai_judgment_guidance += (
@@ -536,7 +536,7 @@ async def _handle_log_governance_reasoning(args: dict) -> list[TextContent]:
         error = ErrorResponse(
             error_code="MISSING_REQUIRED_FIELD",
             message="final_decision is required",
-            suggestions=["Provide PROCEED, PROCEED_WITH_MODIFICATIONS, or ESCALATE"],
+            suggestions=["Provide PROCEED, REVIEW, or ESCALATE"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
 

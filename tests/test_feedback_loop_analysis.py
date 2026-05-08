@@ -188,19 +188,46 @@ class TestM001InfluenceRate:
         entries = [
             *[_make_audit_entry(assessment="PROCEED") for _ in range(8)],
             _make_audit_entry(assessment="ESCALATE"),
-            _make_audit_entry(assessment="PROCEED_WITH_MODIFICATIONS"),
+            _make_audit_entry(assessment="REVIEW"),
         ]
         result = compute_m001_influence_rate(entries)
         assert result["value"] == pytest.approx(0.2)
         assert result["breakdown"]["PROCEED"] == 8
         assert result["breakdown"]["ESCALATE"] == 1
-        assert result["breakdown"]["PROCEED_WITH_MODIFICATIONS"] == 1
+        assert result["breakdown"]["REVIEW"] == 1
 
     def test_empty_list(self):
         result = compute_m001_influence_rate([])
         assert result["value"] is None
         assert result["total"] == 0
         assert result["insufficient_data"] is True
+
+    def test_review_counts_as_influenced(self):
+        """REVIEW assessment should count toward M-001 influence numerator (#155)."""
+        entries = [
+            *[_make_audit_entry(assessment="PROCEED") for _ in range(7)],
+            _make_audit_entry(assessment="REVIEW"),
+            _make_audit_entry(assessment="ESCALATE"),
+            _make_audit_entry(assessment="REVIEW"),
+        ]
+        result = compute_m001_influence_rate(entries)
+        assert result["value"] == pytest.approx(0.3)
+        assert result["breakdown"]["REVIEW"] == 2
+        assert result["breakdown"]["ESCALATE"] == 1
+
+    def test_old_proceed_with_principles_retroactive(self):
+        """Old PROCEED entries with principles_consulted should count as influenced (#155)."""
+        entries = [
+            _make_audit_entry(assessment="PROCEED", principles_consulted=[]),
+            _make_audit_entry(assessment="PROCEED", principles_consulted=["meta-C1"]),
+            _make_audit_entry(
+                assessment="PROCEED", principles_consulted=["meta-C1", "coding-Q1"]
+            ),
+            _make_audit_entry(assessment="ESCALATE"),
+        ]
+        result = compute_m001_influence_rate(entries)
+        # 2 old PROCEEDs with principles + 1 ESCALATE = 3 influenced out of 4
+        assert result["value"] == pytest.approx(0.75)
 
 
 class TestM003RelevanceTrend:

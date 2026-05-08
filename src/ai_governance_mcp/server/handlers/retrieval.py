@@ -388,7 +388,7 @@ async def _handle_get_metrics(args: dict) -> list[TextContent]:
         "total_governance_time_ms": round(gov_overhead.total_governance_time_ms, 2),
         "assessment_breakdown": {
             "proceed": gov_overhead.proceed_count,
-            "proceed_with_modifications": gov_overhead.proceed_with_modifications_count,
+            "review": gov_overhead.review_count,
             "escalate": gov_overhead.escalation_count,
         },
     }
