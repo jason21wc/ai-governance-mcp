@@ -404,7 +404,7 @@ ai-governance-mcp/
 │   ├── config.py            # Settings management
 │   ├── extractor.py         # Document parsing + embeddings
 │   ├── retrieval.py         # Hybrid search engine
-│   ├── server.py            # Governance MCP server + 13 tools
+│   ├── server/              # Governance MCP server + 13 tools (package)
 │   ├── config_generator.py  # Multi-platform MCP configs
 │   ├── validator.py         # Principle ID validation
 │   └── context_engine/      # Context Engine MCP (4 tools)
@@ -420,7 +420,7 @@ ai-governance-mcp/
 │   ├── agents/              # Installed subagents
 │   └── hooks/               # Enforcement hooks (PreToolUse, UserPromptSubmit, pre-push)
 ├── index/                   # Generated index + embeddings
-└── tests/                   # ~1500 tests across governance + context engine
+└── tests/                   # ~1522 tests across governance + context engine
 ```
 
 ## Dogfooding

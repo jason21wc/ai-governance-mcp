@@ -55,7 +55,7 @@
 
 | Component | What It Does | Why Separate |
 |-----------|--------------|--------------|
-| **server.py** | Exposes MCP tools, handles requests | Single entry point for AI clients |
+| **server/** | Exposes MCP tools, handles requests (11-module package) | Single entry point for AI clients |
 | **retrieval.py** | Domain routing, hybrid search, reranking | Core intelligence, testable in isolation |
 | **extractor.py** | Parses docs, builds index, generates embeddings | Runs offline, not at runtime |
 | **models.py** | Pydantic schemas for principles, domains, results | Type safety, validation, serialization |
@@ -76,7 +76,7 @@ documents/*.md  →  extractor.py  →  index/global_index.json
 
 **Runtime (every query):**
 ```
-AI query  →  server.py  →  retrieval.py  →  index (in memory)  →  results
+AI query  →  server/  →  retrieval.py  →  index (in memory)  →  results
 ```
 
 ---
@@ -88,7 +88,18 @@ ai-governance-mcp/
 ├── src/
 │   └── ai_governance_mcp/
 │       ├── __init__.py
-│       ├── server.py          # MCP server, tool definitions
+│       ├── server/             # MCP server package (13 tools)
+│       │   ├── __init__.py    # Public API re-exports
+│       │   ├── _app.py        # MCP setup, list_tools, call_tool, main
+│       │   ├── _state.py      # Mutable globals, get_engine, get_metrics
+│       │   ├── _logging.py    # Audit/reasoning logs, rotation
+│       │   ├── _security.py   # Sanitization, rate limiting, instruction validation
+│       │   ├── _constants.py  # Templates, metadata, keywords
+│       │   └── handlers/      # Tool handler implementations
+│       │       ├── retrieval.py   # query_governance, get_principle, list_domains
+│       │       ├── governance.py  # evaluate_governance, verify_governance
+│       │       ├── agents.py      # install/uninstall agent
+│       │       └── scaffold.py    # scaffold_project, capture_reference
 │       ├── retrieval.py       # Search logic
 │       ├── extractor.py       # Doc parsing, index building
 │       ├── models.py          # Pydantic schemas
@@ -136,7 +147,11 @@ ai-governance-mcp/
 │   ├── benchmarks/                    # Baseline metrics (MRR, Recall)
 │   ├── test_models.py                 # Model validation
 │   ├── test_config.py                 # Config + env vars
-│   ├── test_server.py                 # All MCP tools, formatting, governance
+│   ├── test_server.py                 # Dispatcher, infrastructure, security
+│   ├── test_server_retrieval.py       # Retrieval handler tests
+│   ├── test_server_governance.py      # Governance handler tests
+│   ├── test_server_agents.py          # Agent handler tests
+│   ├── test_server_scaffold.py        # Scaffold handler tests
 │   ├── test_server_integration.py     # Dispatcher routing, end-to-end flows
 │   ├── test_extractor.py             # Parsing, embeddings, metadata
 │   ├── test_extractor_integration.py  # Full pipeline, index persistence
@@ -204,7 +219,7 @@ AI CLIENT (Claude Code, Cursor, Gemini CLI, etc.)
     │   └───────────────┬───────────────────────────────────│─────┘
     │                   ▼                                   │
     │   ┌─────────────────────────────────────────────────────────┐
-    │   │ GOVERNANCE MCP SERVER (server.py) — Layer 1 (advisory)  │
+    │   │ GOVERNANCE MCP SERVER (server/) — Layer 1 (advisory)    │
     │   │ SERVER_INSTRUCTIONS + GOVERNANCE_REMINDER per response   │
     │   │ evaluate_governance(): principle retrieval + assessment  │
     │   └─────────────────────────────────────────────────────────┘
@@ -336,7 +351,7 @@ ML models (SentenceTransformer, CrossEncoder) are mocked via `conftest.py` fixtu
 ### Known Test Boundaries
 
 Deliberately uncovered areas (run `pytest --cov` for current percentages):
-- server.py: `async run_server()` — entry point, tested via integration
+- server/_app.py: `async run_server()` — entry point, tested via integration
 - extractor.py: CLI `main()` — invoked manually
 - retrieval.py: Rare filesystem error paths
 

@@ -17,7 +17,7 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 1. **Tests run before push** — pre-push quality gate hook blocks `git push` if `pytest` not found in session transcript
 2. **Subagent review for risky changes** — pre-push quality gate hook blocks push if core code changed without code-reviewer or security-auditor invocation:
    - New MCP tool or handler → code-reviewer + security-auditor
-   - Changes to server.py, extractor.py, retrieval.py, config.py → code-reviewer
+   - Changes to server/ package, extractor.py, retrieval.py, config.py → code-reviewer
    - New file-handling code path → security-auditor
    - Content expansion (new principles/methods) → coherence-auditor + validator
    - Changes >5 files → code-reviewer
@@ -119,8 +119,8 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 
 **Code surfaces:**
 2. `src/ai_governance_mcp/config.py` — `_default_domains()` fallback
-3. `src/ai_governance_mcp/server.py` — tool schema enums (`query_governance` + `get_domain_summary`)
-4. `src/ai_governance_mcp/server.py` — handler-level `valid_domains` sets (separate from enums)
+3. `src/ai_governance_mcp/server/_app.py` — tool schema enums (`query_governance` + `get_domain_summary`)
+4. `src/ai_governance_mcp/server/handlers/` — handler-level `valid_domains` sets (separate from enums)
 5. `src/ai_governance_mcp/extractor.py` — `DOMAIN_PREFIXES` class constant
 6. `src/ai_governance_mcp/extractor.py` — `CATEGORY_SERIES_MAP` entries for new domain's categories
 7. `src/ai_governance_mcp/extractor.py` — `is_series_header` keyword list in `_extract_principles_from_domain()` (if domain uses series headers)
@@ -130,7 +130,7 @@ Per §5.1.6, run this project's completion sequence after changes. Say "run the 
 9. `tests/test_config.py` — `TestDefaultDomains` count and name list
 10. `tests/test_extractor.py` — `TestGetDomainPrefix` for new domain
 11. `tests/test_extractor.py` — `TestCategorySeriesMap` assertions for new domain
-12. `tests/test_server.py` — domain integration test class (follow `TestUiUxDomainIntegration`)
+12. `tests/test_server_governance.py` — domain integration test class (follow `TestUiUxDomainIntegration`)
 13. `tests/benchmarks/retrieval_quality.json` — benchmark queries for new domain
 
 **Documentation:**
