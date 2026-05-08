@@ -413,7 +413,7 @@ class RetrievalEngine:
         """Create text for BM25 indexing."""
         parts = [
             principle.title,
-            principle.content[:1000],
+            principle.content[:3000],
             " ".join(principle.metadata.keywords),
             " ".join(principle.metadata.synonyms),
             " ".join(principle.metadata.trigger_phrases),

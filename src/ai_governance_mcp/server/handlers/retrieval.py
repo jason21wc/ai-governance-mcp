@@ -9,12 +9,37 @@ from datetime import datetime, timezone
 
 from mcp.types import TextContent
 
-from ...models import ErrorResponse, Feedback, QueryLog
+from ...models import (
+    ConfidenceLevel,
+    ErrorResponse,
+    Feedback,
+    QueryLog,
+    RetrievalResult,
+)
 from ...retrieval import RetrievalEngine
 from .._constants import MAX_QUERY_LENGTH
 from .._logging import log_feedback_async, log_query_async
 from .._security import _rate_limit_lock, _sanitize_for_logging
 from .._state import get_metrics
+
+
+_CONFIDENCE_RANK = {
+    ConfidenceLevel.LOW: 0,
+    ConfidenceLevel.MEDIUM: 1,
+    ConfidenceLevel.HIGH: 2,
+}
+
+
+def _best_confidence(result: RetrievalResult) -> ConfidenceLevel | None:
+    """Return the highest confidence across all result types."""
+    levels = (
+        [p.confidence for p in result.constitution_principles]
+        + [p.confidence for p in result.domain_principles]
+        + [m.confidence for m in result.methods]
+    )
+    if not levels:
+        return None
+    return max(levels, key=lambda c: _CONFIDENCE_RANK.get(c, 0))
 
 
 async def _handle_query_governance(
@@ -98,9 +123,7 @@ async def _handle_query_governance(
         methods_returned=[sm.method.id for sm in result.methods],
         s_series_triggered=result.s_series_triggered,
         retrieval_time_ms=result.retrieval_time_ms,
-        top_confidence=result.constitution_principles[0].confidence
-        if result.constitution_principles
-        else None,
+        top_confidence=_best_confidence(result),
     )
     await log_query_async(query_log)
 

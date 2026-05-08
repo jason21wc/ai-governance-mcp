@@ -580,16 +580,16 @@ class TestExtractPhrases:
             assert "bold phrase" in phrases
             assert "another bold" in phrases
 
-    def test_extract_phrases_limits_to_ten(self, test_settings, sample_domains_json):
-        """Should limit to 10 phrases."""
+    def test_extract_phrases_limits_to_twenty(self, test_settings, sample_domains_json):
+        """Should limit to 20 phrases."""
         with patch("sentence_transformers.SentenceTransformer"):
             from ai_governance_mcp.extractor import DocumentExtractor
 
             extractor = DocumentExtractor(test_settings)
-            content = " ".join([f'"phrase {i}"' for i in range(20)])
+            content = " ".join([f'"phrase {i}"' for i in range(30)])
             phrases = extractor._extract_phrases(content)
 
-            assert len(phrases) <= 10
+            assert len(phrases) <= 20
 
 
 class TestExtractFailureIndicators:

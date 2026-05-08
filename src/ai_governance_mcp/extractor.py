@@ -1549,7 +1549,7 @@ class DocumentExtractor:
         bold = re.findall(r"\*\*([^*]+)\*\*", content)
         phrases.extend([b.lower() for b in bold if len(b.split()) <= 4])
 
-        return phrases[:10]  # Limit to 10 phrases
+        return phrases[:20]
 
     def _extract_failure_indicators(self, content: str) -> list[str]:
         """Extract failure indicators from content."""

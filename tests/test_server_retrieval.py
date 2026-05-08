@@ -574,3 +574,63 @@ class TestFormatRetrievalResult:
 
         assert "## Applicable Methods" in output
         assert "coding-M1" in output
+
+
+class TestBestConfidence:
+    """Tests for _best_confidence helper."""
+
+    def test_returns_high_over_medium_and_low(self):
+        from ai_governance_mcp.models import (
+            ConfidenceLevel,
+            Method,
+            Principle,
+            RetrievalResult,
+            ScoredMethod,
+            ScoredPrinciple,
+        )
+        from ai_governance_mcp.server.handlers.retrieval import _best_confidence
+
+        p = Principle(
+            id="test-p",
+            domain="constitution",
+            title="T",
+            content="C",
+            metadata={},
+            line_range=[1, 10],
+        )
+        m = Method(
+            id="test-m", domain="ai-coding", title="M", content="C", line_range=[1, 5]
+        )
+        result = RetrievalResult(
+            query="test",
+            domains_detected=["constitution"],
+            constitution_principles=[
+                ScoredPrinciple(
+                    principle=p, confidence=ConfidenceLevel.LOW, combined_score=0.3
+                )
+            ],
+            domain_principles=[
+                ScoredPrinciple(
+                    principle=p, confidence=ConfidenceLevel.MEDIUM, combined_score=0.5
+                )
+            ],
+            methods=[
+                ScoredMethod(
+                    method=m, confidence=ConfidenceLevel.HIGH, combined_score=0.8
+                )
+            ],
+        )
+        assert _best_confidence(result) == ConfidenceLevel.HIGH
+
+    def test_returns_none_when_empty(self):
+        from ai_governance_mcp.models import RetrievalResult
+        from ai_governance_mcp.server.handlers.retrieval import _best_confidence
+
+        result = RetrievalResult(
+            query="test",
+            domains_detected=[],
+            constitution_principles=[],
+            domain_principles=[],
+            methods=[],
+        )
+        assert _best_confidence(result) is None
