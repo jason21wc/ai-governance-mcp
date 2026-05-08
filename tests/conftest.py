@@ -590,10 +590,9 @@ def reset_server_state():
     """Reset global server state before and after each test.
 
     Critical for server tests to ensure test isolation.
-    State variables live in _state module; deques in _logging;
-    rate-limit in _security; _cached_roots_path in __init__.
+    State variables live in _state module (including _cached_roots_path);
+    deques in _logging; rate-limit in _security.
     """
-    import ai_governance_mcp.server as server_module
     from ai_governance_mcp.server import _security, _state
     from ai_governance_mcp.server._logging import _audit_log, _reasoning_log
 
@@ -602,7 +601,6 @@ def reset_server_state():
     _audit_log.clear()
     _reasoning_log.clear()
     _security._rate_limit_tokens = _security.RATE_LIMIT_TOKENS
-    server_module._cached_roots_path = None
 
     yield
 
@@ -611,7 +609,6 @@ def reset_server_state():
     _audit_log.clear()
     _reasoning_log.clear()
     _security._rate_limit_tokens = _security.RATE_LIMIT_TOKENS
-    server_module._cached_roots_path = None
 
 
 @pytest.fixture

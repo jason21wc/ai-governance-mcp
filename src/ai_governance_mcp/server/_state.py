@@ -8,6 +8,7 @@ Other submodules access state via ``from . import _state`` and read
 
 import json
 import logging
+from pathlib import Path
 
 from ..config import Settings, ensure_directories
 from ..models import Metrics
@@ -24,6 +25,7 @@ _engine: RetrievalEngine | None = None
 _metrics: Metrics | None = None
 _tiers_config: dict | None = None
 _tiers_loaded: bool = False
+_cached_roots_path: Path | None | bool = None
 
 
 # ---------------------------------------------------------------------------
@@ -188,9 +190,16 @@ def _build_domain_floor(tiers_config: dict, domains_detected: list[str]) -> list
 
 def reset() -> None:
     """Reset all mutable state — for test fixtures only."""
-    global _settings, _engine, _metrics, _tiers_config, _tiers_loaded
+    global \
+        _settings, \
+        _engine, \
+        _metrics, \
+        _tiers_config, \
+        _tiers_loaded, \
+        _cached_roots_path
     _settings = None
     _engine = None
     _metrics = None
     _tiers_config = None
     _tiers_loaded = False
+    _cached_roots_path = None

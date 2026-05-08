@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import pytest
 
-from ai_governance_mcp.server import (
+from ai_governance_mcp.server.handlers.agents import (
     _check_domain_fit,
     _parse_applicable_domains,
 )
