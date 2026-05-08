@@ -102,9 +102,9 @@ Runtime:
 
 ## How It Works
 
-### 17 MCP Tools (2 Servers)
+### 18 MCP Tools (2 Servers)
 
-**Governance Server (13 tools):**
+**Governance Server (14 tools):**
 
 | Tool | Purpose |
 |------|---------|
@@ -121,6 +121,7 @@ Runtime:
 | `log_governance_reasoning` | Record per-principle reasoning traces for audit |
 | `scaffold_project` | Create governance memory files for new projects |
 | `capture_reference` | Create Reference Library entries from real application |
+| `analyze_feedback_loop` | Read precomputed feedback loop analysis of server logs |
 
 **Context Engine Server (4 tools):**
 
@@ -404,7 +405,7 @@ ai-governance-mcp/
 │   ├── config.py            # Settings management
 │   ├── extractor.py         # Document parsing + embeddings
 │   ├── retrieval.py         # Hybrid search engine
-│   ├── server/              # Governance MCP server + 13 tools (package)
+│   ├── server/              # Governance MCP server + 14 tools (package)
 │   ├── config_generator.py  # Multi-platform MCP configs
 │   ├── validator.py         # Principle ID validation
 │   └── context_engine/      # Context Engine MCP (4 tools)

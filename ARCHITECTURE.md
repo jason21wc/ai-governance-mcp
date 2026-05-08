@@ -8,7 +8,7 @@
 > For decisions/rationale → PROJECT-MEMORY.md
 > Avoid volatile metrics here (test counts, coverage %, dependency versions) — use canonical sources (`pytest`, `pytest --cov`, `pyproject.toml`).
 
-**Phase:** COMPLETE — 17 tools across 2 MCP servers
+**Phase:** COMPLETE — 18 tools across 2 MCP servers
 
 ---
 
@@ -88,7 +88,7 @@ ai-governance-mcp/
 ├── src/
 │   └── ai_governance_mcp/
 │       ├── __init__.py
-│       ├── server/             # MCP server package (13 tools)
+│       ├── server/             # MCP server package (14 tools)
 │       │   ├── __init__.py    # Public API re-exports
 │       │   ├── _app.py        # MCP setup, list_tools, call_tool, main
 │       │   ├── _state.py      # Mutable globals, get_engine, get_metrics

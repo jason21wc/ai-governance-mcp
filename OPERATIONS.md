@@ -56,6 +56,24 @@
 
 **Origin:** BACKLOG #109 (migrated 2026-05-03). Cross-cohort meta-review (session-119) contrarian finding: passive triggers calcify without periodic review.
 
+### C-155. Feedback Loop Analysis
+
+**Cadence:** Every 20-30 calendar days, OR before each compliance review.
+**What:** Run `python scripts/analyze_feedback_loop.py --print-summary` to regenerate the precomputed analysis file (`logs/feedback_loop_analysis.json`). The analysis computes M-001 (Governance Influence Rate), M-003 (Retrieval Relevance Trend), M-004 (S-Series Trip Rate), detects dead principles, false-positive patterns, and retrieval gaps, and generates actionable recommendations.
+
+**Procedure:**
+1. Run `python scripts/analyze_feedback_loop.py --print-summary`.
+2. Review the summary output for any actionable recommendations.
+3. During compliance review, use `analyze_feedback_loop` MCP tool (or `analyze_feedback_loop(section="actionable_recommendations")`) to surface findings.
+4. Act on recommendations per HITL: tool proposes, human decides.
+
+**Staleness check:** The MCP tool warns if the analysis file is >30 days old. Session-start protocol may check for staleness.
+
+**Inline run log:**
+- *2026-05-08 (initial run):* 1024 audit, 476 query, 593 reasoning, 0 feedback. M-001=17.5%, M-003=0.255 (stable), M-004=17.5%. 12 dead principles, 42 FP patterns, 2 retrieval gaps. 56 recommendations generated.
+
+**Origin:** BACKLOG #42 + #22 + #153 (session-154). Feedback loop has no loop — analysis tool + cadence closes the gap.
+
 ---
 
 ## Tripwires

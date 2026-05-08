@@ -47,7 +47,7 @@
 | OPERATIONS.md | **v1** (2 cadences, 15 tripwires, 4 V-series, 5 metrics, 3 scheduled operations) |
 | Tests | **1522 passing** (non-slow subset) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
-| Tools | **17 MCP tools** (13 governance + 4 context engine) |
+| Tools | **18 MCP tools** (14 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
 | Index | **133 principles + 715 methods + 14 references** (862 total) |

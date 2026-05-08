@@ -48,6 +48,7 @@ htmlcov/
 
 # Logs
 logs/*.jsonl
+logs/feedback_loop_analysis.json
 
 # Benchmark baselines (generated per-run, not canonical)
 tests/benchmarks/baseline_*.json

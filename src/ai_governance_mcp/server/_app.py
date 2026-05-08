@@ -47,6 +47,9 @@ from .handlers.scaffold import (
     _handle_capture_reference,
     _handle_scaffold_project,
 )
+from .handlers.analysis import (
+    _handle_analyze_feedback_loop,
+)
 from ..config import setup_logging
 
 logger = setup_logging()
@@ -586,6 +589,31 @@ async def list_tools() -> list[Tool]:
                 "required": ["id", "title", "domain", "tags", "entry_type", "artifact"],
             },
         ),
+        # Tool 14: Feedback loop analysis (precomputed reader)
+        Tool(
+            name="analyze_feedback_loop",
+            description=(
+                "Read precomputed feedback loop analysis of governance server logs. "
+                "Shows effectiveness metrics (M-001/M-003/M-004), dead principles, "
+                "false-positive patterns, retrieval gaps, and actionable recommendations. "
+                "Run scripts/analyze_feedback_loop.py first to generate the analysis."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "section": {
+                        "type": "string",
+                        "description": (
+                            "Optional: return only this section "
+                            "(e.g., 'effectiveness_metrics', 'dead_principles', "
+                            "'false_positives', 'retrieval_gaps', 'actionable_recommendations')"
+                        ),
+                        "maxLength": 50,
+                    },
+                },
+                "required": [],
+            },
+        ),
     ]
 
 
@@ -637,6 +665,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             result = await _handle_scaffold_project(arguments)
         elif name == "capture_reference":
             result = await _handle_capture_reference(arguments)
+        elif name == "analyze_feedback_loop":
+            result = await _handle_analyze_feedback_loop(arguments)
         else:
             result = [TextContent(type="text", text=f"Unknown tool: {name[:50]}")]
 

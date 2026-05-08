@@ -1,8 +1,8 @@
 # API Reference
 
-The AI Governance MCP project exposes two MCP servers with a combined 17 tools. The **Governance Server** provides semantic retrieval of AI governance principles, pre-action evaluation, and compliance auditing. The **Context Engine Server** provides semantic search across project content for code and documentation discovery.
+The AI Governance MCP project exposes two MCP servers with a combined 18 tools. The **Governance Server** provides semantic retrieval of AI governance principles, pre-action evaluation, and compliance auditing. The **Context Engine Server** provides semantic search across project content for code and documentation discovery.
 
-## Governance Server (13 Tools)
+## Governance Server (14 Tools)
 
 Run with: `python -m ai_governance_mcp.server`
 
@@ -413,6 +413,29 @@ State-specific returns:
     "tags": ["pattern", "reusable", "example"],
     "entry_type": "direct",
     "artifact": "## Pattern\n\nDescription of the reusable pattern..."
+  }
+}
+```
+
+### analyze_feedback_loop
+
+Read precomputed feedback loop analysis of governance server logs. Shows effectiveness metrics (M-001/M-003/M-004), dead principles, false-positive patterns, retrieval gaps, and actionable recommendations. Run `scripts/analyze_feedback_loop.py` first to generate the analysis.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `section` | string | No | Return only this section (e.g., `effectiveness_metrics`, `dead_principles`, `false_positives`, `retrieval_gaps`, `actionable_recommendations`) |
+
+**Response:** The precomputed analysis JSON, or an error with instructions to run the script if the file is missing. Includes a staleness warning if the analysis is >30 days old.
+
+**Example:**
+
+```json
+{
+  "name": "analyze_feedback_loop",
+  "arguments": {
+    "section": "effectiveness_metrics"
   }
 }
 ```

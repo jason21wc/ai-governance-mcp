@@ -175,17 +175,9 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 153. Effectiveness metrics analysis script `D1 New Capability`
+#### 153. ~~Effectiveness metrics analysis script~~ CLOSED `D1 New Capability`
 
-**Filed:** 2026-05-03 (session-145, Execution Framework plan Phase 2 Task 2.5).
-
-**What.** `scripts/analyze-governance-metrics.py` — automated computation of the 5 effectiveness metrics defined in OPERATIONS.md (M-001 through M-005). Currently, metrics are evaluated manually during compliance reviews. The script would parse session transcripts and hook logs to compute governance influence rate, principle citation frequency, retrieval relevance trend, S-Series trip rate, and hook denial rate.
-
-**Trigger.** Implement when data volume warrants trend analysis: n>1000 `evaluate_governance` audit entries across sessions, OR when manual metric computation during compliance review takes >10 minutes.
-
-**Done when.** Script exists at `scripts/analyze-governance-metrics.py`, computes all 5 OPERATIONS.md metrics, outputs a summary table consumable by compliance review.
-
-**Origin.** Plan Phase 2 Task 2.5 deferral per contrarian finding: "Defer metrics script until data volume warrants it" (~200-500 audit entries currently, premature for trend analysis).
+**Closed:** 2026-05-08 (session-154). Subsumed by `scripts/analyze_feedback_loop.py` which computes M-001, M-003, M-004 from server logs. M-002 (citation frequency) and M-005 (hook denial rate) require session transcripts and hook logs the server doesn't have access to — not in scope. Trigger condition met: n=1024 audit entries.
 
 ---
 
@@ -257,15 +249,9 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 22. Governance Effectiveness Measurement (Discussion) `D1 Improvement`
+#### 22. ~~Governance Effectiveness Measurement~~ CLOSED `D1 Improvement`
 
-**What:** The framework can measure whether `evaluate_governance` was *called* but not whether it *influenced decisions*. Can we measure the framework's actual effectiveness?
-
-**Discussion needed:** Explore what meaningful metrics look like. This isn't about creating a metric for metric's sake — it's about understanding whether governance adds value and how. Could be several smaller metrics tracking different effectiveness aspects. May conclude some aspects aren't measurable and that's fine.
-
-**Possible directions:** Track behavior-changing evaluations (PROCEED_WITH_MODIFICATIONS, ESCALATE), measure retrieval relevance scores over time, track principle citation frequency vs actual influence, qualitative session reviews.
-
-**Outcome:** Either define metrics worth implementing, or conclude the value is qualitative and close this item.
+**Closed:** 2026-05-08 (session-154). Resolved by `scripts/analyze_feedback_loop.py` which computes M-001 (Governance Influence Rate: 17.5%), M-003 (Retrieval Relevance Trend: 0.255 avg, stable), M-004 (S-Series Trip Rate: 17.5%). M-002 (citation frequency) and M-005 (hook denial rate) require session transcripts — out of scope for server-side analysis. The discussion question "can we measure effectiveness?" is answered: yes, for server-observable signals.
 
 #### 16. Governance Retrieval Quality Assessment (Discussion) `D2 Improvement`
 
@@ -422,17 +408,9 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 42. Feedback Loop Analysis Tool (Discussion — Self-Improvement) `D2 Improvement`
+#### 42. ~~Feedback Loop Analysis Tool~~ CLOSED `D2 Improvement`
 
-**What:** New MCP tool (e.g., `analyze_feedback_loop()`) that reads existing log files (`feedback.jsonl`, `governance_reasoning.jsonl`, `governance_audit.jsonl`, `queries.jsonl`) and produces actionable proposals: dead principle detection, false positive pattern identification, retrieval gap reports, principle health scoring.
-
-**Why:** We log everything but never analyze the logs to improve the system. The feedback infrastructure exists and is underused (contrarian review finding). Closing the feedback loop is the core mechanism for self-improvement — the system surfaces what it's learned from its own evaluation history, proposing refinements rather than silently modifying itself.
-
-**What's involved:** (1) Define analysis queries (which patterns are actionable), (2) Implement log parsing and pattern detection, (3) Define output format (proposals with evidence, not automated changes), (4) Determine trigger — on-demand tool call vs. periodic analysis. Specific analyses: principles never retrieved in N days, S-Series triggers with >50% false positive rate, queries consistently returning <0.3 confidence, principles with high retrieval but low feedback scores.
-
-**Dependency:** Partially related to #22 (Governance Effectiveness Measurement) — this tool would provide concrete data for that discussion.
-
-**Origin:** Hermes Agent evaluation (2026-04-01). Hermes closes the loop via trajectory compression → model training. We can't fine-tune Claude, but we can close the loop by analyzing our own logs to surface improvement proposals.
+**Closed:** 2026-05-08 (session-154). Implemented as hybrid architecture: `scripts/analyze_feedback_loop.py` (computation) + `analyze_feedback_loop` MCP tool (thin reader of precomputed JSON). Cadence C-155 in OPERATIONS.md ensures periodic execution. Compliance review skill updated to surface results. Initial run: 1024 audit, 476 query, 593 reasoning entries analyzed. 12 dead principles, 42 FP patterns, 2 retrieval gaps, 56 recommendations generated.
 
 ---
 
@@ -450,17 +428,15 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 44. Auto-Maturity Proposals from Usage Data (Discussion — Self-Improvement) `D2 Improvement`
+#### 44. Auto-Maturity Proposals from Usage Data — partial-close `D2 Improvement`
 
-**What:** Automate maturity promotion proposals for reference library entries based on usage signals: seedling → budding (retrieved 3+ times with positive feedback), budding → evergreen (retrieved across 2+ projects, no negative feedback in 6+ months), any → caution/deprecated (not retrieved in N months based on decay_class).
+**Partial-close:** 2026-05-08 (session-154). Stub implemented in `scripts/analyze_feedback_loop.py` (`compute_maturity_proposals()`). Returns `insufficient_data` with explanatory note: references are NOT logged in `queries.jsonl` or `governance_audit.jsonl`. Handler code only includes `constitution_principles + domain_principles` in log entries — reference entries are invisible to analysis.
 
-**Why:** The maturity pipeline (seedling → budding → evergreen) and KeyCite currency tracking exist but are entirely manual. Usage data from query logs and feedback could drive proposals. This makes the reference library self-curating — entries that prove useful get promoted, entries that go stale get flagged.
+**Remaining D1 follow-up:** Add `references_returned` field to `QueryLog` model in `models.py` and populate it in `handlers/retrieval.py` `_handle_query_governance`. ~20 lines across 2 files. Once done, `compute_maturity_proposals()` can produce real proposals.
 
-**What's involved:** (1) Track per-reference retrieval counts and feedback scores (may need to enhance logging), (2) Define promotion/demotion thresholds per maturity level and decay class, (3) Surface proposals — likely as part of #42's analysis tool output rather than a separate mechanism.
+**Original description:** Automate maturity promotion proposals for reference library entries based on usage signals: seedling → budding (retrieved 3+ times with positive feedback), budding → evergreen (retrieved across 2+ projects, no negative feedback in 6+ months), any → caution/deprecated (not retrieved in N months based on decay_class).
 
-**Dependency:** Benefits from #42 (Feedback Loop Analysis) — the analysis tool would be the natural home for maturity proposals. Could also work standalone with simpler log parsing.
-
-**Origin:** Hermes Agent evaluation (2026-04-01). Hermes skills have no maturity tracking at all — all skills are equal weight. Our maturity model is better but currently manual. Automation closes the gap.
+**Origin:** Hermes Agent evaluation (2026-04-01).
 
 ---
 

@@ -60,12 +60,18 @@ You are running a governance compliance review per `workflows/COMPLIANCE-REVIEW.
    - Record any new data points in their tracking tables
    - Evaluate against confirm/refute thresholds
 
-9. **Write results** to COMPLIANCE-REVIEW.md:
+9. **Check feedback loop analysis staleness** (C-155):
+   - Read the precomputed analysis via `analyze_feedback_loop` MCP tool (or check `logs/feedback_loop_analysis.json` directly)
+   - If the file is missing or >30 days old, re-run: `python scripts/analyze_feedback_loop.py --print-summary`
+   - Review `analyze_feedback_loop(section="actionable_recommendations")` for any items needing attention
+   - Note key metrics (M-001, M-003, M-004) in the review
+
+10. **Write results** to COMPLIANCE-REVIEW.md:
    - Add a row to each check's review history table
    - Add a row to the Review Log summary table
    - Include governance audit ID in the Review Log notes
 
-10. **Report summary** to the user: checks passed/failed/deferred, any FAIL items with actions taken, V-series updates, next review target date.
+11. **Report summary** to the user: checks passed/failed/deferred, any FAIL items with actions taken, V-series updates, next review target date.
 
 ### Governance
 
