@@ -16,8 +16,10 @@ from analyze_compliance import (
     _classify_quality,
     _compute_aggregates,
     _compute_avg_proximity,
+    _compute_scope_gaps,
     _fmt_delta,
     _fmt_pct,
+    _is_bash_readonly,
     _nearest_preceding,
     analyze_transcript,
     compare_baselines,
@@ -381,6 +383,13 @@ class TestAggregates:
             "session_length": "trivial",
             "compliance_quality": "high",
             "enforcement_era": "unknown",
+            "user_prompt_positions": [],
+            "scope_gaps": [],
+            "scope_gov_gaps": [],
+            "scope_ce_gaps": [],
+            "scope_gap_rate": 0.0,
+            "scope_gov_gap_rate": 0.0,
+            "scope_ce_gap_rate": 0.0,
         }
         base.update(overrides)
         return base
@@ -612,7 +621,8 @@ class TestPrintReport:
         assert "GOVERNANCE COMPLIANCE REPORT" in output
         assert "BREAKDOWN BY SESSION LENGTH" in output
         assert "BREAKDOWN BY COMPLIANCE QUALITY" in output
-        assert "SPLIT GAP RATES" in output
+        assert "GAP RATES (window-based, read-only Bash excluded)" in output
+        assert "SCOPE-BASED GAP RATES (decision-level)" in output
         assert "Total sessions:" in output
 
 
@@ -631,3 +641,197 @@ class TestFormatHelpers:
         assert _fmt_delta(0.3, 0.5) == "+20.0pp"
         assert _fmt_delta(None, 0.5) == "\u2014"
         assert _fmt_delta(0.5, None) == "\u2014"
+
+
+# --- Bash read-only classification ---
+
+
+class TestBashReadonly:
+    def test_simple_readonly(self):
+        assert _is_bash_readonly("ls") is True
+        assert _is_bash_readonly("grep foo bar.py") is True
+        assert _is_bash_readonly("find . -name '*.py'") is True
+        assert _is_bash_readonly("head -20 file.txt") is True
+        assert _is_bash_readonly("cat README.md") is True
+        assert _is_bash_readonly("wc -l file.txt") is True
+
+    def test_simple_write(self):
+        assert _is_bash_readonly("rm file.txt") is False
+        assert _is_bash_readonly("sed -i 's/a/b/' file.txt") is False
+        assert _is_bash_readonly("mkdir -p new_dir") is False
+        assert _is_bash_readonly("touch file.txt") is False
+        assert _is_bash_readonly("mv a.txt b.txt") is False
+
+    def test_git_readonly(self):
+        assert _is_bash_readonly("git log --oneline -5") is True
+        assert _is_bash_readonly("git status") is True
+        assert _is_bash_readonly("git diff") is True
+        assert _is_bash_readonly("git blame file.py") is True
+        assert _is_bash_readonly("git rev-parse HEAD") is True
+
+    def test_git_write(self):
+        assert _is_bash_readonly("git add file.py") is False
+        assert _is_bash_readonly("git commit -m 'msg'") is False
+        assert _is_bash_readonly("git push") is False
+        assert _is_bash_readonly("git checkout branch") is False
+
+    def test_pipe_all_readonly(self):
+        assert _is_bash_readonly("grep foo | wc -l") is True
+        assert _is_bash_readonly("cat file.txt | head -5 | wc -l") is True
+        assert _is_bash_readonly("git log --oneline | grep fix") is True
+
+    def test_pipe_with_write(self):
+        assert _is_bash_readonly("grep foo | tee out.txt") is False
+        assert _is_bash_readonly("cat file | sort | sponge file") is False
+
+    def test_chain_all_readonly(self):
+        assert _is_bash_readonly('grep foo file && echo "found"') is True
+        assert _is_bash_readonly("ls || echo missing") is True
+
+    def test_chain_with_write(self):
+        assert _is_bash_readonly("grep foo && rm file") is False
+        assert _is_bash_readonly("ls; touch marker") is False
+
+    def test_redirect_makes_nonreadonly(self):
+        assert _is_bash_readonly("echo x > file.txt") is False
+        assert _is_bash_readonly("ls >> log.txt") is False
+
+    def test_stderr_redirect_ok(self):
+        assert _is_bash_readonly("grep foo 2>/dev/null") is True
+        assert _is_bash_readonly("find . -name '*.py' 2>&1") is True
+
+    def test_python_command(self):
+        assert _is_bash_readonly('python3 -c "print(1)"') is False
+        assert _is_bash_readonly("python -m pytest") is False
+
+    def test_empty_command(self):
+        assert _is_bash_readonly("") is False
+
+
+# --- Helpers for scope tests ---
+
+
+def _make_user_prompt(text: str) -> str:
+    """JSONL line for a real user prompt (type=user, string content, not meta)."""
+    return json.dumps({"type": "user", "message": {"role": "user", "content": text}})
+
+
+def _make_tool_result() -> str:
+    """JSONL line for a tool result (type=user, list content) \u2014 NOT a scope boundary."""
+    return json.dumps(
+        {
+            "type": "user",
+            "message": {
+                "role": "user",
+                "content": [
+                    {"type": "tool_result", "content": "ok", "tool_use_id": "x"}
+                ],
+            },
+        }
+    )
+
+
+def _make_meta_entry() -> str:
+    """JSONL line for a meta user entry \u2014 NOT a scope boundary."""
+    return json.dumps(
+        {
+            "type": "user",
+            "isMeta": True,
+            "message": {"role": "user", "content": "system info"},
+        }
+    )
+
+
+# --- Scope-based gap detection ---
+
+
+class TestScopeGaps:
+    def test_governed_batch_zero_scope_gaps(self, tmp_path):
+        """One gov+CE call covering 10 edits = 0% scope gap rate."""
+        lines = [
+            _make_line("mcp__ai-governance__evaluate_governance"),
+            _make_line("mcp__context-engine__query_project"),
+        ]
+        for _ in range(10):
+            lines.append(_make_line("Edit"))
+        path = _write_transcript(tmp_path, lines)
+        result = analyze_transcript(path)
+        assert result["scope_gap_rate"] == 0.0
+        assert result["scope_gaps"] == []
+
+    def test_user_prompt_resets_scope(self, tmp_path):
+        """Gov call, edit, new user prompt, edit \u2014 second edit ungoverned."""
+        lines = [
+            _make_line("mcp__ai-governance__evaluate_governance"),
+            _make_line("mcp__context-engine__query_project"),
+            _make_line("Edit"),
+            _make_user_prompt("do something else"),
+            _make_line("Edit"),
+        ]
+        path = _write_transcript(tmp_path, lines)
+        result = analyze_transcript(path)
+        assert result["scope_gov_gap_rate"] == 0.5
+        assert result["scope_ce_gap_rate"] == 0.5
+
+    def test_tool_result_does_not_reset_scope(self, tmp_path):
+        """Tool results (type=user but array content) don't break scope."""
+        lines = [
+            _make_line("mcp__ai-governance__evaluate_governance"),
+            _make_line("mcp__context-engine__query_project"),
+            _make_tool_result(),
+            _make_line("Edit"),
+        ]
+        path = _write_transcript(tmp_path, lines)
+        result = analyze_transcript(path)
+        assert result["scope_gap_rate"] == 0.0
+
+    def test_zero_gov_both_metrics_agree(self, tmp_path):
+        """No governance calls -> both metrics show 100% gap."""
+        lines = [_make_line("Edit") for _ in range(5)]
+        path = _write_transcript(tmp_path, lines)
+        result = analyze_transcript(path)
+        assert result["scope_gap_rate"] == 1.0
+        assert result["combined_gap_rate"] == 1.0
+
+    def test_meta_entry_does_not_reset_scope(self, tmp_path):
+        """isMeta user entries don't break scope."""
+        lines = [
+            _make_line("mcp__ai-governance__evaluate_governance"),
+            _make_line("mcp__context-engine__query_project"),
+            _make_meta_entry(),
+            _make_line("Edit"),
+        ]
+        path = _write_transcript(tmp_path, lines)
+        result = analyze_transcript(path)
+        assert result["scope_gap_rate"] == 0.0
+
+    def test_multiple_scopes(self, tmp_path):
+        """Two governed scopes separated by user prompt \u2014 all edits governed."""
+        lines = [
+            _make_line("mcp__ai-governance__evaluate_governance"),
+            _make_line("mcp__context-engine__query_project"),
+            _make_line("Edit"),
+            _make_line("Edit"),
+            _make_line("Edit"),
+            _make_user_prompt("next task"),
+            _make_line("mcp__ai-governance__evaluate_governance"),
+            _make_line("mcp__context-engine__query_project"),
+            _make_line("Edit"),
+            _make_line("Edit"),
+        ]
+        path = _write_transcript(tmp_path, lines)
+        result = analyze_transcript(path)
+        assert result["scope_gap_rate"] == 0.0
+
+    def test_compute_scope_gaps_direct(self):
+        """Direct unit test of _compute_scope_gaps function."""
+        scope_gaps, gov_gaps, ce_gaps = _compute_scope_gaps(
+            file_mod_positions=[5, 6, 10],
+            gov_positions=[3],
+            ce_positions=[4],
+            user_prompt_positions=[1, 8],
+        )
+        assert 5 not in gov_gaps
+        assert 6 not in gov_gaps
+        assert 10 in gov_gaps
+        assert 10 in ce_gaps

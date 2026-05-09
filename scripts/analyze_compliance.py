@@ -17,6 +17,7 @@ Subcommands:
 import argparse
 import json
 import os
+import re
 import statistics
 import sys
 from datetime import date, datetime
@@ -27,6 +28,60 @@ GOV_TOOL = "mcp__ai-governance__evaluate_governance"
 CE_TOOL = "mcp__context-engine__query_project"
 FILE_MODIFYING_TOOLS = {"Bash", "Edit", "Write", "NotebookEdit"}
 RECENCY_WINDOW = 200
+
+READONLY_CMDS = {
+    "ls",
+    "find",
+    "grep",
+    "egrep",
+    "fgrep",
+    "wc",
+    "head",
+    "tail",
+    "cat",
+    "file",
+    "stat",
+    "which",
+    "pwd",
+    "tree",
+    "du",
+    "df",
+    "diff",
+    "sort",
+    "uniq",
+    "comm",
+    "jq",
+    "column",
+    "basename",
+    "dirname",
+    "realpath",
+    "readlink",
+    "sha256sum",
+    "md5",
+    "echo",
+    "printf",
+    "true",
+    "false",
+    "test",
+}
+GIT_READONLY = {
+    "log",
+    "blame",
+    "diff",
+    "show",
+    "status",
+    "branch",
+    "remote",
+    "tag",
+    "rev-parse",
+    "ls-files",
+    "ls-tree",
+    "name-rev",
+    "shortlog",
+    "describe",
+    "for-each-ref",
+    "stash",
+}
 
 SESSION_LENGTH_RANGES = {
     "trivial": (0, 0),
@@ -88,6 +143,75 @@ def _compute_avg_proximity(
     return statistics.mean(distances) if distances else None
 
 
+def _is_bash_readonly(cmd: str) -> bool:
+    """Classify a Bash command as read-only or potentially file-modifying.
+
+    Measurement-appropriate variant: chains of all-readonly commands are readonly.
+    Differs from the enforcement classifier in pre-tool-governance-check.sh which
+    conservatively rejects all chains.
+    """
+    if not cmd or not cmd.strip():
+        return False
+    cleaned = re.sub(r"2>[>&][^ ]*", "", cmd)
+    if re.search(r">>", cleaned) or re.search(r"(?<!2)>(?!&)", cleaned):
+        return False
+    segments = re.split(r"&&|\|\||;|\|", cmd)
+    for segment in segments:
+        parts = segment.strip().split()
+        if not parts:
+            return False
+        base = parts[0].rsplit("/", 1)[-1]
+        if base == "git":
+            subcmd = parts[1] if len(parts) > 1 else ""
+            if subcmd not in GIT_READONLY:
+                return False
+        elif base not in READONLY_CMDS:
+            return False
+    return True
+
+
+def _compute_scope_gaps(
+    file_mod_positions: list[int],
+    gov_positions: list[int],
+    ce_positions: list[int],
+    user_prompt_positions: list[int],
+) -> tuple[list[int], list[int], list[int]]:
+    """Compute file modifications not covered by a governed scope.
+
+    A governance/CE call opens a scope. A user prompt closes it. File modifications
+    within a scope are governed; outside are gaps.
+    """
+    gov_set = set(gov_positions)
+    ce_set = set(ce_positions)
+    prompt_set = set(user_prompt_positions)
+    file_mod_set = set(file_mod_positions)
+
+    gov_active = False
+    ce_active = False
+    scope_gov_gaps: list[int] = []
+    scope_ce_gaps: list[int] = []
+    scope_gaps: list[int] = []
+
+    all_positions = sorted(file_mod_set | gov_set | ce_set | prompt_set)
+    for pos in all_positions:
+        if pos in prompt_set:
+            gov_active = False
+            ce_active = False
+        if pos in gov_set:
+            gov_active = True
+        if pos in ce_set:
+            ce_active = True
+        if pos in file_mod_set:
+            if not gov_active:
+                scope_gov_gaps.append(pos)
+            if not ce_active:
+                scope_ce_gaps.append(pos)
+            if not gov_active or not ce_active:
+                scope_gaps.append(pos)
+
+    return scope_gaps, scope_gov_gaps, scope_ce_gaps
+
+
 def analyze_transcript(
     path: Path,
     deployment_date: date | None = None,
@@ -101,9 +225,10 @@ def analyze_transcript(
     gov_calls = 0
     ce_calls = 0
     file_mod_calls = 0
-    gov_positions = []
-    ce_positions = []
-    file_mod_positions = []
+    gov_positions: list[int] = []
+    ce_positions: list[int] = []
+    file_mod_positions: list[int] = []
+    user_prompt_positions: list[int] = []
 
     try:
         with open(path, "r") as f:
@@ -116,6 +241,13 @@ def analyze_transcript(
                 msg = entry.get("message", {})
                 if not isinstance(msg, dict):
                     continue
+
+                # Detect user prompts (scope boundaries)
+                if entry.get("type") == "user" and not entry.get("isMeta"):
+                    content = msg.get("content", "")
+                    if isinstance(content, str) and content.strip():
+                        if not content.startswith(("<command-name>", "<local-command")):
+                            user_prompt_positions.append(line_num)
 
                 for block in msg.get("content", []):
                     if not isinstance(block, dict):
@@ -132,13 +264,16 @@ def analyze_transcript(
                         ce_calls += 1
                         ce_positions.append(line_num)
 
-                    # Check if tool name matches file-modifying tools
-                    # Tool names can be bare (Edit) or prefixed (mcp__...)
                     base_name = name.split("__")[-1] if "__" in name else name
                     if (
                         base_name in FILE_MODIFYING_TOOLS
                         or name in FILE_MODIFYING_TOOLS
                     ):
+                        # Filter read-only Bash commands
+                        if name == "Bash" or base_name == "Bash":
+                            cmd = block.get("input", {}).get("command", "")
+                            if _is_bash_readonly(cmd):
+                                continue
                         file_mod_calls += 1
                         file_mod_positions.append(line_num)
 
@@ -174,6 +309,14 @@ def analyze_transcript(
     gov_gap_rate = len(gov_gaps) / file_mod_calls if file_mod_calls else 0.0
     ce_gap_rate = len(ce_gaps) / file_mod_calls if file_mod_calls else 0.0
     combined_gap_rate = len(gaps) / file_mod_calls if file_mod_calls else 0.0
+
+    # Scope-based gap rates (decision-level)
+    scope_gaps, scope_gov_gaps, scope_ce_gaps = _compute_scope_gaps(
+        file_mod_positions, gov_positions, ce_positions, user_prompt_positions
+    )
+    scope_gap_rate = len(scope_gaps) / file_mod_calls if file_mod_calls else 0.0
+    scope_gov_gap_rate = len(scope_gov_gaps) / file_mod_calls if file_mod_calls else 0.0
+    scope_ce_gap_rate = len(scope_ce_gaps) / file_mod_calls if file_mod_calls else 0.0
 
     # Proximity
     avg_gov_proximity = _compute_avg_proximity(file_mod_positions, gov_positions)
@@ -218,6 +361,13 @@ def analyze_transcript(
         "session_length": session_length,
         "compliance_quality": compliance_quality,
         "enforcement_era": enforcement_era,
+        "user_prompt_positions": user_prompt_positions,
+        "scope_gaps": scope_gaps,
+        "scope_gov_gaps": scope_gov_gaps,
+        "scope_ce_gaps": scope_ce_gaps,
+        "scope_gap_rate": scope_gap_rate,
+        "scope_gov_gap_rate": scope_gov_gap_rate,
+        "scope_ce_gap_rate": scope_ce_gap_rate,
     }
 
 
@@ -264,6 +414,26 @@ def _compute_aggregates(results: list[dict]) -> dict:
             "gap_rate": round(q_gaps / q_mods, 4) if q_mods else 0.0,
         }
 
+    # Scope-based aggregates
+    total_scope_gaps = sum(len(r.get("scope_gaps", [])) for r in valid)
+    total_scope_gov_gaps = sum(len(r.get("scope_gov_gaps", [])) for r in valid)
+    total_scope_ce_gaps = sum(len(r.get("scope_ce_gaps", [])) for r in valid)
+
+    scope_gap_rate = total_scope_gaps / total_file_mods if total_file_mods else 0.0
+    scope_gov_gap_rate = (
+        total_scope_gov_gaps / total_file_mods if total_file_mods else 0.0
+    )
+    scope_ce_gap_rate = (
+        total_scope_ce_gaps / total_file_mods if total_file_mods else 0.0
+    )
+
+    session_scope_gap_rates = [
+        r.get("scope_gap_rate", 0.0) for r in valid if r["file_mod_calls"] > 0
+    ]
+    median_scope_gap_rate = (
+        statistics.median(session_scope_gap_rates) if session_scope_gap_rates else 0.0
+    )
+
     return {
         "total_sessions": total,
         "compliant": compliant,
@@ -278,6 +448,13 @@ def _compute_aggregates(results: list[dict]) -> dict:
         "total_ce_gaps": total_ce_gaps,
         "by_session_length": by_session_length,
         "by_compliance_quality": by_quality,
+        "scope_gap_rate": round(scope_gap_rate, 4),
+        "scope_gov_gap_rate": round(scope_gov_gap_rate, 4),
+        "scope_ce_gap_rate": round(scope_ce_gap_rate, 4),
+        "median_scope_gap_rate": round(median_scope_gap_rate, 4),
+        "total_scope_gaps": total_scope_gaps,
+        "total_scope_gov_gaps": total_scope_gov_gaps,
+        "total_scope_ce_gaps": total_scope_ce_gaps,
     }
 
 
@@ -360,7 +537,7 @@ def print_report(results: list[dict]) -> None:
     total_combined_gaps = agg["total_gaps"]
 
     print()
-    print("SPLIT GAP RATES")
+    print("GAP RATES (window-based, read-only Bash excluded)")
     print(
         f"  Combined gaps:    {total_combined_gaps}/{total_mods} = {agg['gap_rate'] * 100:.1f}%"
         f"  (median per-session: {agg['median_gap_rate']:.2f})"
@@ -370,6 +547,24 @@ def print_report(results: list[dict]) -> None:
     )
     print(
         f"  Context Engine:   {total_ce_gaps}/{total_mods} = {agg['ce_gap_rate'] * 100:.1f}%"
+    )
+
+    # Scope-based gap rates
+    total_scope = agg.get("total_scope_gaps", 0)
+    total_scope_gov = agg.get("total_scope_gov_gaps", 0)
+    total_scope_ce = agg.get("total_scope_ce_gaps", 0)
+
+    print()
+    print("SCOPE-BASED GAP RATES (decision-level)")
+    print(
+        f"  Combined scope:   {total_scope}/{total_mods} = {agg.get('scope_gap_rate', 0) * 100:.1f}%"
+        f"  (median per-session: {agg.get('median_scope_gap_rate', 0):.2f})"
+    )
+    print(
+        f"  Governance scope: {total_scope_gov}/{total_mods} = {agg.get('scope_gov_gap_rate', 0) * 100:.1f}%"
+    )
+    print(
+        f"  Context Engine:   {total_scope_ce}/{total_mods} = {agg.get('scope_ce_gap_rate', 0) * 100:.1f}%"
     )
 
 
@@ -407,6 +602,10 @@ def save_baseline(
                 "enforcement_era": r.get("enforcement_era", "unknown"),
                 "avg_gov_proximity": r.get("avg_gov_proximity"),
                 "avg_ce_proximity": r.get("avg_ce_proximity"),
+                "scope_gap_rate": r.get("scope_gap_rate", 0.0),
+                "scope_gov_gap_rate": r.get("scope_gov_gap_rate", 0.0),
+                "scope_ce_gap_rate": r.get("scope_ce_gap_rate", 0.0),
+                "user_prompt_count": len(r.get("user_prompt_positions", [])),
             }
         )
 
@@ -414,6 +613,7 @@ def save_baseline(
         "description": f"Compliance baseline{': ' + label if label else ''}",
         "date": date.today().isoformat(),
         "label": label,
+        "metric_version": 2,
         "deployment_date": deployment_date,
         "recency_window": recency_window,
         "aggregate": agg,
@@ -503,6 +703,13 @@ def compare_baselines(path_a: Path, path_b: Path) -> None:
         f"{'CE gap rate:':<25} {_fmt_pct(cgr_a):>12} {_fmt_pct(cgr_b):>12} {_fmt_delta(cgr_a, cgr_b):>12}"
     )
 
+    # Scope gap rate
+    sgr_a = agg_a.get("scope_gap_rate")
+    sgr_b = agg_b.get("scope_gap_rate")
+    print(
+        f"{'Scope gap rate:':<25} {_fmt_pct(sgr_a):>12} {_fmt_pct(sgr_b):>12} {_fmt_delta(sgr_a, sgr_b):>12}"
+    )
+
     # Compliance rate
     cr_a = agg_a.get("compliance_rate")
     cr_b = agg_b.get("compliance_rate")
@@ -529,8 +736,15 @@ def compare_baselines(path_a: Path, path_b: Path) -> None:
                 f"  {label + ':':<22} {_fmt_pct(ba):>8} -> {_fmt_pct(bb):>8}  {_fmt_delta(ba, bb):>10}"
             )
 
-    # Notes about missing fields
+    # Notes about missing fields and metric version changes
     notes = []
+    mv_a = baseline_a.get("metric_version", 1)
+    mv_b = baseline_b.get("metric_version", 1)
+    if mv_a != mv_b:
+        notes.append(
+            f"Metric version changed ({mv_a} -> {mv_b}). "
+            "v2 excludes read-only Bash from file mods and adds scope-based gaps."
+        )
     if ggr_a is None and ggr_b is not None:
         notes.append(
             "Gov/CE split not available in 'before' baseline (merged gap_count only)."
