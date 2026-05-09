@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-09 (session-156 cont. — #157 + #44 pushed, CI green).
+**Last Updated:** 2026-05-08 (session-157 — backlog hygiene + systemic fix, pushed).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,14 +12,13 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-156 (2026-05-09) shipped BACKLOG #157 + #44. Pushed and CI green.**
+**Session-157 (2026-05-08) backlog hygiene — removed 14 redirect stubs + #19, systemic prevention at 3 layers. Pushed.**
 
-**ACTION ON RESUME (session-157):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158. Scope-based metric observational.
+**ACTION ON RESUME (session-158):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158.
 
 **Critical state for next session:**
-- **#157 shipped + pushed** — Check 11 added to compliance review. CLAUDE.md session lifecycle `log_feedback` guidance.
-- **#44 shipped + pushed** — `QueryLog.references_returned` field + handler + `compute_maturity_proposals()` real logic. Bootstrapping guard: ≥20 field-present entries required for decay proposals.
-- **#158 open** — REVIEW alarm fatigue monitoring (contrarian advisory from #155).
+- **Backlog cleaned** — 14 stubs + #19 removed. Philosophy block, CFR §7.1.6, scaffold template all updated to prevent recurrence.
+- **#158 open** — REVIEW alarm fatigue monitoring. 30-day window starts session-157.
 - **Tests:** 1600 passing (non-slow subset).
 - **Compliance Review #8** — due ~2026-05-15. First review exercising Check 11.
 
@@ -27,8 +26,8 @@
 
 ## Current Position
 
-- **Phase:** Session-156 (2026-05-09) — BACKLOG #157 + #44 shipped + pushed. CI green.
-- **Mode:** Normal operation. Scope metric accumulating data (observational).
+- **Phase:** Session-157 (2026-05-08) — backlog hygiene shipped + pushed.
+- **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 
 ## Quick Reference
@@ -37,7 +36,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.1.0** (reranking, MMR diversity, RRF opt-in, chunk quality filter, candidate pool cap, per-file dedup configurable cap=3, expanded 35-query benchmark) |
-| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.44.0** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.1** (ai-instructions), **v1.9.0** (tiers.json). |
+| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.44.1** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.1** (ai-instructions), **v1.9.0** (tiers.json). |
 | Execution Framework | **v1.1.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, thematic structure) |
 | OPERATIONS.md | **v1** (3 cadences, 15 tripwires, 4 V-series, 5 metrics, 3 scheduled operations) |
 | Tests | **1600 passing** (non-slow subset) |
@@ -49,21 +48,24 @@
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **1** (`compliance-review` — invoke via `/compliance-review`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | **Green.** Last push: session-156. All pushed. |
+| CI | **Green.** Last push: session-157. All pushed. |
 
 ---
 
-## Last Session (2026-05-09)
+## Last Session (2026-05-08)
 
-156. **Session-156 (2026-05-09): BACKLOG #157 + #44.**
-   - **#157 (feedback.jsonl workflow):** Compliance review Check 11 (rotating canary queries, two-tier pass/fail, escalation options). CLAUDE.md session lifecycle `log_feedback` guidance. Skill updated (13 checks).
-   - **#44 (reference logging):** Added `QueryLog.references_returned` field, populated in `_handle_query_governance`, updated `compute_maturity_proposals()` with real logic (retrieval-count promotion candidates, decay detection with bootstrapping guard ≥20 field-present entries). Contrarian-reviewed + validator-verified.
-   - **Tests:** +5 new (1600 total passing).
-   - **Plan file:** `~/.claude/plans/structured-tinkering-teacup.md`.
+157. **Session-157 (2026-05-08): Backlog hygiene + systemic fix.**
+   - Removed 14 redirect stubs (13 "Moved to OPERATIONS.md" + #19 archival content).
+   - Updated backlog lifecycle rule at 3 layers: CFR §7.1.6 method, BACKLOG.md philosophy, scaffold template. Anti-stub rule citing §6.5.5 SSOT.
+   - Root cause: "no closed items" rule didn't cover "moved" — systemic gap from session-145 taxonomy split.
+   - Coherence-auditor caught 1 propagation miss (line 4 lifecycle metadata).
+   - CFR bumped v2.44.0 → v2.44.1.
 
 ---
 
 ## Previous Sessions
+
+*Session-156 (2026-05-09) shipped BACKLOG #157 (feedback workflow Check 11) + #44 (reference logging + maturity proposals). 1600 tests.*
 
 *Session-155 (2026-05-08) shipped compliance metric two-defect fix, filed #158 REVIEW alarm fatigue. 1595 tests.*
 
