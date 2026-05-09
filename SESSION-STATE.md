@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-09 (session-156 — BACKLOG #157 + #44 shipped).
+**Last Updated:** 2026-05-09 (session-156 cont. — #157 + #44 pushed, CI green).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,22 +12,22 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-156 (2026-05-09) shipped BACKLOG #157 + #44.** #157: compliance review Check 11 (feedback loop health) + CLAUDE.md session lifecycle `log_feedback` guidance. #44: `references_returned` field in QueryLog, handler population, and real `compute_maturity_proposals()` logic with bootstrapping guard.
+**Session-156 (2026-05-09) shipped BACKLOG #157 + #44. Pushed and CI green.**
 
 **ACTION ON RESUME (session-157):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158. Scope-based metric observational.
 
 **Critical state for next session:**
-- **#157 shipped** — Check 11 added to compliance review. CLAUDE.md session lifecycle `log_feedback` guidance.
-- **#44 shipped** — `QueryLog.references_returned` field + handler + `compute_maturity_proposals()` real logic. Bootstrapping guard: ≥20 field-present entries required for decay proposals. Old entries without field excluded from denominator.
+- **#157 shipped + pushed** — Check 11 added to compliance review. CLAUDE.md session lifecycle `log_feedback` guidance.
+- **#44 shipped + pushed** — `QueryLog.references_returned` field + handler + `compute_maturity_proposals()` real logic. Bootstrapping guard: ≥20 field-present entries required for decay proposals.
 - **#158 open** — REVIEW alarm fatigue monitoring (contrarian advisory from #155).
-- **Tests:** 1600 passing (non-slow subset). +5 new for #44.
+- **Tests:** 1600 passing (non-slow subset).
 - **Compliance Review #8** — due ~2026-05-15. First review exercising Check 11.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-156 (2026-05-09) — BACKLOG #157 + #44 shipped.
+- **Phase:** Session-156 (2026-05-09) — BACKLOG #157 + #44 shipped + pushed. CI green.
 - **Mode:** Normal operation. Scope metric accumulating data (observational).
 - **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 
@@ -49,7 +49,7 @@
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **1** (`compliance-review` — invoke via `/compliance-review`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | **Green.** Last push: session-154. All pushed. |
+| CI | **Green.** Last push: session-156. All pushed. |
 
 ---
 
