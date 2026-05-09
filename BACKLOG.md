@@ -140,18 +140,6 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 154. OPERATIONS.md documentation quality pass `D1 Docs`
-
-**Filed:** 2026-05-03 (session-145, user request during Execution Framework plan Phase 2 execution).
-
-**What.** Ensure OPERATIONS.md is well-documented: clear section descriptions, consistent formatting across all entries, cross-references verified, and the file's role in the project's memory taxonomy is explained for future readers and adopters. Review each section (Cadences, Tripwires, Verification Experiments, Effectiveness Metrics, Scheduled Operations) for completeness and clarity. Verify that every entry has consistent fields (trigger conditions, origin, inline audit log where applicable).
-
-**Done when.** OPERATIONS.md passes a documentation review — all sections have clear preamble blockquotes, all entries have consistent structure, and a reader unfamiliar with the project can understand the file's purpose and navigate to any item's canonical procedure.
-
-**Origin.** User request during session-145 Phase 2 execution.
-
----
-
 #### 127. Document-Extractor Integration-Test Coverage Gap `D2 Capability`
 
 **Filed:** 2026-04-23 (session-123 Commit L, BACKLOG #122 Case 8 deferral).

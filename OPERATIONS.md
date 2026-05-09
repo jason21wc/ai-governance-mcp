@@ -17,18 +17,19 @@
 
 ### C-078. Governance Compliance Review
 
+**What:** Periodic audit of governance infrastructure health — hooks, CLAUDE.md directives, tiers.json configuration, tool behavior, and compliance metrics. The 12-check procedure covers structural enforcement, retrieval quality, and operational hygiene.
 **Cadence:** Every 10-15 calendar days. Event triggers: hook/CLAUDE.md/tiers.json modification.
 **Procedure:** `workflows/COMPLIANCE-REVIEW.md` (12 checks). Invoke via `/compliance-review` skill.
 **Reviews completed:** #1-7 (most recent: 2026-05-05).
-**Next review due:** ~2026-05-15.
+**Next due:** ~2026-05-15.
 **Origin:** BACKLOG #78 (migrated 2026-05-03).
 
 ---
 
 ### C-109. Deferred-with-trigger cadence audit
 
-**Cadence:** Every ~30 calendar days, OR whenever a session's work plausibly satisfies a trigger.
 **What:** Several review findings across Cohorts 4-5 were deferred with "re-open when consumer emerges" triggers. Without a watch-list, principled deferrals quietly calcify into silent abandonment.
+**Cadence:** Every ~30 calendar days, OR whenever a session's work plausibly satisfies a trigger.
 
 **Deferred items tracked (as of 2026-05-09):**
 - **BACKLOG #41 / #43 / #46** — Reference library improvements (auto-staging, progressive disclosure, stack metadata). (#44 auto-maturity shipped session-156.)
@@ -43,24 +44,27 @@
 - **F-P2-03 accepted residual** — FM-code retrofit (prerequisites: consumer + parser).
 - **Domain-tool appendix Information Currency** — Check `Information Currency` dates on domain-tool appendix entries (ui-ux CFR Appendix A, future domain appendices). Stale = verified date >90 days ago. Added session-158 per #10 resolution.
 
-**Audit procedure:**
+**Procedure:**
 1. For each item, re-read the trigger prerequisites literally.
 2. Answer "still deferred?" in ≤1 sentence per item.
 3. If ANY trigger met: promote to BACKLOG project and assign work.
 4. If no triggers met: record audit date inline.
 5. Update this entry's inline audit log with results.
 
-**Inline audit log:**
+**Inline log:**
 - *2026-04-20 (initial filing):* All items in active deferral. No triggers fired. Next: ~2026-05-20.
 - *2026-04-25 (Compliance Review #5):* 0/14 triggers fired. Per-item detail in git history (`git log --grep="109"`).
 - *Next audit due: ~2026-05-25.*
 
+**Next due:** ~2026-05-25.
 **Origin:** BACKLOG #109 (migrated 2026-05-03). Cross-cohort meta-review (session-119) contrarian finding: passive triggers calcify without periodic review.
+
+---
 
 ### C-155. Feedback Loop Analysis
 
-**Cadence:** Every 20-30 calendar days, OR before each compliance review.
 **What:** Run `python scripts/analyze_feedback_loop.py --print-summary` to regenerate the precomputed analysis file (`logs/feedback_loop_analysis.json`). The analysis computes M-001 (Governance Influence Rate), M-003 (Retrieval Relevance Trend), M-004 (S-Series Trip Rate), detects dead principles, false-positive patterns, and retrieval gaps, and generates actionable recommendations.
+**Cadence:** Every 20-30 calendar days, OR before each compliance review.
 
 **Procedure:**
 1. Run `python scripts/analyze_feedback_loop.py --print-summary`.
@@ -70,9 +74,10 @@
 
 **Staleness check:** The MCP tool warns if the analysis file is >30 days old. Session-start protocol may check for staleness.
 
-**Inline run log:**
+**Inline log:**
 - *2026-05-08 (initial run):* 1024 audit, 476 query, 593 reasoning, 0 feedback. M-001=17.5%, M-003=0.255 (stable), M-004=17.5%. 12 dead principles, 42 FP patterns, 2 retrieval gaps. 56 recommendations generated.
 
+**Next due:** ~2026-06-07.
 **Origin:** BACKLOG #42 + #22 + #153 (session-154). Feedback loop has no loop — analysis tool + cadence closes the gap.
 
 ---
@@ -83,11 +88,76 @@
 >
 > **When a trigger fires:** Record the firing date and evidence in the tripwire entry. If the triggered work is discrete (implement, fix, design spike), file it as a BACKLOG project. The tripwire entry remains here if the trigger can re-fire; close it if the condition is permanently resolved.
 
-### T-149. CE-first compliance measurement (Phase 2 activation gate)
+### T-019. Rampart agent firewall adoption
 
-**Trigger conditions:** (1) CE-vs-grep ratio for discovery queries stays below 85% after 3-5 sessions with Phase 1 advisory changes deployed, OR (2) user reports persistent grep-over-CE behavior despite Phase 1 improvements.
-**What:** Phase 1 of CE-First Search plan shipped tool description ("Default search tool"), SERVER_INSTRUCTIONS ("When to Use Grep Instead"), and CLAUDE.md ("Search default: CE first") improvements. Phase 2 (Grep/Glob PreToolUse advisory hook) activates ONLY if Phase 1 proves insufficient. Measurement: observe CE-vs-grep usage in session transcripts. If ≥85% CE compliance, Phase 2 is unnecessary.
-**Origin:** Session-149 (2026-05-05). CE-First Search plan, contrarian Challenge 1 (measurement gate between phases).
+**Trigger conditions:** (1) Project adds credential files, (2) external contributors appear (≥1 issue/PR), (3) Rampart reaches 1.0 with broad adoption, (4) credential leak Layer 1+2 would not have caught.
+**What:** Layer 1 (Read deny) + Layer 2 (content-security hook) shipped. Full Rampart integration deferred — disproportionate to current attack surface (single developer, public code, no credentials in repo).
+**Landscape:** Rampart v0.9.22, 67 stars. Alternatives: Microsoft Agent Governance Toolkit, Meta LlamaFirewall.
+**Origin:** BACKLOG #19 tripwire portion (new OPERATIONS entry 2026-05-03). Main work shipped session-143.
+
+---
+
+### T-049. Embedding memory — calendar review
+
+**Trigger conditions:** (1) 2026-06-15 unconditional review date, (2) PHASE2_TRIGGERED marker re-fires (`~/.context-engine/PHASE2_TRIGGERED`), (3) proposal to add a 6th torch-loading process.
+**What:** BACKLOG #49 closed with Phase 2 IPC service shipped and verified. Daily measurement plist (`com.ai-governance.context-engine-measure`) and OOM gate hook continue running independently. This tripwire preserves the calendar review forcing function from the closed backlog entry: if no automated trigger fires by 2026-06-15, review current memory measurements and confirm the shared embedding architecture remains healthy.
+**Origin:** BACKLOG #49 close (session-147, 2026-05-04). Calendar trigger migrated from BACKLOG to OPERATIONS on close.
+
+---
+
+### T-106. Implements: backfill across 6 CFR files
+
+**Trigger conditions:** (1) A consumer emerges that loads `Implements:` field (extractor gains structured support), AND (2) Q7 remediation ships first (rename or disclaimer).
+**What:** 406 of 455 CFR methods lack `Implements:` field. Deferred by pre-edit battery (consumer-before-build pattern). Both prerequisites required.
+**Origin:** BACKLOG #106 (migrated 2026-05-03). Session-118 Cohort 4 Phase 4b.
+
+---
+
+### T-107. Tool/Model Appendix index
+
+**Trigger conditions:** (1) A consumer emerges needing Appendix-level discovery, OR (2) appendix count exceeds >15 (currently 13, A through M).
+**What:** Tool/Model Appendices embedded inside `documents/title-10-ai-coding-cfr.md` have no standalone index. Situation Index covers procedures but not Appendix discoverability.
+**Origin:** BACKLOG #107 (migrated 2026-05-03). Session-119.
+
+---
+
+### T-108. strict_domain_check block-mode escalation
+
+**Trigger conditions:** (1) Observed adopter harm from domain mismatch, OR (2) CI surface requests block-mode enforcement.
+**What:** `install_agent` shipped with WARN+allow domain-fit semantics (Phase 1). Phase 2 escalation to block-mode deferred until evidence of harm.
+**Origin:** BACKLOG #108 (migrated 2026-05-03). Session-119.
+
+---
+
+### T-110. F-P2-01 + R-01 priority-inversion retrospective
+
+**Trigger conditions:** (1) R-01 outcome benchmark ships (or declared unmeasurable), AND (2) retrospective on whether 28 closed findings need re-severity.
+**What:** Critical finding closed by claim-softening (Declaration rewrite) without shipping measurement (R-01 outcome benchmark). Contrarian: "arc inverted priority."
+**Origin:** BACKLOG #110 (migrated 2026-05-03). Session-119.
+
+---
+
+### T-111. Post-edit review scope expansion
+
+**Trigger conditions:** (1) At least 2 more cohorts where post-commit battery finds same class of drift (currently n=4), OR (2) adopter report of post-commit drift causing user-visible harm.
+**What:** 100% post-commit PATCH rate across 4 cohorts suggests post-edit scope is structurally gapped (misses adopter-facing surface propagation).
+**Origin:** BACKLOG #111 (migrated 2026-05-03). Session-119.
+
+---
+
+### T-112. Q7 retroactive audit — remaining pre-Q7 US-legal labels
+
+**Trigger conditions:** (1) Sufficient session capacity for focused Q7 pass, OR (2) new finding of operational-mismatch harm on one of the labels.
+**What:** 4-6 pre-Q7 US-legal labels remain unchecked (Supremacy Clause, Elastic Clause, Full Faith and Credit, Jacobson v. Massachusetts, Bill of Rights generic, Impeachment fast-path).
+**Origin:** BACKLOG #112 (migrated 2026-05-03). Session-119.
+
+---
+
+### T-113. Plan-stage pre-edit battery effectiveness
+
+**Trigger conditions:** (1) Evidence base N≥6 cohorts (currently n=4), OR (2) adopter-reported plan failure battery didn't catch.
+**What:** 4-of-4 pre-edit 3-agent batteries caught major pivots in first-draft plans. Pattern suggests first-draft plans are systematically under-rigored, with battery compensating.
+**Origin:** BACKLOG #113 (migrated 2026-05-03). Session-119 cross-cohort meta-review.
 
 ---
 
@@ -123,67 +193,11 @@
 
 ---
 
-### T-113. Plan-stage pre-edit battery effectiveness
+### T-149. CE-first compliance measurement (Phase 2 activation gate)
 
-**Trigger conditions:** (1) Evidence base N≥6 cohorts (currently n=4), OR (2) adopter-reported plan failure battery didn't catch.
-**What:** 4-of-4 pre-edit 3-agent batteries caught major pivots in first-draft plans. Pattern suggests first-draft plans are systematically under-rigored, with battery compensating.
-**Origin:** BACKLOG #113 (migrated 2026-05-03). Session-119 cross-cohort meta-review.
-
----
-
-### T-112. Q7 retroactive audit — remaining pre-Q7 US-legal labels
-
-**Trigger conditions:** (1) Sufficient session capacity for focused Q7 pass, OR (2) new finding of operational-mismatch harm on one of the labels.
-**What:** 4-6 pre-Q7 US-legal labels remain unchecked (Supremacy Clause, Elastic Clause, Full Faith and Credit, Jacobson v. Massachusetts, Bill of Rights generic, Impeachment fast-path).
-**Origin:** BACKLOG #112 (migrated 2026-05-03). Session-119.
-
----
-
-### T-111. Post-edit review scope expansion
-
-**Trigger conditions:** (1) At least 2 more cohorts where post-commit battery finds same class of drift (currently n=4), OR (2) adopter report of post-commit drift causing user-visible harm.
-**What:** 100% post-commit PATCH rate across 4 cohorts suggests post-edit scope is structurally gapped (misses adopter-facing surface propagation).
-**Origin:** BACKLOG #111 (migrated 2026-05-03). Session-119.
-
----
-
-### T-110. F-P2-01 + R-01 priority-inversion retrospective
-
-**Trigger conditions:** (1) R-01 outcome benchmark ships (or declared unmeasurable), AND (2) retrospective on whether 28 closed findings need re-severity.
-**What:** Critical finding closed by claim-softening (Declaration rewrite) without shipping measurement (R-01 outcome benchmark). Contrarian: "arc inverted priority."
-**Origin:** BACKLOG #110 (migrated 2026-05-03). Session-119.
-
----
-
-### T-108. strict_domain_check block-mode escalation
-
-**Trigger conditions:** (1) Observed adopter harm from domain mismatch, OR (2) CI surface requests block-mode enforcement.
-**What:** `install_agent` shipped with WARN+allow domain-fit semantics (Phase 1). Phase 2 escalation to block-mode deferred until evidence of harm.
-**Origin:** BACKLOG #108 (migrated 2026-05-03). Session-119.
-
----
-
-### T-107. Tool/Model Appendix index
-
-**Trigger conditions:** (1) A consumer emerges needing Appendix-level discovery, OR (2) appendix count exceeds >15 (currently 13, A through M).
-**What:** Tool/Model Appendices embedded inside `documents/title-10-ai-coding-cfr.md` have no standalone index. Situation Index covers procedures but not Appendix discoverability.
-**Origin:** BACKLOG #107 (migrated 2026-05-03). Session-119.
-
----
-
-### T-106. Implements: backfill across 6 CFR files
-
-**Trigger conditions:** (1) A consumer emerges that loads `Implements:` field (extractor gains structured support), AND (2) Q7 remediation ships first (rename or disclaimer).
-**What:** 406 of 455 CFR methods lack `Implements:` field. Deferred by pre-edit battery (consumer-before-build pattern). Both prerequisites required.
-**Origin:** BACKLOG #106 (migrated 2026-05-03). Session-118 Cohort 4 Phase 4b.
-
----
-
-### T-049. Embedding memory — calendar review
-
-**Trigger conditions:** (1) 2026-06-15 unconditional review date, (2) PHASE2_TRIGGERED marker re-fires (`~/.context-engine/PHASE2_TRIGGERED`), (3) proposal to add a 6th torch-loading process.
-**What:** BACKLOG #49 closed with Phase 2 IPC service shipped and verified. Daily measurement plist (`com.ai-governance.context-engine-measure`) and OOM gate hook continue running independently. This tripwire preserves the calendar review forcing function from the closed backlog entry: if no automated trigger fires by 2026-06-15, review current memory measurements and confirm the shared embedding architecture remains healthy.
-**Origin:** BACKLOG #49 close (session-147, 2026-05-04). Calendar trigger migrated from BACKLOG to OPERATIONS on close.
+**Trigger conditions:** (1) CE-vs-grep ratio for discovery queries stays below 85% after 3-5 sessions with Phase 1 advisory changes deployed, OR (2) user reports persistent grep-over-CE behavior despite Phase 1 improvements.
+**What:** Phase 1 of CE-First Search plan shipped tool description ("Default search tool"), SERVER_INSTRUCTIONS ("When to Use Grep Instead"), and CLAUDE.md ("Search default: CE first") improvements. Phase 2 (Grep/Glob PreToolUse advisory hook) activates ONLY if Phase 1 proves insufficient. Measurement: observe CE-vs-grep usage in session transcripts. If ≥85% CE compliance, Phase 2 is unnecessary.
+**Origin:** Session-149 (2026-05-05). CE-First Search plan, contrarian Challenge 1 (measurement gate between phases).
 
 ---
 
@@ -192,15 +206,6 @@
 **Trigger conditions:** (1) Claude Code hook input includes `agentId` or subagent transcript path, OR (2) subagent MCP calls surfaced in parent transcript, OR (3) Claude Code docs announce a mechanism for hooks to distinguish parent vs subagent context.
 **What:** `pre-tool-governance-check.sh` uses a read-only Bash command allowlist to let read-only subagents (contrarian-reviewer, security-auditor) bypass governance enforcement. Mutation subagents (test-generator, documentation-writer) remain blocked. When upstream fix ships: scan subagent transcript directly for full enforcement. Related env var: `READONLY_BASH_SKIP=true`.
 **Origin:** Session-152 (2026-05-07). Empirical proof: 10/10 subagents CLAUDE.md-compliant but hook-denied due to transcript isolation.
-
----
-
-### T-019. Rampart agent firewall adoption
-
-**Trigger conditions:** (1) Project adds credential files, (2) external contributors appear (≥1 issue/PR), (3) Rampart reaches 1.0 with broad adoption, (4) credential leak Layer 1+2 would not have caught.
-**What:** Layer 1 (Read deny) + Layer 2 (content-security hook) shipped. Full Rampart integration deferred — disproportionate to current attack surface (single developer, public code, no credentials in repo).
-**Landscape:** Rampart v0.9.22, 67 stars. Alternatives: Microsoft Agent Governance Toolkit, Meta LlamaFirewall.
-**Origin:** BACKLOG #19 tripwire portion (new OPERATIONS entry 2026-05-03). Main work shipped session-143.
 
 ---
 
@@ -221,7 +226,7 @@
 
 ## Effectiveness Metrics
 
-> System health indicators measured periodically. Script automation deferred until data volume warrants it (n>1000 audit entries). See BACKLOG for `scripts/analyze-governance-metrics.py` tracking item.
+> System health indicators measured periodically. M-001, M-003, and M-004 are computed automatically by `scripts/analyze_feedback_loop.py` (see C-155). M-002 and M-005 remain manual — measured during compliance reviews by inspecting session transcripts and hook logs respectively.
 
 ### M-001. Governance Influence Rate
 
@@ -310,3 +315,4 @@
 |------|--------|---------|
 | 2026-05-03 | Created. Scaffold with 5 sections. Cadences, tripwires, V-series migrated from BACKLOG.md. | 145 |
 | 2026-05-03 | Scheduled Operations populated (SO-001–SO-003). Mechanism constraint table added. | 145 |
+| 2026-05-09 | Documentation quality pass (BACKLOG #154). Consistent entry structure across cadences (What/Cadence/Procedure/Inline log/Next due/Origin), tripwires sorted ascending by ID, effectiveness metrics preamble updated for C-155 automation. | 159 |
