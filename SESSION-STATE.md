@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-08 (session-155 — compliance metric two-defect fix, #158 alarm fatigue filed).
+**Last Updated:** 2026-05-09 (session-156 — BACKLOG #157 feedback.jsonl workflow integration).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,24 +12,23 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-155 (2026-05-08) shipped compliance metric two-defect fix.** Systemic-thinking-driven analysis of 61% gap rate revealed two independent structural defects: Defect A (wrong inputs — read-only Bash counted as file modifications) and Defect B (wrong measurement unit — window-based per-edit vs decision-level per-scope). Both fixes implemented with contrarian review (2 passes). Also filed #158 REVIEW alarm fatigue monitoring.
+**Session-156 (2026-05-09) shipped BACKLOG #157 — feedback.jsonl workflow integration.** Added compliance review Check 11 (feedback loop health) with rotating canary queries, two-tier pass/fail (tool health vs loop health), and concrete escalation options. Added `log_feedback` guidance to CLAUDE.md session lifecycle. Updated skill description.
 
-**ACTION ON RESUME (session-156):** Remaining backlog item #157 (feedback.jsonl workflow). Time-cued: **Compliance Review #8** (~2026-05-15) → **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158. Scope-based metric is observational — accumulate data before promoting.
+**ACTION ON RESUME (session-157):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158. Scope-based metric observational.
 
 **Critical state for next session:**
-- **Compliance metric v2** — `_is_bash_readonly()` classifier filters read-only Bash from file mod counting; `_compute_scope_gaps()` adds decision-level scope metric. `_classify_quality()` uses corrected window-based gap rate (Bash-filtered). Scope metric is secondary/observational.
-- **#158 filed** — REVIEW alarm fatigue monitoring (contrarian advisory from #155).
-- **Remaining backlog findings:** #157 (feedback.jsonl workflow).
-- **Tests:** 1595 passing (non-slow subset).
-- **Compliance Review #8** — due ~2026-05-15.
+- **#157 shipped** — Check 11 added to compliance review (3 rotating canary queries, two-tier pass/fail). CLAUDE.md session lifecycle now prompts `log_feedback` for notable principle influence. Skill description updated to 13 checks.
+- **#158 open** — REVIEW alarm fatigue monitoring (contrarian advisory from #155).
+- **Tests:** 1595 passing (non-slow subset). No new tests for this change (docs-only).
+- **Compliance Review #8** — due ~2026-05-15. First review exercising Check 11.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-155 (2026-05-08) — compliance metric two-defect fix shipped.
+- **Phase:** Session-156 (2026-05-09) — BACKLOG #157 feedback.jsonl workflow integration shipped.
 - **Mode:** Normal operation. Scope metric accumulating data (observational).
-- **Active Task:** None. Next: #157 or Compliance Review #8.
+- **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 
 ## Quick Reference
 
@@ -53,20 +52,22 @@
 
 ---
 
-## Last Session (2026-05-08)
+## Last Session (2026-05-09)
 
-155. **Session-155 (2026-05-08): Compliance Metric Two-Defect Fix.**
-   - **Plan:** Contrarian-reviewed (2 passes), systemic-thinking-driven 4-phase plan for two independent structural defects.
-   - **Defect A fix:** `_is_bash_readonly()` measurement-appropriate classifier — filters read-only Bash from file mod counting. Differs from hook's enforcement classifier (allows chains of read-only commands).
-   - **Defect B fix:** `_compute_scope_gaps()` scope-based metric — governance call opens "governed scope" until next user prompt. Secondary/observational (stricter for 76% of historical sessions per contrarian finding).
-   - **Report:** Two-layer output — corrected window-based (Bash-filtered) + scope-based (decision-level). `_classify_quality()` uses corrected window-based. `metric_version: 2` in baselines.
-   - **Backlog:** #158 filed (REVIEW alarm fatigue monitoring, contrarian advisory from #155).
-   - **Tests:** 19 new (1595 total passing).
-   - **Plan file:** `~/.claude/plans/ticklish-jumping-galaxy.md` (COMPLETE, overwritten from session-154).
+156. **Session-156 (2026-05-09): BACKLOG #157 — feedback.jsonl Workflow Integration.**
+   - **Plan:** Contrarian-reviewed. Advisory-first approach following V-004 arc (advisory → monitor → escalate if needed).
+   - **Check 11 (feedback loop health):** Rotating canary queries (3 fixed, cycling by review mod 3), two-tier pass/fail (tool health binary + loop health with diversity), concrete escalation options (REVIEW-flow code change / accept heartbeat-only / hook).
+   - **CLAUDE.md session lifecycle:** Added `log_feedback` guidance for notable principle influence at session end.
+   - **Skill:** Updated compliance-review description (12→13 checks) and execution range (1-10→1-11).
+   - **BACKLOG #157:** Closed (removed per "no closed items" policy).
+   - **Tests:** Docs-only change, no new tests. 1595 passing.
+   - **Plan file:** `~/.claude/plans/structured-tinkering-teacup.md`.
 
 ---
 
 ## Previous Sessions
+
+*Session-155 (2026-05-08) shipped compliance metric two-defect fix, filed #158 REVIEW alarm fatigue. 1595 tests.*
 
 *Session-154 (2026-05-08) shipped Feedback Loop Analysis + #156 retrieval fix + #155 REVIEW rename. 1576 tests.*
 
@@ -88,7 +89,6 @@
 3. **C-155 feedback loop analysis** — next run due ~2026-06-07. See OPERATIONS.md.
 
 **Ready-to-work (user-directed):**
-- **#157** — feedback.jsonl workflow integration (D1 Improvement)
 - **#44** — Reference logging in QueryLog for maturity proposals (D1 follow-up)
 - **CE-First Phase 2** — Grep/Glob advisory hook (D2, conditional on T-149 measurement)
 - **#154** — OPERATIONS.md documentation quality pass (D1 Docs)
@@ -102,6 +102,7 @@
 - See OPERATIONS.md for T-019, T-049, T-106–T-113, T-119, T-134, T-143, T-145, C-078, C-109, C-155.
 
 **Working artifacts:**
+- `~/.claude/plans/structured-tinkering-teacup.md` — session-156 #157 feedback workflow plan (COMPLETE).
 - `~/.claude/plans/ticklish-jumping-galaxy.md` — session-155 compliance metric fix plan (COMPLETE).
 
 See BACKLOG.md for the full list of open items.

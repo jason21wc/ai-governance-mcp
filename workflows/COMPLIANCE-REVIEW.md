@@ -343,6 +343,50 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 
 ---
 
+### 11. Feedback loop health (BACKLOG #157)
+
+**How:** After Check 6 (MCP server canary query), exercise `log_feedback` and monitor feedback.jsonl accumulation. Two sub-checks: tool health (binary) and loop health (accumulation + diversity).
+
+**Step 1 — Rate a canary result.** Rotate the query by review number to avoid monoculture:
+
+| Review mod 3 | Query | Expected principle |
+|--------------|-------|--------------------|
+| 0 (Reviews 9, 12, 15…) | `"which principle governs validation before action?"` | `meta-quality-verification-validation` |
+| 1 (Reviews 10, 13, 16…) | `"what principle requires visible reasoning and traceability?"` | `meta-quality-visible-reasoning-traceability` |
+| 2 (Reviews 8, 11, 14…) | `"which principle addresses systemic root cause analysis?"` | `meta-core-systemic-thinking` |
+
+Call `log_feedback(query=<rotating query>, principle_id=<expected principle from Check 6 result>, rating=<1-5 based on result quality>, comment="Compliance review #N canary")`.
+
+**Step 2 — Count entries and distinct principles:**
+
+```
+wc -l .claude/logs/feedback.jsonl 2>/dev/null || echo "0"
+python3 -c "import json; entries=[json.loads(l) for l in open('.claude/logs/feedback.jsonl')]; print(f'entries={len(entries)}, distinct_principles={len(set(e[\"principle_id\"] for e in entries))}')" 2>/dev/null || echo "entries=0, distinct_principles=0"
+```
+
+**Step 3 — Compare to prior review.**
+
+**Pass criteria (two-tier):**
+
+- **Tool health (binary):** `log_feedback` call in Step 1 succeeds without error.
+- **Loop health:** Entry count ≥ previous review's count AND (after 3+ reviews with this check) entries exist for >1 distinct `principle_id` beyond the canary rotation.
+
+**Fail criteria:**
+
+- **Tool health FAIL:** `log_feedback` errors → investigate handler at `src/ai_governance_mcp/server/handlers/retrieval.py:333`.
+- **Loop health FAIL (data loss):** Entry count decreased without rotation → investigate log rotation settings.
+- **Loop health FAIL (no organic accumulation):** After 3+ reviews, all entries are compliance-review canaries only (0 non-canary entries, 0 distinct principles beyond the 3 canary rotation). This means the CLAUDE.md session lifecycle advisory is not generating organic feedback. **Escalation decision (user chooses):**
+  - **(a)** Integrate `log_feedback` into the REVIEW assessment's `ai_judgment_guidance` text — code change in `src/ai_governance_mcp/governance.py` ~line 302. Highest leverage: fires at the natural evaluation moment, produces diverse feedback.
+  - **(b)** Accept compliance-review-only accumulation as sufficient for the heartbeat use case. Formally retire the "organic accumulation" goal. The feedback loop activates slowly (5 ratings per principle needed) but eventually covers the canary principles.
+  - **(c)** Build a structural hook (V-004 pattern). Highest friction; disproportionate unless (a) also fails.
+
+**Why this matters:** `log_feedback` closes the retrieval quality feedback loop — high-rated principles get retrieval boosts via `reload_feedback_ratings()` (threshold: `feedback_min_ratings=5` per principle). With 0 entries, this mechanism is dead. This check tests tool health (can it be called?) and monitors whether feedback data is accumulating with enough volume and diversity to eventually activate the boost mechanism. C-155 cadence provides deeper analysis; this check provides the simpler review-cadence signal.
+
+| Review | Date | Tool Health | Loop Health | Entry Count | Distinct Principles | Notes |
+|--------|------|-------------|-------------|-------------|---------------------|-------|
+
+---
+
 ## Active Verification Items
 
 > Verification items are time-bound experiments tracking whether recently-introduced mechanisms are working. Each has success/failure criteria and an expiration date. When confirmed or refuted, items move to Retired with a disposition.

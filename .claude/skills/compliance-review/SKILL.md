@@ -1,5 +1,5 @@
 ---
-description: Run the governance compliance review workflow — 12 checks covering hook integrity, enforcement mode, effectiveness tracking, behavioral canary prompts, MCP health, OOM gate activity, backlog staleness, constitutional register integrity, and CI storage budget. Cadence is every 10-15 days or immediately after hook/behavioral-floor modifications.
+description: Run the governance compliance review workflow — 13 checks covering hook integrity, enforcement mode, effectiveness tracking, behavioral canary prompts, MCP health, OOM gate activity, backlog staleness, constitutional register integrity, CI storage budget, and feedback loop health. Cadence is every 10-15 days or immediately after hook/behavioral-floor modifications.
 disable-model-invocation: true
 allowed-tools: Bash Read Edit Agent
 ---
@@ -33,7 +33,7 @@ You are running a governance compliance review per `workflows/COMPLIANCE-REVIEW.
 
 3. **Determine the next review number** from the Review Log table at the bottom of COMPLIANCE-REVIEW.md.
 
-4. **Execute each Ongoing Check (1 through 10)** in order. For each check:
+4. **Execute each Ongoing Check (1 through 11)** in order. For each check:
    - Read the check definition and pass/fail criteria from COMPLIANCE-REVIEW.md
    - Run the required commands (many are pre-populated in the Context Snapshot above)
    - Evaluate the result against the criteria

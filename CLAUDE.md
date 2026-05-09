@@ -82,7 +82,7 @@ When you discover issues during a task, **finish the user's requested task first
 
 **At session start:** Read all four memory files: SESSION-STATE.md (current position), PROJECT-MEMORY.md (constraints and decisions), LEARNING-LOG.md (mistakes to avoid), OPERATIONS.md (active cadences, tripwire triggers, metric baselines). Then prune SESSION-STATE.md if >300 lines: remove old session summaries (keep only most recent), clear stale context, route decisions to PROJECT-MEMORY.md, lessons to LEARNING-LOG.md. Target: <300 lines per §7.0.4. Context retention priority policy: EXECUTION-FRAMEWORK.md §7.
 
-**At session end:** Update SESSION-STATE.md with current position and session summary. If >300 lines, apply §7.0.4 distillation before committing.
+**At session end:** Update SESSION-STATE.md with current position and session summary. If >300 lines, apply §7.0.4 distillation before committing. When a governance evaluation's principles notably influenced a decision during the session — positively (right principle at right time) or negatively (irrelevant principle surfaced) — call `log_feedback(query, principle_id, rating=1-5)` before session end. Not every evaluation; only when principles made a visible difference or were notably off-target.
 
 **Backlog items:** Discussion and deferred items live in BACKLOG.md, not SESSION-STATE.md.
 

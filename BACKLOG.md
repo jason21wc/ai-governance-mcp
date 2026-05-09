@@ -83,18 +83,6 @@ Three-layer systemic fix: BM25 content window 1000→3000 chars (82% of principl
 
 ---
 
-#### 157. feedback.jsonl workflow integration — log_feedback never called `D1 Improvement`
-
-**Filed:** 2026-05-08 (session-154, feedback loop analysis finding).
-
-**What.** The `log_feedback` MCP tool exists but has never been called (0 entries in feedback.jsonl). Feedback-dependent analyses in `analyze_feedback_loop` report `insufficient_data`. The tool exists; no workflow prompts its use.
-
-**Fix options.** (1) Add a "rate this result" step to compliance review workflow. (2) Add session-end protocol step to log feedback on governance evaluations that influenced decisions. (3) Integrate into the governance hook — after REVIEW or ESCALATE, prompt for feedback. Option 1 is lowest friction.
-
-**Done when.** feedback.jsonl accumulates entries organically through normal workflow usage.
-
----
-
 #### 158. REVIEW alarm fatigue — monitor agent habituation to ~51% REVIEW rate `D2 Discussion`
 
 **Filed:** 2026-05-08 (session-154, contrarian advisory from #155 REVIEW rename).
