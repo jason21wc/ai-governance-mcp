@@ -390,7 +390,7 @@ SCAFFOLD_BACKLOG = """# Backlog
 
 ---
 
-*Convention: items move Active ↔ Deferred as priorities shift. Shipped items are removed from this file (commit message + SESSION-STATE entry are the record).*
+*Convention: items move Active ↔ Deferred as priorities shift. Shipped or migrated items are removed from this file — no redirect stubs (commit history is the record).*
 """
 
 SCAFFOLD_CORE_FILES = {

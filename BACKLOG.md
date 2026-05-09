@@ -1,7 +1,7 @@
 # Backlog
 
 **Memory Type:** Prospective (intentions)
-**Lifecycle:** Items are added when discovered, removed when implemented or abandoned. Git commit history is the archive for closed items (`git log --grep="backlog #N"`).
+**Lifecycle:** Items are added when discovered, removed when implemented, migrated, or abandoned. Git commit history is the archive (`git log --grep="backlog #N"`).
 
 > **Staleness rule (2026-04-14):** Discussion items with no activity for 90+ days are flagged for review during the next compliance review (workflows/COMPLIANCE-REVIEW.md Check 8). User decides: keep, close, or reframe.
 
@@ -15,11 +15,11 @@
 > - **BACKLOG.md (this file)** — **Projects.** Discrete tasks with start and end. Close on completion or abandonment. Git history is the archive.
 > - **OPERATIONS.md** — **Operational items.** Indefinite-lifecycle recurring commitments: cadences (periodic reviews), tripwires (conditional re-evaluations), verification experiments (time-bound hypothesis tests), effectiveness metrics (system health indicators), scheduled operations (automated tasks). These are never "done" — their recurrence is the point.
 >
-> When a tripwire fires and creates discrete work, that work comes here as a project. When a project reveals a need for ongoing monitoring, the monitoring item goes to OPERATIONS.md. Items with "Moved to OPERATIONS.md" redirect stubs were migrated from this file — git history preserves their original content.
+> When a tripwire fires and creates discrete work, that work comes here as a project. When a project reveals a need for ongoing monitoring, the monitoring item goes to OPERATIONS.md. Previously migrated items can be found via `git log --grep="backlog #N"`.
 >
 > **Anticipatory items are valid.** Not all backlog items need a triggered condition. Three valid reasons to keep an item: need it now (active problem), plan to use soon (near-future need), anticipate needing later (want it ready when the time comes). When reviewing the backlog, present items with summaries so the user can decide — don't assume items without fired triggers should be closed.
 >
-> **No closed/completed items in this file.** When an item is closed, remove it from this file entirely. Git commit history is the archive — commit messages document what was closed and why. Maintaining closed item lists, completed tables, or historical detail sections in a working document is redundant with version control and causes unbounded file growth. If you need closure context for a past item, use `git log --grep="backlog #N"` or search commit messages.
+> **No closed/completed/moved items in this file.** When an item is closed, migrated to another file, or completed, remove it from this file entirely. Do not leave redirect stubs ("Moved to X") — they accumulate as noise and contradict single-source-of-truth (per `coding-method-archive-vs-delete-decision-matrix` §6.5.5). Git commit history is the archive — commit messages document what was closed, moved, and why. If you need closure context for a past item, use `git log --grep="backlog #N"` or search commit messages.
 >
 > **Difficulty classification (D1-D3).** Every backlog item gets a difficulty tag. Per `meta-quality-verification-validation` and `meta-method-effort-not-time-estimation` (rules-of-procedure §7.12), criteria must be observable, not time-based or subjective.
 >
@@ -37,27 +37,7 @@
 
 ### Active (Implement Now/Soon)
 
----
-
-119. **Moved to OPERATIONS.md** → T-119 (Revised-plan-after-rejection heuristic tripwire).
-
-78. **Moved to OPERATIONS.md** → C-078 (Governance Compliance Review cadence).
-
-113. **Moved to OPERATIONS.md** → T-113 (Plan-stage pre-edit battery effectiveness tripwire).
-
-112. **Moved to OPERATIONS.md** → T-112 (Q7 retroactive audit — remaining pre-Q7 US-legal labels tripwire).
-
-111. **Moved to OPERATIONS.md** → T-111 (Post-edit review scope expansion tripwire).
-
-110. **Moved to OPERATIONS.md** → T-110 (F-P2-01 + R-01 priority-inversion retrospective tripwire).
-
-109. **Moved to OPERATIONS.md** → C-109 (Deferred-with-trigger cadence audit).
-
-108. **Moved to OPERATIONS.md** → T-108 (strict_domain_check block-mode escalation tripwire).
-
-107. **Moved to OPERATIONS.md** → T-107 (Tool/Model Appendix index tripwire).
-
-106. **Moved to OPERATIONS.md** → T-106 (Implements: backfill tripwire).
+*No active items. All former items migrated to OPERATIONS.md — see git history.*
 
 ---
 
@@ -172,19 +152,6 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 134. **Moved to OPERATIONS.md** → T-134 (PR-workflow infrastructure tripwire).
-
----
-
-#### 145. **Moved to OPERATIONS.md** → T-145 (Citation-form check hardening tripwire).
-
----
-
-#### 143. **Moved to OPERATIONS.md** → T-143 (OOM-gate quoted-region false-positive tripwire).
-
----
-
-
 #### 127. Document-Extractor Integration-Test Coverage Gap `D2 Capability`
 
 **Filed:** 2026-04-23 (session-123 Commit L, BACKLOG #122 Case 8 deferral).
@@ -253,28 +220,6 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 **Origin:** User request (2026-04-04). Anticipatory architecture improvement for adoption scalability.
 
 ---
-
-#### 19. Content-Level Security Enforcement — partial-close `D2 Improvement` *(Rampart tripwire portion → OPERATIONS.md T-019)*
-
-**Shipped (2026-05-03, session-143).** Two-layer credential-access gate:
-- **Layer 1 (Read deny rules):** Already present in user-level `~/.claude/settings.json` — blocks `Read(~/.ssh/**)`, `Read(~/.aws/credentials)`, `Read(~/.gnupg/**)`, `Read(~/.netrc)`, `Read(**/.env)`, `Read(**/.env.*)`, `Read(~/.docker/config.json)`, `Read(~/.kube/config)`, `Read(~/.npmrc)`.
-- **Layer 2 (Custom hook):** `.claude/hooks/pre-tool-content-security.sh` — blocks Bash commands accessing the same credential paths (cat, head, cp, scp, curl, base64, etc.) plus bare directory references (tar ~/.ssh, ls ~/.aws). 44 tests in `tests/test_content_security_hook.py`. Positioned after governance hooks in PreToolUse array.
-
-**Gap addressed:** Claude Code can read files outside the project directory without prompting. `~/.ssh/id_rsa` and `~/.aws/credentials` were accessible via both the Read tool and Bash commands. Layer 1 + Layer 2 close both paths.
-
-**Known limitation:** Path traversal bypass (e.g., `cat /tmp/../../home/user/.ssh/id_rsa`) evades string-matching. Fixing requires path canonicalization (realpath), significant scope expansion. Acceptable for defense-in-depth: the threat model is naive AI access, not adversarial evasion of its own hooks.
-
-**Not shipped (deferred to Rampart tripwire):** Path canonicalization, network exfiltration filtering, output secret scanning, comprehensive OWASP coverage. Contrarian review (`a3c863d49f04b447d`, REVISIT verdict) correctly identified full Rampart integration as disproportionate to current attack surface (zero credential files in repo, zero outbound network calls, public code, single developer).
-
-**Rampart tripwire — reopen when ANY fires:**
-1. Project adds credential files (`.env`, API keys, service accounts)
-2. External contributors appear (≥1 external issue/PR)
-3. Rampart reaches 1.0 with broader adoption (500+ stars, multiple contributing orgs)
-4. A credential leak occurs that Layer 1+2 would not have caught
-
-**Rampart landscape (as of 2026-05-03):** github.com/peg/rampart v0.9.22, Apache 2.0, Go binary, 67 stars, 777 commits. Native Claude Code PreToolUse integration. Alternatives: Microsoft Agent Governance Toolkit (OWASP-complete), Meta LlamaFirewall (guardrail framework).
-
-**Origin:** Session-48 (2026-04-04) original filing. Session-143 (2026-05-03) research + contrarian review + proportional implementation. Plan: `~/.claude/plans/review-with-subagents-to-sorted-bear.md`. Governance: `gov-20465bfec14a`.
 
 #### 10. UI/UX Tool-Specific Integration Guides (Discussion) `D1 New Capability`
 
@@ -365,8 +310,6 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 **Dependency:** None — can implement independently.
 
 **Origin:** Hermes Agent evaluation (2026-04-01). Their skill_view progressive loading pattern adapted to our retrieval model.
-
----
 
 ---
 

@@ -6082,7 +6082,7 @@ File: `BACKLOG.md` (project root). Create when a project accumulates discussion 
 
 **Lifecycle rules:**
 - **Add items** when deferred work is discovered (per CLAUDE.md "Defer vs Fix Now" or equivalent project policy)
-- **Remove items** when implemented or explicitly closed — git history preserves closure context
+- **Remove items** when implemented, explicitly closed, or migrated to another file — git history preserves closure context. Do not leave redirect stubs; they accumulate as noise and contradict single-source-of-truth (§6.5.5)
 - **Review stale items** at periodic compliance reviews (90+ days with no activity)
 - No line count target — backlogs grow with ideas and shrink with decisions
 
