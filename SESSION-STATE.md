@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-08 (session-157 — backlog hygiene + systemic fix, pushed).
+**Last Updated:** 2026-05-08 (session-157 — backlog hygiene, #10/#35/#79 consolidation, pushed).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,12 +12,13 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-157 (2026-05-08) backlog hygiene — removed 14 redirect stubs + #19, systemic prevention at 3 layers. Pushed.**
+**Session-157 (2026-05-08) backlog hygiene + tool integration consolidation. Pushed.**
 
 **ACTION ON RESUME (session-158):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158.
 
 **Critical state for next session:**
-- **Backlog cleaned** — 14 stubs + #19 removed. Philosophy block, CFR §7.1.6, scaffold template all updated to prevent recurrence.
+- **Backlog cleaned** — 14 stubs + #19 removed. Anti-stub rule at 3 layers (CFR §7.1.6, BACKLOG.md, scaffold).
+- **#10 consolidated** — #10, #35, #79 merged into single "Third-Party Tool Integration Governance Pattern" discussion. Design question: which container (per-tool appendix, grouped appendix, reference library, or none)?
 - **#158 open** — REVIEW alarm fatigue monitoring. 30-day window starts session-157.
 - **Tests:** 1600 passing (non-slow subset).
 - **Compliance Review #8** — due ~2026-05-15. First review exercising Check 11.
@@ -26,7 +27,7 @@
 
 ## Current Position
 
-- **Phase:** Session-157 (2026-05-08) — backlog hygiene shipped + pushed.
+- **Phase:** Session-157 (2026-05-08) — backlog hygiene + #10 consolidation shipped + pushed.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 
@@ -54,12 +55,12 @@
 
 ## Last Session (2026-05-08)
 
-157. **Session-157 (2026-05-08): Backlog hygiene + systemic fix.**
+157. **Session-157 (2026-05-08): Backlog hygiene + tool integration consolidation.**
    - Removed 14 redirect stubs (13 "Moved to OPERATIONS.md" + #19 archival content).
    - Updated backlog lifecycle rule at 3 layers: CFR §7.1.6 method, BACKLOG.md philosophy, scaffold template. Anti-stub rule citing §6.5.5 SSOT.
-   - Root cause: "no closed items" rule didn't cover "moved" — systemic gap from session-145 taxonomy split.
+   - Consolidated #10, #35, #79 into single #10 "Third-Party Tool Integration Governance Pattern" — shared design question, four container options.
    - Coherence-auditor caught 1 propagation miss (line 4 lifecycle metadata).
-   - CFR bumped v2.44.0 → v2.44.1.
+   - CFR bumped v2.44.0 → v2.44.1. Backlog 499 → 429 lines.
 
 ---
 

@@ -221,11 +221,45 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 10. UI/UX Tool-Specific Integration Guides (Discussion) `D1 New Capability`
+#### 10. Third-Party Tool Integration Governance Pattern (Discussion — consolidates #10, #35, #79) `D2 Discussion`
 
-**What:** Write integration guides for AI-assisted design tools (Figma MCP, Storybook MCP, Axe MCP, Playwright MCP, etc.) as they're adopted. Research already done (candidate tools, risks, token costs documented in git history — search commits for "backlog #10").
+**Filed:** 2026-04-04 (#10), updated 2026-05-08 (consolidated session-157).
 
-**Discussion needed:** Which tools are most likely to be adopted first? What format should integration guides take? Reference the existing research.
+**What.** Three backlog items independently asked "how should the framework govern this third-party tool?" — UI/UX design tools (#10), Stripe Projects CLI (#35), Apple Mail MCP (#79). Working them separately would produce inconsistent answers to the same design question: **what container and governance pattern should the framework use for third-party tool integrations?**
+
+**Existing infrastructure (the framework already handles this — the question is which mechanism):**
+- **Tool Content Model** (CFR §3.1) — defines how tools enter the framework (appendix, method reference, or principle)
+- **MCP Server Vetting Procedure** (CFR §5.6.5) — trust evaluation for MCP tools specifically
+- **Appendix template** (rules-of-procedure) — external/third-party tool fields: Prerequisites, Source, Version, Framework Integration
+- **Enforcement proxy Phase 2** (`enforcement.py`) — wraps any third-party MCP server with governance preconditions
+
+**Design question.** The framework has four possible containers for tool-specific guidance:
+1. **Per-tool appendix** (current pattern: Appendix A Claude Code, Appendix D Gemini CLI, etc.) — proven, but each new tool adds an appendix. Scales to ~5 tools, not 50.
+2. **Grouped appendix** — single "Third-Party MCP Tools" appendix with subsections per tool. Lighter per-tool overhead; groups common governance patterns (maturity vetting, HITL gates, credential handling).
+3. **Reference Library entries** — tool governance as reference entries with maturity/decay lifecycle. Lightest overhead; leverages existing retrieval infrastructure.
+4. **No framework-level guidance** — tools governed by existing principles (S-Series, AO-Series, Established Solutions First) without dedicated container. Simplest; risks inconsistent application.
+
+**Cross-cutting governance concerns (shared across all three tools):**
+- **Maturity risk** — all three are pre-release or early-stage. `coding-process-established-solutions-first` applies but needs tool-specific calibration.
+- **Autonomy on destructive/financial actions** — Stripe: financial transactions; Apple Mail: send/delete emails; UI tools: design system modifications. What HITL enforcement? Which actions require confirmation vs. autonomous execution?
+- **Credential/access scope** — Stripe: Shared Payment Tokens; Apple Mail: all mail accounts; UI tools: Figma API tokens. Security-auditor evaluation needed per tool.
+- **Vendor dependency** — does the framework endorse specific tools or document patterns? Tool Content Model (§3.1) already addresses this.
+
+**Instance details (preserved from original items):**
+
+| Tool | Key Concern | Research Status |
+|------|------------|-----------------|
+| **UI/UX design tools** (Figma MCP, Storybook, Axe, Playwright) | Integration guides for AI-assisted design workflows | Research done — search `git log --grep="backlog #10"` |
+| **Stripe Projects CLI** | AI agents triggering financial transactions + infrastructure provisioning | Preliminary mapping done (5 principle refs, 4 governance concerns) — search `git log --grep="backlog #35"` |
+| **Apple Mail MCP** | AI read/send/delete email — high S-Series sensitivity, AppleScript injection surface | Architecture documented — search `git log --grep="backlog #79"` |
+
+**Discussion needed.** Resolve the container question first — then apply consistently to all three tools (and future tools). The container decision also informs #55 (Workflow Codification) since tool integration guides may be a type of workflow.
+
+**Done when.** Container pattern decided, documented in the CFR (or explicitly rejected with rationale), and first tool integration published using the chosen pattern.
+
+**Origin.** #10 (session-48, 2026-04-04), #35 (2026-04-04), #79 (2026-04-10). Consolidated session-157 (2026-05-08) per `meta-core-structural-foundations` — three instances of the same structural question.
+
+---
 
 #### 11. Autonomous Operations Domain (Discussion) `D3 New Capability`
 
@@ -238,52 +272,6 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 **What:** Framework covers how AI produces code but not how AI handles deployment, infrastructure, and operations. 3 solid practices from viral "AI vibe coding security rules" analysis couldn't be placed in existing domains.
 
 **Discussion needed:** Is this a full domain or should the 3 orphaned practices just be filed in an appendix? Decision factors: are we using AI for deployment workflows? Is the gap growing? Domain vs standalone runbook vs appendix to AI Coding methods?
-
-#### 35. Evaluate Stripe Projects CLI for Appendices (Discussion) `D1 New Capability`
-
-**What:** Stripe Projects CLI (launched 2026-03-27, developer preview) lets developers and AI agents provision third-party services, manage credentials, and handle billing from the terminal. Evaluate whether it belongs in the ai-governance appendices as tool-specific guidance.
-
-**Origin:** Claude.ai research conversation. Preliminary assessment produced WITHOUT governance tooling — treat as research input, not validated conclusions.
-
-**Why it matters for governance:** This tool lets AI agents trigger real financial transactions (paid-tier upgrades via Shared Payment Tokens) and provision infrastructure autonomously. That's squarely in AO-Series (autonomous operations) and S-Series (safety/security) territory.
-
-**Preliminary mapping (UNVALIDATED — needs `evaluate_governance()` and subagent review):**
-- `coding-method-agent-to-service-integration-patterns` — standardizes provisioning workflows
-- `coding-method-credential-isolation-and-secrets-management` — vault-based credential storage
-- `coding-method-service-identity-and-credential-lifecycle` — provider account association
-- `meta-safety-non-maleficence-privacy-security` (S-Series) — credential handling, financial action authority
-- `coding-process-established-solutions-first` — but developer preview maturity is a concern
-
-**Key governance concerns to resolve:**
-1. **Agent autonomy on financial actions.** Agents can select paid tiers triggering real charges. Which principles govern this? What HITL enforcement mechanism?
-2. **Maturity risk.** Developer preview, US/EU/UK/Canada only, expanding provider catalog. Does "Established Solutions First" apply to a tool this new?
-3. **Shared Payment Token security model.** Tokenized payment credentials passed to providers. Security-auditor evaluation needed.
-4. **Vendor dependency.** Does the framework endorse specific vendors or just document patterns?
-
-**Research sources:** Stripe docs (docs.stripe.com/projects), projects.dev, Stripe X announcement, HN discussion (47532148), Karpathy blog post that motivated it.
-
-**When discussed:** Run full governance evaluation, contrarian-reviewer (does it belong at all?), coherence-auditor (appendix fit), security-auditor (credential/payment model). Three possible outcomes: add now, add with conditions, or do not add.
-
----
-
-#### 79. Apple Mail MCP Server — Tool-Specific Governance Guidance (Discussion) `D1 New Capability`
-
-**What:** Add governance guidance for the [apple-mail-mcp](https://github.com/s-morgan-jeffries/apple-mail-mcp) open-source MCP server (MIT license, pre-release). Enables AI to read, search, compose, send, and manage emails via Apple Mail.app on macOS. 14 exposed tools across read/search, compose/send, attachments, and organization.
-
-**Why it matters for governance:** AI accessing email is a high-sensitivity capability — S-Series (privacy/security), AO-Series (autonomous actions with real-world consequences like sending emails). The server runs locally (no cloud routing) and requires explicit macOS Automation permission, which is good, but it grants access to all configured mail accounts once approved.
-
-**Key governance concerns:**
-1. **Placement:** Does this fit as an appendix to an existing domain (multi-agent? ai-coding?), or is there a broader "tool-specific MCP governance" pattern emerging? See also #35 (Stripe Projects CLI) and #10 (UI/UX tool guides) — three tool-specific items may indicate a pattern.
-2. **Autonomy on destructive actions:** `send_email`, `delete_messages`, `forward_message` have real-world blast radius. What HITL enforcement? The server has confirmation flows, but governance should define when AI can vs. cannot act autonomously.
-3. **Scope of access:** All mail accounts, not per-account. Governance should recommend dedicated AI mail account.
-4. **Pre-release maturity risk:** No version tags, 2 contributors, 23 open issues. Same "Established Solutions First" concern as #35.
-5. **AppleScript injection surface:** Input sanitization exists but should be security-auditor reviewed.
-
-**Architecture:** Python FastMCP → AppleScript bridge → Apple Mail.app. Local only, no credentials stored, audit logging included.
-
-**When discussed:** Run governance evaluation, consider whether #35 + #79 + #10 indicate a "Tool Integration Governance" appendix or domain pattern. Security-auditor review of the AppleScript bridge.
-
----
 
 #### 41. Reference Library Auto-Staging Proposals (Discussion — Self-Improvement) `D2 Improvement`
 
