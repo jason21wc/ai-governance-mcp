@@ -221,46 +221,6 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 10. Third-Party Tool Integration Governance Pattern (Discussion — consolidates #10, #35, #79) `D2 Discussion`
-
-**Filed:** 2026-04-04 (#10), updated 2026-05-08 (consolidated session-157).
-
-**What.** Three backlog items independently asked "how should the framework govern this third-party tool?" — UI/UX design tools (#10), Stripe Projects CLI (#35), Apple Mail MCP (#79). Working them separately would produce inconsistent answers to the same design question: **what container and governance pattern should the framework use for third-party tool integrations?**
-
-**Existing infrastructure (the framework already handles this — the question is which mechanism):**
-- **Tool Content Model** (CFR §3.1) — defines how tools enter the framework (appendix, method reference, or principle)
-- **MCP Server Vetting Procedure** (CFR §5.6.5) — trust evaluation for MCP tools specifically
-- **Appendix template** (rules-of-procedure) — external/third-party tool fields: Prerequisites, Source, Version, Framework Integration
-- **Enforcement proxy Phase 2** (`enforcement.py`) — wraps any third-party MCP server with governance preconditions
-
-**Design question.** The framework has four possible containers for tool-specific guidance:
-1. **Per-tool appendix** (current pattern: Appendix A Claude Code, Appendix D Gemini CLI, etc.) — proven, but each new tool adds an appendix. Scales to ~5 tools, not 50.
-2. **Grouped appendix** — single "Third-Party MCP Tools" appendix with subsections per tool. Lighter per-tool overhead; groups common governance patterns (maturity vetting, HITL gates, credential handling).
-3. **Reference Library entries** — tool governance as reference entries with maturity/decay lifecycle. Lightest overhead; leverages existing retrieval infrastructure.
-4. **No framework-level guidance** — tools governed by existing principles (S-Series, AO-Series, Established Solutions First) without dedicated container. Simplest; risks inconsistent application.
-
-**Cross-cutting governance concerns (shared across all three tools):**
-- **Maturity risk** — all three are pre-release or early-stage. `coding-process-established-solutions-first` applies but needs tool-specific calibration.
-- **Autonomy on destructive/financial actions** — Stripe: financial transactions; Apple Mail: send/delete emails; UI tools: design system modifications. What HITL enforcement? Which actions require confirmation vs. autonomous execution?
-- **Credential/access scope** — Stripe: Shared Payment Tokens; Apple Mail: all mail accounts; UI tools: Figma API tokens. Security-auditor evaluation needed per tool.
-- **Vendor dependency** — does the framework endorse specific tools or document patterns? Tool Content Model (§3.1) already addresses this.
-
-**Instance details (preserved from original items):**
-
-| Tool | Key Concern | Research Status |
-|------|------------|-----------------|
-| **UI/UX design tools** (Figma MCP, Storybook, Axe, Playwright) | Integration guides for AI-assisted design workflows | Research done — search `git log --grep="backlog #10"` |
-| **Stripe Projects CLI** | AI agents triggering financial transactions + infrastructure provisioning | Preliminary mapping done (5 principle refs, 4 governance concerns) — search `git log --grep="backlog #35"` |
-| **Apple Mail MCP** | AI read/send/delete email — high S-Series sensitivity, AppleScript injection surface | Architecture documented — search `git log --grep="backlog #79"` |
-
-**Discussion needed.** Resolve the container question first — then apply consistently to all three tools (and future tools). The container decision also informs #55 (Workflow Codification) since tool integration guides may be a type of workflow.
-
-**Done when.** Container pattern decided, documented in the CFR (or explicitly rejected with rationale), and first tool integration published using the chosen pattern.
-
-**Origin.** #10 (session-48, 2026-04-04), #35 (2026-04-04), #79 (2026-04-10). Consolidated session-157 (2026-05-08) per `meta-core-structural-foundations` — three instances of the same structural question.
-
----
-
 #### 11. Autonomous Operations Domain (Discussion) `D3 New Capability`
 
 **What:** Autonomous agent patterns (AO-Series, currently 4 principles in Multi-Agent) may eventually outgrow the multi-agent domain. This would create a dedicated domain for autonomous operation governance — financial compliance, regulatory frameworks, agent marketplace governance, cross-org federation.

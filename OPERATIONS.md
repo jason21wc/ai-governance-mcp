@@ -30,7 +30,7 @@
 **Cadence:** Every ~30 calendar days, OR whenever a session's work plausibly satisfies a trigger.
 **What:** Several review findings across Cohorts 4-5 were deferred with "re-open when consumer emerges" triggers. Without a watch-list, principled deferrals quietly calcify into silent abandonment.
 
-**Deferred items tracked (as of 2026-04-20):**
+**Deferred items tracked (as of 2026-05-09):**
 - **BACKLOG #41 / #43 / #46** — Reference library improvements (auto-staging, progressive disclosure, stack metadata). (#44 auto-maturity shipped session-156.)
 - **BACKLOG #58 / #59 / #60** — UBDA adopter-drift review items.
 - **T-106** — `Implements:` backfill (prerequisites: consumer + Q7 remediation).
@@ -41,6 +41,7 @@
 - **T-112** — Q7 retroactive audit (prerequisites: session capacity OR new finding).
 - **T-113** — Plan-stage battery effectiveness (prerequisites: N≥6 cohorts OR adopter-reported failure).
 - **F-P2-03 accepted residual** — FM-code retrofit (prerequisites: consumer + parser).
+- **Domain-tool appendix Information Currency** — Check `Information Currency` dates on domain-tool appendix entries (ui-ux CFR Appendix A, future domain appendices). Stale = verified date >90 days ago. Added session-158 per #10 resolution.
 
 **Audit procedure:**
 1. For each item, re-read the trigger prerequisites literally.

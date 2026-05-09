@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-08 (session-157 — backlog hygiene, #10/#35/#79 consolidation, pushed).
+**Last Updated:** 2026-05-09 (session-158 — #10 tool integration pattern implemented, domain-tool appendix shipped).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,13 +12,12 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-157 (2026-05-08) backlog hygiene + tool integration consolidation. Pushed.**
+**Session-158 (2026-05-09) #10 tool integration governance pattern — domain-tool appendix shipped.**
 
-**ACTION ON RESUME (session-158):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158.
+**ACTION ON RESUME (session-159):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158.
 
 **Critical state for next session:**
-- **Backlog cleaned** — 14 stubs + #19 removed. Anti-stub rule at 3 layers (CFR §7.1.6, BACKLOG.md, scaffold).
-- **#10 consolidated** — #10, #35, #79 merged into single "Third-Party Tool Integration Governance Pattern" discussion. Design question: which container (per-tool appendix, grouped appendix, reference library, or none)?
+- **#10 CLOSED** — Domain-tool governance pattern resolved: domain-tools → per-domain CFR appendices (§9.8.3 template), project-tools → auto-memory. ui-ux CFR Appendix A shipped (Figma MCP full entry + 4 named references). Structural symmetry with Appendix M (meta-tools).
 - **#158 open** — REVIEW alarm fatigue monitoring. 30-day window starts session-157.
 - **Tests:** 1600 passing (non-slow subset).
 - **Compliance Review #8** — due ~2026-05-15. First review exercising Check 11.
@@ -27,7 +26,7 @@
 
 ## Current Position
 
-- **Phase:** Session-157 (2026-05-08) — backlog hygiene + #10 consolidation shipped + pushed.
+- **Phase:** Session-158 (2026-05-09) — #10 tool integration governance pattern shipped.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 
@@ -37,7 +36,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.1.0** (reranking, MMR diversity, RRF opt-in, chunk quality filter, candidate pool cap, per-file dedup configurable cap=3, expanded 35-query benchmark) |
-| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.44.1** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.1** (ai-instructions), **v1.9.0** (tiers.json). |
+| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.44.1** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.2** (ai-instructions), **v1.9.0** (tiers.json). |
 | Execution Framework | **v1.1.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, thematic structure) |
 | OPERATIONS.md | **v1** (3 cadences, 15 tripwires, 4 V-series, 5 metrics, 3 scheduled operations) |
 | Tests | **1600 passing** (non-slow subset) |
@@ -49,24 +48,28 @@
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **1** (`compliance-review` — invoke via `/compliance-review`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | **Green.** Last push: session-157. All pushed. |
+| CI | **Green.** Last push: session-158. All pushed. |
 
 ---
 
-## Last Session (2026-05-08)
+## Last Session (2026-05-09)
 
-157. **Session-157 (2026-05-08): Backlog hygiene + tool integration consolidation.**
-   - Removed 14 redirect stubs (13 "Moved to OPERATIONS.md" + #19 archival content).
-   - Updated backlog lifecycle rule at 3 layers: CFR §7.1.6 method, BACKLOG.md philosophy, scaffold template. Anti-stub rule citing §6.5.5 SSOT.
-   - Consolidated #10, #35, #79 into single #10 "Third-Party Tool Integration Governance Pattern" — shared design question, four container options.
-   - Coherence-auditor caught 1 propagation miss (line 4 lifecycle metadata).
-   - CFR bumped v2.44.0 → v2.44.1. Backlog 499 → 429 lines.
+158. **Session-158 (2026-05-09): #10 tool integration governance pattern — domain-tool appendix.**
+   - Resolved BACKLOG #10 (consolidated #10/#35/#79): domain-tools → per-domain CFR appendices using §9.8.3 template; project-tools → auto-memory.
+   - Added Appendix A (Optional Design Ecosystem Tools) to ui-ux CFR: Figma MCP full entry + 4 named references (Open Design, Open CoDesign, Axe MCP, Storybook MCP).
+   - §8 forward reference + Situation Index routing entry added.
+   - Domain-tool appendix staleness added to C-109 deferred-cadence audit scope.
+   - Project-tools (Stripe CLI, Apple Mail MCP) captured in auto-memory.
+   - ui-ux CFR v1.0.1 → v1.1.0. ai-instructions v4.0.1 → v4.0.2. #10 removed from BACKLOG.md.
+   - Contrarian review during planning: REVISIT (HIGH) — accepted 4/5 challenges (reduced scope, deferred scaffold, named references for pre-1.0 tools, staleness mechanism).
 
 ---
 
 ## Previous Sessions
 
-*Session-156 (2026-05-09) shipped BACKLOG #157 (feedback workflow Check 11) + #44 (reference logging + maturity proposals). 1600 tests.*
+*Session-157 (2026-05-08) backlog hygiene + #10/#35/#79 consolidation. Anti-stub rule at 3 layers. CFR v2.44.1.*
+
+*Session-156 (2026-05-08) shipped BACKLOG #157 (feedback workflow Check 11) + #44 (reference logging + maturity proposals). 1600 tests.*
 
 *Session-155 (2026-05-08) shipped compliance metric two-defect fix, filed #158 REVIEW alarm fatigue. 1595 tests.*
 
@@ -102,7 +105,7 @@
 - See OPERATIONS.md for T-019, T-049, T-106–T-113, T-119, T-134, T-143, T-145, C-078, C-109, C-155.
 
 **Working artifacts:**
-- `~/.claude/plans/structured-tinkering-teacup.md` — session-156 #44 reference logging plan (COMPLETE, overwritten from #157).
+- `~/.claude/plans/one-disagreement-though-using-foamy-clock.md` — session-158 #10 tool integration pattern plan (COMPLETE).
 - `~/.claude/plans/ticklish-jumping-galaxy.md` — session-155 compliance metric fix plan (COMPLETE).
 
 See BACKLOG.md for the full list of open items.

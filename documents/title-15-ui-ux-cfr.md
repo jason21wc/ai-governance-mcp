@@ -1,20 +1,20 @@
 ---
-version: "1.0.1"
+version: "1.1.0"
 status: "active"
-effective_date: "2026-04-14"
+effective_date: "2026-05-09"
 domain: "ui-ux"
 governance_level: "federal-regulations"
 ---
 
-# UI/UX Methods v1.0.0
+# UI/UX Methods v1.1.0
 ## Operational Procedures for Building Interactive Software Interfaces
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > This methods document provides HOW-TO procedures for implementing UI/UX domain principles. It is subordinate to the domain principles document (title-15-ui-ux.md), which establishes WHAT governance applies.
 
-**Version:** 1.0.1
+**Version:** 1.1.0
 **Status:** Active
-**Effective Date:** 2026-03-08
+**Effective Date:** 2026-05-09
 **Governance Level:** Methods (SOPs) — subordinate to UI/UX Domain Principles
 
 ---
@@ -1022,6 +1022,8 @@ Web:
 
 **Applies To:** evaluating and integrating AI design tools (Figma MCP, Storybook MCP, Axe MCP, Playwright), understanding tool governance requirements, token cost awareness for design tool APIs
 
+> **See also:** Appendix A for tool-specific governance metadata and named references for prospective design tools.
+
 ### 8.1 Figma MCP Integration
 
 **Purpose:** Use **Figma MCP connectors** to provide design context directly to the AI agent.
@@ -1297,12 +1299,53 @@ For quick routing of common scenarios to relevant methods:
 | "Button labels and microcopy" | §9.3 (Microcopy Quality Standards) |
 | "Voice and tone consistency" | §9.1 (Voice and Tone Consistency) |
 | "Animation accessibility reduced motion" | §4.1 (WCAG 2.3.3), ACC3 (Color and Contrast — includes motion accessibility), UX-F19 |
+| "Evaluating design tools" | §8 (AI Tooling Integration), Appendix A (Optional Design Ecosystem Tools) |
+
+---
+
+## Appendix A: Optional Design Ecosystem Tools
+
+**Importance: 🟢 OPTIONAL — Adopt selectively based on project needs**
+
+This appendix collects third-party tools that enhance design-to-code workflows governed by this domain. Each tool entry captures governance metadata per §9.8.3; usage procedures live in the methods body (§8). Named references at the end list tools under evaluation — not yet adopted, but tracked for future consideration per the Tool Content Model's Prospective Tools rule (§3.1.4).
+
+Structural pattern: mirrors Appendix M (Optional Ecosystem Tools) in the ai-coding CFR for meta-level tools. This appendix covers domain-level tools — tools that enhance UI/UX design governance, not the framework's own infrastructure.
+
+---
+
+### A.1 Figma MCP Server
+
+**Governance Level:** Agency SOP (Platform-Specific Appendix)
+**Implements:** §8.1 (Figma MCP Integration); DS3 (Design System Discovery); VH1 (Layout Composition).
+**Applies To:** Projects using Figma for design with an MCP-capable AI agent (Claude Code, Claude Desktop, Cursor, or any MCP client).
+**Information Currency:** Verified 2026-05-09 against Figma MCP Server (remote, Figma-hosted). Verify current setup instructions at the source link — server packaging evolves.
+**Source:** [figma/mcp-server-guide](https://github.com/figma/mcp-server-guide) (official usage guide and skill definitions).
+
+**Why we recommend it.** Figma MCP provides design context directly to the AI agent — layout structure, design token values, component properties, auto-layout settings — enabling code generation that matches the design file rather than guessing from screenshots or verbal descriptions. This operationalizes DS3 (Design System Discovery) by making the design system machine-readable at the point of code generation.
+
+**What an AI agent needs to know.** See §8.1 for integration workflow, current limitations, and token cost warnings. The `get_design_context` call on large designs can exceed 600K tokens — scope to specific frames/components.
+
+---
+
+### Named References — Under Evaluation
+
+The following tools are tracked as prospective per §3.1.4 (Prospective Tools rule). They are not yet adopted — listed here for future consideration when the use case arises. Resolve current status at the source link before adopting.
+
+| Tool | Description | Source | Notes |
+|------|-------------|--------|-------|
+| **Open Design** (nexu-io) | Local-first open-source design tool with MCP server. 19 design skills, 71 design systems. | [nexu-io/open-design](https://github.com/nexu-io/open-design) | Pre-1.0 (active development). Apache-2.0. |
+| **Open CoDesign** (OpenCoworkAI) | Open-source design app. Prompt-to-prototype with multi-model support (BYOK). | [OpenCoworkAI/open-codesign](https://github.com/OpenCoworkAI/open-codesign) | Pre-1.0 (v0.1.x). MIT. Electron desktop app. |
+| **Axe MCP** (Deque) | Official Deque MCP server for accessibility testing and AI-powered remediation. | [dequelabs/axe-mcp-server-public](https://github.com/dequelabs/axe-mcp-server-public) | Requires paid Axe DevTools subscription. |
+| **Storybook MCP** (Storybook) | Official Storybook MCP server for component discovery and story generation. | [storybookjs/mcp](https://github.com/storybookjs/mcp) | Complements §2.2 (Atomic Design). |
 
 ---
 
 ## Changelog
 
-### v1.0.1 (Current)
+### v1.1.0 (Current)
+- MINOR: Added Appendix A (Optional Design Ecosystem Tools) — domain-tool governance pattern with Figma MCP full entry and 4 named references (Open Design, Open CoDesign, Axe MCP, Storybook MCP). Forward reference from §8. Situation Index routing entry. Closes BACKLOG #10. Governance: `gov-b7aa212852a3`.
+
+### v1.0.1
 - PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability.
 
 ### v1.0.0
@@ -1316,6 +1359,6 @@ For quick routing of common scenarios to relevant methods:
 
 ---
 
-*Version 1.0.1*
+*Version 1.1.0*
 *Companion to: UI/UX Domain Principles v1.0.0*
 *Process gates: AI-Coding Methods §2.4, §2.5*

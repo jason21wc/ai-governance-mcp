@@ -1,5 +1,5 @@
 ---
-version: "4.0.1"
+version: "4.0.2"
 status: "active"
 effective_date: "2026-05-05"
 domain: "meta"
@@ -8,9 +8,9 @@ governance_level: "framework-activation"
 
 # AI Governance Framework Activation
 
-**Version:** 4.0.1
+**Version:** 4.0.2
 **Purpose:** Loader document that activates the governance framework for AI sessions.
-**Updated:** 2026-05-03
+**Updated:** 2026-05-09
 
 ---
 
@@ -205,7 +205,7 @@ This loader is designed for use with:
 - title-30-storytelling.md v1.4.2+
 - title-30-storytelling-cfr.md v1.1.3+
 - title-15-ui-ux.md v1.2.2+
-- title-15-ui-ux-cfr.md v1.0.0+
+- title-15-ui-ux-cfr.md v1.1.0+
 - title-25-kmpd.md v1.4.2+
 - title-25-kmpd-cfr.md v1.2.0+
 - title-40-multimodal-rag.md v2.4.3+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.0.2 | 2026-05-09 | PATCH: title-15-ui-ux-cfr.md pin update v1.0.0+ → v1.1.0+ for Appendix A (Optional Design Ecosystem Tools) — domain-tool governance pattern. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-b7aa212852a3`. |
 | 4.0.1 | 2026-05-05 | PATCH: title-10-ai-coding.md pin update v2.7.6+ → v2.8.0+ and title-10-ai-coding-cfr.md pin update v2.43.3+ → v2.44.0+ for AI Coding Design Philosophy Integration (3 new principles, 8 new CFR methods, preamble addition, existing principle extensions). Updated principle count reference 12→15. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-07287670fb01`. |
 | 4.0.0 | 2026-05-03 | MAJOR: constitution.md pin update v7.0.0+ to v8.0.0+ for BACKLOG #152 (principle rename: `meta-core-context-engineering` to `meta-core-informational-readiness`). MAJOR-on-MAJOR per BACKLOG #130 canonical pin-discipline rule (constitution MAJOR source = ai-instructions MAJOR consequence). Constitutional change: Art. I section 1 renamed from "Context Engineering" to "Informational Readiness" and reframed from procedural implementation guidance to universal reasoning obligation. ID changed; alias preserves backward compatibility. Motivation: v7.0.0's 5-layer stack adoption created naming collision — "Context Engineering" now specifically means layer 3, but the principle governs layers 2-4. Constitutional Basis: `meta-core-systemic-thinking` (root cause = naming collision creating governance scope narrowing risk), `meta-core-informational-readiness` (reframing preserves obligation while correcting label), `meta-quality-verification-validation` (alias regression test + retrieval benchmark validation). Contrarian: `aab157aa58b78ba36` (PROCEED WITH MODIFICATIONS, HIGH confidence). Cascading PATCHes applied to 10 domain files (name-string-only propagation): title-10 v2.7.6, title-15 v1.2.2, title-20 v2.7.3, title-25 v1.4.2, title-30 v1.4.2, title-40 v2.4.3, title-10-cfr v2.43.3, title-20-cfr v2.17.3, title-30-cfr v1.1.3, rules-of-procedure v3.31.5. Governance: `gov-466045fd5dbd`, `gov-d05cd633fc20`, `gov-97a116b020b2`. |
 | 3.0.0 | 2026-05-02 | MAJOR: constitution.md pin update v6.0.1+ → v7.0.0+ for BACKLOG #151 (F-P2-08 reversal — 5-layer engineering stack adopted as canonical model, replacing 3-step AI Interaction Model). MAJOR-on-MAJOR per BACKLOG #130 canonical pin-discipline rule (constitution MAJOR source = ai-instructions MAJOR consequence). Constitutional change: "AI-Interaction Model (3-step canonical)" subsection replaced with "AI Engineering Stack (5-layer canonical)" — Prompt → Retrieval → Context → Harness → Intent. README §"Why this exists" designated as SSOT for layer definitions. v5.0.6 F-P2-08 disposition reversed with documented rationale (narrower 4-step proposal evaluated, harness operationally distinct from Context Engineering). New Historical Amendment entry v7.0.0 supersedes v5.0.6 entry (preserved immutable). Constitutional Basis: `meta-core-systemic-thinking` (structural cause = constitution carries factually-wrong disposition about an abstraction it has evolved past), `meta-core-context-engineering` (principle scope spans both retrieval and context assembly — broader than any single 5-layer layer), `meta-quality-verification-validation` (3 Explore agents + 2 contrarian rounds + coherence audit verified evidence). Governance: `gov-225dda764f95`. |

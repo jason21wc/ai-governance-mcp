@@ -6,7 +6,7 @@ domain: "ui-ux"
 governance_level: "federal-statute"
 ---
 
-# UI/UX Domain Principles Framework v1.2.1
+# UI/UX Domain Principles Framework v1.2.2
 ## Federal Statutes for AI Agents Building Interactive Software Interfaces
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -1173,7 +1173,7 @@ This Domain Principles document establishes WHAT governance applies to UI/UX. Th
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **title-15-ui-ux-cfr.md** | v1.0.0 | Design-to-code workflow, component library governance, design review gates, accessibility testing, responsive breakpoint strategy, cross-platform adaptation, design system documentation, AI tooling integration |
+| **title-15-ui-ux-cfr.md** | v1.1.0 | Design-to-code workflow, component library governance, design review gates, accessibility testing, responsive breakpoint strategy, cross-platform adaptation, design system documentation, AI tooling integration, domain-tool ecosystem appendix |
 
 **Methods document includes:**
 - Section 1: Design-to-Code Workflow (Figma → implementation, design handoff, visual QA)

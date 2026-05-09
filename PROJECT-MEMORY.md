@@ -619,6 +619,27 @@ Not needed at current scale. Phased approach documented in ADR-14. Revisit when 
 
 **Cross-ref:** `~/.claude/plans/create-a-plan-to-enumerated-hejlsberg.md`; constitution v8.0.0 amendment (Art. I §1 rename + reframe); ai-instructions v4.0.0 (pin update); contrarian `aab157aa58b78ba36` (PROCEED WITH MODIFICATIONS, HIGH confidence); governance `gov-466045fd5dbd`.
 
+### ADR-19: Tool Integration Governance Pattern — Domain Appendices + Project-Tool Routing
+- **Status:** Accepted (2026-05-09)
+- **Context:** BACKLOG #10 (consolidated from #10/#35/#79) asked: what container should the framework use for third-party tool integrations? Three tools independently surfaced the same unsolved question — UI/UX design tools, Stripe CLI, Apple Mail MCP. Working them separately would produce inconsistent governance patterns.
+
+**Decision:** Three-level taxonomy with structural symmetry:
+1. **Meta-tools** (framework infrastructure) → ai-coding CFR Appendix M (existing pattern, §9.8.3 template)
+2. **Domain-tools** (enhance specific domain workflows) → per-domain CFR appendices using same §9.8.3 template (e.g., ui-ux CFR Appendix A)
+3. **Project-tools** (end up in deliverable, not build process) → auto-memory per project, not framework-structural
+
+Design principle: structural symmetry (same appendix pattern at meta and domain levels) + domain independence (ui-ux tools live in ui-ux CFR, not ai-coding). Project-tools are personal to the user/project and don't belong in the framework package.
+
+**Alternatives evaluated:**
+1. Extend Appendix M with domain tags — simpler (one location) but couples domain awareness incorrectly. A user with ui-ux enabled but not ai-coding wouldn't find these tools. Rejected per #53 (Modular Domain Architecture).
+2. Reference Library entries for all tools — framework-endorsed tools should be normative (CFR appendix), not secondary authority. Rejected.
+3. No framework-level guidance — ad-hoc principle application produces inconsistent results. Rejected.
+4. Single grouped appendix — lighter per-tool overhead but loses domain independence. Rejected.
+
+**Outcome:** ui-ux CFR Appendix A shipped with 1 full entry (Figma MCP) + 4 named references (Open Design, Open CoDesign, Axe MCP, Storybook MCP). Named references follow §3.1.4 Prospective Tools rule — not full entries until adopted. Domain-tool staleness added to C-109 deferred-cadence audit. Contrarian review: REVISIT (HIGH) — accepted 4/5 challenges (reduced scope, deferred scaffold, named references for pre-1.0 tools, staleness mechanism).
+
+**Cross-ref:** `~/.claude/plans/one-disagreement-though-using-foamy-clock.md`; ui-ux CFR v1.1.0; ai-instructions v4.0.2; governance `gov-b7aa212852a3`.
+
 ### Future Considerations
 
 - Prompt Engineering domain (when created, move system prompt best practices from multi-agent)
