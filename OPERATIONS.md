@@ -257,9 +257,9 @@
 ### M-005. Hook Denial Rate
 
 **What:** How often hooks block actions — indicates whether enforcement is functioning and whether false-positive friction is acceptable.
-**Data source:** Hook deny logs — `~/.context-engine/oom-gate-denies.log` (OOM gate), `~/.claude/hook-bypass-audit.log` (when #135 ships), hook stderr output in session transcripts.
+**Data source:** Hook deny logs — `~/.context-engine/oom-gate-denies.log` (OOM gate), `~/.claude/hook-bypass-audit.log` (unified bypass audit log, shipped session-152 via BACKLOG #135), hook stderr output in session transcripts.
 **Computation:** Denials per hook per review period. Classify TP vs FP where possible.
-**Baseline:** OOM gate: 6 total denials across 14 days (4 FP, 2 TP) as of 2026-04-28. Other hooks: no centralized deny log yet (pending BACKLOG #135).
+**Baseline:** OOM gate: 6 total denials across 14 days (4 FP, 2 TP) as of 2026-04-28. Bypass audit log: active since session-152 (all 9 hook bypass envvars logged via shared `audit_bypass()` helper).
 **Review cadence:** Every compliance review (C-078). Individual hook FP rates tracked in their respective tripwire entries (T-143 for OOM gate).
 
 ---

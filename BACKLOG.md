@@ -67,22 +67,6 @@
 
 ---
 
-#### 155. ~~M-001 investigation — zero PROCEED_WITH_MODIFICATIONS~~ `CLOSED`
-
-**Filed:** 2026-05-08 (session-154). **Closed:** 2026-05-08 (session-154).
-
-Root cause: the server is a retrieval engine, not a reasoning engine — it couldn't produce PWM because it can't reason about modifications. Fix: renamed PROCEED_WITH_MODIFICATIONS → REVIEW in AssessmentStatus. Server now returns REVIEW when relevant principles are surfaced (previously collapsed into PROCEED). M-001 updated to count REVIEW + ESCALATE + retroactive PROCEED-with-principles as governance engagement. Methodology v2 with backward compat for old log entries.
-
----
-
-#### 156. ~~Retrieval gap — "project initialization" and "validation before action"~~ `CLOSED`
-
-**Filed:** 2026-05-08 (session-154). **Closed:** 2026-05-08 (session-154).
-
-Three-layer systemic fix: BM25 content window 1000→3000 chars (82% of principle content was invisible), trigger phrase cap 10→20, `top_confidence` fixed to consider all result types (not just constitution_principles[0]), ConfidenceLevel `max()` ordering bug fixed (string enum alphabetical sort returned "medium" over "high"). Constitution v8.0.1: added "project initialization" and "validate before action" to operational considerations.
-
----
-
 #### 158. REVIEW alarm fatigue — monitor agent habituation to ~51% REVIEW rate `D2 Discussion`
 
 **Filed:** 2026-05-08 (session-154, contrarian advisory from #155 REVIEW rename).
@@ -92,6 +76,8 @@ Three-layer systemic fix: BM25 content window 1000→3000 chars (82% of principl
 **Diagnostic.** Track ratio of agent-authored `log_governance_reasoning` entries to auto-generated ones for REVIEW assessments. Agent-authored entries indicate the agent actually read principles and reasoned about them. If <5% of REVIEW evaluations produce agent-authored reasoning entries after 30 days of operation, the signal has been tuned out.
 
 **Mitigation options (if diagnostic confirms habituation).** (1) Score threshold — only surface REVIEW when `best_score ≥ 0.5` (highest-relevance results only). (2) Principle count gate — REVIEW only when ≥2 principles returned (single-principle matches are often low-relevance). (3) Tiered signaling — REVIEW vs REVIEW_STRONG based on confidence. Option 1 is simplest.
+
+**Diagnostic baseline (2026-05-09, session-157).** REVIEW has never fired in production — 0 entries across 1032 evaluations. Root cause: the MCP server process was not restarted after the #155 REVIEW rename was committed (sessions 154-156 ran with pre-rename code). Server code logic is correct (governance.py:289-297: principles surfaced without S-Series → REVIEW). The 30-day monitoring window effectively starts session-157 (first session with restarted server). Of the 645/1032 historical evaluations that surfaced principles, all returned PROCEED under the old code. The ~51% principle-surfacing rate from the original filing is confirmed (62.5% actual). Revisit after 30 days of REVIEW-active operation (~2026-06-09) to measure engagement.
 
 **Done when.** Either diagnostic shows healthy engagement (>15% agent-authored reasoning for REVIEW) OR mitigation shipped and re-measured.
 
@@ -174,25 +160,6 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 148. ~~Execution Framework — operationalization~~ CLOSED `D3 Improvement`
-
-**Filed:** 2026-04-29 (session-139). **Closed:** 2026-05-03 (session-145). All 4 phases complete.
-
-**What was delivered:**
-- **Phase 1:** First skill (`.claude/skills/compliance-review/SKILL.md`), 8-bucket model empirically validated (§2.3), decision matrix (§3.7).
-- **Phase 2:** `OPERATIONS.md` (7th memory type), 2 cadences + 12 tripwires + V-series migrated, 5 effectiveness metrics (M-001–M-005), context retention policy (§7).
-- **Phase 3:** `EXECUTION-FRAMEWORK.md` restructured chronological→thematic (v1.0.0). §6 Memory Interface Contracts added. Coherence-auditor PASS (4/4).
-- **Phase 4:** Scheduling mechanism assessment (CronCreate session-local, cloud routines remote), 3 scheduled operations defined (SO-001–SO-003), session-end automation deferred (no on-session-end hook), gap analysis updated.
-
-**Remaining open items** (not blockers — tracked elsewhere):
-- Storage location decision: EXECUTION-FRAMEWORK.md §11 item 1.
-- Full scheduling automation: blocked by mechanism constraints (§7.2), tracked in OPERATIONS.md SO-001–SO-003.
-- OPERATIONS.md documentation quality: BACKLOG #154.
-
-**Origin.** Sessions 139–145. Governance: `gov-1ce1278cc85e`, `gov-a2d2b84d5b99`, `gov-5ba8aa3ff93b`, `gov-266235bbac6e`, `gov-9452d3f7e513`, `gov-4282d90a079e`, `gov-96960cffeec6`. See `EXECUTION-FRAMEWORK.md` §12 for design history.
-
----
-
 #### 154. OPERATIONS.md documentation quality pass `D1 Docs`
 
 **Filed:** 2026-05-03 (session-145, user request during Execution Framework plan Phase 2 execution).
@@ -205,40 +172,7 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 153. ~~Effectiveness metrics analysis script~~ CLOSED `D1 New Capability`
-
-**Closed:** 2026-05-08 (session-154). Subsumed by `scripts/analyze_feedback_loop.py` which computes M-001, M-003, M-004 from server logs. M-002 (citation frequency) and M-005 (hook denial rate) require session transcripts and hook logs the server doesn't have access to — not in scope. Trigger condition met: n=1024 audit entries.
-
----
-
 #### 134. **Moved to OPERATIONS.md** → T-134 (PR-workflow infrastructure tripwire).
-
----
-
-#### 135. Bypass-envvar audit-log invariant — refactor 6 hook bypasses to shared `audit_bypass()` helper `D2 Improvement`
-
-**Filed:** 2026-04-25 (session-127, security-auditor B2 finding from §8.3.4-self-application plan review).
-
-**What.** Six envvars currently bypass hooks; only one (`PLAN_CONTRARIAN_SKIP_HOOK=1`) writes to a deny-log. The others (`QUALITY_GATE_SKIP=true`, `PLAN_CONTRARIAN_CONFIRMED=1`, `GOVERNANCE_SOFT_MODE=true`, `CE_SOFT_MODE=true`, `TDD_TEST_EXISTENCE_SKIP=1`) bypass silently. Cumulative bypass surface lacks observability — the maintainer (or a prompt-injected AI) can quietly disable enforcement without auditable evidence.
-
-**Structural fix per `meta-core-systemic-thinking`.** Replace per-hook bypass logging with a shared `audit_bypass()` helper that writes a single canonical log line (timestamp, hook, env var, reason) for every bypass invocation across the 6 envvars. Pattern: `audit_bypass "$0" "QUALITY_GATE_SKIP" "user override at line N"` → appends to `~/.claude/hook-bypass-audit.log` with rotation.
-
-**Why deferred from session-127.** Independent of the §8.3.4-self-application plan; affects 3 hook files (`pre-push-quality-gate.sh`, `pre-tool-governance-check.sh`, `pre-exit-plan-mode-gate.sh`) plus a new `lib/audit-bypass.sh` helper. D2 effort with its own scope, test surface, and propagation to title-10 §9.3.10 hook-authoring guidance.
-
-**Scope (when implemented).**
-1. Create `.claude/hooks/lib/audit-bypass.sh` with the shared helper function
-2. Migrate `QUALITY_GATE_SKIP`, `GOVERNANCE_SOFT_MODE`, `CE_SOFT_MODE`, `TDD_TEST_EXISTENCE_SKIP`, `PLAN_CONTRARIAN_CONFIRMED` to use it
-3. `PLAN_CONTRARIAN_SKIP_HOOK` already audit-logs; refactor to use the shared helper for consistency
-4. Add a periodic V-series item in COMPLIANCE-REVIEW.md: "audit-log entries within last 30 days" — surface frequency, drift, anomalous patterns
-5. Update §9.3.10 hook-authoring guidance: new hooks with bypass envvars MUST use `audit_bypass()`
-
-**Trigger.** Next hook addition (would be the 7th hook with a bypass) OR Compliance Review #5 / #6 finding evidence of silent bypass.
-
-**Trigger fired:** 2026-05-03 (session-140). `pre-tool-content-security.sh` shipped with `CONTENT_SECURITY_SKIP=1` bypass — 7th hook, 7th bypass envvar. This item is now eligible for implementation.
-
-**Origin:** Session-127 push-workflow plan security review. Audit ID: `a44b7638cf3d43b52` (security-auditor B2 BLOCKER for the original 6-component proposal; downgraded to BACKLOG when the plan scope was reduced). Governance: `gov-7083d6c85ffc`.
-
-**Done when.** All 7 bypasses use shared helper + canonical log entries + V-series item active in COMPLIANCE-REVIEW.md.
 
 ---
 
@@ -279,15 +213,11 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 22. ~~Governance Effectiveness Measurement~~ CLOSED `D1 Improvement`
-
-**Closed:** 2026-05-08 (session-154). Resolved by `scripts/analyze_feedback_loop.py` which computes M-001 (Governance Influence Rate: 17.5%), M-003 (Retrieval Relevance Trend: 0.255 avg, stable), M-004 (S-Series Trip Rate: 17.5%). M-002 (citation frequency) and M-005 (hook denial rate) require session transcripts — out of scope for server-side analysis. The discussion question "can we measure effectiveness?" is answered: yes, for server-observable signals.
-
 #### 16. Governance Retrieval Quality Assessment (Discussion) `D2 Improvement`
 
 **What:** Both governance server and Context Engine use BGE-small-en-v1.5 (384d). We don't know if the current model is underperforming — users may not notice degraded retrieval quality. Better models exist (nomic-embed 768d, higher benchmarks) but upgrade hasn't been justified with data.
 
-**Discussion needed:** Related to #22 (effectiveness measurement). How do we measure current retrieval quality for governance queries specifically? Is there a way to benchmark governance retrieval that would tell us if an upgrade is justified? Determine justification first, then implement if needed, drop if not — but with a way to measure effectiveness going forward.
+**Discussion needed:** Related to #22 (closed — effectiveness measurement resolved by `scripts/analyze_feedback_loop.py`). How do we measure current retrieval quality for governance queries specifically? Is there a way to benchmark governance retrieval that would tell us if an upgrade is justified? Determine justification first, then implement if needed, drop if not — but with a way to measure effectiveness going forward.
 
 **Possible directions:** Governance-specific benchmark queries, MRR/Recall measurements on governance corpus, A/B comparison with nomic-embed on representative queries.
 
@@ -321,20 +251,6 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 6. Impact on retrieval quality — fewer domains = less noise in results?
 
 **Origin:** User request (2026-04-04). Anticipatory architecture improvement for adoption scalability.
-
-#### 49. ~~Embedding Model Memory Sharing Across Processes~~ CLOSED `D3 Improvement`
-
-**Filed:** 2026-04-03 (session-48). **Closed:** 2026-05-04 (session-147).
-
-**What was delivered:**
-- **Phase 0 (session-106):** Watcher `--projects PATH` scoping, 12h self-restart cycle to flush PyTorch allocator cache.
-- **Phase 2 (sessions 106-108):** Shared embedding service via Unix socket IPC. Single daemon loads BGE-small-en-v1.5 once; all other processes call via `EmbeddingClient`. Governance servers 800 MB → 85 MB (715 MB saved per instance). Model load 9s → 80ms (112× improvement). MRR regression-clean.
-- **OOM gate:** `.claude/hooks/pre-test-oom-gate.sh` — blocks bare `pytest tests/` when daemon alive or torch processes detected. 23 tests.
-- **7-day monitor (2026-04-26–05-02):** T1 clean 7/7 days. Episodic T3/T4 spikes confirmed as workload variance, not regression. Marker cleared 2026-05-02.
-
-**Forcing functions preserved post-close:** Daily measurement plist (automated, `com.ai-governance.context-engine-measure`), OOM gate hook (structural), capacity trigger (any 6th torch process blocks on review), PHASE2_TRIGGERED marker auto-fires on threshold breach. Calendar review → OPERATIONS.md T-049. OOM deny log note: 7/8 entries are T-143 quoted-region FPs (git commit messages containing `pytest`), not real OOM prevention.
-
-**Origin.** Sessions 48–108, 137, 142, 147. Governance: `gov-75c065040e20` (close). Full investigation history in git: `git log --grep="backlog #49"`.
 
 ---
 
@@ -435,12 +351,6 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 **Dependency:** None — staging infrastructure already exists.
 
 **Origin:** Hermes Agent evaluation (2026-04-01). Hermes auto-creates skills every 15 tool-calling iterations via background review agent. Our adaptation: auto-propose to staging with human gate, leveraging our richer metadata model (maturity, decay classes, KeyCite currency).
-
----
-
-#### 42. ~~Feedback Loop Analysis Tool~~ CLOSED `D2 Improvement`
-
-**Closed:** 2026-05-08 (session-154). Implemented as hybrid architecture: `scripts/analyze_feedback_loop.py` (computation) + `analyze_feedback_loop` MCP tool (thin reader of precomputed JSON). Cadence C-155 in OPERATIONS.md ensures periodic execution. Compliance review skill updated to surface results. Initial run: 1024 audit, 476 query, 593 reasoning entries analyzed. 12 dead principles, 42 FP patterns, 2 retrieval gaps, 56 recommendations generated.
 
 ---
 
