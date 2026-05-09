@@ -432,13 +432,83 @@ class TestFalsePositivePatterns:
 class TestMaturityProposals:
     """Tests for compute_maturity_proposals()."""
 
-    def test_returns_empty_with_gap_note(self):
+    def test_empty_inputs_returns_insufficient_data(self):
         result = compute_maturity_proposals([], [], [])
         assert result["proposals"] == []
-        assert (
-            "not logged" in result["note"].lower()
-            or "not currently" in result["note"].lower()
+        assert result["field_present_entries"] == 0
+
+    def test_promotion_candidate_seedling_retrieved_3_plus(self):
+        query_entries = [
+            {"references_returned": ["ref-ai-coding-foo"]},
+            {"references_returned": ["ref-ai-coding-foo", "ref-ai-coding-bar"]},
+            {"references_returned": ["ref-ai-coding-foo"]},
+        ] + [{"references_returned": []} for _ in range(17)]
+        reference_entries = [
+            {"id": "ref-ai-coding-foo", "maturity": "seedling"},
+            {"id": "ref-ai-coding-bar", "maturity": "seedling"},
+        ]
+        result = compute_maturity_proposals(query_entries, [], reference_entries)
+        promo_ids = [
+            p["reference_id"] for p in result["proposals"] if p["type"] == "promotion"
+        ]
+        assert "ref-ai-coding-foo" in promo_ids
+        assert "ref-ai-coding-bar" not in promo_ids
+        assert result["retrieval_counts"]["ref-ai-coding-foo"] == 3
+        assert result["retrieval_counts"]["ref-ai-coding-bar"] == 1
+
+    def test_decay_candidate_zero_retrievals(self):
+        query_entries = [{"references_returned": []} for _ in range(20)]
+        reference_entries = [
+            {"id": "ref-ai-coding-unused", "maturity": "seedling"},
+        ]
+        result = compute_maturity_proposals(query_entries, [], reference_entries)
+        decay_ids = [
+            p["reference_id"] for p in result["proposals"] if p["type"] == "decay"
+        ]
+        assert "ref-ai-coding-unused" in decay_ids
+
+    def test_insufficient_data_below_threshold(self):
+        query_entries = [{"references_returned": []} for _ in range(5)]
+        reference_entries = [
+            {"id": "ref-ai-coding-foo", "maturity": "seedling"},
+        ]
+        result = compute_maturity_proposals(query_entries, [], reference_entries)
+        assert result["proposals"] == []
+        assert result["field_present_entries"] == 5
+
+    def test_backward_compat_old_entries_without_field(self):
+        old_entries = [{"query": "old query", "principles_returned": ["p1"]}] * 50
+        new_entries = [
+            {"references_returned": ["ref-ai-coding-foo"]},
+            {"references_returned": ["ref-ai-coding-foo"]},
+            {"references_returned": ["ref-ai-coding-foo"]},
+        ] + [{"references_returned": []} for _ in range(17)]
+        reference_entries = [
+            {"id": "ref-ai-coding-foo", "maturity": "seedling"},
+            {"id": "ref-ai-coding-bar", "maturity": "seedling"},
+        ]
+        result = compute_maturity_proposals(
+            old_entries + new_entries, [], reference_entries
         )
+        assert result["field_present_entries"] == 20
+        assert result["retrieval_counts"]["ref-ai-coding-foo"] == 3
+        promo_ids = [
+            p["reference_id"] for p in result["proposals"] if p["type"] == "promotion"
+        ]
+        assert "ref-ai-coding-foo" in promo_ids
+
+    def test_budding_not_promoted_by_count_alone(self):
+        query_entries = [{"references_returned": ["ref-already-budding"]}] * 5 + [
+            {"references_returned": []} for _ in range(15)
+        ]
+        reference_entries = [
+            {"id": "ref-already-budding", "maturity": "budding"},
+        ]
+        result = compute_maturity_proposals(query_entries, [], reference_entries)
+        promo_ids = [
+            p["reference_id"] for p in result["proposals"] if p["type"] == "promotion"
+        ]
+        assert "ref-already-budding" not in promo_ids
 
 
 # ===========================================================================

@@ -332,19 +332,55 @@ def compute_maturity_proposals(
 ) -> dict:
     """Compute maturity promotion/demotion proposals for reference library entries.
 
-    Known gap: references are not currently logged in QueryLog.principles_returned
-    or GovernanceAuditLog.principles_consulted. The retrieval handler only includes
-    constitution_principles + domain_principles. Until references_returned is added
-    to QueryLog, retrieval counts for references are unobservable.
+    Uses retrieval frequency from queries.jsonl (references_returned field).
+    Old log entries without the field are excluded from the denominator.
+    Requires >=20 field-present entries before computing decay proposals.
     """
+    MIN_ENTRIES_FOR_DECAY = 20
+    PROMOTION_THRESHOLD = 3
+
+    field_present = [e for e in query_entries if "references_returned" in e]
+    field_present_count = len(field_present)
+
+    retrieval_counts: dict[str, int] = {}
+    for entry in field_present:
+        for ref_id in entry.get("references_returned", []):
+            retrieval_counts[ref_id] = retrieval_counts.get(ref_id, 0) + 1
+
+    ref_index = {r["id"]: r for r in reference_entries}
+
+    proposals: list[dict] = []
+
+    for ref_id, count in retrieval_counts.items():
+        ref = ref_index.get(ref_id)
+        if ref and ref.get("maturity") == "seedling" and count >= PROMOTION_THRESHOLD:
+            proposals.append(
+                {
+                    "type": "promotion",
+                    "reference_id": ref_id,
+                    "current_maturity": "seedling",
+                    "proposed_maturity": "budding",
+                    "evidence": f"Retrieved {count} times across {field_present_count} logged queries",
+                }
+            )
+
+    if field_present_count >= MIN_ENTRIES_FOR_DECAY:
+        for ref in reference_entries:
+            ref_id = ref["id"]
+            if retrieval_counts.get(ref_id, 0) == 0:
+                proposals.append(
+                    {
+                        "type": "decay",
+                        "reference_id": ref_id,
+                        "current_maturity": ref.get("maturity", "unknown"),
+                        "evidence": f"Not retrieved in any of {field_present_count} logged queries with reference tracking",
+                    }
+                )
+
     return {
-        "proposals": [],
-        "note": (
-            "Reference retrieval is not currently logged in queries.jsonl or "
-            "governance_audit.jsonl. Add a references_returned field to QueryLog "
-            "and populate it in _handle_query_governance to enable maturity proposals. "
-            "Follow-up D1 task identified in plan."
-        ),
+        "proposals": proposals,
+        "retrieval_counts": retrieval_counts,
+        "field_present_entries": field_present_count,
     }
 
 
@@ -583,7 +619,9 @@ def _print_summary(result: dict) -> None:
         for p in mat["proposals"]:
             print(f"  {p}")
     else:
-        print(f"  {mat['note']}")
+        print(
+            f"  No proposals ({mat.get('field_present_entries', 0)} entries with reference tracking)"
+        )
 
     recs = result["actionable_recommendations"]
     print(f"\n--- Actionable Recommendations: {len(recs)} ---")

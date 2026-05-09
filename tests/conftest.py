@@ -28,9 +28,11 @@ from ai_governance_mcp.models import (
     Principle,
     PrincipleMetadata,
     QueryLog,
+    ReferenceEntry,
     RetrievalResult,
     ScoredMethod,
     ScoredPrinciple,
+    ScoredReference,
 )
 from ai_governance_mcp.config import Settings
 
@@ -352,7 +354,29 @@ def scored_method(sample_method):
 
 
 @pytest.fixture
-def sample_retrieval_result(scored_principle, scored_s_series, scored_method):
+def scored_reference():
+    """ScoredReference for testing reference retrieval logging."""
+    ref = ReferenceEntry(
+        id="ref-ai-coding-test-pattern",
+        domain="ai-coding",
+        title="Test Pattern Reference",
+        content="Sample reference content for testing.",
+        tags=["testing", "patterns"],
+        maturity="seedling",
+    )
+    return ScoredReference(
+        reference=ref,
+        semantic_score=0.70,
+        keyword_score=0.60,
+        combined_score=0.66,
+        confidence=ConfidenceLevel.MEDIUM,
+    )
+
+
+@pytest.fixture
+def sample_retrieval_result(
+    scored_principle, scored_s_series, scored_method, scored_reference
+):
     """Complete RetrievalResult for testing formatters and handlers."""
     return RetrievalResult(
         query="test query for governance",
@@ -361,6 +385,7 @@ def sample_retrieval_result(scored_principle, scored_s_series, scored_method):
         constitution_principles=[scored_s_series, scored_principle],
         domain_principles=[],
         methods=[scored_method],
+        references=[scored_reference],
         s_series_triggered=True,
         retrieval_time_ms=45.5,
     )
@@ -634,6 +659,7 @@ def sample_query_log():
         domains_detected=["constitution", "ai-coding"],
         principles_returned=["meta-C1", "coding-C1"],
         methods_returned=["coding-M1"],
+        references_returned=["ref-ai-coding-test-pattern"],
         s_series_triggered=False,
         retrieval_time_ms=42.5,
         top_confidence=ConfidenceLevel.HIGH,

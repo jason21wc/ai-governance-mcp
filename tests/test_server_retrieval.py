@@ -119,6 +119,11 @@ class TestHandleQueryGovernance:
         assert log_file.exists()
         content = log_file.read_text()
         assert "logged query" in content
+        import json
+
+        log_entry = json.loads(content.strip().split("\n")[-1])
+        assert "references_returned" in log_entry
+        assert "ref-ai-coding-test-pattern" in log_entry["references_returned"]
 
     @pytest.mark.asyncio
     async def test_handle_query_governance_with_domain_filter(

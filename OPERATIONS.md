@@ -31,7 +31,7 @@
 **What:** Several review findings across Cohorts 4-5 were deferred with "re-open when consumer emerges" triggers. Without a watch-list, principled deferrals quietly calcify into silent abandonment.
 
 **Deferred items tracked (as of 2026-04-20):**
-- **BACKLOG #41 / #43 / #44 / #46** — Reference library improvements (auto-staging, progressive disclosure, auto-maturity, stack metadata).
+- **BACKLOG #41 / #43 / #46** — Reference library improvements (auto-staging, progressive disclosure, stack metadata). (#44 auto-maturity shipped session-156.)
 - **BACKLOG #58 / #59 / #60** — UBDA adopter-drift review items.
 - **T-106** — `Implements:` backfill (prerequisites: consumer + Q7 remediation).
 - **T-107** — Tool/Model Appendix index (prerequisites: consumer OR appendix count >15).

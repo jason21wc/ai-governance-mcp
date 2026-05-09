@@ -121,6 +121,7 @@ async def _handle_query_governance(
             for sp in result.constitution_principles + result.domain_principles
         ],
         methods_returned=[sm.method.id for sm in result.methods],
+        references_returned=[sr.reference.id for sr in result.references],
         s_series_triggered=result.s_series_triggered,
         retrieval_time_ms=result.retrieval_time_ms,
         top_confidence=_best_confidence(result),

@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-09 (session-156 — BACKLOG #157 feedback.jsonl workflow integration).
+**Last Updated:** 2026-05-09 (session-156 — BACKLOG #157 + #44 shipped).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,21 +12,22 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-156 (2026-05-09) shipped BACKLOG #157 — feedback.jsonl workflow integration.** Added compliance review Check 11 (feedback loop health) with rotating canary queries, two-tier pass/fail (tool health vs loop health), and concrete escalation options. Added `log_feedback` guidance to CLAUDE.md session lifecycle. Updated skill description.
+**Session-156 (2026-05-09) shipped BACKLOG #157 + #44.** #157: compliance review Check 11 (feedback loop health) + CLAUDE.md session lifecycle `log_feedback` guidance. #44: `references_returned` field in QueryLog, handler population, and real `compute_maturity_proposals()` logic with bootstrapping guard.
 
 **ACTION ON RESUME (session-157):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158. Scope-based metric observational.
 
 **Critical state for next session:**
-- **#157 shipped** — Check 11 added to compliance review (3 rotating canary queries, two-tier pass/fail). CLAUDE.md session lifecycle now prompts `log_feedback` for notable principle influence. Skill description updated to 13 checks.
+- **#157 shipped** — Check 11 added to compliance review. CLAUDE.md session lifecycle `log_feedback` guidance.
+- **#44 shipped** — `QueryLog.references_returned` field + handler + `compute_maturity_proposals()` real logic. Bootstrapping guard: ≥20 field-present entries required for decay proposals. Old entries without field excluded from denominator.
 - **#158 open** — REVIEW alarm fatigue monitoring (contrarian advisory from #155).
-- **Tests:** 1595 passing (non-slow subset). No new tests for this change (docs-only).
+- **Tests:** 1600 passing (non-slow subset). +5 new for #44.
 - **Compliance Review #8** — due ~2026-05-15. First review exercising Check 11.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-156 (2026-05-09) — BACKLOG #157 feedback.jsonl workflow integration shipped.
+- **Phase:** Session-156 (2026-05-09) — BACKLOG #157 + #44 shipped.
 - **Mode:** Normal operation. Scope metric accumulating data (observational).
 - **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 
@@ -39,7 +40,7 @@
 | Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.44.0** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.0.1** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.1** (ai-instructions), **v1.9.0** (tiers.json). |
 | Execution Framework | **v1.1.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, thematic structure) |
 | OPERATIONS.md | **v1** (3 cadences, 15 tripwires, 4 V-series, 5 metrics, 3 scheduled operations) |
-| Tests | **1595 passing** (non-slow subset) |
+| Tests | **1600 passing** (non-slow subset) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **18 MCP tools** (14 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -54,13 +55,10 @@
 
 ## Last Session (2026-05-09)
 
-156. **Session-156 (2026-05-09): BACKLOG #157 — feedback.jsonl Workflow Integration.**
-   - **Plan:** Contrarian-reviewed. Advisory-first approach following V-004 arc (advisory → monitor → escalate if needed).
-   - **Check 11 (feedback loop health):** Rotating canary queries (3 fixed, cycling by review mod 3), two-tier pass/fail (tool health binary + loop health with diversity), concrete escalation options (REVIEW-flow code change / accept heartbeat-only / hook).
-   - **CLAUDE.md session lifecycle:** Added `log_feedback` guidance for notable principle influence at session end.
-   - **Skill:** Updated compliance-review description (12→13 checks) and execution range (1-10→1-11).
-   - **BACKLOG #157:** Closed (removed per "no closed items" policy).
-   - **Tests:** Docs-only change, no new tests. 1595 passing.
+156. **Session-156 (2026-05-09): BACKLOG #157 + #44.**
+   - **#157 (feedback.jsonl workflow):** Compliance review Check 11 (rotating canary queries, two-tier pass/fail, escalation options). CLAUDE.md session lifecycle `log_feedback` guidance. Skill updated (13 checks).
+   - **#44 (reference logging):** Added `QueryLog.references_returned` field, populated in `_handle_query_governance`, updated `compute_maturity_proposals()` with real logic (retrieval-count promotion candidates, decay detection with bootstrapping guard ≥20 field-present entries). Contrarian-reviewed + validator-verified.
+   - **Tests:** +5 new (1600 total passing).
    - **Plan file:** `~/.claude/plans/structured-tinkering-teacup.md`.
 
 ---
@@ -89,7 +87,6 @@
 3. **C-155 feedback loop analysis** — next run due ~2026-06-07. See OPERATIONS.md.
 
 **Ready-to-work (user-directed):**
-- **#44** — Reference logging in QueryLog for maturity proposals (D1 follow-up)
 - **CE-First Phase 2** — Grep/Glob advisory hook (D2, conditional on T-149 measurement)
 - **#154** — OPERATIONS.md documentation quality pass (D1 Docs)
 - **#150** — Semantic-retrieval FP investigation (D2 Discussion)
@@ -102,7 +99,7 @@
 - See OPERATIONS.md for T-019, T-049, T-106–T-113, T-119, T-134, T-143, T-145, C-078, C-109, C-155.
 
 **Working artifacts:**
-- `~/.claude/plans/structured-tinkering-teacup.md` — session-156 #157 feedback workflow plan (COMPLETE).
+- `~/.claude/plans/structured-tinkering-teacup.md` — session-156 #44 reference logging plan (COMPLETE, overwritten from #157).
 - `~/.claude/plans/ticklish-jumping-galaxy.md` — session-155 compliance metric fix plan (COMPLETE).
 
 See BACKLOG.md for the full list of open items.

@@ -348,6 +348,9 @@ class QueryLog(BaseModel):
         default_factory=list, description="Principle IDs"
     )
     methods_returned: list[str] = Field(default_factory=list, description="Method IDs")
+    references_returned: list[str] = Field(
+        default_factory=list, description="Reference IDs"
+    )
     s_series_triggered: bool = False
     retrieval_time_ms: Optional[float] = None
     top_confidence: Optional[ConfidenceLevel] = None

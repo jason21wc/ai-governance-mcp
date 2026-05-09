@@ -458,16 +458,6 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 44. Auto-Maturity Proposals from Usage Data — partial-close `D2 Improvement`
-
-**Partial-close:** 2026-05-08 (session-154). Stub implemented in `scripts/analyze_feedback_loop.py` (`compute_maturity_proposals()`). Returns `insufficient_data` with explanatory note: references are NOT logged in `queries.jsonl` or `governance_audit.jsonl`. Handler code only includes `constitution_principles + domain_principles` in log entries — reference entries are invisible to analysis.
-
-**Remaining D1 follow-up:** Add `references_returned` field to `QueryLog` model in `models.py` and populate it in `handlers/retrieval.py` `_handle_query_governance`. ~20 lines across 2 files. Once done, `compute_maturity_proposals()` can produce real proposals.
-
-**Original description:** Automate maturity promotion proposals for reference library entries based on usage signals: seedling → budding (retrieved 3+ times with positive feedback), budding → evergreen (retrieved across 2+ projects, no negative feedback in 6+ months), any → caution/deprecated (not retrieved in N months based on decay_class).
-
-**Origin:** Hermes Agent evaluation (2026-04-01).
-
 ---
 
 #### 45. Content Security Scanning for Staging Entries (Discussion — Security) `D2 New Capability`
