@@ -79,17 +79,7 @@
 
 ---
 
-#### 125-b. scaffold_project Framework Registry Seeding `D2 Capability`
-
-**Filed:** 2026-04-23 (session-123 Commit J follow-up).
-
-**What.** #125 shipped Commit J adding `scope: framework | project` to all 19 registry entries + lint assertion. Classification: 8 framework-universal + 11 project-specific. Registry is now positioned for scaffold-safety but `scaffold_project` itself does NOT yet seed a registry file for new adopter projects.
-
-**Scope.** (a) Extend `src/ai_governance_mcp/server.py` SCAFFOLD_STANDARD_EXTRAS with a new template entry for `documents/failure-mode-registry.md` containing ONLY entries with `scope: framework`. (b) Adopter registry can then extend via their own entries with `scope: project`. (c) Lint in adopter project works as-is because `_load_registry_entries()` reads one YAML file.
-
-**Design note.** Simplest approach: generate the framework-subset registry from the canonical one at scaffold time, not hardcode. Or: ship a small `documents/scaffold-templates/failure-mode-registry-framework-seed.md` that the canonical entries tag-sync to.
-
-**Trigger.** External adopter feedback on registry bloat OR next `scaffold_project` feature addition.
+#### ~~125-b.~~ Closed (won't do). Registry value is the Covers: lint loop, which requires project-specific tests — can't be scaffolded. Anti-pattern knowledge transfers via principles + methods through retrieval. `git log --grep="backlog #125-b"`
 
 ---
 
@@ -230,19 +220,7 @@
 
 **Origin:** Perplexity Deep Research + Gemini UBDA review (2026-04-07). Both flagged quality-of-compliance vs occurrence gap.
 
-#### 85. Content Enhancer Integration + Multi-System Orchestration (Discussion) `D2 Improvement`
-
-**What:** Two related concepts:
-
-1. **Content Enhancer integration** — Integrate the High-Fidelity Educational Content Enhancer 3.0 into the ai-governance framework. The Content Enhancer is a 4-phase pipeline for transforming raw content into cognitively-optimized reference documents. Source files: `~/Documents/Reference/AI/AI High-Fidelity Educational Content Enhancer/`. Plan-mode exploration (2026-04-10) identified three viable paths: (A) governance constraints only (Part 14.7 + reference + CE indexing), (B) Content Enhancer as a skill, (C) hybrid.
-
-2. **Multi-system orchestration (future)** — n8n-style workflows orchestrating across multiple external systems (CI/CD, notifications, deployments). This is the "Orchestration" layer of the 4-layer execution taxonomy (EXECUTION-FRAMEWORK.md §3.7, CFR Part 9.5). Not yet needed — current repeatable procedures are skills. Revisit when cross-system automation needs emerge.
-
-**Context update (2026-05-09):** #55 (Workflow Codification) closed — skills infrastructure shipped (3 skills, CFR Part 9.5 method section). The Content Enhancer could now be implemented as a skill (path B). The "workflow" concept in EXECUTION-FRAMEWORK.md §3.7 has been redefined as future multi-system orchestration, distinct from skills (single-system repeatable procedures).
-
-**Origin:** Content Enhancer: plan-mode exploration (2026-04-10). Multi-system orchestration: EXECUTION-FRAMEWORK.md §3.7 taxonomy update (2026-05-09).
-
-**Origin:** User-initiated (2026-04-10). Plan mode exploration completed but implementation paused for deeper workflow pattern discussion.
+#### ~~85.~~ Closed (Content Enhancer portion). Shipped as `/content-enhancer` skill — 5-step protocol (Triage → Analyze → Enhance → Assemble → Verify) with gap-filling protocol, voice preservation guards, and human escalation rules. Fresh research-based design, not a port of 3.0. Multi-system orchestration remains deferred — revisit when cross-system automation needs emerge. `git log --grep="backlog #85"`
 
 #### 159. Critical 5 Hook Re-Injection (Discussion) `D1 Improvement`
 

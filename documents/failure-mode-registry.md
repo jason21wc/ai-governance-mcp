@@ -274,7 +274,7 @@ entries:
 | `id` | yes | Uppercase identifier, `FM-` prefix. Treated as a contract — do not rename in-place; retire + introduce a new ID. |
 | `description` | yes | One-line English description of the failure mode. |
 | `must_cover` | yes | `true` → lint requires at least one test with `Covers: <this-id>`. `false` → advisory; annotations are accepted but not required. |
-| `scope` | yes | `framework` → universal rule that would apply to any project adopting this governance framework (anti-patterns, registry-internal invariants). `project` → specific to this project's surface (hooks, scanner, MCP tools, hosted endpoints). Positions the registry for future scaffold-safe seeding via BACKLOG #125-b — scaffold_project would copy only `framework`-scope entries to new adopter projects. |
+| `scope` | yes | `framework` → universal rule that would apply to any project adopting this governance framework (anti-patterns, registry-internal invariants). `project` → specific to this project's surface (hooks, scanner, MCP tools, hosted endpoints). |
 | `introduced` | yes | ISO date the entry was added. |
 | `source` | no | Provenance: LEARNING-LOG entry, BACKLOG item, principle reference, session log. |
 | `retired` | no | ISO date the entry was retired. Annotations citing a retired ID emit deprecation warnings, not failures. |

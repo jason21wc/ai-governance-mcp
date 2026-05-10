@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-10 (session-163 — Critical 5 reasoning scaffold + Enforcement Layer Matrix).
+**Last Updated:** 2026-05-10 (session-164 — Content Enhancer skill + backlog cleanup).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,23 +12,25 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-163 (2026-05-10) Critical 5 reasoning scaffold + Enforcement Layer Matrix.**
+**Session-164 (2026-05-10) Content Enhancer skill + backlog cleanup.**
 
-**ACTION ON RESUME (session-164):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11 + critical-5 scaffold-theater assessment. **C-109 deferred-cadence audit** (~2026-05-25).
+**ACTION ON RESUME (session-165):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11 + critical-5 scaffold-theater assessment. **C-109 deferred-cadence audit** (~2026-05-25). Test `/content-enhancer` invocation with sample content.
 
 **Critical state for next session:**
-- **Critical 5 shipped** — 5 scaffold-format reasoning items in `evaluate_governance` response (`critical_5` key) + SERVER_INSTRUCTIONS. Measurement: learning log failure citations + scaffold-theater detection at CR#8.
-- **§8.4 Enforcement Layer Matrix shipped** — EXECUTION-FRAMEWORK.md documents all 16 enforcement layers with client compatibility. Staleness tripwire: T-161.
-- **3 BACKLOG items filed** — #159 hook re-injection (D1), #160 root_cause artifact (D2), #161 Claude App enforcement (D2).
+- **Content Enhancer skill shipped** — `/content-enhancer` skill with 5-step protocol (Triage → Analyze → Enhance → Assemble → Verify), gap-filling protocol, voice preservation guards, human escalation rules. Fresh research-based design. Needs live invocation test.
+- **BACKLOG #127 closed** — 16 DocumentConnector integration tests shipped.
+- **BACKLOG #125-b closed** (won't do) — registry value is the Covers: lint loop, can't be scaffolded.
+- **BACKLOG #85 closed** (Content Enhancer portion) — multi-system orchestration remains deferred.
+- **Skills count:** 4 (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`).
 - **Tests:** 1611 passing (non-slow subset).
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-163 (2026-05-10) — Critical 5 reasoning scaffold + Enforcement Layer Matrix shipped.
+- **Phase:** Session-164 (2026-05-10) — Content Enhancer skill + backlog cleanup.
 - **Mode:** Normal operation.
-- **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
+- **Active Task:** None. Next: Compliance Review #8 (~2026-05-15), `/content-enhancer` live test.
 
 ## Quick Reference
 
@@ -46,13 +48,20 @@
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
 | Index | **133 principles + 715 methods + 14 references** (862 total) |
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
-| Skills | **3** (`/compliance-review`, `/completion-sequence`, `/test-authoring`) |
+| Skills | **4** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
 | CI | **Green.** Last push: session-159. All pushed. |
 
 ---
 
 ## Last Session (2026-05-10)
+
+164. **Session-164 (2026-05-10): Content Enhancer skill + backlog cleanup.**
+   - **Content Enhancer skill (#85):** Shipped `/content-enhancer` as 4th skill. SKILL.md (43 lines) + procedure.md (356 lines). 5-step protocol: Triage (competence check, audience ID, use context) → Analyze (content-type classification, core facts vs presentation, voice fingerprint) → Enhance (restructure, clean, gap-fill with `[Editor's note:]` markers) → Assemble (format per use context) → Verify (fidelity, voice, adoption fitness). Fresh research-based design — not a port of 3.0. Contrarian review integrated (C1: triage gate, C2: editor's note convention, C3: 3.0 regression check passed).
+   - **DocumentConnector tests (#127):** 16 integration tests covering frontmatter, summaries, headings, section splitting, force-split, overlap, date normalization, edge cases. Code review caught 4 issues (force-split span assertion, overlap position verification, missing summary fields, missing plain-text coverage) — all fixed.
+   - **#125-b closed (won't do):** Systemic thinking analysis showed scaffold_project registry seeding is a catch-22 — `must_cover: true` entries break lint immediately in new projects. Registry value is the Covers: lint loop, which requires project-specific tests.
+   - **BACKLOG:** Closed #85 (Content Enhancer portion), #127, #125-b. Removed #125-b forward reference from failure-mode-registry.md.
+   - **kmpd references:** Committed 2 untracked reference-library files (hotel smart packet extraction, STR report building).
 
 163. **Session-163 (2026-05-10): Critical 5 reasoning scaffold + Enforcement Layer Matrix.**
    - **Critical 5 scaffold:** Added `critical_5` tier to `tiers.json` (v2.0.0) — 5 scaffold-format reasoning items (structural cause, verify before acting, state uncertainty, make the call, match effort to stakes). Wired into `evaluate_governance` response as additive `critical_5` key alongside unchanged `universal_floor`. Added to SERVER_INSTRUCTIONS.
@@ -65,6 +74,8 @@
 ---
 
 ## Previous Sessions
+
+*Session-163 (2026-05-10) Critical 5 reasoning scaffold + Enforcement Layer Matrix. 1611 tests.*
 
 *Session-162 (2026-05-10) BACKLOG #158+#150 threshold tuning — REVIEW alarm fatigue + S-Series semantic FP. 1632 tests.*
 
