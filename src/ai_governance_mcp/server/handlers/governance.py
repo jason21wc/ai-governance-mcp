@@ -199,7 +199,7 @@ async def _handle_evaluate_governance(
         if score > best_score:
             best_score = score
 
-        if p.series_code == "S":
+        if p.series_code == "S" and score >= engine.settings.s_series_score_threshold:
             s_series_principles.append(p.id)
 
         relevance = (
@@ -286,13 +286,20 @@ async def _handle_evaluate_governance(
             "Human review required before proceeding. "
             f"Triggered by: {', '.join(trigger_details)}"
         )
-    elif not relevant_principles:
+    elif not relevant_principles or best_score < engine.settings.review_score_threshold:
         assessment = AssessmentStatus.PROCEED
         requires_ai_judgment = False
-        rationale = (
-            "No strongly relevant governance principles found. "
-            "Action may proceed but consider querying with more specific terms."
-        )
+        if relevant_principles:
+            rationale = (
+                f"Principles surfaced but below REVIEW threshold "
+                f"(best score {best_score:.2f} < {engine.settings.review_score_threshold}). "
+                "Principles included for reference. Action may proceed."
+            )
+        else:
+            rationale = (
+                "No strongly relevant governance principles found. "
+                "Action may proceed but consider querying with more specific terms."
+            )
     else:
         assessment = AssessmentStatus.REVIEW
         requires_ai_judgment = True

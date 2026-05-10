@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-10 (session-160 — BACKLOG #54+#55 Skills Taxonomy & Codification).
+**Last Updated:** 2026-05-10 (session-162 — BACKLOG #150 S-Series semantic FP threshold).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,21 +12,20 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-160 (2026-05-10) BACKLOG #54+#55 — Skills Taxonomy & Codification.**
+**Session-162 (2026-05-10) BACKLOG #158 + #150 — threshold tuning arc.**
 
-**ACTION ON RESUME (session-161):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11, now in `.claude/skills/compliance-review/`. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158.
+**ACTION ON RESUME (session-163):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11, now in `.claude/skills/compliance-review/`. **C-109 deferred-cadence audit** (~2026-05-25).
 
 **Critical state for next session:**
-- **#54+#55 CLOSED** — Skills infrastructure shipped. CFR Part 9.5 method section (4-layer taxonomy, authoring standards). Superpowers reference library entry. 3 skills (compliance-review refactored, completion-sequence + test-authoring created). `workflows/` directory deleted. ~45 cross-references updated. EXECUTION-FRAMEWORK.md §3.7 taxonomy updated. Completion-sequence skill enhanced: added `meta-core-systemic-thinking` governance citation + expanded item 17 to consolidated 4-file project memory update step. All tests passing (1600).
-- **#85 updated** — reframed from workflow codification to Content Enhancer + future n8n-style orchestration.
-- **#158 open** — REVIEW alarm fatigue monitoring. 30-day window starts session-157.
-- **Tests:** 1600 passing (non-slow subset).
+- **#158 CLOSED** — REVIEW alarm fatigue mitigated via `review_score_threshold` (default 0.5). Projected REVIEW rate ~25-30%.
+- **#150 CLOSED** — S-Series semantic FP mitigated via `s_series_score_threshold` (default 0.5). Low-score S-Series semantic matches no longer trigger ESCALATE; keyword detection unaffected. Data: 18 FP ESCALATEs from `transparent-limitations` alone; score separation clean (FP ceiling 0.427, TP floor 0.526).
+- **Tests:** 1632 passing (non-slow subset).
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-160 (2026-05-10) — BACKLOG #54+#55 Skills Taxonomy & Codification shipped.
+- **Phase:** Session-162 (2026-05-10) — BACKLOG #158 + #150 threshold tuning shipped.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 
@@ -39,7 +38,7 @@
 | Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.44.1** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.2** (ai-instructions), **v1.9.0** (tiers.json). |
 | Execution Framework | **v1.1.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, thematic structure) |
 | OPERATIONS.md | **v2** (3 cadences, 15 tripwires, 4 V-series, 5 metrics, 3 scheduled operations — #154 docs pass) |
-| Tests | **1600 passing** (non-slow subset) |
+| Tests | **1632 passing** (non-slow subset) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **18 MCP tools** (14 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -52,19 +51,24 @@
 
 ---
 
-## Last Session (2026-05-09)
+## Last Session (2026-05-10)
 
-159. **Session-159 (2026-05-09): BACKLOG #154 — OPERATIONS.md documentation quality pass.**
-   - Consistent cadence entry structure: all 3 cadences now follow What → Cadence → Procedure → Inline log → Next due → Origin field order.
-   - Added missing "What" to C-078, normalized field names ("Audit procedure" → "Procedure", "Inline audit/run log" → "Inline log").
-   - Added top-level "Next due" fields to C-109 and C-155.
-   - Tripwires sorted ascending by ID (T-019 through T-152), matching cadences convention.
-   - Effectiveness Metrics preamble updated — M-001/M-003/M-004 now automated via C-155.
-   - BACKLOG #154 removed (done). Per `meta-quality-structured-output-enforcement`.
+162. **Session-162 (2026-05-10): BACKLOG #158 + #150 — threshold tuning arc.**
+   - **#158** REVIEW alarm fatigue: added `review_score_threshold` (default 0.5) to Settings. Gates REVIEW assessment label — principles still surfaced. Projected REVIEW rate ~25-30% (was ~52%).
+   - **#150** S-Series semantic FP: added `s_series_score_threshold` (default 0.5) to Settings. Low-score S-Series semantic matches no longer trigger ESCALATE veto. Keyword detection (CRITICAL/ADVISORY) unaffected. Data: 18 FP ESCALATEs from `transparent-limitations`; score separation clean (FP ceiling 0.427, TP floor 0.526).
+   - Fixed test `test_evaluate_governance_normal_action_proceeds` — assertion updated from hardcoded PROCEED to accept REVIEW (matches intent: "no ESCALATE for normal actions").
+   - Rewrote two regression tests to mock at `engine.retrieve()` level — `combined_score` (BM25+semantic fused) determines `best_score`, not `rerank_score`. Previous mocks only controlled reranker scores, which are sigmoid-normalized and don't override fused scores.
+   - BACKLOG #158 + #150 removed. 1632 tests passing.
 
 ---
 
 ## Previous Sessions
+
+*Session-161 (2026-05-10) BACKLOG #158 REVIEW score threshold. 1631 tests.*
+
+*Session-160 (2026-05-10) shipped BACKLOG #54+#55 Skills Taxonomy & Codification. 4-layer taxonomy, 3 skills, workflows/ deleted. 1600 tests.*
+
+*Session-159 (2026-05-09) BACKLOG #154 OPERATIONS.md documentation quality pass.*
 
 *Session-158 (2026-05-09) #10 tool integration governance pattern — domain-tool appendix shipped. ui-ux CFR v1.1.0.*
 
@@ -95,7 +99,6 @@
 
 **Ready-to-work (user-directed):**
 - **CE-First Phase 2** — Grep/Glob advisory hook (D2, conditional on T-149 measurement)
-- **#150** — Semantic-retrieval FP investigation (D2 Discussion)
 - **#149** — Contrarian-reviewer over-generation tendency (D2 Discussion)
 - **IPC predict length validation** — Defense-in-depth (security-auditor M1, D1 Improvement)
 

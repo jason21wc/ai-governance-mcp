@@ -130,6 +130,17 @@ class Settings(BaseSettings):
         default=0.3,
         description="Minimum combined score for inclusion",
     )
+    review_score_threshold: float = Field(
+        default=0.5,
+        description="Minimum best-principle score to return REVIEW assessment. "
+        "Below this, assessment is PROCEED even when principles are surfaced.",
+    )
+    s_series_score_threshold: float = Field(
+        default=0.5,
+        description="Minimum score for S-Series semantic promotion to ESCALATE. "
+        "Below this, S-Series principles appear in results but don't trigger veto. "
+        "Keyword detection is unaffected by this threshold.",
+    )
     max_results: int = Field(
         default=10,
         description="Maximum principles returned per query",

@@ -199,10 +199,10 @@ class TestEvaluateGovernance:
 
                     # No safety keyword concerns should be detected from the action
                     assert len(parsed["s_series_check"]["safety_concerns"]) == 0
-                    # If no S-Series principles returned AND no keyword concerns,
-                    # assessment should be PROCEED
+                    # No S-Series → no ESCALATE. REVIEW is acceptable when
+                    # non-S-Series principles score above review_score_threshold.
                     if not parsed["s_series_check"]["principles"]:
-                        assert parsed["assessment"] == "PROCEED"
+                        assert parsed["assessment"] in ("PROCEED", "REVIEW")
 
     @pytest.mark.asyncio
     async def test_evaluate_governance_includes_principle_content(
@@ -284,7 +284,7 @@ class TestEvaluateGovernance:
         mock_embedder,
         mock_reranker,
     ):
-        """evaluate_governance should return REVIEW (not PROCEED) when principles are found (#155)."""
+        """evaluate_governance should return REVIEW when principles score above threshold (#155, #158)."""
         mock_st = Mock(return_value=mock_embedder)
         mock_ce = Mock(return_value=mock_reranker)
 
@@ -306,7 +306,188 @@ class TestEvaluateGovernance:
                         parsed["relevant_principles"]
                         and not parsed["s_series_check"]["triggered"]
                     ):
-                        assert parsed["assessment"] == "REVIEW"
+                        top_score = max(
+                            p["score"] for p in parsed["relevant_principles"]
+                        )
+                        if top_score >= test_settings.review_score_threshold:
+                            assert parsed["assessment"] == "REVIEW"
+                        else:
+                            assert parsed["assessment"] == "PROCEED"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_returns_proceed_when_principles_below_threshold(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Principles below review_score_threshold yield PROCEED, not REVIEW (#158).
+
+        combined_score (BM25+semantic fused) determines best_score, not rerank_score.
+        Patch retrieve() to return principles with controlled combined_score < 0.5.
+        """
+        from ai_governance_mcp.models import (
+            ConfidenceLevel,
+            Principle,
+            RetrievalResult,
+            ScoredPrinciple,
+        )
+
+        low_result = RetrievalResult(
+            query="Refactor the code structure",
+            domains_detected=["ai-coding"],
+            domain_scores={"ai-coding": 0.8},
+            constitution_principles=[
+                ScoredPrinciple(
+                    principle=Principle(
+                        id="meta-Q1",
+                        domain="constitution",
+                        series_code="Q",
+                        title="Quality Standard",
+                        content="Test quality principle.",
+                        line_range=(1, 5),
+                    ),
+                    combined_score=0.35,
+                    confidence=ConfidenceLevel.LOW,
+                ),
+            ],
+            domain_principles=[
+                ScoredPrinciple(
+                    principle=Principle(
+                        id="coding-C1",
+                        domain="ai-coding",
+                        series_code="C",
+                        title="Coding Standard",
+                        content="Test coding principle.",
+                        line_range=(1, 5),
+                    ),
+                    combined_score=0.40,
+                    confidence=ConfidenceLevel.MEDIUM,
+                ),
+            ],
+            methods=[],
+            s_series_triggered=False,
+            retrieval_time_ms=5.0,
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+                    from ai_governance_mcp.server._state import get_engine
+
+                    engine = get_engine()
+                    with patch.object(engine, "retrieve", return_value=low_result):
+                        result = await call_tool(
+                            "evaluate_governance",
+                            {"planned_action": "Refactor the code structure"},
+                        )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert parsed["relevant_principles"]
+                    assert not parsed["s_series_check"]["triggered"]
+                    assert parsed["assessment"] == "PROCEED"
+                    assert "below REVIEW threshold" in parsed["rationale"]
+
+    @pytest.mark.asyncio
+    async def test_s_series_semantic_below_threshold_does_not_escalate(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Low-score S-Series semantic match should not trigger ESCALATE (#150).
+
+        Regression test: session-142 repro — benign housekeeping action
+        matched meta-safety-transparent-limitations at low score, causing
+        false ESCALATE. With s_series_score_threshold gate, low-score S-Series
+        principles appear in results but don't trigger veto.
+        """
+        from ai_governance_mcp.models import (
+            ConfidenceLevel,
+            Principle,
+            RetrievalResult,
+            ScoredPrinciple,
+        )
+
+        low_s_series_result = RetrievalResult(
+            query="Remove BACKLOG #147 entry per 'no closed items' rule",
+            domains_detected=[],
+            domain_scores={},
+            constitution_principles=[
+                ScoredPrinciple(
+                    principle=Principle(
+                        id="meta-safety-transparent-limitations",
+                        domain="constitution",
+                        series_code="S",
+                        title="Transparent Limitations",
+                        content="Acknowledge limitations honestly.",
+                        line_range=(1, 5),
+                    ),
+                    combined_score=0.42,
+                    confidence=ConfidenceLevel.MEDIUM,
+                ),
+                ScoredPrinciple(
+                    principle=Principle(
+                        id="meta-Q1",
+                        domain="constitution",
+                        series_code="Q",
+                        title="Quality Standard",
+                        content="Maintain quality.",
+                        line_range=(6, 10),
+                    ),
+                    combined_score=0.35,
+                    confidence=ConfidenceLevel.LOW,
+                ),
+            ],
+            domain_principles=[],
+            methods=[],
+            s_series_triggered=False,
+            retrieval_time_ms=5.0,
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+                    from ai_governance_mcp.server._state import get_engine
+
+                    engine = get_engine()
+                    with patch.object(
+                        engine, "retrieve", return_value=low_s_series_result
+                    ):
+                        result = await call_tool(
+                            "evaluate_governance",
+                            {
+                                "planned_action": (
+                                    "Remove BACKLOG #147 entry from BACKLOG.md "
+                                    "per 'no closed items' rule"
+                                )
+                            },
+                        )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert not parsed["s_series_check"]["triggered"], (
+                        "S-Series should not trigger when all S-Series principle "
+                        "scores are below s_series_score_threshold"
+                    )
+                    assert parsed["assessment"] == "PROCEED"
 
     @pytest.mark.asyncio
     async def test_evaluate_governance_escalate_does_not_require_ai_judgment(
