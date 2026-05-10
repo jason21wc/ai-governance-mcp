@@ -507,6 +507,282 @@ class TestDocumentConnector:
         assert len(chunks) >= 1
 
 
+class TestDocumentConnectorIntegration:
+    """Integration tests for DocumentConnector parsing behavior."""
+
+    def _make_connector(self):
+        from ai_governance_mcp.context_engine.connectors.document import (
+            DocumentConnector,
+        )
+
+        return DocumentConnector()
+
+    def test_parse_extracts_yaml_frontmatter(self, tmp_path):
+        """Frontmatter dict is attached to every chunk."""
+        conn = self._make_connector()
+        f = tmp_path / "doc.md"
+        f.write_text(
+            "---\n"
+            "title: Test Doc\n"
+            "tags: [alpha, beta]\n"
+            "status: current\n"
+            "---\n"
+            "# Heading\n"
+            "\n"
+            "Body text.\n"
+        )
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) >= 1
+        for chunk in chunks:
+            assert chunk.frontmatter is not None
+            assert chunk.frontmatter["title"] == "Test Doc"
+            assert chunk.frontmatter["tags"] == ["alpha", "beta"]
+            assert chunk.frontmatter["status"] == "current"
+
+    def test_frontmatter_summary_enriches_first_chunk_only(self, tmp_path):
+        """First chunk content starts with frontmatter summary; subsequent chunks do not."""
+        conn = self._make_connector()
+        f = tmp_path / "doc.md"
+        f.write_text(
+            "---\n"
+            "tags: [a, b]\n"
+            "status: current\n"
+            "---\n"
+            "# First\n"
+            "\n"
+            "First section body.\n"
+            "\n"
+            "## Second\n"
+            "\n"
+            "Second section body.\n"
+        )
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) == 2
+
+        first_lines = chunks[0].content.split("\n")
+        assert first_lines[0] == "[tags: a, b] [status: current]"
+
+        second_lines = chunks[1].content.split("\n")
+        assert not second_lines[0].startswith("[tags:")
+
+    def test_heading_breadcrumb_in_content(self, tmp_path):
+        """Chunks contain [filepath > parent > child] breadcrumb prefix."""
+        conn = self._make_connector()
+        subdir = tmp_path / "docs"
+        subdir.mkdir()
+        f = subdir / "guide.md"
+        f.write_text(
+            "## Parent Heading\n\nIntro text.\n\n### Child Heading\n\nDetail text.\n"
+        )
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) == 2
+
+        assert "[docs/guide.md > Parent Heading]" in chunks[0].content
+        assert "[docs/guide.md > Parent Heading > Child Heading]" in chunks[1].content
+
+    def test_section_splitting_at_headings(self, tmp_path):
+        """Each heading starts a new chunk with correct heading attribute."""
+        conn = self._make_connector()
+        f = tmp_path / "doc.md"
+        f.write_text("# H1\n\nH1 body.\n\n## H2a\n\nH2a body.\n\n## H2b\n\nH2b body.\n")
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) == 3
+        assert chunks[0].heading == "H1"
+        assert chunks[1].heading == "H2a"
+        assert chunks[2].heading == "H2b"
+
+        assert "H1 body." in chunks[0].content
+        assert "H2a body." in chunks[1].content
+        assert "H2b body." in chunks[2].content
+
+        assert "H2a body." not in chunks[0].content
+        assert "H1 body." not in chunks[1].content
+
+    def test_frontmatter_date_normalization(self, tmp_path):
+        """Dates in frontmatter are normalized to ISO strings."""
+        conn = self._make_connector()
+        f = tmp_path / "doc.md"
+        f.write_text(
+            "---\ncreated: 2026-01-15\nupdated: 2026-03-20\n---\n# Doc\n\nContent.\n"
+        )
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) >= 1
+        fm = chunks[0].frontmatter
+        assert fm is not None
+        assert fm["created"] == "2026-01-15"
+        assert fm["updated"] == "2026-03-20"
+        assert isinstance(fm["created"], str)
+        assert isinstance(fm["updated"], str)
+
+    def test_oversized_section_force_split(self, tmp_path):
+        """Sections exceeding _MAX_SECTION_LINES are split into multiple chunks."""
+        from ai_governance_mcp.context_engine.connectors.document import (
+            DocumentConnector,
+        )
+
+        conn = DocumentConnector()
+        max_lines = DocumentConnector._MAX_SECTION_LINES
+        body_lines = ["Line %d." % i for i in range(max_lines + 50)]
+        f = tmp_path / "big.md"
+        f.write_text("# Big Section\n" + "\n".join(body_lines) + "\n")
+
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) >= 2
+
+        for chunk in chunks:
+            span = chunk.end_line - chunk.start_line + 1
+            assert span <= max_lines
+
+    def test_overlap_between_heading_sections(self, tmp_path):
+        """Sections >= _MIN_OVERLAP_LINES carry _OVERLAP_LINES into the next chunk."""
+        from ai_governance_mcp.context_engine.connectors.document import (
+            DocumentConnector,
+        )
+
+        conn = DocumentConnector()
+        min_overlap = DocumentConnector._MIN_OVERLAP_LINES
+        overlap = DocumentConnector._OVERLAP_LINES
+
+        section_a_lines = ["Line A%d." % i for i in range(min_overlap + 5)]
+        section_b_lines = ["Line B%d." % i for i in range(min_overlap + 5)]
+
+        f = tmp_path / "overlap.md"
+        f.write_text(
+            "## Section A\n"
+            + "\n".join(section_a_lines)
+            + "\n"
+            + "## Section B\n"
+            + "\n".join(section_b_lines)
+            + "\n"
+        )
+
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) == 2
+
+        tail_lines = section_a_lines[-overlap:]
+        for tail_line in tail_lines:
+            assert tail_line in chunks[1].content
+
+        # Overlap lines must appear before section B's own content
+        chunk1_content = chunks[1].content
+        first_overlap_pos = chunk1_content.index(tail_lines[0])
+        first_b_pos = chunk1_content.index("Line B0.")
+        assert first_overlap_pos < first_b_pos
+
+    def test_no_overlap_for_short_sections(self, tmp_path):
+        """Sections shorter than _MIN_OVERLAP_LINES produce no overlap."""
+        from ai_governance_mcp.context_engine.connectors.document import (
+            DocumentConnector,
+        )
+
+        conn = DocumentConnector()
+
+        f = tmp_path / "short.md"
+        f.write_text("## Short A\nLine 1.\nLine 2.\n\n## Short B\nLine 3.\nLine 4.\n")
+
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) == 2
+        assert "Line 1." not in chunks[1].content
+        assert "Line 2." not in chunks[1].content
+
+    def test_frontmatter_summary_field_ordering(self, tmp_path):
+        """Summary includes all 6 recognized fields in documented order."""
+        conn = self._make_connector()
+        f = tmp_path / "doc.md"
+        f.write_text(
+            "---\n"
+            "title: My Title\n"
+            "tags: [x, y]\n"
+            "status: draft\n"
+            "maturity: budding\n"
+            "domain: safety\n"
+            "entry_type: reference\n"
+            "---\n"
+            "# Heading\n"
+            "\n"
+            "Body.\n"
+        )
+        chunks = conn.parse(f, project_root=tmp_path)
+        first_line = chunks[0].content.split("\n")[0]
+        assert (
+            first_line
+            == "[tags: x, y] [status: draft] [maturity: budding] [domain: safety] [title: My Title] [type: reference]"
+        )
+
+    def test_no_frontmatter_no_summary_prefix(self, tmp_path):
+        """Documents without frontmatter get no summary prefix."""
+        conn = self._make_connector()
+        f = tmp_path / "doc.md"
+        f.write_text("# Plain\n\nJust content.\n")
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) == 1
+        assert chunks[0].frontmatter is None
+        first_line = chunks[0].content.split("\n")[0]
+        assert first_line.startswith("[")
+        assert "tags:" not in first_line
+        assert "status:" not in first_line
+
+    def test_empty_file_returns_no_chunks(self, tmp_path):
+        """Empty markdown file produces no chunks."""
+        conn = self._make_connector()
+        f = tmp_path / "empty.md"
+        f.write_text("")
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert chunks == []
+
+    def test_whitespace_only_file_returns_no_chunks(self, tmp_path):
+        """Whitespace-only markdown file produces no chunks."""
+        conn = self._make_connector()
+        f = tmp_path / "blank.md"
+        f.write_text("   \n\n  \n")
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert chunks == []
+
+    def test_invalid_frontmatter_treated_as_content(self, tmp_path):
+        """Malformed YAML frontmatter is ignored; full content is parsed."""
+        conn = self._make_connector()
+        f = tmp_path / "bad_fm.md"
+        f.write_text("---\nnot: [valid: yaml\n---\n# Heading\n\nBody.\n")
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) >= 1
+        assert chunks[0].frontmatter is None
+
+    def test_display_path_relative_to_project_root(self, tmp_path):
+        """source_path uses relative path when project_root is provided."""
+        conn = self._make_connector()
+        subdir = tmp_path / "nested" / "dir"
+        subdir.mkdir(parents=True)
+        f = subdir / "file.md"
+        f.write_text("# Title\n\nContent.\n")
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert chunks[0].source_path == "nested/dir/file.md"
+
+    def test_display_path_absolute_without_project_root(self, tmp_path):
+        """source_path uses absolute path when no project_root is provided."""
+        conn = self._make_connector()
+        f = tmp_path / "doc.md"
+        f.write_text("# Title\n\nContent.\n")
+        chunks = conn.parse(f)
+        assert chunks[0].source_path == str(f)
+
+    def test_parse_plain_text_paragraph_chunking(self, tmp_path):
+        """Plain text files are chunked by paragraph boundaries, not headings."""
+        conn = self._make_connector()
+        f = tmp_path / "notes.txt"
+        paragraphs = []
+        for i in range(3):
+            lines = [f"Para {i} line {j}." for j in range(35)]
+            paragraphs.append("\n".join(lines))
+        f.write_text("\n\n".join(paragraphs) + "\n")
+
+        chunks = conn.parse(f, project_root=tmp_path)
+        assert len(chunks) >= 2
+        assert chunks[0].content_type == "document"
+        assert chunks[0].source_path == "notes.txt"
+        assert chunks[0].frontmatter is None
+        assert "Para 0 line 0." in chunks[0].content
+
+
 class TestSpreadsheetConnector:
     """Test spreadsheet connector parsing."""
 

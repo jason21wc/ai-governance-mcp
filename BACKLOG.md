@@ -75,17 +75,7 @@
 
 ---
 
-#### 127. Document-Extractor Integration-Test Coverage Gap `D2 Capability`
-
-**Filed:** 2026-04-23 (session-123 Commit L, BACKLOG #122 Case 8 deferral).
-
-**What.** Phase 1 inventory for BACKLOG #122 Case 8 flagged `TestDocumentConnector::test_parse_markdown` (test_context_engine.py:437-ish) as a unit test with no paired integration test covering the end-to-end document-extractor parsing pipeline. Search for `test_extractor_integration.py` returns nothing — the file doesn't exist. Case 8 in #122 was disposed as "DEFER, don't fabricate a consolidation for a coverage gap."
-
-**Scope.** Either (a) add a new integration test in `tests/test_extractor_integration.py` (or existing integration test file) exercising the full extractor pipeline on a realistic document — parse → chunk → classify → emit `ContentChunk`s with correct metadata; OR (b) decide the unit test IS sufficient coverage and document the decision in a test docstring.
-
-**Trigger.** When adding new extractor features OR when extractor behavior changes semantically OR when triaging retrieval-quality regressions tied to parsing.
-
-**Done when.** Either an integration test lands OR `TestDocumentConnector::test_parse_markdown` docstring explicitly documents why unit-level coverage is sufficient per CFR §5.2.3 (unit vs integration boundary).
+#### ~~127.~~ Closed. 15 DocumentConnector integration tests shipped (`TestDocumentConnectorIntegration` in test_context_engine.py). `git log --grep="backlog #127"`
 
 ---
 
