@@ -186,7 +186,7 @@ Session-126 BACKLOG #130 investigation: ai-instructions Changelog entries v2.8.1
 
 **Principle:** `meta-method-single-source-of-truth` (rule has ONE canonical home; precedents reference it, not each other); `meta-quality-visible-reasoning-traceability` (citation must trace to an audit-trailed source, not "vibes from prior entries"); `meta-core-systemic-thinking` (the structural fix is canonical-home, not per-Changelog-entry correction).
 
-**Cross-ref:** workflows/COMPLETION-CHECKLIST.md item 7c (canonical home, post-Commit 11); ai-instructions.md Changelog v2.8.1 [CORRECTION] note (the inline acknowledgment of the misread chain); BACKLOG #130 (closed Commit 11 `4762962`); commit `c22e35c` (the real round-2 contrarian HIGH-2 authority for MINOR-on-MINOR); plan `~/.claude/plans/federated-plotting-karp.md`.
+**Cross-ref:** `/completion-sequence` checklist item 7c (canonical home, post-Commit 11); ai-instructions.md Changelog v2.8.1 [CORRECTION] note (the inline acknowledgment of the misread chain); BACKLOG #130 (closed Commit 11 `4762962`); commit `c22e35c` (the real round-2 contrarian HIGH-2 authority for MINOR-on-MINOR); plan `~/.claude/plans/federated-plotting-karp.md`.
 
 ---
 
@@ -299,7 +299,7 @@ If Ground Truth contradicts the finding's framing, re-severity or close the find
 
 **Principle:** `meta-core-systemic-thinking` — address presumed-consumer assumptions structurally, not after the remediation has consumed effort. Also `meta-safety-transparent-limitations` — re-severity based on evidence rather than carrying review framing forward unchecked. Also `meta-quality-verification-validation` — "finding severity claim" is not "operational evidence."
 
-**Graduation trigger met:** 3 clean instances in 3 sessions. Pattern is canonical. Integration into `workflows/COMPLETION-CHECKLIST.md` review-triage step tracked at BACKLOG #114 (trigger: next review-methodology change OR Cohort-5+ plan drafting, whichever first).
+**Graduation trigger met:** 3 clean instances in 3 sessions. Pattern is canonical. Integration into `/completion-sequence` checklist review-triage step tracked at BACKLOG #114 (trigger: next review-methodology change OR Cohort-5+ plan drafting, whichever first).
 
 ---
 
@@ -593,7 +593,7 @@ AI performed a documentation propagation analysis (checking which files needed u
 
 ### Meta-Action Failure ≠ Item-Level Compliance (2026-04-07)
 
-Session shipped code after code-review but before consulting COMPLETION-CHECKLIST.md. Three user-requested "double checks" caught security vulnerabilities, documentation drift, index staleness, test gaps — all covered by the existing checklist. The checklist was never opened. This is a **meta-action failure** (0% — never opened), not an item-level miss (85% — opened but skipped some items). Advisory memory works for single actions (#47: contrarian review 3/3 unprompted). Multi-step checklists need structural nudging because the cognitive load of "identify applicable section → work through sub-items" is categorically higher than "call one subagent."
+Session shipped code after code-review but before consulting the `/completion-sequence` checklist. Three user-requested "double checks" caught security vulnerabilities, documentation drift, index staleness, test gaps — all covered by the existing checklist. The checklist was never opened. This is a **meta-action failure** (0% — never opened), not an item-level miss (85% — opened but skipped some items). Advisory memory works for single actions (#47: contrarian review 3/3 unprompted). Multi-step checklists need structural nudging because the cognitive load of "identify applicable section → work through sub-items" is categorically higher than "call one subagent."
 
 **Rule:** The meta-action of opening the completion checklist is now ENFORCED (pre-push hook Check 4). Individual items within remain BEST-EFFORT (~85%). This separation — enforce the gate, not every step behind it — is proportional.
 

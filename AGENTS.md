@@ -14,8 +14,8 @@
 | PROJECT-MEMORY.md | Decisions, constraints, gates |
 | LEARNING-LOG.md | Lessons learned |
 | ARCHITECTURE.md | System design, data flow |
-| workflows/COMPLETION-CHECKLIST.md | Post-change steps including rename procedure for principle ID changes (say "run the completion sequence") |
-| workflows/COMPLIANCE-REVIEW.md | Periodic governance health (say "run compliance review") |
+| `.claude/skills/completion-sequence/` | Post-change steps including rename procedure for principle ID changes (invoke via `/completion-sequence`) |
+| `.claude/skills/compliance-review/` | Periodic governance health (invoke via `/compliance-review`) |
 
 ## On Session Start
 

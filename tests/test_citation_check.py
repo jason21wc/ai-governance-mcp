@@ -68,7 +68,6 @@ def make_corpus(
     root = tmp_path / "corpus"
     root.mkdir()
     (root / "documents").mkdir()
-    (root / "workflows").mkdir()
 
     for rel_path, content in files.items():
         path = root / rel_path
@@ -316,8 +315,8 @@ def test_exit_code_0_on_clean_corpus(tmp_path: Path) -> None:
             "BACKLOG.md": (
                 "# Backlog\n\nItem references `rules-of-procedure.md §9.8.9`.\n"
             ),
-            "workflows/EXAMPLE.md": (
-                "# Example workflow\n\nNo line-form citations here.\n"
+            ".claude/skills/example/checklist.md": (
+                "# Example skill reference\n\nNo line-form citations here.\n"
             ),
         },
     )

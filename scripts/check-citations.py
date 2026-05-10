@@ -41,7 +41,7 @@ EXCLUDED_HEADING_SUBSTRINGS = (
 INCLUDED_PATH_PATTERNS = (
     "documents/*.md",
     "BACKLOG.md",
-    "workflows/*.md",
+    ".claude/skills/*/*.md",
 )
 
 EXCLUDED_PATH_SUBSTRINGS = (

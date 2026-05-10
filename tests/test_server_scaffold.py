@@ -49,7 +49,7 @@ class TestScaffoldProject:
         """Preview mode for code/standard should return 9-file manifest.
 
         Standard tier = 4 core + 5 extras (CLAUDE + ARCHITECTURE + SPECIFICATION
-        + workflows/COMPLETION-CHECKLIST + BACKLOG). See server.py
+        + .claude/skills/completion-sequence/checklist + BACKLOG). See server.py
         SCAFFOLD_STANDARD_EXTRAS comment for sync to
         title-10-ai-coding-cfr.md §1.5.2.
         """
@@ -69,7 +69,7 @@ class TestScaffoldProject:
         assert "CLAUDE.md" in paths
         assert "ARCHITECTURE.md" in paths
         assert "SPECIFICATION.md" in paths
-        assert "workflows/COMPLETION-CHECKLIST.md" in paths
+        assert ".claude/skills/completion-sequence/checklist.md" in paths
         assert "BACKLOG.md" in paths
 
     @pytest.mark.asyncio

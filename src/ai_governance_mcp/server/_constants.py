@@ -413,7 +413,10 @@ SCAFFOLD_STANDARD_EXTRAS = {
         ("CLAUDE.md", SCAFFOLD_CLAUDE_MD),
         ("ARCHITECTURE.md", SCAFFOLD_ARCHITECTURE),
         ("SPECIFICATION.md", SCAFFOLD_SPECIFICATION),
-        ("workflows/COMPLETION-CHECKLIST.md", SCAFFOLD_COMPLETION_CHECKLIST),
+        (
+            ".claude/skills/completion-sequence/checklist.md",
+            SCAFFOLD_COMPLETION_CHECKLIST,
+        ),
         ("BACKLOG.md", SCAFFOLD_BACKLOG),
     ],
     "document": [],
@@ -470,9 +473,9 @@ AGENT_TEMPLATE_HASHES = {
     "continuity-auditor": "217a9057bc03cc932d95d6038d1020a9be07cfd35a2ab61a71c66d40968ef76f",
     "contrarian-reviewer": "7d243e0ca4f5eb6af8c55225dbc764712e9ab4603c31a6012ecafba3ed7d7afe",
     "documentation-writer": "c1f1e0d5617d10c6b61cb3fb8e7e436a9ffe18c06f629c2d1201f3da3d998ad0",
-    "orchestrator": "3cb7572daf8d244902671085761d8b22e3fc5c34f27b87b638d0d1cd1126d557",
+    "orchestrator": "101cb68c5b3fb36db357080ec3c42806cb57808eafee9b061b8b00b02ca10501",
     "security-auditor": "5c2217d0a3041ad8afee3b46ae8c66e9e375ebbb9059b7637421037609d0ad27",
-    "test-generator": "1d5683c2c3ef605555fadfc1a7729b4a4d4cb2e52843a36e6fe5defe0a245054",
+    "test-generator": "33efe5ea111cdcf0b613d52a1444420cb21fda8023a89d42a16f93e66c33c489",
     "validator": "4015ea6c86e5ed29db56f9bc5cefcf48bf2b92e65438156640644e7ebb016a03",
     "voice-coach": "3b634f624453c570783c90ea942432ac8557e355002a2797ebee831ba7b2a13a",
 }

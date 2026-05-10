@@ -10,7 +10,7 @@
 #   1. Tests run this session (pytest in transcript)
 #   2. Subagent review for risky changes (core code files or new src files)
 #   3. Governance content review for principle file changes
-#   4. Completion checklist consulted (COMPLETION-CHECKLIST.md read)
+#   4. Completion checklist consulted (/completion-sequence skill invoked)
 #   5. Multi-commit push requires explicit acknowledgment (closes review-attribution gap
 #      where commits 1-2 had reviewer evidence but commit 3 was added later unreviewed)
 #   6. Diff secret-scan — high-precision regex against AWS keys, OpenAI keys, GitHub
@@ -19,7 +19,7 @@
 #      on explicit user authorization)
 #   7. (WARN-only, advisory — not a blocking gate): TDD test-existence scan for new
 #      src/*.py files. Bypass via TDD_TEST_EXISTENCE_SKIP=1; promotion to BLOCK is
-#      event-driven via V-008 in workflows/COMPLIANCE-REVIEW.md.
+#      event-driven via V-008 in .claude/skills/compliance-review/verification.md.
 #   Escape hatch: docs-only changes skip review requirement (except governance)
 #
 # Environment variables:
@@ -187,7 +187,7 @@ fi
 
 # Check 4: Was the completion checklist consulted this session?
 CHECKLIST_READ="false"
-for PATTERN in "COMPLETION-CHECKLIST" "completion sequence" "completion checklist"; do
+for PATTERN in "COMPLETION-CHECKLIST" "completion-sequence" "completion sequence" "completion checklist"; do
     FOUND=$(python3 "$HOOK_DIR/scan_transcript.py" --pattern "$PATTERN" "$TRANSCRIPT" 2>/dev/null || echo "false")
     if [ "$FOUND" = "true" ]; then
         CHECKLIST_READ="true"
@@ -196,7 +196,7 @@ for PATTERN in "COMPLETION-CHECKLIST" "completion sequence" "completion checklis
 done
 debug "Completion checklist consulted: $CHECKLIST_READ"
 if [ "$CHECKLIST_READ" = "false" ]; then
-    ISSUES="${ISSUES}Completion checklist not consulted. Read COMPLETION-CHECKLIST.md and verify applicable items before pushing. "
+    ISSUES="${ISSUES}Completion checklist not consulted. Run /completion-sequence and verify applicable items before pushing. "
 fi
 
 # Check 5: Multi-commit push requires explicit acknowledgment.
@@ -254,7 +254,7 @@ fi
 # Check 7 (WARN-only, Commit 6 of Superpowers plan): TDD test-existence
 # scan for new src/*.py files. Surfaces unpaired src files on stderr; does
 # NOT add to ISSUES (no block). Promotion to BLOCK is event-driven (V-008
-# in COMPLIANCE-REVIEW.md): "promote to BLOCK after first coherence-audit
+# in .claude/skills/compliance-review/verification.md): "promote to BLOCK after first coherence-audit
 # finding flags WARN-mode pattern actually firing on real code." Bypass
 # via TDD_TEST_EXISTENCE_SKIP=1.
 if [ "${TDD_TEST_EXISTENCE_SKIP:-}" = "1" ] && [ -n "$NEW_SRC_FILES" ]; then
@@ -266,7 +266,7 @@ if [ "${TDD_TEST_EXISTENCE_SKIP:-}" != "1" ] && [ -n "$NEW_SRC_FILES" ]; then
         TDD_FINDINGS=$(printf '%s\n' "$NEW_SRC_FILES" | python3 "$HOOK_DIR/scan_transcript.py" --tdd-test-existence - 2>&1 >/dev/null || true)
         echo "[tdd-test-existence] WARN — new src files lack paired test files (advisory; bypass with TDD_TEST_EXISTENCE_SKIP=1):" >&2
         echo "$TDD_FINDINGS" >&2
-        echo "[tdd-test-existence] If this WARN later turns out to pre-figure a real defect (the unpaired src file shipped a regression paired tests would have caught), file the trigger event in V-008 row of workflows/COMPLIANCE-REVIEW.md — closes the event-driven WARN→BLOCK promotion loop without depending on human memory." >&2
+        echo "[tdd-test-existence] If this WARN later turns out to pre-figure a real defect (the unpaired src file shipped a regression paired tests would have caught), file the trigger event in V-008 row of .claude/skills/compliance-review/verification.md — closes the event-driven WARN→BLOCK promotion loop without depending on human memory." >&2
     fi
 fi
 

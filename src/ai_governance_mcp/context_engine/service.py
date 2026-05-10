@@ -203,7 +203,7 @@ def _generate_macos_measurement_plist(script_path: Path) -> str:
 
     Runs scripts/measure-watcher-footprint.sh at 04:00 local time daily.
     Writes ~/.context-engine/PHASE2_TRIGGERED on threshold exceed. Check 6b.2
-    in workflows/COMPLIANCE-REVIEW.md reads that marker.
+    in /compliance-review Check 6b.2 reads that marker.
 
     Why a second plist: this is a standalone periodic task, not split daemon
     state. Different mechanism and purpose from the watcher plist. See plan

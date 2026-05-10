@@ -484,7 +484,7 @@ async def list_tools() -> list[Tool]:
                     },
                     "kit_tier": {
                         "type": "string",
-                        "description": "Kit tier: 'core' (4 files) or 'standard' (9 files; core + CLAUDE.md + ARCHITECTURE.md + SPECIFICATION.md + workflows/COMPLETION-CHECKLIST.md + BACKLOG.md, per title-10-ai-coding-cfr.md §1.5.2 + §1.5.5 tool overlay)",
+                        "description": "Kit tier: 'core' (4 files) or 'standard' (9 files; core + CLAUDE.md + ARCHITECTURE.md + SPECIFICATION.md + .claude/skills/completion-sequence/checklist.md + BACKLOG.md, per title-10-ai-coding-cfr.md §1.5.2 + §1.5.5 tool overlay)",
                         "enum": ["core", "standard"],
                     },
                     "confirmed": {

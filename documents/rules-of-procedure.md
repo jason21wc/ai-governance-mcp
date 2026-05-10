@@ -996,7 +996,7 @@ After any framework update, validate:
 
 **If issues found:** Document the issue and resolution in LEARNING-LOG.md.
 
-**Project-specific operationalization:** For projects using the AI Coding Methods memory architecture, see `workflows/COMPLIANCE-REVIEW.md` which extends this generic health check with behavioral canary prompts, verification experiments, and effectiveness tracking.
+**Project-specific operationalization:** For projects using the AI Coding Methods memory architecture, invoke `/compliance-review` which extends this generic health check with behavioral canary prompts, verification experiments, and effectiveness tracking.
 
 ---
 
@@ -2715,7 +2715,7 @@ Pure passive triggers ("when it becomes useful") are insufficient — they repro
 2. **One-way state transitions with history.** A `borrowed → considered-and-rejected` move (or vice versa) MUST record the rejection/adoption history per the `(cite history)` requirement before the transition lands. Entries cannot oscillate between states without new evidence; once rejection/adoption history is logged, re-entry requires citation of new evidence, not re-litigation of the prior history.
 3. **No empty rationale.** Every entry MUST have a non-empty rationale + trigger column. A row with only a status and no rationale fails self-validation. Borrowed entries' rationale = where + why borrowed; not-borrowed = why not + when re-evaluate; considered-and-rejected = why rejected + history pointer.
 
-**Maintenance discipline.** Inherits cadence from `workflows/COMPLIANCE-REVIEW.md` Check 9 ("Constitutional Analogy Register integrity"). Each Compliance Review produces a date-stamped audit-log entry directly below the table, mirroring BACKLOG #109's inline-audit-log pattern. Audit logs must be appended even when no triggers fire — passive review with logged output is what prevents staleness.
+**Maintenance discipline.** Inherits cadence from `/compliance-review` Check 9 ("Constitutional Analogy Register integrity"). Each Compliance Review produces a date-stamped audit-log entry directly below the table, mirroring BACKLOG #109's inline-audit-log pattern. Audit logs must be appended even when no triggers fire — passive review with logged output is what prevents staleness.
 
 **Obsolescence path.** If 4 consecutive Compliance Reviews record 0 trigger activity AND framework evolution has shifted away from governance-architectural concerns, propose archiving the register at the next MAJOR. Dead infrastructure is harder to remove than to maintain — name the obsolescence path now.
 

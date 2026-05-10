@@ -173,9 +173,10 @@ ai-governance-mcp/
 ├── .claude/hooks/                     # Pre/post tool use hooks
 │
 ├── staging/                    # Temporary AI input (always present)
-├── workflows/
-│   ├── COMPLETION-CHECKLIST.md # Post-change steps (say "run the completion sequence")
-│   └── COMPLIANCE-REVIEW.md   # Periodic governance health (say "run compliance review")
+├── .claude/skills/
+│   ├── completion-sequence/    # Post-change steps (invoke via /completion-sequence)
+│   ├── compliance-review/     # Periodic governance health (invoke via /compliance-review)
+│   └── test-authoring/        # Test creation protocol (invoke via /test-authoring)
 ├── pyproject.toml
 └── README.md
 ```
@@ -387,7 +388,7 @@ How the project's memory files implement the cognitive memory architecture (titl
 | **Structural** | `ARCHITECTURE.md` (this file) | On demand (design questions) | System design, components, data flow |
 | **Charter** | `README.md` | On demand (scope questions) | Project purpose, public contract, scope boundaries |
 | **Procedural** | Methods documents in `documents/` | Via MCP retrieval | How to do things (governance, coding, multi-agent) |
-| **Operational** | `workflows/COMPLIANCE-REVIEW.md` | On demand (periodic review) | Governance system health checks, verification experiments |
+| **Operational** | `.claude/skills/compliance-review/` | On demand (periodic review) | Governance system health checks, verification experiments |
 | **Prospective** | `BACKLOG.md` | On demand (deferred work) | Intentions to act, deferred capabilities, future work |
 | **Reference** | Context Engine index | Via MCP query | Project content, semantically searchable |
 
@@ -405,7 +406,7 @@ On Demand:
   6. README.md (does this feature fit the project scope?)
   7. query_governance() / get_principle() (what do the methods say?)
   8. query_project() (what code/content exists where?)
-  9. workflows/COMPLIANCE-REVIEW.md (is the governance system healthy?)
+  9. /compliance-review skill (is the governance system healthy?)
  10. BACKLOG.md (what's deferred? what needs discussion?)
 ```
 

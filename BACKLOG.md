@@ -3,7 +3,7 @@
 **Memory Type:** Prospective (intentions)
 **Lifecycle:** Items are added when discovered, removed when implemented, migrated, or abandoned. Git commit history is the archive (`git log --grep="backlog #N"`).
 
-> **Staleness rule (2026-04-14):** Discussion items with no activity for 90+ days are flagged for review during the next compliance review (workflows/COMPLIANCE-REVIEW.md Check 8). User decides: keep, close, or reframe.
+> **Staleness rule (2026-04-14):** Discussion items with no activity for 90+ days are flagged for review during the next compliance review (`/compliance-review` Check 8). User decides: keep, close, or reframe.
 
 ---
 
@@ -277,42 +277,9 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 ---
 
-#### 54. Superpowers Plugin — Reference Library Entry + Method Assessment (Discussion — from Video Re-Analysis) `D1 Improvement`
+#### ~~54.~~ Closed. Superpowers reference library entry shipped + CFR Part 9.5 Skills Taxonomy. `git log --grep="backlog #54"`
 
-**What:** The Superpowers plugin (github.com/obra/superpowers, v4.3.0, 93K+ developers, Anthropic-endorsed) is a methodology-as-code framework implementing a brainstorm→write-plan→execute-plan pipeline using SKILL.md files. It packages several ai-governance principles (orchestration, context isolation, spec-driven development, sequential phase dependencies, atomic task decomposition) into three executable commands that enforce the workflow structurally.
-
-**Why it matters:** Our framework has the principles; Superpowers has the packaging. It implements our Sequential Phase Dependencies as *the only path available* rather than advisory guidance. Plans include "complete, runnable code for each task" — more concrete than our method-level guidance which stops at "decompose into atomic tasks." Sub-agents implement each task with two-stage review, matching our multi-agent architecture patterns.
-
-**Root concept:** This is the most significant third-party implementation of our multi-agent and ai-coding principles working together. Worth studying as a precedent case — not for what principles it covers (we already have those) but for how concretely it implements them.
-
-**Actions:**
-1. Create a Reference Library entry: what Superpowers implements from our framework, where its implementation is more concrete than our methods, patterns worth adopting
-2. Assess whether our ai-coding methods should have more concrete "plan format" guidance (Superpowers plans specify exact file paths, terminal commands, failing tests, and git commit messages for each task)
-3. Evaluate the brainstorm→write-plan→execute-plan pattern against our development sequence planning method for method-level improvements
-
-**Research done:** Builder.io blog, GitHub repo, Geeky Gadgets review, SAP Community guide, ddewhurst blog analysis. Key architecture: SKILL.md files with YAML frontmatter (trigger conditions, process, guardrails) — same pattern as our `.claude/agents/*.md` subagent definitions.
-
-**Origin:** Claude Code workflow video re-analysis (2026-04-05). Previously evaluated as "covered" — re-examined with method-level quality lens per §9.8.2 scope boundary.
-
-#### 55. Workflow Codification — Skills as Standardized Work (Discussion — from Video Re-Analysis) `D1 Improvement`
-
-**What:** Claude Code skills (SKILL.md files) enable repeatable workflow codification — the discipline of identifying, designing, codifying, validating, and iterating AI-assisted workflows. The video's "creature-forge" example shows a user who identified a repeatable process, built a skill, ran it, got failures, iterated with feedback, and now has a reliable automated workflow. This is the PDCA cycle applied to AI workflows.
-
-**Why it matters:** The framework covers learning from failures (Continuous Learning & Adaptation) but not packaging successes into reusable workflows. Skills, n8n workflows, SOPs, work instructions, and subagent patterns are all implementations of the same root concept: standardized work.
-
-**Framework gap:** No formal guidance on WHEN to create a skill, HOW to design one well, or what governance should apply to skill creation. The `install_agent` mechanism is the closest analog but is scoped to governance agents, not general workflow templates.
-
-**Actions:**
-1. Add a method section in ai-coding Appendix A (Claude Code Configuration) covering: when to create a skill (repeatable process done 3+ times), skill design principles (self-contained, include error handling, reference governance), the iteration cycle (expect first run to fail, iterate with feedback)
-2. Cross-reference to existing `update-config` skill as an example
-3. Assess whether this warrants a broader "workflow codification" method or is adequately scoped as Claude Code-specific guidance
-4. Determine governance guidance for skill creation: should workflows reference governance principles? What review process?
-
-**Research done:** Official Claude Code skills docs (code.claude.com/docs/en/skills), claude-code-skill-factory GitHub, awesome-claude-code curated list, ProductTalk guide, batsov.com essential skills guide. Key feature: `disable-model-invocation: true` for workflows with side effects (/deploy, /send-slack-message).
-
-**Cross-reference (2026-04-10):** The Content Enhancer integration discussion (#84) surfaced a broader pattern. The framework already has multiple workflows (Completion Sequence, Compliance Review, Session Protocols, Domain Creation, Content Authoring) but no infrastructure for defining and governing workflows as a category. The Content Enhancer may be the first concrete instance of a codified workflow — making this item (#55) potentially the infrastructure layer and the Content Enhancer (#84) a specific workflow running on it. This reframing elevates #55 from "Claude Code skills guidance" to "workflow codification as a framework concept" — with skills being one implementation mechanism. Discussion needed: what distinguishes a "workflow" from a "method" in the framework? See #84 for full discussion context.
-
-**Origin:** Claude Code workflow video re-analysis (2026-04-05).
+#### ~~55.~~ Closed. Skills as standardized work — 3 skills shipped (compliance-review, completion-sequence, test-authoring), CFR Part 9.5 method section, `workflows/` directory removed. `git log --grep="backlog #55"`
 
 #### 58. Session Lifecycle Automation — Mid-Session Re-Injection (Discussion — from UBDA Review) `D2 Improvement`
 
@@ -338,40 +305,17 @@ S-Series-promotion threshold or relevance gate prevents `meta-safety-transparent
 
 **Origin:** Perplexity Deep Research + Gemini UBDA review (2026-04-07). Both flagged quality-of-compliance vs occurrence gap.
 
-#### 85. Content Enhancer Integration — Workflow Pattern Discovery (Discussion) `D2 Improvement`
+#### 85. Content Enhancer Integration + Multi-System Orchestration (Discussion) `D2 Improvement`
 
-**What:** Integrate the High-Fidelity Educational Content Enhancer 3.0 into the ai-governance framework. The Content Enhancer is a methodology for transforming raw content (transcripts, lectures, notes, docs, research) into cognitively-optimized reference documents. It currently lives outside the repo as two standalone files.
+**What:** Two related concepts:
 
-**Source files:** `~/Documents/Reference/AI/AI High-Fidelity Educational Content Enhancer/`
-- `high-fidelity-educational-content-nehancer-3.0-ai-instructions-prompt.md` — system prompt version (for Claude projects)
-- `high-fidelity-educational-content-nehancer-3.0-rag-optimized.md` — detailed spec for knowledge base ingestion
+1. **Content Enhancer integration** — Integrate the High-Fidelity Educational Content Enhancer 3.0 into the ai-governance framework. The Content Enhancer is a 4-phase pipeline for transforming raw content into cognitively-optimized reference documents. Source files: `~/Documents/Reference/AI/AI High-Fidelity Educational Content Enhancer/`. Plan-mode exploration (2026-04-10) identified three viable paths: (A) governance constraints only (Part 14.7 + reference + CE indexing), (B) Content Enhancer as a skill, (C) hybrid.
 
-**Content Enhancer architecture:**
-- **K-Store/A-Store separation** — principles (immutable, 100% fidelity) vs approaches (optimizable). Mirrors the framework's own principles/methods split.
-- **4-phase pipeline** — Strategic Analysis & Classification → Content Extraction & Organization → Cognitive Optimization → Enhancement Implementation
-- **Evidence base** — Mayer's 12 Multimedia Learning Principles, Cognitive Load Theory, Retrieval Practice, Universal Design for Learning
-- **Enhancement tagging** — [SOURCE], [ENHANCEMENT], [EXTERNAL_ENHANCEMENT], [REORGANIZED], [LEARNING_ENHANCEMENT], [CLARIFICATION_NEEDED]
-- **Confidence scoring** — 0.0-1.0 for all enhancements
-- **Content-type protocols** — video/audio transcripts, technical docs, academic/research
-- **Multi-layer QA** — fidelity verification, enhancement quality, learning science compliance
-- **Risk classification** — High (medical, legal, safety) / Medium (business, academic) / Low (general educational)
+2. **Multi-system orchestration (future)** — n8n-style workflows orchestrating across multiple external systems (CI/CD, notifications, deployments). This is the "Orchestration" layer of the 4-layer execution taxonomy (EXECUTION-FRAMEWORK.md §3.7, CFR Part 9.5). Not yet needed — current repeatable procedures are skills. Revisit when cross-system automation needs emerge.
 
-**Plan mode exploration (2026-04-10) — three key findings:**
+**Context update (2026-05-09):** #55 (Workflow Codification) closed — skills infrastructure shipped (3 skills, CFR Part 9.5 method section). The Content Enhancer could now be implemented as a skill (path B). The "workflow" concept in EXECUTION-FRAMEWORK.md §3.7 has been redefined as future multi-system orchestration, distinct from skills (single-system repeatable procedures).
 
-1. **Initial proposal: TITLE 17 in ai-governance-methods.** Contrarian review returned REVISIT (HIGH confidence). The Content Enhancer is a production workflow, not governance. Full absorption would cause: (a) bloat — 250-400 lines in an already 4,642-line file, (b) atrophy — governance versioning overhead slows the Enhancer's independent evolution, (c) precedent — every methodology becomes a TITLE. Contrarian's steel-manned alternative: governance constraints only (~40-60 line Part 14.7 covering fidelity standards, enhancement tagging, QA criteria) + full methodology stays standalone with Reference Library entry + Context Engine indexing.
-
-2. **User reframed more structurally: "Is the Content Enhancer an instance of a pattern?"** The framework already has multiple workflows that aren't called workflows: Completion Sequence (COMPLETION-CHECKLIST.md), Compliance Review (COMPLIANCE-REVIEW.md), Session Start/End Protocols, Domain Creation (§5.1.0 + Part 9.8), Content Authoring (Part 9.8 + 3-agent battery). Backlog #55 (Workflow Codification) is about building infrastructure for codifying repeatable processes. The Content Enhancer may be a specific workflow running on a workflow infrastructure — #55 being the infrastructure, Content Enhancer being the first concrete instance.
-
-3. **Open question (needs discussion before implementation):** What distinguishes a "workflow" from a "method" in the framework? The completion sequence is a checklist. The compliance review is a guided audit. The Content Enhancer is a 4-phase pipeline. Are these the same kind of thing, or meaningfully different? This determines whether the Content Enhancer gets its own treatment or fits into a broader workflow pattern that also encompasses the existing workflows.
-
-**Three viable paths remain:**
-- **(A) Governance constraints only** — Part 14.7 + standalone reference + CE indexing. Simplest. Treats Content Enhancer as external tool with governance guardrails.
-- **(B) Content Enhancer as first instance of #55 workflow infrastructure** — Define what a "workflow" is in the framework first (#55), then the Content Enhancer becomes a specific workflow with a standard structure. More systemic but requires #55 to be resolved first.
-- **(C) Hybrid** — Something that emerges from deeper #55 discussion. The workflow/method distinction may clarify what the right container is.
-
-**Relationship to other items:**
-- **#55 (Workflow Codification)** — potential infrastructure layer; updated with cross-reference
-- **#84 (README)** — references Content Enhancer as "Component 1" of the broader AI infrastructure, but the README describes the system; this item is about integrating the Enhancer itself
+**Origin:** Content Enhancer: plan-mode exploration (2026-04-10). Multi-system orchestration: EXECUTION-FRAMEWORK.md §3.7 taxonomy update (2026-05-09).
 
 **Origin:** User-initiated (2026-04-10). Plan mode exploration completed but implementation paused for deeper workflow pattern discussion.
 

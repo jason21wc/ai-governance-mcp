@@ -981,7 +981,7 @@ Standard mode adds documentation for production-grade work:
 |----------------|----------------|-----------|
 | ARCHITECTURE.md | Production work needs documented system design, tech stack, data flow | §7.5.2 |
 | SPECIFICATION.md | Formal requirements and acceptance criteria (SDD best practice) | §7.5.2 |
-| workflows/COMPLETION-CHECKLIST.md | Post-change verification prevents regressions in production code | §5.1.6 |
+| .claude/skills/completion-sequence/checklist.md | Post-change verification prevents regressions in production code | §5.1.6 |
 | BACKLOG.md | Discussion items and deferred work persist across sessions; separating from SESSION-STATE prevents working memory bloat | §7.1.6 |
 
 **Total: 8 files** (4 core + 4 standard additions).
@@ -1011,7 +1011,7 @@ When transitioning between modes (see §1.4.4):
 
 | Transition | Document Action |
 |-----------|----------------|
-| EXPEDITED → STANDARD | Add ARCHITECTURE.md, SPECIFICATION.md, workflows/COMPLETION-CHECKLIST.md, BACKLOG.md (when discussion items emerge) |
+| EXPEDITED → STANDARD | Add ARCHITECTURE.md, SPECIFICATION.md, .claude/skills/completion-sequence/checklist.md, BACKLOG.md (when discussion items emerge) |
 | STANDARD → ENHANCED | Evaluate §7.10 thresholds; add reference documents where complexity warrants |
 | ENHANCED → STANDARD | Evaluate which Enhanced-tier documents remain valuable; remove those that add overhead without benefit |
 | STANDARD → EXPEDITED | Core kit files persist (they're minimal overhead); Standard additions may be marked dormant but need not be deleted |
@@ -2192,7 +2192,7 @@ When changes match these patterns, invoke the corresponding subagent BEFORE comm
 |-------------|-------------------|-----------|
 | New MCP tool or handler | code-reviewer + security-auditor | New tools accept user input and return content to AI clients |
 | Changes to extractor/retrieval/server core | code-reviewer | Core pipeline changes affect all governance queries |
-| New file-handling code path | security-auditor | Per workflows/COMPLETION-CHECKLIST new code path checklist |
+| New file-handling code path | security-auditor | Per `/completion-sequence` new code path checklist |
 | Content expansion (new principles/methods) | coherence-auditor + validator | Cross-reference integrity and template compliance |
 | Any changes >5 files | code-reviewer | Broad changes need fresh-context review |
 | Auth flows, session/cookie management, redirect chains *(content-based)* | code-reviewer (flag for runtime verification) | Async timing, event ordering, and cross-request state invisible to static review; recommend Playwright/instrumentation verification per §5.13.2 |
@@ -2261,7 +2261,7 @@ When changes match these patterns, invoke the corresponding subagent BEFORE comm
 
 **Importance: IMPORTANT — Bridges the gap between pre-action gates and post-action review for long-running plans**
 
-**Applies To:** Plan execution that exceeds the operational threshold defined in `workflows/COMPLETION-CHECKLIST.md` Code-Changes BEST-EFFORT tier (current threshold: ≥5 file changes OR runtime >30 minutes OR multi-phase plan structure — whichever fires first). The threshold lives in the checklist (tunable operational value); the protocol concept lives here (normative method). This is the SSOT pattern: principle in the rulebook, tunable values in the checklist.
+**Applies To:** Plan execution that exceeds the operational threshold defined in `/completion-sequence` checklist Code-Changes BEST-EFFORT tier (current threshold: ≥5 file changes OR runtime >30 minutes OR multi-phase plan structure — whichever fires first). The threshold lives in the checklist (tunable operational value); the protocol concept lives here (normative method). This is the SSOT pattern: principle in the rulebook, tunable values in the checklist.
 
 **Why this exists:** Pre-action governance evaluation and post-action coherence audits are the two structural gates the framework enforces. Between them, agentic execution drifts from the approved plan — autoregressive forward-continuation bias, scope creep on adjacent fixes, anchor on the original frame after evidence shifts. Mid-execution checkpoints insert a third gate at the natural midpoint, before drift compounds. Sources: [Agent Drift arxiv 2601.04170](https://arxiv.org/abs/2601.04170) (drift onset 73 ± 40 turns OR 35 minutes runtime); [Multi-Agent Reflexion arxiv 2512.20845](https://arxiv.org/html/2512.20845v1); [Anthropic 2026 Agentic Coding Trends](https://resources.anthropic.com/2026-agentic-coding-trends-report).
 
@@ -2821,13 +2821,13 @@ export default defineConfig({
 2. If annotated with `Covers: FM-*`, note in the commit message which IDs are now covered only by the surviving tests.
 3. Commit message explains WHY — "redundant with X::Y at same level," not just "cleanup."
 
-**Author-time prevention.** Redundancy regrows if authored without discipline. Pair consolidation work with `workflows/TEST-AUTHORING-CHECKLIST.md` so new tests go through fixture-check + level-check + `Covers:` annotation gates.
+**Author-time prevention.** Redundancy regrows if authored without discipline. Pair consolidation work with `/test-authoring` checklist so new tests go through fixture-check + level-check + `Covers:` annotation gates.
 
 **Cross-references:**
 
 - `documents/failure-mode-registry.md` — SSOT for failure-mode IDs cited in `Covers:` annotations.
 - `documents/test-failure-mode-map.md` — auto-generated derived map (rot-immune).
-- `workflows/TEST-AUTHORING-CHECKLIST.md` — 9-step author-time gate.
+- `/test-authoring` checklist — 9-step author-time gate.
 - `tests/test_validator.py::TestFailureModeCoverage` — lint enforcement.
 - §5.2.1–5.2.7 above — canonical testing methods this rule extends.
 
@@ -7723,7 +7723,7 @@ A PreToolUse hook on `git push` that verifies:
 
 **Design rationale:** Pre-push (not pre-commit) because commit is cheap/reversible; push is the irreversible boundary where harm occurs. Risk-based triggers (core code files + new src files) rather than file count. Per LEARNING-LOG: "advisory failed at 87%; structural blocking achieves near-100%."
 
-*Cross-references: §5.1.7 (Subagent Review Triggers), workflows/COMPLETION-CHECKLIST (New Code Path Security Checklist)*
+*Cross-references: §5.1.7 (Subagent Review Triggers), `/completion-sequence` checklist (New Code Path Security Checklist)*
 
 **Layer 6: Pre-Plan-Approval Gate** (structural, blocks plan-mode exit)
 
@@ -7735,7 +7735,7 @@ A PreToolUse hook on `ExitPlanMode` that verifies contrarian-reviewer was invoke
 
 **Design rationale:** V-004 (session-108 to session-121) measured advisory-only compliance at 60% (3/5 sessions required user reminder). Hook enforces the invocation anchor at ExitPlanMode — the moment plan approval would ship. Pairs with CLAUDE.md Governance directive `contrarian-before-exit-plan` + `documents/tiers.json` behavioral_floor entry so the AI learns to invoke unprompted rather than be blocked. Per LEARNING-LOG 2026-02-28 "Hard-Mode Hooks Prove Deterministic Enforcement Works" + `meta-core-systemic-thinking`.
 
-*Cross-references: workflows/COMPLIANCE-REVIEW.md V-004 (closure) + V-006 (hook-denial-rate instrumentation), `.claude/plan-template.md` (Contrarian Review Output section the hook enforces).*
+*Cross-references: `.claude/skills/compliance-review/verification.md` V-004 (closure) + V-006 (hook-denial-rate instrumentation), `.claude/plan-template.md` (Contrarian Review Output section the hook enforces).*
 
 **Enforcement Design Heuristics:**
 - [ ] Start with Layer 1 (instructions) + Layer 2 (reminders) — measure compliance
@@ -9078,7 +9078,7 @@ For projects currently maintaining identical content in CLAUDE.md and GEMINI.md:
 | 3 | Refactor CLAUDE.md to overlay: add "Also read AGENTS.md", keep governance enforcement + Claude-specific content |
 | 4 | Refactor GEMINI.md to overlay: add "@./AGENTS.md" import, keep Gemini-specific content |
 | 5 | Verify: tool-specific files contain no duplicated shared content |
-| 6 | Add AGENTS.md to workflows/COMPLETION-CHECKLIST.md propagation awareness |
+| 6 | Add AGENTS.md to `/completion-sequence` checklist propagation awareness |
 
 **Rollback:** If AGENTS.md standard loses adoption, content lives in tool-specific files — removing AGENTS.md requires only moving its content back into each overlay file.
 
@@ -9359,7 +9359,7 @@ Compare with the code project variant (§7.1) which includes version numbers, te
 | `_ai-context/` | Same AI memory files as root, but inside a folder (L.2-L.7) — for document projects where folder-based tools lack CLI auto-discovery | Document projects |
 | `.claude/` | Claude Code config: agents, hooks, settings, plans. Plans: multiple plan files can coexist; use `Status:` header for lifecycle (Draft → Approved → In Progress → Implemented); SESSION-STATE.md references pending plans | When using Claude Code |
 | `staging/` | Temporary content provided to AI for a specific effort — articles, research docs, external analyses. Expected to be emptied when effort completes. Git-tracked. **Always present** (with .gitkeep if empty) for discoverability | Always |
-| `workflows/` | Process checklists and future workflow definitions — procedural artifacts distinct from memory files | When project has processes |
+| `.claude/skills/` | Executable skills — self-contained folders with SKILL.md orchestration shell + reference files. Procedural knowledge that Claude Code invokes via `/skill-name`. See Part 9.5. | When project has repeatable procedures |
 | `docs/` | Human-facing project documentation — ecosystem standard name (GitHub Pages serves from it). Not needed if all docs are AI memory. Projects with `documents/` may skip to avoid naming confusion | When project has human-only docs |
 | `examples/` | Example usage and sample configurations — reference material for both humans and AI | When project has examples |
 | `src/`, `tests/`, `scripts/` | Source code, tests, utility scripts — language ecosystem conventions | Coding projects |
@@ -9389,7 +9389,7 @@ project/
 │   ├── plans/                   # Plan files (multiple can coexist)
 │   └── settings.json
 ├── staging/                     # Temporary AI input (always present)
-├── workflows/                   # Process checklists (if applicable)
+├── .claude/skills/              # Executable skills (if applicable; see Part 9.5)
 ├── docs/                        # Human-facing project docs (if applicable)
 ├── examples/                    # Example usage (if applicable)
 ├── src/                         # Source code
@@ -9418,7 +9418,7 @@ project/
 
 1. **Code/document split preserved** — CLI tools auto-discover root-level files; folder-based tools use `_ai-context/` (L.2). Both serve the same purpose via different access patterns.
 2. **`staging/` always present** — Temporary AI input (articles, research) has no permanent home. `staging/` prevents root clutter from orphaned files. Always present with `.gitkeep` so the convention is discoverable.
-3. **`workflows/` separates process from memory** — Checklists define "do these steps in order" (procedural), distinct from memory files which store cross-session context.
+3. **`.claude/skills/` separates process from memory** — Skills define "do these steps in order" (procedural knowledge), distinct from memory files which store cross-session context. Each skill is a self-contained folder: SKILL.md (orchestration shell, <500 lines) + reference files (procedure content, mutable data). See Part 9.5 for authoring standards.
 4. **`documents/` as default content folder** — Images co-locate with supporting text inside this folder (per multimodal-RAG R1: Image-Text Collocation — separating images from text breaks RAG chunking context). Projects with fundamentally different content (raw data, build assets) may add additional top-level folders.
 5. **`docs/` is the ecosystem standard** for human-facing documentation. GitHub Pages can serve from it. Projects with a `documents/` folder may skip `docs/` to avoid naming confusion.
 6. **`.claude/plans/` lifecycle** — Multiple plans coexist. Status header tracks lifecycle. SESSION-STATE.md references pending plans for cross-session discovery.
@@ -9518,6 +9518,123 @@ Document generation can fail silently (wrong formulas, missing sheets, corrupt f
 **The rule:** Tests generate a document and validate its content, not just check that the function didn't throw.
 
 > **Bold triggers:** **document generation**, **file output**, **downloadable report**, **Excel generation**, **PDF generation**, **openpyxl**, **ExcelJS**, **WeasyPrint**, **ReportLab**, **branded document**, **template assets**, **download serving**
+
+---
+
+## Part 9.5: Skills & Execution Layer
+
+### 9.5.1 Purpose
+
+Define the four-layer execution taxonomy, skill authoring standards, and decision criteria for when to codify a repeatable process as a skill. Per `coding-quality-workflow-integrity` and `meta-governance-continuous-learning-adaptation`: the execution layer bridges governance principles (what to do) and AI behavior (how it gets done).
+
+### 9.5.2 Four-Layer Execution Taxonomy
+
+Executable processes in an AI-governed project occupy one of four layers. Each layer has a different invocation model, context behavior, and failure characteristic.
+
+| Layer | Mechanism | Invocation | Context | Failure Mode if Missing |
+|-------|-----------|------------|---------|------------------------|
+| **1. Enforcement** | Hooks (`.claude/hooks/*.sh`) | Automatic — fires on tool events | Runs outside AI context (shell script) | Safety/quality gap; violations pass silently |
+| **2. Execution** | Skills (`.claude/skills/*/SKILL.md`) | User-invoked via `/skill-name` | Loads into main AI context; persists for session | Process inconsistency; steps forgotten or reordered |
+| **3. Delegation** | Subagents (`.claude/agents/*.md`) | AI-invoked via Agent tool | Isolated fresh context; returns summary | Bias contamination; independence lost |
+| **4. Orchestration** | Workflows (future — multi-system composition) | External trigger (cron, webhook, n8n) | Spans multiple AI sessions or tools | Manual coordination burden; steps dropped between systems |
+
+**Layer selection test** (from EXECUTION-FRAMEWORK.md §3.7): "What happens if the human forgets to invoke this?" If forgetting is dangerous → hook (Layer 1). If forgetting delays a cadence → scheduled agent. If forgetting wastes effort but isn't dangerous → skill (Layer 2). If the process spans multiple systems → workflow (Layer 4).
+
+**Key distinction — skills vs subagents:** Skills are *process definitions* (how a task should be done) invoked by users into the main conversation. Subagents are *cognitive roles* (who to consult) invoked by the AI into isolated fresh context. A skill can invoke subagents internally, but not vice versa.
+
+### 9.5.3 Skill Authoring Standards
+
+A skill is a self-contained folder under `.claude/skills/<skill-name>/` containing `SKILL.md` (required) and optional reference files.
+
+**SKILL.md structure:**
+
+```yaml
+---
+description: <triggers auto-invocation; third person, specific keywords, ≤1,536 chars>
+disable-model-invocation: true  # true = user-only; false = auto-invocable
+allowed-tools: Bash Read Edit Agent  # restrict available tools
+---
+```
+
+Body contains: dynamic context injection (`!`command``), execution instructions, governance citations.
+
+**Sizing constraints:**
+- SKILL.md body: <500 lines (hard platform limit)
+- After compaction: first 5,000 tokens/skill retained
+- Combined budget: 25,000 tokens across all re-attached skills
+- Keep SKILL.md as thin orchestration (~80-120 lines); put procedure content in reference files
+
+**Progressive disclosure (3 levels):**
+
+| Level | When | What Loads | Token Cost |
+|-------|------|------------|------------|
+| 1 — Metadata | Session start | Skill name + description (~100 tokens/skill) | Negligible |
+| 2 — Full SKILL.md | Skill activation (`/skill-name`) | SKILL.md body (<5,000 tokens) | Moderate |
+| 3 — Reference files | On-demand Read during execution | Supporting files (unlimited size) | Pay-per-use |
+
+**Implication:** Procedure content, audit data, and checklists belong in reference files (Level 3), not in SKILL.md body (Level 2). This keeps the SKILL.md thin and the token budget sustainable as skills are added.
+
+**Description field — routing, not summary:**
+The description drives auto-invocation routing. Write triggering conditions ("Run when the user asks to..."), not workflow summaries ("This skill performs steps 1-5 to..."). Workflow summaries cause agents to shortcut past full instructions. Focus on specific keywords the user would say.
+
+### 9.5.4 Five Properties of a Good Skill
+
+Per procedural knowledge research (Wang 2026): a process is skill-ready when it satisfies all five:
+
+1. **Clear input** — the skill knows what it's working with (git state, file paths, user intent)
+2. **Repeatable steps** — the procedure is the same each time, not context-dependent improvisation
+3. **Known failure points** — the skill anticipates what can go wrong and handles it
+4. **Standard output format** — the result is predictable (report, commit, updated file)
+5. **Human escalation rules** — the skill knows when to stop and ask
+
+A process missing ≥2 properties needs human judgment, not codification. A process missing 1 property is a candidate for improvement before skill creation.
+
+### 9.5.5 When to Codify (Decision Tree)
+
+```
+Do you keep pasting the same instructions?
+├─ YES → Has a CLAUDE.md section grown from a fact into a procedure?
+│        ├─ YES → Skill candidate. Check 5 properties (§9.5.4).
+│        └─ NO  → Move the repeated instructions to CLAUDE.md first.
+│                 If they keep growing → skill candidate.
+└─ NO  → Does Claude already know how to do this?
+         ├─ YES → No skill needed.
+         └─ NO  → Is this a one-time task?
+                  ├─ YES → No skill needed. Document in LEARNING-LOG if novel.
+                  └─ NO  → Does the task require fresh-context independence?
+                           ├─ YES → Subagent, not skill.
+                           └─ NO  → Skill candidate. Check 5 properties.
+```
+
+**When NOT to create a skill:**
+- Task is too context-dependent (different every time)
+- "And also" keeps appearing (split into multiple skills or keep as prose)
+- Claude already knows how — adding a skill adds friction without value
+- The process requires fresh-context independence — use a subagent instead
+
+### 9.5.6 Skill Folder Structure
+
+```
+.claude/skills/<skill-name>/
+├── SKILL.md              # Orchestration shell (≤120 lines)
+│                          # Frontmatter + dynamic context + execution instructions
+├── procedure.md           # [optional] Detailed procedure steps (Level 3)
+├── checklist.md           # [optional] Step-by-step checklist (Level 3)
+├── audit-log.md           # [optional] Mutable review/run history (Level 3)
+└── verification.md        # [optional] Verification tracking data (Level 3)
+```
+
+**Separation principle:** SKILL.md is the stable orchestration shell. Reference files contain either stable procedures or mutable data. Never mix audit/tracking data into SKILL.md — it changes every run and inflates the Level 2 token cost.
+
+### 9.5.7 Cross-References
+
+- **Decision matrix:** EXECUTION-FRAMEWORK.md §3.7 (skill vs hook vs subagent vs workflow)
+- **Subagent authoring:** Title 20 CFR §2.1 (Agent Specification & Configuration)
+- **Hook authoring:** This CFR §9.3.10 (Layered Enforcement Stack)
+- **Progressive disclosure research:** Wang 2026 ("Why do AI agents still need so much hand-holding?")
+- **Reference implementation:** Superpowers v5.1.0 (obra/superpowers — 14 skills, 4 categories)
+
+> **Bold triggers:** **skill**, **SKILL.md**, **workflow codification**, **repeatable process**, **execution layer**, **slash command**, **skill authoring**, **procedural knowledge**
 
 ---
 

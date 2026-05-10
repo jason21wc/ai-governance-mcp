@@ -3,7 +3,7 @@
 **Memory Type:** Operational (recurring commitments)
 **Lifecycle:** Items persist indefinitely unless retired with documented rationale. Review cadences are the point — these items are never "done."
 
-> **Scope.** This file is the registry for recurring operational commitments: cadences (periodic reviews), tripwires (conditional re-evaluations), verification experiments (time-bound hypothesis tests), effectiveness metrics (system health indicators), and scheduled operations (automated tasks). Detailed procedures stay in their canonical homes (e.g., check definitions in `workflows/COMPLIANCE-REVIEW.md`). This file is the index, not the procedure repository.
+> **Scope.** This file is the registry for recurring operational commitments: cadences (periodic reviews), tripwires (conditional re-evaluations), verification experiments (time-bound hypothesis tests), effectiveness metrics (system health indicators), and scheduled operations (automated tasks). Detailed procedures stay in their canonical homes (e.g., check definitions in `.claude/skills/compliance-review/procedure.md`). This file is the index, not the procedure repository.
 >
 > **Relationship to BACKLOG.md.** BACKLOG holds discrete projects (start, work, finish). OPERATIONS holds indefinite-lifecycle items (cadences that recur, tripwires that watch, metrics that accumulate). When a tripwire fires and creates discrete work, that work goes to BACKLOG as a project; the tripwire entry here records the firing and may remain active if the trigger can re-fire.
 >
@@ -19,7 +19,7 @@
 
 **What:** Periodic audit of governance infrastructure health — hooks, CLAUDE.md directives, tiers.json configuration, tool behavior, and compliance metrics. The 12-check procedure covers structural enforcement, retrieval quality, and operational hygiene.
 **Cadence:** Every 10-15 calendar days. Event triggers: hook/CLAUDE.md/tiers.json modification.
-**Procedure:** `workflows/COMPLIANCE-REVIEW.md` (12 checks). Invoke via `/compliance-review` skill.
+**Procedure:** `.claude/skills/compliance-review/procedure.md` (12 checks). Invoke via `/compliance-review` skill.
 **Reviews completed:** #1-7 (most recent: 2026-05-05).
 **Next due:** ~2026-05-15.
 **Origin:** BACKLOG #78 (migrated 2026-05-03).
@@ -211,16 +211,16 @@
 
 ## Verification Experiments
 
-> Time-bound hypothesis tests tracking whether recently-introduced mechanisms are working. Each has success/failure criteria and an expiration condition. Definitions and execution history live in `workflows/COMPLIANCE-REVIEW.md` (self-contained per navigability principle). This section is the registry/index.
+> Time-bound hypothesis tests tracking whether recently-introduced mechanisms are working. Each has success/failure criteria and an expiration condition. Definitions and execution history live in `.claude/skills/compliance-review/` (`procedure.md` for definitions, `verification.md` for tracking). This section is the registry/index.
 
 | ID | Name | Status | Defined In | Added |
 |----|------|--------|------------|-------|
-| V-005 | SESSION-STATE pruning compliance | **CONFIRMED** | `workflows/COMPLIANCE-REVIEW.md` | 2026-04-14 |
-| V-006 | Pre-exit-plan-mode-gate hook-denial rate | OPEN | `workflows/COMPLIANCE-REVIEW.md` | 2026-04-23 |
-| V-007 | Plan-action-atomicity WARN-mode firing rate | OPEN | `workflows/COMPLIANCE-REVIEW.md` | 2026-04-25 |
-| V-008 | TDD test-existence WARN-mode firing rate | OPEN | `workflows/COMPLIANCE-REVIEW.md` | 2026-04-25 |
+| V-005 | SESSION-STATE pruning compliance | **CONFIRMED** | `.claude/skills/compliance-review/verification.md` | 2026-04-14 |
+| V-006 | Pre-exit-plan-mode-gate hook-denial rate | OPEN | `.claude/skills/compliance-review/verification.md` | 2026-04-23 |
+| V-007 | Plan-action-atomicity WARN-mode firing rate | OPEN | `.claude/skills/compliance-review/verification.md` | 2026-04-25 |
+| V-008 | TDD test-existence WARN-mode firing rate | OPEN | `.claude/skills/compliance-review/verification.md` | 2026-04-25 |
 
-**Retired:** V-001 (RETIRED → replaced by session-audit), V-002 (CONFIRMED), V-003 (CONFIRMED), V-004 (REFUTED → escalated to hook). See `workflows/COMPLIANCE-REVIEW.md` Retired section for dispositions.
+**Retired:** V-001 (RETIRED → replaced by session-audit), V-002 (CONFIRMED), V-003 (CONFIRMED), V-004 (REFUTED → escalated to hook). See `.claude/skills/compliance-review/verification.md` Retired section for dispositions.
 
 ---
 

@@ -206,7 +206,7 @@ debug "scanner result: $SCAN_OUTPUT"
 # After the contrarian gate passes (allow/bootstrap), additionally scan the
 # plan text for action-atomicity violations per plan-template Recommended
 # Approach section. This is WARN-only — surfaces findings on stderr but does
-# not block. Promotion to BLOCK is event-driven (V-007 in COMPLIANCE-REVIEW.md):
+# not block. Promotion to BLOCK is event-driven (V-007 in .claude/skills/compliance-review/verification.md):
 # "promote to BLOCK after first coherence-audit finding flags WARN-mode pattern
 # actually firing on real code." Bypass via PLAN_ACTION_ATOMICITY_SKIP=1.
 _warn_action_atomicity() {
@@ -242,7 +242,7 @@ except Exception:
         warn)
             echo "[plan-action-atomicity] WARN — Recommended Approach section has action-atomicity issues (advisory; bypass with PLAN_ACTION_ATOMICITY_SKIP=1):" >&2
             echo "$atom_stderr" >&2
-            echo "[plan-action-atomicity] If this WARN later turns out to pre-figure a real defect (the planned task did mask a mistake), file the trigger event in V-007 row of workflows/COMPLIANCE-REVIEW.md — closes the event-driven WARN→BLOCK promotion loop without depending on human memory." >&2
+            echo "[plan-action-atomicity] If this WARN later turns out to pre-figure a real defect (the planned task did mask a mistake), file the trigger event in V-007 row of .claude/skills/compliance-review/verification.md — closes the event-driven WARN→BLOCK promotion loop without depending on human memory." >&2
             ;;
         pass|skip|error|"")
             debug "action-atomicity status: $atom_stdout"

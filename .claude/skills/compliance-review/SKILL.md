@@ -23,30 +23,34 @@ echo "60-day cutoff: $CUTOFF"
 
 ## Instructions
 
-You are running a governance compliance review per `workflows/COMPLIANCE-REVIEW.md`. This is the canonical procedure — read that file now to get current check definitions, pass/fail criteria, and review history tables.
+You are running a governance compliance review. This skill folder contains all procedure and data files:
+
+- **`procedure.md`** — check definitions 1-11, pass/fail criteria, review history tables (read this first)
+- **`audit-log.md`** — Review Log summary table, Security Currency Reviews, Governance Performance Metrics
+- **`verification.md`** — active and retired V-series verification items
 
 ### Execution Protocol
 
 1. **Call `evaluate_governance(planned_action="compliance review execution")`** before any writes.
 
-2. **Read `workflows/COMPLIANCE-REVIEW.md`** in full — it contains the check definitions, pass/fail thresholds, and review history tables you will update.
+2. **Read `procedure.md`** — it contains the check definitions, pass/fail thresholds, and review history tables you will update.
 
-3. **Determine the next review number** from the Review Log table at the bottom of COMPLIANCE-REVIEW.md.
+3. **Determine the next review number** from the Review Log table in `audit-log.md`.
 
 4. **Execute each Ongoing Check (1 through 11)** in order. For each check:
-   - Read the check definition and pass/fail criteria from COMPLIANCE-REVIEW.md
+   - Read the check definition and pass/fail criteria from `procedure.md`
    - Run the required commands (many are pre-populated in the Context Snapshot above)
    - Evaluate the result against the criteria
    - Record PASS, FAIL, or N/A with concise notes
 
 5. **For Check 5 (Behavioral canary prompts + session audit):**
    - Decide whether canary prompts (a-c) should run this review or be deferred per the execution-only session precedent (Reviews #3-6)
-   - For session audit (d): spawn a **validator subagent** with the Check 5d evaluation rubric from COMPLIANCE-REVIEW.md. The subagent needs fresh context per `multi-quality-validation-independence`.
+   - For session audit (d): spawn a **validator subagent** with the Check 5d evaluation rubric from `procedure.md`. The subagent needs fresh context per `multi-quality-validation-independence`.
    - If insufficient session scope exists for meaningful audit (e.g., session-start review), document the deferral with rationale per proportional rigor.
 
 6. **For Check 6b/6b.2 (OOM gate + Phase 0 watcher):**
    - Read the deny log and marker file (pre-populated in Context Snapshot)
-   - Compare against previous review's line count/state from COMPLIANCE-REVIEW.md tables
+   - Compare against previous review's line count/state from `procedure.md` tables
    - Apply the escalation thresholds defined in the check
 
 7. **For Check 9 (Constitutional Analogy Register):**
@@ -55,8 +59,8 @@ You are running a governance compliance review per `workflows/COMPLIANCE-REVIEW.
    - Re-evaluate not-borrowed trigger prerequisites
    - Append audit-log entry to §9.7.7
 
-8. **Update Active Verification Items** (V-005 through V-008):
-   - Check each V-series item's current state
+8. **Update Active Verification Items** (V-006 through V-009):
+   - Read `verification.md` for current state
    - Record any new data points in their tracking tables
    - Evaluate against confirm/refute thresholds
 
@@ -66,9 +70,10 @@ You are running a governance compliance review per `workflows/COMPLIANCE-REVIEW.
    - Review `analyze_feedback_loop(section="actionable_recommendations")` for any items needing attention
    - Note key metrics (M-001, M-003, M-004) in the review
 
-10. **Write results** to COMPLIANCE-REVIEW.md:
-   - Add a row to each check's review history table
-   - Add a row to the Review Log summary table
+10. **Write results:**
+   - Add a row to each check's review history table in `procedure.md`
+   - Add a row to the Review Log summary table in `audit-log.md`
+   - Update V-series items in `verification.md`
    - Include governance audit ID in the Review Log notes
 
 11. **Report summary** to the user: checks passed/failed/deferred, any FAIL items with actions taken, V-series updates, next review target date.
@@ -82,6 +87,6 @@ Cite principle IDs that influence your evaluation. Key principles for compliance
 
 ### Important
 
-- **Do NOT extract check definitions** from COMPLIANCE-REVIEW.md into this skill. COMPLIANCE-REVIEW.md is the single source of truth for check definitions and thresholds. This skill orchestrates execution; it does not duplicate content.
+- **Procedure content lives in reference files**, not this SKILL.md. `procedure.md` is the source of truth for check definitions and thresholds. This skill orchestrates execution.
 - **Record honest results.** If a check fails, document the failure and the fix. FAIL→FIXED is a healthy pattern.
 - **Proportional rigor.** If the session is too young for a meaningful session audit (Check 5d), defer with rationale rather than rubber-stamping.

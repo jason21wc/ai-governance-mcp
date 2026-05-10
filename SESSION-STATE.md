@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-09 (session-159 — BACKLOG #154 OPERATIONS.md documentation quality pass).
+**Last Updated:** 2026-05-10 (session-160 — BACKLOG #54+#55 Skills Taxonomy & Codification).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,21 +12,21 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-159 (2026-05-09) BACKLOG #154 — OPERATIONS.md documentation quality pass.**
+**Session-160 (2026-05-10) BACKLOG #54+#55 — Skills Taxonomy & Codification.**
 
-**ACTION ON RESUME (session-160):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158.
+**ACTION ON RESUME (session-161):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11, now in `.claude/skills/compliance-review/`. **C-109 deferred-cadence audit** (~2026-05-25). Monitor REVIEW alarm fatigue per #158.
 
 **Critical state for next session:**
-- **#154 CLOSED** — OPERATIONS.md docs pass shipped. Consistent cadence entry structure, tripwires sorted ascending, metrics preamble updated.
+- **#54+#55 CLOSED** — Skills infrastructure shipped. CFR Part 9.5 method section (4-layer taxonomy, authoring standards). Superpowers reference library entry. 3 skills (compliance-review refactored, completion-sequence + test-authoring created). `workflows/` directory deleted. ~45 cross-references updated. EXECUTION-FRAMEWORK.md §3.7 taxonomy updated. Completion-sequence skill enhanced: added `meta-core-systemic-thinking` governance citation + expanded item 17 to consolidated 4-file project memory update step. All tests passing (1600).
+- **#85 updated** — reframed from workflow codification to Content Enhancer + future n8n-style orchestration.
 - **#158 open** — REVIEW alarm fatigue monitoring. 30-day window starts session-157.
 - **Tests:** 1600 passing (non-slow subset).
-- **Compliance Review #8** — due ~2026-05-15. First review exercising Check 11.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-159 (2026-05-09) — BACKLOG #154 OPERATIONS.md docs pass shipped.
+- **Phase:** Session-160 (2026-05-10) — BACKLOG #54+#55 Skills Taxonomy & Codification shipped.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 
@@ -46,7 +46,7 @@
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
 | Index | **133 principles + 715 methods + 14 references** (862 total) |
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
-| Skills | **1** (`compliance-review` — invoke via `/compliance-review`) |
+| Skills | **3** (`/compliance-review`, `/completion-sequence`, `/test-authoring`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
 | CI | **Green.** Last push: session-159. All pushed. |
 
@@ -105,8 +105,7 @@
 - See OPERATIONS.md for T-019, T-049, T-106–T-113, T-119, T-134, T-143, T-145, C-078, C-109, C-155.
 
 **Working artifacts:**
-- `~/.claude/plans/one-disagreement-though-using-foamy-clock.md` — session-158 #10 tool integration pattern plan (COMPLETE).
-- `~/.claude/plans/ticklish-jumping-galaxy.md` — session-155 compliance metric fix plan (COMPLETE).
+- `~/.claude/plans/when-it-comes-to-peaceful-willow.md` — session-160 #54+#55 skills taxonomy plan (COMPLETE).
 
 See BACKLOG.md for the full list of open items.
 

@@ -95,7 +95,7 @@ Persistent and transient state. Already mapped via CoALA in `PROJECT-MEMORY.md` 
 | Working memory | Current task state | `SESSION-STATE.md` | Storing decisions here → lost when pruned |
 | Semantic memory | Decisions & constraints | `PROJECT-MEMORY.md` | Storing transient context here → bloat |
 | Episodic memory | Lessons from past failures | `LEARNING-LOG.md` | Storing decisions here → mixes "what we believe" with "what we learned" |
-| Procedural memory | How-to patterns | `workflows/*` | Storing principles here → conflates rules with procedures |
+| Procedural memory | How-to patterns | `.claude/skills/*/` | Storing principles here → conflates rules with procedures |
 | Prospective memory | Future intentions | `BACKLOG.md` | Storing decisions here → intentions and decisions get confused |
 | Operational memory | Recurring commitments | `OPERATIONS.md` | Storing projects here → confuses discrete work with ongoing monitoring |
 | Reference memory | External knowledge | `reference-library/` | Treating as authoritative when it's secondary authority |
@@ -216,7 +216,7 @@ Per §2.1: "the model should be empirically tested when workflows/skills design 
 | Bucket | How the Skill Touches It | Interaction Type |
 |--------|--------------------------|-----------------|
 | **1 — Inference Engine** | Skill loads into main LLM context (application program running on CPU) | Direct — skill IS a program on the inference engine |
-| **2 — Memory** | Reads COMPLIANCE-REVIEW.md review history, checks SESSION-STATE (V-005), reads LEARNING-LOG (Check 4), references BACKLOG (Check 8) | Heavy consumer — reads from 4 memory surfaces |
+| **2 — Memory** | Reads compliance-review skill files (procedure.md, audit-log.md), checks SESSION-STATE (V-005), reads LEARNING-LOG (Check 4), references BACKLOG (Check 8) | Heavy consumer — reads from 4 memory surfaces |
 | **3 — Retrieval** | Check 6 runs `query_governance()` canary — tests retrieval system health | Direct test of retrieval pipeline |
 | **4 — Action Layer** | Tests MCP server (Check 6 canary), governance tool calls during execution | Indirect — exercises the action layer, doesn't modify it |
 | **5 — Orchestration** | Skill IS an orchestration mechanism: coordinates 12-check workflow, spawns validator subagent (Check 5d), uses dynamic content injection | The skill lives here — it is the application program |
@@ -326,17 +326,17 @@ Current workload modules: ai-coding (title-10), UI/UX (title-15), multi-agent (t
 
 ### 3.7 Application programs — skills
 
-Skills (`.claude/skills/*/SKILL.md`) are **application programs** — user-invocable instruction sequences that load into the main processor (Claude's context) when triggered via `/skill-name`. They bridge the gap between workflows (manuals someone follows) and hooks (automatic interrupt handlers).
+Skills (`.claude/skills/*/SKILL.md`) are **application programs** — user-invocable instruction sequences that load into the main processor (Claude's context) when triggered via `/skill-name`. They bridge the gap between subagents (isolated coprocessors) and hooks (automatic interrupt handlers).
 
 Key distinctions in the computer analogy:
 - **Skills** = application programs (Word, Photoshop). Invoked by user, run in main context, full memory access. Use for repeatable workflows and on-demand reference material. Can inject dynamic content at invocation (run `git diff` and include output).
 - **Subagents** = coprocessors. Isolated context, specialized workload, return summary. Use for independent analysis where isolation is the feature.
 - **Hooks** = interrupt handlers. Fire automatically on events, can halt execution. Use for enforcement that can't be forgotten.
-- **Workflows** (`workflows/*.md`) = runbooks/manuals. Describe steps but don't execute them. Use for documented procedures.
+- **Workflows** = future multi-system orchestration (n8n-style pipelines, BACKLOG #85). Not yet implemented; current repeatable procedures are skills.
 
 Skills live in `.claude/skills/my-skill/SKILL.md` — project-specific (checked into git) or personal (`~/.claude/skills/`). The directory name becomes the slash command.
 
-**Current status:** First skill shipped (2026-05-03): `.claude/skills/compliance-review/SKILL.md` — orchestrates the 12-check governance compliance review. Validates the application-program model: skill reads workflow definitions from `workflows/COMPLIANCE-REVIEW.md` (the runbook), spawns validator subagent (coprocessor) for Check 5d, operates under hook enforcement (interrupt controller). BACKLOG #55 discusses broader workflow codification.
+**Current status:** Three skills shipped — `/compliance-review` (12-check governance compliance review, 2026-05-03), `/completion-sequence` (post-change verification gate), `/test-authoring` (9-step test creation protocol). Each follows the self-contained folder pattern: thin SKILL.md orchestration shell (~80-100 lines) + reference files for procedure content and mutable data. Validates the application-program model: skill loads dynamic context at invocation, reads procedure from reference files (Level 3 progressive disclosure), spawns subagents (coprocessors) when isolation is needed, operates under hook enforcement (interrupt controller). Authoring standards: CFR Part 9.5.
 
 **Decision matrix — when to use which mechanism:**
 
@@ -345,10 +345,10 @@ Skills live in `.claude/skills/my-skill/SKILL.md` — project-specific (checked 
 | Repeatable on-demand workflow with dynamic context | **Skill** | Loads into main context, can inject live data (`!`git diff``), user controls timing |
 | Independent analysis where isolation prevents bias | **Subagent** | Fresh context = independence (`multi-quality-validation-independence`). No access to session state. |
 | Enforcement that must never be forgotten | **Hook** | Fires automatically on tool events. Structural > advisory (LEARNING-LOG: "advisory fails at 87%"). |
-| Documented procedure a human or AI follows step-by-step | **Workflow** | Reference material. Doesn't execute — describes how to execute. |
+| Multi-system orchestration across tools/platforms | **Workflow** | Future concept (n8n-style pipelines, BACKLOG #85). Not yet implemented. |
 | Automatic response to external events on a schedule | **Scheduled agent** | Cron-triggered via `/schedule`. No user prompt needed. For cadence-driven operations. |
 
-Selection test: "What happens if the human forgets to invoke this?" If forgetting is dangerous → hook. If forgetting delays a cadence → scheduled agent. If forgetting wastes effort but isn't dangerous → skill (user invokes when ready). If the procedure changes frequently → workflow (easy to update, no code).
+Selection test: "What happens if the human forgets to invoke this?" If forgetting is dangerous → hook. If forgetting delays a cadence → scheduled agent. If forgetting wastes effort but isn't dangerous → skill (user invokes when ready). If orchestration spans multiple external systems → workflow (future, BACKLOG #85).
 
 ### 3.8 Package repository — reference library
 
@@ -419,8 +419,7 @@ Maps every identified project component to its computer analog. Organized by rol
 |---|---|---|---|
 | **CPU scheduler** | Host harness orchestration | Claude Code ReAct loop | Host-provided. We influence via hooks/skills, don't own. |
 | **Coprocessors (heterogeneous)** | Subagents | `.claude/agents/` (10, canonical: `documents/agents/`) | Task delegation, return summary. Modular — add/remove independently. |
-| **Application programs** | Skills | `.claude/skills/` (1: compliance-review) | User-invocable instruction sequences. Decision matrix in §3.7. |
-| **Runbooks / stored procedures** | Workflows | `workflows/` (3 checklists) | Human-triggered. Modular — standalone. |
+| **Application programs** | Skills | `.claude/skills/` (3: compliance-review, completion-sequence, test-authoring) | User-invocable instruction sequences. Self-contained folders. Decision matrix in §3.7. |
 | **Design review template** | Plan template | `.claude/plan-template.md` | Template for plan mode. Standalone. |
 
 ### 4.8 Verification & Quality (Bucket 6)

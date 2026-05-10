@@ -692,7 +692,7 @@ class TestTddTestExistence:
     def test_skip_when_no_src_py_files(self):
         """File list with no src/*.py entries → skip (out of scope)."""
         result = _run_tdd_scan_stdin(
-            "documents/foo.md\nworkflows/bar.md\n.claude/hooks/baz.sh\n"
+            "documents/foo.md\n.claude/skills/bar/checklist.md\n.claude/hooks/baz.sh\n"
         )
         assert result.stdout.strip() == "skip"
 

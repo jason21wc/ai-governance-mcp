@@ -415,7 +415,7 @@ ai-governance-mcp/
 │   ├── title-NN-domain.md   # Domain principles (Federal Statutes)
 │   ├── title-NN-domain-cfr.md # Domain methods (Code of Federal Regulations)
 │   └── domains.json         # Domain configurations
-├── workflows/               # Operational procedures (completion sequence, compliance review)
+├── .claude/skills/          # Executable skills (completion-sequence, compliance-review, test-authoring)
 ├── reference-library/       # Accumulating applied patterns (secondary authority)
 ├── .claude/
 │   ├── agents/              # Installed subagents

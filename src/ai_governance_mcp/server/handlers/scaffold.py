@@ -69,7 +69,7 @@ async def _handle_scaffold_project(args: dict) -> list[TextContent]:
             message=f"Invalid kit_tier: '{kit_tier}'. Must be 'core' or 'standard'.",
             suggestions=[
                 "Use kit_tier='core' for 4 essential files",
-                "Use kit_tier='standard' for 9 files (adds CLAUDE.md + ARCHITECTURE.md + SPECIFICATION.md + workflows/COMPLETION-CHECKLIST.md + BACKLOG.md)",
+                "Use kit_tier='standard' for 9 files (adds CLAUDE.md + ARCHITECTURE.md + SPECIFICATION.md + .claude/skills/completion-sequence/checklist.md + BACKLOG.md)",
             ],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]

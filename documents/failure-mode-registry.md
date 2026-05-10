@@ -337,5 +337,5 @@ Full-suite annotation sweep was completed in BACKLOG #121 (closed session-124, 2
 - `tests/test_validator.py::TestFailureModeCoverage` — lint enforcement.
 - `scripts/generate-test-failure-map.py` — derived map generator.
 - `documents/test-failure-mode-map.md` — derived, auto-generated.
-- `workflows/TEST-AUTHORING-CHECKLIST.md` — author-time workflow that requires picking a failure mode before writing a test.
+- `/test-authoring` checklist — author-time skill that requires picking a failure mode before writing a test.
 - CFR §5.2.8 (title-10-ai-coding-cfr.md) — normative "Redundancy & Consolidation" rule that references this registry.
