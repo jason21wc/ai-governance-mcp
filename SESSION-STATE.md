@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-10 (session-162 — BACKLOG #150 S-Series semantic FP threshold).
+**Last Updated:** 2026-05-10 (session-163 — Critical 5 reasoning scaffold + Enforcement Layer Matrix).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,20 +12,21 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-162 (2026-05-10) BACKLOG #158 + #150 — threshold tuning arc.**
+**Session-163 (2026-05-10) Critical 5 reasoning scaffold + Enforcement Layer Matrix.**
 
-**ACTION ON RESUME (session-163):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11, now in `.claude/skills/compliance-review/`. **C-109 deferred-cadence audit** (~2026-05-25).
+**ACTION ON RESUME (session-164):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11 + critical-5 scaffold-theater assessment. **C-109 deferred-cadence audit** (~2026-05-25).
 
 **Critical state for next session:**
-- **#158 CLOSED** — REVIEW alarm fatigue mitigated via `review_score_threshold` (default 0.5). Projected REVIEW rate ~25-30%.
-- **#150 CLOSED** — S-Series semantic FP mitigated via `s_series_score_threshold` (default 0.5). Low-score S-Series semantic matches no longer trigger ESCALATE; keyword detection unaffected. Data: 18 FP ESCALATEs from `transparent-limitations` alone; score separation clean (FP ceiling 0.427, TP floor 0.526).
-- **Tests:** 1632 passing (non-slow subset).
+- **Critical 5 shipped** — 5 scaffold-format reasoning items in `evaluate_governance` response (`critical_5` key) + SERVER_INSTRUCTIONS. Measurement: learning log failure citations + scaffold-theater detection at CR#8.
+- **§8.4 Enforcement Layer Matrix shipped** — EXECUTION-FRAMEWORK.md documents all 16 enforcement layers with client compatibility. Staleness tripwire: T-161.
+- **3 BACKLOG items filed** — #159 hook re-injection (D1), #160 root_cause artifact (D2), #161 Claude App enforcement (D2).
+- **Tests:** 1611 passing (non-slow subset).
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-162 (2026-05-10) — BACKLOG #158 + #150 threshold tuning shipped.
+- **Phase:** Session-163 (2026-05-10) — Critical 5 reasoning scaffold + Enforcement Layer Matrix shipped.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 
@@ -35,10 +36,10 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.1.0** (reranking, MMR diversity, RRF opt-in, chunk quality filter, candidate pool cap, per-file dedup configurable cap=3, expanded 35-query benchmark) |
-| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.44.1** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.2** (ai-instructions), **v1.9.0** (tiers.json). |
+| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.44.1** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.2** (ai-instructions), **v2.0.0** (tiers.json — critical_5 scaffold tier added). |
 | Execution Framework | **v1.1.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, thematic structure) |
 | OPERATIONS.md | **v2** (3 cadences, 15 tripwires, 4 V-series, 5 metrics, 3 scheduled operations — #154 docs pass) |
-| Tests | **1632 passing** (non-slow subset) |
+| Tests | **1611 passing** (non-slow subset) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **18 MCP tools** (14 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -53,16 +54,19 @@
 
 ## Last Session (2026-05-10)
 
-162. **Session-162 (2026-05-10): BACKLOG #158 + #150 — threshold tuning arc.**
-   - **#158** REVIEW alarm fatigue: added `review_score_threshold` (default 0.5) to Settings. Gates REVIEW assessment label — principles still surfaced. Projected REVIEW rate ~25-30% (was ~52%).
-   - **#150** S-Series semantic FP: added `s_series_score_threshold` (default 0.5) to Settings. Low-score S-Series semantic matches no longer trigger ESCALATE veto. Keyword detection (CRITICAL/ADVISORY) unaffected. Data: 18 FP ESCALATEs from `transparent-limitations`; score separation clean (FP ceiling 0.427, TP floor 0.526).
-   - Fixed test `test_evaluate_governance_normal_action_proceeds` — assertion updated from hardcoded PROCEED to accept REVIEW (matches intent: "no ESCALATE for normal actions").
-   - Rewrote two regression tests to mock at `engine.retrieve()` level — `combined_score` (BM25+semantic fused) determines `best_score`, not `rerank_score`. Previous mocks only controlled reranker scores, which are sigmoid-normalized and don't override fused scores.
-   - BACKLOG #158 + #150 removed. 1632 tests passing.
+163. **Session-163 (2026-05-10): Critical 5 reasoning scaffold + Enforcement Layer Matrix.**
+   - **Critical 5 scaffold:** Added `critical_5` tier to `tiers.json` (v2.0.0) — 5 scaffold-format reasoning items (structural cause, verify before acting, state uncertainty, make the call, match effort to stakes). Wired into `evaluate_governance` response as additive `critical_5` key alongside unchanged `universal_floor`. Added to SERVER_INSTRUCTIONS.
+   - **Enforcement Layer Matrix:** Added §8.4 to EXECUTION-FRAMEWORK.md documenting all 16 enforcement layers across 4 classes (structural, loaded, per-response, session-lifecycle) with client compatibility (CLI/App/Other/RAG) and gap analysis.
+   - **README First Five:** Updated to match critical_5 selection (replaced "Visible reasoning" with "Make the call"), reframed as empirical-failure-frequency selection.
+   - **BACKLOG:** Filed #159 (hook re-injection D1), #160 (root_cause artifact D2), #161 (Claude App enforcement D2).
+   - **OPERATIONS:** Added T-161 (Enforcement Layer Matrix staleness tripwire).
+   - **Tests:** 9 new tests (5 unit + 4 integration). 1611 passing. CI validation extended to cover critical_5 principle_refs.
 
 ---
 
 ## Previous Sessions
+
+*Session-162 (2026-05-10) BACKLOG #158+#150 threshold tuning — REVIEW alarm fatigue + S-Series semantic FP. 1632 tests.*
 
 *Session-161 (2026-05-10) BACKLOG #158 REVIEW score threshold. 1631 tests.*
 

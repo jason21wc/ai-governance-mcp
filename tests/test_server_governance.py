@@ -2165,6 +2165,16 @@ class TestTiersPrincipleIdValidation:
                 if mid and mid not in all_ids:
                     missing.append(f"{mid} (domain_floor:{domain_name})")
 
+        # Validate critical_5 principle_refs (only those that are principle IDs,
+        # not behavioral directives or method references)
+        behavioral_ids = {
+            d.get("id") for d in tiers.get("behavioral_floor", {}).get("directives", [])
+        }
+        for item in tiers.get("critical_5", {}).get("items", []):
+            ref = item.get("principle_ref", "")
+            if ref and ref not in behavioral_ids and ref not in all_ids:
+                missing.append(f"{ref} (critical_5)")
+
         assert not missing, (
             f"tiers.json references IDs not in index: {missing}. "
             f"Update tiers.json or rebuild index."
@@ -2346,3 +2356,279 @@ class TestCitePrinciplesInBehavioralFloor:
         behavioral = [i for i in items if i["type"] == "behavioral"]
         assert len(behavioral) == 3
         assert behavioral[2]["id"] == "cite-principles"
+
+
+class TestCritical5:
+    """Tests for _build_critical_5 scaffold-format reasoning items."""
+
+    def test_build_critical_5_all_items(self):
+        """Should build scaffold-format items from critical_5 section."""
+        from ai_governance_mcp.server import _build_critical_5
+
+        config = {
+            "critical_5": {
+                "items": [
+                    {
+                        "id": "structural-cause",
+                        "principle_ref": "meta-core-systemic-thinking",
+                        "label": "Find the structural cause",
+                        "scaffold": "What system produced this? Name it.",
+                    },
+                    {
+                        "id": "verify-before-acting",
+                        "principle_ref": "meta-quality-verification-validation",
+                        "label": "Verify before acting",
+                        "scaffold": "What assumption are you making?",
+                    },
+                ]
+            }
+        }
+        items = _build_critical_5(config)
+
+        assert len(items) == 2
+        assert items[0]["type"] == "critical"
+        assert items[0]["id"] == "structural-cause"
+        assert items[0]["principle_ref"] == "meta-core-systemic-thinking"
+        assert items[0]["label"] == "Find the structural cause"
+        assert items[0]["scaffold"] == "What system produced this? Name it."
+
+    def test_build_critical_5_empty_config(self):
+        """Should return empty list for empty config."""
+        from ai_governance_mcp.server import _build_critical_5
+
+        items = _build_critical_5({})
+        assert items == []
+
+    def test_build_critical_5_missing_section(self):
+        """Should return empty list when critical_5 section is absent."""
+        from ai_governance_mcp.server import _build_critical_5
+
+        config = {"universal_floor": {"principles": []}}
+        items = _build_critical_5(config)
+        assert items == []
+
+    def test_build_critical_5_empty_items(self):
+        """Should return empty list when items array is empty."""
+        from ai_governance_mcp.server import _build_critical_5
+
+        config = {"critical_5": {"items": []}}
+        items = _build_critical_5(config)
+        assert items == []
+
+    def test_build_critical_5_preserves_all_fields(self):
+        """Each item should have type, id, principle_ref, label, scaffold."""
+        from ai_governance_mcp.server import _build_critical_5
+
+        config = {
+            "critical_5": {
+                "items": [
+                    {
+                        "id": "test-id",
+                        "principle_ref": "test-principle",
+                        "label": "Test Label",
+                        "scaffold": "Test scaffold prompt.",
+                    }
+                ]
+            }
+        }
+        items = _build_critical_5(config)
+        assert len(items) == 1
+        item = items[0]
+        assert set(item.keys()) == {"type", "id", "principle_ref", "label", "scaffold"}
+
+
+class TestCritical5InEvaluateGovernance:
+    """Tests for critical_5 scaffold injection in evaluate_governance responses."""
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_includes_critical_5(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should include critical_5 when tiers.json has that section."""
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text(
+            json.dumps(
+                {
+                    "universal_floor": {
+                        "principles": [
+                            {
+                                "id": "meta-safety-transparent-limitations",
+                                "check": "Epistemic check",
+                            }
+                        ],
+                        "methods": [],
+                    },
+                    "critical_5": {
+                        "items": [
+                            {
+                                "id": "structural-cause",
+                                "principle_ref": "meta-core-systemic-thinking",
+                                "label": "Find the structural cause",
+                                "scaffold": "What system produced this?",
+                            },
+                            {
+                                "id": "verify-before-acting",
+                                "principle_ref": "meta-quality-verification-validation",
+                                "label": "Verify before acting",
+                                "scaffold": "What assumption are you making?",
+                            },
+                        ]
+                    },
+                }
+            )
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Add a new helper function"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert "critical_5" in parsed
+                    c5 = parsed["critical_5"]
+                    assert len(c5) == 2
+                    assert c5[0]["type"] == "critical"
+                    assert c5[0]["id"] == "structural-cause"
+                    assert c5[0]["label"] == "Find the structural cause"
+                    assert c5[0]["scaffold"] == "What system produced this?"
+                    assert c5[0]["principle_ref"] == "meta-core-systemic-thinking"
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_no_critical_5_without_tiers(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should not include critical_5 when tiers.json missing."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Format code"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert "critical_5" not in parsed
+
+    @pytest.mark.asyncio
+    async def test_evaluate_governance_no_critical_5_without_section(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """evaluate_governance should not include critical_5 when tiers.json lacks that section."""
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text(
+            json.dumps(
+                {
+                    "universal_floor": {
+                        "principles": [{"id": "floor-p1", "check": "check1"}],
+                        "methods": [],
+                    }
+                }
+            )
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Refactor module"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert "universal_floor" in parsed
+                    assert "critical_5" not in parsed
+
+    @pytest.mark.asyncio
+    async def test_critical_5_coexists_with_universal_floor(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """Both critical_5 and universal_floor should appear — no breaking change."""
+        tiers_path = test_settings.documents_path / "tiers.json"
+        tiers_path.write_text(
+            json.dumps(
+                {
+                    "universal_floor": {
+                        "principles": [{"id": "floor-p1", "check": "Floor check"}],
+                        "methods": [],
+                    },
+                    "critical_5": {
+                        "items": [
+                            {
+                                "id": "test-scaffold",
+                                "principle_ref": "test-ref",
+                                "label": "Test",
+                                "scaffold": "Demonstrate this.",
+                            }
+                        ]
+                    },
+                }
+            )
+        )
+
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "evaluate_governance",
+                        {"planned_action": "Add tests"},
+                    )
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert "universal_floor" in parsed
+                    assert "critical_5" in parsed
+                    # Verify formats are different
+                    assert parsed["universal_floor"][0]["type"] == "principle"
+                    assert parsed["critical_5"][0]["type"] == "critical"
+                    assert "scaffold" in parsed["critical_5"][0]
+                    assert "scaffold" not in parsed["universal_floor"][0]

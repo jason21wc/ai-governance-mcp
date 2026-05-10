@@ -658,6 +658,67 @@ This aligns with how ai-governance docs are already organized: `constitution.md`
 
 The answer may not be "one method in rules-of-procedure" but "principles where principles live, methods where methods live, appendices where appendices live, with cross-references."
 
+### 8.4 Enforcement Layer Matrix
+
+The governance system enforces through multiple layers that vary by client environment and reliability. Understanding which layers are available in each context is prerequisite to closing enforcement gaps. This is the comprehensive canonical reference; the simplified table in CFR §9.3.10 should reference this section.
+
+#### Structural enforcement (highest reliability)
+
+These layers operate at the process level — the model cannot bypass them through prompting.
+
+| Layer | Mechanism | Claude Code CLI | Claude App | Other MCP Clients | RAG-only | Degrades Over Conversation? |
+|-------|-----------|:-:|:-:|:-:|:-:|:-:|
+| PreToolUse governance hook | Blocks Bash/Edit/Write until governance+CE called | Yes | No | No | No | No |
+| PreToolUse content-security hook | Blocks credential path access | Yes | No | No | No | No |
+| PreToolUse pre-push quality gate | 7-gate check before git push | Yes | No | No | No | No |
+| PreToolUse pre-exit-plan-mode gate | Blocks ExitPlanMode without contrarian review | Yes | No | No | No | No |
+| PreToolUse OOM gate | Blocks pytest when memory pressure detected | Yes | No | No | No | No |
+| Enforcement proxy (enforcement.py) | Protocol-level MCP governance wrapper | Yes | Yes | Yes | No | No |
+
+#### Loaded instructions (medium reliability)
+
+These are injected at session start or connection time. They degrade as conversation length increases.
+
+| Layer | Mechanism | Claude Code CLI | Claude App | Other MCP Clients | RAG-only | Degrades Over Conversation? |
+|-------|-----------|:-:|:-:|:-:|:-:|:-:|
+| CLAUDE.md behavioral floor | 7 directives loaded at session start | Yes | No | No | No | Yes |
+| Auto-memory (feedback, preferences) | User corrections persisted across sessions | Yes | No | No | No | Yes |
+| SERVER_INSTRUCTIONS | MCP server instructions sent at connection | Yes | Yes | Yes | No | Yes |
+| Skills (3 skills) | Structured procedures invoked by slash command | Yes | No | No | No | No |
+
+#### Per-response reinforcement (low-medium reliability)
+
+These fire on each tool call or governance evaluation. They only activate when the relevant tool is called.
+
+| Layer | Mechanism | Claude Code CLI | Claude App | Other MCP Clients | RAG-only | Degrades Over Conversation? |
+|-------|-----------|:-:|:-:|:-:|:-:|:-:|
+| Critical 5 scaffold (evaluate_governance) | 5 reasoning scaffolds in every governance response | Yes | Yes | Yes | No | No — per-response |
+| Universal floor (evaluate_governance) | Checklist items in every governance response | Yes | Yes | Yes | No | No — per-response |
+| Domain floor (evaluate_governance) | Domain-specific items when domain detected | Yes | Yes | Yes | No | No — per-response |
+| Per-response reminder (GOVERNANCE_REMINDER) | 2-line nudge appended to every tool response | Yes | Yes | Yes | No | No — per-response |
+
+#### Session-lifecycle (supplementary)
+
+These provide re-anchoring or independent review at key moments.
+
+| Layer | Mechanism | Claude Code CLI | Claude App | Other MCP Clients | RAG-only | Degrades Over Conversation? |
+|-------|-----------|:-:|:-:|:-:|:-:|:-:|
+| UserPromptSubmit hook | Injects governance reminder if tools not called | Yes | No | No | No | No |
+| Subagent system (10 agents) | Specialized review agents for different concerns | Yes | No | No | No | No — fresh context |
+
+#### Client capability summary
+
+| Client | Structural | Loaded Instructions | Per-Response | Session-Lifecycle |
+|--------|:-:|:-:|:-:|:-:|
+| **Claude Code CLI** | All 6 layers | All 4 layers | All 4 layers | Both layers |
+| **Claude App** | Enforcement proxy only | SERVER_INSTRUCTIONS only | All 4 layers | None |
+| **Other MCP clients** (Cursor, Gemini CLI, etc.) | Enforcement proxy only | SERVER_INSTRUCTIONS only | All 4 layers | None |
+| **RAG-only** (no MCP) | None | Document content only | None | None |
+
+#### Gap analysis
+
+The structural cause of the Claude App enforcement gap: hooks are a Claude Code feature. The 5 PreToolUse hooks that provide structural enforcement (governance gate, content security, pre-push quality, plan-mode gate, OOM gate) are unavailable outside Claude Code CLI. The enforcement proxy is the only structural mechanism available to non-CLI clients. Without it, governance is purely advisory — SERVER_INSTRUCTIONS degrade over conversation length, and per-response reinforcement only fires when the model calls governance tools (which nothing structural compels it to do).
+
 ---
 
 ## 9. Gap Analysis — Computer Components with No Project Equivalent

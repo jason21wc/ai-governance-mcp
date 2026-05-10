@@ -43,6 +43,7 @@ from .._logging import (
 )
 from .._security import _rate_limit_lock, _sanitize_for_logging
 from .._state import (
+    _build_critical_5,
     _build_domain_floor,
     _build_universal_floor,
     _load_tiers_config,
@@ -397,6 +398,9 @@ async def _handle_evaluate_governance(
     tiers_config = _load_tiers_config()
     if tiers_config:
         output["universal_floor"] = _build_universal_floor(tiers_config)
+        critical_5 = _build_critical_5(tiers_config)
+        if critical_5:
+            output["critical_5"] = critical_5
         domain_floor = _build_domain_floor(tiers_config, result.domains_detected)
         if domain_floor:
             output["domain_floor"] = domain_floor

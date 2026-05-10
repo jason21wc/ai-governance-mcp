@@ -207,6 +207,12 @@
 **What:** `pre-tool-governance-check.sh` uses a read-only Bash command allowlist to let read-only subagents (contrarian-reviewer, security-auditor) bypass governance enforcement. Mutation subagents (test-generator, documentation-writer) remain blocked. When upstream fix ships: scan subagent transcript directly for full enforcement. Related env var: `READONLY_BASH_SKIP=true`.
 **Origin:** Session-152 (2026-05-07). Empirical proof: 10/10 subagents CLAUDE.md-compliant but hook-denied due to transcript isolation.
 
+### T-161. Enforcement Layer Matrix staleness
+
+**Trigger conditions:** (1) New hook added or removed, (2) new enforcement layer introduced (e.g., new MCP tool gate), (3) Claude App gains hook-like capability, (4) enforcement proxy capabilities change.
+**What:** Update EXECUTION-FRAMEWORK.md §8.4 Enforcement Layer Matrix to reflect the change. The matrix documents all enforcement layers with client compatibility and effectiveness — it must stay current to be useful for gap analysis.
+**Origin:** Critical 5 reasoning scaffold plan, contrarian review (2026-05-10).
+
 ---
 
 ## Verification Experiments

@@ -239,17 +239,17 @@ Windsurf supports MCP through Cascade. Config file: `~/.codeium/windsurf/mcp_con
 
 </details>
 
-## First Five: Day-One Essentials from the Universal Floor
+## First Five: Critical Reasoning Disciplines
 
-Every `evaluate_governance` call returns a **universal floor** — items that hold regardless of whether the AI is writing code, drafting a story, or building a RAG pipeline. The full floor (defined in [`documents/tiers.json`](documents/tiers.json)) has four constitutional principles, six method references, and a subagent-applicability check. The five below are the *day-one essentials* — the smallest set that gets an external adopter productive without first learning Constitutional naming or the 7-layer hierarchy.
+Every `evaluate_governance` call returns a **critical 5** scaffold — the five reasoning disciplines most often violated in practice, selected by learning log failure frequency and user feedback patterns. These are delivered as reasoning scaffolds ("demonstrate this thinking") rather than checklists ("did you do this?"). The full universal floor (defined in [`documents/tiers.json`](documents/tiers.json)) has additional constitutional principles, method references, and a subagent-applicability check.
 
 | Rule | What it asks of the AI | Canonical reference |
 |------|------------------------|---------------------|
-| **Epistemic honesty** | When uncertain, say so. Never present a best guess as fact. Reporting "I cannot do this confidently" is a successful outcome. | principle: `meta-safety-transparent-limitations` |
-| **Visible reasoning** | Show your work. Cite sources for factual claims. Make assumptions explicit before producing the output. | principle: `meta-quality-visible-reasoning-traceability` |
-| **Verification before action** | Define what "done" looks like before starting. Validate in small increments. Fail fast. | principle: `meta-quality-verification-validation` |
-| **Root cause over symptoms** | Distinguish what triggered a problem from what structurally enables it. Fix the latter, not the former. | principle: `meta-core-systemic-thinking` |
-| **Proportional rigor** | Match procedural ceremony to stakes. Simple tasks get simple checks; high-stakes work gets full protocol. | method: `rules-of-procedure §7.8` |
+| **Find the structural cause** | What system, process, or design produced this? Name the structural cause, not the visible symptom. Your fix should target that. | principle: `meta-core-systemic-thinking` |
+| **Verify before acting** | What assumption are you making right now? How have you confirmed it — from the actual source, not a review note or agent convergence? | principle: `meta-quality-verification-validation` |
+| **State what you don't know** | Where is your uncertainty? Name it explicitly before proceeding. "I don't know" is a successful output. | principle: `meta-safety-transparent-limitations` |
+| **Make the call** | Present your best recommendation with rationale. Don't ask what you should decide. Don't defer what you can resolve now. | behavioral: `recommend-not-ask` |
+| **Match effort to stakes** | Is this a 3-file fix or a new subsystem? Act on what it actually is, not what it might theoretically become. | behavioral: `proportional-rigor` (§7.8) |
 
 Use `get_principle` for principle IDs; methods like §7.8 are reachable through `query_governance`:
 

@@ -144,6 +144,26 @@ def _build_universal_floor(tiers_config: dict) -> list[dict]:
     return items
 
 
+def _build_critical_5(tiers_config: dict) -> list[dict]:
+    """Build scaffold-format reasoning items from the critical_5 tier.
+
+    Returns items with keys: type="critical", id, principle_ref, label, scaffold.
+    """
+    section = tiers_config.get("critical_5", {})
+    items: list[dict] = []
+    for item in section.get("items", []):
+        items.append(
+            {
+                "type": "critical",
+                "id": item.get("id", ""),
+                "principle_ref": item.get("principle_ref", ""),
+                "label": item.get("label", ""),
+                "scaffold": item.get("scaffold", ""),
+            }
+        )
+    return items
+
+
 def _build_domain_floor(tiers_config: dict, domains_detected: list[str]) -> list[dict]:
     """Build domain-specific floor items activated by domain detection.
 

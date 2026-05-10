@@ -69,6 +69,16 @@ When in doubt, evaluate.
 
 The assessment output determines your next action — it is not an acknowledgment before doing what you planned anyway.
 
+### Critical Reasoning Disciplines
+
+Five reasoning disciplines to demonstrate (not just acknowledge) in every evaluation:
+
+1. **Find the structural cause** — What system, process, or design produced this? Name the structural cause, not the visible symptom. Your fix should target that.
+2. **Verify before acting** — What assumption are you making right now? How have you confirmed it — from the actual source, not a review note or agent convergence?
+3. **State what you don't know** — Where is your uncertainty? Name it explicitly before proceeding. "I don't know" is a successful output.
+4. **Make the call** — Present your best recommendation with rationale. Don't ask what you should decide. Don't defer what you can resolve now.
+5. **Match effort to stakes** — Is this a 3-file fix or a new subsystem? Act on what it actually is, not what it might theoretically become.
+
 ### Required Actions
 1. **Evaluate before acting** — `evaluate_governance(planned_action="...")` for any action not on the skip list
 2. **Query for guidance** — `query_governance("your concern")` when you need principles to inform decisions

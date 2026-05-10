@@ -254,3 +254,35 @@
 
 **Origin:** User-initiated (2026-04-10). Plan mode exploration completed but implementation paused for deeper workflow pattern discussion.
 
+#### 159. Critical 5 Hook Re-Injection (Discussion) `D1 Improvement`
+
+**What:** Add periodic critical-5 concept reinforcement to the UserPromptSubmit hook. When governance has been called (scan_result="both") and conversation is long (>100 transcript lines), inject a brief critical-5 reminder instead of exiting silently.
+
+**Why deferred:** Contrarian review recommended sequencing interventions — ship the scaffold format in evaluate_governance first, measure whether it improves compliance, then layer in re-injection only if scaffold alone is insufficient.
+
+**Trigger:** Phase 1 measurement shows scaffold format alone doesn't improve critical-5 compliance after 30 days (measurement protocol: learning log failure citations + Compliance Review #8 scaffold-theater check ~2026-06-09).
+
+**Risk:** Reminder fatigue — re-injection becomes background noise and reduces per-exposure engagement. The same risk that degrades GOVERNANCE_REMINDER over long conversations.
+
+**Origin:** Critical 5 reasoning scaffold plan (2026-05-10). Contrarian C2 recommendation.
+
+#### 160. Structural root_cause Artifact in log_governance_reasoning (Discussion) `D2 Improvement`
+
+**What:** Add a `root_cause` field to `log_governance_reasoning` tool that requires naming the structural cause distinct from the triggering symptom. If empty or matches planned_action text (restated symptom), flag it. Creates a verifiable artifact per LEARNING-LOG "Codified Rules Need Structural Anti-Theater Gates."
+
+**Why deferred:** The critical-5 scaffold format is a prompt-level hint; this field is the structural enforcement complement. Ship scaffold first, assess scaffold theater prevalence at Compliance Review #8.
+
+**Trigger:** Scaffold theater detected — >50% of critical-5 scaffold responses are pro-forma restated symptoms rather than genuine root-cause analysis. Check at Compliance Review #8 (~2026-06-09).
+
+**Origin:** Critical 5 reasoning scaffold plan (2026-05-10). Contrarian C1 (scaffold theater risk).
+
+#### 161. Claude App Enforcement Effectiveness (Discussion) `D2 Improvement`
+
+**What:** Investigate and improve governance enforcement effectiveness for Claude App users. Current state: no hooks, no CLAUDE.md, only SERVER_INSTRUCTIONS + tool responses + enforcement proxy (if configured). See EXECUTION-FRAMEWORK.md §8.4 for the full layer matrix and gap analysis.
+
+**Possible directions:** (1) Enforcement proxy adoption guide for Claude App users, (2) Enhanced SERVER_INSTRUCTIONS with critical-5 re-injection patterns, (3) Tool-response-level enforcement — refuse to return results from other tools until governance called (requires enforcement proxy), (4) Investigate whether Claude App supports any hook-like mechanism.
+
+**Trigger:** User actively uses ai-governance from Claude App and reports enforcement gaps.
+
+**Origin:** Critical 5 reasoning scaffold plan (2026-05-10). Cross-platform enforcement gap analysis.
+

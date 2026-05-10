@@ -73,6 +73,7 @@ from ._security import (
 
 # -- State -------------------------------------------------------------------
 from ._state import (
+    _build_critical_5 as _build_critical_5,
     _build_domain_floor as _build_domain_floor,
     _build_universal_floor as _build_universal_floor,
     _load_tiers_config as _load_tiers_config,

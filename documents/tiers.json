@@ -1,7 +1,42 @@
 {
   "_comment": "Tiered Governance Principle Activation — universal floor items prepended to every evaluate_governance response. Compact anti-pattern checks, not full principle text. See plan: Phase 1 of Tiered Principle Activation.",
-  "_version": "1.9.0",
+  "_version": "2.0.0",
   "_selection_criteria": "A principle belongs in the universal floor if and only if: (1) it is a constitutional principle (not domain-specific), (2) it applies to EVERY action type regardless of domain or context, and (3) failing to check it cannot be recovered by later retrieval — the check must happen before the action, not after. Exception: a domain-specific principle may be promoted when it meets criteria (2) and (3) and missing it is structurally irrecoverable (precedent: coding-quality-testing-integration, coding-process-design-architecture-supremacy). Situational principles (relevant only to certain action types, complexity levels, or phases) belong in retrieval, not the floor. Review this criteria when adding or removing floor items.",
+  "critical_5": {
+    "_selection_criteria": "Selected by learning log failure frequency and user feedback correction patterns. These are the 5 reasoning disciplines most often violated in practice. Delivered as reasoning scaffolds (demonstrate the thinking) rather than checklists (acknowledge the concept). Reviewed when new learning log entries accumulate or compliance review detects scaffold theater.",
+    "items": [
+      {
+        "id": "structural-cause",
+        "principle_ref": "meta-core-systemic-thinking",
+        "label": "Find the structural cause",
+        "scaffold": "What system, process, or design produced this? Name the structural cause, not the visible symptom. Your fix should target that."
+      },
+      {
+        "id": "verify-before-acting",
+        "principle_ref": "meta-quality-verification-validation",
+        "label": "Verify before acting",
+        "scaffold": "What assumption are you making right now? How have you confirmed it — from the actual source, not a review note or agent convergence?"
+      },
+      {
+        "id": "state-uncertainty",
+        "principle_ref": "meta-safety-transparent-limitations",
+        "label": "State what you don't know",
+        "scaffold": "Where is your uncertainty? Name it explicitly before proceeding. 'I don't know' is a successful output."
+      },
+      {
+        "id": "make-the-call",
+        "principle_ref": "recommend-not-ask",
+        "label": "Make the call",
+        "scaffold": "Present your best recommendation with rationale. Don't ask what you should decide. Don't defer what you can resolve now."
+      },
+      {
+        "id": "match-effort-to-stakes",
+        "principle_ref": "proportional-rigor",
+        "label": "Match effort to stakes",
+        "scaffold": "Is this a 3-file fix or a new subsystem? Act on what it actually is, not what it might theoretically become."
+      }
+    ]
+  },
   "universal_floor": {
     "principles": [
       {
