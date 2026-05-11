@@ -119,22 +119,32 @@ def compute_m001_influence_rate(audit_entries: list[dict]) -> dict:
 def compute_m003_relevance_trend(query_entries: list[dict]) -> dict:
     """M-003: Retrieval Relevance Trend.
 
-    Maps top_confidence strings to numeric scores and computes trend
-    by comparing first-half vs second-half averages.
+    Methodology v2: prefers raw best_score (float) when available.
+    Falls back to confidence-bucket mapping for legacy entries.
+    Reports both raw_avg and bucket_avg during transition.
     """
-    scores = []
+    raw_scores = []
+    bucket_scores = []
     for e in query_entries:
+        raw = e.get("best_score")
+        if raw is not None and isinstance(raw, (int, float)):
+            raw_scores.append(float(raw))
         conf = e.get("top_confidence")
         if conf in CONFIDENCE_SCORES:
-            scores.append(CONFIDENCE_SCORES[conf])
+            bucket_scores.append(CONFIDENCE_SCORES[conf])
 
+    scores = raw_scores if raw_scores else bucket_scores
     if not scores:
         return {
             "current_avg": None,
+            "raw_avg": None,
+            "bucket_avg": None,
             "trend": None,
             "first_half_avg": None,
             "second_half_avg": None,
             "scored_entries": 0,
+            "raw_entries": 0,
+            "bucket_entries": 0,
             "insufficient_data": True,
         }
 
@@ -159,10 +169,16 @@ def compute_m003_relevance_trend(query_entries: list[dict]) -> dict:
 
     return {
         "current_avg": current_avg,
+        "raw_avg": (sum(raw_scores) / len(raw_scores)) if raw_scores else None,
+        "bucket_avg": (sum(bucket_scores) / len(bucket_scores))
+        if bucket_scores
+        else None,
         "trend": trend,
         "first_half_avg": first_avg,
         "second_half_avg": second_avg,
         "scored_entries": len(scores),
+        "raw_entries": len(raw_scores),
+        "bucket_entries": len(bucket_scores),
         "insufficient_data": False,
     }
 
@@ -580,6 +596,12 @@ def _print_summary(result: dict) -> None:
         print(
             f"M-003 Relevance Trend:  {m003['current_avg']:.3f} avg, trend: {m003['trend']}"
         )
+        if m003.get("raw_avg") is not None:
+            print(f"  raw_avg: {m003['raw_avg']:.3f} ({m003['raw_entries']} entries)")
+        if m003.get("bucket_avg") is not None:
+            print(
+                f"  bucket_avg: {m003['bucket_avg']:.3f} ({m003['bucket_entries']} entries)"
+            )
 
     m004 = m["m004_s_series_rate"]
     if m004.get("insufficient_data"):

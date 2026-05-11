@@ -83,15 +83,7 @@
 
 ---
 
-#### 16. Governance Retrieval Quality Assessment (Discussion) `D2 Improvement`
-
-**What:** Both governance server and Context Engine use BGE-small-en-v1.5 (384d). We don't know if the current model is underperforming — users may not notice degraded retrieval quality. Better models exist (nomic-embed 768d, higher benchmarks) but upgrade hasn't been justified with data.
-
-**Discussion needed:** Related to #22 (closed — effectiveness measurement resolved by `scripts/analyze_feedback_loop.py`). How do we measure current retrieval quality for governance queries specifically? Is there a way to benchmark governance retrieval that would tell us if an upgrade is justified? Determine justification first, then implement if needed, drop if not — but with a way to measure effectiveness going forward.
-
-**Possible directions:** Governance-specific benchmark queries, MRR/Recall measurements on governance corpus, A/B comparison with nomic-embed on representative queries.
-
-**Outcome:** Either justify the upgrade with data and implement, or confirm current model is sufficient and close.
+#### ~~16.~~ Closed. M-003 metric (0.255) was an artifact of coarse confidence-bucket mapping, not a retrieval quality problem. Manual triage confirmed actual retrieval scores of 0.47–0.87 across representative queries — well above MEDIUM threshold. Fix: added `best_score` (float) logging to both query_governance and evaluate_governance handlers; updated M-003 to prefer raw scores over bucket mapping. MRR baselines (0.644/0.625) confirmed healthy. BGE-small-en-v1.5 KEPT. One content gap noted: "project initialization" returns zero results. `git log --grep="backlog #16"`
 
 
 #### 6. Visual Communication Domain (Discussion → Full Planning) `D3 New Capability`

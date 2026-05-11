@@ -354,6 +354,9 @@ class QueryLog(BaseModel):
     s_series_triggered: bool = False
     retrieval_time_ms: Optional[float] = None
     top_confidence: Optional[ConfidenceLevel] = None
+    best_score: Optional[float] = Field(
+        None, description="Raw numeric score of highest-scoring result"
+    )
 
 
 class GovernanceOverheadMetrics(BaseModel):
@@ -626,6 +629,9 @@ class GovernanceAuditLog(BaseModel):
         None, description="Reason for escalation if ESCALATE"
     )
     confidence: ConfidenceLevel = Field(..., description="Assessment confidence level")
+    best_score: Optional[float] = Field(
+        None, description="Raw numeric score of highest-scoring principle"
+    )
 
 
 # =============================================================================

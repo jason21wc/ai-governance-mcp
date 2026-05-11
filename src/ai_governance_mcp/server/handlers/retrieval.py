@@ -42,6 +42,16 @@ def _best_confidence(result: RetrievalResult) -> ConfidenceLevel | None:
     return max(levels, key=lambda c: _CONFIDENCE_RANK.get(c, 0))
 
 
+def _best_raw_score(result: RetrievalResult) -> float | None:
+    """Return the highest combined_score across all result types."""
+    scores = (
+        [p.combined_score for p in result.constitution_principles]
+        + [p.combined_score for p in result.domain_principles]
+        + [m.combined_score for m in result.methods]
+    )
+    return max(scores) if scores else None
+
+
 async def _handle_query_governance(
     engine: RetrievalEngine, args: dict
 ) -> list[TextContent]:
@@ -125,6 +135,7 @@ async def _handle_query_governance(
         s_series_triggered=result.s_series_triggered,
         retrieval_time_ms=result.retrieval_time_ms,
         top_confidence=_best_confidence(result),
+        best_score=_best_raw_score(result),
     )
     await log_query_async(query_log)
 

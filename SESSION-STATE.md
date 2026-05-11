@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-10 (session-164 — Content Enhancer skill + backlog cleanup).
+**Last Updated:** 2026-05-10 (session-165 — Governance Retrieval Quality Assessment + content enhancer application).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,25 +12,24 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-164 (2026-05-10) Content Enhancer skill + backlog cleanup.**
+**Session-165 (2026-05-10) Governance Retrieval Quality Assessment + content enhancer application.**
 
-**ACTION ON RESUME (session-165):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11 + critical-5 scaffold-theater assessment. **C-109 deferred-cadence audit** (~2026-05-25). Test `/content-enhancer` invocation with sample content.
+**ACTION ON RESUME (session-166):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11 + critical-5 scaffold-theater assessment. **C-109 deferred-cadence audit** (~2026-05-25).
 
 **Critical state for next session:**
-- **Content Enhancer skill shipped** — `/content-enhancer` skill with 5-step protocol (Triage → Analyze → Enhance → Assemble → Verify), gap-filling protocol, voice preservation guards, human escalation rules. Fresh research-based design. Needs live invocation test.
-- **BACKLOG #127 closed** — 16 DocumentConnector integration tests shipped.
-- **BACKLOG #125-b closed** (won't do) — registry value is the Covers: lint loop, can't be scaffolded.
-- **BACKLOG #85 closed** (Content Enhancer portion) — multi-system orchestration remains deferred.
-- **Skills count:** 4 (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`).
+- **BACKLOG #16 closed** — M-003 metric was the problem, not retrieval quality. Added `best_score` (float) logging to query_governance and evaluate_governance handlers. M-003 updated to prefer raw scores. Manual triage confirmed retrieval scores 0.47–0.87. MRR baselines healthy (0.644/0.625). BGE-small-en-v1.5 confirmed sufficient.
+- **Content gap noted:** "project initialization" query returns zero results — no principle covers this topic. Not a retrieval failure; a content gap.
+- **Dead principles:** 167 IDs never returned (12 principles, ~155 methods), all from actively-queried domains. Classified as long-tail niche content, not retrieval failures.
+- **Karpathy/Pinecone enhanced reference** delivered to user (ai-governance audience, Framework Alignment Map format).
 - **Tests:** 1611 passing (non-slow subset).
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-164 (2026-05-10) — Content Enhancer skill + backlog cleanup.
+- **Phase:** Session-165 (2026-05-10) — Governance Retrieval Quality Assessment + content enhancer application.
 - **Mode:** Normal operation.
-- **Active Task:** None. Next: Compliance Review #8 (~2026-05-15), `/content-enhancer` live test.
+- **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 
 ## Quick Reference
 
@@ -55,6 +54,10 @@
 ---
 
 ## Last Session (2026-05-10)
+
+165. **Session-165 (2026-05-10): Governance Retrieval Quality Assessment + content enhancer application.**
+   - **BACKLOG #16 closed:** Investigated M-003 (0.255) — contrarian review identified the confidence-bucket mapping as a flawed metric before building diagnostic infrastructure. Phase 1: added `best_score` (float) to QueryLog and GovernanceAuditLog models, wired into both query_governance and evaluate_governance handlers, updated M-003 to prefer raw scores with bucket fallback. Phase 2 manual triage: re-ran 13 representative queries — scores 0.47–0.87, well above MEDIUM threshold (0.4). 92% LOW confidence in M-003 was entirely a measurement artifact. Dead principle classification: 167 never-returned IDs (12 principles, ~155 methods), all from actively-queried domains — classified as long-tail niche content, not retrieval failures. Decision: metric was the problem, not retrieval. BGE-small-en-v1.5 confirmed sufficient. Content gap: "project initialization" returns zero results.
+   - **Karpathy/Pinecone transcript enhanced:** Applied `/content-enhancer` to video transcript. Rewrote for ai-governance AI audience with Framework Alignment Map comparing external patterns (Karpathy Wiki, Pinecone Nexus, Google Knowledge Catalog, Microsoft Fabric IQ) against framework equivalents. Gap-filled from Karpathy's original GitHub gist.
 
 164. **Session-164 (2026-05-10): Content Enhancer skill + backlog cleanup.**
    - **Content Enhancer skill (#85):** Shipped `/content-enhancer` as 4th skill. SKILL.md (43 lines) + procedure.md (356 lines). 5-step protocol: Triage (competence check, audience ID, use context) → Analyze (content-type classification, core facts vs presentation, voice fingerprint) → Enhance (restructure, clean, gap-fill with `[Editor's note:]` markers) → Assemble (format per use context) → Verify (fidelity, voice, adoption fitness). Fresh research-based design — not a port of 3.0. Contrarian review integrated (C1: triage gate, C2: editor's note convention, C3: 3.0 regression check passed).
