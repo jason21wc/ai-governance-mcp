@@ -352,7 +352,7 @@ async def _handle_evaluate_governance(
         if assessment == AssessmentStatus.ESCALATE
         else None,
         confidence=confidence,
-        best_score=round(best_score, 4),
+        best_score=round(best_score, 4) if all_principles else None,
     )
     await log_governance_audit_async(audit_entry)
 

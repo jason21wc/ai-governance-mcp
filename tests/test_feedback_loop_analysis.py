@@ -61,8 +61,9 @@ def _make_query_entry(
     principles_returned=None,
     top_confidence="low",
     timestamp=None,
+    best_score=None,
 ):
-    return {
+    entry = {
         "timestamp": timestamp or "2026-05-01T00:00:00+00:00",
         "query": query,
         "domains_detected": [],
@@ -72,6 +73,9 @@ def _make_query_entry(
         "retrieval_time_ms": 100.0,
         "top_confidence": top_confidence,
     }
+    if best_score is not None:
+        entry["best_score"] = best_score
+    return entry
 
 
 def _make_reasoning_entry(
@@ -277,6 +281,52 @@ class TestM003RelevanceTrend:
         entries = [_make_query_entry(top_confidence="low") for _ in range(10)]
         result = compute_m003_relevance_trend(entries)
         assert result["trend"] == "stable"
+
+    def test_raw_scores_preferred_over_buckets(self):
+        entries = [
+            _make_query_entry(top_confidence="low", best_score=0.75),
+            _make_query_entry(top_confidence="low", best_score=0.85),
+        ]
+        result = compute_m003_relevance_trend(entries)
+        assert result["current_avg"] == pytest.approx(0.8)
+        assert result["raw_avg"] == pytest.approx(0.8)
+        assert result["bucket_avg"] == pytest.approx(0.2)
+        assert result["raw_entries"] == 2
+        assert result["bucket_entries"] == 2
+
+    def test_fallback_to_bucket_when_no_raw(self):
+        entries = [_make_query_entry(top_confidence="high") for _ in range(5)]
+        result = compute_m003_relevance_trend(entries)
+        assert result["raw_avg"] is None
+        assert result["raw_entries"] == 0
+        assert result["current_avg"] == pytest.approx(1.0)
+
+    def test_mixed_raw_and_legacy(self):
+        entries = [
+            _make_query_entry(top_confidence="low", best_score=0.6),
+            _make_query_entry(top_confidence="high"),
+            _make_query_entry(top_confidence="low", best_score=0.8),
+        ]
+        result = compute_m003_relevance_trend(entries)
+        assert result["raw_avg"] == pytest.approx(0.7)
+        assert result["bucket_avg"] == pytest.approx((0.2 + 1.0 + 0.2) / 3, rel=0.01)
+        assert result["raw_entries"] == 2
+        assert result["bucket_entries"] == 3
+        assert result["current_avg"] == pytest.approx(0.7)
+
+    def test_non_numeric_best_score_skipped(self):
+        entries = [
+            {
+                "timestamp": "2026-05-01T00:00:00+00:00",
+                "best_score": "invalid",
+                "top_confidence": "medium",
+                "query": "test",
+            },
+        ]
+        result = compute_m003_relevance_trend(entries)
+        assert result["raw_entries"] == 0
+        assert result["bucket_entries"] == 1
+        assert result["current_avg"] == pytest.approx(0.5)
 
 
 class TestM004SSeriesRate:

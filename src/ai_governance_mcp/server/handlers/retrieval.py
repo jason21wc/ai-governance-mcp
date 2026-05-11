@@ -43,7 +43,7 @@ def _best_confidence(result: RetrievalResult) -> ConfidenceLevel | None:
 
 
 def _best_raw_score(result: RetrievalResult) -> float | None:
-    """Return the highest combined_score across all result types."""
+    """Return the highest combined_score across principles and methods."""
     scores = (
         [p.combined_score for p in result.constitution_principles]
         + [p.combined_score for p in result.domain_principles]
