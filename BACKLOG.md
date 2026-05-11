@@ -142,17 +142,31 @@
 
 ---
 
-#### 43. Progressive Disclosure for Reference Library (Discussion — Retrieval Efficiency) `D2 Improvement`
+#### 43. Reference Library Surfacing, Isolation & Progressive Disclosure (Discussion) `D2 Improvement`
 
-**What:** Currently, matched reference library entries return full content in evaluation results. Adopt a tiered retrieval model: Tier 1 (in evaluation results) shows ID, title, summary, maturity/status, confidence — as we do now. Tier 2 (on demand) provides full artifact content via a new `get_reference(id)` tool. Tier 3 (deep dive) includes related references, cross-references, principle links.
+**What:** Two problems with the reference library: (1) references never surface in practice, and (2) when they eventually do, full content in evaluation results will bloat context. The surfacing problem is the higher priority — progressive disclosure is moot if references don't reach the AI.
 
-**Why:** As the reference library grows, dumping full artifacts into every evaluation result will bloat context. Hermes's 3-tier progressive disclosure (skill index → `skill_view(name)` → linked files) keeps token cost low while making full content available when needed. Our current 9 entries are manageable; at 50+ this becomes a real problem.
+**Why references don't surface (diagnosed 2026-05-10):** References compete in the same retrieval pipeline as 133 principles and 715 methods. The pipeline is optimized for conceptual governance queries ("which principle governs validation before action?"). Reference entries are implementation-specific ("Playwright auth setup pattern", "pytest fixture patterns"). These query types don't overlap. Verified: 0 references surfaced across 477 `query_governance` calls and 258 `evaluate_governance` calls in production logs. But when tested with implementation-specific queries ("playwright auth setup testing"), references score 0.40–0.96 — the retrieval *works*, it just never gets queries it can match.
 
-**What's involved:** (1) New `get_reference` MCP tool returning full artifact content by ID, (2) Modify evaluation output to show Tier 1 summaries only, (3) Optionally add Tier 3 with cross-reference expansion. Relatively straightforward — the data model already has `summary` fields and cross-reference metadata.
+**Root cause:** References and principles/methods solve different problems at different moments. Principles answer "what should I do?" (governance). Methods answer "how do I do it?" (procedure). References answer "how has this been done before?" (precedent). The current system conflates all three into one retrieval pipeline serving governance queries, so references drown.
 
-**Dependency:** None — can implement independently.
+**Index isolation question:** Reference library entries currently exist in two indexes — governance retrieval (BM25 + semantic, 870 documents) and Context Engine (project-wide semantic search). If references are surfaced through their own mechanism (below), should they be removed from the governance index to prevent cross-contamination? Currently 17 references are 2% of the index (17/870), but at 50+ they'd be noise in governance results and could dilute principle/method relevance. Conversely, Context Engine indexes the reference-library directory as project files — reference content may appear in `query_project` results mixed with source code and docs. Discussion needed on whether references should have their own isolated retrieval channel or continue sharing indexes with governance and CE.
 
-**Origin:** Hermes Agent evaluation (2026-04-01). Their skill_view progressive loading pattern adapted to our retrieval model.
+**Surfacing approaches (ranked, discuss before implementing):**
+
+1. **Domain-triggered auto-surfacing (recommended).** When `evaluate_governance` detects a domain (e.g., ai-coding), automatically include top-N references from that domain in the response — independent of governance query relevance scoring. References surface because "you're working in ai-coding, here are proven patterns" not because the governance query semantically matches them. The existing `tags` field (e.g., `["playwright", "supabase", "nextjs"]`) provides secondary filtering if the AI's current work context is known.
+
+2. **Separate retrieval tool.** Add `search_references(query, domain, tags)` as its own MCP tool. Decouples reference lookup from governance entirely — AI queries governance for principles/methods and queries references for implementation patterns. Cleaner separation, but requires the AI to remember to call two tools.
+
+3. **Tag-based context injection.** Extract technology signals from the AI's current work (imports, file extensions, framework patterns) and automatically inject matching references into governance responses. Most automated, most complex to build.
+
+**Progressive disclosure (presentation layer, implement with whichever surfacing approach):** Tier 1 (in results): ID, title, summary, maturity/status, confidence. Tier 2 (on demand): full artifact content via `get_reference(id)` tool. Tier 3 (deep dive): related references, cross-references, principle links. Data model already has `summary` fields and cross-reference metadata.
+
+**Metadata that already exists and can drive surfacing:** Each reference has `domain` (ai-coding, kmpd), `tags` (technology-specific keywords), `maturity` (seedling/budding/evergreen), `status` (current/caution/deprecated/archived), `decay_class`, and `related` (cross-references to other entries).
+
+**Dependency:** None — can implement independently. Related to #46 (stack/platform conditional metadata) which would add `requires_stack` and `applies_to` fields for finer-grained filtering.
+
+**Origin:** Hermes Agent evaluation (2026-04-01), expanded 2026-05-10 after diagnosing zero-surfacing problem in production logs and identifying the governance-vs-implementation query mismatch as root cause.
 
 ---
 
