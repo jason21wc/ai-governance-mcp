@@ -82,6 +82,36 @@
 
 ---
 
+### C-012. Security Posture Review — External Framework Alignment
+
+**What:** Quarterly review of external AI security frameworks against CFR coverage. Checks for updates to OWASP Agentic Top 10, CISA AI advisories, MITRE ATLAS, Microsoft Agent Governance Toolkit, CSA R.A.I.L.G.U.A.R.D, and NIST AI RMF. Compares against Title 10 methods and §5.6.4 OWASP cross-reference. Flags gaps as BACKLOG items.
+**Cadence:** ~90 calendar days (quarterly).
+
+**Procedure:**
+1. Check OWASP Top 10 for Agentic Applications (genai.owasp.org) — any updates since last review?
+2. Check CISA Known Exploited Vulnerabilities (cisa.gov/known-exploited-vulnerabilities-catalog) — AI-relevant advisories?
+3. Check MITRE ATLAS (atlas.mitre.org) — new AI attack techniques?
+4. Check Microsoft Agent Governance Toolkit — new releases or capabilities?
+5. Check NIST AI RMF and NVD — AI-related framework updates?
+6. Check CSA R.A.I.L.G.U.A.R.D framework — updates to AI guardrail recommendations?
+7. Compare findings against §10.3.5 OWASP Agentic Alignment Matrix — any new risks not covered?
+8. Compare findings against §5.6.4 OWASP Security Framework Cross-Reference — any framework updates?
+9. For each gap: file BACKLOG item with external framework reference, proposed CFR coverage, and priority.
+10. Update §10.3.5 matrix if OWASP Agentic Top 10 has changed.
+
+**Canonical sources:**
+- NIST NVD (nvd.nist.gov) — CVE database
+- CISA KEV (cisa.gov/known-exploited-vulnerabilities-catalog) — actively exploited vulnerabilities
+- OWASP Top 10 for LLM + Agentic AI (genai.owasp.org)
+- MITRE ATLAS (atlas.mitre.org) — AI attack framework
+- NIST AI RMF (ai-100-1) — AI Risk Management Framework
+
+**Reviews completed:** None (new cadence).
+**Next due:** ~2026-08-08.
+**Origin:** BACKLOG #12, session-165. Addresses gap: no periodic check of external AI security frameworks against CFR coverage.
+
+---
+
 ## Tripwires
 
 > Conditional re-evaluations. Watch indefinitely. Close on event-trigger firing (promotes to BACKLOG project) OR accepted-residual decision. Each entry has explicit trigger conditions.

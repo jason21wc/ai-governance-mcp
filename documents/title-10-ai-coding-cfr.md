@@ -1,7 +1,7 @@
 ---
-version: "2.44.1"
+version: "2.45.0"
 status: "active"
-effective_date: "2026-05-03"
+effective_date: "2026-05-10"
 domain: "ai-coding"
 governance_level: "federal-regulations"
 ---
@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.44.0
+**Version:** 2.45.0
 **Status:** Active
-**Effective Date:** 2026-05-03
+**Effective Date:** 2026-05-10
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -173,6 +173,12 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Setting up project permissions / allowlist | Appendix A.5.6 | Recommended Permission Architecture |
 | Need lifecycle classification for project | §1.3.6 | Lifecycle Classification |
 | Prototype becoming production / transition review | §6.7 | Prototype-to-Production Transition Gate |
+| AI-generated code going to production | §10.1 | Approval Workflows + Production Readiness Gates |
+| AI generating infrastructure (Terraform, IaC) | §10.2 | IaC Generation Governance + Secure Defaults |
+| Agent performing destructive operation | §10.3.4 | Destructive Action Pre-Verification |
+| Agent rollback vs fix-forward decision | §10.3.2 | AI Agent Rollback Semantics |
+| OWASP agentic security review | §10.3.5 | OWASP Agentic Alignment Matrix |
+| AI-caused production incident review | §10.4 | AI-Specific Incident Review + Governance Feedback |
 | Design-first workflow / types before implementation | §2.6 | Design-First Implementation Sequence |
 | Type system setup / strict mode configuration | §3.1.6 | Type-First Development Pattern |
 | Context files seem stale / drift detection | §3.3.6 | Context Drift Detection and Prevention |
@@ -220,12 +226,12 @@ SPECIFY ──→ PLAN ──→ TASKS ──→ IMPLEMENT
 | Sequential Phase Dependencies | Titles 2-5 (All Phases) |
 | Validation Gates | Title 6 (Validation) |
 | Atomic Task Decomposition | Title 4 (Tasks) |
-| Human-AI Collaboration Model | Title 8 (Collaboration) |
-| Production-Ready Standards | Title 5 (Implement) |
+| Human-AI Collaboration Model | Title 8 (Collaboration), Title 10 (Agent Operations) |
+| Production-Ready Standards | Title 5 (Implement), Title 10 (Agent Operations) |
 | Security-First Development | Title 5 (Implement) |
 | Testing Integration | Title 5 (Implement) |
 | Supply Chain Integrity | Title 5 (Implement) |
-| Workflow Integrity | Title 5 (Tool Security), Title 8 (Collaboration) |
+| Workflow Integrity | Title 5 (Tool Security), Title 8 (Collaboration), Title 10 (Agent Operations) |
 
 > **Note:** Workflow Integrity spans two titles. Title 5 covers AI coding tool configuration security during implementation. Title 8 covers human-AI interaction protocols.
 
@@ -3216,7 +3222,7 @@ AI coding tools can delete data, overwrite files, and execute arbitrary commands
 
 **OWASP Top 10 for LLM Applications (2025):** LLM01 Prompt Injection, LLM02 Sensitive Info Disclosure, LLM03 Supply Chain, LLM06 Excessive Agency, LLM07 System Prompt Leakage
 
-**OWASP Top 10 for Agentic Applications (2026):** ASI01 Agent Goal Hijack, ASI02 Tool Misuse, ASI03 Identity/Privilege Abuse, ASI04 Supply Chain, ASI05 Unexpected Code Execution, ASI06 Excessive Autonomy, ASI07 Prompt & Context Manipulation, ASI08 Multi-Agent Trust Exploitation, ASI09 Human-Agent Trust Exploitation, ASI10 Insufficient Oversight
+**OWASP Top 10 for Agentic Applications (2026):** ASI01 Agent Goal Hijack, ASI02 Tool Misuse, ASI03 Identity/Privilege Abuse, ASI04 Supply Chain, ASI05 Unexpected Code Execution, ASI06 Excessive Autonomy, ASI07 Prompt & Context Manipulation, ASI08 Cascading Hallucination Chains, ASI09 Human-Agent Trust Exploitation, ASI10 Insufficient Oversight
 
 **OWASP MCP Top 10 (2025):** MCP01 Token Mismanagement, MCP02 Privilege Escalation/Scope Creep, MCP03 Tool Poisoning, MCP04 Supply Chain/Dependency Tampering, MCP05 Command Injection, MCP06 Intent Flow Subversion, MCP07 Insufficient Auth/Authz, MCP08 Lack of Audit/Telemetry, MCP09 Shadow MCP Servers, MCP10 Context Injection/Over-Sharing
 
@@ -7145,6 +7151,8 @@ Define conditions that require human decision-making. Prevents both automation b
 
 AI should make reasonable decisions within established patterns without constant escalation.
 
+> **Cross-reference:** For post-deployment incident review when AI-generated changes fail in production, see §10.4 (AI-Specific Incident Review). §8.1 handles escalation during development; §10.4 handles review after deployment.
+
 ---
 
 ## Part 8.2: Decision Presentation
@@ -8806,6 +8814,8 @@ A 16-item sweep checklist consolidating the most commonly-missed production hard
 | 16 | Semantic code analysis enabled (CodeQL or equivalent) | §6.4.11 | Production projects | Verify CodeQL/SAST workflow runs on PRs and results are required for merge |
 
 > **Usage:** Copy this table into your project's release checklist. Skip items where "Applies If" doesn't match your project. Items 1, 4, 5, 8, 10, 14 are universal; items 2, 3, 6, 7, 9, 11, 12, 13 apply when their conditions are met.
+>
+> **AI-specific extensions:** For AI-generated code going to production, see §10.1.3 (Production Readiness Gates) for additional AI-specific checks (governance evaluation, AI security blind spots, blast radius assessment).
 
 ---
 
@@ -9638,6 +9648,497 @@ Do you keep pasting the same instructions?
 
 ---
 
+# TITLE 10: AI AGENT OPERATIONS GOVERNANCE
+
+**Importance: 🔴 CRITICAL — Governs what happens when AI-generated code reaches the deployment boundary**
+
+**Implements:** Production-Ready Standards (Domain), Human-AI Collaboration Model (Domain), Workflow Integrity (Domain)
+**Applies To:** AI-assisted deployment, infrastructure generation, agent operational boundaries, and post-deployment incident review
+
+**Scope:** This Title governs **AI-specific operations governance** — the guardrails needed when AI assistants and agents interact with deployment pipelines, infrastructure, and production systems. It does NOT replace general DevOps practices (deployment strategy selection, severity classification, environment progression) — those remain with organization operations policies. This Title addresses the governance gap at the boundary where AI-generated code meets production.
+
+**Jurisdictional boundary with §8.1:** Escalation Triggers (§8.1) governs when to escalate *during development* — scope changes, architecture decisions, security concerns. Title 10 governs what happens *after AI-generated changes reach the deployment boundary* — approval workflows, agent operational limits, and incident review when AI-generated code fails in production. These are complementary. §10.4 references §8.1 for escalation routing; §8.1 can reference §10.4 for production-incident specifics.
+
+---
+
+## Part 10.1: AI-Assisted Deployment Governance
+
+### 10.1.1 Deployment Governance Scope
+
+**Applies To:** any workflow where **AI-generated code** is deployed to staging or production — establishing human approval requirements, readiness verification, and deployment authorization proportional to blast radius
+
+This Part establishes the **human approval requirements** for AI-generated changes before they reach production. The core question: what level of human review does AI-generated code require before deployment, and how does that vary by blast radius?
+
+**Evidence basis:** The Amazon storefront incident (Mar 2026) — AI-assisted code changes deployed to production without adequate approval — caused 6.3M lost orders and a 99% drop in US order volume. The root cause was not the code quality but the **absence of approval gates** proportional to the change's blast radius.
+
+> **Bold triggers:** **deployment governance**, **AI deployment approval**, **production readiness**, **deployment authorization**, **blast radius approval**
+
+---
+
+### 10.1.2 Approval Workflows for AI-Generated Changes
+
+**Applies To:** determining the appropriate **human review level** before AI-generated code reaches production — matching approval rigor to change type, blast radius, and reversibility
+
+AI-generated changes require human approval gates proportional to their potential impact. The approval level is determined by two factors: the **change type** (what kind of modification) and the **blast radius** (how many systems/users are affected if it fails).
+
+**Human Approval Matrix:**
+
+| Change Type | Blast Radius | Required Approval | Rationale |
+|-------------|-------------|-------------------|-----------|
+| Configuration change | Single service | Code review (1 reviewer) | Low risk, easily reversible |
+| Feature code | Single service | Code review + automated gates | Standard development flow |
+| Database schema migration | Service + data | Code review + DBA/senior review + migration plan | Data changes are hard to reverse |
+| Infrastructure change (IaC) | Multi-service | Code review + IaC plan review (§10.2.2) | Infrastructure failures cascade |
+| Security-sensitive change | Any | Code review + security review (§5.7) | Security changes require specialist review |
+| Cross-service API change | Multiple services | Code review + API owner review | Contract changes affect consumers |
+| Production deployment config | Production | Code review + deployment lead approval | Direct production impact |
+| Destructive operation | Any | Mandatory human approval (§10.3.4) | Irreversible actions require explicit authorization |
+
+**AI-specific approval requirements:**
+- AI-generated code that touches **authentication, authorization, or cryptography** always requires security-specialist review regardless of blast radius
+- AI-generated **database migrations** require the AI to present the migration plan (up AND down) with rollback verification before approval
+- When AI generates changes spanning **>3 files**, the review should verify architectural coherence, not just individual file correctness
+- AI must not self-approve — the reviewer must be a different agent or human than the generator
+
+**Anti-pattern: The "LGTM" Rubber Stamp.** The Amazon storefront failure occurred not because no review existed, but because AI-generated changes were approved without meaningful scrutiny. Reviews must verify: (1) the change matches the stated intent, (2) test coverage exists for the change, (3) rollback is possible, (4) blast radius is correctly assessed.
+
+> **Cross-references:** §8.1 (Escalation Triggers — when to escalate during development), §5.6.3 (Destructive Action Prevention — the 5 prevention rules), `coding-process-human-ai-collaboration-model` (Decision Authority Matrix)
+
+> **Bold triggers:** **approval workflow**, **human approval matrix**, **deployment review**, **AI code review**, **blast radius**
+
+---
+
+### 10.1.3 Production Readiness Gates
+
+**Applies To:** verifying AI-generated code meets **production deployment criteria** before release — extending standard production readiness (Appendix H) with AI-specific verification steps
+
+Before AI-generated changes are deployed to production, they must pass through production readiness gates that extend the standard Production Hardening Checklist (Appendix H) with AI-specific checks.
+
+**AI-Specific Production Readiness Checklist:**
+
+- [ ] **Test coverage verified** — AI-generated code has test coverage ≥80% (per `coding-quality-production-ready-standards`); tests were reviewed by a human, not just AI-generated alongside the code
+- [ ] **Security scan clean** — No HIGH/CRITICAL vulnerabilities in AI-generated code; AI security blind spots (§5.3.5) specifically checked
+- [ ] **Governance evaluation passed** — `evaluate_governance()` called for the deployment action; no ESCALATE assessment outstanding
+- [ ] **Rollback plan documented** — Rollback strategy defined per §5.1.5; rollback tested or verified possible
+- [ ] **Blast radius assessed** — Change categorized per the Approval Matrix (§10.1.2); appropriate approval obtained
+- [ ] **Dependency review** — AI-generated dependency additions verified against slopsquatting defense (§5.4.5) and supply chain hardening (§6.4.6)
+- [ ] **Configuration validation** — Pre-flight validation (§9.1) passes; environment-specific configs verified
+- [ ] **Monitoring instrumented** — Logging, error tracking, and observability present for AI-generated endpoints/services (per production-ready standards)
+
+**Go/No-Go Decision:**
+- **GO:** All checklist items pass, appropriate approval obtained per §10.1.2
+- **NO-GO:** Any checklist item fails → fix before resubmitting; do not bypass gates
+- **CONDITIONAL GO:** Non-blocking items (e.g., documentation gaps) can proceed with a follow-up ticket; blocking items (security, testing, rollback) cannot
+
+> **Cross-references:** Appendix H (Production Hardening Checklist), §6.6 (AI Complexity Risk Monitoring), §6.7 (Lifecycle-Proportional Governance — transition gates)
+
+> **Bold triggers:** **production readiness**, **go no-go**, **deployment checklist**, **readiness gates**, **pre-deployment verification**
+
+---
+
+### 10.1.4 Deployment Governance Checklist
+
+**Applies To:** quick-reference checklist for AI-assisted deployments
+
+- [ ] Change type and blast radius identified (§10.1.2)
+- [ ] Approval level matches the Approval Matrix
+- [ ] Production readiness gates passed (§10.1.3)
+- [ ] Rollback plan documented and verified (§5.1.5)
+- [ ] Post-deployment monitoring plan in place
+
+> **Bold triggers:** **deployment checklist**, **deployment governance checklist**
+
+---
+
+## Part 10.2: Infrastructure-as-Code Governance
+
+### 10.2.1 IaC Governance Scope
+
+**Applies To:** any workflow where AI generates **infrastructure definitions** (Terraform, Pulumi, CloudFormation, Kubernetes manifests, Docker Compose) — ensuring plan-before-apply discipline, secure defaults, and backup awareness
+
+AI assistants increasingly generate infrastructure code. Unlike application code, infrastructure changes have immediate real-world effects: a misconfigured security group exposes services, a deleted volume destroys data, a malformed IAM policy grants excessive access. This Part establishes governance for AI-generated infrastructure.
+
+> **Bold triggers:** **infrastructure as code**, **IaC governance**, **Terraform**, **Pulumi**, **infrastructure generation**
+
+---
+
+### 10.2.2 IaC Generation Governance
+
+**Applies To:** AI-generated infrastructure definitions — enforcing **plan-before-apply**, drift detection, and review requirements before infrastructure changes take effect
+
+**Plan-Before-Apply (Mandatory):**
+AI-generated infrastructure changes MUST follow a plan-then-apply workflow. The AI must never directly apply infrastructure changes without human review of the execution plan.
+
+**Procedure:**
+1. **Generate** — AI produces the IaC definition (Terraform HCL, Pulumi code, etc.)
+2. **Plan** — Execute `terraform plan` / `pulumi preview` / equivalent to show proposed changes
+3. **Review** — Human reviews the plan output, specifically checking for:
+   - Resources being **destroyed** (flagged for §10.2.4 backup verification)
+   - Resources being **replaced** (destroy + create — data loss risk)
+   - Security group / IAM / network changes (access control impact)
+   - Cost implications of new resources
+4. **Approve** — Human explicitly approves the plan
+5. **Apply** — Execute the approved plan (ideally within a CI/CD pipeline, not local CLI)
+
+**Drift Detection:**
+- After AI-generated infrastructure is deployed, enable **drift detection** to identify unauthorized changes
+- Drift from the declared state should trigger investigation, not automatic correction — the drift may represent legitimate manual intervention
+- Schedule periodic `terraform plan` / equivalent in CI to detect drift
+
+**AI-Generated IaC Review Focus Areas:**
+
+| Focus Area | What to Check | Why AI Gets This Wrong |
+|-----------|---------------|----------------------|
+| Security groups | Overly permissive rules (0.0.0.0/0) | AI defaults to "make it work" over "make it secure" |
+| IAM policies | Wildcard permissions (*) | AI uses broad permissions to avoid permission errors |
+| Storage encryption | Unencrypted volumes/buckets | AI may omit encryption if not in the prompt |
+| Network exposure | Public subnets for private services | AI defaults to simplest networking |
+| Resource sizing | Over-provisioned or under-provisioned | AI lacks cost context |
+| State management | Remote state configuration | AI may default to local state |
+
+> **Cross-references:** §5.3.5 (AI-Generated Code Security Patterns — AI security blind spots), §6.4 (Automated Validation — CI/CD pipeline)
+
+> **Bold triggers:** **plan before apply**, **terraform plan**, **infrastructure review**, **drift detection**, **IaC review**
+
+---
+
+### 10.2.3 Secure Defaults for AI-Generated Infrastructure
+
+**Applies To:** establishing **default-secure patterns** for AI-generated infrastructure — preventing common insecure defaults that AI selects when security requirements are not explicit
+
+AI tends toward the **path of least resistance** when generating infrastructure. Without explicit security constraints, AI selects defaults that prioritize functionality over security:
+
+**Common Insecure AI Defaults and Secure Alternatives:**
+
+| Resource | Insecure Default AI Selects | Secure Alternative |
+|----------|---------------------------|-------------------|
+| Security group | Ingress 0.0.0.0/0 on all ports | Allow only required ports from known CIDRs |
+| S3 bucket | Public access enabled | Block all public access; bucket policy for authorized access only |
+| RDS instance | Publicly accessible, no encryption | Private subnet, encryption at rest + in transit |
+| IAM role | AdministratorAccess policy | Least-privilege custom policy scoped to required actions |
+| ECS task | Root user, no read-only filesystem | Non-root user, read-only root filesystem |
+| API Gateway | No authentication | API key or OAuth required |
+| Kubernetes pod | No resource limits, privileged mode | CPU/memory limits, non-privileged, read-only root FS |
+
+**Rule:** When AI generates infrastructure without explicit security requirements, apply the **secure alternative** column above as the default. If the AI's generated infrastructure matches the "insecure default" column, flag for review before applying.
+
+> **Cross-references:** §5.11.1 (Zero Trust Design Principles — default-deny), §5.3.5 (AI-Generated Code Security Patterns)
+
+> **Bold triggers:** **secure defaults**, **infrastructure security**, **default deny**, **least privilege infrastructure**
+
+---
+
+### 10.2.4 Backup Topology Awareness
+
+**Applies To:** preventing AI from destroying data by requiring **pre-destruction verification** of backup state, recovery procedures, and dependent services before any destructive infrastructure operation
+
+**MANDATORY PRE-DESTRUCTION VERIFICATION:** Before any AI-initiated or AI-recommended infrastructure destruction (resource deletion, volume removal, database drop, environment teardown), the AI MUST verify:
+
+1. **Backup exists and is current** — When was the last backup? Is it restorable? Has it been tested?
+2. **Recovery procedure is documented** — How to restore from backup? What is the expected recovery time?
+3. **No dependent services** — Are other services relying on this resource? What breaks if it's removed?
+4. **Destruction is the right action** — Is there an alternative (scale down, stop, snapshot + remove)?
+
+**Case Study: PocketOS (2025).** A coding agent deleted a Railway volume without understanding backup topology. Result: 3 months of production data permanently lost. The agent understood the deletion command but not the data recovery implications. The failure was not in the agent's ability to execute the command but in its lack of **backup topology awareness** — it didn't know (and didn't check) whether backups existed.
+
+**Pre-Destruction Checklist:**
+- [ ] Resource identified for destruction with explicit justification
+- [ ] Backup verified: exists, is current (within RPO), and is restorable
+- [ ] Dependent services audit: no active consumers of this resource
+- [ ] Recovery procedure documented and tested (or acknowledged as unavailable)
+- [ ] Human approval obtained (mandatory for production resources per §10.1.2)
+- [ ] Alternative to destruction evaluated (stop/snapshot instead of delete)
+
+> **Cross-references:** §5.10 (Production Resilience Patterns), §5.6.3 (Destructive Action Prevention), §5.12 (Stateful System Interaction Patterns)
+
+> **Bold triggers:** **backup topology**, **pre-destruction verification**, **data loss prevention**, **resource deletion**, **backup verification**
+
+---
+
+### 10.2.5 IaC Review Checklist
+
+**Applies To:** quick-reference for reviewing AI-generated infrastructure code
+
+- [ ] Plan-before-apply followed (§10.2.2) — plan output reviewed by human
+- [ ] No overly permissive security groups (0.0.0.0/0 ingress)
+- [ ] No wildcard IAM policies (*)
+- [ ] Storage encrypted at rest and in transit
+- [ ] Resources in private subnets unless public access required
+- [ ] Resource sizing reviewed for cost
+- [ ] State management configured (remote state, not local)
+- [ ] Destructive changes verified against §10.2.4
+
+> **Bold triggers:** **IaC checklist**, **infrastructure review checklist**
+
+---
+
+## Part 10.3: AI Agent Operational Boundaries
+
+### 10.3.1 Agent Operational Scope
+
+**Applies To:** establishing **operational boundaries** for AI agents performing deployment, infrastructure, and production operations — defining what agents can do autonomously, what requires human approval, and what is prohibited
+
+This Part defines the operational boundaries for AI agents interacting with production systems. The core principle: agents MUST prefer **reversible, conservative actions** over irreversible, aggressive ones. When an agent encounters a production issue, the correct response is almost always "revert to known-good state" not "attempt to fix forward."
+
+**Evidence basis:** The Amazon Kiro incident (Dec 2025) — an AI agent decided delete-and-rebuild was the "most efficient" fix for a production environment, causing a 13-hour outage. The agent's error was not technical incompetence but **incorrect operational judgment** — it chose the highest-risk action because it optimized for "efficiency" without weighting reversibility.
+
+> **Bold triggers:** **agent boundaries**, **operational boundaries**, **agent operations**, **production agent**, **agent limits**
+
+---
+
+### 10.3.2 AI Agent Rollback Semantics
+
+**Applies To:** defining **rollback-first behavior** for AI agents encountering production failures — agents MUST revert to known-good state, not attempt creative fixes that compound the problem
+
+**The Rollback-First Rule:** When an AI agent detects or causes a production issue, the agent MUST:
+1. **STOP** further changes immediately
+2. **REVERT** to the last known-good state (git revert, deployment rollback, config restore)
+3. **REPORT** the issue with full context to a human
+4. **WAIT** for human decision before attempting any fix
+
+**The agent must NOT:**
+- Attempt to "fix forward" without human approval
+- Delete and rebuild resources (the Kiro anti-pattern)
+- Apply multiple successive fixes hoping one works (fix spiral — see §5.13.4)
+- Make the problem worse by compounding changes on a failing system
+
+**Rollback Decision Tree:**
+
+```
+Production issue detected
+    │
+    ├── Can revert to known-good state?
+    │   ├── YES → Revert immediately, report to human
+    │   └── NO → STOP all changes, report to human, wait for decision
+    │
+    └── Issue caused by AI's own changes?
+        ├── YES → Revert AI changes, report, wait
+        └── NO → Report only, do NOT attempt fix without human approval
+```
+
+**The Double-Down Anti-Pattern (Kiro Pattern):**
+When an initial action fails or produces unexpected results, AI agents have a tendency to escalate — applying increasingly aggressive "fixes" that compound the original problem. This is the same forward-continuation bias that causes fix spirals in development (§5.13.4), but with production-scale consequences.
+
+**Prevention:** After any failed production action, the agent's available action set shrinks to `{revert, report, wait}`. The agent cannot expand its own authority after a failure.
+
+> **Cross-references:** §5.1.5 (Rollback Strategy — rollback planning checklist), §5.13.4 (Fix Decay Protocol — iteration limits for debugging)
+
+> **Bold triggers:** **rollback semantics**, **rollback first**, **revert not fix**, **double-down prevention**, **agent rollback**
+
+---
+
+### 10.3.3 Agent Credential Scoping
+
+**Applies To:** governing **machine identity and credential management** for AI agents — enforcing least-privilege, per-task scoping, and credential rotation for agent service accounts
+
+AI agents operating on infrastructure require credentials (API keys, service account tokens, cloud IAM roles). These credentials must follow **least-privilege** and **per-task scoping** — an agent performing a deployment should not have credentials to delete the database.
+
+**Credential Scoping Rules:**
+1. **Per-task credentials** — Each agent task should use credentials scoped to that specific task. A deployment agent gets deploy permissions, not admin permissions.
+2. **Time-limited tokens** — Prefer short-lived tokens (OAuth2 client credentials with short expiry, STS assume-role with session duration) over long-lived API keys
+3. **No credential sharing** — Different agents (or different tasks for the same agent) should not share credentials. If agent A's credentials are compromised, agent B's access should be unaffected.
+4. **Credential rotation** — Agent credentials follow the same rotation schedule as human credentials (per §5.11.4)
+5. **Audit trail** — All credential usage by agents is logged with the agent identity, task context, and action performed
+
+**Machine Identity Governance:**
+- Every AI agent operating on infrastructure has a **distinct machine identity** (service account, IAM role, or API key) traceable to a specific agent definition
+- Agent identities are registered and reviewed — no "shared" service accounts used by multiple agents
+- Agent permissions are reviewed quarterly as part of the security posture review (C-012)
+
+> **Cross-references:** §5.11.2 (Service Identity and Credential Lifecycle), §5.6.2 (Credential Isolation and Secrets Management), §5.6.7 (Cross-System Authority Model), §5.11.4 (Secret Rotation Procedures)
+
+> **Bold triggers:** **credential scoping**, **agent credentials**, **machine identity**, **least privilege agent**, **service account governance**
+
+---
+
+### 10.3.4 Destructive Action Pre-Verification
+
+**Applies To:** requiring **mandatory pre-verification** before any AI-initiated destructive action on production systems — extending §5.6.3 with production-specific verification requirements
+
+§5.6.3 establishes 5 prevention rules for destructive actions in development. This section extends those rules to **production-scope destructive actions** — operations where the consequences are immediate, real, and potentially irreversible.
+
+**Definition of "Destructive Action":**
+Any operation that deletes, overwrites, or irreversibly modifies production data, infrastructure, or configuration. Includes but not limited to: database drops/truncates, volume deletion, environment teardown, force-push to production branch, DNS changes, certificate revocation, IAM policy removal.
+
+**Mandatory Pre-Verification Protocol:**
+
+1. **Verify backup state** (per §10.2.4) — Backup exists, is current, is restorable
+2. **Confirm no dependent services** — No active consumers of the target resource
+3. **Check blast radius** — Categorize per §10.1.2 Approval Matrix
+4. **Obtain human approval** — Mandatory for all production-destructive actions. No exceptions. No "the agent decided it was safe."
+5. **Log the authorization** — Record who approved, what was approved, when, and the stated justification
+
+**Prohibited Agent Actions (No Override):**
+- Deleting production databases or volumes without human approval
+- Force-pushing to production/release branches
+- Revoking production SSL certificates
+- Modifying production DNS records
+- Removing production IAM roles or policies
+- Scaling production to zero without human approval
+
+**Violation Response:** If an agent performs a destructive production action without completing the pre-verification protocol, treat as a **security incident** (§10.4.2). Review the agent's credential scoping (§10.3.3) and operational boundaries for gaps.
+
+> **Cross-references:** §5.6.3 (Destructive Action Prevention — development-scope rules), §10.2.4 (Backup Topology Awareness), §10.1.2 (Approval Workflows)
+
+> **Bold triggers:** **destructive action**, **pre-verification**, **production destruction**, **mandatory approval**, **irreversible operation**
+
+---
+
+### 10.3.5 OWASP Agentic Alignment Matrix
+
+**Applies To:** mapping **OWASP Top 10 for Agentic Applications** risks to specific CFR sections — providing a complete coverage matrix and identifying gaps for the security posture review (C-012)
+
+This matrix extends §5.6.4 (OWASP Security Framework Cross-Reference) with a detailed mapping of each OWASP Agentic risk to specific CFR sections that address it. Use this matrix during security reviews and as the baseline for quarterly security posture reviews (C-012 in OPERATIONS.md).
+
+**OWASP Agentic Top 10 → CFR Coverage Matrix:**
+
+| OWASP Risk | CFR Coverage | Gap Status |
+|-----------|-------------|------------|
+| **ASI01** Agent Goal Hijack | §5.6.1 (coding tool injection defense), §9.3.10 (enforcement stack) | Covered |
+| **ASI02** Tool Misuse | §10.3.4 (destructive action pre-verification), §5.6.3 (destructive action prevention), §10.3.2 (rollback semantics) | Covered |
+| **ASI03** Identity/Privilege Abuse | §10.3.3 (agent credential scoping), §5.11.2 (service identity lifecycle), §5.6.2 (credential isolation) | Covered |
+| **ASI04** Supply Chain | §6.4.6 (supply chain hardening), §5.4.5 (slopsquatting defense), §5.6.5 (MCP server vetting) | Covered |
+| **ASI05** Unexpected Code Execution | §5.3.5 (AI-generated code security patterns), §5.6.1 (injection defense) | Covered |
+| **ASI06** Excessive Autonomy | §10.1.2 (approval workflows), §8.1 (escalation triggers), §10.3.1 (operational boundaries) | Covered |
+| **ASI07** Prompt & Context Manipulation | §5.6.1 (tool poisoning defense), §5.6.5 (MCP vetting), §9.3.10 (enforcement stack) | Covered |
+| **ASI08** Cascading Failures | §10.3.2 (rollback-first rule), §5.10.5 (circuit breaker pattern), §5.13.4 (fix decay) | Covered |
+| **ASI09** Human-Agent Trust Exploitation | §10.1.2 (approval matrix — anti-rubber-stamp), §8.1.2 (mandatory escalation) | Covered |
+| **ASI10** Insufficient Oversight | §10.1.3 (production readiness gates), §10.4.2 (incident review), §5.11.3 (audit logging) | Covered |
+
+**Using this matrix:**
+- During **security reviews**: walk through each ASI item and verify the referenced CFR sections are being followed
+- During **quarterly posture reviews** (C-012): check if OWASP has updated the Agentic Top 10; if new risks are added, create BACKLOG items for coverage
+- When **new agent capabilities** are added: verify coverage against all 10 ASI items
+
+> **Cross-references:** §5.6.4 (OWASP Security Framework Cross-Reference — LLM, Agentic, and MCP Top 10 listings)
+
+> **Bold triggers:** **OWASP agentic**, **ASI matrix**, **agentic alignment**, **security coverage matrix**, **OWASP mapping**
+
+---
+
+### 10.3.6 Agent Operational Boundaries Checklist
+
+**Applies To:** quick-reference for AI agent operational governance
+
+- [ ] Agent has rollback-first behavior defined (§10.3.2)
+- [ ] Agent credentials scoped to task, not broad access (§10.3.3)
+- [ ] Destructive actions require human approval (§10.3.4)
+- [ ] Agent's action set shrinks (not expands) after failures
+- [ ] OWASP Agentic risks reviewed for agent's capability set (§10.3.5)
+- [ ] Agent identity is distinct and auditable (not shared service account)
+
+> **Bold triggers:** **agent checklist**, **operational boundaries checklist**
+
+---
+
+## Part 10.4: AI-Specific Incident Review
+
+### 10.4.1 Incident Review Scope
+
+**Applies To:** reviewing incidents **caused by or related to AI-generated code or AI agent actions** — structured postmortem with AI-specific review questions and governance feedback loop
+
+**Jurisdictional note:** §8.1 (Escalation Triggers) handles escalation routing *during development* — when to stop and ask a human. This Part handles *post-deployment review* — what to do when AI-generated changes cause incidents in production. They are complementary:
+- Development phase → §8.1 escalation triggers
+- Production incident → §10.4 incident review
+- Incident reveals development-phase gap → §10.4.3 feeds back to governance
+
+> **Bold triggers:** **incident review**, **AI incident**, **postmortem**, **AI-caused incident**, **production failure review**
+
+---
+
+### 10.4.2 AI-Caused Incident Review
+
+**Applies To:** conducting **blameless postmortem reviews** for incidents involving AI-generated code or AI agent actions — with AI-specific review questions that identify governance gaps
+
+When an incident involves AI-generated code or AI agent actions, the standard postmortem process gains additional AI-specific review questions:
+
+**AI-Specific Postmortem Questions:**
+
+1. **Context sufficiency** — Did the AI have sufficient context to make the right decision? Was relevant information missing from the prompt, context files, or governance system?
+2. **Governance evaluation** — Was `evaluate_governance()` called before the action? Did the assessment identify the risk? If not, why did retrieval miss?
+3. **Approval workflow** — Was the appropriate approval level applied per §10.1.2? Was the approval meaningful (substantive review) or rubber-stamped?
+4. **Rollback readiness** — Was a rollback strategy defined (§5.1.5)? Was rollback possible when needed? If rollback failed, why?
+5. **Principle gap** — Does a governance principle exist that should have prevented this? If yes, why didn't it surface? If no, should one be created?
+6. **Agent operational boundaries** — Did the agent stay within its defined boundaries (§10.3.1)? If not, what boundary was violated and why?
+7. **Test coverage** — Did tests exist for the failure scenario? Were tests AI-generated, and if so, did they cover the actual failure mode?
+
+**Postmortem Template:**
+```
+## Incident: [Title]
+**Date:** [When]  **Severity:** [Impact level]  **Duration:** [Time to resolution]
+
+### What happened
+[Factual timeline]
+
+### AI involvement
+[What AI generated/decided/executed]
+
+### AI-specific review
+1. Context sufficiency: [answer]
+2. Governance evaluation: [answer]
+3. Approval workflow: [answer]
+4. Rollback readiness: [answer]
+5. Principle gap: [answer]
+6. Agent boundaries: [answer]
+7. Test coverage: [answer]
+
+### Root cause
+[Structural cause, not individual blame]
+
+### Action items
+- [ ] [Action] — owner, due date
+```
+
+> **Cross-references:** §8.1.2 (Mandatory Escalation — fix spiral detection), §5.13 (Structured Debugging Protocol)
+
+> **Bold triggers:** **postmortem template**, **incident postmortem**, **AI incident review**, **blameless postmortem**
+
+---
+
+### 10.4.3 Governance Feedback Loop
+
+**Applies To:** translating **incident findings into governance improvements** — closing the loop between production incidents and framework evolution
+
+When incident review (§10.4.2) reveals a governance gap — a missing principle, an insufficient method, a retrieval failure — the gap must be tracked and addressed:
+
+**Gap Classification and Response:**
+
+| Gap Type | Response | Tracking |
+|----------|----------|----------|
+| Missing principle | Draft new principle addressing the failure mode | BACKLOG item, priority based on incident severity |
+| Insufficient method | Expand existing method to cover the gap | BACKLOG item |
+| Retrieval failure | Tune keywords, bold triggers, or domain routing | BACKLOG item, classify as retrieval quality |
+| Approval workflow gap | Update §10.1.2 Approval Matrix | Direct fix (≤3 files) |
+| Agent boundary violation | Tighten §10.3 boundaries, review credential scoping | Direct fix + security review |
+
+**Feedback Loop Procedure:**
+1. Complete incident postmortem (§10.4.2)
+2. Identify governance gaps from AI-specific review questions
+3. Classify each gap per the table above
+4. File BACKLOG items with incident reference and proposed fix
+5. For security-related gaps, escalate to next security posture review (C-012)
+
+> **Cross-references:** §10.4.2 (AI-Caused Incident Review), BACKLOG.md (gap tracking), OPERATIONS.md C-012 (security posture review)
+
+> **Bold triggers:** **governance feedback**, **feedback loop**, **incident to governance**, **governance gap**, **framework improvement**
+
+---
+
+### 10.4.4 Incident Review Checklist
+
+**Applies To:** quick-reference for AI-related incident reviews
+
+- [ ] Postmortem conducted with AI-specific questions (§10.4.2)
+- [ ] Root cause identified (structural, not individual blame)
+- [ ] Governance gaps classified (§10.4.3)
+- [ ] BACKLOG items filed for identified gaps
+- [ ] Action items assigned with owners and due dates
+- [ ] Security-related gaps escalated to C-012 cadence
+
+> **Bold triggers:** **incident review checklist**, **postmortem checklist**
+
+---
+
 ## Appendix M: Optional Ecosystem Tools
 
 **Importance: 🟢 OPTIONAL — Adopt selectively when the framework value is clear**
@@ -9727,6 +10228,7 @@ Claude Code is a TUI that owns the terminal input area — Warp's normal click-t
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.45.0 | 2026-05-10 | **MINOR: Title 10 — AI Agent Operations Governance.** New Title 10 with 4 Parts (~700 lines) closing the governance gap at the deployment boundary. Part 10.1: AI-Assisted Deployment Governance (approval workflows for AI-generated changes with blast-radius matrix, production readiness gates extending Appendix H with AI-specific checks). Part 10.2: Infrastructure-as-Code Governance (plan-before-apply discipline, secure defaults table for AI-generated infrastructure, backup topology awareness with PocketOS case study). Part 10.3: AI Agent Operational Boundaries (rollback-first rule with Kiro anti-pattern, agent credential scoping, destructive action pre-verification protocol, OWASP Agentic Alignment Matrix mapping all ASI01-ASI10 to CFR sections). Part 10.4: AI-Specific Incident Review (postmortem template with 7 AI-specific review questions, governance feedback loop for translating incidents into principle improvements). Situation Index: +6 entries. Principles scope updated (title-10-ai-coding.md): deployment governance and incident review partially in-scope (AI-specific portions). domains.json: operations keywords added to ai-coding routing. OPERATIONS.md: C-012 Security Posture Review cadence (quarterly, OWASP/CISA/MITRE/Microsoft). Evidence base: OWASP Top 10 for Agentic Applications (Dec 2025), Amazon Kiro incident (Dec 2025), PocketOS incident (2025), Amazon storefront incident (Mar 2026), Microsoft Agent Governance Toolkit (Apr 2026). Scope trimmed from ~1,100 to ~700 lines after contrarian review — generic DevOps content (deployment strategy matrices, severity classification, environment progression) excluded per AI-specific focus. Closes BACKLOG #12. |
 | 2.44.1 | 2026-05-08 | PATCH: §7.1.6 Backlog File Structure lifecycle rule — added "or migrated to another file" to removal triggers with anti-stub rationale citing §6.5.5 SSOT. Prevents redirect-stub accumulation when items migrate between files. Governance: `gov-94506daeeb59`. |
 | 2.44.0 | 2026-05-05 | **MINOR: AI Coding Design Philosophy — Methods Integration.** Added 8 new sections implementing 3 new principles (Design-Architecture Supremacy, Context Engineering Discipline, Lifecycle-Proportional Governance): §1.3.6 Lifecycle Classification (orthogonal to mode selection, transition triggers, classification table), §1.5.6 Context Value Tiering (60-70% rule, 3-tier model), §2.6 Design-First Implementation Sequence (DEFINE→TEST→IMPLEMENT, anti-patterns), §3.1.6 Type-First Development Pattern (strict mode configs, type-completeness gate), §3.3.6 Context Drift Detection and Prevention (5-item checklist, remediation protocol), §5.1.7.2 Multi-Agent Validation Chain (4-stage chain, partial chain guidance), §6.6 AI Complexity Risk Monitoring (7-indicator threshold table, velocity dissipation pattern, context fragmentation protocol), §6.7 Prototype-to-Production Transition Gate (7 triggers, transition procedure, anti-patterns). Cross-references: §5.1.6 context currency check added. Situation Index: +9 entries. Governance: `gov-07287670fb01`. |
 | 2.43.3 | 2026-05-03 | PATCH: Constitutional rename propagation (BACKLOG #152). Updated 3 "Implements" / "Constitutional basis" lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Changelog entries (historical) preserved. Governance: `gov-d05cd633fc20`. |

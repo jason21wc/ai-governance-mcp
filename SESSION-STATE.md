@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-10 (session-165 — Governance Retrieval Quality Assessment + content enhancer application).
+**Last Updated:** 2026-05-10 (session-165 — Title 10 AI Agent Operations Governance).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,22 +12,21 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-165 (2026-05-10) Governance Retrieval Quality Assessment + content enhancer application.**
+**Session-165 (2026-05-10) Title 10 AI Agent Operations Governance.**
 
-**ACTION ON RESUME (session-166):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11 + critical-5 scaffold-theater assessment. **C-109 deferred-cadence audit** (~2026-05-25).
+**ACTION ON RESUME (session-166):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11 + critical-5 scaffold-theater assessment. **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08.
 
 **Critical state for next session:**
-- **BACKLOG #16 closed** — M-003 metric was the problem, not retrieval quality. Added `best_score` (float) logging to query_governance and evaluate_governance handlers. M-003 updated to prefer raw scores. Manual triage confirmed retrieval scores 0.47–0.87. MRR baselines healthy (0.644/0.625). BGE-small-en-v1.5 confirmed sufficient.
-- **Content gap noted:** "project initialization" query returns zero results — no principle covers this topic. Not a retrieval failure; a content gap.
-- **Dead principles:** 167 IDs never returned (12 principles, ~155 methods), all from actively-queried domains. Classified as long-tail niche content, not retrieval failures.
-- **Karpathy/Pinecone enhanced reference** delivered to user (ai-governance audience, Framework Alignment Map format).
-- **Tests:** 1611 passing (non-slow subset).
+- **BACKLOG #12 closed** — Title 10: AI Agent Operations Governance added to AI Coding CFR (v2.45.0). Four Parts (~700 lines): AI-Assisted Deployment Governance, Infrastructure-as-Code Governance, AI Agent Operational Boundaries, AI-Specific Incident Review. Quarterly security posture review cadence (C-012) added to OPERATIONS.md. 11 new integration tests pass. Scope trimmed from ~1,100 to ~700 after contrarian review.
+- **BACKLOG #16 closed** — M-003 metric was the problem, not retrieval quality. Added `best_score` (float) logging. BGE-small-en-v1.5 confirmed sufficient.
+- **Content gap noted:** "project initialization" query returns zero results — not a retrieval failure; a content gap.
+- **Dead principles:** 167 IDs never returned, classified as long-tail niche content.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-165 (2026-05-10) — Governance Retrieval Quality Assessment + content enhancer application.
+- **Phase:** Session-165 (2026-05-10) — Title 10 AI Agent Operations Governance (BACKLOG #12 closed).
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
 

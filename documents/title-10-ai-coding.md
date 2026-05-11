@@ -1,12 +1,12 @@
 ---
-version: "2.8.0"
+version: "2.8.1"
 status: "active"
-effective_date: "2026-05-03"
+effective_date: "2026-05-10"
 domain: "ai-coding"
 governance_level: "federal-statute"
 ---
 
-# AI Coding Domain Principles Framework v2.8.0
+# AI Coding Domain Principles Framework v2.8.1
 ## Federal Statutes for AI-Assisted Software Development
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -49,8 +49,8 @@ This document governs AI-assisted software development activities:
 ### Out of Scope (Handled Elsewhere)
 
 The following are NOT governed by this document:
-- **Release governance and deployment pipelines** → Organization policies, CI/CD standards
-- **Incident response and production monitoring** → Operations runbooks
+- **Release governance and deployment pipelines** → Organization deployment policies remain out of scope; **AI-specific deployment governance** (approval workflows, production readiness gates, agent operational boundaries) is covered by CFR Title 10
+- **Incident response and production monitoring** → General incident management remains out of scope; **AI-caused incident review** (postmortem with AI-specific questions, governance feedback loop) is covered by CFR Title 10
 - **Feedback loop contamination (model training on AI-generated code)** → Enterprise ML governance policies
 - **General AI safety and alignment** → Constitution S-Series (Bill of Rights)
 - **Non-coding AI applications** → Other domain principle documents

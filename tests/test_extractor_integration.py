@@ -387,3 +387,105 @@ class TestExtractorErrorHandling:
             # The empty domain should exist but have no principles
             if "empty" in index.domains:
                 assert len(index.domains["empty"].principles) == 0
+
+
+# =============================================================================
+# Title 10: AI Agent Operations Governance — Method Extraction Tests
+# =============================================================================
+
+
+class TestTitle10AgentOperations:
+    """Verify Title 10 methods are extracted from the ai-coding CFR.
+
+    These tests run the real extractor against the actual documents directory
+    to confirm Title 10 content produces valid coding-method-* IDs.
+    """
+
+    @pytest.fixture(autouse=True, scope="class")
+    def extract_real_index(self, request):
+        """Run the extractor against real documents once per test class."""
+        from unittest.mock import Mock, patch
+
+        mock_embedder = Mock()
+        mock_embedder.encode = Mock(
+            side_effect=lambda texts, **kwargs: np.random.rand(len(texts), 384)
+        )
+        mock_embedder.get_sentence_embedding_dimension = Mock(return_value=384)
+        mock_st = Mock(return_value=mock_embedder)
+
+        with patch("sentence_transformers.SentenceTransformer", mock_st):
+            from ai_governance_mcp.config import load_settings
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            settings = load_settings()
+            extractor = DocumentExtractor(settings)
+            index = extractor.extract_all()
+
+            ai_coding = index.domains.get("ai-coding")
+            assert ai_coding is not None, "ai-coding domain not found in index"
+            request.cls.method_ids = {m.id for m in ai_coding.methods}
+
+    def test_title10_method_count(self):
+        """Title 10 should extract at least 10 methods."""
+        title10_methods = {
+            m
+            for m in self.method_ids
+            if "agent" in m
+            or "deployment" in m
+            or "iac" in m
+            or "rollback" in m
+            or "destructive" in m
+            or "owasp-agentic" in m
+            or "backup-topology" in m
+            or "incident-review" in m
+            or "readiness-gates" in m
+            or "credential-scoping" in m
+            or "governance-feedback" in m
+        }
+        assert len(title10_methods) >= 10, (
+            f"Expected >=10 Title 10 methods, found {len(title10_methods)}: "
+            f"{sorted(title10_methods)}"
+        )
+
+    def test_approval_workflows_method(self):
+        """Part 10.1: Approval workflows for AI-generated changes."""
+        assert (
+            "coding-method-approval-workflows-for-ai-generated-changes"
+            in self.method_ids
+        )
+
+    def test_production_readiness_gates_method(self):
+        """Part 10.1: Production readiness gates."""
+        assert "coding-method-production-readiness-gates" in self.method_ids
+
+    def test_iac_generation_governance_method(self):
+        """Part 10.2: IaC generation governance."""
+        assert "coding-method-iac-generation-governance" in self.method_ids
+
+    def test_backup_topology_awareness_method(self):
+        """Part 10.2: Backup topology awareness."""
+        assert "coding-method-backup-topology-awareness" in self.method_ids
+
+    def test_ai_agent_rollback_semantics_method(self):
+        """Part 10.3: AI agent rollback semantics."""
+        assert "coding-method-ai-agent-rollback-semantics" in self.method_ids
+
+    def test_agent_credential_scoping_method(self):
+        """Part 10.3: Agent credential scoping."""
+        assert "coding-method-agent-credential-scoping" in self.method_ids
+
+    def test_destructive_action_pre_verification_method(self):
+        """Part 10.3: Destructive action pre-verification."""
+        assert "coding-method-destructive-action-pre-verification" in self.method_ids
+
+    def test_owasp_agentic_alignment_matrix_method(self):
+        """Part 10.3: OWASP agentic alignment matrix."""
+        assert "coding-method-owasp-agentic-alignment-matrix" in self.method_ids
+
+    def test_ai_caused_incident_review_method(self):
+        """Part 10.4: AI-caused incident review."""
+        assert "coding-method-ai-caused-incident-review" in self.method_ids
+
+    def test_governance_feedback_loop_method(self):
+        """Part 10.4: Governance feedback loop."""
+        assert "coding-method-governance-feedback-loop" in self.method_ids

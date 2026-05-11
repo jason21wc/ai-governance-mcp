@@ -122,11 +122,9 @@
 
 **Discussion needed:** Is this anticipatory need real? What would trigger the split? The Domain Creation Criteria (§5.1.0) already defines when to create domains, but the user wants to understand if the AO-Series trajectory warrants keeping this on the radar.
 
-#### 12. Operational / Deployment Runbook Domain (Discussion) `D2 New Capability`
+#### ~~12. Operational / Deployment Runbook Domain (Discussion) `D2 New Capability`~~
 
-**What:** Framework covers how AI produces code but not how AI handles deployment, infrastructure, and operations. 3 solid practices from viral "AI vibe coding security rules" analysis couldn't be placed in existing domains.
-
-**Discussion needed:** Is this a full domain or should the 3 orphaned practices just be filed in an appendix? Decision factors: are we using AI for deployment workflows? Is the gap growing? Domain vs standalone runbook vs appendix to AI Coding methods?
+**Closed session-165 (2026-05-10).** Implemented as Title 10: AI Agent Operations Governance in the AI Coding CFR (v2.45.0). Four Parts (~700 lines): AI-Assisted Deployment Governance, Infrastructure-as-Code Governance, AI Agent Operational Boundaries, AI-Specific Incident Review. Not a separate domain — methods implementing existing AI Coding principles. Scope trimmed from ~1,100 to ~700 lines after contrarian review (generic DevOps excluded). Quarterly security posture review cadence (C-012) added to OPERATIONS.md. Evidence: OWASP Agentic Top 10, Amazon Kiro/PocketOS/Amazon storefront incidents.
 
 #### 41. Reference Library Auto-Staging Proposals (Discussion — Self-Improvement) `D2 Improvement`
 
