@@ -98,6 +98,7 @@
 8. Compare findings against §5.6.4 OWASP Security Framework Cross-Reference — any framework updates?
 9. For each gap: file BACKLOG item with external framework reference, proposed CFR coverage, and priority.
 10. Update §10.3.5 matrix if OWASP Agentic Top 10 has changed.
+11. Check Appendix M ecosystem tools for updates — re-clone Prompt Master (`~/.claude/skills/prompt-master/`) if new version ships; security-scan diff before installing.
 
 **Canonical sources:**
 - NIST NVD (nvd.nist.gov) — CVE database
