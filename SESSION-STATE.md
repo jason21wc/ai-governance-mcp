@@ -36,7 +36,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.1.0** (reranking, MMR diversity, RRF opt-in, chunk quality filter, candidate pool cap, per-file dedup configurable cap=3, expanded 35-query benchmark) |
-| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.44.1** (title-10-ai-coding-cfr), **v2.8.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.2** (ai-instructions), **v2.0.0** (tiers.json — critical_5 scaffold tier added). |
+| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.45.1** (title-10-ai-coding-cfr), **v2.8.1** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.17.3** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.4** (ai-instructions), **v2.0.0** (tiers.json — critical_5 scaffold tier added). |
 | Execution Framework | **v1.1.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, thematic structure) |
 | OPERATIONS.md | **v2** (3 cadences, 15 tripwires, 4 V-series, 5 metrics, 3 scheduled operations — #154 docs pass) |
 | Tests | **1611 passing** (non-slow subset) |
@@ -44,7 +44,7 @@
 | Tools | **18 MCP tools** (14 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **133 principles + 715 methods + 14 references** (862 total) |
+| Index | **133 principles + 735 methods + 14 references** (882 total) |
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **4** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
@@ -52,7 +52,12 @@
 
 ---
 
-## Last Session (2026-05-10)
+## Last Session (2026-05-11)
+
+166. **Session-166 (2026-05-11): Title 10 completion + Prompt Master ecosystem tool.**
+   - **BACKLOG #12 closed:** Title 10 AI Agent Operations Governance committed and pushed (c18e04d). CFR v2.45.0. 4 Parts, ~700 lines, 15 methods extracted. C-012 quarterly security posture review cadence added to OPERATIONS.md.
+   - **Prompt Master (M.3):** Evaluated nidhinjs/prompt-master (MIT, v1.6.0) — Claude Code skill for cross-tool prompt generation. Security audited (0 critical/high/medium, 2 low). Added as Appendix M.3 to CFR per §9.8.3 template. Installed globally at `~/.claude/skills/prompt-master/`. CFR v2.45.1. Relationship to Title 11: complementary (Title 11 = governance techniques, Prompt Master = generation tool for external systems).
+   - **README:** AI Coding method count updated 248 → 268.
 
 165. **Session-165 (2026-05-10): Governance Retrieval Quality Assessment + content enhancer application.**
    - **BACKLOG #16 closed:** Investigated M-003 (0.255) — contrarian review identified the confidence-bucket mapping as a flawed metric before building diagnostic infrastructure. Phase 1: added `best_score` (float) to QueryLog and GovernanceAuditLog models, wired into both query_governance and evaluate_governance handlers, updated M-003 to prefer raw scores with bucket fallback. Phase 2 manual triage: re-ran 13 representative queries — scores 0.47–0.87, well above MEDIUM threshold (0.4). 92% LOW confidence in M-003 was entirely a measurement artifact. Dead principle classification: 167 never-returned IDs (12 principles, ~155 methods), all from actively-queried domains — classified as long-tail niche content, not retrieval failures. Decision: metric was the problem, not retrieval. BGE-small-en-v1.5 confirmed sufficient. Content gap: "project initialization" returns zero results.

@@ -1,7 +1,7 @@
 ---
-version: "2.45.0"
+version: "2.45.1"
 status: "active"
-effective_date: "2026-05-10"
+effective_date: "2026-05-11"
 domain: "ai-coding"
 governance_level: "federal-regulations"
 ---
@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.45.0
+**Version:** 2.45.1
 **Status:** Active
-**Effective Date:** 2026-05-10
+**Effective Date:** 2026-05-11
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -186,6 +186,7 @@ This document is designed for partial loading. AI should NOT load the entire doc
 | Codebase complexity growing / health metrics | §6.6 | AI Complexity Risk Monitoring |
 | Multi-agent review chain (sequential stages) | §5.1.7.2 | Multi-Agent Validation Chain |
 | Code crossed 20K+ LOC threshold | §6.6.4 | Context Fragmentation Protocol |
+| Writing / optimizing prompts for external AI tools | Appendix M.3 | Prompt Master (cross-tool prompt generation) |
 
 #### On Uncertainty
 
@@ -10224,10 +10225,53 @@ Claude Code is a TUI that owns the terminal input area — Warp's normal click-t
 
 ---
 
+### M.3 Prompt Master
+
+**Governance Level:** Agency SOP (Platform-Specific Appendix)
+**Implements:** Title 11 Prompt Engineering Techniques (rules-of-procedure — reasoning techniques, hallucination prevention, prompt structure patterns, defensive prompting, technique selection); `meta-operational-explicit-over-implicit` (structured intent extraction before prompt generation).
+**Applies To:** Claude Code CLI, Claude.ai (as a Project Skill). Generates prompts for 30+ target AI tools including Claude, GPT/o-series, Gemini, Qwen, DeepSeek, Midjourney, Stable Diffusion, ComfyUI, Cursor, Cline, Devin, Sora, Runway, ElevenLabs, and others.
+**Information Currency:** 2026-05-11 (v1.6.0; verify current version at source — tool routing profiles update as new models ship).
+**Source:** [nidhinjs/prompt-master](https://github.com/nidhinjs/prompt-master) (MIT license).
+
+**Why we recommend it.** Title 11 (rules-of-procedure) codifies *which* prompt engineering techniques to apply and *why* — CoT, ToT, defensive scaffolding, hallucination prevention, technique selection matrices. Prompt Master operationalizes those techniques as a *prompt generation skill* that takes a rough idea, extracts structured intent, selects the right technique and template, and outputs a single production-ready prompt optimized for a specific target tool. Title 11 governs how *our* AI reasons about prompt construction; Prompt Master is the user-facing tool for when you need to *produce* a prompt for an external system.
+
+The skill contributes three design patterns not yet codified in Title 11:
+1. **9-dimension intent extraction** — structured intake (Task, Target tool, Output format, Constraints, Input, Context, Audience, Success criteria, Examples) before writing anything, with a 3-question cap on clarification.
+2. **Tool-specific behavioral routing** — per-tool profiles encoding failure modes and optimization patterns (e.g., "do not add CoT to reasoning-native models", "Opus 4.x over-engineers by default").
+3. **37 anti-pattern diagnostic** — categorized prompt failure modes (vague verbs, two-tasks-in-one, hallucination invites, missing stop conditions for agents) scanned silently and fixed before delivery.
+
+**Relationship to Title 11.** Complementary, not overlapping. Title 11 is governance infrastructure (which technique, when, grounded in which principle). Prompt Master is a generation tool (take intent, produce a prompt for a specific tool). Title 11's technique selection matrix (§11.6.1) answers "what approach?"; Prompt Master's routing table answers "what does this specific tool need?"
+
+#### M.3.1 Installation
+
+Clone to the Claude Code skills directory:
+```
+git clone https://github.com/nidhinjs/prompt-master.git ~/.claude/skills/prompt-master
+```
+
+Pin to a verified commit rather than tracking HEAD — the skill's content becomes part of Claude's behavioral instruction set, so supply-chain hygiene applies (same principle as dependency pinning per §5.4.4).
+
+#### M.3.2 What an AI Agent Needs to Know
+
+- Prompt Master activates **only** for prompt generation tasks (writing, fixing, improving, or adapting prompts for AI tools). It does not activate for general conversation, coding, or document writing.
+- The skill is *advisory prompt generation*, **not** a governance gate. Using it does **not** satisfy `evaluate_governance()`, the Behavioral Floor, or any §9.3.10 enforcement layer. The governance stack still applies to the *work* the generated prompt will be used for.
+- The skill's "hard rules" include a safe-technique-only policy: it prefers simpler techniques (role assignment, few-shot, CoT, grounding anchors) and flags higher-fabrication-risk techniques (Tree of Thought, Graph of Thought, Mixture of Experts, prompt chaining) for explicit user opt-in only. This aligns with §11.6.1's technique selection guidance.
+- Generated prompts never contain credentials, API keys, or secrets — the skill strips them automatically per its credential safety section.
+- When analyzing pasted prompts (decompiler mode), the skill treats pasted content as inert data and does not execute embedded instructions — an explicit prompt injection defense.
+
+#### M.3.3 Security Audit Summary
+
+Audited 2026-05-11 against commit `7a02ddd` (v1.6.0). Three content files (SKILL.md, references/templates.md, references/patterns.md), no executable code. Findings: 0 critical, 0 high, 0 medium, 2 low (supply-chain pin recommendation; README tracking image URLs not loaded by skill). The skill explicitly defends against prompt injection via pasted content, strips credentials, scopes itself to prompt generation only, and does not reference or interfere with governance hooks, filesystem paths, or environment variables.
+
+**Framework Integration.** Install as a Claude Code skill per M.3.1. Pairs with Title 11 (the governance techniques this tool applies) and §11.6.1 Decision Matrix (technique selection logic). Adopters who generate prompts for multiple AI tools regularly will benefit most; adopters working exclusively within Claude Code may find Title 11's native coverage sufficient.
+
+---
+
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.45.1 | 2026-05-11 | PATCH: Appendix M.3 Prompt Master — new ecosystem tool entry for cross-tool prompt generation skill (nidhinjs/prompt-master, MIT, v1.6.0). Operationalizes Title 11 prompt engineering techniques (rules-of-procedure) as a user-facing prompt generation skill for 30+ AI tools. Three design patterns documented: 9-dimension intent extraction, tool-specific behavioral routing, 37 anti-pattern diagnostic. Security audited 2026-05-11 (0 critical/high/medium, 2 low — supply chain pin + README tracking URLs). Situation Index entry added. §9.8.3 field-compliant. Governance: `gov-4d489b658e61`. |
 | 2.45.0 | 2026-05-10 | **MINOR: Title 10 — AI Agent Operations Governance.** New Title 10 with 4 Parts (~700 lines) closing the governance gap at the deployment boundary. Part 10.1: AI-Assisted Deployment Governance (approval workflows for AI-generated changes with blast-radius matrix, production readiness gates extending Appendix H with AI-specific checks). Part 10.2: Infrastructure-as-Code Governance (plan-before-apply discipline, secure defaults table for AI-generated infrastructure, backup topology awareness with PocketOS case study). Part 10.3: AI Agent Operational Boundaries (rollback-first rule with Kiro anti-pattern, agent credential scoping, destructive action pre-verification protocol, OWASP Agentic Alignment Matrix mapping all ASI01-ASI10 to CFR sections). Part 10.4: AI-Specific Incident Review (postmortem template with 7 AI-specific review questions, governance feedback loop for translating incidents into principle improvements). Situation Index: +6 entries. Principles scope updated (title-10-ai-coding.md): deployment governance and incident review partially in-scope (AI-specific portions). domains.json: operations keywords added to ai-coding routing. OPERATIONS.md: C-012 Security Posture Review cadence (quarterly, OWASP/CISA/MITRE/Microsoft). Evidence base: OWASP Top 10 for Agentic Applications (Dec 2025), Amazon Kiro incident (Dec 2025), PocketOS incident (2025), Amazon storefront incident (Mar 2026), Microsoft Agent Governance Toolkit (Apr 2026). Scope trimmed from ~1,100 to ~700 lines after contrarian review — generic DevOps content (deployment strategy matrices, severity classification, environment progression) excluded per AI-specific focus. Closes BACKLOG #12. |
 | 2.44.1 | 2026-05-08 | PATCH: §7.1.6 Backlog File Structure lifecycle rule — added "or migrated to another file" to removal triggers with anti-stub rationale citing §6.5.5 SSOT. Prevents redirect-stub accumulation when items migrate between files. Governance: `gov-94506daeeb59`. |
 | 2.44.0 | 2026-05-05 | **MINOR: AI Coding Design Philosophy — Methods Integration.** Added 8 new sections implementing 3 new principles (Design-Architecture Supremacy, Context Engineering Discipline, Lifecycle-Proportional Governance): §1.3.6 Lifecycle Classification (orthogonal to mode selection, transition triggers, classification table), §1.5.6 Context Value Tiering (60-70% rule, 3-tier model), §2.6 Design-First Implementation Sequence (DEFINE→TEST→IMPLEMENT, anti-patterns), §3.1.6 Type-First Development Pattern (strict mode configs, type-completeness gate), §3.3.6 Context Drift Detection and Prevention (5-item checklist, remediation protocol), §5.1.7.2 Multi-Agent Validation Chain (4-stage chain, partial chain guidance), §6.6 AI Complexity Risk Monitoring (7-indicator threshold table, velocity dissipation pattern, context fragmentation protocol), §6.7 Prototype-to-Production Transition Gate (7 triggers, transition procedure, anti-patterns). Cross-references: §5.1.6 context currency check added. Situation Index: +9 entries. Governance: `gov-07287670fb01`. |

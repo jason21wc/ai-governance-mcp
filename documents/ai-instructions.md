@@ -1,16 +1,16 @@
 ---
-version: "4.0.3"
+version: "4.0.4"
 status: "active"
-effective_date: "2026-05-10"
+effective_date: "2026-05-11"
 domain: "meta"
 governance_level: "framework-activation"
 ---
 
 # AI Governance Framework Activation
 
-**Version:** 4.0.2
+**Version:** 4.0.4
 **Purpose:** Loader document that activates the governance framework for AI sessions.
-**Updated:** 2026-05-09
+**Updated:** 2026-05-11
 
 ---
 
@@ -199,7 +199,7 @@ This loader is designed for use with:
 - constitution.md v8.0.0+
 - rules-of-procedure.md v3.31.5+
 - title-10-ai-coding.md v2.8.1+
-- title-10-ai-coding-cfr.md v2.45.0+
+- title-10-ai-coding-cfr.md v2.45.1+
 - title-20-multi-agent.md v2.7.3+
 - title-20-multi-agent-cfr.md v2.17.3+
 - title-30-storytelling.md v1.4.2+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.0.4 | 2026-05-11 | PATCH: title-10-ai-coding-cfr.md pin update v2.45.0+ → v2.45.1+ for Appendix M.3 Prompt Master (cross-tool prompt generation skill, nidhinjs/prompt-master MIT v1.6.0). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.3 | 2026-05-10 | PATCH: title-10-ai-coding-cfr.md pin update v2.44.0+ → v2.45.0+ for Title 10 AI Agent Operations Governance (4 new Parts, ~700 lines). title-10-ai-coding.md pin update v2.8.0+ → v2.8.1+ for Out of Scope scope clarification. §5.6.4 ASI08 name fix: "Multi-Agent Trust Exploitation" → "Cascading Hallucination Chains" per canonical OWASP source. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.2 | 2026-05-09 | PATCH: title-15-ui-ux-cfr.md pin update v1.0.0+ → v1.1.0+ for Appendix A (Optional Design Ecosystem Tools) — domain-tool governance pattern. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-b7aa212852a3`. |
 | 4.0.1 | 2026-05-05 | PATCH: title-10-ai-coding.md pin update v2.7.6+ → v2.8.0+ and title-10-ai-coding-cfr.md pin update v2.43.3+ → v2.44.0+ for AI Coding Design Philosophy Integration (3 new principles, 8 new CFR methods, preamble addition, existing principle extensions). Updated principle count reference 12→15. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-07287670fb01`. |
