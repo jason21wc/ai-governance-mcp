@@ -138,6 +138,23 @@ jobs:
       - name: Run citation form check
         run: python3 scripts/check-citations.py
 
+  backlog-hygiene:
+    name: Backlog Hygiene Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          persist-credentials: false
+
+      - name: Check for closed items (strikethrough)
+        run: |
+          if grep -n '~~' BACKLOG.md | grep -v '^[0-9]*:>'; then
+            echo "::error::BACKLOG.md contains strikethrough (~~) outside the philosophy block. Closed items must be deleted entirely — closure context belongs in the commit message."
+            exit 1
+          fi
+
   content-security:
     name: Content Security Scan
     runs-on: ubuntu-latest

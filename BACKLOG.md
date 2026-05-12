@@ -19,7 +19,7 @@
 >
 > **Anticipatory items are valid.** Not all backlog items need a triggered condition. Three valid reasons to keep an item: need it now (active problem), plan to use soon (near-future need), anticipate needing later (want it ready when the time comes). When reviewing the backlog, present items with summaries so the user can decide — don't assume items without fired triggers should be closed.
 >
-> **No closed/completed/moved items in this file.** When an item is closed, migrated to another file, or completed, remove it from this file entirely. Do not leave redirect stubs ("Moved to X") — they accumulate as noise and contradict single-source-of-truth (per `coding-method-archive-vs-delete-decision-matrix` §6.5.5). Git commit history is the archive — commit messages document what was closed, moved, and why. If you need closure context for a past item, use `git log --grep="backlog #N"` or search commit messages.
+> **Closing items (procedure).** To close a backlog item: (1) delete the entire entry from this file — not strikethrough, not "Closed" stub, full deletion, (2) document the closure in the commit message (what shipped, why closed). Git history is the archive; `git log --grep="backlog #N"` retrieves closure context. Do not leave redirect stubs ("Moved to X") — they accumulate as noise and contradict single-source-of-truth (per `coding-method-archive-vs-delete-decision-matrix` §6.5.5). CI enforces: strikethrough (`~~`) in this file fails the build.
 >
 > **Difficulty classification (D1-D3).** Every backlog item gets a difficulty tag. Per `meta-quality-verification-validation` and `meta-method-effort-not-time-estimation` (rules-of-procedure §7.12), criteria must be observable, not time-based or subjective.
 >
@@ -75,17 +75,6 @@
 
 ---
 
-#### ~~127.~~ Closed. 15 DocumentConnector integration tests shipped (`TestDocumentConnectorIntegration` in test_context_engine.py). `git log --grep="backlog #127"`
-
----
-
-#### ~~125-b.~~ Closed (won't do). Registry value is the Covers: lint loop, which requires project-specific tests — can't be scaffolded. Anti-pattern knowledge transfers via principles + methods through retrieval. `git log --grep="backlog #125-b"`
-
----
-
-#### ~~16.~~ Closed. M-003 metric (0.255) was an artifact of coarse confidence-bucket mapping, not a retrieval quality problem. Manual triage confirmed actual retrieval scores of 0.47–0.87 across representative queries — well above MEDIUM threshold. Fix: added `best_score` (float) logging to both query_governance and evaluate_governance handlers; updated M-003 to prefer raw scores over bucket mapping. MRR baselines (0.644/0.625) confirmed healthy. BGE-small-en-v1.5 KEPT. One content gap noted: "project initialization" returns zero results. `git log --grep="backlog #16"`
-
-
 #### 6. Visual Communication Domain (Discussion → Full Planning) `D3 New Capability`
 
 **What:** Governance for non-coding visual artifacts: presentations, reports, infographics, print design. Separate from UI/UX (different failure modes, evidence bases, tooling). Tufte, Duarte, Reynolds evidence base.
@@ -121,10 +110,6 @@
 **What:** Autonomous agent patterns (AO-Series, currently 4 principles in Multi-Agent) may eventually outgrow the multi-agent domain. This would create a dedicated domain for autonomous operation governance — financial compliance, regulatory frameworks, agent marketplace governance, cross-org federation.
 
 **Discussion needed:** Is this anticipatory need real? What would trigger the split? The Domain Creation Criteria (§5.1.0) already defines when to create domains, but the user wants to understand if the AO-Series trajectory warrants keeping this on the radar.
-
-#### ~~12. Operational / Deployment Runbook Domain (Discussion) `D2 New Capability`~~
-
-**Closed session-165 (2026-05-10).** Implemented as Title 10: AI Agent Operations Governance in the AI Coding CFR (v2.45.0). Four Parts (~700 lines): AI-Assisted Deployment Governance, Infrastructure-as-Code Governance, AI Agent Operational Boundaries, AI-Specific Incident Review. Not a separate domain — methods implementing existing AI Coding principles. Scope trimmed from ~1,100 to ~700 lines after contrarian review (generic DevOps excluded). Quarterly security posture review cadence (C-012) added to OPERATIONS.md. Evidence: OWASP Agentic Top 10, Amazon Kiro/PocketOS/Amazon storefront incidents.
 
 #### 41. Reference Library Auto-Staging Proposals (Discussion — Self-Improvement) `D2 Improvement`
 
@@ -196,10 +181,6 @@
 
 ---
 
-#### ~~54.~~ Closed. Superpowers reference library entry shipped + CFR Part 9.5 Skills Taxonomy. `git log --grep="backlog #54"`
-
-#### ~~55.~~ Closed. Skills as standardized work — 3 skills shipped (compliance-review, completion-sequence, test-authoring), CFR Part 9.5 method section, `workflows/` directory removed. `git log --grep="backlog #55"`
-
 #### 58. Session Lifecycle Automation — Mid-Session Re-Injection (Discussion — from UBDA Review) `D2 Improvement`
 
 **What:** Context degradation accelerates past critical thresholds. Thresholds exist (50/60/80/32K) but no automation triggers behavioral floor re-injection mid-session. UserPromptSubmit hook could check context utilization and re-inject.
@@ -223,8 +204,6 @@
 **Revisit trigger:** Productionization or multi-user deployment.
 
 **Origin:** Perplexity Deep Research + Gemini UBDA review (2026-04-07). Both flagged quality-of-compliance vs occurrence gap.
-
-#### ~~85.~~ Closed (Content Enhancer portion). Shipped as `/content-enhancer` skill — 5-step protocol (Triage → Analyze → Enhance → Assemble → Verify) with gap-filling protocol, voice preservation guards, and human escalation rules. Fresh research-based design, not a port of 3.0. Multi-system orchestration remains deferred — revisit when cross-system automation needs emerge. `git log --grep="backlog #85"`
 
 #### 159. Critical 5 Hook Re-Injection (Discussion) `D1 Improvement`
 
