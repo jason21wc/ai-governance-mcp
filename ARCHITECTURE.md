@@ -8,7 +8,7 @@
 > For decisions/rationale → PROJECT-MEMORY.md
 > Avoid volatile metrics here (test counts, coverage %, dependency versions) — use canonical sources (`pytest`, `pytest --cov`, `pyproject.toml`).
 
-**Phase:** COMPLETE — 18 tools across 2 MCP servers
+**Phase:** COMPLETE — 19 tools across 2 MCP servers
 
 ---
 
@@ -88,7 +88,7 @@ ai-governance-mcp/
 ├── src/
 │   └── ai_governance_mcp/
 │       ├── __init__.py
-│       ├── server/             # MCP server package (14 tools)
+│       ├── server/             # MCP server package (15 tools)
 │       │   ├── __init__.py    # Public API re-exports
 │       │   ├── _app.py        # MCP setup, list_tools, call_tool, main
 │       │   ├── _state.py      # Mutable globals, get_engine, get_metrics
@@ -96,10 +96,11 @@ ai-governance-mcp/
 │       │   ├── _security.py   # Sanitization, rate limiting, instruction validation
 │       │   ├── _constants.py  # Templates, metadata, keywords
 │       │   └── handlers/      # Tool handler implementations
-│       │       ├── retrieval.py   # query_governance, get_principle, list_domains
+│       │       ├── retrieval.py   # query_governance, get_principle, list_domains, search_references
 │       │       ├── governance.py  # evaluate_governance, verify_governance
 │       │       ├── agents.py      # install/uninstall agent
-│       │       └── scaffold.py    # scaffold_project, capture_reference
+│       │       ├── scaffold.py    # scaffold_project, capture_reference
+│       │       └── analysis.py    # analyze_feedback_loop
 │       ├── retrieval.py       # Search logic
 │       ├── extractor.py       # Doc parsing, index building
 │       ├── models.py          # Pydantic schemas

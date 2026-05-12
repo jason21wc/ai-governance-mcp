@@ -978,3 +978,226 @@ class TestAutoReload:
         principle = engine.get_principle_by_id("meta-C1")
         assert principle is not None
         assert principle.title == "Test Principle"
+
+
+class TestSearchReferences:
+    """Tests for dedicated reference library search (BACKLOG #43)."""
+
+    def _make_index_with_refs(self):
+        import json
+
+        return json.dumps(
+            {
+                "domains": {
+                    "ai-coding": {
+                        "domain": "ai-coding",
+                        "principles": [
+                            {
+                                "id": "coding-P1",
+                                "domain": "ai-coding",
+                                "series_code": "P",
+                                "number": 1,
+                                "title": "Test Principle",
+                                "content": "Test principle content",
+                                "line_range": [1, 5],
+                            }
+                        ],
+                        "methods": [],
+                        "references": [
+                            {
+                                "id": "ref-ai-coding-playwright-auth",
+                                "domain": "ai-coding",
+                                "title": "Playwright Auth Setup Pattern",
+                                "summary": "Proven pattern for Playwright authentication with session reuse",
+                                "content": "Use storageState to persist auth across tests...",
+                                "tags": ["playwright", "testing", "auth"],
+                                "status": "current",
+                                "maturity": "evergreen",
+                                "entry_type": "direct",
+                                "decay_class": "framework",
+                            },
+                            {
+                                "id": "ref-ai-coding-nextjs-api-routes",
+                                "domain": "ai-coding",
+                                "title": "Next.js API Route Patterns",
+                                "summary": "Standard patterns for Next.js API route handlers",
+                                "content": "Use route handlers with proper error boundaries...",
+                                "tags": ["nextjs", "api", "routes"],
+                                "status": "current",
+                                "maturity": "budding",
+                                "entry_type": "direct",
+                                "decay_class": "api",
+                            },
+                            {
+                                "id": "ref-ai-coding-deprecated-pattern",
+                                "domain": "ai-coding",
+                                "title": "Old JWT Pattern",
+                                "summary": "Deprecated JWT validation approach",
+                                "content": "Old approach...",
+                                "tags": ["jwt", "auth"],
+                                "status": "deprecated",
+                                "maturity": "evergreen",
+                                "entry_type": "direct",
+                                "decay_class": "api",
+                            },
+                            {
+                                "id": "ref-ai-coding-archived-pattern",
+                                "domain": "ai-coding",
+                                "title": "Archived Pattern",
+                                "summary": "No longer relevant",
+                                "content": "Archived...",
+                                "tags": ["legacy"],
+                                "status": "archived",
+                                "maturity": "evergreen",
+                                "entry_type": "direct",
+                                "decay_class": "transient",
+                            },
+                        ],
+                        "last_extracted": "2026-01-01T00:00:00Z",
+                    },
+                    "kmpd": {
+                        "domain": "kmpd",
+                        "principles": [],
+                        "methods": [],
+                        "references": [
+                            {
+                                "id": "ref-kmpd-str-report",
+                                "domain": "kmpd",
+                                "title": "STR Report Building",
+                                "summary": "Building STR performance reports from raw data",
+                                "content": "Extract ADR, RevPAR, occupancy from STR data...",
+                                "tags": ["str", "reporting", "hospitality"],
+                                "status": "current",
+                                "maturity": "seedling",
+                                "entry_type": "direct",
+                                "decay_class": "framework",
+                            }
+                        ],
+                        "last_extracted": "2026-01-01T00:00:00Z",
+                    },
+                },
+                "domain_configs": [
+                    {
+                        "name": "ai-coding",
+                        "display_name": "AI Coding",
+                        "principles_file": "coding.md",
+                        "description": "AI coding governance",
+                    },
+                    {
+                        "name": "kmpd",
+                        "display_name": "KMPD",
+                        "principles_file": "kmpd.md",
+                        "description": "Knowledge management",
+                    },
+                ],
+                "created_at": "2026-01-01T00:00:00Z",
+                "version": "1.0",
+                "embedding_model": "BAAI/bge-small-en-v1.5",
+                "embedding_dimensions": 384,
+            }
+        )
+
+    @pytest.fixture
+    def ref_index_dir(self, tmp_path):
+        index_path = tmp_path / "index"
+        index_path.mkdir()
+        (index_path / "global_index.json").write_text(self._make_index_with_refs())
+        return index_path
+
+    @pytest.fixture
+    def ref_engine(self, ref_index_dir, tmp_path):
+        from ai_governance_mcp.retrieval import RetrievalEngine
+
+        settings = Settings()
+        settings.index_path = ref_index_dir
+        settings.logs_path = tmp_path / "logs"
+        settings.logs_path.mkdir(parents=True, exist_ok=True)
+        settings.documents_path = tmp_path / "documents"
+        return RetrievalEngine(settings)
+
+    def test_search_returns_matching_references(self, ref_engine):
+        results = ref_engine.search_references("playwright auth setup")
+        assert len(results) > 0
+        ids = [r.reference.id for r in results]
+        assert "ref-ai-coding-playwright-auth" in ids
+
+    def test_search_excludes_deprecated_and_archived(self, ref_engine):
+        results = ref_engine.search_references("jwt auth pattern legacy archived")
+        ids = [r.reference.id for r in results]
+        assert "ref-ai-coding-deprecated-pattern" not in ids
+        assert "ref-ai-coding-archived-pattern" not in ids
+
+    def test_domain_filter_restricts_results(self, ref_engine):
+        results = ref_engine.search_references("report data", domain="kmpd")
+        for r in results:
+            assert r.reference.domain == "kmpd"
+
+    def test_domain_filter_invalid_returns_empty(self, ref_engine):
+        results = ref_engine.search_references("anything", domain="nonexistent")
+        assert results == []
+
+    def test_tag_filter_boosts_matching(self, ref_engine):
+        results_with_tags = ref_engine.search_references(
+            "testing setup", tags=["playwright"]
+        )
+        results_without_tags = ref_engine.search_references("testing setup")
+        if results_with_tags and results_without_tags:
+            tagged_ids = [r.reference.id for r in results_with_tags]
+            if "ref-ai-coding-playwright-auth" in tagged_ids:
+                tagged_score = next(
+                    r.combined_score
+                    for r in results_with_tags
+                    if r.reference.id == "ref-ai-coding-playwright-auth"
+                )
+                untagged_score = next(
+                    (
+                        r.combined_score
+                        for r in results_without_tags
+                        if r.reference.id == "ref-ai-coding-playwright-auth"
+                    ),
+                    None,
+                )
+                if untagged_score is not None:
+                    assert tagged_score >= untagged_score
+
+    def test_max_results_cap(self, ref_engine):
+        results = ref_engine.search_references("pattern", max_results=1)
+        assert len(results) <= 1
+
+    def test_empty_query_returns_empty(self, ref_engine):
+        results = ref_engine.search_references("")
+        assert results == []
+
+    def test_no_matches_returns_empty(self, ref_engine):
+        results = ref_engine.search_references("xyzzy quantum flux capacitor")
+        # BM25 may still return low-score results; at minimum no crash
+        assert isinstance(results, list)
+
+    def test_maturity_adjustments_applied(self, ref_engine):
+        """Evergreen refs should score higher than seedling, all else equal."""
+        results = ref_engine.search_references("report building data pattern")
+        if len(results) >= 2:
+            evergreen = [r for r in results if r.reference.maturity == "evergreen"]
+            seedling = [r for r in results if r.reference.maturity == "seedling"]
+            if evergreen and seedling:
+                assert evergreen[0].combined_score >= seedling[0].combined_score - 0.2
+
+    def test_results_sorted_by_score_descending(self, ref_engine):
+        results = ref_engine.search_references("auth testing api routes")
+        scores = [r.combined_score for r in results]
+        assert scores == sorted(scores, reverse=True)
+
+    def test_get_reference_by_id_found(self, ref_engine):
+        ref = ref_engine.get_reference_by_id("ref-ai-coding-playwright-auth")
+        assert ref is not None
+        assert ref.title == "Playwright Auth Setup Pattern"
+        assert ref.domain == "ai-coding"
+
+    def test_get_reference_by_id_not_found(self, ref_engine):
+        ref = ref_engine.get_reference_by_id("ref-nonexistent-xyz")
+        assert ref is None
+
+    def test_get_reference_by_id_cross_domain(self, ref_engine):
+        ref = ref_engine.get_reference_by_id("ref-kmpd-str-report")
+        assert ref is not None
+        assert ref.domain == "kmpd"

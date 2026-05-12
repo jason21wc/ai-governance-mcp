@@ -1,8 +1,8 @@
 # API Reference
 
-The AI Governance MCP project exposes two MCP servers with a combined 18 tools. The **Governance Server** provides semantic retrieval of AI governance principles, pre-action evaluation, and compliance auditing. The **Context Engine Server** provides semantic search across project content for code and documentation discovery.
+The AI Governance MCP project exposes two MCP servers with a combined 19 tools. The **Governance Server** provides semantic retrieval of AI governance principles, pre-action evaluation, and compliance auditing. The **Context Engine Server** provides semantic search across project content for code and documentation discovery.
 
-## Governance Server (14 Tools)
+## Governance Server (15 Tools)
 
 Run with: `python -m ai_governance_mcp.server`
 
@@ -413,6 +413,34 @@ State-specific returns:
     "tags": ["pattern", "reusable", "example"],
     "entry_type": "direct",
     "artifact": "## Pattern\n\nDescription of the reusable pattern..."
+  }
+}
+```
+
+### search_references
+
+**Purpose:** Search the Reference Library for implementation precedent before writing code. Returns proven patterns, code templates, and lessons learned from prior implementations. Separate from governance (principles) and query_project (existing code).
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `query` | string | Yes | Implementation-specific search (e.g., `"playwright auth setup"`) |
+| `domain` | string | No | Filter to specific domain (e.g., `"ai-coding"`, `"kmpd"`) |
+| `tags` | array | No | Boost results matching these technology tags (e.g., `["playwright", "nextjs"]`) |
+| `max_results` | integer | No | Maximum results to return (default 5, max 20) |
+
+**Returns:** JSON with `query`, `domain_filter`, `tag_filter`, `result_count`, `results` array (each with `id`, `title`, `summary`, `domain`, `tags`, `status`, `maturity`, `confidence`, `score`), and a `hint` to use `get_principle(principle_id)` for full content.
+
+**Example:**
+
+```json
+{
+  "name": "search_references",
+  "arguments": {
+    "query": "playwright auth setup",
+    "domain": "ai-coding",
+    "tags": ["playwright", "testing"]
   }
 }
 ```

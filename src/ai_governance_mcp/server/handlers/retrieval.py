@@ -1,7 +1,8 @@
 """Retrieval-oriented tool handlers.
 
 Handles: query_governance (T13), get_principle (T14), list_domains (T15),
-get_domain_summary (T16), log_feedback (T17), get_metrics (T18).
+get_domain_summary (T16), log_feedback (T17), get_metrics (T18),
+search_references.
 """
 
 import json
@@ -280,12 +281,29 @@ async def _handle_get_principle(
         }
         return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
+    ref = engine.get_reference_by_id(principle_id)
+    if ref:
+        output = {
+            "id": ref.id,
+            "type": "reference",
+            "domain": ref.domain,
+            "title": ref.title,
+            "summary": ref.summary,
+            "content": ref.content,
+            "tags": ref.tags,
+            "status": ref.status,
+            "maturity": ref.maturity,
+            "source_path": ref.source_path,
+        }
+        return [TextContent(type="text", text=json.dumps(output, indent=2))]
+
     error = ErrorResponse(
         error_code="PRINCIPLE_NOT_FOUND",
-        message=f"Principle '{principle_id}' not found",
+        message=f"ID '{principle_id}' not found in principles, methods, or references",
         suggestions=[
             "Use list_domains to see available domains",
-            "Check ID format: meta-core-informational-readiness, coding-quality-testing",
+            "Principle IDs: meta-core-informational-readiness, coding-quality-testing",
+            "Reference IDs: ref-ai-coding-playwright-auth",
         ],
     )
     return [TextContent(type="text", text=error.model_dump_json(indent=2))]
@@ -340,6 +358,62 @@ async def _handle_get_domain_summary(
         suggestions=["Use list_domains to see available domains"],
     )
     return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+
+async def _handle_search_references(
+    engine: RetrievalEngine, args: dict
+) -> list[TextContent]:
+    """Handle search_references tool — dedicated reference library search."""
+    query = args.get("query", "")
+    if not query:
+        return [TextContent(type="text", text="Error: query is required")]
+
+    if len(query) > MAX_QUERY_LENGTH:
+        return [
+            TextContent(
+                type="text",
+                text=f"Error: query too long (max {MAX_QUERY_LENGTH} chars)",
+            )
+        ]
+
+    domain = args.get("domain")
+    tags = args.get("tags")
+    max_results = args.get("max_results")
+    if max_results is not None:
+        try:
+            max_results = min(max(int(max_results), 1), 20)
+        except (ValueError, TypeError):
+            max_results = 5
+    else:
+        max_results = 5
+
+    results = engine.search_references(
+        query=query, domain=domain, tags=tags, max_results=max_results
+    )
+
+    output = {
+        "query": query,
+        "domain_filter": domain,
+        "tag_filter": tags,
+        "result_count": len(results),
+        "results": [
+            {
+                "id": r.reference.id,
+                "title": r.reference.title,
+                "summary": r.reference.summary,
+                "domain": r.reference.domain,
+                "tags": r.reference.tags,
+                "status": r.reference.status,
+                "maturity": r.reference.maturity,
+                "confidence": r.confidence.value,
+                "score": round(r.combined_score, 3),
+            }
+            for r in results
+        ],
+        "hint": "Use get_principle(principle_id) to retrieve full reference content.",
+    }
+
+    return [TextContent(type="text", text=json.dumps(output, indent=2))]
 
 
 async def _handle_log_feedback(args: dict) -> list[TextContent]:

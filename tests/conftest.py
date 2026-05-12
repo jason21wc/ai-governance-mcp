@@ -276,12 +276,32 @@ def sample_domain_index(
 
 
 @pytest.fixture
-def sample_coding_domain_index(sample_coding_principle, sample_method, sample_method_2):
-    """DomainIndex for ai-coding domain with principles and methods."""
+def sample_reference_entry():
+    """ReferenceEntry for ai-coding domain integration tests."""
+    return ReferenceEntry(
+        id="ref-ai-coding-test-integration-pattern",
+        domain="ai-coding",
+        title="Integration Test Setup Pattern",
+        summary="Proven pattern for setting up integration tests with fixtures",
+        content="Use pytest fixtures with tmp_path for isolated test environments...",
+        tags=["testing", "integration", "fixtures"],
+        status="current",
+        maturity="evergreen",
+        entry_type="direct",
+        decay_class="framework",
+    )
+
+
+@pytest.fixture
+def sample_coding_domain_index(
+    sample_coding_principle, sample_method, sample_method_2, sample_reference_entry
+):
+    """DomainIndex for ai-coding domain with principles, methods, and references."""
     return DomainIndex(
         domain="ai-coding",
         principles=[sample_coding_principle],
         methods=[sample_method, sample_method_2],
+        references=[sample_reference_entry],
         last_extracted="2025-01-01T00:00:00Z",
         version="1.0",
     )
@@ -398,12 +418,14 @@ def sample_retrieval_result(
 
 @pytest.fixture
 def mock_embeddings():
-    """Mock content embeddings array (5 items, 384 dims).
+    """Mock content embeddings array (7 items, 384 dims).
 
-    Use deterministic random seed for reproducibility.
+    Matches BM25 doc count: 3 constitution principles + 1 coding principle
+    + 2 methods + 1 reference = 7. Use deterministic random seed for
+    reproducibility.
     """
     np.random.seed(42)
-    return np.random.rand(5, 384).astype(np.float32)
+    return np.random.rand(7, 384).astype(np.float32)
 
 
 @pytest.fixture

@@ -85,6 +85,7 @@ Five reasoning disciplines to demonstrate (not just acknowledge) in every evalua
 3. **Cite influencing principles** — Reference principle IDs when they guide your approach
 4. **Pause on uncertainty** — If requirements are unclear, ask the user before proceeding
 5. **Query project context** — Before implementing, call `query_project("...")` via the Context Engine MCP to discover existing patterns
+6. **Search for precedent** — Before implementing code, call `search_references(query="what you're about to build")` to surface proven patterns from the Reference Library. This is separate from governance (principles) and query_project (existing code) — it surfaces implementation know-how from prior work
 
 ### Conversation Style
 Default to **freeform conversational Q&A**, not structured option lists. When gathering requirements, exploring ideas, or discussing approaches, ask questions as natural conversation — not dropdowns or multiple choice. Structured options are appropriate ONLY when converging on a bounded selection (e.g., "which of these 3 specific configs?"). For discovery, exploration, and understanding the user's needs, use open-ended dialogue.

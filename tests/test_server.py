@@ -498,13 +498,13 @@ class TestListTools:
     """Tests for list_tools() async function."""
 
     @pytest.mark.asyncio
-    async def test_list_tools_returns_all_twelve(self):
-        """list_tools should return all 12 tools."""
+    async def test_list_tools_returns_all(self):
+        """list_tools should return all governance tools."""
         from ai_governance_mcp.server import list_tools
 
         tools = await list_tools()
 
-        assert len(tools) == 14
+        assert len(tools) == 15
         tool_names = [t.name for t in tools]
         assert "query_governance" in tool_names
         assert "get_principle" in tool_names
@@ -517,6 +517,7 @@ class TestListTools:
         assert "log_governance_reasoning" in tool_names
         assert "install_agent" in tool_names
         assert "uninstall_agent" in tool_names
+        assert "search_references" in tool_names
 
     @pytest.mark.asyncio
     async def test_list_tools_have_input_schemas(self):

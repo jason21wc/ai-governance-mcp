@@ -102,16 +102,17 @@ Runtime:
 
 ## How It Works
 
-### 18 MCP Tools (2 Servers)
+### 19 MCP Tools (2 Servers)
 
-**Governance Server (14 tools):**
+**Governance Server (15 tools):**
 
 | Tool | Purpose |
 |------|---------|
 | `evaluate_governance` | **Pre-action** compliance check — PROCEED/MODIFY/ESCALATE |
 | `query_governance` | Main retrieval with confidence scores |
 | `verify_governance_compliance` | **Post-action** audit verification |
-| `get_principle` | Full content by ID |
+| `search_references` | Search Reference Library for implementation precedent |
+| `get_principle` | Full content by ID (principles, methods, and references) |
 | `list_domains` | Available domains with stats |
 | `get_domain_summary` | Domain exploration |
 | `log_feedback` | Quality tracking |
@@ -405,7 +406,7 @@ ai-governance-mcp/
 │   ├── config.py            # Settings management
 │   ├── extractor.py         # Document parsing + embeddings
 │   ├── retrieval.py         # Hybrid search engine
-│   ├── server/              # Governance MCP server + 14 tools (package)
+│   ├── server/              # Governance MCP server + 15 tools (package)
 │   ├── config_generator.py  # Multi-platform MCP configs
 │   ├── validator.py         # Principle ID validation
 │   └── context_engine/      # Context Engine MCP (4 tools)

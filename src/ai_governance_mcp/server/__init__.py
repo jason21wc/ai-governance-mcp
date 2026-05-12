@@ -1,6 +1,6 @@
 """MCP Server for AI Governance document retrieval.
 
-MCP server with 14 tools for hybrid retrieval of governance principles.
+MCP server with 15 tools for hybrid retrieval of governance principles.
 
 This package re-exports the public API. Application logic lives in _app.py;
 handler logic in handlers/; state, logging, security, constants in their

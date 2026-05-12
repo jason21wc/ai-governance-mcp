@@ -213,6 +213,7 @@ class TestHandleGetPrinciple:
         mock_engine = Mock()
         mock_engine.get_principle_by_id.return_value = None
         mock_engine.get_method_by_id.return_value = None
+        mock_engine.get_reference_by_id.return_value = None
 
         result = await _handle_get_principle(mock_engine, {"principle_id": "meta-X99"})
 

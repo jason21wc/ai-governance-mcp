@@ -896,6 +896,145 @@ class RetrievalEngine:
         )
 
     # =========================================================================
+    # Reference Search
+    # =========================================================================
+
+    def search_references(
+        self,
+        query: str,
+        domain: str | None = None,
+        tags: list[str] | None = None,
+        max_results: int = 5,
+    ) -> list[ScoredReference]:
+        """Search reference library entries only.
+
+        Dedicated retrieval channel for implementation precedent — uses the
+        same BM25 + semantic infrastructure but filters to reference entries
+        only, so principles and methods don't compete.
+        """
+        self._check_index_freshness()
+        if not self.index or not self.bm25_index:
+            return []
+
+        start_time = time.time()
+
+        # Determine which domains to search
+        search_domains: set[str] | None = None
+        if domain:
+            if domain not in self.index.domains:
+                return []
+            search_domains = {domain}
+
+        # --- BM25 search (reference-only) ---
+        query_tokens = re.findall(r"\w+", query.lower())
+        bm25_scores_raw = self.bm25_index.get_scores(query_tokens)
+
+        bm25_ref_scores: dict[tuple[str, int], float] = {}
+        for idx, score in enumerate(bm25_scores_raw):
+            if idx >= len(self.bm25_docs):
+                break
+            doc_domain, item_type, local_idx = self.bm25_docs[idx]
+            if item_type != "reference":
+                continue
+            if search_domains and doc_domain not in search_domains:
+                continue
+            if score > 0:
+                bm25_ref_scores[(doc_domain, local_idx)] = score
+
+        # Normalize BM25 scores
+        max_bm25 = max(bm25_ref_scores.values()) if bm25_ref_scores else 1.0
+        for key in bm25_ref_scores:
+            bm25_ref_scores[key] /= max_bm25
+
+        # --- Semantic search (reference-only) ---
+        sem_ref_scores: dict[tuple[str, int], float] = {}
+        if self.content_embeddings is not None:
+            try:
+                query_embedding = self.embedder.encode([query])[0]
+            except (ConnectionError, RuntimeError) as e:
+                logger.warning("Reference semantic search unavailable: %s", e)
+                query_embedding = None
+
+            if query_embedding is not None:
+                for idx in range(len(self.content_embeddings)):
+                    if idx >= len(self.bm25_docs):
+                        break
+                    doc_domain, item_type, local_idx = self.bm25_docs[idx]
+                    if item_type != "reference":
+                        continue
+                    if search_domains and doc_domain not in search_domains:
+                        continue
+                    similarity = self._cosine_similarity(
+                        query_embedding, self.content_embeddings[idx]
+                    )
+                    if similarity > 0:
+                        sem_ref_scores[(doc_domain, local_idx)] = similarity
+
+        # --- Score fusion ---
+        all_keys = set(bm25_ref_scores.keys()) | set(sem_ref_scores.keys())
+        results: list[ScoredReference] = []
+
+        for key in all_keys:
+            doc_domain, local_idx = key
+            domain_index = self.index.domains.get(doc_domain)
+            if not domain_index or local_idx >= len(domain_index.references):
+                continue
+
+            ref = domain_index.references[local_idx]
+
+            # Status filter — exclude archived and deprecated
+            if ref.status in ("archived", "deprecated"):
+                continue
+
+            bm25_norm = bm25_ref_scores.get(key, 0.0)
+            sem_score = sem_ref_scores.get(key, 0.0)
+            combined = (
+                self.settings.semantic_weight * sem_score
+                + (1 - self.settings.semantic_weight) * bm25_norm
+            )
+
+            # Maturity adjustments match retrieve(); status subset since deprecated/archived are pre-filtered
+            maturity_adj = {"evergreen": 0.1, "budding": 0.0, "seedling": -0.05}
+            status_adj = {"current": 0.0, "caution": -0.1}
+            adj = (
+                combined
+                + maturity_adj.get(ref.maturity, 0.0)
+                + status_adj.get(ref.status, 0.0)
+            )
+            adj = min(1.0, max(0.0, adj))
+
+            # Tag filter — boost matching tags
+            if tags:
+                ref_tags_lower = {t.lower() for t in ref.tags}
+                query_tags_lower = {t.lower() for t in tags}
+                overlap = ref_tags_lower & query_tags_lower
+                if overlap:
+                    adj = min(1.0, adj + 0.05 * len(overlap))
+
+            results.append(
+                ScoredReference(
+                    reference=ref,
+                    semantic_score=sem_score,
+                    keyword_score=bm25_norm,
+                    combined_score=adj,
+                    confidence=self._get_confidence(adj),
+                )
+            )
+
+        results.sort(key=lambda r: r.combined_score, reverse=True)
+
+        retrieval_time = (time.time() - start_time) * 1000
+        logger.info(
+            "Reference search: query=%r domain=%s results=%d time=%.1fms",
+            query,
+            domain or "all",
+            len(results),
+            retrieval_time,
+        )
+
+        return results[:max_results]
+
+    # =========================================================================
     # Helper Methods
     # =========================================================================
 
@@ -971,6 +1110,19 @@ class RetrievalEngine:
             for method in domain_index.methods:
                 if method.id == method_id:
                     return method
+
+        return None
+
+    def get_reference_by_id(self, ref_id: str) -> ReferenceEntry | None:
+        """Get a specific reference entry by its ID."""
+        self._check_index_freshness()
+        if not self.index:
+            return None
+
+        for domain_index in self.index.domains.values():
+            for ref in domain_index.references:
+                if ref.id == ref_id:
+                    return ref
 
         return None
 

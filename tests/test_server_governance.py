@@ -2632,3 +2632,144 @@ class TestCritical5InEvaluateGovernance:
                     assert parsed["critical_5"][0]["type"] == "critical"
                     assert "scaffold" in parsed["critical_5"][0]
                     assert "scaffold" not in parsed["universal_floor"][0]
+
+
+# =============================================================================
+# Search References Tool Tests (BACKLOG #43)
+# =============================================================================
+
+
+class TestSearchReferencesTool:
+    """Integration tests for search_references MCP tool."""
+
+    @pytest.mark.asyncio
+    async def test_search_references_returns_results(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """search_references should return matching reference entries."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "search_references",
+                        {"query": "integration test setup fixtures"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+
+                    assert "results" in parsed
+                    assert "result_count" in parsed
+                    assert "hint" in parsed
+                    assert "get_principle" in parsed["hint"]
+
+                    if parsed["result_count"] > 0:
+                        ref = parsed["results"][0]
+                        assert "id" in ref
+                        assert "title" in ref
+                        assert "summary" in ref
+                        assert "domain" in ref
+                        assert "tags" in ref
+                        assert "confidence" in ref
+                        assert "score" in ref
+
+    @pytest.mark.asyncio
+    async def test_search_references_domain_filter(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """search_references with domain filter should restrict results."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "search_references",
+                        {"query": "test pattern", "domain": "ai-coding"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+                    assert parsed["domain_filter"] == "ai-coding"
+                    for ref in parsed["results"]:
+                        assert ref["domain"] == "ai-coding"
+
+    @pytest.mark.asyncio
+    async def test_search_references_empty_query_returns_error(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """search_references with empty query should return error."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "search_references",
+                        {"query": ""},
+                    )
+
+                    assert "Error" in result[0].text
+
+    @pytest.mark.asyncio
+    async def test_get_principle_returns_reference(
+        self,
+        reset_server_state,
+        test_settings,
+        saved_index,
+        mock_embedder,
+        mock_reranker,
+    ):
+        """get_principle should resolve reference IDs (progressive disclosure)."""
+        mock_st = Mock(return_value=mock_embedder)
+        mock_ce = Mock(return_value=mock_reranker)
+
+        with patch(
+            "ai_governance_mcp.server.load_settings", return_value=test_settings
+        ):
+            with patch("sentence_transformers.SentenceTransformer", mock_st):
+                with patch("sentence_transformers.CrossEncoder", mock_ce):
+                    from ai_governance_mcp.server import call_tool
+
+                    result = await call_tool(
+                        "get_principle",
+                        {"principle_id": "ref-ai-coding-test-integration-pattern"},
+                    )
+
+                    parsed = json.loads(extract_json_from_response(result[0].text))
+                    assert parsed["type"] == "reference"
+                    assert parsed["id"] == "ref-ai-coding-test-integration-pattern"
+                    assert parsed["domain"] == "ai-coding"
+                    assert "content" in parsed
+                    assert "tags" in parsed
+                    assert "status" in parsed

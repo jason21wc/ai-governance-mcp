@@ -33,6 +33,7 @@ from .handlers.retrieval import (
     _handle_list_domains,
     _handle_log_feedback,
     _handle_query_governance,
+    _handle_search_references,
 )
 from .handlers.governance import (
     _handle_evaluate_governance,
@@ -124,9 +125,10 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="get_principle",
             description=(
-                "Get the full content of a specific governance principle by ID. "
-                "Use after query_governance to get complete principle text. "
-                "IDs follow pattern: meta-core-informational-readiness, coding-quality-testing, etc."
+                "Get the full content of a specific governance principle, method, or reference by ID. "
+                "Use after query_governance or search_references to get complete text. "
+                "IDs follow pattern: meta-core-informational-readiness, coding-quality-testing, "
+                "ref-ai-coding-playwright-auth, etc."
             ),
             inputSchema={
                 "type": "object",
@@ -589,7 +591,46 @@ async def list_tools() -> list[Tool]:
                 "required": ["id", "title", "domain", "tags", "entry_type", "artifact"],
             },
         ),
-        # Tool 14: Feedback loop analysis (precomputed reader)
+        # Tool 14: Search reference library
+        Tool(
+            name="search_references",
+            description=(
+                "Search the Reference Library for implementation precedent before writing code. "
+                "Returns proven patterns, code templates, and lessons learned from prior implementations. "
+                "Call before implementing — references answer 'how has this been done before?' "
+                "unlike governance (what principles apply) or query_project (what code exists)."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Implementation-specific search, e.g. 'playwright auth setup'",
+                        "maxLength": 10000,  # M5 FIX: consistent with MAX_QUERY_LENGTH
+                        "minLength": 1,  # M5 FIX
+                    },
+                    "domain": {
+                        "type": "string",
+                        "description": "Filter to specific domain (e.g. 'ai-coding', 'kmpd')",
+                        "maxLength": 50,
+                    },
+                    "tags": {
+                        "type": "array",
+                        "description": "Boost results matching these technology tags e.g. ['playwright', 'nextjs']",
+                        "items": {"type": "string", "maxLength": 50},
+                        "maxItems": 10,
+                    },
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximum results to return (default 5, max 20)",
+                        "minimum": 1,
+                        "maximum": 20,
+                    },
+                },
+                "required": ["query"],
+            },
+        ),
+        # Tool 15: Feedback loop analysis (precomputed reader)
         Tool(
             name="analyze_feedback_loop",
             description=(
@@ -665,6 +706,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             result = await _handle_scaffold_project(arguments)
         elif name == "capture_reference":
             result = await _handle_capture_reference(arguments)
+        elif name == "search_references":
+            result = await _handle_search_references(engine, arguments)
         elif name == "analyze_feedback_loop":
             result = await _handle_analyze_feedback_loop(arguments)
         else:
