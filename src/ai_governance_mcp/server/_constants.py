@@ -482,7 +482,7 @@ AGENT_TEMPLATE_HASHES = {
     "code-reviewer": "0a480a1ca6f02a835c813bdb83d307b1f36578f3b4d87e630151ffedbc7806c0",
     "coherence-auditor": "51bd1f2608347d5a134d658715fdb912108bf307492cc338ded2b92ad9b5664b",
     "continuity-auditor": "217a9057bc03cc932d95d6038d1020a9be07cfd35a2ab61a71c66d40968ef76f",
-    "contrarian-reviewer": "7d243e0ca4f5eb6af8c55225dbc764712e9ab4603c31a6012ecafba3ed7d7afe",
+    "contrarian-reviewer": "a15acd1ac39b2a2c7fd35948deba7803a0113f75be4b40aa398e166438465cb9",
     "documentation-writer": "c1f1e0d5617d10c6b61cb3fb8e7e436a9ffe18c06f629c2d1201f3da3d998ad0",
     "orchestrator": "101cb68c5b3fb36db357080ec3c42806cb57808eafee9b061b8b00b02ca10501",
     "security-auditor": "5c2217d0a3041ad8afee3b46ae8c66e9e375ebbb9059b7637421037609d0ad27",
@@ -491,6 +491,11 @@ AGENT_TEMPLATE_HASHES = {
     "voice-coach": "3b634f624453c570783c90ea942432ac8557e355002a2797ebee831ba7b2a13a",
 }
 
+# AGENT_METADATA: Summary projections for install_agent and list_agents responses.
+# Canonical source: documents/agents/{agent_name}.md
+# These are intentionally condensed summaries, not full copies.
+# When updating a canonical agent file, check whether action_summary,
+# short_description, or applicable_domains here needs a corresponding update.
 AGENT_METADATA = {
     "code-reviewer": {
         "short_description": "Fresh-context code review specialist",
@@ -505,6 +510,8 @@ AGENT_METADATA = {
             "To verify: Look for 'code-reviewer' in the agents list when you start Claude Code.\n"
             "To remove: Use uninstall_agent(agent_name='code-reviewer')"
         ),
+        "applicable_domains": ["ai-coding", "ui-ux"],
+        "canonical_source": "documents/agents/code-reviewer.md",
     },
     "coherence-auditor": {
         "short_description": "Documentation drift detector",
@@ -519,6 +526,8 @@ AGENT_METADATA = {
             "To verify: Look for 'coherence-auditor' in the agents list when you start Claude Code.\n"
             "To remove: Use uninstall_agent(agent_name='coherence-auditor')"
         ),
+        "applicable_domains": ["*"],
+        "canonical_source": "documents/agents/coherence-auditor.md",
     },
     "continuity-auditor": {
         "short_description": "Narrative consistency verifier",
@@ -533,12 +542,14 @@ AGENT_METADATA = {
             "To verify: Look for 'continuity-auditor' in the agents list when you start Claude Code.\n"
             "To remove: Use uninstall_agent(agent_name='continuity-auditor')"
         ),
+        "applicable_domains": ["storytelling"],
+        "canonical_source": "documents/agents/continuity-auditor.md",
     },
     "contrarian-reviewer": {
         "short_description": "Devil's advocate for high-stakes decisions",
         "action_summary": (
             "- Challenge unstated assumptions and surface blind spots\n"
-            "- Identify coverage gaps and overlooked risks\n"
+            "- Identify the highest-leverage concern with full causal chain\n"
             "- Suggest alternative approaches with actionable recommendations"
         ),
         "activation_message": (
@@ -547,6 +558,8 @@ AGENT_METADATA = {
             "To verify: Look for 'contrarian-reviewer' in the agents list when you start Claude Code.\n"
             "To remove: Use uninstall_agent(agent_name='contrarian-reviewer')"
         ),
+        "applicable_domains": ["*"],
+        "canonical_source": "documents/agents/contrarian-reviewer.md",
     },
     "documentation-writer": {
         "short_description": "Documentation specialist for technical writing",
@@ -561,6 +574,8 @@ AGENT_METADATA = {
             "To verify: Look for 'documentation-writer' in the agents list when you start Claude Code.\n"
             "To remove: Use uninstall_agent(agent_name='documentation-writer')"
         ),
+        "applicable_domains": ["*"],
+        "canonical_source": "documents/agents/documentation-writer.md",
     },
     "orchestrator": {
         "short_description": "Governance coordination agent",
@@ -575,6 +590,8 @@ AGENT_METADATA = {
             "To verify: Look for 'orchestrator' in the agents list when you start Claude Code.\n"
             "To remove: Use uninstall_agent(agent_name='orchestrator')"
         ),
+        "applicable_domains": ["*"],
+        "canonical_source": "documents/agents/orchestrator.md",
     },
     "security-auditor": {
         "short_description": "Security-focused vulnerability detection",
@@ -589,6 +606,8 @@ AGENT_METADATA = {
             "To verify: Look for 'security-auditor' in the agents list when you start Claude Code.\n"
             "To remove: Use uninstall_agent(agent_name='security-auditor')"
         ),
+        "applicable_domains": ["ai-coding"],
+        "canonical_source": "documents/agents/security-auditor.md",
     },
     "test-generator": {
         "short_description": "Test creation specialist for behavior validation",
@@ -603,6 +622,8 @@ AGENT_METADATA = {
             "To verify: Look for 'test-generator' in the agents list when you start Claude Code.\n"
             "To remove: Use uninstall_agent(agent_name='test-generator')"
         ),
+        "applicable_domains": ["ai-coding"],
+        "canonical_source": "documents/agents/test-generator.md",
     },
     "validator": {
         "short_description": "Criteria-based quality validator",
@@ -617,6 +638,8 @@ AGENT_METADATA = {
             "To verify: Look for 'validator' in the agents list when you start Claude Code.\n"
             "To remove: Use uninstall_agent(agent_name='validator')"
         ),
+        "applicable_domains": ["*"],
+        "canonical_source": "documents/agents/validator.md",
     },
     "voice-coach": {
         "short_description": "Character voice analyst for dialogue distinction",
@@ -631,6 +654,8 @@ AGENT_METADATA = {
             "To verify: Look for 'voice-coach' in the agents list when you start Claude Code.\n"
             "To remove: Use uninstall_agent(agent_name='voice-coach')"
         ),
+        "applicable_domains": ["storytelling"],
+        "canonical_source": "documents/agents/voice-coach.md",
     },
 }
 

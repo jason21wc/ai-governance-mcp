@@ -42,6 +42,7 @@ from .handlers.governance import (
 )
 from .handlers.agents import (
     _handle_install_agent,
+    _handle_list_agents,
     _handle_uninstall_agent,
 )
 from .handlers.scaffold import (
@@ -389,7 +390,28 @@ async def list_tools() -> list[Tool]:
                 "required": ["agent_name"],
             },
         ),
-        # Tool 11: Log governance reasoning (Audit Trail Enhancement)
+        # Tool 11: List available governance agents (Cross-Platform Discovery)
+        Tool(
+            name="list_agents",
+            description=(
+                "List all available governance agent definitions with summaries. "
+                "Returns agent names, descriptions, applicable domains, and canonical source paths. "
+                "Works across all MCP-compatible platforms. Use install_agent() for full definitions."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "include_details": {
+                        "type": "boolean",
+                        "description": (
+                            "Include full action_summary for each agent (default: false)"
+                        ),
+                        "default": False,
+                    },
+                },
+            },
+        ),
+        # Tool 12: Log governance reasoning (Audit Trail Enhancement)
         # Part of Governance Reasoning Externalization feature
         Tool(
             name="log_governance_reasoning",
@@ -700,6 +722,8 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
             result = await _handle_install_agent(arguments)
         elif name == "uninstall_agent":
             result = await _handle_uninstall_agent(arguments)
+        elif name == "list_agents":
+            result = await _handle_list_agents(arguments)
         elif name == "log_governance_reasoning":
             result = await _handle_log_governance_reasoning(arguments)
         elif name == "scaffold_project":

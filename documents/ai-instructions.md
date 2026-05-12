@@ -1,5 +1,5 @@
 ---
-version: "4.0.4"
+version: "4.0.5"
 status: "active"
 effective_date: "2026-05-11"
 domain: "meta"
@@ -201,7 +201,7 @@ This loader is designed for use with:
 - title-10-ai-coding.md v2.8.1+
 - title-10-ai-coding-cfr.md v2.45.1+
 - title-20-multi-agent.md v2.7.3+
-- title-20-multi-agent-cfr.md v2.17.3+
+- title-20-multi-agent-cfr.md v2.18.0+
 - title-30-storytelling.md v1.4.2+
 - title-30-storytelling-cfr.md v1.1.3+
 - title-15-ui-ux.md v1.2.2+
@@ -218,6 +218,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.0.5 | 2026-05-11 | PATCH: title-20-multi-agent-cfr.md pin update v2.17.3+ → v2.18.0+ for Agent Definition SSOT + list_agents cross-platform discovery tool. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.4 | 2026-05-11 | PATCH: title-10-ai-coding-cfr.md pin update v2.45.0+ → v2.45.1+ for Appendix M.3 Prompt Master (cross-tool prompt generation skill, nidhinjs/prompt-master MIT v1.6.0). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.3 | 2026-05-10 | PATCH: title-10-ai-coding-cfr.md pin update v2.44.0+ → v2.45.0+ for Title 10 AI Agent Operations Governance (4 new Parts, ~700 lines). title-10-ai-coding.md pin update v2.8.0+ → v2.8.1+ for Out of Scope scope clarification. §5.6.4 ASI08 name fix: "Multi-Agent Trust Exploitation" → "Cascading Hallucination Chains" per canonical OWASP source. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.2 | 2026-05-09 | PATCH: title-15-ui-ux-cfr.md pin update v1.0.0+ → v1.1.0+ for Appendix A (Optional Design Ecosystem Tools) — domain-tool governance pattern. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-b7aa212852a3`. |

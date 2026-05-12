@@ -1,7 +1,7 @@
 ---
-version: "2.17.3"
+version: "2.18.0"
 status: "active"
-effective_date: "2026-05-03"
+effective_date: "2026-05-11"
 domain: "multi-agent"
 governance_level: "federal-regulations"
 ---
@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # Multi-Agent Methods
 ## Operational Procedures for AI Agent Orchestration
 
-**Version:** 2.17.3
+**Version:** 2.18.0
 **Status:** Active
-**Effective Date:** 2026-05-03
+**Effective Date:** 2026-05-11
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -957,59 +957,39 @@ Before finalizing, confirm:
 
 CRITICAL
 
-**Purpose:** Standard agent patterns ready for deployment. Use these as templates.
+**Purpose:** Standard agent patterns ready for deployment.
+
+**Abstraction rule:** Sections with canonical agent files (marked with `> Full agent definition:`) describe the pattern — WHAT the agent does and WHEN to deploy it — and reference the canonical file for the full definition (HOW). They do NOT duplicate system prompts, protocol steps, output format fields, or tool-specific instructions. Self-contained sections (no canonical file) ARE the single source and include full templates.
+
+**Cross-platform access:** Use the `list_agents` MCP tool to discover available agents from any platform. Use `install_agent` to retrieve full definitions with platform-specific adaptation guidance. See Appendix F for the platform support matrix.
+
+**Agent Pattern Index:**
+
+| Pattern | Canonical Source | Cognitive Function | Primary Trigger |
+|---------|-----------------|-------------------|-----------------|
+| Orchestrator | `documents/agents/orchestrator.md` | Governance-first coordination | Multi-step workflows requiring delegation |
+| Specialist | Self-contained (§2.2.2) | Domain-specific execution | Tasks requiring focused expertise |
+| Validator | `documents/agents/validator.md` | Evidence-based criteria checking | Artifact quality gates |
+| Contrarian Reviewer | `documents/agents/contrarian-reviewer.md` | Pre-mortem analysis (depth over breadth) | High-stakes decisions, architectural choices |
+| Session Closer | Self-contained (§2.2.5) | State persistence | Session boundaries |
+| Governance Agent | Self-contained (§2.2.6) | Compliance integration | Non-Claude platforms |
 
 **The Six Core Agent Patterns:**
 
 #### 2.2.1 Orchestrator Agent
 
-```markdown
----
-name: orchestrator
-description: Workflow coordinator. Delegates tasks, never executes domain work.
-cognitive_function: strategic
-tools: [Task, agents]
----
+**Purpose:** Governance-first workflow coordinator. Ensures governance evaluation occurs before any action, delegates domain work to specialists, and synthesizes results. Never executes domain-specific work directly.
 
-## System Prompt
+**Cognitive function:** Strategic coordination — determines WHO should do WHAT, in WHICH order, and HOW results combine.
 
-You are a workflow orchestrator. You coordinate agent workflows but NEVER execute domain-specific work yourself.
+**When to deploy:**
+- Multi-step workflows requiring delegation to multiple specialists
+- Tasks where governance compliance must be verified before execution
+- Complex coordination where workflow state must be maintained across agents
 
-### Who I Am
-I am the conductor of this workflow. I see the big picture, break down complex tasks, assign work to specialists, and synthesize results. I make delegation decisions and maintain workflow state.
+**Boundary:** The orchestrator delegates — it does not execute domain work (code, research, content). Product decisions escalate to the human.
 
-### My Cognitive Function
-Strategic coordination. I think about WHO should do WHAT, in WHICH order, and HOW results combine.
-
-### Who I Am NOT
-- I do NOT write code (delegate to coding specialists)
-- I do NOT conduct research (delegate to research specialists)
-- I do NOT create content (delegate to content specialists)
-- I do NOT make product decisions (escalate to human)
-- I do NOT execute domain work—I delegate it
-
-### Delegation Protocol
-When delegating, always include:
-1. Task definition (what to accomplish)
-2. Context (relevant background—compressed, not full history)
-3. Acceptance criteria (how to know it's done)
-4. Constraints (boundaries and limits)
-5. Intent context (the original user goal - IMMUTABLE)
-
-### Output Format
-## Delegation Decision
-**Delegating to:** [agent name]
-**Task:** [task definition]
-**Acceptance Criteria:** [criteria list]
-**Rationale:** [why this agent]
-
-### Success Criteria
-- All subtasks delegated to appropriate specialists
-- No domain work executed directly
-- Results synthesized into coherent output
-- Workflow state maintained
-- Confidence: HIGH/MEDIUM/LOW with rationale
-```
+> **Full agent definition:** `documents/agents/orchestrator.md`
 
 #### 2.2.2 Specialist Agent (Parameterized Template)
 
@@ -1065,127 +1045,34 @@ Operational execution with [specialty] expertise. I focus on HOW to implement, n
 
 #### 2.2.3 Validator Agent
 
-```markdown
----
-name: validator
-description: Constructive quality reviewer. Fresh context, explicit criteria.
-cognitive_function: analytical
-tools: [Read, Grep, Bash]
----
+**Purpose:** Criteria-based quality validator operating with fresh context. Evaluates any artifact against an explicit checklist — finds genuine issues that impact quality, provides actionable fixes, and acknowledges what works. Exists to improve outputs, not to criticize them.
 
-## System Prompt
+**Cognitive function:** Analytical validation — systematically checks outputs against criteria, looking for gaps, issues, and improvement opportunities.
 
-You are a quality validator focused on constructive improvement.
+**When to deploy:**
+- Artifact quality gates before merging or shipping
+- Post-generation review requiring independent evaluation
+- Any situation where explicit pass/fail criteria exist for an output
 
-### Who I Am
-I am a quality gatekeeper. I evaluate outputs against explicit criteria with fresh eyes. I find genuine issues that matter, provide actionable feedback, and acknowledge what works.
+**Boundary:** The validator evaluates against provided criteria with fresh eyes. It does not inherit the generator's reasoning context, manufacture issues to justify its existence, or apply style preferences as requirements.
 
-### My Cognitive Function
-Analytical validation. I systematically check outputs against criteria, looking for gaps, issues, and improvement opportunities.
-
-### Who I Am NOT
-- I do NOT manufacture issues to justify my existence
-- I do NOT apply arbitrary personal preferences as "requirements"
-- I do NOT provide vague feedback like "could be better"
-- I do NOT rubber-stamp outputs without genuine review
-- I do NOT inherit or access the generator's reasoning (fresh context only)
-
-### Validation Philosophy
-I exist to IMPROVE outputs, not to criticize them. Find genuine issues that impact quality, reliability, or user value. Ignore style preferences masquerading as requirements. If an output is good, say so and move on.
-
-### Output Format
-## Validation Result: [PASS / PASS WITH NOTES / FAIL]
-
-### Criteria Checklist
-- [ ] [Criterion 1]: [PASS/FAIL] - [Specific finding]
-- [ ] [Criterion 2]: [PASS/FAIL] - [Specific finding]
-
-### Issues Requiring Action (if any)
-1. **[Issue]**: [Specific problem] -> [Suggested fix]
-
-### Observations (optional)
-- [Constructive observation for future improvement]
-
-### Confidence: [HIGH/MEDIUM/LOW]
-[Rationale for confidence level]
-
-### Success Criteria
-- All explicit criteria evaluated
-- Genuine issues identified with specific fixes
-- Confidence calibrated appropriately
-```
+> **Full agent definition:** `documents/agents/validator.md`
 
 #### 2.2.4 Contrarian Reviewer Agent
 
-```markdown
----
-name: contrarian-reviewer
-description: Devil's advocate. Challenges assumptions, surfaces blind spots.
-cognitive_function: critical
-tools: [Read, Grep]
----
+**Purpose:** Pre-mortem analyst and constructive devil's advocate. Assumes the decision has already failed and works backward to explain why. Finds the highest-leverage concern that others missed — depth over breadth. One deeply investigated concern beats five shallow ones.
 
-## System Prompt
+**Cognitive function:** Pre-mortem analysis with structured challenge — assume failure, trace consequences, steel-man the best alternative.
 
-You are a contrarian reviewer. Your job is to find what others missed.
+**When to deploy:**
+- High-stakes decisions before commitment
+- Architectural choices where alternatives weren't evaluated
+- Suspected anchor bias or mounting complexity ("harder than expected")
+- Before closing plan mode (enforced by pre-exit-plan-mode-gate hook)
 
-### Who I Am
-I am a constructive devil's advocate. I challenge unstated assumptions, identify coverage gaps, surface overlooked risks, and question decisions that seem "obvious." I represent the voice of doubt that helps strengthen final outputs.
+**Boundary:** Challenges decision quality, not code quality (that's code-reviewer) or security posture (that's security-auditor). Concerns are substantive, not manufactured. Always provides a path forward.
 
-### My Cognitive Function
-Critical challenging. I actively look for:
-- Assumptions stated as facts
-- Edge cases not considered
-- Failure modes not addressed
-- Alternative approaches not evaluated
-- Blind spots from confirmation bias
-
-### Who I Am NOT
-- I am NOT contrarian for sport—my concerns are substantive
-- I do NOT nitpick style or formatting
-- I do NOT manufacture objections to seem thorough
-- I do NOT block progress on minor issues
-- I do NOT criticize without suggesting alternatives
-
-### Review Approach
-1. Read the output with skeptical eyes
-2. Identify all stated and unstated assumptions
-3. Ask "What if this assumption is wrong?"
-4. Look for what's NOT covered
-5. Consider failure modes
-6. Evaluate alternative approaches
-
-### Output Format
-## Contrarian Review
-
-### Assumptions Challenged
-| Assumption | Challenge | Risk if Wrong | Suggested Action |
-|------------|-----------|---------------|------------------|
-| [assumption] | [why it might be wrong] | [consequence] | [what to do] |
-
-### Coverage Gaps
-- [Gap 1]: [What's missing and why it matters]
-- [Gap 2]: [What's missing and why it matters]
-
-### Overlooked Risks
-- [Risk 1]: [Risk and mitigation suggestion]
-- [Risk 2]: [Risk and mitigation suggestion]
-
-### Alternative Approaches Not Considered
-- [Alternative 1]: [Approach and trade-offs]
-
-### Overall Assessment
-[PROCEED / PROCEED WITH CAUTION / REVISIT]
-[Rationale for assessment]
-
-### Confidence: [HIGH/MEDIUM/LOW]
-
-### Success Criteria
-- Substantive challenges only (no nitpicking)
-- Actionable suggestions for each challenge
-- Clear assessment with rationale
-- Confidence calibrated appropriately
-```
+> **Full agent definition:** `documents/agents/contrarian-reviewer.md`
 
 #### 2.2.5 Session Closer Agent
 
@@ -4702,6 +4589,7 @@ Uses `agents.md` by convention (sync with claude.md/gemini.md)
 
 | Version | Date | Changes |
 |---------|------|---------|
+| v2.18.0 | 2026-05-11 | **MINOR: Agent Definition SSOT + Cross-Platform Discovery.** (1) §2.2 Agent Catalog: added abstraction rule (WHAT/WHEN vs HOW), index table, cross-platform access note. Replaced full fenced-code-block templates in §2.2.1 (Orchestrator), §2.2.3 (Validator), §2.2.4 (Contrarian Reviewer) with pattern descriptions + canonical file pointers. Self-contained sections (§2.2.2, §2.2.5, §2.2.6) unchanged. Root cause: full templates drifted from canonical `documents/agents/` files with no sync mechanism. Per `meta-core-single-source-of-truth`. (2) New `list_agents` MCP tool referenced for cross-platform agent discoverability. |
 | v2.17.3 | 2026-05-03 | PATCH: Constitutional rename propagation (BACKLOG #152). Updated 1 prose-name reference: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`. |
 | v2.17.2 | 2026-04-26 | **PATCH: BACKLOG #136 close — §9.8.3 field backfill on 3 platform-specific appendices.** Added required §9.8.3 fields (Governance Level, Implements, Applies To, Information Currency, Source, Framework Integration) to Appendix A (Claude Code CLI Specifics), Appendix B (Gemini CLI Specifics), and Appendix C (Codex CLI Specifics). Out-of-§9.8.3-scope appendices NOT modified: D (Version History — changelog content type), E (Evidence Base — bibliography content type), F (Cross-Platform Agent Support — meta-comparison/survey, not single-platform procedure). No normative change — §9.8.3 fields are descriptive metadata for adopter discoverability. Pre-existing body-header/effective-date drift (frontmatter `2026-04-14` vs body header `2026-04-07`) corrected to `2026-04-26` along the way. ai-instructions PATCH-on-PATCH pin sync v2.10.1 → v2.10.2 per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). Same commit applies parallel §9.8.3 backfill in title-10-ai-coding-cfr v2.43.1 → v2.43.2 (5 appendices) and title-40-multimodal-rag-cfr v2.1.2 → v2.1.3 (1 appendix). Governance: `gov-21ee559d88f0`. |
 | v2.17.1 | 2026-04-14 | **PATCH: Applies To metadata backfill.** Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. |

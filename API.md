@@ -1,8 +1,8 @@
 # API Reference
 
-The AI Governance MCP project exposes two MCP servers with a combined 19 tools. The **Governance Server** provides semantic retrieval of AI governance principles, pre-action evaluation, and compliance auditing. The **Context Engine Server** provides semantic search across project content for code and documentation discovery.
+The AI Governance MCP project exposes two MCP servers with a combined 20 tools. The **Governance Server** provides semantic retrieval of AI governance principles, pre-action evaluation, and compliance auditing. The **Context Engine Server** provides semantic search across project content for code and documentation discovery.
 
-## Governance Server (15 Tools)
+## Governance Server (16 Tools)
 
 Run with: `python -m ai_governance_mcp.server`
 
@@ -344,6 +344,30 @@ State-specific returns:
 
 ```json
 {"name": "uninstall_agent", "arguments": {"agent_name": "orchestrator", "confirmed": true}}
+```
+
+---
+
+### list_agents
+
+**Purpose:** List all available governance agent definitions with summaries. Works across all MCP-compatible platforms (Claude Code, Gemini CLI, Cursor, Windsurf, ChatGPT Desktop). Use `install_agent()` for full definitions with platform-specific adaptation guidance.
+
+**Parameters:**
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `include_details` | boolean | No | Include full `action_summary` for each agent (default: false) |
+
+**Returns:** JSON with `total_agents`, `agents` array (each with `name`, `short_description`, `applicable_domains`, `canonical_source`), and `cross_platform_note`. When `include_details=true`, each agent also includes `action_summary`.
+
+**Example:**
+
+```json
+{"name": "list_agents", "arguments": {}}
+```
+
+```json
+{"name": "list_agents", "arguments": {"include_details": true}}
 ```
 
 ---

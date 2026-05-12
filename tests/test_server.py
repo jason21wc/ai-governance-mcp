@@ -504,7 +504,7 @@ class TestListTools:
 
         tools = await list_tools()
 
-        assert len(tools) == 15
+        assert len(tools) == 16
         tool_names = [t.name for t in tools]
         assert "query_governance" in tool_names
         assert "get_principle" in tool_names

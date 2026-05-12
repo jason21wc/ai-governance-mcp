@@ -14,7 +14,7 @@
 - **Name:** AI Governance MCP Server
 - **Purpose:** Semantic retrieval MCP for domain-specific principles/methods
 - **Owner:** Jason
-- **Status:** COMPLETE - All phases done, 19 tools (15 governance + 4 context engine). Run `pytest tests/ -v` for current test counts.
+- **Status:** COMPLETE - All phases done, 20 tools (16 governance + 4 context engine). Run `pytest tests/ -v` for current test counts.
 - **Repository:** github.com/jason21wc/ai-governance-mcp
 
 ## Phase Gates

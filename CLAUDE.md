@@ -63,7 +63,7 @@ After evaluating: cite principle IDs that influence your approach.
 
 code-reviewer, test-generator, security-auditor, documentation-writer, orchestrator, validator, contrarian-reviewer, coherence-auditor, continuity-auditor, voice-coach
 
-Edit `documents/agents/` (canonical source) first, then copy to `.claude/agents/`. CI verifies byte-match.
+Edit `documents/agents/` (canonical source) first, then copy to `.claude/agents/`. CI verifies byte-match. CFR §2.2 (title-20-multi-agent-cfr.md) describes agent patterns but references canonical files — it does not duplicate full definitions. `list_agents` MCP tool provides cross-platform agent discovery. Non-Claude platforms use `install_agent` to retrieve full definitions with adaptation guidance.
 
 - `.claude/agents/` — Local agent installations (synced from `documents/agents/`)
 - `.claude/skills/` — Project skills (invoke via `/skill-name`). Decision matrix for skill vs hook vs subagent vs workflow: EXECUTION-FRAMEWORK.md §3.7.

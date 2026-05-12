@@ -684,7 +684,13 @@ class TestMultiAgentConsistency:
         """Every agent in AVAILABLE_AGENTS must have metadata in AGENT_METADATA."""
         from ai_governance_mcp.server import AGENT_METADATA, AVAILABLE_AGENTS
 
-        required_keys = {"short_description", "action_summary", "activation_message"}
+        required_keys = {
+            "short_description",
+            "action_summary",
+            "activation_message",
+            "applicable_domains",
+            "canonical_source",
+        }
 
         for agent_name in AVAILABLE_AGENTS:
             assert agent_name in AGENT_METADATA, (
@@ -730,6 +736,49 @@ class TestMultiAgentConsistency:
         for agent_name in AGENT_TEMPLATE_HASHES:
             assert agent_name in AVAILABLE_AGENTS, (
                 f"Hash exists for '{agent_name}' but it's not in AVAILABLE_AGENTS"
+            )
+
+    def test_agent_metadata_short_description_alignment(self):
+        """AGENT_METADATA short_description terms should appear in canonical file."""
+        import re
+
+        from ai_governance_mcp.server import AGENT_METADATA, AVAILABLE_AGENTS
+
+        project_root = Path(__file__).parent.parent
+        agents_dir = project_root / "documents" / "agents"
+
+        for agent_name in AVAILABLE_AGENTS:
+            template = agents_dir / f"{agent_name}.md"
+            assert template.exists(), f"Canonical file missing for '{agent_name}'"
+
+            content = template.read_text()
+            frontmatter_match = re.search(r"^---\s*\n(.*?)\n---", content, re.DOTALL)
+            assert frontmatter_match, (
+                f"No YAML frontmatter in '{agent_name}' canonical file"
+            )
+            frontmatter = frontmatter_match.group(1).lower()
+
+            desc = AGENT_METADATA[agent_name]["short_description"].lower()
+            significant_words = [w for w in desc.split() if len(w) >= 4]
+            present = [w for w in significant_words if w in frontmatter]
+            assert len(present) >= 1, (
+                f"AGENT_METADATA short_description for '{agent_name}' has drifted "
+                f"from canonical frontmatter. No significant terms from "
+                f"'{AGENT_METADATA[agent_name]['short_description']}' found in "
+                f"frontmatter description."
+            )
+
+    def test_agent_metadata_canonical_source_exists(self):
+        """Every canonical_source path in AGENT_METADATA must point to a real file."""
+        from ai_governance_mcp.server import AGENT_METADATA, AVAILABLE_AGENTS
+
+        project_root = Path(__file__).parent.parent
+
+        for agent_name in AVAILABLE_AGENTS:
+            canonical = AGENT_METADATA[agent_name]["canonical_source"]
+            path = project_root / canonical
+            assert path.exists(), (
+                f"canonical_source '{canonical}' for '{agent_name}' does not exist"
             )
 
     @pytest.fixture(autouse=True)
@@ -881,3 +930,66 @@ class TestMultiAgentConsistency:
             f"and .claude/agents/ (local): {drifted}. "
             f"Edit documents/agents/ first, then copy to .claude/agents/."
         )
+
+
+class TestListAgents:
+    """Tests for list_agents tool."""
+
+    @pytest.mark.asyncio
+    async def test_list_agents_returns_all_agents(self):
+        """list_agents should return all 10 available agents."""
+        from ai_governance_mcp.server import _handle_list_agents
+
+        result = await _handle_list_agents({})
+
+        assert len(result) == 1
+        response = json.loads(result[0].text)
+        assert response["total_agents"] == 10
+        assert len(response["agents"]) == 10
+
+        for agent in response["agents"]:
+            assert "name" in agent
+            assert "short_description" in agent
+            assert "applicable_domains" in agent
+            assert "canonical_source" in agent
+            assert "action_summary" not in agent
+
+        assert "cross_platform_note" in response
+
+    @pytest.mark.asyncio
+    async def test_list_agents_include_details(self):
+        """list_agents with include_details=True should include action_summary."""
+        from ai_governance_mcp.server import _handle_list_agents
+
+        result = await _handle_list_agents({"include_details": True})
+
+        response = json.loads(result[0].text)
+        for agent in response["agents"]:
+            assert "action_summary" in agent
+            assert len(agent["action_summary"]) > 0
+
+    @pytest.mark.asyncio
+    async def test_list_agents_canonical_source_paths_exist(self):
+        """Every canonical_source in list_agents output must point to a real file."""
+        from ai_governance_mcp.server import _handle_list_agents
+
+        project_root = Path(__file__).parent.parent
+        result = await _handle_list_agents({})
+        response = json.loads(result[0].text)
+
+        for agent in response["agents"]:
+            path = project_root / agent["canonical_source"]
+            assert path.exists(), (
+                f"canonical_source '{agent['canonical_source']}' for "
+                f"'{agent['name']}' does not exist"
+            )
+
+    @pytest.mark.asyncio
+    async def test_list_agents_sorted_alphabetically(self):
+        """Agents should be returned in alphabetical order."""
+        from ai_governance_mcp.server import _handle_list_agents
+
+        result = await _handle_list_agents({})
+        response = json.loads(result[0].text)
+        names = [a["name"] for a in response["agents"]]
+        assert names == sorted(names)

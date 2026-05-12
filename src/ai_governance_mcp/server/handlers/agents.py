@@ -691,3 +691,34 @@ async def _handle_uninstall_agent(args: dict) -> list[TextContent]:
             suggestions=["Manually delete the file", f"Path: {install_path}"],
         )
         return [TextContent(type="text", text=error.model_dump_json(indent=2))]
+
+
+async def _handle_list_agents(args: dict) -> list[TextContent]:
+    """Handle list_agents tool — pure data projection from AGENT_METADATA."""
+    include_details = args.get("include_details", False)
+
+    agents = []
+    for name in sorted(AVAILABLE_AGENTS):
+        meta = AGENT_METADATA.get(name)
+        if not meta:
+            continue
+        entry = {
+            "name": name,
+            "short_description": meta["short_description"],
+            "applicable_domains": meta["applicable_domains"],
+            "canonical_source": meta["canonical_source"],
+        }
+        if include_details:
+            entry["action_summary"] = meta["action_summary"]
+        agents.append(entry)
+
+    output = {
+        "total_agents": len(agents),
+        "agents": agents,
+        "cross_platform_note": (
+            "Use install_agent(agent_name='...') to retrieve the full agent "
+            "definition with platform-specific adaptation guidance."
+        ),
+    }
+
+    return [TextContent(type="text", text=json.dumps(output, indent=2))]

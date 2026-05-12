@@ -102,9 +102,9 @@ Runtime:
 
 ## How It Works
 
-### 19 MCP Tools (2 Servers)
+### 20 MCP Tools (2 Servers)
 
-**Governance Server (15 tools):**
+**Governance Server (16 tools):**
 
 | Tool | Purpose |
 |------|---------|
@@ -119,6 +119,7 @@ Runtime:
 | `get_metrics` | Performance analytics |
 | `install_agent` | Install governance subagent (Claude Code only) |
 | `uninstall_agent` | Remove installed subagent |
+| `list_agents` | Discover available agents (cross-platform) |
 | `log_governance_reasoning` | Record per-principle reasoning traces for audit |
 | `scaffold_project` | Create governance memory files for new projects |
 | `capture_reference` | Create Reference Library entries from real application |
@@ -406,7 +407,7 @@ ai-governance-mcp/
 │   ├── config.py            # Settings management
 │   ├── extractor.py         # Document parsing + embeddings
 │   ├── retrieval.py         # Hybrid search engine
-│   ├── server/              # Governance MCP server + 15 tools (package)
+│   ├── server/              # Governance MCP server + 16 tools (package)
 │   ├── config_generator.py  # Multi-platform MCP configs
 │   ├── validator.py         # Principle ID validation
 │   └── context_engine/      # Context Engine MCP (4 tools)
