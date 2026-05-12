@@ -155,6 +155,10 @@ def _validate_predict_request(data: dict) -> None:
         for j, s in enumerate(pair):
             if not isinstance(s, str):
                 raise ValueError(f"pairs[{i}][{j}] is not a string")
+            if len(s) > MAX_TEXT_LENGTH:
+                raise ValueError(
+                    f"pairs[{i}][{j}] too long: {len(s)} > {MAX_TEXT_LENGTH}"
+                )
 
 
 # =============================================================================

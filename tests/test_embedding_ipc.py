@@ -167,6 +167,11 @@ class TestInputValidation:
         with pytest.raises(ValueError, match="not a string"):
             _validate_predict_request({"pairs": [[1, 2]]})
 
+    def test_predict_text_too_long(self):
+        long = "x" * (MAX_TEXT_LENGTH + 1)
+        with pytest.raises(ValueError, match="too long"):
+            _validate_predict_request({"pairs": [["short", long]]})
+
 
 # macOS AF_UNIX has a 104-byte path limit; pytest tmp_path is too long.
 @pytest.fixture
