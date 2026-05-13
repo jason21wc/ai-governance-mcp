@@ -7,7 +7,7 @@
 >
 > **Relationship to BACKLOG.md.** BACKLOG holds discrete projects (start, work, finish). OPERATIONS holds indefinite-lifecycle items (cadences that recur, tripwires that watch, metrics that accumulate). When a tripwire fires and creates discrete work, that work goes to BACKLOG as a project; the tripwire entry here records the firing and may remain active if the trigger can re-fire.
 >
-> **Origin.** Created 2026-05-03 per EXECUTION-FRAMEWORK.md gap analysis (Bucket 5/8 — Orchestration/Lifecycle) and BACKLOG #146 taxonomy split decision. Evaluated 4 alternatives (tag-only, two-file split, single file, fold into PROJECT-MEMORY) — single file with internal taxonomy selected.
+> **Origin.** Created 2026-05-03 per EXECUTION-FRAMEWORK.md gap analysis (Subsystem 8/10 — Orchestration/Lifecycle) and BACKLOG #146 taxonomy split decision. Evaluated 4 alternatives (tag-only, two-file split, single file, fold into PROJECT-MEMORY) — single file with internal taxonomy selected.
 
 ---
 

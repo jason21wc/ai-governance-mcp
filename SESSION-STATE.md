@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-12 (session-169 — behavioral floor directives + harness engineering article + constraint retirement check).
+**Last Updated:** 2026-05-13 (session-170 — Execution Framework 8-bucket → 10-subsystem restructuring).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,24 +12,21 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-169 (2026-05-12) — Behavioral floor directives + harness engineering article + constraint retirement check.**
+**Session-170 (2026-05-13) — Execution Framework 8-bucket → 10-subsystem restructuring.**
 
-**ACTION ON RESUME (session-170):** Time-cued: **C-109 deferred-cadence audit** (~2026-05-25). **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review). **C-012 Security Posture Review** first due ~2026-08-08. Docker image rebuild needed (Dockerfile CMD changed + enforcement.py updated).
+**ACTION ON RESUME (session-171):** Time-cued: **C-109 deferred-cadence audit** (~2026-05-25). **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review). **C-012 Security Posture Review** first due ~2026-08-08. Docker image rebuild needed (Dockerfile CMD changed + enforcement.py updated).
 
 **Critical state for next session:**
-- **Behavioral floor expanded** (2 new directives): `external-input-gap-analysis` + `conflicting-patterns` in CLAUDE.md + tiers.json (v2.1.0). Origin: Karpathy/Chang CLAUDE.md article + user feedback on existence-bias filtering (n=3+).
-- **BACKLOG #159 implemented** — Critical-5 re-injection hook for long conversations (≥100 transcript lines). 5 new tests, 102 hook tests passing.
-- **Harness engineering article evaluated** — reference library entry `ref-multi-agent-harness-engineering-synthesis` captured. Guide/sensor taxonomy (Böckeler) + verbose-on-success design rationale added to EXECUTION-FRAMEWORK.md §8.4.
-- **Check 12: Constraint Retirement Review** added to compliance review procedure. Runs every 3rd review. Evaluates whether behavioral floor directives + hooks still encode real model limitations.
-- **T-163 tripwire added** — CLAUDE.md instruction density degradation monitoring (>150 directives, >60% CANNOT DETERMINE, or <70% compliance).
-- **1691 tests passing** (non-slow). Index rebuilt: 133 principles + 735 methods + 18 references (886 total).
+- **EXECUTION-FRAMEWORK.md v2.0.0** — Restructured from 8-bucket to 10-subsystem architecture. Memory (Bucket 2) split into Working Memory (Subsystem 3), Persistent Storage (Subsystem 4), Reference Storage (Subsystem 5). Reordered by architectural dependency. "Bucket" → "subsystem", "sub-bucket" → "sub-component". CoALA provenance preserved. Procedural memory reclassified to Persistent Storage per contrarian review. §4 System Map restructured (all 7 CoALA types now have rows). §6 Memory Contracts split into 3 subsections. §12 Design History preserved with terminology conversion note.
+- **OPERATIONS.md** — Single reference updated (Bucket 5/8 → Subsystem 8/10).
+- **1691 tests passing** (non-slow). No code changes — docs only.
 - **Docker rebuild still needed** from session-168.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-169 (2026-05-12) — Behavioral floor + harness engineering + constraint retirement.
+- **Phase:** Session-170 (2026-05-13) — Execution Framework restructuring.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: C-109 deferred-cadence audit (~2026-05-25), Compliance Review #9 (~2026-05-22).
 
@@ -40,9 +37,9 @@
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.1.0** (reranking, MMR diversity, RRF opt-in, chunk quality filter, candidate pool cap, per-file dedup configurable cap=3, expanded 35-query benchmark) |
 | Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.45.1** (title-10-ai-coding-cfr), **v2.8.1** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.18.0** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.5** (ai-instructions), **v2.1.0** (tiers.json — critical_5 scaffold + external-input-gap-analysis + conflicting-patterns directives). |
-| Execution Framework | **v1.1.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, thematic structure) |
+| Execution Framework | **v2.0.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, 10-subsystem architecture) |
 | OPERATIONS.md | **v2** (3 cadences, 17 tripwires, 3 V-series, 5 metrics, 3 scheduled operations) |
-| Tests | **1686 passing** (non-slow subset) |
+| Tests | **1691 passing** (non-slow subset) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **20 MCP tools** (16 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -55,25 +52,21 @@
 
 ---
 
-## Last Session (2026-05-12)
+## Last Session (2026-05-13)
 
-168. **Session-168 (2026-05-12): Agent Definition SSOT + list_agents + Compliance Review #8 + BACKLOG #161.**
-   - **Agent Definition SSOT + list_agents shipped** (4df7fb7): CFR §2.2 template duplication eliminated. `list_agents` MCP tool for cross-platform discovery. AGENT_METADATA CI alignment test.
-   - **Compliance Review #8:** 13/13 PASS. V-009 CONFIRMED + retired. PHASE2_TRIGGERED fired→cleared (workload variance n=2).
-   - **BACKLOG #58/#59/#60 closed:** Superseded by shipped per-response reinforcement layers.
-   - **BACKLOG #162 added:** Accounting Domain (D3 New Capability, Active).
-   - **BACKLOG #161 implemented:** Enforcement proxy default path. config_generator defaults to proxy+soft-mode, Dockerfile CMD changed, docker-compose advisory variant, README+API.md sections, enforcement.py `_DEFAULT_ALLOWED` expanded. Code review caught 3 issues — all fixed.
-   - **Tests:** 1686 passing (was 1660).
+170. **Session-170 (2026-05-13): EXECUTION-FRAMEWORK.md 8-bucket → 10-subsystem restructuring.**
+   - **EXECUTION-FRAMEWORK.md v2.0.0:** Memory (Bucket 2) split into Working Memory (Subsystem 3), Persistent Storage (Subsystem 4), Reference Storage (Subsystem 5). 10 subsystems ordered by architectural dependency. Contrarian-reviewed: Procedural memory reclassified to Persistent Storage, S-Series collision avoided (Subsystem N in full), §2.3 empirical reconciliation note. §4 System Map restructured (all 7 CoALA types). §6 split into 3 subsections. §12 preserved with terminology note. 13-step plan, 3 verification agents — all checks passed.
+   - **OPERATIONS.md:** Single reference updated (Bucket 5/8 → Subsystem 8/10).
+   - **Tests:** 1691 passing (unchanged — docs-only change).
 
-167. **Session-167 (2026-05-11): BACKLOG #43 — search_references MCP tool + backlog hygiene + IPC fix.**
-   - **BACKLOG #43 closed:** `search_references` shipped as 15th governance tool. 1660 tests.
-
-166. **Session-166 (2026-05-11): Title 10 completion + Prompt Master ecosystem tool.**
-   - **BACKLOG #12 closed:** Title 10 AI Agent Operations Governance. CFR v2.45.0. Prompt Master (M.3) added.
+169. **Session-169 (2026-05-12): Behavioral floor directives + harness engineering article + constraint retirement check.**
+   - Behavioral floor expanded (2 new directives). BACKLOG #159 implemented. Harness engineering article evaluated. Check 12 added. T-163 tripwire added. 1691 tests.
 
 ---
 
 ## Previous Sessions
+
+*Session-169 (2026-05-12) Behavioral floor directives + harness engineering article + constraint retirement check. 1691 tests.*
 
 *Session-168 (2026-05-12) SSOT + list_agents + Compliance Review #8 + BACKLOG #161 enforcement proxy default. 1686 tests.*
 

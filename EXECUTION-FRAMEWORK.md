@@ -1,11 +1,11 @@
 ---
 title: Execution Framework
-version: v1.1.0
+version: v2.0.0
 type: Permanent blueprint — system architecture reference
 memory_type: Architectural
 started: 2026-04-29 (session-139)
-last_updated: 2026-05-03 (session-145)
-status: Blueprint — permanent reference. v0.1-draft bucket layer pending further empirical validation.
+last_updated: 2026-05-13 (session-170)
+status: Blueprint — permanent reference. v0.1-draft subsystem layer pending further empirical validation.
 trigger: External article — Akshay Pachaar, "The Anatomy of an Agent Harness" (April 2026)
 ---
 
@@ -17,7 +17,7 @@ trigger: External article — Akshay Pachaar, "The Anatomy of an Agent Harness" 
 >
 > **Pickup discipline.** A future reader (human or AI) opening this file cold should be able to resume exactly where the conversation left off. If you find yourself unable to do that, the file has lost necessary context and should be enriched, not compressed. Per session-140 user direction: do not summarize or compress this file's content during routine SESSION-STATE updates — the nuance is the point.
 >
-> **Bucket layer is v0.1-draft.** Treat it as such — propose changes, flag conflations, surface gaps. The root view was extended from 3-function to 4-function (Authority added) in the 2026-05-03 fresh-eyes analysis. The 8-bucket component layer remains v0.1-draft pending further empirical instantiation beyond the first skill.
+> **Subsystem layer is v0.1-draft.** Treat it as such — propose changes, flag conflations, surface gaps. The root view was extended from 3-function to 4-function (Authority added) in the 2026-05-03 fresh-eyes analysis. The 10-subsystem component layer remains v0.1-draft pending further empirical instantiation beyond the first skill. Restructured from the original 8-bucket model on 2026-05-13: Memory (Bucket 2) split into Working Memory, Persistent Storage, and Reference Storage based on swap-boundary analysis; reordered by architectural dependency; "bucket" renamed to "subsystem."
 
 ---
 
@@ -41,41 +41,43 @@ Both views co-exist and serve different decisions. Per `meta-method-single-sourc
 | View | Best used for | Question it answers |
 |---|---|---|
 | **4-function root view** (Information Flow / Control Flow / Quality Gates / Authority) | Design coherence at architectural level. Auditing whether a subsystem covers all needed functional dimensions. Explaining the framework to a new adopter at high abstraction. Determining if a proposed new principle/method/feature fits an existing function or surfaces a gap. | *"Are we covering all the necessary functional dimensions?"* |
-| **8-bucket component view** (Inference Engine, Memory, Retrieval, Action Layer, Orchestration, Verification & Quality, Governance Policy, Lifecycle) | Component-level swap and improvement decisions. Comparing implementations across systems. Mapping our framework to other frameworks. Identifying which areas have gaps vs solid coverage. | *"Which specific components do we have, and is there a better one available for this slot?"* |
+| **10-subsystem component view** (Inference Engine, Governance Policy, Working Memory, Persistent Storage, Reference Storage, Retrieval, Action Layer, Orchestration, Verification & Quality, Lifecycle) | Component-level swap and improvement decisions. Comparing implementations across systems. Mapping our framework to other frameworks. Identifying which areas have gaps vs solid coverage. | *"Which specific components do we have, and is there a better one available for this slot?"* |
 
-| Root Function (4) | Component Buckets |
+| Root Function (4) | Component Subsystems |
 |---|---|
-| Information Flow | Memory + Retrieval + Action Layer (Buckets 2, 3, 4) |
-| Control Flow | Orchestration + Lifecycle (Buckets 5, 8) |
-| Quality Gates | Verification & Quality (Bucket 6) |
-| Authority | Cross-cutting — operates on Buckets 6 and 7 jointly; S-Series veto cross-cuts all |
-| (Substrate) | Inference Engine (Bucket 1) — substrate, not a function we orchestrate |
-| (Container) | Governance Policy (Bucket 7) — defines what Authority enforces and Quality Gates verify |
+| Information Flow | Working Memory + Persistent Storage + Reference Storage + Retrieval + Action Layer (Subsystems 3, 4, 5, 6, 7) |
+| Control Flow | Orchestration + Lifecycle (Subsystems 8, 10) |
+| Quality Gates | Verification & Quality (Subsystem 9) |
+| Authority | Cross-cutting — operates on Subsystems 9 and 2 jointly; S-Series veto cross-cuts all |
+| (Substrate) | Inference Engine (Subsystem 1) — substrate, not a function we orchestrate |
+| (Container) | Governance Policy (Subsystem 2) — defines what Authority enforces and Quality Gates verify |
 
 When to switch between views:
 - Start a design conversation with the **root view** to ensure all dimensions are covered conceptually
-- Move to the **8-bucket view** when comparing implementations, evaluating swaps, or auditing component-level coverage
-- The root view answers *what must be true*; the bucket view answers *what specifically does it*
+- Move to the **10-subsystem view** when comparing implementations, evaluating swaps, or auditing component-level coverage
+- The root view answers *what must be true*; the subsystem view answers *what specifically does it*
 
-**Evolution:** Extended from 3-function (Information Flow / Control Flow / Quality Gates) to 4-function on 2026-05-03. The 3-function candidate was held across all session-140 bucket-layer iteration rounds as "not locked" (user note). The 4th function was identified during fresh-eyes analysis when reviewing the permission model — S-Series veto, hook permissions, constitutional hierarchy don't fit Quality Gates (they check permission, not correctness). See §12.7 for the full analysis context.
+**Evolution:** Extended from 3-function (Information Flow / Control Flow / Quality Gates) to 4-function on 2026-05-03. The 3-function candidate was held across all session-140 bucket-layer iteration rounds as "not locked" (user note). The 4th function was identified during fresh-eyes analysis when reviewing the permission model — S-Series veto, hook permissions, constitutional hierarchy don't fit Quality Gates (they check permission, not correctness). See §12.7 for the full analysis context. Restructured from 8-bucket to 10-subsystem on 2026-05-13 (Memory split into 3 based on swap boundaries).
 
 ---
 
-## 2. Component View — 8-Bucket Model (v0.1-draft)
+## 2. Subsystem Architecture (v0.1-draft)
 
 ### 2.1 What v0.1-draft means
 
-This is the **first complete pass** of the bucket model. We've identified buckets, sub-buckets, and resolved several conflations + the Bucket 6/7 collapse question. The model is **NOT** considered finalized; it should be **empirically tested** as more workflows/skills are designed. Continuing to abstract-reason about buckets without real instantiation is forward-continuation bias dressed as rigor (per session-140 contrarian round 3 finding).
+This is the **first complete pass** of the subsystem model. We've identified subsystems, sub-components, and resolved several conflations + the Subsystem 9/2 collapse question. The model is **NOT** considered finalized; it should be **empirically tested** as more workflows/skills are designed. Continuing to abstract-reason about subsystems without real instantiation is forward-continuation bias dressed as rigor (per session-140 contrarian round 3 finding).
 
-**Naming convention:** each bucket has a **canonical name** (preferred going forward) and a **legacy name** (used in earlier prose). Move toward canonical naming as content stabilizes.
+**Naming convention:** each subsystem has a **canonical name** (preferred going forward) and a **legacy name** (used in earlier prose). Move toward canonical naming as content stabilizes. Always write "Subsystem N" in full — never abbreviate to "S1", "S2", etc. to avoid collision with S-Series safety principles. In tables, use the sub-component name (e.g., "Working Memory" not "Subsystem 3").
 
-### 2.2 The 8 buckets
+### 2.2 The 10 subsystems
 
-#### Bucket 1: Inference Engine *(canonical)* / Compute *(legacy — equivalent to "the LLM")*
+**Two coexisting classification systems.** The subsystem architecture uses two orthogonal classification schemes. **CoALA cognitive types** (from the Cognitive Architectures for Language Agents framework, see PROJECT-MEMORY.md ADR-5) provide the cognitive taxonomy: Working, Semantic, Episodic, Procedural, Prospective, Reference, plus our Operational extension. These explain *why* we have different memory types — they serve different cognitive functions. **Subsystem boundaries** provide the swap taxonomy: components with different volatility, access patterns, and replacement strategies belong in different subsystems. These explain *how* we organize memory types for modular swap decisions. The CoALA types redistribute across three subsystems (Subsystem 3 Working Memory, Subsystem 4 Persistent Storage, Subsystem 5 Reference Storage) based on swap boundaries — a single CoALA type always belongs to exactly one subsystem.
+
+#### Subsystem 1: Inference Engine *(canonical)* / Compute *(legacy — equivalent to "the LLM")*
 
 The processor doing the actual reasoning. Not built by us — provided by Claude Code or whichever host harness runs us.
 
-| Sub-bucket (generic method level) | What it is | Component swap question |
+| Sub-component (generic method level) | What it is | Component swap question |
 |---|---|---|
 | Model selection | Choosing which model to use for a task | Opus 4.7 → Opus 5? Per-task right-sizing? |
 | Inference parameters | Temperature, max tokens, thinking mode | Tunable per task? |
@@ -84,50 +86,94 @@ The processor doing the actual reasoning. Not built by us — provided by Claude
 
 **Why surface this even though we don't own it:** swapping the model can change what scaffolding we still need (article's co-evolution insight — harness should thin as model improves).
 
-**Caveat previously withdrawn (session-140):** Bucket 1 is a peer bucket. The principle/method/appendix mapping applies (principle: "match model capability to task stakes"; method: "right-size by task type"; appendix: "Opus for D2+ in Claude Code").
+**Caveat previously withdrawn (session-140):** Subsystem 1 is a peer subsystem. The principle/method/appendix mapping applies (principle: "match model capability to task stakes"; method: "right-size by task type"; appendix: "Opus for D2+ in Claude Code").
 
-#### Bucket 2: Memory *(canonical, kept)*
+#### Subsystem 2: Governance Policy *(canonical)* / Intent / Governance OS *(legacy)*
 
-Persistent and transient state. Already mapped via CoALA in `PROJECT-MEMORY.md` ADR-5.
+What good looks like. The OS-equivalent that defines policies the system operates within. **Sub-component abstraction REVISED (session-140 round 3) — old list ("Constitution / Domain principles / Methods / Behavioral floor") was *content-inside-ai-governance*, not generic methods of a governance OS.**
 
-| Sub-bucket (generic method level) | What it is | ai-governance specific (appendix-level) | RAM-vs-disk failure mode |
+The corrected sub-components are derived from the framework's own Constitutional structure (per the user's defense, session-140 — supersedes contrarian round 3 anchoring concern; user's argument: "amendment process = the OS dictating rules for adding/changing/deleting files"):
+
+| Sub-component (generic governance method level) | What it provides | ai-governance specific | Home-automation-governance equivalent |
 |---|---|---|---|
-| Working memory | Current task state | `SESSION-STATE.md` | Storing decisions here → lost when pruned |
+| Foundational constraints | Absolute rules that cannot be overridden | S-Series (Bill of Rights) | Smoke alarms, child safety locks (cannot be overridden by AI) |
+| Organized normative content | Structured policy hierarchy at appropriate scope | Articles → meta-principles → domain principles | Policy hierarchy: house rules → room rules → device rules |
+| Procedural rules | How policies get applied/interpreted | Rules of Procedure (methods) | Procedure for AI handling ambiguous commands |
+| Authority resolution | Resolving conflicts when policies contradict | Constitutional supremacy clause + 7-layer hierarchy | Safety policy trumps convenience policy when they conflict |
+| Amendment process | How policy changes over time (the OS dictating rules for adding/changing/deleting policy content) | MAJOR/MINOR/PATCH versioning per `meta-method-content-updates` | Adding new device types, deprecating old behaviors |
+| Domain application | Context-specific application | Domain principles (title-NN) | Different rules for kitchen vs bathroom vs bedroom |
+| Authority & adoption | How the OS gains operative authority over a project + resolves authority hierarchy | "Adoption and Authority" subsection at constitution.md:96; framework activates via CLAUDE.md inclusion | Homeowner enables AI control of specific devices |
+
+**Status of "Authority & adoption" sub-component:** Partially resolved (2026-05-03). Authority is now a root function (§1). "Adoption" specifically is a Lifecycle event (Subsystem 10) — the activation moment where a governance OS gains authority over a project. See §11 open questions for remaining placement uncertainty.
+
+**Caveat previously claimed for Governance Policy (session-140 round 2) — WITHDRAWN.** I had said "Bucket 7 is the meta-layer that recursively contains principle/method/appendix." That was a category error. I was looking inside ai-governance's specific OS instantiation (Constitution / Methods / Appendices) and calling that the bucket structure. User correction: Subsystem 2's components are GENERIC governance OS functions — separate from the content INSIDE any specific governance OS.
+
+#### Subsystem 3: Working Memory
+
+Volatile session-scoped state. The CPU registers and DRAM equivalent — fast, essential during operation, expected to be lost when the session ends.
+
+**CoALA provenance:** Working memory type (core CoALA). Subsystem boundary: volatile, session-scoped, pruned at session start. Unlike Persistent Storage (Subsystem 4), content here is expected to be lost between sessions. Swap question: should session state use a different mechanism (database, MCP server) instead of a markdown file?
+
+| Sub-component | What it is | ai-governance specific | Failure mode |
+|---|---|---|---|
+| Working memory (CoALA: Working) | Current task state | `SESSION-STATE.md`, context window | Storing decisions here → lost when pruned |
+
+Component-level questions: Is 300-line pruning threshold right? Should SESSION-STATE be structured data for programmatic access? Should context window management be explicit rather than host-delegated?
+
+#### Subsystem 4: Persistent Storage
+
+Durable mutable state that accumulates across sessions. The HDD/SSD equivalent — slower to access than working memory but survives session boundaries.
+
+**CoALA provenance:** Semantic, Episodic, Prospective, Operational (core CoALA + extensions), and Procedural (core CoALA — reclassified from Reference Storage per contrarian review; skills are actively authored and session-modified, sharing the mutable/maintained pattern of OPERATIONS.md rather than the read-mostly pattern of reference-library). Subsystem boundary: durable, accumulates via append/update, analogous to HDD/SSD. Swap question: should these be structured data or a database instead of markdown files?
+
+| Sub-component (CoALA type) | What it is | ai-governance specific | Failure mode |
+|---|---|---|---|
 | Semantic memory | Decisions & constraints | `PROJECT-MEMORY.md` | Storing transient context here → bloat |
 | Episodic memory | Lessons from past failures | `LEARNING-LOG.md` | Storing decisions here → mixes "what we believe" with "what we learned" |
 | Procedural memory | How-to patterns | `.claude/skills/*/` | Storing principles here → conflates rules with procedures |
 | Prospective memory | Future intentions | `BACKLOG.md` | Storing decisions here → intentions and decisions get confused |
 | Operational memory | Recurring commitments | `OPERATIONS.md` | Storing projects here → confuses discrete work with ongoing monitoring |
+
+Component-level questions: Should PROJECT-MEMORY be append-only structured data for pattern analysis? Should LEARNING-LOG entries be queryable? Should skills have a more formal execution interface beyond markdown loading?
+
+**Sub-component abstraction status:** clean — these ARE generic methods (CoALA framework is generic, not ai-governance-specific). Extended from the original 6-type Bucket 2 taxonomy (2026-05-03) plus Procedural memory reclassified from Reference Storage (2026-05-13 contrarian review).
+
+#### Subsystem 5: Reference Storage
+
+Read-mostly curated external knowledge. The ROM / library shelf equivalent — written infrequently via curation workflow, consumed frequently via retrieval.
+
+**CoALA provenance:** Reference memory (cognitive science extension, not core CoALA). Sole occupant of this subsystem. Subsystem boundary: read-mostly, curated rather than accumulated, analogous to ROM/library shelf. Unlike Persistent Storage (Subsystem 4) which grows via append, Reference Storage grows via curation (stage → promote workflow). Swap question: should the reference library move to a vector index or structured database?
+
+| Sub-component (CoALA type) | What it is | ai-governance specific | Failure mode |
+|---|---|---|---|
 | Reference memory | External knowledge | `reference-library/` | Treating as authoritative when it's secondary authority |
 
-Component-level questions: Are markdown files the right format? Should `LEARNING-LOG.md` be append-only structured data so we can analyze patterns? Should `reference-library/` move to a vector index?
+Component-level questions: Should reference entries be auto-staged after complex sessions (BACKLOG #41)? Should entries have stack/platform metadata for retrieval filtering (BACKLOG #46)?
 
-**Sub-bucket abstraction status:** clean — these ARE generic methods (CoALA framework is generic, not ai-governance-specific). Extended from 6 to 7 types with Operational memory (OPERATIONS.md, 2026-05-03).
+#### Subsystem 6: Retrieval *(canonical, kept)*
 
-#### Bucket 3: Retrieval *(canonical, kept)*
+How memory becomes context. The motherboard pathways. **Sub-component abstraction needs sharpening — current list mixes mechanism-level and policy-level methods (contrarian found, session-140 round 3).**
 
-How memory becomes context. The motherboard pathways. **Sub-bucket abstraction needs sharpening — current list mixes mechanism-level and policy-level methods (contrarian found, session-140 round 3).**
-
-| Sub-bucket (mechanism-level — generic) | What it is | Current implementation |
+| Sub-component (mechanism-level — generic) | What it is | Current implementation |
 |---|---|---|
 | Semantic retrieval | Vector similarity over corpus | Context Engine MCP server (`query_project`, BGE-small-en-v1.5, 384d) |
 | Lexical retrieval | Exact text match | grep, glob, ripgrep |
 | Direct read | Known-path access | Read tool, file open by path |
 
-| Sub-bucket (policy-level — when to retrieve) | What it is | Current implementation |
+| Sub-component (policy-level — when to retrieve) | What it is | Current implementation |
 |---|---|---|
 | Always-on context | Auto-loaded at every turn | CLAUDE.md, AGENTS.md, system reminders |
 | Selective load | Loaded on demand | Memory files read by session-start protocol |
 
-**Open question:** should mechanism-level and policy-level be split into Bucket 3a / 3b, or kept as parallel sub-bucket lists within Bucket 3? Defer until further empirical testing.
+**Open question:** should mechanism-level and policy-level be split into Subsystem 6a / 6b, or kept as parallel sub-component lists within Subsystem 6? Defer until further empirical testing.
 
 Component-level questions: Is BGE-small-en-v1.5 still right (BACKLOG #16)? Is 512-token chunking optimal? Should we add reranking?
 
-#### Bucket 4: Action Layer *(canonical)* / Tools *(legacy)*
+#### Subsystem 7: Action Layer *(canonical)* / Tools *(legacy)*
 
-How the system affects the world. I/O — both inbound (sensors) and outbound (effectors). **Sub-bucket abstraction REVISED (session-140 round 3) — old list ("Governance tools / Retrieval tools / File operations") was content-level, not method-level.**
+How the system affects the world. I/O — both inbound (sensors) and outbound (effectors). **Sub-component abstraction REVISED (session-140 round 3) — old list ("Governance tools / Retrieval tools / File operations") was content-level, not method-level.**
 
-| Sub-bucket (generic method level) | What it is | ai-governance specific (appendix-level) |
+| Sub-component (generic method level) | What it is | ai-governance specific (appendix-level) |
 |---|---|---|
 | Tool schema definition | Define what a tool does and what it accepts | MCP tool definitions in server.py |
 | Tool registration | Make tools discoverable to the host | MCP server protocol registration |
@@ -138,31 +184,31 @@ How the system affects the world. I/O — both inbound (sensors) and outbound (e
 
 Component-level questions: Which tools should be `install_agent`-gated rather than always-available? Should we expose more analysis tools (BACKLOG #42 Feedback Loop Analysis Tool)?
 
-#### Bucket 5: Orchestration *(canonical)* / Control Flow *(legacy)*
+#### Subsystem 8: Orchestration *(canonical)* / Control Flow *(legacy)*
 
-What happens next. The CPU scheduler equivalent. **Sub-bucket abstraction needs sharpening — current list mixes pattern-level, mechanism-level, and scope-level (contrarian found, session-140 round 3).**
+What happens next. The CPU scheduler equivalent. **Sub-component abstraction needs sharpening — current list mixes pattern-level, mechanism-level, and scope-level (contrarian found, session-140 round 3).**
 
-| Sub-bucket (control-pattern level) | What it is | Current implementation |
+| Sub-component (control-pattern level) | What it is | Current implementation |
 |---|---|---|
 | Reactive loop | Input → decide → act → observe → repeat | Host harness ReAct cycle |
 | Planned execution | Plan-then-execute | Plan Mode (D2+ tasks) |
 
-| Sub-bucket (mechanism level) | What it is | Current implementation |
+| Sub-component (mechanism level) | What it is | Current implementation |
 |---|---|---|
 | Triggered handlers | Event-driven actions | 8 hooks (PreToolUse, PrePush, etc.) |
 | Subagent delegation | Hand off to specialist | Task tool with subagent definitions |
 
-| Sub-bucket (scope level) | What it is | Current implementation |
+| Sub-component (scope level) | What it is | Current implementation |
 |---|---|---|
 | Multi-agent coordination | Sequential / parallel / handoff patterns across agents | `multi-architecture-orchestration-pattern-selection` |
 
-**Open question:** should these three layers be split into Bucket 5a/5b/5c? Defer until further empirical testing. Mild signal from compliance-review skill: the skill acts as both "orchestration" (sequencing 13 checks) and "application program" (user-invokable workflow) — a future sub-bucket split between orchestration mechanisms and application programs may be warranted as more skills are created.
+**Open question:** should these three layers be split into Subsystem 8a/8b/8c? Defer until further empirical testing. Mild signal from compliance-review skill: the skill acts as both "orchestration" (sequencing 13 checks) and "application program" (user-invokable workflow) — a future sub-component split between orchestration mechanisms and application programs may be warranted as more skills are created.
 
-#### Bucket 6: Verification & Quality *(canonical)* / Quality Gates *(legacy)*
+#### Subsystem 9: Verification & Quality *(canonical)* / Quality Gates *(legacy)*
 
-Catching problems and verifying correctness. **Stays SEPARATE from Bucket 7** per `constitution.md:120-133`: enforcement is cross-cutting, not OS-internal. Enforcement answers "how is the rule made sticky?" while Bucket 7 answers "what is the rule?" — different questions, different buckets.
+Catching problems and verifying correctness. **Stays SEPARATE from Subsystem 2** per `constitution.md:120-133`: enforcement is cross-cutting, not OS-internal. Enforcement answers "how is the rule made sticky?" while Subsystem 2 answers "what is the rule?" — different questions, different subsystems.
 
-| Sub-bucket (generic method level) | What it is | Current implementation |
+| Sub-component (generic method level) | What it is | Current implementation |
 |---|---|---|
 | Pre-action gates | Block before damage | 8 hard-mode hooks (PreToolUse blocking, etc.) |
 | Post-action verification | Catch errors after | Subagent battery (validator, contrarian-reviewer, coherence-auditor) |
@@ -171,37 +217,17 @@ Catching problems and verifying correctness. **Stays SEPARATE from Bucket 7** pe
 | Audit trail | What happened and why | governance_audit.jsonl, deny logs |
 | Static correctness checks | Tests, linters, type checkers | pytest, ruff, mypy |
 
-**Boundary with Bucket 7 (per `constitution.md:120-133`):**
-- Bucket 7 (Governance Policy) defines "what is the rule?" — normative content
-- Bucket 6 (Verification & Quality) defines "how is the rule made sticky?" — enforcement mechanisms
-- Bucket 6 cross-cuts — operates on multiple Bucket 7 sub-buckets simultaneously
+**Boundary with Subsystem 2 (per `constitution.md:120-133`):**
+- Subsystem 2 (Governance Policy) defines "what is the rule?" — normative content
+- Subsystem 9 (Verification & Quality) defines "how is the rule made sticky?" — enforcement mechanisms
+- Subsystem 9 cross-cuts — operates on multiple Subsystem 2 sub-components simultaneously
 - A hierarchy that conflates them hides the answer to either
 
-#### Bucket 7: Governance Policy *(canonical)* / Intent / Governance OS *(legacy)*
-
-What good looks like. The OS-equivalent that defines policies the system operates within. **Sub-bucket abstraction REVISED (session-140 round 3) — old list ("Constitution / Domain principles / Methods / Behavioral floor") was *content-inside-ai-governance*, not generic methods of a governance OS.**
-
-The corrected sub-buckets are derived from the framework's own Constitutional structure (per the user's defense, session-140 — supersedes contrarian round 3 anchoring concern; user's argument: "amendment process = the OS dictating rules for adding/changing/deleting files"):
-
-| Sub-bucket (generic governance method level) | What it provides | ai-governance specific | Home-automation-governance equivalent |
-|---|---|---|---|
-| Foundational constraints | Absolute rules that cannot be overridden | S-Series (Bill of Rights) | Smoke alarms, child safety locks (cannot be overridden by AI) |
-| Organized normative content | Structured policy hierarchy at appropriate scope | Articles → meta-principles → domain principles | Policy hierarchy: house rules → room rules → device rules |
-| Procedural rules | How policies get applied/interpreted | Rules of Procedure (methods) | Procedure for AI handling ambiguous commands |
-| Authority resolution | Resolving conflicts when policies contradict | Constitutional supremacy clause + 7-layer hierarchy | Safety policy trumps convenience policy when they conflict |
-| Amendment process | How policy changes over time (the OS dictating rules for adding/changing/deleting policy content) | MAJOR/MINOR/PATCH versioning per `meta-method-content-updates` | Adding new device types, deprecating old behaviors |
-| Domain application | Context-specific application | Domain principles (title-NN) | Different rules for kitchen vs bathroom vs bedroom |
-| Authority & adoption | How the OS gains operative authority over a project + resolves authority hierarchy | "Adoption and Authority" subsection at constitution.md:96; framework activates via CLAUDE.md inclusion | Homeowner enables AI control of specific devices |
-
-**Status of "Authority & adoption" sub-bucket:** Partially resolved (2026-05-03). Authority is now a root function (§1). "Adoption" specifically is a Lifecycle event (Bucket 8) — the activation moment where a governance OS gains authority over a project. See §11 open questions for remaining placement uncertainty.
-
-**Caveat previously claimed for Bucket 7 (session-140 round 2) — WITHDRAWN.** I had said "Bucket 7 is the meta-layer that recursively contains principle/method/appendix." That was a category error. I was looking inside ai-governance's specific OS instantiation (Constitution / Methods / Appendices) and calling that the bucket structure. User correction: Bucket 7's components are GENERIC governance OS functions — separate from the content INSIDE any specific governance OS.
-
-#### Bucket 8: Lifecycle *(canonical, kept)*
+#### Subsystem 10: Lifecycle *(canonical, kept)*
 
 Boot, shutdown, sleep, wake. Different timescale than runtime control flow.
 
-| Sub-bucket (generic method level) | What it is | Current implementation |
+| Sub-component (generic method level) | What it is | Current implementation |
 |---|---|---|
 | Initialization | Bring system to ready state | CLAUDE.md session-start protocol |
 | Steady-state persistence | Save state during normal operation | SESSION-STATE updates, git checkpoints |
@@ -209,36 +235,40 @@ Boot, shutdown, sleep, wake. Different timescale than runtime control flow.
 | Resumption | Pick up across context windows | Ralph Loop equivalent (ACTION ON RESUME blocks) |
 | Inter-agent handoff | Context transfer between specialists | Multi-agent handoff protocols |
 
-### 2.3 Empirical assessment — compliance-review skill vs 8-bucket model (2026-05-03)
+### 2.3 Empirical assessment — compliance-review skill vs 10-subsystem model
+
+**Provenance note:** Originally validated against the 8-bucket model (2026-05-03), which concluded 'Model held — all 8 buckets are distinct.' The restructuring does not contradict that finding. The empirical test validated bucket *boundaries* — each bucket has a characteristically different interaction type. The restructuring addresses swap *boundaries within* the Memory bucket — Working memory and Reference memory have different replacement strategies despite both being 'Memory.' The 8-bucket interactions redistribute cleanly across 10 subsystems.
 
 Per §2.1: "the model should be empirically tested when workflows/skills design begins." The compliance-review skill (`.claude/skills/compliance-review/SKILL.md`) is the first instantiation. Assessment:
 
-| Bucket | How the Skill Touches It | Interaction Type |
+| Subsystem | How the Skill Touches It | Interaction Type |
 |--------|--------------------------|-----------------|
-| **1 — Inference Engine** | Skill loads into main LLM context (application program running on CPU) | Direct — skill IS a program on the inference engine |
-| **2 — Memory** | Reads compliance-review skill files (procedure.md, audit-log.md), checks SESSION-STATE (V-005), reads LEARNING-LOG (Check 4), references BACKLOG (Check 8) | Heavy consumer — reads from 4 memory surfaces |
-| **3 — Retrieval** | Check 6 runs `query_governance()` canary — tests retrieval system health | Direct test of retrieval pipeline |
-| **4 — Action Layer** | Tests MCP server (Check 6 canary), governance tool calls during execution | Indirect — exercises the action layer, doesn't modify it |
-| **5 — Orchestration** | Skill IS an orchestration mechanism: coordinates 13-check workflow, spawns validator subagent (Check 5d), uses dynamic content injection | The skill lives here — it is the application program |
-| **6 — Verification & Quality** | The entire compliance review IS a verification activity. Checks hook integrity (1), enforcement mode (1b), audit logs (6b) | The skill's PURPOSE is this bucket — cross-cutting quality gate |
-| **7 — Governance Policy** | Checks tiers.json/CLAUDE.md alignment (Check 3), constitutional register integrity (Check 9) | Validates governance policy surfaces are coherent |
-| **8 — Lifecycle** | Review has cadence lifecycle (10-15 days). V-series experiments track behavioral evolution. Review log captures longitudinal data. | Lifecycle management of the review process itself |
+| **Subsystem 1 — Inference Engine** | Skill loads into main LLM context (application program running on CPU) | Direct — skill IS a program on the inference engine |
+| **Subsystem 2 — Governance Policy** | Checks tiers.json/CLAUDE.md alignment (Check 3), constitutional register integrity (Check 9) | Validates governance policy surfaces are coherent |
+| **Subsystem 3 — Working Memory** | Checks SESSION-STATE (V-005) | Consumer — reads volatile session state |
+| **Subsystem 4 — Persistent Storage** | Reads LEARNING-LOG (Check 4), references BACKLOG (Check 8), reads OPERATIONS cadences | Heavy consumer — reads from 3 persistent surfaces |
+| **Subsystem 5 — Reference Storage** | Reads compliance-review skill files (procedure.md, audit-log.md) | Consumer — loads procedural reference |
+| **Subsystem 6 — Retrieval** | Check 6 runs `query_governance()` canary — tests retrieval system health | Direct test of retrieval pipeline |
+| **Subsystem 7 — Action Layer** | Tests MCP server (Check 6 canary), governance tool calls during execution | Indirect — exercises the action layer, doesn't modify it |
+| **Subsystem 8 — Orchestration** | Skill IS an orchestration mechanism: coordinates 13-check workflow, spawns validator subagent (Check 5d), uses dynamic content injection | The skill lives here — it is the application program |
+| **Subsystem 9 — Verification & Quality** | The entire compliance review IS a verification activity. Checks hook integrity (1), enforcement mode (1b), audit logs (6b) | The skill's PURPOSE is this subsystem — cross-cutting quality gate |
+| **Subsystem 10 — Lifecycle** | Review has cadence lifecycle (10-15 days). V-series experiments track behavioral evolution. Review log captures longitudinal data. | Lifecycle management of the review process itself |
 
-**Assessment: Model held.** All 8 buckets are distinct and the skill interacts with each in a characteristically different way. No bucket felt redundant, misplaced, or missing.
+**Assessment: Model held.** All 10 subsystems are distinct and the skill interacts with each in a characteristically different way. No subsystem felt redundant, misplaced, or missing.
 
-**Key finding — Bucket 5/6 boundary:** The skill (Bucket 5, orchestration tool) executes verification checks (Bucket 6, verification activity). This confirms the bucket separation is about the component's *nature* (what it is), not its *consumer* (who uses it). The compliance-review skill is an orchestration mechanism; the checks it runs are verification activities. A skill that runs analytics would be a Bucket 5 component exercising Bucket 3 retrieval — same pattern.
+**Key finding — Subsystem 8/9 boundary:** The skill (Subsystem 8, orchestration tool) executes verification checks (Subsystem 9, verification activity). This confirms the subsystem separation is about the component's *nature* (what it is), not its *consumer* (who uses it). The compliance-review skill is an orchestration mechanism; the checks it runs are verification activities. A skill that runs analytics would be a Subsystem 8 component exercising Subsystem 6 retrieval — same pattern.
 
 **Open questions updated:**
-- §11 item 7 (Bucket 3 sub-bucket split): No signal from this test — skill's retrieval interaction is a single canary query, not enough to assess sub-bucket structure.
-- §11 item 8 (Bucket 5 sub-bucket split): Mild signal — see Bucket 5 open question above.
+- §11 item 7 (Subsystem 6 sub-component split): No signal from this test — skill's retrieval interaction is a single canary query, not enough to assess sub-component structure.
+- §11 item 8 (Subsystem 8 sub-component split): Mild signal — see Subsystem 8 open question above.
 
-**Conclusion:** No bucket adjustments needed for Phase 2 (OPERATIONS.md). The 8-bucket model maps cleanly to the first real instantiation.
+**Conclusion:** No subsystem adjustments needed for Phase 2 (OPERATIONS.md). The subsystem model maps cleanly to the first real instantiation.
 
 ---
 
 ## 3. Computer Architecture Analogies
 
-The following refine the bucket model's computer analogies. Each captures a connection the initial session-140 analysis missed or mapped too literally. Added 2026-05-03 during fresh-eyes analysis.
+The following refine the subsystem model's computer analogies. Each captures a connection the initial session-140 analysis missed or mapped too literally. Added 2026-05-03 during fresh-eyes analysis.
 
 ### 3.1 BIOS/bootloader — CLAUDE.md, AGENTS.md, ai-instructions.md
 
@@ -256,7 +286,7 @@ User confirmed (2026-05-03): "excellent analogy" — the OS ports unchanged, the
 
 ### 3.2 System bus — MCP protocol
 
-MCP is more fundamental than a tool in the Action Layer (Bucket 4). It's the **system bus** — the standardized interface that lets components talk to each other regardless of implementation. The governance server exposes tools via MCP. The Context Engine exposes tools via MCP. Claude Code consumes them via MCP. External tools can connect via MCP. That's PCIe — a standardized interconnect.
+MCP is more fundamental than a tool in the Action Layer (Subsystem 7). It's the **system bus** — the standardized interface that lets components talk to each other regardless of implementation. The governance server exposes tools via MCP. The Context Engine exposes tools via MCP. Claude Code consumes them via MCP. External tools can connect via MCP. That's PCIe — a standardized interconnect.
 
 The *tools themselves* (query_governance, evaluate_governance) are the *devices on the bus*. The bus is the protocol. This distinction matters because the bus is what makes everything else swappable — as long as the new component speaks MCP, it plugs in.
 
@@ -281,7 +311,7 @@ Calling hooks "quality gates" undersells the architectural role. They're the mec
 
 ### 3.4 Heterogeneous coprocessors — subagents
 
-The 10 subagents have different roles that the existing Bucket 6 (Verification & Quality) placement underrepresents:
+The 10 subagents have different roles that the existing Subsystem 9 (Verification & Quality) placement underrepresents:
 
 | Coprocessor type | Subagents | Computer analog |
 |---|---|---|
@@ -388,16 +418,41 @@ Maps every identified project component to its computer analog. Organized by rol
 | **System bus (PCIe)** | MCP protocol | FastMCP server protocol (JSON-RPC over stdio) | Standardized — any MCP client can connect. **The bus makes everything swappable.** |
 | **Devices on bus** | MCP tools | `server.py` tools + CE tools | JSON schema per tool. Swappable if schema preserved. |
 
-### 4.4 Memory subsystem (Bucket 2)
+### 4.4 Governance Policy (Subsystem 2)
 
 | Computer Component | Project Equivalent | Current Implementation | Interface Type |
 |---|---|---|---|
-| **CPU registers / program counter** | Working memory | `SESSION-STATE.md` | **Implicit contract** — hardcoded paths, format is convention. Interface contracts documented in §6. |
-| **Hard disk (persistent)** | Semantic memory | `PROJECT-MEMORY.md` | **Implicit contract.** Interface contracts documented in §6. |
-| **Event journal** | Episodic memory | `LEARNING-LOG.md` | **Implicit contract.** Interface contracts documented in §6. |
-| **Job queue / task scheduler** | Prospective memory | `BACKLOG.md` | **Implicit contract.** Interface contracts documented in §6. |
+| **OS kernel** (restated) | Constitution + RoP | `documents/constitution.md` + `rules-of-procedure.md` | **Coupled by design** — tight integration IS coherence. |
+| **Workload modules** | Domain principles | `documents/title-NN-*.md` (7 domains) | Derives from kernel. Modular — add/remove without kernel changes. |
+| **Drivers** | Domain regulations (CFR) | `documents/title-NN-*-cfr.md` (7 files) | Translates OS rules to domain-specific ops. Paired with module. |
+| **Device registry (ACPI)** | Manifests | `documents/domains.json` + `tiers.json` | Machine-readable catalog of installed modules + tiers. |
+| **Errata / known bugs** | Failure mode registry | `failure-mode-registry.md` + `test-failure-mode-map.md` | Documented failure modes with mitigations + test coverage. |
 
-### 4.5 Retrieval subsystem (Bucket 3)
+See also §4.1 (Core system) for the kernel-level view of the governance framework.
+
+### 4.5 Working Memory (Subsystem 3)
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **CPU registers / program counter** | Working memory (CoALA: Working) | `SESSION-STATE.md` | **Implicit contract** — hardcoded paths, format is convention. Interface contracts documented in §6.1. |
+
+### 4.6 Persistent Storage (Subsystem 4)
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **Hard disk (persistent)** | Semantic memory (CoALA: Semantic) | `PROJECT-MEMORY.md` | **Implicit contract.** Interface contracts documented in §6.2. |
+| **Event journal** | Episodic memory (CoALA: Episodic) | `LEARNING-LOG.md` | **Implicit contract.** Interface contracts documented in §6.2. |
+| **Job queue / task scheduler** | Prospective memory (CoALA: Prospective) | `BACKLOG.md` | **Implicit contract.** Interface contracts documented in §6.2. |
+| **Runbook / crontab** | Operational memory (CoALA extension: Operational) | `OPERATIONS.md` | **Implicit contract.** Interface contracts documented in §6.2. |
+| **Stored procedures** | Procedural memory (CoALA: Procedural) | `.claude/skills/*/` | Defined by CFR Part 9.5 skill authoring standards. |
+
+### 4.7 Reference Storage (Subsystem 5)
+
+| Computer Component | Project Equivalent | Current Implementation | Interface Type |
+|---|---|---|---|
+| **Library shelf / ROM** | Reference memory (CoALA extension: Reference) | `reference-library/` (staging infra exists) | Non-binding patterns. Additive, no dependencies. Interface contracts documented in §6.3. |
+
+### 4.8 Retrieval (Subsystem 6)
 
 | Computer Component | Project Equivalent | Current Implementation | Interface Type |
 |---|---|---|---|
@@ -405,7 +460,7 @@ Maps every identified project component to its computer analog. Organized by rol
 | **Filesystem cache** | Pre-built index | `index/` (global_index.json + embeddings) | Rebuilt by extractor. Swappable — extractor regenerates from source. |
 | **Filesystem monitor** | Watcher daemon | `context_engine/watcher.py` + `watcher_daemon.py` | Auto-updates index on file changes. DMA-like. |
 
-### 4.6 Action layer (Bucket 4)
+### 4.9 Action Layer (Subsystem 7)
 
 | Computer Component | Project Equivalent | Current Implementation | Interface Type |
 |---|---|---|---|
@@ -413,16 +468,18 @@ Maps every identified project component to its computer analog. Organized by rol
 | **Offline compiler** | Index builder | `extractor.py` | Parses docs → index. Runs offline. |
 | **Type system** | Data schemas | `models.py` (Pydantic) | Internal data contract. |
 
-### 4.7 Orchestration + Lifecycle (Buckets 5 & 8)
+### 4.10 Orchestration + Lifecycle (Subsystems 8 + 10)
 
 | Computer Component | Project Equivalent | Current Implementation | Interface Type |
 |---|---|---|---|
 | **CPU scheduler** | Host harness orchestration | Claude Code ReAct loop | Host-provided. We influence via hooks/skills, don't own. |
 | **Coprocessors (heterogeneous)** | Subagents | `.claude/agents/` (10, canonical: `documents/agents/`) | Task delegation, return summary. Modular — add/remove independently. |
-| **Application programs** | Skills | `.claude/skills/` (3: compliance-review, completion-sequence, test-authoring) | User-invocable instruction sequences. Self-contained folders. Decision matrix in §3.7. |
+| **Application programs** | Skills | `.claude/skills/` (4: compliance-review, completion-sequence, test-authoring, content-enhancer) | User-invocable instruction sequences. Self-contained folders. Decision matrix in §3.7. |
 | **Design review template** | Plan template | `.claude/plan-template.md` | Template for plan mode. Standalone. |
 
-### 4.8 Verification & Quality (Bucket 6)
+Note: Subsystem 9 (Verification & Quality) sits between Subsystems 8 and 10 numerically but belongs to the Quality Gates root function, not Control Flow. Grouped here because Orchestration and Lifecycle share the Control Flow root function.
+
+### 4.11 Verification & Quality (Subsystem 9)
 
 | Computer Component | Project Equivalent | Current Implementation | Interface Type |
 |---|---|---|---|
@@ -432,18 +489,7 @@ Maps every identified project component to its computer analog. Organized by rol
 | **Utility programs** | Analysis scripts | `scripts/` | CLI tools. Standalone. |
 | **Audit logger** | Governance audit log | `governance_audit.jsonl` + deny logs | Append-only structured log. |
 
-### 4.9 Governance Policy (Bucket 7)
-
-| Computer Component | Project Equivalent | Current Implementation | Interface Type |
-|---|---|---|---|
-| **OS kernel** (restated) | Constitution + RoP | `documents/constitution.md` + `rules-of-procedure.md` | **Coupled by design** — tight integration IS coherence. |
-| **Workload modules** | Domain principles | `documents/title-NN-*.md` (6 domains) | Derives from kernel. Modular — add/remove without kernel changes. |
-| **Drivers** | Domain regulations (CFR) | `documents/title-NN-*-cfr.md` (6 files) | Translates OS rules to domain-specific ops. Paired with module. |
-| **Device registry (ACPI)** | Manifests | `documents/domains.json` + `tiers.json` | Machine-readable catalog of installed modules + tiers. |
-| **Errata / known bugs** | Failure mode registry | `failure-mode-registry.md` + `test-failure-mode-map.md` | Documented failure modes with mitigations + test coverage. |
-| **Package repository** | Reference library | `reference-library/` (staging infra exists) | Non-binding patterns. Additive, no dependencies. |
-
-### 4.10 Documentation and meta
+### 4.12 Documentation and meta
 
 | Computer Component | Project Equivalent | File |
 |---|---|---|
@@ -465,15 +511,15 @@ Maps every identified project component to its computer analog. Organized by rol
 
 ### 5.1 The interface boundaries insight
 
-The 8-bucket taxonomy is useful for *thinking about* the system, but the thing that actually matters for modularization is **interface boundaries**. A computer component is swappable not because someone drew a nice taxonomy of it — it's swappable because there's a standardized interface between it and everything else. PCIe, SATA, USB, DIMM slots. The slot shape is the contract.
+The 10-subsystem taxonomy is useful for *thinking about* the system, but the thing that actually matters for modularization is **interface boundaries**. A computer component is swappable not because someone drew a nice taxonomy of it — it's swappable because there's a standardized interface between it and everything else. PCIe, SATA, USB, DIMM slots. The slot shape is the contract.
 
 The project already has this in some places and not others:
 
 - **Context Engine** is the exemplar — `BaseStorage` (abstract class at `context_engine/storage/base.py`) and `BaseConnector` (abstract class at `context_engine/connectors/base.py`) define explicit interfaces. You could swap filesystem storage for a database by implementing `BaseStorage`. You could add PDF parsing by implementing `BaseConnector`. The MCP tool contracts (`query_project`, `index_project`) are the external interface. That's a fully modular component.
 
-- **Memory files** (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG, BACKLOG, OPERATIONS) are the opposite — they're referenced by hardcoded paths throughout CLAUDE.md and AGENTS.md, with implicit contracts (what fields exist, what format they use, what operations are valid). If you wanted to swap memory to a database, you'd have to rewrite every reference.
+- **Memory files** (SESSION-STATE, PROJECT-MEMORY, LEARNING-LOG, BACKLOG, OPERATIONS) are the opposite — they're referenced by hardcoded paths throughout CLAUDE.md and AGENTS.md, with implicit contracts (what fields exist, what format they use, what operations are valid). If you wanted to swap memory to a database, you'd have to rewrite every reference. These span three subsystems: SESSION-STATE is Subsystem 3 (Working Memory); PROJECT-MEMORY, LEARNING-LOG, BACKLOG, OPERATIONS are Subsystem 4 (Persistent Storage); reference-library is Subsystem 5 (Reference Storage).
 
-**The key reframe:** the 8 buckets describe WHAT the system has. Interface boundaries describe WHETHER those things are swappable. Both views are needed — the buckets for architectural reasoning, the interface assessment for modularization work.
+**The key reframe:** the 10 subsystems describe WHAT the system has. Interface boundaries describe WHETHER those things are swappable. Both views are needed — the subsystems for architectural reasoning, the interface assessment for modularization work.
 
 User confirmed (2026-05-03): "100% agree."
 
@@ -518,13 +564,26 @@ These components are tightly coupled AND SHOULD BE. Like a real kernel, tight in
 
 The Context Engine exemplar (`src/ai_governance_mcp/context_engine/storage/base.py`) defines explicit `read()`, `write()`, `search()`, `delete()` operations with typed parameters. Memory files currently have equivalent operations but as implicit conventions, not enforced interfaces.
 
+#### 6.1 Working Memory (Subsystem 3)
+
 | Memory Type | File | Valid Operations | Format Contract | Consumer |
 |---|---|---|---|---|
 | **Working** | `SESSION-STATE.md` | read, write (overwrite), prune (§7.0.4 distillation) | Markdown. "Current Position" + "Session Summaries" sections. <300 lines target. | Session-start protocol, session-end update |
+
+#### 6.2 Persistent Storage (Subsystem 4)
+
+| Memory Type | File | Valid Operations | Format Contract | Consumer |
+|---|---|---|---|---|
 | **Semantic** | `PROJECT-MEMORY.md` | read, append (new decisions), update (amend existing) | Markdown. ADR-style decision records with date, session, rationale. | Session-start protocol, mid-session decision routing |
 | **Episodic** | `LEARNING-LOG.md` | read, append (new lessons), archive (>60-day entries) | Markdown. Date-headed entries with "What happened / Why / What changed" structure. | Session-start protocol, pre-action reference |
 | **Prospective** | `BACKLOG.md` | read, append (new items), remove (on close — git is archive) | Markdown. Numbered items with difficulty tags. Philosophy block at top. Active + Discussion sections. | Mid-session discovery routing, compliance review (Check 8) |
 | **Operational** | `OPERATIONS.md` | read, append (new items), update (audit logs, status) | Markdown. 5 sections: Cadences, Tripwires, V-series, Metrics, Scheduled Ops. C-NNN/T-NNN/M-NNN/V-NNN prefixes. | Compliance review, cadence triggers, tripwire evaluation |
+| **Procedural** | `.claude/skills/*/` | read, create (new skill), update (skill content) | Markdown SKILL.md + supporting files per folder. Authoring standards: CFR Part 9.5. | Slash-command invocation, skill loader |
+
+#### 6.3 Reference Storage (Subsystem 5)
+
+| Memory Type | File | Valid Operations | Format Contract | Consumer |
+|---|---|---|---|---|
 | **Reference** | `reference-library/` | read, stage (propose new entry), promote (accept staged) | Markdown per entry. YAML frontmatter (maturity, source, tags). Staging area for proposed entries. | On-demand retrieval, domain-specific guidance |
 
 **What implementing explicit interfaces would enable:**
@@ -544,7 +603,7 @@ When the host (Claude Code) compresses prior messages to stay within context lim
 | Priority | Level | Content Type | Retention Rule |
 |----------|-------|-------------|----------------|
 | P0 | Never evict | CLAUDE.md, AGENTS.md, active plan file, hook definitions | Always loaded by host. Not subject to compaction. |
-| P1 | Preserve across full session | SESSION-STATE current position, PROJECT-MEMORY active decisions, LEARNING-LOG recent entries (<60 days), OPERATIONS.md active tripwire/cadence state | Load at session start per CLAUDE.md session lifecycle. Re-read if context approaches limits. |
+| P1 | Preserve across full session | SESSION-STATE current position (Working Memory), PROJECT-MEMORY active decisions (Persistent Storage), LEARNING-LOG recent entries <60 days (Persistent Storage), OPERATIONS.md active tripwire/cadence state (Persistent Storage) | Load at session start per CLAUDE.md session lifecycle. Re-read if context approaches limits. |
 | P2 | Preserve during active task | Plan tasks in progress, verification criteria for current phase, governance evaluation results for current arc | May be summarized between arcs but must be recoverable from files. |
 | P3 | Summarize when space-constrained | Prior session summaries in SESSION-STATE, completed task details, historical audit IDs | Distill to one-line pointers during §7.0.4 pruning. Full content recoverable via `git log`. |
 | P4 | Archive (evict first) | LEARNING-LOG entries >60 days, closed BACKLOG item details, old session summaries (>3 sessions back), EXECUTION-FRAMEWORK design history sections | Remove from active memory files. Recoverable from git history. |
@@ -626,34 +685,34 @@ Application-level (software-equivalent) examples:
 
 **Gut check:** the analogy holds. There ARE genuinely two distinct levels in AI just like in computer architecture. Substrate-level enforcement is harder to add or modify after the fact (requires retraining, API-provider cooperation, or hardware updates). Application-level enforcement is more flexible but weaker — bypassable by clever prompting or by adopters who disable the layer.
 
-**Implication for the bucket model:** Substrate-level safety/quality is INTERNAL to Bucket 1 (Inference Engine) — it's what the LLM ships with. It's not a separate bucket; it's a sub-bucket of Bucket 1 ("Substrate-level safety/quality" — see §2.2). Application-level quality lives in Bucket 6 (Verification & Quality). Two types exist, but they don't require splitting Bucket 6. Substrate-level lives in Bucket 1; application-level lives in Bucket 6.
+**Implication for the subsystem model:** Substrate-level safety/quality is INTERNAL to Subsystem 1 (Inference Engine) — it's what the LLM ships with. It's not a separate subsystem; it's a sub-component of Subsystem 1 ("Substrate-level safety/quality" — see §2.2). Application-level quality lives in Subsystem 9 (Verification & Quality). Two types exist, but they don't require splitting Subsystem 9. Substrate-level lives in Subsystem 1; application-level lives in Subsystem 9.
 
 **Open status:** this analysis is from general knowledge. Formal sources (cited security/quality architecture research) are a follow-up research task if needed; for v0.1-draft purposes, the gut-check examples above are sufficient evidence the analogy is grounded.
 
 ### 8.3 Principle / method / appendix mapping
 
-User proposed (session-140): bucket level corresponds to principle level, sub-bucket level corresponds to method level, specific tool corresponds to appendix level.
+User proposed (session-140): subsystem level corresponds to principle level, sub-component level corresponds to method level, specific tool corresponds to appendix level.
 
-**Where this mapping holds (most buckets):**
+**Where this mapping holds (most subsystems):**
 
 | Computer view | ai-governance view | Example |
 |---|---|---|
-| Bucket | Principle level — *what must be true* | "AI must maintain context appropriate to task across session boundaries" |
-| Sub-bucket | Method level — *how to do it generically* (multiple valid approaches) | "Use 6 cognitive memory types" |
+| Subsystem | Principle level — *what must be true* | "AI must maintain context appropriate to task across session boundaries" |
+| Sub-component | Method level — *how to do it generically* (multiple valid approaches) | "Use 7 cognitive memory types" |
 | Specific tool | Appendix level — *one specific implementation* | "`SESSION-STATE.md` template at this path" |
 
 This aligns with how ai-governance docs are already organized: `constitution.md` holds principles → `rules-of-procedure.md` holds meta-methods → `title-NN-*.md` files hold domain principles + methods → appendices in title-10 hold tool-specific configs.
 
-**Caveat 1: Some principles are cross-cutting, not bucket-mappable to one bucket.** S-Series safety, `meta-quality-visible-reasoning-traceability`, `meta-method-single-source-of-truth` apply across MULTIPLE buckets. They're *constitutional invariants* that constrain how every bucket is implemented.
+**Caveat 1: Some principles are cross-cutting, not mappable to one subsystem.** S-Series safety, `meta-quality-visible-reasoning-traceability`, `meta-method-single-source-of-truth` apply across MULTIPLE subsystems. They're *constitutional invariants* that constrain how every subsystem is implemented.
 
-**Caveat 2 (REVISED session-140):** Original caveat was "Compute (Bucket 1) and Intent (Bucket 7) are exceptions." Both are now WITHDRAWN:
+**Caveat 2 (REVISED session-140):** Original caveat was "Compute (Subsystem 1) and Intent (Subsystem 2) are exceptions." Both are now WITHDRAWN:
 
-- **Bucket 1 (Inference Engine) caveat withdrawn.** It IS a peer bucket. Principle: "Match model capability to task stakes." Method: "Right-size by task type." Appendix: "Opus 4.7 for D2+ in Claude Code."
-- **Bucket 7 (Governance Policy) caveat withdrawn but with care.** Bucket 7 is a peer bucket; its sub-buckets are GENERIC governance methods (foundational constraints, organized normative content, etc.). The earlier "recursion" claim was a category error — I was conflating CONTENT INSIDE ai-governance (its specific principles/methods/appendices) with the COMPONENT structure (generic governance OS functions).
+- **Subsystem 1 (Inference Engine) caveat withdrawn.** It IS a peer subsystem. Principle: "Match model capability to task stakes." Method: "Right-size by task type." Appendix: "Opus 4.7 for D2+ in Claude Code."
+- **Subsystem 2 (Governance Policy) caveat withdrawn but with care.** Subsystem 2 is a peer subsystem; its sub-components are GENERIC governance methods (foundational constraints, organized normative content, etc.). The earlier "recursion" claim was a category error — I was conflating CONTENT INSIDE ai-governance (its specific principles/methods/appendices) with the COMPONENT structure (generic governance OS functions).
 
 **Why this mapping matters for storage decisions.** If we adopt this mapping, then when codifying the Execution Framework method:
-- The 8 buckets correspond to *principle-level* statements → could land at constitution / domain-principle level
-- The sub-buckets correspond to *method-level* descriptions → could land in rules-of-procedure / domain methods
+- The 10 subsystems correspond to *principle-level* statements → could land at constitution / domain-principle level
+- The sub-components correspond to *method-level* descriptions → could land in rules-of-procedure / domain methods
 - Specific implementations correspond to *appendix-level* specifics → could land in tool appendices
 
 The answer may not be "one method in rules-of-procedure" but "principles where principles live, methods where methods live, appendices where appendices live, with cross-references."
@@ -775,16 +834,16 @@ All decisions reached across the Execution Framework arc. A reader can scan this
 | **Type:** Method (works with anything following ai-governance's *structure*, regardless of *content/context*) | Adopted (session-140) |
 | **Aim:** Architectural coherence | Adopted (session-140) |
 | **Primary metaphor:** Custom computer (swappable components) | Adopted (session-140); supersedes earlier body/skeleton metaphor as primary; body/skeleton retained as supporting framing |
-| **Two complementary views:** 4-function root + 8-bucket component | Adopted (session-140, extended 2026-05-03) |
-| **Bucket layer is v0.1-draft** — first complete pass, expected to be empirically tested as workflows/skills are designed | Adopted (session-140) |
+| **Two complementary views:** 4-function root + 10-subsystem component | Adopted (session-140, extended 2026-05-03, restructured 2026-05-13) |
+| **Subsystem layer is v0.1-draft** — first complete pass, expected to be empirically tested as workflows/skills are designed | Adopted (session-140) |
 | **4-function root view:** Information Flow / Control Flow / Quality Gates / Authority | Adopted (2026-05-03); extends 3-function candidate |
-| **Bucket 6 (Verification & Quality) is SEPARATE from Bucket 7 (Governance Policy)** — earlier proposed collapse REVERTED | Resolved (session-140) per `constitution.md:120-133` evidence: enforcement is cross-cutting, not OS-internal |
-| **Constitutional sub-buckets are generic structural truths** (per the framework's Declaration) | Adopted (session-140) — user's amendment-as-file-editing analogy resolved contrarian's "anchored to F-P2-04" concern |
-| **Mapping (with caveats):** Bucket = principle / sub-bucket = method / specific tool = appendix | Adopted with caveats (session-140) — see §8.3 |
+| **Subsystem 9 (Verification & Quality) is SEPARATE from Subsystem 2 (Governance Policy)** — earlier proposed collapse REVERTED | Resolved (session-140) per `constitution.md:120-133` evidence: enforcement is cross-cutting, not OS-internal |
+| **Constitutional sub-components are generic structural truths** (per the framework's Declaration) | Adopted (session-140) — user's amendment-as-file-editing analogy resolved contrarian's "anchored to F-P2-04" concern |
+| **Mapping (with caveats):** Subsystem = principle / sub-component = method / specific tool = appendix | Adopted with caveats (session-140) — see §8.3 |
 | **Storage location:** ai-governance docs vs project files | **Pending** — leaning multi-layer (principles where principles live; methods where methods live; appendices where appendices live) per §8.3's mapping |
-| **Schema:** Whether the article's 12 components are root or symptom-level | **Resolved (session-140):** symptom-level. 4 functions are root. 8 buckets are component layer. |
+| **Schema:** Whether the article's 12 components are root or symptom-level | **Resolved (session-140):** symptom-level. 4 functions are root. 10 subsystems are component layer. |
 | **Trigger to ship:** What upcoming decision warrants codifying this? | **Partially resolved** — map demonstrates independent value; document transformation should happen before final codification |
-| **Interface boundaries are the actionable insight for modularization** — buckets describe WHAT; interfaces determine WHETHER things are swappable | Adopted (2026-05-03) |
+| **Interface boundaries are the actionable insight for modularization** — subsystems describe WHAT; interfaces determine WHETHER things are swappable | Adopted (2026-05-03) |
 | **BIOS/bootloader distinction:** CLAUDE.md + AGENTS.md are host-specific bootloader, not part of the OS | Adopted (2026-05-03) |
 | **MCP is the system bus** — standardized interconnect, not just a tool | Adopted (2026-05-03) |
 | **Hooks are the interrupt controller (PIC/APIC)** — not just "quality gates" | Adopted (2026-05-03) |
@@ -797,12 +856,13 @@ All decisions reached across the Execution Framework arc. A reader can scan this
 | **Document transformation:** this file restructured from chronological brainstorm to permanent thematic blueprint | Completed (2026-05-03, session-145) |
 | **Scheduling mechanism assessment:** CronCreate is session-local (7-day expiry); cloud routines lack local MCP access. Neither fully automates 10+ day cadences. | Assessed (2026-05-03, session-145). Documented in §7.2 and OPERATIONS.md SO-001–SO-003. |
 | **Session-end automation deferred** — no on-session-end hook exists. Session-start pruning is the compensating control. | Deferred (2026-05-03). See §7.2. |
+| **8-bucket model restructured to 10-subsystem architecture** — Memory (Bucket 2) split into Working Memory (Subsystem 3), Persistent Storage (Subsystem 4), Reference Storage (Subsystem 5). Reordered by architectural dependency. "Bucket" renamed to "subsystem", "sub-bucket" to "sub-component". CoALA provenance preserved across all 3 new subsystems. Procedural memory reclassified from Reference Storage to Persistent Storage per contrarian review (skills are mutable/maintained, not read-mostly). S-Series collision avoided: "Subsystem N" written in full, never abbreviated. | Adopted (2026-05-13, session-170) |
 
 ---
 
 ## 11. Open Questions / Decisions Pending
 
-1. **Storage location** (§8.3) — Multi-layer placement leaning, not confirmed. Final decision deferred until bucket model is further empirically tested. Document transformation to permanent blueprint may resolve — if blueprint becomes permanent project file, the question changes.
+1. **Storage location** (§8.3) — Multi-layer placement leaning, not confirmed. Final decision deferred until subsystem model is further empirically tested. Document transformation to permanent blueprint may resolve — if blueprint becomes permanent project file, the question changes.
 
 2. ~~**3-function root conversation**~~ — **Resolved (2026-05-03).** Extended to 4-function: Information Flow, Control Flow, Quality Gates, Authority. See §1.
 
@@ -814,23 +874,25 @@ All decisions reached across the Execution Framework arc. A reader can scan this
 
 6. **Subtraction test** — if listed principles removed, what's left? Partially answered via root reduction; full audit deferred.
 
-7. **Bucket 3 sub-bucket split** — should mechanism-level (semantic/lexical/direct read) and policy-level (always-on/selective load) be split into Bucket 3a/3b? No signal from first empirical test. Defer until further testing.
+7. **Subsystem 6 sub-component split** — should mechanism-level (semantic/lexical/direct read) and policy-level (always-on/selective load) be split into Subsystem 6a/6b? No signal from first empirical test. Defer until further testing.
 
-8. **Bucket 5 sub-bucket split** — should pattern-level / mechanism-level / scope-level be split into Bucket 5a/5b/5c? Mild signal from first empirical test (compliance-review skill acts as both "orchestration" and "application program"). Defer until more skills exist.
+8. **Subsystem 8 sub-component split** — should pattern-level / mechanism-level / scope-level be split into Subsystem 8a/8b/8c? Mild signal from first empirical test (compliance-review skill acts as both "orchestration" and "application program"). Defer until more skills exist.
 
-9. **Adoption/Authority placement** — **Partially resolved (2026-05-03).** Authority is now a root function (§1). "Adoption" specifically is a Lifecycle event (Bucket 8) — the activation moment where a governance OS gains authority over a project. Remaining uncertainty: is adoption a sub-bucket of Bucket 7 (the OS defines how it gains authority), a cross-cutting concern (like enforcement, per `constitution.md:120-133` precedent), or a transition/binding event in Bucket 8? Each placement implies a different mental model.
+9. **Adoption/Authority placement** — **Partially resolved (2026-05-03).** Authority is now a root function (§1). "Adoption" specifically is a Lifecycle event (Subsystem 10) — the activation moment where a governance OS gains authority over a project. Remaining uncertainty: is adoption a sub-component of Subsystem 2 (the OS defines how it gains authority), a cross-cutting concern (like enforcement, per `constitution.md:120-133` precedent), or a transition/binding event in Subsystem 10? Each placement implies a different mental model.
 
 10. **Hardware-vs-software formal grounding** (§8.2) — current analysis is from general knowledge; if hard sources needed, that's a follow-up research task. Unchanged.
 
-11. **Bucket renaming convention adoption** — canonical names introduced; need to migrate prose to canonical naming as content stabilizes. In progress.
+11. **Subsystem naming convention adoption** — canonical names introduced; "bucket" renamed to "subsystem" and "sub-bucket" to "sub-component" across all non-historical sections (2026-05-13). §12 Design History preserves original vocabulary with conversion note. Resolved by subsystem restructuring.
 
-12. ~~**Substrate-level safety classification**~~ — **Confirmed (2026-05-03).** Placed inside Bucket 1 (Inference Engine) as a sub-bucket. Substrate-level safety is internal to the CPU per hardware-vs-software dimension.
+12. ~~**Substrate-level safety classification**~~ — **Confirmed (2026-05-03).** Placed inside Subsystem 1 (Inference Engine) as a sub-component. Substrate-level safety is internal to the CPU per hardware-vs-software dimension.
 
 ---
 
 ## 12. Design History
 
 This section preserves the full deliberation trail — contrarian rounds, coaching questions, dead-ends, and framing evolution — so any future reader can reconstruct the reasoning behind every decision. Per pickup discipline: do not compress this section.
+
+**Terminology note.** Sections 12.1-12.7 use the original 8-bucket model vocabulary. References to "buckets" and "Bucket N" in this section are preserved verbatim. For the current subsystem mapping, see §2.2. Conversion: Bucket 1 = Subsystem 1, Bucket 2 = Subsystems 3+4+5 (split), Bucket 3 = Subsystem 6, Bucket 4 = Subsystem 7, Bucket 5 = Subsystem 8, Bucket 6 = Subsystem 9, Bucket 7 = Subsystem 2, Bucket 8 = Subsystem 10.
 
 ### 12.1 Framing evolution
 
@@ -1157,9 +1219,9 @@ Use the article as **evidence catalog and pattern source**, not as authoritative
 - Article: `/Users/jasoncollier/Downloads/AI Stuff Currently Working/anatomy_of_an_agent_harness_v2.md` (Pachaar 2026)
 - README 5-layer stack: `README.md:9-22`
 - F-P2-08 disposition (reversed in constitution v7.0.0; see Historical Amendments): `documents/constitution.md:98`
-- Enforcement-is-cross-cutting (decisive for Bucket 6/7 separation): `documents/constitution.md:120-133`
+- Enforcement-is-cross-cutting (decisive for Subsystem 9/2 separation): `documents/constitution.md:120-133`
 - Cognitive memory taxonomy: `PROJECT-MEMORY.md` ADR-5
-- "Adoption and Authority" subsection (Bucket 7 Authority & adoption sub-bucket): `documents/constitution.md:96`
+- "Adoption and Authority" subsection (Subsystem 2 Authority & adoption sub-component): `documents/constitution.md:96`
 - BACKLOG #147 (proactive-vs-reactive bias — filed during this conversation)
 - BACKLOG #148 (Execution Framework — references this file as primary content)
 - Context Engine interface exemplar: `src/ai_governance_mcp/context_engine/storage/base.py`
@@ -1178,3 +1240,4 @@ Use the article as **evidence catalog and pattern source**, not as authoritative
 | 2026-05-03 | v0.2 | Fresh-eyes analysis. Interface boundaries insight. 4-function root. Complete system map. Gap analysis. | 145 |
 | 2026-05-03 | v1.0.0 | Restructured from chronological brainstorm to permanent thematic blueprint. Added §6 Memory Interface Contracts, §7 Context Retention Policy. All content preserved; format transformation only. | 145 |
 | 2026-05-03 | v1.1.0 | Phase 4: Added §7.2 session-end automation assessment. Updated §9 gap analysis (Scheduler partially closed, VM manager updated). Decision log entries for scheduling constraints. | 145 |
+| 2026-05-13 | v2.0.0 | Restructured from 8-bucket to 10-subsystem architecture. Memory (Bucket 2) split into Working Memory (Subsystem 3), Persistent Storage (Subsystem 4), Reference Storage (Subsystem 5). Reordered by architectural dependency. "Bucket" renamed to "subsystem." Procedural memory reclassified to Persistent Storage per contrarian review. CoALA provenance preserved. §4 System Map restructured with all 7 memory types. §6 Memory Contracts split into 3 subsections. §12 Design History preserved with terminology note. | 170 |
