@@ -681,10 +681,10 @@ These are injected at session start or connection time. They degrade as conversa
 
 | Layer | Mechanism | Claude Code CLI | Claude App | Other MCP Clients | RAG-only | Degrades Over Conversation? |
 |-------|-----------|:-:|:-:|:-:|:-:|:-:|
-| CLAUDE.md behavioral floor | 7 directives loaded at session start | Yes | No | No | No | Yes |
+| CLAUDE.md behavioral floor | 9 directives loaded at session start | Yes | No | No | No | Yes |
 | Auto-memory (feedback, preferences) | User corrections persisted across sessions | Yes | No | No | No | Yes |
 | SERVER_INSTRUCTIONS | MCP server instructions sent at connection | Yes | Yes | Yes | No | Yes |
-| Skills (3 skills) | Structured procedures invoked by slash command | Yes | No | No | No | No |
+| Skills (4 skills) | Structured procedures invoked by slash command | Yes | No | No | No | No |
 
 #### Per-response reinforcement (low-medium reliability)
 

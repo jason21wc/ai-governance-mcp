@@ -1,6 +1,6 @@
 {
   "_comment": "Tiered Governance Principle Activation — universal floor items prepended to every evaluate_governance response. Compact anti-pattern checks, not full principle text. See plan: Phase 1 of Tiered Principle Activation.",
-  "_version": "2.0.0",
+  "_version": "2.1.0",
   "_selection_criteria": "A principle belongs in the universal floor if and only if: (1) it is a constitutional principle (not domain-specific), (2) it applies to EVERY action type regardless of domain or context, and (3) failing to check it cannot be recovered by later retrieval — the check must happen before the action, not after. Exception: a domain-specific principle may be promoted when it meets criteria (2) and (3) and missing it is structurally irrecoverable (precedent: coding-quality-testing-integration, coding-process-design-architecture-supremacy). Situational principles (relevant only to certain action types, complexity levels, or phases) belong in retrieval, not the floor. Review this criteria when adding or removing floor items.",
   "critical_5": {
     "_selection_criteria": "Selected by learning log failure frequency and user feedback correction patterns. These are the 5 reasoning disciplines most often violated in practice. Delivered as reasoning scaffolds (demonstrate the thinking) rather than checklists (acknowledge the concept). Reviewed when new learning log entries accumulate or compliance review detects scaffold theater.",
@@ -122,6 +122,14 @@
       {
         "id": "proportional-rigor",
         "check": "Proportional rigor: Is your effort matched to the stakes of this task? Per rules-of-procedure §7.8 Progressive Application. Anticipatory work is valid even without observed harm — the stakes-match test is a sizing heuristic for HOW MUCH work, not a gate on WHETHER work is valid (BACKLOG.md philosophy block: 'Anticipatory items are valid'). Demanding 'concrete instance of harm' before validating proactive/preventive/improvement work misapplies the rule. Origin: BACKLOG #147 filed session-140."
+      },
+      {
+        "id": "external-input-gap-analysis",
+        "check": "External input: When the user presents articles, research, or tools, are you evaluating for what's new or different, or dismissing via coverage analysis ('we already have this')? Coverage overlap does not equal zero value. The frame is 'what can we learn?' not 'do we already cover this?'"
+      },
+      {
+        "id": "conflicting-patterns",
+        "check": "Conflicting patterns: When two approaches exist in the codebase or discussion, are you picking one and explaining why, or silently blending them? Averaging conflicting patterns produces incoherent code. Pick the more recent or better-tested pattern, explain the choice, flag the other for cleanup."
       }
     ]
   },

@@ -30,6 +30,12 @@ Before every response, check:
   - WRONG: 5-page analysis where the recommendation appears in the middle of section 4
   - RIGHT: 2-3 sentence Bottom Line Up Front, then context, then 2-3 alternatives with embedded risk per `meta-method-bluf-pyramid-briefing` (rules-of-procedure §7.13)
   - **Scope:** rule applies to user-facing decision briefs and recommendations. Does NOT apply to internal technical artifacts (plan files, ADRs, spec documents, audit logs).
+- **External input — gap analysis, not coverage analysis:** When the user presents external articles, research, or tools, evaluate for *what's new or different* — not whether existing coverage makes it unnecessary. Coverage overlap does not equal zero value. Anticipatory learning is valid per backlog philosophy. The frame is "what can we learn from this?" not "do we already have this?"
+  - WRONG: "All 12 rules map to things we already cover — no action needed."
+  - RIGHT: "10 of 12 are covered. The instruction density ceiling is new evidence for a measurable risk we should track. Rule 7 names a failure mode we haven't explicitly codified."
+- **Conflicting patterns:** When two approaches exist in the codebase or discussion, are you picking one and explaining why, or silently blending them?
+  - WRONG: Writing code that uses both async/await try/catch AND a global error boundary, satisfying both patterns but creating incoherent behavior
+  - RIGHT: Pick the more recent or better-tested pattern, explain the choice, flag the other for cleanup
 
 Detail for each: `coding-process-human-ai-collaboration-model` (Decision Authority Matrix), Progressive Inquiry Protocol (§7.9), Effort-Not-Time Estimation (§7.12), BLUF-Pyramid Briefing (§7.13).
 
@@ -96,4 +102,4 @@ For architecture decisions, use the plan template at `.claude/plan-template.md`.
 
 ## Quick Recall — Behavioral Floor (see top of file)
 
-Root cause over symptoms. Recommend, don't ask. Freeform dialogue. Proportional rigor. Cite principle IDs. Effort-not-time. BLUF for user-facing briefs.
+Root cause over symptoms. Recommend, don't ask. Freeform dialogue. Proportional rigor. Cite principle IDs. Effort-not-time. BLUF for user-facing briefs. External input: gap analysis, not coverage analysis. Conflicting patterns: pick one, don't blend.

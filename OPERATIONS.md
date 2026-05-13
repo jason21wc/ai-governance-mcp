@@ -238,11 +238,21 @@
 **What:** `pre-tool-governance-check.sh` uses a read-only Bash command allowlist to let read-only subagents (contrarian-reviewer, security-auditor) bypass governance enforcement. Mutation subagents (test-generator, documentation-writer) remain blocked. When upstream fix ships: scan subagent transcript directly for full enforcement. Related env var: `READONLY_BASH_SKIP=true`.
 **Origin:** Session-152 (2026-05-07). Empirical proof: 10/10 subagents CLAUDE.md-compliant but hook-denied due to transcript isolation.
 
+---
+
 ### T-161. Enforcement Layer Matrix staleness
 
 **Trigger conditions:** (1) New hook added or removed, (2) new enforcement layer introduced (e.g., new MCP tool gate), (3) Claude App gains hook-like capability, (4) enforcement proxy capabilities change.
 **What:** Update EXECUTION-FRAMEWORK.md §8.4 Enforcement Layer Matrix to reflect the change. The matrix documents all enforcement layers with client compatibility and effectiveness — it must stay current to be useful for gap analysis.
 **Origin:** Critical 5 reasoning scaffold plan, contrarian review (2026-05-10).
+
+---
+
+### T-163. CLAUDE.md instruction density degradation
+
+**Trigger conditions:** (1) CLAUDE.md + AGENTS.md combined instruction count exceeds 150 distinct directives, OR (2) compliance review Check 5 shows sustained CANNOT DETERMINE rate >60% attributable to instruction density (not context compaction), OR (3) behavioral floor compliance drops below 70% across 3+ sessions.
+**What:** Research supports ~150-200 distinct instructions as the frontier LLM compliance ceiling (VILA-Lab systematic analysis, ETH Zurich context file study, practitioner reports). Beyond this, instruction-following degrades — not from token overflow but from attention saturation. Current state: CLAUDE.md is lean by design (AGENTS.md overlay pattern). Risk grows as behavioral floor directives, hook documentation, and subagent registry entries accumulate. When triggered: audit CLAUDE.md for instruction density, consolidate redundant directives, move situation-specific guidance to hooks or skills.
+**Origin:** Session-169 (2026-05-12). Karpathy/Chang CLAUDE.md article analysis + VILA-Lab research + ETH Zurich study.
 
 ---
 
