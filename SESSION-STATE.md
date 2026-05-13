@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-11 (session-167 — BACKLOG #43 search_references tool).
+**Last Updated:** 2026-05-12 (session-168 — SSOT + list_agents + Compliance Review #8 + BACKLOG #161).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,22 +12,25 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-167 (2026-05-11) BACKLOG #43 — search_references MCP tool.**
+**Session-168 (2026-05-12) — SSOT + list_agents + Compliance Review #8 + BACKLOG #161 enforcement proxy default.**
 
-**ACTION ON RESUME (session-168):** Time-cued: **Compliance Review #8** (~2026-05-15) — first review with Check 11 + critical-5 scaffold-theater assessment. **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08.
+**ACTION ON RESUME (session-169):** Time-cued: **C-109 deferred-cadence audit** (~2026-05-25). **Compliance Review #9** (~2026-05-22–2026-05-27). **C-012 Security Posture Review** first due ~2026-08-08. Docker image rebuild needed (Dockerfile CMD changed + enforcement.py updated).
 
 **Critical state for next session:**
-- **BACKLOG #43 closed** — `search_references` shipped as 15th governance tool (19 total). Dedicated reference library retrieval channel with BM25 + semantic search, domain/tag/status filtering, maturity adjustments. Progressive disclosure via extended `get_principle` handler. Advisory enforcement in CLAUDE.md + SERVER_INSTRUCTIONS. 1660 tests passing.
-- **Backlog hygiene reinforced** — 7 closed items removed, CI strikethrough lint added, positive closure procedure documented. Root cause: two-step action (close + remove) loses second step to forward-continuation bias; CI lint is structural enforcement.
-- **IPC predict-length validation fixed** — `_validate_predict_request` now checks `MAX_TEXT_LENGTH` per string (was missing, asymmetry with encode validation).
+- **Agent Definition SSOT + list_agents shipped** (4df7fb7) — CFR §2.2 template duplication eliminated, `list_agents` MCP tool for cross-platform discovery, AGENT_METADATA alignment CI test.
+- **Compliance Review #8 complete** — 13/13 PASS. V-009 CONFIRMED + retired (bypass envvars audit-logged). PHASE2_TRIGGERED fired→cleared (T3+T4 workload variance, n=2 pattern). Feedback loop baseline: 2 entries / 1 distinct principle.
+- **BACKLOG #58/#59/#60 closed** — superseded by shipped per-response reinforcement layers (critical-5 scaffold, universal floor, domain floor, GOVERNANCE_REMINDER).
+- **BACKLOG #162 added** — Accounting Domain (D3 New Capability, under Active).
+- **BACKLOG #161 implemented** — Enforcement proxy now default path. config_generator defaults to proxy+soft-mode, Dockerfile CMD changed to proxy, docker-compose advisory-only variant added, README+API.md enforcement proxy sections added, enforcement.py `_DEFAULT_ALLOWED` expanded with 3 missing read-only tools. 1686 tests passing.
+- **Docker rebuild needed** — Dockerfile CMD and enforcement.py changed. Push image after rebuild.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-167 (2026-05-11) — BACKLOG #43 search_references tool shipped.
+- **Phase:** Session-168 (2026-05-12) — SSOT + list_agents + Compliance Review #8 + BACKLOG #161.
 - **Mode:** Normal operation.
-- **Active Task:** None. Next: Compliance Review #8 (~2026-05-15).
+- **Active Task:** None. Next: C-109 deferred-cadence audit (~2026-05-25).
 
 ## Quick Reference
 
@@ -37,8 +40,8 @@
 | Context Engine | **v2.1.0** (reranking, MMR diversity, RRF opt-in, chunk quality filter, candidate pool cap, per-file dedup configurable cap=3, expanded 35-query benchmark) |
 | Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.45.1** (title-10-ai-coding-cfr), **v2.8.1** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.18.0** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.5** (ai-instructions), **v2.0.0** (tiers.json — critical_5 scaffold tier added). |
 | Execution Framework | **v1.1.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, thematic structure) |
-| OPERATIONS.md | **v2** (3 cadences, 15 tripwires, 4 V-series, 5 metrics, 3 scheduled operations — #154 docs pass) |
-| Tests | **1660 passing** (non-slow subset) |
+| OPERATIONS.md | **v2** (3 cadences, 15 tripwires, 3 V-series, 5 metrics, 3 scheduled operations) |
+| Tests | **1686 passing** (non-slow subset) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **20 MCP tools** (16 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
@@ -47,22 +50,25 @@
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **4** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | **Green.** Last push: session-167. All pushed. |
+| CI | **Green.** Last push: session-168. All pushed. |
 
 ---
 
-## Last Session (2026-05-11)
+## Last Session (2026-05-12)
+
+168. **Session-168 (2026-05-12): Agent Definition SSOT + list_agents + Compliance Review #8 + BACKLOG #161.**
+   - **Agent Definition SSOT + list_agents shipped** (4df7fb7): CFR §2.2 template duplication eliminated. `list_agents` MCP tool for cross-platform discovery. AGENT_METADATA CI alignment test.
+   - **Compliance Review #8:** 13/13 PASS. V-009 CONFIRMED + retired. PHASE2_TRIGGERED fired→cleared (workload variance n=2).
+   - **BACKLOG #58/#59/#60 closed:** Superseded by shipped per-response reinforcement layers.
+   - **BACKLOG #162 added:** Accounting Domain (D3 New Capability, Active).
+   - **BACKLOG #161 implemented:** Enforcement proxy default path. config_generator defaults to proxy+soft-mode, Dockerfile CMD changed, docker-compose advisory variant, README+API.md sections, enforcement.py `_DEFAULT_ALLOWED` expanded. Code review caught 3 issues — all fixed.
+   - **Tests:** 1686 passing (was 1660).
 
 167. **Session-167 (2026-05-11): BACKLOG #43 — search_references MCP tool + backlog hygiene + IPC fix.**
-   - **BACKLOG #43 closed:** `search_references` shipped as 15th governance tool (d20ddcb). Dedicated reference-only BM25 + semantic search with domain/tag/status filtering, maturity adjustments, progressive disclosure via `get_principle`. Advisory enforcement in CLAUDE.md + SERVER_INSTRUCTIONS. Contrarian review pivoted approach from domain-injection to separate tool (right query shape, right moment, no conflation). Code review + coherence audit caught 8 propagation issues — all fixed before push.
-   - **Backlog hygiene:** Removed 7 closed items (#12, #16, #54, #55, #85, #125-b, #127). Root cause diagnosed: two-step action (close + remove) loses second step to forward-continuation bias. Fix: CI strikethrough lint (structural) + positive closure procedure (advisory). Demonstrated again when #43 closure required second commit.
-   - **IPC predict-length fix:** Added `MAX_TEXT_LENGTH` check to `_validate_predict_request` — was missing, asymmetry with encode validation (7f91c2b).
-   - **Tests:** 1660 passing (was 1612).
+   - **BACKLOG #43 closed:** `search_references` shipped as 15th governance tool. 1660 tests.
 
 166. **Session-166 (2026-05-11): Title 10 completion + Prompt Master ecosystem tool.**
-   - **BACKLOG #12 closed:** Title 10 AI Agent Operations Governance committed and pushed (c18e04d). CFR v2.45.0. 4 Parts, ~700 lines, 15 methods extracted. C-012 quarterly security posture review cadence added to OPERATIONS.md.
-   - **Prompt Master (M.3):** Evaluated nidhinjs/prompt-master (MIT, v1.6.0) — Claude Code skill for cross-tool prompt generation. Security audited (0 critical/high/medium, 2 low). Added as Appendix M.3 to CFR per §9.8.3 template. Installed globally at `~/.claude/skills/prompt-master/`. CFR v2.45.1.
-   - **README:** AI Coding method count updated 248 → 268.
+   - **BACKLOG #12 closed:** Title 10 AI Agent Operations Governance. CFR v2.45.0. Prompt Master (M.3) added.
 
 ---
 
@@ -105,9 +111,10 @@
 ## Next Actions
 
 **Time-cued:**
-1. **Compliance Review #8** — due ~2026-05-15 (10-15 days from Review #7 on 2026-05-05). Invoke `/compliance-review`.
+1. **Compliance Review #9** — due ~2026-05-22–2026-05-27 (10-15 days from Review #8 on 2026-05-12). Invoke `/compliance-review`.
 2. **C-109 deferred-cadence audit** — due ~2026-05-25. See OPERATIONS.md.
 3. **C-155 feedback loop analysis** — next run due ~2026-06-07. See OPERATIONS.md.
+4. **Docker image rebuild** — Dockerfile CMD changed + enforcement.py updated. Rebuild and push.
 
 **Trigger-gated (tracked in OPERATIONS.md):**
 - **T-149** — CE-first compliance measurement (3-5 sessions, <85% activates Phase 2 hook). CE-First Phase 2 (grep/glob advisory hook) activates only if this fires.

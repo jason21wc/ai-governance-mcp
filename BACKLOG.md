@@ -37,7 +37,15 @@
 
 ### Active (Implement Now/Soon)
 
-*No active items. All former items migrated to OPERATIONS.md — see git history.*
+#### 162. Accounting Domain `D3 New Capability`
+
+**Filed:** 2026-05-12 (session-168).
+
+**What:** Governance domain for accounting work — principles and methods covering double-entry integrity, reconciliation patterns, chart of accounts design, audit trail requirements, GAAP/cash-vs-accrual considerations, financial data security, and API integration patterns for financial systems. Evidence base: accounting standards (GAAP, IFRS), open-source accounting projects, QuickBooks/financial API ecosystems.
+
+**Why domain (not project):** Generalizable principles that apply across multiple projects — QuickBooks connector, open-source ledger tools, invoicing systems, tax prep workflows, financial reporting. The QuickBooks integration is the first project that would consume this domain.
+
+**Discussion needed:** Scope candidate principles and methods, evidence base review, failure mode identification. Full planning process per COMPLETION-CHECKLIST domain creation.
 
 ---
 
@@ -124,30 +132,6 @@
 **Origin:** Hermes Agent evaluation (2026-04-01). Their conditional activation metadata adapted to our retrieval-based model.
 
 ---
-
-#### 58. Session Lifecycle Automation — Mid-Session Re-Injection (Discussion — from UBDA Review) `D2 Improvement`
-
-**What:** Context degradation accelerates past critical thresholds. Thresholds exist (50/60/80/32K) but no automation triggers behavioral floor re-injection mid-session. UserPromptSubmit hook could check context utilization and re-inject.
-
-**Revisit trigger:** If measurement shows degradation despite few-shot improvement from #77.
-
-**Origin:** Perplexity Deep Research UBDA review (2026-04-07). Research: arxiv 2601.04170 (episodic memory consolidation — 51.9% drift reduction).
-
-#### 59. Single-Session Intent Alignment Drift (Discussion — from UBDA Review) `D2 Improvement`
-
-**What:** Multi-agent immutability rules handle cross-agent intent preservation. But single-session intent drift within one agent's long task is a distinct failure mode (arxiv 2602.07338). User's progressive expression of intent diverges from model's interpretation over turns. Degradation is ~constant regardless of model size.
-
-**Revisit trigger:** If observed in measurement or if sessions regularly exceed 40+ turns on a single task.
-
-**Origin:** Perplexity Deep Research UBDA review (2026-04-07). Research: arxiv 2602.07338 (Liu et al., challenges Laban et al. framing).
-
-#### 60. Semantic Compliance Monitoring — Supervisor Agent (Discussion — from UBDA Review) `D2 Improvement`
-
-**What:** Current measurement is binary (was evaluate_governance called? yes/no). A supervisor LLM checking semantic compliance after each governance call would detect "was this actually a recommendation or a question-disguised-as-recommendation?" NeMo Guardrails implements this as policy compliance rate metric.
-
-**Revisit trigger:** Productionization or multi-user deployment.
-
-**Origin:** Perplexity Deep Research + Gemini UBDA review (2026-04-07). Both flagged quality-of-compliance vs occurrence gap.
 
 #### 159. Critical 5 Hook Re-Injection (Discussion) `D1 Improvement`
 

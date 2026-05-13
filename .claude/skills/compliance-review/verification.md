@@ -27,7 +27,7 @@
 | 2 | 2026-05-02 | 1+ | 1 | 0 | Session fe982d05. Hook denied ExitPlanMode; contrarian subsequently invoked. |
 | 3 | 2026-05-02 | 1+ | 2 | 0 | Session 09996585. Two denies suggest retry without contrarian. |
 | 4 | 2026-05-05 | 1 (CE-First Search plan) | 0 | 0 | Session-149 (9cb3a822). Contrarian invoked unprompted — 0 denies, 0 semantic-bypasses. Plan exited cleanly via hook gate. |
-| 5 | | | | | |
+| 5 | 2026-05-12 | 1 (SSOT + list_agents plan) | 2 | 0 | Session-168 (c1e8c837). Hook blocked ExitPlanMode twice; contrarian subsequently invoked (2 rounds). Deny rate across plan-mode sessions: 3/4 (75%) — above 40% failure threshold but only 5/10 sessions measured. |
 
 ---
 
@@ -79,28 +79,16 @@
 
 ---
 
-### [V-009] Bypass audit-log coverage — OPEN
-
-**Hypothesis:** All 9 hook bypass envvars write to the unified audit log (`~/.claude/hook-bypass-audit.log`) via the shared `audit_bypass()` helper.
-
-**Added:** 2026-05-07 (session-153, BACKLOG #135)
-**Confirm/Refute by:** First compliance review after session-153 (Review #8). Check: `grep -c audit_bypass .claude/hooks/*.sh` = 5 files (all hooks with bypass envvars). All 9 envvars covered by tests in `tests/test_hooks.py::TestBypassAuditLog`, `test_pre_exit_plan_mode_gate_hook.py::TestUnifiedBypassAuditLog`, `test_pre_test_oom_gate_hook.py::TestBypassAuditLog`, `test_content_security_hook.py::TestBypass::test_bypass_writes_audit_log`.
-
-**Process indicator:** All bypass envvar activations produce a line in `~/.claude/hook-bypass-audit.log` with format `TIMESTAMP HOOK_NAME ENVVAR REASON`.
-
-**Success:** 9/9 bypass envvars audit-logged (verified by test suite). No silent bypasses remain.
-**Failure:** Any bypass envvar that does not produce a log entry when activated.
-
-**Bypass envvar inventory (9 total across 5 hooks):**
-- `pre-push-quality-gate.sh`: QUALITY_GATE_SKIP, TDD_TEST_EXISTENCE_SKIP
-- `pre-test-oom-gate.sh`: PYTEST_SKIP_OOM_GATE, PYTEST_ALLOW_HEAVY
-- `pre-tool-content-security.sh`: CONTENT_SECURITY_SKIP
-- `pre-tool-governance-check.sh`: GOVERNANCE_SOFT_MODE, CE_SOFT_MODE
-- `pre-exit-plan-mode-gate.sh`: PLAN_CONTRARIAN_CONFIRMED, PLAN_CONTRARIAN_SKIP_HOOK
-
 ---
 
 ## Retired Verification Items
+
+### [V-009] Bypass audit-log coverage — CONFIRMED (2026-05-12)
+
+**Disposition:** CONFIRMED at Compliance Review #8 (2026-05-12). `grep -c audit_bypass .claude/hooks/*.sh` = 5 files (all hooks with bypass envvars). 9/9 bypass envvars produce audit-log entries. Test coverage: `tests/test_hooks.py::TestBypassAuditLog`, `test_pre_exit_plan_mode_gate_hook.py::TestUnifiedBypassAuditLog`, `test_pre_test_oom_gate_hook.py::TestBypassAuditLog`, `test_content_security_hook.py::TestBypass::test_bypass_writes_audit_log`. No silent bypasses remain.
+
+**Hypothesis:** All 9 hook bypass envvars write to the unified audit log via shared `audit_bypass()` helper.
+**Added:** 2026-05-07 | **Confirmed:** 2026-05-12 (Compliance Review #8)
 
 ### [V-001] UBDA few-shot examples improve behavioral floor compliance — RETIRED → REPLACED-BY-SESSION-AUDIT (2026-04-25)
 
