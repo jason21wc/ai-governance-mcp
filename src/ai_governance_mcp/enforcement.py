@@ -103,6 +103,9 @@ class GovernanceEnforcer:
             "list_domains",
             "get_domain_summary",
             "get_metrics",
+            "list_agents",
+            "search_references",
+            "analyze_feedback_loop",
         },
         repr=False,
     )

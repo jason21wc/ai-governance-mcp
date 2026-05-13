@@ -62,14 +62,16 @@ USER appuser
 ENV PYTHONUNBUFFERED=1
 ENV AI_GOVERNANCE_DOCUMENTS_PATH=/app/documents
 ENV AI_GOVERNANCE_INDEX_PATH=/app/index
+ENV GOVERNANCE_ENFORCEMENT_SOFT_MODE=true
 
 # Health check - verify server can start
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "from ai_governance_mcp.server import server; print('OK')" || exit 1
 
-# Default command - run MCP server
+# Default command - run MCP server with enforcement proxy (soft mode)
 # Note: MCP uses stdio, so container should be run with -i flag
-CMD ["python", "-m", "ai_governance_mcp.server"]
+# Override with: CMD ["python", "-m", "ai_governance_mcp.server"] for advisory-only
+CMD ["ai-governance-proxy", "--", "python", "-m", "ai_governance_mcp.server"]
 
 # =============================================================================
 # Labels for documentation

@@ -628,3 +628,93 @@ Run with: `python -m ai_governance_mcp.context_engine.server`
 ```json
 {"name": "project_status", "arguments": {}}
 ```
+
+---
+
+## Enforcement Proxy
+
+The enforcement proxy (`ai-governance-proxy`) provides Layer 3 structural governance enforcement for any MCP client. It intercepts JSON-RPC `tools/call` requests at the stdio protocol level, blocking action tools until `evaluate_governance()` has been called within the recency window. Works with Claude App, Cursor, Gemini CLI, ChatGPT Desktop, and any other MCP-compatible client.
+
+### CLI Entry Point
+
+```
+ai-governance-proxy [options] -- <server-command> [server-args...]
+```
+
+### Usage Examples
+
+```bash
+# Phase 1 — wrap the governance server (default if no command given):
+ai-governance-proxy -- python -m ai_governance_mcp.server
+
+# Phase 1 — with soft mode (warn instead of block):
+ai-governance-proxy --soft-mode -- python -m ai_governance_mcp.server
+
+# Phase 2 — wrap GitHub MCP with governance enforcement:
+ai-governance-proxy --govern-all \
+    --always-allow "get_file_contents,list_issues,search_code" \
+    -- npx @modelcontextprotocol/server-github
+
+# Phase 2 — with config file:
+ai-governance-proxy --config github-governance.yaml \
+    -- npx @modelcontextprotocol/server-github
+```
+
+### CLI Arguments
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--soft-mode` | `false` | Warn instead of block (advisory enforcement) |
+| `--disabled` | `false` | Pass through without enforcement (testing) |
+| `--recency-window` | `50` | Tool calls before governance expires |
+| `--config` | — | YAML config file specifying governed/allowed tools |
+| `--govern-all` | `false` | Govern ALL tools not explicitly exempted (Phase 2) |
+| `--always-allow` | — | Comma-separated tools exempt from governance |
+| `--cross-mcp` | `false` | Enable shared state file for cross-process coordination |
+| `--state-file` | `~/.ai-governance/enforcement-state.json` | Shared state file path |
+| `--state-ttl` | `300` | Shared state TTL in seconds |
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GOVERNANCE_ENFORCEMENT_ENABLED` | `true` | Master toggle — set `false` to disable completely |
+| `GOVERNANCE_ENFORCEMENT_SOFT_MODE` | `false` | Warn instead of block |
+| `GOVERNANCE_RECENCY_WINDOW` | `50` | Tool calls before governance expires |
+| `GOVERNANCE_STATE_FILE` | `~/.ai-governance/enforcement-state.json` | Shared state file path |
+| `GOVERNANCE_STATE_TTL` | `300` | Shared state TTL in seconds |
+
+Environment variables are overridden by CLI flags when both are provided.
+
+### Phase 1 Tool Classification
+
+In Phase 1 (self-enforcement), the proxy applies these default tool sets:
+
+| Category | Tools | Behavior |
+|----------|-------|----------|
+| **Governed** (require prior governance) | `scaffold_project`, `capture_reference`, `install_agent`, `uninstall_agent`, `log_feedback`, `log_governance_reasoning` | Blocked until `evaluate_governance()` called within recency window |
+| **Satisfiers** (count as governance) | `evaluate_governance`, `verify_governance_compliance` | Reset the recency counter |
+| **Always Allowed** (read-only pass-through) | `query_governance`, `get_principle`, `list_domains`, `get_domain_summary`, `get_metrics`, `list_agents`, `search_references`, `analyze_feedback_loop` | Pass through unconditionally |
+
+### Phase 2 Config File Format
+
+For cross-MCP enforcement, provide a YAML config:
+
+```yaml
+# github-governance.yaml
+governed_tools:
+  - create_pull_request
+  - push_files
+  - create_issue
+  - merge_pull_request
+always_allowed:
+  - get_file_contents
+  - list_issues
+  - search_code
+  - list_commits
+govern_all: true  # Govern ALL tools not in always_allowed
+```
+
+### Shared State Coordination
+
+Phase 2 cross-MCP mode uses a shared state file for cross-process coordination. When `evaluate_governance()` is called on the governance proxy instance, it writes a timestamp to `~/.ai-governance/enforcement-state.json`. Other proxy instances (wrapping GitHub, filesystem, etc.) read this file to determine if governance has been satisfied. The TTL (default 300s) prevents stale governance from persisting indefinitely. File writes are atomic (write-to-temp + rename) with fail-closed security — if the state file is unreadable, governance is considered unsatisfied.

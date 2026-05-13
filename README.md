@@ -215,6 +215,8 @@ The fastest path is Docker + Claude Desktop:
    ```
 5. **Restart Claude Desktop** and test: *"Query governance for handling incomplete specifications"*.
 
+> **Governance enforcement is active by default.** The Docker image uses the enforcement proxy in soft mode — action tools warn if `evaluate_governance()` hasn't been called, but do not block. For advisory-only (no enforcement): `"args": ["run", "-i", "--rm", "jason21wc/ai-governance-mcp:latest", "python", "-m", "ai_governance_mcp.server"]`.
+
 <details>
 <summary><b>Step-by-step walkthroughs: Windows, macOS, Windsurf</b></summary>
 
@@ -306,7 +308,7 @@ In 5-layer terms: you're adopting the **intent-engineering** content with your o
 
 ## Platform Configuration
 
-Use the config generator for platform-specific setup — it auto-detects your installation path and generates correct environment variables:
+Use the config generator for platform-specific setup — it auto-detects your installation path, generates correct environment variables, and defaults to enforcement proxy mode (soft mode):
 
 ```bash
 python -m ai_governance_mcp.config_generator --platform claude    # Claude Code CLI
@@ -316,6 +318,7 @@ python -m ai_governance_mcp.config_generator --platform cursor    # Cursor
 python -m ai_governance_mcp.config_generator --platform windsurf  # Windsurf
 python -m ai_governance_mcp.config_generator --all                # All platforms
 python -m ai_governance_mcp.config_generator --json claude        # JSON output
+python -m ai_governance_mcp.config_generator --json claude --no-enforce  # Advisory-only
 ```
 
 > **For pip users:** the config generator automatically includes `AI_GOVERNANCE_INDEX_PATH` and `AI_GOVERNANCE_DOCUMENTS_PATH` environment variables. These are required when running the server from a different directory than the project root. Docker users don't need this — paths are baked into the image.
@@ -323,6 +326,32 @@ python -m ai_governance_mcp.config_generator --json claude        # JSON output
 **Web-based platforms** (Perplexity, Grok, Google AI Studio): use the [MCP SuperAssistant Chrome Extension](https://github.com/srbhptl39/MCP-SuperAssistant) to bridge MCP to web clients.
 
 **Claude Code CLI and Claude Desktop have separate MCP configurations.** If you use both, configure each independently.
+
+## Enforcement Proxy
+
+The enforcement proxy (`ai-governance-proxy`) wraps the governance MCP server at the protocol level, intercepting JSON-RPC tool calls and blocking action tools that lack a prior `evaluate_governance()` call. Unlike advisory instructions that degrade over long conversations, this is structural — the AI model cannot bypass it. Works with any MCP client: Claude App, Cursor, Gemini CLI, ChatGPT Desktop, and others.
+
+**The config generator and Docker image default to enforcement proxy in soft mode.** No extra setup required.
+
+| Mode | How to configure | Compliance | When to use |
+|------|-----------------|------------|-------------|
+| **Advisory** | `--no-enforce` flag or direct `python -m ai_governance_mcp.server` | ~13% (model cooperation) | Exploration, low-stakes work |
+| **Structural (soft)** | Default — `ai-governance-proxy --` wraps the server | ~100% (warns, does not block) | Default for new users |
+| **Structural (hard)** | Set `GOVERNANCE_ENFORCEMENT_SOFT_MODE=false` | ~100% (blocks action tools) | Production workflows |
+
+**Graduating to hard mode:** Once you're comfortable with the governance workflow, set `GOVERNANCE_ENFORCEMENT_SOFT_MODE=false` in your MCP config's `env` block. Action tools will be blocked (not just warned) until `evaluate_governance()` is called.
+
+**Phase 2 — Cross-MCP enforcement:** The proxy can also wrap third-party MCP servers (GitHub, filesystem, etc.) to enforce governance before any consequential tool call. See [API.md](API.md#enforcement-proxy) for `--govern-all` mode and config file format.
+
+**Key environment variables:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GOVERNANCE_ENFORCEMENT_ENABLED` | `true` | Master toggle |
+| `GOVERNANCE_ENFORCEMENT_SOFT_MODE` | `false` (`true` in generated configs) | Warn instead of block |
+| `GOVERNANCE_RECENCY_WINDOW` | `50` | Tool calls before governance expires |
+
+Full enforcement architecture: [EXECUTION-FRAMEWORK.md §8.4](EXECUTION-FRAMEWORK.md). CLI reference: [API.md § Enforcement Proxy](API.md#enforcement-proxy).
 
 ## Local Installation
 
