@@ -1510,6 +1510,113 @@ class TestPromptHookShortenedReminder:
             os.unlink(transcript_path)
 
 
+class TestCritical5ReInjection:
+    """UserPromptSubmit hook injects critical-5 reminder in long compliant conversations."""
+
+    def _make_long_compliant_transcript(self, line_count):
+        """Create a transcript with governance+CE calls and enough filler lines."""
+        entries = [
+            make_tool_use_entry("mcp__ai-governance__evaluate_governance"),
+            make_tool_use_entry("mcp__context-engine__query_project"),
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": [
+                        {
+                            "type": "tool_use",
+                            "id": "r1",
+                            "name": "Read",
+                            "input": {"file_path": "PROJECT-MEMORY.md"},
+                        }
+                    ],
+                }
+            },
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": [
+                        {
+                            "type": "tool_use",
+                            "id": "r2",
+                            "name": "Read",
+                            "input": {"file_path": "LEARNING-LOG.md"},
+                        }
+                    ],
+                }
+            },
+        ]
+        entries.extend([make_filler_entry() for _ in range(line_count - len(entries))])
+        return create_transcript(entries)
+
+    def test_injects_critical5_in_long_conversation(self):
+        """Long compliant conversation (>=100 lines) gets critical-5 re-injection."""
+        transcript_path = self._make_long_compliant_transcript(150)
+        try:
+            hook_input = json.dumps({"transcript_path": transcript_path})
+            result = run_hook(PROMPT_HOOK, hook_input)
+            assert result.returncode == 0
+            output = json.loads(result.stdout)
+            context = output["additionalContext"]
+            assert "CRITICAL 5" in context
+            assert "Structural cause" in context
+            assert "Verified" in context
+        finally:
+            os.unlink(transcript_path)
+
+    def test_silent_in_short_compliant_conversation(self):
+        """Short compliant conversation (>50 but <100 lines) stays silent."""
+        transcript_path = self._make_long_compliant_transcript(80)
+        try:
+            hook_input = json.dumps({"transcript_path": transcript_path})
+            result = run_hook(PROMPT_HOOK, hook_input)
+            assert result.returncode == 0
+            assert result.stdout.strip() == ""
+        finally:
+            os.unlink(transcript_path)
+
+    def test_threshold_boundary_at_100(self):
+        """Exactly 100 lines triggers re-injection."""
+        transcript_path = self._make_long_compliant_transcript(100)
+        try:
+            hook_input = json.dumps({"transcript_path": transcript_path})
+            result = run_hook(PROMPT_HOOK, hook_input)
+            assert result.returncode == 0
+            output = json.loads(result.stdout)
+            assert "CRITICAL 5" in output["additionalContext"]
+        finally:
+            os.unlink(transcript_path)
+
+    def test_custom_threshold_via_env(self):
+        """CRITICAL5_REINJECTION_THRESHOLD overrides the default 100."""
+        transcript_path = self._make_long_compliant_transcript(60)
+        try:
+            hook_input = json.dumps({"transcript_path": transcript_path})
+            result = run_hook(
+                PROMPT_HOOK,
+                hook_input,
+                env_overrides={"CRITICAL5_REINJECTION_THRESHOLD": "50"},
+            )
+            assert result.returncode == 0
+            output = json.loads(result.stdout)
+            assert "CRITICAL 5" in output["additionalContext"]
+        finally:
+            os.unlink(transcript_path)
+
+    def test_reinjection_outputs_valid_json(self):
+        """Re-injection output is valid JSON with additionalContext key."""
+        transcript_path = self._make_long_compliant_transcript(120)
+        try:
+            hook_input = json.dumps({"transcript_path": transcript_path})
+            result = run_hook(PROMPT_HOOK, hook_input)
+            assert result.returncode == 0
+            parsed = json.loads(result.stdout)
+            assert isinstance(parsed, dict)
+            assert "additionalContext" in parsed
+            assert isinstance(parsed["additionalContext"], str)
+        finally:
+            os.unlink(transcript_path)
+
+
 class TestGovernanceFileDetection:
     """Tests for pre-push governance content file detection regex.
 

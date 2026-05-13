@@ -8,6 +8,7 @@
 #   GOVERNANCE_RECENCY_WINDOW=200    — Recency window for transcript scanning
 #   GOVERNANCE_TOOL_NAME=...         — Override governance tool name
 #   CE_TOOL_NAME=...                 — Override CE tool name
+#   CRITICAL5_REINJECTION_THRESHOLD=100 — Transcript lines before critical-5 re-injection
 #
 # Exit 0 always — never blocks, never errors
 
@@ -54,6 +55,7 @@ if [ -n "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
   if [ "$SCAN_RESULT" = "both" ]; then
     # Check startup reads — only in first ~50 transcript lines (early session)
     STARTUP_WINDOW=50
+    REINJECTION_THRESHOLD="${CRITICAL5_REINJECTION_THRESHOLD:-100}"
     LINE_COUNT=$(wc -l < "$TRANSCRIPT_PATH" 2>/dev/null | tr -d ' ') || LINE_COUNT=9999
     if [ "$LINE_COUNT" -le "$STARTUP_WINDOW" ]; then
       PM_READ=$(python3 "$HOOK_DIR/scan_transcript.py" --pattern "PROJECT-MEMORY" "$TRANSCRIPT_PATH" "$STARTUP_WINDOW" 2>/dev/null) || PM_READ="false"
@@ -70,6 +72,18 @@ sys.stdout.write(json.dumps({'additionalContext': msg}))
         exit 0
       fi
     fi
+
+    # Critical-5 re-injection for long conversations (BACKLOG #159)
+    if [ "$LINE_COUNT" -ge "$REINJECTION_THRESHOLD" ]; then
+      CRITICAL5='CRITICAL 5 — Structural cause (not symptom)? Verified (not assumed)? Uncertainty stated? Recommendation made (not deferred)? Effort matched to stakes?'
+      python3 -c "
+import json, sys
+msg = sys.argv[1]
+sys.stdout.write(json.dumps({'additionalContext': msg}))
+" "$CRITICAL5" 2>/dev/null || true
+      exit 0
+    fi
+
     exit 0
   fi
 fi

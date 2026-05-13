@@ -133,18 +133,6 @@
 
 ---
 
-#### 159. Critical 5 Hook Re-Injection (Discussion) `D1 Improvement`
-
-**What:** Add periodic critical-5 concept reinforcement to the UserPromptSubmit hook. When governance has been called (scan_result="both") and conversation is long (>100 transcript lines), inject a brief critical-5 reminder instead of exiting silently.
-
-**Why deferred:** Contrarian review recommended sequencing interventions — ship the scaffold format in evaluate_governance first, measure whether it improves compliance, then layer in re-injection only if scaffold alone is insufficient.
-
-**Trigger:** Phase 1 measurement shows scaffold format alone doesn't improve critical-5 compliance after 30 days (measurement protocol: learning log failure citations + Compliance Review #8 scaffold-theater check ~2026-06-09).
-
-**Risk:** Reminder fatigue — re-injection becomes background noise and reduces per-exposure engagement. The same risk that degrades GOVERNANCE_REMINDER over long conversations.
-
-**Origin:** Critical 5 reasoning scaffold plan (2026-05-10). Contrarian C2 recommendation.
-
 #### 160. Structural root_cause Artifact in log_governance_reasoning (Discussion) `D2 Improvement`
 
 **What:** Add a `root_cause` field to `log_governance_reasoning` tool that requires naming the structural cause distinct from the triggering symptom. If empty or matches planned_action text (restated symptom), flag it. Creates a verifiable artifact per LEARNING-LOG "Codified Rules Need Structural Anti-Theater Gates."
