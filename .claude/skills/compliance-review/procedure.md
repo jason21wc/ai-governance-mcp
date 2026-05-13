@@ -449,3 +449,42 @@ python3 -c "import json; entries=[json.loads(l) for l in open('.claude/logs/feed
 | Review | Date | Tool Health | Loop Health | Entry Count | Distinct Principles | Notes |
 |--------|------|-------------|-------------|-------------|---------------------|-------|
 | 8 | 2026-05-12 | PASS | PASS (baseline) | 2 | 1 | First review with Check 11. Canary (mod 3 = 2): `log_feedback(query="which principle addresses systemic root cause analysis?", principle_id="meta-core-systemic-thinking", rating=5)` succeeded. Entry count = 2 (1 prior + 1 canary this review), distinct principles = 1 (meta-core-systemic-thinking). Baseline established. Feedback file at `logs/feedback.jsonl` (not `.claude/logs/`). No organic (non-canary) entries yet — expected, as CLAUDE.md advisory for session-end feedback logging was added recently. Loop health accumulation tracking starts next review. |
+
+---
+
+### 12. Constraint retirement review
+
+**How:** Review whether existing behavioral floor directives, hooks, and tiers.json entries still encode real model limitations — or whether model improvements have made specific constraints unnecessary. Every harness component encodes an assumption about what the model cannot do on its own; when that assumption expires, the constraint becomes dead weight that consumes instruction budget without delivering value.
+
+**Step 1 — Inventory.** Count current constraints by category:
+
+```
+# Behavioral floor directives (CLAUDE.md + tiers.json behavioral_floor.directives)
+grep -c '"id":' documents/tiers.json  # tiers.json entries
+grep -c '^\- \*\*' CLAUDE.md | head -1  # CLAUDE.md behavioral floor items (approximate)
+
+# Hooks
+ls -1 .claude/hooks/*.sh | wc -l
+
+# Critical 5 scaffolds
+python3 -c "import json; d=json.load(open('documents/tiers.json')); print(len(d['critical_5']['items']))"
+```
+
+**Step 2 — Evaluate each behavioral floor directive.** For each directive in `tiers.json behavioral_floor.directives`, ask:
+
+1. **Origin:** What failure or pattern prompted this directive? (Check LEARNING-LOG, commit history, or the directive's own origin annotation.)
+2. **Last observed need:** When was the last session where this directive prevented or corrected an error? If unknown, mark "unobserved."
+3. **Model assumption:** What specific model limitation does this directive compensate for? Is that limitation still present in the current model?
+4. **Verdict:** KEEP (still needed), WATCH (may be outgrown — re-evaluate next review), or RETIRE (model has outgrown this constraint).
+
+**Step 3 — Evaluate hooks.** For each hook in `.claude/hooks/`, ask: does this hook still prevent a failure the model would otherwise make? Hooks that block actions the model no longer attempts are candidates for retirement. Note: hooks have lower retirement priority than advisory directives because hooks cost zero context budget.
+
+**Step 4 — Record and act.** Record the inventory counts, any WATCH or RETIRE verdicts, and rationale. RETIRE verdicts require user confirmation before removal.
+
+**Pass:** Inventory completed; all directives evaluated; any RETIRE candidates presented to user with rationale.
+**Fail:** Inventory incomplete or directives not individually evaluated.
+
+**Cadence note:** This check runs every 3rd compliance review (Reviews 9, 12, 15, ...) to balance thoroughness against review time. On non-cadence reviews, record "SKIP (cadence: every 3rd review)" in the result.
+
+| Review | Date | Result | Directive Count | Hook Count | Retirements | Notes |
+|--------|------|--------|-----------------|------------|-------------|-------|

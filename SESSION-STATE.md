@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-12 (session-168 — SSOT + list_agents + Compliance Review #8 + BACKLOG #161).
+**Last Updated:** 2026-05-12 (session-169 — behavioral floor directives + harness engineering article + constraint retirement check).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,25 +12,26 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-168 (2026-05-12) — SSOT + list_agents + Compliance Review #8 + BACKLOG #161 enforcement proxy default.**
+**Session-169 (2026-05-12) — Behavioral floor directives + harness engineering article + constraint retirement check.**
 
-**ACTION ON RESUME (session-169):** Time-cued: **C-109 deferred-cadence audit** (~2026-05-25). **Compliance Review #9** (~2026-05-22–2026-05-27). **C-012 Security Posture Review** first due ~2026-08-08. Docker image rebuild needed (Dockerfile CMD changed + enforcement.py updated).
+**ACTION ON RESUME (session-170):** Time-cued: **C-109 deferred-cadence audit** (~2026-05-25). **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review). **C-012 Security Posture Review** first due ~2026-08-08. Docker image rebuild needed (Dockerfile CMD changed + enforcement.py updated).
 
 **Critical state for next session:**
-- **Agent Definition SSOT + list_agents shipped** (4df7fb7) — CFR §2.2 template duplication eliminated, `list_agents` MCP tool for cross-platform discovery, AGENT_METADATA alignment CI test.
-- **Compliance Review #8 complete** — 13/13 PASS. V-009 CONFIRMED + retired (bypass envvars audit-logged). PHASE2_TRIGGERED fired→cleared (T3+T4 workload variance, n=2 pattern). Feedback loop baseline: 2 entries / 1 distinct principle.
-- **BACKLOG #58/#59/#60 closed** — superseded by shipped per-response reinforcement layers (critical-5 scaffold, universal floor, domain floor, GOVERNANCE_REMINDER).
-- **BACKLOG #162 added** — Accounting Domain (D3 New Capability, under Active).
-- **BACKLOG #161 implemented** — Enforcement proxy now default path. config_generator defaults to proxy+soft-mode, Dockerfile CMD changed to proxy, docker-compose advisory-only variant added, README+API.md enforcement proxy sections added, enforcement.py `_DEFAULT_ALLOWED` expanded with 3 missing read-only tools. 1686 tests passing.
-- **Docker rebuild needed** — Dockerfile CMD and enforcement.py changed. Push image after rebuild.
+- **Behavioral floor expanded** (2 new directives): `external-input-gap-analysis` + `conflicting-patterns` in CLAUDE.md + tiers.json (v2.1.0). Origin: Karpathy/Chang CLAUDE.md article + user feedback on existence-bias filtering (n=3+).
+- **BACKLOG #159 implemented** — Critical-5 re-injection hook for long conversations (≥100 transcript lines). 5 new tests, 102 hook tests passing.
+- **Harness engineering article evaluated** — reference library entry `ref-multi-agent-harness-engineering-synthesis` captured. Guide/sensor taxonomy (Böckeler) + verbose-on-success design rationale added to EXECUTION-FRAMEWORK.md §8.4.
+- **Check 12: Constraint Retirement Review** added to compliance review procedure. Runs every 3rd review. Evaluates whether behavioral floor directives + hooks still encode real model limitations.
+- **T-163 tripwire added** — CLAUDE.md instruction density degradation monitoring (>150 directives, >60% CANNOT DETERMINE, or <70% compliance).
+- **1691 tests passing** (non-slow). Index rebuilt: 133 principles + 735 methods + 18 references (886 total).
+- **Docker rebuild still needed** from session-168.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-168 (2026-05-12) — SSOT + list_agents + Compliance Review #8 + BACKLOG #161.
+- **Phase:** Session-169 (2026-05-12) — Behavioral floor + harness engineering + constraint retirement.
 - **Mode:** Normal operation.
-- **Active Task:** None. Next: C-109 deferred-cadence audit (~2026-05-25).
+- **Active Task:** None. Next: C-109 deferred-cadence audit (~2026-05-25), Compliance Review #9 (~2026-05-22).
 
 ## Quick Reference
 
@@ -46,7 +47,7 @@
 | Tools | **20 MCP tools** (16 governance + 4 context engine) |
 | Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **133 principles + 735 methods + 14 references** (882 total) |
+| Index | **133 principles + 735 methods + 18 references** (886 total) |
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **4** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
@@ -73,6 +74,8 @@
 ---
 
 ## Previous Sessions
+
+*Session-168 (2026-05-12) SSOT + list_agents + Compliance Review #8 + BACKLOG #161 enforcement proxy default. 1686 tests.*
 
 *Session-165 (2026-05-10) Governance Retrieval Quality Assessment + content enhancer application. BACKLOG #16 closed. 1612 tests.*
 

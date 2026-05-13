@@ -11428,7 +11428,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-12T23:06:28.568838+00:00",
+      "last_extracted": "2026-05-13T05:28:22.573023+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -24728,11 +24728,11 @@
               "termination conditions"
             ],
             "purpose_keywords": [
-              "program-md",
+              "overnight-agents",
+              "experimentation",
               "research-protocol",
               "autonomous-operation",
-              "overnight-agents",
-              "experimentation"
+              "program-md"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -24784,13 +24784,13 @@
               "constitutional principle:"
             ],
             "purpose_keywords": [
-              "elegance",
-              "effectiveness",
-              "ranking",
               "efficiency",
-              "multiplicative",
               "solution-comparison",
-              "joint-quality"
+              "ranking",
+              "effectiveness",
+              "joint-quality",
+              "elegance",
+              "multiplicative"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -24834,10 +24834,10 @@
             "trigger_phrases": [],
             "purpose_keywords": [
               "mcp",
-              "tool-handlers",
-              "asyncio",
               "testing",
-              "integration-testing"
+              "tool-handlers",
+              "integration-testing",
+              "asyncio"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -24885,12 +24885,12 @@
               "don't:"
             ],
             "purpose_keywords": [
+              "supabase",
               "nextjs",
               "middleware",
+              "api-routes",
               "auth",
-              "routing",
-              "supabase",
-              "api-routes"
+              "routing"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -24940,12 +24940,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "exceljs",
-              "sheetjs",
-              "excel",
               "library-selection",
+              "sheetjs",
+              "node",
               "document-generation",
-              "node"
+              "exceljs",
+              "excel"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25008,14 +25008,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "pdfkit",
-              "jspdf",
-              "pdf",
-              "puppeteer",
-              "pdf-lib",
               "library-selection",
+              "pdfkit",
+              "node",
               "document-generation",
-              "node"
+              "jspdf",
+              "pdf-lib",
+              "puppeteer",
+              "pdf"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25074,12 +25074,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "playwright",
-              "nextjs",
               "storage-state",
-              "auth",
+              "supabase",
+              "nextjs",
               "e2e-testing",
-              "supabase"
+              "auth",
+              "playwright"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25127,12 +25127,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "pytest",
               "mcp",
-              "sentence-transformers",
-              "testing",
+              "pytest",
               "mocking",
-              "fixtures"
+              "testing",
+              "fixtures",
+              "sentence-transformers"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25179,13 +25179,13 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "pdf",
-              "python",
-              "reportlab",
               "library-selection",
-              "document-generation",
+              "weasyprint",
+              "reportlab",
               "docker",
-              "weasyprint"
+              "document-generation",
+              "python",
+              "pdf"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25238,12 +25238,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "nextjs",
-              "auth",
               "jwt",
-              "custom-claims",
               "supabase",
-              "ssr"
+              "nextjs",
+              "ssr",
+              "custom-claims",
+              "auth"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25290,12 +25290,12 @@
               "don't:"
             ],
             "purpose_keywords": [
+              "supabase",
               "auth-callback",
-              "async",
               "cookies",
               "nextjs",
-              "pkce",
-              "supabase"
+              "async",
+              "pkce"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25348,10 +25348,10 @@
             "purpose_keywords": [
               "claude-code",
               "slash-commands",
-              "procedural-knowledge",
-              "workflow",
+              "skills",
               "superpowers",
-              "skills"
+              "procedural-knowledge",
+              "workflow"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25409,11 +25409,11 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "vitest",
               "vi-mock",
-              "typescript",
+              "mocking",
               "testing",
-              "mocking"
+              "typescript",
+              "vitest"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25468,12 +25468,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "s3",
-              "streaming",
-              "express",
               "file-download",
               "nextjs",
+              "streaming",
               "web-app",
+              "express",
+              "s3",
               "document-generation",
               "fastapi"
             ],
@@ -25533,8 +25533,8 @@
             ],
             "purpose_keywords": [
               "patterns",
-              "knowledge-management",
               "reuse",
+              "knowledge-management",
               "agent-productivity"
             ],
             "applies_to": [],
@@ -25543,7 +25543,7 @@
           "embedding_id": 545
         }
       ],
-      "last_extracted": "2026-05-12T23:06:28.591216+00:00",
+      "last_extracted": "2026-05-13T05:28:22.596682+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -29398,8 +29398,82 @@
           "embedding_id": 616
         }
       ],
-      "references": [],
-      "last_extracted": "2026-05-12T23:06:28.596897+00:00",
+      "references": [
+        {
+          "id": "ref-multi-agent-harness-engineering-synthesis",
+          "domain": "multi-agent",
+          "title": "Agent Harness Engineering \u2014 Industry Convergence Synthesis",
+          "summary": "Industry synthesis of harness engineering patterns \u2014 Agent = Model + Harness; benchmark evidence (6x performance gaps from harness alone); ratchet pattern; guide/sensor taxonomy; constraint retirement discipline",
+          "content": "## Context\n\nUse when evaluating agent architecture decisions, designing enforcement layers, or assessing whether harness components are still needed. The benchmark evidence (6x performance gaps) validates investment in harness engineering over model selection. The guide/sensor taxonomy provides a classification scheme for enforcement layer analysis. The constraint retirement discipline highlights the need for periodic review of whether rules still encode real model limitations.\n\n## Artifact\n\n## Agent Harness Engineering \u2014 Key Concepts\n\n### Core Thesis\nAgent = Model + Harness. The harness encompasses every piece of code, configuration, and execution logic that isn't the model itself. A decent model with a great harness consistently beats a great model with a bad harness.\n\n### Benchmark Evidence (verified)\n- **Terminal-Bench 2.0:** Same model jumped from outside top 30 (52.8%) to rank 5 (66.5%) by changing only the harness. Stanford's Meta-Harness hit 76.4% with Claude Opus 4.6.\n- **SWE-bench:** Same base model produced solve rates ranging from ~5% to 30%+ depending on harness configuration.\n- **Codex comparison:** GPT-5.5 scored 61.5% in OpenAI's native Codex harness vs. 87.2% in Cursor's harness \u2014 25.7-point swing, same model.\n- **Stanford/Tsinghua research:** Reports 6x performance gaps from harness design alone.\n\n### The Ratchet Pattern\nEvery agent mistake becomes a permanent rule. Constraints added on observed failure, removed when model improvement renders them redundant. Every line in a good system prompt should trace back to a specific, historical failure.\n\n### Guide/Sensor Taxonomy (B\u00f6ckeler, martinfowler.com)\nClassifies every harness element as either:\n- **Guide (feedforward):** Steers before the agent acts (e.g., system prompts, CLAUDE.md, pre-action hooks)\n- **Sensor (feedback):** Observes after action and helps self-correct (e.g., test runners, post-action hooks, type checkers)\n\n### Constraint Retirement\nAs models improve, the need for a harness doesn't disappear \u2014 it shifts. Every component encodes an assumption about what the model cannot do on its own. When the model improves, outdated scaffolding should be removed, and new scaffolding built to reach the next horizon.\n\n### Verbose-on-Failure, Silent-on-Success\nHooks and enforcement should be silent when things pass, verbose only on failure. If a typecheck passes, the agent hears nothing; if it fails, the error is injected directly back into the loop for self-correction.\n\n### Context Rot Management\nThree primary techniques: (1) Compaction \u2014 summarizing older context, (2) Tool-call offloading \u2014 storing massive outputs in filesystem while keeping headers/footers in context, (3) Progressive disclosure \u2014 revealing instructions only when explicitly required.\n\n### Industry Convergence\nTop coding agents look more like each other than their underlying models do. The harness patterns are converging: Claude Code, Cursor, Codex, Aider, Cline are all harnesses around the same models.\n\n### Key Sources\n- Viv Trivedy (LangChain) \u2014 coined \"harness engineering\" terminology, \"Agent = Model + Harness\"\n- Dex Horthy (HumanLayer, YC F24) \u2014 \"skill issue\" framing, RPI\u2192QRSPI framework evolution\n- Birgitta B\u00f6ckeler (Thoughtworks, martinfowler.com) \u2014 guide/sensor control theory taxonomy\n- Fareed Khan \u2014 Claude Code architecture reverse-engineering (third-party, not official Anthropic)\n\n## Lessons Learned\n\n1. The ratchet pattern aligns with ai-governance's LEARNING-LOG \u2192 behavioral floor pipeline, but ai-governance adds explicit circuit-breakers against over-ratcheting (don't generalize case-specific deviations, binary-checkability requirement for FM entries). 2. The \"every rule earned through failure\" philosophy conflicts with ai-governance's \"anticipatory items are valid\" philosophy \u2014 ai-governance deliberately allows proactive rules, which is a broader and arguably more effective approach. 3. The guide/sensor taxonomy maps cleanly to ai-governance's enforcement layers: PreToolUse hooks are guides, PostToolUse hooks are sensors, evaluate_governance is a guide, verify_governance_compliance is a sensor. 4. The verbose-on-failure pattern conflicts with ai-governance's design choice to include principles in PROCEED responses for pedagogical value \u2014 a deliberate tradeoff of context budget for learning.\n\n## Cross-References\n\n- Principles: [relevant principle IDs]\n- Methods: [relevant method section refs]\n- See also: [related entry IDs]",
+          "tags": [
+            "harness-engineering",
+            "agent-architecture",
+            "enforcement",
+            "ratchet-pattern",
+            "context-management",
+            "benchmark-evidence",
+            "model-harness-gap"
+          ],
+          "status": "current",
+          "maturity": "budding",
+          "entry_type": "reference",
+          "decay_class": "framework",
+          "created": "2026-05-13",
+          "last_verified": "2026-05-13",
+          "source": "Captured via capture_reference tool",
+          "supersedes": [],
+          "superseded_by": null,
+          "related": [],
+          "source_path": "reference-library/multi-agent/ref-multi-agent-harness-engineering-synthesis.md",
+          "metadata": {
+            "keywords": [
+              "agent",
+              "harness",
+              "engineering",
+              "industry",
+              "convergence",
+              "synthesis"
+            ],
+            "trigger_phrases": [
+              "terminal-bench 2.0:",
+              "swe-bench:",
+              "codex comparison:",
+              "stanford/tsinghua research:",
+              "guide (feedforward):",
+              "sensor (feedback):"
+            ],
+            "purpose_keywords": [
+              "ratchet-pattern",
+              "context-management",
+              "model-harness-gap",
+              "enforcement",
+              "benchmark-evidence",
+              "agent-architecture",
+              "harness-engineering"
+            ],
+            "applies_to": [],
+            "guideline_keywords": [
+              "core",
+              "thesis",
+              "benchmark",
+              "evidence",
+              "(verified)",
+              "ratchet",
+              "pattern",
+              "guide/sensor",
+              "taxonomy",
+              "(b\u00f6ckeler,",
+              "constraint",
+              "retirement",
+              "verbose-on-failure,",
+              "silent-on-success",
+              "context"
+            ]
+          },
+          "embedding_id": 617
+        }
+      ],
+      "last_extracted": "2026-05-13T05:28:22.604026+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -29449,7 +29523,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 617
+          "embedding_id": 618
         },
         {
           "id": "stor-architecture-a3-accessibility-by-design",
@@ -29492,7 +29566,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 618
+          "embedding_id": 619
         },
         {
           "id": "stor-structure-st1-framework-as-tool-not-law",
@@ -29535,7 +29609,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 619
+          "embedding_id": 620
         },
         {
           "id": "stor-structure-st2-cultural-aware-framework-selection",
@@ -29588,7 +29662,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 620
+          "embedding_id": 621
         },
         {
           "id": "stor-structure-st3-transformation-arc",
@@ -29634,7 +29708,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 621
+          "embedding_id": 622
         },
         {
           "id": "stor-structure-st4-stakes-and-consequence-clarity",
@@ -29680,7 +29754,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 622
+          "embedding_id": 623
         },
         {
           "id": "stor-structure-st5-perspective-selection",
@@ -29725,7 +29799,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 623
+          "embedding_id": 624
         },
         {
           "id": "stor-context-c1-specificity-over-abstraction",
@@ -29772,7 +29846,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 624
+          "embedding_id": 625
         },
         {
           "id": "stor-context-c2-show-tell-balance",
@@ -29817,7 +29891,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 625
+          "embedding_id": 626
         },
         {
           "id": "stor-context-c3-pacing-variation",
@@ -29860,7 +29934,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 626
+          "embedding_id": 627
         },
         {
           "id": "stor-context-c5-dialogue-craft",
@@ -29904,7 +29978,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 627
+          "embedding_id": 628
         },
         {
           "id": "stor-medium-m1-platform-first-optimization",
@@ -29955,7 +30029,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 628
+          "embedding_id": 629
         },
         {
           "id": "stor-medium-m4-resolution-calibration",
@@ -29999,7 +30073,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 629
+          "embedding_id": 630
         },
         {
           "id": "stor-safety-e1-human-voice-preservation",
@@ -30051,7 +30125,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 630
+          "embedding_id": 631
         },
         {
           "id": "stor-safety-e2-persuasion-manipulation-boundary",
@@ -30102,7 +30176,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 631
+          "embedding_id": 632
         }
       ],
       "methods": [
@@ -30158,7 +30232,7 @@
               "math"
             ]
           },
-          "embedding_id": 632
+          "embedding_id": 633
         },
         {
           "id": "stor-method-the-story-bible-architecture",
@@ -30211,7 +30285,7 @@
               "tiers?"
             ]
           },
-          "embedding_id": 633
+          "embedding_id": 634
         },
         {
           "id": "stor-method-reference-items-to-track",
@@ -30276,7 +30350,7 @@
               "guide"
             ]
           },
-          "embedding_id": 634
+          "embedding_id": 635
         },
         {
           "id": "stor-method-story-bible-template",
@@ -30338,7 +30412,7 @@
               "(25k+"
             ]
           },
-          "embedding_id": 635
+          "embedding_id": 636
         },
         {
           "id": "stor-method-story-foundation-immutable",
@@ -30384,7 +30458,7 @@
               "stakes"
             ]
           },
-          "embedding_id": 636
+          "embedding_id": 637
         },
         {
           "id": "stor-method-characters",
@@ -30433,7 +30507,7 @@
               "sheets...]"
             ]
           },
-          "embedding_id": 637
+          "embedding_id": 638
         },
         {
           "id": "stor-method-world",
@@ -30473,7 +30547,7 @@
               "magic/technology/social]"
             ]
           },
-          "embedding_id": 638
+          "embedding_id": 639
         },
         {
           "id": "stor-method-plot-architecture",
@@ -30525,7 +30599,7 @@
               "(reader"
             ]
           },
-          "embedding_id": 639
+          "embedding_id": 640
         },
         {
           "id": "stor-method-style-guide",
@@ -30578,7 +30652,7 @@
               "conventions"
             ]
           },
-          "embedding_id": 640
+          "embedding_id": 641
         },
         {
           "id": "stor-method-timeline",
@@ -30611,7 +30685,7 @@
               "events"
             ]
           },
-          "embedding_id": 641
+          "embedding_id": 642
         },
         {
           "id": "stor-method-session-state-working-memory",
@@ -30678,7 +30752,7 @@
               "last"
             ]
           },
-          "embedding_id": 642
+          "embedding_id": 643
         },
         {
           "id": "stor-method-context-loading-protocol",
@@ -30732,7 +30806,7 @@
               "guideline"
             ]
           },
-          "embedding_id": 643
+          "embedding_id": 644
         },
         {
           "id": "stor-method-when-to-create-new-reference-items",
@@ -30792,7 +30866,7 @@
               "mid-project"
             ]
           },
-          "embedding_id": 644
+          "embedding_id": 645
         },
         {
           "id": "stor-method-platform-specific-adaptations",
@@ -30855,7 +30929,7 @@
               "(web"
             ]
           },
-          "embedding_id": 645
+          "embedding_id": 646
         },
         {
           "id": "stor-method-voice-preservation-integration",
@@ -30914,7 +30988,7 @@
               "change"
             ]
           },
-          "embedding_id": 646
+          "embedding_id": 647
         },
         {
           "id": "stor-method-recovery-protocol",
@@ -30971,7 +31045,7 @@
               "long"
             ]
           },
-          "embedding_id": 647
+          "embedding_id": 648
         },
         {
           "id": "stor-method-governance-integration",
@@ -31015,7 +31089,7 @@
               "sessions"
             ]
           },
-          "embedding_id": 648
+          "embedding_id": 649
         },
         {
           "id": "stor-method-auto-tracking-protocol",
@@ -31078,7 +31152,7 @@
               "auto-extraction"
             ]
           },
-          "embedding_id": 649
+          "embedding_id": 650
         },
         {
           "id": "stor-method-revision-management-protocol",
@@ -31143,7 +31217,7 @@
               "type"
             ]
           },
-          "embedding_id": 650
+          "embedding_id": 651
         },
         {
           "id": "stor-method-non-linear-writing-protocol",
@@ -31207,7 +31281,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 651
+          "embedding_id": 652
         },
         {
           "id": "stor-method-story-log-template",
@@ -31269,7 +31343,7 @@
               "threads"
             ]
           },
-          "embedding_id": 652
+          "embedding_id": 653
         },
         {
           "id": "stor-method-character-voice-profiles",
@@ -31304,7 +31378,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 653
+          "embedding_id": 654
         },
         {
           "id": "stor-method-voice-profile-components",
@@ -31354,7 +31428,7 @@
               "profile"
             ]
           },
-          "embedding_id": 654
+          "embedding_id": 655
         },
         {
           "id": "stor-method-voice-distinction-test",
@@ -31402,7 +31476,7 @@
               "distinction"
             ]
           },
-          "embedding_id": 655
+          "embedding_id": 656
         },
         {
           "id": "stor-method-voice-drift-detection",
@@ -31447,7 +31521,7 @@
               "drift"
             ]
           },
-          "embedding_id": 656
+          "embedding_id": 657
         },
         {
           "id": "stor-method-genre-conventions-guide",
@@ -31481,7 +31555,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 657
+          "embedding_id": 658
         },
         {
           "id": "stor-method-convention-reference",
@@ -31530,7 +31604,7 @@
               "reference"
             ]
           },
-          "embedding_id": 658
+          "embedding_id": 659
         },
         {
           "id": "stor-method-convention-decision-workflow",
@@ -31581,7 +31655,7 @@
               "decision"
             ]
           },
-          "embedding_id": 659
+          "embedding_id": 660
         },
         {
           "id": "stor-method-plot-consistency-checks",
@@ -31616,7 +31690,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 660
+          "embedding_id": 661
         },
         {
           "id": "stor-method-check-categories",
@@ -31663,7 +31737,7 @@
               "categories"
             ]
           },
-          "embedding_id": 661
+          "embedding_id": 662
         },
         {
           "id": "stor-method-character-knowledge-audit",
@@ -31707,7 +31781,7 @@
               "knowledge"
             ]
           },
-          "embedding_id": 662
+          "embedding_id": 663
         },
         {
           "id": "stor-method-timeline-verification",
@@ -31749,7 +31823,7 @@
               "verification"
             ]
           },
-          "embedding_id": 663
+          "embedding_id": 664
         },
         {
           "id": "stor-method-quick-consistency-scan",
@@ -31793,7 +31867,7 @@
               "consistency"
             ]
           },
-          "embedding_id": 664
+          "embedding_id": 665
         },
         {
           "id": "stor-method-coaching-question-taxonomy",
@@ -31826,7 +31900,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 665
+          "embedding_id": 666
         },
         {
           "id": "stor-method-question-categories",
@@ -31872,7 +31946,7 @@
               "categories"
             ]
           },
-          "embedding_id": 666
+          "embedding_id": 667
         },
         {
           "id": "stor-method-discovery-questions",
@@ -31914,7 +31988,7 @@
               "questions"
             ]
           },
-          "embedding_id": 667
+          "embedding_id": 668
         },
         {
           "id": "stor-method-character-questions",
@@ -31956,7 +32030,7 @@
               "questions"
             ]
           },
-          "embedding_id": 668
+          "embedding_id": 669
         },
         {
           "id": "stor-method-structure-questions",
@@ -31998,7 +32072,7 @@
               "questions"
             ]
           },
-          "embedding_id": 669
+          "embedding_id": 670
         },
         {
           "id": "stor-method-craft-questions",
@@ -32040,7 +32114,7 @@
               "questions"
             ]
           },
-          "embedding_id": 670
+          "embedding_id": 671
         },
         {
           "id": "stor-method-revision-questions",
@@ -32082,7 +32156,7 @@
               "questions"
             ]
           },
-          "embedding_id": 671
+          "embedding_id": 672
         },
         {
           "id": "stor-method-stuck-questions",
@@ -32124,7 +32198,7 @@
               "questions"
             ]
           },
-          "embedding_id": 672
+          "embedding_id": 673
         },
         {
           "id": "stor-method-progressive-inquiry-pattern",
@@ -32189,11 +32263,11 @@
               "story"
             ]
           },
-          "embedding_id": 673
+          "embedding_id": 674
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-12T23:06:28.600114+00:00",
+      "last_extracted": "2026-05-13T05:28:22.607383+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -32238,7 +32312,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 674
+          "embedding_id": 675
         },
         {
           "id": "mrag-presentation-p2-natural-integration",
@@ -32279,7 +32353,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 675
+          "embedding_id": 676
         },
         {
           "id": "mrag-presentation-p3-image-selection-criteria",
@@ -32325,7 +32399,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 676
+          "embedding_id": 677
         },
         {
           "id": "mrag-presentation-p4-audience-adaptation",
@@ -32372,7 +32446,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 677
+          "embedding_id": 678
         },
         {
           "id": "mrag-presentation-p5-accessibility-compliance",
@@ -32415,7 +32489,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 678
+          "embedding_id": 679
         },
         {
           "id": "mrag-reference-r1-image-text-collocation",
@@ -32456,7 +32530,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 679
+          "embedding_id": 680
         },
         {
           "id": "mrag-reference-r2-descriptive-context",
@@ -32497,7 +32571,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 680
+          "embedding_id": 681
         },
         {
           "id": "mrag-reference-r3-retrieval-metadata",
@@ -32536,7 +32610,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 681
+          "embedding_id": 682
         },
         {
           "id": "mrag-architecture-a1-unified-embedding-space",
@@ -32577,7 +32651,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 682
+          "embedding_id": 683
         },
         {
           "id": "mrag-architecture-a2-relevance-scoring",
@@ -32618,7 +32692,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 683
+          "embedding_id": 684
         },
         {
           "id": "mrag-architecture-a3-vision-guided-chunking",
@@ -32659,7 +32733,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 684
+          "embedding_id": 685
         },
         {
           "id": "mrag-architecture-a4-document-as-image-retrieval",
@@ -32700,7 +32774,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 685
+          "embedding_id": 686
         },
         {
           "id": "mrag-architecture-a5-knowledge-graph-integration",
@@ -32743,7 +32817,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 686
+          "embedding_id": 687
         },
         {
           "id": "mrag-fallback-f1-graceful-degradation",
@@ -32782,7 +32856,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 687
+          "embedding_id": 688
         },
         {
           "id": "mrag-fallback-f2-failure-transparency",
@@ -32826,7 +32900,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 688
+          "embedding_id": 689
         },
         {
           "id": "mrag-verification-v1-cross-modal-consistency-verification",
@@ -32868,7 +32942,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 689
+          "embedding_id": 690
         },
         {
           "id": "mrag-verification-v2-visual-scene-graph-checking",
@@ -32913,7 +32987,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 690
+          "embedding_id": 691
         },
         {
           "id": "mrag-verification-v3-source-fidelity",
@@ -32953,7 +33027,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 691
+          "embedding_id": 692
         },
         {
           "id": "mrag-verification-v4-cross-modal-reasoning-chain-integrity",
@@ -32998,7 +33072,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 692
+          "embedding_id": 693
         },
         {
           "id": "mrag-evaluation-ev1-retrieval-quality-measurement",
@@ -33041,7 +33115,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 693
+          "embedding_id": 694
         },
         {
           "id": "mrag-evaluation-ev2-answer-faithfulness-assessment",
@@ -33084,7 +33158,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 694
+          "embedding_id": 695
         },
         {
           "id": "mrag-citation-ct1-fragment-level-source-attribution",
@@ -33133,7 +33207,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 695
+          "embedding_id": 696
         },
         {
           "id": "mrag-citation-ct2-spatial-attribution-for-visual-content",
@@ -33181,7 +33255,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 696
+          "embedding_id": 697
         },
         {
           "id": "mrag-security-sec1-multimodal-poisoning-defense",
@@ -33225,7 +33299,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 697
+          "embedding_id": 698
         },
         {
           "id": "mrag-security-sec2-cross-modal-input-validation",
@@ -33268,7 +33342,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 698
+          "embedding_id": 699
         },
         {
           "id": "mrag-data-governance-dg1-access-control-for-multimodal-knowledge-bases",
@@ -33313,7 +33387,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 699
+          "embedding_id": 700
         },
         {
           "id": "mrag-data-governance-dg2-data-lineage-and-provenance",
@@ -33356,7 +33430,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 700
+          "embedding_id": 701
         },
         {
           "id": "mrag-operations-o1-index-version-management",
@@ -33398,7 +33472,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 701
+          "embedding_id": 702
         },
         {
           "id": "mrag-operations-o2-continuous-monitoring-observability",
@@ -33448,7 +33522,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 702
+          "embedding_id": 703
         },
         {
           "id": "mrag-agentic-retrieval-ag1-adaptive-retrieval-strategy",
@@ -33491,7 +33565,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 703
+          "embedding_id": 704
         },
         {
           "id": "mrag-agentic-retrieval-ag2-query-decomposition",
@@ -33533,7 +33607,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 704
+          "embedding_id": 705
         },
         {
           "id": "mrag-agentic-retrieval-ag3-retrieval-sufficiency-evaluation",
@@ -33586,7 +33660,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 705
+          "embedding_id": 706
         }
       ],
       "methods": [
@@ -33626,7 +33700,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 706
+          "embedding_id": 707
         },
         {
           "id": "mrag-method-image-placement-workflow",
@@ -33670,7 +33744,7 @@
               "workflow"
             ]
           },
-          "embedding_id": 707
+          "embedding_id": 708
         },
         {
           "id": "mrag-method-inline-placement-rules",
@@ -33714,7 +33788,7 @@
               "rules"
             ]
           },
-          "embedding_id": 708
+          "embedding_id": 709
         },
         {
           "id": "mrag-method-image-selection-algorithm-mayer-based",
@@ -33761,7 +33835,7 @@
               "algorithm"
             ]
           },
-          "embedding_id": 709
+          "embedding_id": 710
         },
         {
           "id": "mrag-method-content-type-matching",
@@ -33802,7 +33876,7 @@
               "matching"
             ]
           },
-          "embedding_id": 710
+          "embedding_id": 711
         },
         {
           "id": "mrag-method-readability-standards",
@@ -33845,7 +33919,7 @@
               "standards"
             ]
           },
-          "embedding_id": 711
+          "embedding_id": 712
         },
         {
           "id": "mrag-method-accessibility-implementation-checklist",
@@ -33909,7 +33983,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 712
+          "embedding_id": 713
         },
         {
           "id": "mrag-method-reference-document-structuring",
@@ -33949,7 +34023,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 713
+          "embedding_id": 714
         },
         {
           "id": "mrag-method-document-organization-template",
@@ -33993,7 +34067,7 @@
               "template"
             ]
           },
-          "embedding_id": 714
+          "embedding_id": 715
         },
         {
           "id": "mrag-method-image-description-requirements",
@@ -34040,7 +34114,7 @@
               "requirements"
             ]
           },
-          "embedding_id": 715
+          "embedding_id": 716
         },
         {
           "id": "mrag-method-metadata-schema",
@@ -34081,7 +34155,7 @@
               "schema"
             ]
           },
-          "embedding_id": 716
+          "embedding_id": 717
         },
         {
           "id": "mrag-method-collocation-verification-checklist",
@@ -34125,7 +34199,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 717
+          "embedding_id": 718
         },
         {
           "id": "mrag-method-content-ingestion-assistance-workflow",
@@ -34192,7 +34266,7 @@
               "validation"
             ]
           },
-          "embedding_id": 718
+          "embedding_id": 719
         },
         {
           "id": "mrag-method-retrieval-architecture",
@@ -34230,7 +34304,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 719
+          "embedding_id": 720
         },
         {
           "id": "mrag-method-four-layer-architecture",
@@ -34271,7 +34345,7 @@
               "architecture"
             ]
           },
-          "embedding_id": 720
+          "embedding_id": 721
         },
         {
           "id": "mrag-method-embedding-model-selection",
@@ -34320,7 +34394,7 @@
               "selection"
             ]
           },
-          "embedding_id": 721
+          "embedding_id": 722
         },
         {
           "id": "mrag-method-relevance-scoring-implementation",
@@ -34362,7 +34436,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 722
+          "embedding_id": 723
         },
         {
           "id": "mrag-method-chunk-strategy-for-multimodal-documents",
@@ -34409,7 +34483,7 @@
               "multimodal"
             ]
           },
-          "embedding_id": 723
+          "embedding_id": 724
         },
         {
           "id": "mrag-method-vision-guided-chunking-procedures",
@@ -34466,7 +34540,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 724
+          "embedding_id": 725
         },
         {
           "id": "mrag-method-cross-modal-reference-linking",
@@ -34524,7 +34598,7 @@
               "linking"
             ]
           },
-          "embedding_id": 725
+          "embedding_id": 726
         },
         {
           "id": "mrag-method-late-interaction-and-document-as-image-retrieval",
@@ -34585,7 +34659,7 @@
               "document-as-image"
             ]
           },
-          "embedding_id": 726
+          "embedding_id": 727
         },
         {
           "id": "mrag-method-graph-based-multimodal-retrieval",
@@ -34644,7 +34718,7 @@
               "retrieval"
             ]
           },
-          "embedding_id": 727
+          "embedding_id": 728
         },
         {
           "id": "mrag-method-failure-handling",
@@ -34682,7 +34756,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 728
+          "embedding_id": 729
         },
         {
           "id": "mrag-method-failure-classification",
@@ -34723,7 +34797,7 @@
               "classification"
             ]
           },
-          "embedding_id": 729
+          "embedding_id": 730
         },
         {
           "id": "mrag-method-graceful-degradation-procedure",
@@ -34767,7 +34841,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 730
+          "embedding_id": 731
         },
         {
           "id": "mrag-method-failure-note-templates",
@@ -34814,7 +34888,7 @@
               "templates"
             ]
           },
-          "embedding_id": 731
+          "embedding_id": 732
         },
         {
           "id": "mrag-method-failure-logging-schema",
@@ -34858,7 +34932,7 @@
               "schema"
             ]
           },
-          "embedding_id": 732
+          "embedding_id": 733
         },
         {
           "id": "mrag-method-verification-and-hallucination-prevention",
@@ -34898,7 +34972,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 733
+          "embedding_id": 734
         },
         {
           "id": "mrag-method-cross-modal-consistency-check",
@@ -34952,7 +35026,7 @@
               "check"
             ]
           },
-          "embedding_id": 734
+          "embedding_id": 735
         },
         {
           "id": "mrag-method-visual-scene-graph-validation",
@@ -35006,7 +35080,7 @@
               "graph"
             ]
           },
-          "embedding_id": 735
+          "embedding_id": 736
         },
         {
           "id": "mrag-method-modality-conflict-resolution",
@@ -35060,7 +35134,7 @@
               "resolution"
             ]
           },
-          "embedding_id": 736
+          "embedding_id": 737
         },
         {
           "id": "mrag-method-visual-textual-inconsistency-handling",
@@ -35113,7 +35187,7 @@
               "handling"
             ]
           },
-          "embedding_id": 737
+          "embedding_id": 738
         },
         {
           "id": "mrag-method-multi-hop-cross-modal-reasoning-verification",
@@ -35174,7 +35248,7 @@
               "reasoning"
             ]
           },
-          "embedding_id": 738
+          "embedding_id": 739
         },
         {
           "id": "mrag-method-evaluation-framework",
@@ -35212,7 +35286,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 739
+          "embedding_id": 740
         },
         {
           "id": "mrag-method-rag-check-6-metric-implementation",
@@ -35270,7 +35344,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 740
+          "embedding_id": 741
         },
         {
           "id": "mrag-method-multimodal-mrr-calculation",
@@ -35322,7 +35396,7 @@
               "calculation"
             ]
           },
-          "embedding_id": 741
+          "embedding_id": 742
         },
         {
           "id": "mrag-method-drift-detection",
@@ -35377,7 +35451,7 @@
               "detection"
             ]
           },
-          "embedding_id": 742
+          "embedding_id": 743
         },
         {
           "id": "mrag-method-benchmark-construction",
@@ -35428,7 +35502,7 @@
               "construction"
             ]
           },
-          "embedding_id": 743
+          "embedding_id": 744
         },
         {
           "id": "mrag-method-citation-and-attribution",
@@ -35466,7 +35540,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 744
+          "embedding_id": 745
         },
         {
           "id": "mrag-method-fragment-level-source-tracking",
@@ -35528,7 +35602,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 745
+          "embedding_id": 746
         },
         {
           "id": "mrag-method-visa-spatial-attribution",
@@ -35582,7 +35656,7 @@
               "attribution"
             ]
           },
-          "embedding_id": 746
+          "embedding_id": 747
         },
         {
           "id": "mrag-method-citation-formatting",
@@ -35633,7 +35707,7 @@
               "formatting"
             ]
           },
-          "embedding_id": 747
+          "embedding_id": 748
         },
         {
           "id": "mrag-method-citation-verification-checklist",
@@ -35677,7 +35751,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 748
+          "embedding_id": 749
         },
         {
           "id": "mrag-method-security-for-multimodal-knowledge-bases",
@@ -35719,7 +35793,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 749
+          "embedding_id": 750
         },
         {
           "id": "mrag-method-poisoning-attack-taxonomy",
@@ -35780,7 +35854,7 @@
               "taxonomy"
             ]
           },
-          "embedding_id": 750
+          "embedding_id": 751
         },
         {
           "id": "mrag-method-input-validation-pipeline",
@@ -35829,7 +35903,7 @@
               "pipeline"
             ]
           },
-          "embedding_id": 751
+          "embedding_id": 752
         },
         {
           "id": "mrag-method-defense-assessment-checklist",
@@ -35880,7 +35954,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 752
+          "embedding_id": 753
         },
         {
           "id": "mrag-method-cross-domain-security-reference",
@@ -35930,7 +36004,7 @@
               "reference"
             ]
           },
-          "embedding_id": 753
+          "embedding_id": 754
         },
         {
           "id": "mrag-method-data-governance",
@@ -35968,7 +36042,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 754
+          "embedding_id": 755
         },
         {
           "id": "mrag-method-rbac-configuration",
@@ -36018,7 +36092,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 755
+          "embedding_id": 756
         },
         {
           "id": "mrag-method-encryption-and-transit-security",
@@ -36071,7 +36145,7 @@
               "security"
             ]
           },
-          "embedding_id": 756
+          "embedding_id": 757
         },
         {
           "id": "mrag-method-audit-trail-schema",
@@ -36123,7 +36197,7 @@
               "schema"
             ]
           },
-          "embedding_id": 757
+          "embedding_id": 758
         },
         {
           "id": "mrag-method-data-lineage-tracking",
@@ -36176,7 +36250,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 758
+          "embedding_id": 759
         },
         {
           "id": "mrag-method-operational-management",
@@ -36228,7 +36302,7 @@
               "index"
             ]
           },
-          "embedding_id": 759
+          "embedding_id": 760
         },
         {
           "id": "mrag-method-embedding-model-lifecycle",
@@ -36282,7 +36356,7 @@
               "model"
             ]
           },
-          "embedding_id": 760
+          "embedding_id": 761
         },
         {
           "id": "mrag-method-prompt-template-versioning",
@@ -36334,7 +36408,7 @@
               "template"
             ]
           },
-          "embedding_id": 761
+          "embedding_id": 762
         },
         {
           "id": "mrag-method-cost-monitoring",
@@ -36390,7 +36464,7 @@
               "monitoring"
             ]
           },
-          "embedding_id": 762
+          "embedding_id": 763
         },
         {
           "id": "mrag-method-observability-dashboard",
@@ -36443,7 +36517,7 @@
               "dashboard"
             ]
           },
-          "embedding_id": 763
+          "embedding_id": 764
         },
         {
           "id": "mrag-method-agentic-retrieval-patterns",
@@ -36483,7 +36557,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 764
+          "embedding_id": 765
         },
         {
           "id": "mrag-method-adaptive-retrieval-loop-design",
@@ -36543,7 +36617,7 @@
               "retrieval"
             ]
           },
-          "embedding_id": 765
+          "embedding_id": 766
         },
         {
           "id": "mrag-method-query-decomposition-procedures",
@@ -36606,7 +36680,7 @@
               "decomposition"
             ]
           },
-          "embedding_id": 766
+          "embedding_id": 767
         },
         {
           "id": "mrag-method-retrieval-sufficiency-evaluation",
@@ -36661,7 +36735,7 @@
               "sufficiency"
             ]
           },
-          "embedding_id": 767
+          "embedding_id": 768
         },
         {
           "id": "mrag-method-agent-coordination-for-knowledge-synthesis",
@@ -36724,7 +36798,7 @@
               "coordination"
             ]
           },
-          "embedding_id": 768
+          "embedding_id": 769
         },
         {
           "id": "mrag-method-termination-and-fallback-controls",
@@ -36799,11 +36873,11 @@
               "multimodal"
             ]
           },
-          "embedding_id": 769
+          "embedding_id": 770
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-12T23:06:28.605062+00:00",
+      "last_extracted": "2026-05-13T05:28:22.611834+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -36860,7 +36934,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 770
+          "embedding_id": 771
         },
         {
           "id": "uiux-visual-hierarchy-vh2-typography-and-readability",
@@ -36911,7 +36985,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 771
+          "embedding_id": 772
         },
         {
           "id": "uiux-visual-hierarchy-vh3-design-intentionality",
@@ -36961,7 +37035,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 772
+          "embedding_id": 773
         },
         {
           "id": "uiux-design-system-ds1-design-token-architecture",
@@ -37013,7 +37087,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 773
+          "embedding_id": 774
         },
         {
           "id": "uiux-design-system-ds2-component-consistency",
@@ -37064,7 +37138,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 774
+          "embedding_id": 775
         },
         {
           "id": "uiux-design-system-ds3-design-system-discovery",
@@ -37116,7 +37190,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 775
+          "embedding_id": 776
         },
         {
           "id": "uiux-accessibility-acc1-semantic-markup-and-aria-contracts",
@@ -37176,7 +37250,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 776
+          "embedding_id": 777
         },
         {
           "id": "uiux-accessibility-acc2-keyboard-navigation-and-focus-management",
@@ -37233,7 +37307,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 777
+          "embedding_id": 778
         },
         {
           "id": "uiux-accessibility-acc3-color-and-contrast-compliance",
@@ -37290,7 +37364,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 778
+          "embedding_id": 779
         },
         {
           "id": "uiux-responsive-rd1-responsive-layout-strategy",
@@ -37342,7 +37416,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 779
+          "embedding_id": 780
         },
         {
           "id": "uiux-responsive-rd2-touch-target-and-input-adaptation",
@@ -37398,7 +37472,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 780
+          "embedding_id": 781
         },
         {
           "id": "uiux-interaction-ix1-interaction-feedback-and-state-communication",
@@ -37452,7 +37526,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 781
+          "embedding_id": 782
         },
         {
           "id": "uiux-interaction-ix2-loading-and-perceived-performance",
@@ -37505,7 +37579,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 782
+          "embedding_id": 783
         },
         {
           "id": "uiux-interaction-ix3-affordance-and-discoverability",
@@ -37558,7 +37632,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 783
+          "embedding_id": 784
         },
         {
           "id": "uiux-interaction-ix4-error-handling-and-recovery",
@@ -37614,7 +37688,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 784
+          "embedding_id": 785
         },
         {
           "id": "uiux-interaction-ix5-component-selection-appropriateness",
@@ -37668,7 +37742,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 785
+          "embedding_id": 786
         },
         {
           "id": "uiux-interaction-ix6-form-design-and-validation",
@@ -37723,7 +37797,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 786
+          "embedding_id": 787
         },
         {
           "id": "uiux-interaction-ix7-ethical-interaction-design",
@@ -37781,7 +37855,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 787
+          "embedding_id": 788
         },
         {
           "id": "uiux-platform-pl1-platform-convention-compliance",
@@ -37833,7 +37907,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 788
+          "embedding_id": 789
         },
         {
           "id": "uiux-platform-pl2-cross-platform-adaptation",
@@ -37891,7 +37965,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 789
+          "embedding_id": 790
         }
       ],
       "methods": [
@@ -37932,7 +38006,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 790
+          "embedding_id": 791
         },
         {
           "id": "uiux-method-pre-implementation-discovery-procedure",
@@ -37987,7 +38061,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 791
+          "embedding_id": 792
         },
         {
           "id": "uiux-method-design-handoff-processing",
@@ -38042,7 +38116,7 @@
               "processing"
             ]
           },
-          "embedding_id": 792
+          "embedding_id": 793
         },
         {
           "id": "uiux-method-visual-qa-procedure",
@@ -38087,7 +38161,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 793
+          "embedding_id": 794
         },
         {
           "id": "uiux-method-component-library-governance",
@@ -38128,7 +38202,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 794
+          "embedding_id": 795
         },
         {
           "id": "uiux-method-token-management-procedures",
@@ -38182,7 +38256,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 795
+          "embedding_id": 796
         },
         {
           "id": "uiux-method-atomic-design-implementation",
@@ -38238,7 +38312,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 796
+          "embedding_id": 797
         },
         {
           "id": "uiux-method-component-naming-conventions",
@@ -38287,7 +38361,7 @@
               "conventions"
             ]
           },
-          "embedding_id": 797
+          "embedding_id": 798
         },
         {
           "id": "uiux-method-design-system-gap-reporting",
@@ -38337,7 +38411,7 @@
               "reporting"
             ]
           },
-          "embedding_id": 798
+          "embedding_id": 799
         },
         {
           "id": "uiux-method-design-review-and-validation-gates",
@@ -38380,7 +38454,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 799
+          "embedding_id": 800
         },
         {
           "id": "uiux-method-pre-commit-ui-review-checklist",
@@ -38437,7 +38511,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 800
+          "embedding_id": 801
         },
         {
           "id": "uiux-method-accessibility-spot-check-procedure",
@@ -38484,7 +38558,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 801
+          "embedding_id": 802
         },
         {
           "id": "uiux-method-responsive-validation-matrix",
@@ -38538,7 +38612,7 @@
               "matrix"
             ]
           },
-          "embedding_id": 802
+          "embedding_id": 803
         },
         {
           "id": "uiux-method-component-consistency-audit",
@@ -38587,7 +38661,7 @@
               "audit"
             ]
           },
-          "embedding_id": 803
+          "embedding_id": 804
         },
         {
           "id": "uiux-method-dark-pattern-screening",
@@ -38640,7 +38714,7 @@
               "screening"
             ]
           },
-          "embedding_id": 804
+          "embedding_id": 805
         },
         {
           "id": "uiux-method-core-web-vitals-validation",
@@ -38693,7 +38767,7 @@
               "validation"
             ]
           },
-          "embedding_id": 805
+          "embedding_id": 806
         },
         {
           "id": "uiux-method-accessibility-testing-and-auditing",
@@ -38734,7 +38808,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 806
+          "embedding_id": 807
         },
         {
           "id": "uiux-method-wcag-2-2-level-aa-compliance-checklist",
@@ -38791,7 +38865,7 @@
               "compliance"
             ]
           },
-          "embedding_id": 807
+          "embedding_id": 808
         },
         {
           "id": "uiux-method-screen-reader-testing-procedure",
@@ -38838,7 +38912,7 @@
               "testing"
             ]
           },
-          "embedding_id": 808
+          "embedding_id": 809
         },
         {
           "id": "uiux-method-automated-accessibility-scanning",
@@ -38890,7 +38964,7 @@
               "scanning"
             ]
           },
-          "embedding_id": 809
+          "embedding_id": 810
         },
         {
           "id": "uiux-method-color-contrast-verification",
@@ -38939,7 +39013,7 @@
               "verification"
             ]
           },
-          "embedding_id": 810
+          "embedding_id": 811
         },
         {
           "id": "uiux-method-responsive-breakpoint-strategy",
@@ -38980,7 +39054,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 811
+          "embedding_id": 812
         },
         {
           "id": "uiux-method-breakpoint-definition-and-rationale",
@@ -39032,7 +39106,7 @@
               "rationale"
             ]
           },
-          "embedding_id": 812
+          "embedding_id": 813
         },
         {
           "id": "uiux-method-content-adaptation-patterns",
@@ -39084,7 +39158,7 @@
               "patterns"
             ]
           },
-          "embedding_id": 813
+          "embedding_id": 814
         },
         {
           "id": "uiux-method-touch-target-compliance-matrix",
@@ -39126,7 +39200,7 @@
               "compliance"
             ]
           },
-          "embedding_id": 814
+          "embedding_id": 815
         },
         {
           "id": "uiux-method-cross-platform-adaptation",
@@ -39165,7 +39239,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 815
+          "embedding_id": 816
         },
         {
           "id": "uiux-method-platform-convention-reference",
@@ -39219,7 +39293,7 @@
               "reference"
             ]
           },
-          "embedding_id": 816
+          "embedding_id": 817
         },
         {
           "id": "uiux-method-cross-platform-decision-matrix",
@@ -39273,7 +39347,7 @@
               "matrix"
             ]
           },
-          "embedding_id": 817
+          "embedding_id": 818
         },
         {
           "id": "uiux-method-platform-testing-checklist",
@@ -39319,7 +39393,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 818
+          "embedding_id": 819
         },
         {
           "id": "uiux-method-platform-convention-currency-verification",
@@ -39376,7 +39450,7 @@
               "currency"
             ]
           },
-          "embedding_id": 819
+          "embedding_id": 820
         },
         {
           "id": "uiux-method-design-system-documentation",
@@ -39417,7 +39491,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 820
+          "embedding_id": 821
         },
         {
           "id": "uiux-method-token-documentation-format",
@@ -39467,7 +39541,7 @@
               "format"
             ]
           },
-          "embedding_id": 821
+          "embedding_id": 822
         },
         {
           "id": "uiux-method-component-catalog-format",
@@ -39516,7 +39590,7 @@
               "rules"
             ]
           },
-          "embedding_id": 822
+          "embedding_id": 823
         },
         {
           "id": "uiux-method-pattern-library-maintenance",
@@ -39567,7 +39641,7 @@
               "maintenance"
             ]
           },
-          "embedding_id": 823
+          "embedding_id": 824
         },
         {
           "id": "uiux-method-ai-tooling-integration",
@@ -39607,7 +39681,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 824
+          "embedding_id": 825
         },
         {
           "id": "uiux-method-figma-mcp-integration",
@@ -39652,7 +39726,7 @@
               "integration"
             ]
           },
-          "embedding_id": 825
+          "embedding_id": 826
         },
         {
           "id": "uiux-method-design-token-extraction",
@@ -39704,7 +39778,7 @@
               "extraction"
             ]
           },
-          "embedding_id": 826
+          "embedding_id": 827
         },
         {
           "id": "uiux-method-screenshot-based-visual-qa",
@@ -39750,7 +39824,7 @@
               "visual"
             ]
           },
-          "embedding_id": 827
+          "embedding_id": 828
         },
         {
           "id": "uiux-method-ai-code-generation-guardrails",
@@ -39795,7 +39869,7 @@
               "guardrails"
             ]
           },
-          "embedding_id": 828
+          "embedding_id": 829
         },
         {
           "id": "uiux-method-ux-content-and-microcopy-governance",
@@ -39836,7 +39910,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 829
+          "embedding_id": 830
         },
         {
           "id": "uiux-method-voice-and-tone-consistency",
@@ -39888,7 +39962,7 @@
               "consistency"
             ]
           },
-          "embedding_id": 830
+          "embedding_id": 831
         },
         {
           "id": "uiux-method-error-message-patterns",
@@ -39942,7 +40016,7 @@
               "patterns"
             ]
           },
-          "embedding_id": 831
+          "embedding_id": 832
         },
         {
           "id": "uiux-method-microcopy-quality-standards",
@@ -40009,11 +40083,11 @@
               "v1.0.0"
             ]
           },
-          "embedding_id": 832
+          "embedding_id": 833
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-12T23:06:28.609001+00:00",
+      "last_extracted": "2026-05-13T05:28:22.616094+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -40069,7 +40143,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 833
+          "embedding_id": 834
         },
         {
           "id": "kmpd-knowledge-architecture-ka2-derivation-chain-integrity",
@@ -40120,7 +40194,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 834
+          "embedding_id": 835
         },
         {
           "id": "kmpd-knowledge-architecture-ka3-progressive-abstraction",
@@ -40177,7 +40251,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 835
+          "embedding_id": 836
         },
         {
           "id": "kmpd-knowledge-architecture-ka4-empowerment-completeness",
@@ -40229,7 +40303,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 836
+          "embedding_id": 837
         },
         {
           "id": "kmpd-training-tl1-audience-appropriate-design",
@@ -40280,7 +40354,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 837
+          "embedding_id": 838
         },
         {
           "id": "kmpd-training-tl2-learning-objective-alignment",
@@ -40330,7 +40404,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 838
+          "embedding_id": 839
         },
         {
           "id": "kmpd-training-tl4-assessment-validity",
@@ -40376,7 +40450,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 839
+          "embedding_id": 840
         },
         {
           "id": "kmpd-people-development-pd1-verification-guidance-responsibility",
@@ -40432,7 +40506,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 840
+          "embedding_id": 841
         },
         {
           "id": "kmpd-quality-assurance-qa1-safety-compliance-completeness",
@@ -40481,7 +40555,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 841
+          "embedding_id": 842
         },
         {
           "id": "kmpd-quality-assurance-qa2-artifact-adoption-fitness",
@@ -40540,7 +40614,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 842
+          "embedding_id": 843
         }
       ],
       "methods": [
@@ -40573,7 +40647,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 843
+          "embedding_id": 844
         },
         {
           "id": "kmpd-method-first-interaction-protocol",
@@ -40619,7 +40693,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 844
+          "embedding_id": 845
         },
         {
           "id": "kmpd-method-maturity-self-assessment",
@@ -40667,7 +40741,7 @@
               "self-assessment"
             ]
           },
-          "embedding_id": 845
+          "embedding_id": 846
         },
         {
           "id": "kmpd-method-detailed-knowledge-base-scaffold",
@@ -40717,7 +40791,7 @@
               "base"
             ]
           },
-          "embedding_id": 846
+          "embedding_id": 847
         },
         {
           "id": "kmpd-method-first-major-step",
@@ -40748,7 +40822,7 @@
               "step]"
             ]
           },
-          "embedding_id": 847
+          "embedding_id": 848
         },
         {
           "id": "kmpd-method-second-major-step",
@@ -40779,7 +40853,7 @@
               "step]"
             ]
           },
-          "embedding_id": 848
+          "embedding_id": 849
         },
         {
           "id": "kmpd-method-branch-scenario",
@@ -40810,7 +40884,7 @@
               "scenario]"
             ]
           },
-          "embedding_id": 849
+          "embedding_id": 850
         },
         {
           "id": "kmpd-method-derivation-chain-tracking",
@@ -40857,7 +40931,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 850
+          "embedding_id": 851
         },
         {
           "id": "kmpd-method-knowledge-conflict-prevention",
@@ -40903,7 +40977,7 @@
               "prevention"
             ]
           },
-          "embedding_id": 851
+          "embedding_id": 852
         },
         {
           "id": "kmpd-method-knowledge-base-update-procedure",
@@ -40955,7 +41029,7 @@
               "update"
             ]
           },
-          "embedding_id": 852
+          "embedding_id": 853
         },
         {
           "id": "kmpd-method-detailed-knowledge-base-authoring",
@@ -40986,7 +41060,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 853
+          "embedding_id": 854
         },
         {
           "id": "kmpd-method-design-principles-for-the-detailed-knowledge-base",
@@ -41037,7 +41111,7 @@
               "detailed"
             ]
           },
-          "embedding_id": 854
+          "embedding_id": 855
         },
         {
           "id": "kmpd-method-build-approach",
@@ -41082,7 +41156,7 @@
               "approach"
             ]
           },
-          "embedding_id": 855
+          "embedding_id": 856
         },
         {
           "id": "kmpd-method-step-writing-standards",
@@ -41131,7 +41205,7 @@
               "standards"
             ]
           },
-          "embedding_id": 856
+          "embedding_id": 857
         },
         {
           "id": "kmpd-method-verification-recommendation",
@@ -41181,7 +41255,7 @@
               "steps"
             ]
           },
-          "embedding_id": 857
+          "embedding_id": 858
         },
         {
           "id": "kmpd-method-adoption-fitness-check",
@@ -41232,7 +41306,7 @@
               "check"
             ]
           },
-          "embedding_id": 858
+          "embedding_id": 859
         },
         {
           "id": "kmpd-method-quick-reference-checklist-design",
@@ -41263,7 +41337,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 859
+          "embedding_id": 860
         },
         {
           "id": "kmpd-method-the-checklist-manifesto-principle",
@@ -41308,7 +41382,7 @@
               "principle"
             ]
           },
-          "embedding_id": 860
+          "embedding_id": 861
         },
         {
           "id": "kmpd-method-quick-reference-template",
@@ -41354,7 +41428,7 @@
               "template"
             ]
           },
-          "embedding_id": 861
+          "embedding_id": 862
         },
         {
           "id": "kmpd-method-visual-work-instructions",
@@ -41401,7 +41475,7 @@
               "instructions"
             ]
           },
-          "embedding_id": 862
+          "embedding_id": 863
         },
         {
           "id": "kmpd-method-other-extraction-types",
@@ -41449,7 +41523,7 @@
               "types"
             ]
           },
-          "embedding_id": 863
+          "embedding_id": 864
         },
         {
           "id": "kmpd-method-strategic-process-documentation",
@@ -41478,7 +41552,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 864
+          "embedding_id": 865
         },
         {
           "id": "kmpd-method-sipoc-creation",
@@ -41521,7 +41595,7 @@
               "creation"
             ]
           },
-          "embedding_id": 865
+          "embedding_id": 866
         },
         {
           "id": "kmpd-method-process-flow-mapping",
@@ -41567,7 +41641,7 @@
               "mapping"
             ]
           },
-          "embedding_id": 866
+          "embedding_id": 867
         },
         {
           "id": "kmpd-method-people-development-artifacts",
@@ -41596,7 +41670,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 867
+          "embedding_id": 868
         },
         {
           "id": "kmpd-method-cross-training-matrix",
@@ -41655,7 +41729,7 @@
               "matrix"
             ]
           },
-          "embedding_id": 868
+          "embedding_id": 869
         },
         {
           "id": "kmpd-method-job-description-derivation",
@@ -41698,7 +41772,7 @@
               "derivation"
             ]
           },
-          "embedding_id": 869
+          "embedding_id": 870
         },
         {
           "id": "kmpd-method-onboarding-program-design",
@@ -41746,7 +41820,7 @@
               "design"
             ]
           },
-          "embedding_id": 870
+          "embedding_id": 871
         },
         {
           "id": "kmpd-method-assessment-evaluation",
@@ -41773,7 +41847,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 871
+          "embedding_id": 872
         },
         {
           "id": "kmpd-method-assessment-design-by-bloom-s-level",
@@ -41824,7 +41898,7 @@
               "bloom's"
             ]
           },
-          "embedding_id": 872
+          "embedding_id": 873
         },
         {
           "id": "kmpd-method-training-effectiveness-evaluation-kirkpatrick",
@@ -41874,7 +41948,7 @@
               "evaluation"
             ]
           },
-          "embedding_id": 873
+          "embedding_id": 874
         },
         {
           "id": "kmpd-method-training-delivery-learning-levels",
@@ -41905,7 +41979,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 874
+          "embedding_id": 875
         },
         {
           "id": "kmpd-method-training-value-optimization",
@@ -41950,7 +42024,7 @@
               "optimization"
             ]
           },
-          "embedding_id": 875
+          "embedding_id": 876
         },
         {
           "id": "kmpd-method-twi-job-instruction-method",
@@ -41993,7 +42067,7 @@
               "method"
             ]
           },
-          "embedding_id": 876
+          "embedding_id": 877
         },
         {
           "id": "kmpd-method-best-practice-discovery-referenced-method",
@@ -42047,7 +42121,7 @@
               "discovery"
             ]
           },
-          "embedding_id": 877
+          "embedding_id": 878
         },
         {
           "id": "kmpd-method-implementation-context-for-human-leaders",
@@ -42099,7 +42173,7 @@
               "human"
             ]
           },
-          "embedding_id": 878
+          "embedding_id": 879
         },
         {
           "id": "kmpd-method-scaffolded-complexity",
@@ -42129,7 +42203,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 879
+          "embedding_id": 880
         },
         {
           "id": "kmpd-method-the-scaffolding-procedure",
@@ -42176,7 +42250,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 880
+          "embedding_id": 881
         },
         {
           "id": "kmpd-method-scaffolding-validation",
@@ -42217,7 +42291,7 @@
               "validation"
             ]
           },
-          "embedding_id": 881
+          "embedding_id": 882
         },
         {
           "id": "kmpd-method-when-content-arrives-out-of-order",
@@ -42272,7 +42346,7 @@
               "arrives"
             ]
           },
-          "embedding_id": 882
+          "embedding_id": 883
         }
       ],
       "references": [
@@ -42315,13 +42389,13 @@
               "source:"
             ],
             "purpose_keywords": [
-              "smart-packet",
-              "hotel",
               "data-extraction",
-              "openpyxl",
-              "revenue-management",
               "str",
-              "marriott"
+              "revenue-management",
+              "hotel",
+              "marriott",
+              "openpyxl",
+              "smart-packet"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -42335,7 +42409,7 @@
               "build"
             ]
           },
-          "embedding_id": 883
+          "embedding_id": 884
         },
         {
           "id": "ref-hotel-str-report-building",
@@ -42377,12 +42451,12 @@
             ],
             "purpose_keywords": [
               "report",
-              "hotel",
-              "document-building",
-              "performance-analysis",
-              "revenue-management",
+              "str",
               "docx",
-              "str"
+              "revenue-management",
+              "hotel",
+              "performance-analysis",
+              "document-building"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -42394,10 +42468,10 @@
               "gate"
             ]
           },
-          "embedding_id": 884
+          "embedding_id": 885
         }
       ],
-      "last_extracted": "2026-05-12T23:06:28.612683+00:00",
+      "last_extracted": "2026-05-13T05:28:22.619788+00:00",
       "version": "1.0"
     }
   },
@@ -42466,7 +42540,7 @@
       "embedding_id": 6
     }
   ],
-  "created_at": "2026-05-12T23:06:34.012076+00:00",
+  "created_at": "2026-05-13T05:28:28.035612+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384

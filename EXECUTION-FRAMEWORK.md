@@ -156,7 +156,7 @@ What happens next. The CPU scheduler equivalent. **Sub-bucket abstraction needs 
 |---|---|---|
 | Multi-agent coordination | Sequential / parallel / handoff patterns across agents | `multi-architecture-orchestration-pattern-selection` |
 
-**Open question:** should these three layers be split into Bucket 5a/5b/5c? Defer until further empirical testing. Mild signal from compliance-review skill: the skill acts as both "orchestration" (sequencing 12 checks) and "application program" (user-invokable workflow) — a future sub-bucket split between orchestration mechanisms and application programs may be warranted as more skills are created.
+**Open question:** should these three layers be split into Bucket 5a/5b/5c? Defer until further empirical testing. Mild signal from compliance-review skill: the skill acts as both "orchestration" (sequencing 13 checks) and "application program" (user-invokable workflow) — a future sub-bucket split between orchestration mechanisms and application programs may be warranted as more skills are created.
 
 #### Bucket 6: Verification & Quality *(canonical)* / Quality Gates *(legacy)*
 
@@ -219,7 +219,7 @@ Per §2.1: "the model should be empirically tested when workflows/skills design 
 | **2 — Memory** | Reads compliance-review skill files (procedure.md, audit-log.md), checks SESSION-STATE (V-005), reads LEARNING-LOG (Check 4), references BACKLOG (Check 8) | Heavy consumer — reads from 4 memory surfaces |
 | **3 — Retrieval** | Check 6 runs `query_governance()` canary — tests retrieval system health | Direct test of retrieval pipeline |
 | **4 — Action Layer** | Tests MCP server (Check 6 canary), governance tool calls during execution | Indirect — exercises the action layer, doesn't modify it |
-| **5 — Orchestration** | Skill IS an orchestration mechanism: coordinates 12-check workflow, spawns validator subagent (Check 5d), uses dynamic content injection | The skill lives here — it is the application program |
+| **5 — Orchestration** | Skill IS an orchestration mechanism: coordinates 13-check workflow, spawns validator subagent (Check 5d), uses dynamic content injection | The skill lives here — it is the application program |
 | **6 — Verification & Quality** | The entire compliance review IS a verification activity. Checks hook integrity (1), enforcement mode (1b), audit logs (6b) | The skill's PURPOSE is this bucket — cross-cutting quality gate |
 | **7 — Governance Policy** | Checks tiers.json/CLAUDE.md alignment (Check 3), constitutional register integrity (Check 9) | Validates governance policy surfaces are coherent |
 | **8 — Lifecycle** | Review has cadence lifecycle (10-15 days). V-series experiments track behavioral evolution. Review log captures longitudinal data. | Lifecycle management of the review process itself |
@@ -336,7 +336,7 @@ Key distinctions in the computer analogy:
 
 Skills live in `.claude/skills/my-skill/SKILL.md` — project-specific (checked into git) or personal (`~/.claude/skills/`). The directory name becomes the slash command.
 
-**Current status:** Three skills shipped — `/compliance-review` (12-check governance compliance review, 2026-05-03), `/completion-sequence` (post-change verification gate), `/test-authoring` (9-step test creation protocol). Each follows the self-contained folder pattern: thin SKILL.md orchestration shell (~80-100 lines) + reference files for procedure content and mutable data. Validates the application-program model: skill loads dynamic context at invocation, reads procedure from reference files (Level 3 progressive disclosure), spawns subagents (coprocessors) when isolation is needed, operates under hook enforcement (interrupt controller). Authoring standards: CFR Part 9.5.
+**Current status:** Four skills shipped — `/compliance-review` (13-check governance compliance review, 2026-05-03), `/completion-sequence` (post-change verification gate), `/test-authoring` (9-step test creation protocol), `/content-enhancer` (content improvement via evidence-based analysis). Each follows the self-contained folder pattern: thin SKILL.md orchestration shell (~80-100 lines) + reference files for procedure content and mutable data. Validates the application-program model: skill loads dynamic context at invocation, reads procedure from reference files (Level 3 progressive disclosure), spawns subagents (coprocessors) when isolation is needed, operates under hook enforcement (interrupt controller). Authoring standards: CFR Part 9.5.
 
 **Decision matrix — when to use which mechanism:**
 
@@ -714,6 +714,37 @@ These provide re-anchoring or independent review at key moments.
 | **Claude App** | Enforcement proxy only | SERVER_INSTRUCTIONS only | All 4 layers | None |
 | **Other MCP clients** (Cursor, Gemini CLI, etc.) | Enforcement proxy only | SERVER_INSTRUCTIONS only | All 4 layers | None |
 | **RAG-only** (no MCP) | None | Document content only | None | None |
+
+#### Guide/sensor classification (Böckeler taxonomy)
+
+Every enforcement layer serves one of two roles (per Birgitta Böckeler, "Harness engineering for coding agent users," martinfowler.com):
+
+- **Guide (feedforward):** Steers before the agent acts. Prevents errors by injecting context, constraints, or instructions before the action happens.
+- **Sensor (feedback):** Observes after action and helps self-correct. Detects errors after they occur and injects correction signals back into the loop.
+
+| Layer | Role | Rationale |
+|-------|------|-----------|
+| PreToolUse governance hook | Guide | Blocks action until governance consulted — steers before execution |
+| PreToolUse content-security hook | Guide | Blocks credential access before it happens |
+| PreToolUse pre-push quality gate | Guide | 7-gate check prevents bad pushes |
+| PreToolUse pre-exit-plan-mode gate | Guide | Requires contrarian review before plan approval |
+| PreToolUse OOM gate | Guide | Prevents test execution under memory pressure |
+| Enforcement proxy | Guide | Protocol-level governance wrapper — intercepts before tool execution |
+| CLAUDE.md behavioral floor | Guide | Injects constraints at session start |
+| SERVER_INSTRUCTIONS | Guide | Injects protocol at connection time |
+| Critical 5 scaffold | Guide | Reasoning prompts delivered before the AI acts on assessment |
+| Universal/domain floor | Guide | Checklist items delivered with assessment, before action |
+| UserPromptSubmit hook | Guide | Injects reminder before the AI processes the prompt |
+| PostToolUse CI hook | Sensor | Observes tool output, injects lint/format corrections after action |
+| verify_governance_compliance | Sensor | Post-action audit — checks whether governance was consulted |
+| Subagent review (code-reviewer, etc.) | Sensor | Independent review of completed work |
+| log_feedback | Sensor | Records retrieval quality signal for future improvement |
+
+Most of our enforcement layers are guides — this is by design. Guides prevent errors; sensors detect them. Prevention is cheaper than correction in an autoregressive system where the model builds on its own output. The sensor gap is smaller than the guide gap because errors caught by sensors require regeneration, while guides prevent the error from entering the generation stream.
+
+#### Design decision: verbose-on-success
+
+The governance tool returns the same detail level for PROCEED as for REVIEW/ESCALATE. This is a deliberate design choice, not an oversight. The article pattern "success is silent, failures are verbose" optimizes for context budget. Our pattern optimizes for learning: PROCEED responses include marginal-relevance principles that may inform the AI's approach even when no governance conflict exists. The tradeoff: ~200-500 tokens per PROCEED response in exchange for continuous principle exposure. This is worth monitoring — if T-163 (instruction density) fires or context budget becomes a constraint, reducing PROCEED verbosity is the first lever to pull.
 
 #### Gap analysis
 

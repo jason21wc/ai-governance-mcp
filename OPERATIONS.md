@@ -17,11 +17,11 @@
 
 ### C-078. Governance Compliance Review
 
-**What:** Periodic audit of governance infrastructure health — hooks, CLAUDE.md directives, tiers.json configuration, tool behavior, and compliance metrics. The 12-check procedure covers structural enforcement, retrieval quality, and operational hygiene.
+**What:** Periodic audit of governance infrastructure health — hooks, CLAUDE.md directives, tiers.json configuration, tool behavior, and compliance metrics. The 13-check procedure covers structural enforcement, retrieval quality, operational hygiene, and constraint retirement.
 **Cadence:** Every 10-15 calendar days. Event triggers: hook/CLAUDE.md/tiers.json modification.
-**Procedure:** `.claude/skills/compliance-review/procedure.md` (12 checks). Invoke via `/compliance-review` skill.
-**Reviews completed:** #1-7 (most recent: 2026-05-05).
-**Next due:** ~2026-05-15.
+**Procedure:** `.claude/skills/compliance-review/procedure.md` (13 checks; Check 12 runs every 3rd review). Invoke via `/compliance-review` skill.
+**Reviews completed:** #1-8 (most recent: 2026-05-12).
+**Next due:** ~2026-05-22.
 **Origin:** BACKLOG #78 (migrated 2026-05-03).
 
 ---
