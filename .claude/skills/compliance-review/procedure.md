@@ -275,16 +275,26 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 1. Reflect on recent sessions — which tools required manual approval? Which were denied?
 2. Review `~/.claude/settings.json` allow/deny/ask lists (user-level, single source of truth per A.5.6).
 3. **Entry count vs. dynamic threshold:** compute current allow+deny+ask entry count. Compare against the `Next Trigger` value recorded at the previous review. If current count ≥ `Next Trigger`, perform the accretion audit in step 4; otherwise the list is within the tolerated growth band.
-4. **Accretion audit (when triggered or opportunistically):** scan the allow list for one-shot artifacts per CFR §A.5.6 definition — full commit-message literals, inline scripts (long string args, not `:*` wildcards), specific file paths, and any commands listed in §A.5.6's "Keep as MANUAL APPROVAL" list that have been persisted anyway. Remove confirmed one-shots.
-5. **Re-baseline:** if any cleanup was performed, record the post-cleanup entry count in the table below as the new `Baseline`. Compute `Next Trigger = Baseline + 20` per CFR §A.5.5. If no cleanup was performed, the prior Baseline and Next Trigger carry forward unchanged.
-6. **Record one-shots found:** report the count of one-shots removed (0 is a valid and healthy signal) so trend data accumulates across reviews.
+4. **Accretion audit (when triggered or opportunistically):** scan the allow list for:
+   - **One-shot artifacts** per CFR §A.5.6 — full commit-message literals, inline scripts, specific file paths, "Keep as MANUAL APPROVAL" commands persisted.
+   - **Collapsible groups** — multiple specific entries that represent a single intent and should be expressed as a broader pattern. E.g., 20 individual MCP tools → 1 server wildcard (`mcp__server__*`) when all tools from that server share the same allow/ask classification.
+   Remove confirmed one-shots; consolidate confirmed collapsible groups.
+5. **Expression efficiency check:** for each allow entry, verify it is at *maximum generality* given the security boundary. The correct rule is the most general pattern that captures the intent without auto-approving operations that should prompt. Indicators of under-generality: (a) N entries with a shared prefix where no entry in ask/deny needs to be excluded, (b) `Read`/`Write`/`Edit` entries for specific files when the intent covers a class, (c) individual MCP tool names when the full server should be allowed (use `mcp__server__*`).
+6. **Re-baseline:** if any cleanup or consolidation was performed, record the post-cleanup entry count as the new `Baseline`. Compute `Next Trigger = Baseline + 20` per CFR §A.5.5. If no changes, prior Baseline and Next Trigger carry forward unchanged.
+7. **Record one-shots found + consolidations:** report counts so trend data accumulates.
 
-**Pass:** No tool was manually approved ≥3 times across the review window without being added to the allow list, no denied tool lacks a deny list entry if it keeps appearing, and either (a) current count < Next Trigger OR (b) current count ≥ Next Trigger and the accretion audit completed with Baseline recorded.
-**Fail:** Repeated manual approvals (add to allow list), repeated denials without deny list entry (add to deny list), or trigger fired without audit + re-baseline.
+**Pass:** No tool was manually approved ≥3 times without being added to the allow list, no denied tool lacks a deny list entry if it keeps appearing, expression is at maximum generality, and either (a) current count < Next Trigger OR (b) current count ≥ Next Trigger and the accretion audit completed with Baseline recorded.
+**Fail:** Repeated manual approvals (add to allow list), repeated denials without deny list entry (add to deny list), collapsible groups found without consolidation, or trigger fired without audit + re-baseline.
 
-**Why this matters:** Tasks #74 and #75 established the tool permission review pattern. Without periodic review, allow/deny lists drift from actual usage — creating unnecessary friction or missed safety boundaries. The dynamic threshold (CFR §A.5.5 v2.38.1+) replaced a fixed 50-entry trigger that fired on legitimate baseline growth; recording `Baseline` and `One-shots found` per review provides the trend signal needed to distinguish calibrated growth from active accretion.
+**Why this matters:** The permission list should express *intent* at maximum generality, not accumulate specific instances. The correct question is "does each entry capture the broadest safe class?" not "how many entries are there?" Entry count is a secondary signal; expression efficiency is primary. Without this, lists grow by adding tools at the specificity of the moment (the individual tool being approved) rather than the intent (the class of operations that should be approved). The dynamic threshold catches unbounded growth; the expression check catches inefficient expression that invites future growth. Per `meta-core-systemic-thinking`: address the structural cause (entries too specific for their intent) not the symptom (list is long).
 
-**Second-order signal interpretation:** if two consecutive reviews both report `One-shots found = 0` (or ≤1), the baseline is genuinely pattern-dominated and the trigger is calibrated. If a review reports `One-shots found ≥ 5`, accretion is active even if the entry count was under trigger — flag for a targeted audit next review regardless of entry count.
+**Key patterns for maximum generality:**
+- `Read` (not `Read(file_a)`, `Read(file_b)`, ... when all reads are allowed)
+- `mcp__server__*` (not 20 individual tools when the server is trusted for all read ops + ask entries cover mutations)
+- `Bash(command:*)` (covers all args for that command)
+- Specific entries only when the security boundary requires excluding some variations (e.g., `Bash(git status:*)` not `Bash(git:*)` because git push must be excluded)
+
+**Second-order signal interpretation:** if two consecutive reviews both report `One-shots found = 0` AND `Consolidations = 0`, the list is both clean and well-expressed. If consolidations are found, the list was well-maintained (no junk) but poorly expressed (intent fragmented across entries).
 
 | Review | Date | Result | Current Count | Baseline | One-shots Found | Next Trigger | Notes |
 |--------|------|--------|---------------|----------|-----------------|--------------|-------|
@@ -296,6 +306,49 @@ test -f ~/.context-engine/PHASE2_TRIGGERED && echo "FIRED" || echo "clear"
 | 6 | 2026-05-03 | PASS (no drift) | 123 allows / 11 deny / 35 ask | 123 (carry forward) | n/a (audit not triggered) | 143 | Counts identical to Reviews #4/#5. Below Next Trigger=143. No accretion audit required. |
 | 7 | 2026-05-05 | PASS (no drift) | 123 allows / 11 deny / 35 ask | 123 (carry forward) | n/a (audit not triggered) | 143 | Counts identical to Reviews #4-6. Below Next Trigger=143. No accretion audit required. |
 | 8 | 2026-05-12 | PASS (no drift) | 123 allows / 11 deny / 35 ask | 123 (carry forward) | n/a (audit not triggered) | 143 | Counts identical to Reviews #4-7. Below Next Trigger=143. No accretion audit required. |
+
+---
+
+### 7b. Permission coverage analysis
+
+**How:** Verify that all MCP servers and mutation tools are classified in `~/.claude/settings.json`. With server wildcards (`mcp__server__*`) in allow, individual read-only tools are automatically covered — this check focuses on structural gaps.
+
+1. Read `~/.claude/settings.json` allow/deny/ask lists.
+2. List all MCP servers from the current session's deferred-tools inventory (visible in system prompt).
+3. **Server coverage:** Verify each MCP server has either a wildcard (`mcp__server__*`) in allow OR individual tool entries. A new server with no coverage is the primary gap this check catches.
+4. **Mutation classification:** For servers with wildcards in allow, verify that mutation tools from those servers have specific entries in ask (specific entries take precedence over wildcards). A new mutation tool from a wildcarded server that's NOT in ask gets auto-approved — that's the safety gap.
+5. Verify `Read` is in the allow list (per CFR A.5.3 recommendation).
+6. Verify deny list still covers credential paths per CFR A.5.3 (`~/.ssh`, `~/.aws`, `~/.gnupg`, `~/.netrc`, `.env`, `~/.docker/config.json`, `~/.kube/config`, `~/.npmrc`).
+
+**Script for steps 3-4:**
+```
+python3 -c "
+import json
+data = json.load(open('$HOME/.claude/settings.json'))
+p = data.get('permissions', {})
+allow = p.get('allow', [])
+ask = p.get('ask', [])
+wildcards = [e.replace('__*','') for e in allow if e.endswith('__*')]
+ask_tools = [e for e in ask if e.startswith('mcp__')]
+# Check: for each wildcarded server, are all known mutation tools in ask?
+# Paste mutation tools from session's deferred-tools list here
+mutation_tools = []  # populate from system prompt
+uncovered = [t for t in mutation_tools if t not in ask and any(t.startswith(w) for w in wildcards)]
+print(f'Server wildcards: {len(wildcards)}')
+print(f'Mutation tools in ask: {len(ask_tools)}')
+print(f'Uncovered mutations (auto-approved via wildcard): {len(uncovered)}')
+for t in sorted(uncovered): print(f'  ADD TO ASK: {t}')
+"
+```
+
+**Pass:** All MCP servers have coverage (wildcard or individual entries); all known mutation tools from wildcarded servers are in ask; `Read` in allow; credential deny entries intact.
+**Fail:** New server with no coverage → add wildcard to allow + classify its mutations in ask. Or mutation tool from a wildcarded server not in ask → add to ask (otherwise it's silently auto-approved). Or `Read` missing from allow. Or credential deny entries incomplete.
+
+**Why this matters:** Server wildcards (`mcp__server__*`) express the intent "trust this server's read operations" at maximum generality — new read-only tools are automatically covered without list maintenance. But this shifts the safety question from "is every tool classified?" to "are mutations from trusted servers explicitly gated?" This check ensures the ask list keeps pace with the mutation surface. Per `meta-core-systemic-thinking`: the permission model now has two distinct failure modes — undergrowth (new server not covered) and silent auto-approval (new mutation tool from a wildcarded server not in ask). This check targets both.
+
+| Review | Date | Result | Missing Tools | Notes |
+|--------|------|--------|---------------|-------|
+| 9 | — | — | — | First review with Check 7b. |
 
 ---
 

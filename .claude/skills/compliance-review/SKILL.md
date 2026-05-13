@@ -1,5 +1,5 @@
 ---
-description: Run the governance compliance review workflow — 13 checks covering hook integrity, enforcement mode, effectiveness tracking, behavioral canary prompts, MCP health, OOM gate activity, backlog staleness, constitutional register integrity, CI storage budget, and feedback loop health. Cadence is every 10-15 days or immediately after hook/behavioral-floor modifications.
+description: Run the governance compliance review workflow — 14 checks covering hook integrity, enforcement mode, effectiveness tracking, behavioral canary prompts, MCP health, OOM gate activity, permission coverage, backlog staleness, constitutional register integrity, CI storage budget, and feedback loop health. Cadence is every 10-15 days or immediately after hook/behavioral-floor modifications.
 disable-model-invocation: true
 allowed-tools: Bash Read Edit Agent
 ---
