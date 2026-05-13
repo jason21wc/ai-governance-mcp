@@ -65,6 +65,8 @@
 
 **Scope note (2026-04-03):** Structured document production (Excel workbooks, data-heavy reports, financial spreadsheets) is handled by AI Coding Part 9.4 (Document Generation Patterns). Visual Communication stays scoped to visual design artifacts: presentations, infographics, print design — the Tufte/Duarte/Reynolds evidence base. The distinction: Part 9.4 covers *how to generate and serve document files reliably*; Visual Communication covers *how to design visually effective communication*.
 
+**Evidence note (2026-05-13):** Thariq Shihipar's "The Unreasonable Effectiveness of HTML" (https://thariqs.github.io/html-effectiveness/) — 20 AI-generated self-contained HTML artifacts (reports, diagrams, decks, editors) demonstrating that HTML output artifacts improve human engagement vs. markdown. Relevant as a modern instance of visual communication principles applied to AI output. Key distinction for this domain: HTML is effective as an *output rendering format* for human consumption, while Markdown remains better as *source format* for LLM input (per arXiv 2411.10541, web2md.org benchmarks showing +23-40% accuracy for Markdown input). This input/output format distinction is itself a candidate principle.
+
 #### 53. Modular Domain Architecture (Discussion) `D3 New Capability`
 
 **What:** Make ai-governance modular so users can spin up with just meta-principles and methods, or with meta + selected domains. Domains should be addable/removable without affecting the core framework.
