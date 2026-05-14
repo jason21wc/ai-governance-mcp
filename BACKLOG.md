@@ -67,23 +67,11 @@
 
 **Evidence note (2026-05-13):** Thariq Shihipar's "The Unreasonable Effectiveness of HTML" (https://thariqs.github.io/html-effectiveness/) — 20 AI-generated self-contained HTML artifacts (reports, diagrams, decks, editors) demonstrating that HTML output artifacts improve human engagement vs. markdown. Relevant as a modern instance of visual communication principles applied to AI output. Key distinction for this domain: HTML is effective as an *output rendering format* for human consumption, while Markdown remains better as *source format* for LLM input (per arXiv 2411.10541, web2md.org benchmarks showing +23-40% accuracy for Markdown input). This input/output format distinction is itself a candidate principle.
 
-#### 53. Modular Domain Architecture (Discussion) `D3 New Capability`
+#### 53. ~~Modular Domain Architecture~~ **CLOSED** (session-171, 2026-05-13) `D3 New Capability`
 
-**What:** Make ai-governance modular so users can spin up with just meta-principles and methods, or with meta + selected domains. Domains should be addable/removable without affecting the core framework.
+**Shipped:** Filesystem-based domain discovery. Domains auto-discovered from YAML frontmatter in `documents/` (`constitution.md` + `title-*-*.md`). Drop a file in, rebuild index, restart — no code changes. 3-tier fallback: filesystem → `domains.json` override → hardcoded. S-Series safety guard, dynamic server enums, 23 new tests (1713 total). See commit `1ba4c78`.
 
-**Why:** Currently the framework ships as a monolith — all 7 domains are always loaded. A user building only Python web apps doesn't need Storytelling or Multimodal RAG domains. A user focused on content creation doesn't need AI Coding. Modular domains would let users start minimal (constitution + methods only) and add domains as their needs grow.
-
-**Root cause:** The framework was built by accretion — each domain was added as a new file, but the architecture assumes all domains are always present. The extractor, retrieval, and domains.json all treat the domain set as fixed.
-
-**Discussion needed:**
-1. Can `domains.json` be made user-configurable (enable/disable per domain)?
-2. How does the extractor handle missing domain files gracefully?
-3. Should tiers.json principle activation be domain-aware (only activate principles from enabled domains)?
-4. What's the minimum viable framework? Constitution + meta-methods + ai-coding? Just constitution + meta-methods?
-5. How do cross-domain references work when a referenced domain isn't loaded?
-6. Impact on retrieval quality — fewer domains = less noise in results?
-
-**Origin:** User request (2026-04-04). Anticipatory architecture improvement for adoption scalability.
+**Origin:** User request (2026-04-04).
 
 ---
 

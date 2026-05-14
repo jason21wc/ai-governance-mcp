@@ -65,6 +65,7 @@ Per §5.1.6, run this project's completion sequence after changes. Invoke via `/
     - **PROJECT-MEMORY.md** — new architectural decisions, gotchas, enforcement roadmap changes, structural patterns
     - **LEARNING-LOG.md** — generalizable lessons, mistakes to avoid, validated patterns worth repeating
     - **OPERATIONS.md** — cadence updates, tripwire triggers, metric baselines, deferred items
+    - **BACKLOG.md** — if the session closes a backlog item, mark it `~~Title~~ **CLOSED**` with session number, date, and one-line summary of what shipped
 18. Run **Branch Completion** below — pick A / B / C / D / E based on whether work is complete and whether human review is required.
 
 ## Content changes (governance documents)
