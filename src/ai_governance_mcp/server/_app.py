@@ -23,7 +23,7 @@ from ._security import (
     _validate_server_instructions,
 )
 from ._logging import _flush_all_logs
-from ._state import get_engine
+from ._state import get_domain_names, get_engine
 from . import _state
 from .handlers.retrieval import (
     _format_retrieval_result,
@@ -90,15 +90,7 @@ async def list_tools() -> list[Tool]:
                         "type": "string",
                         "description": "Optional: Force specific domain (e.g. ai-coding, storytelling, ui-ux)",
                         "maxLength": 50,  # M5 FIX
-                        "enum": [
-                            "constitution",
-                            "ai-coding",
-                            "multi-agent",
-                            "storytelling",
-                            "multimodal-rag",
-                            "ui-ux",
-                            "kmpd",
-                        ],
+                        "enum": get_domain_names(),
                     },
                     "include_constitution": {
                         "type": "boolean",
@@ -170,15 +162,7 @@ async def list_tools() -> list[Tool]:
                     "domain": {
                         "type": "string",
                         "description": "Domain name (e.g. ai-coding, storytelling, ui-ux)",
-                        "enum": [
-                            "constitution",
-                            "ai-coding",
-                            "multi-agent",
-                            "storytelling",
-                            "multimodal-rag",
-                            "ui-ux",
-                            "kmpd",
-                        ],  # M5 FIX
+                        "enum": get_domain_names(),
                     },
                 },
                 "required": ["domain"],

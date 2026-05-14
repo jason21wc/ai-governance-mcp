@@ -3,6 +3,10 @@ version: "2.8.1"
 status: "active"
 effective_date: "2026-05-10"
 domain: "ai-coding"
+prefix: "coding"
+display_name: "AI Coding"
+description: "Software development with AI assistance. Code generation, debugging, testing, refactoring, code review, pull requests, git workflows, CI/CD, API design, and software architecture."
+priority: 10
 governance_level: "federal-statute"
 ---
 

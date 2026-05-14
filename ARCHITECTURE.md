@@ -132,7 +132,7 @@ ai-governance-mcp/
 │   ├── title-30-storytelling-cfr.md
 │   ├── title-40-multimodal-rag.md
 │   ├── title-40-multimodal-rag-cfr.md
-│   └── domains.json           # Domain configurations
+│   └── domains.json           # Optional domain overrides (domains discovered from files)
 │
 ├── logs/
 │   ├── feedback.jsonl         # Retrieval feedback

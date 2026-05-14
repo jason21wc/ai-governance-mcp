@@ -876,6 +876,11 @@ class TestUiUxDomainIntegration:
             "methods_count": 0,
         }
         mock_engine = Mock()
+        mock_engine.index.domains = {
+            "constitution": None,
+            "ai-coding": None,
+            "ui-ux": None,
+        }
         mock_engine.get_domain_summary.return_value = mock_summary
 
         result = await _handle_get_domain_summary(mock_engine, {"domain": "ui-ux"})
@@ -889,6 +894,11 @@ class TestUiUxDomainIntegration:
         from ai_governance_mcp.server import _handle_query_governance
 
         mock_engine = Mock()
+        mock_engine.index.domains = {
+            "constitution": None,
+            "ai-coding": None,
+            "ui-ux": None,
+        }
 
         # Invalid domain should return error
         result = await _handle_query_governance(

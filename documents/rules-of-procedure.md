@@ -430,7 +430,7 @@ python -m ai_governance_mcp.server --test "test query"
 
 | Symptom | Cause | Resolution |
 |---------|-------|------------|
-| Missing principles | Document not in domains.json | Add to domains.json, rebuild |
+| Missing principles | Document missing or lacks frontmatter | Add `title-NN-domain.md` with YAML frontmatter, rebuild |
 | Stale content | Index not rebuilt | Rebuild index |
 | Empty results | Index corruption | `rm -rf index/` then rebuild |
 | Parse errors | Malformed document | Fix document syntax, rebuild |

@@ -3,6 +3,10 @@ version: "1.4.2"
 status: "active"
 effective_date: "2026-05-03"
 domain: "kmpd"
+prefix: "kmpd"
+display_name: "Knowledge Management & People Development"
+description: "Organizational knowledge capture, abstraction, transfer, and people development with AI assistance. Detailed Knowledge Bases, single source of truth architecture, purpose-driven extractions, derivation chains, cross-training matrices, job descriptions, onboarding programs, empowerment assessment, training delivery, procedure documentation, SOPs, competency tracking."
+priority: 25
 governance_level: "federal-statute"
 ---
 

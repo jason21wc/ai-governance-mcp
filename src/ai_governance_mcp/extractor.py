@@ -315,7 +315,7 @@ class DocumentExtractor:
             files_list = "\n".join(missing_files)
             raise ExtractorConfigError(
                 f"Domain configuration references missing files:\n{files_list}\n\n"
-                f"Check documents/domains.json and ensure file versions match."
+                f"Check document frontmatter and ensure domain files exist."
             )
 
     def validate_content_security(self) -> list[ContentSecurityWarning]:
@@ -601,7 +601,7 @@ class DocumentExtractor:
             )
 
     def validate_domain_descriptions(self) -> list[ContentSecurityWarning]:
-        """Scan domain descriptions in domains.json for suspicious patterns.
+        """Scan domain descriptions for suspicious patterns.
 
         Domain descriptions are used for semantic routing and are embedded
         for similarity matching. They could be a vector for prompt injection
@@ -617,15 +617,14 @@ class DocumentExtractor:
         critical_findings: list[ContentSecurityWarning] = []
 
         for domain_config in self.domains:
-            # Normalize the description for security scanning
             normalized_desc = normalize_text_for_security(domain_config.description)
 
             for pattern_type, pattern in SUSPICIOUS_PATTERNS.items():
                 matches = pattern.findall(normalized_desc)
                 if matches:
                     warning = ContentSecurityWarning(
-                        file="domains.json",
-                        line=0,  # No line number for JSON
+                        file=f"domain:{domain_config.name}",
+                        line=0,
                         pattern_type=pattern_type,
                         content=f"[{domain_config.name}]: {domain_config.description[:80]}",
                     )
@@ -633,15 +632,13 @@ class DocumentExtractor:
                     if pattern_type in CRITICAL_PATTERNS:
                         critical_findings.append(warning)
                     else:
-                        # For ADVISORY patterns in descriptions, still warn
-                        # (no "example" context to skip in descriptions)
                         warnings.append(warning)
 
         if critical_findings:
             findings_list = "\n".join(f"  - {f}" for f in critical_findings)
             raise ContentSecurityError(
                 f"CRITICAL: Suspicious patterns in domain descriptions!\n\n"
-                f"The following patterns were found in domains.json:\n"
+                f"The following patterns were found in domain descriptions:\n"
                 f"{findings_list}\n\n"
                 f"Domain descriptions are used for AI routing. This is a potential attack vector."
             )
@@ -1073,7 +1070,13 @@ class DocumentExtractor:
         lines = content.split("\n")
 
         principles = []
-        domain_prefix = self._get_domain_prefix(domain_config.name)
+        domain_prefix = self._get_domain_prefix(domain_config.name, domain_config)
+
+        # Pre-scan for series headers to build dynamic detection lists
+        dynamic_series_map = self._extract_series_headers(content, domain_config.name)
+        dynamic_header_tokens, dynamic_skip_entries = (
+            self._build_dynamic_series_patterns(dynamic_series_map)
+        )
 
         # Pattern for section headers (## or ### Section Name)
         # Matches both "## Core Architecture Principles" and "### C-Series: Context Principles"
@@ -1107,40 +1110,38 @@ class DocumentExtractor:
             section_match = section_pattern.match(line)
             if section_match:
                 section_text = section_match.group(1).lower()
-                is_series_header = any(
-                    s in section_text
-                    for s in [
-                        "c-series",
-                        "p-series",
-                        "q-series",
-                        "a-series",
-                        "ao-series",
-                        "r-series",
-                        "st-series",
-                        "m-series",
-                        "e-series",
-                        "v-series",
-                        "ev-series",
-                        "ct-series",
-                        "sec-series",
-                        "dg-series",
-                        "o-series",
-                        "ag-series",
-                        "f-series",
-                        # UI/UX series
-                        "vh-series",
-                        "ds-series",
-                        "acc-series",
-                        "rd-series",
-                        "ix-series",
-                        "pl-series",
-                        # KMPD series
-                        "ka-series",
-                        "tl-series",
-                        "pd-series",
-                        "qa-series",
-                    ]
-                )
+                # Hardcoded series tokens (fallback for known domains)
+                _static_series = [
+                    "c-series",
+                    "p-series",
+                    "q-series",
+                    "a-series",
+                    "ao-series",
+                    "r-series",
+                    "st-series",
+                    "m-series",
+                    "e-series",
+                    "v-series",
+                    "ev-series",
+                    "ct-series",
+                    "sec-series",
+                    "dg-series",
+                    "o-series",
+                    "ag-series",
+                    "f-series",
+                    "vh-series",
+                    "ds-series",
+                    "acc-series",
+                    "rd-series",
+                    "ix-series",
+                    "pl-series",
+                    "ka-series",
+                    "tl-series",
+                    "pd-series",
+                    "qa-series",
+                ]
+                all_series_tokens = set(_static_series) | set(dynamic_header_tokens)
+                is_series_header = any(s in section_text for s in all_series_tokens)
                 if "###" not in line or is_series_header:
                     current_section = self._get_category_from_section(
                         section_match.group(1)
@@ -1175,7 +1176,9 @@ class DocumentExtractor:
                         lines[current_principle["start_line"] - 1 : i - 1]
                     )
                     principles.append(
-                        self._build_principle(current_principle, domain_prefix)
+                        self._build_principle(
+                            current_principle, domain_prefix, dynamic_series_map
+                        )
                     )
 
                 # Start new principle (old format)
@@ -1206,8 +1209,8 @@ class DocumentExtractor:
                 has_constitutional_prefix = raw_title != title
 
                 # Skip non-principle headers (like "When to Apply" etc.)
-                skip_keywords = [
-                    # Navigation and reference sections
+                # Domain-agnostic structural keywords
+                _static_skip = [
                     "when to",
                     "how to",
                     "quick reference",
@@ -1215,7 +1218,6 @@ class DocumentExtractor:
                     "pre-action",
                     "framework overview",
                     "immediate",
-                    # Document structure sections
                     "domain implementation",
                     "extending",
                     "universal",
@@ -1233,7 +1235,7 @@ class DocumentExtractor:
                     "peer domain",
                     "meta ↔ domain",
                     "appendix",
-                    # Series headers (these are section intros, not principles)
+                    # Hardcoded series skip entries (fallback for known domains)
                     "c-series:",
                     "p-series:",
                     "q-series:",
@@ -1244,7 +1246,6 @@ class DocumentExtractor:
                     "quality principles",
                     "architecture principles",
                     "reliability principles",
-                    # Storytelling series headers (defense-in-depth)
                     "st-series:",
                     "m-series:",
                     "e-series:",
@@ -1253,7 +1254,6 @@ class DocumentExtractor:
                     "medium principles",
                     "ethics principles",
                     "audience principles",
-                    # Multimodal-RAG series headers
                     "f-series:",
                     "fallback principles",
                     "v-series:",
@@ -1270,7 +1270,6 @@ class DocumentExtractor:
                     "data governance principles",
                     "operations principles",
                     "agentic retrieval principles",
-                    # UI/UX series headers
                     "vh-series:",
                     "ds-series:",
                     "acc-series:",
@@ -1283,7 +1282,6 @@ class DocumentExtractor:
                     "responsive design principles",
                     "interaction principles",
                     "platform principles",
-                    # KMPD series headers
                     "ka-series:",
                     "tl-series:",
                     "pd-series:",
@@ -1293,6 +1291,7 @@ class DocumentExtractor:
                     "people development principles",
                     "quality assurance principles",
                 ]
+                skip_keywords = list(set(_static_skip) | set(dynamic_skip_entries))
                 if any(kw in title.lower() for kw in skip_keywords):
                     continue
 
@@ -1316,7 +1315,9 @@ class DocumentExtractor:
                         lines[current_principle["start_line"] - 1 : i - 1]
                     )
                     principles.append(
-                        self._build_principle(current_principle, domain_prefix)
+                        self._build_principle(
+                            current_principle, domain_prefix, dynamic_series_map
+                        )
                     )
 
                 # Compute constitutional_ref if we're in a tracked Article or Bill of Rights.
@@ -1356,7 +1357,11 @@ class DocumentExtractor:
             current_principle["content"] = "\n".join(
                 lines[current_principle["start_line"] - 1 :]
             )
-            principles.append(self._build_principle(current_principle, domain_prefix))
+            principles.append(
+                self._build_principle(
+                    current_principle, domain_prefix, dynamic_series_map
+                )
+            )
 
         logger.info(f"Extracted {len(principles)} principles from {domain_config.name}")
         return principles
@@ -1430,7 +1435,50 @@ class DocumentExtractor:
         ("kmpd", "quality"): "QA",
     }
 
-    def _build_principle(self, data: dict, domain_prefix: str) -> Principle:
+    _SERIES_HEADER_RE = re.compile(
+        r"^###\s+([A-Z]+)-Series:\s*(.+?)(?:\s+Principles?)?\s*$", re.MULTILINE
+    )
+
+    @staticmethod
+    def _extract_series_headers(content: str, domain: str) -> dict[str, str]:
+        """Extract series code → category mappings from document headers.
+
+        Scans for ``### X-Series: Category Name`` patterns. Returns
+        ``{series_code: category_slug}`` for the given domain. Constitution
+        uses Article-based headers and returns empty (handled by fallback).
+        """
+        result: dict[str, str] = {}
+        for m in DocumentExtractor._SERIES_HEADER_RE.finditer(content):
+            code = m.group(1)
+            name = m.group(2).strip()
+            slug = name.lower().replace(" & ", "-").replace(" ", "-")
+            result[code] = slug
+        return result
+
+    @staticmethod
+    def _build_dynamic_series_patterns(
+        series_map: dict[str, str],
+    ) -> tuple[list[str], list[str]]:
+        """Build is_series_header entries and skip_keywords from a dynamic series map.
+
+        Returns (series_header_tokens, skip_keyword_entries).
+        """
+        headers: list[str] = []
+        skips: list[str] = []
+        for code, slug in series_map.items():
+            token = f"{code.lower()}-series"
+            headers.append(token)
+            skips.append(f"{token}:")
+            name_words = slug.replace("-", " ")
+            skips.append(f"{name_words} principles")
+        return headers, skips
+
+    def _build_principle(
+        self,
+        data: dict,
+        domain_prefix: str,
+        dynamic_series_map: dict[str, str] | None = None,
+    ) -> Principle:
         """Build a Principle object with metadata."""
         # Generate slug-based ID: {domain}-{category}-{title-slug}
         category = data.get("category", "general")
@@ -1444,15 +1492,31 @@ class DocumentExtractor:
             # Old format had series_code, try to get number from old-style matching
             number = data.get("number", 0)
         else:
-            # New format: infer series_code from (domain, category)
             domain = data.get("domain", "")
-            series_code = self.CATEGORY_SERIES_MAP.get((domain, category))
+            # Try dynamic series map first (parsed from document headers)
+            if dynamic_series_map:
+                for code, slug in dynamic_series_map.items():
+                    if slug == category:
+                        series_code = code
+                        break
+            # Fall back to hardcoded map
+            if not series_code:
+                series_code = self.CATEGORY_SERIES_MAP.get((domain, category))
             if not series_code and category != "general":
                 logger.warning(
                     "No series code mapping for (%s, %s) — principle will sort at lowest priority",
                     domain,
                     category,
                 )
+
+        # S-Series safety invariant: only constitution may produce series_code "S"
+        if series_code == "S" and data.get("domain") != "constitution":
+            logger.error(
+                "S-Series veto code rejected for non-constitution domain %s — "
+                "only constitution safety principles may trigger S-Series veto",
+                data.get("domain"),
+            )
+            series_code = None
 
         metadata = self._generate_metadata(
             principle_id, category, data["title"], data["content"]
@@ -1588,7 +1652,7 @@ class DocumentExtractor:
         lines = content.split("\n")
 
         methods = []
-        domain_prefix = self._get_domain_prefix(domain_config.name)
+        domain_prefix = self._get_domain_prefix(domain_config.name, domain_config)
 
         # Pattern for method headers (##, ###, or #### with numbered sections like 1.2.3)
         # Includes #### to extract subsections (e.g., 2.1.5) as separate methods
@@ -1765,8 +1829,13 @@ class DocumentExtractor:
             guideline_keywords=guideline_keywords[:15],
         )
 
-    def _get_domain_prefix(self, domain_name: str) -> str:
+    def _get_domain_prefix(
+        self, domain_name: str, domain_config: DomainConfig | None = None
+    ) -> str:
         """Get the prefix for principle IDs based on domain."""
+        prefix = getattr(domain_config, "prefix", None) if domain_config else None
+        if prefix:
+            return prefix
         return self.DOMAIN_PREFIXES.get(domain_name, domain_name[:4])
 
     def _save_index(self, index: GlobalIndex) -> None:

@@ -3,6 +3,10 @@ version: "1.4.2"
 status: "active"
 effective_date: "2026-05-03"
 domain: "storytelling"
+prefix: "stor"
+display_name: "Storytelling"
+description: "Creative writing and narrative craft. Story structure, character development, voice preservation, dialogue, pacing, and revision."
+priority: 30
 governance_level: "federal-statute"
 ---
 

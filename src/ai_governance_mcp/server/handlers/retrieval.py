@@ -70,15 +70,7 @@ async def _handle_query_governance(
         ]
 
     domain = args.get("domain")
-    valid_domains = {
-        "constitution",
-        "ai-coding",
-        "multi-agent",
-        "storytelling",
-        "multimodal-rag",
-        "ui-ux",
-        "kmpd",
-    }
+    valid_domains = set(engine.index.domains.keys())
     if domain is not None and domain not in valid_domains:
         return [
             TextContent(
@@ -331,15 +323,7 @@ async def _handle_get_domain_summary(
     if not domain:
         return [TextContent(type="text", text="Error: domain is required")]
 
-    valid_domains = {
-        "constitution",
-        "ai-coding",
-        "multi-agent",
-        "storytelling",
-        "multimodal-rag",
-        "ui-ux",
-        "kmpd",
-    }
+    valid_domains = set(engine.index.domains.keys())
     if domain not in valid_domains:
         return [
             TextContent(

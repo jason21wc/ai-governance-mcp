@@ -223,6 +223,9 @@ class DomainConfig(BaseModel):
     priority: int = Field(
         default=100, description="Conflict resolution priority (lower = higher)"
     )
+    prefix: Optional[str] = Field(
+        None, description="Principle ID prefix (e.g. 'coding' for ai-coding domain)"
+    )
     embedding_id: Optional[int] = Field(
         None, description="Index into domain embeddings array"
     )

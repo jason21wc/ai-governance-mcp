@@ -17,6 +17,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from helpers import extract_json_from_response
 
+_MOCK_DOMAINS = {
+    "constitution": None,
+    "ai-coding": None,
+    "multi-agent": None,
+    "storytelling": None,
+    "multimodal-rag": None,
+    "ui-ux": None,
+    "kmpd": None,
+}
+
 
 # =============================================================================
 # Tool Handler Tests - query_governance
@@ -34,6 +44,7 @@ class TestHandleQueryGovernance:
         from ai_governance_mcp.server import _handle_query_governance
 
         mock_engine = Mock()
+        mock_engine.index.domains = _MOCK_DOMAINS
         mock_engine.retrieve.return_value = sample_retrieval_result
 
         result = await _handle_query_governance(mock_engine, {"query": "test query"})
@@ -68,6 +79,7 @@ class TestHandleQueryGovernance:
         from ai_governance_mcp.server import _handle_query_governance, get_metrics
 
         mock_engine = Mock()
+        mock_engine.index.domains = _MOCK_DOMAINS
         mock_engine.retrieve.return_value = sample_retrieval_result
 
         await _handle_query_governance(mock_engine, {"query": "test"})
@@ -91,6 +103,7 @@ class TestHandleQueryGovernance:
         sample_retrieval_result.s_series_triggered = True
 
         mock_engine = Mock()
+        mock_engine.index.domains = _MOCK_DOMAINS
         mock_engine.retrieve.return_value = sample_retrieval_result
 
         await _handle_query_governance(mock_engine, {"query": "safety concern"})
@@ -111,6 +124,7 @@ class TestHandleQueryGovernance:
         from ai_governance_mcp.server import _handle_query_governance
 
         mock_engine = Mock()
+        mock_engine.index.domains = _MOCK_DOMAINS
         mock_engine.retrieve.return_value = sample_retrieval_result
 
         await _handle_query_governance(mock_engine, {"query": "logged query"})
@@ -133,6 +147,7 @@ class TestHandleQueryGovernance:
         from ai_governance_mcp.server import _handle_query_governance
 
         mock_engine = Mock()
+        mock_engine.index.domains = _MOCK_DOMAINS
         mock_engine.retrieve.return_value = sample_retrieval_result
 
         await _handle_query_governance(
@@ -304,6 +319,7 @@ class TestHandleGetDomainSummary:
         }
 
         mock_engine = Mock()
+        mock_engine.index.domains = _MOCK_DOMAINS
         mock_engine.get_domain_summary.return_value = mock_summary
 
         result = await _handle_get_domain_summary(mock_engine, {"domain": "ai-coding"})
@@ -318,6 +334,7 @@ class TestHandleGetDomainSummary:
         from ai_governance_mcp.server import _handle_get_domain_summary
 
         mock_engine = Mock()
+        mock_engine.index.domains = _MOCK_DOMAINS
 
         result = await _handle_get_domain_summary(mock_engine, {"domain": "invalid"})
 

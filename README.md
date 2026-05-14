@@ -61,7 +61,12 @@ The framework uses a 7-layer governance hierarchy modeled on the US Constitution
 
 ### Available Domains
 
+Domains are **modular and self-describing**. The system discovers domains automatically from the `documents/` directory — drop in a `title-NN-domainname.md` file with YAML frontmatter and the server picks it up. Remove a file and the domain disappears. No registry edits, no code changes.
+
 <!-- Verify counts: python -c "import json; d=json.load(open('index/global_index.json'))['domains']; [print(f'{k}: {len(v.get(\"principles\",[]))}p, {len(v.get(\"methods\",[]))}m') for k,v in d.items()]" -->
+
+**Shipped domains:**
+
 | Domain | Principles | Methods | Coverage |
 |--------|------------|---------|----------|
 | **Constitution** | 24 | 224 | Universal AI behavior, safety, quality |
@@ -71,6 +76,29 @@ The framework uses a 7-layer governance hierarchy modeled on the US Constitution
 | **Multimodal RAG** | 32 | 64 | Image retrieval, visual presentation, agentic retrieval |
 | **UI/UX** | 20 | 43 | Visual hierarchy, accessibility, interaction design |
 | **KM&PD** | 10 | 40 | Knowledge management, people development, training |
+
+<details>
+<summary><b>Adding a custom domain</b></summary>
+
+1. Create `documents/title-NN-yourdomain.md` with YAML frontmatter:
+   ```yaml
+   ---
+   domain: "your-domain"
+   prefix: "yd"
+   display_name: "Your Domain"
+   description: "Keywords for semantic domain routing..."
+   priority: 50
+   ---
+   ```
+2. Optionally create `documents/title-NN-yourdomain-cfr.md` for methods (discovered by convention).
+3. Rebuild the index: `python -m ai_governance_mcp.extractor`
+4. Restart the server. `list_domains` now includes your domain.
+
+**Frontmatter fields:** `domain` (required — the machine name), `prefix` (principle ID prefix, e.g. `"yd"` → IDs like `yd-category-title`), `display_name` (human-readable), `description` (used for semantic domain routing — include keywords for your domain's topics), `priority` (sort order; 0 = highest). An optional `domains.json` can override any frontmatter field without editing the markdown files.
+
+**Removing a domain:** Delete or move the `title-NN-*.md` file. Rebuild the index and restart.
+
+</details>
 
 ## Architecture
 
@@ -445,7 +473,7 @@ ai-governance-mcp/
 │   ├── rules-of-procedure.md # Constitution Methods (amendment process, authoring)
 │   ├── title-NN-domain.md   # Domain principles (Federal Statutes)
 │   ├── title-NN-domain-cfr.md # Domain methods (Code of Federal Regulations)
-│   └── domains.json         # Domain configurations
+│   └── domains.json         # Optional domain overrides (domains discovered from files)
 ├── .claude/skills/          # Executable skills (completion-sequence, compliance-review, test-authoring)
 ├── reference-library/       # Accumulating applied patterns (secondary authority)
 ├── .claude/
@@ -499,7 +527,7 @@ safety check    # check for known vulnerabilities
 - [ ] Governance effectiveness measurement (see [BACKLOG.md](BACKLOG.md) #22 for scope)
 
 **Content**
-- [x] 7 active domains (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd)
+- [x] 7 shipped domains + modular custom domain support (drop in `title-NN-name.md`, rebuild index)
 - [ ] Visual communication domain (presentations, reports, print design — see BACKLOG #6)
 - [ ] Autonomous operations domain (see BACKLOG #11)
 
@@ -514,7 +542,7 @@ Built by Jason as a showcase of:
 
 The governance framework itself is the key innovation — the MCP server is its operational implementation.
 
-*Built with the AI Governance Framework — Constitution, Rules of Procedure, Title 10 (AI Coding), Title 15 (UI/UX), Title 20 (Multi-Agent), Title 25 (KM&PD), Title 30 (Storytelling), Title 40 (Multimodal RAG). See [`documents/domains.json`](documents/domains.json) for current versions.*
+*Built with the AI Governance Framework — Constitution, Rules of Procedure, and modular domain statutes. See [`documents/ai-instructions.md`](documents/ai-instructions.md) for current domain versions.*
 
 ## License
 

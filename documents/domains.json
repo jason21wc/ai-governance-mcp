@@ -1,4 +1,5 @@
 {
+  "_note": "Optional override file. Domains are discovered from document frontmatter (constitution.md, title-*-*.md). Fields here override frontmatter values. Delete this file and the system still works.",
   "constitution": {
     "name": "constitution",
     "display_name": "Constitution",

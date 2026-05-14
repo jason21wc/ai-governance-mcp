@@ -324,7 +324,7 @@ class TestExtractorErrorHandling:
         """extract_all() should fail fast with clear error for missing documents.
 
         Pre-flight validation catches configuration errors before extraction starts,
-        providing actionable guidance (check domains.json, ensure versions match).
+        providing actionable guidance (check document frontmatter, ensure files exist).
         """
         # Remove documents directory
         import shutil
@@ -349,8 +349,8 @@ class TestExtractorErrorHandling:
             with pytest.raises(ExtractorConfigError) as exc_info:
                 extractor.extract_all()
 
-            # Error should reference domains.json for debugging
-            assert "domains.json" in str(exc_info.value)
+            # Error should reference domain files for debugging
+            assert "domain files exist" in str(exc_info.value)
 
     def test_extract_all_handles_empty_domain(self, test_settings, temp_dir):
         """extract_all() should handle domains with no principles."""

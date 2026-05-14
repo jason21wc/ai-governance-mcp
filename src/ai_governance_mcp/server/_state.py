@@ -10,7 +10,7 @@ import json
 import logging
 from pathlib import Path
 
-from ..config import Settings, ensure_directories
+from ..config import Settings, ensure_directories, load_domains_registry
 from ..models import Metrics
 from ..retrieval import RetrievalEngine
 
@@ -44,6 +44,22 @@ def get_engine() -> RetrievalEngine:
         _engine = RetrievalEngine(_settings)
         _metrics = Metrics()
     return _engine
+
+
+def get_domain_names() -> list[str]:
+    """Get sorted list of available domain names.
+
+    Uses engine index if loaded, otherwise reads from domain registry
+    without triggering full engine initialization.
+    """
+    if _engine is not None:
+        return sorted(_engine.index.domains.keys())
+
+    import ai_governance_mcp.server as _srv
+
+    settings = _settings or _srv.load_settings()
+    domains = load_domains_registry(settings)
+    return sorted(d.name for d in domains)
 
 
 def get_metrics() -> Metrics:

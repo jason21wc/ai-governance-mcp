@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-13 (session-170 — Execution Framework 8-bucket → 10-subsystem restructuring).
+**Last Updated:** 2026-05-13 (session-171 — BACKLOG #53 Modular Domain Architecture).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,21 +12,23 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-170 (2026-05-13) — Execution Framework 8-bucket → 10-subsystem restructuring.**
+**Session-171 (2026-05-13) — BACKLOG #53 Modular Domain Architecture.**
 
-**ACTION ON RESUME (session-171):** Time-cued: **C-109 deferred-cadence audit** (~2026-05-25). **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review). **C-012 Security Posture Review** first due ~2026-08-08. Docker image rebuild needed (Dockerfile CMD changed + enforcement.py updated).
+**ACTION ON RESUME (session-172):** Time-cued: **C-109 deferred-cadence audit** (~2026-05-25). **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review). **C-012 Security Posture Review** first due ~2026-08-08. Docker image rebuild needed (src/ changed + prior Dockerfile CMD change).
 
 **Critical state for next session:**
-- **EXECUTION-FRAMEWORK.md v2.0.0** — Restructured from 8-bucket to 10-subsystem architecture. Memory (Bucket 2) split into Working Memory (Subsystem 3), Persistent Storage (Subsystem 4), Reference Storage (Subsystem 5). Reordered by architectural dependency. "Bucket" → "subsystem", "sub-bucket" → "sub-component". CoALA provenance preserved. Procedural memory reclassified to Persistent Storage per contrarian review. §4 System Map restructured (all 7 CoALA types now have rows). §6 Memory Contracts split into 3 subsections. §12 Design History preserved with terminology conversion note.
-- **OPERATIONS.md** — Single reference updated (Bucket 5/8 → Subsystem 8/10).
-- **1691 tests passing** (non-slow). No code changes — docs only.
-- **Docker rebuild still needed** from session-168.
+- **Modular Domain Architecture shipped** — BACKLOG #53. Domains discovered from filesystem (`documents/constitution.md` + `documents/title-*-*.md`) via YAML frontmatter. No code changes needed to add/remove domains. `domains.json` is now optional override layer. 3-tier fallback: filesystem discovery → domains.json override → hardcoded. S-Series safety guard prevents non-constitution domains from triggering veto. Dynamic enums and valid_domains in server.
+- **26 files changed** across code (config.py, extractor.py, server/, models.py, validator.py, config_generator.py), documents (all 7 domain .md files + ai-instructions.md + rules-of-procedure.md + domains.json), docs (README.md, ARCHITECTURE.md), tests (test_config.py, test_extractor.py, test_server.py, test_server_retrieval.py, test_extractor_integration.py).
+- **1710 tests passing** (up from 1691 — 20 new tests for domain discovery, S-Series safety, principle ID stability).
+- **Coherence audit** completed: 1D + 7M + 2C findings, all resolved. Dangerous finding was `data.values()` fallback path not filtering `_note` — fixed by using pre-filtered `overrides.values()`.
+- **Docker rebuild still needed** from session-168 + this session's src/ changes.
+- **BACKLOG #53 needs close-out** — item text still describes the problem as unsolved.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-170 (2026-05-13) — Execution Framework restructuring.
+- **Phase:** Session-171 (2026-05-13) — BACKLOG #53 Modular Domain Architecture.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: C-109 deferred-cadence audit (~2026-05-25), Compliance Review #9 (~2026-05-22).
 
@@ -39,32 +41,34 @@
 | Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.45.1** (title-10-ai-coding-cfr), **v2.8.1** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.18.0** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v4.0.5** (ai-instructions), **v2.1.0** (tiers.json — critical_5 scaffold + external-input-gap-analysis + conflicting-patterns directives). |
 | Execution Framework | **v2.0.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, 10-subsystem architecture) |
 | OPERATIONS.md | **v2** (3 cadences, 17 tripwires, 3 V-series, 5 metrics, 3 scheduled operations) |
-| Tests | **1691 passing** (non-slow subset) |
+| Tests | **1710 passing** (non-slow subset) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **20 MCP tools** (16 governance + 4 context engine) |
-| Domains | **7** (constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd) |
+| Domains | **7 shipped** (modular — filesystem-discovered from frontmatter, custom domains supported) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
 | Index | **133 principles + 735 methods + 18 references** (886 total) |
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **4** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | **Green.** Last push: session-168. All pushed. |
+| CI | Last push: session-168. Session-171 changes unpushed. |
 
 ---
 
 ## Last Session (2026-05-13)
 
-170. **Session-170 (2026-05-13): EXECUTION-FRAMEWORK.md 8-bucket → 10-subsystem restructuring.**
-   - **EXECUTION-FRAMEWORK.md v2.0.0:** Memory (Bucket 2) split into Working Memory (Subsystem 3), Persistent Storage (Subsystem 4), Reference Storage (Subsystem 5). 10 subsystems ordered by architectural dependency. Contrarian-reviewed: Procedural memory reclassified to Persistent Storage, S-Series collision avoided (Subsystem N in full), §2.3 empirical reconciliation note. §4 System Map restructured (all 7 CoALA types). §6 split into 3 subsections. §12 preserved with terminology note. 13-step plan, 3 verification agents — all checks passed.
-   - **OPERATIONS.md:** Single reference updated (Bucket 5/8 → Subsystem 8/10).
-   - **Tests:** 1691 passing (unchanged — docs-only change).
-
-169. **Session-169 (2026-05-12): Behavioral floor directives + harness engineering article + constraint retirement check.**
-   - Behavioral floor expanded (2 new directives). BACKLOG #159 implemented. Harness engineering article evaluated. Check 12 added. T-163 tripwire added. 1691 tests.
+171. **Session-171 (2026-05-13): BACKLOG #53 Modular Domain Architecture.**
+   - **Full implementation:** Filesystem-based domain discovery via YAML frontmatter. `discover_domains()` in config.py, dynamic series extraction in extractor.py, S-Series safety guard, dynamic server enums/validation, multi-marker `_find_project_root()`. All 10 plan phases delivered.
+   - **26 files changed:** 8 code files, 10 document files, 5 test files, 3 documentation files.
+   - **20 new tests:** `TestDiscoverDomains` (9), `TestCustomDomainDiscovery` (5), `TestPrincipleIdStability` (1), `TestSSeriesSafetyGuard` (3), `TestFindProjectRoot` (2 new).
+   - **Coherence audit:** 1 Dangerous (fallback path `_note` filtering), 7 Misleading (stale domains.json references), 2 Cosmetic — all resolved.
+   - **README:** Added "Adding a custom domain" section, updated Available Domains table with modular explanation.
+   - **Tests:** 1710 passing (up from 1691).
 
 ---
 
 ## Previous Sessions
+
+*Session-170 (2026-05-13) Execution Framework 8-bucket → 10-subsystem restructuring. 1691 tests.*
 
 *Session-169 (2026-05-12) Behavioral floor directives + harness engineering article + constraint retirement check. 1691 tests.*
 
@@ -110,7 +114,7 @@
 1. **Compliance Review #9** — due ~2026-05-22–2026-05-27 (10-15 days from Review #8 on 2026-05-12). Invoke `/compliance-review`.
 2. **C-109 deferred-cadence audit** — due ~2026-05-25. See OPERATIONS.md.
 3. **C-155 feedback loop analysis** — next run due ~2026-06-07. See OPERATIONS.md.
-4. **Docker image rebuild** — Dockerfile CMD changed + enforcement.py updated. Rebuild and push.
+4. **Docker image rebuild** — Dockerfile CMD changed + enforcement.py updated + BACKLOG #53 src/ changes. Rebuild and push.
 
 **Trigger-gated (tracked in OPERATIONS.md):**
 - **T-149** — CE-first compliance measurement (3-5 sessions, <85% activates Phase 2 hook). CE-First Phase 2 (grep/glob advisory hook) activates only if this fires.

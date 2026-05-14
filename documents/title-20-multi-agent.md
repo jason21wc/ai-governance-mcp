@@ -3,6 +3,10 @@ version: "2.7.3"
 status: "active"
 effective_date: "2026-05-03"
 domain: "multi-agent"
+prefix: "multi"
+display_name: "Multi-Agent"
+description: "Multi-agent AI systems and orchestration. Agent coordination, task delegation, handoffs, swarm intelligence, ensemble methods, pipeline design, and agent communication protocols."
+priority: 20
 governance_level: "federal-statute"
 ---
 

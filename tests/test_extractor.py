@@ -984,7 +984,7 @@ class TestValidateDomainFiles:
             with pytest.raises(ExtractorConfigError) as exc_info:
                 extractor.validate_domain_files()
 
-            assert "domains.json" in str(exc_info.value)
+            assert "domain files exist" in str(exc_info.value)
 
 
 class TestExtractorConfigError:
@@ -1508,7 +1508,7 @@ class TestDomainDescriptionValidation:
             with pytest.raises(ContentSecurityError) as exc_info:
                 extractor.validate_domain_descriptions()
 
-            assert "domains.json" in str(exc_info.value)
+            assert "domain descriptions" in str(exc_info.value)
             assert "malicious" in str(exc_info.value)
 
 
@@ -2913,3 +2913,92 @@ Test definition.
                     f"Old-format principle '{p.title}' should have no constitutional_ref, "
                     f"got '{p.constitutional_ref}'"
                 )
+
+
+class TestSSeriesSafetyGuard:
+    """S-Series veto code must ONLY be assigned to constitution domain.
+
+    Custom domains with ### S-Series: Safety headers must NOT get
+    series_code='S' — that would let arbitrary domains trigger the veto.
+    """
+
+    def test_non_constitution_domain_rejects_s_series(self):
+        """Custom domain with S-Series header must not produce series_code S."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor.__new__(DocumentExtractor)
+            extractor.embedder = Mock()
+            extractor.settings = Mock()
+            extractor.settings.documents_path = Path("/fake")
+
+        principle = extractor._build_principle(
+            {
+                "title": "Safety First",
+                "content": "Test content",
+                "category": "safety",
+                "domain": "custom-domain",
+                "start_line": 1,
+                "end_line": 10,
+            },
+            domain_prefix="cust",
+            dynamic_series_map={"S": "safety"},
+        )
+
+        assert principle.series_code != "S", (
+            "Non-constitution domain must NOT get series_code 'S' — "
+            "S-Series veto is reserved for constitution safety principles"
+        )
+
+    def test_constitution_domain_keeps_s_series(self):
+        """Constitution domain should retain S-Series assignment."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor.__new__(DocumentExtractor)
+            extractor.embedder = Mock()
+            extractor.settings = Mock()
+            extractor.settings.documents_path = Path("/fake")
+
+        principle = extractor._build_principle(
+            {
+                "title": "Transparent Limitations",
+                "content": "Safety principle content",
+                "category": "safety",
+                "domain": "constitution",
+                "start_line": 1,
+                "end_line": 10,
+            },
+            domain_prefix="meta",
+            dynamic_series_map={"S": "safety"},
+        )
+
+        assert principle.series_code == "S", (
+            "Constitution safety principles must retain series_code 'S'"
+        )
+
+    def test_dynamic_series_extraction_from_headers(self):
+        """_extract_series_headers should parse ### X-Series: patterns."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+        content = """
+### C-Series: Core Principles
+
+Some content here.
+
+### Q-Series: Quality Principles
+
+More content.
+
+### S-Series: Safety Principles
+
+Safety content.
+"""
+        result = DocumentExtractor._extract_series_headers(content, "test")
+        assert "C" in result
+        assert "Q" in result
+        assert "S" in result
+        assert result["C"] == "core"
+        assert result["Q"] == "quality"
+        assert result["S"] == "safety"

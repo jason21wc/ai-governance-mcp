@@ -3,6 +3,10 @@ version: "1.2.2"
 status: "active"
 effective_date: "2026-05-03"
 domain: "ui-ux"
+prefix: "uiux"
+display_name: "UI/UX"
+description: "Interactive software interface design and development with AI assistance. Visual hierarchy, layout composition, spacing, typography, readability, design tokens, design system architecture, component consistency, accessibility, WCAG 2.2 Level AA, ARIA authoring practices, semantic HTML, keyboard navigation, focus management, screen reader support, responsive design, breakpoints, mobile-first CSS, touch targets, interaction design, loading states, skeleton screens, progress indicators, error handling, form validation, microinteractions, platform conventions, Apple Human Interface Guidelines, Material Design 3, cross-platform adaptation, Figma MCP, design token extraction, and AI-generated UI anti-patterns."
+priority: 15
 governance_level: "federal-statute"
 ---
 

@@ -8,7 +8,7 @@ governance_level: "framework-activation"
 
 # AI Governance Framework Activation
 
-**Version:** 4.0.4
+**Version:** 4.0.5
 **Purpose:** Loader document that activates the governance framework for AI sessions.
 **Updated:** 2026-05-11
 
@@ -19,43 +19,21 @@ Read and follow constitution.md as the governing constitution for all behavior.
 </primary_directive>
 
 <domain_activation>
-**AI Coding Domain** — When working in AI-assisted software development:
-1. Load **title-10-ai-coding.md** as binding domain law (WHAT to achieve)
-2. Load **title-10-ai-coding-cfr.md** for operational procedures (HOW to achieve it)
+**Domain discovery:** Domains are discovered automatically from the `documents/` directory. Any file matching `title-*-*.md` (with YAML frontmatter containing a `domain` field) is a domain. The constitution (`constitution.md`) is always the root authority.
 
-**Domain detection:** If project contains code files, build configurations, or development specifications → AI Coding jurisdiction applies.
+**For each domain present in your knowledge corpus:**
+1. Load **title-NN-domain.md** as binding domain law (WHAT to achieve — principles)
+2. Load **title-NN-domain-cfr.md** for operational procedures (HOW to achieve it — methods)
 
-**Multi-Agent Domain** — When orchestrating multi-agent workflows:
-1. Load **title-20-multi-agent.md** as binding domain law
-2. Load **title-20-multi-agent-cfr.md** for operational procedures
+**Domain detection by task context:**
+- Code files, build configs, development specs → AI Coding domain (`title-10-ai-coding`)
+- UI design, accessibility, responsive layouts → UI/UX domain (`title-15-ui-ux`)
+- Multiple AI agents, delegation, orchestration → Multi-Agent domain (`title-20-multi-agent`)
+- Knowledge bases, SOPs, training materials → KM&PD domain (`title-25-kmpd`)
+- Creative writing, narrative structure, dialogue → Storytelling domain (`title-30-storytelling`)
+- Image retrieval, visual presentation, multimodal → Multimodal RAG domain (`title-40-multimodal-rag`)
 
-**Domain detection:** If task involves multiple AI agents, delegation patterns, or orchestration → Multi-Agent jurisdiction applies.
-
-**Storytelling Domain** — When assisting with narrative communication:
-1. Load **title-30-storytelling.md** as binding domain law
-2. Load **title-30-storytelling-cfr.md** for operational procedures
-
-**Domain detection:** If task involves creative writing, narrative structure, character development, dialogue, storytelling coaching, or communication using narrative techniques → Storytelling jurisdiction applies.
-
-**Multimodal RAG Domain** — When retrieving and presenting images inline with text:
-1. Load **title-40-multimodal-rag.md** as binding domain law
-2. Load **title-40-multimodal-rag-cfr.md** for operational procedures
-
-**Domain detection:** If task involves retrieving reference images, presenting visual materials inline with text responses, or procedural documentation with screenshots → Multimodal RAG jurisdiction applies.
-
-**UI/UX Domain** — When building or reviewing interactive software interfaces:
-1. Load **title-15-ui-ux.md** as binding domain law
-2. Load **title-15-ui-ux-cfr.md** for operational procedures
-
-**Domain detection:** If task involves UI design, accessibility, responsive layouts, design systems, component libraries, or visual hierarchy → UI/UX jurisdiction applies.
-
-**Knowledge Management & People Development Domain** — When creating organizational knowledge or training:
-1. Load **title-25-kmpd.md** as binding domain law
-2. Load **title-25-kmpd-cfr.md** for operational procedures
-
-**Domain detection:** If task involves knowledge bases, SOPs, training materials, cross-training matrices, job descriptions, or onboarding programs → KM&PD jurisdiction applies.
-
-**Note:** Domains can overlap. Multiple domains may apply simultaneously (e.g., AI Coding + Multi-Agent when agents perform coding tasks).
+**Note:** Domains can overlap. Multiple domains may apply simultaneously (e.g., AI Coding + Multi-Agent when agents perform coding tasks). Use `list_domains` (MCP) to see all available domains dynamically.
 </domain_activation>
 
 <methods_activation>
@@ -71,7 +49,7 @@ Other domains: Load the corresponding CFR document for operational procedures.
 
 <first_response_protocol>
 Your first response in every conversation MUST begin with:
-"Framework active. Jurisdiction: [AI Coding | UI/UX | Multi-Agent | KM&PD | Storytelling | Multimodal RAG | Multiple | General]. Ready."
+"Framework active. Jurisdiction: [detected domain name(s) | Multiple | General]. Ready."
 
 If AI Coding jurisdiction:
 - State current phase (from SESSION-STATE.md) or "New Project"
@@ -132,12 +110,7 @@ Follow the Operational Application Protocol:
 | **Secondary Authority** | Reference Library | **Informative (non-overriding)** — concrete artifacts that inform interpretation |
 
 **Domain Files** (select applicable for Federal Statutes + Federal Regulations):
-- title-10-ai-coding.md (15 principles) / title-10-ai-coding-cfr.md
-- title-15-ui-ux.md (20 principles) / title-15-ui-ux-cfr.md
-- title-20-multi-agent.md (17 principles) / title-20-multi-agent-cfr.md
-- title-25-kmpd.md (10 principles) / title-25-kmpd-cfr.md
-- title-30-storytelling.md (15 principles) / title-30-storytelling-cfr.md
-- title-40-multimodal-rag.md (32 principles) / title-40-multimodal-rag-cfr.md
+Domain files follow the naming convention `title-NN-domain.md` (principles) and `title-NN-domain-cfr.md` (methods). The system discovers these automatically from the `documents/` directory. Use `list_domains` (MCP) or check which `title-*-*.md` files are present in your knowledge corpus.
 
 **Supremacy Rule:** Higher layers override lower. If conflict: **Bill of Rights** > **Constitution** > **Statutes** > **Rules of Procedure** > **Regulations** > **SOPs**. Secondary Authority informs interpretation but does not override normative layers.
 </governance_hierarchy>

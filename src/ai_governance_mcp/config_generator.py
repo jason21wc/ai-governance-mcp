@@ -25,19 +25,32 @@ from pathlib import Path
 from typing import Optional
 
 
+def _has_governance_marker(path: Path) -> bool:
+    """Check if a directory contains ai-governance document markers."""
+    docs = path / "documents"
+    if not docs.is_dir():
+        return False
+    if (docs / "constitution.md").exists():
+        return True
+    if any(docs.glob("title-*-*.md")):
+        return True
+    if (docs / "domains.json").exists():
+        return True
+    return False
+
+
 def _find_project_root() -> Path:
     """Find the ai-governance-mcp data root directory.
 
     Searches from the directory containing this file (not CWD) looking for
-    the ai-governance-specific marker ``documents/domains.json``. This avoids
-    false-matching on unrelated Python projects that happen to have a
-    ``pyproject.toml`` or ``documents/`` directory.
+    ai-governance markers: ``documents/constitution.md``, any
+    ``documents/title-*-*.md``, or ``documents/domains.json``.
     """
     # Start from this file's location, not CWD
     start_path = Path(__file__).resolve().parent
 
     for path in [start_path] + list(start_path.parents):
-        if (path / "documents" / "domains.json").exists():
+        if _has_governance_marker(path):
             return path
 
     # Fallback to user directory

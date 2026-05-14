@@ -7,7 +7,6 @@ Usage:
     python -m ai_governance_mcp.validator
 """
 
-import json
 import re
 import sys
 from collections import defaultdict
@@ -228,21 +227,23 @@ def validate_references(
 
 def run_validation() -> dict:
     """Run full validation on governance documents."""
+    from .config import load_domains_registry
+
     settings = get_settings()
     docs_path = settings.documents_path
 
-    # Load domains.json to find files
-    domains_file = docs_path / "domains.json"
-    if not domains_file.exists():
-        return {"error": f"domains.json not found at {domains_file}"}
-
-    with open(domains_file) as f:
-        domains = json.load(f)
+    domain_configs = load_domains_registry(settings)
+    if not domain_configs:
+        return {"error": f"No domains found in {docs_path}"}
 
     # Find constitution file
-    constitution_config = domains.get("constitution", {})
-    constitution_file = docs_path / constitution_config.get("principles_file", "")
+    constitution_config = next(
+        (d for d in domain_configs if d.name == "constitution"), None
+    )
+    if not constitution_config:
+        return {"error": "Constitution domain not found"}
 
+    constitution_file = docs_path / constitution_config.principles_file
     if not constitution_file.exists():
         return {"error": f"Constitution file not found: {constitution_file}"}
 
@@ -252,14 +253,12 @@ def run_validation() -> dict:
 
     # Load domain principle files
     domain_files = []
-    for domain_name, config in domains.items():
-        if domain_name == "constitution":
+    for dc in domain_configs:
+        if dc.name == "constitution":
             continue
-        principles_file = docs_path / config.get("principles_file", "")
+        principles_file = docs_path / dc.principles_file
         if principles_file.exists():
-            domain_files.append(
-                (config["principles_file"], principles_file.read_text())
-            )
+            domain_files.append((dc.principles_file, principles_file.read_text()))
 
     # Run validation
     return validate_references(constitution_principles, domain_files)

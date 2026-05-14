@@ -3,6 +3,10 @@ version: "8.0.1"
 status: "active"
 effective_date: "2026-05-03"
 domain: "constitution"
+prefix: "meta"
+display_name: "Constitution"
+description: "Universal behavioral rules for AI interaction. Safety principles, core behavioral guidelines, quality standards, operational rules, growth mindset, and meta-awareness. Applies to all AI interactions."
+priority: 0
 governance_level: "constitution"
 ---
 

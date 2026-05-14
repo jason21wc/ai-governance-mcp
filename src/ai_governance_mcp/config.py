@@ -11,6 +11,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+import yaml  # nosec B506 — safe_load only
 from pydantic import Field
 from pydantic_settings import BaseSettings
 
@@ -44,13 +45,26 @@ class JSONFormatter(logging.Formatter):
         return json.dumps(log_data)
 
 
+def _has_governance_marker(path: Path) -> bool:
+    """Check if a directory contains ai-governance document markers."""
+    docs = path / "documents"
+    if not docs.is_dir():
+        return False
+    if (docs / "constitution.md").exists():
+        return True
+    if any(docs.glob("title-*-*.md")):
+        return True
+    if (docs / "domains.json").exists():
+        return True
+    return False
+
+
 def _find_project_root() -> Path:
     """Find the ai-governance-mcp data root directory.
 
-    Uses CWD-based search (walks up from current directory) looking for the
-    ai-governance-specific marker ``documents/domains.json``. This avoids
-    false-matching on unrelated Python projects that happen to have a
-    ``pyproject.toml`` or ``documents/`` directory.
+    Uses CWD-based search (walks up from current directory) looking for
+    ai-governance markers: ``documents/constitution.md``, any
+    ``documents/title-*-*.md``, or ``documents/domains.json``.
 
     Note: config_generator.py uses __file__-based root detection instead,
     since it's a CLI tool that needs to find templates relative to the
@@ -59,11 +73,11 @@ def _find_project_root() -> Path:
     cwd = Path.cwd()
 
     for path in [cwd] + list(cwd.parents):
-        if (path / "documents" / "domains.json").exists():
+        if _has_governance_marker(path):
             return path
 
     fallback = Path.home() / ".ai-governance"
-    if not (fallback / "documents" / "domains.json").exists():
+    if not _has_governance_marker(fallback):
         logging.getLogger("ai_governance_mcp").warning(
             "Could not find ai-governance data directory. "
             "Set AI_GOVERNANCE_DOCUMENTS_PATH and AI_GOVERNANCE_INDEX_PATH "
@@ -276,25 +290,131 @@ def load_settings() -> Settings:
     return Settings()
 
 
-def load_domains_registry(settings: Settings) -> list[DomainConfig]:
-    """Load domain configurations from domains.json.
+def _parse_frontmatter(file_path: Path) -> dict | None:
+    """Extract YAML frontmatter from a markdown file."""
+    try:
+        text = file_path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    if not text.startswith("---"):
+        return None
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return None
+    try:
+        result = yaml.safe_load(parts[1])
+    except yaml.YAMLError:
+        return None
+    if not isinstance(result, dict):
+        return None
+    return result
 
-    Per specification v4: Domain registry enables adding new domains
-    without code changes. Descriptions enable semantic routing.
+
+def _methods_file_for(principles_path: Path) -> str | None:
+    """Derive methods filename from a principles file by convention."""
+    name = principles_path.stem
+    if name == "constitution":
+        candidate = principles_path.parent / "rules-of-procedure.md"
+    else:
+        candidate = principles_path.parent / f"{name}-cfr.md"
+    return candidate.name if candidate.exists() else None
+
+
+def discover_domains(documents_path: Path) -> list[DomainConfig]:
+    """Discover domains from filesystem by scanning document frontmatter.
+
+    Looks for constitution.md and title-*-*.md files with YAML frontmatter
+    containing domain metadata (domain, prefix, display_name, description,
+    priority). Domains are sorted by priority.
     """
-    registry_path = settings.documents_path / "domains.json"
+    _logger = logging.getLogger("ai_governance_mcp")
+    domains: list[DomainConfig] = []
 
-    if not registry_path.exists():
+    candidates: list[Path] = []
+    constitution = documents_path / "constitution.md"
+    if constitution.exists():
+        candidates.append(constitution)
+    candidates.extend(
+        f
+        for f in sorted(documents_path.glob("title-*-*.md"))
+        if not f.stem.endswith("-cfr")
+    )
+
+    for file_path in candidates:
+        fm = _parse_frontmatter(file_path)
+        if fm is None or "domain" not in fm:
+            _logger.warning("Skipping %s — no domain frontmatter", file_path.name)
+            continue
+
+        domain = DomainConfig(
+            name=fm["domain"],
+            display_name=fm.get("display_name", fm["domain"].replace("-", " ").title()),
+            principles_file=file_path.name,
+            methods_file=_methods_file_for(file_path),
+            description=fm.get("description", ""),
+            priority=fm.get("priority", 100),
+            prefix=fm.get("prefix"),
+        )
+        domains.append(domain)
+
+    if domains:
+        domains.sort(key=lambda d: d.priority)
+        _logger.info(
+            "Discovered %d domain(s): %s",
+            len(domains),
+            ", ".join(d.name for d in domains),
+        )
+    return domains
+
+
+def load_domains_registry(settings: Settings) -> list[DomainConfig]:
+    """Load domain configurations via filesystem discovery with optional overrides.
+
+    Priority order:
+    1. Filesystem discovery (frontmatter in constitution.md / title-*-*.md)
+    2. domains.json overrides (merges fields over discovered defaults)
+    3. Hardcoded fallback (only if both discovery and domains.json fail)
+    """
+    discovered = discover_domains(settings.documents_path)
+
+    registry_path = settings.documents_path / "domains.json"
+    if registry_path.exists():
+        try:
+            with open(registry_path, encoding="utf-8") as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            _logger = logging.getLogger("ai_governance_mcp")
+            _logger.warning("Failed to parse %s — skipping overrides", registry_path)
+            data = None
+
+        overrides: dict[str, dict] = {}
+        if data is None:
+            pass
+        elif isinstance(data, list):
+            for entry in data:
+                if "name" in entry:
+                    overrides[entry["name"]] = entry
+        else:
+            overrides = {
+                k: v
+                for k, v in data.items()
+                if not k.startswith("_") and isinstance(v, dict)
+            }
+
+        if discovered:
+            for domain in discovered:
+                if domain.name in overrides:
+                    override = overrides[domain.name]
+                    for field in ("display_name", "description", "priority", "prefix"):
+                        if field in override:
+                            setattr(domain, field, override[field])
+        elif overrides:
+            return [DomainConfig(**v) for v in overrides.values()]
+
+    if not discovered:
         return _default_domains()
 
-    with open(registry_path) as f:
-        data = json.load(f)
-
-    # Handle both list and dict formats
-    if isinstance(data, list):
-        return [DomainConfig(**domain_data) for domain_data in data]
-    else:
-        return [DomainConfig(**domain_data) for domain_data in data.values()]
+    return discovered
 
 
 def _default_domains() -> list[DomainConfig]:

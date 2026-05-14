@@ -3,6 +3,10 @@ version: "2.4.3"
 status: "active"
 effective_date: "2026-05-03"
 domain: "multimodal-rag"
+prefix: "mrag"
+display_name: "Multimodal RAG"
+description: "Multimodal retrieval-augmented generation. Image retrieval, visual presentation, cross-modal search, document layout, hallucination prevention, cross-modal consistency verification, citation and source attribution, multimodal evaluation metrics, knowledge base security, poisoning defense, accessibility compliance, WCAG, data governance, data lineage, vector index versioning, operational observability, vision-guided chunking, and graceful degradation."
+priority: 40
 governance_level: "federal-statute"
 ---
 
@@ -60,8 +64,8 @@ The following are NOT governed by this document:
 - **Video retrieval** — Phase 2 consideration after static images
 - **General AI safety and alignment** — Constitution S-Series (Bill of Rights)
 - **Text-only RAG retrieval mechanics** — Governance Methods Title 12 (RAG Optimization Techniques)
-- **Agent memory injection attacks** — Multi-agent methods (title-20-multi-agent-cfr, Title 4)
-- **General application security** — AI-coding methods (title-10-ai-coding-cfr, Title 5)
+- **Agent memory injection attacks** — See Multi-Agent domain if available (informational; this domain functions independently)
+- **General application security** — See AI Coding domain if available (informational; this domain functions independently)
 - **Platform-specific API implementation** — Methods documents (title-40-multimodal-rag-cfr.md)
 
 If a concern falls outside this scope, refer to the Constitution or appropriate organizational policies.
@@ -1054,9 +1058,7 @@ Vague visual references ("as shown in the image") force users to scan the entire
 
 *Principles governing knowledge base protection against multimodal-specific attacks*
 
-**Cross-Domain Note:** SEC-Series covers security threats unique to multimodal knowledge bases (adversarial images, cross-modal injection, poisoned embeddings). For broader security concerns:
-- **Agent memory injection and tool poisoning** — See multi-agent methods (title-20-multi-agent-cfr, Title 4)
-- **Application security, supply chain integrity** — See AI-coding methods (title-10-ai-coding-cfr, Title 5)
+**Cross-Domain Note:** SEC-Series covers security threats unique to multimodal knowledge bases (adversarial images, cross-modal injection, poisoned embeddings). For broader security concerns, see the Multi-Agent domain (agent memory injection) and AI Coding domain (application security) if available. This domain functions independently without those references.
 
 ### SEC1: Multimodal Poisoning Defense
 

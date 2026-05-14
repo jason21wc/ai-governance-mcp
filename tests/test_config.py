@@ -21,6 +21,7 @@ from ai_governance_mcp.config import (
     get_settings,
     _default_domains,
     _find_project_root,
+    discover_domains,
 )
 
 
@@ -46,13 +47,37 @@ class TestFindProjectRoot:
         assert root != tmp_path
 
     def test_does_not_match_generic_documents_dir(self, tmp_path, monkeypatch):
-        """Should NOT match a directory with only a documents/ folder (no domains.json)."""
+        """Should NOT match a directory with only a documents/ folder (no governance marker)."""
         (tmp_path / "documents").mkdir()
 
         monkeypatch.chdir(tmp_path)
         root = _find_project_root()
 
         assert root != tmp_path
+
+    def test_matches_directory_with_constitution(self, tmp_path, monkeypatch):
+        """Should match when documents/constitution.md exists (multi-marker)."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+        (docs / "constitution.md").write_text(
+            "---\ndomain: constitution\n---\n# Constitution"
+        )
+
+        monkeypatch.chdir(tmp_path)
+        root = _find_project_root()
+
+        assert root == tmp_path
+
+    def test_matches_directory_with_title_file(self, tmp_path, monkeypatch):
+        """Should match when documents/title-*-*.md exists (multi-marker)."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+        (docs / "title-50-custom.md").write_text("---\ndomain: custom\n---\n# Custom")
+
+        monkeypatch.chdir(tmp_path)
+        root = _find_project_root()
+
+        assert root == tmp_path
 
     def test_matches_directory_with_domains_json(self, tmp_path, monkeypatch):
         """Should match when documents/domains.json exists."""
@@ -276,12 +301,16 @@ class TestDomainConsistency:
 
     @staticmethod
     def _load_registry() -> dict | None:
-        """Load domains.json registry, return None if missing."""
+        """Load domains.json registry, return None if missing.
+
+        Filters out underscore-prefixed keys (metadata like _note).
+        """
         domains_path = Path(__file__).parent.parent / "documents" / "domains.json"
         if not domains_path.exists():
             return None
         with open(domains_path) as f:
-            return json.load(f)
+            data = json.load(f)
+        return {k: v for k, v in data.items() if not k.startswith("_")}
 
     def test_registry_matches_default_domains_names(self):
         """domains.json keys should match _default_domains() names bidirectionally."""
@@ -333,10 +362,11 @@ class TestDomainConsistency:
             )
 
     async def test_registry_matches_handler_valid_domains(self):
-        """Handler valid_domains sets should match domains.json (behavioral test).
+        """Handler valid_domains should be derived from engine index dynamically.
 
         Sends an invalid domain to each handler and parses the accepted set from
         the error message format: "Valid: ai-coding, constitution, ..."
+        Verifies the engine-derived set matches domains.json.
         """
         registry = self._load_registry()
         if registry is None:
@@ -351,6 +381,7 @@ class TestDomainConsistency:
 
         async def _extract_valid_set(handler, args):
             mock_engine = Mock()
+            mock_engine.index.domains = {name: None for name in registry_names}
             result = await handler(mock_engine, args)
             text = result[0].text
             if "Valid:" in text:
@@ -555,3 +586,468 @@ class TestPrincipleCountCeiling:
             f"Run consolidation pass (Part 9.8.5) before adding more:\n  "
             + "\n  ".join(violations)
         )
+
+
+class TestDiscoverDomains:
+    """Tests for filesystem-based domain discovery."""
+
+    def _write_domain_file(self, docs: Path, filename: str, frontmatter: dict) -> None:
+        """Helper to write a domain file with YAML frontmatter."""
+        import yaml
+
+        content = f"---\n{yaml.dump(frontmatter, default_flow_style=False)}---\n# {frontmatter.get('display_name', 'Domain')}\n\nContent here.\n"
+        (docs / filename).write_text(content)
+
+    def test_discovers_from_frontmatter(self, tmp_path):
+        """Should discover domains from title-*-*.md files with frontmatter."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "constitution.md",
+            {
+                "domain": "constitution",
+                "prefix": "meta",
+                "display_name": "Constitution",
+                "description": "Universal rules",
+                "priority": 0,
+            },
+        )
+        self._write_domain_file(
+            docs,
+            "title-10-coding.md",
+            {
+                "domain": "coding",
+                "prefix": "cod",
+                "display_name": "Coding",
+                "description": "Software development",
+                "priority": 10,
+            },
+        )
+
+        domains = discover_domains(docs)
+
+        assert len(domains) == 2
+        assert domains[0].name == "constitution"
+        assert domains[0].prefix == "meta"
+        assert domains[0].priority == 0
+        assert domains[1].name == "coding"
+        assert domains[1].prefix == "cod"
+
+    def test_sorts_by_priority(self, tmp_path):
+        """Discovered domains should be sorted by priority."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "title-50-last.md",
+            {
+                "domain": "last",
+                "priority": 50,
+            },
+        )
+        self._write_domain_file(
+            docs,
+            "title-10-first.md",
+            {
+                "domain": "first",
+                "priority": 10,
+            },
+        )
+        self._write_domain_file(
+            docs,
+            "title-30-middle.md",
+            {
+                "domain": "middle",
+                "priority": 30,
+            },
+        )
+
+        domains = discover_domains(docs)
+        names = [d.name for d in domains]
+        assert names == ["first", "middle", "last"]
+
+    def test_skips_files_without_frontmatter(self, tmp_path):
+        """Should skip .md files that lack domain frontmatter."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "title-10-good.md",
+            {
+                "domain": "good",
+                "priority": 10,
+            },
+        )
+        (docs / "title-20-bad.md").write_text("# No frontmatter\n\nJust content.\n")
+
+        domains = discover_domains(docs)
+        assert len(domains) == 1
+        assert domains[0].name == "good"
+
+    def test_skips_cfr_files(self, tmp_path):
+        """Should not discover CFR files as domains."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "title-10-coding.md",
+            {
+                "domain": "coding",
+                "priority": 10,
+            },
+        )
+        self._write_domain_file(
+            docs,
+            "title-10-coding-cfr.md",
+            {
+                "domain": "coding-methods",
+                "priority": 10,
+            },
+        )
+
+        domains = discover_domains(docs)
+        assert len(domains) == 1
+        assert domains[0].name == "coding"
+
+    def test_discovers_methods_file_by_convention(self, tmp_path):
+        """Should find matching CFR file when it exists."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "title-10-coding.md",
+            {
+                "domain": "coding",
+                "priority": 10,
+            },
+        )
+        (docs / "title-10-coding-cfr.md").write_text("# Methods\n")
+
+        domains = discover_domains(docs)
+        assert domains[0].methods_file == "title-10-coding-cfr.md"
+
+    def test_methods_file_none_when_missing(self, tmp_path):
+        """Should set methods_file to None when no CFR file exists."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "title-10-coding.md",
+            {
+                "domain": "coding",
+                "priority": 10,
+            },
+        )
+
+        domains = discover_domains(docs)
+        assert domains[0].methods_file is None
+
+    def test_returns_empty_for_empty_directory(self, tmp_path):
+        """Should return empty list when no domain files found."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        domains = discover_domains(docs)
+        assert domains == []
+
+    def test_skips_malformed_yaml_frontmatter(self, tmp_path):
+        """Should skip files with invalid YAML in frontmatter."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        (docs / "title-10-bad.md").write_text("---\ndomain: [unclosed\n---\n# Bad\n")
+        self._write_domain_file(
+            docs,
+            "title-20-good.md",
+            {
+                "domain": "good",
+                "priority": 20,
+            },
+        )
+
+        domains = discover_domains(docs)
+        assert len(domains) == 1
+        assert domains[0].name == "good"
+
+    def test_skips_non_dict_yaml_frontmatter(self, tmp_path):
+        """Should skip files where frontmatter is a bare string, not a dict."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        (docs / "title-10-bad.md").write_text("---\njust a string\n---\n# Bad\n")
+        self._write_domain_file(
+            docs,
+            "title-20-good.md",
+            {
+                "domain": "good",
+                "priority": 20,
+            },
+        )
+
+        domains = discover_domains(docs)
+        assert len(domains) == 1
+        assert domains[0].name == "good"
+
+    def test_default_display_name_from_domain(self, tmp_path):
+        """Should derive display_name from domain name when not specified."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "title-10-my-domain.md",
+            {
+                "domain": "my-domain",
+                "priority": 10,
+            },
+        )
+
+        domains = discover_domains(docs)
+        assert domains[0].display_name == "My Domain"
+
+    def test_constitution_discovers_rules_of_procedure(self, tmp_path):
+        """Constitution should find rules-of-procedure.md as its methods file."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "constitution.md",
+            {
+                "domain": "constitution",
+                "prefix": "meta",
+                "priority": 0,
+            },
+        )
+        (docs / "rules-of-procedure.md").write_text("# Rules\n")
+
+        domains = discover_domains(docs)
+        assert domains[0].methods_file == "rules-of-procedure.md"
+
+
+class TestCustomDomainDiscovery:
+    """Tests for adding custom domains to the framework."""
+
+    def _write_domain_file(self, docs: Path, filename: str, frontmatter: dict) -> None:
+        import yaml
+
+        content = f"---\n{yaml.dump(frontmatter, default_flow_style=False)}---\n# {frontmatter.get('display_name', 'Domain')}\n\nContent here.\n"
+        (docs / filename).write_text(content)
+
+    def test_custom_domain_alongside_existing(self, tmp_path):
+        """Custom domain file should be discovered alongside built-in domains."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "constitution.md",
+            {
+                "domain": "constitution",
+                "prefix": "meta",
+                "priority": 0,
+            },
+        )
+        self._write_domain_file(
+            docs,
+            "title-10-coding.md",
+            {
+                "domain": "coding",
+                "prefix": "cod",
+                "priority": 10,
+            },
+        )
+        self._write_domain_file(
+            docs,
+            "title-50-custom.md",
+            {
+                "domain": "custom",
+                "prefix": "cust",
+                "display_name": "Custom Domain",
+                "description": "My custom governance domain",
+                "priority": 50,
+            },
+        )
+
+        domains = discover_domains(docs)
+        names = [d.name for d in domains]
+
+        assert "custom" in names
+        assert len(domains) == 3
+
+        custom = next(d for d in domains if d.name == "custom")
+        assert custom.prefix == "cust"
+        assert custom.display_name == "Custom Domain"
+        assert custom.priority == 50
+
+    def test_domain_removal_reduces_count(self, tmp_path):
+        """Removing a domain file should reduce discovered domains."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "title-10-a.md",
+            {
+                "domain": "a",
+                "priority": 10,
+            },
+        )
+        self._write_domain_file(
+            docs,
+            "title-20-b.md",
+            {
+                "domain": "b",
+                "priority": 20,
+            },
+        )
+        self._write_domain_file(
+            docs,
+            "title-30-c.md",
+            {
+                "domain": "c",
+                "priority": 30,
+            },
+        )
+
+        assert len(discover_domains(docs)) == 3
+
+        (docs / "title-20-b.md").unlink()
+
+        domains = discover_domains(docs)
+        assert len(domains) == 2
+        assert {d.name for d in domains} == {"a", "c"}
+
+    def test_domains_json_overrides_frontmatter(self, tmp_path):
+        """domains.json should override frontmatter fields when present."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "title-10-coding.md",
+            {
+                "domain": "coding",
+                "display_name": "Coding",
+                "description": "Original description",
+                "priority": 10,
+            },
+        )
+
+        overrides = {
+            "coding": {
+                "name": "coding",
+                "display_name": "AI Coding",
+                "description": "Overridden description",
+            }
+        }
+        (docs / "domains.json").write_text(json.dumps(overrides))
+
+        settings = Settings()
+        settings.documents_path = docs
+        domains = load_domains_registry(settings)
+
+        coding = next(d for d in domains if d.name == "coding")
+        assert coding.display_name == "AI Coding"
+        assert coding.description == "Overridden description"
+
+    def test_works_without_domains_json(self, tmp_path):
+        """System should work with no domains.json — pure filesystem discovery."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "constitution.md",
+            {
+                "domain": "constitution",
+                "prefix": "meta",
+                "priority": 0,
+            },
+        )
+        self._write_domain_file(
+            docs,
+            "title-10-coding.md",
+            {
+                "domain": "coding",
+                "prefix": "cod",
+                "priority": 10,
+            },
+        )
+
+        settings = Settings()
+        settings.documents_path = docs
+        domains = load_domains_registry(settings)
+
+        assert len(domains) == 2
+        assert domains[0].name == "constitution"
+        assert domains[1].name == "coding"
+
+    def test_malformed_domains_json_falls_through(self, tmp_path):
+        """Malformed domains.json should be skipped, falling back to discovery."""
+        docs = tmp_path / "documents"
+        docs.mkdir()
+
+        self._write_domain_file(
+            docs,
+            "title-10-coding.md",
+            {
+                "domain": "coding",
+                "prefix": "cod",
+                "priority": 10,
+            },
+        )
+        (docs / "domains.json").write_text("{invalid json")
+
+        settings = Settings()
+        settings.documents_path = docs
+        domains = load_domains_registry(settings)
+
+        assert len(domains) == 1
+        assert domains[0].name == "coding"
+
+
+class TestPrincipleIdStability:
+    """Verify that existing principle IDs are unchanged after modular migration.
+
+    Compares IDs in the pre-built index against what discover_domains produces
+    to ensure the migration didn't alter any principle IDs for existing domains.
+    """
+
+    def test_existing_domain_prefixes_unchanged(self):
+        """Frontmatter prefix values must match DOMAIN_PREFIXES for all 7 domains."""
+        docs_path = Path(__file__).parent.parent / "documents"
+
+        from ai_governance_mcp.config import _parse_frontmatter
+
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            expected_prefixes = DocumentExtractor.DOMAIN_PREFIXES
+
+        for domain_name, expected_prefix in expected_prefixes.items():
+            if domain_name == "constitution":
+                fm = _parse_frontmatter(docs_path / "constitution.md")
+            else:
+                candidates = list(docs_path.glob("title-*-*.md"))
+                fm = None
+                for c in candidates:
+                    if c.stem.endswith("-cfr"):
+                        continue
+                    parsed = _parse_frontmatter(c)
+                    if parsed and parsed.get("domain") == domain_name:
+                        fm = parsed
+                        break
+
+            assert fm is not None, f"No frontmatter found for domain {domain_name}"
+            assert fm.get("prefix") == expected_prefix, (
+                f"Prefix mismatch for {domain_name}: "
+                f"frontmatter={fm.get('prefix')!r}, DOMAIN_PREFIXES={expected_prefix!r}"
+            )
