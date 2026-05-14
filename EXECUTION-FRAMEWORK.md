@@ -423,8 +423,8 @@ Maps every identified project component to its computer analog. Organized by rol
 | Computer Component | Project Equivalent | Current Implementation | Interface Type |
 |---|---|---|---|
 | **OS kernel** (restated) | Constitution + RoP | `documents/constitution.md` + `rules-of-procedure.md` | **Coupled by design** — tight integration IS coherence. |
-| **Workload modules** | Domain principles | `documents/title-NN-*.md` (7 domains) | Derives from kernel. Modular — add/remove without kernel changes. |
-| **Drivers** | Domain regulations (CFR) | `documents/title-NN-*-cfr.md` (7 files) | Translates OS rules to domain-specific ops. Paired with module. |
+| **Workload modules** | Domain principles | `documents/title-NN-*.md` (8 domains) | Derives from kernel. Modular — add/remove without kernel changes. |
+| **Drivers** | Domain regulations (CFR) | `documents/title-NN-*-cfr.md` (8 files) | Translates OS rules to domain-specific ops. Paired with module. |
 | **Device registry (ACPI)** | Manifests | `documents/domains.json` + `tiers.json` | Machine-readable catalog of installed modules + tiers. |
 | **Errata / known bugs** | Failure mode registry | `failure-mode-registry.md` + `test-failure-mode-map.md` | Documented failure modes with mitigations + test coverage. |
 

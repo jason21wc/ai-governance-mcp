@@ -2773,3 +2773,79 @@ class TestSearchReferencesTool:
                     assert "content" in parsed
                     assert "tags" in parsed
                     assert "status" in parsed
+
+
+# =============================================================================
+# Accounting Domain Integration Tests
+# =============================================================================
+
+
+class TestAccountingDomainIntegration:
+    """Integration tests for accounting domain — verifies principles
+    are extracted and indexed correctly in the production index."""
+
+    def test_accounting_in_production_index(self):
+        """Production index should contain accounting domain with 12 principles."""
+        index_path = Path(__file__).parent.parent / "index" / "global_index.json"
+        if not index_path.exists():
+            pytest.skip("Production index not built")
+
+        with open(index_path) as f:
+            idx = json.load(f)
+
+        assert "accounting" in idx["domains"], (
+            "accounting domain not in production index"
+        )
+        acct = idx["domains"]["accounting"]
+
+        assert len(acct["principles"]) == 12, (
+            f"Expected 12 accounting principles, got {len(acct['principles'])}"
+        )
+
+        series_codes = {
+            p["series_code"] for p in acct["principles"] if p.get("series_code")
+        }
+        assert series_codes == {"LE", "EC", "TC", "RC"}, (
+            f"Expected series codes {{LE, EC, TC, RC}}, got {series_codes}"
+        )
+
+        assert "S" not in series_codes, (
+            "Accounting must not have S-Series (reserved for constitution safety veto)"
+        )
+
+    def test_accounting_principle_ids_correct_format(self):
+        """All accounting principle IDs should start with 'acct-'."""
+        index_path = Path(__file__).parent.parent / "index" / "global_index.json"
+        if not index_path.exists():
+            pytest.skip("Production index not built")
+
+        with open(index_path) as f:
+            idx = json.load(f)
+
+        acct = idx["domains"]["accounting"]
+        for p in acct["principles"]:
+            assert p["id"].startswith("acct-"), (
+                f"Accounting principle ID '{p['id']}' should start with 'acct-'"
+            )
+            assert "safety" not in p["id"], (
+                f"Accounting principle '{p['id']}' has 'safety' in ID — category mapping collision"
+            )
+
+    def test_accounting_methods_extracted(self):
+        """Production index should contain accounting methods."""
+        index_path = Path(__file__).parent.parent / "index" / "global_index.json"
+        if not index_path.exists():
+            pytest.skip("Production index not built")
+
+        with open(index_path) as f:
+            idx = json.load(f)
+
+        acct = idx["domains"]["accounting"]
+        assert len(acct["methods"]) >= 20, (
+            f"Expected >=20 accounting methods, got {len(acct['methods'])}"
+        )
+
+        for m in acct["methods"]:
+            assert m["id"].startswith("acct-method-"), (
+                f"Method ID '{m['id']}' should start with 'acct-method-'"
+            )

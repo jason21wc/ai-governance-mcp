@@ -1002,6 +1002,21 @@ class DocumentExtractor:
             "people development principle": "people-development",
             "qa-series": "quality-assurance",
             "quality assurance principle": "quality-assurance",
+            # Accounting series mapping
+            # IMPORTANT: le-series MUST come before e-series (substring collision)
+            # IMPORTANT: ec-series, tc-series, rc-series MUST come before c-series
+            # IMPORTANT: rc-series MUST come before r-series
+            "le-series": "ledger-integrity",
+            "ledger integrity principle": "ledger-integrity",
+            "ec-series": "entity-classification",
+            "entity & classification principle": "entity-classification",
+            "entity classification principle": "entity-classification",
+            "tc-series": "temporal-compliance",
+            "temporal & compliance principle": "temporal-compliance",
+            "temporal compliance principle": "temporal-compliance",
+            "rc-series": "reconciliation-controls",
+            "reconciliation & controls principle": "reconciliation-controls",
+            "reconciliation controls principle": "reconciliation-controls",
             # Series-based mapping (ai-coding domain)
             "c-series": "context",
             "context principle": "context",
@@ -1139,6 +1154,10 @@ class DocumentExtractor:
                     "tl-series",
                     "pd-series",
                     "qa-series",
+                    "le-series",
+                    "ec-series",
+                    "tc-series",
+                    "rc-series",
                 ]
                 all_series_tokens = set(_static_series) | set(dynamic_header_tokens)
                 is_series_header = any(s in section_text for s in all_series_tokens)
@@ -1290,6 +1309,14 @@ class DocumentExtractor:
                     "training & learning principles",
                     "people development principles",
                     "quality assurance principles",
+                    "le-series:",
+                    "ec-series:",
+                    "tc-series:",
+                    "rc-series:",
+                    "ledger integrity principles",
+                    "entity & classification principles",
+                    "temporal & compliance principles",
+                    "reconciliation & controls principles",
                 ]
                 skip_keywords = list(set(_static_skip) | set(dynamic_skip_entries))
                 if any(kw in title.lower() for kw in skip_keywords):
@@ -1377,6 +1404,7 @@ class DocumentExtractor:
         "multimodal-rag": "mrag",
         "ui-ux": "uiux",
         "kmpd": "kmpd",
+        "accounting": "acct",
     }
 
     # Category → series code mapping, keyed by (domain, category).
@@ -1433,6 +1461,11 @@ class DocumentExtractor:
         ("kmpd", "people"): "PD",
         ("kmpd", "quality-assurance"): "QA",
         ("kmpd", "quality"): "QA",
+        # Accounting — LE/EC/TC/RC series
+        ("accounting", "ledger-integrity"): "LE",
+        ("accounting", "entity-classification"): "EC",
+        ("accounting", "temporal-compliance"): "TC",
+        ("accounting", "reconciliation-controls"): "RC",
     }
 
     _SERIES_HEADER_RE = re.compile(

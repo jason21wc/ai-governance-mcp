@@ -37,15 +37,7 @@
 
 ### Active (Implement Now/Soon)
 
-#### 162. Accounting Domain `D3 New Capability`
-
-**Filed:** 2026-05-12 (session-168).
-
-**What:** Governance domain for accounting work — principles and methods covering double-entry integrity, reconciliation patterns, chart of accounts design, audit trail requirements, GAAP/cash-vs-accrual considerations, financial data security, and API integration patterns for financial systems. Evidence base: accounting standards (GAAP, IFRS), open-source accounting projects, QuickBooks/financial API ecosystems.
-
-**Why domain (not project):** Generalizable principles that apply across multiple projects — QuickBooks connector, open-source ledger tools, invoicing systems, tax prep workflows, financial reporting. The QuickBooks integration is the first project that would consume this domain.
-
-**Discussion needed:** Scope candidate principles and methods, evidence base review, failure mode identification. Full planning process per COMPLETION-CHECKLIST domain creation.
+*(No active items.)*
 
 ---
 

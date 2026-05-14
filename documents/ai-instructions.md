@@ -1,14 +1,14 @@
 ---
-version: "4.0.5"
+version: "4.0.6"
 status: "active"
-effective_date: "2026-05-11"
+effective_date: "2026-05-14"
 domain: "meta"
 governance_level: "framework-activation"
 ---
 
 # AI Governance Framework Activation
 
-**Version:** 4.0.5
+**Version:** 4.0.6
 **Purpose:** Loader document that activates the governance framework for AI sessions.
 **Updated:** 2026-05-11
 
@@ -29,6 +29,7 @@ Read and follow constitution.md as the governing constitution for all behavior.
 - Code files, build configs, development specs → AI Coding domain (`title-10-ai-coding`)
 - UI design, accessibility, responsive layouts → UI/UX domain (`title-15-ui-ux`)
 - Multiple AI agents, delegation, orchestration → Multi-Agent domain (`title-20-multi-agent`)
+- Financial record-keeping, bookkeeping, reconciliation → Accounting domain (`title-22-accounting`)
 - Knowledge bases, SOPs, training materials → KM&PD domain (`title-25-kmpd`)
 - Creative writing, narrative structure, dialogue → Storytelling domain (`title-30-storytelling`)
 - Image retrieval, visual presentation, multimodal → Multimodal RAG domain (`title-40-multimodal-rag`)
@@ -180,6 +181,8 @@ This loader is designed for use with:
 - title-15-ui-ux.md v1.2.2+
 - title-15-ui-ux-cfr.md v1.1.0+
 - title-25-kmpd.md v1.4.2+
+- title-22-accounting.md v1.0.0+
+- title-22-accounting-cfr.md v1.0.0+
 - title-25-kmpd-cfr.md v1.2.0+
 - title-40-multimodal-rag.md v2.4.3+
 - title-40-multimodal-rag-cfr.md v2.1.3+
@@ -191,6 +194,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.0.6 | 2026-05-14 | PATCH: Added accounting domain detection entry (`title-22-accounting`). Added `title-22-accounting.md v1.0.0+` and `title-22-accounting-cfr.md v1.0.0+` to document_versions. PATCH-on-new-domain per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.5 | 2026-05-11 | PATCH: title-20-multi-agent-cfr.md pin update v2.17.3+ → v2.18.0+ for Agent Definition SSOT + list_agents cross-platform discovery tool. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.4 | 2026-05-11 | PATCH: title-10-ai-coding-cfr.md pin update v2.45.0+ → v2.45.1+ for Appendix M.3 Prompt Master (cross-tool prompt generation skill, nidhinjs/prompt-master MIT v1.6.0). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.3 | 2026-05-10 | PATCH: title-10-ai-coding-cfr.md pin update v2.44.0+ → v2.45.0+ for Title 10 AI Agent Operations Governance (4 new Parts, ~700 lines). title-10-ai-coding.md pin update v2.8.0+ → v2.8.1+ for Out of Scope scope clarification. §5.6.4 ASI08 name fix: "Multi-Agent Trust Exploitation" → "Cascading Hallucination Chains" per canonical OWASP source. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. |

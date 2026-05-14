@@ -191,10 +191,10 @@ class TestEnvironmentOverrides:
 class TestDefaultDomains:
     """Test default domain configurations."""
 
-    def test_seven_default_domains(self):
-        """Should have all 7 domains: constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd."""
+    def test_eight_default_domains(self):
+        """Should have all 8 domains: constitution, ai-coding, multi-agent, storytelling, multimodal-rag, ui-ux, kmpd, accounting."""
         domains = _default_domains()
-        assert len(domains) == 7
+        assert len(domains) == 8
         names = [d.name for d in domains]
         assert "constitution" in names
         assert "ai-coding" in names
@@ -203,6 +203,7 @@ class TestDefaultDomains:
         assert "multimodal-rag" in names
         assert "ui-ux" in names
         assert "kmpd" in names
+        assert "accounting" in names
 
     def test_constitution_highest_priority(self):
         """Constitution should have priority 0."""
@@ -1022,7 +1023,7 @@ class TestPrincipleIdStability:
     """
 
     def test_existing_domain_prefixes_unchanged(self):
-        """Frontmatter prefix values must match DOMAIN_PREFIXES for all 7 domains."""
+        """Frontmatter prefix values must match DOMAIN_PREFIXES for all 8 domains."""
         docs_path = Path(__file__).parent.parent / "documents"
 
         from ai_governance_mcp.config import _parse_frontmatter

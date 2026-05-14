@@ -76,6 +76,7 @@ Domains are **modular and self-describing**. The system discovers domains automa
 | **Multimodal RAG** | 32 | 64 | Image retrieval, visual presentation, agentic retrieval |
 | **UI/UX** | 20 | 43 | Visual hierarchy, accessibility, interaction design |
 | **KM&PD** | 10 | 40 | Knowledge management, people development, training |
+| **Accounting** | 12 | 29 | Double-entry bookkeeping, reconciliation, tax prep, QBO integration |
 
 <details>
 <summary><b>Adding a custom domain</b></summary>
@@ -527,7 +528,7 @@ safety check    # check for known vulnerabilities
 - [ ] Governance effectiveness measurement (see [BACKLOG.md](BACKLOG.md) #22 for scope)
 
 **Content**
-- [x] 7 shipped domains + modular custom domain support (drop in `title-NN-name.md`, rebuild index)
+- [x] 8 shipped domains + modular custom domain support (drop in `title-NN-name.md`, rebuild index)
 - [ ] Visual communication domain (presentations, reports, print design — see BACKLOG #6)
 - [ ] Autonomous operations domain (see BACKLOG #11)
 

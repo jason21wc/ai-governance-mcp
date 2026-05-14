@@ -58,7 +58,7 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 - **Pluggable connectors** -- Code (tree-sitter), markdown/text, PDF, spreadsheet, image metadata
 - **`.contextignore` support** -- Same syntax as `.gitignore`
 
-### Governance Framework (7 domains — see README.md for current counts)
+### Governance Framework (8 domains — see README.md for current counts)
 
 | Domain | Coverage |
 |--------|----------|
@@ -66,6 +66,7 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 | AI Coding | Software development, testing, deployment |
 | UI/UX | Interface design, accessibility, responsive design |
 | Multi-Agent | Agent orchestration, handoffs, evaluation |
+| Accounting | Financial record-keeping, reconciliation, tax prep, QBO integration |
 | Storytelling | Creative writing, narrative, voice preservation |
 | Multimodal RAG | Image retrieval, visual presentation |
 | KM&PD | Knowledge management, people development, training |
@@ -115,7 +116,7 @@ Loading full governance documents (~55K+ tokens) into context is wasteful and of
 | **Python** | 3.10+ required (type hint syntax) |
 | **Transport** | MCP stdio transport (JSON-RPC over stdin/stdout) |
 | **Docker** | AMD64 architecture only |
-| **Index size** | See `tests/benchmarks/` for current totals across 7 domains |
+| **Index size** | See `tests/benchmarks/` for current totals across 8 domains |
 | **Embedding model** | BAAI/bge-small-en-v1.5, 384 dimensions, 512 token limit |
 | **Rate limits** | `index_project` capped at 5 requests/minute |
 | **Stdout** | Reserved for JSON-RPC; all logging to stderr |

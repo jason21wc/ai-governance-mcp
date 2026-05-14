@@ -520,6 +520,20 @@ def _default_domains() -> list[DomainConfig]:
             ),
             priority=25,
         ),
+        DomainConfig(
+            name="accounting",
+            display_name="Accounting",
+            principles_file="title-22-accounting.md",
+            methods_file="title-22-accounting-cfr.md",
+            description=(
+                "Financial record-keeping, reporting, and compliance with AI assistance. "
+                "Double-entry bookkeeping, journal entries, account reconciliation, chart of "
+                "accounts management, financial statements, depreciation, tax preparation "
+                "support, audit trail integrity, and accounting API integrations. Covers "
+                "small, medium, and large business contexts."
+            ),
+            priority=22,
+        ),
     ]
 
 

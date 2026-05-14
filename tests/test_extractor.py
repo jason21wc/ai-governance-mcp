@@ -2426,6 +2426,26 @@ class TestCategoryMappingSubstringCollisions:
                     "training",
                     "tl-series vs l-series (if added)",
                 ),
+                (
+                    "le-series: ledger integrity",
+                    "ledger-integrity",
+                    "le-series vs e-series",
+                ),
+                (
+                    "ec-series: entity classification",
+                    "entity-classification",
+                    "ec-series vs c-series",
+                ),
+                (
+                    "tc-series: temporal compliance",
+                    "temporal-compliance",
+                    "tc-series vs c-series",
+                ),
+                (
+                    "rc-series: reconciliation controls",
+                    "reconciliation-controls",
+                    "rc-series vs c-series/r-series",
+                ),
             ]
 
             for header, expected, description in collision_tests:
@@ -3002,3 +3022,224 @@ Safety content.
         assert result["C"] == "core"
         assert result["Q"] == "quality"
         assert result["S"] == "safety"
+
+
+# =============================================================================
+# Accounting Domain Tests
+# =============================================================================
+
+
+class TestGetDomainPrefixAccounting:
+    """Tests for _get_domain_prefix() with accounting domain."""
+
+    def test_get_domain_prefix_accounting(self, test_settings, sample_domains_json):
+        """Should return 'acct' for accounting domain."""
+        with patch("sentence_transformers.SentenceTransformer"):
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor(test_settings)
+            prefix = extractor._get_domain_prefix("accounting")
+
+            assert prefix == "acct"
+
+
+class TestAccountingCategorySeriesMap:
+    """Tests for accounting domain entries in CATEGORY_SERIES_MAP."""
+
+    def test_accounting_le_series(self):
+        """LE-Series should map ('accounting', 'ledger-integrity') -> 'LE'."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        assert m.get(("accounting", "ledger-integrity")) == "LE"
+
+    def test_accounting_ec_series(self):
+        """EC-Series should map ('accounting', 'entity-classification') -> 'EC'."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        assert m.get(("accounting", "entity-classification")) == "EC"
+
+    def test_accounting_tc_series(self):
+        """TC-Series should map ('accounting', 'temporal-compliance') -> 'TC'."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        assert m.get(("accounting", "temporal-compliance")) == "TC"
+
+    def test_accounting_rc_series(self):
+        """RC-Series should map ('accounting', 'reconciliation-controls') -> 'RC'."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        assert m.get(("accounting", "reconciliation-controls")) == "RC"
+
+    def test_accounting_no_s_series_collision(self):
+        """Accounting domain must not have any S-Series mappings."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        accounting_codes = {
+            code for (domain, _), code in m.items() if domain == "accounting"
+        }
+        assert "S" not in accounting_codes, (
+            "Accounting domain must not map to S-Series (reserved for constitution safety)"
+        )
+        assert accounting_codes == {"LE", "EC", "TC", "RC"}, (
+            f"Unexpected accounting series codes: {accounting_codes}"
+        )
+
+    def test_accounting_all_four_series_present(self):
+        """All 4 accounting series should be present in the map."""
+        from ai_governance_mcp.extractor import DocumentExtractor
+
+        m = DocumentExtractor.CATEGORY_SERIES_MAP
+        expected = {
+            ("accounting", "ledger-integrity"): "LE",
+            ("accounting", "entity-classification"): "EC",
+            ("accounting", "temporal-compliance"): "TC",
+            ("accounting", "reconciliation-controls"): "RC",
+        }
+        for key, expected_code in expected.items():
+            assert m.get(key) == expected_code, (
+                f"{key} should map to {expected_code!r}, got {m.get(key)!r}"
+            )
+
+
+class TestAccountingPrincipleExtraction:
+    """Tests for accounting domain principle extraction from document."""
+
+    def test_accounting_principle_extraction_sample(self, tmp_path):
+        """Sample accounting principles should extract with correct series codes."""
+        docs_path = tmp_path / "documents"
+        docs_path.mkdir()
+
+        content = """\
+---
+version: "1.0.0"
+status: "active"
+effective_date: "2026-05-14"
+domain: "accounting"
+prefix: "acct"
+display_name: "Accounting"
+description: "Financial record-keeping."
+priority: 22
+governance_level: "federal-statute"
+---
+
+# Accounting Domain Principles
+
+## LE-Series: Ledger Integrity Principles
+
+### LE1: Double-Entry Balance Invariant
+
+**Definition**
+Every financial transaction must balance.
+
+**How the AI Applies This Principle**
+- Pre-post verification
+
+**Constitutional Basis:** Verification & Validation
+
+## EC-Series: Entity & Classification Principles
+
+### EC5: Entity & Fund Isolation
+
+**Definition**
+Separate entities must have separate books.
+
+**How the AI Applies This Principle**
+- Entity verification before posting
+
+**Constitutional Basis:** Non-Maleficence
+
+## TC-Series: Temporal & Compliance Principles
+
+### TC8: Temporal Authority
+
+**Definition**
+Fiscal periods govern when transactions are recorded.
+
+**How the AI Applies This Principle**
+- Period verification before posting
+
+**Constitutional Basis:** Explicit Over Implicit
+
+## RC-Series: Reconciliation & Controls Principles
+
+### RC11: Reconciliation Checkpoint
+
+**Definition**
+Books must match external reality.
+
+**How the AI Applies This Principle**
+- Systematic matching
+
+**Constitutional Basis:** Verification & Validation
+"""
+
+        principles_file = docs_path / "title-22-accounting.md"
+        principles_file.write_text(content)
+
+        domains_json = docs_path / "domains.json"
+        domains_json.write_text(
+            '{"accounting": {"name": "accounting", "display_name": "Accounting", '
+            '"principles_file": "title-22-accounting.md", '
+            '"description": "Financial record-keeping", "priority": 22}}'
+        )
+
+        from ai_governance_mcp.config import Settings
+
+        settings = Settings(
+            documents_path=docs_path,
+            index_path=tmp_path / "index",
+        )
+        (tmp_path / "index").mkdir()
+
+        with patch("sentence_transformers.SentenceTransformer") as mock_st:
+            import numpy as np
+
+            mock_model = mock_st.return_value
+            mock_model.encode.side_effect = lambda texts, **kwargs: np.random.rand(
+                len(texts), 384
+            )
+
+            from ai_governance_mcp.extractor import DocumentExtractor
+
+            extractor = DocumentExtractor(settings)
+            extractor.domains = [
+                type(
+                    "DomainConfig",
+                    (),
+                    {
+                        "name": "accounting",
+                        "display_name": "Accounting",
+                        "principles_file": "title-22-accounting.md",
+                        "methods_file": None,
+                        "description": "Financial record-keeping",
+                        "priority": 22,
+                    },
+                )()
+            ]
+            principles = extractor._extract_principles(extractor.domains[0])
+
+        assert len(principles) >= 4, (
+            f"Expected at least 4 principles, got {len(principles)}"
+        )
+
+        series_codes = {p.series_code for p in principles if p.series_code}
+        assert "LE" in series_codes, f"LE not found in series codes: {series_codes}"
+        assert "EC" in series_codes, f"EC not found in series codes: {series_codes}"
+        assert "TC" in series_codes, f"TC not found in series codes: {series_codes}"
+        assert "RC" in series_codes, f"RC not found in series codes: {series_codes}"
+
+        for p in principles:
+            assert p.id.startswith("acct-"), (
+                f"Principle ID '{p.id}' should start with 'acct-'"
+            )
+
+        # S-Series safety guard
+        for p in principles:
+            assert p.series_code != "S", (
+                f"Accounting principle '{p.id}' has S-Series code — safety veto reserved for constitution"
+            )

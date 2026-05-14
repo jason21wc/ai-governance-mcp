@@ -122,10 +122,12 @@ ai-governance-mcp/
 │   ├── rules-of-procedure.md  # Meta-Methods (governance procedures)
 │   ├── title-10-ai-coding.md  # Domain principles (Federal Statutes)
 │   ├── title-10-ai-coding-cfr.md # Domain methods (Code of Federal Regs)
-│   ├── title-15-ui-ux.md      # ... (6 domains × 2 files = 12 domain docs)
+│   ├── title-15-ui-ux.md      # ... (7 domains × 2 files = 14 domain docs)
 │   ├── title-15-ui-ux-cfr.md
 │   ├── title-20-multi-agent.md
 │   ├── title-20-multi-agent-cfr.md
+│   ├── title-22-accounting.md
+│   ├── title-22-accounting-cfr.md
 │   ├── title-25-kmpd.md
 │   ├── title-25-kmpd-cfr.md
 │   ├── title-30-storytelling.md
@@ -477,7 +479,7 @@ Current metrics (see `tests/benchmarks/` for latest baseline, model: `BAAI/bge-s
 | Method Recall@10 | 0.833 | >= 0.75 | Pass |
 | Principle Recall@10 | 0.875 | >= 0.85 | Pass |
 
-**Methodology:** 8 principle + 12 method benchmark queries covering all 7 domains. Each query has expected top results. MRR measures average reciprocal rank of first correct result. Recall@10 measures whether the correct result appears in top 10. Canonical source: `tests/benchmarks/`.
+**Methodology:** 13 principle + 12 method benchmark queries covering 4 of 8 domains (constitution, ai-coding, multi-agent, accounting). Each query has expected top results. MRR measures average reciprocal rank of first correct result. Recall@10 measures whether the correct result appears in top 10. Canonical source: `tests/benchmarks/`.
 
 ### Hybrid Search Validation
 
