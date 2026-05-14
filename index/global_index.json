@@ -11428,7 +11428,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-14T13:03:15.705714+00:00",
+      "last_extracted": "2026-05-14T13:09:20.247894+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -24686,6 +24686,57 @@
       ],
       "references": [
         {
+          "id": "ref-ai-coding-ai-elements-registry-install",
+          "domain": "ai-coding",
+          "title": "Vercel AI Elements: shadcn/ui Registry Install Pattern for Chat UI",
+          "summary": "Install pattern for Vercel AI Elements chat components via shadcn/ui registry \u2014 source-copied (not npm), post-install cleanup required (remove unused plugins), integrates with existing useChat hook",
+          "content": "## Context\n\nUse when building chat UIs with Vercel AI SDK v6+. AI Elements provides pre-built message rendering, prompt input, and code block components that work with the same useChat hook. Key advantage: zero integration friction if already using AI SDK. Components are Apache 2.0, source-copied into your project (you own the code). Selected over assistant-ui (adds unnecessary runtime abstraction) and react-markdown (doesn't handle streaming incomplete markdown well).\n\n## Artifact\n\n## Install Commands\n\n```bash\n# 1. Install npm dependencies\nnpm install streamdown @streamdown/code shiki use-stick-to-bottom\n\n# 2. Install AI Elements components via registry (copies source files)\nnpx shadcn@latest add https://elements.ai-sdk.dev/api/registry/message.json\nnpx shadcn@latest add https://elements.ai-sdk.dev/api/registry/prompt-input.json\nnpx shadcn@latest add https://elements.ai-sdk.dev/api/registry/code-block.json\n```\n\n## Post-Install Cleanup (REQUIRED)\n\nThe registry installs unused plugins by default. In the generated `message.tsx`:\n\n1. Remove `@streamdown/mermaid` import and `mermaid` key from `streamdownPlugins` (eliminates dangerouslySetInnerHTML, removes ~2MB mermaid dep from bundle)\n2. Remove `@streamdown/math` import and `math` key (eliminates KaTeX dep)\n3. Remove `@streamdown/cjk` import if not needed\n4. Only keep `@streamdown/code` (shiki syntax highlighting)\n\n## Tighten rehype-harden Config\n\nOverride wildcard defaults in your local `message.tsx`:\n\n```typescript\n// In the Streamdown component props or wrapper\nconst hardenConfig = {\n  allowedLinkPrefixes: [\"https://\"],\n  allowedImagePrefixes: [\"https://your-supabase-url.supabase.co/\"],\n  allowedProtocols: [\"https:\", \"mailto:\"],\n  allowDataImages: false,\n  defaultOrigin: \"https://your-app.vercel.app\",\n};\n```\n\n## Integration with Existing useChat\n\nAI Elements uses the same `useChat` from `@ai-sdk/react`. No transport changes needed:\n\n```typescript\nconst { messages, input, handleSubmit, ... } = useChat({\n  transport: new DefaultChatTransport({\n    api: '/api/chat',\n    body: { conversationId }, // custom body still works\n  }),\n});\n```\n\n## Security Rules\n\n- Render user messages with `<MessageContent>` (plain text)\n- Render AI responses with `<MessageResponse>` (streamdown markdown)\n- NEVER pass user messages through `<MessageResponse>`/`<Streamdown>`\n- Configure shiki to load only needed languages (~8, not all 200+)\n- Pin `use-stick-to-bottom` to exact version (single maintainer package)\n\n## What You Get\n\n- `message.tsx` \u2192 Message component with streamdown markdown, code highlighting\n- `prompt-input.tsx` \u2192 Auto-resizing textarea with shift+enter support\n- `code-block.tsx` \u2192 Syntax-highlighted code blocks with copy button\n- Components go to `src/components/` (or your shadcn components path)\n- Source files committed to git \u2014 you own them, no auto-updates\n\n## Lessons Learned\n\n1. The registry declares more npm deps than you need (mermaid, math, cjk) \u2014 always review and trim post-install. 2. Components are source-copied, meaning security patches require manual re-install \u2014 track upstream versions. 3. No integrity verification on registry content (standard for shadcn pattern) \u2014 review generated source before committing. 4. Mermaid uses dangerouslySetInnerHTML for SVG rendering \u2014 removing the plugin eliminates this attack vector entirely. 5. use-stick-to-bottom has a single maintainer (samdd@StackBlitz) and zero deps \u2014 consider vendoring the ~200-line hook for supply chain safety.\n\n## Cross-References\n\n- Principles: [relevant principle IDs]\n- Methods: [relevant method section refs]\n- See also: [related entry IDs]",
+          "tags": [
+            "vercel-ai-sdk",
+            "shadcn",
+            "nextjs",
+            "chat-ui",
+            "registry",
+            "streaming",
+            "react"
+          ],
+          "status": "current",
+          "maturity": "seedling",
+          "entry_type": "direct",
+          "decay_class": "framework",
+          "created": "2026-05-14",
+          "last_verified": "2026-05-14",
+          "source": "Captured via capture_reference tool",
+          "supersedes": [],
+          "superseded_by": null,
+          "related": [],
+          "source_path": "reference-library/ai-coding/ref-ai-coding-ai-elements-registry-install.md",
+          "metadata": {
+            "keywords": [
+              "vercel",
+              "elements:",
+              "shadcn/ui",
+              "registry",
+              "install",
+              "pattern",
+              "chat"
+            ],
+            "trigger_phrases": [],
+            "purpose_keywords": [
+              "chat-ui",
+              "vercel-ai-sdk",
+              "streaming",
+              "registry",
+              "react",
+              "shadcn",
+              "nextjs"
+            ],
+            "applies_to": [],
+            "guideline_keywords": []
+          },
+          "embedding_id": 531
+        },
+        {
           "id": "ref-ai-coding-autoresearch-pattern",
           "domain": "ai-coding",
           "title": "Karpathy's Autoresearch: Autonomous Agent Experimentation Pattern",
@@ -24728,16 +24779,16 @@
               "termination conditions"
             ],
             "purpose_keywords": [
-              "experimentation",
               "program-md",
               "autonomous-operation",
+              "overnight-agents",
               "research-protocol",
-              "overnight-agents"
+              "experimentation"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 531
+          "embedding_id": 532
         },
         {
           "id": "ref-ai-coding-collier-elegance-equation",
@@ -24755,16 +24806,18 @@
             "efficiency"
           ],
           "status": "current",
-          "maturity": "emerging",
+          "maturity": "budding",
           "entry_type": "reference",
           "decay_class": "stable",
           "created": "2026-04-26",
-          "last_verified": "2026-04-26",
+          "last_verified": "2026-05-14",
           "source": "Working paper authored within this project",
           "supersedes": [],
           "superseded_by": null,
           "related": [
-            "ref-ai-coding-willison-hoard-pattern"
+            "ref-ai-coding-willison-hoard-pattern",
+            "ref-ai-coding-hybrid-ui-architecture-decision",
+            "ref-ai-coding-re-evaluation-protocol-case-study"
           ],
           "source_path": "reference-library/ai-coding/ref-ai-coding-collier-elegance-equation.md",
           "metadata": {
@@ -24784,18 +24837,88 @@
               "constitutional principle:"
             ],
             "purpose_keywords": [
-              "elegance",
-              "multiplicative",
-              "ranking",
-              "effectiveness",
-              "efficiency",
+              "joint-quality",
               "solution-comparison",
-              "joint-quality"
+              "multiplicative",
+              "elegance",
+              "ranking",
+              "efficiency",
+              "effectiveness"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 532
+          "embedding_id": 533
+        },
+        {
+          "id": "ref-ai-coding-hybrid-ui-architecture-decision",
+          "domain": "ai-coding",
+          "title": "Hybrid UI Architecture: When to Adopt Components vs Build Custom",
+          "summary": "Decision framework for hybrid UI architecture \u2014 keep custom backend + adopt open-source UI components. Applied at Week 16+ velocity inflection in ai-expert project. Includes evaluation criteria, platform comparison, and structural reasoning.",
+          "content": "## Context\n\nUse when a project reaches a velocity inflection point where commodity UI work is blocking differentiated features. The hybrid pattern works when: (1) the backend has unique requirements that no off-the-shelf solution provides (multi-tenant RLS, custom auth, domain-specific pipeline), (2) the frontend has commodity components available (chat rendering, code highlighting, markdown), (3) the component library shares the same framework/stack (shadcn/ui compatibility). This pattern does NOT work when the frontend IS the differentiation (design-heavy products, novel interaction patterns).\n\n## Artifact\n\n## Decision Framework\n\n### When Hybrid UI Makes Sense\n\n| Signal | Threshold |\n|--------|-----------|\n| Project age | Week 7+ (velocity dissipation window) |\n| Custom backend requirements | \u22653 features no platform provides |\n| UI commodity ratio | >50% of remaining UI work is \"standard chat UX\" |\n| Component library compatibility | Same framework + design system |\n| License | Apache 2.0, MIT, or BSD (SaaS-compatible) |\n\n### Evaluation Method (Applied)\n\n1. **Re-evaluation Protocol** \u2014 Reframe (break anchor bias), Generate alternatives (\u22653), Challenge (contrarian review), Evaluate (structured scoring)\n2. **Elegance Equation** \u2014 Score = Effectiveness (0-10) \u00d7 Efficiency (0-10). Multiplicative, not additive \u2014 a 9\u00d73=27 loses to a 7\u00d77=49. Penalizes imbalanced solutions.\n3. **Three-subagent review** \u2014 Code reviewer (integration feasibility), Contrarian reviewer (challenge assumptions), Security auditor (supply chain + XSS surface)\n\n### Platform Comparison (AI Chat SaaS, 2026-05)\n\n| Platform | License | Backend | Multi-Tenant RLS | Verdict |\n|----------|---------|---------|-------------------|---------|\n| Open WebUI | Custom (restrictive) | Python | No | Rejected: license, wrong stack |\n| LibreChat | MIT | Node.js + MongoDB | No | Rejected: MongoDB, no RLS |\n| LobeChat | Restrictive for SaaS | Next.js | No | Rejected: license |\n| AnythingLLM | MIT | Node.js | No | Rejected: no multi-tenancy |\n| Chatbot UI | MIT | Next.js + Supabase | Partial | Rejected: stalled, no governance |\n| Onyx | Apache 2.0 | Python | No | Rejected: search-first, wrong paradigm |\n| Tiledesk | MIT | Node.js | Partial | Rejected: support-focused, not expert chat |\n\n**Conclusion:** No open-source platform supports multi-tenant RLS + 3-layer expert system + governance gateway. Custom backend is structurally required. UI is where commodity components add value.\n\n### Component Library Comparison\n\n| Library | License | Pattern | Integration Friction |\n|---------|---------|---------|---------------------|\n| AI Elements | Apache 2.0 | shadcn/ui registry (source copy) | Zero (same team as AI SDK) |\n| assistant-ui | MIT | Headless primitives + runtime | Low (but adds abstraction layer) |\n| react-markdown | MIT | Component library | Medium (doesn't handle streaming well) |\n\n### Scoring (Elegance Equation)\n\n| Option | Effectiveness | Efficiency | Score |\n|--------|--------------|------------|-------|\n| Fully Custom | 8 | 3 | 45 (high capability, slow velocity) |\n| Platform Fork | 3 | 5 | 15 (low fit, moderate speed) |\n| Hybrid (AI Elements) | 8 | 9 | 72 (high fit, high speed) |\n\n## Key Structural Insight\n\n\"The real question is not whether custom is better, but whether the delta justifies the velocity cost.\" Custom UI scores higher on theoretical effectiveness (10 vs 8) but the 2-point delta doesn't justify 3x the implementation time. The hybrid approach reaches \"good enough\" UI quality while freeing velocity for the features that actually differentiate the product.\n\n## Lessons Learned\n\n1. Anchor bias toward sunk cost is the #1 risk at velocity inflection points \u2014 the Re-evaluation Protocol breaks it by forcing structured alternatives. 2. No open-source AI chat platform (as of 2026-05) supports multi-tenant RLS \u2014 if you need database-enforced isolation, the backend must be custom. 3. The shadcn/ui registry pattern (source copy) eliminates the dependency management tradeoff \u2014 you get the code without the update risk. 4. Contrarian review was essential \u2014 it surfaced real issues (shiki bundle size, missing server actions, old message rendering delta) that pure analysis missed. 5. The Elegance Equation's multiplicative property correctly penalized the \"very effective but slow\" custom approach \u2014 additive scoring would have obscured this.\n\n## Cross-References\n\n- Principles: [relevant principle IDs]\n- Methods: [relevant method section refs]\n- See also: [related entry IDs]",
+          "tags": [
+            "architecture",
+            "build-vs-buy",
+            "decision-framework",
+            "velocity",
+            "component-libraries",
+            "saas"
+          ],
+          "status": "current",
+          "maturity": "seedling",
+          "entry_type": "direct",
+          "decay_class": "framework",
+          "created": "2026-05-14",
+          "last_verified": "2026-05-14",
+          "source": "Captured via capture_reference tool",
+          "supersedes": [],
+          "superseded_by": null,
+          "related": [],
+          "source_path": "reference-library/ai-coding/ref-ai-coding-hybrid-ui-architecture-decision.md",
+          "metadata": {
+            "keywords": [
+              "hybrid",
+              "architecture:",
+              "when",
+              "adopt",
+              "components",
+              "build",
+              "custom"
+            ],
+            "trigger_phrases": [
+              "re-evaluation protocol",
+              "elegance equation",
+              "three-subagent review",
+              "conclusion:"
+            ],
+            "purpose_keywords": [
+              "saas",
+              "build-vs-buy",
+              "velocity",
+              "architecture",
+              "decision-framework",
+              "component-libraries"
+            ],
+            "applies_to": [],
+            "guideline_keywords": [
+              "when",
+              "hybrid",
+              "makes",
+              "evaluation",
+              "method",
+              "(applied)",
+              "platform",
+              "comparison",
+              "chat",
+              "component",
+              "library",
+              "comparison",
+              "scoring",
+              "(elegance",
+              "equation)"
+            ]
+          },
+          "embedding_id": 534
         },
         {
           "id": "ref-ai-coding-mcp-server-testing",
@@ -24833,16 +24956,16 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "asyncio",
+              "testing",
               "mcp",
               "integration-testing",
               "tool-handlers",
-              "testing"
+              "asyncio"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 533
+          "embedding_id": 535
         },
         {
           "id": "ref-ai-coding-nextjs-middleware-auth-exemptions",
@@ -24885,17 +25008,17 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "api-routes",
-              "nextjs",
               "middleware",
-              "supabase",
+              "api-routes",
+              "routing",
               "auth",
-              "routing"
+              "nextjs",
+              "supabase"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 534
+          "embedding_id": 536
         },
         {
           "id": "ref-ai-coding-node-excel-generation",
@@ -24940,12 +25063,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "document-generation",
-              "exceljs",
-              "sheetjs",
-              "node",
               "excel",
-              "library-selection"
+              "exceljs",
+              "library-selection",
+              "node",
+              "sheetjs",
+              "document-generation"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -24959,7 +25082,7 @@
               "files"
             ]
           },
-          "embedding_id": 535
+          "embedding_id": 537
         },
         {
           "id": "ref-ai-coding-node-pdf-generation",
@@ -25008,14 +25131,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "document-generation",
-              "pdfkit",
-              "pdf",
-              "node",
               "jspdf",
-              "pdf-lib",
+              "library-selection",
+              "pdfkit",
+              "node",
+              "pdf",
               "puppeteer",
-              "library-selection"
+              "document-generation",
+              "pdf-lib"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25031,7 +25154,7 @@
               "comparison"
             ]
           },
-          "embedding_id": 536
+          "embedding_id": 538
         },
         {
           "id": "ref-ai-coding-playwright-auth-setup-pattern",
@@ -25074,17 +25197,17 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "nextjs",
               "supabase",
               "auth",
               "playwright",
+              "nextjs",
               "e2e-testing",
               "storage-state"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 537
+          "embedding_id": 539
         },
         {
           "id": "ref-ai-coding-pytest-fixture-patterns",
@@ -25127,17 +25250,17 @@
               "don't:"
             ],
             "purpose_keywords": [
+              "testing",
               "mocking",
-              "sentence-transformers",
+              "pytest",
               "mcp",
               "fixtures",
-              "pytest",
-              "testing"
+              "sentence-transformers"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 538
+          "embedding_id": 540
         },
         {
           "id": "ref-ai-coding-python-pdf-generation",
@@ -25179,13 +25302,13 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "document-generation",
-              "pdf",
-              "docker",
-              "reportlab",
               "weasyprint",
+              "library-selection",
+              "reportlab",
+              "docker",
               "python",
-              "library-selection"
+              "pdf",
+              "document-generation"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25198,7 +25321,126 @@
               "pattern"
             ]
           },
-          "embedding_id": 539
+          "embedding_id": 541
+        },
+        {
+          "id": "ref-ai-coding-re-evaluation-protocol-case-study",
+          "domain": "ai-coding",
+          "title": "Re-evaluation Protocol Applied: Breaking Anchor Bias at Velocity Inflection",
+          "summary": "Case study of applying the Re-evaluation Protocol (4 steps) at Week 16+ to break anchor bias toward custom-built UI \u2014 includes calibration questions, mode selection, lifecycle classification, and velocity dissipation check",
+          "content": "## Context\n\nUse when a project reaches a velocity inflection point and the current approach may no longer be optimal. The Re-evaluation Protocol is especially valuable when the team has significant sunk cost in the current approach, creating anchor bias. Applied alongside 7 other ai-coding planning methods to provide comprehensive governance coverage for a mid-project architectural pivot.\n\n## Artifact\n\n## Re-evaluation Protocol (4 Steps)\n\n### Step 1: Reframe\nStrip away sunk cost. Ask: \"If we were starting today with what we know now, would we build it this way?\"\n\n**Applied:** 16 weeks into ai-expert project, custom chat UI (message rendering, auto-scroll, code highlighting) was consuming cycles while RAG, governance, and billing waited. Reframing revealed: the custom UI work was commodity, not differentiation.\n\n### Step 2: Generate Alternatives (\u22653)\nForce at least 3 structurally different options. Don't allow \"current approach with tweaks\" to count.\n\n**Applied:**\n- Option A: Continue fully custom (status quo)\n- Option B: Fork an open-source platform (LibreChat, Open WebUI, etc.)\n- Option C: Hybrid \u2014 keep custom backend, adopt component library for UI\n\n### Step 3: Challenge (Contrarian Review)\nUse a contrarian reviewer to attack each option's assumptions.\n\n**Applied:** Contrarian reviewer found:\n- Option A anchor bias: \"we've already built X\" is sunk cost reasoning\n- Option B structural issues: no platform supports multi-tenant RLS\n- Option C risks: shiki bundle size, missing server actions, old message rendering delta\n\n### Step 4: Evaluate (Structured Scoring)\nUse Elegance Equation (Effectiveness \u00d7 Efficiency) \u2014 multiplicative to penalize imbalance.\n\n**Applied:** Custom=45, Fork=15, Hybrid=72. Hybrid wins structurally.\n\n## Companion Methods Applied\n\n| Method | Purpose | Result |\n|--------|---------|--------|\n| Calibration Questions (4) | Reconfirm project parameters | No change post-pivot |\n| Mode Selection Matrix | Assign governance mode per work category | STANDARD overall, ENHANCED for spike |\n| Lifecycle Classification | Set quality gates | Spike=PROTOTYPE, Integration=PRODUCTION |\n| Context Drift Detection | Find stale documentation | 6 of 7 docs had drift \u2192 remediated |\n| Velocity Dissipation | Check project lifecycle window | Week 16+ = architecture reset window |\n| Requirements Reconfirmation | Validate core requirements still hold | All 10 valid, 1 gap identified |\n| Three-Subagent Review | Independent validation | Code + Contrarian + Security auditors |\n\n## When to Trigger Re-evaluation\n\n- Week 7+ of project (velocity dissipation model)\n- >30% of sprint work is commodity (not differentiation)\n- Team finds themselves \"maintaining\" instead of \"building\"\n- New tools/libraries emerge that cover current custom work\n- Scope change that invalidates prior assumptions\n\n## Anti-Pattern: Partial Re-evaluation\n\nDon't just evaluate the new option \u2014 re-evaluate ALL options including the current one. The current approach gets an unfair advantage from familiarity bias if you only scrutinize the alternatives.\n\n## Lessons Learned\n\n1. The 4-step protocol works but requires discipline \u2014 Step 1 (Reframe) is the hardest because it requires admitting sunk cost. 2. Generating 3+ alternatives prevents binary thinking (keep vs switch) which misses hybrid options. 3. Contrarian review found actionable issues in the winning option (shiki, missing actions, rendering delta) \u2014 it's not just for rejecting ideas. 4. The velocity dissipation model correctly predicted Week 16+ as an architecture reset window. 5. Context drift detection found 6/7 documents were stale after the pivot decision \u2014 documentation must be updated before code changes. 6. Requirements reconfirmation revealed a gap (source citations now depend on streamdown) that would have been discovered late otherwise.\n\n## Cross-References\n\n- Principles: [relevant principle IDs]\n- Methods: [relevant method section refs]\n- See also: [related entry IDs]",
+          "tags": [
+            "decision-making",
+            "anchor-bias",
+            "velocity",
+            "governance",
+            "re-evaluation",
+            "planning"
+          ],
+          "status": "current",
+          "maturity": "seedling",
+          "entry_type": "direct",
+          "decay_class": "framework",
+          "created": "2026-05-14",
+          "last_verified": "2026-05-14",
+          "source": "Captured via capture_reference tool",
+          "supersedes": [],
+          "superseded_by": null,
+          "related": [],
+          "source_path": "reference-library/ai-coding/ref-ai-coding-re-evaluation-protocol-case-study.md",
+          "metadata": {
+            "keywords": [
+              "re-evaluation",
+              "protocol",
+              "applied:",
+              "breaking",
+              "anchor",
+              "bias",
+              "velocity",
+              "inflection"
+            ],
+            "trigger_phrases": [
+              "applied:",
+              "applied:",
+              "applied:",
+              "applied:"
+            ],
+            "purpose_keywords": [
+              "velocity",
+              "decision-making",
+              "planning",
+              "anchor-bias",
+              "governance",
+              "re-evaluation"
+            ],
+            "applies_to": [],
+            "guideline_keywords": [
+              "step",
+              "reframe",
+              "step",
+              "generate",
+              "alternatives",
+              "step",
+              "challenge",
+              "(contrarian",
+              "step",
+              "evaluate",
+              "(structured"
+            ]
+          },
+          "embedding_id": 542
+        },
+        {
+          "id": "ref-ai-coding-streamdown-sanitization-pipeline",
+          "domain": "ai-coding",
+          "title": "Streamdown Markdown Sanitization Pipeline for AI Chat",
+          "summary": "Streamdown's full sanitization pipeline for rendering AI-generated markdown safely \u2014 pipeline ordering, default schema, rehype-harden wildcard fix, user vs AI message separation",
+          "content": "## Context\n\nUse when rendering LLM-generated content as markdown in any web application. The key insight is that switching from plain text (whitespace-pre-wrap) to markdown rendering is a deliberate trade from \"XSS-impossible\" to \"XSS-mitigated via sanitization.\" The sanitization must never be bypassed. Streamdown handles this correctly by default, but the rehype-harden plugin ships with wildcard config that nullifies its URL-origin restrictions. RAG-injected content (document chunks containing HTML/script payloads) flows through the same pipeline \u2014 the sanitization handles it, but the safety depends on the plugin chain remaining intact.\n\n## Artifact\n\n## Streamdown Sanitization Pipeline (in order)\n\n```\n1. remark-parse          \u2192 Parses markdown to MDAST\n2. remark-gfm            \u2192 GFM support (tables, strikethrough)\n3. remark-rehype          \u2192 Converts to HAST (allowDangerousHtml: true)\n4. rehype-raw             \u2192 Re-parses raw HTML nodes into proper HAST\n5. rehype-sanitize        \u2192 Allowlist filter (GitHub's defaultSchema)\n6. rehype-harden          \u2192 URL validation + link safety\n7. hast-util-to-jsx-runtime \u2192 React elements (NO dangerouslySetInnerHTML)\n```\n\n**Pipeline ordering is critical:** Raw HTML is parsed BEFORE sanitization (steps 4\u21925), not after.\n\n## What rehype-sanitize Blocks\n\nBased on GitHub's `defaultSchema` from `hast-util-sanitize`:\n- All `<script>`, `<style>`, `<iframe>`, `<object>`, `<embed>`, `<form>` tags\n- All event handlers (`onclick`, `onerror`, etc.)\n- `javascript:` protocol in URLs (only `http`, `https`, `mailto`, `tel` allowed)\n\n## rehype-harden Default Config Problem\n\n```typescript\n// DEFAULT (ships with streamdown) \u2014 TOO PERMISSIVE\n{\n  allowedImagePrefixes: [\"*\"],    // allows any image URL\n  allowedLinkPrefixes: [\"*\"],     // allows any link URL\n  allowedProtocols: [\"*\"],        // allows any protocol\n  defaultOrigin: undefined,\n  allowDataImages: true,          // allows data-URI images (tracking pixels)\n}\n```\n\n**Still safe against XSS** because `blockedProtocols` set blocks `javascript:`, `vbscript:`, `file:`, bare `data:` links. But defense-in-depth is nullified.\n\n## Recommended Override\n\n```typescript\nconst hardenConfig = {\n  allowedLinkPrefixes: [\"https://\"],\n  allowedImagePrefixes: [\"https://your-trusted-domain.com/\"],\n  allowedProtocols: [\"https:\", \"mailto:\"],\n  allowDataImages: false,\n  defaultOrigin: \"https://your-app.com\",\n};\n```\n\n## User vs AI Message Rendering (CRITICAL)\n\n```typescript\n// CORRECT \u2014 user messages as plain text, AI through streamdown\n{message.role === 'user' ? (\n  <MessageContent>{message.content}</MessageContent>  // plain text\n) : (\n  <MessageResponse>{message.content}</MessageResponse> // streamdown markdown\n)}\n```\n\n**Why:** Even with sanitization, rendering user-controlled markdown increases social engineering surface (phishing links, misleading formatting). Plain text for user messages = XSS-impossible for that path.\n\n## SafeMarkdown Wrapper Pattern\n\n```typescript\n// Wrap streamdown to prevent accidentally bypassing sanitization\nfunction SafeMarkdown({ content }: { content: string }) {\n  return (\n    <Streamdown\n      rehypePlugins={[\n        rehypeRaw,\n        [rehypeSanitize, defaultSanitizeSchema],\n        [rehypeHarden, hardenConfig],\n      ]}\n    >\n      {content}\n    </Streamdown>\n  );\n}\n// SECURITY: Never pass custom rehypePlugins without rehypeSanitize.\n```\n\n## RAG Content Safety\n\nDocument chunks with embedded HTML/script payloads flow through LLM responses into streamdown. The sanitization pipeline handles this correctly by default. The threat model:\n1. Malicious document uploaded \u2192 chunks stored \u2192 RAG retrieves \u2192 LLM quotes verbatim\n2. `<script>` tags stripped by rehype-sanitize (step 5)\n3. Event handlers stripped\n4. Only whitelisted tags/attributes pass through\n\nSafety depends on the plugin chain remaining intact \u2014 if a developer later passes custom `rehypePlugins` omitting `rehypeSanitize`, XSS becomes possible.\n\n## Lessons Learned\n\n1. Moving from plain text to markdown rendering is a security model change \u2014 document it as a deliberate decision, not an incremental feature. 2. The default rehype-harden wildcard config provides a false sense of security \u2014 always override with explicit prefixes. 3. rehype-sanitize uses GitHub's schema which is one of the most battle-tested HTML sanitization allowlists. 4. streamdown is marked \"use client\" \u2014 ProcessorCache is browser-only, no cross-tenant leakage in SSR. 5. Link safety feature (enabled by default) shows confirmation modal before navigating to external URLs \u2014 good defense against phishing in AI responses. 6. Links default to target=\"_blank\" rel=\"noreferrer\" preventing reverse tabnabbing.\n\n## Cross-References\n\n- Principles: [relevant principle IDs]\n- Methods: [relevant method section refs]\n- See also: [related entry IDs]",
+          "tags": [
+            "security",
+            "xss",
+            "markdown",
+            "streaming",
+            "sanitization",
+            "rehype",
+            "react"
+          ],
+          "status": "current",
+          "maturity": "seedling",
+          "entry_type": "direct",
+          "decay_class": "framework",
+          "created": "2026-05-14",
+          "last_verified": "2026-05-14",
+          "source": "Captured via capture_reference tool",
+          "supersedes": [],
+          "superseded_by": null,
+          "related": [],
+          "source_path": "reference-library/ai-coding/ref-ai-coding-streamdown-sanitization-pipeline.md",
+          "metadata": {
+            "keywords": [
+              "streamdown",
+              "markdown",
+              "sanitization",
+              "pipeline",
+              "chat"
+            ],
+            "trigger_phrases": [
+              "pipeline ordering is critical:",
+              "still safe against xss"
+            ],
+            "purpose_keywords": [
+              "markdown",
+              "xss",
+              "security",
+              "streaming",
+              "react",
+              "rehype",
+              "sanitization"
+            ],
+            "applies_to": [],
+            "guideline_keywords": []
+          },
+          "embedding_id": 543
         },
         {
           "id": "ref-ai-coding-supabase-jwt-hook-ssr",
@@ -25238,17 +25480,17 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "nextjs",
-              "supabase",
-              "jwt",
               "custom-claims",
+              "ssr",
+              "jwt",
               "auth",
-              "ssr"
+              "nextjs",
+              "supabase"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 540
+          "embedding_id": 544
         },
         {
           "id": "ref-ai-coding-supabase-ssr-async-setall",
@@ -25290,17 +25532,17 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "cookies",
-              "supabase",
-              "nextjs",
-              "auth-callback",
               "pkce",
-              "async"
+              "async",
+              "cookies",
+              "auth-callback",
+              "nextjs",
+              "supabase"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 541
+          "embedding_id": 545
         },
         {
           "id": "ref-ai-coding-superpowers-skills-framework",
@@ -25346,12 +25588,12 @@
               "self-improvement skill"
             ],
             "purpose_keywords": [
-              "claude-code",
-              "superpowers",
-              "procedural-knowledge",
               "skills",
+              "workflow",
               "slash-commands",
-              "workflow"
+              "superpowers",
+              "claude-code",
+              "procedural-knowledge"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25368,7 +25610,7 @@
               "observed"
             ]
           },
-          "embedding_id": 542
+          "embedding_id": 546
         },
         {
           "id": "ref-ai-coding-vitest-hoisted-mocks",
@@ -25409,16 +25651,16 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "mocking",
+              "testing",
               "vitest",
-              "vi-mock",
+              "mocking",
               "typescript",
-              "testing"
+              "vi-mock"
             ],
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 543
+          "embedding_id": 547
         },
         {
           "id": "ref-ai-coding-web-app-file-downloads",
@@ -25468,14 +25710,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "document-generation",
-              "nextjs",
               "streaming",
               "s3",
               "web-app",
               "fastapi",
+              "express",
+              "nextjs",
               "file-download",
-              "express"
+              "document-generation"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25490,7 +25732,7 @@
               "types"
             ]
           },
-          "embedding_id": 544
+          "embedding_id": 548
         },
         {
           "id": "ref-ai-coding-willison-hoard-pattern",
@@ -25540,10 +25782,10 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 545
+          "embedding_id": 549
         }
       ],
-      "last_extracted": "2026-05-14T13:03:15.729446+00:00",
+      "last_extracted": "2026-05-14T13:09:20.284987+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -25600,7 +25842,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 546
+          "embedding_id": 550
         },
         {
           "id": "uiux-visual-hierarchy-vh2-typography-and-readability",
@@ -25651,7 +25893,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 547
+          "embedding_id": 551
         },
         {
           "id": "uiux-visual-hierarchy-vh3-design-intentionality",
@@ -25701,7 +25943,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 548
+          "embedding_id": 552
         },
         {
           "id": "uiux-design-system-ds1-design-token-architecture",
@@ -25753,7 +25995,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 549
+          "embedding_id": 553
         },
         {
           "id": "uiux-design-system-ds2-component-consistency",
@@ -25804,7 +26046,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 550
+          "embedding_id": 554
         },
         {
           "id": "uiux-design-system-ds3-design-system-discovery",
@@ -25856,7 +26098,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 551
+          "embedding_id": 555
         },
         {
           "id": "uiux-accessibility-acc1-semantic-markup-and-aria-contracts",
@@ -25916,7 +26158,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 552
+          "embedding_id": 556
         },
         {
           "id": "uiux-accessibility-acc2-keyboard-navigation-and-focus-management",
@@ -25973,7 +26215,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 553
+          "embedding_id": 557
         },
         {
           "id": "uiux-accessibility-acc3-color-and-contrast-compliance",
@@ -26030,7 +26272,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 554
+          "embedding_id": 558
         },
         {
           "id": "uiux-responsive-rd1-responsive-layout-strategy",
@@ -26082,7 +26324,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 555
+          "embedding_id": 559
         },
         {
           "id": "uiux-responsive-rd2-touch-target-and-input-adaptation",
@@ -26138,7 +26380,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 556
+          "embedding_id": 560
         },
         {
           "id": "uiux-interaction-ix1-interaction-feedback-and-state-communication",
@@ -26192,7 +26434,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 557
+          "embedding_id": 561
         },
         {
           "id": "uiux-interaction-ix2-loading-and-perceived-performance",
@@ -26245,7 +26487,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 558
+          "embedding_id": 562
         },
         {
           "id": "uiux-interaction-ix3-affordance-and-discoverability",
@@ -26298,7 +26540,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 559
+          "embedding_id": 563
         },
         {
           "id": "uiux-interaction-ix4-error-handling-and-recovery",
@@ -26354,7 +26596,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 560
+          "embedding_id": 564
         },
         {
           "id": "uiux-interaction-ix5-component-selection-appropriateness",
@@ -26408,7 +26650,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 561
+          "embedding_id": 565
         },
         {
           "id": "uiux-interaction-ix6-form-design-and-validation",
@@ -26463,7 +26705,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 562
+          "embedding_id": 566
         },
         {
           "id": "uiux-interaction-ix7-ethical-interaction-design",
@@ -26521,7 +26763,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 563
+          "embedding_id": 567
         },
         {
           "id": "uiux-platform-pl1-platform-convention-compliance",
@@ -26573,7 +26815,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 564
+          "embedding_id": 568
         },
         {
           "id": "uiux-platform-pl2-cross-platform-adaptation",
@@ -26631,7 +26873,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 565
+          "embedding_id": 569
         }
       ],
       "methods": [
@@ -26672,7 +26914,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 566
+          "embedding_id": 570
         },
         {
           "id": "uiux-method-pre-implementation-discovery-procedure",
@@ -26727,7 +26969,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 567
+          "embedding_id": 571
         },
         {
           "id": "uiux-method-design-handoff-processing",
@@ -26782,7 +27024,7 @@
               "processing"
             ]
           },
-          "embedding_id": 568
+          "embedding_id": 572
         },
         {
           "id": "uiux-method-visual-qa-procedure",
@@ -26827,7 +27069,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 569
+          "embedding_id": 573
         },
         {
           "id": "uiux-method-component-library-governance",
@@ -26868,7 +27110,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 570
+          "embedding_id": 574
         },
         {
           "id": "uiux-method-token-management-procedures",
@@ -26922,7 +27164,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 571
+          "embedding_id": 575
         },
         {
           "id": "uiux-method-atomic-design-implementation",
@@ -26978,7 +27220,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 572
+          "embedding_id": 576
         },
         {
           "id": "uiux-method-component-naming-conventions",
@@ -27027,7 +27269,7 @@
               "conventions"
             ]
           },
-          "embedding_id": 573
+          "embedding_id": 577
         },
         {
           "id": "uiux-method-design-system-gap-reporting",
@@ -27077,7 +27319,7 @@
               "reporting"
             ]
           },
-          "embedding_id": 574
+          "embedding_id": 578
         },
         {
           "id": "uiux-method-design-review-and-validation-gates",
@@ -27120,7 +27362,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 575
+          "embedding_id": 579
         },
         {
           "id": "uiux-method-pre-commit-ui-review-checklist",
@@ -27177,7 +27419,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 576
+          "embedding_id": 580
         },
         {
           "id": "uiux-method-accessibility-spot-check-procedure",
@@ -27224,7 +27466,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 577
+          "embedding_id": 581
         },
         {
           "id": "uiux-method-responsive-validation-matrix",
@@ -27278,7 +27520,7 @@
               "matrix"
             ]
           },
-          "embedding_id": 578
+          "embedding_id": 582
         },
         {
           "id": "uiux-method-component-consistency-audit",
@@ -27327,7 +27569,7 @@
               "audit"
             ]
           },
-          "embedding_id": 579
+          "embedding_id": 583
         },
         {
           "id": "uiux-method-dark-pattern-screening",
@@ -27380,7 +27622,7 @@
               "screening"
             ]
           },
-          "embedding_id": 580
+          "embedding_id": 584
         },
         {
           "id": "uiux-method-core-web-vitals-validation",
@@ -27433,7 +27675,7 @@
               "validation"
             ]
           },
-          "embedding_id": 581
+          "embedding_id": 585
         },
         {
           "id": "uiux-method-accessibility-testing-and-auditing",
@@ -27474,7 +27716,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 582
+          "embedding_id": 586
         },
         {
           "id": "uiux-method-wcag-2-2-level-aa-compliance-checklist",
@@ -27531,7 +27773,7 @@
               "compliance"
             ]
           },
-          "embedding_id": 583
+          "embedding_id": 587
         },
         {
           "id": "uiux-method-screen-reader-testing-procedure",
@@ -27578,7 +27820,7 @@
               "testing"
             ]
           },
-          "embedding_id": 584
+          "embedding_id": 588
         },
         {
           "id": "uiux-method-automated-accessibility-scanning",
@@ -27630,7 +27872,7 @@
               "scanning"
             ]
           },
-          "embedding_id": 585
+          "embedding_id": 589
         },
         {
           "id": "uiux-method-color-contrast-verification",
@@ -27679,7 +27921,7 @@
               "verification"
             ]
           },
-          "embedding_id": 586
+          "embedding_id": 590
         },
         {
           "id": "uiux-method-responsive-breakpoint-strategy",
@@ -27720,7 +27962,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 587
+          "embedding_id": 591
         },
         {
           "id": "uiux-method-breakpoint-definition-and-rationale",
@@ -27772,7 +28014,7 @@
               "rationale"
             ]
           },
-          "embedding_id": 588
+          "embedding_id": 592
         },
         {
           "id": "uiux-method-content-adaptation-patterns",
@@ -27824,7 +28066,7 @@
               "patterns"
             ]
           },
-          "embedding_id": 589
+          "embedding_id": 593
         },
         {
           "id": "uiux-method-touch-target-compliance-matrix",
@@ -27866,7 +28108,7 @@
               "compliance"
             ]
           },
-          "embedding_id": 590
+          "embedding_id": 594
         },
         {
           "id": "uiux-method-cross-platform-adaptation",
@@ -27905,7 +28147,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 591
+          "embedding_id": 595
         },
         {
           "id": "uiux-method-platform-convention-reference",
@@ -27959,7 +28201,7 @@
               "reference"
             ]
           },
-          "embedding_id": 592
+          "embedding_id": 596
         },
         {
           "id": "uiux-method-cross-platform-decision-matrix",
@@ -28013,7 +28255,7 @@
               "matrix"
             ]
           },
-          "embedding_id": 593
+          "embedding_id": 597
         },
         {
           "id": "uiux-method-platform-testing-checklist",
@@ -28059,7 +28301,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 594
+          "embedding_id": 598
         },
         {
           "id": "uiux-method-platform-convention-currency-verification",
@@ -28116,7 +28358,7 @@
               "currency"
             ]
           },
-          "embedding_id": 595
+          "embedding_id": 599
         },
         {
           "id": "uiux-method-design-system-documentation",
@@ -28157,7 +28399,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 596
+          "embedding_id": 600
         },
         {
           "id": "uiux-method-token-documentation-format",
@@ -28207,7 +28449,7 @@
               "format"
             ]
           },
-          "embedding_id": 597
+          "embedding_id": 601
         },
         {
           "id": "uiux-method-component-catalog-format",
@@ -28256,7 +28498,7 @@
               "rules"
             ]
           },
-          "embedding_id": 598
+          "embedding_id": 602
         },
         {
           "id": "uiux-method-pattern-library-maintenance",
@@ -28307,7 +28549,7 @@
               "maintenance"
             ]
           },
-          "embedding_id": 599
+          "embedding_id": 603
         },
         {
           "id": "uiux-method-ai-tooling-integration",
@@ -28347,7 +28589,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 600
+          "embedding_id": 604
         },
         {
           "id": "uiux-method-figma-mcp-integration",
@@ -28392,7 +28634,7 @@
               "integration"
             ]
           },
-          "embedding_id": 601
+          "embedding_id": 605
         },
         {
           "id": "uiux-method-design-token-extraction",
@@ -28444,7 +28686,7 @@
               "extraction"
             ]
           },
-          "embedding_id": 602
+          "embedding_id": 606
         },
         {
           "id": "uiux-method-screenshot-based-visual-qa",
@@ -28490,7 +28732,7 @@
               "visual"
             ]
           },
-          "embedding_id": 603
+          "embedding_id": 607
         },
         {
           "id": "uiux-method-ai-code-generation-guardrails",
@@ -28535,7 +28777,7 @@
               "guardrails"
             ]
           },
-          "embedding_id": 604
+          "embedding_id": 608
         },
         {
           "id": "uiux-method-ux-content-and-microcopy-governance",
@@ -28576,7 +28818,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 605
+          "embedding_id": 609
         },
         {
           "id": "uiux-method-voice-and-tone-consistency",
@@ -28628,7 +28870,7 @@
               "consistency"
             ]
           },
-          "embedding_id": 606
+          "embedding_id": 610
         },
         {
           "id": "uiux-method-error-message-patterns",
@@ -28682,7 +28924,7 @@
               "patterns"
             ]
           },
-          "embedding_id": 607
+          "embedding_id": 611
         },
         {
           "id": "uiux-method-microcopy-quality-standards",
@@ -28749,11 +28991,11 @@
               "v1.0.0"
             ]
           },
-          "embedding_id": 608
+          "embedding_id": 612
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-14T13:03:15.734511+00:00",
+      "last_extracted": "2026-05-14T13:09:20.291318+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -28807,7 +29049,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 609
+          "embedding_id": 613
         },
         {
           "id": "multi-architecture-agent-specialization-topology",
@@ -28859,7 +29101,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 610
+          "embedding_id": 614
         },
         {
           "id": "multi-architecture-context-engineering-discipline",
@@ -28911,7 +29153,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 611
+          "embedding_id": 615
         },
         {
           "id": "multi-architecture-context-isolation-architecture",
@@ -28957,7 +29199,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 612
+          "embedding_id": 616
         },
         {
           "id": "multi-architecture-orchestrator-separation-pattern",
@@ -29006,7 +29248,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 613
+          "embedding_id": 617
         },
         {
           "id": "multi-architecture-intent-propagation-with-shared-assumptions",
@@ -29060,7 +29302,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 614
+          "embedding_id": 618
         },
         {
           "id": "multi-reliability-explicit-handoff-protocol",
@@ -29112,7 +29354,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 615
+          "embedding_id": 619
         },
         {
           "id": "multi-reliability-orchestration-pattern-selection",
@@ -29164,7 +29406,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 616
+          "embedding_id": 620
         },
         {
           "id": "multi-reliability-state-persistence-protocol",
@@ -29212,7 +29454,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 617
+          "embedding_id": 621
         },
         {
           "id": "multi-reliability-observability-protocol",
@@ -29262,7 +29504,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 618
+          "embedding_id": 622
         },
         {
           "id": "multi-quality-validation-independence",
@@ -29312,7 +29554,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 619
+          "embedding_id": 623
         },
         {
           "id": "multi-quality-fault-tolerance-and-graceful-degradation",
@@ -29365,7 +29607,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 620
+          "embedding_id": 624
         },
         {
           "id": "multi-quality-human-in-the-loop-protocol",
@@ -29412,7 +29654,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 621
+          "embedding_id": 625
         },
         {
           "id": "multi-autonomous-action-blast-radius-classification",
@@ -29465,7 +29707,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 622
+          "embedding_id": 626
         },
         {
           "id": "multi-autonomous-hitl-removal-criteria",
@@ -29517,7 +29759,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 623
+          "embedding_id": 627
         },
         {
           "id": "multi-autonomous-compensating-controls-for-autonomous-operation",
@@ -29569,7 +29811,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 624
+          "embedding_id": 628
         },
         {
           "id": "multi-autonomous-autonomous-drift-monitoring",
@@ -29620,7 +29862,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 625
+          "embedding_id": 629
         }
       ],
       "methods": [
@@ -29683,7 +29925,7 @@
               "check"
             ]
           },
-          "embedding_id": 626
+          "embedding_id": 630
         },
         {
           "id": "multi-method-workflow-initialization-protocol",
@@ -29744,7 +29986,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 627
+          "embedding_id": 631
         },
         {
           "id": "multi-method-multi-tool-setup",
@@ -29799,7 +30041,7 @@
               "setup"
             ]
           },
-          "embedding_id": 628
+          "embedding_id": 632
         },
         {
           "id": "multi-method-subagent-definition-standard",
@@ -29869,7 +30111,7 @@
               "criteria"
             ]
           },
-          "embedding_id": 629
+          "embedding_id": 633
         },
         {
           "id": "multi-method-system-prompt-best-practices",
@@ -29919,7 +30161,7 @@
               "examples"
             ]
           },
-          "embedding_id": 630
+          "embedding_id": 634
         },
         {
           "id": "multi-method-tool-scoping-guidelines",
@@ -29970,7 +30212,7 @@
               "scoping"
             ]
           },
-          "embedding_id": 631
+          "embedding_id": 635
         },
         {
           "id": "multi-method-subagent-validation-checklist",
@@ -30024,7 +30266,7 @@
               "test"
             ]
           },
-          "embedding_id": 632
+          "embedding_id": 636
         },
         {
           "id": "multi-method-subagent-usage-in-practice",
@@ -30067,7 +30309,7 @@
               "usage"
             ]
           },
-          "embedding_id": 633
+          "embedding_id": 637
         },
         {
           "id": "multi-method-advanced-model-considerations",
@@ -30126,7 +30368,7 @@
               "model"
             ]
           },
-          "embedding_id": 634
+          "embedding_id": 638
         },
         {
           "id": "multi-method-agent-catalog",
@@ -30177,7 +30419,7 @@
               "catalog"
             ]
           },
-          "embedding_id": 635
+          "embedding_id": 639
         },
         {
           "id": "multi-method-orchestrator-agent",
@@ -30223,7 +30465,7 @@
               "agent"
             ]
           },
-          "embedding_id": 636
+          "embedding_id": 640
         },
         {
           "id": "multi-method-specialist-agent-parameterized-template",
@@ -30268,7 +30510,7 @@
               "criteria"
             ]
           },
-          "embedding_id": 637
+          "embedding_id": 641
         },
         {
           "id": "multi-method-validator-agent",
@@ -30314,7 +30556,7 @@
               "agent"
             ]
           },
-          "embedding_id": 638
+          "embedding_id": 642
         },
         {
           "id": "multi-method-contrarian-reviewer-agent",
@@ -30362,7 +30604,7 @@
               "reviewer"
             ]
           },
-          "embedding_id": 639
+          "embedding_id": 643
         },
         {
           "id": "multi-method-session-closer-agent",
@@ -30407,7 +30649,7 @@
               "criteria"
             ]
           },
-          "embedding_id": 640
+          "embedding_id": 644
         },
         {
           "id": "multi-method-governance-agent-generic-pattern",
@@ -30454,7 +30696,7 @@
               "principles"
             ]
           },
-          "embedding_id": 641
+          "embedding_id": 645
         },
         {
           "id": "multi-method-context-isolation-verification",
@@ -30509,7 +30751,7 @@
               "verification"
             ]
           },
-          "embedding_id": 642
+          "embedding_id": 646
         },
         {
           "id": "multi-method-handoff-pattern-taxonomy",
@@ -30570,7 +30812,7 @@
               "taxonomy"
             ]
           },
-          "embedding_id": 643
+          "embedding_id": 647
         },
         {
           "id": "multi-method-handoff-protocol",
@@ -30639,7 +30881,7 @@
               "resolution"
             ]
           },
-          "embedding_id": 644
+          "embedding_id": 648
         },
         {
           "id": "multi-method-orchestration-pattern-selection",
@@ -30701,7 +30943,7 @@
               "orchestration"
             ]
           },
-          "embedding_id": 645
+          "embedding_id": 649
         },
         {
           "id": "multi-method-compression-procedures",
@@ -30771,7 +31013,7 @@
               "included"
             ]
           },
-          "embedding_id": 646
+          "embedding_id": 650
         },
         {
           "id": "multi-method-memory-distillation-procedure",
@@ -30829,7 +31071,7 @@
               "questions"
             ]
           },
-          "embedding_id": 647
+          "embedding_id": 651
         },
         {
           "id": "multi-method-state-persistence-protocol",
@@ -30889,7 +31131,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 648
+          "embedding_id": 652
         },
         {
           "id": "multi-method-session-closer-protocol",
@@ -30949,7 +31191,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 649
+          "embedding_id": 653
         },
         {
           "id": "multi-method-observability-protocol",
@@ -31006,7 +31248,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 650
+          "embedding_id": 654
         },
         {
           "id": "multi-method-production-observability-patterns",
@@ -31056,7 +31298,7 @@
               "observability"
             ]
           },
-          "embedding_id": 651
+          "embedding_id": 655
         },
         {
           "id": "multi-method-react-loop-configuration",
@@ -31117,7 +31359,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 652
+          "embedding_id": 656
         },
         {
           "id": "multi-method-standardized-collaboration-protocols",
@@ -31181,7 +31423,7 @@
               "protocols"
             ]
           },
-          "embedding_id": 653
+          "embedding_id": 657
         },
         {
           "id": "multi-method-validation-agent-deployment",
@@ -31240,7 +31482,7 @@
               "deployment"
             ]
           },
-          "embedding_id": 654
+          "embedding_id": 658
         },
         {
           "id": "multi-method-contrarian-reviewer-pattern",
@@ -31294,7 +31536,7 @@
               "pattern"
             ]
           },
-          "embedding_id": 655
+          "embedding_id": 659
         },
         {
           "id": "multi-method-governance-agent-pattern",
@@ -31351,7 +31593,7 @@
               "pattern"
             ]
           },
-          "embedding_id": 656
+          "embedding_id": 660
         },
         {
           "id": "multi-method-fault-tolerance-procedures",
@@ -31412,7 +31654,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 657
+          "embedding_id": 661
         },
         {
           "id": "multi-method-human-in-the-loop-gates",
@@ -31477,7 +31719,7 @@
               "proceed"
             ]
           },
-          "embedding_id": 658
+          "embedding_id": 662
         },
         {
           "id": "multi-method-governance-enforcement-architecture",
@@ -31549,7 +31791,7 @@
               "authorization"
             ]
           },
-          "embedding_id": 659
+          "embedding_id": 663
         },
         {
           "id": "multi-method-assessment-responsibility-layers",
@@ -31601,7 +31843,7 @@
               "responsibility"
             ]
           },
-          "embedding_id": 660
+          "embedding_id": 664
         },
         {
           "id": "multi-method-gateway-based-enforcement-platform-agnostic",
@@ -31651,7 +31893,7 @@
               "enforcement"
             ]
           },
-          "embedding_id": 661
+          "embedding_id": 665
         },
         {
           "id": "multi-method-hook-based-enforcement-client-side-deterministic",
@@ -31706,7 +31948,7 @@
               "enforcement"
             ]
           },
-          "embedding_id": 662
+          "embedding_id": 666
         },
         {
           "id": "multi-method-agent-evaluation-framework",
@@ -31775,7 +32017,7 @@
               "analysis"
             ]
           },
-          "embedding_id": 663
+          "embedding_id": 667
         },
         {
           "id": "multi-method-grader-types",
@@ -31823,7 +32065,7 @@
               "types"
             ]
           },
-          "embedding_id": 664
+          "embedding_id": 668
         },
         {
           "id": "multi-method-non-determinism-measurement",
@@ -31876,7 +32118,7 @@
               "assessment"
             ]
           },
-          "embedding_id": 665
+          "embedding_id": 669
         },
         {
           "id": "multi-method-capability-vs-regression-evals",
@@ -31928,7 +32170,7 @@
               "regression"
             ]
           },
-          "embedding_id": 666
+          "embedding_id": 670
         },
         {
           "id": "multi-method-grader-design-principles",
@@ -31981,7 +32223,7 @@
               "design"
             ]
           },
-          "embedding_id": 667
+          "embedding_id": 671
         },
         {
           "id": "multi-method-production-safety-guardrails",
@@ -32043,7 +32285,7 @@
               "guardrails"
             ]
           },
-          "embedding_id": 668
+          "embedding_id": 672
         },
         {
           "id": "multi-method-context-file-synchronization",
@@ -32105,7 +32347,7 @@
               "synchronization"
             ]
           },
-          "embedding_id": 669
+          "embedding_id": 673
         },
         {
           "id": "multi-method-multi-tool-workflow-patterns",
@@ -32165,7 +32407,7 @@
               "patterns"
             ]
           },
-          "embedding_id": 670
+          "embedding_id": 674
         },
         {
           "id": "multi-method-action-blast-radius-classification",
@@ -32225,7 +32467,7 @@
               "radius"
             ]
           },
-          "embedding_id": 671
+          "embedding_id": 675
         },
         {
           "id": "multi-method-autonomy-level-assessment",
@@ -32283,7 +32525,7 @@
               "assessment"
             ]
           },
-          "embedding_id": 672
+          "embedding_id": 676
         },
         {
           "id": "multi-method-compensating-controls-checklist",
@@ -32335,7 +32577,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 673
+          "embedding_id": 677
         },
         {
           "id": "multi-method-drift-monitoring-procedures",
@@ -32388,7 +32630,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 674
+          "embedding_id": 678
         },
         {
           "id": "multi-method-autonomous-experimentation-protocol",
@@ -32433,7 +32675,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 675
+          "embedding_id": 679
         },
         {
           "id": "multi-method-the-research-protocol-document-program-md-pattern",
@@ -32479,7 +32721,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 676
+          "embedding_id": 680
         },
         {
           "id": "multi-method-permission-configuration-for-autonomous-operation",
@@ -32515,7 +32757,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 677
+          "embedding_id": 681
         },
         {
           "id": "multi-method-the-experimentation-loop",
@@ -32546,7 +32788,7 @@
               "loop"
             ]
           },
-          "embedding_id": 678
+          "embedding_id": 682
         },
         {
           "id": "multi-method-results-logging",
@@ -32605,7 +32847,7 @@
               "behavior"
             ]
           },
-          "embedding_id": 679
+          "embedding_id": 683
         }
       ],
       "references": [
@@ -32653,13 +32895,13 @@
               "sensor (feedback):"
             ],
             "purpose_keywords": [
-              "model-harness-gap",
-              "context-management",
               "harness-engineering",
-              "ratchet-pattern",
-              "benchmark-evidence",
+              "model-harness-gap",
+              "agent-architecture",
+              "context-management",
               "enforcement",
-              "agent-architecture"
+              "ratchet-pattern",
+              "benchmark-evidence"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -32680,10 +32922,10 @@
               "context"
             ]
           },
-          "embedding_id": 680
+          "embedding_id": 684
         }
       ],
-      "last_extracted": "2026-05-14T13:03:15.741383+00:00",
+      "last_extracted": "2026-05-14T13:09:20.299005+00:00",
       "version": "1.0"
     },
     "accounting": {
@@ -32735,7 +32977,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 681
+          "embedding_id": 685
         },
         {
           "id": "acct-ledger-integrity-le2-audit-trail-immutability",
@@ -32780,7 +33022,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 682
+          "embedding_id": 686
         },
         {
           "id": "acct-ledger-integrity-le3-financial-precision",
@@ -32823,7 +33065,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 683
+          "embedding_id": 687
         },
         {
           "id": "acct-ledger-integrity-le4-computational-integrity",
@@ -32866,7 +33108,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 684
+          "embedding_id": 688
         },
         {
           "id": "acct-entity-classification-ec5-entity-fund-isolation",
@@ -32912,7 +33154,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 685
+          "embedding_id": 689
         },
         {
           "id": "acct-entity-classification-ec6-classification-integrity",
@@ -32958,7 +33200,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 686
+          "embedding_id": 690
         },
         {
           "id": "acct-entity-classification-ec7-materiality-gated-review",
@@ -33006,7 +33248,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 687
+          "embedding_id": 691
         },
         {
           "id": "acct-temporal-compliance-tc8-temporal-authority",
@@ -33049,7 +33291,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 688
+          "embedding_id": 692
         },
         {
           "id": "acct-temporal-compliance-tc9-depreciation-asset-lifecycle",
@@ -33094,7 +33336,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 689
+          "embedding_id": 693
         },
         {
           "id": "acct-temporal-compliance-tc10-regulatory-compliance-boundary",
@@ -33140,7 +33382,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 690
+          "embedding_id": 694
         },
         {
           "id": "acct-reconciliation-controls-rc11-reconciliation-checkpoint",
@@ -33185,7 +33427,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 691
+          "embedding_id": 695
         },
         {
           "id": "acct-reconciliation-controls-rc12-record-retention-audit-readiness",
@@ -33232,7 +33474,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 692
+          "embedding_id": 696
         }
       ],
       "methods": [
@@ -33268,7 +33510,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 693
+          "embedding_id": 697
         },
         {
           "id": "acct-method-chart-of-accounts-setup",
@@ -33301,7 +33543,7 @@
               "setup"
             ]
           },
-          "embedding_id": 694
+          "embedding_id": 698
         },
         {
           "id": "acct-method-bank-account-connection",
@@ -33336,7 +33578,7 @@
               "connection"
             ]
           },
-          "embedding_id": 695
+          "embedding_id": 699
         },
         {
           "id": "acct-method-tax-configuration",
@@ -33378,7 +33620,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 696
+          "embedding_id": 700
         },
         {
           "id": "acct-method-sales-and-revenue",
@@ -33409,7 +33651,7 @@
               "revenue"
             ]
           },
-          "embedding_id": 697
+          "embedding_id": 701
         },
         {
           "id": "acct-method-purchases-and-expenses",
@@ -33440,7 +33682,7 @@
               "expenses"
             ]
           },
-          "embedding_id": 698
+          "embedding_id": 702
         },
         {
           "id": "acct-method-payments",
@@ -33469,7 +33711,7 @@
               "payments"
             ]
           },
-          "embedding_id": 699
+          "embedding_id": 703
         },
         {
           "id": "acct-method-journal-entries",
@@ -33508,7 +33750,7 @@
               "entries"
             ]
           },
-          "embedding_id": 700
+          "embedding_id": 704
         },
         {
           "id": "acct-method-payroll-recording",
@@ -33551,7 +33793,7 @@
               "recording"
             ]
           },
-          "embedding_id": 701
+          "embedding_id": 705
         },
         {
           "id": "acct-method-bank-reconciliation-procedure",
@@ -33593,7 +33835,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 702
+          "embedding_id": 706
         },
         {
           "id": "acct-method-credit-card-reconciliation",
@@ -33624,7 +33866,7 @@
               "reconciliation"
             ]
           },
-          "embedding_id": 703
+          "embedding_id": 707
         },
         {
           "id": "acct-method-loan-and-liability-reconciliation",
@@ -33668,7 +33910,7 @@
               "reconciliation"
             ]
           },
-          "embedding_id": 704
+          "embedding_id": 708
         },
         {
           "id": "acct-method-monthly-close-checklist",
@@ -33708,7 +33950,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 705
+          "embedding_id": 709
         },
         {
           "id": "acct-method-depreciation-posting",
@@ -33736,7 +33978,7 @@
               "posting"
             ]
           },
-          "embedding_id": 706
+          "embedding_id": 710
         },
         {
           "id": "acct-method-accrual-adjustments-accrual-basis-only",
@@ -33788,7 +34030,7 @@
               "(accrual"
             ]
           },
-          "embedding_id": 707
+          "embedding_id": 711
         },
         {
           "id": "acct-method-year-end-close-procedure",
@@ -33824,7 +34066,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 708
+          "embedding_id": 712
         },
         {
           "id": "acct-method-tax-preparation-support",
@@ -33855,7 +34097,7 @@
               "support"
             ]
           },
-          "embedding_id": 709
+          "embedding_id": 713
         },
         {
           "id": "acct-method-1099-generation",
@@ -33888,7 +34130,7 @@
               "generation"
             ]
           },
-          "embedding_id": 710
+          "embedding_id": 714
         },
         {
           "id": "acct-method-irs-record-retention-periods",
@@ -33933,7 +34175,7 @@
               "periods"
             ]
           },
-          "embedding_id": 711
+          "embedding_id": 715
         },
         {
           "id": "acct-method-property-level-tracking",
@@ -33966,7 +34208,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 712
+          "embedding_id": 716
         },
         {
           "id": "acct-method-depreciation-schedules",
@@ -34000,7 +34242,7 @@
               "schedules"
             ]
           },
-          "embedding_id": 713
+          "embedding_id": 717
         },
         {
           "id": "acct-method-security-deposits-escrow",
@@ -34037,7 +34279,7 @@
               "escrow"
             ]
           },
-          "embedding_id": 714
+          "embedding_id": 718
         },
         {
           "id": "acct-method-like-kind-exchanges-1031",
@@ -34071,7 +34313,7 @@
               "(\u00a71031)"
             ]
           },
-          "embedding_id": 715
+          "embedding_id": 719
         },
         {
           "id": "acct-method-rent-roll-and-income-tracking",
@@ -34120,7 +34362,7 @@
               "income"
             ]
           },
-          "embedding_id": 716
+          "embedding_id": 720
         },
         {
           "id": "acct-method-three-tier-approval-model",
@@ -34155,7 +34397,7 @@
               "model"
             ]
           },
-          "embedding_id": 717
+          "embedding_id": 721
         },
         {
           "id": "acct-method-draft-first-write-pattern",
@@ -34191,7 +34433,7 @@
               "pattern"
             ]
           },
-          "embedding_id": 718
+          "embedding_id": 722
         },
         {
           "id": "acct-method-classification-confidence-thresholds",
@@ -34222,7 +34464,7 @@
               "thresholds"
             ]
           },
-          "embedding_id": 719
+          "embedding_id": 723
         },
         {
           "id": "acct-method-deterministic-compute-pattern",
@@ -34257,7 +34499,7 @@
               "pattern"
             ]
           },
-          "embedding_id": 720
+          "embedding_id": 724
         },
         {
           "id": "acct-method-financial-disclaimers",
@@ -34320,11 +34562,11 @@
               "ledger"
             ]
           },
-          "embedding_id": 721
+          "embedding_id": 725
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-14T13:03:15.743715+00:00",
+      "last_extracted": "2026-05-14T13:09:20.301290+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -34380,7 +34622,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 722
+          "embedding_id": 726
         },
         {
           "id": "kmpd-knowledge-architecture-ka2-derivation-chain-integrity",
@@ -34431,7 +34673,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 723
+          "embedding_id": 727
         },
         {
           "id": "kmpd-knowledge-architecture-ka3-progressive-abstraction",
@@ -34488,7 +34730,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 724
+          "embedding_id": 728
         },
         {
           "id": "kmpd-knowledge-architecture-ka4-empowerment-completeness",
@@ -34540,7 +34782,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 725
+          "embedding_id": 729
         },
         {
           "id": "kmpd-training-tl1-audience-appropriate-design",
@@ -34591,7 +34833,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 726
+          "embedding_id": 730
         },
         {
           "id": "kmpd-training-tl2-learning-objective-alignment",
@@ -34641,7 +34883,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 727
+          "embedding_id": 731
         },
         {
           "id": "kmpd-training-tl4-assessment-validity",
@@ -34687,7 +34929,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 728
+          "embedding_id": 732
         },
         {
           "id": "kmpd-people-development-pd1-verification-guidance-responsibility",
@@ -34743,7 +34985,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 729
+          "embedding_id": 733
         },
         {
           "id": "kmpd-quality-assurance-qa1-safety-compliance-completeness",
@@ -34792,7 +35034,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 730
+          "embedding_id": 734
         },
         {
           "id": "kmpd-quality-assurance-qa2-artifact-adoption-fitness",
@@ -34851,7 +35093,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 731
+          "embedding_id": 735
         }
       ],
       "methods": [
@@ -34884,7 +35126,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 732
+          "embedding_id": 736
         },
         {
           "id": "kmpd-method-first-interaction-protocol",
@@ -34930,7 +35172,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 733
+          "embedding_id": 737
         },
         {
           "id": "kmpd-method-maturity-self-assessment",
@@ -34978,7 +35220,7 @@
               "self-assessment"
             ]
           },
-          "embedding_id": 734
+          "embedding_id": 738
         },
         {
           "id": "kmpd-method-detailed-knowledge-base-scaffold",
@@ -35028,7 +35270,7 @@
               "base"
             ]
           },
-          "embedding_id": 735
+          "embedding_id": 739
         },
         {
           "id": "kmpd-method-first-major-step",
@@ -35059,7 +35301,7 @@
               "step]"
             ]
           },
-          "embedding_id": 736
+          "embedding_id": 740
         },
         {
           "id": "kmpd-method-second-major-step",
@@ -35090,7 +35332,7 @@
               "step]"
             ]
           },
-          "embedding_id": 737
+          "embedding_id": 741
         },
         {
           "id": "kmpd-method-branch-scenario",
@@ -35121,7 +35363,7 @@
               "scenario]"
             ]
           },
-          "embedding_id": 738
+          "embedding_id": 742
         },
         {
           "id": "kmpd-method-derivation-chain-tracking",
@@ -35168,7 +35410,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 739
+          "embedding_id": 743
         },
         {
           "id": "kmpd-method-knowledge-conflict-prevention",
@@ -35214,7 +35456,7 @@
               "prevention"
             ]
           },
-          "embedding_id": 740
+          "embedding_id": 744
         },
         {
           "id": "kmpd-method-knowledge-base-update-procedure",
@@ -35266,7 +35508,7 @@
               "update"
             ]
           },
-          "embedding_id": 741
+          "embedding_id": 745
         },
         {
           "id": "kmpd-method-detailed-knowledge-base-authoring",
@@ -35297,7 +35539,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 742
+          "embedding_id": 746
         },
         {
           "id": "kmpd-method-design-principles-for-the-detailed-knowledge-base",
@@ -35348,7 +35590,7 @@
               "detailed"
             ]
           },
-          "embedding_id": 743
+          "embedding_id": 747
         },
         {
           "id": "kmpd-method-build-approach",
@@ -35393,7 +35635,7 @@
               "approach"
             ]
           },
-          "embedding_id": 744
+          "embedding_id": 748
         },
         {
           "id": "kmpd-method-step-writing-standards",
@@ -35442,7 +35684,7 @@
               "standards"
             ]
           },
-          "embedding_id": 745
+          "embedding_id": 749
         },
         {
           "id": "kmpd-method-verification-recommendation",
@@ -35492,7 +35734,7 @@
               "steps"
             ]
           },
-          "embedding_id": 746
+          "embedding_id": 750
         },
         {
           "id": "kmpd-method-adoption-fitness-check",
@@ -35543,7 +35785,7 @@
               "check"
             ]
           },
-          "embedding_id": 747
+          "embedding_id": 751
         },
         {
           "id": "kmpd-method-quick-reference-checklist-design",
@@ -35574,7 +35816,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 748
+          "embedding_id": 752
         },
         {
           "id": "kmpd-method-the-checklist-manifesto-principle",
@@ -35619,7 +35861,7 @@
               "principle"
             ]
           },
-          "embedding_id": 749
+          "embedding_id": 753
         },
         {
           "id": "kmpd-method-quick-reference-template",
@@ -35665,7 +35907,7 @@
               "template"
             ]
           },
-          "embedding_id": 750
+          "embedding_id": 754
         },
         {
           "id": "kmpd-method-visual-work-instructions",
@@ -35712,7 +35954,7 @@
               "instructions"
             ]
           },
-          "embedding_id": 751
+          "embedding_id": 755
         },
         {
           "id": "kmpd-method-other-extraction-types",
@@ -35760,7 +36002,7 @@
               "types"
             ]
           },
-          "embedding_id": 752
+          "embedding_id": 756
         },
         {
           "id": "kmpd-method-strategic-process-documentation",
@@ -35789,7 +36031,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 753
+          "embedding_id": 757
         },
         {
           "id": "kmpd-method-sipoc-creation",
@@ -35832,7 +36074,7 @@
               "creation"
             ]
           },
-          "embedding_id": 754
+          "embedding_id": 758
         },
         {
           "id": "kmpd-method-process-flow-mapping",
@@ -35878,7 +36120,7 @@
               "mapping"
             ]
           },
-          "embedding_id": 755
+          "embedding_id": 759
         },
         {
           "id": "kmpd-method-people-development-artifacts",
@@ -35907,7 +36149,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 756
+          "embedding_id": 760
         },
         {
           "id": "kmpd-method-cross-training-matrix",
@@ -35966,7 +36208,7 @@
               "matrix"
             ]
           },
-          "embedding_id": 757
+          "embedding_id": 761
         },
         {
           "id": "kmpd-method-job-description-derivation",
@@ -36009,7 +36251,7 @@
               "derivation"
             ]
           },
-          "embedding_id": 758
+          "embedding_id": 762
         },
         {
           "id": "kmpd-method-onboarding-program-design",
@@ -36057,7 +36299,7 @@
               "design"
             ]
           },
-          "embedding_id": 759
+          "embedding_id": 763
         },
         {
           "id": "kmpd-method-assessment-evaluation",
@@ -36084,7 +36326,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 760
+          "embedding_id": 764
         },
         {
           "id": "kmpd-method-assessment-design-by-bloom-s-level",
@@ -36135,7 +36377,7 @@
               "bloom's"
             ]
           },
-          "embedding_id": 761
+          "embedding_id": 765
         },
         {
           "id": "kmpd-method-training-effectiveness-evaluation-kirkpatrick",
@@ -36185,7 +36427,7 @@
               "evaluation"
             ]
           },
-          "embedding_id": 762
+          "embedding_id": 766
         },
         {
           "id": "kmpd-method-training-delivery-learning-levels",
@@ -36216,7 +36458,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 763
+          "embedding_id": 767
         },
         {
           "id": "kmpd-method-training-value-optimization",
@@ -36261,7 +36503,7 @@
               "optimization"
             ]
           },
-          "embedding_id": 764
+          "embedding_id": 768
         },
         {
           "id": "kmpd-method-twi-job-instruction-method",
@@ -36304,7 +36546,7 @@
               "method"
             ]
           },
-          "embedding_id": 765
+          "embedding_id": 769
         },
         {
           "id": "kmpd-method-best-practice-discovery-referenced-method",
@@ -36358,7 +36600,7 @@
               "discovery"
             ]
           },
-          "embedding_id": 766
+          "embedding_id": 770
         },
         {
           "id": "kmpd-method-implementation-context-for-human-leaders",
@@ -36410,7 +36652,7 @@
               "human"
             ]
           },
-          "embedding_id": 767
+          "embedding_id": 771
         },
         {
           "id": "kmpd-method-scaffolded-complexity",
@@ -36440,7 +36682,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 768
+          "embedding_id": 772
         },
         {
           "id": "kmpd-method-the-scaffolding-procedure",
@@ -36487,7 +36729,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 769
+          "embedding_id": 773
         },
         {
           "id": "kmpd-method-scaffolding-validation",
@@ -36528,7 +36770,7 @@
               "validation"
             ]
           },
-          "embedding_id": 770
+          "embedding_id": 774
         },
         {
           "id": "kmpd-method-when-content-arrives-out-of-order",
@@ -36583,7 +36825,7 @@
               "arrives"
             ]
           },
-          "embedding_id": 771
+          "embedding_id": 775
         }
       ],
       "references": [
@@ -36626,13 +36868,13 @@
               "source:"
             ],
             "purpose_keywords": [
-              "smart-packet",
-              "openpyxl",
-              "hotel",
-              "revenue-management",
               "marriott",
+              "openpyxl",
               "data-extraction",
-              "str"
+              "str",
+              "hotel",
+              "smart-packet",
+              "revenue-management"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -36646,7 +36888,7 @@
               "build"
             ]
           },
-          "embedding_id": 772
+          "embedding_id": 776
         },
         {
           "id": "ref-hotel-str-report-building",
@@ -36687,13 +36929,13 @@
               "philosophy:"
             ],
             "purpose_keywords": [
-              "docx",
-              "hotel",
-              "revenue-management",
-              "performance-analysis",
               "report",
               "document-building",
-              "str"
+              "str",
+              "hotel",
+              "performance-analysis",
+              "docx",
+              "revenue-management"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -36705,10 +36947,10 @@
               "gate"
             ]
           },
-          "embedding_id": 773
+          "embedding_id": 777
         }
       ],
-      "last_extracted": "2026-05-14T13:03:15.747695+00:00",
+      "last_extracted": "2026-05-14T13:09:20.305540+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -36758,7 +37000,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 774
+          "embedding_id": 778
         },
         {
           "id": "stor-architecture-a3-accessibility-by-design",
@@ -36801,7 +37043,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 775
+          "embedding_id": 779
         },
         {
           "id": "stor-structure-st1-framework-as-tool-not-law",
@@ -36844,7 +37086,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 776
+          "embedding_id": 780
         },
         {
           "id": "stor-structure-st2-cultural-aware-framework-selection",
@@ -36897,7 +37139,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 777
+          "embedding_id": 781
         },
         {
           "id": "stor-structure-st3-transformation-arc",
@@ -36943,7 +37185,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 778
+          "embedding_id": 782
         },
         {
           "id": "stor-structure-st4-stakes-and-consequence-clarity",
@@ -36989,7 +37231,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 779
+          "embedding_id": 783
         },
         {
           "id": "stor-structure-st5-perspective-selection",
@@ -37034,7 +37276,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 780
+          "embedding_id": 784
         },
         {
           "id": "stor-context-c1-specificity-over-abstraction",
@@ -37081,7 +37323,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 781
+          "embedding_id": 785
         },
         {
           "id": "stor-context-c2-show-tell-balance",
@@ -37126,7 +37368,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 782
+          "embedding_id": 786
         },
         {
           "id": "stor-context-c3-pacing-variation",
@@ -37169,7 +37411,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 783
+          "embedding_id": 787
         },
         {
           "id": "stor-context-c5-dialogue-craft",
@@ -37213,7 +37455,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 784
+          "embedding_id": 788
         },
         {
           "id": "stor-medium-m1-platform-first-optimization",
@@ -37264,7 +37506,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 785
+          "embedding_id": 789
         },
         {
           "id": "stor-medium-m4-resolution-calibration",
@@ -37308,7 +37550,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 786
+          "embedding_id": 790
         },
         {
           "id": "stor-safety-e1-human-voice-preservation",
@@ -37360,7 +37602,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 787
+          "embedding_id": 791
         },
         {
           "id": "stor-safety-e2-persuasion-manipulation-boundary",
@@ -37411,7 +37653,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 788
+          "embedding_id": 792
         }
       ],
       "methods": [
@@ -37467,7 +37709,7 @@
               "math"
             ]
           },
-          "embedding_id": 789
+          "embedding_id": 793
         },
         {
           "id": "stor-method-the-story-bible-architecture",
@@ -37520,7 +37762,7 @@
               "tiers?"
             ]
           },
-          "embedding_id": 790
+          "embedding_id": 794
         },
         {
           "id": "stor-method-reference-items-to-track",
@@ -37585,7 +37827,7 @@
               "guide"
             ]
           },
-          "embedding_id": 791
+          "embedding_id": 795
         },
         {
           "id": "stor-method-story-bible-template",
@@ -37647,7 +37889,7 @@
               "(25k+"
             ]
           },
-          "embedding_id": 792
+          "embedding_id": 796
         },
         {
           "id": "stor-method-story-foundation-immutable",
@@ -37693,7 +37935,7 @@
               "stakes"
             ]
           },
-          "embedding_id": 793
+          "embedding_id": 797
         },
         {
           "id": "stor-method-characters",
@@ -37742,7 +37984,7 @@
               "sheets...]"
             ]
           },
-          "embedding_id": 794
+          "embedding_id": 798
         },
         {
           "id": "stor-method-world",
@@ -37782,7 +38024,7 @@
               "magic/technology/social]"
             ]
           },
-          "embedding_id": 795
+          "embedding_id": 799
         },
         {
           "id": "stor-method-plot-architecture",
@@ -37834,7 +38076,7 @@
               "(reader"
             ]
           },
-          "embedding_id": 796
+          "embedding_id": 800
         },
         {
           "id": "stor-method-style-guide",
@@ -37887,7 +38129,7 @@
               "conventions"
             ]
           },
-          "embedding_id": 797
+          "embedding_id": 801
         },
         {
           "id": "stor-method-timeline",
@@ -37920,7 +38162,7 @@
               "events"
             ]
           },
-          "embedding_id": 798
+          "embedding_id": 802
         },
         {
           "id": "stor-method-session-state-working-memory",
@@ -37987,7 +38229,7 @@
               "last"
             ]
           },
-          "embedding_id": 799
+          "embedding_id": 803
         },
         {
           "id": "stor-method-context-loading-protocol",
@@ -38041,7 +38283,7 @@
               "guideline"
             ]
           },
-          "embedding_id": 800
+          "embedding_id": 804
         },
         {
           "id": "stor-method-when-to-create-new-reference-items",
@@ -38101,7 +38343,7 @@
               "mid-project"
             ]
           },
-          "embedding_id": 801
+          "embedding_id": 805
         },
         {
           "id": "stor-method-platform-specific-adaptations",
@@ -38164,7 +38406,7 @@
               "(web"
             ]
           },
-          "embedding_id": 802
+          "embedding_id": 806
         },
         {
           "id": "stor-method-voice-preservation-integration",
@@ -38223,7 +38465,7 @@
               "change"
             ]
           },
-          "embedding_id": 803
+          "embedding_id": 807
         },
         {
           "id": "stor-method-recovery-protocol",
@@ -38280,7 +38522,7 @@
               "long"
             ]
           },
-          "embedding_id": 804
+          "embedding_id": 808
         },
         {
           "id": "stor-method-governance-integration",
@@ -38324,7 +38566,7 @@
               "sessions"
             ]
           },
-          "embedding_id": 805
+          "embedding_id": 809
         },
         {
           "id": "stor-method-auto-tracking-protocol",
@@ -38387,7 +38629,7 @@
               "auto-extraction"
             ]
           },
-          "embedding_id": 806
+          "embedding_id": 810
         },
         {
           "id": "stor-method-revision-management-protocol",
@@ -38452,7 +38694,7 @@
               "type"
             ]
           },
-          "embedding_id": 807
+          "embedding_id": 811
         },
         {
           "id": "stor-method-non-linear-writing-protocol",
@@ -38516,7 +38758,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 808
+          "embedding_id": 812
         },
         {
           "id": "stor-method-story-log-template",
@@ -38578,7 +38820,7 @@
               "threads"
             ]
           },
-          "embedding_id": 809
+          "embedding_id": 813
         },
         {
           "id": "stor-method-character-voice-profiles",
@@ -38613,7 +38855,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 810
+          "embedding_id": 814
         },
         {
           "id": "stor-method-voice-profile-components",
@@ -38663,7 +38905,7 @@
               "profile"
             ]
           },
-          "embedding_id": 811
+          "embedding_id": 815
         },
         {
           "id": "stor-method-voice-distinction-test",
@@ -38711,7 +38953,7 @@
               "distinction"
             ]
           },
-          "embedding_id": 812
+          "embedding_id": 816
         },
         {
           "id": "stor-method-voice-drift-detection",
@@ -38756,7 +38998,7 @@
               "drift"
             ]
           },
-          "embedding_id": 813
+          "embedding_id": 817
         },
         {
           "id": "stor-method-genre-conventions-guide",
@@ -38790,7 +39032,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 814
+          "embedding_id": 818
         },
         {
           "id": "stor-method-convention-reference",
@@ -38839,7 +39081,7 @@
               "reference"
             ]
           },
-          "embedding_id": 815
+          "embedding_id": 819
         },
         {
           "id": "stor-method-convention-decision-workflow",
@@ -38890,7 +39132,7 @@
               "decision"
             ]
           },
-          "embedding_id": 816
+          "embedding_id": 820
         },
         {
           "id": "stor-method-plot-consistency-checks",
@@ -38925,7 +39167,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 817
+          "embedding_id": 821
         },
         {
           "id": "stor-method-check-categories",
@@ -38972,7 +39214,7 @@
               "categories"
             ]
           },
-          "embedding_id": 818
+          "embedding_id": 822
         },
         {
           "id": "stor-method-character-knowledge-audit",
@@ -39016,7 +39258,7 @@
               "knowledge"
             ]
           },
-          "embedding_id": 819
+          "embedding_id": 823
         },
         {
           "id": "stor-method-timeline-verification",
@@ -39058,7 +39300,7 @@
               "verification"
             ]
           },
-          "embedding_id": 820
+          "embedding_id": 824
         },
         {
           "id": "stor-method-quick-consistency-scan",
@@ -39102,7 +39344,7 @@
               "consistency"
             ]
           },
-          "embedding_id": 821
+          "embedding_id": 825
         },
         {
           "id": "stor-method-coaching-question-taxonomy",
@@ -39135,7 +39377,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 822
+          "embedding_id": 826
         },
         {
           "id": "stor-method-question-categories",
@@ -39181,7 +39423,7 @@
               "categories"
             ]
           },
-          "embedding_id": 823
+          "embedding_id": 827
         },
         {
           "id": "stor-method-discovery-questions",
@@ -39223,7 +39465,7 @@
               "questions"
             ]
           },
-          "embedding_id": 824
+          "embedding_id": 828
         },
         {
           "id": "stor-method-character-questions",
@@ -39265,7 +39507,7 @@
               "questions"
             ]
           },
-          "embedding_id": 825
+          "embedding_id": 829
         },
         {
           "id": "stor-method-structure-questions",
@@ -39307,7 +39549,7 @@
               "questions"
             ]
           },
-          "embedding_id": 826
+          "embedding_id": 830
         },
         {
           "id": "stor-method-craft-questions",
@@ -39349,7 +39591,7 @@
               "questions"
             ]
           },
-          "embedding_id": 827
+          "embedding_id": 831
         },
         {
           "id": "stor-method-revision-questions",
@@ -39391,7 +39633,7 @@
               "questions"
             ]
           },
-          "embedding_id": 828
+          "embedding_id": 832
         },
         {
           "id": "stor-method-stuck-questions",
@@ -39433,7 +39675,7 @@
               "questions"
             ]
           },
-          "embedding_id": 829
+          "embedding_id": 833
         },
         {
           "id": "stor-method-progressive-inquiry-pattern",
@@ -39498,11 +39740,11 @@
               "story"
             ]
           },
-          "embedding_id": 830
+          "embedding_id": 834
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-14T13:03:15.751397+00:00",
+      "last_extracted": "2026-05-14T13:09:20.309826+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -39547,7 +39789,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 831
+          "embedding_id": 835
         },
         {
           "id": "mrag-presentation-p2-natural-integration",
@@ -39588,7 +39830,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 832
+          "embedding_id": 836
         },
         {
           "id": "mrag-presentation-p3-image-selection-criteria",
@@ -39634,7 +39876,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 833
+          "embedding_id": 837
         },
         {
           "id": "mrag-presentation-p4-audience-adaptation",
@@ -39681,7 +39923,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 834
+          "embedding_id": 838
         },
         {
           "id": "mrag-presentation-p5-accessibility-compliance",
@@ -39724,7 +39966,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 835
+          "embedding_id": 839
         },
         {
           "id": "mrag-reference-r1-image-text-collocation",
@@ -39765,7 +40007,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 836
+          "embedding_id": 840
         },
         {
           "id": "mrag-reference-r2-descriptive-context",
@@ -39806,7 +40048,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 837
+          "embedding_id": 841
         },
         {
           "id": "mrag-reference-r3-retrieval-metadata",
@@ -39845,7 +40087,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 838
+          "embedding_id": 842
         },
         {
           "id": "mrag-architecture-a1-unified-embedding-space",
@@ -39886,7 +40128,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 839
+          "embedding_id": 843
         },
         {
           "id": "mrag-architecture-a2-relevance-scoring",
@@ -39927,7 +40169,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 840
+          "embedding_id": 844
         },
         {
           "id": "mrag-architecture-a3-vision-guided-chunking",
@@ -39968,7 +40210,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 841
+          "embedding_id": 845
         },
         {
           "id": "mrag-architecture-a4-document-as-image-retrieval",
@@ -40009,7 +40251,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 842
+          "embedding_id": 846
         },
         {
           "id": "mrag-architecture-a5-knowledge-graph-integration",
@@ -40052,7 +40294,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 843
+          "embedding_id": 847
         },
         {
           "id": "mrag-fallback-f1-graceful-degradation",
@@ -40091,7 +40333,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 844
+          "embedding_id": 848
         },
         {
           "id": "mrag-fallback-f2-failure-transparency",
@@ -40135,7 +40377,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 845
+          "embedding_id": 849
         },
         {
           "id": "mrag-verification-v1-cross-modal-consistency-verification",
@@ -40177,7 +40419,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 846
+          "embedding_id": 850
         },
         {
           "id": "mrag-verification-v2-visual-scene-graph-checking",
@@ -40222,7 +40464,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 847
+          "embedding_id": 851
         },
         {
           "id": "mrag-verification-v3-source-fidelity",
@@ -40262,7 +40504,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 848
+          "embedding_id": 852
         },
         {
           "id": "mrag-verification-v4-cross-modal-reasoning-chain-integrity",
@@ -40307,7 +40549,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 849
+          "embedding_id": 853
         },
         {
           "id": "mrag-evaluation-ev1-retrieval-quality-measurement",
@@ -40350,7 +40592,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 850
+          "embedding_id": 854
         },
         {
           "id": "mrag-evaluation-ev2-answer-faithfulness-assessment",
@@ -40393,7 +40635,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 851
+          "embedding_id": 855
         },
         {
           "id": "mrag-citation-ct1-fragment-level-source-attribution",
@@ -40442,7 +40684,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 852
+          "embedding_id": 856
         },
         {
           "id": "mrag-citation-ct2-spatial-attribution-for-visual-content",
@@ -40490,7 +40732,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 853
+          "embedding_id": 857
         },
         {
           "id": "mrag-security-sec1-multimodal-poisoning-defense",
@@ -40534,7 +40776,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 854
+          "embedding_id": 858
         },
         {
           "id": "mrag-security-sec2-cross-modal-input-validation",
@@ -40577,7 +40819,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 855
+          "embedding_id": 859
         },
         {
           "id": "mrag-data-governance-dg1-access-control-for-multimodal-knowledge-bases",
@@ -40622,7 +40864,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 856
+          "embedding_id": 860
         },
         {
           "id": "mrag-data-governance-dg2-data-lineage-and-provenance",
@@ -40665,7 +40907,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 857
+          "embedding_id": 861
         },
         {
           "id": "mrag-operations-o1-index-version-management",
@@ -40707,7 +40949,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 858
+          "embedding_id": 862
         },
         {
           "id": "mrag-operations-o2-continuous-monitoring-observability",
@@ -40757,7 +40999,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 859
+          "embedding_id": 863
         },
         {
           "id": "mrag-agentic-retrieval-ag1-adaptive-retrieval-strategy",
@@ -40800,7 +41042,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 860
+          "embedding_id": 864
         },
         {
           "id": "mrag-agentic-retrieval-ag2-query-decomposition",
@@ -40842,7 +41084,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 861
+          "embedding_id": 865
         },
         {
           "id": "mrag-agentic-retrieval-ag3-retrieval-sufficiency-evaluation",
@@ -40895,7 +41137,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 862
+          "embedding_id": 866
         }
       ],
       "methods": [
@@ -40935,7 +41177,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 863
+          "embedding_id": 867
         },
         {
           "id": "mrag-method-image-placement-workflow",
@@ -40979,7 +41221,7 @@
               "workflow"
             ]
           },
-          "embedding_id": 864
+          "embedding_id": 868
         },
         {
           "id": "mrag-method-inline-placement-rules",
@@ -41023,7 +41265,7 @@
               "rules"
             ]
           },
-          "embedding_id": 865
+          "embedding_id": 869
         },
         {
           "id": "mrag-method-image-selection-algorithm-mayer-based",
@@ -41070,7 +41312,7 @@
               "algorithm"
             ]
           },
-          "embedding_id": 866
+          "embedding_id": 870
         },
         {
           "id": "mrag-method-content-type-matching",
@@ -41111,7 +41353,7 @@
               "matching"
             ]
           },
-          "embedding_id": 867
+          "embedding_id": 871
         },
         {
           "id": "mrag-method-readability-standards",
@@ -41154,7 +41396,7 @@
               "standards"
             ]
           },
-          "embedding_id": 868
+          "embedding_id": 872
         },
         {
           "id": "mrag-method-accessibility-implementation-checklist",
@@ -41218,7 +41460,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 869
+          "embedding_id": 873
         },
         {
           "id": "mrag-method-reference-document-structuring",
@@ -41258,7 +41500,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 870
+          "embedding_id": 874
         },
         {
           "id": "mrag-method-document-organization-template",
@@ -41302,7 +41544,7 @@
               "template"
             ]
           },
-          "embedding_id": 871
+          "embedding_id": 875
         },
         {
           "id": "mrag-method-image-description-requirements",
@@ -41349,7 +41591,7 @@
               "requirements"
             ]
           },
-          "embedding_id": 872
+          "embedding_id": 876
         },
         {
           "id": "mrag-method-metadata-schema",
@@ -41390,7 +41632,7 @@
               "schema"
             ]
           },
-          "embedding_id": 873
+          "embedding_id": 877
         },
         {
           "id": "mrag-method-collocation-verification-checklist",
@@ -41434,7 +41676,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 874
+          "embedding_id": 878
         },
         {
           "id": "mrag-method-content-ingestion-assistance-workflow",
@@ -41501,7 +41743,7 @@
               "validation"
             ]
           },
-          "embedding_id": 875
+          "embedding_id": 879
         },
         {
           "id": "mrag-method-retrieval-architecture",
@@ -41539,7 +41781,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 876
+          "embedding_id": 880
         },
         {
           "id": "mrag-method-four-layer-architecture",
@@ -41580,7 +41822,7 @@
               "architecture"
             ]
           },
-          "embedding_id": 877
+          "embedding_id": 881
         },
         {
           "id": "mrag-method-embedding-model-selection",
@@ -41629,7 +41871,7 @@
               "selection"
             ]
           },
-          "embedding_id": 878
+          "embedding_id": 882
         },
         {
           "id": "mrag-method-relevance-scoring-implementation",
@@ -41671,7 +41913,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 879
+          "embedding_id": 883
         },
         {
           "id": "mrag-method-chunk-strategy-for-multimodal-documents",
@@ -41718,7 +41960,7 @@
               "multimodal"
             ]
           },
-          "embedding_id": 880
+          "embedding_id": 884
         },
         {
           "id": "mrag-method-vision-guided-chunking-procedures",
@@ -41775,7 +42017,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 881
+          "embedding_id": 885
         },
         {
           "id": "mrag-method-cross-modal-reference-linking",
@@ -41833,7 +42075,7 @@
               "linking"
             ]
           },
-          "embedding_id": 882
+          "embedding_id": 886
         },
         {
           "id": "mrag-method-late-interaction-and-document-as-image-retrieval",
@@ -41894,7 +42136,7 @@
               "document-as-image"
             ]
           },
-          "embedding_id": 883
+          "embedding_id": 887
         },
         {
           "id": "mrag-method-graph-based-multimodal-retrieval",
@@ -41953,7 +42195,7 @@
               "retrieval"
             ]
           },
-          "embedding_id": 884
+          "embedding_id": 888
         },
         {
           "id": "mrag-method-failure-handling",
@@ -41991,7 +42233,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 885
+          "embedding_id": 889
         },
         {
           "id": "mrag-method-failure-classification",
@@ -42032,7 +42274,7 @@
               "classification"
             ]
           },
-          "embedding_id": 886
+          "embedding_id": 890
         },
         {
           "id": "mrag-method-graceful-degradation-procedure",
@@ -42076,7 +42318,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 887
+          "embedding_id": 891
         },
         {
           "id": "mrag-method-failure-note-templates",
@@ -42123,7 +42365,7 @@
               "templates"
             ]
           },
-          "embedding_id": 888
+          "embedding_id": 892
         },
         {
           "id": "mrag-method-failure-logging-schema",
@@ -42167,7 +42409,7 @@
               "schema"
             ]
           },
-          "embedding_id": 889
+          "embedding_id": 893
         },
         {
           "id": "mrag-method-verification-and-hallucination-prevention",
@@ -42207,7 +42449,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 890
+          "embedding_id": 894
         },
         {
           "id": "mrag-method-cross-modal-consistency-check",
@@ -42261,7 +42503,7 @@
               "check"
             ]
           },
-          "embedding_id": 891
+          "embedding_id": 895
         },
         {
           "id": "mrag-method-visual-scene-graph-validation",
@@ -42315,7 +42557,7 @@
               "graph"
             ]
           },
-          "embedding_id": 892
+          "embedding_id": 896
         },
         {
           "id": "mrag-method-modality-conflict-resolution",
@@ -42369,7 +42611,7 @@
               "resolution"
             ]
           },
-          "embedding_id": 893
+          "embedding_id": 897
         },
         {
           "id": "mrag-method-visual-textual-inconsistency-handling",
@@ -42422,7 +42664,7 @@
               "handling"
             ]
           },
-          "embedding_id": 894
+          "embedding_id": 898
         },
         {
           "id": "mrag-method-multi-hop-cross-modal-reasoning-verification",
@@ -42483,7 +42725,7 @@
               "reasoning"
             ]
           },
-          "embedding_id": 895
+          "embedding_id": 899
         },
         {
           "id": "mrag-method-evaluation-framework",
@@ -42521,7 +42763,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 896
+          "embedding_id": 900
         },
         {
           "id": "mrag-method-rag-check-6-metric-implementation",
@@ -42579,7 +42821,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 897
+          "embedding_id": 901
         },
         {
           "id": "mrag-method-multimodal-mrr-calculation",
@@ -42631,7 +42873,7 @@
               "calculation"
             ]
           },
-          "embedding_id": 898
+          "embedding_id": 902
         },
         {
           "id": "mrag-method-drift-detection",
@@ -42686,7 +42928,7 @@
               "detection"
             ]
           },
-          "embedding_id": 899
+          "embedding_id": 903
         },
         {
           "id": "mrag-method-benchmark-construction",
@@ -42737,7 +42979,7 @@
               "construction"
             ]
           },
-          "embedding_id": 900
+          "embedding_id": 904
         },
         {
           "id": "mrag-method-citation-and-attribution",
@@ -42775,7 +43017,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 901
+          "embedding_id": 905
         },
         {
           "id": "mrag-method-fragment-level-source-tracking",
@@ -42837,7 +43079,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 902
+          "embedding_id": 906
         },
         {
           "id": "mrag-method-visa-spatial-attribution",
@@ -42891,7 +43133,7 @@
               "attribution"
             ]
           },
-          "embedding_id": 903
+          "embedding_id": 907
         },
         {
           "id": "mrag-method-citation-formatting",
@@ -42942,7 +43184,7 @@
               "formatting"
             ]
           },
-          "embedding_id": 904
+          "embedding_id": 908
         },
         {
           "id": "mrag-method-citation-verification-checklist",
@@ -42986,7 +43228,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 905
+          "embedding_id": 909
         },
         {
           "id": "mrag-method-security-for-multimodal-knowledge-bases",
@@ -43028,7 +43270,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 906
+          "embedding_id": 910
         },
         {
           "id": "mrag-method-poisoning-attack-taxonomy",
@@ -43089,7 +43331,7 @@
               "taxonomy"
             ]
           },
-          "embedding_id": 907
+          "embedding_id": 911
         },
         {
           "id": "mrag-method-input-validation-pipeline",
@@ -43138,7 +43380,7 @@
               "pipeline"
             ]
           },
-          "embedding_id": 908
+          "embedding_id": 912
         },
         {
           "id": "mrag-method-defense-assessment-checklist",
@@ -43189,7 +43431,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 909
+          "embedding_id": 913
         },
         {
           "id": "mrag-method-cross-domain-security-reference",
@@ -43239,7 +43481,7 @@
               "reference"
             ]
           },
-          "embedding_id": 910
+          "embedding_id": 914
         },
         {
           "id": "mrag-method-data-governance",
@@ -43277,7 +43519,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 911
+          "embedding_id": 915
         },
         {
           "id": "mrag-method-rbac-configuration",
@@ -43327,7 +43569,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 912
+          "embedding_id": 916
         },
         {
           "id": "mrag-method-encryption-and-transit-security",
@@ -43380,7 +43622,7 @@
               "security"
             ]
           },
-          "embedding_id": 913
+          "embedding_id": 917
         },
         {
           "id": "mrag-method-audit-trail-schema",
@@ -43432,7 +43674,7 @@
               "schema"
             ]
           },
-          "embedding_id": 914
+          "embedding_id": 918
         },
         {
           "id": "mrag-method-data-lineage-tracking",
@@ -43485,7 +43727,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 915
+          "embedding_id": 919
         },
         {
           "id": "mrag-method-operational-management",
@@ -43537,7 +43779,7 @@
               "index"
             ]
           },
-          "embedding_id": 916
+          "embedding_id": 920
         },
         {
           "id": "mrag-method-embedding-model-lifecycle",
@@ -43591,7 +43833,7 @@
               "model"
             ]
           },
-          "embedding_id": 917
+          "embedding_id": 921
         },
         {
           "id": "mrag-method-prompt-template-versioning",
@@ -43643,7 +43885,7 @@
               "template"
             ]
           },
-          "embedding_id": 918
+          "embedding_id": 922
         },
         {
           "id": "mrag-method-cost-monitoring",
@@ -43699,7 +43941,7 @@
               "monitoring"
             ]
           },
-          "embedding_id": 919
+          "embedding_id": 923
         },
         {
           "id": "mrag-method-observability-dashboard",
@@ -43752,7 +43994,7 @@
               "dashboard"
             ]
           },
-          "embedding_id": 920
+          "embedding_id": 924
         },
         {
           "id": "mrag-method-agentic-retrieval-patterns",
@@ -43792,7 +44034,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 921
+          "embedding_id": 925
         },
         {
           "id": "mrag-method-adaptive-retrieval-loop-design",
@@ -43852,7 +44094,7 @@
               "retrieval"
             ]
           },
-          "embedding_id": 922
+          "embedding_id": 926
         },
         {
           "id": "mrag-method-query-decomposition-procedures",
@@ -43915,7 +44157,7 @@
               "decomposition"
             ]
           },
-          "embedding_id": 923
+          "embedding_id": 927
         },
         {
           "id": "mrag-method-retrieval-sufficiency-evaluation",
@@ -43970,7 +44212,7 @@
               "sufficiency"
             ]
           },
-          "embedding_id": 924
+          "embedding_id": 928
         },
         {
           "id": "mrag-method-agent-coordination-for-knowledge-synthesis",
@@ -44033,7 +44275,7 @@
               "coordination"
             ]
           },
-          "embedding_id": 925
+          "embedding_id": 929
         },
         {
           "id": "mrag-method-termination-and-fallback-controls",
@@ -44108,11 +44350,11 @@
               "multimodal"
             ]
           },
-          "embedding_id": 926
+          "embedding_id": 930
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-14T13:03:15.757211+00:00",
+      "last_extracted": "2026-05-14T13:09:20.314934+00:00",
       "version": "1.0"
     }
   },
@@ -44198,7 +44440,7 @@
       "embedding_id": 7
     }
   ],
-  "created_at": "2026-05-14T13:03:21.298653+00:00",
+  "created_at": "2026-05-14T13:09:25.638874+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384

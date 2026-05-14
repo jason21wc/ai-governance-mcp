@@ -7,14 +7,14 @@ status: current
 entry_type: reference
 summary: "Multiplicative framework for ranking candidate solutions by joint Effectiveness × Efficiency product, with zero-out and balance-bias structural properties"
 created: 2026-04-26
-last_verified: 2026-04-26
-maturity: emerging
+last_verified: 2026-05-14
+maturity: budding
 decay_class: stable
 source: "Working paper authored within this project"
 external_url: ""
 external_author: "Jason Collier"
 accessed_date: 2026-04-26
-related: [ref-ai-coding-willison-hoard-pattern]
+related: [ref-ai-coding-willison-hoard-pattern, ref-ai-coding-hybrid-ui-architecture-decision, ref-ai-coding-re-evaluation-protocol-case-study]
 ---
 
 ## Context
