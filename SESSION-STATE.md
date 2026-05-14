@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-14 (session-172 — BACKLOG #162 Accounting Domain).
+**Last Updated:** 2026-05-14 (session-173 — Operational cleanup + BACKLOG #161 close).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,23 +12,25 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-172 (2026-05-14) — BACKLOG #162 Accounting Domain.**
+**Session-173 (2026-05-14) — Operational cleanup + BACKLOG #160/#161 close.**
 
-**ACTION ON RESUME (session-173):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Docker image rebuild needed (src/ changed across sessions 168-172).
+**ACTION ON RESUME (session-174):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed this session).
 
 **Critical state for next session:**
-- **Accounting Domain shipped** — BACKLOG #162 closed. 8th governance domain: 12 principles across 4 series (LE: Ledger Integrity, EC: Entity & Classification, TC: Temporal & Compliance, RC: Reconciliation & Controls). Methods/CFR with 9 sections including QBO integration (Appendix A) and domain-tools ecosystem catalog (Appendix B).
-- **19 files changed** — 2 created (title-22-accounting.md, title-22-accounting-cfr.md), 17 modified (extractor.py, config.py, domains.json, ai-instructions.md, README.md, ARCHITECTURE.md, SPECIFICATION.md, EXECUTION-FRAMEWORK.md, SESSION-STATE.md, BACKLOG.md, test_extractor.py, test_config.py, test_server_governance.py, retrieval_quality.json).
-- **1724 tests passing** (up from 1710 — 14 new tests for accounting prefix, series map, S-Series safety, principle extraction, integration).
-- **Coherence audit** completed: 1D + 8M + 3C findings, all resolved. Dangerous: ARCHITECTURE.md benchmark coverage claim fixed. Key extractor fix: substring collision in category_mapping (le-series matched e-series → "safety"; ec/tc/rc-series matched c-series → "context").
-- **Docker rebuild still needed** from sessions 168-172.
-- **Context Engine index** should be refreshed (`index_project`) to pick up new accounting documents.
+- **Docker v2.0.0 rebuilt and pushed** — `jason21wc/ai-governance-mcp:2.0.0` + `:latest` on Docker Hub. 8 domains, 909 entries in image index.
+- **CE re-indexed** — 297 files, 5,987 chunks. Accounting documents now discoverable.
+- **Claude App enforcement proxy activated** — `claude_desktop_config.json` updated to route through `ai-governance-proxy --soft-mode`. Soft mode warns but doesn't block. Restart Claude App to activate. Flip to hard mode by removing `--soft-mode` flag.
+- **BACKLOG #160 closed** — scaffold theater root_cause field. M-001 at 69% doesn't justify the complexity; user will revisit if concern resurfaces.
+- **BACKLOG #161 closed** — Claude App enforcement. Proxy configured in soft mode; trigger fired (user is an active Claude App user seeing enforcement gaps).
+- **BACKLOG #53 stale stub removed** — was already shipped session-171.
+- **All commits pushed** — prior sessions 169-172 were already on origin (SESSION-STATE note was stale). This session's commit `7b892fb` pushed.
+- **Backlog** — 5 discussion items remain (#6, #11, #41, #45, #46).
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-172 (2026-05-14) — BACKLOG #162 Accounting Domain.
+- **Phase:** Session-173 (2026-05-14) — Operational cleanup + BACKLOG #160/#161 close.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25).
 
@@ -50,24 +52,26 @@
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **4** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | Last push: session-168. Session-171 changes unpushed. |
+| CI | Last push: session-173 (`7b892fb`). All pushed. |
 
 ---
 
 ## Last Session (2026-05-14)
 
-172. **Session-172 (2026-05-14): BACKLOG #162 Accounting Domain.**
-   - **New domain shipped:** 8th governance domain — "Accounting" with 12 principles across 4 series (LE/EC/TC/RC), methods/CFR with 9 sections including QBO integration appendix and domain-tools ecosystem catalog.
-   - **19 files changed:** 2 created (principles + CFR), 4 code files (extractor.py, config.py, domains.json, ai-instructions.md), 5 documentation files (README, ARCHITECTURE, SPECIFICATION, EXECUTION-FRAMEWORK, BACKLOG), 4 test files.
-   - **14 new tests:** `TestGetDomainPrefixAccounting` (1), `TestAccountingCategorySeriesMap` (7), `TestAccountingPrincipleExtraction` (1), `TestAccountingDomainIntegration` (3), updated `TestDefaultDomains` (1 modified), benchmark queries (5 added).
-   - **Extractor fix:** Substring collision in `category_mapping` — `le-series` matched `e-series` → "safety", `ec/tc/rc-series` matched `c-series` → "context". Fixed by adding accounting entries before shorter colliding patterns.
-   - **Coherence audit:** 1D + 8M + 3C findings, all resolved. Propagated domain count 7→8 across SPECIFICATION.md, EXECUTION-FRAMEWORK.md. Added accounting to `_static_series` and `_static_skip` fallback lists.
-   - **Double-check audit (3 subagents):** coherence-auditor (0D+3M+2C), code-reviewer (1H+3M), validator (27/28 pass). Fixed: ARCHITECTURE.md file tree (6→7 domain files, added title-22 entries), ai-instructions.md version pins + changelog entry for v4.0.6, substring collision regression test (4 accounting pairs added to `test_no_substring_collisions_in_ordering`), Success Criteria sections added to all 12 accounting principles.
-   - **Tests:** 1724 passing (up from 1710). Index: 145 principles + 764 methods + 18 references (927 total).
+173. **Session-173 (2026-05-14): Operational cleanup + BACKLOG #160/#161 close.**
+   - **Docker v2.0.0 rebuilt and pushed** to Docker Hub (`jason21wc/ai-governance-mcp:2.0.0` + `:latest`). 8 domains, 909 index entries. Smoke tested.
+   - **CE re-indexed** — 297 files, 5,987 chunks. Accounting documents now discoverable via `query_project`.
+   - **Index + 4 reference library articles committed and pushed** (`7b892fb`). Elegance Equation metadata updated.
+   - **BACKLOG #161 closed** — Claude App enforcement proxy activated in `claude_desktop_config.json` (soft mode). Trigger fired: user is active Claude App user seeing enforcement gaps. Proxy wraps governance server at stdio protocol level.
+   - **BACKLOG #160 closed** — scaffold theater root_cause field. Systemic analysis: M-001 at 69% influence rate shows governance landing; #160 treats symptom (text quality) not structural cause (does governance change decisions). User will revisit if concern resurfaces.
+   - **BACKLOG #53 stale stub removed** — shipped session-171, entry should have been deleted per closing procedure.
+   - **Stale SESSION-STATE note corrected** — "unpushed since session-168" was wrong; all prior commits already on origin.
 
 ---
 
 ## Previous Sessions
+
+*Session-172 (2026-05-14) BACKLOG #162 Accounting Domain — 8th domain, 12 principles, 4 series. 1724 tests.*
 
 *Session-171 (2026-05-13) BACKLOG #53 Modular Domain Architecture — filesystem-based domain discovery. 1710 tests.*
 
@@ -114,11 +118,10 @@
 ## Next Actions
 
 **Time-cued:**
-1. **Compliance Review #9** — due ~2026-05-22–2026-05-27 (10-15 days from Review #8 on 2026-05-12). Invoke `/compliance-review`.
+1. **Compliance Review #9** — due ~2026-05-22–2026-05-27 (10-15 days from Review #8 on 2026-05-12). Invoke `/compliance-review`. Includes first Check 12 (constraint retirement) + first Check 7b (permission coverage).
 2. **C-109 deferred-cadence audit** — due ~2026-05-25. See OPERATIONS.md.
 3. **C-155 feedback loop analysis** — next run due ~2026-06-07. See OPERATIONS.md.
-4. **Docker image rebuild** — sessions 168-172 changed src/ files. Rebuild and push.
-5. **Context Engine re-index** — new accounting documents need indexing for `query_project` discovery.
+4. **Monitor Claude App proxy** — soft mode deployed session-173. Observe whether warnings appear. Flip to hard mode when ready.
 
 **Trigger-gated (tracked in OPERATIONS.md):**
 - **T-149** — CE-first compliance measurement (3-5 sessions, <85% activates Phase 2 hook). CE-First Phase 2 (grep/glob advisory hook) activates only if this fires.

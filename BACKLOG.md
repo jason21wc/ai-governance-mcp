@@ -59,14 +59,6 @@
 
 **Evidence note (2026-05-13):** Thariq Shihipar's "The Unreasonable Effectiveness of HTML" (https://thariqs.github.io/html-effectiveness/) — 20 AI-generated self-contained HTML artifacts (reports, diagrams, decks, editors) demonstrating that HTML output artifacts improve human engagement vs. markdown. Relevant as a modern instance of visual communication principles applied to AI output. Key distinction for this domain: HTML is effective as an *output rendering format* for human consumption, while Markdown remains better as *source format* for LLM input (per arXiv 2411.10541, web2md.org benchmarks showing +23-40% accuracy for Markdown input). This input/output format distinction is itself a candidate principle.
 
-#### 53. ~~Modular Domain Architecture~~ **CLOSED** (session-171, 2026-05-13) `D3 New Capability`
-
-**Shipped:** Filesystem-based domain discovery. Domains auto-discovered from YAML frontmatter in `documents/` (`constitution.md` + `title-*-*.md`). Drop a file in, rebuild index, restart — no code changes. 3-tier fallback: filesystem → `domains.json` override → hardcoded. S-Series safety guard, dynamic server enums, 23 new tests (1713 total). See commit `1ba4c78`.
-
-**Origin:** User request (2026-04-04).
-
----
-
 #### 11. Autonomous Operations Domain (Discussion) `D3 New Capability`
 
 **What:** Autonomous agent patterns (AO-Series, currently 4 principles in Multi-Agent) may eventually outgrow the multi-agent domain. This would create a dedicated domain for autonomous operation governance — financial compliance, regulatory frameworks, agent marketplace governance, cross-org federation.
@@ -114,24 +106,4 @@
 **Origin:** Hermes Agent evaluation (2026-04-01). Their conditional activation metadata adapted to our retrieval-based model.
 
 ---
-
-#### 160. Structural root_cause Artifact in log_governance_reasoning (Discussion) `D2 Improvement`
-
-**What:** Add a `root_cause` field to `log_governance_reasoning` tool that requires naming the structural cause distinct from the triggering symptom. If empty or matches planned_action text (restated symptom), flag it. Creates a verifiable artifact per LEARNING-LOG "Codified Rules Need Structural Anti-Theater Gates."
-
-**Why deferred:** The critical-5 scaffold format is a prompt-level hint; this field is the structural enforcement complement. Ship scaffold first, assess scaffold theater prevalence at Compliance Review #8.
-
-**Trigger:** Scaffold theater detected — >50% of critical-5 scaffold responses are pro-forma restated symptoms rather than genuine root-cause analysis. Check at Compliance Review #8 (~2026-06-09).
-
-**Origin:** Critical 5 reasoning scaffold plan (2026-05-10). Contrarian C1 (scaffold theater risk).
-
-#### 161. Claude App Enforcement Effectiveness (Discussion) `D2 Improvement`
-
-**What:** Investigate and improve governance enforcement effectiveness for Claude App users. Current state: no hooks, no CLAUDE.md, only SERVER_INSTRUCTIONS + tool responses + enforcement proxy (if configured). See EXECUTION-FRAMEWORK.md §8.4 for the full layer matrix and gap analysis.
-
-**Possible directions:** (1) Enforcement proxy adoption guide for Claude App users, (2) Enhanced SERVER_INSTRUCTIONS with critical-5 re-injection patterns, (3) Tool-response-level enforcement — refuse to return results from other tools until governance called (requires enforcement proxy), (4) Investigate whether Claude App supports any hook-like mechanism.
-
-**Trigger:** User actively uses ai-governance from Claude App and reports enforcement gaps.
-
-**Origin:** Critical 5 reasoning scaffold plan (2026-05-10). Cross-platform enforcement gap analysis.
 
