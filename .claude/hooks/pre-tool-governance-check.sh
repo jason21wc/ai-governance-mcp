@@ -89,7 +89,7 @@ if re.search(r'&&|\|\||;', cmd):
     print('false')
     sys.exit(0)
 # Strip safe stderr redirections before checking for output redirects
-cleaned = re.sub(r'2>[>&][^ ]*', '', cmd)
+cleaned = re.sub(r'2>>[^ ;|&()<>]*|2>&[^ ;|&()<>]*|2>\s*[^ ;|&()<>]*', '', cmd)
 if re.search(r'>>', cleaned) or re.search(r'>', cleaned):
     print('false')
     sys.exit(0)

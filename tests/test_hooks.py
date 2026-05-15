@@ -1411,6 +1411,69 @@ class TestPreToolReadOnlyBashAllowlist:
         finally:
             os.unlink(transcript_path)
 
+    def test_readonly_grep_with_stderr_redirect(self):
+        """grep with 2>/dev/null is read-only — should allow without governance.
+
+        Regression: stderr-stripping regex must handle 2>/dev/null, not just 2>&1.
+        """
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(
+                    transcript_path, command="grep -r 'pattern' src/ 2>/dev/null"
+                ),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == "" or "deny" not in result.stdout
+        finally:
+            os.unlink(transcript_path)
+
+    def test_readonly_find_with_stderr_redirect(self):
+        """find with 2>/dev/null is read-only — should allow without governance."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(
+                    transcript_path, command='find . -name "*.py" 2>/dev/null'
+                ),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == "" or "deny" not in result.stdout
+        finally:
+            os.unlink(transcript_path)
+
+    def test_readonly_stderr_to_stdout_regression(self):
+        """grep with 2>&1 is read-only — should allow (regression lock)."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(
+                    transcript_path, command="grep -r 'pattern' src/ 2>&1"
+                ),
+            )
+            assert result.returncode == 0
+            assert result.stdout.strip() == "" or "deny" not in result.stdout
+        finally:
+            os.unlink(transcript_path)
+
+    def test_stdout_redirect_still_denied(self):
+        """stdout redirect (not stderr) must still require governance."""
+        transcript_path = create_transcript([make_tool_use_entry("some_other_tool")])
+        try:
+            result = run_hook(
+                PRETOOL_HOOK,
+                self._hook_input(
+                    transcript_path, command="grep 'foo' bar > output.txt"
+                ),
+            )
+            output = json.loads(result.stdout)
+            assert output["hookSpecificOutput"]["permissionDecision"] == "deny"
+        finally:
+            os.unlink(transcript_path)
+
 
 # ---------------------------------------------------------------------------
 # UserPromptSubmit Hook Tests
