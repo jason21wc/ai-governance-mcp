@@ -127,7 +127,8 @@ Per §5.1.6, run this project's completion sequence after changes. Invoke via `/
 > Items 6-20 require manual verification.
 
 **Source of truth:**
-1. Update `documents/domains.json` (name, display_name, files, description, priority)
+1. Create/update `documents/title-NN-domain.md` with YAML frontmatter (`domain`, `display_name`, `description`, `priority`, `prefix`)
+1a. Optionally update `documents/domains.json` override entry (field overrides only — see RoP §2.2.1)
 
 **Code surfaces:**
 2. `src/ai_governance_mcp/config.py` — `_default_domains()` fallback

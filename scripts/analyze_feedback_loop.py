@@ -656,10 +656,11 @@ def _print_summary(result: dict) -> None:
 
 
 def _find_project_root() -> Path:
-    """Find the project root by looking for documents/domains.json."""
+    """Find the project root by looking for documents/constitution.md or domains.json."""
     current = Path(__file__).resolve().parent
     for _ in range(10):
-        if (current / "documents" / "domains.json").exists():
+        docs = current / "documents"
+        if (docs / "constitution.md").exists() or (docs / "domains.json").exists():
             return current
         current = current.parent
     return Path.cwd()

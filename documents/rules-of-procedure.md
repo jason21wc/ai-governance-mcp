@@ -1,14 +1,14 @@
 ---
-version: "3.31.5"
+version: "3.31.6"
 status: "active"
-effective_date: "2026-05-01"
+effective_date: "2026-05-14"
 domain: "constitution"
 ---
 
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.31.5
+**Version:** 3.31.6
 **Status:** Active
 **Effective Date:** 2026-05-03
 **Governance Level:** Constitution Methods (implements meta-principles)
@@ -37,7 +37,7 @@ This document defines operational procedures for maintaining the AI Governance F
                               |
                               v
 +-------------------------------------------------------------+
-|  Domain Methods (see domains.json for current list)          |
+|  Domain Methods (discovered from documents/title-*-*.md)     |
 |  Domain-specific operational procedures.                     |
 +-------------------------------------------------------------+
 ```
@@ -241,8 +241,8 @@ governance_level: "federal-regulations"
 > **Note on `rules-of-procedure` value (v3.27.4 clarification, F-C-05 follow-up):** The value `rules-of-procedure` was historically valid and used in `rules-of-procedure.md`'s own frontmatter. Removed from that file per F-C-05 (v3.27.3) after grep confirmed zero code consumers of the field. Retained here as a valid authoring value for any future document at the Rules-of-Procedure layer + for backward compatibility with archived docs (pre-v3.27.3 snapshots in `documents/archive/` will still declare it). No active document currently uses this value.
 
 **Frontmatter `status` semantics:**
-- `draft` — **Pre-release.** Content is in development, not yet registered in `domains.json`, and not indexed.
-- `active` — **Published.** Registered in `domains.json`, indexed, and active.
+- `draft` — **Pre-release.** Content is in development, not yet discoverable by the server, and not indexed.
+- `active` — **Published.** Discoverable from frontmatter, indexed, and active.
 - `deprecated` — **Sunset.** Still indexed (de-ranked in retrieval) during transition period.
 
 See §5.1.4 for the full document lifecycle.
@@ -348,22 +348,24 @@ Before updating, determine change type per TITLE 1:
 
 **Importance: IMPORTANT - Reference configuration**
 
-### 2.2.1 domains.json Structure
+### 2.2.1 Domain Override Configuration (domains.json)
 
-**Applies To:** configuring a domain entry in domains.json, understanding required fields (name, display_name, principles_file, methods_file, description, priority), setting domain routing priority
+**Applies To:** optionally overriding domain metadata discovered from frontmatter — adjusting display_name, description, priority, or prefix without editing the domain's markdown file
+
+Domains are discovered automatically from YAML frontmatter in `documents/constitution.md` and `documents/title-*-*.md` files (see §5.1 for the creation procedure). The optional `documents/domains.json` file provides field-level overrides for discovered domains — it cannot create or remove domains.
 
 ```json
 {
   "domain-name": {
     "name": "domain-name",
     "display_name": "Human Readable Name",
-    "principles_file": "domain-principles.md",
-    "methods_file": "domain-methods.md",
     "description": "Domain description for routing...",
     "priority": 10
   }
 }
 ```
+
+**Override fields:** `display_name`, `description`, `priority`, `prefix`. Other fields (`principles_file`, `methods_file`) are derived from filesystem conventions and should not be overridden.
 
 **Priority:** 0 = Constitution, 10 = primary domains, 20+ = secondary domains.
 
@@ -398,8 +400,8 @@ Configurable via: `AI_GOVERNANCE_INDEX_PATH` environment variable
 ### 3.1.3 When to Rebuild
 
 Rebuild index when:
-- Any governance document is updated
-- domains.json is modified
+- Any governance document is updated (content or frontmatter)
+- `domains.json` overrides are modified
 - Embedding model is changed
 - Index corruption suspected
 
@@ -969,7 +971,7 @@ After any framework update, validate:
 | Category | Check | How to Verify |
 |----------|-------|---------------|
 | **Document** | Version updated, history entry added | Read document header |
-| **References** | domains.json points to new version | Check `documents/domains.json` |
+| **References** | Domain files discoverable with correct frontmatter | Check `documents/title-*-*.md` frontmatter |
 | **Index** | Rebuilt and searchable | `python -m ai_governance_mcp.extractor` |
 | **Functional** | Tools respond, queries return results | `pytest tests/ -m "not slow"` |
 
@@ -989,7 +991,7 @@ After any framework update, validate:
 
 | Check | Pass Criteria |
 |-------|---------------|
-| All domains.json files exist | No missing files in `documents/` |
+| All domain files exist in `documents/` | No missing `title-*-*.md` files with valid frontmatter |
 | Index current | Rebuild timestamp matches latest document change |
 | Query latency | < 100ms for typical queries |
 | Cross-references | No broken links between documents |
@@ -1139,16 +1141,16 @@ The key test is not "have I already done this?" but "will AI-specific failure mo
 
 ### 5.1.1 New Domain Checklist
 
-**Applies To:** step-by-step procedure for adding a new governance domain — creating principle/method documents, registering in domains.json, rebuilding the index, and validating routing
+**Applies To:** step-by-step procedure for adding a new governance domain — creating principle/method documents with YAML frontmatter, rebuilding the index, and validating routing
 
 To add a new domain:
 
-- [ ] Create domain principles document
-- [ ] Create domain methods document (optional)
-- [ ] Add entry to domains.json
-- [ ] Set appropriate priority
-- [ ] Rebuild index
-- [ ] Validate domain routing
+- [ ] Create `documents/title-NN-domainname.md` with YAML frontmatter (see §5.1.3 for required fields)
+- [ ] Create `documents/title-NN-domainname-cfr.md` methods document (optional; auto-discovered by naming convention)
+- [ ] Set frontmatter `status: "active"` and `version: "1.0.0"`
+- [ ] Optionally add `domains.json` override entry (§2.2.1) for description enrichment or priority adjustment
+- [ ] Rebuild index: `python -m ai_governance_mcp.extractor`
+- [ ] Validate: `query_governance("domain topic")` surfaces the new domain
 
 ### 5.1.2 Domain Document Requirements
 
@@ -1165,24 +1167,13 @@ To add a new domain:
 - Include situation index
 - Reference principles it implements
 
-### 5.1.3 domains.json Entry
+### 5.1.3 Domain Registration
 
-**Applies To:** creating a new entry in domains.json for a domain, including the JSON template with required fields and YAML frontmatter for new domain documents
+**Applies To:** registering a new domain via YAML frontmatter — the server discovers domains automatically from `documents/constitution.md` and `documents/title-*-*.md` files
 
-```json
-{
-  "new-domain": {
-    "name": "new-domain",
-    "display_name": "New Domain",
-    "principles_file": "title-NN-new-domain.md",
-    "methods_file": "title-NN-new-domain-cfr.md",
-    "description": "Description used for semantic routing...",
-    "priority": 30
-  }
-}
-```
+Domains are registered by creating a file with valid YAML frontmatter. The server discovers domains on startup — no code changes or registry edits required.
 
-New domain documents must include YAML frontmatter:
+**Required frontmatter:**
 
 ```yaml
 ---
@@ -1190,9 +1181,24 @@ version: "1.0.0"
 status: "active"
 effective_date: "2026-04-01"
 domain: "new-domain"
-governance_level: "federal-statute"
+display_name: "New Domain"
+description: "Description used for semantic routing..."
+priority: 30
+prefix: "newdom"
 ---
 ```
+
+| Field | Required | Default if absent |
+|-------|----------|-------------------|
+| `domain` | Yes | — (file skipped without it) |
+| `priority` | No | 100 |
+| `display_name` | No | Derived from domain name (kebab → Title Case) |
+| `description` | No | Empty string |
+| `prefix` | No | None |
+
+**Methods file:** Auto-discovered by naming convention. For `title-10-coding.md`, the server looks for `title-10-coding-cfr.md`. No registration needed.
+
+**Optional overrides:** `domains.json` can override `display_name`, `description`, `priority`, or `prefix` for any discovered domain without editing the markdown file (see §2.2.1).
 
 ### 5.1.4 Document Lifecycle
 
@@ -1202,15 +1208,15 @@ governance_level: "federal-statute"
 
 Governance documents follow a two-stage lifecycle. **All documents use `documents/` as the single location** with stable filenames. Version metadata lives in YAML frontmatter, not filenames. Git history provides the authoritative version archive.
 
-| Stage | Frontmatter `status` | In `domains.json`? | Indexed? |
-|-------|---------------------|---------------------|----------|
-| **Draft** | `draft` | No | No |
-| **Published** | `active` | Yes | Yes |
-| **Deprecated** | `deprecated` | Yes (for transition) | Yes (de-ranked) |
+| Stage | Frontmatter `status` | Discoverable? | Indexed? |
+|-------|---------------------|---------------|----------|
+| **Draft** | `draft` | No (incomplete frontmatter) | No |
+| **Published** | `active` | Yes (via filesystem discovery) | Yes |
+| **Deprecated** | `deprecated` | Yes (de-ranked in retrieval) | Yes (de-ranked) |
 
 **Draft → Published:**
 1. Content passes the **Content Quality Framework** (§9.8.4)
-2. Document registered in `domains.json` (§5.1.3)
+2. File present in `documents/` with valid `domain:` frontmatter (§5.1.3)
 3. Frontmatter `version` set to `"1.0.0"`, `status` set to `"active"`
 4. Index rebuilt (`python -m ai_governance_mcp.extractor`)
 
@@ -1224,24 +1230,24 @@ Governance documents follow a two-stage lifecycle. **All documents use `document
 
 ### 5.2.1 Deprecation Procedure
 
-**Applies To:** deprecating and eventually removing a governance domain — marking deprecated, lowering priority, maintaining historical access during transition, and final removal from domains.json
+**Applies To:** deprecating and eventually removing a governance domain — setting frontmatter status to deprecated, lowering priority, maintaining historical access during transition, and final file removal
 
 To deprecate a domain:
 
-1. Mark domain as deprecated in description
-2. Update priority to low value (100+)
-3. Maintain in index for historical queries
+1. Set frontmatter `status: "deprecated"` in the domain's principles file
+2. Set frontmatter `priority` to a low value (100+)
+3. Maintain in index for historical queries (de-ranked in retrieval)
 4. Archive documents after transition period
-5. Remove from domains.json after full deprecation
+5. Delete domain files from `documents/`; remove any `domains.json` override entry
 
 ### 5.2.2 Deprecation Timeline
 
-**Applies To:** planning the timeline for a domain deprecation, from initial announcement through the transition period to final removal from domains.json
+**Applies To:** planning the timeline for a domain deprecation, from initial announcement through the transition period to final file removal
 
 - **Announcement:** Note deprecation in version history
 - **Transition Period:** 2-3 versions or 90 days
 - **Archive:** Move to archive/, keep in index
-- **Removal:** Remove from domains.json, rebuild
+- **Removal:** Delete domain files from `documents/`, remove any `domains.json` override entry, rebuild
 
 ---
 
@@ -2509,7 +2515,7 @@ For new principles, expanded content, new methods:
 2. Ensure constitutional alignment
 3. Update version (X.Y+1.0)
 4. Add entry to version history
-5. Update domains.json if filename changes
+5. Verify domain frontmatter is consistent; update `domains.json` overrides if present
 6. Rebuild index
 7. Test new content is searchable
 
@@ -2524,7 +2530,7 @@ For restructuring, philosophy shifts, principle removal:
 3. Update version (X+1.0.0)
 4. Add detailed entry to version history
 5. Update all cross-references
-6. Update domains.json
+6. Update domain frontmatter and any `domains.json` overrides
 7. Rebuild index
 8. Full test suite validation
 
@@ -4730,7 +4736,7 @@ Each Reference Library entry is a markdown file with YAML frontmatter. The front
 # === REQUIRED (6 fields) ===
 id: ref-{domain}-{descriptive-slug}        # Globally unique, never reused
 title: "Human-readable title"
-domain: ai-coding                           # Single-select from domains.json
+domain: ai-coding                           # Single-select; see documents/title-*-*.md frontmatter
 tags: [testing, pytest, fixtures, mcp]      # 3-8 from controlled vocabulary
 status: current                             # current | caution | deprecated | archived
 entry_type: direct                          # direct | reference
@@ -4875,7 +4881,7 @@ Adapted from legal reportability criteria:
 
 ## Part 15.5: Classification System
 
-**Domain** (single-select): From `domains.json`. Each entry belongs to exactly one domain. This is the primary organizational axis.
+**Domain** (single-select): From active governance domains (discovered from `documents/title-*-*.md` frontmatter). Each entry belongs to exactly one domain. This is the primary organizational axis.
 
 **Tags** (multi-select, 3-8 per entry): Faceted classification from a controlled vocabulary. Tags enable cross-cutting retrieval that domains alone cannot provide. Examples: `[testing, pytest, fixtures, mocking]` or `[docker, multi-arch, ci-cd]`.
 
@@ -5230,6 +5236,7 @@ Collier, J. (2026). *The Elegance Equation: A Multiplicative Framework for Evalu
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.31.6 | 2026-05-14 | PATCH: Modular domain architecture documentation propagation. Updated ~20 references across §1.1.3, §2.2.1, §3.1.3, §4.1, §4.2, §5.1.1, §5.1.3, §5.1.4, §5.2.1, §5.2.2, §9.6.2, §9.6.3, §15.3.1, §15.5 to reflect filesystem-based domain discovery (YAML frontmatter in `title-*-*.md` files) as the primary registration mechanism, with `domains.json` demoted to optional field-level override layer. Session-171 shipped BACKLOG #53 (modular domain architecture) and updated code + README + ARCHITECTURE but did not propagate to governance procedures. This caused a hierarchy contradiction: constitution.md called `domains.json` "the authoritative list" while the code used frontmatter discovery as primary. Also updated `constitution.md` (2 refs), `EXECUTION-FRAMEWORK.md` (2 refs), `SECURITY.md` (2 refs), `API.md` (1 ref), `completion-sequence/checklist.md` (1 ref), `analyze_feedback_loop.py` (project root detection). No normative change — editorial correction of factual accuracy per §9.8.5 bright-line. Governance: `gov-378e7aa4148a`. |
 | 3.31.5 | 2026-05-03 | PATCH: Constitutional rename propagation (BACKLOG #152). Updated ~23 prose-name references, format examples, decision trees, and Constitutional Basis lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Left: changelog entries (historical), `multi-architecture-context-engineering-discipline` domain principle title (layer 3 technique). Governance: `gov-d05cd633fc20`, `gov-97a116b020b2`. |
 | 3.31.4 | 2026-05-01 | PATCH: BACKLOG #147 post-double-check fold-in remediation. Added new §7.8.1 "Reactive vs Proactive Work-Class Distinction" — canonical method-level home for the rule that proactive/preventive/improvement work does not require justification by observed harm; the "phantom problem" anti-pattern applies to debugging-class work only; the stakes-match test is a sizing heuristic, not a validity gate. Includes asymmetric-default-when-ambiguous rule (default to proactive-class). Cross-referenced from CLAUDE.md Behavioral Floor "Proportional rigor" sub-bullet, `documents/agents/contrarian-reviewer.md` §Boundaries "Work-class awareness" + Step 0.5 "Work-Class Identification" (hot path), and `documents/tiers.json` `behavioral_floor.directives.proportional-rigor` (new entry, tiers.json v1.6.0 → v1.7.0). **No rule change** — codifies as method-level SSOT what was previously implicit in BACKLOG.md philosophy block + scattered across CLAUDE.md sub-bullet text + contrarian-reviewer Boundaries paragraph (per coherence-auditor finding that the original #147 close left three half-statements without a canonical home). Driven by post-edit subagent battery on prior commit `0911534` — coherence-auditor `a8730552c214c010f` HIGH-1 (tiers.json `proportional-rigor` directive missing) + MEDIUM-1 (§7.8 silent on proactive/reactive distinction); contrarian-reviewer `afac4381fd32e8721` HIGH-1 (self-classification gate unguarded — closed by asymmetric-default rule) + HIGH-2 (softer encoding than user verbatim — closed by reframing stakes-match as sizing heuristic) + MEDIUM (activation gap — closed by Step 0.5 placement before Step 1 Pre-Mortem in agent Review Protocol). Per `rules-of-procedure §9.8.5` bright-line: new sub-section codifying existing rule with cross-refs = PATCH (clarification of existing scope, no normative addition). ai-instructions PATCH-on-PATCH pin sync v2.11.5 → v2.11.6 per BACKLOG #130 canonical pin-discipline. **Constitutional Basis:** `meta-core-systemic-thinking` (root cause = rule-citation absence at canonical method-level home; structural fix = canonical SSOT with cross-refs); `meta-method-single-source-of-truth` (one canonical home + cross-refs); `meta-quality-explicit-over-implicit` (BACKLOG philosophy rule made explicit at proportional-rigor's operative scope); `meta-quality-verification-validation` (post-edit subagent battery on shipped fix found incompleteness; folded same-arc per session-138 post-arc remediation precedent). Audit IDs: validator `af3ba14ff949fd2d0` APPROVE; coherence-auditor `a8730552c214c010f` 1 HIGH + 2 MEDIUM + 2 LOW; contrarian-reviewer `afac4381fd32e8721` 2 HIGH + 2 MEDIUM PROCEED_WITH_CAUTION. Governance: `gov-20dcbdd98f9e` (parent #147 close), `gov-e1c50d38e20f` (this remediation). |
 | 3.31.3 | 2026-04-28 | PATCH: BACKLOG #100 Commit 6 — addressed deferred LOW + MEDIUM findings from post-arc double-check audit (per user directive "we shouldn't be deferring low findings"). Three additions: (1) **§9.7.7 Register integrity rules (3-item self-validation list)** — trigger taxonomy required for not-borrowed entries (fail Compliance Review Check 9 if missing all three classes); one-way state transitions with history (no oscillation between borrowed/considered-and-rejected without new evidence; prior history doesn't permit re-litigation); no empty rationale (every row must have non-empty rationale + trigger column). Closes contrarian LOW-2 (anti-pattern table sufficiency) — these are register-integrity rules belonging in §9.7.7 self-validation, not §9.8.9 anti-patterns. (2) **§9.8.9 Citation discipline subsection (4-item)** — prefer section anchors (`§X.Y.Z`) over line numbers (`filename:N`); hybrid form (`§X.Y.Z (line N)`) for specific blocks within sections; line-only citations are drift-vulnerable + verify against SOT on each major file edit; CI check candidate filed as BACKLOG #144 for D2 follow-up. Closes contrarian MEDIUM-2 (structural defense against line-citation drift) at the documentation/discipline layer; structural enforcement (CI check) deferred to BACKLOG #144 with proper trigger conditions. (3) **BACKLOG #144 filed** — citation-anchor drift CI check, D2 New Capability, ~30 lines Python or bash, with edge cases enumerated (archive exclusion, temp-file exclusion, structured-content citation allowance). **No rule change** — pure register-integrity + citation-discipline + BACKLOG-entry filing applying findings from post-arc double-check audit. ai-instructions PATCH-on-PATCH pin sync v2.11.4 → v2.11.5 per BACKLOG #130 canonical pin-discipline. **Constitutional Basis:** `meta-method-single-source-of-truth` (citation discipline = stable anchors over drift-vulnerable line numbers); `meta-quality-verification-validation` (register-integrity rules = self-validation gates); `meta-core-systemic-thinking` (root cause of drift recurrence = LEARNING-LOG lesson alone insufficient; structural fix = enforced citation discipline + future CI check). Audit IDs: contrarian `a7a951cb33f490ada` (LOW-2 + MEDIUM-2), coherence-auditor `aa443ab0670fe55a8` (LOW-1 SESSION-STATE narrative stitch fixed in same commit). Governance: `gov-fd820e2fd260` (parent post-arc remediation arc). |

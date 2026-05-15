@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-14 (session-174 — BACKLOG #41 Phase 1: behavioral trigger for reference library capture).
+**Last Updated:** 2026-05-14 (session-175 — modular domain architecture documentation propagation + hook regex fix).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,22 +12,21 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-174 (2026-05-14) — BACKLOG #41 Phase 1: behavioral trigger for reference library capture.**
+**Session-175 (2026-05-14) — Modular domain architecture documentation propagation + hook regex fix.**
 
-**ACTION ON RESUME (session-175):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
+**ACTION ON RESUME (session-176):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
 
 **Critical state for next session:**
-- **BACKLOG #41 Phase 1 shipped** — completion-sequence checklist item 18 added (ALWAYS section). AI now prompted to evaluate sessions for capturable patterns. Phase 2 (staging infrastructure) conditional on observed volume (3+ proposals/session).
-- **Contrarian insight captured** — LEARNING-LOG: "Infrastructure Doesn't Fix Behavioral Gaps." Original 7-step plan rejected; 1-file behavioral trigger shipped instead.
-- **Backlog** — 5 discussion items remain (#6, #11, #41, #45, #46). #41 scope narrowed to Phase 2.
+- **Documentation propagation complete** — ~25 edits across 8 files to reflect filesystem-based domain discovery as primary mechanism. Constitution and RoP now agree. `domains.json` correctly described as optional override layer throughout.
+- **Hook regex fix shipped** — `2>/dev/null` now correctly stripped by read-only allowlist. 4 new regression tests (1728 total).
+- **Backlog** — 5 discussion items remain (#6, #11, #41, #45, #46). No changes this session.
 - **Claude App enforcement proxy** — soft mode deployed session-173. Restart Claude App to activate.
-- **Index files modified** — `content_embeddings.npy` and `global_index.json` from session-173 CE re-index included in this commit.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-174 (2026-05-14) — BACKLOG #41 Phase 1 shipped.
+- **Phase:** Session-175 (2026-05-14) — Documentation propagation + hook fix shipped.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25). Observe #41 Phase 1 effectiveness.
 
@@ -37,10 +36,10 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.1.0** (reranking, MMR diversity, RRF opt-in, chunk quality filter, candidate pool cap, per-file dedup configurable cap=3, expanded 35-query benchmark) |
-| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.5** (rules-of-procedure), **v2.45.1** (title-10-ai-coding-cfr), **v2.8.1** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.18.0** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v1.0.0** (accounting principles — 12), **v1.0.0** (accounting methods), **v4.0.6** (ai-instructions), **v2.1.0** (tiers.json — critical_5 scaffold + external-input-gap-analysis + conflicting-patterns directives). |
+| Content | **v8.0.1** (Constitution — 24 principles; Art. I §1 renamed to Informational Readiness v8.0.0, v8.0.1 added operational considerations for project initialization + validate before action), **v3.31.6** (rules-of-procedure), **v2.45.1** (title-10-ai-coding-cfr), **v2.8.1** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.18.0** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.4.3** (multimodal-rag principles — 32), **v2.1.3** (multimodal-rag methods), **v1.2.2** (ui-ux principles — 20), **v1.1.0** (ui-ux methods), **v1.4.2** (kmpd principles — 10), **v1.2.1** (kmpd methods), **v1.0.0** (accounting principles — 12), **v1.0.0** (accounting methods), **v4.0.7** (ai-instructions), **v2.1.0** (tiers.json — critical_5 scaffold + external-input-gap-analysis + conflicting-patterns directives). |
 | Execution Framework | **v2.0.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, 10-subsystem architecture) |
 | OPERATIONS.md | **v2** (3 cadences, 17 tripwires, 3 V-series, 5 metrics, 3 scheduled operations) |
-| Tests | **1724 passing** (non-slow subset) |
+| Tests | **1728 passing** (non-slow subset) |
 | Coverage | Run `pytest --cov` for current (last known: governance ~90%, context engine ~65%) |
 | Tools | **20 MCP tools** (16 governance + 4 context engine) |
 | Domains | **8 shipped** (modular — filesystem-discovered from frontmatter, custom domains supported) |
@@ -55,15 +54,16 @@
 
 ## Last Session (2026-05-14)
 
-174. **Session-174 (2026-05-14): BACKLOG #41 Phase 1 — behavioral trigger for reference library capture.**
-   - **Completion-sequence checklist updated** — added item 18 "Reference Library capture check" in ALWAYS section. Prompts AI to evaluate sessions for capturable patterns using existing `capture_reference` tool.
-   - **Contrarian review pivoted the plan** — original 7-step staging infrastructure plan rejected. Contrarian found behavioral gap (AI doesn't propose entries unprompted) not infrastructure gap (no staging path). 1-file change shipped instead. Lesson captured in LEARNING-LOG.
-   - **BACKLOG #41 scope narrowed** — Phase 1 (behavioral trigger) shipped. Phase 2 (staging infrastructure) conditional on observed volume (3+ proposals/session).
-   - **Index files committed** — `content_embeddings.npy` + `global_index.json` from session-173 CE re-index.
+175. **Session-175 (2026-05-14): Modular domain architecture documentation propagation + hook regex fix.**
+   - **Documentation propagation sweep** — updated ~25 references across 8 files (constitution.md, rules-of-procedure.md, EXECUTION-FRAMEWORK.md, SECURITY.md, API.md, completion-sequence checklist, analyze_feedback_loop.py, ai-instructions.md) to reflect filesystem-based domain discovery as primary mechanism. `domains.json` correctly described as optional override layer throughout. Constitution and RoP now agree on domain registration authority.
+   - **Hook regex fix** — `pre-tool-governance-check.sh` stderr-stripping regex `2>[>&][^ ]*` didn't handle `2>/dev/null` (the most common form). Replaced with shell-metacharacter-aware alternation. 4 new regression tests. 1728 tests total.
+   - **Version bumps** — rules-of-procedure v3.31.5 → v3.31.6 (PATCH), ai-instructions v4.0.6 → v4.0.7 (PATCH-on-PATCH).
 
 ---
 
 ## Previous Sessions
+
+*Session-174 (2026-05-14) BACKLOG #41 Phase 1 — behavioral trigger for reference library capture. Completion-sequence item 18 added. Contrarian pivoted 7-step plan to 1-file behavioral trigger.*
 
 *Session-173 (2026-05-14) Operational cleanup + BACKLOG #160/#161 close. Docker v2.0.0 rebuilt. CE re-indexed. Claude App enforcement proxy (soft mode).*
 
@@ -118,6 +118,7 @@
 2. **C-109 deferred-cadence audit** — due ~2026-05-25. See OPERATIONS.md.
 3. **C-155 feedback loop analysis** — next run due ~2026-06-07. See OPERATIONS.md.
 4. **Monitor Claude App proxy** — soft mode deployed session-173. Observe whether warnings appear. Flip to hard mode when ready.
+5. **Monitor #41 Phase 1** — observe whether reference library capture check produces proposals.
 
 **Trigger-gated (tracked in OPERATIONS.md):**
 - **T-149** — CE-first compliance measurement (3-5 sessions, <85% activates Phase 2 hook). CE-First Phase 2 (grep/glob advisory hook) activates only if this fires.

@@ -82,7 +82,7 @@ Our CI pipeline and extraction process scan for:
 - `CLAUDE.md` — Project instructions
 - `.claude/agents/*.md` — Agent templates
 - `src/ai_governance_mcp/server.py` — SERVER_INSTRUCTIONS block
-- `documents/domains.json` — Domain descriptions for semantic routing
+- `documents/domains.json` — Optional domain description overrides for semantic routing
 
 **Security Hardening (v2)**
 - CRITICAL patterns are detected even with "example" context (prevents bypass)
@@ -108,7 +108,7 @@ Our CI pipeline and extraction process scan for:
 - **Example bypass protection**: CRITICAL patterns flagged even with "example" in context
 - **Unicode normalization**: NFKC normalization prevents homoglyph attacks (Cyrillic 'а' → Latin 'a')
 - **SERVER_INSTRUCTIONS validation**: Runtime check at module load to prevent compromised instructions
-- **Domain description scanning**: Validates `domains.json` descriptions used for semantic routing
+- **Domain description scanning**: Validates domain descriptions (from frontmatter and optional `domains.json` overrides) used for semantic routing
 - **Symlink filtering**: Context engine skips symlinks in file discovery, project listing, and deletion
 - **File size/count limits**: Context engine enforces 10MB per file, 10K files per project
 - **Decompression bomb guard**: PIL `MAX_IMAGE_PIXELS` limit set at connector initialization

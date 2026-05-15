@@ -147,7 +147,7 @@ Per LEARNING-LOG 2026-02-28 "Hard-Mode Hooks Prove Deterministic Enforcement Wor
 
 This constitution was consolidated from an earlier 47-principle framework to eliminate redundancy and sharpen boundaries. It is a living document — evolved cautiously using the framework's own governance processes.
 
-**Current Framework Domains** (see `domains.json` for the authoritative list):
+**Current Framework Domains** (discovered automatically from `documents/title-*-*.md` frontmatter):
 - **Constitution (this document):** Universal behavioral rules for all AI interactions
 - **AI Coding:** Software development with AI assistance
 - **Multi-Agent:** Agent orchestration and coordination
@@ -1464,7 +1464,7 @@ Post-commit double-check (session-115, 3-agent pass) caught surface drift the v5
         - Domain Implementation Guide → Methods TITLE 9
         - 9-Field Template → Methods TITLE 9, Part 9.4
         - Universal Numbering Protocol → Obsolete (replaced by Part 3.4 ID System)
-    *   **Instruction:** For operational procedures (how to apply principles, how to amend the Constitution, how to author domain principles), consult the governance methods document (see `domains.json` for current filename).
+    *   **Instruction:** For operational procedures (how to apply principles, how to amend the Constitution, how to author domain principles), consult the governance methods document (`rules-of-procedure.md`).
 
 *   **Document Focus: Principles Only**
     *   **Change:** This document now contains only the Constitutional Principles (42 at the time of v2.0) plus version history.

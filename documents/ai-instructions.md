@@ -1,5 +1,5 @@
 ---
-version: "4.0.6"
+version: "4.0.7"
 status: "active"
 effective_date: "2026-05-14"
 domain: "meta"
@@ -171,7 +171,7 @@ query_governance("how to handle incomplete specifications")
 <document_versions>
 This loader is designed for use with:
 - constitution.md v8.0.0+
-- rules-of-procedure.md v3.31.5+
+- rules-of-procedure.md v3.31.6+
 - title-10-ai-coding.md v2.8.1+
 - title-10-ai-coding-cfr.md v2.45.1+
 - title-20-multi-agent.md v2.7.3+
@@ -194,6 +194,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.0.7 | 2026-05-14 | PATCH: rules-of-procedure.md pin update v3.31.5+ → v3.31.6+ for modular domain architecture documentation propagation (~20 references updated to reflect filesystem-based domain discovery as primary mechanism, `domains.json` demoted to optional override). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-378e7aa4148a`. |
 | 4.0.6 | 2026-05-14 | PATCH: Added accounting domain detection entry (`title-22-accounting`). Added `title-22-accounting.md v1.0.0+` and `title-22-accounting-cfr.md v1.0.0+` to document_versions. PATCH-on-new-domain per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.5 | 2026-05-11 | PATCH: title-20-multi-agent-cfr.md pin update v2.17.3+ → v2.18.0+ for Agent Definition SSOT + list_agents cross-platform discovery tool. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.4 | 2026-05-11 | PATCH: title-10-ai-coding-cfr.md pin update v2.45.0+ → v2.45.1+ for Appendix M.3 Prompt Master (cross-tool prompt generation skill, nidhinjs/prompt-master MIT v1.6.0). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. |

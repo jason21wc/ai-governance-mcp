@@ -385,7 +385,7 @@ Selection test: "What happens if the human forgets to invoke this?" If forgettin
 The reference library is secondary authority — non-binding patterns accumulated from practice. That's **npm/apt/brew** — a growing catalog of community patterns you can draw on but aren't required to use. Non-authoritative (packages don't override the kernel), accumulates over time, informs practice without mandating it.
 
 Supporting files as registry metadata:
-- `documents/domains.json` + `tiers.json` = device registry / ACPI tables — machine-readable manifests of what workload modules and capability tiers exist
+- `documents/domains.json` (optional override) + `tiers.json` = device registry / ACPI tables — machine-readable manifests of what workload modules and capability tiers exist (domains discovered from frontmatter; `domains.json` provides optional field overrides)
 
 ---
 
@@ -425,7 +425,7 @@ Maps every identified project component to its computer analog. Organized by rol
 | **OS kernel** (restated) | Constitution + RoP | `documents/constitution.md` + `rules-of-procedure.md` | **Coupled by design** — tight integration IS coherence. |
 | **Workload modules** | Domain principles | `documents/title-NN-*.md` (8 domains) | Derives from kernel. Modular — add/remove without kernel changes. |
 | **Drivers** | Domain regulations (CFR) | `documents/title-NN-*-cfr.md` (8 files) | Translates OS rules to domain-specific ops. Paired with module. |
-| **Device registry (ACPI)** | Manifests | `documents/domains.json` + `tiers.json` | Machine-readable catalog of installed modules + tiers. |
+| **Device registry (ACPI)** | Manifests | `documents/domains.json` (optional override) + `tiers.json` | Machine-readable catalog; domains discovered from frontmatter, `domains.json` provides optional field overrides. |
 | **Errata / known bugs** | Failure mode registry | `failure-mode-registry.md` + `test-failure-mode-map.md` | Documented failure modes with mitigations + test coverage. |
 
 See also §4.1 (Core system) for the kernel-level view of the governance framework.

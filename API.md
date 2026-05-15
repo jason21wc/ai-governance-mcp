@@ -303,7 +303,7 @@ Run with: `python -m ai_governance_mcp.server`
 
 **Returns:** Varies by state. All Claude Code responses include:
 
-- **`applicable_domains`** (array of strings): The domains the agent declares itself for (from agent frontmatter). Values: domain keys from `domains.json` or `["*"]` for domain-agnostic agents. Added v5.0.6 per F-C-04.
+- **`applicable_domains`** (array of strings): The domains the agent declares itself for (from agent frontmatter). Values: domain keys (from frontmatter discovery) or `["*"]` for domain-agnostic agents. Added v5.0.6 per F-C-04.
 - **`domain_warning`** (string, optional): Present only when caller supplied `domain` AND it doesn't match the agent's `applicable_domains`. Human-readable warning; install proceeds regardless (Phase-1 WARN+allow). Added v5.0.6 per F-C-04.
 
 State-specific returns:
