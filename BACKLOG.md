@@ -67,13 +67,15 @@
 
 #### 41. Reference Library Auto-Staging Proposals (Discussion — Self-Improvement) `D2 Improvement`
 
-**What:** After sessions involving complex problem-solving (5+ tool calls, novel governance patterns, or trial-and-error workflows), the system proposes reference library entries to the `staging/` directory with `maturity: seedling`. Human reviews staging during completion sequence.
+**What:** Phased activation of reference library capture. Phase 1 (shipped session-174): behavioral trigger via completion-sequence prompt — AI evaluates sessions for capturable patterns and proposes entries via existing `capture_reference` tool. Phase 2 (conditional): staging infrastructure (`staging/` subdirectory write path, `pending-review` status, batch review workflow) — activates only if Phase 1 produces volume that makes inline review burdensome.
 
-**Why:** The reference library staging infrastructure exists (`staging/` directory, `_criteria.yaml` per domain, completion sequence prompt) but is dormant — `.gitkeep` placeholder, never activated. Hermes Agent's procedural memory (autonomous skill creation) demonstrates the value of automated capture, but their approach lacks quality gates. Our staging path provides the human gate that prevents noise while closing the capture gap.
+**Why:** Contrarian review (session-174) found the original plan built infrastructure to solve a behavioral problem. `capture_reference` works (9+ successful calls) but is never AI-initiated. The bottleneck is behavioral (AI doesn't evaluate sessions for capturable patterns), not infrastructural (no staging path). Phase 1 tests the behavioral hypothesis with a 1-file change before building plumbing.
 
-**What's involved:** (1) Define trigger criteria — what constitutes "worth capturing" (session complexity, novel pattern, user correction that changed approach), (2) Activate `_criteria.yaml` with per-domain capture rules, (3) Build the staging proposal mechanism (likely a new MCP tool or extension to completion sequence), (4) Define the staging review workflow.
+**Phase 1 status (shipped session-174):** Completion-sequence checklist updated with "Reference Library capture check" in both Code changes and Content changes BEST-EFFORT sections. Surfaces `_criteria.yaml` trigger criteria inline. Human gate: AI proposes, user approves/rejects.
 
-**Dependency:** None — staging infrastructure already exists.
+**Phase 2 trigger:** Phase 1 produces 3+ proposals per session consistently, making inline review burdensome. At that point, implement: `staging` param on `capture_reference`, handler write-to-staging path, `pending-review` status on ReferenceEntry model, staging dirs for all domains, staging-specific tests.
+
+**Dependency:** None — Phase 1 uses existing tools. Phase 2 depends on Phase 1 validation.
 
 **Origin:** Hermes Agent evaluation (2026-04-01). Hermes auto-creates skills every 15 tool-calling iterations via background review agent. Our adaptation: auto-propose to staging with human gate, leveraging our richer metadata model (maturity, decay classes, KeyCite currency).
 

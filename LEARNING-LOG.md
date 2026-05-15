@@ -12,6 +12,16 @@
 
 ## Active Lessons
 
+### Infrastructure Doesn't Fix Behavioral Gaps — Test the Trigger Before Building the Pipeline (2026-05-14)
+
+Session-174 planned a 7-step staging infrastructure for BACKLOG #41 (auto-staging reference library entries). Contrarian review found the root cause was behavioral (AI never evaluates sessions for capturable patterns), not infrastructural (no staging write path). Evidence: `capture_reference` already works (9+ successful calls, all user-initiated, zero AI-initiated). Adding a `staging=true` parameter to a tool the AI doesn't call unprompted won't cause unprompted calls. Pre-mortem: staging dirs still empty 6 weeks later.
+
+**Rule:** When a feature pipeline is dormant, distinguish infrastructure gaps (can't do X) from behavioral gaps (doesn't think to do X). If the existing tool works when prompted, the fix is a behavioral trigger (prompt/checklist/nudge), not more plumbing. Test the trigger with the cheapest possible intervention before building infrastructure. The contrarian's frame was decisive: "the plan builds infrastructure to solve a behavioral problem."
+
+**How to apply:** Before building new infrastructure for an unused pipeline, ask: "If I added a prompt/checklist item telling the AI to use the existing tools, would that alone produce the desired behavior?" If yes, ship the prompt first, observe for 30 days, then build infrastructure only if volume warrants it.
+
+---
+
 ### BASH_COMMAND Is a Reserved Variable — Never Use It for Application State (2026-05-07)
 
 Session-152 named a shell variable `BASH_COMMAND` to hold the Bash command extracted from hook input JSON. Bash automatically overwrites this built-in with the currently-executing command on every simple command execution, so the variable silently held the debug line itself instead of the extracted command. All downstream logic (read-only detection) received the wrong value. Fixed by renaming to `TOOL_CMD`.

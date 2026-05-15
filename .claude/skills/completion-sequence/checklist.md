@@ -66,7 +66,16 @@ Per §5.1.6, run this project's completion sequence after changes. Invoke via `/
     - **LEARNING-LOG.md** — generalizable lessons, mistakes to avoid, validated patterns worth repeating
     - **OPERATIONS.md** — cadence updates, tripwire triggers, metric baselines, deferred items
     - **BACKLOG.md** — if the session closes a backlog item, mark it `~~Title~~ **CLOSED**` with session number, date, and one-line summary of what shipped
-18. Run **Branch Completion** below — pick A / B / C / D / E based on whether work is complete and whether human review is required.
+18. **Reference Library capture check** — Did this session produce reusable patterns, working implementations, or novel problem-solving approaches worth preserving? Evaluate against capture criteria:
+    - Reused test fixtures (pattern used in 2+ test files)
+    - Working Docker/CI/deployment patterns that pass CI
+    - MCP tool handler patterns with passing tests
+    - Configuration patterns solving non-trivial setup problems
+    - Solutions to problems asked about before
+    - Working implementations of techniques from governance methods
+    - Discoveries that official library docs are wrong or incomplete
+    If yes, propose entries to the user via `capture_reference`. User approves or rejects before the tool writes. See `reference-library/<domain>/_criteria.yaml` for domain-specific rules.
+19. Run **Branch Completion** below — pick A / B / C / D / E based on whether work is complete and whether human review is required.
 
 ## Content changes (governance documents)
 

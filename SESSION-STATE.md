@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-14 (session-173 — Operational cleanup + BACKLOG #161 close).
+**Last Updated:** 2026-05-14 (session-174 — BACKLOG #41 Phase 1: behavioral trigger for reference library capture).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,27 +12,24 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-173 (2026-05-14) — Operational cleanup + BACKLOG #160/#161 close.**
+**Session-174 (2026-05-14) — BACKLOG #41 Phase 1: behavioral trigger for reference library capture.**
 
-**ACTION ON RESUME (session-174):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed this session).
+**ACTION ON RESUME (session-175):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
 
 **Critical state for next session:**
-- **Docker v2.0.0 rebuilt and pushed** — `jason21wc/ai-governance-mcp:2.0.0` + `:latest` on Docker Hub. 8 domains, 909 entries in image index.
-- **CE re-indexed** — 297 files, 5,987 chunks. Accounting documents now discoverable.
-- **Claude App enforcement proxy activated** — `claude_desktop_config.json` updated to route through `ai-governance-proxy --soft-mode`. Soft mode warns but doesn't block. Restart Claude App to activate. Flip to hard mode by removing `--soft-mode` flag.
-- **BACKLOG #160 closed** — scaffold theater root_cause field. M-001 at 69% doesn't justify the complexity; user will revisit if concern resurfaces.
-- **BACKLOG #161 closed** — Claude App enforcement. Proxy configured in soft mode; trigger fired (user is an active Claude App user seeing enforcement gaps).
-- **BACKLOG #53 stale stub removed** — was already shipped session-171.
-- **All commits pushed** — prior sessions 169-172 were already on origin (SESSION-STATE note was stale). This session's commit `7b892fb` pushed.
-- **Backlog** — 5 discussion items remain (#6, #11, #41, #45, #46).
+- **BACKLOG #41 Phase 1 shipped** — completion-sequence checklist item 18 added (ALWAYS section). AI now prompted to evaluate sessions for capturable patterns. Phase 2 (staging infrastructure) conditional on observed volume (3+ proposals/session).
+- **Contrarian insight captured** — LEARNING-LOG: "Infrastructure Doesn't Fix Behavioral Gaps." Original 7-step plan rejected; 1-file behavioral trigger shipped instead.
+- **Backlog** — 5 discussion items remain (#6, #11, #41, #45, #46). #41 scope narrowed to Phase 2.
+- **Claude App enforcement proxy** — soft mode deployed session-173. Restart Claude App to activate.
+- **Index files modified** — `content_embeddings.npy` and `global_index.json` from session-173 CE re-index included in this commit.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-173 (2026-05-14) — Operational cleanup + BACKLOG #160/#161 close.
+- **Phase:** Session-174 (2026-05-14) — BACKLOG #41 Phase 1 shipped.
 - **Mode:** Normal operation.
-- **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25).
+- **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25). Observe #41 Phase 1 effectiveness.
 
 ## Quick Reference
 
@@ -52,24 +49,23 @@
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **4** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | Last push: session-173 (`7b892fb`). All pushed. |
+| CI | Last push: session-174. All pushed. |
 
 ---
 
 ## Last Session (2026-05-14)
 
-173. **Session-173 (2026-05-14): Operational cleanup + BACKLOG #160/#161 close.**
-   - **Docker v2.0.0 rebuilt and pushed** to Docker Hub (`jason21wc/ai-governance-mcp:2.0.0` + `:latest`). 8 domains, 909 index entries. Smoke tested.
-   - **CE re-indexed** — 297 files, 5,987 chunks. Accounting documents now discoverable via `query_project`.
-   - **Index + 4 reference library articles committed and pushed** (`7b892fb`). Elegance Equation metadata updated.
-   - **BACKLOG #161 closed** — Claude App enforcement proxy activated in `claude_desktop_config.json` (soft mode). Trigger fired: user is active Claude App user seeing enforcement gaps. Proxy wraps governance server at stdio protocol level.
-   - **BACKLOG #160 closed** — scaffold theater root_cause field. Systemic analysis: M-001 at 69% influence rate shows governance landing; #160 treats symptom (text quality) not structural cause (does governance change decisions). User will revisit if concern resurfaces.
-   - **BACKLOG #53 stale stub removed** — shipped session-171, entry should have been deleted per closing procedure.
-   - **Stale SESSION-STATE note corrected** — "unpushed since session-168" was wrong; all prior commits already on origin.
+174. **Session-174 (2026-05-14): BACKLOG #41 Phase 1 — behavioral trigger for reference library capture.**
+   - **Completion-sequence checklist updated** — added item 18 "Reference Library capture check" in ALWAYS section. Prompts AI to evaluate sessions for capturable patterns using existing `capture_reference` tool.
+   - **Contrarian review pivoted the plan** — original 7-step staging infrastructure plan rejected. Contrarian found behavioral gap (AI doesn't propose entries unprompted) not infrastructure gap (no staging path). 1-file change shipped instead. Lesson captured in LEARNING-LOG.
+   - **BACKLOG #41 scope narrowed** — Phase 1 (behavioral trigger) shipped. Phase 2 (staging infrastructure) conditional on observed volume (3+ proposals/session).
+   - **Index files committed** — `content_embeddings.npy` + `global_index.json` from session-173 CE re-index.
 
 ---
 
 ## Previous Sessions
+
+*Session-173 (2026-05-14) Operational cleanup + BACKLOG #160/#161 close. Docker v2.0.0 rebuilt. CE re-indexed. Claude App enforcement proxy (soft mode).*
 
 *Session-172 (2026-05-14) BACKLOG #162 Accounting Domain — 8th domain, 12 principles, 4 series. 1724 tests.*
 
