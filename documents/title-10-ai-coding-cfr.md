@@ -9586,7 +9586,10 @@ Body contains: dynamic context injection (`!`command``), execution instructions,
 **Implication:** Procedure content, audit data, and checklists belong in reference files (Level 3), not in SKILL.md body (Level 2). This keeps the SKILL.md thin and the token budget sustainable as skills are added.
 
 **Description field — routing, not summary:**
-The description drives auto-invocation routing. Write triggering conditions ("Run when the user asks to..."), not workflow summaries ("This skill performs steps 1-5 to..."). Workflow summaries cause agents to shortcut past full instructions. Focus on specific keywords the user would say.
+The description drives auto-invocation routing. Write triggering conditions ("Run when the user asks to..."), not workflow summaries ("This skill performs steps 1-5 to..."). Workflow summaries cause agents to shortcut past full instructions. Focus on specific keywords the user would say. Include negative cases: "Do NOT use for [adjacent but wrong context]" prevents false-positive triggering.
+
+**Writing style — directives, not essays:**
+Within the token budget, every line should earn its place. Write actionable directives (`"Always use interactions.create()"`) not informational prose (`"The Interactions API is the recommended approach"`). The first is an instruction the agent will follow; the second is trivia it will ignore. Lead with code examples — a 5-line snippet beats a 5-paragraph explanation. When a rule is non-obvious, explain WHY (`"Use model X — model Y is deprecated and returns errors"`); the reason helps the agent generalize beyond the specific case.
 
 ### 9.5.4 Five Properties of a Good Skill
 
@@ -9599,6 +9602,8 @@ Per procedural knowledge research (Wang 2026): a process is skill-ready when it 
 5. **Human escalation rules** — the skill knows when to stop and ask
 
 A process missing ≥2 properties needs human judgment, not codification. A process missing 1 property is a candidate for improvement before skill creation.
+
+**Goal over path (property 2 elaboration):** "Repeatable steps" means the outcome and constraints are consistent each time — not that the SKILL.md must dictate the exact path. Define what to achieve and what constraints to respect; let the agent choose the approach. If step ordering is the only source of complexity (step 3 before step 2 breaks everything), that's a scripting problem — write a shell script, not a skill.
 
 ### 9.5.5 When to Codify (Decision Tree)
 
@@ -9623,6 +9628,9 @@ Do you keep pasting the same instructions?
 - Claude already knows how — adding a skill adds friction without value
 - The process requires fresh-context independence — use a subagent instead
 
+**When to retire a skill:**
+Skills encode assumptions about what the model cannot do consistently on its own. When the model improves, those assumptions expire. Test periodically: run your eval prompts WITHOUT the skill — if outcomes are equivalent, the skill is overhead. *Capability skills* (fill a gap the base model can't handle) have a shelf life; *preference skills* (encode your specific workflow) are durable but must stay in sync with your actual process. A natural checkpoint is each compliance review (C-078) — skill relevance is a complement to Check 12's constraint retirement review for enforcement-layer components.
+
 ### 9.5.6 Skill Folder Structure
 
 ```
@@ -9645,7 +9653,7 @@ Do you keep pasting the same instructions?
 - **Progressive disclosure research:** Wang 2026 ("Why do AI agents still need so much hand-holding?")
 - **Reference implementation:** Superpowers v5.1.0 (obra/superpowers — 14 skills, 4 categories)
 
-> **Bold triggers:** **skill**, **SKILL.md**, **workflow codification**, **repeatable process**, **execution layer**, **slash command**, **skill authoring**, **procedural knowledge**
+> **Bold triggers:** **skill**, **SKILL.md**, **workflow codification**, **repeatable process**, **repeatable goal**, **execution layer**, **slash command**, **skill authoring**, **procedural knowledge**, **skill retirement**, **capability skill**, **preference skill**
 
 ---
 
