@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-14 (session-175 — modular domain architecture documentation propagation + hook regex fix).
+**Last Updated:** 2026-05-14 (session-176 — backlog review + #46 research + #11 analysis).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,21 +12,23 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-175 (2026-05-14) — Modular domain architecture documentation propagation + hook regex fix.**
+**Session-176 (2026-05-14) — Backlog review, #46 research, #11 analysis. No code changes.**
 
-**ACTION ON RESUME (session-176):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
+**ACTION ON RESUME (session-177):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
 
 **Critical state for next session:**
-- **Documentation propagation complete** — ~25 edits across 8 files to reflect filesystem-based domain discovery as primary mechanism. Constitution and RoP now agree. `domains.json` correctly described as optional override layer throughout.
-- **Hook regex fix shipped** — `2>/dev/null` now correctly stripped by read-only allowlist. 4 new regression tests (1728 total).
-- **Backlog** — 5 discussion items remain (#6, #11, #41, #45, #46). No changes this session.
+- **Backlog unchanged** — 5 discussion items remain (#6, #11, #41, #45, #46). No items activated or closed. Decisions below clarify deferral rationale.
+- **#41 Phase 1 observation window open** — shipped session-174. No automated measurement; informal observation via C-109 audit. Phase 2 trigger: 3+ proposals/session consistently. User confirmed: let it ride informally, instrument later if signal appears.
+- **#45 deferred** — content security scanning waits for #41 Phase 2. Phase 1's inline human approval is sufficient content security for now.
+- **#46 deferred** — stack/platform metadata waits for cross-stack reference entries. User confirmed using governance across multiple projects, so trigger will fire once #41 produces cross-project entries. QAM research (arXiv 2508.04683) and existing `_compute_metadata_bonus` infrastructure validated — implementation is D1 when triggered.
+- **#11 deferred** — AO-Series (4 principles) stays inside multi-agent domain. Skills taxonomy (#54/#55) covers execution layer, AO-Series covers autonomous governance guardrails — different concerns, thin overlap. Split trigger: AO-Series grows past ~8 principles OR retrieval noise from domain breadth observed.
 - **Claude App enforcement proxy** — soft mode deployed session-173. Restart Claude App to activate.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-175 (2026-05-14) — Documentation propagation + hook fix shipped.
+- **Phase:** Session-176 (2026-05-14) — Backlog review + research. No code changes.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25). Observe #41 Phase 1 effectiveness.
 
@@ -54,14 +56,18 @@
 
 ## Last Session (2026-05-14)
 
-175. **Session-175 (2026-05-14): Modular domain architecture documentation propagation + hook regex fix.**
-   - **Documentation propagation sweep** — updated ~25 references across 8 files (constitution.md, rules-of-procedure.md, EXECUTION-FRAMEWORK.md, SECURITY.md, API.md, completion-sequence checklist, analyze_feedback_loop.py, ai-instructions.md) to reflect filesystem-based domain discovery as primary mechanism. `domains.json` correctly described as optional override layer throughout. Constitution and RoP now agree on domain registration authority.
-   - **Hook regex fix** — `pre-tool-governance-check.sh` stderr-stripping regex `2>[>&][^ ]*` didn't handle `2>/dev/null` (the most common form). Replaced with shell-metacharacter-aware alternation. 4 new regression tests. 1728 tests total.
-   - **Version bumps** — rules-of-procedure v3.31.5 → v3.31.6 (PATCH), ai-instructions v4.0.6 → v4.0.7 (PATCH-on-PATCH).
+176. **Session-176 (2026-05-14): Backlog review + #46 research + #11 analysis. No code changes.**
+   - **Backlog walkthrough** — reviewed all 5 open discussion items (#6, #11, #41, #45, #46) with user. No items activated or closed.
+   - **#41 context** — explained Phase 1 (behavioral trigger) and Phase 2 (staging infrastructure). User agreed to informal observation, no automated measurement yet. Phase 1 shipped session-174; observation window open.
+   - **#46 research** — web research on QAM (arXiv 2508.04683), pre-filtering vs post-filtering, metadata-aware retrieval. Governance evaluated. Conclusion: infrastructure ready (`_compute_metadata_bonus` pattern), but premature — reference library is single-stack (18 entries). User confirmed using governance across multiple projects; trigger will fire once #41 produces cross-project entries.
+   - **#11 analysis** — evaluated whether skills taxonomy (#54/#55) subsumes autonomous operations domain. Conclusion: different concerns (execution layer vs governance guardrails). AO-Series (4 principles) stays in multi-agent; split trigger: ~8+ principles or retrieval noise from domain breadth.
+   - **#45 confirmed deferred** — waits for #41 Phase 2. Inline human approval is sufficient content security during Phase 1.
 
 ---
 
 ## Previous Sessions
+
+*Session-175 (2026-05-14) Modular domain architecture documentation propagation + hook regex fix. 1728 tests.*
 
 *Session-174 (2026-05-14) BACKLOG #41 Phase 1 — behavioral trigger for reference library capture. Completion-sequence item 18 added. Contrarian pivoted 7-step plan to 1-file behavioral trigger.*
 
