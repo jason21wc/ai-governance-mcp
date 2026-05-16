@@ -2,9 +2,10 @@ Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
 
 Copyright (c) 2026 Jason Collier. All rights reserved.
 
-This license applies to all governance framework content in this repository,
-including but not limited to the contents of the documents/ directory
-(principles, methods, governance frameworks, and all associated content).
+This license applies to domain-specific governance content in this repository,
+as defined in the SCOPE section below. The constitutional framework files
+(constitution.md and rules-of-procedure.md) are licensed under Apache 2.0 —
+see LICENSE.
 
 You are free to:
   Share — copy and redistribute the material in any medium or format
@@ -32,12 +33,16 @@ For commercial licensing inquiries, contact the copyright holder.
 
 SCOPE OF THIS LICENSE:
 
-The following directories and their contents are covered by this license:
-  - documents/          (all governance framework content)
+The following are covered by this CC BY-NC-ND 4.0 license:
+  - documents/          (domain-specific governance content), EXCEPT:
+      - documents/constitution.md       (covered by Apache 2.0 — see LICENSE)
+      - documents/rules-of-procedure.md (covered by Apache 2.0 — see LICENSE)
   - private-domains/    (all proprietary domain content)
   - index/              (generated index derived from framework content)
 
 The following are NOT covered by this license (covered by Apache 2.0 — see LICENSE):
+  - documents/constitution.md       (meta-principles / constitutional framework)
+  - documents/rules-of-procedure.md (meta-methods / operational procedures)
   - src/                (Python source code)
   - tests/              (test suite)
   - scripts/            (utility scripts)
