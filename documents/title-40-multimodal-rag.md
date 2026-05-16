@@ -1,7 +1,7 @@
 ---
-version: "2.4.3"
+version: "2.5.0"
 status: "active"
-effective_date: "2026-05-03"
+effective_date: "2026-05-15"
 domain: "multimodal-rag"
 prefix: "mrag"
 display_name: "Multimodal RAG"
@@ -10,7 +10,7 @@ priority: 40
 governance_level: "federal-statute"
 ---
 
-# Multimodal RAG Domain Principles Framework v2.4.2
+# Multimodal RAG Domain Principles Framework v2.5.0
 ## Federal Statutes for AI Agents Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -151,6 +151,9 @@ This framework derives from analysis of multimodal retrieval research including:
 - **ColQwen2 (github illuin-tech/colpali):** Qwen2-based late interaction retrieval model
 - **ColEmbed V2 (arxiv 2602.03992):** NVIDIA late interaction model for document-as-image retrieval
 - **RAG-Anything (github HKUDS/RAG-Anything):** Knowledge graph construction for multimodal RAG
+- **Microsoft GraphRAG (arXiv 2404.16130):** Community detection via Leiden algorithm; hierarchical community summaries for corpus-level global queries
+- **HippoRAG (NeurIPS 2024, ICLR 2025):** Hippocampus-inspired retrieval with Personalized PageRank for graph-aware reranking
+- **LEGO-GraphRAG (VLDB 2025):** Modular decompose-extract-filter-refine pipeline for multi-hop graph queries
 - **Ask in Any Modality survey (arxiv 2502.08826, ACL 2025):** Comprehensive multimodal RAG survey
 
 ---
@@ -718,24 +721,30 @@ For complex knowledge bases where entities, relationships, and hierarchies span 
 **How the AI Applies This Principle (When Advising on System Design)**
 - **Entity Extraction:** Extract entities from both text (NER) and images (visual object detection, diagram parsing) and unify them in a shared graph.
 - **Relationship Mapping:** Build explicit relationships between entities across modalities (e.g., "Component X" in text → visual representation in Diagram Y → specification in Table Z).
-- **Graph-Augmented Retrieval:** Use the knowledge graph to expand retrieval results: when a query matches entity A, also retrieve content about entities related to A via graph traversal.
-- **Incremental Maintenance:** Update the knowledge graph incrementally as new content is added, rather than rebuilding from scratch.
+- **Community Detection & Hierarchical Summarization:** After graph construction, detect communities of densely-connected entities (e.g., Leiden algorithm) and pre-generate summaries at multiple granularities. This enables global queries ("what are the major themes across this corpus?") that hop-based traversal alone cannot answer.
+- **Ingest-Time Synthesis:** For stable corpora, pre-compute community summaries and compiled knowledge artifacts at ingest time rather than relying solely on query-time traversal. For high-change-rate corpora, consider deferred community detection at query time (LazyGraphRAG pattern) to avoid invalidating pre-computed summaries.
+- **Multi-Stage Graph-Augmented Retrieval:** Use a multi-stage pipeline rather than a single weighted formula: broad graph+vector retrieval, then precision reranking using graph-structural signals (Personalized PageRank, community membership), then context assembly. Graph operators (how you traverse and rank) matter more than graph structure (how you store).
+- **Incremental Maintenance:** Update the knowledge graph incrementally as new content is added. Monitor corpus change rate: below 30% changed nodes/edges, incremental updates suffice; above 50%, full rebuild is typically more cost-effective than incremental patching.
+- **Cost-Justified Adoption:** KG extraction costs 3-5x baseline RAG due to LLM calls for entity/relationship extraction and community summarization. Evaluate whether query patterns require relationship traversal before investing — simple FAQ workloads don't benefit; cross-document dependency queries do.
 
 **Constitutional Basis**
 Domain-native principle addressing complex multimodal knowledge bases. Aligned with `Informational Readiness` (maintaining relationships between content) and `Structured Output Enforcement`.
 
 **Why This Principle Matters**
-Vector similarity search finds content that looks similar to the query but cannot follow structural relationships. When a user asks about a component that spans multiple documents, diagrams, and specifications, vector search may find some relevant chunks but miss structurally related content. Knowledge graph integration (RAG-Anything) enables traversal from one piece of knowledge to related pieces across modalities, improving answer completeness for complex queries.
+Vector similarity search finds content that looks similar to the query but cannot follow structural relationships. When a user asks about a component that spans multiple documents, diagrams, and specifications, vector search may find some relevant chunks but miss structurally related content. Knowledge graph integration enables traversal from one piece of knowledge to related pieces across modalities, improving answer completeness for complex queries. Community detection (Microsoft GraphRAG, 2024) further enables corpus-level synthesis — answering "what are the major themes?" rather than just "which chunks match?" — by clustering entities into semantic communities and pre-generating summaries at multiple hierarchical levels.
 
 **When Human Interaction Is Needed**
 - When defining the entity types and relationship schema for the knowledge graph.
-- When deciding which document collections warrant graph construction overhead.
+- When deciding which document collections warrant graph construction overhead (apply the cost/scale decision framework — KG adds 3-5x cost over baseline RAG).
 - When resolving entity conflicts (same name, different entities across documents).
+- When setting corpus change-rate thresholds that determine whether to use incremental updates, full rebuilds, or deferred query-time graph construction.
 
 **Common Pitfalls or Failure Modes**
 - **The Flat Graph:** Building a graph without meaningful relationship types, reducing it to a glorified tag system.
 - **The Stale Graph:** Graph structure diverges from underlying documents as content is updated but the graph is not.
 - **The Extraction Hallucination:** NER or visual detection extracts non-existent entities, creating phantom nodes in the graph.
+- **The Static Formula:** Hard-coding retrieval score weights (e.g., fixed graph/vector blends) for graph-augmented retrieval instead of using learned or query-adaptive reranking. Static formulas cannot adapt to query type or graph topology. (Note: this pitfall applies to graph-augmented scoring contexts; A2's multi-signal scoring formula for non-graph retrieval is a separate concern with its own tuning guidance.)
+- **The Premature Graph:** Building a knowledge graph for a corpus where queries are simple keyword or semantic lookups. KG overhead (3-5x extraction cost over baseline RAG) is wasted when queries don't exploit entity relationships or cross-document dependencies.
 
 ---
 
@@ -1400,7 +1409,7 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **title-40-multimodal-rag-cfr.md** | v2.1.1 | Presentation patterns, document structuring, retrieval architecture, failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
+| **title-40-multimodal-rag-cfr.md** | v2.2.0 | Presentation patterns, document structuring, retrieval architecture (including community detection, graph quality metrics), failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
 
 **Methods document includes:**
 - Title 1: Presentation Patterns (image placement workflows, selection algorithms, accessibility checklist)
@@ -1422,7 +1431,10 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ## Changelog
 
-### v2.4.3 (Current)
+### v2.5.0 (Current)
+- MINOR: A5 (Knowledge Graph Integration) expanded with 2024-2026 research findings. Added 3 new "How the AI Applies" bullets: Community Detection & Hierarchical Summarization, Ingest-Time Synthesis, Cost-Justified Adoption. Refined existing Graph-Augmented Retrieval bullet to multi-stage pipeline and Incremental Maintenance bullet with change-rate thresholds. Added 2 new pitfalls: The Static Formula (scoped to graph-augmented scoring — A2 unaffected), The Premature Graph. Updated "Why This Principle Matters" with community detection context (GraphRAG). Added human interaction bullet for corpus change-rate thresholds. Evidence base expanded with 3 new references: Microsoft GraphRAG (arXiv 2404.16130), HippoRAG (NeurIPS 2024), LEGO-GraphRAG (VLDB 2025). Governance: `gov-e44fee2d1c0c`.
+
+### v2.4.3
 - PATCH: Constitutional rename propagation (BACKLOG #152). Updated crosswalk table, "Derived from" and "Aligned with" lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`.
 
 ### v2.4.2
@@ -1483,5 +1495,5 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ---
 
-*Version 2.4.1*
+*Version 2.5.0*
 *Derived from: AI Coding Domain Principles v2.3.2, Multi-Agent Domain Principles v2.1.1, Storytelling Domain Principles v1.1.2, Constitution v3.0.0*

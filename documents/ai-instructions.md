@@ -1,5 +1,5 @@
 ---
-version: "4.0.7"
+version: "4.0.8"
 status: "active"
 effective_date: "2026-05-14"
 domain: "meta"
@@ -184,8 +184,8 @@ This loader is designed for use with:
 - title-22-accounting.md v1.0.0+
 - title-22-accounting-cfr.md v1.0.0+
 - title-25-kmpd-cfr.md v1.2.0+
-- title-40-multimodal-rag.md v2.4.3+
-- title-40-multimodal-rag-cfr.md v2.1.3+
+- title-40-multimodal-rag.md v2.5.0+
+- title-40-multimodal-rag-cfr.md v2.2.0+
 </document_versions>
 
 ---
@@ -194,6 +194,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.0.8 | 2026-05-15 | PATCH: title-40-multimodal-rag.md pin update v2.4.3+ → v2.5.0+ for A5 Knowledge Graph Integration expansion (community detection, ingest-time synthesis, cost awareness, 2 new pitfalls). title-40-multimodal-rag-cfr.md pin update v2.1.3+ → v2.2.0+ for §3.8 targeted fixes (static formula replaced, graph quality metrics, 8 Appendix C references). PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-e44fee2d1c0c`. |
 | 4.0.7 | 2026-05-14 | PATCH: rules-of-procedure.md pin update v3.31.5+ → v3.31.6+ for modular domain architecture documentation propagation (~20 references updated to reflect filesystem-based domain discovery as primary mechanism, `domains.json` demoted to optional override). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-378e7aa4148a`. |
 | 4.0.6 | 2026-05-14 | PATCH: Added accounting domain detection entry (`title-22-accounting`). Added `title-22-accounting.md v1.0.0+` and `title-22-accounting-cfr.md v1.0.0+` to document_versions. PATCH-on-new-domain per BACKLOG #130 canonical pin-discipline rule. |
 | 4.0.5 | 2026-05-11 | PATCH: title-20-multi-agent-cfr.md pin update v2.17.3+ → v2.18.0+ for Agent Definition SSOT + list_agents cross-platform discovery tool. PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. |

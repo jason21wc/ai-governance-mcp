@@ -1,12 +1,12 @@
 ---
-version: "2.1.3"
+version: "2.2.0"
 status: "active"
-effective_date: "2026-04-26"
+effective_date: "2026-05-15"
 domain: "multimodal-rag"
 governance_level: "federal-regulations"
 ---
 
-# Multimodal RAG Methods v2.1.3
+# Multimodal RAG Methods v2.2.0
 ## Operational Procedures for Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -629,9 +629,9 @@ Decision: Use text extraction IF:
 
 ### 3.8 Graph-Based Multimodal Retrieval
 
-**Purpose:** Procedures for implementing A5 (Knowledge Graph Integration). Defines how to construct and query a knowledge graph from multimodal content for relationship-aware retrieval.
+**Purpose:** Procedures for implementing A5 (Knowledge Graph Integration). Defines how to construct, maintain, and query a knowledge graph from multimodal content for relationship-aware retrieval, including community detection and cost/scale guidance.
 
-**Applies To:** Complex knowledge bases where entities and relationships span multiple documents and modalities. Particularly valuable when queries involve structural relationships ("what depends on X?", "how is A related to B?").
+**Applies To:** Complex knowledge bases where entities and relationships span multiple documents and modalities. Particularly valuable when queries involve structural relationships ("what depends on X?", "how is A related to B?") or global corpus-level understanding ("what are the major themes?"). For detailed community detection procedures, multi-hop query decomposition, cost/scale decision frameworks, and tool evaluations, see reference library entry `ref-multimodal-rag-kg-landscape-2024-2026`.
 
 **Knowledge Graph Construction:**
 
@@ -669,30 +669,41 @@ Input: Document collection D[], Modalities: text, images, tables
      on node embeddings
 ```
 
+**Community Detection (Optional):**
+
+For complex knowledge bases, apply community detection (e.g., Leiden algorithm) after graph construction to identify clusters of densely-connected entities. Pre-generate natural-language community summaries at multiple hierarchical levels for stable corpora — this enables global queries that hop-based traversal alone cannot answer. For high-change-rate corpora, consider deferred community detection at query time (LazyGraphRAG pattern, ~700x cheaper than full pre-computation). See reference library entry `ref-multimodal-rag-kg-landscape-2024-2026` for detailed community detection procedures, including GraphRAG vs LazyGraphRAG vs LightRAG decision criteria.
+
 **Graph-Augmented Retrieval Procedure:**
 
 ```
-Input: Query Q, Knowledge Graph G, Vector Index V
+Input: Query Q, Knowledge Graph G, Vector Index V,
+       Community Summaries CS[] (if available)
 
-1. VECTOR RETRIEVAL: Standard top-K retrieval from V
-   - Returns document chunks related to Q
+STAGE 1 — BROAD RETRIEVAL (optimize for recall):
+   a. Vector retrieval: top-K from V for query Q
+   b. Entity matching: identify entities in Q that exist in G;
+      for matched entities, retrieve 1-hop and 2-hop neighbors
+      filtered by relationship type relevance
+   c. Community matching: if CS[] exists, retrieve summaries
+      from communities containing matched entities
 
-2. ENTITY MATCHING: Identify entities in Q that exist in G
-   - Match query terms to graph node labels/aliases
+STAGE 2 — PRECISION RERANKING (optimize for relevance):
+   - Apply graph-structural signals: degree centrality,
+     community membership, path distance from seed entities
+   - For graph-augmented contexts, Personalized PageRank from
+     seed entities provides adaptive ranking that accounts for
+     graph topology (HippoRAG, NeurIPS 2024)
+   - Tune reranking weights per domain — static formulas cannot
+     adapt to query type or graph topology
 
-3. GRAPH EXPANSION: For matched entities, traverse G:
-   - 1-hop neighbors: directly related entities
-   - 2-hop neighbors: entities related to related entities (use sparingly)
-   - Filter by relationship type relevance to query
-
-4. AUGMENTED RETRIEVAL: For each graph-expanded entity:
-   - Retrieve the document chunks containing that entity
-   - Score by: graph_relevance * 0.4 + vector_relevance * 0.6
-
-5. MERGE: Combine vector results and graph-augmented results
-   - Deduplicate by chunk ID
-   - Re-rank combined set
+STAGE 3 — CONTEXT ASSEMBLY:
+   - Deduplicate by chunk ID across all retrieval channels
+   - Select top-K results respecting context window budget
+   - Include relevant community summaries for global context
+   - Assemble LLM-ready context with source attribution
 ```
+
+Note: Graph operators (how you traverse and rank) matter more than graph structure (how you store). For multi-hop queries requiring relationship chain traversal, decompose into sub-queries before retrieval — see reference library entry `ref-multimodal-rag-kg-landscape-2024-2026` for the LEGO-GraphRAG decomposition pipeline.
 
 **Graph Maintenance:**
 
@@ -701,7 +712,11 @@ Input: Query Q, Knowledge Graph G, Vector Index V
 | New document added | Extract entities/relationships, merge into graph | On ingest |
 | Document updated | Re-extract changed sections, update graph nodes/edges | On update |
 | Entity conflict detected | Queue for human resolution | As needed |
-| Graph quality audit | Sample-based verification of entity/relationship accuracy | Monthly |
+| Community re-detection | Re-run community detection when >30% of nodes/edges changed since last detection; regenerate affected community summaries | On threshold |
+| Corpus change rate >50% | Full graph rebuild (cheaper than incremental patching at high change rates) | On threshold |
+| Graph quality audit | Verify entity accuracy (precision/recall on sample), relationship accuracy, community coherence, graph freshness (age of oldest unverified node) | Monthly |
+
+**Graph Quality Metrics:** The HAL 2025 survey identifies 23 quality dimensions for knowledge graphs. For operational use, prioritize these 5: entity accuracy (are extracted entities real?), relationship accuracy (do stated relationships hold?), completeness (are expected entities present?), consistency (no contradictory edges), and freshness (time since last verification pass). Scale-based maintenance: corpus change rate <30% → incremental updates; 30-50% → evaluate rebuild vs. incremental; >50% → full rebuild typically more cost-effective.
 
 ---
 
@@ -2221,6 +2236,14 @@ When selecting infrastructure:
 | Reference | Key Contribution | Year |
 |-----------|-----------------|------|
 | RAG-Anything (github HKUDS/RAG-Anything) | Knowledge graph construction from multimodal sources; entity and relationship extraction across text, images, and tables; graph-augmented retrieval for complex queries | 2025 |
+| Microsoft GraphRAG (arXiv 2404.16130) | Community detection via Leiden algorithm; hierarchical community summaries enabling corpus-level global queries; local+global retrieval modes | 2024 |
+| LazyGraphRAG (Microsoft Research) | Deferred community detection at query time; ~700x cost reduction vs full GraphRAG; best-first + breadth-first iterative deepening | 2025 |
+| HippoRAG (NeurIPS 2024, ICLR 2025) | Hippocampus-inspired retrieval with Personalized PageRank for graph-aware reranking; outperforms flat vector+graph merge approaches | 2024 |
+| LEGO-GraphRAG (VLDB 2025) | Modular decompose-extract-filter-refine pipeline for multi-hop graph queries; subgraph extraction as main efficiency bottleneck | 2025 |
+| ArchRAG (AAAI 2026) | Attributed community-based hierarchical RAG; C-HNSW index for efficient community retrieval; outperforms existing methods in accuracy and token cost | 2026 |
+| Math Academy Knowledge Graph (Skycak) | Prerequisite DAGs with encompassing weights for educational domains; topology-driven learning path generation | 2024 |
+| Cognee (github topoteretes/cognee) | Open-source KG construction pipeline (Apache-2.0); 6-stage ECL pipeline; 15 search types including graph completion and chain-of-thought; LLM-agnostic with 11 providers | 2025 |
+| KG Quality Metrics survey (HAL 2025) | 23 quality dimensions for knowledge graphs; systematic evaluation framework for graph accuracy, completeness, consistency, and freshness | 2025 |
 
 ### Industry Best Practices
 
@@ -2279,7 +2302,10 @@ This methods document implements:
 
 ## Changelog
 
-### v2.1.3 (Current)
+### v2.2.0 (Current)
+- **MINOR: §3.8 updated with 2024-2026 knowledge graph RAG research.** Static retrieval scoring formula (`graph_relevance * 0.4 + vector_relevance * 0.6`) replaced with 3-stage multi-stage pipeline (broad retrieval, precision reranking with Personalized PageRank, context assembly). Community detection note added with Leiden algorithm reference and LazyGraphRAG alternative for high-change-rate corpora. Graph maintenance table expanded with community re-detection trigger, corpus change-rate rebuild threshold, and quality audit dimensions. Graph quality metrics paragraph added citing HAL 2025 survey (5 operational priority metrics from 23 dimensions). 8 new research references in Appendix C Knowledge Graph section: Microsoft GraphRAG, LazyGraphRAG, HippoRAG, LEGO-GraphRAG, ArchRAG, Math Academy KG, Cognee, KG Quality Metrics survey. Forward references to reference library entry `ref-multimodal-rag-kg-landscape-2024-2026` for detailed procedures. Governance: `gov-e44fee2d1c0c`.
+
+### v2.1.3
 - **PATCH: BACKLOG #136 close — §9.8.3 field backfill on Appendix A (Claude-Specific Implementation).** Added required §9.8.3 fields: Governance Level, Implements (Part 4 Multimodal Retrieval / Vision for Claude API), Applies To (Claude API current model family + supported image formats), Information Currency (verified 2026-04-26), Source (Anthropic vision docs), Framework Integration (vision input + MCP tools + SDKs). Out-of-§9.8.3-scope appendices NOT modified: B (Infrastructure Landscape — vendor/solution survey), C (Research References — bibliography). No normative change — §9.8.3 fields are descriptive metadata for adopter discoverability. Body-header pre-existing drift (`Multimodal RAG Methods v2.1.1` despite frontmatter v2.1.2) corrected to v2.1.3 along the way. ai-instructions PATCH-on-PATCH pin sync v2.10.1 → v2.10.2 per canonical pin-discipline rule (COMPLETION-CHECKLIST item 7c). Same commit applies parallel §9.8.3 backfill in title-10-ai-coding-cfr v2.43.1 → v2.43.2 (5 appendices) and title-20-multi-agent-cfr v2.17.1 → v2.17.2 (3 appendices). Governance: `gov-21ee559d88f0`.
 
 ### v2.1.2
@@ -2328,5 +2354,5 @@ This methods document implements:
 
 ---
 
-*Version 2.1.3*
-*Companion to: Multimodal RAG Domain Principles v2.1.0*
+*Version 2.2.0*
+*Companion to: Multimodal RAG Domain Principles v2.5.0*

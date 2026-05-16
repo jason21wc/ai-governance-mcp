@@ -109,3 +109,19 @@
 
 ---
 
+#### 47. Cognee KG Pipeline Integration Spike (Discussion — Knowledge Graph) `D2 New Capability`
+
+**What:** Evaluate Cognee (github topoteretes/cognee, Apache-2.0) as a concrete implementation of A5 Knowledge Graph Integration and §3.8 graph-based retrieval. Spike scope: install locally, run against a small test corpus, assess entity/relationship extraction quality, community detection output, search type effectiveness, and MCP server integration with Claude Code.
+
+**Why:** A5 and §3.8 now describe community detection, multi-stage retrieval, and graph quality metrics, but no concrete tooling is integrated. Cognee implements the graph+vector+relational pipeline as an open-source library (15 search types, 38+ document formats, LLM-agnostic with 11 providers). The statistics education domain is the likely first use case — hundreds of raw documents requiring multi-hop retrieval across prerequisite chains. Research confirmed Cognee as the best-fit tool across 10+ candidates evaluated.
+
+**What's involved:** (1) `pip install cognee` + configure with Anthropic/Fastembed, (2) Install cognee-mcp via Docker, (3) Test with sample statistics documents, (4) Evaluate graph quality against §3.8 metrics, (5) Assess whether community detection adds value at the initial corpus scale. Reference library entry `ref-multimodal-rag-kg-landscape-2024-2026` contains the full evaluation, tool comparison, and implementation path.
+
+**Trigger:** When a project needs KG-based retrieval — statistics domain buildout is the likely activator.
+
+**Dependency:** None — spike is self-contained. Benefits from #41 (reference library auto-staging) for capturing spike findings.
+
+**Origin:** Session-177 (2026-05-15). Two research agents evaluated knowledge graph RAG landscape; Cognee selected over Microsoft GraphRAG, LlamaIndex, R2R, Mem0, Zep, Letta, MemPalace, MindsDB, MemoryLake.
+
+---
+
