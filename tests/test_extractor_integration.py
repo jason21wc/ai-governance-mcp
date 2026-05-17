@@ -413,7 +413,10 @@ class TestTitle10AgentOperations:
         mock_embedder.get_sentence_embedding_dimension = Mock(return_value=384)
         mock_st = Mock(return_value=mock_embedder)
 
-        with patch("sentence_transformers.SentenceTransformer", mock_st):
+        with (
+            patch("sentence_transformers.SentenceTransformer", mock_st),
+            patch.dict("os.environ", {"AI_CONTEXT_ENGINE_EMBED_SOCKET": "none"}),
+        ):
             from ai_governance_mcp.config import load_settings
             from ai_governance_mcp.extractor import DocumentExtractor
 
