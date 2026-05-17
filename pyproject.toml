@@ -43,6 +43,9 @@ context-engine = [
     "openpyxl>=3.1.0",
     "Pillow>=12.1.1,<13",
 ]
+cognee-spike = [
+    "cognee>=1.0.9",
+]
 dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",

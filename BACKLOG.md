@@ -115,13 +115,16 @@
 
 **Why:** A5 and §3.8 now describe community detection, multi-stage retrieval, and graph quality metrics, but no concrete tooling is integrated. Cognee implements the graph+vector+relational pipeline as an open-source library (15 search types, 38+ document formats, LLM-agnostic with 11 providers). The statistics education domain is the likely first use case — hundreds of raw documents requiring multi-hop retrieval across prerequisite chains. Research confirmed Cognee as the best-fit tool across 10+ candidates evaluated.
 
-**What's involved:** (1) `pip install cognee` + configure with Anthropic/Fastembed, (2) Install cognee-mcp via Docker, (3) Test with sample statistics documents, (4) Evaluate graph quality against §3.8 metrics, (5) Assess whether community detection adds value at the initial corpus scale. Reference library entry `ref-multimodal-rag-kg-landscape-2024-2026` contains the full evaluation, tool comparison, and implementation path.
+**What's involved:** (1) `pip install cognee` + configure with Anthropic or Ollama for LLM + Fastembed for embeddings, (2) Install cognee-mcp via Docker, (3) Test with sample statistics documents, (4) Evaluate graph quality against §3.8 metrics, (5) Assess whether community detection adds value at the initial corpus scale. Reference library entry `ref-multimodal-rag-kg-landscape-2024-2026` contains the full evaluation, tool comparison, and implementation path.
 
-**Trigger:** When a project needs KG-based retrieval — statistics domain buildout is the likely activator.
+**Progress (session-177):** Cognee 1.0.9 installed as optional dependency (`pip install -e ".[cognee-spike]"`). Import verified. LLM provider options explored: Anthropic API (pennies per document, one-time ingest cost) or Ollama with local model (zero cost). Fastembed bundled. No test corpus run yet.
+
+**Trigger:** When user is ready to invest in the statistics domain buildout or has API key / Ollama configured.
 
 **Dependency:** None — spike is self-contained. Benefits from #41 (reference library auto-staging) for capturing spike findings.
 
 **Origin:** Session-177 (2026-05-15). Two research agents evaluated knowledge graph RAG landscape; Cognee selected over Microsoft GraphRAG, LlamaIndex, R2R, Mem0, Zep, Letta, MemPalace, MindsDB, MemoryLake.
 
 ---
+
 
