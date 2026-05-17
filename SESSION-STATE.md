@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-15 (session-177 — A5 KG research + §3.8 fixes + reference library entry + Cognee backlog).
+**Last Updated:** 2026-05-17 (session-178 — BACKLOG #48 `/code-review` + `/security-scan` global skills shipped).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,26 +12,25 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-177 (2026-05-15) — A5 Knowledge Graph Integration research-based update. §3.8 fixes. New reference library entry + Cognee backlog item.**
+**Session-178 (2026-05-17) — BACKLOG #48: `/code-review` and `/security-scan` global skills shipped.**
 
-**ACTION ON RESUME (session-178):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
+**ACTION ON RESUME (session-179):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis. **Test suite regression** — 183 failures / 54 errors on `tests/ -m "not slow"` (environment issue, not regression — same failures on clean state). Investigate at session start.
 
 **Critical state for next session:**
-- **Backlog: 6 discussion items** — #6, #11, #41, #45, #46, #47 (new). No items activated or closed. #47 (Cognee KG spike) added this session.
-- **A5 expanded (v2.5.0)** — 3 new bullets (community detection, ingest-time synthesis, cost-justified adoption), 2 new pitfalls (Static Formula scoped to graph-augmented scoring, Premature Graph). Evidence base expanded with GraphRAG, HippoRAG, LEGO-GraphRAG.
-- **§3.8 fixed (CFR v2.2.0)** — static 0.4/0.6 formula replaced with 3-stage pipeline. Community detection note added. Graph maintenance table expanded with quality metrics. 8 new Appendix C references.
-- **Reference library entry created** — `ref-multimodal-rag-kg-landscape-2024-2026` in new `reference-library/multimodal-rag/` directory. Comprehensive: community detection, multi-hop decomposition, cost/scale framework, Cognee evaluation, tool comparison matrix, educational domain schema.
-- **#47 filed** — Cognee KG Pipeline Integration Spike. D2, triggered when a project needs KG-based retrieval (statistics domain likely first use case).
-- **#41 Phase 1 observation window still open** — shipped session-174. No automated measurement; informal observation via C-109 audit.
+- **Backlog: 7 discussion items** — #6, #11, #41, #45, #46, #47, #48. #48 partially shipped (2 of 8 skills); remaining skills stay in Discussion.
+- **Global skills shipped** — `/code-review` (3-pass parallel subagent: correctness, security, architecture + 2 opt-in: performance, test-coverage) and `/security-scan` (secrets detection, dependency audit, basic auth patterns). Canonical source in `global-skills/`, installed to `~/.claude/skills/`.
+- **Contrarian agent calibrated** — precedent-vs-design-vs-evidence distinction added to contrarian-reviewer boundaries.
+- **pyproject.toml** — cognee version capped to `<2` (was uncapped `>=1.0.9`).
+- **#41 Phase 1 observation window still open** — shipped session-174.
 - **Claude App enforcement proxy** — soft mode deployed session-173.
 
 ---
 
 ## Current Position
 
-- **Phase:** Session-177 (2026-05-15) — A5 KG research update + §3.8 fixes + reference library + Cognee backlog.
+- **Phase:** Session-178 (2026-05-17) — BACKLOG #48 global skills (`/code-review` + `/security-scan`).
 - **Mode:** Normal operation.
-- **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25). Observe #41 Phase 1 effectiveness.
+- **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25). Investigate test suite regression (183 failures — environment, not code).
 
 ## Quick Reference
 
@@ -49,27 +48,28 @@
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
 | Index | **145 principles + 764 methods + 19 references** (928 total) |
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
-| Skills | **4** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`) |
+| Skills | **6** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`, `/code-review` (global), `/security-scan` (global)) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | Last push: session-177. All pushed. |
+| CI | Last push: session-178. All pushed. |
 
 ---
 
-## Last Session (2026-05-15)
+## Last Session (2026-05-17)
 
-177. **Session-177 (2026-05-15): A5 Knowledge Graph Integration — research-based update.**
-   - **Research phase** — two parallel research agents evaluated 2024-2026 KG RAG landscape. Identified 6 gaps in A5/§3.8 (3 high severity: community detection, ingest-time synthesis, advanced retrieval; 3 medium: multi-hop decomposition, quality metrics, cost/scale). Evaluated 10+ tools; Cognee confirmed as best fit (Apache-2.0, fully local, LLM-agnostic, 15 search types, official MCP server). User supplied additional tools (MemPalace, Letta, MindsDB, MemoryLake) — all evaluated and ranked below Cognee.
-   - **Contrarian pivot** — original plan tripled §3.8 to ~250 lines. Contrarian caught premature procedures for undeployed capabilities. Redirected procedural depth to reference library; §3.8 gets targeted fixes only.
-   - **A5 expanded (v2.5.0)** — 3 new bullets, 2 new pitfalls (Static Formula scoped to avoid A2 contradiction, Premature Graph). Evidence base +3 entries.
-   - **§3.8 fixed (CFR v2.2.0)** — static 0.4/0.6 formula replaced with 3-stage pipeline. Community detection note. Graph maintenance table expanded. Appendix C +8 references.
-   - **Reference library entry** — `ref-multimodal-rag-kg-landscape-2024-2026` in new `reference-library/multimodal-rag/`. Comprehensive: community detection, multi-hop, cost/scale, Cognee evaluation, tool comparison, educational domain schema.
-   - **BACKLOG #47** — Cognee KG Pipeline Integration Spike filed. D2, triggered by KG-based retrieval need.
-   - **ai-instructions v4.0.8** — pin updates for multimodal-rag v2.5.0+ and CFR v2.2.0+.
-   - **Coherence audit** — 6 MISLEADING issues found (all version propagation drift), all fixed. 1728 tests passing.
+178. **Session-178 (2026-05-17): BACKLOG #48 — Generic Cross-Project Skill Suite (partial).**
+   - **Plan mode** — full plan with contrarian review. Contrarian used precedent-based reasoning ("no existing skill uses parallel dispatch") — correctly identified as non-systemic. Multi-pass architecture retained; design concerns (reconciliation spec, functional validation, scope inflation) adopted.
+   - **`/code-review` shipped** — 3-pass parallel subagent dispatch (correctness, security, architecture) with severity-gated reconciliation. 2 optional passes (performance, test-coverage). Research-backed: fan-out/fan-in (Osmani, O'Reilly 2026), severity gating (Jet Xu), evidence requirement (Ellipsis). 7 files in `global-skills/code-review/`.
+   - **`/security-scan` shipped** — secrets detection, dependency audit, basic auth pattern checks. 2 files in `global-skills/security-scan/`.
+   - **Contrarian agent calibrated** — precedent-vs-design-vs-evidence distinction added to contrarian-reviewer boundaries.
+   - **Double-checked** — coherence-auditor + validator. Portability issue fixed, escalation rules added, functional validation confirmed.
+   - **pyproject.toml** — cognee version capped `>=1.0.9,<2`.
+   - **Test suite** — 183 failures / 54 errors, pre-existing (same on clean state). Not regression from this session.
 
 ---
 
 ## Previous Sessions
+
+*Session-177 (2026-05-15) A5 KG research + §3.8 fixes + reference library entry + Cognee backlog. 1728 tests.*
 
 *Session-176 (2026-05-14) Backlog review + #46 research + #11 analysis. No code changes.*
 

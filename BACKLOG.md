@@ -127,4 +127,51 @@
 
 ---
 
+#### 48. Generic Cross-Project Skill Suite (Discussion — Skills Architecture) `D3 New Capability`
+
+**What:** Create a suite of generic, project-agnostic skills for `~/.claude/skills/` that work across any codebase. Two tiers: (1) standalone skills that work without ai-governance MCP, (2) governance-enhanced skills that leverage ai-governance when connected but degrade gracefully without it.
+
+**Why:** Current skills (completion-sequence, compliance-review, test-authoring) are project-locked — they reference ai-governance MCP tools, specific governance documents, and project-specific hooks. Only content-enhancer is portable today (copied to global, session-177). The structural cause: skills were built for ai-governance's own use, not designed for distribution. Generic versions would make ai-governance's patterns useful across all projects without requiring the full framework.
+
+**Systemic design — skill/subagent orchestration model:** Skills are user-invoked workflows in main context (application programs); subagents are isolated coprocessors. Effective generic skills orchestrate *multiple subagents in sequence*, each with a focused concern. This mirrors proven CI pipeline architecture (lint → build → test → security → deploy) but applied at the AI interaction layer, where the "pipeline" runs inside the conversation.
+
+**Candidate skill suite (research needed to validate and scope):**
+
+| Skill | Purpose | Subagents Used | Standalone? |
+|-------|---------|---------------|-------------|
+| `/code-review` | Multi-pass code review pipeline — orchestrates specialized reviewers in sequence | Lint pass, structure/organization pass, quality pass, security pass | Yes |
+| `/pre-commit` | Generic post-change completion sequence — tests, lint, secrets scan, diff review | None (direct checks) | Yes |
+| `/test-suite` | Test authoring with coverage analysis — generates tests, validates coverage, checks edge cases | test-generator | Yes |
+| `/security-scan` | Security-focused review — OWASP top 10, dependency audit, secrets detection, auth patterns | security-auditor | Yes |
+| `/content-enhancer` | Transform raw content into structured reference documents | None (already global) | Yes (done) |
+| `/architecture-review` | Evaluate structural decisions — coupling, cohesion, separation of concerns, SOLID | code-reviewer + validator | Yes |
+| `/refactor-audit` | Pre-refactor impact analysis — dependency mapping, blast radius, migration path | code-reviewer | Yes |
+| `/doc-gen` | Generate/update documentation from code — README, API docs, inline docs | documentation-writer | Yes |
+
+**The `/code-review` pipeline (highest value, research-driven):** This is the skill the user specifically wants to research. The concept: a single `/code-review` invocation runs multiple specialized passes over a diff, each focused on a different concern. Candidate passes (need external research to validate industry best practices):
+
+1. **Lint/style pass** — formatting, naming conventions, import organization, dead code. Fast, mechanical, high signal-to-noise.
+2. **Structure/organization pass** — file placement, module boundaries, abstraction levels, separation of concerns. Maps to ai-coding Part 9 (code architecture patterns) and the recent structure/organization updates.
+3. **Logic/quality pass** — correctness, edge cases, error handling, performance anti-patterns. The "does this code do what it claims?" check.
+4. **Test coverage pass** — are changes tested? Are edge cases covered? Are tests testing behavior or implementation?
+5. **Security pass** — injection vectors, auth/authz patterns, secrets exposure, dependency vulnerabilities. Maps to OWASP top 10.
+6. **API/contract pass** — backward compatibility, breaking changes, type safety, serialization. Relevant for library/service code.
+7. **Observability pass** — logging, metrics, error reporting. Is the code debuggable in production?
+
+Each pass produces a focused report. The orchestrating skill aggregates findings by severity and presents a unified review. The key insight: specialized passes catch things that a single "review this code" prompt misses, because each pass has a focused instruction set and doesn't dilute attention across concerns.
+
+**Governance-enhanced tier:** When ai-governance MCP is connected, skills can optionally call `evaluate_governance()` for principle-aware review and `search_references()` for pattern matching against the reference library. The skill detects MCP availability and enhances — but doesn't require — governance integration.
+
+**Distribution path:** Generic skills ship as files in the ai-governance repo under a `skills/` or `global-skills/` directory. Users copy to `~/.claude/skills/` manually, or a future `install_skill` MCP tool (analogous to `install_agent`) provides them programmatically. README documents availability. Skills are optional — the MCP server works without them.
+
+**Research needed:** External research on AI code review best practices — what passes are most effective? What does industry use? (CodeRabbit, Cursor, Cody, Codex review patterns.) Which passes catch the most real bugs vs. generating noise? What's the optimal pass ordering?
+
+**Progress (session-178):** `/code-review` and `/security-scan` shipped as global skills. `/code-review` uses 3-pass parallel subagent dispatch (correctness, security, architecture) with severity-gated reconciliation and evidence requirements. 2 optional passes (performance, test-coverage) available via "full review". `/security-scan` scoped to secrets detection + dependency audit + basic auth patterns (mechanical, portable concerns). Both self-contained — no MCP dependency. Canonical source in `global-skills/` directory, installed to `~/.claude/skills/`. Research-backed: fan-out/fan-in (Osmani, O'Reilly 2026), severity gating (Jet Xu), evidence requirement (Ellipsis). `/content-enhancer` already global (session-177). Remaining skills (`/test-suite`, `/pre-commit`, `/architecture-review`, `/refactor-audit`, `/doc-gen`) stay in Discussion.
+
+**Dependency:** Benefits from existing subagent definitions (code-reviewer, security-auditor, test-generator, documentation-writer) as templates for the specialized passes. Independent of #47 (Cognee).
+
+**Origin:** Session-178 (2026-05-17). User identified that project-scoped skills don't carry to other projects; wants generic versions with multi-agent code review pipeline.
+
+---
+
 
