@@ -14,7 +14,7 @@
 
 **Session-178 (2026-05-17) — BACKLOG #48: `/code-review` and `/security-scan` global skills shipped.**
 
-**ACTION ON RESUME (session-179):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis. **Test suite regression** — 183 failures / 54 errors on `tests/ -m "not slow"` (environment issue, not regression — same failures on clean state). Investigate at session start.
+**ACTION ON RESUME (session-179):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
 
 **Critical state for next session:**
 - **Backlog: 7 discussion items** — #6, #11, #41, #45, #46, #47, #48. #48 partially shipped (2 of 8 skills); remaining skills stay in Discussion.
@@ -30,7 +30,7 @@
 
 - **Phase:** Session-178 (2026-05-17) — BACKLOG #48 global skills (`/code-review` + `/security-scan`).
 - **Mode:** Normal operation.
-- **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25). Investigate test suite regression (183 failures — environment, not code).
+- **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25).
 
 ## Quick Reference
 
@@ -63,7 +63,7 @@
    - **Contrarian agent calibrated** — precedent-vs-design-vs-evidence distinction added to contrarian-reviewer boundaries.
    - **Double-checked** — coherence-auditor + validator. Portability issue fixed, escalation rules added, functional validation confirmed.
    - **pyproject.toml** — cognee version capped `>=1.0.9,<2`.
-   - **Test suite** — 183 failures / 54 errors, pre-existing (same on clean state). Not regression from this session.
+   - **Test suite fixed** — 183 failures traced to transformers 4.57.3 (TF backend removed from BACKENDS_MAPPING but TF model files still shipped); upgraded to 4.57.6. 11 errors traced to IPC socket routing bypassing test mocks; fixed with `AI_CONTEXT_ENGINE_EMBED_SOCKET=none` in fixture. Agent hash updated. 1728 tests passing, CI green.
 
 ---
 
