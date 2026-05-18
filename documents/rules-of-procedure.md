@@ -1,5 +1,5 @@
 ---
-version: "3.31.6"
+version: "3.32.0"
 status: "active"
 effective_date: "2026-05-14"
 domain: "constitution"
@@ -8,9 +8,9 @@ domain: "constitution"
 # Governance Framework Methods
 ## Operational Procedures for Framework Maintenance
 
-**Version:** 3.31.6
+**Version:** 3.32.0
 **Status:** Active
-**Effective Date:** 2026-05-03
+**Effective Date:** 2026-05-17
 **Governance Level:** Constitution Methods (implements meta-principles)
 
 ---
@@ -5228,6 +5228,89 @@ Collier, J. (2026). *The Elegance Equation: A Multiplicative Framework for Evalu
 
 ---
 
+## Part 16.8: Comprehension Scaffold Format
+
+**Importance: IMPORTANT — Operationalizes E&E comprehension obligation**
+**Implements:** Effective & Efficient Outputs (Art. III §4)
+**Applies To:** All non-trivial AI outputs — code, content, plans, architecture, recommendations — where the human consumer did not generate the output themselves
+
+### 16.8.1 Purpose
+
+AI outputs sever the generation-comprehension coupling that naturally exists when humans author their own artifacts. The comprehension scaffold re-establishes navigability by requiring AI to present structured metadata alongside outputs, enabling humans to exercise informed judgment at their chosen depth.
+
+### 16.8.2 The Three-Layer Scaffold
+
+Every non-trivial output carries:
+
+| Layer | Contents | Example (code) | Example (content) |
+|-------|----------|----------------|-------------------|
+| **Intent** | What goal this serves; why this approach over alternatives | "Adds rate limiting middleware; chose token bucket over sliding window for memory efficiency" | "Executive summary for Q3 board; chose narrative over dashboard format per audience preference" |
+| **Boundaries** | Assumptions, exclusions, scope limits, confidence drops | "Assumes Redis is available; does not handle distributed rate limiting; untested above 10k req/s" | "Covers revenue and churn only; excludes pipeline forecast pending sales data" |
+| **Handoff** | What human should verify, decide, or override; where to debug | "Verify Redis connection config; test under production load; rate limit values need business input" | "Verify revenue figures against finance team numbers; tone may need adjustment for board audience" |
+
+### 16.8.3 Depth Scaling
+
+Scaffold depth scales with stakes, not with output size:
+
+| Stakes | Scaffold depth | Example |
+|--------|---------------|---------|
+| Trivial (formatting, typos) | None required | Whitespace fix |
+| Low (prototype, throwaway) | Single sentence covering all three layers | Quick script for one-time data migration |
+| Standard (internal tools, iterative work) | Full three-layer scaffold (3-5 sentences total) | Feature implementation, document draft |
+| High (production, external-facing, irreversible) | Full scaffold + explicit assumption enumeration + verification checklist | Production deployment, published report, architecture decision |
+
+### 16.8.4 Scaffold Presentation Format
+
+For code outputs:
+
+```
+COMPREHENSION SCAFFOLD — [task/module name]
+├─ INTENT: [what goal, why this approach — include key decisions where alternatives existed]
+├─ BOUNDARIES: [1-2 sentences — assumptions, exclusions, scope]
+└─ HANDOFF: [1-2 sentences — what to verify, where to debug]
+```
+
+For non-code outputs: integrate scaffold into the output's introduction or present as a brief preamble. The scaffold should feel like a natural part of the output, not a bureaucratic prefix.
+
+### 16.8.5 Human Response Taxonomy
+
+The scaffold is always presented. The human chooses:
+
+| Response | Meaning | Record |
+|----------|---------|--------|
+| **Understood** | Human confirms comprehension | No special logging |
+| **Acknowledged** | Human proceeds without full comprehension | Logged per lifecycle stage |
+| **Explain** | Human requests expanded walkthrough | AI produces detailed explanation (domain methods may specify the technique, e.g., Linear Walkthrough) |
+| **Continue** (no explicit response) | Human's next action is a new prompt or instruction without addressing the scaffold | Treated as Acknowledged (pessimistic default — preserves the signal) |
+
+All four responses are valid. The gate never blocks. Human authority to proceed without comprehension is absolute. The "Continue" default exists because silence is the dominant real-world response; treating it as Acknowledged ensures the compliance signal captures disengagement rather than hiding it behind an optimistic default.
+
+### 16.8.6 Anti-Patterns
+
+- **Scaffold Theater:** Generic boilerplate that could apply to any output
+- **Wall of Disclaimers:** Over-scaffolding that obscures the output itself
+- **Post-Hoc Justification:** Scaffold describes what was built, not the intent that guided construction
+- **Silent Opt-Out:** Human never explicitly chose to skip; scaffold just stopped appearing
+- **Expert Assumption:** Omitting scaffold because "the human is an expert"
+
+### 16.8.7 Relationship to Domain Methods
+
+This meta-method defines the universal scaffold format. Domain-specific methods (e.g., ai-coding §5.13.7 Linear Walkthrough, §5.1.3 Implementation Quality Standards) operationalize the scaffold for their domain's specific output types. Domain methods derive enforcement from E&E Outputs (Art. III §4).
+
+**Depth scaling resolution order:** §16.8.3 (stakes) is the universal axis. Domain methods may map stakes to domain-specific axes (e.g., ai-coding uses project lifecycle stages in §5.1.3 and session modes in §5.13.7). When axes conflict, the higher-stakes interpretation governs — a high-stakes task in a low-rigor session still gets full scaffolding.
+
+### 16.8.8 Validation
+
+- [ ] Scaffold contains all three layers (Intent, Boundaries, Handoff)
+- [ ] Intent includes key decisions where alternatives existed
+- [ ] Depth scales with stakes, not output size (per §16.8.3)
+- [ ] Scaffold is specific to this output (not generic boilerplate — see §16.8.6 Scaffold Theater)
+- [ ] Human response is one of: Understood, Acknowledged, Explain, Continue
+
+*Research basis: Osmani (2026) "Comprehension Debt"; Shen & Tamkin (2026) "How AI Impacts Skill Formation" arXiv:2601.20245; Willison (2026) "Agentic Engineering Patterns"; ICO UK risk-proportionate explanation depth; SmartBear (2015) code review effectiveness thresholds.*
+
+---
+
 # TITLE 16 END
 
 ---
@@ -5236,6 +5319,7 @@ Collier, J. (2026). *The Elegance Equation: A Multiplicative Framework for Evalu
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 3.32.0 | 2026-05-17 | **MINOR: §16.8 Comprehension Scaffold Format.** New meta-method operationalizing E&E Outputs (Art. III §4) comprehension scaffold obligation. 8 subsections: Purpose, Three-Layer Scaffold (Intent/Boundaries/Handoff), Depth Scaling (by stakes), Scaffold Presentation Format, Human Response Taxonomy (Understood/Acknowledged/Explain/Continue with pessimistic silent-default), Anti-Patterns (5 items), Relationship to Domain Methods (with depth-scaling resolution order), Validation checklist. Research basis: Osmani (2026), Shen & Tamkin (2026), Willison (2026), ICO UK, SmartBear (2015). Follows ADR-17 structural pattern (§16.7 precedent). 3 subagent reviews. Governance: `gov-33d0eedc9dbf`, `gov-aa596dedcd00`. |
 | 3.31.6 | 2026-05-14 | PATCH: Modular domain architecture documentation propagation. Updated ~20 references across §1.1.3, §2.2.1, §3.1.3, §4.1, §4.2, §5.1.1, §5.1.3, §5.1.4, §5.2.1, §5.2.2, §9.6.2, §9.6.3, §15.3.1, §15.5 to reflect filesystem-based domain discovery (YAML frontmatter in `title-*-*.md` files) as the primary registration mechanism, with `domains.json` demoted to optional field-level override layer. Session-171 shipped BACKLOG #53 (modular domain architecture) and updated code + README + ARCHITECTURE but did not propagate to governance procedures. This caused a hierarchy contradiction: constitution.md called `domains.json` "the authoritative list" while the code used frontmatter discovery as primary. Also updated `constitution.md` (2 refs), `EXECUTION-FRAMEWORK.md` (2 refs), `SECURITY.md` (2 refs), `API.md` (1 ref), `completion-sequence/checklist.md` (1 ref), `analyze_feedback_loop.py` (project root detection). No normative change — editorial correction of factual accuracy per §9.8.5 bright-line. Governance: `gov-378e7aa4148a`. |
 | 3.31.5 | 2026-05-03 | PATCH: Constitutional rename propagation (BACKLOG #152). Updated ~23 prose-name references, format examples, decision trees, and Constitutional Basis lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Left: changelog entries (historical), `multi-architecture-context-engineering-discipline` domain principle title (layer 3 technique). Governance: `gov-d05cd633fc20`, `gov-97a116b020b2`. |
 | 3.31.4 | 2026-05-01 | PATCH: BACKLOG #147 post-double-check fold-in remediation. Added new §7.8.1 "Reactive vs Proactive Work-Class Distinction" — canonical method-level home for the rule that proactive/preventive/improvement work does not require justification by observed harm; the "phantom problem" anti-pattern applies to debugging-class work only; the stakes-match test is a sizing heuristic, not a validity gate. Includes asymmetric-default-when-ambiguous rule (default to proactive-class). Cross-referenced from CLAUDE.md Behavioral Floor "Proportional rigor" sub-bullet, `documents/agents/contrarian-reviewer.md` §Boundaries "Work-class awareness" + Step 0.5 "Work-Class Identification" (hot path), and `documents/tiers.json` `behavioral_floor.directives.proportional-rigor` (new entry, tiers.json v1.6.0 → v1.7.0). **No rule change** — codifies as method-level SSOT what was previously implicit in BACKLOG.md philosophy block + scattered across CLAUDE.md sub-bullet text + contrarian-reviewer Boundaries paragraph (per coherence-auditor finding that the original #147 close left three half-statements without a canonical home). Driven by post-edit subagent battery on prior commit `0911534` — coherence-auditor `a8730552c214c010f` HIGH-1 (tiers.json `proportional-rigor` directive missing) + MEDIUM-1 (§7.8 silent on proactive/reactive distinction); contrarian-reviewer `afac4381fd32e8721` HIGH-1 (self-classification gate unguarded — closed by asymmetric-default rule) + HIGH-2 (softer encoding than user verbatim — closed by reframing stakes-match as sizing heuristic) + MEDIUM (activation gap — closed by Step 0.5 placement before Step 1 Pre-Mortem in agent Review Protocol). Per `rules-of-procedure §9.8.5` bright-line: new sub-section codifying existing rule with cross-refs = PATCH (clarification of existing scope, no normative addition). ai-instructions PATCH-on-PATCH pin sync v2.11.5 → v2.11.6 per BACKLOG #130 canonical pin-discipline. **Constitutional Basis:** `meta-core-systemic-thinking` (root cause = rule-citation absence at canonical method-level home; structural fix = canonical SSOT with cross-refs); `meta-method-single-source-of-truth` (one canonical home + cross-refs); `meta-quality-explicit-over-implicit` (BACKLOG philosophy rule made explicit at proportional-rigor's operative scope); `meta-quality-verification-validation` (post-edit subagent battery on shipped fix found incompleteness; folded same-arc per session-138 post-arc remediation precedent). Audit IDs: validator `af3ba14ff949fd2d0` APPROVE; coherence-auditor `a8730552c214c010f` 1 HIGH + 2 MEDIUM + 2 LOW; contrarian-reviewer `afac4381fd32e8721` 2 HIGH + 2 MEDIUM PROCEED_WITH_CAUTION. Governance: `gov-20dcbdd98f9e` (parent #147 close), `gov-e1c50d38e20f` (this remediation). |

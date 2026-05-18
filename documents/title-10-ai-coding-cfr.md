@@ -1,5 +1,5 @@
 ---
-version: "2.45.1"
+version: "2.46.0"
 status: "active"
 effective_date: "2026-05-11"
 domain: "ai-coding"
@@ -9,9 +9,9 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.45.1
+**Version:** 2.46.0
 **Status:** Active
-**Effective Date:** 2026-05-11
+**Effective Date:** 2026-05-17
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
 
 ---
@@ -1408,6 +1408,8 @@ All implementation work follows this ordering discipline:
 - For modules: define the public API surface (exported functions, types, constants) before any implementation
 - For APIs: define request/response schemas, error codes, and authentication requirements before handlers
 
+**Comment Policy for Design-First Outputs:** See §5.1.3 Comment Policy Distinction (canonical location). In this context: interface doc comments (Step 1 contracts) are architectural — always write them. Implementation comments inside function bodies remain default-NO.
+
 **Step 2: TEST — Failing Tests from Contracts**
 - Write tests that exercise the interface contracts defined in Step 1
 - Tests MUST fail at this stage (no implementation exists yet) — a passing test before implementation means the test is wrong
@@ -1912,6 +1914,19 @@ Every task MUST be:
 | **Testable** | Can be verified independently | Acceptance criteria defined |
 | **Traceable** | Links to specification requirement | Explicit reference |
 | **Effort-shaped** | Single-action category per `.claude/plan-template.md` Recommended Approach section (`{write failing test, run test, implement minimal code, refactor, verify}`) | Combined-action tasks must split. Effort indicators (D1/D2/D3, file count, surfaces) per rules-of-procedure §7.12 — no time estimates. |
+| **Comprehensible** | Generates code in reviewable units; comprehension checkpoint at task completion | Human can articulate what was generated, why structured this way, where to debug — OR explicitly opts to proceed without comprehension (recorded, never blocked). Orthogonal to Bounded (≤15 files of incomprehensible code satisfies Bounded but not Comprehensible). |
+
+### 4.1.2.1 Generation Chunk Size
+
+Output volume thresholds for meaningful human review (soft, not hard gates):
+
+| Output Volume | Action | Rationale |
+|--------------|--------|-----------|
+| ≤100 lines | Single task, single scaffold | Within review scope |
+| 100-300 lines | Single task; scaffold required | At capacity boundary |
+| >300 lines | Decompose OR intermediate checkpoints | Beyond meaningful single-pass review |
+
+*Based on SmartBear (2015) code review effectiveness research: effectiveness drops above 200-400 LOC. Orthogonal to Bounded (≤15 files).*
 
 ### 4.1.3 Decomposition by Mode
 
@@ -2122,6 +2137,24 @@ During WRITE phase, apply:
 | Test-with-Implementation | Tests written with code | Q3 |
 | Dependency Verification | All packages verified | Q4 |
 | Input Validation | Untrusted input sanitized | Q5 |
+| Comprehension Scaffold | Module-level architectural comments at boundaries; functions ≤50 lines (soft); decision-point documentation | E&E (Art. III §4) + LPG |
+
+**Comprehension Scaffold — Lifecycle-Proportional Elaboration:**
+
+| Criterion | PROTOTYPE | INTERNAL | PRODUCTION |
+|-----------|-----------|----------|------------|
+| Module-level docstring (purpose + contracts) | Recommended | Required | Required |
+| Function length ≤50 lines | Not enforced | Soft (justify exceptions) | Soft (justify exceptions) |
+| Architectural comments at decision points | Not required | Where alternatives existed | Required at non-obvious choices |
+| Comprehension scaffold at task completion | AI presents; skip freely | AI presents; opt-out logged | AI presents; opt-out with rationale |
+
+**Comment policy distinction** (clarifies existing "no comments" guidance — not a reversal):
+
+| Category | Purpose | Default | Location |
+|----------|---------|---------|----------|
+| Implementation comments (what code does) | Explain logic | NO — well-named identifiers handle this | Inline |
+| Architectural comments (what module is FOR) | Enable navigation; constraint artifacts (same category as types/interfaces) | YES at boundaries | Module docstrings, decision points |
+| Decision-point comments | Document where implementation chose between alternatives | YES where alternatives existed | At the choice site |
 
 ### 5.1.4 Implementation Escalation
 
@@ -4944,6 +4977,21 @@ When entering unfamiliar code — onboarding, post-agent-generation review, or p
 
 **Output:** A narrative document suitable for adding to project documentation (§7.5) if the codebase lacks adequate architectural documentation.
 
+**Proactive Use — Comprehension Scaffold at Task Completion:**
+
+The Linear Walkthrough method extends from reactive (human-requested) to proactive (AI-initiated at comprehension gate). At task completion, produce a comprehension scaffold before the completion sequence (§5.1.6):
+
+```
+COMPREHENSION SCAFFOLD — [task/module name]
+├─ INTENT: [what this accomplishes, why this approach — key decisions where alternatives existed]
+├─ BOUNDARIES: [scope, assumptions, what it does NOT handle]
+└─ HANDOFF: [what to verify, where to debug, what breaks if assumptions change]
+```
+
+Depth scaling by mode: EXPEDITED = single sentence covering all layers; STANDARD = full three-layer scaffold; ENHANCED = full scaffold + offer interactive walkthrough. Within any mode, task stakes can override upward per rules-of-procedure §16.8.3 (e.g., a production deployment in EXPEDITED mode uses high-stakes scaffold depth).
+
+This is the code-specific instance of the universal scaffold format (rules-of-procedure §16.8).
+
 *Reference: Willison (2026) "Agentic Engineering Patterns" (linear walkthrough and interactive explanation techniques).*
 
 ---
@@ -4989,6 +5037,20 @@ Verify outputs meet technical requirements before proceeding. Technical validati
 - [ ] Security scan clean
 - [ ] Coverage meets threshold
 - [ ] Product Owner approved
+- [ ] Comprehension scaffold presented (per rules-of-procedure §16.8 — INFORMATIONAL: always fires, never blocks)
+
+**Comprehension Gate — Human Response Taxonomy:**
+
+| Response | Meaning | Record |
+|----------|---------|--------|
+| **Understood** | Human confirms comprehension | No special logging |
+| **Acknowledged** | Human proceeds without full comprehension | Logged per lifecycle stage |
+| **Explain** | Human requests expanded walkthrough | AI produces Linear Walkthrough (§5.13.7) |
+| **Continue** (no explicit response) | Human's next action is a new prompt without addressing scaffold | Treated as Acknowledged (pessimistic default) |
+
+All four responses are valid. The gate never blocks progression. Human authority to proceed without comprehension is absolute.
+
+**Measurable compliance signal:** Track Understood:Acknowledged ratio per lifecycle stage. If PRODUCTION code accumulates >50% Acknowledged responses without follow-up comprehension sessions, the compliance-review skill flags comprehension debt accumulation for human review. *(Skill check implementation: Phase 2 — comprehension-debt tracking check added to compliance-review skill procedure.)*
 
 ### 6.1.3 Gate Failure Procedure
 
@@ -10279,6 +10341,7 @@ Audited 2026-05-11 against commit `7a02ddd` (v1.6.0). Three content files (SKILL
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.46.0 | 2026-05-17 | **MINOR: Comprehension Scaffold — AI-Coding Domain Methods.** 6 modifications implementing E&E comprehension scaffold obligation (constitution v8.1.0, rules-of-procedure §16.8): (1) §4.1.2 "Comprehensible" task characteristic (orthogonal to Bounded); (2) §4.1.2.1 Generation Chunk Size thresholds (≤100/100-300/>300 lines, soft); (3) §5.1.3 Comprehension Scaffold quality standard + lifecycle-proportional elaboration table + comment policy distinction (implementation=NO, architectural=YES at boundaries, decision-point=YES); (4) §2.6.1 comment policy cross-reference (SSOT at §5.1.3); (5) §5.13.7 Linear Walkthrough proactive extension with three-layer scaffold format + mode-based depth scaling with stakes override; (6) §6.1.2 Comprehension gate (INFORMATIONAL, never blocks) with 4-response taxonomy (Understood/Acknowledged/Explain/Continue) + measurable compliance signal (Understood:Acknowledged ratio, skill check deferred to Phase 2). Completion checklist updated (item 16b). 3 subagent reviews (contrarian-reviewer ×2, validator, coherence-auditor). Governance: `gov-33d0eedc9dbf`, `gov-aa596dedcd00`. |
 | 2.45.1 | 2026-05-11 | PATCH: Appendix M.3 Prompt Master — new ecosystem tool entry for cross-tool prompt generation skill (nidhinjs/prompt-master, MIT, v1.6.0). Operationalizes Title 11 prompt engineering techniques (rules-of-procedure) as a user-facing prompt generation skill for 30+ AI tools. Three design patterns documented: 9-dimension intent extraction, tool-specific behavioral routing, 37 anti-pattern diagnostic. Security audited 2026-05-11 (0 critical/high/medium, 2 low — supply chain pin + README tracking URLs). Situation Index entry added. §9.8.3 field-compliant. Governance: `gov-4d489b658e61`. |
 | 2.45.0 | 2026-05-10 | **MINOR: Title 10 — AI Agent Operations Governance.** New Title 10 with 4 Parts (~700 lines) closing the governance gap at the deployment boundary. Part 10.1: AI-Assisted Deployment Governance (approval workflows for AI-generated changes with blast-radius matrix, production readiness gates extending Appendix H with AI-specific checks). Part 10.2: Infrastructure-as-Code Governance (plan-before-apply discipline, secure defaults table for AI-generated infrastructure, backup topology awareness with PocketOS case study). Part 10.3: AI Agent Operational Boundaries (rollback-first rule with Kiro anti-pattern, agent credential scoping, destructive action pre-verification protocol, OWASP Agentic Alignment Matrix mapping all ASI01-ASI10 to CFR sections). Part 10.4: AI-Specific Incident Review (postmortem template with 7 AI-specific review questions, governance feedback loop for translating incidents into principle improvements). Situation Index: +6 entries. Principles scope updated (title-10-ai-coding.md): deployment governance and incident review partially in-scope (AI-specific portions). domains.json: operations keywords added to ai-coding routing. OPERATIONS.md: C-012 Security Posture Review cadence (quarterly, OWASP/CISA/MITRE/Microsoft). Evidence base: OWASP Top 10 for Agentic Applications (Dec 2025), Amazon Kiro incident (Dec 2025), PocketOS incident (2025), Amazon storefront incident (Mar 2026), Microsoft Agent Governance Toolkit (Apr 2026). Scope trimmed from ~1,100 to ~700 lines after contrarian review — generic DevOps content (deployment strategy matrices, severity classification, environment progression) excluded per AI-specific focus. Closes BACKLOG #12. |
 | 2.44.1 | 2026-05-08 | PATCH: §7.1.6 Backlog File Structure lifecycle rule — added "or migrated to another file" to removal triggers with anti-stub rationale citing §6.5.5 SSOT. Prevents redirect-stub accumulation when items migrate between files. Governance: `gov-94506daeeb59`. |

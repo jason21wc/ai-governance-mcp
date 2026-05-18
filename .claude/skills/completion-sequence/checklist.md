@@ -58,6 +58,8 @@ Per §5.1.6, run this project's completion sequence after changes. Invoke via `/
     - **Anti-pattern (structurally prevented per v2.42.1):** "Checkpoint theater" — re-reading the plan and declaring "no drift" without the delivered-vs-planned table. CFR §5.1.8 step 3 (v2.42.1) now REQUIRES the written table as the structural gate. Bare assertions = checkpoint did not happen.
     - **Tunable:** This threshold is the operational tuning surface for §5.1.8. Adjust based on observed drift rate (Agent Drift research baseline: 73 ± 40 turns); currently set to ≥5 files as the cost-vs-benefit calibration point per [Hick's Law](https://lawsofux.com/hicks-law/) (tighter thresholds → checkpoint fatigue; looser → drift compounds).
 
+16b. **Comprehension scaffold presented** for non-trivial changes (per §6.1.2 Implement→Complete Gate, rules-of-procedure §16.8 — INFORMATIONAL: always fires, never blocks). Human responds: Understood / Acknowledged / Explain / Continue (silence = Acknowledged).
+
 ### ALWAYS (regardless of enforcement tier)
 
 17. **Update project memory files** — review and update as applicable before commit:
