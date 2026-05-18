@@ -12,12 +12,12 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-179 (2026-05-17) — Comprehension Scaffold Initiative complete (all phases shipped including `/comprehension-check` skill).**
+**Session-179 (2026-05-17) — Comprehension Scaffold Initiative shipped (all phases except deferred `/comprehension-check` skill).**
 
 **ACTION ON RESUME (session-180):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review + first Check 13 comprehension debt tracking). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
 
 **Critical state for next session:**
-- **Comprehension Scaffold Initiative complete** — E&E obligation (constitution v8.1.0) → §16.8 meta-method (rules-of-procedure v3.32.0) → ai-coding 6 domain methods (CFR v2.46.0) → UI/UX §10 (CFR v1.2.0) → Multimodal RAG §6.5 (CFR v2.3.0) → KM&PD §8.2 cross-reference (CFR v1.3.0) → behavioral floor (CLAUDE.md + tiers.json) → compliance tracking (Check 13) → `/comprehension-check` on-demand skill.
+- **Comprehension Scaffold Initiative shipped** — E&E obligation (constitution v8.1.0) → §16.8 meta-method (rules-of-procedure v3.32.0) → ai-coding 6 domain methods (CFR v2.46.0) → UI/UX §10 (CFR v1.2.0) → Multimodal RAG §6.5 (CFR v2.3.0) → KM&PD §8.2 cross-reference (CFR v1.3.0) → behavioral floor (CLAUDE.md + tiers.json) → compliance tracking (Check 13). Deferred: `/comprehension-check` on-demand skill (genuinely new capability).
 - **Backlog: 7 discussion items** — #6, #11, #41, #45, #46, #47, #48. #48 partially shipped (2 of 8 skills); remaining skills stay in Discussion.
 - **#41 Phase 1 observation window still open** — shipped session-174.
 - **Claude App enforcement proxy** — soft mode deployed session-173.
@@ -46,7 +46,7 @@
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
 | Index | **145 principles + 777 methods + 25 references** (947 total) |
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
-| Skills | **7** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`, `/comprehension-check`, `/code-review` (global), `/security-scan` (global)) |
+| Skills | **6** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`, `/code-review` (global), `/security-scan` (global)) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
 | CI | Last push: session-178. All pushed. |
 
@@ -54,12 +54,14 @@
 
 ## Last Session (2026-05-17)
 
-179. **Session-179 (2026-05-17): Comprehension Scaffold Initiative — all phases shipped.**
+179. **Session-179 (2026-05-17): Comprehension Scaffold Initiative — Phase 3 domain extensions + Phase 2 enforcement chain.**
    - **Phase 1A+1B** (prior context, committed as `8311eac`) — E&E 2 bullets + §16.8 meta-method + 6 ai-coding domain methods.
    - **Phase 2** (committed as `b5541d6`) — CLAUDE.md behavioral floor directive + tiers.json directive + compliance-review Check 13 + CFR forward-ref resolution. User challenged deferral; 2 of 3 Phase 2 items reclassified as enforcement-chain completions per `feedback_todo_philosophy`.
-   - **Phase 3** (committed as `f0d12d2`) — domain-specific scaffold methods for 3 domains, proportionally scoped by quality-gate density: UI/UX CFR v1.2.0 (new §10: 3 subsections, depth by review tier), Multimodal RAG CFR v2.3.0 (new §6.5: embedding/retrieval/threshold/KG scaffold), KM&PD CFR v1.3.0 (§8.2 cross-reference linking content scaffolding to §16.8). Multi-Agent, Storytelling, Accounting unchanged (universal §16.8 sufficient). 6 principle file crosswalk rows. 11 coherence findings fixed. README method counts synced.
-   - **`/comprehension-check` skill** — on-demand comprehension check (SKILL.md 54 lines + procedure.md). 5-step protocol: scope → analyze → scaffold → present → respond. Domain-aware (ai-coding §5.13.7, UI/UX §10, RAG §6.5, KM&PD §8.2, universal §16.8 fallback). Validator APPROVE (24/24). Coherence auditor: 1 Misleading fixed (stale "deferred" narrative in SESSION-STATE), 2 Cosmetic (1 fixed, 1 accepted).
-   - **7 subagent reviews total** across session (2 coherence-auditors, 1 contrarian, 2 validators, 1 Explore scoping, 1 coherence on skill).
+   - **Phase 3** — domain-specific scaffold methods for 3 domains, proportionally scoped by quality-gate density: UI/UX CFR v1.2.0 (new §10: 3 subsections, depth by review tier), Multimodal RAG CFR v2.3.0 (new §6.5: embedding/retrieval/threshold/KG scaffold), KM&PD CFR v1.3.0 (§8.2 cross-reference linking content scaffolding to §16.8). Multi-Agent, Storytelling, Accounting unchanged (universal §16.8 sufficient). 6 principle file crosswalk rows.
+   - **SKILL.md propagation fix** — 3 references updated 12→13 for Check 13.
+   - **Coherence auditor caught 11 findings** — 7 Misleading (version drift in footers, companion references, "Relationship to Methods" tables) + 4 Cosmetic (pre-existing footer/body-header staleness). All fixed.
+   - **README method counts updated** — 4 domains drifted (constitution 224→231, ai-coding 268→269, ui-ux 43→47, multimodal-rag 64→65).
+   - **5 subagent reviews total** across session (2 coherence-auditors, 1 contrarian, 1 validator, 1 Explore scoping).
    - **Index:** 145 principles + 777 methods + 25 references = 947 total. 1728 tests passing.
 
 ---
