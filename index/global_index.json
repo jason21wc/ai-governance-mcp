@@ -11672,7 +11672,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T02:52:43.658182+00:00",
+      "last_extracted": "2026-05-18T03:13:36.782874+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -25006,12 +25006,12 @@
             "trigger_phrases": [],
             "purpose_keywords": [
               "vercel-ai-sdk",
+              "shadcn",
+              "nextjs",
+              "react",
               "chat-ui",
               "streaming",
-              "registry",
-              "nextjs",
-              "shadcn",
-              "react"
+              "registry"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25061,11 +25061,11 @@
               "termination conditions"
             ],
             "purpose_keywords": [
-              "autonomous-operation",
-              "experimentation",
+              "program-md",
               "overnight-agents",
               "research-protocol",
-              "program-md"
+              "experimentation",
+              "autonomous-operation"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25119,12 +25119,12 @@
               "constitutional principle:"
             ],
             "purpose_keywords": [
-              "joint-quality",
-              "solution-comparison",
               "ranking",
+              "solution-comparison",
+              "effectiveness",
+              "joint-quality",
               "multiplicative",
               "elegance",
-              "effectiveness",
               "efficiency"
             ],
             "applies_to": [],
@@ -25175,11 +25175,11 @@
             ],
             "purpose_keywords": [
               "decision-framework",
-              "velocity",
+              "build-vs-buy",
+              "architecture",
               "component-libraries",
               "saas",
-              "build-vs-buy",
-              "architecture"
+              "velocity"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25238,11 +25238,11 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "tool-handlers",
-              "integration-testing",
-              "asyncio",
               "mcp",
-              "testing"
+              "tool-handlers",
+              "testing",
+              "asyncio",
+              "integration-testing"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25290,11 +25290,11 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "supabase",
               "auth",
+              "nextjs",
+              "supabase",
               "middleware",
               "api-routes",
-              "nextjs",
               "routing"
             ],
             "applies_to": [],
@@ -25345,12 +25345,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "excel",
-              "sheetjs",
-              "node",
-              "exceljs",
               "document-generation",
-              "library-selection"
+              "sheetjs",
+              "exceljs",
+              "excel",
+              "library-selection",
+              "node"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25413,13 +25413,13 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "puppeteer",
-              "node",
-              "pdf",
-              "pdf-lib",
-              "jspdf",
               "document-generation",
+              "pdf-lib",
+              "pdf",
+              "puppeteer",
+              "jspdf",
               "library-selection",
+              "node",
               "pdfkit"
             ],
             "applies_to": [],
@@ -25479,12 +25479,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "playwright",
-              "supabase",
               "e2e-testing",
-              "storage-state",
+              "auth",
+              "supabase",
               "nextjs",
-              "auth"
+              "playwright",
+              "storage-state"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25528,13 +25528,13 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "self-challenge",
-              "prompt-master",
-              "patterns",
-              "prompt-engineering",
-              "negative-few-shot",
               "variant-generation",
-              "quality-techniques"
+              "self-challenge",
+              "prompt-engineering",
+              "patterns",
+              "negative-few-shot",
+              "quality-techniques",
+              "prompt-master"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25582,12 +25582,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "fixtures",
-              "mocking",
               "pytest",
+              "fixtures",
               "mcp",
-              "testing",
-              "sentence-transformers"
+              "mocking",
+              "sentence-transformers",
+              "testing"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25634,13 +25634,13 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "reportlab",
-              "pdf",
-              "python",
-              "docker",
-              "weasyprint",
               "document-generation",
-              "library-selection"
+              "weasyprint",
+              "pdf",
+              "reportlab",
+              "library-selection",
+              "python",
+              "docker"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25698,12 +25698,12 @@
               "applied:"
             ],
             "purpose_keywords": [
-              "re-evaluation",
-              "velocity",
+              "governance",
               "decision-making",
-              "anchor-bias",
               "planning",
-              "governance"
+              "anchor-bias",
+              "re-evaluation",
+              "velocity"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25760,13 +25760,13 @@
               "3. skill retirement (\u00a79.5.5):"
             ],
             "purpose_keywords": [
-              "skill-authoring",
-              "claude-code",
-              "constraint-retirement",
+              "progressive-disclosure",
               "capability-vs-preference",
+              "claude-code",
+              "skill-authoring",
+              "constraint-retirement",
               "directive-style",
-              "skills",
-              "progressive-disclosure"
+              "skills"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25813,12 +25813,12 @@
             ],
             "purpose_keywords": [
               "xss",
-              "sanitization",
-              "markdown",
-              "streaming",
-              "rehype",
               "react",
-              "security"
+              "security",
+              "markdown",
+              "rehype",
+              "sanitization",
+              "streaming"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25863,12 +25863,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "supabase",
-              "ssr",
-              "custom-claims",
-              "nextjs",
               "jwt",
-              "auth"
+              "auth",
+              "supabase",
+              "nextjs",
+              "custom-claims",
+              "ssr"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25915,12 +25915,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "supabase",
               "auth-callback",
-              "pkce",
+              "nextjs",
               "cookies",
-              "async",
-              "nextjs"
+              "supabase",
+              "pkce",
+              "async"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25971,11 +25971,11 @@
               "self-improvement skill"
             ],
             "purpose_keywords": [
-              "claude-code",
-              "procedural-knowledge",
               "workflow",
-              "superpowers",
               "slash-commands",
+              "procedural-knowledge",
+              "superpowers",
+              "claude-code",
               "skills"
             ],
             "applies_to": [],
@@ -26034,10 +26034,10 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "vitest",
-              "typescript",
-              "mocking",
               "vi-mock",
+              "typescript",
+              "vitest",
+              "mocking",
               "testing"
             ],
             "applies_to": [],
@@ -26093,14 +26093,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "express",
-              "s3",
-              "fastapi",
-              "streaming",
-              "nextjs",
+              "web-app",
               "document-generation",
+              "nextjs",
+              "s3",
+              "express",
               "file-download",
-              "web-app"
+              "fastapi",
+              "streaming"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -26159,8 +26159,8 @@
             "purpose_keywords": [
               "agent-productivity",
               "patterns",
-              "knowledge-management",
-              "reuse"
+              "reuse",
+              "knowledge-management"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -26168,7 +26168,7 @@
           "embedding_id": 559
         }
       ],
-      "last_extracted": "2026-05-18T02:52:43.689245+00:00",
+      "last_extracted": "2026-05-18T03:13:36.811676+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -29541,7 +29541,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T02:52:43.699786+00:00",
+      "last_extracted": "2026-05-18T03:13:36.818472+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -33441,13 +33441,13 @@
               "sensor (feedback):"
             ],
             "purpose_keywords": [
-              "ratchet-pattern",
-              "model-harness-gap",
-              "context-management",
-              "benchmark-evidence",
               "agent-architecture",
-              "enforcement",
-              "harness-engineering"
+              "model-harness-gap",
+              "ratchet-pattern",
+              "benchmark-evidence",
+              "harness-engineering",
+              "context-management",
+              "enforcement"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -33471,7 +33471,7 @@
           "embedding_id": 698
         }
       ],
-      "last_extracted": "2026-05-18T02:52:43.711677+00:00",
+      "last_extracted": "2026-05-18T03:13:36.826094+00:00",
       "version": "1.0"
     },
     "accounting": {
@@ -35112,7 +35112,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T02:52:43.714015+00:00",
+      "last_extracted": "2026-05-18T03:13:36.828460+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -37415,13 +37415,13 @@
               "source:"
             ],
             "purpose_keywords": [
-              "marriott",
-              "str",
-              "openpyxl",
+              "revenue-management",
               "hotel",
-              "data-extraction",
               "smart-packet",
-              "revenue-management"
+              "str",
+              "marriott",
+              "openpyxl",
+              "data-extraction"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -37476,13 +37476,13 @@
               "philosophy:"
             ],
             "purpose_keywords": [
-              "report",
-              "performance-analysis",
-              "document-building",
-              "str",
               "docx",
+              "report",
+              "revenue-management",
               "hotel",
-              "revenue-management"
+              "document-building",
+              "performance-analysis",
+              "str"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -37497,7 +37497,7 @@
           "embedding_id": 791
         }
       ],
-      "last_extracted": "2026-05-18T02:52:43.717998+00:00",
+      "last_extracted": "2026-05-18T03:13:36.832398+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -40291,7 +40291,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T02:52:43.722262+00:00",
+      "last_extracted": "2026-05-18T03:13:36.836437+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -45015,13 +45015,13 @@
               "archrag"
             ],
             "purpose_keywords": [
+              "knowledge-graph",
               "cognee",
-              "community-detection",
-              "graphrag",
               "personalized-pagerank",
               "multi-hop-retrieval",
-              "hipporag",
-              "knowledge-graph"
+              "community-detection",
+              "graphrag",
+              "hipporag"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -45045,7 +45045,7 @@
           "embedding_id": 946
         }
       ],
-      "last_extracted": "2026-05-18T02:52:43.729056+00:00",
+      "last_extracted": "2026-05-18T03:13:36.843222+00:00",
       "version": "1.0"
     }
   },
@@ -45131,7 +45131,7 @@
       "embedding_id": 7
     }
   ],
-  "created_at": "2026-05-18T02:52:43.731182+00:00",
+  "created_at": "2026-05-18T03:13:36.845292+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384
