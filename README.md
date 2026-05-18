@@ -475,13 +475,13 @@ ai-governance-mcp/
 │   ├── title-NN-domain.md   # Domain principles (Federal Statutes)
 │   ├── title-NN-domain-cfr.md # Domain methods (Code of Federal Regulations)
 │   └── domains.json         # Optional domain overrides (domains discovered from files)
-├── .claude/skills/          # Executable skills (completion-sequence, compliance-review, test-authoring)
+├── .claude/skills/          # Executable skills (completion-sequence, compliance-review, test-authoring, content-enhancer)
 ├── reference-library/       # Accumulating applied patterns (secondary authority)
 ├── .claude/
 │   ├── agents/              # Installed subagents
 │   └── hooks/               # Enforcement hooks (PreToolUse, UserPromptSubmit, pre-push)
 ├── index/                   # Generated index + embeddings
-└── tests/                   # ~1522 tests across governance + context engine
+└── tests/                   # ~1728 tests across governance + context engine
 ```
 
 ## Dogfooding

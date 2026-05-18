@@ -12,6 +12,18 @@
 
 ## Active Lessons
 
+### Recovery Mechanisms Are Symptomatic — Evaluate Whether the Structural Intervention Already Covers It (2026-05-17)
+
+Session-179 built a `/comprehension-check` on-demand skill (SKILL.md + procedure.md, validator APPROVE 24/24, coherence auditor clean). The skill let users retroactively check their comprehension of accumulated AI-generated work. After shipping and live-testing it, systemic thinking evaluation found: the structural cause of comprehension debt (generation-comprehension gap) is addressed by the passive 6-layer enforcement chain (E&E obligation → §16.8 → domain methods → behavioral floor → tiers.json → Check 13), which fires automatically on every non-trivial output. The skill fires only when the user explicitly invokes it — after the gap has already formed — making it a recovery mechanism, not a structural intervention. Additionally, "Does Claude already know how to do this?" (§9.5.5) = yes: asking "walk me through what we just did" produces the same result without a codified skill.
+
+**Rule:** Before shipping a new skill, apply the structural-vs-symptomatic test: does this prevent the failure class from occurring (structural), or does it help after the failure has already occurred (symptomatic)? If the structural intervention already exists and fires automatically, the recovery mechanism adds marginal value at maintenance cost. Ship the structural layer; skip the recovery layer unless observed evidence shows the structural layer is insufficient.
+
+**How to apply:** When a plan includes both passive enforcement (hooks, behavioral floor, compliance checks) AND an on-demand skill for the same concern, ask: "If the passive enforcement works, when would someone invoke the skill?" If the answer is "when passive enforcement failed," that's symptomatic — and the effort is better spent strengthening the passive layer. The §9.5.5 "Does Claude already know how to do this?" question catches the same issue from a different angle.
+
+**Principle:** `meta-core-systemic-thinking` (recovery ≠ prevention; distinguish structural from symptomatic); `coding-method-when-to-codify-decision-tree` (§9.5.5 — skill not needed if base model handles it).
+
+---
+
 ### Infrastructure Doesn't Fix Behavioral Gaps — Test the Trigger Before Building the Pipeline (2026-05-14)
 
 Session-174 planned a 7-step staging infrastructure for BACKLOG #41 (auto-staging reference library entries). Contrarian review found the root cause was behavioral (AI never evaluates sessions for capturable patterns), not infrastructural (no staging write path). Evidence: `capture_reference` already works (9+ successful calls, all user-initiated, zero AI-initiated). Adding a `staging=true` parameter to a tool the AI doesn't call unprompted won't cause unprompted calls. Pre-mortem: staging dirs still empty 6 weeks later.
