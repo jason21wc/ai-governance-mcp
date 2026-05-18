@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-17 (session-180 — External input gap analysis: Anthropic engineering video → §9.5.3 tool investment guidance + reference library entry).
+**Last Updated:** 2026-05-18 (session-181 — RTK reference brief gap analysis → reference library entry + sibling entry cross-reference fix).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,12 +12,12 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-180 (2026-05-17) — External input gap analysis: Anthropic engineering video → §9.5.3 tool investment guidance + reference library entry.**
+**Session-181 (2026-05-18) — RTK reference brief gap analysis → reference library entry + sibling entry cross-reference fix.**
 
-**ACTION ON RESUME (session-181):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review + first Check 13 comprehension debt tracking). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
+**ACTION ON RESUME (session-182):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review + first Check 13 comprehension debt tracking). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
 
 **Critical state for next session:**
-- **§9.5.3 tool investment guidance shipped** — "instruction-heavy, tool-light" anti-pattern named with contrastive examples. CFR v2.47.0. Reference library entry ref-ai-coding-anthropic-skill-tool-investment (26 references total).
+- **RTK reference library entry shipped** — `ref-multi-agent-rtk-hook-compliance-patterns` (27th reference). Two new items: HTTP hooks as remote governance endpoints, `rtk discover` missed-coverage sensor pattern. Sibling entry cross-references fixed.
 - **Backlog: 7 discussion items** — #6, #11, #41, #45, #46, #47, #48. #48 partially shipped (2 of 8 skills); remaining skills stay in Discussion.
 - **#41 Phase 1 observation window still open** — shipped session-174.
 - **Claude App enforcement proxy** — soft mode deployed session-173.
@@ -26,7 +26,7 @@
 
 ## Current Position
 
-- **Phase:** Session-180 (2026-05-17) — External input gap analysis (Anthropic engineering video).
+- **Phase:** Session-181 (2026-05-18) — RTK reference brief gap analysis.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25).
 
@@ -44,27 +44,28 @@
 | Tools | **20 MCP tools** (16 governance + 4 context engine) |
 | Domains | **8 shipped** (modular — filesystem-discovered from frontmatter, custom domains supported) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **145 principles + 777 methods + 26 references** (948 total) |
+| Index | **145 principles + 777 methods + 27 references** (949 total) |
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **6** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`, `/code-review` (global), `/security-scan` (global)) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | Last push: session-179. Session-180 unpushed. |
+| CI | Last push: session-179. Session-180+181 unpushed. |
 
 ---
 
-## Last Session (2026-05-17)
+## Last Session (2026-05-18)
 
-180. **Session-180 (2026-05-17): External input gap analysis — Anthropic engineering video → §9.5.3 tool investment guidance.**
-   - **Gap analysis** of Anthropic engineering practices YouTube video (4 rules for Claude Code skills). Applied `external-input-gap-analysis` behavioral floor directive: 3 of 4 rules already covered (skills taxonomy §9.5, description routing §9.5.3, session improvement via LEARNING-LOG). One genuine gap: §9.5.3 had zero guidance on tool quality despite covering description quality and instruction quality.
-   - **§9.5.3 enhancement** — added "Tool investment — tools over instructions" guidance block with contrastive before/after examples (instruction-heavy vs tool-rich). Names the "instruction-heavy, tool-light" anti-pattern. Reconciles with §9.5.4 "Goal over path." CFR v2.47.0.
-   - **Reference library entry** — `ref-ai-coding-anthropic-skill-tool-investment` (26th reference). Source attribution, three key insights, already-covered mapping, contrarian findings.
-   - **Contrarian review** (plan-mode): 2 verdict-changing findings — (1) match specificity bar with concrete examples, not just anti-pattern naming; (2) drop §7.4/§4.6.3 cross-references (thematically adjacent but operationally disconnected).
-   - **3 Explore agents + 1 Plan agent + 1 contrarian-reviewer.** Governance: `gov-9b51e8ecb051`.
-   - **Index:** 145 principles + 777 methods + 26 references = 948 total. 1728 tests passing.
+181. **Session-181 (2026-05-18): RTK reference brief gap analysis → reference library entry + sibling entry fix.**
+   - **Gap analysis** of RTK (Rust Token Killer) reference brief. Applied `external-input-gap-analysis` behavioral floor directive: most content validates existing coverage (deterministic vs probabilistic enforcement, tiered platform enforcement, `additionalContext` injection). Two genuinely new items: HTTP hooks as remote governance evaluation endpoints (implementation path for EXECUTION-FRAMEWORK §8 enforcement proxy), `rtk discover` as missed-coverage sensor pattern (new Guide/Sensor taxonomy category).
+   - **Reference library entry** — `ref-multi-agent-rtk-hook-compliance-patterns` (27th reference). Domain: multi-agent (enforcement architecture, not coding patterns). Validator subagent: PASS 8/8 template criteria.
+   - **Sibling entry fix** — `ref-multi-agent-harness-engineering-synthesis` had placeholder cross-references (literal template boilerplate from `capture_reference`). Populated with 4 principle IDs, 4 method refs, 1 related entry — all verified against entry content. Fixed heading hierarchy (H2→H3 inside Artifact). Added bidirectional `related` frontmatter field. Validator subagent: PASS 3/3.
+   - **1 Explore agent + 2 validator agents.** Governance: `gov-5e8111da6e01`, `gov-cb4e31ef1c4c`, `gov-464ada982b2e`.
+   - **Index:** 145 principles + 777 methods + 27 references = 949 total. 1728 tests passing.
 
 ---
 
 ## Previous Sessions
+
+*Session-180 (2026-05-17) External input gap analysis: Anthropic engineering video → §9.5.3 tool investment guidance + ref-ai-coding-anthropic-skill-tool-investment. CFR v2.47.0. 1728 tests.*
 
 *Session-179 (2026-05-17) Comprehension Scaffold Initiative — 6-layer enforcement chain shipped. `/comprehension-check` skill evaluated and declined (symptomatic, not structural). 1728 tests.*
 

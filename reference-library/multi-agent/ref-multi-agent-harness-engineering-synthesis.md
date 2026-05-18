@@ -10,7 +10,8 @@ created: 2026-05-13
 last_verified: 2026-05-13
 maturity: budding
 decay_class: framework
-source: "Captured via capture_reference tool"
+source: "Multi-source industry synthesis — HumanLayer blog, LangChain, Thoughtworks, independent research"
+related: [ref-multi-agent-rtk-hook-compliance-patterns]
 external_url: "https://www.humanlayer.dev/blog/skill-issue-harness-engineering-for-coding-agents"
 external_author: "Multiple (Trivedy/LangChain, Horthy/HumanLayer, Böckeler/Thoughtworks, Khan)"
 accessed_date: 2026-05-13
@@ -22,7 +23,7 @@ Use when evaluating agent architecture decisions, designing enforcement layers, 
 
 ## Artifact
 
-## Agent Harness Engineering — Key Concepts
+### Agent Harness Engineering — Key Concepts
 
 ### Core Thesis
 Agent = Model + Harness. The harness encompasses every piece of code, configuration, and execution logic that isn't the model itself. A decent model with a great harness consistently beats a great model with a bad harness.
@@ -65,6 +66,6 @@ Top coding agents look more like each other than their underlying models do. The
 
 ## Cross-References
 
-- Principles: [relevant principle IDs]
-- Methods: [relevant method section refs]
-- See also: [related entry IDs]
+- Principles: meta-core-informational-readiness (context rot management), meta-core-systemic-thinking (guide/sensor as systemic classification), meta-quality-verification-validation (ratchet pattern — learn from verified failures), multi-architecture-context-isolation-architecture (agent context management)
+- Methods: EXECUTION-FRAMEWORK §8 (Enforcement Layer Matrix — guide/sensor taxonomy applied), title-20 §4.6 (Enforcement Levels — deterministic vs advisory), title-20 §4.7 (Constraint Management — constraint retirement analog), rules-of-procedure §7.0 (Memory Architecture — context persistence)
+- See also: ref-multi-agent-rtk-hook-compliance-patterns (extends guide/sensor taxonomy with coverage-gap sensor category and quantitative compliance evidence)

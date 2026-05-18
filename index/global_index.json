@@ -11672,7 +11672,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T04:31:13.548912+00:00",
+      "last_extracted": "2026-05-18T15:52:47.819147+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -25005,13 +25005,13 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "streaming",
-              "vercel-ai-sdk",
-              "chat-ui",
-              "react",
+              "shadcn",
               "nextjs",
+              "streaming",
+              "chat-ui",
+              "vercel-ai-sdk",
               "registry",
-              "shadcn"
+              "react"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25056,10 +25056,10 @@
               "composability over monolithic skills:"
             ],
             "purpose_keywords": [
-              "skills",
-              "deterministic-scripts",
               "tool-quality",
+              "skills",
               "composability",
+              "deterministic-scripts",
               "skill-authoring"
             ],
             "applies_to": [],
@@ -25117,11 +25117,11 @@
               "termination conditions"
             ],
             "purpose_keywords": [
-              "research-protocol",
-              "overnight-agents",
               "autonomous-operation",
+              "overnight-agents",
+              "program-md",
               "experimentation",
-              "program-md"
+              "research-protocol"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25175,13 +25175,13 @@
               "constitutional principle:"
             ],
             "purpose_keywords": [
-              "ranking",
-              "effectiveness",
               "efficiency",
+              "joint-quality",
               "elegance",
+              "ranking",
               "solution-comparison",
-              "multiplicative",
-              "joint-quality"
+              "effectiveness",
+              "multiplicative"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25230,12 +25230,12 @@
               "conclusion:"
             ],
             "purpose_keywords": [
-              "saas",
+              "velocity",
               "build-vs-buy",
               "decision-framework",
               "architecture",
-              "velocity",
-              "component-libraries"
+              "component-libraries",
+              "saas"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25294,11 +25294,11 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "integration-testing",
-              "testing",
-              "mcp",
+              "asyncio",
               "tool-handlers",
-              "asyncio"
+              "mcp",
+              "integration-testing",
+              "testing"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25346,12 +25346,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "middleware",
-              "auth",
               "routing",
+              "auth",
+              "middleware",
+              "api-routes",
               "nextjs",
-              "supabase",
-              "api-routes"
+              "supabase"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25401,12 +25401,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "sheetjs",
-              "excel",
-              "document-generation",
-              "node",
               "library-selection",
-              "exceljs"
+              "sheetjs",
+              "exceljs",
+              "node",
+              "excel",
+              "document-generation"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25469,14 +25469,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "puppeteer",
-              "pdfkit",
               "pdf-lib",
-              "document-generation",
-              "node",
-              "jspdf",
               "library-selection",
-              "pdf"
+              "pdf",
+              "node",
+              "pdfkit",
+              "jspdf",
+              "puppeteer",
+              "document-generation"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25535,12 +25535,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "playwright",
-              "e2e-testing",
               "auth",
               "storage-state",
               "nextjs",
-              "supabase"
+              "supabase",
+              "playwright",
+              "e2e-testing"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25584,13 +25584,13 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
+              "patterns",
               "negative-few-shot",
-              "prompt-master",
               "self-challenge",
-              "prompt-engineering",
               "variant-generation",
               "quality-techniques",
-              "patterns"
+              "prompt-master",
+              "prompt-engineering"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25638,12 +25638,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "pytest",
-              "fixtures",
+              "mocking",
               "testing",
               "mcp",
-              "mocking",
-              "sentence-transformers"
+              "sentence-transformers",
+              "fixtures",
+              "pytest"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25690,13 +25690,13 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "reportlab",
-              "weasyprint",
-              "docker",
-              "document-generation",
-              "library-selection",
               "python",
-              "pdf"
+              "docker",
+              "library-selection",
+              "pdf",
+              "weasyprint",
+              "reportlab",
+              "document-generation"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25754,11 +25754,11 @@
               "applied:"
             ],
             "purpose_keywords": [
-              "anchor-bias",
-              "decision-making",
               "governance",
               "re-evaluation",
               "velocity",
+              "decision-making",
+              "anchor-bias",
               "planning"
             ],
             "applies_to": [],
@@ -25816,13 +25816,13 @@
               "3. skill retirement (\u00a79.5.5):"
             ],
             "purpose_keywords": [
-              "skills",
-              "claude-code",
-              "capability-vs-preference",
-              "progressive-disclosure",
-              "constraint-retirement",
               "directive-style",
-              "skill-authoring"
+              "progressive-disclosure",
+              "skills",
+              "capability-vs-preference",
+              "constraint-retirement",
+              "skill-authoring",
+              "claude-code"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25868,13 +25868,13 @@
               "still safe against xss"
             ],
             "purpose_keywords": [
-              "streaming",
-              "react",
-              "sanitization",
+              "markdown",
               "xss",
               "rehype",
-              "markdown",
-              "security"
+              "streaming",
+              "sanitization",
+              "security",
+              "react"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25921,9 +25921,9 @@
             "purpose_keywords": [
               "jwt",
               "auth",
-              "custom-claims",
               "nextjs",
               "supabase",
+              "custom-claims",
               "ssr"
             ],
             "applies_to": [],
@@ -25971,12 +25971,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "nextjs",
-              "auth-callback",
+              "cookies",
               "pkce",
+              "nextjs",
               "supabase",
               "async",
-              "cookies"
+              "auth-callback"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -26027,12 +26027,12 @@
               "self-improvement skill"
             ],
             "purpose_keywords": [
-              "skills",
-              "claude-code",
               "superpowers",
-              "workflow",
+              "procedural-knowledge",
               "slash-commands",
-              "procedural-knowledge"
+              "workflow",
+              "skills",
+              "claude-code"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -26090,11 +26090,11 @@
               "don't:"
             ],
             "purpose_keywords": [
+              "vitest",
               "typescript",
-              "testing",
-              "vi-mock",
               "mocking",
-              "vitest"
+              "vi-mock",
+              "testing"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -26149,14 +26149,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "file-download",
-              "streaming",
-              "express",
               "fastapi",
+              "express",
               "nextjs",
-              "document-generation",
+              "streaming",
+              "web-app",
               "s3",
-              "web-app"
+              "document-generation",
+              "file-download"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -26213,9 +26213,9 @@
               "willison's infrastructure for this:"
             ],
             "purpose_keywords": [
-              "knowledge-management",
-              "agent-productivity",
               "patterns",
+              "agent-productivity",
+              "knowledge-management",
               "reuse"
             ],
             "applies_to": [],
@@ -26224,7 +26224,7 @@
           "embedding_id": 560
         }
       ],
-      "last_extracted": "2026-05-18T04:31:13.578656+00:00",
+      "last_extracted": "2026-05-18T15:52:47.847630+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -29597,7 +29597,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T04:31:13.585334+00:00",
+      "last_extracted": "2026-05-18T15:52:47.853955+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -33458,7 +33458,7 @@
           "domain": "multi-agent",
           "title": "Agent Harness Engineering \u2014 Industry Convergence Synthesis",
           "summary": "Industry synthesis of harness engineering patterns \u2014 Agent = Model + Harness; benchmark evidence (6x performance gaps from harness alone); ratchet pattern; guide/sensor taxonomy; constraint retirement discipline",
-          "content": "## Context\n\nUse when evaluating agent architecture decisions, designing enforcement layers, or assessing whether harness components are still needed. The benchmark evidence (6x performance gaps) validates investment in harness engineering over model selection. The guide/sensor taxonomy provides a classification scheme for enforcement layer analysis. The constraint retirement discipline highlights the need for periodic review of whether rules still encode real model limitations.\n\n## Artifact\n\n## Agent Harness Engineering \u2014 Key Concepts\n\n### Core Thesis\nAgent = Model + Harness. The harness encompasses every piece of code, configuration, and execution logic that isn't the model itself. A decent model with a great harness consistently beats a great model with a bad harness.\n\n### Benchmark Evidence (verified)\n- **Terminal-Bench 2.0:** Same model jumped from outside top 30 (52.8%) to rank 5 (66.5%) by changing only the harness. Stanford's Meta-Harness hit 76.4% with Claude Opus 4.6.\n- **SWE-bench:** Same base model produced solve rates ranging from ~5% to 30%+ depending on harness configuration.\n- **Codex comparison:** GPT-5.5 scored 61.5% in OpenAI's native Codex harness vs. 87.2% in Cursor's harness \u2014 25.7-point swing, same model.\n- **Stanford/Tsinghua research:** Reports 6x performance gaps from harness design alone.\n\n### The Ratchet Pattern\nEvery agent mistake becomes a permanent rule. Constraints added on observed failure, removed when model improvement renders them redundant. Every line in a good system prompt should trace back to a specific, historical failure.\n\n### Guide/Sensor Taxonomy (B\u00f6ckeler, martinfowler.com)\nClassifies every harness element as either:\n- **Guide (feedforward):** Steers before the agent acts (e.g., system prompts, CLAUDE.md, pre-action hooks)\n- **Sensor (feedback):** Observes after action and helps self-correct (e.g., test runners, post-action hooks, type checkers)\n\n### Constraint Retirement\nAs models improve, the need for a harness doesn't disappear \u2014 it shifts. Every component encodes an assumption about what the model cannot do on its own. When the model improves, outdated scaffolding should be removed, and new scaffolding built to reach the next horizon.\n\n### Verbose-on-Failure, Silent-on-Success\nHooks and enforcement should be silent when things pass, verbose only on failure. If a typecheck passes, the agent hears nothing; if it fails, the error is injected directly back into the loop for self-correction.\n\n### Context Rot Management\nThree primary techniques: (1) Compaction \u2014 summarizing older context, (2) Tool-call offloading \u2014 storing massive outputs in filesystem while keeping headers/footers in context, (3) Progressive disclosure \u2014 revealing instructions only when explicitly required.\n\n### Industry Convergence\nTop coding agents look more like each other than their underlying models do. The harness patterns are converging: Claude Code, Cursor, Codex, Aider, Cline are all harnesses around the same models.\n\n### Key Sources\n- Viv Trivedy (LangChain) \u2014 coined \"harness engineering\" terminology, \"Agent = Model + Harness\"\n- Dex Horthy (HumanLayer, YC F24) \u2014 \"skill issue\" framing, RPI\u2192QRSPI framework evolution\n- Birgitta B\u00f6ckeler (Thoughtworks, martinfowler.com) \u2014 guide/sensor control theory taxonomy\n- Fareed Khan \u2014 Claude Code architecture reverse-engineering (third-party, not official Anthropic)\n\n## Lessons Learned\n\n1. The ratchet pattern aligns with ai-governance's LEARNING-LOG \u2192 behavioral floor pipeline, but ai-governance adds explicit circuit-breakers against over-ratcheting (don't generalize case-specific deviations, binary-checkability requirement for FM entries). 2. The \"every rule earned through failure\" philosophy conflicts with ai-governance's \"anticipatory items are valid\" philosophy \u2014 ai-governance deliberately allows proactive rules, which is a broader and arguably more effective approach. 3. The guide/sensor taxonomy maps cleanly to ai-governance's enforcement layers: PreToolUse hooks are guides, PostToolUse hooks are sensors, evaluate_governance is a guide, verify_governance_compliance is a sensor. 4. The verbose-on-failure pattern conflicts with ai-governance's design choice to include principles in PROCEED responses for pedagogical value \u2014 a deliberate tradeoff of context budget for learning.\n\n## Cross-References\n\n- Principles: [relevant principle IDs]\n- Methods: [relevant method section refs]\n- See also: [related entry IDs]",
+          "content": "## Context\n\nUse when evaluating agent architecture decisions, designing enforcement layers, or assessing whether harness components are still needed. The benchmark evidence (6x performance gaps) validates investment in harness engineering over model selection. The guide/sensor taxonomy provides a classification scheme for enforcement layer analysis. The constraint retirement discipline highlights the need for periodic review of whether rules still encode real model limitations.\n\n## Artifact\n\n### Agent Harness Engineering \u2014 Key Concepts\n\n### Core Thesis\nAgent = Model + Harness. The harness encompasses every piece of code, configuration, and execution logic that isn't the model itself. A decent model with a great harness consistently beats a great model with a bad harness.\n\n### Benchmark Evidence (verified)\n- **Terminal-Bench 2.0:** Same model jumped from outside top 30 (52.8%) to rank 5 (66.5%) by changing only the harness. Stanford's Meta-Harness hit 76.4% with Claude Opus 4.6.\n- **SWE-bench:** Same base model produced solve rates ranging from ~5% to 30%+ depending on harness configuration.\n- **Codex comparison:** GPT-5.5 scored 61.5% in OpenAI's native Codex harness vs. 87.2% in Cursor's harness \u2014 25.7-point swing, same model.\n- **Stanford/Tsinghua research:** Reports 6x performance gaps from harness design alone.\n\n### The Ratchet Pattern\nEvery agent mistake becomes a permanent rule. Constraints added on observed failure, removed when model improvement renders them redundant. Every line in a good system prompt should trace back to a specific, historical failure.\n\n### Guide/Sensor Taxonomy (B\u00f6ckeler, martinfowler.com)\nClassifies every harness element as either:\n- **Guide (feedforward):** Steers before the agent acts (e.g., system prompts, CLAUDE.md, pre-action hooks)\n- **Sensor (feedback):** Observes after action and helps self-correct (e.g., test runners, post-action hooks, type checkers)\n\n### Constraint Retirement\nAs models improve, the need for a harness doesn't disappear \u2014 it shifts. Every component encodes an assumption about what the model cannot do on its own. When the model improves, outdated scaffolding should be removed, and new scaffolding built to reach the next horizon.\n\n### Verbose-on-Failure, Silent-on-Success\nHooks and enforcement should be silent when things pass, verbose only on failure. If a typecheck passes, the agent hears nothing; if it fails, the error is injected directly back into the loop for self-correction.\n\n### Context Rot Management\nThree primary techniques: (1) Compaction \u2014 summarizing older context, (2) Tool-call offloading \u2014 storing massive outputs in filesystem while keeping headers/footers in context, (3) Progressive disclosure \u2014 revealing instructions only when explicitly required.\n\n### Industry Convergence\nTop coding agents look more like each other than their underlying models do. The harness patterns are converging: Claude Code, Cursor, Codex, Aider, Cline are all harnesses around the same models.\n\n### Key Sources\n- Viv Trivedy (LangChain) \u2014 coined \"harness engineering\" terminology, \"Agent = Model + Harness\"\n- Dex Horthy (HumanLayer, YC F24) \u2014 \"skill issue\" framing, RPI\u2192QRSPI framework evolution\n- Birgitta B\u00f6ckeler (Thoughtworks, martinfowler.com) \u2014 guide/sensor control theory taxonomy\n- Fareed Khan \u2014 Claude Code architecture reverse-engineering (third-party, not official Anthropic)\n\n## Lessons Learned\n\n1. The ratchet pattern aligns with ai-governance's LEARNING-LOG \u2192 behavioral floor pipeline, but ai-governance adds explicit circuit-breakers against over-ratcheting (don't generalize case-specific deviations, binary-checkability requirement for FM entries). 2. The \"every rule earned through failure\" philosophy conflicts with ai-governance's \"anticipatory items are valid\" philosophy \u2014 ai-governance deliberately allows proactive rules, which is a broader and arguably more effective approach. 3. The guide/sensor taxonomy maps cleanly to ai-governance's enforcement layers: PreToolUse hooks are guides, PostToolUse hooks are sensors, evaluate_governance is a guide, verify_governance_compliance is a sensor. 4. The verbose-on-failure pattern conflicts with ai-governance's design choice to include principles in PROCEED responses for pedagogical value \u2014 a deliberate tradeoff of context budget for learning.\n\n## Cross-References\n\n- Principles: meta-core-informational-readiness (context rot management), meta-core-systemic-thinking (guide/sensor as systemic classification), meta-quality-verification-validation (ratchet pattern \u2014 learn from verified failures), multi-architecture-context-isolation-architecture (agent context management)\n- Methods: EXECUTION-FRAMEWORK \u00a78 (Enforcement Layer Matrix \u2014 guide/sensor taxonomy applied), title-20 \u00a74.6 (Enforcement Levels \u2014 deterministic vs advisory), title-20 \u00a74.7 (Constraint Management \u2014 constraint retirement analog), rules-of-procedure \u00a77.0 (Memory Architecture \u2014 context persistence)\n- See also: ref-multi-agent-rtk-hook-compliance-patterns (extends guide/sensor taxonomy with coverage-gap sensor category and quantitative compliance evidence)",
           "tags": [
             "harness-engineering",
             "agent-architecture",
@@ -33474,10 +33474,12 @@
           "decay_class": "framework",
           "created": "2026-05-13",
           "last_verified": "2026-05-13",
-          "source": "Captured via capture_reference tool",
+          "source": "Multi-source industry synthesis \u2014 HumanLayer blog, LangChain, Thoughtworks, independent research",
           "supersedes": [],
           "superseded_by": null,
-          "related": [],
+          "related": [
+            "ref-multi-agent-rtk-hook-compliance-patterns"
+          ],
           "source_path": "reference-library/multi-agent/ref-multi-agent-harness-engineering-synthesis.md",
           "metadata": {
             "keywords": [
@@ -33497,16 +33499,19 @@
               "sensor (feedback):"
             ],
             "purpose_keywords": [
-              "context-management",
               "model-harness-gap",
-              "agent-architecture",
+              "context-management",
               "ratchet-pattern",
-              "benchmark-evidence",
+              "enforcement",
               "harness-engineering",
-              "enforcement"
+              "benchmark-evidence",
+              "agent-architecture"
             ],
             "applies_to": [],
             "guideline_keywords": [
+              "agent",
+              "harness",
+              "engineering",
               "core",
               "thesis",
               "benchmark",
@@ -33518,16 +33523,76 @@
               "taxonomy",
               "(b\u00f6ckeler,",
               "constraint",
-              "retirement",
-              "verbose-on-failure,",
-              "silent-on-success",
-              "context"
+              "retirement"
             ]
           },
           "embedding_id": 699
+        },
+        {
+          "id": "ref-multi-agent-rtk-hook-compliance-patterns",
+          "domain": "multi-agent",
+          "title": "RTK Hook-Based Compliance Patterns \u2014 Enforcement Architecture Evidence",
+          "summary": "RTK brief gap analysis: HTTP hooks as remote governance endpoints + rtk-discover missed-coverage sensor. Validates deterministic (~100%) vs probabilistic (~70-85%) compliance gap.",
+          "content": "## Context\n\nUse when designing enforcement layers, evaluating hook handler types, or assessing platform-tiered compliance strategies. HTTP hook pattern relevant to enforcement proxy implementation (EXECUTION-FRAMEWORK \u00a78). Gap-analysis sensor pattern relevant to PostToolUse monitoring. Quantitative compliance data provides independent evidence for deterministic-over-probabilistic design in title-20 \u00a74.6.\n\n## Artifact\n\n### Two Genuinely New Items\n\n**1. HTTP Hooks as Remote Governance Evaluation Endpoints**\n\nClaude Code supports four hook handler types: command (shell scripts), HTTP (POST to URL), prompt (Claude model yes/no), and agent (subagent with tool access). The HTTP handler POSTs the PreToolUse event JSON to a configured URL and parses the allow/deny/ask response. This means governance evaluation can run on a remote server \u2014 a single endpoint serving multiple developers/machines rather than local shell scripts per installation.\n\nThe JSON contract:\n- Input: `{ \"tool_name\": \"Bash\", \"tool_input\": { \"command\": \"...\" }, \"session_id\": \"...\", \"cwd\": \"...\" }`\n- Output: `{ \"permissionDecision\": \"allow|deny|ask\", \"permissionDecisionReason\": \"...\", \"updatedInput\": {...}, \"additionalContext\": \"...\" }`\n- Exit codes: 0 = proceed (parse JSON), 2 = block (stderr fed to model)\n\nThis is a concrete implementation path for the enforcement proxy documented in EXECUTION-FRAMEWORK \u00a78 \u2014 currently described architecturally but not specified at protocol level.\n\n**2. `rtk discover` \u2014 Missed-Coverage Sensor Pattern**\n\nRTK includes a gap-analysis command that identifies shell commands which ran without compression and could have been compressed. The pattern: a PostToolUse sensor that audits whether a beneficial intervention was available but not applied. Analogous governance application: a sensor that flags actions where governance could have provided guidance but wasn't consulted \u2014 \"missed opportunity\" detection rather than \"violation\" detection. The existing Guide/Sensor taxonomy (ref-multi-agent-harness-engineering-synthesis) classifies enforcement by type but doesn't include this \"coverage gap\" sensor category.\n\n### Validation Evidence (No Framework Changes Needed)\n\n**Deterministic vs probabilistic compliance gap \u2014 quantified:**\nRTK adoption data: hook-based interception achieves ~100% command adoption across all conversations and subagents; prompt/instruction-based injection (CLAUDE.md) achieves ~70-85%. The 15-30% gap represents the model ignoring injected instructions. Independent confirmation of title-20 \u00a74.6 and EXECUTION-FRAMEWORK \u00a78 design choice.\n\n**Tiered enforcement by platform capability:**\nHook support varies: Claude Code (21+ lifecycle events, 4 handler types), Cursor (lifecycle hooks), Copilot (preToolUse), Gemini CLI (BeforeTool) \u2014 all deterministic. Codex/Windsurf/Cline use prompt injection only (~70-85%). Claude app/ChatGPT/Gemini web have no hook support. Maps cleanly to EXECUTION-FRAMEWORK \u00a78.4 enforcement layer matrix.\n\n**`additionalContext` for just-in-time injection:**\nAlready implemented in UserPromptSubmit hook (title-20 \u00a74.6.3 Pattern 1). RTK uses it for compression metadata \u2014 confirms field versatility.\n\n**Token savings data (context, not governance):**\n89% average noise removal across 2,900+ commands (first-party). Independent: 50-75% typical. High on test runners/git (80-98%), low on compact output (<30%). Relevant to context management, not enforcement.\n\n### Platform Hook Support (May 2026)\n\n| Platform | Hooks | Handler Types | MCP | Deterministic Enforcement |\n|----------|-------|---------------|-----|--------------------------|\n| Claude Code | 21+ events | command, HTTP, prompt, agent | Yes | Yes |\n| Cursor | lifecycle events | command | Yes | Yes |\n| GitHub Copilot | preToolUse | command | Limited | Yes |\n| Gemini CLI | BeforeTool | command | Yes | Yes |\n| Codex | None | N/A (AGENTS.md instructions) | N/A | No |\n| Claude app | None | N/A | Yes | No (MCP context only) |\n\n## Lessons Learned\n\n1. HTTP hooks are the missing specification layer for our enforcement proxy. EXECUTION-FRAMEWORK \u00a78 describes the proxy architecturally but doesn't specify the protocol. HTTP hooks provide the mechanism: JSON POST with allow/deny/ask. However, they're Claude Code-only \u2014 they solve centralized evaluation but not cross-platform enforcement.\n\n2. `rtk discover` reveals a sensor category our Guide/Sensor taxonomy doesn't name: coverage-gap sensors (missed opportunities, not violations). Current sensors detect whether taken actions were compliant \u2014 not whether beneficial guidance was available but unconsulted.\n\n3. The 70-85% instruction adoption rate has a structural explanation: autoregressive generation means instructions loaded early decay as context grows. Hooks bypass this because they execute outside the model's decision loop \u2014 independent confirmation of forward-continuation bias research.\n\n4. RTK's four-handler taxonomy (command, HTTP, prompt, agent) maps to increasing capability and decreasing determinism. Our enforcement correctly uses command hooks for maximum determinism.\n\n## Cross-References\n\n- Principles: multi-method-hook-based-enforcement-client-side-deterministic, coding-method-third-party-hook-vetting-procedure\n- Methods: EXECUTION-FRAMEWORK \u00a78 (Enforcement Layer Matrix), title-20 \u00a74.6 (Enforcement Levels), title-20 \u00a74.6.3 (Hook Patterns), rules-of-procedure \u00a73.6.4 (Platform Compatibility)\n- See also: ref-multi-agent-harness-engineering-synthesis (Guide/Sensor taxonomy, ratchet pattern)",
+          "tags": [
+            "hooks",
+            "enforcement",
+            "deterministic-compliance",
+            "http-hooks",
+            "gap-analysis-sensor",
+            "tiered-enforcement",
+            "token-compression"
+          ],
+          "status": "current",
+          "maturity": "seedling",
+          "entry_type": "reference",
+          "decay_class": "framework",
+          "created": "2026-05-18",
+          "last_verified": "2026-05-18",
+          "source": "1rtk-reference-brief.md prepared for ai-governance-mcp review, May 2026",
+          "supersedes": [],
+          "superseded_by": null,
+          "related": [
+            "ref-multi-agent-harness-engineering-synthesis"
+          ],
+          "source_path": "reference-library/multi-agent/ref-multi-agent-rtk-hook-compliance-patterns.md",
+          "metadata": {
+            "keywords": [
+              "hook-based",
+              "compliance",
+              "patterns",
+              "enforcement",
+              "architecture",
+              "evidence"
+            ],
+            "trigger_phrases": [
+              "`additionalcontext` for just-in-time injection:"
+            ],
+            "purpose_keywords": [
+              "hooks",
+              "gap-analysis-sensor",
+              "http-hooks",
+              "enforcement",
+              "token-compression",
+              "deterministic-compliance",
+              "tiered-enforcement"
+            ],
+            "applies_to": [],
+            "guideline_keywords": [
+              "genuinely",
+              "items",
+              "validation",
+              "evidence",
+              "framework",
+              "platform",
+              "hook",
+              "support"
+            ]
+          },
+          "embedding_id": 700
         }
       ],
-      "last_extracted": "2026-05-18T04:31:13.593070+00:00",
+      "last_extracted": "2026-05-18T15:52:47.862126+00:00",
       "version": "1.0"
     },
     "accounting": {
@@ -33579,7 +33644,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 700
+          "embedding_id": 701
         },
         {
           "id": "acct-ledger-integrity-le2-audit-trail-immutability",
@@ -33624,7 +33689,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 701
+          "embedding_id": 702
         },
         {
           "id": "acct-ledger-integrity-le3-financial-precision",
@@ -33667,7 +33732,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 702
+          "embedding_id": 703
         },
         {
           "id": "acct-ledger-integrity-le4-computational-integrity",
@@ -33710,7 +33775,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 703
+          "embedding_id": 704
         },
         {
           "id": "acct-entity-classification-ec5-entity-fund-isolation",
@@ -33756,7 +33821,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 704
+          "embedding_id": 705
         },
         {
           "id": "acct-entity-classification-ec6-classification-integrity",
@@ -33802,7 +33867,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 705
+          "embedding_id": 706
         },
         {
           "id": "acct-entity-classification-ec7-materiality-gated-review",
@@ -33850,7 +33915,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 706
+          "embedding_id": 707
         },
         {
           "id": "acct-temporal-compliance-tc8-temporal-authority",
@@ -33893,7 +33958,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 707
+          "embedding_id": 708
         },
         {
           "id": "acct-temporal-compliance-tc9-depreciation-asset-lifecycle",
@@ -33938,7 +34003,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 708
+          "embedding_id": 709
         },
         {
           "id": "acct-temporal-compliance-tc10-regulatory-compliance-boundary",
@@ -33984,7 +34049,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 709
+          "embedding_id": 710
         },
         {
           "id": "acct-reconciliation-controls-rc11-reconciliation-checkpoint",
@@ -34029,7 +34094,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 710
+          "embedding_id": 711
         },
         {
           "id": "acct-reconciliation-controls-rc12-record-retention-audit-readiness",
@@ -34076,7 +34141,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 711
+          "embedding_id": 712
         }
       ],
       "methods": [
@@ -34112,7 +34177,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 712
+          "embedding_id": 713
         },
         {
           "id": "acct-method-chart-of-accounts-setup",
@@ -34145,7 +34210,7 @@
               "setup"
             ]
           },
-          "embedding_id": 713
+          "embedding_id": 714
         },
         {
           "id": "acct-method-bank-account-connection",
@@ -34180,7 +34245,7 @@
               "connection"
             ]
           },
-          "embedding_id": 714
+          "embedding_id": 715
         },
         {
           "id": "acct-method-tax-configuration",
@@ -34222,7 +34287,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 715
+          "embedding_id": 716
         },
         {
           "id": "acct-method-sales-and-revenue",
@@ -34253,7 +34318,7 @@
               "revenue"
             ]
           },
-          "embedding_id": 716
+          "embedding_id": 717
         },
         {
           "id": "acct-method-purchases-and-expenses",
@@ -34284,7 +34349,7 @@
               "expenses"
             ]
           },
-          "embedding_id": 717
+          "embedding_id": 718
         },
         {
           "id": "acct-method-payments",
@@ -34313,7 +34378,7 @@
               "payments"
             ]
           },
-          "embedding_id": 718
+          "embedding_id": 719
         },
         {
           "id": "acct-method-journal-entries",
@@ -34352,7 +34417,7 @@
               "entries"
             ]
           },
-          "embedding_id": 719
+          "embedding_id": 720
         },
         {
           "id": "acct-method-payroll-recording",
@@ -34395,7 +34460,7 @@
               "recording"
             ]
           },
-          "embedding_id": 720
+          "embedding_id": 721
         },
         {
           "id": "acct-method-bank-reconciliation-procedure",
@@ -34437,7 +34502,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 721
+          "embedding_id": 722
         },
         {
           "id": "acct-method-credit-card-reconciliation",
@@ -34468,7 +34533,7 @@
               "reconciliation"
             ]
           },
-          "embedding_id": 722
+          "embedding_id": 723
         },
         {
           "id": "acct-method-loan-and-liability-reconciliation",
@@ -34512,7 +34577,7 @@
               "reconciliation"
             ]
           },
-          "embedding_id": 723
+          "embedding_id": 724
         },
         {
           "id": "acct-method-monthly-close-checklist",
@@ -34552,7 +34617,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 724
+          "embedding_id": 725
         },
         {
           "id": "acct-method-depreciation-posting",
@@ -34580,7 +34645,7 @@
               "posting"
             ]
           },
-          "embedding_id": 725
+          "embedding_id": 726
         },
         {
           "id": "acct-method-accrual-adjustments-accrual-basis-only",
@@ -34632,7 +34697,7 @@
               "(accrual"
             ]
           },
-          "embedding_id": 726
+          "embedding_id": 727
         },
         {
           "id": "acct-method-year-end-close-procedure",
@@ -34668,7 +34733,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 727
+          "embedding_id": 728
         },
         {
           "id": "acct-method-tax-preparation-support",
@@ -34699,7 +34764,7 @@
               "support"
             ]
           },
-          "embedding_id": 728
+          "embedding_id": 729
         },
         {
           "id": "acct-method-1099-generation",
@@ -34732,7 +34797,7 @@
               "generation"
             ]
           },
-          "embedding_id": 729
+          "embedding_id": 730
         },
         {
           "id": "acct-method-irs-record-retention-periods",
@@ -34777,7 +34842,7 @@
               "periods"
             ]
           },
-          "embedding_id": 730
+          "embedding_id": 731
         },
         {
           "id": "acct-method-property-level-tracking",
@@ -34810,7 +34875,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 731
+          "embedding_id": 732
         },
         {
           "id": "acct-method-depreciation-schedules",
@@ -34844,7 +34909,7 @@
               "schedules"
             ]
           },
-          "embedding_id": 732
+          "embedding_id": 733
         },
         {
           "id": "acct-method-security-deposits-escrow",
@@ -34881,7 +34946,7 @@
               "escrow"
             ]
           },
-          "embedding_id": 733
+          "embedding_id": 734
         },
         {
           "id": "acct-method-like-kind-exchanges-1031",
@@ -34915,7 +34980,7 @@
               "(\u00a71031)"
             ]
           },
-          "embedding_id": 734
+          "embedding_id": 735
         },
         {
           "id": "acct-method-rent-roll-and-income-tracking",
@@ -34964,7 +35029,7 @@
               "income"
             ]
           },
-          "embedding_id": 735
+          "embedding_id": 736
         },
         {
           "id": "acct-method-three-tier-approval-model",
@@ -34999,7 +35064,7 @@
               "model"
             ]
           },
-          "embedding_id": 736
+          "embedding_id": 737
         },
         {
           "id": "acct-method-draft-first-write-pattern",
@@ -35035,7 +35100,7 @@
               "pattern"
             ]
           },
-          "embedding_id": 737
+          "embedding_id": 738
         },
         {
           "id": "acct-method-classification-confidence-thresholds",
@@ -35066,7 +35131,7 @@
               "thresholds"
             ]
           },
-          "embedding_id": 738
+          "embedding_id": 739
         },
         {
           "id": "acct-method-deterministic-compute-pattern",
@@ -35101,7 +35166,7 @@
               "pattern"
             ]
           },
-          "embedding_id": 739
+          "embedding_id": 740
         },
         {
           "id": "acct-method-financial-disclaimers",
@@ -35164,11 +35229,11 @@
               "ledger"
             ]
           },
-          "embedding_id": 740
+          "embedding_id": 741
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T04:31:13.597304+00:00",
+      "last_extracted": "2026-05-18T15:52:47.864632+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -35224,7 +35289,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 741
+          "embedding_id": 742
         },
         {
           "id": "kmpd-knowledge-architecture-ka2-derivation-chain-integrity",
@@ -35275,7 +35340,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 742
+          "embedding_id": 743
         },
         {
           "id": "kmpd-knowledge-architecture-ka3-progressive-abstraction",
@@ -35332,7 +35397,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 743
+          "embedding_id": 744
         },
         {
           "id": "kmpd-knowledge-architecture-ka4-empowerment-completeness",
@@ -35384,7 +35449,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 744
+          "embedding_id": 745
         },
         {
           "id": "kmpd-training-tl1-audience-appropriate-design",
@@ -35435,7 +35500,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 745
+          "embedding_id": 746
         },
         {
           "id": "kmpd-training-tl2-learning-objective-alignment",
@@ -35485,7 +35550,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 746
+          "embedding_id": 747
         },
         {
           "id": "kmpd-training-tl4-assessment-validity",
@@ -35531,7 +35596,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 747
+          "embedding_id": 748
         },
         {
           "id": "kmpd-people-development-pd1-verification-guidance-responsibility",
@@ -35587,7 +35652,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 748
+          "embedding_id": 749
         },
         {
           "id": "kmpd-quality-assurance-qa1-safety-compliance-completeness",
@@ -35636,7 +35701,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 749
+          "embedding_id": 750
         },
         {
           "id": "kmpd-quality-assurance-qa2-artifact-adoption-fitness",
@@ -35695,7 +35760,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 750
+          "embedding_id": 751
         }
       ],
       "methods": [
@@ -35728,7 +35793,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 751
+          "embedding_id": 752
         },
         {
           "id": "kmpd-method-first-interaction-protocol",
@@ -35774,7 +35839,7 @@
               "protocol"
             ]
           },
-          "embedding_id": 752
+          "embedding_id": 753
         },
         {
           "id": "kmpd-method-maturity-self-assessment",
@@ -35822,7 +35887,7 @@
               "self-assessment"
             ]
           },
-          "embedding_id": 753
+          "embedding_id": 754
         },
         {
           "id": "kmpd-method-detailed-knowledge-base-scaffold",
@@ -35872,7 +35937,7 @@
               "base"
             ]
           },
-          "embedding_id": 754
+          "embedding_id": 755
         },
         {
           "id": "kmpd-method-first-major-step",
@@ -35903,7 +35968,7 @@
               "step]"
             ]
           },
-          "embedding_id": 755
+          "embedding_id": 756
         },
         {
           "id": "kmpd-method-second-major-step",
@@ -35934,7 +35999,7 @@
               "step]"
             ]
           },
-          "embedding_id": 756
+          "embedding_id": 757
         },
         {
           "id": "kmpd-method-branch-scenario",
@@ -35965,7 +36030,7 @@
               "scenario]"
             ]
           },
-          "embedding_id": 757
+          "embedding_id": 758
         },
         {
           "id": "kmpd-method-derivation-chain-tracking",
@@ -36012,7 +36077,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 758
+          "embedding_id": 759
         },
         {
           "id": "kmpd-method-knowledge-conflict-prevention",
@@ -36058,7 +36123,7 @@
               "prevention"
             ]
           },
-          "embedding_id": 759
+          "embedding_id": 760
         },
         {
           "id": "kmpd-method-knowledge-base-update-procedure",
@@ -36110,7 +36175,7 @@
               "update"
             ]
           },
-          "embedding_id": 760
+          "embedding_id": 761
         },
         {
           "id": "kmpd-method-detailed-knowledge-base-authoring",
@@ -36141,7 +36206,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 761
+          "embedding_id": 762
         },
         {
           "id": "kmpd-method-design-principles-for-the-detailed-knowledge-base",
@@ -36192,7 +36257,7 @@
               "detailed"
             ]
           },
-          "embedding_id": 762
+          "embedding_id": 763
         },
         {
           "id": "kmpd-method-build-approach",
@@ -36237,7 +36302,7 @@
               "approach"
             ]
           },
-          "embedding_id": 763
+          "embedding_id": 764
         },
         {
           "id": "kmpd-method-step-writing-standards",
@@ -36286,7 +36351,7 @@
               "standards"
             ]
           },
-          "embedding_id": 764
+          "embedding_id": 765
         },
         {
           "id": "kmpd-method-verification-recommendation",
@@ -36336,7 +36401,7 @@
               "steps"
             ]
           },
-          "embedding_id": 765
+          "embedding_id": 766
         },
         {
           "id": "kmpd-method-adoption-fitness-check",
@@ -36387,7 +36452,7 @@
               "check"
             ]
           },
-          "embedding_id": 766
+          "embedding_id": 767
         },
         {
           "id": "kmpd-method-quick-reference-checklist-design",
@@ -36418,7 +36483,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 767
+          "embedding_id": 768
         },
         {
           "id": "kmpd-method-the-checklist-manifesto-principle",
@@ -36463,7 +36528,7 @@
               "principle"
             ]
           },
-          "embedding_id": 768
+          "embedding_id": 769
         },
         {
           "id": "kmpd-method-quick-reference-template",
@@ -36509,7 +36574,7 @@
               "template"
             ]
           },
-          "embedding_id": 769
+          "embedding_id": 770
         },
         {
           "id": "kmpd-method-visual-work-instructions",
@@ -36556,7 +36621,7 @@
               "instructions"
             ]
           },
-          "embedding_id": 770
+          "embedding_id": 771
         },
         {
           "id": "kmpd-method-other-extraction-types",
@@ -36604,7 +36669,7 @@
               "types"
             ]
           },
-          "embedding_id": 771
+          "embedding_id": 772
         },
         {
           "id": "kmpd-method-strategic-process-documentation",
@@ -36633,7 +36698,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 772
+          "embedding_id": 773
         },
         {
           "id": "kmpd-method-sipoc-creation",
@@ -36676,7 +36741,7 @@
               "creation"
             ]
           },
-          "embedding_id": 773
+          "embedding_id": 774
         },
         {
           "id": "kmpd-method-process-flow-mapping",
@@ -36722,7 +36787,7 @@
               "mapping"
             ]
           },
-          "embedding_id": 774
+          "embedding_id": 775
         },
         {
           "id": "kmpd-method-people-development-artifacts",
@@ -36751,7 +36816,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 775
+          "embedding_id": 776
         },
         {
           "id": "kmpd-method-cross-training-matrix",
@@ -36810,7 +36875,7 @@
               "matrix"
             ]
           },
-          "embedding_id": 776
+          "embedding_id": 777
         },
         {
           "id": "kmpd-method-job-description-derivation",
@@ -36853,7 +36918,7 @@
               "derivation"
             ]
           },
-          "embedding_id": 777
+          "embedding_id": 778
         },
         {
           "id": "kmpd-method-onboarding-program-design",
@@ -36901,7 +36966,7 @@
               "design"
             ]
           },
-          "embedding_id": 778
+          "embedding_id": 779
         },
         {
           "id": "kmpd-method-assessment-evaluation",
@@ -36928,7 +36993,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 779
+          "embedding_id": 780
         },
         {
           "id": "kmpd-method-assessment-design-by-bloom-s-level",
@@ -36979,7 +37044,7 @@
               "bloom's"
             ]
           },
-          "embedding_id": 780
+          "embedding_id": 781
         },
         {
           "id": "kmpd-method-training-effectiveness-evaluation-kirkpatrick",
@@ -37029,7 +37094,7 @@
               "evaluation"
             ]
           },
-          "embedding_id": 781
+          "embedding_id": 782
         },
         {
           "id": "kmpd-method-training-delivery-learning-levels",
@@ -37060,7 +37125,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 782
+          "embedding_id": 783
         },
         {
           "id": "kmpd-method-training-value-optimization",
@@ -37105,7 +37170,7 @@
               "optimization"
             ]
           },
-          "embedding_id": 783
+          "embedding_id": 784
         },
         {
           "id": "kmpd-method-twi-job-instruction-method",
@@ -37148,7 +37213,7 @@
               "method"
             ]
           },
-          "embedding_id": 784
+          "embedding_id": 785
         },
         {
           "id": "kmpd-method-best-practice-discovery-referenced-method",
@@ -37202,7 +37267,7 @@
               "discovery"
             ]
           },
-          "embedding_id": 785
+          "embedding_id": 786
         },
         {
           "id": "kmpd-method-implementation-context-for-human-leaders",
@@ -37254,7 +37319,7 @@
               "human"
             ]
           },
-          "embedding_id": 786
+          "embedding_id": 787
         },
         {
           "id": "kmpd-method-scaffolded-complexity",
@@ -37284,7 +37349,7 @@
             "applies_to": [],
             "guideline_keywords": []
           },
-          "embedding_id": 787
+          "embedding_id": 788
         },
         {
           "id": "kmpd-method-the-scaffolding-procedure",
@@ -37331,7 +37396,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 788
+          "embedding_id": 789
         },
         {
           "id": "kmpd-method-scaffolding-validation",
@@ -37373,7 +37438,7 @@
               "validation"
             ]
           },
-          "embedding_id": 789
+          "embedding_id": 790
         },
         {
           "id": "kmpd-method-when-content-arrives-out-of-order",
@@ -37428,7 +37493,7 @@
               "arrives"
             ]
           },
-          "embedding_id": 790
+          "embedding_id": 791
         }
       ],
       "references": [
@@ -37471,13 +37536,13 @@
               "source:"
             ],
             "purpose_keywords": [
-              "data-extraction",
-              "hotel",
-              "marriott",
-              "openpyxl",
-              "str",
               "smart-packet",
-              "revenue-management"
+              "str",
+              "data-extraction",
+              "openpyxl",
+              "marriott",
+              "revenue-management",
+              "hotel"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -37491,7 +37556,7 @@
               "build"
             ]
           },
-          "embedding_id": 791
+          "embedding_id": 792
         },
         {
           "id": "ref-hotel-str-report-building",
@@ -37532,13 +37597,13 @@
               "philosophy:"
             ],
             "purpose_keywords": [
+              "docx",
+              "str",
               "performance-analysis",
               "document-building",
+              "revenue-management",
               "hotel",
-              "str",
-              "docx",
-              "report",
-              "revenue-management"
+              "report"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -37550,10 +37615,10 @@
               "gate"
             ]
           },
-          "embedding_id": 792
+          "embedding_id": 793
         }
       ],
-      "last_extracted": "2026-05-18T04:31:13.601454+00:00",
+      "last_extracted": "2026-05-18T15:52:47.868798+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -37603,7 +37668,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 793
+          "embedding_id": 794
         },
         {
           "id": "stor-architecture-a3-accessibility-by-design",
@@ -37646,7 +37711,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 794
+          "embedding_id": 795
         },
         {
           "id": "stor-structure-st1-framework-as-tool-not-law",
@@ -37689,7 +37754,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 795
+          "embedding_id": 796
         },
         {
           "id": "stor-structure-st2-cultural-aware-framework-selection",
@@ -37742,7 +37807,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 796
+          "embedding_id": 797
         },
         {
           "id": "stor-structure-st3-transformation-arc",
@@ -37788,7 +37853,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 797
+          "embedding_id": 798
         },
         {
           "id": "stor-structure-st4-stakes-and-consequence-clarity",
@@ -37834,7 +37899,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 798
+          "embedding_id": 799
         },
         {
           "id": "stor-structure-st5-perspective-selection",
@@ -37879,7 +37944,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 799
+          "embedding_id": 800
         },
         {
           "id": "stor-context-c1-specificity-over-abstraction",
@@ -37926,7 +37991,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 800
+          "embedding_id": 801
         },
         {
           "id": "stor-context-c2-show-tell-balance",
@@ -37971,7 +38036,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 801
+          "embedding_id": 802
         },
         {
           "id": "stor-context-c3-pacing-variation",
@@ -38014,7 +38079,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 802
+          "embedding_id": 803
         },
         {
           "id": "stor-context-c5-dialogue-craft",
@@ -38058,7 +38123,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 803
+          "embedding_id": 804
         },
         {
           "id": "stor-medium-m1-platform-first-optimization",
@@ -38109,7 +38174,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 804
+          "embedding_id": 805
         },
         {
           "id": "stor-medium-m4-resolution-calibration",
@@ -38153,7 +38218,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 805
+          "embedding_id": 806
         },
         {
           "id": "stor-safety-e1-human-voice-preservation",
@@ -38205,7 +38270,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 806
+          "embedding_id": 807
         },
         {
           "id": "stor-safety-e2-persuasion-manipulation-boundary",
@@ -38256,7 +38321,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 807
+          "embedding_id": 808
         }
       ],
       "methods": [
@@ -38312,7 +38377,7 @@
               "math"
             ]
           },
-          "embedding_id": 808
+          "embedding_id": 809
         },
         {
           "id": "stor-method-the-story-bible-architecture",
@@ -38365,7 +38430,7 @@
               "tiers?"
             ]
           },
-          "embedding_id": 809
+          "embedding_id": 810
         },
         {
           "id": "stor-method-reference-items-to-track",
@@ -38430,7 +38495,7 @@
               "guide"
             ]
           },
-          "embedding_id": 810
+          "embedding_id": 811
         },
         {
           "id": "stor-method-story-bible-template",
@@ -38492,7 +38557,7 @@
               "(25k+"
             ]
           },
-          "embedding_id": 811
+          "embedding_id": 812
         },
         {
           "id": "stor-method-story-foundation-immutable",
@@ -38538,7 +38603,7 @@
               "stakes"
             ]
           },
-          "embedding_id": 812
+          "embedding_id": 813
         },
         {
           "id": "stor-method-characters",
@@ -38587,7 +38652,7 @@
               "sheets...]"
             ]
           },
-          "embedding_id": 813
+          "embedding_id": 814
         },
         {
           "id": "stor-method-world",
@@ -38627,7 +38692,7 @@
               "magic/technology/social]"
             ]
           },
-          "embedding_id": 814
+          "embedding_id": 815
         },
         {
           "id": "stor-method-plot-architecture",
@@ -38679,7 +38744,7 @@
               "(reader"
             ]
           },
-          "embedding_id": 815
+          "embedding_id": 816
         },
         {
           "id": "stor-method-style-guide",
@@ -38732,7 +38797,7 @@
               "conventions"
             ]
           },
-          "embedding_id": 816
+          "embedding_id": 817
         },
         {
           "id": "stor-method-timeline",
@@ -38765,7 +38830,7 @@
               "events"
             ]
           },
-          "embedding_id": 817
+          "embedding_id": 818
         },
         {
           "id": "stor-method-session-state-working-memory",
@@ -38832,7 +38897,7 @@
               "last"
             ]
           },
-          "embedding_id": 818
+          "embedding_id": 819
         },
         {
           "id": "stor-method-context-loading-protocol",
@@ -38886,7 +38951,7 @@
               "guideline"
             ]
           },
-          "embedding_id": 819
+          "embedding_id": 820
         },
         {
           "id": "stor-method-when-to-create-new-reference-items",
@@ -38946,7 +39011,7 @@
               "mid-project"
             ]
           },
-          "embedding_id": 820
+          "embedding_id": 821
         },
         {
           "id": "stor-method-platform-specific-adaptations",
@@ -39009,7 +39074,7 @@
               "(web"
             ]
           },
-          "embedding_id": 821
+          "embedding_id": 822
         },
         {
           "id": "stor-method-voice-preservation-integration",
@@ -39068,7 +39133,7 @@
               "change"
             ]
           },
-          "embedding_id": 822
+          "embedding_id": 823
         },
         {
           "id": "stor-method-recovery-protocol",
@@ -39125,7 +39190,7 @@
               "long"
             ]
           },
-          "embedding_id": 823
+          "embedding_id": 824
         },
         {
           "id": "stor-method-governance-integration",
@@ -39169,7 +39234,7 @@
               "sessions"
             ]
           },
-          "embedding_id": 824
+          "embedding_id": 825
         },
         {
           "id": "stor-method-auto-tracking-protocol",
@@ -39232,7 +39297,7 @@
               "auto-extraction"
             ]
           },
-          "embedding_id": 825
+          "embedding_id": 826
         },
         {
           "id": "stor-method-revision-management-protocol",
@@ -39297,7 +39362,7 @@
               "type"
             ]
           },
-          "embedding_id": 826
+          "embedding_id": 827
         },
         {
           "id": "stor-method-non-linear-writing-protocol",
@@ -39361,7 +39426,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 827
+          "embedding_id": 828
         },
         {
           "id": "stor-method-story-log-template",
@@ -39423,7 +39488,7 @@
               "threads"
             ]
           },
-          "embedding_id": 828
+          "embedding_id": 829
         },
         {
           "id": "stor-method-character-voice-profiles",
@@ -39458,7 +39523,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 829
+          "embedding_id": 830
         },
         {
           "id": "stor-method-voice-profile-components",
@@ -39508,7 +39573,7 @@
               "profile"
             ]
           },
-          "embedding_id": 830
+          "embedding_id": 831
         },
         {
           "id": "stor-method-voice-distinction-test",
@@ -39556,7 +39621,7 @@
               "distinction"
             ]
           },
-          "embedding_id": 831
+          "embedding_id": 832
         },
         {
           "id": "stor-method-voice-drift-detection",
@@ -39601,7 +39666,7 @@
               "drift"
             ]
           },
-          "embedding_id": 832
+          "embedding_id": 833
         },
         {
           "id": "stor-method-genre-conventions-guide",
@@ -39635,7 +39700,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 833
+          "embedding_id": 834
         },
         {
           "id": "stor-method-convention-reference",
@@ -39684,7 +39749,7 @@
               "reference"
             ]
           },
-          "embedding_id": 834
+          "embedding_id": 835
         },
         {
           "id": "stor-method-convention-decision-workflow",
@@ -39735,7 +39800,7 @@
               "decision"
             ]
           },
-          "embedding_id": 835
+          "embedding_id": 836
         },
         {
           "id": "stor-method-plot-consistency-checks",
@@ -39770,7 +39835,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 836
+          "embedding_id": 837
         },
         {
           "id": "stor-method-check-categories",
@@ -39817,7 +39882,7 @@
               "categories"
             ]
           },
-          "embedding_id": 837
+          "embedding_id": 838
         },
         {
           "id": "stor-method-character-knowledge-audit",
@@ -39861,7 +39926,7 @@
               "knowledge"
             ]
           },
-          "embedding_id": 838
+          "embedding_id": 839
         },
         {
           "id": "stor-method-timeline-verification",
@@ -39903,7 +39968,7 @@
               "verification"
             ]
           },
-          "embedding_id": 839
+          "embedding_id": 840
         },
         {
           "id": "stor-method-quick-consistency-scan",
@@ -39947,7 +40012,7 @@
               "consistency"
             ]
           },
-          "embedding_id": 840
+          "embedding_id": 841
         },
         {
           "id": "stor-method-coaching-question-taxonomy",
@@ -39980,7 +40045,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 841
+          "embedding_id": 842
         },
         {
           "id": "stor-method-question-categories",
@@ -40026,7 +40091,7 @@
               "categories"
             ]
           },
-          "embedding_id": 842
+          "embedding_id": 843
         },
         {
           "id": "stor-method-discovery-questions",
@@ -40068,7 +40133,7 @@
               "questions"
             ]
           },
-          "embedding_id": 843
+          "embedding_id": 844
         },
         {
           "id": "stor-method-character-questions",
@@ -40110,7 +40175,7 @@
               "questions"
             ]
           },
-          "embedding_id": 844
+          "embedding_id": 845
         },
         {
           "id": "stor-method-structure-questions",
@@ -40152,7 +40217,7 @@
               "questions"
             ]
           },
-          "embedding_id": 845
+          "embedding_id": 846
         },
         {
           "id": "stor-method-craft-questions",
@@ -40194,7 +40259,7 @@
               "questions"
             ]
           },
-          "embedding_id": 846
+          "embedding_id": 847
         },
         {
           "id": "stor-method-revision-questions",
@@ -40236,7 +40301,7 @@
               "questions"
             ]
           },
-          "embedding_id": 847
+          "embedding_id": 848
         },
         {
           "id": "stor-method-stuck-questions",
@@ -40278,7 +40343,7 @@
               "questions"
             ]
           },
-          "embedding_id": 848
+          "embedding_id": 849
         },
         {
           "id": "stor-method-progressive-inquiry-pattern",
@@ -40343,11 +40408,11 @@
               "story"
             ]
           },
-          "embedding_id": 849
+          "embedding_id": 850
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T04:31:13.605569+00:00",
+      "last_extracted": "2026-05-18T15:52:47.872635+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -40392,7 +40457,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 850
+          "embedding_id": 851
         },
         {
           "id": "mrag-presentation-p2-natural-integration",
@@ -40433,7 +40498,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 851
+          "embedding_id": 852
         },
         {
           "id": "mrag-presentation-p3-image-selection-criteria",
@@ -40479,7 +40544,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 852
+          "embedding_id": 853
         },
         {
           "id": "mrag-presentation-p4-audience-adaptation",
@@ -40526,7 +40591,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 853
+          "embedding_id": 854
         },
         {
           "id": "mrag-presentation-p5-accessibility-compliance",
@@ -40569,7 +40634,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 854
+          "embedding_id": 855
         },
         {
           "id": "mrag-reference-r1-image-text-collocation",
@@ -40610,7 +40675,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 855
+          "embedding_id": 856
         },
         {
           "id": "mrag-reference-r2-descriptive-context",
@@ -40651,7 +40716,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 856
+          "embedding_id": 857
         },
         {
           "id": "mrag-reference-r3-retrieval-metadata",
@@ -40690,7 +40755,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 857
+          "embedding_id": 858
         },
         {
           "id": "mrag-architecture-a1-unified-embedding-space",
@@ -40731,7 +40796,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 858
+          "embedding_id": 859
         },
         {
           "id": "mrag-architecture-a2-relevance-scoring",
@@ -40772,7 +40837,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 859
+          "embedding_id": 860
         },
         {
           "id": "mrag-architecture-a3-vision-guided-chunking",
@@ -40813,7 +40878,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 860
+          "embedding_id": 861
         },
         {
           "id": "mrag-architecture-a4-document-as-image-retrieval",
@@ -40854,7 +40919,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 861
+          "embedding_id": 862
         },
         {
           "id": "mrag-architecture-a5-knowledge-graph-integration",
@@ -40902,7 +40967,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 862
+          "embedding_id": 863
         },
         {
           "id": "mrag-fallback-f1-graceful-degradation",
@@ -40941,7 +41006,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 863
+          "embedding_id": 864
         },
         {
           "id": "mrag-fallback-f2-failure-transparency",
@@ -40985,7 +41050,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 864
+          "embedding_id": 865
         },
         {
           "id": "mrag-verification-v1-cross-modal-consistency-verification",
@@ -41027,7 +41092,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 865
+          "embedding_id": 866
         },
         {
           "id": "mrag-verification-v2-visual-scene-graph-checking",
@@ -41072,7 +41137,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 866
+          "embedding_id": 867
         },
         {
           "id": "mrag-verification-v3-source-fidelity",
@@ -41112,7 +41177,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 867
+          "embedding_id": 868
         },
         {
           "id": "mrag-verification-v4-cross-modal-reasoning-chain-integrity",
@@ -41157,7 +41222,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 868
+          "embedding_id": 869
         },
         {
           "id": "mrag-evaluation-ev1-retrieval-quality-measurement",
@@ -41200,7 +41265,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 869
+          "embedding_id": 870
         },
         {
           "id": "mrag-evaluation-ev2-answer-faithfulness-assessment",
@@ -41243,7 +41308,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 870
+          "embedding_id": 871
         },
         {
           "id": "mrag-citation-ct1-fragment-level-source-attribution",
@@ -41292,7 +41357,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 871
+          "embedding_id": 872
         },
         {
           "id": "mrag-citation-ct2-spatial-attribution-for-visual-content",
@@ -41340,7 +41405,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 872
+          "embedding_id": 873
         },
         {
           "id": "mrag-security-sec1-multimodal-poisoning-defense",
@@ -41384,7 +41449,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 873
+          "embedding_id": 874
         },
         {
           "id": "mrag-security-sec2-cross-modal-input-validation",
@@ -41427,7 +41492,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 874
+          "embedding_id": 875
         },
         {
           "id": "mrag-data-governance-dg1-access-control-for-multimodal-knowledge-bases",
@@ -41472,7 +41537,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 875
+          "embedding_id": 876
         },
         {
           "id": "mrag-data-governance-dg2-data-lineage-and-provenance",
@@ -41515,7 +41580,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 876
+          "embedding_id": 877
         },
         {
           "id": "mrag-operations-o1-index-version-management",
@@ -41557,7 +41622,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 877
+          "embedding_id": 878
         },
         {
           "id": "mrag-operations-o2-continuous-monitoring-observability",
@@ -41607,7 +41672,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 878
+          "embedding_id": 879
         },
         {
           "id": "mrag-agentic-retrieval-ag1-adaptive-retrieval-strategy",
@@ -41650,7 +41715,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 879
+          "embedding_id": 880
         },
         {
           "id": "mrag-agentic-retrieval-ag2-query-decomposition",
@@ -41692,7 +41757,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 880
+          "embedding_id": 881
         },
         {
           "id": "mrag-agentic-retrieval-ag3-retrieval-sufficiency-evaluation",
@@ -41745,7 +41810,7 @@
           },
           "aliases": [],
           "constitutional_ref": null,
-          "embedding_id": 881
+          "embedding_id": 882
         }
       ],
       "methods": [
@@ -41785,7 +41850,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 882
+          "embedding_id": 883
         },
         {
           "id": "mrag-method-image-placement-workflow",
@@ -41829,7 +41894,7 @@
               "workflow"
             ]
           },
-          "embedding_id": 883
+          "embedding_id": 884
         },
         {
           "id": "mrag-method-inline-placement-rules",
@@ -41873,7 +41938,7 @@
               "rules"
             ]
           },
-          "embedding_id": 884
+          "embedding_id": 885
         },
         {
           "id": "mrag-method-image-selection-algorithm-mayer-based",
@@ -41920,7 +41985,7 @@
               "algorithm"
             ]
           },
-          "embedding_id": 885
+          "embedding_id": 886
         },
         {
           "id": "mrag-method-content-type-matching",
@@ -41961,7 +42026,7 @@
               "matching"
             ]
           },
-          "embedding_id": 886
+          "embedding_id": 887
         },
         {
           "id": "mrag-method-readability-standards",
@@ -42004,7 +42069,7 @@
               "standards"
             ]
           },
-          "embedding_id": 887
+          "embedding_id": 888
         },
         {
           "id": "mrag-method-accessibility-implementation-checklist",
@@ -42068,7 +42133,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 888
+          "embedding_id": 889
         },
         {
           "id": "mrag-method-reference-document-structuring",
@@ -42108,7 +42173,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 889
+          "embedding_id": 890
         },
         {
           "id": "mrag-method-document-organization-template",
@@ -42152,7 +42217,7 @@
               "template"
             ]
           },
-          "embedding_id": 890
+          "embedding_id": 891
         },
         {
           "id": "mrag-method-image-description-requirements",
@@ -42199,7 +42264,7 @@
               "requirements"
             ]
           },
-          "embedding_id": 891
+          "embedding_id": 892
         },
         {
           "id": "mrag-method-metadata-schema",
@@ -42240,7 +42305,7 @@
               "schema"
             ]
           },
-          "embedding_id": 892
+          "embedding_id": 893
         },
         {
           "id": "mrag-method-collocation-verification-checklist",
@@ -42284,7 +42349,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 893
+          "embedding_id": 894
         },
         {
           "id": "mrag-method-content-ingestion-assistance-workflow",
@@ -42351,7 +42416,7 @@
               "validation"
             ]
           },
-          "embedding_id": 894
+          "embedding_id": 895
         },
         {
           "id": "mrag-method-retrieval-architecture",
@@ -42389,7 +42454,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 895
+          "embedding_id": 896
         },
         {
           "id": "mrag-method-four-layer-architecture",
@@ -42430,7 +42495,7 @@
               "architecture"
             ]
           },
-          "embedding_id": 896
+          "embedding_id": 897
         },
         {
           "id": "mrag-method-embedding-model-selection",
@@ -42479,7 +42544,7 @@
               "selection"
             ]
           },
-          "embedding_id": 897
+          "embedding_id": 898
         },
         {
           "id": "mrag-method-relevance-scoring-implementation",
@@ -42521,7 +42586,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 898
+          "embedding_id": 899
         },
         {
           "id": "mrag-method-chunk-strategy-for-multimodal-documents",
@@ -42568,7 +42633,7 @@
               "multimodal"
             ]
           },
-          "embedding_id": 899
+          "embedding_id": 900
         },
         {
           "id": "mrag-method-vision-guided-chunking-procedures",
@@ -42625,7 +42690,7 @@
               "procedures"
             ]
           },
-          "embedding_id": 900
+          "embedding_id": 901
         },
         {
           "id": "mrag-method-cross-modal-reference-linking",
@@ -42683,7 +42748,7 @@
               "linking"
             ]
           },
-          "embedding_id": 901
+          "embedding_id": 902
         },
         {
           "id": "mrag-method-late-interaction-and-document-as-image-retrieval",
@@ -42744,7 +42809,7 @@
               "document-as-image"
             ]
           },
-          "embedding_id": 902
+          "embedding_id": 903
         },
         {
           "id": "mrag-method-graph-based-multimodal-retrieval",
@@ -42805,7 +42870,7 @@
               "retrieval"
             ]
           },
-          "embedding_id": 903
+          "embedding_id": 904
         },
         {
           "id": "mrag-method-failure-handling",
@@ -42843,7 +42908,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 904
+          "embedding_id": 905
         },
         {
           "id": "mrag-method-failure-classification",
@@ -42884,7 +42949,7 @@
               "classification"
             ]
           },
-          "embedding_id": 905
+          "embedding_id": 906
         },
         {
           "id": "mrag-method-graceful-degradation-procedure",
@@ -42928,7 +42993,7 @@
               "procedure"
             ]
           },
-          "embedding_id": 906
+          "embedding_id": 907
         },
         {
           "id": "mrag-method-failure-note-templates",
@@ -42975,7 +43040,7 @@
               "templates"
             ]
           },
-          "embedding_id": 907
+          "embedding_id": 908
         },
         {
           "id": "mrag-method-failure-logging-schema",
@@ -43019,7 +43084,7 @@
               "schema"
             ]
           },
-          "embedding_id": 908
+          "embedding_id": 909
         },
         {
           "id": "mrag-method-verification-and-hallucination-prevention",
@@ -43059,7 +43124,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 909
+          "embedding_id": 910
         },
         {
           "id": "mrag-method-cross-modal-consistency-check",
@@ -43113,7 +43178,7 @@
               "check"
             ]
           },
-          "embedding_id": 910
+          "embedding_id": 911
         },
         {
           "id": "mrag-method-visual-scene-graph-validation",
@@ -43167,7 +43232,7 @@
               "graph"
             ]
           },
-          "embedding_id": 911
+          "embedding_id": 912
         },
         {
           "id": "mrag-method-modality-conflict-resolution",
@@ -43221,7 +43286,7 @@
               "resolution"
             ]
           },
-          "embedding_id": 912
+          "embedding_id": 913
         },
         {
           "id": "mrag-method-visual-textual-inconsistency-handling",
@@ -43274,7 +43339,7 @@
               "handling"
             ]
           },
-          "embedding_id": 913
+          "embedding_id": 914
         },
         {
           "id": "mrag-method-multi-hop-cross-modal-reasoning-verification",
@@ -43335,7 +43400,7 @@
               "reasoning"
             ]
           },
-          "embedding_id": 914
+          "embedding_id": 915
         },
         {
           "id": "mrag-method-evaluation-framework",
@@ -43373,7 +43438,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 915
+          "embedding_id": 916
         },
         {
           "id": "mrag-method-rag-check-6-metric-implementation",
@@ -43431,7 +43496,7 @@
               "implementation"
             ]
           },
-          "embedding_id": 916
+          "embedding_id": 917
         },
         {
           "id": "mrag-method-multimodal-mrr-calculation",
@@ -43483,7 +43548,7 @@
               "calculation"
             ]
           },
-          "embedding_id": 917
+          "embedding_id": 918
         },
         {
           "id": "mrag-method-drift-detection",
@@ -43538,7 +43603,7 @@
               "detection"
             ]
           },
-          "embedding_id": 918
+          "embedding_id": 919
         },
         {
           "id": "mrag-method-benchmark-construction",
@@ -43589,7 +43654,7 @@
               "construction"
             ]
           },
-          "embedding_id": 919
+          "embedding_id": 920
         },
         {
           "id": "mrag-method-rag-system-comprehension-handoff",
@@ -43642,7 +43707,7 @@
               "handoff"
             ]
           },
-          "embedding_id": 920
+          "embedding_id": 921
         },
         {
           "id": "mrag-method-citation-and-attribution",
@@ -43680,7 +43745,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 921
+          "embedding_id": 922
         },
         {
           "id": "mrag-method-fragment-level-source-tracking",
@@ -43742,7 +43807,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 922
+          "embedding_id": 923
         },
         {
           "id": "mrag-method-visa-spatial-attribution",
@@ -43796,7 +43861,7 @@
               "attribution"
             ]
           },
-          "embedding_id": 923
+          "embedding_id": 924
         },
         {
           "id": "mrag-method-citation-formatting",
@@ -43847,7 +43912,7 @@
               "formatting"
             ]
           },
-          "embedding_id": 924
+          "embedding_id": 925
         },
         {
           "id": "mrag-method-citation-verification-checklist",
@@ -43891,7 +43956,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 925
+          "embedding_id": 926
         },
         {
           "id": "mrag-method-security-for-multimodal-knowledge-bases",
@@ -43933,7 +43998,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 926
+          "embedding_id": 927
         },
         {
           "id": "mrag-method-poisoning-attack-taxonomy",
@@ -43994,7 +44059,7 @@
               "taxonomy"
             ]
           },
-          "embedding_id": 927
+          "embedding_id": 928
         },
         {
           "id": "mrag-method-input-validation-pipeline",
@@ -44043,7 +44108,7 @@
               "pipeline"
             ]
           },
-          "embedding_id": 928
+          "embedding_id": 929
         },
         {
           "id": "mrag-method-defense-assessment-checklist",
@@ -44094,7 +44159,7 @@
               "checklist"
             ]
           },
-          "embedding_id": 929
+          "embedding_id": 930
         },
         {
           "id": "mrag-method-cross-domain-security-reference",
@@ -44144,7 +44209,7 @@
               "reference"
             ]
           },
-          "embedding_id": 930
+          "embedding_id": 931
         },
         {
           "id": "mrag-method-data-governance",
@@ -44182,7 +44247,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 931
+          "embedding_id": 932
         },
         {
           "id": "mrag-method-rbac-configuration",
@@ -44232,7 +44297,7 @@
               "configuration"
             ]
           },
-          "embedding_id": 932
+          "embedding_id": 933
         },
         {
           "id": "mrag-method-encryption-and-transit-security",
@@ -44285,7 +44350,7 @@
               "security"
             ]
           },
-          "embedding_id": 933
+          "embedding_id": 934
         },
         {
           "id": "mrag-method-audit-trail-schema",
@@ -44337,7 +44402,7 @@
               "schema"
             ]
           },
-          "embedding_id": 934
+          "embedding_id": 935
         },
         {
           "id": "mrag-method-data-lineage-tracking",
@@ -44390,7 +44455,7 @@
               "tracking"
             ]
           },
-          "embedding_id": 935
+          "embedding_id": 936
         },
         {
           "id": "mrag-method-operational-management",
@@ -44442,7 +44507,7 @@
               "index"
             ]
           },
-          "embedding_id": 936
+          "embedding_id": 937
         },
         {
           "id": "mrag-method-embedding-model-lifecycle",
@@ -44496,7 +44561,7 @@
               "model"
             ]
           },
-          "embedding_id": 937
+          "embedding_id": 938
         },
         {
           "id": "mrag-method-prompt-template-versioning",
@@ -44548,7 +44613,7 @@
               "template"
             ]
           },
-          "embedding_id": 938
+          "embedding_id": 939
         },
         {
           "id": "mrag-method-cost-monitoring",
@@ -44604,7 +44669,7 @@
               "monitoring"
             ]
           },
-          "embedding_id": 939
+          "embedding_id": 940
         },
         {
           "id": "mrag-method-observability-dashboard",
@@ -44657,7 +44722,7 @@
               "dashboard"
             ]
           },
-          "embedding_id": 940
+          "embedding_id": 941
         },
         {
           "id": "mrag-method-agentic-retrieval-patterns",
@@ -44697,7 +44762,7 @@
             ],
             "guideline_keywords": []
           },
-          "embedding_id": 941
+          "embedding_id": 942
         },
         {
           "id": "mrag-method-adaptive-retrieval-loop-design",
@@ -44757,7 +44822,7 @@
               "retrieval"
             ]
           },
-          "embedding_id": 942
+          "embedding_id": 943
         },
         {
           "id": "mrag-method-query-decomposition-procedures",
@@ -44820,7 +44885,7 @@
               "decomposition"
             ]
           },
-          "embedding_id": 943
+          "embedding_id": 944
         },
         {
           "id": "mrag-method-retrieval-sufficiency-evaluation",
@@ -44875,7 +44940,7 @@
               "sufficiency"
             ]
           },
-          "embedding_id": 944
+          "embedding_id": 945
         },
         {
           "id": "mrag-method-agent-coordination-for-knowledge-synthesis",
@@ -44938,7 +45003,7 @@
               "coordination"
             ]
           },
-          "embedding_id": 945
+          "embedding_id": 946
         },
         {
           "id": "mrag-method-termination-and-fallback-controls",
@@ -45013,7 +45078,7 @@
               "multimodal"
             ]
           },
-          "embedding_id": 946
+          "embedding_id": 947
         }
       ],
       "references": [
@@ -45071,13 +45136,13 @@
               "archrag"
             ],
             "purpose_keywords": [
-              "graphrag",
               "knowledge-graph",
               "multi-hop-retrieval",
-              "community-detection",
               "hipporag",
+              "personalized-pagerank",
               "cognee",
-              "personalized-pagerank"
+              "graphrag",
+              "community-detection"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -45098,10 +45163,10 @@
               "lego-graphrag"
             ]
           },
-          "embedding_id": 947
+          "embedding_id": 948
         }
       ],
-      "last_extracted": "2026-05-18T04:31:13.613657+00:00",
+      "last_extracted": "2026-05-18T15:52:47.879199+00:00",
       "version": "1.0"
     }
   },
@@ -45187,7 +45252,7 @@
       "embedding_id": 7
     }
   ],
-  "created_at": "2026-05-18T04:31:13.615551+00:00",
+  "created_at": "2026-05-18T15:52:47.881194+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384
