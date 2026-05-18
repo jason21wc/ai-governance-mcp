@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-17 (session-179 — Comprehension Scaffold Initiative: Phase 1A+1B + Phase 2 + Phase 3 shipped; `/comprehension-check` skill evaluated and declined).
+**Last Updated:** 2026-05-17 (session-180 — External input gap analysis: Anthropic engineering video → §9.5.3 tool investment guidance + reference library entry).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,12 +12,12 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-179 (2026-05-17) — Comprehension Scaffold Initiative shipped (6-layer enforcement chain). `/comprehension-check` skill evaluated and declined — symptomatic recovery mechanism, not structural prevention.**
+**Session-180 (2026-05-17) — External input gap analysis: Anthropic engineering video → §9.5.3 tool investment guidance + reference library entry.**
 
-**ACTION ON RESUME (session-180):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review + first Check 13 comprehension debt tracking). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
+**ACTION ON RESUME (session-181):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review + first Check 13 comprehension debt tracking). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
 
 **Critical state for next session:**
-- **Comprehension Scaffold Initiative shipped** — E&E obligation (constitution v8.1.0) → §16.8 meta-method (rules-of-procedure v3.32.0) → ai-coding 6 domain methods (CFR v2.46.0) → UI/UX §10 (CFR v1.2.0) → Multimodal RAG §6.5 (CFR v2.3.0) → KM&PD §8.2 cross-reference (CFR v1.3.0) → behavioral floor (CLAUDE.md + tiers.json) → compliance tracking (Check 13). `/comprehension-check` skill evaluated and declined — passive enforcement chain is the structural intervention; on-demand skill was a recovery mechanism (symptomatic, not structural per `meta-core-systemic-thinking`).
+- **§9.5.3 tool investment guidance shipped** — "instruction-heavy, tool-light" anti-pattern named with contrastive examples. CFR v2.47.0. Reference library entry ref-ai-coding-anthropic-skill-tool-investment (26 references total).
 - **Backlog: 7 discussion items** — #6, #11, #41, #45, #46, #47, #48. #48 partially shipped (2 of 8 skills); remaining skills stay in Discussion.
 - **#41 Phase 1 observation window still open** — shipped session-174.
 - **Claude App enforcement proxy** — soft mode deployed session-173.
@@ -26,7 +26,7 @@
 
 ## Current Position
 
-- **Phase:** Session-179 (2026-05-17) — Comprehension Scaffold Initiative (Phase 1A+1B + Phase 2 + Phase 3 domain extensions).
+- **Phase:** Session-180 (2026-05-17) — External input gap analysis (Anthropic engineering video).
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25).
 
@@ -36,7 +36,7 @@
 |--------|-------|
 | Version | **v2.0.0** (server + pyproject.toml + ARCHITECTURE) |
 | Context Engine | **v2.1.0** (reranking, MMR diversity, RRF opt-in, chunk quality filter, candidate pool cap, per-file dedup configurable cap=3, expanded 35-query benchmark) |
-| Content | **v8.1.0** (Constitution — 24 principles; E&E comprehension scaffold obligation + engagement-depth choice), **v3.32.0** (rules-of-procedure — §16.8 Comprehension Scaffold Format), **v2.46.0** (title-10-ai-coding-cfr — 6 comprehension scaffold domain methods), **v2.9.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.18.0** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.5.1** (multimodal-rag principles — 32), **v2.3.0** (multimodal-rag methods), **v1.2.3** (ui-ux principles — 20), **v1.2.0** (ui-ux methods), **v1.4.3** (kmpd principles — 10), **v1.3.0** (kmpd methods), **v1.0.0** (accounting principles — 12), **v1.0.0** (accounting methods), **v4.1.1** (ai-instructions), **v2.1.0** (tiers.json — critical_5 scaffold + external-input-gap-analysis + conflicting-patterns directives). |
+| Content | **v8.1.0** (Constitution — 24 principles; E&E comprehension scaffold obligation + engagement-depth choice), **v3.32.0** (rules-of-procedure — §16.8 Comprehension Scaffold Format), **v2.47.0** (title-10-ai-coding-cfr — §9.5.3 tool investment guidance), **v2.9.0** (ai-coding principles — 15), **v2.7.3** (multi-agent principles — 17), **v2.18.0** (multi-agent methods), **v1.4.2** (storytelling principles — 15), **v1.1.3** (storytelling methods), **v2.5.1** (multimodal-rag principles — 32), **v2.3.0** (multimodal-rag methods), **v1.2.3** (ui-ux principles — 20), **v1.2.0** (ui-ux methods), **v1.4.3** (kmpd principles — 10), **v1.3.0** (kmpd methods), **v1.0.0** (accounting principles — 12), **v1.0.0** (accounting methods), **v4.1.1** (ai-instructions), **v2.1.0** (tiers.json — critical_5 scaffold + external-input-gap-analysis + conflicting-patterns directives). |
 | Execution Framework | **v2.0.0** (`EXECUTION-FRAMEWORK.md` — permanent blueprint, 10-subsystem architecture) |
 | OPERATIONS.md | **v2** (3 cadences, 17 tripwires, 3 V-series, 5 metrics, 3 scheduled operations) |
 | Tests | **1728 passing** (non-slow subset) |
@@ -44,27 +44,29 @@
 | Tools | **20 MCP tools** (16 governance + 4 context engine) |
 | Domains | **8 shipped** (modular — filesystem-discovered from frontmatter, custom domains supported) |
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
-| Index | **145 principles + 777 methods + 25 references** (947 total) |
+| Index | **145 principles + 777 methods + 26 references** (948 total) |
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
 | Skills | **6** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`, `/code-review` (global), `/security-scan` (global)) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
-| CI | Last push: session-179. All pushed. |
+| CI | Last push: session-179. Session-180 unpushed. |
 
 ---
 
 ## Last Session (2026-05-17)
 
-179. **Session-179 (2026-05-17): Comprehension Scaffold Initiative — Phase 3 domain extensions + `/comprehension-check` evaluated and declined.**
-   - **Phase 1A+1B** (prior context, committed as `8311eac`) — E&E 2 bullets + §16.8 meta-method + 6 ai-coding domain methods.
-   - **Phase 2** (committed as `b5541d6`) — CLAUDE.md behavioral floor directive + tiers.json directive + compliance-review Check 13 + CFR forward-ref resolution. User challenged deferral; 2 of 3 Phase 2 items reclassified as enforcement-chain completions per `feedback_todo_philosophy`.
-   - **Phase 3** (committed as `f0d12d2`) — domain-specific scaffold methods for 3 domains, proportionally scoped by quality-gate density: UI/UX CFR v1.2.0 (new §10), Multimodal RAG CFR v2.3.0 (new §6.5), KM&PD CFR v1.3.0 (§8.2 cross-reference). 11 coherence findings fixed. README method counts synced.
-   - **`/comprehension-check` skill** — built (`198b939`), live-tested via invocation, then evaluated via `meta-core-systemic-thinking`: the skill is a recovery mechanism (fires after comprehension gap forms) rather than a structural intervention (prevents gap from forming). The passive 6-layer enforcement chain already addresses the structural cause. User agreed; reverted (`d2ae8fb`). See LEARNING-LOG.
-   - **7 subagent reviews total** (2 coherence-auditors, 1 contrarian, 2 validators, 1 Explore scoping, 1 coherence on skill).
-   - **Index:** 145 principles + 777 methods + 25 references = 947 total. 1728 tests passing.
+180. **Session-180 (2026-05-17): External input gap analysis — Anthropic engineering video → §9.5.3 tool investment guidance.**
+   - **Gap analysis** of Anthropic engineering practices YouTube video (4 rules for Claude Code skills). Applied `external-input-gap-analysis` behavioral floor directive: 3 of 4 rules already covered (skills taxonomy §9.5, description routing §9.5.3, session improvement via LEARNING-LOG). One genuine gap: §9.5.3 had zero guidance on tool quality despite covering description quality and instruction quality.
+   - **§9.5.3 enhancement** — added "Tool investment — tools over instructions" guidance block with contrastive before/after examples (instruction-heavy vs tool-rich). Names the "instruction-heavy, tool-light" anti-pattern. Reconciles with §9.5.4 "Goal over path." CFR v2.47.0.
+   - **Reference library entry** — `ref-ai-coding-anthropic-skill-tool-investment` (26th reference). Source attribution, three key insights, already-covered mapping, contrarian findings.
+   - **Contrarian review** (plan-mode): 2 verdict-changing findings — (1) match specificity bar with concrete examples, not just anti-pattern naming; (2) drop §7.4/§4.6.3 cross-references (thematically adjacent but operationally disconnected).
+   - **3 Explore agents + 1 Plan agent + 1 contrarian-reviewer.** Governance: `gov-9b51e8ecb051`.
+   - **Index:** 145 principles + 777 methods + 26 references = 948 total. 1728 tests passing.
 
 ---
 
 ## Previous Sessions
+
+*Session-179 (2026-05-17) Comprehension Scaffold Initiative — 6-layer enforcement chain shipped. `/comprehension-check` skill evaluated and declined (symptomatic, not structural). 1728 tests.*
 
 *Session-178 (2026-05-17) BACKLOG #48 global skills (`/code-review` + `/security-scan`). Contrarian calibrated. pyproject.toml cognee cap. Test suite fixed (transformers 4.57.6 + IPC mock). 1728 tests.*
 

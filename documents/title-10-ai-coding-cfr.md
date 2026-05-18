@@ -1,7 +1,7 @@
 ---
-version: "2.46.0"
+version: "2.47.0"
 status: "active"
-effective_date: "2026-05-11"
+effective_date: "2026-05-17"
 domain: "ai-coding"
 governance_level: "federal-regulations"
 ---
@@ -9,7 +9,7 @@ governance_level: "federal-regulations"
 # AI Coding Methods
 ## Operational Procedures for AI-Assisted Software Development
 
-**Version:** 2.46.0
+**Version:** 2.47.0
 **Status:** Active
 **Effective Date:** 2026-05-17
 **Governance Level:** Methods (Code of Federal Regulations equivalent)
@@ -9653,6 +9653,15 @@ The description drives auto-invocation routing. Write triggering conditions ("Ru
 **Writing style — directives, not essays:**
 Within the token budget, every line should earn its place. Write actionable directives (`"Always use interactions.create()"`) not informational prose (`"The Interactions API is the recommended approach"`). The first is an instruction the agent will follow; the second is trivia it will ignore. Lead with code examples — a 5-line snippet beats a 5-paragraph explanation. When a rule is non-obvious, explain WHY (`"Use model X — model Y is deprecated and returns errors"`); the reason helps the agent generalize beyond the specific case.
 
+**Tool investment — tools over instructions:**
+Invest in tool quality at least as much as instruction quality. The anti-pattern "instruction-heavy, tool-light" pairs detailed instructions with undocumented tools — vague parameter names, no error descriptions, missing type hints. A well-documented script with clear parameters outperforms a beautifully worded prompt with bare-bones tools.
+
+*Instruction-heavy (anti-pattern):* A 20-line instruction block explaining how to check domain availability — format the query, parse the response, handle errors, retry on timeout. The agent regenerates this logic each session, sometimes differently.
+
+*Tool-rich (preferred):* A `check_domain.py` script in the skill folder with typed parameters (`domain: str`, `tlds: list[str]`) and clear output format. The instruction shrinks to `"Run scripts/check_domain.py for availability checks."` Code is deterministic, cheaper, and repeatable.
+
+This complements §9.5.4 "Goal over path": when the procedure needs both agent judgment AND deterministic steps, embed the script in the skill folder rather than regenerating it each session. When step ordering is the *only* complexity, a standalone script without a skill wrapper is sufficient (per §9.5.4).
+
 ### 9.5.4 Five Properties of a Good Skill
 
 Per procedural knowledge research (Wang 2026): a process is skill-ready when it satisfies all five:
@@ -10341,6 +10350,7 @@ Audited 2026-05-11 against commit `7a02ddd` (v1.6.0). Three content files (SKILL
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2.47.0 | 2026-05-17 | **MINOR: Tool Investment Guidance in §9.5.3 Skill Authoring Standards.** Added "Tool investment — tools over instructions" guidance block after writing style directive. Names the "instruction-heavy, tool-light" anti-pattern with contrastive before/after examples (instruction-heavy vs tool-rich skill). Guidance: invest in tool quality (parameter naming, descriptions, deterministic behavior) at least as much as instruction polish; save regenerated logic as deterministic scripts inside skill folders. Reconciles with §9.5.4 "Goal over path" (scripts-inside-skills vs scripts-instead-of-skills). Prompted by Anthropic engineering practices video analysis (ref-ai-coding-anthropic-skill-tool-investment). Governance: `gov-9b51e8ecb051`. |
 | 2.46.0 | 2026-05-17 | **MINOR: Comprehension Scaffold — AI-Coding Domain Methods.** 6 modifications implementing E&E comprehension scaffold obligation (constitution v8.1.0, rules-of-procedure §16.8): (1) §4.1.2 "Comprehensible" task characteristic (orthogonal to Bounded); (2) §4.1.2.1 Generation Chunk Size thresholds (≤100/100-300/>300 lines, soft); (3) §5.1.3 Comprehension Scaffold quality standard + lifecycle-proportional elaboration table + comment policy distinction (implementation=NO, architectural=YES at boundaries, decision-point=YES); (4) §2.6.1 comment policy cross-reference (SSOT at §5.1.3); (5) §5.13.7 Linear Walkthrough proactive extension with three-layer scaffold format + mode-based depth scaling with stakes override; (6) §6.1.2 Comprehension gate (INFORMATIONAL, never blocks) with 4-response taxonomy (Understood/Acknowledged/Explain/Continue) + measurable compliance signal (Understood:Acknowledged ratio, skill check deferred to Phase 2). Completion checklist updated (item 16b). 3 subagent reviews (contrarian-reviewer ×2, validator, coherence-auditor). Governance: `gov-33d0eedc9dbf`, `gov-aa596dedcd00`. |
 | 2.45.1 | 2026-05-11 | PATCH: Appendix M.3 Prompt Master — new ecosystem tool entry for cross-tool prompt generation skill (nidhinjs/prompt-master, MIT, v1.6.0). Operationalizes Title 11 prompt engineering techniques (rules-of-procedure) as a user-facing prompt generation skill for 30+ AI tools. Three design patterns documented: 9-dimension intent extraction, tool-specific behavioral routing, 37 anti-pattern diagnostic. Security audited 2026-05-11 (0 critical/high/medium, 2 low — supply chain pin + README tracking URLs). Situation Index entry added. §9.8.3 field-compliant. Governance: `gov-4d489b658e61`. |
 | 2.45.0 | 2026-05-10 | **MINOR: Title 10 — AI Agent Operations Governance.** New Title 10 with 4 Parts (~700 lines) closing the governance gap at the deployment boundary. Part 10.1: AI-Assisted Deployment Governance (approval workflows for AI-generated changes with blast-radius matrix, production readiness gates extending Appendix H with AI-specific checks). Part 10.2: Infrastructure-as-Code Governance (plan-before-apply discipline, secure defaults table for AI-generated infrastructure, backup topology awareness with PocketOS case study). Part 10.3: AI Agent Operational Boundaries (rollback-first rule with Kiro anti-pattern, agent credential scoping, destructive action pre-verification protocol, OWASP Agentic Alignment Matrix mapping all ASI01-ASI10 to CFR sections). Part 10.4: AI-Specific Incident Review (postmortem template with 7 AI-specific review questions, governance feedback loop for translating incidents into principle improvements). Situation Index: +6 entries. Principles scope updated (title-10-ai-coding.md): deployment governance and incident review partially in-scope (AI-specific portions). domains.json: operations keywords added to ai-coding routing. OPERATIONS.md: C-012 Security Posture Review cadence (quarterly, OWASP/CISA/MITRE/Microsoft). Evidence base: OWASP Top 10 for Agentic Applications (Dec 2025), Amazon Kiro incident (Dec 2025), PocketOS incident (2025), Amazon storefront incident (Mar 2026), Microsoft Agent Governance Toolkit (Apr 2026). Scope trimmed from ~1,100 to ~700 lines after contrarian review — generic DevOps content (deployment strategy matrices, severity classification, environment progression) excluded per AI-specific focus. Closes BACKLOG #12. |
