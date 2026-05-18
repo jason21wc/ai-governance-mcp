@@ -43,7 +43,7 @@ Split large skills into focused, reusable units that chain together. Three reaso
 | Rule 3: Build composable, not custom | §9.5.5 "When to Codify"; ref-ai-coding-superpowers-skills-framework lesson 2 |
 | Rule 4: Prompts get smarter every session | LEARNING-LOG + C-155 feedback loop + C-078 compliance review cadence |
 
-Also covered: `disable_model_invocation` and `user_invocable` flags (§9.5.3 SKILL.md structure), description quality as routing (§9.5.3 "routing, not summary"), progressive disclosure (§9.5.3 three-level table).
+Also covered: `disable-model-invocation` flag and its user-invocable semantics (§9.5.3 SKILL.md structure), description quality as routing (§9.5.3 "routing, not summary"), progressive disclosure (§9.5.3 three-level table).
 
 ## Subagent Review Findings
 

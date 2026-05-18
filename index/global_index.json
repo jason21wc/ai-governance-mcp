@@ -11672,7 +11672,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T04:20:12.679115+00:00",
+      "last_extracted": "2026-05-18T04:31:13.548912+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -24197,7 +24197,7 @@
           "id": "coding-method-skill-folder-structure",
           "domain": "ai-coding",
           "title": "Skill Folder Structure",
-          "content": "### 9.5.6 Skill Folder Structure\n\n```\n.claude/skills/<skill-name>/\n\u251c\u2500\u2500 SKILL.md              # Orchestration shell (\u2264120 lines)\n\u2502                          # Frontmatter + dynamic context + execution instructions\n\u251c\u2500\u2500 procedure.md           # [optional] Detailed procedure steps (Level 3)\n\u251c\u2500\u2500 checklist.md           # [optional] Step-by-step checklist (Level 3)\n\u251c\u2500\u2500 audit-log.md           # [optional] Mutable review/run history (Level 3)\n\u2514\u2500\u2500 verification.md        # [optional] Verification tracking data (Level 3)\n```\n\n**Separation principle:** SKILL.md is the stable orchestration shell. Reference files contain either stable procedures or mutable data. Never mix audit/tracking data into SKILL.md \u2014 it changes every run and inflates the Level 2 token cost.\n\n### 9.5.7 Cross-References\n\n- **Decision matrix:** EXECUTION-FRAMEWORK.md \u00a73.7 (skill vs hook vs subagent vs workflow)\n- **Subagent authoring:** Title 20 CFR \u00a72.1 (Agent Specification & Configuration)\n- **Hook authoring:** This CFR \u00a79.3.10 (Layered Enforcement Stack)\n- **Progressive disclosure research:** Wang 2026 (\"Why do AI agents still need so much hand-holding?\")\n- **Reference implementation:** Superpowers v5.1.0 (obra/superpowers \u2014 14 skills, 4 categories)\n\n> **Bold triggers:** **skill**, **SKILL.md**, **workflow codification**, **repeatable process**, **repeatable goal**, **execution layer**, **slash command**, **skill authoring**, **procedural knowledge**, **skill retirement**, **capability skill**, **preference skill**\n\n---\n\n# TITLE 10: AI AGENT OPERATIONS GOVERNANCE\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 Governs what happens when AI-generated code reaches the deployment boundary**\n\n**Implements:** Production-Ready Standards (Domain), Human-AI Collaboration Model (Domain), Workflow Integrity (Domain)\n**Applies To:** AI-assisted deployment, infrastructure generation, agent operational boundaries, and post-deployment incident review\n\n**Scope:** This Title governs **AI-specific operations governance** \u2014 the guardrails needed when AI assistants and agents interact with deployment pipelines, infrastructure, and production systems. It does NOT replace general DevOps practices (deployment strategy selection, severity classification, environment progression) \u2014 those remain with organization operations policies. This Title addresses the governance gap at the boundary where AI-generated code meets production.\n\n**Jurisdictional boundary with \u00a78.1:** Escalation Triggers (\u00a78.1) governs when to escalate *during development* \u2014 scope changes, architecture decisions, security concerns. Title 10 governs what happens *after AI-generated changes reach the deployment boundary* \u2014 approval workflows, agent operational limits, and incident review when AI-generated code fails in production. These are complementary. \u00a710.4 references \u00a78.1 for escalation routing; \u00a78.1 can reference \u00a710.4 for production-incident specifics.\n\n---\n\n## Part 10.1: AI-Assisted Deployment Governance\n\n### 10.1.1 Deployment Governance Scope\n\n**Applies To:** any workflow where **AI-generated code** is deployed to staging or production \u2014 establishing human approval requirements, readiness verification, and deployment authorization proportional to blast radius\n\nThis Part establishes the **human approval requirements** for AI-generated changes before they reach production. The core question: what level of human review does AI-generated code require before deployment, and how does that vary by blast radius?\n\n**Evidence basis:** The Amazon storefront incident (Mar 2026) \u2014 AI-assisted code changes deployed to production without adequate approval \u2014 caused 6.3M lost orders and a 99% drop in US order volume. The root cause was not the code quality but the **absence of approval gates** proportional to the change's blast radius.\n\n> **Bold triggers:** **deployment governance**, **AI deployment approval**, **production readiness**, **deployment authorization**, **blast radius approval**\n\n---\n",
+          "content": "### 9.5.6 Skill Folder Structure\n\n```\n.claude/skills/<skill-name>/\n\u251c\u2500\u2500 SKILL.md              # Orchestration shell (\u2264120 lines)\n\u2502                          # Frontmatter + dynamic context + execution instructions\n\u251c\u2500\u2500 procedure.md           # [optional] Detailed procedure steps (Level 3)\n\u251c\u2500\u2500 checklist.md           # [optional] Step-by-step checklist (Level 3)\n\u251c\u2500\u2500 audit-log.md           # [optional] Mutable review/run history (Level 3)\n\u2514\u2500\u2500 verification.md        # [optional] Verification tracking data (Level 3)\n```\n\n**Separation principle:** SKILL.md is the stable orchestration shell. Reference files contain either stable procedures or mutable data. Never mix audit/tracking data into SKILL.md \u2014 it changes every run and inflates the Level 2 token cost.\n\n### 9.5.7 Cross-References\n\n- **Decision matrix:** EXECUTION-FRAMEWORK.md \u00a73.7 (skill vs hook vs subagent vs workflow)\n- **Subagent authoring:** Title 20 CFR \u00a72.1 (Agent Specification & Configuration)\n- **Hook authoring:** This CFR \u00a79.3.10 (Layered Enforcement Stack)\n- **Progressive disclosure research:** Wang 2026 (\"Why do AI agents still need so much hand-holding?\")\n- **Reference implementation:** Superpowers v5.1.0 (obra/superpowers \u2014 14 skills, 4 categories)\n\n> **Bold triggers:** **skill**, **SKILL.md**, **workflow codification**, **repeatable process**, **repeatable goal**, **execution layer**, **slash command**, **skill authoring**, **procedural knowledge**, **skill retirement**, **capability skill**, **preference skill**, **tool investment**, **tool quality**\n\n---\n\n# TITLE 10: AI AGENT OPERATIONS GOVERNANCE\n\n**Importance: \ud83d\udd34 CRITICAL \u2014 Governs what happens when AI-generated code reaches the deployment boundary**\n\n**Implements:** Production-Ready Standards (Domain), Human-AI Collaboration Model (Domain), Workflow Integrity (Domain)\n**Applies To:** AI-assisted deployment, infrastructure generation, agent operational boundaries, and post-deployment incident review\n\n**Scope:** This Title governs **AI-specific operations governance** \u2014 the guardrails needed when AI assistants and agents interact with deployment pipelines, infrastructure, and production systems. It does NOT replace general DevOps practices (deployment strategy selection, severity classification, environment progression) \u2014 those remain with organization operations policies. This Title addresses the governance gap at the boundary where AI-generated code meets production.\n\n**Jurisdictional boundary with \u00a78.1:** Escalation Triggers (\u00a78.1) governs when to escalate *during development* \u2014 scope changes, architecture decisions, security concerns. Title 10 governs what happens *after AI-generated changes reach the deployment boundary* \u2014 approval workflows, agent operational limits, and incident review when AI-generated code fails in production. These are complementary. \u00a710.4 references \u00a78.1 for escalation routing; \u00a78.1 can reference \u00a710.4 for production-incident specifics.\n\n---\n\n## Part 10.1: AI-Assisted Deployment Governance\n\n### 10.1.1 Deployment Governance Scope\n\n**Applies To:** any workflow where **AI-generated code** is deployed to staging or production \u2014 establishing human approval requirements, readiness verification, and deployment authorization proportional to blast radius\n\nThis Part establishes the **human approval requirements** for AI-generated changes before they reach production. The core question: what level of human review does AI-generated code require before deployment, and how does that vary by blast radius?\n\n**Evidence basis:** The Amazon storefront incident (Mar 2026) \u2014 AI-assisted code changes deployed to production without adequate approval \u2014 caused 6.3M lost orders and a 99% drop in US order volume. The root cause was not the code quality but the **absence of approval gates** proportional to the change's blast radius.\n\n> **Bold triggers:** **deployment governance**, **AI deployment approval**, **production readiness**, **deployment authorization**, **blast radius approval**\n\n---\n",
           "line_range": [
             9705,
             9757
@@ -25006,12 +25006,12 @@
             "trigger_phrases": [],
             "purpose_keywords": [
               "streaming",
-              "nextjs",
-              "react",
-              "chat-ui",
               "vercel-ai-sdk",
-              "shadcn",
-              "registry"
+              "chat-ui",
+              "react",
+              "nextjs",
+              "registry",
+              "shadcn"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25023,7 +25023,7 @@
           "domain": "ai-coding",
           "title": "Anthropic Engineering Video \u2014 Tool Investment Anti-Pattern",
           "summary": "Gap analysis of Anthropic engineering practices video on Claude Code skills. Key insight: 'instruction-heavy, tool-light' anti-pattern \u2014 people write detailed prompts but give bare-bones tools. One gap incorporated into \u00a79.5.3.",
-          "content": "## Context\n\nUse when authoring new skills, reviewing tool quality in existing skills, or evaluating whether a skill should embed deterministic scripts. Complements ref-ai-coding-skill-authoring-tips (writing quality and lifecycle) and ref-ai-coding-superpowers-skills-framework (structural patterns). This reference covers the tools layer \u2014 the third layer of skill anatomy that most people skip.\n\n## Artifact\n\n### Gap Incorporated into \u00a79.5.3\n\n**Tool investment \u2014 tools over instructions (\u00a79.5.3):**\nThe video's sharpest insight comes from Anthropic engineer Eric: people put effort into \"beautiful, detailed prompts\" but give the model \"incredibly bare-bones\" tools \u2014 undocumented, with parameters named \"A\" and \"B,\" unusable by a human engineer. Anthropic engineers do the opposite: they focus on tool quality. Incorporated as the \"instruction-heavy, tool-light\" anti-pattern with contrastive before/after examples in \u00a79.5.3 Skill Authoring Standards (CFR v2.47.0).\n\n### Two Additional Insights (Already Covered)\n\n**Deterministic script reuse:**\nSave scripts inside skills so Claude runs rather than regenerates each session. The video describes a slide-styling Python script that Claude kept rewriting \u2014 saving it in the skill folder made output consistent and cheaper. The general principle (\"trade AI tokens for code compute\") is expressed domain-specifically in accounting \u00a77.4 (Deterministic Compute Pattern) and multi-agent \u00a74.6.3 (deterministic enforcement). The \u00a79.5.3 tool investment block references this pattern with the \u00a79.5.4 \"Goal over path\" reconciliation.\n\n**Composability over monolithic skills:**\nSplit large skills into focused, reusable units that chain together. Three reasons: issues easier to isolate, improvements compound across workflows, reuse replaces rebuilding. Already covered by \u00a79.5 four-layer execution taxonomy, \u00a79.5.5 \"When to Codify\" decision tree, and ref-ai-coding-superpowers-skills-framework lesson 2 (\"Skills that try to do too much should be split\").\n\n## Already Covered (3 of 4 rules)\n\n| Video Rule | Framework Coverage |\n|------------|-------------------|\n| Rule 1: Prompt skills, not Claude | \u00a79.5 four-layer execution taxonomy; EXECUTION-FRAMEWORK.md \u00a73.7 |\n| Rule 3: Build composable, not custom | \u00a79.5.5 \"When to Codify\"; ref-ai-coding-superpowers-skills-framework lesson 2 |\n| Rule 4: Prompts get smarter every session | LEARNING-LOG + C-155 feedback loop + C-078 compliance review cadence |\n\nAlso covered: `disable_model_invocation` and `user_invocable` flags (\u00a79.5.3 SKILL.md structure), description quality as routing (\u00a79.5.3 \"routing, not summary\"), progressive disclosure (\u00a79.5.3 three-level table).\n\n## Subagent Review Findings\n\nContrarian-reviewer (plan-mode): Two verdict-changing findings absorbed \u2014 (1) match specificity bar of adjacent \u00a79.5.3 blocks with concrete before/after examples, not just anti-pattern naming; (2) drop cross-references to accounting \u00a77.4 and multi-agent \u00a74.6.3 (thematically adjacent but operationally disconnected \u2014 linking them applies a cross-domain meta-principle through the back door when it was explicitly scoped out). Also flagged \u00a79.5.4 \"Goal over path\" tension \u2014 reconciliation sentence added.\n\n## Lessons Learned\n\nThe gap analysis process itself validated the behavioral floor directive \"external input \u2014 gap analysis, not coverage analysis.\" Initial instinct was to map transcript rules to existing coverage and declare \"mostly covered.\" The gap analysis frame (\"what's new?\") surfaced the genuine tool-quality gap that a coverage frame would have dismissed. Three of four rules mapped cleanly to existing coverage; the one that didn't produced an actionable method improvement.\n\n## Cross-References\n\n- Methods: \u00a79.5.3 Skill Authoring Standards (tool investment block, CFR v2.47.0)\n- See also: ref-ai-coding-skill-authoring-tips (writing quality), ref-ai-coding-superpowers-skills-framework (structural patterns)",
+          "content": "## Context\n\nUse when authoring new skills, reviewing tool quality in existing skills, or evaluating whether a skill should embed deterministic scripts. Complements ref-ai-coding-skill-authoring-tips (writing quality and lifecycle) and ref-ai-coding-superpowers-skills-framework (structural patterns). This reference covers the tools layer \u2014 the third layer of skill anatomy that most people skip.\n\n## Artifact\n\n### Gap Incorporated into \u00a79.5.3\n\n**Tool investment \u2014 tools over instructions (\u00a79.5.3):**\nThe video's sharpest insight comes from Anthropic engineer Eric: people put effort into \"beautiful, detailed prompts\" but give the model \"incredibly bare-bones\" tools \u2014 undocumented, with parameters named \"A\" and \"B,\" unusable by a human engineer. Anthropic engineers do the opposite: they focus on tool quality. Incorporated as the \"instruction-heavy, tool-light\" anti-pattern with contrastive before/after examples in \u00a79.5.3 Skill Authoring Standards (CFR v2.47.0).\n\n### Two Additional Insights (Already Covered)\n\n**Deterministic script reuse:**\nSave scripts inside skills so Claude runs rather than regenerates each session. The video describes a slide-styling Python script that Claude kept rewriting \u2014 saving it in the skill folder made output consistent and cheaper. The general principle (\"trade AI tokens for code compute\") is expressed domain-specifically in accounting \u00a77.4 (Deterministic Compute Pattern) and multi-agent \u00a74.6.3 (deterministic enforcement). The \u00a79.5.3 tool investment block references this pattern with the \u00a79.5.4 \"Goal over path\" reconciliation.\n\n**Composability over monolithic skills:**\nSplit large skills into focused, reusable units that chain together. Three reasons: issues easier to isolate, improvements compound across workflows, reuse replaces rebuilding. Already covered by \u00a79.5 four-layer execution taxonomy, \u00a79.5.5 \"When to Codify\" decision tree, and ref-ai-coding-superpowers-skills-framework lesson 2 (\"Skills that try to do too much should be split\").\n\n## Already Covered (3 of 4 rules)\n\n| Video Rule | Framework Coverage |\n|------------|-------------------|\n| Rule 1: Prompt skills, not Claude | \u00a79.5 four-layer execution taxonomy; EXECUTION-FRAMEWORK.md \u00a73.7 |\n| Rule 3: Build composable, not custom | \u00a79.5.5 \"When to Codify\"; ref-ai-coding-superpowers-skills-framework lesson 2 |\n| Rule 4: Prompts get smarter every session | LEARNING-LOG + C-155 feedback loop + C-078 compliance review cadence |\n\nAlso covered: `disable-model-invocation` flag and its user-invocable semantics (\u00a79.5.3 SKILL.md structure), description quality as routing (\u00a79.5.3 \"routing, not summary\"), progressive disclosure (\u00a79.5.3 three-level table).\n\n## Subagent Review Findings\n\nContrarian-reviewer (plan-mode): Two verdict-changing findings absorbed \u2014 (1) match specificity bar of adjacent \u00a79.5.3 blocks with concrete before/after examples, not just anti-pattern naming; (2) drop cross-references to accounting \u00a77.4 and multi-agent \u00a74.6.3 (thematically adjacent but operationally disconnected \u2014 linking them applies a cross-domain meta-principle through the back door when it was explicitly scoped out). Also flagged \u00a79.5.4 \"Goal over path\" tension \u2014 reconciliation sentence added.\n\n## Lessons Learned\n\nThe gap analysis process itself validated the behavioral floor directive \"external input \u2014 gap analysis, not coverage analysis.\" Initial instinct was to map transcript rules to existing coverage and declare \"mostly covered.\" The gap analysis frame (\"what's new?\") surfaced the genuine tool-quality gap that a coverage frame would have dismissed. Three of four rules mapped cleanly to existing coverage; the one that didn't produced an actionable method improvement.\n\n## Cross-References\n\n- Methods: \u00a79.5.3 Skill Authoring Standards (tool investment block, CFR v2.47.0)\n- See also: ref-ai-coding-skill-authoring-tips (writing quality), ref-ai-coding-superpowers-skills-framework (structural patterns)",
           "tags": [
             "skills",
             "skill-authoring",
@@ -25056,11 +25056,11 @@
               "composability over monolithic skills:"
             ],
             "purpose_keywords": [
-              "deterministic-scripts",
-              "skill-authoring",
               "skills",
+              "deterministic-scripts",
               "tool-quality",
-              "composability"
+              "composability",
+              "skill-authoring"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25117,11 +25117,11 @@
               "termination conditions"
             ],
             "purpose_keywords": [
-              "autonomous-operation",
+              "research-protocol",
               "overnight-agents",
+              "autonomous-operation",
               "experimentation",
-              "program-md",
-              "research-protocol"
+              "program-md"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25175,13 +25175,13 @@
               "constitutional principle:"
             ],
             "purpose_keywords": [
-              "multiplicative",
-              "effectiveness",
-              "solution-comparison",
-              "joint-quality",
-              "efficiency",
               "ranking",
-              "elegance"
+              "effectiveness",
+              "efficiency",
+              "elegance",
+              "solution-comparison",
+              "multiplicative",
+              "joint-quality"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25230,12 +25230,12 @@
               "conclusion:"
             ],
             "purpose_keywords": [
-              "component-libraries",
-              "decision-framework",
-              "build-vs-buy",
-              "velocity",
               "saas",
-              "architecture"
+              "build-vs-buy",
+              "decision-framework",
+              "architecture",
+              "velocity",
+              "component-libraries"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25296,8 +25296,8 @@
             "purpose_keywords": [
               "integration-testing",
               "testing",
-              "tool-handlers",
               "mcp",
+              "tool-handlers",
               "asyncio"
             ],
             "applies_to": [],
@@ -25346,12 +25346,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "api-routes",
-              "nextjs",
               "middleware",
-              "supabase",
               "auth",
-              "routing"
+              "routing",
+              "nextjs",
+              "supabase",
+              "api-routes"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25401,12 +25401,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "library-selection",
               "sheetjs",
+              "excel",
               "document-generation",
               "node",
-              "exceljs",
-              "excel"
+              "library-selection",
+              "exceljs"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25469,13 +25469,13 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "library-selection",
+              "puppeteer",
+              "pdfkit",
               "pdf-lib",
               "document-generation",
-              "jspdf",
-              "pdfkit",
               "node",
-              "puppeteer",
+              "jspdf",
+              "library-selection",
               "pdf"
             ],
             "applies_to": [],
@@ -25535,12 +25535,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "nextjs",
-              "supabase",
               "playwright",
-              "storage-state",
+              "e2e-testing",
               "auth",
-              "e2e-testing"
+              "storage-state",
+              "nextjs",
+              "supabase"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25584,13 +25584,13 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "quality-techniques",
-              "prompt-engineering",
               "negative-few-shot",
-              "patterns",
+              "prompt-master",
               "self-challenge",
+              "prompt-engineering",
               "variant-generation",
-              "prompt-master"
+              "quality-techniques",
+              "patterns"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25639,9 +25639,9 @@
             ],
             "purpose_keywords": [
               "pytest",
+              "fixtures",
               "testing",
               "mcp",
-              "fixtures",
               "mocking",
               "sentence-transformers"
             ],
@@ -25690,12 +25690,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "library-selection",
-              "weasyprint",
-              "document-generation",
-              "python",
               "reportlab",
+              "weasyprint",
               "docker",
+              "document-generation",
+              "library-selection",
+              "python",
               "pdf"
             ],
             "applies_to": [],
@@ -25754,10 +25754,10 @@
               "applied:"
             ],
             "purpose_keywords": [
-              "decision-making",
-              "re-evaluation",
               "anchor-bias",
+              "decision-making",
               "governance",
+              "re-evaluation",
               "velocity",
               "planning"
             ],
@@ -25816,13 +25816,13 @@
               "3. skill retirement (\u00a79.5.5):"
             ],
             "purpose_keywords": [
+              "skills",
               "claude-code",
               "capability-vs-preference",
-              "skill-authoring",
-              "constraint-retirement",
-              "skills",
               "progressive-disclosure",
-              "directive-style"
+              "constraint-retirement",
+              "directive-style",
+              "skill-authoring"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25869,12 +25869,12 @@
             ],
             "purpose_keywords": [
               "streaming",
-              "xss",
               "react",
-              "rehype",
-              "security",
               "sanitization",
-              "markdown"
+              "xss",
+              "rehype",
+              "markdown",
+              "security"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25919,12 +25919,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "ssr",
-              "nextjs",
-              "custom-claims",
-              "supabase",
               "jwt",
-              "auth"
+              "auth",
+              "custom-claims",
+              "nextjs",
+              "supabase",
+              "ssr"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25971,12 +25971,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "cookies",
               "nextjs",
+              "auth-callback",
+              "pkce",
               "supabase",
               "async",
-              "pkce",
-              "auth-callback"
+              "cookies"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -26027,12 +26027,12 @@
               "self-improvement skill"
             ],
             "purpose_keywords": [
-              "slash-commands",
-              "claude-code",
-              "procedural-knowledge",
-              "workflow",
               "skills",
-              "superpowers"
+              "claude-code",
+              "superpowers",
+              "workflow",
+              "slash-commands",
+              "procedural-knowledge"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -26090,11 +26090,11 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "testing",
               "typescript",
+              "testing",
               "vi-mock",
-              "vitest",
-              "mocking"
+              "mocking",
+              "vitest"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -26149,14 +26149,14 @@
               "don't:"
             ],
             "purpose_keywords": [
+              "file-download",
               "streaming",
+              "express",
               "fastapi",
               "nextjs",
               "document-generation",
-              "web-app",
-              "express",
               "s3",
-              "file-download"
+              "web-app"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -26213,9 +26213,9 @@
               "willison's infrastructure for this:"
             ],
             "purpose_keywords": [
-              "patterns",
               "knowledge-management",
               "agent-productivity",
+              "patterns",
               "reuse"
             ],
             "applies_to": [],
@@ -26224,7 +26224,7 @@
           "embedding_id": 560
         }
       ],
-      "last_extracted": "2026-05-18T04:20:12.707868+00:00",
+      "last_extracted": "2026-05-18T04:31:13.578656+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -29597,7 +29597,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T04:20:12.713434+00:00",
+      "last_extracted": "2026-05-18T04:31:13.585334+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -33497,13 +33497,13 @@
               "sensor (feedback):"
             ],
             "purpose_keywords": [
-              "harness-engineering",
-              "agent-architecture",
-              "enforcement",
-              "model-harness-gap",
-              "ratchet-pattern",
               "context-management",
-              "benchmark-evidence"
+              "model-harness-gap",
+              "agent-architecture",
+              "ratchet-pattern",
+              "benchmark-evidence",
+              "harness-engineering",
+              "enforcement"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -33527,7 +33527,7 @@
           "embedding_id": 699
         }
       ],
-      "last_extracted": "2026-05-18T04:20:12.721117+00:00",
+      "last_extracted": "2026-05-18T04:31:13.593070+00:00",
       "version": "1.0"
     },
     "accounting": {
@@ -35168,7 +35168,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T04:20:12.723576+00:00",
+      "last_extracted": "2026-05-18T04:31:13.597304+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -37471,13 +37471,13 @@
               "source:"
             ],
             "purpose_keywords": [
+              "data-extraction",
               "hotel",
+              "marriott",
               "openpyxl",
               "str",
-              "marriott",
-              "data-extraction",
-              "revenue-management",
-              "smart-packet"
+              "smart-packet",
+              "revenue-management"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -37532,13 +37532,13 @@
               "philosophy:"
             ],
             "purpose_keywords": [
-              "hotel",
               "performance-analysis",
+              "document-building",
+              "hotel",
               "str",
               "docx",
               "report",
-              "revenue-management",
-              "document-building"
+              "revenue-management"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -37553,7 +37553,7 @@
           "embedding_id": 792
         }
       ],
-      "last_extracted": "2026-05-18T04:20:12.728292+00:00",
+      "last_extracted": "2026-05-18T04:31:13.601454+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -40347,7 +40347,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T04:20:12.731873+00:00",
+      "last_extracted": "2026-05-18T04:31:13.605569+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -45071,12 +45071,12 @@
               "archrag"
             ],
             "purpose_keywords": [
+              "graphrag",
+              "knowledge-graph",
+              "multi-hop-retrieval",
+              "community-detection",
               "hipporag",
               "cognee",
-              "graphrag",
-              "multi-hop-retrieval",
-              "knowledge-graph",
-              "community-detection",
               "personalized-pagerank"
             ],
             "applies_to": [],
@@ -45101,7 +45101,7 @@
           "embedding_id": 947
         }
       ],
-      "last_extracted": "2026-05-18T04:20:12.738357+00:00",
+      "last_extracted": "2026-05-18T04:31:13.613657+00:00",
       "version": "1.0"
     }
   },
@@ -45187,7 +45187,7 @@
       "embedding_id": 7
     }
   ],
-  "created_at": "2026-05-18T04:20:12.740280+00:00",
+  "created_at": "2026-05-18T04:31:13.615551+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384

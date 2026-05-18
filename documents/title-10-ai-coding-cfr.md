@@ -9724,7 +9724,7 @@ Skills encode assumptions about what the model cannot do consistently on its own
 - **Progressive disclosure research:** Wang 2026 ("Why do AI agents still need so much hand-holding?")
 - **Reference implementation:** Superpowers v5.1.0 (obra/superpowers — 14 skills, 4 categories)
 
-> **Bold triggers:** **skill**, **SKILL.md**, **workflow codification**, **repeatable process**, **repeatable goal**, **execution layer**, **slash command**, **skill authoring**, **procedural knowledge**, **skill retirement**, **capability skill**, **preference skill**
+> **Bold triggers:** **skill**, **SKILL.md**, **workflow codification**, **repeatable process**, **repeatable goal**, **execution layer**, **slash command**, **skill authoring**, **procedural knowledge**, **skill retirement**, **capability skill**, **preference skill**, **tool investment**, **tool quality**
 
 ---
 
