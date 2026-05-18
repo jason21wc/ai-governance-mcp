@@ -130,6 +130,10 @@
       {
         "id": "conflicting-patterns",
         "check": "Conflicting patterns: When two approaches exist in the codebase or discussion, are you picking one and explaining why, or silently blending them? Averaging conflicting patterns produces incoherent code. Pick the more recent or better-tested pattern, explain the choice, flag the other for cleanup."
+      },
+      {
+        "id": "comprehension-scaffold",
+        "check": "Comprehension scaffold: For non-trivial outputs, are you presenting intent (what goal, why this approach), boundaries (assumptions, exclusions, scope), and handoff (what to verify, where to debug)? Scale depth to stakes per rules-of-procedure §16.8. Human chooses engagement depth; never block on the response."
       }
     ]
   },

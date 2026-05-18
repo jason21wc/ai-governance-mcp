@@ -5050,7 +5050,7 @@ Verify outputs meet technical requirements before proceeding. Technical validati
 
 All four responses are valid. The gate never blocks progression. Human authority to proceed without comprehension is absolute.
 
-**Measurable compliance signal:** Track Understood:Acknowledged ratio per lifecycle stage. If PRODUCTION code accumulates >50% Acknowledged responses without follow-up comprehension sessions, the compliance-review skill flags comprehension debt accumulation for human review. *(Skill check implementation: Phase 2 — comprehension-debt tracking check added to compliance-review skill procedure.)*
+**Measurable compliance signal:** Track Understood:Acknowledged ratio per lifecycle stage. If PRODUCTION code accumulates >50% Acknowledged responses without follow-up comprehension sessions, the compliance-review skill flags comprehension debt accumulation for human review. *(Tracked by compliance-review Check 13.)*
 
 ### 6.1.3 Gate Failure Procedure
 

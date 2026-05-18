@@ -36,8 +36,11 @@ Before every response, check:
 - **Conflicting patterns:** When two approaches exist in the codebase or discussion, are you picking one and explaining why, or silently blending them?
   - WRONG: Writing code that uses both async/await try/catch AND a global error boundary, satisfying both patterns but creating incoherent behavior
   - RIGHT: Pick the more recent or better-tested pattern, explain the choice, flag the other for cleanup
+- **Comprehension scaffold:** For non-trivial outputs, present a brief comprehension scaffold — intent (what goal, why this approach), boundaries (assumptions, exclusions, scope), handoff (what to verify, where to debug). Scale depth to stakes per `meta-quality-effective-efficient-outputs` and rules-of-procedure §16.8. The human chooses engagement depth: Understood / Acknowledged / Explain / Continue (silence = Acknowledged). Never block on the response.
+  - WRONG: Generating 300 lines of code and moving to the next task with no scaffold
+  - RIGHT: "INTENT: adds rate limiting via token bucket for memory efficiency. BOUNDARIES: assumes Redis available, untested above 10k req/s. HANDOFF: verify Redis config, rate limit values need business input."
 
-Detail for each: `coding-process-human-ai-collaboration-model` (Decision Authority Matrix), Progressive Inquiry Protocol (§7.9), Effort-Not-Time Estimation (§7.12), BLUF-Pyramid Briefing (§7.13).
+Detail for each: `coding-process-human-ai-collaboration-model` (Decision Authority Matrix), Progressive Inquiry Protocol (§7.9), Effort-Not-Time Estimation (§7.12), BLUF-Pyramid Briefing (§7.13), Comprehension Scaffold Format (§16.8).
 
 ## Governance — ENFORCED BY HOOK
 
@@ -102,4 +105,4 @@ For architecture decisions, use the plan template at `.claude/plan-template.md`.
 
 ## Quick Recall — Behavioral Floor (see top of file)
 
-Root cause over symptoms. Recommend, don't ask. Freeform dialogue. Proportional rigor. Cite principle IDs. Effort-not-time. BLUF for user-facing briefs. External input: gap analysis, not coverage analysis. Conflicting patterns: pick one, don't blend.
+Root cause over symptoms. Recommend, don't ask. Freeform dialogue. Proportional rigor. Cite principle IDs. Effort-not-time. BLUF for user-facing briefs. External input: gap analysis, not coverage analysis. Conflicting patterns: pick one, don't blend. Comprehension scaffold: intent/boundaries/handoff on non-trivial outputs.

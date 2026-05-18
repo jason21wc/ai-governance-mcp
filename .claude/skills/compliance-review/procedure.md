@@ -488,3 +488,33 @@ python3 -c "import json; d=json.load(open('documents/tiers.json')); print(len(d[
 
 | Review | Date | Result | Directive Count | Hook Count | Retirements | Notes |
 |--------|------|--------|-----------------|------------|-------------|-------|
+
+### 13. Comprehension debt tracking
+
+**How:** Check whether the comprehension scaffold (rules-of-procedure §16.8, CFR §6.1.2) is producing usable signal. The scaffold is INFORMATIONAL (never blocks) — its value depends on whether the response taxonomy generates data.
+
+**Step 1 — Scaffold presence.** Spot-check the last 3-5 non-trivial task completions in session history. Did the AI present a comprehension scaffold (intent/boundaries/handoff) before the completion sequence?
+
+**Step 2 — Response distribution.** Of the scaffolds presented, tally human responses:
+
+| Response | Count | Notes |
+|----------|-------|-------|
+| Understood | | Human confirmed comprehension |
+| Acknowledged | | Human opted out of full comprehension |
+| Explain | | Human requested walkthrough |
+| Continue (silence) | | Human moved on without addressing scaffold |
+
+**Step 3 — Debt signal evaluation.** For PRODUCTION-lifecycle work only: if Acknowledged + Continue exceeds 50% of responses, flag comprehension debt accumulation for human review. This is an informational signal, not a gate — the human decides whether the ratio warrants action.
+
+**Step 4 — Anti-pattern check.** Review 1-2 recent scaffolds for §16.8.6 anti-patterns:
+- Scaffold Theater (generic boilerplate that could apply to any output)
+- Wall of Disclaimers (over-scaffolding obscures the output)
+- Post-Hoc Justification (scaffold describes what was built, not the intent)
+
+**Pass:** Scaffolds present on non-trivial outputs; response data captured; no dominant anti-pattern.
+**Fail:** Scaffolds absent on non-trivial outputs; or >80% Continue (silence) across all lifecycle stages (scaffold not producing any signal).
+
+**Implements:** E&E Outputs (Art. III §4) comprehension scaffold obligation; CFR §6.1.2 measurable compliance signal.
+
+| Review | Date | Result | Scaffolds Checked | Understood | Acknowledged | Continue | Notes |
+|--------|------|--------|-------------------|------------|--------------|----------|-------|

@@ -11672,7 +11672,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T01:31:52.080667+00:00",
+      "last_extracted": "2026-05-18T02:02:21.820898+00:00",
       "version": "1.0"
     },
     "ai-coding": {
@@ -19006,7 +19006,7 @@
           "id": "coding-method-validation-by-phase",
           "domain": "ai-coding",
           "title": "Validation by Phase",
-          "content": "### 6.1.2 Validation by Phase\n\n**Applies To:** Every phase transition \u2014 applying the appropriate validation gate checklist before moving from Specify to Plan, Plan to Tasks, or Tasks to Implement\n\n**Specify \u2192 Plan Gate:**\n- [ ] Specification complete (\u00a72.3 checklist)\n- [ ] No contradictions detected\n- [ ] Scope appropriate for resources\n- [ ] Product Owner approved\n\n**Plan \u2192 Tasks Gate:**\n- [ ] Architecture validated (\u00a73.2.4 checklist)\n- [ ] Technology choices justified\n- [ ] Risks identified and mitigated\n- [ ] Product Owner approved\n\n**Tasks \u2192 Implement Gate:**\n- [ ] All tasks meet size requirements\n- [ ] Dependencies valid (no cycles)\n- [ ] Full coverage of requirements\n- [ ] Product Owner approved\n\n**Implement \u2192 Complete Gate:**\n- [ ] All tasks completed\n- [ ] All tests passing\n- [ ] Security scan clean\n- [ ] Coverage meets threshold\n- [ ] Product Owner approved\n- [ ] Comprehension scaffold presented (per rules-of-procedure \u00a716.8 \u2014 INFORMATIONAL: always fires, never blocks)\n\n**Comprehension Gate \u2014 Human Response Taxonomy:**\n\n| Response | Meaning | Record |\n|----------|---------|--------|\n| **Understood** | Human confirms comprehension | No special logging |\n| **Acknowledged** | Human proceeds without full comprehension | Logged per lifecycle stage |\n| **Explain** | Human requests expanded walkthrough | AI produces Linear Walkthrough (\u00a75.13.7) |\n| **Continue** (no explicit response) | Human's next action is a new prompt without addressing scaffold | Treated as Acknowledged (pessimistic default) |\n\nAll four responses are valid. The gate never blocks progression. Human authority to proceed without comprehension is absolute.\n\n**Measurable compliance signal:** Track Understood:Acknowledged ratio per lifecycle stage. If PRODUCTION code accumulates >50% Acknowledged responses without follow-up comprehension sessions, the compliance-review skill flags comprehension debt accumulation for human review. *(Skill check implementation: Phase 2 \u2014 comprehension-debt tracking check added to compliance-review skill procedure.)*\n",
+          "content": "### 6.1.2 Validation by Phase\n\n**Applies To:** Every phase transition \u2014 applying the appropriate validation gate checklist before moving from Specify to Plan, Plan to Tasks, or Tasks to Implement\n\n**Specify \u2192 Plan Gate:**\n- [ ] Specification complete (\u00a72.3 checklist)\n- [ ] No contradictions detected\n- [ ] Scope appropriate for resources\n- [ ] Product Owner approved\n\n**Plan \u2192 Tasks Gate:**\n- [ ] Architecture validated (\u00a73.2.4 checklist)\n- [ ] Technology choices justified\n- [ ] Risks identified and mitigated\n- [ ] Product Owner approved\n\n**Tasks \u2192 Implement Gate:**\n- [ ] All tasks meet size requirements\n- [ ] Dependencies valid (no cycles)\n- [ ] Full coverage of requirements\n- [ ] Product Owner approved\n\n**Implement \u2192 Complete Gate:**\n- [ ] All tasks completed\n- [ ] All tests passing\n- [ ] Security scan clean\n- [ ] Coverage meets threshold\n- [ ] Product Owner approved\n- [ ] Comprehension scaffold presented (per rules-of-procedure \u00a716.8 \u2014 INFORMATIONAL: always fires, never blocks)\n\n**Comprehension Gate \u2014 Human Response Taxonomy:**\n\n| Response | Meaning | Record |\n|----------|---------|--------|\n| **Understood** | Human confirms comprehension | No special logging |\n| **Acknowledged** | Human proceeds without full comprehension | Logged per lifecycle stage |\n| **Explain** | Human requests expanded walkthrough | AI produces Linear Walkthrough (\u00a75.13.7) |\n| **Continue** (no explicit response) | Human's next action is a new prompt without addressing scaffold | Treated as Acknowledged (pessimistic default) |\n\nAll four responses are valid. The gate never blocks progression. Human authority to proceed without comprehension is absolute.\n\n**Measurable compliance signal:** Track Understood:Acknowledged ratio per lifecycle stage. If PRODUCTION code accumulates >50% Acknowledged responses without follow-up comprehension sessions, the compliance-review skill flags comprehension debt accumulation for human review. *(Tracked by compliance-review Check 13.)*\n",
           "line_range": [
             5012,
             5054
@@ -25005,12 +25005,12 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "registry",
-              "streaming",
-              "shadcn",
               "nextjs",
+              "shadcn",
               "chat-ui",
+              "registry",
               "vercel-ai-sdk",
+              "streaming",
               "react"
             ],
             "applies_to": [],
@@ -25061,11 +25061,11 @@
               "termination conditions"
             ],
             "purpose_keywords": [
-              "autonomous-operation",
-              "experimentation",
               "research-protocol",
+              "overnight-agents",
               "program-md",
-              "overnight-agents"
+              "experimentation",
+              "autonomous-operation"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25119,13 +25119,13 @@
               "constitutional principle:"
             ],
             "purpose_keywords": [
+              "ranking",
               "efficiency",
               "solution-comparison",
-              "ranking",
               "multiplicative",
-              "elegance",
               "joint-quality",
-              "effectiveness"
+              "effectiveness",
+              "elegance"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25174,12 +25174,12 @@
               "conclusion:"
             ],
             "purpose_keywords": [
+              "build-vs-buy",
               "decision-framework",
-              "architecture",
-              "saas",
               "velocity",
+              "architecture",
               "component-libraries",
-              "build-vs-buy"
+              "saas"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25238,11 +25238,11 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "testing",
-              "integration-testing",
-              "asyncio",
               "tool-handlers",
-              "mcp"
+              "testing",
+              "mcp",
+              "asyncio",
+              "integration-testing"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25290,12 +25290,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "auth",
-              "supabase",
-              "routing",
-              "middleware",
               "nextjs",
-              "api-routes"
+              "supabase",
+              "middleware",
+              "routing",
+              "api-routes",
+              "auth"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25345,12 +25345,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "document-generation",
-              "sheetjs",
-              "library-selection",
               "excel",
-              "node",
-              "exceljs"
+              "document-generation",
+              "library-selection",
+              "exceljs",
+              "sheetjs",
+              "node"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25413,14 +25413,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "document-generation",
-              "pdfkit",
-              "library-selection",
-              "jspdf",
               "puppeteer",
-              "node",
+              "pdfkit",
+              "jspdf",
+              "document-generation",
+              "library-selection",
+              "pdf-lib",
               "pdf",
-              "pdf-lib"
+              "node"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25479,12 +25479,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "auth",
-              "supabase",
-              "e2e-testing",
-              "playwright",
               "nextjs",
-              "storage-state"
+              "supabase",
+              "storage-state",
+              "e2e-testing",
+              "auth",
+              "playwright"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25528,13 +25528,13 @@
             ],
             "trigger_phrases": [],
             "purpose_keywords": [
-              "negative-few-shot",
-              "prompt-master",
-              "prompt-engineering",
               "self-challenge",
-              "variant-generation",
               "quality-techniques",
-              "patterns"
+              "prompt-engineering",
+              "prompt-master",
+              "patterns",
+              "variant-generation",
+              "negative-few-shot"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25582,12 +25582,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "sentence-transformers",
               "testing",
-              "fixtures",
-              "mocking",
               "pytest",
-              "mcp"
+              "mcp",
+              "mocking",
+              "sentence-transformers",
+              "fixtures"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25635,12 +25635,12 @@
             ],
             "purpose_keywords": [
               "document-generation",
-              "reportlab",
               "library-selection",
-              "python",
-              "pdf",
               "docker",
-              "weasyprint"
+              "reportlab",
+              "weasyprint",
+              "pdf",
+              "python"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25698,12 +25698,12 @@
               "applied:"
             ],
             "purpose_keywords": [
-              "governance",
-              "planning",
-              "velocity",
+              "anchor-bias",
               "decision-making",
+              "velocity",
               "re-evaluation",
-              "anchor-bias"
+              "governance",
+              "planning"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -25760,13 +25760,13 @@
               "3. skill retirement (\u00a79.5.5):"
             ],
             "purpose_keywords": [
-              "claude-code",
               "skills",
-              "capability-vs-preference",
-              "directive-style",
-              "progressive-disclosure",
               "skill-authoring",
-              "constraint-retirement"
+              "capability-vs-preference",
+              "progressive-disclosure",
+              "constraint-retirement",
+              "claude-code",
+              "directive-style"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25812,13 +25812,13 @@
               "still safe against xss"
             ],
             "purpose_keywords": [
-              "streaming",
-              "react",
-              "xss",
               "markdown",
               "rehype",
               "security",
-              "sanitization"
+              "streaming",
+              "sanitization",
+              "react",
+              "xss"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25863,12 +25863,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "auth",
-              "supabase",
-              "jwt",
-              "custom-claims",
               "nextjs",
-              "ssr"
+              "supabase",
+              "custom-claims",
+              "ssr",
+              "auth",
+              "jwt"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25915,12 +25915,12 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "cookies",
-              "supabase",
-              "pkce",
-              "async",
               "nextjs",
-              "auth-callback"
+              "auth-callback",
+              "supabase",
+              "cookies",
+              "async",
+              "pkce"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -25971,12 +25971,12 @@
               "self-improvement skill"
             ],
             "purpose_keywords": [
-              "claude-code",
+              "slash-commands",
               "skills",
-              "workflow",
-              "procedural-knowledge",
               "superpowers",
-              "slash-commands"
+              "procedural-knowledge",
+              "workflow",
+              "claude-code"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -26034,11 +26034,11 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "testing",
               "vi-mock",
+              "typescript",
+              "testing",
               "mocking",
-              "vitest",
-              "typescript"
+              "vitest"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -26093,14 +26093,14 @@
               "don't:"
             ],
             "purpose_keywords": [
-              "fastapi",
-              "s3",
-              "document-generation",
-              "streaming",
-              "express",
-              "web-app",
               "nextjs",
-              "file-download"
+              "express",
+              "document-generation",
+              "fastapi",
+              "streaming",
+              "web-app",
+              "file-download",
+              "s3"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -26157,10 +26157,10 @@
               "willison's infrastructure for this:"
             ],
             "purpose_keywords": [
-              "reuse",
               "agent-productivity",
+              "knowledge-management",
               "patterns",
-              "knowledge-management"
+              "reuse"
             ],
             "applies_to": [],
             "guideline_keywords": []
@@ -26168,7 +26168,7 @@
           "embedding_id": 559
         }
       ],
-      "last_extracted": "2026-05-18T01:31:52.114448+00:00",
+      "last_extracted": "2026-05-18T02:02:21.855258+00:00",
       "version": "1.0"
     },
     "ui-ux": {
@@ -29378,7 +29378,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T01:31:52.119907+00:00",
+      "last_extracted": "2026-05-18T02:02:21.860091+00:00",
       "version": "1.0"
     },
     "multi-agent": {
@@ -33278,13 +33278,13 @@
               "sensor (feedback):"
             ],
             "purpose_keywords": [
+              "ratchet-pattern",
               "model-harness-gap",
+              "benchmark-evidence",
               "agent-architecture",
               "context-management",
-              "enforcement",
               "harness-engineering",
-              "ratchet-pattern",
-              "benchmark-evidence"
+              "enforcement"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -33308,7 +33308,7 @@
           "embedding_id": 694
         }
       ],
-      "last_extracted": "2026-05-18T01:31:52.127289+00:00",
+      "last_extracted": "2026-05-18T02:02:21.866801+00:00",
       "version": "1.0"
     },
     "accounting": {
@@ -34949,7 +34949,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T01:31:52.129693+00:00",
+      "last_extracted": "2026-05-18T02:02:21.869101+00:00",
       "version": "1.0"
     },
     "kmpd": {
@@ -37251,13 +37251,13 @@
               "source:"
             ],
             "purpose_keywords": [
-              "smart-packet",
-              "marriott",
-              "str",
               "openpyxl",
+              "str",
               "hotel",
-              "revenue-management",
-              "data-extraction"
+              "smart-packet",
+              "data-extraction",
+              "marriott",
+              "revenue-management"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -37314,11 +37314,11 @@
             "purpose_keywords": [
               "str",
               "hotel",
-              "revenue-management",
-              "report",
-              "docx",
+              "performance-analysis",
               "document-building",
-              "performance-analysis"
+              "docx",
+              "report",
+              "revenue-management"
             ],
             "applies_to": [],
             "guideline_keywords": [
@@ -37333,7 +37333,7 @@
           "embedding_id": 787
         }
       ],
-      "last_extracted": "2026-05-18T01:31:52.133631+00:00",
+      "last_extracted": "2026-05-18T02:02:21.873142+00:00",
       "version": "1.0"
     },
     "storytelling": {
@@ -40127,7 +40127,7 @@
         }
       ],
       "references": [],
-      "last_extracted": "2026-05-18T01:31:52.137371+00:00",
+      "last_extracted": "2026-05-18T02:02:21.876707+00:00",
       "version": "1.0"
     },
     "multimodal-rag": {
@@ -44798,12 +44798,12 @@
               "archrag"
             ],
             "purpose_keywords": [
-              "multi-hop-retrieval",
-              "cognee",
-              "personalized-pagerank",
-              "community-detection",
-              "hipporag",
               "knowledge-graph",
+              "multi-hop-retrieval",
+              "hipporag",
+              "personalized-pagerank",
+              "cognee",
+              "community-detection",
               "graphrag"
             ],
             "applies_to": [],
@@ -44828,7 +44828,7 @@
           "embedding_id": 941
         }
       ],
-      "last_extracted": "2026-05-18T01:31:52.143472+00:00",
+      "last_extracted": "2026-05-18T02:02:21.882677+00:00",
       "version": "1.0"
     }
   },
@@ -44914,7 +44914,7 @@
       "embedding_id": 7
     }
   ],
-  "created_at": "2026-05-18T01:31:57.774975+00:00",
+  "created_at": "2026-05-18T02:02:27.415248+00:00",
   "version": "1.0",
   "embedding_model": "BAAI/bge-small-en-v1.5",
   "embedding_dimensions": 384
