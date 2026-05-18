@@ -1,12 +1,12 @@
 ---
-version: "2.2.0"
+version: "2.3.0"
 status: "active"
 effective_date: "2026-05-15"
 domain: "multimodal-rag"
 governance_level: "federal-regulations"
 ---
 
-# Multimodal RAG Methods v2.2.0
+# Multimodal RAG Methods v2.3.0
 ## Operational Procedures for Retrieving and Presenting Visual Content
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -1171,6 +1171,36 @@ def multimodal_mrr(queries, retrieval_results, ground_truth):
    - Keep previous versions for trend comparison
 ```
 
+### 6.5 RAG System Comprehension Handoff
+
+**Importance: IMPORTANT — Operationalizes E&E comprehension obligation for multimodal RAG domain**
+
+**Implements:** Effective & Efficient Outputs (Art. III §4, comprehension scaffold obligation), rules-of-procedure §16.8
+
+**Applies To:** AI-generated RAG system artifacts — embedding model selection, retrieval architecture design, knowledge graph configuration, evaluation threshold calibration, pipeline modifications — where the human operator did not generate the output themselves
+
+When generating or modifying RAG system components, present the comprehension scaffold using the three-layer format adapted for RAG context:
+
+```
+COMPREHENSION SCAFFOLD — [system component / pipeline change]
+├─ INTENT: [what retrieval need this serves; why this architecture, embedding model, or threshold]
+├─ BOUNDARIES: [content types supported, confidence thresholds, known limitations, scale assumptions]
+└─ HANDOFF: [what to verify in ground-truth testing, drift detection setup, where to debug retrieval failures]
+```
+
+**Domain-specific guidance:**
+- **Embedding model selection:** When recommending or changing embedding models, explain the selection rationale in Intent (why this model for this content type) and limitations in Boundaries (dimension count, modality coverage, known failure cases).
+- **Retrieval architecture decisions:** When designing multi-stage retrieval (§3.1-§3.8), surface the stage-interaction logic in Intent and the assumptions about corpus characteristics in Boundaries.
+- **Evaluation threshold rationale:** When setting or modifying quality thresholds (§6.1 RAG-Check metrics: claim recall ≥0.80, faithfulness ≥0.90, hallucination ≤0.05), explain how thresholds were calibrated in Intent and what application context drives them in Boundaries.
+- **Knowledge graph design:** When configuring graph-based retrieval (§3.8), explain community detection choices and quality metric targets in Intent; corpus change-rate assumptions in Boundaries.
+
+**Scaffold depth:** Scale per §16.8.3 (stakes). Prototype RAG systems = single sentence; production systems with ground-truth dependencies = full scaffold + explicit assumption enumeration.
+
+**Anti-patterns (domain-specific):**
+- **The Black Box Pipeline:** Scaffold describes inputs and outputs but omits the retrieval strategy rationale
+- **Threshold Theater:** Scaffold lists threshold values without explaining calibration basis or application context
+- **Modality Blind Spots:** Scaffold describes text retrieval comprehensively but omits visual content handling assumptions
+
 ---
 
 ## 7 Citation and Attribution
@@ -2297,12 +2327,16 @@ This methods document implements:
 | AG1: Adaptive Retrieval Strategy | §11.1 |
 | AG2: Query Decomposition | §11.2 |
 | AG3: Retrieval Sufficiency Evaluation | §11.3, §11.5 |
+| E&E: Comprehension Scaffold (meta-method §16.8) | §6.5 |
 
 ---
 
 ## Changelog
 
-### v2.2.0 (Current)
+### v2.3.0 (Current)
+- MINOR: §6.5 RAG System Comprehension Handoff — domain-specific operationalization of E&E comprehension scaffold obligation (constitution Art. III §4, rules-of-procedure §16.8). Covers embedding model selection, retrieval architecture decisions, evaluation threshold rationale, knowledge graph design. Scaffold depth scales per §16.8.3. Three domain-specific anti-patterns (Black Box Pipeline, Threshold Theater, Modality Blind Spots). Governance Integration table updated. Governance: `gov-9e0a4a5962a2`.
+
+### v2.2.0
 - **MINOR: §3.8 updated with 2024-2026 knowledge graph RAG research.** Static retrieval scoring formula (`graph_relevance * 0.4 + vector_relevance * 0.6`) replaced with 3-stage multi-stage pipeline (broad retrieval, precision reranking with Personalized PageRank, context assembly). Community detection note added with Leiden algorithm reference and LazyGraphRAG alternative for high-change-rate corpora. Graph maintenance table expanded with community re-detection trigger, corpus change-rate rebuild threshold, and quality audit dimensions. Graph quality metrics paragraph added citing HAL 2025 survey (5 operational priority metrics from 23 dimensions). 8 new research references in Appendix C Knowledge Graph section: Microsoft GraphRAG, LazyGraphRAG, HippoRAG, LEGO-GraphRAG, ArchRAG, Math Academy KG, Cognee, KG Quality Metrics survey. Forward references to reference library entry `ref-multimodal-rag-kg-landscape-2024-2026` for detailed procedures. Governance: `gov-e44fee2d1c0c`.
 
 ### v2.1.3
@@ -2354,5 +2388,5 @@ This methods document implements:
 
 ---
 
-*Version 2.2.0*
-*Companion to: Multimodal RAG Domain Principles v2.5.0*
+*Version 2.3.0*
+*Companion to: Multimodal RAG Domain Principles v2.5.1*

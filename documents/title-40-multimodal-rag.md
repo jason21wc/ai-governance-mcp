@@ -1,5 +1,5 @@
 ---
-version: "2.5.0"
+version: "2.5.1"
 status: "active"
 effective_date: "2026-05-15"
 domain: "multimodal-rag"
@@ -128,8 +128,9 @@ The Constitution (Meta-Principles) establishes universal reasoning principles. H
 | Visible Reasoning & Traceability | "Make reasoning auditable" | **Citation:** HOW to attribute each claim to specific source fragments? |
 | Verification & Validation | "Define what good looks like" | **Evaluation:** WHICH metrics measure multimodal retrieval quality? |
 | Bias Awareness & Fairness | "Ensure access for all" | **Accessibility:** HOW to make visual content usable for all users? |
+| Effective & Efficient Outputs | "Context, constraints, rationale for understanding" | **Comprehension:** HOW to scaffold RAG system design decisions for human operator understanding? |
 
-These domain principles provide the **selection criteria, presentation patterns, threshold rules, fallback procedures, structuring guidance, verification checks, evaluation metrics, citation standards, security defenses, accessibility requirements, data governance controls, and operational procedures** that make meta-principles actionable for multimodal RAG specifically.
+These domain principles provide the **selection criteria, presentation patterns, threshold rules, fallback procedures, structuring guidance, verification checks, evaluation metrics, citation standards, security defenses, accessibility requirements, data governance controls, operational procedures, and comprehension handoffs** that make meta-principles actionable for multimodal RAG specifically.
 
 ### Evidence Base
 
@@ -1409,7 +1410,7 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **title-40-multimodal-rag-cfr.md** | v2.2.0 | Presentation patterns, document structuring, retrieval architecture (including community detection, graph quality metrics), failure handling, verification procedures, evaluation framework, citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
+| **title-40-multimodal-rag-cfr.md** | v2.3.0 | Presentation patterns, document structuring, retrieval architecture (including community detection, graph quality metrics), failure handling, verification procedures, evaluation framework (including comprehension handoff), citation methods, security procedures, data governance, operational management, agentic retrieval patterns |
 
 **Methods document includes:**
 - Title 1: Presentation Patterns (image placement workflows, selection algorithms, accessibility checklist)
@@ -1417,7 +1418,7 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 - Title 3: Retrieval Architecture (4-layer architecture, embedding selection, vision-guided chunking, cross-modal linking, late interaction retrieval, graph-based retrieval)
 - Title 4: Failure Handling (degradation procedures, error classification)
 - Title 5: Verification & Hallucination Prevention (cross-modal consistency, scene graph validation, conflict resolution, multi-hop verification)
-- Title 6: Evaluation Framework (RAG-Check metrics, multimodal MRR, drift detection, benchmark construction)
+- Title 6: Evaluation Framework (RAG-Check metrics, multimodal MRR, drift detection, benchmark construction, comprehension handoff)
 - Title 7: Citation & Attribution (fragment-level tracking, VISA spatial attribution, citation formatting, verification checklist)
 - Title 8: Security for Multimodal Knowledge Bases (poisoning taxonomy, input validation pipeline, defense assessment, cross-domain references)
 - Title 9: Data Governance (RBAC configuration, encryption, audit trail schema, lineage tracking)
@@ -1431,7 +1432,10 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ## Changelog
 
-### v2.5.0 (Current)
+### v2.5.1 (Current)
+- PATCH: Added E&E comprehension scaffold row to crosswalk table ("Why Meta-Principles Alone Are Insufficient"). Maps comprehension scaffold obligation to RAG system design decisions (Methods §6.5). Updated "Relationship to Methods" coverage to include comprehension handoff. Reverses v2.4.2 scope carve-out — domain-specific method (§6.5) now exists, so crosswalk row adds value that was absent at rename time. Governance: `gov-9e0a4a5962a2`.
+
+### v2.5.0
 - MINOR: A5 (Knowledge Graph Integration) expanded with 2024-2026 research findings. Added 3 new "How the AI Applies" bullets: Community Detection & Hierarchical Summarization, Ingest-Time Synthesis, Cost-Justified Adoption. Refined existing Graph-Augmented Retrieval bullet to multi-stage pipeline and Incremental Maintenance bullet with change-rate thresholds. Added 2 new pitfalls: The Static Formula (scoped to graph-augmented scoring — A2 unaffected), The Premature Graph. Updated "Why This Principle Matters" with community detection context (GraphRAG). Added human interaction bullet for corpus change-rate thresholds. Evidence base expanded with 3 new references: Microsoft GraphRAG (arXiv 2404.16130), HippoRAG (NeurIPS 2024), LEGO-GraphRAG (VLDB 2025). Governance: `gov-e44fee2d1c0c`.
 
 ### v2.4.3
@@ -1495,5 +1499,5 @@ This Domain Principles document establishes WHAT governance applies to multimoda
 
 ---
 
-*Version 2.5.0*
-*Derived from: AI Coding Domain Principles v2.3.2, Multi-Agent Domain Principles v2.1.1, Storytelling Domain Principles v1.1.2, Constitution v3.0.0*
+*Version 2.5.1*
+*Derived from: Constitution v8.1.0, rules-of-procedure v3.32.0*

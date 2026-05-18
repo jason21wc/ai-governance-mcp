@@ -1,5 +1,5 @@
 ---
-version: "1.4.2"
+version: "1.4.3"
 status: "active"
 effective_date: "2026-05-03"
 domain: "kmpd"
@@ -10,7 +10,7 @@ priority: 25
 governance_level: "federal-statute"
 ---
 
-# Knowledge Management & People Development Domain Principles v1.4.1
+# Knowledge Management & People Development Domain Principles v1.4.3
 ## Federal Statutes for AI-Assisted Organizational Knowledge and Capability
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
@@ -643,6 +643,7 @@ Every knowledge artifact MUST be designed to WIN the adoption competition agains
 | Non-Maleficence, Privacy & Security | Safety & Compliance Completeness (S-Series adjacent) | QA |
 | Human-AI Authority & Accountability | Verification Guidance Responsibility (AI guides, human validates) | PD |
 | Effective & Efficient Outputs | Knowledge artifacts must follow form-appropriate discipline (BLUF for summaries, scaffolded structure for Detailed KB, audience-calibrated framing for Quick References); Artifact Adoption Fitness (QA2) is the kmpd instantiation of joint-quality discipline | KA, QA |
+| Comprehension Scaffold (method, not principle) | §8 Scaffolded Complexity (content organization for learners) complemented by §16.8 comprehension scaffold (AI output comprehensibility for reviewers). Both are scaffolding — §8 scaffolds the learner; §16.8 scaffolds the reviewer | Methods §8.2 (cross-reference) |
 
 ---
 
@@ -704,7 +705,10 @@ Check all five empowerment components:
 
 ## Changelog
 
-### v1.4.2 (Current)
+### v1.4.3 (Current)
+- PATCH: Added Comprehension Scaffold crosswalk row to Meta-Principle ↔ Domain Crosswalk table. Maps E&E comprehension scaffold obligation (constitution Art. III §4, rules-of-procedure §16.8) to KM&PD domain: §8 Scaffolded Complexity (learner scaffolding) complemented by §16.8 (reviewer scaffolding). References Methods §8.2. Governance: `gov-9e0a4a5962a2`.
+
+### v1.4.2
 - PATCH: Constitutional rename propagation (BACKLOG #152). Updated crosswalk table, Constitutional Basis lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`.
 
 ### v1.4.1
@@ -739,7 +743,7 @@ Check all five empowerment components:
 
 ---
 
-*Version 1.4.0*
-*Derived from: Constitution v2.6.0, AI Coding Methods v2.27.0*
+*Version 1.4.3*
+*Derived from: Constitution v8.1.0, rules-of-procedure v3.32.0*
 *Framework: Jason Collier's Knowledge Management & People Development Framework (novel synthesis)*
 *Access: Proprietary — see framework owner for access*

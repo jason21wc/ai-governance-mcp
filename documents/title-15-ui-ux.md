@@ -1,5 +1,5 @@
 ---
-version: "1.2.2"
+version: "1.2.3"
 status: "active"
 effective_date: "2026-05-03"
 domain: "ui-ux"
@@ -1119,6 +1119,7 @@ This table maps each constitutional principle to its UI/UX domain applications:
 | Verification & Validation | WCAG AA compliance, contrast ratios, touch target sizes, CLS scores | All (validation criteria) |
 | Verification & Validation | Progressive review gates, per-component testing, responsive spot-checks | Methods §3 |
 | Effective & Efficient Outputs | Form-specific discipline for AI-generated UI specifications, design rationales, microcopy, error messages, and instruction text — communication-form discipline applies; cross-ref IX1 (Interaction Feedback) for state communication outputs | All series (output discipline) |
+| Comprehension Scaffold (method, not principle) | Comprehension scaffold for AI-generated UI artifacts — component hierarchy justification, accessibility decisions, design system interactions. Scales by review tier (§3.1). Derives from E&E comprehension scaffold obligation + rules-of-procedure §16.8 | Methods §10 |
 
 ---
 
@@ -1177,7 +1178,7 @@ This Domain Principles document establishes WHAT governance applies to UI/UX. Th
 
 | Document | Version | Coverage |
 |----------|---------|----------|
-| **title-15-ui-ux-cfr.md** | v1.1.0 | Design-to-code workflow, component library governance, design review gates, accessibility testing, responsive breakpoint strategy, cross-platform adaptation, design system documentation, AI tooling integration, domain-tool ecosystem appendix |
+| **title-15-ui-ux-cfr.md** | v1.2.0 | Design-to-code workflow, component library governance, design review gates, accessibility testing, responsive breakpoint strategy, cross-platform adaptation, design system documentation, AI tooling integration, comprehension scaffold for UI outputs, domain-tool ecosystem appendix |
 
 **Methods document includes:**
 - Section 1: Design-to-Code Workflow (Figma → implementation, design handoff, visual QA)
@@ -1189,12 +1190,16 @@ This Domain Principles document establishes WHAT governance applies to UI/UX. Th
 - Section 7: Design System Documentation (token documentation, component catalog, pattern library)
 - Section 8: AI Tooling Integration (Figma MCP, design token extraction, screenshot feedback loops)
 - Section 9: UX Content and Microcopy Governance (voice/tone consistency, error messages, microcopy quality)
+- Section 10: Comprehension Scaffold for UI Outputs (scaffold format, depth by review tier, gate integration)
 
 ---
 
 ## Changelog
 
-### v1.2.2 (Current)
+### v1.2.3 (Current)
+- PATCH: Added Comprehension Scaffold crosswalk row to Meta-Principle ↔ Domain Crosswalk table. Maps E&E comprehension scaffold obligation (constitution Art. III §4, rules-of-procedure §16.8) to UI/UX domain application: component hierarchy justification, accessibility decisions, design system interactions. References Methods §10. Governance: `gov-9e0a4a5962a2`.
+
+### v1.2.2
 - PATCH: Constitutional rename propagation (BACKLOG #152). Updated crosswalk table, Constitutional Basis lines: "Context Engineering" → "Informational Readiness" (constitution v8.0.0 principle rename). Name-string-only; no normative change. Governance: `gov-d05cd633fc20`.
 
 ### v1.2.1
@@ -1220,5 +1225,5 @@ This Domain Principles document establishes WHAT governance applies to UI/UX. Th
 
 ---
 
-*Version 1.2.0*
-*Derived from: Constitution v2.4.1, AI Coding Methods v2.18.0*
+*Version 1.2.3*
+*Derived from: Constitution v8.1.0, AI Coding Methods v2.46.0*

@@ -1,18 +1,18 @@
 ---
-version: "1.2.1"
+version: "1.3.0"
 status: "active"
 effective_date: "2026-04-14"
 domain: "kmpd"
 governance_level: "federal-regulations"
 ---
 
-# Knowledge Management & People Development Methods v1.2.0
+# Knowledge Management & People Development Methods v1.3.0
 ## Operational Procedures for AI-Assisted Organizational Knowledge and Capability
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > This methods document provides HOW-TO procedures for implementing KM&PD domain principles. It is subordinate to the domain principles document (title-25-kmpd.md), which establishes WHAT governance applies.
 
-**Version:** 1.2.1
+**Version:** 1.3.0
 **Status:** Active
 **Effective Date:** 2026-03-29
 **Governance Level:** Methods (SOPs) — subordinate to KM&PD Domain Principles
@@ -698,6 +698,8 @@ After organizing content, verify:
 - [ ] The reader can stop at any point and have a coherent (if incomplete) understanding
 - [ ] The structure mirrors the natural learning path for the role
 
+**Relationship to comprehension scaffolding:** §8 Scaffolded Complexity ensures *knowledge content itself* follows a learnable progression for end users. The complementary comprehension scaffold (rules-of-procedure §16.8) ensures *the AI's process of creating or modifying that content* is comprehensible to the human reviewer. Both are scaffolding — §8 scaffolds the learner's path through content; §16.8 scaffolds the reviewer's understanding of AI-generated output. When AI generates knowledge artifacts, apply §8 scaffolding to the content AND present a §16.8 comprehension scaffold (intent/boundaries/handoff) to the reviewer.
+
 ### 8.3 When Content Arrives Out of Order
 
 **Applies To:** processing user-provided content that arrives in non-logical order, restructuring edge-case-first content into foundation-first architecture, handling stream-of-consciousness knowledge capture
@@ -765,6 +767,7 @@ For quick routing of common scenarios to relevant methods:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.3.0 | 2026-05-17 | MINOR: §8.2 comprehension scaffold cross-reference — links §8 Scaffolded Complexity (content organization for learners) to rules-of-procedure §16.8 (comprehension scaffolding for AI output reviewers). Operationalizes E&E comprehension scaffold obligation (constitution Art. III §4) in KM&PD domain. Governance: `gov-9e0a4a5962a2`. |
 | 1.2.1 | 2026-04-14 | PATCH: Added `**Applies To:**` metadata to all method sections per Part 3.5.3 template expansion (v3.26.0). Content comprehension-based entries for retrieval discoverability. |
 | 1.2.0 | 2026-03-29 | Added §8 Scaffolded Complexity (demoted from PD3 principle). Updated principle references: TL3+QA1 merged → QA1 (Safety & Compliance Completeness), PD2 merged into KA3. |
 | 1.1.0 | 2026-03-25 | Added Situation Index (17 routing entries). Added storytelling domain cross-reference in situation index. |
@@ -772,7 +775,7 @@ For quick routing of common scenarios to relevant methods:
 
 ---
 
-*Version 1.2.1*
-*Derived from: KM&PD Domain Principles v1.3.0, Constitution v2.6.0, AI Coding Methods v2.27.0*
+*Version 1.3.0*
+*Derived from: KM&PD Domain Principles v1.4.3, Constitution v8.1.0, rules-of-procedure v3.32.0*
 *Framework: Jason Collier's Knowledge Management & People Development Framework (novel synthesis)*
 *Access: Proprietary — see framework owner for access*

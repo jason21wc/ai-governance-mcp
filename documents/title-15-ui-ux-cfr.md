@@ -1,18 +1,18 @@
 ---
-version: "1.1.0"
+version: "1.2.0"
 status: "active"
 effective_date: "2026-05-09"
 domain: "ui-ux"
 governance_level: "federal-regulations"
 ---
 
-# UI/UX Methods v1.1.0
+# UI/UX Methods v1.2.0
 ## Operational Procedures for Building Interactive Software Interfaces
 
 > **SYSTEM INSTRUCTION FOR AI AGENTS:**
 > This methods document provides HOW-TO procedures for implementing UI/UX domain principles. It is subordinate to the domain principles document (title-15-ui-ux.md), which establishes WHAT governance applies.
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Status:** Active
 **Effective Date:** 2026-05-09
 **Governance Level:** Methods (SOPs) — subordinate to UI/UX Domain Principles
@@ -1274,6 +1274,58 @@ TOOLTIPS:
 
 ---
 
+## 10 Comprehension Scaffold for UI Outputs
+
+**Importance: IMPORTANT — Operationalizes E&E comprehension obligation for UI/UX domain**
+
+**Implements:** Effective & Efficient Outputs (Art. III §4, comprehension scaffold obligation), rules-of-procedure §16.8
+
+**Applies To:** AI-generated UI artifacts — component implementations, page layouts, design system modifications, microcopy, accessibility remediation — where the human reviewer did not generate the output themselves
+
+### 10.1 UI-Specific Scaffold Format
+
+When generating non-trivial UI output, present the comprehension scaffold using the three-layer format adapted for UI context:
+
+```
+COMPREHENSION SCAFFOLD — [component/page/feature name]
+├─ INTENT: [what user need this serves; why this component structure or layout approach]
+├─ BOUNDARIES: [platform assumptions, design system scope, accessibility level targeted, browser/device constraints]
+└─ HANDOFF: [what to test in browser, where visual regression might occur, what needs design review]
+```
+
+**Domain-specific guidance:**
+- **Component hierarchy justification:** When generating multi-component structures, explain why this decomposition (not just what it does). Reference design tokens (§2.1) and atomic design level (§2.2) used.
+- **Accessibility decisions:** When WCAG compliance choices affect UX (e.g., contrast ratio limiting color palette, ARIA patterns adding complexity), surface these in the Boundaries layer.
+- **Design system interactions:** When a component extends or overrides existing design system patterns, explain the relationship in the Intent layer.
+
+### 10.2 Scaffold Depth by Review Tier
+
+Scale scaffold depth to match the review tier from §3.1 (Pre-Commit UI Review Checklist):
+
+| Review Tier | Scaffold Depth | When |
+|-------------|---------------|------|
+| Tier 1 (Quick) | Single sentence covering all three layers | Minor styling, text-only changes |
+| Tier 2 (Standard) | Full three-layer scaffold | New components, layout changes, accessibility modifications |
+| Tier 3 (Full) | Full scaffold + explicit design system impact + cross-platform notes | Design system changes, new page types, accessibility architecture |
+
+Within any tier, task stakes can override upward per §16.8.3.
+
+### 10.3 Integration with Existing Gates
+
+The comprehension scaffold fires at the same checkpoint as §3.1 (Pre-Commit UI Review):
+- Scaffold is presented **before** the review checklist
+- The scaffold informs the review — a reviewer who understands intent can evaluate more effectively
+- The scaffold does not replace the review checklist; it complements it
+
+**Human Response Taxonomy:** Per §16.8.5 — Understood / Acknowledged / Explain / Continue (no explicit response, treated as Acknowledged). The gate never blocks.
+
+**Anti-patterns (domain-specific):**
+- **The Component Dump:** Generating 10+ components with a single generic scaffold instead of per-component or per-logical-group scaffolds
+- **Token Omission:** Scaffold describes visual appearance but doesn't reference which design tokens or system patterns it uses
+- **Accessibility Afterthought:** Mentioning accessibility only in the Handoff layer ("test with screen reader") instead of surfacing accessibility choices in Intent/Boundaries
+
+---
+
 ## Situation Index
 
 For quick routing of common scenarios to relevant methods:
@@ -1287,6 +1339,7 @@ For quick routing of common scenarios to relevant methods:
 | "Building for iOS/Android" | §6.1 (Platform Reference), §6.2 (Decision Matrix), §6.3 (Testing) |
 | "Setting up a design system" | §2.1 (Tokens), §7.1 (Token Docs), §7.2 (Component Catalog) |
 | "Integrating with Figma" | §8.1 (Figma MCP), §8.2 (Token Extraction) |
+| "Reviewing AI-generated UI output" | §10.1 (Scaffold Format), §10.2 (Depth by Tier), §3.1 (Review Checklist) |
 | "Reviewing AI-generated UI" | §3.1 (Review Checklist), §8.4 (Guardrails), §4.3 (Automated Scan) |
 | "Design tokens and consistency" | §2.1 (Token Management), §2.4 (Gap Reporting), §7.1 (Documentation) |
 | "Form design and validation" | §3.1 (Review), §4.1 (WCAG 3.3.x), §5.3 (Touch Targets) |
@@ -1342,7 +1395,10 @@ The following tools are tracked as prospective per §3.1.4 (Prospective Tools ru
 
 ## Changelog
 
-### v1.1.0 (Current)
+### v1.2.0 (Current)
+- MINOR: §10 Comprehension Scaffold for UI Outputs — domain-specific operationalization of E&E comprehension scaffold obligation (constitution Art. III §4, rules-of-procedure §16.8). Three subsections: §10.1 UI-specific scaffold format (component hierarchy, accessibility decisions, design system interactions), §10.2 depth scaling by review tier (maps to §3.1 Pre-Commit Review tiers), §10.3 integration with existing gates (human response taxonomy, domain anti-patterns). Situation Index routing entry added. Governance: `gov-9e0a4a5962a2`.
+
+### v1.1.0
 - MINOR: Added Appendix A (Optional Design Ecosystem Tools) — domain-tool governance pattern with Figma MCP full entry and 4 named references (Open Design, Open CoDesign, Axe MCP, Storybook MCP). Forward reference from §8. Situation Index routing entry. Closes BACKLOG #10. Governance: `gov-b7aa212852a3`.
 
 ### v1.0.1
@@ -1359,6 +1415,6 @@ The following tools are tracked as prospective per §3.1.4 (Prospective Tools ru
 
 ---
 
-*Version 1.1.0*
-*Companion to: UI/UX Domain Principles v1.0.0*
+*Version 1.2.0*
+*Companion to: UI/UX Domain Principles v1.2.3*
 *Process gates: AI-Coding Methods §2.4, §2.5*

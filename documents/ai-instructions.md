@@ -1,5 +1,5 @@
 ---
-version: "4.1.0"
+version: "4.1.1"
 status: "active"
 effective_date: "2026-05-14"
 domain: "meta"
@@ -8,7 +8,7 @@ governance_level: "framework-activation"
 
 # AI Governance Framework Activation
 
-**Version:** 4.1.0
+**Version:** 4.1.1
 **Purpose:** Loader document that activates the governance framework for AI sessions.
 **Updated:** 2026-05-17
 
@@ -178,14 +178,14 @@ This loader is designed for use with:
 - title-20-multi-agent-cfr.md v2.18.0+
 - title-30-storytelling.md v1.4.2+
 - title-30-storytelling-cfr.md v1.1.3+
-- title-15-ui-ux.md v1.2.2+
-- title-15-ui-ux-cfr.md v1.1.0+
-- title-25-kmpd.md v1.4.2+
+- title-15-ui-ux.md v1.2.3+
+- title-15-ui-ux-cfr.md v1.2.0+
+- title-25-kmpd.md v1.4.3+
 - title-22-accounting.md v1.0.0+
 - title-22-accounting-cfr.md v1.0.0+
-- title-25-kmpd-cfr.md v1.2.0+
-- title-40-multimodal-rag.md v2.5.0+
-- title-40-multimodal-rag-cfr.md v2.2.0+
+- title-25-kmpd-cfr.md v1.3.0+
+- title-40-multimodal-rag.md v2.5.1+
+- title-40-multimodal-rag-cfr.md v2.3.0+
 </document_versions>
 
 ---
@@ -194,6 +194,7 @@ This loader is designed for use with:
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 4.1.1 | 2026-05-17 | **PATCH: Comprehension Scaffold Phase 3 — 6 domain pin updates.** title-15-ui-ux-cfr.md v1.1.0+ → v1.2.0+ (new §10 Comprehension Scaffold for UI Outputs: scaffold format, depth by review tier, gate integration). title-40-multimodal-rag-cfr.md v2.2.0+ → v2.3.0+ (new §6.5 RAG System Comprehension Handoff: embedding/retrieval/threshold/KG scaffold). title-25-kmpd-cfr.md v1.2.0+ → v1.3.0+ (§8.2 cross-reference linking content scaffolding to comprehension scaffolding). title-15-ui-ux.md v1.2.2+ → v1.2.3+, title-25-kmpd.md v1.4.2+ → v1.4.3+, title-40-multimodal-rag.md v2.5.0+ → v2.5.1+ (crosswalk row additions). PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-9e0a4a5962a2`. |
 | 4.1.0 | 2026-05-17 | **MINOR: Comprehension Scaffold Initiative — 4 pin updates.** constitution.md v8.0.0+ → v8.1.0+ (2 new E&E operational bullets: comprehension scaffold obligation + engagement-depth choice). rules-of-procedure.md v3.31.6+ → v3.32.0+ (new §16.8 Comprehension Scaffold Format meta-method). title-10-ai-coding.md v2.8.1+ → v2.9.0+ (crosswalk row, table header broadened). title-10-ai-coding-cfr.md v2.45.1+ → v2.46.0+ (6 domain method modifications: Comprehensible task characteristic, generation chunk size, quality standard + lifecycle table + comment policy, linear walkthrough proactive extension, comprehension gate). MINOR-on-MINOR per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-aa596dedcd00`. |
 | 4.0.8 | 2026-05-15 | PATCH: title-40-multimodal-rag.md pin update v2.4.3+ → v2.5.0+ for A5 Knowledge Graph Integration expansion (community detection, ingest-time synthesis, cost awareness, 2 new pitfalls). title-40-multimodal-rag-cfr.md pin update v2.1.3+ → v2.2.0+ for §3.8 targeted fixes (static formula replaced, graph quality metrics, 8 Appendix C references). PATCH-on-MINOR per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-e44fee2d1c0c`. |
 | 4.0.7 | 2026-05-14 | PATCH: rules-of-procedure.md pin update v3.31.5+ → v3.31.6+ for modular domain architecture documentation propagation (~20 references updated to reflect filesystem-based domain discovery as primary mechanism, `domains.json` demoted to optional override). PATCH-on-PATCH per BACKLOG #130 canonical pin-discipline rule. Governance: `gov-378e7aa4148a`. |

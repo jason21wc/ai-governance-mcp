@@ -1,5 +1,5 @@
 ---
-description: Run the governance compliance review workflow — 13 checks covering hook integrity, enforcement mode, effectiveness tracking, behavioral canary prompts, MCP health, OOM gate activity, permission coverage, backlog staleness, constitutional register integrity, CI storage budget, feedback loop health, and constraint retirement. Cadence is every 10-15 days or immediately after hook/behavioral-floor modifications.
+description: Run the governance compliance review workflow — 13 checks covering hook integrity, enforcement mode, effectiveness tracking, behavioral canary prompts, MCP health, OOM gate activity, permission coverage, backlog staleness, constitutional register integrity, CI storage budget, feedback loop health, constraint retirement, and comprehension debt tracking. Cadence is every 10-15 days or immediately after hook/behavioral-floor modifications.
 disable-model-invocation: true
 allowed-tools: Bash Read Edit Agent
 ---
@@ -25,7 +25,7 @@ echo "60-day cutoff: $CUTOFF"
 
 You are running a governance compliance review. This skill folder contains all procedure and data files:
 
-- **`procedure.md`** — check definitions 1-12, pass/fail criteria, review history tables (read this first)
+- **`procedure.md`** — check definitions 1-13, pass/fail criteria, review history tables (read this first)
 - **`audit-log.md`** — Review Log summary table, Security Currency Reviews, Governance Performance Metrics
 - **`verification.md`** — active and retired V-series verification items
 
@@ -37,7 +37,7 @@ You are running a governance compliance review. This skill folder contains all p
 
 3. **Determine the next review number** from the Review Log table in `audit-log.md`.
 
-4. **Execute each Ongoing Check (1 through 12)** in order. For each check:
+4. **Execute each Ongoing Check (1 through 13)** in order. For each check:
    - Read the check definition and pass/fail criteria from `procedure.md`
    - Run the required commands (many are pre-populated in the Context Snapshot above)
    - Evaluate the result against the criteria

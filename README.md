@@ -69,12 +69,12 @@ Domains are **modular and self-describing**. The system discovers domains automa
 
 | Domain | Principles | Methods | Coverage |
 |--------|------------|---------|----------|
-| **Constitution** | 24 | 224 | Universal AI behavior, safety, quality |
-| **AI Coding** | 15 | 268 | Software development, testing, deployment |
+| **Constitution** | 24 | 231 | Universal AI behavior, safety, quality |
+| **AI Coding** | 15 | 269 | Software development, testing, deployment |
 | **Multi-Agent** | 17 | 54 | Agent orchestration, handoffs, autonomous operation |
 | **Storytelling** | 15 | 42 | Creative writing, narrative, voice preservation |
-| **Multimodal RAG** | 32 | 64 | Image retrieval, visual presentation, agentic retrieval |
-| **UI/UX** | 20 | 43 | Visual hierarchy, accessibility, interaction design |
+| **Multimodal RAG** | 32 | 65 | Image retrieval, visual presentation, agentic retrieval |
+| **UI/UX** | 20 | 47 | Visual hierarchy, accessibility, interaction design |
 | **KM&PD** | 10 | 40 | Knowledge management, people development, training |
 | **Accounting** | 12 | 29 | Double-entry bookkeeping, reconciliation, tax prep, QBO integration |
 
