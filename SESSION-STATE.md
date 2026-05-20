@@ -1,6 +1,6 @@
 # Session State
 
-**Last Updated:** 2026-05-18 (session-182 — BACKLOG #48 `/test-suite` global skill shipped).
+**Last Updated:** 2026-05-19 (session-182 continued — BACKLOG #48 `/doc-gen` global skill shipped).
 
 **Memory Type:** Working (transient)
 **Lifecycle:** Prune at session start per §7.0.4
@@ -12,13 +12,13 @@
 
 ## RESUMPTION — Where to Pick Up (read this first)
 
-**Session-182 (2026-05-18) — BACKLOG #48 `/test-suite` global skill shipped.**
+**Session-182 (2026-05-18/19) — BACKLOG #48 `/test-suite` + `/doc-gen` global skills shipped.**
 
 **ACTION ON RESUME (session-183):** Time-cued: **Compliance Review #9** (~2026-05-22–2026-05-27, includes first Check 12 constraint retirement review + Check 7b first review + first Check 13 comprehension debt tracking). **C-109 deferred-cadence audit** (~2026-05-25). **C-012 Security Posture Review** first due ~2026-08-08. Monitor Claude App enforcement proxy effectiveness (soft mode deployed session-173). Observe whether reference library capture check (item 18) produces proposals — validates BACKLOG #41 Phase 1 hypothesis.
 
 **Critical state for next session:**
-- **`/test-suite` global skill shipped** — 4th global skill. 3-phase protocol (generate → verify → revise) shaped by contrarian review. Phase 2 (verify) is the skill's core value: echo-chamber detection, error-path balance, mutation mindset. Auto-detects pytest/vitest/jest/playwright/go/rust. No MCP dependency.
-- **Backlog: 7 discussion items** — #6, #11, #41, #45, #46, #47, #48. #48 partially shipped (3 of 8 skills); remaining skills stay in Discussion.
+- **`/test-suite` + `/doc-gen` global skills shipped** — 5th and 6th global skills (8 total). Both use 3-phase (generate → verify → revise). `/doc-gen` key differentiator: **tool-assisted verification** (grep/read as oracle, not self-attestation). Output distinguishes mechanically-verified from self-reviewed claims.
+- **Backlog: 7 discussion items** — #6, #11, #41, #45, #46, #47, #48. #48 partially shipped (5 of 8 skills); remaining skills (`/pre-commit`, `/architecture-review`, `/refactor-audit`) stay in Discussion.
 - **#41 Phase 1 observation window still open** — shipped session-174.
 - **Claude App enforcement proxy** — soft mode deployed session-173.
 
@@ -26,7 +26,7 @@
 
 ## Current Position
 
-- **Phase:** Session-182 (2026-05-18) — BACKLOG #48 `/test-suite` global skill.
+- **Phase:** Session-182 (2026-05-18/19) — BACKLOG #48 `/test-suite` + `/doc-gen` global skills.
 - **Mode:** Normal operation.
 - **Active Task:** None. Next: Compliance Review #9 (~2026-05-22), C-109 deferred-cadence audit (~2026-05-25).
 
@@ -46,7 +46,7 @@
 | License | **Apache-2.0** (code), **CC-BY-NC-ND-4.0** (framework content) |
 | Index | **145 principles + 777 methods + 27 references** (949 total) |
 | Subagents | **10** (code-reviewer, coherence-auditor, continuity-auditor, contrarian-reviewer, documentation-writer, orchestrator, security-auditor, test-generator, validator, voice-coach) |
-| Skills | **7** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`, `/code-review` (global), `/security-scan` (global), `/test-suite` (global)) |
+| Skills | **8** (`/compliance-review`, `/completion-sequence`, `/test-authoring`, `/content-enhancer`, `/code-review` (global), `/security-scan` (global), `/test-suite` (global), `/doc-gen` (global)) |
 | Hooks | **7** (PostToolUse CI, UserPromptSubmit governance+CE inject, PreToolUse governance+CE check, PreToolUse pre-push quality gate, PreToolUse pre-test OOM gate, PreToolUse pre-exit-plan-mode gate, PreToolUse content-security Layer 2) |
 | CI | Last push: session-181. Session-182 unpushed. |
 
@@ -54,11 +54,12 @@
 
 ## Last Session (2026-05-18)
 
-182. **Session-182 (2026-05-18): BACKLOG #48 `/test-suite` global skill shipped.**
-   - **`/test-suite` global skill** — 4th global skill (7th skill total). 3-phase protocol (generate → verify → revise) shaped by contrarian review. Contrarian identified that original 7-step protocol replicated Claude's native capabilities in Steps 1-4; restructured to center Phase 2 (verify) as the skill's core value. Three mandatory self-checks: echo-chamber detection (specification-based assertions), error-path balance (weighted guidance with domain sensitivity), mutation mindset (single-character mutation coverage).
-   - Auto-detects pytest/vitest/jest/playwright/go/rust. Framework-specific idioms inline. No MCP dependency (optional governance enhancement gated on availability).
-   - Files: `global-skills/test-suite/SKILL.md` + `procedure.md`. Installed to `~/.claude/skills/test-suite/`.
-   - **Contrarian-reviewer** shaped the design pre-plan-approval: dropped audit mode (v2), softened error-path constraint, restructured from 7-step to 3-phase.
+182. **Session-182 (2026-05-18/19): BACKLOG #48 — `/test-suite` + `/doc-gen` global skills shipped.**
+   - **`/test-suite` global skill** — 4th global skill (7th skill total). 3-phase protocol (generate → verify → revise) shaped by contrarian review. Contrarian identified that original 7-step protocol replicated Claude's native capabilities in Steps 1-4; restructured to center Phase 2 (verify) as the skill's core value. Three mandatory self-checks: echo-chamber detection, error-path balance, mutation mindset. Auto-detects pytest/vitest/jest/playwright/go/rust. No MCP dependency.
+   - **`/doc-gen` global skill** — 5th global skill (8th skill total). 3-phase protocol (classify+generate → verify → revise). Key contrarian insight: self-review verification creates false confidence (same model that generated errors reviews for them). Differentiator: **tool-assisted verification** — grep/read commands as oracle to mechanically confirm factual claims. Output honestly distinguishes mechanically-verified claims from self-reviewed claims. Four checks: claim verification (tool-assisted), example validation (tool-assisted), padding/value (self-review), completeness/omission. Source: documentation-writer subagent + industry research (Diátaxis, Mintlify/Swimm, hallucination taxonomy).
+   - Files: `global-skills/test-suite/` + `global-skills/doc-gen/` (SKILL.md + procedure.md each). Installed to `~/.claude/skills/`.
+   - **Contrarian-reviewer** shaped both designs pre-plan-approval. `/doc-gen` contrarian identified 2 verdict-changing concerns (self-review ≠ verification, PASS/FAIL confidence trap) + 3 supporting (replace quadrant purity with completeness check, remove framework detection table, trim to corrective constraints).
+   - **Research agent** surfaced industry patterns: hallucination taxonomy (66% total fabrication), Mintlify/Swimm verification-post-generation pattern, specification-matching framing (Kleppmann 2025).
    - **Index:** 145 principles + 777 methods + 27 references = 949 total. 1728 tests passing.
 
 ---
